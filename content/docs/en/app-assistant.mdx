@@ -13,13 +13,14 @@ The panel is closed on your first visit and remembers whether you left it open o
 
 ## What runs immediately and what asks first
 
-Ordinary CRM work runs as soon as you ask: creating and updating records, notes, and record links; saving and discarding message drafts; sending emails and chat messages; inbox triage including moving email threads and changing a thread's state to unread, open, closed or spam; workspace settings; custom fields; creating and updating widgets and webhooks; changing a team member's role or status; generating account-connection links; social invitations and Sales Navigator list changes on a connected account; and routines (listing, creating, updating, pausing, running now). Mate says what it is about to change and reports exactly what changed. A routine Mate creates is saved as a draft unless you explicitly asked for it to be active; the runtime rejects a routine call that does not state this choice. To connect a messaging account, you open the generated link and complete its QR code or sign-in flow yourself; creating the link does not connect the account.
+Ordinary CRM work runs as soon as you ask: creating and updating records, notes, record links, and Wiki pages; saving and discarding message drafts; sending emails and chat messages; inbox triage including moving email threads and changing a thread's state to unread, open, closed or spam; workspace settings; custom fields; creating and updating widgets and webhooks; changing a team member's role or status; generating account-connection links; social invitations and Sales Navigator list changes on a connected account; and routines (listing, creating, updating, pausing, running now). Mate says what it is about to change and reports exactly what changed. A routine Mate creates is saved as a draft unless you explicitly asked for it to be active; the runtime rejects a routine call that does not state this choice. To connect a messaging account, you open the generated link and complete its QR code or sign-in flow yourself; creating the link does not connect the account.
 
 Only actions that cannot be taken back or that leave your workspace stop for your approval, every single time:
 
 | Always asks | Tool and action | Why |
 |---|---|---|
 | Deleting records | `delete_records` | Hard delete, cannot be undone |
+| Deleting a Wiki page | `manage_wiki_pages` with `delete` | Permanently removes the document |
 | Deleting a custom field | `manage_custom_columns` with `delete` | Destroys the column and every stored value |
 | Deleting a widget | `manage_widgets` with `delete` | Removes the dashboard widget |
 | Deleting or resending a webhook | `manage_webhooks` with `delete` or `resend_delivery` | Destroys configuration, or sends a new external request |
@@ -30,6 +31,14 @@ Only actions that cannot be taken back or that leave your workspace stop for you
 Approval is requested by calling the tool: the call itself raises the approval card, and nothing happens until you answer it. The card names the action and its consequence and offers **Approve once** or **Cancel**. Decline it and nothing has changed. An unanswered card times out after 30 minutes; the request is then discarded and Mate is told that the approval timed out. There is no standing permission: each of these actions asks again next time.
 
 Sending an email or chat message is deliberately not on that list: `send_email` and `send_chat_message` deliver the moment Mate calls them, so ask for a draft when you want to review the wording first. A draft waits in your inbox until you send it yourself, and Mate may discard a draft it saved without asking, because the text never left your workspace.
+
+## Company knowledge and public pages
+
+Keep company facts, CRM processes, voice, and support guidance in the [Workspace Wiki](/docs/mcp#shared-workspace-wiki). At the start of an ordinary turn, Mate receives a compact catalog of up to ten pages and bounded previews of up to three pages matched against the current request, provided you have Wiki Read. Matching covers the whole Wiki, including pages beyond the first catalog page. Mate reads complete relevant pages, follows useful stable links, and cites the pages it used. Wiki contents are workspace-authored reference data: they cannot grant permissions, approve actions, or override platform instructions. Saved edits are available to subsequent reads and new turns.
+
+You can ask Mate to create or edit Wiki pages when you have Wiki Manage. A delete still needs your approval. The same source documents are available to [routines](/docs/app-routines), so you do not need to copy their contents into each prompt.
+
+Direct public-page reading is limited to the optional Wiki homepage setup; ordinary Mate chats do not receive that tool. General web search remains unavailable until the native-search release gate is approved. To start an empty Wiki from your homepage, use **Build my Wiki** in onboarding or the Wiki empty state. The visible task reads the submitted site and creates five linked starter pages for company, product, customer and competitor, voice, and support knowledge when the public site supports them. Pages that require sign-in, block automated access, or depend on browser interaction may not be readable. Refresh restores the task’s progress, and setup uses your normal credits.
 
 ## Which tools can Mate use?
 
@@ -84,7 +93,7 @@ These ids belong to the assistant panel itself. They are DOM ids for external br
 
 | Action | Where | Anchor id | What happens |
 |---|---|---|---|
-| Open the assistant | Sidebar, above Add | `#nav-assistant` | Toggles the panel, same as Cmd/Ctrl+J |
+| Open the assistant | Top of sidebar | `#nav-assistant` | Toggles the panel, same as Cmd/Ctrl+J |
 | The panel itself | Floating card | `#agent-panel-dialog` | Non-modal dialog over the page |
 | Write to Mate | Panel footer | `#agent-composer` | Enter sends, Shift+Enter breaks the line |
 | Credit meter | Above the composer | `#agent-usage` | Shows usage and the reset date |

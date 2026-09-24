@@ -14,17 +14,19 @@ import {
   Quote,
   Heading1,
   Heading2,
+  Heading3,
   Table as TableIcon,
   Image as ImageIcon,
 } from "lucide-react";
 import { useTranslations } from "next-intl";
-import { useMemo, useState } from "react";
+import { useContext, useMemo, useState } from "react";
 
 import { Button } from "@/components/ui/button";
 import { Command, CommandEmpty, CommandGroup, CommandInput, CommandItem, CommandList } from "@/components/ui/command";
 import { Input } from "@/components/ui/input";
 
 import { EditorFloatingMenu } from "./editor-floating-menu";
+import { EditorLinkPickerContext, insertEditorLink } from "./editor-link-picker";
 
 type UrlCommandKey = "image" | "link";
 
@@ -45,6 +47,7 @@ export function SlashMenu({ editor, anchorRect, onClose }: Props) {
   const t = useTranslations();
   const [urlCommand, setUrlCommand] = useState<UrlCommandKey | null>(null);
   const [url, setUrl] = useState("");
+  const LinkPicker = useContext(EditorLinkPickerContext);
 
   const trimmedUrl = url.trim();
 
@@ -56,7 +59,11 @@ export function SlashMenu({ editor, anchorRect, onClose }: Props) {
     if (urlCommand === "image") chain.setImage({ src: trimmedUrl }).run();
     else if (editor.state.selection.empty) {
       chain
-        .insertContent({ type: "text", text: trimmedUrl, marks: [{ type: "link", attrs: { href: trimmedUrl } }] })
+        .insertContent({
+          type: "text",
+          text: trimmedUrl,
+          marks: [{ type: "link", attrs: { href: trimmedUrl } }],
+        })
         .run();
     } else chain.extendMarkRange("link").setLink({ href: trimmedUrl }).run();
 
@@ -78,6 +85,12 @@ export function SlashMenu({ editor, anchorRect, onClose }: Props) {
         title: t("Editor.heading2"),
         icon: Heading2,
         run: () => chain().toggleHeading({ level: 2 }).run(),
+      },
+      {
+        key: "heading3",
+        title: t("Editor.heading3"),
+        icon: Heading3,
+        run: () => chain().toggleHeading({ level: 3 }).run(),
       },
       {
         key: "normalText",
@@ -153,37 +166,50 @@ export function SlashMenu({ editor, anchorRect, onClose }: Props) {
       onRestoreFocus={() => editor.view.focus()}
     >
       {urlCommand ? (
-        <div className="flex w-full items-center gap-1 p-2">
-          <Input
-            autoFocus
-            placeholder={urlCommand === "image" ? t("Editor.imageUrlPrompt") : t("Editor.urlPlaceholder")}
-            type="url"
-            value={url}
-            onChange={(event) => setUrl(event.target.value)}
-            onKeyDown={(event) => {
-              if (event.key === "Enter") {
-                event.preventDefault();
-                applyUrlCommand();
-              }
+        <div className="w-full p-2">
+          <div className="flex items-center gap-1">
+            <Input
+              autoFocus
+              placeholder={urlCommand === "image" ? t("Editor.imageUrlPrompt") : t("Editor.urlPlaceholder")}
+              type="url"
+              value={url}
+              onChange={(event) => setUrl(event.target.value)}
+              onKeyDown={(event) => {
+                if (event.key === "Enter") {
+                  event.preventDefault();
+                  applyUrlCommand();
+                }
 
-              if (event.key === "Escape") {
-                event.preventDefault();
-                setUrlCommand(null);
-                setUrl("");
-              }
-            }}
-          />
+                if (event.key === "Escape") {
+                  event.preventDefault();
+                  setUrlCommand(null);
+                  setUrl("");
+                }
+              }}
+            />
 
-          <Button
-            aria-label={t("Editor.confirm")}
-            disabled={!trimmedUrl}
-            size="icon-sm"
-            type="button"
-            variant="default"
-            onClick={applyUrlCommand}
-          >
-            <Check />
-          </Button>
+            <Button
+              aria-label={t("Editor.confirm")}
+              disabled={!trimmedUrl}
+              size="icon-sm"
+              type="button"
+              variant="default"
+              onClick={applyUrlCommand}
+            >
+              <Check />
+            </Button>
+          </div>
+
+          {urlCommand === "link" && LinkPicker && (
+            <div className="mt-2 border-t border-border pt-2">
+              <LinkPicker
+                onSelect={(link) => {
+                  insertEditorLink(editor, link);
+                  onClose();
+                }}
+              />
+            </div>
+          )}
         </div>
       ) : (
         <Command>

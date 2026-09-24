@@ -39,10 +39,10 @@ const GUARD_EXEMPT_MODELS = new Set([
 
 const REACHED_ONLY_FROM_BYPASSED_CALLERS = new Set([
   "core/auth/better-auth.ts:83",
-  "features/user/prisma-user.repository.ts:656",
-  "features/user/prisma-user.repository.ts:666",
-  "features/user/prisma-user.repository.ts:676",
-  "features/user/prisma-user.repository.ts:686",
+  "features/user/prisma-user.repository.ts:673",
+  "features/user/prisma-user.repository.ts:683",
+  "features/user/prisma-user.repository.ts:693",
+  "features/user/prisma-user.repository.ts:703",
 ]);
 
 type WriteSite = {
@@ -72,9 +72,7 @@ function enclosingMethod(node: ts.Node): ts.MethodDeclaration | undefined {
 function declaresBypass(method: ts.MethodDeclaration): boolean {
   return (method.modifiers ?? []).some(
     (modifier) =>
-      ts.isDecorator(modifier) &&
-      ts.isIdentifier(modifier.expression) &&
-      modifier.expression.text === BYPASS_DECORATOR,
+      ts.isDecorator(modifier) && ts.isIdentifier(modifier.expression) && modifier.expression.text === BYPASS_DECORATOR,
   );
 }
 

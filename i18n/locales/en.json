@@ -62,6 +62,9 @@
         "widgets": {
           "configure": "Ready to change dashboard widgets",
           "delete": "Ready to permanently delete a dashboard widget"
+        },
+        "workspace": {
+          "configure": "Ready to permanently delete this Wiki page"
         }
       },
       "cancelled": "Stopped",
@@ -104,6 +107,7 @@
       "countedResource": "{count} {resource}",
       "countedSingular": "1 {resource}",
       "defaultRecords": "records",
+      "defaultWebsitePage": "a website page",
       "label": {
         "preview": "Preview",
         "subject": "Subject",
@@ -117,7 +121,8 @@
         "services": "services",
         "tasks": "tasks",
         "terminology": "workspace terminology",
-        "widgets": "dashboard widgets"
+        "widgets": "dashboard widgets",
+        "wiki": "Wiki pages"
       },
       "resourceSingular": {
         "contacts": "contact",
@@ -127,7 +132,8 @@
         "services": "service",
         "tasks": "task",
         "terminology": "workspace term",
-        "widgets": "dashboard widget"
+        "widgets": "dashboard widget",
+        "wiki": "Wiki page"
       },
       "state": {
         "accounts": {
@@ -317,6 +323,18 @@
             "running": "Loading more tools"
           }
         },
+        "web": {
+          "read": {
+            "done": "Read {target}",
+            "error": "Couldn’t read {target}",
+            "running": "Reading {target}"
+          },
+          "search": {
+            "done": "Searched the web",
+            "error": "Couldn’t search the web",
+            "running": "Searching the web"
+          }
+        },
         "webhooks": {
           "manage": {
             "done": "Completed the webhook action",
@@ -387,7 +405,7 @@
       "cancelled": "Cancelled",
       "reject": "Rejected",
       "rejectAction": "Cancel",
-      "resuming": "Decision saved — Mate is continuing…",
+      "resuming": "Decision saved. Mate is continuing…",
       "retryResume": "Mate could not resume yet. Retry the same decision.",
       "timeout": "Timed out without a response",
       "title": "Mate wants to run:"
@@ -736,6 +754,36 @@
               "prompt": "Show me around tasks and explain how they connect to contacts, organizations, deals, and services."
             }
           }
+        },
+        "wiki": {
+          "data": {
+            "create-wiki-page": {
+              "label": "Create a Wiki page",
+              "prompt": "Help me create a new Workspace Wiki page. Ask what company process, product knowledge, support guidance, or voice guidance Mate and connected AI tools need, then create it after I confirm."
+            },
+            "wiki-gaps": {
+              "label": "Find knowledge gaps",
+              "prompt": "Review our Workspace Wiki and identify the most important missing, outdated, or conflicting knowledge. Do not make changes."
+            },
+            "wiki-summary": {
+              "label": "Summarize the Wiki",
+              "prompt": "Summarize our Workspace Wiki, including the key company processes, product knowledge, support guidance, and voice guidance it contains."
+            }
+          },
+          "empty": {
+            "first-wiki-page": {
+              "label": "Create my first Wiki page",
+              "prompt": "Help me create the first page in our Workspace Wiki. Ask what company process, product knowledge, support guidance, or voice guidance Mate and connected AI tools need, then create it after I confirm."
+            },
+            "wiki-structure": {
+              "label": "Suggest a Wiki structure",
+              "prompt": "Review my workspace and suggest three to five useful Workspace Wiki pages. Do not create anything yet."
+            },
+            "wiki-tour": {
+              "label": "Learn how the Wiki works",
+              "prompt": "Explain how the Workspace Wiki is used by Mate, routines, and connected AI tools, including links and permissions. Do not make changes."
+            }
+          }
         }
       },
       "readOnly": {
@@ -812,6 +860,8 @@
       "undo": "Undo",
       "untitled": "New chat",
       "waitElapsed": "{seconds}s elapsed",
+      "websiteSourcesRunning": "{count, plural, one {Reading 1 website page for your Wiki} other {Reading # website pages for your Wiki}}",
+      "websiteWikiComplete": "{count, plural, one {Built your starter Wiki from 1 website page} other {Built your starter Wiki from # website pages}}",
       "workingOnRequest": "Working on your request…"
     }
   },
@@ -862,6 +912,7 @@
       "effectiveAt": "Effective from",
       "emails": "Email addresses",
       "isNewCompany": "First user in the workspace",
+      "markdown": "Markdown",
       "postalCode": "Postal code",
       "prompt": "Instructions",
       "recipientEmail": "Sent to",
@@ -1222,7 +1273,10 @@
       "widgetKindImmutable": "A widget's type cannot be changed after it is created.",
       "widgetNotFound": "Widget ID not found or not accessible.",
       "widgetTaskCanOnlyGroupByCustomColumn": "Tasks can only be grouped by custom columns, not by element types.",
-      "widgetWeightedValueNotAllowedForService": "Weighted value aggregation is not allowed for Service element type."
+      "widgetWeightedValueNotAllowedForService": "Weighted value aggregation is not allowed for Service element type.",
+      "wikiNotEmpty": "Workspace Wiki setup can only run when the Wiki is empty.",
+      "wikiPageConflict": "This Wiki page changed after you opened it. Reload it and try again.",
+      "wikiPageNotFound": "Wiki page not found or not accessible."
     },
     "events": {
       "company": {
@@ -1315,6 +1369,11 @@
         "created": "Webhook Created",
         "deleted": "Webhook Deleted",
         "updated": "Webhook Updated"
+      },
+      "wiki_page": {
+        "created": "Wiki Page Created",
+        "deleted": "Wiki Page Deleted",
+        "updated": "Wiki Page Updated"
       }
     },
     "filters": {
@@ -2119,6 +2178,7 @@
     "formatting": "Formatting",
     "heading1": "Heading 1",
     "heading2": "Heading 2",
+    "heading3": "Heading 3",
     "image": "Image",
     "imageUrlPrompt": "Enter image URL",
     "italic": "Italic",
@@ -2684,9 +2744,6 @@
     "title": "Upgrade to unlock messaging"
   },
   "NavigationBar": {
-    "addEntity": "Add {entity}",
-    "addPickerDescription": "Pick the type of record you want to create.",
-    "addPickerTitle": "Create new…",
     "admin": "Admin",
     "affiliate": "Affiliate Program",
     "connectedAccounts": "Channels",
@@ -2749,6 +2806,7 @@
     "search": "Search",
     "settings": "Settings",
     "subscription": "Subscription",
+    "wiki": "Wiki",
     "workspace": "Workspace"
   },
   "NotFoundPage": {
@@ -2911,6 +2969,10 @@
         "invitedSubtitle": "Complete your profile to request access to the invited workspace.",
         "subtitle": "Tell us who you are so we can set up your workspace.",
         "title": "Your profile"
+      },
+      "wiki": {
+        "subtitle": "Add your company website. Mate turns what it can verify into editable Wiki pages for Mate and the AI tools you connect.",
+        "title": "Give Mate your company context"
       }
     }
   },
@@ -3150,6 +3212,10 @@
     "resetPasswordCta": "Reset",
     "title": "Reset your password"
   },
+  "ResizablePanels": {
+    "hint": "Drag to resize. Double-click to reset.",
+    "resize": "Resize {before} and {after}. Drag or use arrow keys to resize; double-tap or press Enter to reset."
+  },
   "RoleModal": {
     "manageAccess": "Manage",
     "no": "No",
@@ -3170,7 +3236,8 @@
       "routines": "Routines",
       "services": "Services",
       "tasks": "Tasks",
-      "users": "Users & Roles"
+      "users": "Users & Roles",
+      "wiki": "Workspace Wiki"
     },
     "systemAlert": "This is a system role and cannot be edited or deleted.",
     "systemDescription": "Full access to all features and settings. Cannot be modified or deleted.",
@@ -3569,5 +3636,93 @@
     "emptyBody": "Add a webhook to send workspace events to your systems.",
     "emptyTitle": "No webhooks yet",
     "title": "Webhooks"
+  },
+  "Wiki": {
+    "conflict": "This page has changed. Your edits are still here. Reload to use the latest version.",
+    "copyLink": "Copy page link",
+    "delete": "Delete page",
+    "document": "Document",
+    "emptyBody": "Give Mate and connected AI tools the company knowledge, processes, and guidance they need.",
+    "emptyBodyReadOnly": "No Wiki pages have been created yet.",
+    "emptyTitle": "Your Workspace Wiki is empty",
+    "linkPage": "Link to a Wiki page…",
+    "loadFailed": "Pages could not be loaded.",
+    "newPage": "New page",
+    "next": "Next",
+    "noResults": "No matching pages.",
+    "onThisPage": "On this page",
+    "page": "Page {current} of {total}",
+    "pageActions": "Page actions",
+    "pagesLabel": "Wiki pages",
+    "pageTitle": "Page title",
+    "previous": "Previous",
+    "reload": "Reload page",
+    "save": "Save",
+    "search": "Search pages…",
+    "unavailableBody": "This page was deleted or you do not have access to it. Choose another page.",
+    "unavailableTitle": "Page unavailable",
+    "untitled": "Untitled page"
+  },
+  "WikiSetup": {
+    "agentPrompt": "Learn about our company from {homepage} and create our Wiki pages.",
+    "continue": "Continue",
+    "continueBackground": "Continue while Mate works",
+    "conversationTitle": "Set up Workspace Wiki",
+    "createBlank": "Create a blank page",
+    "description": "Turn your website into five useful, connected Wiki pages for Mate and the AI tools you connect.",
+    "gapsNote": "Mate cites what it finds and marks missing information instead of guessing.",
+    "generated": {
+      "defaultGaps": {
+        "company_overview": "Which mission, story, markets, and company facts should Mate treat as authoritative?\n- Which proof points and contact paths should Mate use?",
+        "customers_competitors": "Which customer segments, needs, and buying triggers should Mate prioritize?\n- Which competitors, alternatives, objections, and proof should Mate use?",
+        "products_services": "Which offerings and value claims should Mate use in customer work?\n- Which limitations, implementation details, and product changes require internal confirmation?",
+        "support_faq": "Which sales stages, qualification rules, CRM fields, and owners should Mate follow?\n- What are the handoffs, support channels, service levels, and escalation paths?\n- Which routines need human approval, and who gives it?",
+        "voice_tone": "Which wording, claims, examples, and calls to action are approved?\n- Which terms, promises, and styles should Mate avoid?"
+      },
+      "gapsHeading": "Gaps to confirm",
+      "relatedPages": "Related pages",
+      "sourcesHeading": "Sources",
+      "topics": {
+        "company_overview": "Company Overview",
+        "customers_competitors": "Customers, Market & Competition",
+        "products_services": "Products, Services & Value",
+        "support_faq": "Sales, Onboarding & Support",
+        "voice_tone": "Voice, Tone & Messaging"
+      }
+    },
+    "homepageHelp": "Public HTTP(S) website. Mate reads this page and may follow up to three useful links on the same site.",
+    "homepageLabel": "Company website",
+    "homepagePlaceholder": "https://example.com",
+    "openTask": "Open Mate task",
+    "progressLoadFailed": "Mate’s progress could not be loaded here. Try again.",
+    "progressLoading": "Loading Mate’s progress",
+    "skip": "Not now",
+    "start": "Build my Wiki",
+    "startFailed": "Mate could not start the Wiki setup. Please try again.",
+    "startFromWebsite": "Build from my website",
+    "status": {
+      "completedBody": "Your five connected starter pages are ready, with cited website facts and clear gaps for anything the site could not verify.",
+      "completedBodyOnboarding": "Mate created five connected starter pages with cited website facts and clear gaps for anything it could not verify. You can review and edit them later in the Wiki.",
+      "completedExistingBody": "Your Wiki already contains pages. Continue onboarding or review the existing content.",
+      "completedTitle": "Your starter Wiki is ready",
+      "failedBody": "No pages were added. Try another website, or continue and add pages later.",
+      "failedTitle": "Setup did not finish",
+      "noContentBody": "Review the Mate task for details. You can try another website or continue and add pages later.",
+      "noContentTitle": "No Wiki pages were created",
+      "workingBody": "Mate is reading {domain}, checking useful pages, and turning sourced information into your Wiki. You can follow the progress here or continue to the next step.",
+      "workingBodyNoTask": "Mate is reading {domain} and turning sourced information into your Wiki. You can continue to the next step while it works.",
+      "workingBodyNoTaskWiki": "Mate is reading {domain} and building the Wiki. You can return later to see the finished pages.",
+      "workingBodyWiki": "Mate is reading {domain}, checking useful pages, and turning sourced information into your Wiki. You can keep this task open or return later.",
+      "workingTitle": "Mate is learning about your company"
+    },
+    "topics": {
+      "company": "Company overview",
+      "customers": "Customers, market and competition",
+      "products": "Products, services and value",
+      "support": "Sales, onboarding and support",
+      "voice": "Voice, tone and messaging"
+    },
+    "tryAnother": "Try another website",
+    "unavailable": "Mate setup is not available right now. You can create Wiki pages later in the Wiki."
   }
 }

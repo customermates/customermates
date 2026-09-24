@@ -178,6 +178,10 @@ describe("RootStoreProvider initial state", () => {
     if (!root) throw new Error("Expected hydration to create a React root");
     mountedRoots.push(root);
 
+    expect(window.history.state).toMatchObject({
+      __customermatesHistory: { session: expect.any(String), index: expect.any(Number) },
+    });
+
     expect(container.querySelector("[data-initial-state]")?.textContent).toBe("allowed|usd|opportunity|pro|1.234,5");
 
     await act(async () => {

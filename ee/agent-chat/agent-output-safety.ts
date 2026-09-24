@@ -1,6 +1,13 @@
+import { ROUTING_LOCALES } from "@/i18n/locale-registry";
+import { findWikiPageHrefRanges, parseWikiPageHref } from "@/features/wiki/wiki-links";
+
 const INTERNAL_REFERENCE = "[internal reference]";
 const REDACTED_VALUE = "[redacted]";
 const INTERNAL_DETAILS = "[internal details]";
+const WIKI_LOCALE_SOURCE = ROUTING_LOCALES.map((locale) => locale.replace(/[.*+?^${}()|[\]\\]/g, "\\$&")).join("|");
+const WIKI_LOCALE_PATH_SOURCE = WIKI_LOCALE_SOURCE ? `(?:(?:${WIKI_LOCALE_SOURCE})\/)?` : "";
+const WIKI_URL_TOKEN_PATTERN = new RegExp(`(?:^|\\s)\\S*\\/${WIKI_LOCALE_PATH_SOURCE}wiki\\?page=\\S*`, "gi");
+const WIKI_TO_LINK_PATTERN = /\]\(to:(\/(?:[a-z]{2}\/)?wiki\?page=[^)]+)\)/giu;
 
 const UUID_PATTERN = /(^|[^0-9a-f])([0-9a-f]{8}(?:-[0-9a-f]{4}){3}-[0-9a-f]{12})(?=$|[^0-9a-f])/gi;
 const PARTIAL_UUID_PATTERN = /(^|[^0-9a-f])([0-9a-f]{8}-(?:[0-9a-f]{0,4}(?:-[0-9a-f]{0,4}){0,3})?)$/gi;
@@ -67,6 +74,7 @@ const PRIVATE_MARKERS = [
 const STREAM_TAIL_LENGTH = Math.max(64, ...PRIVATE_MARKERS.map((marker) => marker.length - 1));
 
 const PROTECTED_STREAM_PATTERNS = [
+  WIKI_URL_TOKEN_PATTERN,
   UUID_PATTERN,
   PAGE_CONTEXT_BLOCK_PATTERN,
   PAGE_CONTEXT_TAG_PATTERN,
@@ -92,8 +100,22 @@ function earliest(current: number | null, candidate: number | null) {
   return current === null ? candidate : Math.min(current, candidate);
 }
 
-function replaceUuid(value: string) {
-  return value.replace(UUID_PATTERN, (_match, prefix: string) => `${prefix}${INTERNAL_REFERENCE}`);
+function replaceUuid(value: string, wikiBaseUrl?: string) {
+  const pageLinks = findWikiPageHrefRanges(value, wikiBaseUrl);
+  return value.replace(UUID_PATTERN, (match, prefix: string, id: string, offset: number) => {
+    const idStart = offset + prefix.length;
+    const idEnd = idStart + id.length;
+    return pageLinks.some((link) => link.id === id.toLowerCase() && idStart >= link.start && idEnd <= link.end)
+      ? match
+      : `${prefix}${INTERNAL_REFERENCE}`;
+  });
+}
+
+function normalizeWikiLinkAliases(value: string, wikiBaseUrl?: string) {
+  return value.replace(WIKI_TO_LINK_PATTERN, (match, href: string) => {
+    const target = parseWikiPageHref(href, wikiBaseUrl);
+    return target ? `](${target.path})` : match;
+  });
 }
 
 function replacePartialUuidTail(value: string) {
@@ -165,6 +187,7 @@ function incompletePrivateMarkerStart(value: string) {
     }
 
     for (let length = Math.min(marker.length - 1, lower.length); length > 0; length -= 1) {
+      if (marker.startsWith("```") && length <= 3) continue;
       if (!lower.endsWith(marker.slice(0, length))) continue;
       start = earliest(start, lower.length - length);
       break;
@@ -182,12 +205,19 @@ function incompleteToolProtocolStart(value: string) {
   return TOOL_PROTOCOL_PREFIX_PATTERN.exec(value)?.index ?? null;
 }
 
-function protectStreamBoundary(value: string, requestedEnd: number) {
+function protectStreamBoundary(value: string, requestedEnd: number, wikiBaseUrl?: string) {
   let safeEnd = requestedEnd;
   let changed = true;
 
   while (changed) {
     changed = false;
+    for (const range of findWikiPageHrefRanges(value, wikiBaseUrl)) {
+      if (range.start >= safeEnd || range.end <= safeEnd) continue;
+      safeEnd = range.start;
+      changed = true;
+      break;
+    }
+    if (changed) continue;
     for (const pattern of PROTECTED_STREAM_PATTERNS) {
       pattern.lastIndex = 0;
       for (let match = pattern.exec(value); match; match = pattern.exec(value)) {
@@ -203,9 +233,9 @@ function protectStreamBoundary(value: string, requestedEnd: number) {
   return safeEnd;
 }
 
-function redactCompleteAgentVisibleText(value: string) {
+function redactCompleteAgentVisibleText(value: string, wikiBaseUrl?: string) {
   return replaceUuid(
-    value
+    normalizeWikiLinkAliases(value, wikiBaseUrl)
       .replace(PAGE_CONTEXT_TAG_PATTERN, "")
       .replace(ENCODED_PAGE_CONTEXT_TAG_PATTERN, "")
       .replace(PRIVATE_REASONING_TAG_PATTERN, "")
@@ -219,10 +249,11 @@ function redactCompleteAgentVisibleText(value: string) {
       .replace(MODEL_ID_PATTERN, INTERNAL_DETAILS)
       .replace(TOKEN_COUNT_PATTERN, INTERNAL_DETAILS)
       .replace(INTERNAL_COST_PATTERN, INTERNAL_DETAILS),
+    wikiBaseUrl,
   );
 }
 
-export function sanitizeAgentVisibleText(value: string) {
+export function sanitizeAgentVisibleText(value: string, wikiBaseUrl?: string) {
   const withoutClosedPrivateContent = stripClosedPrivateContent(value);
   const unsafeStart = earliest(
     earliest(
@@ -233,6 +264,7 @@ export function sanitizeAgentVisibleText(value: string) {
   );
   const complete = redactCompleteAgentVisibleText(
     unsafeStart === null ? withoutClosedPrivateContent : withoutClosedPrivateContent.slice(0, unsafeStart),
+    wikiBaseUrl,
   );
   return replacePartialUuidTail(complete);
 }
@@ -284,6 +316,8 @@ export class AgentVisibleTextStreamSanitizer {
   private finished = false;
   private toolProtocolRemoved = false;
 
+  constructor(private readonly wikiBaseUrl?: string) {}
+
   get removedToolProtocol() {
     return this.toolProtocolRemoved;
   }
@@ -294,7 +328,7 @@ export class AgentVisibleTextStreamSanitizer {
 
     const protocolStart = toolProtocolStart(this.buffer);
     if (protocolStart !== null) {
-      const visible = sanitizeAgentVisibleText(this.buffer.slice(0, protocolStart));
+      const visible = sanitizeAgentVisibleText(this.buffer.slice(0, protocolStart), this.wikiBaseUrl);
       this.buffer = "";
       this.toolProtocolRemoved = true;
       return visible;
@@ -305,8 +339,12 @@ export class AgentVisibleTextStreamSanitizer {
       earliest(openPrivateContentStart(this.buffer), incompletePrivateMarkerStart(this.buffer)),
       incompleteToolProtocolStart(this.buffer),
     );
-    const safeEnd = protectStreamBoundary(this.buffer, Math.min(requestedEnd, unsafeStart ?? this.buffer.length));
-    const visible = sanitizeAgentVisibleText(this.buffer.slice(0, safeEnd));
+    const safeEnd = protectStreamBoundary(
+      this.buffer,
+      Math.min(requestedEnd, unsafeStart ?? this.buffer.length),
+      this.wikiBaseUrl,
+    );
+    const visible = sanitizeAgentVisibleText(this.buffer.slice(0, safeEnd), this.wikiBaseUrl);
     this.buffer = this.buffer.slice(safeEnd);
     return visible;
   }
@@ -317,13 +355,13 @@ export class AgentVisibleTextStreamSanitizer {
 
     const protocolStart = toolProtocolStart(this.buffer);
     if (protocolStart !== null) {
-      const visible = sanitizeAgentVisibleText(this.buffer.slice(0, protocolStart));
+      const visible = sanitizeAgentVisibleText(this.buffer.slice(0, protocolStart), this.wikiBaseUrl);
       this.buffer = "";
       this.toolProtocolRemoved = true;
       return visible;
     }
 
-    const visible = sanitizeAgentVisibleText(this.buffer);
+    const visible = sanitizeAgentVisibleText(this.buffer, this.wikiBaseUrl);
     this.buffer = "";
     return visible;
   }

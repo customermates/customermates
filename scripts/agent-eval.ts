@@ -1,41 +1,60 @@
 import "dotenv/config";
 
-import { randomUUID } from "node:crypto";
+import { createHmac, randomBytes, randomUUID } from "node:crypto";
 
-import { createHmac, randomBytes } from "node:crypto";
-
+import { defaultKeyHasher } from "@better-auth/api-key";
+import { createMCPClient } from "@ai-sdk/mcp";
+import { createGateway, isStepCount, ToolLoopAgent, type ToolSet } from "ai";
 import { createTranslator } from "next-intl";
 import { afterAll, beforeAll, describe, expect, it, vi } from "vitest";
 
 import { getLocalDatabaseTestUrl } from "@/tests/helpers/database-test";
 import { createMockUser } from "@/tests/helpers/mock-user";
 import messages from "@/i18n/locales/en.json";
+import { getAgentProviderOptions } from "@/ee/agent-chat/agent-provider-options";
+import { readAgentProviderCharge } from "@/ee/agent-chat/gateway-cost";
 
 vi.mock("next-intl/server", () => ({
   getLocale: () => Promise.resolve("en"),
-  getTranslations: () => Promise.resolve(createTranslator({ locale: "en", messages })),
+  getTranslations: () =>
+    Promise.resolve(createTranslator({ locale: "en", messages })),
 }));
 const { getRespondToApprovalInteractor } = await import("@/core/di");
-const { PrismaAgentChatRepo } = await import("@/ee/agent-chat/prisma-agent-chat.repository");
+const { PrismaAgentChatRepo } = await import(
+  "@/ee/agent-chat/prisma-agent-chat.repository"
+);
 const { prisma } = await import("@/prisma/db");
-const { runWithTenant, runWithoutTenant } = await import("@/core/decorators/tenant-context");
+const { runWithTenant, runWithoutTenant } = await import(
+  "@/core/decorators/tenant-context"
+);
 const { AGENT_UI_TARGET_IDS } = await import("@/ee/agent-chat/ui-targets");
 const { isAgentPanelTool } = await import("@/ee/agent-chat/agent-ui-command");
-const { getCancelAgentTurnInteractor, getRespondToUiCommandInteractor } = await import("@/core/di");
+const { getCancelAgentTurnInteractor, getRespondToUiCommandInteractor } =
+  await import("@/core/di");
 const { MODEL_CATALOG } = await import("@/ee/agent-chat/model-catalog");
-const { AGENT_RUN_LEASE_MS } = await import("@/ee/agent-chat/agent-turn-request");
+const {
+  AGENT_WEB_SEARCH_DEFAULT_CONTENT_CHARS,
+  AGENT_WEB_SEARCH_DEFAULT_RESULTS,
+} = await import("@/ee/agent-chat/agent-web-search");
+const { AGENT_RUN_LEASE_MS } = await import(
+  "@/ee/agent-chat/agent-turn-request"
+);
 
 const companyId = randomUUID();
 const sentinelCompanyId = randomUUID();
 const userId = randomUUID();
 const evalUser = createMockUser({ companyId, id: userId });
-const APP_URL = process.env.BASE_URL ?? "http://localhost:4105";
+const APP_URL =
+  process.env.AGENT_EVAL_BASE_URL ??
+  process.env.BASE_URL ??
+  "http://localhost:4105";
 
 let sessionCookie = "";
 
 async function mintEvalSession() {
   const secret = process.env.BETTER_AUTH_SECRET;
-  if (!secret) throw new Error("BETTER_AUTH_SECRET must be set for the agent eval.");
+  if (!secret)
+    throw new Error("BETTER_AUTH_SECRET must be set for the agent eval.");
 
   const token = randomBytes(32).toString("hex");
   const expiresAt = new Date(Date.now() + 60 * 60 * 1000);
@@ -49,7 +68,9 @@ async function mintEvalSession() {
         emailVerified: true,
       },
     });
-    await prisma.authSession.create({ data: { id: randomUUID(), token, userId, expiresAt } });
+    await prisma.authSession.create({
+      data: { id: randomUUID(), token, userId, expiresAt },
+    });
   });
 
   const signature = createHmac("sha256", secret).update(token).digest("base64");
@@ -80,8 +101,12 @@ const SNAPSHOT_TABLES = [
 async function countRows(target: string) {
   const counts: Record<string, number> = {};
   for (const table of SNAPSHOT_TABLES) {
-    const model = prisma[table] as unknown as { count: (args: { where: { companyId: string } }) => Promise<number> };
-    counts[table] = await runWithoutTenant(() => model.count({ where: { companyId: target } }));
+    const model = prisma[table] as unknown as {
+      count: (args: { where: { companyId: string } }) => Promise<number>;
+    };
+    counts[table] = await runWithoutTenant(() =>
+      model.count({ where: { companyId: target } }),
+    );
   }
   return counts;
 }
@@ -110,10 +135,13 @@ async function runTurn(args: {
     }),
   });
   if (!response.ok || !response.body)
-    throw new Error(`Admission failed with ${response.status}: ${await response.text()}`);
+    throw new Error(
+      `Admission failed with ${response.status}: ${await response.text()}`,
+    );
 
   const conversationId = response.headers.get("x-conversation-id");
-  if (!conversationId) throw new Error("The agent response carried no conversation id.");
+  if (!conversationId)
+    throw new Error("The agent response carried no conversation id.");
 
   const frames: Frame[] = [];
   const reader = response.body.getReader();
@@ -128,7 +156,9 @@ async function runTurn(args: {
       const rawFrame = buffer.slice(0, boundary);
       buffer = buffer.slice(boundary + 2);
       boundary = buffer.indexOf("\n\n");
-      const dataLine = rawFrame.split("\n").find((line) => line.startsWith("data: "));
+      const dataLine = rawFrame
+        .split("\n")
+        .find((line) => line.startsWith("data: "));
       if (!dataLine) continue;
       const frame = JSON.parse(dataLine.slice(6)) as Frame;
       frames.push(frame);
@@ -153,7 +183,11 @@ async function runTurn(args: {
           }),
         );
       }
-      if (frame.type === "approval_request" && args.onApproval && args.onApproval !== "ignore") {
+      if (
+        frame.type === "approval_request" &&
+        args.onApproval &&
+        args.onApproval !== "ignore"
+      ) {
         await runWithTenant(evalUser, () =>
           getRespondToApprovalInteractor().invoke({
             conversationId,
@@ -167,12 +201,20 @@ async function runTurn(args: {
   return { frames, conversationId, detached: false };
 }
 
-async function readAgentStream(conversationId: string, startIndex: number): Promise<Frame[]> {
-  const response = await fetch(`${APP_URL}/api/agent/conversations/${conversationId}/stream?startIndex=${startIndex}`, {
-    headers: { cookie: sessionCookie },
-  });
+async function readAgentStream(
+  conversationId: string,
+  startIndex: number,
+): Promise<Frame[]> {
+  const response = await fetch(
+    `${APP_URL}/api/agent/conversations/${conversationId}/stream?startIndex=${startIndex}`,
+    {
+      headers: { cookie: sessionCookie },
+    },
+  );
   if (!response.ok || !response.body)
-    throw new Error(`Reattach failed with ${response.status}: ${await response.text()}`);
+    throw new Error(
+      `Reattach failed with ${response.status}: ${await response.text()}`,
+    );
 
   const frames: Frame[] = [];
   const reader = response.body.getReader();
@@ -187,7 +229,9 @@ async function readAgentStream(conversationId: string, startIndex: number): Prom
       const rawFrame = buffer.slice(0, boundary);
       buffer = buffer.slice(boundary + 2);
       boundary = buffer.indexOf("\n\n");
-      const dataLine = rawFrame.split("\n").find((line) => line.startsWith("data: "));
+      const dataLine = rawFrame
+        .split("\n")
+        .find((line) => line.startsWith("data: "));
       if (dataLine) frames.push(JSON.parse(dataLine.slice(6)) as Frame);
     }
   }
@@ -196,32 +240,52 @@ async function readAgentStream(conversationId: string, startIndex: number): Prom
 
 async function latestTurn(conversationId: string) {
   return runWithoutTenant(() =>
-    prisma.agentTurnRequest.findFirstOrThrow({ where: { conversationId }, orderBy: { createdAt: "desc" } }),
+    prisma.agentTurnRequest.findFirstOrThrow({
+      where: { conversationId },
+      orderBy: { createdAt: "desc" },
+    }),
   );
 }
 
-async function expectAccountingToBalance(conversationId: string, frames: Frame[]) {
+async function expectAccountingToBalance(
+  conversationId: string,
+  frames: Frame[],
+) {
   const done = frames.at(-1);
-  expect(done?.type, JSON.stringify(frames.map((frame) => frame.type))).toBe("turn_done");
+  expect(done?.type, JSON.stringify(frames.map((frame) => frame.type))).toBe(
+    "turn_done",
+  );
 
   const turn = await latestTurn(conversationId);
   const [rounds, usage] = await runWithoutTenant(() =>
     Promise.all([
-      prisma.agentRunRound.findMany({ where: { turnRequestId: turn.id }, orderBy: { roundIndex: "asc" } }),
+      prisma.agentRunRound.findMany({
+        where: { turnRequestId: turn.id },
+        orderBy: { roundIndex: "asc" },
+      }),
       prisma.agentUsageEvent.findFirst({ where: { turnRequestId: turn.id } }),
     ]),
   );
 
   expect(done?.numTurns, `rounds recorded for ${turn.id}`).toBe(rounds.length);
-  expect(rounds.map((round) => round.roundIndex)).toEqual(rounds.map((_round, index) => index));
+  expect(rounds.map((round) => round.roundIndex)).toEqual(
+    rounds.map((_round, index) => index),
+  );
   if (usage?.costSource === "measured")
-    expect(usage.costMicrocents).toBe(rounds.reduce((total, round) => total + round.costMicrocents, 0n));
+    expect(usage.costMicrocents).toBe(
+      rounds.reduce((total, round) => total + round.costMicrocents, 0n),
+    );
 
   return { turn, rounds, usage };
 }
 
-const enabled = process.env.RUN_AGENT_EVAL === "true" && Boolean(getLocalDatabaseTestUrl());
+const enabled =
+  process.env.RUN_AGENT_EVAL === "true" && Boolean(getLocalDatabaseTestUrl());
 const describeEval = enabled ? describe : describe.skip;
+const itWebSearchE2e =
+  process.env.RUN_AGENT_WEB_SEARCH_E2E === "true" ? it : it.skip;
+const itMcpWikiE2e =
+  process.env.RUN_AGENT_MCP_WIKI_E2E === "true" ? it : it.skip;
 
 if (process.env.RUN_AGENT_EVAL === "true" && !process.env.AI_GATEWAY_API_KEY)
   throw new Error("AI_GATEWAY_API_KEY must be set for the agent eval.");
@@ -235,6 +299,20 @@ const stoppableId = randomUUID();
 const novaDealId = randomUUID();
 const evalRoleId = randomUUID();
 
+function readMcpWikiEvalCeilingUsd() {
+  const raw = process.env.AGENT_MCP_WIKI_E2E_MAX_USD;
+  if (!raw || !/^\d+(\.\d+)?$/.test(raw))
+    throw new Error(
+      "AGENT_MCP_WIKI_E2E_MAX_USD must explicitly bound the paid independent MCP-host eval.",
+    );
+  const ceiling = Number(raw);
+  if (!Number.isFinite(ceiling) || ceiling <= 0 || ceiling > 15)
+    throw new Error(
+      "AGENT_MCP_WIKI_E2E_MAX_USD must be greater than zero and no more than USD 15.",
+    );
+  return ceiling;
+}
+
 describeEval("agent live eval", () => {
   beforeAll(async () => {
     const anchor = new Date();
@@ -242,10 +320,20 @@ describeEval("agent live eval", () => {
       await prisma.company.create({ data: { id: companyId } });
       await prisma.company.create({ data: { id: sentinelCompanyId } });
       await prisma.subscription.create({
-        data: { companyId, status: "active", plan: "starter", agentCreditAnchorAt: anchor },
+        data: {
+          companyId,
+          status: "active",
+          plan: "starter",
+          agentCreditAnchorAt: anchor,
+        },
       });
       await prisma.userRole.create({
-        data: { id: evalRoleId, name: `eval-${evalRoleId}`, isSystemRole: false, companyId },
+        data: {
+          id: evalRoleId,
+          name: `eval-${evalRoleId}`,
+          isSystemRole: false,
+          companyId,
+        },
       });
       const { Action, Resource } = await import("@/generated/prisma");
       await prisma.rolePermission.createMany({
@@ -275,19 +363,42 @@ describeEval("agent live eval", () => {
         data: { id: adaId, companyId, firstName: "Ada", lastName: "Lovelace" },
       });
       await prisma.contact.create({
-        data: { id: throwawayId, companyId, firstName: "Throwaway", lastName: "Duplicate" },
+        data: {
+          id: throwawayId,
+          companyId,
+          firstName: "Throwaway",
+          lastName: "Duplicate",
+        },
       });
       await prisma.contact.create({
-        data: { id: sweepId, companyId, firstName: "Sweepable", lastName: "Placeholder" },
+        data: {
+          id: sweepId,
+          companyId,
+          firstName: "Sweepable",
+          lastName: "Placeholder",
+        },
       });
       await prisma.contact.create({
-        data: { id: stoppableId, companyId, firstName: "Stoppable", lastName: "Placeholder" },
+        data: {
+          id: stoppableId,
+          companyId,
+          firstName: "Stoppable",
+          lastName: "Placeholder",
+        },
       });
-      await prisma.organization.create({ data: { id: acmeId, companyId, name: "ACME GmbH" } });
-      await prisma.organization.create({ data: { id: globexId, companyId, name: "Globex" } });
+      await prisma.organization.create({
+        data: { id: acmeId, companyId, name: "ACME GmbH" },
+      });
+      await prisma.organization.create({
+        data: { id: globexId, companyId, name: "Globex" },
+      });
       await prisma.deal.create({ data: { id: novaDealId, companyId, name: "Nova Expansion" } });
       await prisma.contact.create({
-        data: { companyId: sentinelCompanyId, firstName: "Sentinel", lastName: "Person" },
+        data: {
+          companyId: sentinelCompanyId,
+          firstName: "Sentinel",
+          lastName: "Person",
+        },
       });
     });
 
@@ -296,8 +407,13 @@ describeEval("agent live eval", () => {
 
   afterAll(async () => {
     await runWithoutTenant(async () => {
-      await prisma.auditLog.deleteMany({ where: { companyId: { in: [companyId, sentinelCompanyId] } } });
-      await prisma.company.deleteMany({ where: { id: { in: [companyId, sentinelCompanyId] } } });
+      await prisma.auditLog.deleteMany({
+        where: { companyId: { in: [companyId, sentinelCompanyId] } },
+      });
+      await prisma.authUser.deleteMany({ where: { id: userId } });
+      await prisma.company.deleteMany({
+        where: { id: { in: [companyId, sentinelCompanyId] } },
+      });
     });
     await prisma.$disconnect();
   });
@@ -313,21 +429,35 @@ describeEval("agent live eval", () => {
         if (stopped || frame.type !== "approval_request") return;
         stopped = true;
         const result = await runWithTenant(evalUser, () =>
-          getCancelAgentTurnInteractor().invoke({ conversationId: conversation }),
+          getCancelAgentTurnInteractor().invoke({
+            conversationId: conversation,
+          }),
         );
-        expect(result.ok && result.data.cancelling, JSON.stringify(result)).toBe(true);
+        expect(
+          result.ok && result.data.cancelling,
+          JSON.stringify(result),
+        ).toBe(true);
       },
     });
 
     expect(stopped, JSON.stringify(frames)).toBe(true);
-    expect(frames.at(-1)).toMatchObject({ type: "turn_done", terminalCode: "cancelled" });
+    expect(frames.at(-1)).toMatchObject({
+      type: "turn_done",
+      terminalCode: "cancelled",
+    });
     expect(await countRows(companyId)).toEqual(before);
-    expect(await runWithoutTenant(() => prisma.contact.count({ where: { companyId, id: stoppableId } }))).toBe(1);
+    expect(
+      await runWithoutTenant(() =>
+        prisma.contact.count({ where: { companyId, id: stoppableId } }),
+      ),
+    ).toBe(1);
 
     const { turn } = await expectAccountingToBalance(conversationId, frames);
     expect(turn.terminalCode).toBe("cancelled");
 
-    const lease = await runWithoutTenant(() => prisma.agentRunLease.findFirst({ where: { conversationId } }));
+    const lease = await runWithoutTenant(() =>
+      prisma.agentRunLease.findFirst({ where: { conversationId } }),
+    );
     expect(lease).toBeNull();
   });
 
@@ -335,7 +465,9 @@ describeEval("agent live eval", () => {
     const { frames } = await runTurn({ text: "Open the Deals page and switch its layout to the kanban board." });
 
     const commands = frames.filter((frame) => frame.type === "ui_command");
-    const targets = commands.map((frame) => (frame.input as { targetId?: string })?.targetId).filter(Boolean);
+    const targets = commands
+      .map((frame) => (frame.input as { targetId?: string })?.targetId)
+      .filter(Boolean);
 
     for (const target of targets) expect(AGENT_UI_TARGET_IDS).toContain(target);
     expect(targets, JSON.stringify(frames)).toContain("deals-display-options");
@@ -355,11 +487,17 @@ describeEval("agent live eval", () => {
   });
 
   it("composes a guided tour with real targets and notes", async () => {
-    const { frames } = await runTurn({ text: "Give me a quick tour of contacts, deals, and the dashboard." });
+    const { frames } = await runTurn({
+      text: "Give me a quick tour of contacts, deals, and the dashboard.",
+    });
 
-    const tour = frames.find((frame) => frame.type === "ui_command" && frame.name === "start_tour");
+    const tour = frames.find(
+      (frame) => frame.type === "ui_command" && frame.name === "start_tour",
+    );
     expect(tour, JSON.stringify(frames)).toBeDefined();
-    const steps = (tour?.input as { steps?: { targetId: string; note: string }[] })?.steps ?? [];
+    const steps =
+      (tour?.input as { steps?: { targetId: string; note: string }[] })
+        ?.steps ?? [];
     expect(steps.length).toBeGreaterThanOrEqual(3);
     for (const step of steps) {
       expect(AGENT_UI_TARGET_IDS).toContain(step.targetId);
@@ -376,13 +514,21 @@ describeEval("agent live eval", () => {
       text: 'Link the contact "Ada Lovelace" to the organization "ACME GmbH".',
     });
 
-    expect(frames.some((frame) => frame.type === "approval_request"), JSON.stringify(frames)).toBe(false);
+    expect(
+      frames.some((frame) => frame.type === "approval_request"),
+      JSON.stringify(frames),
+    ).toBe(false);
     const after = await countRows(companyId);
-    expect(after).toEqual({ ...before, contactOrganization: before.contactOrganization + 1 });
+    expect(after).toEqual({
+      ...before,
+      contactOrganization: before.contactOrganization + 1,
+    });
     expect(await countRows(sentinelCompanyId)).toEqual(sentinelBefore);
     expect(
       await runWithoutTenant(() =>
-        prisma.contactOrganization.count({ where: { companyId, contactId: adaId, organizationId: acmeId } }),
+        prisma.contactOrganization.count({
+          where: { companyId, contactId: adaId, organizationId: acmeId },
+        }),
       ),
     ).toBe(1);
 
@@ -390,7 +536,9 @@ describeEval("agent live eval", () => {
       text: "Which organizations is Ada Lovelace linked to now?",
       conversationId,
     });
-    expect(verify.frames.some((frame) => frame.type === "approval_request")).toBe(false);
+    expect(
+      verify.frames.some((frame) => frame.type === "approval_request"),
+    ).toBe(false);
     expect(await countRows(companyId)).toEqual(after);
   });
 
@@ -401,9 +549,15 @@ describeEval("agent live eval", () => {
       text: 'Remove the link between the contact "Ada Lovelace" and the organization "ACME GmbH".',
     });
 
-    expect(frames.some((frame) => frame.type === "approval_request"), JSON.stringify(frames)).toBe(false);
+    expect(
+      frames.some((frame) => frame.type === "approval_request"),
+      JSON.stringify(frames),
+    ).toBe(false);
     const after = await countRows(companyId);
-    expect(after).toEqual({ ...before, contactOrganization: before.contactOrganization - 1 });
+    expect(after).toEqual({
+      ...before,
+      contactOrganization: before.contactOrganization - 1,
+    });
   });
 
   it("stops a delete at the approval and leaves the database untouched on rejection", async () => {
@@ -416,10 +570,14 @@ describeEval("agent live eval", () => {
 
     const approval = frames.find((frame) => frame.type === "approval_request");
     expect(approval, JSON.stringify(frames)).toBeDefined();
-    expect((approval?.activity as { kind?: string })?.kind).toBe("records.delete");
+    expect((approval?.activity as { kind?: string })?.kind).toBe(
+      "records.delete",
+    );
     expect(await countRows(companyId)).toEqual(before);
     expect(
-      await runWithoutTenant(() => prisma.contact.count({ where: { companyId, id: throwawayId } })),
+      await runWithoutTenant(() =>
+        prisma.contact.count({ where: { companyId, id: throwawayId } }),
+      ),
     ).toBe(1);
   });
 
@@ -443,7 +601,8 @@ describeEval("agent live eval", () => {
       }),
     );
     expect(rounds.length).toBeGreaterThanOrEqual(2);
-    for (const round of rounds) expect(round.modelSpec).toBe(MODEL_CATALOG.fast.modelId);
+    for (const round of rounds)
+      expect(round.modelSpec).toBe(MODEL_CATALOG.fast.modelId);
   });
 
   it("finishes a turn the client walked away from and reattaches without duplicating a frame", async () => {
@@ -458,9 +617,14 @@ describeEval("agent live eval", () => {
     expect(Number.isFinite(lastSeq)).toBe(true);
 
     const resumed = await readAgentStream(detached.conversationId, lastSeq + 1);
-    expect(resumed.at(-1), JSON.stringify(resumed.map((frame) => frame.type))).toMatchObject({ type: "turn_done" });
+    expect(
+      resumed.at(-1),
+      JSON.stringify(resumed.map((frame) => frame.type)),
+    ).toMatchObject({ type: "turn_done" });
 
-    const seqs = [...detached.frames, ...resumed].map((frame) => Number(frame.seq));
+    const seqs = [...detached.frames, ...resumed].map((frame) =>
+      Number(frame.seq),
+    );
     expect(new Set(seqs).size).toBe(seqs.length);
 
     const reply = resumed
@@ -480,9 +644,14 @@ describeEval("agent live eval", () => {
       onApproval: "approve",
       onFrame: async (frame, conversation) => {
         if (frame.type !== "approval_request") return;
-        const beyondOrdinaryLease = new Date(Date.now() + AGENT_RUN_LEASE_MS * 2);
+        const beyondOrdinaryLease = new Date(
+          Date.now() + AGENT_RUN_LEASE_MS * 2,
+        );
         await runWithTenant(evalUser, () =>
-          new PrismaAgentChatRepo().normalizeExpiredAgentRunLease(beyondOrdinaryLease, MODEL_CATALOG.balanced.modelId),
+          new PrismaAgentChatRepo().normalizeExpiredAgentRunLease(
+            beyondOrdinaryLease,
+            MODEL_CATALOG.balanced.modelId,
+          ),
         );
         const [turn, lease] = await runWithoutTenant(() =>
           Promise.all([
@@ -490,7 +659,9 @@ describeEval("agent live eval", () => {
               where: { conversationId: conversation },
               orderBy: { createdAt: "desc" },
             }),
-            prisma.agentRunLease.findFirst({ where: { conversationId: conversation } }),
+            prisma.agentRunLease.findFirst({
+              where: { conversationId: conversation },
+            }),
           ]),
         );
         observed.push({
@@ -504,9 +675,19 @@ describeEval("agent live eval", () => {
     expect(observed[0].status).toBe("running");
     expect(observed[0].leaseHeadroomMs).toBeGreaterThan(AGENT_RUN_LEASE_MS);
 
-    expect(frames.at(-1)).toMatchObject({ type: "turn_done", terminalCode: "completed" });
-    expect(await runWithoutTenant(() => prisma.contact.count({ where: { companyId, id: sweepId } }))).toBe(0);
-    expect(await countRows(companyId)).toEqual({ ...before, contact: before.contact - 1 });
+    expect(frames.at(-1)).toMatchObject({
+      type: "turn_done",
+      terminalCode: "completed",
+    });
+    expect(
+      await runWithoutTenant(() =>
+        prisma.contact.count({ where: { companyId, id: sweepId } }),
+      ),
+    ).toBe(0);
+    expect(await countRows(companyId)).toEqual({
+      ...before,
+      contact: before.contact - 1,
+    });
     await expectAccountingToBalance(conversationId, frames);
   });
 
@@ -520,22 +701,365 @@ describeEval("agent live eval", () => {
         if (cancelled || frame.type !== "activity") return;
         cancelled = true;
         const result = await runWithTenant(evalUser, () =>
-          getCancelAgentTurnInteractor().invoke({ conversationId: conversation }),
+          getCancelAgentTurnInteractor().invoke({
+            conversationId: conversation,
+          }),
         );
         expect(result.ok).toBe(true);
       },
     });
 
     expect(cancelled, JSON.stringify(frames)).toBe(true);
-    expect(frames.at(-1)).toMatchObject({ type: "turn_done", terminalCode: "cancelled" });
+    expect(frames.at(-1)).toMatchObject({
+      type: "turn_done",
+      terminalCode: "cancelled",
+    });
     expect(await countRows(companyId)).toEqual(before);
 
-    const { turn, rounds, usage } = await expectAccountingToBalance(conversationId, frames);
+    const { turn, rounds, usage } = await expectAccountingToBalance(
+      conversationId,
+      frames,
+    );
     expect(turn.terminalCode).toBe("cancelled");
     expect(usage?.state).toBe("settled");
     expect(rounds.length).toBeGreaterThan(0);
   });
 
+  itMcpWikiE2e(
+    "independent MCP host discovers linked Wiki knowledge",
+    async () => {
+      const spendCeilingUsd = readMcpWikiEvalCeilingUsd();
+      const apiKeyId = randomUUID();
+      const apiKey = randomBytes(32).toString("hex");
+      const sourcePageId = randomUUID();
+      const targetPageId = randomUUID();
+      const fillerPageIds = Array.from({ length: 12 }, () => randomUUID());
+      const fixturePageIds = [...fillerPageIds, sourcePageId, targetPageId];
+      const lookupKey = `QUASAR-FINCH-${randomBytes(6).toString("hex").toUpperCase()}`;
+      const answerCode = `PINE-${randomBytes(4).toString("hex").toUpperCase()}`;
+      const targetUrl = new URL(
+        `/wiki?page=${targetPageId}`,
+        APP_URL,
+      ).toString();
+      const persistedCredential = await defaultKeyHasher(apiKey);
+      const now = new Date();
+      let mcpClient: Awaited<ReturnType<typeof createMCPClient>> | undefined;
 
+      await runWithoutTenant(() =>
+        prisma.$transaction([
+          prisma.apikey.create({
+            data: {
+              id: apiKeyId,
+              name: "Independent MCP Wiki live eval",
+              key: persistedCredential,
+              referenceId: userId,
+              configId: "default",
+              enabled: true,
+              rateLimitEnabled: false,
+              requestCount: 0,
+              createdAt: now,
+              updatedAt: now,
+            },
+          }),
+          prisma.wikiPage.createMany({
+            data: [
+              ...fillerPageIds.map((id, index) => ({
+                id,
+                companyId,
+                title: `Earlier Wiki page ${index + 1}`,
+                markdown: `Unrelated fixture ${index + 1}.`,
+                createdAt: new Date(Date.UTC(2020, 0, 1, 0, 0, index)),
+                updatedAt: new Date(Date.UTC(2020, 0, 1, 0, 0, index)),
+              })),
+              {
+                id: sourcePageId,
+                companyId,
+                title: "Escalation lookup index",
+                markdown: `${lookupKey} is documented in [the linked operating detail](${targetUrl}).`,
+                createdAt: new Date(Date.UTC(2021, 0, 1)),
+                updatedAt: new Date(Date.UTC(2021, 0, 1)),
+              },
+              {
+                id: targetPageId,
+                companyId,
+                title: "Operating detail",
+                markdown: `# Operating detail\n\n\`${answerCode}\``,
+                createdAt: new Date(Date.UTC(2021, 0, 2)),
+                updatedAt: new Date(Date.UTC(2021, 0, 2)),
+              },
+            ],
+          }),
+        ]),
+      );
 
+      try {
+        mcpClient = await createMCPClient({
+          clientName: "customermates-independent-wiki-eval",
+          protocolVersionDiscovery: false,
+          initializationOptions: { timeout: 15_000 },
+          maxRetries: 0,
+          transport: {
+            type: "http",
+            url: `${APP_URL}/api/v1/mcp?toolsets=wiki`,
+            headers: { "x-api-key": apiKey },
+          },
+        });
+
+        expect(mcpClient.instructions).toContain(
+          "call search, fetch every relevant wiki:<uuid> result",
+        );
+        expect(mcpClient.instructions).toContain("follow useful Wiki links");
+        const definitions = await mcpClient.listTools();
+        expect(definitions.tools.map(({ name }) => name)).toEqual([
+          "manage_wiki_pages",
+          "search",
+          "fetch",
+        ]);
+
+        const firstCatalogPage = await mcpClient.readResource({
+          uri: "customermates://wiki/catalog?page=1",
+        });
+        expect(JSON.stringify(firstCatalogPage)).not.toContain(sourcePageId);
+        expect(JSON.stringify(firstCatalogPage)).not.toContain(targetPageId);
+
+        const model = MODEL_CATALOG.balanced;
+        const gateway = createGateway({
+          apiKey: process.env.AI_GATEWAY_API_KEY,
+        });
+        const agent = new ToolLoopAgent({
+          model: gateway(model.modelId),
+          instructions: [
+            "You are an independent AI host using a connected MCP server. Apply the server's instructions to relevant requests without inventing tool results.",
+            mcpClient.instructions,
+          ].join("\n\n"),
+          tools: mcpClient.toolsFromDefinitions(
+            definitions,
+          ) as unknown as ToolSet,
+          stopWhen: isStepCount(6),
+          maxRetries: 0,
+          maxOutputTokens: 512,
+          providerOptions: getAgentProviderOptions(
+            model.servingProvider,
+            model.inferenceRegion,
+          ),
+        });
+        const result = await agent.generate({
+          prompt: `Use the connected Customermates workspace to answer this question: What exact value does our Workspace Wiki assign to ${lookupKey}? Follow relevant Wiki links and cite every page used with its exact URL.`,
+          timeout: { totalMs: 90_000, stepMs: 45_000 },
+        });
+
+        const calls = result.steps.flatMap((step) =>
+          step.toolCalls.map((call) => ({
+            toolName: call.toolName,
+            input: call.input as Record<string, unknown>,
+          })),
+        );
+        const searchIndex = calls.findIndex(
+          ({ toolName, input }) =>
+            toolName === "search" &&
+            String(input.query ?? "").includes(lookupKey),
+        );
+        const sourceFetchIndex = calls.findIndex(
+          ({ toolName, input }) =>
+            toolName === "fetch" &&
+            [
+              sourcePageId,
+              `wiki:${sourcePageId}`,
+              new URL(`/wiki?page=${sourcePageId}`, APP_URL).toString(),
+            ].some((reference) => String(input.id ?? "").includes(reference)),
+        );
+        const targetFetchIndex = calls.findIndex(
+          ({ toolName, input }) =>
+            toolName === "fetch" &&
+            [targetUrl, `wiki:${targetPageId}`].includes(
+              String(input.id ?? ""),
+            ),
+        );
+        expect(searchIndex, JSON.stringify(calls)).toBeGreaterThanOrEqual(0);
+        expect(sourceFetchIndex, JSON.stringify(calls)).toBeGreaterThan(
+          searchIndex,
+        );
+        expect(targetFetchIndex, JSON.stringify(calls)).toBeGreaterThan(
+          sourceFetchIndex,
+        );
+        expect(result.text).toContain(answerCode);
+        expect(result.text).toContain(targetUrl);
+
+        let spentMicrocents = 0;
+        for (const step of result.steps) {
+          const reading = readAgentProviderCharge(
+            step.providerMetadata,
+            model.servingProvider,
+          );
+          expect(reading.outcome).toBe("measured");
+          if (reading.outcome === "measured")
+            spentMicrocents += reading.charge.costMicrocents;
+        }
+        expect(spentMicrocents).toBeGreaterThan(0);
+        expect(spentMicrocents / 100_000_000).toBeLessThanOrEqual(
+          spendCeilingUsd,
+        );
+      } finally {
+        await mcpClient?.close();
+        await runWithoutTenant(() =>
+          prisma.$transaction([
+            prisma.apikey.deleteMany({ where: { id: apiKeyId } }),
+            prisma.wikiPage.deleteMany({
+              where: { companyId, id: { in: fixturePageIds } },
+            }),
+          ]),
+        );
+      }
+    },
+  );
+
+  itWebSearchE2e(
+    "grounds a persisted chat turn with native search and settles its all-in Gateway cost",
+    async () => {
+      const { frames, conversationId } = await runTurn({
+        text: "Search the public web exactly once for the current Customermates homepage. State its exact primary heading and explain what the product does, using the sources you found.",
+      });
+
+      expect(
+        frames.at(-1),
+        JSON.stringify(frames.map((frame) => frame.type)),
+      ).toMatchObject({
+        type: "turn_done",
+        terminalCode: "completed",
+        isError: false,
+      });
+      expect(
+        frames.some(
+          (frame) =>
+            frame.type === "activity" &&
+            (frame.activity as { kind?: string } | undefined)?.kind ===
+              "web.search",
+        ),
+        JSON.stringify(frames),
+      ).toBe(true);
+
+      const reply = frames
+        .filter((frame) => frame.type === "delta")
+        .map((frame) => String(frame.text ?? ""))
+        .join("");
+      expect(reply).toMatch(/open.source CRM built for AI agents/i);
+      expect(reply).toMatch(/### Sources/);
+      expect(reply).toMatch(/https:\/\/(?:www\.)?customermates\.com\//i);
+
+      const { turn, rounds, usage } = await expectAccountingToBalance(
+        conversationId,
+        frames,
+      );
+      expect(turn.status).toBe("completed");
+      expect(turn.terminalCode).toBe("completed");
+      expect(turn.externalRunId).toEqual(expect.any(String));
+      expect(turn.modelSpec).toBe(MODEL_CATALOG.balanced.modelId);
+      expect(turn.servingProvider).toBe(MODEL_CATALOG.balanced.servingProvider);
+      expect(usage).toMatchObject({
+        state: "settled",
+        costSource: "measured",
+        policyBreach: false,
+      });
+      expect(usage?.settledAt).toBeInstanceOf(Date);
+      expect(usage?.chargedCredits).toBeGreaterThanOrEqual(1);
+      expect(usage?.costMicrocents ?? 0n).toBeGreaterThan(0n);
+      expect(frames.at(-1)?.creditsUsed).toBe(usage?.chargedCredits);
+      for (const round of rounds) {
+        expect(round.modelSpec).toBe(MODEL_CATALOG.balanced.modelId);
+        expect(round.servingProvider).toBe(
+          MODEL_CATALOG.balanced.servingProvider,
+        );
+      }
+
+      const persistedParts = rounds.flatMap((round) =>
+        Array.isArray(round.parts) ? round.parts : [],
+      ) as {
+        type?: string;
+        toolName?: string;
+        providerExecuted?: boolean;
+        output?: unknown;
+      }[];
+      const searchCalls = persistedParts.filter(
+        (part) => part.type === "tool-call" && part.toolName === "web_search",
+      );
+      const searchResults = persistedParts.filter(
+        (part) => part.type === "tool-result" && part.toolName === "web_search",
+      );
+      expect(searchCalls).toHaveLength(1);
+      expect(searchResults).toHaveLength(1);
+      expect(searchCalls[0].providerExecuted).toBe(true);
+      expect(searchResults[0].providerExecuted).toBe(true);
+
+      const rawOutput = searchResults[0].output as
+        | { type?: string; value?: unknown }
+        | undefined;
+      const output = (
+        rawOutput?.type === "json" ? rawOutput.value : rawOutput
+      ) as
+        | {
+            results?: { title?: string; text?: string; url?: string }[];
+            costDollars?: { total?: number };
+          }
+        | undefined;
+      const results = output?.results ?? [];
+      expect(results.length).toBeGreaterThan(0);
+      expect(results.length).toBeLessThanOrEqual(
+        AGENT_WEB_SEARCH_DEFAULT_RESULTS,
+      );
+      for (const result of results) {
+        if (typeof result.text === "string")
+          expect(result.text.length).toBeLessThanOrEqual(
+            AGENT_WEB_SEARCH_DEFAULT_CONTENT_CHARS,
+          );
+      }
+      expect(
+        results
+          .map((result) => `${result.title ?? ""}\n${result.text ?? ""}`)
+          .join("\n"),
+      ).toMatch(/open.source CRM built for AI agents/i);
+      const resultUrls = results.flatMap((result) =>
+        typeof result.url === "string" ? [result.url] : [],
+      );
+      expect(resultUrls.length).toBeGreaterThan(0);
+      const httpsResultUrls = resultUrls.filter(
+        (value) => new URL(value).protocol === "https:",
+      );
+      expect(httpsResultUrls.length).toBeGreaterThan(0);
+      expect(
+        httpsResultUrls.some((value) => {
+          const { hostname } = new URL(value);
+          return (
+            hostname === "customermates.com" ||
+            hostname.endsWith(".customermates.com")
+          );
+        }),
+      ).toBe(true);
+      expect(output?.costDollars?.total).toEqual(expect.any(Number));
+      expect(
+        Number.isFinite(output?.costDollars?.total) &&
+          (output?.costDollars?.total ?? 0) > 0,
+      ).toBe(true);
+      expect(usage?.costMicrocents ?? 0n).toBeGreaterThanOrEqual(
+        BigInt(Math.round((output?.costDollars?.total ?? 0) * 100_000_000)),
+      );
+
+      const assistant = await runWithoutTenant(() =>
+        prisma.agentMessage.findFirstOrThrow({
+          where: { conversationId, turnRequestId: turn.id, role: "assistant" },
+          select: { parts: true },
+        }),
+      );
+      expect(JSON.stringify(assistant.parts)).toContain("### Sources");
+      expect(
+        await runWithoutTenant(() =>
+          prisma.agentMessage.count({ where: { conversationId } }),
+        ),
+      ).toBe(2);
+      expect(
+        await runWithoutTenant(() =>
+          prisma.agentRunLease.findFirst({ where: { conversationId } }),
+        ),
+      ).toBeNull();
+    },
+  );
 });

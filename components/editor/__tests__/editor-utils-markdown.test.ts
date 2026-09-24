@@ -29,6 +29,18 @@ describe("editor markdown round-trip", () => {
     expect(roundTrip(md)).toBe(md);
   });
 
+  it("round-trips all supported heading levels and links", () => {
+    const md = "# Company\n\n## Product\n\n### Positioning\n\n[Read the source](https://example.com/product)";
+    const parsed = parseMarkdownToJSON(md) as {
+      content?: Array<{ attrs?: { level?: number }; type?: string }>;
+    };
+
+    expect(roundTrip(md)).toBe(md);
+    expect(parsed.content?.filter((node) => node.type === "heading").map((node) => node.attrs?.level)).toEqual([
+      1, 2, 3,
+    ]);
+  });
+
   it("flattens rich (block) cell content into a single GFM row without throwing", () => {
     const doc = {
       type: "doc",

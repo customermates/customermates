@@ -12,11 +12,13 @@ const TENANT_CONTEXT_MODULE = /(^|\/)tenant-context$/;
 const BACKGROUND_TENANT_MODULE = /(^|\/)background-tenant$/;
 
 const AUTHENTICATED_TENANT_ENTRYPOINTS = [
+  "app/[locale]/(protected)/onboarding/wizard/page.tsx",
   "app/[locale]/(protected)/test/error/actions.ts",
   "core/data-view/view-owner-context.ts",
   "core/decorators/background-tenant.ts",
   "core/decorators/tenant-interactor.decorator.ts",
   "features/acquisition/withdraw-ad-attribution.interactor.ts",
+  "features/onboarding-wizard/complete-onboarding-wiki-step.interactor.ts",
   "features/onboarding-wizard/complete-onboarding-wizard.interactor.ts",
   "features/user/register/register-user.interactor.ts",
 ];

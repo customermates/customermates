@@ -40,9 +40,9 @@ export function AgentChatStoreProvider({
 
 export function useAgentChatStore(): AgentChatStore {
   const scoped = useContext(AgentChatStoreContext);
-  const { agentChatStore } = useRootStore();
+  const rootStore = useRootStore();
 
-  return scoped ?? agentChatStore;
+  return scoped ?? rootStore.agentChatStore;
 }
 
 export function useAgentChatUiTargets(): AgentChatUiTargets {

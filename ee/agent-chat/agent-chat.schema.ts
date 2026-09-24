@@ -3,6 +3,7 @@ import { APP_LOCALES } from "@/i18n/locale-registry";
 import { z } from "zod";
 
 import { type Data } from "@/core/validation/validation.utils";
+import { parsePublicDomainName } from "@/features/wiki/wiki-homepage";
 
 import type { AgentActivityDescriptor } from "./agent-activity";
 import { AgentActivityDescriptorSchema, describeAgentTool } from "./agent-activity";
@@ -15,6 +16,12 @@ export const AgentPageContextSchema = z.object({
 
 const [firstAppLocale, ...otherAppLocales] = APP_LOCALES;
 const AgentAppLocaleSchema = z.enum([firstAppLocale, ...otherAppLocales]);
+export const WikiHomepageSetupDomainSchema = z
+  .string()
+  .trim()
+  .toLowerCase()
+  .max(253)
+  .refine((value) => parsePublicDomainName(value) === value, "Use a registrable public domain.");
 
 export const SendAgentMessageSchema = z.object({
   conversationId: z.uuid().optional(),
@@ -24,6 +31,13 @@ export const SendAgentMessageSchema = z.object({
   modelKey: z.string().min(1).max(50).optional(),
   locale: AgentAppLocaleSchema.optional(),
   retry: z.boolean().default(false),
+  wikiHomepageSetupDomain: WikiHomepageSetupDomainSchema.optional(),
+  wikiHomepageSetupUrl: z.url().max(2_000).optional(),
+});
+
+export const PublicSendAgentMessageSchema = SendAgentMessageSchema.omit({
+  wikiHomepageSetupDomain: true,
+  wikiHomepageSetupUrl: true,
 });
 
 export type SendAgentMessageData = Data<typeof SendAgentMessageSchema>;
@@ -52,7 +66,11 @@ function includes<T extends string>(values: readonly T[], value: unknown): value
 
 export function clientSafeAgentMessageParts(
   value: unknown,
-  options: { sanitizeText?: boolean; stripLegacyUserContext?: boolean } = {},
+  options: {
+    sanitizeText?: boolean;
+    stripLegacyUserContext?: boolean;
+    wikiBaseUrl?: string;
+  } = {},
 ): AgentMessagePart[] {
   if (!Array.isArray(value)) return [];
 
@@ -67,7 +85,9 @@ export function clientSafeAgentMessageParts(
       return [
         {
           type: "text",
-          text: options.sanitizeText ? sanitizeAgentVisibleText(withoutLegacyContext) : withoutLegacyContext,
+          text: options.sanitizeText
+            ? sanitizeAgentVisibleText(withoutLegacyContext, options.wikiBaseUrl)
+            : withoutLegacyContext,
         },
       ];
     }
@@ -128,6 +148,7 @@ export const AgentDataCountsSchema = z.object({
   services: z.boolean(),
   tasks: z.boolean(),
   routines: z.boolean(),
+  wiki: z.boolean(),
   widgets: z.boolean(),
   connectedAccounts: z.boolean(),
 });
@@ -152,6 +173,7 @@ export const SUGGESTION_PAGE_IDS = [
   "deals",
   "services",
   "routines",
+  "wiki",
   "connected-accounts",
   "default",
 ] as const;

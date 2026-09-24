@@ -6,6 +6,8 @@ const state = vi.hoisted(() => ({
   protectedEnhancementsAllowed: false,
   agentChatEnabled: false,
   agentConfigEnabled: null as boolean | null,
+  agentOpen: false,
+  pathname: "/legal-update",
   closeAllModals: vi.fn(),
   getGlobalSearchStore: vi.fn(),
   getAgentChatStore: vi.fn(),
@@ -13,7 +15,7 @@ const state = vi.hoisted(() => ({
   toggleAgentChat: vi.fn(),
 }));
 
-vi.mock("next/navigation", () => ({ usePathname: () => "/legal-update" }));
+vi.mock("next/navigation", () => ({ usePathname: () => state.pathname }));
 vi.mock("@/core/stores/root-store.provider", () => ({
   useRootStore: () => ({
     agentChatEnabled: state.agentChatEnabled,
@@ -26,6 +28,7 @@ vi.mock("@/core/stores/root-store.provider", () => ({
       state.getAgentChatStore();
       return {
         enabled: state.agentConfigEnabled,
+        isOpen: state.agentOpen,
         toggle: state.toggleAgentChat,
       };
     },
@@ -107,6 +110,8 @@ beforeEach(() => {
   state.protectedEnhancementsAllowed = false;
   state.agentChatEnabled = false;
   state.agentConfigEnabled = null;
+  state.agentOpen = false;
+  state.pathname = "/legal-update";
   state.closeAllModals.mockClear();
   state.getGlobalSearchStore.mockClear();
   state.getAgentChatStore.mockClear();
@@ -170,6 +175,19 @@ describe("ProtectedLayout account-state boundary", () => {
     expect(state.getAgentChatStore).not.toHaveBeenCalled();
     expect(state.openGlobalSearch).toHaveBeenCalledOnce();
     expect(state.toggleAgentChat).not.toHaveBeenCalled();
+  });
+
+  it("never mounts the floating assistant inside the restricted onboarding shell", () => {
+    state.pathname = "/en/onboarding/wizard";
+    state.agentChatEnabled = true;
+    state.agentConfigEnabled = true;
+    state.agentOpen = true;
+    renderLayout();
+
+    expect(container.textContent).not.toContain("agent-chat");
+    expect(container.textContent).not.toContain("global-search-modal");
+    expect(container.textContent).not.toContain("company-user-modal");
+    expect(state.getAgentChatStore).not.toHaveBeenCalled();
   });
 
   it("mounts the assistant but ignores Cmd+J while its config is unresolved", () => {

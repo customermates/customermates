@@ -32,6 +32,19 @@ import type { AgentApprovalContextResolution } from "./agent-external-approval-c
 import { internalToolIdentity } from "./tool-identity";
 import { providerWireInputSchema } from "./provider-safe-json-schema";
 import type { AgentToolInputResult } from "./agent-tool-input";
+import { getAgentWebSearchTool, AGENT_WEB_SEARCH_RELEASED } from "./agent-web-search";
+import { hostedWorkspaceContextText } from "./agent-workspace-context";
+import { wikiHomepageSetupTool } from "@/features/mcp-tools/wiki.mcp-tools";
+import { localizeWikiPageUrls } from "@/features/wiki/wiki-links";
+import { env } from "@/env";
+
+export type AgentToolOptions = {
+  locale?: string;
+  webSearchEnabled?: boolean;
+  wikiHomepageSetup?: boolean;
+  surface?: AgentSurface;
+};
+const ReadPublicPageSchema = z.object({ url: z.url().max(2_000) });
 
 export { isAgentToolCancellation, type AgentToolCancellation } from "./agent-tool-cancellation";
 
@@ -105,7 +118,7 @@ async function runGated<T>(
 function agentToolResult(outcome: McpToolExecutionResult, maxChars: number) {
   return {
     ok: outcome.ok,
-    result: agentToolResultText(outcome.result, maxChars),
+    result: agentToolResultText(localizeWikiPageUrls(outcome.result, env.BASE_URL), maxChars),
   };
 }
 
@@ -245,6 +258,12 @@ function crmTool(mcp: (typeof ALL_MCP_TOOLS)[number], deps: AgentToolDeps) {
     execute: async (input: unknown, { toolCallId }) => {
       const execute = async () => {
         const outcome = await executeMcpTool(mcp, [input]);
+        if (mcp.name === "get_workspace_context" && outcome.ok && outcome.structuredContent) {
+          return {
+            ok: true,
+            result: hostedWorkspaceContextText(outcome.structuredContent, deps.resultMaxChars, env.BASE_URL),
+          };
+        }
         return agentToolResult(outcome, deps.resultMaxChars);
       };
       const enrollable = !isReadOnlyTool(mcp) && !hasNonTransactionalEffect(mcp.name);
@@ -333,13 +352,27 @@ export function hostedMcpTools() {
   return ALL_MCP_TOOLS.filter((mcp) => mcp.name !== "request_support" && !isDeepResearchTool(mcp.name));
 }
 
-export function getAgentAiTools(deps: AgentToolDeps): ToolSet {
+export function getAgentAiTools(deps: AgentToolDeps, options: AgentToolOptions = {}): ToolSet {
+  if (options.wikiHomepageSetup) {
+    return withCallerContext(
+      {
+        read_public_page: tool({
+          description:
+            "Read one public HTTP(S) page as text for this homepage setup. Supply its exact URL; follow only useful explicit source links. Network protections and page limits are enforced by the runtime.",
+          inputSchema: providerSafeSchema(ReadPublicPageSchema),
+        }),
+        manage_wiki_pages: crmTool(wikiHomepageSetupTool(options.locale), deps),
+      },
+      deps,
+    );
+  }
   const crm = hostedMcpTools().map((mcp) => [mcp.name, crmTool(mcp, deps)] as const);
   return withCallerContext(
     {
       ...Object.fromEntries(crm),
-      ...uiTools(deps),
+      ...(options.surface === "routine" ? {} : uiTools(deps)),
       [LOAD_TOOLSET_TOOL_NAME]: loadToolsetTool(),
+      ...((options.webSearchEnabled ?? AGENT_WEB_SEARCH_RELEASED) ? { web_search: getAgentWebSearchTool() } : {}),
       request_support: tool({
         description:
           "Email a support request to the Customermates team. Use when the user asks for a human, reports a bug, or you cannot help after a genuine attempt. The recent Assistant conversation is included, and the team replies to the email address on the user's account.",
@@ -362,6 +395,11 @@ export function getAgentAiTools(deps: AgentToolDeps): ToolSet {
 
 export type AgentAiToolDefinition = {
   name: string;
+  type?: "provider";
+  isProviderExecuted?: boolean;
+  supportsDeferredResults?: boolean;
+  id?: string;
+  args?: Record<string, unknown>;
   description: string | undefined;
   inputSchema: unknown;
 };
@@ -369,6 +407,15 @@ export type AgentAiToolDefinition = {
 export function describeAgentAiTools(tools: ToolSet, servingProvider?: string): AgentAiToolDefinition[] {
   return Object.entries(tools).map(([name, agentTool]) => ({
     name,
+    ...(agentTool.type === "provider"
+      ? {
+          type: "provider" as const,
+          id: agentTool.id,
+          args: agentTool.args,
+          isProviderExecuted: agentTool.isProviderExecuted,
+          supportsDeferredResults: agentTool.supportsDeferredResults,
+        }
+      : {}),
     description:
       "description" in agentTool && typeof agentTool.description === "string" ? agentTool.description : undefined,
     inputSchema:
@@ -388,21 +435,32 @@ const TOOL_DEFINITION_DEPS: AgentToolDeps = {
   resultMaxChars: 1,
 };
 
-export function getAgentAiToolDefinitions(servingProvider?: string): AgentAiToolDefinition[] {
-  return describeAgentAiTools(getAgentAiTools(TOOL_DEFINITION_DEPS), servingProvider);
+export function getAgentAiToolDefinitions(
+  servingProvider?: string,
+  options: AgentToolOptions = {},
+): AgentAiToolDefinition[] {
+  return describeAgentAiTools(getAgentAiTools(TOOL_DEFINITION_DEPS, options), servingProvider);
 }
 
-export type AgentTurnToolDefinition = AgentAiToolDefinition & { toolset: string | null };
+export type AgentTurnToolDefinition = AgentAiToolDefinition & {
+  toolset: string | null;
+};
 
 export function agentToolDefinitionsForTurn(args: {
   servingProvider: string;
   surface: AgentSurface;
+  locale?: string;
+  webSearchEnabled?: boolean;
+  wikiHomepageSetup?: boolean;
 }): AgentTurnToolDefinition[] {
   const panelToolNames = new Set<string>(AGENT_UI_TOOL_NAMES);
   const unattended = isUnattendedSurface(args.surface);
-  return getAgentAiToolDefinitions(args.servingProvider)
+  return getAgentAiToolDefinitions(args.servingProvider, args)
     .filter((definition) => !unattended || !panelToolNames.has(definition.name))
-    .map((definition) => ({ ...definition, toolset: onDemandToolsetOfTool(definition.name) }));
+    .map((definition) => ({
+      ...definition,
+      toolset: onDemandToolsetOfTool(definition.name),
+    }));
 }
 
 export function agentToolDefinitionsForToolsets(
@@ -427,9 +485,9 @@ export async function normalizeAgentAiToolInput(
   toolName: string,
   input: unknown,
   maxChars: number,
-  options: { locale?: string } = {},
+  options: AgentToolOptions & { locale?: string } = {},
 ): Promise<AgentToolInputResult> {
-  const tools = getAgentAiTools(TOOL_DEFINITION_DEPS);
+  const tools = getAgentAiTools(TOOL_DEFINITION_DEPS, options);
   if (!Object.hasOwn(tools, toolName)) return { ok: false, result: "The requested tool is not available." };
   const agentTool = tools[toolName];
   const schema = asSchema(agentTool.inputSchema);

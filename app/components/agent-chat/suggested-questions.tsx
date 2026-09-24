@@ -31,6 +31,16 @@ function suggestionIcon(id: string) {
 }
 
 type Props = {
+  actionOverrides?: Readonly<
+    Record<
+      string,
+      {
+        disabled?: boolean;
+        label: string;
+        onChoose: () => void;
+      }
+    >
+  >;
   fallback?: ReactNode;
   pageId?: SuggestionPageId;
   state?: "data" | "empty";
@@ -57,6 +67,7 @@ export const AgentStarterActions = observer(function AgentStarterActions({ fallb
 });
 
 const AvailableAgentStarterActions = observer(function AvailableAgentStarterActions({
+  actionOverrides,
   pageId: explicitPageId,
   state: explicitState,
   surface = "chat",
@@ -81,7 +92,9 @@ const AvailableAgentStarterActions = observer(function AvailableAgentStarterActi
               ? Resource.tasks
               : pageId === "routines"
                 ? Resource.routines
-                : null;
+                : pageId === "wiki"
+                  ? Resource.wiki
+                  : null;
   const canSetupWorkspace =
     [Resource.contacts, Resource.organizations, Resource.deals, Resource.services, Resource.tasks].every(
       (resource) => userStore.can(resource, Action.create) && userStore.can(resource, Action.readAll),
@@ -117,7 +130,8 @@ const AvailableAgentStarterActions = observer(function AvailableAgentStarterActi
   const buttons = ([1, 2, 3] as const).map((index) => {
     const action = actions[index - 1];
     if (!action) return null;
-    const question = action.label;
+    const override = actionOverrides?.[action.id];
+    const question = override?.label ?? action.label;
     const prompt = action.prompt;
     const Icon = suggestionIcon(action.id);
 
@@ -125,9 +139,10 @@ const AvailableAgentStarterActions = observer(function AvailableAgentStarterActi
       <Button
         key={index}
         className="h-auto gap-1.5 rounded-full px-3 py-2 text-xs font-normal whitespace-normal"
+        disabled={override?.disabled}
         size="sm"
         variant="secondary"
-        onClick={() => choose(prompt)}
+        onClick={() => (override ? override.onChoose() : choose(prompt))}
       >
         <Icon aria-hidden="true" className="size-3.5" />
 

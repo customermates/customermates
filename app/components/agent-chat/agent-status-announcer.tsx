@@ -8,6 +8,7 @@ import { useEffect, useState } from "react";
 import type { AgentChatItem } from "./agent-chat.store";
 
 import { agentActivityCopy } from "@/ee/agent-chat/agent-activity";
+import { cn } from "@/core/utils/cn";
 
 import { useAgentChatStore } from "./agent-chat-store-context";
 import { agentProgressLabel, chatUiCopy, TypingDots } from "./chat-ui";
@@ -92,7 +93,7 @@ export const AgentInitialProgress = observer(function AgentInitialProgress() {
   );
 });
 
-export const AgentProgressStatus = observer(function AgentProgressStatus() {
+export const AgentProgressStatus = observer(function AgentProgressStatus({ inline = false }: { inline?: boolean }) {
   const store = useAgentChatStore();
   const t = useTranslations();
   const copy = chatUiCopy(t);
@@ -113,7 +114,7 @@ export const AgentProgressStatus = observer(function AgentProgressStatus() {
   if (!label) return null;
 
   return (
-    <div className="flex items-center gap-2 px-4 py-1 text-xs text-muted-foreground">
+    <div className={cn("flex items-center gap-2 py-1 text-xs text-muted-foreground", !inline && "px-4")}>
       <Loader2 aria-hidden="true" className="size-3.5 animate-spin motion-reduce:animate-none" />
 
       <span>{label}</span>

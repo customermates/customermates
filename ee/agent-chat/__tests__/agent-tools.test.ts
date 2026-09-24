@@ -26,7 +26,9 @@ vi.mock("@/prisma/db", () => MOCK_PRISMA_DB_MODULE);
 vi.mock("@sentry/nextjs", () => sentryMock);
 vi.mock("next-intl/server", () => ({
   getTranslations: () => {
-    const translator = Object.assign((key: string) => key, { raw: (key: string) => `localized:${key}` });
+    const translator = Object.assign((key: string) => key, {
+      raw: (key: string) => `localized:${key}`,
+    });
     return Promise.resolve(translator);
   },
   getLocale: () => Promise.resolve("en"),
@@ -42,6 +44,7 @@ import {
   resolveAgentTurnBudget,
 } from "../agent-budget-policy";
 import { conservativeAgentInitialContextBytes } from "../agent-provider-context";
+import { serializeAgentWikiCatalog as serializeAgentWikiCatalogWithBaseUrl } from "../agent-wiki-context";
 import { MODEL_CATALOG } from "../model-catalog";
 import { buildAgentSystemPrompt } from "../system-prompt";
 import { AGENT_UI_TARGETS } from "../ui-targets";
@@ -55,6 +58,9 @@ import {
   isAgentToolCancellation,
   type AgentToolDeps,
 } from "../agent-tools";
+
+const serializeAgentWikiCatalog = (value: Parameters<typeof serializeAgentWikiCatalogWithBaseUrl>[0]) =>
+  serializeAgentWikiCatalogWithBaseUrl(value, "https://example.invalid");
 
 function deps(overrides: Partial<AgentToolDeps> = {}): AgentToolDeps {
   return {
@@ -97,7 +103,9 @@ describe("agent tools", () => {
     };
     const tools = getAgentAiTools(deps({ runExactlyOnce })) as unknown as Record<
       string,
-      { execute: (input: unknown, options: { toolCallId: string }) => Promise<unknown> }
+      {
+        execute: (input: unknown, options: { toolCallId: string }) => Promise<unknown>;
+      }
     >;
     const ignoringOutcome = (call: Promise<unknown>) => call.catch(() => undefined);
 
@@ -120,7 +128,9 @@ describe("agent tools", () => {
     };
     const tools = getAgentAiTools(deps({ runInCallerContext })) as unknown as Record<
       string,
-      { execute?: (input: unknown, options: { toolCallId: string }) => Promise<unknown> }
+      {
+        execute?: (input: unknown, options: { toolCallId: string }) => Promise<unknown>;
+      }
     >;
 
     const executable = Object.entries(tools).filter(([, agentTool]) => typeof agentTool.execute === "function");
@@ -160,6 +170,7 @@ describe("agent tools", () => {
     expect(names.toSorted()).toEqual([...expected].toSorted());
     expect(names).not.toContain("search");
     expect(names).not.toContain("fetch");
+    expect(names).not.toContain("read_public_page");
     expect(names).toContain("load_toolset");
     expect(names).not.toContain("click_ui_target");
     expect(names.filter((name) => name === "request_support")).toHaveLength(1);
@@ -191,7 +202,13 @@ describe("agent tools", () => {
                   type: "message",
                   role: "assistant",
                   id: "msg_complete",
-                  content: [{ type: "output_text", text: "All eighteen checks are complete.", annotations: [] }],
+                  content: [
+                    {
+                      type: "output_text",
+                      text: "All eighteen checks are complete.",
+                      annotations: [],
+                    },
+                  ],
                 },
               ];
         return Promise.resolve(
@@ -205,7 +222,10 @@ describe("agent tools", () => {
               incomplete_details: null,
               usage: {
                 input_tokens: 10,
-                input_tokens_details: { cached_tokens: 0, cache_write_tokens: 0 },
+                input_tokens_details: {
+                  cached_tokens: 0,
+                  cache_write_tokens: 0,
+                },
                 output_tokens: 2,
                 output_tokens_details: { reasoning_tokens: 0 },
               },
@@ -267,6 +287,53 @@ describe("agent tools", () => {
     expect(funded?.maxOutputTokens).toBe(model.maxOutputTokens);
   });
 
+  it.each(["chat", "routine"] as const)(
+    "admits a full Unicode catalog on %s with the supported prompt limit",
+    (surface) => {
+      const catalog = serializeAgentWikiCatalog({
+        items: Array.from({ length: 10 }, (_, index) => ({
+          id: `00000000-0000-4000-8000-${String(index).padStart(12, "0")}`,
+          title: "漢".repeat(120),
+          excerpt: '漢"\\'.repeat(50),
+          url: `https://example.com/wiki?page=00000000-0000-4000-8000-${String(index).padStart(12, "0")}`,
+          createdAt: new Date("2026-09-13T00:00:00.000Z"),
+          updatedAt: new Date("2026-09-13T00:00:00.000Z"),
+        })),
+        relevantPages: [],
+        total: 20,
+        page: 1,
+        nextPage: 2,
+        truncated: true,
+      });
+      for (const model of Object.values(MODEL_CATALOG)) {
+        const requiredContextBytes = conservativeAgentInitialContextBytes({
+          systemPrompt: buildAgentSystemPrompt({
+            userName: "Test",
+            locale: "en",
+            surface,
+          }),
+          currentText: "x".repeat(surface === "routine" ? 5000 : 20000),
+          pageRoute: null,
+          toolDefinitions: getAgentAiToolDefinitions(model.servingProvider, {
+            surface,
+          }),
+          wikiCatalog: catalog,
+        });
+        expect(requiredContextBytes, model.modelId).toBeLessThanOrEqual(
+          agentContextTokensToBytes(model.maxContextTokens),
+        );
+        expect(
+          resolveAgentTurnBudget({
+            model,
+            availableCredits: agentRoundWorstCaseCredits(model),
+            requiredContextBytes: requiredContextBytes ?? undefined,
+          }),
+          model.modelId,
+        ).not.toBeNull();
+      }
+    },
+  );
+
   it("publishes the preferred custom-field option shape to the hosted provider", () => {
     const definition = getAgentAiToolDefinitions().find(({ name }) => name === "manage_custom_columns");
     const schema = definition?.inputSchema as { properties?: Record<string, unknown> } | undefined;
@@ -280,9 +347,14 @@ describe("agent tools", () => {
     const tools = getAgentAiTools(deps());
     const validate = schemaOf(tools.navigate).validate;
 
-    expect(await validate?.({ targetId: "nav-contacts" })).toMatchObject({ success: true });
-    for (const targetId of ["javascript:alert(1)", "https://example.com", "//example.com", "/contacts"])
-      expect(await validate?.({ targetId }), targetId).toMatchObject({ success: false });
+    expect(await validate?.({ targetId: "nav-contacts" })).toMatchObject({
+      success: true,
+    });
+    for (const targetId of ["javascript:alert(1)", "https://example.com", "//example.com", "/contacts"]) {
+      expect(await validate?.({ targetId }), targetId).toMatchObject({
+        success: false,
+      });
+    }
   });
 
   it("opens an existing record's page through navigate and rejects drawer, path and URL forms", async () => {
@@ -345,7 +417,11 @@ describe("agent tools", () => {
 
   it("answers one query that spans several pages, because the prompt asks for a single focused query", async () => {
     const tools = getAgentAiTools(deps({ resultMaxChars: 4096 }));
-    const result = String(await execute(tools.list_ui_targets, { query: "contacts, deals, and the dashboard" }));
+    const result = String(
+      await execute(tools.list_ui_targets, {
+        query: "contacts, deals, and the dashboard",
+      }),
+    );
 
     expect(result).toContain("nav-contacts");
     expect(result).toContain("nav-deals");
@@ -373,7 +449,9 @@ describe("agent tools", () => {
     expect(workflow).toContain("\nend");
     expect(provider).toContain("profile-connected-accounts-connect");
     expect(
-      await schemaOf(tools.highlight_element).validate?.({ targetId: "profile-connected-accounts-connect" }),
+      await schemaOf(tools.highlight_element).validate?.({
+        targetId: "profile-connected-accounts-connect",
+      }),
     ).toMatchObject({ success: true });
   });
 
@@ -384,7 +462,10 @@ describe("agent tools", () => {
       "start_tour",
       {
         steps: [
-          { targetId: "nav-contacts", note: "Contacts are the people you work with." },
+          {
+            targetId: "nav-contacts",
+            note: "Contacts are the people you work with.",
+          },
           { targetId: "contacts-add", note: "Add a contact from here." },
         ],
       },
@@ -403,7 +484,9 @@ describe("agent tools", () => {
     const runUiCommand = vi.fn().mockResolvedValue({ ok: true, result: "x".repeat(1000) });
     const tools = getAgentAiTools(deps({ runUiCommand, resultMaxChars: 512 }));
 
-    const outcome = (await execute(tools.navigate, { targetId: "nav-contacts" })) as { ok: boolean; result: string };
+    const outcome = (await execute(tools.navigate, {
+      targetId: "nav-contacts",
+    })) as { ok: boolean; result: string };
     expect(outcome.ok).toBe(true);
     expect(outcome.result.length).toBeLessThanOrEqual(512);
     expect(outcome.result).toContain(AGENT_TOOL_RESULT_TRUNCATED_MARK);
@@ -511,7 +594,11 @@ describe("agent tools", () => {
   it("keeps the WhatsApp documentation path usable inside the admitted 512-character tool result", async () => {
     const tools = getAgentAiTools(deps({ resultMaxChars: 512 }));
     const query = "Walk me through connecting WhatsApp to the Customermates inbox.";
-    const searchResult = (await execute(tools.search_docs, { query, locale: "en", source: "docs" })) as {
+    const searchResult = (await execute(tools.search_docs, {
+      query,
+      locale: "en",
+      source: "docs",
+    })) as {
       ok: boolean;
       result: string;
     };
@@ -550,13 +637,19 @@ describe("agent tools", () => {
 
     let failure: unknown;
     try {
-      await execute(tools.search_docs, { query: "contacts", locale: "en", source: "docs" });
+      await execute(tools.search_docs, {
+        query: "contacts",
+        locale: "en",
+        source: "docs",
+      });
     } catch (error) {
       failure = error;
     }
 
     expect(failure).toBeInstanceOf(Error);
-    expect(failure).toMatchObject({ message: "The assistant tool could not be completed." });
+    expect(failure).toMatchObject({
+      message: "The assistant tool could not be completed.",
+    });
     expect((failure as Error).cause).toBeUndefined();
     expect((failure as Error).stack).not.toContain("do-not-disclose");
     expect(sentryMock.captureException).not.toHaveBeenCalled();
@@ -566,14 +659,23 @@ describe("agent tools", () => {
     vi.spyOn(searchDocsTool, "execute").mockResolvedValueOnce("Validation error: invalid docs query" as never);
     const tools = getAgentAiTools(deps());
 
-    await expect(execute(tools.search_docs, { query: "contacts", locale: "en", source: "docs" })).resolves.toEqual({
+    await expect(
+      execute(tools.search_docs, {
+        query: "contacts",
+        locale: "en",
+        source: "docs",
+      }),
+    ).resolves.toEqual({
       ok: false,
       result: "Validation error: invalid docs query",
     });
   });
 
   it("shows request_support as an approval-gated action before sending an email", async () => {
-    const input = { subject: "Need help", body: "Please connect me with a human." };
+    const input = {
+      subject: "Need help",
+      body: "Please connect me with a human.",
+    };
     const requestApproval = vi.fn().mockResolvedValue("approve");
     const createSupportTicket = vi.fn().mockResolvedValue({ ok: true, result: "request emailed" });
     const tools = getAgentAiTools(deps({ requestApproval, createSupportTicket }));
@@ -635,10 +737,18 @@ describe("agent tools", () => {
     await expect(
       execute(
         tools.linkedin_manage_sales_lists,
-        { action: "save", connectedAccountId: "account-1", listId: "list-1", providerId: "lead-1" },
+        {
+          action: "save",
+          connectedAccountId: "account-1",
+          listId: "list-1",
+          providerId: "lead-1",
+        },
         "sales-approval",
       ),
-    ).resolves.toEqual({ ok: false, result: "The external target could not be verified." });
+    ).resolves.toEqual({
+      ok: false,
+      result: "The external target could not be verified.",
+    });
     expect(requestApproval).not.toHaveBeenCalled();
   });
 
@@ -655,7 +765,11 @@ describe("agent tools", () => {
     await expect(
       execute(
         tools.manage_social_relations,
-        { action: "invite", connectedAccountId: "account-1", identifier: "provider-ada" },
+        {
+          action: "invite",
+          connectedAccountId: "account-1",
+          identifier: "provider-ada",
+        },
         "social-approval",
       ),
     ).resolves.toEqual({ ok: false, result: "localized:userInactive" });
@@ -666,7 +780,11 @@ describe("agent tools", () => {
   it("does not expose unbounded structured MCP payloads to the hosted model", async () => {
     vi.spyOn(searchDocsTool, "execute")
       .mockImplementationOnce(
-        () => Promise.resolve({ text: "done", structuredContent: { rows: ["x".repeat(20_000)] } }) as never,
+        () =>
+          Promise.resolve({
+            text: "done",
+            structuredContent: { rows: ["x".repeat(20_000)] },
+          }) as never,
       )
       .mockImplementationOnce(
         () =>
@@ -684,12 +802,22 @@ describe("agent tools", () => {
       );
     const tools = getAgentAiTools(deps({ resultMaxChars: 512 }));
 
-    await expect(execute(tools.search_docs, { query: "contacts", locale: "en", source: "docs" })).resolves.toEqual({
+    await expect(
+      execute(tools.search_docs, {
+        query: "contacts",
+        locale: "en",
+        source: "docs",
+      }),
+    ).resolves.toEqual({
       ok: true,
       result: "done",
     });
 
-    const failed = (await execute(tools.search_docs, { query: "contacts", locale: "en", source: "docs" })) as {
+    const failed = (await execute(tools.search_docs, {
+      query: "contacts",
+      locale: "en",
+      source: "docs",
+    })) as {
       ok: boolean;
       result: string;
     };

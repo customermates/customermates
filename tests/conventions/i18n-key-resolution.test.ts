@@ -336,8 +336,10 @@ const DEFAULT_DATA_OPTION_KEYS = [
   "Common.defaultData.task.options.onHold",
   "Common.defaultData.task.options.open",
 ] as const;
-const ONBOARDING_STEP_TITLE_KEYS = ["profile", "invite", "ai"].map((step) => `OnboardingWizard.steps.${step}.title`);
-const ONBOARDING_STEP_SUBTITLE_KEYS = ["profile", "invite", "ai"].map(
+const ONBOARDING_STEP_TITLE_KEYS = ["profile", "wiki", "invite", "ai"].map(
+  (step) => `OnboardingWizard.steps.${step}.title`,
+);
+const ONBOARDING_STEP_SUBTITLE_KEYS = ["profile", "wiki", "invite", "ai"].map(
   (step) => `OnboardingWizard.steps.${step}.subtitle`,
 );
 const ONBOARDING_CHOICE_KEYS = [
@@ -372,6 +374,7 @@ const AGENT_ACTIVITY_RESOURCE_KEYS = [
   "AgentChat.activity.resource.tasks",
   "AgentChat.activity.resource.terminology",
   "AgentChat.activity.resource.widgets",
+  "AgentChat.activity.resource.wiki",
 ];
 const AGENT_ACTIVITY_LABEL_KEYS = [
   "AgentChat.activity.label.preview",
@@ -394,6 +397,7 @@ const AGENT_ACTIVITY_RESOURCE_SINGULAR_KEYS = [
   "AgentChat.activity.resourceSingular.tasks",
   "AgentChat.activity.resourceSingular.terminology",
   "AgentChat.activity.resourceSingular.widgets",
+  "AgentChat.activity.resourceSingular.wiki",
 ];
 const AGENT_ACTIVITY_STATE_KEYS = AGENT_ACTIVITY_KINDS.flatMap((kind) =>
   (["done", "error", "running"] as const).map((state) => `AgentChat.activity.state.${kind}.${state}`),
@@ -448,6 +452,12 @@ const AGENT_SUGGESTION_KEYS = [
   "AgentChat.suggestions.pages.routines.empty.first-routine",
   "AgentChat.suggestions.pages.routines.empty.routine-ideas",
   "AgentChat.suggestions.pages.routines.empty.routines-tour",
+  "AgentChat.suggestions.pages.wiki.data.create-wiki-page",
+  "AgentChat.suggestions.pages.wiki.data.wiki-gaps",
+  "AgentChat.suggestions.pages.wiki.data.wiki-summary",
+  "AgentChat.suggestions.pages.wiki.empty.first-wiki-page",
+  "AgentChat.suggestions.pages.wiki.empty.wiki-structure",
+  "AgentChat.suggestions.pages.wiki.empty.wiki-tour",
   "AgentChat.suggestions.pages.services.data.create-service",
   "AgentChat.suggestions.pages.services.data.service-gaps",
   "AgentChat.suggestions.pages.services.data.services-summary",

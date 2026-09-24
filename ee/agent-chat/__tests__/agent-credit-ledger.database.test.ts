@@ -5,6 +5,7 @@ import { describe, it, expect, afterAll, vi } from "vitest";
 import { getLocalDatabaseTestUrl } from "@/tests/helpers/database-test";
 import { createMockUser } from "@/tests/helpers/mock-user";
 import type { TenantUser } from "@/features/user/user.schema";
+import { buildAgentUsageSettlement } from "../agent-usage-settlement";
 
 const authState = vi.hoisted(() => ({ user: null as TenantUser | null }));
 
@@ -33,7 +34,7 @@ vi.mock("@/core/validation/zod-error-map-server", () => ({
 
 const { PrismaAgentChatRepo } = await import("@/ee/agent-chat/prisma-agent-chat.repository");
 const { AGENT_MAX_CONCURRENT_RUNS_PER_USER } = await import("@/ee/agent-chat/agent-run-limits");
-const { AGENT_RUN_LEASE_MS } = await import("@/ee/agent-chat/agent-turn-request");
+const { AGENT_RUN_LEASE_MS, WikiHomepageSetupAlreadyRunningError } = await import("@/ee/agent-chat/agent-turn-request");
 const { AgentUsageService } = await import("@/ee/agent-chat/agent-usage.service");
 const { SendAgentMessageInteractor } = await import("@/ee/agent-chat/send-agent-message.interactor");
 const { prisma } = await import("@/prisma/db");
@@ -87,6 +88,24 @@ async function seedActiveSeat(allowanceAnchor: Date) {
   return { companyId, userId };
 }
 
+const emptyWikiCatalog = () => ({
+  invoke: vi.fn().mockResolvedValue({
+    ok: true,
+    data: {
+      items: [],
+      relevantPages: [],
+      total: 0,
+      page: 1,
+      nextPage: null,
+      truncated: false,
+    },
+  }),
+});
+
+const emptyCustomColumns = () => ({
+  getCustomColumns: () => Promise.resolve([]),
+});
+
 const backgroundTasks = () => ({
   dispatch: vi.fn().mockResolvedValue(undefined),
   dispatchTracked: vi.fn().mockResolvedValue("wrun_test"),
@@ -97,6 +116,238 @@ const describeDatabase = getLocalDatabaseTestUrl() ? describe : describe.skip;
 const entitlements = { require: vi.fn().mockResolvedValue(null) };
 
 describeDatabase("agent credit ledger against a real database", { timeout: 120_000 }, () => {
+  it("admits exactly one of two concurrent homepage setup turns for a workspace", async () => {
+    const anchor = new Date(Date.UTC(2026, 0, 15));
+    const { companyId, userId: firstUserId } = await seedActiveSeat(anchor);
+    const secondUserId = randomUUID();
+    await runWithoutTenant(() =>
+      prisma.user.create({
+        data: {
+          id: secondUserId,
+          companyId,
+          email: `setup-${secondUserId}@example.com`,
+          firstName: "Second",
+          lastName: "Owner",
+          status: "active",
+          agentCreditActivatedAt: anchor,
+        },
+      }),
+    );
+
+    const firstUser = createMockUser({
+      id: firstUserId,
+      companyId,
+      email: `setup-${firstUserId}@example.com`,
+    });
+    const secondUser = createMockUser({
+      id: secondUserId,
+      companyId,
+      email: `setup-${secondUserId}@example.com`,
+    });
+    const expiresAt = new Date(Date.now() + AGENT_RUN_LEASE_MS);
+    const periodEnd = new Date(anchor.getTime() + 31 * 24 * 60 * 60 * 1_000);
+
+    const prepare = async (tenant: TenantUser) => {
+      const repo = new PrismaAgentChatRepo();
+      const conversationId = randomUUID();
+      const runId = randomUUID();
+      const reservationId = randomUUID();
+      await runWithTenant(tenant, async () => {
+        await repo.createAgentConversationForRun({
+          conversationId,
+          title: "Set up Workspace Wiki",
+          now: new Date(),
+        });
+        expect(
+          await repo.claimAgentRunLease({
+            conversationId,
+            runId,
+            expiresAt,
+            now: new Date(),
+          }),
+        ).toBe("claimed");
+      });
+      await runWithoutTenant(() =>
+        repo.reserveUsageEventUnscoped({
+          id: reservationId,
+          companyId,
+          userId: tenant.id,
+          sessionId: runId,
+          reservedCredits: 1,
+          planSnapshot: "starter",
+          subscriptionStatusSnapshot: "active",
+          allowanceCreditsSnapshot: 200,
+          periodStart: anchor,
+          periodEnd,
+        }),
+      );
+      return { repo, conversationId, runId, reservationId };
+    };
+
+    const first = await prepare(firstUser);
+    const second = await prepare(secondUser);
+    const admit = (tenant: TenantUser, prepared: Awaited<ReturnType<typeof prepare>>) =>
+      runWithTenant(tenant, () =>
+        prepared.repo.admitAgentTurnOrThrow({
+          conversationId: prepared.conversationId,
+          title: "Set up Workspace Wiki",
+          runId: prepared.runId,
+          reservationId: prepared.reservationId,
+          modelSpec: "openai/gpt-5.6-luna",
+          servingProvider: "azure",
+          recentMessageLimit: 8,
+          turn: {
+            kind: "create",
+            turnRequestId: randomUUID(),
+            clientRequestId: randomUUID(),
+            text: "Set up the Wiki from https://example.com/",
+            pageRoute: "/wiki",
+            wikiHomepageSetupDomain: "example.com",
+            wikiHomepageSetupUrl: "https://example.com/",
+            userMessageId: randomUUID(),
+          },
+        }),
+      );
+
+    const outcomes = await Promise.allSettled([admit(firstUser, first), admit(secondUser, second)]);
+    expect(outcomes.filter(({ status }) => status === "fulfilled")).toHaveLength(1);
+    const rejected = outcomes.filter((outcome) => outcome.status === "rejected");
+    expect(rejected).toHaveLength(1);
+    expect(rejected[0]).toMatchObject({
+      reason: expect.any(WikiHomepageSetupAlreadyRunningError),
+    });
+
+    const activeSetups = await runWithoutTenant(() =>
+      prisma.agentTurnRequest.count({
+        where: {
+          companyId,
+          wikiHomepageSetupDomain: { not: null },
+          status: { in: ["running", "waitingBudget"] },
+        },
+      }),
+    );
+    expect(activeSetups).toBe(1);
+  });
+
+  it("does not retry a failed homepage setup while another setup is active", async () => {
+    const anchor = new Date(Date.UTC(2026, 0, 15));
+    const { companyId, userId } = await seedActiveSeat(anchor);
+    const user = createMockUser({ id: userId, companyId });
+    const repo = new PrismaAgentChatRepo();
+    const failedConversationId = randomUUID();
+    const activeConversationId = randomUUID();
+    const failedTurnId = randomUUID();
+    const activeTurnId = randomUUID();
+    const failedRunId = randomUUID();
+    const failedUserMessageId = randomUUID();
+    const retryRunId = randomUUID();
+    const reservationId = randomUUID();
+    const periodEnd = new Date(anchor.getTime() + 31 * 24 * 60 * 60 * 1_000);
+
+    await runWithTenant(user, async () => {
+      await repo.createAgentConversationForRun({
+        conversationId: failedConversationId,
+        title: "Set up Workspace Wiki",
+        now: new Date(),
+      });
+      expect(
+        await repo.claimAgentRunLease({
+          conversationId: failedConversationId,
+          runId: retryRunId,
+          expiresAt: new Date(Date.now() + AGENT_RUN_LEASE_MS),
+          now: new Date(),
+        }),
+      ).toBe("claimed");
+    });
+    await runWithoutTenant(async () => {
+      await prisma.agentConversation.create({
+        data: {
+          id: activeConversationId,
+          companyId,
+          userId,
+          title: "Set up Workspace Wiki",
+        },
+      });
+      await prisma.agentTurnRequest.createMany({
+        data: [
+          {
+            id: failedTurnId,
+            companyId,
+            userId,
+            conversationId: failedConversationId,
+            clientRequestId: randomUUID(),
+            text: "Set up the Wiki from https://first.example.com/",
+            pageRoute: "/wiki",
+            wikiHomepageSetupDomain: "first.example.com",
+            wikiHomepageSetupUrl: "https://first.example.com/",
+            status: "failed",
+            runId: failedRunId,
+            modelSpec: "openai/gpt-5.6-luna",
+            servingProvider: "azure",
+            userMessageId: failedUserMessageId,
+            affectedResources: [],
+          },
+          {
+            id: activeTurnId,
+            companyId,
+            userId,
+            conversationId: activeConversationId,
+            clientRequestId: randomUUID(),
+            text: "Set up the Wiki from https://second.example.com/",
+            pageRoute: "/wiki",
+            wikiHomepageSetupDomain: "second.example.com",
+            wikiHomepageSetupUrl: "https://second.example.com/",
+            status: "running",
+            runId: randomUUID(),
+            modelSpec: "openai/gpt-5.6-luna",
+            servingProvider: "azure",
+            userMessageId: randomUUID(),
+            affectedResources: [],
+          },
+        ],
+      });
+      await repo.reserveUsageEventUnscoped({
+        id: reservationId,
+        companyId,
+        userId,
+        sessionId: retryRunId,
+        reservedCredits: 1,
+        planSnapshot: "starter",
+        subscriptionStatusSnapshot: "active",
+        allowanceCreditsSnapshot: 200,
+        periodStart: anchor,
+        periodEnd,
+      });
+    });
+
+    await expect(
+      runWithTenant(user, () =>
+        repo.admitAgentTurnOrThrow({
+          conversationId: failedConversationId,
+          title: "Set up Workspace Wiki",
+          runId: retryRunId,
+          reservationId,
+          modelSpec: "openai/gpt-5.6-luna",
+          servingProvider: "azure",
+          recentMessageLimit: 8,
+          turn: {
+            kind: "retry",
+            turnRequestId: failedTurnId,
+            priorRunId: failedRunId,
+            priorAttemptCount: 1,
+            wikiHomepageSetupDomain: "first.example.com",
+            userMessageId: failedUserMessageId,
+          },
+        }),
+      ),
+    ).rejects.toBeInstanceOf(WikiHomepageSetupAlreadyRunningError);
+
+    const failedTurn = await runWithoutTenant(() =>
+      prisma.agentTurnRequest.findUniqueOrThrow({ where: { id: failedTurnId }, select: { status: true } }),
+    );
+    expect(failedTurn.status).toBe("failed");
+  });
+
   it("admits only as many concurrent reservations as the allowance permits", async () => {
     const anchor = new Date(Date.UTC(2026, 0, 15));
     const { companyId, userId } = await seedActiveSeat(anchor);
@@ -214,7 +465,8 @@ describeDatabase("agent credit ledger against a real database", { timeout: 120_0
       usage,
       entitlements as never,
       backgroundTasks() as never,
-      { getCustomColumns: () => Promise.resolve([]) } as never,
+      emptyCustomColumns(),
+      emptyWikiCatalog(),
     ).invoke({
       clientRequestId: randomUUID(),
       text: "Start a chat",
@@ -277,7 +529,8 @@ describeDatabase("agent credit ledger against a real database", { timeout: 120_0
       usage,
       entitlements as never,
       backgroundTasks() as never,
-      { getCustomColumns: () => Promise.resolve([]) } as never,
+      emptyCustomColumns(),
+      emptyWikiCatalog(),
     ).invoke({
       clientRequestId: randomUUID(),
       text: "Start a long chat",
@@ -339,7 +592,8 @@ describeDatabase("agent credit ledger against a real database", { timeout: 120_0
       usage,
       entitlements as never,
       backgroundTasks() as never,
-      { getCustomColumns: () => Promise.resolve([]) } as never,
+      emptyCustomColumns(),
+      emptyWikiCatalog(),
     ).invoke({
       clientRequestId: randomUUID(),
       text: "Delete something that needs approval",
@@ -407,7 +661,8 @@ describeDatabase("agent credit ledger against a real database", { timeout: 120_0
       usage,
       entitlements as never,
       backgroundTasks() as never,
-      { getCustomColumns: () => Promise.resolve([]) } as never,
+      emptyCustomColumns(),
+      emptyWikiCatalog(),
     ).invoke({
       clientRequestId: randomUUID(),
       text: "Delete something and then die",
@@ -459,7 +714,8 @@ describeDatabase("agent credit ledger against a real database", { timeout: 120_0
       usage,
       entitlements as never,
       backgroundTasks() as never,
-      { getCustomColumns: () => Promise.resolve([]) } as never,
+      emptyCustomColumns(),
+      emptyWikiCatalog(),
     ).invoke({
       clientRequestId: randomUUID(),
       text: "Start provider work and lose its receipt",
@@ -540,7 +796,8 @@ describeDatabase("agent credit ledger against a real database", { timeout: 120_0
       usage,
       entitlements as never,
       backgroundTasks() as never,
-      { getCustomColumns: () => Promise.resolve([]) } as never,
+      emptyCustomColumns(),
+      emptyWikiCatalog(),
     ).invoke({
       clientRequestId: randomUUID(),
       text: "Start a chat",
@@ -579,7 +836,8 @@ describeDatabase("agent credit ledger against a real database", { timeout: 120_0
       usage,
       entitlements as never,
       backgroundTasks() as never,
-      { getCustomColumns: () => Promise.resolve([]) } as never,
+      emptyCustomColumns(),
+      emptyWikiCatalog(),
     ).invoke({
       clientRequestId: randomUUID(),
       text: "Start a chat",
@@ -637,6 +895,98 @@ describeDatabase("agent credit ledger against a real database", { timeout: 120_0
     expect(rounds[1].roundIndex).toBe(1);
   });
 
+  it("persists mixed Search costs in ordinary credit usage without double-charging finalization", async () => {
+    const anchor = new Date(Date.UTC(2026, 0, 15));
+    const { companyId, userId } = await seedActiveSeat(anchor);
+    authState.user = createMockUser({
+      id: userId,
+      companyId,
+      email: `search-${userId}@example.com`,
+    });
+    const repo = new PrismaAgentChatRepo();
+    const admitted = await new SendAgentMessageInteractor(
+      repo,
+      new AgentUsageService(repo),
+      entitlements as never,
+      backgroundTasks() as never,
+      emptyCustomColumns(),
+      emptyWikiCatalog(),
+    ).invoke({
+      clientRequestId: randomUUID(),
+      text: "Search and answer",
+      retry: false,
+    });
+    if (!admitted.ok || admitted.data.disposition !== "run") throw new Error("Expected an admitted turn.");
+    const { turnRequestId, conversationId, runId } = admitted.data;
+    const identity = {
+      turnRequestId,
+      conversationId,
+      runId,
+      companyId,
+      userId,
+    };
+    await runWithoutTenant(() => repo.markAgentTurnProviderStartedUnscoped(identity));
+    const reserved = await runWithoutTenant(() =>
+      prisma.agentUsageEvent.findFirstOrThrow({
+        where: { turnRequestId, companyId, userId, state: "reserved" },
+      }),
+    );
+    const usageSettlement = buildAgentUsageSettlement({
+      model: "google/gemini-3.5-flash-lite",
+      provider: "vertex",
+      inferenceRegion: "eu",
+      tokens: {
+        inputTokens: 2,
+        outputTokens: 2,
+        cacheReadTokens: 0,
+        cacheWriteTokens: 0,
+      },
+      reservedCredits: reserved.reservedCredits,
+      providerCharge: {
+        billed: true,
+        measuredCostMicrocents: null,
+        estimatedCostMicrocents: 1_080_587,
+        stepTokens: [],
+        unreadableReason: "missing later-round metadata",
+      },
+    });
+    const finalize = () =>
+      runWithoutTenant(() =>
+        repo.finalizeAgentTurnOrThrowUnscoped({
+          ...identity,
+          parts: [{ type: "text", text: "Search answer" }],
+          terminalCode: "completed",
+          stopReason: null,
+          affectedResources: [],
+          usageSettlement,
+        }),
+      );
+    await finalize();
+    await expect(finalize()).rejects.toThrow("no longer active");
+
+    const [events, usage, replies] = await runWithoutTenant(() =>
+      Promise.all([
+        prisma.agentUsageEvent.findMany({
+          where: { turnRequestId, companyId, userId },
+        }),
+        repo.getUserCreditUsageUnscoped(companyId, userId, reserved.periodStart, reserved.periodEnd),
+        prisma.agentMessage.count({
+          where: { turnRequestId, companyId, role: "assistant" },
+        }),
+      ]),
+    );
+    expect(events).toHaveLength(1);
+    expect(events[0]).toMatchObject({
+      state: "settled",
+      costMicrocents: 1_080_587n,
+      costSource: "estimated",
+      chargedCredits: 2,
+      policyBreach: false,
+    });
+    expect(usage).toEqual({ usedCredits: 2, recentTurnCredits: 2 });
+    expect(replies).toBe(1);
+  });
+
   it("takes a conversation's rounds with it on delete while its billing survives", async () => {
     const anchor = new Date(Date.UTC(2026, 0, 15));
     const { companyId, userId } = await seedActiveSeat(anchor);
@@ -653,7 +1003,8 @@ describeDatabase("agent credit ledger against a real database", { timeout: 120_0
       usage,
       entitlements as never,
       backgroundTasks() as never,
-      { getCustomColumns: () => Promise.resolve([]) } as never,
+      emptyCustomColumns(),
+      emptyWikiCatalog(),
     ).invoke({
       clientRequestId: randomUUID(),
       text: "Start a chat",
@@ -709,7 +1060,8 @@ describeDatabase("agent credit ledger against a real database", { timeout: 120_0
       usage,
       entitlements as never,
       backgroundTasks() as never,
-      { getCustomColumns: () => Promise.resolve([]) } as never,
+      emptyCustomColumns(),
+      emptyWikiCatalog(),
     ).invoke({
       clientRequestId: randomUUID(),
       text: "Start a chat",
@@ -782,7 +1134,8 @@ describeDatabase("agent credit ledger against a real database", { timeout: 120_0
       usage,
       entitlements as never,
       backgroundTasks() as never,
-      { getCustomColumns: () => Promise.resolve([]) } as never,
+      emptyCustomColumns(),
+      emptyWikiCatalog(),
     ).invoke({
       clientRequestId: randomUUID(),
       text: "Start a chat",
@@ -849,9 +1202,8 @@ describeDatabase("agent credit ledger against a real database", { timeout: 120_0
         usage,
         entitlements as never,
         backgroundTasks() as never,
-        {
-          getCustomColumns: () => Promise.resolve([]),
-        } as never,
+        emptyCustomColumns(),
+        emptyWikiCatalog(),
       ).invoke({
         clientRequestId: randomUUID(),
         text: "Start a chat",
@@ -895,7 +1247,8 @@ describeDatabase("agent credit ledger against a real database", { timeout: 120_0
         new AgentUsageService(repo),
         entitlements as never,
         backgroundTasks() as never,
-        { getCustomColumns: () => Promise.resolve([]) } as never,
+        emptyCustomColumns(),
+        emptyWikiCatalog(),
       ).invoke({
         clientRequestId: randomUUID(),
         conversationId,
@@ -939,7 +1292,8 @@ describeDatabase("agent credit ledger against a real database", { timeout: 120_0
         new AgentUsageService(repo),
         entitlements as never,
         backgroundTasks() as never,
-        { getCustomColumns: () => Promise.resolve([]) } as never,
+        emptyCustomColumns(),
+        emptyWikiCatalog(),
       ).invoke({
         clientRequestId: randomUUID(),
         text: "A separate thread",
@@ -976,7 +1330,8 @@ describeDatabase("agent credit ledger against a real database", { timeout: 120_0
         new AgentUsageService(repo),
         entitlements as never,
         backgroundTasks() as never,
-        { getCustomColumns: () => Promise.resolve([]) } as never,
+        emptyCustomColumns(),
+        emptyWikiCatalog(),
       ).invoke({
         clientRequestId: randomUUID(),
         text: "Another thread",
@@ -1047,7 +1402,8 @@ describeDatabase("agent credit ledger against a real database", { timeout: 120_0
         new AgentUsageService(failingRepo),
         entitlements as never,
         backgroundTasks() as never,
-        { getCustomColumns: () => Promise.resolve([]) } as never,
+        emptyCustomColumns(),
+        emptyWikiCatalog(),
       ).invoke({
         clientRequestId,
         text: "Create an atomic admission",
@@ -1081,7 +1437,8 @@ describeDatabase("agent credit ledger against a real database", { timeout: 120_0
       new AgentUsageService(retryRepo),
       entitlements as never,
       backgroundTasks() as never,
-      { getCustomColumns: () => Promise.resolve([]) } as never,
+      emptyCustomColumns(),
+      emptyWikiCatalog(),
     ).invoke({
       clientRequestId,
       text: "Create an atomic admission",

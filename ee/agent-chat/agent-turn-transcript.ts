@@ -34,10 +34,15 @@ export class AgentTurnTranscript {
   private readonly approvalParts = new Map<string, Extract<AgentMessagePart, { type: "approval" }>>();
   private readonly retryableFailureByTool = new Map<string, string>();
   private readonly affected = new Set<AgentActivityResource>();
-  private sanitizer = new AgentVisibleTextStreamSanitizer();
+  private sanitizer: AgentVisibleTextStreamSanitizer;
   private text = "";
 
-  constructor(private readonly emit: AgentTranscriptEmit) {}
+  constructor(
+    private readonly emit: AgentTranscriptEmit,
+    private readonly wikiBaseUrl?: string,
+  ) {
+    this.sanitizer = new AgentVisibleTextStreamSanitizer(wikiBaseUrl);
+  }
 
   get replyParts(): AgentMessagePart[] {
     return this.parts;
@@ -72,7 +77,7 @@ export class AgentTurnTranscript {
 
   finishTextSegment() {
     this.appendText(this.sanitizer.finish());
-    this.sanitizer = new AgentVisibleTextStreamSanitizer();
+    this.sanitizer = new AgentVisibleTextStreamSanitizer(this.wikiBaseUrl);
   }
 
   beginToolCall(call: { toolCallId: string; toolName: string; activity: AgentActivityDescriptor }) {
@@ -127,7 +132,12 @@ export class AgentTurnTranscript {
     for (const [id, toolPart] of this.toolParts) {
       if (toolPart.status !== "running") continue;
       this.settleTool(id, status);
-      if (shouldEmit) this.emit({ type: "activity_result", payload: { id, isError: true, status } });
+      if (shouldEmit) {
+        this.emit({
+          type: "activity_result",
+          payload: { id, isError: true, status },
+        });
+      }
     }
   }
 

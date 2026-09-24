@@ -8,8 +8,10 @@ import { AuthenticatedInteractor } from "@/core/base/authenticated-interactor";
 import { type Validated } from "@/core/validation/validation.utils";
 import { runInTransaction } from "@/core/decorators/transaction-runner";
 import type { EntitlementService } from "@/ee/subscription/entitlement.service";
+import { env } from "@/env";
 
 import { resolveUserLocale } from "@/i18n/user-locale";
+import { getTranslator } from "@/i18n/get-translator";
 import { AgentConversationOrigin } from "@/generated/prisma";
 
 import {
@@ -23,7 +25,12 @@ import {
 import type { AgentRunContext } from "./agent-run-context";
 import type { AgentUsageService } from "./agent-usage.service";
 import type { PrismaAgentChatRepo } from "./prisma-agent-chat.repository";
-import { AGENT_RUN_LEASE_MS, decideAgentTurnAdmission, type AgentTurnRequestSnapshot } from "./agent-turn-request";
+import {
+  AGENT_RUN_LEASE_MS,
+  decideAgentTurnAdmission,
+  WikiHomepageSetupAlreadyRunningError,
+  type AgentTurnRequestSnapshot,
+} from "./agent-turn-request";
 import { buildAgentSystemPrompt, routineTriggerEventOf } from "./system-prompt";
 import { agentToolDefinitionsForTurn } from "./agent-tools";
 import { toolsetsForRequest, toolsetsFromActivities } from "./agent-toolset-routing";
@@ -36,8 +43,13 @@ import type { BackgroundTaskService } from "@/core/utils/background-task.service
 import type { GetCustomColumnsRepo } from "@/features/custom-column/get-custom-columns.interactor";
 import { fail, failConflict, failNotFound, failRateLimit } from "@/core/validation/interactor-failure-server";
 import { CustomErrorCode } from "@/core/validation/validation.types";
+import type { GetWikiCatalogInteractor } from "@/features/wiki/get-wiki-catalog.interactor";
+import { parsePublicWikiHomepage, type PublicWikiHomepage } from "@/features/wiki/wiki-homepage";
+import { AppErrorCode, appErrorDetails } from "@/core/errors/app-errors";
+import { AGENT_WEB_SEARCH_ENABLED } from "./agent-web-search";
+import { agentWikiReplayBudget, serializeAgentWikiCatalog } from "./agent-wiki-context";
 
-type AdmittedAgentRun = { disposition: "run"; externalRunId: string } & AgentRunContext;
+type AdmittedAgentRun = { disposition: "run"; externalRunId: string } & Omit<AgentRunContext, "appBaseUrl">;
 type AgentInvocationMode = "interactive" | "routine";
 
 export type SendAgentMessageResult =
@@ -86,6 +98,7 @@ export class SendAgentMessageInteractor extends AuthenticatedInteractor<SendAgen
     private entitlements: EntitlementService,
     private backgroundTaskService: BackgroundTaskService,
     private customColumns: GetCustomColumnsRepo,
+    private wikiCatalog: Pick<GetWikiCatalogInteractor, "invoke">,
   ) {
     super();
   }
@@ -129,6 +142,8 @@ export class SendAgentMessageInteractor extends AuthenticatedInteractor<SendAgen
       text: data.text,
       pageRoute,
       retry: data.retry,
+      wikiHomepageSetupDomain: data.wikiHomepageSetupDomain,
+      wikiHomepageSetupUrl: data.wikiHomepageSetupUrl,
     });
 
     if (decision.disposition === "completed") {
@@ -137,6 +152,7 @@ export class SendAgentMessageInteractor extends AuthenticatedInteractor<SendAgen
       const safeParts = assistantMessage
         ? clientSafeAgentMessageParts(assistantMessage.parts, {
             sanitizeText: true,
+            wikiBaseUrl: env.BASE_URL,
           })
         : [];
       if (!assistantMessage || !terminalCode || !hasRenderableAgentMessageParts(safeParts)) {
@@ -201,6 +217,7 @@ export class SendAgentMessageInteractor extends AuthenticatedInteractor<SendAgen
 
     if (mode === "routine" && decision.disposition === "retry")
       return failNotFound(CustomErrorCode.agentConversationNotFound, ["conversationId"]);
+
     if (mode === "routine" && !data.conversationId)
       return failNotFound(CustomErrorCode.agentConversationNotFound, ["conversationId"]);
 
@@ -216,19 +233,61 @@ export class SendAgentMessageInteractor extends AuthenticatedInteractor<SendAgen
       : null;
     if ((decision.disposition === "retry" || data.conversationId) && !conversation)
       return failNotFound(CustomErrorCode.agentConversationNotFound, ["conversationId"]);
+
     if (mode === "routine" && conversation?.origin !== AgentConversationOrigin.routine)
       return failNotFound(CustomErrorCode.agentConversationNotFound, ["conversationId"]);
 
-    const surface = mode === "routine" ? "routine" : "chat";
+    const surface: "routine" | "chat" = mode === "routine" ? "routine" : "chat";
 
     const requestedModelKey = conversation?.modelKey ?? data.modelKey ?? null;
     if (requestedModelKey !== null && !isAgentModelKey(requestedModelKey))
       return fail(CustomErrorCode.agentModelUnavailable, ["modelKey"]);
-    const turnModel = resolveAgentModel(requestedModelKey);
+    const setupUrl = decision.disposition === "retry" ? decision.turn.wikiHomepageSetupUrl : data.wikiHomepageSetupUrl;
+    const setupDomain =
+      decision.disposition === "retry" ? decision.turn.wikiHomepageSetupDomain : data.wikiHomepageSetupDomain;
+    const wikiHomepageSetup: PublicWikiHomepage | undefined = setupUrl
+      ? (parsePublicWikiHomepage(setupUrl) ?? undefined)
+      : undefined;
+    if ((setupDomain || setupUrl) && (!wikiHomepageSetup || wikiHomepageSetup.registrableDomain !== setupDomain))
+      return fail(CustomErrorCode.invalidUrl, ["wikiHomepageSetupUrl"]);
+    const baseModel = resolveAgentModel(requestedModelKey);
+    const turnModel = wikiHomepageSetup
+      ? {
+          ...baseModel,
+          maxOutputTokens: 8_192,
+        }
+      : baseModel;
+    const locale = data.locale ?? resolveUserLocale(user);
+    let conversationTitle = data.text;
+    if (wikiHomepageSetup) {
+      const t = await getTranslator(locale, "WikiSetup");
+      conversationTitle = t("conversationTitle");
+    }
+    const toolOptions = {
+      locale,
+      surface,
+      wikiHomepageSetup: Boolean(wikiHomepageSetup),
+      webSearchEnabled: AGENT_WEB_SEARCH_ENABLED,
+    };
+    let wikiCatalog: string | null = null;
+    if (!wikiHomepageSetup) {
+      try {
+        const result = await this.wikiCatalog.invoke({
+          page: 1,
+          query: data.text,
+        });
+        if (!result.ok) return result;
+        wikiCatalog = serializeAgentWikiCatalog(result.data, env.BASE_URL);
+      } catch (error) {
+        if (appErrorDetails(error)?.code !== AppErrorCode.permissionDenied) throw error;
+      }
+    }
 
     const userName = `${user.firstName} ${user.lastName}`.trim();
-    const locale = data.locale ?? resolveUserLocale(user);
-    const requestedToolsets = toolsetsForRequest({ text: data.text, pageRoute });
+    const requestedToolsets = toolsetsForRequest({
+      text: data.text,
+      pageRoute,
+    });
     const schemaDigest = await this.schemaDigest();
     const requiredContextBytes = conservativeAgentInitialContextBytes({
       systemPrompt: buildAgentSystemPrompt({
@@ -237,10 +296,16 @@ export class SendAgentMessageInteractor extends AuthenticatedInteractor<SendAgen
         surface,
         triggerEvent: routineTriggerEventOf(data.text),
         schemaDigest,
+        wikiHomepageSetup: Boolean(wikiHomepageSetup),
+        webSearchEnabled: AGENT_WEB_SEARCH_ENABLED,
       }),
       currentText: data.text,
       pageRoute,
-      toolDefinitions: agentToolDefinitionsForTurn({ servingProvider: turnModel.servingProvider, surface }),
+      toolDefinitions: agentToolDefinitionsForTurn({
+        servingProvider: turnModel.servingProvider,
+        ...toolOptions,
+      }),
+      wikiCatalog,
     });
     if (requiredContextBytes === null) throw new Error("The Assistant request context could not be measured safely.");
 
@@ -263,7 +328,7 @@ export class SendAgentMessageInteractor extends AuthenticatedInteractor<SendAgen
           if (await this.repo.isAtAgentRunLimit(phaseOneAt)) return "at-user-limit" as const;
           await this.repo.createAgentConversationForRun({
             conversationId,
-            title: data.text,
+            title: conversationTitle,
             modelKey: requestedModelKey,
             now: phaseOneAt,
           });
@@ -343,6 +408,7 @@ export class SendAgentMessageInteractor extends AuthenticatedInteractor<SendAgen
                 turnRequestId,
                 priorRunId: decision.turn.runId,
                 priorAttemptCount: decision.turn.attemptCount,
+                wikiHomepageSetupDomain: wikiHomepageSetup?.registrableDomain,
                 userMessageId,
               }
             : {
@@ -351,6 +417,8 @@ export class SendAgentMessageInteractor extends AuthenticatedInteractor<SendAgen
                 clientRequestId: data.clientRequestId,
                 text: data.text,
                 pageRoute,
+                wikiHomepageSetupDomain: wikiHomepageSetup?.registrableDomain,
+                wikiHomepageSetupUrl: wikiHomepageSetup?.url,
                 userMessageId,
               },
       });
@@ -358,7 +426,12 @@ export class SendAgentMessageInteractor extends AuthenticatedInteractor<SendAgen
       const priorToolsets = toolsetsFromActivities(activitiesInMessages(admission.recentMessages));
       const earlierRequestToolsets = admission.recentMessages
         .filter((message) => message.role === "user")
-        .flatMap((message) => [...toolsetsForRequest({ text: partsToText(message.parts), pageRoute: null })]);
+        .flatMap((message) => [
+          ...toolsetsForRequest({
+            text: partsToText(message.parts),
+            pageRoute: null,
+          }),
+        ]);
       const toolsets = [...new Set([...requestedToolsets, ...priorToolsets, ...earlierRequestToolsets])];
       const pageContext = data.pageContext ? `<page_context route="${data.pageContext.route}"/>\n` : "";
       const replayInputs = admission.recentMessages.map((message) => {
@@ -370,7 +443,7 @@ export class SendAgentMessageInteractor extends AuthenticatedInteractor<SendAgen
           budgeted: !current,
         };
       });
-      const budgeted = budgetAgentReplayHistory(replayInputs);
+      const budgeted = budgetAgentReplayHistory(replayInputs, agentWikiReplayBudget(wikiCatalog));
       const messages = replayInputs
         .map((message, index) => ({
           role: message.role,
@@ -386,12 +459,16 @@ export class SendAgentMessageInteractor extends AuthenticatedInteractor<SendAgen
         userId: user.id,
         userName,
         locale,
+        appBaseUrl: env.BASE_URL,
         messages,
         turnBudget: reservation.budget,
         tenant: { userId: user.id, companyId: user.companyId },
         surface,
         toolsets,
         ...(schemaDigest ? { schemaDigest } : {}),
+        wikiHomepageSetup,
+        wikiCatalog,
+        webSearchEnabled: AGENT_WEB_SEARCH_ENABLED,
       });
       await this.repo.recordAgentTurnExternalRun(turnRequestId, runId, externalRunId);
 
@@ -427,6 +504,9 @@ export class SendAgentMessageInteractor extends AuthenticatedInteractor<SendAgen
           tags: { kind: "agent-admission-cleanup-failure" },
         });
       }
+      if (error instanceof WikiHomepageSetupAlreadyRunningError)
+        return failConflict(CustomErrorCode.agentTurnAlreadyRunning, ["homepage"]);
+
       throw error;
     }
   }

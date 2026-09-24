@@ -55,6 +55,7 @@ const CONFIG = {
     services: false,
     tasks: false,
     routines: false,
+    wiki: false,
     widgets: false,
     connectedAccounts: false,
   },
@@ -229,12 +230,21 @@ describe("AgentChatStore", () => {
     new AgentChatStore(root({}, secondUser) as never).open();
     const userStore = observable({ user: firstUser });
     const store = new AgentChatStore({ ...root(), userStore } as never);
+    store.markWikiHomepageSetupAccepted({
+      status: "working",
+      homepage: "https://example.com/",
+      domain: "example.com",
+      conversationId: "conversation-1",
+      pages: [],
+    });
 
     expect(store.isOpen).toBe(false);
     runInAction(() => {
       userStore.user = secondUser;
     });
     expect(store.isOpen).toBe(true);
+    expect(store.wikiHomepageSetup).toBeNull();
+    expect(store.wikiHomepageSetupConversationId).toBeNull();
 
     store.close();
     runInAction(() => {
@@ -292,6 +302,90 @@ describe("AgentChatStore", () => {
     expect(store.composerDraft).toBe("Help me create my first contact.");
     expect(store.items).toEqual([]);
     expect([...stored.values()]).toEqual(["true"]);
+  });
+
+  it("opens trusted Wiki setup as a dedicated panel mode like other starter actions", () => {
+    stubBrowser("/en/wiki");
+    const store = new AgentChatStore(root() as never);
+    const setup = {
+      status: "idle" as const,
+      homepage: null,
+      domain: null,
+      conversationId: null,
+      pages: [],
+    };
+    store.isHistoryOpen = true;
+    store.setComposerDraft("Keep this draft");
+
+    store.openWikiHomepageSetup(setup);
+
+    expect(store.isOpen).toBe(true);
+    expect(store.isHistoryOpen).toBe(false);
+    expect(store.composerDraft).toBe("");
+    expect(store.wikiHomepageSetup).toEqual(setup);
+    expect(store.wikiHomepageSetup).not.toBe(setup);
+
+    store.markWikiHomepageSetupAccepted({
+      status: "working",
+      homepage: "https://example.com/",
+      domain: "example.com",
+      conversationId: "conversation-1",
+      pages: [],
+    });
+    expect(store.wikiHomepageSetupConversationId).toBe("conversation-1");
+    expect(store.wikiHomepageSetup).toMatchObject({
+      status: "working",
+      homepage: "https://example.com/",
+      domain: "example.com",
+      conversationId: "conversation-1",
+    });
+
+    store.acknowledgeWikiHomepageSetup();
+    expect(store.wikiHomepageSetupConversationId).toBeNull();
+  });
+
+  it("does not hide an active turn behind Wiki setup and clears setup mode at normal exits", () => {
+    stubBrowser("/en/wiki");
+    const store = new AgentChatStore(root() as never);
+    const setup = {
+      status: "idle" as const,
+      homepage: null,
+      domain: null,
+      conversationId: null,
+      pages: [],
+    };
+    store.isWorking = true;
+
+    store.openWikiHomepageSetup(setup);
+
+    expect(store.isOpen).toBe(false);
+    expect(store.wikiHomepageSetup).toBeNull();
+
+    store.isWorking = false;
+    store.openWikiHomepageSetup(setup);
+    store.openWithDraft("Write a follow-up");
+    expect(store.wikiHomepageSetup).toBeNull();
+
+    store.openWikiHomepageSetup(setup);
+    store.close();
+    expect(store.wikiHomepageSetup).toBeNull();
+
+    store.openWikiHomepageSetup(setup);
+    store.newConversation();
+    expect(store.wikiHomepageSetup).toBeNull();
+  });
+
+  it("leaves history for the already-running selected conversation", async () => {
+    const conversationId = "00000000-0000-4000-8000-000000000001";
+    const store = new AgentChatStore(root() as never);
+    store.conversationId = conversationId;
+    store.isWorking = true;
+    store.isHistoryOpen = true;
+
+    await store.selectConversation(conversationId);
+
+    expect(store.isHistoryOpen).toBe(false);
+    expect(actionsMock.getAgentConversationAction).not.toHaveBeenCalled();
   });
 
   it("keeps an explicitly closed Assistant closed on an empty page", async () => {
@@ -3514,16 +3608,22 @@ describe("AgentChatStore", () => {
   it("completes a soft route refresh without clearing a newer queued refresh", () => {
     const store = new AgentChatStore(root() as never);
 
+    runInAction(() => {
+      store.streamStatus = "finalizing";
+    });
     store.markRouteSyncRefreshing();
     store.markRouteSyncComplete();
     expect(store.routeSyncStatus).toBe("idle");
+    expect(store.streamStatus).toBe("idle");
 
     store.markRouteSyncRefreshing();
     runInAction(() => {
       store.routeSyncStatus = "queued";
+      store.streamStatus = "finalizing";
     });
     store.markRouteSyncComplete();
     expect(store.routeSyncStatus).toBe("queued");
+    expect(store.streamStatus).toBe("finalizing");
   });
 
   it("reconnects an active durable stream from the next confirmed sequence", async () => {

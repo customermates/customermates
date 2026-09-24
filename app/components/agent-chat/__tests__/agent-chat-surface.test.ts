@@ -31,4 +31,15 @@ describe("agent chat surface contract", () => {
     expect(read("agent-tour-overlay.tsx")).toContain("OVERLAY_TOPMOST_LAYER_CLASS");
     expect(read("conversation-history.tsx")).toContain("layerClassName={OVERLAY_TOPMOST_LAYER_CLASS}");
   });
+
+  it("hosts trusted Wiki setup in the Mate panel without exposing the ordinary composer", () => {
+    const chat = read("agent-chat.tsx");
+    const setup = read("agent-wiki-homepage-setup.tsx");
+
+    expect(chat).toContain("<AgentWikiHomepageSetup initialState={store.wikiHomepageSetup} />");
+    expect(chat).toContain("!store.isHistoryOpen && !store.wikiHomepageSetup && <AgentComposer />");
+    expect(setup).toContain("<WikiHomepageSetup");
+    expect(setup).toContain("compact");
+    expect(setup).toContain("await store.selectConversation(conversationId)");
+  });
 });

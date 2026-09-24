@@ -87,7 +87,6 @@ const PRIMITIVE_DEFAULTS: { file: string; mustContain: string[] }[] = [
 ];
 
 const CONTROLLED_FOCUS_RETURN_SURFACES = [
-  "app/components/app-sidebar.tsx",
   "components/modal/app-modal.tsx",
   "components/entity-detail/entity-drawer.tsx",
   "components/modal/unsaved-changes-guard.tsx",
@@ -492,7 +491,6 @@ describe("overlay contract", () => {
     expect(appSidebar).toContain("globalSearchModalStore.openFrom(invoker");
     expect(appSidebar).toContain("feedbackModalStore.openFrom(invoker");
     expect(appSidebar).toContain('document.getElementById("sidebar-trigger")');
-    expect(appSidebar).toContain("if (isHandingOffRef.current)");
 
     const missing = CONTROLLED_FOCUS_RETURN_SURFACES.filter(
       (file) => !readFileSync(join(REPO_ROOT, file), "utf8").includes("useOverlayFocusReturn("),

@@ -18,10 +18,16 @@ vi.mock("@/env", () => MOCK_ENV_MODULE);
 vi.mock("@/core/di", () => createMockDiModule(() => mockUser));
 vi.mock("@/core/validation/zod-error-map-server", () => MOCK_ZOD_MODULE);
 vi.mock("@/prisma/db", () => MOCK_PRISMA_DB_MODULE);
-vi.mock("@sentry/nextjs", () => ({ captureException: vi.fn(), setTag: vi.fn(), setUser: vi.fn() }));
+vi.mock("@sentry/nextjs", () => ({
+  captureException: vi.fn(),
+  setTag: vi.fn(),
+  setUser: vi.fn(),
+}));
 vi.mock("next-intl/server", () => ({
   getTranslations: () => {
-    const translator = Object.assign((key: string) => key, { raw: (key: string) => `localized:${key}` });
+    const translator = Object.assign((key: string) => key, {
+      raw: (key: string) => `localized:${key}`,
+    });
     return Promise.resolve(translator);
   },
   getLocale: () => Promise.resolve("en"),
@@ -70,21 +76,51 @@ const NO_GOOGLE_FIELD = [
 
 const ACCEPTED_TODAY: [string, unknown][] = [
   ["list_records", { entity: "contact", pageSize: 25 }],
-  ["list_records", { entity: "contact", filters: [{ field: "name", operator: "contains", value: "a" }] }],
-  ["list_records", { entity: "contact", filters: [{ field: "createdAt", operator: "inLastDays", value: 7 }] }],
+  [
+    "list_records",
+    {
+      entity: "contact",
+      filters: [{ field: "name", operator: "contains", value: "a" }],
+    },
+  ],
+  [
+    "list_records",
+    {
+      entity: "contact",
+      filters: [{ field: "createdAt", operator: "inLastDays", value: 7 }],
+    },
+  ],
   ["list_records", { entity: "contact", filters: [{ field: "owner", operator: "isNull" }] }],
-  ["list_records", { entity: "contact", filters: [{ field: "tags", operator: "in", value: ["a"] }] }],
+  [
+    "list_records",
+    {
+      entity: "contact",
+      filters: [{ field: "tags", operator: "in", value: ["a"] }],
+    },
+  ],
   ["get_activities", {}],
   ["get_activities", { pageSize: 5 }],
   ["create_contacts", { contacts: [{ firstName: "Ada", lastName: "L", notes: "# hi" }] }],
   ["create_contacts", { contacts: [{ firstName: "Ada", lastName: "L", notes: null }] }],
   ["create_contacts", { contacts: [{ firstName: "Ada", lastName: "L", notes: 42 }] }],
   ["update_contacts", { contacts: [{ id: UUID, customFieldValues: null }] }],
-  ["update_contacts", { contacts: [{ id: UUID, customFieldValues: [{ columnId: UUID, value: null }] }] }],
+  [
+    "update_contacts",
+    {
+      contacts: [{ id: UUID, customFieldValues: [{ columnId: UUID, value: null }] }],
+    },
+  ],
   ["update_deals", { deals: [{ id: UUID, services: null }] }],
   [
     "manage_custom_columns",
-    { action: "upsert", id: null, intent: "create", label: "L", type: "plain", entityType: "contact" },
+    {
+      action: "upsert",
+      id: null,
+      intent: "create",
+      label: "L",
+      type: "plain",
+      entityType: "contact",
+    },
   ],
   ["manage_custom_columns", { action: "upsert", id: UUID, options: null }],
   ["manage_webhooks", { action: "update", secret: null }],
@@ -94,21 +130,41 @@ const ACCEPTED_TODAY: [string, unknown][] = [
   ["update_workspace_settings", { target: "profile", avatarUrl: "https://example.com/a.png" }],
   ["navigate", { targetId: "nav-deals" }],
   ["navigate", { entity: "contact", recordId: UUID }],
-  ["linkedin_search_sales_leads", { connectedAccountId: UUID, filters: { network_distance: [1, 2, "GROUP"] } }],
   [
     "linkedin_search_sales_leads",
-    { connectedAccountId: UUID, filters: { company_headcount: [{ min: 51, max: 200 }] } },
+    {
+      connectedAccountId: UUID,
+      filters: { network_distance: [1, 2, "GROUP"] },
+    },
+  ],
+  [
+    "linkedin_search_sales_leads",
+    {
+      connectedAccountId: UUID,
+      filters: { company_headcount: [{ min: 51, max: 200 }] },
+    },
   ],
   [
     "linkedin_search_sales_companies",
-    { connectedAccountId: UUID, filters: { annual_revenue: { min: 0.5, max: 2.5, currency: "USD" } } },
+    {
+      connectedAccountId: UUID,
+      filters: { annual_revenue: { min: 0.5, max: 2.5, currency: "USD" } },
+    },
   ],
   ["create_services", { services: [{ name: "S", amount: 10 }] }],
   ["get_social_posts", { connectedAccountId: UUID, authorIdentifier: "x", limit: 5, offset: 1 }],
   ["get_workspace_context", {}],
   ["search_records", { searchTerm: "a" }],
   ["manage_widgets", { action: "list" }],
-  ["send_email", { connectedAccountId: UUID, subject: "s", body: "b", to: [{ identifier: "ada@example.com" }] }],
+  [
+    "send_email",
+    {
+      connectedAccountId: UUID,
+      subject: "s",
+      body: "b",
+      to: [{ identifier: "ada@example.com" }],
+    },
+  ],
 ];
 
 const REJECTED_TODAY: [string, unknown][] = [
@@ -118,8 +174,21 @@ const REJECTED_TODAY: [string, unknown][] = [
   ["navigate", { entity: "spaceship", recordId: UUID }],
   ["create_contacts", { contacts: [] }],
   ["manage_webhooks", { action: "detonate" }],
-  ["update_contacts", { contacts: [{ id: UUID, customFieldValues: [{ columnId: UUID, value: 5 }] }] }],
-  ["send_email", { connectedAccountId: "nope", subject: "s", body: "b", to: [{ identifier: "a@b.com" }] }],
+  [
+    "update_contacts",
+    {
+      contacts: [{ id: UUID, customFieldValues: [{ columnId: UUID, value: 5 }] }],
+    },
+  ],
+  [
+    "send_email",
+    {
+      connectedAccountId: "nope",
+      subject: "s",
+      body: "b",
+      to: [{ identifier: "a@b.com" }],
+    },
+  ],
 ];
 
 const declaredTools = getAgentAiToolDefinitions();
@@ -166,15 +235,25 @@ describe("the Google function-declaration dialect", () => {
       $schema: "http://json-schema.org/draft-07/schema#",
       type: "object",
       properties: {
-        a: { type: "array", items: { type: "string", format: "uuid", uniqueItems: true } },
-        b: { type: "object", propertyNames: { pattern: "^x" }, patternProperties: { "^y": { type: "string" } } },
+        a: {
+          type: "array",
+          items: { type: "string", format: "uuid", uniqueItems: true },
+        },
+        b: {
+          type: "object",
+          propertyNames: { pattern: "^x" },
+          patternProperties: { "^y": { type: "string" } },
+        },
       },
       additionalProperties: false,
     });
 
     expect(result.schema).toEqual({
       type: "object",
-      properties: { a: { type: "array", items: { type: "string" } }, b: { type: "object" } },
+      properties: {
+        a: { type: "array", items: { type: "string" } },
+        b: { type: "object" },
+      },
     });
   });
 
@@ -183,8 +262,13 @@ describe("the Google function-declaration dialect", () => {
       anyOf: [{ type: "string" }, { type: "number" }],
     });
     expect(
-      googleSafeJsonSchema({ anyOf: [{ type: "boolean" }], oneOf: [{ type: "string" }, { type: "number" }] }).schema,
-    ).toEqual({ anyOf: [{ type: "boolean" }, { type: "string" }, { type: "number" }] });
+      googleSafeJsonSchema({
+        anyOf: [{ type: "boolean" }],
+        oneOf: [{ type: "string" }, { type: "number" }],
+      }).schema,
+    ).toEqual({
+      anyOf: [{ type: "boolean" }, { type: "string" }, { type: "number" }],
+    });
   });
 
   it("re-expresses a string const as the single-value enum Google understands", () => {
@@ -196,7 +280,13 @@ describe("the Google function-declaration dialect", () => {
   });
 
   it("keeps the numeric type and names the values when it drops a non-string enum", () => {
-    expect(googleSafeJsonSchema({ description: "Radius", type: "number", enum: [1, 5, 10] }).schema).toEqual({
+    expect(
+      googleSafeJsonSchema({
+        description: "Radius",
+        type: "number",
+        enum: [1, 5, 10],
+      }).schema,
+    ).toEqual({
       type: "number",
       description: "Radius Allowed values: 1, 5, 10.",
       minimum: 1,
@@ -207,7 +297,13 @@ describe("the Google function-declaration dialect", () => {
   it("leaves a description that already names every dropped value alone", () => {
     const description = "Results per page (one of: 5, 10, 25, 100). Default 10.";
 
-    expect(googleSafeJsonSchema({ description, type: "number", enum: [5, 10, 25, 100] }).schema).toEqual({
+    expect(
+      googleSafeJsonSchema({
+        description,
+        type: "number",
+        enum: [5, 10, 25, 100],
+      }).schema,
+    ).toEqual({
       type: "number",
       description,
       minimum: 5,
@@ -288,15 +384,24 @@ describe("the Google function-declaration dialect", () => {
   });
 
   it("drops an enum that would stop nullable admitting null", () => {
-    const single = googleSafeJsonSchema({ anyOf: [{ type: "string", enum: ["a", "b"] }, { type: "null" }] });
+    const single = googleSafeJsonSchema({
+      anyOf: [{ type: "string", enum: ["a", "b"] }, { type: "null" }],
+    });
 
-    expect(single.schema).toEqual({ type: "string", nullable: true, description: 'Allowed values: "a", "b".' });
+    expect(single.schema).toEqual({
+      type: "string",
+      nullable: true,
+      description: 'Allowed values: "a", "b".',
+    });
     expect(new Ajv().compile(single.schema as never)(null)).toBe(true);
     expect(new Ajv().compile({ type: "string", enum: ["a"], nullable: true })(null)).toBe(false);
   });
 
   it("leaves a union that already admits null unconstrained rather than nullable", () => {
-    const result = googleSafeJsonSchema({ description: "Markdown content", anyOf: [{}, { type: "null" }] });
+    const result = googleSafeJsonSchema({
+      description: "Markdown content",
+      anyOf: [{}, { type: "null" }],
+    });
 
     expect(result.schema).toEqual({ description: "Markdown content" });
     expect(new Ajv().compile(result.schema as never)(null)).toBe(true);
@@ -305,15 +410,23 @@ describe("the Google function-declaration dialect", () => {
 
   it("splices a nested bare union into its parent union", () => {
     expect(
-      googleSafeJsonSchema({ anyOf: [{ type: "boolean" }, { anyOf: [{ type: "string" }, { type: "number" }] }] })
-        .schema,
-    ).toEqual({ anyOf: [{ type: "boolean" }, { type: "string" }, { type: "number" }] });
+      googleSafeJsonSchema({
+        anyOf: [{ type: "boolean" }, { anyOf: [{ type: "string" }, { type: "number" }] }],
+      }).schema,
+    ).toEqual({
+      anyOf: [{ type: "boolean" }, { type: "string" }, { type: "number" }],
+    });
   });
 
   it("never emits an empty enum, an empty union, or a tuple items", () => {
     expect(googleSafeJsonSchema({ type: "string", enum: [null] }).schema).toEqual({ type: "string", nullable: true });
     expect(googleSafeJsonSchema({ anyOf: [{ type: "null" }] }).schema).toEqual({});
-    expect(googleSafeJsonSchema({ type: "array", items: [{ type: "string" }, { type: "number" }] }).schema).toEqual({
+    expect(
+      googleSafeJsonSchema({
+        type: "array",
+        items: [{ type: "string" }, { type: "number" }],
+      }).schema,
+    ).toEqual({
       type: "array",
     });
   });
@@ -335,7 +448,9 @@ describe("the Google function-declaration dialect", () => {
     const document = {
       $schema: "http://json-schema.org/draft-07/schema#",
       type: "object",
-      properties: { a: { anyOf: [{ type: "string", const: "x" }, { type: "null" }] } },
+      properties: {
+        a: { anyOf: [{ type: "string", const: "x" }, { type: "null" }] },
+      },
     };
     const before = JSON.stringify(document);
     googleSafeJsonSchema(document);
@@ -355,7 +470,10 @@ describe("serving-provider routing", () => {
   });
 
   it("hands every other provider the caller's own document, by reference", () => {
-    const document = { $schema: "http://json-schema.org/draft-07/schema#", oneOf: [{ type: "string" }] };
+    const document = {
+      $schema: "http://json-schema.org/draft-07/schema#",
+      oneOf: [{ type: "string" }],
+    };
 
     expect(providerWireInputSchema(document, "azure")).toBe(document);
     expect(providerWireInputSchema(document, undefined)).toBe(document);
@@ -450,10 +568,10 @@ describe("the shipped tool catalog on the Google wire", () => {
     const changes = changesForShippedCatalog();
 
     expect(summarizeGoogleSchemaChanges(changes)).toEqual({
-      "$schema:removed": 51,
+      "$schema:removed": 52,
       "additionalProperties:removed": 56,
       "anyOf:collapsed": 45,
-      "const:removed": 1,
+      "const:removed": 2,
       "const:rewritten": 218,
       "enum:removed": 18,
       "exclusiveMinimum:rewritten": 11,
@@ -464,7 +582,7 @@ describe("the shipped tool catalog on the Google wire", () => {
     });
     expect(summarizeGoogleSchemaChanges(changes.filter((change) => change.loosened))).toEqual({
       "additionalProperties:removed": 56,
-      "const:removed": 1,
+      "const:removed": 2,
       "enum:removed": 18,
       "exclusiveMinimum:rewritten": 2,
       "propertyNames:removed": 1,
@@ -505,9 +623,12 @@ describe("the authoritative input gate", () => {
   it("stays the Zod validator, which the wire transform never touches", async () => {
     const pageSize = (schemaOf(googleTools, "list_records") as JsonRecord).properties as JsonRecord;
     expect(pageSize.pageSize).not.toHaveProperty("enum");
-    expect(new Ajv().compile(schemaOf(googleTools, "list_records") as never)({ entity: "contact", pageSize: 7 })).toBe(
-      true,
-    );
+    expect(
+      new Ajv().compile(schemaOf(googleTools, "list_records") as never)({
+        entity: "contact",
+        pageSize: 7,
+      }),
+    ).toBe(true);
 
     const coerced = await normalizeAgentAiToolInput("list_records", { entity: "contact", pageSize: "25" }, 400);
     const rounded = await normalizeAgentAiToolInput("list_records", { entity: "contact", pageSize: 7 }, 400);
@@ -538,12 +659,16 @@ describe("the transform on the wire", () => {
   it("is asked for by serving provider where the workflow builds its tool shells", () => {
     const source = readFileSync(join(REPO_ROOT, "workflows", "agent-turn.ts"), "utf8");
 
-    expect(source).toContain("agentToolDefinitionsForTurn({ surface, servingProvider })");
-    expect(source).toContain("loadAgentToolShells(surface, payload.turnBudget.servingProvider)");
+    expect(source).toContain("return agentToolDefinitionsForTurn({");
+    expect(source).toContain("surface,");
+    expect(source).toContain("servingProvider,");
+    expect(source).toContain("...options,");
+    expect(source).toContain("loadAgentToolShells(surface, payload.turnBudget.servingProvider, {");
     expect(source).not.toContain("getAgentAiToolDefinitions()");
 
     const admission = readFileSync(join(REPO_ROOT, "ee", "agent-chat", "send-agent-message.interactor.ts"), "utf8");
-    expect(admission).toContain("agentToolDefinitionsForTurn({ servingProvider: turnModel.servingProvider, surface })");
+    expect(admission).toContain("agentToolDefinitionsForTurn({");
+    expect(admission).toContain("servingProvider: turnModel.servingProvider");
     expect(admission).not.toContain("getAgentAiToolDefinitions()");
   });
 });
@@ -571,7 +696,12 @@ describe("empty enum members, which Google rejects outright", () => {
     const probe = { target: "company", avatarUrl: "" };
     expect(ajv.compile(before.inputSchema as object)(probe)).toBe(true);
     expect(accepts(probe), "the transform must never tighten").toBe(true);
-    expect(accepts({ target: "company", avatarUrl: "https://example.invalid/a.png" })).toBe(true);
+    expect(
+      accepts({
+        target: "company",
+        avatarUrl: "https://example.invalid/a.png",
+      }),
+    ).toBe(true);
     expect(accepts({ target: "company", avatarUrl: null })).toBe(true);
   });
 });

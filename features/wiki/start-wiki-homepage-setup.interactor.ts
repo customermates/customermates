@@ -1,0 +1,74 @@
+import { z } from "zod";
+import { Action, Resource } from "@/generated/prisma";
+
+import { APP_LOCALES } from "@/i18n/locale-registry";
+import { getTranslator } from "@/i18n/get-translator";
+import { AuthenticatedInteractor } from "@/core/base/authenticated-interactor";
+import { TenantInteractor } from "@/core/decorators/tenant-interactor.decorator";
+import { Write } from "@/core/decorators/write.decorator";
+import { fail, failConflict } from "@/core/validation/interactor-failure-server";
+import { CustomErrorCode } from "@/core/validation/validation.types";
+import type { Data, Validated } from "@/core/validation/validation.utils";
+import type { SendAgentMessageInteractor, SendAgentMessageResult } from "@/ee/agent-chat/send-agent-message.interactor";
+
+import { parsePublicWikiHomepage } from "./wiki-homepage";
+
+const [firstAppLocale, ...otherAppLocales] = APP_LOCALES;
+
+export const StartWikiHomepageSetupSchema = z.object({
+  homepage: z.string().trim().min(1).max(2_000),
+  clientRequestId: z.uuid(),
+  locale: z.enum([firstAppLocale, ...otherAppLocales]),
+  retry: z.boolean().optional(),
+});
+export type StartWikiHomepageSetupData = Data<typeof StartWikiHomepageSetupSchema>;
+
+export abstract class StartWikiHomepageSetupRepo {
+  abstract wikiIsEmpty(): Promise<boolean>;
+  abstract findReusableSetupRequest(data: {
+    clientRequestId: string;
+    homepageUrl: string;
+    registrableDomain: string;
+  }): Promise<{ disposition: "reuse"; clientRequestId: string; text: string } | { disposition: "blocked" } | null>;
+}
+
+@TenantInteractor({ resource: Resource.wiki, action: Action.create })
+export class StartWikiHomepageSetupInteractor extends AuthenticatedInteractor<
+  StartWikiHomepageSetupData,
+  SendAgentMessageResult
+> {
+  constructor(
+    private repo: StartWikiHomepageSetupRepo,
+    private agent: Pick<SendAgentMessageInteractor, "invoke">,
+  ) {
+    super();
+  }
+
+  @Write({ input: StartWikiHomepageSetupSchema, tx: false })
+  async invoke(data: StartWikiHomepageSetupData): Validated<SendAgentMessageResult> {
+    const homepage = parsePublicWikiHomepage(data.homepage);
+    if (!homepage) return fail(CustomErrorCode.invalidUrl, ["homepage"]);
+    const reusable = await this.repo.findReusableSetupRequest({
+      clientRequestId: data.clientRequestId,
+      homepageUrl: homepage.url,
+      registrableDomain: homepage.registrableDomain,
+    });
+    if (reusable?.disposition === "blocked") return failConflict(CustomErrorCode.agentTurnAlreadyRunning, ["homepage"]);
+    if (!reusable && !(await this.repo.wikiIsEmpty())) return failConflict(CustomErrorCode.wikiNotEmpty, ["homepage"]);
+    let text: string;
+    if (reusable) text = reusable.text;
+    else {
+      const t = await getTranslator(data.locale, "WikiSetup");
+      text = t("agentPrompt", { homepage: homepage.url });
+    }
+
+    return this.agent.invoke({
+      clientRequestId: reusable?.clientRequestId ?? data.clientRequestId,
+      text,
+      locale: data.locale,
+      retry: data.retry === true,
+      wikiHomepageSetupDomain: homepage.registrableDomain,
+      wikiHomepageSetupUrl: homepage.url,
+    });
+  }
+}

@@ -7,7 +7,11 @@ import { buildAgentSystemPrompt } from "@/ee/agent-chat/system-prompt";
 import { requiresApproval } from "@/ee/agent-chat/gated-tools";
 import { internalToolIdentity } from "@/ee/agent-chat/tool-identity";
 import { ALL_MCP_TOOLS } from "@/features/mcp-tools/tool-registry";
-import { MCP_SERVER_INSTRUCTIONS, GET_STARTED_PROMPT } from "@/features/mcp-tools/server-instructions";
+import {
+  MCP_ACTION_INSTRUCTION,
+  MCP_SERVER_INSTRUCTIONS,
+  GET_STARTED_PROMPT,
+} from "@/features/mcp-tools/server-instructions";
 import { CONTENT_LOCALES } from "@/i18n/locale-registry";
 
 const root = process.cwd();
@@ -61,6 +65,16 @@ describe("agent approval wording matches runtime behaviour", () => {
     );
     expect(definitions).toHaveLength(1);
     expect(read("ee/agent-chat/system-prompt.ts")).not.toContain(instruction);
+  });
+
+  it("requires authorization before public MCP calls without promising a hosted approval pause", () => {
+    expect(MCP_SERVER_INSTRUCTIONS).toContain(MCP_ACTION_INSTRUCTION);
+    expect(GET_STARTED_PROMPT).toContain(MCP_ACTION_INSTRUCTION);
+    expect(MCP_ACTION_INSTRUCTION).toContain("runs immediately");
+    expect(MCP_ACTION_INSTRUCTION).toContain("never stops it to ask anyone");
+    expect(MCP_ACTION_INSTRUCTION).toContain("Get your user's confirmation yourself");
+    expect(MCP_ACTION_INSTRUCTION).toContain("before a call that deletes, sends, or reaches outside the workspace");
+    expect(chatPrompt).not.toContain(MCP_ACTION_INSTRUCTION);
   });
 
   it("no longer instructs the hosted assistant to ask permission in prose instead of calling", () => {

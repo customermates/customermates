@@ -17,10 +17,16 @@ vi.mock("@/env", () => MOCK_ENV_MODULE);
 vi.mock("@/core/di", () => createMockDiModule(() => mockUser));
 vi.mock("@/core/validation/zod-error-map-server", () => MOCK_ZOD_MODULE);
 vi.mock("@/prisma/db", () => MOCK_PRISMA_DB_MODULE);
-vi.mock("@sentry/nextjs", () => ({ captureException: vi.fn(), setTag: vi.fn(), setUser: vi.fn() }));
+vi.mock("@sentry/nextjs", () => ({
+  captureException: vi.fn(),
+  setTag: vi.fn(),
+  setUser: vi.fn(),
+}));
 vi.mock("next-intl/server", () => ({
   getTranslations: () => {
-    const translator = Object.assign((key: string) => key, { raw: (key: string) => `localized:${key}` });
+    const translator = Object.assign((key: string) => key, {
+      raw: (key: string) => `localized:${key}`,
+    });
     return Promise.resolve(translator);
   },
   getLocale: () => Promise.resolve("en"),
@@ -123,7 +129,10 @@ describe("provider-safe tool schemas", () => {
     const census = new Map<string, number>();
 
     for (const mcp of ALL_MCP_TOOLS) {
-      const withFormats = z.toJSONSchema(mcp.inputSchema as never, { io: "input", target: "draft-07" });
+      const withFormats = z.toJSONSchema(mcp.inputSchema as never, {
+        io: "input",
+        target: "draft-07",
+      });
       const formatted = collect(withFormats, (node) => typeof node.format === "string");
       if (formatted.length === 0) continue;
 
@@ -147,7 +156,10 @@ describe("provider-safe tool schemas", () => {
           false,
         );
 
-        const validate = new Ajv().compile({ type: "string", pattern: node?.pattern as string });
+        const validate = new Ajv().compile({
+          type: "string",
+          pattern: node?.pattern as string,
+        });
         if (format === "uuid") {
           expect(validate(uuid), `${mcp.name} ${path} rejects a real uuid`).toBe(true);
           expect(validate("not-a-uuid"), `${mcp.name} ${path} accepts garbage`).toBe(false);
@@ -163,7 +175,12 @@ describe("provider-safe tool schemas", () => {
       }
     }
 
-    expect(Object.fromEntries(census)).toEqual({ uuid: 84, "date-time": 3, email: 6, uri: 4 });
+    expect(Object.fromEntries(census)).toEqual({
+      uuid: 85,
+      "date-time": 4,
+      email: 6,
+      uri: 4,
+    });
   });
 
   it("still enforces the real constraint through the tool's own validator", async () => {
@@ -171,9 +188,19 @@ describe("provider-safe tool schemas", () => {
     const validateSendEmail = asSchema(tools.send_email.inputSchema as never).validate;
     expect(validateSendEmail).toBeDefined();
 
-    const base = { connectedAccountId: "3f7c1a54-9b2e-4c31-8f6a-2b5d7e9c1a04", subject: "Hi", body: "There" };
-    const good = await validateSendEmail?.({ ...base, to: [{ identifier: "ada@example.com" }] });
-    const bad = await validateSendEmail?.({ ...base, to: [{ identifier: "definitely not an address" }] });
+    const base = {
+      connectedAccountId: "3f7c1a54-9b2e-4c31-8f6a-2b5d7e9c1a04",
+      subject: "Hi",
+      body: "There",
+    };
+    const good = await validateSendEmail?.({
+      ...base,
+      to: [{ identifier: "ada@example.com" }],
+    });
+    const bad = await validateSendEmail?.({
+      ...base,
+      to: [{ identifier: "definitely not an address" }],
+    });
 
     expect(good?.success).toBe(true);
     expect(bad?.success).toBe(false);

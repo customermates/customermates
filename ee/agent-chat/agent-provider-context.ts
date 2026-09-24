@@ -4,6 +4,7 @@ import { toModelMessages, type ReplayMessage } from "./agent-stream-utils";
 import type { AgentAiToolDefinition } from "./agent-tools";
 import { isAgentContextWithinBudget, serializedAgentContextBytes } from "./agent-budget-policy";
 import { AGENT_REPLAY_COUNT, agentReplayWorstCaseMessageChars } from "./agent-replay-budget";
+import { agentWikiContextMessages, agentWikiReplayBudget } from "./agent-wiki-context";
 
 export type AgentProviderContext = {
   system: string;
@@ -15,10 +16,11 @@ export function buildAgentProviderContext(
   systemPrompt: string,
   messages: ReplayMessage[],
   toolDefinitions: AgentAiToolDefinition[],
+  wikiCatalog?: string | null,
 ): AgentProviderContext {
   return {
     system: systemPrompt,
-    messages: toModelMessages(messages),
+    messages: [...agentWikiContextMessages(wikiCatalog), ...toModelMessages(messages)],
     tools: toolDefinitions,
   };
 }
@@ -36,8 +38,9 @@ export function conservativeAgentInitialContextBytes(args: {
   currentText: string;
   pageRoute: string | null;
   toolDefinitions: AgentAiToolDefinition[];
+  wikiCatalog?: string | null;
 }): number | null {
-  const worstCaseMessageChars = agentReplayWorstCaseMessageChars();
+  const worstCaseMessageChars = agentReplayWorstCaseMessageChars(agentWikiReplayBudget(args.wikiCatalog));
   const priorMessages = Array.from({ length: AGENT_REPLAY_COUNT - 1 }, (_, index) => ({
     role: index % 2 === 0 ? "user" : "assistant",
     text: "x".repeat(worstCaseMessageChars),
@@ -47,6 +50,7 @@ export function conservativeAgentInitialContextBytes(args: {
     args.systemPrompt,
     [...priorMessages, { role: "user", text: `${pageContext}${args.currentText}` }],
     args.toolDefinitions,
+    args.wikiCatalog,
   );
   return serializedAgentContextBytes(context);
 }

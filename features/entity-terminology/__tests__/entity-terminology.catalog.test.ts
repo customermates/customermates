@@ -62,9 +62,12 @@ describe("entity terminology catalogs", () => {
     }
   });
 
-  it.each(Object.entries(catalogs))("keeps %s onboarding at Profile, Invite, and AI only", (_locale, messages) => {
-    expect(Object.keys(messages.OnboardingWizard.steps)).toEqual(["ai", "invite", "profile"]);
-  });
+  it.each(Object.entries(catalogs))(
+    "keeps %s onboarding at Profile, Wiki, Invite, and AI only",
+    (_locale, messages) => {
+      expect(Object.keys(messages.OnboardingWizard.steps)).toEqual(["ai", "invite", "profile", "wiki"]);
+    },
+  );
 
   it.each(Object.entries(catalogs))("keeps %s data-model relationships complete and dynamic", (_locale, messages) => {
     expect(messages.EntityTerminology.relationships.dataModelLabel).not.toBe("");

@@ -40,6 +40,7 @@ const EMPTY_COUNTS = {
   services: false,
   tasks: false,
   routines: false,
+  wiki: false,
   widgets: false,
   connectedAccounts: false,
 };
@@ -54,11 +55,22 @@ describe("agent experience contract", () => {
     expect(agentPageState("contacts", populated)).toBe("data");
     expect(agentPageState("routines", EMPTY_COUNTS)).toBe("empty");
     expect(agentPageState("routines", { ...EMPTY_COUNTS, routines: true })).toBe("data");
+    expect(agentPageState("wiki", EMPTY_COUNTS)).toBe("empty");
+    expect(agentPageState("wiki", { ...EMPTY_COUNTS, wiki: true })).toBe("data");
     expect(agentPageActions("contacts", "data", enT, "en").map((action) => action.id)).not.toEqual(
       agentPageActions("contacts", "empty", enT, "en").map((action) => action.id),
     );
 
-    for (const page of ["dashboard", "tasks", "contacts", "organizations", "deals", "services", "routines"] as const) {
+    for (const page of [
+      "dashboard",
+      "tasks",
+      "contacts",
+      "organizations",
+      "deals",
+      "services",
+      "routines",
+      "wiki",
+    ] as const) {
       for (const state of ["empty", "data"] as const) {
         expect(agentPageActions(page, state, enT, "en")).toHaveLength(3);
         expect(agentPageActions(page, state, deT, "de")).toHaveLength(3);
@@ -182,6 +194,69 @@ describe("agent experience contract", () => {
     expect(agentActivityCopy(updated, enT).done).toBe("Updated 1 deal");
     expect(agentActivityCopy(updated, deT).running).toBe("1 Deal wird aktualisiert");
     expect(JSON.stringify([created, updated])).not.toMatch(/Ada|Grace|Private project|never-show|00000000/);
+  });
+
+  it("explains homepage reading and Wiki creation with task-specific progress", () => {
+    const websiteRead = describeInternalTool("read_public_page", {
+      url: "https://www.customermates.com/company?token=never-show#private",
+    });
+    const wikiCreate = describeInternalTool("manage_wiki_pages", {
+      action: "create",
+      pages: Array.from({ length: 5 }, (_, index) => ({
+        title: `Private page ${index + 1}`,
+      })),
+    });
+
+    expect(websiteRead).toEqual({
+      kind: "web.read",
+      affectedResources: [],
+      risk: "read",
+      sourceDomain: "customermates.com",
+      sourcePage: "customermates.com/company",
+    });
+    expect(wikiCreate).toMatchObject({
+      kind: "records.create",
+      resource: "wiki",
+      count: 5,
+      risk: "write",
+      affectedResources: ["wiki"],
+    });
+    expect(agentActivityCopy(websiteRead, enT)).toMatchObject({
+      running: "Reading customermates.com/company",
+      done: "Read customermates.com/company",
+      error: "Couldn’t read customermates.com/company",
+    });
+    expect(agentActivityCopy(wikiCreate, enT).running).toBe("Creating 5 Wiki pages");
+    expect(JSON.stringify([websiteRead, wikiCreate])).not.toMatch(/never-show|private|Private page/);
+
+    expect(describeInternalTool("read_public_page", { url: "https://www.customermates.com" })).toMatchObject({
+      sourceDomain: "customermates.com",
+      sourcePage: "customermates.com/",
+    });
+    expect(
+      describeInternalTool("read_public_page", {
+        url: "https://docs.customermates.com/guides/getting-started?session=never-show#install",
+      }),
+    ).toMatchObject({
+      sourceDomain: "customermates.com",
+      sourcePage: "docs.customermates.com/guides/getting-started",
+    });
+    expect(
+      describeInternalTool("read_public_page", {
+        url: `https://customermates.com/${"x".repeat(600)}`,
+      }),
+    ).toEqual({
+      kind: "web.read",
+      affectedResources: [],
+      risk: "read",
+      sourceDomain: "customermates.com",
+    });
+
+    const legacyOrInvalidRead = describeInternalTool("read_public_page", {
+      url: "https://127.0.0.1/private?token=never-show",
+    });
+    expect(legacyOrInvalidRead).not.toHaveProperty("sourceDomain");
+    expect(agentActivityCopy(legacyOrInvalidRead, enT).running).toBe("Reading a website page");
   });
 
   it("keeps no input-derived data on a navigate or highlight activity", () => {

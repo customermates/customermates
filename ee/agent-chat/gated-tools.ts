@@ -34,6 +34,10 @@ const INTERNAL_APPROVAL_POLICY: Record<string, AgentApprovalPolicy> = {
     approvalFreeActions: ["list", "runs", "create", "update", "pause", "run_now"],
     readOnlyActions: ["list", "runs"],
   },
+  manage_wiki_pages: {
+    approvalFreeActions: ["list", "search", "get", "create", "update"],
+    readOnlyActions: ["list", "search", "get"],
+  },
   move_email_thread: { approvalFree: true },
   linkedin_manage_sales_lists: {
     approvalFreeActions: ["list", "browse", "save"],
@@ -76,6 +80,13 @@ export function approvalFreeActionsForTool(identity: AgentToolIdentity): readonl
 export function readOnlyActionsForTool(identity: AgentToolIdentity): readonly string[] | null {
   const policy = policyFor(identity);
   return policy && "readOnlyActions" in policy ? (policy.readOnlyActions ?? null) : null;
+}
+
+export function isReadOnlyAgentToolCall(name: string, tool: { annotations?: Record<string, boolean> }, input: unknown) {
+  if (isReadOnlyTool(tool) || name === "read_public_page" || name === "web_search") return true;
+  const action =
+    input && typeof input === "object" && !Array.isArray(input) ? (input as { action?: unknown }).action : undefined;
+  return typeof action === "string" && Boolean(readOnlyActionsForTool(internalToolIdentity(name))?.includes(action));
 }
 
 export function requiresApproval(

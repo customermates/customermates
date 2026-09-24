@@ -28,6 +28,7 @@ const BASE_MOCK_USER = {
   agreeToTerms: true,
   lastActiveAt: new Date(0),
   onboardingWizardCompletedAt: new Date(0),
+  onboardingWikiStepCompletedAt: new Date(0),
   createdAt: new Date(0),
   updatedAt: new Date(0),
   role: MOCK_ROLE,

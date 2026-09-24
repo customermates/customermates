@@ -8,6 +8,7 @@ export type AgentUsageCostSource = "measured" | "estimated";
 export type AgentProviderChargeEvidence = {
   billed: boolean;
   measuredCostMicrocents: number | null;
+  estimatedCostMicrocents?: number;
   stepTokens: readonly TokenCounts[];
   unreadableReason: string | null;
 };
@@ -64,7 +65,7 @@ export function buildAgentUsageSettlement(args: {
 
   const measured = args.providerCharge.measuredCostMicrocents;
   const costSource: AgentUsageCostSource = measured === null ? "estimated" : "measured";
-  const costMicrocents = measured ?? estimateCostMicrocents(args);
+  const costMicrocents = measured ?? args.providerCharge.estimatedCostMicrocents ?? estimateCostMicrocents(args);
   const meteredCredits = agentCreditsForStartedProviderCost(costMicrocents);
 
   return {

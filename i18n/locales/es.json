@@ -62,6 +62,9 @@
         "widgets": {
           "configure": "Listo para cambiar los widgets del panel",
           "delete": "Listo para eliminar de forma permanente un widget del panel"
+        },
+        "workspace": {
+          "configure": "Listo para eliminar de forma permanente esta página de la wiki"
         }
       },
       "cancelled": "Detenido",
@@ -104,6 +107,7 @@
       "countedResource": "{count} {resource}",
       "countedSingular": "1 {resource}",
       "defaultRecords": "registros",
+      "defaultWebsitePage": "una página web",
       "label": {
         "preview": "Vista previa",
         "subject": "Asunto",
@@ -117,7 +121,8 @@
         "services": "servicios",
         "tasks": "tareas",
         "terminology": "terminología del espacio de trabajo",
-        "widgets": "widgets del Dashboard"
+        "widgets": "widgets del Dashboard",
+        "wiki": "páginas wiki"
       },
       "resourceSingular": {
         "contacts": "contacto",
@@ -127,7 +132,8 @@
         "services": "servicio",
         "tasks": "tarea",
         "terminology": "término del espacio de trabajo",
-        "widgets": "widget del dashboard"
+        "widgets": "widget del dashboard",
+        "wiki": "página wiki"
       },
       "state": {
         "accounts": {
@@ -317,6 +323,18 @@
             "running": "Cargando más herramientas"
           }
         },
+        "web": {
+          "read": {
+            "done": "Se ha leído {target}",
+            "error": "No se ha podido leer {target}",
+            "running": "Leyendo {target}"
+          },
+          "search": {
+            "done": "Búsqueda web completada",
+            "error": "No se pudo buscar en la web",
+            "running": "Buscando en la web"
+          }
+        },
         "webhooks": {
           "manage": {
             "done": "Acción de webhook completada",
@@ -387,7 +405,7 @@
       "cancelled": "Cancelado",
       "reject": "Rechazado",
       "rejectAction": "Cancelar",
-      "resuming": "Decisión guardada — Mate continúa…",
+      "resuming": "Decisión guardada. Mate continúa…",
       "retryResume": "Mate aún no pudo continuar. Reintenta la misma decisión.",
       "timeout": "Tiempo agotado sin respuesta",
       "title": "Mate quiere ejecutar:"
@@ -736,6 +754,36 @@
               "prompt": "Enséñame las tareas y explícame cómo se conectan con contactos, organizaciones, oportunidades y servicios."
             }
           }
+        },
+        "wiki": {
+          "data": {
+            "create-wiki-page": {
+              "label": "Crear una página Wiki",
+              "prompt": "Ayúdame a crear una nueva página del Wiki del espacio de trabajo. Pregunta qué proceso, conocimiento de producto, guía de soporte o guía de voz necesitan Mate y las herramientas de IA conectadas, y créala después de mi confirmación."
+            },
+            "wiki-gaps": {
+              "label": "Encontrar vacíos de conocimiento",
+              "prompt": "Revisa nuestro Wiki del espacio de trabajo e identifica la información más importante que falte, esté desactualizada o sea contradictoria. No hagas cambios."
+            },
+            "wiki-summary": {
+              "label": "Resumir el Wiki",
+              "prompt": "Resume nuestro Wiki del espacio de trabajo, incluidos los procesos, el conocimiento de producto, las guías de soporte y las guías de voz que contiene."
+            }
+          },
+          "empty": {
+            "first-wiki-page": {
+              "label": "Crear mi primera página Wiki",
+              "prompt": "Ayúdame a crear la primera página de nuestro Wiki del espacio de trabajo. Pregunta qué proceso, conocimiento de producto, guía de soporte o guía de voz necesitan Mate y las herramientas de IA conectadas, y créala después de mi confirmación."
+            },
+            "wiki-structure": {
+              "label": "Sugerir una estructura Wiki",
+              "prompt": "Revisa mi espacio de trabajo y sugiere entre tres y cinco páginas útiles para el Wiki. No crees nada todavía."
+            },
+            "wiki-tour": {
+              "label": "Aprender cómo funciona el Wiki",
+              "prompt": "Explica cómo Mate, las rutinas y las herramientas de IA conectadas utilizan el Wiki del espacio de trabajo, incluidos los enlaces y permisos. No hagas cambios."
+            }
+          }
         }
       },
       "readOnly": {
@@ -812,6 +860,8 @@
       "undo": "Deshacer",
       "untitled": "Nuevo chat",
       "waitElapsed": "{seconds} s transcurridos",
+      "websiteSourcesRunning": "{count, plural, one {Leyendo 1 página del sitio web para tu wiki} other {Leyendo # páginas del sitio web para tu wiki}}",
+      "websiteWikiComplete": "{count, plural, one {Tu wiki inicial se ha creado a partir de 1 página del sitio web} other {Tu wiki inicial se ha creado a partir de # páginas del sitio web}}",
       "workingOnRequest": "Procesando tu solicitud…"
     }
   },
@@ -862,6 +912,7 @@
       "effectiveAt": "Vigente desde",
       "emails": "Direcciones de correo",
       "isNewCompany": "Primera persona del espacio",
+      "markdown": "Markdown",
       "postalCode": "Código postal",
       "prompt": "Instrucciones",
       "recipientEmail": "Enviado a",
@@ -1222,7 +1273,10 @@
       "widgetKindImmutable": "El tipo de un widget no se puede cambiar después de crearlo.",
       "widgetNotFound": "ID de widget no encontrado o no accesible.",
       "widgetTaskCanOnlyGroupByCustomColumn": "Las tareas solo se pueden agrupar por columnas personalizadas, no por tipos de elemento.",
-      "widgetWeightedValueNotAllowedForService": "La agregación de valor ponderado no está permitida para el tipo de elemento Servicio."
+      "widgetWeightedValueNotAllowedForService": "La agregación de valor ponderado no está permitida para el tipo de elemento Servicio.",
+      "wikiNotEmpty": "La configuración de la wiki del espacio de trabajo solo puede ejecutarse cuando la wiki está vacía.",
+      "wikiPageConflict": "Esta página de la wiki cambió después de que la abrieras. Vuelve a cargarla e inténtalo de nuevo.",
+      "wikiPageNotFound": "Página de la wiki no encontrada o no accesible."
     },
     "events": {
       "company": {
@@ -1315,6 +1369,11 @@
         "created": "Webhook creado",
         "deleted": "Webhook eliminado",
         "updated": "Webhook actualizado"
+      },
+      "wiki_page": {
+        "created": "Página wiki creada",
+        "deleted": "Página wiki eliminada",
+        "updated": "Página wiki actualizada"
       }
     },
     "filters": {
@@ -2119,6 +2178,7 @@
     "formatting": "Formato",
     "heading1": "Título 1",
     "heading2": "Título 2",
+    "heading3": "Título 3",
     "image": "Imagen",
     "imageUrlPrompt": "Introduce la URL de la imagen",
     "italic": "Cursiva",
@@ -2684,9 +2744,6 @@
     "title": "Mejora tu plan para usar la mensajería"
   },
   "NavigationBar": {
-    "addEntity": "Añadir {entity}",
-    "addPickerDescription": "Elige el tipo de registro que quieres crear.",
-    "addPickerTitle": "Crear nuevo…",
     "admin": "Administración",
     "affiliate": "Programa de afiliados",
     "connectedAccounts": "Canales",
@@ -2749,6 +2806,7 @@
     "search": "Buscar",
     "settings": "Ajustes",
     "subscription": "Suscripción",
+    "wiki": "Wiki",
     "workspace": "Espacio de trabajo"
   },
   "NotFoundPage": {
@@ -2911,6 +2969,10 @@
         "invitedSubtitle": "Completa tu perfil para solicitar acceso al espacio de trabajo de la invitación.",
         "subtitle": "Cuéntanos quién eres para que podamos configurar tu espacio de trabajo.",
         "title": "Tu perfil"
+      },
+      "wiki": {
+        "subtitle": "Añade el sitio web de tu empresa. Mate convierte la información que puede verificar en páginas wiki editables para Mate y las herramientas de IA que conectes.",
+        "title": "Dale a Mate el contexto de tu empresa"
       }
     }
   },
@@ -3150,6 +3212,10 @@
     "resetPasswordCta": "Restablecer",
     "title": "Restablece tu contraseña"
   },
+  "ResizablePanels": {
+    "hint": "Arrastra para redimensionar. Haz doble clic para restablecer.",
+    "resize": "Redimensiona {before} y {after}. Arrastra o usa las flechas; toca dos veces o pulsa Intro para restablecer."
+  },
   "RoleModal": {
     "manageAccess": "Gestión",
     "no": "No",
@@ -3170,7 +3236,8 @@
       "routines": "Rutinas",
       "services": "Servicios",
       "tasks": "Tareas",
-      "users": "Usuarios y roles"
+      "users": "Usuarios y roles",
+      "wiki": "Wiki del espacio de trabajo"
     },
     "systemAlert": "Este es un rol del sistema y no se puede editar ni eliminar.",
     "systemDescription": "Acceso completo a todas las funciones y ajustes. No se puede modificar ni eliminar.",
@@ -3569,5 +3636,93 @@
     "emptyBody": "Añade un webhook para enviar los eventos del espacio de trabajo a tus sistemas.",
     "emptyTitle": "Aún no hay webhooks",
     "title": "Webhooks"
+  },
+  "Wiki": {
+    "conflict": "Esta página ha cambiado. Tus cambios siguen aquí. Recarga para usar la versión más reciente.",
+    "copyLink": "Copiar enlace de la página",
+    "delete": "Eliminar página",
+    "document": "Documento",
+    "emptyBody": "Proporciona a Mate y a las herramientas de IA conectadas el conocimiento, los procesos y las pautas que necesitan.",
+    "emptyBodyReadOnly": "Aún no se han creado páginas de la wiki.",
+    "emptyTitle": "La wiki de tu espacio de trabajo está vacía",
+    "linkPage": "Enlazar una página de la wiki…",
+    "loadFailed": "No se pudieron cargar las páginas.",
+    "newPage": "Nueva página",
+    "next": "Siguiente",
+    "noResults": "No hay páginas coincidentes.",
+    "onThisPage": "En esta página",
+    "page": "Página {current} de {total}",
+    "pageActions": "Acciones de la página",
+    "pagesLabel": "Páginas de la wiki",
+    "pageTitle": "Título de la página",
+    "previous": "Anterior",
+    "reload": "Recargar página",
+    "save": "Guardar",
+    "search": "Buscar páginas…",
+    "unavailableBody": "Esta página se eliminó o no tienes acceso. Elige otra página.",
+    "unavailableTitle": "Página no disponible",
+    "untitled": "Página sin título"
+  },
+  "WikiSetup": {
+    "agentPrompt": "Conoce nuestra empresa a partir de {homepage} y crea las páginas de nuestra wiki.",
+    "continue": "Continuar",
+    "continueBackground": "Continuar mientras Mate trabaja",
+    "conversationTitle": "Configurar la wiki del espacio de trabajo",
+    "createBlank": "Crear una página en blanco",
+    "description": "Convierte tu sitio web en cinco páginas wiki útiles y conectadas para Mate y las herramientas de IA que conectes.",
+    "gapsNote": "Mate cita lo que encuentra y marca la información que falta en vez de inventarla.",
+    "generated": {
+      "defaultGaps": {
+        "company_overview": "¿Qué misión, historia, mercados y datos de la empresa debe considerar Mate como referencia?\n- ¿Qué pruebas y vías de contacto debe usar Mate?",
+        "customers_competitors": "¿Qué segmentos de clientes, necesidades y motivos de compra debe priorizar Mate?\n- ¿Qué competidores, alternativas, objeciones y pruebas debe usar Mate?",
+        "products_services": "¿Qué ofertas y propuestas de valor debe usar Mate en el trabajo con clientes?\n- ¿Qué limitaciones, detalles de implementación y cambios de producto requieren confirmación interna?",
+        "support_faq": "¿Qué etapas de ventas, reglas de calificación, campos y responsables del CRM debe seguir Mate?\n- ¿Cuáles son los traspasos, canales de soporte, niveles de servicio y vías de escalación?\n- ¿Qué rutinas necesitan aprobación humana y quién la concede?",
+        "voice_tone": "¿Qué formulaciones, afirmaciones, ejemplos y llamadas a la acción están aprobados?\n- ¿Qué términos, promesas y estilos debe evitar Mate?"
+      },
+      "gapsHeading": "Aspectos por confirmar",
+      "relatedPages": "Páginas relacionadas",
+      "sourcesHeading": "Fuentes",
+      "topics": {
+        "company_overview": "Resumen de la empresa",
+        "customers_competitors": "Clientes, mercado y competencia",
+        "products_services": "Productos, servicios y valor",
+        "support_faq": "Ventas, incorporación de clientes y soporte",
+        "voice_tone": "Voz, tono y mensajes"
+      }
+    },
+    "homepageHelp": "Sitio web HTTP(S) público. Mate lee esta página y puede seguir hasta tres enlaces útiles del mismo sitio.",
+    "homepageLabel": "Sitio web de la empresa",
+    "homepagePlaceholder": "https://ejemplo.com",
+    "openTask": "Abrir tarea de Mate",
+    "progressLoadFailed": "No se pudo cargar aquí el progreso de Mate. Inténtalo de nuevo.",
+    "progressLoading": "Cargando el progreso de Mate",
+    "skip": "Ahora no",
+    "start": "Crear mi wiki",
+    "startFailed": "Mate no pudo iniciar la configuración de la wiki. Inténtalo de nuevo.",
+    "startFromWebsite": "Crear desde mi sitio web",
+    "status": {
+      "completedBody": "Tus cinco páginas wiki iniciales y conectadas están listas. Incluyen datos respaldados por el sitio web y vacíos claros para lo que no se pudo verificar.",
+      "completedBodyOnboarding": "Mate ha creado cinco páginas iniciales conectadas con datos respaldados por el sitio web y vacíos claros para lo que no pudo verificar. Podrás revisarlas y editarlas más tarde en la wiki.",
+      "completedExistingBody": "Tu wiki ya contiene páginas. Continúa la incorporación o revisa el contenido existente.",
+      "completedTitle": "Tu wiki inicial está lista",
+      "failedBody": "No se añadió ninguna página. Prueba otro sitio o continúa y añade páginas más tarde.",
+      "failedTitle": "La configuración no terminó",
+      "noContentBody": "Revisa la tarea de Mate para ver los detalles. Puedes probar con otro sitio web o continuar y añadir páginas más tarde.",
+      "noContentTitle": "No se crearon páginas del Wiki",
+      "workingBody": "Mate está leyendo {domain}, comprobando páginas útiles e incorporando información con fuentes a tu wiki. Puedes seguir el progreso aquí o continuar con el siguiente paso.",
+      "workingBodyNoTask": "Mate está leyendo {domain} e incorporando información con fuentes a tu wiki. Puedes continuar con el siguiente paso mientras trabaja.",
+      "workingBodyNoTaskWiki": "Mate está leyendo {domain} y creando la wiki. Puedes volver más tarde para ver las páginas terminadas.",
+      "workingBodyWiki": "Mate está leyendo {domain}, comprobando páginas útiles e incorporando información con fuentes a tu wiki. Puedes dejar esta tarea abierta o volver más tarde.",
+      "workingTitle": "Mate está conociendo tu empresa"
+    },
+    "topics": {
+      "company": "Resumen de la empresa",
+      "customers": "Clientes, mercado y competencia",
+      "products": "Productos, servicios y valor",
+      "support": "Ventas, incorporación de clientes y soporte",
+      "voice": "Voz, tono y mensajes"
+    },
+    "tryAnother": "Probar otro sitio",
+    "unavailable": "La configuración con Mate no está disponible ahora. Puedes crear páginas más adelante desde la wiki."
   }
 }

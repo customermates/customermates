@@ -21,6 +21,7 @@ const prismaMock = vi.hoisted(() => ({
   service: { findFirst: vi.fn() },
   task: { findFirst: vi.fn() },
   routine: { findFirst: vi.fn() },
+  wikiPage: { findFirst: vi.fn() },
   widget: { findFirst: vi.fn() },
   connectedAccount: { findFirst: vi.fn() },
   user: { count: vi.fn(), findUnique: vi.fn() },
@@ -74,6 +75,7 @@ import { env } from "@/env";
 
 import { PrismaAgentChatRepo } from "../prisma-agent-chat.repository";
 import { AGENT_MAX_CONCURRENT_RUNS_PER_USER } from "../agent-run-limits";
+import { WikiHomepageSetupAlreadyRunningError } from "../agent-turn-request";
 import { pendingAgentApprovalToolName } from "../agent-approval";
 
 const user = createMockUserWithPermissions([]);
@@ -85,6 +87,7 @@ function storedTurn(overrides: Record<string, unknown> = {}) {
     clientRequestId: "request-1",
     text: "Create a contact",
     pageRoute: "/en/contacts",
+    wikiHomepageSetupDomain: null,
     status: "running",
     runId: "run-1",
     attemptCount: 1,
@@ -331,6 +334,7 @@ describe("PrismaAgentChatRepo tenant boundaries", () => {
           clientRequestId: "request-1",
           text: "Import failed",
           pageRoute: "/en/contacts",
+          wikiHomepageSetupDomain: "example.com",
           userMessageId: "user-message-1",
         },
       }),
@@ -365,6 +369,7 @@ describe("PrismaAgentChatRepo tenant boundaries", () => {
         clientRequestId: "request-1",
         runId: "run-1",
         userMessageId: "user-message-1",
+        wikiHomepageSetupDomain: "example.com",
       }),
     });
     expect(prismaMock.agentMessage.findMany).toHaveBeenCalledWith({
@@ -387,6 +392,107 @@ describe("PrismaAgentChatRepo tenant boundaries", () => {
     expect(prismaMock.$transaction).toHaveBeenCalledOnce();
   });
 
+  it("rejects a concurrent homepage setup under the company admission lock", async () => {
+    prismaMock.agentRunLease.updateMany.mockResolvedValue({ count: 1 });
+    prismaMock.agentUsageEvent.findFirst.mockResolvedValue({
+      id: "reservation-2",
+    });
+    prismaMock.agentConversation.findFirst.mockResolvedValue({
+      id: "conversation-2",
+      origin: "user",
+    });
+    prismaMock.agentTurnRequest.findFirst.mockResolvedValueOnce({
+      id: "active-setup",
+    });
+
+    await expect(
+      runWithTenant(user, () =>
+        new PrismaAgentChatRepo().admitAgentTurnOrThrow({
+          conversationId: "conversation-2",
+          title: "Set up Workspace Wiki",
+          runId: "run-2",
+          reservationId: "reservation-2",
+          modelSpec: "openai/gpt-5.6-luna",
+          servingProvider: "azure",
+          recentMessageLimit: 8,
+          turn: {
+            kind: "create",
+            turnRequestId: "turn-2",
+            clientRequestId: "request-2",
+            text: "Set up the Wiki from https://example.com/",
+            pageRoute: "/en/wiki",
+            wikiHomepageSetupDomain: "example.com",
+            wikiHomepageSetupUrl: "https://example.com/",
+            userMessageId: "user-message-2",
+          },
+        }),
+      ),
+    ).rejects.toBeInstanceOf(WikiHomepageSetupAlreadyRunningError);
+
+    expect(prismaMock.$transaction).toHaveBeenCalledOnce();
+    expect(prismaMock.$executeRaw).toHaveBeenCalledOnce();
+    expect(prismaMock.agentTurnRequest.findFirst).toHaveBeenCalledWith({
+      where: {
+        id: { not: "turn-2" },
+        companyId: user.companyId,
+        wikiHomepageSetupDomain: { not: null },
+        status: { in: ["running", "waitingBudget"] },
+        OR: [{ heartbeatAt: { gt: expect.any(Date) } }, { heartbeatAt: null, updatedAt: { gt: expect.any(Date) } }],
+      },
+      select: { id: true },
+    });
+    expect(prismaMock.agentTurnRequest.create).not.toHaveBeenCalled();
+    expect(prismaMock.agentMessage.create).not.toHaveBeenCalled();
+  });
+
+  it("rejects retrying a failed homepage setup while another setup is active", async () => {
+    prismaMock.agentRunLease.updateMany.mockResolvedValue({ count: 1 });
+    prismaMock.agentUsageEvent.findFirst.mockResolvedValue({
+      id: "reservation-retry",
+    });
+    prismaMock.agentConversation.findFirst.mockResolvedValue({
+      id: "conversation-retry",
+      origin: "user",
+    });
+    prismaMock.agentTurnRequest.findFirst.mockResolvedValueOnce({
+      id: "other-active-setup",
+    });
+
+    await expect(
+      runWithTenant(user, () =>
+        new PrismaAgentChatRepo().admitAgentTurnOrThrow({
+          conversationId: "conversation-retry",
+          title: "Set up Workspace Wiki",
+          runId: "run-retry",
+          reservationId: "reservation-retry",
+          modelSpec: "openai/gpt-5.6-luna",
+          servingProvider: "azure",
+          recentMessageLimit: 8,
+          turn: {
+            kind: "retry",
+            turnRequestId: "failed-setup",
+            priorRunId: "failed-run",
+            priorAttemptCount: 1,
+            wikiHomepageSetupDomain: "example.com",
+            userMessageId: "failed-user-message",
+          },
+        }),
+      ),
+    ).rejects.toBeInstanceOf(WikiHomepageSetupAlreadyRunningError);
+
+    expect(prismaMock.agentTurnRequest.findFirst).toHaveBeenCalledWith({
+      where: {
+        id: { not: "failed-setup" },
+        companyId: user.companyId,
+        wikiHomepageSetupDomain: { not: null },
+        status: { in: ["running", "waitingBudget"] },
+        OR: [{ heartbeatAt: { gt: expect.any(Date) } }, { heartbeatAt: null, updatedAt: { gt: expect.any(Date) } }],
+      },
+      select: { id: true },
+    });
+    expect(prismaMock.agentTurnRequest.updateMany).not.toHaveBeenCalled();
+  });
+
   it("rejects an expired lease before reading usage or writing chat state", async () => {
     prismaMock.agentRunLease.updateMany.mockResolvedValue({ count: 0 });
 
@@ -406,6 +512,7 @@ describe("PrismaAgentChatRepo tenant boundaries", () => {
             clientRequestId: "request-expired",
             text: "Hello",
             pageRoute: null,
+            wikiHomepageSetupDomain: null,
             userMessageId: "message-expired",
           },
         }),
@@ -468,6 +575,7 @@ describe("PrismaAgentChatRepo tenant boundaries", () => {
             clientRequestId: "request-missing",
             text: "Hello",
             pageRoute: null,
+            wikiHomepageSetupDomain: null,
             userMessageId: "message-missing",
           },
         }),
@@ -541,6 +649,9 @@ describe("PrismaAgentChatRepo tenant boundaries", () => {
     });
     expect(prismaMock.agentTurnRequest.create).not.toHaveBeenCalled();
     expect(prismaMock.agentMessage.create).not.toHaveBeenCalled();
+    expect(prismaMock.agentTurnRequest.updateMany.mock.calls[0]?.[0]?.data).not.toHaveProperty(
+      "wikiHomepageSetupDomain",
+    );
   });
 
   it("verifies the prelinked routine conversation before admitting its agent turn", async () => {
@@ -931,12 +1042,17 @@ describe("PrismaAgentChatRepo tenant boundaries", () => {
       where: { id: { in: [] }, companyId: user.companyId },
       select: { id: true },
     });
+    expect(prismaMock.wikiPage.findFirst).toHaveBeenCalledWith({
+      where: { companyId: user.companyId, id: { in: [] } },
+      select: { id: true },
+    });
     expect(prismaMock.widget.findFirst).toHaveBeenCalledWith({
       where: { companyId: user.companyId, userId: user.id },
       select: { id: true },
     });
     expect(signals.widgets).toBe(true);
     expect(signals.routines).toBe(true);
+    expect(signals.wiki).toBe(false);
   });
 
   it("persists an assistant reply only after atomically claiming an active conversation", async () => {
@@ -1269,6 +1385,45 @@ describe("PrismaAgentChatRepo tenant boundaries", () => {
     expect(prismaMock.agentRunLease.createMany).not.toHaveBeenCalled();
   });
 
+  it("returns durable internal tool metadata from the tenant-scoped replay lookup", async () => {
+    const now = new Date("2026-08-06T10:00:00.000Z");
+    prismaMock.agentTurnRequest.findFirst.mockResolvedValue(
+      storedTurn({
+        status: "failed",
+        wikiHomepageSetupDomain: "example.com",
+      }),
+    );
+    prismaMock.agentMessage.findFirst
+      .mockResolvedValueOnce({
+        id: "user-message-1",
+        conversationId: "conversation-1",
+        role: "user",
+        parts: [{ type: "text", text: "Create a contact" }],
+        createdAt: new Date("2026-08-06T09:59:00.000Z"),
+        sequence: 1n,
+        turnRequestId: "turn-1",
+      })
+      .mockResolvedValueOnce(null);
+
+    const replay = await runWithTenant(user, () =>
+      new PrismaAgentChatRepo().findAgentTurnRequestForAdmission("request-1", now, "claude-test"),
+    );
+
+    expect(replay?.snapshot).toMatchObject({
+      wikiHomepageSetupDomain: "example.com",
+    });
+    expect(prismaMock.agentTurnRequest.findFirst).toHaveBeenCalledWith({
+      where: {
+        companyId: user.companyId,
+        userId: user.id,
+        clientRequestId: "request-1",
+      },
+      select: expect.objectContaining({
+        wikiHomepageSetupDomain: true,
+      }),
+    });
+  });
+
   it("durably downgrades a completed turn whose terminal code is missing", async () => {
     const now = new Date("2026-08-06T10:00:00.000Z");
     prismaMock.agentTurnRequest.findFirst.mockResolvedValue(
@@ -1493,6 +1648,32 @@ describe("PrismaAgentChatRepo tenant boundaries", () => {
       expect(prismaMock.agentUsageEvent.updateMany).not.toHaveBeenCalled();
     },
   );
+
+  it("refuses provider start when the user moved to another company", async () => {
+    prismaMock.agentRunLease.updateMany.mockResolvedValue({ count: 1 });
+    prismaMock.user.findUnique.mockResolvedValue({
+      id: user.id,
+      companyId: "another-company",
+      status: Status.active,
+      createdAt: new Date("2026-01-15T10:30:00.000Z"),
+      agentCreditActivatedAt: new Date("2026-01-15T10:30:00.000Z"),
+      company: { subscription: null },
+    });
+
+    await expect(
+      new PrismaAgentChatRepo().markAgentTurnProviderStartedUnscoped({
+        turnRequestId: "turn-1",
+        conversationId: "conversation-1",
+        companyId: user.companyId,
+        userId: user.id,
+        runId: "run-1",
+      }),
+    ).resolves.toBe(false);
+
+    expect(prismaMock.agentUsageEvent.findFirst).not.toHaveBeenCalled();
+    expect(prismaMock.agentTurnRequest.updateMany).not.toHaveBeenCalled();
+    expect(prismaMock.agentUsageEvent.updateMany).not.toHaveBeenCalled();
+  });
 
   it("fails provider start before the model call when the exact lease is absent", async () => {
     prismaMock.agentRunLease.updateMany.mockResolvedValue({ count: 0 });

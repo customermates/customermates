@@ -5,7 +5,7 @@ import type { RootStore } from "@/core/stores/root.store";
 import { completeOnboardingWizardAction } from "../actions";
 import { toastZodErrorTree } from "@/core/utils/toast-zod-error-tree";
 
-export const WIZARD_STEPS = ["profile", "invite", "ai"] as const;
+export const WIZARD_STEPS = ["profile", "wiki", "invite", "ai"] as const;
 type WizardStep = (typeof WIZARD_STEPS)[number];
 
 export class OnboardingWizardStore {

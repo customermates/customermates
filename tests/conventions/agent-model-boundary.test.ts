@@ -44,8 +44,16 @@ describe("agent model budget boundary", () => {
     const workflow = readFileSync(`${REPO_ROOT}/workflows/agent-turn.ts`, "utf8");
 
     expect(workflow).toContain("model: payload.turnBudget.modelSpec");
-    expect(workflow).toMatch(
-      /gateway:\s*\{\s*only: \[payload\.turnBudget\.servingProvider\],\s*\.\.\.\(payload\.turnBudget\.inferenceRegion\s*\? \{ inferenceRegion: \{ scope: "zone", geoRegion: payload\.turnBudget\.inferenceRegion \} \}\s*: \{\}\),\s*zeroDataRetention: true,\s*disallowPromptTraining: true,/,
-    );
+    expect(workflow).toMatch(/getAgentProviderOptions\(\s*payload\.turnBudget\.servingProvider,\s*payload\.turnBudget\.inferenceRegion,?\s*\)/);
+    const options = readFileSync(`${REPO_ROOT}/ee/agent-chat/agent-provider-options.ts`, "utf8");
+    expect(options).toContain("only: [servingProvider]");
+    expect(options).toContain('scope: "zone"');
+    expect(options).toContain("geoRegion: inferenceRegion");
+    expect(options).toContain("zeroDataRetention: true");
+    expect(options).toContain("disallowPromptTraining: true");
+    expect(options).toContain('caching: "auto"');
+    expect(options).toContain("parallelToolCalls: false");
+    expect(options).toContain("store: false");
+    expect(workflow).toContain("...googleThinkingProviderOptions(payload.turnBudget)");
   });
 });

@@ -78,6 +78,28 @@ const AZURE_SERVED_LUNA = {
   },
 };
 
+const VERTEX_NATIVE_SEARCH = {
+  gateway: {
+    routing: {
+      finalProvider: "vertex",
+      modelAttempts: [
+        {
+          canonicalSlug: "google/gemini-3.5-flash-lite",
+          success: true,
+          providerAttempts: [{ provider: "vertex", credentialType: "system", success: true }],
+        },
+      ],
+    },
+    cost: "0.00770279",
+    inferenceCost: "0.00070279",
+    surchargeCost: "0.0001",
+    gatewayCost: "0.00780279",
+    enabledZDR: true,
+    gatewayToolCalls: { exa_search: 1 },
+    generationId: "gen_synthetic_native_search",
+  },
+};
+
 describe("gateway provider charge", () => {
   it("reads the inline cost of a served generation as exact microcents", () => {
     expect(readAgentProviderCharge(billedMetadata(), "openai")).toEqual({
@@ -90,17 +112,17 @@ describe("gateway provider charge", () => {
     });
   });
 
-  it("prefers the inference cost over the surcharged total", () => {
+  it("uses the authoritative total cost, including provider-tool charges", () => {
     const reading = readAgentProviderCharge(
-      billedMetadata({ cost: "0.00400000", inferenceCost: "0.00331309" }),
+      billedMetadata({ cost: "0.00400000", gatewayCost: "0.00400000", inferenceCost: "0.00331309" }),
       "openai",
     );
 
-    expect(reading).toMatchObject({ outcome: "measured", charge: { costMicrocents: 331_309 } });
+    expect(reading).toMatchObject({ outcome: "measured", charge: { costMicrocents: 400_000 } });
   });
 
   it("rounds a cost finer than one microcent up rather than dropping it", () => {
-    expect(readAgentProviderCharge(billedMetadata({ inferenceCost: "0.000000005" }), "openai")).toMatchObject({
+    expect(readAgentProviderCharge(billedMetadata({ gatewayCost: "0.000000005" }), "openai")).toMatchObject({
       outcome: "measured",
       charge: { costMicrocents: 1 },
     });
@@ -128,7 +150,7 @@ describe("gateway provider charge", () => {
     ["an unpinned serving provider", billedMetadata({}, { finalProvider: "azure" })],
     ["an unpriced service tier", billedMetadata({ serviceTier: "flex" })],
     ["an unattributable upstream cost", billedMetadata({ upstreamInferenceCost: "0.0001" })],
-    ["no usable cost figure", billedMetadata({ cost: undefined, inferenceCost: undefined })],
+    ["no usable cost figure", billedMetadata({ gatewayCost: undefined })],
     ["no gateway metadata at all", { openai: {} }],
   ])("refuses to price %s", (_case, metadata) => {
     const reading = readAgentProviderCharge(metadata, "openai");
@@ -152,5 +174,64 @@ describe("gateway provider charge", () => {
     expect(readAgentProviderCharge(billedMetadata({ upstreamInferenceCost: "0" }), "openai")).toMatchObject({
       outcome: "measured",
     });
+  });
+
+  it("settles the full native Search debit, including the Gateway surcharge", () => {
+    expect(readAgentProviderCharge(VERTEX_NATIVE_SEARCH, "vertex")).toEqual({
+      outcome: "measured",
+      charge: {
+        costMicrocents: 780_279,
+        finalProvider: "vertex",
+        generationId: "gen_synthetic_native_search",
+      },
+    });
+  });
+
+  it("does not add Search charges again when the authoritative debit already includes them", () => {
+    const metadata = {
+      gateway: {
+        ...VERTEX_NATIVE_SEARCH.gateway,
+        cost: "0.01470279",
+        gatewayCost: "0.01480279",
+        gatewayToolCalls: { exa_search: 2 },
+      },
+    };
+    expect(readAgentProviderCharge(metadata, "vertex")).toMatchObject({
+      outcome: "measured",
+      charge: { costMicrocents: 1_480_279 },
+    });
+  });
+
+  it("accepts a valid authoritative total without requiring the legacy cost alias", () => {
+    expect(readAgentProviderCharge(billedMetadata({ cost: undefined }), "openai")).toMatchObject({
+      outcome: "measured",
+      charge: { costMicrocents: 331_309 },
+    });
+  });
+
+  it.each([undefined, null, "", "garbage", -1, 0.00580279, "-0.005", "NaN", "Infinity", "90071992.54740992"])(
+    "does not fall back to the legacy alias when authoritative debit %s is malformed",
+    (gatewayCost) => {
+      expect(readAgentProviderCharge(billedMetadata({ gatewayCost }), "openai").outcome).toBe("unreadable");
+    },
+  );
+
+  it.each([undefined, null, "", "0.0001", "0.000000001", "-0.0001", 0])(
+    "rejects legacy responses without proven zero surcharge: %s",
+    (surchargeCost) => {
+      const metadata = { gateway: { ...AZURE_SERVED_LUNA.gateway, surchargeCost } };
+      expect(readAgentProviderCharge(metadata, "azure").outcome).toBe("unreadable");
+    },
+  );
+
+  it("does not treat a contradictory nonzero debit as a free rate-limited request", () => {
+    const metadata = { gateway: { ...rateLimitedMetadata.gateway, gatewayCost: "0.00580279" } };
+    expect(readAgentProviderCharge(metadata, "openai").outcome).toBe("unreadable");
+  });
+
+  it("does not round a nonzero upstream charge to zero", () => {
+    expect(readAgentProviderCharge(billedMetadata({ upstreamInferenceCost: "0.000000001" }), "openai").outcome).toBe(
+      "unreadable",
+    );
   });
 });

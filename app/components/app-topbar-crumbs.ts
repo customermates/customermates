@@ -20,6 +20,7 @@ export type AppTopbarCrumb = {
 const GROUP_MAP: Record<string, { group: "overview" | "crm" | "settings" | null; labelKey: string }> = {
   dashboard: { group: "overview", labelKey: "dashboard" },
   inbox: { group: "overview", labelKey: "inbox" },
+  wiki: { group: "overview", labelKey: "wiki" },
   routines: { group: "overview", labelKey: "routines" },
   contacts: { group: "crm", labelKey: "contacts" },
   organizations: { group: "crm", labelKey: "organizations" },
@@ -79,7 +80,10 @@ export function buildAppTopbarCrumbs(
     if (operatorSubroute) {
       crumbs.push({
         label: t(operatorSubroute.labelKey),
-        siblings: OPERATOR_SUBROUTES.map((route) => ({ slug: route.slug, label: t(route.labelKey) })),
+        siblings: OPERATOR_SUBROUTES.map((route) => ({
+          slug: route.slug,
+          label: t(route.labelKey),
+        })),
       });
     } else if (subroute) {
       const siblings: Sibling[] = sectionSubroutes.map((route) => ({
@@ -112,5 +116,8 @@ export function buildAppTopbarCrumbs(
     });
   }
 
-  return { crumbs, section: first === "operator" ? "operator" : workspaceSection };
+  return {
+    crumbs,
+    section: first === "operator" ? "operator" : workspaceSection,
+  };
 }

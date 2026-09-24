@@ -17,6 +17,7 @@ const turn: AgentTurnRequestSnapshot = {
   clientRequestId: "request-1",
   text: "Create a contact",
   pageRoute: "/en/contacts",
+  wikiHomepageSetupDomain: "example.com",
   status: "running",
   runId: "run-1",
   attemptCount: 1,
@@ -113,6 +114,16 @@ describe("agent turn request admission", () => {
     ).toEqual({
       disposition: "conflict",
     });
+  });
+
+  it("reuses omitted internal metadata but rejects attempts to change it", () => {
+    expect(decideAgentTurnAdmission(turn, input).disposition).toBe("running");
+    expect(
+      decideAgentTurnAdmission(turn, {
+        ...input,
+        wikiHomepageSetupDomain: "other.com",
+      }),
+    ).toEqual({ disposition: "conflict" });
   });
 });
 

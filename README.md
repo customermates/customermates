@@ -149,6 +149,16 @@ Useful scripts:
 - `yarn db:provision`
 - `yarn db:reset`
 
+### Hosted Wiki setup and web search
+
+Wiki pages use the existing Notes editor and shared, permission-checked MCP tools. Mate and routines receive a bounded catalog plus query-matched page previews before their first model call, then use `manage_wiki_pages` search/get for complete pages and linked documents. External MCP clients receive standard `search` and `fetch` tools, discoverable Wiki resources, and stable absolute page links; support still depends on each client honoring MCP discovery and server instructions. Homepage setup reads the submitted public site directly, without depending on a search index. Manual Wiki pages also work in self-hosted deployments.
+
+The native search integration uses `gateway.tools.exaSearch()` through the existing AI Gateway authentication. It does not require a separate Exa API key. Model routing, EU inference, authoritative all-in credit settlement, and the routine browse-or-mutate boundary remain shared with the Assistant.
+
+Native search is not released yet. The opt-in provider smoke makes a bounded live request against `customermates.com`, verifies Exa's developer-configured result and extraction limits against conflicting model arguments, completes a grounded answer with source links, and reconciles the search charge through Gateway and the application credit policy. Its EU, ZDR, and no-training evidence applies to model inference; it does not establish Exa's own processing terms. Gateway still provides neither a deterministic per-response native-tool invocation cap nor a contract preventing other model-supplied Exa options from expanding per-call work beyond the configured result and text limits. Exa's customer-data processing and commercial output terms also require human confirmation. Keep the fail-closed release flag in place until the native-tool bounds and legal gates are resolved.
+
+For the disposable local application journey, start the app on the eval port with `RUN_AGENT_EVAL=true RUN_DATABASE_TESTS=true RUN_AGENT_WEB_SEARCH_E2E=true BASE_URL=http://localhost:4105 WORKFLOW_LOCAL_BASE_URL=http://localhost:4105 yarn next dev --turbopack -p 4105`, then run `yarn agent:web-search-e2e` in another terminal. The test command uses a dedicated `AGENT_EVAL_BASE_URL` so a different app's `BASE_URL` cannot silently receive the request. The opt-in is ignored in production or CI, without all three explicit test flags, or unless `DATABASE_URL` points at loopback PostgreSQL. The journey uses real admission, durable workflow execution, transcript and round persistence, source-footering, and credit-ledger settlement while the production release flag stays off.
+
 ## 📚 Documentation
 
 The docs cover:

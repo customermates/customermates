@@ -51,7 +51,6 @@ Die Sidebar ist auf jedem Screen dieselbe; ihre Controls sind hier dokumentiert,
 | Widget hinzufügen | Seitenkopf | `#dashboard-add-widget` (**Widget hinzufügen**) | Öffnet das Widget-Modal |
 | Globale Suche | Oben in der Sidebar | `#nav-search` (**Suchen**) | Öffnet das Such-Modal (auch Cmd/Ctrl+K); siehe [Globale Suche](/docs/app-search) |
 | Suchfeld | Such-Modal | `#global-search-input` | Findet Kontakte, Organisationen, Deals und Services nach Name; Aufgaben werden nicht durchsucht |
-| Datensatz erstellen | Oben in der Sidebar | `#nav-add` (**Hinzufügen**) | Öffnet die Auswahl des Datensatztyps |
 | Dokumentation öffnen | Sidebar-Footer | `#nav-documentation` (**Dokumentation**) | Öffnet `/docs` |
 | Feedback senden | Sidebar-Footer | `#nav-feedback` (**Feedback**) | Öffnet den Feedback-Dialog |
 
@@ -62,7 +61,7 @@ Neue Accounts landen im [Onboarding-Wizard](/docs/app-onboarding) unter `/onboar
 ## Tipps für Agents
 
 - Der gehostete Assistent Mate kann hierher navigieren und `#nav-dashboard` sowie `#dashboard-add-widget` hervorheben; Widgets erstellt er über `manage_widgets`, statt das Modal zu bedienen.
-- Zeilen tragen nie Ids. Öffnen Sie einen Datensatz über seine Seiten-URL `/{type}/{id}`. Der Drawer-Deep-Link `?open={entityType}:new` legt einen Datensatz an und funktioniert auf jeder angemeldeten Seite, auch auf dem Dashboard.
+- Zeilen tragen nie Ids. Öffnen Sie einen Datensatz über seine Seiten-URL `/{type}/{id}`. Erstellen Sie Datensätze über die Schaltfläche oben rechts auf der jeweiligen Datensatzseite. Der Drawer-Deep-Link `?open={entityType}:new` legt ebenfalls einen Datensatz an und funktioniert auf jeder angemeldeten Seite, auch auf dem Dashboard.
 - Bevorzugen Sie [MCP](/docs/mcp)-Tools statt Klicken, wenn ein Tool existiert. CRM-Daten lesen und schreiben ist über Tools schneller und sicherer als über die UI.
 
 ## Verwandt

@@ -36,6 +36,7 @@ import {
   AGENT_RUN_LEASE_MS,
   isAgentTurnStopReason,
   isAgentTurnTerminalCode,
+  WikiHomepageSetupAlreadyRunningError,
   type AgentTurnRequestSnapshot,
   type AgentTurnRequestStatus,
   type AgentTurnStopReason,
@@ -50,6 +51,8 @@ type StoredAgentTurnRow = {
   clientRequestId: string;
   text: string;
   pageRoute: string | null;
+  wikiHomepageSetupDomain: string | null;
+  wikiHomepageSetupUrl: string | null;
   status: string;
   runId: string;
   attemptCount: number;
@@ -113,6 +116,8 @@ type AgentTurnAdmissionArgs = {
         clientRequestId: string;
         text: string;
         pageRoute: string | null;
+        wikiHomepageSetupDomain?: string | null;
+        wikiHomepageSetupUrl?: string | null;
         userMessageId: string;
       }
     | {
@@ -120,6 +125,7 @@ type AgentTurnAdmissionArgs = {
         turnRequestId: string;
         priorRunId: string;
         priorAttemptCount: number;
+        wikiHomepageSetupDomain?: string | null;
         userMessageId: string;
       };
 };
@@ -287,6 +293,8 @@ export class PrismaAgentChatRepo extends BaseRepository implements AgentUsageRep
       clientRequestId: row.clientRequestId,
       text: row.text,
       pageRoute: row.pageRoute,
+      wikiHomepageSetupDomain: row.wikiHomepageSetupDomain,
+      wikiHomepageSetupUrl: row.wikiHomepageSetupUrl,
       status,
       runId: row.runId,
       attemptCount: row.attemptCount,
@@ -419,7 +427,7 @@ export class PrismaAgentChatRepo extends BaseRepository implements AgentUsageRep
         preview: agentPlainTextPreview(
           latest?.role === AgentMessageRole.user
             ? stripLegacyUserPageContextPrefix(latestText)
-            : sanitizeAgentVisibleText(latestText),
+            : sanitizeAgentVisibleText(latestText, env.BASE_URL),
           140,
         ),
         updatedAt: row.updatedAt,
@@ -478,6 +486,7 @@ export class PrismaAgentChatRepo extends BaseRepository implements AgentUsageRep
       if (args.routineRunId) {
         if (conversation.origin !== AgentConversationOrigin.routine || args.turn.kind !== "create")
           throw new Error("Routine run admission requires a new turn in a routine conversation.");
+
         if (args.turn.clientRequestId !== args.routineRunId)
           throw new Error("Routine run admission does not match its client request.");
 
@@ -496,6 +505,21 @@ export class PrismaAgentChatRepo extends BaseRepository implements AgentUsageRep
           },
         });
         if (linkedRun.count !== 1) throw new Error("Routine run changed before agent admission.");
+      }
+
+      if (args.turn.wikiHomepageSetupDomain) {
+        const freshnessCutoff = new Date(admittedAt.getTime() - AGENT_RUN_LEASE_MS);
+        const activeSetup = await this.prisma.agentTurnRequest.findFirst({
+          where: {
+            id: { not: args.turn.turnRequestId },
+            companyId,
+            wikiHomepageSetupDomain: { not: null },
+            status: { in: ["running", "waitingBudget"] },
+            OR: [{ heartbeatAt: { gt: freshnessCutoff } }, { heartbeatAt: null, updatedAt: { gt: freshnessCutoff } }],
+          },
+          select: { id: true },
+        });
+        if (activeSetup) throw new WikiHomepageSetupAlreadyRunningError();
       }
 
       if (args.turn.kind === "retry") {
@@ -537,6 +561,8 @@ export class PrismaAgentChatRepo extends BaseRepository implements AgentUsageRep
             clientRequestId: args.turn.clientRequestId,
             text: args.turn.text,
             pageRoute: args.turn.pageRoute,
+            wikiHomepageSetupDomain: args.turn.wikiHomepageSetupDomain,
+            wikiHomepageSetupUrl: args.turn.wikiHomepageSetupUrl,
             status: "running",
             runId: args.runId,
             attemptCount: 1,
@@ -660,48 +686,56 @@ export class PrismaAgentChatRepo extends BaseRepository implements AgentUsageRep
 
   async getSuggestionSignals() {
     const select = { id: true };
-    const [contact, organization, deal, service, task, routine, widget, connectedAccount] = await Promise.all([
-      this.prisma.contact.findFirst({
-        where: this.accessWhere("contact"),
-        select,
-      }),
-      this.prisma.organization.findFirst({
-        where: this.accessWhere("organization"),
-        select,
-      }),
-      this.prisma.deal.findFirst({
-        where: this.accessWhere("deal"),
-        select,
-      }),
-      this.prisma.service.findFirst({
-        where: this.accessWhere("service"),
-        select,
-      }),
-      this.prisma.task.findFirst({
-        where: this.accessWhere("task"),
-        select,
-      }),
-      this.prisma.routine.findFirst({
-        where: this.accessWhere("routine"),
-        select,
-      }),
-      this.prisma.widget.findFirst({
-        where: {
-          companyId: this.companyId,
-          userId: this.userId,
-        },
-        select,
-      }),
-      this.prisma.connectedAccount.findFirst({
-        where: this.canAccess(Resource.inboxMessages)
-          ? {
-              companyId: this.companyId,
-              OR: [{ userId: this.userId }, { shared: true }],
-            }
-          : { companyId: this.companyId, id: { in: [] } },
-        select,
-      }),
-    ]);
+    const [contact, organization, deal, service, task, routine, wikiPage, widget, connectedAccount] = await Promise.all(
+      [
+        this.prisma.contact.findFirst({
+          where: this.accessWhere("contact"),
+          select,
+        }),
+        this.prisma.organization.findFirst({
+          where: this.accessWhere("organization"),
+          select,
+        }),
+        this.prisma.deal.findFirst({
+          where: this.accessWhere("deal"),
+          select,
+        }),
+        this.prisma.service.findFirst({
+          where: this.accessWhere("service"),
+          select,
+        }),
+        this.prisma.task.findFirst({
+          where: this.accessWhere("task"),
+          select,
+        }),
+        this.prisma.routine.findFirst({
+          where: this.accessWhere("routine"),
+          select,
+        }),
+        this.prisma.wikiPage.findFirst({
+          where: this.canAccess(Resource.wiki)
+            ? { companyId: this.companyId }
+            : { companyId: this.companyId, id: { in: [] } },
+          select,
+        }),
+        this.prisma.widget.findFirst({
+          where: {
+            companyId: this.companyId,
+            userId: this.userId,
+          },
+          select,
+        }),
+        this.prisma.connectedAccount.findFirst({
+          where: this.canAccess(Resource.inboxMessages)
+            ? {
+                companyId: this.companyId,
+                OR: [{ userId: this.userId }, { shared: true }],
+              }
+            : { companyId: this.companyId, id: { in: [] } },
+          select,
+        }),
+      ],
+    );
 
     return {
       contacts: Boolean(contact),
@@ -710,6 +744,7 @@ export class PrismaAgentChatRepo extends BaseRepository implements AgentUsageRep
       services: Boolean(service),
       tasks: Boolean(task),
       routines: Boolean(routine),
+      wiki: Boolean(wikiPage),
       widgets: Boolean(widget),
       connectedAccounts: Boolean(connectedAccount),
     };
@@ -762,7 +797,11 @@ export class PrismaAgentChatRepo extends BaseRepository implements AgentUsageRep
       take: AGENT_MESSAGE_PAGE_SIZE + 1,
       include: {
         turnRequest: {
-          where: { companyId: this.companyId, userId: this.userId, conversationId },
+          where: {
+            companyId: this.companyId,
+            userId: this.userId,
+            conversationId,
+          },
           select: {
             clientRequestId: true,
             status: true,
@@ -984,6 +1023,8 @@ export class PrismaAgentChatRepo extends BaseRepository implements AgentUsageRep
       clientRequestId: true,
       text: true,
       pageRoute: true,
+      wikiHomepageSetupDomain: true,
+      wikiHomepageSetupUrl: true,
       status: true,
       runId: true,
       attemptCount: true,
@@ -1002,7 +1043,10 @@ export class PrismaAgentChatRepo extends BaseRepository implements AgentUsageRep
     now: Date,
     model: string,
     requireLease: boolean,
-    scope: { companyId: string; userId: string } = { companyId: this.companyId, userId: this.userId },
+    scope: { companyId: string; userId: string } = {
+      companyId: this.companyId,
+      userId: this.userId,
+    },
   ): Promise<"failed" | "uncertain"> {
     const nextStatus = row.providerStartedAt ? "uncertain" : "failed";
     if (nextStatus === "uncertain") {
@@ -1264,6 +1308,7 @@ export class PrismaAgentChatRepo extends BaseRepository implements AgentUsageRep
       hasRenderableAgentMessageParts(
         clientSafeAgentMessageParts(assistantMessage.parts, {
           sanitizeText: true,
+          wikiBaseUrl: env.BASE_URL,
         }),
       );
     const completedIsReplayable = assistantMessageIsRenderable && reconciledRow.terminalCode !== null;
@@ -1707,6 +1752,7 @@ export class PrismaAgentChatRepo extends BaseRepository implements AgentUsageRep
       if (renewedLease.count !== 1) throw new Error("Agent run lease expired before the provider started.");
 
       const user = await this.findUserForUsageUnscoped(args.userId);
+      if (!user || user.companyId !== args.companyId) return false;
       if (!user?.subscription) throw new Error("Agent credit subscription is unavailable at provider start.");
       if (user.status !== Status.active) throw new Error("Agent credit user is not an active seat at provider start.");
       const entitlement = await this.resolveCurrentAgentCreditEntitlement(user, startedAt);
@@ -1855,11 +1901,14 @@ export class PrismaAgentChatRepo extends BaseRepository implements AgentUsageRep
       throw new Error("A non-completed agent turn requires a stop reason.");
     if (args.terminalCode === "cancelled" && args.stopReason !== "cancelled")
       throw new Error("A cancelled agent turn requires the cancelled stop reason.");
+
     if (args.terminalCode === "policyBreach" && args.stopReason !== "policy_breach")
       throw new Error("A policy-breach agent turn requires the policy-breach stop reason.");
+
     if (!areAgentTurnAffectedResources(args.affectedResources)) throw new Error("Agent turn resources are invalid.");
     const safeParts = clientSafeAgentMessageParts(args.parts, {
       sanitizeText: true,
+      wikiBaseUrl: env.BASE_URL,
     });
     if (!hasRenderableAgentMessageParts(safeParts)) throw new Error("Agent turn canonical reply is not renderable.");
 
@@ -2314,8 +2363,12 @@ export class PrismaAgentChatRepo extends BaseRepository implements AgentUsageRep
         (reservation.reservedCredits > creditCeiling || args.requiredCredits > creditCeiling)
       )
         return { disposition: "credit_limit" };
-      if (reservation.reservedCredits >= args.requiredCredits)
-        return { disposition: "extended", reservedCredits: reservation.reservedCredits };
+      if (reservation.reservedCredits >= args.requiredCredits) {
+        return {
+          disposition: "extended",
+          reservedCredits: reservation.reservedCredits,
+        };
+      }
 
       const now = new Date();
       const user = await this.findUserForUsageUnscoped(args.userId);
