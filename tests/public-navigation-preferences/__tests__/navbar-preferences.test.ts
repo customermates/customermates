@@ -395,6 +395,11 @@ describe("public navigation preferences", () => {
     expect(menu, "the flag still comes from the locale registry").toContain(
       "flagCodeFor(locale)",
     );
+    // The avatar primitive also hid a flag that never loaded. A bare <img> paints the browser's
+    // broken-image glyph instead, whenever a blocker or an outage stops flagcdn.com.
+    expect(menu, "a flag that fails to load keeps its slot but paints nothing").toContain(
+      'event.currentTarget.style.visibility = "hidden"',
+    );
     expect(
       menu,
       "a portalled avatar primitive ships a request for a menu nobody opened",

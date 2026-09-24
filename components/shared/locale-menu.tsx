@@ -133,6 +133,9 @@ export function LocaleMenu({ align = "start", className, side = "bottom" }: Prop
                 loading="lazy"
                 src={`https://flagcdn.com/${flagCodeFor(locale).toLowerCase()}.svg`}
                 width={20}
+                onError={(event) => {
+                  event.currentTarget.style.visibility = "hidden";
+                }}
               />
 
               <span className="truncate">{label}</span>
