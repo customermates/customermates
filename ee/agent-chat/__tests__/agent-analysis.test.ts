@@ -3,6 +3,22 @@ import { z } from "zod";
 
 import type { McpTool } from "@/features/mcp-tools/mcp-tool";
 
+import { createMockUser } from "@/tests/helpers/mock-user";
+import { MOCK_ENV_MODULE, MOCK_ZOD_MODULE, createMockDiModule } from "@/tests/helpers/interactor-test-setup";
+
+const mockUser = createMockUser();
+const listed = vi.hoisted(() => ({ deal: vi.fn(), task: vi.fn() }));
+
+vi.mock("@/env", () => MOCK_ENV_MODULE);
+vi.mock("@/core/validation/zod-error-map-server", () => MOCK_ZOD_MODULE);
+vi.mock("@/core/di", () => createMockDiModule(() => mockUser));
+vi.mock("@/features/search/entity-list-executors", () => ({
+  entityListExecutors: { deal: listed.deal, task: listed.task },
+  entityNameExtractors: { deal: (item: { name: string }) => item.name, task: (item: { name: string }) => item.name },
+}));
+
+import { listRecordsTool } from "@/features/mcp-tools/entity-generic.mcp-tools";
+
 import {
   ANALYSIS_MAX_BYTES,
   ANALYSIS_MAX_ROWS,
@@ -12,7 +28,9 @@ import {
   type AnalysisDeps,
 } from "../agent-analysis";
 
-const TOO_MUCH_DATA = "The reads returned more than 8 MB of data. Narrow them; the analysis code was not run.";
+const TOO_MUCH_DATA =
+  "The reads returned more than 8 MB of data. Narrow them, or pass include: [] on list reads that need no links or custom fields; the analysis code was not run.";
+const EVERY_INCLUDE = ["owners", "links", "customFields", "dates"];
 
 function listTool(name: string, rows: number, text?: string) {
   const all = Array.from({ length: rows }, (_, index) => ({
@@ -353,6 +371,166 @@ describe("analyze_records", () => {
         { page: 2, pageSize: 100 },
       ],
     });
+  });
+
+  it("gives every page of a list_records read every include value unless the read passes include, and no other tool any", async () => {
+    const run = async (name: string, input?: Record<string, unknown>) => {
+      const { tool, execute } = listTool(name, 150);
+      const includeAware = {
+        ...tool,
+        inputSchema: (tool.inputSchema as z.ZodObject).extend({ include: z.array(z.string()).optional() }),
+      };
+      const outcome = await analyzeRecords(
+        { reads: [{ tool: name, input }], code: "(data) => data[0].items.length" },
+        deps(includeAware),
+      );
+      return { outcome, includes: execute.mock.calls.map(([call]) => (call as { include?: unknown }).include) };
+    };
+
+    expect(await run("list_records")).toEqual({
+      outcome: { ok: true, result: JSON.stringify({ rowsRead: 150, result: 150 }) },
+      includes: [EVERY_INCLUDE, EVERY_INCLUDE],
+    });
+    expect((await run("list_records", { include: [] })).includes).toEqual([[], []]);
+    expect((await run("list_records", { include: ["owners"] })).includes).toEqual([["owners"], ["owners"]]);
+    expect((await run("list_things")).includes).toEqual([undefined, undefined]);
+  });
+
+  it("replays the N13-r3 join over list_records rows and gets the answer its thin rows had turned silently wrong", async () => {
+    const dealStatus = "82cac13a-5078-59bc-906e-7d63bd5706d3";
+    const taskStatus = "1336405e-b7d6-5f21-a683-4af722371c89";
+    const open = "1171e71e-4f98-5ac3-9364-11fd1730c223";
+    const done = "5d2c6f0e-3a51-5b8e-9c47-8e1f0a6b2d93";
+    const createdAt = new Date("2026-08-01T08:00:00.000Z");
+    const sofia = { id: "sofia", firstName: "Sofia", lastName: "Rossi", avatarUrl: null, email: "sofia@example.com" };
+    const task = (index: number, dealIndex: number | null, status: string) => ({
+      id: `task-${index}`,
+      name: `Kestrel task ${index}`,
+      type: "custom",
+      notes: null,
+      createdAt,
+      updatedAt: createdAt,
+      users: [sofia],
+      contacts: [],
+      organizations: [],
+      deals: dealIndex === null ? [] : [{ id: `kestrel-${dealIndex}`, name: `Kestrel-${dealIndex}` }],
+      services: [],
+      customFieldValues: [{ columnId: taskStatus, value: status }],
+    });
+    const tasks = [
+      ...Array.from({ length: 15 }, (_, index) => task(index + 1, index + 1, open)),
+      ...Array.from({ length: 15 }, (_, index) => task(index + 16, index + 16, done)),
+      ...Array.from({ length: 4 }, (_, index) => task(index + 31, null, open)),
+    ];
+    const deals = Array.from({ length: 60 }, (_, index) => ({
+      id: `kestrel-${index + 1}`,
+      name: `Kestrel-${String(index + 1).padStart(3, "0")}`,
+      totalValue: 100 * (index + 1),
+      totalQuantity: index + 1,
+      weightedValue: null,
+      notes: null,
+      createdAt,
+      updatedAt: createdAt,
+      organizations: [],
+      users: [sofia],
+      contacts: [],
+      services: [],
+      tasks: index < 30 ? [{ id: `task-${index + 1}`, name: `Kestrel task ${index + 1}`, type: "custom" }] : [],
+      customFieldValues: [{ columnId: dealStatus, value: open }],
+    }));
+    const paged =
+      (rows: unknown[]) =>
+      ({ pagination }: { pagination: { page: number; pageSize: number } }) =>
+        Promise.resolve({
+          ok: true,
+          data: {
+            items: rows.slice((pagination.page - 1) * pagination.pageSize, pagination.page * pagination.pageSize),
+            pagination: { total: rows.length },
+          },
+        });
+    listed.deal.mockImplementation(paged(deals));
+    listed.task.mockImplementation(paged(tasks));
+
+    const reads = [
+      {
+        tool: "list_records",
+        input: JSON.stringify({
+          entity: "deal",
+          filters: [
+            { field: "name", operator: "startsWith", value: "Kestrel-" },
+            { field: dealStatus, operator: "equals", value: open },
+          ],
+          pageSize: 100,
+        }),
+      },
+      { tool: "list_records", input: JSON.stringify({ entity: "task", pageSize: 100 }) },
+    ];
+    const code = [
+      "(data) => {",
+      "  const deals = data[0].items;",
+      "  const tasks = data[1].items;",
+      "  const taskStatusMap = {};",
+      "  tasks.forEach(t => {",
+      "    const fields = t.customFieldValues || [];",
+      `    const statusField = fields.find(f => f.columnId === "${taskStatus}");`,
+      "    taskStatusMap[t.id] = statusField ? statusField.value : null;",
+      "  });",
+      "  let unblockedCount = 0;",
+      "  let blockedCount = 0;",
+      "  let unblockedTotalEur = 0;",
+      "  deals.forEach(deal => {",
+      "    const tIds = deal.taskIds || [];",
+      "    let isBlocked = false;",
+      "    if (tIds.length > 0) {",
+      "      for (const tid of tIds) {",
+      `        if (taskStatusMap[tid] === "${open}") {`,
+      "          isBlocked = true;",
+      "          break;",
+      "        }",
+      "      }",
+      "    }",
+      "    if (isBlocked) {",
+      "      blockedCount++;",
+      "    } else {",
+      "      unblockedCount++;",
+      "      unblockedTotalEur += (deal.totalValue || 0);",
+      "    }",
+      "  });",
+      "  return { unblockedCount, blockedCount, unblockedTotalEur };",
+      "}",
+    ].join("\n");
+
+    await expect(analyzeRecords({ reads, code }, deps(listRecordsTool))).resolves.toEqual({
+      ok: true,
+      result: JSON.stringify({
+        rowsRead: 94,
+        result: { unblockedCount: 45, blockedCount: 15, unblockedTotalEur: 171_000 },
+      }),
+    });
+    const thinReads = reads.map((read) => ({ tool: read.tool, input: { ...JSON.parse(read.input), include: [] } }));
+    await expect(analyzeRecords({ reads: thinReads, code }, deps(listRecordsTool))).resolves.toEqual({
+      ok: true,
+      result: JSON.stringify({
+        rowsRead: 94,
+        result: { unblockedCount: 60, blockedCount: 0, unblockedTotalEur: 183_000 },
+      }),
+    });
+  });
+
+  it("tells the model which fields its list rows carry, and to prefer filters, sums and groupBy for figures per group", () => {
+    for (const text of [
+      "userIds",
+      "dealIds",
+      "taskIds",
+      "customFieldValues",
+      "createdAt and updatedAt",
+      "a join, such as the deals that have an open task, is two list reads and one function",
+      "get_record_schema maps option ids to labels",
+      "Pass include: [] on a list read that needs none of these fields",
+      "prefer filters, sums or list_records groupBy",
+    ])
+      expect(ANALYZE_RECORDS_DESCRIPTION).toContain(text);
+    expect(ANALYZE_RECORDS_DESCRIPTION).not.toMatch(/no owners, links or custom fields/);
   });
 
   it("keeps refusing a string that is not a JSON object, and the schema refuses every other shape", async () => {

@@ -74,6 +74,8 @@ const ACCEPTED_TODAY: [string, unknown][] = [
   ["list_records", { entity: "contact", filters: [{ field: "createdAt", operator: "inLastDays", value: 7 }] }],
   ["list_records", { entity: "contact", filters: [{ field: "owner", operator: "isNull" }] }],
   ["list_records", { entity: "contact", filters: [{ field: "tags", operator: "in", value: ["a"] }] }],
+  ["list_records", { entity: "deal", include: ["owners", "links", "customFields", "dates"] }],
+  ["list_records", { entity: "task", include: [] }],
   ["get_activities", {}],
   ["get_activities", { pageSize: 5 }],
   ["create_contacts", { contacts: [{ firstName: "Ada", lastName: "L", notes: "# hi" }] }],
@@ -117,6 +119,8 @@ const ACCEPTED_TODAY: [string, unknown][] = [
 const REJECTED_TODAY: [string, unknown][] = [
   ["list_records", {}],
   ["list_records", { entity: "spaceship" }],
+  ["list_records", { entity: "deal", include: ["notes"] }],
+  ["list_records", { entity: "deal", include: "customFields" }],
   ["navigate", { entity: "contact", recordId: "new" }],
   ["navigate", { entity: "spaceship", recordId: UUID }],
   ["create_contacts", { contacts: [] }],

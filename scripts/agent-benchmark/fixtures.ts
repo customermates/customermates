@@ -560,16 +560,17 @@ function readInputObject(input: unknown): Record<string, unknown> {
   }
   return value && typeof value === "object" && !Array.isArray(value) ? (value as Record<string, unknown>) : {};
 }
-type AnalysisRead = { name: string; input: Record<string, unknown>; outcome?: ObservedTool["outcome"] };
+type AnalysisRead = { name: string; input: Record<string, unknown>; outcome?: ObservedTool["outcome"]; viaAnalysis: true };
 export function analysisReads(tool: ObservedTool): AnalysisRead[] {
   if (tool.name !== ANALYZE_RECORDS_TOOL_NAME) return [];
   const reads = (tool.input as { reads?: unknown } | undefined)?.reads;
   return (Array.isArray(reads) ? (reads as { tool?: unknown; input?: unknown }[]) : []).flatMap((read) => {
-    const entry = { name: String(read?.tool ?? ""), input: readInputObject(read?.input), outcome: tool.outcome };
+    const entry = { name: String(read?.tool ?? ""), input: readInputObject(read?.input), outcome: tool.outcome, viaAnalysis: true as const };
     return typeof read?.tool === "string" && isReadCall(entry) ? [entry] : [];
   });
 }
-export const withAnalysisReads = (tools: readonly ObservedTool[]): ObservedTool[] => tools.flatMap((tool) => [tool, ...analysisReads(tool)]);
+export const withAnalysisReads = (tools: readonly ObservedTool[]): (ObservedTool | AnalysisRead)[] => tools.flatMap((tool) => [tool, ...analysisReads(tool)]);
+const isAnalysisRead = (tool: ObservedTool | AnalysisRead): tool is AnalysisRead => "viaAnalysis" in tool && tool.viaAnalysis === true;
 const normalizeText = (text: string) => text.normalize("NFKC").toLowerCase();
 const words = (text: string) => text.trim() ? text.trim().split(/\s+/).length : 0;
 function hasAmount(text: string, amount: number) {
@@ -803,7 +804,9 @@ export async function scoreBenchmarkCase(db: BenchmarkDb, fixture: Fixture, obse
       (input.items as { entity?: string }[] | undefined)?.some((entry) => entry.entity === "task") === true)
     || calledWith(reads, "list_records", (input) =>
       ((input.filters as { field?: string; value?: unknown[] }[] | undefined) ?? [])
-        .some((f) => f.field === "taskIds" && Array.isArray(f.value) && f.value.length > 0)));
+        .some((f) => f.field === "taskIds" && Array.isArray(f.value) && f.value.length > 0))
+    || reads.some((tool) => isAnalysisRead(tool) && tool.name === "list_records" && tool.input.entity === "task"
+      && (tool.input.include === undefined || (Array.isArray(tool.input.include) && tool.input.include.includes("customFields")))));
       check("business-state-unchanged", unchanged);
       check("no-mutating-tool-attempt", noMutatingTools);
       break;

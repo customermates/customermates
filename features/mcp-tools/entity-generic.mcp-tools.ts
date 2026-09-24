@@ -20,6 +20,7 @@ import {
   nameQueryOf,
 } from "./utils";
 import type { McpToolFailureResult } from "./mcp-tool";
+import type { CustomFieldValueDto } from "@/core/base/base-entity.schema";
 
 import { FilterSchema, SortDescriptorSchema } from "@/core/base/base-get.schema";
 import {
@@ -94,6 +95,8 @@ const RecordSchemaInputSchema = z.object({
   ),
 });
 
+const ListRecordsIncludeSchema = z.enum(["owners", "links", "customFields", "dates"]);
+
 const ListRecordsSchema = z.object({
   entity: EntitySchema,
   searchTerm: z.string().optional().describe("Free-text search against the entity's name or related fields"),
@@ -120,6 +123,14 @@ const ListRecordsSchema = z.object({
       "Count the matching records per value of one field instead of listing them. Returns groups with key, label and count, and for deals the sums of totalValue and weightedValue per group. A record linked to several owners counts in each of their groups. " +
         "createdAt and updatedAt get one group per day for the last 7 days, per week for the last 7 weeks, or per month for the last 12 months, each up to and including the current one; " +
         'older records are counted together in one "before <date>" group and records dated after the current period in one "from <date> on" group, and groupNote says so when either holds records.',
+    ),
+  include: z
+    .array(ListRecordsIncludeSchema)
+    .max(4)
+    .optional()
+    .describe(
+      "Fields to add to each item: owners adds userIds; links adds the ids of the linked records (contactIds, organizationIds, dealIds, serviceIds, taskIds, whichever the entity has; an empty array means none is linked); " +
+        "customFields adds customFieldValues [{columnId, value}], a single-select value being its option id; dates adds createdAt and updatedAt. Ignored with groupBy.",
     ),
 });
 
@@ -257,8 +268,23 @@ const ListRecordsOutputSchema = z.object({
   groupNote: z.string().optional(),
   items: z.array(
     z
-      .looseObject({ id: z.string(), name: z.string().nullable() })
-      .describe("Deal items add totalValue, totalQuantity, weightedValue; service items add amount."),
+      .looseObject({
+        id: z.string(),
+        name: z.string().nullable(),
+        userIds: z.array(z.string()).optional(),
+        contactIds: z.array(z.string()).optional(),
+        organizationIds: z.array(z.string()).optional(),
+        dealIds: z.array(z.string()).optional(),
+        serviceIds: z.array(z.string()).optional(),
+        taskIds: z.array(z.string()).optional(),
+        customFieldValues: z.array(z.object({ columnId: z.string(), value: z.string().nullish() })).optional(),
+        createdAt: z.string().optional(),
+        updatedAt: z.string().optional(),
+      })
+      .describe(
+        "Deal items add totalValue, totalQuantity, weightedValue; service items add amount. " +
+          "With include, owners adds userIds, links the linked record ids the entity has, customFields customFieldValues, and dates createdAt and updatedAt.",
+      ),
   ),
   filters: z.array(z.unknown()).optional(),
 });
@@ -315,6 +341,44 @@ const singularLabels: Record<Entity, string> = {
   service: "service",
   task: "task",
 };
+
+type ListRecordsInclude = z.infer<typeof ListRecordsIncludeSchema>;
+
+const linkIdKeys = {
+  contacts: "contactIds",
+  organizations: "organizationIds",
+  deals: "dealIds",
+  services: "serviceIds",
+  tasks: "taskIds",
+} as const;
+
+const listedLinks: Record<Entity, readonly (keyof typeof linkIdKeys)[]> = {
+  contact: ["organizations", "deals", "tasks"],
+  organization: ["contacts", "deals", "tasks"],
+  deal: ["contacts", "organizations", "services", "tasks"],
+  service: ["deals", "tasks"],
+  task: ["contacts", "organizations", "deals", "services"],
+};
+
+function referenceIds(references: unknown): string[] {
+  return Array.isArray(references) ? references.map((reference: { id: string }) => reference.id) : [];
+}
+
+function includedItemFields(entity: Entity, item: any, include: readonly ListRecordsInclude[] | undefined) {
+  const wanted = new Set(include);
+  return {
+    ...(wanted.has("owners") && { userIds: referenceIds(item.users) }),
+    ...(wanted.has("links") &&
+      Object.fromEntries(listedLinks[entity].map((relation) => [linkIdKeys[relation], referenceIds(item[relation])]))),
+    ...(wanted.has("customFields") && {
+      customFieldValues: ((item.customFieldValues ?? []) as CustomFieldValueDto[]).map(({ columnId, value }) => ({
+        columnId,
+        value,
+      })),
+    }),
+    ...(wanted.has("dates") && formatDatesInResponse({ createdAt: item.createdAt, updatedAt: item.updatedAt })),
+  };
+}
 
 const configurationExecutors: Record<Entity, () => Promise<{ ok: true; data: unknown }>> = {
   contact: () => getGetContactsConfigurationInteractor().invoke(),
@@ -488,9 +552,12 @@ export const listRecordsTool = {
   title: "List records",
   description:
     "Use this when you need to search, filter, sort, or count records of a single entity type. " +
-    "Required: entity. Optional: searchTerm, filters, sortDescriptor, page, pageSize (1-100, default 25), groupBy. " +
+    "Required: entity. Optional: searchTerm, filters, sortDescriptor, page, pageSize (1-100, default 25), groupBy, include. " +
     "Returns total first (matching records across all pages; use it for counts), then id and name per item; " +
     "deal items add totalValue, totalQuantity and weightedValue, service items add amount. " +
+    "include adds fields to every item: owners adds userIds, links the linked record ids (contactIds, organizationIds, dealIds, serviceIds, taskIds), " +
+    "customFields the customFieldValues [{columnId, value}] and dates createdAt and updatedAt. " +
+    "Such items are long, so read them through analyze_records where it is offered, or with pageSize 5 when reading them directly. " +
     "When the entity has numeric columns it also returns sums: the total of each numeric column across " +
     "every record matching the filters, not just the current page. Read sums directly instead of adding " +
     "up items, which would only cover one page. For deals sums holds totalValue (pipeline) " +
@@ -511,6 +578,7 @@ export const listRecordsTool = {
     page,
     pageSize,
     groupBy,
+    include,
   }: z.infer<typeof ListRecordsSchema>) => {
     const result = await entityListExecutors[entity]({
       searchTerm,
@@ -529,6 +597,7 @@ export const listRecordsTool = {
       ...(item.totalQuantity !== undefined && { totalQuantity: item.totalQuantity }),
       ...(item.weightedValue != null && { weightedValue: item.weightedValue }),
       ...(item.amount !== undefined && { amount: item.amount }),
+      ...includedItemFields(entity, item, include),
     }));
     const note = nameMatchNote(nameQueryOf(searchTerm, filters), items);
 

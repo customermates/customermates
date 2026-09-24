@@ -70,6 +70,25 @@ describeDatabase("agent benchmark fixtures and oracle", () => {
     expect(failed(await scoreBenchmarkCase(db, c26, { turns: [{ text: week, tools: [analyze("get_messaging_threads", {})], terminalCode: "completed" }] }))).toEqual([]);
   }, 120_000);
 
+  it("takes an unfiltered task list read inside analyze_records as reading task status only while its rows carry custom fields", async () => {
+    const fixture = await seedBenchmarkCase(db, "N13", `selftest:${randomUUID()}`);
+    fixtures.push(fixture);
+    const answer = "RESULT unblocked=45 blocked=15 unblockedTotalEur=171000";
+    const analyze = (...reads: { tool: string; input: object }[]) => ({ name: "analyze_records", input: { reads: reads.map((read) => ({ tool: read.tool, input: JSON.stringify(read.input) })), code: "(data) => data.length" }, outcome: "ok" as const });
+    const deals = { tool: "list_records", input: { entity: "deal", filters: [{ field: "name", operator: "startsWith", value: "Kestrel-" }] } };
+    const tasks = (include?: string[]) => ({ tool: "list_records", input: { entity: "task", ...(include ? { include } : {}) } });
+    const statusRead = async (tools: object[]) => (await scoreBenchmarkCase(db, fixture, { turns: [{ text: answer, tools: tools as never, terminalCode: "completed" }] })).checks.find((check) => check.id === "task-status-actually-read")?.passed;
+
+    expect(await statusRead([analyze(deals, tasks())])).toBe(true);
+    expect(await statusRead([analyze(deals, tasks(["customFields"]))])).toBe(true);
+    expect(await statusRead([analyze(deals, tasks(["owners", "links", "customFields", "dates"]))])).toBe(true);
+    expect(await statusRead([analyze(deals, tasks([]))])).toBe(false);
+    expect(await statusRead([analyze(deals, tasks(["owners", "links", "dates"]))])).toBe(false);
+    expect(await statusRead([analyze(deals)])).toBe(false);
+    expect(await statusRead([{ name: "list_records", input: { entity: "task" }, outcome: "ok" }])).toBe(false);
+    expect(await statusRead([{ name: "list_records", input: { entity: "task", include: ["customFields"] }, outcome: "ok" }])).toBe(false);
+  }, 60_000);
+
   it("scores a complex case from its final line and the database state", async () => {
     const fixture = await seedBenchmarkCase(db, "C27", `selftest:${randomUUID()}`);
     fixtures.push(fixture);

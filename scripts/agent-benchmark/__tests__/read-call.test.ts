@@ -29,19 +29,29 @@ describe("benchmark read-call predicate", () => {
     };
     const write = { name: "update_deals", input: { deals: [] }, outcome: "ok" as const };
     expect(analysisReads(analysis)).toEqual([
-      { name: "list_records", input: { entity: "deal" }, outcome: "error" },
-      { name: "get_activities", input: {}, outcome: "error" },
+      { name: "list_records", input: { entity: "deal" }, outcome: "error", viaAnalysis: true },
+      { name: "get_activities", input: {}, outcome: "error", viaAnalysis: true },
     ]);
     expect(withAnalysisReads([analysis, write]).map((tool) => tool.name)).toEqual(["analyze_records", "list_records", "get_activities", "update_deals"]);
     expect(withAnalysisReads([analysis, write]).filter((tool) => !isReadCall(tool))).toEqual([write]);
+  });
+
+  it("marks only the reads it derives from analyze_records, never a call the model made itself", () => {
+    const analysis = { name: "analyze_records", input: { reads: [{ tool: "list_records", input: { entity: "task" } }], code: "(data) => data" }, outcome: "ok" as const };
+    const direct = { name: "list_records", input: { entity: "task" }, outcome: "ok" as const };
+    expect(withAnalysisReads([analysis, direct]).map((tool) => [tool.name, "viaAnalysis" in tool])).toEqual([
+      ["analyze_records", false],
+      ["list_records", true],
+      ["list_records", false],
+    ]);
   });
 
   it("reads an analyze_records input given as an object the same as one given as a JSON string", () => {
     const asObject = { name: "analyze_records", input: { reads: [{ tool: "list_records", input: { entity: "deal" } }, { tool: "get_activities" }], code: "(data) => data" }, outcome: "ok" as const };
     const asString = { ...asObject, input: { ...asObject.input, reads: [{ tool: "list_records", input: '{"entity":"deal"}' }, { tool: "get_activities" }] } };
     expect(analysisReads(asObject)).toEqual([
-      { name: "list_records", input: { entity: "deal" }, outcome: "ok" },
-      { name: "get_activities", input: {}, outcome: "ok" },
+      { name: "list_records", input: { entity: "deal" }, outcome: "ok", viaAnalysis: true },
+      { name: "get_activities", input: {}, outcome: "ok", viaAnalysis: true },
     ]);
     expect(analysisReads(asString)).toEqual(analysisReads(asObject));
   });

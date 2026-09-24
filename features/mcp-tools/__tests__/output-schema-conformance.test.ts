@@ -81,7 +81,24 @@ const thread = {
   isOwner: true,
 };
 
-const deal = { id: "00000000-0000-4000-8000-000000000081", name: "Rollout", totalValue: 1000, totalQuantity: 2 };
+const deal = {
+  id: "00000000-0000-4000-8000-000000000081",
+  name: "Rollout",
+  totalValue: 1000,
+  totalQuantity: 2,
+  notes: { type: "doc", content: [{ type: "paragraph", content: [{ type: "text", text: "Kept out of the rows" }] }] },
+  createdAt: sentAt,
+  updatedAt: sentAt,
+  organizations: [{ id: "00000000-0000-4000-8000-000000000082", name: "Northwind" }],
+  users: [{ id: ada, firstName: "Ada", lastName: "Tester", avatarUrl: null, email: "ada@example.com" }],
+  contacts: [{ id: "00000000-0000-4000-8000-000000000073", firstName: "Jane", lastName: "Doe", avatarUrl: null }],
+  services: [{ id: "00000000-0000-4000-8000-000000000083", name: "Onboarding", amount: 500, quantity: 2 }],
+  tasks: [],
+  customFieldValues: [
+    { columnId: "00000000-0000-4000-8000-000000000084", value: "00000000-0000-4000-8000-000000000085" },
+    { columnId: "00000000-0000-4000-8000-000000000086", value: null },
+  ],
+};
 
 function page<T>(items: T[]) {
   return { ok: true, data: { items, pagination: { page: 1, pageSize: 25, total: items.length, totalPages: 1 } } };
@@ -222,6 +239,11 @@ describe("tool results pass the MCP SDK output validation on the server and in t
     ["list_records grouped", listRecordsTool, { entity: "deal", groupBy: { field: "userIds" } }],
     ["list_records with a lowered page size", listRecordsTool, { entity: "deal", pageSize: 50 }],
     [
+      "list_records with every include value",
+      listRecordsTool,
+      { entity: "deal", include: ["owners", "links", "customFields", "dates"] },
+    ],
+    [
       "list_records grouped with a lowered page size",
       listRecordsTool,
       { entity: "deal", pageSize: 50, groupBy: { field: "userIds" } },
@@ -250,6 +272,33 @@ describe("tool results pass the MCP SDK output validation on the server and in t
         pageSizeNote: expect.any(String),
       });
     }
+  });
+
+  it("declares the fields include adds, so a client sees them in the published output schema", async () => {
+    const outcome = await sdkOutputViolations(listRecordsTool, {
+      entity: "deal",
+      include: ["owners", "links", "customFields", "dates"],
+    });
+    const outputSchema = normalizeObjectSchema(listRecordsTool.outputSchema);
+    if (!outputSchema) throw new Error("list_records declares no object output schema");
+    const published = toJsonSchemaCompat(outputSchema, {
+      strictUnions: true,
+      pipeStrategy: "output",
+    }) as { properties: { items: { items: { properties: Record<string, unknown>; required?: string[] } } } };
+    const item = published.properties.items.items;
+
+    expect(outcome.structuredContent.items).toEqual([
+      expect.objectContaining({
+        userIds: [ada],
+        taskIds: [],
+        createdAt: "2026-09-01T06:55:15.000Z",
+        customFieldValues: deal.customFieldValues,
+      }),
+    ]);
+    expect(Object.keys(item.properties)).toEqual(
+      expect.arrayContaining(["userIds", "dealIds", "taskIds", "customFieldValues", "createdAt", "updatedAt"]),
+    );
+    expect(item.required).toEqual(["id", "name"]);
   });
 
   it("reports the page and the applied page size on a grouped list_records call", async () => {

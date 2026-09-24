@@ -10,6 +10,7 @@ import {
   refusingTarget,
   type AmbiguityRequest,
 } from "../agent-ambiguous-target";
+import { AGENT_MAX_TOOL_RESULT_CHARS, agentToolResultText } from "../agent-budget-policy";
 
 const NOVA = "11111111-1111-4111-8111-111111111111";
 const NOVA_2025 = "22222222-2222-4222-8222-222222222222";
@@ -916,6 +917,45 @@ describe("ambiguous write targets", () => {
       C34,
     );
     expect(listed?.candidates).toHaveLength(2);
+  });
+
+  it("reads only item rows, never custom field rows, from a truncated list_records result with include", () => {
+    const column = "cccccccc-cccc-4ccc-8ccc-cccccccccccc";
+    const hamburgDeals = (names: string[]) =>
+      Array.from({ length: 25 }, (_, index) => ({
+        id: `00000000-0000-4000-8000-${String(index).padStart(12, "0")}`,
+        name: names[index] ?? `Rollout ${index}`,
+        totalValue: 1000,
+        userIds: [UNRELATED],
+        contactIds: [],
+        organizationIds: [],
+        serviceIds: [],
+        taskIds: [],
+        customFieldValues: [{ columnId: column, value: "Hamburg" }],
+        createdAt: "2026-08-01T08:00:00.000Z",
+        updatedAt: "2026-09-01T06:55:15.000Z",
+      }));
+    const listed = (names: string[]) =>
+      agentToolResultText(
+        encode({ total: 25, page: 1, pageSize: 25, items: hamburgDeals(names) }),
+        AGENT_MAX_TOOL_RESULT_CHARS,
+      );
+    const input = { entity: "deal", include: ["owners", "links", "customFields", "dates"] };
+    const hamburg = request("Set the Hamburg deal to won.");
+
+    const result = listed(["Hamburg Rollout"]);
+    expect(result).toContain(`${column},Hamburg`);
+    expect(() => decode(result)).toThrow();
+    expect(ambiguousTargetsFromMessages(reads({ input, result }), hamburg)).toEqual([]);
+
+    const [target] = ambiguousTargetsFromMessages(
+      reads({ input, result: listed(["Hamburg Rollout", "Hamburg"]) }),
+      hamburg,
+    );
+    expect(target?.candidates).toEqual([
+      { id: "00000000-0000-4000-8000-000000000000", name: "Hamburg Rollout" },
+      { id: "00000000-0000-4000-8000-000000000001", name: "Hamburg" },
+    ]);
   });
 
   it("reads search_records per entity, whichever entities it searched", () => {

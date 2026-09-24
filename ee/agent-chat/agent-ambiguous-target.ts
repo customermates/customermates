@@ -8,6 +8,7 @@ const UUID = /[0-9a-fA-F]{8}-[0-9a-fA-F]{4}-[0-9a-fA-F]{4}-[0-9a-fA-F]{4}-[0-9a-
 const TOON_TABLE_ROW = /^\s+([0-9a-fA-F-]{36}),(?:"((?:[^"\\]|\\.)*)"|([^\n,]*))/gm;
 const TOON_LIST_ROW = /^\s*-\s+id:\s*([0-9a-fA-F-]{36})\s*\n\s+name:\s*(?:"((?:[^"\\]|\\.)*)"|([^\n]*))/gm;
 const TOON_ENTITY_SECTION = /^\s*-\s+entity:\s*"?([\w-]+)"?\s*$/gm;
+const TOON_ITEMS_HEADER = /^\s*items\[\d+\](\{|:)/m;
 const UNSPACED_SCRIPTS = ["Han", "Hiragana", "Katakana", "Thai", "Lao", "Khmer", "Myanmar"]
   .map((script) => `\\p{scx=${script}}`)
   .join("");
@@ -536,11 +537,20 @@ function rowsFromItems(items: unknown): Row[] {
   });
 }
 
+function itemRowPatterns(text: string): RegExp[] {
+  const form = TOON_ITEMS_HEADER.exec(text)?.[1];
+  if (form === "{") return [TOON_TABLE_ROW];
+  if (form === ":") return [TOON_LIST_ROW];
+  return [TOON_TABLE_ROW, TOON_LIST_ROW];
+}
+
 function matchedRows(text: string): Row[] {
-  return [...text.matchAll(TOON_TABLE_ROW), ...text.matchAll(TOON_LIST_ROW)].map((match) => ({
-    id: match[1],
-    name: (match[2] !== undefined ? unescapeToon(match[2]) : (match[3] ?? "")).trim(),
-  }));
+  return itemRowPatterns(text)
+    .flatMap((pattern) => [...text.matchAll(pattern)])
+    .map((match) => ({
+      id: match[1],
+      name: (match[2] !== undefined ? unescapeToon(match[2]) : (match[3] ?? "")).trim(),
+    }));
 }
 
 function entitySections(text: string): { entity: string; body: string }[] {
