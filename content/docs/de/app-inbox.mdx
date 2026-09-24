@@ -9,7 +9,7 @@ Diese Seite dokumentiert den Managed-Cloud-Screen **Posteingang** für Menschen 
 
 Der Posteingang ist vereinheitlichtes Messaging in Customermates Cloud: E-Mail-, LinkedIn-, WhatsApp-, Instagram- und Telegram-Konversationen (Threads) in einer Liste, die jüngste Aktivität zuerst. Klicken Sie eine Konversation in der Liste an, um sie neben der Liste zu lesen; auf schmalen Bildschirmen wechseln sich Liste und Konversation ab. Aus einer Konversation heraus antworten Sie auf ihrem ursprünglichen Kanal, setzen ihren Status, verschieben eine E-Mail in einen anderen Ordner, teilen die Konversation mit Ihrem Team und verknüpfen ihre Teilnehmer mit Kontakten. Die Kanäle selbst verbinden Sie unter **Mein Profil › Kanäle**, siehe [App-Guide, Profil](/docs/app-profile).
 
-**Link:** die Seite **Posteingang**, `/inbox`, Cloud-URL `https://customermates.com/de/inbox`. **Mate:** `navigate` und `highlight_element` mit `nav-inbox`; Thread-Liste, Antwortfeld, Status- und Ordner-Auswahl, Konversationseinstellungen, Suche, Filter, **Aktualisieren** und **Kanäle** sind keine Highlight-Ziele, deshalb nennt Mate sie beim Namen.
+**Link:** die Seite **Posteingang**, `/inbox`. **Mate:** `navigate` und `highlight_element` mit `nav-inbox`; Thread-Liste, Antwortfeld, Status- und Ordner-Auswahl, Konversationseinstellungen, Suche, Filter, **Aktualisieren** und **Kanäle** sind keine Highlight-Ziele, deshalb nennt Mate sie beim Namen.
 
 ## Wer kann den Posteingang nutzen? [#who-can-use-the-inbox]
 
@@ -20,13 +20,13 @@ Alle vier Bedingungen müssen erfüllt sein:
 - **Ein nutzbares Abonnement**, also den Status **Aktiv** oder eine noch nicht abgelaufene Testphase.
 - **Ihre Rolle:** die Zeile **Inbox-Nachrichten** mit **Lesen** auf **Alle**. Bei **Keine** ist der Seitenleisten-Eintrag ausgeblendet, und wer `/inbox` öffnet, landet wieder auf dem Dashboard. Die Rolle **Admin** hat immer Zugriff.
 
-**Link:** die Seite **Posteingang**, `/inbox`, Cloud-URL `https://customermates.com/de/inbox`, und die Seite **Abonnement** für **Tarif upgraden**, `/company/subscription`, Cloud-URL `https://customermates.com/de/company/subscription`. **Mate:** `navigate` und `highlight_element` mit `nav-inbox`, oder `nav-company-subscription` und danach `company-subscription-plan-picker` für die Tarifkarten (sichtbar bis zum ersten Checkout) oder `company-subscription-manage` für **Verwalten mit Lemon Squeezy** (um einen laufenden Tarif zu wechseln), beide nur für Rollen mit **Verwalten** bei **Unternehmen**; **Tarif upgraden** hat keine Id, deshalb nennt Mate den Button beim Namen.
+**Link:** die Seite **Posteingang**, `/inbox`, und die Seite **Abonnement** für **Tarif upgraden**, `/company/subscription`. **Mate:** `navigate` und `highlight_element` mit `nav-inbox`, oder `nav-company-subscription` und danach `company-subscription-plan-picker` für die Tarifkarten (sichtbar bis zum ersten Checkout) oder `company-subscription-manage` für **Verwalten mit Lemon Squeezy** (um einen laufenden Tarif zu wechseln), beide nur für Rollen mit **Verwalten** bei **Unternehmen**; **Tarif upgraden** hat keine Id, deshalb nennt Mate den Button beim Namen.
 
 ## Brauche ich einen verbundenen Kanal? [#do-i-need-a-connected-channel]
 
 Nicht zum Öffnen des Posteingangs: Ohne eigenen Kanal sehen Sie trotzdem, was Teammitglieder teilen. Um über Ihre eigenen Konten zu senden und zu empfangen, brauchen Sie einen. Ist die Liste leer, zeigt sie **Noch nichts vorhanden** und „Noch keine Nachrichten.“ mit dem Hinweis, einen Kanal im Profil zu verbinden. Darunter erhalten Mitglieder mit **Verwalten** bei **Inbox-Nachrichten** einen Button **Kanäle**, der **Mein Profil › Kanäle** öffnet; ist der Assistent verfügbar, erscheinen dort stattdessen Startvorschläge des Assistenten. Unter **Mein Profil › Kanäle** fügt **Kanal verbinden** mit derselben Berechtigung ein E-Mail-, LinkedIn-, WhatsApp-, Instagram- oder Telegram-Konto hinzu, siehe [Wie verbinde ich einen Kanal?](/docs/app-profile#how-do-i-connect-a-channel). Kanäle pro Mitglied: Pro [[commercial.entitlement.pro.includedAccountsPerUser]], Business [[commercial.entitlement.business.includedAccountsPerUser]], Enterprise [[commercial.entitlement.enterprise.includedAccountsPerUser]]; eine Testphase zählt als Pro.
 
-**Link:** die Seite **Kanäle**, `/profile/connected-accounts`, Cloud-URL `https://customermates.com/de/profile/connected-accounts`. **Mate:** `navigate` und `highlight_element` mit `nav-profile-connected-accounts`, danach `highlight_element` mit `profile-connected-accounts-connect` (**Kanal verbinden**); der Button **Kanäle** im leeren Posteingang hat keine Id, deshalb nennt Mate ihn beim Namen.
+**Link:** die Seite **Kanäle**, `/profile/connected-accounts`. **Mate:** `navigate` und `highlight_element` mit `nav-profile-connected-accounts`, danach `highlight_element` mit `profile-connected-accounts-connect` (**Kanal verbinden**); der Button **Kanäle** im leeren Posteingang hat keine Id, deshalb nennt Mate ihn beim Namen.
 
 ## Welche Konversationen sehe ich? [#which-conversations-do-i-see]
 
@@ -34,7 +34,7 @@ Die Liste vereint drei Quellen: die Kanäle, die Sie selbst verbunden haben, Kan
 
 Bei E-Mail-Konten erscheinen nur Nachrichten aus den Ordnern, die auf dem Tab **Ordner** des Kontos unter **Mein Profil › Kanäle** eingeschaltet sind. Standardmäßig ist jeder Ordner eingeschaltet außer Papierkorb, Junk oder Spam, Entwürfe und dem Ordner mit allen E-Mails; fehlen E-Mails aus einem anderen Ordner, zum Beispiel einem Archiv, prüfen Sie, ob dessen Schalter eingeschaltet ist. Eine Konversation ohne jede Nachricht erscheint nur, solange sie einen gespeicherten Entwurf enthält.
 
-**Link:** die Seite **Kanäle**, `/profile/connected-accounts`, Cloud-URL `https://customermates.com/de/profile/connected-accounts`, für die Ordner; der Posteingang ist `/inbox`, Cloud-URL `https://customermates.com/de/inbox`. **Mate:** `navigate` und `highlight_element` mit `nav-profile-connected-accounts` oder `nav-inbox`; hat die Person das Konto über seine Karte geöffnet, hebt `connected-account-tab-folders` den Tab **Ordner** hervor (nur bei Konten mit Ordnern); die Ordner-Schalter sind keine Highlight-Ziele, deshalb nennt Mate sie beim Namen.
+**Link:** die Seite **Kanäle**, `/profile/connected-accounts`, für die Ordner; der Posteingang ist `/inbox`. **Mate:** `navigate` und `highlight_element` mit `nav-profile-connected-accounts` oder `nav-inbox`; hat die Person das Konto über seine Karte geöffnet, hebt `connected-account-tab-folders` den Tab **Ordner** hervor (nur bei Konten mit Ordnern); die Ordner-Schalter sind keine Highlight-Ziele, deshalb nennt Mate sie beim Namen.
 
 ## Welche Berechtigungen braucht der Posteingang? [#which-permissions-does-the-inbox-need]
 
@@ -49,7 +49,7 @@ Rollen bearbeiten Sie unter **Mein Unternehmen › Rollen**. Der Posteingang nut
 
 Ohne **Verwalten** bei **Inbox-Nachrichten** ist das Antwortfeld ausgeblendet, Status und Ordner erscheinen als schreibgeschützte Chips, und eine ungelesene Konversation bleibt beim Öffnen **Ungelesen**. Eine einzelne Konversation zu teilen setzt außerdem voraus, dass Ihnen ihr Kanal gehört.
 
-**Link:** **Mein Unternehmen › Rollen**, `/company/roles`, Cloud-URL `https://customermates.com/de/company/roles`; der Posteingang ist `/inbox`, Cloud-URL `https://customermates.com/de/inbox`. **Mate:** `navigate` und `highlight_element` mit `nav-company-roles` oder `nav-inbox`; die Rollenzeilen sind keine Highlight-Ziele, deshalb nennt Mate sie beim Namen.
+**Link:** **Mein Unternehmen › Rollen**, `/company/roles`; der Posteingang ist `/inbox`. **Mate:** `navigate` und `highlight_element` mit `nav-company-roles` oder `nav-inbox`; die Rollenzeilen sind keine Highlight-Ziele, deshalb nennt Mate sie beim Namen.
 
 ## Wie durchsuche, filtere oder aktualisiere ich den Posteingang? [#how-do-i-search-filter-or-refresh-the-inbox]
 
@@ -62,7 +62,7 @@ Die Kopfleiste über der Liste enthält diese Steuerelemente:
 
 Die Ansichtsleiste bietet **Alle** und Ihre persönlichen gespeicherten Ansichten. Die Liste zeigt 25 Konversationen pro Seite; die Seitennavigation wechselt zwischen 5, 10, 25 und 100. Der Seitenleisten-Eintrag **Posteingang** zeigt, wie viele der Konversationen, die Sie sehen können, **Ungelesen** sind.
 
-**Link:** die Seite **Posteingang**, `/inbox`, Cloud-URL `https://customermates.com/de/inbox`. **Mate:** `navigate` und `highlight_element` mit `nav-inbox`; **Suchen...**, **Filter**, **Aktualisieren**, **Kanäle** und die Ansichtsleiste sind keine Highlight-Ziele, deshalb nennt Mate sie beim Namen.
+**Link:** die Seite **Posteingang**, `/inbox`. **Mate:** `navigate` und `highlight_element` mit `nav-inbox`; **Suchen...**, **Filter**, **Aktualisieren**, **Kanäle** und die Ansichtsleiste sind keine Highlight-Ziele, deshalb nennt Mate sie beim Namen.
 
 ## Wie öffne ich eine bestimmte Konversation? [#how-do-i-open-a-specific-conversation]
 
@@ -70,7 +70,7 @@ Klicken Sie eine Zeile in der Liste an; die Adresse wird zu `/inbox?threadId=<id
 
 Mit **Verwalten** bei **Inbox-Nachrichten** lädt Scrollen bis zum Anfang einer Konversation ältere Nachrichten vom Anbieter, einmal pro Konversation, bis Sie die Seite neu laden; ohne diese Berechtigung wird nichts nachgeladen. **Konversation neu synchronisieren** in der Kopfleiste lädt die Konversation erneut und braucht dieselbe Berechtigung.
 
-**Link:** die Seite **Posteingang**, `/inbox`, Cloud-URL `https://customermates.com/de/inbox`; eine einzelne Konversation ist `https://customermates.com/de/inbox?threadId=<id>`. **Mate:** `navigate` und `highlight_element` mit `nav-inbox`, das den Posteingang öffnet, aber keine einzelne Konversation, deshalb gibt Mate stattdessen den Konversationslink; die Zeilen und **Zum Posteingang** sind keine Highlight-Ziele, deshalb nennt Mate sie beim Namen.
+**Link:** die Seite **Posteingang**, `/inbox`; eine einzelne Konversation ist `/inbox?threadId=<id>`. **Mate:** `navigate` und `highlight_element` mit `nav-inbox`, das den Posteingang öffnet, aber keine einzelne Konversation, deshalb gibt Mate stattdessen den Konversationslink; die Zeilen und **Zum Posteingang** sind keine Highlight-Ziele, deshalb nennt Mate sie beim Namen.
 
 ## Was steht in der Kopfleiste einer Konversation? [#what-is-in-the-conversation-header]
 
@@ -86,7 +86,7 @@ Neben dem Namen der Konversation, von links nach rechts:
 
 Auf schmalen Bildschirmen zeigen die Chips nur Symbole.
 
-**Link:** die Seite **Posteingang**, `/inbox`, Cloud-URL `https://customermates.com/de/inbox`. **Mate:** `navigate` und `highlight_element` mit `nav-inbox`; keines der Steuerelemente in der Kopfleiste ist ein Highlight-Ziel, deshalb nennt Mate sie beim Namen.
+**Link:** die Seite **Posteingang**, `/inbox`. **Mate:** `navigate` und `highlight_element` mit `nav-inbox`; keines der Steuerelemente in der Kopfleiste ist ein Highlight-Ziel, deshalb nennt Mate sie beim Namen.
 
 ## Was bedeuten die Thread-Status? [#what-do-the-thread-states-mean]
 
@@ -99,7 +99,7 @@ Auf schmalen Bildschirmen zeigen die Chips nur Symbole.
 
 Das Öffnen einer ungelesenen Konversation setzt sie auf **Offen**, aber nur für Mitglieder mit **Verwalten** bei **Inbox-Nachrichten**. Der Status ist ein gemeinsamer Wert für alle, die die Konversation sehen, nicht pro Person. Eine neu empfangene Nachricht setzt die Konversation wieder auf **Ungelesen**, auch wenn sie **Geschlossen** oder **Spam** war. **Spam** ist nur eine Markierung: Es blendet die Konversation nicht aus, blockiert den Absender nicht und meldet nichts an den Anbieter; mit dem Filter **Status** halten Sie sie aus dem Blick. Einen Status zu setzen sendet nie etwas an die Gegenseite. Mit **Verwalten** ändern Sie ihn über die Status-Auswahl (`#inbox-thread-state`), oder Sie bitten Mate darum; Mate nutzt dafür `update_messaging_thread`.
 
-**Link:** die Seite **Posteingang**, `/inbox`, Cloud-URL `https://customermates.com/de/inbox`. **Mate:** `navigate` und `highlight_element` mit `nav-inbox`; die Status-Auswahl ist kein Highlight-Ziel, deshalb nennt Mate sie beim Namen.
+**Link:** die Seite **Posteingang**, `/inbox`. **Mate:** `navigate` und `highlight_element` mit `nav-inbox`; die Status-Auswahl ist kein Highlight-Ziel, deshalb nennt Mate sie beim Namen.
 
 ## Wie verschiebe ich eine E-Mail in einen anderen Ordner? [#how-do-i-move-an-email-to-another-folder]
 
@@ -107,7 +107,7 @@ In IMAP- und Outlook-Konversationen ist der Ordner-Chip in der Kopfleiste (`#inb
 
 Das Verschieben in einen Ordner, der auf dem Tab **Ordner** des Kontos ausgeschaltet ist, entfernt die Konversation aus dem Posteingang: „Nach `{folder}` verschoben. Die Konversation erscheint nicht mehr im Posteingang.“ Bremst der Anbieter mittendrin, stoppt das Verschieben mit „Ablegen in `{folder}` gestoppt, weil der Anbieter die Rate begrenzt.“, und der Rest lässt sich später verschieben. Mate nutzt `move_email_thread` für dasselbe Verschieben.
 
-**Link:** die Seite **Posteingang**, `/inbox`, Cloud-URL `https://customermates.com/de/inbox`. **Mate:** `navigate` und `highlight_element` mit `nav-inbox`; die Ordner-Auswahl ist kein Highlight-Ziel, deshalb nennt Mate sie beim Namen.
+**Link:** die Seite **Posteingang**, `/inbox`. **Mate:** `navigate` und `highlight_element` mit `nav-inbox`; die Ordner-Auswahl ist kein Highlight-Ziel, deshalb nennt Mate sie beim Namen.
 
 ## Wie teile ich eine einzelne Konversation? [#how-do-i-share-a-single-conversation]
 
@@ -115,13 +115,13 @@ Klicken Sie in der Kopfleiste auf den Chip **Private Konversation** oder **Getei
 
 Um jede Konversation eines Kanals zu teilen, teilen Sie den Kanal: **Sichtbarkeit** auf seinem Tab **Details** unter **Mein Profil › Kanäle**, in Business oder Enterprise. Der Schalter pro Konversation bleibt dann eingeschaltet und gesperrt, mit dem Hinweis, dass das Konto mit dem Team geteilt ist und daher alle Konversationen sichtbar sind.
 
-**Link:** die Seite **Posteingang**, `/inbox`, Cloud-URL `https://customermates.com/de/inbox`, und die Seite **Kanäle**, `/profile/connected-accounts`, Cloud-URL `https://customermates.com/de/profile/connected-accounts`. **Mate:** `navigate` und `highlight_element` mit `nav-inbox` oder `nav-profile-connected-accounts`; der Chip und der Schalter der Konversation sind keine Highlight-Ziele, deshalb nennt Mate sie beim Namen; hat der Besitzer den Kanal unter **Kanäle** geöffnet, hebt `connected-account-visibility` seinen Schalter **Sichtbarkeit** hervor.
+**Link:** die Seite **Posteingang**, `/inbox`, und die Seite **Kanäle**, `/profile/connected-accounts`. **Mate:** `navigate` und `highlight_element` mit `nav-inbox` oder `nav-profile-connected-accounts`; der Chip und der Schalter der Konversation sind keine Highlight-Ziele, deshalb nennt Mate sie beim Namen; hat der Besitzer den Kanal unter **Kanäle** geöffnet, hebt `connected-account-visibility` seinen Schalter **Sichtbarkeit** hervor.
 
 ## Wie verknüpfe ich eine Konversation oder einen E-Mail-Thread mit einem Kontakt? [#how-do-i-link-a-participant]
 
 Eine Konversation, auch ein E-Mail-Thread, verknüpft sich über ihre Teilnehmer mit einem Kontakt. Öffnen Sie **Konversationseinstellungen** über den Chip in der Kopfleiste; **Personen** listet alle Beteiligten der Konversation. Klicken Sie bei einem nicht verknüpften Teilnehmer auf **Verknüpfen**, durchsuchen Sie dann Ihre Kontakte oder wählen Sie **„…“ erstellen** mit dem eingegebenen Namen, um einen neuen Kontakt anzulegen. Das Verknüpfen fügt diese E-Mail-Adresse oder dieses Handle den Kanälen des Kontakts hinzu, sodass jede Konversation damit, nicht nur diese, auf der Timeline dieses Kontakts erscheint. Ein verknüpfter Teilnehmer bietet **Kontakt öffnen** und **Verknüpfung entfernen**; das Entfernen nimmt die Adresse wieder vom Kontakt. Teilnehmer bleiben in beiden Fällen in der Konversation sichtbar. Verknüpfen und Entfernen erfordern **Verwalten** bei **Kontakte**.
 
-**Link:** die Seite **Posteingang**, `/inbox`, Cloud-URL `https://customermates.com/de/inbox`. **Mate:** `navigate` und `highlight_element` mit `nav-inbox`; **Konversationseinstellungen**, **Verknüpfen** und **Verknüpfung entfernen** sind keine Highlight-Ziele, deshalb nennt Mate sie beim Namen.
+**Link:** die Seite **Posteingang**, `/inbox`. **Mate:** `navigate` und `highlight_element` mit `nav-inbox`; **Konversationseinstellungen**, **Verknüpfen** und **Verknüpfung entfernen** sind keine Highlight-Ziele, deshalb nennt Mate sie beim Namen.
 
 ## Wie antworte ich auf eine Konversation? [#how-do-i-reply-to-a-conversation]
 
@@ -129,13 +129,13 @@ Klicken Sie auf die Zeile unter der Konversation, **Antwort schreiben…** bei E
 
 Antworten erfordert **Verwalten** bei **Inbox-Nachrichten**; ohne diese Berechtigung ist der Composer ausgeblendet. Die Antwort wird über den eigenen Kanal der Konversation gesendet, deshalb können Sie nur auf Kanälen antworten, die Ihnen gehören oder mit dem Workspace geteilt sind.
 
-**Link:** die Seite **Posteingang**, `/inbox`, Cloud-URL `https://customermates.com/de/inbox`. **Mate:** `navigate` und `highlight_element` mit `nav-inbox`; der Composer und seine Buttons sind keine Highlight-Ziele, deshalb nennt Mate sie beim Namen.
+**Link:** die Seite **Posteingang**, `/inbox`. **Mate:** `navigate` und `highlight_element` mit `nav-inbox`; der Composer und seine Buttons sind keine Highlight-Ziele, deshalb nennt Mate sie beim Namen.
 
 ## Wie starte ich eine neue Konversation? [#how-do-i-start-a-new-conversation]
 
 Der Posteingang hat keinen Button für eine neue Konversation. Starten Sie sie bei einem Kontakt: Im Block **Kanäle** des Kontakts öffnet das Symbol **Neue Nachricht** neben einer E-Mail-Adresse oder einem Handle ein Verfassen-Feld für diesen Kanal. Können mehrere Ihrer Kanäle senden, wählen Sie einen unter **Von**; bei LinkedIn mit Sales Navigator oder Recruiter wählt **Senden als** zwischen **Classic**, **Sales Navigator InMail** und **Recruiter InMail**. Nach **Senden** erscheint „Nachricht gesendet. Die Konversation erscheint in Kürze.“ Das Symbol erfordert Customermates Cloud und **Verwalten** bei **Inbox-Nachrichten**. Über MCP starten auch `send_email`, `send_chat_message` und `save_message_draft` Konversationen.
 
-**Link:** die Seite eines Kontakts, `/contacts/<id>`, Cloud-URL `https://customermates.com/de/contacts/<id>`. **Mate:** `navigate` und `highlight_element` mit `nav-contacts` für die Kontaktliste; das Symbol **Neue Nachricht** ist kein Highlight-Ziel, deshalb nennt Mate es beim Namen.
+**Link:** die Seite eines Kontakts, `/contacts/<id>`. **Mate:** `navigate` und `highlight_element` mit `nav-contacts` für die Kontaktliste; das Symbol **Neue Nachricht** ist kein Highlight-Ziel, deshalb nennt Mate es beim Namen.
 
 ## Wie funktionieren Entwürfe und Anhänge? [#how-do-drafts-and-attachments-work]
 
@@ -143,13 +143,13 @@ Der Posteingang hat keinen Button für eine neue Konversation. Starten Sie sie b
 
 **Dateien anhängen** fügt bis zu 20 Dateien pro Nachricht hinzu, zusammen 15 MB. Entwürfe können keine Anhänge behalten: „Entfernen Sie Anhänge, bevor Sie diesen Entwurf speichern.“ In empfangenen Nachrichten öffnen sich unterstützte Medien inline, andere Dateien werden heruntergeladen, nicht unterstützte Elemente zeigen **Nicht unterstützt**, und Anhänge aus LinkedIn-Beiträgen öffnen sich an ihrer externen Quelle.
 
-**Link:** die Seite **Posteingang**, `/inbox`, Cloud-URL `https://customermates.com/de/inbox`. **Mate:** `navigate` und `highlight_element` mit `nav-inbox`; der Composer, die Entwurfs-Buttons und der Filter **Entwurf** sind keine Highlight-Ziele, deshalb nennt Mate sie beim Namen.
+**Link:** die Seite **Posteingang**, `/inbox`. **Mate:** `navigate` und `highlight_element` mit `nav-inbox`; der Composer, die Entwurfs-Buttons und der Filter **Entwurf** sind keine Highlight-Ziele, deshalb nennt Mate sie beim Namen.
 
 ## Wie richte ich eine E-Mail-Signatur ein? [#how-do-i-set-an-email-signature]
 
 Die Signatur gehört zu jedem E-Mail-Konto, das Ihnen gehört, nicht zum Posteingang: Öffnen Sie **Mein Profil › Kanäle**, wählen Sie das Gmail-, Outlook- oder IMAP-Konto und nutzen Sie dessen Tab **E-Mail**. Dort setzen Sie Schriftart, Schriftgröße, Linkfarbe und Linkstil, schalten **Signatur hinzufügen** ein, wählen ein Layout mit oder ohne Logo und schreiben den Text in Markdown. Solange sie eingeschaltet ist, wird die Signatur unter jede E-Mail gesetzt, die von diesem Konto gesendet wird, ob aus dem Posteingang, über die REST-API oder MCP; fügen Sie sie daher nicht in die Nachricht ein. Der Composer zeigt sie als Vorschau unter Ihrem Text. Alle Felder stehen unter [E-Mail-Darstellung und Signatur](/docs/app-profile#email-appearance-and-signature).
 
-**Link:** die Seite **Kanäle**, `/profile/connected-accounts`, Cloud-URL `https://customermates.com/de/profile/connected-accounts`. **Mate:** `navigate` und `highlight_element` mit `nav-profile-connected-accounts`; hat die Person das Konto über seine Karte geöffnet, hebt `connected-account-tab-email` den Tab **E-Mail** hervor, und bei geöffnetem Tab heben `connected-account-signature` **Signatur hinzufügen** und `connected-account-email-save` **E-Mail-Einstellungen speichern** hervor. Die Felder für Darstellung und Layout sind keine Highlight-Ziele, deshalb nennt Mate sie beim Namen.
+**Link:** die Seite **Kanäle**, `/profile/connected-accounts`. **Mate:** `navigate` und `highlight_element` mit `nav-profile-connected-accounts`; hat die Person das Konto über seine Karte geöffnet, hebt `connected-account-tab-email` den Tab **E-Mail** hervor, und bei geöffnetem Tab heben `connected-account-signature` **Signatur hinzufügen** und `connected-account-email-save` **E-Mail-Einstellungen speichern** hervor. Die Felder für Darstellung und Layout sind keine Highlight-Ziele, deshalb nennt Mate sie beim Namen.
 
 ## Welche Ids hat der Posteingang? [#which-ids-does-the-inbox-have]
 
@@ -166,7 +166,7 @@ Mate navigiert zu `#nav-inbox` (**Posteingang**) und hebt es hervor. Die anderen
 | Thread mit dem Team teilen        | Konversationseinstellungen             | `#thread-shared`                           | Teilt nur diesen Thread; nur der Besitzer des Kanals, und nicht, wenn der Kanal selbst geteilt ist                                                            |
 | Teilnehmer mit Kontakt verknüpfen | Konversationseinstellungen, **Personen** | keine                                    | **Verknüpfen** pro Teilnehmer                                                                                                                                 |
 
-**Link:** die Seite **Posteingang**, `/inbox`, Cloud-URL `https://customermates.com/de/inbox`. **Mate:** `navigate` und `highlight_element` mit `nav-inbox`; die übrigen Ids dieser Tabelle sind keine Highlight-Ziele, deshalb nennt Mate die Steuerelemente beim Namen.
+**Link:** die Seite **Posteingang**, `/inbox`. **Mate:** `navigate` und `highlight_element` mit `nav-inbox`; die übrigen Ids dieser Tabelle sind keine Highlight-Ziele, deshalb nennt Mate die Steuerelemente beim Namen.
 
 ## Tipps für Agents [#tips-for-agents]
 

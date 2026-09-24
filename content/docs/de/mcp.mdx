@@ -3,7 +3,7 @@ title: "MCP-Server für das CRM: Endpunkt und Tools"
 description: "Customermates bietet einen MCP-Endpoint unter /api/v1/mcp, über den Claude, ChatGPT, Cursor und weitere Agent-Clients das CRM direkt lesen und schreiben."
 ---
 
-Customermates exponiert einen MCP-Endpoint unter `https://customermates.com/api/v1/mcp`. Ein verbundener Client entdeckt automatisch alle [[derived.mcp.tools.total]] CRM-Tools. Es gibt zwei Wege zu verbinden:
+Customermates exponiert einen MCP-Endpoint unter `<BASE_URL>/api/v1/mcp`, wobei `<BASE_URL>` die Adresse ist, unter der Sie Customermates öffnen. Ein verbundener Client entdeckt automatisch alle [[derived.mcp.tools.total]] CRM-Tools. Es gibt zwei Wege zu verbinden:
 
 - **Custom Connector (OAuth):** für Claude (Web, Desktop, Mobile) und ChatGPT. URL einfügen, anmelden, freigeben. Kein Key zu verwalten. Starten Sie auf [Mit einem Custom Connector verbinden](/docs/connect-custom-connector).
 - **API-Key:** für CLI- und Editor-Clients (Claude Code, Codex, Cursor, Gemini CLI) und rohe HTTP-Aufrufe. Den 64-Zeichen-Key im Header `x-api-key` oder einer Konfigurationsdatei senden.
@@ -21,7 +21,7 @@ Nehmen Sie stattdessen [OpenAPI](/docs/openapi), wenn ein Entwickler oder Integr
 ## Wie lautet die URL des MCP-Server-Endpoints? [#the-endpoint]
 
 ```
-POST https://customermates.com/api/v1/mcp
+POST <BASE_URL>/api/v1/mcp
 Content-Type: application/json
 Accept: application/json, text/event-stream
 x-api-key: <ihr-64-zeichen-key>
@@ -45,10 +45,10 @@ Einen AI-Client mit dem Workspace zu verbinden sind immer dieselben drei Schritt
 <Step title="API-Key erstellen">
 **Mein Profil → API & Konnektoren → Hinzufügen**. Entweder **Schnellverbindungen** für das geführte Setup von Claude, ChatGPT & Codex, Cursor oder Gemini wählen, oder **Standard-API-Key** für die eigene Integration. Der Key wird nur einmal angezeigt, also vor dem Schließen des Dialogs kopieren. Zum Anlegen eines Keys braucht Ihre Rolle **Verwalten** auf **Ja** in der Zeile **API & Webhooks**, und die Seite selbst braucht **Lesen** **Alle** in dieser Zeile; die eingebaute Rolle **Admin** hat beides. Siehe [API-Keys](/docs/api-keys).
 
-**Link:** die Seite **API & Konnektoren**, `/profile/api-keys`, Cloud-URL `https://customermates.com/de/profile/api-keys`. **Mate:** `navigate` und `highlight_element` mit `nav-profile-api-keys`; `highlight_element` nimmt außerdem `profile-api-keys-generate` für **Hinzufügen** an (Rollen mit **Verwalten** auf **API & Webhooks**), danach `api-key-option-standard` für **Standard-API-Key** (Voraussetzung `profile-api-keys-generate`) sowie `api-key-name`, `api-key-expires` und `api-key-save` für **Name**, **Läuft ab** und **Speichern** (Voraussetzung `api-key-option-standard`). Die Kacheln der **Schnellverbindungen** sind keine Highlight-Ziele, deshalb nennt Mate sie beim Namen.
+**Link:** die Seite **API & Konnektoren**, `/profile/api-keys`. **Mate:** `navigate` und `highlight_element` mit `nav-profile-api-keys`; `highlight_element` nimmt außerdem `profile-api-keys-generate` für **Hinzufügen** an (Rollen mit **Verwalten** auf **API & Webhooks**), danach `api-key-option-standard` für **Standard-API-Key** (Voraussetzung `profile-api-keys-generate`) sowie `api-key-name`, `api-key-expires` und `api-key-save` für **Name**, **Läuft ab** und **Speichern** (Voraussetzung `api-key-option-standard`). Die Kacheln der **Schnellverbindungen** sind keine Highlight-Ziele, deshalb nennt Mate sie beim Namen.
 </Step>
 <Step title="Client auf den Endpoint zeigen lassen">
-Dem Client `POST https://customermates.com/api/v1/mcp` mit dem `x-api-key`-Header aus dem vorherigen Schritt geben, oder per OAuth verbinden, wo der Client das unterstützt. Die Guides pro Client in der Tabelle unten enthalten die genaue Konfiguration.
+Dem Client `POST <BASE_URL>/api/v1/mcp` mit dem `x-api-key`-Header aus dem vorherigen Schritt geben, oder per OAuth verbinden, wo der Client das unterstützt. Die Guides pro Client in der Tabelle unten enthalten die genaue Konfiguration.
 </Step>
 <Step title="Prüfen, ob die Tools ankommen">
 Den Client nach seinen Tools fragen. Alle [[derived.mcp.tools.total]] sollten erscheinen, und `get_workspace_context` ist der natürliche erste Aufruf: er liefert User, die Workspace-Währung und die Bezeichnungen der Datensatztypen, Rollen und verbundene Accounts auf einmal.
@@ -403,7 +403,7 @@ Volltextsuche über die Docs; standardmäßig nur die Produkt-Guides (source=doc
 
 #### `get_docs_page`
 
-Eine Doku-Seite als Markdown inklusive kanonischer URL. Mit `query` kommt statt der ganzen Seite ein Auszug von etwa 1.400 Zeichen aus dem passendsten Abschnitt (plus einem zweiten Abschnitt, wenn er hineinpasst). Listet bei einem Miss alle gültigen Slugs.
+Eine Doku-Seite als Markdown inklusive kanonischer URL. App-Routen darin, etwa `/company/subscription`, sind relativ: Ein vollständiger Link ist der Ursprung dieser URL, gefolgt von der Route. Mit `query` kommt statt der ganzen Seite ein Auszug von etwa 1.400 Zeichen aus dem passendsten Abschnitt (plus einem zweiten Abschnitt, wenn er hineinpasst). Listet bei einem Miss alle gültigen Slugs.
 
 **Nur lesend.** Pflicht: `slug`. Optional: `query`, `locale`, `source`.
 
@@ -478,7 +478,7 @@ Pflicht: `action`. Optional: `emails`, `userId`, `roleId`, `status`.
 
 Kein Tool liest das Abonnement, den Plan, die Nutzerplätze oder die Abrechnung oder ändert den Plan, und keines legt Rollen oder API-Keys an, bearbeitet oder löscht sie; auch `get_workspace_context` liefert keine Plan- oder Testphasendaten. Die abgerechneten Nutzerplätze folgen der Zahl der Mitglieder mit Status **Aktiv**: Wer mit `manage_team` den Status eines Mitglieds ändert, ändert also wie in der App auch die Zahl der Nutzerplätze ([wie Nutzerplätze gezählt werden](/docs/app-company#how-are-seats-counted-and-billed)). Abonnement, Rollen und API-Keys verwalten Sie in der App: **Mein Unternehmen → Abonnement**, **Mein Unternehmen → Rollen** und **Mein Profil → API & Konnektoren**.
 
-**Link:** die Seite **Abonnement**, `/company/subscription` (nur Cloud), die Seite **Rollen**, `/company/roles`, und die Seite **API & Konnektoren**, `/profile/api-keys`, Cloud-URLs `https://customermates.com/de/company/subscription`, `https://customermates.com/de/company/roles` und `https://customermates.com/de/profile/api-keys`. **Mate:** `navigate` und `highlight_element` mit `nav-company-subscription`, `nav-company-roles` oder `nav-profile-api-keys`, und `highlight_element` mit `company-roles-add` für **Hinzufügen** auf **Rollen**.
+**Link:** die Seite **Abonnement**, `/company/subscription` (nur Cloud), die Seite **Rollen**, `/company/roles`, und die Seite **API & Konnektoren**, `/profile/api-keys`. **Mate:** `navigate` und `highlight_element` mit `nav-company-subscription`, `nav-company-roles` oder `nav-profile-api-keys`, und `highlight_element` mit `company-roles-add` für **Hinzufügen** auf **Rollen**.
 
 ### Support
 
@@ -495,7 +495,7 @@ Pflicht: `subject`, `body`.
 Alle [[derived.mcp.tools.total]] Tools sind standardmäßig an. Um nur einen Teil der Oberfläche zu exponieren, hängen Sie `?toolsets=` mit kommagetrennten Gruppen-Keys an die Endpoint-URL:
 
 ```
-https://customermates.com/api/v1/mcp?toolsets=records,messaging
+<BASE_URL>/api/v1/mcp?toolsets=records,messaging
 ```
 
 Keys: records, workspace, messaging, social, docs, custom-columns, widgets, routines, webhooks, admin, support. Kein Parameter heißt alles; unbekannte Keys werden ignoriert, und eine Liste ohne erkannten Key liefert die volle Oberfläche. `search` und `fetch` sind immer an, damit Deep-Research-Connectors auch auf einer eingegrenzten Oberfläche funktionieren.

@@ -37,13 +37,13 @@ Three ways, all resolving to the same user and company context:
 
 No. Enterprise single sign-on with your own identity provider over SAML or OIDC is not implemented, in the cloud or self-hosted. Members sign in with email and password, or with a Google or Microsoft account where the instance has those providers configured; on a self-hosted instance you set them up yourself, see [Self-hosting](/docs/self-hosting). To end a member's access, set their status to **Inactive** under **My Company** › **Members**.
 
-**Link:** the **Members** page, `/company/members`, Cloud URL `https://customermates.com/en/company/members`. **Mate:** `navigate` and `highlight_element` with `nav-company-members`; after a member row is opened, `member-modal-status` and `member-modal-save` highlight **Status** and **Save** in the **User** dialog (roles with **Manage** on **Users & Roles**); the rows are not highlight targets, so Mate names them.
+**Link:** the **Members** page, `/company/members`. **Mate:** `navigate` and `highlight_element` with `nav-company-members`; after a member row is opened, `member-modal-status` and `member-modal-save` highlight **Status** and **Save** in the **User** dialog (roles with **Manage** on **Users & Roles**); the rows are not highlight targets, so Mate names them.
 
 ## How is authorization decided?
 
 Per user and role. A role, edited under **My Company** › **Roles**, sets two things for each resource (the five record types and the workspace features such as **Users & Roles**, **Company**, **API & Webhooks** and **Audit Log**): **Manage**, where **Yes** grants create, update and delete together, and **Read access**, which is **All**, **Assigned** or **None**. Not every resource offers every option. The system **Admin** role has every permission. Every operation checks the permission before acting. API keys inherit the permissions of their owning user; there is no per-key scoping.
 
-**Link:** the **Roles** page, `/company/roles`, Cloud URL `https://customermates.com/en/company/roles`. **Mate:** `navigate` and `highlight_element` with `nav-company-roles`; `company-roles-add` highlights **Add** for roles with **Manage** on **Users & Roles**, and in the open **Role** dialog `role-modal-save` and `role-modal-reset` highlight **Save** and **Reset**, and `role-modal-delete` highlights **Delete** of a saved custom role that no member uses; the permission rows and fields are not highlight targets, so Mate names them.
+**Link:** the **Roles** page, `/company/roles`. **Mate:** `navigate` and `highlight_element` with `nav-company-roles`; `company-roles-add` highlights **Add** for roles with **Manage** on **Users & Roles**, and in the open **Role** dialog `role-modal-save` and `role-modal-reset` highlight **Save** and **Reset**, and `role-modal-delete` highlights **Delete** of a saved custom role that no member uses; the permission rows and fields are not highlight targets, so Mate names them.
 
 ## How do I stop the API keys of a former member?
 
@@ -51,7 +51,7 @@ The **API & Webhooks** permission controls the **API & Connectors**, **Webhooks*
 
 To stop a member's keys, open the member under **My Company** › **Members** and set **Status** to **Inactive**. This needs **Manage** **Yes** and read access **All** on **Users & Roles**; you cannot deactivate yourself, and the last active member with the **Admin** role cannot be deactivated. Every call with an inactive member's keys that reads or changes workspace data is refused. Nobody can list or delete another member's keys.
 
-**Link:** the **Members** page, `/company/members`, Cloud URL `https://customermates.com/en/company/members`. **Mate:** `navigate` and `highlight_element` with `nav-company-members`; after a member row is opened, `member-modal-status` and `member-modal-save` highlight **Status** and **Save** in the **User** dialog (roles with **Manage** on **Users & Roles**); the rows are not highlight targets, so Mate names them.
+**Link:** the **Members** page, `/company/members`. **Mate:** `navigate` and `highlight_element` with `nav-company-members`; after a member row is opened, `member-modal-status` and `member-modal-save` highlight **Status** and **Save** in the **User** dialog (roles with **Manage** on **Users & Roles**); the rows are not highlight targets, so Mate names them.
 
 ## How does external AI access work?
 
@@ -89,13 +89,13 @@ The published self-hosted image sets no error reporting address and turns off Ne
 - A webhook URL may use plain `http://` for any host as long as the webhook has no custom headers. A webhook with custom headers must use `https://`, except for `localhost`, `127.0.0.1` and `::1`; this is checked when the webhook is saved and again before each delivery.
 - Webhook URLs are not limited to public addresses: the server sends requests to any host it can reach, including internal services on its network. On self-host, restrict the app container's outbound network if internal services must stay unreachable, and give **Manage** on **API & Webhooks** only to trusted roles. See [Webhooks](/docs/webhooks).
 
-**Link:** the **Webhooks** page, `/company/webhooks`, Cloud URL `https://customermates.com/en/company/webhooks`. **Mate:** `navigate` and `highlight_element` with `nav-company-webhooks`; `company-webhooks-add` highlights **Add** for roles with **Manage** on **API & Webhooks**. In the open **Webhook** dialog, `webhook-modal-url`, `webhook-modal-secret` and `webhook-modal-headers` highlight **URL**, **Secret** and **Custom headers**, `webhook-modal-description`, `webhook-modal-events`, `webhook-modal-body-template` and `webhook-modal-enabled` highlight **Description**, **Events**, **Body template** and **Enabled**, `webhook-modal-save` highlights **Save**, and `webhook-modal-delete` highlights **Delete** of a saved webhook. The rows are not highlight targets, so Mate names them.
+**Link:** the **Webhooks** page, `/company/webhooks`. **Mate:** `navigate` and `highlight_element` with `nav-company-webhooks`; `company-webhooks-add` highlights **Add** for roles with **Manage** on **API & Webhooks**. In the open **Webhook** dialog, `webhook-modal-url`, `webhook-modal-secret` and `webhook-modal-headers` highlight **URL**, **Secret** and **Custom headers**, `webhook-modal-description`, `webhook-modal-events`, `webhook-modal-body-template` and `webhook-modal-enabled` highlight **Description**, **Events**, **Body template** and **Enabled**, `webhook-modal-save` highlights **Save**, and `webhook-modal-delete` highlights **Delete** of a saved webhook. The rows are not highlight targets, so Mate names them.
 
 ## What does the audit log record?
 
 Changes to records and to the workspace configuration around them are logged with the user, the event, the element id and the payload. Updates to records, roles, webhooks, custom fields, routines and connected accounts carry a field-level diff. Creates, deletes and member or company-settings saves carry a snapshot instead, which is written even when nothing changed. User registrations, record exports and accepted legal documents are recorded as well. A failed write leaves no entry. The audit log is included on every cloud plan and in the self-hosted edition alike.
 
-**Link:** the **Audit Logs** page, `/company/audit-logs`, Cloud URL `https://customermates.com/en/company/audit-logs`. **Mate:** `navigate` and `highlight_element` with `nav-company-audit-logs`; the rows are not highlight targets, so Mate names them.
+**Link:** the **Audit Logs** page, `/company/audit-logs`. **Mate:** `navigate` and `highlight_element` with `nav-company-audit-logs`; the rows are not highlight targets, so Mate names them.
 
 ## What is not in the audit log?
 
@@ -105,13 +105,13 @@ Messaging events are not written to the audit log. Authentication events such as
 
 Read it under **My Company** › **Audit Logs**; see the [Company page](/docs/app-company). Access needs **Read access** **All** on the **Audit Log** row of your role, which has no **Manage** option; the **Admin** role always has it. The page lists every entry in the workspace, including changes to records the reader's role cannot open otherwise. Search matches the element id, and the filters cover the event and the date; click a row for **Audit Log Details**. The same permission shows the change history on record pages.
 
-**Link:** the **Audit Logs** page, `/company/audit-logs`, Cloud URL `https://customermates.com/en/company/audit-logs`. **Mate:** `navigate` and `highlight_element` with `nav-company-audit-logs`; `company-audit-logs-search`, `company-audit-logs-filter` and `company-audit-logs-display-options` highlight the toolbar, and there is no **Add**. The rows and **Audit Log Details** are not highlight targets, so Mate names them.
+**Link:** the **Audit Logs** page, `/company/audit-logs`. **Mate:** `navigate` and `highlight_element` with `nav-company-audit-logs`; `company-audit-logs-search`, `company-audit-logs-filter` and `company-audit-logs-display-options` highlight the toolbar, and there is no **Add**. The rows and **Audit Log Details** are not highlight targets, so Mate names them.
 
 ## How long are audit entries kept, and can I export them?
 
 Entries are not deleted automatically; they are kept as long as the workspace exists. The **Audit Logs** page has no export action. The activity timeline, its REST endpoint and the `get_activities` tool return the same entries under the same permission.
 
-**Link:** the **Audit Logs** page, `/company/audit-logs`, Cloud URL `https://customermates.com/en/company/audit-logs`. **Mate:** `navigate` and `highlight_element` with `nav-company-audit-logs`; the page has no export button to highlight.
+**Link:** the **Audit Logs** page, `/company/audit-logs`. **Mate:** `navigate` and `highlight_element` with `nav-company-audit-logs`; the page has no export button to highlight.
 
 ## Where do I report a vulnerability?
 

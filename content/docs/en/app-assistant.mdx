@@ -76,7 +76,7 @@ The free trial runs for [[commercial.trial.days]] days with Pro features and 500
 
 Credits are granted only while the trial runs or while the subscription status is **Active**; with any other status the allowance is 0 and **Ask AI** disappears from the sidebar. Mate cannot read or change the plan, the subscription status or billing, because no tool covers them; it can open **My Company › Subscription** (`#nav-company-subscription`, Cloud only). Who can change the plan, and how, is described in [My Company](/docs/app-company).
 
-**Link:** the **Subscription** page, `/company/subscription`, Cloud URL `https://customermates.com/en/company/subscription`. **Mate:** `navigate` and `highlight_element` with `nav-company-subscription`; on the page, `company-subscription-plan-picker` highlights the plan cards, `company-subscription-manage` **Manage with Lemon Squeezy** and `company-subscription-refresh` **Refresh**, each only where your role and the subscription state show it.
+**Link:** the **Subscription** page, `/company/subscription`. **Mate:** `navigate` and `highlight_element` with `nav-company-subscription`; on the page, `company-subscription-plan-picker` highlights the plan cards, `company-subscription-manage` **Manage with Lemon Squeezy** and `company-subscription-refresh` **Refresh**, each only where your role and the subscription state show it.
 
 ## Credits
 
@@ -84,7 +84,7 @@ The ring next to **Send** in the composer (`#agent-usage`) fills with the share 
 
 Before a request starts, Mate reserves a safety envelope for the model round it is about to run and for a few rounds ahead. With the default model the reservation is 6 credits per round and 12 credits in total, topped up round by round as the turn proceeds; a request cannot start when fewer than 6 credits remain, even though the meter may still show a small remainder. Reserved credits that the request did not use are released as soon as the provider usage is measured, so the meter can move down and then back up during a request. When the allowance is used up, new requests pause until the reset date and your history stays readable. The composer is then replaced by a notice with **View plans**, which opens **My Company › Subscription**; the same notice appears when the subscription grants no credits. When the notice says the hosted Assistant is temporarily unavailable, for example on an Enterprise workspace without a contracted allowance, its button is **Contact us** and opens an email to the Customermates team.
 
-**Link:** the **Subscription** page, `/company/subscription`, Cloud URL `https://customermates.com/en/company/subscription`. **Mate:** `navigate` and `highlight_element` with `nav-company-subscription`, then `company-subscription-plan-picker` for the plan cards where they are shown; the credit ring and **View plans** in the composer are not highlight targets, so Mate names them.
+**Link:** the **Subscription** page, `/company/subscription`. **Mate:** `navigate` and `highlight_element` with `nav-company-subscription`, then `company-subscription-plan-picker` for the plan cards where they are shown; the credit ring and **View plans** in the composer are not highlight targets, so Mate names them.
 
 ## Chat history
 

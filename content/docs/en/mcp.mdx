@@ -3,7 +3,7 @@ title: "CRM MCP Server Reference: Endpoint and Tools"
 description: Customermates exposes a native MCP endpoint at /api/v1/mcp so Claude, ChatGPT, Cursor, and other agent clients can read and write your CRM directly.
 ---
 
-Customermates exposes one MCP endpoint at `https://customermates.com/api/v1/mcp`. A connected client discovers all [[derived.mcp.tools.total]] CRM tools automatically. There are two ways to connect:
+Customermates exposes one MCP endpoint at `<BASE_URL>/api/v1/mcp`, where `<BASE_URL>` is the address you open Customermates at. A connected client discovers all [[derived.mcp.tools.total]] CRM tools automatically. There are two ways to connect:
 
 - **Custom connector (OAuth):** for Claude (web, desktop, mobile) and ChatGPT. Paste the URL, sign in, approve. No key to manage. Start on [Connect with a custom connector](/docs/connect-custom-connector).
 - **API key:** for CLI and editor clients (Claude Code, Codex, Cursor, Gemini CLI) and raw HTTP. Send the 64-character key in the `x-api-key` header or a config file.
@@ -21,7 +21,7 @@ Use [OpenAPI](/docs/openapi) instead when an engineer or integration service alr
 ## What is the MCP server endpoint URL? [#the-endpoint]
 
 ```
-POST https://customermates.com/api/v1/mcp
+POST <BASE_URL>/api/v1/mcp
 Content-Type: application/json
 Accept: application/json, text/event-stream
 x-api-key: <your-64-character-key>
@@ -45,10 +45,10 @@ Getting an AI client onto your workspace is the same three moves every time:
 <Step title="Create an API key">
 **My Profile → API & Connectors → Add**. Choose **Quick connections** for guided setup of Claude, ChatGPT & Codex, Cursor, or Gemini, or **Standard API key** for your own integration. The key is shown once, so copy it before closing the dialog. Creating a key needs **Manage** set to **Yes** on the **API & Webhooks** row of your role, and the page itself needs **Read access** **All** on that row; the built-in **Admin** role has both. See [API keys](/docs/api-keys).
 
-**Link:** the **API & Connectors** page, `/profile/api-keys`, Cloud URL `https://customermates.com/en/profile/api-keys`. **Mate:** `navigate` and `highlight_element` with `nav-profile-api-keys`; `highlight_element` also takes `profile-api-keys-generate` for **Add** (roles with **API & Webhooks** **Manage**), then `api-key-option-standard` for **Standard API key** (prerequisite `profile-api-keys-generate`) and `api-key-name`, `api-key-expires` and `api-key-save` for **Name**, **Expires in** and **Save** (prerequisite `api-key-option-standard`). The **Quick connections** tiles are not highlight targets, so Mate names them.
+**Link:** the **API & Connectors** page, `/profile/api-keys`. **Mate:** `navigate` and `highlight_element` with `nav-profile-api-keys`; `highlight_element` also takes `profile-api-keys-generate` for **Add** (roles with **API & Webhooks** **Manage**), then `api-key-option-standard` for **Standard API key** (prerequisite `profile-api-keys-generate`) and `api-key-name`, `api-key-expires` and `api-key-save` for **Name**, **Expires in** and **Save** (prerequisite `api-key-option-standard`). The **Quick connections** tiles are not highlight targets, so Mate names them.
 </Step>
 <Step title="Point the client at the endpoint">
-Give the client `POST https://customermates.com/api/v1/mcp` with the `x-api-key` header from the step above, or connect through OAuth where the client supports it. The per-client guides in the table below carry the exact configuration.
+Give the client `POST <BASE_URL>/api/v1/mcp` with the `x-api-key` header from the step above, or connect through OAuth where the client supports it. The per-client guides in the table below carry the exact configuration.
 </Step>
 <Step title="Confirm the tools arrived">
 Ask the client to list its tools. All [[derived.mcp.tools.total]] should appear, and `get_workspace_context` is the natural first call: it returns your user, the workspace currency and record-type labels, roles, and connected accounts in one go.
@@ -403,7 +403,7 @@ Full-text search over the docs; defaults to the product guides (source=docs); pa
 
 #### `get_docs_page`
 
-One documentation page as markdown with its canonical URL. Pass `query` to get a focused excerpt of about 1,400 characters from the best-matching section (plus a second section when it fits) instead of the full page. Lists valid slugs on a miss.
+One documentation page as markdown with its canonical URL. App routes in the page, such as `/company/subscription`, are relative: a full link is the origin of that URL followed by the route. Pass `query` to get a focused excerpt of about 1,400 characters from the best-matching section (plus a second section when it fits) instead of the full page. Lists valid slugs on a miss.
 
 **Read-only.** Required: `slug`. Optional: `query`, `locale`, `source`.
 
@@ -478,7 +478,7 @@ Required: `action`. Optional: `emails`, `userId`, `roleId`, `status`.
 
 No tool reads the subscription, plan, seats or billing, or changes the plan, and none creates, edits or deletes roles or API keys; `get_workspace_context` returns no plan or trial data either. Billed seats follow the number of **Active** members, so a status change made with `manage_team` changes the seat count just as it does in the app ([how seats are counted](/docs/app-company#how-are-seats-counted-and-billed)). The subscription, roles and API keys are managed in the app: **My Company → Subscription**, **My Company → Roles** and **My Profile → API & Connectors**.
 
-**Link:** the **Subscription** page, `/company/subscription` (cloud only), the **Roles** page, `/company/roles`, and the **API & Connectors** page, `/profile/api-keys`, Cloud URLs `https://customermates.com/en/company/subscription`, `https://customermates.com/en/company/roles` and `https://customermates.com/en/profile/api-keys`. **Mate:** `navigate` and `highlight_element` with `nav-company-subscription`, `nav-company-roles` or `nav-profile-api-keys`, and `highlight_element` with `company-roles-add` for **Add** on **Roles**.
+**Link:** the **Subscription** page, `/company/subscription` (cloud only), the **Roles** page, `/company/roles`, and the **API & Connectors** page, `/profile/api-keys`. **Mate:** `navigate` and `highlight_element` with `nav-company-subscription`, `nav-company-roles` or `nav-profile-api-keys`, and `highlight_element` with `company-roles-add` for **Add** on **Roles**.
 
 ### Support
 
@@ -495,7 +495,7 @@ Required: `subject`, `body`.
 All [[derived.mcp.tools.total]] tools are on by default. To expose only part of the surface, append `?toolsets=` with comma-separated group keys to the endpoint URL:
 
 ```
-https://customermates.com/api/v1/mcp?toolsets=records,messaging
+<BASE_URL>/api/v1/mcp?toolsets=records,messaging
 ```
 
 Keys: records, workspace, messaging, social, docs, custom-columns, widgets, routines, webhooks, admin, support. No parameter means everything; unknown keys are ignored, and a list with no recognised key serves the full surface. `search` and `fetch` are always on so deep-research connectors keep working on any narrowed surface.

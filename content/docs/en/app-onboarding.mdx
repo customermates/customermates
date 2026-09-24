@@ -5,7 +5,7 @@ description: "The three-step setup a fresh workspace walks through after sign-up
 
 A fresh sign-up first lands on `/onboarding`, where you choose **Create a new workspace** or **Join an existing workspace**; joining needs an invitation from a workspace administrator. The onboarding wizard at `/onboarding/wizard` follows. A new workspace is created only when you save **Your profile**. The wizard runs once; finishing it lands on the dashboard. This page documents the wizard for people and for AI agents that drive the UI.
 
-**Link:** the onboarding wizard, `/onboarding/wizard`, Cloud URL `https://customermates.com/en/onboarding/wizard`, and the choice page `/onboarding`, Cloud URL `https://customermates.com/en/onboarding`; both open only until onboarding is finished and otherwise lead to the dashboard. **Mate:** no target, and Mate is not available during onboarding, so it can only give the link; `#onboarding-back` and `#onboarding-next` are element ids, not highlightable by Mate.
+**Link:** the onboarding wizard, `/onboarding/wizard`, and the choice page `/onboarding`; both open only until onboarding is finished and otherwise lead to the dashboard. **Mate:** no target, and Mate is not available during onboarding, so it can only give the link; `#onboarding-back` and `#onboarding-next` are element ids, not highlightable by Mate.
 
 ## What are the three steps of the onboarding wizard? [#what-are-the-three-steps]
 
@@ -25,7 +25,7 @@ Connect an external AI client (Claude, ChatGPT and Codex, Cursor, or Gemini) to 
 
 Someone who opens an invitation link sees only **Your profile**, without the progress bar, with a note **Invitation from ...** naming the person who invited them and a terms checkbox worded for invited members on cloud. After **Continue** they are registered with status **Waiting for approval** and land on **Waiting for Approval**; they can sign in again at any time, but every sign-in lands on that screen (or first on **Email Verification**, if their email is still unverified 24 hours after registering) until someone whose role can manage **Users & Roles**, or an **Admin**, sets them to **Active**; only then can they work in the workspace. They never see the invite or AI steps.
 
-**Link:** the **Members** page, `/company/members`, Cloud URL `https://customermates.com/en/company/members`. **Mate:** `navigate` and `highlight_element` with `nav-company-members` (highlightable only while **My Company** is expanded in the sidebar); once a member's **User** dialog is open, `member-modal-role`, `member-modal-status` and `member-modal-save` highlight **Role**, **Status** and **Save** (**Save** for roles with **Manage** only); the member rows are not highlight targets, so Mate names them.
+**Link:** the **Members** page, `/company/members`. **Mate:** `navigate` and `highlight_element` with `nav-company-members` (highlightable only while **My Company** is expanded in the sidebar); once a member's **User** dialog is open, `member-modal-role`, `member-modal-status` and `member-modal-save` highlight **Role**, **Status** and **Save** (**Save** for roles with **Manage** only); the member rows are not highlight targets, so Mate names them.
 
 ## Which stable ids does the wizard have?
 

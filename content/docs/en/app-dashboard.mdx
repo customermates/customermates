@@ -3,13 +3,13 @@ title: "Dashboard Widgets and the Activity Timeline"
 description: "The landing screen after sign-in: chart and activity-timeline widgets over your CRM data, the widget editor, and the stable anchor ids agents can drive."
 ---
 
-Customermates is an open-source, AI-native CRM. This page documents the **Dashboard** screen of the web app for humans and for AI agents that drive the UI. Route: `/dashboard`, locale-prefixed like `https://customermates.com/en/dashboard`, sidebar id `#nav-dashboard`.
+Customermates is an open-source, AI-native CRM. This page documents the **Dashboard** screen of the web app for humans and for AI agents that drive the UI. Route: `/dashboard`, locale-prefixed like `/en/dashboard`, sidebar id `#nav-dashboard`.
 
 ## What does the Dashboard show?
 
 The Dashboard is the landing screen after sign-in. It shows configurable widgets over your CRM data: pipelines, task counts, recent activity, whatever you set up. Every widget belongs to you as a user; teammates see it only after you share it with **Share as a template**, which lets them start their own copy from it. Adding widgets needs no role permission, but a chart counts only the records your role can read (**Read access** **Assigned** or **All**), so a teammate's copy of your template can show other numbers. **Add widget** appears only if your role can read at least one record type; the **Activity timeline** kind needs read access to the **Audit Log** or, on a plan with messaging, to **Inbox messages**.
 
-**Link:** the **Dashboard** page, `/dashboard`, Cloud URL `https://customermates.com/en/dashboard`. **Mate:** `navigate` and `highlight_element` with `nav-dashboard` or `dashboard-add-widget`; inside the editor `widget-modal-save` (**Create widget** on step 2, **Save changes** when editing) and `widget-modal-reset` (**Reset**, when editing with unsaved changes) are targets too, while the tabs, switches and widgets are not, so Mate names them.
+**Link:** the **Dashboard** page, `/dashboard`. **Mate:** `navigate` and `highlight_element` with `nav-dashboard` or `dashboard-add-widget`; inside the editor `widget-modal-save` (**Create widget** on step 2, **Save changes** when editing) and `widget-modal-reset` (**Reset**, when editing with unsaved changes) are targets too, while the tabs, switches and widgets are not, so Mate names them.
 
 ## Which widget types exist?
 
@@ -20,7 +20,7 @@ Press **Add widget** (`#dashboard-add-widget`); creation starts with a choice be
 
 Over MCP, `manage_widgets` lists, reads, creates, updates and deletes both kinds with a reduced option set: a chart is created from name, entity type, display type, group-by and aggregation plus optional filters and group-by column, and an update can change everything except the record type and the widget kind (name, display type, aggregation, group-by, filters, axis direction, bar colors); **Share as a template**, **Show legend**, **Use option colors** and **Show metric and filters** are set in the app only. A timeline takes a name, timeline filters and the show-filters flag.
 
-**Link:** the **Dashboard** page, `/dashboard`, Cloud URL `https://customermates.com/en/dashboard`. **Mate:** `navigate` and `highlight_element` with `dashboard-add-widget` for **Add widget**; the kind and template choices in the editor are not highlight targets, so Mate names them.
+**Link:** the **Dashboard** page, `/dashboard`. **Mate:** `navigate` and `highlight_element` with `dashboard-add-widget` for **Add widget**; the kind and template choices in the editor are not highlight targets, so Mate names them.
 
 ### What can an activity timeline show?
 
@@ -47,7 +47,7 @@ Adding a widget is a two-step wizard (**Step 1 of 2**). Step 1, **Choose a Widge
 
 To change a widget, click it, or click one of its filter chips to open the editor at that filter. The editor is titled **Edit** plus the widget's name; `#widget-modal-save` reads **Save changes**, and `#widget-modal-reset` (**Reset**) appears once you change something and restores the saved values. The trash icon **Delete widget** in the editor's header removes the widget after a confirmation. Drag a widget to move it and drag an edge or corner to resize it; moving is off on touch devices. The layout is saved for you only.
 
-**Link:** the **Dashboard** page, `/dashboard`, Cloud URL `https://customermates.com/en/dashboard`. **Mate:** `navigate` and `highlight_element` with `dashboard-add-widget`, then `widget-modal-save` (**Create widget** / **Save changes**) or `widget-modal-reset` (**Reset**) once the editor is open, which for **Reset** means the user has clicked a widget (`list_ui_targets` gives `a widget card` as its prerequisite); the tabs, **Back**, **Delete widget** and the widgets themselves are not highlight targets, so Mate names them.
+**Link:** the **Dashboard** page, `/dashboard`. **Mate:** `navigate` and `highlight_element` with `dashboard-add-widget`, then `widget-modal-save` (**Create widget** / **Save changes**) or `widget-modal-reset` (**Reset**) once the editor is open, which for **Reset** means the user has clicked a widget (`list_ui_targets` gives `a widget card` as its prerequisite); the tabs, **Back**, **Delete widget** and the widgets themselves are not highlight targets, so Mate names them.
 
 ## Which controls does the sidebar add?
 

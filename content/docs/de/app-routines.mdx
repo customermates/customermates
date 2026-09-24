@@ -5,7 +5,7 @@ description: "Routinen führen Mate nach Zeitplan oder bei Datensatzänderungen 
 
 Eine Routine ist eine gespeicherte Anweisung plus ein Auslöser. Greift der Auslöser, öffnet Customermates eine neue Assistenten-Unterhaltung, sendet Ihre Anweisung und lässt Mate selbstständig arbeiten. Wer eine Routine sieht, richtet sich nach der Zeile **Routinen** der jeweiligen Rolle unter **Mein Unternehmen › Rollen**: **Lesen** mit **Alle** zeigt jede Routine im Workspace, **Zugewiesen** nur die eigenen, und **Keine** blendet **Routinen** aus; eigene Routinen anlegen und bearbeiten erfordert **Verwalten** auf **Ja**. Lauf-Zusammenfassungen folgen der Routine. Das vollständige Assistenten-Transkript bleibt bei der Person, unter deren Identität der Lauf ausgeführt wurde. Routinen gibt es nur in Customermates Cloud, weil sie gehostete KI-Credits aus dem Monatskontingent des Eigentümers verbrauchen.
 
-**Link:** die Seite **Routinen**, `/routines`, Cloud-URL `https://customermates.com/de/routines`; eine einzelne Routine hat keinen eigenen Link, öffnen Sie sie deshalb aus der Liste. **Mate:** `navigate` und `highlight_element` mit `nav-routines`; `routines-add` hebt **Hinzufügen** hervor (nur vorhanden mit **Verwalten** **Ja** bei **Routinen**), `routines-search` und `routines-filter` heben das Suchfeld und die Filter hervor, `routines-display-options` die Anzeigeoptionen mit `routines-layout-table` und `routines-layout-board` darin. Ist der Routinen-Dialog geöffnet, heben `routine-modal-save` und `routine-modal-reset` **Speichern** und **Zurücksetzen** hervor, die nur der Eigentümer der Routine mit **Verwalten** **Ja** sieht, **Zurücksetzen** erst nach einer Änderung und keine der beiden, solange **Details zum Lauf** geöffnet ist; die Felder des Dialogs, **Auslöser testen**, **Löschen** und **Routine pausieren** sind keine Highlight-Ziele, deshalb nennt Mate sie beim Namen.
+**Link:** die Seite **Routinen**, `/routines`; eine einzelne Routine hat keinen eigenen Link, öffnen Sie sie deshalb aus der Liste. **Mate:** `navigate` und `highlight_element` mit `nav-routines`; `routines-add` hebt **Hinzufügen** hervor (nur vorhanden mit **Verwalten** **Ja** bei **Routinen**), `routines-search` und `routines-filter` heben das Suchfeld und die Filter hervor, `routines-display-options` die Anzeigeoptionen mit `routines-layout-table` und `routines-layout-board` darin. Ist der Routinen-Dialog geöffnet, heben `routine-modal-save` und `routine-modal-reset` **Speichern** und **Zurücksetzen** hervor, die nur der Eigentümer der Routine mit **Verwalten** **Ja** sieht, **Zurücksetzen** erst nach einer Änderung und keine der beiden, solange **Details zum Lauf** geöffnet ist; die Felder des Dialogs, **Auslöser testen**, **Löschen** und **Routine pausieren** sind keine Highlight-Ziele, deshalb nennt Mate sie beim Namen.
 
 ## Woraus besteht eine Routine?
 
@@ -22,7 +22,7 @@ Wer eine Routine anlegt, wird ihr Eigentümer. Nur dieser Eigentümer kann Anwei
 
 Jeder Nutzer erhält ein eigenes Kontingent: Starter enthält [[commercial.entitlement.starter.includedRoutinesPerUser]] Routine pro Nutzer, Pro enthält [[commercial.entitlement.pro.includedRoutinesPerUser]] Routinen pro Nutzer, und Business sowie Enterprise enthalten [[commercial.entitlement.business.includedRoutinesPerUser]] Routinen pro Nutzer. Die Routinen anderer Nutzer belegen Ihre Plätze nie. Eine Routine zu pausieren gibt keinen Platz frei, sie zu löschen schon. Am Limit wird eine neue Routine mit einem Hinweis auf einen Tarifwechsel abgelehnt; den Wechsel nimmt eine Rolle mit **Verwalten** in der Zeile **Unternehmen** unter **Mein Unternehmen › Abonnement** vor. Das Limit wird nur beim Anlegen einer Routine geprüft, deshalb bleiben Routinen über dem Limit eines kleineren Tarifs nach einem Downgrade erhalten. Das Credit-Kontingent, aus dem die Läufe schöpfen, steht unter [Tarife und Credits](/docs/app-assistant#plans-and-credits).
 
-**Link:** die Seite **Routinen**, `/routines`, Cloud-URL `https://customermates.com/de/routines`, und die Seite **Abonnement**, `/company/subscription`, Cloud-URL `https://customermates.com/de/company/subscription`. **Mate:** `navigate` und `highlight_element` mit `nav-routines` oder mit `nav-company-subscription` (letzteres nur hervorhebbar, solange **Mein Unternehmen** in der Seitenleiste aufgeklappt ist); auf der Seite **Abonnement** hebt `company-subscription-plan-picker` die Tarifkarten hervor, wo sie angezeigt werden.
+**Link:** die Seite **Routinen**, `/routines`, und die Seite **Abonnement**, `/company/subscription`. **Mate:** `navigate` und `highlight_element` mit `nav-routines` oder mit `nav-company-subscription` (letzteres nur hervorhebbar, solange **Mein Unternehmen** in der Seitenleiste aufgeklappt ist); auf der Seite **Abonnement** hebt `company-subscription-plan-picker` die Tarifkarten hervor, wo sie angezeigt werden.
 
 ## Welche Limits gelten?
 
@@ -43,7 +43,7 @@ Wählen Sie unter **Wiederholung**, wie oft die Routine läuft: **Alle 15 Minute
 
 Der Planer prüft alle fünf Minuten auf fällige Routinen, ein Lauf kann also einige Minuten nach seiner nominalen Zeit starten. Ein Lauf, der nach zwei Minuten noch in der Warteschlange steht, wird erneut ausgelöst.
 
-**Link:** die Seite **Routinen**, `/routines`, Cloud-URL `https://customermates.com/de/routines`. **Mate:** `navigate` und `highlight_element` mit `nav-routines`, dann `routines-add` für **Hinzufügen** und `routine-modal-save` für **Speichern**, sobald der Eigentümer den Dialog geöffnet hat; **Wiederholung**, die Zeitauswahl und **Zu einem Muster wechseln** sind keine Highlight-Ziele, deshalb nennt Mate sie beim Namen.
+**Link:** die Seite **Routinen**, `/routines`. **Mate:** `navigate` und `highlight_element` mit `nav-routines`, dann `routines-add` für **Hinzufügen** und `routine-modal-save` für **Speichern**, sobald der Eigentümer den Dialog geöffnet hat; **Wiederholung**, die Zeitauswahl und **Zu einem Muster wechseln** sind keine Highlight-Ziele, deshalb nennt Mate sie beim Namen.
 
 ## Wie funktionieren Ereignis-Auslöser? [#how-do-event-triggers-work]
 
@@ -57,7 +57,7 @@ Lassen Sie ein Control leer, um bei jedem passenden Ereignis zu laufen. Ein Erei
 
 Startet ein Ereignis einen Lauf, erfährt Mate vor Ihren Anweisungen, was passiert ist: den Namen des Ereignisses, die Art des Datensatzes und dessen ID, bei einer Aktualisierung die geänderten Felder und bei einem Posteingangs-Ereignis den Thread, zu dem die Nachricht gehört. Den Datensatz selbst kann es von dort aus lesen. Die vorherigen Werte der geänderten Felder erhält es nicht.
 
-**Link:** die Seite **Routinen**, `/routines`, Cloud-URL `https://customermates.com/de/routines`. **Mate:** `navigate` und `highlight_element` mit `nav-routines`, dann `routines-add` für **Hinzufügen** und `routine-modal-save` für **Speichern**, sobald der Eigentümer den Dialog geöffnet hat; **Ereignisse**, **Geänderte Felder** und **Datensatzfilter** sind keine Highlight-Ziele, deshalb nennt Mate sie beim Namen.
+**Link:** die Seite **Routinen**, `/routines`. **Mate:** `navigate` und `highlight_element` mit `nav-routines`, dann `routines-add` für **Hinzufügen** und `routine-modal-save` für **Speichern**, sobald der Eigentümer den Dialog geöffnet hat; **Ereignisse**, **Geänderte Felder** und **Datensatzfilter** sind keine Highlight-Ziele, deshalb nennt Mate sie beim Namen.
 
 ## Was bedeuten die Läufe und ihre Status?
 
@@ -79,7 +79,7 @@ Die Rohwerte in Klammern erscheinen in der Ausgabe von `manage_routines`.
 
 Mit **Auslöser testen** starten Sie sofort einen echten Lauf. Die Schaltfläche steht dem Eigentümer einer aktivierten geplanten Routine ohne ungespeicherte Änderungen zur Verfügung; sie verbraucht KI-Credits und kann Workspace-Daten ändern. Ereignisgesteuerte Routinen brauchen ein echtes passendes Ereignis, deshalb ist das Control für sie deaktiviert.
 
-**Link:** die Seite **Routinen**, `/routines`, Cloud-URL `https://customermates.com/de/routines`. **Mate:** `navigate` und `highlight_element` mit `nav-routines`; die Zeilen der Routinen, die Tabs **Details** und **Läufe**, **Details zum Lauf** und **Auslöser testen** sind keine Highlight-Ziele, deshalb nennt Mate sie beim Namen. Den Laufverlauf kann Mate außerdem mit `manage_routines` lesen.
+**Link:** die Seite **Routinen**, `/routines`. **Mate:** `navigate` und `highlight_element` mit `nav-routines`; die Zeilen der Routinen, die Tabs **Details** und **Läufe**, **Details zum Lauf** und **Auslöser testen** sind keine Highlight-Ziele, deshalb nennt Mate sie beim Namen. Den Laufverlauf kann Mate außerdem mit `manage_routines` lesen.
 
 ## Was eine Routine ohne Freigabe darf
 

@@ -9,7 +9,7 @@ Customermates has five record types: Contacts, Organizations, Deals, Services, a
 
 Every record type has the same three surfaces:
 
-- **List** at `/{type}` (for example `/contacts`), locale-prefixed like `https://customermates.com/en/contacts`. Search, filter, sort, saved views, and bulk actions live here.
+- **List** at `/{type}` (for example `/contacts`), locale-prefixed like `/en/contacts`. Search, filter, sort, saved views, and bulk actions live here.
 - **Add drawer**: the **Add** button opens a form over the list; the deep link is `?open={entityType}:new` (for example `/contacts?open=contact:new`) and works on any app page. The drawer is for adding only; existing records open on their detail page. The sidebar **Add** button (`#nav-add`) opens **Create new…**, which lists the record types your role can manage and opens the same drawer from any page.
 - **Detail page** at `/{type}/{id}` (for example `/contacts/<id>`, where the id is the record's UUID) for the full record, custom fields, relations, and delete. It opens with an overview of the fields that matter most; every field carries a pin control (no stable id) that adds it to or removes it from that overview. **Customize** in the topbar also lets you hide fields or drag them into another order, and **Done** ends it. These choices are per person, so two colleagues can read the same record through different summaries.
 
@@ -17,7 +17,7 @@ A record page has the panels **Overview**, **Notes** and **Activities**, side by
 
 Rows never carry a DOM id. Open a record by its detail URL, never by clicking a row you located by id. A workspace can rename the record types under **Data model** ([company settings](/docs/app-company#how-do-i-rename-record-types-in-the-data-model)); routes, ids and `entityType` values stay the same.
 
-**Link:** the **Contacts** page, `/contacts`, Cloud URL `https://customermates.com/en/contacts` (likewise `/organizations`, `/deals`, `/services`, `/tasks`). **Mate:** `navigate` and `highlight_element` with `nav-contacts` (or `nav-{type}`), `navigate` with an entity and a recordId for a record page, and `highlight_element` with `contacts-add` (or `{type}-add`) for **Add**; the sidebar **Add**, the drawer, the panels and the pin controls are not highlight targets, so Mate names them.
+**Link:** the **Contacts** page, `/contacts` (likewise `/organizations`, `/deals`, `/services`, `/tasks`). **Mate:** `navigate` and `highlight_element` with `nav-contacts` (or `nav-{type}`), `navigate` with an entity and a recordId for a record page, and `highlight_element` with `contacts-add` (or `{type}-add`) for **Add**; the sidebar **Add**, the drawer, the panels and the pin controls are not highlight targets, so Mate names them.
 
 ## Which ids does each list have?
 
@@ -35,7 +35,7 @@ Inside each **Appearance** popover, the layout controls are `#{type}-layout-tabl
 
 Who sees which control depends on the role's row for that record type ([roles](/docs/app-company#how-does-the-role-editor-work)): **Read access** **Assigned** or **All** shows the sidebar entry, the list, search and **Export**, where **Assigned** limits them to records you are assigned to, and **Manage** **Yes** adds **Add**, **Add from file**, bulk **Update** and **Delete selected**, and **Save** and **Delete** on the record page.
 
-**Link:** the **Contacts** page, `/contacts`, Cloud URL `https://customermates.com/en/contacts` (likewise `/organizations`, `/deals`, `/services`, `/tasks`). **Mate:** `navigate` and `highlight_element` with `nav-contacts` (or `nav-{type}`); `{type}-add`, `{type}-search`, `{type}-filter`, `{type}-display-options` and `{type}-transfer` are highlight targets, and `{type}-layout-table` and `{type}-layout-board` once **Appearance** is open; the saved-view tabs, the selection bar, **Update** and **Delete selected** are not, so Mate names them.
+**Link:** the **Contacts** page, `/contacts` (likewise `/organizations`, `/deals`, `/services`, `/tasks`). **Mate:** `navigate` and `highlight_element` with `nav-contacts` (or `nav-{type}`); `{type}-add`, `{type}-search`, `{type}-filter`, `{type}-display-options` and `{type}-transfer` are highlight targets, and `{type}-layout-table` and `{type}-layout-board` once **Appearance** is open; the saved-view tabs, the selection bar, **Update** and **Delete selected** are not, so Mate names them.
 
 ## How do I import or export records?
 
@@ -45,7 +45,7 @@ The transfer menu (`#{type}-transfer`, for example `#contacts-transfer`) on ever
 
 The wizard reads the first sheet not named "Schema", and a workbook may hold at most 12 sheets. New contacts need a first and a last name, new services a name and a price (**Amount**), the other types a name. Link columns are matched by record name, ignoring case, and a name that matches no record or several is flagged; channels are added to new contacts only. Rows with problems can be skipped ("Import the rest and skip N rows"), and a workbook you exported can be edited and read back in, where its **Record ID** column updates those records. **Export** needs **Read access** on the record type, **Add from file** needs **Manage**.
 
-**Link:** the list page of each type, for example the **Contacts** page, `/contacts`, Cloud URL `https://customermates.com/en/contacts`. **Mate:** `navigate` and `highlight_element` with `contacts-transfer` (or `{type}-transfer`); **Export**, **Add from file** and the wizard steps are not highlight targets, so Mate names them.
+**Link:** the list page of each type, for example the **Contacts** page, `/contacts`. **Mate:** `navigate` and `highlight_element` with `contacts-transfer` (or `{type}-transfer`); **Export**, **Add from file** and the wizard steps are not highlight targets, so Mate names them.
 
 ## How do saved views work, and can I share one with my team? [#how-do-saved-views-work]
 
@@ -58,7 +58,7 @@ The saved-view tabs sit directly under the header on every list surface, and the
 
 A view is addressed by the `view` query parameter, for example `/deals?view=<id>`; without it, the page uses your remembered selection. Use `view=__all__` to open All explicitly. The tabs themselves carry no ids, so switch views by URL rather than by clicking a tab you located by id.
 
-**Link:** any list page, for example the **Deals** page, `/deals`, Cloud URL `https://customermates.com/en/deals`; a saved view opens at `/deals?view=<id>` only for the person who created it. **Mate:** `navigate` and `highlight_element` with `nav-deals` (or `nav-{type}`); the view tabs, **New view** and **View actions** are not highlight targets, so Mate names them.
+**Link:** any list page, for example the **Deals** page, `/deals`; a saved view opens at `/deals?view=<id>` only for the person who created it. **Mate:** `navigate` and `highlight_element` with `nav-deals` (or `nav-{type}`); the view tabs, **New view** and **View actions** are not highlight targets, so Mate names them.
 
 ## Which ids do the drawer and the detail page have?
 
@@ -76,13 +76,13 @@ These ids are shared by every record type. They are DOM ids for external browser
 
 `#entity-edit-fields` (**Edit Field**) belongs to detail pages without **Customize**; none of the five record types has one, so use **Customize** instead.
 
-**Link:** a record page, `/contacts/<id>` (likewise `/organizations/<id>`, `/deals/<id>`, `/services/<id>`, `/tasks/<id>`), Cloud URL `https://customermates.com/en/contacts/<id>`. **Mate:** `navigate` with the entity and its recordId; the topbar buttons, the drawer, the selection bar, **Update** and **Delete selected** are not highlight targets, so Mate names them.
+**Link:** a record page, `/contacts/<id>` (likewise `/organizations/<id>`, `/deals/<id>`, `/services/<id>`, `/tasks/<id>`). **Mate:** `navigate` with the entity and its recordId; the topbar buttons, the drawer, the selection bar, **Update** and **Delete selected** are not highlight targets, so Mate names them.
 
 ### How do I bulk update or delete many records at once? [#how-do-i-bulk-update-or-delete-many-records-at-once]
 
 Ticking rows opens the selection bar, which counts the selected records and those not in the current view, and after a filter change offers **Keep only rows in view**. Besides **Delete selected** it has **Update**, which sets or clears one custom field on all selected records (**Apply to selected**, **Clear field**); built-in fields cannot be bulk edited. You can select up to 100 records at a time, and both actions need **Manage** on that record type.
 
-**Link:** a list page, `/contacts` (likewise `/organizations`, `/deals`, `/services`, `/tasks`), Cloud URL `https://customermates.com/en/contacts`. **Mate:** `navigate` and `highlight_element` with `nav-contacts` or the matching `nav-<type>`; the row checkboxes, the selection bar, **Update** and **Delete selected** (`#mass-delete`) are not highlight targets, so Mate names them.
+**Link:** a list page, `/contacts` (likewise `/organizations`, `/deals`, `/services`, `/tasks`). **Mate:** `navigate` and `highlight_element` with `nav-contacts` or the matching `nav-<type>`; the row checkboxes, the selection bar, **Update** and **Delete selected** (`#mass-delete`) are not highlight targets, so Mate names them.
 
 ## What is special about each record type?
 
@@ -96,7 +96,7 @@ Ticking rows opens the selection bar, which counts the selected records and thos
 
 All five share the same machinery: the same list views, the same drawer and detail page, the same custom columns, the same filters, and the same relation editing. Anything this page says about one type holds for the others.
 
-**Link:** the **Contacts**, **Organizations**, **Deals**, **Services** and **Tasks** pages, `/contacts`, `/organizations`, `/deals`, `/services`, `/tasks`, Cloud URL for example `https://customermates.com/en/services`. **Mate:** `navigate` and `highlight_element` with `nav-contacts`, `nav-organizations`, `nav-deals`, `nav-services` or `nav-tasks`; the relation fields on a record page are not highlight targets, so Mate names them.
+**Link:** the **Contacts**, **Organizations**, **Deals**, **Services** and **Tasks** pages, `/contacts`, `/organizations`, `/deals`, `/services`, `/tasks`. **Mate:** `navigate` and `highlight_element` with `nav-contacts`, `nav-organizations`, `nav-deals`, `nav-services` or `nav-tasks`; the relation fields on a record page are not highlight targets, so Mate names them.
 
 ## How do I switch between table and board view?
 
@@ -108,7 +108,7 @@ The filter control opens a command palette. `#filter-palette-search` narrows the
 
 The **Filters** button shows a dot while filters apply. In the palette, applied filters sit under **Active filters**: click one to change its value or condition (**Change condition**), or remove it with **Remove filter**. Fields sit under **Filter by**, and typing in **Add filter…** narrows them. Dates offer **Before…**, **On or before…**, **After…**, **On or after…** and **Between…**; created and updated dates add 7, 30, 90 or 365 days and **Custom range…** for another number of days, and date-range columns add **Includes…**. Up to 50 filters apply at once ([filter syntax](/docs/filter-syntax#how-do-i-filter-a-list-in-the-app)).
 
-**Link:** the list page of each type, for example the **Deals** page, `/deals`, Cloud URL `https://customermates.com/en/deals`. **Mate:** `navigate` and `highlight_element` with `deals-display-options` or `deals-filter` (or `{type}-display-options`, `{type}-filter`), then `deals-layout-table` or `deals-layout-board` once **Appearance** is open; **Group By**, **Sort by**, **Fields**, the palette and the page size are not highlight targets, so Mate names them.
+**Link:** the list page of each type, for example the **Deals** page, `/deals`. **Mate:** `navigate` and `highlight_element` with `deals-display-options` or `deals-filter` (or `{type}-display-options`, `{type}-filter`), then `deals-layout-table` or `deals-layout-board` once **Appearance** is open; **Group By**, **Sort by**, **Fields**, the palette and the page size are not highlight targets, so Mate names them.
 
 ## How do I change a deal stage or a task status on the board?
 
@@ -122,7 +122,7 @@ The demo workspace ships example columns to illustrate the pattern, for instance
 
 Records link to other records through labeled relation fields inside the form. Pick the records, then save. Over MCP, `manage_record_links` adds or removes single links.
 
-**Link:** the **Deals** page, `/deals`, Cloud URL `https://customermates.com/en/deals`, or the **Tasks** page, `/tasks`. **Mate:** `navigate` and `highlight_element` with `deals-display-options` (or `tasks-display-options`) for **Group By**, then `deals-layout-board` once **Appearance** is open; the board columns, the cards and **Edit Field** are not highlight targets, so Mate names them.
+**Link:** the **Deals** page, `/deals`, or the **Tasks** page, `/tasks`. **Mate:** `navigate` and `highlight_element` with `deals-display-options` (or `tasks-display-options`) for **Group By**, then `deals-layout-board` once **Appearance** is open; the board columns, the cards and **Edit Field** are not highlight targets, so Mate names them.
 
 ## Tips for agents
 

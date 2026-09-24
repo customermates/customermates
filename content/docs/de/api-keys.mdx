@@ -16,7 +16,7 @@ Ein Key aus den **Schnellverbindungen** trägt den Namen seines Clients (`Claude
 
 Keys gehören dem Nutzer, der sie angelegt hat, und erben dessen Berechtigungen.
 
-**Link:** `/profile/api-keys`, Cloud-URL `https://customermates.com/de/profile/api-keys`. **Mate:** `navigate` und `highlight_element` mit `nav-profile-api-keys` (hervorhebbar nur, solange **Mein Profil** aufgeklappt ist, standardmäßig auf jeder seiner Seiten, sofern das Mitglied es nicht zugeklappt hat); `highlight_element` nimmt außerdem `profile-api-keys-generate` für **Hinzufügen** an (Rollen mit **Verwalten** auf **API & Webhooks**), danach im Dialog `api-key-option-standard` für **Standard-API-Key** (Voraussetzung `profile-api-keys-generate`) sowie `api-key-name` für **Name**, `api-key-expires` für **Läuft ab** und `api-key-save` für **Speichern** (Voraussetzung `api-key-option-standard`; **Speichern** ist aktiv, sobald sich etwas geändert hat). Die Kacheln der **Schnellverbindungen** und ihre Einrichtungsschritte sind keine Highlight-Ziele, deshalb nennt Mate sie beim Namen.
+**Link:** `/profile/api-keys`. **Mate:** `navigate` und `highlight_element` mit `nav-profile-api-keys` (hervorhebbar nur, solange **Mein Profil** aufgeklappt ist, standardmäßig auf jeder seiner Seiten, sofern das Mitglied es nicht zugeklappt hat); `highlight_element` nimmt außerdem `profile-api-keys-generate` für **Hinzufügen** an (Rollen mit **Verwalten** auf **API & Webhooks**), danach im Dialog `api-key-option-standard` für **Standard-API-Key** (Voraussetzung `profile-api-keys-generate`) sowie `api-key-name` für **Name**, `api-key-expires` für **Läuft ab** und `api-key-save` für **Speichern** (Voraussetzung `api-key-option-standard`; **Speichern** ist aktiv, sobald sich etwas geändert hat). Die Kacheln der **Schnellverbindungen** und ihre Einrichtungsschritte sind keine Highlight-Ziele, deshalb nennt Mate sie beim Namen.
 
 ## Wer kann API-Keys anlegen und sehen?
 
@@ -33,13 +33,13 @@ Der Custom Connector für Claude und ChatGPT meldet sich per OAuth an und brauch
 
 ## Wie kann ich einen Key nutzen?
 
-Senden Sie ihn bei jeder Anfrage im Header `x-api-key`:
+Senden Sie ihn bei jeder Anfrage im Header `x-api-key`, hier an den MCP-Endpunkt `<BASE_URL>/api/v1/mcp`, wobei `<BASE_URL>` die Adresse ist, unter der Sie Customermates öffnen:
 
 ```bash
 curl -H "x-api-key: $CUSTOMERMATES_API_KEY" \
      -H "Content-Type: application/json" \
      -H "Accept: application/json, text/event-stream" \
-     https://customermates.com/api/v1/mcp \
+     <BASE_URL>/api/v1/mcp \
      -d '{"jsonrpc":"2.0","id":1,"method":"tools/list"}'
 ```
 
@@ -57,7 +57,7 @@ Rotieren Sie, wenn ein Gerät mit dem Key verloren geht oder kompromittiert ist,
 
 Nur der Besitzer kann einen Key löschen. Um die Keys eines ausscheidenden Mitglieds zu stoppen, öffnen Sie **Mein Unternehmen → Mitglieder**, öffnen das Mitglied, setzen **Status** auf **Inaktiv** und speichern; dafür brauchen Sie **Verwalten** **Ja** und Leserecht **Alle** auf **Benutzer & Rollen**, sich selbst können Sie nicht deaktivieren, und das letzte aktive Mitglied mit der Rolle **Admin** lässt sich nicht deaktivieren. Danach wird jeder Aufruf mit den Keys dieses Mitglieds abgelehnt, der Workspace-Daten liest oder ändert. Seiner Rolle die Berechtigung **API & Webhooks** zu entziehen, reicht nicht: Das blendet die Seite und ihre Schaltfläche **Hinzufügen** aus, aber bereits vorhandene Keys funktionieren weiter.
 
-**Link:** `/profile/api-keys`, Cloud-URL `https://customermates.com/de/profile/api-keys`, und zum Deaktivieren eines Mitglieds `/company/members`, Cloud-URL `https://customermates.com/de/company/members`. **Mate:** `navigate` mit `nav-profile-api-keys` oder `nav-company-members`; `highlight_element` mit `nav-profile-api-keys` auf einer Seite unter **Mein Profil** und mit `nav-company-members` auf einer Seite unter **Mein Unternehmen**, weil ein Sidebar-Eintrag nur hervorhebbar ist, solange seine Gruppe aufgeklappt ist; die Key-Karten und die Zeilen der Mitglieder sind keine Highlight-Ziele, deshalb nennt Mate sie beim Namen. Hat die Person einen Key über seine Karte geöffnet, nimmt `highlight_element` `api-key-delete` für **Löschen** an; ist eine Mitgliedszeile geöffnet, nimmt es `member-modal-status` für **Status** und `member-modal-save` für **Speichern** an (Rollen mit **Verwalten** auf **Benutzer & Rollen**).
+**Link:** `/profile/api-keys`, und zum Deaktivieren eines Mitglieds `/company/members`. **Mate:** `navigate` mit `nav-profile-api-keys` oder `nav-company-members`; `highlight_element` mit `nav-profile-api-keys` auf einer Seite unter **Mein Profil** und mit `nav-company-members` auf einer Seite unter **Mein Unternehmen**, weil ein Sidebar-Eintrag nur hervorhebbar ist, solange seine Gruppe aufgeklappt ist; die Key-Karten und die Zeilen der Mitglieder sind keine Highlight-Ziele, deshalb nennt Mate sie beim Namen. Hat die Person einen Key über seine Karte geöffnet, nimmt `highlight_element` `api-key-delete` für **Löschen** an; ist eine Mitgliedszeile geöffnet, nimmt es `member-modal-status` für **Status** und `member-modal-save` für **Speichern** an (Rollen mit **Verwalten** auf **Benutzer & Rollen**).
 
 ## Welches Format hat ein Key?
 

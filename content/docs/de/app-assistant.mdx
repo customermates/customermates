@@ -76,7 +76,7 @@ Die kostenlose Testphase läuft [[commercial.trial.days]] Tage mit Pro-Funktione
 
 Credits gibt es nur, solange die Testphase läuft oder der Abonnementstatus **Aktiv** ist; bei jedem anderen Status beträgt das Kontingent 0, und **KI fragen** verschwindet aus der Seitenleiste. Mate kann Tarif, Abonnementstatus und Abrechnung weder lesen noch ändern, weil kein Tool sie abdeckt; es kann **Mein Unternehmen › Abonnement** öffnen (`#nav-company-subscription`, nur in der Cloud). Wer den Tarif wie ändern kann, steht unter [Mein Unternehmen](/docs/app-company).
 
-**Link:** die Seite **Abonnement**, `/company/subscription`, Cloud-URL `https://customermates.com/de/company/subscription`. **Mate:** `navigate` und `highlight_element` mit `nav-company-subscription`; auf der Seite hebt `company-subscription-plan-picker` die Tarifkarten hervor, `company-subscription-manage` **Verwalten mit Lemon Squeezy** und `company-subscription-refresh` **Aktualisieren**, jeweils nur, wo Ihre Rolle und der Abonnementstatus sie anzeigen.
+**Link:** die Seite **Abonnement**, `/company/subscription`. **Mate:** `navigate` und `highlight_element` mit `nav-company-subscription`; auf der Seite hebt `company-subscription-plan-picker` die Tarifkarten hervor, `company-subscription-manage` **Verwalten mit Lemon Squeezy** und `company-subscription-refresh` **Aktualisieren**, jeweils nur, wo Ihre Rolle und der Abonnementstatus sie anzeigen.
 
 ## Credits
 
@@ -84,7 +84,7 @@ Der Ring neben **Senden** im Eingabefeld (`#agent-usage`) füllt sich mit dem ve
 
 Bevor eine Anfrage startet, reserviert Mate einen Sicherheitsrahmen für die anstehende Modellrunde und für einige Runden danach. Mit dem Standardmodell beträgt die Reservierung 6 Credits pro Runde und 12 Credits insgesamt und wird Runde für Runde nachgezogen; eine Anfrage kann nicht starten, wenn weniger als 6 Credits übrig sind, auch wenn der Zähler noch einen kleinen Rest zeigt. Reservierte Credits, die die Anfrage nicht verbraucht hat, werden freigegeben, sobald die Anbieternutzung gemessen ist; der Zähler kann während einer Anfrage also sinken und wieder steigen. Ist das Kontingent aufgebraucht, pausieren neue Anfragen bis zum Zurücksetzungstermin, und Ihr Verlauf bleibt lesbar. An die Stelle des Eingabefelds tritt dann ein Hinweis mit **Tarife ansehen**, der **Mein Unternehmen › Abonnement** öffnet; derselbe Hinweis erscheint, wenn das Abonnement keine Credits gewährt. Meldet der Hinweis, dass der gehostete Assistent vorübergehend nicht verfügbar ist, etwa bei einem Enterprise-Workspace ohne vertraglich vereinbartes Kontingent, heißt die Schaltfläche **Kontakt aufnehmen** und öffnet eine E-Mail an das Customermates-Team.
 
-**Link:** die Seite **Abonnement**, `/company/subscription`, Cloud-URL `https://customermates.com/de/company/subscription`. **Mate:** `navigate` und `highlight_element` mit `nav-company-subscription`, dann `company-subscription-plan-picker` für die Tarifkarten, wo sie angezeigt werden; der Credit-Ring und **Tarife ansehen** im Eingabefeld sind keine Highlight-Ziele, deshalb nennt Mate sie beim Namen.
+**Link:** die Seite **Abonnement**, `/company/subscription`. **Mate:** `navigate` und `highlight_element` mit `nav-company-subscription`, dann `company-subscription-plan-picker` für die Tarifkarten, wo sie angezeigt werden; der Credit-Ring und **Tarife ansehen** im Eingabefeld sind keine Highlight-Ziele, deshalb nennt Mate sie beim Namen.
 
 ## Chat-Verlauf
 

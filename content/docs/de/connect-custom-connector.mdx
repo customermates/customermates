@@ -12,10 +12,10 @@ Das ist der empfohlene Weg für **Claude** (Web, Desktop und Mobile) und **ChatG
 ## Welche URL füge ich ein? [#the-url]
 
 ```
-https://customermates.com/api/v1/mcp
+<BASE_URL>/api/v1/mcp
 ```
 
-Self-Host? Setzen Sie Ihre Instanz-URL ein. Der Connector funktioniert in jedem Customermates-Tarif und auf selbst gehosteten Instanzen; nur die Messaging-, Kalender- und Social-Tools brauchen einen Tarif mit Messaging, ab Pro in der Cloud.
+`<BASE_URL>` ist die Adresse, unter der Sie Customermates öffnen, in der Cloud oder auf Ihrer eigenen Instanz. Der Connector funktioniert in jedem Customermates-Tarif und auf selbst gehosteten Instanzen; nur die Messaging-, Kalender- und Social-Tools brauchen einen Tarif mit Messaging, ab Pro in der Cloud.
 
 ## Wie verbinde ich Claude? [#claude]
 
@@ -43,7 +43,7 @@ Noch schneller: [Add to Claude](https://claude.ai/customize/connectors?modal=add
 In ChatGPT: **Settings → Connectors → Add connector → Custom connector (MCP)**.
 
 - **Name:** Customermates
-- **URL:** `https://customermates.com/api/v1/mcp` (Self-Host: Ihre Instanz)
+- **URL:** `<BASE_URL>/api/v1/mcp`
 - **Authentication:** OAuth
 
 Speichern. ChatGPT öffnet ein Customermates-Fenster. Anmelden, dann auf dem Screen **Zugriff autorisieren** auf **Zulassen** klicken. Jedes Customermates-Tool wird gelistet, und es gibt keinen Key zu speichern oder zu rotieren.
@@ -63,7 +63,7 @@ Im Connector-Formular **Authentication: Header**, **Header name: `x-api-key`**, 
 
 Speichern. ChatGPT erreicht den Server und listet jedes Tool. Das geschieht auch mit einem falschen Key, weil Customermates den Key erst prüft, wenn ein Tool läuft; meldet danach jeder Aufruf „Sign in to use this action.“ (die Meldung kommt auf Englisch), ist der Key falsch, abgeschnitten, abgelaufen oder gelöscht, und Sie legen einen neuen an.
 
-**Link:** die Seite **API & Konnektoren**, `/profile/api-keys`, Cloud-URL `https://customermates.com/de/profile/api-keys`. **Mate:** `navigate` und `highlight_element` mit `nav-profile-api-keys`; `highlight_element` nimmt außerdem `profile-api-keys-generate` für **Hinzufügen** an (Rollen mit **Verwalten** auf **API & Webhooks**), danach `api-key-option-standard` für **Standard-API-Key** (Voraussetzung `profile-api-keys-generate`) sowie `api-key-name`, `api-key-expires` und `api-key-save` für **Name**, **Läuft ab** und **Speichern** (Voraussetzung `api-key-option-standard`). Die Kacheln der **Schnellverbindungen** sind keine Highlight-Ziele, deshalb nennt Mate sie beim Namen.
+**Link:** die Seite **API & Konnektoren**, `/profile/api-keys`. **Mate:** `navigate` und `highlight_element` mit `nav-profile-api-keys`; `highlight_element` nimmt außerdem `profile-api-keys-generate` für **Hinzufügen** an (Rollen mit **Verwalten** auf **API & Webhooks**), danach `api-key-option-standard` für **Standard-API-Key** (Voraussetzung `profile-api-keys-generate`) sowie `api-key-name`, `api-key-expires` und `api-key-save` für **Name**, **Läuft ab** und **Speichern** (Voraussetzung `api-key-option-standard`). Die Kacheln der **Schnellverbindungen** sind keine Highlight-Ziele, deshalb nennt Mate sie beim Namen.
 
 ## Was zeigt der Screen Zugriff autorisieren? [#sign-in-and-approve]
 
@@ -116,7 +116,7 @@ Lassen Sie jedes Tool, das nicht read-only ist, auf *Ask*. Die vollständige Lis
 
 | Symptom | Ursache | Lösung |
 |---|---|---|
-| "Couldn't register with the sign-in service" (Claude) oder "Connector verification failed" (ChatGPT) | URL falsch oder nicht erreichbar | Prüfen Sie, dass sie exakt `https://customermates.com/api/v1/mcp` lautet (Self-Host: Ihre Instanz) |
+| "Couldn't register with the sign-in service" (Claude) oder "Connector verification failed" (ChatGPT) | URL falsch oder nicht erreichbar | Prüfen Sie, dass sie exakt `<BASE_URL>/api/v1/mcp` lautet, mit der Adresse, unter der Sie Customermates öffnen, als `<BASE_URL>` |
 | Die Tools werden gelistet, aber jeder Aufruf meldet „Sign in to use this action.“ (ChatGPT mit Header) | Der Wert von `x-api-key` ist falsch, abgeschnitten, abgelaufen oder gelöscht | Unter **Mein Profil → API & Konnektoren** einen neuen Key anlegen und die vollständigen 64 Zeichen einfügen |
 | Jeder Aufruf meldet „Your user account is inactive. Contact a workspace administrator.“ | Ihr Customermates-User steht auf **Inaktiv** | Ein Mitglied mit **Verwalten** auf **Benutzer & Rollen** setzt Sie unter **Mein Unternehmen → Mitglieder** wieder auf **Aktiv** |
 | Kein "Add custom connector"-Eintrag | Free-Plan | Custom Connectors brauchen einen bezahlten Claude- oder ChatGPT-Plan. Siehe [die CLI-Methode](/docs/connect-cli) |
@@ -126,7 +126,7 @@ Lassen Sie jedes Tool, das nicht read-only ist, auf *Ask*. Die vollständige Lis
 | Enum-Feld abgelehnt | Wert nicht in der Optionsliste der Spalte | Den Agenten bitten, vorher `get_record_schema` aufzurufen |
 | Ein Messaging-, Kalender- oder Social-Tool wird mit einer Tarif-Meldung abgelehnt | Der Workspace hat keinen Tarif mit Messaging (Starter, selbst gehostet, oder kein aktives Abonnement und keine laufende Testphase) | In der Cloud wählt ein Mitglied mit **Verwalten** **Ja** bei **Unternehmen** unter **Mein Unternehmen → Abonnement** Pro oder höher. Selbst gehostete Instanzen haben kein Messaging; für diese Tools nutzen Sie Customermates Cloud |
 
-**Link:** die Seite **API & Konnektoren**, `/profile/api-keys`, die Seite **Mitglieder**, `/company/members`, und die Seite **Abonnement**, `/company/subscription` (nur Cloud), Cloud-URLs `https://customermates.com/de/profile/api-keys`, `https://customermates.com/de/company/members` und `https://customermates.com/de/company/subscription`. **Mate:** `navigate` und `highlight_element` mit `nav-profile-api-keys`, `nav-company-members` oder `nav-company-subscription`. `profile-api-keys-generate` hebt **Hinzufügen** auf der API-Seite hervor (Rollen mit **Verwalten** auf **API & Webhooks**); die Zeilen der Mitglieder sind keine Highlight-Ziele, deshalb nennt Mate sie beim Namen; ist eine Mitgliedszeile geöffnet, heben `member-modal-status` **Status** und `member-modal-save` **Speichern** im Dialog **Benutzer** hervor (Rollen mit **Verwalten** auf **Benutzer & Rollen**), und `company-subscription-plan-picker` umrahmt die Tarifkarten, solange die Tarifauswahl angezeigt wird.
+**Link:** die Seite **API & Konnektoren**, `/profile/api-keys`, die Seite **Mitglieder**, `/company/members`, und die Seite **Abonnement**, `/company/subscription` (nur Cloud). **Mate:** `navigate` und `highlight_element` mit `nav-profile-api-keys`, `nav-company-members` oder `nav-company-subscription`. `profile-api-keys-generate` hebt **Hinzufügen** auf der API-Seite hervor (Rollen mit **Verwalten** auf **API & Webhooks**); die Zeilen der Mitglieder sind keine Highlight-Ziele, deshalb nennt Mate sie beim Namen; ist eine Mitgliedszeile geöffnet, heben `member-modal-status` **Status** und `member-modal-save` **Speichern** im Dialog **Benutzer** hervor (Rollen mit **Verwalten** auf **Benutzer & Rollen**), und `company-subscription-plan-picker` umrahmt die Tarifkarten, solange die Tarifauswahl angezeigt wird.
 
 ## Im Free-Plan oder in einem CLI? [#on-a-free-plan-or-in-a-cli]
 

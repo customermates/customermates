@@ -239,6 +239,7 @@ export const getDocsPageTool = {
   title: "Get documentation page",
   description:
     "Use this when you need one Customermates documentation page as markdown, with its canonical URL. " +
+    "App routes in the markdown, such as `/company/subscription`, are relative: for a full link, put the route after the origin of url. " +
     `Required: slug (as returned by search_docs). Optional: locale (one of: ${docsLocaleList}; default ${DEFAULT_LOCALE}), source (one of: docs, api; default docs). ` +
     "Pass query with the exact detail you need to put a bounded relevant excerpt first and avoid repeated page reads; omit query only when you need the full page. " +
     "Unknown slugs return the full list of valid slugs. Use search_docs first when you don't know the slug.",

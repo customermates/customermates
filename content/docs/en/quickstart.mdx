@@ -11,7 +11,7 @@ Sign up at [customermates.com/auth/signup](/auth/signup). No credit card is requ
 
 You choose a paid plan under **My Company → Subscription**. Choose one before the trial ends to keep access to the workspace; see [what happens when the trial ends](/docs/app-company#what-happens-when-the-trial-ends-or-a-payment-fails). Choosing a plan needs **Manage** **Yes** on the **Company** row of your role; the **Admin** role, which the person who creates the workspace gets, has it. The plans are compared under [Which plans are there?](/docs/app-company#which-plans-are-there). Self-hosting instead? See [Self-hosting](/docs/self-hosting); a self-hosted instance has no trial and no subscription.
 
-**Link:** the **Subscription** page, `/company/subscription`, Cloud URL `https://customermates.com/en/company/subscription`. **Mate:** `navigate` and `highlight_element` with `nav-company-subscription`, then `highlight_element` with `company-subscription-plan-picker` for the plan cards, which show until the first checkout and only to roles with **Manage** on **Company**; the target outlines all cards, so Mate names the plan to choose.
+**Link:** the **Subscription** page, `/company/subscription`. **Mate:** `navigate` and `highlight_element` with `nav-company-subscription`, then `highlight_element` with `company-subscription-plan-picker` for the plan cards, which show until the first checkout and only to roles with **Manage** on **Company**; the target outlines all cards, so Mate names the plan to choose.
 
 ## How do I connect Claude or ChatGPT?
 
@@ -20,7 +20,7 @@ Add a custom connector; no API key is needed.
 - **Claude** (web, desktop, mobile): **Settings → Connectors → Add custom connector**.
 - **ChatGPT**: **Settings → Connectors → Add connector → Custom connector (MCP)**, with **Authentication** set to OAuth.
 
-Paste `https://customermates.com/api/v1/mcp`, sign in to Customermates, and click **Approve** on the **Authorize access** screen. Full steps: [Connect with a custom connector](/docs/connect-custom-connector).
+Paste the address you open Customermates at followed by `/api/v1/mcp`, sign in to Customermates, and click **Approve** on the **Authorize access** screen. Full steps: [Connect with a custom connector](/docs/connect-custom-connector).
 
 The server sends its instructions to the client on connect, so the AI knows the tool surface and workspace conventions from the start. In clients that support MCP prompts, such as Claude, you can also run the built-in `get-started` prompt for a personalized start: your name, your role, and a first summary of your workspace.
 
@@ -33,7 +33,7 @@ First create an API key: open **My Profile → API & Connectors**, press **Add**
 - [Codex](/docs/connect-cli#codex): one TOML block in `~/.codex/config.toml`
 - [Gemini](/docs/connect-cli#gemini-cli): one settings block
 
-**Link:** the **API & Connectors** page, `/profile/api-keys`, Cloud URL `https://customermates.com/en/profile/api-keys`. **Mate:** `navigate` and `highlight_element` with `nav-profile-api-keys`; `highlight_element` also takes `profile-api-keys-generate` for **Add** (roles with **API & Webhooks** **Manage**), then `api-key-option-standard` for **Standard API key** (prerequisite `profile-api-keys-generate`) and `api-key-name`, `api-key-expires` and `api-key-save` for **Name**, **Expires in** and **Save** (prerequisite `api-key-option-standard`). The **Quick connections** tiles are not highlight targets, so Mate names them.
+**Link:** the **API & Connectors** page, `/profile/api-keys`. **Mate:** `navigate` and `highlight_element` with `nav-profile-api-keys`; `highlight_element` also takes `profile-api-keys-generate` for **Add** (roles with **API & Webhooks** **Manage**), then `api-key-option-standard` for **Standard API key** (prerequisite `profile-api-keys-generate`) and `api-key-name`, `api-key-expires` and `api-key-save` for **Name**, **Expires in** and **Save** (prerequisite `api-key-option-standard`). The **Quick connections** tiles are not highlight targets, so Mate names them.
 
 ## What should I try first?
 
@@ -49,7 +49,7 @@ Optional: to notify other tools when the CRM changes, open **My Company → Webh
 
 Create a contact or change a deal. Within a few seconds the delivery appears at webhook.site with the full payload, and **My Company → Recent Deliveries** lists it too. Full webhook docs: [Webhooks](/docs/webhooks).
 
-**Link:** the **Webhooks** page, `/company/webhooks`, Cloud URL `https://customermates.com/en/company/webhooks`, and the **Recent Deliveries** page, `/company/webhook-deliveries`, Cloud URL `https://customermates.com/en/company/webhook-deliveries`. **Mate:** `navigate` and `highlight_element` with `nav-company-webhooks` or `nav-company-webhook-deliveries`, and `highlight_element` with `company-webhooks-add` for **Add** (roles with **Manage** on **API & Webhooks**); once the **Webhook** dialog is open (prerequisite `company-webhooks-add`), `webhook-modal-url` and `webhook-modal-events` highlight **URL** and **Events**, and `webhook-modal-save` highlights **Save**.
+**Link:** the **Webhooks** page, `/company/webhooks`, and the **Recent Deliveries** page, `/company/webhook-deliveries`. **Mate:** `navigate` and `highlight_element` with `nav-company-webhooks` or `nav-company-webhook-deliveries`, and `highlight_element` with `company-webhooks-add` for **Add** (roles with **Manage** on **API & Webhooks**); once the **Webhook** dialog is open (prerequisite `company-webhooks-add`), `webhook-modal-url` and `webhook-modal-events` highlight **URL** and **Events**, and `webhook-modal-save` highlights **Save**.
 
 ## Next
 

@@ -9,25 +9,25 @@ Customermates ist ein Open-Source-CRM, KI-nativ gebaut. Diese Seite dokumentiert
 
 Alles, was an Ihnen als Nutzer hängt und nicht am Unternehmen: Ihr Profil und Ihre Präferenzen (**Einstellungen**), die Messaging-Kanäle, die Sie verbinden (**Kanäle**), und Ihre API-Keys für MCP- und REST-Clients (**API & Konnektoren**). Die meisten Änderungen hier betreffen nur Sie. Ausnahme sind Kanäle: Ein Kanal, den Sie teilen, wird für Ihre Teammitglieder sichtbar, und wenn Sie einen geteilten Kanal trennen, verschwindet er auch für sie.
 
-In der Seitenleisten-Gruppe **Workspace** klappt **Mein Profil** (`#nav-profile`) seine Einträge nur auf oder zu; eine eigene Seite öffnet es nicht. Die Einträge öffnen die Seiten, jede unter ihrer eigenen Route, und die Breadcrumb lautet **Mein Profil › Einstellungen**, mit einem Umschalter zu den anderen Seiten, die Sie sehen dürfen. URLs sind locale-präfixiert, zum Beispiel `https://customermates.com/de/profile/settings`.
+In der Seitenleisten-Gruppe **Workspace** klappt **Mein Profil** (`#nav-profile`) seine Einträge nur auf oder zu; eine eigene Seite öffnet es nicht. Die Einträge öffnen die Seiten, jede unter ihrer eigenen Route, und die Breadcrumb lautet **Mein Profil › Einstellungen**, mit einem Umschalter zu den anderen Seiten, die Sie sehen dürfen. Die Adresse im Browser stellt der Route die Sprache voran, zum Beispiel `/de/profile/settings`.
 
-Die Cloud-URLs sind die deutschen; für eine andere App-Sprache ersetzen Sie `/de/` durch `/en/`, `/fr/`, `/it/` oder `/es/`. Mate, der gehostete Assistent, öffnet eine Seite mit `navigate` und hebt ein Element der aktuellen Seite mit `highlight_element` hervor; klicken kann er nicht. Die `nav-*`-Ids der Spalte Navigationsziel nimmt auch `highlight_element` an; sie zeigen auf den Seitenleisten-Eintrag, und `nav-profile` zeigt auf den Umschalter **Mein Profil**. Ein Seitenleisten-Eintrag lässt sich nur hervorheben, solange **Mein Profil** aufgeklappt ist. Auf seinen eigenen Seiten ist es standardmäßig aufgeklappt, sofern das Mitglied es nicht zuklappt. Auf dem Smartphone muss die Seitenleiste geöffnet sein, und eine auf Symbole reduzierte Seitenleiste blendet die Einträge aus. Ein Element ohne Ziel nennt Mate stattdessen beim Namen, und ein Ziel in einem Dialog gibt es nur, solange dieser Dialog geöffnet ist.
+Routen sind relativ und ohne Sprachpräfix: Sie gelten auf der Adresse, unter der der Workspace läuft, und die App ergänzt die Sprache des Nutzers, sodass `/profile/settings` auf Deutsch `/de/profile/settings` öffnet. Für einen vollständigen Link setzen Sie die Route hinter den Ursprung der `url`, die `search_docs` und `get_docs_page` zurückgeben. Mate, der gehostete Assistent, öffnet eine Seite mit `navigate` und hebt ein Element der aktuellen Seite mit `highlight_element` hervor; klicken kann er nicht. Die `nav-*`-Ids der Spalte Navigationsziel nimmt auch `highlight_element` an; sie zeigen auf den Seitenleisten-Eintrag, und `nav-profile` zeigt auf den Umschalter **Mein Profil**. Ein Seitenleisten-Eintrag lässt sich nur hervorheben, solange **Mein Profil** aufgeklappt ist. Auf seinen eigenen Seiten ist es standardmäßig aufgeklappt, sofern das Mitglied es nicht zuklappt. Auf dem Smartphone muss die Seitenleiste geöffnet sein, und eine auf Symbole reduzierte Seitenleiste blendet die Einträge aus. Ein Element ohne Ziel nennt Mate stattdessen beim Namen, und ein Ziel in einem Dialog gibt es nur, solange dieser Dialog geöffnet ist.
 
 **Einstellungen** erscheint für jedes Mitglied. **Kanäle** erscheint nur in Customermates Cloud und nur, wenn die Zeile **Inbox-Nachrichten** Ihrer Rolle bei **Lesen** auf **Alle** steht; in Self-Hosted-Installationen werden seine Ziele trotzdem angeboten, die Seite leitet aber zum Dashboard um. **API & Konnektoren** erscheint, wenn die Zeile **API & Webhooks** bei **Lesen** auf **Alle** steht.
 
 Rollen bearbeitet unter **Mein Unternehmen › Rollen** ein Mitglied, dessen Rolle bei **Benutzer & Rollen** das Recht **Verwalten** hat; siehe [App-Guide, Unternehmen](/docs/app-company). Eine neue benutzerdefinierte Rolle startet in beiden Zeilen mit **Lesen** **Keine**, ihre Mitglieder sehen also nur **Einstellungen**, bis jemand die Rolle ändert. Die Rolle **Admin** sieht jeden Eintrag, den die Installation bietet. Wer eine ausgeblendete Seite über ihre URL öffnet, landet wieder auf dem Dashboard.
 
-| Seite | Route und Cloud-URL | Navigationsziel | Highlight-Ziele auf der Seite | Erklärt in |
+| Seite | Route | Navigationsziel | Highlight-Ziele auf der Seite | Erklärt in |
 |---|---|---|---|---|
-| **Einstellungen** | `/profile/settings`, `https://customermates.com/de/profile/settings` | `nav-profile-settings`, auch `nav-profile` | `profile-settings-verify-email`, `profile-settings-first-name`, `profile-settings-last-name`, `profile-settings-country`, `profile-settings-avatar-url`, `profile-settings-display-language`, `profile-settings-formatting-locale`, `profile-settings-theme`, `profile-settings-save`, `profile-settings-reset` | [Einstellungen](#settings-tab) |
-| **Kanäle** | `/profile/connected-accounts`, `https://customermates.com/de/profile/connected-accounts` | `nav-profile-connected-accounts`, auch `profile-connected-accounts-connect` | `profile-connected-accounts-connect`; im Kanal-Dialog `connected-account-tab-details`, `connected-account-visibility`, `connected-account-tab-email`, `connected-account-signature`, `connected-account-email-save`, `connected-account-tab-folders`, `connected-account-reactivate`, `connected-account-resync`, `connected-account-disconnect` | [Kanäle](#channels-tab) |
-| **API & Konnektoren** | `/profile/api-keys`, `https://customermates.com/de/profile/api-keys` | `nav-profile-api-keys` | `profile-api-keys-generate`; im Key-Dialog `api-key-option-standard`, `api-key-name`, `api-key-expires`, `api-key-save`, `api-key-delete` | [API & Konnektoren](#api--connectors-tab) |
+| **Einstellungen** | `/profile/settings` | `nav-profile-settings`, auch `nav-profile` | `profile-settings-verify-email`, `profile-settings-first-name`, `profile-settings-last-name`, `profile-settings-country`, `profile-settings-avatar-url`, `profile-settings-display-language`, `profile-settings-formatting-locale`, `profile-settings-theme`, `profile-settings-save`, `profile-settings-reset` | [Einstellungen](#settings-tab) |
+| **Kanäle** | `/profile/connected-accounts` | `nav-profile-connected-accounts`, auch `profile-connected-accounts-connect` | `profile-connected-accounts-connect`; im Kanal-Dialog `connected-account-tab-details`, `connected-account-visibility`, `connected-account-tab-email`, `connected-account-signature`, `connected-account-email-save`, `connected-account-tab-folders`, `connected-account-reactivate`, `connected-account-resync`, `connected-account-disconnect` | [Kanäle](#channels-tab) |
+| **API & Konnektoren** | `/profile/api-keys` | `nav-profile-api-keys` | `profile-api-keys-generate`; im Key-Dialog `api-key-option-standard`, `api-key-name`, `api-key-expires`, `api-key-save`, `api-key-delete` | [API & Konnektoren](#api--connectors-tab) |
 
 ## Tab Einstellungen [#settings-tab]
 
 Route `/profile/settings`, Seitenleisten-Eintrag **Einstellungen**. Jedes angemeldete Mitglied kann die Seite öffnen, unabhängig von der Rolle, und das Formular ändert nur Ihr eigenes Profil. Speichern oder verwerfen Sie mit **Speichern** (`#profile-settings-save`) und **Zurücksetzen** (`#profile-settings-reset`) unter dem Formular; beide Buttons erscheinen, sobald das Formular ungespeicherte Änderungen hat. **Speichern** sichert alle Felder auf einmal.
 
-**Link:** die Seite **Einstellungen**, `/profile/settings`, Cloud-URL `https://customermates.com/de/profile/settings`. **Mate:** `navigate` und `highlight_element` mit `nav-profile-settings`; `highlight_element` nimmt außerdem die Feld-Ids unten ohne `#` an, `profile-settings-verify-email`, solange Ihre E-Mail nicht verifiziert ist, sowie `profile-settings-save` und `profile-settings-reset`, die erst bei ungespeicherten Änderungen sichtbar sind.
+**Link:** die Seite **Einstellungen**, `/profile/settings`. **Mate:** `navigate` und `highlight_element` mit `nav-profile-settings`; `highlight_element` nimmt außerdem die Feld-Ids unten ohne `#` an, `profile-settings-verify-email`, solange Ihre E-Mail nicht verifiziert ist, sowie `profile-settings-save` und `profile-settings-reset`, die erst bei ungespeicherten Änderungen sichtbar sind.
 
 ### Wie ändere ich Namen, Avatar, Sprache oder Darstellung? [#how-do-i-change-my-name-avatar-language-or-theme]
 
@@ -46,13 +46,13 @@ Der Kopfbereich über dem Formular zeigt Ihren Namen, Ihre E-Mail-Adresse, **E-M
 
 Das Avatar-Menü unten in der Seitenleiste enthält den Schalter **Dunkler Modus** bzw. **Heller Modus**, der Ihre Darstellung ebenfalls speichert, sowie **Abmelden**.
 
-**Link:** `/profile/settings`, Cloud-URL `https://customermates.com/de/profile/settings`. **Mate:** `navigate` und `highlight_element` mit `nav-profile-settings`, danach `highlight_element` mit der Feld-Id dieser Tabelle ohne `#`, zum Beispiel `profile-settings-first-name`, `profile-settings-avatar-url` oder `profile-settings-theme`, und, sobald sich etwas geändert hat, `profile-settings-save`. Der Kopfbereich und das Avatar-Menü haben kein Ziel, deshalb nennt Mate sie beim Namen.
+**Link:** `/profile/settings`. **Mate:** `navigate` und `highlight_element` mit `nav-profile-settings`, danach `highlight_element` mit der Feld-Id dieser Tabelle ohne `#`, zum Beispiel `profile-settings-first-name`, `profile-settings-avatar-url` oder `profile-settings-theme`, und, sobald sich etwas geändert hat, `profile-settings-save`. Der Kopfbereich und das Avatar-Menü haben kein Ziel, deshalb nennt Mate sie beim Namen.
 
 ### Wie verifiziere ich meine E-Mail-Adresse? [#how-do-i-verify-my-email-address]
 
 Solange Ihre Adresse nicht verifiziert ist, zeigt die Seitenleiste unter dem Markennamen **E-Mail nicht verifiziert**. Ein Klick öffnet diese Seite, deren Kopfleiste **Verifizierungs-E-Mail erneut senden** anbietet. Ein neues Konto lässt sich 24 Stunden ohne Verifizierung nutzen. Danach leitet jede Seite auf den Verifizierungs-Screen um, bis Sie die Adresse über den Link in der E-Mail bestätigen.
 
-**Link:** `/profile/settings`, Cloud-URL `https://customermates.com/de/profile/settings`. **Mate:** `navigate` und `highlight_element` mit `nav-profile-settings`; `highlight_element` nimmt außerdem `profile-settings-verify-email` für **Verifizierungs-E-Mail erneut senden** (`#profile-settings-verify-email`) an, sichtbar nur, solange Ihre E-Mail nicht verifiziert ist. Das Kennzeichen **E-Mail nicht verifiziert** hat keine Id, deshalb nennt Mate es beim Namen.
+**Link:** `/profile/settings`. **Mate:** `navigate` und `highlight_element` mit `nav-profile-settings`; `highlight_element` nimmt außerdem `profile-settings-verify-email` für **Verifizierungs-E-Mail erneut senden** (`#profile-settings-verify-email`) an, sichtbar nur, solange Ihre E-Mail nicht verifiziert ist. Das Kennzeichen **E-Mail nicht verifiziert** hat keine Id, deshalb nennt Mate es beim Namen.
 
 ### Was lässt sich hier nicht ändern? [#what-can-i-not-change-here]
 
@@ -60,7 +60,7 @@ Es gibt keine Einstellung für Passwort, E-Mail-Adresse, Zeitzone, Benachrichtig
 
 Im Assistenten und über MCP ändert `update_workspace_settings` mit `target: "profile"` nur **Vorname**, **Nachname**, **Land** und **Avatar-URL**. **Anzeigesprache**, **Regionales Format** und **Darstellung** stellen Sie nur in der App ein. Die REST-API liest Ihr Profil mit `GET /v1/users/me`, kann es aber nicht ändern.
 
-**Link:** `/profile/settings`, Cloud-URL `https://customermates.com/de/profile/settings`. **Mate:** `navigate` und `highlight_element` mit `nav-profile-settings`; **Abmelden** und die Anmeldeseite mit **Passwort vergessen?** haben kein Ziel, deshalb nennt Mate sie beim Namen.
+**Link:** `/profile/settings`. **Mate:** `navigate` und `highlight_element` mit `nav-profile-settings`; **Abmelden** und die Anmeldeseite mit **Passwort vergessen?** haben kein Ziel, deshalb nennt Mate sie beim Namen.
 
 ## Tab API & Konnektoren [#api--connectors-tab]
 
@@ -78,7 +78,7 @@ Der Bereich Schnellverbindungen bietet vier Kacheln: **Claude**, **ChatGPT & Cod
 
 Es gibt keinen Rotate- oder Revoke-Button: Erstellen Sie einen neuen Key, aktualisieren Sie den Client und löschen Sie dann den alten. Wird einer Rolle **API & Webhooks** entzogen, bleiben die Keys ihrer Mitglieder gültig; um die Keys eines Mitglieds zu stoppen, setzen Sie es unter **Mein Unternehmen › Mitglieder** auf **Inaktiv**.
 
-**Link:** die Seite **API & Konnektoren**, `/profile/api-keys`, Cloud-URL `https://customermates.com/de/profile/api-keys`. **Mate:** `navigate` und `highlight_element` mit `nav-profile-api-keys`; `highlight_element` nimmt außerdem `profile-api-keys-generate` für **Hinzufügen** an (Rollen mit **Verwalten** auf **API & Webhooks**). Im Dialog nimmt es `api-key-option-standard` an (Voraussetzung `profile-api-keys-generate`), danach `api-key-name`, `api-key-expires` und `api-key-save` (Voraussetzung `api-key-option-standard`; **Speichern** ist aktiv, sobald sich etwas geändert hat) und `api-key-delete`, sobald die Person einen Key über seine Karte geöffnet hat. Die Kacheln der Schnellverbindungen und die Key-Karten haben kein Ziel, deshalb nennt Mate sie beim Namen.
+**Link:** die Seite **API & Konnektoren**, `/profile/api-keys`. **Mate:** `navigate` und `highlight_element` mit `nav-profile-api-keys`; `highlight_element` nimmt außerdem `profile-api-keys-generate` für **Hinzufügen** an (Rollen mit **Verwalten** auf **API & Webhooks**). Im Dialog nimmt es `api-key-option-standard` an (Voraussetzung `profile-api-keys-generate`), danach `api-key-name`, `api-key-expires` und `api-key-save` (Voraussetzung `api-key-option-standard`; **Speichern** ist aktiv, sobald sich etwas geändert hat) und `api-key-delete`, sobald die Person einen Key über seine Karte geöffnet hat. Die Kacheln der Schnellverbindungen und die Key-Karten haben kein Ziel, deshalb nennt Mate sie beim Namen.
 
 ## Tab Kanäle [#channels-tab]
 
@@ -96,7 +96,7 @@ Route `/profile/connected-accounts`, Seitenleisten-Eintrag **Kanäle** (`#nav-pr
 | Tab Ordner | Kanal-Dialog | `#connected-account-tab-folders` (**Ordner** mit Zähler, zum Beispiel **Ordner 4/6**) | Ein Schalter pro Ordner; nur, wenn das Konto Ordner meldet |
 | Reaktivieren, neu synchronisieren oder trennen | Kanal-Dialog | `#connected-account-reactivate` (**Reaktivieren**) / `#connected-account-resync` (**Neu synchronisieren**) / `#connected-account-disconnect` (**Trennen**) | Nur für den Besitzer mit **Verwalten** auf **Inbox-Nachrichten**; **Reaktivieren** oder **Neu synchronisieren** je nach Status, siehe unten |
 
-**Link:** die Seite **Kanäle**, `/profile/connected-accounts`, Cloud-URL `https://customermates.com/de/profile/connected-accounts`. **Mate:** `navigate` und `highlight_element` mit `nav-profile-connected-accounts`, dazu `highlight_element` mit `profile-connected-accounts-connect` für **Kanal verbinden**, das nur sichtbar ist, wenn Ihre Rolle verbinden darf und die Seite weder gesperrt ist noch lädt oder einen Fehler zeigt; hat die Person einen Kanal über seine Karte geöffnet, nimmt es außerdem `connected-account-tab-details`, `connected-account-visibility` (nur für den Besitzer), `connected-account-tab-email` (eigene E-Mail-Konten), `connected-account-tab-folders` (Konten mit Ordnern), `connected-account-reactivate`, `connected-account-resync` und `connected-account-disconnect` an (nur für den Besitzer mit **Verwalten** auf **Inbox-Nachrichten**, je nach Status), und bei geöffnetem Tab **E-Mail** (Voraussetzung `connected-account-tab-email`) `connected-account-signature` und `connected-account-email-save`. Der Button im Leerzustand `#profile-connected-accounts-connect-empty` ist kein Highlight-Ziel, weil er nur erscheint, wenn der Assistent nicht verfügbar ist, und die Karten haben kein Ziel, deshalb nennt Mate sie beim Namen.
+**Link:** die Seite **Kanäle**, `/profile/connected-accounts`. **Mate:** `navigate` und `highlight_element` mit `nav-profile-connected-accounts`, dazu `highlight_element` mit `profile-connected-accounts-connect` für **Kanal verbinden**, das nur sichtbar ist, wenn Ihre Rolle verbinden darf und die Seite weder gesperrt ist noch lädt oder einen Fehler zeigt; hat die Person einen Kanal über seine Karte geöffnet, nimmt es außerdem `connected-account-tab-details`, `connected-account-visibility` (nur für den Besitzer), `connected-account-tab-email` (eigene E-Mail-Konten), `connected-account-tab-folders` (Konten mit Ordnern), `connected-account-reactivate`, `connected-account-resync` und `connected-account-disconnect` an (nur für den Besitzer mit **Verwalten** auf **Inbox-Nachrichten**, je nach Status), und bei geöffnetem Tab **E-Mail** (Voraussetzung `connected-account-tab-email`) `connected-account-signature` und `connected-account-email-save`. Der Button im Leerzustand `#profile-connected-accounts-connect-empty` ist kein Highlight-Ziel, weil er nur erscheint, wenn der Assistent nicht verfügbar ist, und die Karten haben kein Ziel, deshalb nennt Mate sie beim Namen.
 
 ### Wer kann Kanäle nutzen? [#who-can-use-channels]
 
@@ -104,7 +104,7 @@ Um die Seite zu sehen, braucht die Zeile **Inbox-Nachrichten** Ihrer Rolle **Les
 
 Der Tarif des Workspace muss Messaging enthalten: Pro, Business, Enterprise oder eine Testphase. In Starter zeigt die Seite **Upgrade nötig, um Messaging freizuschalten** mit dem Button **Tarif upgraden**, der **Mein Unternehmen › Abonnement** öffnet. Jede Aktion außer dem Trennen braucht außerdem ein nutzbares Abonnement, also den Status **Aktiv** oder eine noch nicht abgelaufene Testphase; sonst wird sie abgelehnt, und **Kanal verbinden** meldet „Das Verbinden von Kanälen erfordert ein aktives Abonnement oder eine noch nicht abgelaufene Testphase.“ Self-Hosted-Installationen haben keine Seite Kanäle.
 
-**Link:** `/profile/connected-accounts`, Cloud-URL `https://customermates.com/de/profile/connected-accounts`. **Mate:** `navigate` und `highlight_element` mit `nav-profile-connected-accounts`; in Starter hat die gesperrte Seite kein Ziel **Kanal verbinden**, und **Tarif upgraden** hat keine Id, deshalb nennt Mate den Button beim Namen oder navigiert mit `nav-company-subscription`.
+**Link:** `/profile/connected-accounts`. **Mate:** `navigate` und `highlight_element` mit `nav-profile-connected-accounts`; in Starter hat die gesperrte Seite kein Ziel **Kanal verbinden**, und **Tarif upgraden** hat keine Id, deshalb nennt Mate den Button beim Namen oder navigiert mit `nav-company-subscription`.
 
 ### Wie verbinde ich einen Kanal? [#how-do-i-connect-a-channel]
 
@@ -125,7 +125,7 @@ Die Wahl eines Eintrags leitet den aktuellen Browser-Tab auf eine sichere Verbin
 - **Konto bereits verbunden**: Dieses Konto ist bereits von einem Mitglied Ihres Workspace verbunden. Ist das jemand anderes, bitten Sie die Person, es mit dem Workspace zu teilen, statt es doppelt zu verbinden.
 - **Ungültige Anmeldedaten**, **Link abgelaufen**, **Verifizierung fehlgeschlagen**, **Konto getrennt** oder **Kanalverbindung fehlgeschlagen**: Beginnen Sie erneut mit **Kanal verbinden**.
 
-**Link:** `/profile/connected-accounts`, Cloud-URL `https://customermates.com/de/profile/connected-accounts`. **Mate:** `navigate` und `highlight_element` mit `nav-profile-connected-accounts`, danach `highlight_element` mit `profile-connected-accounts-connect`; die neun Menüeinträge haben keine Id, deshalb nennt Mate sie beim Namen.
+**Link:** `/profile/connected-accounts`. **Mate:** `navigate` und `highlight_element` mit `nav-profile-connected-accounts`, danach `highlight_element` mit `profile-connected-accounts-connect`; die neun Menüeinträge haben keine Id, deshalb nennt Mate sie beim Namen.
 
 ### Wie viele Kanäle kann ich verbinden? [#how-many-channels-can-i-connect]
 
@@ -133,7 +133,7 @@ Kanäle pro Mitglied: Starter [[commercial.entitlement.starter.includedAccountsP
 
 Ist das Limit in Pro erreicht, öffnet **Kanal verbinden** den Dialog **Upgrade, um mehr Konten zu verbinden**; dessen Button **Tarife ansehen** führt zu **Mein Unternehmen › Abonnement**. In Business verweist eine Fehlermeldung auf Enterprise. Nach einem Downgrade werden bei jedem Mitglied die neuesten Kanäle oberhalb des neuen Kontingents entfernt und als **Gelöscht** markiert, und Mitglieder mit der Rolle **Admin** erhalten eine E-Mail.
 
-**Link:** `/profile/connected-accounts`, Cloud-URL `https://customermates.com/de/profile/connected-accounts`, und `/company/subscription` für **Tarife ansehen**, Cloud-URL `https://customermates.com/de/company/subscription`. **Mate:** `navigate` und `highlight_element` mit `nav-profile-connected-accounts`, danach `highlight_element` mit `profile-connected-accounts-connect`, oder `nav-company-subscription` für die Tarife; **Tarife ansehen** und der Upgrade-Dialog haben keine Id, deshalb nennt Mate sie beim Namen.
+**Link:** `/profile/connected-accounts`, und `/company/subscription` für **Tarife ansehen**. **Mate:** `navigate` und `highlight_element` mit `nav-profile-connected-accounts`, danach `highlight_element` mit `profile-connected-accounts-connect`, oder `nav-company-subscription` für die Tarife; **Tarife ansehen** und der Upgrade-Dialog haben keine Id, deshalb nennt Mate sie beim Namen.
 
 ### Was bedeutet welcher Status? [#what-does-each-status-mean]
 
@@ -147,7 +147,7 @@ Ist das Limit in Pro erreicht, öffnet **Kanal verbinden** den Dialog **Upgrade,
 | **Gestoppt** | Der Anbieter hat das Konto pausiert | Der Besitzer klickt **Reaktivieren** |
 | **Gelöscht** | Das Konto wurde beim Anbieter entfernt oder automatisch: nach einem Downgrade oder bei der täglichen Bereinigung, sobald eine Testphase seit einem Tag vorbei ist, sobald ein bezahltes Abonnement seit drei Tagen **Unbezahlt** oder **Abgelaufen** ist, oder nachdem der Besitzer auf **Inaktiv** gesetzt wurde | Die Karte bleibt sichtbar, und der Besitzer erhält nur noch **Trennen**; verbinden Sie das Konto erneut, wenn der Tarif es erlaubt |
 
-**Link:** `/profile/connected-accounts`, Cloud-URL `https://customermates.com/de/profile/connected-accounts`. **Mate:** `navigate` und `highlight_element` mit `nav-profile-connected-accounts`; ist der Kanal geöffnet, nimmt `highlight_element` `connected-account-resync`, `connected-account-reactivate` oder `connected-account-disconnect` an. Die Status-Chips und die Karten sind keine Highlight-Ziele, deshalb nennt Mate sie beim Namen.
+**Link:** `/profile/connected-accounts`. **Mate:** `navigate` und `highlight_element` mit `nav-profile-connected-accounts`; ist der Kanal geöffnet, nimmt `highlight_element` `connected-account-resync`, `connected-account-reactivate` oder `connected-account-disconnect` an. Die Status-Chips und die Karten sind keine Highlight-Ziele, deshalb nennt Mate sie beim Namen.
 
 ### Privat oder geteilt? [#private-or-shared]
 
@@ -155,7 +155,7 @@ Ein neuer Kanal ist **Privat**: Nur Sie sehen seine Unterhaltungen. Der Besitzer
 
 Teilen erfordert den Business- oder Enterprise-Tarif; in anderen Tarifen ist der Schalter deaktiviert, mit dem Hinweis „Geteilte Konten erfordern den Business-Tarif oder höher.“ Außerdem braucht es **Verwalten** bei **Inbox-Nachrichten** und ein nutzbares Abonnement. Teammitglieder sehen Ihren geteilten Kanal auf ihrer Seite Kanäle, können dort Details und Ordner öffnen, ihn aber weder ändern noch reaktivieren, neu synchronisieren oder trennen. Einzelne Unterhaltungen lassen sich auch im Posteingang teilen, siehe [App-Guide, Posteingang](/docs/app-inbox).
 
-**Link:** `/profile/connected-accounts`, Cloud-URL `https://customermates.com/de/profile/connected-accounts`. **Mate:** `navigate` und `highlight_element` mit `nav-profile-connected-accounts`; die Kanal-Karte hat kein Ziel, deshalb nennt Mate sie beim Namen. Hat die Person den Kanal geöffnet, nimmt `highlight_element` `connected-account-visibility` für den Schalter **Sichtbarkeit** (`#connected-account-visibility`) an, sichtbar nur für den Besitzer und unterhalb des Business-Tarifs deaktiviert.
+**Link:** `/profile/connected-accounts`. **Mate:** `navigate` und `highlight_element` mit `nav-profile-connected-accounts`; die Kanal-Karte hat kein Ziel, deshalb nennt Mate sie beim Namen. Hat die Person den Kanal geöffnet, nimmt `highlight_element` `connected-account-visibility` für den Schalter **Sichtbarkeit** (`#connected-account-visibility`) an, sichtbar nur für den Besitzer und unterhalb des Business-Tarifs deaktiviert.
 
 ### Was steuert der Tab Ordner? [#what-does-the-folders-tab-control]
 
@@ -163,7 +163,7 @@ E-Mail-Konten, deren Anbieter Ordner meldet, erhalten einen Tab **Ordner** mit e
 
 Standardmäßig ist jeder Ordner eingeschaltet außer Papierkorb, Junk oder Spam, Entwürfen und dem Ordner mit allen E-Mails; kennzeichnet der Anbieter seine Ordner nicht, gilt dasselbe für Namen mit junk, spam, trash, deleted, draft oder outbox. Wird einer dieser ausgenommenen Ordner eingeschaltet, startet ein Import seines Verlaufs im Hintergrund. Nur der Besitzer mit **Verwalten** bei **Inbox-Nachrichten** kann Ordner schalten; alle anderen sehen **Synchronisiert** oder **Ausgeblendet**.
 
-**Link:** `/profile/connected-accounts`, Cloud-URL `https://customermates.com/de/profile/connected-accounts`. **Mate:** `navigate` und `highlight_element` mit `nav-profile-connected-accounts`; hat die Person den Kanal geöffnet, nimmt `highlight_element` `connected-account-tab-folders` für den Tab **Ordner** (`#connected-account-tab-folders`) an, sichtbar nur bei Konten mit Ordnern; die Ordner-Schalter sind keine Highlight-Ziele, deshalb nennt Mate sie beim Namen.
+**Link:** `/profile/connected-accounts`. **Mate:** `navigate` und `highlight_element` mit `nav-profile-connected-accounts`; hat die Person den Kanal geöffnet, nimmt `highlight_element` `connected-account-tab-folders` für den Tab **Ordner** (`#connected-account-tab-folders`) an, sichtbar nur bei Konten mit Ordnern; die Ordner-Schalter sind keine Highlight-Ziele, deshalb nennt Mate sie beim Namen.
 
 ### E-Mail-Darstellung und Signatur [#email-appearance-and-signature]
 
@@ -182,7 +182,7 @@ Bei einem neuen Konto ist die Signatur ausgeschaltet; schalten Sie **Signatur hi
 
 Solange **Signatur hinzufügen** eingeschaltet ist, wird die gespeicherte Signatur unter jede E-Mail aus diesem Konto gesetzt, ob sie aus dem Posteingang, über die REST-API oder ein MCP-Tool gesendet wird, HTML-Texte eingeschlossen. Agents dürfen die Signatur daher nicht zusätzlich in den Nachrichtentext schreiben.
 
-**Link:** `/profile/connected-accounts`, Cloud-URL `https://customermates.com/de/profile/connected-accounts`. **Mate:** `navigate` und `highlight_element` mit `nav-profile-connected-accounts`; hat die Person den Kanal geöffnet, nimmt `highlight_element` `connected-account-tab-email` für den Tab **E-Mail** an (`#connected-account-tab-email`, eigene E-Mail-Konten) und bei geöffnetem Tab `connected-account-signature` für **Signatur hinzufügen** (`#connected-account-signature`) und `connected-account-email-save` für **E-Mail-Einstellungen speichern** (`#connected-account-email-save`). Die Felder für Darstellung und Layout sind keine Highlight-Ziele, deshalb nennt Mate sie beim Namen.
+**Link:** `/profile/connected-accounts`. **Mate:** `navigate` und `highlight_element` mit `nav-profile-connected-accounts`; hat die Person den Kanal geöffnet, nimmt `highlight_element` `connected-account-tab-email` für den Tab **E-Mail** an (`#connected-account-tab-email`, eigene E-Mail-Konten) und bei geöffnetem Tab `connected-account-signature` für **Signatur hinzufügen** (`#connected-account-signature`) und `connected-account-email-save` für **E-Mail-Einstellungen speichern** (`#connected-account-email-save`). Die Felder für Darstellung und Layout sind keine Highlight-Ziele, deshalb nennt Mate sie beim Namen.
 
 ### Wie reaktiviere, synchronisiere oder trenne ich einen Kanal? [#how-do-i-reactivate-resync-or-disconnect-a-channel]
 
@@ -194,7 +194,7 @@ Solange **Signatur hinzufügen** eingeschaltet ist, wird die gespeicherte Signat
 
 Alle drei erfordern **Verwalten** bei **Inbox-Nachrichten**.
 
-**Link:** `/profile/connected-accounts`, Cloud-URL `https://customermates.com/de/profile/connected-accounts`. **Mate:** `navigate` und `highlight_element` mit `nav-profile-connected-accounts`; haben Sie den Kanal über seine Karte geöffnet, nimmt `highlight_element` `connected-account-reactivate` für **Reaktivieren**, `connected-account-resync` für **Neu synchronisieren** und `connected-account-disconnect` für **Trennen** an, jeweils nur, wenn der Besitzer den Button sieht.
+**Link:** `/profile/connected-accounts`. **Mate:** `navigate` und `highlight_element` mit `nav-profile-connected-accounts`; haben Sie den Kanal über seine Karte geöffnet, nimmt `highlight_element` `connected-account-reactivate` für **Reaktivieren**, `connected-account-resync` für **Neu synchronisieren** und `connected-account-disconnect` für **Trennen** an, jeweils nur, wenn der Besitzer den Button sieht.
 
 ## Tipps für Agents [#tips-for-agents]
 

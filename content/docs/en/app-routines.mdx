@@ -5,7 +5,7 @@ description: "Routines run Mate on a schedule or when a record changes, using th
 
 A routine is a saved instruction plus a trigger. When the trigger fires, Customermates opens a new assistant conversation, sends your instruction, and lets Mate work on its own. Who can see a routine follows the **Routines** row of their role under **My Company › Roles**: **Read access** **All** shows every routine in the workspace, **Assigned** shows the ones they own, and **None** hides **Routines**; creating and editing your own routines needs **Manage** set to **Yes**. Run summaries follow the routine. The full assistant transcript stays with the person the run executed as. Routines exist on Customermates Cloud only, because they spend hosted AI credits from the owner's monthly allowance.
 
-**Link:** the **Routines** page, `/routines`, Cloud URL `https://customermates.com/en/routines`; a single routine has no link of its own, so open it from the list. **Mate:** `navigate` and `highlight_element` with `nav-routines`; `routines-add` highlights **Add** (present only with **Manage** **Yes** on **Routines**), `routines-search` and `routines-filter` the search box and filters, `routines-display-options` the display options with `routines-layout-table` and `routines-layout-board` inside them. Once the routine dialog is open, `routine-modal-save` and `routine-modal-reset` highlight **Save** and **Reset**, which are shown only to the routine's owner with **Manage** **Yes**, **Reset** only after a change, and neither while **Run details** is open; the dialog's fields, **Test trigger**, **Delete** and **Pause routine** are not highlight targets, so Mate names them.
+**Link:** the **Routines** page, `/routines`; a single routine has no link of its own, so open it from the list. **Mate:** `navigate` and `highlight_element` with `nav-routines`; `routines-add` highlights **Add** (present only with **Manage** **Yes** on **Routines**), `routines-search` and `routines-filter` the search box and filters, `routines-display-options` the display options with `routines-layout-table` and `routines-layout-board` inside them. Once the routine dialog is open, `routine-modal-save` and `routine-modal-reset` highlight **Save** and **Reset**, which are shown only to the routine's owner with **Manage** **Yes**, **Reset** only after a change, and neither while **Run details** is open; the dialog's fields, **Test trigger**, **Delete** and **Pause routine** are not highlight targets, so Mate names them.
 
 ## What is a routine made of?
 
@@ -22,7 +22,7 @@ The creator becomes the routine owner. Only that owner can change its instructio
 
 Each user gets a separate allowance: Starter includes [[commercial.entitlement.starter.includedRoutinesPerUser]] routine per user, Pro includes [[commercial.entitlement.pro.includedRoutinesPerUser]] routines per user, and Business and Enterprise include [[commercial.entitlement.business.includedRoutinesPerUser]] routines per user. Another user's routines never use your slots. Pausing a routine does not free a slot, deleting one does. At the limit, a new routine is refused with a prompt to upgrade, which a role with **Manage** on the **Company** row does under **My Company › Subscription**; the limit is checked only when a routine is created, so routines above a lower plan's limit are kept after a downgrade. See [Plans and credits](/docs/app-assistant#plans-and-credits) for the credit allowance the runs draw on.
 
-**Link:** the **Routines** page, `/routines`, Cloud URL `https://customermates.com/en/routines`, and the **Subscription** page, `/company/subscription`, Cloud URL `https://customermates.com/en/company/subscription`. **Mate:** `navigate` and `highlight_element` with `nav-routines`, or `nav-company-subscription` (highlightable only while **My Company** is expanded in the sidebar); on the **Subscription** page, `company-subscription-plan-picker` highlights the plan cards where they are shown.
+**Link:** the **Routines** page, `/routines`, and the **Subscription** page, `/company/subscription`. **Mate:** `navigate` and `highlight_element` with `nav-routines`, or `nav-company-subscription` (highlightable only while **My Company** is expanded in the sidebar); on the **Subscription** page, `company-subscription-plan-picker` highlights the plan cards where they are shown.
 
 ## What are the limits?
 
@@ -43,7 +43,7 @@ Under **Repeats**, pick how often the routine runs: **Every 15 minutes**, **Ever
 
 The scheduler checks for due routines every five minutes, so a run may start a few minutes after its nominal time. A run that is still queued after two minutes is dispatched again.
 
-**Link:** the **Routines** page, `/routines`, Cloud URL `https://customermates.com/en/routines`. **Mate:** `navigate` and `highlight_element` with `nav-routines`, then `routines-add` for **Add** and `routine-modal-save` for **Save** once the owner has the dialog open; **Repeats**, the time selects and **Switch to a preset** are not highlight targets, so Mate names them.
+**Link:** the **Routines** page, `/routines`. **Mate:** `navigate` and `highlight_element` with `nav-routines`, then `routines-add` for **Add** and `routine-modal-save` for **Save** once the owner has the dialog open; **Repeats**, the time selects and **Switch to a preset** are not highlight targets, so Mate names them.
 
 ## How do event triggers work?
 
@@ -57,7 +57,7 @@ Leave either control empty to run on every matching event. An event starts a run
 
 When an event starts a run, Mate is told what happened before your instructions: the event name, the kind of record and its id, which fields changed on an update, and for an inbox event the thread the message belongs to. It can read the record itself from there. It is not given the previous values of the fields that changed.
 
-**Link:** the **Routines** page, `/routines`, Cloud URL `https://customermates.com/en/routines`. **Mate:** `navigate` and `highlight_element` with `nav-routines`, then `routines-add` for **Add** and `routine-modal-save` for **Save** once the owner has the dialog open; **Events**, **Changed fields** and **Record filters** are not highlight targets, so Mate names them.
+**Link:** the **Routines** page, `/routines`. **Mate:** `navigate` and `highlight_element` with `nav-routines`, then `routines-add` for **Add** and `routine-modal-save` for **Save** once the owner has the dialog open; **Events**, **Changed fields** and **Record filters** are not highlight targets, so Mate names them.
 
 ## What do the runs and their statuses mean?
 
@@ -79,7 +79,7 @@ The raw values in parentheses appear in `manage_routines` output.
 
 Use **Test trigger** to start a real run immediately. It is available to the owner of an enabled scheduled routine with no unsaved changes; it uses AI credits and may change workspace data. Event-triggered routines need a real matching event, so the control is disabled for them.
 
-**Link:** the **Routines** page, `/routines`, Cloud URL `https://customermates.com/en/routines`. **Mate:** `navigate` and `highlight_element` with `nav-routines`; the routine rows, the **Details** and **Runs** tabs, **Run details** and **Test trigger** are not highlight targets, so Mate names them. Mate can also read run history with `manage_routines`.
+**Link:** the **Routines** page, `/routines`. **Mate:** `navigate` and `highlight_element` with `nav-routines`; the routine rows, the **Details** and **Runs** tabs, **Run details** and **Test trigger** are not highlight targets, so Mate names them. Mate can also read run history with `manage_routines`.
 
 ## What a routine may do without approval
 

@@ -3,7 +3,7 @@ title: CLI- und Editor-Clients verbinden (API-Key)
 description: "Claude Code, Codex, Cursor und die Gemini CLI per API-Key mit Customermates verbinden. Ein Abschnitt pro Client, plus Config-Fallback für Claude Desktop."
 ---
 
-Customermates ist das Open-Source-KI-CRM. Einmal verbunden, liest und schreibt Ihr Coding-Agent Contacts, Deals und Notizen, ohne das Terminal zu verlassen. Alle Clients auf dieser Seite authentifizieren sich gleich: mit einem API-Key im `x-api-key`-Header gegen `https://customermates.com/api/v1/mcp`. Wenn Sie selbst hosten, ersetzen Sie die URL überall unten durch Ihre Instanz.
+Customermates ist das Open-Source-KI-CRM. Einmal verbunden, liest und schreibt Ihr Coding-Agent Contacts, Deals und Notizen, ohne das Terminal zu verlassen. Alle Clients auf dieser Seite authentifizieren sich gleich: mit einem API-Key im `x-api-key`-Header gegen `<BASE_URL>/api/v1/mcp`, wobei `<BASE_URL>` die Adresse ist, unter der Sie Customermates öffnen, in der Cloud oder auf Ihrer eigenen Instanz.
 
 > Nutzen Sie stattdessen die **App** von Claude oder ChatGPT? Die verbinden sich mit [dem Custom Connector](/docs/connect-custom-connector) (OAuth, kein Key).
 
@@ -11,7 +11,7 @@ Customermates ist das Open-Source-KI-CRM. Einmal verbunden, liest und schreibt I
 
 Öffnen Sie in Customermates **Mein Profil → API & Konnektoren**, klicken Sie auf **Hinzufügen** und wählen Sie **Standard-API-Key**. Geben Sie ihm einen Namen, der den Client beschreibt (z.B. `Claude Code`); ohne Datum unter **Läuft ab** läuft er nie ab. Der 64-Zeichen-Key wird einmal angezeigt, also sofort kopieren. Die **Schnellverbindungen** im selben Dialog erledigen das automatisch: Dort wird der Key nach dem Client benannt, läuft nach 365 Tagen ab und steht bereits im angezeigten Setup-Snippet; darunter steht sein Ablaufdatum. Zum Anlegen eines Keys braucht Ihre Rolle **Verwalten** auf **Ja** in der Zeile **API & Webhooks**, und die Seite selbst braucht **Lesen** **Alle** in dieser Zeile; die eingebaute Rolle **Admin** hat beides. Siehe [API-Keys](/docs/api-keys). Ein Key erbt die Berechtigungen des Users, der ihn erstellt hat; einen Scope pro Key gibt es nicht. Legen Sie pro Client einen eigenen Key an, damit Sie einen Client einzeln widerrufen können, ohne die anderen zu treffen; das Audit-Log protokolliert den User, dem ein Key gehört, nicht den Key selbst. API-Keys und MCP funktionieren in jedem Tarif und auf selbst gehosteten Instanzen.
 
-**Link:** die Seite **API & Konnektoren**, `/profile/api-keys`, Cloud-URL `https://customermates.com/de/profile/api-keys`. **Mate:** `navigate` und `highlight_element` mit `nav-profile-api-keys`; `highlight_element` nimmt außerdem `profile-api-keys-generate` für **Hinzufügen** an (Rollen mit **Verwalten** auf **API & Webhooks**), danach `api-key-option-standard` für **Standard-API-Key** (Voraussetzung `profile-api-keys-generate`) sowie `api-key-name`, `api-key-expires` und `api-key-save` für **Name**, **Läuft ab** und **Speichern** (Voraussetzung `api-key-option-standard`). Die Kacheln der **Schnellverbindungen** sind keine Highlight-Ziele, deshalb nennt Mate sie beim Namen.
+**Link:** die Seite **API & Konnektoren**, `/profile/api-keys`. **Mate:** `navigate` und `highlight_element` mit `nav-profile-api-keys`; `highlight_element` nimmt außerdem `profile-api-keys-generate` für **Hinzufügen** an (Rollen mit **Verwalten** auf **API & Webhooks**), danach `api-key-option-standard` für **Standard-API-Key** (Voraussetzung `profile-api-keys-generate`) sowie `api-key-name`, `api-key-expires` und `api-key-save` für **Name**, **Läuft ab** und **Speichern** (Voraussetzung `api-key-option-standard`). Die Kacheln der **Schnellverbindungen** sind keine Highlight-Ziele, deshalb nennt Mate sie beim Namen.
 
 ## Claude Code
 
@@ -33,7 +33,7 @@ Um den Key aus einer Umgebungsvariable zu lesen, statt ihn in der Datei zu speic
 
 ```toml
 [mcp_servers.customermates]
-url = "https://customermates.com/api/v1/mcp"
+url = "<BASE_URL>/api/v1/mcp"
 env_http_headers = { "x-api-key" = "CUSTOMERMATES_API_KEY" }
 ```
 
@@ -93,7 +93,7 @@ Die verfügbaren Record-Typen sind Contact, Organization, Deal, Service und Task
 | Alle | Eine Verbindung, die funktioniert hat, scheitert jetzt mit „Your user account is inactive. Contact a workspace administrator.“ | Der Besitzer des Keys steht auf **Inaktiv** | Ein Mitglied mit **Verwalten** auf **Benutzer & Rollen** setzt ihn unter **Mein Unternehmen → Mitglieder** wieder auf **Aktiv**; danach funktioniert der vorhandene Key wieder |
 | Alle | Relation-Update wird abgelehnt | `update_*`-Tools akzeptieren keine Relations-ID-Felder; nur `services` in `update_deals` wird angenommen und ersetzt die gesamte Service-Liste des Deals | Den Agent bitten, `manage_record_links` zum Hinzufügen oder Entfernen von Verknüpfungen zu nutzen |
 
-**Link:** die Seite **API & Konnektoren**, `/profile/api-keys`, Cloud-URL `https://customermates.com/de/profile/api-keys`, und die Seite **Mitglieder**, `/company/members`, Cloud-URL `https://customermates.com/de/company/members`. **Mate:** `navigate` und `highlight_element` mit `nav-profile-api-keys` oder `nav-company-members`, und `highlight_element` mit `profile-api-keys-generate` für **Hinzufügen** (Rollen mit **Verwalten** auf **API & Webhooks**); die Key-Karten und die Zeilen der Mitglieder sind keine Highlight-Ziele, deshalb nennt Mate sie beim Namen; ist eine Mitgliedszeile geöffnet, heben `member-modal-status` **Status** und `member-modal-save` **Speichern** im Dialog **Benutzer** hervor (Rollen mit **Verwalten** auf **Benutzer & Rollen**).
+**Link:** die Seite **API & Konnektoren**, `/profile/api-keys`, und die Seite **Mitglieder**, `/company/members`. **Mate:** `navigate` und `highlight_element` mit `nav-profile-api-keys` oder `nav-company-members`, und `highlight_element` mit `profile-api-keys-generate` für **Hinzufügen** (Rollen mit **Verwalten** auf **API & Webhooks**); die Key-Karten und die Zeilen der Mitglieder sind keine Highlight-Ziele, deshalb nennt Mate sie beim Namen; ist eine Mitgliedszeile geöffnet, heben `member-modal-status` **Status** und `member-modal-save` **Speichern** im Dialog **Benutzer** hervor (Rollen mit **Verwalten** auf **Benutzer & Rollen**).
 
 ## Weiter
 

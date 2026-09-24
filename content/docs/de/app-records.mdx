@@ -9,7 +9,7 @@ Customermates hat fünf Datensatztypen: Kontakte, Organisationen, Deals, Service
 
 Jeder Datensatztyp hat dieselben drei Oberflächen:
 
-- **Liste** unter `/{type}` (zum Beispiel `/contacts`), locale-präfixiert wie `https://customermates.com/de/contacts`. Suche, Filter, Sortierung, gespeicherte Ansichten und Massenaktionen leben hier.
+- **Liste** unter `/{type}` (zum Beispiel `/contacts`), locale-präfixiert wie `/de/contacts`. Suche, Filter, Sortierung, gespeicherte Ansichten und Massenaktionen leben hier.
 - **Drawer zum Hinzufügen**: Der Button **Hinzufügen** öffnet ein Formular über der Liste; der Deep-Link ist `?open={entityType}:new` (zum Beispiel `/contacts?open=contact:new`) und funktioniert auf jeder App-Seite. Der Drawer dient nur dem Anlegen; bestehende Datensätze öffnen sich auf ihrer Detailseite. Der Button **Hinzufügen** in der Sidebar (`#nav-add`) öffnet **Neu anlegen…**, das die Datensatztypen auflistet, die Ihre Rolle verwalten darf, und von jeder Seite denselben Drawer öffnet.
 - **Detailseite** unter `/{type}/{id}` (zum Beispiel `/contacts/<id>`, wobei die Id die UUID des Datensatzes ist) für den vollen Datensatz, Custom Fields, Relationen und das Löschen. Sie öffnet mit einer Übersicht der wichtigsten Felder; jedes Feld trägt ein Pin-Steuerelement (ohne stabile Id), das es dieser Übersicht hinzufügt oder daraus entfernt. **Anpassen** in der Topbar lässt Sie außerdem Felder ausblenden oder in eine andere Reihenfolge ziehen, **Fertig** beendet das. Diese Einstellungen gelten pro Person, zwei Kolleginnen können denselben Datensatz also durch unterschiedliche Übersichten lesen.
 
@@ -17,7 +17,7 @@ Eine Detailseite hat die Bereiche **Übersicht**, **Notizen** und **Aktivitäten
 
 Zeilen tragen nie eine DOM-Id. Öffnen Sie einen Datensatz über seine Detail-URL, nie durch Klick auf eine per Id gesuchte Zeile. Ein Workspace kann die Datensatztypen unter **Datenmodell** umbenennen ([Unternehmenseinstellungen](/docs/app-company#how-do-i-rename-record-types-in-the-data-model)); Routen, Ids und `entityType`-Werte bleiben gleich.
 
-**Link:** die Seite **Kontakte**, `/contacts`, Cloud-URL `https://customermates.com/de/contacts` (ebenso `/organizations`, `/deals`, `/services`, `/tasks`). **Mate:** `navigate` und `highlight_element` mit `nav-contacts` (oder `nav-{type}`), `navigate` mit Entität und recordId für eine Detailseite und `highlight_element` mit `contacts-add` (oder `{type}-add`) für **Hinzufügen**; **Hinzufügen** in der Sidebar, der Drawer, die Bereiche und die Pin-Steuerelemente sind keine Highlight-Ziele, deshalb nennt Mate sie beim Namen.
+**Link:** die Seite **Kontakte**, `/contacts` (ebenso `/organizations`, `/deals`, `/services`, `/tasks`). **Mate:** `navigate` und `highlight_element` mit `nav-contacts` (oder `nav-{type}`), `navigate` mit Entität und recordId für eine Detailseite und `highlight_element` mit `contacts-add` (oder `{type}-add`) für **Hinzufügen**; **Hinzufügen** in der Sidebar, der Drawer, die Bereiche und die Pin-Steuerelemente sind keine Highlight-Ziele, deshalb nennt Mate sie beim Namen.
 
 ## Welche Ids hat jede Liste?
 
@@ -35,7 +35,7 @@ In jedem Popover **Darstellung** sind die Layout-Steuerelemente `#{type}-layout-
 
 Wer welches Steuerelement sieht, hängt von der Zeile der Rolle für diesen Datensatztyp ab ([Rollen](/docs/app-company#how-does-the-role-editor-work)): **Lesen** **Zugewiesen** oder **Alle** zeigt den Sidebar-Eintrag, die Liste, die Suche und **Exportieren**, wobei **Zugewiesen** sie auf Datensätze beschränkt, denen Sie zugewiesen sind, und **Verwalten** **Ja** ergänzt **Hinzufügen**, **Aus Datei hinzufügen**, die Massenaktionen **Aktualisieren** und **Ausgewählte löschen** sowie **Speichern** und **Löschen** auf der Detailseite.
 
-**Link:** die Seite **Kontakte**, `/contacts`, Cloud-URL `https://customermates.com/de/contacts` (ebenso `/organizations`, `/deals`, `/services`, `/tasks`). **Mate:** `navigate` und `highlight_element` mit `nav-contacts` (oder `nav-{type}`); `{type}-add`, `{type}-search`, `{type}-filter`, `{type}-display-options` und `{type}-transfer` sind Highlight-Ziele, `{type}-layout-table` und `{type}-layout-board` bei geöffneter **Darstellung**; die Tabs der gespeicherten Ansichten, die Auswahlleiste, **Aktualisieren** und **Ausgewählte löschen** sind es nicht, deshalb nennt Mate sie beim Namen.
+**Link:** die Seite **Kontakte**, `/contacts` (ebenso `/organizations`, `/deals`, `/services`, `/tasks`). **Mate:** `navigate` und `highlight_element` mit `nav-contacts` (oder `nav-{type}`); `{type}-add`, `{type}-search`, `{type}-filter`, `{type}-display-options` und `{type}-transfer` sind Highlight-Ziele, `{type}-layout-table` und `{type}-layout-board` bei geöffneter **Darstellung**; die Tabs der gespeicherten Ansichten, die Auswahlleiste, **Aktualisieren** und **Ausgewählte löschen** sind es nicht, deshalb nennt Mate sie beim Namen.
 
 ## Wie importiere oder exportiere ich Datensätze?
 
@@ -45,7 +45,7 @@ Das Transfer-Menü (`#{type}-transfer`, zum Beispiel `#contacts-transfer`) auf j
 
 Der Wizard liest das erste Blatt, das nicht "Schema" heißt, und eine Arbeitsmappe darf höchstens 12 Blätter haben. Neue Kontakte brauchen Vor- und Nachnamen, neue Services einen Namen und einen Preis (**Betrag**), die übrigen Typen einen Namen. Verknüpfungsspalten werden über den Datensatznamen zugeordnet, ohne Beachtung der Groß- und Kleinschreibung, und ein Name, der keinen oder mehrere Datensätze trifft, wird markiert; Kanäle kommen nur zu neuen Kontakten hinzu. Zeilen mit Problemen lassen sich überspringen ("Rest importieren und N Zeilen überspringen"), und eine exportierte Arbeitsmappe können Sie bearbeiten und wieder einlesen, wobei ihre Spalte **Datensatz-ID** diese Datensätze aktualisiert. **Exportieren** braucht **Lesen** auf dem Datensatztyp, **Aus Datei hinzufügen** braucht **Verwalten**.
 
-**Link:** die Listenseite jedes Typs, zum Beispiel die Seite **Kontakte**, `/contacts`, Cloud-URL `https://customermates.com/de/contacts`. **Mate:** `navigate` und `highlight_element` mit `contacts-transfer` (oder `{type}-transfer`); **Exportieren**, **Aus Datei hinzufügen** und die Schritte des Wizards sind keine Highlight-Ziele, deshalb nennt Mate sie beim Namen.
+**Link:** die Listenseite jedes Typs, zum Beispiel die Seite **Kontakte**, `/contacts`. **Mate:** `navigate` und `highlight_element` mit `contacts-transfer` (oder `{type}-transfer`); **Exportieren**, **Aus Datei hinzufügen** und die Schritte des Wizards sind keine Highlight-Ziele, deshalb nennt Mate sie beim Namen.
 
 ## Wie funktionieren gespeicherte Ansichten, und kann ich eine mit dem Team teilen? [#how-do-saved-views-work]
 
@@ -58,7 +58,7 @@ Die Tabs der gespeicherten Ansichten sitzen direkt unter dem Header jeder Listen
 
 Eine Ansicht wird über den Query-Parameter `view` adressiert, zum Beispiel `/deals?view=<id>`; ohne Parameter gilt die gemerkte Auswahl. Mit `view=__all__` öffnen Sie **Alle** ausdrücklich. Die Tabs selbst tragen keine Ids, wechseln Sie Ansichten also über die URL statt über einen per Id gesuchten Tab.
 
-**Link:** jede Listenseite, zum Beispiel die Seite **Deals**, `/deals`, Cloud-URL `https://customermates.com/de/deals`; eine gespeicherte Ansicht öffnet sich unter `/deals?view=<id>` nur für die Person, die sie angelegt hat. **Mate:** `navigate` und `highlight_element` mit `nav-deals` (oder `nav-{type}`); die Ansichts-Tabs, **Neue Ansicht** und **Ansichtsaktionen** sind keine Highlight-Ziele, deshalb nennt Mate sie beim Namen.
+**Link:** jede Listenseite, zum Beispiel die Seite **Deals**, `/deals`; eine gespeicherte Ansicht öffnet sich unter `/deals?view=<id>` nur für die Person, die sie angelegt hat. **Mate:** `navigate` und `highlight_element` mit `nav-deals` (oder `nav-{type}`); die Ansichts-Tabs, **Neue Ansicht** und **Ansichtsaktionen** sind keine Highlight-Ziele, deshalb nennt Mate sie beim Namen.
 
 ## Welche Ids haben der Drawer und die Detailseite?
 
@@ -76,13 +76,13 @@ Diese Ids teilen sich alle Datensatztypen. Es sind DOM-Ids für externe Browser-
 
 `#entity-edit-fields` (**Feld bearbeiten**) gehört zu Detailseiten ohne **Anpassen**; keiner der fünf Datensatztypen hat eine solche, nutzen Sie also **Anpassen**.
 
-**Link:** eine Detailseite, `/contacts/<id>` (ebenso `/organizations/<id>`, `/deals/<id>`, `/services/<id>`, `/tasks/<id>`), Cloud-URL `https://customermates.com/de/contacts/<id>`. **Mate:** `navigate` mit der Entität und ihrer recordId; die Topbar-Buttons, der Drawer, die Auswahlleiste, **Aktualisieren** und **Ausgewählte löschen** sind keine Highlight-Ziele, deshalb nennt Mate sie beim Namen.
+**Link:** eine Detailseite, `/contacts/<id>` (ebenso `/organizations/<id>`, `/deals/<id>`, `/services/<id>`, `/tasks/<id>`). **Mate:** `navigate` mit der Entität und ihrer recordId; die Topbar-Buttons, der Drawer, die Auswahlleiste, **Aktualisieren** und **Ausgewählte löschen** sind keine Highlight-Ziele, deshalb nennt Mate sie beim Namen.
 
 ### Wie aktualisiere oder lösche ich viele Datensätze auf einmal? [#how-do-i-bulk-update-or-delete-many-records-at-once]
 
 Das Anhaken von Zeilen öffnet die Auswahlleiste. Sie zählt die ausgewählten Datensätze und die nicht in der aktuellen Ansicht sichtbaren und bietet nach einer Filteränderung **Nur sichtbare Zeilen behalten** an. Neben **Ausgewählte löschen** hat sie **Aktualisieren**, das ein Custom Field auf allen ausgewählten Datensätzen setzt oder leert (**Auf Auswahl anwenden**, **Feld leeren**); eingebaute Felder lassen sich nicht gesammelt bearbeiten. Sie können bis zu 100 Datensätze gleichzeitig auswählen, und beide Aktionen brauchen **Verwalten** auf diesem Datensatztyp.
 
-**Link:** eine Listenseite, `/contacts` (ebenso `/organizations`, `/deals`, `/services`, `/tasks`), Cloud-URL `https://customermates.com/de/contacts`. **Mate:** `navigate` und `highlight_element` mit `nav-contacts` oder dem passenden `nav-<type>`; die Checkboxen der Zeilen, die Auswahlleiste, **Aktualisieren** und **Ausgewählte löschen** (`#mass-delete`) sind keine Highlight-Ziele, deshalb nennt Mate sie beim Namen.
+**Link:** eine Listenseite, `/contacts` (ebenso `/organizations`, `/deals`, `/services`, `/tasks`). **Mate:** `navigate` und `highlight_element` mit `nav-contacts` oder dem passenden `nav-<type>`; die Checkboxen der Zeilen, die Auswahlleiste, **Aktualisieren** und **Ausgewählte löschen** (`#mass-delete`) sind keine Highlight-Ziele, deshalb nennt Mate sie beim Namen.
 
 ## Was ist das Besondere an jedem Datensatztyp?
 
@@ -96,7 +96,7 @@ Das Anhaken von Zeilen öffnet die Auswahlleiste. Sie zählt die ausgewählten D
 
 Alle fünf teilen dieselbe Maschinerie: dieselben Listenansichten, denselben Drawer und dieselbe Detailseite, dieselben Custom Columns, dieselben Filter und dieselbe Relationsbearbeitung. Was diese Seite über einen Typ sagt, gilt für die anderen.
 
-**Link:** die Seiten **Kontakte**, **Organisationen**, **Deals**, **Services** und **Aufgaben**, `/contacts`, `/organizations`, `/deals`, `/services`, `/tasks`, Cloud-URL zum Beispiel `https://customermates.com/de/services`. **Mate:** `navigate` und `highlight_element` mit `nav-contacts`, `nav-organizations`, `nav-deals`, `nav-services` oder `nav-tasks`; die Relations-Felder auf einer Detailseite sind keine Highlight-Ziele, deshalb nennt Mate sie beim Namen.
+**Link:** die Seiten **Kontakte**, **Organisationen**, **Deals**, **Services** und **Aufgaben**, `/contacts`, `/organizations`, `/deals`, `/services`, `/tasks`. **Mate:** `navigate` und `highlight_element` mit `nav-contacts`, `nav-organizations`, `nav-deals`, `nav-services` oder `nav-tasks`; die Relations-Felder auf einer Detailseite sind keine Highlight-Ziele, deshalb nennt Mate sie beim Namen.
 
 ## Wie wechsle ich zwischen Tabelle und Board-Ansicht?
 
@@ -108,7 +108,7 @@ Das Filter-Steuerelement öffnet eine Befehlspalette. `#filter-palette-search` g
 
 Der Button **Filter** zeigt einen Punkt, solange Filter wirken. In der Palette stehen gesetzte Filter unter **Aktive Filter**: Ein Klick darauf ändert Wert oder Bedingung (**Bedingung ändern**), **Filter entfernen** nimmt ihn heraus. Felder stehen unter **Filtern nach**, und Tippen in **Filter hinzufügen…** grenzt sie ein. Datumsfelder bieten **Vor…**, **Bis…**, **Nach…**, **Ab…** und **Zwischen…**; Erstellungs- und Änderungsdatum ergänzen 7, 30, 90 oder 365 Tage und **Eigener Zeitraum…** für eine andere Zahl von Tagen, Datumsbereich-Spalten ergänzen **Enthält…**. Bis zu 50 Filter wirken gleichzeitig ([Filter-Syntax](/docs/filter-syntax#how-do-i-filter-a-list-in-the-app)).
 
-**Link:** die Listenseite jedes Typs, zum Beispiel die Seite **Deals**, `/deals`, Cloud-URL `https://customermates.com/de/deals`. **Mate:** `navigate` und `highlight_element` mit `deals-display-options` oder `deals-filter` (oder `{type}-display-options`, `{type}-filter`), danach `deals-layout-table` oder `deals-layout-board` bei geöffneter **Darstellung**; **Gruppieren nach**, **Sortieren nach**, **Felder**, die Palette und die Seitengröße sind keine Highlight-Ziele, deshalb nennt Mate sie beim Namen.
+**Link:** die Listenseite jedes Typs, zum Beispiel die Seite **Deals**, `/deals`. **Mate:** `navigate` und `highlight_element` mit `deals-display-options` oder `deals-filter` (oder `{type}-display-options`, `{type}-filter`), danach `deals-layout-table` oder `deals-layout-board` bei geöffneter **Darstellung**; **Gruppieren nach**, **Sortieren nach**, **Felder**, die Palette und die Seitengröße sind keine Highlight-Ziele, deshalb nennt Mate sie beim Namen.
 
 ## Wie ändere ich eine Deal-Phase oder einen Aufgabenstatus auf dem Board?
 
@@ -122,7 +122,7 @@ Der Demo-Workspace bringt Beispiel-Columns mit, um das Muster zu zeigen, etwa ei
 
 Datensätze verknüpfen sich mit anderen Datensätzen über beschriftete Relations-Felder im Formular. Wählen Sie die Datensätze, dann speichern Sie. Über MCP fügt `manage_record_links` einzelne Verknüpfungen hinzu oder entfernt sie.
 
-**Link:** die Seite **Deals**, `/deals`, Cloud-URL `https://customermates.com/de/deals`, oder die Seite **Aufgaben**, `/tasks`. **Mate:** `navigate` und `highlight_element` mit `deals-display-options` (oder `tasks-display-options`) für **Gruppieren nach**, danach `deals-layout-board` bei geöffneter **Darstellung**; die Board-Spalten, die Karten und **Feld bearbeiten** sind keine Highlight-Ziele, deshalb nennt Mate sie beim Namen.
+**Link:** die Seite **Deals**, `/deals`, oder die Seite **Aufgaben**, `/tasks`. **Mate:** `navigate` und `highlight_element` mit `deals-display-options` (oder `tasks-display-options`) für **Gruppieren nach**, danach `deals-layout-board` bei geöffneter **Darstellung**; die Board-Spalten, die Karten und **Feld bearbeiten** sind keine Highlight-Ziele, deshalb nennt Mate sie beim Namen.
 
 ## Tipps für Agents
 

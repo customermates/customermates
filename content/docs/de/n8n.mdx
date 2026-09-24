@@ -33,7 +33,7 @@ Die Payload-Struktur ist unter [Webhooks](/docs/webhooks) dokumentiert. Um zu pr
 - **Google Sheets**: bei jedem neu erstellten Kontakt eine Zeile anhängen.
 - **HubSpot**: den Kontakt spiegeln.
 
-**Link:** die Seite **Webhooks**, `/company/webhooks`, Cloud-URL `https://customermates.com/de/company/webhooks`. **Mate:** `navigate` und `highlight_element` mit `nav-company-webhooks`, und `highlight_element` mit `company-webhooks-add` für **Hinzufügen** (Rollen mit **Verwalten** bei **API & Webhooks**); ist der Dialog **Webhook** geöffnet (Voraussetzung `company-webhooks-add`), heben `webhook-modal-url`, `webhook-modal-events` und `webhook-modal-secret` **URL**, **Ereignisse** und **Secret** hervor, und `webhook-modal-save` hebt **Speichern** hervor.
+**Link:** die Seite **Webhooks**, `/company/webhooks`. **Mate:** `navigate` und `highlight_element` mit `nav-company-webhooks`, und `highlight_element` mit `company-webhooks-add` für **Hinzufügen** (Rollen mit **Verwalten** bei **API & Webhooks**); ist der Dialog **Webhook** geöffnet (Voraussetzung `company-webhooks-add`), heben `webhook-modal-url`, `webhook-modal-events` und `webhook-modal-secret` **URL**, **Ereignisse** und **Secret** hervor, und `webhook-modal-save` hebt **Speichern** hervor.
 
 ## Wie lege ich aus n8n Datensätze an, lese, ändere oder lösche sie? [#how-do-i-write-to-customermates-from-n8n]
 
@@ -51,11 +51,11 @@ Nutzen Sie den **HTTP Request**-Node mit dem Header `x-api-key` aus einem n8n-Cr
 | Bis zu 100 Datensätze löschen | `DELETE /api/v1/<endpoint>/many` mit `ids` |
 | Spalten, Optionen, filterbare und sortierbare Felder sehen | `GET /api/v1/<endpoint>/configuration` |
 
-Die Basis-URL ist `https://customermates.com`, bei Self-Hosting Ihre Instanz. Ein `PATCH` gibt es nicht. Filter folgen der [Filter-Syntax](/docs/filter-syntax).
+Die Basis-URL, unten `<BASE_URL>`, ist die Adresse, unter der Sie Customermates öffnen, in der Cloud wie bei Self-Hosting. Ein `PATCH` gibt es nicht. Filter folgen der [Filter-Syntax](/docs/filter-syntax).
 
 ## Wie rufe ich MCP-Tools aus n8n auf? [#how-do-i-call-mcp-tools-from-n8n]
 
-Für die meisten n8n-Jobs sind die REST-Endpunkte oben einfacher. Um stattdessen ein MCP-Tool aufzurufen, senden Sie `POST https://customermates.com/api/v1/mcp` mit diesen Headern:
+Für die meisten n8n-Jobs sind die REST-Endpunkte oben einfacher. Um stattdessen ein MCP-Tool aufzurufen, senden Sie `POST <BASE_URL>/api/v1/mcp` mit diesen Headern:
 
 - `Content-Type: application/json`
 - `Accept: application/json, text/event-stream` (ohne ihn antwortet der Endpoint mit `406 Not Acceptable`)
@@ -83,7 +83,7 @@ Lebenszyklus-Werte von Deals und Aufgaben wie Status oder Priorität sind pro Wo
 
 Legen Sie den Key in Customermates unter **Mein Profil → API & Konnektoren** mit **Hinzufügen** und **Standard-API-Key** an; dafür braucht Ihre Rolle **Verwalten** **Ja** in der Zeile **API & Webhooks**, und die Seite selbst braucht **Lesen** **Alle** in dieser Zeile. Speichern Sie den API-Key als n8n-**Header Auth**-Credential mit dem Header-Namen `x-api-key`. Verwenden Sie ihn über Nodes hinweg wieder, damit Sie ihn an einer Stelle ersetzen. Keys bestehen aus 64 ASCII-Buchstaben (`a-z`, `A-Z`) und erben die Berechtigungen des besitzenden Users; ein Scoping pro Key gibt es nicht. Ein falscher, abgelaufener oder gelöschter Key erhält HTTP `401`, ein Key, dessen Besitzer auf **Inaktiv** steht, `403`. Siehe [API-Keys](/docs/api-keys).
 
-**Link:** die Seite **API & Konnektoren**, `/profile/api-keys`, Cloud-URL `https://customermates.com/de/profile/api-keys`. **Mate:** `navigate` und `highlight_element` mit `nav-profile-api-keys`; `highlight_element` nimmt außerdem `profile-api-keys-generate` für **Hinzufügen** an (Rollen mit **Verwalten** auf **API & Webhooks**), danach `api-key-option-standard` für **Standard-API-Key** (Voraussetzung `profile-api-keys-generate`) sowie `api-key-name`, `api-key-expires` und `api-key-save` für **Name**, **Läuft ab** und **Speichern** (Voraussetzung `api-key-option-standard`). Die Kacheln der **Schnellverbindungen** sind keine Highlight-Ziele, deshalb nennt Mate sie beim Namen.
+**Link:** die Seite **API & Konnektoren**, `/profile/api-keys`. **Mate:** `navigate` und `highlight_element` mit `nav-profile-api-keys`; `highlight_element` nimmt außerdem `profile-api-keys-generate` für **Hinzufügen** an (Rollen mit **Verwalten** auf **API & Webhooks**), danach `api-key-option-standard` für **Standard-API-Key** (Voraussetzung `profile-api-keys-generate`) sowie `api-key-name`, `api-key-expires` und `api-key-save` für **Name**, **Läuft ab** und **Speichern** (Voraussetzung `api-key-option-standard`). Die Kacheln der **Schnellverbindungen** sind keine Highlight-Ziele, deshalb nennt Mate sie beim Namen.
 
 ## Was sind typische Fallstricke?
 

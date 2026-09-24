@@ -3,13 +3,13 @@ title: "Dashboard-Widgets und Aktivitätsverlauf"
 description: "Der Startbildschirm nach der Anmeldung: Diagramm- und Aktivitätsverlauf-Widgets über Ihren CRM-Daten, der Widget-Editor und die stabilen Anchor-Ids für Agents."
 ---
 
-Customermates ist ein Open-Source-CRM, KI-nativ gebaut. Diese Seite dokumentiert den Screen **Dashboard** der Web-App für Menschen und für KI-Agents, die die UI steuern. Route: `/dashboard`, locale-präfixiert wie `https://customermates.com/de/dashboard`, Sidebar-Id `#nav-dashboard` (**Dashboard**).
+Customermates ist ein Open-Source-CRM, KI-nativ gebaut. Diese Seite dokumentiert den Screen **Dashboard** der Web-App für Menschen und für KI-Agents, die die UI steuern. Route: `/dashboard`, locale-präfixiert wie `/de/dashboard`, Sidebar-Id `#nav-dashboard` (**Dashboard**).
 
 ## Was zeigt das Dashboard?
 
 Das Dashboard ist der Startbildschirm nach der Anmeldung. Es zeigt konfigurierbare Widgets über Ihren CRM-Daten: Pipelines, Aufgabenzahlen, letzte Aktivität, was immer Sie einrichten. Jedes Widget gehört Ihnen als Nutzer; Teammitglieder sehen es erst, wenn Sie es mit **Als Vorlage freigeben** teilen, und starten daraus ihre eigene Kopie. Zum Hinzufügen von Widgets ist keine Rollenberechtigung nötig, aber ein Diagramm zählt nur die Datensätze, die Ihre Rolle lesen darf (**Lesen** **Zugewiesen** oder **Alle**), deshalb kann die Kopie Ihrer Vorlage bei einem Teammitglied andere Zahlen zeigen. **Widget hinzufügen** erscheint nur, wenn Ihre Rolle mindestens einen Datensatztyp lesen darf; die Art **Aktivitätsverlauf** braucht Lesezugriff auf das **Audit-Log** oder, in einem Tarif mit Messaging, auf **Inbox-Nachrichten**.
 
-**Link:** die Seite **Dashboard**, `/dashboard`, Cloud-URL `https://customermates.com/de/dashboard`. **Mate:** `navigate` und `highlight_element` mit `nav-dashboard` oder `dashboard-add-widget`; im Editor sind auch `widget-modal-save` (**Widget erstellen** in Schritt 2, **Änderungen speichern** beim Bearbeiten) und `widget-modal-reset` (**Zurücksetzen**, beim Bearbeiten mit ungespeicherten Änderungen) Ziele, die Tabs, Schalter und Widgets dagegen nicht, deshalb nennt Mate sie beim Namen.
+**Link:** die Seite **Dashboard**, `/dashboard`. **Mate:** `navigate` und `highlight_element` mit `nav-dashboard` oder `dashboard-add-widget`; im Editor sind auch `widget-modal-save` (**Widget erstellen** in Schritt 2, **Änderungen speichern** beim Bearbeiten) und `widget-modal-reset` (**Zurücksetzen**, beim Bearbeiten mit ungespeicherten Änderungen) Ziele, die Tabs, Schalter und Widgets dagegen nicht, deshalb nennt Mate sie beim Namen.
 
 ## Welche Widget-Typen gibt es?
 
@@ -20,7 +20,7 @@ Drücken Sie **Widget hinzufügen** (`#dashboard-add-widget`); die Erstellung be
 
 Über MCP listet, liest, erstellt, aktualisiert und löscht `manage_widgets` beide Arten mit einem reduzierten Optionsumfang: Ein Diagramm entsteht aus Name, Datensatztyp, Darstellungstyp, Gruppierung und Aggregation plus optionalen Filtern und Gruppierungs-Column, und ein Update kann alles außer dem Datensatztyp und der Widget-Art ändern (Name, Darstellungstyp, Aggregation, Gruppierung, Filter, Achsenrichtung, Balkenfarben); **Als Vorlage freigeben**, **Legende anzeigen**, **Optionsfarben verwenden** und **Kennzahl und Filter anzeigen** lassen sich nur in der App setzen. Ein Verlauf nimmt Name, Verlaufsfilter und das Flag zum Anzeigen der Filter.
 
-**Link:** die Seite **Dashboard**, `/dashboard`, Cloud-URL `https://customermates.com/de/dashboard`. **Mate:** `navigate` und `highlight_element` mit `dashboard-add-widget` für **Widget hinzufügen**; die Auswahl von Art und Vorlage im Editor ist kein Highlight-Ziel, deshalb nennt Mate sie beim Namen.
+**Link:** die Seite **Dashboard**, `/dashboard`. **Mate:** `navigate` und `highlight_element` mit `dashboard-add-widget` für **Widget hinzufügen**; die Auswahl von Art und Vorlage im Editor ist kein Highlight-Ziel, deshalb nennt Mate sie beim Namen.
 
 ### Was kann ein Aktivitätsverlauf zeigen?
 
@@ -47,7 +47,7 @@ Das Hinzufügen ist ein Assistent in zwei Schritten (**Schritt 1 von 2**). Schri
 
 Um ein Widget zu ändern, klicken Sie es an oder klicken Sie auf einen seiner Filter-Chips, um den Editor bei diesem Filter zu öffnen. Der Editor trägt den Namen des Widgets mit **bearbeiten** im Titel; `#widget-modal-save` heißt dann **Änderungen speichern**, und `#widget-modal-reset` (**Zurücksetzen**) erscheint, sobald Sie etwas ändern, und stellt die gespeicherten Werte wieder her. Das Papierkorb-Symbol **Widget löschen** in der Kopfzeile des Editors entfernt das Widget nach einer Bestätigung. Ziehen Sie ein Widget, um es zu verschieben, und ziehen Sie an einer Kante oder Ecke, um seine Größe zu ändern; das Verschieben ist auf Touch-Geräten ausgeschaltet. Das Layout wird nur für Sie gespeichert.
 
-**Link:** die Seite **Dashboard**, `/dashboard`, Cloud-URL `https://customermates.com/de/dashboard`. **Mate:** `navigate` und `highlight_element` mit `dashboard-add-widget`, danach `widget-modal-save` (**Widget erstellen** / **Änderungen speichern**) oder `widget-modal-reset` (**Zurücksetzen**), sobald der Editor offen ist, für **Zurücksetzen** also, nachdem die Person ein Widget angeklickt hat (`list_ui_targets` nennt `a widget card` als Voraussetzung); die Tabs, **Zurück**, **Widget löschen** und die Widgets selbst sind keine Highlight-Ziele, deshalb nennt Mate sie beim Namen.
+**Link:** die Seite **Dashboard**, `/dashboard`. **Mate:** `navigate` und `highlight_element` mit `dashboard-add-widget`, danach `widget-modal-save` (**Widget erstellen** / **Änderungen speichern**) oder `widget-modal-reset` (**Zurücksetzen**), sobald der Editor offen ist, für **Zurücksetzen** also, nachdem die Person ein Widget angeklickt hat (`list_ui_targets` nennt `a widget card` als Voraussetzung); die Tabs, **Zurück**, **Widget löschen** und die Widgets selbst sind keine Highlight-Ziele, deshalb nennt Mate sie beim Namen.
 
 ## Welche Controls bringt die Sidebar mit?
 

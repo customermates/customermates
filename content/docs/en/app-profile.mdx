@@ -9,25 +9,25 @@ Customermates is an open-source, AI-native CRM. This page documents the **My Pro
 
 Everything that belongs to you as a user rather than to the company: your profile and preferences (**Settings**), the messaging channels you connect (**Channels**) and your API keys for MCP and REST clients (**API & Connectors**). Most changes here affect only you. Channels are the exception: a channel you share becomes visible to your teammates, and disconnecting a shared channel removes it for them too.
 
-In the sidebar group **Workspace**, **My Profile** (`#nav-profile`) only expands or collapses its entries; it opens no page itself. Its entries open the pages, each on its own route, and the breadcrumb reads **My Profile › Settings** with a switcher to the other pages you can see. URLs are locale-prefixed, for example `https://customermates.com/en/profile/settings`.
+In the sidebar group **Workspace**, **My Profile** (`#nav-profile`) only expands or collapses its entries; it opens no page itself. Its entries open the pages, each on its own route, and the breadcrumb reads **My Profile › Settings** with a switcher to the other pages you can see. The browser address puts the language in front of the route, for example `/en/profile/settings`.
 
-The Cloud URLs are the English ones; swap `/en/` for the user's app language (`/de/`, `/fr/`, `/it/` or `/es/`). Mate, the hosted assistant, opens a page with `navigate` and outlines a control on the current page with `highlight_element`; it cannot click. The `nav-*` ids in the Navigate column also work with `highlight_element` and point at the sidebar entry; `nav-profile` points at the **My Profile** toggle. A sidebar entry can be highlighted only while **My Profile** is expanded. It is expanded by default on its own pages, unless the member collapses it. On a phone the sidebar must be open, and a sidebar collapsed to icons hides the entries. A control without a target is named by Mate instead, and a target in a dialog exists only while the user has that dialog open.
+Routes are relative and carry no language prefix: they work on the address the workspace runs on, and the app adds the user's language, so `/profile/settings` opens `/en/profile/settings` for an English user. For a full link, put the route after the origin of the `url` that `search_docs` and `get_docs_page` return. Mate, the hosted assistant, opens a page with `navigate` and outlines a control on the current page with `highlight_element`; it cannot click. The `nav-*` ids in the Navigate column also work with `highlight_element` and point at the sidebar entry; `nav-profile` points at the **My Profile** toggle. A sidebar entry can be highlighted only while **My Profile** is expanded. It is expanded by default on its own pages, unless the member collapses it. On a phone the sidebar must be open, and a sidebar collapsed to icons hides the entries. A control without a target is named by Mate instead, and a target in a dialog exists only while the user has that dialog open.
 
 **Settings** is listed for every member. **Channels** is listed on Customermates Cloud only, when your role's **Inbox messages** row has **Read access** **All**; on self-hosted its targets are still offered, but the page redirects to the Dashboard. **API & Connectors** is listed when the **API & Webhooks** row has **Read access** **All**.
 
 Roles are edited under **My Company › Roles** by a member whose role has **Manage** on **Users & Roles**; see [App guide, Company](/docs/app-company). A new custom role starts with **Read access** **None** on both rows, so its members see only **Settings** until someone changes the role. The **Admin** role sees every entry the installation offers. Opening a hidden page by its URL brings you back to the Dashboard.
 
-| Page | Route and Cloud URL | Navigate target | Highlight targets on the page | Explained in |
+| Page | Route | Navigate target | Highlight targets on the page | Explained in |
 |---|---|---|---|---|
-| **Settings** | `/profile/settings`, `https://customermates.com/en/profile/settings` | `nav-profile-settings`, also `nav-profile` | `profile-settings-verify-email`, `profile-settings-first-name`, `profile-settings-last-name`, `profile-settings-country`, `profile-settings-avatar-url`, `profile-settings-display-language`, `profile-settings-formatting-locale`, `profile-settings-theme`, `profile-settings-save`, `profile-settings-reset` | [Settings](#settings-tab) |
-| **Channels** | `/profile/connected-accounts`, `https://customermates.com/en/profile/connected-accounts` | `nav-profile-connected-accounts`, also `profile-connected-accounts-connect` | `profile-connected-accounts-connect`; in the channel dialog `connected-account-tab-details`, `connected-account-visibility`, `connected-account-tab-email`, `connected-account-signature`, `connected-account-email-save`, `connected-account-tab-folders`, `connected-account-reactivate`, `connected-account-resync`, `connected-account-disconnect` | [Channels](#channels-tab) |
-| **API & Connectors** | `/profile/api-keys`, `https://customermates.com/en/profile/api-keys` | `nav-profile-api-keys` | `profile-api-keys-generate`; in the key dialog `api-key-option-standard`, `api-key-name`, `api-key-expires`, `api-key-save`, `api-key-delete` | [API & Connectors](#api--connectors-tab) |
+| **Settings** | `/profile/settings` | `nav-profile-settings`, also `nav-profile` | `profile-settings-verify-email`, `profile-settings-first-name`, `profile-settings-last-name`, `profile-settings-country`, `profile-settings-avatar-url`, `profile-settings-display-language`, `profile-settings-formatting-locale`, `profile-settings-theme`, `profile-settings-save`, `profile-settings-reset` | [Settings](#settings-tab) |
+| **Channels** | `/profile/connected-accounts` | `nav-profile-connected-accounts`, also `profile-connected-accounts-connect` | `profile-connected-accounts-connect`; in the channel dialog `connected-account-tab-details`, `connected-account-visibility`, `connected-account-tab-email`, `connected-account-signature`, `connected-account-email-save`, `connected-account-tab-folders`, `connected-account-reactivate`, `connected-account-resync`, `connected-account-disconnect` | [Channels](#channels-tab) |
+| **API & Connectors** | `/profile/api-keys` | `nav-profile-api-keys` | `profile-api-keys-generate`; in the key dialog `api-key-option-standard`, `api-key-name`, `api-key-expires`, `api-key-save`, `api-key-delete` | [API & Connectors](#api--connectors-tab) |
 
 ## Settings tab
 
 Route `/profile/settings`, sidebar entry **Settings**. Every signed-in member can open it, whatever the role, and the form changes only your own profile. Save or discard with **Save** (`#profile-settings-save`) and **Reset** (`#profile-settings-reset`) below the form; both buttons appear once the form has unsaved changes. **Save** stores all fields at once.
 
-**Link:** the **Settings** page, `/profile/settings`, Cloud URL `https://customermates.com/en/profile/settings`. **Mate:** `navigate` and `highlight_element` with `nav-profile-settings`; `highlight_element` also takes the field ids below without `#`, `profile-settings-verify-email` while your email is unverified, and `profile-settings-save` and `profile-settings-reset`, which are on screen only once the form has unsaved changes.
+**Link:** the **Settings** page, `/profile/settings`. **Mate:** `navigate` and `highlight_element` with `nav-profile-settings`; `highlight_element` also takes the field ids below without `#`, `profile-settings-verify-email` while your email is unverified, and `profile-settings-save` and `profile-settings-reset`, which are on screen only once the form has unsaved changes.
 
 ### How do I change my name, avatar, language or theme?
 
@@ -46,13 +46,13 @@ The header above the form shows your name, your email address, **Email verified*
 
 The avatar menu at the bottom of the sidebar has a **Dark Mode** or **Light Mode** switch that also saves your theme, and **Sign Out**.
 
-**Link:** `/profile/settings`, Cloud URL `https://customermates.com/en/profile/settings`. **Mate:** `navigate` and `highlight_element` with `nav-profile-settings`, then `highlight_element` with the field id in this table without `#`, for example `profile-settings-first-name`, `profile-settings-avatar-url` or `profile-settings-theme`, and `profile-settings-save` once something changed. The header and the avatar menu have no target, so Mate names them.
+**Link:** `/profile/settings`. **Mate:** `navigate` and `highlight_element` with `nav-profile-settings`, then `highlight_element` with the field id in this table without `#`, for example `profile-settings-first-name`, `profile-settings-avatar-url` or `profile-settings-theme`, and `profile-settings-save` once something changed. The header and the avatar menu have no target, so Mate names them.
 
 ### How do I verify my email address?
 
 While your address is unverified, the sidebar shows **Email not verified** under the brand name; it opens this page, where the top bar offers **Resend verification email**. A new account can be used for 24 hours without verification. After that, every page redirects to the verification screen until you confirm the address with the link from the email.
 
-**Link:** `/profile/settings`, Cloud URL `https://customermates.com/en/profile/settings`. **Mate:** `navigate` and `highlight_element` with `nav-profile-settings`; `highlight_element` also takes `profile-settings-verify-email` for **Resend verification email** (`#profile-settings-verify-email`), on screen only while your email is unverified. The **Email not verified** badge has no id, so Mate names it.
+**Link:** `/profile/settings`. **Mate:** `navigate` and `highlight_element` with `nav-profile-settings`; `highlight_element` also takes `profile-settings-verify-email` for **Resend verification email** (`#profile-settings-verify-email`), on screen only while your email is unverified. The **Email not verified** badge has no id, so Mate names it.
 
 ### What can I not change here?
 
@@ -60,7 +60,7 @@ There is no setting for your password, email address, time zone, notifications o
 
 In the assistant and over MCP, `update_workspace_settings` with `target: "profile"` changes **First Name**, **Last Name**, **Country** and **Avatar URL** only. **Display Language**, **Formatting Locale** and **Theme** are set in the app only. The REST API reads your profile with `GET /v1/users/me` but cannot change it.
 
-**Link:** `/profile/settings`, Cloud URL `https://customermates.com/en/profile/settings`. **Mate:** `navigate` and `highlight_element` with `nav-profile-settings`; **Sign Out** and the sign-in page with **Forgot password?** have no target, so Mate names them.
+**Link:** `/profile/settings`. **Mate:** `navigate` and `highlight_element` with `nav-profile-settings`; **Sign Out** and the sign-in page with **Forgot password?** have no target, so Mate names them.
 
 ## API & Connectors tab [#api--connectors-tab]
 
@@ -78,7 +78,7 @@ The quick route offers four tiles: **Claude**, **ChatGPT & Codex**, **Cursor** a
 
 There is no rotate or revoke button: create a new key, update the client, then delete the old one. Taking **API & Webhooks** away from a role does not disable keys its members already hold; to stop a member's keys, set that member **Inactive** under **My Company › Members**.
 
-**Link:** the **API & Connectors** page, `/profile/api-keys`, Cloud URL `https://customermates.com/en/profile/api-keys`. **Mate:** `navigate` and `highlight_element` with `nav-profile-api-keys`; `highlight_element` also takes `profile-api-keys-generate` for **Add** (roles with **API & Webhooks** **Manage**). In the dialog it takes `api-key-option-standard` (prerequisite `profile-api-keys-generate`), then `api-key-name`, `api-key-expires` and `api-key-save` (prerequisite `api-key-option-standard`; **Save** is enabled once something changed), and `api-key-delete` once the user has opened a key from its card. The quick connection tiles and the key cards have no target, so Mate names them.
+**Link:** the **API & Connectors** page, `/profile/api-keys`. **Mate:** `navigate` and `highlight_element` with `nav-profile-api-keys`; `highlight_element` also takes `profile-api-keys-generate` for **Add** (roles with **API & Webhooks** **Manage**). In the dialog it takes `api-key-option-standard` (prerequisite `profile-api-keys-generate`), then `api-key-name`, `api-key-expires` and `api-key-save` (prerequisite `api-key-option-standard`; **Save** is enabled once something changed), and `api-key-delete` once the user has opened a key from its card. The quick connection tiles and the key cards have no target, so Mate names them.
 
 ## Channels tab
 
@@ -96,7 +96,7 @@ Route `/profile/connected-accounts`, sidebar entry **Channels** (`#nav-profile-c
 | Folders tab | Channel dialog | `#connected-account-tab-folders` (**Folders** with a count, for example **Folders 4/6**) | One switch per folder; only when the account reports folders |
 | Reactivate, resync or disconnect | Channel dialog | `#connected-account-reactivate` / `#connected-account-resync` / `#connected-account-disconnect` | Owner only, with **Manage** on **Inbox messages**; **Reactivate** or **Resync** depending on the status, see below |
 
-**Link:** the **Channels** page, `/profile/connected-accounts`, Cloud URL `https://customermates.com/en/profile/connected-accounts`. **Mate:** `navigate` and `highlight_element` with `nav-profile-connected-accounts`, and `highlight_element` with `profile-connected-accounts-connect` for **Connect channel**, which is on screen only when your role may connect and the page is not locked, loading or failed; once the user has opened a channel from its card, it also takes `connected-account-tab-details`, `connected-account-visibility` (owner only), `connected-account-tab-email` (email accounts you own), `connected-account-tab-folders` (accounts with folders), `connected-account-reactivate`, `connected-account-resync` and `connected-account-disconnect` (owner only, with **Manage** on **Inbox messages**, depending on the status), and on the open **Email** tab (prerequisite `connected-account-tab-email`) `connected-account-signature` and `connected-account-email-save`. The empty-state button `#profile-connected-accounts-connect-empty` is not a highlight target, because it is shown only when the assistant is unavailable, and the cards have no target, so Mate names them.
+**Link:** the **Channels** page, `/profile/connected-accounts`. **Mate:** `navigate` and `highlight_element` with `nav-profile-connected-accounts`, and `highlight_element` with `profile-connected-accounts-connect` for **Connect channel**, which is on screen only when your role may connect and the page is not locked, loading or failed; once the user has opened a channel from its card, it also takes `connected-account-tab-details`, `connected-account-visibility` (owner only), `connected-account-tab-email` (email accounts you own), `connected-account-tab-folders` (accounts with folders), `connected-account-reactivate`, `connected-account-resync` and `connected-account-disconnect` (owner only, with **Manage** on **Inbox messages**, depending on the status), and on the open **Email** tab (prerequisite `connected-account-tab-email`) `connected-account-signature` and `connected-account-email-save`. The empty-state button `#profile-connected-accounts-connect-empty` is not a highlight target, because it is shown only when the assistant is unavailable, and the cards have no target, so Mate names them.
 
 ### Who can use Channels?
 
@@ -104,7 +104,7 @@ Seeing the page needs **Read access** **All** on your role's **Inbox messages** 
 
 The workspace plan must include messaging: Pro, Business, Enterprise, or a trial. On Starter the page shows **Upgrade to unlock messaging** with the button **Upgrade your plan**, which opens **My Company › Subscription**. Every action except disconnecting also needs a usable subscription, meaning status **Active** or a trial that has not ended; otherwise it is refused, and **Connect channel** shows "Connecting channels requires an active subscription or a trial that hasn't expired." Self-hosted installs have no Channels page.
 
-**Link:** `/profile/connected-accounts`, Cloud URL `https://customermates.com/en/profile/connected-accounts`. **Mate:** `navigate` and `highlight_element` with `nav-profile-connected-accounts`; on Starter the locked page has no **Connect channel** target, and **Upgrade your plan** has no id, so Mate names it or navigates with `nav-company-subscription`.
+**Link:** `/profile/connected-accounts`. **Mate:** `navigate` and `highlight_element` with `nav-profile-connected-accounts`; on Starter the locked page has no **Connect channel** target, and **Upgrade your plan** has no id, so Mate names it or navigates with `nav-company-subscription`.
 
 ### How do I connect a channel?
 
@@ -125,7 +125,7 @@ Picking an entry sends the current browser tab to a secure connection page, not 
 - **Account already connected**: this account is already connected by a member of your workspace. If that is someone else, ask them to share it with the workspace instead of connecting it twice.
 - **Invalid credentials**, **Link expired**, **Verification failed**, **Account disconnected** or **Channel connection failed**: start again from **Connect channel**.
 
-**Link:** `/profile/connected-accounts`, Cloud URL `https://customermates.com/en/profile/connected-accounts`. **Mate:** `navigate` and `highlight_element` with `nav-profile-connected-accounts`, then `highlight_element` with `profile-connected-accounts-connect`; the nine menu entries have no id, so Mate names them.
+**Link:** `/profile/connected-accounts`. **Mate:** `navigate` and `highlight_element` with `nav-profile-connected-accounts`, then `highlight_element` with `profile-connected-accounts-connect`; the nine menu entries have no id, so Mate names them.
 
 ### How many channels can I connect?
 
@@ -133,7 +133,7 @@ Channels per member: Starter [[commercial.entitlement.starter.includedAccountsPe
 
 At the limit on Pro, **Connect channel** opens **Upgrade to connect more accounts** with **View plans**, which leads to **My Company › Subscription**. On Business, an error message points to Enterprise. After a downgrade, each member's newest channels above the new allowance are removed and marked **Deleted**, and members with the **Admin** role get an email.
 
-**Link:** `/profile/connected-accounts`, Cloud URL `https://customermates.com/en/profile/connected-accounts`, and `/company/subscription` for **View plans**, Cloud URL `https://customermates.com/en/company/subscription`. **Mate:** `navigate` and `highlight_element` with `nav-profile-connected-accounts`, then `highlight_element` with `profile-connected-accounts-connect`, or `nav-company-subscription` for the plans; **View plans** and the upgrade dialog have no id, so Mate names them.
+**Link:** `/profile/connected-accounts`, and `/company/subscription` for **View plans**. **Mate:** `navigate` and `highlight_element` with `nav-profile-connected-accounts`, then `highlight_element` with `profile-connected-accounts-connect`, or `nav-company-subscription` for the plans; **View plans** and the upgrade dialog have no id, so Mate names them.
 
 ### What does each status mean?
 
@@ -147,7 +147,7 @@ At the limit on Pro, **Connect channel** opens **Upgrade to connect more account
 | **Stopped** | The provider has paused the account | The owner clicks **Reactivate** |
 | **Deleted** | The account was removed at the provider, or automatically: after a plan downgrade, or by the daily clean-up once a trial has been over for a day, once a paid subscription has been **Unpaid** or **Expired** for three days, or after the owner was set **Inactive** | The card stays listed, and the owner is offered only **Disconnect**; connect the account again if the plan allows |
 
-**Link:** `/profile/connected-accounts`, Cloud URL `https://customermates.com/en/profile/connected-accounts`. **Mate:** `navigate` and `highlight_element` with `nav-profile-connected-accounts`; once the user has opened the channel, `highlight_element` takes `connected-account-resync`, `connected-account-reactivate` or `connected-account-disconnect`. The status chips and the cards are not highlight targets, so Mate names them.
+**Link:** `/profile/connected-accounts`. **Mate:** `navigate` and `highlight_element` with `nav-profile-connected-accounts`; once the user has opened the channel, `highlight_element` takes `connected-account-resync`, `connected-account-reactivate` or `connected-account-disconnect`. The status chips and the cards are not highlight targets, so Mate names them.
 
 ### Private or shared?
 
@@ -155,7 +155,7 @@ A new channel is **Private**: only you see its conversations. The owner switches
 
 Sharing needs the Business or Enterprise plan; on other plans the switch is disabled with the hint "Shared accounts require the Business plan or higher." It also needs **Manage** on **Inbox messages** and a usable subscription. Teammates see your shared channel on their Channels page, where they can open its details and folders but cannot change, reactivate, resync or disconnect it. Single conversations can also be shared from the Inbox, see [App guide, Inbox](/docs/app-inbox).
 
-**Link:** `/profile/connected-accounts`, Cloud URL `https://customermates.com/en/profile/connected-accounts`. **Mate:** `navigate` and `highlight_element` with `nav-profile-connected-accounts`; the channel card has no target, so Mate names it. Once the user has opened the channel, `highlight_element` takes `connected-account-visibility` for the **Visibility** switch (`#connected-account-visibility`), shown to the owner only and disabled below the Business plan.
+**Link:** `/profile/connected-accounts`. **Mate:** `navigate` and `highlight_element` with `nav-profile-connected-accounts`; the channel card has no target, so Mate names it. Once the user has opened the channel, `highlight_element` takes `connected-account-visibility` for the **Visibility** switch (`#connected-account-visibility`), shown to the owner only and disabled below the Business plan.
 
 ### What does the Folders tab control?
 
@@ -163,7 +163,7 @@ Email accounts whose provider reports folders get a **Folders** tab with one swi
 
 By default every folder is on except trash, junk or spam, drafts and the all-mail folder; when the provider does not label its folders, names containing junk, spam, trash, deleted, draft or outbox are treated the same way. Switching on one of the excluded folders starts a background import of its history. Only the owner with **Manage** on **Inbox messages** can switch folders; everyone else sees **Synced** or **Hidden**.
 
-**Link:** `/profile/connected-accounts`, Cloud URL `https://customermates.com/en/profile/connected-accounts`. **Mate:** `navigate` and `highlight_element` with `nav-profile-connected-accounts`; once the user has opened the channel, `highlight_element` takes `connected-account-tab-folders` for the **Folders** tab (`#connected-account-tab-folders`), shown only for accounts with folders; the folder switches are not highlight targets, so Mate names them.
+**Link:** `/profile/connected-accounts`. **Mate:** `navigate` and `highlight_element` with `nav-profile-connected-accounts`; once the user has opened the channel, `highlight_element` takes `connected-account-tab-folders` for the **Folders** tab (`#connected-account-tab-folders`), shown only for accounts with folders; the folder switches are not highlight targets, so Mate names them.
 
 ### Email appearance and signature
 
@@ -182,7 +182,7 @@ The signature is off for a new account; switch on **Add a signature** to edit it
 
 While **Add a signature** is on, the saved signature is added below every email sent from that account, whether it is sent from the Inbox, the REST API or an MCP tool, HTML bodies included, so agents must not repeat the signature in the message body.
 
-**Link:** `/profile/connected-accounts`, Cloud URL `https://customermates.com/en/profile/connected-accounts`. **Mate:** `navigate` and `highlight_element` with `nav-profile-connected-accounts`; once the user has opened the channel, `highlight_element` takes `connected-account-tab-email` for the **Email** tab (`#connected-account-tab-email`, email accounts you own), and on that open tab `connected-account-signature` for **Add a signature** (`#connected-account-signature`) and `connected-account-email-save` for **Save email settings** (`#connected-account-email-save`). The appearance and layout fields are not highlight targets, so Mate names them.
+**Link:** `/profile/connected-accounts`. **Mate:** `navigate` and `highlight_element` with `nav-profile-connected-accounts`; once the user has opened the channel, `highlight_element` takes `connected-account-tab-email` for the **Email** tab (`#connected-account-tab-email`, email accounts you own), and on that open tab `connected-account-signature` for **Add a signature** (`#connected-account-signature`) and `connected-account-email-save` for **Save email settings** (`#connected-account-email-save`). The appearance and layout fields are not highlight targets, so Mate names them.
 
 ### How do I reactivate, resync or disconnect a channel?
 
@@ -194,7 +194,7 @@ Open the channel from its card. The actions sit in the channel dialog and appear
 
 All three need **Manage** on **Inbox messages**.
 
-**Link:** `/profile/connected-accounts`, Cloud URL `https://customermates.com/en/profile/connected-accounts`. **Mate:** `navigate` and `highlight_element` with `nav-profile-connected-accounts`; after the user opens the channel from its card, `highlight_element` takes `connected-account-reactivate` for **Reactivate**, `connected-account-resync` for **Resync** and `connected-account-disconnect` for **Disconnect**, each only when the owner sees it.
+**Link:** `/profile/connected-accounts`. **Mate:** `navigate` and `highlight_element` with `nav-profile-connected-accounts`; after the user opens the channel from its card, `highlight_element` takes `connected-account-reactivate` for **Reactivate**, `connected-account-resync` for **Resync** and `connected-account-disconnect` for **Disconnect**, each only when the owner sees it.
 
 ## Tips for agents
 

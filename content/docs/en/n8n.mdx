@@ -33,7 +33,7 @@ The payload shape is documented at [Webhooks](/docs/webhooks). To check that a d
 - **Google Sheets**: append a row every time a contact is created.
 - **HubSpot**: mirror the contact.
 
-**Link:** the **Webhooks** page, `/company/webhooks`, Cloud URL `https://customermates.com/en/company/webhooks`. **Mate:** `navigate` and `highlight_element` with `nav-company-webhooks`, and `highlight_element` with `company-webhooks-add` for **Add** (roles with **Manage** on **API & Webhooks**); once the **Webhook** dialog is open (prerequisite `company-webhooks-add`), `webhook-modal-url`, `webhook-modal-events` and `webhook-modal-secret` highlight **URL**, **Events** and **Secret**, and `webhook-modal-save` highlights **Save**.
+**Link:** the **Webhooks** page, `/company/webhooks`. **Mate:** `navigate` and `highlight_element` with `nav-company-webhooks`, and `highlight_element` with `company-webhooks-add` for **Add** (roles with **Manage** on **API & Webhooks**); once the **Webhook** dialog is open (prerequisite `company-webhooks-add`), `webhook-modal-url`, `webhook-modal-events` and `webhook-modal-secret` highlight **URL**, **Events** and **Secret**, and `webhook-modal-save` highlights **Save**.
 
 ## How do I create, read, update or delete records from n8n? [#how-do-i-write-to-customermates-from-n8n]
 
@@ -51,11 +51,11 @@ Use the **HTTP Request** node with the `x-api-key` header from an n8n credential
 | Delete up to 100 records | `DELETE /api/v1/<endpoint>/many` with `ids` |
 | See the columns, options, filterable and sortable fields | `GET /api/v1/<endpoint>/configuration` |
 
-The base URL is `https://customermates.com`, or your instance when you self-host. There is no `PATCH`. Filters follow the [filter syntax](/docs/filter-syntax).
+The base URL, `<BASE_URL>` below, is the address you open Customermates at, in the cloud and when you self-host. There is no `PATCH`. Filters follow the [filter syntax](/docs/filter-syntax).
 
 ## How do I call MCP tools from n8n?
 
-The REST endpoints above are simpler for most n8n jobs. To call an MCP tool instead, send `POST https://customermates.com/api/v1/mcp` with these headers:
+The REST endpoints above are simpler for most n8n jobs. To call an MCP tool instead, send `POST <BASE_URL>/api/v1/mcp` with these headers:
 
 - `Content-Type: application/json`
 - `Accept: application/json, text/event-stream` (without it the endpoint answers `406 Not Acceptable`)
@@ -83,7 +83,7 @@ Deal and task lifecycle values such as status or priority are workspace-configur
 
 Create the key in Customermates under **My Profile → API & Connectors** with **Add** and **Standard API key**; creating a key needs **Manage** **Yes** on the **API & Webhooks** row of your role, and the page itself needs **Read access** **All** on that row. Store the key as an n8n **Header Auth** credential with header name `x-api-key`. Reuse it across nodes so you replace it in one place. Keys are 64 characters of ASCII letters (`a-z`, `A-Z`) and inherit the owning user's permissions; there is no per-key scoping. A wrong, expired or deleted key gets HTTP `401`, and a key whose owner is **Inactive** gets `403`. See [API keys](/docs/api-keys).
 
-**Link:** the **API & Connectors** page, `/profile/api-keys`, Cloud URL `https://customermates.com/en/profile/api-keys`. **Mate:** `navigate` and `highlight_element` with `nav-profile-api-keys`; `highlight_element` also takes `profile-api-keys-generate` for **Add** (roles with **API & Webhooks** **Manage**), then `api-key-option-standard` for **Standard API key** (prerequisite `profile-api-keys-generate`) and `api-key-name`, `api-key-expires` and `api-key-save` for **Name**, **Expires in** and **Save** (prerequisite `api-key-option-standard`). The **Quick connections** tiles are not highlight targets, so Mate names them.
+**Link:** the **API & Connectors** page, `/profile/api-keys`. **Mate:** `navigate` and `highlight_element` with `nav-profile-api-keys`; `highlight_element` also takes `profile-api-keys-generate` for **Add** (roles with **API & Webhooks** **Manage**), then `api-key-option-standard` for **Standard API key** (prerequisite `profile-api-keys-generate`) and `api-key-name`, `api-key-expires` and `api-key-save` for **Name**, **Expires in** and **Save** (prerequisite `api-key-option-standard`). The **Quick connections** tiles are not highlight targets, so Mate names them.
 
 ## What are the common gotchas?
 

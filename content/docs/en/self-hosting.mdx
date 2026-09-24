@@ -106,7 +106,7 @@ Open `<BASE_URL>/auth/signup` and register with email and password under **Creat
 
 Click the verification link in the email within 24 hours: the link expires after 24 hours, and an account that is still unverified 24 hours after registering is held on **Email Verification**, where **Resend verification email** sends a fresh link. Then invite teammates under **My Company** › **Members** with **Add**, approve them there once they have registered, and set what they may do under **My Company** › **Roles**; see [My Company](/docs/app-company).
 
-**Link:** the **Members** page, `/company/members`, and the **Roles** page, `/company/roles`, on your instance at `<BASE_URL>/en/company/members` and `<BASE_URL>/en/company/roles`. **Mate:** not available on self-hosted instances; in the cloud, `navigate` and `highlight_element` with `nav-company-members` or `nav-company-roles`, and `company-members-add` and `company-roles-add` highlight **Add**. To approve a member, open the member row; `member-modal-role` and `member-modal-status` then highlight **Role** and **Status** in the **User** dialog.
+**Link:** the **Members** page, `/company/members`, and the **Roles** page, `/company/roles`, on your instance. **Mate:** not available on self-hosted instances; in the cloud, `navigate` and `highlight_element` with `nav-company-members` or `nav-company-roles`, and `company-members-add` and `company-roles-add` highlight **Add**. To approve a member, open the member row; `member-modal-role` and `member-modal-status` then highlight **Role** and **Status** in the **User** dialog.
 
 ## Who can sign up on my instance?
 
@@ -114,7 +114,7 @@ Anyone who can reach your `BASE_URL` can register; registration cannot be switch
 
 If the instance should serve one team only, limit who can reach it, for example with a VPN, an IP allowlist or authentication at the reverse proxy; MCP and REST clients then need the same access. Teammates join through an invitation: **Add** on **My Company** › **Members** opens **Invite User** with a link and an email option. They wait with status **Waiting for approval** until a member with **Manage** on **Users & Roles** gives them a role and sets them **Active**.
 
-**Link:** the **Members** page, `/company/members`, on your instance at `<BASE_URL>/en/company/members`. **Mate:** not available on self-hosted instances; in the cloud, `navigate` and `highlight_element` with `nav-company-members`, and `company-members-add` highlights **Add**. In **Invite User**, `invite-modal-tab-link`, `invite-modal-link` and `invite-modal-copy-link` highlight the **Share link** tab, the **Invitation link** and its copy button, and `invite-modal-tab-email`, `invite-modal-emails` and `invite-modal-send` highlight the **Send emails** tab, **Emails** and **Send invitations**. Once a member row is open, `member-modal-role`, `member-modal-status` and `member-modal-save` highlight **Role**, **Status** and **Save** in the **User** dialog. The member rows are not highlight targets, so Mate names them.
+**Link:** the **Members** page, `/company/members`, on your instance. **Mate:** not available on self-hosted instances; in the cloud, `navigate` and `highlight_element` with `nav-company-members`, and `company-members-add` highlights **Add**. In **Invite User**, `invite-modal-tab-link`, `invite-modal-link` and `invite-modal-copy-link` highlight the **Share link** tab, the **Invitation link** and its copy button, and `invite-modal-tab-email`, `invite-modal-emails` and `invite-modal-send` highlight the **Send emails** tab, **Emails** and **Send invitations**. Once a member row is open, `member-modal-role`, `member-modal-status` and `member-modal-save` highlight **Role**, **Status** and **Save** in the **User** dialog. The member rows are not highlight targets, so Mate names them.
 
 ## Can users sign in with Google or Microsoft?
 
@@ -131,7 +131,7 @@ The MCP endpoint is `<BASE_URL>/api/v1/mcp`, for example `https://crm.example.co
 
 The hosted in-app Assistant is cloud-only: Mate is not available on self-hosted instances. External MCP uses your own AI provider. Enterprise SSO and white-labeling are not implemented in either deployment model.
 
-**Link:** the **API & Connectors** page, `/profile/api-keys`, on your instance at `<BASE_URL>/en/profile/api-keys`. **Mate:** not available on self-hosted instances; in the cloud, `navigate` and `highlight_element` with `nav-profile-api-keys`, and `profile-api-keys-generate` highlights **Add** for roles with **Manage** on **API & Webhooks**.
+**Link:** the **API & Connectors** page, `/profile/api-keys`, on your instance. **Mate:** not available on self-hosted instances; in the cloud, `navigate` and `highlight_element` with `nav-profile-api-keys`, and `profile-api-keys-generate` highlights **Add** for roles with **Manage** on **API & Webhooks**.
 
 ## How do I update a self-hosted installation?
 
