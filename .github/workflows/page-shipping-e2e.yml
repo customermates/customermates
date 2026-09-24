@@ -28,7 +28,7 @@ jobs:
       - run: yarn install --frozen-lockfile
       - name: Build the production application
         run: yarn build
-      - name: Crawl rendered landing hubs
+      - name: Crawl rendered landing hubs and every sitemap URL
         shell: bash
         run: |
           set -euo pipefail
@@ -56,7 +56,7 @@ jobs:
             exit 1
           fi
 
-          if ! HUB_E2E_BASE_URL=http://localhost:40196 yarn vitest run tests/conventions/hub-reachability.test.ts; then
+          if ! HUB_E2E_BASE_URL=http://localhost:40196 yarn vitest run tests/conventions/hub-reachability.test.ts tests/conventions/sitemap-reachability.test.ts; then
             cat "$server_log"
             exit 1
           fi
