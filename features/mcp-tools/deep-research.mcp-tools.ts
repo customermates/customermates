@@ -15,7 +15,6 @@ import { env } from "@/env";
 import { CONTENT_LOCALES, DEFAULT_LOCALE, isContentLocale } from "@/i18n/locale-registry";
 import { CustomErrorCode } from "@/core/validation/validation.types";
 import { AppErrorCode, ForbiddenError } from "@/core/errors/app-errors";
-import { unwrapValidated } from "@/core/validation/validation.utils";
 import { serializeJSONToMarkdown } from "@/components/editor/editor.utils";
 import { entityListExecutors, entityNameExtractors } from "@/features/search/entity-list-executors";
 import {
@@ -35,6 +34,7 @@ type Entity = "contact" | "organization" | "deal" | "service" | "task";
 
 const ENTITIES: Entity[] = ["contact", "organization", "deal", "service", "task"];
 const WIKI_FETCH_TEXT_TARGET_LENGTH = 5_500;
+const WIKI_SEARCH_QUERY_MAX_LENGTH = 200;
 
 const entityRoutes: Record<Entity, string> = {
   contact: "contacts",
@@ -102,9 +102,7 @@ async function fetchRecord(entity: Entity, key: string) {
   const row = result.data?.[entity];
   if (!row) return customMcpFailure(entityNotFoundCode[entity]);
 
-  const { notes, ...masterData } = row as Record<string, unknown> & {
-    notes?: unknown;
-  };
+  const { notes, ...masterData } = row as Record<string, unknown> & { notes?: unknown };
   const noteMarkdown = notes ? serializeJSONToMarkdown(notes as object) : null;
   const masterText = JSON.stringify(formatDatesInResponse(masterData), null, 2);
   const text = noteMarkdown
@@ -194,15 +192,11 @@ async function fetchWiki(id: string, requestedOffset: number) {
 }
 
 async function searchWiki(query: string) {
+  const wikiQuery = query.slice(0, wikiCodePointBoundary(query, WIKI_SEARCH_QUERY_MAX_LENGTH));
   try {
-    const result = await unwrapValidated(
-      getSearchWikiPagesInteractor().invoke({
-        query,
-        page: 1,
-        pageSize: 5,
-      }),
-    );
-    return result.items.map((page) => ({
+    const result = await getSearchWikiPagesInteractor().invoke({ query: wikiQuery, page: 1, pageSize: 5 });
+    if (!result.ok) return [];
+    return result.data.items.map((page) => ({
       id: wikiPageFetchId(page.id),
       title: page.title,
       url: wikiPageUrl(env.BASE_URL, page.id),
@@ -220,18 +214,12 @@ export const searchTool = {
     "Required by ChatGPT company-knowledge and deep-research connectors. Returns relevant Workspace Wiki pages, CRM records, and product documentation in one list, without totals or filters. " +
     "Fetch every relevant Wiki result and follow its linked Wiki pages. Wiki matches are ranked by query terms with title matches weighted higher. " +
     "For focused CRM or product-doc queries prefer search_records or list_records, which carry totals and filters, or search_docs.",
-  annotations: {
-    readOnlyHint: true,
-    idempotentHint: true,
-    destructiveHint: false,
-    openWorldHint: false,
-  },
+  annotations: { readOnlyHint: true, idempotentHint: true, destructiveHint: false, openWorldHint: false },
   inputSchema: z.object({
     query: z
       .string()
       .trim()
       .min(1)
-      .max(200)
       .describe("Search terms for workspace Wiki content, CRM record names, and product documentation"),
   }),
   outputSchema: SearchOutputSchema,
@@ -261,15 +249,9 @@ export const searchTool = {
 
     const docResults = searchDocsRaw(query, DEFAULT_LOCALE, "docs")
       .results.slice(0, 3)
-      .map((hit) => ({
-        id: `doc:${DEFAULT_LOCALE}:${hit.slug}`,
-        title: hit.title,
-        url: hit.url,
-      }));
+      .map((hit) => ({ id: `doc:${DEFAULT_LOCALE}:${hit.slug}`, title: hit.title, url: hit.url }));
 
-    const output = {
-      results: [...wikiResults, ...recordGroups.flat(), ...docResults],
-    };
+    const output = { results: [...wikiResults, ...recordGroups.flat(), ...docResults] };
 
     return { text: JSON.stringify(output), structuredContent: output };
   },
@@ -283,12 +265,7 @@ export const fetchTool = {
     "Wiki pages may also be fetched by their exact relative, localized, or same-origin absolute Wiki URL. " +
     "Wiki content is returned in bounded chunks with absolute internal links and a source URL for citations; pass nextOffset back as offset until it is null. Wiki Read is required for Wiki pages. " +
     "Compatible with ChatGPT company knowledge and deep research. For focused CRM or product-documentation retrieval, prefer get_records or get_docs_page.",
-  annotations: {
-    readOnlyHint: true,
-    idempotentHint: true,
-    destructiveHint: false,
-    openWorldHint: false,
-  },
+  annotations: { readOnlyHint: true, idempotentHint: true, destructiveHint: false, openWorldHint: false },
   inputSchema: z.object({
     id: z
       .string()

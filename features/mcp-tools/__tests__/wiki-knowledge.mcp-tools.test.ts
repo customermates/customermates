@@ -215,6 +215,30 @@ describe("read-only Wiki search and fetch compatibility", () => {
     );
   });
 
+  it("accepts long queries and clamps only the Wiki leg to 200 characters", async () => {
+    const query = `How do we escalate refunds for ${"enterprise ".repeat(22)}customers?`;
+    expect(query.length).toBeGreaterThan(250);
+    const result = await searchTool.execute(searchTool.inputSchema.parse({ query }));
+
+    expect(calls.search).toHaveBeenCalledWith({ query: query.slice(0, 200), page: 1, pageSize: 5 });
+    expect(calls.records).toHaveBeenCalledWith({ searchTerm: query, pagination: { page: 1, pageSize: 5 } });
+    expect(calls.docs).toHaveBeenCalledWith(query, "en", "docs");
+    expect(result.structuredContent.results.map((item) => item.id)).toEqual([`wiki:${id}`, "doc:en:guide"]);
+  });
+
+  it("never splits a character when clamping the Wiki query", async () => {
+    await searchTool.execute({ query: `a${"🌍".repeat(150)}` });
+    const [{ query }] = calls.search.mock.calls[0] as [{ query: string }];
+    expect(query.length).toBeLessThanOrEqual(200);
+    expect(query).toBe(`a${"🌍".repeat(99)}`);
+  });
+
+  it("omits the Wiki leg when it rejects the query and keeps the other sources", async () => {
+    calls.search.mockResolvedValue({ ok: false, error: new Error("invalid query") });
+    const result = await searchTool.execute({ query: "sales voice" });
+    expect(result.structuredContent.results.map((item) => item.id)).toEqual(["doc:en:guide"]);
+  });
+
   it("omits forbidden Wiki results without hiding other search sources", async () => {
     calls.search.mockRejectedValue(new ForbiddenError("denied"));
     const result = await searchTool.execute({ query: "sales voice" });
