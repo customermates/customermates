@@ -60,9 +60,7 @@ export function stripUntrustedNotesMarkers(markdown: string) {
     .trim();
 }
 
-const EntitySchema = z
-  .enum(["contact", "organization", "deal", "service", "task"])
-  .describe("Entity type (one of: contact, organization, deal, service, task)");
+const EntitySchema = z.enum(["contact", "organization", "deal", "service", "task"]).describe("Entity type");
 
 const RelationSchema = z
   .enum(["organizations", "contacts", "deals", "services", "tasks", "users"])
@@ -76,9 +74,7 @@ const RelationSchema = z
   );
 
 const RecordSchemaInputSchema = z.object({
-  entity: EntitySchema.optional().describe(
-    "Entity type (one of: contact, organization, deal, service, task). Omit to get all five schemas in one call.",
-  ),
+  entity: EntitySchema.optional().describe("Entity type. Omit to get all five schemas in one call."),
 });
 
 const ListRecordsSchema = z.object({

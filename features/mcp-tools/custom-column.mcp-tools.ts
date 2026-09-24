@@ -4,14 +4,7 @@ import deepEqual from "fast-deep-equal/es6";
 import { z } from "zod";
 import { EntityType, CustomColumnType, Currency } from "@/generated/prisma";
 
-import {
-  customMcpFailure,
-  enumHint,
-  mcpInteractorFailure,
-  mcpMessageFailure,
-  mcpValidationFailure,
-  toonResult,
-} from "./utils";
+import { customMcpFailure, mcpInteractorFailure, mcpMessageFailure, mcpValidationFailure, toonResult } from "./utils";
 import type { McpToolFailureResult } from "./mcp-tool";
 
 import {
@@ -24,9 +17,6 @@ import { CustomErrorCode } from "@/core/validation/validation.types";
 import { OptionSchema, type UpsertCustomColumnData } from "@/features/custom-column/upsert-custom-column.interactor";
 import { CHIP_COLORS } from "@/constants/chip-colors";
 import { DATE_DISPLAY_FORMATS } from "@/constants/date-format";
-
-const entityTypeValues = Object.values(EntityType);
-const customColumnTypeValues = Object.values(CustomColumnType);
 
 const ToolOptionSchema = OptionSchema.partial({
   value: true,
@@ -57,8 +47,8 @@ const UpsertCustomColumnToolSchema = z.object({
     .describe(
       "Existing column id to UPDATE; omit to CREATE. Passing an id also requires intent=update. On update, label, type and entityType are immutable.",
     ),
-  type: z.enum(CustomColumnType).describe(`Column type ${enumHint(customColumnTypeValues)}`),
-  entityType: z.enum(EntityType).describe(`Entity type ${enumHint(entityTypeValues)}`),
+  type: z.enum(CustomColumnType).describe("Column type"),
+  entityType: z.enum(EntityType).describe("Entity type"),
   label: z
     .string()
     .min(1)
@@ -135,9 +125,7 @@ const ManageCustomColumnsSchema = z.object({
   entityType: z
     .enum(EntityType)
     .optional()
-    .describe(
-      `Entity type ${enumHint(entityTypeValues)}. Required for upsert. Optional for list to restrict to one entity type.`,
-    ),
+    .describe("Entity type. Required for upsert. Optional for list to restrict to one entity type."),
   id: z
     .uuid()
     .nullable()
@@ -148,10 +136,7 @@ const ManageCustomColumnsSchema = z.object({
   intent: CustomColumnMutationIntentSchema.optional().describe(
     "upsert only. Use create with no id for a new column. UPDATE requires intent=update plus an existing id. Omitted intent is accepted only for backwards-compatible CREATE calls without an id.",
   ),
-  type: z
-    .enum(CustomColumnType)
-    .optional()
-    .describe(`Column type ${enumHint(customColumnTypeValues)}. Required for upsert.`),
+  type: z.enum(CustomColumnType).optional().describe("Column type. Required for upsert."),
   label: z
     .string()
     .min(1)

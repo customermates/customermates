@@ -205,7 +205,8 @@ function providerSafeSchema<TSchema extends z.ZodType>(inputSchema: TSchema) {
       io: "input",
       target: "draft-07",
       override: (ctx) => {
-        const schema = ctx.jsonSchema as { pattern?: string; format?: string };
+        const schema = ctx.jsonSchema as { pattern?: string; format?: string; const?: unknown; title?: unknown };
+        if (schema.const !== undefined && schema.title === String(schema.const)) delete schema.title;
         if (typeof schema.pattern === "string" && UNSUPPORTED_PATTERN.test(schema.pattern)) delete schema.pattern;
         if (typeof schema.pattern === "string" && schema.pattern.includes(CANONICAL_UUID_PATTERN_MARK))
           schema.pattern = AGENT_WIRE_UUID_PATTERN;
@@ -385,9 +386,7 @@ const LoadToolsetSchema = z.object({
 function loadToolsetTool() {
   return tool({
     description:
-      "Add an on-demand tool set to this turn when the request needs tools that are not in your current list. Sets: " +
-      AGENT_ON_DEMAND_TOOLSETS.map((toolset) => `${toolset} (${AGENT_TOOLSET_SUMMARY[toolset]})`).join(", ") +
-      ". A loaded set stays available for the rest of the turn; call its tools directly afterwards.",
+      "Add an on-demand tool set to this turn when the request needs tools that are not in your current list; the toolset parameter describes each set. A loaded set stays available for the rest of the turn; call its tools directly afterwards.",
     inputSchema: providerSafeSchema(LoadToolsetSchema),
     execute: (input) => ({
       ok: true,

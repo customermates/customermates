@@ -116,6 +116,32 @@ describe("provider-safe tool schemas", () => {
     expect(validate("3f7c1a54-9b2e-4c31-8f6a-2b5d7e9c1a04x")).toBe(false);
   });
 
+  it("sends no title that only restates its const value, but keeps the titles that name a union branch", () => {
+    const restating = shippedSchemas.flatMap(({ name, schema }) =>
+      collect(schema, (node) => node.const !== undefined && node.title === String(node.const)).map(
+        ({ path }) => `${name} ${path}`,
+      ),
+    );
+    expect(restating, restating.join("\n")).toEqual([]);
+
+    const constants = collect({ schemas: shippedSchemas }, (node) => node.const === "inLastDays");
+    expect(constants.length).toBeGreaterThan(0);
+    const branches = collect({ schemas: shippedSchemas }, (node) => node.title === "Relative window filter");
+    expect(branches.length).toBeGreaterThan(0);
+  });
+
+  it("leaves enum values out of a field description, because the field's enum already lists them", () => {
+    const restating = shippedSchemas.flatMap(({ name, schema }) =>
+      collect(schema, (node) => {
+        const items = node.items as JsonRecord | undefined;
+        const enumerated = Array.isArray(node.enum) || Array.isArray(items?.enum);
+        return enumerated && typeof node.description === "string" && node.description.includes("one of:");
+      }).map(({ path }) => `${name} ${path}`),
+    );
+
+    expect(restating, restating.join("\n")).toEqual([]);
+  });
+
   it("emits no format keyword anywhere, because that Ajv has no format support", () => {
     const offending = shippedSchemas.flatMap(({ name, schema }) =>
       collect(schema, (node) => typeof node.format === "string").map(({ path }) => `${name} ${path}`),
