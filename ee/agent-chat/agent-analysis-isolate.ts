@@ -30,6 +30,12 @@ const TERMINATE_MARGIN_MS = 250;
 const NOT_A_FUNCTION = "AnalysisCodeIsNotAFunction";
 const NEVER_SETTLED = "AnalysisPromiseNeverSettled";
 const HOLDS_PROMISE = "AnalysisResultHoldsAPromise";
+const HOLDS_COLLECTION = "AnalysisResultHoldsAMapSetOrGenerator";
+const COLLECTION_TAGS = ["Map", "Set", "WeakMap", "WeakSet", "Generator", "AsyncGenerator"].map(
+  (tag) => `[object ${tag}]`,
+);
+const JOB_ERROR_PREFIX = "Job execution error: ";
+const NO_MESSAGE = "<null>";
 
 type Stop = "time" | "steps" | "memory" | null;
 type WorkerReport =
@@ -120,19 +126,30 @@ function quickjsModule(): Promise<WebAssembly.Module> {
 }
 
 function analysisSource(code: string): string {
-  return `(() => { const run = (${code}); if (typeof run !== "function") throw new TypeError("${NOT_A_FUNCTION}"); const data = JSON.parse(__analysisInput); __analysisInput = undefined; const serialize = (value) => JSON.stringify(value, (key, item) => { if (item instanceof Promise) throw new TypeError("${HOLDS_PROMISE}"); return item; }); const result = run(data); return result instanceof Promise ? result.then(serialize) : serialize(result); })()`;
+  return `(() => { const run = (${code}); if (typeof run !== "function") throw new TypeError("${NOT_A_FUNCTION}"); const data = JSON.parse(__analysisInput); __analysisInput = undefined; const collections = ${JSON.stringify(COLLECTION_TAGS)}; const serialize = (value) => JSON.stringify(value, (key, item) => { if (item instanceof Promise) throw new TypeError("${HOLDS_PROMISE}"); if (typeof item === "object" && item !== null && collections.includes(Object.prototype.toString.call(item))) throw new TypeError("${HOLDS_COLLECTION}"); return item; }); const result = run(data); return result instanceof Promise ? result.then(serialize) : serialize(result); })()`;
 }
 
-function stoppedError(stop: Stop, message: string): string {
+function reportedMessage(message: string): string {
+  if (!message.startsWith(JOB_ERROR_PREFIX)) return message;
+  const jobMessage = message.slice(JOB_ERROR_PREFIX.length);
+  return jobMessage === "null" || jobMessage === "undefined" ? NO_MESSAGE : jobMessage;
+}
+
+function stoppedError(stop: Stop, reported: string): string {
+  const message = reportedMessage(reported);
   if (stop === "time") return "The analysis code ran longer than its time budget and was stopped.";
   if (stop === "steps") return "The analysis code exceeded its step budget and was stopped.";
-  if (stop === "memory" || message === "<null>" || /out of memory/i.test(message))
+  if (stop === "memory" || /out of memory/i.test(message))
     return "The analysis code ran out of memory and was stopped.";
+  if (message === NO_MESSAGE)
+    return "The analysis code stopped without an error message: it ran out of memory, or it threw or rejected with null or undefined.";
   if (message === NOT_A_FUNCTION)
     return "The analysis code must be one function expression (data) => result; it may be async.";
   if (message === NEVER_SETTLED)
     return "The analysis code returned a promise that never settled; the code has no timers, network or tools to wait for.";
   if (message === HOLDS_PROMISE) return "The analysis result holds a promise; await it, for example with Promise.all.";
+  if (message === HOLDS_COLLECTION)
+    return "The analysis result holds a Map, Set or generator, which JSON cannot represent; convert it with Object.fromEntries or Array.from first.";
   return `The analysis code failed: ${message.slice(0, 500)}`;
 }
 

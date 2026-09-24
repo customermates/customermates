@@ -15,6 +15,11 @@ const OUT_OF_MEMORY_ERROR = "The analysis code ran out of memory and was stopped
 const NEVER_SETTLED_ERROR =
   "The analysis code returned a promise that never settled; the code has no timers, network or tools to wait for.";
 const HOLDS_PROMISE_ERROR = "The analysis result holds a promise; await it, for example with Promise.all.";
+const NO_MESSAGE_ERROR =
+  "The analysis code stopped without an error message: it ran out of memory, or it threw or rejected with null or undefined.";
+const HOLDS_COLLECTION_ERROR =
+  "The analysis result holds a Map, Set or generator, which JSON cannot represent; convert it with Object.fromEntries or Array.from first.";
+const SMALL_MEMORY_LIMITS = { ...ANALYSIS_LIMITS, memoryBytes: 32 * 1024 * 1024 };
 const COSTLY_BUILT_IN_LOOP = "() => { const s = 'a'.repeat(4e6); for (let i = 0; i < 2e3; i++) s.indexOf('b'); }";
 const RESULT_MAX_CHARS = 10_000;
 
@@ -152,13 +157,39 @@ describe("analysis isolate", () => {
     expect(outcome).toEqual({ ok: false, error: STEP_BUDGET_ERROR });
   }, 30_000);
 
-  it("stops an allocation beyond the memory limit", async () => {
+  it("stops an allocation beyond the memory limit and says it ran out of memory when the runtime says so", async () => {
     const outcome = await runAnalysisCode(
       "() => { const rows = []; for (;;) rows.push(new Array(1e5).fill(1)); }",
       "null",
       RESULT_MAX_CHARS,
     );
     expect(outcome).toEqual({ ok: false, error: OUT_OF_MEMORY_ERROR });
+  });
+
+  it("reports running out of memory with no room left for an error as a stop without an error message", async () => {
+    await expect(
+      runAnalysisCode(
+        "() => { const a = []; for (;;) a.push([a.length]); }",
+        "null",
+        RESULT_MAX_CHARS,
+        SMALL_MEMORY_LIMITS,
+      ),
+    ).resolves.toEqual({ ok: false, error: NO_MESSAGE_ERROR });
+  }, 15_000);
+
+  it.each([
+    ["a thrown null", "() => { throw null; }"],
+    ["a thrown undefined", "(data) => { if (data.length < 5) throw undefined; return data.length; }"],
+    ["a thrown symbol", "() => { throw Symbol('x'); }"],
+    ["an async function that throws null", "async () => { throw null; }"],
+    ["a promise rejected without a reason", "() => Promise.reject()"],
+    ["a promise rejected with null", "() => Promise.reject(null)"],
+    ["an awaited rejection without a reason", "async () => { await Promise.reject(); }"],
+  ])("reports %s as a stop without an error message, not as running out of memory", async (_, code) => {
+    await expect(runAnalysisCode(code, "[1]", RESULT_MAX_CHARS)).resolves.toEqual({
+      ok: false,
+      error: NO_MESSAGE_ERROR,
+    });
   });
 
   it("parses the full 8 MB the reads may return even when the text holds two-byte characters", async () => {
@@ -178,14 +209,11 @@ describe("analysis isolate", () => {
     });
   }, 15_000);
 
-  it("reports input too large to parse as running out of memory rather than as a bare null", async () => {
+  it("reports input too large to parse as a stop without an error message rather than as a bare null", async () => {
     const input = JSON.stringify(twoByteRows(24_000));
     expect(input.length).toBeGreaterThan(4_800_000);
-    const outcome = await runAnalysisCode("(data) => data.length", input, RESULT_MAX_CHARS, {
-      ...ANALYSIS_LIMITS,
-      memoryBytes: 32 * 1024 * 1024,
-    });
-    expect(outcome).toEqual({ ok: false, error: OUT_OF_MEMORY_ERROR });
+    const outcome = await runAnalysisCode("(data) => data.length", input, RESULT_MAX_CHARS, SMALL_MEMORY_LIMITS);
+    expect(outcome).toEqual({ ok: false, error: NO_MESSAGE_ERROR });
   }, 15_000);
 
   it("reaches no host capability: no network, process, module loader, timers, console or clock", async () => {
@@ -308,10 +336,7 @@ describe("analysis isolate", () => {
         "async () => { const rows = []; for (;;) { rows.push(new Array(1e5).fill(1)); await 0; } }",
         "null",
         RESULT_MAX_CHARS,
-        {
-          ...ANALYSIS_LIMITS,
-          memoryBytes: 32 * 1024 * 1024,
-        },
+        SMALL_MEMORY_LIMITS,
       ),
     ).resolves.toEqual({ ok: false, error: OUT_OF_MEMORY_ERROR });
   }, 30_000);
@@ -327,11 +352,49 @@ describe("analysis isolate", () => {
       "async () => (await Promise.all([0].map(async () => { await 0; const a = []; for (;;) a.push([a.length]); }))).length",
     ],
   ])(
-    "reports running out of memory in %s after an await as running out of memory, not as a promise that never settled",
+    "reports running out of memory in %s after an await as a stop without an error message, not as a promise that never settled",
     async (_, code) => {
+      await expect(runAnalysisCode(code, "null", RESULT_MAX_CHARS, SMALL_MEMORY_LIMITS)).resolves.toEqual({
+        ok: false,
+        error: NO_MESSAGE_ERROR,
+      });
+    },
+    15_000,
+  );
+
+  it("reports an error thrown in a queued job like any other failure, without the job prefix", async () => {
+    await expect(
+      runAnalysisCode(
+        "async () => { queueMicrotask(() => { throw new Error('mt'); }); await 0; return 1; }",
+        "null",
+        RESULT_MAX_CHARS,
+      ),
+    ).resolves.toEqual({ ok: false, error: "The analysis code failed: Error: mt" });
+    for (const thrown of ["null", "undefined"]) {
       await expect(
-        runAnalysisCode(code, "null", RESULT_MAX_CHARS, { ...ANALYSIS_LIMITS, memoryBytes: 32 * 1024 * 1024 }),
-      ).resolves.toEqual({ ok: false, error: OUT_OF_MEMORY_ERROR });
+        runAnalysisCode(
+          `() => new Promise(() => queueMicrotask(() => { throw ${thrown}; }))`,
+          "null",
+          RESULT_MAX_CHARS,
+        ),
+      ).resolves.toEqual({ ok: false, error: NO_MESSAGE_ERROR });
+    }
+  });
+
+  it.each([
+    ["the runtime says so", "a.push(new Array(1e5).fill(1))", OUT_OF_MEMORY_ERROR],
+    ["no room is left for an error", "a.push([a.length])", NO_MESSAGE_ERROR],
+  ])(
+    "reports running out of memory in a queued job when %s as it would outside a job",
+    async (_, push, error) => {
+      await expect(
+        runAnalysisCode(
+          `async () => { queueMicrotask(() => { const a = []; for (;;) ${push}; }); await 0; return 1; }`,
+          "null",
+          RESULT_MAX_CHARS,
+          SMALL_MEMORY_LIMITS,
+        ),
+      ).resolves.toEqual({ ok: false, error });
     },
     15_000,
   );
@@ -353,6 +416,33 @@ describe("analysis isolate", () => {
         error: HOLDS_PROMISE_ERROR,
       });
     }
+  });
+
+  it.each([
+    ["a Map", "(data) => new Map(data.map((n) => [n, n * 2]))"],
+    ["a Set", "(data) => new Set(data)"],
+    ["a Map nested in an object", "(data) => ({ total: data.length, byValue: new Map(data.map((n) => [n, 1])) })"],
+    ["a Set inside an async result", "async (data) => [{ seen: new Set(data) }]"],
+    ["a WeakMap", "() => new WeakMap()"],
+    ["a WeakSet", "() => ({ refs: new WeakSet() })"],
+    ["a generator", "function* (data) { for (const n of data) yield n; }"],
+    ["an async generator", "async function* (data) { for (const n of data) yield n; }"],
+    ["a generator nested in an array", "(data) => [(function* () { yield* data; })()]"],
+  ])("refuses a result that holds %s instead of returning it as an empty object", async (_, code) => {
+    await expect(runAnalysisCode(code, "[1,2]", RESULT_MAX_CHARS)).resolves.toEqual({
+      ok: false,
+      error: HOLDS_COLLECTION_ERROR,
+    });
+  });
+
+  it("returns Maps and Sets the code converts before it returns them", async () => {
+    await expect(
+      runAnalysisCode(
+        "(data) => ({ byValue: Object.fromEntries(new Map(data.map((n) => [n, n * 2]))), seen: Array.from(new Set(data)) })",
+        "[1,2,2]",
+        RESULT_MAX_CHARS,
+      ),
+    ).resolves.toEqual({ ok: true, serialized: JSON.stringify({ byValue: { 1: 2, 2: 4 }, seen: [1, 2] }) });
   });
 
   it("returns a result at its character budget exactly as the sandbox serialized it, and only the length of one over", async () => {
