@@ -13,11 +13,13 @@ let unregister = () => {};
 
 beforeEach(() => {
   captureException.mockClear();
+  vi.stubEnv("NEXT_PUBLIC_SENTRY_DSN", "https://public@example.invalid/1");
 });
 
 afterEach(() => {
   unregister();
   unregister = () => {};
+  vi.unstubAllEnvs();
 });
 
 describe("isClientTransportError", () => {

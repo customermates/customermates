@@ -143,7 +143,14 @@ describe("Sentry reporting for handled application errors", () => {
     });
   };
 
-  beforeEach(() => captureException.mockClear());
+  beforeEach(() => {
+    captureException.mockClear();
+    vi.stubEnv("NEXT_PUBLIC_SENTRY_DSN", "https://public@example.invalid/1");
+  });
+
+  afterEach(() => {
+    vi.unstubAllEnvs();
+  });
 
   it("reports a genuine failure to Sentry, because catching it hides it from the global handler", async () => {
     const { reportApplicationError } = await import("@/core/errors/report-application-error");

@@ -41,6 +41,8 @@ export function loadSentry(): Promise<typeof SentrySdk> {
 }
 
 export function captureError(error: unknown): void {
+  if (!process.env.NEXT_PUBLIC_SENTRY_DSN) return;
+
   const sdk = typeof window === "undefined" ? import("@sentry/nextjs") : loadSentry();
 
   void sdk.then((Sentry) => Sentry.captureException(error)).catch(() => undefined);
