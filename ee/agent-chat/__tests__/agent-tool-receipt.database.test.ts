@@ -182,13 +182,13 @@ describeDatabase("agent tool receipts wrap a real mutation", { timeout: 120_000 
     const normalized = await normalizeAgentAiToolInput("list_users", { searchTerm: "Receipt" }, 6000);
     expect(normalized).toEqual({
       ok: true,
-      input: { searchTerm: "Receipt", page: 1, pageSize: { applied: 25, requested: 25 } },
+      input: { searchTerm: "Receipt", page: 1, pageSize: 25 },
     });
     if (!normalized.ok) throw new Error("Read normalization failed.");
 
-    await expect(executeTool(tools, "list_users", { searchTerm: "Receipt" }, randomUUID())).rejects.toThrow(
-      "The assistant tool could not be completed.",
-    );
+    const unnormalized = await executeTool(tools, "list_users", { searchTerm: "Receipt" }, randomUUID());
+    expect(unnormalized).toMatchObject({ ok: false });
+    expect(JSON.stringify(unnormalized)).toContain("pagination.page");
 
     const result = await executeTool(tools, "list_users", normalized.input, randomUUID());
 

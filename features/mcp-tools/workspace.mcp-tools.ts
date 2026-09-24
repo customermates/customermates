@@ -1,13 +1,13 @@
 import { z } from "zod";
 
 import {
+  fetchMcpPage,
   formatDatesInResponse,
   runInteractor,
   mcpInteractorFailure,
   mcpPage,
   mcpPageSize,
-  mcpPageSizeEcho,
-  McpPageSizeEchoOutputShape,
+  McpPageOutputShape,
   filtersDescription,
   sortDescription,
   toonResult,
@@ -33,8 +33,7 @@ const WorkspaceContextOutputSchema = z.looseObject({
 
 const ListUsersOutputSchema = z.object({
   total: z.number(),
-  page: z.number(),
-  ...McpPageSizeEchoOutputShape,
+  ...McpPageOutputShape,
   items: z.array(
     z.object({
       id: z.string(),
@@ -114,17 +113,19 @@ export const listUsersTool = {
   outputSchema: ListUsersOutputSchema,
   execute: (params: z.infer<typeof ListUsersSchema>) =>
     runInteractor(
-      getGetUsersApiInteractor().invoke({
-        searchTerm: params.searchTerm,
-        filters: params.filters,
-        sortDescriptor: params.sortDescriptor,
-        pagination: { page: params.page, pageSize: params.pageSize.applied },
-      }),
+      fetchMcpPage({ page: params.page, pageSize: params.pageSize }, (pagination) =>
+        getGetUsersApiInteractor().invoke({
+          searchTerm: params.searchTerm,
+          filters: params.filters,
+          sortDescriptor: params.sortDescriptor,
+          pagination,
+        }),
+      ),
       (data) =>
         toonResult({
           total: data.pagination?.total ?? data.items.length,
           page: params.page,
-          ...mcpPageSizeEcho(params.pageSize),
+          pageSize: params.pageSize,
           items: data.items.map((item) => ({
             id: item.id,
             firstName: item.firstName,

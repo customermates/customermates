@@ -7,11 +7,11 @@ import {
   FILTER_SYNTAX,
   SORT_SYNTAX,
   formatDatesInResponse,
+  fetchMcpPage,
   mcpPage,
   mcpPageSize,
-  mcpPageSizeEcho,
-  McpPageSizeEchoOutputShape,
-  type McpPageSizeRequest,
+  McpPageOutputShape,
+  planMcpPageFetch,
   mcpInteractorFailure,
   runInteractor,
   customMcpFailure,
@@ -241,9 +241,7 @@ const ListRecordsOutputSchema = z.object({
     .describe(
       "Per summable column: the total across every matching record, not just this page. Built-in columns use their own name; a custom currency column uses its custom-column id",
     ),
-  page: z.number(),
-  ...McpPageSizeEchoOutputShape,
-  pageSize: z.number().describe("The page size used"),
+  ...McpPageOutputShape,
   nameMatchNote: z
     .string()
     .optional()
@@ -494,7 +492,7 @@ function groupedListResult(
   entity: Entity,
   groupBy: NonNullable<z.infer<typeof ListRecordsSchema>["groupBy"]>,
   page: number,
-  pageSize: McpPageSizeRequest,
+  pageSize: number,
   data: {
     items: unknown[];
     pagination?: { total?: number };
@@ -538,8 +536,7 @@ function groupedListResult(
     total,
     ...(data.valueSums && Object.keys(data.valueSums).length > 0 ? { sums: data.valueSums } : {}),
     page,
-    pageSize: pageSize.applied,
-    ...mcpPageSizeEcho(pageSize),
+    pageSize,
     groupedBy: encodeGroupingToken(grouping.grouping),
     ...(notes.length > 0 ? { groupNote: notes.join(" ") } : {}),
     groups,
@@ -580,15 +577,23 @@ export const listRecordsTool = {
     groupBy,
     include,
   }: z.infer<typeof ListRecordsSchema>) => {
-    const result = await entityListExecutors[entity]({
-      searchTerm,
-      filters,
-      sortDescriptor,
-      pagination: { page, pageSize: pageSize.applied },
-      ...(groupBy ? { grouping: groupBy, groupPage: { perGroup: 1, includeValueSums: true } } : {}),
-    });
+    const query = { searchTerm, filters, sortDescriptor };
+    if (groupBy) {
+      const plan = planMcpPageFetch(page, pageSize);
+      const grouping = { grouping: groupBy, groupPage: { perGroup: 1, includeValueSums: true } };
+      const grouped = await entityListExecutors[entity]({
+        ...query,
+        pagination: { page: plan.page, pageSize: plan.pageSize },
+        ...grouping,
+      });
+      if (!grouped.ok) return mcpInteractorFailure(grouped.error);
+      return groupedListResult(entity, groupBy, page, pageSize, grouped.data);
+    }
+
+    const result = await fetchMcpPage({ page, pageSize }, (pagination) =>
+      entityListExecutors[entity]({ ...query, pagination }),
+    );
     if (!result.ok) return mcpInteractorFailure(result.error);
-    if (groupBy) return groupedListResult(entity, groupBy, page, pageSize, result.data);
 
     const items = result.data.items.map((item: any) => ({
       id: item.id,
@@ -607,8 +612,7 @@ export const listRecordsTool = {
         ? { sums: result.data.valueSums }
         : {}),
       page,
-      pageSize: pageSize.applied,
-      ...mcpPageSizeEcho(pageSize),
+      pageSize,
       ...(note ? { nameMatchNote: note } : {}),
       items,
       ...(filters ? { filters } : {}),

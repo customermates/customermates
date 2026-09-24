@@ -136,6 +136,10 @@ export const BENCHMARK_CASES: readonly BenchmarkCase[] = [
 ] },
   { id: "N15", title: "Refused page size and unlinked-deal filter", actor: "driver", prompts: [
   "Read the Aurora portfolio using pages of exactly 50 records. If the tool refuses a page size of 50, put the single line 'REJECTED: pageSize' in your reply and then continue with the largest page size it does accept. List every deal whose name begins with 'Aurora-' that has no contact linked to it, in ascending name order, and give the exact count on its own line as 'COUNT: <number>'. Do not include any deal outside the Aurora- names, and do not change anything.",
+], judgeFacts: [
+  "list_records serves pageSize 50 exactly and never refuses it, returning up to 50 records per page, so a correct reply has no 'REJECTED: pageSize' line",
+  "Nine Aurora- deals have no linked contact, in ascending order Aurora-004, Aurora-011, Aurora-019, Aurora-023, Aurora-028, Aurora-031, Aurora-037, Aurora-042 and Aurora-046, so the count line is COUNT: 9",
+  "The Cassiopeia- deals are outside the Aurora- names and belong nowhere in the reply",
 ] },
   { id: "N16", title: "Five long notes under the tool-result cap", actor: "driver", prompts: [
   "Two read-only questions about this workspace. (1) For each of these five deals, report the agreed retainer figure: Helios Rahmenvertrag, Ceres Rahmenvertrag, Vesta Rahmenvertrag, Pallas Rahmenvertrag, Juno Rahmenvertrag. Each of those deals has notes whose final line begins with 'Agreed retainer: EUR '. Report that figure exactly. If you were not able to read a deal's note, write the single word UNAVAILABLE for that deal instead of estimating it. (2) For these five other deals, say whether the deal has any notes recorded at all, YES or NO: Iris Pilot, Metis Pilot, Thetis Pilot, Dione Pilot, Rhea Pilot. Answer with exactly ten lines, one per deal, in the format '<deal name> = <value>', in the order the deals are listed above. Do not change anything.",

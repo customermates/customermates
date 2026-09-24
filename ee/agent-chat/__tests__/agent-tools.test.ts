@@ -420,23 +420,15 @@ describe("agent tools", () => {
   });
 
   it.each([
-    ["list_users", { searchTerm: "Sofia" }, { searchTerm: "Sofia", page: 1, pageSize: { applied: 25, requested: 25 } }],
-    [
-      "list_users",
-      { searchTerm: "Sofia", pageSize: " 12 " },
-      { searchTerm: "Sofia", page: 1, pageSize: { applied: 10, requested: 12 } },
-    ],
+    ["list_users", { searchTerm: "Sofia" }, { searchTerm: "Sofia", page: 1, pageSize: 25 }],
+    ["list_users", { searchTerm: "Sofia", pageSize: " 12 " }, { searchTerm: "Sofia", page: 1, pageSize: 12 }],
     [
       "list_users",
       { searchTerm: "Sofia", page: "2", pageSize: " 10 " },
-      { searchTerm: "Sofia", page: 2, pageSize: { applied: 10, requested: 10 } },
+      { searchTerm: "Sofia", page: 2, pageSize: 10 },
     ],
-    ["list_records", { entity: "contact" }, { entity: "contact", page: 1, pageSize: { applied: 25, requested: 25 } }],
-    [
-      "list_records",
-      { entity: "contact", pageSize: 50 },
-      { entity: "contact", page: 1, pageSize: { applied: 25, requested: 50 } },
-    ],
+    ["list_records", { entity: "contact" }, { entity: "contact", page: 1, pageSize: 25 }],
+    ["list_records", { entity: "contact", pageSize: 50 }, { entity: "contact", page: 1, pageSize: 50 }],
     [
       "get_records",
       { items: [{ entity: "contact", id: "record-1" }] },

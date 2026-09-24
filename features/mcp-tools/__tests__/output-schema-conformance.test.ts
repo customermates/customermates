@@ -237,28 +237,44 @@ describe("tool results pass the MCP SDK output validation on the server and in t
   it.each([
     ["list_records", listRecordsTool, { entity: "deal" }],
     ["list_records grouped", listRecordsTool, { entity: "deal", groupBy: { field: "userIds" } }],
-    ["list_records with a lowered page size", listRecordsTool, { entity: "deal", pageSize: 50 }],
+    ["list_records served at a page size that is not offered", listRecordsTool, { entity: "deal", pageSize: 50 }],
     [
       "list_records with every include value",
       listRecordsTool,
       { entity: "deal", include: ["owners", "links", "customFields", "dates"] },
     ],
     [
-      "list_records grouped with a lowered page size",
+      "list_records grouped served at a page size that is not offered",
       listRecordsTool,
       { entity: "deal", pageSize: 50, groupBy: { field: "userIds" } },
     ],
     ["list_users", listUsersTool, {}],
-    ["list_users with a lowered page size", listUsersTool, { pageSize: 50 }],
-    ["get_messaging_threads list with a lowered page size", getMessagingThreadsTool, { pageSize: 7 }],
-    ["get_messaging_threads detail with a lowered page size", getMessagingThreadsTool, { threadId, pageSize: 7 }],
-    ["get_activities with a lowered page size", getActivitiesTool, { pageSize: 7 }],
-    ["get_calendars calendars with a lowered page size", getCalendarsTool, { pageSize: 7 }],
-    ["get_calendars events with a lowered page size", getCalendarsTool, { list: "events", pageSize: 7 }],
-    ["manage_routines list with a lowered page size", manageRoutinesTool, { action: "list", pageSize: 7 }],
-    ["manage_webhooks list with a lowered page size", manageWebhooksTool, { action: "list", pageSize: 7 }],
+    ["list_users served at a page size that is not offered", listUsersTool, { pageSize: 50 }],
+    ["get_messaging_threads list served at a page size that is not offered", getMessagingThreadsTool, { pageSize: 7 }],
     [
-      "manage_webhooks list_deliveries with a lowered page size",
+      "get_messaging_threads detail served at a page size that is not offered",
+      getMessagingThreadsTool,
+      { threadId, pageSize: 7 },
+    ],
+    ["get_activities served at a page size that is not offered", getActivitiesTool, { pageSize: 7 }],
+    ["get_calendars calendars served at a page size that is not offered", getCalendarsTool, { pageSize: 7 }],
+    [
+      "get_calendars events served at a page size that is not offered",
+      getCalendarsTool,
+      { list: "events", pageSize: 7 },
+    ],
+    [
+      "manage_routines list served at a page size that is not offered",
+      manageRoutinesTool,
+      { action: "list", pageSize: 7 },
+    ],
+    [
+      "manage_webhooks list served at a page size that is not offered",
+      manageWebhooksTool,
+      { action: "list", pageSize: 7 },
+    ],
+    [
+      "manage_webhooks list_deliveries served at a page size that is not offered",
       manageWebhooksTool,
       { action: "list_deliveries", pageSize: 7 },
     ],
@@ -266,12 +282,45 @@ describe("tool results pass the MCP SDK output validation on the server and in t
     const outcome = await sdkOutputViolations(tool as McpTool, args);
 
     expect({ server: outcome.server, client: outcome.client }).toEqual({ server: null, client: null });
-    if ("pageSize" in args) {
-      expect(outcome.structuredContent).toMatchObject({
-        requestedPageSize: args.pageSize,
-        pageSizeNote: expect.any(String),
-      });
-    }
+    expect(outcome.structuredContent).toMatchObject({ page: 1, pageSize: "pageSize" in args ? args.pageSize : 25 });
+    expect(outcome.structuredContent).not.toHaveProperty("requestedPageSize");
+    expect(outcome.structuredContent).not.toHaveProperty("pageSizeNote");
+  });
+
+  it("asks each list reader only for an offered page size, and hands a thread detail its size unchanged", async () => {
+    const calls: [McpTool, Record<string, unknown>][] = [
+      [listRecordsTool, { entity: "deal", pageSize: 50 }],
+      [listRecordsTool, { entity: "deal", page: 2, pageSize: 60, groupBy: { field: "userIds" } }],
+      [listUsersTool, { pageSize: 50 }],
+      [getMessagingThreadsTool, { pageSize: 7 }],
+      [getMessagingThreadsTool, { threadId, pageSize: 7 }],
+      [getActivitiesTool, { pageSize: 7 }],
+      [getCalendarsTool, { pageSize: 7 }],
+      [getCalendarsTool, { list: "events", pageSize: 7 }],
+      [manageRoutinesTool, { action: "list", pageSize: 7 }],
+      [manageWebhooksTool, { action: "list", pageSize: 7 }],
+      [manageWebhooksTool, { action: "list_deliveries", pageSize: 7 }],
+    ];
+    for (const [tool, args] of calls) await executeMcpTool(tool, [tool.inputSchema.parse(args)]);
+    const paginations = (spy: ReturnType<typeof vi.fn>) =>
+      spy.mock.calls.map(([params]) => (params as { pagination: unknown }).pagination);
+
+    expect(paginations(spies.listDeals)).toEqual([
+      { page: 1, pageSize: 100 },
+      { page: 1, pageSize: 100 },
+    ]);
+    expect(paginations(spies.getUsers)).toEqual([{ page: 1, pageSize: 100 }]);
+    for (const spy of [
+      spies.getMessagingThreads,
+      spies.getActivities,
+      spies.getCalendars,
+      spies.getCalendarEvents,
+      spies.getWebhooks,
+      spies.getWebhookDeliveries,
+    ])
+      expect(paginations(spy)).toEqual([{ page: 1, pageSize: 10 }]);
+    expect(spies.getRoutines).toHaveBeenCalledWith(expect.objectContaining({ page: 1, pageSize: 10 }));
+    expect(spies.getMessagingThread).toHaveBeenCalledWith({ threadId, page: 1, pageSize: 7 });
   });
 
   it("declares the fields include adds, so a client sees them in the published output schema", async () => {
@@ -301,7 +350,7 @@ describe("tool results pass the MCP SDK output validation on the server and in t
     expect(item.required).toEqual(["id", "name"]);
   });
 
-  it("reports the page and the applied page size on a grouped list_records call", async () => {
+  it("reports the page and the page size asked for on a grouped list_records call", async () => {
     const outcome = await sdkOutputViolations(listRecordsTool, {
       entity: "deal",
       page: 2,
@@ -309,6 +358,7 @@ describe("tool results pass the MCP SDK output validation on the server and in t
       groupBy: { field: "userIds" },
     });
 
-    expect(outcome.structuredContent).toMatchObject({ page: 2, pageSize: 25, requestedPageSize: 50 });
+    expect(outcome.structuredContent).toMatchObject({ page: 2, pageSize: 50 });
+    expect(outcome.structuredContent).not.toHaveProperty("requestedPageSize");
   });
 });

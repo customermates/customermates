@@ -107,12 +107,17 @@ describe("list_records groupBy on a date", () => {
     expect(grouped.groupNote).toBeUndefined();
   });
 
-  it("echoes the page and the page size used, as the list result does", async () => {
+  it("echoes the page and the page size asked for, as the list result does", async () => {
     groupedBy("createdAt", monthLadder({ later: 0, current: 2, earlier: 0 }));
 
-    const grouped = await list({ page: 3, pageSize: 60, groupBy: { field: "createdAt" } });
+    spies.listDeals.mockClear();
 
-    expect(grouped).toMatchObject({ page: 3, pageSize: 25, requestedPageSize: 60 });
+    const grouped = await list({ page: 2, pageSize: 60, groupBy: { field: "createdAt" } });
+
+    expect(grouped).toMatchObject({ page: 2, pageSize: 60 });
+    expect(grouped).not.toHaveProperty("requestedPageSize");
+    expect(spies.listDeals).toHaveBeenCalledTimes(1);
+    expect(spies.listDeals).toHaveBeenCalledWith(expect.objectContaining({ grouping: { field: "createdAt" } }));
   });
 
   it("documents the window sizes in the tool and in the EN and DE docs", () => {

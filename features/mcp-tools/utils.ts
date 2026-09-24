@@ -32,49 +32,49 @@ export const MCP_PAGE_SIZES: readonly McpPageSize[] = [5, 10, 25, 100];
 
 export const MCP_DEFAULT_PAGE_SIZE: McpPageSize = 25;
 
-export function roundMcpPageSize(value: number): McpPageSize {
-  return [...MCP_PAGE_SIZES].reverse().find((size) => size <= value) ?? MCP_PAGE_SIZES[0];
-}
-
 export const MCP_PAGE_SIZE_DESCRIPTION =
-  "Results per page: any whole number from 1 to 100 is accepted, and the offered sizes are 5, 10, 25 and 100. A size between them is lowered to the next smaller offered size, and 1 to 4 become 5. The call still succeeds, and when the size used differs from the one asked for the result reports requestedPageSize and a pageSizeNote next to the pageSize actually used, so never report an adjusted page size as a rejection. When a result was truncated, ask for the next size down.";
+  "Results per page, any whole number from 1 to 100, served exactly: page counts in this size, so page 2 of pageSize 50 holds records 51 to 100. When a result was truncated, ask again with about half the size.";
 
-export const McpPageSizeEchoOutputShape = {
-  pageSize: z.number().optional().describe("The page size used"),
-  requestedPageSize: z
-    .number()
-    .optional()
-    .describe(
-      "Present when the size used differs from the one asked for: a size between the offered sizes 5, 10, 25 and 100 is lowered to the next smaller one, and 1 to 4 become 5. The call still succeeded",
-    ),
-  pageSizeNote: z.string().optional(),
+export const McpPageOutputShape = {
+  page: z.number().describe("The page returned, counted in pageSize"),
+  pageSize: z.number().describe("The page size asked for; every page but the last holds exactly this many records"),
 };
-
-export type McpPageSizeRequest = { applied: McpPageSize; requested: number };
-
-function mcpPageSizeRequest(requested: number): McpPageSizeRequest {
-  return { applied: roundMcpPageSize(requested), requested };
-}
 
 export const mcpPageSize = (
   defaultValue: McpPageSize,
   describe = `${MCP_PAGE_SIZE_DESCRIPTION} Default ${defaultValue}.`,
-) => z.coerce.number().int().min(1).max(100).default(defaultValue).transform(mcpPageSizeRequest).describe(describe);
+) => z.coerce.number().int().min(1).max(100).default(defaultValue).describe(describe);
 
 export const mcpOptionalPageSize = (describe: string) =>
   z.coerce.number().int().min(1).max(100).optional().describe(describe);
 
-export function mcpPageSizeEcho(size: McpPageSizeRequest): {
-  pageSize?: McpPageSize;
-  requestedPageSize?: number;
-  pageSizeNote?: string;
-} {
-  if (size.applied === size.requested) return {};
-  return {
-    pageSize: size.applied,
-    requestedPageSize: size.requested,
-    pageSizeNote: `${size.requested} is not an offered page size, so ${size.applied} was used. The call succeeded; nothing was refused.`,
-  };
+export type McpPageFetchPlan = { page: number; pageSize: McpPageSize; offset: number; spans: 1 | 2 };
+
+export function planMcpPageFetch(page: number, pageSize: number): McpPageFetchPlan {
+  const start = (page - 1) * pageSize;
+  const last = start + pageSize - 1;
+  const covering = MCP_PAGE_SIZES.filter((size) => size >= pageSize);
+  const single = covering.find((size) => Math.floor(start / size) === Math.floor(last / size));
+  const size = single ?? covering[0];
+  return { page: Math.floor(start / size) + 1, pageSize: size, offset: start % size, spans: single ? 1 : 2 };
+}
+
+type McpPageOutcome = { ok: boolean; data?: { items: readonly unknown[] } };
+
+export async function fetchMcpPage<R extends McpPageOutcome>(
+  request: { page: number; pageSize: number },
+  fetchPage: (pagination: { page: number; pageSize: McpPageSize }) => Promise<R>,
+): Promise<R> {
+  const plan = planMcpPageFetch(request.page, request.pageSize);
+  const first = await fetchPage({ page: plan.page, pageSize: plan.pageSize });
+  if (!first.ok || !first.data) return first;
+  let items = first.data.items.slice(plan.offset);
+  if (plan.spans === 2 && first.data.items.length === plan.pageSize) {
+    const next = await fetchPage({ page: plan.page + 1, pageSize: plan.pageSize });
+    if (!next.ok || !next.data) return next;
+    items = [...items, ...next.data.items];
+  }
+  return { ...first, data: { ...first.data, items: items.slice(0, request.pageSize) } } as R;
 }
 
 export const mcpPage = (maximum?: number) => {

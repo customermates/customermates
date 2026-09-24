@@ -57,16 +57,46 @@ describe("list_records numeric totals", () => {
     expect(text).not.toContain("sums");
   });
 
-  it("reports a lowered page size next to the requested one, so an adjustment never reads as a refusal", async () => {
-    spies.listDeals.mockResolvedValue({ ok: true, data: { items: [], pagination: { total: 0 } } });
+  it("serves a page size between the offered ones exactly, counting pages in that size", async () => {
+    const deals = Array.from({ length: 250 }, (_, index) => ({ id: `d${index + 1}`, name: `Deal-${index + 1}` }));
+    spies.listDeals.mockImplementation(({ pagination }: { pagination: { page: number; pageSize: number } }) =>
+      Promise.resolve({
+        ok: true,
+        data: {
+          items: deals.slice((pagination.page - 1) * pagination.pageSize, pagination.page * pagination.pageSize),
+          pagination: { total: deals.length },
+        },
+      }),
+    );
+    const list = async (args: Record<string, unknown>) => {
+      const result: unknown = await listRecordsTool.execute(
+        listRecordsTool.inputSchema.parse({ entity: "deal", ...args }),
+      );
+      return (result as { structuredContent: { page: number; pageSize: number; items: { id: string }[] } })
+        .structuredContent;
+    };
+    const ids = (from: number, to: number) => deals.slice(from, to).map((deal) => deal.id);
 
-    const lowered = await listRecordsTool.execute(listRecordsTool.inputSchema.parse({ entity: "deal", pageSize: 50 }));
-    const exact = await listRecordsTool.execute(listRecordsTool.inputSchema.parse({ entity: "deal", pageSize: 10 }));
+    spies.listDeals.mockClear();
+    const fifty = await list({ pageSize: 50 });
+    expect(spies.listDeals.mock.calls.map(([params]) => params.pagination)).toEqual([{ page: 1, pageSize: 100 }]);
+    expect(fifty).toMatchObject({ total: 250, page: 1, pageSize: 50 });
+    expect(fifty.items.map((item) => item.id)).toEqual(ids(0, 50));
+    expect(JSON.stringify(fifty)).not.toMatch(/requestedPageSize|pageSizeNote/);
 
-    expect(spies.listDeals).toHaveBeenCalledWith(expect.objectContaining({ pagination: { page: 1, pageSize: 25 } }));
-    expect(lowered).toMatchObject({ structuredContent: { pageSize: 25, requestedPageSize: 50 } });
-    expect(exact).toMatchObject({ structuredContent: { pageSize: 10 } });
-    expect(JSON.stringify(exact)).not.toContain("requestedPageSize");
+    spies.listDeals.mockClear();
+    const sixty = await list({ page: 2, pageSize: 60 });
+    expect(spies.listDeals.mock.calls.map(([params]) => params.pagination)).toEqual([
+      { page: 1, pageSize: 100 },
+      { page: 2, pageSize: 100 },
+    ]);
+    expect(sixty).toMatchObject({ total: 250, page: 2, pageSize: 60 });
+    expect(sixty.items.map((item) => item.id)).toEqual(ids(60, 120));
+
+    spies.listDeals.mockClear();
+    const ten = await list({ page: 3, pageSize: 10 });
+    expect(spies.listDeals.mock.calls.map(([params]) => params.pagination)).toEqual([{ page: 3, pageSize: 10 }]);
+    expect(ten.items.map((item) => item.id)).toEqual(ids(20, 30));
   });
 
   it("claims only totalValue and weightedValue as deal sums, while deal items still carry totalQuantity", () => {
