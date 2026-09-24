@@ -6,12 +6,15 @@ import type { GetDealByIdData } from "@/features/deals/get/get-deal-by-id.intera
 import type { CreateDealData } from "@/features/deals/upsert/create-deal.interactor";
 import type { UpdateDealData } from "@/features/deals/upsert/update-deal.interactor";
 
+import { EntityType } from "@/generated/prisma";
+
 import {
   getGetDealsInteractor,
   getGetDealByIdInteractor,
   getCreateDealInteractor,
   getUpdateDealInteractor,
   getDeleteDealInteractor,
+  getGetCustomColumnsByEntityTypeInteractor,
 } from "@/core/di";
 import { serializeResult } from "@/core/utils/action-result";
 import { unwrapValidated } from "@/core/validation/validation.utils";
@@ -33,8 +36,13 @@ export async function deleteDealAction(data: DeleteDealData) {
 }
 
 export async function getDealByIdAction(data: GetDealByIdData) {
-  const result = await unwrapValidated(getGetDealByIdInteractor().invoke(data));
-  return { entity: result.deal, customColumns: result.customColumns };
+  const result = await getGetDealByIdInteractor().invoke(data);
+  if (result.ok) return { entity: result.data.deal, customColumns: result.data.customColumns };
+
+  const customColumns = await unwrapValidated(
+    getGetCustomColumnsByEntityTypeInteractor().invoke({ entityType: EntityType.deal }),
+  );
+  return { entity: null, customColumns };
 }
 
 export async function createDealByNameAction(name: string, userId: string | null | undefined) {
