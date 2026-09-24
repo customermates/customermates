@@ -31,4 +31,17 @@ describe("agent chat surface contract", () => {
     expect(read("agent-tour-overlay.tsx")).toContain("OVERLAY_TOPMOST_LAYER_CLASS");
     expect(read("conversation-history.tsx")).toContain("layerClassName={OVERLAY_TOPMOST_LAYER_CLASS}");
   });
+
+  it("uses one icon-only context picker for click and slash entry", () => {
+    const picker = read("agent-context-picker.tsx");
+    const conversation = read("agent-conversation.tsx");
+
+    expect(picker).toContain('aria-keyshortcuts="/"');
+    expect(picker).toContain('data-testid="agent-context-picker-trigger"');
+    expect(picker).toContain('size="icon-sm"');
+    expect(picker).toContain('label={t("AgentChat.context.addTooltip")}');
+    expect(picker).not.toContain('t("AgentChat.context.add")');
+    expect(conversation).toContain("isAgentContextSlashCommand");
+    expect(conversation).toContain("restoreComposerFocusOnEscape={contextPickerOpenedBySlash}");
+  });
 });

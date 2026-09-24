@@ -24,7 +24,7 @@ import { AGENT_CONTEXT_ATTACHMENT_LIMIT, agentContextAttachmentKey } from "@/ee/
 
 import type { AgentContextCandidate } from "./agent-context-registry";
 
-import { focusAgentComposer } from "./chat-ui";
+import { ActionTooltip, focusAgentComposer } from "./chat-ui";
 import { useAgentChatStore, useAgentChatUiTargets } from "./agent-chat-store-context";
 
 type SearchState = {
@@ -50,16 +50,24 @@ function CandidateIcon({ context }: { context: AgentContextAttachment }) {
   return <Icon aria-hidden className="size-4" />;
 }
 
-export const AgentContextPicker = observer(function AgentContextPicker() {
+export const AgentContextPicker = observer(function AgentContextPicker({
+  open,
+  onOpenChange,
+  restoreComposerFocusOnEscape,
+}: {
+  open: boolean;
+  onOpenChange: (open: boolean) => void;
+  restoreComposerFocusOnEscape: boolean;
+}) {
   const store = useAgentChatStore();
   const uiTargets = useAgentChatUiTargets();
   const pathname = usePathname();
   const t = useTranslations();
   const { singular } = useEntityTerminology();
-  const [open, setOpen] = useState(false);
   const [query, setQuery] = useState("");
   const [searchState, setSearchState] = useState<SearchState | null>(null);
   const inputRef = useRef<HTMLInputElement | null>(null);
+  const restoreComposerFocusRef = useRef(false);
   const trimmedQuery = query.trim();
   const debouncedQuery = useDebouncedValue(trimmedQuery);
   const onPageCandidates: AgentContextCandidate[] = store.contextRegistry.candidates(pathname);
@@ -105,7 +113,7 @@ export const AgentContextPicker = observer(function AgentContextPicker() {
   }, [debouncedQuery, open, trimmedQuery]);
 
   const close = () => {
-    setOpen(false);
+    onOpenChange(false);
     setQuery("");
     setSearchState(null);
   };
@@ -114,8 +122,8 @@ export const AgentContextPicker = observer(function AgentContextPicker() {
     store.addComposerContext(candidate.context, candidate.pageRoute, candidate.starter, {
       replaceOldestAtLimit: candidate.context.reference.kind === "dataView",
     });
+    restoreComposerFocusRef.current = true;
     close();
-    focusAgentComposer(uiTargets);
   };
 
   const recordCandidates = useMemo(
@@ -137,22 +145,41 @@ export const AgentContextPicker = observer(function AgentContextPicker() {
     <Popover
       open={open}
       onOpenChange={(nextOpen) => {
-        if (nextOpen) setOpen(true);
-        else close();
+        if (nextOpen) {
+          restoreComposerFocusRef.current = false;
+          onOpenChange(true);
+        } else close();
       }}
     >
-      <PopoverTrigger asChild>
-        <Button aria-label={t("AgentChat.context.addAria")} className="h-8 gap-1.5 px-2" size="sm" variant="ghost">
-          <Plus aria-hidden className="size-3.5" />
-
-          <span>{t("AgentChat.context.add")}</span>
-        </Button>
-      </PopoverTrigger>
+      <ActionTooltip label={t("AgentChat.context.addTooltip")}>
+        <PopoverTrigger asChild>
+          <Button
+            aria-keyshortcuts="/"
+            aria-label={t("AgentChat.context.addAria")}
+            className="shrink-0"
+            data-testid="agent-context-picker-trigger"
+            size="icon-sm"
+            variant="ghost"
+          >
+            <Plus aria-hidden className="size-4" />
+          </Button>
+        </PopoverTrigger>
+      </ActionTooltip>
 
       <PopoverContent
         align="start"
         className={cn("w-80 overflow-hidden p-0", OVERLAY_TOPMOST_LAYER_CLASS)}
         side="top"
+        onCloseAutoFocus={(event) => {
+          if (!restoreComposerFocusRef.current) return;
+
+          event.preventDefault();
+          restoreComposerFocusRef.current = false;
+          focusAgentComposer(uiTargets);
+        }}
+        onEscapeKeyDown={() => {
+          restoreComposerFocusRef.current = restoreComposerFocusOnEscape;
+        }}
         onOpenAutoFocus={() => inputRef.current?.focus()}
       >
         <Command shouldFilter={false}>

@@ -3,7 +3,7 @@
 import type { RefObject } from "react";
 
 import { observer } from "mobx-react-lite";
-import { Fragment } from "react";
+import { Fragment, useState } from "react";
 import { useTranslations } from "next-intl";
 import { ArrowUp, Loader2, Square } from "lucide-react";
 
@@ -19,6 +19,7 @@ import { AgentActivity, AgentChatItemView, consecutiveActivityItems, isWorkingAc
 import { AgentInitialProgress } from "./agent-status-announcer";
 import { AgentComposerContexts } from "./agent-composer-contexts";
 import { AgentContextPicker } from "./agent-context-picker";
+import { isAgentContextSlashCommand } from "./agent-context-shortcut";
 import { CreditBlockedNotice } from "./credit-blocked-notice";
 import { QueuedPrompt } from "./queued-prompt";
 import { UsageRing } from "./usage-ring";
@@ -90,6 +91,8 @@ export const AgentComposer = observer(function AgentComposer() {
   const store = useAgentChatStore();
   const uiTargets = useAgentChatUiTargets();
   const t = useTranslations();
+  const [contextPickerOpen, setContextPickerOpen] = useState(false);
+  const [contextPickerOpenedBySlash, setContextPickerOpenedBySlash] = useState(false);
   const usage = store.usage;
   const blocked = usage?.blockedReason ?? null;
 
@@ -120,6 +123,24 @@ export const AgentComposer = observer(function AgentComposer() {
                 value={store.composerDraft}
                 onChange={(event) => store.setComposerDraft(event.target.value)}
                 onKeyDown={(event) => {
+                  if (
+                    isAgentContextSlashCommand({
+                      altKey: event.altKey,
+                      ctrlKey: event.ctrlKey,
+                      isComposing: event.nativeEvent.isComposing,
+                      key: event.key,
+                      metaKey: event.metaKey,
+                      selectionEnd: event.currentTarget.selectionEnd,
+                      selectionStart: event.currentTarget.selectionStart,
+                      value: event.currentTarget.value,
+                    })
+                  ) {
+                    event.preventDefault();
+                    setContextPickerOpenedBySlash(true);
+                    setContextPickerOpen(true);
+                    return;
+                  }
+
                   if (event.key === "Enter" && !event.shiftKey && !event.nativeEvent.isComposing) {
                     event.preventDefault();
                     submit();
@@ -127,7 +148,14 @@ export const AgentComposer = observer(function AgentComposer() {
                 }}
               />
 
-              <AgentContextPicker />
+              <AgentContextPicker
+                open={contextPickerOpen}
+                restoreComposerFocusOnEscape={contextPickerOpenedBySlash}
+                onOpenChange={(open) => {
+                  if (open) setContextPickerOpenedBySlash(false);
+                  setContextPickerOpen(open);
+                }}
+              />
             </div>
 
             <UsageRing />

@@ -416,8 +416,8 @@
     "askAi": "KI fragen",
     "askAiWorking": "Mate arbeitet",
     "context": {
-      "add": "Hinzufügen",
       "addAria": "Kontext hinzufügen",
+      "addTooltip": "Kontext hinzufügen oder / eingeben",
       "namedNewViewLabel": "Neue Ansicht: {name}",
       "newViewLabel": "Neue {location}-Ansicht",
       "noResults": "Kein passender Kontext",

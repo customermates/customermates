@@ -416,8 +416,8 @@
     "askAi": "Chiedi all'IA",
     "askAiWorking": "Mate sta lavorando",
     "context": {
-      "add": "Aggiungi",
       "addAria": "Aggiungi contesto",
+      "addTooltip": "Aggiungi contesto o digita /",
       "namedNewViewLabel": "Nuova vista: {name}",
       "newViewLabel": "Nuova vista {location}",
       "noResults": "Nessun contesto corrispondente",

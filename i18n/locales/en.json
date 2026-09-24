@@ -416,8 +416,8 @@
     "askAi": "Ask AI",
     "askAiWorking": "Mate is working",
     "context": {
-      "add": "Add",
       "addAria": "Add context",
+      "addTooltip": "Add context or type /",
       "namedNewViewLabel": "New view: {name}",
       "newViewLabel": "New {location} view",
       "noResults": "No matching context",
