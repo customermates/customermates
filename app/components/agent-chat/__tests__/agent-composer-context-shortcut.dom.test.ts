@@ -85,6 +85,7 @@ beforeEach(() => {
   harness.store = {
     composerContexts: [],
     composerDraft: "Keep my draft ",
+    dismissComposerStarter: vi.fn(),
     isWorking: false,
     queuedPrompt: null,
     removeComposerContext: vi.fn(),
@@ -102,6 +103,38 @@ afterEach(() => {
 });
 
 describe("AgentComposer context shortcut", () => {
+  it("dismisses an untouched starter when the user presses within the input", async () => {
+    harness.store.composerDraft = "Untouched starter";
+    harness.store.dismissComposerStarter = vi.fn(() => {
+      harness.store.composerDraft = "";
+    });
+    act(() => root.render(createElement(AgentComposer)));
+    await act(() => new Promise((resolve) => setTimeout(resolve, 0)));
+
+    const inputLine = container.querySelector<HTMLElement>('[data-testid="agent-composer-input-line"]');
+    act(() => {
+      inputLine?.dispatchEvent(new MouseEvent("pointerdown", { bubbles: true, button: 0 }));
+      root.render(createElement(AgentComposer));
+    });
+
+    expect(harness.store.dismissComposerStarter).toHaveBeenCalledOnce();
+    expect(container.querySelector('[data-testid="agent-composer-placeholder"]')?.textContent).toBe(
+      "AgentChat.placeholder",
+    );
+  });
+
+  it("keeps an untouched starter on a non-primary pointer press", async () => {
+    act(() => root.render(createElement(AgentComposer)));
+    await act(() => new Promise((resolve) => setTimeout(resolve, 0)));
+
+    const inputLine = container.querySelector<HTMLElement>('[data-testid="agent-composer-input-line"]');
+    act(() => {
+      inputLine?.dispatchEvent(new MouseEvent("pointerdown", { bubbles: true, button: 2 }));
+    });
+
+    expect(harness.store.dismissComposerStarter).not.toHaveBeenCalled();
+  });
+
   it("opens the same controlled context picker without changing the existing draft", async () => {
     act(() => root.render(createElement(AgentComposer)));
     await act(() => new Promise((resolve) => setTimeout(resolve, 0)));

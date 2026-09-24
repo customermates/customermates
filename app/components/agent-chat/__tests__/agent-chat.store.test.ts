@@ -572,6 +572,71 @@ describe("AgentChatStore", () => {
     expect(store.composerContexts).toEqual([DEALS_VIEW_CONTEXT]);
   });
 
+  it("dismisses only an untouched context starter while preserving its context and pinned route", () => {
+    stubBrowser("/en/deals");
+    const route = "/en/contacts?view=__all__&viewSurface=contacts-card-store&viewAction=update";
+    const store = new AgentChatStore(root() as never);
+    store.openWithContextDraft({ context: CONTACTS_VIEW_CONTEXT, draft: "Update this view", pageRoute: route });
+
+    expect(store.dismissComposerStarter()).toBe(true);
+    expect(store.composerDraft).toBe("");
+    expect(store.composerContexts).toEqual([CONTACTS_VIEW_CONTEXT]);
+    expect(store.dismissComposerStarter()).toBe(false);
+
+    store.setComposerDraft("Apply my changes");
+    const send = vi.spyOn(store, "sendMessage").mockResolvedValue(undefined);
+    store.submitDraft();
+    expect(send).toHaveBeenCalledWith("Apply my changes", {
+      contexts: [CONTACTS_VIEW_CONTEXT],
+      pageRoute: route,
+    });
+  });
+
+  it.each(["Update this view with my changes", "Update this view"])(
+    "preserves the user-authored draft %j after editing a context starter",
+    (draft) => {
+      const store = new AgentChatStore(root() as never);
+      store.openWithContextDraft({ context: CONTACTS_VIEW_CONTEXT, draft: "Update this view" });
+
+      store.setComposerDraft(draft);
+
+      expect(store.dismissComposerStarter()).toBe(false);
+      expect(store.composerDraft).toBe(draft);
+    },
+  );
+
+  it("preserves unrelated existing and explicitly opened drafts when dismissing a starter", () => {
+    const store = new AgentChatStore(root() as never);
+    store.setComposerDraft("Keep my unrelated draft");
+    store.openWithContextDraft({ context: CONTACTS_VIEW_CONTEXT, draft: "Update this view" });
+
+    expect(store.dismissComposerStarter()).toBe(false);
+    expect(store.composerDraft).toBe("Keep my unrelated draft");
+
+    store.setComposerDraft("");
+    store.openWithContextDraft({ context: CONTACTS_VIEW_CONTEXT, draft: "Update this view" });
+    store.openWithDraft("Help me create my first contact.");
+
+    expect(store.dismissComposerStarter()).toBe(false);
+    expect(store.composerDraft).toBe("Help me create my first contact.");
+  });
+
+  it("replaces an untouched starter for a second context action but preserves authored text", () => {
+    const store = new AgentChatStore(root() as never);
+    store.openWithContextDraft({ context: CONTACTS_VIEW_CONTEXT, draft: "Update this view" });
+
+    store.openWithContextDraft({ context: DEALS_VIEW_CONTEXT, draft: "Create a deal view" });
+
+    expect(store.composerDraft).toBe("Create a deal view");
+    expect(store.composerContexts).toEqual([DEALS_VIEW_CONTEXT]);
+
+    store.setComposerDraft("Keep my authored request");
+    store.openWithContextDraft({ context: CONTACTS_VIEW_CONTEXT, draft: "Update this view" });
+
+    expect(store.composerDraft).toBe("Keep my authored request");
+    expect(store.composerContexts).toEqual([CONTACTS_VIEW_CONTEXT]);
+  });
+
   it("clears a stale pinned route when replacing a data-view context without a route", () => {
     stubBrowser("/en/contacts");
     const store = new AgentChatStore(root() as never);

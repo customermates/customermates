@@ -284,6 +284,7 @@ export class AgentChatStore extends BaseStore {
   olderMessagesPending = false;
   items: AgentChatItem[] = [];
   composerDraft = "";
+  private composerStarterDraft: string | null = null;
   composerContexts: AgentContextAttachment[] = [];
   queuedPrompt: string | null = null;
   queuedPromptNeedsAttention = false;
@@ -396,6 +397,7 @@ export class AgentChatStore extends BaseStore {
       toggle: action,
       toggleExpanded: action,
       setComposerDraft: action,
+      dismissComposerStarter: action,
       addComposerContext: action,
       removeComposerContext: action,
       removeLastComposerContext: action,
@@ -424,6 +426,7 @@ export class AgentChatStore extends BaseStore {
 
   openWithDraft = (value: string) => {
     this.isHistoryOpen = false;
+    this.composerStarterDraft = null;
     this.composerDraft = value;
     this.open();
   };
@@ -545,6 +548,7 @@ export class AgentChatStore extends BaseStore {
   private beginNewConversation() {
     this.resetConversation(null);
     this.isDraftConversationSelected = true;
+    this.composerStarterDraft = null;
     this.composerDraft = "";
     this.composerContexts = [];
     this.composerContextPageRoute = null;
@@ -570,7 +574,16 @@ export class AgentChatStore extends BaseStore {
   }
 
   setComposerDraft = (value: string) => {
+    this.composerStarterDraft = null;
     this.composerDraft = value;
+  };
+
+  dismissComposerStarter = (): boolean => {
+    const starter = this.composerStarterDraft;
+    this.composerStarterDraft = null;
+    if (starter === null || this.composerDraft !== starter) return false;
+    this.composerDraft = "";
+    return true;
   };
 
   addComposerContext = (
@@ -594,7 +607,11 @@ export class AgentChatStore extends BaseStore {
     }
     this.composerContexts = next;
     if (normalizedContext.reference.kind === "dataView") this.composerContextPageRoute = pageRoute ?? null;
-    if (!this.composerDraft.trim() && starter) this.composerDraft = starter;
+    const hasUntouchedStarter = this.composerStarterDraft !== null && this.composerDraft === this.composerStarterDraft;
+    if (starter && (!this.composerDraft.trim() || hasUntouchedStarter)) {
+      this.composerStarterDraft = starter;
+      this.composerDraft = starter;
+    }
   };
 
   removeComposerContext = (key: string) => {
@@ -624,12 +641,14 @@ export class AgentChatStore extends BaseStore {
       this.queuedPromptConversationId = this.conversationId;
       this.queuedPromptPageRoute = pageRoute;
       this.queuedPromptContexts = contexts;
+      this.composerStarterDraft = null;
       this.composerDraft = "";
       this.composerContexts = [];
       this.composerContextPageRoute = null;
       return;
     }
     this.setOpenState(true);
+    this.composerStarterDraft = null;
     this.composerDraft = "";
     this.composerContexts = [];
     this.composerContextPageRoute = null;
@@ -638,6 +657,7 @@ export class AgentChatStore extends BaseStore {
 
   editQueuedPrompt = () => {
     if (!this.queuedPrompt) return;
+    this.composerStarterDraft = null;
     this.composerDraft = this.queuedPrompt;
     this.composerContexts = this.queuedPromptContexts;
     this.composerContextPageRoute = this.queuedPromptPageRoute;
@@ -1532,6 +1552,7 @@ export class AgentChatStore extends BaseStore {
               this.items = this.items.filter((item) => !(item.kind === "user" && item.messageId === messageId));
 
             if (!this.composerDraft) {
+              this.composerStarterDraft = null;
               this.composerDraft = trimmed;
               this.composerContexts = contexts;
               this.composerContextPageRoute = contexts.some((context) => context.reference.kind === "dataView")

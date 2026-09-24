@@ -120,6 +120,7 @@ export const AgentComposer = observer(function AgentComposer() {
                   setContextPickerOpenedBySlash(true);
                   setContextPickerOpen(true);
                 }}
+                onInputPointerDown={store.dismissComposerStarter}
                 onRemovePreviousContext={store.removeLastComposerContext}
                 onSubmit={submit}
               >
