@@ -292,6 +292,22 @@ describe("analyze_records", () => {
     expect(AnalyzeRecordsSchema.shape.reads.description).toMatch(/^One to ten reads/);
   });
 
+  it("runs async code over the reads and tells the model it may be async with nothing to await", async () => {
+    const { tool } = listTool("list_things", 3);
+    await expect(
+      analyzeRecords(
+        { reads: [read("list_things")], code: "async (data) => data[0].items.map((row) => row.value)" },
+        deps(tool),
+      ),
+    ).resolves.toEqual({ ok: true, result: JSON.stringify({ rowsRead: 3, result: [1, 2, 3] }) });
+    for (const text of [ANALYZE_RECORDS_DESCRIPTION, AnalyzeRecordsSchema.shape.code.description]) {
+      expect(text).not.toMatch(/synchronous|without async/);
+      expect(text).toContain(
+        "may be async, but there is nothing to await: tools cannot be called from the code, so every read goes in reads.",
+      );
+    }
+  });
+
   it("stops on an unreadable input or a failed read, and reports a failing function", async () => {
     const { tool } = listTool("list_things", 3);
     await expect(

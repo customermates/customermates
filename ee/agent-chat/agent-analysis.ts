@@ -30,7 +30,7 @@ export const AnalyzeRecordsSchema = z.object({
     .min(1)
     .max(20_000)
     .describe(
-      "A synchronous JavaScript function expression (data) => result, without async or await. It runs with no network, clock or other tools, and must return JSON-serializable data.",
+      "A JavaScript function expression (data) => result. It may be async, but there is nothing to await: tools cannot be called from the code, so every read goes in reads. It runs with no network or clock, and must return JSON-serializable data.",
     ),
 });
 
@@ -38,7 +38,8 @@ export type AnalyzeRecordsInput = z.infer<typeof AnalyzeRecordsSchema>;
 
 export const ANALYZE_RECORDS_DESCRIPTION =
   "Use this when an answer needs arithmetic over many records that no filter or sum expresses: a median, a ranking with a tie-break, a per-record ratio, normalized duplicates, or counting rows by a field the list returns. " +
-  "It runs up to ten read-only tool calls, collects every page of each list (up to 10,000 rows and 8 MB in total, never a truncated set), and passes the results to your synchronous JavaScript function (data) => result, which runs in an isolated sandbox with no network, clock or tools. " +
+  "It runs up to ten read-only tool calls, collects every page of each list (up to 10,000 rows and 8 MB in total, never a truncated set), and passes the results to your JavaScript function (data) => result, which runs in an isolated sandbox with no network, clock or tools. " +
+  "The function may be async, but there is nothing to await: tools cannot be called from the code, so every read goes in reads. " +
   "data[i] is reads[i]'s structured result; list results carry total and items across all pages. A list_records item holds only id, name and, for deals, totalValue, totalQuantity and weightedValue: no owners, links or custom fields. " +
   "When the answer depends on those, or is a count or total per status, owner or month, use filters, sums or list_records groupBy instead, and report figures exactly as the result states them.";
 

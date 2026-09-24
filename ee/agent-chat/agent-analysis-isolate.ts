@@ -12,9 +12,16 @@ export const ANALYSIS_LIMITS: AnalysisLimits = { memoryBytes: 128 * 1024 * 1024,
 export type AnalysisOutcome = { ok: true; value: unknown } | { ok: false; error: string };
 
 const ANALYSIS_INTRINSICS =
-  Intrinsics.EVAL | Intrinsics.JSON | Intrinsics.MAP_SET | Intrinsics.REGEXP | Intrinsics.TYPED_ARRAYS;
+  Intrinsics.EVAL |
+  Intrinsics.JSON |
+  Intrinsics.MAP_SET |
+  Intrinsics.PROMISE |
+  Intrinsics.REGEXP |
+  Intrinsics.TYPED_ARRAYS;
 const TERMINATE_MARGIN_MS = 250;
-const NOT_A_SYNCHRONOUS_FUNCTION = "AnalysisCodeIsNotASynchronousFunction";
+const NOT_A_FUNCTION = "AnalysisCodeIsNotAFunction";
+const NEVER_SETTLED = "AnalysisPromiseNeverSettled";
+const HOLDS_PROMISE = "AnalysisResultHoldsAPromise";
 
 type Stop = "time" | "steps" | null;
 type WorkerReport = { ok: true; serialized: string | null } | { ok: false; stop: Stop; message: string };
@@ -49,12 +56,34 @@ const ANALYSIS_WORKER_SOURCE = `(async () => {
       return stop !== null;
     },
   });
+  const messageOf = (thrown) =>
+    thrown.consume((value) =>
+      value.getProp("message").consume((message) => (message.isUndefined ? value.toString() : message.toString())),
+    );
   try {
     const input = vm.newString(workerData.input);
     vm.setProp(vm.global, "__analysisInput", input);
     input.dispose();
-    const result = vm.evalCode(workerData.source, "analysis.js");
+    let result = vm.evalCode(workerData.source, "analysis.js");
+    if (result.isPromise) {
+      const promise = result;
+      try {
+        vm.executePendingJobs();
+        if (promise.promiseState === 0) {
+          const unreported = vm.getException();
+          if (unreported.typeof !== "unknown") throw new Error(messageOf(unreported));
+          unreported.dispose();
+          throw new Error("${NEVER_SETTLED}");
+        }
+        const settled = await vm.resolvePromise(promise);
+        if ("error" in settled) throw new Error(messageOf(settled.error));
+        result = settled.value;
+      } finally {
+        promise.dispose();
+      }
+    }
     try {
+      if (stop !== null) throw new Error("interrupted");
       const serialized = vm.dump(result);
       report.postMessage({ ok: true, serialized: typeof serialized === "string" ? serialized : null });
     } finally {
@@ -77,7 +106,7 @@ function quickjsModule(): Promise<WebAssembly.Module> {
 }
 
 function analysisSource(code: string): string {
-  return `(() => { const run = (${code}); if (typeof run !== "function") throw new TypeError("${NOT_A_SYNCHRONOUS_FUNCTION}"); const data = JSON.parse(__analysisInput); __analysisInput = undefined; return JSON.stringify(run(data)); })()`;
+  return `(() => { const run = (${code}); if (typeof run !== "function") throw new TypeError("${NOT_A_FUNCTION}"); const data = JSON.parse(__analysisInput); __analysisInput = undefined; const serialize = (value) => JSON.stringify(value, (key, item) => { if (item instanceof Promise) throw new TypeError("${HOLDS_PROMISE}"); return item; }); const result = run(data); return result instanceof Promise ? result.then(serialize) : serialize(result); })()`;
 }
 
 function stoppedError(stop: Stop, message: string): string {
@@ -85,8 +114,11 @@ function stoppedError(stop: Stop, message: string): string {
   if (stop === "steps") return "The analysis code exceeded its step budget and was stopped.";
   if (message === "<null>" || /out of memory/i.test(message))
     return "The analysis code ran out of memory and was stopped.";
-  if (message === NOT_A_SYNCHRONOUS_FUNCTION)
-    return "The analysis code must be one synchronous function expression (data) => result; async functions, await and promises are not available.";
+  if (message === NOT_A_FUNCTION)
+    return "The analysis code must be one function expression (data) => result; it may be async.";
+  if (message === NEVER_SETTLED)
+    return "The analysis code returned a promise that never settled; the code has no timers, network or tools to wait for.";
+  if (message === HOLDS_PROMISE) return "The analysis result holds a promise; await it, for example with Promise.all.";
   return `The analysis code failed: ${message.slice(0, 500)}`;
 }
 
