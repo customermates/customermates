@@ -686,48 +686,56 @@ export class PrismaAgentChatRepo extends BaseRepository implements AgentUsageRep
 
   async getSuggestionSignals() {
     const select = { id: true };
-    const [contact, organization, deal, service, task, routine, widget, connectedAccount] = await Promise.all([
-      this.prisma.contact.findFirst({
-        where: this.accessWhere("contact"),
-        select,
-      }),
-      this.prisma.organization.findFirst({
-        where: this.accessWhere("organization"),
-        select,
-      }),
-      this.prisma.deal.findFirst({
-        where: this.accessWhere("deal"),
-        select,
-      }),
-      this.prisma.service.findFirst({
-        where: this.accessWhere("service"),
-        select,
-      }),
-      this.prisma.task.findFirst({
-        where: this.accessWhere("task"),
-        select,
-      }),
-      this.prisma.routine.findFirst({
-        where: this.accessWhere("routine"),
-        select,
-      }),
-      this.prisma.widget.findFirst({
-        where: {
-          companyId: this.companyId,
-          userId: this.userId,
-        },
-        select,
-      }),
-      this.prisma.connectedAccount.findFirst({
-        where: this.canAccess(Resource.inboxMessages)
-          ? {
-              companyId: this.companyId,
-              OR: [{ userId: this.userId }, { shared: true }],
-            }
-          : { companyId: this.companyId, id: { in: [] } },
-        select,
-      }),
-    ]);
+    const [contact, organization, deal, service, task, routine, wikiPage, widget, connectedAccount] = await Promise.all(
+      [
+        this.prisma.contact.findFirst({
+          where: this.accessWhere("contact"),
+          select,
+        }),
+        this.prisma.organization.findFirst({
+          where: this.accessWhere("organization"),
+          select,
+        }),
+        this.prisma.deal.findFirst({
+          where: this.accessWhere("deal"),
+          select,
+        }),
+        this.prisma.service.findFirst({
+          where: this.accessWhere("service"),
+          select,
+        }),
+        this.prisma.task.findFirst({
+          where: this.accessWhere("task"),
+          select,
+        }),
+        this.prisma.routine.findFirst({
+          where: this.accessWhere("routine"),
+          select,
+        }),
+        this.prisma.wikiPage.findFirst({
+          where: this.canAccess(Resource.wiki)
+            ? { companyId: this.companyId }
+            : { companyId: this.companyId, id: { in: [] } },
+          select,
+        }),
+        this.prisma.widget.findFirst({
+          where: {
+            companyId: this.companyId,
+            userId: this.userId,
+          },
+          select,
+        }),
+        this.prisma.connectedAccount.findFirst({
+          where: this.canAccess(Resource.inboxMessages)
+            ? {
+                companyId: this.companyId,
+                OR: [{ userId: this.userId }, { shared: true }],
+              }
+            : { companyId: this.companyId, id: { in: [] } },
+          select,
+        }),
+      ],
+    );
 
     return {
       contacts: Boolean(contact),
@@ -736,6 +744,7 @@ export class PrismaAgentChatRepo extends BaseRepository implements AgentUsageRep
       services: Boolean(service),
       tasks: Boolean(task),
       routines: Boolean(routine),
+      wiki: Boolean(wikiPage),
       widgets: Boolean(widget),
       connectedAccounts: Boolean(connectedAccount),
     };

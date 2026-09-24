@@ -148,6 +148,7 @@ export const AgentDataCountsSchema = z.object({
   services: z.boolean(),
   tasks: z.boolean(),
   routines: z.boolean(),
+  wiki: z.boolean(),
   widgets: z.boolean(),
   connectedAccounts: z.boolean(),
 });
@@ -172,6 +173,7 @@ export const SUGGESTION_PAGE_IDS = [
   "deals",
   "services",
   "routines",
+  "wiki",
   "connected-accounts",
   "default",
 ] as const;

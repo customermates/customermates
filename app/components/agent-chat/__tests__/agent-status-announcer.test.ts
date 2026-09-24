@@ -17,7 +17,7 @@ vi.mock("../agent-chat-items", () => ({
   useAgentActivityTerminology: () => ({}),
 }));
 
-import { AgentInitialProgress, AgentStatusAnnouncer } from "../agent-status-announcer";
+import { AgentInitialProgress, AgentProgressStatus, AgentStatusAnnouncer } from "../agent-status-announcer";
 
 function renderStatus(overrides: Record<string, unknown> = {}) {
   testContext.store = {
@@ -94,13 +94,26 @@ describe("AgentStatusAnnouncer", () => {
             affectedResources: [],
             risk: "read",
             sourceDomain: "customermates.com",
+            sourcePage: "customermates.com/company",
           },
           status: "running",
         },
       ],
     });
 
-    expect(markup).toContain("AgentChat.activity.state.web.read.running:customermates.com");
+    expect(markup).toContain("AgentChat.activity.state.web.read.running:customermates.com/company");
+  });
+
+  it("renders reconnecting status without outer padding when it is embedded in a transcript", () => {
+    renderStatus({ isWorking: true, streamStatus: "reconnecting" });
+
+    const inline = renderToStaticMarkup(createElement(AgentProgressStatus, { inline: true }));
+    const standalone = renderToStaticMarkup(createElement(AgentProgressStatus));
+
+    expect(inline).toContain("AgentChat.ui.reconnecting");
+    expect(inline).toContain("motion-reduce:animate-none");
+    expect(inline).not.toContain("px-4");
+    expect(standalone).toContain("px-4");
   });
   it("does not announce a historical result hydrated into a closed assistant", () => {
     const historical = renderStatus({

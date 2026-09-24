@@ -55,6 +55,7 @@ const CONFIG = {
     services: false,
     tasks: false,
     routines: false,
+    wiki: false,
     widgets: false,
     connectedAccounts: false,
   },

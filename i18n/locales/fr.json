@@ -754,6 +754,36 @@
               "prompt": "Faites-moi visiter les tâches et expliquez comment elles se relient aux contacts, organisations, opportunités et services."
             }
           }
+        },
+        "wiki": {
+          "data": {
+            "create-wiki-page": {
+              "label": "Créer une page Wiki",
+              "prompt": "Aide-moi à créer une nouvelle page dans le Wiki de l’espace de travail. Demande quelles informations sur l’entreprise, les produits, le support, les processus ou le ton sont nécessaires à Mate et aux outils d’IA connectés, puis crée-la après ma confirmation."
+            },
+            "wiki-gaps": {
+              "label": "Trouver les connaissances manquantes",
+              "prompt": "Examine notre Wiki de l’espace de travail et identifie les informations manquantes, obsolètes ou contradictoires les plus importantes. N’effectue aucune modification."
+            },
+            "wiki-summary": {
+              "label": "Résumer le Wiki",
+              "prompt": "Résume notre Wiki de l’espace de travail, notamment les processus, les informations produit, les consignes de support et les règles de ton qu’il contient."
+            }
+          },
+          "empty": {
+            "first-wiki-page": {
+              "label": "Créer ma première page Wiki",
+              "prompt": "Aide-moi à créer la première page de notre Wiki de l’espace de travail. Demande quelles informations sur l’entreprise, les produits, le support, les processus ou le ton sont nécessaires à Mate et aux outils d’IA connectés, puis crée-la après ma confirmation."
+            },
+            "wiki-structure": {
+              "label": "Suggérer une structure de Wiki",
+              "prompt": "Examine mon espace de travail et suggère trois à cinq pages utiles pour le Wiki. Ne crée encore rien."
+            },
+            "wiki-tour": {
+              "label": "Découvrir le fonctionnement du Wiki",
+              "prompt": "Explique comment Mate, les routines et les outils d’IA connectés utilisent le Wiki de l’espace de travail, notamment les liens et les autorisations. N’effectue aucune modification."
+            }
+          }
         }
       },
       "readOnly": {
@@ -3612,8 +3642,7 @@
     "copyLink": "Copier le lien de la page",
     "delete": "Supprimer la page",
     "document": "Document",
-    "emptyBody": "Conservez ici vos processus, les connaissances de l’entreprise et vos consignes de rédaction. Créez une page ou laissez Mate lire votre site web.",
-    "emptyBodyManual": "Créez votre première page de wiki.",
+    "emptyBody": "Donnez à Mate et aux outils d’IA connectés les connaissances, processus et consignes dont ils ont besoin.",
     "emptyBodyReadOnly": "Aucune page de wiki n’a encore été créée.",
     "emptyTitle": "Le wiki de votre espace de travail est vide",
     "linkPage": "Lier une page du wiki…",
@@ -3670,6 +3699,7 @@
     "skip": "Pas maintenant",
     "start": "Créer mon wiki",
     "startFailed": "Mate n’a pas pu démarrer la configuration du wiki. Réessayez.",
+    "startFromWebsite": "Créer à partir de mon site web",
     "status": {
       "completedBody": "Vos cinq pages wiki initiales et reliées sont prêtes. Elles contiennent des faits issus du site web et des lacunes clairement indiquées pour ce qui n’a pas pu être vérifié.",
       "completedBodyOnboarding": "Mate a créé cinq pages initiales reliées avec des faits issus du site web et des lacunes clairement indiquées pour ce qu’il n’a pas pu vérifier. Vous pourrez les vérifier et les modifier plus tard dans le wiki.",

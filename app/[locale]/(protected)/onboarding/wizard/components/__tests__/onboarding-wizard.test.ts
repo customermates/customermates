@@ -43,15 +43,26 @@ vi.mock("@/app/components/agent-chat/agent-chat-store-context", () => ({
 }));
 vi.mock("@/app/components/agent-chat/agent-route-reload", () => ({ AgentRouteReloadBridge: () => null }));
 vi.mock("@/app/components/agent-chat/agent-conversation", () => ({
-  AgentConversationLog: ({ readOnly, renderLinksAsText }: { readOnly?: boolean; renderLinksAsText?: boolean }) =>
-    createElement("div", {
-      "data-agent-conversation": true,
-      "data-links-as-text": renderLinksAsText,
-      "data-read-only": readOnly,
-    }),
+  AgentConversationLog: ({
+    readOnly,
+    renderLinksAsText,
+    showProgressStatus,
+  }: {
+    readOnly?: boolean;
+    renderLinksAsText?: boolean;
+    showProgressStatus?: boolean;
+  }) =>
+    createElement(
+      "div",
+      {
+        "data-agent-conversation": true,
+        "data-links-as-text": renderLinksAsText,
+        "data-read-only": readOnly,
+      },
+      showProgressStatus ? createElement("div", { "data-agent-progress": true }) : null,
+    ),
 }));
 vi.mock("@/app/components/agent-chat/agent-status-announcer", () => ({
-  AgentProgressStatus: () => createElement("div", { "data-agent-progress": true }),
   AgentStatusAnnouncer: () => createElement("div", { "data-agent-announcer": true }),
 }));
 vi.mock("@/components/ui/tooltip", () => ({
@@ -206,6 +217,11 @@ describe("OnboardingWizard", () => {
     expect(html).toContain('data-agent-progress="true"');
     expect(html).toContain('data-agent-announcer="true"');
     expect(html).not.toContain("agent-composer");
+    const container = document.createElement("div");
+    container.innerHTML = html;
+    const conversation = container.querySelector('[data-agent-conversation="true"]');
+    expect(conversation?.querySelector('[data-agent-progress="true"]')).not.toBeNull();
+    expect(container.querySelectorAll('[data-agent-progress="true"]')).toHaveLength(1);
   });
 
   it("loads a restored setup conversation through the dedicated embedded store", async () => {

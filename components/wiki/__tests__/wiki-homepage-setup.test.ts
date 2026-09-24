@@ -140,6 +140,19 @@ describe("WikiHomepageSetup", () => {
     expect(container.textContent).toContain("WikiSetup.start");
   });
 
+  it("keeps the on-demand Wiki setup focused on one website field", () => {
+    render(undefined, { compact: true });
+
+    expect(input().getAttribute("aria-describedby")).toBe("wiki-homepage-help");
+    expect(container.textContent).not.toContain("WikiSetup.description");
+    expect(container.textContent).not.toContain("WikiSetup.gapsNote");
+    for (const topic of ["company", "products", "customers", "voice", "support"])
+      expect(container.textContent).not.toContain(`WikiSetup.topics.${topic}`);
+    expect(container.textContent).toContain("WikiSetup.homepageHelp");
+    expect(container.querySelectorAll("button")).toHaveLength(2);
+    expect(document.activeElement).toBe(input());
+  });
+
   it("deduplicates submission and transitions to a durable visible-task state", async () => {
     let resolve!: (value: unknown) => void;
     harness.action.mockReturnValue(new Promise((done) => (resolve = done)));

@@ -111,6 +111,84 @@ describe("AgentStarterActions", () => {
     expect(harness.focusComposer).toHaveBeenCalledOnce();
   });
 
+  it("opens Mate with one of the three Wiki onboarding prompts", () => {
+    act(() => {
+      reactRoot.render(
+        createElement(AgentStarterActions, {
+          pageId: "wiki",
+          state: "empty",
+          surface: "page",
+        }),
+      );
+    });
+
+    const buttons = container.querySelectorAll("button");
+    expect(buttons).toHaveLength(3);
+
+    act(() => buttons[0]?.click());
+
+    expect(harness.openWithDraft).toHaveBeenCalledWith("AgentChat.suggestions.pages.wiki.empty.first-wiki-page.prompt");
+    expect(harness.focusComposer).toHaveBeenCalledOnce();
+  });
+
+  it("lets a page replace one action without drafting or sending a prompt", () => {
+    const override = vi.fn();
+    act(() => {
+      reactRoot.render(
+        createElement(AgentStarterActions, {
+          actionOverrides: {
+            "first-wiki-page": {
+              label: "Build from my website",
+              onChoose: override,
+            },
+          },
+          pageId: "wiki",
+          state: "empty",
+          surface: "page",
+        }),
+      );
+    });
+
+    const buttons = container.querySelectorAll("button");
+    expect(buttons).toHaveLength(3);
+    expect(buttons[0]?.textContent).toContain("Build from my website");
+
+    act(() => buttons[0]?.click());
+
+    expect(override).toHaveBeenCalledOnce();
+    expect(harness.openWithDraft).not.toHaveBeenCalled();
+    expect(harness.focusComposer).not.toHaveBeenCalled();
+  });
+
+  it("offers permission-safe Wiki guidance when the user cannot create pages", () => {
+    harness.root = {
+      agentChatStore: {
+        counts: null,
+        enabled: true,
+        openWithDraft: harness.openWithDraft,
+      },
+      userStore: { can: () => false },
+    };
+
+    act(() => {
+      reactRoot.render(
+        createElement(AgentStarterActions, {
+          pageId: "wiki",
+          state: "empty",
+          surface: "page",
+        }),
+      );
+    });
+
+    const buttons = container.querySelectorAll("button");
+    expect(buttons).toHaveLength(3);
+    expect(buttons[0]?.textContent).toContain("AgentChat.suggestions.readOnly.explain.label");
+
+    act(() => buttons[0]?.click());
+
+    expect(harness.openWithDraft).toHaveBeenCalledWith("AgentChat.suggestions.readOnly.explain.prompt");
+  });
+
   it("keeps the manual action when Mate is unavailable", () => {
     harness.root = {
       agentChatStore: { counts: null, enabled: false },

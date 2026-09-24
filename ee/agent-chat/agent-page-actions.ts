@@ -50,6 +50,10 @@ const PAGE_ACTION_IDS: Record<SupportedPage, Record<PageState, readonly string[]
     empty: ["first-routine", "routine-ideas", "routines-tour"],
     data: ["routine-health", "create-routine", "routines-tour-data"],
   },
+  wiki: {
+    empty: ["first-wiki-page", "wiki-structure", "wiki-tour"],
+    data: ["wiki-summary", "create-wiki-page", "wiki-gaps"],
+  },
   inbox: {
     empty: ["inbox-connect-email", "inbox-connect-whatsapp", "inbox-explain"],
     data: ["inbox-needs-reply", "inbox-explain-data", "inbox-add-channel"],
@@ -169,7 +173,7 @@ export function agentPageActions(
   capabilities: AgentPageCapabilities = {},
 ): AgentPageAction[] {
   const readOnly = readOnlyAgentPageActions(page, t);
-  const writeGated = isEntityPage(page) || page === "dashboard" || page === "routines";
+  const writeGated = isEntityPage(page) || page === "dashboard" || page === "routines" || page === "wiki";
   let actions: AgentPageAction[];
 
   if (writeGated && capabilities.canCreate === false) actions = readOnly;

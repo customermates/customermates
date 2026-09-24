@@ -16,7 +16,7 @@ import { runUserAction } from "@/core/errors/report-application-error";
 
 import { ActionTooltip, chatUiCopy } from "./chat-ui";
 import { AgentActivity, AgentChatItemView, consecutiveActivityItems, isWorkingActivityGroup } from "./agent-chat-items";
-import { AgentInitialProgress } from "./agent-status-announcer";
+import { AgentInitialProgress, AgentProgressStatus } from "./agent-status-announcer";
 import { CreditBlockedNotice } from "./credit-blocked-notice";
 import { QueuedPrompt } from "./queued-prompt";
 import { UsageRing } from "./usage-ring";
@@ -29,6 +29,7 @@ export const AgentConversationLog = observer(function AgentConversationLog({
   scrollContainerRef,
   scrollFooterRef,
   scrollable = true,
+  showProgressStatus = false,
   userLabel,
 }: {
   activityContext?: "wikiHomepageSetup";
@@ -37,6 +38,7 @@ export const AgentConversationLog = observer(function AgentConversationLog({
   scrollContainerRef?: RefObject<HTMLElement | null>;
   scrollFooterRef?: RefObject<HTMLElement | null>;
   scrollable?: boolean;
+  showProgressStatus?: boolean;
   userLabel?: string;
 }) {
   const store = useAgentChatStore();
@@ -88,6 +90,8 @@ export const AgentConversationLog = observer(function AgentConversationLog({
         })}
 
         <AgentInitialProgress />
+
+        {showProgressStatus ? <AgentProgressStatus inline /> : null}
       </div>
     </MessagesScrollContainer>
   );

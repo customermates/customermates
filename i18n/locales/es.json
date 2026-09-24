@@ -754,6 +754,36 @@
               "prompt": "Enséñame las tareas y explícame cómo se conectan con contactos, organizaciones, oportunidades y servicios."
             }
           }
+        },
+        "wiki": {
+          "data": {
+            "create-wiki-page": {
+              "label": "Crear una página Wiki",
+              "prompt": "Ayúdame a crear una nueva página del Wiki del espacio de trabajo. Pregunta qué proceso, conocimiento de producto, guía de soporte o guía de voz necesitan Mate y las herramientas de IA conectadas, y créala después de mi confirmación."
+            },
+            "wiki-gaps": {
+              "label": "Encontrar vacíos de conocimiento",
+              "prompt": "Revisa nuestro Wiki del espacio de trabajo e identifica la información más importante que falte, esté desactualizada o sea contradictoria. No hagas cambios."
+            },
+            "wiki-summary": {
+              "label": "Resumir el Wiki",
+              "prompt": "Resume nuestro Wiki del espacio de trabajo, incluidos los procesos, el conocimiento de producto, las guías de soporte y las guías de voz que contiene."
+            }
+          },
+          "empty": {
+            "first-wiki-page": {
+              "label": "Crear mi primera página Wiki",
+              "prompt": "Ayúdame a crear la primera página de nuestro Wiki del espacio de trabajo. Pregunta qué proceso, conocimiento de producto, guía de soporte o guía de voz necesitan Mate y las herramientas de IA conectadas, y créala después de mi confirmación."
+            },
+            "wiki-structure": {
+              "label": "Sugerir una estructura Wiki",
+              "prompt": "Revisa mi espacio de trabajo y sugiere entre tres y cinco páginas útiles para el Wiki. No crees nada todavía."
+            },
+            "wiki-tour": {
+              "label": "Aprender cómo funciona el Wiki",
+              "prompt": "Explica cómo Mate, las rutinas y las herramientas de IA conectadas utilizan el Wiki del espacio de trabajo, incluidos los enlaces y permisos. No hagas cambios."
+            }
+          }
         }
       },
       "readOnly": {
@@ -3612,8 +3642,7 @@
     "copyLink": "Copiar enlace de la página",
     "delete": "Eliminar página",
     "document": "Documento",
-    "emptyBody": "Guarda aquí tus procesos, conocimientos de la empresa y pautas de escritura. Crea una página o deja que Mate lea tu sitio web.",
-    "emptyBodyManual": "Crea tu primera página de la wiki.",
+    "emptyBody": "Proporciona a Mate y a las herramientas de IA conectadas el conocimiento, los procesos y las pautas que necesitan.",
     "emptyBodyReadOnly": "Aún no se han creado páginas de la wiki.",
     "emptyTitle": "La wiki de tu espacio de trabajo está vacía",
     "linkPage": "Enlazar una página de la wiki…",
@@ -3670,6 +3699,7 @@
     "skip": "Ahora no",
     "start": "Crear mi wiki",
     "startFailed": "Mate no pudo iniciar la configuración de la wiki. Inténtalo de nuevo.",
+    "startFromWebsite": "Crear desde mi sitio web",
     "status": {
       "completedBody": "Tus cinco páginas wiki iniciales y conectadas están listas. Incluyen datos respaldados por el sitio web y vacíos claros para lo que no se pudo verificar.",
       "completedBodyOnboarding": "Mate ha creado cinco páginas iniciales conectadas con datos respaldados por el sitio web y vacíos claros para lo que no pudo verificar. Podrás revisarlas y editarlas más tarde en la wiki.",

@@ -21,6 +21,7 @@ const prismaMock = vi.hoisted(() => ({
   service: { findFirst: vi.fn() },
   task: { findFirst: vi.fn() },
   routine: { findFirst: vi.fn() },
+  wikiPage: { findFirst: vi.fn() },
   widget: { findFirst: vi.fn() },
   connectedAccount: { findFirst: vi.fn() },
   user: { count: vi.fn(), findUnique: vi.fn() },
@@ -1041,12 +1042,17 @@ describe("PrismaAgentChatRepo tenant boundaries", () => {
       where: { id: { in: [] }, companyId: user.companyId },
       select: { id: true },
     });
+    expect(prismaMock.wikiPage.findFirst).toHaveBeenCalledWith({
+      where: { companyId: user.companyId, id: { in: [] } },
+      select: { id: true },
+    });
     expect(prismaMock.widget.findFirst).toHaveBeenCalledWith({
       where: { companyId: user.companyId, userId: user.id },
       select: { id: true },
     });
     expect(signals.widgets).toBe(true);
     expect(signals.routines).toBe(true);
+    expect(signals.wiki).toBe(false);
   });
 
   it("persists an assistant reply only after atomically claiming an active conversation", async () => {

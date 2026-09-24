@@ -59,6 +59,46 @@ describe("AgentActivity", () => {
     expect(html).not.toContain("animate-spin");
   });
 
+  it("shows thinking instead of past-tense copy while a completed step is still trailing", () => {
+    const html = renderToStaticMarkup(
+      createElement(AgentActivity, {
+        isTrailing: true,
+        isWorking: true,
+        items: [{ ...failedRead, status: "done" }],
+      }),
+    );
+
+    expect(html).toContain("animate-spin");
+    expect(html).toContain("AgentChat.ui.thinking");
+    expect(html).not.toContain("AgentChat.activity.state.records.read.done");
+  });
+
+  it("renders a single failed website read once without an empty disclosure", () => {
+    const label = "AgentChat.activity.state.web.read.error:ainovi.de/";
+    const html = renderToStaticMarkup(
+      createElement(AgentActivity, {
+        activityContext: "wikiHomepageSetup",
+        isTrailing: true,
+        isWorking: false,
+        items: [
+          {
+            ...failedRead,
+            activity: {
+              kind: "web.read" as const,
+              affectedResources: [],
+              risk: "read" as const,
+              sourceDomain: "ainovi.de",
+              sourcePage: "ainovi.de/",
+            },
+          },
+        ],
+      }),
+    );
+
+    expect(html.split(label)).toHaveLength(2);
+    expect(html).not.toContain("<details");
+  });
+
   it("keeps a historical failure settled while a newer turn is working", () => {
     const conversationItems: AgentChatItem[] = [
       failedRead,
@@ -97,13 +137,23 @@ describe("AgentActivity", () => {
         affectedResources: [],
         risk: "read" as const,
         sourceDomain: "customermates.com",
+        sourcePage: "customermates.com/",
       },
       status: "done" as const,
     };
+    const websiteReads = ["/", "/about", "/product", "/support"].map((path, index) => ({
+      ...websiteRead,
+      id: `activity-${index + 1}`,
+      providerCallId: `call-${index + 1}`,
+      activity: {
+        ...websiteRead.activity,
+        sourcePage: `customermates.com${path}`,
+      },
+    }));
     const wikiCreate = {
       ...websiteRead,
-      id: "activity-2",
-      providerCallId: "call-2",
+      id: "activity-5",
+      providerCallId: "call-5",
       activity: {
         kind: "records.create" as const,
         resource: "wiki" as const,
@@ -125,20 +175,22 @@ describe("AgentActivity", () => {
         activityContext: "wikiHomepageSetup",
         isTrailing: true,
         isWorking: false,
-        items: [websiteRead, wikiCreate],
+        items: [...websiteReads, wikiCreate],
       }),
     );
 
-    expect(runningHtml).toContain("AgentChat.ui.websiteSourcesRunning");
+    expect(runningHtml).toContain("AgentChat.activity.state.web.read.running:customermates.com/");
+    expect(runningHtml).not.toContain("AgentChat.ui.websiteSourcesRunning");
     expect(completedHtml).toContain("AgentChat.ui.websiteWikiComplete");
-    expect(completedHtml).toContain("AgentChat.activity.state.web.read.done:customermates.com");
+    for (const path of ["/", "/about", "/product", "/support"])
+      expect(completedHtml).toContain(`AgentChat.activity.state.web.read.done:customermates.com${path}`);
     expect(completedHtml).not.toContain("AgentChat.ui.stepsTook");
 
     const ordinaryChatHtml = renderToStaticMarkup(
       createElement(AgentActivity, {
         isTrailing: true,
         isWorking: false,
-        items: [websiteRead, wikiCreate],
+        items: [...websiteReads, wikiCreate],
       }),
     );
     expect(ordinaryChatHtml).toContain("AgentChat.ui.activityComplete");
@@ -153,6 +205,7 @@ describe("AgentActivity", () => {
         affectedResources: [],
         risk: "read" as const,
         sourceDomain: "customermates.com",
+        sourcePage: "customermates.com/",
       },
       status: "done" as const,
     };
@@ -160,6 +213,7 @@ describe("AgentActivity", () => {
       ...websiteRead,
       id: "activity-2",
       providerCallId: "call-2",
+      activity: { ...websiteRead.activity, sourcePage: "customermates.com/missing" },
       status: "error" as const,
     };
     const wikiCreate = {

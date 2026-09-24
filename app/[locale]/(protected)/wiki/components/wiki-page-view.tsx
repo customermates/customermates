@@ -9,6 +9,7 @@ import { BookOpen, ChevronDown, FileText, Plus, Search } from "lucide-react";
 import { useTranslations } from "next-intl";
 
 import { useSetTopBarActions } from "@/app/components/topbar-actions-context";
+import { AgentStarterActions } from "@/app/components/agent-chat/suggested-questions";
 import { AppForm } from "@/components/forms/form-context";
 import { FormInput } from "@/components/forms/form-input";
 import { Editor } from "@/components/editor/editor";
@@ -64,6 +65,7 @@ const WikiPageViewComponent = ({
   const [hasMounted, setHasMounted] = useState(false);
   const [mobileOpen, setMobileOpen] = useState(false);
   const [setupStarted, setSetupStarted] = useState(false);
+  const [showSetup, setShowSetup] = useState(false);
   const [store] = useState(
     () =>
       new WikiPageStore(rootStore, initialPage, (pageId) => {
@@ -293,39 +295,53 @@ const WikiPageViewComponent = ({
             <PageState
               action={
                 canManage ? (
-                  <div className="w-full max-w-xl space-y-4">
-                    {(canSetupWithMate || initialSetupState.status !== "idle") && (
+                  setupActive || showSetup ? (
+                    <div className="w-full max-w-xl">
                       <WikiHomepageSetup
                         canStart={canSetupWithMate}
-                        initialState={initialSetupState}
+                        compact={showSetup && !setupActive}
+                        initialState={
+                          initialSetupState.status === "working" ? initialSetupState : EMPTY_WIKI_HOMEPAGE_SETUP_STATE
+                        }
                         onAccepted={async (conversationId) => {
                           setSetupStarted(true);
                           rootStore.agentChatStore.open();
                           await rootStore.agentChatStore.loadConfig();
                           await rootStore.agentChatStore.selectConversation(conversationId);
                         }}
-                        onCreateBlank={setupActive ? undefined : create}
+                        onSkip={showSetup && !setupActive ? () => setShowSetup(false) : undefined}
                       />
-                    )}
+                    </div>
+                  ) : canSetupWithMate ? (
+                    <AgentStarterActions
+                      actionOverrides={{
+                        "first-wiki-page": {
+                          label: t("WikiSetup.startFromWebsite"),
+                          onChoose: () => setShowSetup(true),
+                        },
+                      }}
+                      fallback={
+                        <Button disabled={store.isLoading} size="sm" variant="secondary" onClick={create}>
+                          <Plus />
 
-                    {!canSetupWithMate && !setupActive ? (
-                      <Button disabled={store.isLoading} size="sm" variant="secondary" onClick={create}>
-                        <Plus />
+                          {t("Wiki.newPage")}
+                        </Button>
+                      }
+                      pageId="wiki"
+                      state="empty"
+                      surface="page"
+                    />
+                  ) : (
+                    <Button disabled={store.isLoading} size="sm" variant="secondary" onClick={create}>
+                      <Plus />
 
-                        {t("Wiki.newPage")}
-                      </Button>
-                    ) : null}
-                  </div>
+                      {t("Wiki.newPage")}
+                    </Button>
+                  )
                 ) : undefined
               }
               background={<WikiPageSkeleton documentOnly animated={false} />}
-              description={
-                !canManage
-                  ? t("Wiki.emptyBodyReadOnly")
-                  : canSetupWithMate || initialSetupState.status !== "idle"
-                    ? t("Wiki.emptyBody")
-                    : t("Wiki.emptyBodyManual")
-              }
+              description={canManage ? t("Wiki.emptyBody") : t("Wiki.emptyBodyReadOnly")}
               icon={BookOpen}
               state="empty"
               title={t("Wiki.emptyTitle")}

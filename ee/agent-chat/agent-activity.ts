@@ -142,19 +142,33 @@ export const AgentActivityDescriptorSchema = z.preprocess(
     const descriptor = value as Record<string, unknown>;
     return descriptor.kind === "interface.configure" ? { ...descriptor, kind: "interface.interact" } : value;
   },
-  z.object({
-    kind: z.enum(AGENT_ACTIVITY_KINDS),
-    resource: z.enum(AGENT_ACTIVITY_RESOURCES).optional(),
-    affectedResources: z.array(z.enum(AGENT_ACTIVITY_RESOURCES)).max(8),
-    risk: z.enum(["read", "write", "sensitive"]),
-    count: z.number().int().min(1).max(100).optional(),
-    sourceDomain: z
-      .string()
-      .max(253)
-      .refine((value) => parsePublicPageUrl(`https://${value}`)?.registrableDomain === value)
-      .optional(),
-    consequence: AgentActivityConsequenceSchema.optional(),
-  }),
+  z
+    .object({
+      kind: z.enum(AGENT_ACTIVITY_KINDS),
+      resource: z.enum(AGENT_ACTIVITY_RESOURCES).optional(),
+      affectedResources: z.array(z.enum(AGENT_ACTIVITY_RESOURCES)).max(8),
+      risk: z.enum(["read", "write", "sensitive"]),
+      count: z.number().int().min(1).max(100).optional(),
+      sourceDomain: z
+        .string()
+        .max(253)
+        .refine((value) => parsePublicPageUrl(`https://${value}`)?.registrableDomain === value)
+        .optional(),
+      sourcePage: z.string().max(500).optional(),
+      consequence: AgentActivityConsequenceSchema.optional(),
+    })
+    .superRefine((activity, context) => {
+      if (!activity.sourcePage) return;
+      const parsed = parsePublicPageUrl(`https://${activity.sourcePage}`);
+      if (
+        activity.kind !== "web.read" ||
+        !activity.sourceDomain ||
+        !parsed ||
+        parsed.registrableDomain !== activity.sourceDomain ||
+        publicPageLabel(parsed.url) !== activity.sourcePage
+      )
+        context.addIssue({ code: "custom", message: "Use a canonical public page label.", path: ["sourcePage"] });
+    }),
 );
 
 export type AgentActivityDescriptor = z.infer<typeof AgentActivityDescriptorSchema>;
@@ -244,6 +258,13 @@ function actionValue(input: Record<string, unknown>) {
   return typeof input.action === "string" ? input.action : undefined;
 }
 
+function publicPageLabel(url: string) {
+  const parsed = new URL(url);
+  const hostname = parsed.hostname.replace(/^www\./, "");
+  const label = `${hostname}${parsed.pathname}`;
+  return label.length <= 500 ? label : undefined;
+}
+
 function isMultiplexedRead(toolName: string, details: Record<string, unknown>): boolean {
   const action = actionValue(details);
   return Boolean(action && readOnlyActionsForTool(internalToolIdentity(toolName))?.includes(action));
@@ -271,11 +292,13 @@ export function describeAgentTool(identity: AgentToolIdentity, input: unknown): 
   if (toolName === "start_tour") return descriptor("interface.tour", undefined, "read");
   if (toolName === "web_search") return descriptor("web.search", undefined, "read");
   if (toolName === "read_public_page") {
-    const sourceDomain =
-      typeof details.url === "string" ? parsePublicPageUrl(details.url)?.registrableDomain : undefined;
+    const parsed = typeof details.url === "string" ? parsePublicPageUrl(details.url) : null;
+    const sourceDomain = parsed?.registrableDomain;
+    const sourcePage = parsed ? publicPageLabel(parsed.url) : undefined;
     return {
       ...descriptor("web.read", undefined, "read"),
       ...(sourceDomain ? { sourceDomain } : {}),
+      ...(sourcePage ? { sourcePage } : {}),
     };
   }
   if (toolName === "manage_wiki_pages") {
@@ -699,7 +722,7 @@ export function agentActivityCopy(
   const mutationTarget = countedResourceCopy(activity.count, activity.resource, t, resource, hasCustomTerminology);
   const target =
     activity.kind === "web.read"
-      ? (activity.sourceDomain ?? t("AgentChat.activity.defaultWebsitePage"))
+      ? (activity.sourcePage ?? activity.sourceDomain ?? t("AgentChat.activity.defaultWebsitePage"))
       : mutationTarget;
   const detail =
     agentConsequenceDetail(activity, t, resource, hasCustomTerminology) ??

@@ -289,7 +289,7 @@ describe("agent client-visible output safety", () => {
     );
   });
 
-  it("hydrates only a validated public source domain for website-read progress", () => {
+  it("hydrates only a validated public source page without query data", () => {
     const parts = clientSafeAgentMessageParts([
       {
         type: "activity",
@@ -299,6 +299,7 @@ describe("agent client-visible output safety", () => {
           affectedResources: [],
           risk: "read",
           sourceDomain: "customermates.com",
+          sourcePage: "customermates.com/public/overview",
           target: "customermates.com/private?token=never-show",
         },
         status: "done",
@@ -336,6 +337,30 @@ describe("agent client-visible output safety", () => {
         },
         status: "done",
       },
+      {
+        type: "activity",
+        id: "query-web-read",
+        activity: {
+          kind: "web.read",
+          affectedResources: [],
+          risk: "read",
+          sourceDomain: "customermates.com",
+          sourcePage: "customermates.com/public?token=never-show",
+        },
+        status: "done",
+      },
+      {
+        type: "activity",
+        id: "cross-domain-web-read",
+        activity: {
+          kind: "web.read",
+          affectedResources: [],
+          risk: "read",
+          sourceDomain: "customermates.com",
+          sourcePage: "example.com/public",
+        },
+        status: "done",
+      },
     ]);
 
     expect(parts).toEqual([
@@ -347,12 +372,13 @@ describe("agent client-visible output safety", () => {
           affectedResources: [],
           risk: "read",
           sourceDomain: "customermates.com",
+          sourcePage: "customermates.com/public/overview",
         },
         status: "done",
       },
     ]);
     expect(JSON.stringify(parts)).not.toMatch(
-      /private|never-show|127\.0\.0\.1|target|invisible-web-read|bidi-web-read/,
+      /private|never-show|127\.0\.0\.1|target|invisible-web-read|bidi-web-read|query-web-read|cross-domain-web-read/,
     );
   });
 

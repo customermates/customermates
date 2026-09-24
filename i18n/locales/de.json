@@ -754,6 +754,36 @@
               "prompt": "Zeige mir Aufgaben und erkläre ihre Verbindung zu Kontakten, Organisationen, Deals und Leistungen."
             }
           }
+        },
+        "wiki": {
+          "data": {
+            "create-wiki-page": {
+              "label": "Wiki-Seite erstellen",
+              "prompt": "Hilf mir, eine neue Seite im Workspace-Wiki zu erstellen. Frage, welches Unternehmenswissen, welcher Prozess, welche Produkt- oder Supportinformation oder welche Sprachrichtlinie Mate und verbundene KI-Tools benötigen, und erstelle sie nach meiner Bestätigung."
+            },
+            "wiki-gaps": {
+              "label": "Wissenslücken finden",
+              "prompt": "Prüfe unser Workspace-Wiki und nenne die wichtigsten fehlenden, veralteten oder widersprüchlichen Informationen. Nimm keine Änderungen vor."
+            },
+            "wiki-summary": {
+              "label": "Wiki zusammenfassen",
+              "prompt": "Fasse unser Workspace-Wiki zusammen, einschließlich der enthaltenen Unternehmensprozesse, Produktinformationen, Supportleitlinien und Sprachrichtlinien."
+            }
+          },
+          "empty": {
+            "first-wiki-page": {
+              "label": "Meine erste Wiki-Seite erstellen",
+              "prompt": "Hilf mir, die erste Seite in unserem Workspace-Wiki zu erstellen. Frage, welches Unternehmenswissen, welcher Prozess, welche Produkt- oder Supportinformation oder welche Sprachrichtlinie Mate und verbundene KI-Tools benötigen, und erstelle sie nach meiner Bestätigung."
+            },
+            "wiki-structure": {
+              "label": "Wiki-Struktur vorschlagen",
+              "prompt": "Prüfe meinen Arbeitsbereich und schlage drei bis fünf nützliche Seiten für das Workspace-Wiki vor. Erstelle noch nichts."
+            },
+            "wiki-tour": {
+              "label": "Wiki kennenlernen",
+              "prompt": "Erkläre, wie Mate, Routinen und verbundene KI-Tools das Workspace-Wiki verwenden, einschließlich Links und Berechtigungen. Nimm keine Änderungen vor."
+            }
+          }
         }
       },
       "readOnly": {
@@ -3612,8 +3642,7 @@
     "copyLink": "Seitenlink kopieren",
     "delete": "Seite löschen",
     "document": "Dokument",
-    "emptyBody": "Halte hier Abläufe, Unternehmenswissen und Schreibrichtlinien fest. Erstelle eine Seite oder lass Mate deine Homepage lesen.",
-    "emptyBodyManual": "Erstelle deine erste Wiki-Seite.",
+    "emptyBody": "Gib Mate und verbundenen KI-Tools das Unternehmenswissen, die Prozesse und Leitlinien, die sie benötigen.",
     "emptyBodyReadOnly": "Es wurden noch keine Wiki-Seiten erstellt.",
     "emptyTitle": "Dein Workspace-Wiki ist leer",
     "linkPage": "Wiki-Seite verlinken…",
@@ -3670,6 +3699,7 @@
     "skip": "Nicht jetzt",
     "start": "Wiki erstellen",
     "startFailed": "Mate konnte die Wiki-Einrichtung nicht starten. Bitte versuche es erneut.",
+    "startFromWebsite": "Aus meiner Website erstellen",
     "status": {
       "completedBody": "Deine fünf verknüpften Wiki-Startseiten sind bereit. Sie enthalten belegte Fakten von deiner Website und klar markierte Lücken für alles, was dort nicht geprüft werden konnte.",
       "completedBodyOnboarding": "Mate hat fünf verknüpfte Startseiten mit belegten Website-Fakten und klar markierten Lücken für alles erstellt, was nicht geprüft werden konnte. Du kannst sie später im Wiki prüfen und bearbeiten.",

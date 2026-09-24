@@ -286,14 +286,44 @@ export const AgentActivity = observer(function AgentActivity({
     !hasBlockingError && !hasCancelled && elapsedSeconds !== null
       ? uiCopy.stepsTook(items.length, elapsedSeconds)
       : settledSummary;
-  const contextualSummary = isActive
-    ? isWebsiteWikiSetup && !hasWikiCreate
-      ? uiCopy.websiteSourcesRunning(websiteReadCount)
-      : runningLabel
-    : isWebsiteWikiSetup && hasCompletedWikiCreate && !hasCancelled
-      ? uiCopy.websiteWikiComplete(websiteSourceCount)
-      : liveSummary;
+  const contextualSummary =
+    items.length === 1
+      ? isActive
+        ? runningLabel
+        : settledSummary
+      : isActive
+        ? isWebsiteWikiSetup && !hasWikiCreate
+          ? uiCopy.websiteSourcesRunning(websiteReadCount)
+          : runningLabel
+        : isWebsiteWikiSetup && hasCompletedWikiCreate && !hasCancelled
+          ? uiCopy.websiteWikiComplete(websiteSourceCount)
+          : liveSummary;
   const summary = useSteadyLabel(contextualSummary);
+  const statusIcon = isActive ? (
+    <Loader2 aria-hidden="true" className="size-3.5 animate-spin motion-reduce:animate-none" />
+  ) : hasBlockingError ? (
+    <X aria-hidden="true" className="size-3.5 text-destructive" />
+  ) : hasCancelled ? (
+    <Square aria-hidden="true" className="size-3.5" />
+  ) : (
+    <Check aria-hidden="true" className="size-3.5" />
+  );
+
+  if (items.length === 1) {
+    return (
+      <div
+        className={cn(
+          "flex items-center gap-2 py-1 text-xs text-muted-foreground",
+          hasBlockingError && !isRecovering && "text-destructive",
+        )}
+        data-testid="agent-activity"
+      >
+        {statusIcon}
+
+        <span className="min-w-0 flex-1 text-left [overflow-wrap:anywhere]">{summary}</span>
+      </div>
+    );
+  }
 
   return (
     <details
@@ -304,15 +334,7 @@ export const AgentActivity = observer(function AgentActivity({
       onToggle={(event) => setOpen(event.currentTarget.open)}
     >
       <summary className="flex cursor-pointer list-none items-center gap-2 text-xs text-muted-foreground transition-colors select-none hover:text-foreground [&::-webkit-details-marker]:hidden">
-        {isActive ? (
-          <Loader2 aria-hidden="true" className="size-3.5 animate-spin motion-reduce:animate-none" />
-        ) : hasBlockingError ? (
-          <X aria-hidden="true" className="size-3.5 text-destructive" />
-        ) : hasCancelled ? (
-          <Square aria-hidden="true" className="size-3.5" />
-        ) : (
-          <Check aria-hidden="true" className="size-3.5" />
-        )}
+        {statusIcon}
 
         <span className="min-w-0 flex-1 text-left [overflow-wrap:anywhere]">{summary}</span>
 

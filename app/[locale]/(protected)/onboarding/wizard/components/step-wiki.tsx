@@ -8,7 +8,7 @@ import { Loader2 } from "lucide-react";
 import { AgentConversationLog } from "@/app/components/agent-chat/agent-conversation";
 import { AgentRouteReloadBridge } from "@/app/components/agent-chat/agent-route-reload";
 import { AgentChatStoreProvider } from "@/app/components/agent-chat/agent-chat-store-context";
-import { AgentProgressStatus, AgentStatusAnnouncer } from "@/app/components/agent-chat/agent-status-announcer";
+import { AgentStatusAnnouncer } from "@/app/components/agent-chat/agent-status-announcer";
 import { WikiHomepageSetup } from "@/components/wiki/wiki-homepage-setup";
 import { Button } from "@/components/ui/button";
 import { TooltipProvider } from "@/components/ui/tooltip";
@@ -74,9 +74,7 @@ const WikiSetupConversation = observer(function WikiSetupConversation({ conversa
             </div>
           ) : (
             <>
-              <AgentConversationLog readOnly renderLinksAsText activityContext="wikiHomepageSetup" />
-
-              {wikiSetupChatStore.isWorking ? <AgentProgressStatus /> : null}
+              <AgentConversationLog readOnly renderLinksAsText showProgressStatus activityContext="wikiHomepageSetup" />
 
               <AgentStatusAnnouncer />
             </>

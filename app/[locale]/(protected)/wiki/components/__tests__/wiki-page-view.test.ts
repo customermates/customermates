@@ -14,7 +14,9 @@ const harness = vi.hoisted(() => ({
   setupProps: null as null | {
     onAccepted: (conversationId: string) => Promise<void>;
     onCreateBlank?: () => void;
+    onSkip?: () => void;
     canStart?: boolean;
+    compact?: boolean;
   },
   replace: vi.fn(),
   push: vi.fn(),
@@ -35,17 +37,24 @@ const harness = vi.hoisted(() => ({
   }),
 }));
 
-vi.mock("next-intl", () => ({ useTranslations: () => (key: string) => key }));
+vi.mock("next-intl", () => ({
+  useLocale: () => "en",
+  useTranslations: () => (key: string) => key,
+}));
 vi.mock("@/app/actions", () => ({ upsertP13nAction: harness.p13nUpsert }));
 vi.mock("@/core/stores/root-store.provider", () => ({
   useRootStore: () => harness.rootStore,
 }));
 vi.mock("@/i18n/navigation", () => ({
+  usePathname: () => "/wiki",
   useRouter: () => ({
     replace: harness.replace,
     refresh: harness.refresh,
     push: harness.push,
   }),
+}));
+vi.mock("@/components/entity-terminology/use-entity-terminology", () => ({
+  useEntityTerminology: () => ({ map: () => ({}) }),
 }));
 vi.mock("@/app/components/topbar-actions-context", async (importOriginal) => {
   const actual = await importOriginal<typeof TopBarActionsModule>();
@@ -124,13 +133,16 @@ vi.mock("@/components/wiki/wiki-homepage-setup", () => ({
   WikiHomepageSetup: (props: {
     onAccepted: (conversationId: string) => Promise<void>;
     onCreateBlank?: () => void;
+    onSkip?: () => void;
     canStart?: boolean;
+    compact?: boolean;
   }) => {
     harness.setupProps = props;
     return createElement(
       "div",
       { "data-wiki-homepage-setup": true },
       props.onCreateBlank ? createElement("button", { onClick: props.onCreateBlank }, "Wiki.newPage") : null,
+      props.onSkip ? createElement("button", { onClick: props.onSkip }, "WikiSetup.skip") : null,
     );
   },
 }));
@@ -180,7 +192,7 @@ function configure(canManage: boolean, agentChatEnabled: boolean, agentEnabled: 
       selectConversation: harness.selectConversation,
     },
     navigationGuard: { tryNavigate: harness.tryNavigate },
-    userStore: { user: { id: "user-1" } },
+    userStore: { can: () => canManage, user: { id: "user-1" } },
   };
 }
 
@@ -626,29 +638,61 @@ describe("Wiki empty state", () => {
     expect(html).not.toContain("Wiki.newPage");
   });
 
-  it("keeps manual creation but removes Mate copy and separator when Agent is unavailable", () => {
+  it("keeps a compact manual fallback when Mate is unavailable", () => {
     const html = render(true, true, false);
 
-    expect(html).toContain("Wiki.emptyBodyManual");
+    expect(html).toContain("Wiki.emptyBody");
     expect(html).toContain("Wiki.newPage");
-    expect(html).not.toContain("Wiki.emptyBody</p>");
     expect(html).not.toContain("data-wiki-homepage-setup");
-    expect(html).not.toContain("my-4 border-t");
+    expect(html).not.toContain("empty-page-agent-suggestions");
   });
 
-  it("offers both Mate setup and manual creation to managers when Agent is available", async () => {
+  it("replaces the homepage form with three standard Mate actions", async () => {
     const { container, recoverableErrors, serverHtml } = await hydrate(true, true, null, true);
 
-    expect(serverHtml).toContain("Wiki.emptyBodyManual");
+    expect(serverHtml).toContain("Wiki.emptyBody");
+    expect(serverHtml).toContain("Wiki.newPage");
     expect(serverHtml).not.toContain("data-wiki-homepage-setup");
     expect(recoverableErrors).toEqual([]);
-    expect(container.innerHTML).toContain("Wiki.emptyBody");
+    expect(container.querySelector('[data-testid="empty-page-agent-suggestions"]')).not.toBeNull();
+    expect(container.querySelectorAll('[data-testid="empty-page-agent-suggestions"] button')).toHaveLength(3);
+    expect(container.innerHTML).not.toContain("data-wiki-homepage-setup");
+    expect(container.textContent).not.toContain("Wiki.newPage");
+    expect(harness.setupProps).toBeNull();
+  });
+
+  it("reveals the compact trusted website setup from the first Mate action", async () => {
+    const { container } = await hydrate(true, true, null, true);
+    const firstAction = container.querySelector<HTMLButtonElement>(
+      '[data-testid="empty-page-agent-suggestions"] button',
+    );
+
+    expect(firstAction?.textContent).toContain("WikiSetup.startFromWebsite");
+    act(() => firstAction?.click());
+
     expect(container.innerHTML).toContain("data-wiki-homepage-setup");
-    expect(container.innerHTML).toContain("Wiki.newPage");
-    expect(harness.setupProps).not.toBeNull();
+    expect(harness.setupProps).toMatchObject({ compact: true, canStart: true });
+    expect(container.querySelector('[data-testid="empty-page-agent-suggestions"]')).toBeNull();
 
-    await harness.setupProps?.onAccepted("conversation-1");
+    act(() => harness.setupProps?.onSkip?.());
 
+    expect(container.querySelector('[data-testid="empty-page-agent-suggestions"]')).not.toBeNull();
+    expect(container.innerHTML).not.toContain("data-wiki-homepage-setup");
+  });
+
+  it("keeps the trusted setup active immediately after Mate accepts it", async () => {
+    const { container } = await hydrate(true, true, null, true);
+    act(() =>
+      container.querySelector<HTMLButtonElement>('[data-testid="empty-page-agent-suggestions"] button')?.click(),
+    );
+
+    await act(async () => {
+      await harness.setupProps?.onAccepted("conversation-1");
+    });
+    const { container: topBar } = await mount(harness.topBar);
+
+    expect(container.innerHTML).toContain("data-wiki-homepage-setup");
+    expect(topBar.querySelector('[aria-label="Wiki.newPage"]')).toBeNull();
     expect(harness.open).toHaveBeenCalledOnce();
     expect(harness.loadConfig).toHaveBeenCalledOnce();
     expect(harness.selectConversation).toHaveBeenCalledExactlyOnceWith("conversation-1");
@@ -689,19 +733,6 @@ describe("Wiki empty state", () => {
     expect(harness.store.startCreate).not.toHaveBeenCalled();
   });
 
-  it("hides New immediately after local setup acceptance, before the server refresh returns", async () => {
-    configure(true, true, true);
-    await mount(createElement(WikiPageView, { initialPage: null, listPage }));
-    expect(harness.setupProps).not.toBeNull();
-
-    await act(async () => {
-      await harness.setupProps?.onAccepted("conversation-1");
-    });
-    const { container: topBar } = await mount(harness.topBar);
-
-    expect(topBar.querySelector('[aria-label="Wiki.newPage"]')).toBeNull();
-  });
-
   it("keeps an active setup visible when Agent availability changes", async () => {
     configure(true, true, false);
     const { container } = await mount(
@@ -725,12 +756,14 @@ describe("Wiki empty state", () => {
     expect(topBar.querySelector('[aria-label="Wiki.newPage"]')).toBeNull();
   });
 
-  it("offers homepage setup on a first visit before chat availability has been loaded", async () => {
+  it("keeps the manual fallback until Mate availability has loaded", async () => {
     const { container, recoverableErrors, serverHtml } = await hydrate(true, true, null, null);
 
+    expect(serverHtml).toContain("Wiki.newPage");
     expect(serverHtml).not.toContain("data-wiki-homepage-setup");
     expect(recoverableErrors).toEqual([]);
-    expect(container.innerHTML).toContain("data-wiki-homepage-setup");
+    expect(container.textContent).toContain("Wiki.newPage");
+    expect(container.innerHTML).not.toContain("empty-page-agent-suggestions");
     expect(harness.loadConfig).not.toHaveBeenCalled();
   });
 
@@ -738,12 +771,13 @@ describe("Wiki empty state", () => {
     [false, true],
     [true, false],
   ])(
-    "requires both deployment=%s and tenant=%s Agent availability for Mate setup",
+    "uses the manual fallback when deployment=%s and tenant=%s do not jointly enable Mate",
     async (agentChatEnabled, agentEnabled) => {
       const { container, recoverableErrors } = await hydrate(true, agentChatEnabled, agentEnabled);
 
       expect(recoverableErrors).toEqual([]);
-      expect(container.innerHTML).toContain("Wiki.emptyBodyManual");
+      expect(container.innerHTML).toContain("Wiki.emptyBody");
+      expect(container.textContent).toContain("Wiki.newPage");
       expect(container.innerHTML).not.toContain("data-wiki-homepage-setup");
     },
   );

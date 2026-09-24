@@ -754,6 +754,36 @@
               "prompt": "Show me around tasks and explain how they connect to contacts, organizations, deals, and services."
             }
           }
+        },
+        "wiki": {
+          "data": {
+            "create-wiki-page": {
+              "label": "Create a Wiki page",
+              "prompt": "Help me create a new Workspace Wiki page. Ask what company process, product knowledge, support guidance, or voice guidance Mate and connected AI tools need, then create it after I confirm."
+            },
+            "wiki-gaps": {
+              "label": "Find knowledge gaps",
+              "prompt": "Review our Workspace Wiki and identify the most important missing, outdated, or conflicting knowledge. Do not make changes."
+            },
+            "wiki-summary": {
+              "label": "Summarize the Wiki",
+              "prompt": "Summarize our Workspace Wiki, including the key company processes, product knowledge, support guidance, and voice guidance it contains."
+            }
+          },
+          "empty": {
+            "first-wiki-page": {
+              "label": "Create my first Wiki page",
+              "prompt": "Help me create the first page in our Workspace Wiki. Ask what company process, product knowledge, support guidance, or voice guidance Mate and connected AI tools need, then create it after I confirm."
+            },
+            "wiki-structure": {
+              "label": "Suggest a Wiki structure",
+              "prompt": "Review my workspace and suggest three to five useful Workspace Wiki pages. Do not create anything yet."
+            },
+            "wiki-tour": {
+              "label": "Learn how the Wiki works",
+              "prompt": "Explain how the Workspace Wiki is used by Mate, routines, and connected AI tools, including links and permissions. Do not make changes."
+            }
+          }
         }
       },
       "readOnly": {
@@ -3612,8 +3642,7 @@
     "copyLink": "Copy page link",
     "delete": "Delete page",
     "document": "Document",
-    "emptyBody": "Keep your processes, company knowledge, and writing guidelines here. Start a page or let Mate read your homepage.",
-    "emptyBodyManual": "Create your first Wiki page.",
+    "emptyBody": "Give Mate and connected AI tools the company knowledge, processes, and guidance they need.",
     "emptyBodyReadOnly": "No Wiki pages have been created yet.",
     "emptyTitle": "Your Workspace Wiki is empty",
     "linkPage": "Link to a Wiki page…",
@@ -3670,6 +3699,7 @@
     "skip": "Not now",
     "start": "Build my Wiki",
     "startFailed": "Mate could not start the Wiki setup. Please try again.",
+    "startFromWebsite": "Build from my website",
     "status": {
       "completedBody": "Your five connected starter pages are ready, with cited website facts and clear gaps for anything the site could not verify.",
       "completedBodyOnboarding": "Mate created five connected starter pages with cited website facts and clear gaps for anything it could not verify. You can review and edit them later in the Wiki.",

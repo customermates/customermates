@@ -37,7 +37,7 @@ describe("agent durable stream reader", () => {
     ]);
   });
 
-  it("keeps only the registrable domain when describing a public page read", () => {
+  it("keeps the public hostname and pathname without query or fragment when describing a page read", () => {
     const events = read([
       {
         type: "tool-call",
@@ -59,11 +59,12 @@ describe("agent durable stream reader", () => {
             affectedResources: [],
             risk: "read",
             sourceDomain: "customermates.com",
+            sourcePage: "customermates.com/private/path",
           },
         },
       },
     ]);
-    expect(JSON.stringify(events)).not.toMatch(/private|never-show|details/);
+    expect(JSON.stringify(events)).not.toMatch(/never-show|details/);
   });
 
   it("never forwards raw tool output, which would put record data in the browser", () => {
