@@ -1,8 +1,10 @@
 import type { ReactElement, ReactNode } from "react";
+import type { Root } from "react-dom/client";
 
-import { Children, createElement, isValidElement } from "react";
+import { Children, act, createElement, isValidElement } from "react";
+import { createRoot } from "react-dom/client";
 import { renderToStaticMarkup } from "react-dom/server";
-import { beforeEach, describe, expect, it, vi } from "vitest";
+import { afterEach, beforeEach, describe, expect, it, vi } from "vitest";
 import { EntityType } from "@/generated/prisma";
 
 const harness = vi.hoisted(() => ({
@@ -102,7 +104,7 @@ import { EntityDetailLayout } from "../entity-detail-layout";
 
 type DetailState = "loading" | "not-found" | "error" | "content";
 
-function renderState(
+function layout(
   state: DetailState,
   {
     canManage = false,
@@ -140,23 +142,58 @@ function renderState(
     toggleEditingCustomField: vi.fn(),
   };
 
-  const html = renderToStaticMarkup(
-    createElement(EntityDetailLayout, {
-      canDelete: true,
-      entityId,
-      entityType: EntityType.contact,
-      fallbackTitle: "Contact",
-      historyPanel: createElement("div", { "data-history": true }),
-      identity: { name: "Ada Lovelace" },
-      masterData: createElement("div", { "data-master-data": true }),
-      serverSnapshotApplied,
-      showNotesPanel,
-      store: store as never,
-      summary,
-    }),
-  );
+  const element = createElement(EntityDetailLayout, {
+    canDelete: true,
+    entityId,
+    entityType: EntityType.contact,
+    fallbackTitle: "Contact",
+    historyPanel: createElement("div", { "data-history": true }),
+    identity: { name: "Ada Lovelace" },
+    masterData: createElement("div", { "data-master-data": true }),
+    serverSnapshotApplied,
+    showNotesPanel,
+    store: store as never,
+    summary,
+  });
 
-  return { html, store };
+  return { element, store };
+}
+
+function renderState(state: DetailState, options: Parameters<typeof layout>[1] = {}) {
+  const { element, store } = layout(state, options);
+
+  return { html: renderToStaticMarkup(element), store };
+}
+
+const roots: Root[] = [];
+
+function mountContent(options: Parameters<typeof layout>[1] = {}) {
+  const container = document.createElement("div");
+  document.body.append(container);
+  const root = createRoot(container);
+  roots.push(root);
+  act(() => root.render(layout("content", options).element));
+
+  return container;
+}
+
+function panelSemantics(container: HTMLElement) {
+  return [...container.querySelectorAll<HTMLElement>("[data-detail-panel]")].map((panel) => ({
+    panel: panel.dataset.detailPanel,
+    role: panel.getAttribute("role"),
+    label: panel.getAttribute("aria-label"),
+    labelledBy: panel.getAttribute("aria-labelledby"),
+  }));
+}
+
+function setSwitcherDisplay(container: HTMLElement, display: string) {
+  const switcher = container.querySelector<HTMLElement>("[data-detail-panel-switcher]");
+  if (!switcher) throw new Error("Expected the compact panel switcher");
+
+  act(() => {
+    switcher.style.display = display;
+    window.dispatchEvent(new Event("resize"));
+  });
 }
 
 function findElementByProp(node: ReactNode, property: string, value: unknown): ReactElement | undefined {
@@ -173,7 +210,14 @@ function findElementByProp(node: ReactNode, property: string, value: unknown): R
 }
 
 describe("EntityDetailLayout", () => {
+  afterEach(() => {
+    act(() => roots.splice(0).forEach((root) => root.unmount()));
+    document.body.replaceChildren();
+    vi.unstubAllGlobals();
+  });
+
   beforeEach(() => {
+    (globalThis as { IS_REACT_ACT_ENVIRONMENT?: boolean }).IS_REACT_ACT_ENVIRONMENT = true;
     vi.clearAllMocks();
     harness.canReadHistory = false;
     harness.personalizationEnabled = false;
@@ -257,6 +301,76 @@ describe("EntityDetailLayout", () => {
 
     expect(references.filter((reference) => !ids.has(reference))).toEqual([]);
     expect(html.includes('role="tabpanel"')).toBe(showNotesPanel || canReadHistory);
+  });
+
+  it("turns the tab panels into named regions while the wide layout hides the tab switcher", () => {
+    harness.canReadHistory = true;
+    const container = mountContent();
+    const tabIds = [...container.querySelectorAll('[role="tab"]')].map((tab) => tab.id);
+
+    expect(panelSemantics(container)).toEqual([
+      { panel: "details", role: "tabpanel", label: null, labelledBy: tabIds[0] },
+      { panel: "notes", role: "tabpanel", label: null, labelledBy: tabIds[1] },
+      { panel: "activities", role: "tabpanel", label: null, labelledBy: tabIds[2] },
+    ]);
+
+    setSwitcherDisplay(container, "none");
+
+    expect(container.querySelector('[role="tabpanel"]')).toBeNull();
+    expect(panelSemantics(container)).toEqual([
+      { panel: "details", role: "region", label: "EntityDetail.overview", labelledBy: null },
+      { panel: "notes", role: "region", label: "EntityDetail.sections.notes", labelledBy: null },
+      { panel: "activities", role: "region", label: "Common.actions.labelHistory", labelledBy: null },
+    ]);
+
+    setSwitcherDisplay(container, "");
+
+    expect(panelSemantics(container).map(({ role }) => role)).toEqual(["tabpanel", "tabpanel", "tabpanel"]);
+  });
+
+  it("follows the switcher through a ResizeObserver and stops observing on unmount", () => {
+    const observers: { callback: () => void; observed: Element[]; disconnect: ReturnType<typeof vi.fn> }[] = [];
+    vi.stubGlobal(
+      "ResizeObserver",
+      class {
+        callback: () => void;
+        observed: Element[] = [];
+        disconnect = vi.fn();
+
+        constructor(callback: () => void) {
+          this.callback = callback;
+          observers.push(this);
+        }
+
+        observe(element: Element) {
+          this.observed.push(element);
+        }
+      },
+    );
+    harness.canReadHistory = true;
+    const container = mountContent();
+    const switcher = container.querySelector<HTMLElement>("[data-detail-panel-switcher]");
+    const observer = observers.find((candidate) => candidate.observed.includes(switcher as Element));
+
+    expect(observer).toBeDefined();
+
+    act(() => {
+      if (switcher) switcher.style.display = "none";
+      observer?.callback();
+    });
+
+    expect(panelSemantics(container).map(({ role }) => role)).toEqual(["region", "region", "region"]);
+
+    act(() => roots.splice(0).forEach((root) => root.unmount()));
+
+    expect(observer?.disconnect).toHaveBeenCalled();
+  });
+
+  it("keeps a lone details panel free of tab and region roles", () => {
+    const container = mountContent({ showNotesPanel: false });
+
+    expect(container.querySelector("[data-detail-panel-switcher]")).toBeNull();
+    expect(panelSemantics(container)).toEqual([{ panel: "details", role: null, label: null, labelledBy: null }]);
   });
 
   it("uses one Customize control to enter personalization and field editing together", () => {

@@ -33,7 +33,7 @@ Because it is the streamable HTTP variant, every request must send `Accept: appl
 
 The `x-api-key` header is the API-key method. The key is 64 letters (a-z, A-Z) and inherits the permissions of the user who created it. There is no per-key scoping. Custom-connector clients (Claude, ChatGPT) authenticate over OAuth instead and send a bearer token they obtain and refresh for you. See [Connect with a custom connector](/docs/connect-custom-connector).
 
-A request with no `x-api-key` header and no valid bearer token (missing, expired or revoked) gets HTTP `401` with a `WWW-Authenticate` header that points OAuth clients at `/.well-known/oauth-protected-resource`, so the client signs in again. The key's value is checked only when a tool runs: with a wrong, truncated, expired or deleted key the client still connects and lists every tool, and each call then fails with "Sign in to use this action." (kind `authentication`).
+A request with no `x-api-key` header and no valid bearer token (missing, expired or revoked) gets HTTP `401` with a `WWW-Authenticate` header that points OAuth clients at `/.well-known/oauth-protected-resource`, so the client signs in again. The key's value is checked only when a tool reads or changes workspace data: with a wrong, truncated, expired or deleted key the client still connects and lists every tool, and each such call then fails with "Sign in to use this action." (kind `authentication`). The documentation tools (`search_docs`, `get_docs_page`, and `fetch` for a `doc:` id) still answer, because they read only the public documentation, so test a key with `get_workspace_context`, not with a documentation lookup.
 
 The endpoint and API keys are available on every plan and on self-hosted instances. Only the messaging, calendar and social tools need a plan with messaging (Pro or higher, cloud only); see [Messaging](/docs/mcp#messaging).
 
@@ -397,7 +397,7 @@ For a company, call `get_social_profile` with `profileType=company` and an `iden
 {/* mcp-catalog:docs */}
 #### `search_docs`
 
-Full-text search over the docs; defaults to the product guides (source=docs); pass source=api or all to include the REST API reference. Returns up to 5 pages, each with slug, source, title, url, its best-matching section and anchor, and a snippet, plus the total.
+Full-text search over the docs; defaults to the product guides (source=docs); pass source=api or all to include the REST API reference. Returns up to 5 pages, each with slug, source, title, url, its best-matching section and anchor, and a snippet, plus the total. App routes in a snippet, such as `/company/subscription`, are relative: a full link is the origin of that page's URL followed by the route.
 
 **Read-only.** Required: `query`. Optional: `locale`, `source`.
 
@@ -409,13 +409,13 @@ One documentation page as markdown with its canonical URL. App routes in the pag
 
 #### `search`
 
-Required by ChatGPT deep research connectors; federates CRM records and docs. Interactive agents should prefer `search_records` or `search_docs`.
+Required by ChatGPT deep research connectors; federates CRM records and docs. Interactive agents should prefer `search_records` or `search_docs`. App routes in the docs that `fetch` returns, such as `/company/subscription`, are relative: a full link is the origin of the result's URL followed by the route.
 
 **Read-only.** Required: `query`.
 
 #### `fetch`
 
-Deep-research companion to `search`: fetches one result by its id.
+Deep-research companion to `search`: fetches one result by its id. App routes in a docs result, such as `/company/subscription`, are relative: a full link is the origin of its URL followed by the route.
 
 **Read-only.** Required: `id`.
 {/* /mcp-catalog */}
@@ -517,14 +517,16 @@ A refusal is data, not a crash. The result carries `isError: true`, a human-read
 }
 ```
 
+Only a `validation` refusal's text starts with `Validation error:`; the other kinds carry the message without that label, as above. A refusal tied to a field can end its text with `→ at <path>`.
+
 `kind` is one of `validation`, `authentication`, `authorization`, `not_found`, `conflict`, `rate_limit`, or `unavailable`. Branch on it instead of matching message text:
 
 - **validation**: the arguments were wrong. Read `issues[].path`, fix that field, and call again. `get_record_schema` resolves most of these.
 - **authorization**: the caller's role does not permit it. Retrying never helps; say what was refused and which permission it needs. Roles are workspace-defined, so read `get_workspace_context.roles` rather than assuming a fixed set. A key or connection whose owner was set to **Inactive** also lands here, with "Your user account is inactive. Contact a workspace administrator."
 - **not_found**: the id does not exist, or belongs to another workspace. Every call is tenant-scoped, so an id from elsewhere reads as missing rather than forbidden. A recipient, profile or thread that the messaging provider cannot find or show also returns `not_found`, with `customCode` `unipileResourceNotFound`; your own record ids are fine in that case.
-- **conflict**: something already holds the resource. Read current state before retrying. A contact channel that another contact already holds returns `conflict` with `customCode` `channelAlreadyLinked`.
+- **conflict**: something already holds the resource. Read current state before retrying. A contact channel that another contact already holds returns `conflict` with `customCode` `channelAlreadyLinked`. A channel listed twice in one call, within one contact or across two items of a bulk call, is a `validation` refusal with `customCode` `duplicateChannel`.
 - **rate_limit** and **unavailable**: transient or capacity-bound. Back off, and surface `unavailable` as a provider problem rather than a user mistake. A messaging channel that hit its provider limit returns `rate_limit` with `customCode` `unipileRateLimit`, and its message says when to try again ([messaging rate limits](/docs/messaging-rate-limits)). A provider outage or timeout returns `unavailable`; after a timeout the action may still have completed, so check before retrying.
-- **authentication**: the key is wrong, truncated, expired or deleted, and every call says "Sign in to use this action." The user must create a new key. A request with no key and no valid OAuth token gets HTTP `401` before any tool runs.
+- **authentication**: the key is wrong, truncated, expired or deleted, and every call that reads or changes workspace data says "Sign in to use this action." Only the documentation tools still answer. The user must create a new key. A request with no key and no valid OAuth token gets HTTP `401` before any tool runs.
 
 Two kinds of `isError: true` result carry no `_meta.failure`, so tell them apart by their text:
 

@@ -217,9 +217,13 @@ export class UpsertCustomColumnInteractor extends AuthenticatedInteractor<Upsert
     if (previous.type !== CustomColumnType.singleSelect || data.type !== CustomColumnType.singleSelect) return false;
     if ((await this.companyRepo.getDealWeightingColumnId()) !== previous.id) return false;
 
-    const previousWeights = new Map(previous.options.options.map((option) => [option.value, option.weight ?? 0]));
+    const previousWeights = new Map(previous.options.options.map((option) => [option.value, option.weight]));
 
-    return data.options.options.some((option) => (option.weight ?? 0) !== (previousWeights.get(option.value) ?? 0));
+    return data.options.options.some((option) =>
+      previousWeights.has(option.value)
+        ? option.weight !== previousWeights.get(option.value)
+        : (option.weight ?? 0) !== 0,
+    );
   }
 
   private async precheck(data: UpsertCustomColumnData, ctx: z.RefinementCtx) {

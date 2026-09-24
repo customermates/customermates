@@ -45,9 +45,9 @@ curl -H "x-api-key: $CUSTOMERMATES_API_KEY" \
 
 Der Header `Accept: application/json, text/event-stream` wird vom MCP-Streamable-HTTP-Transport verlangt; ohne ihn liefert der Endpoint `406 Not Acceptable`. Bei MCP-Clients gehört der Key in die Konfiguration des Clients, siehe [CLI- und Editor-Clients](/docs/connect-cli) und [ChatGPT mit einem API-Key](/docs/connect-custom-connector#chatgpt).
 
-## Laufen Keys ab?
+## Wie lange ist ein Key gültig, und laufen Keys ab? [#laufen-keys-ab]
 
-Ein **Standard-API-Key** läuft nur ab, wenn Sie unter **Läuft ab** ein Datum wählen. Die Voreinstellung **Läuft nie ab** hält den Key gültig, bis Sie ihn löschen. Ein Datum muss zwischen 1 und 365 Tagen in der Zukunft liegen. Keys aus den **Schnellverbindungen**, auch die aus dem Onboarding-Assistenten, laufen immer 365 Tage nach der Erstellung ab. Das Ablaufdatum lässt sich nicht verlängern: Legen Sie vorher einen neuen Key an und aktualisieren Sie den Client. Die Key-Karte zeigt **Erstellt am**, **Läuft ab** (**Nie**, wenn kein Datum gesetzt ist) und **Zuletzt verwendet**.
+Ein **Standard-API-Key** läuft nur ab, wenn Sie unter **Läuft ab** ein Datum wählen. Die Voreinstellung **Läuft nie ab** hält den Key gültig, bis Sie ihn löschen. Ein Datum muss zwischen 1 und 365 Tagen in der Zukunft liegen. Ein Key aus den **Schnellverbindungen** (Schnellverbindungs-Schlüssel), auch aus dem Onboarding-Assistenten, gilt 365 Tage: Er läuft immer 365 Tage nach der Erstellung ab. Das Ablaufdatum lässt sich nicht verlängern: Legen Sie vorher einen neuen Key an und aktualisieren Sie den Client. Die Key-Karte zeigt **Erstellt am**, **Läuft ab** (**Nie**, wenn kein Datum gesetzt ist) und **Zuletzt verwendet**.
 
 ## Wie kann ich einen Key widerrufen, löschen oder rotieren?
 
@@ -59,9 +59,9 @@ Nur der Besitzer kann einen Key löschen. Um die Keys eines ausscheidenden Mitgl
 
 **Link:** `/profile/api-keys`, und zum Deaktivieren eines Mitglieds `/company/members`. **Mate:** `navigate` mit `nav-profile-api-keys` oder `nav-company-members`; `highlight_element` mit `nav-profile-api-keys` auf einer Seite unter **Mein Profil** und mit `nav-company-members` auf einer Seite unter **Mein Unternehmen**, weil ein Sidebar-Eintrag nur hervorhebbar ist, solange seine Gruppe aufgeklappt ist; die Key-Karten und die Zeilen der Mitglieder sind keine Highlight-Ziele, deshalb nennt Mate sie beim Namen. Hat die Person einen Key über seine Karte geöffnet, nimmt `highlight_element` `api-key-delete` für **Löschen** an; ist eine Mitgliedszeile geöffnet, nimmt es `member-modal-status` für **Status** und `member-modal-save` für **Speichern** an (Rollen mit **Verwalten** auf **Benutzer & Rollen**).
 
-## Welches Format hat ein Key?
+## Welches Format hat ein Key, und wie lang darf sein Name sein? [#welches-format-hat-ein-key]
 
-Keys bestehen aus 64 ASCII-Buchstaben (`a-z A-Z`), erzeugt vom better-auth-API-Key-Plugin und gehasht gespeichert. Der vollständige Key wird nur bei der Erstellung angezeigt und lässt sich danach nicht mehr abrufen.
+Der **Name** eines Keys ist 1 bis 255 Zeichen lang. Keys bestehen aus 64 ASCII-Buchstaben (`a-z A-Z`), erzeugt vom better-auth-API-Key-Plugin und gehasht gespeichert. Der vollständige Key wird nur bei der Erstellung angezeigt und lässt sich danach nicht mehr abrufen.
 
 ## Welche Berechtigungen hat ein Key?
 

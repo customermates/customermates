@@ -4,7 +4,7 @@ import { z } from "zod";
 
 import { GetMessagingThreadResultSchema } from "@/ee/messaging/inbox/get-messaging-thread.interactor";
 
-import { CommonApiResponses } from "@/core/api/interactor-handler";
+import { CommonApiResponses, NotFoundApiResponse } from "@/core/api/interactor-handler";
 
 export const getMessagingThreadOperation: ZodOpenApiOperationObject = {
   operationId: "getMessagingThread",
@@ -24,5 +24,6 @@ export const getMessagingThreadOperation: ZodOpenApiOperationObject = {
       },
     },
     ...CommonApiResponses,
+    ...NotFoundApiResponse,
   },
 };

@@ -32,16 +32,19 @@ export const CommonApiResponses = {
       },
     },
   },
-  "404": {
-    description: "Not found",
+  "500": {
+    description: "Unexpected error",
     content: {
       "application/json": {
         schema: ErrorResponseSchema,
       },
     },
   },
-  "500": {
-    description: "Unexpected error",
+} as const;
+
+export const NotFoundApiResponse = {
+  "404": {
+    description: "Not found",
     content: {
       "application/json": {
         schema: ErrorResponseSchema,

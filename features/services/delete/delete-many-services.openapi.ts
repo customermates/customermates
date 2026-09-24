@@ -2,7 +2,7 @@ import type { ZodOpenApiOperationObject } from "zod-openapi";
 
 import { DeleteManyServicesSchema } from "./delete-many-services.interactor";
 
-import { CommonApiResponses } from "@/core/api/interactor-handler";
+import { CommonApiResponses, NotFoundApiResponse } from "@/core/api/interactor-handler";
 
 export const deleteManyServicesOperation: ZodOpenApiOperationObject = {
   operationId: "deleteManyServices",
@@ -28,5 +28,6 @@ export const deleteManyServicesOperation: ZodOpenApiOperationObject = {
       },
     },
     ...CommonApiResponses,
+    ...NotFoundApiResponse,
   },
 };

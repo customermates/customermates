@@ -1,5 +1,5 @@
 import { describe, expect, it } from "vitest";
-import { EntityType } from "@/generated/prisma";
+import { EntityType, Resource } from "@/generated/prisma";
 
 import { readFileSync } from "node:fs";
 import { join } from "node:path";
@@ -11,9 +11,12 @@ import {
   AGENT_UI_TARGETS,
   NavigationUiTargetIdSchema,
   UiTargetIdSchema,
+  agentRouteVisible,
+  agentUiPageLabelKey,
   findAgentNavigationTarget,
   findAgentUiTarget,
 } from "../ui-targets";
+import { WORKSPACE_SECTIONS } from "@/app/components/navigation/workspace-sections";
 
 function componentSource(): string {
   return [
@@ -73,9 +76,55 @@ describe("agent interface targets", () => {
   it("names a registered target on the same page or a named row or card as every prerequisite", () => {
     for (const target of AGENT_UI_TARGETS.filter((candidate) => candidate.prerequisite)) {
       const prerequisite = findAgentUiTarget(target.prerequisite ?? "");
-      if (prerequisite) expect(prerequisite.route, `${target.id} prerequisite route`).toBe(target.route);
+      if (prerequisite && target.id.startsWith("nav-"))
+        expect(prerequisite.id, `${target.id} sidebar group`).toBe(`nav-${target.route.split("/")[1]}`);
+      else if (prerequisite) expect(prerequisite.route, `${target.id} prerequisite route`).toBe(target.route);
       else expect(target.prerequisite, `${target.id} prerequisite`).toMatch(/^an? [A-Za-z ]+ (?:row|card)$/);
     }
+  });
+
+  it("points every workspace sidebar entry at the group the user expands to reveal it", () => {
+    for (const section of ["profile", "company"] as const) {
+      expect(findAgentUiTarget(`nav-${section}`)?.prerequisite, section).toBeUndefined();
+      for (const subroute of WORKSPACE_SECTIONS[section]) {
+        expect(findAgentUiTarget(`nav-${section}-${subroute.slug}`)?.prerequisite, subroute.slug).toBe(
+          `nav-${section}`,
+        );
+      }
+    }
+    expect(findAgentUiTarget("nav-contacts")?.prerequisite).toBeUndefined();
+  });
+
+  it("opens a page only when the sidebar would show it for the role and installation", () => {
+    const reads =
+      (...resources: Resource[]) =>
+      (resource: Resource) =>
+        resources.includes(resource);
+    const everything = () => true;
+
+    expect(agentRouteVisible("/company/webhooks", "cloud", reads(Resource.users))).toBe(false);
+    expect(agentRouteVisible("/company/members", "cloud", reads(Resource.users))).toBe(true);
+    expect(agentRouteVisible("/profile/api-keys", "cloud", reads(Resource.users))).toBe(false);
+    expect(agentRouteVisible("/profile/settings", "cloud", reads())).toBe(true);
+    expect(agentRouteVisible("/dashboard", "cloud", reads())).toBe(true);
+    expect(agentRouteVisible("/deals/00000000-0000-4000-8000-000000000001", "cloud", reads(Resource.contacts))).toBe(
+      false,
+    );
+    expect(agentRouteVisible("/contacts", "cloud", reads(Resource.contacts))).toBe(true);
+    expect(agentRouteVisible("/inbox", "cloud", everything)).toBe(true);
+    for (const path of ["/inbox", "/routines", "/profile/connected-accounts", "/company/subscription"])
+      expect(agentRouteVisible(path, "self-hosted", everything), path).toBe(false);
+    expect(agentRouteVisible("*", "cloud", reads())).toBe(true);
+  });
+
+  it("names every routable target's page with the label key the sidebar shows", () => {
+    expect(agentUiPageLabelKey("/company/members")).toBe("NavigationBar.members");
+    expect(agentUiPageLabelKey("/profile/api-keys")).toBe("ApiKeysCard.title");
+    expect(agentUiPageLabelKey("/inbox")).toBe("NavigationBar.inbox");
+    expect(agentUiPageLabelKey("/tasks")).toBe("EntityTerminology.presets.task.task.plural");
+    expect(agentUiPageLabelKey("*")).toBeNull();
+    for (const target of AGENT_UI_TARGETS.filter((candidate) => candidate.route.startsWith("/")))
+      expect(agentUiPageLabelKey(target.route), target.id).not.toBeNull();
   });
 
   it("points dialog save and reset at what opens the dialog", () => {
@@ -91,7 +140,8 @@ describe("agent interface targets", () => {
     expect(findAgentUiTarget("webhook-modal-reset")?.prerequisite).toBe("company-webhooks-add");
     for (const id of ["member-modal-save", "member-modal-reset"])
       expect(findAgentUiTarget(id)?.prerequisite, id).toBe("a member row");
-    expect(findAgentUiTarget("widget-modal-save")?.prerequisite).toBe("dashboard-add-widget");
+    expect(findAgentUiTarget("widget-modal-save")?.prerequisite).toBe("widget-modal-kind");
+    expect(findAgentUiTarget("widget-modal-kind")?.prerequisite).toBe("dashboard-add-widget");
     expect(findAgentUiTarget("widget-modal-reset")?.prerequisite).toBe("a widget card");
   });
 
@@ -155,10 +205,15 @@ describe("agent interface targets", () => {
     expect(findAgentUiTarget("company-settings-save")?.description).toContain("enabled once something changed");
     expect(findAgentUiTarget("member-modal-save")?.description).toContain("roles with Manage");
     expect(findAgentUiTarget("role-modal-save")?.description).toContain("system role");
-    expect(findAgentUiTarget("company-subscription-manage")?.description).toContain("paid subscription");
+    expect(findAgentUiTarget("company-subscription-manage")?.description).toContain("Lemon Squeezy subscription");
+    expect(findAgentUiTarget("company-subscription-manage")?.description).toContain("not on Enterprise");
     expect(findAgentUiTarget("company-subscription-refresh")?.description).toContain("not during the trial");
-    expect(findAgentUiTarget("company-subscription-plan-picker")?.description).toContain("no subscription is active");
-    expect(findAgentUiTarget("webhook-delivery-modal-resend")?.description).toContain("not for pending deliveries");
+    expect(findAgentUiTarget("company-subscription-plan-picker")?.description).toContain(
+      "no Lemon Squeezy subscription",
+    );
+    expect(findAgentUiTarget("company-subscription-plan-picker")?.description).toContain("not on Enterprise");
+    expect(findAgentUiTarget("webhook-delivery-modal-resend")?.description).toContain("only on Delivered or Failed");
+    expect(findAgentUiTarget("webhook-delivery-modal-resend")?.description).toContain("not Pending or Sending");
     for (const id of [
       "connected-account-resync",
       "connected-account-reactivate",

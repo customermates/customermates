@@ -5,8 +5,6 @@ import { DOC_NAV_GROUPS } from "@/features/docs/docs-nav";
 import { MCP_TOOL_COUNT } from "@/features/mcp-tools/tool-registry";
 import { CONTENT_LOCALES, DEFAULT_LOCALE } from "@/i18n/locale-registry";
 
-export const dynamic = "force-static";
-
 type ManifestPage = { title: string; description: string; content: string };
 type Manifest = Record<string, Record<string, Record<string, ManifestPage>>>;
 
@@ -23,7 +21,7 @@ export function GET() {
   const lines: string[] = [
     "# Customermates",
     "",
-    `> Customermates is an open-source, AI-native CRM: contacts, organizations, deals, services, and tasks, kept fresh by the AI you already use. Native MCP endpoint: ${env.BASE_URL}/api/v1/mcp (${MCP_TOOL_COUNT} tools). Every link below is the raw-markdown twin of an HTML page at ${env.BASE_URL}/${DEFAULT_LOCALE}/docs/<slug>.${translationNote}`,
+    `> Customermates is an open-source, AI-native CRM: contacts, organizations, deals, services, and tasks, kept fresh by the AI you already use. Native MCP endpoint: ${env.BASE_URL}/api/v1/mcp (${MCP_TOOL_COUNT} tools). Every link below is the raw-markdown twin of an HTML page at ${env.BASE_URL}/${DEFAULT_LOCALE}/docs/<slug>, except intro-page, whose HTML page is ${env.BASE_URL}/${DEFAULT_LOCALE}/docs.${translationNote}`,
     "",
   ];
 
@@ -43,7 +41,7 @@ export function GET() {
   lines.push(
     "## Optional",
     `- [OpenAPI 3.1 spec](${env.BASE_URL}/api/v1/openapi): the full REST schema as JSON`,
-    `- REST operation docs: one markdown file per endpoint at ${env.BASE_URL}/${DEFAULT_LOCALE}/raw/openapi/<operation>.md`,
+    `- REST operation summaries: one markdown file per endpoint at ${env.BASE_URL}/${DEFAULT_LOCALE}/raw/openapi/<operation>.md; parameters and schemas are in the OpenAPI spec above`,
     "",
   );
 

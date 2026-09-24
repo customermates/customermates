@@ -4,7 +4,7 @@ import { z } from "zod";
 
 import { CalendarDtoSchema } from "@/ee/calendar/calendar.schema";
 import { GetQueryParamsApiSchema, GetResultSchema } from "@/core/base/base-get.schema";
-import { CommonApiResponses } from "@/core/api/interactor-handler";
+import { CommonApiResponses, NotFoundApiResponse } from "@/core/api/interactor-handler";
 
 export const getCalendarsOperation: ZodOpenApiOperationObject = {
   operationId: "getCalendars",
@@ -33,5 +33,6 @@ export const getCalendarsOperation: ZodOpenApiOperationObject = {
       },
     },
     ...CommonApiResponses,
+    ...NotFoundApiResponse,
   },
 };

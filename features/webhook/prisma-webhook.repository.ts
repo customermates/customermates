@@ -67,7 +67,7 @@ export class PrismaWebhookRepo
 
   getSortableFields() {
     return [
-      { field: "name", resolvedFields: ["url"] },
+      { field: "name", resolvedFields: ["url"], collate: true },
       { field: "createdAt", resolvedFields: ["createdAt"] },
       { field: "updatedAt", resolvedFields: ["updatedAt"] },
     ];
@@ -81,14 +81,14 @@ export class PrismaWebhookRepo
   }
 
   async getItems(params: GetQueryParams) {
-    const args = await this.buildQueryArgs(params, { companyId: this.companyId });
-
-    const webhooks = await this.prisma.webhook.findMany({
-      ...args,
+    return this.list({
+      model: "webhook",
+      baseWhere: { companyId: this.companyId },
       select: this.baseSelect,
+      params,
+      map: (webhook: Prisma.WebhookGetPayload<{ select: PrismaWebhookRepo["baseSelect"] }>) =>
+        this.toWebhookDto(webhook),
     });
-
-    return webhooks.map((webhook) => this.toWebhookDto(webhook));
   }
 
   async getCount(params: GetQueryParams) {

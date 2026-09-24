@@ -379,7 +379,10 @@ describe("agent tools", () => {
     expect(await lineOf("webhook-delivery-modal-resend")).toContain("|>a delivery row");
     expect(await lineOf("connected-account-disconnect")).toContain("|>a channel card");
     expect(await lineOf("connected-account-signature")).toContain("|>connected-account-tab-email");
-    expect(await lineOf("widget-modal-save")).toContain("|>dashboard-add-widget");
+    expect(await lineOf("widget-modal-save")).toBe("widget-modal-save|/dashboard|nh|>widget-modal-kind");
+    expect(await lineOf("widget-modal-kind")).toBe("widget-modal-kind|/dashboard|nh|>dashboard-add-widget");
+    expect(await lineOf("nav-company-members")).toBe("nav-company-members|/company/members|nh|>nav-company");
+    expect(await lineOf("nav-profile-api-keys")).toBe("nav-profile-api-keys|/profile/api-keys|nh|>nav-profile");
     expect(await lineOf("widget-modal-reset")).toContain("|>a widget card");
     expect(await lineOf("webhook-modal-url")).toContain("|>company-webhooks-add");
   });
@@ -399,9 +402,25 @@ describe("agent tools", () => {
     const result = String(await execute(tools.list_ui_targets, { query: "zzzz" }));
 
     expect(result).toContain('No interface target matches "zzzz"');
+    expect(result).toContain("Target names are English");
     expect(result).toContain("nav-");
     expect(result).not.toContain(AGENT_UI_TARGETS[0].id);
     expect(result.length).toBeLessThan(600);
+  });
+
+  it("matches the sidebar's page names in the app's other languages", async () => {
+    const tools = getAgentAiTools(deps({ resultMaxChars: 6000 }));
+    const invite = String(await execute(tools.list_ui_targets, { query: "Mitglieder einladen" }));
+    const inbox = String(await execute(tools.list_ui_targets, { query: "Posteingang" }));
+    const tasks = String(await execute(tools.list_ui_targets, { query: "Aufgaben" }));
+
+    expect(invite).not.toContain("No interface target matches");
+    for (const id of ["nav-company-members", "company-members-add", "invite-modal-tab-email", "invite-modal-send"])
+      expect(invite, id).toContain(`${id}|`);
+    expect(invite).not.toContain("nav-deals|");
+    expect(inbox).toContain("nav-inbox|/inbox|nh");
+    expect(tasks).toContain("nav-tasks|/tasks|nh");
+    expect(tasks).toContain("tasks-add|/tasks|nh");
   });
 
   it("discovers the connected-account destination and walkthrough control together", async () => {

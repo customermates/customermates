@@ -42,6 +42,10 @@ export const CompanyForecastingSection = observer(() => {
     ...store.dealStageColumns.map((column) => ({ value: column.id, label: column.label })),
   ];
 
+  const hasLoadedDealStageColumns = store.forecastingRequest === "ready" || store.dealStageColumns.length > 0;
+  const dealWeightingColumnValue =
+    store.form.dealWeightingColumnId ?? (hasLoadedDealStageColumns ? NO_COLUMN_VALUE : undefined);
+
   const optionByValue = new Map((store.selectedStageColumn?.options ?? []).map((option) => [option.value, option]));
 
   let body: ReactNode;
@@ -116,6 +120,7 @@ export const CompanyForecastingSection = observer(() => {
           label={t("CompanySettings.forecasting.columnLabel", { deal: singular(EntityType.deal) })}
           optionsLoading={store.isLoadingDealStageColumns}
           placeholder={t("CompanySettings.forecasting.columnPlaceholder")}
+          value={dealWeightingColumnValue}
           onValueChange={(value) => {
             if (!value) return;
 

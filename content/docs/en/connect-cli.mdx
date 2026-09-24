@@ -3,7 +3,7 @@ title: Connect CLI & editor clients (API key)
 description: "Connect Claude Code, Codex, Cursor, or the Gemini CLI to Customermates with an API key: one section per client, plus the Claude Desktop fallback."
 ---
 
-Customermates is the open-source, AI-native CRM. Once connected, your coding agent reads and writes contacts, deals, and notes without leaving the terminal. Every client on this page authenticates the same way: an API key sent in the `x-api-key` header against `<BASE_URL>/api/v1/mcp`, where `<BASE_URL>` is the address you open Customermates at, in the cloud or on your own instance.
+Customermates is the open-source, AI-native CRM. Once connected, your coding agent reads and writes contacts, deals, and notes without leaving the terminal. Every client on this page authenticates the same way: an API key sent in the `x-api-key` header against `<BASE_URL>/api/v1/mcp`, where `<BASE_URL>` is the address you open Customermates at, in the cloud or on your own instance. The snippets below already carry the address of the site showing this page; if you open Customermates at a different address, for example your own instance, replace that address as well as `YOUR_KEY`.
 
 > Using Claude's or ChatGPT's **app** instead? Those connect with [the custom connector](/docs/connect-custom-connector) (OAuth, no key).
 
@@ -89,7 +89,7 @@ The available record types are contact, organization, deal, service, and task. D
 | Claude Desktop | `npx: command not found` | No Node on `PATH` | Install Node 18+ from [nodejs.org](https://nodejs.org) |
 | Claude Desktop | Tools panel empty after a config edit | Claude Desktop does not hot-reload MCP configs | Fully quit (⌘Q) and reopen |
 | Codex | TOML parse error | Inline-table values use `=`, not `:` | Check the `env_http_headers = { ... }` line |
-| All | Tools are listed, but every call fails with "Sign in to use this action." | The key is wrong or truncated, or a key that worked has expired (keys from **Quick connections** expire after 365 days) or was deleted. The server lists tools for any `x-api-key` header and checks the key only when a tool runs | Create a new key under **My Profile → API & Connectors**, paste the full 64 characters, and update the client |
+| All | Tools are listed, but every call that reads or changes workspace data fails with "Sign in to use this action." | The key is wrong or truncated, or a key that worked has expired (keys from **Quick connections** expire after 365 days) or was deleted. The server lists tools for any `x-api-key` header and checks the key only when a tool reads or changes workspace data; `search_docs`, `get_docs_page` and `fetch` of a `doc:` id need no valid key, so a working documentation lookup does not prove the key is valid | Create a new key under **My Profile → API & Connectors**, paste the full 64 characters, and update the client |
 | All | A connection that worked now fails with "Your user account is inactive. Contact a workspace administrator." | The key's owner was set to **Inactive** | A member with **Manage** on **Users & Roles** sets them back to **Active** under **My Company → Members**, and the existing key works again |
 | All | Relation update rejected | `update_*` tools do not accept relation id fields; only `services` on `update_deals` is accepted, and it replaces the deal's whole service list | Ask the agent to use `manage_record_links` to add or remove links |
 

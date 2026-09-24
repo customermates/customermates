@@ -37,6 +37,7 @@ type Props = {
   className?: string;
   containerClassName?: string;
   optionsLoading?: boolean;
+  value?: string;
   onValueChange?: (value: string) => void;
   labelEndAddon?: ReactNode;
 };
@@ -56,13 +57,14 @@ export const FormSelect = observer(
     className,
     containerClassName,
     optionsLoading = false,
+    value: controlledValue,
     onValueChange,
     labelEndAddon,
   }: Props) => {
     const t = useTranslations();
     const store = useAppForm();
     const resolvedLabel = useResolvedFieldLabel(id, label);
-    const raw = store?.getValue(id);
+    const raw = controlledValue ?? store?.getValue(id);
     const value = raw == null ? "" : String(raw);
     const { hasError } = useFormFieldErrors(id);
     const selectedItem = items?.find((it) => it.value === value);

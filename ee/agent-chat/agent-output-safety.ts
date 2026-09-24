@@ -4,6 +4,13 @@ const INTERNAL_DETAILS = "[internal details]";
 
 const UUID_PATTERN = /(^|[^0-9a-f])([0-9a-f]{8}(?:-[0-9a-f]{4}){3}-[0-9a-f]{12})(?=$|[^0-9a-f])/gi;
 const PARTIAL_UUID_PATTERN = /(^|[^0-9a-f])([0-9a-f]{8}-(?:[0-9a-f]{0,4}(?:-[0-9a-f]{0,4}){0,3})?)$/gi;
+const REDACTION_TOKEN_SOURCE = "\\[(?:internal reference|internal details|redacted)\\]";
+const MARKDOWN_UUID_LINK_PATTERN = new RegExp(
+  `(!?\\[((?:[^[\\]\\r\\n]|${REDACTION_TOKEN_SOURCE})+)\\]\\()([^\\s()<>]*[0-9a-f]{8}(?:-[0-9a-f]{4}){3}-[0-9a-f]{12}[^\\s()<>]*)\\)`,
+  "gi",
+);
+const INCOMPLETE_MARKDOWN_LINK_PATTERN = /!?\[[^[\]\r\n]*(?:\](?:\([^\s()<>]*)?)?$/;
+const APP_ROUTE_DESTINATION_PATTERN = /^\/(?![/\\])/;
 const PAGE_CONTEXT_BLOCK_PATTERN = /<page_context\b[^>]*>[\s\S]*?<\/page_context\s*>/gi;
 const PAGE_CONTEXT_TAG_PATTERN = /<\/?page_context\b[^>]*>/gi;
 const ENCODED_PAGE_CONTEXT_BLOCK_PATTERN = /&lt;page_context\b[\s\S]*?&gt;[\s\S]*?&lt;\/page_context\s*&gt;/gi;
@@ -68,6 +75,8 @@ const STREAM_TAIL_LENGTH = Math.max(64, ...PRIVATE_MARKERS.map((marker) => marke
 
 const PROTECTED_STREAM_PATTERNS = [
   UUID_PATTERN,
+  MARKDOWN_UUID_LINK_PATTERN,
+  PRIVATE_REASONING_TAG_PATTERN,
   PAGE_CONTEXT_BLOCK_PATTERN,
   PAGE_CONTEXT_TAG_PATTERN,
   ENCODED_PAGE_CONTEXT_BLOCK_PATTERN,
@@ -94,6 +103,23 @@ function earliest(current: number | null, candidate: number | null) {
 
 function replaceUuid(value: string) {
   return value.replace(UUID_PATTERN, (_match, prefix: string) => `${prefix}${INTERNAL_REFERENCE}`);
+}
+
+function replaceUuidOutsideAppRouteLinks(value: string) {
+  let visible = "";
+  let index = 0;
+
+  for (const match of value.matchAll(MARKDOWN_UUID_LINK_PATTERN)) {
+    const [link, opening = "", label = "", destination = ""] = match;
+    const start = match.index ?? 0;
+    visible += replaceUuid(value.slice(index, start));
+    visible += APP_ROUTE_DESTINATION_PATTERN.test(destination)
+      ? `${replaceUuid(opening)}${destination})`
+      : replaceUuid(label);
+    index = start + link.length;
+  }
+
+  return `${visible}${replaceUuid(value.slice(index))}`;
 }
 
 function replacePartialUuidTail(value: string) {
@@ -148,7 +174,7 @@ function openPrivateContentStart(value: string) {
   return start;
 }
 
-function incompletePrivateMarkerStart(value: string) {
+function incompletePrivateMarkerStart(value: string, streamTail = false) {
   const lower = value.toLowerCase();
   let start: number | null = null;
 
@@ -164,6 +190,7 @@ function incompletePrivateMarkerStart(value: string) {
         start = earliest(start, fullStart);
     }
 
+    if (!streamTail) continue;
     for (let length = Math.min(marker.length - 1, lower.length); length > 0; length -= 1) {
       if (!lower.endsWith(marker.slice(0, length))) continue;
       start = earliest(start, lower.length - length);
@@ -172,6 +199,10 @@ function incompletePrivateMarkerStart(value: string) {
   }
 
   return start;
+}
+
+function incompleteMarkdownLinkStart(value: string) {
+  return INCOMPLETE_MARKDOWN_LINK_PATTERN.exec(value)?.index ?? null;
 }
 
 function toolProtocolStart(value: string) {
@@ -204,7 +235,7 @@ function protectStreamBoundary(value: string, requestedEnd: number) {
 }
 
 function redactCompleteAgentVisibleText(value: string) {
-  return replaceUuid(
+  return replaceUuidOutsideAppRouteLinks(
     value
       .replace(PAGE_CONTEXT_TAG_PATTERN, "")
       .replace(ENCODED_PAGE_CONTEXT_TAG_PATTERN, "")
@@ -247,8 +278,8 @@ export function stripLegacyUserPageContextPrefix(value: string) {
 const MARKDOWN_BLOCK_PREFIX_PATTERN = /^[ \t]{0,3}(?:#{1,6}[ \t]+|>[ \t]?|[-*+][ \t]+|\d{1,9}[.)][ \t]+)/gm;
 const MARKDOWN_RULE_LINE_PATTERN = /^[ \t]{0,3}(?:[-*_][ \t]*){3,}$/gm;
 const MARKDOWN_FENCE_PATTERN = /^[ \t]{0,3}(?:`{3,}|~{3,}).*$/gm;
-const MARKDOWN_IMAGE_PATTERN = /!\[([^\]]*)\]\([^)]*\)/g;
-const MARKDOWN_LINK_PATTERN = /\[([^\]]+)\]\([^)]*\)/g;
+const MARKDOWN_IMAGE_PATTERN = new RegExp(`!\\[((?:${REDACTION_TOKEN_SOURCE}|[^\\]])*)\\]\\([^)]*\\)`, "g");
+const MARKDOWN_LINK_PATTERN = new RegExp(`\\[((?:${REDACTION_TOKEN_SOURCE}|[^\\]])+)\\]\\([^)]*\\)`, "g");
 const MARKDOWN_BOLD_ITALIC_PATTERN = /(\*{1,3})(?=\S)([\s\S]*?\S)\1/g;
 const MARKDOWN_STRIKETHROUGH_PATTERN = /~~(?=\S)([\s\S]*?\S)~~/g;
 const MARKDOWN_UNDERSCORE_EMPHASIS_PATTERN = /(?<![\w\\])(_{1,3})(?=\S)([\s\S]*?\S)\1(?![\w])/g;
@@ -302,8 +333,11 @@ export class AgentVisibleTextStreamSanitizer {
 
     const requestedEnd = Math.max(0, this.buffer.length - STREAM_TAIL_LENGTH);
     const unsafeStart = earliest(
-      earliest(openPrivateContentStart(this.buffer), incompletePrivateMarkerStart(this.buffer)),
-      incompleteToolProtocolStart(this.buffer),
+      earliest(
+        earliest(openPrivateContentStart(this.buffer), incompletePrivateMarkerStart(this.buffer, true)),
+        incompleteToolProtocolStart(this.buffer),
+      ),
+      incompleteMarkdownLinkStart(this.buffer),
     );
     const safeEnd = protectStreamBoundary(this.buffer, Math.min(requestedEnd, unsafeStart ?? this.buffer.length));
     const visible = sanitizeAgentVisibleText(this.buffer.slice(0, safeEnd));

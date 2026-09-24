@@ -12,7 +12,8 @@ import { CustomColumnDtoSchema } from "@/features/custom-column/custom-column.sc
 export const getDealByIdOperation: ZodOpenApiOperationObject = {
   operationId: "getDealById",
   summary: "Get a deal by ID",
-  description: "Retrieves a single deal by its unique identifier.",
+  description:
+    "Retrieves a single deal by its unique identifier. The response carries `deal: null`, not an error, when no deal with this id is accessible.",
   tags: ["deals"],
   security: [{ apiKeyAuth: [] }],
   requestParams: {
@@ -20,7 +21,7 @@ export const getDealByIdOperation: ZodOpenApiOperationObject = {
   },
   responses: {
     "200": {
-      description: "The deal was retrieved successfully.",
+      description: "The deal, or `deal: null` when no deal with this id is accessible.",
       content: {
         "application/json": {
           schema: z.object({

@@ -290,8 +290,8 @@ describe("overlay contract", () => {
     const appModal = readFileSync(join(REPO_ROOT, "components/modal/app-modal.tsx"), "utf8");
 
     expect(appModal).toContain('useIsWiderThan("md")');
-    expect(appModal).toContain("<Dialog open={isOpen}");
-    expect(appModal).toContain("<Drawer open={isOpen}");
+    expect(appModal).toMatch(/<Dialog\b[^>]*\bopen={isOpen}/);
+    expect(appModal).toMatch(/<Drawer\b[^>]*\bopen={isOpen}/);
     expect(appModal).toContain("sizeClassMap[size]");
   });
 

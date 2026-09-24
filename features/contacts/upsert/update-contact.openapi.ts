@@ -7,7 +7,7 @@ import { ContactDtoSchema } from "../contact.schema";
 
 import { BaseUpdateContactSchema } from "./update-contact-base.schema";
 
-import { CommonApiResponses, ConflictApiResponse } from "@/core/api/interactor-handler";
+import { CommonApiResponses, ConflictApiResponse, NotFoundApiResponse } from "@/core/api/interactor-handler";
 
 export const updateContactOperation: ZodOpenApiOperationObject = {
   operationId: "updateContact",
@@ -34,6 +34,7 @@ export const updateContactOperation: ZodOpenApiOperationObject = {
       },
     },
     ...CommonApiResponses,
+    ...NotFoundApiResponse,
     ...ConflictApiResponse,
   },
 };

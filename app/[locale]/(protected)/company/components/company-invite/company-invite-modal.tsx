@@ -74,6 +74,7 @@ export const CompanyInviteModal = observer(() => {
                   />
 
                   <Button
+                    aria-label={t("Common.actions.copy")}
                     disabled={isLoading}
                     id="invite-modal-copy-link"
                     size="icon"

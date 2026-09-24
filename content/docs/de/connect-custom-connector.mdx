@@ -36,7 +36,9 @@ Zurück in Claude erscheint Customermates mit seinen Tools.
 
 Einmal hinzufügen, und es synchronisiert zu Claude auf Web, Desktop und Mobile. Die Verbindung hängt an Ihrem Claude-Konto, nicht an einem Gerät, und erneuert sich im Hintergrund.
 
-Noch schneller: [Add to Claude](https://claude.ai/customize/connectors?modal=add-custom-connector&connectorName=Customermates&connectorUrl=https%3A%2F%2Fcustomermates.com%2Fapi%2Fv1%2Fmcp) füllt den Add-Connector-Dialog für Sie vor (nur Claude Web und Teams).
+Noch schneller: Öffnen Sie in Customermates **Mein Profil → API & Konnektoren**, klicken Sie auf **Hinzufügen**, wählen Sie unter **Schnellverbindungen** **Claude** und dann **Claude-Konto**, und klicken Sie auf **Zu Claude hinzufügen**. Das öffnet den Add-Connector-Dialog von Claude, vorausgefüllt mit Ihrer `<BASE_URL>/api/v1/mcp` (nur Claude Web und Teams). Der Onboarding-Schritt **KI verbinden** bietet dieselbe Schaltfläche. **Hinzufügen** braucht **Verwalten** auf **API & Webhooks**; ohne diese Berechtigung fügen Sie die URL wie oben ein.
+
+**Link:** die Seite **API & Konnektoren**, `/profile/api-keys`. **Mate:** `navigate` und `highlight_element` mit `nav-profile-api-keys`; `highlight_element` nimmt außerdem `profile-api-keys-generate` für **Hinzufügen** an (Rollen mit **Verwalten** auf **API & Webhooks**). Die Kacheln der **Schnellverbindungen** und **Zu Claude hinzufügen** sind keine Highlight-Ziele, deshalb nennt Mate sie beim Namen.
 
 ## Wie verbinde ich ChatGPT? [#chatgpt]
 
@@ -61,7 +63,7 @@ Im Connector-Formular **Authentication: Header**, **Header name: `x-api-key`**, 
 </Step>
 </Steps>
 
-Speichern. ChatGPT erreicht den Server und listet jedes Tool. Das geschieht auch mit einem falschen Key, weil Customermates den Key erst prüft, wenn ein Tool läuft; meldet danach jeder Aufruf „Sign in to use this action.“ (die Meldung kommt auf Englisch), ist der Key falsch, abgeschnitten, abgelaufen oder gelöscht, und Sie legen einen neuen an.
+Speichern. ChatGPT erreicht den Server und listet jedes Tool. Das geschieht auch mit einem falschen Key, weil Customermates den Key erst prüft, wenn ein Tool Workspace-Daten liest oder ändert; meldet danach jeder solche Aufruf „Sign in to use this action.“ (die Meldung kommt auf Englisch), ist der Key falsch, abgeschnitten, abgelaufen oder gelöscht, und Sie legen einen neuen an. Eine Doku-Abfrage wie `search_docs` antwortet auch mit einem falschen Key und beweist deshalb nicht, dass der Key funktioniert.
 
 **Link:** die Seite **API & Konnektoren**, `/profile/api-keys`. **Mate:** `navigate` und `highlight_element` mit `nav-profile-api-keys`; `highlight_element` nimmt außerdem `profile-api-keys-generate` für **Hinzufügen** an (Rollen mit **Verwalten** auf **API & Webhooks**), danach `api-key-option-standard` für **Standard-API-Key** (Voraussetzung `profile-api-keys-generate`) sowie `api-key-name`, `api-key-expires` und `api-key-save` für **Name**, **Läuft ab** und **Speichern** (Voraussetzung `api-key-option-standard`). Die Kacheln der **Schnellverbindungen** sind keine Highlight-Ziele, deshalb nennt Mate sie beim Namen.
 
@@ -90,7 +92,7 @@ Der Connector akzeptiert jeden Client, daher ist der Screen **Zugriff autorisier
 - Einmal in Claude Web hinzufügen, und es erscheint auch auf **Desktop und Mobile**. Die Verbindung hängt an Ihrem Claude-Konto, nicht an einem Gerät.
 - Sie erneuert sich im Hintergrund. Nutzen Sie sie innerhalb von 30 Tagen, und Sie autorisieren nie neu; bleiben Sie länger untätig, und Sie geben einmal mehr frei.
 - Jeder Aufruf läuft als der Customermates-User, der freigegeben hat, innerhalb der Daten dieses Kontos und mit den Rechten seiner Rolle. API-Keys funktionieren genauso: Sie erben die Berechtigungen des besitzenden Users, und es gibt kein Scoping pro Key.
-- Wird dieser User auf **Inaktiv** gesetzt, scheitert jeder Aufruf mit „Your user account is inactive. Contact a workspace administrator.“, bis ein Mitglied mit **Verwalten** auf **Benutzer & Rollen** ihn wieder auf **Aktiv** setzt.
+- Wird dieser User auf **Inaktiv** gesetzt, scheitert jeder Aufruf, der Workspace-Daten liest oder ändert, mit „Your user account is inactive. Contact a workspace administrator.“, bis ein Mitglied mit **Verwalten** auf **Benutzer & Rollen** ihn wieder auf **Aktiv** setzt.
 
 ## Was probiere ich zuerst? [#try-your-first-prompt]
 
@@ -117,8 +119,8 @@ Lassen Sie jedes Tool, das nicht read-only ist, auf *Ask*. Die vollständige Lis
 | Symptom | Ursache | Lösung |
 |---|---|---|
 | "Couldn't register with the sign-in service" (Claude) oder "Connector verification failed" (ChatGPT) | URL falsch oder nicht erreichbar | Prüfen Sie, dass sie exakt `<BASE_URL>/api/v1/mcp` lautet, mit der Adresse, unter der Sie Customermates öffnen, als `<BASE_URL>` |
-| Die Tools werden gelistet, aber jeder Aufruf meldet „Sign in to use this action.“ (ChatGPT mit Header) | Der Wert von `x-api-key` ist falsch, abgeschnitten, abgelaufen oder gelöscht | Unter **Mein Profil → API & Konnektoren** einen neuen Key anlegen und die vollständigen 64 Zeichen einfügen |
-| Jeder Aufruf meldet „Your user account is inactive. Contact a workspace administrator.“ | Ihr Customermates-User steht auf **Inaktiv** | Ein Mitglied mit **Verwalten** auf **Benutzer & Rollen** setzt Sie unter **Mein Unternehmen → Mitglieder** wieder auf **Aktiv** |
+| Die Tools werden gelistet, aber jeder Aufruf, der Workspace-Daten liest oder ändert, meldet „Sign in to use this action.“ (ChatGPT mit Header); Doku-Abfragen antworten weiter | Der Wert von `x-api-key` ist falsch, abgeschnitten, abgelaufen oder gelöscht | Unter **Mein Profil → API & Konnektoren** einen neuen Key anlegen und die vollständigen 64 Zeichen einfügen |
+| Jeder Aufruf, der Workspace-Daten liest oder ändert, meldet „Your user account is inactive. Contact a workspace administrator.“ | Ihr Customermates-User steht auf **Inaktiv** | Ein Mitglied mit **Verwalten** auf **Benutzer & Rollen** setzt Sie unter **Mein Unternehmen → Mitglieder** wieder auf **Aktiv** |
 | Kein "Add custom connector"-Eintrag | Free-Plan | Custom Connectors brauchen einen bezahlten Claude- oder ChatGPT-Plan. Siehe [die CLI-Methode](/docs/connect-cli) |
 | Freigegeben, aber nichts verbindet | Sie haben aus einem anderen Konto freigegeben | Ins richtige Customermates-Konto anmelden, dann erneut versuchen |
 | "Tool not found" | Connector-Cache veraltet | Connector entfernen und neu hinzufügen |

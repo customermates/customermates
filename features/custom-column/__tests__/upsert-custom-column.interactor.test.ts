@@ -61,12 +61,14 @@ function makeInteractor({
   canUpdateCompany,
   canUpdateDeals = true,
   columnId = STAGE_COLUMN_ID,
+  storedOptions = STORED_OPTIONS,
 }: {
   canUpdateCompany: boolean;
   canUpdateDeals?: boolean;
   columnId?: string;
+  storedOptions?: ReturnType<typeof stageOption>[];
 }) {
-  const stored = stageColumn(columnId, STORED_OPTIONS);
+  const stored = stageColumn(columnId, storedOptions);
   const repo = {
     findByIdOrThrow: vi.fn().mockResolvedValue(stored),
     upsertCustomColumnOrThrow: vi.fn((data: UpsertCustomColumnData) => Promise.resolve({ ...stored, ...data })),
@@ -121,6 +123,53 @@ describe("UpsertCustomColumnInteractor deal stage weights", () => {
     ).rejects.toThrow("User has insufficient permissions");
 
     expect(repo.upsertCustomColumnOrThrow).not.toHaveBeenCalled();
+  });
+
+  it("refuses dropping a stored weight of 0 on the deal weighting column without company update permission", async () => {
+    const { interactor, repo } = makeInteractor({
+      canUpdateCompany: false,
+      storedOptions: [stageOption(QUALIFIED, 0, 20), stageOption(PROPOSAL, 1, 0)],
+    });
+
+    await expect(
+      interactor.invoke(update(STAGE_COLUMN_ID, [stageOption(QUALIFIED, 0, 20), stageOption(PROPOSAL, 1)])),
+    ).rejects.toThrow("User has insufficient permissions");
+
+    expect(repo.upsertCustomColumnOrThrow).not.toHaveBeenCalled();
+  });
+
+  it("refuses setting a weight of 0 on a stored unweighted stage without company update permission", async () => {
+    const { interactor, repo } = makeInteractor({
+      canUpdateCompany: false,
+      storedOptions: [stageOption(QUALIFIED, 0, 20), stageOption(UNWEIGHTED_STAGE, 1)],
+    });
+
+    await expect(
+      interactor.invoke(update(STAGE_COLUMN_ID, [stageOption(QUALIFIED, 0, 20), stageOption(UNWEIGHTED_STAGE, 1, 0)])),
+    ).rejects.toThrow("User has insufficient permissions");
+
+    expect(repo.upsertCustomColumnOrThrow).not.toHaveBeenCalled();
+  });
+
+  it("refuses a new stage with a non-zero weight without company update permission", async () => {
+    const { interactor, repo } = makeInteractor({ canUpdateCompany: false });
+
+    await expect(
+      interactor.invoke(update(STAGE_COLUMN_ID, [...STORED_OPTIONS, stageOption(NEW_STAGE, 2, 40)])),
+    ).rejects.toThrow("User has insufficient permissions");
+
+    expect(repo.upsertCustomColumnOrThrow).not.toHaveBeenCalled();
+  });
+
+  it("lets a deals manager save stored 0 % and unweighted stages unchanged", async () => {
+    const storedOptions = [stageOption(QUALIFIED, 0, 0), stageOption(UNWEIGHTED_STAGE, 1)];
+    const { interactor, repo, userService } = makeInteractor({ canUpdateCompany: false, storedOptions });
+
+    const result = await interactor.invoke(update(STAGE_COLUMN_ID, storedOptions));
+
+    expect(result.ok).toBe(true);
+    expect(userService.hasPermissionOrThrow).not.toHaveBeenCalledWith(Resource.company, Action.update);
+    expect(repo.upsertCustomColumnOrThrow).toHaveBeenCalledTimes(1);
   });
 
   it("changes the weights with company update permission", async () => {

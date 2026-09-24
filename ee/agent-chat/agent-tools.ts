@@ -23,9 +23,10 @@ import {
 } from "./agent-toolset-routing";
 import { onDemandToolsetOfTool, toolNamesOfToolset } from "./agent-toolsets";
 import { hostedToolInputGuard } from "./agent-hosted-guards";
-import { isContentLocale } from "@/i18n/locale-registry";
+import { APP_LOCALES, isContentLocale } from "@/i18n/locale-registry";
+import { getTranslator } from "@/i18n/get-translator";
 import { type AgentToolCancellation as AgentToolCancellationValue } from "./agent-tool-cancellation";
-import { AGENT_UI_TARGETS, UiTargetIdSchema, type AgentUiTarget } from "./ui-targets";
+import { AGENT_UI_TARGETS, UiTargetIdSchema, agentUiPageLabelKey, type AgentUiTarget } from "./ui-targets";
 import { AgentTourSchema } from "./agent-tours";
 import { NavigateInputSchema } from "./ui-operations";
 import type { AgentApprovalContextResolution } from "./agent-external-approval-context";
@@ -173,7 +174,7 @@ const ListUiTargetsSchema = z.object({
     .max(100)
     .optional()
     .describe(
-      "Optional page names, routes, target prefixes, or exact target ids. Any word may match, so one query can cover several pages.",
+      "Optional English page names, routes, target prefixes, or exact target ids; sidebar page names also match in the app's languages. Any word may match, so one query can cover several pages.",
     ),
   cursor: z.number().int().min(0).max(10_000).optional().describe("Continue a previous result page."),
 });
@@ -188,8 +189,24 @@ function uiTargetQueryTokens(query: string | undefined) {
   return query?.toLocaleLowerCase().match(/[\p{L}\p{N}/-]{2,}/gu) ?? [];
 }
 
-function matchesUiTargetQuery(target: AgentUiTarget, tokens: string[]) {
-  const haystack = `${target.id} ${target.route} ${target.description}`.toLocaleLowerCase();
+let uiTargetPageNames: Promise<Map<string, string>> | undefined;
+
+function localizedUiTargetPageNames() {
+  uiTargetPageNames ??= Promise.all(APP_LOCALES.map((locale) => getTranslator(locale))).then(
+    (translators) =>
+      new Map(
+        AGENT_UI_TARGETS.map((target) => {
+          const labelKey = agentUiPageLabelKey(target.route);
+          return [target.id, labelKey ? translators.map((t) => t(labelKey)).join(" ") : ""];
+        }),
+      ),
+  );
+  return uiTargetPageNames;
+}
+
+function matchesUiTargetQuery(target: AgentUiTarget, tokens: string[], pageNames: Map<string, string>) {
+  const haystack =
+    `${target.id} ${target.route} ${target.description} ${pageNames.get(target.id) ?? ""}`.toLocaleLowerCase();
   return tokens.some((token) => haystack.includes(token));
 }
 
@@ -205,13 +222,18 @@ function uiTargetPrefixes(limit: number): string[] {
     .map(([prefix]) => `${prefix}-`);
 }
 
-function listUiTargets(input: z.infer<typeof ListUiTargetsSchema>, resultMaxChars: number) {
-  const tokens = uiTargetQueryTokens(input.query);
-  const targets = tokens.length
-    ? AGENT_UI_TARGETS.filter((target) => matchesUiTargetQuery(target, tokens))
-    : AGENT_UI_TARGETS;
+async function matchingUiTargets(tokens: string[]) {
+  if (!tokens.length) return AGENT_UI_TARGETS;
+  const exact = AGENT_UI_TARGETS.filter((target) => tokens.includes(target.id));
+  if (exact.length === new Set(tokens).size) return exact;
+  const pageNames = await localizedUiTargetPageNames();
+  return AGENT_UI_TARGETS.filter((target) => matchesUiTargetQuery(target, tokens, pageNames));
+}
+
+async function listUiTargets(input: z.infer<typeof ListUiTargetsSchema>, resultMaxChars: number) {
+  const targets = await matchingUiTargets(uiTargetQueryTokens(input.query));
   if (targets.length === 0) {
-    return `No interface target matches "${input.query ?? ""}". Query with the page or workflow phrase (for example "deals", "inbox", "settings"), or with one of these id prefixes: ${uiTargetPrefixes(10).join(", ")}.`.slice(
+    return `No interface target matches "${input.query ?? ""}". Target names are English: query with the English page or workflow phrase (for example "deals", "inbox", "settings"), or with one of these id prefixes: ${uiTargetPrefixes(10).join(", ")}.`.slice(
       0,
       resultMaxChars,
     );

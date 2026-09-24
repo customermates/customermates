@@ -2,7 +2,7 @@ import type { ZodOpenApiOperationObject } from "zod-openapi";
 
 import { GetSocialProfileSchema } from "@/ee/messaging/posts/get-social-profile.interactor";
 import { SocialProfileSchema } from "@/ee/messaging/posts/social-posts.schema";
-import { CommonApiResponses, MessagingProviderApiResponses } from "@/core/api/interactor-handler";
+import { CommonApiResponses, MessagingProviderApiResponses, NotFoundApiResponse } from "@/core/api/interactor-handler";
 
 const EXAMPLE_CONNECTED_ACCOUNT_ID = "00000000-0000-4000-8000-000000000001";
 
@@ -62,6 +62,7 @@ export const getSocialProfileOperation: ZodOpenApiOperationObject = {
       },
     },
     ...CommonApiResponses,
+    ...NotFoundApiResponse,
     ...MessagingProviderApiResponses,
   },
 };

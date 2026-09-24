@@ -70,7 +70,7 @@ const FetchOutputSchema = z.object({
   id: z.string().describe("The canonical result id"),
   title: z.string().describe("Display name of the record or docs page"),
   text: z.string().describe("Full content: record fields plus notes, or the docs page markdown"),
-  url: z.string().describe("Canonical app or docs URL"),
+  url: z.string().describe("Canonical app or docs URL; its origin completes the relative app routes in text"),
   metadata: z.record(z.string(), z.string()).optional().describe("Extra context such as entity type or locale"),
 });
 
@@ -122,7 +122,8 @@ export const searchTool = {
   title: "Search (deep research)",
   description:
     "Required by ChatGPT deep research connectors: it returns records and documentation pages mixed in one list, with no total and no filters. " +
-    "Do not use it to answer a question about the workspace: prefer search_records or list_records, which carry the totals and filters you need, and search_docs for the documentation.",
+    "Do not use it to answer a question about the workspace: prefer search_records or list_records, which carry the totals and filters you need, and search_docs for the documentation. " +
+    "App routes in the docs text that fetch returns, such as `/company/subscription`, are relative: for a full link, put the route after the origin of the result's url.",
   annotations: { readOnlyHint: true, idempotentHint: true, destructiveHint: false, openWorldHint: false },
   inputSchema: z.object({
     query: z.string().min(2).describe("Free-text query matched against CRM record names and the documentation"),
@@ -155,7 +156,8 @@ export const fetchTool = {
   name: "fetch",
   title: "Fetch (deep research)",
   description:
-    "Required by ChatGPT deep research connectors. Interactive agents should prefer get_records or get_docs_page.",
+    "Required by ChatGPT deep research connectors. Interactive agents should prefer get_records or get_docs_page. " +
+    "For a docs result, app routes in text, such as `/company/subscription`, are relative: for a full link, put the route after the origin of url.",
   annotations: { readOnlyHint: true, idempotentHint: true, destructiveHint: false, openWorldHint: false },
   inputSchema: z.object({
     id: z

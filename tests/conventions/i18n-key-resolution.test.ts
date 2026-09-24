@@ -789,6 +789,7 @@ const NONLITERAL_T_CALL_SITES = new Map<string, number>([
   ["core/base/base.store.ts :: this.t :: action.labelKey", 1],
   ["core/base/base.store.ts :: this.t :: key", 2],
   ["core/base/base.store.ts :: this.t :: options.descriptionKey", 1],
+  ["ee/agent-chat/agent-tools.ts :: t :: labelKey", 1],
   ["ee/messaging/connect/create-auth-link.interactor.ts :: t :: denial.key", 1],
   ["features/company/get-company-settings.interactor.ts :: t :: key", 1],
   ["features/mcp-tools/utils.ts :: t.raw :: code", 1],

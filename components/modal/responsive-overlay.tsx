@@ -2,6 +2,8 @@
 
 import type { ReactNode } from "react";
 
+import { useId } from "react";
+
 import {
   Drawer,
   DrawerBody,
@@ -47,6 +49,7 @@ export function ResponsiveOverlay({
   onEscapeKeyDown,
 }: Props) {
   const isWide = useIsWiderThan("md");
+  const titleId = useId();
 
   return isWide ? (
     <Popover open={open} onOpenChange={onOpenChange}>
@@ -56,14 +59,18 @@ export function ResponsiveOverlay({
 
       <PopoverContent
         align={align}
+        aria-labelledby={titleId}
         className={cn(
           "flex max-h-(--radix-popover-content-available-height) flex-col overflow-hidden p-0",
           popoverClassName,
         )}
         onEscapeKeyDown={onEscapeKeyDown}
+        onInteractOutside={(event) => {
+          if (event.target instanceof Element && event.target.closest("[data-agent-surface]")) event.preventDefault();
+        }}
       >
         <PopoverHeader className="shrink-0 p-3">
-          <PopoverTitle>{title}</PopoverTitle>
+          <PopoverTitle id={titleId}>{title}</PopoverTitle>
         </PopoverHeader>
 
         <div className={cn(OVERLAY_SCROLL_REGION)}>{children}</div>

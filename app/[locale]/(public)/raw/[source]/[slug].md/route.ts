@@ -1,6 +1,7 @@
 import type { NextRequest } from "next/server";
 
-import manifest from "@/generated/raw-docs-manifest.json";
+import { getDocsPageRaw } from "@/features/mcp-tools/docs.mcp-tools";
+import { isContentLocale } from "@/i18n/locale-registry";
 
 const SOURCE_KEY_MAP = {
   docs: "docs",
@@ -13,8 +14,6 @@ type RawRouteParams = {
   source: string;
 };
 
-type Manifest = Record<string, Record<string, Record<string, { title: string; description: string; content: string }>>>;
-
 function normalizeSlug(slug: string) {
   return slug.replace(/(\.mdx?)+$/, "");
 }
@@ -23,11 +22,11 @@ export async function GET(_request: NextRequest, { params }: { params: Promise<R
   const { locale, slug, source } = await params;
   const normalizedSlug = normalizeSlug(slug);
   const sourceKey = SOURCE_KEY_MAP[source as keyof typeof SOURCE_KEY_MAP];
-  const page = sourceKey ? (manifest as Manifest)[sourceKey]?.[locale]?.[normalizedSlug] : undefined;
+  const page = sourceKey && isContentLocale(locale) ? getDocsPageRaw(normalizedSlug, locale, sourceKey) : null;
 
   if (!page) return new Response("Not Found", { status: 404 });
 
-  return new Response(page.content, {
+  return new Response(`# ${page.title}\n\n${page.markdown}\n`, {
     headers: {
       "Content-Type": "text/markdown; charset=utf-8",
       "X-Robots-Tag": "noindex, follow",

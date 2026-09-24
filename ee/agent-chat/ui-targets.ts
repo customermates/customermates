@@ -1,6 +1,13 @@
 import { z } from "zod";
 
-import { WORKSPACE_SECTIONS } from "@/app/components/navigation/workspace-sections";
+import type { AppMode } from "@/core/config/environment";
+import type { Resource } from "@/generated/prisma";
+
+import {
+  WORKSPACE_SECTIONS,
+  visibleSubroutes,
+  type WorkspaceSection,
+} from "@/app/components/navigation/workspace-sections";
 
 import {
   CONTROL_PAGES,
@@ -35,6 +42,7 @@ function navTargets(): AgentUiTarget[] {
       id: `nav-${group.section}-${subroute.slug}`,
       route: `/${group.section}/${subroute.slug}`,
       description: `Sidebar link to ${group.section} ${subroute.slug.replace(/-/g, " ")}`,
+      prerequisite: `nav-${group.section}`,
     })),
   ]);
 
@@ -182,4 +190,31 @@ export function findAgentUiTarget(targetId: string) {
 export function findAgentNavigationTarget(targetId: string) {
   const target = findAgentUiTarget(targetId);
   return target?.route.startsWith("/") ? target : null;
+}
+
+function routeSegments(path: string) {
+  return path.split("?")[0].split("/").filter(Boolean);
+}
+
+function isWorkspaceSection(segment: string | undefined): segment is WorkspaceSection {
+  return segment === "profile" || segment === "company";
+}
+
+function primaryNavPage(section: string | undefined) {
+  return PRIMARY_NAV_PAGES.find((page) => page.route === `/${section}`);
+}
+
+export function agentUiPageLabelKey(route: string): string | null {
+  const [section, slug] = routeSegments(route);
+  if (isWorkspaceSection(section))
+    return WORKSPACE_SECTIONS[section].find((subroute) => subroute.slug === slug)?.labelKey ?? null;
+  return primaryNavPage(section)?.labelKey ?? null;
+}
+
+export function agentRouteVisible(path: string, appMode: AppMode, canAccess: (resource: Resource) => boolean) {
+  const [section, slug] = routeSegments(path);
+  if (isWorkspaceSection(section))
+    return visibleSubroutes(section, appMode, canAccess).some((subroute) => subroute.slug === slug);
+  const page = primaryNavPage(section);
+  return !page || ((appMode !== "self-hosted" || !page.cloudOnly) && (!page.resource || canAccess(page.resource)));
 }

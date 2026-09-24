@@ -19,6 +19,7 @@ RUN yarn build
 FROM base AS runner
 ENV NODE_ENV=production
 ENV NEXT_TELEMETRY_DISABLED=1
+ENV _FUMADOCS_MDX=1
 COPY --from=builder /app/package.json ./package.json
 COPY --from=builder /app/yarn.lock ./yarn.lock
 COPY --from=builder /app/LICENSE ./LICENSE
@@ -27,6 +28,7 @@ COPY --from=builder /app/tsconfig.json ./tsconfig.json
 COPY --from=builder /app/next.config.ts ./next.config.ts
 COPY --from=builder /app/env.ts ./env.ts
 COPY --from=builder /app/core/config/environment.ts ./core/config/environment.ts
+COPY --from=builder /app/core/seo/route-aliases.ts ./core/seo/route-aliases.ts
 COPY --from=builder /app/i18n ./i18n
 COPY --from=builder /app/instrumentation.ts ./instrumentation.ts
 COPY --from=builder /app/prisma.config.ts ./prisma.config.ts

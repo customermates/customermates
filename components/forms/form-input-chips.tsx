@@ -141,7 +141,12 @@ export const FormInputChips = observer(
     return (
       <div className={cn("space-y-1.5", containerClassName)}>
         {resolvedLabel && (
-          <FormLabel fieldId={id} htmlFor={isReadOnly ? undefined : domId} id={labelId}>
+          <FormLabel
+            className={cn(hasError && "text-destructive")}
+            fieldId={id}
+            htmlFor={isReadOnly ? undefined : domId}
+            id={labelId}
+          >
             {resolvedLabel}
 
             {required ? <span className="text-destructive"> *</span> : null}

@@ -3,7 +3,7 @@ import type { ZodOpenApiOperationObject } from "zod-openapi";
 import { MessagingThreadSchema } from "@/ee/messaging/messaging.schema";
 
 import { GetQueryParamsApiSchema, createApiGetResultSchema } from "@/core/base/base-get.schema";
-import { CommonApiResponses } from "@/core/api/interactor-handler";
+import { CommonApiResponses, NotFoundApiResponse } from "@/core/api/interactor-handler";
 
 export const getMessagingThreadsOperation: ZodOpenApiOperationObject = {
   operationId: "getMessagingThreads",
@@ -29,5 +29,6 @@ export const getMessagingThreadsOperation: ZodOpenApiOperationObject = {
       },
     },
     ...CommonApiResponses,
+    ...NotFoundApiResponse,
   },
 };

@@ -1,4 +1,10 @@
+import { EntityType, Resource } from "@/generated/prisma";
+
 import { WORKSPACE_SECTIONS, type WorkspaceSection } from "@/app/components/navigation/workspace-sections";
+import {
+  CANONICAL_TERMINOLOGY_PRESET_KEY,
+  terminologyMessageKey,
+} from "@/features/entity-terminology/entity-terminology.constants";
 
 export type AnchorPage = {
   scope: string;
@@ -59,14 +65,26 @@ export const FORM_PAGES: AnchorPage[] = [
     scope: "widget-modal",
     route: "/dashboard",
     label:
-      "dashboard widget dialog (open it first; a new widget shows Save after you pick its type, and Reset exists only when editing a widget)",
-    opener: "dashboard-add-widget",
+      "dashboard widget dialog (a new widget shows Save after you pick its type, and Reset exists only when editing a widget)",
+    opener: "widget-modal-kind",
     resetOpener: "a widget card",
   },
   { scope: "routine-modal", route: "/routines", label: "routine dialog (open it first)", opener: "routines-add" },
 ];
 
 export const CONTROL_PAGES: ControlPage[] = [
+  {
+    scope: "widget-modal",
+    route: "/dashboard",
+    controls: [
+      {
+        control: "kind",
+        description:
+          "Widget type cards (chart or activity timeline) on step 1 of the add-widget dialog; picking one continues to the widget settings and their Save button",
+        prerequisite: "dashboard-add-widget",
+      },
+    ],
+  },
   {
     scope: "company-settings",
     route: "/company/settings",
@@ -135,7 +153,7 @@ export const CONTROL_PAGES: ControlPage[] = [
       {
         control: "manage",
         description:
-          "Manage with Lemon Squeezy button: billing portal for plan, payment method, invoices, cancel (roles with company Manage and a paid subscription)",
+          "Manage with Lemon Squeezy button: billing portal for plan, payment method, invoices, cancel (roles with company Manage once the workspace has a Lemon Squeezy subscription; not on Enterprise)",
       },
       {
         control: "refresh",
@@ -145,7 +163,7 @@ export const CONTROL_PAGES: ControlPage[] = [
       {
         control: "plan-picker",
         description:
-          "Plan cards (Starter, Pro, Business) that start a paid subscription (roles with company Manage, while no subscription is active)",
+          "Plan cards (Starter, Pro, Business) that start a paid subscription (roles with company Manage, while the workspace has no Lemon Squeezy subscription yet, even if the status chip says Active; not on Enterprise)",
       },
     ],
   },
@@ -310,7 +328,7 @@ export const CONTROL_PAGES: ControlPage[] = [
       {
         control: "resend",
         description:
-          "Resend button in the webhook Event Details dialog for roles with Manage, not for pending deliveries",
+          "Resend button in the webhook Event Details dialog for roles with Manage, only on Delivered or Failed deliveries (not Pending or Sending)",
         prerequisite: "a delivery row",
       },
     ],
@@ -412,15 +430,77 @@ export const CONTROL_PAGES: ControlPage[] = [
   },
 ];
 
-export const PRIMARY_NAV_PAGES: { key: string; route: string; description: string }[] = [
-  { key: "dashboard", route: "/dashboard", description: "Sidebar link to the dashboard with pipeline widgets" },
-  { key: "inbox", route: "/inbox", description: "Sidebar link to the unified messaging inbox" },
-  { key: "tasks", route: "/tasks", description: "Sidebar link to the tasks list" },
-  { key: "contacts", route: "/contacts", description: "Sidebar link to the contacts list" },
-  { key: "organizations", route: "/organizations", description: "Sidebar link to the organizations list" },
-  { key: "deals", route: "/deals", description: "Sidebar link to the deals pipeline" },
-  { key: "services", route: "/services", description: "Sidebar link to the services list" },
-  { key: "routines", route: "/routines", description: "Sidebar link to the scheduled assistant routines" },
+export type PrimaryNavPage = {
+  key: string;
+  route: string;
+  description: string;
+  labelKey: string;
+  resource?: Resource;
+  cloudOnly?: boolean;
+};
+
+function entityPageLabelKey(entityType: EntityType) {
+  return terminologyMessageKey(entityType, CANONICAL_TERMINOLOGY_PRESET_KEY[entityType], "plural");
+}
+
+export const PRIMARY_NAV_PAGES: PrimaryNavPage[] = [
+  {
+    key: "dashboard",
+    route: "/dashboard",
+    description: "Sidebar link to the dashboard with pipeline widgets",
+    labelKey: "NavigationBar.dashboard",
+  },
+  {
+    key: "inbox",
+    route: "/inbox",
+    description: "Sidebar link to the unified messaging inbox",
+    labelKey: "NavigationBar.inbox",
+    resource: Resource.inboxMessages,
+    cloudOnly: true,
+  },
+  {
+    key: "tasks",
+    route: "/tasks",
+    description: "Sidebar link to the tasks list",
+    labelKey: entityPageLabelKey(EntityType.task),
+    resource: Resource.tasks,
+  },
+  {
+    key: "contacts",
+    route: "/contacts",
+    description: "Sidebar link to the contacts list",
+    labelKey: entityPageLabelKey(EntityType.contact),
+    resource: Resource.contacts,
+  },
+  {
+    key: "organizations",
+    route: "/organizations",
+    description: "Sidebar link to the organizations list",
+    labelKey: entityPageLabelKey(EntityType.organization),
+    resource: Resource.organizations,
+  },
+  {
+    key: "deals",
+    route: "/deals",
+    description: "Sidebar link to the deals pipeline",
+    labelKey: entityPageLabelKey(EntityType.deal),
+    resource: Resource.deals,
+  },
+  {
+    key: "services",
+    route: "/services",
+    description: "Sidebar link to the services list",
+    labelKey: entityPageLabelKey(EntityType.service),
+    resource: Resource.services,
+  },
+  {
+    key: "routines",
+    route: "/routines",
+    description: "Sidebar link to the scheduled assistant routines",
+    labelKey: "NavigationBar.routines",
+    resource: Resource.routines,
+    cloudOnly: true,
+  },
 ];
 
 export const WORKSPACE_NAV_GROUPS: { section: WorkspaceSection; route: string; description: string }[] = [

@@ -6,10 +6,22 @@ import { RefreshCw, Trash2 } from "lucide-react";
 import { beforeEach, describe, expect, it, vi } from "vitest";
 import type { AppModalActions } from "../app-modal";
 
-const testContext = vi.hoisted(() => ({ isWide: true }));
+import { OVERLAY_TOPMOST_LAYER_CLASS } from "@/components/ui/overlay-contract";
+
+const testContext = vi.hoisted(() => ({
+  isWide: true,
+  rootStore: {
+    agentChatStore: { enabled: true as boolean | null, isOpen: false },
+    agentUiControlStore: { active: null as { targetId: string } | null },
+  },
+}));
 
 vi.mock("@/hooks/use-media-query", () => ({
   useIsWiderThan: () => testContext.isWide,
+}));
+
+vi.mock("@/core/stores/root-store.provider", () => ({
+  useRootStore: () => testContext.rootStore,
 }));
 
 vi.mock("@/components/ui/use-overlay-focus-return", () => ({
@@ -21,7 +33,8 @@ vi.mock("@/i18n/navigation", () => ({
 }));
 
 vi.mock("@/components/ui/dialog", () => ({
-  Dialog: ({ children }: { children: ReactNode }) => createElement("section", { "data-root": "dialog" }, children),
+  Dialog: ({ children, modal }: { children: ReactNode; modal?: boolean }) =>
+    createElement("section", { "data-modal": String(modal), "data-root": "dialog" }, children),
   DialogContent: ({ children, ...props }: { children: ReactNode }) =>
     createElement("div", { ...props, "data-slot": "dialog-content" }, children),
   DialogTitle: ({ children }: { children: ReactNode }) => createElement("h1", null, children),
@@ -29,7 +42,8 @@ vi.mock("@/components/ui/dialog", () => ({
 }));
 
 vi.mock("@/components/ui/drawer", () => ({
-  Drawer: ({ children }: { children: ReactNode }) => createElement("section", { "data-root": "drawer" }, children),
+  Drawer: ({ children, modal }: { children: ReactNode; modal?: boolean }) =>
+    createElement("section", { "data-modal": String(modal), "data-root": "drawer" }, children),
   DrawerContent: ({ children, ...props }: { children: ReactNode }) =>
     createElement("div", { ...props, "data-slot": "drawer-content" }, children),
   DrawerTitle: ({ children }: { children: ReactNode }) => createElement("h1", null, children),
@@ -74,6 +88,9 @@ function renderConfiguredModal(isWide: boolean) {
 
 beforeEach(() => {
   testContext.isWide = true;
+  testContext.rootStore.agentChatStore.enabled = true;
+  testContext.rootStore.agentChatStore.isOpen = false;
+  testContext.rootStore.agentUiControlStore.active = null;
 });
 
 describe("AppModal actions", () => {
@@ -144,5 +161,50 @@ describe("AppModal actions", () => {
         { id: "three", icon: RefreshCw, label: "Three", onClick: vi.fn() },
       ] as unknown as AppModalActions),
     ).toThrow("AppModal supports at most two header actions");
+  });
+});
+
+describe("AppModal beside the assistant", () => {
+  function renderSurface(isWide: boolean, layerClassName?: string) {
+    testContext.isWide = isWide;
+
+    return renderToStaticMarkup(
+      createElement(TestAppModal, { layerClassName, open: true, title: "Example modal", onClose: vi.fn() }),
+    );
+  }
+
+  it.each([
+    ["dialog", true],
+    ["drawer", false],
+  ])("stays modal on the %s surface while no assistant surface is on screen", (_surface, isWide) => {
+    expect(renderSurface(isWide)).toContain('data-modal="true"');
+  });
+
+  it.each([
+    ["dialog", true],
+    ["drawer", false],
+  ])("steps down to non-modal on the %s surface while the assistant panel is open", (_surface, isWide) => {
+    testContext.rootStore.agentChatStore.isOpen = true;
+
+    expect(renderSurface(isWide)).toContain('data-modal="false"');
+  });
+
+  it("steps down to non-modal while an assistant highlight or tour step is shown", () => {
+    testContext.rootStore.agentUiControlStore.active = { targetId: "company-webhooks-add" };
+
+    expect(renderSurface(true)).toContain('data-modal="false"');
+  });
+
+  it("ignores a remembered open panel while the assistant is not enabled", () => {
+    testContext.rootStore.agentChatStore.enabled = null;
+    testContext.rootStore.agentChatStore.isOpen = true;
+
+    expect(renderSurface(true)).toContain('data-modal="true"');
+  });
+
+  it("keeps a modal launched from the assistant's own topmost layer modal", () => {
+    testContext.rootStore.agentChatStore.isOpen = true;
+
+    expect(renderSurface(true, OVERLAY_TOPMOST_LAYER_CLASS)).toContain('data-modal="true"');
   });
 });

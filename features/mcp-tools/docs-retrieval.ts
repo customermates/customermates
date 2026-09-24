@@ -354,7 +354,7 @@ const PAIRED_COMPONENTS = /<\/?(Steps|Faq|Tabs|Tab|Callout|Note|Warning|Tip)(\s[
 
 export function unwrapDocsComponents(markdown: string, expandSnippet: (tool: string) => string): string {
   return markdown
-    .replace(/<Step\s+title="([^"]*)"\s*>/g, (_, title: string) => `\n### ${title}\n`)
+    .replace(/<Step\s+title="([^"]*)"\s*>/g, (_, title: string) => `\n**${title}**\n`)
     .replace(/<FaqItem\s+question="([^"]*)"\s*>/g, (_, question: string) => `\n### ${question}\n`)
     .replace(/<\/(Step|FaqItem)>/g, "\n")
     .replace(
@@ -362,6 +362,7 @@ export function unwrapDocsComponents(markdown: string, expandSnippet: (tool: str
       (_, tool: string) => `\`\`\`\n${expandSnippet(tool)}\n\`\`\``,
     )
     .replace(/^<[A-Z][A-Za-z]*(\s[^>]*)?\/>[ \t]*$/gm, "")
+    .replace(/^\{\/\*[\s\S]*?\*\/\}[ \t]*$/gm, "")
     .replace(PAIRED_COMPONENTS, "")
     .replace(/\n{3,}/g, "\n\n")
     .trim();
@@ -423,6 +424,7 @@ export function splitSections(args: {
 const ROLLUP_OWN_TEXT_CHARS = 200;
 
 type IndexedSection = DocsSection & {
+  linkTokens: string[];
   bodyTokens: string[];
   headingTokens: string[];
   ownHeadingTokens: string[];
@@ -444,6 +446,8 @@ export type DocsSectionIndex = {
   averagePageLength: number;
 };
 
+const LINK_LINE_LABEL = /^\*\*Link:\*\*(.*?)(?:\*\*Mate:\*\*|$)/gm;
+
 export function buildSectionIndex(
   sections: readonly DocsSection[],
   stemmer: DocsStemmer = "english",
@@ -452,6 +456,7 @@ export function buildSectionIndex(
     const headingText = [section.pageTitle, ...section.headingPath].join(" ");
     return {
       ...section,
+      linkTokens: [...section.text.matchAll(LINK_LINE_LABEL)].flatMap((match) => tokenize(match[1], stemmer)),
       bodyTokens: tokenize(section.text, stemmer),
       headingTokens: tokenize(section.headingPath.join(" "), stemmer),
       ownHeadingTokens: tokenize(section.headingPath.join(" "), stemmer),
@@ -493,6 +498,8 @@ export function buildSectionIndex(
 }
 
 const K1 = 1.2;
+
+const PAGE_ADDRESS_WORDS = "url urls page pages seite seiten route routes adresse";
 
 export type DocsRetrievalWeights = {
   sectionB: number;
@@ -543,6 +550,7 @@ type QueryTerms = {
   idfByTerm: Map<string, number>;
   queryIdf: number;
   rarest: string | null;
+  pageNames: string[];
 };
 
 function queryTermsFor(index: DocsSectionIndex, query: string): QueryTerms {
@@ -553,7 +561,10 @@ function queryTermsFor(index: DocsSectionIndex, query: string): QueryTerms {
   const queryIdf = primary.reduce((sum, term) => sum + (idfByTerm.get(term) ?? 0), 0);
   const rarest =
     [...primary].sort((left, right) => (idfByTerm.get(right) ?? 0) - (idfByTerm.get(left) ?? 0))[0] ?? null;
-  return { primary, synonyms, idfByTerm, queryIdf, rarest };
+  const addressTerms = tokenize(PAGE_ADDRESS_WORDS, index.stemmer);
+  const named = primary.filter((term) => !addressTerms.includes(term));
+  const pageNames = named.length > 0 && named.length < primary.length ? named : [];
+  return { primary, synonyms, idfByTerm, queryIdf, rarest, pageNames };
 }
 
 function coverage(
@@ -586,28 +597,12 @@ function phraseBonus(query: string, foldedHeading: string, foldedText: string): 
 export type DocsSectionExplanation = {
   headingCoverage: number;
   bodyCoverage: number;
-  lineCoverage: number;
   rarestInHeading: boolean;
   body: number;
   phrase: number;
   queryIdf: number;
   total: number;
 };
-
-function bestLineCoverage(
-  section: DocsSection,
-  terms: QueryTerms,
-  weights: DocsRetrievalWeights,
-  stemmer: DocsStemmer,
-) {
-  let best = 0;
-  for (const line of section.text.split("\n")) {
-    if (line.trim().length === 0) continue;
-    best = Math.max(best, coverage(tokenize(line, stemmer), terms, weights));
-    if (best >= 1) break;
-  }
-  return best;
-}
 
 function bodyBm25(
   index: DocsSectionIndex,
@@ -650,7 +645,6 @@ export function explainSection(
     return {
       headingCoverage: 0,
       bodyCoverage: 0,
-      lineCoverage: 0,
       rarestInHeading: false,
       body: 0,
       phrase: 0,
@@ -658,7 +652,12 @@ export function explainSection(
       total: 0,
     };
   }
-  const headingCoverage = coverage(section.ownHeadingTokens, terms, weights, section.titleTokens);
+  const linkCoverage =
+    terms.pageNames.length > 0 ? coverage(section.linkTokens, { ...terms, primary: terms.pageNames }, weights) : 0;
+  const headingCoverage = Math.max(
+    coverage(section.ownHeadingTokens, terms, weights, section.titleTokens),
+    linkCoverage,
+  );
   const lengthFactor = Math.min(1, index.averageBodyLength / Math.max(1, section.bodyLength)) ** weights.lengthDamping;
   const bodyCoverage = coverage(section.bodyTokens, terms, weights, section.titleTokens) * lengthFactor;
   const rarestInHeading =
@@ -678,23 +677,12 @@ export function explainSection(
   return {
     headingCoverage,
     bodyCoverage,
-    lineCoverage: bestLineCoverage(section, terms, weights, index.stemmer),
     rarestInHeading,
     body,
     phrase,
     queryIdf: terms.queryIdf,
     total,
   };
-}
-
-export function scoreSectionForExcerpt(
-  index: DocsSectionIndex,
-  section: IndexedSection,
-  query: string,
-  weights: DocsRetrievalWeights = DEFAULT_DOCS_RETRIEVAL_WEIGHTS,
-): number {
-  const explained = explainSection(index, section, query, weights);
-  return explained.total + weights.headingCoverage * explained.queryIdf * explained.lineCoverage;
 }
 
 export function scoreSection(
@@ -780,7 +768,7 @@ export function sectionExcerpt(
     /^\|\s*-/.test(lines[index] ?? "") ||
     (lines[index]?.startsWith("|") === true && /^\|\s*-/.test(lines[index + 1] ?? ""));
   lines.forEach((line, index) => {
-    if (structural(index)) return;
+    if (structural(index) || (keepLinkLines && LINK_LINE.test(line))) return;
     const tokens = tokenize(line, stemmer);
     let score = 0;
     for (const term of terms.primary) if (tokens.includes(term)) score += 1;
@@ -812,7 +800,7 @@ export function sectionExcerpt(
       continue;
     }
     if (budget - lines[end].length - 1 < 0) {
-      if (keptLinks.length && picked.length === 0 && budget > 2) {
+      if (picked.length === 0 && budget > 2) {
         picked.push(`${lines[end].slice(0, budget - 2)}…`);
         budget = 0;
         end += 1;

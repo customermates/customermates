@@ -4,7 +4,12 @@ import { z } from "zod";
 
 import { BaseSendChatMessageSchema } from "@/ee/messaging/outbound/send-chat-message.interactor";
 import { MessagingMessageDtoSchema } from "@/ee/messaging/inbox/inbox.schema";
-import { CommonApiResponses, ConflictApiResponse, MessagingProviderApiResponses } from "@/core/api/interactor-handler";
+import {
+  CommonApiResponses,
+  ConflictApiResponse,
+  MessagingProviderApiResponses,
+  NotFoundApiResponse,
+} from "@/core/api/interactor-handler";
 
 export const sendChatMessageOperation: ZodOpenApiOperationObject = {
   operationId: "sendChatMessage",
@@ -32,6 +37,7 @@ export const sendChatMessageOperation: ZodOpenApiOperationObject = {
       },
     },
     ...CommonApiResponses,
+    ...NotFoundApiResponse,
     ...ConflictApiResponse,
     ...MessagingProviderApiResponses,
   },

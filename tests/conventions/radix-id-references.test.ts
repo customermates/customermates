@@ -179,6 +179,35 @@ function customIdReferenceViolations(sources: { file: string; text: string }[]):
   return violations;
 }
 
+function danglingTabControlViolations(sources: { file: string; text: string }[]): string[] {
+  const violations: string[] = [];
+
+  for (const { file, text } of sources) {
+    if (!text.includes("<TabsTrigger")) continue;
+    const source = ts.createSourceFile(file, text, ts.ScriptTarget.Latest, true, ts.ScriptKind.TSX);
+
+    for (const trigger of descendants(source, "TabsTrigger")) {
+      if (renderedAttribute(trigger, "aria-controls", source) !== undefined) continue;
+
+      const scope = nearestRoot(trigger, "Tabs");
+      if (!scope) continue;
+
+      const value = attributeText(attributeOf(trigger, "value"), source);
+      const panels = descendants(scope, "TabsContent").filter(
+        (panel) => attributeText(attributeOf(panel, "value"), source) === value,
+      );
+      if (panels.length > 0) continue;
+
+      const { line } = source.getLineAndCharacterOfPosition(openingOf(trigger).getStart(source));
+      violations.push(
+        `${file}:${line + 1}: <TabsTrigger value={${value}}> has no <TabsContent> with that value, so Radix points aria-controls at a panel that never renders`,
+      );
+    }
+  }
+
+  return violations;
+}
+
 function cmdkIdViolations(sources: { file: string; text: string }[]): string[] {
   const violations: string[] = [];
 
@@ -243,6 +272,35 @@ describe("custom ids on Radix parts", () => {
 
     for (const text of bad) expect(customIdReferenceViolations([{ file: "bad.tsx", text }]), text).toHaveLength(1);
     for (const text of good) expect(customIdReferenceViolations([{ file: "good.tsx", text }]), text).toHaveLength(0);
+  });
+});
+
+describe("Radix tab triggers without a panel", () => {
+  it("never points aria-controls at a tab panel that is not rendered", () => {
+    const violations = danglingTabControlViolations(sourceFiles());
+
+    expect(
+      violations,
+      `Radix sets aria-controls on every TabsTrigger to the generated id of its TabsContent. A trigger with no panel must pass its own aria-controls (undefined when nothing is controlled):\n${violations.join("\n")}`,
+    ).toEqual([]);
+  });
+
+  it("flags a trigger-only tab list and accepts a rendered panel or an explicit aria-controls", () => {
+    const bad = [
+      '<Tabs><TabsList><TabsTrigger id={`${scope}-table`} value="table" /></TabsList></Tabs>',
+      '<Tabs><TabsList><TabsTrigger value="a">A</TabsTrigger><TabsTrigger value="b">B</TabsTrigger></TabsList><TabsContent value="a" /></Tabs>',
+      '<Tabs><TabsList><TabsTrigger value="a">A</TabsTrigger></TabsList><TabsContent value="b" /></Tabs>',
+    ];
+    const good = [
+      '<Tabs><TabsList><TabsTrigger aria-controls={undefined} value="table" /></TabsList></Tabs>',
+      '<Tabs><TabsList><TabsTrigger aria-controls={`${formId}-details-panel`} value="details" /></TabsList></Tabs>',
+      '<Tabs><TabsList><TabsTrigger {...{ "aria-controls": undefined }} value="table" /></TabsList></Tabs>',
+      '<Tabs><TabsList><TabsTrigger value="a">A</TabsTrigger></TabsList><TabsContent value="a" /></Tabs>',
+      "<Tabs><TabsList>{tabs.map((tab) => <TabsTrigger value={tab.id} />)}</TabsList>{tabs.map((tab) => <TabsContent value={tab.id} />)}</Tabs>",
+    ];
+
+    for (const text of bad) expect(danglingTabControlViolations([{ file: "bad.tsx", text }]), text).toHaveLength(1);
+    for (const text of good) expect(danglingTabControlViolations([{ file: "good.tsx", text }]), text).toHaveLength(0);
   });
 });
 

@@ -4,7 +4,7 @@ import { z } from "zod";
 
 import { DeleteOrganizationSchema } from "./delete-organization.interactor";
 
-import { CommonApiResponses } from "@/core/api/interactor-handler";
+import { CommonApiResponses, NotFoundApiResponse } from "@/core/api/interactor-handler";
 
 export const deleteOrganizationOperation: ZodOpenApiOperationObject = {
   operationId: "deleteOrganization",
@@ -25,5 +25,6 @@ export const deleteOrganizationOperation: ZodOpenApiOperationObject = {
       },
     },
     ...CommonApiResponses,
+    ...NotFoundApiResponse,
   },
 };

@@ -36,7 +36,9 @@ Back in Claude, Customermates appears with its tools listed.
 
 Add it once and it syncs to Claude on web, desktop, and mobile. The connection is tied to your Claude account, not one device, and refreshes in the background.
 
-One click instead: [Add to Claude](https://claude.ai/customize/connectors?modal=add-custom-connector&connectorName=Customermates&connectorUrl=https%3A%2F%2Fcustomermates.com%2Fapi%2Fv1%2Fmcp) pre-fills the add-connector dialog for you (Claude web and Teams only).
+One click instead: in Customermates, open **My Profile → API & Connectors**, press **Add**, choose **Claude** under **Quick connections**, then **Claude account**, and click **Add to Claude**. It opens Claude's add-connector dialog pre-filled with your `<BASE_URL>/api/v1/mcp` (Claude web and Teams only). The onboarding step **Connect your AI** offers the same button. **Add** needs **Manage** on **API & Webhooks**; without it, paste the URL as above.
+
+**Link:** the **API & Connectors** page, `/profile/api-keys`. **Mate:** `navigate` and `highlight_element` with `nav-profile-api-keys`; `highlight_element` also takes `profile-api-keys-generate` for **Add** (roles with **API & Webhooks** **Manage**). The **Quick connections** tiles and **Add to Claude** are not highlight targets, so Mate names them.
 
 ## How do I connect ChatGPT? [#chatgpt]
 
@@ -61,7 +63,7 @@ In the connector form set **Authentication: Header**, **Header name: `x-api-key`
 </Step>
 </Steps>
 
-Save. ChatGPT reaches the server and lists every tool. It lists them even when the key is wrong, because Customermates checks the key only when a tool runs; if every call then says "Sign in to use this action.", the key is wrong, truncated, expired or deleted, so create a new one.
+Save. ChatGPT reaches the server and lists every tool. It lists them even when the key is wrong, because Customermates checks the key only when a tool reads or changes workspace data; if every such call then says "Sign in to use this action.", the key is wrong, truncated, expired or deleted, so create a new one. A documentation lookup such as `search_docs` answers even with a wrong key, so it does not prove that the key works.
 
 **Link:** the **API & Connectors** page, `/profile/api-keys`. **Mate:** `navigate` and `highlight_element` with `nav-profile-api-keys`; `highlight_element` also takes `profile-api-keys-generate` for **Add** (roles with **API & Webhooks** **Manage**), then `api-key-option-standard` for **Standard API key** (prerequisite `profile-api-keys-generate`) and `api-key-name`, `api-key-expires` and `api-key-save` for **Name**, **Expires in** and **Save** (prerequisite `api-key-option-standard`). The **Quick connections** tiles are not highlight targets, so Mate names them.
 
@@ -90,7 +92,7 @@ The connector accepts any client, so the **Authorize access** screen is the gate
 - Add it once on Claude web and it appears on **desktop and mobile** too. The connection is tied to your Claude account, not one device.
 - It refreshes in the background. Use it within any 30-day window and you never re-authorize; go idle longer and you approve once more.
 - Every call runs as the Customermates user who approved, inside that account's data and with that user's role permissions. API keys work the same way: they inherit the owning user's permissions, and there is no per-key scoping.
-- If that user is set to **Inactive**, every call fails with "Your user account is inactive. Contact a workspace administrator." until a member with **Manage** on **Users & Roles** sets them back to **Active**.
+- If that user is set to **Inactive**, every call that reads or changes workspace data fails with "Your user account is inactive. Contact a workspace administrator." until a member with **Manage** on **Users & Roles** sets them back to **Active**.
 
 ## What should I try first? [#try-your-first-prompt]
 
@@ -117,8 +119,8 @@ Leave every tool that is not read-only on *Ask*. The full list is in the [MCP to
 | Symptom | Cause | Fix |
 |---|---|---|
 | "Couldn't register with the sign-in service" (Claude) or "Connector verification failed" (ChatGPT) | Server URL wrong or unreachable | Confirm it is exactly `<BASE_URL>/api/v1/mcp`, with the address you open Customermates at as `<BASE_URL>` |
-| Tools are listed, but every call says "Sign in to use this action." (ChatGPT with a header) | The `x-api-key` value is wrong, truncated, expired or deleted | Create a new key under **My Profile → API & Connectors** and paste the full 64 characters |
-| Every call says "Your user account is inactive. Contact a workspace administrator." | Your Customermates user was set to **Inactive** | A member with **Manage** on **Users & Roles** sets you back to **Active** under **My Company → Members** |
+| Tools are listed, but every call that reads or changes workspace data says "Sign in to use this action." (ChatGPT with a header); documentation lookups still answer | The `x-api-key` value is wrong, truncated, expired or deleted | Create a new key under **My Profile → API & Connectors** and paste the full 64 characters |
+| Every call that reads or changes workspace data says "Your user account is inactive. Contact a workspace administrator." | Your Customermates user was set to **Inactive** | A member with **Manage** on **Users & Roles** sets you back to **Active** under **My Company → Members** |
 | No "Add custom connector" option | Free plan | Custom connectors need a paid Claude or ChatGPT plan. See [the CLI method](/docs/connect-cli) |
 | Approved but nothing connects | You approved from a different account | Sign into the right Customermates account, then retry |
 | "Tool not found" | Stale connector cache | Remove and re-add the connector |

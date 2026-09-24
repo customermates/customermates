@@ -62,9 +62,10 @@ function sections() {
 }
 
 describe("unwrapDocsComponents", () => {
-  it("turns paired step and faq components into headings, expands the install snippet and drops the rest", () => {
+  it("turns faq items into headings and step titles into bold lines, expands the install snippet and drops the rest", () => {
     const markdown = unwrapDocsComponents(PAGE, (tool) => `install ${tool}`);
-    expect(markdown).toContain("### Create a key");
+    expect(markdown).toContain("**Create a key**");
+    expect(markdown).not.toContain("### Create a key");
     expect(markdown).toContain("### Can I reset a key?");
     expect(markdown).toContain("```\ninstall claude\n```");
     for (const tag of [
@@ -104,6 +105,37 @@ describe("splitSections", () => {
     expect(hygiene?.text).toContain("### Rotate");
     expect(hygiene?.text).toContain("Revoke a key you no longer need.");
   });
+
+  it("keeps a steps block and the link line after it in the section that contains them", () => {
+    const all = splitSections({
+      slug: "mcp",
+      source: "docs",
+      pageTitle: "MCP",
+      markdown: unwrapDocsComponents(
+        [
+          "## Connect a client",
+          "",
+          "<Steps>",
+          '<Step title="Create a key">',
+          "Open API & Connectors and create a key.",
+          "</Step>",
+          '<Step title="Confirm the tools arrived">',
+          "Ask the client to list its tools.",
+          "</Step>",
+          "</Steps>",
+          "",
+          "**Link:** the **API & Connectors** page, `/profile/api-keys`.",
+          "",
+          "## Next",
+          "Read the catalog.",
+        ].join("\n"),
+        () => "",
+      ),
+    });
+    expect(all.map((section) => section.headingPath.join(">"))).toEqual(["Connect a client", "Next"]);
+    expect(all[0].text).toContain("**Confirm the tools arrived**");
+    expect(all[0].text).toContain("**Link:** the **API & Connectors** page, `/profile/api-keys`.");
+  });
 });
 
 describe("tokenize and stem", () => {
@@ -132,6 +164,32 @@ describe("searchSections and sectionExcerpt", () => {
     const [hit] = searchSections(index, "rotate an api key");
     expect(hit?.section.headingPath).toEqual(["Hygiene", "Rotate"]);
     expect(hit?.section.anchor).toBe("rotate");
+  });
+
+  it("counts the page named in a link line like a heading when the question asks for a page address", () => {
+    const page = (slug: string, markdown: string) =>
+      splitSections({ slug, source: "docs", pageTitle: slug === "mcp" ? "MCP endpoint" : "Records", markdown });
+    const index = buildSectionIndex(
+      [
+        ...page(
+          "mcp",
+          "## What is the MCP server endpoint URL?\nThe endpoint is <BASE_URL>/api/v1/mcp. Clients read contacts, deals and tasks through it.",
+        ),
+        ...page(
+          "app-records",
+          [
+            "## What is the shared layout of a record type?",
+            "Every record type has a list, a drawer and a detail page with the same search, filters and saved views.",
+            "",
+            "**Link:** the **Contacts** page, `/contacts`. **Mate:** `navigate` with `nav-contacts`.",
+          ].join("\n"),
+        ),
+      ],
+      "english",
+    );
+    expect(searchSections(index, "contacts page URL")[0]?.section.slug).toBe("app-records");
+    expect(searchSections(index, "URL of the contacts page")[0]?.section.slug).toBe("app-records");
+    expect(searchSections(index, "endpoint URL")[0]?.section.slug).toBe("mcp");
   });
 
   it("keeps the table header in front of the matching row and bounds the leading context", () => {
@@ -249,6 +307,52 @@ describe("searchSections and sectionExcerpt", () => {
     expect(sectionExcerpt(billing, "cancel subscription", 80, "english")).toBe(
       "## Billing\n…\n**Link:** `/a`.\nCancel the subscription here.\n\n…",
     );
+  });
+
+  it("never picks a link line as the matching line, so the body stays in front of it", () => {
+    const [webhooks] = splitSections({
+      slug: "architecture-security",
+      source: "docs",
+      pageTitle: "Architecture and security",
+      markdown: [
+        "## How are webhook secrets and destinations secured?",
+        "",
+        "Each webhook can carry a secret that signs every delivery, and custom headers need HTTPS.",
+        "",
+        "Tail text that is long enough to be cut off by the budget of this excerpt.",
+        "",
+        "**Link:** the **Webhooks** page, `/company/webhooks`, for webhook secrets and destinations.",
+      ].join("\n"),
+    });
+    if (!webhooks) throw new Error("Webhooks section missing");
+    const excerpt = sectionExcerpt(webhooks, "webhook secrets destinations", 250, "english", true);
+    expect(excerpt).toContain("Each webhook can carry a secret");
+    expect(excerpt.split("\n").at(-1)).toBe(
+      "**Link:** the **Webhooks** page, `/company/webhooks`, for webhook secrets and destinations.",
+    );
+    expect(excerpt.match(/\*\*Link:\*\*/g)).toHaveLength(1);
+  });
+
+  it("trims a matching line longer than the budget instead of returning only ellipses", () => {
+    const [webhooks] = splitSections({
+      slug: "app-company",
+      source: "docs",
+      pageTitle: "My Company",
+      markdown: [
+        "## Webhooks tab",
+        "",
+        "Intro.",
+        "",
+        `Route \`/company/webhooks\` lists every webhook with its URL and events. ${"More detail about the list. ".repeat(10)}`,
+        "",
+        "Tail.",
+      ].join("\n"),
+    });
+    if (!webhooks) throw new Error("Webhooks section missing");
+    const excerpt = sectionExcerpt({ ...webhooks, headingPath: [] }, "webhooks route", 120, "english");
+    expect(excerpt).toContain("Route `/company/webhooks` lists every webhook");
+    expect(excerpt.replace(/[…\s]/g, "")).not.toBe("");
+    expect(excerpt.length).toBeLessThanOrEqual(124);
   });
 
   it("leaves a section without a link line unchanged", () => {

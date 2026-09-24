@@ -2,7 +2,7 @@ import type { ZodOpenApiOperationObject } from "zod-openapi";
 
 import { LinkedinSaveToSalesListSchema } from "@/ee/messaging/sales-navigator/linkedin-save-to-sales-list.interactor";
 import { LinkedinSaveToSalesListResultSchema } from "@/ee/messaging/sales-navigator/sales-navigator.schema";
-import { CommonApiResponses, MessagingProviderApiResponses } from "@/core/api/interactor-handler";
+import { CommonApiResponses, MessagingProviderApiResponses, NotFoundApiResponse } from "@/core/api/interactor-handler";
 
 export const linkedinSaveToSalesListOperation: ZodOpenApiOperationObject = {
   operationId: "saveToSalesList",
@@ -29,6 +29,7 @@ export const linkedinSaveToSalesListOperation: ZodOpenApiOperationObject = {
       },
     },
     ...CommonApiResponses,
+    ...NotFoundApiResponse,
     ...MessagingProviderApiResponses,
   },
 };

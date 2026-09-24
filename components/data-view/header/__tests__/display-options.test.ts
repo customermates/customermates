@@ -42,7 +42,8 @@ vi.mock("@/components/ui/select", () => ({
   SelectContent: ({ children }: { children: ReactNode }) => createElement("div", null, children),
   SelectItem: ({ children, value }: { children: ReactNode; value: string }) =>
     createElement("div", { "data-value": value }, children),
-  SelectTrigger: ({ children }: { children: ReactNode }) => createElement("div", null, children),
+  SelectTrigger: ({ children, "aria-label": label }: { children: ReactNode; "aria-label"?: string }) =>
+    createElement("div", { "aria-label": label, role: "combobox" }, children),
   SelectValue: () => null,
 }));
 
@@ -225,6 +226,27 @@ describe("display options", () => {
       expect(trigger, id).toContain("flex-col");
       expect(trigger, id).toContain("data-[state=active]:border-primary/60");
     }
+  });
+
+  it("names the layout tab list and both pickers and points no layout tab at a panel that is never rendered", () => {
+    const html = render(
+      store({
+        columnsDefinition: [{ uid: "name", label: "Name", sortable: true }],
+        groupableFields: [STAGE],
+      }),
+      "deals",
+    );
+    const ids = new Set([...html.matchAll(/\sid="([^"]+)"/g)].map((match) => match[1]));
+    const controls = [...html.matchAll(/\saria-controls="([^"]+)"/g)].map((match) => match[1]);
+    const tabList = html.match(/<div[^>]*role="tablist"[^>]*>/)?.[0] ?? "";
+    const tabs = html.match(/<button[^>]*role="tab"[^>]*>/g) ?? [];
+
+    expect(tabs).toHaveLength(2);
+    expect(controls.filter((id) => !ids.has(id))).toEqual([]);
+    for (const tab of tabs) expect(tab).not.toContain("aria-controls");
+    expect(tabList).toContain('aria-label="Common.table.layout"');
+    expect(html).toContain('aria-label="Common.table.groupBy"');
+    expect(html).toContain('aria-label="Common.sort.field"');
   });
 
   it("disables the board control when the store cannot board", () => {

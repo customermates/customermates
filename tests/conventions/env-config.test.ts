@@ -329,8 +329,19 @@ describe("self-hosted configuration", () => {
     expect(scripts.length).toBeGreaterThan(0);
     for (const path of scripts) expect(readFileSync(path, "utf8"), path).not.toMatch(/docker compose restart/u);
     expect(readFileSync(join(REPO_ROOT, "scripts", "selfhost-restart.sh"), "utf8")).toContain(
-      "docker compose up -d --no-deps app",
+      "docker compose up -d --no-deps --force-recreate app",
     );
+  });
+
+  it("sends operators to sign-up and names the provider buttons each auth page shows", () => {
+    const locale = readFileSync(new URL("../../i18n/locales/en.json", import.meta.url), "utf8");
+    const messages = JSON.parse(locale) as Record<string, Record<string, string>>;
+    const label = (namespace: string) => messages[namespace].buttonLabel.replace("{provider}", "Google / Microsoft");
+
+    expect(readme).toContain("open `<BASE_URL>/auth/signup`");
+    expect(setupScript).toContain("Open ${BASE_URL}/auth/signup");
+    expect(template).toContain(`"${label("SignInForm")}" on sign-in`);
+    expect(template).toContain(`"${label("SignUpForm")}" on sign-up`);
   });
 
   it("describes the two Compose services and the curl setup the same way in all public content", () => {

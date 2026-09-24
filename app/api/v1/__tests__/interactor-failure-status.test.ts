@@ -9,7 +9,7 @@ const interactors = vi.hoisted(() => ({
   searchDeals: vi.fn(),
   searchUsers: vi.fn(),
   deleteWebhook: vi.fn(),
-  getContact: vi.fn(),
+  deleteContact: vi.fn(),
   createContact: vi.fn(),
   invite: vi.fn(),
   searchPeople: vi.fn(),
@@ -19,7 +19,7 @@ vi.mock("@/core/di", () => ({
   getGetDealsApiInteractor: () => ({ invoke: interactors.searchDeals }),
   getGetUsersApiInteractor: () => ({ invoke: interactors.searchUsers }),
   getDeleteWebhookInteractor: () => ({ invoke: interactors.deleteWebhook }),
-  getGetContactByIdInteractor: () => ({ invoke: interactors.getContact }),
+  getDeleteContactInteractor: () => ({ invoke: interactors.deleteContact }),
   getCreateContactInteractor: () => ({ invoke: interactors.createContact }),
   getCreateRelationRequestInteractor: () => ({ invoke: interactors.invite }),
   getLinkedinSearchSalesPeopleInteractor: () => ({ invoke: interactors.searchPeople }),
@@ -28,7 +28,7 @@ vi.mock("@/core/di", () => ({
 import { POST as searchDeals } from "../deals/search/route";
 import { POST as searchUsers } from "../users/search/route";
 import { DELETE as deleteWebhook } from "../webhooks/[id]/route";
-import { GET as getContact } from "../contacts/[id]/route";
+import { DELETE as deleteContact } from "../contacts/[id]/route";
 import { POST as createContact } from "../contacts/route";
 import { POST as invite } from "../messaging/social-relations/invite/route";
 import { POST as searchPeople } from "../messaging/sales-navigator/search/people/route";
@@ -71,8 +71,8 @@ const cases = [
     kind: "not_found",
     status: 404,
     code: CustomErrorCode.contactNotFound,
-    spy: interactors.getContact,
-    invoke: () => getContact(request(`contacts/${ID}`, "GET"), params),
+    spy: interactors.deleteContact,
+    invoke: () => deleteContact(request(`contacts/${ID}`, "DELETE"), params),
   },
   {
     kind: "conflict",
