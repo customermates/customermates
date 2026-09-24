@@ -244,6 +244,9 @@ const ListRecordsOutputSchema = z.object({
       "Per summable column: the total across every matching record, not just this page. Built-in columns use their own name; a custom currency column uses its custom-column id",
     ),
   ...McpPageOutputShape,
+  pageSize: McpPageOutputShape.pageSize.describe(
+    "The page size asked for; every page but the last holds exactly this many records, and a grouped result echoes it with items empty",
+  ),
   nameMatchNote: z
     .string()
     .optional()
@@ -345,7 +348,7 @@ const singularLabels: Record<Entity, string> = {
 
 type ListRecordsInclude = z.infer<typeof ListRecordsIncludeSchema>;
 
-const linkIdKeys = {
+export const linkIdKeys = {
   contacts: "contactIds",
   organizations: "organizationIds",
   deals: "dealIds",
@@ -353,7 +356,7 @@ const linkIdKeys = {
   tasks: "taskIds",
 } as const;
 
-const listedLinks: Record<Entity, readonly (keyof typeof linkIdKeys)[]> = {
+export const listedLinks: Record<Entity, readonly (keyof typeof linkIdKeys)[]> = {
   contact: ["organizations", "deals", "tasks"],
   organization: ["contacts", "deals", "tasks"],
   deal: ["contacts", "organizations", "services", "tasks"],

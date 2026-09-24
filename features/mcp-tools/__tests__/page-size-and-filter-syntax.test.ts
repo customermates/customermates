@@ -56,7 +56,7 @@ describe("page size", () => {
     expect(MCP_PAGE_SIZE_DESCRIPTION).toContain("page 2 of pageSize 50 holds records 51 to 100");
     expect(MCP_PAGE_SIZE_DESCRIPTION).toContain("ask again with about half the size");
     expect(McpPageOutputShape.pageSize.description).toContain("every page but the last holds exactly this many");
-    expect(McpPageOutputShape.pageSize.description).toContain("a grouped result echoes it with items empty");
+    expect(McpPageOutputShape.pageSize.description).not.toContain("group");
     for (const text of [MCP_PAGE_SIZE_DESCRIPTION, docs("en")]) expect(text).not.toMatch(/lowered|requestedPageSize/);
     expect(docs("de")).not.toMatch(/abgesenkt|requestedPageSize/);
 

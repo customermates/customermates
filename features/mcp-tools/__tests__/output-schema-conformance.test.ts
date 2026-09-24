@@ -45,6 +45,7 @@ vi.mock("@/features/search/entity-list-executors", () => ({
 }));
 
 import { executeMcpTool, type McpTool } from "../mcp-tool";
+import { McpPageOutputShape } from "../utils";
 import { listRecordsTool } from "../entity-generic.mcp-tools";
 import { listUsersTool } from "../workspace.mcp-tools";
 import { getActivitiesTool, getCalendarsTool, getMessagingThreadsTool } from "../messaging.mcp-tools";
@@ -367,5 +368,23 @@ describe("tool results pass the MCP SDK output validation on the server and in t
 
     expect(outcome.structuredContent).toMatchObject({ page: 2, pageSize: 50 });
     expect(outcome.structuredContent).not.toHaveProperty("requestedPageSize");
+  });
+
+  it("publishes the grouped page-size note only on list_records, the one paged tool that groups", () => {
+    const publishedPageSize = (tool: McpTool) => {
+      const outputSchema = normalizeObjectSchema(tool.outputSchema);
+      if (!outputSchema) throw new Error(`${tool.name} declares no object output schema`);
+      const published = toJsonSchemaCompat(outputSchema, { strictUnions: true, pipeStrategy: "output" }) as {
+        properties: { pageSize: { description?: string } };
+      };
+      return published.properties.pageSize.description;
+    };
+    const shared = McpPageOutputShape.pageSize.description;
+
+    expect(publishedPageSize(listRecordsTool as McpTool)).toBe(
+      `${shared}, and a grouped result echoes it with items empty`,
+    );
+    for (const tool of [listUsersTool, getActivitiesTool] as McpTool[])
+      expect([tool.name, publishedPageSize(tool)]).toEqual([tool.name, shared]);
   });
 });
