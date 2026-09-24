@@ -228,7 +228,7 @@ async function expectAccountingToBalance(conversationId: string, frames: Frame[]
 
 const enabled = process.env.RUN_AGENT_EVAL === "true" && Boolean(getLocalDatabaseTestUrl());
 const describeEval = enabled ? describe : describe.skip;
-const itWebSearchE2e = process.env.RUN_AGENT_WEB_SEARCH_E2E === "true" ? it : it.skip;
+const itWebSearchE2e = process.env.AGENT_WEB_SEARCH_LOCAL_OPT_IN === "true" ? it : it.skip;
 const itMcpWikiE2e = process.env.RUN_AGENT_MCP_WIKI_E2E === "true" ? it : it.skip;
 
 if (process.env.RUN_AGENT_EVAL === "true" && !process.env.AI_GATEWAY_API_KEY)

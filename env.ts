@@ -3,6 +3,7 @@ import {
   resolveAppMode,
   resolveAuthAllowedHosts,
   resolveBaseUrl,
+  resolveLocalAgentWebSearchOptIn,
   resolveOptionalBigInt,
   resolveStrictBoolean,
 } from "@/core/config/environment";
@@ -29,6 +30,7 @@ export const env = {
   APP_MODE: resolveAppMode(process.env),
   AGENT_CHAT_DISABLED: Boolean(process.env.AGENT_CHAT_DISABLED),
   AI_GATEWAY_API_KEY: process.env.AI_GATEWAY_API_KEY,
+  AGENT_WEB_SEARCH_LOCAL_OPT_IN: resolveLocalAgentWebSearchOptIn(process.env),
   HOSTED_AI_OPERATOR_CONTROLS_ENABLED: resolveStrictBoolean(
     "HOSTED_AI_OPERATOR_CONTROLS_ENABLED",
     process.env.HOSTED_AI_OPERATOR_CONTROLS_ENABLED,

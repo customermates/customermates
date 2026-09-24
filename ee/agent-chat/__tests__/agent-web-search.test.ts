@@ -1,56 +1,22 @@
 import { describe, expect, it } from "vitest";
 
 import {
+  AGENT_WEB_SEARCH_RELEASED,
+  AGENT_WEB_SEARCH_ROUTINES_RELEASED,
   AGENT_WEB_SEARCH_TOOL_NAME,
+  agentWebSearchEnabled,
   agentWebSourcesFooter,
   collectAgentWebSources,
   getAgentWebSearchTool,
-  resolveAgentWebSearchEnabled,
 } from "../agent-web-search";
 
 describe("native Agent web search", () => {
-  it("allows an explicit local-development E2E without opening a production release path", () => {
-    expect(
-      resolveAgentWebSearchEnabled({
-        nodeEnv: "development",
-        localE2eOptIn: "true",
-        agentEvalOptIn: "true",
-        databaseTestsOptIn: "true",
-        databaseUrl: "postgresql://postgres:postgres@127.0.0.1:5432/customermates",
-        directUrl: "",
-        ci: "",
-        deploymentConfigured: false,
-        libpqRoutingConfigured: false,
-      }),
-    ).toBe(true);
-    for (const options of [
-      { nodeEnv: "production" },
-      { localE2eOptIn: "false" },
-      { agentEvalOptIn: "false" },
-      { databaseTestsOptIn: "false" },
-      { databaseUrl: "postgresql://database.example.com/db" },
-      { databaseUrl: "not-a-url" },
-      { databaseUrl: "postgresql://localhost/db?host=database.example.com" },
-      { directUrl: "postgresql://database.example.com/db" },
-      { directUrl: "postgresql://localhost/db?host=database.example.com" },
-      { ci: "true" },
-      { ci: "false" },
-      { deploymentConfigured: true },
-      { libpqRoutingConfigured: true },
-    ]) {
-      expect(
-        resolveAgentWebSearchEnabled({
-          nodeEnv: "development",
-          localE2eOptIn: "true",
-          agentEvalOptIn: "true",
-          databaseTestsOptIn: "true",
-          databaseUrl: "postgresql://localhost/db",
-          ci: "",
-          deploymentConfigured: false,
-          libpqRoutingConfigured: false,
-          ...options,
-        }),
-      ).toBe(false);
+  it("keeps chat and routines unreleased and lets only the local opt-in enable either surface", () => {
+    expect(AGENT_WEB_SEARCH_RELEASED).toBe(false);
+    expect(AGENT_WEB_SEARCH_ROUTINES_RELEASED).toBe(false);
+    for (const surface of ["chat", "routine"] as const) {
+      expect(agentWebSearchEnabled(surface, false)).toBe(false);
+      expect(agentWebSearchEnabled(surface, true)).toBe(true);
     }
   });
 

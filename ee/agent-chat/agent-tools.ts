@@ -32,7 +32,7 @@ import type { AgentApprovalContextResolution } from "./agent-external-approval-c
 import { internalToolIdentity } from "./tool-identity";
 import { providerWireInputSchema } from "./provider-safe-json-schema";
 import type { AgentToolInputResult } from "./agent-tool-input";
-import { getAgentWebSearchTool, AGENT_WEB_SEARCH_RELEASED } from "./agent-web-search";
+import { getAgentWebSearchTool } from "./agent-web-search";
 import { wikiHomepageSetupTool } from "@/features/mcp-tools/wiki.mcp-tools";
 import { hostedWorkspaceContextTool } from "@/features/mcp-tools/workspace.mcp-tools";
 import { localizeWikiPageUrls } from "@/features/wiki/wiki-links";
@@ -368,7 +368,7 @@ export function getAgentAiTools(deps: AgentToolDeps, options: AgentToolOptions =
       ...Object.fromEntries(crm),
       ...(options.surface === "routine" ? {} : uiTools(deps)),
       [LOAD_TOOLSET_TOOL_NAME]: loadToolsetTool(),
-      ...((options.webSearchEnabled ?? AGENT_WEB_SEARCH_RELEASED) ? { web_search: getAgentWebSearchTool() } : {}),
+      ...(options.webSearchEnabled ? { web_search: getAgentWebSearchTool() } : {}),
       request_support: tool({
         description:
           "Email a support request to the Customermates team. Use when the user asks for a human, reports a bug, or you cannot help after a genuine attempt. The recent Assistant conversation is included, and the team replies to the email address on the user's account.",

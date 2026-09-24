@@ -52,6 +52,11 @@ export function resolveStrictBoolean(name: string, value: string | undefined): b
   throw new Error(`${name} must be configured as "true" or "false"`);
 }
 
+export function resolveLocalAgentWebSearchOptIn(source: Environment): boolean {
+  const optedIn = resolveStrictBoolean("AGENT_WEB_SEARCH_LOCAL_OPT_IN", source.AGENT_WEB_SEARCH_LOCAL_OPT_IN);
+  return optedIn && source.NODE_ENV === "development" && !source.VERCEL && !source.VERCEL_ENV && !source.CI;
+}
+
 export function resolveOptionalBigInt(name: string, value: string | undefined): bigint | null {
   const normalized = value?.trim();
   if (!normalized) return null;

@@ -45,7 +45,6 @@ import {
 import { agentWikiContextMessages, serializeAgentWikiCatalog } from "@/ee/agent-chat/agent-wiki-context";
 import { resolveAgentModel, type AgentModelEntry } from "@/ee/agent-chat/model-catalog";
 import { buildAgentSystemPrompt } from "@/ee/agent-chat/system-prompt";
-import { AGENT_WEB_SEARCH_RELEASED } from "@/ee/agent-chat/agent-web-search";
 import type { AgentTurnWorkflowPayload } from "@/workflows/agent-turn";
 
 const CLIENT_REQUEST_ID = "00000000-0000-4000-8000-000000000001";
@@ -169,7 +168,7 @@ describe("Workspace Wiki admission bootstrap", () => {
       locale: payload.locale,
       surface,
       wikiHomepageSetup: false,
-      webSearchEnabled: AGENT_WEB_SEARCH_RELEASED,
+      webSearchEnabled: false,
     });
     expect(systemPrompt).not.toContain("Current workspace guidance");
     const admission = state.usage.prepareTurn.mock.calls[0][2];
@@ -192,7 +191,7 @@ describe("Workspace Wiki admission bootstrap", () => {
       locale: "en",
       surface,
       wikiHomepageSetup: false,
-      webSearchEnabled: AGENT_WEB_SEARCH_RELEASED,
+      webSearchEnabled: false,
     });
   });
 
@@ -248,7 +247,7 @@ describe("Workspace Wiki admission bootstrap", () => {
         locale: payload.locale,
         surface,
         wikiHomepageSetup: false,
-        webSearchEnabled: AGENT_WEB_SEARCH_RELEASED,
+        webSearchEnabled: false,
       });
       expect(systemPrompt).toContain("follow useful Wiki links");
       expect(systemPrompt).toContain("Report gaps or conflicts");
@@ -420,7 +419,7 @@ describe("Workspace Wiki admission bootstrap", () => {
       locale: "en",
       surface: "chat",
       wikiHomepageSetup: true,
-      webSearchEnabled: AGENT_WEB_SEARCH_RELEASED,
+      webSearchEnabled: false,
     });
     expect(state.repo.createAgentConversationForRun).toHaveBeenCalledWith(
       expect.objectContaining({ title: "Set up Workspace Wiki" }),
