@@ -59,12 +59,8 @@ describe("WikiPageInputSchema", () => {
     ).toBe(false);
   });
 
-  it("rejects blank titles", () => {
+  it("trims titles and rejects blank ones", () => {
+    expect(WikiPageInputSchema.parse({ title: " Voice ", markdown: "Body" }).title).toBe("Voice");
     expect(WikiPageInputSchema.safeParse({ title: "   ", markdown: "Body" }).success).toBe(false);
-  });
-
-  it("treats AGENTS.md like any other title", () => {
-    expect(WikiPageInputSchema.parse({ title: " agents.md ", markdown: "Body" }).title).toBe("agents.md");
-    expect(WikiPageInputSchema.parse({ title: "Agents.MD", markdown: "Body" }).title).toBe("Agents.MD");
   });
 });

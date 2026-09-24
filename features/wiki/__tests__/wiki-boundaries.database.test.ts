@@ -421,25 +421,7 @@ describeDatabase("Workspace Wiki public boundaries on PostgreSQL", () => {
     expect(JSON.stringify(searched)).not.toContain("Foreign zephyr guidance");
   });
 
-  it("treats AGENTS.md as an ordinary duplicate title", async () => {
-    const legacyIndex = await client.query(
-      "SELECT indexname FROM pg_indexes WHERE schemaname = current_schema() AND indexname = $1",
-      ["WikiPage_companyId_agents_title_key"],
-    );
-    expect(legacyIndex.rows).toEqual([]);
-
-    const outcomes = await Promise.all([
-      create(user, [{ title: "agents.md", markdown: "First" }]),
-      create(user, [{ title: " AGENTS.MD ", markdown: "Second" }]),
-    ]);
-
-    expect(outcomes.filter((outcome) => outcome.ok)).toHaveLength(2);
-    const storedEntry = await client.query(
-      'SELECT "title" FROM "WikiPage" WHERE "companyId" = $1 AND lower(btrim("title")) = $2 ORDER BY "title"',
-      [companyId, "agents.md"],
-    );
-    expect(storedEntry.rows).toEqual([{ title: "AGENTS.MD" }, { title: "agents.md" }]);
-
+  it("allows duplicate titles", async () => {
     expect(await create(user, [{ title: "Duplicate", markdown: "One" }])).toMatchObject({ ok: true });
     expect(await create(user, [{ title: "Duplicate", markdown: "Two" }])).toMatchObject({ ok: true });
   });

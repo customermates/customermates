@@ -113,7 +113,7 @@ describe("CreateWikiPagesInteractor", () => {
     const result = await new CreateWikiPagesInteractor(repo as never, events as never).invoke({
       pages: [
         {
-          title: "agents.md",
+          title: "Company overview",
           markdown: "Read [the source](https://example.com/source).",
         },
         {
@@ -126,7 +126,7 @@ describe("CreateWikiPagesInteractor", () => {
 
     expect(result.ok).toBe(true);
     const submitted = repo.createPages.mock.calls[0][0].pages;
-    expect(submitted[0].title).toBe("agents.md");
+    expect(submitted[0].title).toBe("Company overview");
     expect(submitted[0].markdown).toBe("Read [the source](https://example.com/source).");
     expect(submitted[1].title).toBe(String.raw`Voice [external] \ handbook`);
     expect(submitted.every((item: { id: string }) => /^[0-9a-f-]{36}$/.test(item.id))).toBe(true);
