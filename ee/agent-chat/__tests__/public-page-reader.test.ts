@@ -6,12 +6,10 @@ import { isPublicPageAddress, readPublicPage } from "../public-page-reader";
 
 const mocks = vi.hoisted(() => ({
   lookup: vi.fn(),
-  httpRequest: vi.fn(),
   httpsRequest: vi.fn(),
 }));
 
 vi.mock("node:dns/promises", () => ({ lookup: mocks.lookup }));
-vi.mock("node:http", () => ({ request: mocks.httpRequest }));
 vi.mock("node:https", () => ({ request: mocks.httpsRequest }));
 
 type Fixture = {
@@ -57,7 +55,6 @@ beforeEach(() => {
   fixtures.length = 0;
   responses.length = 0;
   mocks.lookup.mockResolvedValue([{ address: "93.184.215.14", family: 4 }]);
-  mocks.httpRequest.mockImplementation(request);
   mocks.httpsRequest.mockImplementation(request);
 });
 
@@ -235,8 +232,19 @@ describe("readPublicPage", () => {
       ok: true,
       url: "https://www.example.com/en",
     });
-    expect(mocks.httpRequest).not.toHaveBeenCalled();
     expect(mocks.httpsRequest).toHaveBeenCalledTimes(2);
+  });
+
+  it("upgrades an HTTP redirect target before following it", async () => {
+    fixtures.push({ statusCode: 301, headers: { location: "http://www.example.com/en" } });
+    expect(await readPublicPage({ allowedDomain: "example.com", url: "https://example.com/" })).toMatchObject({
+      ok: true,
+      url: "https://www.example.com/en",
+    });
+    expect(mocks.httpsRequest.mock.calls.map(([url]) => url.href)).toEqual([
+      "https://example.com/",
+      "https://www.example.com/en",
+    ]);
   });
 
   it("requests functional query parameters unchanged and strips only the fragment", async () => {
@@ -420,6 +428,54 @@ describe("readPublicPage", () => {
       ok: true,
       text: "Public information\n\nUseful details",
       links: [],
+    });
+  });
+
+  it.each([
+    ["the Content-Type charset", "text/html; charset=ISO-8859-1", ""],
+    ["a meta charset", "text/html", '<meta charset="windows-1252">'],
+    [
+      "a meta http-equiv Content-Type",
+      "text/html",
+      '<meta http-equiv="Content-Type" content="text/html; charset=latin1">',
+    ],
+  ])("decodes a legacy single-byte page declared by %s", async (_source, contentType, meta) => {
+    fixtures.push({
+      headers: { "content-type": contentType },
+      body: Buffer.from(
+        `<html><head>${meta}<title>Über uns</title></head><body><p>Größe & Qualität für Kunden.</p></body></html>`,
+        "latin1",
+      ),
+    });
+    expect(await readPublicPage({ allowedDomain: "example.com", url: "https://example.com/" })).toMatchObject({
+      ok: true,
+      title: "Über uns",
+      text: "Größe & Qualität für Kunden.",
+    });
+  });
+
+  it.each(["text/html; charset=x-unknown-label", "text/plain; charset=x-unknown-label"])(
+    "falls back to UTF-8 for an unknown charset label in %s",
+    async (contentType) => {
+      fixtures.push({
+        headers: { "content-type": contentType },
+        body: Buffer.from("Über uns: Größe und Qualität.", "utf8"),
+      });
+      expect(await readPublicPage({ allowedDomain: "example.com", url: "https://example.com/" })).toMatchObject({
+        ok: true,
+        text: "Über uns: Größe und Qualität.",
+      });
+    },
+  );
+
+  it("does not let a meta tag switch an ASCII-readable page to UTF-16", async () => {
+    fixtures.push({
+      headers: { "content-type": "text/html" },
+      body: Buffer.from('<html><head><meta charset="utf-16"></head><body><p>Über uns</p></body></html>', "utf8"),
+    });
+    expect(await readPublicPage({ allowedDomain: "example.com", url: "https://example.com/" })).toMatchObject({
+      ok: true,
+      text: "Über uns",
     });
   });
 

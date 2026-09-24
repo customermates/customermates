@@ -5,7 +5,6 @@ import type { TcpSocketConnectOpts } from "node:net";
 import { compile } from "html-to-text";
 import { lookup as lookupAddress } from "node:dns";
 import { lookup } from "node:dns/promises";
-import { request as httpRequest } from "node:http";
 import { request as httpsRequest } from "node:https";
 import { BlockList, isIP } from "node:net";
 
@@ -123,13 +122,13 @@ async function requestPage(url: URL, signal: AbortSignal): Promise<IncomingMessa
       },
       lookup: (_hostname, options, callback) => lookupAddress(address.address, options, callback),
     };
-    const request = (url.protocol === "https:" ? httpsRequest : httpRequest)(url, requestOptions, resolve);
+    const request = httpsRequest(url, requestOptions, resolve);
     request.on("error", reject);
     request.end();
   });
 }
 
-async function readBody(response: IncomingMessage, signal: AbortSignal): Promise<string> {
+async function readBody(response: IncomingMessage, signal: AbortSignal): Promise<Buffer> {
   const encoding = response.headers["content-encoding"]?.trim().toLowerCase();
   if (encoding && encoding !== "identity") throw new PublicPageReadError("unsupported_content");
   const declaredLength = response.headers["content-length"];
@@ -144,7 +143,23 @@ async function readBody(response: IncomingMessage, signal: AbortSignal): Promise
     if (size > MAX_BODY_BYTES) throw new PublicPageReadError("too_large");
     chunks.push(new Uint8Array(buffer.buffer, buffer.byteOffset, buffer.byteLength));
   }
-  return Buffer.concat(chunks).toString("utf8");
+  return Buffer.concat(chunks);
+}
+
+function textDecoder(label: string | undefined): TextDecoder {
+  try {
+    return new TextDecoder(label?.trim() || "utf-8");
+  } catch {
+    return new TextDecoder();
+  }
+}
+
+function decodeBody(body: Buffer, contentType: string, contentTypeHeader: string): string {
+  const headerLabel = /;\s*charset\s*=\s*["']?([^"';\s]+)/i.exec(contentTypeHeader)?.[1];
+  if (headerLabel || contentType === "text/plain") return textDecoder(headerLabel).decode(body);
+  const prefix = body.subarray(0, 1_024).toString("latin1");
+  const meta = textDecoder(/<meta\b[^>]*?\bcharset\s*=\s*["']?\s*([^"'\s;/>]+)/i.exec(prefix)?.[1]);
+  return (meta.encoding.startsWith("utf-16") ? new TextDecoder() : meta).decode(body);
 }
 
 function cleanText(value: string): string {
@@ -361,17 +376,17 @@ export async function readPublicPage(
           const nextPage = parsePublicPageUrl(new URL(response.headers.location, currentUrl).toString());
           if (!nextPage) return { ok: false, reason: "invalid_url" };
           if (nextPage.registrableDomain !== allowedDomain) return { ok: false, reason: "outside_domain" };
-          if (new URL(currentUrl).protocol === "https:" && new URL(nextPage.url).protocol !== "https:")
-            return { ok: false, reason: "invalid_url" };
           currentUrl = nextPage.url;
           continue;
         }
         if (!response.statusCode || response.statusCode < 200 || response.statusCode >= 300)
           return { ok: false, reason: "unavailable" };
-        const contentType = response.headers["content-type"]?.split(";", 1)[0].trim().toLowerCase();
-        if (!contentType || !["text/html", "application/xhtml+xml", "text/plain"].includes(contentType))
+        const contentTypeHeader = response.headers["content-type"] ?? "";
+        const contentType = contentTypeHeader.split(";", 1)[0].trim().toLowerCase();
+        if (!["text/html", "application/xhtml+xml", "text/plain"].includes(contentType))
           return { ok: false, reason: "unsupported_content" };
-        return extractPage(await readBody(response, signal), currentUrl, contentType, allowedDomain);
+        const body = decodeBody(await readBody(response, signal), contentType, contentTypeHeader);
+        return extractPage(body, currentUrl, contentType, allowedDomain);
       } finally {
         response.destroy();
       }
