@@ -266,7 +266,7 @@ describeDatabase("Workspace Wiki authenticated MCP transport", () => {
       managerApiKey,
       mcpBody("tools/call", 40, {
         name: "get_workspace_context",
-        arguments: { wikiQuery: "reader key discovery phrase" },
+        arguments: {},
       }),
       workspaceInitialized.sessionId,
       workspaceEndpoint,
@@ -280,7 +280,6 @@ describeDatabase("Workspace Wiki authenticated MCP transport", () => {
             url: `http://localhost:4000/wiki?page=${readablePageId}`,
           }),
         ]),
-        relevantPages: expect.arrayContaining([expect.objectContaining({ id: readablePageId })]),
       },
     });
 

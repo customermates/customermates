@@ -15,10 +15,8 @@ import { GetWikiCatalogInteractor } from "../get-wiki-catalog.interactor";
 import {
   wikiExcerpt,
   wikiPlainText,
-  wikiRelevantMarkdownPreview,
+  wikiRelevantSearchSnippet,
   wikiRelevantSearchTerms,
-  wikiSearchSnippet,
-  wikiSearchTerms,
   wikiSubstringSearchTerms,
 } from "../wiki-content";
 
@@ -48,10 +46,11 @@ describe("Wiki catalog content", () => {
   });
 
   it("extracts bounded Unicode query terms rather than passing query syntax through", () => {
-    expect(wikiSearchTerms("VOICE, voice / Für Kunden? 2026")).toEqual(["voice", "für", "kunden", "2026"]);
-    expect(wikiSearchTerms("如何处理支持请求？")).toEqual(["如何处理支持请求", "如何", "处理", "支持", "请求"]);
-    expect(wikiSearchTerms("_%!:&|")).toEqual([]);
-    expect(wikiSearchTerms(Array.from({ length: 40 }, (_, i) => `word${i}`).join(" "))).toHaveLength(32);
+    expect(wikiRelevantSearchTerms("VOICE, voice / Für Kunden? 2026")).toEqual(["voice", "kunden", "2026"]);
+    expect(wikiRelevantSearchTerms("如何处理支持请求？")).toEqual(["如何处理支持请求", "如何", "处理", "支持", "请求"]);
+    expect(wikiRelevantSearchTerms("_%!:&|")).toEqual([]);
+    expect(wikiRelevantSearchTerms(Array.from({ length: 40 }, (_, i) => `word${i}`).join(" "))).toHaveLength(32);
+    expect(wikiRelevantSearchTerms("how do i onboard a customer")).toEqual(["onboard", "customer"]);
     expect(wikiRelevantSearchTerms("What is our refund policy?")).toEqual(["refund", "policy"]);
     expect(wikiRelevantSearchTerms("Wie ist unsere Rückerstattungsrichtlinie?")).toEqual(["rückerstattungsrichtlinie"]);
     expect(
@@ -60,6 +59,7 @@ describe("Wiki catalog content", () => {
       ),
     ).toContain("distinctiveprocess");
     expect(wikiRelevantSearchTerms("a")).toEqual(["a"]);
+    expect(wikiRelevantSearchTerms("a to")).toEqual(["to"]);
     expect(
       wikiRelevantSearchTerms(`${Array.from({ length: 80 }, (_, index) => `generic${index}`).join(" ")} tone`),
     ).toContain("tone");
@@ -72,7 +72,7 @@ describe("Wiki catalog content", () => {
   });
 
   it("keeps query-centered snippets inside the catalog excerpt limit", () => {
-    const snippet = wikiSearchSnippet(`${"Before ".repeat(80)}needle ${"after ".repeat(80)}😀`, "needle");
+    const snippet = wikiRelevantSearchSnippet(`${"Before ".repeat(80)}needle ${"after ".repeat(80)}😀`, "needle");
     expect(snippet.length).toBeLessThanOrEqual(200);
     expect(snippet).toContain("needle");
     expect(snippet.startsWith("…")).toBe(true);
@@ -80,15 +80,16 @@ describe("Wiki catalog content", () => {
     expect(snippet.endsWith("\ud83c")).toBe(false);
   });
 
-  it("anchors automatic previews on the most distinctive request term", () => {
-    const markdown = `${"Our policy background. ".repeat(80)}\n\nRefund approvals require a manager.`;
-    const preview = wikiRelevantMarkdownPreview(markdown, "What is our refund policy?", "https://example.com");
+  it("anchors search snippets on the most distinctive query term, not on a one-letter word", () => {
+    const markdown = `A ${"background ".repeat(40)}\n\nOnboarding a customer starts with a kickoff call.`;
+    const snippet = wikiRelevantSearchSnippet(markdown, "how do i onboard a customer");
 
-    expect(preview.markdownPreview).toContain("Refund approvals require a manager");
+    expect(snippet).toContain("Onboarding a customer starts with a kickoff call.");
+    expect(snippet.startsWith("…")).toBe(true);
   });
 
   it("never starts or ends a search snippet inside an astral character", () => {
-    const snippet = wikiSearchSnippet(`${"🌍".repeat(41)}needle${"🌍".repeat(100)}`, "needle");
+    const snippet = wikiRelevantSearchSnippet(`${"🌍".repeat(41)}needle${"🌍".repeat(100)}`, "needle");
     const first = snippet.charCodeAt(snippet.startsWith("…") ? 1 : 0);
     const last = snippet.charCodeAt(snippet.length - (snippet.endsWith("…") ? 2 : 1));
     expect(first >= 0xdc00 && first <= 0xdfff).toBe(false);
@@ -101,7 +102,6 @@ describe("GetWikiCatalogInteractor", () => {
   it("returns bounded navigation data and stable page URLs with explicit continuation", async () => {
     const repo = {
       listCatalogPages: vi.fn().mockResolvedValue({ items: [page], total: 11 }),
-      findRelevantCatalogPages: vi.fn().mockResolvedValue([]),
     };
     const result = await new GetWikiCatalogInteractor(repo).invoke({ page: 1 });
     expect(result).toEqual({
@@ -117,7 +117,6 @@ describe("GetWikiCatalogInteractor", () => {
             updatedAt: page.updatedAt,
           },
         ],
-        relevantPages: [],
         total: 11,
         page: 1,
         nextPage: 2,
@@ -128,52 +127,9 @@ describe("GetWikiCatalogInteractor", () => {
     expect(JSON.stringify(result)).not.toContain("markdown");
   });
 
-  it("returns bounded query-matched previews independently of catalog pagination", async () => {
-    const relevant = {
-      ...page,
-      id: "00000000-0000-4000-8000-000000000002",
-      title: "Refund policy",
-      markdown: `${"Background. ".repeat(80)}\n\nRefunds require manager review.\n\n${"😀".repeat(3_000)}`,
-    };
-    const repo = {
-      listCatalogPages: vi.fn().mockResolvedValue({ items: [page], total: 11 }),
-      findRelevantCatalogPages: vi.fn().mockResolvedValue([relevant]),
-    };
-    const result = await new GetWikiCatalogInteractor(repo).invoke({
-      page: 2,
-      query: "refund manager",
-    });
-
-    expect(result).toMatchObject({
-      ok: true,
-      data: {
-        relevantPages: [
-          {
-            id: relevant.id,
-            title: relevant.title,
-            url: `http://localhost:4000/wiki?page=${relevant.id}`,
-            totalChars: relevant.markdown.length,
-          },
-        ],
-        page: 2,
-      },
-    });
-    if (!result.ok) throw new Error("Expected relevant Wiki context.");
-    const preview = result.data.relevantPages[0];
-    expect(preview.excerpt.length).toBeLessThanOrEqual(200);
-    expect(preview.markdownPreview).toContain("Refunds require manager review");
-    expect(preview.previewEnd).toBeLessThan(preview.totalChars);
-    const finalCode = preview.markdownPreview.charCodeAt(preview.markdownPreview.length - 1);
-    expect(finalCode >= 0xd800 && finalCode <= 0xdbff).toBe(false);
-    expect(repo.findRelevantCatalogPages).toHaveBeenCalledWith({
-      query: "refund manager",
-    });
-  });
-
   it("reports an empty catalog and the final page without false continuation", async () => {
     const repo = {
       listCatalogPages: vi.fn().mockResolvedValue({ items: [], total: 0 }),
-      findRelevantCatalogPages: vi.fn().mockResolvedValue([]),
     };
     expect(await new GetWikiCatalogInteractor(repo).invoke({ page: 1 })).toMatchObject({
       ok: true,
@@ -189,7 +145,6 @@ describe("GetWikiCatalogInteractor", () => {
   it("requires Wiki Read before querying titles or counts and accepts the read-only role", async () => {
     const repo = {
       listCatalogPages: vi.fn().mockResolvedValue({ items: [], total: 0 }),
-      findRelevantCatalogPages: vi.fn().mockResolvedValue([]),
     };
     const interactor = new GetWikiCatalogInteractor(repo);
     await expect(
@@ -206,7 +161,6 @@ describe("GetWikiCatalogInteractor", () => {
   it("rejects invalid pagination before querying", async () => {
     const repo = {
       listCatalogPages: vi.fn(),
-      findRelevantCatalogPages: vi.fn(),
     };
     expect(await new GetWikiCatalogInteractor(repo).invoke({ page: 0 })).toMatchObject({ ok: false });
     expect(repo.listCatalogPages).not.toHaveBeenCalled();

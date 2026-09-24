@@ -8,7 +8,7 @@ import { ValidateOutput } from "@/core/decorators/validate-output.decorator";
 import type { Validated } from "@/core/validation/validation.utils";
 import { env } from "@/env";
 
-import { wikiExcerpt, wikiRelevantMarkdownPreview, wikiRelevantSearchSnippet } from "./wiki-content";
+import { wikiExcerpt } from "./wiki-content";
 import { wikiPageUrl } from "./wiki-links";
 import {
   WIKI_CATALOG_PAGE_SIZE,
@@ -21,7 +21,6 @@ import {
 
 export abstract class GetWikiCatalogRepo {
   abstract listCatalogPages(data: WikiCatalogInput): Promise<{ items: WikiPageDto[]; total: number }>;
-  abstract findRelevantCatalogPages(data: { query: string }): Promise<WikiPageDto[]>;
 }
 
 @AllowInDemoMode
@@ -34,10 +33,7 @@ export class GetWikiCatalogInteractor extends AuthenticatedInteractor<WikiCatalo
   @Validate(WikiCatalogInputSchema)
   @ValidateOutput(WikiCatalogSchema)
   async invoke(data: WikiCatalogInput): Validated<WikiCatalog> {
-    const [{ items, total }, relevantPages] = await Promise.all([
-      this.repo.listCatalogPages(data),
-      data.query?.trim() ? this.repo.findRelevantCatalogPages({ query: data.query }) : Promise.resolve([]),
-    ]);
+    const { items, total } = await this.repo.listCatalogPages(data);
     const nextPage = data.page * WIKI_CATALOG_PAGE_SIZE < total ? data.page + 1 : null;
     return {
       ok: true,
@@ -46,12 +42,6 @@ export class GetWikiCatalogInteractor extends AuthenticatedInteractor<WikiCatalo
           ...page,
           excerpt: wikiExcerpt(markdown),
           url: wikiPageUrl(env.BASE_URL, page.id),
-        })),
-        relevantPages: relevantPages.map(({ markdown, ...page }) => ({
-          ...page,
-          excerpt: wikiRelevantSearchSnippet(markdown, data.query ?? ""),
-          url: wikiPageUrl(env.BASE_URL, page.id),
-          ...wikiRelevantMarkdownPreview(markdown, data.query ?? "", env.BASE_URL),
         })),
         total,
         page: data.page,

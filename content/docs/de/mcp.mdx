@@ -99,7 +99,7 @@ Diese Einrichtung liest bekannte öffentliche Seiten, keine Suchmaschinentreffer
 
 ### Das Wiki mit einem KI-Client lesen
 
-Verbundene KI-Clients lesen dieselben aktuellen Seiten über diesen MCP-Endpunkt. Beginnen Sie mit `get_workspace_context`. `wiki.items` enthält zehn Titel, stabile URLs und kurze Anfangsauszüge; übergeben Sie `wiki.nextPage` als `wikiPage`, um den Katalog fortzusetzen. Übergeben Sie die aktuelle Anfrage als `wikiQuery`, um zusätzlich begrenzte Vorschauen auf bis zu drei passende Seiten aus dem gesamten Wiki zu erhalten.
+Verbundene KI-Clients lesen dieselben aktuellen Seiten über diesen MCP-Endpunkt. Beginnen Sie mit `get_workspace_context`. `wiki.items` enthält zehn Titel, stabile URLs und kurze Anfangsauszüge; übergeben Sie `wiki.nextPage` als `wikiPage`, um den Katalog fortzusetzen.
 
 Suchen Sie mit dem standardisierten schreibgeschützten Tool `search` nach relevanten Inhalten. Verwenden Sie anschließend `fetch` mit der zurückgegebenen ID `wiki:<uuid>` oder der exakten URL. Wiki-Markdown wird in begrenzten Abschnitten mit kanonischer Quell-URL geliefert; wiederholen Sie `fetch` mit `nextOffset` als `offset`, bis der Wert null ist. Links zwischen Wiki-Seiten sind absolut und können direkt wieder an `fetch` übergeben werden. Clients mit MCP-Resource-Unterstützung können den paginierten Katalog und die Seiten-Templates außerdem über `resources/list` und `resources/templates/list` entdecken. `manage_wiki_pages` mit `action: "get"` verwendet dasselbe Fortsetzungsmuster und erstellt oder bearbeitet Seiten, wenn Ihre Rolle Wiki-Verwaltungsrechte hat. Lesen erfordert Wiki-Leserechte; Änderungen erscheinen im normalen Audit-Log.
 
@@ -256,9 +256,9 @@ IRREVERSIBLES Hard-Delete von 1 bis 100 Records per ID (Contacts auch per E-Mail
 {/* mcp-catalog:workspace */}
 #### `get_workspace_context`
 
-Benutzer, Unternehmen, zugriffsgefilterter Wiki-Katalog, Rollen und verbundene Messaging-Konten. `wikiPage` setzt den Katalog fort; `wikiQuery` liefert bis zu drei begrenzte Treffer aus dem gesamten Wiki. Ohne Wiki-Leserechte fehlen Wiki-Daten.
+Benutzer, Unternehmen, zugriffsgefilterter Wiki-Katalog, Rollen und verbundene Messaging-Konten. `wikiPage` setzt den Katalog fort. Ohne Wiki-Leserechte fehlen Wiki-Daten.
 
-**Nur lesend.** Optional: `wikiPage`, `wikiQuery`.
+**Nur lesend.** Optional: `wikiPage`.
 
 #### `list_users`
 

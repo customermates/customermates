@@ -47,7 +47,7 @@ import type { GetWikiCatalogInteractor } from "@/features/wiki/get-wiki-catalog.
 import { parsePublicWikiHomepage, type PublicWikiHomepage } from "@/features/wiki/wiki-homepage";
 import { AppErrorCode, appErrorDetails } from "@/core/errors/app-errors";
 import { AGENT_WEB_SEARCH_ENABLED } from "./agent-web-search";
-import { agentWikiReplayBudget, serializeAgentWikiCatalog } from "./agent-wiki-context";
+import { serializeAgentWikiCatalog } from "./agent-wiki-context";
 
 type AdmittedAgentRun = { disposition: "run"; externalRunId: string } & Omit<AgentRunContext, "appBaseUrl">;
 type AgentInvocationMode = "interactive" | "routine";
@@ -266,12 +266,9 @@ export class SendAgentMessageInteractor extends AuthenticatedInteractor<SendAgen
     let wikiCatalog: string | null = null;
     if (!wikiHomepageSetup) {
       try {
-        const result = await this.wikiCatalog.invoke({
-          page: 1,
-          query: data.text,
-        });
+        const result = await this.wikiCatalog.invoke({ page: 1 });
         if (!result.ok) return result;
-        wikiCatalog = serializeAgentWikiCatalog(result.data, env.BASE_URL);
+        wikiCatalog = serializeAgentWikiCatalog(result.data);
       } catch (error) {
         if (appErrorDetails(error)?.code !== AppErrorCode.permissionDenied) throw error;
       }
@@ -437,7 +434,7 @@ export class SendAgentMessageInteractor extends AuthenticatedInteractor<SendAgen
           budgeted: !current,
         };
       });
-      const budgeted = budgetAgentReplayHistory(replayInputs, agentWikiReplayBudget(wikiCatalog));
+      const budgeted = budgetAgentReplayHistory(replayInputs);
       const messages = replayInputs
         .map((message, index) => ({
           role: message.role,

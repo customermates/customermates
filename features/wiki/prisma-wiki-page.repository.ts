@@ -12,8 +12,8 @@ import type { SearchWikiPagesRepo } from "./search-wiki-pages.interactor";
 import type { UpdateWikiPageRepo } from "./update-wiki-page.interactor";
 import type { StartWikiHomepageSetupRepo } from "./start-wiki-homepage-setup.interactor";
 import type { WikiPageDto } from "./wiki.schema";
-import { WIKI_CATALOG_PAGE_SIZE, WIKI_CATALOG_RELEVANT_PAGE_LIMIT } from "./wiki.schema";
-import { wikiRelevantSearchTerms, wikiSearchSnippet, wikiSearchTerms, wikiSubstringSearchTerms } from "./wiki-content";
+import { WIKI_CATALOG_PAGE_SIZE } from "./wiki.schema";
+import { wikiRelevantSearchSnippet, wikiRelevantSearchTerms, wikiSubstringSearchTerms } from "./wiki-content";
 
 export class PrismaWikiPageRepo
   extends BaseRepository<Prisma.WikiPageWhereInput>
@@ -63,7 +63,7 @@ export class PrismaWikiPageRepo
 
   async searchPages(data: RepoArgs<SearchWikiPagesRepo, "searchPages">) {
     const { page, pageSize, query } = data;
-    const terms = wikiSearchTerms(query);
+    const terms = wikiRelevantSearchTerms(query);
     if (terms.length === 0) return { items: [], total: 0, page, pageSize };
     const { predicate, rank } = this.wikiSearchSql(terms);
     const [rows, counts] = await Promise.all([
@@ -81,7 +81,7 @@ export class PrismaWikiPageRepo
     return {
       items: rows.map(({ markdown, ...page }) => ({
         ...page,
-        snippet: wikiSearchSnippet(markdown, data.query),
+        snippet: wikiRelevantSearchSnippet(markdown, data.query),
       })),
       total: counts[0]?.total ?? 0,
       page,
@@ -102,19 +102,6 @@ export class PrismaWikiPageRepo
       this.prisma.wikiPage.count({ where }),
     ]);
     return { items, total };
-  }
-
-  async findRelevantCatalogPages({ query }: RepoArgs<GetWikiCatalogRepo, "findRelevantCatalogPages">) {
-    const terms = wikiRelevantSearchTerms(query);
-    if (terms.length === 0) return [];
-    const { predicate, rank } = this.wikiSearchSql(terms);
-    return this.prisma.$queryRaw<WikiPageDto[]>(Prisma.sql`
-      SELECT "id", "title", "markdown", "createdAt", "updatedAt"
-      FROM "WikiPage"
-      WHERE ${predicate}
-      ORDER BY ${rank} DESC, "createdAt" ASC, "id" ASC
-      LIMIT ${WIKI_CATALOG_RELEVANT_PAGE_LIMIT}
-    `);
   }
 
   async getPage(id: string) {

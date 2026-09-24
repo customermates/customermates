@@ -99,7 +99,7 @@ This setup reads known public pages, not search-engine results. General web sear
 
 ### Read the Wiki from an AI client
 
-Your connected AI clients read the same current pages through this MCP endpoint. Start with `get_workspace_context`; `wiki.items` contains ten titles, stable URLs, and short opening excerpts, and `wiki.nextPage` can be passed as `wikiPage` to continue. Pass the current request as `wikiQuery` to also receive bounded previews of up to three matching pages from anywhere in the Wiki.
+Your connected AI clients read the same current pages through this MCP endpoint. Start with `get_workspace_context`; `wiki.items` contains ten titles, stable URLs, and short opening excerpts, and `wiki.nextPage` can be passed as `wikiPage` to continue.
 
 Use the standard read-only `search` tool to find relevant content, then `fetch` with either the returned `wiki:<uuid>` ID or its exact URL. Wiki Markdown is returned in bounded chunks with a canonical source URL; repeat `fetch` with `nextOffset` as `offset` until it is null. Links between Wiki pages are absolute and can be passed directly back to `fetch`. Clients with MCP resource support can also discover the paginated catalog and page templates with `resources/list` and `resources/templates/list`. `manage_wiki_pages` with `action: "get"` uses the same continuation pattern and also creates or edits pages when your role has Wiki Manage. Reads require Wiki Read, and every change uses the ordinary audit log.
 
@@ -256,9 +256,9 @@ IRREVERSIBLE hard-delete of 1 to 100 records by id (contacts also by email, phon
 {/* mcp-catalog:workspace */}
 #### `get_workspace_context`
 
-Your user, company, permission-filtered Wiki catalog, roles, and connected messaging accounts. Pass `wikiPage` for catalog pagination and `wikiQuery` for up to three bounded matches from the whole Wiki. Wiki data is omitted without Wiki Read.
+Your user, company, permission-filtered Wiki catalog, roles, and connected messaging accounts. Pass `wikiPage` for catalog pagination. Wiki data is omitted without Wiki Read.
 
-**Read-only.** Optional: `wikiPage`, `wikiQuery`.
+**Read-only.** Optional: `wikiPage`.
 
 #### `list_users`
 

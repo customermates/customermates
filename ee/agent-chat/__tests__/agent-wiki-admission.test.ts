@@ -42,24 +42,17 @@ import {
   conservativeAgentInitialContextBytes,
   buildAgentProviderContext,
 } from "@/ee/agent-chat/agent-provider-context";
-import {
-  agentWikiContextMessages,
-  serializeAgentWikiCatalog as serializeAgentWikiCatalogWithBaseUrl,
-} from "@/ee/agent-chat/agent-wiki-context";
+import { agentWikiContextMessages, serializeAgentWikiCatalog } from "@/ee/agent-chat/agent-wiki-context";
 import { resolveAgentModel, type AgentModelEntry } from "@/ee/agent-chat/model-catalog";
 import { buildAgentSystemPrompt } from "@/ee/agent-chat/system-prompt";
 import { AGENT_WEB_SEARCH_RELEASED } from "@/ee/agent-chat/agent-web-search";
 import type { AgentTurnWorkflowPayload } from "@/workflows/agent-turn";
 
-const serializeAgentWikiCatalog = (value: Parameters<typeof serializeAgentWikiCatalogWithBaseUrl>[0]) =>
-  serializeAgentWikiCatalogWithBaseUrl(value, "https://example.invalid");
-
 const CLIENT_REQUEST_ID = "00000000-0000-4000-8000-000000000001";
 const CONVERSATION_ID = "00000000-0000-4000-8000-000000000002";
 const PAGE_ID = "00000000-0000-4000-8000-000000000003";
-const RELEVANT_ID = "00000000-0000-4000-8000-000000000004";
 
-function catalogData(excerpt = "Current workspace guidance", relevantMarkdown = "Read Voice before drafting replies.") {
+function catalogData(excerpt = "Current workspace guidance") {
   return {
     items: [
       {
@@ -67,20 +60,6 @@ function catalogData(excerpt = "Current workspace guidance", relevantMarkdown = 
         title: "Voice",
         excerpt,
         url: `http://localhost:4000/wiki?page=${PAGE_ID}`,
-        createdAt: new Date("2026-09-01T12:00:00Z"),
-        updatedAt: new Date("2026-09-13T12:00:00Z"),
-      },
-    ],
-    relevantPages: [
-      {
-        id: RELEVANT_ID,
-        title: "Reply guidance",
-        excerpt: "Matched reply guidance",
-        url: `http://localhost:4000/wiki?page=${RELEVANT_ID}`,
-        markdownPreview: relevantMarkdown,
-        previewOffset: 0,
-        previewEnd: relevantMarkdown.length,
-        totalChars: relevantMarkdown.length,
         createdAt: new Date("2026-09-01T12:00:00Z"),
         updatedAt: new Date("2026-09-13T12:00:00Z"),
       },
@@ -181,13 +160,9 @@ describe("Workspace Wiki admission bootstrap", () => {
         )
       : state.interactor.invoke(input));
     expect(result).toMatchObject({ ok: true, data: { disposition: "run" } });
-    expect(state.catalog.invoke).toHaveBeenCalledExactlyOnceWith({
-      page: 1,
-      query: input.text,
-    });
+    expect(state.catalog.invoke).toHaveBeenCalledExactlyOnceWith({ page: 1 });
     const payload = state.payload();
     expect(payload.wikiCatalog).toBe(serializeAgentWikiCatalog(catalogData()));
-    expect(payload.wikiCatalog).toContain("Read Voice before drafting replies.");
     expect(payload.surface).toBe(surface);
     const systemPrompt = buildAgentSystemPrompt({
       userName: payload.userName,
@@ -208,8 +183,10 @@ describe("Workspace Wiki admission bootstrap", () => {
       }),
     );
     const execution = buildAgentProviderContext(systemPrompt, payload.messages, [], payload.wikiCatalog);
-    const referenceMessages = agentWikiContextMessages(payload.wikiCatalog);
-    expect(execution.messages.slice(0, referenceMessages.length)).toEqual(referenceMessages);
+    expect(execution.messages).toEqual([
+      ...agentWikiContextMessages(payload.wikiCatalog),
+      { role: "user", content: input.text },
+    ]);
     expect(definitions).toHaveBeenCalledWith({
       servingProvider: admission.model.servingProvider,
       locale: "en",
@@ -220,11 +197,9 @@ describe("Workspace Wiki admission bootstrap", () => {
   });
 
   it.each(["chat", "routine"] as const)(
-    "carries a query-matched page outside the first ten into a %s turn without promoting it to system instructions",
+    "carries only the first catalog page as metadata into a %s turn without promoting it to system instructions",
     async (surface) => {
       const state = fixture();
-      const matchedId = "10000000-0000-4000-8000-000000000011";
-      const linkedId = "20000000-0000-4000-8000-000000000012";
       const firstTen = Array.from({ length: 10 }, (_, index) => ({
         id: `00000000-0000-4000-8000-${String(index + 1).padStart(12, "0")}`,
         title: `Created page ${index + 1}`,
@@ -233,33 +208,9 @@ describe("Workspace Wiki admission bootstrap", () => {
         createdAt: new Date(`2026-09-${String(index + 1).padStart(2, "0")}T12:00:00Z`),
         updatedAt: new Date("2026-09-13T12:00:00Z"),
       }));
-      const matchedMarkdown = [
-        "Refunds above EUR 500 go to the support lead.",
-        `Read [Refund exceptions](/wiki?page=${linkedId}) before answering.`,
-      ].join("\n\n");
       state.catalog.invoke.mockResolvedValue({
         ok: true,
-        data: {
-          items: firstTen,
-          relevantPages: [
-            {
-              id: matchedId,
-              title: "Refund escalation",
-              excerpt: "Refunds above EUR 500 go to the support lead.",
-              url: `http://localhost:4000/wiki?page=${matchedId}`,
-              markdownPreview: matchedMarkdown,
-              previewOffset: 0,
-              previewEnd: matchedMarkdown.length,
-              totalChars: matchedMarkdown.length,
-              createdAt: new Date("2026-09-20T12:00:00Z"),
-              updatedAt: new Date("2026-09-20T12:00:00Z"),
-            },
-          ],
-          total: 11,
-          page: 1,
-          nextPage: 2,
-          truncated: true,
-        },
+        data: { items: firstTen, total: 11, page: 1, nextPage: 2, truncated: true },
       });
       const input = {
         clientRequestId: CLIENT_REQUEST_ID,
@@ -277,33 +228,20 @@ describe("Workspace Wiki admission bootstrap", () => {
         : state.interactor.invoke(input));
 
       expect(result).toMatchObject({ ok: true, data: { disposition: "run" } });
-      expect(state.catalog.invoke).toHaveBeenCalledExactlyOnceWith({
-        page: 1,
-        query: input.text,
-      });
+      expect(state.catalog.invoke).toHaveBeenCalledExactlyOnceWith({ page: 1 });
       const payload = state.payload();
       const serialized = JSON.parse(payload.wikiCatalog ?? "null") as {
         wiki: {
-          items: Array<{ id: string }>;
-          relevantPages: Array<{ id: string; markdownPreview: string }>;
+          items: Array<{ id: string; title: string; url: string; excerpt: string }>;
           total: number;
           nextPage: number | null;
           truncated: boolean;
         };
       };
-      expect(serialized.wiki.items).toHaveLength(10);
-      expect(serialized.wiki.items.map(({ id }) => id)).not.toContain(matchedId);
-      expect(serialized.wiki.relevantPages).toEqual([
-        expect.objectContaining({
-          id: matchedId,
-          markdownPreview: matchedMarkdown,
-        }),
-      ]);
-      expect(serialized.wiki).toMatchObject({
-        total: 11,
-        nextPage: 2,
-        truncated: true,
-      });
+      expect(serialized.wiki.items.map(({ id }) => id)).toEqual(firstTen.map(({ id }) => id));
+      expect(Object.keys(serialized.wiki.items[0])).toEqual(["id", "title", "url", "excerpt"]);
+      expect(serialized.wiki).toMatchObject({ total: 11, nextPage: 2, truncated: true });
+      expect(serialized.wiki).not.toHaveProperty("relevantPages");
 
       const systemPrompt = buildAgentSystemPrompt({
         userName: payload.userName,
@@ -314,12 +252,78 @@ describe("Workspace Wiki admission bootstrap", () => {
       });
       expect(systemPrompt).toContain("follow useful Wiki links");
       expect(systemPrompt).toContain("Report gaps or conflicts");
-      expect(systemPrompt).not.toContain("Refunds above EUR 500");
-      expect(buildAgentProviderContext(systemPrompt, payload.messages, [], payload.wikiCatalog).messages[0]).toEqual(
-        expect.objectContaining({ role: "user" }),
-      );
+      expect(systemPrompt).not.toContain("General workspace page");
+      expect(buildAgentProviderContext(systemPrompt, payload.messages, [], payload.wikiCatalog).messages).toEqual([
+        ...agentWikiContextMessages(payload.wikiCatalog),
+        { role: "user", content: input.text },
+      ]);
     },
   );
+
+  it("keeps the previous question in the replayed history when a Wiki catalog exists", async () => {
+    const state = fixture();
+    state.catalog.invoke.mockResolvedValue({
+      ok: true,
+      data: {
+        items: Array.from({ length: 10 }, (_, index) => ({
+          id: `00000000-0000-4000-8000-${String(index + 1).padStart(12, "0")}`,
+          title: `Workspace page ${index + 1} ${"T".repeat(100)}`,
+          excerpt: "E".repeat(200),
+          url: `http://localhost:4000/wiki?page=${index + 1}`,
+          createdAt: new Date("2026-09-01T12:00:00Z"),
+          updatedAt: new Date("2026-09-13T12:00:00Z"),
+        })),
+        total: 10,
+        page: 1,
+        nextPage: null,
+        truncated: false,
+      },
+    });
+    const previousQuestion = `Which of my deals are in Negotiation? ${"q".repeat(360)}`;
+    const history = [
+      { id: "m1", role: "user", text: previousQuestion },
+      { id: "m2", role: "assistant", text: "a".repeat(1_800) },
+      { id: "m3", role: "user", text: "And which one closes first?" },
+      { id: "m4", role: "assistant", text: "b".repeat(2_600) },
+    ];
+    state.repo.admitAgentTurnOrThrow.mockImplementation((args) =>
+      Promise.resolve({
+        conversationId: args.conversationId,
+        userMessageId: args.turn.userMessageId,
+        recentMessages: [
+          ...history.map(({ id, role, text }) => ({ id, role, parts: [{ type: "text", text }] })),
+          { id: args.turn.userMessageId, role: "user", parts: [{ type: "text", text: args.title }] },
+        ],
+      }),
+    );
+
+    await state.interactor.invoke({
+      clientRequestId: CLIENT_REQUEST_ID,
+      text: "Draft a follow-up for the second one",
+      retry: false,
+    });
+
+    const payload = state.payload();
+    expect(payload.wikiCatalog).not.toBeNull();
+    expect(payload.messages).toEqual([
+      ...history.map(({ role, text }) => ({ role, text })),
+      { role: "user", text: "Draft a follow-up for the second one" },
+    ]);
+  });
+
+  it("sends no Wiki reference for an empty Wiki", async () => {
+    const state = fixture();
+    state.catalog.invoke.mockResolvedValue({
+      ok: true,
+      data: { items: [], total: 0, page: 1, nextPage: null, truncated: false },
+    });
+    await state.interactor.invoke({
+      clientRequestId: CLIENT_REQUEST_ID,
+      text: "Hello",
+      retry: false,
+    });
+    expect(state.payload().wikiCatalog).toBeNull();
+  });
 
   it("loads an edit on the next admission rather than reusing a cached catalog", async () => {
     const state = fixture();
@@ -329,10 +333,7 @@ describe("Workspace Wiki admission bootstrap", () => {
       retry: false,
     });
     const first = state.payload().wikiCatalog;
-    state.catalog.invoke.mockResolvedValue({
-      ok: true,
-      data: catalogData("Edited guidance", "Read the updated Voice page first."),
-    });
+    state.catalog.invoke.mockResolvedValue({ ok: true, data: catalogData("Edited guidance") });
     await state.interactor.invoke({
       clientRequestId: PAGE_ID,
       text: "Next request",
@@ -340,8 +341,6 @@ describe("Workspace Wiki admission bootstrap", () => {
     });
     expect(first).toContain("Current workspace guidance");
     expect(state.payload().wikiCatalog).toContain("Edited guidance");
-    expect(state.payload().wikiCatalog).toContain("Read the updated Voice page first.");
-    expect(state.payload().wikiCatalog).not.toContain("Read Voice before drafting replies.");
     expect(state.payload().wikiCatalog).not.toContain("Current workspace guidance");
     expect(state.catalog.invoke).toHaveBeenCalledTimes(2);
   });
@@ -434,7 +433,8 @@ describe("Workspace Wiki admission bootstrap", () => {
       workflow.indexOf("async function authorizedWikiCatalog("),
       workflow.indexOf("authorizedWikiCatalog.maxRetries"),
     );
-    expect(authorization).toContain("getGetWikiCatalogInteractor().invoke({ page: 1 })");
+    expect(authorization).toContain("getGetWikiPagesInteractor().invoke({ page: 1, pageSize: 5 })");
+    expect(authorization).not.toContain("getGetWikiCatalogInteractor");
     expect(authorization).toContain("return payload.wikiCatalog ?? null");
     expect(authorization).toContain("AppErrorCode.permissionDenied) return null");
     expect(authorization).not.toContain("JSON.stringify(result.data)");

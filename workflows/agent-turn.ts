@@ -366,13 +366,13 @@ readAgentPublicPage.maxRetries = 0;
 async function authorizedWikiCatalog(payload: AgentTurnWorkflowPayload): Promise<string | null> {
   "use step";
   if (!payload.wikiCatalog) return null;
-  const { getGetWikiCatalogInteractor } = await import("@/core/di");
+  const { getGetWikiPagesInteractor } = await import("@/core/di");
   const { AppErrorCode, appErrorDetails } = await import("@/core/errors/app-errors");
   const { getTenantUser } = await import("@/core/decorators/tenant-context");
   return runAsBackgroundTenant(payload.userId, async () => {
     try {
       if (getTenantUser().companyId !== payload.companyId) return null;
-      const result = await getGetWikiCatalogInteractor().invoke({ page: 1 });
+      const result = await getGetWikiPagesInteractor().invoke({ page: 1, pageSize: 5 });
       if (!result.ok) throw new Error("Workspace Wiki catalog could not be authorized.");
       return payload.wikiCatalog ?? null;
     } catch (error) {

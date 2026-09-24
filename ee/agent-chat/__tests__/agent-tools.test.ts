@@ -44,7 +44,7 @@ import {
   resolveAgentTurnBudget,
 } from "../agent-budget-policy";
 import { conservativeAgentInitialContextBytes } from "../agent-provider-context";
-import { serializeAgentWikiCatalog as serializeAgentWikiCatalogWithBaseUrl } from "../agent-wiki-context";
+import { serializeAgentWikiCatalog } from "../agent-wiki-context";
 import { MODEL_CATALOG } from "../model-catalog";
 import { buildAgentSystemPrompt } from "../system-prompt";
 import { AGENT_UI_TARGETS } from "../ui-targets";
@@ -58,9 +58,6 @@ import {
   isAgentToolCancellation,
   type AgentToolDeps,
 } from "../agent-tools";
-
-const serializeAgentWikiCatalog = (value: Parameters<typeof serializeAgentWikiCatalogWithBaseUrl>[0]) =>
-  serializeAgentWikiCatalogWithBaseUrl(value, "https://example.invalid");
 
 function deps(overrides: Partial<AgentToolDeps> = {}): AgentToolDeps {
   return {
@@ -299,7 +296,6 @@ describe("agent tools", () => {
           createdAt: new Date("2026-09-13T00:00:00.000Z"),
           updatedAt: new Date("2026-09-13T00:00:00.000Z"),
         })),
-        relevantPages: [],
         total: 20,
         page: 1,
         nextPage: 2,

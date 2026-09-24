@@ -216,37 +216,32 @@ describeDatabase("Workspace Wiki public boundaries on PostgreSQL", () => {
     });
   });
 
-  it("does not let request scaffolding crowd out the distinctive automatic Wiki match", async () => {
+  it("searches natural-language requests by their distinctive terms, not one-letter words", async () => {
     const created = await create(user, [
       ...Array.from({ length: 3 }, (_, index) => ({
         title: `General guidance ${index + 1}`,
-        markdown: "What is our current approach? ".repeat(80),
+        markdown: "What is our current approach? I think a plan is in place. ".repeat(80),
       })),
       {
         title: "Returns",
         markdown: `${"General background. ".repeat(80)}\n\nRefund policy requires manager approval.`,
       },
+      { title: "Customer onboarding", markdown: "Start every onboarding with a kickoff call." },
     ]);
     if (!created.ok) throw new Error("Wiki fixtures were not created.");
-    const target = created.data[3];
+    const search = (query: string) =>
+      runWithTenant(user, () =>
+        new SearchWikiPagesInteractor(new PrismaWikiPageRepo()).invoke({ query, page: 1, pageSize: 5 }),
+      );
 
-    const catalog = await runWithTenant(user, () =>
-      new GetWikiCatalogInteractor(new PrismaWikiPageRepo()).invoke({
-        page: 1,
-        query: "What is our refund policy?",
-      }),
-    );
+    const refund = await search("What is our refund policy?");
+    expect(refund).toMatchObject({ ok: true, data: { total: 1, items: [{ id: created.data[3].id }] } });
+    if (!refund.ok) throw new Error("Wiki search failed.");
+    expect(refund.data.items[0].snippet).toContain("Refund policy requires manager approval");
 
-    expect(catalog).toMatchObject({
+    expect(await search("how do i onboard a customer")).toMatchObject({
       ok: true,
-      data: {
-        relevantPages: [
-          {
-            id: target.id,
-            markdownPreview: expect.stringContaining("Refund policy requires manager approval"),
-          },
-        ],
-      },
+      data: { total: 1, items: [{ id: created.data[4].id, snippet: "Start every onboarding with a kickoff call." }] },
     });
   });
 
@@ -303,7 +298,7 @@ describeDatabase("Workspace Wiki public boundaries on PostgreSQL", () => {
     });
   });
 
-  it("finds interior CJK terms for manual search and automatic catalog discovery", async () => {
+  it("finds interior CJK terms in search without crossing tenants", async () => {
     const created = await create(user, [
       {
         title: "客户手册",
@@ -335,24 +330,15 @@ describeDatabase("Workspace Wiki public boundaries on PostgreSQL", () => {
       data: { total: 1, items: [{ id: page.id, title: "客户手册" }] },
     });
 
-    const catalog = await runWithTenant(user, () =>
-      new GetWikiCatalogInteractor(new PrismaWikiPageRepo()).invoke({
-        page: 1,
+    const question = await runWithTenant(user, () =>
+      new SearchWikiPagesInteractor(new PrismaWikiPageRepo()).invoke({
         query: "如何处理支持请求？",
+        page: 1,
+        pageSize: 5,
       }),
     );
-    expect(catalog).toMatchObject({
-      ok: true,
-      data: {
-        relevantPages: [
-          {
-            id: page.id,
-            markdownPreview: expect.stringContaining("客户支持流程"),
-          },
-        ],
-      },
-    });
-    expect(JSON.stringify(catalog)).not.toContain("其他租户");
+    expect(question).toMatchObject({ ok: true, data: { total: 1, items: [{ id: page.id }] } });
+    expect(JSON.stringify(question)).not.toContain("其他租户");
 
     expect(
       await runWithTenant(user, () =>
@@ -365,20 +351,6 @@ describeDatabase("Workspace Wiki public boundaries on PostgreSQL", () => {
     ).toMatchObject({
       ok: true,
       data: { total: 1, items: [{ title: "고객 안내서" }] },
-    });
-
-    const longPrompt = `${Array.from({ length: 80 }, (_, index) => `generic${index}`).join(" ")} 支持`;
-    const discovered = await runWithTenant(user, () =>
-      new GetWikiCatalogInteractor(new PrismaWikiPageRepo()).invoke({
-        page: 1,
-        query: longPrompt,
-      }),
-    );
-    expect(discovered).toMatchObject({
-      ok: true,
-      data: {
-        relevantPages: expect.arrayContaining([expect.objectContaining({ id: page.id })]),
-      },
     });
   });
 
@@ -414,7 +386,7 @@ describeDatabase("Workspace Wiki public boundaries on PostgreSQL", () => {
     expect(JSON.stringify([first, second])).not.toContain("Later content");
   });
 
-  it("prefetches a tenant-scoped relevant page beyond the first catalog page", async () => {
+  it("searches the whole Wiki with a long request without crossing tenants", async () => {
     for (let batch = 0; batch < 2; batch++) {
       const created = await create(
         user,
@@ -435,36 +407,18 @@ describeDatabase("Workspace Wiki public boundaries on PostgreSQL", () => {
     if (!entry.ok || !foreignEntry.ok) throw new Error("Wiki entry fixtures were not created.");
     const longQuery = `${Array.from({ length: 40 }, (_, index) => `a${index}`).join(" ")} zephyr escalation`;
 
-    const first = await runWithTenant(user, () =>
-      new GetWikiCatalogInteractor(new PrismaWikiPageRepo()).invoke({
-        page: 1,
-        query: longQuery,
-      }),
-    );
-    const second = await runWithTenant(user, () =>
-      new GetWikiCatalogInteractor(new PrismaWikiPageRepo()).invoke({
-        page: 2,
-        query: longQuery,
-      }),
+    const searched = await runWithTenant(user, () =>
+      new SearchWikiPagesInteractor(new PrismaWikiPageRepo()).invoke({ query: longQuery, page: 1, pageSize: 5 }),
     );
 
-    for (const catalog of [first, second]) {
-      expect(catalog).toMatchObject({
-        ok: true,
-        data: {
-          relevantPages: [
-            {
-              id: entry.data[0].id,
-              title: "Escalations",
-              markdownPreview: "The zephyr escalation requires a manager.",
-            },
-          ],
-        },
-      });
-      expect(JSON.stringify(catalog)).not.toContain("Foreign zephyr guidance");
-    }
-    if (!first.ok) throw new Error("Wiki catalog failed.");
-    expect(first.data.items.map((item) => item.id)).not.toContain(entry.data[0].id);
+    expect(searched).toMatchObject({
+      ok: true,
+      data: {
+        total: 1,
+        items: [{ id: entry.data[0].id, title: "Escalations", snippet: "The zephyr escalation requires a manager." }],
+      },
+    });
+    expect(JSON.stringify(searched)).not.toContain("Foreign zephyr guidance");
   });
 
   it("treats AGENTS.md as an ordinary duplicate title", async () => {

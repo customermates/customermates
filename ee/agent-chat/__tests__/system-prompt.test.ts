@@ -41,6 +41,7 @@ describe("system prompt", () => {
     expect(prompt).toContain(WIKI_REFERENCE_MATERIAL_RULE);
     expect(prompt.split(WIKI_REFERENCE_MATERIAL_RULE)).toHaveLength(2);
     expect(prompt).not.toMatch(/Tenant-authored|reference data\. Use relevant/);
+    expect(prompt).not.toContain("preview");
   });
 
   it("shares the CRM data invariants with the MCP server instructions", () => {

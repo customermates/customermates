@@ -68,7 +68,6 @@ const catalog = {
       updatedAt: UPDATED_AT,
     },
   ],
-  relevantPages: [],
   total: 1,
   page: 1,
   nextPage: null,

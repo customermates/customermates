@@ -90,7 +90,6 @@ const catalog = {
       url: `/wiki?page=${PAGE_ID}`,
     },
   ],
-  relevantPages: [],
   total: 1,
   page: 1,
   nextPage: null,
@@ -374,182 +373,32 @@ describe("managed Wiki retrieval tools", () => {
     expect(calls.fetch).not.toHaveBeenCalled();
   });
 
-  it("exposes catalog continuation through the shared workspace tool and omits it after Read is revoked", async () => {
-    const tools = getAgentAiTools(dependencies(), { webSearchEnabled: false });
-    const result = await execute(tools.get_workspace_context, { wikiPage: 2 });
-    expect(result.ok).toBe(true);
-    expect(decode(result.result)).toMatchObject({
-      wiki: { total: 1, items: [{ excerpt: "Current catalog guidance" }] },
-    });
-    expect(calls.catalog).toHaveBeenCalledWith({ page: 2, query: undefined });
-    calls.catalog.mockRejectedValue(new ForbiddenError("Wiki Read revoked"));
-    const denied = await execute(tools.get_workspace_context, {});
-    expect(denied.ok).toBe(true);
-    expect(decode(denied.result)).not.toHaveProperty("wiki");
-    expect(denied.result).not.toContain("Current catalog guidance");
-  });
-
-  it("keeps core workspace data and relevant Wiki previews in one hosted result", async () => {
-    const markdownChunk = "A".repeat(4_000);
-    calls.catalog.mockResolvedValue({
-      ok: true,
-      data: {
-        items: Array.from({ length: 10 }, (_, index) => ({
-          ...page,
-          id: `00000000-0000-4000-8000-${String(index).padStart(12, "0")}`,
-          title: `Page ${index} ${"T".repeat(110)}`,
-          excerpt: "E".repeat(200),
-          url: `/wiki?page=${index}`,
-        })),
-        relevantPages: [
-          {
-            ...page,
-            title: "Relevant guide",
-            excerpt: "Matched guidance",
-            url: `/wiki?page=${PAGE_ID}`,
-            markdownPreview: markdownChunk,
-            previewOffset: 0,
-            previewEnd: 4_000,
-            totalChars: 8_000,
-          },
-        ],
-        total: 20,
-        page: 1,
-        nextPage: 2,
-        truncated: true,
-      },
-    });
-    calls.roles.mockResolvedValue({
-      ok: true,
-      data: { items: [{ id: "role-1", name: "Support" }] },
-    });
+  it("keeps the Wiki catalog out of hosted get_workspace_context because each turn already carries it", async () => {
+    calls.roles.mockResolvedValue({ ok: true, data: { items: [{ id: "role-1", name: "Support" }] } });
     calls.accounts.mockResolvedValue({
       ok: true,
       data: [{ id: "account-1", provider: "email", status: "connected" }],
     });
+    const options = { webSearchEnabled: false };
+    const tools = getAgentAiTools(dependencies(), options);
+    const definition = getAgentAiToolDefinitions(undefined, options).find(
+      ({ name }) => name === "get_workspace_context",
+    );
 
-    const result = await execute(getAgentAiTools(dependencies()).get_workspace_context, {});
+    const result = await execute(tools.get_workspace_context, {});
 
     expect(result.ok).toBe(true);
-    expect(result.result.length).toBeLessThanOrEqual(6_000);
-    expect(result.result).not.toContain("[truncated:");
-    const decoded = decode(result.result) as {
-      user: { id: string };
-      company: { id: string };
-      roles: Array<{ id: string }>;
-      connectedAccounts: Array<{ id: string }>;
-      wiki: {
-        relevantPages: Array<{
-          markdownPreview: string;
-          previewOffset: number;
-          previewEnd: number;
-          shortened: boolean;
-        }>;
-        items: unknown[];
-      };
-    };
-    expect(decoded.user).toEqual(expect.objectContaining({ id: "user" }));
-    expect(decoded.company).toEqual(expect.objectContaining({ id: "company" }));
-    expect(decoded.roles).toEqual([expect.objectContaining({ id: "role-1" })]);
-    expect(decoded.connectedAccounts).toEqual([expect.objectContaining({ id: "account-1" })]);
-    expect(decoded.wiki.relevantPages[0].markdownPreview.length).toBeGreaterThan(0);
-    expect(decoded.wiki.relevantPages[0].markdownPreview.length).toBeLessThan(markdownChunk.length);
-    expect(decoded.wiki.relevantPages[0].previewEnd).toBe(decoded.wiki.relevantPages[0].markdownPreview.length);
-    expect(decoded.wiki.relevantPages[0].shortened).toBe(true);
-    expect(decoded.wiki.items).toHaveLength(10);
-  });
-
-  it("shrinks escape-heavy relevant previews on a code-point boundary without truncating the hosted payload", async () => {
-    const markdownChunk = `${'"\\n'.repeat(1_999)}🌍`;
-    calls.catalog.mockResolvedValue({
-      ok: true,
-      data: {
-        items: Array.from({ length: 10 }, (_, index) => ({
-          ...page,
-          id: `00000000-0000-4000-8000-${String(index).padStart(12, "0")}`,
-          title: `Page ${index} ${"T".repeat(110)}`,
-          excerpt: "E".repeat(200),
-          url: `/wiki?page=${index}`,
-        })),
-        relevantPages: [
-          {
-            ...page,
-            title: "Relevant guide",
-            excerpt: "Matched guidance",
-            url: `/wiki?page=${PAGE_ID}`,
-            markdownPreview: markdownChunk,
-            previewOffset: 0,
-            previewEnd: markdownChunk.length,
-            totalChars: markdownChunk.length * 2,
-          },
-        ],
-        total: 20,
-        page: 1,
-        nextPage: 2,
-        truncated: true,
-      },
+    expect(decode(result.result)).toMatchObject({
+      user: { id: "user" },
+      company: { id: "company" },
+      roles: [{ id: "role-1" }],
+      connectedAccounts: [{ id: "account-1" }],
     });
-
-    const result = await execute(getAgentAiTools(dependencies()).get_workspace_context, {});
-
-    expect(result.ok).toBe(true);
-    expect(result.result.length).toBeLessThanOrEqual(6_000);
-    expect(result.result).not.toContain("[truncated:");
-    expect(result.result).not.toContain("�");
-    const decoded = decode(result.result) as {
-      wiki: {
-        relevantPages: Array<{
-          markdownPreview: string;
-          previewEnd: number;
-          shortened: boolean;
-        }>;
-      };
-    };
-    expect(decoded.wiki.relevantPages[0].markdownPreview.length).toBeGreaterThan(0);
-    expect(decoded.wiki.relevantPages[0].markdownPreview.endsWith("\ud83c")).toBe(false);
-    expect(decoded.wiki.relevantPages[0].previewEnd).toBe(decoded.wiki.relevantPages[0].markdownPreview.length);
-    expect(decoded.wiki.relevantPages[0].previewEnd).toBeLessThan(markdownChunk.length);
-    expect(decoded.wiki.relevantPages[0].shortened).toBe(true);
-  });
-
-  it("does not split a same-origin absolute Wiki link while shrinking hosted workspace context", async () => {
-    const link = `[Support](http://localhost:4000/wiki?page=${PAGE_ID})`;
-    const markdownPreview = `${"A".repeat(100)}${link}${"B".repeat(4_000)}`;
-    calls.catalog.mockResolvedValue({
-      ok: true,
-      data: {
-        items: Array.from({ length: 10 }, (_, index) => ({
-          ...page,
-          id: `00000000-0000-4000-8000-${String(index).padStart(12, "0")}`,
-          title: "T".repeat(120),
-          excerpt: "E".repeat(200),
-        })),
-        relevantPages: Array.from({ length: 3 }, (_, index) => ({
-          ...page,
-          id: `10000000-0000-4000-8000-${String(index).padStart(12, "0")}`,
-          markdownPreview,
-          previewOffset: 0,
-          previewEnd: markdownPreview.length,
-          totalChars: markdownPreview.length,
-        })),
-        total: 10,
-        page: 1,
-        nextPage: null,
-        truncated: false,
-      },
-    });
-
-    const result = await execute(getAgentAiTools(dependencies()).get_workspace_context, {});
-
-    expect(result.ok).toBe(true);
-    const decoded = decode(result.result) as {
-      wiki: { relevantPages: Array<{ markdownPreview: string }> };
-    };
-    for (const preview of decoded.wiki.relevantPages) {
-      const containsLinkStart = preview.markdownPreview.includes("[Support](");
-      expect(containsLinkStart ? preview.markdownPreview.includes(link) : true).toBe(true);
-      expect(preview.markdownPreview).not.toMatch(/\[Support\]\(http:\/\/localhost:4000\/wiki\?page=[^)]*$/u);
-    }
+    expect(decode(result.result)).not.toHaveProperty("wiki");
+    expect(result.result).not.toContain("Current catalog guidance");
+    expect(calls.catalog).not.toHaveBeenCalled();
+    expect(definition?.description).not.toMatch(/Wiki|wikiPage/);
+    expect((definition?.inputSchema as { properties?: object }).properties ?? {}).toEqual({});
   });
 });
 

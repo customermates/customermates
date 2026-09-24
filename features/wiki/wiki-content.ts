@@ -1,7 +1,6 @@
 import { editorSchema } from "@/components/editor/editor-extensions";
 import { parseMarkdownToJSON } from "@/components/editor/editor.utils";
-import { wikiCodePointBoundary, wikiMarkdownChunk } from "./wiki-page-chunk";
-import { WIKI_RELEVANT_PREVIEW_MAX_CHARS } from "./wiki.schema";
+import { wikiCodePointBoundary } from "./wiki-page-chunk";
 
 export const WIKI_EXCERPT_MAX_LENGTH = 200;
 const WIKI_SUBSTRING_SEARCH_SCRIPT =
@@ -174,10 +173,6 @@ export function wikiExcerpt(markdown: string): string {
     .trimEnd()}…`;
 }
 
-export function wikiSearchTerms(query: string): string[] {
-  return allWikiSearchTerms(query).slice(0, 32);
-}
-
 function allWikiSearchTerms(query: string): string[] {
   const segmenter = new Intl.Segmenter("und", { granularity: "word" });
   const expand = (term: string) => {
@@ -224,13 +219,6 @@ function wikiSearchSnippetAtMatch(compact: string, match: number): string {
   return `${prefix}${snippet}${suffix}`;
 }
 
-function wikiSearchSnippetForTerms(markdown: string, terms: string[]): string {
-  const compact = wikiPlainText(markdown);
-  const normalized = compact.toLocaleLowerCase();
-  const matches = terms.map((term) => normalized.indexOf(term)).filter((index) => index >= 0);
-  return wikiSearchSnippetAtMatch(compact, matches.length > 0 ? Math.min(...matches) : -1);
-}
-
 function wikiDistinctiveMatch(value: string, terms: string[]): number {
   const ranked = terms
     .map((term, index) => ({ term, index, length: Array.from(term).length }))
@@ -242,27 +230,8 @@ function wikiDistinctiveMatch(value: string, terms: string[]): number {
   return -1;
 }
 
-export function wikiSearchSnippet(markdown: string, query: string): string {
-  return wikiSearchSnippetForTerms(markdown, wikiSearchTerms(query));
-}
-
 export function wikiRelevantSearchSnippet(markdown: string, query: string): string {
   const compact = wikiPlainText(markdown);
   const match = wikiDistinctiveMatch(compact.toLocaleLowerCase(), wikiRelevantSearchTerms(query));
   return wikiSearchSnippetAtMatch(compact, match);
-}
-
-export function wikiRelevantMarkdownPreview(markdown: string, query: string, baseUrl: string) {
-  const normalized = markdown.toLocaleLowerCase();
-  const match = Math.max(0, wikiDistinctiveMatch(normalized, wikiRelevantSearchTerms(query)));
-  const earliest = Math.max(0, match - 300);
-  const paragraph = markdown.lastIndexOf("\n\n", match);
-  const requestedOffset = paragraph >= earliest ? paragraph + 2 : earliest;
-  const chunk = wikiMarkdownChunk(markdown, requestedOffset, WIKI_RELEVANT_PREVIEW_MAX_CHARS, baseUrl);
-  return {
-    markdownPreview: chunk.markdownChunk,
-    previewOffset: chunk.offset,
-    previewEnd: chunk.nextOffset ?? chunk.totalChars,
-    totalChars: chunk.totalChars,
-  };
 }

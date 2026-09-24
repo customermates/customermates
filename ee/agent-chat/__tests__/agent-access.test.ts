@@ -86,7 +86,6 @@ const emptyWikiCatalog = () => ({
     ok: true,
     data: {
       items: [],
-      relevantPages: [],
       total: 0,
       page: 1,
       nextPage: null,

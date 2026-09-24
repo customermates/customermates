@@ -33,8 +33,8 @@ import { internalToolIdentity } from "./tool-identity";
 import { providerWireInputSchema } from "./provider-safe-json-schema";
 import type { AgentToolInputResult } from "./agent-tool-input";
 import { getAgentWebSearchTool, AGENT_WEB_SEARCH_RELEASED } from "./agent-web-search";
-import { hostedWorkspaceContextText } from "./agent-workspace-context";
 import { wikiHomepageSetupTool } from "@/features/mcp-tools/wiki.mcp-tools";
+import { hostedWorkspaceContextTool } from "@/features/mcp-tools/workspace.mcp-tools";
 import { localizeWikiPageUrls } from "@/features/wiki/wiki-links";
 import { env } from "@/env";
 
@@ -258,12 +258,6 @@ function crmTool(mcp: (typeof ALL_MCP_TOOLS)[number], deps: AgentToolDeps) {
     execute: async (input: unknown, { toolCallId }) => {
       const execute = async () => {
         const outcome = await executeMcpTool(mcp, [input]);
-        if (mcp.name === "get_workspace_context" && outcome.ok && outcome.structuredContent) {
-          return {
-            ok: true,
-            result: hostedWorkspaceContextText(outcome.structuredContent, deps.resultMaxChars, env.BASE_URL),
-          };
-        }
         return agentToolResult(outcome, deps.resultMaxChars);
       };
       const enrollable = !isReadOnlyTool(mcp) && !hasNonTransactionalEffect(mcp.name);
@@ -349,7 +343,9 @@ function loadToolsetTool() {
 }
 
 export function hostedMcpTools() {
-  return ALL_MCP_TOOLS.filter((mcp) => mcp.name !== "request_support" && !isDeepResearchTool(mcp.name));
+  return ALL_MCP_TOOLS.filter((mcp) => mcp.name !== "request_support" && !isDeepResearchTool(mcp.name)).map((mcp) =>
+    mcp.name === "get_workspace_context" ? hostedWorkspaceContextTool() : mcp,
+  );
 }
 
 export function getAgentAiTools(deps: AgentToolDeps, options: AgentToolOptions = {}): ToolSet {
