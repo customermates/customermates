@@ -735,6 +735,33 @@ describe("agent-turn credit-bounded continuation", () => {
     expect(JSON.stringify(state.writes)).toContain(`localized:AgentChat.runner.${messageKey}`);
   });
 
+  it("keeps the no-write credit-limit copy after a turn that only listed interface targets", async () => {
+    state.definitions.push({
+      name: "list_ui_targets",
+      description: "list_ui_targets",
+      inputSchema: { type: "object" },
+    });
+    state.normalize.mockResolvedValue({ ok: true, input: { query: "deals" } });
+    state.extendReservation.mockResolvedValueOnce({ disposition: "credit_limit" });
+    state.runTools = async ({ messages, executeAndCompleteTool }) => {
+      await executeAndCompleteTool("list_ui_targets", { query: "deals" }, "call-ui-targets");
+      return {
+        finishReason: "length",
+        messages,
+        steps: [streamedStep("Partial response.", "length")],
+      };
+    };
+
+    await runAgentTurn({
+      ...payload,
+      turnBudget: { ...payload.turnBudget, reservedCredits: 1, roundReserveCredits: 2 },
+    });
+
+    expect(state.execute).toHaveBeenCalledTimes(1);
+    expect(JSON.stringify(state.writes)).toContain("localized:AgentChat.runner.creditLimitNoWrite");
+    expect(JSON.stringify(state.writes)).not.toContain('localized:AgentChat.runner.creditLimit"');
+  });
+
   it("blocks the SDK's next internal provider request when a tool-call round exhausts its reservation", async () => {
     state.extendReservation.mockResolvedValueOnce({
       disposition: "credit_limit",

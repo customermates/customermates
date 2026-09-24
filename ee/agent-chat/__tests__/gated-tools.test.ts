@@ -73,8 +73,8 @@ describe("gated-tools", () => {
     for (const tool of ALL_MCP_TOOLS) expect(isReadOnlyTool(tool)).toBe(tool.annotations?.readOnlyHint === true);
   });
 
-  it("counts toolset loading and web access as reads, and an unannotated unknown tool as a write", () => {
-    for (const name of ["load_toolset", "web_search", "read_public_page"])
+  it("counts toolset loading, web access and UI target listing as reads, and an unknown unannotated tool as a write", () => {
+    for (const name of ["load_toolset", "web_search", "read_public_page", "list_ui_targets"])
       expect(isReadOnlyAgentToolCall(name, {}, { toolset: "messaging" })).toBe(true);
     expect(isReadOnlyAgentToolCall("some_future_tool", {}, {})).toBe(false);
   });
