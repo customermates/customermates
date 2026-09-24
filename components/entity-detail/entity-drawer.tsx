@@ -25,6 +25,7 @@ import { EntityDrawerLoadGate } from "@/components/entity-detail/entity-drawer-l
 import { resolveEntityDrawerPageState } from "@/components/entity-detail/entity-detail-page-state";
 import { EntityDetailPersonalizationProvider } from "@/components/entity-detail/entity-detail-personalization";
 import { getP13nAction } from "@/app/actions";
+import { useAgentRecordContext } from "@/app/components/agent-chat/use-agent-record-context";
 
 export const EntityDrawer = observer(() => {
   const t = useTranslations();
@@ -141,6 +142,21 @@ export const EntityDrawer = observer(() => {
     isNew: top?.id === "new",
     isPrepared,
     requestState: detailStore?.entityLoadState ?? "idle",
+  });
+  const currentEntity =
+    drawerState === "content" && topId !== "new" && detailStore?.fetchedEntity?.id === topId
+      ? detailStore.fetchedEntity
+      : null;
+  const currentIdentity =
+    currentEntity && detailConfig && topEntityType
+      ? detailConfig.identity(currentEntity, t, singular(topEntityType))
+      : null;
+
+  useAgentRecordContext({
+    enabled: Boolean(currentIdentity),
+    entityType: topEntityType,
+    recordId: currentEntity?.id ?? null,
+    name: currentIdentity?.name ?? null,
   });
 
   function retry() {

@@ -1,6 +1,6 @@
 import type { NextRequest } from "next/server";
 
-import { beforeEach, describe, expect, it, vi } from "vitest";
+import { afterEach, beforeEach, describe, expect, it, vi } from "vitest";
 
 const invoke = vi.hoisted(() => vi.fn());
 const agentTurnSseStream = vi.hoisted(() => vi.fn());
@@ -38,6 +38,10 @@ function request() {
 
 beforeEach(() => {
   vi.clearAllMocks();
+});
+
+afterEach(() => {
+  vi.unstubAllEnvs();
 });
 
 describe("agent message admission route", () => {
@@ -106,7 +110,35 @@ describe("agent message admission route", () => {
     expect(response.headers.get("x-conversation-id")).toBe(conversationId);
     expect(response.headers.get("x-user-message-id")).toBe(userMessageId);
     expect(response.headers.get("x-client-request-id")).toBe(clientRequestId);
+    expect(response.headers.get("x-agent-benchmark-source-commit")).toBeNull();
     expect(agentTurnSseStream).toHaveBeenCalledWith("wrun_test");
+  });
+
+  it("identifies the local benchmark server build on streamed responses", async () => {
+    vi.stubEnv("LOCAL_AGENT_BENCHMARK", "true");
+    vi.stubEnv("AGENT_BENCHMARK_BUILD_SOURCE", "compiled-source-commit");
+    vi.stubEnv("AGENT_BENCHMARK_SOURCE_COMMIT", "runtime-spoofed-commit");
+    invoke.mockResolvedValue({
+      ok: true,
+      data: {
+        disposition: "run",
+        externalRunId: "wrun_test",
+        userMessageId,
+        clientRequestId,
+        conversationId,
+      },
+    });
+    agentTurnSseStream.mockReturnValue(
+      new ReadableStream({
+        start(controller) {
+          controller.close();
+        },
+      }),
+    );
+
+    const response = await POST(request());
+
+    expect(response.headers.get("x-agent-benchmark-source-commit")).toBe("compiled-source-commit");
   });
 
   it("replays the exact canonical assistant message without invoking the provider", async () => {

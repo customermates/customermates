@@ -56,6 +56,10 @@
         "team": {
           "manage": "Ready to change team access"
         },
+        "views": {
+          "configure": "Ready to change the saved view",
+          "delete": "Ready to permanently delete the saved view"
+        },
         "webhooks": {
           "manage": "Ready to change webhook delivery"
         },
@@ -317,6 +321,23 @@
             "running": "Loading more tools"
           }
         },
+        "views": {
+          "configure": {
+            "done": "Configured the view",
+            "error": "Couldn’t configure the view",
+            "running": "Configuring the view"
+          },
+          "delete": {
+            "done": "Deleted the view",
+            "error": "Couldn’t delete the view",
+            "running": "Deleting the view"
+          },
+          "read": {
+            "done": "Reviewed saved views",
+            "error": "Couldn’t review saved views",
+            "running": "Reviewing saved views"
+          }
+        },
         "webhooks": {
           "manage": {
             "done": "Completed the webhook action",
@@ -394,6 +415,31 @@
     },
     "askAi": "Ask AI",
     "askAiWorking": "Mate is working",
+    "context": {
+      "addAria": "Add context",
+      "addTooltip": "Add context or type /",
+      "namedNewViewLabel": "New {viewType}: {name}",
+      "newViewLabel": "New {viewType}",
+      "noResults": "No matching context",
+      "onThisPage": "On this page",
+      "records": "Records",
+      "remove": "Remove {label}",
+      "searchError": "Couldn’t search records.",
+      "searchPlaceholder": "Search records…",
+      "starter": {
+        "appearance": "Change the layout, grouping, or sorting for this view as follows: ",
+        "create": "Create a new view with these specifications: ",
+        "createNamed": "Create the new view “{name}” with these specifications: ",
+        "filters": "Change the filters and search for this view as follows: ",
+        "timeline": "Change the activity filters or sorting for this view as follows: ",
+        "update": "Update this view as follows: "
+      },
+      "surfaceViewType": "{location} view",
+      "surfaceViewTypeStandalone": "{location} view",
+      "timelineViewType": "Activity view",
+      "timelineViewTypeStandalone": "Activity view",
+      "viewLabel": "{viewType}: {name}"
+    },
     "credits": {
       "blocked": {
         "configuration_unavailable": "The hosted Assistant is temporarily unavailable. Your history remains accessible.",
@@ -421,6 +467,7 @@
       "subtitle": "Ask me anything about your workspace, or tell me what to do and I'll take care of it.",
       "support": "If something doesn't work out, I can email our team with the recent conversation, and they reply by email."
     },
+    "openSavedView": "Open saved view",
     "placeholder": "Ask your CRM…",
     "runner": {
       "cancelled": "This response was stopped.",
@@ -1106,7 +1153,9 @@
       "customFieldInvalidPhone": "The phone value is invalid. Must be in E.164 format (e.g., +491234567890). For multiple phone numbers, separate by comma (e.g., +491234567890, +499876543210).",
       "customFieldInvalidSingleSelect": "The single select value is invalid. Must be one of the allowed options: {validValues}.",
       "customFieldInvalidUrl": "The URL value is invalid. Must be a valid URL format (e.g., https://example.com). For multiple URLs, separate by comma (e.g., https://example.com, https://example.org).",
+      "dataViewAllNameImmutable": "The All view cannot be renamed. Omit name and update only the requested state settings. Read config for supported settings and list for the current state before retrying.",
       "dataViewNotFound": "This saved view was not found.",
+      "dataViewUpdateEmpty": "Provide a name or at least one view setting to update.",
       "dealNotFound": "Deal ID not found or not accessible.",
       "demoMode": "This action is not available in demo mode. Sign in to access all features.",
       "draftMessageNotFound": "That draft could not be found. It may have already been sent or discarded.",
@@ -2023,10 +2072,14 @@
     "selectGroup": "Select group {group}",
     "selectRow": "Select row {id}",
     "views": {
+      "aiLabel": "Ask AI about {name}",
       "all": "All",
       "applied": "Showing {name}",
+      "askAi": "Ask AI",
       "copyLink": "Copy link",
       "createTitle": "New view",
+      "createWithAi": "Create with AI",
+      "createWithAiDescription": "Open AI chat with this view attached, then describe what you want to see.",
       "delete": "Delete view",
       "duplicate": "Duplicate as new view",
       "duplicateName": "{name} copy",
@@ -2393,7 +2446,7 @@
   },
   "GlobalSearch": {
     "clearRecent": "Clear",
-    "emptyDescription": "Search {contacts}, {organizations}, {deals}, and {services} from one place.",
+    "emptyDescription": "Search {contacts}, {organizations}, {deals}, {services}, and {tasks} from one place.",
     "emptyTitle": "Find anything in your workspace",
     "groupRecent": "Recently opened",
     "hintNavigate": "Navigate",

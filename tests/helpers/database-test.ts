@@ -8,7 +8,7 @@ const POSTGRES_PROTOCOLS = new Set(["postgres:", "postgresql:"]);
 let devServerHoldsAppPort: boolean | null = null;
 
 function assertNoDevServerContention() {
-  if (process.env.CI || process.env.RUN_AGENT_EVAL === "true") return;
+  if (process.env.CI) return;
 
   if (devServerHoldsAppPort === null) {
     devServerHoldsAppPort = false;

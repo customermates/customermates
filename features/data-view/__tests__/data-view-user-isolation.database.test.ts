@@ -11,6 +11,7 @@ vi.mock("@/core/validation/zod-error-map-server", () => MOCK_ZOD_MODULE);
 vi.mock("next-intl/server", () => ({ getTranslations: () => Promise.resolve({ raw: (key: string) => key }) }));
 
 import { runWithTenant } from "@/core/decorators/tenant-context";
+import { interactorFailureKind } from "@/core/validation/validation.utils";
 import { getLocalDatabaseTestUrl } from "@/tests/helpers/database-test";
 import { createMockUser } from "@/tests/helpers/mock-user";
 import { ALL_VIEW_KEY } from "@/core/data-view/data-view-keys";
@@ -18,7 +19,9 @@ import { ViewMode } from "@/core/base/base-query-builder";
 import { PrismaP13nRepo } from "@/features/p13n/prisma-p13n.repository";
 
 import { PrismaDataViewRepo } from "../prisma-data-view.repository";
+import { DeleteDataViewInteractor } from "../delete-data-view.interactor";
 import { SaveDataViewStateInteractor } from "../save-data-view-state.interactor";
+import { SelectDataViewInteractor } from "../select-data-view.interactor";
 
 const databaseUrl = getLocalDatabaseTestUrl();
 const describeDatabase = databaseUrl ? describe : describe.skip;
@@ -136,5 +139,28 @@ describeDatabase("data view user isolation on PostgreSQL", () => {
     expect(await asOwner(() => views().findOwnedOrNull(own.id))).toBeNull();
 
     await asColleague(() => views().deleteOwned(own.id));
+  });
+
+  it("never leaves a deleted view selected when selection and deletion race", async () => {
+    const racingView = await asOwner(() =>
+      views().createView({ surfaceKey: SURFACE, name: "Racing view", position: 1, state: {} }),
+    );
+    await asOwner(() => new PrismaP13nRepo().upsertP13n({ p13nId: SURFACE, activeViewKey: ALL_VIEW_KEY }));
+
+    const [selected, deleted] = await Promise.all([
+      asOwner(() =>
+        new SelectDataViewInteractor(views(), new PrismaP13nRepo()).invoke({
+          surfaceKey: SURFACE,
+          viewKey: racingView.id,
+        }),
+      ),
+      asOwner(() => new DeleteDataViewInteractor(views(), new PrismaP13nRepo()).invoke({ id: racingView.id })),
+    ]);
+
+    expect(deleted.ok).toBe(true);
+    if (selected.ok) expect(selected.data.activeViewKey).toBe(racingView.id);
+    else expect(interactorFailureKind(selected.error)).toBe("not_found");
+    expect(await asOwner(() => views().findOwnedOrNull(racingView.id))).toBeNull();
+    expect((await asOwner(() => new PrismaP13nRepo().getP13n(SURFACE)))?.activeViewKey).not.toBe(racingView.id);
   });
 });

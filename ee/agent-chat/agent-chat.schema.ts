@@ -6,8 +6,16 @@ import { type Data } from "@/core/validation/validation.utils";
 
 import type { AgentActivityDescriptor } from "./agent-activity";
 import { AgentActivityDescriptorSchema, describeAgentTool } from "./agent-activity";
+import {
+  AgentContextAttachmentSchema,
+  AgentContextAttachmentsSchema,
+  agentContextProviderPrefix,
+  agentContextsFromMessageParts,
+  type AgentContextAttachment,
+} from "./agent-context";
 import { sanitizeAgentVisibleText, stripLegacyUserPageContextPrefix } from "./agent-output-safety";
 import { internalToolIdentity } from "./tool-identity";
+import { agentViewRequestTarget } from "./agent-page-context";
 
 export const AgentPageContextSchema = z.object({
   route: z.string().max(500),
@@ -16,20 +24,40 @@ export const AgentPageContextSchema = z.object({
 const [firstAppLocale, ...otherAppLocales] = APP_LOCALES;
 const AgentAppLocaleSchema = z.enum([firstAppLocale, ...otherAppLocales]);
 
-export const SendAgentMessageSchema = z.object({
-  conversationId: z.uuid().optional(),
-  clientRequestId: z.uuid(),
-  text: z.string().min(1).max(20000),
-  pageContext: AgentPageContextSchema.optional(),
-  modelKey: z.string().min(1).max(50).optional(),
-  locale: AgentAppLocaleSchema.optional(),
-  retry: z.boolean().default(false),
-});
+export const SendAgentMessageSchema = z
+  .object({
+    conversationId: z.uuid().optional(),
+    clientRequestId: z.uuid(),
+    text: z.string().min(1).max(20000),
+    contexts: AgentContextAttachmentsSchema.optional(),
+    pageContext: AgentPageContextSchema.optional(),
+    modelKey: z.string().min(1).max(50).optional(),
+    locale: AgentAppLocaleSchema.optional(),
+    retry: z.boolean().default(false),
+  })
+  .superRefine((data, refinement) => {
+    const selectedView = data.contexts?.find((context) => context.reference.kind === "dataView");
+    if (!selectedView || selectedView.reference.kind !== "dataView") return;
+    const target = agentViewRequestTarget(data.pageContext?.route);
+    const reference = selectedView.reference;
+    const matches =
+      target.kind === "target" &&
+      target.action === reference.requestedAction &&
+      target.surfaceKey === reference.surfaceKey &&
+      (reference.requestedAction === "create" || target.viewKey === reference.viewKey);
+    if (matches) return;
+    refinement.addIssue({
+      code: "custom",
+      message: "The selected data view context must match the exact page target.",
+      path: ["contexts"],
+    });
+  });
 
 export type SendAgentMessageData = Data<typeof SendAgentMessageSchema>;
 
 export type AgentMessagePart =
   | { type: "text"; text: string }
+  | { type: "context"; context: AgentContextAttachment }
   | {
       type: "activity";
       id: string;
@@ -52,7 +80,7 @@ function includes<T extends string>(values: readonly T[], value: unknown): value
 
 export function clientSafeAgentMessageParts(
   value: unknown,
-  options: { sanitizeText?: boolean; stripLegacyUserContext?: boolean } = {},
+  options: { sanitizeText?: boolean; stripLegacyUserContext?: boolean; allowContext?: boolean } = {},
 ): AgentMessagePart[] {
   if (!Array.isArray(value)) return [];
 
@@ -70,6 +98,11 @@ export function clientSafeAgentMessageParts(
           text: options.sanitizeText ? sanitizeAgentVisibleText(withoutLegacyContext) : withoutLegacyContext,
         },
       ];
+    }
+
+    if (part.type === "context" && options.allowContext) {
+      const context = AgentContextAttachmentSchema.safeParse(part.context);
+      return context.success ? [{ type: "context", context: context.data }] : [];
     }
 
     if (part.type === "activity" && typeof part.id === "string") {
@@ -114,7 +147,7 @@ export function clientSafeAgentMessageParts(
 }
 
 export function hasRenderableAgentMessageParts(parts: readonly AgentMessagePart[]) {
-  return parts.some((part) => part.type !== "text" || part.text.trim().length > 0);
+  return parts.some((part) => part.type !== "context" && (part.type !== "text" || part.text.trim().length > 0));
 }
 
 export function hasSuccessfulAgentMutation(parts: readonly AgentMessagePart[]) {
@@ -173,6 +206,10 @@ export function partsToText(parts: unknown): string {
     .filter((part): part is { type: "text"; text: string } => part?.type === "text" && typeof part.text === "string")
     .map((part) => part.text)
     .join("\n");
+}
+
+export function userMessagePartsToProviderText(parts: unknown): string {
+  return `${agentContextProviderPrefix(agentContextsFromMessageParts(parts))}${partsToText(parts)}`;
 }
 
 export const SUPPORT_TRANSCRIPT_MESSAGE_LIMIT = 20;

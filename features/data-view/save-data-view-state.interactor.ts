@@ -11,7 +11,7 @@ import { ValidateOutput } from "@/core/decorators/validate-output.decorator";
 import { ALL_VIEW_KEY } from "@/core/data-view/data-view-keys";
 import { failNotFound } from "@/core/validation/interactor-failure-server";
 import { CustomErrorCode } from "@/core/validation/validation.types";
-import { writePersonalizationState } from "./data-view-row-mapping";
+import { readPersonalizationState, writePersonalizationState } from "./data-view-row-mapping";
 import { SaveDataViewStateResultSchema, SaveDataViewStateSchema } from "./data-view.schema";
 
 export abstract class DataViewStateWriteRepo {
@@ -19,7 +19,9 @@ export abstract class DataViewStateWriteRepo {
 }
 
 export abstract class AllTabStateRepo {
-  abstract upsertP13n(data: PersonalizationStateWrite & { p13nId: string }): Promise<unknown>;
+  abstract upsertP13n(
+    data: PersonalizationStateWrite & { p13nId: string },
+  ): Promise<PersonalizationStateWrite & { p13nId: string }>;
 }
 
 @TenantInteractor()
@@ -39,9 +41,12 @@ export class SaveDataViewStateInteractor extends AuthenticatedInteractor<
   @ValidateOutput(SaveDataViewStateResultSchema)
   async invoke({ surfaceKey, viewKey, state }: SaveDataViewStateData): Validated<SaveDataViewStateResult> {
     if (viewKey === ALL_VIEW_KEY) {
-      await this.personalization.upsertP13n({ p13nId: surfaceKey, ...writePersonalizationState(state) });
+      const persisted = await this.personalization.upsertP13n({
+        p13nId: surfaceKey,
+        ...writePersonalizationState(state),
+      });
 
-      return { ok: true as const, data: { viewKey } };
+      return { ok: true as const, data: { viewKey, state: readPersonalizationState(persisted) } };
     }
 
     const updated = await this.views.updateOwnedState({ id: viewKey, surfaceKey, state });

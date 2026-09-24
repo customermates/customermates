@@ -1,0 +1,704 @@
+{
+  "report": {
+    "campaignId": "01ca0d9b-ada3-40c5-a9bb-6415d7982b26",
+    "generatedAt": "2026-09-23T20:14:16.923Z",
+    "cohort": {
+      "schemaVersion": "4",
+      "fixtureVersion": "chat-benchmark-fixture-v5",
+      "sourceCommits": [
+        "5cc668dac5ead0969b034f6a1a425781bf91942a"
+      ],
+      "hasDirtyArtifacts": false
+    },
+    "arms": [
+      {
+        "arm": "shipped",
+        "label": "google/gemini-3.5-flash-lite, balanced catalog configuration (shipped)",
+        "runtimeVariant": "merge",
+        "sourceCommit": "5cc668dac5ead0969b034f6a1a425781bf91942a",
+        "sourceDirty": false,
+        "episodes": 46,
+        "distinctCases": 46,
+        "coverage": [
+          "C25:r1",
+          "C26:r1",
+          "C27:r1",
+          "C28:r1",
+          "C29:r1",
+          "C30:r1",
+          "C31:r1",
+          "C32:r1",
+          "C33:r1",
+          "C34:r1",
+          "C35:r1",
+          "C36:r1",
+          "H10:r1",
+          "H11:r1",
+          "H12:r1",
+          "H9:r1",
+          "M5:r1",
+          "M6:r1",
+          "M7:r1",
+          "M8:r1",
+          "N13:r1",
+          "N14:r1",
+          "N15:r1",
+          "N16:r1",
+          "N17:r1",
+          "N18:r1",
+          "N19:r1",
+          "N20:r1",
+          "N21:r1",
+          "N22:r1",
+          "N23:r1",
+          "N24:r1",
+          "R47:r1",
+          "R48:r1",
+          "S1:r1",
+          "S2:r1",
+          "S3:r1",
+          "S4:r1",
+          "U44:r1",
+          "U45:r1",
+          "U46:r1",
+          "V37:r1",
+          "V38:r1",
+          "V39:r1",
+          "V40:r1",
+          "V41:r1"
+        ],
+        "skipped": 0,
+        "contractEpisodes": 17,
+        "contractPassed": 17,
+        "passRate": 0.9565217391304348,
+        "passAt3": null,
+        "judgeMean": 4.563888888888888,
+        "judgeComplete": 36,
+        "judgeEligible": 36,
+        "usdPerEpisode": 0.018306679130434787,
+        "usdPerTurn": 0.01651190666666667,
+        "creditsPerTurn": 2.196078431372549,
+        "costPerSuccessfulTask": 0.01913880090909091,
+        "measuredShare": 0.9782608695652174,
+        "cacheReadShare": 0.6681271835032896,
+        "cacheWriteShare": 0,
+        "roundsPerTurn": 4.215686274509804,
+        "ttftP50Ms": 10354,
+        "ttftP95Ms": 28685,
+        "wallP50Ms": 10725,
+        "wallP95Ms": 29130,
+        "lengthFinishShare": 0,
+        "neverSolvedCases": [
+          "N13",
+          "N14"
+        ]
+      }
+    ],
+    "comparisons": [],
+    "caseMatrix": {
+      "C25": {
+        "merge/shipped": "1/1"
+      },
+      "C26": {
+        "merge/shipped": "1/1"
+      },
+      "C27": {
+        "merge/shipped": "1/1"
+      },
+      "C28": {
+        "merge/shipped": "1/1"
+      },
+      "C29": {
+        "merge/shipped": "1/1"
+      },
+      "C30": {
+        "merge/shipped": "1/1"
+      },
+      "C31": {
+        "merge/shipped": "1/1"
+      },
+      "C32": {
+        "merge/shipped": "1/1"
+      },
+      "C33": {
+        "merge/shipped": "1/1"
+      },
+      "C34": {
+        "merge/shipped": "1/1"
+      },
+      "C35": {
+        "merge/shipped": "1/1"
+      },
+      "C36": {
+        "merge/shipped": "1/1"
+      },
+      "H10": {
+        "merge/shipped": "1/1"
+      },
+      "H11": {
+        "merge/shipped": "1/1"
+      },
+      "H12": {
+        "merge/shipped": "1/1"
+      },
+      "H9": {
+        "merge/shipped": "1/1"
+      },
+      "M5": {
+        "merge/shipped": "1/1"
+      },
+      "M6": {
+        "merge/shipped": "1/1"
+      },
+      "M7": {
+        "merge/shipped": "1/1"
+      },
+      "M8": {
+        "merge/shipped": "1/1"
+      },
+      "N13": {
+        "merge/shipped": "0/1"
+      },
+      "N14": {
+        "merge/shipped": "0/1"
+      },
+      "N15": {
+        "merge/shipped": "1/1"
+      },
+      "N16": {
+        "merge/shipped": "1/1"
+      },
+      "N17": {
+        "merge/shipped": "1/1"
+      },
+      "N18": {
+        "merge/shipped": "1/1"
+      },
+      "N19": {
+        "merge/shipped": "1/1"
+      },
+      "N20": {
+        "merge/shipped": "1/1"
+      },
+      "N21": {
+        "merge/shipped": "1/1"
+      },
+      "N22": {
+        "merge/shipped": "1/1"
+      },
+      "N23": {
+        "merge/shipped": "1/1"
+      },
+      "N24": {
+        "merge/shipped": "1/1"
+      },
+      "R43": {
+        "merge/shipped": "1/1"
+      },
+      "R47": {
+        "merge/shipped": "1/1"
+      },
+      "R48": {
+        "merge/shipped": "1/1"
+      },
+      "R49": {
+        "merge/shipped": "1/1"
+      },
+      "R50": {
+        "merge/shipped": "1/1"
+      },
+      "R51": {
+        "merge/shipped": "1/1"
+      },
+      "R52": {
+        "merge/shipped": "1/1"
+      },
+      "S1": {
+        "merge/shipped": "1/1"
+      },
+      "S2": {
+        "merge/shipped": "1/1"
+      },
+      "S3": {
+        "merge/shipped": "1/1"
+      },
+      "S4": {
+        "merge/shipped": "1/1"
+      },
+      "U44": {
+        "merge/shipped": "1/1"
+      },
+      "U45": {
+        "merge/shipped": "1/1"
+      },
+      "U46": {
+        "merge/shipped": "1/1"
+      },
+      "V37": {
+        "merge/shipped": "1/1"
+      },
+      "V38": {
+        "merge/shipped": "1/1"
+      },
+      "V39": {
+        "merge/shipped": "1/1"
+      },
+      "V40": {
+        "merge/shipped": "1/1"
+      },
+      "V41": {
+        "merge/shipped": "1/1"
+      },
+      "V42": {
+        "merge/shipped": "1/1"
+      }
+    },
+    "uniformlyFailingChecks": [],
+    "skippedEpisodes": [],
+    "suiteCoverage": {
+      "episodes": 52,
+      "distinctCases": 52,
+      "turns": 58,
+      "skippedEpisodes": 0,
+      "comparativeEpisodes": 46,
+      "comparativeCases": 46,
+      "comparativeTurns": 51,
+      "strictCases": 17
+    },
+    "mergeCheck": {
+      "status": "passed",
+      "expectedCases": 52,
+      "expectedTurns": 58,
+      "runtimeVariant": "merge",
+      "sourceCommit": "5cc668dac5ead0969b034f6a1a425781bf91942a",
+      "failures": []
+    },
+    "totalUsd": 1.87701117,
+    "comparativeCaseCount": 46
+  },
+  "selection": {
+    "defaultArm": {
+      "arm": "shipped",
+      "label": "google/gemini-3.5-flash-lite, balanced catalog configuration (shipped)",
+      "runtimeVariant": "merge",
+      "sourceCommit": "5cc668dac5ead0969b034f6a1a425781bf91942a",
+      "sourceDirty": false,
+      "episodes": 46,
+      "distinctCases": 46,
+      "coverage": [
+        "C25:r1",
+        "C26:r1",
+        "C27:r1",
+        "C28:r1",
+        "C29:r1",
+        "C30:r1",
+        "C31:r1",
+        "C32:r1",
+        "C33:r1",
+        "C34:r1",
+        "C35:r1",
+        "C36:r1",
+        "H10:r1",
+        "H11:r1",
+        "H12:r1",
+        "H9:r1",
+        "M5:r1",
+        "M6:r1",
+        "M7:r1",
+        "M8:r1",
+        "N13:r1",
+        "N14:r1",
+        "N15:r1",
+        "N16:r1",
+        "N17:r1",
+        "N18:r1",
+        "N19:r1",
+        "N20:r1",
+        "N21:r1",
+        "N22:r1",
+        "N23:r1",
+        "N24:r1",
+        "R47:r1",
+        "R48:r1",
+        "S1:r1",
+        "S2:r1",
+        "S3:r1",
+        "S4:r1",
+        "U44:r1",
+        "U45:r1",
+        "U46:r1",
+        "V37:r1",
+        "V38:r1",
+        "V39:r1",
+        "V40:r1",
+        "V41:r1"
+      ],
+      "skipped": 0,
+      "contractEpisodes": 17,
+      "contractPassed": 17,
+      "passRate": 0.9565217391304348,
+      "passAt3": null,
+      "judgeMean": 4.563888888888888,
+      "judgeComplete": 36,
+      "judgeEligible": 36,
+      "usdPerEpisode": 0.018306679130434787,
+      "usdPerTurn": 0.01651190666666667,
+      "creditsPerTurn": 2.196078431372549,
+      "costPerSuccessfulTask": 0.01913880090909091,
+      "measuredShare": 0.9782608695652174,
+      "cacheReadShare": 0.6681271835032896,
+      "cacheWriteShare": 0,
+      "roundsPerTurn": 4.215686274509804,
+      "ttftP50Ms": 10354,
+      "ttftP95Ms": 28685,
+      "wallP50Ms": 10725,
+      "wallP95Ms": 29130,
+      "lengthFinishShare": 0,
+      "neverSolvedCases": [
+        "N13",
+        "N14"
+      ]
+    },
+    "deepArm": null,
+    "reasoning": [
+      "merge/shipped: below the speed floor (wall p50 10.7 s, TTFT p50 10.4 s)",
+      "no other arm passes the quality floor; the best arm ships because it costs 2.2 credits per turn",
+      "deep mode omitted: it would be the default arm"
+    ]
+  },
+  "armsVerified": {
+    "verifiedAt": "2026-09-23T16:00:34.948Z",
+    "results": [
+      {
+        "arm": "shipped",
+        "modelId": "google/gemini-3.5-flash-lite",
+        "provider": "vertex",
+        "eligible": true,
+        "hasZdr": true,
+        "hasNoTraining": true,
+        "reason": null,
+        "promptUsd": "0.0000003",
+        "completionUsd": "0.0000025"
+      },
+      {
+        "arm": "flash-lite-minimal",
+        "modelId": "google/gemini-3.5-flash-lite",
+        "provider": "vertex",
+        "eligible": true,
+        "hasZdr": true,
+        "hasNoTraining": true,
+        "reason": null,
+        "promptUsd": "0.0000003",
+        "completionUsd": "0.0000025"
+      },
+      {
+        "arm": "flash-lite-medium",
+        "modelId": "google/gemini-3.5-flash-lite",
+        "provider": "vertex",
+        "eligible": true,
+        "hasZdr": true,
+        "hasNoTraining": true,
+        "reason": null,
+        "promptUsd": "0.0000003",
+        "completionUsd": "0.0000025"
+      },
+      {
+        "arm": "flash-lite-high",
+        "modelId": "google/gemini-3.5-flash-lite",
+        "provider": "vertex",
+        "eligible": true,
+        "hasZdr": true,
+        "hasNoTraining": true,
+        "reason": null,
+        "promptUsd": "0.0000003",
+        "completionUsd": "0.0000025"
+      },
+      {
+        "arm": "flash-low",
+        "modelId": "google/gemini-3.5-flash",
+        "provider": "vertex",
+        "eligible": true,
+        "hasZdr": true,
+        "hasNoTraining": true,
+        "reason": null,
+        "promptUsd": "0.0000015",
+        "completionUsd": "0.000009"
+      },
+      {
+        "arm": "flash-medium",
+        "modelId": "google/gemini-3.5-flash",
+        "provider": "vertex",
+        "eligible": true,
+        "hasZdr": true,
+        "hasNoTraining": true,
+        "reason": null,
+        "promptUsd": "0.0000015",
+        "completionUsd": "0.000009"
+      },
+      {
+        "arm": "flash36-low",
+        "modelId": "google/gemini-3.6-flash",
+        "provider": "vertex",
+        "eligible": true,
+        "hasZdr": true,
+        "hasNoTraining": true,
+        "reason": null,
+        "promptUsd": "0.00000075",
+        "completionUsd": "0.00000375"
+      },
+      {
+        "arm": "flash38-low",
+        "modelId": "google/gemini-3.8-flash",
+        "provider": "vertex",
+        "eligible": true,
+        "hasZdr": true,
+        "hasNoTraining": true,
+        "reason": null,
+        "promptUsd": "0.00000075",
+        "completionUsd": "0.00000375"
+      },
+      {
+        "arm": "flash-lite31-low",
+        "modelId": "google/gemini-3.1-flash-lite",
+        "provider": "vertex",
+        "eligible": true,
+        "hasZdr": true,
+        "hasNoTraining": true,
+        "reason": null,
+        "promptUsd": "0.00000025",
+        "completionUsd": "0.0000015"
+      },
+      {
+        "arm": "luna-none",
+        "modelId": "openai/gpt-5.6-luna",
+        "provider": "azure",
+        "eligible": true,
+        "hasZdr": true,
+        "hasNoTraining": true,
+        "reason": null,
+        "promptUsd": "0.0000002",
+        "completionUsd": "0.0000012"
+      },
+      {
+        "arm": "luna-low",
+        "modelId": "openai/gpt-5.6-luna",
+        "provider": "azure",
+        "eligible": true,
+        "hasZdr": true,
+        "hasNoTraining": true,
+        "reason": null,
+        "promptUsd": "0.0000002",
+        "completionUsd": "0.0000012"
+      },
+      {
+        "arm": "luna-medium",
+        "modelId": "openai/gpt-5.6-luna",
+        "provider": "azure",
+        "eligible": true,
+        "hasZdr": true,
+        "hasNoTraining": true,
+        "reason": null,
+        "promptUsd": "0.0000002",
+        "completionUsd": "0.0000012"
+      },
+      {
+        "arm": "terra-low",
+        "modelId": "openai/gpt-5.6-terra",
+        "provider": "azure",
+        "eligible": true,
+        "hasZdr": true,
+        "hasNoTraining": true,
+        "reason": null,
+        "promptUsd": "0.000002",
+        "completionUsd": "0.000012"
+      },
+      {
+        "arm": "sol-low",
+        "modelId": "openai/gpt-5.6-sol",
+        "provider": "azure",
+        "eligible": true,
+        "hasZdr": true,
+        "hasNoTraining": true,
+        "reason": null,
+        "promptUsd": "0.000005",
+        "completionUsd": "0.00003"
+      },
+      {
+        "arm": "nano-low",
+        "modelId": "openai/gpt-5-nano",
+        "provider": "azure",
+        "eligible": true,
+        "hasZdr": true,
+        "hasNoTraining": true,
+        "reason": null,
+        "promptUsd": "0.00000005",
+        "completionUsd": "0.0000004"
+      },
+      {
+        "arm": "gpt5-mini-low",
+        "modelId": "openai/gpt-5-mini",
+        "provider": "azure",
+        "eligible": true,
+        "hasZdr": true,
+        "hasNoTraining": true,
+        "reason": null,
+        "promptUsd": "0.00000025",
+        "completionUsd": "0.000002"
+      },
+      {
+        "arm": "gpt54-mini-low",
+        "modelId": "openai/gpt-5.4-mini",
+        "provider": "azure",
+        "eligible": true,
+        "hasZdr": true,
+        "hasNoTraining": true,
+        "reason": null,
+        "promptUsd": "0.00000075",
+        "completionUsd": "0.0000045"
+      },
+      {
+        "arm": "gpt54-nano-low",
+        "modelId": "openai/gpt-5.4-nano",
+        "provider": "azure",
+        "eligible": true,
+        "hasZdr": true,
+        "hasNoTraining": true,
+        "reason": null,
+        "promptUsd": "0.0000002",
+        "completionUsd": "0.00000125"
+      },
+      {
+        "arm": "haiku45",
+        "modelId": "anthropic/claude-haiku-4.5",
+        "provider": "bedrock",
+        "eligible": true,
+        "hasZdr": true,
+        "hasNoTraining": true,
+        "reason": null,
+        "promptUsd": "0.000001",
+        "completionUsd": "0.000005"
+      },
+      {
+        "arm": "sonnet5-low",
+        "modelId": "anthropic/claude-sonnet-5",
+        "provider": "bedrock",
+        "eligible": true,
+        "hasZdr": true,
+        "hasNoTraining": true,
+        "reason": null,
+        "promptUsd": "0.000002",
+        "completionUsd": "0.00001"
+      },
+      {
+        "arm": "sonnet5-medium",
+        "modelId": "anthropic/claude-sonnet-5",
+        "provider": "bedrock",
+        "eligible": true,
+        "hasZdr": true,
+        "hasNoTraining": true,
+        "reason": null,
+        "promptUsd": "0.000002",
+        "completionUsd": "0.00001"
+      },
+      {
+        "arm": "opus5-low",
+        "modelId": "anthropic/claude-opus-5",
+        "provider": "bedrock",
+        "eligible": true,
+        "hasZdr": true,
+        "hasNoTraining": true,
+        "reason": null,
+        "promptUsd": "0.000005",
+        "completionUsd": "0.000025"
+      },
+      {
+        "arm": "deepseek-flash-high",
+        "modelId": "deepseek/deepseek-v4-flash",
+        "provider": "azure",
+        "eligible": true,
+        "hasZdr": true,
+        "hasNoTraining": true,
+        "reason": null,
+        "promptUsd": "0.00000019",
+        "completionUsd": "0.00000051"
+      },
+      {
+        "arm": "deepseek-pro-high",
+        "modelId": "deepseek/deepseek-v4-pro",
+        "provider": "azure",
+        "eligible": true,
+        "hasZdr": true,
+        "hasNoTraining": true,
+        "reason": null,
+        "promptUsd": "0.00000174",
+        "completionUsd": "0.00000348"
+      },
+      {
+        "arm": "glm53-flash-low",
+        "modelId": "zai/glm-5.3-flash",
+        "provider": "baseten",
+        "eligible": true,
+        "hasZdr": true,
+        "hasNoTraining": true,
+        "reason": null,
+        "promptUsd": "0.00000015",
+        "completionUsd": "0.0000005"
+      },
+      {
+        "arm": "glm53-flash-high",
+        "modelId": "zai/glm-5.3-flash",
+        "provider": "baseten",
+        "eligible": true,
+        "hasZdr": true,
+        "hasNoTraining": true,
+        "reason": null,
+        "promptUsd": "0.00000015",
+        "completionUsd": "0.0000005"
+      },
+      {
+        "arm": "glm53-low",
+        "modelId": "zai/glm-5.3",
+        "provider": "baseten",
+        "eligible": true,
+        "hasZdr": true,
+        "hasNoTraining": true,
+        "reason": null,
+        "promptUsd": "0.0000014",
+        "completionUsd": "0.0000044"
+      },
+      {
+        "arm": "kimi-k27-code",
+        "modelId": "moonshotai/kimi-k2.7-code",
+        "provider": "baseten",
+        "eligible": true,
+        "hasZdr": true,
+        "hasNoTraining": true,
+        "reason": null,
+        "promptUsd": "0.00000095",
+        "completionUsd": "0.000004"
+      },
+      {
+        "arm": "mistral-large-3",
+        "modelId": "mistral/mistral-large-3",
+        "provider": "mistral",
+        "eligible": true,
+        "hasZdr": true,
+        "hasNoTraining": true,
+        "reason": null,
+        "promptUsd": "0.0000005",
+        "completionUsd": "0.0000015"
+      },
+      {
+        "arm": "qwen3-coder-next",
+        "modelId": "alibaba/qwen3-coder-next",
+        "provider": "bedrock",
+        "eligible": true,
+        "hasZdr": true,
+        "hasNoTraining": true,
+        "reason": null,
+        "promptUsd": "0.0000005",
+        "completionUsd": "0.0000012"
+      }
+    ]
+  }
+}

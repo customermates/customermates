@@ -36,12 +36,32 @@ describe("system prompt", () => {
     }
   });
 
-  it("describes the approval rule for routines and inbox moves exactly as the runtime gates them", () => {
+  it("describes the approval rule for ordinary and destructive tools exactly as the runtime gates them", () => {
     const prompt = buildAgentSystemPrompt({ ...base });
     expect(prompt).toContain("inbox triage including moving email threads");
     expect(prompt).toContain("routines (listing, creating, updating, pausing, running now)");
     expect(prompt).toContain("pass enabled false unless the user explicitly asked to activate it");
-    expect(prompt).toContain("deleting a custom field, widget, webhook, or routine");
+    expect(prompt).toContain("deleting a saved view, custom field, widget, webhook, or routine");
+  });
+
+  it("keeps Ask AI view targeting and navigation policy on the chat surface", () => {
+    const chat = buildAgentSystemPrompt({ ...base });
+    const routine = buildAgentSystemPrompt({ ...base, surface: "routine" });
+
+    expect(chat).toContain("page_context includes requestedAction");
+    expect(chat).toContain("Each selected_context block is exact context the user selected");
+    expect(chat).toContain("use its canonical identifiers and requestedAction");
+    expect(chat).toContain("never reproduce the markup");
+    expect(chat).toContain("linked-record filters never change that target");
+    expect(chat).toContain("never create or change a custom field to make a saved-view request possible");
+    expect(chat).toContain("say it is unavailable and leave the view unchanged");
+    expect(chat).toContain("follow the user's explicit named-view action");
+    expect(chat).toContain("create from All only when they ask for a new view");
+    expect(chat).toContain("update All only when they explicitly ask to change All");
+    expect(chat).toContain("do not repeat or construct their URLs in prose");
+    expect(routine).not.toContain("page_context includes requestedAction");
+    expect(routine).not.toContain("selected_context block");
+    expect(routine).not.toContain("never create or change a custom field to make a saved-view request possible");
   });
 
   it("mentions the interface tools only on the chat surface and always names the tool sets", () => {

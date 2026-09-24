@@ -9,7 +9,7 @@ import { SortableContext, arrayMove, useSortable, verticalListSortingStrategy } 
 import { CSS } from "@dnd-kit/utilities";
 import { ArrowDownAZ, ArrowUpAZ, GripVertical, SlidersHorizontal } from "lucide-react";
 import { observer } from "mobx-react-lite";
-import { useState } from "react";
+import { useRef, useState } from "react";
 import { useTranslations } from "next-intl";
 
 import { Button } from "@/components/ui/button";
@@ -23,6 +23,8 @@ import { ViewMode } from "@/core/base/base-query-builder";
 import { useColumnLabel } from "@/components/entity-terminology/use-column-label";
 import { useGroupableFieldLabel } from "@/components/data-view/use-groupable-field-label";
 import { cn } from "@/core/utils/cn";
+import { useViewAi } from "@/components/data-view/views/use-view-ai";
+import { ViewAiAction } from "@/components/data-view/views/view-ai-action";
 
 import { LayoutIllustration } from "./layout-illustration";
 import { PopoverSection as Section } from "./popover-section";
@@ -100,6 +102,11 @@ export const DataViewDisplayOptions = observer(function DataViewDisplayOptions<E
 }: Props<E>) {
   const t = useTranslations();
   const [isOpen, setIsOpen] = useState(false);
+  const ai = useViewAi(store, {
+    registerPageContext: false,
+    entry: "appearance",
+  });
+  const pendingAi = useRef<(() => void) | null>(null);
   const columnLabel = useColumnLabel();
   const groupableLabel = useGroupableFieldLabel();
   const sensors = useSensors(
@@ -123,7 +130,9 @@ export const DataViewDisplayOptions = observer(function DataViewDisplayOptions<E
 
   function handleLayoutChange(next: string) {
     if (!next) return;
-    store.setViewOptions({ viewMode: (next as DataViewMode) === "board" ? ViewMode.card : ViewMode.table });
+    store.setViewOptions({
+      viewMode: (next as DataViewMode) === "board" ? ViewMode.card : ViewMode.table,
+    });
   }
 
   function handleSortFieldChange(next: string) {
@@ -148,7 +157,9 @@ export const DataViewDisplayOptions = observer(function DataViewDisplayOptions<E
 
   function handleGroupingChange(next: string) {
     const entry = store.groupableFields.find((field) => field.id === next);
-    store.setViewOptions({ grouping: next === "__none__" ? null : (entry?.grouping ?? null) });
+    store.setViewOptions({
+      grouping: next === "__none__" ? null : (entry?.grouping ?? null),
+    });
   }
 
   function handleToggle(uid: string, visible: boolean) {
@@ -188,13 +199,31 @@ export const DataViewDisplayOptions = observer(function DataViewDisplayOptions<E
     </Button>
   );
 
-  return (
+  const overlay = (
     <ResponsiveOverlay
       align="end"
+      headerAction={
+        ai.available && (
+          <ViewAiAction
+            id={id ? `${id}-ask-ai` : undefined}
+            onClick={() => {
+              pendingAi.current = ai.openCurrent;
+              setIsOpen(false);
+            }}
+          />
+        )
+      }
       open={isOpen}
       popoverClassName="w-72"
       title={t("Common.ariaLabels.tooltipFields")}
       trigger={trigger}
+      onCloseAutoFocus={(event) => {
+        const handoff = pendingAi.current;
+        if (!handoff) return;
+        event.preventDefault();
+        pendingAi.current = null;
+        handoff();
+      }}
       onOpenChange={setIsOpen}
     >
       <TooltipProvider>
@@ -342,4 +371,6 @@ export const DataViewDisplayOptions = observer(function DataViewDisplayOptions<E
       </TooltipProvider>
     </ResponsiveOverlay>
   );
+
+  return overlay;
 });

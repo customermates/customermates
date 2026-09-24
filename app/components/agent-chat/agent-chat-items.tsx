@@ -19,10 +19,15 @@ import { useAgentChatStore, useAgentChatUiTargets } from "./agent-chat-store-con
 import { useCopyToClipboard } from "@/core/utils/use-copy-to-clipboard";
 import { runUserAction } from "@/core/errors/report-application-error";
 import { Button } from "@/components/ui/button";
+import { AppLink } from "@/components/shared/app-link";
+import { Collapsible, CollapsibleContent, CollapsibleTrigger } from "@/components/ui/collapsible";
 import { MessageResponse } from "@/components/ai-elements/message";
+import { agentMessageComponents, agentMessageRehypePlugins } from "./agent-message-links";
 import { useEntityTerminology } from "@/components/entity-terminology/use-entity-terminology";
 import { cn } from "@/core/utils/cn";
+import { dataViewNavigationHref } from "@/core/data-view/data-view-links";
 import { ActionTooltip, ItemTime, TypingDots, chatUiCopy, focusAgentComposer } from "./chat-ui";
+import { AgentComposerContexts } from "./agent-composer-contexts";
 
 export function useAgentActivityTerminology(): Partial<Record<AgentActivityResource, string>> {
   const { plural } = useEntityTerminology();
@@ -63,8 +68,10 @@ export const AgentChatItemView = observer(function AgentChatItemView({
         <div className="flex max-w-[85%] flex-col items-end gap-1">
           {userLabel && <span className="text-subdued text-xs">{userLabel}</span>}
 
-          <div className="w-fit min-w-16 rounded-xl rounded-br-md bg-muted px-3.5 py-2 text-sm whitespace-pre-wrap shadow-xs dark:bg-accent/60">
-            {item.text}
+          <div className="w-fit min-w-16 max-w-full rounded-xl rounded-br-md bg-muted px-3.5 py-2 text-sm leading-5 shadow-xs dark:bg-accent/60">
+            <AgentComposerContexts contexts={item.contexts ?? []} />
+
+            <span className="whitespace-pre-wrap">{item.text}</span>
           </div>
 
           <ItemTime at={item.at} />
@@ -78,7 +85,12 @@ export const AgentChatItemView = observer(function AgentChatItemView({
       <article aria-label={t("AgentChat.title")} className="group/message flex flex-col gap-1.5">
         <div className="flex min-w-0 flex-col items-start gap-1.5">
           <div className="w-full text-sm leading-relaxed [&_pre]:overflow-x-auto">
-            <MessageResponse mode={item.streaming ? "streaming" : "static"} showTableActions={!item.streaming}>
+            <MessageResponse
+              components={agentMessageComponents}
+              mode={item.streaming ? "streaming" : "static"}
+              rehypePlugins={agentMessageRehypePlugins}
+              showTableActions={!item.streaming}
+            >
               {item.text}
             </MessageResponse>
           </div>
@@ -227,6 +239,7 @@ export const AgentActivity = observer(function AgentActivity({
   const isRecovering = isWorking && hasError;
   const isActive = hasRunning || isRecovering || isPending;
   const hasCancelled = items.some((item) => item.status === "cancelled");
+  const hasDetails = items.length > 1;
   const { open, setOpen, elapsedSeconds } = useActivityGroupState({
     hasError: hasError && !isRecovering,
     hasRunning: isActive,
@@ -249,89 +262,123 @@ export const AgentActivity = observer(function AgentActivity({
   const runningItem = items.findLast((item) => item.status === "running" || (isRecovering && item.status === "error"));
   const runningLabel = runningItem ? agentActivityCopy(runningItem.activity, t, terminology).running : uiCopy.thinking;
   const liveSummary =
-    !hasError && !hasCancelled && elapsedSeconds !== null
+    hasDetails && !hasError && !hasCancelled && elapsedSeconds !== null
       ? uiCopy.stepsTook(items.length, elapsedSeconds)
       : settledSummary;
   const summary = useSteadyLabel(isActive ? runningLabel : liveSummary);
+  const viewHref = items.findLast((item) => {
+    if (item.status !== "done" || item.activity.kind !== "views.configure") return false;
+    return dataViewNavigationHref(item.activity.viewHref) !== null;
+  })?.activity.viewHref;
 
   return (
-    <details
-      aria-live="off"
-      className="group py-1"
-      data-testid="agent-activity"
-      open={open}
-      onToggle={(event) => setOpen(event.currentTarget.open)}
-    >
-      <summary className="flex cursor-pointer list-none items-center gap-2 text-xs text-muted-foreground transition-colors select-none hover:text-foreground [&::-webkit-details-marker]:hidden">
-        {isActive ? (
-          <Loader2 aria-hidden="true" className="size-3.5 animate-spin" />
-        ) : hasError ? (
-          <X aria-hidden="true" className="size-3.5 text-destructive" />
-        ) : hasCancelled ? (
-          <Square aria-hidden="true" className="size-3.5" />
-        ) : (
-          <Check aria-hidden="true" className="size-3.5" />
-        )}
-
-        <span className="flex-1 text-left">{summary}</span>
-
-        <ChevronDown aria-hidden="true" className="size-3.5 transition-transform group-open:rotate-180" />
-      </summary>
-
-      <div className="mt-3 space-y-3 pl-4 [&>*]:fade-in-0 [&>*]:slide-in-from-top-2 [&>*]:animate-in [&>*]:duration-300 [&>*]:motion-reduce:animate-none">
-        {items.map((item) => {
-          const copy = agentActivityCopy(item.activity, t, terminology);
-          const status = isRecovering && item.status === "error" ? "running" : item.status;
-          const label =
-            status === "running"
-              ? copy.running
-              : status === "error"
-                ? copy.error
-                : status === "cancelled"
-                  ? copy.cancelled
-                  : copy.done;
-
-          return (
-            <div
-              key={item.id}
-              className={cn(
-                "relative flex gap-2 text-xs",
-                "before:absolute before:top-0 before:-left-4 before:h-[calc(100%+0.75rem)] before:w-px before:bg-border",
-                "before:origin-top before:animate-timeline-grow before:motion-reduce:animate-none",
-                "last:before:h-full",
-                status === "error" && "text-destructive",
-              )}
+    <Collapsible aria-live="off" className="group py-1" data-testid="agent-activity" open={open} onOpenChange={setOpen}>
+      <div className="flex items-center gap-1">
+        {hasDetails ? (
+          <CollapsibleTrigger asChild>
+            <button
+              className="flex min-w-0 flex-1 cursor-pointer items-center gap-2 rounded-md text-xs text-muted-foreground transition-colors outline-none select-none hover:text-foreground focus-visible:border-ring focus-visible:ring-[3px] focus-visible:ring-inset focus-visible:ring-ring/50"
+              type="button"
             >
-              {status === "running" ? (
-                <Loader2 aria-hidden="true" className="mt-0.5 size-3.5 shrink-0 animate-spin" />
-              ) : status === "error" ? (
-                <X aria-hidden="true" className="mt-0.5 size-3.5 shrink-0" />
-              ) : status === "cancelled" ? (
-                <Square aria-hidden="true" className="mt-0.5 size-3.5 shrink-0" />
+              {isActive ? (
+                <Loader2 aria-hidden="true" className="size-3.5 animate-spin" />
+              ) : hasError ? (
+                <X aria-hidden="true" className="size-3.5 text-destructive" />
+              ) : hasCancelled ? (
+                <Square aria-hidden="true" className="size-3.5" />
               ) : (
-                <Check aria-hidden="true" className="mt-0.5 size-3.5 shrink-0" />
+                <Check aria-hidden="true" className="size-3.5" />
               )}
 
-              <span className="min-w-0 text-foreground">{label}</span>
-            </div>
-          );
-        })}
+              <span className="flex-1 text-left">{summary}</span>
 
-        {isPending && !hasRunning && (
-          <div
-            aria-hidden="true"
-            className={cn(
-              "relative flex gap-2 text-xs",
-              "before:absolute before:top-0 before:-left-4 before:h-full before:w-px before:bg-border",
-              "before:origin-top before:animate-timeline-grow before:motion-reduce:animate-none",
+              <ChevronDown
+                aria-hidden="true"
+                className="size-3.5 transition-transform group-data-[state=open]:rotate-180"
+              />
+            </button>
+          </CollapsibleTrigger>
+        ) : (
+          <div className="flex min-w-0 flex-1 items-center gap-2 text-xs text-muted-foreground">
+            {isActive ? (
+              <Loader2 aria-hidden="true" className="size-3.5 animate-spin" />
+            ) : hasError ? (
+              <X aria-hidden="true" className="size-3.5 text-destructive" />
+            ) : hasCancelled ? (
+              <Square aria-hidden="true" className="size-3.5" />
+            ) : (
+              <Check aria-hidden="true" className="size-3.5" />
             )}
-          >
-            <span className="mt-1 flex size-3.5 shrink-0 items-center justify-center">
-              <TypingDots />
-            </span>
+
+            <span className="flex-1 text-left">{summary}</span>
           </div>
         )}
+
+        {viewHref && (
+          <Button asChild size="xs" variant="ghost">
+            <AppLink appearance="unstyled" href={viewHref}>
+              {t("AgentChat.openSavedView")}
+            </AppLink>
+          </Button>
+        )}
       </div>
-    </details>
+
+      {hasDetails && (
+        <CollapsibleContent className="mt-3 space-y-3 pl-4 [&>*]:fade-in-0 [&>*]:slide-in-from-top-2 [&>*]:animate-in [&>*]:duration-300 [&>*]:motion-reduce:animate-none">
+          {items.map((item) => {
+            const copy = agentActivityCopy(item.activity, t, terminology);
+            const status = isRecovering && item.status === "error" ? "running" : item.status;
+            const label =
+              status === "running"
+                ? copy.running
+                : status === "error"
+                  ? copy.error
+                  : status === "cancelled"
+                    ? copy.cancelled
+                    : copy.done;
+
+            return (
+              <div
+                key={item.id}
+                className={cn(
+                  "relative flex gap-2 text-xs",
+                  "before:absolute before:top-0 before:-left-4 before:h-[calc(100%+0.75rem)] before:w-px before:bg-border",
+                  "before:origin-top before:animate-timeline-grow before:motion-reduce:animate-none",
+                  "last:before:h-full",
+                  status === "error" && "text-destructive",
+                )}
+              >
+                {status === "running" ? (
+                  <Loader2 aria-hidden="true" className="mt-0.5 size-3.5 shrink-0 animate-spin" />
+                ) : status === "error" ? (
+                  <X aria-hidden="true" className="mt-0.5 size-3.5 shrink-0" />
+                ) : status === "cancelled" ? (
+                  <Square aria-hidden="true" className="mt-0.5 size-3.5 shrink-0" />
+                ) : (
+                  <Check aria-hidden="true" className="mt-0.5 size-3.5 shrink-0" />
+                )}
+
+                <span className="min-w-0 text-foreground">{label}</span>
+              </div>
+            );
+          })}
+
+          {isPending && !hasRunning && (
+            <div
+              aria-hidden="true"
+              className={cn(
+                "relative flex gap-2 text-xs",
+                "before:absolute before:top-0 before:-left-4 before:h-full before:w-px before:bg-border",
+                "before:origin-top before:animate-timeline-grow before:motion-reduce:animate-none",
+              )}
+            >
+              <span className="mt-1 flex size-3.5 shrink-0 items-center justify-center">
+                <TypingDots />
+              </span>
+            </div>
+          )}
+        </CollapsibleContent>
+      )}
+    </Collapsible>
   );
 });

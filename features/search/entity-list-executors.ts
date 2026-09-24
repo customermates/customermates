@@ -1,4 +1,5 @@
 import type { GetQueryParamsApi } from "@/core/base/base-get.schema";
+import type { EntityType } from "@/generated/prisma";
 
 import {
   getGetContactsApiInteractor,
@@ -8,10 +9,8 @@ import {
   getGetTasksApiInteractor,
 } from "@/core/di";
 
-type EntityKind = "contact" | "organization" | "deal" | "service" | "task";
-
 export const entityListExecutors: Record<
-  EntityKind,
+  EntityType,
   (params: GetQueryParamsApi) => Promise<{ ok: boolean; data?: any; error?: any }>
 > = {
   contact: async (params) => getGetContactsApiInteractor().invoke(params),
@@ -21,7 +20,7 @@ export const entityListExecutors: Record<
   task: async (params) => getGetTasksApiInteractor().invoke(params),
 };
 
-export const entityNameExtractors: Record<EntityKind, (item: any) => string> = {
+export const entityNameExtractors: Record<EntityType, (item: any) => string> = {
   contact: (item) => `${item.firstName ?? ""} ${item.lastName ?? ""}`.trim(),
   organization: (item) => String(item.name ?? ""),
   deal: (item) => String(item.name ?? ""),

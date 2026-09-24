@@ -1,21 +1,55 @@
-import type { AgentReasoningEffort, AgentThinkingLevel, BenchmarkModelEntry } from "@/ee/agent-chat/model-catalog";
+import type {
+  AgentModelEntry,
+  AgentReasoningEffort,
+  AgentThinkingLevel,
+  BenchmarkModelEntry,
+} from "@/ee/agent-chat/model-catalog";
 
-import { BENCHMARK_MODEL_KEY_PREFIX } from "@/ee/agent-chat/model-catalog";
+import {
+  BENCHMARK_MODEL_KEY_PREFIX,
+  MODEL_CATALOG,
+  SHIPPED_AGENT_MODEL_KEY,
+} from "@/ee/agent-chat/model-catalog";
 
-export type BenchmarkArm = {
+type BenchmarkFamily = "google" | "openai" | "anthropic" | "deepseek" | "zai" | "moonshot" | "mistral" | "alibaba";
+
+export type BenchmarkArm = AgentModelEntry & {
   id: string;
   label: string;
-  modelId: string;
-  servingProvider: string;
-  inferenceRegion: "eu" | "us" | null;
-  maxOutputTokens: number;
-  reasoningEffort?: AgentReasoningEffort;
-  thinkingLevel?: AgentThinkingLevel;
-  family: "google" | "openai" | "anthropic" | "deepseek" | "zai" | "moonshot" | "mistral" | "alibaba";
+  family: BenchmarkFamily;
   shipped?: boolean;
 };
 
 const ENVELOPE = { maxContextTokens: 66_000, maxToolResultChars: 6000 } as const;
+
+const FAMILY_BY_MODEL_VENDOR = {
+  google: "google",
+  openai: "openai",
+  anthropic: "anthropic",
+  deepseek: "deepseek",
+  zai: "zai",
+  moonshotai: "moonshot",
+  mistral: "mistral",
+  alibaba: "alibaba",
+} as const satisfies Record<string, BenchmarkFamily>;
+
+function benchmarkFamily(modelId: string): BenchmarkFamily {
+  const vendor = modelId.split("/", 1)[0] as keyof typeof FAMILY_BY_MODEL_VENDOR;
+  const family = FAMILY_BY_MODEL_VENDOR[vendor];
+  if (!family) throw new Error(`No benchmark family is defined for model "${modelId}".`);
+  return family;
+}
+
+function shipped(): BenchmarkArm {
+  const model: AgentModelEntry = MODEL_CATALOG[SHIPPED_AGENT_MODEL_KEY];
+  return {
+    id: "shipped",
+    label: `${model.modelId}, ${SHIPPED_AGENT_MODEL_KEY} catalog configuration (shipped)`,
+    family: benchmarkFamily(model.modelId),
+    shipped: true,
+    ...model,
+  };
+}
 
 function google(id: string, modelId: string, thinkingLevel: AgentThinkingLevel | undefined, label: string, extra: Partial<BenchmarkArm> = {}): BenchmarkArm {
   return {
@@ -25,6 +59,7 @@ function google(id: string, modelId: string, thinkingLevel: AgentThinkingLevel |
     servingProvider: "vertex",
     inferenceRegion: "eu",
     maxOutputTokens: thinkingLevel ? 8192 : 2048,
+    ...ENVELOPE,
     ...(thinkingLevel ? { thinkingLevel } : {}),
     family: "google",
     ...extra,
@@ -39,6 +74,7 @@ function openai(id: string, modelId: string, reasoningEffort: AgentReasoningEffo
     servingProvider: "azure",
     inferenceRegion: null,
     maxOutputTokens: 8192,
+    ...ENVELOPE,
     ...(reasoningEffort ? { reasoningEffort } : {}),
     family: "openai",
   };
@@ -52,6 +88,7 @@ function anthropic(id: string, modelId: string, reasoningEffort: AgentReasoningE
     servingProvider: "bedrock",
     inferenceRegion: "eu",
     maxOutputTokens: 8192,
+    ...ENVELOPE,
     ...(reasoningEffort ? { reasoningEffort } : {}),
     family: "anthropic",
   };
@@ -72,15 +109,15 @@ function hosted(
     servingProvider,
     inferenceRegion: null,
     maxOutputTokens: 8192,
+    ...ENVELOPE,
     ...(reasoningEffort ? { reasoningEffort } : {}),
     family,
   };
 }
 
 export const BENCHMARK_ARMS: readonly BenchmarkArm[] = [
-  google("shipped", "google/gemini-3.5-flash-lite", undefined, "Gemini 3.5 Flash-Lite, provider default thinking, 2048 output (shipped)", { shipped: true }),
+  shipped(),
   google("flash-lite-minimal", "google/gemini-3.5-flash-lite", "minimal", "Gemini 3.5 Flash-Lite, thinking minimal, 8192 output"),
-  google("flash-lite-low", "google/gemini-3.5-flash-lite", "low", "Gemini 3.5 Flash-Lite, thinking low"),
   google("flash-lite-medium", "google/gemini-3.5-flash-lite", "medium", "Gemini 3.5 Flash-Lite, thinking medium"),
   google("flash-lite-high", "google/gemini-3.5-flash-lite", "high", "Gemini 3.5 Flash-Lite, thinking high"),
   google("flash-low", "google/gemini-3.5-flash", "low", "Gemini 3.5 Flash, thinking low"),
@@ -118,17 +155,25 @@ export function armById(id: string): BenchmarkArm {
 }
 
 export function armModelKey(arm: BenchmarkArm): string {
+  if (arm.shipped) return SHIPPED_AGENT_MODEL_KEY;
   return `${BENCHMARK_MODEL_KEY_PREFIX}${arm.id}`;
 }
 
+export function defaultBenchmarkArmIds(): string[] {
+  const ids = BENCHMARK_ARMS.filter((arm) => arm.shipped).map((arm) => arm.id);
+  if (ids.length !== 1) throw new Error(`Expected exactly one shipped benchmark arm, found ${ids.length}.`);
+  return ids;
+}
+
 export function benchmarkModelEntries(arms: readonly BenchmarkArm[] = BENCHMARK_ARMS): BenchmarkModelEntry[] {
-  return arms.map((arm) => ({
-    key: armModelKey(arm),
+  return arms.filter((arm) => !arm.shipped).map((arm) => ({
+    key: `${BENCHMARK_MODEL_KEY_PREFIX}${arm.id}`,
     modelId: arm.modelId,
     servingProvider: arm.servingProvider,
     inferenceRegion: arm.inferenceRegion,
     maxOutputTokens: arm.maxOutputTokens,
-    ...ENVELOPE,
+    maxContextTokens: arm.maxContextTokens,
+    maxToolResultChars: arm.maxToolResultChars,
     ...(arm.reasoningEffort ? { reasoningEffort: arm.reasoningEffort } : {}),
     ...(arm.thinkingLevel ? { thinkingLevel: arm.thinkingLevel } : {}),
   }));
