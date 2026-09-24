@@ -397,3 +397,13 @@ describe("manage_widgets read and delete", () => {
     expect(spies.deleteWidget).toHaveBeenCalledWith({ id: WIDGET_ID });
   });
 });
+
+describe("manage_widgets description", () => {
+  it("keeps widgets for widget requests and sends data questions to list_records", () => {
+    expect(manageWidgetsTool.description).toContain(
+      "Use this when the user asks to see, create, change or delete their dashboard widgets. A widget you create stays on their dashboard, so never create or update one to work out an answer; answer data questions with list_records filters, sums or groupBy instead.",
+    );
+    expect(manageWidgetsTool.description).not.toContain("answers questions like");
+    expect(manageWidgetsTool.description).not.toContain("analyze_records");
+  });
+});

@@ -183,7 +183,7 @@ export type Fixture = {
   sentinelBefore: SemanticSnapshot;
 };
 
-const TABLES = ["contact", "organization", "deal", "service", "task", "customColumn", "customFieldValue", "contactOrganization", "contactUser", "organizationUser", "dealContact", "dealOrganization", "dealUser", "serviceDeal", "serviceUser", "taskUser", "taskContact", "taskOrganization", "taskDeal", "taskService", "contactIdentifier", "connectedAccount", "messagingThread", "messagingMessage", "webhook"] as const;
+const TABLES = ["contact", "organization", "deal", "service", "task", "customColumn", "customFieldValue", "contactOrganization", "contactUser", "organizationUser", "dealContact", "dealOrganization", "dealUser", "serviceDeal", "serviceUser", "taskUser", "taskContact", "taskOrganization", "taskDeal", "taskService", "contactIdentifier", "connectedAccount", "messagingThread", "messagingMessage", "webhook", "widget"] as const;
 export type SemanticSnapshot = Record<string, unknown[]>;
 
 function canonical(value: unknown): unknown {

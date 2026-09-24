@@ -129,6 +129,20 @@ describeDatabase("agent benchmark fixtures and oracle", () => {
     }
   }, 600_000);
 
+  it("counts a widget left on the dashboard as a business-state change", async () => {
+    const fixture = await seedBenchmarkCase(db, "B3", `selftest:${randomUUID()}`);
+    fixtures.push(fixture);
+    expect(fixture.before.widget).toEqual([]);
+    const turn = { text: `RESULT ${expectedScaleAnswers().B3}`, tools: [{ name: "list_records", input: { entity: "deal" }, outcome: "ok" as const }], terminalCode: "completed" };
+    const failedChecks = async () => (await scoreBenchmarkCase(db, fixture, { turns: [turn] })).checks.filter((check) => !check.passed).map((check) => check.id);
+
+    expect(await failedChecks()).toEqual([]);
+    const widget = await db.prisma.widget.create({ data: { companyId: fixture.companyId, userId: fixture.actorUserId, name: "Deal value by close month" } });
+    expect(await failedChecks()).toEqual(["business-state-unchanged"]);
+    await db.prisma.widget.delete({ where: { id: widget.id } });
+    expect(await failedChecks()).toEqual([]);
+  }, 60_000);
+
   it("scores the clarified follow-up by the deal that changed", async () => {
     const fixture = await seedBenchmarkCase(db, "B5", `selftest:${randomUUID()}`);
     fixtures.push(fixture);

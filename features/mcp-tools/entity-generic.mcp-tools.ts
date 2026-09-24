@@ -562,7 +562,7 @@ export const listRecordsTool = {
     "Custom currency columns are summed the same way and appear in sums under the custom-column id from " +
     "get_record_schema, not the column label, so a question about a money field is one call: filter, then read " +
     "its sum. Single-select, text and date custom columns are not summable, so filter by those instead. " +
-    "For a breakdown per status, owner, organization or month, pass groupBy instead of paging through items: one call returns the count and, for deals, the totalValue and weightedValue sums of every group. " +
+    "For a breakdown per status, owner, organization or created/updated month, pass groupBy instead of paging through items: one call returns the count and, for deals, the totalValue and weightedValue sums of every group. " +
     "Use get_records (batched, pass many ids in one call) to fetch full field/custom-column values.",
   annotations: { readOnlyHint: true, idempotentHint: true, destructiveHint: false, openWorldHint: false },
   inputSchema: ListRecordsSchema,

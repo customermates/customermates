@@ -130,4 +130,11 @@ describe("list_records groupBy on a date", () => {
     expect(docs("en")).toContain("covers the last 7 days, the last 7 weeks or the last 12 months");
     expect(docs("de")).toContain("umfasst die letzten 7 Tage, die letzten 7 Wochen oder die letzten 12 Monate");
   });
+
+  it("offers a month breakdown only by the created or updated date", () => {
+    expect(listRecordsTool.description).toContain(
+      "For a breakdown per status, owner, organization or created/updated month, pass groupBy",
+    );
+    expect(listRecordsTool.description).not.toContain("organization or month");
+  });
 });

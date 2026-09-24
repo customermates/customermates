@@ -208,10 +208,10 @@ export const manageWidgetsTool = {
   name: "manage_widgets",
   title: "Manage widgets",
   description:
-    "Use this when you need to create, update, delete, or read dashboard widgets. " +
+    "Use this when the user asks to see, create, change or delete their dashboard widgets. A widget you create stays on their dashboard, so never create or update one to work out an answer; answer data questions with list_records filters, sums or groupBy instead. " +
     "action list returns { id, name, kind } entries. " +
     "action get returns full configuration; chart widgets include computed data points, while activityTimeline widgets expose timelineFilters for reuse with get_activities. " +
-    "Each chart data point has value and either { labelKind: literal, label } or { labelKind: system, systemLabelKey }, so it answers questions like total pipeline value by stage in one call. " +
+    "Each chart data point has value and either { labelKind: literal, label } or { labelKind: system, systemLabelKey }. " +
     "For chart creation omit kind and provide name, entityType, displayType, groupByType, aggregationType. " +
     "For activityTimeline creation provide kind, name, and optional timelineFilters/showFilters. " +
     "Updates infer the immutable stored kind; only provided fields change and filter arrays replace their previous values. " +
