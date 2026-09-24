@@ -536,6 +536,19 @@ describeEval("agent live eval", () => {
     expect(rounds.length).toBeGreaterThan(0);
   });
 
+  it("adds a dashboard widget when the user asks for one", async () => {
+    const before = await countRows(companyId);
+    const countContactWidgets = () => runWithoutTenant(() => prisma.widget.count({ where: { companyId, entityType: "contact" } }));
+    const widgetsBefore = await countContactWidgets();
 
+    const { frames } = await runTurn({ text: "Add a dashboard widget that shows how many contacts I have." });
 
+    expect(
+      frames.some((frame) => frame.type === "approval_request"),
+      JSON.stringify(frames),
+    ).toBe(false);
+    expect(await countContactWidgets(), JSON.stringify(frames)).toBe(widgetsBefore + 1);
+    expect(await countRows(companyId)).toEqual(before);
+    expect(frames.at(-1)).toMatchObject({ type: "turn_done", terminalCode: "completed" });
+  });
 });
