@@ -427,7 +427,7 @@
       "searchError": "Impossibile cercare i record.",
       "searchPlaceholder": "Cerca record…",
       "starter": {
-        "appearance": "Modifica layout, raggruppamento, ordinamento o colonne di questa vista come segue: ",
+        "appearance": "Modifica layout, raggruppamento o ordinamento di questa vista come segue: ",
         "create": "Crea una nuova vista con queste specifiche: ",
         "createNamed": "Crea la nuova vista “{name}” con queste specifiche: ",
         "filters": "Modifica i filtri e la ricerca di questa vista come segue: ",

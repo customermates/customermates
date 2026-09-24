@@ -427,7 +427,7 @@
       "searchError": "No se pudieron buscar los registros.",
       "searchPlaceholder": "Buscar registros…",
       "starter": {
-        "appearance": "Cambia el diseño, la agrupación, la ordenación o las columnas de esta vista así: ",
+        "appearance": "Cambia el diseño, la agrupación o la ordenación de esta vista así: ",
         "create": "Crea una vista nueva con estas especificaciones: ",
         "createNamed": "Crea la vista nueva «{name}» con estas especificaciones: ",
         "filters": "Cambia los filtros y la búsqueda de esta vista así: ",

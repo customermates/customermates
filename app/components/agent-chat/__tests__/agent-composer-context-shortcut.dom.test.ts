@@ -123,16 +123,27 @@ describe("AgentComposer context shortcut", () => {
     );
   });
 
-  it("keeps an untouched starter on a non-primary pointer press", async () => {
+  it("dismisses an untouched starter when the editor receives focus", async () => {
+    harness.store.composerDraft = "Untouched starter";
+    harness.store.dismissComposerStarter = vi.fn(() => {
+      harness.store.composerDraft = "";
+    });
     act(() => root.render(createElement(AgentComposer)));
     await act(() => new Promise((resolve) => setTimeout(resolve, 0)));
 
-    const inputLine = container.querySelector<HTMLElement>('[data-testid="agent-composer-input-line"]');
+    const editor = container.querySelector<HTMLElement>('[data-testid="agent-composer-input-line"] [role="textbox"]');
     act(() => {
-      inputLine?.dispatchEvent(new MouseEvent("pointerdown", { bubbles: true, button: 2 }));
+      editor?.focus();
+      root.render(createElement(AgentComposer));
     });
+    await act(() => new Promise((resolve) => setTimeout(resolve, 0)));
 
-    expect(harness.store.dismissComposerStarter).not.toHaveBeenCalled();
+    expect(harness.store.dismissComposerStarter).toHaveBeenCalledOnce();
+    expect(editor).toBe(document.activeElement);
+    expect(editor?.textContent).toBe("");
+    expect(container.querySelector('[data-testid="agent-composer-placeholder"]')?.textContent).toBe(
+      "AgentChat.placeholder",
+    );
   });
 
   it("opens the same controlled context picker without changing the existing draft", async () => {
@@ -267,6 +278,7 @@ describe("AgentComposer context shortcut", () => {
     const placeholder = container.querySelector<HTMLElement>('[data-testid="agent-composer-placeholder"]');
     const editor = container.querySelector<HTMLElement>('[role="textbox"]');
     expect(placeholder?.textContent).toBe("AgentChat.placeholder");
+    expect(placeholder?.className).toContain("group-focus-within:hidden");
     expect(editor?.getAttribute("aria-placeholder")).toBe("AgentChat.placeholder");
   });
 

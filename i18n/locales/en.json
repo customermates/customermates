@@ -427,7 +427,7 @@
       "searchError": "Couldn’t search records.",
       "searchPlaceholder": "Search records…",
       "starter": {
-        "appearance": "Change the layout, grouping, sorting, or columns for this view as follows: ",
+        "appearance": "Change the layout, grouping, or sorting for this view as follows: ",
         "create": "Create a new view with these specifications: ",
         "createNamed": "Create the new view “{name}” with these specifications: ",
         "filters": "Change the filters and search for this view as follows: ",

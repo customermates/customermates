@@ -427,7 +427,7 @@
       "searchError": "Datensätze konnten nicht durchsucht werden.",
       "searchPlaceholder": "Datensätze suchen…",
       "starter": {
-        "appearance": "Ändere Layout, Gruppierung, Sortierung oder Spalten dieser Ansicht wie folgt: ",
+        "appearance": "Ändere Layout, Gruppierung oder Sortierung dieser Ansicht wie folgt: ",
         "create": "Erstelle eine neue Ansicht mit diesen Vorgaben: ",
         "createNamed": "Erstelle die neue Ansicht „{name}“ mit diesen Vorgaben: ",
         "filters": "Ändere Filter und Suche dieser Ansicht wie folgt: ",

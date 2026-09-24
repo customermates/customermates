@@ -427,7 +427,7 @@
       "searchError": "Impossible de rechercher les enregistrements.",
       "searchPlaceholder": "Rechercher des enregistrements…",
       "starter": {
-        "appearance": "Modifiez la disposition, le regroupement, le tri ou les colonnes de cette vue comme suit : ",
+        "appearance": "Modifiez la disposition, le regroupement ou le tri de cette vue comme suit : ",
         "create": "Créez une nouvelle vue avec les critères suivants : ",
         "createNamed": "Créez la nouvelle vue « {name} » avec les critères suivants : ",
         "filters": "Modifiez les filtres et la recherche de cette vue comme suit : ",

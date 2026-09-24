@@ -122,7 +122,6 @@ export const DataViewViewsRail = observer(function DataViewViewsRail<E extends H
     }
 
     commands.select(viewKey);
-    setMenuOpen(true);
   };
 
   return (

@@ -17,6 +17,7 @@ type Props = {
   value: string;
   onChange: (value: string) => void;
   onContextShortcut: () => void;
+  onInputFocus?: () => void;
   onInputPointerDown?: () => void;
   onRemovePreviousContext?: () => boolean;
   onSubmit: () => void;
@@ -48,6 +49,7 @@ export function AgentComposerTextInput({
   value,
   onChange,
   onContextShortcut,
+  onInputFocus,
   onInputPointerDown,
   onRemovePreviousContext,
   onSubmit,
@@ -135,7 +137,7 @@ export function AgentComposerTextInput({
 
   return (
     <div
-      className="max-h-40 min-h-9 min-w-0 overflow-y-auto px-1 py-1.5 text-sm leading-5"
+      className="group max-h-40 min-h-9 min-w-0 overflow-y-auto px-1 py-1.5 text-sm leading-5"
       data-testid="agent-composer-input-line"
       onPointerDown={(event) => {
         if (event.button !== 0 || !(event.target instanceof Element) || event.target.closest("button")) return;
@@ -148,14 +150,14 @@ export function AgentComposerTextInput({
       {!value && (
         <span
           aria-hidden
-          className="pointer-events-none text-muted-foreground"
+          className="pointer-events-none text-muted-foreground group-focus-within:hidden"
           data-testid="agent-composer-placeholder"
         >
           {placeholder}
         </span>
       )}
 
-      <EditorContent className="contents" editor={editor} />
+      <EditorContent className="contents" editor={editor} onFocus={onInputFocus} />
     </div>
   );
 }

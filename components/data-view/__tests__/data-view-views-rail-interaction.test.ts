@@ -484,7 +484,7 @@ describe("data view rail interaction", () => {
     act(() => target.click());
 
     expect(value.applyView).toHaveBeenCalledExactlyOnceWith("v-a");
-    expect(harness.menuOpen).toBe(true);
+    expect(harness.menuOpen).toBe(false);
     expect(pushState).toHaveBeenCalledExactlyOnceWith(null, "", "/en/deals?view=v-a");
     expect(harness.calls).toEqual(["applyView"]);
 

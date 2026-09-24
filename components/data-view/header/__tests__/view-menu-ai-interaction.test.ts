@@ -270,7 +270,7 @@ describe("view menu AI context handoff", () => {
           viewKey: ALL_VIEW_KEY,
         },
       },
-      draft: "Change the layout, grouping, sorting, or columns for this view as follows: ",
+      draft: "Change the layout, grouping, or sorting for this view as follows: ",
       pageRoute: `${PATHNAME}?view=${ALL_VIEW_KEY}&viewSurface=${SURFACE.contacts}&viewAction=update`,
     });
     expect(harness.agent.sendMessage).not.toHaveBeenCalled();
