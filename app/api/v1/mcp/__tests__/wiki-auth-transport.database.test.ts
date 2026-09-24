@@ -236,7 +236,7 @@ describeDatabase("Workspace Wiki authenticated MCP transport", () => {
     const initialized = await initialize(managerApiKey);
     expect(initialized.data?.result?.capabilities).toHaveProperty("resources");
     expect(initialized.data?.result?.instructions).toContain("fetch every relevant wiki:<uuid> result");
-    expect(initialized.data?.result?.instructions).toContain("manage_wiki_pages creates");
+    expect(initialized.data?.result?.instructions).toContain("manage_wiki_pages lists and searches Wiki pages");
 
     const listedTools = await rpc(managerApiKey, mcpBody("tools/list", 2), initialized.sessionId);
     expect(listedTools.data?.result?.tools?.map(({ name }) => name)).toEqual(["manage_wiki_pages", "search", "fetch"]);

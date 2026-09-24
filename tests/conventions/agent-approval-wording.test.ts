@@ -8,12 +8,13 @@ import { requiresApproval } from "@/ee/agent-chat/gated-tools";
 import { internalToolIdentity } from "@/ee/agent-chat/tool-identity";
 import { ALL_MCP_TOOLS } from "@/features/mcp-tools/tool-registry";
 import {
-  MCP_ACTION_INSTRUCTION,
-  MCP_SERVER_INSTRUCTIONS,
+  buildMcpServerInstructions,
   GET_STARTED_PROMPT,
+  MCP_CLIENT_CONFIRMATION_INSTRUCTION,
 } from "@/features/mcp-tools/server-instructions";
 import { CONTENT_LOCALES } from "@/i18n/locale-registry";
 
+const MCP_SERVER_INSTRUCTIONS = buildMcpServerInstructions(ALL_MCP_TOOLS.map(({ name }) => name));
 const root = process.cwd();
 const read = (path: string) => readFileSync(join(root, path), "utf8");
 
@@ -68,13 +69,13 @@ describe("agent approval wording matches runtime behaviour", () => {
   });
 
   it("requires authorization before public MCP calls without promising a hosted approval pause", () => {
-    expect(MCP_SERVER_INSTRUCTIONS).toContain(MCP_ACTION_INSTRUCTION);
-    expect(GET_STARTED_PROMPT).toContain(MCP_ACTION_INSTRUCTION);
-    expect(MCP_ACTION_INSTRUCTION).toContain("runs immediately");
-    expect(MCP_ACTION_INSTRUCTION).toContain("never stops it to ask anyone");
-    expect(MCP_ACTION_INSTRUCTION).toContain("Get your user's confirmation yourself");
-    expect(MCP_ACTION_INSTRUCTION).toContain("before a call that deletes, sends, or reaches outside the workspace");
-    expect(chatPrompt).not.toContain(MCP_ACTION_INSTRUCTION);
+    expect(MCP_SERVER_INSTRUCTIONS).toContain(MCP_CLIENT_CONFIRMATION_INSTRUCTION);
+    expect(GET_STARTED_PROMPT).toContain(MCP_CLIENT_CONFIRMATION_INSTRUCTION);
+    expect(MCP_CLIENT_CONFIRMATION_INSTRUCTION).toContain("runs immediately");
+    expect(MCP_CLIENT_CONFIRMATION_INSTRUCTION).toContain("never stops it to ask anyone");
+    expect(MCP_CLIENT_CONFIRMATION_INSTRUCTION).toContain("Get your user's confirmation yourself");
+    expect(MCP_CLIENT_CONFIRMATION_INSTRUCTION).toContain("before a call that deletes, sends, or reaches outside the workspace");
+    expect(chatPrompt).not.toContain(MCP_CLIENT_CONFIRMATION_INSTRUCTION);
   });
 
   it("no longer instructs the hosted assistant to ask permission in prose instead of calling", () => {

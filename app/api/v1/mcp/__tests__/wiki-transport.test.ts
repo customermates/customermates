@@ -167,7 +167,7 @@ describe("Wiki MCP transport", () => {
     expect(initialization.capabilities).toHaveProperty("resources");
     expect(initialization.instructions).toContain("call search");
     expect(initialization.instructions).not.toContain("get_record_schema");
-    expect(initialization.instructions).not.toContain("manage_wiki_pages creates");
+    expect(initialization.instructions).not.toContain("manage_wiki_pages lists and searches Wiki pages");
 
     const listed = await rpc(handler, requestBody("resources/list", 2), sessionId);
     expect(listed.data?.result).toMatchObject({
