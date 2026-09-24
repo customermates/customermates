@@ -1,6 +1,6 @@
 import { describe, expect, it } from "vitest";
 
-import { readAgentProviderCharge } from "../gateway-cost";
+import { readAgentProviderCharge, readGatewayCostMicrocents } from "../gateway-cost";
 
 function billedMetadata(overrides: Record<string, unknown> = {}, routingOverrides: Record<string, unknown> = {}) {
   return {
@@ -227,6 +227,15 @@ describe("gateway provider charge", () => {
   it("does not treat a contradictory nonzero debit as a free rate-limited request", () => {
     const metadata = { gateway: { ...rateLimitedMetadata.gateway, gatewayCost: "0.00580279" } };
     expect(readAgentProviderCharge(metadata, "openai").outcome).toBe("unreadable");
+  });
+
+  it("reads a parseable authoritative debit so an unreadable round can still be estimated from it", () => {
+    expect(readAgentProviderCharge(billedMetadata({}, { finalProvider: "azure" }), "openai").outcome).toBe(
+      "unreadable",
+    );
+    expect(readGatewayCostMicrocents(billedMetadata({}, { finalProvider: "azure" }))).toBe(331_309);
+    for (const metadata of [{}, { gateway: {} }, billedMetadata({ gatewayCost: "garbage" })])
+      expect(readGatewayCostMicrocents(metadata)).toBeNull();
   });
 
   it("does not round a nonzero upstream charge to zero", () => {

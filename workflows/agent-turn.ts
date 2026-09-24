@@ -69,7 +69,7 @@ import {
 import { isAgentStepContextWithinBudget } from "@/ee/agent-chat/agent-provider-context";
 import { getAgentChatRepo, getBackgroundTaskService } from "@/core/di";
 import { internalToolIdentity } from "@/ee/agent-chat/tool-identity";
-import { readAgentProviderCharge } from "@/ee/agent-chat/gateway-cost";
+import { readAgentProviderCharge, readGatewayCostMicrocents } from "@/ee/agent-chat/gateway-cost";
 import { isReadOnlyAgentToolCall, requiresApproval } from "@/ee/agent-chat/gated-tools";
 import { isAgentToolCancellation } from "@/ee/agent-chat/agent-tool-cancellation";
 import { createAgentToolInputResolver, type AgentToolInputResult } from "@/ee/agent-chat/agent-tool-input";
@@ -1022,11 +1022,14 @@ export async function runAgentTurn(payload: AgentTurnWorkflowPayload): Promise<v
         const costMicrocents =
           charge.outcome === "measured"
             ? charge.charge.costMicrocents
-            : computeCostMicrocents(
-                payload.turnBudget.modelSpec,
-                roundTokens,
-                payload.turnBudget.servingProvider,
-                payload.turnBudget.inferenceRegion,
+            : Math.max(
+                readGatewayCostMicrocents(step.providerMetadata) ?? 0,
+                computeCostMicrocents(
+                  payload.turnBudget.modelSpec,
+                  roundTokens,
+                  payload.turnBudget.servingProvider,
+                  payload.turnBudget.inferenceRegion,
+                ),
               );
 
         tokens = addTokens(tokens, roundTokens);
@@ -1353,7 +1356,13 @@ export async function runAgentTurn(payload: AgentTurnWorkflowPayload): Promise<v
       if (finishReason === "content-filter") providerStop = "content_filter";
       else if (!["stop", "length", "tool-calls"].includes(finishReason)) {
         const resolvedError = (result as { error?: unknown }).error;
-        if (resolvedProviderErrorRetries < AGENT_RESOLVED_PROVIDER_ERROR_RETRIES) {
+        const failedStepRanProviderTool = (result.steps as unknown as AgentRoundResult[])
+          .at(-1)
+          ?.content.some((raw) => {
+            const part = raw as { type?: string; providerExecuted?: boolean };
+            return part.type === "tool-call" && part.providerExecuted === true;
+          });
+        if (!failedStepRanProviderTool && resolvedProviderErrorRetries < AGENT_RESOLVED_PROVIDER_ERROR_RETRIES) {
           resolvedProviderErrorRetries += 1;
           await reportResolvedProviderError(payload, finishReason, resolvedError, resolvedProviderErrorRetries);
           providerStop = null;

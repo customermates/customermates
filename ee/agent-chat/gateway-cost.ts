@@ -44,6 +44,10 @@ function succeededProviderAttempts(routing: Record<string, unknown>) {
     });
 }
 
+export function readGatewayCostMicrocents(metadata: unknown): number | null {
+  return decimalUsdToMicrocents(record(record(metadata)?.gateway)?.gatewayCost);
+}
+
 export function readAgentProviderCharge(metadata: unknown, expectedProvider: string): AgentProviderChargeReading {
   const gateway = record(record(metadata)?.gateway);
   if (!gateway) return { outcome: "unreadable", reason: "the gateway reported no cost metadata" };

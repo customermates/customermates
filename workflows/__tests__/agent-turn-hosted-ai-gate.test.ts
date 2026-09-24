@@ -2161,6 +2161,41 @@ describe("routine browse-or-mutate batch safety", () => {
     },
   );
 
+  it("estimates an unreadable search round from its parseable Gateway debit instead of token pricing", async () => {
+    const search = { ...nativeSearchStep(), finishReason: "stop" };
+    search.providerMetadata.gateway.routing.finalProvider = "azure";
+    state.runTools = ({ messages }) => Promise.resolve({ finishReason: "stop", messages, steps: [search] });
+
+    await runAgentTurn({ ...payload, webSearchEnabled: true });
+
+    expect(state.recordRound).toHaveBeenCalledExactlyOnceWith(expect.objectContaining({ costMicrocents: 780_279 }));
+    expect(state.finalize).toHaveBeenCalledWith(
+      expect.objectContaining({
+        usageSettlement: expect.objectContaining({ costMicrocents: 780_279, costSource: "estimated" }),
+      }),
+    );
+  });
+
+  it("does not retry a resolved provider error after the failed round ran a provider search", async () => {
+    let segment = 0;
+    state.runTools = ({ messages }) => {
+      segment += 1;
+      return Promise.resolve({
+        finishReason: "error",
+        messages,
+        steps: [{ ...nativeSearchStep(), finishReason: "error" }],
+        error: new Error("Vertex said no"),
+      });
+    };
+
+    await runAgentTurn({ ...payload, webSearchEnabled: true });
+
+    expect(segment).toBe(1);
+    expect(state.reportFailure).toHaveBeenCalledOnce();
+    expect(state.recordRound).toHaveBeenCalledExactlyOnceWith(expect.objectContaining({ costMicrocents: 780_279 }));
+    expect(state.finalize).toHaveBeenCalledWith(expect.objectContaining({ stopReason: "provider_error" }));
+  });
+
   it("denies mutation in a batch with a failed provider search but permits a later mutation", async () => {
     state.runTools = async ({ executeAndCompleteTool, completeStepAndPrepareNext }) => {
       const batch = [{ role: "assistant", content: [searchCall, call("manage_wiki_pages", "write-1", write)] }];
