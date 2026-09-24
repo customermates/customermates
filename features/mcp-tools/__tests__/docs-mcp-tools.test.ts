@@ -234,9 +234,9 @@ describe("get_docs_page", () => {
       ["en", "app-profile", "Settings tab", "/profile/settings"],
     ] as const) {
       const excerpt = excerptOf(slug, heading, locale);
-      expect(excerpt.split("\n")[0], `${slug} "${heading}"`).toMatch(
-        new RegExp(`^#+ ${heading.replace(/[?]/g, "\\?")}$`),
-      );
+      const [firstLine] = excerpt.split("\n");
+      expect(firstLine, `${slug} "${heading}"`).toMatch(/^#+ /);
+      expect(firstLine.replace(/^#+ /, ""), `${slug} "${heading}"`).toBe(heading);
       expect(firstLinkLine(excerpt), `${slug} "${heading}"`).toContain(`\`${route}\``);
     }
     expect(excerptOf("app-company", "roles-tab").split("\n")[0]).toBe("## Roles tab");

@@ -59,9 +59,9 @@ describe("CompanyInviteModal", () => {
 
     for (const button of buttons(html)) {
       const hasLabel = /\saria-label="[^"]+"/.test(button);
-      const text = button.replace(/<[^>]+>/g, "").trim();
+      const hasText = />[^<]*[^\s<][^<]*</.test(button);
 
-      expect(hasLabel || text.length > 0, button).toBe(true);
+      expect(hasLabel || hasText, button).toBe(true);
     }
   });
 });
