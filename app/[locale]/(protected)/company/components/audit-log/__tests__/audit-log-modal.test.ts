@@ -63,8 +63,9 @@ describe("Wiki Markdown audit presentation", () => {
     expect(section).toContain("A long paragraph about the new process that needs to remain fully readable.");
   });
 
-  it("does not add a Wiki diff section for other audit events", () => {
-    harness.form.event = DomainEvent.COMPANY_UPDATED;
+  it("does not render a created or deleted page snapshot as a diff", () => {
+    harness.form.event = DomainEvent.WIKI_PAGE_CREATED;
+    harness.form.eventData = { payload: { title: "Customer guide", markdown: "## Current guidance" } };
 
     expect(renderToStaticMarkup(createElement(AuditLogModal))).not.toContain(
       '<section aria-label="AuditLogModal.fields.markdown"',
