@@ -394,7 +394,7 @@ describe("Workspace Wiki admission bootstrap", () => {
     expect(state.background.dispatchTracked).not.toHaveBeenCalled();
   });
 
-  it("reserves and dispatches the same 8192-token setup model without loading the private catalog", async () => {
+  it("reserves and dispatches setup with the unchanged catalog model without loading the private catalog", async () => {
     const state = fixture();
     const result = await state.interactor.invoke({
       clientRequestId: CLIENT_REQUEST_ID,
@@ -407,11 +407,8 @@ describe("Workspace Wiki admission bootstrap", () => {
     expect(state.catalog.invoke).not.toHaveBeenCalled();
     const admission = state.usage.prepareTurn.mock.calls[0][2];
     const payload = state.payload();
-    expect(admission.model).toEqual({
-      ...resolveAgentModel(),
-      maxOutputTokens: 8_192,
-    });
-    expect(payload.turnBudget.maxOutputTokens).toBe(8_192);
+    expect(admission.model).toEqual(resolveAgentModel());
+    expect(payload.turnBudget.maxOutputTokens).toBe(resolveAgentModel().maxOutputTokens);
     expect(payload.turnBudget.thinkingLevel).toBe("low");
     expect(payload.turnBudget.servingProvider).toBe(admission.model.servingProvider);
     expect(payload.wikiCatalog).toBeNull();

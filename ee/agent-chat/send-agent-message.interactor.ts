@@ -250,13 +250,7 @@ export class SendAgentMessageInteractor extends AuthenticatedInteractor<SendAgen
       : undefined;
     if ((setupDomain || setupUrl) && (!wikiHomepageSetup || wikiHomepageSetup.registrableDomain !== setupDomain))
       return fail(CustomErrorCode.invalidUrl, ["wikiHomepageSetupUrl"]);
-    const baseModel = resolveAgentModel(requestedModelKey);
-    const turnModel = wikiHomepageSetup
-      ? {
-          ...baseModel,
-          maxOutputTokens: 8_192,
-        }
-      : baseModel;
+    const turnModel = resolveAgentModel(requestedModelKey);
     const locale = data.locale ?? resolveUserLocale(user);
     let conversationTitle = data.text;
     if (wikiHomepageSetup) {
