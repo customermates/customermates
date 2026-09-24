@@ -68,10 +68,10 @@ export const AgentChatItemView = observer(function AgentChatItemView({
         <div className="flex max-w-[85%] flex-col items-end gap-1">
           {userLabel && <span className="text-subdued text-xs">{userLabel}</span>}
 
-          <div className="flex w-fit min-w-16 flex-col gap-1.5 rounded-xl rounded-br-md bg-muted px-3.5 py-2 text-sm shadow-xs dark:bg-accent/60">
+          <div className="flex w-fit min-w-16 max-w-full flex-wrap items-center gap-1 rounded-xl rounded-br-md bg-muted px-3.5 py-2 text-sm shadow-xs dark:bg-accent/60">
             <AgentComposerContexts contexts={item.contexts ?? []} />
 
-            <span className="whitespace-pre-wrap">{item.text}</span>
+            <span className="min-w-0 max-w-full whitespace-pre-wrap">{item.text}</span>
           </div>
 
           <ItemTime at={item.at} />

@@ -19,6 +19,7 @@ const domTestFiles = [
   "app/[locale]/(protected)/__tests__/protected-layout.test.ts",
   "app/components/agent-chat/__tests__/use-activity-group-state.test.ts",
   "app/components/agent-chat/__tests__/agent-chat-items.dom.test.ts",
+  "app/components/agent-chat/__tests__/agent-composer-contexts.dom.test.ts",
   "app/components/agent-chat/__tests__/agent-composer-context-shortcut.dom.test.ts",
   "app/components/agent-chat/__tests__/agent-context-picker-focus.dom.test.ts",
   "app/components/agent-chat/__tests__/agent-route-reload.integration.test.ts",

@@ -44,4 +44,18 @@ describe("agent chat surface contract", () => {
     expect(conversation).toContain("isAgentContextSlashCommand");
     expect(conversation).toContain("restoreComposerFocusOnEscape={contextPickerOpenedBySlash}");
   });
+
+  it("keeps compact context chips inline with composer, queued, and sent text", () => {
+    const contexts = read("agent-composer-contexts.tsx");
+    const conversation = read("agent-conversation.tsx");
+    const items = read("agent-chat-items.tsx");
+    const queued = read("queued-prompt.tsx");
+
+    expect(contexts).toContain('className="contents"');
+    expect(contexts).toContain('size="sm"');
+    expect(conversation).toContain('data-testid="agent-composer-input-line"');
+    expect(conversation).toContain("flex max-h-40 min-h-9 min-w-0 flex-wrap items-center gap-1");
+    expect(items).toContain("max-w-full flex-wrap items-center gap-1");
+    expect(queued).toContain("flex min-w-0 flex-1 flex-wrap items-center gap-1");
+  });
 });

@@ -7,7 +7,7 @@ import { Check, LayoutPanelTop, Loader2, Plus } from "lucide-react";
 import { observer } from "mobx-react-lite";
 import { usePathname } from "next/navigation";
 import { useTranslations } from "next-intl";
-import { useEffect, useMemo, useRef, useState } from "react";
+import { useEffect, useRef, useState } from "react";
 
 import { globalSearchAction } from "@/app/[locale]/(protected)/search/actions";
 import { useEntityTerminology } from "@/components/entity-terminology/use-entity-terminology";
@@ -26,6 +26,7 @@ import type { AgentContextCandidate } from "./agent-context-registry";
 
 import { ActionTooltip, focusAgentComposer } from "./chat-ui";
 import { useAgentChatStore, useAgentChatUiTargets } from "./agent-chat-store-context";
+import { dedupeRecordSearchResults } from "./agent-context-picker-results";
 
 type SearchState = {
   query: string;
@@ -80,11 +81,11 @@ export const AgentContextPicker = observer(function AgentContextPicker({
   const selectedKeys = new Set(store.composerContexts.map(agentContextAttachmentKey));
   const matchingSearch = trimmedQuery === debouncedQuery && searchState?.query === debouncedQuery ? searchState : null;
   const searchPending =
-    open && trimmedQuery.length >= 2 && (trimmedQuery !== debouncedQuery || matchingSearch === null);
+    open && trimmedQuery.length >= 1 && (trimmedQuery !== debouncedQuery || matchingSearch === null);
   const remoteResults = matchingSearch?.results ?? [];
 
   useEffect(() => {
-    if (!open || debouncedQuery.length < 2 || trimmedQuery !== debouncedQuery) return;
+    if (!open || debouncedQuery.length < 1 || trimmedQuery !== debouncedQuery) return;
     let active = true;
 
     void globalSearchAction({ searchTerm: debouncedQuery, limitPerEntity: 8 })
@@ -126,13 +127,18 @@ export const AgentContextPicker = observer(function AgentContextPicker({
     close();
   };
 
-  const recordCandidates = useMemo(
-    () =>
-      remoteResults.map((item): AgentContextCandidate & { item: GlobalSearchResultItem } => ({
-        context: recordAttachment(item, entitySearchResultLabel(item, t)),
+  const recordCandidates = dedupeRecordSearchResults(remoteResults, visiblePageCandidates).map(
+    (item): AgentContextCandidate & { displayLabel: string; item: GlobalSearchResultItem } => {
+      const displayLabel = entitySearchResultLabel(item, t);
+      return {
+        context: recordAttachment(
+          item,
+          t("AgentChat.context.recordLabel", { type: singular(item.type), name: displayLabel }),
+        ),
+        displayLabel,
         item,
-      })),
-    [remoteResults, t],
+      };
+    },
   );
   const hasQuery = trimmedQuery.length > 0;
   const hasVisibleItems = visiblePageCandidates.length > 0 || recordCandidates.length > 0;
@@ -232,6 +238,7 @@ export const AgentContextPicker = observer(function AgentContextPicker({
                       key={key}
                       candidate={candidate}
                       disabled={candidateDisabled(candidate, selected)}
+                      displayLabel={candidate.displayLabel}
                       selected={selected}
                       typeLabel={singular(candidate.item.type)}
                       onSelect={() => choose(candidate)}
@@ -260,12 +267,14 @@ export const AgentContextPicker = observer(function AgentContextPicker({
 function ContextRow({
   candidate,
   disabled,
+  displayLabel,
   selected,
   typeLabel,
   onSelect,
 }: {
   candidate: AgentContextCandidate;
   disabled: boolean;
+  displayLabel?: string;
   selected: boolean;
   typeLabel?: string;
   onSelect: () => void;
@@ -279,7 +288,7 @@ function ContextRow({
     >
       <CandidateIcon context={candidate.context} />
 
-      <span className="min-w-0 flex-1 truncate">{candidate.context.label}</span>
+      <span className="min-w-0 flex-1 truncate">{displayLabel ?? candidate.context.label}</span>
 
       {typeLabel && <span className="shrink-0 text-[11px] text-muted-foreground">{typeLabel}</span>}
 

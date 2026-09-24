@@ -106,47 +106,52 @@ export const AgentComposer = observer(function AgentComposer() {
       <div className="rounded-xl border border-input bg-input-background p-2 shadow-xs transition-[color,box-shadow] focus-within:ring-[3px] focus-within:ring-ring/50 focus-within:ring-inset">
         {store.queuedPrompt && <QueuedPrompt />}
 
-        <AgentComposerContexts contexts={store.composerContexts} onRemove={store.removeComposerContext} />
-
         {blocked && usage ? (
           <CreditBlockedNotice usage={usage} />
         ) : (
           <div className="flex items-end gap-2">
             <div className="min-w-0 flex-1">
-              <Textarea
-                aria-label={t("AgentChat.placeholder")}
-                className="max-h-40 min-h-9 w-full resize-none border-0 bg-transparent px-1 py-1.5 shadow-none focus-visible:border-0 focus-visible:ring-0"
-                data-testid="agent-composer"
-                id={uiTargets.composerId}
-                placeholder={t("AgentChat.placeholder")}
-                rows={2}
-                value={store.composerDraft}
-                onChange={(event) => store.setComposerDraft(event.target.value)}
-                onKeyDown={(event) => {
-                  if (
-                    isAgentContextSlashCommand({
-                      altKey: event.altKey,
-                      ctrlKey: event.ctrlKey,
-                      isComposing: event.nativeEvent.isComposing,
-                      key: event.key,
-                      metaKey: event.metaKey,
-                      selectionEnd: event.currentTarget.selectionEnd,
-                      selectionStart: event.currentTarget.selectionStart,
-                      value: event.currentTarget.value,
-                    })
-                  ) {
-                    event.preventDefault();
-                    setContextPickerOpenedBySlash(true);
-                    setContextPickerOpen(true);
-                    return;
-                  }
+              <div
+                className="flex max-h-40 min-h-9 min-w-0 flex-wrap items-center gap-1 overflow-y-auto px-1 py-1.5"
+                data-testid="agent-composer-input-line"
+              >
+                <AgentComposerContexts contexts={store.composerContexts} onRemove={store.removeComposerContext} />
 
-                  if (event.key === "Enter" && !event.shiftKey && !event.nativeEvent.isComposing) {
-                    event.preventDefault();
-                    submit();
-                  }
-                }}
-              />
+                <Textarea
+                  aria-label={t("AgentChat.placeholder")}
+                  className="max-h-36 min-h-5 min-w-24 w-auto flex-[1_1_6rem] resize-none border-0 bg-transparent p-0 leading-5 shadow-none focus-visible:border-0 focus-visible:ring-0"
+                  data-testid="agent-composer"
+                  id={uiTargets.composerId}
+                  placeholder={t("AgentChat.placeholder")}
+                  rows={1}
+                  value={store.composerDraft}
+                  onChange={(event) => store.setComposerDraft(event.target.value)}
+                  onKeyDown={(event) => {
+                    if (
+                      isAgentContextSlashCommand({
+                        altKey: event.altKey,
+                        ctrlKey: event.ctrlKey,
+                        isComposing: event.nativeEvent.isComposing,
+                        key: event.key,
+                        metaKey: event.metaKey,
+                        selectionEnd: event.currentTarget.selectionEnd,
+                        selectionStart: event.currentTarget.selectionStart,
+                        value: event.currentTarget.value,
+                      })
+                    ) {
+                      event.preventDefault();
+                      setContextPickerOpenedBySlash(true);
+                      setContextPickerOpen(true);
+                      return;
+                    }
+
+                    if (event.key === "Enter" && !event.shiftKey && !event.nativeEvent.isComposing) {
+                      event.preventDefault();
+                      submit();
+                    }
+                  }}
+                />
+              </div>
 
               <AgentContextPicker
                 open={contextPickerOpen}
