@@ -49,6 +49,7 @@ export function buildMcpServerInstructions(toolNames: Iterable<string>): string 
       "delete_records",
       "discard_message_draft",
       "manage_custom_columns",
+      "manage_data_views",
       "manage_widgets",
       "manage_webhooks",
       "manage_routines",
