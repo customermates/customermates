@@ -575,6 +575,15 @@ export function analysisReads(tool: ObservedTool): AnalysisRead[] {
 }
 export const withAnalysisReads = (tools: readonly ObservedTool[]): (ObservedTool | AnalysisRead)[] => tools.flatMap((tool) => [tool, ...analysisReads(tool)]);
 const isAnalysisRead = (tool: ObservedTool | AnalysisRead): tool is AnalysisRead => "viaAnalysis" in tool && tool.viaAnalysis === true;
+export function readsCustomFieldValues(tool: ObservedTool | AnalysisRead, entity: Entity): boolean {
+  const input = (tool.input ?? {}) as { entity?: unknown; groupBy?: unknown; include?: unknown };
+  if (tool.name !== "list_records" || input.entity !== entity || tool.outcome !== "ok" || input.groupBy !== undefined) return false;
+  return Array.isArray(input.include) ? input.include.includes("customFields") : input.include === undefined && isAnalysisRead(tool);
+}
+export function isPageSizeRefusal(tool: ObservedTool): boolean {
+  const size = (tool.input as { pageSize?: unknown } | undefined)?.pageSize;
+  return typeof size === "number" && !(Number.isInteger(size) && size >= 1 && size <= 100) && tool.outcome !== "ok" && tool.status !== "completed";
+}
 const normalizeText = (text: string) => text.normalize("NFKC").toLowerCase();
 const words = (text: string) => text.trim() ? text.trim().split(/\s+/).length : 0;
 function hasAmount(text: string, amount: number) {
@@ -809,8 +818,7 @@ export async function scoreBenchmarkCase(db: BenchmarkDb, fixture: Fixture, obse
     || calledWith(reads, "list_records", (input) =>
       ((input.filters as { field?: string; value?: unknown[] }[] | undefined) ?? [])
         .some((f) => f.field === "taskIds" && Array.isArray(f.value) && f.value.length > 0))
-    || reads.some((tool) => isAnalysisRead(tool) && tool.name === "list_records" && tool.input.entity === "task"
-      && (tool.input.include === undefined || (Array.isArray(tool.input.include) && tool.input.include.includes("customFields")))));
+    || reads.some((tool) => readsCustomFieldValues(tool, "task")));
       check("business-state-unchanged", unchanged);
       check("no-mutating-tool-attempt", noMutatingTools);
       break;
@@ -825,18 +833,15 @@ export async function scoreBenchmarkCase(db: BenchmarkDb, fixture: Fixture, obse
       ((input.items as { id?: string }[] | undefined) ?? []).filter((entry) =>
         Object.entries(fixture.ids).some(([key, value]) => key.startsWith("nordwind-") && value === entry.id)).length >= 12)
     || calledWith(reads, "list_records", (input) =>
-      ((input.filters as { field?: string }[] | undefined) ?? []).some((f) => f.field === id("deal-committed"))));
+      ((input.filters as { field?: string }[] | undefined) ?? []).some((f) => f.field === id("deal-committed")))
+    || reads.some((tool) => readsCustomFieldValues(tool, "deal")));
       check("business-state-unchanged", unchanged);
       check("no-mutating-tool-attempt", noMutatingTools);
       break;
     }
     case "N15": {
       const expected = ["004","011","019","023","028","031","037","042","046"].map((n) => "Aurora-" + n);
-      const outOfEnumPageSize = tools.filter((tool) => {
-    const size = (tool.input as { pageSize?: number } | undefined)?.pageSize;
-    return typeof size === "number" && ![5, 10, 25, 100].includes(size);
-      });
-      const refusedPageSize = outOfEnumPageSize.some((tool) => tool.outcome !== "ok" && tool.status !== "completed");
+      const refusedPageSize = tools.some(isPageSizeRefusal);
       check("d4-page-size-outcome-reported-consistently",
     refusedPageSize ? Boolean(soleLine(text, /^REJECTED: pageSize$/)) : !/^REJECTED: pageSize$/m.test(text));
       const countLine = soleLine(text, /^COUNT: (\d+)$/);

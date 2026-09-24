@@ -70,23 +70,65 @@ describeDatabase("agent benchmark fixtures and oracle", () => {
     expect(failed(await scoreBenchmarkCase(db, c26, { turns: [{ text: week, tools: [analyze("get_messaging_threads", {})], terminalCode: "completed" }] }))).toEqual([]);
   }, 120_000);
 
-  it("takes an unfiltered task list read inside analyze_records as reading task status only while its rows carry custom fields", async () => {
+  it("takes a task list read as reading task status only while it succeeded ungrouped and its rows carry custom fields", async () => {
     const fixture = await seedBenchmarkCase(db, "N13", `selftest:${randomUUID()}`);
     fixtures.push(fixture);
     const answer = "RESULT unblocked=45 blocked=15 unblockedTotalEur=171000";
-    const analyze = (...reads: { tool: string; input: object }[]) => ({ name: "analyze_records", input: { reads: reads.map((read) => ({ tool: read.tool, input: JSON.stringify(read.input) })), code: "(data) => data.length" }, outcome: "ok" as const });
+    const analyze = (outcome: "ok" | "error" | undefined, ...reads: { tool: string; input: object }[]) => ({ name: "analyze_records", input: { reads: reads.map((read) => ({ tool: read.tool, input: JSON.stringify(read.input) })), code: "(data) => data.length" }, outcome });
     const deals = { tool: "list_records", input: { entity: "deal", filters: [{ field: "name", operator: "startsWith", value: "Kestrel-" }] } };
     const tasks = (include?: string[]) => ({ tool: "list_records", input: { entity: "task", ...(include ? { include } : {}) } });
+    const grouped = { tool: "list_records", input: { entity: "task", groupBy: { field: fixture.ids["task-status"] } } };
     const statusRead = async (tools: object[]) => (await scoreBenchmarkCase(db, fixture, { turns: [{ text: answer, tools: tools as never, terminalCode: "completed" }] })).checks.find((check) => check.id === "task-status-actually-read")?.passed;
 
-    expect(await statusRead([analyze(deals, tasks())])).toBe(true);
-    expect(await statusRead([analyze(deals, tasks(["customFields"]))])).toBe(true);
-    expect(await statusRead([analyze(deals, tasks(["owners", "links", "customFields", "dates"]))])).toBe(true);
-    expect(await statusRead([analyze(deals, tasks([]))])).toBe(false);
-    expect(await statusRead([analyze(deals, tasks(["owners", "links", "dates"]))])).toBe(false);
-    expect(await statusRead([analyze(deals)])).toBe(false);
+    expect(await statusRead([analyze("ok", deals, tasks())])).toBe(true);
+    expect(await statusRead([analyze("ok", deals, tasks(["customFields"]))])).toBe(true);
+    expect(await statusRead([analyze("ok", deals, tasks(["owners", "links", "customFields", "dates"]))])).toBe(true);
+    expect(await statusRead([analyze("ok", deals, tasks([]))])).toBe(false);
+    expect(await statusRead([analyze("ok", deals, tasks(["owners", "links", "dates"]))])).toBe(false);
+    expect(await statusRead([analyze("ok", deals)])).toBe(false);
+    expect(await statusRead([analyze("error", deals, tasks())])).toBe(false);
+    expect(await statusRead([analyze(undefined, deals, tasks())])).toBe(false);
+    expect(await statusRead([analyze("ok", deals, grouped)])).toBe(false);
     expect(await statusRead([{ name: "list_records", input: { entity: "task" }, outcome: "ok" }])).toBe(false);
-    expect(await statusRead([{ name: "list_records", input: { entity: "task", include: ["customFields"] }, outcome: "ok" }])).toBe(false);
+    expect(await statusRead([{ name: "list_records", input: { entity: "task", include: ["links", "customFields"], pageSize: 5 }, outcome: "ok" }])).toBe(true);
+    expect(await statusRead([{ name: "list_records", input: { entity: "task", include: ["customFields"] }, outcome: "error" }])).toBe(false);
+    expect(await statusRead([{ name: "list_records", input: { ...grouped.input, include: ["customFields"] }, outcome: "ok" }])).toBe(false);
+  }, 60_000);
+
+  it("takes a deal list read as reading Committed amounts only while it succeeded ungrouped and its rows carry custom fields", async () => {
+    const fixture = await seedBenchmarkCase(db, "N14", `selftest:${randomUUID()}`);
+    fixtures.push(fixture);
+    const answer = "RESULT committedDeals=16 committedTotalEur=51150";
+    const deals = (extra: object = {}) => ({ entity: "deal", filters: [{ field: "name", operator: "startsWith", value: "Nordwind-" }], ...extra });
+    const analyze = (outcome: "ok" | "error" | undefined, input: object) => ({ name: "analyze_records", input: { reads: [{ tool: "list_records", input: JSON.stringify(input) }], code: "(data) => data.length" }, outcome });
+    const valuesRead = async (tools: object[]) => (await scoreBenchmarkCase(db, fixture, { turns: [{ text: answer, tools: tools as never, terminalCode: "completed" }] })).checks.find((check) => check.id === "custom-column-values-actually-read")?.passed;
+
+    expect(await valuesRead([analyze("ok", deals())])).toBe(true);
+    expect(await valuesRead([analyze("ok", deals({ include: ["customFields"] }))])).toBe(true);
+    expect(await valuesRead([analyze("ok", deals({ include: ["owners", "links", "dates"] }))])).toBe(false);
+    expect(await valuesRead([analyze("error", deals())])).toBe(false);
+    expect(await valuesRead([analyze(undefined, deals())])).toBe(false);
+    expect(await valuesRead([analyze("ok", deals({ groupBy: { field: "userIds" } }))])).toBe(false);
+    expect(await valuesRead([{ name: "list_records", input: deals(), outcome: "ok" }])).toBe(false);
+    expect(await valuesRead([{ name: "list_records", input: deals({ include: ["customFields"], pageSize: 5 }), outcome: "ok" }])).toBe(true);
+    expect(await valuesRead([{ name: "list_records", input: deals({ include: ["customFields"] }), outcome: "error" }])).toBe(false);
+  }, 60_000);
+
+  it("demands a REJECTED line only after a call asked for a page size list_records cannot serve", async () => {
+    const fixture = await seedBenchmarkCase(db, "N15", `selftest:${randomUUID()}`);
+    fixtures.push(fixture);
+    const answer = ["004", "011", "019", "023", "028", "031", "037", "042", "046"].map((n) => "Aurora-" + n).join("\n") + "\nCOUNT: 9";
+    const call = (pageSize: number, outcome: "ok" | "error" | undefined, filters: object[] = []) => ({ name: "list_records", input: { entity: "deal", pageSize, filters }, outcome });
+    const unrelatedFailure = [{ field: "contactIds", operator: "isEmpty" }];
+    const consistent = async (tools: object[], text: string) => (await scoreBenchmarkCase(db, fixture, { turns: [{ text, tools: tools as never, terminalCode: "completed" }] })).checks.find((check) => check.id === "d4-page-size-outcome-reported-consistently")?.passed;
+
+    expect(await consistent([call(50, "ok")], answer)).toBe(true);
+    expect(await consistent([call(50, "ok")], "REJECTED: pageSize\n" + answer)).toBe(false);
+    expect(await consistent([call(50, "error", unrelatedFailure), call(50, "ok")], answer)).toBe(true);
+    expect(await consistent([call(50, undefined, unrelatedFailure), call(50, "ok")], answer)).toBe(true);
+    expect(await consistent([call(50, undefined, unrelatedFailure), call(50, "ok")], "REJECTED: pageSize\n" + answer)).toBe(false);
+    expect(await consistent([call(150, "error"), call(100, "ok")], answer)).toBe(false);
+    expect(await consistent([call(150, "error"), call(100, "ok")], "REJECTED: pageSize\n" + answer)).toBe(true);
   }, 60_000);
 
   it("scores a complex case from its final line and the database state", async () => {

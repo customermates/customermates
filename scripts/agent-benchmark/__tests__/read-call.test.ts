@@ -1,6 +1,6 @@
 import { describe, expect, it } from "vitest";
 
-import { analysisReads, isReadCall, withAnalysisReads } from "../fixtures";
+import { analysisReads, isPageSizeRefusal, isReadCall, readsCustomFieldValues, withAnalysisReads, type ObservedTool } from "../fixtures";
 
 describe("benchmark read-call predicate", () => {
   it("counts read-only tools, read-only actions and interface tools as reads", () => {
@@ -60,5 +60,47 @@ describe("benchmark read-call predicate", () => {
     const smuggled = { name: "analyze_records", input: { reads: [{ tool: "update_deals", input: '{"deals":[]}' }], code: "(data) => data" }, outcome: "error" as const };
     expect(analysisReads(smuggled)).toEqual([]);
     expect(analysisReads({ name: "list_records", input: { reads: [{ tool: "list_records", input: "{}" }] } })).toEqual([]);
+  });
+
+  it("takes a list read as reading custom-field values only when it succeeded ungrouped with rows that carry them", () => {
+    const analyze = (input: object, outcome?: "ok" | "error") => analysisReads({ name: "analyze_records", input: { reads: [{ tool: "list_records", input }], code: "(data) => data" }, outcome });
+    const reads = (entity: "task" | "deal", tools: ObservedTool[]) => tools.map((tool) => readsCustomFieldValues(tool, entity));
+
+    expect(reads("task", [
+      ...analyze({ entity: "task" }, "ok"),
+      ...analyze({ entity: "task", include: ["customFields"] }, "ok"),
+      { name: "list_records", input: { entity: "task", include: ["customFields"] }, outcome: "ok" },
+      { name: "list_records", input: { entity: "task", include: ["links", "customFields"], pageSize: 5 }, outcome: "ok" },
+    ])).toEqual([true, true, true, true]);
+    expect(reads("task", [
+      ...analyze({ entity: "task" }, "error"),
+      ...analyze({ entity: "task" }),
+      ...analyze({ entity: "task", groupBy: { field: "userIds" } }, "ok"),
+      ...analyze({ entity: "task", include: [] }, "ok"),
+      ...analyze({ entity: "task", include: ["owners", "links", "dates"] }, "ok"),
+      { name: "list_records", input: { entity: "task" }, outcome: "ok" },
+      { name: "list_records", input: { entity: "task", include: ["customFields"] }, outcome: "error" },
+      { name: "list_records", input: { entity: "task", include: ["customFields"] } },
+      { name: "list_records", input: { entity: "task", include: ["customFields"], groupBy: { field: "userIds" } }, outcome: "ok" },
+      { name: "get_records", input: { entity: "task", include: ["customFields"] }, outcome: "ok" },
+      ...analyze({ entity: "deal" }, "ok"),
+    ])).toEqual(Array(11).fill(false));
+    expect(reads("deal", [
+      ...analyze({ entity: "deal" }, "ok"),
+      ...analyze({ entity: "deal", include: ["customFields"] }, "ok"),
+      { name: "list_records", input: { entity: "deal", include: ["customFields"] }, outcome: "ok" },
+    ])).toEqual([true, true, true]);
+    expect(reads("deal", [
+      ...analyze({ entity: "deal" }, "error"),
+      ...analyze({ entity: "deal" }),
+      ...analyze({ entity: "deal", groupBy: { field: "userIds" } }, "ok"),
+      { name: "list_records", input: { entity: "deal" }, outcome: "ok" },
+    ])).toEqual([false, false, false, false]);
+  });
+
+  it("counts a failed call as a page-size refusal only when it asked for a size that is not a whole number from 1 to 100", () => {
+    const call = (pageSize: unknown, outcome?: "ok" | "error") => ({ name: "list_records", input: { entity: "deal", pageSize }, outcome });
+    expect([call(150, "error"), call(0, "error"), call(12.5, "error"), call(150)].map(isPageSizeRefusal)).toEqual([true, true, true, true]);
+    expect([call(50, "error"), call(50), call(1, "error"), call(100, "error"), call(150, "ok"), call(undefined, "error")].map(isPageSizeRefusal)).toEqual([false, false, false, false, false, false]);
   });
 });
