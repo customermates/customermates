@@ -74,7 +74,7 @@ describe("AgentActivity", () => {
   });
 
   it("renders a single failed website read once without an empty disclosure", () => {
-    const label = "AgentChat.activity.state.web.read.error:ainovi.de/";
+    const label = "AgentChat.activity.state.web.read.error:AgentChat.activity.homepage";
     const html = renderToStaticMarkup(
       createElement(AgentActivity, {
         activityContext: "wikiHomepageSetup",
@@ -179,11 +179,13 @@ describe("AgentActivity", () => {
       }),
     );
 
-    expect(runningHtml).toContain("AgentChat.activity.state.web.read.running:customermates.com/");
+    expect(runningHtml).toContain("AgentChat.activity.state.web.read.running:AgentChat.activity.homepage");
     expect(runningHtml).not.toContain("AgentChat.ui.websiteSourcesRunning");
     expect(completedHtml).toContain("AgentChat.ui.websiteWikiComplete");
-    for (const path of ["/", "/about", "/product", "/support"])
-      expect(completedHtml).toContain(`AgentChat.activity.state.web.read.done:customermates.com${path}`);
+    expect(completedHtml).toContain("AgentChat.activity.state.web.read.done:AgentChat.activity.homepage");
+    for (const path of ["/about", "/product", "/support"])
+      expect(completedHtml).toContain(`AgentChat.activity.state.web.read.done:${path}`);
+    expect(completedHtml).not.toContain("web.read.done:customermates.com");
     expect(completedHtml).not.toContain("AgentChat.ui.stepsTook");
 
     const ordinaryChatHtml = renderToStaticMarkup(
@@ -195,6 +197,31 @@ describe("AgentActivity", () => {
     );
     expect(ordinaryChatHtml).toContain("AgentChat.ui.activityComplete");
     expect(ordinaryChatHtml).not.toContain("AgentChat.ui.websiteWikiComplete");
+  });
+
+  it("keeps the host only for a page on a different subdomain than the setup domain", () => {
+    const html = renderToStaticMarkup(
+      createElement(AgentActivity, {
+        activityContext: "wikiHomepageSetup",
+        isTrailing: true,
+        isWorking: false,
+        items: [
+          {
+            ...failedRead,
+            status: "done" as const,
+            activity: {
+              kind: "web.read" as const,
+              affectedResources: [],
+              risk: "read" as const,
+              sourceDomain: "customermates.com",
+              sourcePage: "docs.customermates.com/en/features",
+            },
+          },
+        ],
+      }),
+    );
+
+    expect(html).toContain("AgentChat.activity.state.web.read.done:docs.customermates.com/en/features");
   });
 
   it("treats an optional linked-page failure as settled after the Wiki is created", () => {

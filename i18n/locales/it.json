@@ -108,6 +108,7 @@
       "countedSingular": "1 {resource}",
       "defaultRecords": "record",
       "defaultWebsitePage": "una pagina web",
+      "homepage": "la home page",
       "label": {
         "preview": "Anteprima",
         "subject": "Oggetto",
@@ -325,9 +326,9 @@
         },
         "web": {
           "read": {
-            "done": "Lettura di {target} completata",
+            "done": "Lettura completata: {target}",
             "error": "Impossibile leggere {target}",
-            "running": "Lettura di {target}"
+            "running": "Lettura in corso: {target}"
           },
           "search": {
             "done": "Ricerca sul web completata",

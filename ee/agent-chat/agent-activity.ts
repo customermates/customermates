@@ -710,6 +710,13 @@ function agentConsequenceDetail(
   }
 }
 
+function webReadTarget({ sourceDomain, sourcePage }: AgentActivityDescriptor, t: AgentTranslator): string {
+  if (!sourcePage) return sourceDomain ?? t("AgentChat.activity.defaultWebsitePage");
+  if (!sourceDomain || !sourcePage.startsWith(`${sourceDomain}/`)) return sourcePage;
+  const path = sourcePage.slice(sourceDomain.length);
+  return path === "/" ? t("AgentChat.activity.homepage") : path;
+}
+
 export function agentActivityCopy(
   activity: AgentActivityDescriptor,
   t: AgentTranslator,
@@ -720,10 +727,7 @@ export function agentActivityCopy(
     : undefined;
   const hasCustomTerminology = Boolean(activity.resource && terminology[activity.resource]);
   const mutationTarget = countedResourceCopy(activity.count, activity.resource, t, resource, hasCustomTerminology);
-  const target =
-    activity.kind === "web.read"
-      ? (activity.sourcePage ?? activity.sourceDomain ?? t("AgentChat.activity.defaultWebsitePage"))
-      : mutationTarget;
+  const target = activity.kind === "web.read" ? webReadTarget(activity, t) : mutationTarget;
   const detail =
     agentConsequenceDetail(activity, t, resource, hasCustomTerminology) ??
     (resource ? resource.charAt(0).toUpperCase() + resource.slice(1) : undefined);

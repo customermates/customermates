@@ -108,6 +108,7 @@
       "countedSingular": "1 {resource}",
       "defaultRecords": "Datensätze",
       "defaultWebsitePage": "eine Webseite",
+      "homepage": "Die Startseite",
       "label": {
         "preview": "Vorschau",
         "subject": "Betreff",

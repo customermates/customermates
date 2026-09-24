@@ -222,25 +222,28 @@ describe("agent experience contract", () => {
       affectedResources: ["wiki"],
     });
     expect(agentActivityCopy(websiteRead, enT)).toMatchObject({
-      running: "Reading customermates.com/company",
-      done: "Read customermates.com/company",
-      error: "Couldn’t read customermates.com/company",
+      running: "Reading /company",
+      done: "Read /company",
+      error: "Couldn’t read /company",
     });
     expect(agentActivityCopy(wikiCreate, enT).running).toBe("Creating 5 Wiki pages");
     expect(JSON.stringify([websiteRead, wikiCreate])).not.toMatch(/never-show|private|Private page/);
 
-    expect(describeInternalTool("read_public_page", { url: "https://www.customermates.com" })).toMatchObject({
+    const homepageRead = describeInternalTool("read_public_page", { url: "https://www.customermates.com" });
+    expect(homepageRead).toMatchObject({
       sourceDomain: "customermates.com",
       sourcePage: "customermates.com/",
     });
-    expect(
-      describeInternalTool("read_public_page", {
-        url: "https://docs.customermates.com/guides/getting-started?session=never-show#install",
-      }),
-    ).toMatchObject({
+    expect(agentActivityCopy(homepageRead, enT).done).toBe("Read the homepage");
+    expect(agentActivityCopy(homepageRead, deT).done).toBe("Die Startseite wurde gelesen");
+    const subdomainRead = describeInternalTool("read_public_page", {
+      url: "https://docs.customermates.com/guides/getting-started?session=never-show#install",
+    });
+    expect(subdomainRead).toMatchObject({
       sourceDomain: "customermates.com",
       sourcePage: "docs.customermates.com/guides/getting-started",
     });
+    expect(agentActivityCopy(subdomainRead, enT).done).toBe("Read docs.customermates.com/guides/getting-started");
     expect(
       describeInternalTool("read_public_page", {
         url: `https://customermates.com/${"x".repeat(600)}`,
