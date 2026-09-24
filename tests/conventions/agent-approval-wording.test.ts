@@ -74,7 +74,9 @@ describe("agent approval wording matches runtime behaviour", () => {
     expect(MCP_CLIENT_CONFIRMATION_INSTRUCTION).toContain("runs immediately");
     expect(MCP_CLIENT_CONFIRMATION_INSTRUCTION).toContain("never stops it to ask anyone");
     expect(MCP_CLIENT_CONFIRMATION_INSTRUCTION).toContain("Get your user's confirmation yourself");
-    expect(MCP_CLIENT_CONFIRMATION_INSTRUCTION).toContain("before a call that deletes, sends, or reaches outside the workspace");
+    expect(MCP_CLIENT_CONFIRMATION_INSTRUCTION).toContain(
+      "before a call that deletes, sends, or reaches outside the workspace",
+    );
     expect(chatPrompt).not.toContain(MCP_CLIENT_CONFIRMATION_INSTRUCTION);
   });
 
