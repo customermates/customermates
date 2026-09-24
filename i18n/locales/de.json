@@ -449,6 +449,7 @@
       "hostedAiUnavailable": "Die gehostete KI ist vorübergehend nicht verfügbar. Bitte versuche es später erneut.",
       "policyBreach": "Der KI-Anbieter hat das reservierte Credit-Budget überschritten, daher wurde der Lauf gestoppt. Es wurde keine weitere Anbieterarbeit gestartet.",
       "providerError": "Der KI-Anbieter hat einen Fehler zurückgegeben, bevor ich fertig war. Es wurde nichts weiter geändert. Bitte versuche es erneut.",
+      "sourcesHeading": "Quellen",
       "turnError": "Ich konnte diese Anfrage nicht abschließen. Bitte versuche es erneut."
     },
     "send": "Senden",

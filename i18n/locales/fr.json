@@ -449,6 +449,7 @@
       "hostedAiUnavailable": "L’IA hébergée est temporairement indisponible. Veuillez réessayer plus tard.",
       "policyBreach": "Le fournisseur d’IA a dépassé le budget de crédits réservé ; l’exécution a donc été arrêtée. Aucun autre traitement du fournisseur n’a été lancé.",
       "providerError": "Le fournisseur d'IA a renvoyé une erreur avant que je puisse terminer. Rien d'autre n'a été modifié. Veuillez réessayer.",
+      "sourcesHeading": "Sources",
       "turnError": "Je n'ai pas pu traiter cette demande. Veuillez réessayer."
     },
     "send": "Envoyer",

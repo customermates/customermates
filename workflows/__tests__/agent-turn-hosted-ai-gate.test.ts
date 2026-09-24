@@ -227,7 +227,8 @@ vi.mock("@/ee/agent-chat/agent-provider-context", () => ({
   isAgentStepContextWithinBudget: (...args: unknown[]) => state.contextFits(...args),
 }));
 vi.mock("@/i18n/get-translator", () => ({
-  getTranslator: () => Promise.resolve((key: string) => `localized:${key}`),
+  getTranslator: (locale: string) =>
+    Promise.resolve((key: string) => (locale === "en" ? `localized:${key}` : `${locale}:${key}`)),
 }));
 vi.mock("@/i18n/locale-registry", async (importOriginal) => ({
   ...(await importOriginal<typeof LocaleRegistry>()),
@@ -2047,7 +2048,67 @@ describe("routine browse-or-mutate batch safety", () => {
     );
     expect(state.recordRound).toHaveBeenCalledOnce();
     expect(state.extendReservation).not.toHaveBeenCalled();
-    expect(JSON.stringify(state.finalize.mock.calls[0][0].parts)).toContain("https://example.com/current");
+    expect(replyText()).toBe("Homepage evidence.\n\nlocalized:AgentChat.runner.cancelled");
+  });
+
+  const replyText = () =>
+    (state.finalize.mock.calls[0][0].parts as { type: string; text?: string }[])
+      .filter((part) => part.type === "text")
+      .map((part) => part.text)
+      .join("");
+
+  it("ends a completed native-search reply with a Sources footer localized to the turn locale", async () => {
+    state.runTools = ({ messages }) =>
+      Promise.resolve({ finishReason: "stop", messages, steps: [{ ...nativeSearchStep(), finishReason: "stop" }] });
+
+    await runAgentTurn({ ...payload, locale: "de", webSearchEnabled: true });
+
+    expect(replyText()).toBe(
+      "Homepage evidence.\n\n### de:AgentChat.runner.sourcesHeading\n- <https://example.com/current>",
+    );
+  });
+
+  it("adds no Sources footer when a native-search turn ends with a provider error", async () => {
+    const providerFailure = Object.assign(new Error("provider unavailable"), {
+      [Symbol.for("vercel.ai.gateway.error")]: true,
+    });
+    let segment = 0;
+    state.runTools = ({ messages }) =>
+      segment++ === 0
+        ? Promise.resolve({ finishReason: "length", messages, steps: [nativeSearchStep()] })
+        : Promise.reject(providerFailure);
+
+    await runAgentTurn({ ...payload, locale: "de", webSearchEnabled: true });
+
+    expect(state.finalize).toHaveBeenCalledWith(expect.objectContaining({ stopReason: "provider_error" }));
+    expect(replyText()).toBe("Homepage evidence.\n\nde:AgentChat.runner.providerError");
+  });
+
+  it("adds no Sources footer when a native-search turn is stopped by the content filter", async () => {
+    state.runTools = ({ messages }) =>
+      Promise.resolve({
+        finishReason: "content-filter",
+        messages,
+        steps: [{ ...nativeSearchStep(), finishReason: "content-filter" }],
+      });
+
+    await runAgentTurn({ ...payload, locale: "de", webSearchEnabled: true });
+
+    expect(replyText()).toBe("Homepage evidence.\n\nde:AgentChat.runner.contentFilter");
+  });
+
+  it("keeps the empty-reply fallback instead of a bare Sources footer when the model wrote no text", async () => {
+    const citationOnly = {
+      ...streamedStep("", "stop"),
+      content: [{ type: "source", sourceType: "url", id: "source-1", url: "https://example.com/cited" }],
+    };
+    state.runTools = ({ messages }) => Promise.resolve({ finishReason: "stop", messages, steps: [citationOnly] });
+
+    await runAgentTurn({ ...payload, webSearchEnabled: true });
+
+    expect(state.finalize.mock.calls[0][0].parts).toEqual([
+      { type: "text", text: "localized:AgentChat.runner.emptyReply" },
+    ]);
   });
 
   it.each(["chat", "routine"] as const)(
@@ -2083,8 +2144,7 @@ describe("routine browse-or-mutate batch safety", () => {
     },
   );
 
-  it("denies a failed browse batch but permits a later mutation after failure is established", async () => {
-    state.readPage.mockResolvedValue({ ok: false, reason: "network_failure" });
+  it("denies mutation in a batch with a refused web read but permits a later mutation", async () => {
     state.runTools = async ({ executeAndCompleteTool, completeStepAndPrepareNext }) => {
       const batch = [
         {
@@ -2099,6 +2159,7 @@ describe("routine browse-or-mutate batch safety", () => {
       return finish();
     };
     await runAgentTurn({ ...payload, surface: "routine" });
+    expect(state.readPage).not.toHaveBeenCalled();
     expect(state.execute).toHaveBeenCalledOnce();
   });
 
@@ -2182,6 +2243,33 @@ describe("routine browse-or-mutate batch safety", () => {
     expect(JSON.stringify(createResult)).not.toMatch(/more useful link/i);
     expect(state.readPage).toHaveBeenCalledExactlyOnceWith({ url: read.url, allowedDomain: "example.com" });
     expect(state.execute).toHaveBeenCalledOnce();
+  });
+
+  it("never appends a Sources footer to a Wiki setup reply because the pages carry validated sources", async () => {
+    state.runTools = async ({ executeAndCompleteTool, completeStepAndPrepareNext }) => {
+      const output = await executeAndCompleteTool("read_public_page", read, "read-home");
+      await completeStepAndPrepareNext({
+        ...streamedStep("", "tool-calls"),
+        content: [
+          call("read_public_page", "read-home", read),
+          { type: "tool-result", toolName: "read_public_page", toolCallId: "read-home", input: read, output },
+        ],
+      });
+      await executeAndCompleteTool("manage_wiki_pages", setupWrite(), "write-1");
+      await completeStepAndPrepareNext(streamedStep("Created your Wiki pages.", "stop"));
+      return finish();
+    };
+
+    await runAgentTurn({
+      ...payload,
+      wikiHomepageSetup: {
+        url: read.url,
+        registrableDomain: "example.com",
+      },
+    });
+
+    expect(state.execute).toHaveBeenCalledOnce();
+    expect(replyText()).toBe("Created your Wiki pages.");
   });
 
   it("keeps the setup website read bound at four attempts", async () => {

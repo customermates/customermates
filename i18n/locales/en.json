@@ -449,6 +449,7 @@
       "hostedAiUnavailable": "Hosted AI is temporarily unavailable. Please try again later.",
       "policyBreach": "The AI provider exceeded the reserved credit budget, so the run was stopped. No further provider work was started.",
       "providerError": "The AI provider returned an error before I could finish. Nothing further was changed. Please try again.",
+      "sourcesHeading": "Sources",
       "turnError": "I couldn't complete that request. Please try again."
     },
     "send": "Send",

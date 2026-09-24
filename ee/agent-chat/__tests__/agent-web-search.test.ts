@@ -211,22 +211,22 @@ describe("native Agent web search", () => {
     ).toEqual(["https://example.com/00000000-0000-4000-8000-000000000001"]);
   });
 
-  it("caps a deterministic Markdown footer at eight deduplicated HTTPS links", () => {
+  it("caps a deterministic Markdown footer under the localized heading at eight deduplicated HTTPS links", () => {
     const sources = [
       "https://example.com/a#one",
       "https://example.com/a#two",
       ...Array.from({ length: 10 }, (_, index) => `https://example.com/${index}`),
       "http://example.com/no",
     ];
-    const footer = agentWebSourcesFooter(sources);
+    const footer = agentWebSourcesFooter(sources, "Quellen");
 
     expect(footer).toBe(
-      "\n\n### Sources\n" +
+      "\n\n### Quellen\n" +
         ["https://example.com/a", ...Array.from({ length: 7 }, (_, index) => `https://example.com/${index}`)]
           .map((url) => `- <${url}>`)
           .join("\n"),
     );
     expect(footer.match(/^- </gm)).toHaveLength(8);
-    expect(agentWebSourcesFooter(["http://example.com"])).toBe("");
+    expect(agentWebSourcesFooter(["http://example.com"], "Quellen")).toBe("");
   });
 });

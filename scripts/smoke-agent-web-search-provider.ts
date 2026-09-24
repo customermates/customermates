@@ -420,7 +420,7 @@ function providerToolEvidence(result: {
     })
   )
     fail("provider-result", "Exa Search did not emit the localized or root Customermates homepage source.");
-  const answerWithSources = `${result.text}${agentWebSourcesFooter(sources)}`;
+  const answerWithSources = `${result.text}${agentWebSourcesFooter(sources, "Sources")}`;
   if (!answerWithSources.includes("### Sources"))
     fail("provider-result", "The final answer did not receive a Sources footer.");
 

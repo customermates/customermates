@@ -449,6 +449,7 @@
       "hostedAiUnavailable": "L’IA ospitata è temporaneamente non disponibile. Riprova più tardi.",
       "policyBreach": "Il fornitore di IA ha superato il budget di crediti riservato, quindi l’esecuzione è stata interrotta. Non è stato avviato altro lavoro del provider.",
       "providerError": "Il fornitore di IA ha restituito un errore prima che potessi finire. Non è stato modificato altro. Riprova.",
+      "sourcesHeading": "Fonti",
       "turnError": "Non sono riuscito a completare la richiesta. Riprova."
     },
     "send": "Invia",

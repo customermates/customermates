@@ -536,7 +536,8 @@ type AgentRunnerMessageKind =
   | "hostedAiUnavailable"
   | "policyBreach"
   | "turnError"
-  | "emptyReply";
+  | "emptyReply"
+  | "sourcesHeading";
 
 async function resolveRunnerMessage(locale: string, kind: AgentRunnerMessageKind): Promise<string> {
   "use step";
@@ -553,6 +554,7 @@ async function resolveRunnerMessage(locale: string, kind: AgentRunnerMessageKind
   if (kind === "policyBreach") return t("AgentChat.runner.policyBreach");
   if (kind === "cancelled") return t("AgentChat.runner.cancelled");
   if (kind === "emptyReply") return t("AgentChat.runner.emptyReply");
+  if (kind === "sourcesHeading") return t("AgentChat.runner.sourcesHeading");
 
   return kind satisfies never;
 }
@@ -1550,11 +1552,6 @@ export async function runAgentTurn(payload: AgentTurnWorkflowPayload): Promise<v
     }
 
     transcript.finishTextSegment();
-    const sourceFooter = agentWebSourcesFooter([...webSources]);
-    if (sourceFooter) {
-      transcript.appendText(sourceFooter);
-      await publishAssistantText(sourceFooter);
-    }
     if (roundFailure) await reportFailure(WORKFLOW_NAME, roundFailure, payload.tenant);
     if (providerFailure) await reportFailure(WORKFLOW_NAME, providerFailure, payload.tenant);
 
@@ -1592,6 +1589,15 @@ export async function runAgentTurn(payload: AgentTurnWorkflowPayload): Promise<v
       const trailing = transcript.replyText.trim() ? `\n\n${message}` : message;
       transcript.appendText(trailing);
       await publishAssistantText(trailing);
+    } else if (!payload.wikiHomepageSetup && webSources.size > 0 && transcript.replyText.trim()) {
+      const sourceFooter = agentWebSourcesFooter(
+        [...webSources],
+        await resolveRunnerMessage(payload.locale, "sourcesHeading"),
+      );
+      if (sourceFooter) {
+        transcript.appendText(sourceFooter);
+        await publishAssistantText(sourceFooter);
+      }
     }
     transcript.failUnfinishedTools(cancelled ? "cancelled" : "error", true);
     if (transcript.replyParts.length === 0) {

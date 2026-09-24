@@ -449,6 +449,7 @@
       "hostedAiUnavailable": "La IA alojada no está disponible temporalmente. Inténtalo de nuevo más tarde.",
       "policyBreach": "El proveedor de IA superó el presupuesto de créditos reservado, por lo que se detuvo la ejecución. No se inició ningún trabajo adicional del proveedor.",
       "providerError": "El proveedor de IA devolvió un error antes de que pudiera terminar. No se cambió nada más. Inténtalo de nuevo.",
+      "sourcesHeading": "Fuentes",
       "turnError": "No he podido completar esa solicitud. Inténtalo de nuevo."
     },
     "send": "Enviar",

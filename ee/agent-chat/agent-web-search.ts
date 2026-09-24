@@ -128,12 +128,6 @@ export function collectAgentWebSources(messages: readonly unknown[]): string[] {
 
       if (part.type === "tool-result" && part.toolName === AGENT_WEB_SEARCH_TOOL_NAME)
         addOutputSources(part.output, sources);
-      if (part.type === "tool-result" && part.toolName === "read_public_page") {
-        const raw = record(part.output);
-        const output = raw && "value" in raw ? record(raw.value) : raw;
-        const url = output?.ok === true ? canonicalHttpsSource(output.url) : null;
-        if (url) sources.add(url);
-      }
       if (part.type === "source" && part.sourceType === "url") {
         const url = canonicalHttpsSource(part.url);
         if (url) sources.add(url);
@@ -145,11 +139,11 @@ export function collectAgentWebSources(messages: readonly unknown[]): string[] {
   return [...sources];
 }
 
-export function agentWebSourcesFooter(sources: readonly string[]): string {
+export function agentWebSourcesFooter(sources: readonly string[], heading: string): string {
   const canonical = new Set(sources.map(canonicalHttpsSource).filter((url): url is string => Boolean(url)));
   if (canonical.size === 0) return "";
 
   const links = [...canonical].slice(0, AGENT_WEB_SOURCE_LIMIT).map((source) => `- <${source}>`);
 
-  return `\n\n### Sources\n${links.join("\n")}`;
+  return `\n\n### ${heading}\n${links.join("\n")}`;
 }
