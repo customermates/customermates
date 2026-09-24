@@ -5,7 +5,7 @@ import { executeMcpTool, validationError, type McpTool } from "@/features/mcp-to
 import { runAnalysisCode } from "./agent-analysis-isolate";
 import { isReadOnlyTool } from "./gated-tools";
 
-export const ANALYSIS_MAX_ROWS = 5_000;
+export const ANALYSIS_MAX_ROWS = 10_000;
 export const ANALYSIS_MAX_BYTES = 8 * 1024 * 1024;
 const ANALYSIS_PAGE_SIZE = 100;
 
@@ -23,8 +23,8 @@ export const AnalyzeRecordsSchema = z.object({
       }),
     )
     .min(1)
-    .max(5)
-    .describe("One to five reads, run in order before the code; data[i] is the full result of reads[i]"),
+    .max(10)
+    .describe("One to ten reads, run in order before the code; data[i] is the full result of reads[i]"),
   code: z
     .string()
     .min(1)
@@ -38,14 +38,28 @@ export type AnalyzeRecordsInput = z.infer<typeof AnalyzeRecordsSchema>;
 
 export const ANALYZE_RECORDS_DESCRIPTION =
   "Use this when an answer needs arithmetic over many records that no filter or sum expresses: a median, a ranking with a tie-break, a per-record ratio, normalized duplicates, or counting rows by a field the list returns. " +
-  "It runs up to five read-only tool calls, collects every page of each list (up to 5,000 rows and 8 MB in total, never a truncated set), and passes the results to your synchronous JavaScript function (data) => result, which runs in an isolated sandbox with no network, clock or tools. " +
+  "It runs up to ten read-only tool calls, collects every page of each list (up to 10,000 rows and 8 MB in total, never a truncated set), and passes the results to your synchronous JavaScript function (data) => result, which runs in an isolated sandbox with no network, clock or tools. " +
   "data[i] is reads[i]'s structured result; list results carry total and items across all pages. A list_records item holds only id, name and, for deals, totalValue, totalQuantity and weightedValue: no owners, links or custom fields. " +
   "When the answer depends on those, or is a count or total per status, owner or month, use filters, sums or list_records groupBy instead, and report figures exactly as the result states them.";
 
-export type AnalysisDeps = { tools: readonly McpTool[] };
+export type AnalysisDeps = { tools: readonly McpTool[]; resultMaxChars: number };
 
 type Read = { tool: string; input: string };
-type ReadResult = { ok: true; data: unknown; rows: number } | { ok: false; error: string };
+type TooMuchData = { ok: false; tooMuchData: true };
+type ReadResult = { ok: true; data: unknown; rows: number } | { ok: false; error: string } | TooMuchData;
+type DataUsage = { chars: number };
+
+const TOO_MUCH_DATA: TooMuchData = { ok: false, tooMuchData: true };
+const TOO_MUCH_DATA_ERROR = "The reads returned more than 8 MB of data. Narrow them; the analysis code was not run.";
+
+function withinDataCap(usage: DataUsage, value: unknown): boolean {
+  usage.chars += JSON.stringify(value).length;
+  return usage.chars <= ANALYSIS_MAX_BYTES;
+}
+
+function counted(usage: DataUsage, result: ReadResult): ReadResult {
+  return !result.ok || withinDataCap(usage, result.data) ? result : TOO_MUCH_DATA;
+}
 
 function isPageable(mcp: McpTool): boolean {
   const shape = mcp.inputSchema instanceof z.ZodObject ? (mcp.inputSchema.shape as Record<string, unknown>) : {};
@@ -85,12 +99,12 @@ async function runPage(
   return { ok: true, content: outcome.structuredContent ?? { text: outcome.result } };
 }
 
-async function runRead(mcp: McpTool, read: Read, rowBudget: number): Promise<ReadResult> {
+async function runRead(mcp: McpTool, read: Read, rowBudget: number, usage: DataUsage): Promise<ReadResult> {
   const input = parseReadInput(read);
   if (typeof input === "string") return { ok: false, error: input };
   if (!isPageable(mcp)) {
     const single = await runPage(mcp, input);
-    return single.ok ? { ok: true, data: single.content, rows: 0 } : single;
+    return single.ok ? counted(usage, { ok: true, data: single.content, rows: 0 }) : single;
   }
 
   const first = await runPage(mcp, { ...input, page: 1, pageSize: ANALYSIS_PAGE_SIZE });
@@ -99,8 +113,8 @@ async function runRead(mcp: McpTool, read: Read, rowBudget: number): Promise<Rea
     Object.entries(first.content).filter(([key]) => key !== "page" && key !== "pageSize"),
   );
   const firstItems = firstContent.items;
-  if (Array.isArray(firstContent.groups)) return { ok: true, data: firstContent, rows: 0 };
-  if (!Array.isArray(firstItems)) return unpagedResult(mcp, firstContent);
+  if (Array.isArray(firstContent.groups)) return counted(usage, { ok: true, data: firstContent, rows: 0 });
+  if (!Array.isArray(firstItems)) return counted(usage, unpagedResult(mcp, firstContent));
   const total = typeof firstContent.total === "number" ? firstContent.total : firstItems.length;
   if (total > rowBudget) {
     const limit =
@@ -113,6 +127,7 @@ async function runRead(mcp: McpTool, read: Read, rowBudget: number): Promise<Rea
     };
   }
 
+  if (!withinDataCap(usage, firstItems)) return TOO_MUCH_DATA;
   const items: unknown[] = [...firstItems];
   for (let page = 2; items.length < total; page += 1) {
     const next = await runPage(mcp, { ...input, page, pageSize: ANALYSIS_PAGE_SIZE });
@@ -125,10 +140,33 @@ async function runRead(mcp: McpTool, read: Read, rowBudget: number): Promise<Rea
         error: `${mcp.name} stopped at its page limit before every row was read. Narrow its filters.`,
       };
     }
+    if (!withinDataCap(usage, pageItems)) return TOO_MUCH_DATA;
     items.push(...pageItems);
   }
   if (items.length < total) return { ok: false, error: partialSetError(mcp, items.length, total) };
   return { ok: true, data: { ...firstContent, items }, rows: items.length };
+}
+
+async function readAll(
+  planned: readonly { read: Read; mcp: McpTool }[],
+): Promise<{ ok: true; input: string; rows: number } | { ok: false; result: string }> {
+  const data: unknown[] = [];
+  const usage: DataUsage = { chars: 0 };
+  let rows = 0;
+  for (const { read, mcp } of planned) {
+    const outcome = await runRead(mcp, read, ANALYSIS_MAX_ROWS - rows, usage);
+    if (!outcome.ok) {
+      return {
+        ok: false,
+        result: "error" in outcome ? `${outcome.error} The analysis code was not run.` : TOO_MUCH_DATA_ERROR,
+      };
+    }
+    rows += outcome.rows;
+    data.push(outcome.data);
+  }
+  const input = JSON.stringify(data);
+  if (input.length > ANALYSIS_MAX_BYTES) return { ok: false, result: TOO_MUCH_DATA_ERROR };
+  return { ok: true, input, rows };
 }
 
 export async function analyzeRecords(
@@ -148,22 +186,17 @@ export async function analyzeRecords(
     planned.push({ read, mcp });
   }
 
-  const data: unknown[] = [];
-  let rows = 0;
-  for (const { read, mcp } of planned) {
-    const outcome = await runRead(mcp, read, ANALYSIS_MAX_ROWS - rows);
-    if (!outcome.ok) return { ok: false, result: `${outcome.error} The analysis code was not run.` };
-    rows += outcome.rows;
-    data.push(outcome.data);
-  }
-  if (JSON.stringify(data).length > ANALYSIS_MAX_BYTES) {
+  const collected = await readAll(planned);
+  if (!collected.ok) return collected;
+
+  const analysis = await runAnalysisCode(input.code, collected.input);
+  if (!analysis.ok) return { ok: false, result: analysis.error };
+  const result = JSON.stringify({ rowsRead: collected.rows, result: analysis.value });
+  if (result.length > deps.resultMaxChars) {
     return {
       ok: false,
-      result: "The reads returned more than 8 MB of data. Narrow them; the analysis code was not run.",
+      result: `The analysis result is ${result.length} characters, more than the ${deps.resultMaxChars} one tool result can hold, so it was not returned. Return an aggregate, a top N or a count instead of whole rows.`,
     };
   }
-
-  const analysis = await runAnalysisCode(input.code, data);
-  if (!analysis.ok) return { ok: false, result: analysis.error };
-  return { ok: true, result: JSON.stringify({ rowsRead: rows, result: analysis.value }) };
+  return { ok: true, result };
 }

@@ -3,6 +3,8 @@ import { join } from "node:path";
 
 import { beforeEach, describe, expect, it, vi } from "vitest";
 
+import type * as AgentAnalysis from "../agent-analysis";
+
 import { createMockUser } from "@/tests/helpers/mock-user";
 import {
   MOCK_ENV_MODULE,
@@ -14,6 +16,7 @@ import { ROUTING_LOCALES } from "@/i18n/locale-registry";
 
 const mockUser = createMockUser();
 const switches = vi.hoisted(() => ({ enabled: true }));
+const analysis = vi.hoisted(() => ({ analyzeRecords: vi.fn() }));
 
 vi.mock("@/env", () => ({
   env: {
@@ -26,9 +29,18 @@ vi.mock("@/env", () => ({
 vi.mock("@/core/di", () => createMockDiModule(() => mockUser));
 vi.mock("@/core/validation/zod-error-map-server", () => MOCK_ZOD_MODULE);
 vi.mock("@/prisma/db", () => MOCK_PRISMA_DB_MODULE);
+vi.mock("../agent-analysis", async (importOriginal) => ({
+  ...(await importOriginal<typeof AgentAnalysis>()),
+  analyzeRecords: analysis.analyzeRecords,
+}));
 
 import { agentActivityCopy, describeAgentTool } from "../agent-activity";
-import { AGENT_HOSTED_TOOL_ANNOTATIONS, getAgentAiToolDefinitions } from "../agent-tools";
+import {
+  AGENT_HOSTED_TOOL_ANNOTATIONS,
+  getAgentAiToolDefinitions,
+  getAgentAiTools,
+  type AgentToolDeps,
+} from "../agent-tools";
 import { isReadOnlyTool, requiresApproval } from "../gated-tools";
 import { internalToolIdentity } from "../tool-identity";
 
@@ -46,6 +58,7 @@ function translatorFor(locale: string) {
 
 beforeEach(() => {
   switches.enabled = true;
+  analysis.analyzeRecords.mockReset();
 });
 
 describe("analyze_records on the hosted surface", () => {
@@ -57,6 +70,34 @@ describe("analyze_records on the hosted surface", () => {
 
     switches.enabled = false;
     expect(getAgentAiToolDefinitions("vertex").map((definition) => definition.name)).not.toContain("analyze_records");
+  });
+
+  it("hands the turn's tool-result limit to the analysis, which refuses an oversized result whole", async () => {
+    const refusal = "The analysis result is 9000 characters, more than the 700 one tool result can hold.";
+    analysis.analyzeRecords.mockResolvedValue({ ok: false, result: refusal });
+    const deps: AgentToolDeps = {
+      runUiCommand: () => Promise.resolve({ ok: false, result: "unused" }),
+      requestApproval: () => Promise.resolve("reject"),
+      resolveApprovalContext: (_toolName, input) => Promise.resolve({ ok: true, input }),
+      createSupportTicket: () => Promise.resolve({ ok: true, result: "unused" }),
+      runExactlyOnce: (_toolCallId, _toolName, run) => run(),
+      runInCallerContext: (run) => run(),
+      resultMaxChars: 700,
+    };
+    const tools = getAgentAiTools(deps) as unknown as Record<
+      string,
+      { execute: (input: unknown, options: { toolCallId: string }) => Promise<unknown> }
+    >;
+    const input = {
+      reads: [{ tool: "list_records", input: JSON.stringify({ entity: "deal" }) }],
+      code: "(data) => data",
+    };
+
+    await expect(tools.analyze_records.execute(input, { toolCallId: "call-1" })).resolves.toEqual({
+      ok: false,
+      result: refusal,
+    });
+    expect(analysis.analyzeRecords).toHaveBeenCalledWith(input, expect.objectContaining({ resultMaxChars: 700 }));
   });
 
   it("is read-only, so it never asks for approval and never counts as a write", () => {

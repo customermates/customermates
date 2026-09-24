@@ -327,7 +327,7 @@ function analyzeRecordsTool(deps: AgentToolDeps) {
     execute: (input) =>
       runSafely(
         () =>
-          analyzeRecords(input, { tools: hostedMcpTools() }).then((outcome) => ({
+          analyzeRecords(input, { tools: hostedMcpTools(), resultMaxChars: deps.resultMaxChars }).then((outcome) => ({
             ok: outcome.ok,
             result: agentToolResultText(outcome.result, deps.resultMaxChars),
           })),

@@ -7,7 +7,7 @@ import { Intrinsics } from "quickjs-wasi";
 
 export type AnalysisLimits = { memoryBytes: number; wallMs: number; maxSteps: number };
 
-export const ANALYSIS_LIMITS: AnalysisLimits = { memoryBytes: 32 * 1024 * 1024, wallMs: 1_000, maxSteps: 200_000_000 };
+export const ANALYSIS_LIMITS: AnalysisLimits = { memoryBytes: 128 * 1024 * 1024, wallMs: 3_000, maxSteps: 200_000_000 };
 
 export type AnalysisOutcome = { ok: true; value: unknown } | { ok: false; error: string };
 
@@ -83,7 +83,8 @@ function analysisSource(code: string): string {
 function stoppedError(stop: Stop, message: string): string {
   if (stop === "time") return "The analysis code ran longer than its time budget and was stopped.";
   if (stop === "steps") return "The analysis code exceeded its step budget and was stopped.";
-  if (/out of memory/i.test(message)) return "The analysis code ran out of memory and was stopped.";
+  if (message === "<null>" || /out of memory/i.test(message))
+    return "The analysis code ran out of memory and was stopped.";
   if (message === NOT_A_SYNCHRONOUS_FUNCTION)
     return "The analysis code must be one synchronous function expression (data) => result; async functions, await and promises are not available.";
   return `The analysis code failed: ${message.slice(0, 500)}`;
@@ -120,7 +121,7 @@ async function runInWorker(workerData: AnalysisWorkerData, terminateAfterMs: num
 
 export async function runAnalysisCode(
   code: string,
-  data: unknown,
+  input: string,
   limits: AnalysisLimits = ANALYSIS_LIMITS,
 ): Promise<AnalysisOutcome> {
   const wasm = await quickjsModule();
@@ -130,7 +131,7 @@ export async function runAnalysisCode(
       quickjsUrl: pathToFileURL(join(process.cwd(), "node_modules", "quickjs-wasi", "dist", "index.js")).href,
       wasm,
       source: analysisSource(code),
-      input: JSON.stringify(data ?? null),
+      input,
       deadline,
       maxSteps: limits.maxSteps,
       memoryBytes: limits.memoryBytes,

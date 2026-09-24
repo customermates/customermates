@@ -3,14 +3,25 @@ import { z } from "zod";
 
 import type { McpTool } from "@/features/mcp-tools/mcp-tool";
 
-import { analyzeRecords } from "../agent-analysis";
+import {
+  ANALYSIS_MAX_BYTES,
+  ANALYSIS_MAX_ROWS,
+  ANALYZE_RECORDS_DESCRIPTION,
+  AnalyzeRecordsSchema,
+  analyzeRecords,
+  type AnalysisDeps,
+} from "../agent-analysis";
 
-function listTool(name: string, rows: number) {
+const TOO_MUCH_DATA = "The reads returned more than 8 MB of data. Narrow them; the analysis code was not run.";
+
+function listTool(name: string, rows: number, text?: string) {
+  const all = Array.from({ length: rows }, (_, index) => ({
+    id: `row-${index + 1}`,
+    value: index + 1,
+    ...(text === undefined ? {} : { text }),
+  }));
   const execute = vi.fn(({ page, pageSize }: { page: number; pageSize: number }) => {
-    const items = Array.from({ length: rows }, (_, index) => ({ id: `row-${index + 1}`, value: index + 1 })).slice(
-      (page - 1) * pageSize,
-      page * pageSize,
-    );
+    const items = all.slice((page - 1) * pageSize, page * pageSize);
     const payload = { total: rows, page, pageSize, items };
     return { text: JSON.stringify(payload), structuredContent: payload };
   });
@@ -50,6 +61,10 @@ const writer: McpTool = {
 
 const read = (tool: string, input: Record<string, unknown> = {}) => ({ tool, input: JSON.stringify(input) });
 
+function deps(...tools: McpTool[]): AnalysisDeps {
+  return { tools, resultMaxChars: 6_000 };
+}
+
 describe("analyze_records", () => {
   it("reads every page of a list with the largest page size and hands the full set to the code", async () => {
     const { tool, execute } = listTool("list_things", 250);
@@ -58,7 +73,7 @@ describe("analyze_records", () => {
         reads: [read("list_things", { prefix: "A" })],
         code: "(data) => ({ rows: data[0].items.length, total: data[0].total, sum: data[0].items.reduce((s, r) => s + r.value, 0) })",
       },
-      { tools: [tool] },
+      deps(tool),
     );
 
     expect(outcome).toEqual({
@@ -79,7 +94,7 @@ describe("analyze_records", () => {
         reads: [read("get_detail", { id: "x" }), read("list_things")],
         code: "(data) => [data[0].notes, data[1].items.length]",
       },
-      { tools: [tool, detail] },
+      deps(tool, detail),
     );
     expect(outcome).toEqual({ ok: true, result: JSON.stringify({ rowsRead: 3, result: ["kept", 3] }) });
   });
@@ -103,7 +118,7 @@ describe("analyze_records", () => {
     };
     const outcome = await analyzeRecords(
       { reads: [read("list_records", { groupBy: { field: "userIds" } })], code: "(data) => data[0].groups[0].count" },
-      { tools: [grouped] },
+      deps(grouped),
     );
     expect(outcome).toEqual({ ok: true, result: JSON.stringify({ rowsRead: 0, result: 40 }) });
     expect(execute).toHaveBeenCalledTimes(1);
@@ -138,12 +153,12 @@ describe("analyze_records", () => {
       code: "(data) => data[0].messages.length",
     };
 
-    await expect(analyzeRecords(input, { tools: [threadTool(250)] })).resolves.toEqual({
+    await expect(analyzeRecords(input, deps(threadTool(250)))).resolves.toEqual({
       ok: false,
       result:
         "get_messaging_threads returned 100 of 250 rows, so the analysis did not run on a partial set. The analysis code was not run.",
     });
-    await expect(analyzeRecords(input, { tools: [threadTool(40)] })).resolves.toEqual({
+    await expect(analyzeRecords(input, deps(threadTool(40)))).resolves.toEqual({
       ok: true,
       result: JSON.stringify({ rowsRead: 0, result: 40 }),
     });
@@ -154,7 +169,7 @@ describe("analyze_records", () => {
     for (const name of ["update_things", "delete_records"]) {
       const outcome = await analyzeRecords(
         { reads: [read("list_things"), read(name)], code: "() => 1" },
-        { tools: [tool, writer] },
+        deps(tool, writer),
       );
       expect(outcome.ok).toBe(false);
       expect(outcome.result).toContain(`${name} is not a read-only tool`);
@@ -164,47 +179,133 @@ describe("analyze_records", () => {
     expect(writeExecute).not.toHaveBeenCalled();
   });
 
-  it("refuses a set larger than 5,000 rows instead of computing over part of it", async () => {
-    const { tool, execute } = listTool("list_things", 5_001);
+  it("refuses a set larger than 10,000 rows instead of computing over part of it", async () => {
+    const { tool, execute } = listTool("list_things", 10_001);
     const outcome = await analyzeRecords(
       { reads: [read("list_things")], code: "(data) => data[0].items.length" },
-      { tools: [tool] },
+      deps(tool),
     );
     expect(outcome).toEqual({
       ok: false,
       result:
-        "list_things matched 5001 rows, more than the 5000 one analysis can work on. Narrow its filters, or split the question. The analysis code was not run.",
+        "list_things matched 10001 rows, more than the 10000 one analysis can work on. Narrow its filters, or split the question. The analysis code was not run.",
     });
     expect(execute).toHaveBeenCalledTimes(1);
   });
 
   it("counts the row budget across reads", async () => {
-    const { tool } = listTool("list_things", 3_000);
+    const { tool } = listTool("list_things", 6_000);
     const outcome = await analyzeRecords(
       { reads: [read("list_things"), read("list_things")], code: "() => 1" },
-      { tools: [tool] },
+      deps(tool),
     );
     expect(outcome).toEqual({
       ok: false,
       result:
-        "list_things matched 3000 rows, more than the 2000 left of the 5000 one analysis can work on after its earlier reads. Narrow its filters, or split the question. The analysis code was not run.",
+        "list_things matched 6000 rows, more than the 4000 left of the 10000 one analysis can work on after its earlier reads. Narrow its filters, or split the question. The analysis code was not run.",
     });
+  });
+
+  it("stops paging as soon as the data read passes 8 MB instead of holding every page first", async () => {
+    const { tool, execute } = listTool("list_things", 1_000, "x".repeat(20_000));
+    const pageChars = JSON.stringify(
+      Array.from({ length: 100 }, (_, index) => ({
+        id: `row-${index + 1}`,
+        value: index + 1,
+        text: "x".repeat(20_000),
+      })),
+    ).length;
+    expect(4 * pageChars).toBeLessThan(ANALYSIS_MAX_BYTES);
+    expect(5 * pageChars).toBeGreaterThan(ANALYSIS_MAX_BYTES);
+
+    const outcome = await analyzeRecords(
+      { reads: [read("list_things")], code: "(data) => data[0].items.length" },
+      deps(tool),
+    );
+
+    expect(outcome).toEqual({ ok: false, result: TOO_MUCH_DATA });
+    expect(execute).toHaveBeenCalledTimes(5);
+  });
+
+  const large = "x".repeat(3_000_000);
+  const pagedRead = (name: string, content: Record<string, unknown>): McpTool => ({
+    name,
+    title: name,
+    description: name,
+    annotations: { readOnlyHint: true },
+    inputSchema: z.object({ page: z.number().default(1), pageSize: z.number().default(25) }),
+    execute: (({ page, pageSize }: { page: number; pageSize: number }) => {
+      const payload = { ...content, page, pageSize };
+      return { text: "large", structuredContent: payload };
+    }) as never,
+  });
+
+  it.each([
+    [
+      "a read that takes no pages",
+      { ...detail, execute: (() => ({ text: "large", structuredContent: { notes: large } })) as never },
+      read("get_detail", { id: "x" }),
+    ],
+    [
+      "a paged read with no items",
+      pagedRead("get_messaging_threads", { total: 1, messages: [{ body: large }] }),
+      read("get_messaging_threads"),
+    ],
+    ["a grouped list", pagedRead("list_records", { groups: [{ label: large, count: 1 }] }), read("list_records")],
+  ])("counts the data of %s toward the same 8 MB as the reads after it", async (_, first, firstRead) => {
+    const { tool, execute } = listTool("list_things", 1_000, "x".repeat(20_000));
+
+    const outcome = await analyzeRecords(
+      { reads: [firstRead, read("list_things")], code: "() => 1" },
+      deps(tool, first),
+    );
+
+    expect(outcome).toEqual({ ok: false, result: TOO_MUCH_DATA });
+    expect(execute).toHaveBeenCalledTimes(3);
+  });
+
+  it("refuses a result longer than one tool result can hold instead of returning it cut", async () => {
+    const { tool } = listTool("list_things", 250);
+    const input = { reads: [read("list_things")], code: "(data) => data[0].items" };
+    const whole = JSON.stringify({
+      rowsRead: 250,
+      result: Array.from({ length: 250 }, (_, index) => ({ id: `row-${index + 1}`, value: index + 1 })),
+    });
+
+    await expect(analyzeRecords(input, { tools: [tool], resultMaxChars: whole.length })).resolves.toEqual({
+      ok: true,
+      result: whole,
+    });
+    await expect(analyzeRecords(input, { tools: [tool], resultMaxChars: whole.length - 1 })).resolves.toEqual({
+      ok: false,
+      result: `The analysis result is ${whole.length} characters, more than the ${whole.length - 1} one tool result can hold, so it was not returned. Return an aggregate, a top N or a count instead of whole rows.`,
+    });
+  });
+
+  it("accepts up to ten reads and states the limits it enforces", () => {
+    const reads = (count: number) => Array.from({ length: count }, () => read("list_things"));
+    expect(AnalyzeRecordsSchema.safeParse({ reads: reads(10), code: "() => 1" }).success).toBe(true);
+    expect(AnalyzeRecordsSchema.safeParse({ reads: reads(11), code: "() => 1" }).success).toBe(false);
+    expect(ANALYSIS_MAX_ROWS).toBe(10_000);
+    expect(ANALYZE_RECORDS_DESCRIPTION).toContain("up to ten read-only tool calls");
+    expect(ANALYZE_RECORDS_DESCRIPTION).toContain("up to 10,000 rows and 8 MB");
+    expect(AnalyzeRecordsSchema.shape.reads.description).toMatch(/^One to ten reads/);
   });
 
   it("stops on an unreadable input or a failed read, and reports a failing function", async () => {
     const { tool } = listTool("list_things", 3);
     await expect(
-      analyzeRecords({ reads: [{ tool: "list_things", input: "{nope" }], code: "() => 1" }, { tools: [tool] }),
+      analyzeRecords({ reads: [{ tool: "list_things", input: "{nope" }], code: "() => 1" }, deps(tool)),
     ).resolves.toEqual({
       ok: false,
       result: "The input for list_things is not valid JSON. The analysis code was not run.",
     });
-    const invalid = await analyzeRecords({ reads: [read("get_detail", {})], code: "() => 1" }, { tools: [detail] });
+    const invalid = await analyzeRecords({ reads: [read("get_detail", {})], code: "() => 1" }, deps(detail));
     expect(invalid.ok).toBe(false);
     expect(invalid.result).toMatch(/^get_detail: Validation error:.*The analysis code was not run\.$/s);
     const failing = await analyzeRecords(
       { reads: [read("list_things")], code: "(data) => data.missing.length" },
-      { tools: [tool] },
+      deps(tool),
     );
     expect(failing.ok).toBe(false);
     expect(failing.result).toMatch(/^The analysis code failed:/);
