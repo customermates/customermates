@@ -64,6 +64,13 @@ describe("system prompt", () => {
     expect(prompt).not.toContain("Use web_search");
   });
 
+  it("tells a routine about the browse-or-mutate rule only when web search is available", () => {
+    const rule = "An unattended run can browse public sources or mutate data, never both.";
+    expect(buildAgentSystemPrompt({ ...base, surface: "routine", webSearchEnabled: false })).not.toContain(rule);
+    expect(buildAgentSystemPrompt({ ...base, surface: "routine", webSearchEnabled: true })).toContain(rule);
+    expect(buildAgentSystemPrompt({ ...base, webSearchEnabled: true })).not.toContain(rule);
+  });
+
   it("keeps direct page reads setup-only and uses native search for ordinary turns", () => {
     const unavailable = buildAgentSystemPrompt({ ...base, webSearchEnabled: false });
     const available = buildAgentSystemPrompt({ ...base, webSearchEnabled: true });

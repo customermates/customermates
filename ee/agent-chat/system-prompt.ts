@@ -118,7 +118,11 @@ export function buildAgentSystemPrompt(context: SystemPromptContext) {
       ? [
           "",
           UNATTENDED_PARAGRAPH,
-          "An unattended run can browse public sources or mutate data, never both. After successful web access all writes are denied; after a successful write all web access is denied. Wiki and CRM reads remain available. Do not request web and mutations in the same batch.",
+          ...(context.webSearchEnabled
+            ? [
+                "An unattended run can browse public sources or mutate data, never both. After successful web access all writes are denied; after a successful write all web access is denied. Wiki and CRM reads remain available. Do not request web and mutations in the same batch.",
+              ]
+            : []),
           "",
           routineTriggerGuide(context.triggerEvent),
         ]
