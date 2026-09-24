@@ -45,7 +45,7 @@ import {
 } from "../agent-budget-policy";
 import { conservativeAgentInitialContextBytes } from "../agent-provider-context";
 import { serializeAgentWikiCatalog } from "../agent-wiki-context";
-import { MODEL_CATALOG } from "../model-catalog";
+import { MODEL_CATALOG, SHIPPED_AGENT_MODEL_KEY } from "../model-catalog";
 import { buildAgentSystemPrompt } from "../system-prompt";
 import { AGENT_UI_TARGETS } from "../ui-targets";
 import {
@@ -284,9 +284,14 @@ describe("agent tools", () => {
     expect(funded?.maxOutputTokens).toBe(model.maxOutputTokens);
   });
 
-  it.each(["chat", "routine"] as const)(
-    "admits a full Unicode catalog on %s with the supported prompt limit",
-    (surface) => {
+  it.each([
+    ["chat", false, "every catalog model"],
+    ["routine", false, "every catalog model"],
+    ["chat", true, "the shipped model"],
+    ["routine", true, "the shipped model"],
+  ] as const)(
+    "admits a full Unicode catalog on %s with the supported prompt limit (web search %s, %s)",
+    (surface, webSearchEnabled, _models) => {
       const catalog = serializeAgentWikiCatalog({
         items: Array.from({ length: 10 }, (_, index) => ({
           id: `00000000-0000-4000-8000-${String(index).padStart(12, "0")}`,
@@ -301,18 +306,15 @@ describe("agent tools", () => {
         nextPage: 2,
         truncated: true,
       });
-      for (const model of Object.values(MODEL_CATALOG)) {
+      const models = webSearchEnabled ? [MODEL_CATALOG[SHIPPED_AGENT_MODEL_KEY]] : Object.values(MODEL_CATALOG);
+      for (const model of models) {
+        const toolDefinitions = getAgentAiToolDefinitions(model.servingProvider, { surface, webSearchEnabled });
+        expect(toolDefinitions.some(({ name }) => name === "web_search")).toBe(webSearchEnabled);
         const requiredContextBytes = conservativeAgentInitialContextBytes({
-          systemPrompt: buildAgentSystemPrompt({
-            userName: "Test",
-            locale: "en",
-            surface,
-          }),
+          systemPrompt: buildAgentSystemPrompt({ userName: "Test", locale: "en", surface, webSearchEnabled }),
           currentText: "x".repeat(surface === "routine" ? 5000 : 20000),
           pageRoute: null,
-          toolDefinitions: getAgentAiToolDefinitions(model.servingProvider, {
-            surface,
-          }),
+          toolDefinitions,
           wikiCatalog: catalog,
         });
         expect(requiredContextBytes, model.modelId).toBeLessThanOrEqual(
