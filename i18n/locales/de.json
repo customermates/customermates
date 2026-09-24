@@ -422,7 +422,6 @@
       "newViewLabel": "Neue {location}-Ansicht",
       "noResults": "Kein passender Kontext",
       "onThisPage": "Auf dieser Seite",
-      "recordLabel": "{type}: {name}",
       "records": "Datensätze",
       "remove": "{label} entfernen",
       "searchError": "Datensätze konnten nicht durchsucht werden.",

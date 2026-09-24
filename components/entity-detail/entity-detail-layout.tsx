@@ -165,7 +165,6 @@ export const EntityDetailLayout = observer(function EntityDetailLayout<
     entityType,
     recordId: entityId,
     name: identity.name,
-    typeLabel: fallbackTitle,
   });
 
   const deleteConfirmationRef = useRef(showDeleteConfirmation);

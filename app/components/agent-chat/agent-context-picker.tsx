@@ -131,10 +131,7 @@ export const AgentContextPicker = observer(function AgentContextPicker({
     (item): AgentContextCandidate & { displayLabel: string; item: GlobalSearchResultItem } => {
       const displayLabel = entitySearchResultLabel(item, t);
       return {
-        context: recordAttachment(
-          item,
-          t("AgentChat.context.recordLabel", { type: singular(item.type), name: displayLabel }),
-        ),
+        context: recordAttachment(item, displayLabel),
         displayLabel,
         item,
       };

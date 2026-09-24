@@ -313,10 +313,7 @@ export const BENCHMARK_CASES: readonly BenchmarkCase[] = [
             },
           },
           {
-            label: benchmarkMessage(de.AgentChat.context.recordLabel, {
-              type: de.EntityTerminology.presets.contact.contact.singular,
-              name: "Ada Lovelace",
-            }),
+            label: "Ada Lovelace",
             reference: {
               kind: "record",
               entityType: "contact",

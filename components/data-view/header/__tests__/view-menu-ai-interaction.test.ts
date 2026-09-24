@@ -290,10 +290,7 @@ describe("view menu AI context handoff", () => {
       const copy = catalogs[locale];
       const record: AgentContextCandidate = {
         context: {
-          label: interpolate(copy.AgentChat.context.recordLabel, {
-            name: "Julian Wagner",
-            type: copy.EntityTerminology.presets.contact.contact.singular,
-          }),
+          label: "Julian Wagner",
           reference: {
             entityType: "contact",
             kind: "record",

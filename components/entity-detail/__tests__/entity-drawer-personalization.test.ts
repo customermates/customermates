@@ -39,9 +39,7 @@ const harness = vi.hoisted(() => {
     rootStore,
     store,
     top: { entityType: "contact", id: "contact-1" } as { entityType: "contact"; id: string },
-    translate: vi.fn((key: string, values?: Record<string, string>) =>
-      key === "AgentChat.context.recordLabel" ? `${values?.type}: ${values?.name}` : key,
-    ),
+    translate: vi.fn((key: string) => key),
   };
 });
 
@@ -175,7 +173,7 @@ describe("EntityDrawer personalization", () => {
       {
         context: {
           reference: { kind: "record", entityType: "contact", recordId: "contact-1" },
-          label: "Contact: Ada Lovelace",
+          label: "Ada Lovelace",
         },
         pageRoute: "/en/contacts",
       },
@@ -197,7 +195,7 @@ describe("EntityDrawer personalization", () => {
       {
         context: {
           reference: { kind: "record", entityType: "contact", recordId: "contact-2" },
-          label: "Contact: Grace Hopper",
+          label: "Grace Hopper",
         },
         pageRoute: "/en/contacts",
       },

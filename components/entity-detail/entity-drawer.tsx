@@ -157,7 +157,6 @@ export const EntityDrawer = observer(() => {
     entityType: topEntityType,
     recordId: currentEntity?.id ?? null,
     name: currentIdentity?.name ?? null,
-    typeLabel: topEntityType ? singular(topEntityType) : null,
   });
 
   function retry() {

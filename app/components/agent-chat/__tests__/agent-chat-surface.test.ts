@@ -53,8 +53,11 @@ describe("agent chat surface contract", () => {
 
     expect(contexts).toContain('className="contents"');
     expect(contexts).toContain('size="sm"');
+    expect(contexts).not.toContain("startContent=");
     expect(conversation).toContain('data-testid="agent-composer-input-line"');
     expect(conversation).toContain("flex max-h-40 min-h-9 min-w-0 flex-wrap items-center gap-1");
+    expect(conversation).toContain("min-w-[min(10rem,100%)]");
+    expect(conversation).toContain("flex-[1_1_10rem]");
     expect(items).toContain("max-w-full flex-wrap items-center gap-1");
     expect(queued).toContain("flex min-w-0 flex-1 flex-wrap items-center gap-1");
   });

@@ -422,7 +422,6 @@
       "newViewLabel": "Nueva vista de {location}",
       "noResults": "No hay ningún contexto coincidente",
       "onThisPage": "En esta página",
-      "recordLabel": "{type}: {name}",
       "records": "Registros",
       "remove": "Quitar {label}",
       "searchError": "No se pudieron buscar los registros.",

@@ -30,8 +30,7 @@ vi.mock("next/navigation", () => ({
   usePathname: () => "/en/contacts",
 }));
 vi.mock("next-intl", () => ({
-  useTranslations: () => (key: string, values?: { name?: string; type?: string }) =>
-    key === "AgentChat.context.recordLabel" ? `${values?.type}: ${values?.name}` : key,
+  useTranslations: () => (key: string) => key,
 }));
 vi.mock("@/app/[locale]/(protected)/search/actions", () => ({
   globalSearchAction: harness.globalSearchAction,
@@ -217,7 +216,7 @@ describe("AgentContextPicker focus return", () => {
           entityType: "task",
           recordId: "10000000-0000-4000-8000-000000000003",
         },
-        label: "task: Review proposal",
+        label: "Review proposal",
       },
       undefined,
       undefined,
@@ -236,7 +235,7 @@ describe("AgentContextPicker focus return", () => {
             entityType: "contact",
             recordId: "10000000-0000-4000-8000-000000000001",
           },
-          label: "Contact: Ada Lovelace",
+          label: "Ada Lovelace",
         },
         pageRoute: "/en/contacts/contact-1",
       },

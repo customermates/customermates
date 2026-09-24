@@ -82,7 +82,7 @@ describe("unified benchmark registry", () => {
           },
         },
         {
-          label: "Kontakt: Ada Lovelace",
+          label: "Ada Lovelace",
           reference: {
             kind: "record",
             entityType: "contact",

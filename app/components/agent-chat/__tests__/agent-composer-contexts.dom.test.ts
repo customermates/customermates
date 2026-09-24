@@ -20,25 +20,10 @@ vi.mock("next-intl", () => ({
 vi.mock("@/components/chip/app-chip", async () => {
   const React = await import("react");
   return {
-    AppChip: ({
-      children,
-      endContent,
-      size,
-      startContent,
-    }: {
-      children?: ReactNode;
-      endContent?: ReactNode;
-      size?: string;
-      startContent?: ReactNode;
-    }) => React.createElement("span", { "data-chip-size": size }, startContent, children, endContent),
+    AppChip: ({ children, endContent, size }: { children?: ReactNode; endContent?: ReactNode; size?: string }) =>
+      React.createElement("span", { "data-chip-size": size }, children, endContent),
   };
 });
-vi.mock("@/components/entity-detail/entity-relations", () => ({
-  ENTITY_ICON: {
-    contact: () => null,
-    organization: () => null,
-  },
-}));
 vi.mock("../chat-ui", () => ({
   focusAgentComposer: harness.focusAgentComposer,
 }));
@@ -55,11 +40,11 @@ import { AgentComposerContexts } from "../agent-composer-contexts";
 const INITIAL_CONTEXTS: AgentContextAttachment[] = [
   {
     reference: { kind: "record", entityType: "contact", recordId: "contact-1" },
-    label: "Contact: Ada Lovelace",
+    label: "Ada Lovelace",
   },
   {
     reference: { kind: "record", entityType: "organization", recordId: "organization-1" },
-    label: "Organization: Analytical Engines",
+    label: "Analytical Engines",
   },
 ];
 
@@ -99,6 +84,8 @@ describe("AgentComposerContexts", () => {
     const group = container.querySelector<HTMLElement>('[data-testid="agent-composer-contexts"]');
     expect(group?.className).toBe("contents");
     expect(container.querySelectorAll('[data-chip-size="sm"]')).toHaveLength(2);
+    expect(group?.textContent).toContain("Ada Lovelace");
+    expect(group?.textContent).not.toContain("Contact:");
 
     let removeButtons = container.querySelectorAll<HTMLButtonElement>('[data-agent-context-remove="true"]');
     await act(async () => {

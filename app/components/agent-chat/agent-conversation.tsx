@@ -119,7 +119,7 @@ export const AgentComposer = observer(function AgentComposer() {
 
                 <Textarea
                   aria-label={t("AgentChat.placeholder")}
-                  className="max-h-36 min-h-5 min-w-24 w-auto flex-[1_1_6rem] resize-none border-0 bg-transparent p-0 leading-5 shadow-none focus-visible:border-0 focus-visible:ring-0"
+                  className="max-h-36 min-h-5 min-w-[min(10rem,100%)] w-auto flex-[1_1_10rem] resize-none border-0 bg-transparent p-0 leading-5 shadow-none focus-visible:border-0 focus-visible:ring-0"
                   data-testid="agent-composer"
                   id={uiTargets.composerId}
                   placeholder={t("AgentChat.placeholder")}

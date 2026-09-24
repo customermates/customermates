@@ -2,22 +2,15 @@
 
 import type { AgentContextAttachment } from "@/ee/agent-chat/agent-context";
 
-import { LayoutPanelTop, X } from "lucide-react";
+import { X } from "lucide-react";
 import { useTranslations } from "next-intl";
 import { useRef } from "react";
 
 import { AppChip } from "@/components/chip/app-chip";
-import { ENTITY_ICON } from "@/components/entity-detail/entity-relations";
 import { agentContextAttachmentKey } from "@/ee/agent-chat/agent-context";
 
 import { focusAgentComposer } from "./chat-ui";
 import { useAgentChatUiTargets } from "./agent-chat-store-context";
-
-function ContextIcon({ context }: { context: AgentContextAttachment }) {
-  if (context.reference.kind === "dataView") return <LayoutPanelTop aria-hidden />;
-  const Icon = ENTITY_ICON[context.reference.entityType];
-  return <Icon aria-hidden />;
-}
 
 export function AgentComposerContexts({
   contexts,
@@ -66,7 +59,6 @@ export function AgentComposerContexts({
               ) : undefined
             }
             size="sm"
-            startContent={<ContextIcon context={context} />}
             tooltip={context.label}
             variant="default"
           >

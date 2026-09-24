@@ -422,7 +422,6 @@
       "newViewLabel": "Nouvelle vue {location}",
       "noResults": "Aucun contexte correspondant",
       "onThisPage": "Sur cette page",
-      "recordLabel": "{type} : {name}",
       "records": "Enregistrements",
       "remove": "Retirer {label}",
       "searchError": "Impossible de rechercher les enregistrements.",

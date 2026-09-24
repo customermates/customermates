@@ -422,7 +422,6 @@
       "newViewLabel": "New {location} view",
       "noResults": "No matching context",
       "onThisPage": "On this page",
-      "recordLabel": "{type}: {name}",
       "records": "Records",
       "remove": "Remove {label}",
       "searchError": "Couldn’t search records.",

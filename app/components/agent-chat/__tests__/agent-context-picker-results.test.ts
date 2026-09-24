@@ -14,7 +14,7 @@ describe("agent context record search results", () => {
           entityType: EntityType.contact,
           recordId: "10000000-0000-4000-8000-000000000001",
         },
-        label: "Contact: Ada Lovelace",
+        label: "Ada Lovelace",
       },
       pageRoute: "/en/contacts/contact-1",
     };

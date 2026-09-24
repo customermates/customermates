@@ -231,7 +231,6 @@ describe("EntityDetailLayout", () => {
       entityType: EntityType.contact,
       recordId: "contact-1",
       name: "Ada Lovelace",
-      typeLabel: "Contact",
     });
 
     harness.drawerStack = [{ entityType: "deal", id: "deal-1" }];
@@ -242,7 +241,6 @@ describe("EntityDetailLayout", () => {
       entityType: EntityType.contact,
       recordId: "contact-1",
       name: "Ada Lovelace",
-      typeLabel: "Contact",
     });
   });
 
