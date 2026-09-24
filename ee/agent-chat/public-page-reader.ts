@@ -340,13 +340,12 @@ function extractPage(body: string, url: string, contentType: string, allowedDoma
 }
 
 export async function readPublicPage(
-  input: { url: string; allowedDomain?: string },
+  input: { url: string; allowedDomain: string },
   options: { signal?: AbortSignal } = {},
 ): Promise<PublicPageReadResult> {
   const firstPage = parsePublicPageUrl(input.url);
   if (!firstPage) return { ok: false, reason: "invalid_url" };
-  const allowedDomain =
-    input.allowedDomain === undefined ? firstPage.registrableDomain : parsePublicDomainName(input.allowedDomain);
+  const allowedDomain = parsePublicDomainName(input.allowedDomain);
   if (!allowedDomain || firstPage.registrableDomain !== allowedDomain) return { ok: false, reason: "outside_domain" };
 
   const timeout = AbortSignal.timeout(MAX_READ_MS);

@@ -3,7 +3,6 @@ import { describe, expect, it } from "vitest";
 import {
   createPublicPageReadState,
   normalizePublicPageSources,
-  publicPageResearchProgress,
   recordPublicPageLinks,
   reservePublicPageRead,
 } from "../public-page-read-state";
@@ -166,10 +165,7 @@ describe("public page read state", () => {
     });
 
     expect(state.linkedUrls).toEqual(["https://www.example.com/about"]);
-    expect(publicPageResearchProgress(state)).toEqual({ complete: false, remaining: 1 });
     expect(reservePublicPageRead(state, "https://www.example.com/about")).toMatchObject({ ok: true });
-    recordPublicPageLinks(state, "https://www.example.com/about", { ok: false });
-    expect(publicPageResearchProgress(state)).toEqual({ complete: true, remaining: 0 });
   });
 
   it("keeps distinct query URLs separate when validating sources", () => {
@@ -289,41 +285,17 @@ describe("public page read state", () => {
     expect(state.attemptedUrls).toHaveLength(4);
   });
 
-  it("requires up to three linked reads to settle before setup can create pages", () => {
+  it("marks the homepage as read after its first successful attempt without requiring follow-up reads", () => {
     const state = startedState();
-    expect(publicPageResearchProgress(state)).toEqual({ complete: false, remaining: 0 });
+    expect(state.homepageSucceeded).toBe(false);
     recordPublicPageLinks(state, homepage.url, {
       ok: true,
       url: homepage.url,
       links: Array.from({ length: 5 }, (_, index) => ({ url: `https://example.com/page-${index}` })),
     });
-    expect(publicPageResearchProgress(state)).toEqual({ complete: false, remaining: 3 });
-
-    for (let index = 0; index < 3; index++)
-      expect(reservePublicPageRead(state, `https://example.com/page-${index}`).ok).toBe(true);
-
-    expect(publicPageResearchProgress(state)).toEqual({ complete: false, remaining: 3 });
-    recordPublicPageLinks(state, "https://example.com/page-0", { ok: false });
-    recordPublicPageLinks(state, "https://example.com/page-1", {
-      ok: true,
-      url: "https://example.com/page-1",
-      links: [],
-    });
-    recordPublicPageLinks(state, "https://example.com/page-2", { ok: false });
-    expect(publicPageResearchProgress(state)).toEqual({ complete: true, remaining: 0 });
-  });
-
-  it("requires every available linked read when fewer than three exist", () => {
-    const state = startedState();
-    recordPublicPageLinks(state, homepage.url, {
-      ok: true,
-      url: homepage.url,
-      links: [{ url: "https://example.com/about" }],
-    });
-    expect(publicPageResearchProgress(state)).toEqual({ complete: false, remaining: 1 });
-    expect(reservePublicPageRead(state, "https://example.com/about").ok).toBe(true);
-    recordPublicPageLinks(state, "https://example.com/about", { ok: false });
-    expect(publicPageResearchProgress(state)).toEqual({ complete: true, remaining: 0 });
+    expect(state.homepageSucceeded).toBe(true);
+    expect(state.linkedUrls).toHaveLength(5);
+    expect(state.attemptedUrls).toEqual([homepage.url]);
   });
 
   it("keeps query-addressed pages distinct while deduplicating their fragments", () => {
@@ -381,6 +353,7 @@ describe("public page read state", () => {
   it("does not admit pages after an unsuccessful homepage read or duplicate homepage attempt", () => {
     const state = startedState();
     recordPublicPageLinks(state, homepage.url, { ok: false });
+    expect(state.homepageSucceeded).toBe(false);
     expect(reservePublicPageRead(state, homepage.url)).toEqual({
       ok: false,
       reason: "already_attempted",

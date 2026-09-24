@@ -116,7 +116,7 @@ describe("isPublicPageAddress", () => {
 
 describe("readPublicPage", () => {
   it("pins DNS while preserving the hostname, disables connection reuse, and returns bounded visible content", async () => {
-    const result = await readPublicPage({ url: "https://example.com/" });
+    const result = await readPublicPage({ allowedDomain: "example.com", url: "https://example.com/" });
     expect(result).toEqual({
       ok: true,
       url: "https://example.com/",
@@ -161,7 +161,7 @@ describe("readPublicPage", () => {
     "file:///etc/passwd",
     "https://example.com/unsafe\npath",
   ])("rejects unsafe URL %s before DNS or network access", async (url) => {
-    expect(await readPublicPage({ url })).toEqual({
+    expect(await readPublicPage({ url, allowedDomain: "example.com" })).toEqual({
       ok: false,
       reason: "invalid_url",
     });
@@ -196,7 +196,7 @@ describe("readPublicPage", () => {
     [],
   ])("rejects non-public, mixed, mismatched, and empty DNS answers", async (...addresses) => {
     mocks.lookup.mockResolvedValue(addresses);
-    expect(await readPublicPage({ url: "https://example.com/" })).toEqual({
+    expect(await readPublicPage({ allowedDomain: "example.com", url: "https://example.com/" })).toEqual({
       ok: false,
       reason: "blocked_address",
     });
@@ -205,7 +205,7 @@ describe("readPublicPage", () => {
 
   it("pins IPv6 DNS answers without converting or changing the TLS hostname", async () => {
     mocks.lookup.mockResolvedValue([{ address: "2606:4700:4700::1111", family: 6 }]);
-    expect((await readPublicPage({ url: "https://example.com/" })).ok).toBe(true);
+    expect((await readPublicPage({ allowedDomain: "example.com", url: "https://example.com/" })).ok).toBe(true);
     const callback = vi.fn();
     mocks.httpsRequest.mock.calls[0][1].lookup("example.com", {}, callback);
     await new Promise((resolve) => process.nextTick(resolve));
@@ -216,7 +216,7 @@ describe("readPublicPage", () => {
     fixtures.push({ statusCode: 302, headers: { location: "/en" } });
     mocks.lookup.mockResolvedValueOnce([{ address: "93.184.215.14", family: 4 }]);
     mocks.lookup.mockResolvedValueOnce([{ address: "127.0.0.1", family: 4 }]);
-    expect(await readPublicPage({ url: "https://example.com/" })).toEqual({
+    expect(await readPublicPage({ allowedDomain: "example.com", url: "https://example.com/" })).toEqual({
       ok: false,
       reason: "blocked_address",
     });
@@ -230,7 +230,7 @@ describe("readPublicPage", () => {
       statusCode: 301,
       headers: { location: "https://www.example.com/en" },
     });
-    const result = await readPublicPage({ url: "http://example.com/" });
+    const result = await readPublicPage({ allowedDomain: "example.com", url: "http://example.com/" });
     expect(result).toMatchObject({
       ok: true,
       url: "https://www.example.com/en",
@@ -244,6 +244,7 @@ describe("readPublicPage", () => {
       body: "<html><body><p>Details for offering 42.</p></body></html>",
     });
     const result = await readPublicPage({
+      allowedDomain: "example.com",
       url: "https://example.com/index.php?id=42&lang=en#details",
     });
     expect(mocks.httpsRequest.mock.calls[0][0].href).toBe("https://example.com/index.php?id=42&lang=en");
@@ -262,6 +263,7 @@ describe("readPublicPage", () => {
       },
     );
     const result = await readPublicPage({
+      allowedDomain: "example.com",
       url: "https://example.com/index.php?id=42#overview",
     });
     expect(mocks.httpsRequest.mock.calls.map(([url]) => url.href)).toEqual([
@@ -287,7 +289,7 @@ describe("readPublicPage", () => {
     ["https://example.com:8080/", "invalid_url"],
   ])("blocks redirect to %s before a second network request", async (location, reason) => {
     fixtures.push({ statusCode: 302, headers: { location } });
-    expect(await readPublicPage({ url: "https://example.com/" })).toEqual({
+    expect(await readPublicPage({ allowedDomain: "example.com", url: "https://example.com/" })).toEqual({
       ok: false,
       reason,
     });
@@ -301,7 +303,7 @@ describe("readPublicPage", () => {
         headers: { location: "/loop" },
       })),
     );
-    expect(await readPublicPage({ url: "https://example.com/" })).toEqual({
+    expect(await readPublicPage({ allowedDomain: "example.com", url: "https://example.com/" })).toEqual({
       ok: false,
       reason: "redirect_limit",
     });
@@ -312,7 +314,7 @@ describe("readPublicPage", () => {
     fixtures.push({
       body: '<html><head><title>Our &amp; Company</title><script>secret()</script><style>hidden-css</style></head><body><h1>Welcome</h1><p>We help teams.</p><a href="/about#team">About &amp; team</a><a href="https://www.example.com/pricing">Pricing</a><a href="/about?campaign=1">Duplicate</a><a href="https://other.com">Other</a><a href="javascript:alert(1)">Ignore</a><form>Private input</form><noscript>Hidden</noscript></body></html>',
     });
-    const result = await readPublicPage({ url: "https://example.com/en" });
+    const result = await readPublicPage({ allowedDomain: "example.com", url: "https://example.com/en" });
     expect(result).toMatchObject({
       ok: true,
       title: "Our & Company",
@@ -337,7 +339,7 @@ describe("readPublicPage", () => {
       body: `<html><body><main><h1>Example</h1><p>Useful overview.</p>${featureLeaves}<a href="/features">All features</a><a href="/compare">Compare alternatives</a><a href="/docs">Documentation</a><a href="/blog">Insights</a><a href="/about">About us</a><a href="/for/customer-support">For customer support</a></main></body></html>`,
     });
 
-    const result = await readPublicPage({ url: "https://example.com/" });
+    const result = await readPublicPage({ allowedDomain: "example.com", url: "https://example.com/" });
 
     if (!result.ok) throw new Error("expected page");
     expect(result.links).toHaveLength(7);
@@ -357,7 +359,7 @@ describe("readPublicPage", () => {
       body: `<html><body><main><h1>Ejemplo</h1><p>Información útil.</p>${repeated}<a href="/productos">Productos</a><a href="/comparacion">Comparación</a><a href="/ayuda">Ayuda</a><a href="/noticias">Noticias</a><a href="/empresa">Empresa</a><a href="/clientes">Clientes</a></main></body></html>`,
     });
 
-    const result = await readPublicPage({ url: "https://example.com/es" });
+    const result = await readPublicPage({ allowedDomain: "example.com", url: "https://example.com/es" });
 
     if (!result.ok) throw new Error("expected page");
     expect(result.links.map(({ url }) => new URL(url).pathname)).toEqual(
@@ -370,7 +372,7 @@ describe("readPublicPage", () => {
     fixtures.push({
       body: `<html><body><p>${'Useful "quoted" information.\n'.repeat(500)}</p>${Array.from({ length: 15 }, (_, index) => `<a href="/${"long-path".repeat(150)}-${index}">Page ${index}</a>`).join("")}</body></html>`,
     });
-    const result = await readPublicPage({ url: "https://example.com/" });
+    const result = await readPublicPage({ allowedDomain: "example.com", url: "https://example.com/" });
     expect(result).toMatchObject({ ok: true, truncated: true });
     expect(JSON.stringify(result).length).toBeLessThanOrEqual(6_000);
     if (!result.ok) throw new Error("expected page");
@@ -379,7 +381,9 @@ describe("readPublicPage", () => {
   });
 
   it("rejects Unicode URLs that exceed the canonical URL bound without reading", async () => {
-    expect(await readPublicPage({ url: `https://example.com/${"漢".repeat(300)}` })).toEqual({
+    expect(
+      await readPublicPage({ allowedDomain: "example.com", url: `https://example.com/${"漢".repeat(300)}` }),
+    ).toEqual({
       ok: false,
       reason: "invalid_url",
     });
@@ -399,7 +403,7 @@ describe("readPublicPage", () => {
     "reports unsupported, oversized, unavailable, and empty pages without throwing",
     async (fixture, reason) => {
       fixtures.push(fixture);
-      expect(await readPublicPage({ url: "https://example.com/" })).toEqual({
+      expect(await readPublicPage({ allowedDomain: "example.com", url: "https://example.com/" })).toEqual({
         ok: false,
         reason,
       });
@@ -412,7 +416,7 @@ describe("readPublicPage", () => {
       headers: { "content-type": "text/plain" },
       body: "Public information\n\nUseful details",
     });
-    expect(await readPublicPage({ url: "https://example.com/" })).toMatchObject({
+    expect(await readPublicPage({ allowedDomain: "example.com", url: "https://example.com/" })).toMatchObject({
       ok: true,
       text: "Public information\n\nUseful details",
       links: [],
@@ -422,7 +426,10 @@ describe("readPublicPage", () => {
   it("honors cancellation during DNS without opening a connection", async () => {
     const controller = new AbortController();
     mocks.lookup.mockReturnValue(new Promise(() => {}));
-    const result = readPublicPage({ url: "https://example.com/" }, { signal: controller.signal });
+    const result = readPublicPage(
+      { allowedDomain: "example.com", url: "https://example.com/" },
+      { signal: controller.signal },
+    );
     controller.abort();
     expect(await result).toEqual({ ok: false, reason: "timeout" });
     expect(mocks.httpsRequest).not.toHaveBeenCalled();
@@ -444,7 +451,10 @@ describe("readPublicPage", () => {
         },
       });
     });
-    const result = readPublicPage({ url: "https://example.com/" }, { signal: controller.signal });
+    const result = readPublicPage(
+      { allowedDomain: "example.com", url: "https://example.com/" },
+      { signal: controller.signal },
+    );
     await vi.waitFor(() => expect(mocks.httpsRequest).toHaveBeenCalledTimes(1));
     controller.abort();
     expect(await result).toEqual({ ok: false, reason: "timeout" });
@@ -455,7 +465,7 @@ describe("readPublicPage", () => {
     const controller = new AbortController();
     const timeout = vi.spyOn(AbortSignal, "timeout").mockReturnValueOnce(controller.signal);
     mocks.lookup.mockReturnValue(new Promise(() => {}));
-    const result = readPublicPage({ url: "https://example.com/" });
+    const result = readPublicPage({ allowedDomain: "example.com", url: "https://example.com/" });
     expect(timeout).toHaveBeenCalledWith(15_000);
     controller.abort();
     expect(await result).toEqual({ ok: false, reason: "timeout" });

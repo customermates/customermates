@@ -8,7 +8,6 @@ export type PublicPageReadState = {
   homepageUrl: string;
   registrableDomain: string;
   attemptedUrls: string[];
-  settledUrls: string[];
   successfulUrls: string[];
   linkedUrls: string[];
   homepageSucceeded: boolean;
@@ -19,7 +18,6 @@ export function createPublicPageReadState(homepage: PublicWikiHomepage): PublicP
     homepageUrl: homepage.url,
     registrableDomain: homepage.registrableDomain,
     attemptedUrls: [],
-    settledUrls: [],
     successfulUrls: [],
     linkedUrls: [],
     homepageSucceeded: false,
@@ -52,7 +50,6 @@ export function recordPublicPageLinks(
   requestedUrl: string,
   result: { ok: true; url: string; links: { url: string }[] } | { ok: false },
 ): void {
-  state.settledUrls = [...new Set([...(state.settledUrls ?? []), requestedUrl])];
   if (!result.ok) return;
 
   if (requestedUrl === state.homepageUrl) state.homepageSucceeded = true;
@@ -75,16 +72,6 @@ export function recordPublicPageLinks(
       }),
     ),
   ];
-}
-
-export function publicPageResearchProgress(state: PublicPageReadState): {
-  complete: boolean;
-  remaining: number;
-} {
-  const requiredFollowUps = Math.min(MAX_PUBLIC_PAGE_ATTEMPTS - 1, state.linkedUrls.length);
-  const settledFollowUps = (state.settledUrls ?? []).filter((url) => url !== state.homepageUrl).length;
-  const remaining = Math.max(0, requiredFollowUps - settledFollowUps);
-  return { complete: state.homepageSucceeded === true && remaining === 0, remaining };
 }
 
 export function normalizePublicPageSources(

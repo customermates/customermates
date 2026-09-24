@@ -46,7 +46,6 @@ import { agentWebSourcesFooter, collectAgentWebSources } from "@/ee/agent-chat/a
 import {
   createPublicPageReadState,
   normalizePublicPageSources,
-  publicPageResearchProgress,
   reservePublicPageRead,
   recordPublicPageLinks,
 } from "@/ee/agent-chat/public-page-read-state";
@@ -357,7 +356,7 @@ async function executeAgentTool(
 }
 executeAgentTool.maxRetries = 0;
 
-async function readAgentPublicPage(url: string, allowedDomain?: string) {
+async function readAgentPublicPage(url: string, allowedDomain: string) {
   "use step";
   const { readPublicPage } = await import("@/ee/agent-chat/public-page-reader");
   return readPublicPage({ url, allowedDomain });
@@ -1190,13 +1189,14 @@ export async function runAgentTurn(payload: AgentTurnWorkflowPayload): Promise<v
                           if (!prepared.ok) return prepared;
                           const readOnly = isReadOnlyAgentToolCall(shell.name, shell, prepared.input);
                           let executionInput = prepared.input;
-                          if (payload.wikiHomepageSetup && !readOnly && !browsed) {
-                            return {
-                              ok: false,
-                              result: "Read the submitted homepage successfully before creating Wiki pages.",
-                            };
-                          }
                           if (payload.wikiHomepageSetup && !readOnly) {
+                            if (!publicPageState?.homepageSucceeded) {
+                              return {
+                                ok: false,
+                                result:
+                                  "Read the submitted homepage successfully before creating Wiki pages. Nothing was changed.",
+                              };
+                            }
                             if (agentBatchContainsWebCall(options.messages, options.toolCallId)) {
                               return {
                                 ok: false,
@@ -1204,18 +1204,7 @@ export async function runAgentTurn(payload: AgentTurnWorkflowPayload): Promise<v
                                   "Finish the website reads first, then create Wiki pages in a later step so the page content can use those results. Nothing was changed.",
                               };
                             }
-                            const research = publicPageState
-                              ? publicPageResearchProgress(publicPageState)
-                              : { complete: false, remaining: 1 };
-                            if (!research.complete) {
-                              return {
-                                ok: false,
-                                result: `Read ${research.remaining} more useful link${research.remaining === 1 ? "" : "s"} from the submitted homepage before creating Wiki pages. Attempt the remaining reads together. Nothing was changed.`,
-                              };
-                            }
-                            const normalized = publicPageState
-                              ? normalizePublicPageSources(publicPageState, prepared.input)
-                              : { ok: false as const };
+                            const normalized = normalizePublicPageSources(publicPageState, prepared.input);
                             if (!normalized.ok) {
                               return {
                                 ok: false,
@@ -1237,38 +1226,20 @@ export async function runAgentTurn(payload: AgentTurnWorkflowPayload): Promise<v
                             };
                           }
                           if (shell.name === "read_public_page") {
-                            if (isUnattendedSurface(surface) && performedWrite) {
+                            if (!publicPageState) {
                               return {
                                 ok: false,
-                                result: "This routine already changed data, so web access is unavailable.",
+                                result: "Website reading is only available during Workspace Wiki homepage setup.",
                               };
                             }
-                            const url = (prepared.input as { url: string }).url;
-                            const request = publicPageState
-                              ? reservePublicPageRead(publicPageState, url)
-                              : {
-                                  ok: true as const,
-                                  url,
-                                  allowedDomain: undefined,
-                                };
+                            const request = reservePublicPageRead(
+                              publicPageState,
+                              (prepared.input as { url: string }).url,
+                            );
                             if (!request.ok) return request;
                             const result = await readAgentPublicPage(request.url, request.allowedDomain);
-                            if (publicPageState) recordPublicPageLinks(publicPageState, request.url, result);
-                            if (result.ok) {
-                              browsed = true;
-                              for (const source of collectAgentWebSources([
-                                {
-                                  content: [
-                                    {
-                                      type: "tool-result",
-                                      toolName: shell.name,
-                                      output: result,
-                                    },
-                                  ],
-                                },
-                              ]))
-                                webSources.add(source);
-                            }
+                            recordPublicPageLinks(publicPageState, request.url, result);
+                            if (result.ok) browsed = true;
                             return result;
                           }
                           const outcome = await executeAgentTool(

@@ -1904,13 +1904,24 @@ describe("routine browse-or-mutate batch safety", () => {
     };
     await runAgentTurn({ ...payload, surface: "routine" });
     expect(state.execute).not.toHaveBeenCalled();
-    expect(state.readPage).toHaveBeenCalledOnce();
+    expect(state.readPage).not.toHaveBeenCalled();
   });
+
+  it.each(["chat", "routine"] as const)(
+    "fails closed when a %s turn reads a public page outside homepage setup",
+    async (surface) => {
+      state.runTools = async ({ executeAndCompleteTool }) => {
+        expect(await executeAndCompleteTool("read_public_page", read, "read-1")).toMatchObject({ ok: false });
+        return finish();
+      };
+      await runAgentTurn({ ...payload, surface });
+      expect(state.readPage).not.toHaveBeenCalled();
+    },
+  );
 
   it("keeps a successful browse boundary across later steps, while Wiki reads remain available", async () => {
     state.runTools = async ({ executeAndCompleteTool, completeStepAndPrepareNext }) => {
-      await executeAndCompleteTool("read_public_page", read, "read-1");
-      await completeStepAndPrepareNext(streamedStep("", "tool-calls"));
+      await completeStepAndPrepareNext(nativeSearchStep());
       expect(await executeAndCompleteTool("manage_wiki_pages", write, "write-1")).toMatchObject({ ok: false });
       expect(await executeAndCompleteTool("manage_wiki_pages", { action: "get", id: "page-1" }, "get-1")).toMatchObject(
         { ok: true },
@@ -2106,57 +2117,56 @@ describe("routine browse-or-mutate batch safety", () => {
   });
 
   it("does not apply the routine mutation boundary to ordinary chat", async () => {
-    state.runTools = async ({ executeAndCompleteTool }) => {
-      await executeAndCompleteTool("read_public_page", read, "read-1");
+    state.runTools = async ({ executeAndCompleteTool, completeStepAndPrepareNext }) => {
+      await completeStepAndPrepareNext(nativeSearchStep());
       expect(await executeAndCompleteTool("manage_wiki_pages", write, "write-1")).toMatchObject({ ok: true });
       return finish();
     };
     await runAgentTurn(payload);
     expect(state.execute).toHaveBeenCalledOnce();
-    expect(JSON.stringify(state.finalize.mock.calls[0][0].parts)).toContain("https://example.com/");
   });
 
-  it("does not create setup pages before a usable homepage read", async () => {
-    state.runTools = async ({ executeAndCompleteTool }) => {
-      expect(await executeAndCompleteTool("manage_wiki_pages", write, "write-1")).toMatchObject({ ok: false });
-      return finish();
-    };
-    await runAgentTurn({
-      ...payload,
-      wikiHomepageSetup: {
-        url: "https://example.com/",
-        registrableDomain: "example.com",
-      },
+  it.each([false, true])(
+    "does not create setup pages before a usable homepage read (failed read attempted: %s)",
+    async (attempted) => {
+      state.readPage.mockResolvedValue({ ok: false, reason: "unavailable" });
+      state.runTools = async ({ executeAndCompleteTool, completeStepAndPrepareNext }) => {
+        if (attempted) {
+          expect(await executeAndCompleteTool("read_public_page", read, "read-home")).toMatchObject({ ok: false });
+          await completeStepAndPrepareNext(streamedStep("", "tool-calls"));
+        }
+        expect(await executeAndCompleteTool("manage_wiki_pages", setupWrite(), "write-1")).toMatchObject({
+          ok: false,
+          result: expect.stringContaining("Read the submitted homepage successfully"),
+        });
+        return finish();
+      };
+      await runAgentTurn({
+        ...payload,
+        wikiHomepageSetup: {
+          url: "https://example.com/",
+          registrableDomain: "example.com",
+        },
+      });
+      expect(state.readPage).toHaveBeenCalledTimes(attempted ? 1 : 0);
+      expect(state.execute).not.toHaveBeenCalled();
+    },
+  );
+
+  it("creates setup pages after the homepage read without forcing follow-up reads", async () => {
+    let createResult: unknown;
+    state.readPage.mockResolvedValue({
+      ok: true,
+      url: read.url,
+      title: "Example",
+      text: "Useful information",
+      links: ["about", "legal", "login"].map((slug) => ({ url: `https://example.com/${slug}`, title: slug })),
+      truncated: false,
     });
-    expect(state.execute).not.toHaveBeenCalled();
-  });
-
-  it("requires the bounded linked-page review to settle before setup pages are created", async () => {
-    const citedWrite = setupWrite();
-    let earlyResult: unknown;
-    let finalResult: unknown;
-    const links = ["about", "customers", "docs", "security"].map((slug) => ({
-      url: `https://example.com/${slug}`,
-    }));
-    state.readPage.mockImplementation(({ url }: { url: string }) =>
-      Promise.resolve({
-        ok: true,
-        url,
-        title: "Example",
-        text: "Useful information",
-        links: url === read.url ? links : [],
-        truncated: false,
-      }),
-    );
-    state.runTools = async ({ executeAndCompleteTool }) => {
+    state.runTools = async ({ executeAndCompleteTool, completeStepAndPrepareNext }) => {
       await executeAndCompleteTool("read_public_page", read, "read-home");
-      await executeAndCompleteTool("read_public_page", links[0], "read-about");
-      earlyResult = await executeAndCompleteTool("manage_wiki_pages", citedWrite, "write-early");
-      await Promise.all([
-        executeAndCompleteTool("read_public_page", links[1], "read-customers"),
-        executeAndCompleteTool("read_public_page", links[2], "read-docs"),
-      ]);
-      finalResult = await executeAndCompleteTool("manage_wiki_pages", citedWrite, "write-final");
+      await completeStepAndPrepareNext(streamedStep("", "tool-calls"));
+      createResult = await executeAndCompleteTool("manage_wiki_pages", setupWrite(), "write-1");
       return finish();
     };
 
@@ -2168,12 +2178,45 @@ describe("routine browse-or-mutate batch safety", () => {
       },
     });
 
-    expect(earlyResult).toMatchObject({
-      ok: false,
-      result: expect.stringContaining("Read 2 more useful links"),
-    });
-    expect(finalResult).toMatchObject({ ok: true });
+    expect(createResult).toMatchObject({ ok: true });
+    expect(JSON.stringify(createResult)).not.toMatch(/more useful link/i);
+    expect(state.readPage).toHaveBeenCalledExactlyOnceWith({ url: read.url, allowedDomain: "example.com" });
     expect(state.execute).toHaveBeenCalledOnce();
+  });
+
+  it("keeps the setup website read bound at four attempts", async () => {
+    const links = Array.from({ length: 5 }, (_, index) => ({ url: `https://example.com/page-${index}` }));
+    state.readPage.mockImplementation(({ url }: { url: string }) =>
+      Promise.resolve({
+        ok: true,
+        url,
+        title: "Example",
+        text: "Useful information",
+        links: url === read.url ? links : [],
+        truncated: false,
+      }),
+    );
+    const results: unknown[] = [];
+    state.runTools = async ({ executeAndCompleteTool }) => {
+      results.push(await executeAndCompleteTool("read_public_page", read, "read-home"));
+      for (const [index, link] of links.entries())
+        results.push(await executeAndCompleteTool("read_public_page", link, `read-${index}`));
+      return finish();
+    };
+
+    await runAgentTurn({
+      ...payload,
+      wikiHomepageSetup: {
+        url: read.url,
+        registrableDomain: "example.com",
+      },
+    });
+
+    expect(state.readPage).toHaveBeenCalledTimes(4);
+    expect(results.slice(4)).toEqual([
+      { ok: false, reason: "page_limit" },
+      { ok: false, reason: "page_limit" },
+    ]);
   });
 
   it("never creates setup pages in the same batch as website reads", async () => {
