@@ -83,9 +83,7 @@ const payload = (id?: string): UpsertRoleData => ({
 });
 
 const invoke = (repo: MockRepo, data: UpsertRoleData) => {
-  const eventService = {
-    publish: vi.fn().mockResolvedValue(undefined),
-  } as unknown as EventService;
+  const eventService = { publish: vi.fn().mockResolvedValue(undefined) } as unknown as EventService;
   const validator = { invoke: vi.fn() } as unknown as ValidateRoleIdsInteractor;
 
   return runWithTenant(mockUser, () => new UpsertRoleInteractor(repo, eventService, validator).invoke(data));
@@ -130,33 +128,14 @@ describe("UpsertRoleInteractor self-escalation guard", () => {
     expect(repo.upsertRoleOrThrow).toHaveBeenCalledOnce();
   });
 
-  it("defaults an omitted Wiki permission to Read when an older caller creates a role", async () => {
+  it("requires the Wiki permission like every other resource", async () => {
     const repo = new MockRepo();
-    const data = payload(undefined);
-    const permissions = { ...data.permissions };
+    const permissions: Partial<UpsertRoleData["permissions"]> = escalatingPermissions();
     delete permissions.wiki;
 
-    const result = await invoke(repo, { ...data, permissions } as UpsertRoleData);
+    const result = await invoke(repo, { ...payload(OTHER_ROLE_ID), permissions } as unknown as UpsertRoleData);
 
-    expect(result.ok).toBe(true);
-    expect(repo.upsertRoleOrThrow).toHaveBeenCalledWith({
-      ...data,
-      permissions: {
-        ...permissions,
-        wiki: { canManage: "no", readAccess: "all" },
-      },
-    });
-  });
-
-  it("leaves an omitted Wiki permission unchanged when an older caller updates a role", async () => {
-    const repo = new MockRepo();
-    const data = payload(OTHER_ROLE_ID);
-    const permissions = { ...data.permissions };
-    delete permissions.wiki;
-
-    const result = await invoke(repo, { ...data, permissions });
-
-    expect(result.ok).toBe(true);
-    expect(repo.upsertRoleOrThrow).toHaveBeenCalledWith({ ...data, permissions });
+    expect(result.ok).toBe(false);
+    expect(repo.upsertRoleOrThrow).not.toHaveBeenCalled();
   });
 });

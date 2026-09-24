@@ -750,21 +750,6 @@ describeDatabase("Workspace Wiki public boundaries on PostgreSQL", () => {
 
       await save(manager.id, { canManage: "no", readAccess: "none" });
       expect(await wikiActions(manager.id)).toEqual([]);
-
-      const olderClientPermissions = permissions({
-        canManage: "no",
-        readAccess: "none",
-      });
-      delete olderClientPermissions.wiki;
-      await runWithTenant(user, () =>
-        repo.upsertRoleOrThrow({
-          id: manager.id,
-          name: roleName,
-          description: "Updated by an older client",
-          permissions: olderClientPermissions,
-        }),
-      );
-      expect(await wikiActions(manager.id)).toEqual([]);
     } finally {
       await client.query('DELETE FROM "UserRole" WHERE "id" = $1', [manager.id]);
     }

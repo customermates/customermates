@@ -55,9 +55,7 @@ export class PrismaRoleRepo
   }
 
   async getItems(params: GetQueryParams) {
-    const args = await this.buildQueryArgs(params, {
-      companyId: this.companyId,
-    });
+    const args = await this.buildQueryArgs(params, { companyId: this.companyId });
 
     const roles = await this.prisma.userRole.findMany({
       ...args,
@@ -68,20 +66,14 @@ export class PrismaRoleRepo
   }
 
   async getCount() {
-    return await this.prisma.userRole.count({
-      where: { companyId: this.companyId },
-    });
+    return await this.prisma.userRole.count({ where: { companyId: this.companyId } });
   }
 
   @Transaction
   async upsertRoleOrThrow(args: RepoArgs<UpsertRoleRepo, "upsertRoleOrThrow">) {
     const { companyId } = this.user;
 
-    if (args.id) {
-      await this.prisma.userRole.findFirstOrThrow({
-        where: { id: args.id, companyId },
-      });
-    }
+    if (args.id) await this.prisma.userRole.findFirstOrThrow({ where: { id: args.id, companyId } });
 
     const roleData = {
       name: args.name,
@@ -101,11 +93,7 @@ export class PrismaRoleRepo
 
     if (args.id) {
       await this.prisma.rolePermission.deleteMany({
-        where: {
-          roleId: args.id,
-          companyId,
-          ...(args.permissions.wiki === undefined ? { resource: { not: Resource.wiki } } : {}),
-        },
+        where: { roleId: args.id, companyId },
       });
     }
 
@@ -126,14 +114,8 @@ export class PrismaRoleRepo
           { roleId: savedRole.id, companyId, resource, action: Action.update },
           { roleId: savedRole.id, companyId, resource, action: Action.delete },
         );
-        if (resource === Resource.wiki) {
-          permissions.push({
-            roleId: savedRole.id,
-            companyId,
-            resource,
-            action: Action.readAll,
-          });
-        }
+        if (resource === Resource.wiki)
+          permissions.push({ roleId: savedRole.id, companyId, resource, action: Action.readAll });
       }
 
       if (isManageOnlyResource) {
@@ -146,20 +128,10 @@ export class PrismaRoleRepo
       if ("readAccess" in permission) {
         switch (permission.readAccess) {
           case "own":
-            permissions.push({
-              roleId: savedRole.id,
-              companyId,
-              resource,
-              action: Action.readOwn,
-            });
+            permissions.push({ roleId: savedRole.id, companyId, resource, action: Action.readOwn });
             break;
           case "all":
-            permissions.push({
-              roleId: savedRole.id,
-              companyId,
-              resource,
-              action: Action.readAll,
-            });
+            permissions.push({ roleId: savedRole.id, companyId, resource, action: Action.readAll });
             break;
           case "none":
           default:
@@ -200,19 +172,12 @@ export class PrismaRoleRepo
   async hasAnotherActiveSystemRoleUser(excludeUserId: string) {
     const { companyId } = this.user;
 
-    const systemRole = await this.prisma.userRole.findFirst({
-      where: { companyId, isSystemRole: true },
-    });
+    const systemRole = await this.prisma.userRole.findFirst({ where: { companyId, isSystemRole: true } });
 
     if (!systemRole) return false;
 
     const count = await this.prisma.user.count({
-      where: {
-        companyId,
-        id: { not: excludeUserId },
-        status: "active",
-        roleId: systemRole.id,
-      },
+      where: { companyId, id: { not: excludeUserId }, status: "active", roleId: systemRole.id },
     });
 
     return count > 0;
