@@ -252,8 +252,9 @@ const payload: AgentTurnWorkflowPayload = {
   companyId: "company-1",
   userId: "user-1",
   userName: "Test User",
-  appBaseUrl: "https://example.invalid",
   locale: "en",
+  appBaseUrl: "http://localhost:4000",
+  pageRoute: "/en/contacts",
   messages: [{ role: "user", text: "Hello" }],
   turnBudget: {
     modelSpec: "google/gemini-3.5-flash-lite",
@@ -710,6 +711,30 @@ describe("agent-turn credit-bounded continuation", () => {
     expect(JSON.stringify(state.writes)).toContain("localized:AgentChat.runner.creditLimitNoWrite");
   });
 
+  it.each([
+    ["list", "creditLimitNoWrite"],
+    ["create", "creditLimit"],
+  ] as const)("classifies a successful multiplexed %s action for credit-limit recovery", async (action, messageKey) => {
+    state.definitions.push({ name: "manage_widgets", description: "manage_widgets", inputSchema: { type: "object" } });
+    state.normalize.mockResolvedValue({ ok: true, input: { action } });
+    state.extendReservation.mockResolvedValueOnce({ disposition: "credit_limit" });
+    state.runTools = async ({ messages, executeAndCompleteTool }) => {
+      await executeAndCompleteTool("manage_widgets", { action }, `call-${action}`);
+      return {
+        finishReason: "length",
+        messages,
+        steps: [streamedStep("Partial response.", "length")],
+      };
+    };
+
+    await runAgentTurn({
+      ...payload,
+      turnBudget: { ...payload.turnBudget, reservedCredits: 1, roundReserveCredits: 2 },
+    });
+
+    expect(JSON.stringify(state.writes)).toContain(`localized:AgentChat.runner.${messageKey}`);
+  });
+
   it("blocks the SDK's next internal provider request when a tool-call round exhausts its reservation", async () => {
     state.extendReservation.mockResolvedValueOnce({
       disposition: "credit_limit",
@@ -934,12 +959,14 @@ describe("agent-turn credit-bounded continuation", () => {
 
   it("retries a resolved provider error and reports it with the provider's own message", async () => {
     let segment = 0;
+    const seenMessages: unknown[][] = [];
     state.runTools = ({ messages }) => {
+      seenMessages.push(messages);
       segment += 1;
-      if (segment <= 2) {
+      if (segment === 1) {
         return Promise.resolve({
           finishReason: "error",
-          messages,
+          messages: [{ role: "system", content: "provider-added system message" }, ...messages],
           steps: [streamedStep("", "error")],
           error: new Error("Vertex said no"),
         });
@@ -953,8 +980,9 @@ describe("agent-turn credit-bounded continuation", () => {
 
     await runAgentTurn(payload);
 
-    expect(segment).toBe(3);
-    expect(state.reportFailure).toHaveBeenCalledTimes(2);
+    expect(segment).toBe(2);
+    expect(seenMessages[1]).not.toContainEqual(expect.objectContaining({ role: "system" }));
+    expect(state.reportFailure).toHaveBeenCalledTimes(1);
     expect(state.reportFailure.mock.calls[0][1].message).toContain('finishReason "error"');
     expect(state.reportFailure.mock.calls[0][1].message).toContain("Vertex said no");
     expect(state.finalize).toHaveBeenCalledWith(
@@ -1579,6 +1607,7 @@ describe("agent-turn authoritative tool inputs", () => {
     expect(state.normalize).toHaveBeenCalledTimes(1);
     expect(state.normalize).toHaveBeenCalledWith("list_users", raw, 1000, {
       locale: payload.locale,
+      pageRoute: payload.pageRoute,
       wikiHomepageSetup: false,
       webSearchEnabled: undefined,
       surface: "chat",

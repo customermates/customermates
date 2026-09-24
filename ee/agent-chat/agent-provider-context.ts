@@ -5,6 +5,8 @@ import type { AgentAiToolDefinition } from "./agent-tools";
 import { isAgentContextWithinBudget, serializedAgentContextBytes } from "./agent-budget-policy";
 import { AGENT_REPLAY_COUNT, agentReplayWorstCaseMessageChars } from "./agent-replay-budget";
 import { agentWikiContextMessages } from "./agent-wiki-context";
+import { agentPageContextPrefix } from "./agent-page-context";
+import { agentContextProviderPrefix, type AgentContextAttachment } from "./agent-context";
 
 export type AgentProviderContext = {
   system: string;
@@ -37,6 +39,7 @@ export function isAgentStepContextWithinBudget(
 export function conservativeAgentInitialContextBytes(args: {
   systemPrompt: string;
   currentText: string;
+  contexts?: readonly AgentContextAttachment[];
   pageRoute: string | null;
   toolDefinitions: AgentAiToolDefinition[];
   wikiCatalog?: string | null;
@@ -46,10 +49,11 @@ export function conservativeAgentInitialContextBytes(args: {
     role: index % 2 === 0 ? "user" : "assistant",
     text: "x".repeat(worstCaseMessageChars),
   }));
-  const pageContext = args.pageRoute ? `<page_context route="${args.pageRoute}"/>\n` : "";
+  const pageContext = agentPageContextPrefix(args.pageRoute);
+  const selectedContexts = agentContextProviderPrefix(args.contexts ?? []);
   const context = buildAgentProviderContext(
     args.systemPrompt,
-    [...priorMessages, { role: "user", text: `${pageContext}${args.currentText}` }],
+    [...priorMessages, { role: "user", text: `${pageContext}${selectedContexts}${args.currentText}` }],
     args.toolDefinitions,
     args.wikiCatalog,
   );

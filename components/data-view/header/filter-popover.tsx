@@ -5,7 +5,7 @@ import type { BaseDataViewStore } from "@/core/base/base-data-view.store";
 import { Filter } from "lucide-react";
 import { observer } from "mobx-react-lite";
 import { useTranslations } from "next-intl";
-import { useEffect } from "react";
+import { useEffect, useRef } from "react";
 
 import { Button } from "@/components/ui/button";
 import { FilterPalette } from "@/components/data-view/filter-palette/filter-palette";
@@ -15,6 +15,8 @@ import { cn } from "@/core/utils/cn";
 import { runUserAction } from "@/core/errors/report-application-error";
 import { useFilterFieldLabel } from "@/components/entity-terminology/use-filter-field-label";
 import { useRootStore } from "@/core/stores/root-store.provider";
+import { useViewAi } from "@/components/data-view/views/use-view-ai";
+import { ViewAiAction } from "@/components/data-view/views/view-ai-action";
 
 type Props = {
   store: BaseDataViewStore<any>;
@@ -26,6 +28,11 @@ export const FilterPopover = observer(function FilterPopover({ store, compact, i
   const t = useTranslations();
   const { filterPaletteStore: palette } = useRootStore();
   const filterFieldLabel = useFilterFieldLabel();
+  const ai = useViewAi(store, {
+    registerPageContext: false,
+    entry: "filters",
+  });
+  const pendingAi = useRef<(() => void) | null>(null);
 
   useEffect(() => () => palette.flushPendingChanges(), [palette]);
 
@@ -85,7 +92,9 @@ export const FilterPopover = observer(function FilterPopover({ store, compact, i
     <>
       {activeFilterCount >= MAX_APPLIED_FILTERS && (
         <p aria-live="polite" className="mr-auto text-xs text-muted-foreground" role="status">
-          {t("Common.filters.palette.limitReached", { count: MAX_APPLIED_FILTERS })}
+          {t("Common.filters.palette.limitReached", {
+            count: MAX_APPLIED_FILTERS,
+          })}
         </p>
       )}
 
@@ -102,18 +111,38 @@ export const FilterPopover = observer(function FilterPopover({ store, compact, i
     </>
   );
 
-  return (
+  const overlay = (
     <ResponsiveOverlay
       align="end"
       footer={footer}
+      headerAction={
+        ai.available && (
+          <ViewAiAction
+            id={id ? `${id}-ask-ai` : undefined}
+            onClick={() => {
+              pendingAi.current = ai.openCurrent;
+              palette.close();
+            }}
+          />
+        )
+      }
       open={isOpen}
       popoverClassName="w-[min(22rem,var(--radix-popover-content-available-width))]"
       title={title}
       trigger={trigger}
+      onCloseAutoFocus={(event) => {
+        const handoff = pendingAi.current;
+        if (!handoff) return;
+        event.preventDefault();
+        pendingAi.current = null;
+        handoff();
+      }}
       onEscapeKeyDown={handleEscapeKeyDown}
       onOpenChange={handleOpenChange}
     >
       <FilterPalette store={store} />
     </ResponsiveOverlay>
   );
+
+  return overlay;
 });

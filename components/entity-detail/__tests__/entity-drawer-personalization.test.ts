@@ -13,12 +13,16 @@ const harness = vi.hoisted(() => {
     close: vi.fn(),
     customColumns: [{ id: "custom-1" }, { id: "custom-2" }],
     entityLoadState: "ready",
+    fetchedEntity: { id: "contact-1", name: "Ada Lovelace" },
     hasUnsavedChanges: false,
     loadById: vi.fn(),
     resetForm: vi.fn(),
     withUnsavedChangesGuard: false,
   };
+  const contextCleanup = vi.fn();
+  const contextRegistry = { register: vi.fn(() => contextCleanup) };
   const rootStore = {
+    agentChatStore: { contextRegistry },
     userStore: {
       canAccess: () => true,
       user: { id: "user-1" },
@@ -27,16 +31,20 @@ const harness = vi.hoisted(() => {
 
   return {
     getP13nAction: vi.fn(),
+    contextCleanup,
+    contextRegistry,
     personalization: vi.fn(() => ({ p13nId: "contact-detail", defaultStarredFieldIds: [] })),
     popTop: vi.fn(),
     reportApplicationError: vi.fn(),
     rootStore,
     store,
     top: { entityType: "contact", id: "contact-1" } as { entityType: "contact"; id: string },
+    translate: vi.fn((key: string) => key),
   };
 });
 
-vi.mock("next-intl", () => ({ useTranslations: () => (key: string) => key }));
+vi.mock("next-intl", () => ({ useTranslations: () => harness.translate }));
+vi.mock("next/navigation", () => ({ usePathname: () => "/en/contacts" }));
 vi.mock("@/app/actions", () => ({ getP13nAction: harness.getP13nAction }));
 vi.mock("@/components/entity-detail/hooks/use-entity-drawer-stack", () => ({
   focusEntityDrawerInvoker: () => false,
@@ -50,6 +58,7 @@ vi.mock("@/components/entity-detail/entity-detail.registry", () => ({
     contact: {
       DetailView: ({ layout }: { layout: string }) =>
         createElement("div", { "data-detail-view": true, "data-layout": layout }),
+      identity: (entity: { name: string }) => ({ name: entity.name }),
       personalization: harness.personalization,
       store: () => harness.store,
     },
@@ -125,10 +134,11 @@ beforeEach(() => {
   (globalThis as { IS_REACT_ACT_ENVIRONMENT?: boolean }).IS_REACT_ACT_ENVIRONMENT = true;
   vi.clearAllMocks();
   harness.store.entityLoadState = "ready";
+  harness.store.fetchedEntity = { id: "contact-1", name: "Ada Lovelace" };
   harness.store.add.mockResolvedValue(undefined);
   harness.store.loadById.mockResolvedValue(undefined);
   harness.rootStore.userStore.user = observable({ id: "user-1" });
-  harness.top.id = "contact-1";
+  harness.top = observable({ entityType: "contact" as const, id: "contact-1" });
 });
 
 afterEach(() => {
@@ -138,6 +148,64 @@ afterEach(() => {
 });
 
 describe("EntityDrawer personalization", () => {
+  it("registers the loaded top record, replaces it with the next record, and cleans up", async () => {
+    harness.getP13nAction.mockResolvedValue({
+      ok: true,
+      data: { p13nId: "contact-detail", columnOrder: ["custom-2", "custom-1"] },
+    });
+    const container = document.createElement("div");
+    document.body.append(container);
+    const root = createRoot(container);
+    roots.add(root);
+
+    await act(async () => {
+      root.render(createElement(EntityDrawer));
+      await Promise.resolve();
+      await Promise.resolve();
+    });
+
+    const initialRegistration = harness.contextRegistry.register.mock.calls.at(-1) as unknown as [
+      string,
+      () => unknown,
+    ];
+    expect(initialRegistration[0]).toBe("/en/contacts");
+    expect(initialRegistration[1]()).toEqual([
+      {
+        context: {
+          reference: { kind: "record", entityType: "contact", recordId: "contact-1" },
+          label: "Ada Lovelace",
+        },
+        pageRoute: "/en/contacts",
+      },
+    ]);
+
+    await act(async () => {
+      runInAction(() => {
+        harness.store.fetchedEntity = { id: "contact-2", name: "Grace Hopper" };
+        harness.top.id = "contact-2";
+      });
+      await Promise.resolve();
+      await Promise.resolve();
+    });
+
+    expect(harness.contextCleanup).toHaveBeenCalledOnce();
+    expect(harness.contextRegistry.register).toHaveBeenCalledTimes(2);
+    const nextRegistration = harness.contextRegistry.register.mock.calls.at(-1) as unknown as [string, () => unknown];
+    expect(nextRegistration[1]()).toEqual([
+      {
+        context: {
+          reference: { kind: "record", entityType: "contact", recordId: "contact-2" },
+          label: "Grace Hopper",
+        },
+        pageRoute: "/en/contacts",
+      },
+    ]);
+
+    act(() => root.unmount());
+    roots.delete(root);
+    expect(harness.contextCleanup).toHaveBeenCalledTimes(2);
+  });
+
   it("waits for the user preference and provides its custom-field order to drawer details", async () => {
     let resolvePreference: ((value: { ok: true; data: { p13nId: string; columnOrder: string[] } }) => void) | undefined;
     harness.getP13nAction.mockReturnValue(
@@ -204,6 +272,7 @@ describe("EntityDrawer personalization", () => {
     });
 
     expect(harness.store.add).toHaveBeenCalledOnce();
+    expect(harness.contextRegistry.register).not.toHaveBeenCalled();
     expect(container.querySelector<HTMLElement>("[data-personalization-provider]")?.dataset.applyFieldVisibility).toBe(
       "false",
     );

@@ -1,4 +1,6 @@
 import { z } from "zod";
+import { SurfaceKeySchema, ViewKeySchema } from "@/core/data-view/data-view-identity.schema";
+import { dataViewNavigationHref } from "@/core/data-view/data-view-links";
 
 import { parsePublicPageUrl } from "@/features/wiki/wiki-homepage";
 
@@ -8,6 +10,12 @@ import { internalToolIdentity, isInternalToolIdentity } from "./tool-identity";
 
 import { sanitizeAgentVisibleText } from "./agent-output-safety";
 import { LOAD_TOOLSET_TOOL_NAME } from "./agent-toolset-routing";
+
+const ViewMutationActionSchema = z.enum(["create", "update", "select", "delete"]);
+const DataViewNavigationHrefSchema = z
+  .string()
+  .refine((value) => dataViewNavigationHref(value) !== null)
+  .transform((value) => dataViewNavigationHref(value) as string);
 
 export type AgentTranslator = (key: string, values?: Record<string, string | number>) => string;
 
@@ -22,6 +30,9 @@ export const AGENT_ACTIVITY_KINDS = [
   "customFields.update",
   "customFields.delete",
   "customFields.configure",
+  "views.read",
+  "views.configure",
+  "views.delete",
   "widgets.read",
   "widgets.create",
   "widgets.update",
@@ -156,7 +167,12 @@ export const AgentActivityDescriptorSchema = z.preprocess(
         .optional(),
       sourcePage: z.string().max(500).optional(),
       consequence: AgentActivityConsequenceSchema.optional(),
+      viewSurfaceKey: SurfaceKeySchema.optional(),
+      viewAction: ViewMutationActionSchema.optional(),
+      viewKey: ViewKeySchema.optional(),
+      viewHref: DataViewNavigationHrefSchema.optional(),
     })
+    .refine((descriptor) => !descriptor.viewHref || descriptor.kind === "views.configure")
     .superRefine((activity, context) => {
       if (!activity.sourcePage) return;
       const parsed = parsePublicPageUrl(`https://${activity.sourcePage}`);
@@ -343,6 +359,22 @@ export function describeAgentTool(identity: AgentToolIdentity, input: unknown): 
               ? "customFields.create"
               : "customFields.configure";
     return descriptor(kind, resource, action === "list" ? "read" : multiplexedRisk(toolName, details));
+  }
+  if (toolName === "manage_data_views") {
+    const surface = SurfaceKeySchema.safeParse(details.surfaceKey);
+    const action = ViewMutationActionSchema.safeParse(details.action);
+    const view = ViewKeySchema.safeParse(details.viewKey);
+    const read = isMultiplexedRead(toolName, details);
+    return {
+      ...descriptor(
+        read ? "views.read" : details.action === "delete" ? "views.delete" : "views.configure",
+        undefined,
+        read ? "read" : multiplexedRisk(toolName, details),
+      ),
+      ...(surface.success ? { viewSurfaceKey: surface.data } : {}),
+      ...(action.success ? { viewAction: action.data } : {}),
+      ...(view.success ? { viewKey: view.data } : {}),
+    };
   }
   if (toolName === "manage_widgets") {
     const action = actionValue(details);
@@ -566,6 +598,8 @@ export const AGENT_APPROVAL_COPY_KINDS: readonly AgentActivityKind[] = [
   "webhooks.manage",
   "routines.configure",
   "routines.delete",
+  "views.configure",
+  "views.delete",
   "workspace.configure",
 ];
 

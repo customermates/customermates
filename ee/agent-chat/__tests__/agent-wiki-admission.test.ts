@@ -19,7 +19,10 @@ const mockUser = createMockUser();
 const definitions = vi.hoisted(() => vi.fn().mockReturnValue([]));
 
 vi.mock("@/env", () => ({
-  env: { ...MOCK_ENV_MODULE.env, APP_MODE: "cloud" },
+  env: { ...MOCK_ENV_MODULE.env, APP_MODE: "cloud", AUTH_ALLOWED_HOSTS: ["localhost:4000"] },
+}));
+vi.mock("next/headers", () => ({
+  headers: () => new Headers({ origin: "http://localhost:4000" }),
 }));
 vi.mock("@/core/di", () => createMockDiModule(() => mockUser));
 vi.mock("@/core/validation/zod-error-map-server", () => MOCK_ZOD_MODULE);

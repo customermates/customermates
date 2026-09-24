@@ -19,7 +19,7 @@ describe("agent runner stop copy", () => {
     expect(workflow).toMatch(/performedWrite\s*\?\s*"creditLimit"\s*:\s*"creditLimitNoWrite"/);
   });
 
-  it("sets performedWrite only for a successful call to a tool that is not read-only", () => {
+  it("sets performedWrite only for a successful action classified as a mutation", () => {
     const workflow = read("workflows/agent-turn.ts");
     expect(workflow).toMatch(
       /const readOnly = isReadOnlyAgentToolCall\(shell\.name, shell, prepared\.input\);[\s\S]*if \(!readOnly && isSuccessfulToolOutcome\(outcome\)\)\s*performedWrite = true;/,

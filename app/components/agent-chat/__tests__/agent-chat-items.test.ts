@@ -1,4 +1,4 @@
-import { createElement } from "react";
+import { createElement, type ReactNode } from "react";
 import { renderToStaticMarkup } from "react-dom/server";
 import { describe, expect, it, vi } from "vitest";
 
@@ -9,6 +9,12 @@ vi.mock("next-intl", () => ({
 vi.mock("@/components/entity-terminology/use-entity-terminology", () => ({
   useEntityTerminology: () => ({ plural: () => "Contacts" }),
 }));
+vi.mock("@/components/shared/app-link", async () => {
+  const { createElement } = await import("react");
+  return {
+    AppLink: ({ children, href }: { children?: ReactNode; href: string }) => createElement("a", { href }, children),
+  };
+});
 
 import type { AgentChatItem } from "../agent-chat.store";
 
@@ -29,6 +35,34 @@ const failedRead = {
 };
 
 describe("AgentActivity", () => {
+  it("renders a single saved-view activity once as a static row beside its navigation", () => {
+    const html = renderToStaticMarkup(
+      createElement(AgentActivity, {
+        isTrailing: true,
+        isWorking: false,
+        items: [
+          {
+            ...failedRead,
+            activity: {
+              kind: "views.configure" as const,
+              affectedResources: [],
+              risk: "write" as const,
+              viewHref: "/contacts?view=__all__",
+            },
+            status: "done" as const,
+          },
+        ],
+      }),
+    );
+
+    expect(html).toContain('href="/contacts?view=__all__"');
+    expect(html).toContain("AgentChat.openSavedView");
+    expect(html.match(/AgentChat\.activity\.state\.views\.configure\.done/g)).toHaveLength(1);
+    expect(html).not.toContain('data-slot="collapsible-trigger"');
+    expect(html).not.toContain('data-slot="collapsible-content"');
+    expect(html).not.toMatch(/<button[^>]*>[^<]*<a/);
+  });
+
   it("keeps an intermediate tool failure visually working while the agent can recover", () => {
     const html = renderToStaticMarkup(
       createElement(AgentActivity, {
@@ -179,14 +213,25 @@ describe("AgentActivity", () => {
       }),
     );
 
+    const expandedHtml = renderToStaticMarkup(
+      createElement(AgentActivity, {
+        activityContext: "wikiHomepageSetup",
+        isTrailing: true,
+        isWorking: true,
+        items: [...websiteReads, { ...wikiCreate, status: "running" as const }],
+      }),
+    );
+
     expect(runningHtml).toContain("AgentChat.activity.state.web.read.running:AgentChat.activity.homepage");
     expect(runningHtml).not.toContain("AgentChat.ui.websiteSourcesRunning");
     expect(completedHtml).toContain("AgentChat.ui.websiteWikiComplete");
-    expect(completedHtml).toContain("AgentChat.activity.state.web.read.done:AgentChat.activity.homepage");
-    for (const path of ["/about", "/product", "/support"])
-      expect(completedHtml).toContain(`AgentChat.activity.state.web.read.done:${path}`);
-    expect(completedHtml).not.toContain("web.read.done:customermates.com");
+    expect(completedHtml).toContain('data-slot="collapsible-trigger"');
     expect(completedHtml).not.toContain("AgentChat.ui.stepsTook");
+    expect(expandedHtml).toContain('data-slot="collapsible-content"');
+    expect(expandedHtml).toContain("AgentChat.activity.state.web.read.done:AgentChat.activity.homepage");
+    for (const path of ["/about", "/product", "/support"])
+      expect(expandedHtml).toContain(`AgentChat.activity.state.web.read.done:${path}`);
+    expect(expandedHtml).not.toContain("web.read.done:customermates.com");
 
     const ordinaryChatHtml = renderToStaticMarkup(
       createElement(AgentActivity, {
@@ -264,10 +309,19 @@ describe("AgentActivity", () => {
         items: [websiteRead, failedLinkedRead, wikiCreate],
       }),
     );
+    const expandedHtml = renderToStaticMarkup(
+      createElement(AgentActivity, {
+        activityContext: "wikiHomepageSetup",
+        isTrailing: true,
+        isWorking: true,
+        items: [websiteRead, failedLinkedRead, wikiCreate],
+      }),
+    );
 
     expect(html).toContain("AgentChat.ui.websiteWikiComplete");
-    expect(html.split("</summary>")[0]).not.toContain("text-destructive");
-    expect(html).toContain("AgentChat.activity.state.web.read.error");
+    expect(html.split('data-slot="collapsible-content"')[0]).not.toContain("text-destructive");
     expect(html).not.toContain("AgentChat.ui.activityError");
+    expect(expandedHtml).toContain("AgentChat.activity.state.web.read.error");
+    expect(expandedHtml.split('data-slot="collapsible-content"')[0]).not.toContain("text-destructive");
   });
 });

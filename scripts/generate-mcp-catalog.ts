@@ -11,6 +11,7 @@ const summariesPath = (locale: ContentLocale) => join(ROOT, "content", "docs", l
 export const CATALOG_SECTIONS: Record<string, McpTool[]> = {
   records: MCP_TOOL_GROUPS.records,
   workspace: MCP_TOOL_GROUPS.workspace,
+  views: MCP_TOOL_GROUPS.views,
   wiki: MCP_TOOL_GROUPS.wiki,
   messaging: MCP_TOOL_GROUPS.messaging,
   social: MCP_TOOL_GROUPS.social,

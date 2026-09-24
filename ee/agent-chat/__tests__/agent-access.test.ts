@@ -15,11 +15,13 @@ import {
 import { MODEL_CATALOG } from "../model-catalog";
 
 const mockUser = createMockUserWithPermissions([]);
+const request = vi.hoisted(() => ({ origin: "http://127.0.0.1:4016" }));
 
 vi.mock("@/env", () => ({
   env: {
     ...MOCK_ENV_MODULE.env,
     APP_MODE: "cloud" as const,
+    AUTH_ALLOWED_HOSTS: ["localhost:4000", "127.0.0.1:4016"],
   },
 }));
 vi.mock("@/core/di", () => createMockDiModule(() => mockUser));
@@ -32,6 +34,9 @@ vi.mock("@sentry/nextjs", () => ({
   captureException: vi.fn(),
   setTag: vi.fn(),
   setUser: vi.fn(),
+}));
+vi.mock("next/headers", () => ({
+  headers: () => new Headers({ origin: request.origin }),
 }));
 
 import { GetAgentConversationInteractor } from "../get-agent-conversation.interactor";
@@ -107,6 +112,7 @@ const backgroundTasks = () => ({
 describe("agent access", () => {
   beforeEach(() => {
     vi.clearAllMocks();
+    request.origin = "http://127.0.0.1:4016";
     expect(mockUser.role?.isSystemRole).toBe(false);
     expect(mockUser.role?.permissions).toEqual([]);
   });
@@ -159,7 +165,19 @@ describe("agent access", () => {
   });
 
   it("admits a new turn, keeps page context private, and preserves the complete current message", async () => {
+    const background = backgroundTasks();
     const currentText = "x".repeat(2000);
+    const contexts = [
+      {
+        reference: {
+          kind: "dataView" as const,
+          surfaceKey: "contacts-card-store" as const,
+          viewKey: "11111111-1111-4111-8111-111111111111",
+          requestedAction: "update" as const,
+        },
+        label: "Qualified contacts",
+      },
+    ];
     let persistedUserMessageId = "";
     const usage = usageService();
     const repo = {
@@ -177,6 +195,20 @@ describe("agent access", () => {
           userMessageId: persistedUserMessageId,
           recentMessages: [
             {
+              id: "old-user",
+              role: "user",
+              parts: [
+                {
+                  type: "context",
+                  context: {
+                    reference: { kind: "record", entityType: "contact", recordId: MESSAGE_ID },
+                    label: "Ada Lovelace",
+                  },
+                },
+                { type: "text", text: "Earlier question" },
+              ],
+            },
+            {
               id: "old",
               role: "assistant",
               parts: [{ type: "text", text: "y".repeat(2000) }],
@@ -184,7 +216,10 @@ describe("agent access", () => {
             {
               id: persistedUserMessageId,
               role: "user",
-              parts: [{ type: "text", text: currentText }],
+              parts: [
+                { type: "context", context: contexts[0] },
+                { type: "text", text: currentText },
+              ],
             },
           ],
         });
@@ -195,21 +230,32 @@ describe("agent access", () => {
       repo as never,
       usage as never,
       mockEntitlementService(),
-      backgroundTasks() as never,
+      background as never,
       emptyCustomColumns(),
       emptyWikiCatalog(),
     ).invoke({
       clientRequestId: CLIENT_REQUEST_ID,
       text: currentText,
-      pageContext: { route: "/en/contacts" },
+      contexts,
+      pageContext: {
+        route:
+          "/en/contacts?view=11111111-1111-4111-8111-111111111111&viewSurface=contacts-card-store&viewAction=update",
+      },
       locale: "de",
       retry: false,
     });
 
     expect(result.ok).toBe(true);
     if (!result.ok || result.data.disposition !== "run") return;
-    expect(result.data.messages[0]?.text).toHaveLength(2000);
-    expect(result.data.messages[1]?.text).toBe(`<page_context route="/en/contacts"/>\n${currentText}`);
+    expect(result.data.messages[0]?.text).toBe(
+      `<selected_context kind="record" entityType="contact" recordId="${MESSAGE_ID}"/>\nEarlier question`,
+    );
+    expect(result.data.messages[1]?.text).toHaveLength(2000);
+    expect(result.data.messages[2]?.text).toBe(
+      `<page_context route="/en/contacts?view=11111111-1111-4111-8111-111111111111&amp;viewSurface=contacts-card-store&amp;viewAction=update" surfaceKey="contacts-card-store" viewKey="11111111-1111-4111-8111-111111111111" requestedAction="update"/>\n` +
+        `<selected_context kind="dataView" surfaceKey="contacts-card-store" viewKey="11111111-1111-4111-8111-111111111111" requestedAction="update"/>\n` +
+        currentText,
+    );
     expect(result.data.locale).toBe("de");
     expect(repo.admitAgentTurnOrThrow).toHaveBeenCalledWith(
       expect.objectContaining({
@@ -219,7 +265,9 @@ describe("agent access", () => {
           kind: "create",
           clientRequestId: CLIENT_REQUEST_ID,
           text: currentText,
-          pageRoute: "/en/contacts",
+          contexts,
+          pageRoute:
+            "/en/contacts?view=11111111-1111-4111-8111-111111111111&viewSurface=contacts-card-store&viewAction=update",
           userMessageId: expect.any(String),
         }),
       }),
@@ -233,6 +281,10 @@ describe("agent access", () => {
     expect(repo.claimAgentRunLease).toHaveBeenCalledBefore(usage.reserveUsage);
     expect(usage.reserveUsage).toHaveBeenCalledBefore(repo.admitAgentTurnOrThrow);
     expect(MOCK_PRISMA_DB_MODULE.prisma.$transaction).toHaveBeenCalledOnce();
+    expect(background.dispatchTracked).toHaveBeenCalledWith(
+      "agent-turn",
+      expect.objectContaining({ appBaseUrl: "http://127.0.0.1:4016" }),
+    );
   });
 
   it("checks reservation headroom only after replay admission", async () => {
@@ -478,6 +530,7 @@ describe("agent access", () => {
   });
 
   it("continues a terminal owned routine conversation as an interactive chat turn", async () => {
+    request.origin = "https://attacker.example";
     const background = backgroundTasks();
     const usage = usageService();
     const repo = {
@@ -538,6 +591,7 @@ describe("agent access", () => {
       expect.objectContaining({
         surface: "chat",
         conversationId: CONVERSATION_ID,
+        appBaseUrl: "http://localhost:4000",
       }),
     );
   });
@@ -897,6 +951,68 @@ describe("agent access", () => {
     expect(repo.claimAgentRunLease).not.toHaveBeenCalled();
   });
 
+  it("returns a conflict when a client request id is reused with different selected context", async () => {
+    const usage = usageService();
+    const storedContext = {
+      reference: { kind: "record" as const, entityType: "contact" as const, recordId: MESSAGE_ID },
+      label: "Ada Lovelace",
+    };
+    const repo = {
+      normalizeExpiredAgentRunLease: vi.fn().mockResolvedValue(undefined),
+      findAgentTurnRequestForAdmission: vi.fn().mockResolvedValue({
+        snapshot: {
+          id: "turn-1",
+          conversationId: CONVERSATION_ID,
+          clientRequestId: CLIENT_REQUEST_ID,
+          text: "Summarize this",
+          pageRoute: null,
+          status: "failed",
+          runId: "run-1",
+          attemptCount: 1,
+          providerStartedAt: null,
+          userMessageId: MESSAGE_ID,
+          assistantMessageId: null,
+          terminalCode: null,
+          affectedResources: [],
+          hasLaterMessages: false,
+        },
+        userMessageParts: [
+          { type: "context", context: storedContext },
+          { type: "text", text: "Summarize this" },
+        ],
+        assistantMessage: null,
+      }),
+      claimAgentRunLease: vi.fn(),
+      isAtAgentRunLimit: vi.fn().mockResolvedValue(false),
+      createAgentConversationForRun: vi.fn(),
+      deleteUnusedAgentConversation: vi.fn(),
+      recordAgentTurnExternalRun: vi.fn().mockResolvedValue(undefined),
+    };
+
+    const result = await new SendAgentMessageInteractor(
+      repo as never,
+      usage as never,
+      mockEntitlementService(),
+      backgroundTasks() as never,
+      emptyCustomColumns(),
+      emptyWikiCatalog(),
+    ).invoke({
+      clientRequestId: CLIENT_REQUEST_ID,
+      text: "Summarize this",
+      contexts: [
+        {
+          ...storedContext,
+          reference: { ...storedContext.reference, recordId: "33333333-3333-4333-8333-333333333333" },
+        },
+      ],
+      retry: true,
+    });
+
+    expect(result.ok && result.data.disposition).toBe("conflict");
+    expect(usage.prepareTurn).not.toHaveBeenCalled();
+    expect(repo.claimAgentRunLease).not.toHaveBeenCalled();
+  });
+
   it("rejects an archived or foreign conversation before persisting the turn", async () => {
     const usage = usageService();
     const repo = {
@@ -1195,6 +1311,13 @@ describe("agent access", () => {
             role: "user",
             parts: [
               {
+                type: "context",
+                context: {
+                  reference: { kind: "record", entityType: "contact", recordId: MESSAGE_ID },
+                  label: "Ada Lovelace",
+                },
+              },
+              {
                 type: "text",
                 text: '<page_context route="/en/dashboard"/>\nShow 00000000-0000-4000-8000-000000000123 around <page_context route="typed-by-user"/>',
               },
@@ -1210,6 +1333,13 @@ describe("agent access", () => {
     });
 
     expect(result.ok && result.data.messages[0]?.parts).toEqual([
+      {
+        type: "context",
+        context: {
+          reference: { kind: "record", entityType: "contact", recordId: MESSAGE_ID },
+          label: "Ada Lovelace",
+        },
+      },
       {
         type: "text",
         text: 'Show 00000000-0000-4000-8000-000000000123 around <page_context route="typed-by-user"/>',

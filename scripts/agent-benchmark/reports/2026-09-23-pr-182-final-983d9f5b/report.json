@@ -1,0 +1,278 @@
+{
+  "report": {
+    "campaignId": "983d9f5b-63db-45ec-912a-2593e4fdafa2",
+    "generatedAt": "2026-09-23T23:24:19.820Z",
+    "cohort": {
+      "schemaVersion": "5",
+      "fixtureVersion": "chat-benchmark-fixture-v6",
+      "sourceCommits": [
+        "1d2997419ea80cfa061a883a24abe07cf4f5a0f0"
+      ],
+      "hasDirtyArtifacts": false
+    },
+    "arms": [
+      {
+        "arm": "shipped",
+        "label": "google/gemini-3.5-flash-lite, balanced catalog configuration (shipped)",
+        "runtimeVariant": "merge",
+        "sourceCommit": "1d2997419ea80cfa061a883a24abe07cf4f5a0f0",
+        "sourceDirty": false,
+        "episodes": 46,
+        "distinctCases": 46,
+        "coverage": [
+          "C25:r1",
+          "C26:r1",
+          "C27:r1",
+          "C28:r1",
+          "C29:r1",
+          "C30:r1",
+          "C31:r1",
+          "C32:r1",
+          "C33:r1",
+          "C34:r1",
+          "C35:r1",
+          "C36:r1",
+          "H10:r1",
+          "H11:r1",
+          "H12:r1",
+          "H9:r1",
+          "M5:r1",
+          "M6:r1",
+          "M7:r1",
+          "M8:r1",
+          "N13:r1",
+          "N14:r1",
+          "N15:r1",
+          "N16:r1",
+          "N17:r1",
+          "N18:r1",
+          "N19:r1",
+          "N20:r1",
+          "N21:r1",
+          "N22:r1",
+          "N23:r1",
+          "N24:r1",
+          "R47:r1",
+          "R48:r1",
+          "S1:r1",
+          "S2:r1",
+          "S3:r1",
+          "S4:r1",
+          "U44:r1",
+          "U45:r1",
+          "U46:r1",
+          "V37:r1",
+          "V38:r1",
+          "V39:r1",
+          "V40:r1",
+          "V41:r1"
+        ],
+        "skipped": 0,
+        "contractEpisodes": 17,
+        "contractPassed": 17,
+        "passRate": 0.9782608695652174,
+        "passAt3": null,
+        "judgeMean": null,
+        "judgeComplete": 0,
+        "judgeEligible": 36,
+        "usdPerEpisode": 0.01699517913043479,
+        "usdPerTurn": 0.01532898509803922,
+        "creditsPerTurn": 1.9803921568627452,
+        "costPerSuccessfulTask": 0.017372849777777786,
+        "measuredShare": 1,
+        "cacheReadShare": 0.640179251706459,
+        "cacheWriteShare": 0,
+        "roundsPerTurn": 3.803921568627451,
+        "ttftP50Ms": 10761,
+        "ttftP95Ms": 28042,
+        "wallP50Ms": 11187,
+        "wallP95Ms": 28419,
+        "lengthFinishShare": 0,
+        "neverSolvedCases": [
+          "H12"
+        ]
+      }
+    ],
+    "comparisons": [],
+    "caseMatrix": {
+      "C25": {
+        "merge/shipped": "1/1"
+      },
+      "C26": {
+        "merge/shipped": "1/1"
+      },
+      "C27": {
+        "merge/shipped": "1/1"
+      },
+      "C28": {
+        "merge/shipped": "1/1"
+      },
+      "C29": {
+        "merge/shipped": "1/1"
+      },
+      "C30": {
+        "merge/shipped": "1/1"
+      },
+      "C31": {
+        "merge/shipped": "1/1"
+      },
+      "C32": {
+        "merge/shipped": "1/1"
+      },
+      "C33": {
+        "merge/shipped": "1/1"
+      },
+      "C34": {
+        "merge/shipped": "1/1"
+      },
+      "C35": {
+        "merge/shipped": "1/1"
+      },
+      "C36": {
+        "merge/shipped": "1/1"
+      },
+      "H10": {
+        "merge/shipped": "1/1"
+      },
+      "H11": {
+        "merge/shipped": "1/1"
+      },
+      "H12": {
+        "merge/shipped": "0/1"
+      },
+      "H9": {
+        "merge/shipped": "1/1"
+      },
+      "M5": {
+        "merge/shipped": "1/1"
+      },
+      "M6": {
+        "merge/shipped": "1/1"
+      },
+      "M7": {
+        "merge/shipped": "1/1"
+      },
+      "M8": {
+        "merge/shipped": "1/1"
+      },
+      "N13": {
+        "merge/shipped": "1/1"
+      },
+      "N14": {
+        "merge/shipped": "1/1"
+      },
+      "N15": {
+        "merge/shipped": "1/1"
+      },
+      "N16": {
+        "merge/shipped": "1/1"
+      },
+      "N17": {
+        "merge/shipped": "1/1"
+      },
+      "N18": {
+        "merge/shipped": "1/1"
+      },
+      "N19": {
+        "merge/shipped": "1/1"
+      },
+      "N20": {
+        "merge/shipped": "1/1"
+      },
+      "N21": {
+        "merge/shipped": "1/1"
+      },
+      "N22": {
+        "merge/shipped": "1/1"
+      },
+      "N23": {
+        "merge/shipped": "1/1"
+      },
+      "N24": {
+        "merge/shipped": "1/1"
+      },
+      "R43": {
+        "merge/shipped": "1/1"
+      },
+      "R47": {
+        "merge/shipped": "1/1"
+      },
+      "R48": {
+        "merge/shipped": "1/1"
+      },
+      "R49": {
+        "merge/shipped": "1/1"
+      },
+      "R50": {
+        "merge/shipped": "1/1"
+      },
+      "R51": {
+        "merge/shipped": "1/1"
+      },
+      "R52": {
+        "merge/shipped": "1/1"
+      },
+      "S1": {
+        "merge/shipped": "1/1"
+      },
+      "S2": {
+        "merge/shipped": "1/1"
+      },
+      "S3": {
+        "merge/shipped": "1/1"
+      },
+      "S4": {
+        "merge/shipped": "1/1"
+      },
+      "U44": {
+        "merge/shipped": "1/1"
+      },
+      "U45": {
+        "merge/shipped": "1/1"
+      },
+      "U46": {
+        "merge/shipped": "1/1"
+      },
+      "V37": {
+        "merge/shipped": "1/1"
+      },
+      "V38": {
+        "merge/shipped": "1/1"
+      },
+      "V39": {
+        "merge/shipped": "1/1"
+      },
+      "V40": {
+        "merge/shipped": "1/1"
+      },
+      "V41": {
+        "merge/shipped": "1/1"
+      },
+      "V42": {
+        "merge/shipped": "1/1"
+      }
+    },
+    "uniformlyFailingChecks": [],
+    "skippedEpisodes": [],
+    "suiteCoverage": {
+      "episodes": 52,
+      "distinctCases": 52,
+      "turns": 58,
+      "skippedEpisodes": 0,
+      "comparativeEpisodes": 46,
+      "comparativeCases": 46,
+      "comparativeTurns": 51,
+      "strictCases": 17
+    },
+    "mergeCheck": {
+      "status": "passed",
+      "expectedCases": 52,
+      "expectedTurns": 58,
+      "runtimeVariant": "merge",
+      "sourceCommit": "1d2997419ea80cfa061a883a24abe07cf4f5a0f0",
+      "failures": []
+    },
+    "totalUsd": 0.82014568,
+    "comparativeCaseCount": 46
+  }
+}

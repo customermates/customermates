@@ -108,6 +108,7 @@ export type AgentTurnWorkflowPayload = {
   userName: string;
   locale: string;
   appBaseUrl: string;
+  pageRoute: string | null;
   messages: ReplayMessage[];
   turnBudget: AgentTurnBudget;
   schemaDigest?: string | null;
@@ -243,6 +244,7 @@ function backgroundToolDeps(payload: AgentTurnWorkflowPayload, grant: ToolApprov
 
   return {
     resultMaxChars: resolveAgentToolResultMaxChars(payload.turnBudget.maxToolResultChars),
+    pageRoute: payload.pageRoute,
     runInCallerContext: (run) =>
       runAsBackgroundTenant(payload.userId, () => {
         if (getTenantUser().companyId !== payload.companyId)
@@ -399,6 +401,7 @@ async function normalizeAgentToolInput(
       resolveAgentToolResultMaxChars(payload.turnBudget.maxToolResultChars),
       {
         locale: payload.locale,
+        pageRoute: payload.pageRoute,
         wikiHomepageSetup: Boolean(payload.wikiHomepageSetup),
         webSearchEnabled: payload.webSearchEnabled,
         surface: payload.surface ?? "chat",
@@ -937,6 +940,7 @@ export async function runAgentTurn(payload: AgentTurnWorkflowPayload): Promise<v
         toolName,
         status: outcome.status,
         failed: outcome.failed,
+        output,
       });
     };
 
@@ -1365,7 +1369,11 @@ export async function runAgentTurn(payload: AgentTurnWorkflowPayload): Promise<v
           resolvedProviderErrorRetries += 1;
           await reportResolvedProviderError(payload, finishReason, resolvedError, resolvedProviderErrorRetries);
           providerStop = null;
-          messages = result.messages;
+          messages = nextAgentSegmentMessages({
+            messages: result.messages,
+            finishReason,
+            lastStep: continuationSteps.at(-1),
+          });
           continue;
         }
         await reportResolvedProviderError(payload, finishReason, resolvedError, resolvedProviderErrorRetries);

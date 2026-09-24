@@ -25,6 +25,7 @@ import type { AgentUsageRepo } from "./agent-usage.service";
 import { AGENT_CONVERSATION_PAGE_SIZE, AGENT_MESSAGE_PAGE_SIZE, type AgentConversationPage } from "./agent-history";
 import { AGENT_MAX_CONCURRENT_RUNS_PER_USER } from "./agent-run-limits";
 import { clientSafeAgentMessageParts, hasRenderableAgentMessageParts, partsToText } from "./agent-chat.schema";
+import type { AgentContextAttachment } from "./agent-context";
 import {
   isPendingAgentApprovalToolName,
   parsePendingAgentApprovalToolName,
@@ -93,6 +94,7 @@ type HostedAiGlobalCommitment = {
 
 export type AgentTurnReplay = {
   snapshot: AgentTurnRequestSnapshot;
+  userMessageParts: unknown;
   assistantMessage: { id: string; parts: unknown; createdAt: Date } | null;
 };
 
@@ -120,6 +122,7 @@ type AgentTurnAdmissionArgs = {
         turnRequestId: string;
         clientRequestId: string;
         text: string;
+        contexts?: AgentContextAttachment[];
         pageRoute: string | null;
         wikiHomepageSetupDomain?: string | null;
         wikiHomepageSetupUrl?: string | null;
@@ -590,7 +593,10 @@ export class PrismaAgentChatRepo
             companyId,
             turnRequestId: args.turn.turnRequestId,
             role: AgentMessageRole.user,
-            parts: [{ type: "text", text: args.turn.text }],
+            parts: [
+              ...(args.turn.contexts ?? []).map((context) => ({ type: "context" as const, context })),
+              { type: "text" as const, text: args.turn.text },
+            ],
           },
         });
       }
@@ -1429,6 +1435,7 @@ export class PrismaAgentChatRepo
     const snapshot = this.turnSnapshot(reconciledRow, Boolean(laterMessage));
     return {
       snapshot,
+      userMessageParts: userMessage.parts,
       assistantMessage: assistantMessage
         ? {
             id: assistantMessage.id,

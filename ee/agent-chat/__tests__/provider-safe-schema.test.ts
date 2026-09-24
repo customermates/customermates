@@ -176,7 +176,7 @@ describe("provider-safe tool schemas", () => {
     }
 
     expect(Object.fromEntries(census)).toEqual({
-      uuid: 85,
+      uuid: 86,
       "date-time": 4,
       email: 6,
       uri: 4,

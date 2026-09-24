@@ -23,6 +23,12 @@ vi.mock("../chat-ui", () => ({
   chatUiCopy: () => ({ turnFailed: "Failed", retryTurn: "Retry" }),
   focusAgentComposer: vi.fn(),
 }));
+vi.mock("@/components/shared/app-link", async () => {
+  const { createElement } = await import("react");
+  return {
+    AppLink: ({ children, href }: { children?: ReactNode; href: string }) => createElement("a", { href }, children),
+  };
+});
 
 import { AgentChatItemView } from "../agent-chat-items";
 

@@ -25,7 +25,7 @@ vi.mock("next-intl", () => ({
     values ? `${key}(${Object.values(values).join(",")})` : key,
 }));
 vi.mock("@/core/stores/root-store.provider", () => ({
-  useRootStore: () => ({ appMode: harness.appMode.current }),
+  useRootStore: () => ({ appMode: harness.appMode.current, terminologyStore: { overrides: [] } }),
 }));
 vi.mock("@/app/components/topbar-actions-context", () => ({}));
 

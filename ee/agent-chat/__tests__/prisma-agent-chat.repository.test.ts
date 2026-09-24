@@ -333,6 +333,17 @@ describe("PrismaAgentChatRepo tenant boundaries", () => {
           turnRequestId: "turn-1",
           clientRequestId: "request-1",
           text: "Import failed",
+          contexts: [
+            {
+              reference: {
+                kind: "dataView",
+                surfaceKey: "contacts-card-store",
+                viewKey: "11111111-1111-4111-8111-111111111111",
+                requestedAction: "update",
+              },
+              label: "Qualified contacts",
+            },
+          ],
           pageRoute: "/en/contacts",
           wikiHomepageSetupDomain: "example.com",
           userMessageId: "user-message-1",
@@ -371,6 +382,30 @@ describe("PrismaAgentChatRepo tenant boundaries", () => {
         userMessageId: "user-message-1",
         wikiHomepageSetupDomain: "example.com",
       }),
+    });
+    expect(prismaMock.agentMessage.create).toHaveBeenCalledWith({
+      data: {
+        id: "user-message-1",
+        conversationId: "conversation-1",
+        companyId: user.companyId,
+        turnRequestId: "turn-1",
+        role: "user",
+        parts: [
+          {
+            type: "context",
+            context: {
+              reference: {
+                kind: "dataView",
+                surfaceKey: "contacts-card-store",
+                viewKey: "11111111-1111-4111-8111-111111111111",
+                requestedAction: "update",
+              },
+              label: "Qualified contacts",
+            },
+          },
+          { type: "text", text: "Import failed" },
+        ],
+      },
     });
     expect(prismaMock.agentMessage.findMany).toHaveBeenCalledWith({
       where: {

@@ -151,7 +151,8 @@ export abstract class BaseCustomColumnEntityModalStore<
       }
 
       await this.entityStore.removeItem(id);
-      this.rootStore.globalSearchModalStore.removeRecentItem(id);
+      if (this.entityStore.entityType)
+        this.rootStore.globalSearchModalStore.removeRecentItem(id, this.entityStore.entityType);
       this.close();
       return true;
     } finally {

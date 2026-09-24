@@ -22,10 +22,15 @@ import { useAgentChatStore, useAgentChatUiTargets } from "./agent-chat-store-con
 import { useCopyToClipboard } from "@/core/utils/use-copy-to-clipboard";
 import { runUserAction } from "@/core/errors/report-application-error";
 import { Button } from "@/components/ui/button";
+import { AppLink } from "@/components/shared/app-link";
+import { Collapsible, CollapsibleContent, CollapsibleTrigger } from "@/components/ui/collapsible";
 import { MessageResponse } from "@/components/ai-elements/message";
+import { agentMessageComponents, agentMessageRehypePlugins } from "./agent-message-links";
 import { useEntityTerminology } from "@/components/entity-terminology/use-entity-terminology";
 import { cn } from "@/core/utils/cn";
+import { dataViewNavigationHref } from "@/core/data-view/data-view-links";
 import { ActionTooltip, ItemTime, TypingDots, chatUiCopy, focusAgentComposer } from "./chat-ui";
+import { AgentComposerContexts } from "./agent-composer-contexts";
 
 function MessageLinkText({ children }: ComponentProps<"a"> & { node?: unknown }) {
   return <span className="underline decoration-dotted underline-offset-2">{children}</span>;
@@ -74,8 +79,10 @@ export const AgentChatItemView = observer(function AgentChatItemView({
         <div className="flex max-w-[85%] flex-col items-end gap-1">
           {userLabel && <span className="text-subdued text-xs">{userLabel}</span>}
 
-          <div className="w-fit min-w-16 rounded-xl rounded-br-md bg-muted px-3.5 py-2 text-sm whitespace-pre-wrap shadow-xs dark:bg-accent/60">
-            {item.text}
+          <div className="w-fit min-w-16 max-w-full rounded-xl rounded-br-md bg-muted px-3.5 py-2 text-sm leading-5 shadow-xs dark:bg-accent/60">
+            <AgentComposerContexts contexts={item.contexts ?? []} />
+
+            <span className="whitespace-pre-wrap">{item.text}</span>
           </div>
 
           <ItemTime at={item.at} />
@@ -90,8 +97,9 @@ export const AgentChatItemView = observer(function AgentChatItemView({
         <div className="flex min-w-0 flex-col items-start gap-1.5">
           <div className="w-full text-sm leading-relaxed [&_pre]:overflow-x-auto">
             <MessageResponse
-              components={renderLinksAsText ? nonInteractiveMessageLinks : undefined}
+              components={renderLinksAsText ? nonInteractiveMessageLinks : agentMessageComponents}
               mode={item.streaming ? "streaming" : "static"}
+              rehypePlugins={agentMessageRehypePlugins}
               showTableActions={!item.streaming}
             >
               {item.text}
@@ -242,6 +250,7 @@ export const AgentActivity = observer(function AgentActivity({
   const isPending = isWorking && isTrailing;
   const hasError = items.some((item) => item.status === "error");
   const hasCancelled = items.some((item) => item.status === "cancelled");
+  const hasDetails = items.length > 1;
   const websiteReadCount = items.filter((item) => item.activity.kind === "web.read").length;
   const websiteSourceCount = items.filter((item) => item.activity.kind === "web.read" && item.status === "done").length;
   const hasWikiCreate = items.some(
@@ -283,7 +292,7 @@ export const AgentActivity = observer(function AgentActivity({
   const runningItem = items.findLast((item) => item.status === "running" || (isRecovering && item.status === "error"));
   const runningLabel = runningItem ? agentActivityCopy(runningItem.activity, t, terminology).running : uiCopy.thinking;
   const liveSummary =
-    !hasBlockingError && !hasCancelled && elapsedSeconds !== null
+    hasDetails && !hasBlockingError && !hasCancelled && elapsedSeconds !== null
       ? uiCopy.stepsTook(items.length, elapsedSeconds)
       : settledSummary;
   const contextualSummary =
@@ -299,6 +308,10 @@ export const AgentActivity = observer(function AgentActivity({
           ? uiCopy.websiteWikiComplete(websiteSourceCount)
           : liveSummary;
   const summary = useSteadyLabel(contextualSummary);
+  const viewHref = items.findLast((item) => {
+    if (item.status !== "done" || item.activity.kind !== "views.configure") return false;
+    return dataViewNavigationHref(item.activity.viewHref) !== null;
+  })?.activity.viewHref;
   const statusIcon = isActive ? (
     <Loader2 aria-hidden="true" className="size-3.5 animate-spin motion-reduce:animate-none" />
   ) : hasBlockingError ? (
@@ -309,95 +322,106 @@ export const AgentActivity = observer(function AgentActivity({
     <Check aria-hidden="true" className="size-3.5" />
   );
 
-  if (items.length === 1) {
-    return (
-      <div
-        className={cn(
-          "flex items-center gap-2 py-1 text-xs text-muted-foreground",
-          hasBlockingError && !isRecovering && "text-destructive",
-        )}
-        data-testid="agent-activity"
-      >
-        {statusIcon}
-
-        <span className="min-w-0 flex-1 text-left [overflow-wrap:anywhere]">{summary}</span>
-      </div>
-    );
-  }
-
   return (
-    <details
-      aria-live="off"
-      className="group py-1"
-      data-testid="agent-activity"
-      open={open}
-      onToggle={(event) => setOpen(event.currentTarget.open)}
-    >
-      <summary className="flex cursor-pointer list-none items-center gap-2 text-xs text-muted-foreground transition-colors select-none hover:text-foreground [&::-webkit-details-marker]:hidden">
-        {statusIcon}
-
-        <span className="min-w-0 flex-1 text-left [overflow-wrap:anywhere]">{summary}</span>
-
-        <ChevronDown aria-hidden="true" className="size-3.5 transition-transform group-open:rotate-180" />
-      </summary>
-
-      <div className="mt-3 space-y-3 pl-4 [&>*]:fade-in-0 [&>*]:slide-in-from-top-2 [&>*]:animate-in [&>*]:duration-300 [&>*]:motion-reduce:animate-none">
-        {items.map((item) => {
-          const copy = agentActivityCopy(item.activity, t, terminology);
-          const status = isRecovering && item.status === "error" ? "running" : item.status;
-          const label =
-            status === "running"
-              ? copy.running
-              : status === "error"
-                ? copy.error
-                : status === "cancelled"
-                  ? copy.cancelled
-                  : copy.done;
-
-          return (
-            <div
-              key={item.id}
-              className={cn(
-                "relative flex gap-2 text-xs",
-                "before:absolute before:top-0 before:-left-4 before:h-[calc(100%+0.75rem)] before:w-px before:bg-border",
-                "before:origin-top before:animate-timeline-grow before:motion-reduce:animate-none",
-                "last:before:h-full",
-                status === "error" && "text-destructive",
-              )}
+    <Collapsible aria-live="off" className="group py-1" data-testid="agent-activity" open={open} onOpenChange={setOpen}>
+      <div className="flex items-center gap-1">
+        {hasDetails ? (
+          <CollapsibleTrigger asChild>
+            <button
+              className="flex min-w-0 flex-1 cursor-pointer items-center gap-2 rounded-md text-xs text-muted-foreground transition-colors outline-none select-none hover:text-foreground focus-visible:border-ring focus-visible:ring-[3px] focus-visible:ring-inset focus-visible:ring-ring/50"
+              type="button"
             >
-              {status === "running" ? (
-                <Loader2
-                  aria-hidden="true"
-                  className="mt-0.5 size-3.5 shrink-0 animate-spin motion-reduce:animate-none"
-                />
-              ) : status === "error" ? (
-                <X aria-hidden="true" className="mt-0.5 size-3.5 shrink-0" />
-              ) : status === "cancelled" ? (
-                <Square aria-hidden="true" className="mt-0.5 size-3.5 shrink-0" />
-              ) : (
-                <Check aria-hidden="true" className="mt-0.5 size-3.5 shrink-0" />
-              )}
+              {statusIcon}
 
-              <span className="min-w-0 text-foreground [overflow-wrap:anywhere]">{label}</span>
-            </div>
-          );
-        })}
+              <span className="min-w-0 flex-1 text-left [overflow-wrap:anywhere]">{summary}</span>
 
-        {isPending && !hasRunning && (
+              <ChevronDown
+                aria-hidden="true"
+                className="size-3.5 transition-transform group-data-[state=open]:rotate-180"
+              />
+            </button>
+          </CollapsibleTrigger>
+        ) : (
           <div
-            aria-hidden="true"
             className={cn(
-              "relative flex gap-2 text-xs",
-              "before:absolute before:top-0 before:-left-4 before:h-full before:w-px before:bg-border",
-              "before:origin-top before:animate-timeline-grow before:motion-reduce:animate-none",
+              "flex min-w-0 flex-1 items-center gap-2 text-xs text-muted-foreground",
+              hasBlockingError && !isRecovering && "text-destructive",
             )}
           >
-            <span className="mt-1 flex size-3.5 shrink-0 items-center justify-center">
-              <TypingDots />
-            </span>
+            {statusIcon}
+
+            <span className="min-w-0 flex-1 text-left [overflow-wrap:anywhere]">{summary}</span>
           </div>
         )}
+
+        {viewHref && (
+          <Button asChild size="xs" variant="ghost">
+            <AppLink appearance="unstyled" href={viewHref}>
+              {t("AgentChat.openSavedView")}
+            </AppLink>
+          </Button>
+        )}
       </div>
-    </details>
+
+      {hasDetails && (
+        <CollapsibleContent className="mt-3 space-y-3 pl-4 [&>*]:fade-in-0 [&>*]:slide-in-from-top-2 [&>*]:animate-in [&>*]:duration-300 [&>*]:motion-reduce:animate-none">
+          {items.map((item) => {
+            const copy = agentActivityCopy(item.activity, t, terminology);
+            const status = isRecovering && item.status === "error" ? "running" : item.status;
+            const label =
+              status === "running"
+                ? copy.running
+                : status === "error"
+                  ? copy.error
+                  : status === "cancelled"
+                    ? copy.cancelled
+                    : copy.done;
+
+            return (
+              <div
+                key={item.id}
+                className={cn(
+                  "relative flex gap-2 text-xs",
+                  "before:absolute before:top-0 before:-left-4 before:h-[calc(100%+0.75rem)] before:w-px before:bg-border",
+                  "before:origin-top before:animate-timeline-grow before:motion-reduce:animate-none",
+                  "last:before:h-full",
+                  status === "error" && "text-destructive",
+                )}
+              >
+                {status === "running" ? (
+                  <Loader2
+                    aria-hidden="true"
+                    className="mt-0.5 size-3.5 shrink-0 animate-spin motion-reduce:animate-none"
+                  />
+                ) : status === "error" ? (
+                  <X aria-hidden="true" className="mt-0.5 size-3.5 shrink-0" />
+                ) : status === "cancelled" ? (
+                  <Square aria-hidden="true" className="mt-0.5 size-3.5 shrink-0" />
+                ) : (
+                  <Check aria-hidden="true" className="mt-0.5 size-3.5 shrink-0" />
+                )}
+
+                <span className="min-w-0 text-foreground [overflow-wrap:anywhere]">{label}</span>
+              </div>
+            );
+          })}
+
+          {isPending && !hasRunning && (
+            <div
+              aria-hidden="true"
+              className={cn(
+                "relative flex gap-2 text-xs",
+                "before:absolute before:top-0 before:-left-4 before:h-full before:w-px before:bg-border",
+                "before:origin-top before:animate-timeline-grow before:motion-reduce:animate-none",
+              )}
+            >
+              <span className="mt-1 flex size-3.5 shrink-0 items-center justify-center">
+                <TypingDots />
+              </span>
+            </div>
+          )}
+        </CollapsibleContent>
+      )}
+    </Collapsible>
   );
 });
