@@ -5,7 +5,6 @@ import { getAgentWebSearchTool } from "@/ee/agent-chat/agent-web-search";
 import { MODEL_CATALOG, SHIPPED_AGENT_MODEL_KEY } from "@/ee/agent-chat/model-catalog";
 
 import {
-  AGENT_WEB_SEARCH_FEASIBILITY_BLOCKERS,
   AGENT_WEB_SEARCH_SMOKE_MAX_USD,
   assertProviderSmokeFeasible,
   assertProviderSmokeRequest,
@@ -96,17 +95,13 @@ describe("web-search offline feasibility guard", () => {
     vi.stubEnv("AGENT_WEB_SEARCH_SMOKE_MAX_USD", "15");
     vi.stubEnv("AI_GATEWAY_API_KEY", "synthetic-key");
     expect(readProviderSmokePostRunThreshold()).toBe(15);
-    expect(AGENT_WEB_SEARCH_FEASIBILITY_BLOCKERS).toHaveLength(3);
   });
 
-  it.each(["", "NaN", "-1", "0", "15.01", "Infinity", "1e3"])(
-    "rejects invalid post-run threshold %s",
-    (threshold) => {
-      vi.stubEnv("RUN_AGENT_WEB_SEARCH_SMOKE", "true");
-      vi.stubEnv("AGENT_WEB_SEARCH_SMOKE_MAX_USD", threshold);
-      expect(() => readProviderSmokePostRunThreshold()).toThrow();
-    },
-  );
+  it.each(["", "NaN", "-1", "0", "15.01", "Infinity", "1e3"])("rejects invalid post-run threshold %s", (threshold) => {
+    vi.stubEnv("RUN_AGENT_WEB_SEARCH_SMOKE", "true");
+    vi.stubEnv("AGENT_WEB_SEARCH_SMOKE_MAX_USD", threshold);
+    expect(() => readProviderSmokePostRunThreshold()).toThrow();
+  });
 
   it("refuses paid opt-in without the existing Gateway credential", async () => {
     const fetch = vi.fn(() => {
@@ -258,7 +253,6 @@ describe("read-only all-in billing receipt inspection", () => {
       measuredSearchCostUsd: 0.007,
       searchCostInclusionVerified: true,
       modelInferenceZeroDataRetention: true,
-      releasePrerequisitesSatisfied: false,
     });
   });
 

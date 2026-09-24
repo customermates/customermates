@@ -39,11 +39,6 @@ const APPLICATION_CREDIT_RESERVATION = 100;
 const COST_EPSILON_USD = 0.00000001;
 
 export const AGENT_WEB_SEARCH_SMOKE_MAX_USD = 15;
-export const AGENT_WEB_SEARCH_FEASIBILITY_BLOCKERS = [
-  "Production remains fail-closed until a human confirms that the Gateway contract and Exa terms cover customer search queries under the required data-processing policy.",
-  "Gateway exposes no deterministic per-response invocation cap for native Exa Search, so unattended routine release remains blocked until that cap exists or its maximum cost is reserved.",
-  "Gateway has not documented that developer result and text limits suppress every other model-supplied Exa expansion option, so per-call work and cost are not yet proven bounded.",
-] as const;
 
 type JsonRecord = Record<string, unknown>;
 type Gateway = ReturnType<typeof createGateway>;
@@ -227,7 +222,6 @@ export async function inspectProviderSmokeSerialization() {
     networkRequests: 0,
     spentUsd: 0,
     paidExecutionAvailable: false,
-    blockers: AGENT_WEB_SEARCH_FEASIBILITY_BLOCKERS,
     serialization: await assertProviderSmokeRequest(captured[0]),
   };
 }
@@ -291,7 +285,6 @@ export function inspectProviderSmokeBilling(metadata: unknown, generation: Gener
     measuredSearchCostUsd: searchCost,
     searchCostInclusionVerified: true,
     modelInferenceZeroDataRetention: true,
-    releasePrerequisitesSatisfied: false,
   };
 }
 
@@ -568,7 +561,6 @@ export async function runLiveProviderSmoke(postRunThresholdUsd = readProviderSmo
     paidExecutionAvailable: true,
     publicHomepageOnly: DOMAIN,
     productionConfigurationUnchanged: true,
-    blockers: AGENT_WEB_SEARCH_FEASIBILITY_BLOCKERS,
     serializations,
     providerResult: evidence,
     billing,
@@ -608,7 +600,6 @@ if (invokedPath && resolve(invokedPath) === fileURLToPath(import.meta.url)) {
         stage: failure.stage,
         reason: failure.message,
         mode: process.env.RUN_AGENT_WEB_SEARCH_SMOKE === "true" ? "live" : "offline",
-        blockers: AGENT_WEB_SEARCH_FEASIBILITY_BLOCKERS,
       }) + "\n",
     );
     process.exitCode = 1;
