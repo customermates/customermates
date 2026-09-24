@@ -2,7 +2,7 @@ import type { MetadataRoute } from "next";
 import type { LocalizedRoute } from "@/core/seo/sitemap";
 
 import { env } from "@/env";
-import { assembleSitemap, resolvePageLastModified } from "@/core/seo/sitemap";
+import { assembleSitemap, latestDate, resolvePageLastModified } from "@/core/seo/sitemap";
 import { hubPageCountForSource, hubPageHref } from "@/core/seo/hub-pagination";
 import { LANDING_HUBS } from "@/core/seo/landing-hubs";
 import { isRetiredRoutePath } from "@/core/seo/route-aliases";
@@ -44,10 +44,14 @@ function collectLocalizedRoutes(): LocalizedRoute[] {
       const page = routeMapping.source.getPage(routeMapping.path, locale);
       if (!page) continue;
 
+      const listedPosts = route === "/blog" ? ROUTE_SOURCE_MAP["/blog/:slug"].source.getPages(locale) : [];
       push({
         locale,
         routePath: route,
-        lastModified: resolvePageLastModified(page.data),
+        lastModified: latestDate([
+          resolvePageLastModified(page.data),
+          ...listedPosts.map((post) => resolvePageLastModified(post.data)),
+        ]),
       });
     }
 

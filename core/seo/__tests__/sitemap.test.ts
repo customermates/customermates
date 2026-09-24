@@ -4,7 +4,7 @@ import type { LocalizedRoute } from "../sitemap";
 import { describe, expect, it } from "vitest";
 
 import { buildAlternateLanguages } from "../alternates";
-import { assembleSitemap, resolvePageLastModified } from "../sitemap";
+import { assembleSitemap, latestDate, resolvePageLastModified } from "../sitemap";
 
 import { CONTENT_LOCALES, DEFAULT_LOCALE } from "@/i18n/locale-registry";
 
@@ -139,6 +139,18 @@ describe("sitemap page dates", () => {
     expect(
       resolvePageLastModified({ blogPost: { date: "not-a-date" }, lastModified: new Date("2026-08-28T10:00:00.000Z") }),
     ).toBeUndefined();
+  });
+});
+
+describe("latest date", () => {
+  it("picks the newest date and ignores missing ones", () => {
+    const hub = new Date("2026-08-30T18:09:29.000Z");
+    const newestPost = new Date("2026-09-10T00:00:00.000Z");
+
+    expect(latestDate([hub, undefined, new Date("2026-05-08T00:00:00.000Z"), newestPost])).toBe(newestPost);
+    expect(latestDate([undefined, hub])).toBe(hub);
+    expect(latestDate([undefined])).toBeUndefined();
+    expect(latestDate([])).toBeUndefined();
   });
 });
 

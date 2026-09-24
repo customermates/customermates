@@ -20,6 +20,13 @@ export function resolvePageLastModified(data: object): Date | undefined {
   return date instanceof Date && !isNaN(date.getTime()) ? date : undefined;
 }
 
+export function latestDate(dates: readonly (Date | undefined)[]): Date | undefined {
+  return dates.reduce<Date | undefined>(
+    (latest, date) => (date && (!latest || date > latest) ? date : latest),
+    undefined,
+  );
+}
+
 export function assembleSitemap(localizedRoutes: readonly LocalizedRoute[], baseUrl: string): MetadataRoute.Sitemap {
   const localesByRoutePath = new Map<string, ContentLocale[]>();
 
