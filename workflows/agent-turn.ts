@@ -998,7 +998,6 @@ export async function runAgentTurn(payload: AgentTurnWorkflowPayload): Promise<v
           outcomesByCallId.set(part.toolCallId, {
             toolCallId: part.toolCallId,
             toolName: part.toolName,
-            providerExecuted: true,
             ...(part.type === "tool-error" ||
             (isAgentWebTool(part.toolName) && !isSuccessfulAgentWebResult(part.output))
               ? { threw: true as const }

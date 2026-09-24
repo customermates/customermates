@@ -2003,10 +2003,12 @@ describe("routine browse-or-mutate batch safety", () => {
   });
 
   it.each([false, true])(
-    "preserves native browsing across a length continuation and allows a later mutation only after failure (failed=%s)",
+    "carries native browsing and its results across a length continuation and allows a later mutation only after failure (failed=%s)",
     async (failed) => {
       let segment = 0;
+      const seenMessages: unknown[][] = [];
       state.runTools = async ({ messages, executeAndCompleteTool }) => {
+        seenMessages.push(messages);
         if (segment++ === 0) {
           return {
             finishReason: "length",
@@ -2037,6 +2039,30 @@ describe("routine browse-or-mutate batch safety", () => {
       expect(parts).toContain(`"status":"${failed ? "error" : "done"}"`);
       if (!failed) expect(parts).toContain("https://example.com/current");
       expect(state.createApproval).not.toHaveBeenCalled();
+      const [searchCallPart, searchResultPart, textPart] = nativeSearchStep(failed).content as [
+        unknown,
+        { output: unknown },
+        unknown,
+      ];
+      expect(seenMessages[1]).toEqual([
+        ...payload.messages,
+        { role: "assistant", content: [searchCallPart, textPart] },
+        {
+          role: "tool",
+          content: [
+            {
+              type: "tool-result",
+              toolCallId: "web-1",
+              toolName: "web_search",
+              output: {
+                type: "json",
+                value: failed ? { ok: false, result: "The tool failed." } : searchResultPart.output,
+              },
+            },
+          ],
+        },
+        { role: "user", content: expect.stringContaining("agent_output_continuation") },
+      ]);
     },
   );
 

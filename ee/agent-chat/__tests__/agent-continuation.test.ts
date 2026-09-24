@@ -239,6 +239,48 @@ describe("agent continuation context compaction", () => {
     expect(compacted.checkpointBytes).toBe(0);
   });
 
+  it("drops provider-executed search calls and results from retained steps while keeping local tool pairs", () => {
+    const searchCall = (id: string) =>
+      ({ type: "tool-call", toolCallId: id, toolName: "web_search", input: {}, providerExecuted: true }) as const;
+    const result = (id: string, toolName: string) =>
+      ({ type: "tool-result", toolCallId: id, toolName, output: { type: "json", value: { ok: true } } }) as const;
+    const readCall = { type: "tool-call", toolCallId: "read-1", toolName: "list_users", input: {} } as const;
+    const partial = { type: "text", text: "Partial answer" } as const;
+    const withMessages = (messages: ModelMessage[], finishReason: FinishReason): AgentContinuationStep => ({
+      finishReason,
+      content: [],
+      response: { messages },
+    });
+
+    const compacted = compactAgentContinuationContext({
+      system: "system",
+      initialMessages: [{ role: "user", content: "request" }],
+      steps: [
+        withMessages(
+          [
+            { role: "assistant", content: [searchCall("web-1"), readCall] },
+            { role: "tool", content: [result("web-1", "web_search"), result("read-1", "list_users")] },
+          ],
+          "tool-calls",
+        ),
+        withMessages(
+          [
+            { role: "assistant", content: [searchCall("web-2"), partial] },
+            { role: "tool", content: [result("web-2", "web_search")] },
+          ],
+          "length",
+        ),
+      ],
+    });
+
+    expect(compacted.messages).toEqual([
+      { role: "user", content: "request" },
+      { role: "assistant", content: [readCall] },
+      { role: "tool", content: [result("read-1", "list_users")] },
+      { role: "assistant", content: [partial] },
+    ]);
+  });
+
   it("derives each retained bundle from the SDK's per-step response history", () => {
     const steps = [
       step([], "tool-calls", "first"),

@@ -260,6 +260,25 @@ function responseMessagesByStep(steps: readonly AgentContinuationStep[]) {
   return steps.map((step) => step.response.messages);
 }
 
+function withoutProviderExecutedToolParts(messages: readonly ModelMessage[]): ModelMessage[] {
+  const providerCallIds = new Set(
+    messages.flatMap((message) =>
+      message.role === "assistant" && Array.isArray(message.content)
+        ? message.content.flatMap((part) =>
+            part.type === "tool-call" && part.providerExecuted === true ? [part.toolCallId] : [],
+          )
+        : [],
+    ),
+  );
+  if (providerCallIds.size === 0) return [...messages];
+
+  return messages.flatMap((message) => {
+    if ((message.role !== "assistant" && message.role !== "tool") || !Array.isArray(message.content)) return [message];
+    const content = message.content.filter((part) => !("toolCallId" in part && providerCallIds.has(part.toolCallId)));
+    return content.length > 0 ? [{ ...message, content } as ModelMessage] : [];
+  });
+}
+
 const encoder = new TextEncoder();
 
 function checkpointText(checkpoint: AgentContinuationCheckpoint) {
@@ -314,7 +333,10 @@ export function compactAgentContinuationContext(args: {
   const retainedStepStart = Math.max(0, args.steps.length - retainedResponseSteps);
   const retainedSteps = args.steps.slice(retainedStepStart);
   const olderSteps = args.steps.slice(0, retainedStepStart);
-  const messages = [...args.initialMessages, ...responseMessages.slice(retainedStepStart).flat()] as ModelMessage[];
+  const messages = [
+    ...args.initialMessages,
+    ...withoutProviderExecutedToolParts(responseMessages.slice(retainedStepStart).flat()),
+  ];
 
   if (olderSteps.length === 0) {
     return {

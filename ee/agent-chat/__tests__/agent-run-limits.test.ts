@@ -50,6 +50,29 @@ describe("credit-bounded durable continuation", () => {
     expect(summarizeAgentContinuationStep(step)[0]?.status).toBe("error");
   });
 
+  it("carries a provider-executed search call and its result into the next segment's messages", () => {
+    const call = { type: "tool-call", toolCallId: "web-1", toolName: "web_search", input: {}, providerExecuted: true };
+    const output = { results: [{ url: "https://example.com/" }] };
+    const partial = { type: "text", text: "Partial" };
+    const step = toAgentContinuationStep(
+      {
+        finishReason: "length",
+        content: [call, { ...call, type: "tool-result", output }, partial],
+      },
+      [{ toolCallId: "web-1", toolName: "web_search", output }],
+    );
+
+    expect(step.response.messages).toEqual([
+      { role: "assistant", content: [call, partial] },
+      {
+        role: "tool",
+        content: [
+          { type: "tool-result", toolCallId: "web-1", toolName: "web_search", output: { type: "json", value: output } },
+        ],
+      },
+    ]);
+  });
+
   it("continues when a model keeps failing the same way", () => {
     const failing = () => round("create_contacts", { name: "x" }, { ok: false, result: "not allowed" });
     const steps = Array.from({ length: 40 }, failing);
