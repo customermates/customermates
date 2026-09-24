@@ -5,11 +5,19 @@ import { MessageChannel, Worker, receiveMessageOnPort, type MessagePort } from "
 
 import { Intrinsics } from "quickjs-wasi";
 
-export type AnalysisLimits = { memoryBytes: number; wallMs: number; maxSteps: number };
+export type AnalysisLimits = { memoryBytes: number; wallMs: number; maxSteps: number; workerHeapMb: number };
 
-export const ANALYSIS_LIMITS: AnalysisLimits = { memoryBytes: 128 * 1024 * 1024, wallMs: 3_000, maxSteps: 200_000_000 };
+export const ANALYSIS_LIMITS: AnalysisLimits = {
+  memoryBytes: 128 * 1024 * 1024,
+  wallMs: 3_000,
+  maxSteps: 200_000_000,
+  workerHeapMb: 256,
+};
 
-export type AnalysisOutcome = { ok: true; value: unknown } | { ok: false; error: string };
+export type AnalysisOutcome =
+  | { ok: true; serialized: string | null }
+  | { ok: false; resultChars: number }
+  | { ok: false; error: string };
 
 const ANALYSIS_INTRINSICS =
   Intrinsics.EVAL |
@@ -23,8 +31,11 @@ const NOT_A_FUNCTION = "AnalysisCodeIsNotAFunction";
 const NEVER_SETTLED = "AnalysisPromiseNeverSettled";
 const HOLDS_PROMISE = "AnalysisResultHoldsAPromise";
 
-type Stop = "time" | "steps" | null;
-type WorkerReport = { ok: true; serialized: string | null } | { ok: false; stop: Stop; message: string };
+type Stop = "time" | "steps" | "memory" | null;
+type WorkerReport =
+  | { ok: true; serialized: string | null }
+  | { ok: false; resultChars: number }
+  | { ok: false; stop: Stop; message: string };
 type AnalysisWorkerData = {
   report?: MessagePort;
   quickjsUrl: string;
@@ -35,9 +46,11 @@ type AnalysisWorkerData = {
   maxSteps: number;
   memoryBytes: number;
   intrinsics: number;
+  resultMaxChars: number;
 };
 
 const TIMED_OUT: WorkerReport = { ok: false, stop: "time", message: "" };
+const WORKER_OUT_OF_MEMORY: WorkerReport = { ok: false, stop: "memory", message: "" };
 
 const ANALYSIS_WORKER_SOURCE = `(async () => {
   const { workerData } = await import("node:worker_threads");
@@ -84,8 +97,9 @@ const ANALYSIS_WORKER_SOURCE = `(async () => {
     }
     try {
       if (stop !== null) throw new Error("interrupted");
-      const serialized = vm.dump(result);
-      report.postMessage({ ok: true, serialized: typeof serialized === "string" ? serialized : null });
+      const resultChars = result.isString ? result.length : 0;
+      if (resultChars > workerData.resultMaxChars) report.postMessage({ ok: false, resultChars });
+      else report.postMessage({ ok: true, serialized: result.isString ? vm.dump(result) : null });
     } finally {
       result.dispose();
     }
@@ -112,7 +126,7 @@ function analysisSource(code: string): string {
 function stoppedError(stop: Stop, message: string): string {
   if (stop === "time") return "The analysis code ran longer than its time budget and was stopped.";
   if (stop === "steps") return "The analysis code exceeded its step budget and was stopped.";
-  if (message === "<null>" || /out of memory/i.test(message))
+  if (stop === "memory" || message === "<null>" || /out of memory/i.test(message))
     return "The analysis code ran out of memory and was stopped.";
   if (message === NOT_A_FUNCTION)
     return "The analysis code must be one function expression (data) => result; it may be async.";
@@ -122,12 +136,17 @@ function stoppedError(stop: Stop, message: string): string {
   return `The analysis code failed: ${message.slice(0, 500)}`;
 }
 
-async function runInWorker(workerData: AnalysisWorkerData, terminateAfterMs: number): Promise<WorkerReport> {
+async function runInWorker(
+  workerData: AnalysisWorkerData,
+  terminateAfterMs: number,
+  heapMb: number,
+): Promise<WorkerReport> {
   const channel = new MessageChannel();
   const worker = new Worker(ANALYSIS_WORKER_SOURCE, {
     eval: true,
     workerData: { ...workerData, report: channel.port2 },
     transferList: [channel.port2],
+    resourceLimits: { maxOldGenerationSizeMb: heapMb },
   });
   let timer: NodeJS.Timeout | undefined;
   try {
@@ -137,7 +156,9 @@ async function runInWorker(workerData: AnalysisWorkerData, terminateAfterMs: num
         resolve(pending ? (pending.message as WorkerReport) : TIMED_OUT);
       }, terminateAfterMs);
       channel.port1.on("message", resolve);
-      worker.on("error", reject);
+      worker.on("error", (error: NodeJS.ErrnoException) =>
+        error.code === "ERR_WORKER_OUT_OF_MEMORY" ? resolve(WORKER_OUT_OF_MEMORY) : reject(error),
+      );
       worker.on("exit", (exitCode) => {
         const pending = receiveMessageOnPort(channel.port1);
         if (pending) resolve(pending.message as WorkerReport);
@@ -154,6 +175,7 @@ async function runInWorker(workerData: AnalysisWorkerData, terminateAfterMs: num
 export async function runAnalysisCode(
   code: string,
   input: string,
+  resultMaxChars: number,
   limits: AnalysisLimits = ANALYSIS_LIMITS,
 ): Promise<AnalysisOutcome> {
   const wasm = await quickjsModule();
@@ -168,9 +190,12 @@ export async function runAnalysisCode(
       maxSteps: limits.maxSteps,
       memoryBytes: limits.memoryBytes,
       intrinsics: ANALYSIS_INTRINSICS,
+      resultMaxChars,
     },
     deadline + TERMINATE_MARGIN_MS - Date.now(),
+    limits.workerHeapMb,
   );
-  if (!report.ok) return { ok: false, error: stoppedError(report.stop, report.message) };
-  return { ok: true, value: report.serialized === null ? null : (JSON.parse(report.serialized) as unknown) };
+  if (report.ok) return { ok: true, serialized: report.serialized };
+  if ("resultChars" in report) return { ok: false, resultChars: report.resultChars };
+  return { ok: false, error: stoppedError(report.stop, report.message) };
 }

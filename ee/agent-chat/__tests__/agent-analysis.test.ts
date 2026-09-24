@@ -27,10 +27,22 @@ import {
   analyzeRecords,
   type AnalysisDeps,
 } from "../agent-analysis";
+import { ANALYSIS_LIMITS } from "../agent-analysis-isolate";
 
 const TOO_MUCH_DATA =
   "The reads returned more than 8 MB of data. Narrow them, or pass include: [] on list reads that need no links or custom fields; the analysis code was not run.";
 const EVERY_INCLUDE = ["owners", "links", "customFields", "dates"];
+
+function tooLarge(chars: number, resultMaxChars: number) {
+  return {
+    ok: false,
+    result: `The analysis result is ${chars} characters, more than the ${resultMaxChars} one tool result can hold, so it was not returned. Return an aggregate, a top N or a count instead of whole rows.`,
+  };
+}
+
+function longest(texts: unknown[]): number {
+  return Math.max(0, ...texts.map((text) => (typeof text === "string" ? text.length : 0)));
+}
 
 function listTool(name: string, rows: number, text?: string) {
   const all = Array.from({ length: rows }, (_, index) => ({
@@ -284,20 +296,85 @@ describe("analyze_records", () => {
 
   it("refuses a result longer than one tool result can hold instead of returning it cut", async () => {
     const { tool } = listTool("list_things", 250);
-    const input = { reads: [read("list_things")], code: "(data) => data[0].items" };
-    const whole = JSON.stringify({
-      rowsRead: 250,
-      result: Array.from({ length: 250 }, (_, index) => ({ id: `row-${index + 1}`, value: index + 1 })),
-    });
+    const rows = Array.from({ length: 250 }, (_, index) => ({ id: `row-${index + 1}`, value: index + 1 }));
+    for (const [code, value] of [
+      ["(data) => data[0].items", rows],
+      ["() => undefined", null],
+    ] as const) {
+      const input = { reads: [read("list_things")], code };
+      const whole = JSON.stringify({ rowsRead: 250, result: value });
 
+      await expect(analyzeRecords(input, { tools: [tool], resultMaxChars: whole.length })).resolves.toEqual({
+        ok: true,
+        result: whole,
+      });
+      await expect(analyzeRecords(input, { tools: [tool], resultMaxChars: whole.length - 1 })).resolves.toEqual(
+        tooLarge(whole.length, whole.length - 1),
+      );
+    }
+  });
+
+  it.each([
+    ["a result of eight million objects", "(data) => Array(8e6).fill({})", 24_000_001],
+    [
+      "a replaced JSON.stringify",
+      "(data) => { JSON.stringify = () => '[' + '{},'.repeat(2e7) + '{}]'; return 0; }",
+      60_000_004,
+    ],
+  ])(
+    "refuses %s by its size in the sandbox, before the host parses or serializes any of it",
+    async (_, code, serializedChars) => {
+      const { tool } = listTool("list_things", 1);
+      const parse = vi.spyOn(JSON, "parse");
+      const stringify = vi.spyOn(JSON, "stringify");
+      const heapBefore = process.memoryUsage().heapUsed;
+      try {
+        const outcome = await analyzeRecords(
+          { reads: [read("list_things")], code },
+          { ...deps(tool), limits: { ...ANALYSIS_LIMITS, wallMs: 60_000 } },
+        );
+        const heapGrowth = process.memoryUsage().heapUsed - heapBefore;
+
+        expect(outcome).toEqual(tooLarge('{"rowsRead":1,"result":}'.length + serializedChars, 6_000));
+        expect(heapGrowth).toBeLessThan(16 * 1024 * 1024);
+        expect(longest(parse.mock.calls.map(([text]) => text))).toBeLessThan(6_000);
+        expect(longest(stringify.mock.results.map((result) => result.value))).toBeLessThan(6_000);
+      } finally {
+        parse.mockRestore();
+        stringify.mockRestore();
+      }
+    },
+    90_000,
+  );
+
+  it("returns or refuses a result nested 10,000 deep by its size instead of failing to serialize it", async () => {
+    const { tool } = listTool("list_things", 10_000);
+    const input = {
+      reads: [read("list_things")],
+      code: "(data) => data[0].items.reduce((prev, row) => ({ id: row.id, prev }), null)",
+    };
+    let chain = "null";
+    for (let index = 1; index <= 10_000; index += 1) chain = `{"id":"row-${index}","prev":${chain}}`;
+    const whole = `{"rowsRead":10000,"result":${chain}}`;
+
+    await expect(analyzeRecords(input, deps(tool))).resolves.toEqual(tooLarge(whole.length, 6_000));
     await expect(analyzeRecords(input, { tools: [tool], resultMaxChars: whole.length })).resolves.toEqual({
       ok: true,
       result: whole,
     });
-    await expect(analyzeRecords(input, { tools: [tool], resultMaxChars: whole.length - 1 })).resolves.toEqual({
-      ok: false,
-      result: `The analysis result is ${whole.length} characters, more than the ${whole.length - 1} one tool result can hold, so it was not returned. Return an aggregate, a top N or a count instead of whole rows.`,
+  }, 60_000);
+
+  it("refuses reads whose one serialized input passes 8 MB through fields the item budget does not count", async () => {
+    const tool = pagedRead("list_things", {
+      total: 1,
+      items: [{ id: "row-1" }],
+      notes: "x".repeat(ANALYSIS_MAX_BYTES),
     });
+    expect(JSON.stringify([{ id: "row-1" }]).length).toBeLessThan(ANALYSIS_MAX_BYTES);
+
+    await expect(
+      analyzeRecords({ reads: [read("list_things")], code: "(data) => data[0].items.length" }, deps(tool)),
+    ).resolves.toEqual({ ok: false, result: TOO_MUCH_DATA });
   });
 
   it("accepts up to ten reads and states the limits it enforces", () => {

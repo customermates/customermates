@@ -2,7 +2,7 @@ import { z } from "zod";
 
 import { executeMcpTool, validationError, type McpTool } from "@/features/mcp-tools/mcp-tool";
 
-import { runAnalysisCode } from "./agent-analysis-isolate";
+import { runAnalysisCode, type AnalysisLimits } from "./agent-analysis-isolate";
 import { isReadOnlyTool } from "./gated-tools";
 
 export const ANALYSIS_MAX_ROWS = 10_000;
@@ -45,7 +45,7 @@ export const ANALYZE_RECORDS_DESCRIPTION =
   "So a join, such as the deals that have an open task, is two list reads and one function. A single-select value is the option id, not its label: get_record_schema maps option ids to labels. Pass include: [] on a list read that needs none of these fields. " +
   "When the answer is a count or total per status, owner or month, prefer filters, sums or list_records groupBy, and report figures exactly as the result states them.";
 
-export type AnalysisDeps = { tools: readonly McpTool[]; resultMaxChars: number };
+export type AnalysisDeps = { tools: readonly McpTool[]; resultMaxChars: number; limits?: AnalysisLimits };
 
 type Read = AnalyzeRecordsInput["reads"][number];
 type TooMuchData = { ok: false; tooMuchData: true };
@@ -59,6 +59,13 @@ const TOO_MUCH_DATA_ERROR =
 const ANALYSIS_READ_DEFAULTS: Record<string, Record<string, unknown>> = {
   list_records: { include: ["owners", "links", "customFields", "dates"] },
 };
+
+function resultTooLarge(chars: number, resultMaxChars: number): { ok: false; result: string } {
+  return {
+    ok: false,
+    result: `The analysis result is ${chars} characters, more than the ${resultMaxChars} one tool result can hold, so it was not returned. Return an aggregate, a top N or a count instead of whole rows.`,
+  };
+}
 
 function withinDataCap(usage: DataUsage, value: unknown): boolean {
   usage.chars += JSON.stringify(value).length;
@@ -200,14 +207,18 @@ export async function analyzeRecords(
   const collected = await readAll(planned);
   if (!collected.ok) return collected;
 
-  const analysis = await runAnalysisCode(input.code, collected.input);
-  if (!analysis.ok) return { ok: false, result: analysis.error };
-  const result = JSON.stringify({ rowsRead: collected.rows, result: analysis.value });
-  if (result.length > deps.resultMaxChars) {
-    return {
-      ok: false,
-      result: `The analysis result is ${result.length} characters, more than the ${deps.resultMaxChars} one tool result can hold, so it was not returned. Return an aggregate, a top N or a count instead of whole rows.`,
-    };
+  const opening = `{"rowsRead":${collected.rows},"result":`;
+  const analysis = await runAnalysisCode(
+    input.code,
+    collected.input,
+    deps.resultMaxChars - opening.length - 1,
+    deps.limits,
+  );
+  if (!analysis.ok) {
+    if ("error" in analysis) return { ok: false, result: analysis.error };
+    return resultTooLarge(opening.length + analysis.resultChars + 1, deps.resultMaxChars);
   }
+  const result = `${opening}${analysis.serialized ?? "null"}}`;
+  if (result.length > deps.resultMaxChars) return resultTooLarge(result.length, deps.resultMaxChars);
   return { ok: true, result };
 }
