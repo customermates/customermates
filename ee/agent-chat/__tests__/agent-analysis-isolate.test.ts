@@ -255,6 +255,33 @@ describe("analysis isolate", () => {
     });
   });
 
+  it("tells code that does not parse as one function expression how to write it, before anything runs", async () => {
+    const guidance = "Write it as (data) => { ...; return result; } and declare any helper functions inside it.";
+    for (const code of [
+      "function normalize(n) { return n.trim(); } const names = data.map(normalize); return names;",
+      "var normalize = function (n) { return n; }; (data) => data.length",
+      "(data) => { const total = ; return total; }",
+      "const run = (data) => data.length; run",
+    ]) {
+      const outcome = await runAnalysisCode(code, "[1]", RESULT_MAX_CHARS);
+      expect(outcome.ok).toBe(false);
+      const error = "error" in outcome ? outcome.error : "";
+      expect(error).toMatch(/^The analysis code does not parse as one function expression \(.+\)\. /);
+      expect(error.endsWith(guidance)).toBe(true);
+    }
+    await expect(
+      runAnalysisCode('() => { throw new SyntaxError("does not parse"); }', "[1]", RESULT_MAX_CHARS),
+    ).resolves.toEqual({ ok: false, error: "The analysis code failed: does not parse" });
+    await expect(runAnalysisCode('() => JSON.parse("{")', "[1]", RESULT_MAX_CHARS)).resolves.toMatchObject({
+      ok: false,
+      error: expect.stringMatching(/^The analysis code failed: /),
+    });
+    await expect(runAnalysisCode("data => data.length", "[1, 2]", RESULT_MAX_CHARS)).resolves.toEqual({
+      ok: true,
+      serialized: "2",
+    });
+  });
+
   it("runs async code and a function that returns a promise, and returns what the promise resolves to", async () => {
     for (const [code, input, value] of [
       ["async (data) => data.length", "[1]", 1],

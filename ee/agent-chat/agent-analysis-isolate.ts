@@ -3,7 +3,7 @@ import { join } from "node:path";
 import { pathToFileURL } from "node:url";
 import { MessageChannel, Worker, receiveMessageOnPort, type MessagePort } from "node:worker_threads";
 
-import { Intrinsics } from "quickjs-wasi";
+import { EvalFlags, Intrinsics } from "quickjs-wasi";
 
 export type AnalysisLimits = { memoryBytes: number; wallMs: number; maxSteps: number; workerHeapMb: number };
 
@@ -40,7 +40,7 @@ type Stop = "time" | "steps" | "memory" | null;
 type WorkerReport =
   | { ok: true; serialized: string | null }
   | { ok: false; resultChars: number }
-  | { ok: false; stop: Stop; message: string };
+  | { ok: false; stop: Stop; message: string; unparsed?: true };
 type AnalysisWorkerData = {
   report?: MessagePort;
   quickjsUrl: string;
@@ -53,6 +53,7 @@ type AnalysisWorkerData = {
   intrinsics: number;
   resultMaxChars: number;
   messageMaxChars: number;
+  compileOnly: number;
 };
 
 const TIMED_OUT: WorkerReport = { ok: false, stop: "time", message: "" };
@@ -88,6 +89,13 @@ const ANALYSIS_WORKER_SOURCE = `(async () => {
     }
   };
   try {
+    try {
+      vm.evalCode(workerData.source, "analysis.js", workerData.compileOnly).dispose();
+    } catch (error) {
+      const message = error instanceof Error ? error.message : String(error);
+      report.postMessage({ ok: false, stop, message: message.slice(0, workerData.messageMaxChars), unparsed: true });
+      return;
+    }
     const input = vm.newString(workerData.input);
     vm.setProp(vm.global, "__analysisInput", input);
     input.dispose();
@@ -223,11 +231,18 @@ export async function runAnalysisCode(
       intrinsics: ANALYSIS_INTRINSICS,
       resultMaxChars,
       messageMaxChars: MESSAGE_MAX_CHARS,
+      compileOnly: EvalFlags.COMPILE_ONLY,
     },
     deadline + TERMINATE_MARGIN_MS - Date.now(),
     limits.workerHeapMb,
   );
   if (report.ok) return { ok: true, serialized: report.serialized };
   if ("resultChars" in report) return { ok: false, resultChars: report.resultChars };
+  if (report.unparsed) {
+    return {
+      ok: false,
+      error: `The analysis code does not parse as one function expression (${report.message.slice(0, MESSAGE_MAX_CHARS)}). Write it as (data) => { ...; return result; } and declare any helper functions inside it.`,
+    };
+  }
   return { ok: false, error: stoppedError(report.stop, report.message) };
 }
