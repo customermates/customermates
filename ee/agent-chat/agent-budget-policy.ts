@@ -126,5 +126,7 @@ export function agentToolResultText(result: string, maxChars: number) {
   if (result.length <= maxChars) return result;
   const budget = maxChars - truncationNotice(maxChars, result.length).length;
   if (budget < 1) return result.slice(0, maxChars);
-  return `${result.slice(0, budget)}${truncationNotice(budget, result.length)}`;
+  const lineEnd = result.lastIndexOf("\n", budget);
+  const kept = lineEnd >= budget / 2 ? lineEnd : budget;
+  return `${result.slice(0, kept)}${truncationNotice(kept, result.length)}`;
 }

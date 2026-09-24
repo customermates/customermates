@@ -209,6 +209,59 @@ describe("tool result truncation is never silent", () => {
       expect(agentToolResultText("y".repeat(50_000), cap).length, `cap ${cap}`).toBeLessThanOrEqual(cap);
   });
 
+  const renewalRows = Array.from(
+    { length: 300 },
+    (_, index) => `  ${index + 1},Renewal-${String(index + 1).padStart(3, "0")},won,12000`,
+  );
+  const renewalPage = `items[300]{id,name,stage,totalValue}:\n${renewalRows.join("\n")}`;
+  const keptPart = (cut: string) => cut.slice(0, cut.indexOf(`\n${AGENT_TOOL_RESULT_TRUNCATED_MARK}`));
+  const reportedKept = (cut: string) => Number(/first (\d+) of \d+ characters/.exec(cut)?.[1]);
+
+  it("cuts a multi-line result after its last complete line, never inside a row", () => {
+    for (const cap of [512, 1_000, 6_000]) {
+      const cut = agentToolResultText(renewalPage, cap);
+      const kept = keptPart(cut);
+      expect(cut.length, `cap ${cap}`).toBeLessThanOrEqual(cap);
+      expect(renewalPage.startsWith(kept), `cap ${cap}`).toBe(true);
+      expect(renewalPage[kept.length], `cap ${cap}`).toBe("\n");
+      expect(renewalRows, `cap ${cap}`).toContain(kept.split("\n").at(-1));
+    }
+  });
+
+  it("keeps the hard cut when the last line break would drop more than half of the budget", () => {
+    const singleLine = "y".repeat(10_000);
+    const shortHeadLine = `items[1]{note}:\n  ${"n".repeat(10_000)}`;
+    for (const full of [singleLine, shortHeadLine]) {
+      const cut = agentToolResultText(full, 600);
+      const kept = keptPart(cut);
+      expect(cut.length).toBeLessThanOrEqual(600);
+      expect(full.startsWith(kept)).toBe(true);
+      expect(kept.length).toBeGreaterThan(full.indexOf("\n") + 100);
+      expect(cut).toContain(`first ${kept.length} of ${full.length} characters`);
+    }
+  });
+
+  it("moves the cut to a line break exactly when that keeps at least half of the budget", () => {
+    const withBreakAt = (at: number) => `${"a".repeat(at)}\n${"b".repeat(10_000 - at - 1)}`;
+    const budgets = [600, 601].map((cap) => {
+      const budget = keptPart(agentToolResultText("y".repeat(10_000), cap)).length;
+      const half = Math.ceil(budget / 2);
+      expect(keptPart(agentToolResultText(withBreakAt(half), cap)).length, `cap ${cap}`).toBe(half);
+      expect(keptPart(agentToolResultText(withBreakAt(half - 1), cap)).length, `cap ${cap}`).toBe(budget);
+      return budget;
+    });
+    expect(budgets[0] % 2).not.toBe(budgets[1] % 2);
+  });
+
+  it("reports the characters it actually kept and never exceeds the cap on multi-line results", () => {
+    for (const cap of [1, 2, 40, 120, 300, 333, 511, 512, 1_000, 4_097, 6_000]) {
+      const cut = agentToolResultText(renewalPage, cap);
+      expect(cut.length, `cap ${cap}`).toBeLessThanOrEqual(cap);
+      if (!cut.includes(AGENT_TOOL_RESULT_TRUNCATED_MARK)) continue;
+      expect(reportedKept(cut), `cap ${cap}`).toBe(keptPart(cut).length);
+    }
+  });
+
   it("tells the model how to recover rather than only that it failed", () => {
     const cut = agentToolResultText("z".repeat(10_000), 600);
     expect(cut).toMatch(/re-run it with a smaller pageSize, about half, fewer ids, or a narrower filter/);
