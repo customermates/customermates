@@ -20,6 +20,13 @@ describe("native Agent web search", () => {
     }
   });
 
+  it("releases routines only through the routine flag, never through the chat flag", () => {
+    expect(agentWebSearchEnabled("routine", false, { chat: true, routine: false })).toBe(false);
+    expect(agentWebSearchEnabled("chat", false, { chat: true, routine: false })).toBe(true);
+    expect(agentWebSearchEnabled("routine", false, { chat: false, routine: true })).toBe(true);
+    expect(agentWebSearchEnabled("chat", false, { chat: false, routine: true })).toBe(false);
+  });
+
   it("preserves the provider-native tool and restricts optional setup turns by domain", () => {
     expect(getAgentWebSearchTool()).toMatchObject({
       type: "provider",

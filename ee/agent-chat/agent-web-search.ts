@@ -14,9 +14,13 @@ export type AgentWebSearchOptions = {
   allowedDomains?: readonly string[];
 };
 
-export function agentWebSearchEnabled(surface: AgentSurface, localOptIn: boolean): boolean {
+export function agentWebSearchEnabled(
+  surface: AgentSurface,
+  localOptIn: boolean,
+  released = { chat: AGENT_WEB_SEARCH_RELEASED, routine: AGENT_WEB_SEARCH_ROUTINES_RELEASED },
+): boolean {
   if (localOptIn) return true;
-  return isUnattendedSurface(surface) ? AGENT_WEB_SEARCH_ROUTINES_RELEASED : AGENT_WEB_SEARCH_RELEASED;
+  return isUnattendedSurface(surface) ? released.routine : released.chat;
 }
 
 export function getAgentWebSearchTool(options: AgentWebSearchOptions = {}) {
