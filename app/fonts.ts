@@ -22,5 +22,7 @@ export const mono = localFont({
   ],
   display: "swap",
   preload: false,
+  adjustFontFallback: false,
+  fallback: ["ui-monospace", "SFMono-Regular", "Menlo", "Consolas", "Liberation Mono", "monospace"],
   variable: "--font-mono",
 });

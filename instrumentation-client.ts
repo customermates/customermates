@@ -1,4 +1,4 @@
-import type * as SentrySdk from "@sentry/nextjs";
+import type * as SentrySdk from "@/core/errors/sentry-sdk";
 
 import { loadSentry } from "@/core/errors/sentry-client";
 

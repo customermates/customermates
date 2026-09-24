@@ -1,4 +1,4 @@
-import type * as SentrySdk from "@sentry/nextjs";
+import type * as SentrySdk from "./sentry-sdk";
 
 import { isExpectedError } from "./app-errors";
 import { errorDigest } from "./error-digest";
@@ -7,7 +7,7 @@ import { scrubAdIdentifiersFromEvent } from "./scrub-ad-identifiers";
 let browserSdk: Promise<typeof SentrySdk> | null = null;
 
 export function loadSentry(): Promise<typeof SentrySdk> {
-  browserSdk ??= import("@sentry/nextjs")
+  browserSdk ??= import("./sentry-sdk")
     .then((Sentry) => {
       Sentry.init({
         dsn: process.env.NEXT_PUBLIC_SENTRY_DSN,
@@ -43,7 +43,7 @@ export function loadSentry(): Promise<typeof SentrySdk> {
 export function captureError(error: unknown): void {
   if (!process.env.NEXT_PUBLIC_SENTRY_DSN) return;
 
-  const sdk = typeof window === "undefined" ? import("@sentry/nextjs") : loadSentry();
+  const sdk = typeof window === "undefined" ? import("./sentry-sdk") : loadSentry();
 
   void sdk.then((Sentry) => Sentry.captureException(error)).catch(() => undefined);
 }
