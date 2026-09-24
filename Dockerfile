@@ -7,6 +7,7 @@ FROM base AS deps
 COPY package.json yarn.lock ./
 COPY prisma.config.ts ./prisma.config.ts
 COPY prisma ./prisma
+COPY patches ./patches
 RUN yarn install --frozen-lockfile --network-timeout 600000
 
 FROM base AS builder
