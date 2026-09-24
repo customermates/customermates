@@ -1,5 +1,6 @@
 import type { AgentToolIdentity } from "./tool-identity";
 
+import { LOAD_TOOLSET_TOOL_NAME } from "./agent-toolset-routing";
 import { agentToolIdentityKey, internalToolIdentity, isInternalToolIdentity } from "./tool-identity";
 
 export function isReadOnlyTool(tool: { annotations?: Record<string, boolean> }) {
@@ -83,7 +84,8 @@ export function readOnlyActionsForTool(identity: AgentToolIdentity): readonly st
 }
 
 export function isReadOnlyAgentToolCall(name: string, tool: { annotations?: Record<string, boolean> }, input: unknown) {
-  if (isReadOnlyTool(tool) || name === "read_public_page" || name === "web_search") return true;
+  if (isReadOnlyTool(tool) || name === "read_public_page" || name === "web_search" || name === LOAD_TOOLSET_TOOL_NAME)
+    return true;
   const action =
     input && typeof input === "object" && !Array.isArray(input) ? (input as { action?: unknown }).action : undefined;
   return typeof action === "string" && Boolean(readOnlyActionsForTool(internalToolIdentity(name))?.includes(action));

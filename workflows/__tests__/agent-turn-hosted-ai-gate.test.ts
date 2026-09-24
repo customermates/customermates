@@ -44,6 +44,9 @@ const state = vi.hoisted(() => ({
     name: string;
     description: string;
     inputSchema: unknown;
+    type?: "provider";
+    id?: string;
+    isProviderExecuted?: boolean;
   }[],
   normalize: vi.fn(),
   execute: vi.fn(),
@@ -1862,39 +1865,45 @@ describe("routine browse-or-mutate batch safety", () => {
   });
   const finish = () => ({ finishReason: "stop", messages: [], steps: [] });
 
+  const searchCall = { ...call("web_search", "web-1", { query: "current source" }), providerExecuted: true };
+  const loadToolset = { toolset: "messaging" };
+
   beforeEach(() => {
-    state.definitions = ["read_public_page", "manage_wiki_pages", "list_users"].map((name) => ({
-      name,
-      description: name,
-      inputSchema: { type: "object" },
-    }));
+    state.definitions = [
+      {
+        name: "web_search",
+        description: "web_search",
+        inputSchema: { type: "object" },
+        type: "provider",
+        id: "gateway.exa_search",
+        isProviderExecuted: true,
+      },
+      ...["load_toolset", "read_public_page", "manage_wiki_pages", "list_users"].map((name) => ({
+        name,
+        description: name,
+        inputSchema: { type: "object" },
+      })),
+    ];
     state.normalize.mockImplementation((_name, input) => Promise.resolve({ ok: true, input }));
   });
 
-  it.each(["web-first", "write-first", "parallel"])("denies mutation for the complete %s web batch", async (order) => {
-    state.runTools = async ({ executeAndCompleteTool }) => {
-      const calls = [call("read_public_page", "read-1", read), call("manage_wiki_pages", "write-1", write)];
-      if (order === "write-first") calls.reverse();
-      const batch = [{ role: "assistant", content: calls }];
-      const results =
-        order === "parallel"
-          ? await Promise.all(
-              calls.map((item) => executeAndCompleteTool(item.toolName, item.input, item.toolCallId, batch)),
-            )
-          : await calls.reduce(
-              async (prior, item) => [
-                ...(await prior),
-                await executeAndCompleteTool(item.toolName, item.input, item.toolCallId, batch),
-              ],
-              Promise.resolve([] as unknown[]),
-            );
-      expect(results).toContainEqual(expect.objectContaining({ ok: false }));
-      return finish();
-    };
-    await runAgentTurn({ ...payload, surface: "routine" });
-    expect(state.execute).not.toHaveBeenCalled();
-    expect(state.readPage).not.toHaveBeenCalled();
-  });
+  it.each(["web-first", "write-first"])(
+    "denies a routine mutation in the same batch as a %s provider search",
+    async (order) => {
+      let mutation: unknown;
+      state.runTools = async ({ executeAndCompleteTool }) => {
+        const calls = [searchCall, call("manage_wiki_pages", "write-1", write)];
+        if (order === "write-first") calls.reverse();
+        mutation = await executeAndCompleteTool("manage_wiki_pages", write, "write-1", [
+          { role: "assistant", content: calls },
+        ]);
+        return finish();
+      };
+      await runAgentTurn({ ...payload, surface: "routine", webSearchEnabled: true });
+      expect(mutation).toMatchObject({ ok: false });
+      expect(state.execute).not.toHaveBeenCalled();
+    },
+  );
 
   it.each(["chat", "routine"] as const)(
     "fails closed when a %s turn reads a public page outside homepage setup",
@@ -1908,18 +1917,38 @@ describe("routine browse-or-mutate batch safety", () => {
     },
   );
 
-  it("keeps a successful browse boundary across later steps, while Wiki reads remain available", async () => {
+  it("keeps a serialized search's browse boundary across later steps, while reads and toolset loading remain available", async () => {
     state.runTools = async ({ executeAndCompleteTool, completeStepAndPrepareNext }) => {
-      await completeStepAndPrepareNext(nativeSearchStep());
+      await completeStepAndPrepareNext(JSON.parse(JSON.stringify(nativeSearchStep())));
       expect(await executeAndCompleteTool("manage_wiki_pages", write, "write-1")).toMatchObject({ ok: false });
+      expect(await executeAndCompleteTool("load_toolset", loadToolset, "load-1")).toMatchObject({ ok: true });
       expect(await executeAndCompleteTool("manage_wiki_pages", { action: "get", id: "page-1" }, "get-1")).toMatchObject(
         { ok: true },
       );
       return finish();
     };
-    await runAgentTurn({ ...payload, surface: "routine" });
-    expect(state.execute).toHaveBeenCalledOnce();
-    expect(state.execute.mock.calls[0][0]).toMatchObject({ action: "get" });
+    await runAgentTurn({ ...payload, surface: "routine", webSearchEnabled: true });
+    expect(state.execute).toHaveBeenCalledTimes(2);
+    expect(state.execute.mock.calls.map(([input]) => input)).toEqual([loadToolset, { action: "get", id: "page-1" }]);
+  });
+
+  it("keeps web search available to a routine after it loads a toolset", async () => {
+    let preparedAfterLoad: unknown;
+    let mutationAfterSearch: unknown;
+    state.runTools = async ({ executeAndCompleteTool, completeStepAndPrepareNext }) => {
+      await executeAndCompleteTool("load_toolset", loadToolset, "load-1");
+      await completeStepAndPrepareNext(streamedToolCallStep("load_toolset", "load-1", loadToolset));
+      preparedAfterLoad = state.prepared;
+      await completeStepAndPrepareNext(nativeSearchStep());
+      mutationAfterSearch = await executeAndCompleteTool("manage_wiki_pages", write, "write-1");
+      return finish();
+    };
+    await runAgentTurn({ ...payload, surface: "routine", webSearchEnabled: true });
+    expect(preparedAfterLoad).toEqual({
+      activeTools: ["web_search", "load_toolset", "read_public_page", "manage_wiki_pages", "list_users"],
+    });
+    expect(mutationAfterSearch).toMatchObject({ ok: false });
+    expect(state.execute).toHaveBeenCalledExactlyOnceWith(loadToolset, expect.anything());
   });
 
   const nativeSearchStep = (failed = false) => ({
@@ -2132,37 +2161,27 @@ describe("routine browse-or-mutate batch safety", () => {
     },
   );
 
-  it("denies mutation in a batch with a refused web read but permits a later mutation", async () => {
+  it("denies mutation in a batch with a failed provider search but permits a later mutation", async () => {
     state.runTools = async ({ executeAndCompleteTool, completeStepAndPrepareNext }) => {
-      const batch = [
-        {
-          role: "assistant",
-          content: [call("read_public_page", "read-1", read), call("manage_wiki_pages", "write-1", write)],
-        },
-      ];
-      await executeAndCompleteTool("read_public_page", read, "read-1", batch);
+      const batch = [{ role: "assistant", content: [searchCall, call("manage_wiki_pages", "write-1", write)] }];
       expect(await executeAndCompleteTool("manage_wiki_pages", write, "write-1", batch)).toMatchObject({ ok: false });
-      await completeStepAndPrepareNext(streamedStep("", "tool-calls"));
+      await completeStepAndPrepareNext({ ...nativeSearchStep(true), finishReason: "tool-calls" });
       expect(await executeAndCompleteTool("manage_wiki_pages", write, "write-2")).toMatchObject({ ok: true });
       return finish();
     };
-    await runAgentTurn({ ...payload, surface: "routine" });
-    expect(state.readPage).not.toHaveBeenCalled();
+    await runAgentTurn({ ...payload, surface: "routine", webSearchEnabled: true });
     expect(state.execute).toHaveBeenCalledOnce();
   });
 
-  it("removes web tools before the next provider request after a successful mutation and denies direct reads", async () => {
+  it("removes web search before the next provider request after a successful routine mutation", async () => {
     state.runTools = async ({ executeAndCompleteTool, completeStepAndPrepareNext }) => {
-      expect(await executeAndCompleteTool("manage_wiki_pages", write, "write-1")).toMatchObject({ ok: true });
+      await executeAndCompleteTool("manage_wiki_pages", write, "write-1");
       await completeStepAndPrepareNext(streamedStep("", "tool-calls"));
-      expect(state.prepared).toEqual({
-        activeTools: ["manage_wiki_pages", "list_users"],
-      });
-      expect(await executeAndCompleteTool("read_public_page", read, "read-1")).toMatchObject({ ok: false });
       return finish();
     };
-    await runAgentTurn({ ...payload, surface: "routine" });
-    expect(state.readPage).not.toHaveBeenCalled();
+    await runAgentTurn({ ...payload, surface: "routine", webSearchEnabled: true });
+    expect(state.execute).toHaveBeenCalledOnce();
+    expect(state.prepared).toEqual({ activeTools: ["load_toolset", "manage_wiki_pages", "list_users"] });
   });
 
   it("does not apply the routine mutation boundary to ordinary chat", async () => {

@@ -14,6 +14,7 @@ import {
   AGENT_APPROVAL_POLICY_TOOL_NAMES,
   approvalFreeActionsForTool,
   readOnlyActionsForTool,
+  isReadOnlyAgentToolCall,
   isReadOnlyTool,
   requiresApproval,
   AGENT_DESTRUCTIVE_APPROVAL_FREE_TOOL_NAMES,
@@ -70,6 +71,12 @@ describe("gated-tools", () => {
 
   it("fails closed: only explicit readOnlyHint:true escapes the write path", () => {
     for (const tool of ALL_MCP_TOOLS) expect(isReadOnlyTool(tool)).toBe(tool.annotations?.readOnlyHint === true);
+  });
+
+  it("counts toolset loading and web access as reads, and an unannotated unknown tool as a write", () => {
+    for (const name of ["load_toolset", "web_search", "read_public_page"])
+      expect(isReadOnlyAgentToolCall(name, {}, { toolset: "messaging" })).toBe(true);
+    expect(isReadOnlyAgentToolCall("some_future_tool", {}, {})).toBe(false);
   });
 
   it("fails closed: a tool outside the policy map always requires approval", () => {
