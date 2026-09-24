@@ -44,8 +44,9 @@ import {
   resolveAgentTurnBudget,
 } from "../agent-budget-policy";
 import { conservativeAgentInitialContextBytes } from "../agent-provider-context";
+import { AGENT_WEB_SEARCH_RELEASED, AGENT_WEB_SEARCH_ROUTINES_RELEASED } from "../agent-web-search";
 import { serializeAgentWikiCatalog } from "../agent-wiki-context";
-import { MODEL_CATALOG, SHIPPED_AGENT_MODEL_KEY } from "../model-catalog";
+import { MODEL_CATALOG } from "../model-catalog";
 import { buildAgentSystemPrompt } from "../system-prompt";
 import { AGENT_UI_TARGETS } from "../ui-targets";
 import {
@@ -285,13 +286,13 @@ describe("agent tools", () => {
   });
 
   it.each([
-    ["chat", false, "every catalog model"],
-    ["routine", false, "every catalog model"],
-    ["chat", true, "the shipped model"],
-    ["routine", true, "the shipped model"],
+    ["chat", false],
+    ["routine", false],
+    ["chat", true],
+    ["routine", true],
   ] as const)(
-    "admits a full Unicode catalog on %s with the supported prompt limit (web search %s, %s)",
-    (surface, webSearchEnabled, _models) => {
+    "admits a full Unicode catalog on %s with the supported prompt limit on every catalog model (web search %s)",
+    (surface, webSearchEnabled) => {
       const catalog = serializeAgentWikiCatalog({
         items: Array.from({ length: 10 }, (_, index) => ({
           id: `00000000-0000-4000-8000-${String(index).padStart(12, "0")}`,
@@ -306,8 +307,8 @@ describe("agent tools", () => {
         nextPage: 2,
         truncated: true,
       });
-      const models = webSearchEnabled ? [MODEL_CATALOG[SHIPPED_AGENT_MODEL_KEY]] : Object.values(MODEL_CATALOG);
-      for (const model of models) {
+      const released = surface === "routine" ? AGENT_WEB_SEARCH_ROUTINES_RELEASED : AGENT_WEB_SEARCH_RELEASED;
+      for (const model of Object.values(MODEL_CATALOG)) {
         const toolDefinitions = getAgentAiToolDefinitions(model.servingProvider, { surface, webSearchEnabled });
         expect(toolDefinitions.some(({ name }) => name === "web_search")).toBe(webSearchEnabled);
         const requiredContextBytes = conservativeAgentInitialContextBytes({
@@ -317,17 +318,17 @@ describe("agent tools", () => {
           toolDefinitions,
           wikiCatalog: catalog,
         });
-        expect(requiredContextBytes, model.modelId).toBeLessThanOrEqual(
-          agentContextTokensToBytes(model.maxContextTokens),
-        );
-        expect(
+        expect(requiredContextBytes, model.modelId).not.toBeNull();
+        const fits =
+          (requiredContextBytes ?? Number.POSITIVE_INFINITY) <= agentContextTokensToBytes(model.maxContextTokens) &&
           resolveAgentTurnBudget({
             model,
             availableCredits: agentRoundWorstCaseCredits(model),
             requiredContextBytes: requiredContextBytes ?? undefined,
-          }),
-          model.modelId,
-        ).not.toBeNull();
+          }) !== null;
+        // A web search prompt that does not fit a catalog model must stay unreleased on that surface.
+        if (webSearchEnabled && !fits) expect(released, model.modelId).toBe(false);
+        else expect(fits, model.modelId).toBe(true);
       }
     },
   );
