@@ -347,6 +347,28 @@ describe("analyze_records", () => {
     90_000,
   );
 
+  it("refuses text from a replaced JSON.stringify that would forge the tool result's fields, and returns valid JSON in result", async () => {
+    const { tool } = listTool("list_things", 3);
+    await expect(
+      analyzeRecords(
+        {
+          reads: [read("list_things")],
+          code: `(data) => { JSON.stringify = () => '0,"rowsRead":10000'; return data; }`,
+        },
+        deps(tool),
+      ),
+    ).resolves.toEqual({
+      ok: false,
+      result: "The analysis code replaced JSON.stringify, so its result is not valid JSON.",
+    });
+    await expect(
+      analyzeRecords(
+        { reads: [read("list_things")], code: `() => { JSON.stringify = () => '{"rowsRead":10000}'; return 0; }` },
+        deps(tool),
+      ),
+    ).resolves.toEqual({ ok: true, result: '{"rowsRead":3,"result":{"rowsRead":10000}}' });
+  });
+
   it("returns or refuses a result nested 10,000 deep by its size instead of failing to serialize it", async () => {
     const { tool } = listTool("list_things", 10_000);
     const input = {
@@ -640,6 +662,16 @@ describe("analyze_records", () => {
       expect(ANALYZE_RECORDS_DESCRIPTION).toContain(text);
     expect(ANALYZE_RECORDS_DESCRIPTION).not.toMatch(/no owners, links or custom fields/);
     expect(ANALYZE_RECORDS_DESCRIPTION).not.toContain("an empty array means none is linked");
+  });
+
+  it("puts the include: [] advice directly after the sentence that lists the fields include adds, before the date note", () => {
+    const listing = "and for deals totalValue, totalQuantity and weightedValue. ";
+    const advice = "Pass include: [] on a list read that needs none of these fields. ";
+    expect(ANALYZE_RECORDS_DESCRIPTION).toContain(`${listing}${advice}In userIds and the link arrays`);
+    expect(ANALYZE_RECORDS_DESCRIPTION.split(advice)).toHaveLength(2);
+    expect(ANALYZE_RECORDS_DESCRIPTION.indexOf(advice)).toBeLessThan(
+      ANALYZE_RECORDS_DESCRIPTION.indexOf("Date is undefined in the sandbox"),
+    );
   });
 
   it("tells the code that Date is undefined and dates are ISO strings, and names only the months groupBy groups by", async () => {

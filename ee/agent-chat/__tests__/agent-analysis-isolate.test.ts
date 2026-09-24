@@ -17,8 +17,9 @@ const NEVER_SETTLED_ERROR =
 const HOLDS_PROMISE_ERROR = "The analysis result holds a promise; await it, for example with Promise.all.";
 const NO_MESSAGE_ERROR =
   "The analysis code stopped without an error message: it ran out of memory, or it threw or rejected with null or undefined.";
-const HOLDS_COLLECTION_ERROR =
-  "The analysis result holds a Map, Set or generator, which JSON cannot represent; convert it with Object.fromEntries or Array.from first.";
+const HOLDS_ITERATOR_ERROR =
+  "The analysis result holds a Map, Set, iterator or generator, which JSON cannot represent; convert it with Object.fromEntries or Array.from first.";
+const NOT_JSON_ERROR = "The analysis code replaced JSON.stringify, so its result is not valid JSON.";
 const SMALL_MEMORY_LIMITS = { ...ANALYSIS_LIMITS, memoryBytes: 32 * 1024 * 1024 };
 const COSTLY_BUILT_IN_LOOP = "() => { const s = 'a'.repeat(4e6); for (let i = 0; i < 2e3; i++) s.indexOf('b'); }";
 const RESULT_MAX_CHARS = 10_000;
@@ -428,21 +429,154 @@ describe("analysis isolate", () => {
     ["a generator", "function* (data) { for (const n of data) yield n; }"],
     ["an async generator", "async function* (data) { for (const n of data) yield n; }"],
     ["a generator nested in an array", "(data) => [(function* () { yield* data; })()]"],
+    ["an async generator nested in an object", "(data) => ({ rows: (async function* () { yield* data; })() })"],
+    ["a Map's entries", "(data) => new Map(data.map((n) => [n, n * 2])).entries()"],
+    ["a Map's keys nested in an object", "(data) => ({ keys: new Map(data.map((n) => [n, 1])).keys() })"],
+    ["a Set's values", "(data) => new Set(data).values()"],
+    ["an array iterator", "(data) => [data.values()]"],
+    ["the result of matchAll", "() => 'a1b2'.matchAll(/[0-9]/g)"],
+    ["an iterator helper", "(data) => data.values().map((n) => n * 2)"],
+    ["a wrapped iterator", "(data) => Iterator.from(data).filter((n) => n > 1)"],
+    ["an object with a callable next", "() => ({ next: () => ({ done: true }) })"],
+    ["an async iterable", "() => ({ [Symbol.asyncIterator]: () => ({ next: async () => ({ done: true }) }) })"],
+    ["an async generator resolved from a promise", "async (data) => (async function* () { yield* data; })()"],
   ])("refuses a result that holds %s instead of returning it as an empty object", async (_, code) => {
     await expect(runAnalysisCode(code, "[1,2]", RESULT_MAX_CHARS)).resolves.toEqual({
       ok: false,
-      error: HOLDS_COLLECTION_ERROR,
+      error: HOLDS_ITERATOR_ERROR,
     });
   });
 
-  it("returns Maps and Sets the code converts before it returns them", async () => {
+  it("returns Maps, Sets, iterators and generators the code converts before it returns them", async () => {
     await expect(
       runAnalysisCode(
-        "(data) => ({ byValue: Object.fromEntries(new Map(data.map((n) => [n, n * 2]))), seen: Array.from(new Set(data)) })",
+        "(data) => ({ byValue: Object.fromEntries(new Map(data.map((n) => [n, n * 2]))), seen: Array.from(new Set(data)), pairs: Array.from(new Map(data.map((n) => [n, n])).entries()), digits: [...'a1b2'.matchAll(/[0-9]/g)].map((match) => match[0]), doubled: data.values().map((n) => n * 2).toArray(), yielded: Array.from((function* () { yield* data; })()) })",
         "[1,2,2]",
         RESULT_MAX_CHARS,
       ),
-    ).resolves.toEqual({ ok: true, serialized: JSON.stringify({ byValue: { 1: 2, 2: 4 }, seen: [1, 2] }) });
+    ).resolves.toEqual({
+      ok: true,
+      serialized: JSON.stringify({
+        byValue: { 1: 2, 2: 4 },
+        seen: [1, 2],
+        pairs: [
+          [1, 1],
+          [2, 2],
+        ],
+        digits: ["1", "2"],
+        doubled: [2, 4, 4],
+        yielded: [1, 2, 2],
+      }),
+    });
+    await expect(
+      runAnalysisCode("(data) => ({ next: 1, items: data, [Symbol.iterator]: 1 })", "[1]", RESULT_MAX_CHARS),
+    ).resolves.toEqual({ ok: true, serialized: JSON.stringify({ next: 1, items: [1] }) });
+    await expect(
+      runAnalysisCode("(data) => Object.assign(data, { next() { return 1; } })", "[1]", RESULT_MAX_CHARS),
+    ).resolves.toEqual({ ok: true, serialized: "[1]" });
+    await expect(
+      runAnalysisCode(
+        "(data) => [Object.assign([2], { [Symbol.asyncIterator]() { return this; } }), ...data]",
+        "[1]",
+        RESULT_MAX_CHARS,
+      ),
+    ).resolves.toEqual({ ok: true, serialized: "[[2],1]" });
+  });
+
+  it.each([
+    [
+      "text that forges fields of the tool result",
+      `(data) => { JSON.stringify = () => '0,"rowsRead":10000'; return data; }`,
+    ],
+    ["an empty string", "() => { JSON.stringify = () => ''; return 1; }"],
+    ["an unclosed object", `() => { JSON.stringify = () => '{"total":1'; return 1; }`],
+    ["text returned from an async function", "async () => { JSON.stringify = () => 'total'; return 1; }"],
+  ])("refuses a result that a replaced JSON.stringify turned into %s", async (_, code) => {
+    await expect(runAnalysisCode(code, "[1]", RESULT_MAX_CHARS)).resolves.toEqual({
+      ok: false,
+      error: NOT_JSON_ERROR,
+    });
+  });
+
+  it("returns valid JSON from a replaced JSON.stringify as it is, even when it is not the value the code returned", async () => {
+    await expect(
+      runAnalysisCode(`() => { JSON.stringify = () => ' {"forged": [true]} '; return 1; }`, "null", RESULT_MAX_CHARS),
+    ).resolves.toEqual({ ok: true, serialized: ' {"forged": [true]} ' });
+  });
+
+  it.each([
+    ["a thrown string", "() => { throw 'x'.repeat(1e7); }"],
+    ["an async function that throws an error", "async () => { await 0; throw new Error('x'.repeat(1e7)); }"],
+  ])(
+    "cuts the message of %s to 500 characters in the worker, before it reaches the host",
+    async (_, code) => {
+      const reports: unknown[] = [];
+      vi.resetModules();
+      vi.doMock("node:worker_threads", async (importOriginal) => {
+        const actual = await importOriginal<typeof WorkerThreads>();
+        class RecordingChannel extends actual.MessageChannel {
+          constructor() {
+            super();
+            this.port1.on("message", (report: unknown) => reports.push(report));
+          }
+        }
+        return { ...actual, MessageChannel: RecordingChannel };
+      });
+      try {
+        const fresh = await import("../agent-analysis-isolate");
+        await expect(fresh.runAnalysisCode(code, "null", RESULT_MAX_CHARS)).resolves.toEqual({
+          ok: false,
+          error: `The analysis code failed: ${"x".repeat(500)}`,
+        });
+        expect(reports).toEqual([{ ok: false, stop: null, message: "x".repeat(500) }]);
+      } finally {
+        vi.doUnmock("node:worker_threads");
+        vi.resetModules();
+      }
+    },
+    15_000,
+  );
+
+  it("writes nothing into the generated source but the code and letters-only literals", async () => {
+    const sources: string[] = [];
+    vi.resetModules();
+    vi.doMock("node:worker_threads", async (importOriginal) => {
+      const actual = await importOriginal<typeof WorkerThreads>();
+      class SourceRecordingWorker extends EventEmitter {
+        constructor(_source: string, options: WorkerThreads.WorkerOptions) {
+          super();
+          const workerData = options.workerData as { source: string; report: WorkerThreads.MessagePort };
+          sources.push(workerData.source);
+          workerData.report.postMessage({ ok: true, serialized: "1" });
+        }
+
+        terminate() {
+          return Promise.resolve(0);
+        }
+      }
+      return { ...actual, Worker: SourceRecordingWorker };
+    });
+    try {
+      const fresh = await import("../agent-analysis-isolate");
+      const codes = ["(data) => data.length", "async () => new Map()"];
+      for (const code of codes) {
+        await expect(fresh.runAnalysisCode(code, "[]", RESULT_MAX_CHARS)).resolves.toEqual({
+          ok: true,
+          serialized: "1",
+        });
+      }
+      const [prefix, suffix] = sources[0].split(codes[0]);
+      expect(sources).toEqual(codes.map((code) => `${prefix}${code}${suffix}`));
+      const wrapper = `${prefix}${suffix}`;
+      expect(wrapper).not.toMatch(/['`]/);
+      expect(wrapper).not.toContain("[object");
+      const literals = wrapper.match(/"[^"]*"/g) ?? [];
+      expect(literals.length).toBeGreaterThan(0);
+      for (const literal of literals) expect(literal).toMatch(/^"[A-Za-z]+"$/);
+    } finally {
+      vi.doUnmock("node:worker_threads");
+      vi.resetModules();
+    }
   });
 
   it("returns a result at its character budget exactly as the sandbox serialized it, and only the length of one over", async () => {

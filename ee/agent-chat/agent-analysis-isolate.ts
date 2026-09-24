@@ -30,10 +30,9 @@ const TERMINATE_MARGIN_MS = 250;
 const NOT_A_FUNCTION = "AnalysisCodeIsNotAFunction";
 const NEVER_SETTLED = "AnalysisPromiseNeverSettled";
 const HOLDS_PROMISE = "AnalysisResultHoldsAPromise";
-const HOLDS_COLLECTION = "AnalysisResultHoldsAMapSetOrGenerator";
-const COLLECTION_TAGS = ["Map", "Set", "WeakMap", "WeakSet", "Generator", "AsyncGenerator"].map(
-  (tag) => `[object ${tag}]`,
-);
+const HOLDS_ITERATOR = "AnalysisResultHoldsAMapSetOrIterator";
+const NOT_JSON = "AnalysisResultIsNotJson";
+const MESSAGE_MAX_CHARS = 500;
 const JOB_ERROR_PREFIX = "Job execution error: ";
 const NO_MESSAGE = "<null>";
 
@@ -53,6 +52,7 @@ type AnalysisWorkerData = {
   memoryBytes: number;
   intrinsics: number;
   resultMaxChars: number;
+  messageMaxChars: number;
 };
 
 const TIMED_OUT: WorkerReport = { ok: false, stop: "time", message: "" };
@@ -79,6 +79,14 @@ const ANALYSIS_WORKER_SOURCE = `(async () => {
     thrown.consume((value) =>
       value.getProp("message").consume((message) => (message.isUndefined ? value.toString() : message.toString())),
     );
+  const isJson = (text) => {
+    try {
+      JSON.parse(text);
+      return true;
+    } catch {
+      return false;
+    }
+  };
   try {
     const input = vm.newString(workerData.input);
     vm.setProp(vm.global, "__analysisInput", input);
@@ -105,12 +113,17 @@ const ANALYSIS_WORKER_SOURCE = `(async () => {
       if (stop !== null) throw new Error("interrupted");
       const resultChars = result.isString ? result.length : 0;
       if (resultChars > workerData.resultMaxChars) report.postMessage({ ok: false, resultChars });
-      else report.postMessage({ ok: true, serialized: result.isString ? vm.dump(result) : null });
+      else {
+        const serialized = result.isString ? vm.dump(result) : null;
+        if (serialized !== null && !isJson(serialized)) throw new Error("${NOT_JSON}");
+        report.postMessage({ ok: true, serialized });
+      }
     } finally {
       result.dispose();
     }
   } catch (error) {
-    report.postMessage({ ok: false, stop, message: error instanceof Error ? error.message : String(error) });
+    const message = error instanceof Error ? error.message : String(error);
+    report.postMessage({ ok: false, stop, message: message.slice(0, workerData.messageMaxChars) });
   } finally {
     vm.dispose();
   }
@@ -126,7 +139,7 @@ function quickjsModule(): Promise<WebAssembly.Module> {
 }
 
 function analysisSource(code: string): string {
-  return `(() => { const run = (${code}); if (typeof run !== "function") throw new TypeError("${NOT_A_FUNCTION}"); const data = JSON.parse(__analysisInput); __analysisInput = undefined; const collections = ${JSON.stringify(COLLECTION_TAGS)}; const serialize = (value) => JSON.stringify(value, (key, item) => { if (item instanceof Promise) throw new TypeError("${HOLDS_PROMISE}"); if (typeof item === "object" && item !== null && collections.includes(Object.prototype.toString.call(item))) throw new TypeError("${HOLDS_COLLECTION}"); return item; }); const result = run(data); return result instanceof Promise ? result.then(serialize) : serialize(result); })()`;
+  return `(() => { const run = (${code}); if (typeof run !== "function") throw new TypeError("${NOT_A_FUNCTION}"); const data = JSON.parse(__analysisInput); __analysisInput = undefined; const iterates = (item) => item instanceof Map || item instanceof Set || item instanceof WeakMap || item instanceof WeakSet || (!Array.isArray(item) && (typeof item.next === "function" || typeof item[Symbol.asyncIterator] === "function")); const serialize = (value) => JSON.stringify(value, (key, item) => { if (item instanceof Promise) throw new TypeError("${HOLDS_PROMISE}"); if (typeof item === "object" && item !== null && iterates(item)) throw new TypeError("${HOLDS_ITERATOR}"); return item; }); const result = run(data); return result instanceof Promise ? result.then(serialize) : serialize(result); })()`;
 }
 
 function reportedMessage(message: string): string {
@@ -148,9 +161,10 @@ function stoppedError(stop: Stop, reported: string): string {
   if (message === NEVER_SETTLED)
     return "The analysis code returned a promise that never settled; the code has no timers, network or tools to wait for.";
   if (message === HOLDS_PROMISE) return "The analysis result holds a promise; await it, for example with Promise.all.";
-  if (message === HOLDS_COLLECTION)
-    return "The analysis result holds a Map, Set or generator, which JSON cannot represent; convert it with Object.fromEntries or Array.from first.";
-  return `The analysis code failed: ${message.slice(0, 500)}`;
+  if (message === HOLDS_ITERATOR)
+    return "The analysis result holds a Map, Set, iterator or generator, which JSON cannot represent; convert it with Object.fromEntries or Array.from first.";
+  if (message === NOT_JSON) return "The analysis code replaced JSON.stringify, so its result is not valid JSON.";
+  return `The analysis code failed: ${message.slice(0, MESSAGE_MAX_CHARS)}`;
 }
 
 async function runInWorker(
@@ -208,6 +222,7 @@ export async function runAnalysisCode(
       memoryBytes: limits.memoryBytes,
       intrinsics: ANALYSIS_INTRINSICS,
       resultMaxChars,
+      messageMaxChars: MESSAGE_MAX_CHARS,
     },
     deadline + TERMINATE_MARGIN_MS - Date.now(),
     limits.workerHeapMb,
