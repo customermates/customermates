@@ -3,8 +3,6 @@ import type { SubscriptionDto } from "@/ee/subscription/get-subscription.interac
 import type { EntityTerminologyOverride } from "@/features/entity-terminology/entity-terminology.types";
 import type { AccountState } from "@/features/auth/account-state";
 
-import { AppErrorCode, ForbiddenError } from "@/core/errors/app-errors";
-
 type NavigationData = {
   company: Company | null;
   terminology: EntityTerminologyOverride[];
@@ -47,10 +45,7 @@ export async function loadNavigationData(
     loaders.subscription(),
     loaders.systemTaskCount(),
     loaders.unreadThreadCount(),
-    loaders.channelsNeedingActionCount().catch((error: unknown) => {
-      if (error instanceof ForbiddenError && error.code === AppErrorCode.permissionDenied) return 0;
-      throw error;
-    }),
+    loaders.channelsNeedingActionCount(),
   ]);
   const trialEndDate = subscription?.trialEndDate ?? null;
   const trialDaysLeft = trialEndDate

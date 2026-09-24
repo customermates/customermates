@@ -2,7 +2,6 @@
 
 import { useEffect } from "react";
 import { usePathname } from "next/navigation";
-import { observer } from "mobx-react-lite";
 
 import { FeedbackModal } from "./company/components/feedback/feedback-modal";
 import { CompanyUserModal } from "./company/components/user/user-modal";
@@ -30,7 +29,7 @@ import { CustomColumnModal } from "@/components/data-view/custom-columns/custom-
 import { TimelineDetailModal } from "@/features/messaging/activities/activities-detail-modal";
 import { useProtectedEnhancementsAllowed } from "@/app/components/navigation/protected-enhancements-context";
 
-const ProtectedLayout = observer(function ProtectedLayout({ children }: { children: React.ReactNode }) {
+export default function ProtectedLayout({ children }: { children: React.ReactNode }) {
   const pathname = usePathname();
   const rootStore = useRootStore();
   const { closeAllModals } = rootStore;
@@ -119,6 +118,4 @@ const ProtectedLayout = observer(function ProtectedLayout({ children }: { childr
       ) : null}
     </>
   );
-});
-
-export default ProtectedLayout;
+}
