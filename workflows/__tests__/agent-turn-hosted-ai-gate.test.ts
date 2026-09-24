@@ -1,4 +1,5 @@
 import { beforeEach, describe, expect, it, vi } from "vitest";
+import type { AgentToolDeps } from "@/ee/agent-chat/agent-tools";
 
 type WorkflowTool = {
   needsApproval: (input: unknown, options: { toolCallId: string }) => Promise<boolean>;
@@ -38,6 +39,7 @@ const state = vi.hoisted(() => ({
   recordRound: vi.fn(),
   extendReservation: vi.fn(),
   instructions: [] as string[],
+  toolDeps: [] as AgentToolDeps[],
 }));
 
 vi.mock("@ai-sdk/workflow", () => ({
@@ -161,7 +163,10 @@ vi.mock("@/ee/agent-chat/agent-tools", () => ({
     if (state.toolLoadFailure) throw new Error("tool shell unavailable");
     return state.definitions.map((definition: { name: string }) => ({ ...definition, toolset: null }));
   },
-  getAgentAiTools: () => Object.fromEntries(state.definitions.map(({ name }) => [name, { execute: state.execute }])),
+  getAgentAiTools: (deps: AgentToolDeps) => {
+    state.toolDeps.push(deps);
+    return Object.fromEntries(state.definitions.map(({ name }) => [name, { execute: state.execute }]));
+  },
   normalizeAgentAiToolInput: state.normalize,
   AGENT_HOSTED_TOOL_ANNOTATIONS: { analyze_records: { readOnlyHint: true } },
 }));
@@ -224,6 +229,7 @@ beforeEach(() => {
   state.toolLoadFailure = false;
   state.providerOptions = null;
   state.definitions = [];
+  state.toolDeps = [];
   state.runTools = null;
   state.normalize.mockReset();
   state.execute.mockReset().mockResolvedValue({ ok: true, result: "done" });
@@ -1413,6 +1419,26 @@ describe("agent-turn authoritative tool inputs", () => {
       );
     },
   );
+
+  it.each([
+    [undefined, "got no answer in time"],
+    ["chat", "got no answer in time"],
+    ["routine", "Nobody is watching this run"],
+  ] as const)("gives in-tool approval gates the turn surface (%s)", async (surface, wording) => {
+    define("list_users");
+    const input = { searchTerm: "Sofia" };
+    state.normalize.mockResolvedValue({ ok: true, input });
+    state.runTools = async ({ tools }) => {
+      await executeTool(tools.list_users, input);
+      return finish();
+    };
+
+    await runAgentTurn({ ...payload, surface });
+
+    expect(state.execute).toHaveBeenCalledTimes(1);
+    expect(state.toolDeps).toHaveLength(1);
+    expect(approvalDenialReason("timeout", state.toolDeps[0].surface)).toContain(wording);
+  });
 
   it("tells the model an unattended run declined the approval automatically", async () => {
     define("delete_records");
