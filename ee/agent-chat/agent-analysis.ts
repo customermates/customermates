@@ -30,7 +30,7 @@ export const AnalyzeRecordsSchema = z.object({
     .min(1)
     .max(20_000)
     .describe(
-      "A JavaScript function expression (data) => result. It may be async, but there is nothing to await: tools cannot be called from the code, so every read goes in reads. It runs with no network or clock, and must return JSON-serializable data.",
+      "A JavaScript function expression (data) => result. It may be async, but there is nothing to await: tools cannot be called from the code, so every read goes in reads. It runs with no network or clock, so Date is undefined: dates are ISO strings to compare or slice as text, such as value.slice(0, 7) for the month. It must return JSON-serializable data.",
     ),
 });
 
@@ -42,8 +42,8 @@ export const ANALYZE_RECORDS_DESCRIPTION =
   "The function may be async, but there is nothing to await: tools cannot be called from the code, so every read goes in reads. " +
   "data[i] is reads[i]'s structured result; list results carry total and items across all pages. " +
   "In an analysis a list_records item carries id, name, userIds (its owners), the ids of its linked records (contactIds, organizationIds, dealIds, serviceIds, taskIds, whichever the entity has; an empty array means none is linked), customFieldValues [{columnId, value}], createdAt and updatedAt, and for deals totalValue, totalQuantity and weightedValue. " +
-  "So a join, such as the deals that have an open task, is two list reads and one function. A single-select value is the option id, not its label: get_record_schema maps option ids to labels. Pass include: [] on a list read that needs none of these fields. " +
-  "When the answer is a count or total per status, owner or month, prefer filters, sums or list_records groupBy, and report figures exactly as the result states them.";
+  "So a join, such as the deals that have an open task, is two list reads and one function. A single-select value is the option id, not its label: get_record_schema maps option ids to labels. Date is undefined in the sandbox: createdAt, updatedAt and date custom-field values are ISO strings to compare or slice as text, for example value.slice(0, 7) for the month. Pass include: [] on a list read that needs none of these fields. " +
+  "When the answer is a count or total per status, owner, or created or updated month, prefer filters, sums or list_records groupBy, and report figures exactly as the result states them.";
 
 export type AnalysisDeps = { tools: readonly McpTool[]; resultMaxChars: number; limits?: AnalysisLimits };
 
@@ -54,7 +54,7 @@ type DataUsage = { chars: number };
 
 const TOO_MUCH_DATA: TooMuchData = { ok: false, tooMuchData: true };
 const TOO_MUCH_DATA_ERROR =
-  "The reads returned more than 8 MB of data. Narrow them, or pass include: [] on list reads that need no links or custom fields; the analysis code was not run.";
+  "The reads returned more than 8 MB of data. Narrow them, or pass include: [] on list_records reads that need no links or custom fields; the analysis code was not run.";
 
 const ANALYSIS_READ_DEFAULTS: Record<string, Record<string, unknown>> = {
   list_records: { include: ["owners", "links", "customFields", "dates"] },

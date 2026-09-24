@@ -30,7 +30,7 @@ import {
 import { ANALYSIS_LIMITS } from "../agent-analysis-isolate";
 
 const TOO_MUCH_DATA =
-  "The reads returned more than 8 MB of data. Narrow them, or pass include: [] on list reads that need no links or custom fields; the analysis code was not run.";
+  "The reads returned more than 8 MB of data. Narrow them, or pass include: [] on list_records reads that need no links or custom fields; the analysis code was not run.";
 const EVERY_INCLUDE = ["owners", "links", "customFields", "dates"];
 
 function tooLarge(chars: number, resultMaxChars: number) {
@@ -450,6 +450,31 @@ describe("analyze_records", () => {
     });
   });
 
+  it("runs an omitted input on a read that takes no pages as {}, like an empty object or string", async () => {
+    const run = async (input?: Record<string, unknown> | string) => {
+      const execute = vi.fn((args: Record<string, unknown>) => ({ text: "args", structuredContent: { args } }));
+      const single: McpTool = {
+        ...detail,
+        inputSchema: z.object({ id: z.string().optional() }).strict(),
+        execute: execute as never,
+      };
+      const outcome = await analyzeRecords(
+        { reads: [{ tool: "get_detail", input }], code: "(data) => data[0].args" },
+        deps(single),
+      );
+      return { outcome, calls: execute.mock.calls.map(([call]) => call) };
+    };
+
+    const omitted = await run();
+    expect(omitted).toEqual({
+      outcome: { ok: true, result: JSON.stringify({ rowsRead: 0, result: {} }) },
+      calls: [{}],
+    });
+    expect(await run({})).toEqual(omitted);
+    expect(await run("{}")).toEqual(omitted);
+    expect((await run({ id: "row-1" })).calls).toEqual([{ id: "row-1" }]);
+  });
+
   it("gives every page of a list_records read every include value unless the read passes include, and no other tool any", async () => {
     const run = async (name: string, input?: Record<string, unknown>) => {
       const { tool, execute } = listTool(name, 150);
@@ -608,6 +633,29 @@ describe("analyze_records", () => {
     ])
       expect(ANALYZE_RECORDS_DESCRIPTION).toContain(text);
     expect(ANALYZE_RECORDS_DESCRIPTION).not.toMatch(/no owners, links or custom fields/);
+  });
+
+  it("tells the code that Date is undefined and dates are ISO strings, and names only the months groupBy groups by", async () => {
+    const code = AnalyzeRecordsSchema.shape.code.description ?? "";
+    for (const text of [ANALYZE_RECORDS_DESCRIPTION, code]) {
+      expect(text).toContain("Date is undefined");
+      expect(text).toContain("ISO strings to compare or slice as text");
+      expect(text).toContain("value.slice(0, 7) for the month");
+    }
+    expect(ANALYZE_RECORDS_DESCRIPTION).toContain("createdAt, updatedAt and date custom-field values are ISO strings");
+    expect(ANALYZE_RECORDS_DESCRIPTION).not.toContain("per status, owner or month");
+    expect(ANALYZE_RECORDS_DESCRIPTION).toContain("per status, owner, or created or updated month");
+
+    const dated = pagedRead("list_things", {
+      total: 1,
+      items: [{ id: "row-1", createdAt: "2026-03-15T09:30:00.000Z" }],
+    });
+    await expect(
+      analyzeRecords(
+        { reads: [read("list_things")], code: "(data) => [typeof Date, data[0].items[0].createdAt.slice(0, 7)]" },
+        deps(dated),
+      ),
+    ).resolves.toEqual({ ok: true, result: JSON.stringify({ rowsRead: 1, result: ["undefined", "2026-03"] }) });
   });
 
   it("keeps refusing a string that is not a JSON object, and the schema refuses every other shape", async () => {
