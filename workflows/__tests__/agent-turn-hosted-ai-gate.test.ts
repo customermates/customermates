@@ -1923,6 +1923,7 @@ describe("routine browse-or-mutate batch safety", () => {
 
   const searchCall = { ...call("web_search", "web-1", { query: "current source" }), providerExecuted: true };
   const loadToolset = { toolset: "messaging" };
+  const definition = (name: string) => ({ name, description: name, inputSchema: { type: "object" } });
 
   beforeEach(() => {
     state.definitions = [
@@ -1934,11 +1935,7 @@ describe("routine browse-or-mutate batch safety", () => {
         id: "gateway.exa_search",
         isProviderExecuted: true,
       },
-      ...["load_toolset", "read_public_page", "manage_wiki_pages", "list_users"].map((name) => ({
-        name,
-        description: name,
-        inputSchema: { type: "object" },
-      })),
+      ...["load_toolset", "manage_wiki_pages", "list_users"].map(definition),
     ];
     state.normalize.mockImplementation((_name, input) => Promise.resolve({ ok: true, input }));
   });
@@ -1964,6 +1961,7 @@ describe("routine browse-or-mutate batch safety", () => {
   it.each(["chat", "routine"] as const)(
     "fails closed when a %s turn reads a public page outside homepage setup",
     async (surface) => {
+      state.definitions = ["read_public_page", "manage_wiki_pages"].map(definition);
       state.runTools = async ({ executeAndCompleteTool }) => {
         expect(await executeAndCompleteTool("read_public_page", read, "read-1")).toMatchObject({ ok: false });
         return finish();
@@ -2001,7 +1999,7 @@ describe("routine browse-or-mutate batch safety", () => {
     };
     await runAgentTurn({ ...payload, surface: "routine", webSearchEnabled: true });
     expect(preparedAfterLoad).toEqual({
-      activeTools: ["web_search", "load_toolset", "read_public_page", "manage_wiki_pages", "list_users"],
+      activeTools: ["web_search", "load_toolset", "manage_wiki_pages", "list_users"],
     });
     expect(mutationAfterSearch).toMatchObject({ ok: false });
     expect(state.execute).toHaveBeenCalledExactlyOnceWith(loadToolset, expect.anything());
@@ -2279,15 +2277,19 @@ describe("routine browse-or-mutate batch safety", () => {
   });
 
   it("denies mutation in a batch with a failed provider search but permits a later mutation", async () => {
+    let first: unknown;
+    let second: unknown;
     state.runTools = async ({ executeAndCompleteTool, completeStepAndPrepareNext }) => {
       const batch = [{ role: "assistant", content: [searchCall, call("manage_wiki_pages", "write-1", write)] }];
-      expect(await executeAndCompleteTool("manage_wiki_pages", write, "write-1", batch)).toMatchObject({ ok: false });
+      first = await executeAndCompleteTool("manage_wiki_pages", write, "write-1", batch);
       await completeStepAndPrepareNext({ ...nativeSearchStep(true), finishReason: "tool-calls" });
-      expect(await executeAndCompleteTool("manage_wiki_pages", write, "write-2")).toMatchObject({ ok: true });
+      second = await executeAndCompleteTool("manage_wiki_pages", write, "write-2");
       return finish();
     };
     await runAgentTurn({ ...payload, surface: "routine", webSearchEnabled: true });
-    expect(state.execute).toHaveBeenCalledOnce();
+    expect(first).toMatchObject({ ok: false });
+    expect(second).toMatchObject({ ok: true });
+    expect(state.execute).toHaveBeenCalledExactlyOnceWith(write, expect.objectContaining({ toolCallId: "write-2" }));
   });
 
   it("removes web search before the next provider request after a successful routine mutation", async () => {
@@ -2311,21 +2313,170 @@ describe("routine browse-or-mutate batch safety", () => {
     expect(state.execute).toHaveBeenCalledOnce();
   });
 
-  it.each([false, true])(
-    "does not create setup pages before a usable homepage read (failed read attempted: %s)",
-    async (attempted) => {
-      state.readPage.mockResolvedValue({ ok: false, reason: "unavailable" });
+  describe("Wiki homepage setup", () => {
+    beforeEach(() => {
+      state.definitions = ["read_public_page", "manage_wiki_pages"].map(definition);
+    });
+
+    it.each([false, true])(
+      "does not create setup pages before a usable homepage read (failed read attempted: %s)",
+      async (attempted) => {
+        state.readPage.mockResolvedValue({ ok: false, reason: "unavailable" });
+        state.runTools = async ({ executeAndCompleteTool, completeStepAndPrepareNext }) => {
+          if (attempted) {
+            expect(await executeAndCompleteTool("read_public_page", read, "read-home")).toMatchObject({ ok: false });
+            await completeStepAndPrepareNext(streamedStep("", "tool-calls"));
+          }
+          expect(await executeAndCompleteTool("manage_wiki_pages", setupWrite(), "write-1")).toMatchObject({
+            ok: false,
+            result: expect.stringContaining("Read the submitted homepage successfully"),
+          });
+          return finish();
+        };
+        await runAgentTurn({
+          ...payload,
+          wikiHomepageSetup: {
+            url: "https://example.com/",
+            registrableDomain: "example.com",
+          },
+        });
+        expect(state.readPage).toHaveBeenCalledTimes(attempted ? 1 : 0);
+        expect(state.execute).not.toHaveBeenCalled();
+      },
+    );
+
+    it("creates setup pages after the homepage read without forcing follow-up reads", async () => {
+      let createResult: unknown;
+      state.readPage.mockResolvedValue({
+        ok: true,
+        url: read.url,
+        title: "Example",
+        text: "Useful information",
+        links: ["about", "legal", "login"].map((slug) => ({ url: `https://example.com/${slug}`, title: slug })),
+        truncated: false,
+      });
       state.runTools = async ({ executeAndCompleteTool, completeStepAndPrepareNext }) => {
-        if (attempted) {
-          expect(await executeAndCompleteTool("read_public_page", read, "read-home")).toMatchObject({ ok: false });
-          await completeStepAndPrepareNext(streamedStep("", "tool-calls"));
-        }
-        expect(await executeAndCompleteTool("manage_wiki_pages", setupWrite(), "write-1")).toMatchObject({
+        await executeAndCompleteTool("read_public_page", read, "read-home");
+        await completeStepAndPrepareNext(streamedStep("", "tool-calls"));
+        createResult = await executeAndCompleteTool("manage_wiki_pages", setupWrite(), "write-1");
+        return finish();
+      };
+
+      await runAgentTurn({
+        ...payload,
+        wikiHomepageSetup: {
+          url: read.url,
+          registrableDomain: "example.com",
+        },
+      });
+
+      expect(createResult).toMatchObject({ ok: true });
+      expect(JSON.stringify(createResult)).not.toMatch(/more useful link/i);
+      expect(state.readPage).toHaveBeenCalledExactlyOnceWith({ url: read.url, allowedDomain: "example.com" });
+      expect(state.execute).toHaveBeenCalledOnce();
+    });
+
+    it("never appends a Sources footer to a Wiki setup reply because the pages carry validated sources", async () => {
+      state.runTools = async ({ executeAndCompleteTool, completeStepAndPrepareNext }) => {
+        const output = await executeAndCompleteTool("read_public_page", read, "read-home");
+        await completeStepAndPrepareNext({
+          ...streamedStep("", "tool-calls"),
+          content: [
+            call("read_public_page", "read-home", read),
+            { type: "tool-result", toolName: "read_public_page", toolCallId: "read-home", input: read, output },
+          ],
+        });
+        await executeAndCompleteTool("manage_wiki_pages", setupWrite(), "write-1");
+        await completeStepAndPrepareNext(streamedStep("Created your Wiki pages.", "stop"));
+        return finish();
+      };
+
+      await runAgentTurn({
+        ...payload,
+        wikiHomepageSetup: {
+          url: read.url,
+          registrableDomain: "example.com",
+        },
+      });
+
+      expect(state.execute).toHaveBeenCalledOnce();
+      expect(replyText()).toBe("Created your Wiki pages.");
+    });
+
+    it("keeps the setup website read bound at four attempts", async () => {
+      const links = Array.from({ length: 5 }, (_, index) => ({ url: `https://example.com/page-${index}` }));
+      state.readPage.mockImplementation(({ url }: { url: string }) =>
+        Promise.resolve({
+          ok: true,
+          url,
+          title: "Example",
+          text: "Useful information",
+          links: url === read.url ? links : [],
+          truncated: false,
+        }),
+      );
+      const results: unknown[] = [];
+      state.runTools = async ({ executeAndCompleteTool }) => {
+        results.push(await executeAndCompleteTool("read_public_page", read, "read-home"));
+        for (const [index, link] of links.entries())
+          results.push(await executeAndCompleteTool("read_public_page", link, `read-${index}`));
+        return finish();
+      };
+
+      await runAgentTurn({
+        ...payload,
+        wikiHomepageSetup: {
+          url: read.url,
+          registrableDomain: "example.com",
+        },
+      });
+
+      expect(state.readPage).toHaveBeenCalledTimes(4);
+      expect(results.slice(4)).toEqual([
+        { ok: false, reason: "page_limit" },
+        { ok: false, reason: "page_limit" },
+      ]);
+    });
+
+    it("never creates setup pages in the same batch as website reads", async () => {
+      const citedWrite = setupWrite();
+      state.runTools = async ({ executeAndCompleteTool }) => {
+        const batch = [
+          {
+            role: "assistant",
+            content: [
+              call("read_public_page", "read-home", read),
+              call("manage_wiki_pages", "write-same-batch", citedWrite),
+            ],
+          },
+        ];
+        await executeAndCompleteTool("read_public_page", read, "read-home", batch);
+        expect(await executeAndCompleteTool("manage_wiki_pages", citedWrite, "write-same-batch", batch)).toMatchObject({
           ok: false,
-          result: expect.stringContaining("Read the submitted homepage successfully"),
+          result: expect.stringContaining("later step"),
         });
         return finish();
       };
+
+      await runAgentTurn({
+        ...payload,
+        wikiHomepageSetup: {
+          url: read.url,
+          registrableDomain: "example.com",
+        },
+      });
+
+      expect(state.execute).not.toHaveBeenCalled();
+    });
+
+    it("creates setup pages only when every cited source was read successfully", async () => {
+      const citedWrite = setupWrite("https://example.com/#evidence");
+      state.runTools = async ({ executeAndCompleteTool }) => {
+        expect(await executeAndCompleteTool("read_public_page", read, "read-1")).toMatchObject({ ok: true });
+        expect(await executeAndCompleteTool("manage_wiki_pages", citedWrite, "write-1")).toMatchObject({ ok: true });
+        return finish();
+      };
+
       await runAgentTurn({
         ...payload,
         wikiHomepageSetup: {
@@ -2333,180 +2484,37 @@ describe("routine browse-or-mutate batch safety", () => {
           registrableDomain: "example.com",
         },
       });
-      expect(state.readPage).toHaveBeenCalledTimes(attempted ? 1 : 0);
-      expect(state.execute).not.toHaveBeenCalled();
-    },
-  );
 
-  it("creates setup pages after the homepage read without forcing follow-up reads", async () => {
-    let createResult: unknown;
-    state.readPage.mockResolvedValue({
-      ok: true,
-      url: read.url,
-      title: "Example",
-      text: "Useful information",
-      links: ["about", "legal", "login"].map((slug) => ({ url: `https://example.com/${slug}`, title: slug })),
-      truncated: false,
-    });
-    state.runTools = async ({ executeAndCompleteTool, completeStepAndPrepareNext }) => {
-      await executeAndCompleteTool("read_public_page", read, "read-home");
-      await completeStepAndPrepareNext(streamedStep("", "tool-calls"));
-      createResult = await executeAndCompleteTool("manage_wiki_pages", setupWrite(), "write-1");
-      return finish();
-    };
-
-    await runAgentTurn({
-      ...payload,
-      wikiHomepageSetup: {
-        url: read.url,
-        registrableDomain: "example.com",
-      },
-    });
-
-    expect(createResult).toMatchObject({ ok: true });
-    expect(JSON.stringify(createResult)).not.toMatch(/more useful link/i);
-    expect(state.readPage).toHaveBeenCalledExactlyOnceWith({ url: read.url, allowedDomain: "example.com" });
-    expect(state.execute).toHaveBeenCalledOnce();
-  });
-
-  it("never appends a Sources footer to a Wiki setup reply because the pages carry validated sources", async () => {
-    state.runTools = async ({ executeAndCompleteTool, completeStepAndPrepareNext }) => {
-      const output = await executeAndCompleteTool("read_public_page", read, "read-home");
-      await completeStepAndPrepareNext({
-        ...streamedStep("", "tool-calls"),
-        content: [
-          call("read_public_page", "read-home", read),
-          { type: "tool-result", toolName: "read_public_page", toolCallId: "read-home", input: read, output },
-        ],
-      });
-      await executeAndCompleteTool("manage_wiki_pages", setupWrite(), "write-1");
-      await completeStepAndPrepareNext(streamedStep("Created your Wiki pages.", "stop"));
-      return finish();
-    };
-
-    await runAgentTurn({
-      ...payload,
-      wikiHomepageSetup: {
-        url: read.url,
-        registrableDomain: "example.com",
-      },
-    });
-
-    expect(state.execute).toHaveBeenCalledOnce();
-    expect(replyText()).toBe("Created your Wiki pages.");
-  });
-
-  it("keeps the setup website read bound at four attempts", async () => {
-    const links = Array.from({ length: 5 }, (_, index) => ({ url: `https://example.com/page-${index}` }));
-    state.readPage.mockImplementation(({ url }: { url: string }) =>
-      Promise.resolve({
-        ok: true,
-        url,
-        title: "Example",
-        text: "Useful information",
-        links: url === read.url ? links : [],
-        truncated: false,
-      }),
-    );
-    const results: unknown[] = [];
-    state.runTools = async ({ executeAndCompleteTool }) => {
-      results.push(await executeAndCompleteTool("read_public_page", read, "read-home"));
-      for (const [index, link] of links.entries())
-        results.push(await executeAndCompleteTool("read_public_page", link, `read-${index}`));
-      return finish();
-    };
-
-    await runAgentTurn({
-      ...payload,
-      wikiHomepageSetup: {
-        url: read.url,
-        registrableDomain: "example.com",
-      },
-    });
-
-    expect(state.readPage).toHaveBeenCalledTimes(4);
-    expect(results.slice(4)).toEqual([
-      { ok: false, reason: "page_limit" },
-      { ok: false, reason: "page_limit" },
-    ]);
-  });
-
-  it("never creates setup pages in the same batch as website reads", async () => {
-    const citedWrite = setupWrite();
-    state.runTools = async ({ executeAndCompleteTool }) => {
-      const batch = [
+      expect(state.execute).toHaveBeenCalledOnce();
+      expect(state.execute).toHaveBeenCalledWith(
         {
-          role: "assistant",
-          content: [
-            call("read_public_page", "read-home", read),
-            call("manage_wiki_pages", "write-same-batch", citedWrite),
-          ],
+          ...citedWrite,
+          pages: citedWrite.pages.map((page) => ({ ...page, sources: ["https://example.com/"] })),
         },
-      ];
-      await executeAndCompleteTool("read_public_page", read, "read-home", batch);
-      expect(await executeAndCompleteTool("manage_wiki_pages", citedWrite, "write-same-batch", batch)).toMatchObject({
-        ok: false,
-        result: expect.stringContaining("later step"),
+        expect.anything(),
+      );
+    });
+
+    it("rejects a setup citation to an unread or failed page", async () => {
+      const unsupportedWrite = setupWrite("https://example.com/guessed");
+      state.runTools = async ({ executeAndCompleteTool }) => {
+        await executeAndCompleteTool("read_public_page", read, "read-1");
+        expect(await executeAndCompleteTool("manage_wiki_pages", unsupportedWrite, "write-1")).toMatchObject({
+          ok: false,
+          result: expect.stringContaining("exact URL that this task read successfully"),
+        });
+        return finish();
+      };
+
+      await runAgentTurn({
+        ...payload,
+        wikiHomepageSetup: {
+          url: "https://example.com/",
+          registrableDomain: "example.com",
+        },
       });
-      return finish();
-    };
 
-    await runAgentTurn({
-      ...payload,
-      wikiHomepageSetup: {
-        url: read.url,
-        registrableDomain: "example.com",
-      },
+      expect(state.execute).not.toHaveBeenCalled();
     });
-
-    expect(state.execute).not.toHaveBeenCalled();
-  });
-
-  it("creates setup pages only when every cited source was read successfully", async () => {
-    const citedWrite = setupWrite("https://example.com/#evidence");
-    state.runTools = async ({ executeAndCompleteTool }) => {
-      expect(await executeAndCompleteTool("read_public_page", read, "read-1")).toMatchObject({ ok: true });
-      expect(await executeAndCompleteTool("manage_wiki_pages", citedWrite, "write-1")).toMatchObject({ ok: true });
-      return finish();
-    };
-
-    await runAgentTurn({
-      ...payload,
-      wikiHomepageSetup: {
-        url: "https://example.com/",
-        registrableDomain: "example.com",
-      },
-    });
-
-    expect(state.execute).toHaveBeenCalledOnce();
-    expect(state.execute).toHaveBeenCalledWith(
-      {
-        ...citedWrite,
-        pages: citedWrite.pages.map((page) => ({ ...page, sources: ["https://example.com/"] })),
-      },
-      expect.anything(),
-    );
-  });
-
-  it("rejects a setup citation to an unread or failed page", async () => {
-    const unsupportedWrite = setupWrite("https://example.com/guessed");
-    state.runTools = async ({ executeAndCompleteTool }) => {
-      await executeAndCompleteTool("read_public_page", read, "read-1");
-      expect(await executeAndCompleteTool("manage_wiki_pages", unsupportedWrite, "write-1")).toMatchObject({
-        ok: false,
-        result: expect.stringContaining("exact URL that this task read successfully"),
-      });
-      return finish();
-    };
-
-    await runAgentTurn({
-      ...payload,
-      wikiHomepageSetup: {
-        url: "https://example.com/",
-        registrableDomain: "example.com",
-      },
-    });
-
-    expect(state.execute).not.toHaveBeenCalled();
   });
 });
