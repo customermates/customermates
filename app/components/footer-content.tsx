@@ -1,14 +1,13 @@
-"use client";
+import type { AppMode } from "@/core/config/environment";
 
 import { useLocale, useTranslations } from "next-intl";
 
 import { FooterBadges } from "./footer-badges";
+import { FooterPrivacyChoices } from "./footer-privacy-choices";
 
-import { OPEN_PRIVACY_CHOICES_EVENT } from "@/components/acquisition/privacy-choices-event";
 import { MarketingContainer } from "@/components/marketing/marketing-container";
 import { AppImage } from "@/components/shared/app-image";
 import { AppLink } from "@/components/shared/app-link";
-import { useRootStore } from "@/core/stores/root-store.provider";
 import { cn } from "@/core/utils/cn";
 import { isContentLocale } from "@/i18n/locale-registry";
 
@@ -18,6 +17,7 @@ type LinkItem = {
 };
 
 type FooterProps = {
+  appMode: AppMode;
   blogPosts?: LinkItem[];
   className?: string;
   featureLinks?: LinkItem[];
@@ -26,10 +26,9 @@ type FooterProps = {
 
 const FOOTER_LINK_CLASS = "text-subdued transition-colors hover:text-foreground focus-visible:text-foreground";
 
-export function FooterContent({ blogPosts = [], className, featureLinks = [], industries = [] }: FooterProps) {
+export function FooterContent({ appMode, blogPosts = [], className, featureLinks = [], industries = [] }: FooterProps) {
   const t = useTranslations();
   const locale = useLocale();
-  const { appMode } = useRootStore();
 
   return (
     <footer className={cn("mt-auto w-full border-t border-border bg-background text-sm", className)}>
@@ -270,13 +269,7 @@ export function FooterContent({ blogPosts = [], className, featureLinks = [], in
 
               {appMode === "cloud" && isContentLocale(locale) ? (
                 <li>
-                  <button
-                    className={FOOTER_LINK_CLASS}
-                    type="button"
-                    onClick={() => window.dispatchEvent(new Event(OPEN_PRIVACY_CHOICES_EVENT))}
-                  >
-                    {t("Footer.privacyChoices")}
-                  </button>
+                  <FooterPrivacyChoices className={FOOTER_LINK_CLASS} label={t("Footer.privacyChoices")} />
                 </li>
               ) : null}
 

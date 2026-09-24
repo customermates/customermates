@@ -65,12 +65,6 @@ vi.mock("@/app/components/public-navbar", () => ({
     jsx("div", { "data-onboarding-intent": onboardingIntent, "data-public-navbar": true }),
 }));
 vi.mock("@/app/components/shell-header", () => ({ ShellHeader: () => null }));
-vi.mock("@/app/[locale]/(static)/docs/components/docs-sidebar", () => ({
-  DocsSidebar: () => null,
-}));
-vi.mock("@/app/[locale]/(static)/docs/components/docs-topbar", () => ({
-  DocsTopBar: () => null,
-}));
 vi.mock("@/app/components/topbar-actions-context", () => ({
   TopBarActionsProvider: ({ children }: { children: ReactNode }) => children,
 }));
@@ -294,7 +288,7 @@ describe("NavigationSwitch account-state refresh", () => {
   });
 
   it("keeps the public header and page in one route-resetting scrollport", () => {
-    state.pathname = "/styleguide";
+    state.pathname = "/auth/signin";
 
     act(() => {
       root.render(
@@ -333,7 +327,7 @@ describe("NavigationSwitch account-state refresh", () => {
     expect(scrollport?.className).toContain("[--toc-anchor-offset:5rem]");
 
     if (scrollport) scrollport.scrollTop = 480;
-    state.pathname = "/styleguide/patterns";
+    state.pathname = "/auth/signup";
     act(() => {
       root.render(
         jsx(NavigationSwitch, {
@@ -346,7 +340,7 @@ describe("NavigationSwitch account-state refresh", () => {
   });
 
   it("passes one unambiguous onboarding intent to the public navbar", () => {
-    state.pathname = "/styleguide";
+    state.pathname = "/auth/signin";
     state.searchParams = { intent: ["signed.intent"] };
 
     act(() => {

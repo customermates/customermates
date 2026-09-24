@@ -2,40 +2,10 @@
 
 import type { AccountState } from "@/features/auth/account-state";
 
-import {
-  BookOpen,
-  Bot,
-  Boxes,
-  BriefcaseBusiness,
-  Building2,
-  Cable,
-  CheckCircle2,
-  CircleDollarSign,
-  FileText,
-  GitCompareArrows,
-  Github,
-  HeartPulse,
-  Inbox,
-  LayoutGrid,
-  LogOut,
-  Megaphone,
-  Menu,
-  Plug,
-  Presentation,
-  Rocket,
-  Server,
-  Store,
-  TrendingUp,
-  UserRoundSearch,
-  Users,
-  UsersRound,
-  X,
-} from "lucide-react";
+import { ChevronDown, CircleDollarSign, FileText, Menu, X } from "lucide-react";
 import { useState } from "react";
 import { useTranslations } from "next-intl";
-import { observer } from "mobx-react-lite";
 
-import { useRootStore } from "@/core/stores/root-store.provider";
 import { IntlLink, usePathname } from "@/i18n/navigation";
 import { AppLink } from "@/components/shared/app-link";
 import { AppImage } from "@/components/shared/app-image";
@@ -53,18 +23,14 @@ import {
 } from "@/components/ui/sheet";
 import { ThemeSwitcher } from "@/components/shared/theme-switcher";
 import { cn } from "@/core/utils/cn";
-import { toastZodErrorTree } from "@/core/utils/toast-zod-error-tree";
-import { runUserAction } from "@/core/errors/report-application-error";
-import { resolvePublicNavbarActions } from "./navigation/public-navbar-model";
-import { signOutFromPublicNavbar } from "./navigation/public-navbar-sign-out";
+import { resolvePublicNavbarActions, resolvePublicNavGroups } from "./navigation/public-navbar-model";
+import { PublicNavbarSignOutButton } from "./navigation/public-navbar-sign-out-button";
 import {
   isPrimaryPublicNavLink,
   PublicNavLinkIcon,
   PublicNavLinkMark,
   PublicNavbarMenu,
-  type PublicNavGroup,
 } from "./navigation/public-navbar-menu";
-import { Accordion, AccordionContent, AccordionItem, AccordionTrigger } from "@/components/ui/accordion";
 import { MarketingContainer } from "@/components/marketing/marketing-container";
 
 type Props = {
@@ -76,247 +42,20 @@ type Props = {
 const mobileOverviewRowClassName =
   "flex min-h-14 w-full items-center justify-between gap-4 rounded-md py-4 text-left text-base font-medium text-sidebar-foreground no-underline transition-all outline-none hover:no-underline focus-visible:border-ring focus-visible:ring-[3px] focus-visible:ring-inset focus-visible:ring-ring/50";
 
-export const PublicNavbar = observer(({ accountState, hasValidSession, onboardingIntent }: Props) => {
+export function PublicNavbar({ accountState, hasValidSession, onboardingIntent }: Props) {
   const t = useTranslations();
-  const { layoutStore } = useRootStore();
   const pathname = usePathname();
-  const [isSigningOut, setIsSigningOut] = useState(false);
+  const [isMenuOpen, setIsMenuOpen] = useState(false);
 
   function closeMenu() {
-    layoutStore.setIsMenuOpen(false);
+    setIsMenuOpen(false);
   }
 
   function isNavItemActive(href: string) {
     return pathname === href;
   }
 
-  const publicNavGroups: PublicNavGroup[] = [
-    {
-      activeHref: "/features",
-      columns: 3,
-      icon: Boxes,
-      id: "product",
-      links: [
-        {
-          icon: Inbox,
-          href: "/features/unified-inbox",
-          title: t("NavigationBar.public.unifiedInbox"),
-        },
-        {
-          icon: Users,
-          href: "/features/contact-management",
-          title: t("NavigationBar.public.contactManagement"),
-        },
-        {
-          icon: TrendingUp,
-          href: "/features/pipeline",
-          title: t("NavigationBar.public.pipeline"),
-        },
-        {
-          icon: TrendingUp,
-          href: "/features/sales-tracking",
-          title: t("NavigationBar.public.salesTracking"),
-        },
-        {
-          icon: CheckCircle2,
-          href: "/features/task-management",
-          title: t("NavigationBar.public.taskManagement"),
-        },
-        {
-          icon: LayoutGrid,
-          href: "/features/cloud-crm",
-          title: t("NavigationBar.public.cloudCrm"),
-        },
-        {
-          icon: Server,
-          href: "/features/self-hosted",
-          title: t("NavigationBar.public.selfHosted"),
-        },
-        {
-          activeMatch: false,
-          icon: Cable,
-          href: "/docs/mcp",
-          title: t("NavigationBar.public.mcp"),
-        },
-        {
-          icon: Boxes,
-          href: "/features/all",
-          title: t("NavigationBar.public.allFeatures"),
-        },
-      ],
-      title: t("NavigationBar.public.product"),
-    },
-    {
-      activeHref: "/for",
-      columns: 3,
-      icon: UsersRound,
-      id: "solutions",
-      links: [
-        {
-          icon: BriefcaseBusiness,
-          href: "/for/professional-services",
-          title: t("NavigationBar.public.professionalServices"),
-        },
-        {
-          icon: Megaphone,
-          href: "/for/agencies",
-          title: t("NavigationBar.public.agencies"),
-        },
-        {
-          icon: Presentation,
-          href: "/for/consultants",
-          title: t("NavigationBar.public.consultants"),
-        },
-        {
-          icon: UserRoundSearch,
-          href: "/for/recruiting",
-          title: t("NavigationBar.public.recruiting"),
-        },
-        {
-          icon: HeartPulse,
-          href: "/for/healthcare",
-          title: t("NavigationBar.public.healthcare"),
-        },
-        {
-          icon: Building2,
-          href: "/for/property-management",
-          title: t("NavigationBar.public.propertyManagement"),
-        },
-        {
-          icon: Rocket,
-          href: "/for/startups",
-          title: t("NavigationBar.public.startups"),
-        },
-        {
-          icon: Store,
-          href: "/for/smb",
-          title: t("NavigationBar.public.smallBusiness"),
-        },
-        {
-          icon: UsersRound,
-          href: "/for",
-          title: t("NavigationBar.public.allSolutions"),
-        },
-      ],
-      title: t("NavigationBar.public.solutions"),
-    },
-    {
-      activeHref: "/features/integrations",
-      columns: 2,
-      icon: Plug,
-      id: "integrations",
-      links: [
-        {
-          activeMatch: false,
-          href: "/docs/connect-custom-connector#claude",
-          mark: { kind: "agent", provider: "claude" },
-          title: t("NavigationBar.public.providerClaude"),
-        },
-        {
-          activeMatch: false,
-          href: "/docs/connect-custom-connector#chatgpt",
-          mark: { kind: "agent", provider: "chatgpt" },
-          title: t("NavigationBar.public.providerChatGPT"),
-        },
-        {
-          activeMatch: false,
-          href: "/docs/connect-cli#codex",
-          mark: { kind: "agent", provider: "codex" },
-          title: t("NavigationBar.public.providerCodex"),
-        },
-        {
-          activeMatch: false,
-          href: "/docs/connect-cli#gemini-cli",
-          mark: { kind: "agent", provider: "gemini" },
-          title: t("NavigationBar.public.providerGemini"),
-        },
-        {
-          activeMatch: false,
-          href: "/docs/connect-cli#cursor",
-          mark: { kind: "agent", provider: "cursor" },
-          title: t("NavigationBar.public.providerCursor"),
-        },
-        {
-          href: "/features/email-integration",
-          mark: { kind: "channel", provider: "gmail" },
-          title: t("NavigationBar.public.providerGmail"),
-        },
-        {
-          href: "/features/outlook-integration",
-          mark: { kind: "channel", provider: "outlook" },
-          title: t("NavigationBar.public.providerOutlook"),
-        },
-        {
-          href: "/features/linkedin-integration",
-          mark: { kind: "channel", provider: "linkedin" },
-          title: t("NavigationBar.public.providerLinkedIn"),
-        },
-        {
-          activeMatch: false,
-          href: "/features/unified-inbox",
-          mark: { kind: "channel", provider: "whatsapp" },
-          title: t("NavigationBar.public.providerWhatsApp"),
-        },
-        {
-          activeMatch: false,
-          href: "/features/unified-inbox",
-          mark: { kind: "channel", provider: "instagram" },
-          title: t("NavigationBar.public.providerInstagram"),
-        },
-        {
-          activeMatch: false,
-          href: "/features/unified-inbox",
-          mark: { kind: "channel", provider: "telegram" },
-          title: t("NavigationBar.public.providerTelegram"),
-        },
-        {
-          href: "/features/email-integration",
-          mark: { kind: "channel", provider: "imap" },
-          title: t("NavigationBar.public.providerImap"),
-        },
-        {
-          href: "/features/slack-integration",
-          mark: { kind: "provider", provider: "slack" },
-          title: t("NavigationBar.public.providerSlack"),
-        },
-        {
-          href: "/n8n-crm",
-          mark: { kind: "automation", provider: "n8n" },
-          title: t("NavigationBar.public.n8n"),
-        },
-      ],
-      title: t("NavigationBar.public.integrations"),
-    },
-    {
-      activeHref: "/blog",
-      columns: 2,
-      icon: BookOpen,
-      id: "resources",
-      links: [
-        {
-          icon: BookOpen,
-          href: "/blog",
-          title: t("NavigationBar.public.blog"),
-        },
-        {
-          icon: GitCompareArrows,
-          href: "/compare",
-          title: t("NavigationBar.public.compare"),
-        },
-        {
-          icon: Bot,
-          href: "/blog/agentic-crm",
-          title: t("NavigationBar.public.agenticCrm"),
-        },
-        {
-          icon: Github,
-          href: "/blog/open-source-crm",
-          title: t("NavigationBar.public.openSourceCrm"),
-        },
-      ],
-      title: t("NavigationBar.public.resources"),
-    },
-  ];
+  const publicNavGroups = resolvePublicNavGroups(t);
 
   const logoAlt = t("Common.imageAlt.logo");
   const homeLabel = t("UserAvatar.home");
@@ -364,36 +103,15 @@ export const PublicNavbar = observer(({ accountState, hasValidSession, onboardin
     );
   }
 
-  async function handleSignOut() {
-    if (isSigningOut) return;
-    setIsSigningOut(true);
-    try {
-      const result = await signOutFromPublicNavbar(onboardingIntent);
-      if (!result || result.ok) return;
-
-      toastZodErrorTree(result.error);
-      setIsSigningOut(false);
-    } catch (error) {
-      setIsSigningOut(false);
-      throw error;
-    }
-  }
-
   function renderSignOutButton(className?: string) {
     if (actions.signOut === "hidden") return null;
 
     return (
-      <Button
+      <PublicNavbarSignOutButton
         className={className}
-        disabled={isSigningOut}
-        size="sm"
+        onboardingIntent={onboardingIntent}
         variant={actions.signOut === "setupEscape" ? "destructiveOutline" : "ghost"}
-        onClick={() => runUserAction(handleSignOut)}
-      >
-        <LogOut aria-hidden className="size-4" />
-
-        {t("UserAvatar.signOut")}
-      </Button>
+      />
     );
   }
 
@@ -402,7 +120,7 @@ export const PublicNavbar = observer(({ accountState, hasValidSession, onboardin
 
     return (
       <Button asChild className={className} size="sm" variant={subtle ? "ghost" : "secondary"}>
-        <IntlLink href="/contact" onNavigate={closeMenu}>
+        <IntlLink href="/contact" prefetch={false} onNavigate={closeMenu}>
           {t("Common.actions.contact")}
         </IntlLink>
       </Button>
@@ -446,10 +164,10 @@ export const PublicNavbar = observer(({ accountState, hasValidSession, onboardin
         <div className="col-span-3 flex w-full items-center justify-between xl:hidden">
           {renderHomeButton()}
 
-          <Sheet open={layoutStore.isMenuOpen} onOpenChange={layoutStore.setIsMenuOpen}>
+          <Sheet open={isMenuOpen} onOpenChange={setIsMenuOpen}>
             <SheetTrigger asChild>
               <Button aria-label={t("Common.sidebar.toggle")} size="icon" variant="ghost">
-                <Icon aria-hidden icon={layoutStore.isMenuOpen ? X : Menu} />
+                <Icon aria-hidden icon={isMenuOpen ? X : Menu} />
               </Button>
             </SheetTrigger>
 
@@ -462,49 +180,57 @@ export const PublicNavbar = observer(({ accountState, hasValidSession, onboardin
 
               <SheetBody className="flex flex-col gap-3 pb-6">
                 <div className="w-full">
-                  <Accordion collapsible className="w-full" type="single">
-                    {publicNavGroups.map((group) => (
-                      <AccordionItem key={group.id} value={group.id}>
-                        <AccordionTrigger className={mobileOverviewRowClassName}>
-                          <span className="flex items-center gap-2.5">
-                            <Icon aria-hidden icon={group.icon} size="md" />
+                  {publicNavGroups.map((group) => (
+                    <details key={group.id} className="group border-b border-sidebar-border" name="public-nav-mobile">
+                      <summary
+                        className={cn(
+                          mobileOverviewRowClassName,
+                          "cursor-pointer list-none [&::-webkit-details-marker]:hidden",
+                        )}
+                      >
+                        <span className="flex items-center gap-2.5">
+                          <Icon aria-hidden icon={group.icon} size="md" />
 
-                            {group.title}
-                          </span>
-                        </AccordionTrigger>
+                          {group.title}
+                        </span>
 
-                        <AccordionContent>
-                          <div className="flex flex-col gap-1 pt-1">
-                            {group.links.map((link) => {
-                              const linkActive =
-                                isNavItemActive(link.href) && isPrimaryPublicNavLink(publicNavGroups, link);
+                        <ChevronDown
+                          aria-hidden
+                          className="pointer-events-none size-4 shrink-0 text-muted-foreground transition-transform duration-200 group-open:rotate-180 motion-reduce:transition-none"
+                        />
+                      </summary>
 
-                              return (
-                                <AppLink
-                                  key={`${link.href}-${link.title}`}
-                                  aria-current={linkActive ? "page" : undefined}
-                                  className={cn(
-                                    "flex min-h-10 items-center gap-2.5 rounded-md p-2 text-sm",
-                                    !linkActive && "text-subdued",
-                                  )}
-                                  href={link.href}
-                                  onNavigate={closeMenu}
-                                >
-                                  {link.mark ? (
-                                    <PublicNavLinkMark mark={link.mark} />
-                                  ) : (
-                                    <PublicNavLinkIcon icon={link.icon} />
-                                  )}
+                      <div className="pb-2">
+                        <div className="flex flex-col gap-1 pt-1">
+                          {group.links.map((link) => {
+                            const linkActive =
+                              isNavItemActive(link.href) && isPrimaryPublicNavLink(publicNavGroups, link);
 
-                                  {link.title}
-                                </AppLink>
-                              );
-                            })}
-                          </div>
-                        </AccordionContent>
-                      </AccordionItem>
-                    ))}
-                  </Accordion>
+                            return (
+                              <AppLink
+                                key={`${link.href}-${link.title}`}
+                                aria-current={linkActive ? "page" : undefined}
+                                className={cn(
+                                  "flex min-h-10 items-center gap-2.5 rounded-md p-2 text-sm",
+                                  !linkActive && "text-subdued",
+                                )}
+                                href={link.href}
+                                onNavigate={closeMenu}
+                              >
+                                {link.mark ? (
+                                  <PublicNavLinkMark mark={link.mark} />
+                                ) : (
+                                  <PublicNavLinkIcon icon={link.icon} />
+                                )}
+
+                                {link.title}
+                              </AppLink>
+                            );
+                          })}
+                        </div>
+                      </div>
+                    </details>
+                  ))}
 
                   <AppLink
                     appearance="unstyled"
@@ -557,4 +283,4 @@ export const PublicNavbar = observer(({ accountState, hasValidSession, onboardin
       </MarketingContainer>
     </div>
   );
-});
+}

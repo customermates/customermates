@@ -70,8 +70,10 @@ export function generateMetadataFromMeta({
     openGraph: {
       description,
       images: [image],
+      siteName: "Customermates",
       title,
       type,
+      url: canonical,
     },
     twitter: {
       card: "summary_large_image",

@@ -9,7 +9,7 @@ import { DocsPageHeader } from "../components/docs-page-header";
 import { env } from "@/env";
 import { DocsDemo } from "@/core/fumadocs/docs-demo";
 import { docsSource } from "@/core/fumadocs/source";
-import { getMDXComponents } from "@/core/fumadocs/mdx-components";
+import { getDocsMDXComponents } from "@/core/fumadocs/mdx-components";
 import { generateMetadataFromMeta } from "@/core/fumadocs/metadata";
 import { docNavI18nKey } from "@/features/docs/docs-nav";
 import { PageContainer } from "@/components/shared/page-container";
@@ -39,7 +39,7 @@ export default async function DocPage({ params }: { params: Promise<{ slug: stri
   const headline = navKey ? t(navKey) : page.data.title;
 
   const MDX = page.data.body;
-  const components = getMDXComponents();
+  const components = getDocsMDXComponents();
   const markdownUrl = `/${locale}/raw/docs/${slug}.md`;
   const mcpUrl = `${env.BASE_URL}/api/v1/mcp`;
 

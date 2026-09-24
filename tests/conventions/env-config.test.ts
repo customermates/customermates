@@ -223,6 +223,7 @@ describe("client instrumentation", () => {
   afterEach(() => {
     vi.clearAllMocks();
     vi.unstubAllEnvs();
+    vi.unstubAllGlobals();
     vi.resetModules();
   });
 
@@ -238,8 +239,16 @@ describe("client instrumentation", () => {
   it("keeps browser transport interruptions and genuine client defects unless an owning boundary handles them", async () => {
     vi.stubEnv("NEXT_PUBLIC_SENTRY_DSN", "https://public@example.invalid/1");
     vi.stubEnv("NODE_ENV", "production");
+    // The client SDK is imported when the main thread next goes idle, not at module evaluation,
+    // so the browser hooks it needs have to exist before the module is pulled in.
+    vi.stubGlobal("window", {
+      addEventListener: vi.fn(),
+      removeEventListener: vi.fn(),
+      requestIdleCallback: (callback: () => void) => callback(),
+    });
 
     await import("@/instrumentation-client");
+    await vi.waitFor(() => expect(sentryInit).toHaveBeenCalled());
 
     const options = sentryInit.mock.calls.at(-1)?.[0] as {
       beforeSend?: (event: object, hint: { originalException?: unknown }) => object | null;

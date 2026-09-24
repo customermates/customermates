@@ -7,6 +7,7 @@ import { ORGANIZATION_NAME } from "@/core/seo/schemas";
 import { IntlLink } from "@/i18n/navigation";
 
 import { MarketingSection } from "./marketing-section";
+import { contentLinkPrefetch } from "@/i18n/content-links";
 
 type Props = {
   action: string;
@@ -45,7 +46,7 @@ export function CTASection({
 
           <div className="mt-7 flex w-full flex-col items-stretch gap-3 sm:w-auto sm:flex-row sm:items-center">
             <Button asChild className="w-full sm:w-auto" size="lg" variant="default">
-              <IntlLink href={buttonLeftHref}>
+              <IntlLink href={buttonLeftHref} prefetch={contentLinkPrefetch(buttonLeftHref)}>
                 {buttonLeftText}
 
                 <ArrowUpRight aria-hidden className="size-4" />
@@ -55,6 +56,7 @@ export function CTASection({
             <Button asChild className="w-full sm:w-auto" size="lg" variant="secondary">
               <IntlLink
                 href={buttonRightHref}
+                prefetch={contentLinkPrefetch(buttonRightHref)}
                 rel={buttonRightIsExternal ? "noopener noreferrer" : undefined}
                 target={buttonRightIsExternal ? "_blank" : undefined}
               >

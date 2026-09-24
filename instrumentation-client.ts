@@ -1,32 +1,51 @@
-import * as Sentry from "@sentry/nextjs";
+import type * as SentrySdk from "@/core/errors/sentry-sdk";
 
-import { errorDigest } from "@/core/errors/error-digest";
-import { isExpectedError } from "@/core/errors/app-errors";
-import { scrubAdIdentifiersFromEvent } from "@/core/errors/scrub-ad-identifiers";
+import { loadSentry } from "@/core/errors/sentry-client";
 
-const sentryDsn = process.env.NEXT_PUBLIC_SENTRY_DSN;
-const sentryEnabled = Boolean(sentryDsn);
+const sentryEnabled = Boolean(process.env.NEXT_PUBLIC_SENTRY_DSN);
 
-if (sentryEnabled) {
-  Sentry.init({
-    dsn: sentryDsn,
-    tracesSampleRate: 0,
-    replaysSessionSampleRate: 0,
-    replaysOnErrorSampleRate: 0,
-    beforeSend(event, hint) {
-      if (isExpectedError(hint?.originalException)) return null;
+// A static import here makes @sentry/nextjs the first script in every document, including a blog
+// post: ~176 KB that parses, installs fetch/XHR/history/console wrappers and constructs
+// PerformanceObservers inside the hydration window, before the largest text element can paint.
+// Loading it when the main thread next goes idle keeps it off that path. Uncaught errors thrown
+// before it lands are buffered and replayed, and explicit reports go through the same loader
+// (core/errors/sentry-client.ts), so every report reaches an initialised SDK.
+const buffered: unknown[] = [];
 
-      if (process.env.NODE_ENV !== "production") {
-        console.error(hint?.originalException ?? event);
-        return null;
-      }
+function bufferError(event: ErrorEvent) {
+  buffered.push(event.error ?? event.message);
+  void startSentry().catch(() => undefined);
+}
 
-      const digest = errorDigest(hint?.originalException);
-      if (digest) event.tags = { ...event.tags, digest };
+function bufferRejection(event: PromiseRejectionEvent) {
+  buffered.push(event.reason);
+  void startSentry().catch(() => undefined);
+}
 
-      return scrubAdIdentifiersFromEvent(event);
-    },
+function startSentry(): Promise<typeof SentrySdk> {
+  return loadSentry().then((Sentry) => {
+    window.removeEventListener("error", bufferError);
+    window.removeEventListener("unhandledrejection", bufferRejection);
+    for (const error of buffered.splice(0)) Sentry.captureException(error);
+
+    return Sentry;
   });
 }
 
-export const onRouterTransitionStart = sentryEnabled ? Sentry.captureRouterTransitionStart : undefined;
+if (sentryEnabled && typeof window !== "undefined") {
+  window.addEventListener("error", bufferError);
+  window.addEventListener("unhandledrejection", bufferRejection);
+
+  const whenIdle = window.requestIdleCallback ?? ((callback: () => void) => window.setTimeout(callback, 2000));
+  whenIdle(() => void startSentry().catch(() => undefined));
+}
+
+function routerTransitionStart(...args: unknown[]): void {
+  void startSentry()
+    .then((Sentry) => {
+      (Sentry.captureRouterTransitionStart as (...callArgs: unknown[]) => void)(...args);
+    })
+    .catch(() => undefined);
+}
+
+export const onRouterTransitionStart = sentryEnabled ? routerTransitionStart : undefined;

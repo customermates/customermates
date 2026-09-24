@@ -97,7 +97,7 @@ export function BrowserFrame({ fallbackMessage, loadAhead = false, size = "full"
 
           <span className="size-2.5 rounded-full bg-success" />
 
-          <span className="flex flex-1 items-center justify-center gap-1.5 font-mono text-[11px] text-foreground/70">
+          <span className="flex flex-1 items-center justify-center gap-1.5 font-terminal text-[11px] text-foreground/70">
             <span>
               {/* eslint-disable-next-line react/jsx-newline */}
               {hostname} · {t("BrowserFrame.live")}

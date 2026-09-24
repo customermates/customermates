@@ -6,7 +6,7 @@ import { cn } from "@/core/utils/cn";
 
 import { getDocMethod, getDocMethodColor } from "../../docs.utils";
 import { apiDocsSource } from "@/core/fumadocs/source";
-import { getMDXComponents } from "@/core/fumadocs/mdx-components";
+import { getApiMDXComponents } from "@/core/fumadocs/api-mdx-components";
 import { PageContainer } from "@/components/shared/page-container";
 import { AppLink } from "@/components/shared/app-link";
 import { AppChip } from "@/components/chip/app-chip";
@@ -36,7 +36,7 @@ export default async function OpenApiDocPage({ params }: { params: Promise<{ slu
   if (!page) notFound();
 
   const MDX = page.data.body;
-  const components = getMDXComponents();
+  const components = getApiMDXComponents();
 
   return (
     <>

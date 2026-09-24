@@ -37,4 +37,24 @@ else
     npx --no-install tsx prisma/seed.ts
   fi
 fi
+# fumadocs' lastModified() plugin derives the <lastmod> of every content page except blog posts,
+# which keep their frontmatter date, from Git history, and
+# core/fumadocs/git-last-modified.ts omits every date the available history cannot prove.
+# Vercel checks out only the last 10 commits and leaves no usable remote, so a bare
+# `git fetch --unshallow` exits 0 and the clone stays shallow. Fetch the checked-out commit's
+# history from the repository URL instead, without file contents (the resolver reads commits
+# and trees only), and judge the result by the shallow flag rather than the exit status.
+# A failed or slow fetch costs content dates, never the deployment.
+shallow="$(git rev-parse --is-shallow-repository 2>&1 || true)"
+if [[ "$shallow" != "false" ]]; then
+  if [[ "${VERCEL_GIT_PROVIDER:-}" == "github" && -n "${VERCEL_GIT_REPO_OWNER:-}" && -n "${VERCEL_GIT_REPO_SLUG:-}" ]]; then
+    GIT_TERMINAL_PROMPT=0 git -c http.lowSpeedLimit=1000 -c http.lowSpeedTime=30 fetch --quiet --no-tags --unshallow --filter=blob:none \
+      "https://github.com/${VERCEL_GIT_REPO_OWNER}/${VERCEL_GIT_REPO_SLUG}.git" "$(git rev-parse HEAD)" || true
+  fi
+  if [[ "$(git rev-parse --is-shallow-repository 2>/dev/null)" == "false" ]]; then
+    echo "Deepened the Git clone to $(git rev-list --count HEAD) commits for content dates."
+  else
+    echo "WARNING: could not deepen the Git clone (shallow: ${shallow:-unknown}, provider: ${VERCEL_GIT_PROVIDER:-unset}); content pages keep only the dates the clone can prove." >&2
+  fi
+fi
 yarn build

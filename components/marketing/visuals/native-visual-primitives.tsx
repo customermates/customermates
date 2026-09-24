@@ -186,6 +186,7 @@ export function PersonAvatar({
         decoding="async"
         draggable={false}
         height={size}
+        loading="lazy"
         src={fixture.asset}
         width={size}
       />

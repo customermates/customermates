@@ -64,8 +64,15 @@ function hasNestedLocalePrefix(pathname: string): boolean {
 }
 
 function hasSessionCookie(req: NextRequest): boolean {
-  const cookieHeader = req.headers.get("cookie") ?? "";
-  return cookieHeader.includes("app.session_token=");
+  return (req.headers.get("cookie") ?? "").includes("app.session_token=");
+}
+
+// A cross-site iframe cannot store the SameSite=Lax session cookie the demo sign-in sets, so the
+// redirect below arrives unauthenticated again and again. The marker bounds that to one attempt.
+const DEMO_SIGN_IN_ATTEMPT_PARAM = "cm_demo_auth";
+
+function isEmbeddedRequest(req: NextRequest): boolean {
+  return req.headers.get("sec-fetch-dest") === "iframe";
 }
 
 function appendSetCookieHeaders(response: NextResponse, authResponse: Response): void {
@@ -135,10 +142,15 @@ export default async function proxy(req: NextRequest) {
   if (hasNestedLocalePrefix(pathname))
     return isContentLocale(currentLocale) ? intlContentMiddleware(req) : intlAppMiddleware(req);
 
-  if (env.APP_MODE === "demo") {
-    const isNonDemoUser = isAuthenticated && session?.user?.email !== SYNTHETIC_SEED_USER.email;
+  const isLocaleRootPage = pathname === buildLocalePath(currentLocale, "/");
 
-    if (isNonDemoUser || !isAuthenticated) {
+  // Public marketing pages on the demo host render without a session; minting one for every
+  // crawler hit wrote an AuthSession row per request.
+  if (env.APP_MODE === "demo" && (!isContentPage(req) || isLocaleRootPage)) {
+    const isNonDemoUser = isAuthenticated && session?.user?.email !== SYNTHETIC_SEED_USER.email;
+    const exhaustedEmbeddedAttempt = isEmbeddedRequest(req) && req.nextUrl.searchParams.has(DEMO_SIGN_IN_ATTEMPT_PARAM);
+
+    if ((isNonDemoUser || !isAuthenticated) && !exhaustedEmbeddedAttempt) {
       const signOutResponse = isNonDemoUser ? await auth.api.signOut({ headers: req.headers, asResponse: true }) : null;
       const signInResponse = await auth.api.signInEmail({
         headers: req.headers,
@@ -154,14 +166,15 @@ export default async function proxy(req: NextRequest) {
 
       // Authentication changes the request's cookie state. Redirect once so the
       // protected route is rendered from a fresh request with the new session.
-      const response = NextResponse.redirect(req.nextUrl);
+      const target = req.nextUrl.clone();
+      if (isEmbeddedRequest(req)) target.searchParams.set(DEMO_SIGN_IN_ATTEMPT_PARAM, "1");
+
+      const response = NextResponse.redirect(target);
       if (signOutResponse) appendSetCookieHeaders(response, signOutResponse);
       appendSetCookieHeaders(response, signInResponse);
       return response;
     }
   }
-
-  const isLocaleRootPage = pathname === buildLocalePath(currentLocale, "/");
 
   if (isAuthenticated && isLocaleRootPage) {
     const preferredLocale = preferredAppLocale(req);

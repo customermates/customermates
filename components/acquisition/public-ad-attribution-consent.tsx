@@ -19,7 +19,7 @@ import {
   adProviderDisplayName,
   type AdProvider,
 } from "@/features/acquisition/ad-provider-registry";
-import { PUBLIC_AD_ATTRIBUTION_PENDING_MAX_AGE_SECONDS } from "@/features/acquisition/ad-attribution.schema";
+import { PUBLIC_AD_ATTRIBUTION_PENDING_MAX_AGE_SECONDS } from "@/features/acquisition/ad-attribution.constants";
 import {
   hasAdAttributionPendingMarker,
   normalizeAdClick,

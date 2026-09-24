@@ -1,4 +1,4 @@
-import { PUBLIC_AD_ATTRIBUTION_PENDING_PARAM } from "@/features/acquisition/ad-attribution.schema";
+import { PUBLIC_AD_ATTRIBUTION_PENDING_PARAM } from "@/features/acquisition/ad-attribution.constants";
 import { AD_IDENTIFIER_KINDS } from "@/features/acquisition/ad-provider-registry";
 
 type QueryString = string | Record<string, string> | [string, string][];

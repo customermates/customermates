@@ -1,7 +1,7 @@
 import { z } from "zod";
 
 import { ConversionEventType, Status, SubscriptionPlan, SubscriptionStatus } from "@/generated/prisma";
-import { AdIdentifierKindSchema, AdProviderSchema } from "@/features/acquisition/ad-provider-registry";
+import { AdIdentifierKindSchema, AdProviderSchema } from "@/features/acquisition/ad-attribution.schema";
 
 export const OperatorUserRowDtoSchema = z.object({
   id: z.uuid(),
