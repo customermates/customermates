@@ -17,6 +17,7 @@ type Props = {
   value: string;
   onChange: (value: string) => void;
   onContextShortcut: () => void;
+  onRemovePreviousContext?: () => boolean;
   onSubmit: () => void;
 };
 
@@ -46,6 +47,7 @@ export function AgentComposerTextInput({
   value,
   onChange,
   onContextShortcut,
+  onRemovePreviousContext,
   onSubmit,
 }: Props) {
   const settingContent = useRef(false);
@@ -70,11 +72,26 @@ export function AgentComposerTextInput({
       handleKeyDown: (view, event) => {
         const text = editorText(view.state.doc);
         const { from, to } = view.state.selection;
+        const isComposing = event.isComposing || view.composing;
+        if (
+          event.key === "Backspace" &&
+          !isComposing &&
+          !event.altKey &&
+          !event.ctrlKey &&
+          !event.metaKey &&
+          !event.shiftKey &&
+          from === 0 &&
+          to === 0 &&
+          onRemovePreviousContext?.()
+        ) {
+          event.preventDefault();
+          return true;
+        }
         if (
           isAgentContextSlashCommand({
             altKey: event.altKey,
             ctrlKey: event.ctrlKey,
-            isComposing: event.isComposing,
+            isComposing,
             key: event.key,
             metaKey: event.metaKey,
             selectionEnd: to,
@@ -86,7 +103,7 @@ export function AgentComposerTextInput({
           onContextShortcut();
           return true;
         }
-        if (event.key !== "Enter" || event.isComposing) return false;
+        if (event.key !== "Enter" || isComposing) return false;
         event.preventDefault();
         if (event.shiftKey) {
           view.dispatch(view.state.tr.insertText("\n"));

@@ -34,7 +34,7 @@ const failedRead = {
 };
 
 describe("AgentActivity", () => {
-  it("renders saved-view navigation beside an independent disclosure control", () => {
+  it("renders a single saved-view activity once as a static row beside its navigation", () => {
     const html = renderToStaticMarkup(
       createElement(AgentActivity, {
         isTrailing: true,
@@ -56,7 +56,9 @@ describe("AgentActivity", () => {
 
     expect(html).toContain('href="/contacts?view=__all__"');
     expect(html).toContain("AgentChat.openSavedView");
-    expect(html).toMatch(/<button[^>]*aria-expanded="false"/);
+    expect(html.match(/AgentChat\.activity\.state\.views\.configure\.done/g)).toHaveLength(1);
+    expect(html).not.toContain('data-slot="collapsible-trigger"');
+    expect(html).not.toContain('data-slot="collapsible-content"');
     expect(html).not.toMatch(/<button[^>]*>[^<]*<a/);
   });
 

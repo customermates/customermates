@@ -239,6 +239,7 @@ export const AgentActivity = observer(function AgentActivity({
   const isRecovering = isWorking && hasError;
   const isActive = hasRunning || isRecovering || isPending;
   const hasCancelled = items.some((item) => item.status === "cancelled");
+  const hasDetails = items.length > 1;
   const { open, setOpen, elapsedSeconds } = useActivityGroupState({
     hasError: hasError && !isRecovering,
     hasRunning: isActive,
@@ -261,7 +262,7 @@ export const AgentActivity = observer(function AgentActivity({
   const runningItem = items.findLast((item) => item.status === "running" || (isRecovering && item.status === "error"));
   const runningLabel = runningItem ? agentActivityCopy(runningItem.activity, t, terminology).running : uiCopy.thinking;
   const liveSummary =
-    !hasError && !hasCancelled && elapsedSeconds !== null
+    hasDetails && !hasError && !hasCancelled && elapsedSeconds !== null
       ? uiCopy.stepsTook(items.length, elapsedSeconds)
       : settledSummary;
   const summary = useSteadyLabel(isActive ? runningLabel : liveSummary);
@@ -273,11 +274,32 @@ export const AgentActivity = observer(function AgentActivity({
   return (
     <Collapsible aria-live="off" className="group py-1" data-testid="agent-activity" open={open} onOpenChange={setOpen}>
       <div className="flex items-center gap-1">
-        <CollapsibleTrigger asChild>
-          <button
-            className="flex min-w-0 flex-1 cursor-pointer items-center gap-2 rounded-md text-xs text-muted-foreground transition-colors outline-none select-none hover:text-foreground focus-visible:border-ring focus-visible:ring-[3px] focus-visible:ring-inset focus-visible:ring-ring/50"
-            type="button"
-          >
+        {hasDetails ? (
+          <CollapsibleTrigger asChild>
+            <button
+              className="flex min-w-0 flex-1 cursor-pointer items-center gap-2 rounded-md text-xs text-muted-foreground transition-colors outline-none select-none hover:text-foreground focus-visible:border-ring focus-visible:ring-[3px] focus-visible:ring-inset focus-visible:ring-ring/50"
+              type="button"
+            >
+              {isActive ? (
+                <Loader2 aria-hidden="true" className="size-3.5 animate-spin" />
+              ) : hasError ? (
+                <X aria-hidden="true" className="size-3.5 text-destructive" />
+              ) : hasCancelled ? (
+                <Square aria-hidden="true" className="size-3.5" />
+              ) : (
+                <Check aria-hidden="true" className="size-3.5" />
+              )}
+
+              <span className="flex-1 text-left">{summary}</span>
+
+              <ChevronDown
+                aria-hidden="true"
+                className="size-3.5 transition-transform group-data-[state=open]:rotate-180"
+              />
+            </button>
+          </CollapsibleTrigger>
+        ) : (
+          <div className="flex min-w-0 flex-1 items-center gap-2 text-xs text-muted-foreground">
             {isActive ? (
               <Loader2 aria-hidden="true" className="size-3.5 animate-spin" />
             ) : hasError ? (
@@ -289,13 +311,8 @@ export const AgentActivity = observer(function AgentActivity({
             )}
 
             <span className="flex-1 text-left">{summary}</span>
-
-            <ChevronDown
-              aria-hidden="true"
-              className="size-3.5 transition-transform group-data-[state=open]:rotate-180"
-            />
-          </button>
-        </CollapsibleTrigger>
+          </div>
+        )}
 
         {viewHref && (
           <Button asChild size="xs" variant="ghost">
@@ -306,60 +323,62 @@ export const AgentActivity = observer(function AgentActivity({
         )}
       </div>
 
-      <CollapsibleContent className="mt-3 space-y-3 pl-4 [&>*]:fade-in-0 [&>*]:slide-in-from-top-2 [&>*]:animate-in [&>*]:duration-300 [&>*]:motion-reduce:animate-none">
-        {items.map((item) => {
-          const copy = agentActivityCopy(item.activity, t, terminology);
-          const status = isRecovering && item.status === "error" ? "running" : item.status;
-          const label =
-            status === "running"
-              ? copy.running
-              : status === "error"
-                ? copy.error
-                : status === "cancelled"
-                  ? copy.cancelled
-                  : copy.done;
+      {hasDetails && (
+        <CollapsibleContent className="mt-3 space-y-3 pl-4 [&>*]:fade-in-0 [&>*]:slide-in-from-top-2 [&>*]:animate-in [&>*]:duration-300 [&>*]:motion-reduce:animate-none">
+          {items.map((item) => {
+            const copy = agentActivityCopy(item.activity, t, terminology);
+            const status = isRecovering && item.status === "error" ? "running" : item.status;
+            const label =
+              status === "running"
+                ? copy.running
+                : status === "error"
+                  ? copy.error
+                  : status === "cancelled"
+                    ? copy.cancelled
+                    : copy.done;
 
-          return (
+            return (
+              <div
+                key={item.id}
+                className={cn(
+                  "relative flex gap-2 text-xs",
+                  "before:absolute before:top-0 before:-left-4 before:h-[calc(100%+0.75rem)] before:w-px before:bg-border",
+                  "before:origin-top before:animate-timeline-grow before:motion-reduce:animate-none",
+                  "last:before:h-full",
+                  status === "error" && "text-destructive",
+                )}
+              >
+                {status === "running" ? (
+                  <Loader2 aria-hidden="true" className="mt-0.5 size-3.5 shrink-0 animate-spin" />
+                ) : status === "error" ? (
+                  <X aria-hidden="true" className="mt-0.5 size-3.5 shrink-0" />
+                ) : status === "cancelled" ? (
+                  <Square aria-hidden="true" className="mt-0.5 size-3.5 shrink-0" />
+                ) : (
+                  <Check aria-hidden="true" className="mt-0.5 size-3.5 shrink-0" />
+                )}
+
+                <span className="min-w-0 text-foreground">{label}</span>
+              </div>
+            );
+          })}
+
+          {isPending && !hasRunning && (
             <div
-              key={item.id}
+              aria-hidden="true"
               className={cn(
                 "relative flex gap-2 text-xs",
-                "before:absolute before:top-0 before:-left-4 before:h-[calc(100%+0.75rem)] before:w-px before:bg-border",
+                "before:absolute before:top-0 before:-left-4 before:h-full before:w-px before:bg-border",
                 "before:origin-top before:animate-timeline-grow before:motion-reduce:animate-none",
-                "last:before:h-full",
-                status === "error" && "text-destructive",
               )}
             >
-              {status === "running" ? (
-                <Loader2 aria-hidden="true" className="mt-0.5 size-3.5 shrink-0 animate-spin" />
-              ) : status === "error" ? (
-                <X aria-hidden="true" className="mt-0.5 size-3.5 shrink-0" />
-              ) : status === "cancelled" ? (
-                <Square aria-hidden="true" className="mt-0.5 size-3.5 shrink-0" />
-              ) : (
-                <Check aria-hidden="true" className="mt-0.5 size-3.5 shrink-0" />
-              )}
-
-              <span className="min-w-0 text-foreground">{label}</span>
+              <span className="mt-1 flex size-3.5 shrink-0 items-center justify-center">
+                <TypingDots />
+              </span>
             </div>
-          );
-        })}
-
-        {isPending && !hasRunning && (
-          <div
-            aria-hidden="true"
-            className={cn(
-              "relative flex gap-2 text-xs",
-              "before:absolute before:top-0 before:-left-4 before:h-full before:w-px before:bg-border",
-              "before:origin-top before:animate-timeline-grow before:motion-reduce:animate-none",
-            )}
-          >
-            <span className="mt-1 flex size-3.5 shrink-0 items-center justify-center">
-              <TypingDots />
-            </span>
-          </div>
-        )}
-      </CollapsibleContent>
+          )}
+        </CollapsibleContent>
+      )}
     </Collapsible>
   );
 });

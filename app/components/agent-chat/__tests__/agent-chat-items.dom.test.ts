@@ -55,13 +55,26 @@ afterEach(() => {
 });
 
 describe("AgentActivity controls", () => {
-  it("keeps saved-view navigation independent from the keyboard-focusable disclosure", () => {
+  it("keeps saved-view navigation independent from a multi-step keyboard-focusable disclosure", () => {
     act(() => {
       root.render(
         createElement(AgentActivity, {
           isTrailing: true,
           isWorking: false,
           items: [
+            {
+              kind: "activity",
+              id: "activity-0",
+              providerCallId: "call-0",
+              activity: {
+                kind: "records.read",
+                resource: "contacts",
+                affectedResources: ["contacts"],
+                risk: "read",
+              },
+              status: "done",
+              at: new Date("2026-09-21T09:59:59.000Z"),
+            },
             {
               kind: "activity",
               id: "activity-1",

@@ -28,10 +28,25 @@ export function AgentComposerContexts({
     <span ref={groupRef} className="contents" data-testid="agent-composer-contexts">
       {contexts.map((context, index) => {
         const key = agentContextAttachmentKey(context);
+        const removeContext = (focusDirection: "next" | "previous") => {
+          onRemove?.(key);
+          requestAnimationFrame(() => {
+            const remaining = groupRef.current?.querySelectorAll<HTMLButtonElement>(
+              '[data-agent-context-remove="true"]',
+            );
+            const focusIndex =
+              focusDirection === "previous"
+                ? Math.max(0, index - 1)
+                : Math.min(index, Math.max((remaining?.length ?? 0) - 1, 0));
+            const next = remaining?.item(focusIndex);
+            if (next) next.focus();
+            else focusAgentComposer(uiTargets);
+          });
+        };
         return (
           <AppChip
             key={key}
-            className="mr-1 h-5 max-w-full px-[5px] py-0 align-middle text-sm leading-5 font-normal"
+            className="me-1.5 my-px h-5 max-w-full px-[5px] py-0 align-middle text-sm leading-5 font-normal"
             endContent={
               onRemove ? (
                 <button
@@ -43,15 +58,21 @@ export function AgentComposerContexts({
                   type="button"
                   onClick={(event) => {
                     event.stopPropagation();
-                    onRemove(key);
-                    requestAnimationFrame(() => {
-                      const remaining = groupRef.current?.querySelectorAll<HTMLButtonElement>(
-                        '[data-agent-context-remove="true"]',
-                      );
-                      const next = remaining?.item(Math.min(index, Math.max(remaining.length - 1, 0)));
-                      if (next) next.focus();
-                      else focusAgentComposer(uiTargets);
-                    });
+                    removeContext("next");
+                  }}
+                  onKeyDown={(event) => {
+                    if (
+                      (event.key !== "Backspace" && event.key !== "Delete") ||
+                      event.nativeEvent.isComposing ||
+                      event.altKey ||
+                      event.ctrlKey ||
+                      event.metaKey ||
+                      event.shiftKey
+                    )
+                      return;
+                    event.preventDefault();
+                    event.stopPropagation();
+                    removeContext(event.key === "Backspace" ? "previous" : "next");
                   }}
                 >
                   <X aria-hidden className="size-2.5" />

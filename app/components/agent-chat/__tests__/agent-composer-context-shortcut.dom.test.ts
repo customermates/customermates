@@ -88,6 +88,7 @@ beforeEach(() => {
     isWorking: false,
     queuedPrompt: null,
     removeComposerContext: vi.fn(),
+    removeLastComposerContext: vi.fn().mockReturnValue(false),
     setComposerDraft: vi.fn(),
     submitDraft: vi.fn(),
     usage: null,
@@ -234,5 +235,61 @@ describe("AgentComposer context shortcut", () => {
     const editor = container.querySelector<HTMLElement>('[role="textbox"]');
     expect(placeholder?.textContent).toBe("AgentChat.placeholder");
     expect(editor?.getAttribute("aria-placeholder")).toBe("AgentChat.placeholder");
+  });
+
+  it("removes preceding context chips with Backspace only from the start of the draft", async () => {
+    harness.store.composerDraft = "";
+    harness.store.removeLastComposerContext = vi.fn().mockReturnValue(true);
+    act(() => root.render(createElement(AgentComposer)));
+    await act(() => new Promise((resolve) => setTimeout(resolve, 0)));
+
+    const editor = container.querySelector<HTMLElement>('[data-testid="agent-composer-input-line"] [role="textbox"]');
+    const shiftBackspace = new KeyboardEvent("keydown", {
+      bubbles: true,
+      cancelable: true,
+      key: "Backspace",
+      shiftKey: true,
+    });
+    const controlBackspace = new KeyboardEvent("keydown", {
+      bubbles: true,
+      cancelable: true,
+      ctrlKey: true,
+      key: "Backspace",
+    });
+    const composingBackspace = new KeyboardEvent("keydown", { bubbles: true, cancelable: true, key: "Backspace" });
+    Object.defineProperty(composingBackspace, "isComposing", { value: true });
+    act(() => {
+      editor?.dispatchEvent(shiftBackspace);
+      editor?.dispatchEvent(controlBackspace);
+      editor?.dispatchEvent(composingBackspace);
+    });
+    expect(harness.store.removeLastComposerContext).not.toHaveBeenCalled();
+
+    const firstBackspace = new KeyboardEvent("keydown", { bubbles: true, cancelable: true, key: "Backspace" });
+    const secondBackspace = new KeyboardEvent("keydown", { bubbles: true, cancelable: true, key: "Backspace" });
+    act(() => {
+      editor?.dispatchEvent(firstBackspace);
+      editor?.dispatchEvent(secondBackspace);
+    });
+
+    expect(firstBackspace.defaultPrevented).toBe(true);
+    expect(secondBackspace.defaultPrevented).toBe(true);
+    expect(harness.store.removeLastComposerContext).toHaveBeenCalledTimes(2);
+    expect(harness.store.setComposerDraft).not.toHaveBeenCalled();
+  });
+
+  it("leaves Backspace to the editor when the caret is after draft text", async () => {
+    harness.store.removeLastComposerContext = vi.fn().mockReturnValue(true);
+    act(() => root.render(createElement(AgentComposer)));
+    await act(() => new Promise((resolve) => setTimeout(resolve, 0)));
+
+    const editor = container.querySelector<HTMLElement>('[data-testid="agent-composer-input-line"] [role="textbox"]');
+    const backspace = new KeyboardEvent("keydown", { bubbles: true, cancelable: true, key: "Backspace" });
+    act(() => {
+      editor?.dispatchEvent(backspace);
+    });
+
+    expect(backspace.defaultPrevented).toBe(false);
+    expect(harness.store.removeLastComposerContext).not.toHaveBeenCalled();
   });
 });

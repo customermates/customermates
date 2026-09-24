@@ -20,8 +20,17 @@ vi.mock("next-intl", () => ({
 vi.mock("@/components/chip/app-chip", async () => {
   const React = await import("react");
   return {
-    AppChip: ({ children, endContent, size }: { children?: ReactNode; endContent?: ReactNode; size?: string }) =>
-      React.createElement("span", { "data-chip-size": size }, children, endContent),
+    AppChip: ({
+      children,
+      className,
+      endContent,
+      size,
+    }: {
+      children?: ReactNode;
+      className?: string;
+      endContent?: ReactNode;
+      size?: string;
+    }) => React.createElement("span", { className, "data-chip-size": size }, children, endContent),
   };
 });
 vi.mock("../chat-ui", () => ({
@@ -83,7 +92,13 @@ describe("AgentComposerContexts", () => {
 
     const group = container.querySelector<HTMLElement>('[data-testid="agent-composer-contexts"]');
     expect(group?.className).toBe("contents");
-    expect(container.querySelectorAll('[data-chip-size="sm"]')).toHaveLength(2);
+    const chips = container.querySelectorAll<HTMLElement>('[data-chip-size="sm"]');
+    expect(chips).toHaveLength(2);
+    for (const chip of chips) {
+      expect(chip.className).toContain("me-1.5");
+      expect(chip.className).toContain("my-px");
+      expect(chip.className).toContain("px-[5px]");
+    }
     expect(group?.textContent).toContain("Ada Lovelace");
     expect(group?.textContent).not.toContain("Contact:");
 
@@ -103,6 +118,57 @@ describe("AgentComposerContexts", () => {
       await new Promise((resolve) => window.setTimeout(resolve, 1));
     });
 
+    expect(container.querySelector('[data-testid="agent-composer-contexts"]')).toBeNull();
+    expect(harness.focusAgentComposer).toHaveBeenCalledOnce();
+  });
+
+  it("removes focused chips with Backspace and Delete while preserving logical focus", async () => {
+    act(() => root.render(createElement(ContextHarness)));
+
+    let removeButtons = container.querySelectorAll<HTMLButtonElement>('[data-agent-context-remove="true"]');
+    act(() => removeButtons[1]?.focus());
+    const shiftDelete = new KeyboardEvent("keydown", {
+      bubbles: true,
+      cancelable: true,
+      key: "Delete",
+      shiftKey: true,
+    });
+    const controlBackspace = new KeyboardEvent("keydown", {
+      bubbles: true,
+      cancelable: true,
+      ctrlKey: true,
+      key: "Backspace",
+    });
+    const composingBackspace = new KeyboardEvent("keydown", { bubbles: true, cancelable: true, key: "Backspace" });
+    Object.defineProperty(composingBackspace, "isComposing", { value: true });
+    act(() => {
+      removeButtons[1]?.dispatchEvent(shiftDelete);
+      removeButtons[1]?.dispatchEvent(controlBackspace);
+      removeButtons[1]?.dispatchEvent(composingBackspace);
+    });
+    expect(shiftDelete.defaultPrevented).toBe(false);
+    expect(controlBackspace.defaultPrevented).toBe(false);
+    expect(composingBackspace.defaultPrevented).toBe(false);
+    expect(container.querySelectorAll('[data-agent-context-remove="true"]')).toHaveLength(2);
+
+    const backspace = new KeyboardEvent("keydown", { bubbles: true, cancelable: true, key: "Backspace" });
+    await act(async () => {
+      removeButtons[1]?.dispatchEvent(backspace);
+      await new Promise((resolve) => window.setTimeout(resolve, 1));
+    });
+
+    expect(backspace.defaultPrevented).toBe(true);
+    removeButtons = container.querySelectorAll<HTMLButtonElement>('[data-agent-context-remove="true"]');
+    expect(removeButtons).toHaveLength(1);
+    expect(document.activeElement).toBe(removeButtons[0]);
+
+    const deleteKey = new KeyboardEvent("keydown", { bubbles: true, cancelable: true, key: "Delete" });
+    await act(async () => {
+      removeButtons[0]?.dispatchEvent(deleteKey);
+      await new Promise((resolve) => window.setTimeout(resolve, 1));
+    });
+
+    expect(deleteKey.defaultPrevented).toBe(true);
     expect(container.querySelector('[data-testid="agent-composer-contexts"]')).toBeNull();
     expect(harness.focusAgentComposer).toHaveBeenCalledOnce();
   });

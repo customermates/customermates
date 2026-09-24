@@ -498,6 +498,30 @@ describe("AgentChatStore", () => {
     expect(store.composerContexts).not.toContainEqual(recordContext(5));
   });
 
+  it("removes composer contexts from the end and clears a removed data view's pinned route", () => {
+    stubBrowser("/en/contacts");
+    const store = new AgentChatStore(root() as never);
+    store.addComposerContext(recordContext(1));
+    store.addComposerContext(
+      CONTACTS_VIEW_CONTEXT,
+      "/en/contacts?view=__all__&viewSurface=contacts-card-store&viewAction=update",
+    );
+
+    expect(store.removeLastComposerContext()).toBe(true);
+    expect(store.composerContexts).toEqual([recordContext(1)]);
+    expect(store.removeLastComposerContext()).toBe(true);
+    expect(store.composerContexts).toEqual([]);
+    expect(store.removeLastComposerContext()).toBe(false);
+
+    store.setComposerDraft("Continue without context");
+    const send = vi.spyOn(store, "sendMessage").mockResolvedValue(undefined);
+    store.submitDraft();
+    expect(send).toHaveBeenCalledWith("Continue without context", {
+      contexts: [],
+      pageRoute: "/en/contacts",
+    });
+  });
+
   it("prioritizes an exact data-view target when five record contexts are already selected", () => {
     stubBrowser("/en/contacts");
     const route = "/en/contacts?view=__all__&viewSurface=contacts-card-store&viewAction=update";

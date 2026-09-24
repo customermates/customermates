@@ -398,6 +398,7 @@ export class AgentChatStore extends BaseStore {
       setComposerDraft: action,
       addComposerContext: action,
       removeComposerContext: action,
+      removeLastComposerContext: action,
       submitDraft: action,
       editQueuedPrompt: action,
       removeQueuedPrompt: action,
@@ -601,6 +602,13 @@ export class AgentChatStore extends BaseStore {
     if (!removed) return;
     this.composerContexts = this.composerContexts.filter((context) => agentContextAttachmentKey(context) !== key);
     if (removed.reference.kind === "dataView") this.composerContextPageRoute = null;
+  };
+
+  removeLastComposerContext = (): boolean => {
+    const context = this.composerContexts.at(-1);
+    if (!context) return false;
+    this.removeComposerContext(agentContextAttachmentKey(context));
+    return true;
   };
 
   submitDraft = () => {
