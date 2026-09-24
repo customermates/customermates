@@ -154,7 +154,7 @@ export const FilterPalette = observer(function FilterPalette({ store }: Props) {
         {usesCommand ? (
           <Command
             loop
-            className="h-auto! min-h-0 overflow-visible"
+            className="h-auto! min-h-0 overflow-visible bg-transparent"
             label={t("Common.filters.palette.title")}
             shouldFilter={isRoot || pageKind !== "select"}
           >

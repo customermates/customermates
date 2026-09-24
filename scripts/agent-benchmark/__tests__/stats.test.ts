@@ -18,6 +18,16 @@ describe("benchmark statistics", () => {
     expect(passAtLeastK(outcomes, 3)).toBe(0.5);
   });
 
+  it("orders repetitions before pass^k and reports insufficient repetitions", () => {
+    const outcomes = [
+      episode("a", "S1", 3, false),
+      episode("a", "S1", 1, true),
+      episode("a", "S1", 2, true),
+    ];
+    expect(passAtLeastK(outcomes, 2)).toBe(1);
+    expect(passAtLeastK(outcomes, 4)).toBeNull();
+  });
+
   it("prices cost per successful task and refuses to divide by zero successes", () => {
     expect(costPerSuccessfulTask([episode("a", "S1", 1, true, 0.02), episode("a", "S2", 1, false, 0.04)])).toBeCloseTo(0.06, 9);
     expect(costPerSuccessfulTask([episode("a", "S1", 1, false, 0.02)])).toBeNull();

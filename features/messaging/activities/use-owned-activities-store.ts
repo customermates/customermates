@@ -7,6 +7,7 @@ import type { ActivitiesResult } from "@/ee/messaging/activities/activities.sche
 import { useEffect, useMemo, useRef } from "react";
 
 import { ActivitiesStore } from "./activities.store";
+import { ALL_VIEW_KEY } from "@/core/data-view/data-view-keys";
 import { useRootStore } from "@/core/stores/root-store.provider";
 
 export function useOwnedActivitiesStore(
@@ -15,6 +16,7 @@ export function useOwnedActivitiesStore(
   const rootStore = useRootStore();
   const { defaultP13nId, initial, pageSize } = options;
   const scopeKey = JSON.stringify(options.scope ?? null);
+  const initialViewKey = initial?.activeViewKey ?? ALL_VIEW_KEY;
   const initialRef = useRef(initial);
   initialRef.current = initial;
   const store = useMemo(() => {
@@ -25,7 +27,7 @@ export function useOwnedActivitiesStore(
     });
     if (initialRef.current) ownedStore.hydrate(initialRef.current);
     return ownedStore;
-  }, [defaultP13nId, pageSize, rootStore, scopeKey]);
+  }, [defaultP13nId, initialViewKey, pageSize, rootStore, scopeKey]);
 
   useEffect(() => {
     rootStore.activityTimelines.register(store);

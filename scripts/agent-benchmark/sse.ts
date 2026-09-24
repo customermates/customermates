@@ -1,17 +1,36 @@
 export type SseFrame = { type: string; seq?: number } & Record<string, unknown>;
 
-export type SseTiming = { firstFrameMs: number | null; firstOutputMs?: number | null; firstDeltaMs: number | null; lastFrameMs: number | null };
+export type SseTiming = {
+  firstFrameMs: number | null;
+  firstOutputMs?: number | null;
+  firstDeltaMs: number | null;
+  lastFrameMs: number | null;
+};
 
 const OUTPUT_FRAMES = new Set(["delta", "activity", "approval_request", "ui_command"]);
+
+export function benchmarkServerSourceError(
+  expectedSourceCommit: string,
+  serverSource: string | null,
+): string | null {
+  if (serverSource === expectedSourceCommit) return null;
+  return `benchmark server source mismatch: expected ${expectedSourceCommit}, received ${serverSource ?? "no source header"}`;
+}
 
 export async function readSseFrames(
   response: Response,
   startedAt: number,
   onFrame?: (frame: SseFrame) => Promise<void>,
-): Promise<{ frames: SseFrame[]; timing: SseTiming }> {
+  options?: { detachAfterFrames?: number },
+): Promise<{ frames: SseFrame[]; timing: SseTiming; detached: boolean }> {
   if (!response.body) throw new Error("The agent response carried no body.");
   const frames: SseFrame[] = [];
-  const timing: SseTiming = { firstFrameMs: null, firstOutputMs: null, firstDeltaMs: null, lastFrameMs: null };
+  const timing: SseTiming = {
+    firstFrameMs: null,
+    firstOutputMs: null,
+    firstDeltaMs: null,
+    lastFrameMs: null,
+  };
   const reader = response.body.getReader();
   const decoder = new TextDecoder();
   let buffer = "";
@@ -24,7 +43,9 @@ export async function readSseFrames(
       const rawFrame = buffer.slice(0, boundary);
       buffer = buffer.slice(boundary + 2);
       boundary = buffer.indexOf("\n\n");
-      const dataLine = rawFrame.split("\n").find((line) => line.startsWith("data: "));
+      const dataLine = rawFrame
+        .split("\n")
+        .find((line) => line.startsWith("data: "));
       if (!dataLine) continue;
       const frame = JSON.parse(dataLine.slice(6)) as SseFrame;
       const elapsed = Date.now() - startedAt;
@@ -34,7 +55,14 @@ export async function readSseFrames(
       timing.lastFrameMs = elapsed;
       frames.push(frame);
       if (onFrame) await onFrame(frame);
+      if (
+        options?.detachAfterFrames !== undefined &&
+        frames.length >= options.detachAfterFrames
+      ) {
+        await reader.cancel();
+        return { frames, timing, detached: true };
+      }
     }
   }
-  return { frames, timing };
+  return { frames, timing, detached: false };
 }

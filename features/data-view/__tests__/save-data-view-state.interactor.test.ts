@@ -24,6 +24,7 @@ import { ALL_VIEW_KEY } from "@/core/data-view/data-view-keys";
 import { FilterOperatorKey, ViewMode } from "@/core/base/base-query-builder";
 import { interactorFailureKind } from "@/core/validation/validation.utils";
 import { CustomErrorCode } from "@/core/validation/validation.types";
+import { SaveDataViewStateResultSchema } from "../data-view.schema";
 
 const SURFACE = "contacts-card-store";
 const VIEW_ID = "3a7b2c11-5d4e-4f60-8a91-2b3c4d5e6f70";
@@ -43,7 +44,7 @@ const totalState: DataViewState = {
 
 function doubles(owned = true) {
   const views = { updateOwnedState: vi.fn().mockResolvedValue(owned) };
-  const personalization = { upsertP13n: vi.fn().mockResolvedValue(undefined) };
+  const personalization = { upsertP13n: vi.fn((input) => Promise.resolve(input)) };
 
   return { views, personalization, interactor: new SaveDataViewStateInteractor(views, personalization) };
 }
@@ -57,6 +58,14 @@ function failureCode(result: { ok: boolean; error?: unknown }) {
 describe("SaveDataViewStateInteractor", () => {
   beforeEach(() => vi.clearAllMocks());
 
+  it("requires All results to return state and named results to return only a UUID", () => {
+    expect(SaveDataViewStateResultSchema.safeParse({ viewKey: ALL_VIEW_KEY }).success).toBe(false);
+    expect(SaveDataViewStateResultSchema.safeParse({ viewKey: ALL_VIEW_KEY, state: totalState }).success).toBe(true);
+    expect(SaveDataViewStateResultSchema.safeParse({ viewKey: VIEW_ID }).success).toBe(true);
+    expect(SaveDataViewStateResultSchema.safeParse({ viewKey: VIEW_ID, state: totalState }).success).toBe(false);
+    expect(SaveDataViewStateResultSchema.safeParse({ viewKey: "not-a-view" }).success).toBe(false);
+  });
+
   it("routes the All tab into the caller's personalization row and never near a view", async () => {
     const { interactor, views, personalization } = doubles();
 
@@ -64,7 +73,7 @@ describe("SaveDataViewStateInteractor", () => {
       interactor.invoke({ surfaceKey: SURFACE, viewKey: ALL_VIEW_KEY, state: totalState }),
     );
 
-    expect(result).toEqual({ ok: true, data: { viewKey: ALL_VIEW_KEY } });
+    expect(result).toEqual({ ok: true, data: { viewKey: ALL_VIEW_KEY, state: totalState } });
     expect(views.updateOwnedState).not.toHaveBeenCalled();
     expect(personalization.upsertP13n).toHaveBeenCalledWith({
       p13nId: SURFACE,

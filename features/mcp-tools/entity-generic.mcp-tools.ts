@@ -237,6 +237,20 @@ const RecordSchemaOutputSchema = z
 
 const ListRecordsOutputSchema = z.object({
   total: z.number().describe("Matching records across all pages"),
+  writeTargetGuidance: z
+    .object({
+      status: z.literal("ambiguous"),
+      reason: z.literal("multiple_search_matches"),
+      returnedCandidateCount: z
+        .number()
+        .int()
+        .nonnegative()
+        .describe("Number of candidate records in items on the current page"),
+    })
+    .optional()
+    .describe(
+      "Present when a name search matched several records and selecting only one for a write requires clarification",
+    ),
   sums: z
     .record(z.string(), z.number())
     .optional()
@@ -579,6 +593,9 @@ export const listRecordsTool = {
     "get_record_schema, not the column label, so a question about a money field is one call: filter, then read " +
     "its sum. Single-select, text and date custom columns are not summable, so filter by those instead. " +
     "For a breakdown per status, owner, organization or created/updated month, pass groupBy instead of paging through items: one call returns the count and, for deals, the totalValue and weightedValue sums of every group. " +
+    "When a name search matches several records, writeTargetGuidance has status ambiguous: ask the user to choose before changing only one result, even when one item exactly equals the search term. " +
+    "The current page's items are the canonical candidates. If total exceeds items.length, narrow the search or review more pages first. If candidate names are identical, call get_records for their ids and ask with safe distinguishing fields; never expose raw ids. " +
+    "An explicit request to change every match may proceed. " +
     "Use get_records (batched, pass many ids in one call) to fetch full field/custom-column values.",
   annotations: { readOnlyHint: true, idempotentHint: true, destructiveHint: false, openWorldHint: false },
   inputSchema: ListRecordsSchema,
@@ -622,9 +639,19 @@ export const listRecordsTool = {
       ...includedItemFields(entity, item, include, readable),
     }));
     const note = nameMatchNote(nameQueryOf(searchTerm, filters), items);
+    const total = result.data.pagination?.total ?? result.data.items.length;
 
     return toonResult({
-      total: result.data.pagination?.total ?? result.data.items.length,
+      total,
+      ...(searchTerm && total > 1
+        ? {
+            writeTargetGuidance: {
+              status: "ambiguous" as const,
+              reason: "multiple_search_matches" as const,
+              returnedCandidateCount: result.data.items.length,
+            },
+          }
+        : {}),
       ...(result.data.valueSums && Object.keys(result.data.valueSums).length > 0
         ? { sums: result.data.valueSums }
         : {}),

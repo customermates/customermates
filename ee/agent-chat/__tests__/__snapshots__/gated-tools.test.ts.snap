@@ -35,6 +35,7 @@ exports[`gated-tools > snapshots the surface so new tools and actions force a co
   "discard_message_draft",
   "linkedin_manage_sales_lists",
   "manage_custom_columns",
+  "manage_data_views",
   "manage_record_links",
   "manage_routines",
   "manage_social_relations",
@@ -73,6 +74,14 @@ exports[`gated-tools > snapshots the surface so new tools and actions force a co
   "manage_custom_columns": [
     "list",
     "upsert",
+  ],
+  "manage_data_views": [
+    "surfaces",
+    "list",
+    "config",
+    "create",
+    "update",
+    "select",
   ],
   "manage_routines": [
     "list",

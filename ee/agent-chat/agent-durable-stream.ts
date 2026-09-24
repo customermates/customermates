@@ -4,6 +4,7 @@ import type { AgentActivityStatus } from "./agent-turn-transcript";
 
 import { internalToolIdentity } from "./tool-identity";
 import { isAgentToolCancellation } from "./agent-tool-cancellation";
+import { agentToolSavedViewHref } from "./agent-tool-navigation";
 
 export const AGENT_TRANSCRIPT_FORWARDED_EVENTS = [
   "activity_superseded",
@@ -88,9 +89,10 @@ export class AgentDurableStreamReader {
 
     if (part.type === "tool-result" && part.toolCallId) {
       const { status, failed } = agentToolOutcomeStatus(part.output);
+      const viewHref = status === "done" ? agentToolSavedViewHref(part.toolName, part.output) : null;
       return {
         type: "activity_result",
-        payload: { id: part.toolCallId, isError: failed, status },
+        payload: { id: part.toolCallId, isError: failed, status, ...(viewHref ? { viewHref } : {}) },
       };
     }
 

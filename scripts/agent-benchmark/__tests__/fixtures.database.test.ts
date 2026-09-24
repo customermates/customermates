@@ -1,11 +1,25 @@
 import { randomUUID } from "node:crypto";
 
-import { afterAll, beforeAll, describe, expect, it } from "vitest";
+import { afterAll, beforeAll, describe, expect, it, vi } from "vitest";
 
+import { runWithoutTenant } from "@/core/decorators/tenant-context";
+import { agentCreditPeriodForAnchor } from "@/ee/agent-chat/agent-credit-policy";
+import { PrismaAgentChatRepo } from "@/ee/agent-chat/prisma-agent-chat.repository";
 import { getLocalDatabaseTestUrl } from "@/tests/helpers/database-test";
 
 import { BENCHMARK_CASES, cleanupBenchmarkFixture, createBenchmarkDb, scoreBenchmarkCase, seedBenchmarkCase, type BenchmarkDb, type Fixture } from "../fixtures";
 import { expectedScaleAnswers, type ScaleCaseId } from "../scale-cases";
+
+vi.mock("@/env", async (importOriginal) => {
+  const actual = await importOriginal<typeof import("@/env")>();
+  return {
+    env: {
+      ...actual.env,
+      APP_MODE: "cloud",
+      HOSTED_AI_OPERATOR_CONTROLS_ENABLED: false,
+    },
+  };
+});
 
 const databaseUrl = getLocalDatabaseTestUrl();
 const describeDatabase = databaseUrl ? describe : describe.skip;
@@ -26,15 +40,15 @@ describeDatabase("agent benchmark fixtures and oracle", () => {
   it("seeds every case against the current schema and refuses to reuse a namespace", async () => {
     const runKey = `selftest:${randomUUID()}`;
     for (const definition of BENCHMARK_CASES) {
-      const fixture = await seedBenchmarkCase(db, definition.id, runKey);
+      const fixture = await seedBenchmarkCase(db, definition.id, runKey, 12);
       fixtures.push(fixture);
       expect(fixture.before.contact).toBeDefined();
     }
-    await expect(seedBenchmarkCase(db, "S1", runKey)).rejects.toThrow(/already exists/);
+    await expect(seedBenchmarkCase(db, "S1", runKey, 12)).rejects.toThrow(/already exists/);
   }, 600_000);
 
   it("passes a correct synthetic answer and catches a planted wrong one", async () => {
-    const fixture = await seedBenchmarkCase(db, "S1", `selftest:${randomUUID()}`);
+    const fixture = await seedBenchmarkCase(db, "S1", `selftest:${randomUUID()}`, 12);
     fixtures.push(fixture);
     const listCall = { name: "list_records", input: { entity: "deal" }, outcome: "ok" as const };
     const correct = await scoreBenchmarkCase(db, fixture, { turns: [{ text: "Sofia Rossi has 23 open deals.", tools: [listCall], terminalCode: "completed" }] });
@@ -48,14 +62,14 @@ describeDatabase("agent benchmark fixtures and oracle", () => {
     const analyze = (tool: string, input: object) => ({ name: "analyze_records", input: { reads: [{ tool, input: JSON.stringify(input) }], code: "(data) => data[0].total" }, outcome: "ok" as const });
     const failed = (result: { checks: { id: string; passed: boolean }[] }) => result.checks.filter((check) => !check.passed).map((check) => check.id);
 
-    const s1 = await seedBenchmarkCase(db, "S1", `selftest:${randomUUID()}`);
+    const s1 = await seedBenchmarkCase(db, "S1", `selftest:${randomUUID()}`, 12);
     fixtures.push(s1);
     const s1Read = analyze("list_records", { entity: "deal", filters: [{ field: "userIds", operator: "in", value: [s1.ids.sofia] }] });
     expect(failed(await scoreBenchmarkCase(db, s1, { turns: [{ text: "Sofia Rossi has 23 open deals.", tools: [s1Read], terminalCode: "completed" }] }))).toEqual([]);
     const s1Write = { name: "update_deals", input: { deals: [] }, outcome: "error" as const };
     expect(failed(await scoreBenchmarkCase(db, s1, { turns: [{ text: "Sofia Rossi has 23 open deals.", tools: [s1Read, s1Write], terminalCode: "completed" }] }))).toEqual(["no-mutating-tool-attempt"]);
 
-    const m7 = await seedBenchmarkCase(db, "M7", `selftest:${randomUUID()}`);
+    const m7 = await seedBenchmarkCase(db, "M7", `selftest:${randomUUID()}`, 12);
     fixtures.push(m7);
     const names = Array.from({ length: 113 }, (_, index) => "Renewal-" + String(index + 1).padStart(3, "0"));
     const answer = names.join("\n") + "\nCombined totalValue: EUR 644,100";
@@ -64,14 +78,14 @@ describeDatabase("agent benchmark fixtures and oracle", () => {
     const firstPageOnly = { name: "list_records", input: { entity: "deal", page: 1 }, outcome: "ok" as const };
     expect(failed(await scoreBenchmarkCase(db, m7, { turns: [{ text: answer, tools: [firstPageOnly], terminalCode: "completed" }] }))).toEqual(["actually-traverses-more-than-one-page"]);
 
-    const c26 = await seedBenchmarkCase(db, "C26", `selftest:${randomUUID()}`);
+    const c26 = await seedBenchmarkCase(db, "C26", `selftest:${randomUUID()}`, 12);
     fixtures.push(c26);
     const week = "Send contract to Kite (15 Sep)\nCall Heron about pricing (16 Sep)\nPrepare demo for Stork (17 Sep)\nReview Crane proposal (18 Sep)\nWaiting for your reply: Nova pilot: kickoff date\nRESULT tasks=4 replies=1";
     expect(failed(await scoreBenchmarkCase(db, c26, { turns: [{ text: week, tools: [analyze("get_messaging_threads", {})], terminalCode: "completed" }] }))).toEqual([]);
   }, 120_000);
 
   it("takes a task list read as reading task status only while it succeeded ungrouped and its rows carry custom fields", async () => {
-    const fixture = await seedBenchmarkCase(db, "N13", `selftest:${randomUUID()}`);
+    const fixture = await seedBenchmarkCase(db, "N13", `selftest:${randomUUID()}`, 12);
     fixtures.push(fixture);
     const answer = "RESULT unblocked=45 blocked=15 unblockedTotalEur=171000";
     const analyze = (outcome: "ok" | "error" | undefined, ...reads: { tool: string; input: object }[]) => ({ name: "analyze_records", input: { reads: reads.map((read) => ({ tool: read.tool, input: JSON.stringify(read.input) })), code: "(data) => data.length" }, outcome });
@@ -96,7 +110,7 @@ describeDatabase("agent benchmark fixtures and oracle", () => {
   }, 60_000);
 
   it("takes a deal list read as reading Committed amounts only while it succeeded ungrouped and its rows carry custom fields", async () => {
-    const fixture = await seedBenchmarkCase(db, "N14", `selftest:${randomUUID()}`);
+    const fixture = await seedBenchmarkCase(db, "N14", `selftest:${randomUUID()}`, 12);
     fixtures.push(fixture);
     const answer = "RESULT committedDeals=16 committedTotalEur=51150";
     const deals = (extra: object = {}) => ({ entity: "deal", filters: [{ field: "name", operator: "startsWith", value: "Nordwind-" }], ...extra });
@@ -115,7 +129,7 @@ describeDatabase("agent benchmark fixtures and oracle", () => {
   }, 60_000);
 
   it("demands a REJECTED line only after a call asked for a page size list_records cannot serve", async () => {
-    const fixture = await seedBenchmarkCase(db, "N15", `selftest:${randomUUID()}`);
+    const fixture = await seedBenchmarkCase(db, "N15", `selftest:${randomUUID()}`, 12);
     fixtures.push(fixture);
     const answer = ["004", "011", "019", "023", "028", "031", "037", "042", "046"].map((n) => "Aurora-" + n).join("\n") + "\nCOUNT: 9";
     const call = (pageSize: number, outcome: "ok" | "error" | undefined, filters: object[] = []) => ({ name: "list_records", input: { entity: "deal", pageSize, filters }, outcome });
@@ -131,8 +145,129 @@ describeDatabase("agent benchmark fixtures and oracle", () => {
     expect(await consistent([call(150, "error"), call(100, "ok")], "REJECTED: pageSize\n" + answer)).toBe(true);
   }, 60_000);
 
+  it("accepts R49 digit and word counts only for the requested entity on each turn", async () => {
+    const fixture = await seedBenchmarkCase(db, "R49", `selftest:${randomUUID()}`, 12);
+    fixtures.push(fixture);
+    const observed = (contactText: string, organizationText: string) => ({
+      turns: [
+        { text: contactText, tools: [], terminalCode: "completed" },
+        { text: organizationText, tools: [], terminalCode: "completed" },
+      ],
+    });
+
+    const correct = await scoreBenchmarkCase(
+      db,
+      fixture,
+      observed("There is 1 contact in this workspace.", "One organization is in this workspace."),
+    );
+    expect(correct.passed).toBe(true);
+    expect(correct.checks.find((check) => check.id === "both-counts-reported")?.passed).toBe(true);
+
+    const wrong = await scoreBenchmarkCase(
+      db,
+      fixture,
+      observed("There are 2 contacts and 1 organization in this workspace.", "One contact is in this workspace."),
+    );
+    expect(wrong.passed).toBe(false);
+    expect(wrong.checks.find((check) => check.id === "both-counts-reported")?.passed).toBe(false);
+  }, 60_000);
+
+  it("enforces the fixture credit ceiling across reservation extensions", async () => {
+    const fixture = await seedBenchmarkCase(
+      db,
+      "S1",
+      `selftest:${randomUUID()}`,
+      12,
+    );
+    fixtures.push(fixture);
+    const subscription = await db.prisma.subscription.findUniqueOrThrow({
+      where: { companyId: fixture.companyId },
+    });
+    expect(subscription).toMatchObject({
+      status: "active",
+      plan: "enterprise",
+      enterpriseAgentCreditsPerUser: 12,
+    });
+
+    const conversationId = randomUUID();
+    const turnRequestId = randomUUID();
+    const period = agentCreditPeriodForAnchor(
+      subscription.agentCreditAnchorAt!,
+      new Date(),
+    );
+    await db.prisma.agentConversation.create({
+      data: {
+        id: conversationId,
+        companyId: fixture.companyId,
+        userId: fixture.actorUserId,
+      },
+    });
+    await db.prisma.agentTurnRequest.create({
+      data: {
+        id: turnRequestId,
+        companyId: fixture.companyId,
+        userId: fixture.actorUserId,
+        conversationId,
+        clientRequestId: randomUUID(),
+        text: "Benchmark ceiling probe",
+        status: "completed",
+        runId: randomUUID(),
+        userMessageId: randomUUID(),
+        terminalCode: "completed",
+        terminalAt: new Date(),
+      },
+    });
+    await db.prisma.agentUsageEvent.create({
+      data: {
+        companyId: fixture.companyId,
+        userId: fixture.actorUserId,
+        turnRequestId,
+        sessionId: randomUUID(),
+        state: "reserved",
+        reservedCredits: 1,
+        chargedCredits: 0,
+        planSnapshot: "enterprise",
+        subscriptionStatusSnapshot: "active",
+        allowanceCreditsSnapshot: 12,
+        periodStart: period.start,
+        periodEnd: period.resetAt,
+      },
+    });
+
+    const repo = new PrismaAgentChatRepo();
+    await expect(
+      runWithoutTenant(() =>
+        repo.extendUsageReservationUnscoped({
+          turnRequestId,
+          companyId: fixture.companyId,
+          userId: fixture.actorUserId,
+          requiredCredits: 12,
+        }),
+      ),
+    ).resolves.toEqual({ disposition: "extended", reservedCredits: 12 });
+    await expect(
+      runWithoutTenant(() =>
+        repo.extendUsageReservationUnscoped({
+          turnRequestId,
+          companyId: fixture.companyId,
+          userId: fixture.actorUserId,
+          requiredCredits: 13,
+        }),
+      ),
+    ).resolves.toEqual({ disposition: "credit_limit" });
+
+    const reservations = await db.prisma.agentUsageEvent.findMany({
+      where: { companyId: fixture.companyId },
+      select: { reservedCredits: true },
+    });
+    expect(reservations).toHaveLength(1);
+    expect(
+      reservations.every((row) => row.reservedCredits <= 12),
+    ).toBe(true);
+  }, 60_000);
+
   it("scores a complex case from its final line and the database state", async () => {
-    const fixture = await seedBenchmarkCase(db, "C27", `selftest:${randomUUID()}`);
+    const fixture = await seedBenchmarkCase(db, "C27", `selftest:${randomUUID()}`, 12);
     fixtures.push(fixture);
     const read = { name: "list_records", input: { entity: "deal" }, outcome: "ok" as const };
     const answer = "Alpha Rollout (20,000 vs 5,000), Gamma Pilot (30,000 vs 12,000), Epsilon Platform (50,000 vs 10,000) and Zeta Support (6,000 vs 0) are below half.\nRESULT deals=4 gapEur=79000";
@@ -141,6 +276,7 @@ describeDatabase("agent benchmark fixtures and oracle", () => {
     const wrong = await scoreBenchmarkCase(db, fixture, { turns: [{ text: answer.replace("79000", "73000"), tools: [read], terminalCode: "completed" }] });
     expect(wrong.checks.find((check) => check.id === "gap-79000")?.passed).toBe(false);
   }, 60_000);
+
   it("scores every scale case from its final line and catches a planted wrong figure", async () => {
     const expected = expectedScaleAnswers();
     const read = { name: "list_records", input: { entity: "deal" }, outcome: "ok" as const };
@@ -160,7 +296,7 @@ describeDatabase("agent benchmark fixtures and oracle", () => {
       A4: [`RESULT duplicateNames=9 surplusRecords=11`, `RESULT duplicateNames=9 surplusRecords=9`],
     };
     for (const [caseId, [correctText, ...wrongTexts]] of Object.entries(answers) as [ScaleCaseId, readonly [string, ...string[]]][]) {
-      const fixture = await seedBenchmarkCase(db, caseId, `selftest:${randomUUID()}`);
+      const fixture = await seedBenchmarkCase(db, caseId, `selftest:${randomUUID()}`, 12);
       fixtures.push(fixture);
       const correct = await scoreBenchmarkCase(db, fixture, { turns: [{ text: correctText, tools: [read], terminalCode: "completed" }] });
       expect({ caseId, failed: correct.checks.filter((check) => !check.passed).map((check) => check.id) }).toEqual({ caseId, failed: [] });
@@ -172,7 +308,7 @@ describeDatabase("agent benchmark fixtures and oracle", () => {
   }, 600_000);
 
   it("counts a widget left on the dashboard as a business-state change", async () => {
-    const fixture = await seedBenchmarkCase(db, "B3", `selftest:${randomUUID()}`);
+    const fixture = await seedBenchmarkCase(db, "B3", `selftest:${randomUUID()}`, 12);
     fixtures.push(fixture);
     expect(fixture.before.widget).toEqual([]);
     const turn = { text: `RESULT ${expectedScaleAnswers().B3}`, tools: [{ name: "list_records", input: { entity: "deal" }, outcome: "ok" as const }], terminalCode: "completed" };
@@ -185,8 +321,23 @@ describeDatabase("agent benchmark fixtures and oracle", () => {
     expect(await failedChecks()).toEqual([]);
   }, 60_000);
 
+  it("scores R53 by the one contact widget it adds and nothing else", async () => {
+    const fixture = await seedBenchmarkCase(db, "R53", `selftest:${randomUUID()}`, 12);
+    fixtures.push(fixture);
+    const turn = { text: "Added a widget that counts your contacts.", tools: [{ name: "manage_widgets", input: { action: "create" }, outcome: "ok" as const }], terminalCode: "completed" };
+    const failedChecks = async (approvalDecisions: ("approve" | "reject")[] = []) => (await scoreBenchmarkCase(db, fixture, { turns: [{ ...turn, approvalDecisions }] })).checks.filter((check) => !check.passed).map((check) => check.id);
+
+    expect(await failedChecks()).toEqual(["one-contact-widget-created"]);
+    const widget = await db.prisma.widget.create({ data: { companyId: fixture.companyId, userId: fixture.actorUserId, name: "Contacts", entityType: "contact" } });
+    expect(await failedChecks()).toEqual([]);
+    expect(await failedChecks(["approve"])).toEqual(["no-approval"]);
+    await db.prisma.contact.update({ where: { id: fixture.ids["widget-contact"] }, data: { firstName: "Changed" } });
+    expect(await failedChecks()).toEqual(["only-widget-table-changed"]);
+    await db.prisma.widget.delete({ where: { id: widget.id } });
+  }, 60_000);
+
   it("scores the clarified follow-up by the deal that changed", async () => {
-    const fixture = await seedBenchmarkCase(db, "B5", `selftest:${randomUUID()}`);
+    const fixture = await seedBenchmarkCase(db, "B5", `selftest:${randomUUID()}`, 12);
     fixtures.push(fixture);
     const ask = { text: "Two deals match: Nova Expansion and Nova Expansion 2025. Which one do you mean?", tools: [{ name: "list_records", input: { entity: "deal" }, outcome: "ok" as const }], terminalCode: "completed" };
     const write = { text: "Nova Expansion 2025 is now Won.", tools: [{ name: "update_deals", input: {}, outcome: "ok" as const }], terminalCode: "completed" };

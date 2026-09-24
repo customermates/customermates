@@ -59,6 +59,23 @@ describe("agent replay budget", () => {
     expect(replayedUser).toContain("BINDING_RULE");
   });
 
+  it("keeps selected-context blocks whole or drops them before clamping older turns", () => {
+    const prefix = Array.from(
+      { length: 5 },
+      (_, index) =>
+        `<selected_context kind="record" entityType="contact" recordId="${index}0000000-0000-4000-8000-000000000001"/>\n`,
+    ).join("");
+    const messages = Array.from({ length: AGENT_REPLAY_COUNT - 1 }, (_, index) => ({
+      ...prior(`${index} ${"details ".repeat(2_000)}`),
+      prefix,
+    }));
+
+    for (const replayed of budgetAgentReplayHistory(messages)) {
+      expect(replayed.startsWith(prefix) || !replayed.includes("<selected_context")).toBe(true);
+      expect((replayed.match(/<selected_context /g) ?? []).length).toBe((replayed.match(/\/>\n/g) ?? []).length);
+    }
+  });
+
   it("never splits a surrogate pair when it cuts", () => {
     const emoji = "👍".repeat(2_000);
     const clamped = clampAgentReplayText(emoji, 400);

@@ -14,6 +14,8 @@ const harness = vi.hoisted(() => ({
   isPersonalizing: false,
   setIsPersonalizing: vi.fn(),
   starredFieldIds: [] as string[],
+  drawerStack: [] as { entityType: string; id: string }[],
+  useAgentRecordContext: vi.fn(),
 }));
 
 vi.mock("next-intl", () => ({
@@ -33,7 +35,11 @@ vi.mock("@/components/modal/hooks/use-delete-confirmation", () => ({
 }));
 
 vi.mock("@/components/entity-detail/hooks/use-entity-drawer-stack", () => ({
-  useEntityDrawerStack: () => ({ stack: [] }),
+  useEntityDrawerStack: () => ({ stack: harness.drawerStack }),
+}));
+
+vi.mock("@/app/components/agent-chat/use-agent-record-context", () => ({
+  useAgentRecordContext: harness.useAgentRecordContext,
 }));
 
 vi.mock("../entity-detail-personalization", () => ({
@@ -73,6 +79,7 @@ vi.mock("@/components/entity-detail/entity-notes-panel", () => ({
 
 vi.mock("@/core/stores/root-store.provider", () => ({
   useRootStore: () => ({
+    agentChatStore: {},
     customColumnModalStore: { initialize: vi.fn(), open: vi.fn() },
     layoutStore: { clearRuntimeIdentity: vi.fn(), setRuntimeIdentity: vi.fn() },
     userStore: { can: vi.fn(() => harness.canReadHistory) },
@@ -179,6 +186,7 @@ describe("EntityDetailLayout", () => {
     harness.personalizationEnabled = false;
     harness.isPersonalizing = false;
     harness.starredFieldIds = [];
+    harness.drawerStack = [];
   });
 
   it.each([
@@ -213,6 +221,27 @@ describe("EntityDetailLayout", () => {
     expect(store.hydrate).not.toHaveBeenCalled();
     expect(html).toContain('data-page-state="loading"');
     expect(html).not.toContain('data-master-data="true"');
+  });
+
+  it("registers the loaded full-page record and disables it while a drawer owns the active context", () => {
+    renderState("content");
+
+    expect(harness.useAgentRecordContext).toHaveBeenLastCalledWith({
+      enabled: true,
+      entityType: EntityType.contact,
+      recordId: "contact-1",
+      name: "Ada Lovelace",
+    });
+
+    harness.drawerStack = [{ entityType: "deal", id: "deal-1" }];
+    renderState("content");
+
+    expect(harness.useAgentRecordContext).toHaveBeenLastCalledWith({
+      enabled: false,
+      entityType: EntityType.contact,
+      recordId: "contact-1",
+      name: "Ada Lovelace",
+    });
   });
 
   it("keeps one details tree and one notes tree while exposing compact panel tabs and the wide three-column grid", () => {

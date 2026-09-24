@@ -13,6 +13,14 @@ describe("benchmark read-call predicate", () => {
     expect(isReadCall({ name: "analyze_records", input: { reads: [], code: "() => 1" } })).toBe(true);
   });
 
+  it("counts only the read actions of manage_data_views as reads", () => {
+    for (const action of ["surfaces", "list", "config"]) expect(isReadCall({ name: "manage_data_views", input: { action } })).toBe(true);
+    for (const action of ["create", "update", "select", "delete"]) expect(isReadCall({ name: "manage_data_views", input: { action } })).toBe(false);
+    expect(isReadCall({ name: "manage_social_relations", input: { action: "list" } })).toBe(true);
+    expect(isReadCall({ name: "linkedin_manage_sales_lists", input: { action: "browse" } })).toBe(true);
+    expect(isReadCall({ name: "linkedin_manage_sales_lists", input: { action: "save" } })).toBe(false);
+  });
+
   it("fails closed on writes, write actions, missing actions and unknown tools", () => {
     expect(isReadCall({ name: "update_deals", input: { deals: [] } })).toBe(false);
     expect(isReadCall({ name: "manage_webhooks", input: { action: "create" } })).toBe(false);

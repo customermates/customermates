@@ -110,6 +110,8 @@ const ACCEPTED_TODAY: [string, unknown][] = [
   ["get_workspace_context", {}],
   ["search_records", { searchTerm: "a" }],
   ["manage_widgets", { action: "list" }],
+  ["manage_data_views", { action: "surfaces" }],
+  ["manage_data_views", { action: "create", surfaceKey: "contacts-card-store", name: "Leads", state: {} }],
   ["send_email", { connectedAccountId: UUID, subject: "s", body: "b", to: [{ identifier: "ada@example.com" }] }],
   ["analyze_records", { reads: [{ tool: "list_records", input: { entity: "deal" } }], code: "(data) => data" }],
   ["analyze_records", { reads: [{ tool: "list_records", input: '{"entity":"deal"}' }], code: "(data) => data" }],
@@ -458,25 +460,25 @@ describe("the shipped tool catalog on the Google wire", () => {
     const changes = changesForShippedCatalog();
 
     expect(summarizeGoogleSchemaChanges(changes)).toEqual({
-      "$schema:removed": 52,
-      "additionalProperties:removed": 57,
-      "anyOf:collapsed": 45,
-      "const:removed": 1,
-      "const:rewritten": 218,
+      "$schema:removed": 53,
+      "additionalProperties:removed": 60,
+      "anyOf:collapsed": 47,
+      "const:removed": 5,
+      "const:rewritten": 236,
       "enum:removed": 18,
-      "exclusiveMinimum:rewritten": 11,
+      "exclusiveMinimum:rewritten": 12,
       "nullable:collapsed": 10,
-      "nullable:rewritten": 25,
+      "nullable:rewritten": 27,
       "propertyNames:removed": 2,
-      "oneOf:rewritten": 18,
+      "oneOf:rewritten": 19,
     });
     expect(summarizeGoogleSchemaChanges(changes.filter((change) => change.loosened))).toEqual({
-      "additionalProperties:removed": 57,
-      "const:removed": 1,
+      "additionalProperties:removed": 60,
+      "const:removed": 5,
       "enum:removed": 18,
       "exclusiveMinimum:rewritten": 2,
       "propertyNames:removed": 2,
-      "oneOf:rewritten": 18,
+      "oneOf:rewritten": 19,
     });
   });
 
@@ -545,6 +547,16 @@ describe("the authoritative input gate", () => {
 
     expect(root).toMatchObject({ ok: false });
     expect(nested).toMatchObject({ ok: false });
+  });
+
+  it.each([
+    { action: "update", surfaceKey: "contacts-card-store", viewKey: "__all__" },
+    { action: "update", surfaceKey: "contacts-card-store", viewKey: "__all__", state: {} },
+    { action: "delete", surfaceKey: "contacts-card-store" },
+    { action: "create", surfaceKey: "operator-users", name: "Operator", state: {} },
+  ])("rejects malformed or unsupported saved-view input after provider decoding: %j", async (input) => {
+    const result = await normalizeAgentAiToolInput("manage_data_views", input, 400);
+    expect(result).toMatchObject({ ok: false });
   });
 });
 

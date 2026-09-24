@@ -5,6 +5,7 @@ import { beforeEach, describe, expect, it, vi } from "vitest";
 
 import { EntityType } from "@/generated/prisma";
 import { FilterOperatorKey } from "@/core/base/base-query-builder";
+import { ALL_VIEW_KEY } from "@/core/data-view/data-view-keys";
 import { FilterFieldKey } from "@/core/types/filter-field-key";
 
 const { getActivitiesAction, toastError } = vi.hoisted(() => ({
@@ -38,8 +39,10 @@ const result = (
     pageLimitReached?: boolean;
     scopeTruncated?: boolean;
     total?: number;
+    activeViewKey?: string;
   } = {},
 ): ActivitiesResult => ({
+  activeViewKey: options.activeViewKey,
   availableSources: options.availableSources ?? ["audit", "message", "activity", "calendar_event"],
   items,
   pageLimitReached: options.pageLimitReached ?? false,
@@ -191,6 +194,35 @@ describe("ActivitiesStore", () => {
     expect(getActivitiesAction).toHaveBeenCalledWith(
       expect.objectContaining({
         p13nId: "entity-timeline",
+        pagination: { page: 2, pageSize: 25 },
+      }),
+    );
+  });
+
+  it("keeps an explicit All selection while refreshing and loading older pages", async () => {
+    const store = new ActivitiesStore(rootStore, {
+      defaultP13nId: "entity-timeline",
+    });
+    store.hydrate(result([entry("audit", "a1")], { activeViewKey: ALL_VIEW_KEY, total: 50 }));
+    getActivitiesAction.mockResolvedValue({
+      ok: true,
+      data: result([], { activeViewKey: ALL_VIEW_KEY, total: 50 }),
+    });
+
+    await store.applyFilters([]);
+    await store.loadOlder();
+
+    expect(getActivitiesAction).toHaveBeenNthCalledWith(
+      1,
+      expect.objectContaining({
+        viewId: ALL_VIEW_KEY,
+        pagination: { page: 1, pageSize: 25 },
+      }),
+    );
+    expect(getActivitiesAction).toHaveBeenNthCalledWith(
+      2,
+      expect.objectContaining({
+        viewId: ALL_VIEW_KEY,
         pagination: { page: 2, pageSize: 25 },
       }),
     );

@@ -1132,6 +1132,17 @@ export abstract class BaseDataViewStore<Entity extends HasId> extends BaseStore 
     this.cancelPendingPersist();
   };
 
+  private viewStateWrite: Promise<void> | undefined;
+  private failedViewStateWrites = new Set<string>();
+
+  settleViewState = async (): Promise<void> => {
+    const viewKey = this.activeViewKey;
+    const flushed = this.flushPendingViewState();
+    if (!flushed && this.failedViewStateWrites.has(viewKey)) void this.writeViewState();
+    await this.viewStateWrite;
+    if (this.failedViewStateWrites.has(viewKey)) throw new Error("The current view could not be saved.");
+  };
+
   private cancelPendingPersist = (): boolean => {
     if (this.persistViewStateTimer === undefined) return false;
 
@@ -1171,16 +1182,29 @@ export abstract class BaseDataViewStore<Entity extends HasId> extends BaseStore 
       hiddenColumns: toJS(this.hiddenColumns),
     };
 
-    return saveDataViewStateAction({ surfaceKey: this.p13nId as DataViewSurfaceKey, viewKey, state })
-      .then((res) => {
-        if (!res.ok) {
-          toastZodErrorTree(res.error);
-          return;
-        }
+    const surfaceKey = this.p13nId as DataViewSurfaceKey;
+    const persist = () =>
+      saveDataViewStateAction({ surfaceKey, viewKey, state })
+        .then((res) => {
+          if (!res.ok) {
+            this.failedViewStateWrites.add(viewKey);
+            toastZodErrorTree(res.error);
+            return;
+          }
 
-        this.rememberViewState(viewKey, state);
-      })
-      .catch(reportApplicationError);
+          this.failedViewStateWrites.delete(viewKey);
+          this.rememberViewState(viewKey, state);
+        })
+        .catch((error) => {
+          this.failedViewStateWrites.add(viewKey);
+          reportApplicationError(error);
+        });
+    const write = this.viewStateWrite ? this.viewStateWrite.then(persist) : persist();
+    this.viewStateWrite = write;
+    void write.then(() => {
+      if (this.viewStateWrite === write) this.viewStateWrite = undefined;
+    });
+    return write;
   };
 
   private rememberViewState = (viewKey: string, state: DataViewState): void => {
