@@ -1,3 +1,6 @@
+import { readFileSync } from "node:fs";
+import { join } from "node:path";
+
 import { beforeEach, describe, expect, it, vi } from "vitest";
 
 import { createMockUser } from "@/tests/helpers/mock-user";
@@ -151,13 +154,23 @@ const grouping = {
   ],
 };
 
-function listing(item: unknown) {
+const relationGroupable = (id: string) => ({
+  id,
+  grouping: { field: id },
+  kind: "relation",
+  labelKey: id,
+  supportsDragWriteBack: false,
+});
+const EVERY_RELATION = ["userIds", "contactIds", "organizationIds", "dealIds", "serviceIds", "taskIds"];
+
+function listing(item: unknown, readable: readonly string[] = EVERY_RELATION) {
   return (params: { grouping?: unknown }) =>
     Promise.resolve({
       ok: true,
       data: {
         items: params.grouping ? [] : [item],
         pagination: { total: 1 },
+        groupableFields: [...readable.map(relationGroupable), { id: "createdAt:month", kind: "dateBucket" }],
         ...(params.grouping ? { grouping, valueSums: { totalValue: 1000, weightedValue: 500 } } : {}),
       },
     });
@@ -267,6 +280,47 @@ describe("list_records include", () => {
     });
   });
 
+  it("leaves out the owners and links the caller cannot read instead of reporting none linked", async () => {
+    spies.listDeals.mockImplementation(
+      listing({ ...deal, users: [], tasks: [] }, ["contactIds", "organizationIds", "serviceIds"]),
+    );
+    const hidden = await firstItem({ entity: "deal", include: [...ALL] });
+
+    expect(hidden).toEqual({
+      id: "deal-1",
+      name: "Rollout",
+      totalValue: 1000,
+      totalQuantity: 3,
+      weightedValue: 500,
+      contactIds: ["contact-maya"],
+      organizationIds: ["org-north"],
+      serviceIds: ["service-onboarding"],
+      customFieldValues: deal.customFieldValues,
+      createdAt: "2026-08-01T08:00:00.000Z",
+      updatedAt: "2026-09-01T06:55:15.000Z",
+    });
+    expect(hidden).not.toHaveProperty("taskIds");
+    expect(hidden).not.toHaveProperty("userIds");
+
+    const task1 = { id: "task-1", name: "Security review", type: "custom" };
+    spies.listDeals.mockImplementation(listing({ ...deal, tasks: [task1] }, ["userIds", "taskIds"]));
+    expect(await firstItem({ entity: "deal", include: ["owners", "links"] })).toEqual({
+      id: "deal-1",
+      name: "Rollout",
+      totalValue: 1000,
+      totalQuantity: 3,
+      weightedValue: 500,
+      userIds: ["user-ada"],
+      taskIds: ["task-1"],
+    });
+
+    spies.listTasks.mockImplementation(listing(task, []));
+    expect(await firstItem({ entity: "task", include: ["owners", "links"] })).toEqual({
+      id: "task-1",
+      name: "Security review",
+    });
+  });
+
   it("never passes on notes, emails, avatars, contact identifiers or the names and quantities of linked records", async () => {
     const linkedNames = { deal: ["Maya"], task: ["Rollout"], contact: ["Rollout", "Security review"] };
     for (const [entity, names] of Object.entries(linkedNames)) {
@@ -315,5 +369,28 @@ describe("list_records include", () => {
       expect(listRecordsTool.description).toContain(field);
     expect(listRecordsTool.description).toContain("read them through analyze_records");
     expect(listRecordsTool.description).toContain("pageSize 5");
+    const include = listRecordsTool.inputSchema.shape.include.description ?? "";
+    expect(include).toContain(
+      "an empty array means none you can see is linked; a missing key means you cannot read that relation",
+    );
+    expect(include).not.toContain("an empty array means none is linked");
+  });
+
+  it("says wherever it describes include that a relation the caller cannot read is left out", () => {
+    expect(listRecordsTool.description).toContain(
+      "include adds fields to every item, leaving out any relation you cannot read: owners adds userIds",
+    );
+    expect(listRecordsTool.outputSchema.shape.items.element.description).toContain(
+      "userIds and each link key are left out for a relation you cannot read",
+    );
+
+    const docs = (locale: string) =>
+      readFileSync(join(process.cwd(), "content", "docs", locale, "mcp.mdx"), "utf8").replace(/\s+/g, " ");
+    expect(docs("en")).toContain(
+      "A relation your role cannot read is left out, so a missing key means you cannot read that relation and an empty array means none you can see is linked.",
+    );
+    expect(docs("de")).toContain(
+      "Beziehungen, die Ihre Rolle nicht lesen darf, fehlen dabei: Ein fehlendes Feld bedeutet, dass Sie diese Beziehung nicht lesen können, ein leeres Array, dass kein für Sie sichtbarer Datensatz verknüpft ist.",
+    );
   });
 });

@@ -37,7 +37,11 @@ export const MCP_PAGE_SIZE_DESCRIPTION =
 
 export const McpPageOutputShape = {
   page: z.number().describe("The page returned, counted in pageSize"),
-  pageSize: z.number().describe("The page size asked for; every page but the last holds exactly this many records"),
+  pageSize: z
+    .number()
+    .describe(
+      "The page size asked for; every page but the last holds exactly this many records, and a grouped result echoes it with items empty",
+    ),
 };
 
 export const mcpPageSize = (

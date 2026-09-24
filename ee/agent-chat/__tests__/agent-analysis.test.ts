@@ -540,6 +540,10 @@ describe("analyze_records", () => {
       tasks: index < 30 ? [{ id: `task-${index + 1}`, name: `Kestrel task ${index + 1}`, type: "custom" }] : [],
       customFieldValues: [{ columnId: dealStatus, value: open }],
     }));
+    const readable = ["contactIds", "organizationIds", "dealIds", "serviceIds", "taskIds", "userIds"].map((id) => ({
+      id,
+      kind: "relation",
+    }));
     const paged =
       (rows: unknown[]) =>
       ({ pagination }: { pagination: { page: number; pageSize: number } }) =>
@@ -548,6 +552,7 @@ describe("analyze_records", () => {
           data: {
             items: rows.slice((pagination.page - 1) * pagination.pageSize, pagination.page * pagination.pageSize),
             pagination: { total: rows.length },
+            groupableFields: readable,
           },
         });
     listed.deal.mockImplementation(paged(deals));
@@ -630,9 +635,11 @@ describe("analyze_records", () => {
       "get_record_schema maps option ids to labels",
       "Pass include: [] on a list read that needs none of these fields",
       "prefer filters, sums or list_records groupBy",
+      "an empty array means none you can see is linked; a missing key means you cannot read that relation",
     ])
       expect(ANALYZE_RECORDS_DESCRIPTION).toContain(text);
     expect(ANALYZE_RECORDS_DESCRIPTION).not.toMatch(/no owners, links or custom fields/);
+    expect(ANALYZE_RECORDS_DESCRIPTION).not.toContain("an empty array means none is linked");
   });
 
   it("tells the code that Date is undefined and dates are ISO strings, and names only the months groupBy groups by", async () => {

@@ -21,6 +21,7 @@ import {
 } from "./utils";
 import type { McpToolFailureResult } from "./mcp-tool";
 import type { CustomFieldValueDto } from "@/core/base/base-entity.schema";
+import type { GroupableFieldDto } from "@/core/base/grouping/groupable-field";
 
 import { FilterSchema, SortDescriptorSchema } from "@/core/base/base-get.schema";
 import {
@@ -129,7 +130,8 @@ const ListRecordsSchema = z.object({
     .max(4)
     .optional()
     .describe(
-      "Fields to add to each item: owners adds userIds; links adds the ids of the linked records (contactIds, organizationIds, dealIds, serviceIds, taskIds, whichever the entity has; an empty array means none is linked); " +
+      "Fields to add to each item: owners adds userIds; links adds the ids of the linked records (contactIds, organizationIds, dealIds, serviceIds, taskIds, whichever the entity has). " +
+        "In userIds and the link arrays an empty array means none you can see is linked; a missing key means you cannot read that relation. " +
         "customFields adds customFieldValues [{columnId, value}], a single-select value being its option id; dates adds createdAt and updatedAt. Ignored with groupBy.",
     ),
 });
@@ -281,7 +283,8 @@ const ListRecordsOutputSchema = z.object({
       })
       .describe(
         "Deal items add totalValue, totalQuantity, weightedValue; service items add amount. " +
-          "With include, owners adds userIds, links the linked record ids the entity has, customFields customFieldValues, and dates createdAt and updatedAt.",
+          "With include, owners adds userIds, links the linked record ids the entity has, customFields customFieldValues, and dates createdAt and updatedAt; " +
+          "userIds and each link key are left out for a relation you cannot read.",
       ),
   ),
   filters: z.array(z.unknown()).optional(),
@@ -362,12 +365,22 @@ function referenceIds(references: unknown): string[] {
   return Array.isArray(references) ? references.map((reference: { id: string }) => reference.id) : [];
 }
 
-function includedItemFields(entity: Entity, item: any, include: readonly ListRecordsInclude[] | undefined) {
+function readableRelations(groupableFields: readonly GroupableFieldDto[] | undefined): ReadonlySet<string> {
+  return new Set((groupableFields ?? []).filter((field) => field.kind === "relation").map((field) => field.id));
+}
+
+function includedItemFields(
+  entity: Entity,
+  item: any,
+  include: readonly ListRecordsInclude[] | undefined,
+  readable: ReadonlySet<string>,
+) {
   const wanted = new Set(include);
+  const links = listedLinks[entity].filter((relation) => readable.has(linkIdKeys[relation]));
   return {
-    ...(wanted.has("owners") && { userIds: referenceIds(item.users) }),
+    ...(wanted.has("owners") && readable.has("userIds") && { userIds: referenceIds(item.users) }),
     ...(wanted.has("links") &&
-      Object.fromEntries(listedLinks[entity].map((relation) => [linkIdKeys[relation], referenceIds(item[relation])]))),
+      Object.fromEntries(links.map((relation) => [linkIdKeys[relation], referenceIds(item[relation])]))),
     ...(wanted.has("customFields") && {
       customFieldValues: ((item.customFieldValues ?? []) as CustomFieldValueDto[]).map(({ columnId, value }) => ({
         columnId,
@@ -552,7 +565,7 @@ export const listRecordsTool = {
     "Required: entity. Optional: searchTerm, filters, sortDescriptor, page, pageSize (1-100, default 25), groupBy, include. " +
     "Returns total first (matching records across all pages; use it for counts), then id and name per item; " +
     "deal items add totalValue, totalQuantity and weightedValue, service items add amount. " +
-    "include adds fields to every item: owners adds userIds, links the linked record ids (contactIds, organizationIds, dealIds, serviceIds, taskIds), " +
+    "include adds fields to every item, leaving out any relation you cannot read: owners adds userIds, links the linked record ids (contactIds, organizationIds, dealIds, serviceIds, taskIds), " +
     "customFields the customFieldValues [{columnId, value}] and dates createdAt and updatedAt. " +
     "Such items are long, so read them through analyze_records where it is offered, or with pageSize 5 when reading them directly. " +
     "When the entity has numeric columns it also returns sums: the total of each numeric column across " +
@@ -595,6 +608,7 @@ export const listRecordsTool = {
     );
     if (!result.ok) return mcpInteractorFailure(result.error);
 
+    const readable = readableRelations(result.data.groupableFields);
     const items = result.data.items.map((item: any) => ({
       id: item.id,
       name: entityNameExtractors[entity](item),
@@ -602,7 +616,7 @@ export const listRecordsTool = {
       ...(item.totalQuantity !== undefined && { totalQuantity: item.totalQuantity }),
       ...(item.weightedValue != null && { weightedValue: item.weightedValue }),
       ...(item.amount !== undefined && { amount: item.amount }),
-      ...includedItemFields(entity, item, include),
+      ...includedItemFields(entity, item, include, readable),
     }));
     const note = nameMatchNote(nameQueryOf(searchTerm, filters), items);
 

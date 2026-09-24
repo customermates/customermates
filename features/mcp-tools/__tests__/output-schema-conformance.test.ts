@@ -112,6 +112,13 @@ function arrange() {
         items: params.grouping ? [] : [{ ...deal, weightedValue: 500 }],
         pagination: { total: 2 },
         valueSums: { totalValue: 3000, weightedValue: 1500 },
+        groupableFields: ["contactIds", "organizationIds", "serviceIds", "taskIds", "userIds"].map((id) => ({
+          id,
+          grouping: { field: id },
+          kind: "relation",
+          labelKey: id,
+          supportsDragWriteBack: false,
+        })),
         ...(params.grouping
           ? {
               grouping: {
