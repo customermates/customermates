@@ -47,7 +47,7 @@ export const ManageDataViewsToolSchema = z
       "Config and summary-list only. 1-indexed page; default 1. Ignored when list has an exact viewKey.",
     ),
     pageSize: ManageDataViewPageSizeSchema.optional().describe(
-      "Config and summary-list only. Results per page, 1-25, rounded up to 5, 10 or 25; default 10. Ignored for an exact viewKey.",
+      "Config and summary-list only. Results per page, 1-25, served exactly; default 10. Ignored for an exact viewKey.",
     ),
     query: ManageDataViewQuerySchema.describe(
       "Config and summary-list only. Narrow by an exact or partial field id, label, view id or view name after a truncated or broad result. Ignored for an exact viewKey.",

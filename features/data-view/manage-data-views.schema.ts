@@ -31,12 +31,7 @@ export const DataViewConfigSectionSchema = z.enum(["overview", "filters", "sorti
 export type DataViewConfigSection = z.infer<typeof DataViewConfigSectionSchema>;
 
 export const ManageDataViewPageSchema = z.coerce.number().int().min(1).max(10_000);
-export const ManageDataViewPageSizeSchema = z.coerce
-  .number()
-  .int()
-  .min(1)
-  .max(25)
-  .transform((value): 5 | 10 | 25 => (value <= 5 ? 5 : value <= 10 ? 10 : 25));
+export const ManageDataViewPageSizeSchema = z.coerce.number().int().min(1).max(25);
 export const ManageDataViewQuerySchema = z.string().trim().min(1).max(100).optional();
 
 const surface = { surfaceKey: AiManageableDataViewSurfaceKeySchema };
