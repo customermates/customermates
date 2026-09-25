@@ -202,6 +202,7 @@ vi.mock("../capture-failure", () => ({
 
 import { runAgentTurn, type AgentTurnWorkflowPayload } from "../agent-turn";
 import { approvalDenialReason } from "@/ee/agent-chat/agent-approval-resume";
+import { agentContextProviderPrefix } from "@/ee/agent-chat/agent-context";
 
 const payload: AgentTurnWorkflowPayload = {
   turnRequestId: "turn-1",
@@ -1317,6 +1318,39 @@ describe("agent-turn authoritative tool inputs", () => {
       }
     },
   );
+
+  it("lets a write to the record the user attached through, and still refuses its same-named sibling", async () => {
+    define("list_records");
+    define("update_deals");
+    const request = "Mark the Nova Expansion deal as Won.";
+    const attach = (recordId: string) =>
+      agentContextProviderPrefix([
+        { reference: { kind: "record", entityType: "deal", recordId }, label: "Nova Expansion" },
+      ]);
+    const { nova, nova2025 } = novaSearched(request);
+    const text = `${attach(nova)}${request}`;
+    const { messages: searched } = novaSearched(text);
+    state.normalize.mockImplementation((_name: string, value: unknown) => Promise.resolve({ ok: true, input: value }));
+    const outputs: unknown[] = [];
+    state.runTools = async ({ tools, completeStepAndPrepareNext }) => {
+      await completeStepAndPrepareNext(
+        streamedToolCallStep("list_records", "list-1", { entity: "deal", searchTerm: "Nova Expansion" }),
+        searched,
+      );
+      const update = tools.update_deals.execute;
+      if (!update) throw new Error("Tool cannot execute.");
+      outputs.push(await update({ deals: [{ id: nova2025 }] }, { toolCallId: "call-sibling" }));
+      outputs.push(await update({ deals: [{ id: nova }] }, { toolCallId: "call-attached" }));
+      return finish();
+    };
+
+    await runAgentTurn({ ...payload, messages: [{ role: "user", text }] });
+
+    expect(outputs[0]).toEqual({ ok: false, result: expect.stringContaining("More than one deal matches") });
+    expect(outputs[1]).toEqual({ ok: true, result: "done" });
+    expect(state.execute).toHaveBeenCalledTimes(1);
+    expect(state.execute).toHaveBeenCalledWith({ deals: [{ id: nova }] }, expect.anything());
+  });
 
   it("keeps a same-named target armed after the read that armed it has left the context", async () => {
     define("list_records");

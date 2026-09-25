@@ -119,6 +119,30 @@ function namesEveryValue(description: string, values: readonly unknown[]) {
   });
 }
 
+function isStringEnumBranch(node: SchemaNode) {
+  return (
+    node.type === "string" &&
+    Array.isArray(node.enum) &&
+    node.enum.length > 0 &&
+    node.enum.every((value) => typeof value === "string") &&
+    Object.keys(node).every((key) => key === "type" || key === "enum")
+  );
+}
+
+function isBareStringEnumUnion(draft: SchemaNode, members: readonly SchemaNode[]) {
+  return draft.type === undefined && draft.enum === undefined && members.every(isStringEnumBranch);
+}
+
+function repeatsOnlyEnumValue(node: SchemaNode) {
+  return (
+    node.type === "string" &&
+    Array.isArray(node.enum) &&
+    node.enum.length === 1 &&
+    typeof node.title === "string" &&
+    node.title === node.enum[0]
+  );
+}
+
 function typedBranches(values: readonly unknown[]): SchemaNode[] {
   const strings = values.filter((value): value is string => typeof value === "string");
   const numbers = values.filter((value): value is number => typeof value === "number" && Number.isFinite(value));
@@ -382,7 +406,12 @@ export function googleSafeJsonSchema(document: unknown): GoogleSafeSchemaResult 
       });
 
       delete draft.anyOf;
-      if (members.length > 1) draft.anyOf = members;
+      if (members.length > 1 && !admitsNull && isBareStringEnumUnion(draft, members)) {
+        draft.type = "string";
+        draft.enum = [...new Set(members.flatMap((member) => member.enum as string[]))];
+        const detail = `merged ${members.length} string-enum branches into one enum that admits the same values`;
+        record(pointer, "anyOf", "merged", detail, false);
+      } else if (members.length > 1) draft.anyOf = members;
       else if (members.length === 1) {
         mergeAbsent(draft, members[0], pointer, "anyOf");
         record(pointer, "anyOf", "collapsed", "a union with one remaining branch became that branch", false);
@@ -391,6 +420,10 @@ export function googleSafeJsonSchema(document: unknown): GoogleSafeSchemaResult 
 
     if (rewriteEnum(draft, pointer)) admitsNull = true;
     if (admitsNull) admitNull(draft, pointer);
+    if (repeatsOnlyEnumValue(draft)) {
+      delete draft.title;
+      record(pointer, "title", "removed", "dropped a title that only repeats the single enum value", false);
+    }
 
     for (const key of Object.keys(draft)) {
       if (GOOGLE_SCHEMA_KEYS.has(key)) continue;

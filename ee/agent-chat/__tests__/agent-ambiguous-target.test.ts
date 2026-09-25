@@ -11,6 +11,8 @@ import {
   type AmbiguityRequest,
 } from "../agent-ambiguous-target";
 import { AGENT_MAX_TOOL_RESULT_CHARS, agentToolResultText } from "../agent-budget-policy";
+import { agentContextProviderPrefix } from "../agent-context";
+import { agentPageContextPrefix } from "../agent-page-context";
 
 const NOVA = "11111111-1111-4111-8111-111111111111";
 const NOVA_2025 = "22222222-2222-4222-8222-222222222222";
@@ -1057,6 +1059,35 @@ describe("ambiguous write targets", () => {
     ).toEqual({
       latestUserText: "mark the nova expansion deal as won.",
       previousAssistantText: "nova expansion and nova expansion 2025.",
+      attachedRecordIds: [],
     });
+  });
+
+  it("takes the records the user attached to the latest message as their choice, and only those", () => {
+    const attach = (recordId: string) => ({
+      reference: { kind: "record" as const, entityType: "deal" as const, recordId },
+      label: "Nova Expansion",
+    });
+    const prefix = `${agentPageContextPrefix("/en/deals")}${agentContextProviderPrefix([attach(NOVA.toUpperCase())])}`;
+    const attached = ambiguityRequestOf([
+      { role: "user", text: `${agentContextProviderPrefix([attach(NOVA_2025)])}Show Nova Expansion 2025.` },
+      { role: "assistant", text: "Done." },
+      { role: "user", text: `${prefix}Mark the Nova Expansion deal as Won.` },
+    ]);
+    expect(attached.attachedRecordIds).toEqual([NOVA]);
+
+    const [target] = ambiguousTargetsFromMessages(reads(novaSearch), attached);
+    expect(target?.candidates).toHaveLength(2);
+    expect(refusingTarget([target], false, { deals: [{ id: NOVA }] }, attached.attachedRecordIds)).toBeNull();
+    expect(refusingTarget([target], false, { deals: [{ id: NOVA_2025 }] }, attached.attachedRecordIds)).toBe(target);
+    expect(refusingTarget([target], false, { deals: [{ id: NOVA }] })).toBe(target);
+
+    const typed = ambiguityRequestOf([
+      {
+        role: "user",
+        text: `Mark the Nova Expansion deal as Won.\n${agentContextProviderPrefix([attach(NOVA)])}`,
+      },
+    ]);
+    expect(typed.attachedRecordIds).toEqual([]);
   });
 });

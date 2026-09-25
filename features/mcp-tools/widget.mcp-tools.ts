@@ -156,7 +156,7 @@ const ManageWidgetsSchema = z.object({
     .array(FilterSchema)
     .optional()
     .describe(
-      `create and update; on update REPLACES the deal filter array. Applied when aggregating dealValue/dealQuantity. Not allowed when entityType is deal. ${FILTER_FIELD_DESCRIPTION}`,
+      "create and update; on update REPLACES the deal filter array. Applied when aggregating dealValue/dealQuantity. Not allowed when entityType is deal. Same rule syntax as entityFilters.",
     ),
   displayType: z
     .enum(DisplayType)

@@ -155,8 +155,51 @@ describe("list_records numeric totals", () => {
     expect(listRecordsTool.outputSchema.safeParse(output.structuredContent).success).toBe(true);
     expect(output).not.toHaveProperty("structuredContent.writeTargetGuidance.instruction");
     expect(output).not.toHaveProperty("structuredContent.writeTargetGuidance.candidates");
-    expect(typeof output === "string" ? output : output.text).not.toContain("Do not change");
+    expect(output).not.toHaveProperty("structuredContent.nameMatchNote");
+    const text = typeof output === "string" ? output : output.text;
+    expect(text).not.toContain("Do not change");
+    expect(text).not.toContain("nameMatchNote");
+    expect(text).not.toMatch(/\bask\b/i);
+    expect(listRecordsTool.outputSchema.shape).not.toHaveProperty("nameMatchNote");
     expect(listRecordsTool.description).toContain("exactly equals the search term");
+  });
+
+  it("gives a name filter that matches several records the same guidance as a search", async () => {
+    spies.listDeals.mockResolvedValue({
+      ok: true,
+      data: {
+        items: [
+          { id: "d1", name: "Nova Expansion" },
+          { id: "d2", name: "Nova Expansion 2025" },
+        ],
+        pagination: { total: 2 },
+      },
+    });
+
+    const output = await listDeals({ filters: [{ field: "name", operator: "startsWith", value: "Nova Expansion" }] });
+    expect(output).toMatchObject({
+      structuredContent: {
+        writeTargetGuidance: { status: "ambiguous", reason: "multiple_search_matches", returnedCandidateCount: 2 },
+      },
+    });
+    expect(output).not.toHaveProperty("structuredContent.nameMatchNote");
+  });
+
+  it("gives no guidance to a filter on another field that matches several records", async () => {
+    spies.listDeals.mockResolvedValue({
+      ok: true,
+      data: {
+        items: [
+          { id: "d1", name: "Nova Expansion" },
+          { id: "d2", name: "Nova Expansion 2025" },
+        ],
+        pagination: { total: 2 },
+      },
+    });
+
+    const output = await listDeals({ filters: [{ field: "createdAt", operator: "inLastDays", value: 30 }] });
+    expect(output).not.toHaveProperty("structuredContent.writeTargetGuidance");
+    expect(output).not.toHaveProperty("structuredContent.nameMatchNote");
   });
 
   it("does not add write guidance to an unfiltered multi-record list", async () => {

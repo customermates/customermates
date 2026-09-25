@@ -261,12 +261,6 @@ const ListRecordsOutputSchema = z.object({
   pageSize: McpPageOutputShape.pageSize.describe(
     "The page size asked for; every page but the last holds exactly this many records, and a grouped result echoes it with items empty",
   ),
-  nameMatchNote: z
-    .string()
-    .optional()
-    .describe(
-      "Present when two or more listed names contain the searched name: ask which one was meant before writing",
-    ),
   groupedBy: z
     .string()
     .optional()
@@ -638,12 +632,11 @@ export const listRecordsTool = {
       ...(item.amount !== undefined && { amount: item.amount }),
       ...includedItemFields(entity, item, include, readable),
     }));
-    const note = nameMatchNote(nameQueryOf(searchTerm, filters), items);
     const total = result.data.pagination?.total ?? result.data.items.length;
 
     return toonResult({
       total,
-      ...(searchTerm && total > 1
+      ...(nameQueryOf(searchTerm, filters) && total > 1
         ? {
             writeTargetGuidance: {
               status: "ambiguous" as const,
@@ -657,7 +650,6 @@ export const listRecordsTool = {
         : {}),
       page,
       pageSize,
-      ...(note ? { nameMatchNote: note } : {}),
       items,
       ...(filters ? { filters } : {}),
     });

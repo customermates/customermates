@@ -205,6 +205,58 @@ describe("the Google function-declaration dialect", () => {
     });
   });
 
+  it("merges a union of string literals into one enum that admits exactly the same values", () => {
+    const declared = {
+      description: "Operator",
+      anyOf: [
+        { type: "string", const: "in", title: "in" },
+        { type: "string", const: "notIn", title: "notIn" },
+        { type: "string", enum: ["in", "between"] },
+      ],
+    };
+    const result = googleSafeJsonSchema(declared);
+
+    expect(result.schema).toEqual({ type: "string", description: "Operator", enum: ["in", "notIn", "between"] });
+    expect(result.changes.filter(({ loosened }) => loosened)).toEqual([]);
+    const before = new Ajv().compile(declared);
+    const after = new Ajv().compile(result.schema as never);
+    for (const value of ["in", "notIn", "between", "equals", "", 1, null])
+      expect(after(value), String(value)).toBe(before(value));
+  });
+
+  it("keeps a union of literals whose branches carry more than their value, or that admits null", () => {
+    expect(
+      googleSafeJsonSchema({
+        anyOf: [
+          { type: "string", const: "a", title: "Alpha" },
+          { type: "string", const: "b" },
+        ],
+      }).schema,
+    ).toEqual({
+      anyOf: [
+        { type: "string", title: "Alpha", enum: ["a"] },
+        { type: "string", enum: ["b"] },
+      ],
+    });
+    expect(
+      googleSafeJsonSchema({
+        anyOf: [{ type: "string", const: "a" }, { type: "string", const: "b" }, { type: "null" }],
+      }).schema,
+    ).toEqual({
+      anyOf: [
+        { type: "string", nullable: true, description: 'Allowed values: "a".' },
+        { type: "string", enum: ["b"] },
+      ],
+    });
+  });
+
+  it("drops a title that only repeats the single value it names", () => {
+    expect(googleSafeJsonSchema({ type: "string", title: "inLastDays", const: "inLastDays" }).schema).toEqual({
+      type: "string",
+      enum: ["inLastDays"],
+    });
+  });
+
   it("keeps the numeric type and names the values when it drops a non-string enum", () => {
     expect(googleSafeJsonSchema({ description: "Radius", type: "number", enum: [1, 5, 10] }).schema).toEqual({
       type: "number",
@@ -463,6 +515,7 @@ describe("the shipped tool catalog on the Google wire", () => {
       "$schema:removed": 53,
       "additionalProperties:removed": 60,
       "anyOf:collapsed": 47,
+      "anyOf:merged": 62,
       "const:removed": 5,
       "const:rewritten": 236,
       "enum:removed": 18,
@@ -471,6 +524,7 @@ describe("the shipped tool catalog on the Google wire", () => {
       "nullable:rewritten": 27,
       "propertyNames:removed": 2,
       "oneOf:rewritten": 19,
+      "title:removed": 207,
     });
     expect(summarizeGoogleSchemaChanges(changes.filter((change) => change.loosened))).toEqual({
       "additionalProperties:removed": 60,

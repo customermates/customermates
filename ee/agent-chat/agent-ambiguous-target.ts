@@ -1,8 +1,14 @@
 import { decode } from "@toon-format/toon";
 
+import { agentContextRecordIdsFromProviderText } from "./agent-context";
+
 export type AmbiguousTarget = { entity: string; phrase: string; candidates: { id: string; name: string }[] };
 
-export type AmbiguityRequest = { latestUserText: string; previousAssistantText: string };
+export type AmbiguityRequest = {
+  latestUserText: string;
+  previousAssistantText: string;
+  attachedRecordIds: string[];
+};
 
 const UUID = /[0-9a-fA-F]{8}-[0-9a-fA-F]{4}-[0-9a-fA-F]{4}-[0-9a-fA-F]{4}-[0-9a-fA-F]{12}/g;
 const TOON_TABLE_ROW = /^\s+([0-9a-fA-F-]{36}),(?:"((?:[^"\\]|\\.)*)"|([^\n,]*))/gm;
@@ -508,9 +514,11 @@ export function ambiguityRequestOf(history: readonly { role: string; text: strin
   const previousAssistant = history
     .slice(0, Math.max(latestIndex, 0))
     .findLast((message) => message.role === "assistant");
+  const latest = latestIndex >= 0 ? history[latestIndex].text : "";
   return {
-    latestUserText: fold(latestIndex >= 0 ? history[latestIndex].text : ""),
+    latestUserText: fold(latest),
     previousAssistantText: fold(previousAssistant?.text ?? ""),
+    attachedRecordIds: agentContextRecordIdsFromProviderText(latest),
   };
 }
 
@@ -732,18 +740,27 @@ export function ambiguousTargetsFromMessages(
   });
 }
 
-export function candidateIdsIn(target: AmbiguousTarget, input: unknown): number {
+function candidatesIn(target: AmbiguousTarget, input: unknown) {
   const ids = new Set((JSON.stringify(input ?? {}).match(UUID) ?? []).map((id) => id.toLowerCase()));
-  return target.candidates.filter((candidate) => ids.has(candidate.id.toLowerCase())).length;
+  return target.candidates.filter((candidate) => ids.has(candidate.id.toLowerCase()));
+}
+
+export function candidateIdsIn(target: AmbiguousTarget, input: unknown): number {
+  return candidatesIn(target, input).length;
 }
 
 export function refusingTarget(
   targets: Iterable<AmbiguousTarget>,
   readOnly: boolean,
   input: unknown,
+  attachedRecordIds: readonly string[] = [],
 ): AmbiguousTarget | null {
   if (readOnly) return null;
-  for (const target of targets) if (candidateIdsIn(target, input) === 1) return target;
+  const attached = new Set(attachedRecordIds.map((id) => id.toLowerCase()));
+  for (const target of targets) {
+    const named = candidatesIn(target, input);
+    if (named.length === 1 && !attached.has(named[0].id.toLowerCase())) return target;
+  }
   return null;
 }
 

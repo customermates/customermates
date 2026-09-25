@@ -831,7 +831,7 @@ export async function runAgentTurn(payload: AgentTurnWorkflowPayload): Promise<v
     const armedTargets = new Map<string, AmbiguousTarget>();
     const ambiguityRequest = ambiguityRequestOf(payload.messages);
     const refusedByTarget = (readOnly: boolean, input: unknown) =>
-      refusingTarget(armedTargets.values(), readOnly, input);
+      refusingTarget(armedTargets.values(), readOnly, input, ambiguityRequest.attachedRecordIds);
     let providerFailure: WorkflowFailure | null = null;
     let budgetStop = false;
     let hostedAiStop = false;
