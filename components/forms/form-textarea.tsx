@@ -35,7 +35,7 @@ export const FormTextarea = observer(
     return (
       <div className={cn("space-y-1.5", containerClassName)}>
         {resolvedLabel && (
-          <FormLabel htmlFor={domId}>
+          <FormLabel fieldId={id} htmlFor={domId}>
             {resolvedLabel}
 
             {required ? <span className="text-destructive"> *</span> : null}

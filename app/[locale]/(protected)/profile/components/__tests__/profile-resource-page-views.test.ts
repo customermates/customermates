@@ -1,7 +1,8 @@
-import type { ReactElement } from "react";
+import type { ComponentProps, KeyboardEvent, ReactElement } from "react";
 import type { PageStateProps } from "@/components/page-state/page-state";
 import type { ConnectedAccountDto } from "@/ee/messaging/messaging.schema";
 import type { ApiKey } from "@/features/api-key/get-api-keys.interactor";
+import type * as CardModule from "@/components/ui/card";
 
 import { createElement } from "react";
 import { renderToStaticMarkup } from "react-dom/server";
@@ -12,6 +13,7 @@ import { defaultEmailSettings } from "@/ee/messaging/email-settings";
 const harness = vi.hoisted(() => ({
   addApiKey: vi.fn(),
   canConnect: true,
+  cardProps: vi.fn(),
   connectAccount: vi.fn(),
   getRootStore: vi.fn(),
   openAccount: vi.fn(),
@@ -46,6 +48,19 @@ vi.mock("@/ee/messaging/provider-icon", () => ({
 vi.mock("@/components/shared/avatar-stack", () => ({
   AvatarStack: () => createElement("div", { "data-avatar-stack": true }),
 }));
+
+vi.mock("@/components/ui/card", async (importOriginal) => {
+  const React = await import("react");
+  const actual = await importOriginal<typeof CardModule>();
+
+  return {
+    ...actual,
+    Card: (props: ComponentProps<typeof actual.Card>) => {
+      harness.cardProps(props);
+      return React.createElement(actual.Card, props);
+    },
+  };
+});
 
 vi.mock("../account-status-color", () => ({
   accountStatusChipColor: () => "success",
@@ -164,6 +179,22 @@ function renderConnected(
   );
 }
 
+function openableCard() {
+  const props = harness.cardProps.mock.calls
+    .map(([cardProps]) => cardProps as ComponentProps<"div">)
+    .find((cardProps) => typeof cardProps.onClick === "function");
+  if (!props?.onKeyDown) throw new Error("Expected a card that opens its dialog from the keyboard");
+
+  return props.onKeyDown;
+}
+
+function pressKey(onKeyDown: (event: KeyboardEvent<HTMLDivElement>) => void, key: string) {
+  const preventDefault = vi.fn();
+  onKeyDown({ key, preventDefault } as unknown as KeyboardEvent<HTMLDivElement>);
+
+  return preventDefault;
+}
+
 function latestTopBar() {
   return harness.setTopBarActions.mock.lastCall?.[0] as ReactElement;
 }
@@ -252,5 +283,25 @@ describe("profile resource page views", () => {
     expect(content).toContain("animate-page-result-in");
     expect(content).not.toContain("data-page-state");
     expect(renderToStaticMarkup(latestTopBar())).toContain('id="profile-connected-accounts-connect"');
+  });
+
+  it.each([
+    ["a channel", () => renderConnected("ready", { withItem: true }), () => harness.openAccount, "Inbox"],
+    ["an API key", () => renderApiKeys("ready", { withItem: true }), () => harness.viewApiKey, "Integration"],
+  ] as const)("opens %s card from the keyboard like a button", (_label, render, opener, name) => {
+    const html = render();
+    const card = html.match(/<div[^>]*data-slot="card"[^>]*>/)?.[0] ?? "";
+
+    expect(card).toContain('role="button"');
+    expect(card).toContain('tabindex="0"');
+
+    const onKeyDown = openableCard();
+    expect(pressKey(onKeyDown, "Tab")).not.toHaveBeenCalled();
+    expect(opener()).not.toHaveBeenCalled();
+
+    for (const key of ["Enter", " "]) expect(pressKey(onKeyDown, key)).toHaveBeenCalledOnce();
+
+    expect(opener()).toHaveBeenCalledTimes(2);
+    expect(opener().mock.calls.map(([item]) => item.name ?? item.displayName)).toEqual([name, name]);
   });
 });

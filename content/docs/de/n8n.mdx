@@ -20,29 +20,54 @@ Wenn eine KI das CRM im Gespräch steuern soll, nutzen Sie stattdessen oder zus�
 Kopieren Sie die generierte URL.
 </Step>
 <Step title="In Customermates abonnieren">
-Gehen Sie zu **Unternehmen → Webhooks → Neu**, fügen Sie die URL ein und wählen Sie die gewünschten Events.
+Öffnen Sie **Mein Unternehmen → Webhooks** und klicken Sie auf **Hinzufügen**. Fügen Sie die n8n-URL unter **URL** ein, wählen Sie die gewünschten **Ereignisse** und klicken Sie auf **Speichern**. Zum Anlegen eines Webhooks braucht Ihre Rolle **Verwalten** **Ja** in der Zeile **API & Webhooks**, und die Seite selbst braucht **Lesen** **Alle** in dieser Zeile, wie bei API-Keys; die Rolle **Admin** hat beides.
 </Step>
 <Step title="Payload verarbeiten">
 Ergänzen Sie nach dem Webhook-Node Schritte zum Transformieren und Weiterleiten.
 </Step>
 </Steps>
 
-Die Payload-Struktur ist unter [Webhooks](/docs/webhooks) dokumentiert. Typische nächste Schritte:
+Die Payload-Struktur ist unter [Webhooks](/docs/webhooks) dokumentiert. Um zu prüfen, dass eine Delivery wirklich von Customermates kommt, setzen Sie am Webhook ein **Secret** und prüfen die Signatur in n8n; siehe [Wie prüfe ich die Signatur?](/docs/webhooks#how-do-i-verify-the-signature). Typische nächste Schritte:
 
 - **Slack**: eine Nachricht in einen Channel posten, wenn ein Deal erstellt wird.
 - **Google Sheets**: bei jedem neu erstellten Kontakt eine Zeile anhängen.
 - **HubSpot**: den Kontakt spiegeln.
 
-## Wie schreibe ich aus n8n nach Customermates?
+**Link:** die Seite **Webhooks**, `/company/webhooks`. **Mate:** `navigate` und `highlight_element` mit `nav-company-webhooks`, und `highlight_element` mit `company-webhooks-add` für **Hinzufügen** (Rollen mit **Verwalten** bei **API & Webhooks**); ist der Dialog **Webhook** geöffnet (Voraussetzung `company-webhooks-add`), heben `webhook-modal-url`, `webhook-modal-events` und `webhook-modal-secret` **URL**, **Ereignisse** und **Secret** hervor, und `webhook-modal-save` hebt **Speichern** hervor.
 
-Nutzen Sie den **HTTP Request**-Node:
+## Wie lege ich aus n8n Datensätze an, lese, ändere oder lösche sie? [#how-do-i-write-to-customermates-from-n8n]
 
-- Methode: `POST` zum Erstellen, `PUT` zum Aktualisieren eines Datensatzes unter `/api/v1/<endpoint>/{id}` (oder mehrerer unter `/api/v1/<endpoint>/many`), `DELETE` zum Entfernen. Ein `PATCH` gibt es nicht.
-- URL: `https://customermates.com/api/v1/<endpoint>`, wobei `<endpoint>` für `contacts`, `organizations`, `deals`, `services` oder `tasks` steht.
-- Header: `x-api-key` auf Ihren API-Key gesetzt, als n8n-Credential gespeichert.
-- Body: JSON gemäß der [OpenAPI-Spec](/docs/openapi).
+Nutzen Sie den **HTTP Request**-Node mit dem Header `x-api-key` aus einem n8n-Credential und einem JSON-Body gemäß der [OpenAPI-Spec](/docs/openapi). `<endpoint>` steht für `contacts`, `organizations`, `deals`, `services` oder `tasks`:
 
-Um stattdessen MCP-Tool-Calls aus n8n abzusetzen, senden Sie eine Anfrage an `/api/v1/mcp` mit `method: "tools/call"`. Die MCP-Tools tragen zusätzliche Guardrails: Relationship-Arrays werden bei Updates gar nicht akzeptiert, Verknüpfungen ändern sich also nur über `manage_record_links`.
+| Ziel | Methode und Pfad |
+|---|---|
+| Einen Datensatz anlegen | `POST /api/v1/<endpoint>` |
+| Bis zu 100 Datensätze anlegen | `POST /api/v1/<endpoint>/many` |
+| Einen Datensatz lesen | `GET /api/v1/<endpoint>/{id}` |
+| Suchen, filtern und blättern | `POST /api/v1/<endpoint>/search` mit `searchTerm`, `filters`, `sortDescriptor` und `pagination` (`page`, `pageSize` von 5, 10, 25 oder 100) |
+| Einen Datensatz aktualisieren | `PUT /api/v1/<endpoint>/{id}` |
+| Bis zu 100 Datensätze aktualisieren | `PUT /api/v1/<endpoint>/many` |
+| Einen Datensatz löschen | `DELETE /api/v1/<endpoint>/{id}` |
+| Bis zu 100 Datensätze löschen | `DELETE /api/v1/<endpoint>/many` mit `ids` |
+| Spalten, Optionen, filterbare und sortierbare Felder sehen | `GET /api/v1/<endpoint>/configuration` |
+
+Die Basis-URL, unten `<BASE_URL>`, ist die Adresse, unter der Sie Customermates öffnen, in der Cloud wie bei Self-Hosting. Ein `PATCH` gibt es nicht. Filter folgen der [Filter-Syntax](/docs/filter-syntax).
+
+## Wie rufe ich MCP-Tools aus n8n auf? [#how-do-i-call-mcp-tools-from-n8n]
+
+Für die meisten n8n-Jobs sind die REST-Endpunkte oben einfacher. Um stattdessen ein MCP-Tool aufzurufen, senden Sie `POST <BASE_URL>/api/v1/mcp` mit diesen Headern:
+
+- `Content-Type: application/json`
+- `Accept: application/json, text/event-stream` (ohne ihn antwortet der Endpoint mit `406 Not Acceptable`)
+- `x-api-key` mit Ihrem API-Key
+
+Der Body ist ein JSON-RPC-2.0-Aufruf:
+
+```json
+{"jsonrpc":"2.0","id":1,"method":"tools/call","params":{"name":"list_records","arguments":{"entity":"deal"}}}
+```
+
+Die Antwort kommt als Server-Sent Event: Das JSON-RPC-Ergebnis steht in der Zeile, die mit `data:` beginnt. Lesen Sie die Antwort deshalb als Text und parsen Sie diese Zeile, etwa in einem Code-Node. Ein abgelehnter Aufruf antwortet trotzdem, mit `result.isError: true`. Eine Ablehnung, die das Tool entscheidet, trägt ein kind in `_meta.failure`; Argumente, die nicht zum Input-Schema des Tools passen, werden abgewiesen, bevor das Tool läuft, mit einem Text, der mit `MCP error -32602:` beginnt, und ohne `_meta.failure`. Siehe [Wenn ein Aufruf abgelehnt wird](/docs/mcp#when-a-call-is-refused). Die MCP-Tools tragen zusätzliche Guardrails: Relations-ID-Felder werden bei Updates nicht akzeptiert (außer `services` in `update_deals`, das die Service-Liste des Deals ersetzt), andere Verknüpfungen ändern sich also nur über `manage_record_links`.
 
 ## Wie führe ich geplante Jobs aus?
 
@@ -50,18 +75,20 @@ Der Cron-Trigger von n8n plus die Customermates-REST-API deckt wiederkehrende Ar
 
 - Täglich: Kontakte ohne Organisation finden und eine Erinnerung posten.
 - Wöchentlich: Datensätze, die auf einen Filter passen, in ein Google Sheet exportieren.
-- Monatlich: Datensätze archivieren, deren Custom-Status-Spalte einen bestimmten Wert hält.
+- Monatlich: bei Datensätzen, deren Custom-Status-Spalte einen bestimmten Wert hält, einen Statuswert setzen oder sie löschen. Ein Archiv für Datensätze gibt es nicht.
 
-Lebenszyklus-Werte von Deals und Aufgaben wie Status oder Priorität sind pro Workspace konfigurierbare singleSelect-Custom-Columns, keine festen Felder. Rufen Sie `get_record_schema` auf oder lesen Sie die OpenAPI-Spec, um zu sehen, welche Spalten und Optionen in Ihrem Workspace existieren, bevor Sie danach filtern. Für wiederkehrende Arbeit, die Urteilsvermögen braucht, führt eine [Routine](/docs/app-routines) den Assistenten nach Zeitplan innerhalb von Customermates aus.
+Lebenszyklus-Werte von Deals und Aufgaben wie Status oder Priorität sind pro Workspace konfigurierbare singleSelect-Custom-Columns, keine festen Felder. `GET /api/v1/<endpoint>/configuration` (oder `get_record_schema` über MCP) zeigt, welche Spalten und Optionen in Ihrem Workspace existieren; lesen Sie das, bevor Sie danach filtern. Für wiederkehrende Arbeit, die Urteilsvermögen braucht, führt eine [Routine](/docs/app-routines) den Assistenten nach Zeitplan innerhalb von Customermates aus.
 
 ## Wie funktioniert die Authentifizierung?
 
-Speichern Sie den API-Key als n8n-**Header Auth**-Credential mit dem Header-Namen `x-api-key`. Verwenden Sie ihn über Nodes hinweg wieder, damit Sie ihn an einer Stelle ersetzen. Keys sind 64 Zeichen lange Base62-Strings und erben die Berechtigungen des besitzenden Users; ein Scoping pro Key gibt es nicht. Siehe [API-Keys](/docs/api-keys).
+Legen Sie den Key in Customermates unter **Mein Profil → API & Konnektoren** mit **Hinzufügen** und **Standard-API-Key** an; dafür braucht Ihre Rolle **Verwalten** **Ja** in der Zeile **API & Webhooks**, und die Seite selbst braucht **Lesen** **Alle** in dieser Zeile. Speichern Sie den API-Key als n8n-**Header Auth**-Credential mit dem Header-Namen `x-api-key`. Verwenden Sie ihn über Nodes hinweg wieder, damit Sie ihn an einer Stelle ersetzen. Keys bestehen aus 64 ASCII-Buchstaben (`a-z`, `A-Z`) und erben die Berechtigungen des besitzenden Users; ein Scoping pro Key gibt es nicht. Ein falscher, abgelaufener oder gelöschter Key erhält HTTP `401`, ein Key, dessen Besitzer auf **Inaktiv** steht, `403`. Siehe [API-Keys](/docs/api-keys).
+
+**Link:** die Seite **API & Konnektoren**, `/profile/api-keys`. **Mate:** `navigate` und `highlight_element` mit `nav-profile-api-keys`; `highlight_element` nimmt außerdem `profile-api-keys-generate` für **Hinzufügen** an (Rollen mit **Verwalten** auf **API & Webhooks**), danach `api-key-option-standard` für **Standard-API-Key** (Voraussetzung `profile-api-keys-generate`) sowie `api-key-name`, `api-key-expires` und `api-key-save` für **Name**, **Läuft ab** und **Speichern** (Voraussetzung `api-key-option-standard`). Die Kacheln der **Schnellverbindungen** sind keine Highlight-Ziele, deshalb nennt Mate sie beim Namen.
 
 ## Was sind typische Fallstricke?
 
 - **Relationship-Arrays über REST**: `null` oder `[]` für ein Relationship-Array wie `organizationIds` löscht jede Verknüpfung dieser Art; lassen Sie das Feld weg, um Verknüpfungen unangetastet zu lassen. Über MCP nutzen Sie `manage_record_links`, um einzelne Verknüpfungen hinzuzufügen oder zu entfernen.
-- **Rate-Limits**: Hochfrequente Loops können in API-Limits laufen. Batchen Sie, wo möglich.
+- **Batch-Größe**: Customermates setzt kein Request-Rate-Limit für API-Keys, aber die `/many`-Endpunkte nehmen höchstens 100 Datensätze pro Anfrage, also teilen Sie größere Jobs auf. Verbundene Messaging-Kanäle haben Lese- und Sendelimits pro Anbieter; siehe [Messaging-Rate-Limits](/docs/messaging-rate-limits).
 - **Webhook-Reihenfolge**: Deliveries sind nicht strikt geordnet. Behandeln Sie sie als idempotente Nachrichten mit Schlüssel `entityId` und nutzen Sie den `timestamp` der Payload, um sie zu ordnen.
 
 ## Weiter

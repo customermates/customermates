@@ -9,15 +9,19 @@ Customermates has five record types: Contacts, Organizations, Deals, Services, a
 
 Every record type has the same three surfaces:
 
-- **List** at `/{type}` (for example `/contacts`), locale-prefixed like `https://customermates.com/en/contacts`. Search, filter, sort, saved views, and bulk actions live here.
-- **Add drawer**: the **Add** button opens a form over the list; the deep link is `?open={entityType}:new` (for example `/contacts?open=contact:new`). The drawer is for adding only; existing records open on their detail page.
-- **Detail page** at `/{type}/{id}` (for example `/contacts/42`) for the full record, custom fields, relations, and delete. It opens with an overview of the fields that matter most; every field carries a pin control (no stable id) that adds it to or removes it from that overview. Pinning is per person, so two colleagues can read the same record through different summaries.
+- **List** at `/{type}` (for example `/contacts`), locale-prefixed like `/en/contacts`. Search, filter, sort, saved views, and bulk actions live here.
+- **Add drawer**: the **Add** button opens a form over the list; the deep link is `?open={entityType}:new` (for example `/contacts?open=contact:new`) and works on any app page. The drawer is for adding only; existing records open on their detail page. The sidebar **Add** button (`#nav-add`) opens **Create new…**, which lists the record types your role can manage and opens the same drawer from any page.
+- **Detail page** at `/{type}/{id}` (for example `/contacts/<id>`, where the id is the record's UUID) for the full record, custom fields, relations, and delete. It opens with an overview of the fields that matter most; every field carries a pin control (no stable id) that adds it to or removes it from that overview. **Customize** in the topbar also lets you hide fields or drag them into another order, and **Done** ends it. These choices are per person, so two colleagues can read the same record through different summaries.
 
-Rows never carry a DOM id. Open a record by its detail URL, never by clicking a row you located by id.
+A record page has the panels **Overview**, **Notes** and **Activities**, side by side on wide screens and as tabs on narrow ones. Edit **Notes** in its panel and press **Save**; in the add drawer, notes are a field above **Save**. **Activities** (headed **History**) lists the record's changes and linked messages, with a filter and **Load older**, and only roles with **Audit Log** read access **All** see it. Over MCP, `update_record_notes` appends to or replaces the notes and `get_activities` reads the history.
+
+Rows never carry a DOM id. Open a record by its detail URL, never by clicking a row you located by id. A workspace can rename the record types under **Data model** ([company settings](/docs/app-company#how-do-i-rename-record-types-in-the-data-model)); routes, ids and `entityType` values stay the same.
+
+**Link:** the **Contacts** page, `/contacts` (likewise `/organizations`, `/deals`, `/services`, `/tasks`). **Mate:** `navigate` and `highlight_element` with `nav-contacts` (or `nav-{type}`), `navigate` with an entity and a recordId for a record page, and `highlight_element` with `contacts-add` (or `{type}-add`) for **Add**; the sidebar **Add**, the drawer, the panels and the pin controls are not highlight targets, so Mate names them.
 
 ## Which ids does each list have?
 
-Each record type has its own route and its own toolbar ids, prefixed with the type. The toolbar controls behave the same everywhere: **Add** opens the create drawer, **Search** live-filters the list, **Filter** opens the filter palette ([filter syntax](/docs/filter-syntax)), **Display options** controls columns, sorting, and layout, and the transfer menu exports the list to a spreadsheet or imports records from one.
+Each record type has its own route and its own toolbar ids, prefixed with the type. The toolbar controls behave the same everywhere: **Add** opens the create drawer, **Search** live-filters the list, **Filters** opens the filter palette ([filter syntax](/docs/filter-syntax)), **Appearance** controls layout, grouping, sorting and columns, and the transfer menu exports the list to a spreadsheet or imports records from one.
 
 | Record type | Route | entityType | Sidebar | Toolbar ids |
 |---|---|---|---|---|
@@ -27,28 +31,40 @@ Each record type has its own route and its own toolbar ids, prefixed with the ty
 | Services | `/services` | `service` | `#nav-services` | `#services-add`, `#services-search`, `#services-filter`, `#services-display-options`, `#services-transfer` |
 | Tasks | `/tasks` | `task` | `#nav-tasks` | `#tasks-add`, `#tasks-search`, `#tasks-filter`, `#tasks-display-options`, `#tasks-transfer` |
 
-Inside each display-options popover, the layout controls are `#{type}-layout-table` and `#{type}-layout-board`, for example `#contacts-layout-table`, `#contacts-layout-board`, `#organizations-layout-table`, `#organizations-layout-board`, `#deals-layout-table`, `#deals-layout-board`, `#services-layout-table`, `#services-layout-board`, `#tasks-layout-table`, `#tasks-layout-board`. Every id in this section is a target the hosted assistant can navigate to or highlight.
+Inside each **Appearance** popover, the layout controls are `#{type}-layout-table` and `#{type}-layout-board`: `#contacts-layout-table`, `#contacts-layout-board`, `#organizations-layout-table`, `#organizations-layout-board`, `#deals-layout-table`, `#deals-layout-board`, `#services-layout-table`, `#services-layout-board`, `#tasks-layout-table`, `#tasks-layout-board`. Every id in this section is a target the hosted assistant can navigate to or highlight, the layout ids only while **Appearance** is open.
+
+Who sees which control depends on the role's row for that record type ([roles](/docs/app-company#how-does-the-role-editor-work)): **Read access** **Assigned** or **All** shows the sidebar entry, the list, search and **Export**, where **Assigned** limits them to records you are assigned to, and **Manage** **Yes** adds **Add**, **Add from file**, bulk **Update** and **Delete selected**, and **Save** and **Delete** on the record page.
+
+**Link:** the **Contacts** page, `/contacts` (likewise `/organizations`, `/deals`, `/services`, `/tasks`). **Mate:** `navigate` and `highlight_element` with `nav-contacts` (or `nav-{type}`); `{type}-add`, `{type}-search`, `{type}-filter`, `{type}-display-options` and `{type}-transfer` are highlight targets, and `{type}-layout-table` and `{type}-layout-board` once **Appearance** is open; the saved-view tabs, the selection bar, **Update** and **Delete selected** are not, so Mate names them.
 
 ## How do I import or export records?
 
-The transfer menu (`#{type}-transfer`, for example `#contacts-transfer`) on every list is labelled **Import and export**. **Export** writes the current list to an Excel workbook with the visible columns, the current filters, search and sort applied, or only the selected rows when some are checked; the first 50,000 records are included. **Add from file** opens a wizard that reads an Excel workbook (`.xlsx`, up to 10 MB and 10,000 rows), lets you match spreadsheet columns to fields, custom fields and channels, checks every row, and then adds the records in batches. A column mapped to **Record ID** updates existing records instead of adding new ones. CSV files are not accepted: save them as `.xlsx` first. Over MCP, the equivalent of an import is one `create_contacts`, `create_organizations`, `create_deals`, `create_services`, or `create_tasks` call with up to 100 records.
+The transfer menu (`#{type}-transfer`, for example `#contacts-transfer`) on every list is labelled **Import and export**. **Export** writes the current list to an Excel workbook with the visible columns, the current filters, search and sort applied, or only the selected rows when some are checked; the first 50,000 records are included.
 
-## How do saved views work?
+**Add from file** opens a wizard that reads an Excel workbook (`.xlsx`, up to 10 MB and 10,000 rows), lets you match spreadsheet columns to fields, custom fields and channels, checks every row, and then adds the records in batches. A column mapped to **Record ID** updates existing records instead of adding new ones. CSV files are not accepted: save them as `.xlsx` first. Over MCP, the equivalent of an import is one `create_contacts`, `create_organizations`, `create_deals`, `create_services`, or `create_tasks` call with up to 100 records.
 
-The saved-view tabs sit directly under the header on every list surface, and they carry the same ids everywhere, so these ids have no record-type prefix. A view is personal to the user who created it and remembers the whole list: filters, search, sort, page size, layout, grouping, column order, column widths and hidden columns. Every change is saved into the active view as you make it; on the All tab it is saved as your personal state for that list. There is nothing to reset or save by hand. Views are personal: to share one, copy its link from the menu and send it, or ask a teammate to duplicate it.
+The wizard reads the first sheet not named "Schema", and a workbook may hold at most 12 sheets. New contacts need a first and a last name, new services a name and a price (**Amount**), the other types a name. Link columns are matched by record name, ignoring case, and a name that matches no record or several is flagged; channels are added to new contacts only. Rows with problems can be skipped ("Import the rest and skip N rows"), and a workbook you exported can be edited and read back in, where its **Record ID** column updates those records. **Export** needs **Read access** on the record type, **Add from file** needs **Manage**.
+
+**Link:** the list page of each type, for example the **Contacts** page, `/contacts`. **Mate:** `navigate` and `highlight_element` with `contacts-transfer` (or `{type}-transfer`); **Export**, **Add from file** and the wizard steps are not highlight targets, so Mate names them.
+
+## How do saved views work, and can I share one with my team? [#how-do-saved-views-work]
+
+The saved-view tabs sit directly under the header on every list surface, and they carry the same ids everywhere, so these ids have no record-type prefix. A view is personal to the user who created it and remembers the whole list: filters, search, sort, page size, layout, grouping, column order, column widths and hidden columns. Every change is saved into the active view as you make it; on the All tab it is saved as your personal state for that list. There is nothing to reset or save by hand. Views are personal and cannot be shared: **Copy link** opens the view only for you, and a teammate who opens that link sees their own **All** tab. To show a teammate the same list, send the address from your browser bar: it carries filters, search, sort, page, layout and grouping, but not column order, widths or hidden columns, and the teammate can save it as their own view with **New view**. Rename or remove a view with **Edit view** or **Delete view** in the **View actions** menu.
 
 - `#global-data-views` is the tab bar itself, a navigation landmark.
 - `#global-data-views-all` is the built-in All tab, which clears the active view.
-- `#global-data-views-new` opens the create-view overlay.
+- `#global-data-views-new` (**New view**) asks for a **Name** and saves the current list as a new view.
 - `#global-data-views-menu` opens the action menu for the active tab: edit, duplicate, move, copy link and delete on a saved view, and duplicate plus copy link on the All tab.
-- `#global-data-views-ai` is **Ask AI** inside the right-hand view-actions menu. Clicking a view selects it and opens this same menu. Ask AI opens chat with the exact view attached as a removable context chip and editable starter text; it does not send a message.
+- `#global-data-views-ai` is **Ask AI**, the first item of the **View actions** menu on a saved view and on the All tab, shown while the assistant is available. It opens chat with the exact view attached as a removable context chip and editable starter text; it does not send a message.
 - **Ask AI** is also available while editing a view and at the top right of the Filters and Appearance headers, including nested filter pages. Pending filter changes are applied before chat opens. Asking from the edit dialog does not save an unfinished rename. The selected view id, surface, and requested create or update action stay attached independently of the translated starter text.
 - `#view-editor-ai` offers **Create with AI** inside **New view** and carries its optional name in the canonical create context, chip label, and starter text. Opening chat creates no view and sends no message.
-- On list pages, the chat composer’s **Add** menu can attach the current view or the **New view** action again later. On record detail pages it offers the current record instead; its search can attach another contact, organization, deal, service, or task. The activity timeline Ask AI action attaches both the record and its timeline target directly, so a linked deal cannot change a Contacts or activity-view target.
+- On list pages, the chat composer's **Add context** menu (the + button) can attach the current view or the **New view** action again later, plus the record of an open drawer. On record detail pages it offers the current record instead. On any page, its search can attach another contact, organization, deal, service, or task. The activity timeline Ask AI action attaches both the record and its timeline target directly, so a linked deal cannot change a Contacts or activity-view target.
 
 A view is addressed by the `view` query parameter, for example `/deals?view=<id>`; without it, the page uses your remembered selection. Use `view=__all__` to open All explicitly. The tabs themselves carry no ids, so switch views by URL rather than by clicking a tab you located by id.
 
-Describe the records you want to see, for example “Create a view of my open deals, sorted by value.” The assistant uses `manage_data_views` to discover the page’s supported settings, then saves filters, search, sorting, grouping, page size and layout. It preserves settings you did not ask to change. New views are selected automatically; changes appear after the chat turn finishes. Views remain personal, and deleting one requires confirmation in the built-in chat. Column visibility, widths and order stay available in Appearance. External AI clients connected through MCP can use the same tool with the connected user’s permissions.
+Describe the records you want to see, for example "Create a view of my open deals, sorted by value." The assistant uses `manage_data_views` to discover the page's supported settings, then saves filters, search, sorting, grouping, page size and layout. It preserves settings you did not ask to change. New views are selected automatically, and the page reloads to show a change after the chat turn finishes, unless you are typing, a message is queued, a tour or highlight is showing, or unsaved edits would be lost. Views remain personal, and deleting one requires confirmation in the built-in chat. Column visibility, widths and order stay available in Appearance. External AI clients connected through MCP can use the same tool with the connected user's permissions.
+
+**Link:** any list page, for example the **Deals** page, `/deals`; a saved view opens at `/deals?view=<id>` only for the person who created it. **Mate:** `navigate` and `highlight_element` with `nav-deals` (or `nav-{type}`); the view tabs, **New view**, **View actions** and the **Ask AI** buttons are not highlight targets, so Mate names them.
 
 ## Which ids do the drawer and the detail page have?
 
@@ -57,26 +73,48 @@ These ids are shared by every record type. They are DOM ids for external browser
 | Action | Where | Anchor id | What happens |
 |---|---|---|---|
 | Save (drawer) | Drawer footer | `#drawer-save` | Persists the new record |
-| Save / Reset (detail) | Detail topbar | `#entity-save` / `#entity-reset` | Persists or discards edits |
-| Edit custom fields | Detail topbar | `#entity-edit-fields` | Toggles editing of the custom fields, not the built-in ones |
-| Add custom field | Custom fields section, while editing fields or when the section is empty | `#entity-add-custom-field` | Creates a custom column |
-| Delete | Detail topbar | `#entity-delete` | Opens the confirmation modal |
+| Save / Reset (detail) | Detail topbar, with **Manage** | `#entity-save` / `#entity-reset` | Persists or discards edits; **Reset** shows only while there are unsaved changes |
+| **Customize** / **Done** | Detail topbar | none; `[data-entity-customize]` | Hides fields or drags them into another order and, with **Manage**, edits the custom fields |
+| **Add Field** | Below the fields, with **Manage**, while customizing or when the type has no custom fields yet | `#entity-add-custom-field` | Opens the dialog that creates a custom column for this record type |
+| Delete | Detail topbar, with **Manage**, hidden while customizing | `#entity-delete` | Opens the confirmation modal; system tasks have none |
 | Confirm / cancel delete | Confirmation modal | `#confirm-delete` / `#confirm-delete-cancel` | Irreversible delete or abort |
-| Bulk delete | Selection bar after checkbox-select | `#mass-delete` | Deletes every selected row |
+| **Delete selected** | Selection bar after checkbox-select | `#mass-delete` | Opens the delete confirmation, then deletes every selected record |
 
-Notes are a labeled field inside the form. Edit them there, then save.
+`#entity-edit-fields` (**Edit Field**) belongs to detail pages without **Customize**; none of the five record types has one, so use **Customize** instead.
+
+**Link:** a record page, `/contacts/<id>` (likewise `/organizations/<id>`, `/deals/<id>`, `/services/<id>`, `/tasks/<id>`). **Mate:** `navigate` with the entity and its recordId; the topbar buttons, the drawer, the selection bar, **Update** and **Delete selected** are not highlight targets, so Mate names them.
+
+### How do I bulk update or delete many records at once? [#how-do-i-bulk-update-or-delete-many-records-at-once]
+
+Ticking rows opens the selection bar, which counts the selected records and those not in the current view, and after a filter change offers **Keep only rows in view**. Besides **Delete selected** it has **Update**, which sets or clears one custom field on all selected records (**Apply to selected**, **Clear field**); built-in fields cannot be bulk edited. You can select up to 100 records at a time, and both actions need **Manage** on that record type.
+
+**Link:** a list page, `/contacts` (likewise `/organizations`, `/deals`, `/services`, `/tasks`). **Mate:** `navigate` and `highlight_element` with `nav-contacts` or the matching `nav-<type>`; the row checkboxes, the selection bar, **Update** and **Delete selected** (`#mass-delete`) are not highlight targets, so Mate names them.
 
 ## What is special about each record type?
 
-**Contacts** are people, with channel identifiers (email address, phone, LinkedIn, WhatsApp, Instagram, Telegram) that connect them to Inbox threads and power the send icons on their detail page. **Organizations** group contacts and carry the company-level relations that deals and services hang off. **Deals** track opportunities and carry linked services with per-deal quantities; the deal's total value and quantity follow from them, and a weighted value follows from the stage column when the workspace defines one (see [core concepts](/docs/concepts#how-does-a-weighted-pipeline-work)). **Services** are what you sell, linkable to deals and organizations. **Tasks** are to-dos that link to any of the other types and to assignees. Tasks have no built-in due date: add a Date custom column called "Due date" and filter or sort on it.
+**Contacts** are people, with channel identifiers (email address, WhatsApp phone number, LinkedIn, Instagram, Telegram) that connect them to Inbox threads and power the send icons on their detail page; a plain phone number belongs in a Phone custom column. Contacts link to organizations, deals, tasks and assigned users.
+
+**Organizations** group contacts and link to deals, tasks and assigned users. **Deals** track opportunities, link to contacts, organizations, tasks and assigned users, and carry linked services with per-deal quantities; the deal's total value and quantity follow from them, and a weighted value follows from the stage column when the workspace defines one (see [core concepts](/docs/concepts#how-does-a-weighted-pipeline-work)).
+
+**Services** are what you sell: each has a price (**Amount**) and links to deals (with a quantity per deal), tasks and assigned users. A service cannot link to an organization or a contact; link the organization to the deal instead.
+
+**Tasks** are to-dos that link to any of the other types and to assignees. Tasks have no built-in due date: add a Date custom column called "Due date" and filter or sort on it. When someone registers through your workspace's invitation link, the system task **Approve User** appears until an admin approves them or sets them **Inactive** in **Members**. It cannot be renamed or deleted, over MCP its name reads "User Pending Authorization" with their email address, and the sidebar shows the number of such tasks next to **Tasks**.
 
 All five share the same machinery: the same list views, the same drawer and detail page, the same custom columns, the same filters, and the same relation editing. Anything this page says about one type holds for the others.
 
+**Link:** the **Contacts**, **Organizations**, **Deals**, **Services** and **Tasks** pages, `/contacts`, `/organizations`, `/deals`, `/services`, `/tasks`. **Mate:** `navigate` and `highlight_element` with `nav-contacts`, `nav-organizations`, `nav-deals`, `nav-services` or `nav-tasks`; the relation fields on a record page are not highlight targets, so Mate names them.
+
 ## How do I switch between table and board view?
 
-Every list offers a table and a board. `#{type}-display-options` opens the switcher, which shows one labelled card per layout with a small preview of it; the board groups records by a field, and the group-by picker lists every groupable field: `singleSelect` custom columns, linked records, assigned users, and created or updated dates. A board with no grouping yet asks you to pick one and offers to create a `singleSelect` field on the spot. Sorting, search, and filters live in the same toolbar (`#{type}-search`, `#{type}-filter`). View choices persist per user and survive reloads. When you ask for guidance, the hosted assistant can highlight search, filter, display options, and the table or board targets, and you open and change those controls yourself. **Ask AI** in the view, Filters, or Appearance can instead apply supported saved-view settings through chat.
+Every list offers a table and a board. `#{type}-display-options` opens the switcher, which shows one labelled card per layout with a small preview of it; the board groups records by a field, and the group-by picker lists every groupable field: `singleSelect` custom columns, linked records, assigned users, and created or updated dates. A board with no grouping yet asks you to pick one and offers to create a `singleSelect` field on the spot. Sorting, search, and filters live in the same toolbar (`#{type}-search`, `#{type}-filter`). View choices persist per user and survive reloads. When you ask for guidance, the hosted assistant can highlight search, filter, display options, and the table or board targets, and you open and change those controls yourself. **Ask AI** in **View actions**, Filters, or Appearance can instead apply supported saved-view settings through chat.
+
+**Appearance** has the sections **Layout** (**Table** or **Board**), **Group By**, **Sort by** with an **Ascending** or **Descending** toggle, and **Fields**, where you show, hide and drag columns into order (**Name** always stays); a dot on the button marks an active sort, grouping or hidden column. **Group By** works in the table too, tasks can also group by their **Type**, dates group by day, week or month, and at most 50 groups are shown. Lists sort by name, created or updated date and any custom column, deals also by **Deal Value**, **Service Quantity** and **Weighted Value**, services also by **Amount** (the price). Pages hold 5, 10, 25 or 100 rows; a list shows 100 until you pick another size.
 
 The filter control opens a command palette. `#filter-palette-search` narrows the list of filterable fields as you type; picking a field opens its value page, and the value applies to the list as soon as you set it, with no separate apply step. `#filter-palette-back` returns to the field list, Escape steps back one page and closes the palette at the top level, and **Clear** removes every applied filter at once.
+
+The **Filters** button shows a dot while filters apply. In the palette, applied filters sit under **Active filters**: click one to change its value or condition (**Change condition**), or remove it with **Remove filter**. Fields sit under **Filter by**, and typing in **Add filter…** narrows them. Dates offer **Before…**, **On or before…**, **After…**, **On or after…** and **Between…**; created and updated dates add 7, 30, 90 or 365 days and **Custom range…** for another number of days, and date-range columns add **Includes…**. Up to 50 filters apply at once ([filter syntax](/docs/filter-syntax#how-do-i-filter-a-list-in-the-app)).
+
+**Link:** the list page of each type, for example the **Deals** page, `/deals`. **Mate:** `navigate` and `highlight_element` with `deals-display-options` or `deals-filter` (or `{type}-display-options`, `{type}-filter`), then `deals-layout-table` or `deals-layout-board` once **Appearance** is open; **Group By**, **Sort by**, **Fields**, the palette and the page size are not highlight targets, so Mate names them.
 
 ## How do I change a deal stage or a task status on the board?
 
@@ -84,11 +122,13 @@ Any record type can carry user-defined custom columns. There are no fixed workfl
 
 To change a stage in the app, open the record and set the field, or drag the card between board columns when the board groups by that column. Over MCP, call `update_deals` or `update_tasks` with the column id and the option value from `get_record_schema`; the option value is the canonical form, not the label.
 
-A `singleSelect` custom column can drive a board (kanban) view. `#{type}-display-options` switches the list between a table and a board, and the board groups by the chosen field. This applies to every record type, not only to deals.
+Dragging a card changes the value only when the board (kanban) groups by a `singleSelect` column, on any record type; boards grouped by anything else (linked records, users, dates, or a task's **Type**) are read-only, and dropping a card on **No value** clears the field. To add or rename stages, open the column's **Edit Field** dialog: click a column header on a board grouped by it, or press **Customize** on a record page and then the field's **Edit column** pencil. Changing a column needs **Manage** on that record type.
 
-The demo workspace ships example columns to illustrate the pattern, for instance a "Stage" column on deals and "Status" and "Priority" columns on tasks. These are seeded examples, not fixed behavior. Rename them, change their options, add more, or remove them per workspace.
+The demo workspace ships example columns to illustrate the pattern, for instance a "Status" column on deals (Open, Won, Lost, Abandoned), "Status" and "Priority" columns on tasks, and a "Sales Pipeline" column on contacts. These are seeded examples, not fixed behavior. Rename them, change their options, add more, or remove them per workspace.
 
 Records link to other records through labeled relation fields inside the form. Pick the records, then save. Over MCP, `manage_record_links` adds or removes single links.
+
+**Link:** the **Deals** page, `/deals`, or the **Tasks** page, `/tasks`. **Mate:** `navigate` and `highlight_element` with `deals-display-options` (or `tasks-display-options`) for **Group By**, then `deals-layout-board` once **Appearance** is open; the board columns, the cards and **Edit Field** are not highlight targets, so Mate names them.
 
 ## Tips for agents
 

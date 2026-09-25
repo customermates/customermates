@@ -14,6 +14,7 @@ import { useFormFieldErrors, useResolvedFieldLabel } from "./use-form-field";
 
 type Props = Omit<ComponentProps<"input">, "value" | "onChange" | "id"> & {
   id: string;
+  inputId?: string;
   label?: string | null;
   description?: ReactNode;
   required?: boolean;
@@ -29,6 +30,7 @@ type Props = Omit<ComponentProps<"input">, "value" | "onChange" | "id"> & {
 export const FormInput = observer(
   ({
     id,
+    inputId,
     label,
     description,
     required,
@@ -47,12 +49,13 @@ export const FormInput = observer(
     const { hasError } = useFormFieldErrors(id);
     const isDisabled = Boolean(disabled || store?.isLoading);
     const isReadOnly = !isDisabled && Boolean(readOnly || store?.isReadOnly);
+    const domId = inputId ?? id;
 
     return (
       <div className={cn("space-y-1.5", containerClassName)}>
         {resolvedLabel && (
           <div className="flex items-center gap-1.5">
-            <FormLabel htmlFor={id}>
+            <FormLabel fieldId={id} htmlFor={domId}>
               {resolvedLabel}
 
               {required ? <span className="text-destructive"> *</span> : null}
@@ -67,7 +70,7 @@ export const FormInput = observer(
             aria-invalid={hasError}
             className={cn(endContent && "pr-10", className)}
             disabled={isDisabled}
-            id={id}
+            id={domId}
             readOnly={isReadOnly}
             required={required}
             value={value}

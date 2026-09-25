@@ -231,6 +231,7 @@ export const DataViewDisplayOptions = observer(function DataViewDisplayOptions<E
           <Section label={t("Common.table.layout")}>
             <Tabs value={currentLayout} onValueChange={handleLayoutChange}>
               <TabsList
+                aria-label={t("Common.table.layout")}
                 className="grid h-auto w-full grid-cols-2 gap-1.5 border-0 bg-transparent p-0 shadow-none group-data-[orientation=horizontal]/tabs:h-auto"
                 variant="segmented"
               >
@@ -238,6 +239,7 @@ export const DataViewDisplayOptions = observer(function DataViewDisplayOptions<E
                   <TooltipTrigger asChild>
                     <span className="block min-w-0">
                       <TabsTrigger
+                        aria-controls={undefined}
                         aria-label={t("Common.ariaLabels.switchToTableView")}
                         className={LAYOUT_CARD_CLASS}
                         id={anchorScope ? `${anchorScope}-layout-table` : undefined}
@@ -257,6 +259,7 @@ export const DataViewDisplayOptions = observer(function DataViewDisplayOptions<E
                   <TooltipTrigger asChild>
                     <span className="block min-w-0">
                       <TabsTrigger
+                        aria-controls={undefined}
                         aria-label={t("Common.ariaLabels.switchToBoardView")}
                         className={LAYOUT_CARD_CLASS}
                         disabled={!canBoard}
@@ -283,7 +286,7 @@ export const DataViewDisplayOptions = observer(function DataViewDisplayOptions<E
           {store.groupableFields.length > 0 && (
             <Section label={t("Common.table.groupBy")}>
               <Select value={currentGroupingId || "__none__"} onValueChange={handleGroupingChange}>
-                <SelectTrigger className="h-8 w-full" size="sm">
+                <SelectTrigger aria-label={t("Common.table.groupBy")} className="h-8 w-full" size="sm">
                   <SelectValue />
                 </SelectTrigger>
 
@@ -304,7 +307,7 @@ export const DataViewDisplayOptions = observer(function DataViewDisplayOptions<E
             <Section label={t("Common.sort.field")}>
               <div className="flex gap-1 w-full">
                 <Select value={currentSortField} onValueChange={handleSortFieldChange}>
-                  <SelectTrigger className="h-8 flex-1" size="sm">
+                  <SelectTrigger aria-label={t("Common.sort.field")} className="h-8 flex-1" size="sm">
                     <SelectValue />
                   </SelectTrigger>
 

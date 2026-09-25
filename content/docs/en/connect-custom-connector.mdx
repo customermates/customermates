@@ -9,15 +9,15 @@ This is the recommended path for **Claude** (web, desktop, and mobile) and **Cha
 
 > Custom connectors are a paid feature: Claude (Pro, Max, Team, Enterprise) and ChatGPT (Plus, Pro, Business, Enterprise). Free tiers cannot add MCP servers.
 
-## The URL
+## Which URL do I paste? [#the-url]
 
 ```
-https://customermates.com/api/v1/mcp
+<BASE_URL>/api/v1/mcp
 ```
 
-Self-hosting? Swap in your instance URL.
+`<BASE_URL>` is the address you open Customermates at, in the cloud or on your own instance. The connector works on every Customermates plan and on self-hosted instances; only the messaging, calendar and social tools need a plan with messaging, Pro or higher in the cloud.
 
-## Claude
+## How do I connect Claude? [#claude]
 
 <Steps>
 <Step title="Open the connector form">
@@ -27,7 +27,7 @@ Self-hosting? Swap in your instance URL.
 Leave authentication on the default (OAuth). No header, no key.
 </Step>
 <Step title="Sign in and approve">
-A Customermates window opens. Sign in, then click **Approve** on the Authorize access screen.
+A Customermates window opens. Sign in, then click **Approve** on the **Authorize access** screen.
 </Step>
 <Step title="Confirm the tools arrived">
 Back in Claude, Customermates appears with its tools listed.
@@ -36,34 +36,38 @@ Back in Claude, Customermates appears with its tools listed.
 
 Add it once and it syncs to Claude on web, desktop, and mobile. The connection is tied to your Claude account, not one device, and refreshes in the background.
 
-One click instead: [Add to Claude](https://claude.ai/customize/connectors?modal=add-custom-connector&connectorName=Customermates&connectorUrl=https%3A%2F%2Fcustomermates.com%2Fapi%2Fv1%2Fmcp) pre-fills the add-connector dialog for you (Claude web and Teams only).
+One click instead: in Customermates, open **My Profile → API & Connectors**, press **Add**, choose **Claude** under **Quick connections**, then **Claude account**, and click **Add to Claude**. It opens Claude's add-connector dialog pre-filled with your `<BASE_URL>/api/v1/mcp` (Claude web and Teams only). The onboarding step **Connect your AI** offers the same button. **Add** needs **Manage** on **API & Webhooks**; without it, paste the URL as above.
 
-## ChatGPT
+**Link:** the **API & Connectors** page, `/profile/api-keys`. **Mate:** `navigate` and `highlight_element` with `nav-profile-api-keys`; `highlight_element` also takes `profile-api-keys-generate` for **Add** (roles with **API & Webhooks** **Manage**). The **Quick connections** tiles and **Add to Claude** are not highlight targets, so Mate names them.
+
+## How do I connect ChatGPT? [#chatgpt]
 
 In ChatGPT: **Settings → Connectors → Add connector → Custom connector (MCP)**.
 
 - **Name:** Customermates
-- **URL:** `https://customermates.com/api/v1/mcp` (self-host: your instance)
+- **URL:** `<BASE_URL>/api/v1/mcp`
 - **Authentication:** OAuth
 
-Save. ChatGPT opens a Customermates window. Sign in, then click **Approve** on the Authorize access screen. Every Customermates tool is listed, with no key to store or rotate.
+Save. ChatGPT opens a Customermates window. Sign in, then click **Approve** on the **Authorize access** screen. Every Customermates tool is listed, with no key to store or rotate.
 
-### ChatGPT with an API key
+### Can ChatGPT use an API key instead of OAuth? [#chatgpt-with-an-api-key]
 
-Prefer a static key? Add the connector the same way, but authenticate with a header:
+Yes. Add the connector the same way, but authenticate with a header:
 
 <Steps>
 <Step title="Create a key">
-**Profile → API Keys → New key**. Copy the 64-character string immediately. It is shown once.
+In Customermates, open **My Profile → API & Connectors**, press **Add** and choose **Standard API key**. Copy the 64-character string immediately. It is shown once. Creating a key needs **Manage** set to **Yes** on the **API & Webhooks** row of your role, and the page itself needs **Read access** **All** on that row; the built-in **Admin** role has both. See [API keys](/docs/api-keys).
 </Step>
 <Step title="Authenticate with a header">
 In the connector form set **Authentication: Header**, **Header name: `x-api-key`**, **Header value:** your key.
 </Step>
 </Steps>
 
-Save. ChatGPT reaches the server and lists every tool.
+Save. ChatGPT reaches the server and lists every tool. It lists them even when the key is wrong, because Customermates checks the key only when a tool reads or changes workspace data; if every such call then says "Sign in to use this action.", the key is wrong, truncated, expired or deleted, so create a new one. A documentation lookup such as `search_docs` answers even with a wrong key, so it does not prove that the key works.
 
-## Sign in and approve
+**Link:** the **API & Connectors** page, `/profile/api-keys`. **Mate:** `navigate` and `highlight_element` with `nav-profile-api-keys`; `highlight_element` also takes `profile-api-keys-generate` for **Add** (roles with **API & Webhooks** **Manage**), then `api-key-option-standard` for **Standard API key** (prerequisite `profile-api-keys-generate`) and `api-key-name`, `api-key-expires` and `api-key-save` for **Name**, **Expires in** and **Save** (prerequisite `api-key-option-standard`). The **Quick connections** tiles are not highlight targets, so Mate names them.
+
+## What does the Authorize access screen show? [#sign-in-and-approve]
 
 The connector opens a Customermates window:
 
@@ -72,24 +76,25 @@ The connector opens a Customermates window:
 Or you are already signed in.
 </Step>
 <Step title="Read what is being authorized">
-An **Authorize access** screen names the app that is connecting and the destination it will send access to.
+The **Authorize access** screen names the app that is connecting, lists what it asks for (such as **Confirm your identity**, **Read your basic profile**, **Read your email address** and **Stay connected while you are away**), and shows **Connection destination** with the host it will send access to.
 </Step>
 <Step title="Approve">
-Click **Approve**.
+Click **Approve**, or **Deny** to refuse.
 </Step>
 </Steps>
 
 You return to your AI, connected, with all [[derived.mcp.tools.total]] tools listed.
 
-The connector accepts any client, so the **Authorize access** screen is the gate. It names the app and shows the destination host. Approve only a connection you started yourself; decline anything you did not start.
+The connector accepts any client, so the **Authorize access** screen is the gate. Approve only a connection you started yourself, and click **Deny** for anything you did not start. Connecting over OAuth needs no API key and no extra role permission.
 
-## It syncs and stays connected
+## How long does the connection stay valid? [#it-syncs-and-stays-connected]
 
 - Add it once on Claude web and it appears on **desktop and mobile** too. The connection is tied to your Claude account, not one device.
 - It refreshes in the background. Use it within any 30-day window and you never re-authorize; go idle longer and you approve once more.
-- Every call runs as the Customermates user who approved, inside that account's data. API keys inherit the owning user's permissions; there is no per-key scoping.
+- Every call runs as the Customermates user who approved, inside that account's data and with that user's role permissions. API keys work the same way: they inherit the owning user's permissions, and there is no per-key scoping.
+- If that user is set to **Inactive**, every call that reads or changes workspace data fails with "Your user account is inactive. Contact a workspace administrator." until a member with **Manage** on **Users & Roles** sets them back to **Active**.
 
-## Try your first prompt
+## What should I try first? [#try-your-first-prompt]
 
 The server sends its instructions to your AI when it connects, so the client already has the workflow and safety rules. In clients that support MCP prompts (like Claude), you can also run the built-in `get-started` prompt for a personalized start: your name, your role, and a first summary of your workspace.
 
@@ -99,20 +104,31 @@ The server sends its instructions to your AI when it connects, so the client alr
 
 The record types are contact, organization, deal, service, and task. Fields such as a deal's status or a task's priority are configurable custom columns per workspace, not fixed product fields. Ask your AI to call `get_record_schema` to see the columns and their allowed values before writing.
 
-## Confirming tool calls
+## Confirming tool calls: which ones can I always allow? [#confirming-tool-calls]
 
-Your AI decides how much to confirm before each tool runs, and you control it in the client. In Claude: **Settings → Connectors → Customermates**, then set each tool (or the read-only group) to *Always allow* or *Ask*. Reads (`get_*`, `list_*`, `search_*`) are flagged read-only, and writes and deletes are flagged too, so you can leave those on *Ask*.
+Customermates never stops a tool call to ask for confirmation; your client does, and you control it there. In Claude: **Settings → Connectors → Customermates**, then set each tool (or the read-only group) to *Always allow* or *Ask*.
 
-## Troubleshooting
+- Reads (`get_*`, `list_*`, `search_*`) carry the read-only flag, so they are safe to allow.
+- Tools that can delete carry the destructive flag and say `IRREVERSIBLE`.
+- Tools that only create, change or send carry neither flag; merged tools with a delete action, such as `manage_webhooks`, carry the destructive flag. Among the unflagged tools are `send_email`, `send_chat_message`, `request_support`, `manage_team` invites and `manage_social_relations`, which reach real people, and `move_email_thread`, which moves mail in the real mailbox.
+
+Leave every tool that is not read-only on *Ask*. The full list is in the [MCP tool catalog](/docs/mcp#tool-catalog).
+
+## What if the connection fails? [#troubleshooting]
 
 | Symptom | Cause | Fix |
 |---|---|---|
-| "Couldn't register with the sign-in service" (Claude) or "Connector verification failed" (ChatGPT) | Server URL wrong or unreachable; on header auth, a bad key | Confirm it is exactly `https://customermates.com/api/v1/mcp`; on header auth re-check the key |
+| "Couldn't register with the sign-in service" (Claude) or "Connector verification failed" (ChatGPT) | Server URL wrong or unreachable | Confirm it is exactly `<BASE_URL>/api/v1/mcp`, with the address you open Customermates at as `<BASE_URL>` |
+| Tools are listed, but every call that reads or changes workspace data says "Sign in to use this action." (ChatGPT with a header); documentation lookups still answer | The `x-api-key` value is wrong, truncated, expired or deleted | Create a new key under **My Profile → API & Connectors** and paste the full 64 characters |
+| Every call that reads or changes workspace data says "Your user account is inactive. Contact a workspace administrator." | Your Customermates user was set to **Inactive** | A member with **Manage** on **Users & Roles** sets you back to **Active** under **My Company → Members** |
 | No "Add custom connector" option | Free plan | Custom connectors need a paid Claude or ChatGPT plan. See [the CLI method](/docs/connect-cli) |
 | Approved but nothing connects | You approved from a different account | Sign into the right Customermates account, then retry |
 | "Tool not found" | Stale connector cache | Remove and re-add the connector |
-| Server rejects a relationship update | Null-wipe guard fired | Ask the agent to use `manage_record_links` |
+| Server rejects a relationship update | `update_*` tools do not accept relation id fields; only `services` on `update_deals` is accepted, and it replaces the deal's whole service list | Ask the agent to use `manage_record_links` |
 | Enum field rejected | Value not in the column's option list | Ask the agent to call `get_record_schema` first |
+| A messaging, calendar or social tool is refused with a plan message | The workspace has no plan with messaging (Starter, self-hosted, or no active subscription or trial) | On Cloud, a member with **Manage** **Yes** on **Company** chooses Pro or higher under **My Company → Subscription**. Self-hosted instances have no messaging; use Customermates Cloud for these tools |
+
+**Link:** the **API & Connectors** page, `/profile/api-keys`, the **Members** page, `/company/members`, and the **Subscription** page, `/company/subscription` (cloud only). **Mate:** `navigate` and `highlight_element` with `nav-profile-api-keys`, `nav-company-members` or `nav-company-subscription`. `profile-api-keys-generate` highlights **Add** on the API page (roles with **Manage** on **API & Webhooks**); the member rows are not highlight targets, so Mate names them; once a member row is open, `member-modal-status` highlights **Status** and `member-modal-save` highlights **Save** in the **User** dialog (roles with **Manage** on **Users & Roles**), and `company-subscription-plan-picker` outlines the plan cards while the picker is shown.
 
 ## On a free plan or in a CLI?
 

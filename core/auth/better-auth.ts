@@ -11,6 +11,8 @@ import { env } from "@/env";
 import { callbackUrlSchema } from "@/features/auth/callback-url.schema";
 import { onboardingIntentFromPath, pathWithOnboardingIntent } from "@/features/company/onboarding-intent-url";
 import { API_KEY_MAX_EXPIRATION_DAYS, API_KEY_MIN_EXPIRATION_DAYS } from "@/features/api-key/api-key-expiration";
+import { API_KEY_NAME_MAX_LENGTH, API_KEY_NAME_MIN_LENGTH } from "@/features/api-key/api-key-name";
+import { PASSWORD_MAX_LENGTH, PASSWORD_MIN_LENGTH } from "@/core/validation/validation.utils";
 
 const socialProviders = {
   ...(env.GOOGLE_CLIENT_ID && env.GOOGLE_CLIENT_SECRET
@@ -151,6 +153,8 @@ export const auth = betterAuth({
   emailAndPassword: {
     enabled: true,
     autoSignIn: true,
+    minPasswordLength: PASSWORD_MIN_LENGTH,
+    maxPasswordLength: PASSWORD_MAX_LENGTH,
     onPasswordReset: async ({ user }) => {
       if (user.emailVerified) return;
 
@@ -193,6 +197,8 @@ export const auth = betterAuth({
         enabled: false,
       },
       enableSessionForAPIKeys: true,
+      minimumNameLength: API_KEY_NAME_MIN_LENGTH,
+      maximumNameLength: API_KEY_NAME_MAX_LENGTH,
       keyExpiration: {
         minExpiresIn: API_KEY_MIN_EXPIRATION_DAYS,
         maxExpiresIn: API_KEY_MAX_EXPIRATION_DAYS,

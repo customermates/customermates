@@ -127,7 +127,9 @@ const AgentChatPanel = observer(function AgentChatPanel() {
 
   useEffect(() => {
     const onKeyDown = (event: KeyboardEvent) => {
-      if (event.key === "Escape" && !event.defaultPrevented && !agentUiControlStore.active) store.close();
+      if (event.key !== "Escape" || event.defaultPrevented || agentUiControlStore.active) return;
+      if (document.querySelector('[data-streamdown="link-safety-modal"]')) return;
+      store.close();
     };
     document.addEventListener("keydown", onKeyDown);
     return () => document.removeEventListener("keydown", onKeyDown);
@@ -144,6 +146,7 @@ const AgentChatPanel = observer(function AgentChatPanel() {
           ? "h-[85dvh] w-[720px] max-w-[calc(100dvw-2rem)]"
           : "h-[560px] max-h-[calc(100dvh-2rem)] w-[400px] max-w-[calc(100dvw-2rem)]",
       )}
+      data-agent-surface=""
       data-testid="agent-panel"
       id="agent-panel-dialog"
       role="dialog"

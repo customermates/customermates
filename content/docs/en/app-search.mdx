@@ -7,26 +7,32 @@ Global search is a modal, not a page: it opens from anywhere in the app with **C
 
 ## What does global search find?
 
-The modal searches **contacts, organizations, deals, services, and tasks** by name and related fields, up to 50 hits per record type, and shows a **Recently opened** group before you type. Messages are not searched; the Inbox has its own search.
+The modal searches **contacts, organizations, deals, services, and tasks**, up to 50 hits per record type. Contacts match on first name, last name, any channel identifier (such as an email address or a WhatsApp number) and the names of linked organizations; organizations on their name and the first and last names of their contacts; deals, services and tasks on their name only. Every word you type must match, ignoring case, so "anna schmidt" finds only records that match both words.
+
+You only see the record types your role can read, and **Assigned** read access limits the hits to records you are assigned to. Before you type, **Recently opened** shows your last 8 picks from this search, kept in this browser only; **Clear** empties it. Arrow keys move through the hits and Enter opens one.
+
+Messages are not searched; the Inbox has its own search.
 
 Selecting a result opens the record's detail page at `/{type}/{id}`. To add a record instead, use the **Add** control on its list page or the `?open={entityType}:new` deep link documented in [CRM Records](/docs/app-records).
+
+**Link:** no page; open the modal on any app page with Cmd+K or Ctrl+K, or with **Search** in the sidebar. **Mate:** `highlight_element` with `nav-search` (it cannot `navigate` there or open the modal); the search field and the results are not highlight targets, so Mate names them.
 
 ## Which stable ids does it have?
 
 | Control | Id |
 |---|---|
 | Sidebar trigger | `#nav-search` |
-| Search input inside the modal | `#global-search-input` |
+| Search field wrapper inside the modal | `#global-search-input` |
 
-For an agent, typing happens in `#global-search-input` after opening the modal; results are regular options selected by their visible name. For filtered, sorted, or counted lookups prefer the list pages or `list_records`, which return totals. The hosted assistant can highlight `#nav-search` but cannot open the modal or type into it.
+For an agent, typing happens in the text input inside `#global-search-input` after opening the modal; results are regular options selected by their visible name. For filtered, sorted, or counted lookups prefer the list pages or `list_records`, which return totals. The hosted assistant can highlight `#nav-search` but cannot open the modal or type into it.
 
 ## Frequently asked questions
 
 <Faq>
 <FaqItem question="What is the keyboard shortcut?">
-Cmd+K on macOS, Ctrl+K elsewhere, from anywhere in the app. The sidebar trigger opens the same modal.
+Cmd+K or Ctrl+K, on any operating system, from anywhere in the app. The sidebar trigger **Search**, which shows ⌘K, opens the same modal.
 </FaqItem>
 <FaqItem question="Where do results open?">
-On the record's detail page at /{type}/{id}, documented in CRM Records.
+On the record's detail page at `/{type}/{id}`, documented in CRM Records.
 </FaqItem>
 </Faq>

@@ -76,6 +76,7 @@ export abstract class BaseFormStore<T extends object = object> extends BaseStore
 
   resetForm = () => {
     this.form = cloneDeep(this.savedState);
+    this.error = undefined;
   };
 
   get canAccess(): boolean {
@@ -189,6 +190,8 @@ export abstract class BaseFormStore<T extends object = object> extends BaseStore
     const previousValue = (parent as Record<string, unknown>)[leaf];
     (parent as Record<string, unknown>)[leaf] = value;
     this.afterChange(id, value, previousValue);
+
+    if (this.error && !this.hasUnsavedChanges) this.error = undefined;
   };
 
   protected afterChange(_id: string, _value: unknown, _previousValue: unknown): void {}

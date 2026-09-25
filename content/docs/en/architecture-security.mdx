@@ -3,38 +3,55 @@ title: "CRM Security: Tenant Isolation and Audit Logs"
 description: "How Customermates is built, how workspace data is isolated, how API keys and MCP OAuth authenticate, what the audit log records, and how to report a flaw."
 ---
 
-Customermates enforces a single-tenant-per-company data model at every layer. Every record is scoped to a company, API keys carry the owning user's identity, and agents see only what that user can see.
+Each company is an isolated tenant in a shared PostgreSQL database. Every record belongs to one company, API keys and OAuth connections act as the user who created or authorized them, and AI agents see only what that user may see.
 
 ## What is the stack?
 
-- **Next.js 16** (App Router, Turbopack): web app and API.
-- **PostgreSQL**: primary datastore. JSONB for custom column values and webhook payloads.
+- **Next.js 16** (App Router, Turbopack): web app, REST API and MCP endpoint.
+- **PostgreSQL**: primary datastore. JSONB holds custom column options, notes, view and widget settings, webhook headers, webhook delivery payloads and audit entries.
 - **Prisma**: ORM and migrations.
-- **better-auth**: sessions, social login, API keys, MCP OAuth.
+- **better-auth**: sessions, Google and Microsoft sign-in, API keys, MCP OAuth.
 - **mcp-handler**: Model Context Protocol endpoint.
+- **Workflow**: background jobs such as webhook deliveries; on a self-hosted instance its queue lives in the same PostgreSQL database.
 - **TypeScript** end to end, Zod-validated at every boundary.
 
-## How does multi-tenancy isolate workspaces?
+## How does multi-tenancy keep each tenant isolated?
 
-Every record belongs to a **Company**. The company id is enforced in three places:
+All companies share one database, and every record carries its company id. Isolation is enforced in three layers:
 
-1. **App layer**: every interactor resolves the current user's company and filters by it.
-2. **Prisma layer**: queries include `companyId` in every `where`.
-3. **Decorator layer**: `@TenantInteractor` makes interactors that fail to scope throw at runtime.
+1. **Interactors**: every business operation runs as the signed-in user and filters by that user's company.
+2. **Query guard**: a Prisma extension throws when a query on a workspace table lacks the current company id in its filter or names another company, and when a new row carries another company's id. Only the authentication tables are exempt (sign-in identities, sign-in accounts, sessions, verification tokens, API keys, and the MCP OAuth clients, tokens and consents), and a few explicitly marked system operations bypass the guard.
+3. **`@TenantInteractor`**: resolves the active user, refuses inactive members, checks the role permission and opens the tenant context that the query guard reads.
 
-Cross-tenant reads are not possible through the public surface. On the managed cloud a vendor operator console can read across tenants for support; it is limited to an allowlisted operator account, refuses to load outside cloud mode, and records every read and write in a separate internal log. A self-hosted deployment has no such console. The hosted assistant runs inside the same scope: it can read and change only what the asking user can.
+A self-hosted instance can hold several workspaces side by side with the same isolation. Cross-tenant reads are not possible through the public surface. On the managed cloud a vendor operator console can read across tenants for support; it is limited to an allowlisted operator account, refuses to load outside cloud mode, and records every read and write in a separate internal log. A self-hosted deployment has no such console. The hosted assistant runs inside the same scope: it can read and change only what the asking user can.
 
 ## How do clients authenticate?
 
 Three ways, all resolving to the same user and company context:
 
-- **Session cookie** (UI): signed, http-only, `Secure` under HTTPS.
-- **API key**: 64-character base62 token issued by the better-auth API key plugin, hashed at rest, tied to a user, optionally expiring. Sent in the `x-api-key` header. See [API keys](/docs/api-keys).
+- **Session cookie** (browser): signed, http-only, `Secure` under HTTPS. People sign in with email and password, or with Google or Microsoft where the instance has those providers configured. A new account can be used for 24 hours before its email address must be confirmed.
+- **API key**: 64-character token of ASCII letters (`a-z`, `A-Z`) issued by the better-auth API key plugin, stored only as a hash, tied to a user, optionally expiring. Sent in the `x-api-key` header. See [API keys](/docs/api-keys).
 - **OAuth 2.1** (MCP): remote MCP clients authorize through better-auth with PKCE and send a Bearer token instead of an API key. Access tokens live one hour, refresh tokens thirty days.
+
+## Does Customermates support SSO or SAML?
+
+No. Enterprise single sign-on with your own identity provider over SAML or OIDC is not implemented, in the cloud or self-hosted. Members sign in with email and password, or with a Google or Microsoft account where the instance has those providers configured; on a self-hosted instance you set them up yourself, see [Self-hosting](/docs/self-hosting). To end a member's access, set their status to **Inactive** under **My Company** › **Members**.
+
+**Link:** the **Members** page, `/company/members`. **Mate:** `navigate` and `highlight_element` with `nav-company-members`; after a member row is opened, `member-modal-status` and `member-modal-save` highlight **Status** and **Save** in the **User** dialog (roles with **Manage** on **Users & Roles**); the rows are not highlight targets, so Mate names them.
 
 ## How is authorization decided?
 
-Per user and role. Roles carry permissions on resources (contacts, organizations, deals, services, tasks, and the workspace features) and actions (read, create, update, delete). Every interactor checks the permission before acting. API keys inherit the permissions of their owning user; there is no per-key scoping.
+Per user and role. A role, edited under **My Company** › **Roles**, sets two things for each resource (the five record types and the workspace features such as **Users & Roles**, **Company**, **API & Webhooks** and **Audit Log**): **Manage**, where **Yes** grants create, update and delete together, and **Read access**, which is **All**, **Assigned** or **None**. Not every resource offers every option. The system **Admin** role has every permission. Every operation checks the permission before acting. API keys inherit the permissions of their owning user; there is no per-key scoping.
+
+**Link:** the **Roles** page, `/company/roles`. **Mate:** `navigate` and `highlight_element` with `nav-company-roles`; `company-roles-add` highlights **Add** for roles with **Manage** on **Users & Roles**, and in the open **Role** dialog `role-modal-save` and `role-modal-reset` highlight **Save** and **Reset**, and `role-modal-delete` highlights **Delete** of a saved custom role that no member uses; the permission rows and fields are not highlight targets, so Mate names them.
+
+## How do I stop the API keys of a former member?
+
+The **API & Webhooks** permission controls the **API & Connectors**, **Webhooks** and **Recent Deliveries** pages and the key and webhook operations behind them (including `manage_webhooks`), not the use of a key. A call made with an existing key, or through an OAuth connection, is checked against the owner's permissions on the records it touches. Removing **API & Webhooks** from a role therefore hides its members' keys from them but leaves those keys working.
+
+To stop a member's keys, open the member under **My Company** › **Members** and set **Status** to **Inactive**. This needs **Manage** **Yes** and read access **All** on **Users & Roles**; you cannot deactivate yourself, and the last active member with the **Admin** role cannot be deactivated. Every call with an inactive member's keys that reads or changes workspace data is refused. Nobody can list or delete another member's keys.
+
+**Link:** the **Members** page, `/company/members`. **Mate:** `navigate` and `highlight_element` with `nav-company-members`; after a member row is opened, `member-modal-status` and `member-modal-save` highlight **Status** and **Save** in the **User** dialog (roles with **Manage** on **Users & Roles**); the rows are not highlight targets, so Mate names them.
 
 ## How does external AI access work?
 
@@ -43,27 +60,58 @@ MCP requests use the same authentication and authorization path. When an agent a
 - It calls `/api/v1/mcp` with an API key or an OAuth Bearer token.
 - The server resolves user and company from the credential.
 - Every tool call runs inside a tenant-scoped context.
-- Validation errors return structured messages with remediation hints and do not leak internal schema details.
+- Validation errors return structured messages with remediation hints and do not leak internal schema details. Unexpected errors return only a generic message.
 
 The MCP surface adds input guardrails to keep tool calls safe:
 
-- Relation arrays cannot be sent through the update tools at all; links change only through `manage_record_links`, so a `null` can never wipe a relation.
-- Update tools targeting the wrong record type are rejected with a pointer to the correct tool.
+- Update tools take no relation lists for contacts, organizations, deals, users, tasks or services; those links change only through `manage_record_links`. The one exception is `update_deals`, whose `services` list replaces the deal's services and is the only way to set quantities. A `null` for `services` or `customFieldValues` is refused, so a `null` can never wipe links or values; `services: []` removes every service from the deal on purpose.
+- An update tool accepts only ids of its own record type. Any other id fails with a not-found message such as "Contact ID not found or not accessible.", so an update cannot land on the wrong record type.
 - Destructive tools require an explicit list of record ids. There is no delete-by-filter shortcut.
 
 See the [MCP tool catalog](/docs/mcp#tool-catalog) for the full list.
 
 ## How is data protected at rest and in transit?
 
-- Postgres encryption depends on your provider. On the managed cloud, data lives in an EU region with disk-level encryption at rest.
-- Secrets in `.env` are never logged. The logger redacts anything that looks like a key, token, or password.
-- Webhook secrets are stored in Postgres because they must be retrievable to sign outgoing requests. To keep them elsewhere, self-host with your own secret manager.
-- HTTPS everywhere on the managed cloud. On self-host, you provide the TLS; see [self-hosting](/docs/self-hosting) for the Caddy example.
-- Webhook deliveries that carry custom headers must go to HTTPS URLs; plain `http://` is accepted only for local testing without headers.
+- Postgres encryption at rest depends on your provider. On the managed cloud, data lives in an EU region and is encrypted at rest at disk level.
+- Passwords and API keys are stored only as hashes.
+- HTTPS everywhere on the managed cloud. On self-host, you provide the TLS; see [self-hosting](/docs/self-hosting) for the Caddy example. Sign-in cookies are marked Secure when the instance's `BASE_URL` uses `https://`.
+- Webhook secrets and custom header values are stored retrievably, because outgoing requests need them; see [How are webhook secrets and destinations secured?](#how-are-webhook-secrets-and-destinations-secured).
+
+## Do logs or error reports contain secrets?
+
+The application writes plain logs to its standard output. Environment values, such as the secrets in `.env`, are not written to the logs, but there is no filter that masks secrets in log lines. When an error reporting service is configured, as on the managed cloud, events are sent without request cookies, headers or bodies. Unexpected errors in MCP and assistant tools reach the client, and the error report, only as a generic message such as "The operation could not be completed".
+
+The published self-hosted image sets no error reporting address and turns off Next.js telemetry. On a self-hosted instance, errors the app writes to its output appear only in `docker compose logs app`. Errors it only reports to an error reporting service, such as an email Resend rejected, are not recorded anywhere, so check the Resend dashboard for failed sends.
+
+## How are webhook secrets and destinations secured?
+
+- Webhook secrets and custom header values are stored in Postgres without hashing, because they must be retrievable to sign and send outgoing requests. The REST API and MCP never return them, the audit log redacts them, and the webhook dialog shows them only to the **Admin** role and to roles with **Manage** **Yes** on **API & Webhooks**; a role with **Read access** **All** alone sees `********` in their place. To keep them elsewhere, self-host with your own secret manager.
+- A webhook URL may use plain `http://` for any host as long as the webhook has no custom headers. A webhook with custom headers must use `https://`, except for `localhost`, `127.0.0.1` and `::1`; this is checked when the webhook is saved and again before each delivery.
+- Webhook URLs are not limited to public addresses: the server sends requests to any host it can reach, including internal services on its network. On self-host, restrict the app container's outbound network if internal services must stay unreachable, and give **Manage** on **API & Webhooks** only to trusted roles. See [Webhooks](/docs/webhooks).
+
+**Link:** the **Webhooks** page, `/company/webhooks`. **Mate:** `navigate` and `highlight_element` with `nav-company-webhooks`; `company-webhooks-add` highlights **Add** for roles with **Manage** on **API & Webhooks**. In the open **Webhook** dialog, `webhook-modal-url`, `webhook-modal-secret` and `webhook-modal-headers` highlight **URL**, **Secret** and **Custom headers**, `webhook-modal-description`, `webhook-modal-events`, `webhook-modal-body-template` and `webhook-modal-enabled` highlight **Description**, **Events**, **Body template** and **Enabled**, `webhook-modal-save` highlights **Save**, and `webhook-modal-delete` highlights **Delete** of a saved webhook. The rows are not highlight targets, so Mate names them.
 
 ## What does the audit log record?
 
-Changes to records and to the workspace configuration around them are logged with the user, the event, the element id and the payload. Updates to records, roles, webhooks, custom fields, routines and connected accounts carry a field-level diff; creates, deletes and member or company-settings saves carry a snapshot instead, which is written even when nothing changed. A failed write leaves no entry. Messaging events are not written to the audit log, and webhook secrets and header values are redacted. Authentication, API key lifecycle, subscription changes, saved views, widgets, agent conversations and vendor operator actions are not recorded either. An entry written by an automated process, such as removing a connected account when a trial ends, names the user it affected rather than someone who performed it. Read it on the [Company page](/docs/app-company) under **Audit logs**; access needs the audit-log read permission on your role. It is included on every cloud plan and in the self-hosted edition alike. The screen has no export action; the activity timeline, its REST endpoint and the `get_activities` tool return the same entries under the same permission.
+Changes to records and to the workspace configuration around them are logged with the user, the event, the element id and the payload. Updates to records, roles, webhooks, custom fields, routines and connected accounts carry a field-level diff. Creates, deletes and member or company-settings saves carry a snapshot instead, which is written even when nothing changed. User registrations, record exports and accepted legal documents are recorded as well. A failed write leaves no entry. The audit log is included on every cloud plan and in the self-hosted edition alike.
+
+**Link:** the **Audit Logs** page, `/company/audit-logs`. **Mate:** `navigate` and `highlight_element` with `nav-company-audit-logs`; the rows are not highlight targets, so Mate names them.
+
+## What is not in the audit log?
+
+Messaging events are not written to the audit log. Authentication events such as sign-ins, the API key lifecycle, subscription changes, saved views, widgets, agent conversations and vendor operator actions are not recorded either. Webhook secrets and header values are redacted in webhook entries. An entry written by an automated process, such as removing a connected account when a trial ends, names the user it affected rather than someone who performed it.
+
+## Who can read the audit log, and where?
+
+Read it under **My Company** › **Audit Logs**; see the [Company page](/docs/app-company). Access needs **Read access** **All** on the **Audit Log** row of your role, which has no **Manage** option; the **Admin** role always has it. The page lists every entry in the workspace, including changes to records the reader's role cannot open otherwise. Search matches the element id, and the filters cover the event and the date; click a row for **Audit Log Details**. The same permission shows the change history on record pages.
+
+**Link:** the **Audit Logs** page, `/company/audit-logs`. **Mate:** `navigate` and `highlight_element` with `nav-company-audit-logs`; `company-audit-logs-search`, `company-audit-logs-filter` and `company-audit-logs-display-options` highlight the toolbar, and there is no **Add**. The rows and **Audit Log Details** are not highlight targets, so Mate names them.
+
+## How long are audit entries kept, and can I export them?
+
+Entries are not deleted automatically; they are kept as long as the workspace exists. The **Audit Logs** page has no export action. The activity timeline, its REST endpoint and the `get_activities` tool return the same entries under the same permission.
+
+**Link:** the **Audit Logs** page, `/company/audit-logs`. **Mate:** `navigate` and `highlight_element` with `nav-company-audit-logs`; the page has no export button to highlight.
 
 ## Where do I report a vulnerability?
 

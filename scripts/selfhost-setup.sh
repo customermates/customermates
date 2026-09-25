@@ -36,7 +36,6 @@ REQUIRED_VARS=(
   BETTER_AUTH_SECRET
   RESEND_API_KEY
   RESEND_OPERATOR_EMAIL
-  CRON_SECRET
 )
 
 for VAR in "${REQUIRED_VARS[@]}"; do
@@ -51,4 +50,4 @@ docker compose up -d postgres
 docker compose run --rm app npx prisma migrate deploy
 docker compose up -d app
 docker compose ps
-echo "Setup completed. Open ${BASE_URL}"
+echo "Setup completed. Open ${BASE_URL}/auth/signup"

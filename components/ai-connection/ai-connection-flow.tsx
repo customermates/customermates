@@ -174,6 +174,7 @@ export const AiConnectionFlow = observer(
           <AiConnectionApiKeySetup
             apiKey={store.apiKey}
             baseUrl={baseUrl}
+            expiresAt={store.apiKeyExpiresAt}
             hasError={store.hasError}
             isCreating={store.isCreating}
             resultHeadingRef={resultHeadingRef}

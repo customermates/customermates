@@ -25,6 +25,7 @@ export type FormSelectItem = {
 
 type Props = {
   id: string;
+  inputId?: string;
   label?: string | null;
   description?: ReactNode;
   placeholder?: string;
@@ -36,6 +37,7 @@ type Props = {
   className?: string;
   containerClassName?: string;
   optionsLoading?: boolean;
+  value?: string;
   onValueChange?: (value: string) => void;
   labelEndAddon?: ReactNode;
 };
@@ -43,6 +45,7 @@ type Props = {
 export const FormSelect = observer(
   ({
     id,
+    inputId,
     label,
     description,
     placeholder,
@@ -54,25 +57,27 @@ export const FormSelect = observer(
     className,
     containerClassName,
     optionsLoading = false,
+    value: controlledValue,
     onValueChange,
     labelEndAddon,
   }: Props) => {
     const t = useTranslations();
     const store = useAppForm();
     const resolvedLabel = useResolvedFieldLabel(id, label);
-    const raw = store?.getValue(id);
+    const raw = controlledValue ?? store?.getValue(id);
     const value = raw == null ? "" : String(raw);
     const { hasError } = useFormFieldErrors(id);
     const selectedItem = items?.find((it) => it.value === value);
     const isDisabled = Boolean(disabled) || Boolean(store?.isLoading);
     const isReadOnly = !isDisabled && ((store?.isReadOnly ?? false) || Boolean(readOnly));
     const hasUnresolvedValue = value !== "" && selectedItem === undefined;
+    const domId = inputId ?? id;
 
     return (
       <div className={cn("flex flex-col gap-1.5", containerClassName)}>
         {resolvedLabel && (
           <div className="flex items-center gap-1.5">
-            <FormLabel htmlFor={id}>
+            <FormLabel fieldId={id} htmlFor={domId}>
               {resolvedLabel}
 
               {required ? <span className="text-destructive"> *</span> : null}
@@ -95,7 +100,7 @@ export const FormSelect = observer(
             aria-invalid={hasError}
             aria-readonly={isReadOnly || undefined}
             className={cn("w-full", className, isReadOnly && "[&>svg:last-child]:hidden")}
-            id={id}
+            id={domId}
           >
             <SelectValue placeholder={placeholder ?? " "}>
               {optionsLoading && !selectedItem ? (

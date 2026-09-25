@@ -111,7 +111,6 @@ export function useOperatorWorkspaceColumns(): ColumnDef<OperatorWorkspaceRowDto
         },
       },
       {
-        accessorKey: "adProvider",
         id: "adProvider",
         header: t("Common.table.columns.adProvider"),
         cell: ({ row }) => {

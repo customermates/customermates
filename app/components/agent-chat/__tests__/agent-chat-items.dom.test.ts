@@ -29,6 +29,13 @@ vi.mock("../chat-ui", () => ({
   }),
   focusAgentComposer: () => undefined,
 }));
+vi.mock("@/core/stores/root-store.provider", () => ({
+  useRootStore: () => ({ agentChatStore: { enabled: true, isOpen: true }, agentUiControlStore: { active: null } }),
+}));
+vi.mock("@/i18n/navigation", () => ({
+  IntlLink: ({ children, href }: { children?: ReactNode; href: string }) => createElement("a", { href }, children),
+  usePathname: () => "/contacts",
+}));
 vi.mock("@/components/shared/app-link", async () => {
   const { createElement } = await import("react");
   return {

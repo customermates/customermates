@@ -26,6 +26,42 @@ import {
   resolveWorkspaceOwners,
 } from "./operator-list-filters";
 
+const OPERATOR_USER_SELECT = {
+  id: true,
+  firstName: true,
+  lastName: true,
+  email: true,
+  status: true,
+  isPlatformOperator: true,
+  lastActiveAt: true,
+  createdAt: true,
+  updatedAt: true,
+  companyId: true,
+  adAttributions: {
+    select: { provider: true, identifierKind: true },
+    orderBy: { clickedAt: "desc" },
+    take: 1,
+  },
+  agentCreditActivatedAt: true,
+  company: {
+    select: {
+      tags: true,
+      subscription: {
+        select: {
+          plan: true,
+          status: true,
+          quantity: true,
+          updatedAt: true,
+          trialEndDate: true,
+          agentCreditAnchorAt: true,
+          enterpriseAgentCreditsPerUser: true,
+          createdAt: true,
+        },
+      },
+    },
+  },
+} as const;
+
 export class PrismaOperatorUsersRepo extends BaseRepository<Prisma.UserWhereInput> implements GetOperatorUsersRepo {
   getSearchableFields() {
     return [{ field: "email" }, { field: "firstName" }, { field: "lastName" }];
@@ -34,8 +70,8 @@ export class PrismaOperatorUsersRepo extends BaseRepository<Prisma.UserWhereInpu
   getSortableFields() {
     return [
       { field: "createdAt", resolvedFields: ["createdAt"] },
-      { field: "lastActiveAt", resolvedFields: ["lastActiveAt"] },
-      { field: "email", resolvedFields: ["email"] },
+      { field: "lastActiveAt", resolvedFields: ["lastActiveAt"], nullable: true },
+      { field: "email", resolvedFields: ["email"], collate: true },
       { field: "status", resolvedFields: ["status"] },
     ];
   }
@@ -93,45 +129,13 @@ export class PrismaOperatorUsersRepo extends BaseRepository<Prisma.UserWhereInpu
     if (!params) return [];
 
     const { baseWhere, passthrough } = partitionOperatorUserFilters(params.filters);
-    const args = await this.buildQueryArgs({ ...params, filters: passthrough }, baseWhere);
 
-    const users = await this.prisma.user.findMany({
-      ...args,
-      select: {
-        id: true,
-        firstName: true,
-        lastName: true,
-        email: true,
-        status: true,
-        isPlatformOperator: true,
-        lastActiveAt: true,
-        createdAt: true,
-        updatedAt: true,
-        companyId: true,
-        adAttributions: {
-          select: { provider: true, identifierKind: true },
-          orderBy: { clickedAt: "desc" },
-          take: 1,
-        },
-        agentCreditActivatedAt: true,
-        company: {
-          select: {
-            tags: true,
-            subscription: {
-              select: {
-                plan: true,
-                status: true,
-                quantity: true,
-                updatedAt: true,
-                trialEndDate: true,
-                agentCreditAnchorAt: true,
-                enterpriseAgentCreditsPerUser: true,
-                createdAt: true,
-              },
-            },
-          },
-        },
-      },
+    const users = await this.list({
+      model: "user",
+      baseWhere,
+      select: OPERATOR_USER_SELECT,
+      params: { ...params, filters: passthrough },
+      map: (user: Prisma.UserGetPayload<{ select: typeof OPERATOR_USER_SELECT }>) => user,
     });
 
     const companyIds = [...new Set(users.map((user) => user.companyId))];

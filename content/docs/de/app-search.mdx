@@ -7,24 +7,30 @@ Die globale Suche ist ein Modal, keine Seite: Sie öffnet überall in der App mi
 
 ## Was findet die globale Suche?
 
-Das Modal durchsucht **Kontakte, Organisationen, Deals, Services und Aufgaben** nach Name und verwandten Feldern, bis zu 50 Treffer pro Datensatztyp, und zeigt vor der Eingabe eine Gruppe **Zuletzt geöffnet**. Nachrichten werden nicht durchsucht; der Posteingang hat seine eigene Suche.
+Das Modal durchsucht **Kontakte, Organisationen, Deals, Services und Aufgaben**, bis zu 50 Treffer pro Datensatztyp. Kontakte werden über Vorname, Nachname, jeden Kanal-Identifikator (etwa eine E-Mail-Adresse oder eine WhatsApp-Nummer) und die Namen verknüpfter Organisationen gefunden, Organisationen über ihren Namen und die Vor- und Nachnamen ihrer Kontakte, Deals, Services und Aufgaben nur über ihren Namen. Jedes eingegebene Wort muss treffen, ohne Beachtung der Groß- und Kleinschreibung, "anna schmidt" findet also nur Datensätze, die beide Wörter treffen.
+
+Sie sehen nur die Datensatztypen, die Ihre Rolle lesen darf, und **Lesen** mit **Zugewiesen** beschränkt die Treffer auf Datensätze, denen Sie zugewiesen sind. Vor der Eingabe zeigt **Zuletzt geöffnet** Ihre letzten 8 Auswahlen aus dieser Suche, nur in diesem Browser gespeichert; **Leeren** leert die Liste. Die Pfeiltasten bewegen sich durch die Treffer, Enter öffnet einen.
+
+Nachrichten werden nicht durchsucht; der Posteingang hat seine eigene Suche.
 
 Die Auswahl eines Ergebnisses öffnet die Detailseite des Datensatzes unter `/{type}/{id}`. Um stattdessen einen Datensatz anzulegen, nutzen Sie das Steuerelement **Hinzufügen** seiner Listenseite oder den Deep-Link `?open={entityType}:new`, dokumentiert in [CRM-Datensätze](/docs/app-records).
+
+**Link:** keine Seite; öffnen Sie das Modal auf jeder App-Seite mit Cmd+K oder Ctrl+K oder über **Suchen** in der Sidebar. **Mate:** `highlight_element` mit `nav-search` (Mate kann weder mit `navigate` dorthin wechseln noch das Modal öffnen); das Suchfeld und die Treffer sind keine Highlight-Ziele, deshalb nennt Mate sie beim Namen.
 
 ## Welche stabilen Ids hat sie?
 
 | Control | Id |
 |---|---|
 | Sidebar-Trigger | `#nav-search` (**Suchen**) |
-| Suchfeld im Modal | `#global-search-input` |
+| Container des Suchfelds im Modal | `#global-search-input` |
 
-Für einen Agent passiert die Eingabe nach dem Öffnen des Modals in `#global-search-input`; Ergebnisse sind normale Optionen, ausgewählt über ihren sichtbaren Namen. Für gefilterte, sortierte oder gezählte Abfragen sind die Listenseiten oder `list_records` besser, denn sie liefern Gesamtzahlen. Der gehostete Assistent Mate kann `#nav-search` hervorheben, aber das Modal weder öffnen noch etwas hineintippen.
+Für einen Agent passiert die Eingabe nach dem Öffnen des Modals im Textfeld innerhalb von `#global-search-input`; Ergebnisse sind normale Optionen, ausgewählt über ihren sichtbaren Namen. Für gefilterte, sortierte oder gezählte Abfragen sind die Listenseiten oder `list_records` besser, denn sie liefern Gesamtzahlen. Der gehostete Assistent Mate kann `#nav-search` hervorheben, aber das Modal weder öffnen noch etwas hineintippen.
 
 ## Häufige Fragen
 
 <Faq>
 <FaqItem question="Was ist das Tastenkürzel?">
-Cmd+K auf macOS, sonst Ctrl+K, überall in der App. Der Sidebar-Trigger öffnet dasselbe Modal.
+Cmd+K oder Ctrl+K, auf jedem Betriebssystem, überall in der App. Der Sidebar-Trigger **Suchen**, der ⌘K anzeigt, öffnet dasselbe Modal.
 </FaqItem>
 <FaqItem question="Wo öffnen sich Ergebnisse?">
 Auf der Detailseite des Datensatzes unter `/{type}/{id}`, dokumentiert in CRM-Datensätze.

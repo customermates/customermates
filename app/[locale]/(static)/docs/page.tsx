@@ -46,7 +46,7 @@ export default async function DocsOverviewPage() {
         ])}
       />
 
-      <PageContainer>
+      <PageContainer className="relative [--toc-anchor-offset:1rem]">
         <DocsPageHeader
           description={page.data.description}
           markdownUrl={markdownUrl}

@@ -6,6 +6,7 @@ import { beforeEach, describe, expect, it, vi } from "vitest";
 
 const harness = vi.hoisted(() => ({
   outputs: [] as Array<{ help?: ReactNode; label: string; children: ReactNode }>,
+  selects: [] as Array<{ id: string; value?: string; items?: Array<{ value: string; label: string }> }>,
   translationCalls: [] as Array<{ key: string; values?: Record<string, string | number> }>,
 }));
 
@@ -14,7 +15,7 @@ const store = vi.hoisted(() => ({
   form: {
     currency: "eur",
     dealStageWeights: [{ optionValue: "qualified", weight: 40 }],
-    dealWeightingColumnId: "stage-column",
+    dealWeightingColumnId: "stage-column" as string | null,
   },
   forecastingRequest: "ready",
   isLoadingDealStageColumns: false,
@@ -46,7 +47,12 @@ vi.mock("@/components/chip/app-chip", () => ({
   AppChip: ({ children }: { children: ReactNode }) => createElement("span", null, children),
 }));
 vi.mock("@/components/forms/form-number-input", () => ({ FormNumberInput: () => null }));
-vi.mock("@/components/forms/form-select", () => ({ FormSelect: () => null }));
+vi.mock("@/components/forms/form-select", () => ({
+  FormSelect: (props: { id: string; value?: string; items?: Array<{ value: string; label: string }> }) => {
+    harness.selects.push(props);
+    return null;
+  },
+}));
 vi.mock("@/components/forms/form-output-field", () => ({
   FormOutputField: (props: { help?: ReactNode; label: string; children: ReactNode }) => {
     harness.outputs.push(props);
@@ -70,9 +76,70 @@ vi.mock("@/core/stores/use-hydrated-intl-store", () => ({
 
 import { CompanyForecastingSection } from "../company-forecasting-section";
 
+const stageColumn = store.dealStageColumns[0];
+
 beforeEach(() => {
   harness.outputs.length = 0;
+  harness.selects.length = 0;
   harness.translationCalls.length = 0;
+  store.form.dealWeightingColumnId = "stage-column";
+  store.forecastingRequest = "ready";
+  store.isLoadingDealStageColumns = false;
+  store.dealStageColumns = [stageColumn];
+});
+
+describe("CompanyForecastingSection deal stage field", () => {
+  function stageFieldSelect() {
+    renderToStaticMarkup(createElement(CompanyForecastingSection));
+    const select = harness.selects.find(({ id }) => id === "dealWeightingColumnId");
+    if (!select) throw new Error("Expected the deal stage field select");
+    return select;
+  }
+
+  it("shows Not configured as the chosen item when weighting is off", () => {
+    store.form.dealWeightingColumnId = null;
+
+    const select = stageFieldSelect();
+
+    expect(select.items?.find(({ value }) => value === select.value)?.label).toBe(
+      "CompanySettings.forecasting.noColumn",
+    );
+  });
+
+  it("shows the configured stage field as the chosen item", () => {
+    const select = stageFieldSelect();
+
+    expect(select.value).toBe("stage-column");
+    expect(select.items?.find(({ value }) => value === select.value)?.label).toBe("Stage");
+  });
+
+  it("does not claim Not configured while the deal columns are still loading", () => {
+    store.form.dealWeightingColumnId = null;
+    store.forecastingRequest = "loading";
+    store.isLoadingDealStageColumns = true;
+    store.dealStageColumns = [];
+
+    expect(stageFieldSelect().value).toBeUndefined();
+  });
+
+  it("does not claim Not configured when the deal columns fail to load", () => {
+    store.form.dealWeightingColumnId = null;
+    store.forecastingRequest = "error";
+    store.dealStageColumns = [];
+
+    expect(stageFieldSelect().value).toBeUndefined();
+  });
+
+  it("shows Not configured when it is chosen after the stage totals fail to load", () => {
+    store.form.dealWeightingColumnId = null;
+    store.forecastingRequest = "error";
+
+    const select = stageFieldSelect();
+
+    expect(select.items?.find(({ value }) => value === select.value)?.label).toBe(
+      "CompanySettings.forecasting.noColumn",
+    );
+  });
 });
 
 describe("CompanyForecastingSection computed outputs", () => {

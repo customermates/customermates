@@ -17,7 +17,7 @@ export const ContactKeySchema = z
       "a phone number (e.g. '+491234567890', matched across WhatsApp/Telegram); " +
       "or 'provider:value' for a messaging handle where provider is one of linkedin, telegram, instagram " +
       "(e.g. 'linkedin:john-doe', 'telegram:jdoe', 'instagram:jane'). " +
-      "The contact must already exist; unknown or malformed keys are rejected.",
+      "The contact must already exist. An unknown or malformed key is refused as not found, except by the REST get by id, which returns `contact: null`.",
   );
 
 type ParsedContactKey =

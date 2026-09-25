@@ -383,6 +383,141 @@ describe("agent client-visible output safety", () => {
     expect(protocol.removedToolProtocol).toBe(false);
   });
 
+  it("keeps a trailing character that only starts a private marker across every chunk boundary", () => {
+    const values = [
+      "You change the currency in **My Company › Settings**.\n\n**Link:** `/company/settings`",
+      "Open the `Settings`",
+      "Use ``code``",
+      "Range 1 -",
+      "Value a <",
+      "Tom &",
+      `Quote \`${"x".repeat(64)}`,
+    ];
+
+    for (const source of values) {
+      expect(sanitizeAgentVisibleText(source)).toBe(source);
+
+      for (let split = 0; split <= source.length; split += 1) {
+        const sanitizer = new AgentVisibleTextStreamSanitizer();
+        const visible = `${sanitizer.push(source.slice(0, split))}${sanitizer.push(source.slice(split))}${sanitizer.finish()}`;
+        expect(visible).toBe(source);
+      }
+    }
+  });
+
+  it("still removes private markers that arrive split across chunks", () => {
+    const source = `Visible answer. <analysis>${"private ".repeat(12)}`;
+
+    for (let split = 0; split <= source.length; split += 1) {
+      const sanitizer = new AgentVisibleTextStreamSanitizer();
+      const visible = `${sanitizer.push(source.slice(0, split))}${sanitizer.push(source.slice(split))}${sanitizer.finish()}`;
+      expect(visible).toBe("Visible answer. ");
+    }
+  });
+
+  it("never leaks a fragment of a stray private tag at a flush boundary", () => {
+    const source = `${"a".repeat(70)} </think> ${"b".repeat(70)}`;
+    const expected = sanitizeAgentVisibleText(source);
+
+    expect(expected).not.toMatch(/think|>/);
+
+    for (let split = 0; split <= source.length; split += 1) {
+      const sanitizer = new AgentVisibleTextStreamSanitizer();
+      const visible = `${sanitizer.push(source.slice(0, split))}${sanitizer.push(source.slice(split))}${sanitizer.finish()}`;
+      expect(visible).toBe(expected);
+    }
+  });
+
+  it("keeps record ids inside in-app route links so the link still works", () => {
+    const dealId = "80000000-0000-4000-8000-000000000003";
+    const threadId = "00000000-0000-4000-8000-000000000001";
+    const values = [
+      `Record: [CRM Rollout](/deals/${dealId})`,
+      `Open [the Roche thread](/inbox?threadId=${threadId}) next.`,
+      `See [${"the enterprise renewal deal for Continental AG in Frankfurt am Main ".repeat(2)}](/deals/${dealId}).`,
+    ];
+
+    for (const source of values) {
+      expect(sanitizeAgentVisibleText(source)).toBe(source);
+
+      for (let split = 0; split <= source.length; split += 1) {
+        const sanitizer = new AgentVisibleTextStreamSanitizer();
+        const visible = `${sanitizer.push(source.slice(0, split))}${sanitizer.push(source.slice(split))}${sanitizer.finish()}`;
+        expect(visible).toBe(source);
+        expect(sanitizeAgentVisibleText(visible)).toBe(visible);
+      }
+    }
+
+    expect(agentPlainTextPreview(sanitizeAgentVisibleText(values[0] ?? ""), 140)).toBe("Record: CRM Rollout");
+  });
+
+  it("collapses other links to a record id to their label, redacts visible ids and stays stable when sanitized again", () => {
+    const dealId = "80000000-0000-4000-8000-000000000003";
+    const cases = [
+      [`Record: [CRM Rollout](https://example.com/deals/${dealId}).`, "Record: CRM Rollout."],
+      [`Record: [CRM Rollout](//example.com/deals/${dealId}).`, "Record: CRM Rollout."],
+      [`Record: [Deal ${dealId}](https://example.com/deals/${dealId})`, "Record: Deal [internal reference]"],
+      [`Chart: ![Pipeline](https://example.com/files/${dealId}.png)`, "Chart: Pipeline"],
+      [`Record: [${dealId}](/deals/${dealId})`, `Record: [[internal reference]](/deals/${dealId})`],
+      [`Record: [Deal ${dealId}](/deals/${dealId})`, `Record: [Deal [internal reference]](/deals/${dealId})`],
+      [`Record: [gpt-4o renewal](/deals/${dealId})`, `Record: [[internal details] renewal](/deals/${dealId})`],
+      [`Record: [apiKey=abc123](/deals/${dealId})`, `Record: [apiKey=[redacted]](/deals/${dealId})`],
+      [`Record: ](/deals/${dealId})`, "Record: ](/deals/[internal reference])"],
+      [`Route: /deals/${dealId}`, "Route: /deals/[internal reference]"],
+      ["Go to [Deals](/deals).", "Go to [Deals](/deals)."],
+    ] as const;
+
+    for (const [source, expected] of cases) {
+      expect(sanitizeAgentVisibleText(source)).toBe(expected);
+      expect(agentPlainTextPreview(expected, 500)).not.toContain(dealId);
+
+      for (let split = 0; split <= source.length; split += 1) {
+        const sanitizer = new AgentVisibleTextStreamSanitizer();
+        const visible = `${sanitizer.push(source.slice(0, split))}${sanitizer.push(source.slice(split))}${sanitizer.finish()}`;
+        expect(visible).toBe(expected);
+        expect(sanitizeAgentVisibleText(visible)).toBe(visible);
+      }
+    }
+  });
+
+  it("keeps a record-page link next to saved-view URLs and redacts record ids that render as text", () => {
+    const dealId = "80000000-0000-4000-8000-000000000003";
+    const viewId = "00000000-0000-4000-8000-000000000001";
+    const timelineUrl = `/deals/${dealId}?view=${viewId}&viewSurface=${SURFACE.entityTimeline}`;
+    const cases = [
+      [
+        `Open [CRM Rollout](/deals/${dealId}) or [Pipeline view](/deals?view=${viewId}).`,
+        `Open [CRM Rollout](/deals/${dealId}) or Pipeline view.`,
+      ],
+      [
+        `Open [CRM Rollout](/deals/${dealId}) then /deals?view=${viewId} next.`,
+        `Open [CRM Rollout](/deals/${dealId}) then /deals?view=[internal reference] next.`,
+      ],
+      [
+        `[Activity](${timelineUrl}) and [CRM Rollout](/de/deals/${dealId})`,
+        `Activity and [CRM Rollout](/de/deals/${dealId})`,
+      ],
+      [`[CRM Rollout](/contacts?record=${dealId})`, "CRM Rollout"],
+      [`[CRM Rollout](/deals/${dealId}?tab=notes)`, "CRM Rollout"],
+      [`![CRM Rollout](/deals/${dealId})`, "CRM Rollout"],
+      [`\`[CRM Rollout](/deals/${dealId})\``, "`[CRM Rollout](/deals/[internal reference])`"],
+      [`\\[CRM Rollout](/deals/${dealId})`, "\\[CRM Rollout](/deals/[internal reference])"],
+      [`~~~\n[CRM Rollout](/deals/${dealId})\n~~~`, "~~~\n[CRM Rollout](/deals/[internal reference])\n~~~"],
+    ] as const;
+
+    for (const [source, expected] of cases) {
+      expect(sanitizeAgentVisibleText(source)).toBe(expected);
+      expect(agentPlainTextPreview(expected, 500)).not.toContain(viewId);
+
+      for (let split = 0; split <= source.length; split += 1) {
+        const sanitizer = new AgentVisibleTextStreamSanitizer();
+        const visible = `${sanitizer.push(source.slice(0, split))}${sanitizer.push(source.slice(split))}${sanitizer.finish()}`;
+        expect(visible).toBe(expected);
+        expect(sanitizeAgentVisibleText(visible)).toBe(visible);
+      }
+    }
+  });
+
   it("keeps already-sanitized text stable", () => {
     const once = sanitizeAgentVisibleText("Done. apiKey=never-show; 00000000-0000-4000-8000-000000000001");
 

@@ -63,13 +63,18 @@ vi.mock("@/components/modal/hooks/use-delete-confirmation", () => ({
 
 vi.mock("@/i18n/navigation", () => ({
   IntlLink: ({ children, ...props }: { children: ReactNode }) => createElement("a", props, children),
+  usePathname: () => "/profile/api-keys",
   useRouter: () => ({ push: vi.fn(), replace: vi.fn() }),
 }));
 
 import { ApiKeyModalStore } from "../api-key-modal.store";
 import { ApiKeyModal } from "../api-key-modal";
 
-function renderModal(path: "wizard" | "plain" = "wizard", provider?: "openai" | "cursor" | "gemini") {
+function renderModal(
+  path: "wizard" | "plain" = "wizard",
+  provider?: "openai" | "cursor" | "gemini",
+  prepare?: (store: ApiKeyModalStore) => void,
+) {
   const rootStore = {
     apiKeysStore: { delete: vi.fn(), refresh: vi.fn() },
     intlStore: {
@@ -90,6 +95,7 @@ function renderModal(path: "wizard" | "plain" = "wizard", provider?: "openai" | 
   store.add();
   if (path === "plain") store.choosePlain();
   if (provider) store.aiConnectionStore.selectProvider(provider);
+  prepare?.(store);
   testContext.rootStore = rootStore;
 
   return renderToStaticMarkup(createElement(ApiKeyModal));
@@ -153,10 +159,24 @@ describe("ApiKeyModal add wizard", () => {
     expect(html).toContain("Common.actions.back");
     expect(html).not.toContain("ApiKeyModal.backToOptions");
     expect(html).not.toContain("Common.actions.cancel");
-    expect(html).toContain('id="name"');
-    expect(html).toContain('id="expiresIn"');
+    expect(html).toContain('id="api-key-name"');
+    expect(html).toContain('id="api-key-expires"');
     expect(html).toContain("ApiKeyModal.expiresInPlaceholder");
     expect(html).toContain('id="api-key-save"');
+  });
+
+  it("colours the name and expiry labels from their form errors although the controls carry scoped ids", () => {
+    const html = renderModal("plain", undefined, (store) =>
+      store.setError({
+        errors: [],
+        properties: { name: { errors: ["name"] }, expiresIn: { errors: ["expiresIn"] } },
+      }),
+    );
+
+    for (const control of ["api-key-name", "api-key-expires"]) {
+      const label = new RegExp(`<label[^>]*class="([^"]*)"[^>]*for="${control}"`).exec(html);
+      expect(label?.[1]).toContain("text-destructive");
+    }
   });
 
   it("uses the shared full-card key action for quick connections", () => {
@@ -168,6 +188,17 @@ describe("ApiKeyModal add wizard", () => {
     expect(createCard).toContain('data-api-key-setup="cursor"');
     expect(createCard).toContain("OnboardingWizard.ai.createKeyIntro");
     expect(createCard).toContain("lucide-arrow-right");
+  });
+
+  it("shows the quick-connection key's expiry next to its one-time setup", () => {
+    const html = renderModal("wizard", "cursor", (store) => {
+      store.aiConnectionStore.credentials = {
+        cursor: { id: "cursor-id", key: "one-time-secret", expiresAt: new Date("2027-09-24T10:00:00.000Z") },
+      };
+    });
+
+    expect(html).toContain("one-time-secret");
+    expect(html).toMatch(/<p[^>]*>OnboardingWizard\.ai\.install\.expiryNote<\/p>/);
   });
 
   it("promotes quick-connection titles into the modal header and moves Back into the footer", () => {

@@ -19,6 +19,7 @@ type SelectItemShape = {
 
 type Props = {
   id: string;
+  inputId?: string;
   label?: string | null;
   placeholder?: string;
   required?: boolean;
@@ -34,6 +35,7 @@ type Props = {
 export const FormSelectChip = observer(
   ({
     id,
+    inputId,
     label,
     placeholder,
     required,
@@ -56,11 +58,12 @@ export const FormSelectChip = observer(
     const selected = itemsArray.find((i) => i.key === value);
     const isDisabled = Boolean(disabled) || Boolean(store?.isLoading);
     const isReadOnly = !isDisabled && (Boolean(readOnly) || Boolean(store?.isReadOnly));
+    const domId = inputId ?? id;
 
     return (
       <div className={cn("space-y-1.5", containerClassName)}>
         {resolvedLabel && (
-          <FormLabel htmlFor={id}>
+          <FormLabel fieldId={id} htmlFor={domId}>
             {resolvedLabel}
 
             {required ? <span className="text-destructive"> *</span> : null}
@@ -77,7 +80,7 @@ export const FormSelectChip = observer(
             aria-invalid={hasError}
             aria-readonly={isReadOnly || undefined}
             className={cn("w-full", className, isReadOnly && "[&>svg:last-child]:hidden")}
-            id={id}
+            id={domId}
           >
             <SelectValue placeholder={placeholder ?? " "}>
               {selected ? <AppChip variant={selected.color ?? "secondary"}>{translateFn(selected.key)}</AppChip> : null}

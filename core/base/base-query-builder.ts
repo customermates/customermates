@@ -14,12 +14,20 @@ import { CustomColumnType } from "@/generated/prisma";
 import { FilterFieldKey } from "@/core/types/filter-field-key";
 import { isCustomField } from "@/core/utils/custom-field";
 import { groupScopeFragment } from "@/core/base/grouping/group-scope";
+import { orderByOptionIndex } from "@/core/base/grouping/option-order";
 import { normalizeFilter } from "@/core/base/filter-compat";
 
 export interface SortableField {
   field: string;
   resolvedFields: string[];
+  collate?: boolean;
+  nullable?: boolean;
 }
+
+export type TextSort = {
+  fields: string[];
+  direction: "asc" | "desc";
+};
 
 export interface SearchableField {
   field: string;
@@ -141,13 +149,25 @@ export abstract class BaseQueryBuilder<TWhereInput extends Record<string, unknow
     const where = await this.buildWhereClause(params, baseWhere);
     const customColumns = await this.customColumnsOnce();
     const customSort = resolveCustomSort(params.sortDescriptor, customColumns);
-    const orderBy = customSort ? [] : this.buildOrderBy({ sortDescriptor: params.sortDescriptor });
+    const textSort = customSort ? undefined : this.resolveTextSort(params.sortDescriptor);
+    const orderBy = customSort || textSort ? [] : this.buildOrderBy({ sortDescriptor: params.sortDescriptor });
     const pagination =
       params.take !== undefined || params.skip !== undefined
         ? { skip: params.skip ?? 0, take: params.take ?? 100 }
         : this.buildPagination(params.pagination);
 
-    return { where, orderBy, customSort, ...pagination };
+    return { where, orderBy, customSort, textSort, ...pagination };
+  }
+
+  private resolveTextSort(sortDescriptor: SortDescriptor | undefined): TextSort | undefined {
+    const sortableFields = this.getSortableFields();
+    const validated = this.validateSortDescriptor({ sortDescriptor, sortableFields });
+    if (!validated) return undefined;
+
+    const matched = sortableFields.find((s) => s.field === validated.field);
+    if (!matched?.collate) return undefined;
+
+    return { fields: matched.resolvedFields, direction: validated.direction };
   }
 
   validateFilters(args: { filters: Filter[] | undefined; filterableFields: FilterableField[] }): Filter[] {
@@ -236,17 +256,20 @@ export abstract class BaseQueryBuilder<TWhereInput extends Record<string, unknow
     const matched = sortableFields.find((s) => s.field === validatedSortDescriptor.field);
 
     if (matched && matched.resolvedFields && matched.resolvedFields.length > 0) {
+      const order = matched.nullable
+        ? { sort: validatedSortDescriptor.direction, nulls: "last" }
+        : validatedSortDescriptor.direction;
       const resolved = matched.resolvedFields.map((f) =>
         ((fieldPath: string) => {
           if (fieldPath.includes(".")) {
             const [relation, relField] = fieldPath.split(".");
 
             return {
-              [relation]: { [relField]: validatedSortDescriptor.direction },
+              [relation]: { [relField]: order },
             } as unknown as Record<string, unknown>;
           }
 
-          return { [fieldPath]: validatedSortDescriptor.direction } as Record<string, unknown>;
+          return { [fieldPath]: order } as Record<string, unknown>;
         })(f),
       );
 
@@ -522,10 +545,11 @@ export abstract class BaseQueryBuilder<TWhereInput extends Record<string, unknow
   }
 }
 
-type CustomSort = {
+export type CustomSort = {
   columnId: string;
   direction: "asc" | "desc";
   columnType: CustomColumnDto["type"];
+  optionRank?: ReadonlyMap<string, number>;
 };
 
 function resolveCustomSort(
@@ -539,7 +563,15 @@ function resolveCustomSort(
     columnId: column.id,
     direction: sortDescriptor.direction,
     columnType: column.type,
+    optionRank:
+      column.type === CustomColumnType.singleSelect
+        ? new Map(orderByOptionIndex(column.options?.options ?? []).map((option, position) => [option.value, position]))
+        : undefined,
   };
+}
+
+function isMissingSortValue(value: unknown): value is null | undefined | "" {
+  return value === null || value === undefined || value === "";
 }
 
 export function compareCustomFieldValues(
@@ -548,18 +580,43 @@ export function compareCustomFieldValues(
   direction: "asc" | "desc",
   columnType: CustomColumnDto["type"],
   collator: Pick<Intl.Collator, "compare">,
+  optionRank?: ReadonlyMap<string, number>,
 ): number {
-  const isMissing = (v: typeof a) => v === null || v === undefined || v === "";
-  if (isMissing(a)) return isMissing(b) ? 0 : 1;
-  if (isMissing(b)) return -1;
+  if (isMissingSortValue(a)) return isMissingSortValue(b) ? 0 : 1;
+  if (isMissingSortValue(b)) return -1;
 
   const cmp =
     columnType === "currency"
       ? Number(a) - Number(b)
       : columnType === "date" || columnType === "dateTime"
         ? new Date(a).getTime() - new Date(b).getTime()
-        : collator.compare(a, b);
+        : optionRank
+          ? (optionRank.get(a) ?? optionRank.size) - (optionRank.get(b) ?? optionRank.size) || collator.compare(a, b)
+          : collator.compare(a, b);
   return direction === "asc" ? cmp : -cmp;
+}
+
+export function compareSortValues(
+  a: readonly unknown[],
+  b: readonly unknown[],
+  direction: "asc" | "desc",
+  collator: Pick<Intl.Collator, "compare">,
+): number {
+  for (const [index, left] of a.entries()) {
+    const right = b[index];
+    if (isMissingSortValue(left) || isMissingSortValue(right)) {
+      if (isMissingSortValue(left) && isMissingSortValue(right)) continue;
+      return isMissingSortValue(left) ? 1 : -1;
+    }
+
+    const cmp =
+      typeof left === "string" && typeof right === "string"
+        ? collator.compare(left, right)
+        : Number(left) - Number(right);
+    if (cmp !== 0) return direction === "asc" ? cmp : -cmp;
+  }
+
+  return 0;
 }
 
 const COMPARISON_OPS = [FilterOperatorKey.gt, FilterOperatorKey.gte, FilterOperatorKey.lt, FilterOperatorKey.lte];

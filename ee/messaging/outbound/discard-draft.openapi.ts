@@ -2,7 +2,7 @@ import type { ZodOpenApiOperationObject } from "zod-openapi";
 
 import { z } from "zod";
 
-import { CommonApiResponses } from "@/core/api/interactor-handler";
+import { CommonApiResponses, NotFoundApiResponse } from "@/core/api/interactor-handler";
 import { DraftRevisionSchema } from "@/ee/messaging/draft-thread";
 
 export const discardDraftOperation: ZodOpenApiOperationObject = {
@@ -26,5 +26,6 @@ export const discardDraftOperation: ZodOpenApiOperationObject = {
       },
     },
     ...CommonApiResponses,
+    ...NotFoundApiResponse,
   },
 };

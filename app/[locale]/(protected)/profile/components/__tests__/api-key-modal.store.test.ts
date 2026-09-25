@@ -36,7 +36,7 @@ afterEach(() => vi.useRealTimers());
 describe("ApiKeyModalStore add wizard", () => {
   it("opens on the combined options screen and clears an earlier quick-connection secret", () => {
     const store = makeStore();
-    store.aiConnectionStore.credentials = { cursor: { id: "old-id", key: "old-secret" } };
+    store.aiConnectionStore.credentials = { cursor: { id: "old-id", key: "old-secret", expiresAt: null } };
     store.aiConnectionStore.selectProvider("cursor");
 
     store.add();
@@ -124,7 +124,7 @@ describe("ApiKeyModalStore add wizard", () => {
   it("creates a quick connection, refreshes its sanitized row exactly once, and keeps the secret in the wizard", async () => {
     profileActions.createApiKeyAction.mockResolvedValue({
       ok: true,
-      data: { id: "gemini-id", key: "one-time-gemini-secret" },
+      data: { id: "gemini-id", key: "one-time-gemini-secret", expiresAt: new Date("2027-09-24T10:00:00.000Z") },
     });
     const store = makeStore();
     store.add();
@@ -141,6 +141,7 @@ describe("ApiKeyModalStore add wizard", () => {
       expiresIn: API_KEY_MAX_EXPIRATION_SECONDS,
     });
     expect(store.aiConnectionStore.apiKey).toBe("one-time-gemini-secret");
+    expect(store.aiConnectionStore.apiKeyExpiresAt).toEqual(new Date("2027-09-24T10:00:00.000Z"));
     expect(refresh).toHaveBeenCalledTimes(1);
 
     await executeAiConnectionKeyCreation({
@@ -168,7 +169,7 @@ describe("ApiKeyModalStore add wizard", () => {
 
     runInAction(() => {
       store.aiConnectionStore.pendingTool = null;
-      store.aiConnectionStore.credentials = { cursor: { id: "cursor-id", key: "one-time-secret" } };
+      store.aiConnectionStore.credentials = { cursor: { id: "cursor-id", key: "one-time-secret", expiresAt: null } };
     });
     store.close();
 

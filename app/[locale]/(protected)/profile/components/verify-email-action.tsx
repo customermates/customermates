@@ -14,6 +14,7 @@ export function VerifyEmailAction() {
   return (
     <Button
       className="h-8"
+      id="profile-settings-verify-email"
       size="sm"
       type="button"
       variant="secondary"

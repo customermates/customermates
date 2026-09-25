@@ -13,7 +13,6 @@ export function useRoleColumns(): ColumnDef<RoleDto>[] {
   return useMemo<ColumnDef<RoleDto>[]>(
     () => [
       {
-        accessorKey: "name",
         id: "name",
         header: t("Common.table.columns.name"),
         cell: ({ row }) => (

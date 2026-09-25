@@ -38,14 +38,16 @@ const ExpiresInPicker = observer(() => {
 
   return (
     <div className="space-y-1.5">
-      <FormLabel htmlFor="expiresIn">{t("ApiKeyModal.expiresIn")}</FormLabel>
+      <FormLabel fieldId="expiresIn" htmlFor="api-key-expires">
+        {t("ApiKeyModal.expiresIn")}
+      </FormLabel>
 
       <Popover>
         <PopoverTrigger asChild>
           <Button
             className={cn("w-full justify-start text-left font-normal", !expiresAt && "text-muted-foreground")}
             disabled={apiKeyModalStore.isDisabled}
-            id="expiresIn"
+            id="api-key-expires"
             type="button"
             variant="field"
           >
@@ -106,7 +108,7 @@ export const ApiKeyModal = observer(() => {
   useEffect(() => {
     if (previousCreationPath.current === creationPath) return;
 
-    if (creationPath === "plain") document.getElementById("name")?.focus();
+    if (creationPath === "plain") document.getElementById("api-key-name")?.focus();
     else if (previousCreationPath.current === "plain") standardOptionRef.current?.focus();
 
     previousCreationPath.current = creationPath;
@@ -139,6 +141,7 @@ export const ApiKeyModal = observer(() => {
         ref={standardOptionRef}
         className="h-auto w-full justify-start gap-3 whitespace-normal rounded-xl p-4 text-left"
         data-api-key-option="plain"
+        id="api-key-option-standard"
         type="button"
         variant="secondary"
         onClick={apiKeyModalStore.choosePlain}
@@ -174,6 +177,7 @@ export const ApiKeyModal = observer(() => {
           ? [
               {
                 id: "delete-api-key",
+                anchorId: "api-key-delete",
                 label: t("Common.actions.delete"),
                 icon: Trash2,
                 variant: "destructive",
@@ -229,7 +233,7 @@ export const ApiKeyModal = observer(() => {
               </Alert>
             ) : isPlain ? (
               <>
-                <FormInput required id="name" />
+                <FormInput required id="name" inputId="api-key-name" />
 
                 <ExpiresInPicker />
               </>

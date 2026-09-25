@@ -4,7 +4,7 @@ import { OrganizationDtoSchema } from "../organization.schema";
 
 import { CreateOrganizationSchema } from "./create-organization.interactor";
 
-import { CommonApiResponses } from "@/core/api/interactor-handler";
+import { CommonApiResponses, NotFoundApiResponse } from "@/core/api/interactor-handler";
 
 export const createOrganizationOperation: ZodOpenApiOperationObject = {
   operationId: "createOrganization",
@@ -30,5 +30,6 @@ export const createOrganizationOperation: ZodOpenApiOperationObject = {
       },
     },
     ...CommonApiResponses,
+    ...NotFoundApiResponse,
   },
 };

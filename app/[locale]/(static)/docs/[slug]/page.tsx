@@ -53,7 +53,7 @@ export default async function DocPage({ params }: { params: Promise<{ slug: stri
         ])}
       />
 
-      <PageContainer>
+      <PageContainer className="relative [--toc-anchor-offset:1rem]">
         <DocsPageHeader
           description={page.data.description}
           markdownUrl={markdownUrl}

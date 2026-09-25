@@ -5,12 +5,17 @@ import { getTranslations } from "next-intl/server";
 import type { CustomErrorCode } from "@/core/validation/validation.types";
 
 import { FilterOperatorKey } from "@/core/base/base-query-builder";
-import { createZodError, type InteractorResult } from "@/core/validation/validation.utils";
+import {
+  createZodError,
+  interactorFailureKind,
+  type InteractorFailureKind,
+  type InteractorResult,
+} from "@/core/validation/validation.utils";
 
 import {
+  mcpFailureText,
   mcpInteractorFailure,
   mcpValidationFailure,
-  validationError,
   VALIDATION_ERROR_PREFIX,
   type McpToolFailureResult,
   type McpToolResult,
@@ -60,19 +65,24 @@ export const mcpPage = (maximum?: number) => {
   return bounded.default(1).describe("1-indexed page number");
 };
 
-async function customErrorText(code: CustomErrorCode, values?: Record<string, string>): Promise<string> {
+async function translatedErrorMessage(code: CustomErrorCode, values?: Record<string, string>): Promise<string> {
   const t = await getTranslations("Common.errors");
   let message = t.raw(code) as string;
   if (values) for (const [key, value] of Object.entries(values)) message = message.replaceAll(`{${key}}`, value);
-  return `${VALIDATION_ERROR_PREFIX} ${message}`;
+  return message;
+}
+
+function customErrorText(kind: InteractorFailureKind, message: string): string {
+  return kind === "validation" ? `${VALIDATION_ERROR_PREFIX} ${message}` : message;
 }
 
 export function nestedValidationErrorText(error: z.ZodError): string {
-  return validationError(error);
+  return mcpFailureText(error);
 }
 
-export function nestedCustomErrorText(code: CustomErrorCode, values?: Record<string, string>): Promise<string> {
-  return customErrorText(code, values);
+export async function nestedCustomErrorText(code: CustomErrorCode, values?: Record<string, string>): Promise<string> {
+  const message = await translatedErrorMessage(code, values);
+  return customErrorText(interactorFailureKind(createZodError(message, [], { ...values, error: code })), message);
 }
 
 export async function customMcpFailure(
@@ -80,10 +90,9 @@ export async function customMcpFailure(
   values?: Record<string, string>,
   path: Array<string | number> = [],
 ): Promise<McpToolFailureResult> {
-  const text = await customErrorText(code, values);
-  const message = text.slice(VALIDATION_ERROR_PREFIX.length).trim();
+  const message = await translatedErrorMessage(code, values);
   const failure = mcpInteractorFailure(createZodError(message, path, { ...values, error: code }));
-  return { ...failure, text };
+  return { ...failure, text: customErrorText(failure.failure.kind, message) };
 }
 
 export function mcpMessageFailure(message: string, path: Array<string | number> = []): McpToolFailureResult {

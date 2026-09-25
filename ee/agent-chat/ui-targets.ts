@@ -1,15 +1,26 @@
 import { z } from "zod";
 
-import { WORKSPACE_SECTIONS } from "@/app/components/navigation/workspace-sections";
+import type { AppMode } from "@/core/config/environment";
+import type { Resource } from "@/generated/prisma";
 
 import {
+  WORKSPACE_SECTIONS,
+  visibleSubroutes,
+  type WorkspaceSection,
+} from "@/app/components/navigation/workspace-sections";
+
+import {
+  CONTROL_PAGES,
+  FORM_PAGES,
   PRIMARY_NAV_PAGES,
   SCOPES_WITHOUT_FILTER,
+  SCOPES_WITHOUT_SEARCH,
   STATIC_NAV_PAGES,
   TOOLBAR_PAGES_WITH_ADD,
   TOOLBAR_PAGES_WITHOUT_ADD,
   WORKSPACE_NAV_GROUPS,
   type AnchorPage,
+  type ControlPage,
   TRANSFERABLE_SCOPES,
 } from "./ui-anchors";
 
@@ -31,6 +42,7 @@ function navTargets(): AgentUiTarget[] {
       id: `nav-${group.section}-${subroute.slug}`,
       route: `/${group.section}/${subroute.slug}`,
       description: `Sidebar link to ${group.section} ${subroute.slug.replace(/-/g, " ")}`,
+      prerequisite: `nav-${group.section}`,
     })),
   ]);
 
@@ -65,11 +77,15 @@ function toolbarTargets(page: AnchorPage, hasAdd: boolean): AgentUiTarget[] {
           },
         ]
       : []),
-    {
-      id: `${page.scope}-search`,
-      route: page.route,
-      description: `Search input over ${page.label}`,
-    },
+    ...(SCOPES_WITHOUT_SEARCH.has(page.scope)
+      ? []
+      : [
+          {
+            id: `${page.scope}-search`,
+            route: page.route,
+            description: `Search input over ${page.label}`,
+          },
+        ]),
     ...(TRANSFERABLE_SCOPES.has(page.scope)
       ? [
           {
@@ -102,6 +118,36 @@ function toolbarTargets(page: AnchorPage, hasAdd: boolean): AgentUiTarget[] {
   ];
 }
 
+function prerequisiteOf(opener: string | undefined) {
+  return opener ? { prerequisite: opener } : {};
+}
+
+function formTargets(page: AnchorPage): AgentUiTarget[] {
+  return [
+    {
+      id: `${page.scope}-save`,
+      route: page.route,
+      description: `Save button of the ${page.label}; ${page.hiddenUntilDirty ? "shown" : "enabled"} once something changed`,
+      ...prerequisiteOf(page.opener),
+    },
+    {
+      id: `${page.scope}-reset`,
+      route: page.route,
+      description: `Reset button that discards unsaved changes in the ${page.label}; shown once something changed`,
+      ...prerequisiteOf(page.resetOpener ?? page.opener),
+    },
+  ];
+}
+
+function controlTargets(page: ControlPage): AgentUiTarget[] {
+  return page.controls.map((control) => ({
+    id: `${page.scope}-${control.control}`,
+    route: page.route,
+    description: control.description,
+    ...prerequisiteOf(control.prerequisite),
+  }));
+}
+
 export const AGENT_UI_TARGETS: AgentUiTarget[] = [
   ...navTargets(),
   {
@@ -116,6 +162,8 @@ export const AGENT_UI_TARGETS: AgentUiTarget[] = [
   },
   ...TOOLBAR_PAGES_WITH_ADD.flatMap((page) => toolbarTargets(page, true)),
   ...TOOLBAR_PAGES_WITHOUT_ADD.flatMap((page) => toolbarTargets(page, false)),
+  ...FORM_PAGES.flatMap(formTargets),
+  ...CONTROL_PAGES.flatMap(controlTargets),
 ];
 
 export const AGENT_UI_TARGET_IDS = AGENT_UI_TARGETS.map((target) => target.id) as [string, ...string[]];
@@ -142,4 +190,31 @@ export function findAgentUiTarget(targetId: string) {
 export function findAgentNavigationTarget(targetId: string) {
   const target = findAgentUiTarget(targetId);
   return target?.route.startsWith("/") ? target : null;
+}
+
+function routeSegments(path: string) {
+  return path.split("?")[0].split("/").filter(Boolean);
+}
+
+function isWorkspaceSection(segment: string | undefined): segment is WorkspaceSection {
+  return segment === "profile" || segment === "company";
+}
+
+function primaryNavPage(section: string | undefined) {
+  return PRIMARY_NAV_PAGES.find((page) => page.route === `/${section}`);
+}
+
+export function agentUiPageLabelKey(route: string): string | null {
+  const [section, slug] = routeSegments(route);
+  if (isWorkspaceSection(section))
+    return WORKSPACE_SECTIONS[section].find((subroute) => subroute.slug === slug)?.labelKey ?? null;
+  return primaryNavPage(section)?.labelKey ?? null;
+}
+
+export function agentRouteVisible(path: string, appMode: AppMode, canAccess: (resource: Resource) => boolean) {
+  const [section, slug] = routeSegments(path);
+  if (isWorkspaceSection(section))
+    return visibleSubroutes(section, appMode, canAccess).some((subroute) => subroute.slug === slug);
+  const page = primaryNavPage(section);
+  return !page || ((appMode !== "self-hosted" || !page.cloudOnly) && (!page.resource || canAccess(page.resource)));
 }

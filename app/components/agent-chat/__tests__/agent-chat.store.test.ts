@@ -6230,8 +6230,19 @@ describe("AgentChatStore", () => {
 });
 
 describe("AgentUiControlStore", () => {
+  afterEach(() => {
+    vi.useRealTimers();
+    vi.unstubAllGlobals();
+  });
+
+  function uiRoot(readable: (resource: string) => boolean = () => true) {
+    return { ...root(), appMode: "cloud", userStore: { canAccess: readable } };
+  }
+
   it("self-navigates the connected-account walkthrough and reaches its connect control", async () => {
     class FakeHTMLElement {
+      isConnected = true;
+      getClientRects = () => [{}];
       scrollIntoView = vi.fn();
     }
     const elements = new Map([
@@ -6248,7 +6259,7 @@ describe("AgentUiControlStore", () => {
       return 1;
     });
     const navigate = vi.fn().mockResolvedValue("navigated");
-    const store = new AgentUiControlStore(root() as never);
+    const store = new AgentUiControlStore(uiRoot() as never);
     store.registerNavigate(navigate);
 
     try {
@@ -6276,7 +6287,10 @@ describe("AgentUiControlStore", () => {
   });
 
   it("searches backward past unavailable tour targets", async () => {
+    vi.useFakeTimers();
     class FakeHTMLElement {
+      isConnected = true;
+      getClientRects = () => [{}];
       scrollIntoView = vi.fn();
     }
     const elements = new Map([
@@ -6292,7 +6306,7 @@ describe("AgentUiControlStore", () => {
       callback(0);
       return 1;
     });
-    const store = new AgentUiControlStore(root() as never);
+    const store = new AgentUiControlStore(uiRoot() as never);
     store.registerNavigate(vi.fn().mockResolvedValue("navigated"));
 
     try {
@@ -6311,10 +6325,12 @@ describe("AgentUiControlStore", () => {
       ).resolves.toMatchObject({ ok: true });
       expect(store.active?.stepIndex).toBe(0);
       store.nextStep();
-      await vi.waitFor(() => expect(store.active?.stepIndex).toBe(2));
+      await vi.advanceTimersByTimeAsync(2500);
+      expect(store.active?.stepIndex).toBe(2);
 
       store.previousStep();
-      await vi.waitFor(() => expect(store.active?.stepIndex).toBe(0));
+      await vi.advanceTimersByTimeAsync(2500);
+      expect(store.active?.stepIndex).toBe(0);
       expect(store.active?.targetId).toBe("nav-contacts");
     } finally {
       vi.unstubAllGlobals();
@@ -6322,6 +6338,7 @@ describe("AgentUiControlStore", () => {
   });
 
   it("reports a guided-tour failure when none of its allowed targets exist", async () => {
+    vi.useFakeTimers();
     vi.stubGlobal(
       "HTMLElement",
       class FakeHTMLElement {
@@ -6336,22 +6353,22 @@ describe("AgentUiControlStore", () => {
       callback(0);
       return 1;
     });
-    const store = new AgentUiControlStore(root() as never);
+    const store = new AgentUiControlStore(uiRoot() as never);
     store.registerNavigate(vi.fn().mockResolvedValue("navigated"));
 
     try {
-      await expect(
-        store.startGuidedTour([
-          {
-            targetId: "nav-dashboard",
-            note: "The dashboard summarises your business.",
-          },
-          {
-            targetId: "dashboard-add-widget",
-            note: "Add a widget for a new view.",
-          },
-        ]),
-      ).resolves.toEqual({
+      const started = store.startGuidedTour([
+        {
+          targetId: "nav-dashboard",
+          note: "The dashboard summarises your business.",
+        },
+        {
+          targetId: "dashboard-add-widget",
+          note: "Add a widget for a new view.",
+        },
+      ]);
+      await vi.advanceTimersByTimeAsync(5000);
+      await expect(started).resolves.toEqual({
         ok: false,
         result: "None of the tour targets are reachable right now.",
       });
@@ -6373,7 +6390,7 @@ describe("AgentUiControlStore", () => {
       activeElement: null,
       getElementById: vi.fn().mockReturnValue(null),
     });
-    const store = new AgentUiControlStore(root() as never);
+    const store = new AgentUiControlStore(uiRoot() as never);
     store.registerNavigate(
       () =>
         new Promise((resolve) => {
@@ -6399,8 +6416,137 @@ describe("AgentUiControlStore", () => {
     vi.unstubAllGlobals();
   });
 
+  it("waits for a cross-page stop to render instead of skipping it and ending the tour", async () => {
+    vi.useFakeTimers();
+    class FakeHTMLElement {
+      isConnected = true;
+      getClientRects = () => [{}];
+      scrollIntoView = vi.fn();
+    }
+    const rendered = new Set(["company-subscription-refresh"]);
+    const elements = new Map(
+      ["company-subscription-refresh", "company-members-add", "company-roles-add"].map((id) => [
+        id,
+        new FakeHTMLElement(),
+      ]),
+    );
+    vi.stubGlobal("HTMLElement", FakeHTMLElement);
+    vi.stubGlobal("document", {
+      activeElement: null,
+      getElementById: vi.fn((id: string) => (rendered.has(id) ? (elements.get(id) ?? null) : null)),
+    });
+    vi.stubGlobal("requestAnimationFrame", (callback: FrameRequestCallback) => {
+      callback(0);
+      return 1;
+    });
+    const navigate = vi.fn((path: string) => {
+      setTimeout(() => {
+        if (path === "/company/members") rendered.add("company-members-add");
+        if (path === "/company/roles") rendered.add("company-roles-add");
+      }, 700);
+      return Promise.resolve("navigated" as const);
+    });
+    const store = new AgentUiControlStore(uiRoot() as never);
+    store.registerNavigate(navigate);
+
+    await expect(
+      store.startGuidedTour([
+        { targetId: "company-subscription-refresh", note: "Refresh the status." },
+        { targetId: "company-members-add", note: "Invite a member." },
+        { targetId: "company-roles-add", note: "Add a role." },
+      ]),
+    ).resolves.toMatchObject({ ok: true });
+
+    store.nextStep();
+    await vi.advanceTimersByTimeAsync(1000);
+    expect(store.active?.targetId).toBe("company-members-add");
+    expect(navigate).toHaveBeenLastCalledWith("/company/members");
+
+    store.nextStep();
+    await vi.advanceTimersByTimeAsync(1000);
+    expect(store.active?.targetId).toBe("company-roles-add");
+    expect(store.active?.stepIndex).toBe(2);
+  });
+
+  it("skips a tour stop on a page the role cannot open without navigating there", async () => {
+    vi.useFakeTimers();
+    class FakeHTMLElement {
+      isConnected = true;
+      getClientRects = () => [{}];
+      scrollIntoView = vi.fn();
+    }
+    const elements = new Map([
+      ["nav-dashboard", new FakeHTMLElement()],
+      ["company-members-add", new FakeHTMLElement()],
+    ]);
+    vi.stubGlobal("HTMLElement", FakeHTMLElement);
+    vi.stubGlobal("document", {
+      activeElement: null,
+      getElementById: vi.fn((id: string) => elements.get(id) ?? null),
+    });
+    vi.stubGlobal("requestAnimationFrame", (callback: FrameRequestCallback) => {
+      callback(0);
+      return 1;
+    });
+    const navigate = vi.fn().mockResolvedValue("navigated");
+    const store = new AgentUiControlStore(uiRoot((resource) => resource !== "api") as never);
+    store.registerNavigate(navigate);
+
+    await expect(
+      store.startGuidedTour([
+        { targetId: "nav-dashboard", note: "Start here." },
+        { targetId: "company-webhooks-add", note: "Add a webhook." },
+        { targetId: "company-members-add", note: "Invite a member." },
+      ]),
+    ).resolves.toMatchObject({ ok: true });
+
+    store.nextStep();
+    await vi.advanceTimersByTimeAsync(0);
+    expect(store.active?.targetId).toBe("company-members-add");
+    expect(navigate).not.toHaveBeenCalledWith("/company/webhooks");
+  });
+
+  it("skips a tour stop that is mounted but has no layout", async () => {
+    vi.useFakeTimers();
+    class FakeHTMLElement {
+      isConnected = true;
+      constructor(private readonly rects: number) {}
+      getClientRects = () => Array.from({ length: this.rects });
+      scrollIntoView = vi.fn();
+    }
+    const elements = new Map([
+      ["nav-profile-connected-accounts", new FakeHTMLElement(1)],
+      ["connected-account-signature", new FakeHTMLElement(0)],
+      ["profile-connected-accounts-connect", new FakeHTMLElement(1)],
+    ]);
+    vi.stubGlobal("HTMLElement", FakeHTMLElement);
+    vi.stubGlobal("document", {
+      activeElement: null,
+      getElementById: vi.fn((id: string) => elements.get(id) ?? null),
+    });
+    vi.stubGlobal("requestAnimationFrame", (callback: FrameRequestCallback) => {
+      callback(0);
+      return 1;
+    });
+    const store = new AgentUiControlStore(uiRoot() as never);
+    store.registerNavigate(vi.fn().mockResolvedValue("navigated"));
+
+    await expect(
+      store.startGuidedTour([
+        { targetId: "nav-profile-connected-accounts", note: "Open channels." },
+        { targetId: "connected-account-signature", note: "Turn on the signature." },
+        { targetId: "profile-connected-accounts-connect", note: "Connect one." },
+      ]),
+    ).resolves.toMatchObject({ ok: true });
+
+    store.nextStep();
+    await vi.advanceTimersByTimeAsync(2500);
+    expect(store.active?.targetId).toBe("profile-connected-accounts-connect");
+    expect(store.active?.stepIndex).toBe(2);
+  });
+
   it("repeats the exact navigation allowlist check on the client", async () => {
-    const store = new AgentUiControlStore(root() as never);
+    const store = new AgentUiControlStore(uiRoot() as never);
     const navigate = vi.fn().mockResolvedValue("navigated");
     store.registerNavigate(navigate);
 

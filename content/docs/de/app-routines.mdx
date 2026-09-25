@@ -3,66 +3,83 @@ title: "Routinen: Geplante und ereignisgesteuerte Assistenzläufe"
 description: "Routinen führen Mate nach Zeitplan oder bei Datensatzänderungen aus, mit den Credits des Eigentümers, Limits, Laufstatus, Freigaben und stabilen Anker-IDs."
 ---
 
-Eine Routine ist eine gespeicherte Anweisung plus ein Auslöser. Greift der Auslöser, öffnet Customermates eine neue Assistenten-Unterhaltung, sendet Ihre Anweisung und lässt Mate selbstständig arbeiten. Wer eine Routine sieht, richtet sich nach der Berechtigung Routinen in der jeweiligen Rolle: Voller Zugriff zeigt jede Routine im Workspace, eigener Zugriff nur die eigenen. Lauf-Zusammenfassungen folgen der Routine. Das vollständige Assistenten-Transkript bleibt bei der Person, unter deren Identität der Lauf ausgeführt wurde. Routinen gibt es nur in Customermates Cloud, weil sie gehostete KI-Credits aus dem Monatskontingent des Eigentümers verbrauchen.
+Eine Routine ist eine gespeicherte Anweisung plus ein Auslöser. Greift der Auslöser, öffnet Customermates eine neue Assistenten-Unterhaltung, sendet Ihre Anweisung und lässt Mate selbstständig arbeiten. Wer eine Routine sieht, richtet sich nach der Zeile **Routinen** der jeweiligen Rolle unter **Mein Unternehmen › Rollen**: **Lesen** mit **Alle** zeigt jede Routine im Workspace, **Zugewiesen** nur die eigenen, und **Keine** blendet **Routinen** aus; eigene Routinen anlegen und bearbeiten erfordert **Verwalten** auf **Ja**. Lauf-Zusammenfassungen folgen der Routine. Das vollständige Assistenten-Transkript bleibt bei der Person, unter deren Identität der Lauf ausgeführt wurde. Routinen gibt es nur in Customermates Cloud, weil sie gehostete KI-Credits aus dem Monatskontingent des Eigentümers verbrauchen.
+
+**Link:** die Seite **Routinen**, `/routines`; eine einzelne Routine hat keinen eigenen Link, öffnen Sie sie deshalb aus der Liste. **Mate:** `navigate` und `highlight_element` mit `nav-routines`; `routines-add` hebt **Hinzufügen** hervor (nur vorhanden mit **Verwalten** **Ja** bei **Routinen**), `routines-search` und `routines-filter` heben das Suchfeld und die Filter hervor, `routines-display-options` die Anzeigeoptionen mit `routines-layout-table` und `routines-layout-board` darin. Ist der Routinen-Dialog geöffnet, heben `routine-modal-save` und `routine-modal-reset` **Speichern** und **Zurücksetzen** hervor, die nur der Eigentümer der Routine mit **Verwalten** **Ja** sieht, **Zurücksetzen** erst nach einer Änderung und keine der beiden, solange **Details zum Lauf** geöffnet ist; die Felder des Dialogs, **Auslöser testen**, **Löschen** und **Routine pausieren** sind keine Highlight-Ziele, deshalb nennt Mate sie beim Namen.
 
 ## Woraus besteht eine Routine?
 
+- **Name**: erforderlich, bis zu 120 Zeichen.
 - **Anweisungen**: der Prompt, den Mate bei jedem Lauf erhält, bis zu 5.000 Zeichen. Schreiben Sie ihn so, wie Sie im Chat fragen würden.
-- **Auslöser**: entweder ein Zeitplan oder ein oder mehrere Ereignisse in der App, etwa ein aktualisierter Deal.
+- **Auslöser**: **Nach Zeitplan** oder **Wenn sich etwas ändert** für ein oder mehrere Ereignisse in der App, etwa einen aktualisierten Deal.
 - **Limits**: Customermates begrenzt, wie oft eine Routine laufen und wie viele Credits ein einzelner Lauf verbrauchen darf, damit eine Routine unbeaufsichtigt nicht Ihr Kontingent leert.
 
-Wer eine Routine anlegt, wird ihr Eigentümer. Nur dieser Eigentümer kann Anweisungen oder Auslöser ändern, die Routine aktivieren oder pausieren oder **Auslöser testen** verwenden, denn jeder Lauf nutzt die Identität, den Zugriff und die KI-Credits dieser Person. Ein Unternehmensadministrator kann die Routine einer anderen Person pausieren oder löschen, sie aber nicht bearbeiten, testen oder ausführen. Wird ein Eigentümer inaktiv oder entfernt, bleiben Routine und Verlauf erhalten, die Routine bleibt jedoch pausiert und schreibgeschützt, bis ein Administrator sie löscht.
+Eine Routine, die Sie in der App hinzufügen, wird **Aktiv** gespeichert; stellen Sie sie vor dem Speichern auf **Pausiert**, um sie als Entwurf zu behalten. Eine von Mate angelegte Routine ist ein Entwurf, außer Sie haben darum gebeten, dass sie aktiv ist.
+
+Wer eine Routine anlegt, wird ihr Eigentümer. Nur dieser Eigentümer kann Anweisungen oder Auslöser ändern, die Routine aktivieren oder pausieren oder **Auslöser testen** verwenden, denn jeder Lauf nutzt die Identität, den Zugriff und die KI-Credits dieser Person. Eine Routine zu löschen, auch die eigene, erfordert die Rolle **Admin** und wird abgelehnt, solange einer ihrer Läufe läuft (Customermates meldet dann, dass der aktive Lauf erst beendet sein muss); dabei wird auch der Laufverlauf entfernt. Die Routine einer anderen Person kann ein Mitglied mit der Rolle **Admin** pausieren oder löschen, aber nicht bearbeiten, testen oder ausführen. Mitglieder werden nie gelöscht, sondern nur unter **Mein Unternehmen › Mitglieder** auf **Inaktiv** gesetzt. Ist ein Eigentümer nicht mehr **Aktiv**, werden seine Routinen sofort pausiert, seine wartenden oder laufenden Läufe enden als **Blockiert**, und jede Routine behält ihren Verlauf. Sie bleibt dann pausiert und schreibgeschützt, bis ein Mitglied mit der Rolle **Admin** sie löscht oder bis der Eigentümer wieder auf **Aktiv** gesetzt wird und sie erneut einschaltet.
 
 ## Wie viele Routinen enthält mein Tarif?
 
-Jeder Nutzer erhält ein eigenes Kontingent: Starter enthält [[commercial.entitlement.starter.includedRoutinesPerUser]] Routine pro Nutzer, Pro enthält [[commercial.entitlement.pro.includedRoutinesPerUser]] Routinen pro Nutzer, und Business sowie Enterprise enthalten [[commercial.entitlement.business.includedRoutinesPerUser]] Routinen pro Nutzer. Die Routinen anderer Nutzer belegen Ihre Plätze nie. Eine Routine zu pausieren gibt keinen Platz frei, sie zu löschen schon. Das Credit-Kontingent, aus dem die Läufe schöpfen, steht unter [Tarife und Credits](/docs/app-assistant#plans-and-credits).
+Jeder Nutzer erhält ein eigenes Kontingent: Starter enthält [[commercial.entitlement.starter.includedRoutinesPerUser]] Routine pro Nutzer, Pro enthält [[commercial.entitlement.pro.includedRoutinesPerUser]] Routinen pro Nutzer, und Business sowie Enterprise enthalten [[commercial.entitlement.business.includedRoutinesPerUser]] Routinen pro Nutzer. Die Routinen anderer Nutzer belegen Ihre Plätze nie. Eine Routine zu pausieren gibt keinen Platz frei, sie zu löschen schon. Am Limit wird eine neue Routine mit einem Hinweis auf einen Tarifwechsel abgelehnt; den Wechsel nimmt eine Rolle mit **Verwalten** in der Zeile **Unternehmen** unter **Mein Unternehmen › Abonnement** vor. Das Limit wird nur beim Anlegen einer Routine geprüft, deshalb bleiben Routinen über dem Limit eines kleineren Tarifs nach einem Downgrade erhalten. Das Credit-Kontingent, aus dem die Läufe schöpfen, steht unter [Tarife und Credits](/docs/app-assistant#plans-and-credits).
+
+**Link:** die Seite **Routinen**, `/routines`, und die Seite **Abonnement**, `/company/subscription`. **Mate:** `navigate` und `highlight_element` mit `nav-routines` oder mit `nav-company-subscription` (letzteres nur hervorhebbar, solange **Mein Unternehmen** in der Seitenleiste aufgeklappt ist); auf der Seite **Abonnement** hebt `company-subscription-plan-picker` die Tarifkarten hervor, wo sie angezeigt werden.
 
 ## Welche Limits gelten?
 
 | Limit | Wert | Was am Limit passiert |
 |---|---|---|
-| Läufe pro Routine und Stunde | 4 | Weitere Läufe in dieser Stunde werden als `skipped` erfasst |
-| Credits pro Lauf | 10 | Der Lauf stoppt an der Obergrenze und wird als `partial` erfasst |
+| Läufe pro Routine und Stunde | 4 | Weitere Läufe in dieser Stunde starten nicht; ein passendes Ereignis wird ohne Eintrag verworfen, und ein fälliger geplanter Lauf oder ein Lauf über **Auslöser testen** wird als **Übersprungen** erfasst |
+| Credits pro Lauf | 10 | Der Lauf stoppt an der Obergrenze und wird als **Teilweise** erfasst |
 | Aufeinanderfolgende fehlgeschlagene Läufe | 3 | Die Routine pausiert sich selbst und zeigt den Grund auf ihrer Seite |
 | Kürzestes Zeitplan-Intervall | 15 Minuten | Ein häufigerer Zeitplan wird beim Speichern abgelehnt |
 | Laufverlauf | 90 Tage | Ältere Läufe werden entfernt |
-| Ereignis-Debounce | Standard 300 Sekunden, 0 bis 86.400 | Ereignisse innerhalb des Fensters werden zu einem Lauf zusammengefasst |
+| Ereignis-Debounce | Standard 300 Sekunden, 0 bis 86.400; nur über Mate oder MCP einstellbar | Nach dem Start eines Laufs werden weitere passende Ereignisse innerhalb des Fensters ignoriert; der Lauf kennt nur das erste Ereignis |
 
 Übersprungene Läufe zählen nicht gegen die Stundenobergrenze. Eine nach wiederholten Fehlern pausierte Routine wird von ihrem Eigentümer wieder aktiviert, sobald die Ursache behoben ist.
 
-## Wie funktionieren Zeitpläne?
+## Zeitpläne: Wie plane ich eine Routine für jeden Morgen oder jeden Montag? [#how-do-schedules-work]
 
-Wählen Sie, wie oft die Routine wiederholt wird: alle 15 oder 30 Minuten oder jede Stunde, jeden Tag, jede Woche oder jeden Monat, dazu die Uhrzeit; **Benutzerdefiniert** akzeptiert einen fünfteiligen Cron-Ausdruck. Darunter steht der Zeitplan ausgeschrieben, damit Sie ihn auf einen Blick prüfen können. Uhrzeiten verwenden eine IANA-Zeitzone, vorbelegt aus dem Browser, in dem die Routine erstellt wurde, und UTC, wenn diese unbekannt ist; die monatliche Voreinstellung akzeptiert die Tage 1 bis 28. Der Standardzeitplan ist täglich um 09:00.
+Wählen Sie unter **Wiederholung**, wie oft die Routine läuft: **Alle 15 Minuten**, **Alle 30 Minuten**, **Stündlich**, **Täglich**, **Wöchentlich** oder **Monatlich**, dazu den Wochentag, den Tag im Monat oder die Uhrzeit in Fünf-Minuten-Schritten, wo die Auswahl das braucht. Einen Zeitplan, der zu keinem dieser Muster passt, etwa nur werktags, können Sie nur über Mate oder einen MCP-Client festlegen (`manage_routines` übergibt einen fünfteiligen Cron-Ausdruck); der Dialog zeigt dann **Diese Routine nutzt einen eigenen Zeitplan** mit dem Ausdruck und **Zu einem Muster wechseln**. Bei **Stündlich**, **Täglich**, **Wöchentlich** und **Monatlich** steht der Zeitplan darunter ausgeschrieben, damit Sie ihn auf einen Blick prüfen können. Uhrzeiten verwenden eine IANA-Zeitzone, übernommen aus dem Browser, in dem die Routine erstellt wurde (UTC, wenn diese unbekannt ist), und bei denselben vier Mustern, **Stündlich** eingeschlossen, hinter dem ausgeschriebenen Zeitplan angezeigt (**Zeiten werden in ... angezeigt**); ändern können sie nur Mate oder ein MCP-Client. Die monatliche Voreinstellung akzeptiert die Tage 1 bis 28. Der Standardzeitplan ist täglich um 09:00.
 
 Der Planer prüft alle fünf Minuten auf fällige Routinen, ein Lauf kann also einige Minuten nach seiner nominalen Zeit starten. Ein Lauf, der nach zwei Minuten noch in der Warteschlange steht, wird erneut ausgelöst.
 
+**Link:** die Seite **Routinen**, `/routines`. **Mate:** `navigate` und `highlight_element` mit `nav-routines`, dann `routines-add` für **Hinzufügen** und `routine-modal-save` für **Speichern**, sobald der Eigentümer den Dialog geöffnet hat; **Wiederholung**, die Zeitauswahl und **Zu einem Muster wechseln** sind keine Highlight-Ziele, deshalb nennt Mate sie beim Namen.
+
 ## Wie funktionieren Ereignis-Auslöser? [#how-do-event-triggers-work]
 
-Ein Ereignis-Auslöser benennt ein oder mehrere Ereignisse in der App: jedes Datensatz-Ereignis und jedes Messaging-Ereignis, das ein [Webhook](/docs/webhooks#which-events-exist) abonnieren kann, mit Ausnahme der beiden Ereignisse für gelöschte Nachrichten. Zwei optionale Controls grenzen ihn weiter ein, damit die Routine nur für die Fälle Credits ausgibt, die Sie interessieren.
+Ein Ereignis-Auslöser benennt ein oder mehrere Ereignisse in der App: jedes Datensatz-Ereignis und jedes Messaging-Ereignis, das ein [Webhook](/docs/webhooks#which-events-exist) abonnieren kann, mit Ausnahme von **E-Mail gelöscht** und **Chat gelöscht** (`messaging.email.deleted`, `messaging.chat.deleted`). Sie wählen sie unter **Ereignisse**. Änderungen, die ein Routinenlauf vornimmt, lösen nie Routinen aus, Routinen können sich also weder verketten noch in einer Schleife laufen; Änderungen in der App, in einem Mate-Chat, über die API oder über MCP lösen sie aus. Zwei optionale Controls grenzen ihn weiter ein, damit die Routine nur für die Fälle Credits ausgibt, die Sie interessieren.
 
 **Geänderte Felder** gilt nur für Aktualisierungs-Ereignisse. Benennen Sie die Felder, die Sie beobachten möchten, etwa den Wert eines Deals oder eine Ihrer Custom Columns, und die Routine läuft nur, wenn sich eines davon tatsächlich geändert hat. Das Control ist ausgeblendet, solange kein Aktualisierungs-Ereignis gewählt ist, denn Erstellungen und Löschungen melden keine Änderungen auf Feldebene.
 
 **Datensatzfilter** beschränken die Routine auf Datensätze, die Ihren Bedingungen entsprechen, etwa nur Deals, die Ihnen zugewiesen sind. Bei Löschungen greifen sie nicht, weil der Datensatz zum Startzeitpunkt der Routine bereits weg ist. Beide Controls werden nur angeboten, solange alle gewählten Ereignisse zu einem Datensatztyp gehören.
 
-Lassen Sie ein Control leer, um bei jedem passenden Ereignis zu laufen. Bevor ein passendes Ereignis einen Lauf startet, überspringt Customermates es, wenn für diese Routine bereits ein Lauf in der Warteschlange steht oder läuft, wendet dann das Debounce-Fenster an und danach die Stundenobergrenze.
+Lassen Sie ein Control leer, um bei jedem passenden Ereignis zu laufen. Ein Ereignis startet nur dann einen Lauf, wenn der Eigentümer der Routine den Datensatz oder die Unterhaltung mit seiner Rolle sehen kann; mit Lesezugriff **Zugewiesen** lösen die Datensätze anderer Personen die Routine nie aus, unabhängig von den Filtern. Bevor ein passendes Ereignis einen Lauf startet, überspringt Customermates es, wenn für diese Routine bereits ein Lauf in der Warteschlange steht oder läuft, wendet dann das Debounce-Fenster an und danach die Stundenobergrenze. Ein Ereignis, das diese Prüfungen nicht besteht, hinterlässt keinen Eintrag in der Laufliste. Zugriff des Eigentümers und Filter werden beim Start des Laufs erneut geprüft.
 
 Startet ein Ereignis einen Lauf, erfährt Mate vor Ihren Anweisungen, was passiert ist: den Namen des Ereignisses, die Art des Datensatzes und dessen ID, bei einer Aktualisierung die geänderten Felder und bei einem Posteingangs-Ereignis den Thread, zu dem die Nachricht gehört. Den Datensatz selbst kann es von dort aus lesen. Die vorherigen Werte der geänderten Felder erhält es nicht.
 
+**Link:** die Seite **Routinen**, `/routines`. **Mate:** `navigate` und `highlight_element` mit `nav-routines`, dann `routines-add` für **Hinzufügen** und `routine-modal-save` für **Speichern**, sobald der Eigentümer den Dialog geöffnet hat; **Ereignisse**, **Geänderte Felder** und **Datensatzfilter** sind keine Highlight-Ziele, deshalb nennt Mate sie beim Namen.
+
 ## Was bedeuten die Läufe und ihre Status?
 
-Öffnen Sie eine Routine, um ihre Läufe zu sehen, die neuesten zuerst. Jeder Lauf hält fest, wessen Identität und Credits er genutzt hat. Alle, die die Routine sehen können, sehen Laufstatus, Zusammenfassung und Credit-Verbrauch. Nur der erfasste Ausführende kann das vollständige Transkript öffnen: worum Mate gebeten wurde, welche Datensätze es gelesen oder geändert hat und was es geantwortet hat.
+Öffnen Sie eine Routine, um ihre Läufe zu sehen, die neuesten zuerst: Auf einem breiten Bildschirm stehen sie neben der Konfiguration, auf einem schmalen unter dem Tab **Läufe**, die Konfiguration unter **Details**. Jeder Lauf hält fest, wessen Identität und Credits er genutzt hat. Alle, die die Routine sehen können, sehen Laufstatus, Zusammenfassung und Credit-Verbrauch. Nur der erfasste Ausführende kann das vollständige Transkript öffnen: worum Mate gebeten wurde, welche Datensätze es gelesen oder geändert hat und was es geantwortet hat.
+
+Ein Lauf öffnet sich in **Details zum Lauf** (**Zurück** führt zur Routine zurück). Dort stehen **Ausgeführt als** mit dem Namen des Eigentümers, die verbrauchten Credits, der Auslöser (**Datensatz**, **Geänderte Felder**, **Unterhaltung**) und, wenn der Lauf vorzeitig gestoppt hat, der Grund, etwa die Credit-Obergrenze. Ist der Lauf beendet, kann der Ausführende unter dem Transkript antworten und die Unterhaltung mit Mate fortsetzen; das verbraucht seine Credits.
 
 | Status | Bedeutung |
 |---|---|
-| `queued` | Wartet darauf, dass der Planer ihn startet |
-| `running` | Mate arbeitet |
-| `succeeded` | Der Lauf hat seine Anweisung abgeschlossen |
-| `partial` | Der Lauf hat vorzeitig gestoppt, etwa an der Obergrenze von 10 Credits oder weil eine Richtlinie eine Aktion abgelehnt hat |
-| `failed` | Der Lauf endete mit einem Fehler oder ohne verwertbares Ergebnis |
-| `skipped` | Ein Limit hat ihn gestoppt: Die Routine war pausiert, die Stundenobergrenze war erreicht oder die Datensatzfilter passten nicht |
-| `blocked` | Mate konnte nicht starten, etwa weil der Eigentümer keine Credits mehr hat oder sein Konto nicht mehr aktiv ist |
+| **In Warteschlange** (`queued`) | Wartet darauf, dass der Planer ihn startet |
+| **Läuft** (`running`) | Mate arbeitet |
+| **Erfolgreich** (`succeeded`) | Der Lauf hat seine Anweisung abgeschlossen |
+| **Teilweise** (`partial`) | Der Lauf hat vorzeitig gestoppt, etwa an der Obergrenze von 10 Credits oder weil eine Richtlinie eine Aktion abgelehnt hat |
+| **Fehlgeschlagen** (`failed`) | Der Lauf endete mit einem Fehler oder ohne verwertbares Ergebnis |
+| **Übersprungen** (`skipped`) | Der Lauf stand in der Warteschlange, ist aber nicht gestartet: Die Routine war pausiert, die Stundenobergrenze war erreicht, der Datensatz passte nicht mehr zu den Filtern oder zum Zugriff des Eigentümers, der Auslöser wurde inzwischen geändert, der Lauf wurde gestoppt, oder der Assistent konnte den Lauf nicht übernehmen, etwa weil er bereits mit einem anderen Lauf beschäftigt war |
+| **Blockiert** (`blocked`) | Mate konnte nicht starten, etwa weil der Eigentümer keine Credits mehr hat oder sein Konto nicht mehr aktiv ist |
+
+Die Rohwerte in Klammern erscheinen in der Ausgabe von `manage_routines`.
 
 Mit **Auslöser testen** starten Sie sofort einen echten Lauf. Die Schaltfläche steht dem Eigentümer einer aktivierten geplanten Routine ohne ungespeicherte Änderungen zur Verfügung; sie verbraucht KI-Credits und kann Workspace-Daten ändern. Ereignisgesteuerte Routinen brauchen ein echtes passendes Ereignis, deshalb ist das Control für sie deaktiviert.
+
+**Link:** die Seite **Routinen**, `/routines`. **Mate:** `navigate` und `highlight_element` mit `nav-routines`; die Zeilen der Routinen, die Tabs **Details** und **Läufe**, **Details zum Lauf** und **Auslöser testen** sind keine Highlight-Ziele, deshalb nennt Mate sie beim Namen. Den Laufverlauf kann Mate außerdem mit `manage_routines` lesen.
 
 ## Was eine Routine ohne Freigabe darf
 
@@ -74,7 +91,7 @@ Oberflächen-Tools stehen Routinen nicht zur Verfügung, weil bei einem unbeaufs
 
 ## Wie verwaltet Mate Routinen?
 
-In einem Chat nutzt Mate `manage_routines`, um Routinen aufzulisten, den Laufverlauf zu lesen, Routinen anzulegen und zu ändern, sie zu pausieren und einen Lauf sofort zu starten; keine dieser Aktionen fragt Sie vorher. Eine von Mate angelegte Routine wird als Entwurf gespeichert, außer Sie haben ausdrücklich darum gebeten, dass sie aktiv ist. Das Löschen einer Routine fragt nach Ihrer Freigabe. Pausieren über das Tool nutzt den Administratorpfad und braucht deshalb dieselbe Berechtigung wie das Pausieren der Routine einer anderen Person in der App; ein Eigentümer, der seine eigene Routine pausiert, setzt stattdessen `enabled` mit einem Update auf false.
+In einem Chat nutzt Mate `manage_routines`, um Routinen aufzulisten, den Laufverlauf zu lesen, Routinen anzulegen und zu ändern, sie zu pausieren und einen Lauf sofort zu starten; keine dieser Aktionen fragt Sie vorher. Eine von Mate angelegte Routine wird als Entwurf gespeichert, außer Sie haben ausdrücklich darum gebeten, dass sie aktiv ist. Mate kann außerdem festlegen, was der Dialog nicht bietet: einen eigenen fünfteiligen Cron-Ausdruck wie `0 9 * * 1-5` für werktags um 09:00, die Zeitzone und das Ereignis-Debounce. Das Löschen einer Routine fragt nach Ihrer Freigabe und erfordert wie in der App die Rolle **Admin**. Pausieren über das Tool nutzt den Administratorpfad und braucht deshalb dieselbe Berechtigung wie das Pausieren der Routine einer anderen Person in der App; ein Eigentümer, der seine eigene Routine pausiert, setzt stattdessen `enabled` mit einem Update auf false.
 
 ## Welche IDs hat die Seite?
 
@@ -84,6 +101,6 @@ Mate kann zu diesen Zielen navigieren und sie hervorheben:
 |---|---|---|---|
 | Routinen | `/routines` | `#nav-routines` | `#routines-add`, `#routines-search`, `#routines-filter`, `#routines-display-options` |
 
-Layout-Controls in den Anzeigeoptionen: `#routines-layout-table`, `#routines-layout-board`.
+Layout-Controls in den Anzeigeoptionen: `#routines-layout-table`, `#routines-layout-board`. `#routines-add` wird nur für Rollen mit **Verwalten** auf **Ja** bei **Routinen** angezeigt. Routinen haben kein Import- und Exportmenü.
 
-Der Routinen-Dialog (zuerst eine Routine öffnen oder anlegen) hat die DOM-IDs `#routine-modal-save` und `#routine-modal-reset` für externe Browser-Clients.
+Der Routinen-Dialog (zuerst eine Routine öffnen oder anlegen) hat **Speichern** (`#routine-modal-save`) und **Zurücksetzen** (`#routine-modal-reset`), die Mate hervorheben kann, sobald der Dialog geöffnet ist; sie erscheinen nur für den Eigentümer der Routine mit **Verwalten** **Ja**, **Zurücksetzen** erst nach einer Änderung und keine der beiden, solange **Details zum Lauf** geöffnet ist. Für externe Browser-Clients hat er außerdem die Element-Ids `#routine-admin-pause` für **Routine pausieren** sowie `#routine-tab-details` und `#routine-tab-runs` für die Tabs auf schmalen Bildschirmen; diese sind keine Highlight-Ziele für Mate, deshalb nennt Mate sie beim Namen.

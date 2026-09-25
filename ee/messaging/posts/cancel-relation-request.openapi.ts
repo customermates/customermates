@@ -2,7 +2,7 @@ import type { ZodOpenApiOperationObject } from "zod-openapi";
 
 import { CancelRelationRequestSchema } from "@/ee/messaging/posts/cancel-relation-request.interactor";
 import { RelationRequestResultSchema } from "@/ee/messaging/posts/social-posts.schema";
-import { CommonApiResponses } from "@/core/api/interactor-handler";
+import { CommonApiResponses, MessagingProviderApiResponses, NotFoundApiResponse } from "@/core/api/interactor-handler";
 
 export const cancelRelationRequestOperation: ZodOpenApiOperationObject = {
   operationId: "cancelRelationRequest",
@@ -29,5 +29,7 @@ export const cancelRelationRequestOperation: ZodOpenApiOperationObject = {
       },
     },
     ...CommonApiResponses,
+    ...NotFoundApiResponse,
+    ...MessagingProviderApiResponses,
   },
 };

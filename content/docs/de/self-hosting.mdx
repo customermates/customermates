@@ -1,71 +1,87 @@
 ---
 title: "Customermates als On-Premise-CRM mit Docker hosten"
-description: Customermates auf eigener Infrastruktur betreiben. Wann Self-Host sinnvoll ist, wie Sie es mit Docker Compose installieren, und wie Sie es betreiben.
+description: "Customermates mit Docker Compose selbst betreiben: Installation, .env-Werte, E-Mail, Registrierung, Updates, Backup und Restore, Unterschiede zur Cloud."
 ---
 
-Self-Hosting erfordert zwei Dateien (`docker-compose.yml` und `.env`) plus `docker compose up -d`. Beide Dateien liegen im [Customermates-Repo](https://github.com/customermates/customermates) und Sie holen sie mit `curl`. Ein `git clone` und ein Build-Schritt sind nicht nötig. Das veröffentlichte Image unter `ghcr.io/customermates/customermates:latest` wendet die Datenbank-Migrationen beim ersten Boot an.
+Self-Hosting betreibt Customermates mit zwei Dateien, `docker-compose.yml` und `.env`, und dem Befehl `docker compose up -d`. Beide Dateien holen Sie mit `curl` aus dem [Customermates-Repo](https://github.com/customermates/customermates); ein `git clone` und ein Build-Schritt sind nicht nötig. Die Compose-Datei startet zwei Container: PostgreSQL 16 (`postgres:16-alpine`) und das App-Image `ghcr.io/customermates/customermates:latest`, das bei jedem Start ausstehende Datenbank-Migrationen anwendet.
 
-## Self-Host vs Cloud
+## Sollte ich selbst hosten oder die Cloud nutzen? [#should-i-self-host-or-use-the-cloud]
 
-Self-Hosting verwendet die Starter-Berechtigungen. Enthalten sind die Kern-CRM-Datensätze, Ansichten und das Audit-Logging sowie REST, Webhooks und MCP für einen externen KI-Client, den Sie auswählen und bezahlen. Verbundene Messaging-Konten, einheitlicher Posteingang, verbundene Kalenderansicht, gehostetes Mate und gehostete KI-Credits sind nicht enthalten. Ein anderer bezahlter Cloud-Tarif erweitert die Self-Hosted-Berechtigungen nicht.
+| Entscheidungsfaktor | Managed Cloud | Self-Hosted |
+|---|---|---|
+| Betrieb von Anwendung und Datenbank | Customermates übernimmt den Betrieb | Sie betreiben Docker, PostgreSQL, Netzwerkzugriff, TLS, Updates und Backups |
+| Kern-CRM und Ansichten | Je nach Tarif enthalten | Starter-Basis |
+| Einheitlicher Posteingang und verbundener Kalender | In berechtigten Cloud-Tarifen verfügbar | Nicht enthalten |
+| KI-Zugriff | Externes MCP sowie der gehostete Assistent Mate mit den KI-Credits Ihres Tarifs | Externes MCP mit eigenem Client und Anbieter |
+| Verbundene Anbieter | Im verwalteten Produkt konfiguriert | Sie konfigurieren und bewerten jeden externen Anbieter |
+| Kosten | Cloud-Abonnement pro Nutzer ab [[commercial.price.starter.monthly]] pro Monat | Infrastruktur, Anbieter und Betriebszeit Ihres Teams |
 
-| Entscheidungsfaktor                                | Managed Cloud                                                                 | Self-Hosted                                                                 |
-| -------------------------------------------------- | ----------------------------------------------------------------------------- | --------------------------------------------------------------------------- |
-| Betrieb von Anwendung und Datenbank                | Customermates übernimmt den Betrieb                                           | Sie betreiben Docker, PostgreSQL, Netzwerkzugriff, TLS, Updates und Backups |
-| Kern-CRM und Ansichten                             | Je nach Tarif enthalten                                                       | Starter-Basis                                                               |
-| Einheitlicher Posteingang und verbundener Kalender | In berechtigten Cloud-Tarifen verfügbar                                       | Nicht enthalten                                                             |
-| KI-Zugriff                                         | Externes MCP; gehostete Mate-Funktion bleibt freigabegebunden                 | Externes MCP mit eigenem Client und Anbieter                                |
-| Verbundene Anbieter                                | Im verwalteten Produkt konfiguriert                                           | Sie konfigurieren und bewerten jeden externen Anbieter                      |
-| Kosten                                             | Cloud-Abonnement pro Nutzer ab [[commercial.price.starter.monthly]] pro Monat | Infrastruktur, Anbieter und Betriebszeit Ihres Teams                        |
+Beim Self-Hosting wählen Sie, wo Anwendung und Datenbank laufen. Daraus entsteht nicht automatisch eine Garantie für Sicherheit, Compliance, Datenschutz oder einen isolierten Betrieb; Ihr Unternehmen bleibt für Konfiguration, Anbieter, Verträge, Aufbewahrung und Betriebskontrollen verantwortlich. Vergleichen Sie die gesamten Betriebskosten, statt pauschal von einem günstigeren Modell auszugehen: Infrastruktur, Backups, Wiederherstellungstests, Monitoring, Updates, Störungsbehandlung und externe Anbieter.
 
-Beim Self-Hosting wählen Sie, wo Anwendung und Datenbank laufen. Daraus entsteht nicht automatisch eine Garantie für Sicherheit, Compliance, Datenschutz oder einen isolierten Betrieb. Ihr Unternehmen bleibt für Konfiguration, Anbieter, Verträge, Aufbewahrung und Betriebskontrollen verantwortlich.
+Customermates exportiert und importiert CRM-Datensätze als Excel-Arbeitsmappen, jeweils für einen Datensatztyp, sodass sich ein Arbeitsbestand zwischen Cloud und Self-Hosting bewegen lässt. Ein vollständiger Plattformwechsel bleibt ein separat entworfenes und geprüftes Projekt.
 
-Vergleichen Sie die gesamten Betriebskosten, statt pauschal von einem günstigeren Modell auszugehen. Berücksichtigen Sie Infrastruktur, Backups, Wiederherstellungstests, Monitoring, Updates, Störungsbehandlung und externe Anbieter ebenso wie Abonnementpreise.
+## Ist Self-Hosting kostenlos, und brauche ich eine Lizenz? [#is-self-hosting-free-and-do-i-need-a-license]
 
-Customermates exportiert und importiert CRM-Datensätze als Excel-Arbeitsmappen, jeweils für einen Datensatztyp, sodass sich ein Arbeitsbestand zwischen Systemen bewegen lässt. Ein vollständiger Plattformwechsel bleibt ein separat entworfenes und geprüftes Projekt.
+Ein Self-Hosted-Workspace hat weder Abonnement noch Testphase: Er startet aktiv, und die App zählt keine Nutzerplätze und rechnet nichts ab. Sie zahlen nur für Ihre eigene Infrastruktur und Ihre Anbieter.
 
-## Installation
+Customermates ist Open Core. Code außerhalb von `ee/` und Material in `ee/`, das an den Browser ausgeliefert wird, stehen unter AGPL-3.0-only. Der serverseitige Code in `ee/` steht unter der Customermates Commercial License, die den Betrieb des offiziellen Images mit `APP_MODE=self-hosted` als Community Build erlaubt, auch produktiv, solange die Cloud-Funktionen ausgeschaltet bleiben. Die genauen Bedingungen stehen in `LICENSE` und `ee/LICENSE.md` im Repository. Ein gekaufter Cloud-Tarif schaltet in einer Self-Hosted-Installation nichts frei.
 
-### Voraussetzungen
+## Welche Funktionen fehlen beim Self-Hosting? [#which-features-are-not-available-when-self-hosting]
 
-- Docker und Docker Compose v2.
-- Domain-Name, falls Sie TLS wollen (lokal nicht nötig).
+Jede Self-Hosted-Installation nutzt die Starter-Berechtigungen. Diese Cloud-Funktionen fehlen und bleiben ausgeschaltet, auch wenn Sie zusätzlich einen Cloud-Tarif bezahlen: verbundene Messaging-Konten (E-Mail, LinkedIn, WhatsApp, Instagram, Telegram), der einheitliche **Posteingang**, die verbundene Kalenderansicht, der gehostete Assistent Mate mit seinen gehosteten KI-Credits und **Routinen**, die Mate ausführt. Externe KI-Clients funktionieren weiterhin über MCP mit Ihrem eigenen KI-Anbieter. Enterprise-SSO (SAML) und White-Labeling sind in keiner Variante implementiert.
+
+Die App blendet aus, was nicht gilt. Die Seitenleiste zeigt unter **Mein Unternehmen** keinen Eintrag **Abonnement**, unter **Mein Profil** keinen Eintrag **Kanäle** und weder **Posteingang** noch **Routinen**, und der Rolleneditor unter **Mein Unternehmen** › **Rollen** blendet die Zeilen **Inbox-Nachrichten** und **Routinen** aus. Wer eine dieser Seiten per URL öffnet, landet wieder auf dem Dashboard.
+
+Das CRM selbst funktioniert wie in der Cloud: Datensätze, Ansichten, Excel-Import und -Export, eigene Spalten, Dashboard-Widgets, Mitglieder und Rollen, das Audit-Log, REST, Webhooks und MCP.
+
+## Wie installiere ich Customermates mit Docker Compose? [#how-do-i-install-customermates-with-docker-compose]
+
+Sie brauchen Docker mit Docker Compose v2; das Image ist für `linux/amd64` und `linux/arm64` gebaut. Einen Domain-Namen brauchen Sie nur für HTTPS.
 
 <Steps>
-<Step title="Verzeichnis anlegen und beide Config-Dateien holen">
+<Step title="Beide Dateien holen">
 ```bash
 mkdir customermates && cd customermates
 curl -fsSL https://raw.githubusercontent.com/customermates/customermates/main/docker-compose.yml -o docker-compose.yml
 curl -fsSL https://raw.githubusercontent.com/customermates/customermates/main/.env.selfhost.template -o .env
 ```
-
-Anschließend `.env` mit echten Werten editieren:
-
-- `BETTER_AUTH_SECRET`: langer Zufallsstring (`openssl rand -hex 32`).
-- `POSTGRES_PASSWORD`: default ändern.
-- `BASE_URL`: Ihre Public-URL (z.B. `https://crm.example.com`). Lokal default `http://localhost:4000`.
-- `RESEND_API_KEY` und `RESEND_OPERATOR_EMAIL`: ein konfiguriertes [Resend](https://resend.com)-Projekt. Nötig für Signup-Verifizierung, Passwort-Reset und Einladungs-Mails.
+</Step>
+<Step title=".env ausfüllen">
+Ersetzen Sie die Platzhalter in `.env` vor dem ersten Start, mindestens `POSTGRES_PASSWORD`, `BETTER_AUTH_SECRET` (zum Beispiel aus `openssl rand -hex 32`), `BASE_URL`, `RESEND_API_KEY` und `RESEND_OPERATOR_EMAIL`. `RESEND_API_KEY` ist Pflicht: Ohne diesen Wert kann niemand die Registrierung abschließen. Die folgenden Abschnitte erklären jeden Wert.
 </Step>
 <Step title="Starten">
-
 ```bash
 docker compose up -d
-```
-
-First-Boot dauert eine Minute, während Prisma-Migrationen laufen. Logs ansehen:
-
-```bash
 docker compose logs -f app
 ```
-
-Wenn die App ready ist, `http://localhost:4000` öffnen (oder Ihr eigenes `APP_PORT`).
-
+Der erste Start dauert etwa eine Minute, während die Migrationen laufen. Öffnen Sie danach `<BASE_URL>/auth/signup`, standardmäßig `http://localhost:4000/auth/signup`.
 </Step>
-<Step title="Erster Account">
-URL öffnen. Mit E-Mail registrieren, Verifizierungs-Link aus dem Postfach klicken, dann Workspace-Namen wählen. Weitere User und Rollen verwalten über Unternehmen → Benutzer und Unternehmen → Rollen.
+<Step title="Registrieren">
+Registrieren Sie sich, wählen Sie **Neuen Workspace erstellen** und schließen Sie den Wizard ab; Ihr Konto wird **Admin**. Siehe [Wie lege ich das erste Konto auf meiner Instanz an?](#how-do-i-create-the-first-account-on-my-instance) weiter unten.
 </Step>
-<Step title="Reverse-Proxy und TLS">
-Reverse-Proxy (Caddy, nginx, Traefik) auf den App-Port zeigen (4000 by default, oder Ihr eigenes `APP_PORT`). Caddy:
+</Steps>
+
+## Welche Umgebungsvariablen gehören in die .env? [#env-values]
+
+- `POSTGRES_USER`, `POSTGRES_PASSWORD`, `POSTGRES_DB`: Benutzer, Passwort und Name der Datenbank (Vorlage: `postgres`, `change-this-password`, `customermates`). Setzen Sie diese Werte vor dem ersten Start. PostgreSQL übernimmt sie nur einmal, beim Anlegen des Datenbank-Volumes; eine spätere Änderung in `.env` ändert die bestehende Datenbank nicht, und die App kann sich dann nicht mehr verbinden.
+- `BETTER_AUTH_SECRET`: ein langer Zufallswert, der die Anmeldesitzungen signiert. Wenn Sie ihn später ändern, werden alle abgemeldet; bewahren Sie deshalb eine Kopie bei Ihren Backups auf.
+- `BASE_URL`: genau die Adresse, die im Browser geöffnet wird, siehe [Worauf muss BASE_URL gesetzt sein?](#base-url).
+- `APP_PORT`: der Host-Port, unter dem die App veröffentlicht wird, standardmäßig `4000`.
+- `RESEND_API_KEY`, `RESEND_OPERATOR_EMAIL`: E-Mail-Versand; `RESEND_API_KEY` darf nicht leer sein. Siehe [Wie richte ich E-Mail mit Resend ein?](#how-do-i-set-up-email-with-resend-and-can-i-use-smtp).
+- `APP_MODE`: bleibt `self-hosted`; die Compose-Datei setzt diesen Wert für die App selbst.
+- `GOOGLE_CLIENT_ID`, `GOOGLE_CLIENT_SECRET`, `AZURE_AD_CLIENT_ID`, `AZURE_AD_CLIENT_SECRET`: optional und in der Vorlage auskommentiert, siehe [Können sich Nutzer mit Google oder Microsoft anmelden?](#can-users-sign-in-with-google-or-microsoft).
+
+Halten Sie `.env` aus der Versionsverwaltung heraus. Änderungen wenden Sie mit `docker compose up -d` an.
+
+## Worauf muss BASE_URL gesetzt sein? [#base-url]
+
+Setzen Sie `BASE_URL` auf genau die Adresse, die im Browser eingegeben wird: Schema, Hostname und, sofern er nicht 80 oder 443 ist, den Port, ohne Pfad. Beispiele: `https://crm.example.com` oder `http://192.168.1.20:4000`. Der Vorlagenwert `http://localhost:4000` funktioniert nur auf dem Rechner, auf dem Docker läuft. Enthält `BASE_URL` einen Pfad, eine Query oder Zugangsdaten, startet die App nicht.
+
+Customermates bildet diese Adressen aus `BASE_URL`: Anmelde-Weiterleitungen, die Links in Einladungs- und anderen E-Mails, die MCP-OAuth-Adresse, die MCP-Adresse in den Installations-Snippets der Dokumentation und hinter **MCP-Config kopieren**, **MCP-Command kopieren**, **Mit Cursor verbinden** und **Mit VS Code verbinden** auf einer Doku-Seite sowie die `url`, die `search_docs`, `get_docs_page` und `fetch` zurückgeben und deren Ursprung Agents vor eine App-Route setzen, um einen vollständigen Link zu bilden. Kommt eine Anfrage unter einem anderen Hostnamen, einer anderen IP-Adresse oder einem anderen Port an, zeigen diese Adressen trotzdem auf `BASE_URL`, sodass Nutzer nach der Anmeldung auf der falschen Adresse landen können. Drei Adressen, die die App zum Kopieren anzeigt, verwenden stattdessen die Adresse, unter der der Browser die App geöffnet hat: der **Einladungslink** im Tab **Link teilen** von **Benutzer einladen** und des Einladungsschritts im Onboarding, die MCP-Adresse bei den **Schnellverbindungen** und im Onboarding-Schritt **KI verbinden** sowie Links über **Link kopieren** einer gespeicherten Ansicht. Kopieren Sie sie deshalb aus einem Browser, der die öffentliche Adresse nutzt. Wenn Sie die Domain oder `APP_PORT` ändern, passen Sie auch `BASE_URL` an und führen `docker compose up -d` aus. Bei einer `https://`-Adresse sind die Anmelde-Cookies als Secure markiert; die App muss dann über HTTPS geöffnet werden.
+
+## Wie betreibe ich Customermates hinter einem Reverse-Proxy mit HTTPS? [#how-do-i-put-customermates-behind-a-reverse-proxy-with-https]
+
+Richten Sie einen Reverse-Proxy wie Caddy, nginx oder Traefik auf den App-Port (`4000` oder Ihren `APP_PORT`) und setzen Sie `BASE_URL` auf die öffentliche `https://`-Adresse. Caddy besorgt das TLS-Zertifikat selbst:
 
 ```text
 crm.example.com {
@@ -73,34 +89,69 @@ crm.example.com {
 }
 ```
 
-Customermates setzt Secure-Cookies, wenn `BASE_URL` mit `https://` startet. Der Proxy muss `X-Forwarded-Proto` korrekt weiterreichen.
+Die App nimmt Schema und Host für ihre Links aus `BASE_URL`, weitergeleitete Header wie `X-Forwarded-Proto` sind deshalb nicht nötig. Der Proxy muss den ursprünglichen `Host`-Header weitergeben, weil die App Formularübermittlungen ablehnt, deren Herkunft nicht dazu passt, auch bei Anmeldung und Registrierung. Caddy und Traefik tun das standardmäßig; in nginx ergänzen Sie `proxy_set_header Host $host;`. Die Compose-Datei veröffentlicht den App-Port auf allen Netzwerkschnittstellen. Soll nur der Proxy ihn erreichen, ändern Sie die Zuordnung in `docker-compose.yml` auf `"127.0.0.1:${APP_PORT:-4000}:4000"` oder sperren Sie den Port in Ihrer Firewall.
 
-</Step>
-<Step title="API-Key anlegen">
-Profil → API Keys → Neuer Key. Genau wie in der Cloud. Siehe [API-Keys](/docs/api-keys).
-</Step>
-</Steps>
+## Wie richte ich E-Mail mit Resend ein, und geht auch SMTP? [#how-do-i-set-up-email-with-resend-and-can-i-use-smtp]
 
-## Tagesbetrieb
+Customermates versendet E-Mails nur über [Resend](https://resend.com); eine SMTP-Option gibt es nicht. Verifizieren Sie Ihre Absender-Domain in Resend, erstellen Sie einen API-Key und setzen Sie:
 
-### Update
+- `RESEND_API_KEY`: den Resend-API-Key.
+- `RESEND_OPERATOR_EMAIL`: die Absenderadresse, auf einer in Resend verifizierten Domain. Jede E-Mail geht als `Customermates <RESEND_OPERATOR_EMAIL>` hinaus. Dieselbe Adresse erhält eine E-Mail „New User Registration“, wenn jemand den Schritt **Dein Profil** speichert (siehe [Wer kann sich registrieren](#who-can-sign-up-on-my-instance)), sowie die Nachrichten, die über **Feedback** in der Seitenleiste gesendet werden.
+
+Die App verschickt Bestätigungslinks, Passwort-Resets und Einladungen per E-Mail. `RESEND_API_KEY` darf nicht leer sein: Ohne Key schlägt der Schritt **Dein Profil** fehl, und niemand kann die Registrierung abschließen oder einem Workspace beitreten. Lehnt Resend die E-Mails ab, können neue Nutzer ihr Konto 24 Stunden lang verwenden und werden danach auf **E-Mail-Verifizierung** festgehalten, bis sie bestätigen; **Passwort vergessen?** verschickt nichts, und Einladungen per E-Mail schlagen fehl. Der Tab **Link teilen** in **Benutzer einladen** funktioniert in diesem Fall weiterhin. Abgelehnte Sendungen erscheinen nicht in den Logs der App; kommen Bestätigungs- oder Passwort-Reset-E-Mails nicht an, prüfen Sie deshalb, ob die Absender-Domain verifiziert ist, und suchen Sie im Resend-Dashboard nach abgelehnten Sendungen.
+
+## Wie lege ich das erste Konto auf meiner Instanz an? [#how-do-i-create-the-first-account-on-my-instance]
+
+Öffnen Sie `<BASE_URL>/auth/signup` und registrieren Sie sich mit E-Mail und Passwort über **Konto erstellen**, oder mit Google oder Microsoft, falls Sie diese eingerichtet haben. Wählen Sie im nächsten Schritt **Neuen Workspace erstellen**. Der Wizard fragt nach **Dein Profil** (Vorname, Nachname, Land), womit der Workspace angelegt wird, danach folgen **Team einladen** und **KI verbinden**; beide können Sie überspringen und mit **Fertig** abschließen. Das Konto, das den Workspace anlegt, erhält die eingebaute Rolle **Admin** mit allen Berechtigungen.
+
+Klicken Sie den Bestätigungslink in der E-Mail innerhalb von 24 Stunden an: Der Link läuft nach 24 Stunden ab, und ein Konto, das 24 Stunden nach der Registrierung noch nicht bestätigt ist, wird auf **E-Mail-Verifizierung** festgehalten, wo **Verifizierungs-E-Mail erneut senden** einen neuen Link schickt. Laden Sie anschließend Teammitglieder unter **Mein Unternehmen** › **Mitglieder** mit **Hinzufügen** ein, geben Sie sie dort nach der Registrierung frei, und legen Sie unter **Mein Unternehmen** › **Rollen** fest, was sie dürfen; siehe [Mein Unternehmen](/docs/app-company).
+
+**Link:** die Seite **Mitglieder**, `/company/members`, und die Seite **Rollen**, `/company/roles`, auf Ihrer Instanz. **Mate:** auf Self-Hosted-Instanzen nicht verfügbar; in der Cloud `navigate` und `highlight_element` mit `nav-company-members` oder `nav-company-roles`, und `company-members-add` und `company-roles-add` heben **Hinzufügen** hervor. Um ein Mitglied freizugeben, öffnen Sie seine Zeile; `member-modal-role` und `member-modal-status` heben dann **Rolle** und **Status** im Dialog **Benutzer** hervor.
+
+## Wer kann sich auf meiner Instanz registrieren? [#who-can-sign-up-on-my-instance]
+
+Jede Person, die Ihre `BASE_URL` erreicht, kann sich registrieren; die Registrierung lässt sich nicht abschalten. Wer **Neuen Workspace erstellen** wählt, erhält einen eigenen Workspace mit eigenem **Admin**, getrennt von Ihrem, aber in Ihrer Datenbank gespeichert, und die App bietet keine Möglichkeit, einen Workspace zu löschen. Eine E-Mail „New User Registration“ geht an `RESEND_OPERATOR_EMAIL`, wenn jemand den Schritt **Dein Profil** speichert, und bei einer Anmeldung mit Google oder Microsoft auch dann, wenn sich jemand vor dem Speichern dieses Schritts anmeldet. Wer sich mit E-Mail und Passwort registriert, **Dein Profil** aber nie speichert, löst keine aus, und die Benachrichtigung kommt nur an, wenn Resend sie annimmt; sie ist also kein vollständiges Verzeichnis der Registrierungen.
+
+Soll die Instanz nur einem Team dienen, beschränken Sie den Zugang, zum Beispiel mit einem VPN, einer IP-Allowlist oder einer Authentifizierung am Reverse-Proxy; MCP- und REST-Clients brauchen dann denselben Zugang. Teammitglieder kommen über eine Einladung hinzu: **Hinzufügen** unter **Mein Unternehmen** › **Mitglieder** öffnet **Benutzer einladen** mit Link und E-Mail-Option. Sie warten mit dem Status **Wartet auf Genehmigung**, bis ein Mitglied mit **Verwalten** bei **Benutzer & Rollen** ihnen eine Rolle gibt und sie auf **Aktiv** setzt.
+
+**Link:** die Seite **Mitglieder**, `/company/members`, auf Ihrer Instanz. **Mate:** auf Self-Hosted-Instanzen nicht verfügbar; in der Cloud `navigate` und `highlight_element` mit `nav-company-members`, und `company-members-add` hebt **Hinzufügen** hervor. In **Benutzer einladen** heben `invite-modal-tab-link`, `invite-modal-link` und `invite-modal-copy-link` den Tab **Link teilen**, den **Einladungslink** und seinen Kopieren-Button hervor, und `invite-modal-tab-email`, `invite-modal-emails` und `invite-modal-send` den Tab **E-Mails senden**, **E-Mails** und **Einladungen senden**. Ist eine Mitgliederzeile geöffnet, heben `member-modal-role`, `member-modal-status` und `member-modal-save` **Rolle**, **Status** und **Speichern** im Dialog **Benutzer** hervor. Die Mitgliederzeilen sind keine Highlight-Ziele, deshalb nennt Mate sie beim Namen.
+
+## Können sich Nutzer mit Google oder Microsoft anmelden? [#can-users-sign-in-with-google-or-microsoft]
+
+Ja, sobald Sie es einrichten. Registrieren Sie einen OAuth-Client bei Google oder eine App-Registrierung in Microsoft Entra ID mit der Weiterleitungs-URI `<BASE_URL>/api/auth/callback/google` beziehungsweise `<BASE_URL>/api/auth/callback/microsoft`. Der Microsoft-Anbieter nutzt den Endpunkt `common`; registrieren Sie die App deshalb für Konten in einem beliebigen Organisationsverzeichnis.
+
+Entfernen Sie in `.env` das `#` vor den Zeilen der Anbieter, die Sie nutzen, tragen Sie `GOOGLE_CLIENT_ID` und `GOOGLE_CLIENT_SECRET` oder `AZURE_AD_CLIENT_ID` und `AZURE_AD_CLIENT_SECRET` ein und führen Sie dann `docker compose up -d` aus. Die Compose-Datei gibt alle vier Werte an die App weiter; listet Ihre `docker-compose.yml` sie noch nicht auf, holen Sie die Datei erneut mit dem `curl`-Befehl aus den Installationsschritten. Ein Anbieter erscheint nur, wenn beide Werte gesetzt sind; die Anmeldeseite zeigt dann **Anmelden mit Google** oder **Anmelden mit Microsoft**, die Registrierungsseite **Registrieren mit Google** oder **Registrieren mit Microsoft**. Enterprise-SSO über SAML ist nicht implementiert.
+
+## Wie verbinde ich einen KI-Client mit meiner Self-Hosted-Instanz? [#how-do-i-connect-an-ai-client-to-my-self-hosted-instance]
+
+Der MCP-Endpunkt ist `<BASE_URL>/api/v1/mcp`, zum Beispiel `https://crm.example.com/api/v1/mcp`. Es gibt zwei Wege der Authentifizierung:
+
+- **API-Key** im Header `x-api-key`, für Clients auf Ihrem Rechner: Claude Code, Claude Desktop, Codex, Cursor und Gemini CLI. Legen Sie den Key unter **Mein Profil** › **API & Konnektoren** mit **Hinzufügen** an; **Schnellverbindungen** zeigt dort den Einrichtungsausschnitt mit der Adresse, unter der Sie die App geöffnet haben. Der Client muss die URL nur erreichen, eine Adresse im lokalen Netz funktioniert also. Siehe [CLI- und Editor-Clients verbinden](/docs/connect-cli).
+- **OAuth-Anmeldung**, für Clients, die sich aus der Cloud ihres Anbieters verbinden, etwa ein benutzerdefinierter Connector in Claude. Diese brauchen eine `BASE_URL`, die aus dem Internet über HTTPS erreichbar ist. Siehe [Claude und ChatGPT verbinden](/docs/connect-custom-connector).
+
+Der gehostete In-App-Assistent ist nur in der Cloud verfügbar: Mate gibt es auf Self-Hosted-Instanzen nicht. Externes MCP nutzt Ihren eigenen KI-Anbieter. Enterprise-SSO und White-Labeling sind in keiner Variante implementiert.
+
+**Link:** die Seite **API & Konnektoren**, `/profile/api-keys`, auf Ihrer Instanz. **Mate:** auf Self-Hosted-Instanzen nicht verfügbar; in der Cloud `navigate` und `highlight_element` mit `nav-profile-api-keys`, und `profile-api-keys-generate` hebt **Hinzufügen** für Rollen mit **Verwalten** bei **API & Webhooks** hervor.
+
+## Wie spiele ich ein Update der Self-Hosted-Installation ein? [#how-do-i-update-a-self-hosted-installation]
+
+Erstellen Sie zuerst ein Backup, laden Sie dann die neuen Images und erstellen Sie die Container neu:
 
 ```bash
 docker compose pull
 docker compose up -d
+docker compose ps
 ```
 
-Pullt das neueste App-Image und startet die betroffenen Services neu. Migrationen laufen beim Container-Boot automatisch. Status mit `docker compose ps` prüfen.
+Das Tag `latest` wird bei jeder Änderung am Main-Branch neu gebaut, jedes Pull kann also neue Funktionen und Datenbank-Migrationen bringen. Die App wendet ausstehende Migrationen bei jedem Start an, und Migrationen laufen nur vorwärts: Ein älteres Image nach einer Migration zu starten, ist kein sicherer Rollback. Für einen Rollback spielen Sie das Backup von vor dem Update zurück und starten das vorherige Image über sein `sha-`-Tag (siehe unten). `docker compose pull` aktualisiert außerdem `postgres:16-alpine` innerhalb von PostgreSQL 16.
 
-### Konfigurationsänderungen anwenden
+Um selbst zu bestimmen, wann Updates kommen, pinnen Sie das Image in `docker-compose.yml` auf ein Build-Tag statt `latest`. Jedes Image trägt zusätzlich das Tag `sha-` mit der kurzen Commit-ID, zum Beispiel `ghcr.io/customermates/customermates:sha-<commit>`.
 
-```bash
-docker compose up -d
-```
+## Wie wende ich Änderungen an der .env an? [#apply-env-changes]
 
-Gleicht den Stack ab und erstellt betroffene Container neu, wenn sich die Konfiguration geändert hat. Verwenden Sie den Befehl nach `.env`-Änderungen. Für einen einfachen Neustart bei unveränderter Konfiguration genügt `docker compose restart`.
+Führen Sie `docker compose up -d` aus. Der Befehl erstellt die Container neu, deren Konfiguration sich geändert hat, sodass sie mit den neuen `.env`-Werten starten. `docker compose restart` behält die alte Umgebung und übernimmt `.env`-Änderungen nicht.
 
-### Logs und Troubleshooting
+## Wo finde ich die Logs, und wie suche ich Fehler? [#where-are-the-logs-and-how-do-i-troubleshoot]
 
 ```bash
 docker compose logs -f app
@@ -109,20 +160,11 @@ docker compose ps
 docker compose exec app sh
 ```
 
-Aktivierte Hintergrund-Jobs laufen prozessintern über den Postgres-gestützten Worker, der mit der Anwendung startet. Die Compose-Datei enthält keinen separaten Worker-Dienst. Prüfen Sie die Anwendungs-Logs mit `docker compose logs -f app`.
+Die App schreibt ihre Logs in die Container-Ausgabe. Hintergrund-Jobs wie Webhook-Zustellungen laufen im App-Container über eine PostgreSQL-gestützte Warteschlange in derselben Datenbank; einen separaten Worker-Dienst gibt es nicht. Das veröffentlichte Image schaltet die Next.js-Telemetrie ab und setzt keine Adresse für Fehlerberichte. Fehler, die die App in ihre Ausgabe schreibt, erscheinen nur in diesen Logs. Fehler, die die App nur an einen Dienst für Fehlerberichte meldet, etwa eine von Resend abgelehnte E-Mail, werden nirgends festgehalten; prüfen Sie abgelehnte Sendungen im Resend-Dashboard.
 
-### Alle Daten zurücksetzen
+## Wie erstelle ich Datenbank-Backups und stelle sie wieder her? [#backups]
 
-```bash
-docker compose down -v
-docker compose up -d
-```
-
-`-v` löscht das Postgres-Volume. IRREVERSIBLE. Vorher Backup ziehen, falls die Daten benötigt werden.
-
-## Backups
-
-Postgres per `pg_dump` auf Zeitplan. Der App-Container ist stateless.
+Alle Daten liegen in der PostgreSQL-Datenbank Ihrer Self-Hosted-Installation: Datensätze, Nutzer, Einstellungen, das Audit-Log und die Warteschlange der Hintergrund-Jobs. Der App-Container speichert keine Daten. Sichern Sie die Datenbank mit `pg_dump` über den Postgres-Container, dessen Port die Compose-Datei nicht veröffentlicht:
 
 ```bash
 mkdir -p backups
@@ -130,20 +172,31 @@ docker compose exec -T postgres sh -c 'pg_dump -U "$POSTGRES_USER" "$POSTGRES_DB
   | gzip > backups/customermates-$(date +%Y%m%d).sql.gz
 ```
 
-Für Produktion:
+Führen Sie den Befehl täglich über einen Planer wie cron aus und kopieren Sie die Dateien auf getrennten oder externen Speicher. Bewahren Sie eine Kopie von `.env` sicher und außerhalb der Versionsverwaltung dazu auf: Eine Wiederherstellung mit einem anderen `BETTER_AUTH_SECRET` meldet alle ab.
 
-- Tägliche Dumps auf separates Volume oder Off-Site.
-- Restore-Prozeduren in einer Nicht-Produktion testen.
-- `.env` und Secrets nicht ins Source-Repo.
+Zur Wiederherstellung stoppen Sie die App, ersetzen die Datenbank durch eine leere, spielen den Dump ein und starten neu:
 
-## Editionsgrenze
+```bash
+docker compose stop app
+docker compose exec -T postgres sh -c 'dropdb -U "$POSTGRES_USER" "$POSTGRES_DB" && createdb -U "$POSTGRES_USER" "$POSTGRES_DB"'
+gunzip -c backups/customermates-20260923.sql.gz \
+  | docker compose exec -T postgres sh -c 'psql -v ON_ERROR_STOP=1 -U "$POSTGRES_USER" "$POSTGRES_DB"'
+docker compose up -d
+```
 
-Jedes Self-Hosted-Deployment nutzt Starter-Berechtigungen. Verbundene Messaging-Konten, einheitlicher Posteingang, verbundene Kalenderansicht, gehostetes Mate und gehostete KI-Credits bleiben Cloud-Funktionen und werden beim Self-Hosting nicht durch einen bezahlten Cloud-Tarif freigeschaltet. Externe KI-Clients bleiben über MCP verfügbar. Die genaue Lizenzgrenze des Codes steht in `LICENSE` und `ee/LICENSE.md` im Repository.
+Testen Sie die Wiederherstellung regelmäßig auf einem separaten Rechner. Auch der Wechsel auf eine neue PostgreSQL-Hauptversion, die die Compose-Datei auf 16 festlegt, braucht einen Dump und eine Wiederherstellung in die neue Version.
 
-Der gehostete In-App-Assistent ist nur in der Cloud verfügbar und bleibt freigabegebunden. Externes MCP nutzt Ihren eigenen KI-Anbieter. Enterprise-SSO und White-Labeling sind in keiner Variante implementiert.
+## Wie setze ich alle Daten zurück? [#how-do-i-reset-all-data]
 
-## Weiter
+```bash
+docker compose down -v
+docker compose up -d
+```
+
+`-v` löscht das PostgreSQL-Volume mit allen Workspaces, Nutzern und Datensätzen der Instanz. Das lässt sich nicht rückgängig machen; erstellen Sie vorher ein Backup, falls Sie die Daten noch brauchen könnten. Der nächste Start legt eine leere Datenbank an, und die erste Person, die sich registriert, erstellt einen neuen Workspace.
+
+## Weiter [#next]
 
 - [Architektur und Sicherheit](/docs/architecture-security): was Sie betreiben.
 - [API-Keys](/docs/api-keys): Key-Hygiene.
-- [KI verbinden](/docs/connect-custom-connector): nach dem Install einen MCP-Client auf Ihre Instanz zeigen.
+- [KI verbinden](/docs/connect-custom-connector): einen MCP-Client auf Ihre Instanz zeigen lassen.

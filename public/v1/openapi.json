@@ -337,6 +337,26 @@
               }
             }
           },
+          "404": {
+            "description": "Not found",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/ErrorResponseSchema"
+                }
+              }
+            }
+          },
+          "409": {
+            "description": "Conflict",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/ErrorResponseSchema"
+                }
+              }
+            }
+          },
           "500": {
             "description": "Unexpected error",
             "content": {
@@ -670,6 +690,26 @@
           },
           "403": {
             "description": "Not authorized",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/ErrorResponseSchema"
+                }
+              }
+            }
+          },
+          "404": {
+            "description": "Not found",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/ErrorResponseSchema"
+                }
+              }
+            }
+          },
+          "409": {
+            "description": "Conflict",
             "content": {
               "application/json": {
                 "schema": {
@@ -1017,6 +1057,26 @@
               }
             }
           },
+          "404": {
+            "description": "Not found",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/ErrorResponseSchema"
+                }
+              }
+            }
+          },
+          "409": {
+            "description": "Conflict",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/ErrorResponseSchema"
+                }
+              }
+            }
+          },
           "500": {
             "description": "Unexpected error",
             "content": {
@@ -1064,7 +1124,7 @@
                     "type": "string",
                     "minLength": 1,
                     "maxLength": 400,
-                    "description": "Which contact to address. Must be ONE of: the contact's UUID (e.g. '3fa85f64-5717-4562-b3fc-2c963f66afa6'); an email address (e.g. 'jane@example.com', matched across mail/Google/Outlook); a phone number (e.g. '+491234567890', matched across WhatsApp/Telegram); or 'provider:value' for a messaging handle where provider is one of linkedin, telegram, instagram (e.g. 'linkedin:john-doe', 'telegram:jdoe', 'instagram:jane'). The contact must already exist; unknown or malformed keys are rejected."
+                    "description": "Which contact to address. Must be ONE of: the contact's UUID (e.g. '3fa85f64-5717-4562-b3fc-2c963f66afa6'); an email address (e.g. 'jane@example.com', matched across mail/Google/Outlook); a phone number (e.g. '+491234567890', matched across WhatsApp/Telegram); or 'provider:value' for a messaging handle where provider is one of linkedin, telegram, instagram (e.g. 'linkedin:john-doe', 'telegram:jdoe', 'instagram:jane'). The contact must already exist. An unknown or malformed key is refused as not found, except by the REST get by id, which returns `contact: null`."
                   }
                 }
               }
@@ -1092,6 +1152,16 @@
           },
           "403": {
             "description": "Not authorized",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/ErrorResponseSchema"
+                }
+              }
+            }
+          },
+          "404": {
+            "description": "Not found",
             "content": {
               "application/json": {
                 "schema": {
@@ -2803,6 +2873,16 @@
               }
             }
           },
+          "404": {
+            "description": "Not found",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/ErrorResponseSchema"
+                }
+              }
+            }
+          },
           "500": {
             "description": "Unexpected error",
             "content": {
@@ -3721,7 +3801,7 @@
       "get": {
         "operationId": "getContactById",
         "summary": "Get a contact by ID",
-        "description": "Retrieves a single contact by its unique identifier.",
+        "description": "Retrieves a single contact by its UUID or by a channel it owns. The response carries `contact: null`, not an error, when no accessible contact matches the key, including a key that is neither a UUID nor a recognised channel.",
         "tags": [
           "contacts"
         ],
@@ -3738,15 +3818,15 @@
               "type": "string",
               "minLength": 1,
               "maxLength": 400,
-              "description": "Which contact to address. Must be ONE of: the contact's UUID (e.g. '3fa85f64-5717-4562-b3fc-2c963f66afa6'); an email address (e.g. 'jane@example.com', matched across mail/Google/Outlook); a phone number (e.g. '+491234567890', matched across WhatsApp/Telegram); or 'provider:value' for a messaging handle where provider is one of linkedin, telegram, instagram (e.g. 'linkedin:john-doe', 'telegram:jdoe', 'instagram:jane'). The contact must already exist; unknown or malformed keys are rejected."
+              "description": "Which contact to address. Must be ONE of: the contact's UUID (e.g. '3fa85f64-5717-4562-b3fc-2c963f66afa6'); an email address (e.g. 'jane@example.com', matched across mail/Google/Outlook); a phone number (e.g. '+491234567890', matched across WhatsApp/Telegram); or 'provider:value' for a messaging handle where provider is one of linkedin, telegram, instagram (e.g. 'linkedin:john-doe', 'telegram:jdoe', 'instagram:jane'). The contact must already exist. An unknown or malformed key is refused as not found, except by the REST get by id, which returns `contact: null`."
             },
             "required": true,
-            "description": "Which contact to address. Must be ONE of: the contact's UUID (e.g. '3fa85f64-5717-4562-b3fc-2c963f66afa6'); an email address (e.g. 'jane@example.com', matched across mail/Google/Outlook); a phone number (e.g. '+491234567890', matched across WhatsApp/Telegram); or 'provider:value' for a messaging handle where provider is one of linkedin, telegram, instagram (e.g. 'linkedin:john-doe', 'telegram:jdoe', 'instagram:jane'). The contact must already exist; unknown or malformed keys are rejected."
+            "description": "Which contact to address. Must be ONE of: the contact's UUID (e.g. '3fa85f64-5717-4562-b3fc-2c963f66afa6'); an email address (e.g. 'jane@example.com', matched across mail/Google/Outlook); a phone number (e.g. '+491234567890', matched across WhatsApp/Telegram); or 'provider:value' for a messaging handle where provider is one of linkedin, telegram, instagram (e.g. 'linkedin:john-doe', 'telegram:jdoe', 'instagram:jane'). The contact must already exist. An unknown or malformed key is refused as not found, except by the REST get by id, which returns `contact: null`."
           }
         ],
         "responses": {
           "200": {
-            "description": "The contact was retrieved successfully.",
+            "description": "The contact, or `contact: null` when no accessible contact matches the key.",
             "content": {
               "application/json": {
                 "schema": {
@@ -4856,10 +4936,10 @@
               "type": "string",
               "minLength": 1,
               "maxLength": 400,
-              "description": "Which contact to address. Must be ONE of: the contact's UUID (e.g. '3fa85f64-5717-4562-b3fc-2c963f66afa6'); an email address (e.g. 'jane@example.com', matched across mail/Google/Outlook); a phone number (e.g. '+491234567890', matched across WhatsApp/Telegram); or 'provider:value' for a messaging handle where provider is one of linkedin, telegram, instagram (e.g. 'linkedin:john-doe', 'telegram:jdoe', 'instagram:jane'). The contact must already exist; unknown or malformed keys are rejected."
+              "description": "Which contact to address. Must be ONE of: the contact's UUID (e.g. '3fa85f64-5717-4562-b3fc-2c963f66afa6'); an email address (e.g. 'jane@example.com', matched across mail/Google/Outlook); a phone number (e.g. '+491234567890', matched across WhatsApp/Telegram); or 'provider:value' for a messaging handle where provider is one of linkedin, telegram, instagram (e.g. 'linkedin:john-doe', 'telegram:jdoe', 'instagram:jane'). The contact must already exist. An unknown or malformed key is refused as not found, except by the REST get by id, which returns `contact: null`."
             },
             "required": true,
-            "description": "Which contact to address. Must be ONE of: the contact's UUID (e.g. '3fa85f64-5717-4562-b3fc-2c963f66afa6'); an email address (e.g. 'jane@example.com', matched across mail/Google/Outlook); a phone number (e.g. '+491234567890', matched across WhatsApp/Telegram); or 'provider:value' for a messaging handle where provider is one of linkedin, telegram, instagram (e.g. 'linkedin:john-doe', 'telegram:jdoe', 'instagram:jane'). The contact must already exist; unknown or malformed keys are rejected."
+            "description": "Which contact to address. Must be ONE of: the contact's UUID (e.g. '3fa85f64-5717-4562-b3fc-2c963f66afa6'); an email address (e.g. 'jane@example.com', matched across mail/Google/Outlook); a phone number (e.g. '+491234567890', matched across WhatsApp/Telegram); or 'provider:value' for a messaging handle where provider is one of linkedin, telegram, instagram (e.g. 'linkedin:john-doe', 'telegram:jdoe', 'instagram:jane'). The contact must already exist. An unknown or malformed key is refused as not found, except by the REST get by id, which returns `contact: null`."
           }
         ],
         "requestBody": {
@@ -5332,6 +5412,26 @@
               }
             }
           },
+          "404": {
+            "description": "Not found",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/ErrorResponseSchema"
+                }
+              }
+            }
+          },
+          "409": {
+            "description": "Conflict",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/ErrorResponseSchema"
+                }
+              }
+            }
+          },
           "500": {
             "description": "Unexpected error",
             "content": {
@@ -5364,10 +5464,10 @@
               "type": "string",
               "minLength": 1,
               "maxLength": 400,
-              "description": "Which contact to address. Must be ONE of: the contact's UUID (e.g. '3fa85f64-5717-4562-b3fc-2c963f66afa6'); an email address (e.g. 'jane@example.com', matched across mail/Google/Outlook); a phone number (e.g. '+491234567890', matched across WhatsApp/Telegram); or 'provider:value' for a messaging handle where provider is one of linkedin, telegram, instagram (e.g. 'linkedin:john-doe', 'telegram:jdoe', 'instagram:jane'). The contact must already exist; unknown or malformed keys are rejected."
+              "description": "Which contact to address. Must be ONE of: the contact's UUID (e.g. '3fa85f64-5717-4562-b3fc-2c963f66afa6'); an email address (e.g. 'jane@example.com', matched across mail/Google/Outlook); a phone number (e.g. '+491234567890', matched across WhatsApp/Telegram); or 'provider:value' for a messaging handle where provider is one of linkedin, telegram, instagram (e.g. 'linkedin:john-doe', 'telegram:jdoe', 'instagram:jane'). The contact must already exist. An unknown or malformed key is refused as not found, except by the REST get by id, which returns `contact: null`."
             },
             "required": true,
-            "description": "Which contact to address. Must be ONE of: the contact's UUID (e.g. '3fa85f64-5717-4562-b3fc-2c963f66afa6'); an email address (e.g. 'jane@example.com', matched across mail/Google/Outlook); a phone number (e.g. '+491234567890', matched across WhatsApp/Telegram); or 'provider:value' for a messaging handle where provider is one of linkedin, telegram, instagram (e.g. 'linkedin:john-doe', 'telegram:jdoe', 'instagram:jane'). The contact must already exist; unknown or malformed keys are rejected."
+            "description": "Which contact to address. Must be ONE of: the contact's UUID (e.g. '3fa85f64-5717-4562-b3fc-2c963f66afa6'); an email address (e.g. 'jane@example.com', matched across mail/Google/Outlook); a phone number (e.g. '+491234567890', matched across WhatsApp/Telegram); or 'provider:value' for a messaging handle where provider is one of linkedin, telegram, instagram (e.g. 'linkedin:john-doe', 'telegram:jdoe', 'instagram:jane'). The contact must already exist. An unknown or malformed key is refused as not found, except by the REST get by id, which returns `contact: null`."
           }
         ],
         "responses": {
@@ -5403,6 +5503,16 @@
           },
           "403": {
             "description": "Not authorized",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/ErrorResponseSchema"
+                }
+              }
+            }
+          },
+          "404": {
+            "description": "Not found",
             "content": {
               "application/json": {
                 "schema": {
@@ -5673,6 +5783,16 @@
           },
           "403": {
             "description": "Not authorized",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/ErrorResponseSchema"
+                }
+              }
+            }
+          },
+          "404": {
+            "description": "Not found",
             "content": {
               "application/json": {
                 "schema": {
@@ -5954,6 +6074,16 @@
               }
             }
           },
+          "404": {
+            "description": "Not found",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/ErrorResponseSchema"
+                }
+              }
+            }
+          },
           "500": {
             "description": "Unexpected error",
             "content": {
@@ -6225,6 +6355,16 @@
               }
             }
           },
+          "404": {
+            "description": "Not found",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/ErrorResponseSchema"
+                }
+              }
+            }
+          },
           "500": {
             "description": "Unexpected error",
             "content": {
@@ -6299,6 +6439,16 @@
           },
           "403": {
             "description": "Not authorized",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/ErrorResponseSchema"
+                }
+              }
+            }
+          },
+          "404": {
+            "description": "Not found",
             "content": {
               "application/json": {
                 "schema": {
@@ -7942,6 +8092,16 @@
               }
             }
           },
+          "404": {
+            "description": "Not found",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/ErrorResponseSchema"
+                }
+              }
+            }
+          },
           "500": {
             "description": "Unexpected error",
             "content": {
@@ -8860,7 +9020,7 @@
       "get": {
         "operationId": "getOrganizationById",
         "summary": "Get an organization by ID",
-        "description": "Retrieves a single organization by its unique identifier.",
+        "description": "Retrieves a single organization by its unique identifier. The response carries `organization: null`, not an error, when no organization with this id is accessible.",
         "tags": [
           "organizations"
         ],
@@ -8883,7 +9043,7 @@
         ],
         "responses": {
           "200": {
-            "description": "The organization was retrieved successfully.",
+            "description": "The organization, or `organization: null` when no organization with this id is accessible.",
             "content": {
               "application/json": {
                 "schema": {
@@ -10282,6 +10442,16 @@
               }
             }
           },
+          "404": {
+            "description": "Not found",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/ErrorResponseSchema"
+                }
+              }
+            }
+          },
           "500": {
             "description": "Unexpected error",
             "content": {
@@ -10351,6 +10521,16 @@
           },
           "403": {
             "description": "Not authorized",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/ErrorResponseSchema"
+                }
+              }
+            }
+          },
+          "404": {
+            "description": "Not found",
             "content": {
               "application/json": {
                 "schema": {
@@ -10670,6 +10850,16 @@
           },
           "403": {
             "description": "Not authorized",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/ErrorResponseSchema"
+                }
+              }
+            }
+          },
+          "404": {
+            "description": "Not found",
             "content": {
               "application/json": {
                 "schema": {
@@ -11000,6 +11190,16 @@
               }
             }
           },
+          "404": {
+            "description": "Not found",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/ErrorResponseSchema"
+                }
+              }
+            }
+          },
           "500": {
             "description": "Unexpected error",
             "content": {
@@ -11320,6 +11520,16 @@
               }
             }
           },
+          "404": {
+            "description": "Not found",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/ErrorResponseSchema"
+                }
+              }
+            }
+          },
           "500": {
             "description": "Unexpected error",
             "content": {
@@ -11394,6 +11604,16 @@
           },
           "403": {
             "description": "Not authorized",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/ErrorResponseSchema"
+                }
+              }
+            }
+          },
+          "404": {
+            "description": "Not found",
             "content": {
               "application/json": {
                 "schema": {
@@ -13086,6 +13306,16 @@
               }
             }
           },
+          "404": {
+            "description": "Not found",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/ErrorResponseSchema"
+                }
+              }
+            }
+          },
           "500": {
             "description": "Unexpected error",
             "content": {
@@ -14004,7 +14234,7 @@
       "get": {
         "operationId": "getDealById",
         "summary": "Get a deal by ID",
-        "description": "Retrieves a single deal by its unique identifier.",
+        "description": "Retrieves a single deal by its unique identifier. The response carries `deal: null`, not an error, when no deal with this id is accessible.",
         "tags": [
           "deals"
         ],
@@ -14027,7 +14257,7 @@
         ],
         "responses": {
           "200": {
-            "description": "The deal was retrieved successfully.",
+            "description": "The deal, or `deal: null` when no deal with this id is accessible.",
             "content": {
               "application/json": {
                 "schema": {
@@ -15552,6 +15782,16 @@
               }
             }
           },
+          "404": {
+            "description": "Not found",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/ErrorResponseSchema"
+                }
+              }
+            }
+          },
           "500": {
             "description": "Unexpected error",
             "content": {
@@ -15621,6 +15861,16 @@
           },
           "403": {
             "description": "Not authorized",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/ErrorResponseSchema"
+                }
+              }
+            }
+          },
+          "404": {
+            "description": "Not found",
             "content": {
               "application/json": {
                 "schema": {
@@ -15858,6 +16108,16 @@
           },
           "403": {
             "description": "Not authorized",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/ErrorResponseSchema"
+                }
+              }
+            }
+          },
+          "404": {
+            "description": "Not found",
             "content": {
               "application/json": {
                 "schema": {
@@ -16106,6 +16366,16 @@
               }
             }
           },
+          "404": {
+            "description": "Not found",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/ErrorResponseSchema"
+                }
+              }
+            }
+          },
           "500": {
             "description": "Unexpected error",
             "content": {
@@ -16344,6 +16614,16 @@
               }
             }
           },
+          "404": {
+            "description": "Not found",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/ErrorResponseSchema"
+                }
+              }
+            }
+          },
           "500": {
             "description": "Unexpected error",
             "content": {
@@ -16418,6 +16698,16 @@
           },
           "403": {
             "description": "Not authorized",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/ErrorResponseSchema"
+                }
+              }
+            }
+          },
+          "404": {
+            "description": "Not found",
             "content": {
               "application/json": {
                 "schema": {
@@ -18028,6 +18318,16 @@
               }
             }
           },
+          "404": {
+            "description": "Not found",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/ErrorResponseSchema"
+                }
+              }
+            }
+          },
           "500": {
             "description": "Unexpected error",
             "content": {
@@ -18946,7 +19246,7 @@
       "get": {
         "operationId": "getServiceById",
         "summary": "Get a service by ID",
-        "description": "Retrieves a single service by its unique identifier.",
+        "description": "Retrieves a single service by its unique identifier. The response carries `service: null`, not an error, when no service with this id is accessible.",
         "tags": [
           "services"
         ],
@@ -18969,7 +19269,7 @@
         ],
         "responses": {
           "200": {
-            "description": "The service was retrieved successfully.",
+            "description": "The service, or `service: null` when no service with this id is accessible.",
             "content": {
               "application/json": {
                 "schema": {
@@ -20291,6 +20591,16 @@
               }
             }
           },
+          "404": {
+            "description": "Not found",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/ErrorResponseSchema"
+                }
+              }
+            }
+          },
           "500": {
             "description": "Unexpected error",
             "content": {
@@ -20360,6 +20670,16 @@
           },
           "403": {
             "description": "Not authorized",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/ErrorResponseSchema"
+                }
+              }
+            }
+          },
+          "404": {
+            "description": "Not found",
             "content": {
               "application/json": {
                 "schema": {
@@ -20656,6 +20976,16 @@
           },
           "403": {
             "description": "Not authorized",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/ErrorResponseSchema"
+                }
+              }
+            }
+          },
+          "404": {
+            "description": "Not found",
             "content": {
               "application/json": {
                 "schema": {
@@ -20963,6 +21293,16 @@
               }
             }
           },
+          "404": {
+            "description": "Not found",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/ErrorResponseSchema"
+                }
+              }
+            }
+          },
           "500": {
             "description": "Unexpected error",
             "content": {
@@ -21260,6 +21600,16 @@
               }
             }
           },
+          "404": {
+            "description": "Not found",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/ErrorResponseSchema"
+                }
+              }
+            }
+          },
           "500": {
             "description": "Unexpected error",
             "content": {
@@ -21334,6 +21684,16 @@
           },
           "403": {
             "description": "Not authorized",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/ErrorResponseSchema"
+                }
+              }
+            }
+          },
+          "404": {
+            "description": "Not found",
             "content": {
               "application/json": {
                 "schema": {
@@ -23003,6 +23363,16 @@
               }
             }
           },
+          "404": {
+            "description": "Not found",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/ErrorResponseSchema"
+                }
+              }
+            }
+          },
           "500": {
             "description": "Unexpected error",
             "content": {
@@ -23921,7 +24291,7 @@
       "get": {
         "operationId": "getTaskById",
         "summary": "Get a task by ID",
-        "description": "Retrieves a single task by its unique identifier.",
+        "description": "Retrieves a single task by its unique identifier. The response carries `task: null`, not an error, when no task with this id is accessible.",
         "tags": [
           "tasks"
         ],
@@ -23944,7 +24314,7 @@
         ],
         "responses": {
           "200": {
-            "description": "The task was retrieved successfully.",
+            "description": "The task, or `task: null` when no task with this id is accessible.",
             "content": {
               "application/json": {
                 "schema": {
@@ -25410,6 +25780,16 @@
               }
             }
           },
+          "404": {
+            "description": "Not found",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/ErrorResponseSchema"
+                }
+              }
+            }
+          },
           "500": {
             "description": "Unexpected error",
             "content": {
@@ -25479,6 +25859,16 @@
           },
           "403": {
             "description": "Not authorized",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/ErrorResponseSchema"
+                }
+              }
+            }
+          },
+          "404": {
+            "description": "Not found",
             "content": {
               "application/json": {
                 "schema": {
@@ -26569,6 +26959,16 @@
               }
             }
           },
+          "404": {
+            "description": "Not found",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/ErrorResponseSchema"
+                }
+              }
+            }
+          },
           "500": {
             "description": "Unexpected error",
             "content": {
@@ -26586,7 +26986,7 @@
       "get": {
         "operationId": "getWebhook",
         "summary": "Get a webhook subscription",
-        "description": "Returns one webhook subscription by ID. The signing secret itself is never returned.",
+        "description": "Returns one webhook subscription by ID, or null when no webhook with this id is accessible. The signing secret itself is never returned.",
         "tags": [
           "webhooks"
         ],
@@ -26609,7 +27009,7 @@
         ],
         "responses": {
           "200": {
-            "description": "The webhook subscription.",
+            "description": "The webhook subscription, or null when no webhook with this id is accessible.",
             "content": {
               "application/json": {
                 "schema": {
@@ -26820,6 +27220,16 @@
           },
           "403": {
             "description": "Not authorized",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/ErrorResponseSchema"
+                }
+              }
+            }
+          },
+          "404": {
+            "description": "Not found",
             "content": {
               "application/json": {
                 "schema": {
@@ -27377,6 +27787,16 @@
               }
             }
           },
+          "404": {
+            "description": "Not found",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/ErrorResponseSchema"
+                }
+              }
+            }
+          },
           "500": {
             "description": "Unexpected error",
             "content": {
@@ -27448,6 +27868,16 @@
           },
           "403": {
             "description": "Not authorized",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/ErrorResponseSchema"
+                }
+              }
+            }
+          },
+          "404": {
+            "description": "Not found",
             "content": {
               "application/json": {
                 "schema": {
@@ -28342,6 +28772,46 @@
               }
             }
           },
+          "404": {
+            "description": "Not found",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/ErrorResponseSchema"
+                }
+              }
+            }
+          },
+          "409": {
+            "description": "Conflict",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/ErrorResponseSchema"
+                }
+              }
+            }
+          },
+          "422": {
+            "description": "Unavailable",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/ErrorResponseSchema"
+                }
+              }
+            }
+          },
+          "429": {
+            "description": "Rate limited",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/ErrorResponseSchema"
+                }
+              }
+            }
+          },
           "500": {
             "description": "Unexpected error",
             "content": {
@@ -28411,6 +28881,16 @@
           },
           "403": {
             "description": "Not authorized",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/ErrorResponseSchema"
+                }
+              }
+            }
+          },
+          "404": {
+            "description": "Not found",
             "content": {
               "application/json": {
                 "schema": {
@@ -29920,6 +30400,16 @@
           },
           "403": {
             "description": "Not authorized",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/ErrorResponseSchema"
+                }
+              }
+            }
+          },
+          "404": {
+            "description": "Not found",
             "content": {
               "application/json": {
                 "schema": {
@@ -31728,6 +32218,16 @@
               }
             }
           },
+          "404": {
+            "description": "Not found",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/ErrorResponseSchema"
+                }
+              }
+            }
+          },
           "500": {
             "description": "Unexpected error",
             "content": {
@@ -32851,6 +33351,46 @@
               }
             }
           },
+          "404": {
+            "description": "Not found",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/ErrorResponseSchema"
+                }
+              }
+            }
+          },
+          "409": {
+            "description": "Conflict",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/ErrorResponseSchema"
+                }
+              }
+            }
+          },
+          "422": {
+            "description": "Unavailable",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/ErrorResponseSchema"
+                }
+              }
+            }
+          },
+          "429": {
+            "description": "Rate limited",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/ErrorResponseSchema"
+                }
+              }
+            }
+          },
           "500": {
             "description": "Unexpected error",
             "content": {
@@ -32938,6 +33478,36 @@
           },
           "403": {
             "description": "Not authorized",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/ErrorResponseSchema"
+                }
+              }
+            }
+          },
+          "404": {
+            "description": "Not found",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/ErrorResponseSchema"
+                }
+              }
+            }
+          },
+          "422": {
+            "description": "Unavailable",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/ErrorResponseSchema"
+                }
+              }
+            }
+          },
+          "429": {
+            "description": "Rate limited",
             "content": {
               "application/json": {
                 "schema": {
@@ -33811,6 +34381,16 @@
           },
           "403": {
             "description": "Not authorized",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/ErrorResponseSchema"
+                }
+              }
+            }
+          },
+          "404": {
+            "description": "Not found",
             "content": {
               "application/json": {
                 "schema": {
@@ -34696,6 +35276,16 @@
               }
             }
           },
+          "404": {
+            "description": "Not found",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/ErrorResponseSchema"
+                }
+              }
+            }
+          },
           "500": {
             "description": "Unexpected error",
             "content": {
@@ -34797,6 +35387,16 @@
           },
           "403": {
             "description": "Not authorized",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/ErrorResponseSchema"
+                }
+              }
+            }
+          },
+          "404": {
+            "description": "Not found",
             "content": {
               "application/json": {
                 "schema": {
@@ -35791,6 +36391,36 @@
               }
             }
           },
+          "404": {
+            "description": "Not found",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/ErrorResponseSchema"
+                }
+              }
+            }
+          },
+          "422": {
+            "description": "Unavailable",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/ErrorResponseSchema"
+                }
+              }
+            }
+          },
+          "429": {
+            "description": "Rate limited",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/ErrorResponseSchema"
+                }
+              }
+            }
+          },
           "500": {
             "description": "Unexpected error",
             "content": {
@@ -36545,6 +37175,36 @@
               }
             }
           },
+          "404": {
+            "description": "Not found",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/ErrorResponseSchema"
+                }
+              }
+            }
+          },
+          "422": {
+            "description": "Unavailable",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/ErrorResponseSchema"
+                }
+              }
+            }
+          },
+          "429": {
+            "description": "Rate limited",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/ErrorResponseSchema"
+                }
+              }
+            }
+          },
           "500": {
             "description": "Unexpected error",
             "content": {
@@ -37076,6 +37736,36 @@
               }
             }
           },
+          "404": {
+            "description": "Not found",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/ErrorResponseSchema"
+                }
+              }
+            }
+          },
+          "422": {
+            "description": "Unavailable",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/ErrorResponseSchema"
+                }
+              }
+            }
+          },
+          "429": {
+            "description": "Rate limited",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/ErrorResponseSchema"
+                }
+              }
+            }
+          },
           "500": {
             "description": "Unexpected error",
             "content": {
@@ -37524,6 +38214,36 @@
           },
           "403": {
             "description": "Not authorized",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/ErrorResponseSchema"
+                }
+              }
+            }
+          },
+          "404": {
+            "description": "Not found",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/ErrorResponseSchema"
+                }
+              }
+            }
+          },
+          "422": {
+            "description": "Unavailable",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/ErrorResponseSchema"
+                }
+              }
+            }
+          },
+          "429": {
+            "description": "Rate limited",
             "content": {
               "application/json": {
                 "schema": {
@@ -38520,6 +39240,36 @@
               }
             }
           },
+          "404": {
+            "description": "Not found",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/ErrorResponseSchema"
+                }
+              }
+            }
+          },
+          "422": {
+            "description": "Unavailable",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/ErrorResponseSchema"
+                }
+              }
+            }
+          },
+          "429": {
+            "description": "Rate limited",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/ErrorResponseSchema"
+                }
+              }
+            }
+          },
           "500": {
             "description": "Unexpected error",
             "content": {
@@ -39137,6 +39887,36 @@
               }
             }
           },
+          "404": {
+            "description": "Not found",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/ErrorResponseSchema"
+                }
+              }
+            }
+          },
+          "422": {
+            "description": "Unavailable",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/ErrorResponseSchema"
+                }
+              }
+            }
+          },
+          "429": {
+            "description": "Rate limited",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/ErrorResponseSchema"
+                }
+              }
+            }
+          },
           "500": {
             "description": "Unexpected error",
             "content": {
@@ -39297,6 +40077,36 @@
           },
           "403": {
             "description": "Not authorized",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/ErrorResponseSchema"
+                }
+              }
+            }
+          },
+          "404": {
+            "description": "Not found",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/ErrorResponseSchema"
+                }
+              }
+            }
+          },
+          "422": {
+            "description": "Unavailable",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/ErrorResponseSchema"
+                }
+              }
+            }
+          },
+          "429": {
+            "description": "Rate limited",
             "content": {
               "application/json": {
                 "schema": {
@@ -39498,6 +40308,36 @@
           },
           "403": {
             "description": "Not authorized",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/ErrorResponseSchema"
+                }
+              }
+            }
+          },
+          "404": {
+            "description": "Not found",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/ErrorResponseSchema"
+                }
+              }
+            }
+          },
+          "422": {
+            "description": "Unavailable",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/ErrorResponseSchema"
+                }
+              }
+            }
+          },
+          "429": {
+            "description": "Rate limited",
             "content": {
               "application/json": {
                 "schema": {
@@ -39970,6 +40810,36 @@
               }
             }
           },
+          "404": {
+            "description": "Not found",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/ErrorResponseSchema"
+                }
+              }
+            }
+          },
+          "422": {
+            "description": "Unavailable",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/ErrorResponseSchema"
+                }
+              }
+            }
+          },
+          "429": {
+            "description": "Rate limited",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/ErrorResponseSchema"
+                }
+              }
+            }
+          },
           "500": {
             "description": "Unexpected error",
             "content": {
@@ -40080,6 +40950,36 @@
           },
           "403": {
             "description": "Not authorized",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/ErrorResponseSchema"
+                }
+              }
+            }
+          },
+          "404": {
+            "description": "Not found",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/ErrorResponseSchema"
+                }
+              }
+            }
+          },
+          "422": {
+            "description": "Unavailable",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/ErrorResponseSchema"
+                }
+              }
+            }
+          },
+          "429": {
+            "description": "Rate limited",
             "content": {
               "application/json": {
                 "schema": {
@@ -40487,6 +41387,36 @@
               }
             }
           },
+          "404": {
+            "description": "Not found",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/ErrorResponseSchema"
+                }
+              }
+            }
+          },
+          "422": {
+            "description": "Unavailable",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/ErrorResponseSchema"
+                }
+              }
+            }
+          },
+          "429": {
+            "description": "Rate limited",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/ErrorResponseSchema"
+                }
+              }
+            }
+          },
           "500": {
             "description": "Unexpected error",
             "content": {
@@ -40598,6 +41528,36 @@
           },
           "403": {
             "description": "Not authorized",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/ErrorResponseSchema"
+                }
+              }
+            }
+          },
+          "404": {
+            "description": "Not found",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/ErrorResponseSchema"
+                }
+              }
+            }
+          },
+          "422": {
+            "description": "Unavailable",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/ErrorResponseSchema"
+                }
+              }
+            }
+          },
+          "429": {
+            "description": "Rate limited",
             "content": {
               "application/json": {
                 "schema": {
@@ -40721,6 +41681,36 @@
               }
             }
           },
+          "404": {
+            "description": "Not found",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/ErrorResponseSchema"
+                }
+              }
+            }
+          },
+          "422": {
+            "description": "Unavailable",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/ErrorResponseSchema"
+                }
+              }
+            }
+          },
+          "429": {
+            "description": "Rate limited",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/ErrorResponseSchema"
+                }
+              }
+            }
+          },
           "500": {
             "description": "Unexpected error",
             "content": {
@@ -40828,6 +41818,36 @@
           },
           "403": {
             "description": "Not authorized",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/ErrorResponseSchema"
+                }
+              }
+            }
+          },
+          "404": {
+            "description": "Not found",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/ErrorResponseSchema"
+                }
+              }
+            }
+          },
+          "422": {
+            "description": "Unavailable",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/ErrorResponseSchema"
+                }
+              }
+            }
+          },
+          "429": {
+            "description": "Rate limited",
             "content": {
               "application/json": {
                 "schema": {
@@ -41489,7 +42509,7 @@
               "type": "string",
               "minLength": 1,
               "maxLength": 400,
-              "description": "Which contact to address. Must be ONE of: the contact's UUID (e.g. '3fa85f64-5717-4562-b3fc-2c963f66afa6'); an email address (e.g. 'jane@example.com', matched across mail/Google/Outlook); a phone number (e.g. '+491234567890', matched across WhatsApp/Telegram); or 'provider:value' for a messaging handle where provider is one of linkedin, telegram, instagram (e.g. 'linkedin:john-doe', 'telegram:jdoe', 'instagram:jane'). The contact must already exist; unknown or malformed keys are rejected."
+              "description": "Which contact to address. Must be ONE of: the contact's UUID (e.g. '3fa85f64-5717-4562-b3fc-2c963f66afa6'); an email address (e.g. 'jane@example.com', matched across mail/Google/Outlook); a phone number (e.g. '+491234567890', matched across WhatsApp/Telegram); or 'provider:value' for a messaging handle where provider is one of linkedin, telegram, instagram (e.g. 'linkedin:john-doe', 'telegram:jdoe', 'instagram:jane'). The contact must already exist. An unknown or malformed key is refused as not found, except by the REST get by id, which returns `contact: null`."
             }
           }
         },
@@ -41790,7 +42810,7 @@
                   "type": "string",
                   "minLength": 1,
                   "maxLength": 400,
-                  "description": "Which contact to address. Must be ONE of: the contact's UUID (e.g. '3fa85f64-5717-4562-b3fc-2c963f66afa6'); an email address (e.g. 'jane@example.com', matched across mail/Google/Outlook); a phone number (e.g. '+491234567890', matched across WhatsApp/Telegram); or 'provider:value' for a messaging handle where provider is one of linkedin, telegram, instagram (e.g. 'linkedin:john-doe', 'telegram:jdoe', 'instagram:jane'). The contact must already exist; unknown or malformed keys are rejected."
+                  "description": "Which contact to address. Must be ONE of: the contact's UUID (e.g. '3fa85f64-5717-4562-b3fc-2c963f66afa6'); an email address (e.g. 'jane@example.com', matched across mail/Google/Outlook); a phone number (e.g. '+491234567890', matched across WhatsApp/Telegram); or 'provider:value' for a messaging handle where provider is one of linkedin, telegram, instagram (e.g. 'linkedin:john-doe', 'telegram:jdoe', 'instagram:jane'). The contact must already exist. An unknown or malformed key is refused as not found, except by the REST get by id, which returns `contact: null`."
                 },
                 "firstName": {
                   "type": "string",
@@ -55399,7 +56419,7 @@
             "type": "string",
             "minLength": 1,
             "maxLength": 400,
-            "description": "Which contact to address. Must be ONE of: the contact's UUID (e.g. '3fa85f64-5717-4562-b3fc-2c963f66afa6'); an email address (e.g. 'jane@example.com', matched across mail/Google/Outlook); a phone number (e.g. '+491234567890', matched across WhatsApp/Telegram); or 'provider:value' for a messaging handle where provider is one of linkedin, telegram, instagram (e.g. 'linkedin:john-doe', 'telegram:jdoe', 'instagram:jane'). The contact must already exist; unknown or malformed keys are rejected."
+            "description": "Which contact to address. Must be ONE of: the contact's UUID (e.g. '3fa85f64-5717-4562-b3fc-2c963f66afa6'); an email address (e.g. 'jane@example.com', matched across mail/Google/Outlook); a phone number (e.g. '+491234567890', matched across WhatsApp/Telegram); or 'provider:value' for a messaging handle where provider is one of linkedin, telegram, instagram (e.g. 'linkedin:john-doe', 'telegram:jdoe', 'instagram:jane'). The contact must already exist. An unknown or malformed key is refused as not found, except by the REST get by id, which returns `contact: null`."
           }
         },
         "required": [
@@ -55414,7 +56434,7 @@
             "type": "string",
             "minLength": 1,
             "maxLength": 400,
-            "description": "Which contact to address. Must be ONE of: the contact's UUID (e.g. '3fa85f64-5717-4562-b3fc-2c963f66afa6'); an email address (e.g. 'jane@example.com', matched across mail/Google/Outlook); a phone number (e.g. '+491234567890', matched across WhatsApp/Telegram); or 'provider:value' for a messaging handle where provider is one of linkedin, telegram, instagram (e.g. 'linkedin:john-doe', 'telegram:jdoe', 'instagram:jane'). The contact must already exist; unknown or malformed keys are rejected."
+            "description": "Which contact to address. Must be ONE of: the contact's UUID (e.g. '3fa85f64-5717-4562-b3fc-2c963f66afa6'); an email address (e.g. 'jane@example.com', matched across mail/Google/Outlook); a phone number (e.g. '+491234567890', matched across WhatsApp/Telegram); or 'provider:value' for a messaging handle where provider is one of linkedin, telegram, instagram (e.g. 'linkedin:john-doe', 'telegram:jdoe', 'instagram:jane'). The contact must already exist. An unknown or malformed key is refused as not found, except by the REST get by id, which returns `contact: null`."
           },
           "firstName": {
             "type": "string",
@@ -55587,7 +56607,7 @@
             "type": "string",
             "minLength": 1,
             "maxLength": 400,
-            "description": "Which contact to address. Must be ONE of: the contact's UUID (e.g. '3fa85f64-5717-4562-b3fc-2c963f66afa6'); an email address (e.g. 'jane@example.com', matched across mail/Google/Outlook); a phone number (e.g. '+491234567890', matched across WhatsApp/Telegram); or 'provider:value' for a messaging handle where provider is one of linkedin, telegram, instagram (e.g. 'linkedin:john-doe', 'telegram:jdoe', 'instagram:jane'). The contact must already exist; unknown or malformed keys are rejected."
+            "description": "Which contact to address. Must be ONE of: the contact's UUID (e.g. '3fa85f64-5717-4562-b3fc-2c963f66afa6'); an email address (e.g. 'jane@example.com', matched across mail/Google/Outlook); a phone number (e.g. '+491234567890', matched across WhatsApp/Telegram); or 'provider:value' for a messaging handle where provider is one of linkedin, telegram, instagram (e.g. 'linkedin:john-doe', 'telegram:jdoe', 'instagram:jane'). The contact must already exist. An unknown or malformed key is refused as not found, except by the REST get by id, which returns `contact: null`."
           }
         },
         "required": [

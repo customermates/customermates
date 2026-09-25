@@ -52,6 +52,7 @@ export const ThreadTopBar = observer(({ thread }: Props) => {
             <Tooltip>
               <TooltipTrigger asChild>
                 <Button
+                  aria-label={t("Inbox.resyncThread")}
                   size="icon-sm"
                   type="button"
                   variant="secondary"

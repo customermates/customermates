@@ -1,5 +1,5 @@
 import type { RootStore } from "@/core/stores/root.store";
-import type { ActivityWidgetDto, ChartWidgetDto, CompanyWidget } from "@/features/widget/widget.schema";
+import type { ActivityWidgetDto, ChartWidgetDto, CompanyWidget, WidgetDto } from "@/features/widget/widget.schema";
 import type { CustomColumnDto } from "@/features/custom-column/custom-column.schema";
 import type { Filter } from "@/core/base/base-get.schema";
 
@@ -143,14 +143,15 @@ function companyWidget(id: string, name: string): CompanyWidget {
 function createStoreWithMocks(dealWeightingColumnId: string | null = "column-weighting") {
   const refresh = vi.fn();
   const removeItem = vi.fn();
+  const widgets: WidgetDto[] = [];
   const rootStore = {
     registerModalStore: vi.fn(),
     companyStore: { company: { dealWeightingColumnId } },
     userStore: { can: vi.fn(() => true), canAccess: vi.fn(() => true) },
-    widgetsStore: { refresh, removeItem },
+    widgetsStore: { items: widgets, refresh, removeItem },
   } as unknown as RootStore;
 
-  return { store: new WidgetModalStore(rootStore), refresh, removeItem };
+  return { store: new WidgetModalStore(rootStore), refresh, removeItem, widgets };
 }
 
 function createStore(): WidgetModalStore {
@@ -577,6 +578,55 @@ describe("WidgetModalStore loads", () => {
     expect(store.isOpen).toBe(false);
     expect(store.form.id).toBeUndefined();
     expect(store.isHydrating).toBe(false);
+    expect(store.isLoading).toBe(false);
+  });
+
+  it("opens a pending edit as that dashboard widget instead of the add-widget step", async () => {
+    const id = "11111111-1111-4111-8111-111111111111";
+    const edit = deferred<ChartWidgetDto>();
+    actionMocks.getWidgetByIdAction.mockReturnValueOnce(edit.promise);
+    const { store, widgets } = createStoreWithMocks();
+    widgets.push(chartWidget(id, "Recent Changes"));
+
+    const editLoad = store.loadById(id);
+
+    expect(store.isOpen).toBe(true);
+    expect(store.isLoading).toBe(true);
+    expect(store.isHydrating).toBe(true);
+    expect(store.form.id).toBe(id);
+    expect(store.form.name).toBe("Recent Changes");
+    expect(store.hasUnsavedChanges).toBe(false);
+
+    edit.resolve(chartWidget(id, "Recent Changes (saved)"));
+    await editLoad;
+
+    expect(store.form.id).toBe(id);
+    expect(store.form.name).toBe("Recent Changes (saved)");
+    expect(store.isHydrating).toBe(false);
+    expect(store.isLoading).toBe(false);
+  });
+
+  it("does not show the previously edited widget while the next edit loads", async () => {
+    const previous = chartWidget("11111111-1111-4111-8111-111111111111", "Pipeline");
+    const next = activityWidget("22222222-2222-4222-8222-222222222222", "Recent Changes");
+    const pending = deferred<ActivityWidgetDto>();
+    actionMocks.getWidgetByIdAction.mockResolvedValueOnce(previous).mockReturnValueOnce(pending.promise);
+    const { store, widgets } = createStoreWithMocks();
+    enableActivity(store);
+    widgets.push(previous, next);
+
+    await store.loadById(previous.id);
+    store.close();
+    const nextLoad = store.loadById(next.id);
+
+    expect(store.form.id).toBe(next.id);
+    expect(store.form.name).toBe("Recent Changes");
+    expect(store.form.kind).toBe(WidgetKind.activityTimeline);
+
+    pending.resolve(next);
+    await nextLoad;
+
+    expect(store.form.id).toBe(next.id);
     expect(store.isLoading).toBe(false);
   });
 

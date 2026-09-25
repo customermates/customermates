@@ -13,7 +13,9 @@ import { getTransactionClient, transactionStorage } from "../decorators/transact
 import { runInTransaction } from "../decorators/transaction-runner";
 import { isTenantGuardBypassed, getTenantUser } from "../decorators/tenant-context";
 
-import { BaseQueryBuilder, compareCustomFieldValues } from "@/core/base/base-query-builder";
+import type { CustomSort, TextSort } from "@/core/base/base-query-builder";
+
+import { BaseQueryBuilder, compareCustomFieldValues, compareSortValues } from "@/core/base/base-query-builder";
 import { LABEL_SELECT, toGroupLabel } from "@/core/base/grouping/group-labels";
 import { countGroupRows } from "@/core/base/grouping/group-count";
 import { prisma, type AppPrismaClient } from "@/prisma/db";
@@ -226,40 +228,19 @@ export abstract class BaseRepository<
       ) as Promise<TRow[]>;
 
     const args = await this.buildQueryArgs(opts.params, opts.baseWhere);
+    const inMemorySort = args.customSort
+      ? this.customFieldSort(opts.model, args.customSort)
+      : args.textSort && this.textFieldSort(args.textSort);
 
-    if (args.customSort) {
-      const candidates = (await findMany({
+    if (inMemorySort) {
+      const candidates = await this.modelDelegate(opts.model).findMany({
         where: args.where,
-        orderBy: { id: "asc" },
-        select: {
-          id: true,
-          customFieldValues: {
-            where: {
-              columnId: args.customSort.columnId,
-              entityType: opts.model as EntityType,
-            },
-            select: { value: true },
-            take: 1,
-          },
-        },
-      })) as unknown as Array<{
-        id: string;
-        customFieldValues: Array<{ value: string | null }>;
-      }>;
+        orderBy: { id: inMemorySort.direction },
+        select: { id: true, ...inMemorySort.select },
+      });
+      candidates.sort(inMemorySort.compare);
 
-      const { direction, columnType } = args.customSort;
-      const collator = this.collator();
-      candidates.sort((a, b) =>
-        compareCustomFieldValues(
-          a.customFieldValues[0]?.value,
-          b.customFieldValues[0]?.value,
-          direction,
-          columnType,
-          collator,
-        ),
-      );
-
-      const sortedIds = candidates.slice(args.skip, args.skip + args.take).map((c) => c.id);
+      const sortedIds = candidates.slice(args.skip, args.skip + args.take).map((c) => c.id as string);
       if (sortedIds.length === 0) return [];
 
       const fetched = await findMany({
@@ -282,6 +263,54 @@ export abstract class BaseRepository<
     });
     return rows.map(opts.map);
   }
+
+  private customFieldSort(model: ListableModel, sort: CustomSort): InMemorySort {
+    const collator = this.collator();
+    const value = (row: SortCandidate) => (row.customFieldValues as Array<{ value: string | null }>)[0]?.value;
+
+    return {
+      direction: sort.direction,
+      select: {
+        customFieldValues: {
+          where: { columnId: sort.columnId, entityType: model as EntityType },
+          select: { value: true },
+          take: 1,
+        },
+      },
+      compare: (a, b) =>
+        compareCustomFieldValues(value(a), value(b), sort.direction, sort.columnType, collator, sort.optionRank),
+    };
+  }
+
+  private textFieldSort(sort: TextSort): InMemorySort {
+    const collator = this.collator();
+    const values = (row: SortCandidate) => sort.fields.map((field) => row[field]);
+
+    return {
+      direction: sort.direction,
+      select: Object.fromEntries(sort.fields.map((field) => [field, true])),
+      compare: (a, b) => compareSortValues(values(a), values(b), sort.direction, collator),
+    };
+  }
 }
 
-type ListableModel = "deal" | "contact" | "organization" | "service" | "task" | "messagingThread";
+type ListableModel =
+  | "deal"
+  | "contact"
+  | "organization"
+  | "service"
+  | "task"
+  | "messagingThread"
+  | "routine"
+  | "calendar"
+  | "user"
+  | "userRole"
+  | "webhook";
+
+type SortCandidate = Record<string, unknown>;
+
+type InMemorySort = {
+  direction: "asc" | "desc";
+  select: Record<string, unknown>;
+  compare: (a: SortCandidate, b: SortCandidate) => number;
+};

@@ -6,7 +6,7 @@ import { TaskDtoSchema } from "../task.schema";
 
 import { BaseUpdateTaskSchema } from "./update-task-base.schema";
 
-import { CommonApiResponses } from "@/core/api/interactor-handler";
+import { CommonApiResponses, NotFoundApiResponse } from "@/core/api/interactor-handler";
 
 export const updateTaskOperation: ZodOpenApiOperationObject = {
   operationId: "updateTask",
@@ -33,5 +33,6 @@ export const updateTaskOperation: ZodOpenApiOperationObject = {
       },
     },
     ...CommonApiResponses,
+    ...NotFoundApiResponse,
   },
 };

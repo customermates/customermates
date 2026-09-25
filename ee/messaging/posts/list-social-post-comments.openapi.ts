@@ -4,7 +4,7 @@ import { z } from "zod";
 
 import { ListSocialPostCommentsSchema } from "@/ee/messaging/posts/list-social-post-comments.interactor";
 import { SocialCommentListSchema, SocialReactionListSchema } from "@/ee/messaging/posts/social-posts.schema";
-import { CommonApiResponses } from "@/core/api/interactor-handler";
+import { CommonApiResponses, MessagingProviderApiResponses, NotFoundApiResponse } from "@/core/api/interactor-handler";
 
 const SocialPostEngagementBodySchema = ListSocialPostCommentsSchema.extend({
   kind: z
@@ -41,5 +41,7 @@ export const getSocialPostEngagementOperation: ZodOpenApiOperationObject = {
       },
     },
     ...CommonApiResponses,
+    ...NotFoundApiResponse,
+    ...MessagingProviderApiResponses,
   },
 };

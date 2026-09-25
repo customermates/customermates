@@ -173,7 +173,7 @@ const SortableOptionItem = observer(
 
         {showWeight && (
           <FormNumberInput
-            aria-label={t("CompanySettings.forecasting.weightsTitle")}
+            aria-label={option.label || t("Common.probability")}
             className="text-right font-mono tabular-nums"
             containerClassName="w-24 shrink-0"
             endContent={<span className="mr-1.5">%</span>}
@@ -265,7 +265,7 @@ export const CustomColumnModal = observer(() => {
                 label: t("Common.actions.deleteCustomFields"),
                 icon: Trash2,
                 variant: "destructive",
-                disabled: store.isDisabled,
+                disabled: store.isDeleteColumnDisabled,
                 onClick: () => showDeleteConfirmation(() => store.deleteColumn(), form.label),
               },
             ]

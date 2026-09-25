@@ -9,9 +9,13 @@ vi.mock("next/server", () => ({
   },
 }));
 
-import { handleError } from "../interactor-handler";
+import { z } from "zod";
+
+import { handleError, interactorFailureResponse } from "../interactor-handler";
 
 import { AuthError, DemoModeError, ForbiddenError, InvalidJsonBodyError } from "@/core/errors/app-errors";
+import { CustomErrorCode } from "@/core/validation/validation.types";
+import { createZodError } from "@/core/validation/validation.utils";
 
 describe("handleError", () => {
   it("returns 401 for AuthError", () => {
@@ -77,5 +81,41 @@ describe("handleError", () => {
 
   it("wraps a number in an Error and throws", () => {
     expect(() => handleError(42)).toThrow("Unexpected non-Error thrown");
+  });
+});
+
+describe("interactorFailureResponse", () => {
+  it("returns an unclassified interactor failure as 400 with the prettified issues", () => {
+    const error = new z.ZodError([
+      { code: "invalid_type", expected: "string", path: ["name"], message: "Expected string" },
+    ]);
+    const result = interactorFailureResponse(error) as any;
+    expect(result.status).toBe(400);
+    expect(result.body).toBe(z.prettifyError(error));
+  });
+
+  it.each([
+    [CustomErrorCode.notAuthenticated, 401],
+    [CustomErrorCode.permissionDenied, 403],
+    [CustomErrorCode.contactNotFound, 404],
+    [CustomErrorCode.channelAlreadyLinked, 409],
+    [CustomErrorCode.unipileRateLimit, 429],
+    [CustomErrorCode.unipileProviderError, 422],
+  ])("maps %s to HTTP %s", (customCode, status) => {
+    const error = createZodError("Expected failure", ["id"], { error: customCode });
+    const result = interactorFailureResponse(error) as any;
+    expect(result.status).toBe(status);
+    expect(result.body).toBe(z.prettifyError(error));
+  });
+
+  it.each([
+    ["not_found", 404],
+    ["conflict", 409],
+    ["rate_limit", 429],
+    ["unavailable", 422],
+    ["authorization", 403],
+  ])("maps a stamped %s kind to HTTP %s", (kind, status) => {
+    const error = createZodError("Expected failure", [], { error: CustomErrorCode.salesNavigatorNotAvailable, kind });
+    expect((interactorFailureResponse(error) as any).status).toBe(status);
   });
 });

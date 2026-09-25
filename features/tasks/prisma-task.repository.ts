@@ -114,6 +114,7 @@ export class PrismaTaskRepo
 
   getSortableFields() {
     return [
+      { field: "name", resolvedFields: ["name"], collate: true },
       { field: "createdAt", resolvedFields: ["createdAt"] },
       { field: "updatedAt", resolvedFields: ["updatedAt"] },
     ];

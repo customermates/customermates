@@ -12,6 +12,7 @@ export enum CustomErrorCode {
   demoMode = "demoMode",
   apiKeyMinExpiration = "apiKeyMinExpiration",
   apiKeyMaxExpiration = "apiKeyMaxExpiration",
+  apiKeyNameLength = "apiKeyNameLength",
   assigneeRequired = "assigneeRequired",
   emailMismatch = "emailMismatch",
   enterpriseCheckoutUnavailable = "enterpriseCheckoutUnavailable",

@@ -1,71 +1,87 @@
 ---
 title: "Self-Hosting Customermates with Docker Compose"
-description: Run Customermates on your own infrastructure. When to pick self-host, how to install it with Docker Compose, and how to operate it day to day.
+description: "Run Customermates on your own server with Docker Compose: install, .env values, email, sign-up, updates, backups and restore, and what differs from Cloud."
 ---
 
-Self-hosting requires two files (`docker-compose.yml` and `.env`) plus `docker compose up -d`. Both files live in the [Customermates repo](https://github.com/customermates/customermates) and you fetch them with `curl`. No `git clone` and no build step are needed. The published image at `ghcr.io/customermates/customermates:latest` applies database migrations on first boot.
+Self-hosting runs Customermates from two files, `docker-compose.yml` and `.env`, with `docker compose up -d`. You fetch both from the [Customermates repo](https://github.com/customermates/customermates) with `curl`; no `git clone` and no build step are needed. The Compose file starts two containers: PostgreSQL 16 (`postgres:16-alpine`) and the app image `ghcr.io/customermates/customermates:latest`, which applies pending database migrations every time it starts.
 
-## Self-host vs cloud
+## Should I self-host or use the cloud?
 
-Self-hosting uses the Starter entitlement baseline. It includes the core CRM records, views, audit logging, REST, webhooks and MCP for an external AI client that you select and fund. It does not include connected messaging accounts, the unified inbox, connected calendar view, hosted Mate or hosted AI credits. Paying for another cloud plan does not expand the self-hosted entitlement set.
+| Decision factor | Managed cloud | Self-hosted |
+|---|---|---|
+| Application and database operations | Customermates operates them | You operate Docker, PostgreSQL, network access, TLS, updates and backups |
+| Core CRM records and views | Included by plan | Starter baseline |
+| Unified inbox and connected calendar | Available on entitled cloud plans | Not included |
+| AI access | External MCP, plus the hosted assistant Mate with the hosted AI credits of your plan | External MCP with your own client and provider |
+| Connected providers | Configured within the managed product | You configure and assess every external provider |
+| Pricing | Per-user cloud subscription from [[commercial.price.starter.monthly]] per month | Your infrastructure, providers and operator time |
 
-| Decision factor                      | Managed cloud                                                                   | Self-hosted                                                              |
-| ------------------------------------ | ------------------------------------------------------------------------------- | ------------------------------------------------------------------------ |
-| Application and database operations  | Customermates operates them                                                     | You operate Docker, PostgreSQL, network access, TLS, updates and backups |
-| Core CRM records and views           | Included by plan                                                                | Starter baseline                                                         |
-| Unified inbox and connected calendar | Available on entitled cloud plans                                               | Not included                                                             |
-| AI access                            | External MCP; hosted Mate capability remains release-gated                      | External MCP with your own client and provider                           |
-| Connected providers                  | Configured within the managed product                                           | You configure and assess every external provider                         |
-| Pricing                              | Per-user cloud subscription from [[commercial.price.starter.monthly]] per month | Your infrastructure, providers and operator time                         |
+Self-hosting lets you choose where the application and database run. It does not create a security, compliance, privacy or air-gap guarantee by itself; your organization remains responsible for configuration, providers, contracts, retention and operating controls. Compare total operating cost rather than assuming one model is cheaper: infrastructure, backups, restore tests, monitoring, updates, incident response and external providers.
 
-Self-hosting lets you choose where the application and database run. It does not create a security, compliance, privacy or air-gap guarantee by itself. Your organization remains responsible for configuration, providers, contracts, retention and operating controls.
+Customermates exports and imports CRM records as Excel workbooks, one record type at a time, so a working set can move between cloud and self-hosted. A whole-platform migration is still a separately designed and validated project.
 
-Compare total operating cost rather than assuming one model is cheaper. Include infrastructure, backups, restore testing, monitoring, updates, incident response and external providers as well as any subscription price.
+## Is self-hosting free, and do I need a license?
 
-Customermates exports and imports CRM records as Excel workbooks, one entity type at a time, so a working set can move between systems. A whole-platform migration is still a separately designed and validated project.
+A self-hosted workspace has no subscription and no trial: it starts active, and the app counts no seats and bills nothing. You pay only for your own infrastructure and providers.
 
-## Install
+Customermates is open core. Code outside `ee/`, and material in `ee/` that is served to the browser, is licensed under AGPL-3.0-only. The server-side code in `ee/` is under the Customermates Commercial License, which allows running the official image with `APP_MODE=self-hosted`, including in production, as a Community Build, as long as the cloud-only features stay off. The exact terms are in `LICENSE` and `ee/LICENSE.md` in the repository. Buying a cloud plan does not unlock anything in a self-hosted installation.
 
-### Prerequisites
+## Which features are not available when self-hosting?
 
-- Docker and Docker Compose v2.
-- A domain name if you want TLS (optional for local).
+Every self-hosted installation uses the Starter entitlements. These cloud-only features are missing and stay off, even if you also pay for a cloud plan: connected messaging accounts (email, LinkedIn, WhatsApp, Instagram, Telegram), the unified **Inbox**, the connected calendar view, the hosted assistant Mate with its hosted AI credits, and **Routines**, which Mate runs. External AI clients still work through MCP with your own AI provider. Enterprise SSO (SAML) and white-labeling are not implemented in either deployment model.
+
+The app hides what does not apply. The sidebar shows no **Subscription** entry under **My Company**, no **Channels** entry under **My Profile**, and no **Inbox** or **Routines**, and the role editor under **My Company** › **Roles** hides the **Inbox messages** and **Routines** rows. Opening one of those pages by URL returns you to the Dashboard.
+
+The CRM itself works as in the cloud: records, views, Excel import and export, custom columns, dashboard widgets, members and roles, the audit log, REST, webhooks and MCP.
+
+## How do I install Customermates with Docker Compose?
+
+You need Docker with Docker Compose v2; the image is built for `linux/amd64` and `linux/arm64`. A domain name is needed only for HTTPS.
 
 <Steps>
-<Step title="Create a directory and fetch the two config files">
+<Step title="Fetch the two files">
 ```bash
 mkdir customermates && cd customermates
 curl -fsSL https://raw.githubusercontent.com/customermates/customermates/main/docker-compose.yml -o docker-compose.yml
 curl -fsSL https://raw.githubusercontent.com/customermates/customermates/main/.env.selfhost.template -o .env
 ```
-
-Then edit `.env` with real values:
-
-- `BETTER_AUTH_SECRET`: a long random string (`openssl rand -hex 32`).
-- `POSTGRES_PASSWORD`: change the default.
-- `BASE_URL`: your public URL (e.g. `https://crm.example.com`). Defaults to `http://localhost:4000` for local.
-- `RESEND_API_KEY` and `RESEND_OPERATOR_EMAIL`: a configured [Resend](https://resend.com) project. Required for signup verification, password reset, and invitation emails.
+</Step>
+<Step title="Fill in .env">
+Replace the placeholder values in `.env` before the first start: at least `POSTGRES_PASSWORD`, `BETTER_AUTH_SECRET` (for example from `openssl rand -hex 32`), `BASE_URL`, `RESEND_API_KEY` and `RESEND_OPERATOR_EMAIL`. `RESEND_API_KEY` is required: without it, nobody can finish registering. The next sections explain each value.
 </Step>
 <Step title="Start">
-
 ```bash
 docker compose up -d
-```
-
-First boot takes a minute while Prisma applies migrations. Watch the logs:
-
-```bash
 docker compose logs -f app
 ```
-
-When the app is ready, open `http://localhost:4000` (or your custom `APP_PORT`).
-
+The first start takes about a minute while the migrations run. Then open `<BASE_URL>/auth/signup`, by default `http://localhost:4000/auth/signup`.
 </Step>
-<Step title="First account">
-Open the URL. Sign up with your email, click the verification link from the inbox, then choose a workspace name. Manage roles for additional users from Company → Users and Company → Roles.
+<Step title="Register">
+Register, choose **Create a new workspace** and complete the wizard; your account becomes **Admin**. See [How do I create the first account on my instance?](#how-do-i-create-the-first-account-on-my-instance) below.
 </Step>
-<Step title="Reverse proxy and TLS">
-Point your reverse proxy (Caddy, nginx, Traefik) at the app port (4000 by default, or your custom `APP_PORT`). Caddy example:
+</Steps>
+
+## Which environment variables go into .env? [#env-values]
+
+- `POSTGRES_USER`, `POSTGRES_PASSWORD`, `POSTGRES_DB`: database user, password and name (template: `postgres`, `change-this-password`, `customermates`). Set them before the first start. PostgreSQL applies them once, when it creates the database volume, so a later change in `.env` does not change the existing database, and the app can then no longer connect.
+- `BETTER_AUTH_SECRET`: a long random string that signs sign-in sessions. Changing it later signs everyone out, so keep a copy with your backups.
+- `BASE_URL`: the exact address people open in the browser, see [What must BASE_URL be set to?](#base-url).
+- `APP_PORT`: the host port the app is published on, `4000` by default.
+- `RESEND_API_KEY`, `RESEND_OPERATOR_EMAIL`: email delivery; `RESEND_API_KEY` must not be empty. See [How do I set up email with Resend?](#how-do-i-set-up-email-with-resend-and-can-i-use-smtp).
+- `APP_MODE`: leave it at `self-hosted`; the Compose file sets this value for the app itself.
+- `GOOGLE_CLIENT_ID`, `GOOGLE_CLIENT_SECRET`, `AZURE_AD_CLIENT_ID`, `AZURE_AD_CLIENT_SECRET`: optional, commented out in the template, see [Can users sign in with Google or Microsoft?](#can-users-sign-in-with-google-or-microsoft).
+
+Keep `.env` out of source control. Apply changes with `docker compose up -d`.
+
+## What must BASE_URL be set to? [#base-url]
+
+Set `BASE_URL` to exactly the address people type into the browser: scheme, host name and, unless it is 80 or 443, the port, with no path. Examples: `https://crm.example.com` or `http://192.168.1.20:4000`. The template value `http://localhost:4000` only works on the machine that runs Docker. The app refuses to start if `BASE_URL` contains a path, a query or credentials.
+
+Customermates builds these addresses from `BASE_URL`: sign-in redirects, the links in invitation and other emails, the MCP OAuth address, the MCP address in the documentation's install snippets and behind **Copy MCP Config**, **Copy MCP Command**, **Connect to Cursor** and **Connect to VS Code** on a documentation page, and the `url` that `search_docs`, `get_docs_page` and `fetch` return, whose origin agents put in front of an app route to build a full link. For a request that arrives under another host name, IP address or port, these addresses still point to `BASE_URL`, so after signing in, users can land on the wrong address. Three addresses the app shows you to copy use the address the browser opened the app with instead: the **Invitation link** on the **Share link** tab of **Invite User** and of the onboarding invite step, the MCP address shown under **Quick connections** and in the onboarding step **Connect your AI**, and links from **Copy link** on a saved view. Copy them from a browser that uses the public address. When you change the domain or `APP_PORT`, update `BASE_URL` as well and run `docker compose up -d`. With an `https://` address, sign-in cookies are marked Secure, so the app must then be opened through HTTPS.
+
+## How do I put Customermates behind a reverse proxy with HTTPS?
+
+Point a reverse proxy such as Caddy, nginx or Traefik at the app port (`4000`, or your `APP_PORT`) and set `BASE_URL` to the public `https://` address. Caddy obtains the TLS certificate itself:
 
 ```text
 crm.example.com {
@@ -73,34 +89,69 @@ crm.example.com {
 }
 ```
 
-Customermates sets secure cookies when `BASE_URL` uses `https://`. Make sure the proxy forwards `X-Forwarded-Proto` correctly.
+The app takes the scheme and host for its links from `BASE_URL`, so forwarded headers such as `X-Forwarded-Proto` are not required. The proxy must pass on the original `Host` header, because the app rejects form submissions whose origin does not match it, including sign-in and sign-up. Caddy and Traefik do this by default; in nginx add `proxy_set_header Host $host;`. The Compose file publishes the app port on all network interfaces; if only the proxy should reach it, change the mapping in `docker-compose.yml` to `"127.0.0.1:${APP_PORT:-4000}:4000"` or block the port in your firewall.
 
-</Step>
-<Step title="Create an API key">
-Profile → API Keys → New key. Same flow as cloud. See [API keys](/docs/api-keys).
-</Step>
-</Steps>
+## How do I set up email with Resend, and can I use SMTP?
 
-## Day-to-day operations
+Customermates sends email only through [Resend](https://resend.com); there is no SMTP option. Verify your sending domain in Resend, create an API key, and set:
 
-### Update
+- `RESEND_API_KEY`: the Resend API key.
+- `RESEND_OPERATOR_EMAIL`: the sender address, on a domain verified in Resend. Every email goes out as `Customermates <RESEND_OPERATOR_EMAIL>`. The same address receives a "New User Registration" email when someone saves the **Your profile** step (see [Who can sign up](#who-can-sign-up-on-my-instance)) and the messages sent through **Feedback** in the sidebar.
+
+The app emails verification links, password resets and invitations. `RESEND_API_KEY` must not be empty: without a key, the **Your profile** step fails, so nobody can finish registering or join a workspace. If Resend rejects the emails, new users can use their account for 24 hours and are then held on **Email Verification** until they verify, **Forgot password?** sends nothing, and email invitations fail. The **Share link** tab of **Invite User** still works in that case. Rejected sends do not appear in the app logs, so if verification or password reset emails are not arriving, check that the sender domain is verified and look for rejected sends in the Resend dashboard.
+
+## How do I create the first account on my instance?
+
+Open `<BASE_URL>/auth/signup` and register with email and password under **Create account**, or with Google or Microsoft if you configured them. On the next screen choose **Create a new workspace**. The wizard asks for **Your profile** (first name, last name, country), which creates the workspace, then **Invite your team** and **Connect your AI**; you can skip both and finish with **Finish**. The account that creates the workspace gets the built-in **Admin** role, which has every permission.
+
+Click the verification link in the email within 24 hours: the link expires after 24 hours, and an account that is still unverified 24 hours after registering is held on **Email Verification**, where **Resend verification email** sends a fresh link. Then invite teammates under **My Company** › **Members** with **Add**, approve them there once they have registered, and set what they may do under **My Company** › **Roles**; see [My Company](/docs/app-company).
+
+**Link:** the **Members** page, `/company/members`, and the **Roles** page, `/company/roles`, on your instance. **Mate:** not available on self-hosted instances; in the cloud, `navigate` and `highlight_element` with `nav-company-members` or `nav-company-roles`, and `company-members-add` and `company-roles-add` highlight **Add**. To approve a member, open the member row; `member-modal-role` and `member-modal-status` then highlight **Role** and **Status** in the **User** dialog.
+
+## Who can sign up on my instance?
+
+Anyone who can reach your `BASE_URL` can register; registration cannot be switched off. A new user who chooses **Create a new workspace** gets a separate workspace with its own **Admin**, isolated from yours but stored in your database, and the app offers no way to delete a workspace. A "New User Registration" email goes to `RESEND_OPERATOR_EMAIL` when someone saves the **Your profile** step, and for a Google or Microsoft sign-in also when someone signs in before saving that step. Someone who registers with email and password but never saves **Your profile** sends none, and the notification only arrives if Resend accepts it, so it is not a complete record of sign-ups.
+
+If the instance should serve one team only, limit who can reach it, for example with a VPN, an IP allowlist or authentication at the reverse proxy; MCP and REST clients then need the same access. Teammates join through an invitation: **Add** on **My Company** › **Members** opens **Invite User** with a link and an email option. They wait with status **Waiting for approval** until a member with **Manage** on **Users & Roles** gives them a role and sets them **Active**.
+
+**Link:** the **Members** page, `/company/members`, on your instance. **Mate:** not available on self-hosted instances; in the cloud, `navigate` and `highlight_element` with `nav-company-members`, and `company-members-add` highlights **Add**. In **Invite User**, `invite-modal-tab-link`, `invite-modal-link` and `invite-modal-copy-link` highlight the **Share link** tab, the **Invitation link** and its copy button, and `invite-modal-tab-email`, `invite-modal-emails` and `invite-modal-send` highlight the **Send emails** tab, **Emails** and **Send invitations**. Once a member row is open, `member-modal-role`, `member-modal-status` and `member-modal-save` highlight **Role**, **Status** and **Save** in the **User** dialog. The member rows are not highlight targets, so Mate names them.
+
+## Can users sign in with Google or Microsoft?
+
+Yes, once you configure them. Register an OAuth client with Google, or an app registration in Microsoft Entra ID, with the redirect URI `<BASE_URL>/api/auth/callback/google` or `<BASE_URL>/api/auth/callback/microsoft`. The Microsoft provider uses the `common` endpoint, so register the app for accounts in any organizational directory.
+
+Remove the `#` in front of the lines for the providers you use in `.env`, fill in `GOOGLE_CLIENT_ID` and `GOOGLE_CLIENT_SECRET`, or `AZURE_AD_CLIENT_ID` and `AZURE_AD_CLIENT_SECRET`, then run `docker compose up -d`. The Compose file passes all four values to the app; if your `docker-compose.yml` does not list them yet, fetch it again with the `curl` command from the installation steps. A provider appears only when both of its values are set; the sign-in page then shows **Continue with Google** or **Continue with Microsoft**, and the sign-up page **Register with Google** or **Register with Microsoft**. Enterprise SSO over SAML is not implemented.
+
+## How do I connect an AI client to my self-hosted instance?
+
+The MCP endpoint is `<BASE_URL>/api/v1/mcp`, for example `https://crm.example.com/api/v1/mcp`. There are two ways to authenticate:
+
+- **API key** in the `x-api-key` header, for clients that run on your machine: Claude Code, Claude Desktop, Codex, Cursor and Gemini CLI. Create the key under **My Profile** › **API & Connectors** with **Add**; **Quick connections** there shows the setup snippet with the address you opened the app under filled in. The client only has to reach the URL, so a local network address works. See [Connect CLI and editor clients](/docs/connect-cli).
+- **OAuth sign-in**, for clients that connect from their provider's cloud, such as a Claude custom connector. These need a `BASE_URL` that is reachable from the internet over HTTPS. See [Connect Claude and ChatGPT](/docs/connect-custom-connector).
+
+The hosted in-app Assistant is cloud-only: Mate is not available on self-hosted instances. External MCP uses your own AI provider. Enterprise SSO and white-labeling are not implemented in either deployment model.
+
+**Link:** the **API & Connectors** page, `/profile/api-keys`, on your instance. **Mate:** not available on self-hosted instances; in the cloud, `navigate` and `highlight_element` with `nav-profile-api-keys`, and `profile-api-keys-generate` highlights **Add** for roles with **Manage** on **API & Webhooks**.
+
+## How do I update a self-hosted installation?
+
+Take a backup first, then pull the new images and recreate the containers:
 
 ```bash
 docker compose pull
 docker compose up -d
+docker compose ps
 ```
 
-Pulls the latest app image and restarts the affected services. Migrations run automatically on container boot. Verify with `docker compose ps`.
+The `latest` tag is rebuilt from the main branch whenever it changes, so every pull can bring new features and database migrations. The app applies pending migrations each time it starts, and migrations only move forward: starting an older image after a migration is not a safe rollback. To roll back, restore the backup taken before the update and start the previous image by its `sha-` tag (see below). `docker compose pull` also refreshes `postgres:16-alpine` within PostgreSQL 16.
 
-### Apply configuration changes
+To decide when updates happen, pin the image in `docker-compose.yml` to a build tag instead of `latest`. Every image is also tagged `sha-` followed by the short commit id, for example `ghcr.io/customermates/customermates:sha-<commit>`.
 
-```bash
-docker compose up -d
-```
+## How do I apply .env changes? [#apply-env-changes]
 
-Reconciles the stack and recreates affected containers when configuration changed. Use it after `.env` changes. For a simple restart with unchanged configuration, `docker compose restart` is sufficient.
+Run `docker compose up -d`. It recreates the containers whose configuration changed, so they start with the new `.env` values. `docker compose restart` keeps the old environment and does not apply `.env` changes.
 
-### Logs and troubleshooting
+## Where are the logs, and how do I troubleshoot?
 
 ```bash
 docker compose logs -f app
@@ -109,20 +160,11 @@ docker compose ps
 docker compose exec app sh
 ```
 
-Enabled background jobs run in-process through the Postgres-backed worker that starts with the application. There is no separate worker service in the Compose file. Inspect application logs with `docker compose logs -f app`.
+The app writes its logs to the container output. Background jobs such as webhook deliveries run inside the app container through a PostgreSQL-backed queue in the same database; there is no separate worker service. The published image turns off Next.js telemetry and sets no error-reporting address. Errors the app writes to its output appear only in these logs. Errors it only reports to an error-reporting service, such as an email Resend rejected, are not recorded anywhere, so check the Resend dashboard for failed sends.
 
-### Reset all data
+## How do I create and restore database backups? [#backups]
 
-```bash
-docker compose down -v
-docker compose up -d
-```
-
-`-v` deletes the Postgres volume. IRREVERSIBLE. Take a backup first if you need the data.
-
-## Backups
-
-Back up Postgres with `pg_dump` on a schedule. The app container is stateless.
+All data lives in the self-hosted PostgreSQL database: records, users, settings, the audit log and the background job queue. The app container keeps no data. Back up the database with `pg_dump` through the Postgres container, whose port the Compose file does not publish:
 
 ```bash
 mkdir -p backups
@@ -130,20 +172,31 @@ docker compose exec -T postgres sh -c 'pg_dump -U "$POSTGRES_USER" "$POSTGRES_DB
   | gzip > backups/customermates-$(date +%Y%m%d).sql.gz
 ```
 
-For production:
+Run it daily from a scheduler such as cron and copy the files to separate or off-site storage. Keep a copy of `.env` with them, stored securely and out of source control: restoring with a different `BETTER_AUTH_SECRET` signs everyone out.
 
-- Schedule daily dumps to a separate volume or off-site storage.
-- Test restore procedures in a non-production environment.
-- Keep `.env` and secrets out of source control.
+To restore, stop the app, replace the database with an empty one, load the dump and start again:
 
-## Edition boundary
+```bash
+docker compose stop app
+docker compose exec -T postgres sh -c 'dropdb -U "$POSTGRES_USER" "$POSTGRES_DB" && createdb -U "$POSTGRES_USER" "$POSTGRES_DB"'
+gunzip -c backups/customermates-20260923.sql.gz \
+  | docker compose exec -T postgres sh -c 'psql -v ON_ERROR_STOP=1 -U "$POSTGRES_USER" "$POSTGRES_DB"'
+docker compose up -d
+```
 
-Every self-hosted deployment uses Starter entitlements. Connected messaging accounts, the unified inbox, connected calendar view, hosted Mate and hosted AI credits are cloud-only capabilities and are not unlocked in self-hosting by a paid cloud plan. External AI clients remain available through MCP. Review `LICENSE` and `ee/LICENSE.md` in the repository for the exact code-license boundary.
+Test the restore regularly on a separate machine. Moving to a new PostgreSQL major version, which the Compose file pins at 16, also needs a dump and a restore into the new version.
 
-The hosted in-app Assistant is cloud-only and remains release-gated. External MCP uses your own AI provider. Enterprise SSO and white-labeling are not implemented in either deployment model.
+## How do I reset all data?
+
+```bash
+docker compose down -v
+docker compose up -d
+```
+
+`-v` deletes the PostgreSQL volume with every workspace, user and record on the instance. This cannot be undone, so take a backup first if you might need the data. The next start creates an empty database, and the first person to register creates a new workspace.
 
 ## Next
 
-- [Architecture and security](/docs/architecture-security): what you're running.
+- [Architecture and security](/docs/architecture-security): what you are running.
 - [API keys](/docs/api-keys): key hygiene.
-- [Connect your AI](/docs/connect-custom-connector): once installed, point an MCP client at your instance.
+- [Connect your AI](/docs/connect-custom-connector): point an MCP client at your instance.

@@ -1568,6 +1568,7 @@ export const getGetCustomColumnsByEntityTypeInteractor = () =>
 export const getUpsertCustomColumnInteractor = () =>
   new UpsertCustomColumnInteractor(
     getCustomColumnRepo(),
+    getCompanyRepo(),
     getUserService(),
     getEventService(),
     getCustomColumnIdsValidator(),
@@ -1577,6 +1578,7 @@ export const getDeleteCustomColumnInteractor = () =>
   new DeleteCustomColumnInteractor(
     getCustomColumnRepo(),
     getRoutineRepo(),
+    getCompanyRepo(),
     getUserService(),
     getEventService(),
     getCustomColumnIdsValidator(),

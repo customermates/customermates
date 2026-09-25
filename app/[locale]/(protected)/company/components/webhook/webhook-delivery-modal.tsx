@@ -31,6 +31,7 @@ export const WebhookDeliveryModal = observer(() => {
           ? [
               {
                 id: "resend-webhook-delivery",
+                anchorId: "webhook-delivery-modal-resend",
                 label: t("WebhookDeliveryModal.resend"),
                 icon: RefreshCw,
                 busy: store.isResending,

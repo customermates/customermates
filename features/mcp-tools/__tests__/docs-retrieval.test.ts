@@ -62,9 +62,10 @@ function sections() {
 }
 
 describe("unwrapDocsComponents", () => {
-  it("turns paired step and faq components into headings, expands the install snippet and drops the rest", () => {
+  it("turns faq items into headings and step titles into bold lines, expands the install snippet and drops the rest", () => {
     const markdown = unwrapDocsComponents(PAGE, (tool) => `install ${tool}`);
-    expect(markdown).toContain("### Create a key");
+    expect(markdown).toContain("**Create a key**");
+    expect(markdown).not.toContain("### Create a key");
     expect(markdown).toContain("### Can I reset a key?");
     expect(markdown).toContain("```\ninstall claude\n```");
     for (const tag of [
@@ -104,6 +105,37 @@ describe("splitSections", () => {
     expect(hygiene?.text).toContain("### Rotate");
     expect(hygiene?.text).toContain("Revoke a key you no longer need.");
   });
+
+  it("keeps a steps block and the link line after it in the section that contains them", () => {
+    const all = splitSections({
+      slug: "mcp",
+      source: "docs",
+      pageTitle: "MCP",
+      markdown: unwrapDocsComponents(
+        [
+          "## Connect a client",
+          "",
+          "<Steps>",
+          '<Step title="Create a key">',
+          "Open API & Connectors and create a key.",
+          "</Step>",
+          '<Step title="Confirm the tools arrived">',
+          "Ask the client to list its tools.",
+          "</Step>",
+          "</Steps>",
+          "",
+          "**Link:** the **API & Connectors** page, `/profile/api-keys`.",
+          "",
+          "## Next",
+          "Read the catalog.",
+        ].join("\n"),
+        () => "",
+      ),
+    });
+    expect(all.map((section) => section.headingPath.join(">"))).toEqual(["Connect a client", "Next"]);
+    expect(all[0].text).toContain("**Confirm the tools arrived**");
+    expect(all[0].text).toContain("**Link:** the **API & Connectors** page, `/profile/api-keys`.");
+  });
 });
 
 describe("tokenize and stem", () => {
@@ -134,6 +166,32 @@ describe("searchSections and sectionExcerpt", () => {
     expect(hit?.section.anchor).toBe("rotate");
   });
 
+  it("counts the page named in a link line like a heading when the question asks for a page address", () => {
+    const page = (slug: string, markdown: string) =>
+      splitSections({ slug, source: "docs", pageTitle: slug === "mcp" ? "MCP endpoint" : "Records", markdown });
+    const index = buildSectionIndex(
+      [
+        ...page(
+          "mcp",
+          "## What is the MCP server endpoint URL?\nThe endpoint is <BASE_URL>/api/v1/mcp. Clients read contacts, deals and tasks through it.",
+        ),
+        ...page(
+          "app-records",
+          [
+            "## What is the shared layout of a record type?",
+            "Every record type has a list, a drawer and a detail page with the same search, filters and saved views.",
+            "",
+            "**Link:** the **Contacts** page, `/contacts`. **Mate:** `navigate` with `nav-contacts`.",
+          ].join("\n"),
+        ),
+      ],
+      "english",
+    );
+    expect(searchSections(index, "contacts page URL")[0]?.section.slug).toBe("app-records");
+    expect(searchSections(index, "URL of the contacts page")[0]?.section.slug).toBe("app-records");
+    expect(searchSections(index, "endpoint URL")[0]?.section.slug).toBe("mcp");
+  });
+
   it("keeps the table header in front of the matching row and bounds the leading context", () => {
     const limits = sections().find((section) => section.headingPath.join(">") === "Limits");
     if (!limits) throw new Error("Limits section missing");
@@ -151,5 +209,164 @@ describe("searchSections and sectionExcerpt", () => {
     const rotate = sections().find((section) => section.headingPath.at(-1) === "Rotate");
     if (!rotate) throw new Error("Rotate section missing");
     expect(sectionExcerpt(rotate, "rotate", 500, "english")).toBe("### Rotate\nRotate keys every quarter.");
+  });
+
+  it("keeps the section's link line when the matching text fills the excerpt", () => {
+    const [billing] = splitSections({
+      slug: "app-company",
+      source: "docs",
+      pageTitle: "My Company",
+      markdown: [
+        "## Billing",
+        "",
+        "Cancel the subscription in the Lemon Squeezy portal, which also holds invoices and the payment method.",
+        "",
+        "Refresh re-reads the subscription after a change in the portal and confirms it.",
+        "",
+        "**Link:** `/company/subscription`. **Mate:** `navigate` with `nav-company-subscription`.",
+      ].join("\n"),
+    });
+    if (!billing) throw new Error("Billing section missing");
+    const excerpt = sectionExcerpt(billing, "cancel subscription invoices", 260, "english", true);
+    expect(excerpt.startsWith("## Billing\nCancel the subscription")).toBe(true);
+    expect(excerpt).not.toContain("Refresh re-reads");
+    expect(excerpt.split("\n").at(-1)).toBe(
+      "**Link:** `/company/subscription`. **Mate:** `navigate` with `nav-company-subscription`.",
+    );
+    expect(excerpt.match(/\*\*Link:\*\*/g)).toHaveLength(1);
+    expect(excerpt.length).toBeLessThanOrEqual(270);
+  });
+
+  it("appends every link line once, in order, without pulling one in as leading context", () => {
+    const [billing] = splitSections({
+      slug: "app-company",
+      source: "docs",
+      pageTitle: "My Company",
+      markdown: [
+        "## Billing",
+        "",
+        "Intro.",
+        "",
+        "**Link:** `/a`.",
+        "Cancel the subscription here.",
+        "",
+        "Tail text that is long enough to be cut off by the budget.",
+        "**Link:** `/b`.",
+      ].join("\n"),
+    });
+    if (!billing) throw new Error("Billing section missing");
+    const excerpt = sectionExcerpt(billing, "cancel subscription", 80, "english", true);
+    const lines = excerpt.split("\n");
+    expect(lines.slice(-2)).toEqual(["**Link:** `/a`.", "**Link:** `/b`."]);
+    expect(excerpt.match(/\*\*Link:\*\*/g)).toHaveLength(2);
+    expect(excerpt).toContain("Cancel the subscription here.");
+    expect(excerpt).not.toContain("Intro.");
+    expect(excerpt).not.toContain("Tail text");
+    expect(excerpt.length).toBeLessThanOrEqual(84);
+  });
+
+  it("trims the matching line rather than drop the link line when both do not fit", () => {
+    const [billing] = splitSections({
+      slug: "app-company",
+      source: "docs",
+      pageTitle: "My Company",
+      markdown: [
+        "## Billing",
+        "",
+        "Cancel the subscription in the portal, which also holds invoices, the payment method and the plan.",
+        "",
+        "**Link:** `/company/subscription`.",
+      ].join("\n"),
+    });
+    if (!billing) throw new Error("Billing section missing");
+    const excerpt = sectionExcerpt(billing, "cancel subscription", 80, "english", true);
+    expect(excerpt).toContain("Cancel the subscription");
+    expect(excerpt).toContain("…");
+    expect(excerpt.split("\n").at(-1)).toBe("**Link:** `/company/subscription`.");
+    expect(excerpt.length).toBeLessThanOrEqual(84);
+  });
+
+  it("treats link lines as ordinary lines unless asked to keep them", () => {
+    const [billing] = splitSections({
+      slug: "app-company",
+      source: "docs",
+      pageTitle: "My Company",
+      markdown: [
+        "## Billing",
+        "",
+        "Intro.",
+        "",
+        "**Link:** `/a`.",
+        "Cancel the subscription here.",
+        "",
+        "Tail text that is long enough to be cut off by the budget.",
+        "**Link:** `/b`.",
+      ].join("\n"),
+    });
+    if (!billing) throw new Error("Billing section missing");
+    expect(sectionExcerpt(billing, "cancel subscription", 80, "english")).toBe(
+      "## Billing\n…\n**Link:** `/a`.\nCancel the subscription here.\n\n…",
+    );
+  });
+
+  it("never picks a link line as the matching line, so the body stays in front of it", () => {
+    const [webhooks] = splitSections({
+      slug: "architecture-security",
+      source: "docs",
+      pageTitle: "Architecture and security",
+      markdown: [
+        "## How are webhook secrets and destinations secured?",
+        "",
+        "Each webhook can carry a secret that signs every delivery, and custom headers need HTTPS.",
+        "",
+        "Tail text that is long enough to be cut off by the budget of this excerpt.",
+        "",
+        "**Link:** the **Webhooks** page, `/company/webhooks`, for webhook secrets and destinations.",
+      ].join("\n"),
+    });
+    if (!webhooks) throw new Error("Webhooks section missing");
+    const excerpt = sectionExcerpt(webhooks, "webhook secrets destinations", 250, "english", true);
+    expect(excerpt).toContain("Each webhook can carry a secret");
+    expect(excerpt.split("\n").at(-1)).toBe(
+      "**Link:** the **Webhooks** page, `/company/webhooks`, for webhook secrets and destinations.",
+    );
+    expect(excerpt.match(/\*\*Link:\*\*/g)).toHaveLength(1);
+  });
+
+  it("trims a matching line longer than the budget instead of returning only ellipses", () => {
+    const [webhooks] = splitSections({
+      slug: "app-company",
+      source: "docs",
+      pageTitle: "My Company",
+      markdown: [
+        "## Webhooks tab",
+        "",
+        "Intro.",
+        "",
+        `Route \`/company/webhooks\` lists every webhook with its URL and events. ${"More detail about the list. ".repeat(10)}`,
+        "",
+        "Tail.",
+      ].join("\n"),
+    });
+    if (!webhooks) throw new Error("Webhooks section missing");
+    const excerpt = sectionExcerpt({ ...webhooks, headingPath: [] }, "webhooks route", 120, "english");
+    expect(excerpt).toContain("Route `/company/webhooks` lists every webhook");
+    expect(excerpt.replace(/[…\s]/g, "")).not.toBe("");
+    expect(excerpt.length).toBeLessThanOrEqual(124);
+  });
+
+  it("leaves a section without a link line unchanged", () => {
+    const [plain] = splitSections({
+      slug: "app-company",
+      source: "docs",
+      pageTitle: "My Company",
+      markdown: ["## Billing", "", "Cancel the subscription here.", "", "Tail text that runs past the budget."].join(
+        "\n",
+      ),
+    });
+    if (!plain) throw new Error("Billing section missing");
+    expect(sectionExcerpt(plain, "cancel subscription", 45, "english")).toBe(
+      "## Billing\nCancel the subscription here.\n\n…",
+    );
   });
 });

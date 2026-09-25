@@ -3,20 +3,24 @@ title: "Dashboard Widgets and the Activity Timeline"
 description: "The landing screen after sign-in: chart and activity-timeline widgets over your CRM data, the widget editor, and the stable anchor ids agents can drive."
 ---
 
-Customermates is an open-source, AI-native CRM. This page documents the **Dashboard** screen of the web app for humans and for AI agents that drive the UI. Route: `/dashboard`, locale-prefixed like `https://customermates.com/en/dashboard`, sidebar id `#nav-dashboard`.
+Customermates is an open-source, AI-native CRM. This page documents the **Dashboard** screen of the web app for humans and for AI agents that drive the UI. Route: `/dashboard`, locale-prefixed like `/en/dashboard`, sidebar id `#nav-dashboard`.
 
 ## What does the Dashboard show?
 
-The Dashboard is the landing screen after sign-in. It shows configurable widgets over your CRM data: pipelines, task counts, recent activity, whatever you set up. Every widget belongs to you as a user; teammates see it only after you share it with **Share as a template**, which lets them start their own copy from it.
+The Dashboard is the landing screen after sign-in. It shows configurable widgets over your CRM data: pipelines, task counts, recent activity, whatever you set up. Every widget belongs to you as a user; teammates see it only after you share it with **Share as a template**, which lets them start their own copy from it. Adding widgets needs no role permission, but a chart counts only the records your role can read (**Read access** **Assigned** or **All**), so a teammate's copy of your template can show other numbers. **Add widget** appears only if your role can read at least one record type; the **Activity timeline** kind needs read access to the **Audit Log** or, on a plan with messaging, to **Inbox messages**.
+
+**Link:** the **Dashboard** page, `/dashboard`. **Mate:** `navigate` and `highlight_element` with `nav-dashboard` or `dashboard-add-widget`; inside the editor `widget-modal-kind` (the two kinds on step 1), `widget-modal-save` (**Create widget** on step 2, **Save changes** when editing) and `widget-modal-reset` (**Reset**, when editing with unsaved changes) are targets too, while the tabs, switches and widgets are not, so Mate names them.
 
 ## Which widget types exist?
 
 Press **Add widget** (`#dashboard-add-widget`); creation starts with a choice between two kinds, or a template a teammate shared:
 
-- **Chart**: aggregates one record type. Pick the record type, a group-by axis (a linked contact, organization, deal or service, a custom column, or none), an aggregation (count, deal value, deal quantity, or deal weighted value), and a display type (vertical or horizontal bars with or without labels, doughnut, or radar). Filters narrow the data set; a chart over contacts, organizations, services or tasks that aggregates deal value, deal quantity or deal weighted value gets a separate filter for the related deals.
+- **Chart**: aggregates one record type. On the **Data** tab choose the **Element** (the record type), a **Metric** and a **Grouping**. Every type can be counted; contacts, organizations and deals also offer deal value, plus weighted deal value once a deal stage field is set under **My Company › Settings**; services offer deal value and the number of services in deals; tasks can only be counted. Deal-based metrics need read access to deals. **Grouping** offers **No Grouping**, a single-select custom field of that record type, or, with a metric other than count, each record itself, for example deal value per contact (not for tasks). **Chart style** on the **Appearance** tab: **Vertical Bar Chart** or **Horizontal Bar Chart**, each also **with Labels**, **Doughnut Chart** or **Radar Chart**. Filters narrow the data set; a chart over contacts, organizations or services with a deal-based metric gets a separate filter for the related deals.
 - **Activity timeline**: a newest-first feed of changes, messages and connected-account activity. Its filters belong to that widget, so several timeline widgets can show different views without changing each other or the timeline on a record page.
 
-Over MCP, `manage_widgets` creates and updates both kinds with a reduced option set: a chart is created from name, entity type, display type, group-by and aggregation plus optional filters and group-by column, and an update can change its name, group-by, filters, axis direction and bar colors but not its entity, display or aggregation type; a timeline takes a name, timeline filters and the show-filters flag.
+Over MCP, `manage_widgets` lists, reads, creates, updates and deletes both kinds with a reduced option set: a chart is created from name, entity type, display type, group-by and aggregation plus optional filters and group-by column, and an update can change everything except the record type and the widget kind (name, display type, aggregation, group-by, filters, axis direction, bar colors); **Share as a template**, **Show legend**, **Use option colors** and **Show metric and filters** are set in the app only. A timeline takes a name, timeline filters and the show-filters flag.
+
+**Link:** the **Dashboard** page, `/dashboard`. **Mate:** `navigate` and `highlight_element` with `dashboard-add-widget` for **Add widget**, then `widget-modal-kind` for the two kinds once the editor is open; the template choices are not highlight targets, so Mate names them.
 
 ### What can an activity timeline show?
 
@@ -35,25 +39,37 @@ Entries are shown newest first. Use **Load older** for the next bounded page. A 
 | Both permissions, on a plan with messaging | One merged timeline containing all permitted sources |
 | Neither | A non-sensitive unavailable state |
 
-Audit-log changes are available independently of the messaging entitlement. Messages, connected-account activities, and calendar events require cloud mode, Inbox access, and a plan with messaging (Pro and above). A missing connected messaging account removes messaging-based sources but does not hide permitted audit changes. Deleted or newly inaccessible filter values stop matching, are shown as **Filter not available** on the filter chip and **Selection unavailable** in the value picker for safe removal, and never expose their raw ids.
+The two permissions are the **Audit Log** and **Inbox messages** rows of the member's role under **My Company › Roles**, each with **Read access** set to **All**. Audit-log changes are available independently of the messaging entitlement. Messages, connected-account activities, and calendar events require cloud mode, Inbox access, and a plan with messaging (Pro and above); on Starter, **Inbox** shows **Upgrade to unlock messaging** with an **Upgrade your plan** button that opens **My Company › Subscription**. A missing connected messaging account removes messaging-based sources but does not hide permitted audit changes. Deleted or newly inaccessible filter values stop matching, are shown as **Filter not available** on the filter chip and **Selection unavailable** in the value picker for safe removal, and never expose their raw ids.
 
-## How does the widget editor work?
+## How do I create or edit a chart or timeline widget in the widget editor? [#how-does-the-widget-editor-work]
 
-For a chart widget the modal is organized in three tabs: `#widget-tab-data` chooses the record type and the aggregation, `#widget-tab-filters` narrows what counts (`#widget-entity-filters-heading` marks the record filter block), and `#widget-tab-appearance` sets the display type, axes, and colors. A live preview under `#widget-preview-heading` reflects every change before you save, and `#widget-template-heading` offers ready-made starting points. Save or discard with `#widget-modal-save` / `#widget-modal-reset`; the reset button appears with unsaved changes. An activity-timeline widget has two tabs: `#widget-tab-data`, which also holds its timeline filters, and `#widget-tab-appearance`.
+Adding a widget is a two-step wizard (**Step 1 of 2**). Step 1, **Choose a Widget**, offers the two kinds (`#widget-modal-kind`) and, when any widget in the workspace is shared as a template, **Start from a template** (`#widget-template-heading`), each entry marked **Shared by** and the owner's name. Step 2 configures the widget. For a chart widget the modal is organized in three tabs: `#widget-tab-data` holds the name, record type, metric and grouping, `#widget-tab-filters` narrows what counts (`#widget-entity-filters-heading` marks the record filter block), and `#widget-tab-appearance` sets the chart style, colors, axes, **Show legend** for doughnuts, **Show metric and filters** and **Share as a template**. A live preview under `#widget-preview-heading` reflects every change before you save. While adding, the footer offers **Back** and `#widget-modal-save` (**Create widget**). An activity-timeline widget has two tabs: `#widget-tab-data`, which also holds its timeline filters, and `#widget-tab-appearance`.
+
+To change a widget, click it, or click one of its filter chips to open the editor at that filter. The editor is titled **Edit** plus the widget's name; `#widget-modal-save` reads **Save changes**, and `#widget-modal-reset` (**Reset**) appears once you change something and restores the saved values. The trash icon **Delete widget** in the editor's header removes the widget after a confirmation. Drag a widget to move it and drag an edge or corner to resize it; moving is off on touch devices. The layout is saved for you only.
+
+**Link:** the **Dashboard** page, `/dashboard`. **Mate:** `navigate` and `highlight_element` with `dashboard-add-widget`, then `widget-modal-kind` on step 1, then `widget-modal-save` (**Create widget** / **Save changes**) or `widget-modal-reset` (**Reset**) once the editor shows them: **Create widget** after the user picks a kind (`list_ui_targets` gives `widget-modal-kind` as its prerequisite), **Reset** after the user has clicked a widget (`a widget card`); the tabs, **Back**, **Delete widget** and the widgets themselves are not highlight targets, so Mate names them.
 
 ## Which controls does the sidebar add?
 
 The sidebar is the same on every screen; its controls are documented here because the Dashboard is where you land.
+
+Entries sit in three groups: **Overview** (**Dashboard**, plus **Inbox** and **Routines** on Cloud), **CRM** (the five record types, under your workspace's names for them) and **Workspace** (**My Profile** and **My Company**). An entry your role cannot read is hidden, a group with no visible entries disappears, and opening a hidden page by its URL brings you back to the Dashboard. **My Profile** and **My Company** only expand or collapse; their sub-entries open the pages and carry their own ids: `#nav-profile-settings`, `#nav-profile-connected-accounts`, `#nav-profile-api-keys`, `#nav-company-subscription`, `#nav-company-settings`, `#nav-company-members`, `#nav-company-roles`, `#nav-company-audit-logs`, `#nav-company-webhooks` and `#nav-company-webhook-deliveries`. Mate can navigate to each of them your role can open (for any other it tells you that your role cannot open it), but highlight one only while its group is expanded, which it is by default on that group's own pages. Three entries show a number: **Inbox** counts unread conversations, the tasks entry shows members who manage **Users & Roles** how many **Approve User** tasks are open, and **Channels** counts channels that need attention.
 
 | Action | Where | Anchor id | What happens |
 |---|---|---|---|
 | Go to Dashboard | App sidebar | `#nav-dashboard` | Opens `/dashboard` |
 | Add widget | Page header | `#dashboard-add-widget` | Opens the widget modal |
 | Global search | Top of sidebar | `#nav-search` | Opens the search modal (also Cmd/Ctrl+K); see [Global search](/docs/app-search) |
-| Search input | Search modal | `#global-search-input` | Finds contacts, organizations, deals and services by name; tasks are not searched |
+| Search field | Search modal | `#global-search-input` | Finds contacts, organizations, deals, services and tasks by name |
 | Create a record | Top of sidebar | `#nav-add` | Opens the record type picker |
 | Open documentation | Sidebar footer | `#nav-documentation` | Opens `/docs` |
 | Send feedback | Sidebar footer | `#nav-feedback` | Opens the feedback dialog |
+| Ask AI | Top of sidebar, when Mate is available | `#nav-assistant` | **Ask AI** opens or closes the [assistant](/docs/app-assistant) panel (also Cmd/Ctrl+J) |
+| Plan and status | Under the brand name, Cloud only | none | Shows the plan, or the plan with its status, for example **Pro · Trial · 5 days left**; green, amber with 3 or fewer trial days left, red for **Past Due**, **Unpaid**, **Cancelled** or **Expired**; opens **My Company › Subscription** |
+| Verify your email | Under the brand name | none | **Email not verified** is shown until you confirm your address; opens **My Profile › Settings** |
+| Personal settings | Workspace group | `#nav-profile` | **My Profile** expands or collapses **Settings**, **Channels** and **API & Connectors**; see [My Profile](/docs/app-profile) |
+| Workspace administration | Workspace group | `#nav-company` | **My Company** expands or collapses **Subscription**, **Settings**, **Members**, **Roles**, **Audit Logs**, **Webhooks** and **Recent Deliveries**; see [My Company](/docs/app-company) |
+| Theme and sign-out | Sidebar footer, your name | none | **Dark Mode** or **Light Mode** switches and saves your theme; **Sign Out** ends the session |
 
 ## What happens on first run?
 
@@ -64,6 +80,7 @@ New accounts land in the [onboarding wizard](/docs/app-onboarding) at `/onboardi
 - The hosted assistant can navigate here and highlight `#nav-dashboard` and `#dashboard-add-widget`; it creates widgets through `manage_widgets` instead of driving the modal.
 - Rows never carry ids. Open a record via its page URL `/{type}/{id}`. The drawer deep-link `?open={entityType}:new` adds a record and works on every signed-in page, the Dashboard included.
 - Prefer [MCP](/docs/mcp) tools over clicking when a tool exists. Reading and writing CRM data is faster and safer through tools than through the UI.
+- `#nav-search`, `#nav-documentation` and `#nav-feedback` can be highlighted but are not navigation targets. Navigating to `#nav-profile` or `#nav-company` opens that group's **Settings** page. `#nav-add`, `#nav-assistant`, the two chips and the menu under your name are not assistant targets.
 
 ## Related
 

@@ -13,6 +13,7 @@ const INTERNAL_DETAILS = "[internal details]";
 
 const UUID_PATTERN = /(^|[^0-9a-f])([0-9a-f]{8}(?:-[0-9a-f]{4}){3}-[0-9a-f]{12})(?=$|[^0-9a-f])/gi;
 const PARTIAL_UUID_PATTERN = /(^|[^0-9a-f])([0-9a-f]{8}-(?:[0-9a-f]{0,4}(?:-[0-9a-f]{0,4}){0,3})?)$/gi;
+const REDACTION_TOKEN_SOURCE = "\\[(?:internal reference|internal details|redacted)\\]";
 const SAVED_VIEW_PATHS = AI_MANAGEABLE_DATA_VIEW_SURFACE_KEYS.map((surfaceKey) => DATA_VIEW_PATHS[surfaceKey]).filter(
   (path): path is string => path !== null,
 );
@@ -39,6 +40,10 @@ const MAX_TIMELINE_VIEW_URL_LENGTH =
   SURFACE.entityTimeline.length;
 const MAX_SAVED_VIEW_URL_LENGTH = Math.max(MAX_STANDALONE_VIEW_URL_LENGTH, MAX_TIMELINE_VIEW_URL_LENGTH);
 const PROTECTED_STREAM_CONTEXT_CHARS = 2;
+const MESSAGING_THREADS_PATH = DATA_VIEW_PATHS[SURFACE.messagingThreads];
+const RECORD_PAGE_ROUTE_PATTERN = new RegExp(
+  `^/${LOCALE_PREFIX_SOURCE}(?:(?:${ENTITY_TIMELINE_PARENT_PATHS.map((path) => escapePattern(path.slice(1))).join("|")})/${UUID_SOURCE}${MESSAGING_THREADS_PATH ? `|${escapePattern(MESSAGING_THREADS_PATH.slice(1))}\\?threadId=${UUID_SOURCE}` : ""})$`,
+);
 
 const PAGE_CONTEXT_BLOCK_PATTERN = /<page_context\b[^>]*>[\s\S]*?<\/page_context\s*>/gi;
 const PAGE_CONTEXT_TAG_PATTERN = /<\/?page_context\b[^>]*>/gi;
@@ -139,6 +144,7 @@ type MarkdownContainer = TextRange & { type: string };
 type CanonicalDestination = TextRange & { href: string };
 type DataViewLink = TextRange & { label: TextRange };
 type DataViewAutolink = TextRange & { href: string };
+type ResourceLink = MarkdownContainer & { text: TextRange | null; destination: TextRange | null };
 
 function modelAuthoredDataViewHref(value: string) {
   try {
@@ -458,6 +464,56 @@ function replaceUuid(value: string) {
   return value.replace(UUID_PATTERN, (_match, prefix: string) => `${prefix}${INTERNAL_REFERENCE}`);
 }
 
+function markdownResourceLinks(value: string) {
+  const links: ResourceLink[] = [];
+  const events = postprocess(
+    parse()
+      .document()
+      .write(preprocess()(value, undefined, true)),
+  );
+
+  for (const [phase, token] of events) {
+    if (phase !== "enter") continue;
+    const start = token.start.offset;
+    const end = token.end.offset;
+    if (start === undefined || end === undefined) continue;
+    if (token.type === "link" || token.type === "image") {
+      links.push({ start, end, type: token.type, text: null, destination: null });
+      continue;
+    }
+    if (token.type !== "labelText" && token.type !== "resourceDestinationString") continue;
+    const parent = links
+      .filter((link) => start >= link.start && end <= link.end)
+      .sort((left, right) => left.end - left.start - (right.end - right.start))[0];
+    if (!parent) continue;
+    if (token.type === "labelText") parent.text ??= { start, end };
+    else parent.destination ??= { start, end };
+  }
+
+  return links;
+}
+
+function replaceUuidOutsideRecordPageLinks(value: string) {
+  if (value.search(UUID_PATTERN) < 0) return value;
+  let visible = "";
+  let copiedUntil = 0;
+
+  for (const link of markdownResourceLinks(value)) {
+    if (link.start < copiedUntil || !link.destination) continue;
+    const destination = value.slice(link.destination.start, link.destination.end);
+    const decodedDestination = decodeString(destination);
+    if (decodedDestination.search(UUID_PATTERN) < 0) continue;
+    visible += replaceUuid(value.slice(copiedUntil, link.start));
+    visible +=
+      link.type === "link" && RECORD_PAGE_ROUTE_PATTERN.test(decodedDestination)
+        ? `${replaceUuid(value.slice(link.start, link.destination.start))}${destination}${replaceUuid(value.slice(link.destination.end, link.end))}`
+        : replaceUuid(link.text ? value.slice(link.text.start, link.text.end) : "");
+    copiedUntil = link.end;
+  }
+
+  return `${visible}${replaceUuid(value.slice(copiedUntil))}`;
+}
+
 function replacePartialUuidTail(value: string) {
   return value.replace(PARTIAL_UUID_PATTERN, (_match, prefix: string) => `${prefix}${INTERNAL_REFERENCE}`);
 }
@@ -510,7 +566,7 @@ function openPrivateContentStart(value: string) {
   return start;
 }
 
-function incompletePrivateMarkerStart(value: string) {
+function incompletePrivateMarkerStart(value: string, streamTail = false) {
   const lower = value.toLowerCase();
   let start: number | null = null;
 
@@ -526,6 +582,7 @@ function incompletePrivateMarkerStart(value: string) {
         start = earliest(start, fullStart);
     }
 
+    if (!streamTail) continue;
     for (let length = Math.min(marker.length - 1, lower.length); length > 0; length -= 1) {
       if (!lower.endsWith(marker.slice(0, length))) continue;
       start = earliest(start, lower.length - length);
@@ -733,7 +790,7 @@ function sanitizeTextFragment(value: string) {
     ),
     toolProtocolStart(withoutClosedPrivateContent),
   );
-  const complete = replaceUuid(
+  const complete = replaceUuidOutsideRecordPageLinks(
     redactCompleteAgentVisibleText(
       unsafeStart === null ? withoutClosedPrivateContent : withoutClosedPrivateContent.slice(0, unsafeStart),
     ),
@@ -772,8 +829,8 @@ export function stripLegacyUserPageContextPrefix(value: string) {
 const MARKDOWN_BLOCK_PREFIX_PATTERN = /^[ \t]{0,3}(?:#{1,6}[ \t]+|>[ \t]?|[-*+][ \t]+|\d{1,9}[.)][ \t]+)/gm;
 const MARKDOWN_RULE_LINE_PATTERN = /^[ \t]{0,3}(?:[-*_][ \t]*){3,}$/gm;
 const MARKDOWN_FENCE_PATTERN = /^[ \t]{0,3}(?:`{3,}|~{3,}).*$/gm;
-const MARKDOWN_IMAGE_PATTERN = /!\[([^\]]*)\]\([^)]*\)/g;
-const MARKDOWN_LINK_PATTERN = /\[([^\]]+)\]\([^)]*\)/g;
+const MARKDOWN_IMAGE_PATTERN = new RegExp(`!\\[((?:${REDACTION_TOKEN_SOURCE}|[^\\]])*)\\]\\([^)]*\\)`, "g");
+const MARKDOWN_LINK_PATTERN = new RegExp(`\\[((?:${REDACTION_TOKEN_SOURCE}|[^\\]])+)\\]\\([^)]*\\)`, "g");
 const MARKDOWN_BOLD_ITALIC_PATTERN = /(\*{1,3})(?=\S)([\s\S]*?\S)\1/g;
 const MARKDOWN_STRIKETHROUGH_PATTERN = /~~(?=\S)([\s\S]*?\S)~~/g;
 const MARKDOWN_UNDERSCORE_EMPHASIS_PATTERN = /(?<![\w\\])(_{1,3})(?=\S)([\s\S]*?\S)\1(?![\w])/g;
@@ -829,7 +886,7 @@ export class AgentVisibleTextStreamSanitizer {
 
     const requestedEnd = Math.max(0, this.buffer.length - STREAM_TAIL_LENGTH);
     const unsafeStart = earliest(
-      earliest(openPrivateContentStart(this.buffer), incompletePrivateMarkerStart(this.buffer)),
+      earliest(openPrivateContentStart(this.buffer), incompletePrivateMarkerStart(this.buffer, true)),
       incompleteToolProtocolStart(this.buffer),
     );
     const safeEnd = protectStreamBoundary(this.buffer, Math.min(requestedEnd, unsafeStart ?? this.buffer.length));

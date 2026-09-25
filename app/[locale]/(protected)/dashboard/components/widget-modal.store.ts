@@ -436,6 +436,8 @@ export class WidgetModalStore extends BaseModalStore<WidgetModalForm> {
     this.advanceSession();
     const generation = ++this.loadGeneration;
     this.setIsLoading(true);
+    const cached = this.rootStore.widgetsStore.items.find((widget) => widget.id === id);
+    if (cached) this.hydrateWidget(cached, false);
     runInAction(() => {
       this.isHydrating = true;
     });

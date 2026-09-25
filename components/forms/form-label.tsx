@@ -9,9 +9,14 @@ import { cn } from "@/core/utils/cn";
 
 import { useAppForm } from "./form-context";
 
-export const FormLabel = observer(({ className, htmlFor, ...props }: ComponentProps<typeof Label>) => {
+type Props = ComponentProps<typeof Label> & {
+  fieldId?: string;
+};
+
+export const FormLabel = observer(({ className, htmlFor, fieldId, ...props }: Props) => {
   const store = useAppForm();
-  const errors = htmlFor ? store?.getError(htmlFor) : undefined;
+  const errorKey = fieldId ?? htmlFor;
+  const errors = errorKey ? store?.getError(errorKey) : undefined;
   const hasError = Array.isArray(errors) ? errors.length > 0 : Boolean(errors);
 
   return (

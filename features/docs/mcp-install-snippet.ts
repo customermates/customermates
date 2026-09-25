@@ -1,5 +1,7 @@
 export type McpTool = "claudeCode" | "claudeDesktop" | "codex" | "cursor" | "gemini";
 
+export const DOCS_API_KEY_PLACEHOLDER = "YOUR_KEY";
+
 export function getMcpInstallSnippet(tool: McpTool, apiKey: string, baseUrl: string): string {
   const url = `${baseUrl}/api/v1/mcp`;
 

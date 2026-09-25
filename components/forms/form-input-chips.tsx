@@ -16,6 +16,7 @@ import { useResolvedFieldLabel } from "./use-form-field";
 
 type SharedProps = {
   id: string;
+  inputId?: string;
   label?: string | null;
   placeholder?: string;
   required?: boolean;
@@ -39,6 +40,7 @@ type Props = SharedProps &
 export const FormInputChips = observer(
   ({
     id,
+    inputId,
     label,
     placeholder,
     required,
@@ -69,6 +71,7 @@ export const FormInputChips = observer(
     const isDisabled = Boolean(disabled) || Boolean(store?.isLoading);
     const isReadOnly = !isDisabled && (Boolean(readOnly) || Boolean(store?.isReadOnly));
     const labelId = `${id}-label`;
+    const domId = inputId ?? id;
     const hasInteractiveChips = isReadOnly && Boolean(onChipClick) && !isDisabled;
 
     let chipValues: string[] = [];
@@ -138,7 +141,12 @@ export const FormInputChips = observer(
     return (
       <div className={cn("space-y-1.5", containerClassName)}>
         {resolvedLabel && (
-          <FormLabel htmlFor={isReadOnly ? undefined : id} id={labelId}>
+          <FormLabel
+            className={cn(hasError && "text-destructive")}
+            fieldId={id}
+            htmlFor={isReadOnly ? undefined : domId}
+            id={labelId}
+          >
             {resolvedLabel}
 
             {required ? <span className="text-destructive"> *</span> : null}
@@ -160,7 +168,7 @@ export const FormInputChips = observer(
             hasError &&
               "border-destructive focus-within:border-destructive ring-destructive/20 focus-within:ring-destructive/20",
           )}
-          id={isReadOnly ? id : undefined}
+          id={isReadOnly ? domId : undefined}
           role={isReadOnly ? (hasInteractiveChips ? "group" : "textbox") : undefined}
           tabIndex={isReadOnly && !hasInteractiveChips ? 0 : undefined}
         >
@@ -221,7 +229,7 @@ export const FormInputChips = observer(
               aria-invalid={hasError}
               className="flex-1 min-w-24 border-0 bg-transparent px-1 py-0.5 text-base outline-none placeholder:text-muted-foreground disabled:cursor-not-allowed md:text-sm"
               disabled={isDisabled}
-              id={id}
+              id={domId}
               placeholder={placeholder}
               value={inputValue}
               onBlur={commitInput}

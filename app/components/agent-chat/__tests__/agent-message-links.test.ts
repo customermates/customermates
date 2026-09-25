@@ -13,6 +13,9 @@ vi.mock("next-intl", () => ({
   useLocale: () => state.locale,
   useTranslations: () => (key: string) => key,
 }));
+vi.mock("@/core/stores/root-store.provider", () => ({
+  useRootStore: () => ({ agentChatStore: { enabled: true, isOpen: true }, agentUiControlStore: { active: null } }),
+}));
 vi.mock("next-intl/navigation", async () => {
   const { createElement } = await import("react");
   return {
@@ -120,7 +123,7 @@ describe("saved-view message links", () => {
     expect(entityTimelineNavigationHref(`/contacts/${recordId}`, "invalid")).toBeNull();
   });
 
-  it("renders local views as locale-aware anchors and leaves other links behind the safety dialog", () => {
+  it("renders local views and other app routes as locale-aware anchors and external links behind the confirmation", () => {
     const markup = renderMessage(
       `[My view](/en${href}) [Timeline](/en${timelineHref}) [External](https://example.com) [Other](/dashboard)`,
     );
@@ -128,9 +131,10 @@ describe("saved-view message links", () => {
     expect(markup).toContain(`href="/de${timelineHref.replaceAll("&", "&amp;")}"`);
     expect(markup).toMatch(/<a[^>]*>My view<\/a>/);
     expect(markup).toMatch(/<a[^>]*>Timeline<\/a>/);
-    expect(markup).toMatch(/<button[^>]*data-streamdown="link"[^>]*>External<\/button>/);
-    expect(markup).toMatch(/<button[^>]*data-streamdown="link"[^>]*>Other<\/button>/);
-    expect(state.links).toHaveLength(2);
+    expect(markup).toMatch(/<a[^>]*target="_blank"[^>]*>External<\/a>/);
+    expect(markup).toContain('href="/de/dashboard"');
+    expect(markup).not.toContain('data-streamdown="link"');
+    expect(state.links.map((link) => link.href)).toEqual([href, timelineHref, "/dashboard"]);
   });
 
   it("renders sanitized model-authored view link labels as clean inert text", () => {
@@ -227,12 +231,12 @@ describe("saved-view message links", () => {
     expect(state.links).toHaveLength(0);
   });
 
-  it("keeps an unrelated local link with a view query behind the standard safety action", () => {
+  it("keeps an unrelated local link with a view query an ordinary app link", () => {
     const markup = renderMessage("[Cloud CRM](/features/cloud-crm?view=kanban)");
 
-    expect(markup).toMatch(/<button[^>]*data-streamdown="link"[^>]*>Cloud CRM<\/button>/);
+    expect(markup).toMatch(/<a[^>]*>Cloud CRM<\/a>/);
     expect(markup).not.toContain("AgentChat.openSavedView");
-    expect(state.links).toHaveLength(0);
+    expect(state.links.map((link) => link.href)).toEqual(["/features/cloud-crm?view=kanban"]);
   });
 
   it("applies saved-view handling after raw HTML is sanitized and before remaining links are hardened", () => {
@@ -242,7 +246,7 @@ describe("saved-view message links", () => {
 
     expect(markup).toMatch(/<a[^>]*>My view<\/a>/);
     expect(markup).toContain("<span>Broken view</span>");
-    expect(markup).toMatch(/<button[^>]*data-streamdown="link"[^>]*>External<\/button>/);
+    expect(markup).toMatch(/<a[^>]*target="_blank"[^>]*>External<\/a>/);
     expect(state.links).toHaveLength(1);
   });
 });

@@ -179,11 +179,11 @@ export const RoutineModal = observer(() => {
                 </div>
 
                 <AppCardBody data-routine-layout="compact">
-                  <TabsContent className="mt-0" value="details">
+                  <TabsContent aria-labelledby="routine-tab-details" className="mt-0" value="details">
                     <RoutineConfigurationPane store={routineModalStore} onPause={confirmPause} />
                   </TabsContent>
 
-                  <TabsContent className="mt-0" value="runs">
+                  <TabsContent aria-labelledby="routine-tab-runs" className="mt-0" value="runs">
                     <RoutineRunsPane store={routineModalStore} />
                   </TabsContent>
                 </AppCardBody>

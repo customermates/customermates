@@ -104,12 +104,13 @@ export const GlobalSearchModal = observer(() => {
         if (!next) globalSearchModalStore.close();
       }}
     >
-      <CommandInput
-        id="global-search-input"
-        placeholder={t("GlobalSearch.placeholder")}
-        value={searchTerm}
-        onValueChange={(next) => globalSearchModalStore.onChange("searchTerm", next)}
-      />
+      <div className="shrink-0" id="global-search-input">
+        <CommandInput
+          placeholder={t("GlobalSearch.placeholder")}
+          value={searchTerm}
+          onValueChange={(next) => globalSearchModalStore.onChange("searchTerm", next)}
+        />
+      </div>
 
       {isLoading && (
         <div className="flex items-center gap-2 border-b border-border px-4 py-2 text-xs text-muted-foreground">

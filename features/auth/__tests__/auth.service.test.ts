@@ -1,5 +1,5 @@
 import { beforeEach, describe, expect, it, vi } from "vitest";
-import { APIError } from "better-auth";
+import { APIError, BASE_ERROR_CODES } from "better-auth";
 import { API_KEY_ERROR_CODES } from "@better-auth/api-key";
 
 const mocks = vi.hoisted(() => ({
@@ -8,6 +8,7 @@ const mocks = vi.hoisted(() => ({
   createApiKey: vi.fn(),
   signInEmail: vi.fn(),
   signInSocial: vi.fn(),
+  signUpEmail: vi.fn(),
 }));
 
 vi.mock("next/headers", () => ({
@@ -27,6 +28,7 @@ vi.mock("@/core/auth/better-auth", () => ({
     api: {
       signInEmail: mocks.signInEmail,
       signInSocial: mocks.signInSocial,
+      signUpEmail: mocks.signUpEmail,
       createApiKey: mocks.createApiKey,
     },
   },
@@ -196,7 +198,8 @@ describe("AuthService", () => {
   it.each([
     [API_KEY_ERROR_CODES.EXPIRES_IN_IS_TOO_SMALL, CustomErrorCode.apiKeyMinExpiration],
     [API_KEY_ERROR_CODES.EXPIRES_IN_IS_TOO_LARGE, CustomErrorCode.apiKeyMaxExpiration],
-  ])("maps Better Auth expiration boundaries to %s", async (providerError, error) => {
+    [API_KEY_ERROR_CODES.INVALID_NAME_LENGTH, CustomErrorCode.apiKeyNameLength],
+  ])("maps Better Auth API-key boundaries to %s", async (providerError, error) => {
     mocks.createApiKey.mockRejectedValueOnce(APIError.from("BAD_REQUEST", providerError));
 
     await expect(service.createApiKey({ name: "Synthetic integration", expiresIn: 24 * 60 * 60 })).resolves.toEqual({
@@ -206,11 +209,22 @@ describe("AuthService", () => {
   });
 
   it.each([
-    APIError.from("BAD_REQUEST", API_KEY_ERROR_CODES.INVALID_NAME_LENGTH),
+    APIError.from("BAD_REQUEST", API_KEY_ERROR_CODES.INVALID_METADATA_TYPE),
     new Error("unexpected auth failure"),
   ])("rethrows an unrelated API-key creation failure", async (error) => {
     mocks.createApiKey.mockRejectedValueOnce(error);
 
     await expect(service.createApiKey({ name: "Synthetic integration" })).rejects.toBe(error);
   });
+
+  it.each([BASE_ERROR_CODES.PASSWORD_TOO_SHORT, BASE_ERROR_CODES.PASSWORD_TOO_LONG])(
+    "maps the Better Auth password length boundary %s to the password rule",
+    async (providerError) => {
+      mocks.signUpEmail.mockRejectedValueOnce(APIError.from("BAD_REQUEST", providerError));
+
+      await expect(
+        service.registerWithEmail({ email: "max@example.com", name: "max@example.com", password: "Synthetic1!" }),
+      ).resolves.toEqual({ ok: false, error: CustomErrorCode.passwordInvalid });
+    },
+  );
 });

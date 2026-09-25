@@ -540,14 +540,32 @@ describe("agent tools", () => {
     expect("open_record" in tools).toBe(false);
   });
 
-  it("keeps the complete UI target catalog within the tool-result budget", async () => {
-    const result = String(await execute(getAgentAiTools(deps()).list_ui_targets, {}));
+  it("pages the complete UI target catalog within the tool-result budget", async () => {
+    const tools = getAgentAiTools(deps({ resultMaxChars: 6000 }));
+    const pages: string[] = [];
+    let cursor: number | undefined;
+    for (let page = 0; page < AGENT_UI_TARGETS.length; page += 1) {
+      const result = String(await execute(tools.list_ui_targets, cursor === undefined ? {} : { cursor }));
+      pages.push(result);
+      const match = /\nnextCursor=(\d+);total=(\d+)$/.exec(result);
+      if (!match) break;
+      cursor = Number(match[1]);
+    }
 
-    expect(result.length).toBeLessThanOrEqual(6000);
-    expect(result).toContain("actions n=navigate,h=highlight");
-    expect(result).not.toContain("c=click");
-    expect(result).toContain("\nend");
-    for (const target of AGENT_UI_TARGETS) expect(result).toContain(target.id);
+    expect(pages.length).toBeLessThanOrEqual(2);
+    for (const result of pages) {
+      expect(result.length).toBeLessThanOrEqual(6000);
+      expect(result.startsWith("actions n=navigate,h=highlight")).toBe(true);
+      expect(result).not.toContain("c=click");
+    }
+    expect(pages.at(-1)?.endsWith("\nend")).toBe(true);
+    const ids = pages.flatMap((result) =>
+      result
+        .split("\n")
+        .filter((line) => line.includes("|"))
+        .map((line) => line.split("|")[0]),
+    );
+    expect(ids).toEqual(AGENT_UI_TARGETS.map((target) => target.id));
   });
 
   it("keeps every highlight target discoverable through bounded queries and pages", async () => {
@@ -562,6 +580,9 @@ describe("agent tools", () => {
 
     const layout = String(await execute(tools.list_ui_targets, { query: "deals-layout-board" }));
     expect(layout).toContain("deals-layout-board|/deals|nh|>deals-display-options");
+    expect(layout.split("\n")[0]).toBe(
+      "actions n=navigate,h=highlight; >X is what the user must open first: a target id or a named row or card",
+    );
 
     const seen: string[] = [];
     let cursor: number | undefined;
@@ -582,6 +603,29 @@ describe("agent tools", () => {
     expect(new Set(seen).size).toBe(seen.length);
   });
 
+  it("shows the assistant what the user must open before each dialog control", async () => {
+    const tools = getAgentAiTools(deps({ resultMaxChars: 6000 }));
+    const lineOf = async (id: string) =>
+      String(await execute(tools.list_ui_targets, { query: id }))
+        .split("\n")
+        .find((line) => line.startsWith(`${id}|`));
+
+    expect(await lineOf("member-modal-role")).toBe("member-modal-role|/company/members|nh|>a member row");
+    expect(await lineOf("member-modal-save")).toContain("|>a member row");
+    expect(await lineOf("webhook-modal-delete")).toContain("|>a webhook row");
+    expect(await lineOf("role-modal-delete")).toContain("|>a role row");
+    expect(await lineOf("api-key-delete")).toContain("|>an API key card");
+    expect(await lineOf("webhook-delivery-modal-resend")).toContain("|>a delivery row");
+    expect(await lineOf("connected-account-disconnect")).toContain("|>a channel card");
+    expect(await lineOf("connected-account-signature")).toContain("|>connected-account-tab-email");
+    expect(await lineOf("widget-modal-save")).toBe("widget-modal-save|/dashboard|nh|>widget-modal-kind");
+    expect(await lineOf("widget-modal-kind")).toBe("widget-modal-kind|/dashboard|nh|>dashboard-add-widget");
+    expect(await lineOf("nav-company-members")).toBe("nav-company-members|/company/members|nh|>nav-company");
+    expect(await lineOf("nav-profile-api-keys")).toBe("nav-profile-api-keys|/profile/api-keys|nh|>nav-profile");
+    expect(await lineOf("widget-modal-reset")).toContain("|>a widget card");
+    expect(await lineOf("webhook-modal-url")).toContain("|>company-webhooks-add");
+  });
+
   it("answers one query that spans several pages, because the prompt asks for a single focused query", async () => {
     const tools = getAgentAiTools(deps({ resultMaxChars: 4096 }));
     const result = String(await execute(tools.list_ui_targets, { query: "contacts, deals, and the dashboard" }));
@@ -597,9 +641,25 @@ describe("agent tools", () => {
     const result = String(await execute(tools.list_ui_targets, { query: "zzzz" }));
 
     expect(result).toContain('No interface target matches "zzzz"');
+    expect(result).toContain("Target names are English");
     expect(result).toContain("nav-");
     expect(result).not.toContain(AGENT_UI_TARGETS[0].id);
     expect(result.length).toBeLessThan(600);
+  });
+
+  it("matches the sidebar's page names in the app's other languages", async () => {
+    const tools = getAgentAiTools(deps({ resultMaxChars: 6000 }));
+    const invite = String(await execute(tools.list_ui_targets, { query: "Mitglieder einladen" }));
+    const inbox = String(await execute(tools.list_ui_targets, { query: "Posteingang" }));
+    const tasks = String(await execute(tools.list_ui_targets, { query: "Aufgaben" }));
+
+    expect(invite).not.toContain("No interface target matches");
+    for (const id of ["nav-company-members", "company-members-add", "invite-modal-tab-email", "invite-modal-send"])
+      expect(invite, id).toContain(`${id}|`);
+    expect(invite).not.toContain("nav-deals|");
+    expect(inbox).toContain("nav-inbox|/inbox|nh");
+    expect(tasks).toContain("nav-tasks|/tasks|nh");
+    expect(tasks).toContain("tasks-add|/tasks|nh");
   });
 
   it("discovers the connected-account destination and walkthrough control together", async () => {
@@ -609,7 +669,7 @@ describe("agent tools", () => {
 
     expect(workflow).toContain("nav-profile-connected-accounts");
     expect(workflow).toContain("profile-connected-accounts-connect");
-    expect(workflow).toContain("\nend");
+    expect(workflow).toMatch(/\n(?:end|nextCursor=\d+;total=\d+)$/);
     expect(provider).toContain("profile-connected-accounts-connect");
     expect(
       await schemaOf(tools.highlight_element).validate?.({ targetId: "profile-connected-accounts-connect" }),

@@ -30,27 +30,28 @@ type DocsPageActionsProps = {
   mcpUrl: string;
 };
 
+export function docsPageActionLinks({ markdownUrl, mcpUrl }: DocsPageActionsProps) {
+  const absoluteMarkdownUrl = new URL(markdownUrl, mcpUrl).toString();
+  const prompt = `Read ${absoluteMarkdownUrl} and prepare to answer questions about it.`;
+
+  return {
+    chatgpt: `https://chatgpt.com/?${new URLSearchParams({ hints: "search", q: prompt })}`,
+    claude: `https://claude.ai/new?${new URLSearchParams({ q: prompt })}`,
+    cursor: `cursor://anysphere.cursor-deeplink/mcp/install?name=customermates&config=${btoa(
+      JSON.stringify({ url: mcpUrl }),
+    )}`,
+    vscode: `vscode:mcp/install?${encodeURIComponent(
+      JSON.stringify({ name: "customermates", type: "http", url: mcpUrl }),
+    )}`,
+  };
+}
+
 export function DocsPageActions({ markdownUrl, mcpUrl }: DocsPageActionsProps) {
   const [isCopied, setIsCopied] = useState(false);
   const locale = useLocale();
   const t = useTranslations();
 
-  const links = useMemo(() => {
-    const absoluteMarkdownUrl =
-      typeof window === "undefined" ? markdownUrl : new URL(markdownUrl, window.location.origin).toString();
-    const prompt = `Read ${absoluteMarkdownUrl} and prepare to answer questions about it.`;
-
-    return {
-      chatgpt: `https://chatgpt.com/?${new URLSearchParams({ hints: "search", q: prompt })}`,
-      claude: `https://claude.ai/new?${new URLSearchParams({ q: prompt })}`,
-      cursor: `cursor://anysphere.cursor-deeplink/mcp/install?name=customermates&config=${btoa(
-        JSON.stringify({ url: mcpUrl }),
-      )}`,
-      vscode: `vscode:mcp/install?${encodeURIComponent(
-        JSON.stringify({ name: "customermates", type: "http", url: mcpUrl }),
-      )}`,
-    };
-  }, [markdownUrl, mcpUrl]);
+  const links = useMemo(() => docsPageActionLinks({ markdownUrl, mcpUrl }), [markdownUrl, mcpUrl]);
 
   const mcpConfig = JSON.stringify({ mcpServers: { customermates: { url: mcpUrl } } }, null, 2);
   const mcpCommand = `claude mcp add --transport http customermates ${mcpUrl}`;

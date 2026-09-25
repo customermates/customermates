@@ -20,29 +20,54 @@ If you want an AI to drive the CRM in conversation, use [MCP](/docs/mcp) instead
 Copy the URL it generates.
 </Step>
 <Step title="Subscribe in Customermates">
-Go to **Company → Webhooks → New**, paste the URL, and select the events you want.
+Go to **My Company → Webhooks** and click **Add**. Paste the n8n URL into **URL**, select the **Events** you want, and press **Save**. Adding a webhook needs **Manage** **Yes** on the **API & Webhooks** row of your role, and the page itself needs **Read access** **All** on that row, as for API keys; the **Admin** role has both.
 </Step>
 <Step title="Handle the payload">
 Add steps after the Webhook node to transform and forward it.
 </Step>
 </Steps>
 
-The payload shape is documented at [Webhooks](/docs/webhooks). Common next steps:
+The payload shape is documented at [Webhooks](/docs/webhooks). To check that a delivery really comes from Customermates, set a **Secret** on the webhook and verify the signature in n8n; see [How do I verify the signature?](/docs/webhooks#how-do-i-verify-the-signature). Common next steps:
 
 - **Slack**: post a message to a channel when a deal is created.
 - **Google Sheets**: append a row every time a contact is created.
 - **HubSpot**: mirror the contact.
 
-## How do I write to Customermates from n8n?
+**Link:** the **Webhooks** page, `/company/webhooks`. **Mate:** `navigate` and `highlight_element` with `nav-company-webhooks`, and `highlight_element` with `company-webhooks-add` for **Add** (roles with **Manage** on **API & Webhooks**); once the **Webhook** dialog is open (prerequisite `company-webhooks-add`), `webhook-modal-url`, `webhook-modal-events` and `webhook-modal-secret` highlight **URL**, **Events** and **Secret**, and `webhook-modal-save` highlights **Save**.
 
-Use the **HTTP Request** node:
+## How do I create, read, update or delete records from n8n? [#how-do-i-write-to-customermates-from-n8n]
 
-- Method: `POST` to create, `PUT` to update one record at `/api/v1/<endpoint>/{id}` (or several at `/api/v1/<endpoint>/many`), `DELETE` to remove. There is no `PATCH`.
-- URL: `https://customermates.com/api/v1/<endpoint>`, where `<endpoint>` is `contacts`, `organizations`, `deals`, `services`, or `tasks`.
-- Headers: `x-api-key` set to your API key, stored as an n8n credential.
-- Body: JSON matching the [OpenAPI spec](/docs/openapi).
+Use the **HTTP Request** node with the `x-api-key` header from an n8n credential and a JSON body matching the [OpenAPI spec](/docs/openapi). `<endpoint>` is `contacts`, `organizations`, `deals`, `services`, or `tasks`:
 
-To make MCP tool calls from n8n instead, send a request to `/api/v1/mcp` with `method: "tools/call"`. The MCP tools carry extra guardrails: relation arrays are not accepted on updates at all, so links change only through `manage_record_links`.
+| Goal | Method and path |
+|---|---|
+| Create one record | `POST /api/v1/<endpoint>` |
+| Create up to 100 records | `POST /api/v1/<endpoint>/many` |
+| Read one record | `GET /api/v1/<endpoint>/{id}` |
+| Search, filter and page | `POST /api/v1/<endpoint>/search` with `searchTerm`, `filters`, `sortDescriptor` and `pagination` (`page`, `pageSize` of 5, 10, 25 or 100) |
+| Update one record | `PUT /api/v1/<endpoint>/{id}` |
+| Update up to 100 records | `PUT /api/v1/<endpoint>/many` |
+| Delete one record | `DELETE /api/v1/<endpoint>/{id}` |
+| Delete up to 100 records | `DELETE /api/v1/<endpoint>/many` with `ids` |
+| See the columns, options, filterable and sortable fields | `GET /api/v1/<endpoint>/configuration` |
+
+The base URL, `<BASE_URL>` below, is the address you open Customermates at, in the cloud and when you self-host. There is no `PATCH`. Filters follow the [filter syntax](/docs/filter-syntax).
+
+## How do I call MCP tools from n8n?
+
+The REST endpoints above are simpler for most n8n jobs. To call an MCP tool instead, send `POST <BASE_URL>/api/v1/mcp` with these headers:
+
+- `Content-Type: application/json`
+- `Accept: application/json, text/event-stream` (without it the endpoint answers `406 Not Acceptable`)
+- `x-api-key` with your API key
+
+The body is a JSON-RPC 2.0 call:
+
+```json
+{"jsonrpc":"2.0","id":1,"method":"tools/call","params":{"name":"list_records","arguments":{"entity":"deal"}}}
+```
+
+The answer arrives as a server-sent event: the JSON-RPC result is on the line that starts with `data:`, so read the response as text and parse that line, for example in a Code node. A refused call still answers with `result.isError: true`. A refusal the tool decides carries a `_meta.failure` kind; arguments that do not match the tool's input schema are rejected before the tool runs, with a text that starts with `MCP error -32602:` and no `_meta.failure`. See [When a call is refused](/docs/mcp#when-a-call-is-refused). The MCP tools carry extra guardrails: relation id fields are not accepted on updates (except `services` on `update_deals`, which replaces the deal's service list), so other links change only through `manage_record_links`.
 
 ## How do I run scheduled jobs?
 
@@ -50,18 +75,20 @@ n8n's Cron trigger plus the Customermates REST API covers recurring work:
 
 - Daily: find contacts without an organization and post a reminder.
 - Weekly: export records matching a filter to a Google Sheet.
-- Monthly: archive records whose custom status column holds a given value.
+- Monthly: set a status value on, or delete, records whose custom status column holds a given value. Records have no archive.
 
-Deal and task lifecycle values such as status or priority are workspace-configurable singleSelect custom columns, not fixed fields. Call `get_record_schema` or read the OpenAPI spec to see which columns and options exist in your workspace before filtering on them. For recurring work that needs judgement, a [routine](/docs/app-routines) runs the assistant on a schedule inside Customermates.
+Deal and task lifecycle values such as status or priority are workspace-configurable singleSelect custom columns, not fixed fields. `GET /api/v1/<endpoint>/configuration` (or `get_record_schema` over MCP) shows which columns and options exist in your workspace; read it before filtering on them. For recurring work that needs judgement, a [routine](/docs/app-routines) runs the assistant on a schedule inside Customermates.
 
 ## How does authentication work?
 
-Store the API key as an n8n **Header Auth** credential with header name `x-api-key`. Reuse it across nodes so you replace it in one place. Keys are 64-character base62 strings and inherit the owning user's permissions; there is no per-key scoping. See [API keys](/docs/api-keys).
+Create the key in Customermates under **My Profile → API & Connectors** with **Add** and **Standard API key**; creating a key needs **Manage** **Yes** on the **API & Webhooks** row of your role, and the page itself needs **Read access** **All** on that row. Store the key as an n8n **Header Auth** credential with header name `x-api-key`. Reuse it across nodes so you replace it in one place. Keys are 64 characters of ASCII letters (`a-z`, `A-Z`) and inherit the owning user's permissions; there is no per-key scoping. A wrong, expired or deleted key gets HTTP `401`, and a key whose owner is **Inactive** gets `403`. See [API keys](/docs/api-keys).
+
+**Link:** the **API & Connectors** page, `/profile/api-keys`. **Mate:** `navigate` and `highlight_element` with `nav-profile-api-keys`; `highlight_element` also takes `profile-api-keys-generate` for **Add** (roles with **API & Webhooks** **Manage**), then `api-key-option-standard` for **Standard API key** (prerequisite `profile-api-keys-generate`) and `api-key-name`, `api-key-expires` and `api-key-save` for **Name**, **Expires in** and **Save** (prerequisite `api-key-option-standard`). The **Quick connections** tiles are not highlight targets, so Mate names them.
 
 ## What are the common gotchas?
 
 - **Relationship arrays over REST**: sending `null` or `[]` for a relation array such as `organizationIds` clears every link of that kind; omit the field to leave links untouched. Over MCP, use `manage_record_links` to add or remove single links.
-- **Rate limits**: high-frequency loops can hit API limits. Batch where possible.
+- **Batch size**: Customermates sets no request rate limit on API keys, but the `/many` endpoints take at most 100 records per request, so split larger jobs. Connected messaging channels have per-provider read and send limits; see [Messaging rate limits](/docs/messaging-rate-limits).
 - **Webhook ordering**: deliveries are not strictly ordered. Treat them as idempotent messages keyed by `entityId`, and use the payload `timestamp` to order them.
 
 ## Next

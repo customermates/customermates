@@ -1,9 +1,8 @@
 import type { NextRequest } from "next/server";
 
 import { NextResponse } from "next/server";
-import { z } from "zod";
 
-import { handleError } from "@/core/api/interactor-handler";
+import { handleError, interactorFailureResponse } from "@/core/api/interactor-handler";
 import { getGetMessageAttachmentInteractor } from "@/core/di";
 import {
   getRetryAfterSeconds,
@@ -19,7 +18,7 @@ export async function GET(
   const { messageId, attachmentId } = await params;
   try {
     const result = await getGetMessageAttachmentInteractor().invoke({ messageId, attachmentId });
-    if (!result.ok) return NextResponse.json(z.prettifyError(result.error), { status: 400 });
+    if (!result.ok) return interactorFailureResponse(result.error);
     const { data } = result;
 
     const headers: Record<string, string> = {

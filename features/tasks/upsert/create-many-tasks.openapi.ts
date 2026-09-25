@@ -4,7 +4,7 @@ import { TaskDtoSchema } from "../task.schema";
 
 import { CreateManyTasksSchema } from "./create-many-tasks.interactor";
 
-import { CommonApiResponses } from "@/core/api/interactor-handler";
+import { CommonApiResponses, NotFoundApiResponse } from "@/core/api/interactor-handler";
 
 export const createManyTasksOperation: ZodOpenApiOperationObject = {
   operationId: "createManyTasks",
@@ -30,5 +30,6 @@ export const createManyTasksOperation: ZodOpenApiOperationObject = {
       },
     },
     ...CommonApiResponses,
+    ...NotFoundApiResponse,
   },
 };

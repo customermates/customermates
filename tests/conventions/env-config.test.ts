@@ -1,4 +1,5 @@
 import { readFileSync } from "node:fs";
+import { join, relative } from "node:path";
 
 import { afterEach, describe, expect, it, vi } from "vitest";
 
@@ -12,6 +13,8 @@ import {
   resolveStrictBoolean,
   resolveVercelBranchOrigin,
 } from "@/core/config/environment";
+
+import { REPO_ROOT, walkFiles } from "./walk";
 
 const previewEnvironment = {
   NODE_ENV: "production",
@@ -278,5 +281,80 @@ describe("hosted-AI control configuration", () => {
 
     for (const invalid of ["TRUE", "1", "yes", "on"])
       expect(() => resolveStrictBoolean("HOSTED_AI_PROVIDER_WORK_PAUSED", invalid)).toThrow(/"true" or "false"/);
+  });
+});
+
+describe("self-hosted configuration", () => {
+  const template = readFileSync(new URL("../../.env.selfhost.template", import.meta.url), "utf8");
+  const compose = readFileSync(new URL("../../docker-compose.yml", import.meta.url), "utf8");
+  const setupScript = readFileSync(new URL("../../scripts/selfhost-setup.sh", import.meta.url), "utf8");
+  const readme = readFileSync(new URL("../../README.md", import.meta.url), "utf8");
+  const templateVariables = [...template.matchAll(/^#?\s*([A-Z][A-Z0-9_]*)=/gmu)].map((match) => match[1]);
+  const activeTemplateVariables = [...template.matchAll(/^([A-Z][A-Z0-9_]*)=/gmu)].map((match) => match[1]);
+
+  it("hands every variable the template offers to Compose, including the optional sign-in providers", () => {
+    expect(templateVariables).toEqual(
+      expect.arrayContaining([
+        "GOOGLE_CLIENT_ID",
+        "GOOGLE_CLIENT_SECRET",
+        "AZURE_AD_CLIENT_ID",
+        "AZURE_AD_CLIENT_SECRET",
+      ]),
+    );
+
+    for (const name of templateVariables) {
+      expect(compose, `${name} is offered by .env.selfhost.template`).toMatch(
+        new RegExp(`\\$\\{${name}(?::-[^}]*)?\\}|^\\s+${name}:`, "mu"),
+      );
+    }
+  });
+
+  it("requires only variables the template sets during setup", () => {
+    const required = /REQUIRED_VARS=\(([^)]*)\)/u.exec(setupScript)?.[1].trim().split(/\s+/u) ?? [];
+
+    expect(required.length).toBeGreaterThan(0);
+    for (const name of required) expect(activeTemplateVariables, `${name} is required at setup`).toContain(name);
+  });
+
+  it("tells operators to apply .env changes with up and derives the protocol from BASE_URL", () => {
+    expect(readme).not.toContain("docker compose restart");
+    expect(readme).toMatch(/docker compose up -d\s+# apply \.env changes/u);
+    expect(readme).not.toContain("forwards `X-Forwarded-Proto`");
+    expect(readme).toContain("The proxy must pass on the original `Host` header");
+  });
+
+  it("applies .env changes in every self-host helper script by recreating the app", () => {
+    const scripts = walkFiles(join(REPO_ROOT, "scripts"), (path) => /selfhost-[\w-]+\.sh$/u.test(path));
+
+    expect(scripts.length).toBeGreaterThan(0);
+    for (const path of scripts) expect(readFileSync(path, "utf8"), path).not.toMatch(/docker compose restart/u);
+    expect(readFileSync(join(REPO_ROOT, "scripts", "selfhost-restart.sh"), "utf8")).toContain(
+      "docker compose up -d --no-deps --force-recreate app",
+    );
+  });
+
+  it("sends operators to sign-up and names the provider buttons each auth page shows", () => {
+    const locale = readFileSync(new URL("../../i18n/locales/en.json", import.meta.url), "utf8");
+    const messages = JSON.parse(locale) as Record<string, Record<string, string>>;
+    const label = (namespace: string) => messages[namespace].buttonLabel.replace("{provider}", "Google / Microsoft");
+
+    expect(readme).toContain("open `<BASE_URL>/auth/signup`");
+    expect(setupScript).toContain("Open ${BASE_URL}/auth/signup");
+    expect(template).toContain(`"${label("SignInForm")}" on sign-in`);
+    expect(template).toContain(`"${label("SignUpForm")}" on sign-up`);
+  });
+
+  it("describes the two Compose services and the curl setup the same way in all public content", () => {
+    const services = [...compose.matchAll(/^ {2}([a-z][\w-]*):\s*$/gmu)]
+      .map((match) => match[1])
+      .filter((name) => name !== "postgres-data");
+    const stale =
+      /\b(?:three|3|drei)\s+(?:containers?|services|Container|Dienste)\b|\bwebhook[ -]worker\)|\b(?:is|ist)\s+`git clone`/iu;
+    const offenders = walkFiles(join(REPO_ROOT, "content"), (path) => path.endsWith(".mdx"))
+      .filter((path) => stale.test(readFileSync(path, "utf8")))
+      .map((path) => relative(REPO_ROOT, path));
+
+    expect(services).toEqual(["postgres", "app"]);
+    expect(offenders).toEqual([]);
   });
 });

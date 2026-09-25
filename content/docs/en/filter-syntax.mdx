@@ -10,7 +10,15 @@ Customermates filters (used by the Model Context Protocol (MCP) tools, the REST 
 - The `list_records` MCP tool and the messaging filters on `get_messaging_threads` and `get_activities`.
 - `entityFilters` and `dealFilters` on widgets.
 - `timelineFilters` on activity widgets. Activity filters allow at most one rule per field; put OR alternatives in one `in` value array.
-- Saved views in the UI (converted to the same shape under the hood).
+- The **Filters** palette on every list in the app, and the saved views that remember it (converted to the same shape under the hood).
+
+## How do I filter a list in the app?
+
+Every record list has a **Filters** button in its toolbar. Click it, type in **Add filter…** to narrow the fields listed under **Filter by**, pick one and set its value; the list updates at once, with no apply step. Applied filters sit under **Active filters**: click one to change its value or condition (**Change condition**), or drop it with **Remove filter**, and **Clear** drops them all. A dot on **Filters** shows that some apply.
+
+Dates offer **Before…**, **On or before…**, **After…**, **On or after…** and **Between…**; created and updated dates add 7, 30, 90 or 365 days and **Custom range…** for another number of days. Up to 50 filters apply at once. They are saved into the active view and carried in the page address, so a copied address shows a teammate the same list. More on lists, views and the board in [CRM Records](/docs/app-records).
+
+**Link:** the list pages, for example the **Deals** page, `/deals`. **Mate:** `navigate` and `highlight_element` with `deals-filter` (or `contacts-filter`, `organizations-filter`, `services-filter`, `tasks-filter`); the palette inside is not a highlight target, so Mate names **Add filter…**, the fields and **Clear**.
 
 ## What does a filter rule look like?
 
@@ -21,51 +29,58 @@ Customermates filters (used by the Model Context Protocol (MCP) tools, the REST 
 ]
 ```
 
-Rules are AND-combined. For OR logic, run two queries and merge client-side, or use the `in` operator when comparing against a list.
+Rules are AND-combined. For OR logic, run two queries and merge client-side, or use the `in` operator when comparing against a list. A request takes up to 50 rules and a `searchTerm` of up to 200 characters.
 
 ## Which operators exist?
 
 | Operator | Expects | Works on | Example value |
 |---|---|---|---|
-| `equals` | single | text fields (`name`, `firstName`, `lastName`, `url`) and currency, email, phone, plain and link custom columns; exact and case-sensitive | `"Acme"` |
-| `contains` | single | text fields (`name`, `firstName`, `lastName`, `url`), email, phone, plain and link custom columns, and date-range custom columns; case-insensitive | `"acme"` |
+| `equals` | single | text fields (`name`, `firstName`, `lastName`, `url`) and currency, email, phone, text and link columns; exact and case-sensitive | `"Acme"` |
+| `contains` | single | text fields (`name`, `firstName`, `lastName`, `url`) and email, phone, text and link columns, case-insensitive; date-range columns (the range includes the date) | `"acme"` |
 | `startsWith` | single | `name`, `firstName`, `lastName`; case-insensitive | `"An"` |
-| `gt` | single | numbers, dates | `"2024-01-01"` |
-| `gte` | single | numbers, dates | `100` |
-| `lt` | single | numbers, dates | `"2024-12-31"` |
-| `lte` | single | numbers, dates | `"2024-12-31"` |
-| `in` | array | relationship arrays, id, enum and select fields, and singleSelect custom columns | `["id1", "id2"]` |
-| `notIn` | array | relationship arrays, id, enum and select fields, and singleSelect custom columns | `["id1"]` |
-| `between` | array of 2 | numbers, dates | `["2024-01-01", "2024-12-31"]` |
-| `inLastDays` | single (positive integer) | dates | `30` |
-| `isNull` | no value | custom columns only | (none) |
-| `isNotNull` | no value | custom columns only | (none) |
-| `hasNone` | no value | relationship arrays, messaging-thread draft status | (none) |
-| `hasSome` | no value | relationship arrays, messaging-thread draft status | (none) |
-| `hasUnset` | no value | messaging-thread participants | (none) |
-| `allSet` | no value | messaging-thread participants | (none) |
+| `gt`, `gte`, `lt`, `lte` | single | dates (built-in and custom date columns) and currency columns | `"2024-01-01"`, `100` |
+| `in`, `notIn` | array | relationship fields, id, enum and select fields, and single-select columns | `["id1", "id2"]` |
+| `between` | array of 2 | dates only (built-in and custom date columns) | `["2024-01-01", "2024-12-31"]` |
+| `inLastDays` | single (positive integer) | built-in date fields such as `createdAt` and `updatedAt` | `30` |
+| `isNull`, `isNotNull` | no value | custom columns only | (none) |
+| `hasNone`, `hasSome` | no value | relationship fields, messaging-thread `draft` | (none) |
+| `hasUnset`, `allSet` | no value | messaging-thread `participants` | (none) |
 
 ### Which date operators exist?
 
-Date fields such as `createdAt` and `updatedAt` accept `gt`, `gte`, `lt`, `lte`, `between`, and `inLastDays`. Use `inLastDays` with a positive integer number of days for a rolling recency window, for example `{ "field": "createdAt", "operator": "inLastDays", "value": 7 }` for records created in the last week.
+Built-in date fields such as `createdAt` and `updatedAt` accept `gt`, `gte`, `lt`, `lte`, `between`, and `inLastDays`. Use `inLastDays` with a positive integer number of days for a rolling window from the start of the day N days ago until now, for example `{ "field": "createdAt", "operator": "inLastDays", "value": 7 }` for records created in the last week. In the app, the 7, 30, 90 and 365 day choices and **Custom range…** set `inLastDays`.
+
+Custom Date and Date & Time columns accept `gt`, `gte`, `lt`, `lte`, `between`, `isNull` and `isNotNull`, but not `inLastDays`; Date Range and Date & Time Range columns also accept `contains` for a date inside the range.
 
 ### Which operators work on text fields?
 
-Text fields such as a contact's `firstName` and `lastName` or an organization's `name` accept `equals`, `startsWith`, and `contains`. `contains` and `startsWith` compare case-insensitively; `equals` is an exact, case-sensitive match.
+Text fields such as a contact's `firstName` and `lastName` or an organization's `name` accept `equals`, `startsWith`, and `contains`. `contains` and `startsWith` compare case-insensitively; `equals` is an exact, case-sensitive match. `url` takes only `equals` and `contains`.
 
 ### Which relationship operators exist?
 
-Relationship arrays (`organizationIds`, `dealIds`, `userIds`, `contactIds`, `serviceIds`, `taskIds`) accept `in`, `notIn`, `hasNone`, and `hasSome`. The participants link-status field on `get_messaging_threads` uses `hasUnset` and `allSet` to filter threads by whether their participants are linked to records. The `draft` field on the same tool takes the value-less `hasSome` (the thread holds an unsent draft) and `hasNone` (it does not), which is how you list or exclude drafts.
+Relationship arrays (`organizationIds`, `dealIds`, `userIds`, `contactIds`, `serviceIds`, `taskIds`) accept `in`, `notIn`, `hasNone`, and `hasSome`. `hasNone` matches records without any link of that kind, `hasSome` records with at least one. The participants link-status field on `get_messaging_threads` uses `hasUnset` and `allSet` to filter threads by whether their participants are linked to records. The `draft` field on the same tool takes the value-less `hasSome` (the thread holds an unsent draft) and `hasNone` (it does not), which is how you list or exclude drafts.
+
+### Which operators work on custom columns?
+
+Use the column's UUID as `field`. The operators depend on the column type:
+
+| Column type | Operators |
+|---|---|
+| Single Select | `in`, `notIn`, `isNull`, `isNotNull`, on option values |
+| Currency | `equals`, `gt`, `gte`, `lt`, `lte`, `isNull`, `isNotNull` |
+| Date, Date & Time | `gt`, `gte`, `lt`, `lte`, `between`, `isNull`, `isNotNull` |
+| Date Range, Date & Time Range | the Date operators plus `contains` |
+| Text, Email, Phone, Link | `equals`, `contains`, `isNull`, `isNotNull` |
 
 ## Which field names can I use?
 
 The `field` value is whatever `get_record_schema` returns under `filterableFields` for that entity, with the operators each field allows. It includes:
 
-- Default scalar fields (for example `createdAt`, `updatedAt`, and on contacts `firstName` and `lastName`).
-- Relationship arrays (`organizationIds`, `dealIds`, `userIds`, `contactIds`). Pair these with `in`, `notIn`, `hasNone`, `hasSome`. Some relation fields need read permission on the related record type.
+- Built-in fields: `createdAt` and `updatedAt` on every type, `firstName` and `lastName` on contacts, and `name` on organizations, deals, services and tasks.
+- Relationship arrays, which depend on the type: contacts have `organizationIds`, `dealIds`, `taskIds` and `userIds`; organizations `contactIds`, `dealIds`, `taskIds` and `userIds`; deals `contactIds`, `organizationIds`, `serviceIds`, `taskIds` and `userIds`; services `dealIds`, `taskIds` and `userIds`; tasks `contactIds`, `organizationIds`, `dealIds`, `serviceIds` and `userIds`. Pair these with `in`, `notIn`, `hasNone`, `hasSome`. A relation field other than `userIds` appears only when your role can read the related record type.
 - Custom column ids. Use the column's UUID as the field; a singleSelect column accepts only `in`, `notIn`, `isNull` and `isNotNull` and filters on its option values.
 
-Always call `get_record_schema` first if you are not sure what is filterable. The error for an unknown field lists every available field with its allowed operators.
+Some fields cannot be filtered: a deal's value, quantity and weighted value and a service's price can only be sorted, and a contact's channel identifiers, such as the email address, are found with `searchTerm`. Always call `get_record_schema` first if you are not sure what is filterable. The error for an unknown field lists every available field with its allowed operators.
 
 ## Examples
 
@@ -96,11 +111,20 @@ Records created in the last 30 days:
 { "field": "createdAt", "operator": "inLastDays", "value": 30 }
 ```
 
+Records whose custom Date column (identified by its UUID) is before July 2024:
+
+```json
+{ "field": "date_col_uuid", "operator": "lt", "value": "2024-07-01" }
+```
+
 ## Free-text search or a filter?
 
-`list_records` also accepts `searchTerm`, which runs a free-text search against the entity's name fields plus related fields: for contacts `firstName`, `lastName`, channel identifier values and linked organization names; for organizations `name` plus linked contacts' first and last names; for deals, services and tasks `name`. Use `searchTerm` for "contacts whose name contains acme" when you do not care which name field matched; use a filter rule on `firstName` or `lastName` with `contains`, `startsWith`, or `equals` when the field matters or when you combine it with other rules.
+`list_records` also accepts `searchTerm`, which runs a free-text search against the entity's name fields plus related fields: for contacts `firstName`, `lastName`, channel identifier values and linked organization names; for organizations `name` plus linked contacts' first and last names; for deals, services and tasks `name`. Each word must match one of these fields, ignoring case, so `"acme berlin"` needs both words. Channel values are not filter fields, so to find a contact by email address, put the address in `searchTerm`.
+
+Use `searchTerm` for "contacts whose name contains acme" when you do not care which name field matched; use a filter rule on `firstName` or `lastName` with `contains`, `startsWith`, or `equals` when the field matters or when you combine it with other rules.
 
 ## Next
 
 - [Core concepts](/docs/concepts): field types and relationships.
 - [MCP tool catalog](/docs/mcp#tool-catalog): where filters appear.
+- [CRM Records](/docs/app-records): lists, the filter palette, saved views and the board in the app.

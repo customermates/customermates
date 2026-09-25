@@ -82,6 +82,7 @@ export const AgentTourOverlay = observer(function AgentTourOverlay() {
           <PopoverContent
             align="start"
             className={cn("w-80 p-3", OVERLAY_TOPMOST_LAYER_CLASS)}
+            data-agent-surface=""
             side="bottom"
             onEscapeKeyDown={store.end}
             onOpenAutoFocus={() => nextButtonRef.current?.focus({ preventScroll: true })}

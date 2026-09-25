@@ -2,7 +2,7 @@ import type { ZodOpenApiOperationObject } from "zod-openapi";
 
 import { LinkedinListSalesSearchParametersSchema } from "@/ee/messaging/sales-navigator/linkedin-list-sales-search-parameters.interactor";
 import { SalesSearchParameterPageSchema } from "@/ee/messaging/sales-navigator/sales-navigator.schema";
-import { CommonApiResponses } from "@/core/api/interactor-handler";
+import { CommonApiResponses, MessagingProviderApiResponses, NotFoundApiResponse } from "@/core/api/interactor-handler";
 
 export const linkedinListSalesSearchParametersOperation: ZodOpenApiOperationObject = {
   operationId: "listSalesSearchParameters",
@@ -29,5 +29,7 @@ export const linkedinListSalesSearchParametersOperation: ZodOpenApiOperationObje
       },
     },
     ...CommonApiResponses,
+    ...NotFoundApiResponse,
+    ...MessagingProviderApiResponses,
   },
 };

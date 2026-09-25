@@ -4,7 +4,7 @@ import { DealDtoSchema } from "../deal.schema";
 
 import { CreateDealSchema } from "./create-deal.interactor";
 
-import { CommonApiResponses } from "@/core/api/interactor-handler";
+import { CommonApiResponses, NotFoundApiResponse } from "@/core/api/interactor-handler";
 
 export const createDealOperation: ZodOpenApiOperationObject = {
   operationId: "createDeal",
@@ -30,5 +30,6 @@ export const createDealOperation: ZodOpenApiOperationObject = {
       },
     },
     ...CommonApiResponses,
+    ...NotFoundApiResponse,
   },
 };

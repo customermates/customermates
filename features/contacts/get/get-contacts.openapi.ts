@@ -5,7 +5,7 @@ import { z } from "zod";
 import { ContactDtoSchema } from "../contact.schema";
 
 import { GetQueryParamsApiSchema, GetResultSchema } from "@/core/base/base-get.schema";
-import { CommonApiResponses } from "@/core/api/interactor-handler";
+import { CommonApiResponses, NotFoundApiResponse } from "@/core/api/interactor-handler";
 
 export const getContactsOperation: ZodOpenApiOperationObject = {
   operationId: "getContacts",
@@ -33,5 +33,6 @@ export const getContactsOperation: ZodOpenApiOperationObject = {
       },
     },
     ...CommonApiResponses,
+    ...NotFoundApiResponse,
   },
 };
