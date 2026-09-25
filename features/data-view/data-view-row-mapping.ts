@@ -62,6 +62,20 @@ export type PersonalizationStateWrite = {
   hiddenColumns?: string[];
 };
 
+export function readPersonalizationState(state: PersonalizationStateWrite): DataViewState {
+  return {
+    ...(state.filters !== undefined ? { filters: state.filters } : {}),
+    ...(state.searchTerm !== undefined ? { searchTerm: state.searchTerm } : {}),
+    ...(state.sortDescriptor !== undefined ? { sortDescriptor: state.sortDescriptor } : {}),
+    ...(state.pagination !== undefined ? { pageSize: state.pagination.pageSize } : {}),
+    ...(state.viewMode !== undefined ? { viewMode: state.viewMode } : {}),
+    ...(state.grouping !== undefined ? { grouping: state.grouping } : {}),
+    ...(state.columnOrder !== undefined ? { columnOrder: state.columnOrder } : {}),
+    ...(state.columnWidths !== undefined ? { columnWidths: state.columnWidths } : {}),
+    ...(state.hiddenColumns !== undefined ? { hiddenColumns: state.hiddenColumns } : {}),
+  };
+}
+
 function isPlainObject(value: unknown): value is Record<string, unknown> {
   return typeof value === "object" && value !== null && !Array.isArray(value);
 }

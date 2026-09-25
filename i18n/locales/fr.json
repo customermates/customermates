@@ -56,6 +56,10 @@
         "team": {
           "manage": "Prêt à modifier l’accès de l’équipe"
         },
+        "views": {
+          "configure": "Prêt à modifier la vue enregistrée",
+          "delete": "Vue enregistrée prête à être supprimée définitivement"
+        },
         "webhooks": {
           "manage": "Prêt à modifier l’envoi des webhooks"
         },
@@ -317,6 +321,23 @@
             "running": "Chargement d’outils supplémentaires"
           }
         },
+        "views": {
+          "configure": {
+            "done": "Vue configurée",
+            "error": "Impossible de configurer la vue",
+            "running": "Configuration de la vue"
+          },
+          "delete": {
+            "done": "Vue supprimée",
+            "error": "Impossible de supprimer la vue",
+            "running": "Suppression de la vue"
+          },
+          "read": {
+            "done": "Vues enregistrées vérifiées",
+            "error": "Impossible de vérifier les vues enregistrées",
+            "running": "Vérification des vues enregistrées"
+          }
+        },
         "webhooks": {
           "manage": {
             "done": "Action sur le webhook terminée",
@@ -394,6 +415,31 @@
     },
     "askAi": "Demander à l'IA",
     "askAiWorking": "Mate travaille",
+    "context": {
+      "addAria": "Ajouter du contexte",
+      "addTooltip": "Ajouter du contexte ou saisir /",
+      "namedNewViewLabel": "Nouvelle {viewType} : {name}",
+      "newViewLabel": "Nouvelle {viewType}",
+      "noResults": "Aucun contexte correspondant",
+      "onThisPage": "Sur cette page",
+      "records": "Enregistrements",
+      "remove": "Retirer {label}",
+      "searchError": "Impossible de rechercher les enregistrements.",
+      "searchPlaceholder": "Rechercher des enregistrements…",
+      "starter": {
+        "appearance": "Modifiez la disposition, le regroupement ou le tri de cette vue comme suit : ",
+        "create": "Créez une nouvelle vue avec les critères suivants : ",
+        "createNamed": "Créez la nouvelle vue « {name} » avec les critères suivants : ",
+        "filters": "Modifiez les filtres et la recherche de cette vue comme suit : ",
+        "timeline": "Modifiez les filtres d’activité ou le tri de cette vue comme suit : ",
+        "update": "Modifiez cette vue comme suit : "
+      },
+      "surfaceViewType": "vue {location}",
+      "surfaceViewTypeStandalone": "Vue {location}",
+      "timelineViewType": "vue des activités",
+      "timelineViewTypeStandalone": "Vue des activités",
+      "viewLabel": "{viewType} : {name}"
+    },
     "credits": {
       "blocked": {
         "configuration_unavailable": "L’Assistant hébergé est temporairement indisponible. Votre historique reste accessible.",
@@ -421,6 +467,7 @@
       "subtitle": "Posez-moi toutes vos questions sur votre espace de travail, ou dites-moi quoi faire et je m'en occupe.",
       "support": "Si quelque chose ne fonctionne pas, je peux envoyer la conversation récente à notre équipe par e-mail, qui vous répondra par e-mail."
     },
+    "openSavedView": "Ouvrir la vue enregistrée",
     "placeholder": "Interrogez votre CRM…",
     "runner": {
       "cancelled": "Cette réponse a été arrêtée.",
@@ -1116,7 +1163,9 @@
       "customFieldInvalidPhone": "Le numéro de téléphone est invalide. Il doit être au format E.164 (par exemple +491234567890). Pour plusieurs numéros, séparez-les par une virgule (par exemple +491234567890, +499876543210).",
       "customFieldInvalidSingleSelect": "La valeur du choix unique est invalide. Elle doit faire partie des options autorisées : {validValues}.",
       "customFieldInvalidUrl": "L'URL est invalide. Elle doit respecter le format d'une URL (par exemple https://example.com). Pour plusieurs URL, séparez-les par une virgule (par exemple https://example.com, https://example.org).",
+      "dataViewAllNameImmutable": "La vue Toutes ne peut pas être renommée. Omettez name et modifiez uniquement les paramètres demandés dans state. Consultez config pour les paramètres pris en charge et list pour l’état actuel avant de réessayer.",
       "dataViewNotFound": "Cette vue enregistrée est introuvable.",
+      "dataViewUpdateEmpty": "Indiquez un nom ou au moins un paramètre de vue à mettre à jour.",
       "dealNotFound": "ID d'affaire introuvable ou inaccessible.",
       "demoMode": "Cette action n’est pas disponible en mode démo. Connectez-vous pour accéder à toutes les fonctionnalités.",
       "draftMessageNotFound": "Ce brouillon est introuvable. Il a peut-être déjà été envoyé ou supprimé.",
@@ -2032,10 +2081,14 @@
     "selectGroup": "Sélectionner le groupe {group}",
     "selectRow": "Sélectionner la ligne {id}",
     "views": {
+      "aiLabel": "Interroger l’IA sur {name}",
       "all": "Toutes",
       "applied": "Affichage de {name}",
+      "askAi": "Demander à l'IA",
       "copyLink": "Copier le lien",
       "createTitle": "Nouvelle vue",
+      "createWithAi": "Créer avec l’IA",
+      "createWithAiDescription": "Ouvre le chat IA avec cette vue en contexte, puis décris ce que tu souhaites voir.",
       "delete": "Supprimer la vue",
       "duplicate": "Dupliquer comme nouvelle vue",
       "duplicateName": "{name} copie",
@@ -2402,7 +2455,7 @@
   },
   "GlobalSearch": {
     "clearRecent": "Effacer",
-    "emptyDescription": "Recherchez {contacts}, {organizations}, {deals} et {services} au même endroit.",
+    "emptyDescription": "Recherchez {contacts}, {organizations}, {deals}, {services} et {tasks} au même endroit.",
     "emptyTitle": "Trouvez tout dans votre espace de travail",
     "groupRecent": "Ouverts récemment",
     "hintNavigate": "Naviguer",

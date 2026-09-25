@@ -4,7 +4,7 @@ import type { GlobalSearchResultItem } from "@/features/search/global-search.int
 import type { LucideIcon } from "lucide-react";
 import type { ReactNode } from "react";
 
-import { Briefcase, Building2, CornerDownLeft, Loader2, Package, Search, Users } from "lucide-react";
+import { CornerDownLeft, Loader2, Search } from "lucide-react";
 import { observer } from "mobx-react-lite";
 import { useTranslations } from "next-intl";
 import { useEffect, useMemo } from "react";
@@ -24,13 +24,8 @@ import {
 } from "@/components/ui/command";
 import { initialsFor } from "@/core/utils/initials";
 import { runUserAction } from "@/core/errors/report-application-error";
-
-const TYPE_META: Record<GlobalSearchResultItem["type"], { icon: LucideIcon; entityType: EntityType }> = {
-  contact: { icon: Users, entityType: EntityType.contact },
-  organization: { icon: Building2, entityType: EntityType.organization },
-  deal: { icon: Briefcase, entityType: EntityType.deal },
-  service: { icon: Package, entityType: EntityType.service },
-};
+import { ENTITY_ICON } from "@/components/entity-detail/entity-relations";
+import { entitySearchResultLabel } from "@/components/entity-detail/entity-search-result-label";
 
 type SelectableItem = GlobalSearchResultItem & { onSelect: () => void };
 
@@ -52,7 +47,7 @@ export const GlobalSearchModal = observer(() => {
     const focusReturnFallback = globalSearchModalStore.focusReturnFallback;
     globalSearchModalStore.pushRecentItem(item);
     globalSearchModalStore.close();
-    openEntity(TYPE_META[item.type].entityType, item.id, focusReturnTarget, focusReturnFallback);
+    openEntity(item.type, item.id, focusReturnTarget, focusReturnFallback);
   };
 
   const openRecentItem = (item: GlobalSearchResultItem) => {
@@ -87,6 +82,7 @@ export const GlobalSearchModal = observer(() => {
       organization: [],
       deal: [],
       service: [],
+      task: [],
     };
     for (const item of source) buckets[item.type].push({ ...item, onSelect: () => openItem(item) });
     return (Object.keys(buckets) as GlobalSearchResultItem["type"][])
@@ -143,6 +139,7 @@ export const GlobalSearchModal = observer(() => {
                     deals: plural(EntityType.deal),
                     organizations: plural(EntityType.organization),
                     services: plural(EntityType.service),
+                    tasks: plural(EntityType.task),
                   })}
                 </p>
               </div>
@@ -153,15 +150,15 @@ export const GlobalSearchModal = observer(() => {
         {groupedResults.map((group, groupIdx) => (
           <CommandGroup
             key={hasQuery ? group.type : "recent"}
-            heading={!hasQuery ? t("GlobalSearch.groupRecent") : plural(TYPE_META[group.type].entityType)}
+            heading={!hasQuery ? t("GlobalSearch.groupRecent") : plural(group.type)}
           >
             {group.items.map((item) => (
               <ResultRow
                 key={`${item.type}-${item.id}`}
-                fallbackIcon={TYPE_META[item.type].icon}
-                label={item.name}
+                fallbackIcon={ENTITY_ICON[item.type]}
+                label={entitySearchResultLabel(item, t)}
                 pictureUrl={item.pictureUrl}
-                typeLabel={singular(TYPE_META[item.type].entityType)}
+                typeLabel={singular(item.type)}
                 value={`${item.type}-${item.id}`}
                 onSelect={item.onSelect}
               />

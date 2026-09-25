@@ -5,6 +5,7 @@ import { renderToStaticMarkup } from "react-dom/server";
 import { RefreshCw, Trash2 } from "lucide-react";
 import { beforeEach, describe, expect, it, vi } from "vitest";
 import type { AppModalActions } from "../app-modal";
+import type { BaseModalStore } from "@/core/base/base-modal.store";
 
 import { OVERLAY_TOPMOST_LAYER_CLASS } from "@/components/ui/overlay-contract";
 
@@ -14,7 +15,21 @@ const testContext = vi.hoisted(() => ({
     agentChatStore: { enabled: true as boolean | null, isOpen: false },
     agentUiControlStore: { active: null as { targetId: string } | null },
   },
+  contentCloseAutoFocus: undefined as ((event: Event) => void) | undefined,
+  contentOpenAutoFocus: undefined as (() => void) | undefined,
+  useOverlayFocusReturn:
+    vi.fn<(open?: boolean, preferredOpener?: HTMLElement | null, fallbackOpener?: HTMLElement | null) => void>(),
+  focusReturn: {
+    onCloseAutoFocus: vi.fn<(event: Event) => void>(),
+    onOpenAutoFocus: vi.fn<() => void>(),
+  },
 }));
+
+type TestContentProps = {
+  children: ReactNode;
+  onCloseAutoFocus?: (event: Event) => void;
+  onOpenAutoFocus?: () => void;
+};
 
 vi.mock("@/hooks/use-media-query", () => ({
   useIsWiderThan: () => testContext.isWide,
@@ -25,7 +40,14 @@ vi.mock("@/core/stores/root-store.provider", () => ({
 }));
 
 vi.mock("@/components/ui/use-overlay-focus-return", () => ({
-  useOverlayFocusReturn: () => ({}),
+  useOverlayFocusReturn: (
+    open?: boolean,
+    preferredOpener?: HTMLElement | null,
+    fallbackOpener?: HTMLElement | null,
+  ) => {
+    testContext.useOverlayFocusReturn(open, preferredOpener, fallbackOpener);
+    return testContext.focusReturn;
+  },
 }));
 
 vi.mock("@/i18n/navigation", () => ({
@@ -35,8 +57,11 @@ vi.mock("@/i18n/navigation", () => ({
 vi.mock("@/components/ui/dialog", () => ({
   Dialog: ({ children, modal }: { children: ReactNode; modal?: boolean }) =>
     createElement("section", { "data-modal": String(modal), "data-root": "dialog" }, children),
-  DialogContent: ({ children, ...props }: { children: ReactNode }) =>
-    createElement("div", { ...props, "data-slot": "dialog-content" }, children),
+  DialogContent: ({ children, onCloseAutoFocus, onOpenAutoFocus, ...props }: TestContentProps) => {
+    testContext.contentCloseAutoFocus = onCloseAutoFocus;
+    testContext.contentOpenAutoFocus = onOpenAutoFocus;
+    return createElement("div", { ...props, "data-slot": "dialog-content" }, children);
+  },
   DialogTitle: ({ children }: { children: ReactNode }) => createElement("h1", null, children),
   DialogDescription: ({ children }: { children: ReactNode }) => createElement("p", null, children),
 }));
@@ -44,8 +69,11 @@ vi.mock("@/components/ui/dialog", () => ({
 vi.mock("@/components/ui/drawer", () => ({
   Drawer: ({ children, modal }: { children: ReactNode; modal?: boolean }) =>
     createElement("section", { "data-modal": String(modal), "data-root": "drawer" }, children),
-  DrawerContent: ({ children, ...props }: { children: ReactNode }) =>
-    createElement("div", { ...props, "data-slot": "drawer-content" }, children),
+  DrawerContent: ({ children, onCloseAutoFocus, onOpenAutoFocus, ...props }: TestContentProps) => {
+    testContext.contentCloseAutoFocus = onCloseAutoFocus;
+    testContext.contentOpenAutoFocus = onOpenAutoFocus;
+    return createElement("div", { ...props, "data-slot": "drawer-content" }, children);
+  },
   DrawerTitle: ({ children }: { children: ReactNode }) => createElement("h1", null, children),
   DrawerDescription: ({ children }: { children: ReactNode }) => createElement("p", null, children),
 }));
@@ -86,11 +114,21 @@ function renderConfiguredModal(isWide: boolean) {
   );
 }
 
+function renderFocusModal(props: Partial<TestAppModalProps> = {}) {
+  const control = props.store ? { store: props.store } : { open: true, onClose: vi.fn() };
+  return renderToStaticMarkup(createElement(TestAppModal, { ...control, ...props, title: "Focus modal" }, "Body"));
+}
+
 beforeEach(() => {
   testContext.isWide = true;
   testContext.rootStore.agentChatStore.enabled = true;
   testContext.rootStore.agentChatStore.isOpen = false;
   testContext.rootStore.agentUiControlStore.active = null;
+  testContext.contentCloseAutoFocus = undefined;
+  testContext.contentOpenAutoFocus = undefined;
+  testContext.useOverlayFocusReturn.mockReset();
+  testContext.focusReturn.onCloseAutoFocus.mockReset();
+  testContext.focusReturn.onOpenAutoFocus.mockReset();
 });
 
 describe("AppModal actions", () => {
@@ -206,5 +244,82 @@ describe("AppModal beside the assistant", () => {
     testContext.rootStore.agentChatStore.isOpen = true;
 
     expect(renderSurface(true, OVERLAY_TOPMOST_LAYER_CLASS)).toContain('data-modal="true"');
+  });
+});
+
+describe.each([
+  ["dialog", true],
+  ["drawer", false],
+] as const)("AppModal focus return on the %s surface", (_surface, isWide) => {
+  beforeEach(() => {
+    testContext.isWide = isWide;
+  });
+
+  it("runs the caller close callback before normal focus return", () => {
+    const calls: string[] = [];
+    const onCloseAutoFocus = vi.fn(() => calls.push("caller"));
+    testContext.focusReturn.onCloseAutoFocus.mockImplementation(() => {
+      calls.push("focus return");
+    });
+    renderFocusModal({ onCloseAutoFocus });
+    const event = new Event("closeAutoFocus", { cancelable: true });
+
+    testContext.contentCloseAutoFocus?.(event);
+
+    expect(calls).toEqual(["caller", "focus return"]);
+    expect(onCloseAutoFocus).toHaveBeenCalledWith(event);
+    expect(testContext.focusReturn.onCloseAutoFocus).toHaveBeenCalledWith(event);
+    expect(event.defaultPrevented).toBe(false);
+  });
+
+  it("lets an intentional handoff suppress normal focus return", () => {
+    const onCloseAutoFocus = vi.fn((event: Event) => event.preventDefault());
+    renderFocusModal({ onCloseAutoFocus });
+    const event = new Event("closeAutoFocus", { cancelable: true });
+
+    testContext.contentCloseAutoFocus?.(event);
+
+    expect(onCloseAutoFocus).toHaveBeenCalledWith(event);
+    expect(event.defaultPrevented).toBe(true);
+    expect(testContext.focusReturn.onCloseAutoFocus).not.toHaveBeenCalled();
+  });
+
+  it("retains default close and open focus handling without a caller callback", () => {
+    renderFocusModal();
+    const event = new Event("closeAutoFocus", { cancelable: true });
+
+    testContext.contentCloseAutoFocus?.(event);
+    testContext.contentOpenAutoFocus?.();
+
+    expect(testContext.focusReturn.onCloseAutoFocus).toHaveBeenCalledWith(event);
+    expect(testContext.focusReturn.onOpenAutoFocus).toHaveBeenCalledOnce();
+  });
+
+  it.each([true, false])("passes controlled targets and open=%s to the shared focus hook", (open) => {
+    const target = { id: "controlled-target" } as HTMLElement;
+    const fallback = { id: "controlled-fallback" } as HTMLElement;
+
+    renderFocusModal({ open, focusReturnTarget: target, focusReturnFallback: fallback });
+
+    expect(testContext.useOverlayFocusReturn).toHaveBeenLastCalledWith(open, target, fallback);
+  });
+
+  it("prefers the store's focus targets and open state over controlled targets", () => {
+    const target = { id: "store-target" } as HTMLElement;
+    const fallback = { id: "store-fallback" } as HTMLElement;
+    const store = {
+      isOpen: false,
+      rootStore: { navigationGuard: undefined },
+      focusReturnTarget: target,
+      focusReturnFallback: fallback,
+    } as unknown as BaseModalStore;
+
+    renderFocusModal({
+      store,
+      focusReturnTarget: { id: "controlled-target" } as HTMLElement,
+      focusReturnFallback: { id: "controlled-fallback" } as HTMLElement,
+    });
+
+    expect(testContext.useOverlayFocusReturn).toHaveBeenLastCalledWith(false, target, fallback);
   });
 });

@@ -1,13 +1,16 @@
 import { randomUUID } from "node:crypto";
 import type { z } from "zod";
 import * as Sentry from "@sentry/nextjs";
+import { headers } from "next/headers";
 
 import { TenantInteractor } from "@/core/decorators/tenant-interactor.decorator";
 import { Write } from "@/core/decorators/write.decorator";
 import { AuthenticatedInteractor } from "@/core/base/authenticated-interactor";
+import { resolveRequestOrigin } from "@/core/config/environment";
 import { type Validated } from "@/core/validation/validation.utils";
 import { runInTransaction } from "@/core/decorators/transaction-runner";
 import type { EntitlementService } from "@/ee/subscription/entitlement.service";
+import { env } from "@/env";
 
 import { resolveUserLocale } from "@/i18n/user-locale";
 import { AgentConversationOrigin } from "@/generated/prisma";
@@ -20,6 +23,12 @@ import {
   type SendAgentMessageData,
   partsToText,
 } from "./agent-chat.schema";
+import {
+  agentContextAttachmentsEqual,
+  agentContextProviderPrefix,
+  agentContextsFromMessageParts,
+  type AgentContextAttachment,
+} from "./agent-context";
 import type { AgentRunContext } from "./agent-run-context";
 import type { AgentUsageService } from "./agent-usage.service";
 import type { PrismaAgentChatRepo } from "./prisma-agent-chat.repository";
@@ -30,6 +39,7 @@ import { toolsetsForRequest, toolsetsFromActivities } from "./agent-toolset-rout
 import { AgentActivityDescriptorSchema, type AgentActivityDescriptor } from "./agent-activity";
 import { conservativeAgentInitialContextBytes } from "./agent-provider-context";
 import { renderAgentSchemaDigest } from "./agent-schema-digest";
+import { agentPageContextPrefix } from "./agent-page-context";
 import { AGENT_REPLAY_COUNT, budgetAgentReplayHistory } from "./agent-replay-budget";
 import { isAgentModelKey, resolveAgentModel } from "./model-catalog";
 import type { BackgroundTaskService } from "@/core/utils/background-task.service";
@@ -123,13 +133,19 @@ export class SendAgentMessageInteractor extends AuthenticatedInteractor<SendAgen
 
     const replay = await this.repo.findAgentTurnRequestForAdmission(data.clientRequestId, now, model.modelId);
     const pageRoute = data.pageContext?.route ?? null;
-    const decision = decideAgentTurnAdmission(replay?.snapshot ?? null, {
-      clientRequestId: data.clientRequestId,
-      conversationId: data.conversationId,
-      text: data.text,
-      pageRoute,
-      retry: data.retry,
-    });
+    const contexts: AgentContextAttachment[] = data.contexts ?? [];
+    const contextsChanged =
+      replay !== null &&
+      !agentContextAttachmentsEqual(agentContextsFromMessageParts(replay.userMessageParts), contexts);
+    const decision = contextsChanged
+      ? ({ disposition: "conflict" } as const)
+      : decideAgentTurnAdmission(replay?.snapshot ?? null, {
+          clientRequestId: data.clientRequestId,
+          conversationId: data.conversationId,
+          text: data.text,
+          pageRoute,
+          retry: data.retry,
+        });
 
     if (decision.disposition === "completed") {
       const assistantMessage = replay?.assistantMessage;
@@ -228,7 +244,7 @@ export class SendAgentMessageInteractor extends AuthenticatedInteractor<SendAgen
 
     const userName = `${user.firstName} ${user.lastName}`.trim();
     const locale = data.locale ?? resolveUserLocale(user);
-    const requestedToolsets = toolsetsForRequest({ text: data.text, pageRoute });
+    const requestedToolsets = toolsetsForRequest({ text: data.text, pageRoute, contexts });
     const schemaDigest = await this.schemaDigest();
     const requiredContextBytes = conservativeAgentInitialContextBytes({
       systemPrompt: buildAgentSystemPrompt({
@@ -239,6 +255,7 @@ export class SendAgentMessageInteractor extends AuthenticatedInteractor<SendAgen
         schemaDigest,
       }),
       currentText: data.text,
+      contexts,
       pageRoute,
       toolDefinitions: agentToolDefinitionsForTurn({ servingProvider: turnModel.servingProvider, surface }),
     });
@@ -350,6 +367,7 @@ export class SendAgentMessageInteractor extends AuthenticatedInteractor<SendAgen
                 turnRequestId,
                 clientRequestId: data.clientRequestId,
                 text: data.text,
+                contexts,
                 pageRoute,
                 userMessageId,
               },
@@ -358,15 +376,24 @@ export class SendAgentMessageInteractor extends AuthenticatedInteractor<SendAgen
       const priorToolsets = toolsetsFromActivities(activitiesInMessages(admission.recentMessages));
       const earlierRequestToolsets = admission.recentMessages
         .filter((message) => message.role === "user")
-        .flatMap((message) => [...toolsetsForRequest({ text: partsToText(message.parts), pageRoute: null })]);
+        .flatMap((message) => [
+          ...toolsetsForRequest({
+            text: partsToText(message.parts),
+            pageRoute: null,
+            contexts: agentContextsFromMessageParts(message.parts),
+          }),
+        ]);
       const toolsets = [...new Set([...requestedToolsets, ...priorToolsets, ...earlierRequestToolsets])];
-      const pageContext = data.pageContext ? `<page_context route="${data.pageContext.route}"/>\n` : "";
+      const pageContext = agentPageContextPrefix(pageRoute);
       const replayInputs = admission.recentMessages.map((message) => {
         const text = partsToText(message.parts);
         const current = message.id === userMessageId;
+        const selectedContexts =
+          message.role === "user" ? agentContextProviderPrefix(agentContextsFromMessageParts(message.parts)) : "";
         return {
           role: message.role as string,
-          text: current ? `${pageContext}${text}` : text,
+          prefix: current ? `${pageContext}${selectedContexts}` : selectedContexts,
+          text,
           budgeted: !current,
         };
       });
@@ -377,6 +404,10 @@ export class SendAgentMessageInteractor extends AuthenticatedInteractor<SendAgen
           text: budgeted[index],
         }))
         .filter((message) => message.text);
+      const appBaseUrl =
+        mode === "interactive"
+          ? resolveRequestOrigin((await headers()).get("origin") ?? env.BASE_URL, env.AUTH_ALLOWED_HOSTS, env.BASE_URL)
+          : env.BASE_URL;
 
       const externalRunId = await this.backgroundTaskService.dispatchTracked("agent-turn", {
         turnRequestId,
@@ -386,6 +417,8 @@ export class SendAgentMessageInteractor extends AuthenticatedInteractor<SendAgen
         userId: user.id,
         userName,
         locale,
+        appBaseUrl,
+        pageRoute,
         messages,
         turnBudget: reservation.budget,
         tenant: { userId: user.id, companyId: user.companyId },

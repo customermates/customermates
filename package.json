@@ -87,6 +87,8 @@
     "markdown-it-task-lists": "2.1.1",
     "mcp-handler": "1.0.4",
     "mermaid": "^11.13.0",
+    "micromark": "^4.0.2",
+    "micromark-util-decode-string": "^2.0.0",
     "mobx": "^6.13.6",
     "mobx-react-lite": "^4.1.0",
     "next": "^16.3.2",
@@ -180,8 +182,7 @@
     "pg-protocol": "1.14.0"
   },
   "scripts": {
-    "agent:benchmark": "RUN_AGENT_BENCHMARK=true tsx --import ./scripts/lib/register-server-only-shim.mjs scripts/agent-benchmark/cli.ts",
-    "agent:eval": "RUN_AGENT_EVAL=true RUN_DATABASE_TESTS=true vitest run --config scripts/agent-eval.config.ts",
+    "agent:benchmark": "RUN_AGENT_BENCHMARK=true tsx --import ./scripts/lib/register-server-only-shim.mjs scripts/agent-benchmark/bootstrap.ts",
     "billing:verify-catalog": "tsx scripts/verify-billing-catalog.ts",
     "build": "prisma generate && yarn openapi:generate && yarn raw-docs:generate && next build",
     "clean": "rm -rf node_modules .next tsconfig.tsbuildinfo generated && yarn install && prisma generate",

@@ -97,14 +97,14 @@ Beide liegen an derselben Basis-URL. MCP nutzt `/api/v1/mcp`, die OpenAPI-Spezif
 
 ## Tool-Katalog: die vollständige Liste der MCP-Tools [#tool-catalog]
 
-Customermates exponiert [[derived.mcp.tools.total]] MCP-Tools, alle standardmäßig aktiviert. Sie decken Records, Workspace, Messaging, Social Posts, Dokumentation und Deep Research, Custom Columns, Widgets, Routinen, Webhooks, Admin und Support ab. Jedes destruktive Tool ist geflaggt und nennt `IRREVERSIBLE` in seiner Beschreibung. Beziehungen ändern sich über `manage_record_links`; die Update-Tools fassen sie nicht an, außer `services` in `update_deals`, das die Service-Liste eines Deals ersetzt.
+Customermates exponiert [[derived.mcp.tools.total]] MCP-Tools, alle standardmäßig aktiviert. Sie decken Records, Workspace, gespeicherte Ansichten, Messaging, Social Posts, Dokumentation und Deep Research, Custom Columns, Widgets, Routinen, Webhooks, Admin und Support ab. Jedes destruktive Tool ist geflaggt und nennt `IRREVERSIBLE` in seiner Beschreibung. Beziehungen ändern sich über `manage_record_links`; die Update-Tools fassen sie nicht an, außer `services` in `update_deals`, das die Service-Liste eines Deals ersetzt.
 
 Jedes Tool unten führt seine Zusammenfassung, sein Flag (sofern vorhanden) und seine Argumente. Zwei Flags sind wichtig: **Nur lesend** kennzeichnet ein Tool, das nichts verändert und das Sie in Ihrem Client ohne Rückfrage erlauben können, und **IRREVERSIBEL** kennzeichnet eines, das Daten löscht. Bei zusammengeführten Tools gilt das zerstörende Flag für die löschenden Actions. Tools, die etwas Echtes versenden oder Daten außerhalb des Workspace ändern, tragen keines der beiden Flags, darunter `send_email`, `send_chat_message`, `request_support`, `manage_team` (die Action invite versendet echte E-Mails), `manage_social_relations` (Actions invite, accept und cancel), die Save-Action von `linkedin_manage_sales_lists` und `move_email_thread` (verschiebt den Thread im echten Postfach). Lassen Sie sie in Ihrem Client auf *Ask*; die Server-Anweisungen fordern das Modell auf, die meisten davon bestätigen zu lassen.
 
 {/* mcp-catalog:flags */}
 **Nur lesend:** `get_record_schema`, `list_records`, `search_records`, `get_records`, `get_workspace_context`, `list_users`, `get_messaging_threads`, `get_activities`, `get_calendars`, `get_social_posts`, `get_social_post_engagement`, `get_social_profile`, `linkedin_search_sales_leads`, `linkedin_search_sales_companies`, `linkedin_get_sales_search_parameters`, `search_docs`, `get_docs_page`, `search`, `fetch`
 
-**IRREVERSIBEL:** `delete_records`, `discard_message_draft`, `manage_custom_columns`, `manage_widgets`, `manage_routines`, `manage_webhooks`
+**IRREVERSIBEL:** `delete_records`, `manage_data_views`, `discard_message_draft`, `manage_custom_columns`, `manage_widgets`, `manage_routines`, `manage_webhooks`
 {/* /mcp-catalog */}
 
 Das volle JSON-Schema jedes Tools liegt live an `POST /api/v1/mcp` mit `method: "tools/list"`.
@@ -113,7 +113,7 @@ Das volle JSON-Schema jedes Tools liegt live an `POST /api/v1/mcp` mit `method: 
 
 [[derived.mcp.tools.groups.records]] Tools arbeiten gegen die fünf Record-Typen (contact, organization, deal, service, task). Records tragen pro Workspace definierte Custom Columns, deshalb ist `get_record_schema` der Anker: Es liefert die Custom-Column-IDs und Optionswerte, die Schreibzugriffe brauchen. Felder wie ein Deal- oder Task-Status sind konfigurierbare singleSelect Custom Columns, keine festen nativen Felder; `get_record_schema` liefert genau die Spalten, die der Workspace tatsächlich hat.
 
-Alle Create- und Update-Tools nehmen Custom-Column-Werte über customFieldValues; rufen Sie zuerst `get_record_schema` für die Column-IDs auf. `list_records` liefert `total` und, bei Entitäten mit numerischen Spalten, `sums` vor den Elementen; bei Deals enthält `sums` `totalValue`, `totalQuantity` und `weightedValue`, die mit der Gewinnwahrscheinlichkeit der jeweiligen Stufe gewichtete Pipeline, über alle Datensätze, die zu den Filtern passen. `pageSize` wird auf die nächste unterstützte Größe aufgerundet: 5, 10, 25 oder 100.
+Alle Create- und Update-Tools nehmen Custom-Column-Werte über customFieldValues; rufen Sie zuerst `get_record_schema` für die Column-IDs auf. `list_records` liefert `total` und, bei Entitäten mit numerischen Spalten, `sums` vor den Elementen; bei Deals enthält `sums` `totalValue`, `totalQuantity` und `weightedValue`, die mit der Gewinnwahrscheinlichkeit der jeweiligen Stufe gewichtete Pipeline, über alle Datensätze, die zu den Filtern passen. Wenn `searchTerm` mehrere Datensätze findet, ist `writeTargetGuidance.status` gleich `ambiguous`: Lassen Sie den Nutzer aus `items` wählen, prüfen Sie weitere Seiten, wenn `total` die aktuelle Seite überschreitet, und reichern Sie doppelte Namen vor einem Schreibzugriff auf einen einzelnen Datensatz mit `get_records` an. `pageSize` wird auf die nächste unterstützte Größe aufgerundet: 5, 10, 25 oder 100.
 
 {/* mcp-catalog:records */}
 #### `get_record_schema`
@@ -233,6 +233,16 @@ Ihr User, die Workspace-Währung und die Bezeichnungen der Datensatztypen (termi
 Teammitglieder mit ID, Name, E-Mail, roleId und Status. Hat die Rolle des Aufrufers bei Benutzer & Rollen die Leseberechtigung Zugewiesen, kommt nur der Aufrufer selbst zurück.
 
 **Nur lesend.** Optional: `searchTerm`, `filters`, `sortDescriptor`, `page`, `pageSize`.
+{/* /mcp-catalog */}
+
+### Gespeicherte Ansichten [#saved-views]
+
+{/* mcp-catalog:views */}
+#### `manage_data_views`
+
+Persönliche gespeicherte Ansichten auf unterstützten Workspace-Seiten entdecken, prüfen, anlegen, aktualisieren, auswählen und löschen. Konfiguration und Ansichten werden paginiert und sind durchsuchbar; create wählt die neue Ansicht aus, Updates ändern nur übergebene Einstellungen und delete ist IRREVERSIBEL. Ansichten der Operator-Konsole sind über dieses Tool nicht verfügbar.
+
+**IRREVERSIBEL.** Pflicht: `action`. Optional: `surfaceKey`, `viewKey`, `section`, `page`, `pageSize`, `query`, `name`, `state`.
 {/* /mcp-catalog */}
 
 ### Messaging
@@ -498,7 +508,7 @@ Alle [[derived.mcp.tools.total]] Tools sind standardmäßig an. Um nur einen Tei
 <BASE_URL>/api/v1/mcp?toolsets=records,messaging
 ```
 
-Keys: records, workspace, messaging, social, docs, custom-columns, widgets, routines, webhooks, admin, support. Kein Parameter heißt alles; unbekannte Keys werden ignoriert, und eine Liste ohne erkannten Key liefert die volle Oberfläche. `search` und `fetch` sind immer an, damit Deep-Research-Connectors auch auf einer eingegrenzten Oberfläche funktionieren.
+Keys: records, workspace, views, messaging, social, docs, custom-columns, widgets, routines, webhooks, admin, support. Kein Parameter heißt alles; unbekannte Keys werden ignoriert, und eine Liste ohne erkannten Key liefert die volle Oberfläche. `search` und `fetch` sind immer an, damit Deep-Research-Connectors auch auf einer eingegrenzten Oberfläche funktionieren.
 
 ### Wenn ein Aufruf abgelehnt wird [#when-a-call-is-refused]
 

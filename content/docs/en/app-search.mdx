@@ -1,17 +1,17 @@
 ---
 title: "Global Search"
-description: "The Cmd/Ctrl+K search modal: which record types it searches, its stable ids, where a result opens, and where to look for tasks and messages instead."
+description: "The Cmd/Ctrl+K search modal: which record types it searches, its stable ids, where a result opens, and where to look for messages instead."
 ---
 
 Global search is a modal, not a page: it opens from anywhere in the app with **Cmd/Ctrl+K** or by activating `#nav-search` in the sidebar. This page documents it for people and for AI agents that drive the UI.
 
 ## What does global search find?
 
-The modal searches **contacts, organizations, deals, and services**, up to 50 hits per record type. Contacts match on first name, last name, any channel identifier (such as an email address or a WhatsApp number) and the names of linked organizations; organizations on their name and the first and last names of their contacts; deals and services on their name only. Every word you type must match, ignoring case, so "anna schmidt" finds only records that match both words.
+The modal searches **contacts, organizations, deals, services, and tasks**, up to 50 hits per record type. Contacts match on first name, last name, any channel identifier (such as an email address or a WhatsApp number) and the names of linked organizations; organizations on their name and the first and last names of their contacts; deals, services and tasks on their name only. Every word you type must match, ignoring case, so "anna schmidt" finds only records that match both words.
 
 You only see the record types your role can read, and **Assigned** read access limits the hits to records you are assigned to. Before you type, **Recently opened** shows your last 8 picks from this search, kept in this browser only; **Clear** empties it. Arrow keys move through the hits and Enter opens one.
 
-Tasks are not part of global search: find them on `/tasks` with its list search and filters, or with the `search_records` or `list_records` MCP tools, which cover tasks too. Messages are not searched either; the Inbox has its own search.
+Messages are not searched; the Inbox has its own search.
 
 Selecting a result opens the record's detail page at `/{type}/{id}`. To add a record instead, use the **Add** control on its list page or the `?open={entityType}:new` deep link documented in [CRM Records](/docs/app-records).
 
@@ -29,9 +29,6 @@ For an agent, typing happens in the text input inside `#global-search-input` aft
 ## Frequently asked questions
 
 <Faq>
-<FaqItem question="Why does a task not show up in global search?">
-Tasks are not part of global search. Find them on the tasks list with its search and filters, or through the `search_records` or `list_records` MCP tools.
-</FaqItem>
 <FaqItem question="What is the keyboard shortcut?">
 Cmd+K or Ctrl+K, on any operating system, from anywhere in the app. The sidebar trigger **Search**, which shows ⌘K, opens the same modal.
 </FaqItem>

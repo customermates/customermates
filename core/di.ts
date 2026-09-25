@@ -314,6 +314,8 @@ import { DeleteCustomColumnInteractor } from "@/features/custom-column/delete-cu
 import { GlobalSearchInteractor } from "@/features/search/global-search.interactor";
 // P13n interactors
 import { UpsertP13nInteractor } from "@/features/p13n/upsert-p13n.interactor";
+import { ManageDataViewsInteractor } from "@/features/data-view/manage-data-views.interactor";
+import { SURFACE } from "@/core/data-view/data-view-keys";
 import { GetDataViewsInteractor } from "@/features/data-view/get-data-views.interactor";
 import { UpsertDataViewInteractor } from "@/features/data-view/upsert-data-view.interactor";
 import { DeleteDataViewInteractor } from "@/features/data-view/delete-data-view.interactor";
@@ -1598,11 +1600,37 @@ export const getGetDataViewsInteractor = () => new GetDataViewsInteractor(getDat
 
 export const getUpsertDataViewInteractor = () => new UpsertDataViewInteractor(getDataViewRepo(), getP13nRepo());
 
-export const getDeleteDataViewInteractor = () => new DeleteDataViewInteractor(getDataViewRepo());
+export const getDeleteDataViewInteractor = () => new DeleteDataViewInteractor(getDataViewRepo(), getP13nRepo());
 
 export const getSaveDataViewStateInteractor = () => new SaveDataViewStateInteractor(getDataViewRepo(), getP13nRepo());
 
-export const getSelectDataViewInteractor = () => new SelectDataViewInteractor(getP13nRepo());
+export const getSelectDataViewInteractor = () => new SelectDataViewInteractor(getDataViewRepo(), getP13nRepo());
+
+export const getManageDataViewsInteractor = () =>
+  new ManageDataViewsInteractor(
+    {
+      [SURFACE.contacts]: getContactRepo(),
+      [SURFACE.organizations]: getOrganizationRepo(),
+      [SURFACE.deals]: getDealRepo(),
+      [SURFACE.services]: getServiceRepo(),
+      [SURFACE.tasks]: getTaskRepo(),
+      [SURFACE.users]: getUserRepo(),
+      [SURFACE.roles]: getRoleRepo(),
+      [SURFACE.webhooks]: getWebhookRepo(),
+      [SURFACE.webhookDeliveries]: getWebhookDeliveryRepo(),
+      [SURFACE.auditLogs]: getAuditLogRepo(),
+      [SURFACE.messagingThreads]: getMessagingRepo(),
+      [SURFACE.entityTimeline]: getActivitiesRepo(),
+      [SURFACE.routines]: getRoutineRepo(),
+    },
+    getDataViewStateRepo(),
+    getUpsertDataViewInteractor(),
+    getSaveDataViewStateInteractor(),
+    getSelectDataViewInteractor(),
+    getDeleteDataViewInteractor(),
+    getQueryParamsPrecheck(),
+    getEntitlementService(),
+  );
 
 // --- Feedback ---
 

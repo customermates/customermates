@@ -56,6 +56,10 @@
         "team": {
           "manage": "Pronto a modificare l’accesso del team"
         },
+        "views": {
+          "configure": "Pronto a modificare la vista salvata",
+          "delete": "Pronto a eliminare definitivamente la vista salvata"
+        },
         "webhooks": {
           "manage": "Pronto a modificare la consegna dei webhook"
         },
@@ -317,6 +321,23 @@
             "running": "Caricamento di altri strumenti"
           }
         },
+        "views": {
+          "configure": {
+            "done": "Vista configurata",
+            "error": "Impossibile configurare la vista",
+            "running": "Configurazione della vista"
+          },
+          "delete": {
+            "done": "Vista eliminata",
+            "error": "Impossibile eliminare la vista",
+            "running": "Eliminazione della vista"
+          },
+          "read": {
+            "done": "Viste salvate verificate",
+            "error": "Impossibile verificare le viste salvate",
+            "running": "Verifica delle viste salvate"
+          }
+        },
         "webhooks": {
           "manage": {
             "done": "Azione sul webhook completata",
@@ -394,6 +415,31 @@
     },
     "askAi": "Chiedi all'IA",
     "askAiWorking": "Mate sta lavorando",
+    "context": {
+      "addAria": "Aggiungi contesto",
+      "addTooltip": "Aggiungi contesto o digita /",
+      "namedNewViewLabel": "Nuova {viewType}: {name}",
+      "newViewLabel": "Nuova {viewType}",
+      "noResults": "Nessun contesto corrispondente",
+      "onThisPage": "In questa pagina",
+      "records": "Record",
+      "remove": "Rimuovi {label}",
+      "searchError": "Impossibile cercare i record.",
+      "searchPlaceholder": "Cerca record…",
+      "starter": {
+        "appearance": "Modifica layout, raggruppamento o ordinamento di questa vista come segue: ",
+        "create": "Crea una nuova vista con queste specifiche: ",
+        "createNamed": "Crea la nuova vista “{name}” con queste specifiche: ",
+        "filters": "Modifica i filtri e la ricerca di questa vista come segue: ",
+        "timeline": "Modifica i filtri delle attività o l’ordinamento di questa vista come segue: ",
+        "update": "Aggiorna questa vista come segue: "
+      },
+      "surfaceViewType": "vista {location}",
+      "surfaceViewTypeStandalone": "Vista {location}",
+      "timelineViewType": "vista attività",
+      "timelineViewTypeStandalone": "Vista attività",
+      "viewLabel": "{viewType}: {name}"
+    },
     "credits": {
       "blocked": {
         "configuration_unavailable": "L’Assistente ospitato non è al momento disponibile. La cronologia resta accessibile.",
@@ -421,6 +467,7 @@
       "subtitle": "Chiedimi qualsiasi cosa sul tuo workspace, oppure dimmi cosa fare e me ne occupo io.",
       "support": "Se qualcosa non va, posso inviare al nostro team via e-mail la conversazione recente e il team ti risponderà via e-mail."
     },
+    "openSavedView": "Apri vista salvata",
     "placeholder": "Chiedi al tuo CRM…",
     "runner": {
       "cancelled": "Questa risposta è stata interrotta.",
@@ -1116,7 +1163,9 @@
       "customFieldInvalidPhone": "Il numero di telefono non è valido. Deve essere nel formato E.164 (ad esempio +491234567890). Per più numeri, separali con una virgola (ad esempio +491234567890, +499876543210).",
       "customFieldInvalidSingleSelect": "Il valore della scelta singola non è valido. Deve essere una delle opzioni consentite: {validValues}.",
       "customFieldInvalidUrl": "L'URL non è valido. Deve rispettare il formato di un URL (ad esempio https://example.com). Per più URL, separali con una virgola (ad esempio https://example.com, https://example.org).",
+      "dataViewAllNameImmutable": "La vista Tutte non può essere rinominata. Ometti name e aggiorna solo le impostazioni richieste in state. Consulta config per le impostazioni supportate e list per lo stato attuale prima di riprovare.",
       "dataViewNotFound": "Questa vista salvata non è stata trovata.",
+      "dataViewUpdateEmpty": "Indica un nome o almeno un'impostazione della vista da aggiornare.",
       "dealNotFound": "ID trattativa non trovato o non accessibile.",
       "demoMode": "Questa azione non è disponibile in modalità demo. Accedi per usare tutte le funzionalità.",
       "draftMessageNotFound": "Questa bozza non è stata trovata. Potrebbe essere già stata inviata o scartata.",
@@ -2032,10 +2081,14 @@
     "selectGroup": "Seleziona il gruppo {group}",
     "selectRow": "Seleziona la riga {id}",
     "views": {
+      "aiLabel": "Chiedi all’IA della vista {name}",
       "all": "Tutte",
       "applied": "Visualizzazione di {name}",
+      "askAi": "Chiedi all'IA",
       "copyLink": "Copia link",
       "createTitle": "Nuova vista",
+      "createWithAi": "Crea con IA",
+      "createWithAiDescription": "Apri la chat IA con questa vista come contesto e descrivi ciò che vuoi vedere.",
       "delete": "Elimina vista",
       "duplicate": "Duplica come nuova vista",
       "duplicateName": "{name} copia",
@@ -2402,7 +2455,7 @@
   },
   "GlobalSearch": {
     "clearRecent": "Cancella",
-    "emptyDescription": "Cerca {contacts}, {organizations}, {deals} e {services} in un unico posto.",
+    "emptyDescription": "Cerca {contacts}, {organizations}, {deals}, {services} e {tasks} in un unico posto.",
     "emptyTitle": "Trova tutto nel tuo spazio di lavoro",
     "groupRecent": "Aperti di recente",
     "hintNavigate": "Naviga",

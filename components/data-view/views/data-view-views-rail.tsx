@@ -5,15 +5,20 @@ import type { BaseDataViewStore, HasId } from "@/core/base/base-data-view.store"
 import type { DataViewChipDto } from "@/core/data-view/data-view-state.schema";
 import type { ViewMetaDraft } from "./use-view-commands";
 
-import { ChevronDownIcon } from "lucide-react";
+import { ChevronDownIcon, Sparkles } from "lucide-react";
 import { observer } from "mobx-react-lite";
-import { useState } from "react";
+import { useRef, useState } from "react";
 import { useTranslations } from "next-intl";
 import { usePathname, useSearchParams } from "next/navigation";
 import { useRouter, usePathname as useLocalePathname } from "@/i18n/navigation";
 
 import { Button } from "@/components/ui/button";
-import { DropdownMenu, DropdownMenuContent, DropdownMenuTrigger } from "@/components/ui/dropdown-menu";
+import {
+  DropdownMenu,
+  DropdownMenuContent,
+  DropdownMenuItem,
+  DropdownMenuTrigger,
+} from "@/components/ui/dropdown-menu";
 import { OverflowRail } from "@/components/shared/overflow-rail";
 import { Skeleton } from "@/components/ui/skeleton";
 import { TooltipProvider } from "@/components/ui/tooltip";
@@ -27,6 +32,7 @@ import { allViewMenuItems, orderChips, sortViewsByPosition, viewMenuItems } from
 import { viewHref } from "./view-actions";
 import { useRovingFocus } from "./use-roving-focus";
 import { useViewCommands } from "./use-view-commands";
+import { useViewAi } from "./use-view-ai";
 
 type Props<E extends HasId> = {
   joinsTopBar?: boolean;
@@ -56,6 +62,9 @@ export const DataViewViewsRail = observer(function DataViewViewsRail<E extends H
   const router = useRouter();
   const searchParams = useSearchParams();
   const [meta, setMeta] = useState<ViewMetaDraft | null>(null);
+  const [menuOpen, setMenuOpen] = useState(false);
+  const pendingAi = useRef<(() => void) | null>(null);
+  const ai = useViewAi(store);
   const offersViews = Boolean(store.p13nId);
 
   const commands = useViewCommands({
@@ -94,7 +103,9 @@ export const DataViewViewsRail = observer(function DataViewViewsRail<E extends H
 
       {isActive && (
         <span className="block text-[11px] text-muted-foreground">
-          {t("DataView.views.recordCount", { count: store.pagination?.total ?? 0 })}
+          {t("DataView.views.recordCount", {
+            count: store.pagination?.total ?? 0,
+          })}
         </span>
       )}
     </>
@@ -193,7 +204,9 @@ export const DataViewViewsRail = observer(function DataViewViewsRail<E extends H
                   <span className="truncate">{t("DataView.views.createTitle")}</span>
                 </Button>
               }
+              onAskAi={ai.available ? ai.openCurrent : undefined}
               onChange={(draft) => setMeta((current) => (current ? { ...current, ...draft } : current))}
+              onCreateWithAi={ai.available ? ai.openCreate : undefined}
               onOpenChange={(next) => setMeta(next ? { mode: "create", name: "" } : null)}
               onSubmit={(values) => (meta ? commands.submitMeta(meta, values) : Promise.resolve())}
             />
@@ -202,7 +215,7 @@ export const DataViewViewsRail = observer(function DataViewViewsRail<E extends H
       </TooltipProvider>
 
       {store.isReady && (
-        <DropdownMenu>
+        <DropdownMenu modal={false} open={menuOpen} onOpenChange={setMenuOpen}>
           <DropdownMenuTrigger asChild>
             <Button
               aria-label={t("DataView.views.menu")}
@@ -219,12 +232,34 @@ export const DataViewViewsRail = observer(function DataViewViewsRail<E extends H
             align="end"
             aria-labelledby="global-data-views-menu"
             onCloseAutoFocus={(event) => {
-              event.preventDefault();
+              const handoff = pendingAi.current;
+              if (handoff) {
+                event.preventDefault();
+                pendingAi.current = null;
+                handoff();
+                return;
+              }
               const nameInput = document.getElementById(VIEW_META_NAME_INPUT_ID);
-              if (nameInput) nameInput.focus();
-              else document.getElementById("global-data-views-menu")?.focus();
+              if (nameInput) {
+                event.preventDefault();
+                nameInput.focus();
+              }
             }}
           >
+            {ai.available && (
+              <DropdownMenuItem
+                aria-label={t("DataView.views.aiLabel", { name: activeName })}
+                id="global-data-views-ai"
+                onSelect={() => {
+                  pendingAi.current = ai.openCurrent;
+                }}
+              >
+                <Sparkles aria-hidden />
+
+                {t("DataView.views.askAi")}
+              </DropdownMenuItem>
+            )}
+
             <ViewMenuItems commands={commands} items={menuItems} view={menuTarget} />
           </DropdownMenuContent>
         </DropdownMenu>

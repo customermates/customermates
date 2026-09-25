@@ -1,17 +1,17 @@
 ---
 title: "Globale Suche"
-description: "Das Cmd/Ctrl+K-Suchmodal: welche Datensatztypen es durchsucht, seine stabilen Ids, wo ein Ergebnis öffnet und wo Aufgaben und Nachrichten stattdessen liegen."
+description: "Das Cmd/Ctrl+K-Suchmodal: welche Datensatztypen es durchsucht, seine stabilen Ids, wo ein Ergebnis öffnet und wo Nachrichten stattdessen liegen."
 ---
 
 Die globale Suche ist ein Modal, keine Seite: Sie öffnet überall in der App mit **Cmd/Ctrl+K** oder über `#nav-search` (**Suchen**) in der Sidebar. Diese Seite dokumentiert sie für Menschen und für KI-Agents, die die UI steuern.
 
 ## Was findet die globale Suche?
 
-Das Modal durchsucht **Kontakte, Organisationen, Deals und Services**, bis zu 50 Treffer pro Datensatztyp. Kontakte werden über Vorname, Nachname, jeden Kanal-Identifikator (etwa eine E-Mail-Adresse oder eine WhatsApp-Nummer) und die Namen verknüpfter Organisationen gefunden, Organisationen über ihren Namen und die Vor- und Nachnamen ihrer Kontakte, Deals und Services nur über ihren Namen. Jedes eingegebene Wort muss treffen, ohne Beachtung der Groß- und Kleinschreibung, "anna schmidt" findet also nur Datensätze, die beide Wörter treffen.
+Das Modal durchsucht **Kontakte, Organisationen, Deals, Services und Aufgaben**, bis zu 50 Treffer pro Datensatztyp. Kontakte werden über Vorname, Nachname, jeden Kanal-Identifikator (etwa eine E-Mail-Adresse oder eine WhatsApp-Nummer) und die Namen verknüpfter Organisationen gefunden, Organisationen über ihren Namen und die Vor- und Nachnamen ihrer Kontakte, Deals, Services und Aufgaben nur über ihren Namen. Jedes eingegebene Wort muss treffen, ohne Beachtung der Groß- und Kleinschreibung, "anna schmidt" findet also nur Datensätze, die beide Wörter treffen.
 
 Sie sehen nur die Datensatztypen, die Ihre Rolle lesen darf, und **Lesen** mit **Zugewiesen** beschränkt die Treffer auf Datensätze, denen Sie zugewiesen sind. Vor der Eingabe zeigt **Zuletzt geöffnet** Ihre letzten 8 Auswahlen aus dieser Suche, nur in diesem Browser gespeichert; **Leeren** leert die Liste. Die Pfeiltasten bewegen sich durch die Treffer, Enter öffnet einen.
 
-Aufgaben sind nicht Teil der globalen Suche: Sie finden sie auf `/tasks` über die Listensuche und Filter oder mit den MCP-Tools `search_records` oder `list_records`, die auch Aufgaben abdecken. Nachrichten werden ebenfalls nicht durchsucht; der Posteingang hat seine eigene Suche.
+Nachrichten werden nicht durchsucht; der Posteingang hat seine eigene Suche.
 
 Die Auswahl eines Ergebnisses öffnet die Detailseite des Datensatzes unter `/{type}/{id}`. Um stattdessen einen Datensatz anzulegen, nutzen Sie das Steuerelement **Hinzufügen** seiner Listenseite oder den Deep-Link `?open={entityType}:new`, dokumentiert in [CRM-Datensätze](/docs/app-records).
 
@@ -29,9 +29,6 @@ Für einen Agent passiert die Eingabe nach dem Öffnen des Modals im Textfeld in
 ## Häufige Fragen
 
 <Faq>
-<FaqItem question="Warum taucht eine Aufgabe nicht in der globalen Suche auf?">
-Aufgaben sind nicht Teil der globalen Suche. Sie finden sie in der Aufgabenliste über deren Suche und Filter oder über die MCP-Tools `search_records` oder `list_records`.
-</FaqItem>
 <FaqItem question="Was ist das Tastenkürzel?">
 Cmd+K oder Ctrl+K, auf jedem Betriebssystem, überall in der App. Der Sidebar-Trigger **Suchen**, der ⌘K anzeigt, öffnet dasselbe Modal.
 </FaqItem>

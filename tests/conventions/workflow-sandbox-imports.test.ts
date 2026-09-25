@@ -18,6 +18,9 @@ const EXTENSIONS = [".ts", ".tsx", ".mts", ".cts", ".js", ".mjs", ".cjs"];
 // function. Step bodies are stripped from the sandbox bundle, so only the body graph has to stay
 // free of the generated client.
 const WORKFLOW_BODY_MODULES = [
+  "ee/agent-chat/agent-activity.ts",
+  "ee/agent-chat/agent-output-safety.ts",
+  "ee/agent-chat/agent-provider-context.ts",
   "ee/agent-chat/system-prompt.ts",
   "ee/agent-chat/agent-surface-policy.ts",
   "ee/agent-chat/gated-tools.ts",
@@ -96,11 +99,8 @@ describe("workflow sandbox imports", () => {
     expect(existsSync(join(REPO_ROOT, repoPath))).toBe(true);
   });
 
-  it.each(WORKFLOW_BODY_MODULES)(
-    "%s never reaches the generated prisma client through a value import",
-    (repoPath) => {
-      const chain = prismaValueImportChain(join(REPO_ROOT, repoPath));
-      expect(chain?.join("\n  -> ") ?? null).toBeNull();
-    },
-  );
+  it.each(WORKFLOW_BODY_MODULES)("%s never reaches the generated prisma client through a value import", (repoPath) => {
+    const chain = prismaValueImportChain(join(REPO_ROOT, repoPath));
+    expect(chain?.join("\n  -> ") ?? null).toBeNull();
+  });
 });

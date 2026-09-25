@@ -2,6 +2,12 @@ import { z } from "zod";
 import { asSchema, tool, jsonSchema, type ToolSet } from "ai";
 
 import { ALL_MCP_TOOLS, MCP_ALWAYS_ON_TOOLS, MCP_TOOL_GROUPS } from "@/features/mcp-tools/tool-registry";
+import { encodeToToon } from "@/features/mcp-tools/utils";
+import { dataViewNavigationHref, entityTimelineNavigationHref } from "@/core/data-view/data-view-links";
+import { SURFACE } from "@/core/data-view/data-view-keys";
+import { DATA_VIEW_PATHS } from "@/core/data-view/data-view-paths";
+import { AiManageableDataViewSurfaceKeySchema } from "@/core/data-view/ai-manageable-surfaces";
+import { ViewKeySchema } from "@/core/data-view/data-view-state.schema";
 import {
   executeMcpTool,
   expectedMcpToolFailure,
@@ -33,6 +39,7 @@ import type { AgentApprovalContextResolution } from "./agent-external-approval-c
 import { internalToolIdentity } from "./tool-identity";
 import { providerWireInputSchema } from "./provider-safe-json-schema";
 import type { AgentToolInputResult } from "./agent-tool-input";
+import { agentViewToolMismatch } from "./agent-page-context";
 
 export { isAgentToolCancellation, type AgentToolCancellation } from "./agent-tool-cancellation";
 
@@ -61,6 +68,7 @@ export type AgentToolDeps = {
   runExactlyOnce: <T>(toolCallId: string, toolName: string, run: () => Promise<T>) => Promise<T>;
   runInCallerContext: <T>(run: () => Promise<T>) => Promise<T>;
   resultMaxChars: number;
+  pageRoute?: string | null;
 };
 
 function withCallerContext(tools: ToolSet, deps: AgentToolDeps): ToolSet {
@@ -103,10 +111,51 @@ async function runGated<T>(
   return run();
 }
 
-function agentToolResult(outcome: McpToolExecutionResult, maxChars: number) {
+function contextualAgentToolResultText(
+  toolName: string | undefined,
+  outcome: McpToolExecutionResult,
+  pageRoute: string | null | undefined,
+) {
+  if (toolName !== "manage_data_views" || !outcome.ok || !outcome.structuredContent) return outcome.result;
+  const content = outcome.structuredContent;
+  if (content.surfaceKey !== SURFACE.entityTimeline || content.action === "delete") return outcome.result;
+
+  const link = entityTimelineNavigationHref(pageRoute, content.viewKey);
+  return link ? encodeToToon({ ...content, link }) : outcome.result;
+}
+
+function contextualAgentToolNavigation(
+  toolName: string | undefined,
+  outcome: McpToolExecutionResult,
+  pageRoute: string | null | undefined,
+) {
+  if (toolName !== "manage_data_views" || !outcome.ok || !outcome.structuredContent) return null;
+  const content = outcome.structuredContent;
+  if (content.action !== "create" && content.action !== "update" && content.action !== "select") return null;
+  const surfaceKey = AiManageableDataViewSurfaceKeySchema.safeParse(content.surfaceKey);
+  const viewKey = ViewKeySchema.safeParse(content.viewKey);
+  if (!surfaceKey.success || !viewKey.success) return null;
+  const href =
+    surfaceKey.data === SURFACE.entityTimeline
+      ? content.link === null
+        ? entityTimelineNavigationHref(pageRoute, viewKey.data)
+        : null
+      : content.link === `${DATA_VIEW_PATHS[surfaceKey.data]}?view=${viewKey.data}`
+        ? dataViewNavigationHref(content.link)
+        : null;
+  return href ? { kind: "saved-view" as const, href } : null;
+}
+
+function agentToolResult(
+  outcome: McpToolExecutionResult,
+  maxChars: number,
+  context: { toolName?: string; pageRoute?: string | null } = {},
+) {
+  const navigation = contextualAgentToolNavigation(context.toolName, outcome, context.pageRoute);
   return {
     ok: outcome.ok,
-    result: agentToolResultText(outcome.result, maxChars),
+    result: agentToolResultText(contextualAgentToolResultText(context.toolName, outcome, context.pageRoute), maxChars),
+    ...(navigation ? { navigation } : {}),
   };
 }
 
@@ -268,14 +317,16 @@ function crmTool(mcp: (typeof ALL_MCP_TOOLS)[number], deps: AgentToolDeps) {
     execute: async (input: unknown, { toolCallId }) => {
       const execute = async () => {
         const outcome = await executeMcpTool(mcp, [input]);
-        return agentToolResult(outcome, deps.resultMaxChars);
+        return agentToolResult(outcome, deps.resultMaxChars, { toolName: mcp.name, pageRoute: deps.pageRoute });
       };
       const enrollable = !isReadOnlyTool(mcp) && !hasNonTransactionalEffect(mcp.name);
       const run = enrollable ? () => deps.runExactlyOnce(toolCallId, mcp.name, execute) : execute;
       return runSafely(async () => {
+        const mismatch = agentViewToolMismatch(deps.pageRoute, mcp.name, input);
+        if (mismatch) return { ok: false, result: mismatch };
         const approvalContext = await deps.resolveApprovalContext(mcp.name, input);
         if (!approvalContext.ok) return { ok: false, result: approvalContext.result };
-        if (!requiresApproval(internalToolIdentity(mcp.name), mcp, input)) return run();
+        if (!requiresApproval(internalToolIdentity(mcp.name), mcp, approvalContext.input)) return run();
         return runGated(deps, toolCallId, mcp.name, approvalContext.input, run);
       }, deps.resultMaxChars);
     },
@@ -450,7 +501,7 @@ export async function normalizeAgentAiToolInput(
   toolName: string,
   input: unknown,
   maxChars: number,
-  options: { locale?: string } = {},
+  options: { locale?: string; pageRoute?: string | null } = {},
 ): Promise<AgentToolInputResult> {
   const tools = getAgentAiTools(TOOL_DEFINITION_DEPS);
   if (!Object.hasOwn(tools, toolName)) return { ok: false, result: "The requested tool is not available." };
@@ -460,7 +511,11 @@ export async function normalizeAgentAiToolInput(
   const result = await schema.validate(withTurnLocale(toolName, input, options.locale));
   if (result.success) {
     const guard = hostedToolInputGuard(toolName, result.value);
-    return guard ? { ok: false, result: guard } : { ok: true, input: result.value };
+    if (guard) return { ok: false, result: guard };
+    const mismatch = agentViewToolMismatch(options.pageRoute, toolName, result.value);
+    return mismatch
+      ? { ok: false, result: agentToolResultText(mismatch, maxChars) }
+      : { ok: true, input: result.value };
   }
 
   return {

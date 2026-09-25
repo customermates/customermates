@@ -56,6 +56,10 @@
         "team": {
           "manage": "Bereit, den Teamzugriff zu ändern"
         },
+        "views": {
+          "configure": "Bereit, die gespeicherte Ansicht zu ändern",
+          "delete": "Gespeicherte Ansicht ist zum endgültigen Löschen bereit"
+        },
         "webhooks": {
           "manage": "Bereit, die Webhook-Zustellung zu ändern"
         },
@@ -317,6 +321,23 @@
             "running": "Lädt weitere Werkzeuge"
           }
         },
+        "views": {
+          "configure": {
+            "done": "Ansicht eingerichtet",
+            "error": "Ansicht konnte nicht eingerichtet werden",
+            "running": "Ansicht wird eingerichtet"
+          },
+          "delete": {
+            "done": "Ansicht gelöscht",
+            "error": "Ansicht konnte nicht gelöscht werden",
+            "running": "Ansicht wird gelöscht"
+          },
+          "read": {
+            "done": "Gespeicherte Ansichten geprüft",
+            "error": "Gespeicherte Ansichten konnten nicht geprüft werden",
+            "running": "Gespeicherte Ansichten werden geprüft"
+          }
+        },
         "webhooks": {
           "manage": {
             "done": "Webhook-Aktion abgeschlossen",
@@ -394,6 +415,31 @@
     },
     "askAi": "KI fragen",
     "askAiWorking": "Mate arbeitet",
+    "context": {
+      "addAria": "Kontext hinzufügen",
+      "addTooltip": "Kontext hinzufügen oder / eingeben",
+      "namedNewViewLabel": "Neue {viewType}: {name}",
+      "newViewLabel": "Neue {viewType}",
+      "noResults": "Kein passender Kontext",
+      "onThisPage": "Auf dieser Seite",
+      "records": "Datensätze",
+      "remove": "{label} entfernen",
+      "searchError": "Datensätze konnten nicht durchsucht werden.",
+      "searchPlaceholder": "Datensätze suchen…",
+      "starter": {
+        "appearance": "Ändere Layout, Gruppierung oder Sortierung dieser Ansicht wie folgt: ",
+        "create": "Erstelle eine neue Ansicht mit diesen Vorgaben: ",
+        "createNamed": "Erstelle die neue Ansicht „{name}“ mit diesen Vorgaben: ",
+        "filters": "Ändere Filter und Suche dieser Ansicht wie folgt: ",
+        "timeline": "Ändere Aktivitätsfilter oder Sortierung dieser Ansicht wie folgt: ",
+        "update": "Aktualisiere diese Ansicht wie folgt: "
+      },
+      "surfaceViewType": "{location}-Ansicht",
+      "surfaceViewTypeStandalone": "{location}-Ansicht",
+      "timelineViewType": "Aktivitätsansicht",
+      "timelineViewTypeStandalone": "Aktivitätsansicht",
+      "viewLabel": "{viewType}: {name}"
+    },
     "credits": {
       "blocked": {
         "configuration_unavailable": "Der gehostete Assistent ist vorübergehend nicht verfügbar. Dein Verlauf bleibt zugänglich.",
@@ -421,6 +467,7 @@
       "subtitle": "Frag mich alles zu deinem Workspace, oder sag mir, was ich für dich erledigen soll.",
       "support": "Wenn etwas nicht klappt, kann ich unserem Team den letzten Gesprächsverlauf per E-Mail senden. Es antwortet dir per E-Mail."
     },
+    "openSavedView": "Gespeicherte Ansicht öffnen",
     "placeholder": "Frag dein CRM…",
     "runner": {
       "cancelled": "Diese Antwort wurde gestoppt.",
@@ -1116,7 +1163,9 @@
       "customFieldInvalidPhone": "Der Telefonwert ist ungültig. Muss im E.164-Format sein (z.B. +491234567890). Bei mehreren Telefonnummern durch Komma trennen (z.B. +491234567890, +499876543210).",
       "customFieldInvalidSingleSelect": "Der Single-Select-Wert ist ungültig. Muss eine der erlaubten Optionen sein: {validValues}.",
       "customFieldInvalidUrl": "Der URL-Wert ist ungültig. Muss ein gültiges URL-Format haben (z.B. https://example.com). Bei mehreren URLs durch Komma trennen (z.B. https://example.com, https://example.org).",
+      "dataViewAllNameImmutable": "Die Ansicht Alle kann nicht umbenannt werden. Lasse name weg und ändere nur die angeforderten Einstellungen in state. Lies vor einem erneuten Versuch config für unterstützte Einstellungen und list für den aktuellen Zustand.",
       "dataViewNotFound": "Diese gespeicherte Ansicht wurde nicht gefunden.",
+      "dataViewUpdateEmpty": "Gib einen Namen oder mindestens eine Ansichtseinstellung an, die aktualisiert werden soll.",
       "dealNotFound": "Deal-ID nicht gefunden oder nicht zugänglich.",
       "demoMode": "Diese Aktion ist im Demo-Modus nicht verfügbar. Melde dich an, um alle Funktionen zu nutzen.",
       "draftMessageNotFound": "Dieser Entwurf wurde nicht gefunden. Möglicherweise wurde er bereits gesendet oder verworfen.",
@@ -2032,10 +2081,14 @@
     "selectGroup": "Gruppe {group} auswählen",
     "selectRow": "Zeile {id} auswählen",
     "views": {
+      "aiLabel": "KI zu {name} fragen",
       "all": "Alle",
       "applied": "{name} wird angezeigt",
+      "askAi": "KI fragen",
       "copyLink": "Link kopieren",
       "createTitle": "Neue Ansicht",
+      "createWithAi": "Mit KI erstellen",
+      "createWithAiDescription": "Öffne den KI-Chat mit dieser Ansicht als Kontext und beschreibe dort, was du sehen möchtest.",
       "delete": "Ansicht löschen",
       "duplicate": "Als neue Ansicht duplizieren",
       "duplicateName": "{name} Kopie",
@@ -2402,7 +2455,7 @@
   },
   "GlobalSearch": {
     "clearRecent": "Leeren",
-    "emptyDescription": "Durchsuche {contacts}, {organizations}, {deals} und {services} an einem Ort.",
+    "emptyDescription": "Durchsuche {contacts}, {organizations}, {deals}, {services} und {tasks} an einem Ort.",
     "emptyTitle": "Finde alles in deinem Workspace",
     "groupRecent": "Zuletzt geöffnet",
     "hintNavigate": "Navigieren",

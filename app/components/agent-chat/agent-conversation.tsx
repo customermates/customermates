@@ -3,7 +3,7 @@
 import type { RefObject } from "react";
 
 import { observer } from "mobx-react-lite";
-import { Fragment } from "react";
+import { Fragment, useState } from "react";
 import { useTranslations } from "next-intl";
 import { ArrowUp, Loader2, Square } from "lucide-react";
 
@@ -11,12 +11,14 @@ import { MessageDateSeparator, isSameDay } from "@/app/[locale]/(protected)/inbo
 import { MessagesScrollContainer } from "@/components/scroll/messages-scroll-container";
 
 import { Button } from "@/components/ui/button";
-import { Textarea } from "@/components/ui/textarea";
 import { runUserAction } from "@/core/errors/report-application-error";
 
 import { ActionTooltip, chatUiCopy } from "./chat-ui";
 import { AgentActivity, AgentChatItemView, consecutiveActivityItems, isWorkingActivityGroup } from "./agent-chat-items";
 import { AgentInitialProgress } from "./agent-status-announcer";
+import { AgentComposerContexts } from "./agent-composer-contexts";
+import { AgentComposerTextInput } from "./agent-composer-text-input";
+import { AgentContextPicker } from "./agent-context-picker";
 import { CreditBlockedNotice } from "./credit-blocked-notice";
 import { QueuedPrompt } from "./queued-prompt";
 import { UsageRing } from "./usage-ring";
@@ -88,6 +90,8 @@ export const AgentComposer = observer(function AgentComposer() {
   const store = useAgentChatStore();
   const uiTargets = useAgentChatUiTargets();
   const t = useTranslations();
+  const [contextPickerOpen, setContextPickerOpen] = useState(false);
+  const [contextPickerOpenedBySlash, setContextPickerOpenedBySlash] = useState(false);
   const usage = store.usage;
   const blocked = usage?.blockedReason ?? null;
 
@@ -105,22 +109,34 @@ export const AgentComposer = observer(function AgentComposer() {
           <CreditBlockedNotice usage={usage} />
         ) : (
           <div className="flex items-end gap-2">
-            <Textarea
-              aria-label={t("AgentChat.placeholder")}
-              className="max-h-40 min-h-9 flex-1 resize-none border-0 bg-transparent px-1 py-1.5 shadow-none focus-visible:border-0 focus-visible:ring-0"
-              data-testid="agent-composer"
-              id={uiTargets.composerId}
-              placeholder={t("AgentChat.placeholder")}
-              rows={2}
-              value={store.composerDraft}
-              onChange={(event) => store.setComposerDraft(event.target.value)}
-              onKeyDown={(event) => {
-                if (event.key === "Enter" && !event.shiftKey && !event.nativeEvent.isComposing) {
-                  event.preventDefault();
-                  submit();
-                }
-              }}
-            />
+            <div className="min-w-0 flex-1">
+              <AgentComposerTextInput
+                id={uiTargets.composerId}
+                label={t("AgentChat.placeholder")}
+                placeholder={t("AgentChat.placeholder")}
+                value={store.composerDraft}
+                onChange={store.setComposerDraft}
+                onContextShortcut={() => {
+                  setContextPickerOpenedBySlash(true);
+                  setContextPickerOpen(true);
+                }}
+                onInputFocus={store.dismissComposerStarter}
+                onInputPointerDown={store.dismissComposerStarter}
+                onRemovePreviousContext={store.removeLastComposerContext}
+                onSubmit={submit}
+              >
+                <AgentComposerContexts contexts={store.composerContexts} onRemove={store.removeComposerContext} />
+              </AgentComposerTextInput>
+
+              <AgentContextPicker
+                open={contextPickerOpen}
+                restoreComposerFocusOnEscape={contextPickerOpenedBySlash}
+                onOpenChange={(open) => {
+                  if (open) setContextPickerOpenedBySlash(false);
+                  setContextPickerOpen(open);
+                }}
+              />
+            </div>
 
             <UsageRing />
 

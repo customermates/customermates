@@ -276,6 +276,245 @@ describe("agent tools", () => {
     expect(JSON.stringify(schema?.properties?.id)).toContain('"null"');
   });
 
+  it("publishes fresh-state and minimal-patch instructions for saved-view updates", () => {
+    const definition = getAgentAiToolDefinitions().find(({ name }) => name === "manage_data_views");
+    const schema = definition?.inputSchema as { properties?: Record<string, unknown> } | undefined;
+    const state = schema?.properties?.state as { description?: string } | undefined;
+
+    expect(state?.description).toContain("call list immediately before every update");
+    expect(state?.description).toContain("include only keys the user asked to change");
+    expect(state?.description).toContain("Never copy old conversation/full state");
+    expect(definition?.description).toContain(
+      "never create a custom column to manufacture a missing saved-view filter",
+    );
+    expect(getAgentAiToolDefinitions().find(({ name }) => name === "manage_custom_columns")?.description).toContain(
+      "Do not create or change a custom column only to make an unsupported manage_data_views filter possible",
+    );
+    for (const field of ["section", "page", "pageSize", "query"]) expect(schema?.properties).toHaveProperty(field);
+    expect(JSON.stringify(schema)).not.toContain("operator-users");
+    expect(JSON.stringify(schema)).not.toContain("operator-workspaces");
+    expect(JSON.stringify(schema)).not.toContain("operator-audit");
+  });
+
+  it.each([
+    { action: "update", surfaceKey: "contacts-card-store", viewKey: "__all__" },
+    { action: "update", surfaceKey: "contacts-card-store", viewKey: "__all__", state: {} },
+    { action: "create", surfaceKey: "operator-users", name: "Operator", state: {} },
+    {
+      action: "delete",
+      surfaceKey: "operator-users",
+      viewKey: "00000000-0000-4000-8000-000000000001",
+    },
+  ])("rejects unsupported saved-view input during authoritative normalization: %j", async (input) => {
+    await expect(
+      normalizeAgentAiToolInput("manage_data_views", input, 6000, {
+        pageRoute: "/en/contacts?view=__all__&viewSurface=contacts-card-store&viewAction=update",
+      }),
+    ).resolves.toMatchObject({ ok: false, result: expect.stringContaining("Validation error") });
+  });
+
+  it("gives the hosted agent a record-specific link for a timeline view created on a detail page", async () => {
+    const viewKey = "00000000-0000-4000-8000-000000000001";
+    const recordId = "00000000-0000-4000-8000-000000000002";
+    const mcp = ALL_MCP_TOOLS.find(({ name }) => name === "manage_data_views");
+    if (!mcp) throw new Error("manage_data_views is missing");
+    const executeMcp = vi.spyOn(mcp, "execute").mockResolvedValue({
+      text: `surfaceKey: entity-timeline\nviewKey: ${viewKey}\nlink: null`,
+      structuredContent: { action: "create", surfaceKey: "entity-timeline", viewKey, link: null, selected: true },
+    });
+
+    try {
+      const result = await execute(
+        getAgentAiTools(deps({ pageRoute: `/en/contacts/${recordId}?view=__all__&viewSurface=entity-timeline` }))
+          .manage_data_views,
+        { action: "create", surfaceKey: "entity-timeline", name: "Contact created", state: {} },
+      );
+
+      expect(result).toMatchObject({ ok: true });
+      expect(result).toMatchObject({
+        navigation: {
+          kind: "saved-view",
+          href: `/contacts/${recordId}?view=${viewKey}&viewSurface=entity-timeline`,
+        },
+      });
+      expect(JSON.stringify(result)).toContain(`/contacts/${recordId}?view=${viewKey}&viewSurface=entity-timeline`);
+      expect(JSON.stringify(result)).not.toContain("link: null");
+    } finally {
+      executeMcp.mockRestore();
+    }
+  });
+
+  it("projects a validated saved-view destination outside the truncatable model result", async () => {
+    const mcp = ALL_MCP_TOOLS.find(({ name }) => name === "manage_data_views");
+    if (!mcp) throw new Error("manage_data_views is missing");
+    const executeMcp = vi.spyOn(mcp, "execute").mockResolvedValue({
+      text: "A deliberately long result that will not fit in the hosted model result budget.",
+      structuredContent: {
+        action: "update",
+        surfaceKey: "contacts-card-store",
+        viewKey: "__all__",
+        link: "/contacts?view=__all__",
+      },
+    });
+
+    try {
+      const result = await execute(
+        getAgentAiTools(
+          deps({
+            pageRoute: "/en/contacts?view=__all__&viewSurface=contacts-card-store&viewAction=update",
+            resultMaxChars: 1,
+          }),
+        ).manage_data_views,
+        { action: "update", surfaceKey: "contacts-card-store", viewKey: "__all__", state: { viewMode: "card" } },
+      );
+
+      expect(result).toMatchObject({
+        ok: true,
+        navigation: { kind: "saved-view", href: "/contacts?view=__all__" },
+      });
+    } finally {
+      executeMcp.mockRestore();
+    }
+  });
+
+  it("never projects navigation for saved-view reads or deletion", async () => {
+    const viewKey = "00000000-0000-4000-8000-000000000001";
+    const mcp = ALL_MCP_TOOLS.find(({ name }) => name === "manage_data_views");
+    if (!mcp) throw new Error("manage_data_views is missing");
+    const executeMcp = vi
+      .spyOn(mcp, "execute")
+      .mockResolvedValueOnce({
+        text: "listed",
+        structuredContent: {
+          action: "list",
+          surfaceKey: "contacts-card-store",
+          link: `/contacts?view=${viewKey}`,
+        },
+      })
+      .mockResolvedValueOnce({
+        text: "deleted",
+        structuredContent: {
+          action: "delete",
+          surfaceKey: "contacts-card-store",
+          viewKey,
+          deleted: true,
+          link: `/contacts?view=${viewKey}`,
+        },
+      });
+
+    try {
+      const tools = getAgentAiTools(deps());
+      const listed = await execute(tools.manage_data_views, { action: "list", surfaceKey: "contacts-card-store" });
+      const deleted = await execute(tools.manage_data_views, {
+        action: "delete",
+        surfaceKey: "contacts-card-store",
+        viewKey,
+      });
+
+      expect(listed).not.toHaveProperty("navigation");
+      expect(deleted).not.toHaveProperty("navigation");
+    } finally {
+      executeMcp.mockRestore();
+    }
+  });
+
+  it.each([
+    { action: "create", surfaceKey: "deals-card-store", name: "Linked deals", state: {} },
+    { action: "update", surfaceKey: "deals-card-store", viewKey: "__all__", state: { viewMode: "card" } },
+    { action: "create", surfaceKey: "contacts-card-store", name: "Unexpected new view", state: {} },
+    {
+      action: "update",
+      surfaceKey: "contacts-card-store",
+      viewKey: "00000000-0000-4000-8000-000000000001",
+      state: { viewMode: "card" },
+    },
+    { action: "delete", surfaceKey: "contacts-card-store", viewKey: "00000000-0000-4000-8000-000000000001" },
+  ])("rejects a different target before approval or execution: $action $surfaceKey", async (input) => {
+    const mcp = ALL_MCP_TOOLS.find(({ name }) => name === "manage_data_views");
+    if (!mcp) throw new Error("manage_data_views is missing");
+    const executeMcp = vi.spyOn(mcp, "execute");
+    const dependencies = deps({
+      pageRoute: "/en/contacts?view=__all__&viewSurface=contacts-card-store&viewAction=update",
+      runExactlyOnce: vi.fn(),
+    });
+    try {
+      const result = await execute(getAgentAiTools(dependencies).manage_data_views, input);
+      expect(result).toMatchObject({ ok: false, result: expect.stringContaining("surfaceKey=contacts-card-store") });
+      expect(executeMcp).not.toHaveBeenCalled();
+      expect(dependencies.runExactlyOnce).not.toHaveBeenCalled();
+      expect(dependencies.resolveApprovalContext).not.toHaveBeenCalled();
+      await expect(
+        normalizeAgentAiToolInput("manage_data_views", input, 6000, { pageRoute: dependencies.pageRoute }),
+      ).resolves.toEqual(result);
+    } finally {
+      executeMcp.mockRestore();
+    }
+  });
+
+  it.each([
+    [
+      { action: "update", surfaceKey: "contacts-card-store", viewKey: "__all__", state: { viewMode: "card" } },
+      "/en/contacts?view=__all__&viewSurface=contacts-card-store&viewAction=update",
+    ],
+    [
+      { action: "create", surfaceKey: "entity-timeline", name: "My view", state: {} },
+      "/en/contacts/00000000-0000-4000-8000-000000000001?view=__all__&viewSurface=entity-timeline&viewAction=create",
+    ],
+    [
+      { action: "config", surfaceKey: "contacts-card-store" },
+      "/en/contacts?view=__all__&viewSurface=contacts-card-store&viewAction=update",
+    ],
+    [
+      { action: "list", surfaceKey: "contacts-card-store" },
+      "/en/contacts?view=__all__&viewSurface=contacts-card-store&viewAction=update",
+    ],
+    [{ action: "surfaces" }, "/en/contacts?view=__all__&viewSurface=contacts-card-store&viewAction=update"],
+    [{ action: "create", surfaceKey: "deals-card-store", name: "My view", state: {} }, null],
+  ] as const)("keeps valid $0.action requests on the existing MCP execution path", async (input, pageRoute) => {
+    const mcp = ALL_MCP_TOOLS.find(({ name }) => name === "manage_data_views");
+    if (!mcp) throw new Error("manage_data_views is missing");
+    const executeMcp = vi.spyOn(mcp, "execute").mockResolvedValue({ text: "Saved view operation completed." });
+    try {
+      const result = await execute(getAgentAiTools(deps({ pageRoute })).manage_data_views, input);
+      expect(result).toMatchObject({ ok: true });
+      expect(executeMcp).toHaveBeenCalledOnce();
+    } finally {
+      executeMcp.mockRestore();
+    }
+  });
+
+  it("rejects a custom-field mutation from an Ask AI view request before approval or execution", async () => {
+    const mcp = ALL_MCP_TOOLS.find(({ name }) => name === "manage_custom_columns");
+    if (!mcp) throw new Error("manage_custom_columns is missing");
+    const executeMcp = vi.spyOn(mcp, "execute");
+    const input = {
+      action: "upsert",
+      intent: "create",
+      entityType: "contact",
+      type: "plain",
+      label: "Purchase order number",
+    };
+    const dependencies = deps({
+      pageRoute: "/en/contacts?view=__all__&viewSurface=contacts-card-store&viewAction=update",
+      runExactlyOnce: vi.fn(),
+    });
+    try {
+      const result = await execute(getAgentAiTools(dependencies).manage_custom_columns, input);
+      expect(result).toMatchObject({
+        ok: false,
+        result: expect.stringContaining("Use only filter fields returned by manage_data_views config"),
+      });
+      expect(executeMcp).not.toHaveBeenCalled();
+      expect(dependencies.runExactlyOnce).not.toHaveBeenCalled();
+      expect(dependencies.resolveApprovalContext).not.toHaveBeenCalled();
+      await expect(
+        normalizeAgentAiToolInput("manage_custom_columns", input, 6000, { pageRoute: dependencies.pageRoute }),
+      ).resolves.toEqual(result);
+    } finally {
+      executeMcp.mockRestore();
+    }
+  });
+
   it("accepts only exact navigation target ids and rejects URL-like model input", async () => {
     const tools = getAgentAiTools(deps());
     const validate = schemaOf(tools.navigate).validate;
@@ -841,6 +1080,11 @@ describe("agent tools", () => {
     expect(prompt).toContain("asks to walk them through or show them how to connect an account");
     expect(prompt).toContain("action=upsert, intent=create, and no id");
     expect(prompt).toContain("top-level selectOptions");
+    expect(prompt).toContain("page_context includes requestedAction");
+    expect(prompt).toContain("linked-record filters never change that target");
+    expect(prompt).toContain("follow the user's explicit named-view action");
+    expect(prompt).toContain("create from All only when they ask for a new view");
+    expect(prompt).toContain("do not repeat or construct their URLs in prose");
     expect(prompt).toContain("retry that tool once");
     expect(prompt).toContain("Never print or imitate tool-call syntax as text");
     expect(prompt).toContain("keep working while credits remain");

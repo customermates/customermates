@@ -72,6 +72,10 @@ const REQUIRED_TRANSLATION_FRAGMENTS: Record<string, Record<string, readonly str
 };
 
 const ALLOWED_SOURCE_IDENTICAL_TRANSLATIONS = new Set([
+  // The localized view type and name use the same colon syntax in these languages.
+  "de:AgentChat.context.viewLabel",
+  "es:AgentChat.context.viewLabel",
+  "it:AgentChat.context.viewLabel",
   "de:ConnectedAccountsCard.emailLogoPlaceholder",
   "es:ConnectedAccountsCard.emailLogoPlaceholder",
   "fr:ConnectedAccountsCard.emailLogoPlaceholder",
