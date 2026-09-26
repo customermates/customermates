@@ -1,5 +1,6 @@
 import type { ApprovalDecision } from "./agent-tools";
 import type { AgentSurface } from "./agent-surface-policy";
+import type { AgentToolCancellation } from "./agent-tool-cancellation";
 import type { ModelMessage } from "ai";
 
 import { isUnattendedSurface } from "./agent-surface-policy";
@@ -72,6 +73,17 @@ export function approvalDenialReason(
   if (isUnattendedSurface(surface))
     return "Nobody is watching this run, so the approval was declined automatically and nothing was changed. Do not ask for approval; report what was not done and why.";
   return "The approval request got no answer in time, so nothing was changed. Tell the user it was not done; they can ask for it again.";
+}
+
+export function approvalDeclineResult(
+  decision: Exclude<AgentApprovalOutcome["decision"], "approve">,
+  surface: AgentSurface | undefined,
+): AgentToolCancellation {
+  return {
+    agentToolStatus: "cancelled",
+    reason: decision === "reject" ? "rejected" : "timeout",
+    message: approvalDenialReason(decision, surface),
+  };
 }
 
 export function withApprovalResponses(

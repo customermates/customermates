@@ -21,7 +21,7 @@ import { agentToolResultText } from "./agent-budget-policy";
 import { isReadOnlyTool, requiresApproval } from "./gated-tools";
 import { AGENT_UI_TOOL_NAMES, toAgentUiCommandInput } from "./agent-ui-command";
 import { isUnattendedSurface, type AgentSurface } from "./agent-surface-policy";
-import { approvalDenialReason } from "./agent-approval-resume";
+import { approvalDeclineResult } from "./agent-approval-resume";
 import {
   AGENT_ON_DEMAND_TOOLSETS,
   AGENT_TOOLSET_SUMMARY,
@@ -92,17 +92,6 @@ function withCallerContext(tools: ToolSet, deps: AgentToolDeps): ToolSet {
   );
 }
 
-function declineResult(
-  decision: Exclude<ApprovalDecision, "approve">,
-  surface: AgentSurface | undefined,
-): AgentToolCancellationValue {
-  return {
-    agentToolStatus: "cancelled",
-    reason: decision === "reject" ? "rejected" : "timeout",
-    message: approvalDenialReason(decision, surface),
-  };
-}
-
 async function runGated<T>(
   deps: AgentToolDeps,
   toolCallId: string,
@@ -111,7 +100,7 @@ async function runGated<T>(
   run: () => Promise<T>,
 ): Promise<T | AgentToolCancellationValue> {
   const decision = await deps.requestApproval(toolCallId, name, input);
-  if (decision !== "approve") return declineResult(decision, deps.surface);
+  if (decision !== "approve") return approvalDeclineResult(decision, deps.surface);
   return run();
 }
 

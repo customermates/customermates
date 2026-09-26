@@ -1513,6 +1513,63 @@ describe("agent-turn authoritative tool inputs", () => {
     expect(approvalDenialReason("timeout", state.toolDeps[0].surface)).toContain(wording);
   });
 
+  it.each([
+    ["reject", "chat", 32],
+    ["reject", "chat", 1],
+    ["timeout", "routine", 32],
+    ["timeout", "routine", 1],
+  ] as const)(
+    "keeps a %s on %s as a cancellation with its reason after compaction, %i later steps",
+    async (decision, surface, laterSteps) => {
+      define("delete_records");
+      const raw = { entity: "deal", ids: ["11111111-1111-4111-8111-111111111111"] };
+      state.normalize.mockResolvedValue({ ok: true, input: raw });
+      state.readApproval.mockResolvedValue(decision === "timeout" ? null : { toolName: "delete_records", decision });
+      state.contextFits.mockReturnValueOnce(false).mockReturnValue(true);
+      const seen: string[] = [];
+      state.runTools = async ({ tools, messages }) => {
+        seen.push(JSON.stringify(messages));
+        if (seen.length === 1) {
+          await tools.delete_records.needsApproval(raw, { toolCallId: "call-1" });
+          return {
+            finishReason: "tool-calls",
+            messages: [...messages, pendingMessage("delete_records", raw)],
+            steps: [streamedToolCallStep("delete_records", "call-1", raw)],
+          };
+        }
+        if (seen.length === 2) {
+          const denied = { type: "execution-denied", reason: "declined" };
+          return {
+            finishReason: "tool-calls",
+            messages: [
+              ...messages,
+              {
+                role: "tool",
+                content: [{ type: "tool-result", toolCallId: "call-1", toolName: "delete_records", output: denied }],
+              },
+            ],
+            steps: Array.from({ length: laterSteps }, () => streamedStep("", "tool-calls")),
+          };
+        }
+        return { finishReason: "stop", messages, steps: [streamedStep("Done.", "stop")] };
+      };
+
+      await runAgentTurn({ ...payload, surface });
+
+      const reason = JSON.stringify(approvalDenialReason(decision, surface));
+      const compacted = state.instructions.at(-1) ?? "";
+      expect(seen).toHaveLength(3);
+      if (laterSteps === 32) {
+        expect(compacted).toContain('{"toolName":"delete_records","kind":"records.delete","status":"cancelled"');
+        expect(compacted).toContain('"errors":0,"cancelled":1');
+      } else {
+        expect(seen[2]).toContain(reason);
+        expect(seen[2]).not.toContain(`Approval ${decision}.`);
+      }
+      expect(state.execute).not.toHaveBeenCalled();
+    },
+  );
+
   it("tells the model an unattended run declined the approval automatically", async () => {
     define("delete_records");
     const raw = { entity: "contact", ids: ["original"] };

@@ -22,6 +22,7 @@ import {
   isRelevantAgentApprovalWake,
   pendingApprovalCalls,
   toolApprovalDecisionForGrant,
+  approvalDeclineResult,
   withApprovalResponses,
   withToolResults,
   type AgentApprovalOutcome,
@@ -1381,10 +1382,10 @@ export async function runAgentTurn(payload: AgentTurnWorkflowPayload): Promise<v
         outcomes.map((outcome) => ({
           toolCallId: outcome.toolCallId,
           toolName: requests.find((request) => request.toolCallId === outcome.toolCallId)?.toolName ?? "",
-          output: {
-            ok: outcome.decision === "approve",
-            result: `Approval ${outcome.decision}.`,
-          },
+          output:
+            outcome.decision === "approve"
+              ? { ok: true, result: "Approval approve." }
+              : approvalDeclineResult(outcome.decision, surface),
         })),
       );
       messages = withApprovalResponses(resumableMessages, outcomes, surface);
