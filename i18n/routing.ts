@@ -70,6 +70,44 @@ export const PUBLIC_ROUTES = [
   "/docs/openapi",
 ] as const;
 
+export const PROTECTED_ROUTES = [
+  "/auth/mcp-consent",
+  "/company/audit-logs",
+  "/company/members",
+  "/company/roles",
+  "/company/settings",
+  "/company/subscription",
+  "/company/webhook-deliveries",
+  "/company/webhooks",
+  "/contacts",
+  "/contacts/:id",
+  "/dashboard",
+  "/deals",
+  "/deals/:id",
+  "/inbox",
+  "/legal-update",
+  "/onboarding",
+  "/onboarding/join",
+  "/onboarding/wizard",
+  "/operator/audit",
+  "/operator/overview",
+  "/operator/users",
+  "/operator/workspaces",
+  "/organizations",
+  "/organizations/:id",
+  "/profile/api-keys",
+  "/profile/connected-accounts",
+  "/profile/settings",
+  "/routines",
+  "/services",
+  "/services/:id",
+  "/subscription-expired",
+  "/tasks",
+  "/tasks/:id",
+  "/test/error",
+  "/test/overlays",
+] as const;
+
 export const CONTENT_ROUTES = [
   ...PUBLIC_ROUTES_SEO.filter((route) => !route.startsWith("/auth/")),
   "/docs/openapi/:slug",
@@ -122,6 +160,27 @@ export function isContentPathname(pathname: string) {
   for (const p of CONTENT_ROUTES) if (buildLocaleAwareRegex(p).test(pathname)) return true;
 
   return false;
+}
+
+export function isProtectedPage(req: NextRequest) {
+  return isProtectedPathname(req.nextUrl.pathname);
+}
+
+export function isProtectedPathname(pathname: string) {
+  const decoded = decodePathname(pathname);
+  if (decoded === null) return true;
+
+  for (const p of PROTECTED_ROUTES) if (buildLocaleAwareRegex(p).test(decoded)) return true;
+
+  return false;
+}
+
+function decodePathname(pathname: string): string | null {
+  try {
+    return pathname.split("/").map(decodeURIComponent).join("/");
+  } catch {
+    return null;
+  }
 }
 
 function escapeRegExp(value: string): string {

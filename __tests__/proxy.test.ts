@@ -13,6 +13,7 @@ const mocks = vi.hoisted(() => ({
   intlMiddleware: vi.fn<(request: NextRequest) => NextResponse>(),
   isPublicPage: vi.fn<(request: NextRequest) => boolean>(),
   isContentPage: vi.fn<(request: NextRequest) => boolean>(),
+  isProtectedPage: vi.fn<(request: NextRequest) => boolean>(),
   signInEmail: vi.fn<(input: unknown) => Promise<Response>>(),
   signOut: vi.fn<(input: unknown) => Promise<Response>>(),
 }));
@@ -34,6 +35,7 @@ vi.mock("@/i18n/routing", () => ({
   appRouting: {},
   isPublicPage: mocks.isPublicPage,
   isContentPage: mocks.isContentPage,
+  isProtectedPage: mocks.isProtectedPage,
   contentRouting: {},
 }));
 
@@ -96,6 +98,7 @@ describe("automatic demo authentication proxy", () => {
     mocks.intlMiddleware.mockImplementation(() => NextResponse.next());
     mocks.isPublicPage.mockReturnValue(false);
     mocks.isContentPage.mockReturnValue(false);
+    mocks.isProtectedPage.mockReturnValue(true);
   });
 
   it("round-trips an unauthenticated visitor through a same-URL redirect carrying every auth cookie", async () => {
@@ -278,6 +281,43 @@ describe("automatic demo authentication proxy", () => {
     },
   );
 
+  it("hands a signed-out request for a path no route serves to the app router, which answers 404", async () => {
+    mockEnv.APP_MODE = "cloud";
+    mocks.isProtectedPage.mockReturnValue(false);
+
+    const response = await proxy(request("/en/this-page-does-not-exist"));
+
+    expect(response.status).toBe(200);
+    expect(response.headers.get("location")).toBeNull();
+    expect(mocks.intlMiddleware).toHaveBeenCalledOnce();
+  });
+
+  it("still sends a signed-out request for a protected detail page to sign-in with its callback", async () => {
+    mockEnv.APP_MODE = "cloud";
+
+    const response = await proxy(request("/de/contacts/40000000-0000-4000-8000-000000000001?tab=notes"));
+
+    expect(response.status).toBe(307);
+    expect(response.headers.get("location")).toBe(
+      `http://localhost:4000/de/auth/signin?callbackURL=${encodeURIComponent(
+        "http://localhost:4000/de/contacts/40000000-0000-4000-8000-000000000001?tab=notes",
+      )}`,
+    );
+  });
+
+  it("never asks whether a signed-in request is protected, so signed-in routing is unchanged", async () => {
+    mockEnv.APP_MODE = "cloud";
+    mocks.getSession.mockResolvedValue({
+      session: { expiresAt: new Date(Date.now() + 60_000) },
+      user: { email: "member@example.com" },
+    });
+
+    const response = await proxy(request("/en/this-page-does-not-exist", "app.session_token=member"));
+
+    expect(response.status).toBe(200);
+    expect(mocks.isProtectedPage).not.toHaveBeenCalled();
+  });
+
   it("falls back to the configured deployment origin for an untrusted request host", async () => {
     mockEnv.APP_MODE = "cloud";
     mockEnv.BASE_URL = "https://customermates-git-feat-inbox-customermates.vercel.app";
@@ -304,6 +344,7 @@ describe("MCP OAuth authorization proxy", () => {
     mockEnv.BASE_URL = "https://customermates.com";
     mocks.intlMiddleware.mockImplementation(() => NextResponse.next());
     mocks.isPublicPage.mockReturnValue(false);
+    mocks.isProtectedPage.mockReturnValue(true);
   });
 
   it("preserves a loopback redirect URI inside the unauthenticated sign-in callback", async () => {

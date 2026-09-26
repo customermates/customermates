@@ -135,7 +135,7 @@ vi.mock("next-intl/middleware", async () => {
 });
 
 import proxy from "@/proxy";
-import { appRouting, contentRouting, routing } from "@/i18n/routing";
+import { PROTECTED_ROUTES, appRouting, contentRouting, routing } from "@/i18n/routing";
 
 function request(pathname: string, acceptLanguage?: string): NextRequest {
   return new NextRequestValue(`http://localhost:4000${pathname}`, {
@@ -170,6 +170,8 @@ const PATHS = [
   "/EN/blog",
   "/en/auth/signin",
   "/fr/auth/signin",
+  "/en/this-page-does-not-exist",
+  "/de/contacts/40000000-0000-4000-8000-000000000001",
 ];
 
 describe("locale routing configuration", () => {
@@ -294,6 +296,38 @@ describe("proxy locale routing", () => {
     const germanDeals = await call("/de/deals");
     expect(germanDeals.status).toBe(307);
     expect(germanDeals.location).toContain("/de/auth/signin");
+  });
+
+  it("answers a signed-out request for a path no route serves through the app router instead of sign-in", async () => {
+    for (const path of [
+      "/en/this-page-does-not-exist",
+      "/de/profile/nope",
+      "/en/profile",
+      "/en/operator",
+      "/en/contacts/40000000-0000-4000-8000-000000000001/extra",
+    ]) {
+      const { status, location } = await call(path);
+      expect(location, `${path} must not redirect to sign-in`).toBeNull();
+      expect(status, `${path} should fall through to the app router`).toBe(200);
+    }
+  });
+
+  it("keeps every declared protected route behind sign-in, detail pages and their queries included", async () => {
+    for (const route of PROTECTED_ROUTES) {
+      const path = `/de${route.replace(":id", "40000000-0000-4000-8000-000000000001")}?tab=x`;
+      const { status, location } = await call(path);
+      expect(status, `${path} should redirect an anonymous visitor to sign-in`).toBe(307);
+      expect(location, path).toContain("/de/auth/signin?callbackURL=");
+      expect(decodeURIComponent(location ?? ""), path).toContain(path);
+    }
+  });
+
+  it("matches a percent-encoded protected path on its decoded form and fails closed on broken encoding", async () => {
+    for (const path of ["/en/%64ashboard", "/en/%63ontacts/40000000-0000-4000-8000-000000000001", "/en/dash%E0%A4%A"]) {
+      const { status, location } = await call(path);
+      expect(status, `${path} should redirect to sign-in`).toBe(307);
+      expect(location, path).toContain("/en/auth/signin");
+    }
   });
 
   it("terminates within a bounded number of hops", async () => {

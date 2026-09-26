@@ -13,7 +13,7 @@ import {
   stripLocalePrefix,
 } from "./i18n/locale-registry";
 import { APP_LOCALE_COOKIE_NAME } from "./i18n/locale-preference";
-import { appRouting, contentRouting, isContentPage, isPublicPage } from "./i18n/routing";
+import { appRouting, contentRouting, isContentPage, isProtectedPage, isPublicPage } from "./i18n/routing";
 import { env } from "./env";
 import { auth } from "./core/auth/better-auth";
 import { resolveRequestOrigin } from "./core/config/environment";
@@ -205,7 +205,7 @@ export default async function proxy(req: NextRequest) {
   if (env.APP_MODE !== "demo" && isAuthenticated && preferredLocale && preferredLocale !== currentLocale)
     return localeRedirect(preferredLocale, stripLocalePrefix(pathname), base, req.nextUrl.search);
 
-  if (!isAuthenticated) {
+  if (!isAuthenticated && isProtectedPage(req)) {
     const signInPath = buildLocalePath(currentLocale, "/auth/signin");
     const signInUrl = new URL(signInPath, base);
     signInUrl.searchParams.set("callbackURL", new URL(req.nextUrl.pathname + req.nextUrl.search, base).toString());
