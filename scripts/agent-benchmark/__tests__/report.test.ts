@@ -167,7 +167,7 @@ describe("benchmark report", () => {
     expect(candidate?.incompleteTurnShare).toBe(0);
     expect(candidate).toMatchObject({ firstOutputP50Ms: 800, ttftP50Ms: 1200, judgeComplete: 8, judgeEligible: 12 });
     expect(candidate?.judgeDisagreementShare).toBeCloseTo(2 / 8, 6);
-    expect(shipped).toMatchObject({ judgeComplete: 0, judgeEligible: 12, judgeDisagreementShare: 0 });
+    expect(shipped).toMatchObject({ judgeComplete: 0, judgeEligible: 12, judgeDisagreementShare: null });
     expect(report.judgeModels).toEqual([
       { model: JUDGE_MODELS[0].id, judged: 12, episodes: 36, mean: 44 / 12 },
       { model: JUDGE_MODELS[1].id, judged: 8, episodes: 36, mean: 4.5 },
@@ -175,6 +175,7 @@ describe("benchmark report", () => {
     expect(report.arms.find((arm) => arm.arm === "slow")?.incompleteTurnShare).toBeCloseTo(1 / 12, 6);
     const rendered = renderReport(report);
     expect(rendered).toMatch(/\| current\/candidate \| 12 \| 0\/0 \| 100\.0 % \| 100\.0 % \| 4\.20 \| 8\/12 \| 25\.0 % \|/);
+    expect(rendered).toMatch(/\| current\/shipped \| 12 \| 0\/0 \| 75\.0 % \| [^|]+ \| n\/a \| 0\/12 \| n\/a \|/);
     expect(rendered).toContain(`| ${JUDGE_MODELS[0].id} | 12/36 | 3.67 |\n| ${JUDGE_MODELS[1].id} | 8/36 | 4.50 |`);
   });
 

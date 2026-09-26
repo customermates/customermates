@@ -77,6 +77,14 @@ describeDatabase("agent benchmark fixtures and oracle", () => {
     expect(failed(await scoreBenchmarkCase(db, m7, { turns: [{ text: answer, tools: [m7Read], terminalCode: "completed" }] }))).toEqual([]);
     const firstPageOnly = { name: "list_records", input: { entity: "deal", page: 1 }, outcome: "ok" as const };
     expect(failed(await scoreBenchmarkCase(db, m7, { turns: [{ text: answer, tools: [firstPageOnly], terminalCode: "completed" }] }))).toEqual(["actually-traverses-more-than-one-page"]);
+    const failedAnalysis = { ...m7Read, outcome: "error" as const };
+    const groupedAnalysis = analyze("list_records", { entity: "deal", groupBy: { field: "userIds" } });
+    const failedSecondPage = { name: "list_records", input: { entity: "deal", page: 2, pageSize: 500 }, outcome: "error" as const };
+    const groupedSecondPage = { name: "list_records", input: { entity: "deal", page: 2, groupBy: { field: "userIds" } }, outcome: "ok" as const };
+    for (const unpaged of [failedAnalysis, groupedAnalysis, failedSecondPage, groupedSecondPage])
+      expect(failed(await scoreBenchmarkCase(db, m7, { turns: [{ text: answer, tools: [firstPageOnly, unpaged], terminalCode: "completed" }] }))).toEqual(["actually-traverses-more-than-one-page"]);
+    const secondPage = { name: "list_records", input: { entity: "deal", page: 2 }, outcome: "ok" as const };
+    expect(failed(await scoreBenchmarkCase(db, m7, { turns: [{ text: answer, tools: [firstPageOnly, secondPage], terminalCode: "completed" }] }))).toEqual([]);
 
     const c26 = await seedBenchmarkCase(db, "C26", `selftest:${randomUUID()}`, 12);
     fixtures.push(c26);

@@ -1268,11 +1268,11 @@ export async function scoreBenchmarkCase(db: BenchmarkDb, fixture: Fixture, obse
       check("all-113-names-in-order", namesInOrder(text, expected));
       check("correct-total-644100", hasAmount(text, 644_100));
       check("no-decoy-deals", !/Renewal-Won-|Unrelated Open/i.test(text));
-      const pages = tools.filter((tool) => tool.name === "list_records").flatMap((tool) => {
-        const input = tool.input as { entity?: string; page?: number } | undefined;
-        return input?.entity === "deal" ? [Number(input.page ?? 1)] : [];
+      const pages = tools.filter((tool) => tool.name === "list_records" && tool.outcome === "ok").flatMap((tool) => {
+        const input = tool.input as { entity?: string; page?: number; groupBy?: unknown } | undefined;
+        return input?.entity === "deal" && input.groupBy === undefined ? [Number(input.page ?? 1)] : [];
       });
-      const analyzedDealList = tools.flatMap(analysisReads).some((read) => read.name === "list_records" && read.input.entity === "deal");
+      const analyzedDealList = tools.flatMap(analysisReads).some((read) => read.outcome === "ok" && read.name === "list_records" && read.input.entity === "deal" && read.input.groupBy === undefined);
       check("actually-traverses-more-than-one-page", pages.some((page) => page > 1) || analyzedDealList);
       break;
     }

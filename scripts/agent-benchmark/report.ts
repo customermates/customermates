@@ -34,7 +34,7 @@ export type ArmSummary = {
   judgeMean: number | null;
   judgeComplete: number;
   judgeEligible: number;
-  judgeDisagreementShare: number;
+  judgeDisagreementShare: number | null;
   usdPerEpisode: number;
   usdPerTurn: number;
   creditsPerTurn: number;
@@ -187,7 +187,7 @@ function summarizeArm(key: string, artifacts: EpisodeArtifact[]): ArmSummary {
     judgeMean: mean(judges),
     judgeComplete: judged.length,
     judgeEligible: judgeEligible.length,
-    judgeDisagreementShare: judged.length ? judged.filter((artifact) => artifact.judge?.disagreement).length / judged.length : 0,
+    judgeDisagreementShare: judged.length ? judged.filter((artifact) => artifact.judge?.disagreement).length / judged.length : null,
     usdPerEpisode: scored.length ? totalUsd / scored.length : 0,
     usdPerTurn: turnCount ? totalUsd / turnCount : 0,
     creditsPerTurn: turnCount ? scored.reduce((total, artifact) => total + artifact.usage.reduce((sum, event) => sum + event.chargedCredits, 0), 0) / turnCount : 0,
@@ -380,7 +380,7 @@ export function renderReport(report: BenchmarkReport): string {
   } else lines.push("Not evaluated for this campaign.", "");
   lines.push("## Arms", "", "| Arm | Comparable episodes | Strict contracts passed | Pass | Pass^3 | Judge | Judge coverage | Judge split | $/episode | $/turn | Credits/turn | $/success | Measured | Cache read | Cache write | Rounds/turn | First output p50 | First output p95 | TTFT p50 | TTFT p95 | Wall p50 | Wall p95 | Length stops | Incomplete turns | Never solved |", "| --- | ---: | ---: | ---: | ---: | ---: | ---: | ---: | ---: | ---: | ---: | ---: | ---: | ---: | ---: | ---: | ---: | ---: | ---: | ---: | ---: | ---: | ---: | ---: | --- |");
   for (const arm of report.arms)
-    lines.push(`| ${arm.runtimeVariant}/${arm.arm} | ${arm.episodes}${arm.skipped ? ` (+${arm.skipped} skipped)` : ""} | ${arm.contractPassed}/${arm.contractEpisodes} | ${pct(arm.passRate)} | ${arm.passAt3 === null ? "n/a" : pct(arm.passAt3)} | ${arm.judgeMean === null ? "n/a" : arm.judgeMean.toFixed(2)} | ${arm.judgeComplete}/${arm.judgeEligible} | ${pct(arm.judgeDisagreementShare)} | ${usd(arm.usdPerEpisode)} | ${usd(arm.usdPerTurn)} | ${arm.creditsPerTurn.toFixed(1)} | ${usd(arm.costPerSuccessfulTask)} | ${pct(arm.measuredShare)} | ${pct(arm.cacheReadShare)} | ${pct(arm.cacheWriteShare)} | ${arm.roundsPerTurn.toFixed(1)} | ${ms(arm.firstOutputP50Ms)} | ${ms(arm.firstOutputP95Ms)} | ${ms(arm.ttftP50Ms)} | ${ms(arm.ttftP95Ms)} | ${ms(arm.wallP50Ms)} | ${ms(arm.wallP95Ms)} | ${pct(arm.lengthFinishShare)} | ${pct(arm.incompleteTurnShare)} | ${arm.neverSolvedCases.join(" ") || "-"} |`);
+    lines.push(`| ${arm.runtimeVariant}/${arm.arm} | ${arm.episodes}${arm.skipped ? ` (+${arm.skipped} skipped)` : ""} | ${arm.contractPassed}/${arm.contractEpisodes} | ${pct(arm.passRate)} | ${arm.passAt3 === null ? "n/a" : pct(arm.passAt3)} | ${arm.judgeMean === null ? "n/a" : arm.judgeMean.toFixed(2)} | ${arm.judgeComplete}/${arm.judgeEligible} | ${arm.judgeDisagreementShare === null ? "n/a" : pct(arm.judgeDisagreementShare)} | ${usd(arm.usdPerEpisode)} | ${usd(arm.usdPerTurn)} | ${arm.creditsPerTurn.toFixed(1)} | ${usd(arm.costPerSuccessfulTask)} | ${pct(arm.measuredShare)} | ${pct(arm.cacheReadShare)} | ${pct(arm.cacheWriteShare)} | ${arm.roundsPerTurn.toFixed(1)} | ${ms(arm.firstOutputP50Ms)} | ${ms(arm.firstOutputP95Ms)} | ${ms(arm.ttftP50Ms)} | ${ms(arm.ttftP95Ms)} | ${ms(arm.wallP50Ms)} | ${ms(arm.wallP95Ms)} | ${pct(arm.lengthFinishShare)} | ${pct(arm.incompleteTurnShare)} | ${arm.neverSolvedCases.join(" ") || "-"} |`);
   lines.push("", "## Judges", "", "| Judge | Judged | Mean |", "| --- | ---: | ---: |");
   for (const judge of report.judgeModels)
     lines.push(`| ${judge.model} | ${judge.judged}/${judge.episodes} | ${judge.mean === null ? "n/a" : judge.mean.toFixed(2)} |`);
