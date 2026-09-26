@@ -1,24 +1,44 @@
 import { describe, expect, it } from "vitest";
 
+import { ALL_VIEW_KEY, SURFACE } from "@/core/data-view/data-view-keys";
+import { AGENT_UI_TOOL_NAMES } from "@/ee/agent-chat/agent-ui-command";
+import { ManageDataViewsSchema } from "@/features/data-view/manage-data-views.schema";
+
 import { analysisReads, isPageSizeRefusal, isReadCall, readsCustomFieldValues, withAnalysisReads, type ObservedTool } from "../fixtures";
 
 describe("benchmark read-call predicate", () => {
-  it("counts read-only tools, read-only actions and interface tools as reads", () => {
+  it("counts read-only tools and read-only actions as reads", () => {
     expect(isReadCall({ name: "list_records", input: { entity: "deal" } })).toBe(true);
     expect(isReadCall({ name: "fetch", input: { id: "x" } })).toBe(true);
     expect(isReadCall({ name: "manage_webhooks", input: { action: "list" } })).toBe(true);
-    expect(isReadCall({ name: "load_toolset", input: {} })).toBe(true);
-    expect(isReadCall({ name: "navigate", input: { entity: "deal" } })).toBe(true);
-    expect(isReadCall({ name: "list_ui_targets", input: {} })).toBe(true);
     expect(isReadCall({ name: "analyze_records", input: { reads: [], code: "() => 1" } })).toBe(true);
   });
 
-  it("counts only the read actions of manage_data_views as reads", () => {
-    for (const action of ["surfaces", "list", "config"]) expect(isReadCall({ name: "manage_data_views", input: { action } })).toBe(true);
-    for (const action of ["create", "update", "select", "delete"]) expect(isReadCall({ name: "manage_data_views", input: { action } })).toBe(false);
-    expect(isReadCall({ name: "manage_social_relations", input: { action: "list" } })).toBe(true);
-    expect(isReadCall({ name: "linkedin_manage_sales_lists", input: { action: "browse" } })).toBe(true);
-    expect(isReadCall({ name: "linkedin_manage_sales_lists", input: { action: "save" } })).toBe(false);
+  it("counts exactly the surfaces, config and list actions of the saved-view tool as reads", () => {
+    const actions = ManageDataViewsSchema.options.map((option) => option.shape.action.value);
+    const call = (action: string) => ({ name: "manage_data_views", input: { action, surfaceKey: SURFACE.contacts, viewKey: ALL_VIEW_KEY } });
+    expect(actions.filter((action) => isReadCall(call(action)))).toEqual(["surfaces", "config", "list"]);
+    expect(actions.filter((action) => !isReadCall(call(action)))).toEqual(["create", "update", "select", "delete"]);
+    expect(isReadCall({ name: "manage_data_views", input: { surfaceKey: SURFACE.contacts } })).toBe(false);
+    expect(isReadCall({ name: "manage_data_views", input: { action: "rename", surfaceKey: SURFACE.contacts } })).toBe(false);
+  });
+
+  it("counts every interface call and load_toolset as a read, whatever it opens or targets", () => {
+    expect(AGENT_UI_TOOL_NAMES).toEqual(["list_ui_targets", "navigate", "highlight_element", "start_tour"]);
+    const calls = [
+      { name: "list_ui_targets", input: { query: "contacts saved views" } },
+      { name: "navigate", input: { targetId: "nav-search" } },
+      { name: "navigate", input: { entity: "deal", recordId: "00000000-0000-4000-8000-000000000001" } },
+      { name: "highlight_element", input: { targetId: "dashboard-add-widget" } },
+      { name: "start_tour", input: { steps: [{ targetId: "nav-search", note: "Search here" }, { targetId: "dashboard-add-widget", note: "Add here" }] } },
+      { name: "load_toolset", input: { toolset: "views" } },
+    ];
+    expect(calls.filter((tool) => !isReadCall(tool))).toEqual([]);
+  });
+
+  it("counts only the read actions of the mixed social tools as reads", () => {
+    expect(["list", "invite", "accept", "cancel"].filter((action) => isReadCall({ name: "manage_social_relations", input: { action } }))).toEqual(["list"]);
+    expect(["list", "browse", "save"].filter((action) => isReadCall({ name: "linkedin_manage_sales_lists", input: { action } }))).toEqual(["list", "browse"]);
   });
 
   it("fails closed on writes, write actions, missing actions and unknown tools", () => {
