@@ -2,6 +2,7 @@ import { beforeEach, describe, expect, it, vi } from "vitest";
 import type { AgentToolDeps } from "@/ee/agent-chat/agent-tools";
 
 import type * as LocaleRegistry from "@/i18n/locale-registry";
+import type * as BudgetPolicy from "@/ee/agent-chat/agent-budget-policy";
 
 type WorkflowTool = {
   needsApproval: (input: unknown, options: { toolCallId: string }) => Promise<boolean>;
@@ -19,6 +20,8 @@ const state = vi.hoisted(() => ({
   gateResults: [] as boolean[],
   gateFailure: null as Error | null,
   contextFits: vi.fn(),
+  budgetFits: vi.fn(),
+  approvedCallsRunFirst: false,
   providerCalls: 0,
   writes: [] as unknown[],
   markProviderStarted: vi.fn<() => Promise<boolean>>(),
@@ -44,66 +47,117 @@ const state = vi.hoisted(() => ({
   toolDeps: [] as AgentToolDeps[],
 }));
 
-vi.mock("@ai-sdk/workflow", () => ({
-  WorkflowAgent: class {
-    constructor(
-      private readonly options: {
-        prepareStep: (input: { messages: unknown[] }) => Promise<unknown>;
-        onStepEnd: (step: unknown) => Promise<void>;
-        onToolExecutionEnd: (event: unknown) => void;
-        instructions: string;
-        providerOptions: unknown;
-        tools: Record<string, WorkflowTool>;
-      },
-    ) {
-      state.providerOptions = options.providerOptions;
-      state.instructions.push(options.instructions);
-    }
+vi.mock("@ai-sdk/workflow", () => {
+  type Part = {
+    type?: string;
+    approvalId?: string;
+    toolCallId?: string;
+    toolName?: string;
+    input?: unknown;
+    approved?: boolean;
+    reason?: string;
+  };
+  type Message = { role?: string; content?: unknown };
+  const partsOf = (message: Message) => (Array.isArray(message.content) ? (message.content as Part[]) : []);
 
-    async stream({ messages }: { messages: unknown[] }) {
-      if (messages.some((message) => (message as { role?: string }).role === "system")) {
-        throw new Error(
-          "System messages are not allowed in the prompt or messages fields. Use the instructions option instead.",
-        );
+  async function runApprovedCalls(tools: Record<string, WorkflowTool>, messages: unknown[]) {
+    const calls = new Map<string, Part>();
+    const requested = new Map<string, string>();
+    for (const message of messages as Message[]) {
+      if (message.role !== "assistant") continue;
+      for (const part of partsOf(message)) {
+        if (part.type === "tool-call") calls.set(String(part.toolCallId), part);
+        if (part.type === "tool-approval-request") requested.set(String(part.approvalId), String(part.toolCallId));
       }
-      const preparedMessages = (nextMessages: unknown[]) => [
-        { role: "system", content: this.options.instructions },
-        ...nextMessages,
-      ];
-      if (state.runTools) {
+    }
+    const results: unknown[] = [];
+    for (const message of messages as Message[]) {
+      if (message.role !== "tool") continue;
+      for (const part of partsOf(message)) {
+        if (part.type !== "tool-approval-response") continue;
+        const call = calls.get(requested.get(String(part.approvalId)) ?? "");
+        if (!call) continue;
+        const toolCallId = String(call.toolCallId);
+        const toolName = String(call.toolName);
+        const output = part.approved
+          ? { type: "json", value: await tools[toolName].execute?.(call.input, { toolCallId }) }
+          : { type: "execution-denied", reason: part.reason };
+        results.push({ type: "tool-result", toolCallId, toolName, output });
+      }
+    }
+    if (results.length === 0) return messages;
+    const cleaned = (messages as Message[]).flatMap((message) => {
+      if (!Array.isArray(message.content)) return [message];
+      const content = partsOf(message).filter(
+        (part) => part.type !== "tool-approval-request" && part.type !== "tool-approval-response",
+      );
+      return content.length > 0 ? [{ ...message, content }] : [];
+    });
+    return [...cleaned, { role: "tool", content: results }];
+  }
+
+  return {
+    WorkflowAgent: class {
+      constructor(
+        private readonly options: {
+          prepareStep: (input: { messages: unknown[] }) => Promise<unknown>;
+          onStepEnd: (step: unknown) => Promise<void>;
+          onToolExecutionEnd: (event: unknown) => void;
+          instructions: string;
+          providerOptions: unknown;
+          tools: Record<string, WorkflowTool>;
+        },
+      ) {
+        state.providerOptions = options.providerOptions;
+        state.instructions.push(options.instructions);
+      }
+
+      async stream({ messages }: { messages: unknown[] }) {
+        if (messages.some((message) => (message as { role?: string }).role === "system")) {
+          throw new Error(
+            "System messages are not allowed in the prompt or messages fields. Use the instructions option instead.",
+          );
+        }
+        const preparedMessages = (nextMessages: unknown[]) => [
+          { role: "system", content: this.options.instructions },
+          ...nextMessages,
+        ];
+        if (state.runTools) {
+          const prompt = state.approvedCallsRunFirst ? await runApprovedCalls(this.options.tools, messages) : messages;
+          await this.options.prepareStep({ messages: preparedMessages(prompt) });
+          state.providerCalls += 1;
+          return state.runTools({
+            tools: this.options.tools,
+            messages: prompt,
+            completeStepAndPrepareNext: async (step, nextMessages = messages) => {
+              await this.options.onStepEnd(step);
+              await this.options.prepareStep({ messages: preparedMessages(nextMessages) });
+              state.providerCalls += 1;
+            },
+            executeAndCompleteTool: async (toolName, input, toolCallId) => {
+              const tool = this.options.tools[toolName];
+              if (!tool?.execute) throw new Error(`Tool ${toolName} cannot execute.`);
+              const output = await tool.execute(input, { toolCallId });
+              this.options.onToolExecutionEnd({
+                success: true,
+                toolCall: { toolCallId, toolName },
+                output,
+              });
+              return output;
+            },
+          });
+        }
         await this.options.prepareStep({ messages: preparedMessages(messages) });
         state.providerCalls += 1;
-        return state.runTools({
-          tools: this.options.tools,
-          messages,
-          completeStepAndPrepareNext: async (step, nextMessages = messages) => {
-            await this.options.onStepEnd(step);
-            await this.options.prepareStep({ messages: preparedMessages(nextMessages) });
-            state.providerCalls += 1;
-          },
-          executeAndCompleteTool: async (toolName, input, toolCallId) => {
-            const tool = this.options.tools[toolName];
-            if (!tool?.execute) throw new Error(`Tool ${toolName} cannot execute.`);
-            const output = await tool.execute(input, { toolCallId });
-            this.options.onToolExecutionEnd({
-              success: true,
-              toolCall: { toolCallId, toolName },
-              output,
-            });
-            return output;
-          },
-        });
+
+        await this.options.prepareStep({ messages: preparedMessages(messages) });
+        state.providerCalls += 1;
+
+        return { finishReason: "stop", messages: [], steps: [] };
       }
-      await this.options.prepareStep({ messages: preparedMessages(messages) });
-      state.providerCalls += 1;
-
-      await this.options.prepareStep({ messages: preparedMessages(messages) });
-      state.providerCalls += 1;
-
-      return { finishReason: "stop", messages: [], steps: [] };
-    }
-  },
-}));
+    },
+  };
+});
 
 vi.mock("workflow", () => ({
   createHook: () => ({
@@ -187,6 +241,14 @@ vi.mock("@/ee/agent-chat/agent-provider-context", () => ({
   buildAgentProviderContext: (system: string, messages: unknown[], tools: unknown[]) => ({ messages, system, tools }),
   isAgentStepContextWithinBudget: (...args: unknown[]) => state.contextFits(...args),
 }));
+vi.mock("@/ee/agent-chat/agent-budget-policy", async (importOriginal) => {
+  const actual = await importOriginal<typeof BudgetPolicy>();
+  return {
+    ...actual,
+    isAgentContextWithinBudget: (...args: Parameters<typeof actual.isAgentContextWithinBudget>) =>
+      (state.budgetFits(...args) as boolean | undefined) ?? actual.isAgentContextWithinBudget(...args),
+  };
+});
 vi.mock("@/i18n/get-translator", () => ({
   getTranslator: () => Promise.resolve((key: string) => `localized:${key}`),
 }));
@@ -254,6 +316,8 @@ beforeEach(() => {
       Promise.resolve({ disposition: "extended", reservedCredits: requiredCredits }),
     );
   state.contextFits.mockReset().mockReturnValue(true);
+  state.budgetFits.mockReset();
+  state.approvedCallsRunFirst = false;
   state.instructions.length = 0;
   state.reconcile.mockReset().mockResolvedValue({ reconciled: true });
   state.close.mockReset().mockResolvedValue(undefined);
@@ -1199,6 +1263,88 @@ describe("agent-turn authoritative tool inputs", () => {
     expect(state.execute).toHaveBeenCalledTimes(1);
     expect(state.finalize).toHaveBeenCalledWith(
       expect.objectContaining({ stopReason: "provider_error", affectedResources: ["contacts"] }),
+    );
+  });
+
+  function approvedDeleteRunByTheSdk(output: unknown, later: (segment: number, messages: unknown[]) => unknown) {
+    define("delete_records");
+    const input = { entity: "contact", ids: ["record-1"] };
+    state.approvedCallsRunFirst = true;
+    state.normalize.mockResolvedValue({ ok: true, input });
+    state.readApproval.mockResolvedValue({ toolName: "delete_records", decision: "approve" });
+    state.execute.mockResolvedValue(output);
+    const seen: string[] = [];
+    state.runTools = async ({ tools, messages }) => {
+      seen.push(JSON.stringify(messages));
+      if (seen.length > 1) return later(seen.length, messages);
+      await tools.delete_records.needsApproval(input, { toolCallId: "call-1" });
+      return {
+        finishReason: "tool-calls",
+        messages: [...messages, pendingMessage("delete_records", input)],
+        steps: [streamedToolCallStep("delete_records", "call-1", input)],
+      };
+    };
+    return seen;
+  }
+
+  const lockedDelete = { ok: false, result: "Nothing was deleted: the contact is locked by an open invoice." };
+
+  it("summarizes a failed approved write as failed once compaction drops it from the retained steps", async () => {
+    approvedDeleteRunByTheSdk(lockedDelete, (segment, messages) =>
+      segment === 2
+        ? {
+            finishReason: "tool-calls",
+            messages,
+            steps: Array.from({ length: 32 }, () => streamedStep("", "tool-calls")),
+          }
+        : finish(),
+    );
+    state.contextFits.mockReturnValueOnce(false);
+
+    await runAgentTurn(payload);
+
+    const checkpoint = state.instructions.at(-1) ?? "";
+    expect(checkpoint).toContain('"kind":"records.delete","status":"error"');
+    expect(checkpoint).toContain('"successfulWrites":0');
+    expect(state.execute).toHaveBeenCalledTimes(1);
+  });
+
+  it.each([
+    ["failed", lockedDelete],
+    ["successful", { ok: true, result: "Deleted 1 contact: Ada Lovelace." }],
+  ])("keeps the real result of a %s approved write in the retained steps after compaction", async (_label, output) => {
+    const seen = approvedDeleteRunByTheSdk(output, (segment, messages) =>
+      segment === 2 ? { finishReason: "tool-calls", messages, steps: [streamedStep("", "tool-calls")] } : finish(),
+    );
+    state.contextFits.mockReturnValueOnce(false);
+
+    await runAgentTurn(payload);
+
+    expect(seen).toHaveLength(3);
+    expect(seen[2]).toContain(output.result);
+    expect(seen[2]).not.toContain("Approval approve.");
+  });
+
+  it("reports a failed approved write as failed when the resumed segment must compact before its first round", async () => {
+    const seen = approvedDeleteRunByTheSdk(lockedDelete, (_segment, messages) => ({
+      finishReason: "stop",
+      messages: [...messages, { role: "assistant", content: [{ type: "text", text: "The contact is deleted." }] }],
+      steps: [streamedStep("The contact is deleted.", "stop")],
+    }));
+    state.budgetFits.mockReturnValueOnce(true).mockReturnValueOnce(false);
+
+    await runAgentTurn(payload);
+
+    expect(seen).toHaveLength(2);
+    expect(seen[1]).toContain(lockedDelete.result);
+    expect(seen[1]).not.toContain("Approval approve.");
+    const finalized = state.finalize.mock.calls.at(-1)?.[0] as {
+      affectedResources: string[];
+      parts: { type: string; id: string; status?: string }[];
+    };
+    expect(finalized.affectedResources).toEqual([]);
+    expect(finalized.parts).toContainEqual(
+      expect.objectContaining({ type: "activity", id: "call-1", status: "error" }),
     );
   });
 

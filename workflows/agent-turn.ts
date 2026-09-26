@@ -874,10 +874,71 @@ export async function runAgentTurn(payload: AgentTurnWorkflowPayload): Promise<v
       });
     };
 
+    const approvedCalls = new Map<string, string>();
+    const approvedOutcomes = new Map<string, AgentToolOutcome>();
+
+    const toolResultIn = (
+      stepMessages: readonly unknown[],
+      toolCallId: string,
+      toolName: string,
+    ): AgentToolOutcome | undefined => {
+      for (const message of stepMessages) {
+        const { role, content } = message as { role?: string; content?: unknown };
+        if (role !== "tool" || !Array.isArray(content)) continue;
+        const part = (content as { type?: string; toolCallId?: string; output?: unknown }[]).find(
+          (candidate) => candidate.type === "tool-result" && candidate.toolCallId === toolCallId,
+        );
+        if (part) return { toolCallId, toolName, output: unwrapToolOutput(part.output) };
+      }
+      return undefined;
+    };
+
+    const settleApprovedCalls = (stepMessages: readonly unknown[], final: boolean) => {
+      if (approvedCalls.size === 0) return;
+      const calls = [...approvedCalls];
+      const found = calls.map(
+        ([toolCallId, toolName]) =>
+          approvedOutcomes.get(toolCallId) ?? toolResultIn(stepMessages, toolCallId, toolName),
+      );
+      if (!final && found.some((outcome) => outcome === undefined)) return;
+      approvedCalls.clear();
+      approvedOutcomes.clear();
+
+      for (const outcome of found) {
+        if (!outcome) continue;
+        if (!("threw" in outcome)) settleToolOutcome(outcome.toolCallId, outcome.toolName, outcome.output);
+        else if (!settledToolCallIds.has(outcome.toolCallId)) {
+          settledToolCallIds.add(outcome.toolCallId);
+          transcript.failToolCall(outcome.toolCallId);
+        }
+      }
+      resolveDeferredRound(
+        calls.map(([toolCallId, toolName], index) => found[index] ?? { toolCallId, toolName, threw: true as const }),
+      );
+    };
+
+    const runShellTool = async (shell: AgentToolShell, input: unknown, toolCallId: string) => {
+      const prepared = await resolveToolInput(shell.name, toolCallId, input);
+      if (!prepared.ok) return prepared;
+      const refused = refusedByTarget(isReadOnlyTool({ annotations: shell.annotations }), prepared.input);
+      if (refused) return { ok: false, result: ambiguousTargetRefusal(refused) };
+      const outcome = await executeAgentTool(
+        payload,
+        shell.name,
+        toolCallId,
+        prepared.input,
+        grants.get(toolCallId) ?? "not-required",
+      );
+      const activity = describeAgentTool(internalToolIdentity(shell.name), prepared.input);
+      if (activity.risk !== "read" && isSuccessfulToolOutcome(outcome)) performedWrite = true;
+      return outcome;
+    };
+
     const applyRound = async (step: AgentRoundResult) => {
       appliedThisCall += 1;
 
       try {
+        settleApprovedCalls([], true);
         for (const raw of step.content) {
           const part = raw as {
             type?: string;
@@ -1084,23 +1145,17 @@ export async function runAgentTurn(payload: AgentTurnWorkflowPayload): Promise<v
                 ? {}
                 : {
                     execute: async (input: unknown, options: { toolCallId: string }) => {
-                      const prepared = await resolveToolInput(shell.name, options.toolCallId, input);
-                      if (!prepared.ok) return prepared;
-                      const refused = refusedByTarget(
-                        isReadOnlyTool({ annotations: shell.annotations }),
-                        prepared.input,
-                      );
-                      if (refused) return { ok: false, result: ambiguousTargetRefusal(refused) };
-                      const outcome = await executeAgentTool(
-                        payload,
-                        shell.name,
-                        options.toolCallId,
-                        prepared.input,
-                        grants.get(options.toolCallId) ?? "not-required",
-                      );
-                      const activity = describeAgentTool(internalToolIdentity(shell.name), prepared.input);
-                      if (activity.risk !== "read" && isSuccessfulToolOutcome(outcome)) performedWrite = true;
-                      return outcome;
+                      const { toolCallId } = options;
+                      try {
+                        const output = await runShellTool(shell, input, toolCallId);
+                        if (approvedCalls.has(toolCallId))
+                          approvedOutcomes.set(toolCallId, { toolCallId, toolName: shell.name, output });
+                        return output;
+                      } catch (error) {
+                        if (approvedCalls.has(toolCallId))
+                          approvedOutcomes.set(toolCallId, { toolCallId, toolName: shell.name, threw: true });
+                        throw error;
+                      }
                     },
                   }),
             },
@@ -1122,6 +1177,7 @@ export async function runAgentTurn(payload: AgentTurnWorkflowPayload): Promise<v
           ...googleThinkingProviderOptions(payload.turnBudget),
         },
         prepareStep: async ({ messages: stepMessages }) => {
+          settleApprovedCalls(stepMessages, false);
           if (abandoned || cancelled || budgetStop || hostedAiStop || providerStop !== null || roundFailure !== null)
             throw AGENT_LOCAL_TERMINATION_REQUIRED;
           for (const target of surface === "chat" ? ambiguousTargetsFromMessages(stepMessages, ambiguityRequest) : []) {
@@ -1169,6 +1225,7 @@ export async function runAgentTurn(payload: AgentTurnWorkflowPayload): Promise<v
       try {
         result = await agent.stream({ messages, writable, preventClose: true, sendFinish: false });
       } catch (error) {
+        settleApprovedCalls([], true);
         if (error === AGENT_LOCAL_TERMINATION_REQUIRED) break;
         if (error === hostedAiPaused) {
           hostedAiStop = true;
@@ -1193,6 +1250,7 @@ export async function runAgentTurn(payload: AgentTurnWorkflowPayload): Promise<v
       }
       await publishStreamCheckpoint();
       finishReason = result.finishReason;
+      settleApprovedCalls(result.messages, true);
 
       for (const step of (result.steps as unknown as AgentRoundResult[]).slice(appliedThisCall)) await applyRound(step);
 
@@ -1378,16 +1436,25 @@ export async function runAgentTurn(payload: AgentTurnWorkflowPayload): Promise<v
       }
       await publishTranscriptEvents(queued.splice(0));
 
-      resolveDeferredRound(
-        outcomes.map((outcome) => ({
-          toolCallId: outcome.toolCallId,
-          toolName: requests.find((request) => request.toolCallId === outcome.toolCallId)?.toolName ?? "",
-          output:
-            outcome.decision === "approve"
-              ? { ok: true, result: "Approval approve." }
-              : approvalDeclineResult(outcome.decision, surface),
-        })),
+      const requestedToolName = (toolCallId: string) =>
+        requests.find((request) => request.toolCallId === toolCallId)?.toolName ?? "";
+      for (const outcome of outcomes) {
+        if (outcome.decision === "approve")
+          approvedCalls.set(outcome.toolCallId, requestedToolName(outcome.toolCallId));
+      }
+      const declined = outcomes.flatMap((outcome) =>
+        outcome.decision === "approve"
+          ? []
+          : [
+              {
+                toolCallId: outcome.toolCallId,
+                toolName: requestedToolName(outcome.toolCallId),
+                output: approvalDeclineResult(outcome.decision, surface),
+              },
+            ],
       );
+      if (approvedCalls.size > 0) appendDeferredOutcomes(declined);
+      else resolveDeferredRound(declined);
       messages = withApprovalResponses(resumableMessages, outcomes, surface);
     }
 
