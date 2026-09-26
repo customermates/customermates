@@ -59,6 +59,14 @@ const ada = randomUUID();
 const ben = randomUUID();
 const status = randomUUID();
 const [open, won] = [randomUUID(), randomUUID()];
+const country = randomUUID();
+const countries = Array.from({ length: 60 }, (_unused, index) => ({
+  value: randomUUID(),
+  label: `Country ${index}`,
+  color: "secondary",
+  index,
+  isDefault: false,
+}));
 const tenantUser = createMockUser({ companyId: company, id: ada });
 const now = new Date();
 const currentMonth = startOfMonth(now);
@@ -67,6 +75,7 @@ type Grouped = {
   total: number;
   groupedBy: string;
   groups: { key: string; label: string; count: number; sums?: Record<string, number> }[];
+  groupsIncomplete?: true;
   groupNote?: string;
   items: unknown[];
 };
@@ -108,13 +117,23 @@ describeDatabase("list_records groupBy against a real database", { timeout: 120_
           },
         },
       });
+      await prisma.customColumn.create({
+        data: {
+          id: country,
+          companyId: company,
+          entityType: "deal",
+          label: "Country",
+          type: "singleSelect",
+          options: { options: countries },
+        },
+      });
       const deals = [
         ["Alpha", 1_000, [ada], open, addYears(now, -3)],
         ["Beta", 2_000, [ada], won, now],
         ["Gamma", 4_000, [ben], won, addYears(now, 1)],
         ["Delta", 8_000, [ada, ben], won, now],
       ] as const;
-      for (const [name, value, owners, option, createdAt] of deals) {
+      for (const [index, [name, value, owners, option, createdAt]] of deals.entries()) {
         const id = randomUUID();
         await prisma.deal.create({
           data: { id, companyId: company, name, totalValue: value, totalQuantity: 1, createdAt },
@@ -127,6 +146,16 @@ describeDatabase("list_records groupBy against a real database", { timeout: 120_
             columnId: status,
             type: "singleSelect",
             value: option,
+            dealId: id,
+          },
+        });
+        await prisma.customFieldValue.create({
+          data: {
+            companyId: company,
+            entityType: "deal",
+            columnId: country,
+            type: "singleSelect",
+            value: countries[index % 2].value,
             dealId: id,
           },
         });
@@ -223,5 +252,36 @@ describeDatabase("list_records groupBy against a real database", { timeout: 120_
 
     const weekly = structured(await list({ groupBy: { field: "createdAt", bucket: "week" } }));
     expect(structured(await list({ groupBy: { field: weekly.groupedBy } }))).toEqual(weekly);
+    expect(structured(await list({ groupBy: { field: weekly.groupedBy, bucket: "week" } }))).toEqual(weekly);
+  });
+
+  it("flags a single select with more than 50 options as incomplete only when a left out option holds records", async () => {
+    const complete = structured(await list({ groupBy: { field: country } }));
+
+    expect(complete.total).toBe(4);
+    expect(complete.groups.map((group) => [group.label, group.count])).toEqual([
+      ["Country 0", 2],
+      ["Country 1", 2],
+    ]);
+    expect(complete).not.toHaveProperty("groupsIncomplete");
+    expect(complete).not.toHaveProperty("groupNote");
+
+    const moved = await runWithoutTenant(() =>
+      prisma.customFieldValue.findFirstOrThrow({ where: { companyId: company, columnId: country } }),
+    );
+    await runWithoutTenant(() =>
+      prisma.customFieldValue.update({ where: { id: moved.id }, data: { value: countries[55].value } }),
+    );
+    try {
+      const incomplete = structured(await list({ groupBy: { field: country } }));
+
+      expect(incomplete.groups.reduce((sum, group) => sum + group.count, 0)).toBe(3);
+      expect(incomplete.groupsIncomplete).toBe(true);
+      expect(incomplete.groupNote).toBe(`Only 2 groups are listed; filter on ${country} to count the others.`);
+    } finally {
+      await runWithoutTenant(() =>
+        prisma.customFieldValue.update({ where: { id: moved.id }, data: { value: moved.value } }),
+      );
+    }
   });
 });

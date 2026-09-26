@@ -837,7 +837,7 @@ describe("analyze_records on a read that holds only part of its rows", () => {
       hasMore: false,
       ...(sums ? { valueSums: sums } : {}),
     });
-    const grouped = (groups: ReturnType<typeof group>[], overflow?: { shown: number }) =>
+    const grouped = (groups: ReturnType<typeof group>[], overflow?: { shown: number; withRecords: boolean }) =>
       listed.deal.mockResolvedValue({
         ok: true,
         data: {
@@ -868,9 +868,14 @@ describe("analyze_records on a read that holds only part of its rows", () => {
 
     grouped(
       Array.from({ length: 50 }, (_, index) => group(index)),
-      { shown: 50 },
+      { shown: 50, withRecords: true },
     );
     await expect(analyze()).resolves.toEqual(refused);
+    grouped(
+      Array.from({ length: 2 }, (_, index) => group(index, { totalValue: 100 })),
+      { shown: 50, withRecords: false },
+    );
+    await expect(analyze()).resolves.toEqual({ ok: true, result: JSON.stringify({ rowsRead: 0, result: 2 }) });
     grouped(Array.from({ length: 30 }, (_, index) => group(index, index < 25 ? { totalValue: 100 } : undefined)));
     await expect(analyze()).resolves.toEqual(refused);
     grouped(Array.from({ length: 20 }, (_, index) => group(index, { totalValue: 100 })));

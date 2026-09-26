@@ -148,16 +148,35 @@ describe("list_records groupBy on a date", () => {
     ]);
   });
 
+  it("takes a groupedBy token sent with the same bucket, and names the conflict when the buckets differ", async () => {
+    groupedBy("createdAt", monthLadder({ later: 0, current: 2, earlier: 0 }));
+    spies.listDeals.mockClear();
+
+    await list({ groupBy: { field: "createdAt:week", bucket: "week" } });
+    const conflicting = await listRecordsTool.execute(
+      listRecordsTool.inputSchema.parse({ entity: "deal", groupBy: { field: "createdAt:week", bucket: "day" } }),
+    );
+
+    expect(spies.listDeals.mock.calls.map(([params]) => params.grouping)).toEqual([
+      { field: "createdAt", bucket: "week" },
+    ]);
+    const text = JSON.stringify(conflicting);
+    expect(text).toContain(
+      "groupBy.field createdAt:week already names the bucket week; drop bucket, or send field createdAt with bucket day.",
+    );
+    expect(text).not.toContain("Groupable fields");
+  });
+
   it("says how many groups and sums one grouped call returns, in the tool and in the EN and DE docs", () => {
     expect(listRecordsTool.description).toContain(
-      "one call returns up to 50 groups with their counts and, for deals, the totalValue and weightedValue sums of up to 25 of them",
+      "one call returns up to 50 groups plus No value with their counts and, for deals, the totalValue and weightedValue sums of up to 25 of them",
     );
     expect(listRecordsTool.description).not.toContain("of every group");
     expect(docs("en")).toContain(
-      "It lists up to 50 groups and gives sums for up to 25 of them; when it leaves any out, `groupsIncomplete` is `true` and `groupNote` says what is missing.",
+      "It lists up to 50 groups, plus a `No value` group for records without one, and gives sums for up to 25 of them; when it leaves out a group that holds records, or some sums, `groupsIncomplete` is `true` and `groupNote` says what is missing.",
     );
     expect(docs("de")).toContain(
-      "Es listet bis zu 50 Gruppen und liefert Summen für bis zu 25 davon; fehlt etwas, ist `groupsIncomplete` gleich `true`, und `groupNote` sagt, was fehlt.",
+      "Es listet bis zu 50 Gruppen und dazu eine Gruppe `No value` für Datensätze ohne Wert und liefert Summen für bis zu 25 davon; fehlt eine Gruppe mit Datensätzen oder eine Summe, ist `groupsIncomplete` gleich `true`, und `groupNote` sagt, was fehlt.",
     );
   });
 
@@ -198,8 +217,13 @@ describe("list_records groupBy on a date", () => {
 });
 
 describe("list_records groupBy on a relation", () => {
-  function organizationGroups(count: number, sums: number, overflow?: { shown: number }) {
-    const groups = Array.from({ length: count }, (_unused, index) => ({
+  function organizationGroups(
+    count: number,
+    sums: number,
+    overflow?: { shown: number; withRecords: boolean },
+    noValue = 0,
+  ) {
+    const valueGroups = Array.from({ length: count }, (_unused, index) => ({
       key: `org-${index}`,
       label: `Org ${index}`,
       count: 2,
@@ -210,16 +234,29 @@ describe("list_records groupBy on a relation", () => {
       hasMore: false,
       ...(index < sums ? { valueSums: { totalValue: 100 } } : {}),
     }));
+    const groups = noValue
+      ? [
+          ...valueGroups,
+          {
+            ...valueGroups[0],
+            key: "__empty__",
+            label: undefined,
+            count: noValue,
+            labelKind: "noValue",
+            isNoValue: true,
+          },
+        ]
+      : valueGroups;
     spies.listDeals.mockResolvedValue({
       ok: true,
       data: {
         items: [],
-        pagination: { total: count * 2 },
+        pagination: { total: count * 2 + noValue },
         grouping: {
           grouping: { field: "organizationIds" },
           kind: "relation",
           supportsDragWriteBack: false,
-          total: count * 2,
+          total: count * 2 + noValue,
           groups,
           ...(overflow ? { overflow } : {}),
         },
@@ -228,7 +265,7 @@ describe("list_records groupBy on a relation", () => {
   }
 
   it("flags a result that lists only some groups, or the sums of only some groups, and leaves a complete one unflagged", async () => {
-    organizationGroups(50, 50, { shown: 50 });
+    organizationGroups(50, 50, { shown: 50, withRecords: true });
     const overflowing = await list({ groupBy: { field: "organizationIds" } });
     expect(overflowing.groupsIncomplete).toBe(true);
     expect(overflowing.groupNote).toBe("Only 50 groups are listed; filter on organizationIds to count the others.");
@@ -239,5 +276,24 @@ describe("list_records groupBy on a relation", () => {
 
     organizationGroups(20, 20);
     expect(await list({ groupBy: { field: "organizationIds" } })).not.toHaveProperty("groupsIncomplete");
+  });
+
+  it("leaves a result unflagged when the groups past the cap hold no records", async () => {
+    organizationGroups(3, 3, { shown: 50, withRecords: false });
+
+    const grouped = await list({ groupBy: { field: "organizationIds" } });
+
+    expect(grouped).not.toHaveProperty("groupsIncomplete");
+    expect(grouped).not.toHaveProperty("groupNote");
+    expect(grouped.groups).toHaveLength(3);
+  });
+
+  it("counts the no value group in the number of groups the note says are listed", async () => {
+    organizationGroups(50, 25, { shown: 50, withRecords: true }, 1);
+
+    const grouped = await list({ groupBy: { field: "organizationIds" } });
+
+    expect(grouped.groups).toHaveLength(51);
+    expect(grouped.groupNote).toContain("Only 51 groups are listed; filter on organizationIds to count the others.");
   });
 });

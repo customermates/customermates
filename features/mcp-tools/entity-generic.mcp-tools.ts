@@ -551,6 +551,7 @@ function groupedListResult(
     ...(group.valueSums ? { sums: group.valueSums } : {}),
   }));
   const partialSums = groups.some((group) => group.sums) && groups.some((group) => !group.sums);
+  const missingGroups = grouping.overflow?.withRecords === true;
   const notes = [
     ...(grouping.membershipTotal !== undefined && grouping.membershipTotal > total
       ? ["A record in several groups counts in each of them, so the group counts add up to more than total."]
@@ -558,8 +559,8 @@ function groupedListResult(
     ...(partialSums
       ? ["Per-group sums cover the first 25 groups; filter to one group for the sums of the others."]
       : []),
-    ...(grouping.overflow
-      ? [`Only ${grouping.overflow.shown} groups are listed; filter on ${groupBy.field} to count the others.`]
+    ...(missingGroups
+      ? [`Only ${groups.length} groups are listed; filter on ${groupBy.field} to count the others.`]
       : []),
     ...dateWindowNote(grouping, oldestWindowStart),
   ];
@@ -570,7 +571,7 @@ function groupedListResult(
     page,
     pageSize,
     groupedBy: encodeGroupingToken(grouping.grouping),
-    ...(grouping.overflow || partialSums ? { groupsIncomplete: true as const } : {}),
+    ...(missingGroups || partialSums ? { groupsIncomplete: true as const } : {}),
     ...(notes.length > 0 ? { groupNote: notes.join(" ") } : {}),
     groups,
     items: [],
@@ -595,7 +596,7 @@ export const listRecordsTool = {
     "Custom currency columns are summed the same way and appear in sums under the custom-column id from " +
     "get_record_schema, not the column label, so a question about a money field is one call: filter, then read " +
     "its sum. Service amount and deal totalQuantity are not in sums; single-select, text and date custom columns are not summable, so filter by those instead. " +
-    "For a breakdown per status, owner, organization or created/updated month, pass groupBy instead of paging through items: one call returns up to 50 groups with their counts and, for deals, the totalValue and weightedValue sums of up to 25 of them. " +
+    "For a breakdown per status, owner, organization or created/updated month, pass groupBy instead of paging through items: one call returns up to 50 groups plus No value with their counts and, for deals, the totalValue and weightedValue sums of up to 25 of them. " +
     "When a name search without groupBy matches several records, writeTargetGuidance has status ambiguous: ask the user to choose before changing only one result, even when one item exactly equals the search term. " +
     "The current page's items are the canonical candidates. If total exceeds items.length, narrow the search or review more pages first. If candidate names are identical, call get_records for their ids and ask with safe distinguishing fields; never expose raw ids. " +
     "An explicit request to change every match may proceed. " +
@@ -615,7 +616,13 @@ export const listRecordsTool = {
   }: z.infer<typeof ListRecordsSchema>) => {
     const query = { searchTerm, filters, sortDescriptor };
     if (groupBy) {
-      const requested = groupBy.bucket ? groupBy : (decodeGroupingToken(groupBy.field) ?? groupBy);
+      const decoded = decodeGroupingToken(groupBy.field) ?? groupBy;
+      if (decoded.bucket && groupBy.bucket && decoded.bucket !== groupBy.bucket) {
+        const text = `groupBy.field ${groupBy.field} already names the bucket ${decoded.bucket}; drop bucket, or send field ${decoded.field} with bucket ${groupBy.bucket}.`;
+        return mcpInteractorFailure(createZodError(text, ["groupBy", "bucket"]), "validation", text);
+      }
+      const bucket = groupBy.bucket ?? decoded.bucket;
+      const requested = { field: decoded.field, ...(bucket ? { bucket } : {}) };
       const plan = planMcpPageFetch(page, pageSize);
       const grouping = { grouping: requested, groupPage: { perGroup: 1, includeValueSums: true } };
       const grouped = await entityListExecutors[entity]({

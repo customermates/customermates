@@ -147,7 +147,7 @@ describe("the group axis is the only place group order is decided", () => {
     const resolved = axis(spec, rows, labels);
 
     expect(resolved.groups).toHaveLength(MAX_AXIS_GROUPS);
-    expect(resolved.overflow).toEqual({ shown: MAX_AXIS_GROUPS });
+    expect(resolved.overflow).toEqual({ shown: MAX_AXIS_GROUPS, withRecords: true });
   });
 
   it("reports the truncation the count query already applied, not only what the axis itself cut", () => {
@@ -161,7 +161,25 @@ describe("the group axis is the only place group order is decided", () => {
     const resolved = axis(spec, rows, labels);
 
     expect(resolved.groups).toHaveLength(MAX_AXIS_GROUPS);
-    expect(resolved.overflow).toEqual({ shown: MAX_AXIS_GROUPS });
+    expect(resolved.overflow).toEqual({ shown: MAX_AXIS_GROUPS, withRecords: true });
+  });
+
+  it("says whether a single select option left out past the cap holds records", () => {
+    const spec = stageSpec(
+      Array.from({ length: MAX_AXIS_GROUPS + 10 }, (_unused, index) => option(`o${index}`, index)),
+    );
+
+    const empty = axis(spec, [
+      { key: "o0", count: 2 },
+      { key: `o${MAX_AXIS_GROUPS - 1}`, count: 1 },
+    ]);
+    const held = axis(spec, [
+      { key: "o0", count: 2 },
+      { key: `o${MAX_AXIS_GROUPS + 5}`, count: 1 },
+    ]);
+
+    expect(empty.overflow).toEqual({ shown: MAX_AXIS_GROUPS, withRecords: false });
+    expect(held.overflow).toEqual({ shown: MAX_AXIS_GROUPS, withRecords: true });
   });
 
   it("runs the date ladder later, newest to oldest, earlier and carries the bucket role", () => {
