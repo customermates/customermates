@@ -72,6 +72,10 @@ async function list(args: Record<string, unknown>) {
   return (result as { structuredContent: Record<string, unknown> }).structuredContent;
 }
 
+function docs(locale: string) {
+  return readFileSync(join(process.cwd(), "content", "docs", locale, "mcp.mdx"), "utf8").replace(/\s+/g, " ");
+}
+
 describe("list_records groupBy on a date", () => {
   it("names the catch-all groups by the window edge and reports the grouping actually used", async () => {
     groupedBy("createdAt", monthLadder({ later: 1, current: 2, earlier: 3 }));
@@ -125,8 +129,6 @@ describe("list_records groupBy on a date", () => {
     for (const phrase of ["last 7 days", "last 7 weeks", "last 12 months", "before <date>", "from <date> on"])
       expect(groupBy).toContain(phrase);
 
-    const docs = (locale: string) =>
-      readFileSync(join(process.cwd(), "content", "docs", locale, "mcp.mdx"), "utf8").replace(/\s+/g, " ");
     expect(docs("en")).toContain("covers the last 7 days, the last 7 weeks or the last 12 months");
     expect(docs("de")).toContain("umfasst die letzten 7 Tage, die letzten 7 Wochen oder die letzten 12 Monate");
   });
@@ -136,5 +138,33 @@ describe("list_records groupBy on a date", () => {
       "For a breakdown per status, owner, organization or created/updated month, pass groupBy",
     );
     expect(listRecordsTool.description).not.toContain("organization or month");
+  });
+
+  it("gives a grouped name search no write-target guidance, as the tool and the EN and DE docs say", async () => {
+    groupedBy("createdAt", monthLadder({ later: 0, current: 2, earlier: 1 }));
+
+    for (const nameQuery of [
+      { searchTerm: "Nova Expansion" },
+      { filters: [{ field: "name", operator: "startsWith", value: "Nova Expansion" }] },
+    ]) {
+      const grouped = await list({ ...nameQuery, groupBy: { field: "createdAt" } });
+
+      expect(grouped).toMatchObject({ total: 3, items: [] });
+      expect(grouped).not.toHaveProperty("writeTargetGuidance");
+      expect(listRecordsTool.outputSchema.safeParse(grouped).success).toBe(true);
+    }
+
+    expect(listRecordsTool.outputSchema.shape.writeTargetGuidance.description).toBe(
+      "Present on a list result, not a grouped one, whose name search or name filter matched several records; selecting only one for a write requires clarification",
+    );
+    expect(listRecordsTool.description).toContain(
+      "When a name search without groupBy matches several records, writeTargetGuidance has status ambiguous",
+    );
+    expect(docs("en")).toContain(
+      "In a list result, not a grouped one, where `searchTerm` or a `name` filter matches several records, `writeTargetGuidance.status` is `ambiguous`",
+    );
+    expect(docs("de")).toContain(
+      "Wenn `searchTerm` oder ein `name`-Filter in einem nicht gruppierten Ergebnis mehrere Datensätze findet, ist `writeTargetGuidance.status` gleich `ambiguous`",
+    );
   });
 });
