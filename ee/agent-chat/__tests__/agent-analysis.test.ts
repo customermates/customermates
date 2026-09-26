@@ -21,6 +21,7 @@ import { listRecordsTool } from "@/features/mcp-tools/entity-generic.mcp-tools";
 
 import {
   ANALYSIS_MAX_BYTES,
+  ANALYSIS_MAX_READS,
   ANALYSIS_MAX_ROWS,
   ANALYZE_RECORDS_DESCRIPTION,
   AnalyzeRecordsSchema,
@@ -416,10 +417,11 @@ describe("analyze_records", () => {
     const reads = (count: number) => Array.from({ length: count }, () => read("list_things"));
     expect(AnalyzeRecordsSchema.safeParse({ reads: reads(10), code: "() => 1" }).success).toBe(true);
     expect(AnalyzeRecordsSchema.safeParse({ reads: reads(11), code: "() => 1" }).success).toBe(false);
+    expect(ANALYSIS_MAX_READS).toBe(10);
     expect(ANALYSIS_MAX_ROWS).toBe(10_000);
-    expect(ANALYZE_RECORDS_DESCRIPTION).toContain("up to ten read-only tool calls");
-    expect(ANALYZE_RECORDS_DESCRIPTION).toContain("up to 10,000 rows and 8 MB");
-    expect(AnalyzeRecordsSchema.shape.reads.description).toMatch(/^One to ten reads/);
+    expect(ANALYZE_RECORDS_DESCRIPTION).toContain("up to 10 read-only tool calls");
+    expect(ANALYZE_RECORDS_DESCRIPTION).toContain("up to 10,000 rows and 8 MB in total");
+    expect(AnalyzeRecordsSchema.shape.reads.description).toMatch(/^One to 10 reads/);
   });
 
   it("runs async code over the reads and tells the model it may be async with nothing to await", async () => {
@@ -752,28 +754,100 @@ describe("analyze_records on a read that holds only part of its rows", () => {
     return { tool, execute };
   }
 
-  it("refuses a read that pages by cursor or offset before any read runs, and names the tools it can read", async () => {
-    const { tool: posts, execute } = fixedRead(
-      "get_social_posts",
-      { cursor: z.string().optional(), offset: z.number().optional(), limit: z.number().optional() },
-      { total: 10, next_cursor: "cursor-2", items: Array.from({ length: 10 }, (_, index) => ({ id: `${index}` })) },
-    );
-    const { tool: leads } = fixedRead("linkedin_search_sales_leads", { offset: z.number().optional() }, {});
-    const { tool: things, execute: listed } = listTool("list_things", 3);
+  describe("a read that pages by cursor or offset", () => {
+    const cursorShape = {
+      postId: z.string().optional(),
+      cursor: z.string().optional(),
+      offset: z.number().optional(),
+      limit: z.number().optional(),
+    };
+    const comments = (count: number) => Array.from({ length: count }, (_, index) => ({ id: `comment-${index}` }));
+    const analyze = (tool: McpTool, input: Record<string, unknown>) =>
+      analyzeRecords(
+        { reads: [read(tool.name, input)], code: "(data) => data[0].items ? data[0].items.length : data[0].id" },
+        deps(tool),
+      );
+    const morePossible = (name: string, rows: number) => ({
+      ok: false,
+      result: `${name} returned ${rows} rows and more may follow, so the analysis did not run on a partial set. Pass a limit above the row count, at most 100, or call ${name} directly and page through it. ${NOT_RUN}`,
+    });
 
-    for (const name of ["get_social_posts", "linkedin_search_sales_leads"]) {
-      await expect(
-        analyzeRecords(
-          { reads: [read("list_things"), read(name)], code: "(data) => data" },
-          deps(things, posts, leads),
-        ),
-      ).resolves.toEqual({
-        ok: false,
-        result: `${name} pages by cursor or offset, so an analysis cannot read all of it; call it directly. Nothing was run. Readable tools: list_things.`,
+    it("reads a list that fits on its first page, and a single object that has no list", async () => {
+      const engagement = fixedRead("get_social_post_engagement", cursorShape, {
+        total: 12,
+        next_cursor: null,
+        items: comments(12),
       });
-    }
-    expect(execute).not.toHaveBeenCalled();
-    expect(listed).not.toHaveBeenCalled();
+      const post = fixedRead("get_social_posts", cursorShape, { id: "post-1", text: "Launch" });
+      const leads = fixedRead("linkedin_search_sales_leads", cursorShape, {
+        total: 7,
+        next_offset: 7,
+        items: comments(7),
+      });
+
+      await expect(analyze(engagement.tool, { postId: "post-1", limit: 100 })).resolves.toEqual({
+        ok: true,
+        result: JSON.stringify({ rowsRead: 0, result: 12 }),
+      });
+      await expect(analyze(post.tool, { postId: "post-1" })).resolves.toEqual({
+        ok: true,
+        result: JSON.stringify({ rowsRead: 0, result: "post-1" }),
+      });
+      await expect(analyze(leads.tool, {})).resolves.toEqual({
+        ok: true,
+        result: JSON.stringify({ rowsRead: 0, result: 7 }),
+      });
+    });
+
+    it("refuses a first page that says or may hide more rows", async () => {
+      const cursored = fixedRead("get_social_post_engagement", cursorShape, {
+        total: 12,
+        next_cursor: "cursor-2",
+        items: comments(12),
+      });
+      const full = fixedRead("get_social_post_engagement", cursorShape, {
+        total: 100,
+        next_cursor: null,
+        items: comments(100),
+      });
+      const defaultLimit = fixedRead("linkedin_search_sales_leads", cursorShape, {
+        total: 10,
+        next_offset: 10,
+        items: comments(10),
+      });
+      const counted = fixedRead("get_social_posts", cursorShape, { total: 40, next_cursor: null, items: comments(7) });
+
+      await expect(analyze(cursored.tool, { postId: "post-1", limit: 100 })).resolves.toEqual(
+        morePossible("get_social_post_engagement", 12),
+      );
+      await expect(analyze(full.tool, { postId: "post-1", limit: 100 })).resolves.toEqual(
+        morePossible("get_social_post_engagement", 100),
+      );
+      await expect(analyze(defaultLimit.tool, {})).resolves.toEqual(morePossible("linkedin_search_sales_leads", 10));
+      await expect(analyze(counted.tool, { limit: 100 })).resolves.toEqual({
+        ok: false,
+        result: `get_social_posts returned 7 of 40 rows, so the analysis did not run on a partial set. ${NOT_RUN}`,
+      });
+    });
+
+    it("refuses a read that starts past the first page before it runs", async () => {
+      const { tool, execute } = fixedRead("get_social_post_engagement", cursorShape, {
+        total: 3,
+        next_cursor: null,
+        items: comments(3),
+      });
+
+      for (const [input, name] of [
+        [{ postId: "post-1", cursor: "cursor-2" }, "cursor"],
+        [{ postId: "post-1", offset: 20 }, "offset"],
+      ] as const) {
+        await expect(analyze(tool, input), name).resolves.toEqual({
+          ok: false,
+          result: `get_social_post_engagement starts past its first page when cursor or offset is set, so the analysis did not run on a partial set. Drop cursor and offset. ${NOT_RUN}`,
+        });
+      }
+      expect(execute).not.toHaveBeenCalled();
+    });
   });
 
   it("refuses a read that takes no pages when it returns fewer rows than its total, in a list or in a nested one", async () => {

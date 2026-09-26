@@ -6,9 +6,11 @@ import { executeMcpTool, validationError, type McpTool } from "@/features/mcp-to
 import { checkAnalysisCode, runAnalysisCode, type AnalysisLimits } from "./agent-analysis-isolate";
 import { isReadOnlyTool } from "./gated-tools";
 
+export const ANALYSIS_MAX_READS = 10;
 export const ANALYSIS_MAX_ROWS = 10_000;
 export const ANALYSIS_MAX_BYTES = 8 * 1024 * 1024;
 const ANALYSIS_PAGE_SIZE = 100;
+const CURSOR_PAGE_DEFAULT_LIMIT = 10;
 
 export const AnalyzeRecordsSchema = z.object({
   reads: z
@@ -24,8 +26,10 @@ export const AnalyzeRecordsSchema = z.object({
       }),
     )
     .min(1)
-    .max(10)
-    .describe("One to ten reads, run in order before the code; data[i] is the full result of reads[i]"),
+    .max(ANALYSIS_MAX_READS)
+    .describe(
+      `One to ${ANALYSIS_MAX_READS} reads, run in order before the code; data[i] is the full result of reads[i]`,
+    ),
   code: z
     .string()
     .min(1)
@@ -39,7 +43,7 @@ export type AnalyzeRecordsInput = z.infer<typeof AnalyzeRecordsSchema>;
 
 export const ANALYZE_RECORDS_DESCRIPTION =
   "Use this when an answer needs arithmetic over many records that no filter or sum expresses: a median, a ranking with a tie-break, a per-record ratio, normalized duplicates, a join across two entity types, or counting rows by a field the list returns. " +
-  "It runs up to ten read-only tool calls, collects every page of each list (up to 10,000 rows and 8 MB in total, never a truncated set), and passes the results to your JavaScript function (data) => result, which runs in an isolated sandbox with no network, clock or tools. " +
+  `It runs up to ${ANALYSIS_MAX_READS} read-only tool calls, collects every page of each list (up to 10,000 rows and 8 MB in total, never a truncated set), and passes the results to your JavaScript function (data) => result, which runs in an isolated sandbox with no network, clock or tools. ` +
   "The function may be async, but there is nothing to await: tools cannot be called from the code, so every read goes in reads. " +
   "data[i] is reads[i]'s structured result; list results carry total and items across all pages. " +
   "In an analysis a list_records item carries id, name, userIds (its owners), the ids of its linked records (contactIds, organizationIds, dealIds, serviceIds, taskIds, whichever the entity has), customFieldValues [{columnId, value}], createdAt and updatedAt, and for deals totalValue, totalQuantity and weightedValue, which is missing when the stage has no win probability. Pass include: [] on a list read that needs only id, name and the deal totals. " +
@@ -135,24 +139,53 @@ function unpagedResult(mcp: McpTool, content: Record<string, unknown>): ReadResu
   return { ok: true, data: content, rows: 0 };
 }
 
+function cursorPageResult(mcp: McpTool, input: Record<string, unknown>, content: Record<string, unknown>): ReadResult {
+  const { items, next_cursor: nextCursor } = content;
+  const limit = typeof input.limit === "number" ? input.limit : CURSOR_PAGE_DEFAULT_LIMIT;
+  if (Array.isArray(items) && (typeof nextCursor === "string" || items.length >= limit)) {
+    return {
+      ok: false,
+      error: `${mcp.name} returned ${items.length} rows and more may follow, so the analysis did not run on a partial set. Pass a limit above the row count, at most 100, or call ${mcp.name} directly and page through it.`,
+    };
+  }
+  return unpagedResult(mcp, content);
+}
+
 async function runPage(
   mcp: McpTool,
   input: Record<string, unknown>,
-): Promise<{ ok: true; content: Record<string, unknown> } | { ok: false; error: string }> {
+): Promise<
+  { ok: true; input: Record<string, unknown>; content: Record<string, unknown> } | { ok: false; error: string }
+> {
   const parsed = mcp.inputSchema.safeParse(input);
   if (!parsed.success) return { ok: false, error: `${mcp.name}: ${validationError(parsed.error)}` };
   const outcome = await executeMcpTool(mcp, [parsed.data]);
   if (!outcome.ok) return { ok: false, error: `${mcp.name}: ${outcome.result}` };
-  return { ok: true, content: outcome.structuredContent ?? { text: outcome.result } };
+  return {
+    ok: true,
+    input: parsed.data as Record<string, unknown>,
+    content: outcome.structuredContent ?? { text: outcome.result },
+  };
 }
 
 async function runRead(mcp: McpTool, read: Read, rowBudget: number, usage: DataUsage): Promise<ReadResult> {
   const parsed = parseReadInput(read);
   if (typeof parsed === "string") return { ok: false, error: parsed };
   const input = { ...ANALYSIS_READ_DEFAULTS[mcp.name], ...parsed };
+  const byCursor = pagesByCursorOrOffset(mcp);
+  if (byCursor && (input.cursor !== undefined || (typeof input.offset === "number" && input.offset > 0))) {
+    return {
+      ok: false,
+      error: `${mcp.name} starts past its first page when cursor or offset is set, so the analysis did not run on a partial set. Drop cursor and offset.`,
+    };
+  }
   if (!isPageable(mcp)) {
     const single = await runPage(mcp, input);
-    return single.ok ? counted(usage, unpagedResult(mcp, single.content)) : single;
+    if (!single.ok) return single;
+    return counted(
+      usage,
+      byCursor ? cursorPageResult(mcp, single.input, single.content) : unpagedResult(mcp, single.content),
+    );
   }
 
   const first = await runPage(mcp, { ...input, page: 1, pageSize: ANALYSIS_PAGE_SIZE });
@@ -240,19 +273,15 @@ export async function analyzeRecords(
   input: AnalyzeRecordsInput,
   deps: AnalysisDeps,
 ): Promise<{ ok: boolean; result: string }> {
-  const readOnly = deps.tools.filter((mcp) => isReadOnlyTool(mcp));
-  const readable = new Map(readOnly.filter((mcp) => !pagesByCursorOrOffset(mcp)).map((mcp) => [mcp.name, mcp]));
+  const readable = new Map(deps.tools.filter((mcp) => isReadOnlyTool(mcp)).map((mcp) => [mcp.name, mcp]));
   const readableTools = `Readable tools: ${[...readable.keys()].sort().join(", ")}.`;
   const planned: { read: Read; mcp: McpTool }[] = [];
   for (const read of input.reads) {
     const mcp = readable.get(read.tool);
     if (!mcp) {
-      const pagedByCursor = readOnly.some((tool) => tool.name === read.tool);
       return {
         ok: false,
-        result: pagedByCursor
-          ? `${read.tool} pages by cursor or offset, so an analysis cannot read all of it; call it directly. Nothing was run. ${readableTools}`
-          : `${read.tool} is not a read-only tool this analysis can call. Nothing was run. ${readableTools}`,
+        result: `${read.tool} is not a read-only tool this analysis can call. Nothing was run. ${readableTools}`,
       };
     }
     planned.push({ read, mcp });

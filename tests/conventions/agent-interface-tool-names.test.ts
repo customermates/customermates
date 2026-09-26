@@ -4,7 +4,7 @@ import { join } from "node:path";
 import { describe, expect, it } from "vitest";
 
 import { AGENT_PANEL_TOOL_NAMES } from "@/ee/agent-chat/agent-ui-command";
-import { ANALYSIS_MAX_BYTES, ANALYSIS_MAX_ROWS } from "@/ee/agent-chat/agent-analysis";
+import { ANALYSIS_MAX_BYTES, ANALYSIS_MAX_READS, ANALYSIS_MAX_ROWS } from "@/ee/agent-chat/agent-analysis";
 import { ANALYZE_RECORDS_TOOL_NAME, LOAD_TOOLSET_TOOL_NAME } from "@/ee/agent-chat/agent-toolset-routing";
 import { CONTENT_LOCALES } from "@/i18n/locale-registry";
 
@@ -32,11 +32,14 @@ describe("agent interface tool names in the assistant documentation", () => {
       en: `plus four interface tools, \`${LOAD_TOOLSET_TOOL_NAME}\` and \`${ANALYZE_RECORDS_TOOL_NAME}\`, which only Mate has.`,
       de: `dafür mit vier Oberflächen-Tools, \`${LOAD_TOOLSET_TOOL_NAME}\` und \`${ANALYZE_RECORDS_TOOL_NAME}\`, die nur Mate hat.`,
     }[locale];
+    const reads = { en: "It runs up to ten reads", de: "Es führt bis zu zehn Lesezugriffe" }[locale];
     const limits = {
-      en: `up to ${ANALYSIS_MAX_ROWS.toLocaleString("en")} rows and ${ANALYSIS_MAX_BYTES / 1024 / 1024} MB`,
-      de: `bis zu ${ANALYSIS_MAX_ROWS.toLocaleString("de")} Zeilen und ${ANALYSIS_MAX_BYTES / 1024 / 1024} MB`,
+      en: `up to ${ANALYSIS_MAX_ROWS.toLocaleString("en")} rows and ${ANALYSIS_MAX_BYTES / 1024 / 1024} MB across all reads together`,
+      de: `insgesamt bis zu ${ANALYSIS_MAX_ROWS.toLocaleString("de")} Zeilen und ${ANALYSIS_MAX_BYTES / 1024 / 1024} MB über alle Lesezugriffe`,
     }[locale];
+    expect(ANALYSIS_MAX_READS).toBe(10);
     expect(source).toContain(onlyMate);
+    expect(source).toContain(reads);
     expect(source).toContain(limits);
   });
 
