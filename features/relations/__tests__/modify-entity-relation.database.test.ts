@@ -540,5 +540,65 @@ describeDatabase("record links against a real database", { timeout: 120_000 }, (
         [wantedService]: 1,
       });
     });
+
+    it("hides only the owners the caller cannot read, so owner links it can read change and the others stay", async () => {
+      const [ownedByBoth, ownedByTwo, newcomer] = [randomUUID(), randomUUID(), randomUUID()];
+      await runWithoutTenant(async () => {
+        await prisma.user.create({
+          data: {
+            id: newcomer,
+            companyId: companyA,
+            email: `${newcomer}@example.com`,
+            firstName: "Newcomer",
+            lastName: "Links",
+            status: "active",
+          },
+        });
+        for (const id of [ownedByBoth, ownedByTwo]) {
+          await prisma.contact.create({ data: { id, companyId: companyA, firstName: "Owned", lastName: id } });
+          for (const userId of [caller, colleague])
+            await prisma.contactUser.create({ data: { companyId: companyA, contactId: id, userId } });
+        }
+      });
+      const owners = async (contactId: string) =>
+        (await runWithoutTenant(() => prisma.contactUser.findMany({ where: { contactId }, select: { userId: true } })))
+          .map((row) => row.userId)
+          .toSorted();
+
+      actingUser = {
+        ...createMockUserWithPermissions([
+          { resource: "contacts", action: "readAll" },
+          { resource: "contacts", action: "update" },
+          { resource: "users", action: "readOwn" },
+        ]),
+        companyId: companyA,
+        id: caller,
+      };
+      try {
+        await expect(
+          getModifyEntityRelationInteractor().invoke({
+            entity: "contact",
+            sourceId: ownedByBoth,
+            relation: "users",
+            mode: "remove",
+            ids: [caller],
+          }),
+        ).resolves.toMatchObject({ ok: true, data: { added: 0, removed: 1, before: 2, after: 1 } });
+      } finally {
+        actingUser = tenantUser;
+      }
+      await expect(
+        getModifyEntityRelationInteractor().invoke({
+          entity: "contact",
+          sourceId: ownedByTwo,
+          relation: "users",
+          mode: "add",
+          ids: [newcomer],
+        }),
+      ).resolves.toMatchObject({ ok: true, data: { added: 1, removed: 0, before: 2, after: 3 } });
+
+      expect(await owners(ownedByBoth)).toEqual([colleague]);
+      expect(await owners(ownedByTwo)).toEqual([caller, colleague, newcomer].toSorted());
+    });
   });
 });

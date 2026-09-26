@@ -85,6 +85,7 @@ export type ModifyEntityRelationResult = {
   removed: number;
   before: number;
   after: number;
+  keptOutsideAccess: number;
 };
 
 type ReadableIds = Pick<ReadonlySet<string>, "has">;
@@ -203,6 +204,7 @@ export class ModifyEntityRelationInteractor extends AuthenticatedInteractor<
         removed: current.length + added - after,
         before: current.length,
         after,
+        keptOutsideAccess: [...requestedIds].filter((id) => hidden.has(id)).length,
       },
     };
   }
@@ -248,6 +250,7 @@ export class ModifyEntityRelationInteractor extends AuthenticatedInteractor<
         removed: before + added - after,
         before,
         after,
+        keptOutsideAccess: [...new Set(ids)].filter((id) => hidden.has(id)).length,
       },
     };
   }

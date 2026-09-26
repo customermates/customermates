@@ -145,6 +145,35 @@ describe("manage_record_links", () => {
     expect(mcpToolResultText(noop)).toMatch(/^Nothing was linked: all 1 organizations were already linked/);
   });
 
+  it("says a remove kept the links it names that point outside the caller's access, instead of calling them unlinked", async () => {
+    const remove = () =>
+      execute({ action: "remove", entity: "contact", sourceId, relation: "organizations", ids: [orgOne, orgTwo] });
+
+    spies.modifyRelation.mockResolvedValue({
+      ok: true,
+      data: { requested: 2, added: 0, removed: 0, before: 2, after: 2, keptOutsideAccess: 1 },
+    });
+    expect(mcpToolResultText(await remove())).toBe(
+      `Nothing was unlinked from contact ${sourceId}; 1 of the ids links a record outside your access, so that link was kept (was 2, now 2)`,
+    );
+
+    spies.modifyRelation.mockResolvedValue({
+      ok: true,
+      data: { requested: 2, added: 0, removed: 0, before: 3, after: 3, keptOutsideAccess: 2 },
+    });
+    expect(mcpToolResultText(await remove())).toBe(
+      `Nothing was unlinked from contact ${sourceId}; 2 of the ids link records outside your access, so those links were kept (was 3, now 3)`,
+    );
+
+    spies.modifyRelation.mockResolvedValue({
+      ok: true,
+      data: { requested: 2, added: 0, removed: 1, before: 3, after: 2, keptOutsideAccess: 1 },
+    });
+    expect(mcpToolResultText(await remove())).toBe(
+      `Unlinked 1 of 2 organizations from contact ${sourceId}; 1 of the ids links a record outside your access, so that link was kept (was 3, now 2)`,
+    );
+  });
+
   it("replaces a relation in one call with set and reports both sides of the change", async () => {
     spies.modifyRelation.mockResolvedValue({
       ok: true,

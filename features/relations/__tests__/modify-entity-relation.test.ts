@@ -345,7 +345,13 @@ describe("ModifyEntityRelationInteractor", () => {
         mode,
         ids: [...ids],
       });
-      expect(result.data).toMatchObject({ added: 0, removed: 0, before: 2, after: 2 });
+      expect(result.data).toMatchObject({
+        added: 0,
+        removed: 0,
+        before: 2,
+        after: 2,
+        keptOutsideAccess: new Set<string>(ids).has(DEAL) ? 1 : 0,
+      });
     }
     expect(updateContacts.invoke).not.toHaveBeenCalled();
   });
@@ -400,6 +406,46 @@ describe("ModifyEntityRelationInteractor", () => {
         },
       ],
       [{ deals: [{ id: DEAL, services: [] }] }],
+    ]);
+  });
+
+  it("deal->services never writes a service the caller cannot read when an add or a set names it", async () => {
+    hiddenIds = new Set([ORG_EXISTING]);
+    dealRepo.getOrThrowCompanyWide.mockResolvedValue({
+      id: DEAL,
+      services: [
+        { id: SVC_EXISTING, quantity: 5 },
+        { id: ORG_EXISTING, quantity: 4 },
+      ],
+    });
+    const invoke = (mode: "add" | "set", ids: string[]): Promise<any> =>
+      createInteractor().invoke({ entity: "deal", sourceId: DEAL, relation: "services", mode, ids });
+
+    const addedHidden = await invoke("add", [ORG_EXISTING]);
+    const setWithHidden = await invoke("set", [SVC_EXISTING, ORG_EXISTING]);
+    expect(addedHidden.data).toMatchObject({ added: 0, removed: 0, before: 2, after: 2, keptOutsideAccess: 1 });
+    expect(setWithHidden.data).toMatchObject({ added: 0, removed: 0, before: 2, after: 2, keptOutsideAccess: 1 });
+    expect(updateDeals.invoke).not.toHaveBeenCalled();
+
+    const addedBoth = await invoke("add", [SVC_NEW, ORG_EXISTING]);
+    await invoke("set", [SVC_NEW, ORG_EXISTING]);
+
+    expect(addedBoth.data).toMatchObject({ added: 1, removed: 0, before: 2, after: 3 });
+    expect(updateDeals.invoke.mock.calls).toEqual([
+      [
+        {
+          deals: [
+            {
+              id: DEAL,
+              services: [
+                { serviceId: SVC_EXISTING, quantity: 5 },
+                { serviceId: SVC_NEW, quantity: 1 },
+              ],
+            },
+          ],
+        },
+      ],
+      [{ deals: [{ id: DEAL, services: [{ serviceId: SVC_NEW, quantity: 1 }] }] }],
     ]);
   });
 

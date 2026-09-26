@@ -826,8 +826,10 @@ function recordLinksResultText(result: {
   before: number;
   after: number;
   kept: number;
+  keptOutsideAccess: number;
 }): string {
-  const { action, entity, sourceId, relation, requested, added, removed, before, after, kept } = result;
+  const { action, entity, sourceId, relation, requested, added, removed, before, after, kept, keptOutsideAccess } =
+    result;
   const counts = `(was ${before}, now ${after})`;
   if (action === "add") {
     if (added === 0)
@@ -835,9 +837,15 @@ function recordLinksResultText(result: {
     return `Linked ${added} of ${requested} ${relation} to ${entity} ${sourceId} ${counts}`;
   }
   if (action === "remove") {
+    const keptNote =
+      keptOutsideAccess > 0
+        ? `; ${keptOutsideAccess} of the ids ${keptOutsideAccess === 1 ? "links a record" : "link records"} outside your access, so ${keptOutsideAccess === 1 ? "that link was" : "those links were"} kept`
+        : "";
+    if (removed === 0 && keptOutsideAccess > 0)
+      return `Nothing was unlinked from ${entity} ${sourceId}${keptNote} ${counts}`;
     if (removed === 0)
       return `Nothing was unlinked: none of the ${requested} ids is linked as ${relation} of ${entity} ${sourceId} ${counts}. Check that the ids are the linked ${relation}, not the ${entity} itself.`;
-    return `Unlinked ${removed} of ${requested} ${relation} from ${entity} ${sourceId} ${counts}`;
+    return `Unlinked ${removed} of ${requested} ${relation} from ${entity} ${sourceId}${keptNote} ${counts}`;
   }
   const keptNote =
     kept === 0
