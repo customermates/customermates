@@ -1,5 +1,6 @@
 import { z } from "zod";
 
+import { ACTIVITY_SCOPE_CONTACT_MAX } from "@/ee/messaging/activities/activity-scope.schema";
 import { executeMcpTool, validationError, type McpTool } from "@/features/mcp-tools/mcp-tool";
 
 import { checkAnalysisCode, runAnalysisCode, type AnalysisLimits } from "./agent-analysis-isolate";
@@ -41,7 +42,7 @@ export const ANALYZE_RECORDS_DESCRIPTION =
   "It runs up to ten read-only tool calls, collects every page of each list (up to 10,000 rows and 8 MB in total, never a truncated set), and passes the results to your JavaScript function (data) => result, which runs in an isolated sandbox with no network, clock or tools. " +
   "The function may be async, but there is nothing to await: tools cannot be called from the code, so every read goes in reads. " +
   "data[i] is reads[i]'s structured result; list results carry total and items across all pages. " +
-  "In an analysis a list_records item carries id, name, userIds (its owners), the ids of its linked records (contactIds, organizationIds, dealIds, serviceIds, taskIds, whichever the entity has), customFieldValues [{columnId, value}], createdAt and updatedAt, and for deals totalValue, totalQuantity and weightedValue. Pass include: [] on a list read that needs only id, name and the deal totals. " +
+  "In an analysis a list_records item carries id, name, userIds (its owners), the ids of its linked records (contactIds, organizationIds, dealIds, serviceIds, taskIds, whichever the entity has), customFieldValues [{columnId, value}], createdAt and updatedAt, and for deals totalValue, totalQuantity and weightedValue, which is missing when the stage has no win probability. Pass include: [] on a list read that needs only id, name and the deal totals. " +
   "In userIds and the link arrays an empty array means none you can see is linked; a missing key means you cannot read that relation. " +
   "So a join, such as the deals that have an open task, is two list reads and one function. A single-select value is the option id, not its label: get_record_schema maps option ids to labels. Date is undefined in the sandbox: createdAt, updatedAt and date custom-field values are ISO strings to compare or slice as text, for example value.slice(0, 7) for the month. " +
   "When the answer is a count or total per status, owner, or created or updated month, prefer filters, sums or list_records groupBy, and report figures exactly as the result states them.";
@@ -77,9 +78,25 @@ function counted(usage: DataUsage, result: ReadResult): ReadResult {
   return !result.ok || withinDataCap(usage, result.data) ? result : TOO_MUCH_DATA;
 }
 
+function inputShape(mcp: McpTool): Record<string, unknown> {
+  return mcp.inputSchema instanceof z.ZodObject ? (mcp.inputSchema.shape as Record<string, unknown>) : {};
+}
+
 function isPageable(mcp: McpTool): boolean {
-  const shape = mcp.inputSchema instanceof z.ZodObject ? (mcp.inputSchema.shape as Record<string, unknown>) : {};
+  const shape = inputShape(mcp);
   return "page" in shape && "pageSize" in shape;
+}
+
+function pagesByCursorOrOffset(mcp: McpTool): boolean {
+  const shape = inputShape(mcp);
+  return !isPageable(mcp) && ("cursor" in shape || "offset" in shape);
+}
+
+function readableRows(mcp: McpTool): number {
+  const page = inputShape(mcp).page;
+  const bounded = page instanceof z.ZodDefault ? page.unwrap() : page;
+  const lastPage = bounded instanceof z.ZodNumber ? bounded.maxValue : null;
+  return lastPage === null ? Number.POSITIVE_INFINITY : lastPage * ANALYSIS_PAGE_SIZE;
 }
 
 function parseReadInput(read: Read): Record<string, unknown> | string {
@@ -98,12 +115,24 @@ function partialSetError(mcp: McpTool, returned: number, total: number): string 
   return `${mcp.name} returned ${returned} of ${total} rows, so the analysis did not run on a partial set.`;
 }
 
+function partialList(entry: unknown): { returned: number; total: number } | null {
+  if (!entry || typeof entry !== "object") return null;
+  const { items, total } = entry as { items?: unknown; total?: unknown };
+  if (!Array.isArray(items) || typeof total !== "number" || items.length >= total) return null;
+  return { returned: items.length, total };
+}
+
 function unpagedResult(mcp: McpTool, content: Record<string, unknown>): ReadResult {
   const arrays = Object.values(content).filter((value): value is unknown[] => Array.isArray(value));
   const total = content.total;
-  if (typeof total !== "number" || arrays.length === 0 || arrays.some((array) => array.length >= total))
-    return { ok: true, data: content, rows: 0 };
-  return { ok: false, error: partialSetError(mcp, Math.max(...arrays.map((array) => array.length)), total) };
+  if (typeof total === "number" && arrays.length > 0 && arrays.every((array) => array.length < total))
+    return { ok: false, error: partialSetError(mcp, Math.max(...arrays.map((array) => array.length)), total) };
+  const nested = arrays
+    .flat()
+    .map(partialList)
+    .find((partial) => partial !== null);
+  if (nested) return { ok: false, error: partialSetError(mcp, nested.returned, nested.total) };
+  return { ok: true, data: content, rows: 0 };
 }
 
 async function runPage(
@@ -123,7 +152,7 @@ async function runRead(mcp: McpTool, read: Read, rowBudget: number, usage: DataU
   const input = { ...ANALYSIS_READ_DEFAULTS[mcp.name], ...parsed };
   if (!isPageable(mcp)) {
     const single = await runPage(mcp, input);
-    return single.ok ? counted(usage, { ok: true, data: single.content, rows: 0 }) : single;
+    return single.ok ? counted(usage, unpagedResult(mcp, single.content)) : single;
   }
 
   const first = await runPage(mcp, { ...input, page: 1, pageSize: ANALYSIS_PAGE_SIZE });
@@ -132,7 +161,19 @@ async function runRead(mcp: McpTool, read: Read, rowBudget: number, usage: DataU
     Object.entries(first.content).filter(([key]) => key !== "page" && key !== "pageSize"),
   );
   const firstItems = firstContent.items;
-  if (Array.isArray(firstContent.groups)) return counted(usage, { ok: true, data: firstContent, rows: 0 });
+  if (firstContent.scopeTruncated === true) {
+    return {
+      ok: false,
+      error: `${mcp.name} left out every message, activity and calendar event because its filters or scope reach more than ${ACTIVITY_SCOPE_CONTACT_MAX} contacts. Narrow them.`,
+    };
+  }
+  if (Array.isArray(firstContent.groups)) {
+    if (firstContent.groupsIncomplete !== true) return counted(usage, { ok: true, data: firstContent, rows: 0 });
+    return {
+      ok: false,
+      error: `${mcp.name} listed only some groups, or the sums of only some groups, so the analysis did not run on a partial set. Read the rows without groupBy and group them in the code.`,
+    };
+  }
   if (!Array.isArray(firstItems)) return counted(usage, unpagedResult(mcp, firstContent));
   const total = typeof firstContent.total === "number" ? firstContent.total : firstItems.length;
   if (total > rowBudget) {
@@ -143,6 +184,13 @@ async function runRead(mcp: McpTool, read: Read, rowBudget: number, usage: DataU
     return {
       ok: false,
       error: `${mcp.name} matched ${total} rows, more than ${limit}. Narrow its filters, or split the question.`,
+    };
+  }
+  const reachable = readableRows(mcp);
+  if (total > reachable) {
+    return {
+      ok: false,
+      error: `${mcp.name} matched ${total} rows, more than the ${reachable} its page limit lets one analysis read. Narrow its filters.`,
     };
   }
 
@@ -192,14 +240,19 @@ export async function analyzeRecords(
   input: AnalyzeRecordsInput,
   deps: AnalysisDeps,
 ): Promise<{ ok: boolean; result: string }> {
-  const readable = new Map(deps.tools.filter((mcp) => isReadOnlyTool(mcp)).map((mcp) => [mcp.name, mcp]));
+  const readOnly = deps.tools.filter((mcp) => isReadOnlyTool(mcp));
+  const readable = new Map(readOnly.filter((mcp) => !pagesByCursorOrOffset(mcp)).map((mcp) => [mcp.name, mcp]));
+  const readableTools = `Readable tools: ${[...readable.keys()].sort().join(", ")}.`;
   const planned: { read: Read; mcp: McpTool }[] = [];
   for (const read of input.reads) {
     const mcp = readable.get(read.tool);
     if (!mcp) {
+      const pagedByCursor = readOnly.some((tool) => tool.name === read.tool);
       return {
         ok: false,
-        result: `${read.tool} is not a read-only tool this analysis can call. Nothing was run. Readable tools: ${[...readable.keys()].sort().join(", ")}.`,
+        result: pagedByCursor
+          ? `${read.tool} pages by cursor or offset, so an analysis cannot read all of it; call it directly. Nothing was run. ${readableTools}`
+          : `${read.tool} is not a read-only tool this analysis can call. Nothing was run. ${readableTools}`,
       };
     }
     planned.push({ read, mcp });

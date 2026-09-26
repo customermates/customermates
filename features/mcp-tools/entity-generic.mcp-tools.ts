@@ -276,6 +276,10 @@ const ListRecordsOutputSchema = z.object({
     )
     .optional()
     .describe("Present with groupBy: one entry per value of the grouped field, and items is empty"),
+  groupsIncomplete: z
+    .literal(true)
+    .optional()
+    .describe("Present when only some groups, or the sums of only some groups, are listed; groupNote says which"),
   groupNote: z.string().optional(),
   items: z.array(
     z
@@ -545,11 +549,12 @@ function groupedListResult(
     count: group.count,
     ...(group.valueSums ? { sums: group.valueSums } : {}),
   }));
+  const partialSums = groups.some((group) => group.sums) && groups.some((group) => !group.sums);
   const notes = [
     ...(grouping.membershipTotal !== undefined && grouping.membershipTotal > total
       ? ["A record in several groups counts in each of them, so the group counts add up to more than total."]
       : []),
-    ...(groups.some((group) => group.sums) && groups.some((group) => !group.sums)
+    ...(partialSums
       ? ["Per-group sums cover the first 25 groups; filter to one group for the sums of the others."]
       : []),
     ...(grouping.overflow ? [`Only the first ${grouping.overflow.shown} groups are listed.`] : []),
@@ -562,6 +567,7 @@ function groupedListResult(
     page,
     pageSize,
     groupedBy: encodeGroupingToken(grouping.grouping),
+    ...(grouping.overflow || partialSums ? { groupsIncomplete: true as const } : {}),
     ...(notes.length > 0 ? { groupNote: notes.join(" ") } : {}),
     groups,
     items: [],

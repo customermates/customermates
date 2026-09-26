@@ -168,3 +168,47 @@ describe("list_records groupBy on a date", () => {
     );
   });
 });
+
+describe("list_records groupBy on a relation", () => {
+  function organizationGroups(count: number, sums: number, overflow?: { shown: number }) {
+    const groups = Array.from({ length: count }, (_unused, index) => ({
+      key: `org-${index}`,
+      label: `Org ${index}`,
+      count: 2,
+      labelKind: "value",
+      isNoValue: false,
+      materialised: false,
+      itemIds: [],
+      hasMore: false,
+      ...(index < sums ? { valueSums: { totalValue: 100 } } : {}),
+    }));
+    spies.listDeals.mockResolvedValue({
+      ok: true,
+      data: {
+        items: [],
+        pagination: { total: count * 2 },
+        grouping: {
+          grouping: { field: "organizationIds" },
+          kind: "relation",
+          supportsDragWriteBack: false,
+          total: count * 2,
+          groups,
+          ...(overflow ? { overflow } : {}),
+        },
+      },
+    });
+  }
+
+  it("flags a result that lists only some groups, or the sums of only some groups, and leaves a complete one unflagged", async () => {
+    organizationGroups(50, 50, { shown: 50 });
+    const overflowing = await list({ groupBy: { field: "organizationIds" } });
+    expect(overflowing.groupsIncomplete).toBe(true);
+    expect(listRecordsTool.outputSchema.safeParse(overflowing).success).toBe(true);
+
+    organizationGroups(30, 25);
+    expect((await list({ groupBy: { field: "organizationIds" } })).groupsIncomplete).toBe(true);
+
+    organizationGroups(20, 20);
+    expect(await list({ groupBy: { field: "organizationIds" } })).not.toHaveProperty("groupsIncomplete");
+  });
+});

@@ -678,7 +678,8 @@ describe("analyze_records", () => {
   });
 
   it("puts the include: [] advice directly after the sentence that lists the list_records fields, before the date note", () => {
-    const listing = "and for deals totalValue, totalQuantity and weightedValue. ";
+    const listing =
+      "and for deals totalValue, totalQuantity and weightedValue, which is missing when the stage has no win probability. ";
     const advice = "Pass include: [] on a list read that needs only id, name and the deal totals. ";
     expect(ANALYZE_RECORDS_DESCRIPTION).toContain(`${listing}${advice}In userIds and the link arrays`);
     expect(ANALYZE_RECORDS_DESCRIPTION.split(advice)).toHaveLength(2);
@@ -732,5 +733,238 @@ describe("analyze_records", () => {
       AnalyzeRecordsSchema.safeParse({ reads: [{ tool: "list_things", input }], code: "() => 1" }).success;
     expect([{ prefix: "A" }, '{"prefix":"A"}', undefined].map((input) => parses(input))).toEqual([true, true, true]);
     expect([[{ prefix: "A" }], 42, null, true].map((input) => parses(input))).toEqual([false, false, false, false]);
+  });
+});
+
+describe("analyze_records on a read that holds only part of its rows", () => {
+  const NOT_RUN = "The analysis code was not run.";
+
+  function fixedRead(name: string, shape: z.ZodRawShape, content: Record<string, unknown>) {
+    const execute = vi.fn(() => ({ text: JSON.stringify(content), structuredContent: content }));
+    const tool: McpTool = {
+      name,
+      title: name,
+      description: name,
+      annotations: { readOnlyHint: true },
+      inputSchema: z.object(shape),
+      execute: execute as never,
+    };
+    return { tool, execute };
+  }
+
+  it("refuses a read that pages by cursor or offset before any read runs, and names the tools it can read", async () => {
+    const { tool: posts, execute } = fixedRead(
+      "get_social_posts",
+      { cursor: z.string().optional(), offset: z.number().optional(), limit: z.number().optional() },
+      { total: 10, next_cursor: "cursor-2", items: Array.from({ length: 10 }, (_, index) => ({ id: `${index}` })) },
+    );
+    const { tool: leads } = fixedRead("linkedin_search_sales_leads", { offset: z.number().optional() }, {});
+    const { tool: things, execute: listed } = listTool("list_things", 3);
+
+    for (const name of ["get_social_posts", "linkedin_search_sales_leads"]) {
+      await expect(
+        analyzeRecords(
+          { reads: [read("list_things"), read(name)], code: "(data) => data" },
+          deps(things, posts, leads),
+        ),
+      ).resolves.toEqual({
+        ok: false,
+        result: `${name} pages by cursor or offset, so an analysis cannot read all of it; call it directly. Nothing was run. Readable tools: list_things.`,
+      });
+    }
+    expect(execute).not.toHaveBeenCalled();
+    expect(listed).not.toHaveBeenCalled();
+  });
+
+  it("refuses a read that takes no pages when it returns fewer rows than its total, in a list or in a nested one", async () => {
+    const top = fixedRead(
+      "get_things",
+      { query: z.string().optional() },
+      {
+        total: 2_500,
+        items: Array.from({ length: 10 }, (_, index) => ({ id: `${index}` })),
+      },
+    );
+    const nested = fixedRead(
+      "search_records",
+      { searchTerm: z.string().optional() },
+      {
+        searchTerm: "Atlas",
+        results: [
+          { entity: "contact", total: 1, items: [{ id: "c" }] },
+          { entity: "deal", total: 300, items: Array.from({ length: 5 }, (_, index) => ({ id: `${index}` })) },
+        ],
+      },
+    );
+    const whole = fixedRead(
+      "search_records",
+      { searchTerm: z.string().optional() },
+      {
+        searchTerm: "Atlas",
+        results: [{ entity: "deal", total: 2, items: [{ id: "a" }, { id: "b" }] }],
+      },
+    );
+
+    await expect(analyzeRecords({ reads: [read("get_things")], code: "(data) => 1" }, deps(top.tool))).resolves.toEqual(
+      {
+        ok: false,
+        result: `get_things returned 10 of 2500 rows, so the analysis did not run on a partial set. ${NOT_RUN}`,
+      },
+    );
+    await expect(
+      analyzeRecords({ reads: [read("search_records")], code: "(data) => 1" }, deps(nested.tool)),
+    ).resolves.toEqual({
+      ok: false,
+      result: `search_records returned 5 of 300 rows, so the analysis did not run on a partial set. ${NOT_RUN}`,
+    });
+    await expect(
+      analyzeRecords(
+        { reads: [read("search_records")], code: "(data) => data[0].results[0].items.length" },
+        deps(whole.tool),
+      ),
+    ).resolves.toEqual({ ok: true, result: JSON.stringify({ rowsRead: 0, result: 2 }) });
+  });
+
+  it("refuses a grouped list_records read that lists only some groups or some groups' sums, and takes a complete one", async () => {
+    const group = (index: number, sums?: Record<string, number>) => ({
+      key: `org-${index}`,
+      label: `Org ${index}`,
+      count: 3,
+      labelKind: "value",
+      isNoValue: false,
+      materialised: false,
+      itemIds: [],
+      hasMore: false,
+      ...(sums ? { valueSums: sums } : {}),
+    });
+    const grouped = (groups: ReturnType<typeof group>[], overflow?: { shown: number }) =>
+      listed.deal.mockResolvedValue({
+        ok: true,
+        data: {
+          items: [],
+          pagination: { total: 170 },
+          grouping: {
+            grouping: { field: "organizationIds" },
+            kind: "relation",
+            supportsDragWriteBack: false,
+            total: 170,
+            groups,
+            ...(overflow ? { overflow } : {}),
+          },
+        },
+      });
+    const analyze = () =>
+      analyzeRecords(
+        {
+          reads: [read("list_records", { entity: "deal", groupBy: { field: "organizationIds" } })],
+          code: "(data) => data[0].groups.length",
+        },
+        deps(listRecordsTool as McpTool),
+      );
+    const refused = {
+      ok: false,
+      result: `list_records listed only some groups, or the sums of only some groups, so the analysis did not run on a partial set. Read the rows without groupBy and group them in the code. ${NOT_RUN}`,
+    };
+
+    grouped(
+      Array.from({ length: 50 }, (_, index) => group(index)),
+      { shown: 50 },
+    );
+    await expect(analyze()).resolves.toEqual(refused);
+    grouped(Array.from({ length: 30 }, (_, index) => group(index, index < 25 ? { totalValue: 100 } : undefined)));
+    await expect(analyze()).resolves.toEqual(refused);
+    grouped(Array.from({ length: 20 }, (_, index) => group(index, { totalValue: 100 })));
+    await expect(analyze()).resolves.toEqual({ ok: true, result: JSON.stringify({ rowsRead: 0, result: 20 }) });
+  });
+
+  it("refuses an activity read that left out every contact source because its scope reached too many contacts", async () => {
+    const execute = vi.fn(({ page, pageSize }: { page: number; pageSize: number }) => {
+      const payload = {
+        total: 30,
+        page,
+        pageSize,
+        items: Array.from({ length: 30 }, (_, index) => ({ id: `audit-${index}`, kind: "audit" })),
+        pageLimitReached: false,
+        scopeTruncated: true,
+      };
+      return { text: JSON.stringify(payload), structuredContent: payload };
+    });
+    const activities: McpTool = {
+      name: "get_activities",
+      title: "activities",
+      description: "activities",
+      annotations: { readOnlyHint: true },
+      inputSchema: z.object({ page: z.number().default(1), pageSize: z.number().default(25) }),
+      execute: execute as never,
+    };
+
+    await expect(
+      analyzeRecords({ reads: [read("get_activities")], code: "(data) => data[0].items.length" }, deps(activities)),
+    ).resolves.toEqual({
+      ok: false,
+      result: `get_activities left out every message, activity and calendar event because its filters or scope reach more than 500 contacts. Narrow them. ${NOT_RUN}`,
+    });
+    expect(execute).toHaveBeenCalledTimes(1);
+  });
+
+  it("refuses after the first page a read whose total its page limit cannot reach, and reads one it can", async () => {
+    const capped = (rows: number) => {
+      const { tool, execute } = listTool("get_activities", rows);
+      const bounded = {
+        ...tool,
+        inputSchema: z.object({
+          page: z.coerce.number().int().min(1).max(40).default(1),
+          pageSize: z.coerce.number().int().min(1).max(100).default(25),
+        }),
+      };
+      return { tool: bounded, execute };
+    };
+    const over = capped(4_500);
+    await expect(
+      analyzeRecords({ reads: [read("get_activities")], code: "(data) => data[0].items.length" }, deps(over.tool)),
+    ).resolves.toEqual({
+      ok: false,
+      result: `get_activities matched 4500 rows, more than the 4000 its page limit lets one analysis read. Narrow its filters. ${NOT_RUN}`,
+    });
+    expect(over.execute).toHaveBeenCalledTimes(1);
+
+    const within = capped(4_000);
+    await expect(
+      analyzeRecords({ reads: [read("get_activities")], code: "(data) => data[0].items.length" }, deps(within.tool)),
+    ).resolves.toEqual({ ok: true, result: JSON.stringify({ rowsRead: 4_000, result: 4_000 }) });
+    expect(within.execute).toHaveBeenCalledTimes(40);
+  });
+
+  it("refuses a read that reports its page limit on a later page", async () => {
+    const execute = vi.fn(({ page, pageSize }: { page: number; pageSize: number }) => {
+      const payload = {
+        total: 300,
+        page,
+        pageSize,
+        items: Array.from({ length: pageSize }, (_, index) => ({ id: `${page}-${index}` })),
+        pageLimitReached: page >= 2,
+      };
+      return { text: JSON.stringify(payload), structuredContent: payload };
+    });
+    const tool: McpTool = {
+      name: "get_activities",
+      title: "activities",
+      description: "activities",
+      annotations: { readOnlyHint: true },
+      inputSchema: z.object({ page: z.number().default(1), pageSize: z.number().default(25) }),
+      execute: execute as never,
+    };
+
+    await expect(analyzeRecords({ reads: [read("get_activities")], code: "() => 1" }, deps(tool))).resolves.toEqual({
+      ok: false,
+      result: `get_activities stopped at its page limit before every row was read. Narrow its filters. ${NOT_RUN}`,
+    });
+    expect(execute).toHaveBeenCalledTimes(2);
+  });
+
+  it("tells the code that a deal without a win probability has no weightedValue", () => {
+    expect(ANALYZE_RECORDS_DESCRIPTION).toContain(
+      "weightedValue, which is missing when the stage has no win probability",
+    );
   });
 });
