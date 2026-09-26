@@ -181,14 +181,15 @@ export function agentContextProviderPrefix(contexts: readonly AgentContextAttach
 const PROVIDER_PREFIX_LINE = /^<(?:page_context|selected_context) [^\n]*\/>$/;
 const PROVIDER_RECORD_LINE = /^<selected_context kind="record" entityType="[a-z]+" recordId="([0-9a-fA-F-]{36})"\/>$/;
 
-export function agentContextRecordIdsFromProviderText(text: string): string[] {
+export function agentContextFromProviderText(text: string): { recordIds: string[]; body: string } {
   const recordIds: string[] = [];
-  for (const line of text.split("\n")) {
-    if (!PROVIDER_PREFIX_LINE.test(line)) break;
+  const lines = text.split("\n");
+  const bodyStart = lines.findIndex((line) => !PROVIDER_PREFIX_LINE.test(line));
+  for (const line of bodyStart === -1 ? lines : lines.slice(0, bodyStart)) {
     const recordId = PROVIDER_RECORD_LINE.exec(line)?.[1];
     if (recordId) recordIds.push(recordId.toLowerCase());
   }
-  return recordIds;
+  return { recordIds, body: bodyStart === -1 ? "" : lines.slice(bodyStart).join("\n") };
 }
 
 export function agentContextAttachmentsEqual(

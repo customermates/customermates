@@ -1090,4 +1090,37 @@ describe("ambiguous write targets", () => {
     ]);
     expect(typed.attachedRecordIds).toEqual([]);
   });
+
+  it("reads names only from what the user wrote, never from the page and selected context in front of it", () => {
+    const IT = "44444444-4444-4444-8444-444444444444";
+    const IT_SUPPORT = "55555555-5555-4555-8555-555555555555";
+    const services: Read = {
+      input: { entity: "service" },
+      result: table([
+        [IT, "IT"],
+        [IT_SUPPORT, "IT Support"],
+      ]),
+    };
+    const record = {
+      reference: { kind: "record" as const, entityType: "deal" as const, recordId: NOVA },
+      label: "Nova Expansion",
+    };
+    const text = "Aumenta del 10% il prezzo dei servizi sotto i 100 euro.";
+    const prefixed = ambiguityRequestOf([
+      {
+        role: "user",
+        text: `${agentPageContextPrefix("/it/services?view=default&viewSurface=services")}${agentContextProviderPrefix([record])}${text}`,
+      },
+    ]);
+
+    expect(prefixed).toEqual({ ...ambiguityRequestOf([{ role: "user", text }]), attachedRecordIds: [NOVA] });
+    expect(ambiguousTargetsFromMessages(reads(services), prefixed)).toEqual([]);
+
+    const named = ambiguityRequestOf([
+      { role: "user", text: `${agentPageContextPrefix("/it/services")}Aumenta il prezzo di IT del 10%.` },
+    ]);
+    const [target] = ambiguousTargetsFromMessages(reads(services), named);
+    expect(target).toMatchObject({ entity: "service", phrase: "IT" });
+    expect(refusingTarget([target], false, { services: [{ id: IT }] })).toBe(target);
+  });
 });

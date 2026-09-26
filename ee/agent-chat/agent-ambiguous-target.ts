@@ -1,6 +1,6 @@
 import { decode } from "@toon-format/toon";
 
-import { agentContextRecordIdsFromProviderText } from "./agent-context";
+import { agentContextFromProviderText } from "./agent-context";
 
 export type AmbiguousTarget = { entity: string; phrase: string; candidates: { id: string; name: string }[] };
 
@@ -514,11 +514,11 @@ export function ambiguityRequestOf(history: readonly { role: string; text: strin
   const previousAssistant = history
     .slice(0, Math.max(latestIndex, 0))
     .findLast((message) => message.role === "assistant");
-  const latest = latestIndex >= 0 ? history[latestIndex].text : "";
+  const latest = agentContextFromProviderText(latestIndex >= 0 ? history[latestIndex].text : "");
   return {
-    latestUserText: fold(latest),
+    latestUserText: fold(latest.body),
     previousAssistantText: fold(previousAssistant?.text ?? ""),
-    attachedRecordIds: agentContextRecordIdsFromProviderText(latest),
+    attachedRecordIds: latest.recordIds,
   };
 }
 
