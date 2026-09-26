@@ -2,38 +2,56 @@ import type { RootStore } from "@/core/stores/root.store";
 import type { GlobalSearchResult, GlobalSearchResultItem } from "@/features/search/global-search.interactor";
 
 import { action, makeObservable, observable, reaction } from "mobx";
+import { z } from "zod";
 
 import { BaseModalStore } from "@/core/base/base-modal.store";
 import { Debouncer } from "@/core/utils/debounce";
 import { reportApplicationError } from "@/core/errors/report-application-error";
 import { toastZodErrorTree } from "@/core/utils/toast-zod-error-tree";
 import { checkSearchResultExistsAction, globalSearchAction } from "@/app/[locale]/(protected)/search/actions";
+import { EntityType, TaskType } from "@/generated/prisma";
 
 type GlobalSearchFormData = {
   searchTerm: string;
 };
 
-type RecentSearchItem = GlobalSearchResultItem & { openedAt: number };
+const RecentSearchItemSchema = z.object({
+  type: z.enum(EntityType),
+  id: z.uuid(),
+  name: z.string(),
+  pictureUrl: z.string().nullable(),
+  taskType: z.enum(TaskType).optional(),
+  openedAt: z.number().finite().nonnegative(),
+});
 
-const RECENT_STORAGE_KEY = "customermates:globalSearch:recent:v1";
+type RecentSearchItem = GlobalSearchResultItem & z.infer<typeof RecentSearchItemSchema>;
+
+const RECENT_STORAGE_PREFIX = "customermates:globalSearch:recent:v2";
 const RECENT_MAX = 8;
 
-function readRecentFromStorage(): RecentSearchItem[] {
-  if (typeof window === "undefined") return [];
+function recentStorageKey(rootStore: RootStore): string | null {
+  const user = rootStore.userStore.user;
+  return user ? `${RECENT_STORAGE_PREFIX}:${user.companyId}:${user.id}` : null;
+}
+
+function readRecentFromStorage(storageKey: string | null): RecentSearchItem[] {
+  if (!storageKey || typeof window === "undefined") return [];
   try {
-    const parsed = JSON.parse(window.localStorage.getItem(RECENT_STORAGE_KEY) ?? "[]");
-    return Array.isArray(parsed)
-      ? parsed.filter((it): it is RecentSearchItem => typeof it?.id === "string" && typeof it?.type === "string")
-      : [];
+    const parsed = JSON.parse(window.localStorage.getItem(storageKey) ?? "[]");
+    if (!Array.isArray(parsed)) return [];
+    return parsed.flatMap((item) => {
+      const recent = RecentSearchItemSchema.safeParse(item);
+      return recent.success ? [recent.data] : [];
+    });
   } catch {
     return [];
   }
 }
 
-function writeRecentToStorage(items: RecentSearchItem[]) {
-  if (typeof window === "undefined") return;
+function writeRecentToStorage(storageKey: string | null, items: RecentSearchItem[]) {
+  if (!storageKey || typeof window === "undefined") return;
   try {
-    window.localStorage.setItem(RECENT_STORAGE_KEY, JSON.stringify(items));
+    window.localStorage.setItem(storageKey, JSON.stringify(items));
   } catch {}
 }
 
@@ -43,15 +61,17 @@ export class GlobalSearchModalStore extends BaseModalStore<GlobalSearchFormData>
   public recentItems: RecentSearchItem[] = [];
 
   private debouncer = new Debouncer();
+  private recentStorageKey: string | null = null;
 
   constructor(rootStore: RootStore) {
     super(rootStore, {
       searchTerm: "",
     });
 
-    this.recentItems = readRecentFromStorage();
+    this.recentStorageKey = recentStorageKey(rootStore);
+    this.recentItems = readRecentFromStorage(this.recentStorageKey);
 
-    makeObservable(this, {
+    makeObservable<this, "syncRecentScope">(this, {
       results: observable,
       debouncedSearchTerm: observable,
       recentItems: observable,
@@ -60,9 +80,14 @@ export class GlobalSearchModalStore extends BaseModalStore<GlobalSearchFormData>
       pushRecentItem: action,
       removeRecentItem: action,
       clearRecentItems: action,
+      syncRecentScope: action,
     });
 
     this.setupSearchReaction();
+    reaction(
+      () => recentStorageKey(rootStore),
+      () => this.syncRecentScope(),
+    );
   }
 
   setDebouncedSearchTerm = (term: string) => {
@@ -74,29 +99,46 @@ export class GlobalSearchModalStore extends BaseModalStore<GlobalSearchFormData>
   };
 
   pushRecentItem = (item: GlobalSearchResultItem) => {
+    this.syncRecentScope();
     const next: RecentSearchItem = { ...item, openedAt: Date.now() };
     const filtered = this.recentItems.filter((it) => !(it.type === item.type && it.id === item.id));
     this.recentItems = [next, ...filtered].slice(0, RECENT_MAX);
-    writeRecentToStorage(this.recentItems);
+    writeRecentToStorage(this.recentStorageKey, this.recentItems);
   };
 
-  removeRecentItem = (id: string) => {
-    this.recentItems = this.recentItems.filter((it) => it.id !== id);
-    writeRecentToStorage(this.recentItems);
+  removeRecentItem = (id: string, type: EntityType) => {
+    this.syncRecentScope();
+    this.recentItems = this.recentItems.filter((item) => item.id !== id || item.type !== type);
+    writeRecentToStorage(this.recentStorageKey, this.recentItems);
   };
 
   verifyRecentItem = async (item: GlobalSearchResultItem): Promise<boolean> => {
-    const exists = await checkSearchResultExistsAction({ type: item.type, id: item.id });
+    this.syncRecentScope();
+    const storageKey = this.recentStorageKey;
+    const exists = await checkSearchResultExistsAction({
+      type: item.type,
+      id: item.id,
+    });
+    this.syncRecentScope();
+    if (storageKey !== this.recentStorageKey) return false;
     if (!exists) {
-      this.removeRecentItem(item.id);
+      this.removeRecentItem(item.id, item.type);
       this.toastError("GlobalSearch.staleItem");
     }
     return exists;
   };
 
   clearRecentItems = () => {
+    this.syncRecentScope();
     this.recentItems = [];
-    writeRecentToStorage(this.recentItems);
+    writeRecentToStorage(this.recentStorageKey, this.recentItems);
+  };
+
+  private syncRecentScope = () => {
+    const storageKey = recentStorageKey(this.rootStore);
+    if (storageKey === this.recentStorageKey) return;
+    this.recentStorageKey = storageKey;
+    this.recentItems = readRecentFromStorage(storageKey);
   };
 
   private setupSearchReaction = () => {

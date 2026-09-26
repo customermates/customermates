@@ -1,4 +1,5 @@
 import { describe, expect, it } from "vitest";
+import { resolve } from "node:path";
 
 import { requireLocalBenchmarkEnvironment } from "../env";
 
@@ -8,6 +9,8 @@ const base = {
   DATABASE_URL: "postgresql://postgres:postgres@127.0.0.1:20677/customermates",
   AI_GATEWAY_API_KEY: "key",
   WORKFLOW_LOCAL_BASE_URL: "http://localhost:4107",
+  WORKFLOW_LOCAL_DATA_DIR: resolve(".next/workflow-data"),
+  WORKFLOW_LOCAL_RECOVER_ACTIVE_RUNS: "false",
 };
 
 describe("benchmark environment", () => {
@@ -25,6 +28,30 @@ describe("benchmark environment", () => {
     expect(() => requireLocalBenchmarkEnvironment({ ...base, WORKFLOW_LOCAL_BASE_URL: "http://localhost:4002" })).toThrow(
       /same origin as BASE_URL/,
     );
+  });
+
+  it("refuses a missing or relative workflow data directory", () => {
+    expect(() =>
+      requireLocalBenchmarkEnvironment({
+        ...base,
+        WORKFLOW_LOCAL_DATA_DIR: undefined,
+      }),
+    ).toThrow(/absolute path shared/);
+    expect(() =>
+      requireLocalBenchmarkEnvironment({
+        ...base,
+        WORKFLOW_LOCAL_DATA_DIR: ".next/workflow-data",
+      }),
+    ).toThrow(/absolute path shared/);
+  });
+
+  it("refuses to let the secondary CLI worker recover server runs", () => {
+    expect(() =>
+      requireLocalBenchmarkEnvironment({
+        ...base,
+        WORKFLOW_LOCAL_RECOVER_ACTIVE_RUNS: "true",
+      }),
+    ).toThrow(/cannot recover the server's active runs/);
   });
 
   it("still refuses a deployment environment and a remote database", () => {

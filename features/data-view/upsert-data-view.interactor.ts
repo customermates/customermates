@@ -13,6 +13,9 @@ import { failNotFound } from "@/core/validation/interactor-failure-server";
 import { CustomErrorCode } from "@/core/validation/validation.types";
 import { UpsertDataViewSchema } from "./data-view.schema";
 
+type UpdateDataViewData = Extract<UpsertDataViewData, { id: string }>;
+type CreateDataViewData = Exclude<UpsertDataViewData, { id: string }>;
+
 export abstract class UpsertDataViewRepo {
   abstract findOwnedOrNull(id: string): Promise<DataViewDto | null>;
   abstract nextPosition(surfaceKey: string): Promise<number>;
@@ -43,22 +46,27 @@ export class UpsertDataViewInteractor extends AuthenticatedInteractor<UpsertData
   @Transaction
   @ValidateOutput(DataViewDtoSchema)
   async invoke(data: UpsertDataViewData): Validated<DataViewDto> {
-    const view = data.id ? await this.updateExisting(data) : await this.createNew(data);
+    const view = "id" in data ? await this.updateExisting(data) : await this.createNew(data);
 
     if (!view) return failNotFound(CustomErrorCode.dataViewNotFound, ["id"]);
 
     return { ok: true as const, data: view };
   }
 
-  private async updateExisting(data: UpsertDataViewData) {
-    const id = data.id as string;
+  private async updateExisting(data: UpdateDataViewData) {
+    const id = data.id;
     const owned = await this.repo.findOwnedOrNull(id);
     if (!owned || owned.surfaceKey !== data.surfaceKey) return null;
 
-    return this.repo.updateOwned({ id, name: data.name, position: data.position, state: data.state });
+    return this.repo.updateOwned({
+      id,
+      ...(data.name !== undefined ? { name: data.name } : {}),
+      ...(data.position !== undefined ? { position: data.position } : {}),
+      ...(data.state !== undefined ? { state: data.state } : {}),
+    });
   }
 
-  private async createNew(data: UpsertDataViewData) {
+  private async createNew(data: CreateDataViewData) {
     const position = data.position ?? (await this.repo.nextPosition(data.surfaceKey));
 
     const created = await this.repo.createView({

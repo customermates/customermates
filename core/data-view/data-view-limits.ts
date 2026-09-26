@@ -1,0 +1,1 @@
+export const DATA_VIEW_NAME_MAX_LENGTH = 60;

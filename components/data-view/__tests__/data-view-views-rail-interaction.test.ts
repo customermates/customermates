@@ -7,14 +7,30 @@ import { act, createElement } from "react";
 import { createRoot } from "react-dom/client";
 import { afterEach, beforeEach, describe, expect, it, vi } from "vitest";
 
-import { ALL_VIEW_KEY } from "@/core/data-view/data-view-keys";
+import { ALL_VIEW_KEY, SURFACE } from "@/core/data-view/data-view-keys";
 
 const harness = vi.hoisted(() => ({
+  agent: {
+    enabled: true,
+    composerDraft: "",
+    composerContexts: [] as unknown[],
+    contextRegistry: {
+      candidates: vi.fn(() => []),
+      register: vi.fn(() => vi.fn()),
+    },
+    addComposerContext: vi.fn(),
+    open: vi.fn(),
+    openWithDraft: vi.fn<(draft: string) => void>(),
+    openWithContextDraft: vi.fn(),
+    viewContext: { register: vi.fn(() => vi.fn()) },
+  },
   appMode: { current: "cloud" as "cloud" | "demo" | "self-hosted" },
   calls: [] as string[],
   confirmations: [] as { entityName?: string; onConfirm: () => Promise<boolean> }[],
   deleteDataViewAction: vi.fn(),
+  menuOpen: false,
   menuCloseAutoFocus: { current: undefined as ((event: Event) => void) | undefined },
+  overlayCloseAutoFocus: { current: undefined as ((event: Event) => void) | undefined },
   routerPush: vi.fn(),
   searchParams: { current: "" },
   upsertDataViewAction: vi.fn(),
@@ -34,7 +50,10 @@ vi.mock("next-intl", () => ({
     values ? `${key}(${Object.values(values).join(",")})` : key,
 }));
 vi.mock("@/core/stores/root-store.provider", () => ({
-  useRootStore: () => ({ appMode: harness.appMode.current }),
+  useRootStore: () => ({ appMode: harness.appMode.current, agentChatStore: harness.agent }),
+}));
+vi.mock("@/components/entity-terminology/use-entity-terminology", () => ({
+  useEntityTerminology: () => ({ singular: (entity: string) => entity }),
 }));
 vi.mock("sonner", () => ({ toast: { error: vi.fn(), success: vi.fn() } }));
 vi.mock("@/app/actions", () => ({
@@ -60,23 +79,30 @@ vi.mock("@/components/modal/responsive-overlay", () => ({
     open,
     trigger,
     onOpenChange,
+    onCloseAutoFocus,
   }: {
     children: ReactNode;
     footer?: ReactNode;
     open: boolean;
     trigger: ReactNode;
     onOpenChange: (open: boolean) => void;
-  }) =>
-    createElement(
+    onCloseAutoFocus?: (event: Event) => void;
+  }) => {
+    harness.overlayCloseAutoFocus.current = onCloseAutoFocus;
+    return createElement(
       "div",
       null,
       createElement("span", { onClick: () => onOpenChange(!open) }, trigger),
       open ? children : null,
       open ? footer : null,
-    ),
+    );
+  },
 }));
 vi.mock("@/components/ui/dropdown-menu", () => ({
-  DropdownMenu: ({ children }: { children: ReactNode }) => createElement("div", null, children),
+  DropdownMenu: ({ children, open }: { children: ReactNode; open: boolean }) => {
+    harness.menuOpen = open;
+    return createElement("div", null, children);
+  },
   DropdownMenuContent: ({
     children,
     onCloseAutoFocus,
@@ -92,15 +118,21 @@ vi.mock("@/components/ui/dropdown-menu", () => ({
     children,
     disabled,
     onSelect,
+    ...props
   }: {
     children: ReactNode;
     disabled?: boolean;
     onSelect: () => void;
-  }) => createElement("button", { disabled, onClick: onSelect, type: "button" }, children),
+    id?: string;
+    "aria-label"?: string;
+  }) => createElement("button", { ...props, disabled, onClick: onSelect, type: "button" }, children),
   DropdownMenuTrigger: ({ children }: { children: ReactNode }) => children,
 }));
 
+vi.mock("@/app/components/agent-chat/chat-ui", () => ({ focusAgentComposer: vi.fn() }));
+
 import { DataViewViewsRail } from "../views/data-view-views-rail";
+import { focusAgentComposer } from "@/app/components/agent-chat/chat-ui";
 
 type Item = { id: string };
 
@@ -214,6 +246,23 @@ function swallowNavigation(event: Event): void {
 }
 
 beforeEach(() => {
+  harness.agent.enabled = true;
+  harness.agent.composerDraft = "";
+  harness.agent.composerContexts = [];
+  harness.agent.open.mockReset();
+  harness.agent.openWithDraft.mockReset().mockImplementation((draft) => {
+    harness.agent.composerDraft = draft;
+  });
+  harness.agent.openWithContextDraft.mockReset().mockImplementation(({ context, draft }) => {
+    harness.agent.composerContexts = [context];
+    if (!harness.agent.composerDraft.trim()) harness.agent.composerDraft = draft;
+  });
+  harness.agent.addComposerContext.mockReset();
+  harness.agent.contextRegistry.candidates.mockReset().mockReturnValue([]);
+  harness.agent.contextRegistry.register.mockClear();
+  harness.agent.viewContext.register.mockClear();
+  harness.overlayCloseAutoFocus.current = undefined;
+  vi.mocked(focusAgentComposer).mockClear();
   (globalThis as { IS_REACT_ACT_ENVIRONMENT?: boolean }).IS_REACT_ACT_ENVIRONMENT = true;
   harness.appMode.current = "cloud";
   harness.calls.length = 0;
@@ -246,6 +295,160 @@ afterEach(() => {
 });
 
 describe("data view rail interaction", () => {
+  it("does not replace the assistant context for a surface without saved views", () => {
+    const host = render(store({ p13nId: undefined }));
+    expect(host.querySelector("#global-data-views")).toBeNull();
+    expect(harness.agent.viewContext.register).not.toHaveBeenCalled();
+  });
+
+  it.each([SURFACE.operatorUsers, SURFACE.operatorWorkspaces, SURFACE.operatorAudit])(
+    "does not offer AI management on operator surface %s",
+    (surfaceKey) => {
+      const host = render(store({ p13nId: surfaceKey }));
+      expect(host.querySelector("#global-data-views-ai")).toBeNull();
+      act(() => host.querySelector<HTMLButtonElement>("#global-data-views-new")?.click());
+      expect(host.querySelector("#view-editor-ai")).toBeNull();
+      expect(harness.agent.viewContext.register).not.toHaveBeenCalled();
+    },
+  );
+
+  it("opens chat with the selected view attached and does not send", () => {
+    const host = render(store({ activeViewKey: OPEN.id }));
+    const button = host.querySelector<HTMLButtonElement>("#global-data-views-ai");
+    expect(button?.getAttribute("aria-label")).toBe("DataView.views.aiLabel(Open deals)");
+
+    act(() => button?.click());
+    expect(harness.agent.openWithContextDraft).not.toHaveBeenCalled();
+    const closeEvent = new Event("closeAutoFocus", { cancelable: true });
+    act(() => harness.menuCloseAutoFocus.current?.(closeEvent));
+
+    expect(closeEvent.defaultPrevented).toBe(true);
+    expect(harness.agent.openWithContextDraft).toHaveBeenCalledExactlyOnceWith({
+      context: {
+        label: "AgentChat.context.viewLabel(Open deals,AgentChat.context.surfaceViewTypeStandalone(deal))",
+        reference: {
+          kind: "dataView",
+          requestedAction: "update",
+          surfaceKey: SURFACE.deals,
+          viewKey: OPEN.id,
+        },
+      },
+      draft: "AgentChat.context.starter.update(Open deals)",
+      pageRoute: `/en/deals?view=${OPEN.id}&viewSurface=${SURFACE.deals}&viewAction=update`,
+    });
+    expect(focusAgentComposer).toHaveBeenCalledOnce();
+    expect(harness.agent.viewContext.register).toHaveBeenCalledTimes(2);
+  });
+
+  it("attaches All without replacing an unrelated composer draft", () => {
+    const host = render(store());
+    harness.agent.composerDraft = "Keep my unfinished request";
+    act(() => host.querySelector<HTMLButtonElement>("#global-data-views-ai")?.click());
+    act(() => harness.menuCloseAutoFocus.current?.(new Event("closeAutoFocus", { cancelable: true })));
+
+    expect(harness.agent.composerDraft).toBe("Keep my unfinished request");
+    expect(harness.agent.openWithContextDraft).toHaveBeenCalledWith(
+      expect.objectContaining({
+        context: expect.objectContaining({
+          label: "AgentChat.context.viewLabel(DataView.views.all,AgentChat.context.surfaceViewTypeStandalone(deal))",
+          reference: expect.objectContaining({ viewKey: ALL_VIEW_KEY }),
+        }),
+      }),
+    );
+  });
+
+  it("keeps manual view controls available when hosted chat is disabled", () => {
+    harness.agent.enabled = false;
+    const host = render(store());
+    expect(host.querySelector("#global-data-views-ai")).toBeNull();
+    expect(host.querySelector("#global-data-views-new")).not.toBeNull();
+    act(() => host.querySelector<HTMLButtonElement>("#global-data-views-new")?.click());
+    expect(host.querySelector("#view-editor-ai")).toBeNull();
+    expect(host.querySelector("#view-editor-name")).not.toBeNull();
+  });
+
+  it.each([
+    ["", "AgentChat.context.newViewLabel(AgentChat.context.surfaceViewType(deal))", "AgentChat.context.starter.create"],
+    [
+      "  Qualified leads  ",
+      "AgentChat.context.namedNewViewLabel(Qualified leads,AgentChat.context.surfaceViewType(deal))",
+      "AgentChat.context.starter.createNamed(Qualified leads)",
+    ],
+  ])("carries the optional name %j into the attached create-view context", (name, label, draft) => {
+    const value = store({ activeViewKey: OPEN.id });
+    const host = render(value);
+    act(() => host.querySelector<HTMLButtonElement>("#global-data-views-new")?.click());
+    typeInto(host.querySelector<HTMLInputElement>("#view-editor-name"), name);
+    const action = host.querySelector<HTMLButtonElement>("#view-editor-ai");
+    expect(action?.type).toBe("button");
+    expect(action?.disabled).toBe(false);
+    act(() => action?.click());
+    expect(host.querySelector("#view-editor-name")).toBeNull();
+    const closeEvent = new Event("closeAutoFocus", { cancelable: true });
+    act(() => harness.overlayCloseAutoFocus.current?.(closeEvent));
+    expect(closeEvent.defaultPrevented).toBe(true);
+    expect(harness.agent.openWithContextDraft).toHaveBeenCalledExactlyOnceWith({
+      context: {
+        label,
+        reference: {
+          kind: "dataView",
+          ...(name.trim() ? { proposedName: name.trim() } : {}),
+          requestedAction: "create",
+          surfaceKey: SURFACE.deals,
+        },
+      },
+      draft,
+      pageRoute: `/en/deals?view=${OPEN.id}&viewSurface=${SURFACE.deals}&viewAction=create`,
+    });
+    expect(focusAgentComposer).toHaveBeenCalledOnce();
+    expect(harness.upsertDataViewAction).not.toHaveBeenCalled();
+    expect(value.applyView).not.toHaveBeenCalled();
+  });
+
+  it.each(["DataView.views.editTitle", "DataView.views.duplicate"])("keeps %s on its existing manual flow", (label) => {
+    const host = render(store({ activeViewKey: OPEN.id }));
+    act(() => byText(host, label).click());
+    expect(host.querySelector("#view-editor-name")).not.toBeNull();
+    expect(host.querySelector("#view-editor-ai")).toBeNull();
+  });
+
+  it("asks about the saved view while editing without applying an unfinished rename", () => {
+    const value = store({ activeViewKey: OPEN.id });
+    const host = render(value);
+    act(() => byText(host, "DataView.views.editTitle").click());
+    typeInto(host.querySelector<HTMLInputElement>("#view-editor-name"), "Unfinished name");
+    act(() => host.querySelector<HTMLButtonElement>("#view-editor-ask-ai")?.click());
+    expect(host.querySelector("#view-editor-name")).toBeNull();
+    const event = new Event("closeAutoFocus", { cancelable: true });
+    act(() => harness.overlayCloseAutoFocus.current?.(event));
+    expect(event.defaultPrevented).toBe(true);
+    expect(harness.agent.openWithContextDraft).toHaveBeenCalledWith(
+      expect.objectContaining({
+        context: expect.objectContaining({
+          label: "AgentChat.context.viewLabel(Open deals,AgentChat.context.surfaceViewTypeStandalone(deal))",
+          reference: expect.objectContaining({ viewKey: OPEN.id }),
+        }),
+      }),
+    );
+    expect(harness.agent.openWithContextDraft).not.toHaveBeenCalledWith(
+      expect.objectContaining({
+        context: expect.objectContaining({ label: expect.stringContaining("Unfinished name") }),
+      }),
+    );
+    expect(harness.upsertDataViewAction).not.toHaveBeenCalled();
+  });
+
+  it("keeps normal cancellation focus return and does not open chat", () => {
+    const host = render(store());
+    act(() => host.querySelector<HTMLButtonElement>("#global-data-views-new")?.click());
+    act(() => byText(host, "Common.actions.cancel").click());
+    const event = new Event("closeAutoFocus", { cancelable: true });
+    act(() => harness.overlayCloseAutoFocus.current?.(event));
+    expect(event.defaultPrevented).toBe(false);
+    expect(harness.agent.openWithDraft).not.toHaveBeenCalled();
+    expect(harness.agent.openWithContextDraft).not.toHaveBeenCalled();
+  });
+
   it("moves focus across the tabs with the arrow keys and keeps one tab stop", () => {
     const host = render(store({ activeViewKey: "v-a" }));
     const links = chips(host);
@@ -281,6 +484,7 @@ describe("data view rail interaction", () => {
     act(() => target.click());
 
     expect(value.applyView).toHaveBeenCalledExactlyOnceWith("v-a");
+    expect(harness.menuOpen).toBe(false);
     expect(pushState).toHaveBeenCalledExactlyOnceWith(null, "", "/en/deals?view=v-a");
     expect(harness.calls).toEqual(["applyView"]);
 
@@ -388,10 +592,11 @@ describe("data view rail interaction", () => {
     expect(host.querySelector("[data-view-draft]")).not.toBeNull();
   });
 
-  it("offers edit, duplicate, move, copy link and delete on the active view, in that order", () => {
+  it("offers Ask AI followed by the existing active-view actions", () => {
     const host = render(store({ activeViewKey: "v-b" }));
 
     expect(menuLabels(host)).toEqual([
+      "DataView.views.askAi",
       "DataView.views.editTitle",
       "DataView.views.duplicate",
       "DataView.views.moveLeft",
@@ -402,10 +607,10 @@ describe("data view rail interaction", () => {
     expect(host.querySelector("[data-view-menu]")?.textContent).not.toContain("Common.actions.save");
   });
 
-  it("offers only duplicate and copy link on the All tab", () => {
+  it("offers Ask AI, duplicate and copy link on the All tab", () => {
     const host = render(store());
 
-    expect(menuLabels(host)).toEqual(["DataView.views.duplicate", "DataView.views.copyLink"]);
+    expect(menuLabels(host)).toEqual(["DataView.views.askAi", "DataView.views.duplicate", "DataView.views.copyLink"]);
     for (const absent of [
       "DataView.views.editTitle",
       "DataView.views.delete",
@@ -472,15 +677,17 @@ describe("data view rail interaction", () => {
     expect(document.activeElement).toBe(input);
   });
 
-  it("returns focus to the menu control when the chosen item opens no overlay", () => {
+  it("preserves primitive focus handling when there is no intentional overlay handoff", () => {
     const host = render(store({ activeViewKey: "v-b" }));
+    const outsideControl = host.querySelector<HTMLButtonElement>("#global-data-views-new");
+    outsideControl?.focus();
 
     const close = harness.menuCloseAutoFocus.current;
     const event = new Event("closeAutoFocus", { cancelable: true });
     act(() => close?.(event));
 
-    expect(event.defaultPrevented).toBe(true);
-    expect(document.activeElement).toBe(host.querySelector("#global-data-views-menu"));
+    expect(event.defaultPrevented).toBe(false);
+    expect(document.activeElement).toBe(outsideControl);
   });
 
   it("renames the active view through the edit overlay with the store's live state", async () => {

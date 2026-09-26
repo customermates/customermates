@@ -130,6 +130,32 @@ describeDatabase("data view state round trip on PostgreSQL", () => {
     expect(surface.allState).toMatchObject(kept);
   });
 
+  it("returns the complete persisted All state from the transaction that finishes last", async () => {
+    await client.query('DELETE FROM "P13n" WHERE "companyId" = $1 AND "userId" = $2 AND "p13nId" = $3', [
+      companyId,
+      userId,
+      SURFACE,
+    ]);
+    const completions: Awaited<ReturnType<typeof save>>[] = [];
+
+    await Promise.all([
+      save(ALL_VIEW_KEY, { searchTerm: "renewal" }).then((result) => {
+        completions.push(result);
+      }),
+      save(ALL_VIEW_KEY, { viewMode: ViewMode.card }).then((result) => {
+        completions.push(result);
+      }),
+    ]);
+
+    const expected = { searchTerm: "renewal", viewMode: ViewMode.card };
+    expect((await asTenant(() => views().loadSurfaceState(SURFACE))).allState).toMatchObject(expected);
+    expect(completions).toHaveLength(2);
+    expect(completions.at(-1)).toEqual({
+      ok: true,
+      data: expect.objectContaining({ viewKey: ALL_VIEW_KEY, state: expect.objectContaining(expected) }),
+    });
+  });
+
   it("persists an emptied filter list on the All tab into personalization and resolves it to no filters", async () => {
     await save(ALL_VIEW_KEY, { filters: [viewFilter], pageSize: 10 });
     expect((await asTenant(() => views().loadSurfaceState(SURFACE))).allState).toMatchObject({

@@ -55,7 +55,7 @@ import { isAgentStepContextWithinBudget } from "@/ee/agent-chat/agent-provider-c
 import { getAgentChatRepo, getBackgroundTaskService } from "@/core/di";
 import { internalToolIdentity } from "@/ee/agent-chat/tool-identity";
 import { readAgentProviderCharge } from "@/ee/agent-chat/gateway-cost";
-import { isReadOnlyTool, requiresApproval } from "@/ee/agent-chat/gated-tools";
+import { requiresApproval } from "@/ee/agent-chat/gated-tools";
 import { isAgentToolCancellation } from "@/ee/agent-chat/agent-tool-cancellation";
 import { createAgentToolInputResolver, type AgentToolInputResult } from "@/ee/agent-chat/agent-tool-input";
 import { resolveAgentApprovalContext } from "@/ee/agent-chat/agent-external-approval-context";
@@ -91,6 +91,8 @@ export type AgentTurnWorkflowPayload = {
   userId: string;
   userName: string;
   locale: string;
+  appBaseUrl: string;
+  pageRoute: string | null;
   messages: ReplayMessage[];
   turnBudget: AgentTurnBudget;
   schemaDigest?: string | null;
@@ -227,6 +229,7 @@ function backgroundToolDeps(payload: AgentTurnWorkflowPayload, grant: ToolApprov
 
   return {
     resultMaxChars: resolveAgentToolResultMaxChars(payload.turnBudget.maxToolResultChars),
+    pageRoute: payload.pageRoute,
     runInCallerContext: (run) =>
       runAsBackgroundTenant(payload.userId, () =>
         runInRoutineContext(payload.surface === "routine" ? { causationDepth: 1 } : null, run),
@@ -337,6 +340,7 @@ async function normalizeAgentToolInput(
   return runAsBackgroundTenant(payload.userId, () =>
     normalizeAgentAiToolInput(toolName, input, resolveAgentToolResultMaxChars(payload.turnBudget.maxToolResultChars), {
       locale: payload.locale,
+      pageRoute: payload.pageRoute,
     }),
   );
 }
@@ -749,7 +753,7 @@ export async function runAgentTurn(payload: AgentTurnWorkflowPayload): Promise<v
     const providerStarted = await openTurn(payload);
     if (!providerStarted) {
       const message = await resolveRunnerMessage(payload.locale, "hostedAiUnavailable");
-      const transcript = new AgentTurnTranscript(() => undefined);
+      const transcript = new AgentTurnTranscript(() => undefined, payload.appBaseUrl);
       transcript.appendText(message);
       await publishAssistantText(message);
       await finalizeTurn(payload, {
@@ -774,7 +778,7 @@ export async function runAgentTurn(payload: AgentTurnWorkflowPayload): Promise<v
     const queued: AgentTranscriptEvent[] = [];
     const transcript = new AgentTurnTranscript((event) => {
       if ((AGENT_TRANSCRIPT_FORWARDED_EVENTS as readonly string[]).includes(event.type)) queued.push(event);
-    });
+    }, payload.appBaseUrl);
 
     const initialToolsets = payload.toolsets ?? [];
     const systemPrompt = buildAgentSystemPrompt({
@@ -851,6 +855,7 @@ export async function runAgentTurn(payload: AgentTurnWorkflowPayload): Promise<v
         toolName,
         status: outcome.status,
         failed: outcome.failed,
+        output,
       });
     };
 
@@ -1042,8 +1047,8 @@ export async function runAgentTurn(payload: AgentTurnWorkflowPayload): Promise<v
                         prepared.input,
                         grants.get(options.toolCallId) ?? "not-required",
                       );
-                      if (!isReadOnlyTool({ annotations: shell.annotations }) && isSuccessfulToolOutcome(outcome))
-                        performedWrite = true;
+                      const activity = describeAgentTool(internalToolIdentity(shell.name), prepared.input);
+                      if (activity.risk !== "read" && isSuccessfulToolOutcome(outcome)) performedWrite = true;
                       return outcome;
                     },
                   }),
@@ -1143,7 +1148,11 @@ export async function runAgentTurn(payload: AgentTurnWorkflowPayload): Promise<v
           resolvedProviderErrorRetries += 1;
           await reportResolvedProviderError(payload, finishReason, resolvedError, resolvedProviderErrorRetries);
           providerStop = null;
-          messages = result.messages;
+          messages = nextAgentSegmentMessages({
+            messages: result.messages,
+            finishReason,
+            lastStep: continuationSteps.at(-1),
+          });
           continue;
         }
         await reportResolvedProviderError(payload, finishReason, resolvedError, resolvedProviderErrorRetries);

@@ -8,6 +8,7 @@ import {
   getGetOrganizationByIdInteractor,
   getGetDealByIdInteractor,
   getGetServiceByIdInteractor,
+  getGetTaskByIdInteractor,
 } from "@/core/di";
 import { serializeResult } from "@/core/utils/action-result";
 
@@ -32,6 +33,10 @@ export async function checkSearchResultExistsAction(data: { type: GlobalSearchRe
     case "service": {
       const result = await getGetServiceByIdInteractor().invoke({ id: data.id });
       return result.ok && result.data.service !== null;
+    }
+    case "task": {
+      const result = await getGetTaskByIdInteractor().invoke({ id: data.id });
+      return result.ok && result.data.task !== null;
     }
   }
 }

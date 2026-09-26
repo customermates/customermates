@@ -8,6 +8,7 @@ import { createRoot } from "react-dom/client";
 import { afterEach, beforeEach, describe, expect, it, vi } from "vitest";
 
 import { EntityType } from "@/generated/prisma";
+import { ALL_VIEW_KEY } from "@/core/data-view/data-view-keys";
 
 import { ActivityTimelineRegistry } from "@/core/stores/activity-timeline.registry";
 
@@ -37,8 +38,9 @@ function entry(id: string): ActivityEntryDto {
   return { id, kind: "audit" } as ActivityEntryDto;
 }
 
-function result(id: string): ActivitiesResult {
+function result(id: string, activeViewKey = ALL_VIEW_KEY): ActivitiesResult {
   return {
+    activeViewKey,
     availableSources: ["audit"],
     items: [entry(id)],
     pageLimitReached: false,
@@ -109,6 +111,20 @@ describe("useOwnedActivitiesStore", () => {
     );
 
     expect(renderedStore).not.toBe(firstStore);
+    expect(renderedStore?.items.map(({ id }) => id)).toEqual(["second"]);
+  });
+
+  it("creates and hydrates a new store when a same-record link selects another view", () => {
+    const entityId = "00000000-0000-4000-8000-000000000001";
+    const firstView = "00000000-0000-4000-8000-000000000002";
+    const secondView = "00000000-0000-4000-8000-000000000003";
+    const root = mount(createElement(Harness, { entityId, initial: result("first", firstView) }));
+    const firstStore = renderedStore;
+
+    act(() => root.render(createElement(Harness, { entityId, initial: result("second", secondView) })));
+
+    expect(renderedStore).not.toBe(firstStore);
+    expect(renderedStore?.activeViewKey).toBe(secondView);
     expect(renderedStore?.items.map(({ id }) => id)).toEqual(["second"]);
   });
 });

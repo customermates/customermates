@@ -1,7 +1,15 @@
 import { describe, expect, it } from "vitest";
 
+import { agentRoundWorstCaseCredits } from "@/ee/agent-chat/agent-budget-policy";
+
 import { armById } from "../arms";
-import { admissionDecision, worstCaseEpisodeUsd } from "../campaign";
+import {
+  admissionDecision,
+  BENCHMARK_PROVIDER_ROUNDS_PER_PROMPT,
+  USD_PER_CREDIT,
+  worstCaseEpisodeCredits,
+  worstCaseEpisodeUsd,
+} from "../campaign";
 
 describe("benchmark campaign cap", () => {
   it("refuses an episode whose worst case would cross the cap and admits one that fits", () => {
@@ -9,9 +17,20 @@ describe("benchmark campaign cap", () => {
     expect(admissionDecision({ capUsd: 200, spentUsd: 10, worstCaseUsd: 1 })).toEqual({ admitted: true, headroomUsd: 190 });
   });
 
-  it("prices the worst case from the runtime's own reservation, per prompt", () => {
-    const single = worstCaseEpisodeUsd(armById("shipped"), 1);
-    expect(single).toBeGreaterThan(0);
-    expect(worstCaseEpisodeUsd(armById("shipped"), 2)).toBeCloseTo(single * 2, 9);
+  it("reserves 32 full-context provider rounds per prompt in credits and USD", () => {
+    const arm = armById("shipped");
+    const singleCredits = worstCaseEpisodeCredits(arm, 1);
+    expect(singleCredits).toBe(
+      agentRoundWorstCaseCredits(arm) *
+        BENCHMARK_PROVIDER_ROUNDS_PER_PROMPT,
+    );
+    expect(worstCaseEpisodeCredits(arm, 2)).toBe(singleCredits * 2);
+    expect(worstCaseEpisodeUsd(arm, 2)).toBeCloseTo(
+      singleCredits * 2 * USD_PER_CREDIT,
+      9,
+    );
+    expect(() => worstCaseEpisodeCredits(arm, 0)).toThrow(
+      /positive safe integer/,
+    );
   });
 });

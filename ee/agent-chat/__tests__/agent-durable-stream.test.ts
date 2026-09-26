@@ -56,6 +56,63 @@ describe("agent durable stream reader", () => {
     expect(JSON.stringify(events)).not.toContain("ada@example.com");
   });
 
+  it.each([
+    {
+      ok: true,
+      navigation: { kind: "saved-view", href: "/contacts?view=__all__" },
+    },
+    {
+      type: "json",
+      value: {
+        ok: true,
+        navigation: { kind: "saved-view", href: "/contacts?view=__all__" },
+      },
+    },
+  ])("projects only a validated saved-view destination from hosted tool output", (output) => {
+    expect(
+      read([
+        {
+          type: "tool-result",
+          toolCallId: "view-call",
+          toolName: "manage_data_views",
+          output,
+        },
+      ]),
+    ).toEqual([
+      {
+        type: "activity_result",
+        payload: {
+          id: "view-call",
+          isError: false,
+          status: "done",
+          viewHref: "/contacts?view=__all__",
+        },
+      },
+    ]);
+  });
+
+  it("does not project an invalid or unrelated navigation value", () => {
+    const events = read([
+      {
+        type: "tool-result",
+        toolCallId: "external-view",
+        toolName: "manage_data_views",
+        output: { ok: true, navigation: { kind: "saved-view", href: "https://example.com" } },
+      },
+      {
+        type: "tool-result",
+        toolCallId: "other-tool",
+        toolName: "update_contacts",
+        output: { ok: true, navigation: { kind: "saved-view", href: "/contacts?view=__all__" } },
+      },
+    ]);
+
+    expect(events).toEqual([
+      { type: "activity_result", payload: { id: "external-view", isError: false, status: "done" } },
+      { type: "activity_result", payload: { id: "other-tool", isError: false, status: "done" } },
+    ]);
+  });
+
   it("never forwards model identifiers, usage or cost", () => {
     const events = read([
       {

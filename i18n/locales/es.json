@@ -56,6 +56,10 @@
         "team": {
           "manage": "Listo para cambiar el acceso del equipo"
         },
+        "views": {
+          "configure": "Listo para cambiar la vista guardada",
+          "delete": "Listo para eliminar permanentemente la vista guardada"
+        },
         "webhooks": {
           "manage": "Listo para cambiar la entrega del webhook"
         },
@@ -317,6 +321,23 @@
             "running": "Cargando más herramientas"
           }
         },
+        "views": {
+          "configure": {
+            "done": "Vista configurada",
+            "error": "No se pudo configurar la vista",
+            "running": "Configurando la vista"
+          },
+          "delete": {
+            "done": "Vista eliminada",
+            "error": "No se pudo eliminar la vista",
+            "running": "Eliminando la vista"
+          },
+          "read": {
+            "done": "Vistas guardadas revisadas",
+            "error": "No se pudieron revisar las vistas guardadas",
+            "running": "Revisando las vistas guardadas"
+          }
+        },
         "webhooks": {
           "manage": {
             "done": "Acción de webhook completada",
@@ -394,6 +415,31 @@
     },
     "askAi": "Preguntar a la IA",
     "askAiWorking": "Mate está trabajando",
+    "context": {
+      "addAria": "Añadir contexto",
+      "addTooltip": "Añadir contexto o escribir /",
+      "namedNewViewLabel": "Nueva {viewType}: {name}",
+      "newViewLabel": "Nueva {viewType}",
+      "noResults": "No hay ningún contexto coincidente",
+      "onThisPage": "En esta página",
+      "records": "Registros",
+      "remove": "Quitar {label}",
+      "searchError": "No se pudieron buscar los registros.",
+      "searchPlaceholder": "Buscar registros…",
+      "starter": {
+        "appearance": "Cambia el diseño, la agrupación o la ordenación de esta vista así: ",
+        "create": "Crea una vista nueva con estas especificaciones: ",
+        "createNamed": "Crea la vista nueva «{name}» con estas especificaciones: ",
+        "filters": "Cambia los filtros y la búsqueda de esta vista así: ",
+        "timeline": "Cambia los filtros de actividad o la ordenación de esta vista así: ",
+        "update": "Actualiza esta vista así: "
+      },
+      "surfaceViewType": "vista de {location}",
+      "surfaceViewTypeStandalone": "Vista de {location}",
+      "timelineViewType": "vista de actividad",
+      "timelineViewTypeStandalone": "Vista de actividad",
+      "viewLabel": "{viewType}: {name}"
+    },
     "credits": {
       "blocked": {
         "configuration_unavailable": "El Asistente alojado no está disponible temporalmente. El historial sigue estando accesible.",
@@ -421,6 +467,7 @@
       "subtitle": "Pregúnteme lo que quiera sobre su espacio de trabajo o dígame qué hacer y me encargo.",
       "support": "Si algo no sale bien, puedo enviar por correo electrónico a nuestro equipo la conversación reciente, y le responderán por correo electrónico."
     },
+    "openSavedView": "Abrir vista guardada",
     "placeholder": "Pregunte a su CRM…",
     "runner": {
       "cancelled": "Esta respuesta se ha detenido.",
@@ -1106,7 +1153,9 @@
       "customFieldInvalidPhone": "El número de teléfono no es válido. Debe estar en formato E.164 (por ejemplo +491234567890). Para varios números, sepáralos con una coma (por ejemplo +491234567890, +499876543210).",
       "customFieldInvalidSingleSelect": "El valor de selección única no es válido. Debe ser una de las opciones permitidas: {validValues}.",
       "customFieldInvalidUrl": "La URL no es válida. Debe respetar el formato de una URL (por ejemplo https://example.com). Para varias URL, sepáralas con una coma (por ejemplo https://example.com, https://example.org).",
+      "dataViewAllNameImmutable": "La vista Todas no se puede renombrar. Omite name y actualiza solo los ajustes solicitados en state. Consulta config para los ajustes compatibles y list para el estado actual antes de reintentar.",
       "dataViewNotFound": "No se encontró esta vista guardada.",
+      "dataViewUpdateEmpty": "Indica un nombre o al menos un ajuste de vista para actualizar.",
       "dealNotFound": "ID de oportunidad no encontrado o no accesible.",
       "demoMode": "Esta acción no está disponible en el modo de demostración. Inicia sesión para acceder a todas las funciones.",
       "draftMessageNotFound": "No se ha encontrado ese borrador. Puede que ya se haya enviado o descartado.",
@@ -2023,10 +2072,14 @@
     "selectGroup": "Seleccionar el grupo {group}",
     "selectRow": "Seleccionar fila {id}",
     "views": {
+      "aiLabel": "Preguntar a la IA sobre {name}",
       "all": "Todas",
       "applied": "Mostrando {name}",
+      "askAi": "Preguntar a la IA",
       "copyLink": "Copiar enlace",
       "createTitle": "Nueva vista",
+      "createWithAi": "Crear con IA",
+      "createWithAiDescription": "Abre el chat de IA con esta vista como contexto y describe allí lo que quieres ver.",
       "delete": "Eliminar vista",
       "duplicate": "Duplicar como vista nueva",
       "duplicateName": "{name} copia",
@@ -2393,7 +2446,7 @@
   },
   "GlobalSearch": {
     "clearRecent": "Borrar",
-    "emptyDescription": "Busca {contacts}, {organizations}, {deals} y {services} en un solo lugar.",
+    "emptyDescription": "Busca {contacts}, {organizations}, {deals}, {services} y {tasks} en un solo lugar.",
     "emptyTitle": "Encuentra todo en tu espacio de trabajo",
     "groupRecent": "Abiertos recientemente",
     "hintNavigate": "Navegar",

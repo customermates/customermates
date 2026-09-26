@@ -191,6 +191,20 @@ const RecordSchemaOutputSchema = z
 
 const ListRecordsOutputSchema = z.object({
   total: z.number().describe("Matching records across all pages"),
+  writeTargetGuidance: z
+    .object({
+      status: z.literal("ambiguous"),
+      reason: z.literal("multiple_search_matches"),
+      returnedCandidateCount: z
+        .number()
+        .int()
+        .nonnegative()
+        .describe("Number of candidate records in items on the current page"),
+    })
+    .optional()
+    .describe(
+      "Present when a name search matched several records and selecting only one for a write requires clarification",
+    ),
   sums: z
     .record(z.string(), z.number())
     .optional()
@@ -355,6 +369,9 @@ export const listRecordsTool = {
     "every record matching the filters, not just the current page. Read sums directly instead of adding " +
     "up items, which would only cover one page. For deals sums holds totalValue (pipeline), totalQuantity " +
     "and weightedValue (pipeline weighted by each stage's win probability). " +
+    "When a name search matches several records, writeTargetGuidance has status ambiguous: ask the user to choose before changing only one result, even when one item exactly equals the search term. " +
+    "The current page's items are the canonical candidates. If total exceeds items.length, narrow the search or review more pages first. If candidate names are identical, call get_records for their ids and ask with safe distinguishing fields; never expose raw ids. " +
+    "An explicit request to change every match may proceed. " +
     "Numeric columns of the record are summable; single-select and other custom fields are not, so filter " +
     "or group by those instead. " +
     "Use get_records (batched, pass many ids in one call) to fetch full field/custom-column values.",
@@ -377,8 +394,18 @@ export const listRecordsTool = {
     });
     if (!result.ok) return mcpInteractorFailure(result.error);
 
+    const total = result.data.pagination?.total ?? result.data.items.length;
     return toonResult({
-      total: result.data.pagination?.total ?? result.data.items.length,
+      total,
+      ...(searchTerm && total > 1
+        ? {
+            writeTargetGuidance: {
+              status: "ambiguous" as const,
+              reason: "multiple_search_matches" as const,
+              returnedCandidateCount: result.data.items.length,
+            },
+          }
+        : {}),
       ...(result.data.valueSums && Object.keys(result.data.valueSums).length > 0
         ? { sums: result.data.valueSums }
         : {}),

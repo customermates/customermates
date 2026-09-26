@@ -16,8 +16,12 @@ vi.mock("@/env", () => ({
     DATABASE_URL: process.env.DATABASE_URL,
     NODE_ENV: "test",
     BASE_URL: "http://localhost:4000",
+    AUTH_ALLOWED_HOSTS: ["localhost:4000"],
     AI_GATEWAY_API_KEY: undefined,
   },
+}));
+vi.mock("next/headers", () => ({
+  headers: () => new Headers({ origin: "http://localhost:4000" }),
 }));
 vi.mock("@/core/di", () => ({
   getUserService: () => ({

@@ -16,6 +16,7 @@ import { useCallback, useEffect, useId, useMemo, useRef, useState } from "react"
 import { Action, EntityType, Resource } from "@/generated/prisma";
 
 import { useSetTopBarActions } from "@/app/components/topbar-actions-context";
+import { useAgentRecordContext } from "@/app/components/agent-chat/use-agent-record-context";
 import { AppForm } from "@/components/forms/form-context";
 import { Button } from "@/components/ui/button";
 import { Tabs, TabsList, TabsTrigger } from "@/components/ui/tabs";
@@ -77,7 +78,7 @@ export const EntityDetailLayout = observer(function EntityDetailLayout<
 }: Props<Form, Dto>) {
   const t = useTranslations();
   const router = useRouter();
-  const { layoutStore, userStore } = useRootStore();
+  const { agentChatStore, layoutStore, userStore } = useRootStore();
   const { stack: entityDrawerStack } = useEntityDrawerStack();
   const { showDeleteConfirmation } = useDeleteConfirmation();
   const { enabled: canPersonalize, starredFieldIds } = useEntityDetailPersonalization();
@@ -158,6 +159,13 @@ export const EntityDetailLayout = observer(function EntityDetailLayout<
     layoutStore,
     showLoadError,
   ]);
+
+  useAgentRecordContext({
+    enabled: Boolean(agentChatStore && hasCurrentEntity && entityDrawerStack.length === 0),
+    entityType,
+    recordId: entityId,
+    name: identity.name,
+  });
 
   const deleteConfirmationRef = useRef(showDeleteConfirmation);
   deleteConfirmationRef.current = showDeleteConfirmation;
