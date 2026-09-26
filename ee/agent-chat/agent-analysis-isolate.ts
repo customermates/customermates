@@ -14,6 +14,8 @@ export const ANALYSIS_LIMITS: AnalysisLimits = {
   workerHeapMb: 256,
 };
 
+export const ANALYSIS_MAX_WORKERS = 2;
+
 export type AnalysisOutcome =
   | { ok: true; serialized: string | null }
   | { ok: false; resultChars: number }
@@ -34,6 +36,7 @@ const HOLDS_ITERATOR = "AnalysisResultHoldsAMapSetOrIterator";
 const NOT_JSON = "AnalysisResultIsNotJson";
 const MESSAGE_MAX_CHARS = 500;
 const JOB_ERROR_PREFIX = "Job execution error: ";
+const TRAILING_COMMENTS = /^\s*(?:(?:\/\/[^\n]*(?:\n|$)|\/\*(?:[^*]|\*(?!\/))*\*\/)\s*)+$/;
 const NO_MESSAGE = "<null>";
 
 type Stop = "time" | "steps" | "memory" | null;
@@ -46,6 +49,7 @@ type AnalysisWorkerData = {
   quickjsUrl: string;
   wasm: WebAssembly.Module;
   source: string;
+  fallbackSource: string | null;
   input: string;
   deadline: number;
   maxSteps: number;
@@ -89,12 +93,22 @@ const ANALYSIS_WORKER_SOURCE = `(async () => {
       return false;
     }
   };
-  try {
+  const parseError = (source) => {
     try {
-      vm.evalCode(workerData.source, "analysis.js", workerData.compileOnly).dispose();
+      vm.evalCode(source, "analysis.js", workerData.compileOnly).dispose();
+      return null;
     } catch (error) {
-      const message = error instanceof Error ? error.message : String(error);
-      report.postMessage({ ok: false, stop, message: message.slice(0, workerData.messageMaxChars), unparsed: true });
+      return error instanceof Error ? error.message : String(error);
+    }
+  };
+  try {
+    const unparsed = parseError(workerData.source);
+    const source =
+      unparsed !== null && workerData.fallbackSource !== null && parseError(workerData.fallbackSource) === null
+        ? workerData.fallbackSource
+        : workerData.source;
+    if (unparsed !== null && source === workerData.source) {
+      report.postMessage({ ok: false, stop, message: unparsed.slice(0, workerData.messageMaxChars), unparsed: true });
       return;
     }
     if (workerData.checkOnly) {
@@ -104,7 +118,7 @@ const ANALYSIS_WORKER_SOURCE = `(async () => {
     const input = vm.newString(workerData.input);
     vm.setProp(vm.global, "__analysisInput", input);
     input.dispose();
-    let result = vm.evalCode(workerData.source, "analysis.js");
+    let result = vm.evalCode(source, "analysis.js");
     if (result.isPromise) {
       const promise = result;
       try {
@@ -143,18 +157,43 @@ const ANALYSIS_WORKER_SOURCE = `(async () => {
 })();`;
 
 let compiledModule: Promise<WebAssembly.Module> | undefined;
+let activeWorkers = 0;
+const waitingForWorker: (() => void)[] = [];
 
 function quickjsModule(): Promise<WebAssembly.Module> {
-  compiledModule ??= readFile(join(process.cwd(), "node_modules", "quickjs-wasi", "quickjs.wasm")).then((bytes) =>
-    WebAssembly.compile(bytes),
-  );
+  compiledModule ??= readFile(join(process.cwd(), "node_modules", "quickjs-wasi", "quickjs.wasm"))
+    .then((bytes) => WebAssembly.compile(bytes))
+    .catch((error: unknown) => {
+      compiledModule = undefined;
+      throw error;
+    });
   return compiledModule;
+}
+
+async function withWorkerSlot<T>(run: () => Promise<T>): Promise<T> {
+  if (activeWorkers < ANALYSIS_MAX_WORKERS) activeWorkers += 1;
+  else await new Promise<void>((resolve) => waitingForWorker.push(resolve));
+  try {
+    return await run();
+  } finally {
+    const next = waitingForWorker.shift();
+    if (next) next();
+    else activeWorkers -= 1;
+  }
 }
 
 function withoutTrailingSemicolons(code: string): string {
   let end = code.trimEnd().length;
   while (end > 0 && code[end - 1] === ";") end = code.slice(0, end - 1).trimEnd().length;
   return code.slice(0, end);
+}
+
+function withoutSemicolonBeforeTrailingComment(code: string): string | null {
+  for (let end = code.lastIndexOf(";"); end >= 0; end = code.lastIndexOf(";", end - 1)) {
+    const comments = code.slice(end + 1);
+    if (TRAILING_COMMENTS.test(comments)) return `${withoutTrailingSemicolons(code.slice(0, end))}\n${comments}`;
+  }
+  return null;
 }
 
 function analysisSource(code: string): string {
@@ -183,6 +222,8 @@ function stoppedError(stop: Stop, reported: string): string {
   if (message === HOLDS_ITERATOR)
     return "The analysis result holds a Map, Set, iterator or generator, which JSON cannot represent; convert it with Object.fromEntries or Array.from first.";
   if (message === NOT_JSON) return "The analysis code replaced JSON.stringify, so its result is not valid JSON.";
+  if (/memory access out of bounds|Maximum call stack size exceeded/.test(message))
+    return "The analysis code nested calls too deeply, more than a few thousand levels, and was stopped; rewrite the recursion as a loop.";
   return `The analysis code failed: ${message.slice(0, MESSAGE_MAX_CHARS)}`;
 }
 
@@ -235,25 +276,29 @@ async function runAnalysisWorker(
   checkOnly: boolean,
 ): Promise<WorkerReport> {
   const wasm = await quickjsModule();
-  const deadline = Date.now() + limits.wallMs;
-  return runInWorker(
-    {
-      quickjsUrl: pathToFileURL(join(process.cwd(), "node_modules", "quickjs-wasi", "dist", "index.js")).href,
-      wasm,
-      source: analysisSource(code),
-      input,
-      deadline,
-      maxSteps: limits.maxSteps,
-      memoryBytes: limits.memoryBytes,
-      intrinsics: ANALYSIS_INTRINSICS,
-      resultMaxChars,
-      messageMaxChars: MESSAGE_MAX_CHARS,
-      compileOnly: EvalFlags.COMPILE_ONLY,
-      checkOnly,
-    },
-    deadline + TERMINATE_MARGIN_MS - Date.now(),
-    limits.workerHeapMb,
-  );
+  const fallback = withoutSemicolonBeforeTrailingComment(code);
+  return withWorkerSlot(() => {
+    const deadline = Date.now() + limits.wallMs;
+    return runInWorker(
+      {
+        quickjsUrl: pathToFileURL(join(process.cwd(), "node_modules", "quickjs-wasi", "dist", "index.js")).href,
+        wasm,
+        source: analysisSource(code),
+        fallbackSource: fallback === null ? null : analysisSource(fallback),
+        input,
+        deadline,
+        maxSteps: limits.maxSteps,
+        memoryBytes: limits.memoryBytes,
+        intrinsics: ANALYSIS_INTRINSICS,
+        resultMaxChars,
+        messageMaxChars: MESSAGE_MAX_CHARS,
+        compileOnly: EvalFlags.COMPILE_ONLY,
+        checkOnly,
+      },
+      deadline + TERMINATE_MARGIN_MS - Date.now(),
+      limits.workerHeapMb,
+    );
+  });
 }
 
 export async function checkAnalysisCode(

@@ -7,7 +7,7 @@ import type * as WorkerThreads from "node:worker_threads";
 
 import { describe, expect, it, vi } from "vitest";
 
-import { ANALYSIS_LIMITS, checkAnalysisCode, runAnalysisCode } from "../agent-analysis-isolate";
+import { ANALYSIS_LIMITS, ANALYSIS_MAX_WORKERS, checkAnalysisCode, runAnalysisCode } from "../agent-analysis-isolate";
 
 const TIME_BUDGET_ERROR = "The analysis code ran longer than its time budget and was stopped.";
 const STEP_BUDGET_ERROR = "The analysis code exceeded its step budget and was stopped.";
@@ -296,6 +296,111 @@ describe("analysis isolate", () => {
       });
     }
   });
+
+  it("runs a function expression whose semicolon is followed by a comment, and keeps a semicolon inside a string", async () => {
+    for (const code of [
+      "(data) => data.length; // count the rows",
+      "(data) => {\n  return data.length;\n};\n// done",
+      "(data) => data.length; /* count */",
+      "(data) => data.length;; // note; with a semicolon\n/* and a block */",
+      "(data) => data.length; /* a; b */",
+    ]) {
+      await expect(checkAnalysisCode(code)).resolves.toBeNull();
+      await expect(runAnalysisCode(code, "[1, 2, 3]", RESULT_MAX_CHARS)).resolves.toEqual({
+        ok: true,
+        serialized: "3",
+      });
+    }
+    await expect(runAnalysisCode('() => "a; // b"', "[]", RESULT_MAX_CHARS)).resolves.toEqual({
+      ok: true,
+      serialized: JSON.stringify("a; // b"),
+    });
+    await expect(checkAnalysisCode("(data) => data.length; data // note")).resolves.toMatch(
+      /^The analysis code does not parse as one function expression \(.+\)\./,
+    );
+  });
+
+  it("says that recursion nested too deeply rather than reporting a memory access out of bounds", async () => {
+    const recurse = (depth: number) => `(data) => { const f = (n) => (n ? 1 + f(n - 1) : 0); return f(${depth}); }`;
+    await expect(runAnalysisCode(recurse(1_000), "[]", RESULT_MAX_CHARS)).resolves.toEqual({
+      ok: true,
+      serialized: "1000",
+    });
+    await expect(runAnalysisCode(recurse(100_000), "[]", RESULT_MAX_CHARS)).resolves.toEqual({
+      ok: false,
+      error:
+        "The analysis code nested calls too deeply, more than a few thousand levels, and was stopped; rewrite the recursion as a loop.",
+    });
+  });
+
+  it("loads the wasm module again after a failed load instead of failing every later analysis", async () => {
+    let reads = 0;
+    vi.resetModules();
+    vi.doMock("node:fs/promises", async (importOriginal) => {
+      const actual = await importOriginal<typeof FsPromises>();
+      return {
+        ...actual,
+        readFile: async (...args: Parameters<typeof actual.readFile>) => {
+          reads += 1;
+          if (reads === 1) throw Object.assign(new Error("too many open files"), { code: "EMFILE" });
+          return actual.readFile(...args);
+        },
+      };
+    });
+    try {
+      const fresh = await import("../agent-analysis-isolate");
+      await expect(fresh.checkAnalysisCode("(data) => data")).rejects.toThrow("too many open files");
+      await expect(fresh.checkAnalysisCode("(data) => data")).resolves.toBeNull();
+      await expect(fresh.runAnalysisCode("(data) => data.length", "[1,2]", RESULT_MAX_CHARS)).resolves.toEqual({
+        ok: true,
+        serialized: "2",
+      });
+      expect(reads).toBe(2);
+    } finally {
+      vi.doUnmock("node:fs/promises");
+      vi.resetModules();
+    }
+  });
+
+  it("runs at most two analysis workers at once, and starts each one's time budget only when it starts", async () => {
+    let alive = 0;
+    let mostAlive = 0;
+    const budgets: number[] = [];
+    vi.resetModules();
+    vi.doMock("node:worker_threads", async (importOriginal) => {
+      const actual = await importOriginal<typeof WorkerThreads>();
+      class CountingWorker extends actual.Worker {
+        constructor(source: string, options: WorkerThreads.WorkerOptions) {
+          super(source, options);
+          budgets.push((options.workerData as { deadline: number }).deadline - Date.now());
+          alive += 1;
+          mostAlive = Math.max(mostAlive, alive);
+          this.once("exit", () => {
+            alive -= 1;
+          });
+        }
+      }
+      return { ...actual, Worker: CountingWorker };
+    });
+    try {
+      const fresh = await import("../agent-analysis-isolate");
+      const code = "(data) => { let n = 0; for (let i = 0; i < 3e6; i++) n += i % 7; return data.length + n * 0; }";
+      const outcomes = await Promise.all(
+        Array.from({ length: 6 }, (_, index) =>
+          fresh.runAnalysisCode(code, JSON.stringify(Array.from({ length: index })), RESULT_MAX_CHARS),
+        ),
+      );
+
+      expect(ANALYSIS_MAX_WORKERS).toBe(2);
+      expect(outcomes).toEqual(Array.from({ length: 6 }, (_, index) => ({ ok: true, serialized: `${index}` })));
+      expect(budgets).toHaveLength(6);
+      expect(mostAlive).toBe(ANALYSIS_MAX_WORKERS);
+      for (const budget of budgets) expect(budget).toBeGreaterThan(ANALYSIS_LIMITS.wallMs - 100);
+    } finally {
+      vi.doUnmock("node:worker_threads");
+      vi.resetModules();
+    }
+  }, 60_000);
 
   it("checks that the code parses without running it", async () => {
     await expect(checkAnalysisCode("(data) => data.length;")).resolves.toBeNull();
