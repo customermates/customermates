@@ -36,7 +36,9 @@ const HOLDS_ITERATOR = "AnalysisResultHoldsAMapSetOrIterator";
 const NOT_JSON = "AnalysisResultIsNotJson";
 const MESSAGE_MAX_CHARS = 500;
 const JOB_ERROR_PREFIX = "Job execution error: ";
-const TRAILING_COMMENTS = /^\s*(?:(?:\/\/[^\n]*(?:\n|$)|\/\*(?:[^*]|\*(?!\/))*\*\/)\s*)+$/;
+const TRAILING_COMMENTS =
+  /^\s*(?:(?:\/\/[^\n\r\u2028\u2029]*(?:[\n\r\u2028\u2029]|$)|\/\*(?:[^*]|\*(?!\/))*\*\/)\s*)+$/;
+const TRAILING_COMMENTS_MAX_CHARS = 2_000;
 const NO_MESSAGE = "<null>";
 
 type Stop = "time" | "steps" | "memory" | null;
@@ -189,7 +191,11 @@ function withoutTrailingSemicolons(code: string): string {
 }
 
 function withoutSemicolonBeforeTrailingComment(code: string): string | null {
-  for (let end = code.lastIndexOf(";"); end >= 0; end = code.lastIndexOf(";", end - 1)) {
+  for (
+    let end = code.lastIndexOf(";");
+    end >= 0 && code.length - end <= TRAILING_COMMENTS_MAX_CHARS;
+    end = code.lastIndexOf(";", end - 1)
+  ) {
     const comments = code.slice(end + 1);
     if (TRAILING_COMMENTS.test(comments)) return `${withoutTrailingSemicolons(code.slice(0, end))}\n${comments}`;
   }

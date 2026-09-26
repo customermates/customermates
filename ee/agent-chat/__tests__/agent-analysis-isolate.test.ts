@@ -320,6 +320,38 @@ describe("analysis isolate", () => {
     );
   });
 
+  it("keeps the semicolon when code follows a line comment that a CR, U+2028 or U+2029 ends", async () => {
+    const unparsed = /^The analysis code does not parse as one function expression \(.+\)\./;
+    for (const code of [
+      "(data) => data.length; // rows\r* 100",
+      "(data) => data.length; // rows * 100",
+      "(data) => data.length; // rows * 100",
+    ]) {
+      await expect(checkAnalysisCode(code)).resolves.toMatch(unparsed);
+      await expect(runAnalysisCode(code, "[1, 2, 3]", RESULT_MAX_CHARS)).resolves.toEqual({
+        ok: false,
+        error: expect.stringMatching(unparsed),
+      });
+    }
+    for (const code of [
+      "(data) => data.length; // rows\r",
+      "(data) => data.length; // rows\r\n",
+      "(data) => data.length; // a\r// b\r\n/* c */",
+    ]) {
+      await expect(runAnalysisCode(code, "[1, 2, 3]", RESULT_MAX_CHARS)).resolves.toEqual({
+        ok: true,
+        serialized: "3",
+      });
+    }
+  });
+
+  it("drops a semicolon only before trailing comments of at most 2,000 characters", async () => {
+    await expect(checkAnalysisCode(`(data) => data.length; // ${"x".repeat(1_900)}`)).resolves.toBeNull();
+    await expect(checkAnalysisCode(`(data) => data.length; // ${"x".repeat(2_000)}`)).resolves.toMatch(
+      /^The analysis code does not parse as one function expression \(.+\)\./,
+    );
+  });
+
   it("says that recursion nested too deeply rather than reporting a memory access out of bounds", async () => {
     const recurse = (depth: number) => `(data) => { const f = (n) => (n ? 1 + f(n - 1) : 0); return f(${depth}); }`;
     await expect(runAnalysisCode(recurse(1_000), "[]", RESULT_MAX_CHARS)).resolves.toEqual({
