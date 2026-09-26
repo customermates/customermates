@@ -184,6 +184,13 @@ describe("filter syntax", () => {
     expect(FILTER_SYNTAX.examples.some((example) => example.operator === "equals")).toBe(false);
   });
 
+  it("gives isNull and isNotNull each its own meaning on a custom column", () => {
+    expect(FILTER_FIELD_DESCRIPTION).toContain(
+      "On custom columns isNull means the column has no value and isNotNull that it has one, so isNull finds records missing a value.",
+    );
+    expect(FILTER_FIELD_DESCRIPTION).not.toContain("never filled in");
+  });
+
   it("stays compact enough to leave room for the schema it accompanies", () => {
     expect(JSON.stringify(FILTER_SYNTAX).length).toBeLessThan(700);
   });
@@ -207,5 +214,15 @@ describe("name match note", () => {
     expect(nameQueryOf("Acme", undefined)).toBe("Acme");
     expect(nameQueryOf(undefined, [{ field: "name", operator: "startsWith", value: "Renewal" }])).toBe("Renewal");
     expect(nameQueryOf(undefined, [{ field: "status", operator: "in", value: ["x"] }])).toBeUndefined();
+  });
+
+  it("reads a contact's first and last name filters as a name query, since contacts have no name filter", () => {
+    expect(
+      nameQueryOf(undefined, [
+        { field: "firstName", operator: "equals", value: "Anna" },
+        { field: "lastName", operator: "startsWith", value: "Probe 1" },
+      ]),
+    ).toBe("Anna Probe 1");
+    expect(nameQueryOf(undefined, [{ field: "lastName", operator: "isNull" }])).toBeUndefined();
   });
 });

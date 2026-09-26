@@ -5,6 +5,7 @@ import { getTranslations } from "next-intl/server";
 import type { CustomErrorCode } from "@/core/validation/validation.types";
 
 import { FilterOperatorKey } from "@/core/base/base-query-builder";
+import { FilterFieldKey } from "@/core/types/filter-field-key";
 import { createZodError, type InteractorResult } from "@/core/validation/validation.utils";
 
 import {
@@ -219,7 +220,7 @@ export const FILTER_FIELD_DESCRIPTION =
   "Array of filter rules, AND-combined. Each rule is { field, operator, value? }. " +
   `Operators with one string value: ${FILTER_OPERATOR_GROUPS.singleValue.join(", ")}; with a string array: ${FILTER_OPERATOR_GROUPS.multiValue.join(", ")} (between needs exactly two); with a positive integer of days: ${FILTER_OPERATOR_GROUPS.relativeWindow.join(", ")}; without a value: ${FILTER_OPERATOR_GROUPS.noValue.join(", ")}. ` +
   'Example: [{"field":"name","operator":"contains","value":"acme"},{"field":"createdAt","operator":"inLastDays","value":30}]. ' +
-  "isNull and isNotNull are offered on custom columns and mean the column was never filled in, which is how you find records missing a value. " +
+  "On custom columns isNull means the column has no value and isNotNull that it has one, so isNull finds records missing a value. " +
   "On a field of linked-record ids, in and notIn take those ids and mean linked to any of them or to none of them, while hasSome and hasNone take no value and mean has any link at all or none at all: " +
   'to find deals with no open task, list the open tasks, then filter [{"field":"taskIds","operator":"notIn","value":["<task-id>"]}]. ' +
   "Call get_record_schema to see all filterable fields and which operators each one takes.";
@@ -287,16 +288,18 @@ export function nameMatchNote(
   return `${matches} records here match the name "${term?.trim()}". If the user meant one record, ask which one before changing anything; if they asked for every match, act on all of them.`;
 }
 
+const NAME_FILTER_FIELDS: readonly unknown[] = [FilterFieldKey.name, FilterFieldKey.firstName, FilterFieldKey.lastName];
+
 export function nameQueryOf(
   searchTerm: string | undefined,
   filters: readonly unknown[] | undefined,
 ): string | undefined {
   if (searchTerm?.trim()) return searchTerm;
-  for (const raw of filters ?? []) {
+  const names = (filters ?? []).flatMap((raw) => {
     const filter = raw as { field?: unknown; value?: unknown };
-    if (filter?.field === "name" && typeof filter.value === "string") return filter.value;
-  }
-  return undefined;
+    return NAME_FILTER_FIELDS.includes(filter?.field) && typeof filter.value === "string" ? [filter.value] : [];
+  });
+  return names.length > 0 ? names.join(" ") : undefined;
 }
 
 export function toonResult(payload: Record<string, unknown>): McpToolResult {

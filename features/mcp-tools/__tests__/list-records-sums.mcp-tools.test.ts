@@ -118,6 +118,18 @@ describe("list_records numeric totals", () => {
     expect(listRecordsTool.description).toContain("deal items add totalValue, totalQuantity and weightedValue");
   });
 
+  it("names what sums covers and says service amount and deal totalQuantity are not in it, as the EN and DE docs do", () => {
+    expect(listRecordsTool.description).toContain("For deals and custom currency columns it also returns sums");
+    expect(listRecordsTool.description).toContain("Service amount and deal totalQuantity are not in sums");
+    expect(listRecordsTool.description).not.toContain("numeric columns");
+    const docs = (locale: string) =>
+      readFileSync(join(process.cwd(), "content", "docs", locale, "mcp.mdx"), "utf8").replace(/\s+/g, " ");
+    expect(docs("en")).toContain("returns `total` and, for deals and custom currency columns, `sums` before the items");
+    expect(docs("de")).toContain(
+      "liefert `total` und, bei Deals und Custom Columns vom Typ Währung, `sums` vor den Elementen",
+    );
+  });
+
   it("tells an agent the totals span the filters rather than the page", () => {
     expect(listRecordsTool.description).toContain("not just the current page");
     expect(listRecordsTool.description).toContain("weightedValue");

@@ -206,4 +206,22 @@ describeDatabase("list_records groupBy against a real database", { timeout: 120_
     expect(mcpToolResultText(result)).toMatch(/^deal records cannot be grouped by name\. Groupable fields: .*userIds/);
     expect(result).toMatchObject({ failure: { kind: "validation" } });
   });
+
+  it("groups by every field its refusal names, and by a groupedBy token sent back as the field", async () => {
+    const refusal = mcpToolResultText(await list({ groupBy: { field: "userIdz" } }));
+    const named = /Groupable fields: (.*)\.$/
+      .exec(refusal)?.[1]
+      .split(", ")
+      .map((field) => field.split(" (")[0]);
+    expect(named).toEqual(expect.arrayContaining(["userIds", "createdAt:week", "updatedAt:month", status]));
+
+    for (const field of named ?? []) {
+      const result = await list({ groupBy: { field } });
+      expect(result).not.toHaveProperty("failure");
+      expect(structured(result).groupedBy).toBe(field);
+    }
+
+    const weekly = structured(await list({ groupBy: { field: "createdAt", bucket: "week" } }));
+    expect(structured(await list({ groupBy: { field: weekly.groupedBy } }))).toEqual(weekly);
+  });
 });

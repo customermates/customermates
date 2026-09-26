@@ -133,6 +133,34 @@ describe("list_records groupBy on a date", () => {
     expect(docs("de")).toContain("umfasst die letzten 7 Tage, die letzten 7 Wochen oder die letzten 12 Monate");
   });
 
+  it("takes a groupedBy token as the field, so a result's groupedBy can be sent back", async () => {
+    groupedBy("createdAt", monthLadder({ later: 0, current: 2, earlier: 0 }));
+    spies.listDeals.mockClear();
+
+    await list({ groupBy: { field: "createdAt:week" } });
+    await list({ groupBy: { field: "userIds" } });
+    await list({ groupBy: { field: "createdAt", bucket: "day" } });
+
+    expect(spies.listDeals.mock.calls.map(([params]) => params.grouping)).toEqual([
+      { field: "createdAt", bucket: "week" },
+      { field: "userIds" },
+      { field: "createdAt", bucket: "day" },
+    ]);
+  });
+
+  it("says how many groups and sums one grouped call returns, in the tool and in the EN and DE docs", () => {
+    expect(listRecordsTool.description).toContain(
+      "one call returns up to 50 groups with their counts and, for deals, the totalValue and weightedValue sums of up to 25 of them",
+    );
+    expect(listRecordsTool.description).not.toContain("of every group");
+    expect(docs("en")).toContain(
+      "It lists up to 50 groups and gives sums for up to 25 of them; when it leaves any out, `groupsIncomplete` is `true` and `groupNote` says what is missing.",
+    );
+    expect(docs("de")).toContain(
+      "Es listet bis zu 50 Gruppen und liefert Summen für bis zu 25 davon; fehlt etwas, ist `groupsIncomplete` gleich `true`, und `groupNote` sagt, was fehlt.",
+    );
+  });
+
   it("offers a month breakdown only by the created or updated date", () => {
     expect(listRecordsTool.description).toContain(
       "For a breakdown per status, owner, organization or created/updated month, pass groupBy",
@@ -203,6 +231,7 @@ describe("list_records groupBy on a relation", () => {
     organizationGroups(50, 50, { shown: 50 });
     const overflowing = await list({ groupBy: { field: "organizationIds" } });
     expect(overflowing.groupsIncomplete).toBe(true);
+    expect(overflowing.groupNote).toBe("Only 50 groups are listed; filter on organizationIds to count the others.");
     expect(listRecordsTool.outputSchema.safeParse(overflowing).success).toBe(true);
 
     organizationGroups(30, 25);
