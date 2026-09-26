@@ -250,7 +250,7 @@ async function respondToApproval(
   );
 }
 
-async function runTurn(input: {
+export async function runTurn(input: {
   db: BenchmarkDb;
   appUrl: string;
   cookie: string;

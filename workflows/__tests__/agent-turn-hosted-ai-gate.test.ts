@@ -1495,19 +1495,21 @@ describe("agent-turn authoritative tool inputs", () => {
     [undefined, "got no answer in time"],
     ["chat", "got no answer in time"],
     ["routine", "Nobody is watching this run"],
-  ] as const)("gives in-tool approval gates the turn surface (%s)", async (surface, wording) => {
+  ] as const)("gives in-tool approval gates the turn surface and page route (%s)", async (surface, wording) => {
     define("list_users");
     const input = { searchTerm: "Sofia" };
+    const pageRoute = "/en/deals";
     state.normalize.mockResolvedValue({ ok: true, input });
     state.runTools = async ({ tools }) => {
       await executeTool(tools.list_users, input);
       return finish();
     };
 
-    await runAgentTurn({ ...payload, surface });
+    await runAgentTurn({ ...payload, surface, pageRoute });
 
     expect(state.execute).toHaveBeenCalledTimes(1);
     expect(state.toolDeps).toHaveLength(1);
+    expect(state.toolDeps[0]).toMatchObject({ surface: surface ?? "chat", pageRoute });
     expect(approvalDenialReason("timeout", state.toolDeps[0].surface)).toContain(wording);
   });
 
