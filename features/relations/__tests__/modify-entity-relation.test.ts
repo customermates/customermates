@@ -31,14 +31,20 @@ describe("ModifyEntityRelationInteractor", () => {
   let stubRepo: any;
   let stubPort: any;
   let stubValidator: any;
+  let hiddenIds: Set<string>;
+
+  function readable(ids: Set<string>) {
+    return Promise.resolve(new Set([...ids].filter((id) => !hiddenIds.has(id))));
+  }
 
   beforeEach(() => {
     vi.clearAllMocks();
-    contactRepo = { getOrThrowCompanyWide: vi.fn() };
-    dealRepo = { getOrThrowCompanyWide: vi.fn() };
+    contactRepo = { getOrThrowCompanyWide: vi.fn(), findIds: vi.fn(readable) };
+    dealRepo = { getOrThrowCompanyWide: vi.fn(), findIds: vi.fn(readable) };
     updateContacts = { invoke: vi.fn().mockResolvedValue({ ok: true, data: [] }) };
     updateDeals = { invoke: vi.fn().mockResolvedValue({ ok: true, data: [] }) };
-    stubRepo = { getOrThrowCompanyWide: vi.fn() };
+    stubRepo = { getOrThrowCompanyWide: vi.fn(), findIds: vi.fn(readable) };
+    hiddenIds = new Set();
     stubPort = { invoke: vi.fn().mockResolvedValue({ ok: true, data: [] }) };
     stubValidator = { invoke: vi.fn() };
   });
@@ -60,6 +66,7 @@ describe("ModifyEntityRelationInteractor", () => {
       stubValidator,
       stubValidator,
       stubValidator,
+      stubRepo,
     );
   }
 
@@ -286,6 +293,114 @@ describe("ModifyEntityRelationInteractor", () => {
         },
       ],
     });
+  });
+
+  it("add and remove write only the links the caller can read, and count the hidden ones as kept", async () => {
+    hiddenIds = new Set([DEAL]);
+    contactRepo.getOrThrowCompanyWide.mockResolvedValue({
+      id: CONTACT,
+      organizations: [{ id: ORG_EXISTING }, { id: DEAL }],
+    });
+
+    const added: any = await createInteractor().invoke({
+      entity: "contact",
+      sourceId: CONTACT,
+      relation: "organizations",
+      mode: "add",
+      ids: [ORG_NEW],
+    });
+    const removed: any = await createInteractor().invoke({
+      entity: "contact",
+      sourceId: CONTACT,
+      relation: "organizations",
+      mode: "remove",
+      ids: [ORG_EXISTING],
+    });
+
+    expect(added.data).toMatchObject({ added: 1, removed: 0, before: 2, after: 3 });
+    expect(removed.data).toMatchObject({ added: 0, removed: 1, before: 2, after: 1 });
+    expect(updateContacts.invoke.mock.calls).toEqual([
+      [{ contacts: [{ id: CONTACT, organizationIds: [ORG_EXISTING, ORG_NEW] }] }],
+      [{ contacts: [{ id: CONTACT, organizationIds: [] }] }],
+    ]);
+  });
+
+  it("writes nothing when the change touches only a link the caller cannot read, or sets the readable ones again", async () => {
+    hiddenIds = new Set([DEAL]);
+    contactRepo.getOrThrowCompanyWide.mockResolvedValue({
+      id: CONTACT,
+      organizations: [{ id: ORG_EXISTING }, { id: DEAL }],
+    });
+
+    for (const [mode, ids] of [
+      ["set", [ORG_EXISTING]],
+      ["set", [ORG_EXISTING, DEAL]],
+      ["add", [DEAL]],
+      ["remove", [DEAL]],
+    ] as const) {
+      const result: any = await createInteractor().invoke({
+        entity: "contact",
+        sourceId: CONTACT,
+        relation: "organizations",
+        mode,
+        ids: [...ids],
+      });
+      expect(result.data).toMatchObject({ added: 0, removed: 0, before: 2, after: 2 });
+    }
+    expect(updateContacts.invoke).not.toHaveBeenCalled();
+  });
+
+  it("deal->services writes only the services the caller can read, and a set of those writes nothing", async () => {
+    hiddenIds = new Set([ORG_EXISTING]);
+    dealRepo.getOrThrowCompanyWide.mockResolvedValue({
+      id: DEAL,
+      services: [
+        { id: SVC_EXISTING, quantity: 5 },
+        { id: ORG_EXISTING, quantity: 4 },
+      ],
+    });
+
+    const added: any = await createInteractor().invoke({
+      entity: "deal",
+      sourceId: DEAL,
+      relation: "services",
+      mode: "add",
+      ids: [SVC_NEW],
+    });
+    const removed: any = await createInteractor().invoke({
+      entity: "deal",
+      sourceId: DEAL,
+      relation: "services",
+      mode: "remove",
+      ids: [SVC_EXISTING],
+    });
+    const unchanged: any = await createInteractor().invoke({
+      entity: "deal",
+      sourceId: DEAL,
+      relation: "services",
+      mode: "set",
+      ids: [SVC_EXISTING],
+    });
+
+    expect(added.data).toMatchObject({ added: 1, removed: 0, before: 2, after: 3 });
+    expect(removed.data).toMatchObject({ added: 0, removed: 1, before: 2, after: 1 });
+    expect(unchanged.data).toMatchObject({ added: 0, removed: 0, before: 2, after: 2 });
+    expect(updateDeals.invoke.mock.calls).toEqual([
+      [
+        {
+          deals: [
+            {
+              id: DEAL,
+              services: [
+                { serviceId: SVC_EXISTING, quantity: 5 },
+                { serviceId: SVC_NEW, quantity: 1 },
+              ],
+            },
+          ],
+        },
+      ],
+      [{ deals: [{ id: DEAL, services: [] }] }],
+    ]);
   });
 
   it("rejects a disallowed (entity, relation) pair without touching the repos", async () => {

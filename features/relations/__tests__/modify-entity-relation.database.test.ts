@@ -374,4 +374,171 @@ describeDatabase("record links against a real database", { timeout: 120_000 }, (
     );
     expect(linked.map((row) => row.organizationId).toSorted()).toEqual([hidden, wanted].toSorted());
   });
+
+  describe("on a record that also links records outside the caller's access", () => {
+    const caller = randomUUID();
+    const colleague = randomUUID();
+    const contact = randomUUID();
+    const ownDeal = randomUUID();
+    const [seen, wanted, hidden] = [randomUUID(), randomUUID(), randomUUID()];
+    const [seenService, wantedService, hiddenService] = [randomUUID(), randomUUID(), randomUUID()];
+    const restricted = {
+      ...createMockUserWithPermissions([
+        { resource: "contacts", action: "readOwn" },
+        { resource: "contacts", action: "update" },
+        { resource: "organizations", action: "readOwn" },
+        { resource: "users", action: "readOwn" },
+        { resource: "deals", action: "readOwn" },
+        { resource: "deals", action: "update" },
+        { resource: "services", action: "readOwn" },
+      ]),
+      companyId: companyA,
+      id: caller,
+    };
+
+    function asCaller<T>(run: () => Promise<T>): Promise<T> {
+      actingUser = restricted;
+      return run().finally(() => {
+        actingUser = tenantUser;
+      });
+    }
+
+    function linkRows() {
+      return runWithoutTenant(async () => ({
+        contact: await prisma.contact.findUniqueOrThrow({ where: { id: contact }, select: { updatedAt: true } }),
+        deal: await prisma.deal.findUniqueOrThrow({ where: { id: ownDeal }, select: { updatedAt: true } }),
+        organizations: await prisma.contactOrganization.findMany({
+          where: { contactId: contact },
+          orderBy: { organizationId: "asc" },
+          select: { id: true, organizationId: true },
+        }),
+        users: await prisma.contactUser.findMany({
+          where: { contactId: contact },
+          orderBy: { userId: "asc" },
+          select: { id: true, userId: true },
+        }),
+        services: await prisma.serviceDeal.findMany({
+          where: { dealId: ownDeal },
+          orderBy: { serviceId: "asc" },
+          select: { id: true, serviceId: true, quantity: true },
+        }),
+      }));
+    }
+
+    beforeAll(async () => {
+      await runWithoutTenant(async () => {
+        for (const [id, firstName] of [
+          [caller, "Caller"],
+          [colleague, "Colleague"],
+        ] as const) {
+          await prisma.user.create({
+            data: {
+              id,
+              companyId: companyA,
+              email: `${id}@example.com`,
+              firstName,
+              lastName: "Links",
+              status: "active",
+            },
+          });
+        }
+        await prisma.contact.create({
+          data: { id: contact, companyId: companyA, firstName: "Shared", lastName: "One" },
+        });
+        await prisma.contactUser.create({ data: { companyId: companyA, contactId: contact, userId: caller } });
+        await prisma.contactUser.create({ data: { companyId: companyA, contactId: contact, userId: colleague } });
+        for (const [id, owner] of [
+          [seen, caller],
+          [wanted, caller],
+          [hidden, colleague],
+        ] as const) {
+          await prisma.organization.create({ data: { id, companyId: companyA, name: `Org ${id}` } });
+          await prisma.organizationUser.create({ data: { companyId: companyA, organizationId: id, userId: owner } });
+        }
+        await prisma.contactOrganization.create({
+          data: { companyId: companyA, contactId: contact, organizationId: seen },
+        });
+        await prisma.contactOrganization.create({
+          data: { companyId: companyA, contactId: contact, organizationId: hidden },
+        });
+        await prisma.deal.create({ data: { id: ownDeal, companyId: companyA, name: "Shared Deal" } });
+        await prisma.dealUser.create({ data: { companyId: companyA, dealId: ownDeal, userId: caller } });
+        for (const [id, owner] of [
+          [seenService, caller],
+          [wantedService, caller],
+          [hiddenService, colleague],
+        ] as const) {
+          await prisma.service.create({ data: { id, companyId: companyA, name: `Service ${id}`, amount: 10 } });
+          await prisma.serviceUser.create({ data: { companyId: companyA, serviceId: id, userId: owner } });
+        }
+        await prisma.serviceDeal.create({
+          data: { companyId: companyA, dealId: ownDeal, serviceId: seenService, quantity: 2 },
+        });
+        await prisma.serviceDeal.create({
+          data: { companyId: companyA, dealId: ownDeal, serviceId: hiddenService, quantity: 4 },
+        });
+      });
+    });
+
+    it("a set that names only the links the caller can read writes nothing", async () => {
+      const before = await linkRows();
+
+      const organizations = await asCaller(() =>
+        getModifyEntityRelationInteractor().invoke({
+          entity: "contact",
+          sourceId: contact,
+          relation: "organizations",
+          mode: "set",
+          ids: [seen],
+        }),
+      );
+      const users = await asCaller(() =>
+        getModifyEntityRelationInteractor().invoke({
+          entity: "contact",
+          sourceId: contact,
+          relation: "users",
+          mode: "set",
+          ids: [caller],
+        }),
+      );
+      const services = await asCaller(() =>
+        getModifyEntityRelationInteractor().invoke({
+          entity: "deal",
+          sourceId: ownDeal,
+          relation: "services",
+          mode: "set",
+          ids: [seenService],
+        }),
+      );
+
+      for (const result of [organizations, users, services])
+        expect(result).toMatchObject({ ok: true, data: { added: 0, removed: 0, before: 2, after: 2 } });
+      expect(await linkRows()).toEqual(before);
+    });
+
+    it("add and remove change only the links named and keep the ones outside the caller's access", async () => {
+      const run = (data: Parameters<ReturnType<typeof getModifyEntityRelationInteractor>["invoke"]>[0]) =>
+        asCaller(() => getModifyEntityRelationInteractor().invoke(data));
+
+      await expect(
+        run({ entity: "contact", sourceId: contact, relation: "organizations", mode: "add", ids: [wanted] }),
+      ).resolves.toMatchObject({ ok: true, data: { added: 1, removed: 0, before: 2, after: 3 } });
+      await expect(
+        run({ entity: "contact", sourceId: contact, relation: "organizations", mode: "remove", ids: [seen] }),
+      ).resolves.toMatchObject({ ok: true, data: { added: 0, removed: 1, before: 3, after: 2 } });
+      await expect(
+        run({ entity: "deal", sourceId: ownDeal, relation: "services", mode: "add", ids: [wantedService] }),
+      ).resolves.toMatchObject({ ok: true, data: { added: 1, removed: 0, before: 2, after: 3 } });
+      await expect(
+        run({ entity: "deal", sourceId: ownDeal, relation: "services", mode: "remove", ids: [seenService] }),
+      ).resolves.toMatchObject({ ok: true, data: { added: 0, removed: 1, before: 3, after: 2 } });
+
+      const after = await linkRows();
+      expect(after.organizations.map((row) => row.organizationId).toSorted()).toEqual([hidden, wanted].toSorted());
+      expect(Object.fromEntries(after.services.map((row) => [row.serviceId, row.quantity]))).toEqual({
+        [hiddenService]: 4,
+        [wantedService]: 1,
+      });
+    });
+  });
 });

@@ -2,6 +2,7 @@ import type { RepoArgs } from "@/core/utils/types";
 import type { FindUserRepo } from "./user.service";
 import type { GetUsersRepo } from "@/features/user/get/get-users.interactor";
 import type { FindUsersByIdsRepo } from "@/features/user/find-users-by-ids.repo";
+import type { ModifyRelationUserRepo } from "@/features/relations/modify-entity-relation.interactor";
 import type { RegisterUserRepo } from "@/features/user/register/register-user.interactor";
 import type { UpdateUserDetailsRepo } from "@/features/user/upsert/update-user-details.interactor";
 import type { AdminUpdateUserDetailsRepo } from "@/features/user/upsert/admin-update-user-details.interactor";
@@ -83,6 +84,7 @@ export class PrismaUserRepo
     FindUserRepo,
     GetUsersRepo,
     FindUsersByIdsRepo,
+    ModifyRelationUserRepo,
     GetUserByIdRepo,
     RegisterUserRepo,
     UpdateUserDetailsRepo,

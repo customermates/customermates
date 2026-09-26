@@ -87,20 +87,30 @@ export type ModifyEntityRelationResult = {
   after: number;
 };
 
+type ReadableIds = Pick<ReadonlySet<string>, "has">;
+
 export abstract class ModifyRelationContactRepo {
   abstract getOrThrowCompanyWide(id: string): Promise<ContactDto>;
+  abstract findIds(ids: Set<string>): Promise<ReadableIds>;
 }
 export abstract class ModifyRelationOrganizationRepo {
   abstract getOrThrowCompanyWide(id: string): Promise<OrganizationDto>;
+  abstract findIds(ids: Set<string>): Promise<ReadableIds>;
 }
 export abstract class ModifyRelationDealRepo {
   abstract getOrThrowCompanyWide(id: string): Promise<DealDto>;
+  abstract findIds(ids: Set<string>): Promise<ReadableIds>;
 }
 export abstract class ModifyRelationServiceRepo {
   abstract getOrThrowCompanyWide(id: string): Promise<ServiceDto>;
+  abstract findIds(ids: Set<string>): Promise<ReadableIds>;
 }
 export abstract class ModifyRelationTaskRepo {
   abstract getOrThrowCompanyWide(id: string): Promise<TaskDto>;
+  abstract findIds(ids: Set<string>): Promise<ReadableIds>;
+}
+export abstract class ModifyRelationUserRepo {
+  abstract findIds(ids: Set<string>): Promise<ReadableIds>;
 }
 
 export abstract class ModifyRelationUpdateContactsPort {
@@ -140,6 +150,7 @@ export class ModifyEntityRelationInteractor extends AuthenticatedInteractor<
     private dealValidator: ValidateDealIdsInteractor,
     private serviceValidator: ValidateServiceIdsInteractor,
     private taskValidator: ValidateTaskIdsInteractor,
+    private userRepo: ModifyRelationUserRepo,
   ) {
     super();
   }
@@ -156,18 +167,18 @@ export class ModifyEntityRelationInteractor extends AuthenticatedInteractor<
 
     const current = await this.loadRelationIds(entity, sourceId, relation);
     const currentIds = new Set(current);
+    const readable = await this.readableIds(relation, currentIds);
+    const hidden = new Set(current.filter((id) => !readable.has(id)));
+    const visible = current.filter((id) => readable.has(id));
     const requestedIds = new Set(ids);
-    const next =
-      mode === "add"
-        ? [...new Set([...current, ...ids])]
-        : mode === "remove"
-          ? current.filter((id) => !requestedIds.has(id))
-          : [...requestedIds];
+    const wanted =
+      mode === "add" ? [...visible, ...ids] : mode === "remove" ? visible.filter((id) => !requestedIds.has(id)) : ids;
+    const next = [...new Set(wanted)].filter((id) => !hidden.has(id));
 
     const field = WRITE_FIELD[entity][relation];
     if (!field) throw new Error(`No write field for ${entity}.${relation}`);
 
-    const unchanged = next.length === currentIds.size && next.every((id) => currentIds.has(id));
+    const unchanged = next.length === visible.length && next.every((id) => readable.has(id));
 
     if (!unchanged) {
       const result = await this.writeRelation(entity, sourceId, field, next);
@@ -175,7 +186,9 @@ export class ModifyEntityRelationInteractor extends AuthenticatedInteractor<
     }
 
     const after =
-      mode === "set" && !unchanged ? (await this.loadRelationIds(entity, sourceId, relation)).length : next.length;
+      mode === "set" && !unchanged
+        ? (await this.loadRelationIds(entity, sourceId, relation)).length
+        : next.length + hidden.size;
     const added = next.filter((id) => !currentIds.has(id)).length;
 
     return {
@@ -202,12 +215,15 @@ export class ModifyEntityRelationInteractor extends AuthenticatedInteractor<
     const deal = await this.dealRepo.getOrThrowCompanyWide(sourceId);
     const current = new Map(deal.services.map((service) => [service.id, service.quantity]));
     const before = current.size;
-    const next = new Map(mode === "set" ? [] : current);
+    const readable = await this.serviceRepo.findIds(new Set(current.keys()));
+    const hidden = new Set([...current.keys()].filter((id) => !readable.has(id)));
+    const visible = [...current].filter(([id]) => readable.has(id));
+    const next = new Map(mode === "set" ? [] : visible);
 
     if (mode === "remove") for (const id of ids) next.delete(id);
-    else for (const id of ids) if (!next.has(id)) next.set(id, current.get(id) ?? 1);
+    else for (const id of ids) if (!next.has(id) && !hidden.has(id)) next.set(id, current.get(id) ?? 1);
 
-    const unchanged = next.size === before && [...next.keys()].every((id) => current.has(id));
+    const unchanged = next.size === visible.length && [...next.keys()].every((id) => readable.has(id));
     if (!unchanged) {
       const services = [...next.entries()].map(([serviceId, quantity]) => ({ serviceId, quantity }));
       const result = await this.updateDeals.invoke({ deals: [{ id: sourceId, services }] });
@@ -215,7 +231,9 @@ export class ModifyEntityRelationInteractor extends AuthenticatedInteractor<
     }
 
     const after =
-      mode === "set" && !unchanged ? (await this.dealRepo.getOrThrowCompanyWide(sourceId)).services.length : next.size;
+      mode === "set" && !unchanged
+        ? (await this.dealRepo.getOrThrowCompanyWide(sourceId)).services.length
+        : next.size + hidden.size;
     const added = [...next.keys()].filter((id) => !current.has(id)).length;
 
     return {
@@ -250,6 +268,18 @@ export class ModifyEntityRelationInteractor extends AuthenticatedInteractor<
       case "task":
         return this.taskRepo.getOrThrowCompanyWide(id);
     }
+  }
+
+  private readableIds(relation: Relation, ids: Set<string>): Promise<ReadableIds> {
+    const repo = {
+      organizations: this.organizationRepo,
+      contacts: this.contactRepo,
+      deals: this.dealRepo,
+      services: this.serviceRepo,
+      tasks: this.taskRepo,
+      users: this.userRepo,
+    }[relation];
+    return repo.findIds(ids);
   }
 
   private async loadRelationIds(entity: RelationEntity, id: string, relation: Relation): Promise<string[]> {

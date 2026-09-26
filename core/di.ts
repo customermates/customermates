@@ -1155,6 +1155,7 @@ export const getModifyEntityRelationInteractor = () =>
     getDealIdsValidator(),
     getServiceIdsValidator(),
     getTaskIdsValidator(),
+    getUserRepo(),
   );
 
 export const getDeleteWebhookInteractor = () =>
