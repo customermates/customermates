@@ -463,18 +463,32 @@ describe("managed service and independent self-hosting stay separated", () => {
     const rootLayout = readFileSync(join(REPO_ROOT, "app/layout.tsx"), "utf8");
     const staticLayout = readFileSync(join(REPO_ROOT, "app/[locale]/(static)/layout.tsx"), "utf8");
 
-    expect(affiliateFiles).toEqual(["app/[locale]/(static)/layout.tsx"]);
+    const affiliateLoader = readFileSync(join(REPO_ROOT, "components/acquisition/lemon-squeezy-affiliate.ts"), "utf8");
+    const affiliateScript = readFileSync(
+      join(REPO_ROOT, "components/acquisition/lemon-squeezy-affiliate-script.tsx"),
+      "utf8",
+    );
+    const affiliateMounts = runtimeFiles
+      .filter((path) => readFileSync(path, "utf8").includes("<LemonSqueezyAffiliateScript"))
+      .map((path) => relative(REPO_ROOT, path));
+
+    expect(affiliateFiles).toEqual(["components/acquisition/lemon-squeezy-affiliate.ts"]);
+    expect(affiliateMounts).toEqual(["app/[locale]/(static)/layout.tsx"]);
     expect(rootLayout).not.toContain("lemonSqueezyAffiliateConfig");
     expect(rootLayout).not.toContain("lmsqueezy.com/affiliate.js");
+    expect(rootLayout).not.toContain("LemonSqueezyAffiliateScript");
     expect(staticLayout).toContain('env.APP_MODE === "cloud"');
-    expect(staticLayout).toContain('window.lemonSqueezyAffiliateConfig = { store: "customermates" }');
-    expect(staticLayout).toContain('src="https://lmsqueezy.com/affiliate.js"');
+    expect(staticLayout.indexOf('env.APP_MODE === "cloud"')).toBeLessThan(
+      staticLayout.indexOf("<LemonSqueezyAffiliateScript />"),
+    );
     expect(staticLayout).not.toContain('from "next/script"');
-    expect(staticLayout).not.toContain('strategy="');
-    expect(staticLayout.match(/<script\b/g)).toHaveLength(2);
-    expect(staticLayout).toMatch(/<script defer src="https:\/\/lmsqueezy\.com\/affiliate\.js" \/>/);
-    expect(staticLayout.indexOf("lemonSqueezyAffiliateConfig")).toBeLessThan(
-      staticLayout.indexOf('src="https://lmsqueezy.com/affiliate.js"'),
+    expect(staticLayout).not.toMatch(/<script\b/);
+    expect(affiliateScript).toContain("scheduleLemonSqueezyAffiliate(window, document)");
+    expect(affiliateLoader).toContain('LEMON_SQUEEZY_AFFILIATE_SCRIPT_SRC = "https://lmsqueezy.com/affiliate.js"');
+    expect(affiliateLoader).toContain('LEMON_SQUEEZY_AFFILIATE_STORE = "customermates"');
+    expect(affiliateLoader).toContain('LEMON_SQUEEZY_REFERRAL_PARAM = "aff"');
+    expect(affiliateLoader.indexOf("lemonSqueezyAffiliateConfig")).toBeLessThan(
+      affiliateLoader.indexOf("doc.body.appendChild(script)"),
     );
     expect(runtime.match(/lmsqueezy\.com\/affiliate\.js/g)).toHaveLength(1);
     expect(runtime.match(/lemonSqueezyAffiliateConfig/g)).toHaveLength(1);

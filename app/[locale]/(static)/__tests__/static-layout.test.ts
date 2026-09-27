@@ -15,6 +15,9 @@ vi.mock("@vercel/analytics/next", () => ({
 }));
 vi.mock("@/components/ui/sonner", () => ({ Toaster: () => null }));
 vi.mock("next-intl/server", () => ({ setRequestLocale: state.setRequestLocale }));
+vi.mock("@/components/acquisition/lemon-squeezy-affiliate-script", () => ({
+  LemonSqueezyAffiliateScript: () => jsx("template", { "data-lemon-squeezy-affiliate": "" }),
+}));
 vi.mock("@/app/components/navigation/marketing-shell", () => ({
   MarketingShell: ({ children }: { children: ReactNode }) => children,
 }));
@@ -66,7 +69,8 @@ describe("StaticLayout scripts", () => {
 
     expect(html).toContain("docs page");
     expect(html).not.toContain("/_vercel/insights/script.js");
-    expect(html).toContain("https://lmsqueezy.com/affiliate.js");
+    expect(html).toContain("data-lemon-squeezy-affiliate");
+    expect(html).not.toContain("https://lmsqueezy.com/affiliate.js");
   });
 
   it("requests neither cloud script on a self-hosted instance", async () => {
@@ -76,5 +80,6 @@ describe("StaticLayout scripts", () => {
 
     expect(html).not.toContain("/_vercel/insights/script.js");
     expect(html).not.toContain("lmsqueezy");
+    expect(html).not.toContain("data-lemon-squeezy-affiliate");
   });
 });

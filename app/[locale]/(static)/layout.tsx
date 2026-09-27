@@ -1,6 +1,7 @@
 import { notFound } from "next/navigation";
 import { Analytics } from "@vercel/analytics/next";
 
+import { LemonSqueezyAffiliateScript } from "@/components/acquisition/lemon-squeezy-affiliate-script";
 import { Toaster } from "@/components/ui/sonner";
 import { env } from "@/env";
 import { isContentLocale } from "@/i18n/locale-registry";
@@ -29,13 +30,7 @@ export default async function StaticLayout({ children, params }: Props) {
         <>
           {env.VERCEL_ENV ? <Analytics /> : null}
 
-          <script
-            dangerouslySetInnerHTML={{
-              __html: 'window.lemonSqueezyAffiliateConfig = { store: "customermates" }',
-            }}
-          />
-
-          <script defer src="https://lmsqueezy.com/affiliate.js" />
+          <LemonSqueezyAffiliateScript />
         </>
       ) : null}
     </>
