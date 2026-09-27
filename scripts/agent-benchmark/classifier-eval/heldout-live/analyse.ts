@@ -6,7 +6,7 @@
  *     scripts/agent-benchmark/classifier-eval/heldout-live/analyse.ts --campaign <id> [--judge] [--out <dir>]
  *
  * `--judge` asks the gold-fact judge for every DH episode that has no cached verdict, charging each call to the
- * campaign's ledger under its cap. Without `--out` the analysis is printed and cached under `.runs/<campaign>` only.
+ * campaign's ledger under its cap. Without `--out` the analysis is printed and cached under `.runs/<campaign>.analysis` only.
  */
 import "../gateway-key";
 
@@ -26,7 +26,7 @@ import { reserveCharge, settleReservedCharge } from "../../campaign";
 import { requireLocalBenchmarkDatabase } from "../../env";
 import { BENCHMARK_CASES } from "../../fixtures";
 import { HELDOUT_DOCS_CASES, HELDOUT_ROUTING_CASES, isHeldoutCaseId } from "../../heldout-cases";
-import { isEpisodeArtifactFileName } from "../../report";
+import { campaignAnalysisDirectory, isEpisodeArtifactFileName } from "../../report";
 import { DOCS_HELDOUT } from "../heldout/docs-heldout";
 import { holm, mcnemar, round, wilson } from "../heldout-run/common";
 
@@ -433,7 +433,7 @@ async function main() {
   const control = byVariant(LIVE_VARIANTS.control);
   const docsArm = byVariant(LIVE_VARIANTS.docs);
   const routingArm = byVariant(LIVE_VARIANTS.routing);
-  const cacheDir = resolve(process.cwd(), "scripts/agent-benchmark/.runs", campaignId, "heldout-live");
+  const cacheDir = campaignAnalysisDirectory(resolve(process.cwd(), "scripts/agent-benchmark/.runs"), campaignId, "heldout-live");
   mkdirSync(cacheDir, { recursive: true });
   const verdictOf = await judgeDocs([...control, ...docsArm], join(cacheDir, "docs-fact-verdicts.json"), flag("judge") === true);
 
