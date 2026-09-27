@@ -154,7 +154,16 @@ function textDecoder(label: string | undefined): TextDecoder {
   }
 }
 
+function byteOrderMarkEncoding(body: Buffer): string | null {
+  if (body[0] === 0xef && body[1] === 0xbb && body[2] === 0xbf) return "utf-8";
+  if (body[0] === 0xfe && body[1] === 0xff) return "utf-16be";
+  if (body[0] === 0xff && body[1] === 0xfe) return "utf-16le";
+  return null;
+}
+
 function decodeBody(body: Buffer, contentType: string, contentTypeHeader: string): string {
+  const byteOrderMark = byteOrderMarkEncoding(body);
+  if (byteOrderMark) return new TextDecoder(byteOrderMark).decode(body);
   const headerLabel = /;\s*charset\s*=\s*["']?([^"';\s]+)/i.exec(contentTypeHeader)?.[1];
   if (headerLabel || contentType === "text/plain") return textDecoder(headerLabel).decode(body);
   const prefix = body.subarray(0, 1_024).toString("latin1");

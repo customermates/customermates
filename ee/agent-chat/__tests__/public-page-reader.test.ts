@@ -468,6 +468,25 @@ describe("readPublicPage", () => {
     },
   );
 
+  const utf16be = (html: string) => Buffer.from(html, "utf16le").swap16();
+  it.each([
+    ["UTF-8", "text/html; charset=ISO-8859-1", [0xef, 0xbb, 0xbf], (html: string) => Buffer.from(html, "utf8")],
+    ["UTF-16LE", "text/html; charset=utf-8", [0xff, 0xfe], (html: string) => Buffer.from(html, "utf16le")],
+    ["UTF-16BE", "text/html", [0xfe, 0xff], utf16be],
+  ])("lets a %s byte order mark override the declared charset", async (_bom, contentType, mark, encode) => {
+    const html =
+      '<html><head><meta charset="windows-1252"><title>Über uns</title></head><body><p>Größe für Kunden.</p></body></html>';
+    fixtures.push({
+      headers: { "content-type": contentType },
+      body: Buffer.from([...mark, ...encode(html)]),
+    });
+    expect(await readPublicPage({ allowedDomain: "example.com", url: "https://example.com/" })).toMatchObject({
+      ok: true,
+      title: "Über uns",
+      text: "Größe für Kunden.",
+    });
+  });
+
   it("does not let a meta tag switch an ASCII-readable page to UTF-16", async () => {
     fixtures.push({
       headers: { "content-type": "text/html" },
