@@ -5,23 +5,23 @@ import { Toaster } from "@/components/ui/sonner";
 import { env } from "@/env";
 import { isContentLocale } from "@/i18n/locale-registry";
 import { MarketingShell } from "@/app/components/navigation/marketing-shell";
-import { resolveRequestAccountState } from "@/features/auth/next/resolve-account-state";
+import { enableStaticLocale } from "@/i18n/static-locale";
 
 type Props = {
   children: React.ReactNode;
   params: Promise<{ locale: string }>;
 };
 
+export const revalidate = 86400;
+
 export default async function StaticLayout({ children, params }: Props) {
-  const { locale } = await params;
+  const locale = await enableStaticLocale(params);
 
   if (!isContentLocale(locale)) notFound();
 
-  const account = await resolveRequestAccountState();
-
   return (
     <>
-      <MarketingShell accountState={account.state}>{children}</MarketingShell>
+      <MarketingShell>{children}</MarketingShell>
 
       <Toaster />
 

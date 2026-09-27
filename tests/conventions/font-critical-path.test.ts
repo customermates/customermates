@@ -7,7 +7,7 @@ import { REPO_ROOT } from "./walk";
 
 const FONTS = readFileSync(join(REPO_ROOT, "app", "fonts.ts"), "utf8");
 const GLOBALS = readFileSync(join(REPO_ROOT, "styles", "globals.css"), "utf8");
-const ROOT_LAYOUT = readFileSync(join(REPO_ROOT, "app", "layout.tsx"), "utf8");
+const ROOT_LAYOUT = readFileSync(join(REPO_ROOT, "app", "root-document.tsx"), "utf8");
 
 const declaredFamilies = [...FONTS.matchAll(/export const ([a-z]+) = localFont\(\{([\s\S]*?)\n\}\);/gu)].map(
   ([, name, body]) => ({ name, body, variable: /variable:\s*"(--font-[a-z-]+)"/u.exec(body)?.[1] }),

@@ -12,13 +12,16 @@ import {
   routingLocaleFromUrlSegment,
   stripLocalePrefix,
 } from "./i18n/locale-registry";
-import { APP_LOCALE_COOKIE_NAME } from "./i18n/locale-preference";
+import { APP_LOCALE_COOKIE_NAME, CONTENT_LOCALE_COOKIE_NAME } from "./i18n/locale-preference";
 import { appRouting, contentRouting, isContentPage, isProtectedPage, isPublicPage } from "./i18n/routing";
 import { env } from "./env";
 import { auth } from "./core/auth/better-auth";
 import { resolveRequestOrigin } from "./core/config/environment";
 import { malformedRequestPathResponse } from "./core/api/request-path-error";
 import { SYNTHETIC_SEED_USER } from "./core/config/synthetic-seed-user";
+import { legacyHubPageRedirect } from "./core/seo/hub-pagination";
+import { LANDING_HUBS } from "./core/seo/landing-hubs";
+import { SESSION_HINT_COOKIE_NAME, expiredSessionHintCookie, sessionHintCookie } from "./features/auth/session-hint";
 
 const intlAppMiddleware = createMiddleware(appRouting);
 const intlContentMiddleware = createMiddleware(contentRouting);
@@ -30,6 +33,11 @@ function preferredAppLocale(req: NextRequest) {
   return isAppLocale(value) ? value : null;
 }
 
+function preferredContentLocale(req: NextRequest) {
+  const value = req.cookies.get(CONTENT_LOCALE_COOKIE_NAME)?.value;
+  return isContentLocale(value) ? value : null;
+}
+
 function localeRedirect(locale: string, unprefixedPath: string, base: string | URL, search: string) {
   const target = new URL(buildLocalePath(locale, unprefixedPath), base);
   target.search = search;
@@ -39,13 +47,11 @@ function localeRedirect(locale: string, unprefixedPath: string, base: string | U
 function negotiateLocale(req: NextRequest, base: string | URL, domain: "app" | "auto" = "auto") {
   const useContentLocale = domain === "auto" && isContentPage(req);
 
-  if (!useContentLocale) {
-    const preferredLocale = preferredAppLocale(req);
-    if (preferredLocale) {
-      const response = localeRedirect(preferredLocale, req.nextUrl.pathname, base, req.nextUrl.search);
-      response.headers.set("vary", "accept-language, cookie");
-      return response;
-    }
+  const preferredLocale = useContentLocale ? preferredContentLocale(req) : preferredAppLocale(req);
+  if (preferredLocale) {
+    const response = localeRedirect(preferredLocale, req.nextUrl.pathname, base, req.nextUrl.search);
+    response.headers.set("vary", "accept-language, cookie");
+    return response;
   }
 
   const negotiateOverLocalesThatCanServeIt = useContentLocale ? intlContentMiddleware : intlAppMiddleware;
@@ -87,6 +93,32 @@ function appendSetCookieHeaders(response: NextResponse, authResponse: Response):
   for (const cookie of setCookies) response.headers.append("set-cookie", cookie);
 }
 
+function legacyHubPageResponse(req: NextRequest, locale: string, base: string | URL): NextResponse | null {
+  const unprefixedPath = stripLocalePrefix(req.nextUrl.pathname).replace(/\/$/u, "") || "/";
+  const hub = LANDING_HUBS.find(({ hubPath }) => hubPath === unprefixedPath);
+  if (!hub) return null;
+
+  const resolution = legacyHubPageRedirect(hub.hubPath, req.nextUrl.searchParams);
+  if (!resolution) return null;
+
+  if (resolution.kind === "not-found")
+    return NextResponse.rewrite(new URL(buildLocalePath(locale, `${hub.hubPath}/page/0`), req.url));
+
+  return NextResponse.redirect(new URL(buildLocalePath(locale, resolution.href), base), 308);
+}
+
+function syncSessionHint(req: NextRequest, response: NextResponse, isAuthenticated: boolean): NextResponse {
+  if (req.cookies.has(SESSION_HINT_COOKIE_NAME) === isAuthenticated) return response;
+
+  const secure = req.nextUrl.protocol === "https:" ? "; Secure" : "";
+  response.headers.append(
+    "set-cookie",
+    isAuthenticated ? `${sessionHintCookie()}${secure}` : `${expiredSessionHintCookie()}${secure}`,
+  );
+
+  return response;
+}
+
 export default async function proxy(req: NextRequest) {
   const pathname = req.nextUrl.pathname;
   const base = resolveRequestOrigin(req.nextUrl.origin, env.AUTH_ALLOWED_HOSTS, env.BASE_URL);
@@ -119,7 +151,7 @@ export default async function proxy(req: NextRequest) {
 
   if (isApiRoute) return malformedRequestPathResponse(pathname) ?? NextResponse.next();
 
-  let session;
+  let session: ProxySession;
   let isAuthenticated = false;
 
   if (hasSessionCookie(req)) {
@@ -133,10 +165,22 @@ export default async function proxy(req: NextRequest) {
     }
   }
 
+  return syncSessionHint(req, await routePageRequest(req, base, session, isAuthenticated), isAuthenticated);
+}
+
+type ProxySession = Awaited<ReturnType<typeof auth.api.getSession>> | undefined;
+
+async function routePageRequest(
+  req: NextRequest,
+  base: string | URL,
+  session: ProxySession,
+  isAuthenticated: boolean,
+): Promise<NextResponse> {
+  const pathname = req.nextUrl.pathname;
   const currentLocale = routingLocaleFromPathname(pathname);
 
   if (currentLocale === null) {
-    if (isUnsupportedLocalePrefix(pathname)) return NextResponse.next();
+    if (isUnsupportedLocalePrefix(pathname)) return NextResponse.rewrite(new URL("/_not-found", req.url));
     return negotiateLocale(req, base, isAuthenticated && pathname === "/" ? "app" : "auto");
   }
 
@@ -189,6 +233,9 @@ export default async function proxy(req: NextRequest) {
   if (isContentPage(req)) {
     if (!isContentLocale(currentLocale))
       return localeRedirect(DEFAULT_LOCALE, stripLocalePrefix(pathname), base, req.nextUrl.search);
+
+    const legacyHubPage = legacyHubPageResponse(req, currentLocale, base);
+    if (legacyHubPage) return legacyHubPage;
 
     return intlContentMiddleware(req);
   }

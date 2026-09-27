@@ -5,7 +5,7 @@ import React from "react";
 import { APIError } from "better-auth";
 import { API_KEY_ERROR_CODES } from "@better-auth/api-key";
 import { nanoid } from "nanoid";
-import { headers } from "next/headers";
+import { cookies, headers } from "next/headers";
 import { getTranslations } from "next-intl/server";
 
 import AccountAccessRevoked from "@/components/emails/account-access-revoked";
@@ -17,6 +17,7 @@ import { auth } from "@/core/auth/better-auth";
 import { prisma } from "@/prisma/db";
 import { runWithoutTenant } from "@/core/decorators/tenant-context";
 import { redirectTo } from "./auth-outcome";
+import { SESSION_HINT_COOKIE_NAME } from "./session-hint";
 import { CustomErrorCode } from "@/core/validation/validation.types";
 import { env } from "@/env";
 import { DEFAULT_LOCALE } from "@/i18n/locale-registry";
@@ -253,6 +254,7 @@ export class AuthService {
 
   async signOut(): Promise<void> {
     await auth.api.signOut({ headers: await headers() });
+    (await cookies()).delete(SESSION_HINT_COOKIE_NAME);
   }
 
   async sendNewUserNotificationEmail(args: { email: string; name: string; provider?: string }): Promise<void> {

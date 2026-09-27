@@ -8,8 +8,12 @@ import { AppLink } from "@/components/shared/app-link";
 import { CenteredCardPage } from "@/components/shared/centered-card-page";
 import { Button } from "@/components/ui/button";
 
-export async function NotFoundPageView() {
-  const t = await getTranslations();
+type Props = {
+  locale?: string;
+};
+
+export async function NotFoundPageView({ locale }: Props = {}) {
+  const t = await getTranslations(locale ? { locale } : undefined);
 
   return (
     <CenteredCardPage>

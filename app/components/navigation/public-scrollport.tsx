@@ -3,25 +3,22 @@
 import type { AccountState } from "@/features/auth/account-state";
 
 import { useLayoutEffect, useRef } from "react";
-import { useSearchParams } from "next/navigation";
 
 import { PublicNavbar } from "../public-navbar";
 
 import { usePathname } from "@/i18n/navigation";
-import { ONBOARDING_INTENT_QUERY_PARAM } from "@/features/company/onboarding-intent-url";
 
 type Props = {
   accountState: AccountState;
   children: React.ReactNode;
   hasValidSession: boolean;
+  onboardingIntent?: string;
+  onSignedOut?: () => void;
 };
 
-export function PublicScrollport({ accountState, children, hasValidSession }: Props) {
+export function PublicScrollport({ accountState, children, hasValidSession, onboardingIntent, onSignedOut }: Props) {
   const pathname = usePathname();
-  const searchParams = useSearchParams();
   const scrollportRef = useRef<HTMLDivElement>(null);
-  const onboardingIntents = searchParams.getAll(ONBOARDING_INTENT_QUERY_PARAM);
-  const onboardingIntent = onboardingIntents.length === 1 && onboardingIntents[0] ? onboardingIntents[0] : undefined;
 
   useLayoutEffect(() => {
     if (scrollportRef.current) scrollportRef.current.scrollTop = 0;
@@ -38,6 +35,7 @@ export function PublicScrollport({ accountState, children, hasValidSession }: Pr
           accountState={accountState}
           hasValidSession={hasValidSession}
           onboardingIntent={onboardingIntent}
+          onSignedOut={onSignedOut}
         />
       </header>
 

@@ -13,7 +13,7 @@ const scrollportSource = readFileSync(
   join(REPO_ROOT, "app", "components", "navigation", "public-scrollport.tsx"),
   "utf8",
 );
-const layoutSource = readFileSync(join(REPO_ROOT, "app", "layout.tsx"), "utf8");
+const layoutSource = readFileSync(join(REPO_ROOT, "app", "root-document.tsx"), "utf8");
 const globalStyles = readFileSync(
   join(REPO_ROOT, "styles", "globals.css"),
   "utf8",

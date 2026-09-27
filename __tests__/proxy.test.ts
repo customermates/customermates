@@ -53,6 +53,7 @@ vi.mock("@/core/auth/better-auth", () => ({
   },
 }));
 
+import { sessionHintCookie } from "@/features/auth/session-hint";
 import proxy from "@/proxy";
 import { SYNTHETIC_SEED_USER } from "@/core/config/synthetic-seed-user";
 
@@ -192,7 +193,12 @@ describe("automatic demo authentication proxy", () => {
     expect(mocks.signInEmail).toHaveBeenCalledOnce();
     expect(response.status).toBe(307);
     expect(response.headers.get("location")).toBe("http://localhost:4000/en/inbox");
-    expect(setCookieHeaders(response)).toEqual([CLEARED_SESSION_COOKIE, SESSION_TOKEN_COOKIE, SESSION_DATA_COOKIE]);
+    expect(setCookieHeaders(response)).toEqual([
+      CLEARED_SESSION_COOKIE,
+      SESSION_TOKEN_COOKIE,
+      SESSION_DATA_COOKIE,
+      sessionHintCookie(),
+    ]);
     expect(mocks.intlMiddleware).not.toHaveBeenCalled();
   });
 

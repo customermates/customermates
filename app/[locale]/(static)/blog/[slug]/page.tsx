@@ -20,6 +20,12 @@ import { ringOrder, selectRelatedSlugs } from "@/core/seo/related-selection";
 import { AppImage } from "@/components/shared/app-image";
 import { articleSchema, breadcrumbListSchema } from "@/core/seo/schemas";
 import { contentLocaleOrDefault, formattingTagFor } from "@/i18n/locale-registry";
+import { enableStaticLocale } from "@/i18n/static-locale";
+import { localizedSlugParams } from "@/core/fumadocs/static-params";
+
+export function generateStaticParams({ params }: { params: { locale: string } }) {
+  return localizedSlugParams(blogPostsSource, params.locale, "slug");
+}
 
 export async function generateMetadata({
   params,
@@ -36,7 +42,9 @@ export async function generateMetadata({
   });
 }
 
-export default async function BlogPostPage({ params }: { params: Promise<{ slug: string }> }) {
+export default async function BlogPostPage({ params }: { params: Promise<{ locale: string; slug: string }> }) {
+  await enableStaticLocale(params);
+
   const [{ slug }, rawLocale, t] = await Promise.all([params, getLocale(), getTranslations()]);
   const locale = contentLocaleOrDefault(rawLocale);
   const page = blogPostsSource.getPage([slug], locale);

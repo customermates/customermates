@@ -10,6 +10,7 @@ import { Button } from "@/components/ui/button";
 import { useNavigationGuard } from "@/core/stores/navigation-guard.context";
 import { cn } from "@/core/utils/cn";
 import { CONTENT_LOCALES, buildLocalePath, contentLocaleOrDefault, flagCodeFor } from "@/i18n/locale-registry";
+import { contentLocaleCookie } from "@/i18n/locale-preference";
 import { usePathname } from "@/i18n/navigation";
 import { preserveAdClickInHref } from "@/features/acquisition/ad-click-url";
 
@@ -54,6 +55,7 @@ export function LocaleMenu({ align = "start", className, side = "bottom" }: Prop
   }, []);
 
   function handleSelect(event: ReactMouseEvent<HTMLAnchorElement>, locale: ContentLocale) {
+    document.cookie = contentLocaleCookie(locale);
     const destination = preserveAdClickInHref(buildLocalePath(locale, pathname), {
       search: window.location.search,
     });

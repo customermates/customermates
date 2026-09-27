@@ -217,9 +217,12 @@ describe("proxy locale routing", () => {
 
   it("404s an unsupported locale prefix instead of redirecting", async () => {
     for (const path of ["/es/pricing", "/zz", "/pt-br/pricing", "/en-US/pricing"]) {
-      const { status, location } = await call(path);
+      const { response, status, location } = await call(path);
       expect(location, `${path} must not redirect into a URL we may later serve`).toBeNull();
       expect(status, `${path} should fall through to the app router`).toBe(200);
+      expect(response.headers.get("x-middleware-rewrite"), `${path} should render the global 404`).toBe(
+        "http://localhost:4000/_not-found",
+      );
     }
   });
 

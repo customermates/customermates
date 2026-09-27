@@ -17,6 +17,12 @@ import { Toc } from "@/components/shared/toc";
 import { Footer } from "@/app/components/footer";
 import { JsonLd } from "@/components/seo/json-ld";
 import { breadcrumbListSchema } from "@/core/seo/schemas";
+import { enableStaticLocale } from "@/i18n/static-locale";
+import { localizedSlugParams } from "@/core/fumadocs/static-params";
+
+export function generateStaticParams({ params }: { params: { locale: string } }) {
+  return localizedSlugParams(docsSource, params.locale, "slug");
+}
 
 export async function generateMetadata({
   params,
@@ -27,7 +33,9 @@ export async function generateMetadata({
   return generateMetadataFromMeta({ locale, route: "/docs/:slug", params: { slug } });
 }
 
-export default async function DocPage({ params }: { params: Promise<{ slug: string }> }) {
+export default async function DocPage({ params }: { params: Promise<{ locale: string; slug: string }> }) {
+  await enableStaticLocale(params);
+
   const { slug } = await params;
   const locale = await getLocale();
   const page = docsSource.getPage([slug], locale);

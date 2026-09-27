@@ -12,13 +12,16 @@ import { CTASection } from "@/components/marketing/cta-section";
 import { ProductDemoSection } from "@/components/marketing/product-demo-section";
 import { generateMetadataFromMeta } from "@/core/fumadocs/metadata";
 import { featuresSource } from "@/core/fumadocs/source";
+import { enableStaticLocale, type StaticLocaleProps } from "@/i18n/static-locale";
 
 export async function generateMetadata({ params }: { params: Promise<{ locale: string }> }): Promise<Metadata> {
   const { locale } = await params;
   return generateMetadataFromMeta({ locale, route: "/features" });
 }
 
-export default async function FeaturesPage() {
+export default async function FeaturesPage({ params }: StaticLocaleProps) {
+  await enableStaticLocale(params);
+
   const locale = await getLocale();
   const page = featuresSource.getPage(["features"], locale);
 

@@ -16,6 +16,7 @@ import * as Sentry from "@sentry/nextjs";
 import { TopBarActionsProvider } from "../topbar-actions-context";
 
 import { isCanonicalInactiveErrorType } from "@/features/auth/account-state";
+import { ONBOARDING_INTENT_QUERY_PARAM } from "@/features/company/onboarding-intent-url";
 import { usePathname, useRouter } from "@/i18n/navigation";
 import { SidebarInset, SidebarProvider } from "@/components/ui/sidebar";
 import { useRootStore } from "@/core/stores/root-store.provider";
@@ -71,6 +72,8 @@ export function NavigationSwitch({
   const router = useRouter();
   const searchParams = useSearchParams();
   const errorTypes = searchParams.getAll("type");
+  const onboardingIntents = searchParams.getAll(ONBOARDING_INTENT_QUERY_PARAM);
+  const onboardingIntent = onboardingIntents.length === 1 && onboardingIntents[0] ? onboardingIntents[0] : undefined;
   const hasValidSession = accountState !== "unauthenticated";
   const isRegistered = sidebarUser !== null;
   const currentAccountState = accountStateForPath({
@@ -118,7 +121,11 @@ export function NavigationSwitch({
   let shell: React.ReactNode;
   if (shellMode === "public") {
     shell = (
-      <PublicScrollport accountState={currentAccountState} hasValidSession={hasValidSession}>
+      <PublicScrollport
+        accountState={currentAccountState}
+        hasValidSession={hasValidSession}
+        onboardingIntent={onboardingIntent}
+      >
         {children}
       </PublicScrollport>
     );

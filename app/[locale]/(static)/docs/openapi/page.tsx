@@ -17,6 +17,7 @@ import { AppChip } from "@/components/chip/app-chip";
 import { Footer } from "@/app/components/footer";
 import { generateMetadataFromMeta } from "@/core/fumadocs/metadata";
 import { DEFAULT_LOCALE, stripLocalePrefix } from "@/i18n/locale-registry";
+import { enableStaticLocale, type StaticLocaleProps } from "@/i18n/static-locale";
 
 export async function generateMetadata({ params }: { params: Promise<{ locale: string }> }): Promise<Metadata> {
   const { locale } = await params;
@@ -44,7 +45,9 @@ function sortDocGroupEntries<T>(entries: [string, T][]): [string, T][] {
   });
 }
 
-export default async function OpenApiOverviewPage() {
+export default async function OpenApiOverviewPage({ params }: StaticLocaleProps) {
+  await enableStaticLocale(params);
+
   const locale = await getLocale();
   const t = await getTranslations();
   const page = apiOverviewSource.getPage(["openapi"], locale);

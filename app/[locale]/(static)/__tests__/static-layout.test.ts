@@ -6,6 +6,7 @@ import { beforeEach, describe, expect, it, vi } from "vitest";
 
 const state = vi.hoisted(() => ({
   env: { APP_MODE: "cloud", VERCEL_ENV: undefined as string | undefined },
+  setRequestLocale: vi.fn(),
 }));
 
 vi.mock("@/env", () => ({ env: state.env }));
@@ -13,9 +14,7 @@ vi.mock("@vercel/analytics/next", () => ({
   Analytics: () => jsx("script", { src: "/_vercel/insights/script.js" }),
 }));
 vi.mock("@/components/ui/sonner", () => ({ Toaster: () => null }));
-vi.mock("@/features/auth/next/resolve-account-state", () => ({
-  resolveRequestAccountState: () => Promise.resolve({ state: "unauthenticated", user: null }),
-}));
+vi.mock("next-intl/server", () => ({ setRequestLocale: state.setRequestLocale }));
 vi.mock("@/app/components/navigation/marketing-shell", () => ({
   MarketingShell: ({ children }: { children: ReactNode }) => children,
 }));
@@ -25,7 +24,7 @@ vi.mock("next/navigation", () => ({
   },
 }));
 
-import StaticLayout from "../layout";
+import StaticLayout, { revalidate } from "../layout";
 
 async function render() {
   const element = await StaticLayout({
@@ -38,6 +37,21 @@ async function render() {
 beforeEach(() => {
   state.env.APP_MODE = "cloud";
   state.env.VERCEL_ENV = undefined;
+});
+
+describe("StaticLayout rendering", () => {
+  it("renders from the URL locale alone, so every marketing page can be prerendered and cached", async () => {
+    await render();
+
+    expect(state.setRequestLocale).toHaveBeenCalledWith("en");
+    expect(revalidate).toBe(86400);
+  });
+
+  it("answers an app-only locale with a 404 instead of rendering marketing content", async () => {
+    await expect(StaticLayout({ children: null, params: Promise.resolve({ locale: "fr" }) })).rejects.toThrow(
+      "NEXT_HTTP_ERROR_FALLBACK;404",
+    );
+  });
 });
 
 describe("StaticLayout scripts", () => {

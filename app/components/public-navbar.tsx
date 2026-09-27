@@ -37,12 +37,13 @@ type Props = {
   accountState: AccountState;
   hasValidSession: boolean;
   onboardingIntent?: string;
+  onSignedOut?: () => void;
 };
 
 const mobileOverviewRowClassName =
   "flex min-h-14 w-full items-center justify-between gap-4 rounded-md py-4 text-left text-base font-medium text-sidebar-foreground no-underline transition-all outline-none hover:no-underline focus-visible:border-ring focus-visible:ring-[3px] focus-visible:ring-inset focus-visible:ring-ring/50";
 
-export function PublicNavbar({ accountState, hasValidSession, onboardingIntent }: Props) {
+export function PublicNavbar({ accountState, hasValidSession, onboardingIntent, onSignedOut }: Props) {
   const t = useTranslations();
   const pathname = usePathname();
   const [isMenuOpen, setIsMenuOpen] = useState(false);
@@ -111,6 +112,7 @@ export function PublicNavbar({ accountState, hasValidSession, onboardingIntent }
         className={className}
         onboardingIntent={onboardingIntent}
         variant={actions.signOut === "setupEscape" ? "destructiveOutline" : "ghost"}
+        onSignedOut={onSignedOut}
       />
     );
   }

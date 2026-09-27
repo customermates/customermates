@@ -3,7 +3,6 @@ import type { NextRequest } from "next/server";
 import { defineRouting } from "next-intl/routing";
 
 import { APP_LOCALES, CONTENT_LOCALES, DEFAULT_LOCALE, ROUTING_LOCALES } from "./locale-registry";
-import { CONTENT_LOCALE_COOKIE_NAME, LOCALE_COOKIE_MAX_AGE } from "./locale-preference";
 
 export const NOINDEX_PUBLIC_ROUTES = [
   "/auth/signin",
@@ -54,8 +53,16 @@ export const SITEMAP_CONTENT_ROUTES: readonly PublicSeoRoute[] = PUBLIC_ROUTES_S
 
 export const SITEMAP_EXTRA_CONTENT_ROUTES = ["/contact", "/docs/openapi"] as const;
 
+export const HUB_PAGE_ROUTES = [
+  "/blog/page/:page",
+  "/compare/page/:page",
+  "/features/all/page/:page",
+  "/for/page/:page",
+] as const;
+
 export const PUBLIC_ROUTES = [
   ...PUBLIC_ROUTES_SEO,
+  ...HUB_PAGE_ROUTES,
   "/contact",
   "/styleguide",
   "/styleguide/foundations",
@@ -110,6 +117,7 @@ export const PROTECTED_ROUTES = [
 
 export const CONTENT_ROUTES = [
   ...PUBLIC_ROUTES_SEO.filter((route) => !route.startsWith("/auth/")),
+  ...HUB_PAGE_ROUTES,
   "/docs/openapi/:slug",
   "/docs/openapi",
 ] as const;
@@ -134,11 +142,7 @@ export const contentRouting = defineRouting({
   locales: CONTENT_LOCALES,
   defaultLocale: DEFAULT_LOCALE,
   localePrefix: "always",
-  localeCookie: {
-    name: CONTENT_LOCALE_COOKIE_NAME,
-    maxAge: LOCALE_COOKIE_MAX_AGE,
-    sameSite: "lax",
-  },
+  localeCookie: false,
   alternateLinks: false,
 });
 

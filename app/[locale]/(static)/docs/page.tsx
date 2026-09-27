@@ -16,13 +16,16 @@ import { Toc } from "@/components/shared/toc";
 import { Footer } from "@/app/components/footer";
 import { JsonLd } from "@/components/seo/json-ld";
 import { breadcrumbListSchema } from "@/core/seo/schemas";
+import { enableStaticLocale, type StaticLocaleProps } from "@/i18n/static-locale";
 
 export async function generateMetadata({ params }: { params: Promise<{ locale: string }> }): Promise<Metadata> {
   const { locale } = await params;
   return generateMetadataFromMeta({ locale, route: "/docs" });
 }
 
-export default async function DocsOverviewPage() {
+export default async function DocsOverviewPage({ params }: StaticLocaleProps) {
+  await enableStaticLocale(params);
+
   const locale = await getLocale();
   const page = docsSource.getPage(["intro-page"], locale);
 

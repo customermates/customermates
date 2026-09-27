@@ -344,7 +344,9 @@ describe("public navigation preferences", () => {
     }
 
     expect(badges).toContain("<img");
-    expect(badges).toContain("useServerTheme");
+    expect(badges).toContain("dark:hidden");
+    expect(badges).toContain("not-dark:hidden");
+    expect(badges).not.toContain("useTheme");
     expect(badges).toContain("MARQUEE_COPIES");
     expect(badges).toContain("prefers-reduced-motion");
     expect(badges).toContain(".footer-badges-track:focus-within");

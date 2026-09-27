@@ -13,10 +13,11 @@ import { toastZodErrorTree } from "@/core/utils/toast-zod-error-tree";
 type Props = {
   className?: string;
   onboardingIntent?: string;
+  onSignedOut?: () => void;
   variant: "ghost" | "destructiveOutline";
 };
 
-export function PublicNavbarSignOutButton({ className, onboardingIntent, variant }: Props) {
+export function PublicNavbarSignOutButton({ className, onboardingIntent, onSignedOut, variant }: Props) {
   const t = useTranslations();
   const [signingOut, setSigningOut] = useState(false);
 
@@ -25,7 +26,12 @@ export function PublicNavbarSignOutButton({ className, onboardingIntent, variant
     setSigningOut(true);
     try {
       const result = await signOutFromPublicNavbar(onboardingIntent);
-      if (!result || result.ok) return;
+      if (!result) return;
+      if (result.ok) {
+        onSignedOut?.();
+        setSigningOut(false);
+        return;
+      }
 
       toastZodErrorTree(result.error);
       setSigningOut(false);

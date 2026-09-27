@@ -1,10 +1,6 @@
 "use client";
 
-import { useEffect, useState } from "react";
-import { useTheme } from "next-themes";
 import { useTranslations } from "next-intl";
-
-import { useServerTheme } from "@/components/server-theme-provider";
 
 type Badge = {
   name: string;
@@ -103,12 +99,11 @@ const MARQUEE_STYLES = `
 
 type BadgeLinkProps = {
   badge: Badge;
-  isDark: boolean;
   label: string;
   ariaHidden?: boolean;
 };
 
-function BadgeLink({ badge, isDark, label, ariaHidden }: BadgeLinkProps) {
+function BadgeLink({ badge, label, ariaHidden }: BadgeLinkProps) {
   return (
     <a
       aria-hidden={ariaHidden || undefined}
@@ -122,10 +117,20 @@ function BadgeLink({ badge, isDark, label, ariaHidden }: BadgeLinkProps) {
       {/* eslint-disable-next-line @next/next/no-img-element */}
       <img
         alt={ariaHidden ? "" : label}
-        className="h-8 w-auto"
+        className="h-8 w-auto dark:hidden"
         height={badge.height}
         loading="lazy"
-        src={isDark ? badge.dark : badge.light}
+        src={badge.light}
+        width={badge.width}
+      />
+
+      {/* eslint-disable-next-line @next/next/no-img-element */}
+      <img
+        alt={ariaHidden ? "" : label}
+        className="h-8 w-auto not-dark:hidden"
+        height={badge.height}
+        loading="lazy"
+        src={badge.dark}
         width={badge.width}
       />
     </a>
@@ -134,15 +139,6 @@ function BadgeLink({ badge, isDark, label, ariaHidden }: BadgeLinkProps) {
 
 export function FooterBadges() {
   const t = useTranslations();
-  const serverTheme = useServerTheme();
-  const { resolvedTheme, systemTheme } = useTheme();
-  const [isDark, setIsDark] = useState(serverTheme === "dark");
-
-  useEffect(() => {
-    const theme = resolvedTheme === "system" ? systemTheme : resolvedTheme;
-    setIsDark(theme === "dark");
-  }, [resolvedTheme, systemTheme]);
-
   return (
     <>
       <style>{MARQUEE_STYLES}</style>
@@ -164,7 +160,6 @@ export function FooterBadges() {
                     key={`${copyIndex}-${badge.name}`}
                     ariaHidden={copyIndex > 0}
                     badge={badge}
-                    isDark={isDark}
                     label={label}
                   />
                 );

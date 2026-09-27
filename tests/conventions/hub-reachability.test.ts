@@ -91,6 +91,7 @@ vi.mock("@/core/fumadocs/metadata", () => ({
 vi.mock("next-intl/server", () => ({
   getLocale: async () => "en",
   getTranslations: async () => (key: string) => key,
+  setRequestLocale: () => undefined,
 }));
 vi.mock("next/navigation", () => ({
   notFound: () => {
@@ -133,18 +134,20 @@ import {
   selectFooterSlugs,
 } from "@/app/components/footer-selection";
 import {
-  HUB_PAGE_PARAM,
+  HUB_PAGE_SEGMENT,
   hubPageCount,
   hubPageHref,
-  hubPageOneRedirectHref,
+  hubPageRoute,
+  hubPageStaticParams,
   hubPagerModel,
+  legacyHubPageRedirect,
   paginateHub,
   paginateLocalizedHubPages,
-  resolveHubPage,
+  resolveHubPageSegment,
 } from "@/core/seo/hub-pagination";
 import { LANDING_HUBS } from "@/core/seo/landing-hubs";
 import { CONTENT_LOCALES, DEFAULT_LOCALE, type ContentLocale, buildLocalePath } from "@/i18n/locale-registry";
-import { PUBLIC_ROUTES } from "@/i18n/routing";
+import { HUB_PAGE_ROUTES, PUBLIC_ROUTES } from "@/i18n/routing";
 
 const CLICK_BOUND = 4;
 const E2E_BASE_URL = process.env.HUB_E2E_BASE_URL?.replace(/\/+$/u, "");
@@ -193,13 +196,15 @@ function renderedPagerHrefs(basePath: string, page: number, pageCount: number): 
   return [...html.matchAll(/\shref="([^"]+)"/gu)].map((match) => match[1].replaceAll("&amp;", "&"));
 }
 
-type HubPageComponent = (props: {
-  params: Promise<{ locale: string }>;
-  searchParams: Promise<Record<string, string | string[] | undefined>>;
-}) => Promise<ReactNode>;
+type HubPageComponent = (props: { params: Promise<{ locale: string }> }) => Promise<ReactNode>;
+type PaginatedHubPageComponent = (props: { params: Promise<{ locale: string; page: string }> }) => Promise<ReactNode>;
 
 type LandingHubPath = (typeof LANDING_HUBS)[number]["hubPath"];
 type HubPageModule = { default: HubPageComponent };
+type PaginatedHubPageModule = {
+  default: PaginatedHubPageComponent;
+  generateStaticParams: (props: { params: { locale: string } }) => { page: string }[];
+};
 
 const HUB_PAGE_LOADERS = {
   "/blog": () => import("@/app/[locale]/(static)/blog/page"),
@@ -208,14 +213,25 @@ const HUB_PAGE_LOADERS = {
   "/for": () => import("@/app/[locale]/(static)/for/page"),
 } satisfies Record<LandingHubPath, () => Promise<HubPageModule>>;
 
-async function renderProductionHub(hubPath: LandingHubPath, page: number): Promise<string> {
-  const component = (await HUB_PAGE_LOADERS[hubPath]()).default;
+const PAGINATED_HUB_PAGE_LOADERS = {
+  "/blog": () => import("@/app/[locale]/(static)/blog/page/[page]/page"),
+  "/compare": () => import("@/app/[locale]/(static)/compare/page/[page]/page"),
+  "/features/all": () => import("@/app/[locale]/(static)/features/all/page/[page]/page"),
+  "/for": () => import("@/app/[locale]/(static)/for/page/[page]/page"),
+} satisfies Record<LandingHubPath, () => Promise<PaginatedHubPageModule>>;
 
-  const node = await component({
-    params: Promise.resolve({ locale: "en" }),
-    searchParams: Promise.resolve(page === 1 ? {} : { page: String(page) }),
-  });
+async function renderProductionHub(hubPath: LandingHubPath, page: number): Promise<string> {
+  const node =
+    page === 1
+      ? await (await HUB_PAGE_LOADERS[hubPath]()).default({ params: Promise.resolve({ locale: "en" }) })
+      : await (await PAGINATED_HUB_PAGE_LOADERS[hubPath]()).default({
+          params: Promise.resolve({ locale: "en", page: String(page) }),
+        });
   return renderToStaticMarkup(node);
+}
+
+function isPagerHref(href: string, hubPath: string): boolean {
+  return href === hubPath || href.startsWith(`${hubPath}/${HUB_PAGE_SEGMENT}/`);
 }
 
 function hrefsIn(document: Document, selector: string): string[] {
@@ -334,68 +350,58 @@ async function expectCanonicalResponse(response: Response, expectedPath: string,
 }
 
 describe("hub pagination and rendered reachability", () => {
-  it("strictly resolves the page query", () => {
-    expect(resolveHubPage(undefined, 3)).toEqual({ kind: "page", page: 1 });
-    expect(resolveHubPage("1", 3)).toEqual({
-      kind: "redirect-page-one",
-      page: 1,
+  it("strictly resolves the page path segment", () => {
+    expect(resolveHubPageSegment("2", 3)).toEqual({ kind: "page", page: 2 });
+    expect(resolveHubPageSegment("3", 3)).toEqual({ kind: "page", page: 3 });
+
+    for (const invalid of ["1", "", "0", "01", "+2", "2.0", "2junk", "4", "9007199254740992"]) {
+      expect(resolveHubPageSegment(invalid, 3), invalid).toEqual({ kind: "not-found" });
+    }
+  });
+
+  it("declares exactly the paginated pages after the first, and answers any other page segment with a 404", async () => {
+    expect(hubPageStaticParams(1)).toEqual([]);
+    expect(hubPageStaticParams(3)).toEqual([{ page: "2" }, { page: "3" }]);
+    expect(HUB_PAGE_ROUTES).toEqual(LANDING_HUBS.map(({ hubPath }) => hubPageRoute(hubPath)));
+
+    const fixtureCounts = new Map<string, number>([
+      ["/blog", routeFixtures.blog.length],
+      ["/compare", routeFixtures.compare.length],
+      ["/features/all", routeFixtures.features.length],
+      ["/for", routeFixtures.forPages.length],
+    ]);
+
+    for (const { hubPath } of LANDING_HUBS) {
+      const pageCount = hubPageCount(fixtureCounts.get(hubPath) ?? 0);
+      const hubModule = await PAGINATED_HUB_PAGE_LOADERS[hubPath]();
+      const props = (page: string) => ({ params: Promise.resolve({ locale: "en", page }) });
+
+      expect(hubModule.generateStaticParams({ params: { locale: "en" } }), `${hubPath} static params`).toEqual(
+        hubPageStaticParams(pageCount),
+      );
+      expect(hubModule.generateStaticParams({ params: { locale: "fr" } }), `${hubPath} app-only locale`).toEqual([]);
+      await expect(hubModule.default(props(String(pageCount + 1))), `${hubPath} invalid page`).rejects.toThrow(
+        "unexpected notFound",
+      );
+      await expect(hubModule.default(props("1")), `${hubPath} page one`).rejects.toThrow("unexpected notFound");
+      await expect(hubModule.default(props("2junk")), `${hubPath} malformed page`).rejects.toThrow("unexpected notFound");
+    }
+  });
+
+  it("redirects a legacy page query to its path, preserving unrelated and repeated query values", () => {
+    const legacy = (query: string) => legacyHubPageRedirect("/blog", new URLSearchParams(query));
+
+    expect(legacy("tag=sales")).toBeNull();
+    expect(legacy("page=1&tag=sales&tag=crm&utm_source=proof")).toEqual({
+      kind: "redirect",
+      href: "/blog?tag=sales&tag=crm&utm_source=proof",
     });
-    expect(resolveHubPage("2", 3)).toEqual({ kind: "page", page: 2 });
+    expect(legacy("page=3&utm_source=proof")).toEqual({ kind: "redirect", href: "/blog/page/3?utm_source=proof" });
+    expect(legacy("page=2")).toEqual({ kind: "redirect", href: "/blog/page/2" });
 
-    const invalidValues: Array<string | string[]> = [
-      ["2"],
-      "",
-      "0",
-      "01",
-      "+2",
-      "2.0",
-      "2junk",
-      "4",
-      "9007199254740992",
-    ];
-
-    for (const invalid of invalidValues) {
-      expect(resolveHubPage(invalid, 3), String(invalid)).toEqual({
-        kind: "not-found",
-      });
+    for (const invalid of ["page=2&page=3", "page=", "page=0", "page=01", "page=2junk", "page=9007199254740992"]) {
+      expect(legacy(invalid), invalid).toEqual({ kind: "not-found" });
     }
-  });
-
-  it("lets every real hub page own invalid and page-one query handling", async () => {
-    for (const { collection, hubPath } of LANDING_HUBS) {
-      const pageCount = publishedHubPageCount(collection);
-      const component = (await HUB_PAGE_LOADERS[hubPath]()).default;
-      const props = (searchParams: Record<string, string | string[] | undefined>) => ({
-        params: Promise.resolve({ locale: "en" }),
-        searchParams: Promise.resolve(searchParams),
-      });
-
-      await expect(component(props({ page: String(pageCount + 1) })), `${hubPath} invalid page`).rejects.toThrow(
-        "unexpected notFound",
-      );
-      await expect(component(props({ page: ["2", "3"] })), `${hubPath} repeated page`).rejects.toThrow(
-        "unexpected notFound",
-      );
-
-      const query = {
-        page: "1",
-        tag: ["sales", "crm"],
-        utm_source: "proof",
-      };
-      await expect(component(props(query)), `${hubPath} page one`).rejects.toThrow(
-        `unexpected permanentRedirect to /en${hubPath}?tag=sales&tag=crm&utm_source=proof`,
-      );
-    }
-  });
-
-  it("preserves unrelated and repeated query values while removing page one", () => {
-    expect(
-      hubPageOneRedirectHref("/blog", {
-        page: "1",
-        tag: ["sales", "crm"],
-        utm_source: "proof",
-      }),
-    ).toBe("/blog?tag=sales&tag=crm&utm_source=proof");
   });
 
   it("renders crawlable previous, next, bucket, and current-page semantics", () => {
@@ -416,10 +422,10 @@ describe("hub pagination and rendered reachability", () => {
     expect(html).toContain('aria-current="page"');
     expect(html).toContain('rel="prev"');
     expect(html).toContain('rel="next"');
-    expect(hrefs).toContain("/blog?page=36");
-    expect(hrefs).toContain("/blog?page=38");
-    expect(hrefs).toContain("/blog?page=31");
-    expect(hrefs).not.toContain("/blog?page=37");
+    expect(hrefs).toContain("/blog/page/36");
+    expect(hrefs).toContain("/blog/page/38");
+    expect(hrefs).toContain("/blog/page/31");
+    expect(hrefs).not.toContain("/blog/page/37");
   });
 
   it("keeps the square-root pager link budget sublinear at backlog scale", () => {
@@ -487,9 +493,7 @@ describe("hub pagination and rendered reachability", () => {
         const cards = hrefsIn(document, "[data-hub-results] a[href]").filter((href) =>
           href.startsWith(`${detailPath}/`),
         );
-        const pager = hrefsIn(document, "nav a[href]").filter(
-          (href) => href === hubPath || href.startsWith(`${hubPath}?`),
-        );
+        const pager = hrefsIn(document, "nav a[href]").filter((href) => isPagerHref(href, hubPath));
 
         expect(cards.length, `${hubPath} page ${page} card count`).toBeLessThanOrEqual(24);
         expect(new Set(cards).size, `${hubPath} page ${page} repeats a card`).toBe(cards.length);
@@ -643,10 +647,7 @@ describe("hub pagination and rendered reachability", () => {
               .filter((href): href is string => Boolean(href?.startsWith(detailPrefix)));
             const pager = hrefsIn(document, "nav a[href]")
               .map((href) => sameOriginPath(href, E2E_BASE_URL as string))
-              .filter((href): href is string => {
-                const cleanHub = buildLocalePath(locale, hubPath);
-                return href === cleanHub || Boolean(href?.startsWith(`${cleanHub}?`));
-              });
+              .filter((href): href is string => Boolean(href && isPagerHref(href, buildLocalePath(locale, hubPath))));
 
             expect(cards.length, `${route} card count`).toBeGreaterThan(0);
             expect(cards.length, `${route} card count`).toBeLessThanOrEqual(24);
@@ -704,8 +705,15 @@ describe("hub pagination and rendered reachability", () => {
             `${locale} ${hubPath} page one destination`,
           );
 
-          const invalidPage = await e2eResponse(`${buildLocalePath(locale, hubPath)}?page=${pageCount + 1}`);
+          const legacyPage = await e2eResponse(`${buildLocalePath(locale, hubPath)}?page=2&utm_source=e2e`);
+          expect(await semanticRedirectPath(legacyPage, `${locale} ${hubPath} legacy page query`)).toBe(
+            `${buildLocalePath(locale, hubPageHref(hubPath, 2))}?utm_source=e2e`,
+          );
+
+          const invalidPage = await e2eResponse(buildLocalePath(locale, `${hubPath}/page/${pageCount + 1}`));
           await expectSemanticNotFound(invalidPage, `${locale} ${hubPath} invalid page`, locale);
+          const pageOnePath = await e2eResponse(buildLocalePath(locale, `${hubPath}/page/1`));
+          await expectSemanticNotFound(pageOnePath, `${locale} ${hubPath} page one path`, locale);
         }
 
         const depths = clickDepths(graph, homePath);
@@ -761,9 +769,7 @@ describe("hub pagination and rendered reachability", () => {
         const url = new URL(loc.textContent ?? "");
         return `${url.pathname}${url.search}`;
       });
-      const actualPaginatedPaths = sitemapPaths.filter((path) =>
-        new URL(path, "https://sitemap.invalid").searchParams.has(HUB_PAGE_PARAM),
-      );
+      const actualPaginatedPaths = sitemapPaths.filter((path) => path.includes(`/${HUB_PAGE_SEGMENT}/`));
       const expectedPaginatedPaths = CONTENT_LOCALES.flatMap((locale) =>
         LANDING_HUBS.flatMap(({ collection, hubPath }) => {
           const pageCount = hubPageCount(collectionSlugs(collection, locale).length);
@@ -777,7 +783,7 @@ describe("hub pagination and rendered reachability", () => {
       expect(new Set(actualPaginatedPaths).size).toBe(actualPaginatedPaths.length);
       expect(
         actualPaginatedPaths.some(
-          (path) => new URL(path, "https://sitemap.invalid").searchParams.get(HUB_PAGE_PARAM) === "1",
+          (path) => path.endsWith(`/${HUB_PAGE_SEGMENT}/1`) || path.includes("?"),
         ),
       ).toBe(false);
 
