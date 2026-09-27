@@ -41,6 +41,15 @@ export const McpPageOutputShape = {
   pageSize: z.number().describe("The page size asked for; every page but the last holds exactly this many records"),
 };
 
+export const ProviderTotalSchema = z
+  .number()
+  .optional()
+  .describe("The provider's count of every matching row, present only when the provider reports one");
+
+export function providerTotal(totalCount: number | null | undefined): { total?: number } {
+  return typeof totalCount === "number" ? { total: totalCount } : {};
+}
+
 export const mcpPageSize = (
   defaultValue: McpPageSize,
   describe = `${MCP_PAGE_SIZE_DESCRIPTION} Default ${defaultValue}.`,
