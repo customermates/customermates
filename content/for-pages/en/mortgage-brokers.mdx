@@ -39,7 +39,7 @@ A **CRM for mortgage brokers** should organize enquiries, referral relationships
     Connect prospective clients, introducers, opportunity stages, conversations,
     and the next manual action.
   </SummaryItem>
-  <SummaryItem label="Useful proof">
+  <SummaryItem label="Feature scope">
     Contacts, organizations, configurable deals, custom fields, filters,
     kanban, and linked tasks.
   </SummaryItem>
@@ -49,7 +49,7 @@ A **CRM for mortgage brokers** should organize enquiries, referral relationships
   </SummaryItem>
 </ArticleSummary>
 
-<ProofRail label="Verified relationship CRM capabilities for mortgage brokers">
+<ProofRail label="CRM capabilities for mortgage brokers">
   <ProofItem label="Enquiries">Contacts and organizations</ProofItem>
   <ProofItem label="Pipeline">Configurable opportunity stages</ProofItem>
   <ProofItem label="Partners">Introducer relationships</ProofItem>
@@ -105,7 +105,7 @@ The pipeline should describe what the brokerage knows about the relationship, no
   </Step>
 </Steps>
 
-## Referral partners without invented attribution
+## Referral partners with a recorded source
 
 Estate agents, accountants, advisors, and builders can be represented as contacts and organizations. A referral-source field lets a user filter opportunities by the recorded source. Customermates does not calculate reciprocation, referral value, or partner performance automatically, and it does not send scheduled partner campaigns.
 
@@ -123,13 +123,13 @@ An external AI client can use supported [MCP](/docs/mcp) actions after authoriza
 
 Keep the LOS, sourcing platform, document system, e-signature service, lender portal, and compliance archive authoritative. If one of those systems exposes a suitable interface, a customer-built connection can exchange a minimal CRM identifier or reviewed status through the [REST API and webhooks](/features/api), MCP, or a separate n8n integration.
 
-The customer owns provider agreements, mapping, permissions, validation, retries, and duplicate handling. No native LOS, lender, sourcing, document, or rate-provider integration is claimed. For migration, Customermates imports and exports Excel workbooks (XLSX), one record type at a time and within your permissions; there is no CSV import, scheduled sync, or attachment transfer.
+The customer owns provider agreements, mapping, permissions, validation, retries, and duplicate handling. There is no native LOS, lender, sourcing, document, or rate-provider integration. For migration, Customermates imports and exports Excel workbooks (XLSX), one record type at a time and within your permissions; there is no CSV import, scheduled sync, or attachment transfer.
 
 ## Data and deployment fit
 
-Borrower identity, credit information, income, bank statements, property documents, advice, and signed disclosures are sensitive and regulated. Keep them in systems approved for those records. Customermates permissions operate by resource and action, not by field or individual record, and no mortgage or GDPR compliance certification is claimed.
+Borrower identity, credit information, income, bank statements, property documents, advice, and signed disclosures are sensitive and regulated. Keep them in systems approved for those records. Customermates permissions operate by resource and action, not by field; read access can be limited to assigned records. Customermates holds no mortgage or GDPR compliance certification.
 
-Starter includes the core CRM. Pro adds the managed unified inbox and one connected account per user. Self-hosted deployments use Starter entitlements and do not include the unified inbox. See the [pricing page](/pricing) for current plan details.
+Starter includes the core CRM. Pro adds the unified inbox and [[commercial.entitlement.pro.includedAccountsPerUser]] connected account per user. Self-hosted deployments use the Starter feature set and do not include the unified inbox. See the [pricing page](/pricing) for current plan details.
 
 ## Frequently asked questions
 

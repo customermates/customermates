@@ -76,7 +76,7 @@ External AI clients such as Claude or ChatGPT connect through [MCP](/docs/mcp) a
 
 Mid-market buyers should know the boundaries before a pilot:
 
-- no SSO or SAML today; single sign-on is a contracted Enterprise item that is not built yet;
+- no SSO or SAML: SSO is not available yet and is agreed in the Enterprise contract;
 - no field-level permissions and no shared team views; saved views are personal;
 - no predictive forecasting, lead scoring or data enrichment;
 - no quotes, invoicing or telephony;
@@ -88,19 +88,18 @@ If single sign-on or field-level security is mandatory today, an enterprise suit
 
 | Criterion                      | Customermates                                | Enterprise suites (Salesforce, Dynamics 365) | Sales-first tools (Pipedrive and similar) |
 | ------------------------------ | -------------------------------------------- | -------------------------------------------- | ----------------------------------------- |
-| Time to a working pilot        | Days                                         | Usually a project with partners              | Days                                      |
 | Team separation                | Roles per resource, assigned-only read       | Very fine-grained, including fields          | Varies by plan                            |
 | Audit log                      | Included in every plan                       | Available, depth varies by edition           | Varies by plan                            |
-| SSO                            | Not built yet                                | Yes                                          | Varies by plan                            |
+| SSO                            | Not available yet                            | Yes                                          | Varies by plan                            |
 | Open source and self-hosting   | Yes                                          | No                                           | No                                        |
-| AI clients through MCP         | Built in                                     | Available, see the [Salesforce MCP guide](/blog/salesforce-mcp) | Varies                   |
+| AI clients through MCP         | Built in                                     | Available, see the [Salesforce MCP guide](/blog/salesforce-mcp) | Available; Pipedrive on every plan |
 
 ## Pricing for mid-market teams
 
 - **Starter, [[commercial.price.starter.monthly]] per user per month:** the core CRM, roles, audit log, REST, webhooks and MCP.
 - **Pro, [[commercial.price.pro.monthly]] per user per month:** adds the unified inbox with [[commercial.entitlement.pro.includedAccountsPerUser]] connected account per user.
 - **Business, [[commercial.price.business.monthly]] per user per month:** [[commercial.entitlement.business.includedAccountsPerUser]] connected accounts per user, shared accounts and priority support.
-- **Enterprise:** contracted terms; SSO and white-label are negotiated there and are not built in the product yet.
+- **Enterprise:** contracted terms; SSO and white-label are negotiated there and are not available in the product yet.
 
 Billing is monthly per user. 25 users on Business cost [[commercial.price.business.monthly.seats.25]] per month, and 50 users cost [[commercial.price.business.monthly.seats.50]] per month. See [pricing](/pricing) and the [CRM cost guide](/blog/crm-cost).
 
@@ -109,7 +108,7 @@ Billing is monthly per user. 25 users on Business cost [[commercial.price.busine
 1. **[Create a trial workspace](/auth/signup)** with the first [[commercial.trial.days]] days free.
 2. **Model roles** for each team and decide who reads all records and who only reads assigned ones.
 3. **Import a real slice of data** from XLSX: one team's organizations, contacts and open deals.
-4. **Connect one integration**, for example deal won to ERP order, through webhooks and the REST API.
+4. **Connect one integration:** for example, a won deal creates an ERP order through webhooks and the REST API.
 5. **Review the audit log and dashboards** with the people who will depend on them, then extend to the next team.
 
 ## Frequently asked questions
@@ -124,7 +123,7 @@ Yes. Changes to CRM records and the surrounding workspace configuration are reco
 </FaqItem>
 
 <FaqItem question="Does Customermates support SSO?">
-Not yet. Single sign-on is a contracted Enterprise item that has not been built. If SSO is a hard requirement today, plan for it before a rollout.
+Not yet. SSO is not available yet; it is agreed in the Enterprise contract. If SSO is a hard requirement today, plan for it before a rollout.
 </FaqItem>
 
 <FaqItem question="Can Customermates integrate with our ERP?">

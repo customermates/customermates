@@ -57,7 +57,7 @@ A **Waitlist** stage plus fields such as preferred times, session format (in per
 
 ### Inquiry email in one place
 
-On Customermates Cloud from Pro, the [unified inbox](/features/unified-inbox) brings a connected Gmail, Outlook or IMAP account into the CRM, next to the inquiry it belongs to. LinkedIn, WhatsApp, Instagram and Telegram can be connected too, which helps with referral partners and professional networking. Conversations are private to you unless you share them. The [Gmail CRM integration guide](/blog/gmail-crm-integration) explains folders, sharing and replies in detail.
+On Customermates Cloud from Pro, the [unified inbox](/features/unified-inbox) brings a connected Gmail, Outlook or IMAP account into the CRM, and you link each conversation to the contact who made the inquiry. LinkedIn, WhatsApp, Instagram and Telegram can be connected too, which helps with referral partners and professional networking. Conversations from your connected accounts stay private until you share a single conversation with the team in the CRM; sharing a whole account requires Business. The [Gmail CRM integration guide](/blog/gmail-crm-integration) explains folders, sharing and replies in detail.
 
 ### AI for drafting, not for clinical content
 
@@ -70,7 +70,7 @@ Therapy inquiries are sensitive even before someone becomes a client, so be deli
 - **Store the minimum.** Name, contact details, how they found you and where the inquiry stands are enough for the business side.
 - **Keep clinical records elsewhere.** Session notes, assessments and diagnoses belong in your clinical system. In the United States, software that holds protected health information on your behalf generally needs a [business associate agreement](https://www.hhs.gov/hipaa/for-professionals/covered-entities/sample-business-associate-agreement-provisions/index.html) under HIPAA; Customermates is not positioned as a HIPAA system.
 - **Know where the CRM runs.** On Customermates Cloud, the application database runs in the AWS Frankfurt region; hosting and other subprocessors, including US providers, are listed on the [subprocessors page](/subprocessors), and a [DPA](/dpa) is available. Customermates holds no compliance certification. If you need full control over the infrastructure, you can [self-host](/features/self-hosted) the open-source core.
-- **Limit access.** Roles control who can read and change records; conversations from your connected accounts stay private unless you share them.
+- **Limit access.** Roles control who can read and change records; conversations from your connected accounts stay private until you share a single conversation.
 
 ## Therapist CRM or practice management software?
 
@@ -85,11 +85,11 @@ Practice management suites such as SimplePractice combine scheduling, notes and 
 
 ## Pricing
 
-- **Starter, [[commercial.price.starter.monthly]] per user per month:** inquiry pipeline, referral organizations and contacts, custom fields and views.
-- **Pro, [[commercial.price.pro.monthly]] per user per month:** adds the unified inbox for email and other channels.
+- **Starter ([[commercial.price.starter.monthly]] per user per month):** inquiry pipeline, referral organizations and contacts, custom fields and views.
+- **Pro ([[commercial.price.pro.monthly]] per user per month):** adds the unified inbox for email and other channels.
 - **Self-hosted:** the open-source core on your own infrastructure at no licence cost; the inbox and Mate are cloud-only.
 
-See [pricing](/pricing) for every plan. Group practices can give each clinician their own login and keep a shared view of the waitlist.
+See [pricing](/pricing) for every plan. Group practices can give each clinician their own login; each person can save the waitlist as their own view.
 
 ## Getting started
 
@@ -121,6 +121,6 @@ Create the referring practices and organizations as organizations, add a single-
 </FaqItem>
 
 <FaqItem question="Can I self-host a therapist CRM?">
-Yes. The open-source core of Customermates runs on your own infrastructure with Docker and PostgreSQL. The unified inbox and the Mate assistant are cloud-only.
+Yes. The open-source core of Customermates runs on your own infrastructure with Docker Compose, with the Starter feature set. The unified inbox and the Mate assistant are cloud-only.
 </FaqItem>
 </Faq>

@@ -36,7 +36,7 @@ Beide verlieren Umsatz an denselben Stellen:
 
 - **Angebote werden verschickt und vergessen.** Die größten Aufträge brauchen ein Angebot, und ein Angebot ohne Nachfassen ist oft ein Auftrag für jemand anderen.
 - **Die Kundenhistorie fehlt.** Wenn ein Vermieter wegen eines Wasserschadens anruft, weiß im Büro niemand, was vor zwei Jahren an dieser Adresse getauscht wurde.
-- **Nachrichten kommen überall an.** Fotos eines tropfenden Ventils per WhatsApp, eine Badplanung per E-Mail, eine Frage über Instagram.
+- **Nachrichten kommen über alle Kanäle.** Fotos eines tropfenden Ventils per WhatsApp, eine Badplanung per E-Mail, eine Frage über Instagram.
 - **Wiederkehrende Arbeit ist unsichtbar.** Jährliche Heizungswartungen und Wartungsverträge sind nur dann planbarer Umsatz, wenn jemand weiß, wer fällig ist.
 
 Customermates ist ein fokussiertes CRM für Sanitärbetriebe für genau diese Probleme. Es ist keine Dispositionssoftware: Es plant keine Monteure ein, plant keine Routen und verschickt keine Rechnungen. Es hält die kaufmännische Seite Ihres Betriebs in Ordnung, neben den Werkzeugen, die Sie dafür bereits nutzen.
@@ -62,11 +62,11 @@ Eigene Spalten halten fest, was für Ihr Gewerk zählt: Auftragsart (Notfall, Re
 
 ### Nachfassen bei Angeboten
 
-Eine gespeicherte Ansicht der Aufträge in **Angebot gesendet**, sortiert nach letzter Änderung, ist Ihre tägliche Nachfassliste. In Customermates Cloud kann eine [Routine](/docs/app-routines) sie für Sie vorbereiten: Jeden Morgen listet der Mate-Assistent Angebote auf, die älter als fünf Tage sind, und entwirft für jedes eine kurze Nachfass-Nachricht, die Sie prüfen, bevor etwas verschickt wird. Starter enthält [[commercial.entitlement.starter.includedRoutinesPerUser]] Routine pro Nutzer, Pro enthält [[commercial.entitlement.pro.includedRoutinesPerUser]].
+Eine gespeicherte Ansicht der Aufträge in der Phase „Angebot gesendet“, sortiert nach letzter Änderung, ist Ihre tägliche Nachfassliste. In Customermates Cloud kann eine [Routine](/docs/app-routines) sie für Sie vorbereiten: Jeden Morgen listet der Mate-Assistent Angebote auf, die älter als fünf Tage sind, und entwirft für jedes eine kurze Nachfass-Nachricht, die Sie prüfen, bevor etwas verschickt wird. Starter enthält [[commercial.entitlement.starter.includedRoutinesPerUser]] Routine pro Nutzer, Pro enthält [[commercial.entitlement.pro.includedRoutinesPerUser]].
 
 ### Jährliche Wartungen und Wartungsverträge
 
-Hinterlegen Sie ein Datum **Nächste Wartung fällig** am Kunden oder am Auftrag, und eine gespeicherte Ansicht, sortiert nach diesem Datum, zeigt, wen Sie als Nächstes kontaktieren. So werden jährliche Heizungswartungen und Wartungsverträge zu geplanter Arbeit statt zu einer Gedächtnisübung.
+Hinterlegen Sie ein Datumsfeld „Nächste Wartung fällig“ am Kunden oder am Auftrag. Eine gespeicherte Ansicht, sortiert nach diesem Datum, zeigt, wen Sie als Nächstes kontaktieren. So werden jährliche Heizungswartungen und Wartungsverträge zu geplanter Arbeit statt zu einer Gedächtnisübung.
 
 ### WhatsApp, E-Mail und Instagram in einem Posteingang
 
@@ -76,7 +76,7 @@ Ab Pro holt der [einheitliche Posteingang](/features/unified-inbox) WhatsApp, E-
 
 Externe KI-Clients wie Claude oder ChatGPT verbinden sich über [MCP](/docs/mcp) und können Aufträge aus einer Beschreibung anlegen, Aufmaß-Notizen am richtigen Datensatz ergänzen oder die Historie eines Kunden vor einem Termin zusammenfassen. Customermates stellt [[derived.mcp.tools.total]] MCP-Tools bereit; den KI-Client wählen und bezahlen Sie selbst. In Customermates Cloud erledigt der integrierte Mate-Assistent dieselbe Arbeit direkt in der App.
 
-## SHK CRM oder Field-Service-Software?
+## SHK-CRM oder Field-Service-Software?
 
 | Sie brauchen vor allem …                                          | Besser geeignet                                                            |
 | ----------------------------------------------------------------- | -------------------------------------------------------------------------- |
@@ -88,18 +88,18 @@ Field-Service-Plattformen sind für den gesamten Betrieb bepreist: Am 27. Septem
 
 ## Preise für SHK-Betriebe
 
-- **Starter, [[commercial.price.starter.monthly]] pro Nutzer pro Monat:** Aufträge, Kunden, Objekte, eigene Felder, Ansichten, REST, Webhooks und MCP.
-- **Pro, [[commercial.price.pro.monthly]] pro Nutzer pro Monat:** ergänzt den einheitlichen Posteingang für WhatsApp, E-Mail, Instagram, LinkedIn und Telegram.
-- **Selbst gehostet:** Betreiben Sie den Open-Source-Kern mit Docker auf Ihrem eigenen Server; Posteingang und Mate bleiben in der Cloud.
+- **Starter ([[commercial.price.starter.monthly]] pro Nutzer pro Monat):** Aufträge, Kunden, Objekte, eigene Felder, Ansichten, REST, Webhooks und MCP.
+- **Pro ([[commercial.price.pro.monthly]] pro Nutzer pro Monat):** ergänzt den einheitlichen Posteingang für WhatsApp, E-Mail, Instagram, LinkedIn und Telegram.
+- **Selbst gehostet:** Betreiben Sie den Open-Source-Kern mit Docker auf Ihrem eigenen Server; Posteingang und Mate gibt es nur in der Cloud.
 
 Ein Sanitärbetrieb mit drei Personen zahlt im Starter-Tarif [[commercial.price.starter.monthly.seats.3]] pro Monat. Mehr unter [Preise](/pricing).
 
-## Erste Schritte mit Ihrem Klempner CRM
+## Erste Schritte mit Ihrem Klempner-CRM
 
 1. **[Konto erstellen](/auth/signup)** und die ersten [[commercial.trial.days]] Tage kostenlos nutzen.
 2. **Phasen einrichten** für Notrufe und geplante Arbeit, mit einer Wahrscheinlichkeit pro Phase.
 3. **Felder anlegen:** Auftragsart, Objektart, Geräteangaben und Wartungsdaten.
-4. **Kunden importieren** aus einer Excel-Arbeitsmappe (XLSX), jeweils einen Datensatztyp.
+4. **Kunden importieren** aus einer Excel-Arbeitsmappe (XLSX), je Datensatztyp.
 5. **WhatsApp und E-Mail verbinden** ab Pro unter **Mein Profil › Kanäle**; der Leitfaden zur [Gmail-CRM-Integration](/blog/gmail-crm-integration) zeigt, was synchronisiert wird und wer es sieht.
 
 Klempner, die sich Kunden mit anderen Gewerken teilen, sehen, wie [Elektriker](/for/electricians) und [Heizungs- und Klimabetriebe](/for/hvac) dasselbe System einrichten.
@@ -108,7 +108,7 @@ Klempner, die sich Kunden mit anderen Gewerken teilen, sehen, wie [Elektriker](/
 
 <Faq>
 <FaqItem question="Was ist das beste CRM für Klempner?">
-Das beste CRM für Klempner hängt davon ab, wo Aufträge verloren gehen. Sind Terminplanung und Disposition der Engpass, passt Field-Service-Software. Bleiben Angebote unbeantwortet und sind Kundennachrichten verstreut, bietet Ihnen ein fokussiertes CRM wie Customermates eine Auftrags-Pipeline, Objekthistorie und einen Posteingang ab [[commercial.price.starter.monthly]] pro Nutzer pro Monat.
+Das beste CRM für Klempner hängt davon ab, wo Aufträge verloren gehen. Sind Terminplanung und Disposition der Engpass, passt Field-Service-Software. Bleiben Angebote unbeantwortet und sind Kundennachrichten verstreut, bietet Ihnen ein fokussiertes CRM wie Customermates eine Auftrags-Pipeline und Objekthistorie ab [[commercial.price.starter.monthly]] pro Nutzer pro Monat, den einheitlichen Posteingang ab Pro für [[commercial.price.pro.monthly]] pro Nutzer pro Monat.
 </FaqItem>
 
 <FaqItem question="Kann Customermates Monteure einplanen und disponieren?">

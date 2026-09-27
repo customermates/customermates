@@ -39,9 +39,9 @@ Ein **CRM für Versicherungsmakler** organisiert Personen, Gespräche, Chancen u
     Interessenten, Kundenkontakte, Empfehlungspartner, Vertriebschancen und
     manuelle Follow-ups miteinander verbinden.
   </SummaryItem>
-  <SummaryItem label="Verifizierter Umfang">
+  <SummaryItem label="Funktionsumfang">
     Organisationen, Kontakte, eigene Deal-Phasen, eigene Felder, gefilterte
-    Ansichten, Kanban und verknüpfte Aufgaben.
+    Tabellen- und Kanban-Ansichten und verknüpfte Aufgaben.
   </SummaryItem>
   <SummaryItem label="Systemgrenze">
     Keine Policenverwaltung, kein Versichererdownload, keine Schadenbearbeitung,
@@ -49,7 +49,7 @@ Ein **CRM für Versicherungsmakler** organisiert Personen, Gespräche, Chancen u
   </SummaryItem>
 </ArticleSummary>
 
-<ProofRail label="Verifizierte Beziehungs-CRM-Funktionen für Versicherungsmakler">
+<ProofRail label="Beziehungs-CRM-Funktionen für Versicherungsmakler">
   <ProofItem label="Interessenten">Kontakte und Organisationen</ProofItem>
   <ProofItem label="Vertrieb">Anpassbare Deal-Pipeline</ProofItem>
   <ProofItem label="Kontext">Versicherer- und Quellenreferenzen</ProofItem>
@@ -61,7 +61,7 @@ Ein **CRM für Versicherungsmakler** organisiert Personen, Gespräche, Chancen u
 
 Ein Maklerverwaltungsprogramm führt typischerweise Policen, Versichererkommunikation, Dokumente, Schäden, Provisionen und Abrechnung. Ein CRM konzentriert sich auf Interessenten, Kundenbeziehungen, Empfehlungsquellen, Gespräche und Vertriebs-Follow-ups. Manche Branchensuiten verbinden beide Kategorien; die einzelnen Fähigkeiten müssen dennoch getrennt geprüft werden.
 
-Customermates ist ein allgemeines CRM. Es ersetzt kein MVP, kein Bestandsführungssystem, kein Versichererportal, kein Schadenprogramm, keinen Vergleichsrechner und keine Provisionsabrechnung. Eine native BiPRO-, GDV- oder Versicherer-Anbindung wird nicht behauptet.
+Customermates ist ein allgemeines CRM. Es ersetzt kein MVP, kein Bestandsführungssystem, kein Versichererportal, kein Schadenprogramm, keinen Vergleichsrechner und keine Provisionsabrechnung. Eine native BiPRO-, GDV- oder Versicherer-Anbindung gibt es nicht.
 
 | Bedarf im Maklerbüro | Customermates | MVP oder Fachsystem |
 | --- | --- | --- |
@@ -73,8 +73,8 @@ Customermates ist ein allgemeines CRM. Es ersetzt kein MVP, kein Bestandsführun
 
 <AcquisitionCallout title="Eine Police ist kein CRM-Deal" variant="boundary">
   Ein Deal kann das geschäftliche Gespräch rund um Neugeschäft oder eine
-  Verlängerung abbilden. Er darf nicht zur führenden Police, Schadenakte,
-  Deckungs-, Beitrags-, Provisions- oder Beratungsdokumentation werden.
+  Verlängerung abbilden. Als führende Police, Schadenakte oder Deckungs-, Beitrags-, Provisions-
+  oder Beratungsdokumentation ist er nicht geeignet.
 </AcquisitionCallout>
 
 ## Ein unterstützter Vertriebsworkflow
@@ -88,8 +88,8 @@ Erstellen Sie einen Deal für eine mögliche Kundenbeziehung oder ein Verlänger
     kopieren.
   </Step>
   <Step title="Vertriebsphasen konfigurieren">
-    Nutzen Sie etwa Anfrage, Bedarfsgespräch, Angebot extern erstellt,
-    Kundenentscheidung, gewonnen oder beendet.
+    Nutzen Sie etwa Phasen wie „Anfrage“, „Bedarfsgespräch“, „Angebot extern
+    erstellt“, „Kundenentscheidung“, „Gewonnen“ oder „Beendet“.
   </Step>
   <Step title="Begrenzte Referenzfelder ergänzen">
     Speichern Sie Produktsparte, Versichererreferenz, Verlängerungsmonat,
@@ -98,7 +98,7 @@ Erstellen Sie einen Deal für eine mögliche Kundenbeziehung oder ein Verlänger
   </Step>
   <Step title="Nächste Aktion erfassen">
     Verknüpfen Sie eine Aufgabe mit dem passenden CRM-Datensatz. Die Aufgabe hat
-    keinen nativen Fälligkeitstermin, keine Wiederholung und keinen
+    kein Fälligkeitsdatum, keine Wiederholung und keinen
     automatischen Verlängerungsplan.
   </Step>
   <Step title="Versicherungsbetrieb im MVP fortführen">
@@ -109,7 +109,7 @@ Erstellen Sie einen Deal für eine mögliche Kundenbeziehung oder ein Verlänger
 
 ## Verlängerungs-Follow-up ohne Verlängerungs-Engine
 
-Ein Verlängerungsmonat oder eine externe Policenreferenz kann helfen, CRM-Chancen zu filtern und ein Beziehungsgespräch vorzubereiten. Ein kundenseitig betriebener Scheduler oder separater [n8n-Workflow](/features/workflow-automation) kann aus einem freigegebenen Datum eine Aufgabe erzeugen. In der Cloud kann eine [Routine](/docs/app-routines) des Assistenten Mate nach Zeitplan Chancen mit anstehendem Verlängerungsmonat auflisten und Gesprächsentwürfe zur Prüfung vorbereiten; sie verbraucht KI-Credits und ist keine Erinnerungsfunktion. Customermates berechnet keine Vertragslaufzeit, startet keine Erinnerungssequenz, versendet keine Massenkampagne und verhindert keinen Vertragsablauf.
+Ein Verlängerungsmonat oder eine externe Policenreferenz kann helfen, CRM-Chancen zu filtern und ein Beziehungsgespräch vorzubereiten. Ein separat betriebener [n8n-Workflow](/features/workflow-automation) kann aus einem Datumsfeld Aufgaben erzeugen. In der Cloud kann eine [Routine](/docs/app-routines) des Assistenten Mate nach Zeitplan Chancen mit anstehendem Verlängerungsmonat auflisten und Gesprächsentwürfe zur Prüfung vorbereiten; sie verbraucht KI-Credits und ist keine Erinnerungsfunktion. Customermates berechnet keine Vertragslaufzeit, startet keine Erinnerungssequenz, versendet keine Massenkampagne und verhindert keinen Vertragsablauf.
 
 Dasselbe gilt für Schäden. Ein Nutzer kann festhalten, dass ein beziehungsbezogenes Follow-up nötig ist. Customermates nimmt jedoch keine Schadenmeldung an, führt keine Schadenakte, weist keinen Regulierer zu, berechnet keine Reserve, prüft keine Deckung und erstellt keine Regulierungskommunikation.
 
@@ -117,21 +117,21 @@ Dasselbe gilt für Schäden. Ein Nutzer kann festhalten, dass ein beziehungsbezo
 
 Eigene Felder können vom Makler ausgewählte, grobe Produktreferenzen halten. Gefilterte Ansichten helfen einem Nutzer, diese Datensätze zu prüfen. Customermates erkennt keine Deckungslücken, empfiehlt keine Produkte, bewertet keine Kunden und führt keine Cross-Sell-Kampagnen aus.
 
-Provisionssätze, Abrechnungen, Abstimmung, Stornohaftung und Umsatzprognosen gehören ins MVP oder Buchhaltungssystem. Ein frei konfigurierbares Zahlenfeld ist keine Provisionsabrechnung und darf nicht so beschrieben werden.
+Provisionssätze, Abrechnungen, Abstimmung, Stornohaftung und Umsatzprognosen gehören ins MVP oder Buchhaltungssystem. Ein eigenes Währungsfeld für einen Provisionsbetrag ersetzt keine Provisionsabrechnung.
 
 ## Einzelgespräche, KI und Integrationen
 
-Der verwaltete [einheitliche Posteingang](/features/unified-inbox) ist ab Pro verfügbar. Er bringt unterstützte einzelne E-Mail- und Nachrichtenkonversationen ins CRM, wo Teilnehmer mit Kontaktkontext verbunden werden können. Er ist kein Kampagnen- oder Sequenzwerkzeug, und eine Nachricht wird nicht automatisch einer Police oder einem Schaden zugeordnet. Self-Hosting enthält keinen Posteingang.
+Der verwaltete [einheitliche Posteingang](/features/unified-inbox) ist ab Pro verfügbar. Er bringt unterstützte einzelne E-Mail- und Nachrichtenkonversationen ins CRM, wo Teilnehmer mit Kontaktkontext verbunden werden können. Er ist kein Kampagnen- oder Sequenzwerkzeug. Gespräche werden Kontakten zugeordnet, nicht Policen, Schäden oder Deals. Self-Hosting enthält keinen Posteingang.
 
 Ein autorisierter externer KI-Client kann unterstützte [MCP](/docs/mcp)-Aktionen auf CRM-Datensätzen ausführen. Er tarifiziert keine Versicherung, entscheidet keine Deckung, analysiert keine Schäden, berechnet keine Provisionen und ersetzt nicht die Prüfung durch einen zugelassenen Verantwortlichen.
 
-Kundenseitig gebaute Verbindungen können [REST API und Webhooks](/features/api), MCP oder die separate n8n-Integration verwenden. Der Kunde verantwortet Vereinbarungen mit Versicherern und Anbietern, Feldzuordnung, Berechtigungen, Validierung, Wiederholungen und Dublettenbehandlung. Eine native BiPRO-, GDV-, Versicherer-, Policen- oder Schadenintegration wird nicht behauptet.
+Kundenseitig gebaute Verbindungen können [REST-API und Webhooks](/features/api), MCP oder die separate n8n-Integration verwenden. Der Kunde verantwortet Vereinbarungen mit Versicherern und Anbietern, Feldzuordnung, Berechtigungen, Validierung, Wiederholungen und Dublettenbehandlung. Eine native BiPRO-, GDV-, Versicherer-, Policen- oder Schadenintegration gibt es nicht.
 
 ## Daten- und Bereitstellungsgrenzen
 
-Policendokumente, Deckungsdetails, Gesundheitsinformationen, Schadenakten, Provisionsabrechnungen und regulierte Beratung bleiben in dafür freigegebenen Systemen. Customermates-Berechtigungen gelten nach Ressource und Aktion, nicht je Feld oder Datensatz. Eine Versicherungs- oder DSGVO-Zertifizierung besteht nicht. In der Cloud-Version liegt die Datenbank in der AWS-Region Frankfurt; Hosting und weitere Unterauftragsverarbeiter, auch aus den USA, stehen in der [Liste der Unterauftragsverarbeiter](/subprocessors), ein [Auftragsverarbeitungsvertrag (AVV)](/dpa) liegt vor. Wer den Speicherort vollständig selbst bestimmen will, betreibt den Open-Source-Kern selbst.
+Policendokumente, Deckungsdetails, Gesundheitsinformationen, Schadenakten, Provisionsabrechnungen und regulierte Beratung bleiben in dafür freigegebenen Systemen. Berechtigungen gelten je Ressource und Aktion, nicht je Feld; den Lesezugriff können Sie auf zugewiesene Datensätze beschränken. Eine Zertifizierung für die Versicherungsbranche oder nach DSGVO besitzt Customermates nicht. In der Cloud-Version liegt die Datenbank in der AWS-Region Frankfurt; Hosting und weitere Unterauftragsverarbeiter, auch aus den USA, stehen in der [Liste der Unterauftragsverarbeiter](/subprocessors), ein [Auftragsverarbeitungsvertrag (AVV)](/dpa) liegt vor. Wer den Speicherort vollständig selbst bestimmen will, betreibt den Open-Source-Kern selbst.
 
-Starter enthält das Kern-CRM, monatlich abgerechnet. Bestehende Kontakte übernehmen Sie per Import aus einer Excel-Arbeitsmappe (XLSX), jeweils einen Datensatztyp nacheinander. Pro ergänzt den verwalteten einheitlichen Posteingang und ein verbundenes Konto pro Nutzer. Self-Hosting nutzt die Starter-Berechtigungen und enthält keinen einheitlichen Posteingang. Die aktuellen Tarifdetails stehen auf der [Preisseite](/pricing).
+Starter enthält das Kern-CRM, monatlich abgerechnet. Bestehende Kontakte übernehmen Sie per Import aus einer Excel-Arbeitsmappe (XLSX), jeweils einen Datensatztyp. Pro ergänzt den verwalteten einheitlichen Posteingang und ein verbundenes Konto pro Nutzer. Self-Hosting umfasst den Funktionsumfang von Starter und enthält keinen einheitlichen Posteingang. Die aktuellen Tarifdetails stehen auf der [Preisseite](/pricing).
 
 ## Häufig gestellte Fragen
 
@@ -145,10 +145,10 @@ Nein. Ein Deal kann das geschäftliche Gespräch abbilden und eigene Felder kön
 </FaqItem>
 
 <FaqItem question="Kann ein Makler Customermates für Verlängerungs-Follow-ups nutzen?">
-Ja, als anpassbare Beziehungschance mit gefilterten Referenzfeldern und manuellen Aufgaben. Native wiederkehrende Erinnerungen und Verlängerungssequenzen existieren nicht; datumsabhängige Aufgaben brauchen einen kundenseitig betriebenen externen Workflow. In der Cloud kann eine Routine regelmäßig eine Liste anstehender Verlängerungen erstellen.
+Ja, als anpassbare Beziehungschance mit gefilterten Referenzfeldern und manuellen Aufgaben. Wiederkehrende Erinnerungen und Verlängerungssequenzen gibt es nicht; datumsabhängige Aufgaben erzeugt ein separat betriebener Workflow. In der Cloud kann eine Routine regelmäßig eine Liste anstehender Verlängerungen erstellen.
 </FaqItem>
 
 <FaqItem question="Ist Customermates direkt mit Versicherern verbunden?">
-Eine native Versicherer-, BiPRO- oder GDV-Anbindung wird nicht behauptet. Ein Kunde kann eine begrenzte Integration bauen, wenn Versicherer, MVP oder Anbieter eine geeignete Schnittstelle bereitstellen.
+Eine native Versicherer-, BiPRO- oder GDV-Anbindung gibt es nicht. Ein Kunde kann eine begrenzte Integration bauen, wenn Versicherer, MVP oder Anbieter eine geeignete Schnittstelle bereitstellen.
 </FaqItem>
 </Faq>

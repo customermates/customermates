@@ -59,12 +59,12 @@ Link contacts to organizations, organizations to engagements, and engagements to
 
 Consulting deals are not simple one-call closes. They involve discovery calls, scoping sessions, proposals, negotiations, and sometimes months of follow-up. Deals in Customermates are your engagements, and the deal stage is one single-select column you configure. The [kanban board](/features/pipeline) shows each engagement as a card you drag between stages, for example:
 
-- **Initial contact**, First conversation, relationship building
-- **Discovery**, Needs assessment, problem definition
-- **Scoping**, Defining deliverables, timeline, and approach
-- **Proposal sent**, Formal proposal or SOW delivered
-- **Negotiation**, Terms, pricing, and timeline discussions
-- **Won / Lost**, Engagement signed or opportunity closed
+- **Initial contact:** first conversation, relationship building
+- **Discovery:** needs assessment, problem definition
+- **Scoping:** defining deliverables, timeline, and approach
+- **Proposal sent:** formal proposal or SOW delivered
+- **Negotiation:** terms, pricing, and timeline discussions
+- **Won / Lost:** engagement signed or opportunity closed
 
 Each stage can carry a probability, and Customermates calculates weighted engagement values and weighted pipeline totals from it. That is a deterministic calculation from your own stage weights, not a prediction. Different practice areas or service lines share the same stage column; a custom single-select field such as "Service line" plus saved views or grouping shows each practice's engagements separately.
 
@@ -76,7 +76,7 @@ Customermates does not send reminders. On Customermates Cloud, a [routine](/docs
 
 ### Retainer and recurring engagement tracking
 
-Many consultants work on retainer agreements or have clients with recurring engagement patterns. Model them with services and custom fields such as renewal date, engagement terms and monthly fee, then:
+Many consultants work on retainer agreements or have clients with recurring engagement patterns. Model them as services linked to the client's engagement, with custom fields such as renewal date, engagement terms and monthly fee, then:
 
 - Keep a saved view of retainers sorted by renewal date, so renewals in the next 60 days sit at the top
 - Group engagements by client to see who has had no new work for a while
@@ -87,22 +87,22 @@ This is where a CRM for consulting firms pays for itself, by making renewals and
 
 ### Time tracking stays in your time tracker
 
-Consultants bill for their time, but Customermates does not track time. Keep Toggl, Harvest or Clockify, and if you want hours next to the engagement, write them into a number field through the REST API, [webhooks](/features/workflow-automation) or n8n, which you operate separately and connect through the Customermates community node.
+Consultants bill for their time, but Customermates does not track time. Keep Toggl, Harvest or Clockify, and if you want hours next to the engagement, write them into a custom field through the REST API, [webhooks](/features/workflow-automation) or n8n, which you operate separately and connect through the Customermates community node.
 
 ### Knowledge management for consulting
 
 Your accumulated knowledge about clients, industries, and engagement approaches is one of your most valuable assets. Customermates notes and custom fields hold:
 
-- **Client preferences and working styles**, How does each client like to communicate? What are their decision-making processes?
-- **Engagement notes and lessons learned**, What worked well in the last project? What should you do differently next time?
-- **Industry-specific insights**, Notes about regulatory changes, market trends, and competitive dynamics that inform future proposals
-- **Referral network**, Who knows whom, who has referred business before, and which relationships to nurture
+- **Client preferences and working styles:** How does each client like to communicate? What are their decision-making processes?
+- **Engagement notes and lessons learned:** What worked well in the last project? What should you do differently next time?
+- **Industry-specific insights:** Notes about regulatory changes, market trends, and competitive dynamics that inform future proposals
+- **Referral network:** Who knows whom, who has referred business before, and which relationships to nurture
 
 Custom fields let you track project type, industry vertical, engagement model (fixed-fee, retainer, time-and-materials), estimated duration, day rate, and any other data specific to your consulting practice. Keep proposals and SOW documents in your file storage and store the link on the engagement; records do not hold file attachments.
 
 ## Automation that keeps your consulting pipeline moving
 
-Business development requires consistent follow-up, the thing that breaks down first when consultants are deep in delivery work. Customermates has no built-in rules engine, but it gives you several ways to automate the repetitive parts:
+Business development requires consistent follow-up, which is the first thing to break down when consultants are deep in delivery work. Customermates has no built-in rules engine, but it gives you several ways to automate the repetitive parts:
 
 - **Cloud routines**: the Mate assistant runs a saved prompt on a schedule or on a CRM event, for example "every Monday, list proposals without movement for ten days and draft follow-ups" or "when an engagement moves to Won, create a kickoff task".
 - **Webhooks and REST**: Customermates sends [webhooks](/features/workflow-automation) for [[derived.webhooks.events.total]] event types, and the REST API lets external tools read and write records.
@@ -125,7 +125,7 @@ On Customermates Cloud, the Mate assistant does the same inside the app and asks
 
 ## Unified inbox and communication tracking
 
-On Pro and above, email (Gmail, Outlook, IMAP), LinkedIn, and WhatsApp come together in one [unified inbox](/features/email-integration), and you link each conversation to the client's record. When multiple team members communicate with the same client, everyone sees the conversation history. No more asking colleagues "what did we last discuss with this client?"
+On Pro and above, email (Gmail, Outlook, IMAP), LinkedIn, and WhatsApp come together in one [unified inbox](/features/email-integration), and you link each conversation to the client's record. When a colleague needs the context, share the individual conversation with them; sharing a whole connected account and the team-wide timeline are part of Business.
 
 For consultants who rely heavily on email and messaging for client communication, this removes a lot of context-switching and information hunting each week. The inbox is part of Customermates Cloud and not available self-hosted.
 
@@ -142,7 +142,7 @@ Dashboards show current CRM values. For time-based metrics such as cycle time or
 
 ## Data protection and access control
 
-Consulting firms handle sensitive client information, strategic plans, financial data, organizational assessments, and confidential business intelligence. Data protection is not optional for a consulting CRM.
+Consulting firms handle sensitive client information: strategic plans, financial data, organizational assessments, and confidential business intelligence. Data protection is not optional for a consulting CRM.
 
 - **Cloud database in Frankfurt**: in the managed cloud, the application database runs in the AWS Frankfurt region; hosting and other subprocessors, including US providers, are listed on the [subprocessors page](/subprocessors), and a [DPA](/dpa) is available
 - **Self-hostable**: for firms with strict data governance policies, run the open-source core on your own infrastructure and choose where the data lives
@@ -154,14 +154,14 @@ Customermates holds no compliance certification such as ISO 27001 or SOC 2. Whet
 
 ## Pricing that works for consultants
 
-Salesforce Sales Cloud lists its Pro Suite at $100 per user per month and its Core, Advanced and Max editions at $195, $395 and $550, billed annually (September 2026). For a small consulting firm with 5 consultants on Pro Suite, that is $6,000 per year before implementation costs.
+Salesforce Sales Cloud starts at $25 per user per month (Starter Suite); the Pro Suite is $100 and the Core, Advanced and Max editions are $195, $395 and $550, all billed annually (as of September 2026). For a small consulting firm with 5 consultants on Pro Suite, that is $6,000 per year before implementation costs.
 
 Customermates keeps it simpler:
 
-- **Starter, [[commercial.price.starter.monthly]] per user per month**, contacts, organizations, engagements, services, tasks, custom fields, dashboards, REST, webhooks and MCP
-- **Pro, [[commercial.price.pro.monthly]] per user per month**, adds the unified inbox for client email, LinkedIn, and WhatsApp
-- **No implementation fees**, and no per-integration charges
-- **Open source and self-hostable**, run the core on your own servers at no licence cost; the inbox and Mate are cloud-only
+- **Starter ([[commercial.price.starter.monthly]] per user per month):** contacts, organizations, engagements, services, tasks, custom fields, dashboards, REST, webhooks and MCP
+- **Pro ([[commercial.price.pro.monthly]] per user per month):** adds the unified inbox for client email, LinkedIn, and WhatsApp
+- **No implementation fees** and no per-integration charges
+- **Open source and self-hostable:** run the core on your own servers at no licence cost; the inbox and Mate are cloud-only
 
 A solo consultant pays [[commercial.price.starter.monthly]]/month on Starter. A practice of 5 pays [[commercial.price.starter.monthly.seats.5]]/month. A firm of 20 pays [[commercial.price.starter.monthly.seats.20]]/month. Plans are billed monthly.
 
@@ -169,12 +169,12 @@ A solo consultant pays [[commercial.price.starter.monthly]]/month on Starter. A 
 
 ## How to get started
 
-1. **Create your account**, no credit card required. The first [[commercial.trial.days]] days are free.
-2. **Import your clients**, bring contacts, organizations and engagements in from an Excel workbook (XLSX), one record type at a time, or use the REST API.
-3. **Configure your pipeline**, define stages that match your consulting sales process from first contact to signed engagement, each with a probability.
-4. **Add custom fields**, model engagement type, rate, industry vertical, referral source, renewal date, and any data specific to your practice.
-5. **Set up your follow-up views**, save views for open proposals, upcoming renewals and quiet clients; on the cloud, add a routine that checks them weekly.
-6. **Start building pipeline**, with everything centralized, you can see every open opportunity at a glance.
+1. **Create your account:** no credit card required. The first [[commercial.trial.days]] days are free.
+2. **Import your clients:** bring contacts, organizations and engagements in from an Excel workbook (XLSX), one record type at a time, or use the REST API.
+3. **Configure your pipeline:** define stages that match your consulting sales process from first contact to signed engagement, each with a probability.
+4. **Add custom fields:** model engagement type, rate, industry vertical, referral source, renewal date, and any data specific to your practice.
+5. **Set up your follow-up views:** save views for open proposals, upcoming renewals and quiet clients; on the cloud, add a routine that checks them weekly.
+6. **Start building pipeline:** with everything centralized, you can see every open opportunity at a glance.
 
 Most consultants have their pipeline running within an hour. Also see our page for [professional services firms](/for/professional-services) if you run a multi-practice service business.
 
@@ -198,11 +198,13 @@ Yes. Spreadsheets break down as your practice grows: they do not link conversati
 </FaqItem>
 
 <FaqItem question="How does Customermates compare to HubSpot or Pipedrive for consultants?">
-HubSpot and Pipedrive are solid CRMs built for general-purpose sales teams. HubSpot's Professional plan, where many of its sales features live, runs about $90/user/month. Pipedrive lists Lite at $14 per seat per month billed annually ($24 monthly), with more features on Growth, Premium and Ultimate (September 2026). Customermates starts at [[commercial.price.starter.monthly]]/user/month for the core CRM, with the unified inbox on Pro at [[commercial.price.pro.monthly]]/user/month, and it is open source and self-hostable, which matters for consultants who want control over sensitive client data.
+HubSpot and Pipedrive are solid CRMs built for general-purpose sales teams. HubSpot Sales Hub Professional, where many of its sales features live, costs €90 per seat per month billed annually (€100 monthly) plus a €1,470 onboarding fee. Pipedrive lists Lite at €14 per seat per month billed annually (€24 monthly), with more features on Growth, Premium and Ultimate (both as of September 2026).
+
+Customermates starts at [[commercial.price.starter.monthly]]/user/month for the core CRM, with the unified inbox on Pro at [[commercial.price.pro.monthly]]/user/month, and it is open source and self-hostable, which matters for consultants who want control over sensitive client data.
 </FaqItem>
 
 <FaqItem question="Can I integrate Customermates with my other consulting tools?">
-Yes. Customermates provides a REST API with OpenAPI, webhooks and an MCP server. If you operate n8n yourself, the Customermates community node connects it to project management platforms (Asana, Monday, Jira), accounting software (QuickBooks, Xero, DATEV), time tracking (Toggl, Harvest, Clockify) and communication tools. The API, webhooks and MCP are available on every plan.
+Yes. Customermates provides a REST API with OpenAPI, webhooks and an MCP server. If you operate n8n yourself, the Customermates community node connects it to project management platforms (Asana, Monday, Jira), accounting software (QuickBooks, Xero), time tracking (Toggl, Harvest, Clockify) and communication tools. The API, webhooks and MCP are available on every plan.
 </FaqItem>
 
 <FaqItem question="Is my client data secure with Customermates?">

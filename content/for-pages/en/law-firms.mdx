@@ -34,7 +34,7 @@ Law firms are relationship businesses. Clients arrive through referrals, return 
 
 A CRM for law firms centralizes client contacts, referral sources, and business development opportunities in a single system. Instead of relying on memory, your firm gets a structured, shared record of who you work with and where each prospective matter stands.
 
-Here are the challenges a legal CRM software addresses:
+Here are the challenges legal CRM software addresses:
 
 - **Lost leads and slow intake**: Prospective clients contact your firm but never hear back quickly enough. They move on to the next attorney.
 - **No referral visibility**: Who referred this client? How many matters has that source sent this year? Without data, you cannot nurture your best referral relationships.
@@ -42,7 +42,7 @@ Here are the challenges a legal CRM software addresses:
 - **Conflict check gaps**: Before accepting new matters, you need to search existing and past relationships quickly, not dig through filing cabinets and email inboxes.
 - **Siloed practice areas**: Your litigation client may also need corporate counsel, employment advice, or estate planning. Without cross-practice visibility, those opportunities go to a competitor.
 
-Customermates covers the relationship and business development side. It is not practice management software: it does not keep time, bill clients, manage trust accounts, docket court deadlines, or store case documents. Most firms run it next to their practice management and billing tools.
+Customermates covers the relationship and business development side. It is not practice management software: it does not keep time, bill clients, manage trust accounts, docket court deadlines, or store case documents. Run it next to your practice management and billing tools.
 
 ## How a CRM for lawyers works in practice
 
@@ -140,7 +140,7 @@ External AI clients such as Claude or ChatGPT connect through [MCP](/docs/mcp) w
 - Summarize a client's interaction history before a meeting
 - List which referral sources sent matters this year
 
-On Customermates Cloud, the built-in Mate assistant does the same inside the app, drafts replies in the unified inbox on Pro, and asks for your confirmation before it sends a message or deletes anything.
+On Customermates Cloud, the built-in Mate assistant does the same inside the app, drafts replies in the unified inbox on Pro, and asks for your confirmation before it sends a message or deletes anything. An external MCP client decides for itself whether it asks before writing; the MCP server does not enforce a confirmation.
 
 ### Dashboards and reporting
 
@@ -170,15 +170,15 @@ Many law firms weigh legal-specific CRM tools (Clio Grow, Lawmatics, Law Ruler) 
 
 | Feature | Customermates | Legal-specific CRMs | Generic CRMs |
 |---|---|---|---|
-| Price | From [[commercial.price.starter.monthly]]/user/month | $50-200/user/month, tiered | $15-100/user/month, tiered |
-| Open source | Yes | No | Rarely |
-| Self-hosting | Yes | No | Rarely |
-| Data location | Cloud database in Frankfurt; self-hostable | Varies (most US-based) | Varies |
+| Price | From [[commercial.price.starter.monthly]]/user/month | Varies by vendor | Varies by vendor |
+| Open source | Yes | Varies by vendor | Varies by vendor |
+| Self-hosting | Yes | Varies by vendor | Varies by vendor |
+| Data location | Cloud database in Frankfurt; self-hostable | Varies by vendor | Varies by vendor |
 | Legal intake forms and e-signature | No | Usually | Rarely |
 | Custom fields | Typed custom columns | Limited by plan | Limited by plan |
 | Automation | Webhooks, REST, MCP, cloud routines; n8n connected separately | Built-in workflows | Built-in, varies |
 | AI agents operate the CRM (MCP) | Yes ([[derived.mcp.tools.total]] tools) | Varies | Varies |
-| Unified inbox (email, LinkedIn, WhatsApp, Instagram, Telegram) | Pro and above | Rare | Rare |
+| Unified inbox (email, LinkedIn, WhatsApp, Instagram, Telegram) | Pro and above | Varies by vendor | Varies by vendor |
 | Getting data out | REST API, XLSX export per record type, self-hosting | Varies | Varies |
 
 Customermates gives you a flexible relationship CRM without an enterprise price tag. Legal-specific tools bring intake forms, e-signature, and practice management links that Customermates does not have.
@@ -187,8 +187,8 @@ Customermates gives you a flexible relationship CRM without an enterprise price 
 
 Customermates keeps pricing simple, billed monthly per user:
 
-- **Starter, [[commercial.price.starter.monthly]] per user per month:** contacts, organizations, matters, tasks, custom fields, views, dashboards, REST, webhooks, and MCP for AI clients ([[derived.mcp.tools.total]] tools)
-- **Pro, [[commercial.price.pro.monthly]] per user per month:** adds the unified inbox (email, LinkedIn, WhatsApp, Instagram, Telegram) with [[commercial.entitlement.pro.includedAccountsPerUser]] connected account per user, plus read-only calendar access
+- **Starter ([[commercial.price.starter.monthly]] per user per month):** contacts, organizations, matters, tasks, custom fields, views, dashboards, REST, webhooks, and MCP for AI clients ([[derived.mcp.tools.total]] tools)
+- **Pro ([[commercial.price.pro.monthly]] per user per month):** adds the unified inbox (email, LinkedIn, WhatsApp, Instagram, Telegram) with [[commercial.entitlement.pro.includedAccountsPerUser]] connected account per user, plus a read-only calendar view (you cannot create events)
 - **Self-hosted:** keep client data on your own servers; the open-source core has no licence cost, and you run the infrastructure, backups, and updates
 - **Open source:** inspect the code, modify it, extend it
 
@@ -196,12 +196,12 @@ For a 10-person firm, that is [[commercial.price.starter.monthly.seats.10]]/mont
 
 ## Getting started with CRM for your law firm
 
-1. **Create your account** at [customermates.com/auth/signup](/auth/signup), no credit card required. Your first [[commercial.trial.days]] days are free.
+1. **Create your account** at [customermates.com/auth/signup](/auth/signup); no credit card required. Your first [[commercial.trial.days]] days are free.
 2. **Bring in your records:** import contacts, organizations, and matters from an Excel workbook (XLSX), one record type at a time, use the REST API, or let an AI client connected over MCP create them. There is no CSV import.
 3. **Configure your stages:** set up the deal stages for intake and matters. To separate intake, active matters, and business development, add a single-select field such as "Track" and save a view for each.
 4. **Add custom fields:** practice area, matter type, referral source, billing partner, conflict status, and any other data your firm tracks.
 5. **Connect your automations:** set up webhooks or an n8n workflow you operate, or a routine on Customermates Cloud.
-6. **Invite your team:** add attorneys, paralegals, and staff, and use roles to control who can view, edit, or delete each record type.
+6. **Invite your team:** add attorneys, paralegals, and staff, and use roles to control who can create, view, edit, or delete each record type; read access can be limited to records a user is assigned to.
 
 Your data remains accessible: export records as XLSX one record type at a time, read them through the REST API, or self-host the open-source core.
 
@@ -229,7 +229,7 @@ GDPR compliance depends on how your firm uses any tool. For the managed cloud, C
 </FaqItem>
 
 <FaqItem question="How does Customermates compare to Clio Grow or Lawmatics?">
-Clio Grow (around $59/user/month as an add-on, or bundled in Clio Complete at $149/user/month) and Lawmatics (from around $199/month per firm on an annual contract, 3-user minimum) are legal-specific CRM tools with intake forms, e-signature, and practice management links. Customermates starts at [[commercial.price.starter.monthly]]/user/month for the core CRM with MCP access for AI clients, adds the unified inbox (email, LinkedIn, WhatsApp, Instagram, Telegram) on Pro at [[commercial.price.pro.monthly]]/user/month, and is open source and self-hostable. If your firm values transparent pricing and control over its data more than a legal-specific feature set, Customermates is worth a close look.
+Clio Grow and Lawmatics are legal-specific CRM tools with intake forms, e-signature, and practice management links. Customermates starts at [[commercial.price.starter.monthly]]/user/month for the core CRM with MCP access for AI clients, adds the unified inbox (email, LinkedIn, WhatsApp, Instagram, Telegram) on Pro at [[commercial.price.pro.monthly]]/user/month, and is open source and self-hostable. If your firm values transparent pricing and control over its data more than a legal-specific feature set, Customermates is worth a close look.
 </FaqItem>
 
 <FaqItem question="Can I integrate Customermates with my billing software?">

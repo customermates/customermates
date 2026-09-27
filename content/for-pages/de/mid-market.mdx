@@ -1,7 +1,7 @@
 ---
 title: "CRM für den Mittelstand: Rollen, Audit-Log, API"
 description: "CRM für den Mittelstand: Rollen pro Team, Audit-Log, gewichtete Pipeline, REST, Webhooks und MCP. Open Source, in der Cloud oder selbst gehostet."
-industryName: "Mid-Market"
+industryName: "Mittelstand"
 
 relatedHrefs:
   - /for/smb
@@ -34,11 +34,11 @@ Ein **CRM für den Mittelstand** dient Unternehmen, die für eine einzige gemein
 
 Diese Unternehmen brauchen von einem CRM ganz bestimmte Dinge:
 
-- **Trennung zwischen Teams**, ohne daraus ein Berechtigungsprojekt zu machen.
+- **Trennung zwischen Teams**: ohne daraus ein Berechtigungsprojekt zu machen.
 - **Nachvollziehbarkeit**: wer welchen Datensatz wann geändert hat.
 - **Zahlen, denen die Geschäftsführung vertraut**: Pipeline-Wert nach Phase und Zuständigem, gewichtet mit realistischen Wahrscheinlichkeiten.
 - **Integration** mit ERP, Buchhaltung, E-Mail und den Datenwerkzeugen, die das Geschäft bereits tragen.
-- **Raum zum Wachsen**, ohne für jede neue Funktion Lizenzen neu zu verhandeln.
+- **Raum zum Wachsen**: ohne für jede neue Funktion Lizenzen neu zu verhandeln.
 
 Wenn Sie noch entscheiden, ob ein CRM der richtige Schritt ist, beginnen Sie mit [Was ist ein CRM](/blog/what-is-crm). Diese Seite erklärt, wie Customermates die Liste oben abdeckt und wo es bewusst aufhört.
 
@@ -60,7 +60,7 @@ Die Deal-Phase ist ein konfigurierbares Auswahlfeld, und jede Option kann ein Ge
 
 Die REST-API ist unter `/api/v1` versioniert und mit einem OpenAPI-Dokument beschrieben, und [Webhooks](/features/workflow-automation) decken [[derived.webhooks.events.total]] Ereignistypen für Datensätze und Nachrichten ab. Übliche Muster im Mittelstand: Ein gewonnener Deal legt einen Auftrag im ERP an, der Rechnungsstatus fließt in ein eigenes Feld zurück, und Kundenstammdaten bleiben in beide Richtungen abgeglichen. Diese Abläufe betreiben Sie in Ihrem eigenen Integrationsdienst oder über den n8n-Community-Node. Der Leitfaden zur [CRM-ERP-Integration](/blog/crm-erp-integration) beschreibt die Muster.
 
-### Datensätze als Excel-Arbeitsmappen rein und raus
+### Import und Export per Excel
 
 Import und Export laufen pro Datensatztyp als XLSX-Arbeitsmappen, beschränkt auf das, was die Person lesen darf, und auf die aktuelle Ansicht. Das deckt die erste Migration von Kontakten, Organisationen und Deals ebenso ab wie regelmäßige Übergaben an Finanzen oder Geschäftsführung, zusätzlich zur API.
 
@@ -76,7 +76,7 @@ Externe KI-Clients wie Claude oder ChatGPT verbinden sich über [MCP](/docs/mcp)
 
 Mittelständische Käufer sollten die Grenzen vor einem Pilotprojekt kennen:
 
-- kein SSO oder SAML heute; Single Sign-on ist ein vertraglicher Enterprise-Punkt, der noch nicht gebaut ist;
+- kein SSO oder SAML: SSO ist noch nicht verfügbar und wird im Enterprise-Vertrag vereinbart;
 - keine Rechte auf Feldebene und keine geteilten Team-Ansichten; gespeicherte Ansichten sind persönlich;
 - keine vorausschauenden Prognosen, kein Lead-Scoring und keine Datenanreicherung;
 - keine Angebote, keine Rechnungen und keine Telefonie;
@@ -88,34 +88,33 @@ Sind Single Sign-on oder Sicherheit auf Feldebene heute Pflicht, ist eine Enterp
 
 | Kriterium                        | Customermates                                        | Enterprise-Suiten (Salesforce, Dynamics 365)  | Vertriebstools (Pipedrive und ähnliche) |
 | -------------------------------- | ---------------------------------------------------- | --------------------------------------------- | --------------------------------------- |
-| Zeit bis zum laufenden Pilot     | Tage                                                 | Meist ein Projekt mit Partnern                | Tage                                    |
 | Trennung zwischen Teams          | Rollen pro Ressource, Lesen nur zugewiesener Datensätze | Sehr feingranular, auch auf Feldebene      | Je nach Tarif                           |
 | Audit-Log                        | In jedem Tarif enthalten                             | Verfügbar, Tiefe je nach Edition              | Je nach Tarif                           |
-| SSO                              | Noch nicht gebaut                                    | Ja                                            | Je nach Tarif                           |
+| SSO                              | Noch nicht verfügbar                                 | Ja                                            | Je nach Tarif                           |
 | Open Source und Self-Hosting     | Ja                                                   | Nein                                          | Nein                                    |
-| KI-Clients über MCP              | Eingebaut                                            | Verfügbar, siehe [Salesforce-MCP-Leitfaden](/blog/salesforce-mcp) | Unterschiedlich         |
+| KI-Clients über MCP              | Eingebaut                                            | Verfügbar, siehe [Salesforce-MCP-Leitfaden](/blog/salesforce-mcp) | Verfügbar, bei Pipedrive in jedem Tarif |
 
 ## Preise für mittelständische Teams
 
 - **Starter, [[commercial.price.starter.monthly]] pro Nutzer pro Monat:** das Kern-CRM, Rollen, Audit-Log, REST, Webhooks und MCP.
 - **Pro, [[commercial.price.pro.monthly]] pro Nutzer pro Monat:** ergänzt den einheitlichen Posteingang mit [[commercial.entitlement.pro.includedAccountsPerUser]] verbundenem Konto pro Nutzer.
 - **Business, [[commercial.price.business.monthly]] pro Nutzer pro Monat:** [[commercial.entitlement.business.includedAccountsPerUser]] verbundene Konten pro Nutzer, geteilte Konten und bevorzugter Support.
-- **Enterprise:** vertraglich vereinbarte Konditionen; SSO und White-Label werden dort verhandelt und sind im Produkt noch nicht gebaut.
+- **Enterprise:** vertraglich vereinbarte Konditionen; SSO und White-Label werden dort verhandelt und sind im Produkt noch nicht verfügbar.
 
 Abgerechnet wird monatlich pro Nutzer. 25 Nutzer im Business-Tarif kosten [[commercial.price.business.monthly.seats.25]] pro Monat, 50 Nutzer [[commercial.price.business.monthly.seats.50]] pro Monat. Mehr unter [Preise](/pricing) und im Leitfaden zu [CRM-Kosten](/blog/crm-cost).
 
 ## Eine Einführung im Mittelstand in fünf Schritten
 
-1. **[Test-Workspace erstellen](/auth/signup)**, die ersten [[commercial.trial.days]] Tage kostenlos.
-2. **Rollen modellieren** für jedes Team und festlegen, wer alle Datensätze liest und wer nur zugewiesene.
-3. **Einen echten Datenausschnitt importieren** per XLSX: Organisationen, Kontakte und offene Deals eines Teams.
-4. **Eine Integration anbinden**, zum Beispiel gewonnener Deal zu ERP-Auftrag, über Webhooks und die REST-API.
-5. **Audit-Log und Dashboards prüfen** mit den Personen, die sich darauf verlassen werden, und dann auf das nächste Team ausweiten.
+1. **[Test-Workspace erstellen](/auth/signup)**: die ersten [[commercial.trial.days]] Tage kostenlos.
+2. **Rollen modellieren**: für jedes Team festlegen, wer alle Datensätze liest und wer nur zugewiesene.
+3. **Einen echten Datenausschnitt importieren**: Organisationen, Kontakte und offene Deals eines Teams per XLSX.
+4. **Eine Integration anbinden**: zum Beispiel „gewonnener Deal erzeugt ERP-Auftrag“ über Webhooks und die REST-API.
+5. **Audit-Log und Dashboards prüfen**: gemeinsam mit den Personen, die sich darauf verlassen werden; danach auf das nächste Team ausweiten.
 
 ## Häufig gestellte Fragen
 
 <Faq>
-<FaqItem question={"Was macht ein CRM zu einem „Mittelstands-CRM\"?"}>
+<FaqItem question={"Was macht ein CRM zu einem „Mittelstands-CRM“?"}>
 Ein Mittelstands-CRM ist für Unternehmen mit mehreren Teams und Dutzenden bis Hunderten Nutzern gebaut, die Trennung zwischen Teams, nachvollziehbare Änderungen, verlässliche Pipeline-Zahlen und Integration mit bestehenden Systemen brauchen, ohne den Einführungsaufwand einer Enterprise-Suite.
 </FaqItem>
 
@@ -124,7 +123,7 @@ Ja. Änderungen an CRM-Datensätzen und an der zugehörigen Workspace-Konfigurat
 </FaqItem>
 
 <FaqItem question="Unterstützt Customermates SSO?">
-Noch nicht. Single Sign-on ist ein vertraglicher Enterprise-Punkt, der noch nicht gebaut ist. Ist SSO heute eine harte Anforderung, planen Sie das vor einer Einführung ein.
+Noch nicht. SSO ist noch nicht verfügbar; es wird im Enterprise-Vertrag vereinbart. Ist SSO heute zwingend, planen Sie das vor einer Einführung ein.
 </FaqItem>
 
 <FaqItem question="Kann Customermates mit unserem ERP und unserer Buchhaltungssoftware integriert werden?">

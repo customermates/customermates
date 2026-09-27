@@ -39,7 +39,7 @@ An **HVAC CRM** can mean a sales CRM or an entire field-service platform. That d
     Connect homeowners, property managers, commercial accounts, opportunities,
     and manual follow-up.
   </SummaryItem>
-  <SummaryItem label="Useful proof">
+  <SummaryItem label="Feature scope">
     Contacts, organizations, configurable deals, custom fields, filters,
     kanban, and linked tasks.
   </SummaryItem>
@@ -49,7 +49,7 @@ An **HVAC CRM** can mean a sales CRM or an entire field-service platform. That d
   </SummaryItem>
 </ArticleSummary>
 
-<ProofRail label="Verified HVAC sales CRM capabilities">
+<ProofRail label="HVAC sales CRM capabilities">
   <ProofItem label="Leads">Contacts and organizations</ProofItem>
   <ProofItem label="Sales">Configurable opportunity stages</ProofItem>
   <ProofItem label="Accounts">Commercial relationship context</ProofItem>
@@ -69,7 +69,7 @@ A sales CRM solves a narrower problem: Which lead needs attention? Who are the s
 | Installation or replacement opportunity | Deals, custom stages, filters, and kanban | Site survey, estimate, booking, and job execution |
 | Commercial relationship | Account contacts, services under discussion, and tasks | Contract service calendar and SLA execution |
 | Next sales action | Record-linked task | Technician availability, appointment, and route |
-| Integration surface | REST, webhooks, MCP, and separate n8n option | Work orders, equipment, inventory, invoice, and payment |
+| Interfaces | REST, webhooks, MCP, and separate n8n option | Work orders, equipment, inventory, invoice, and payment |
 
 <AcquisitionCallout title="Choose an FSM when dispatch is the requirement" variant="boundary">
   Customermates does not know which technician is available, qualified, or
@@ -92,8 +92,9 @@ Create a deal for an installation, replacement, commercial-service, or maintenan
     commercial need the customer is evaluating.
   </Step>
   <Step title="Configure sales stages">
-    Use stages such as new inquiry, assessment completed externally, quote
-    prepared externally, proposal sent, follow-up, won, or closed.
+    Use stages such as “New inquiry”, “Assessment completed externally”,
+    “Quote prepared externally”, “Proposal sent”, “Follow-up”, “Won” or
+    “Closed”.
   </Step>
   <Step title="Keep a bounded operational reference">
     Store an external site, equipment, estimate, or FSM identifier in a custom
@@ -107,31 +108,31 @@ Create a deal for an installation, replacement, commercial-service, or maintenan
 
 ## Installation sales and commercial accounts
 
-Replacement and installation sales are a strong CRM fit because the customer often evaluates a high-value proposal over several conversations. A configurable pipeline makes the commercial stage visible without claiming that Customermates creates an estimate or books the installation.
+Replacement and installation sales are a strong CRM fit because the customer often evaluates a high-value proposal over several conversations. A configurable pipeline makes the commercial stage visible. You still prepare the estimate and book the installation in your field-service software.
 
 Commercial HVAC relationships can involve property owners, facility teams, general contractors, and multiple sites. Organizations and contacts preserve that business context. The authoritative site list, installed equipment, warranties, maintenance history, and service-level obligations remain in field-service or asset software.
 
-A maintenance agreement approaching renewal can be represented as a commercial opportunity. A custom month or external contract reference can support a filtered review. Customermates does not schedule maintenance, calculate service intervals, or generate recurring visits.
+A maintenance agreement approaching renewal can be represented as a commercial opportunity. A custom field for the renewal month or an external contract number makes those agreements filterable. Customermates does not schedule maintenance, calculate service intervals, or generate recurring visits.
 
 ## Follow-up, seasonal demand, and messaging
 
-Tasks capture ordinary next actions but have no native due dates or recurrence. A customer-operated scheduler or separate [n8n workflow](/features/workflow-automation) can create a task from an approved date source. There is no built-in seasonal campaign, instant lead-routing, automated assignment, or maintenance-reminder engine.
+Tasks capture ordinary next actions but have no due dates or recurrence. A separately operated [n8n workflow](/features/workflow-automation) can create tasks from a date field, and on the cloud a Mate [routine](/docs/app-routines) can list upcoming renewals on a schedule. There is no built-in seasonal campaign, instant lead-routing, automated assignment, or maintenance-reminder engine.
 
-The managed [unified inbox](/features/unified-inbox) is available from Pro upward for supported individual conversations. Participants can be associated with contact context. A message is not automatically attached to a property, piece of equipment, service job, or deal. Self-hosted deployments do not include the inbox.
+The managed [unified inbox](/features/unified-inbox) is available from Pro upward for supported individual conversations. Participants can be associated with contact context. Conversations are linked to contacts, not to properties, equipment, service jobs or deals. Self-hosted deployments do not include the inbox.
 
-An authorized external AI client can use supported [MCP](/docs/mcp) actions on CRM records. It can update supported relationship and opportunity data within user permissions. It does not predict equipment failure, optimize routes, dispatch technicians, generate a service report from unverified field data, or enrich a property automatically.
+An authorized external AI client can use supported [MCP](/docs/mcp) actions on CRM records. It can update supported relationship and opportunity data within user permissions. It does not predict equipment failure, optimize routes, dispatch technicians, generate service reports, or enrich a property automatically.
 
 ## Connecting CRM and field operations
 
 A customer-built connection can use the [REST API and webhooks](/features/api), MCP, or the separate n8n integration to exchange a minimal customer or opportunity reference with an FSM, accounting system, or other tool. The customer owns the external provider, mapping, validation, permissions, retries, and duplicate handling.
 
-No native ServiceTitan, Jobber, Housecall Pro, QuickBooks, Xero, GPS, routing, calendar-write, equipment, inventory, or invoicing connector is claimed. To bring existing customers in, Customermates imports and exports Excel workbooks (XLSX), one record type at a time; there is no CSV import and no scheduled sync with an FSM.
+There is no native ServiceTitan, Jobber, Housecall Pro, QuickBooks, Xero, GPS, routing, calendar-entry, equipment, inventory, or invoicing connector; from Pro, the calendar is shown read-only. To bring existing customers in, Customermates imports and exports Excel workbooks (XLSX), one record type at a time; there is no CSV import and no scheduled sync with an FSM.
 
 ## Pricing and product fit
 
-Starter includes the core CRM. Pro adds the managed unified inbox and one connected account per user. Self-hosted deployments use Starter entitlements and do not include the unified inbox. See the [pricing page](/pricing) for current plan details.
+Starter includes the core CRM. Pro adds the managed unified inbox and one connected account per user. Self-hosted deployments have the Starter feature set and do not include the unified inbox. See the [pricing page](/pricing) for current plan details.
 
-Choose Customermates when the team needs a relationship and sales CRM beside a functioning HVAC operations stack. Choose a dedicated HVAC or FSM platform when dispatch, scheduling, work orders, equipment history, inventory, estimates, payments, or technician-native mobile workflows must live in one product.
+Choose Customermates when the team needs a relationship and sales CRM beside a functioning HVAC operations stack. Choose a dedicated HVAC or FSM platform when dispatch, scheduling, work orders, equipment history, inventory, estimates, payments, or technician-native mobile workflows must run in one product.
 
 ## Frequently asked questions
 
@@ -149,6 +150,6 @@ It fits lead and customer relationships, replacement and installation opportunit
 </FaqItem>
 
 <FaqItem question="Can Customermates connect to an HVAC field-service system?">
-A customer can build a bounded connection when the FSM exposes a suitable interface. No native HVAC or field-service connector is claimed.
+A customer can build a bounded connection when the FSM exposes a suitable interface. There is no native HVAC or field-service connector.
 </FaqItem>
 </Faq>

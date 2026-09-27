@@ -39,9 +39,9 @@ A **CRM for restaurants** can mean a guest database connected to reservations an
     Connect companies, event planners, commercial enquiries, relationship
     stages, and manual next actions.
   </SummaryItem>
-  <SummaryItem label="Useful proof">
+  <SummaryItem label="Capabilities">
     Contacts, organizations, configurable deals, custom fields, filters,
-    kanban, activity, and linked tasks.
+    Kanban, activity, and linked tasks.
   </SummaryItem>
   <SummaryItem label="System boundary">
     No POS, reservations, table management, ordering, payment, guest history,
@@ -49,7 +49,7 @@ A **CRM for restaurants** can mean a guest database connected to reservations an
   </SummaryItem>
 </ArticleSummary>
 
-<ProofRail label="Verified CRM capabilities for restaurant catering and event sales">
+<ProofRail label="CRM capabilities for restaurant catering and event sales">
   <ProofItem label="Accounts">Corporate organizations</ProofItem>
   <ProofItem label="People">Event planners and buyers</ProofItem>
   <ProofItem label="Pipeline">Catering and event opportunities</ProofItem>
@@ -61,46 +61,45 @@ A **CRM for restaurants** can mean a guest database connected to reservations an
 
 A point-of-sale system handles orders and payments. Reservation and hospitality platforms handle tables, bookings, visit history, guest preferences, and loyalty. A CRM is most useful for relationship-led revenue that behaves like a sales process: catering, private events, corporate dining, venue partnerships, and supplier relationships.
 
-Customermates provides that business-development layer. Calling it a guest CRM would imply capabilities it does not have.
+Customermates covers that sales side. It is not a guest CRM.
 
 | Restaurant need | Customermates | Restaurant operations system |
 | --- | --- | --- |
 | Corporate account context | Organizations, contacts, relations, notes, and activity | Billing, order, and account execution |
-| Catering or event opportunity | Deals, custom stages, filters, and kanban | Menu, quote document, deposit, booking, and event plan |
+| Catering or event opportunity | Deals, custom stages, filters, and Kanban | Menu, quote document, deposit, booking, and event plan |
 | Next commercial action | Task linked to a CRM record | Booking deadline, staffing, production, and delivery schedule |
-| Individual conversation | Managed unified inbox from Pro | Reservation and official event communication |
-| Integration surface | REST, webhooks, MCP, and separate n8n option | POS, reservations, loyalty, payment, inventory, and events |
+| Individual conversation | Unified inbox from Pro | Reservation and official event communication |
+| Integrations | REST, webhooks, MCP, and a separately run n8n instance | POS, reservations, loyalty, payment, inventory, and events |
 
 <AcquisitionCallout title="Do not build a shadow guest database" variant="boundary">
   Customermates does not receive visits or spend from a POS, identify regulars,
   manage loyalty points, reserve tables, or maintain dietary and allergy
-  profiles. Keep guest and operational data in systems designed and approved
-  for those records.
+  profiles. Keep guest and operational data in the systems built for them.
 </AcquisitionCallout>
 
-## A supported catering and event workflow
+## How a catering or event enquiry runs
 
-A corporate catering enquiry is a genuine CRM opportunity: a person represents the buyer or planner, an organization represents the company, and a deal represents the commercial conversation. The event itself remains in booking and operational tools.
+A corporate catering enquiry is a genuine CRM opportunity: a contact represents the buyer or planner, an organization represents the company, and a deal represents the commercial conversation. The event itself remains in booking and operational tools.
 
 <Steps>
-  <Step title="Create the corporate account">
+  <Step title="Add the corporate customer">
     Add the business, venue partner, or organization and connect the buyer,
     assistant, event planner, or other stakeholders.
   </Step>
-  <Step title="Create the opportunity">
+  <Step title="Create the deal">
     Add a deal for the catering request, private event, corporate dining
     relationship, or partnership under discussion.
   </Step>
   <Step title="Configure commercial stages">
-    Use stages such as new enquiry, qualified, requirements confirmed, proposal
-    prepared externally, customer deciding, won, or closed.
+    Use stages such as "New enquiry", "Qualified", "Requirements confirmed",
+    "Proposal sent", "Customer deciding", "Won", or "Closed".
   </Step>
-  <Step title="Keep a bounded event reference">
-    Store the event month, account type, source, or external booking identifier
+  <Step title="Keep only the event basics">
+    Store the event month, customer type, source, or external booking identifier
     rather than copying the operational event file.
   </Step>
   <Step title="Record the next action and hand off">
-    Attach a task for manual follow-up. Menu, dietary details, quote document,
+    Attach a task for the follow-up. Menu, dietary details, quote document,
     deposit, booking, staffing, production, and service remain in their
     specialist systems.
   </Step>
@@ -108,35 +107,35 @@ A corporate catering enquiry is a genuine CRM opportunity: a person represents t
 
 ## Corporate accounts, partners, and suppliers
 
-Organizations and contacts preserve the relationship between the restaurant and a corporate customer, hotel, venue, event agency, concierge, or local partner. A source field can show how the opportunity arrived. Filtered views can help a user review open deals by stage, source, or account.
+Organizations and contacts preserve the relationship between the restaurant and a corporate customer, hotel, venue, event agency, concierge, or local partner. A source field can show how the opportunity arrived. Filtered views let you review open deals by stage, source, or customer.
 
 Supplier relationships can also use organization and contact records for business context and the next conversation. Purchase orders, delivery schedules, price lists, food-safety records, inventory, and invoices remain in procurement, inventory, or accounting software.
 
-Customermates does not calculate catering revenue, guest lifetime value, average spend, loyalty performance, supplier score, or event profitability. Any financial or operational measure remains authoritative in the system that calculates it.
+Customermates does not calculate catering revenue, guest lifetime value, average spend, loyalty performance, supplier score, or event profitability. Financial and operational figures keep coming from the system that calculates them.
 
 ## Guest data and privacy boundaries
 
 Do not use general CRM fields to create a parallel record of restaurant visits, favorite tables, meal history, dietary restrictions, or allergies. Those values can be sensitive, become stale quickly, and require operational controls Customermates does not provide.
 
-For an event opportunity, keep only the business relationship context needed by the sales team. Detailed attendee, menu, dietary, allergy, seating, and service information belongs in the approved booking or event system. Customermates permissions operate by resource and action, not by field or individual record, and no hospitality or GDPR compliance certification is claimed.
+For an event opportunity, keep only the business relationship context needed by the sales team. Detailed attendee, menu, dietary, allergy, seating, and service information belongs in the approved booking or event system. Permissions apply by resource and action, not by field; you can limit read access to the records a user is assigned to. Customermates holds no certification.
 
 ## Messaging, campaigns, and AI
 
-The managed [unified inbox](/features/unified-inbox) is available from Pro upward for supported email and messaging channels. It brings individual conversations into the CRM and allows participants to be associated with contacts. It does not capture reservations, create guest profiles, send bulk marketing, or run birthday, loyalty, and re-engagement campaigns. A message is not automatically attached to an event deal. Self-hosted deployments do not include the inbox.
+The [unified inbox](/features/unified-inbox) is available on Customermates Cloud from Pro upward for email, LinkedIn, WhatsApp, Instagram, and Telegram. It brings individual conversations into the CRM and links them to contacts. It does not capture reservations, create guest profiles, send bulk marketing, or run birthday, loyalty, and re-engagement campaigns. Messages attach to the contact, not to an event deal. Self-hosted deployments do not include the inbox.
 
-An authorized external AI client can use supported [MCP](/docs/mcp) actions on CRM records. It can operate supported corporate-contact and opportunity data within user permissions. It does not infer guest preferences, analyze visits, write allergy data, create a verified menu or proposal, or run autonomous marketing.
+An external AI client you connect through [MCP](/docs/mcp) can read and edit corporate contacts and deals within your permissions. Guest preferences, visit analysis, allergy data, menus, proposals, and automated marketing are out of scope.
 
-Tasks have no native due dates or recurrence. Date-driven task creation or an approved external message requires a customer-operated scheduler or separate [n8n workflow](/features/workflow-automation). That workflow and its providers remain customer-operated.
+Tasks have no due dates or recurrence. To create tasks by date or send approved messages automatically, run your own scheduler or a separately operated [n8n workflow](/features/workflow-automation).
 
 ## Connections to restaurant systems
 
-If a POS, reservation, event, or accounting system exposes a suitable interface, a customer-built connection can exchange a minimal account, opportunity, or external booking reference through the [REST API and webhooks](/features/api), MCP, or the separate n8n integration.
+If a POS, reservation, event, or accounting system exposes a suitable interface, you can build a connection that exchanges only the basics (customer, deal, external booking ID) through the [REST API and webhooks](/features/api), MCP, or a separately run n8n instance.
 
-The customer owns provider contracts, consent, data minimization, mapping, validation, retries, and duplicate handling. No native OpenTable, Resy, SevenRooms, Toast, POS, reservation, loyalty, inventory, ordering, or payment synchronization is claimed. To move existing corporate accounts and contacts in, Customermates imports Excel workbooks (XLSX), one record type at a time; there is no CSV import or scheduled sync.
+You own provider contracts, consent, data minimization, mapping, validation, retries, and duplicate handling. There is no native connection to OpenTable, Resy, SevenRooms, Toast, or other POS, reservation, loyalty, inventory, ordering, or payment systems. To move existing corporate accounts and contacts in, Customermates imports Excel workbooks (XLSX), one record type at a time; there is no CSV import or scheduled sync.
 
 ## Pricing and fit
 
-Starter includes the core CRM. Pro adds the managed unified inbox and one connected account per user. Self-hosted deployments use Starter entitlements and do not include the unified inbox. See the [pricing page](/pricing) for current plan details.
+Starter includes the core CRM. Pro adds the unified inbox with one connected account per user. Self-hosting includes the Starter feature set, without the unified inbox. See the [pricing page](/pricing) for current plan details.
 
 Choose Customermates when catering, private events, corporate accounts, partnerships, or supplier relationships need a visible commercial pipeline. Choose a hospitality platform when guest profiles, reservations, loyalty, tables, ordering, payments, inventory, or event execution must live in one system.
 
@@ -148,14 +147,14 @@ No. It does not manage tables, bookings, orders, payments, menus, inventory, gue
 </FaqItem>
 
 <FaqItem question="Can a restaurant manage catering and private-event sales in Customermates?">
-Yes. Contacts, organizations, configurable deals, custom fields, filters, and tasks can represent the corporate relationship and commercial opportunity before operational handoff.
+Yes. Contacts, organizations, configurable deals, custom fields, filters, and tasks represent the corporate relationship and the deal until handoff to operations.
 </FaqItem>
 
 <FaqItem question="Does Customermates maintain guest profiles, visits, loyalty, or allergies?">
-No. It has no native guest-history or loyalty model. Keep visits, preferences, dietary details, and allergies in systems designed and approved for hospitality operations.
+No. It has no native guest-history or loyalty model. Keep visits, preferences, dietary details, and allergies in systems built for hospitality operations.
 </FaqItem>
 
 <FaqItem question="Does Customermates integrate natively with restaurant platforms?">
-No native POS, reservation, loyalty, or restaurant-platform connector is claimed. A customer can build a bounded connection when the other system exposes a suitable interface.
+No. There is no native connection to POS, reservation, loyalty, or other restaurant platforms. You can build your own connection when the other system exposes a suitable interface.
 </FaqItem>
 </Faq>

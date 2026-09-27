@@ -50,7 +50,7 @@ Recruiting teams hit a recurring set of problems when they try to run on inboxes
 
 - **Reporting depends on memory**: How many active job orders does the team carry, what is the average time to placement, which client returns the most fees? Without a recruiting CRM, every monthly review is a manual reconstruction. With one, [dashboards](/features/reporting) built from your own records answer most of it.
 
-- **Tools sprawl across functions**: LinkedIn for sourcing, email for outreach, a spreadsheet for the pipeline, Calendly for scheduling, DocuSign for the contract. Six tabs to track one placement. The recruiting CRM becomes the spine that ties them together through [integrations](/features/integrations).
+- **Tools sprawl across functions**: LinkedIn for sourcing, email for outreach, a spreadsheet for the pipeline, Calendly for scheduling, DocuSign for the contract: five tabs to track one placement. The recruiting CRM becomes the spine that ties them together through [integrations](/features/integrations).
 
 ## How Customermates works as a recruiting CRM
 
@@ -96,15 +96,15 @@ Every client lives in [account management](/features/account-management) with al
 
 ### Automation for sequence-heavy recruiting
 
-Customermates does not run email sequences or reminders itself. If your desk depends on multi-step outreach, build it in your own n8n instance or outreach tool and connect it through webhooks and the REST API ([workflow automation](/features/workflow-automation)): for example, a task for the recruiter when a candidate has not answered in five business days. Build it once, every search runs the same.
+Customermates does not run email sequences or reminders itself. If your desk depends on multi-step outreach, build it in your own n8n instance or outreach tool and connect it through webhooks and the REST API ([workflow automation](/features/workflow-automation)): for example, a task for the recruiter when a candidate has not answered in five business days. Build it once, and every search runs the same.
 
 ### Email and calendar integration
 
-On Pro and above, emails with candidates and hiring managers arrive in the unified inbox through [email integration](/features/email-integration) and [Outlook integration](/features/outlook-integration), and you link each thread to the right record without forwarding anything. Pro also shows your calendar read-only next to the CRM; invites are not linked to deals automatically and there is no booking.
+On Pro and above, emails with candidates and hiring managers arrive in the unified inbox through [email integration](/features/email-integration) and [Outlook integration](/features/outlook-integration), and you link each thread to the right record without forwarding anything. Pro also shows your calendar read-only next to the CRM; you cannot create events or send invites from Customermates, and there is no booking.
 
 ### LinkedIn and the unified inbox for sourcing-heavy desks
 
-Recruiting runs on LinkedIn, so it sits at the center of the native unified inbox alongside email, WhatsApp, Instagram, and Telegram (Pro and up). LinkedIn conversations, including Sales Navigator variants, arrive in the inbox next to email and WhatsApp, and you link each thread to the candidate record. On Customermates Cloud, the Mate assistant can draft replies that it sends only after your confirmation. LinkedIn Recruiter is not a supported channel. See [LinkedIn integration](/features/linkedin-integration).
+Recruiting runs on LinkedIn, so it sits at the center of the native unified inbox alongside email, WhatsApp, Instagram, and Telegram (Pro and up). LinkedIn conversations, including Sales Navigator and LinkedIn Recruiter messages, arrive in the inbox next to email and WhatsApp, and you link each thread to the candidate record. On Customermates Cloud, the Mate assistant can draft replies that it sends only after your confirmation. See [LinkedIn integration](/features/linkedin-integration).
 
 ### Task and follow-up management
 
@@ -128,7 +128,7 @@ For more on the distinction, see our comparison of [Pipedrive alternatives](/com
 
 Three scenarios make the practical line clearer:
 
-A retained executive search firm gets a brief from a CFO client looking for a VP of Engineering. The recruiter pulls 80 candidates from the existing database (people interviewed in the past 24 months, tagged with the relevant domain), researches the shortlist, contacts 30, screens 12, submits 5. The whole engagement runs in the CRM. An ATS would not help here, because there are no inbound applicants to track.
+A retained executive search firm gets a brief from a CFO client looking for a VP of Engineering. The recruiter pulls 80 candidates from the existing database (people interviewed in the past 24 months, with a matching domain field), researches the shortlist, contacts 30, screens 12, submits 5. The whole engagement runs in the CRM. An ATS would not help here, because there are no inbound applicants to track.
 
 A contract recruiter at a staffing firm posts 15 roles to LinkedIn and Indeed every week. 200 inbound applications land across all roles. The first pass screens out 80% on basic qualifications. The 40 candidates who clear the bar move into individual conversations. The first stage (job postings + 200 applicants + first-pass filter) is ATS work. The second stage (40 conversations, candidate-to-role matching, submission tracking) is CRM work. The pipeline runs faster when both systems are connected by a single webhook.
 
@@ -140,7 +140,7 @@ Customermates is the right recruiting CRM if you run relationship-led search, ha
 
 ## Recruiting use cases: which CRM workflow fits your firm
 
-The right recruiting CRM workflow looks different across firm types. Five patterns come up most often, with concrete configuration notes for each.
+The right recruiting CRM workflow looks different across firm types. Here are five typical patterns, with concrete configuration notes for each.
 
 ### Executive search and retained search
 
@@ -168,8 +168,8 @@ Recruiting data is sensitive. Candidate records contain phone numbers, salary hi
 
 The Customermates core is open source under AGPL-3.0 (enterprise modules carry a commercial licence), and it offers two deployment modes:
 
-1. **Managed cloud**: the application database runs in the AWS Frankfurt region; hosting and other subprocessors, including US providers, are listed on the [subprocessors page](/subprocessors), and a [DPA](/dpa) is available. Suitable for agencies who do not want infrastructure work.
-2. **Self-hosted**: deploy the open-source core on your own servers, your own VPC, your own jurisdiction. The source is on GitHub, you choose where the data lives, and you run infrastructure, backups and updates. Self-hosting uses the Starter feature set without the unified inbox or Mate.
+1. **Managed cloud:** the application database runs in the AWS Frankfurt region; hosting and other subprocessors, including US providers, are listed on the [subprocessors page](/subprocessors), and a [DPA](/dpa) is available. Suitable for agencies who do not want infrastructure work.
+2. **Self-hosted:** deploy the open-source core on your own servers, your own VPC, your own jurisdiction. The source is on GitHub, you choose where the data lives, and you run infrastructure, backups and updates. Self-hosting includes the Starter feature set, without the unified inbox or Mate.
 
 For agencies operating in regulated markets (financial services, healthcare, defense recruiting) or with clients who require data residency, the [self-hosted](/features/self-hosted) option is the difference between winning a mandate and being disqualified at the security review.
 
@@ -211,7 +211,7 @@ Yes. Set up the candidate pipeline with a stage called "On Assignment" and use c
 </FaqItem>
 
 <FaqItem question="How does Customermates handle off-limits and confidential candidates?">
-Off-limits status can be represented with a single-select field on the contact record, plus a free-text reason and an expiry date. Permissions apply by resource and action with own-versus-all scope; Customermates has no private mandate or candidate-slate access model. For fully confidential mandates, design the process around those boundaries and assess self-hosting plus every connected provider separately.
+Off-limits status can be represented with a single-select field on the contact record, plus a free-text reason and an expiry date. Permissions apply by resource and action, not by field; you can limit read access to the records a user is assigned to. Customermates has no private mandate or candidate-slate access model. For fully confidential mandates, design the process around those boundaries and assess self-hosting plus every connected provider separately.
 </FaqItem>
 
 <FaqItem question="Can I build my own custom recruiting CRM instead?">

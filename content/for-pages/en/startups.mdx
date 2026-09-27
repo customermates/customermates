@@ -20,7 +20,7 @@ hero:
 
 cta:
   action: Ready to grow your startup?
-  description: Join startups that run their sales on an open-source CRM with an open API, webhooks, AI clients over MCP, and zero vendor lock-in.
+  description: "Run your sales on an open-source CRM with an open API, webhooks, and AI clients over MCP, self-hosted if you prefer."
   buttonLeftText: Start for free
   buttonLeftHref: /auth/signup
   buttonRightText: Watch live demo
@@ -50,7 +50,7 @@ Customermates is an [open-source CRM](/features/pipeline) built for teams that n
 
 ### Pipeline management built for founder-led sales
 
-Most startup sales start with founders selling directly. Customermates gives you a [visual Kanban pipeline](/features/pipeline) where every deal is a card you can drag between stages, Qualified, Demo Scheduled, Proposal Sent, Negotiation, Closed Won. Customize stages in seconds as your process evolves.
+Most startup sales start with founders selling directly. Customermates gives you a [visual Kanban pipeline](/features/pipeline) where every deal is a card you can drag between stages such as Qualified, Demo Scheduled, Proposal Sent, Negotiation, and Closed Won. Customize stages in seconds as your process evolves.
 
 When you hire your first SDR or AE, they inherit a clean pipeline with full deal history. No context is lost during the transition from founder-led to team-led sales.
 
@@ -60,19 +60,19 @@ Every person and company lives in one place with notes, tasks, deals, custom dat
 
 ### Lead management and qualification
 
-Not every inbound lead is worth a demo. With [lead management](/features/lead-management) in Customermates, you define your ICP criteria as custom fields, company size, funding stage, industry, tech stack, and qualify each lead against them. Saved views show the leads that match, and a webhook can hand new leads to your own routing logic. Customermates does not score leads itself.
+Not every inbound lead is worth a demo. With [lead management](/features/lead-management) in Customermates, you define your ICP criteria as custom fields (company size, funding stage, industry, tech stack) and qualify each lead against them. Saved views show the leads that match, and a webhook can hand new leads to your own routing logic. Customermates does not score leads itself.
 
 ### Native unified inbox for email and LinkedIn
 
-On Pro, connect Gmail, Outlook, or IMAP to the [unified inbox](/features/email-integration) and link each conversation to the right contact and deal. No BCC workarounds. The inbox also covers LinkedIn, WhatsApp, Instagram, and Telegram, so the LinkedIn thread that started a B2B deal and the email that closed it sit on the same contact. Mate can draft replies that you confirm before they are sent.
+On Pro, connect Gmail, Outlook, or IMAP to the [unified inbox](/features/email-integration) and link each conversation to the right contact. No BCC workarounds. The inbox also covers LinkedIn, WhatsApp, Instagram, and Telegram, so the LinkedIn thread that started a B2B deal and the email that closed it sit on the same contact. Mate can draft replies that you confirm before they are sent.
 
 ### Workflow automation with n8n
 
 For external automation, connect a separately operated [n8n instance](/features/workflow-automation) through the Customermates API and webhooks. n8n is not included, and you own the workflow, credentials, provider costs, and scheduling:
 
-- A lead fills out your website form, n8n creates a deal and sends a welcome email from your own mail account
-- A deal moves to "Proposal Sent", n8n posts to Slack and creates a follow-up task in Customermates
-- A deal closes, n8n updates your invoicing tool and notifies the team
+- A lead fills out your website form, and n8n creates a deal and sends a welcome email from your own mail account.
+- A deal moves to "Proposal Sent", and n8n posts to Slack and creates a follow-up task in Customermates.
+- A deal closes, and n8n updates your invoicing tool and notifies the team.
 
 On Customermates Cloud, [routines](/docs/app-routines) cover scheduled checks without n8n: the Mate assistant runs a saved prompt on a schedule or on a CRM event, for example listing contacts nobody has touched in 14 days. Starter includes [[commercial.entitlement.starter.includedRoutinesPerUser]] routine per user and Pro includes [[commercial.entitlement.pro.includedRoutinesPerUser]].
 
@@ -82,7 +82,7 @@ Connect Claude, ChatGPT, or another AI client through the MCP server ([[derived.
 
 ### Investor pipeline and fundraising tracking
 
-Your CRM is not just for customers. Track investors as organizations and contacts, and fundraising conversations as deals with a single-select "Deal type" field set to Investor. A saved view filtered to investor deals becomes your fundraising board: who you have pitched, which VCs are in due diligence, term sheet status, and partner introductions. Custom fields capture fund size, check size, thesis fit, warm intro sources, and a next follow-up date. When fundraising gets intense, having a structured investor pipeline saves weeks of chaos.
+Your CRM is not just for customers. Track investors as organizations and contacts, and fundraising conversations as deals with a single-select "Deal type" field set to Investor. A saved view filtered to investor deals becomes your fundraising board: who you have pitched, which VCs are in due diligence, term sheet status, and partner introductions. Custom fields capture fund size, check size, thesis fit, warm intro sources, and a next follow-up date. When fundraising gets intense, a structured investor pipeline keeps every conversation in view.
 
 ### Full API for technical founders
 
@@ -90,17 +90,17 @@ Customermates has a REST API under /api/v1 with an OpenAPI description and webho
 
 ## What makes Customermates a strong fit for startups
 
-### Open source with no vendor lock-in
+### Open source and self-hostable
 
-The code is open. Inspect it, extend it, self-host it. If you ever outgrow the hosted version or need to meet specific compliance requirements, you can move to your own infrastructure. Exports as Excel workbooks (XLSX) and the REST API come without export fees.
+The core is open source under the AGPL: inspect it, extend it, self-host it. If you need to meet specific data location requirements, you can run the open-source core on your own infrastructure (with the Starter feature set). Records can be exported one record type at a time as Excel workbooks (XLSX) or read through the REST API.
 
 ### Data location and GDPR
 
-In the managed cloud, the application database runs in the AWS Frankfurt region; hosting and other subprocessors, including US providers, are listed on the [subprocessors page](/subprocessors), and a [DPA](/dpa) is available. For startups selling into the EU, or founded there, that makes the [GDPR](https://gdpr.eu/what-is-gdpr/) review straightforward. If you need full control over where data lives, self-host the open-source core.
+In the managed cloud, the application database runs in the AWS Frankfurt region; hosting and other subprocessors, including US providers, are listed on the [subprocessors page](/subprocessors), and a [DPA](/dpa) is available. For startups selling into the EU, or founded there, those are the facts a [GDPR](https://gdpr.eu/what-is-gdpr/) review needs. If you need full control over where data lives, self-host the open-source core.
 
-### Simple, honest tiers
+### Simple, transparent plans
 
-Every Customermates user gets pipeline management, custom fields, dashboards, API access, webhooks, and MCP, no matter which tier you pick. Add the unified inbox for email, LinkedIn, and WhatsApp on Pro when your team needs it. You never hit a surprise paywall as your startup grows, just one clear upgrade when messaging becomes part of the workflow.
+Every Customermates user gets pipeline management, custom fields, dashboards, API access, webhooks, and MCP, no matter which plan you pick. Add the unified inbox for email, LinkedIn, and WhatsApp on Pro when your team needs it. The main upgrade decision is whether messaging becomes part of the workflow.
 
 ### Fast setup
 
@@ -110,10 +110,10 @@ Create an account, import contacts from an Excel workbook (XLSX) or add them man
 
 Startups watch every euro of runway. Customermates keeps pricing radically simple:
 
-- **Starter, [[commercial.price.starter.monthly]] per user per month**, pipeline, custom fields, dashboards, REST API, webhooks, MCP, and the Mate assistant with monthly AI credits
-- **Pro, [[commercial.price.pro.monthly]] per user per month**, adds the unified inbox: email, LinkedIn, WhatsApp, Instagram, and Telegram
-- **Open source**, self-host the core on your own infrastructure with no licence cost; the inbox and Mate are cloud-only
-- **First [[commercial.trial.days]] days free**, explore the product, no credit card required
+- **Starter ([[commercial.price.starter.monthly]] per user per month)**: pipeline, custom fields, dashboards, REST API, webhooks, MCP, and the Mate assistant with monthly AI credits
+- **Pro ([[commercial.price.pro.monthly]] per user per month)**: adds the unified inbox: email, LinkedIn, WhatsApp, Instagram, and Telegram
+- **Open source**: self-host the core on your own infrastructure with no licence cost; the inbox and Mate are cloud-only
+- **First [[commercial.trial.days]] days free**: explore the product, no credit card required
 
 A 5-person startup pays [[commercial.price.starter.monthly.seats.5]] per month on Starter, billed monthly, or [[commercial.price.starter.monthly.seats.5.months.12]] over twelve months. Compare that total with a current Salesforce or HubSpot quote for comparable features; the difference stays in your runway.
 
@@ -139,13 +139,13 @@ Long sales cycles with technical evaluations need structured tracking. Use custo
 
 ## Getting started with Customermates
 
-1. **Create an account**, no credit card needed.
-2. **Import your records**, upload an Excel workbook (XLSX) for contacts, organizations, or deals, one record type at a time, or use the REST API or an AI client over MCP.
-3. **Set up your pipeline**, define stages that match your current sales process. Add a "Deal type" field and an investor view if you are raising.
-4. **Connect your stack**, use webhooks, the REST API, or a separately operated n8n with the Customermates community node to reach Slack, Gmail, Calendly, Stripe, and hundreds more.
-5. **Invite your team**, assign roles with permissions per resource and action.
+1. **Create an account**: no credit card needed.
+2. **Import your records**: upload an Excel workbook (XLSX) for contacts, organizations, or deals, one record type at a time, or use the REST API or an AI client over MCP.
+3. **Set up your pipeline**: define stages that match your current sales process. Add a "Deal type" field and an investor view if you are raising.
+4. **Connect your stack**: use webhooks, the REST API, or a separately operated n8n with the Customermates community node to reach Slack, Gmail, Calendly, Stripe, and hundreds more.
+5. **Invite your team**: assign roles with permissions per resource and action.
 
-Customermates grows with your startup. Start as a solo founder, scale to a 50-person sales team, without switching CRMs or losing data.
+Customermates grows with your startup. Start as a solo founder and grow into a sales team without switching CRMs.
 
 ## Frequently asked questions
 
@@ -155,11 +155,11 @@ A CRM (Customer Relationship Management) for startups is software designed to he
 </FaqItem>
 
 <FaqItem question="Why do startups need a CRM so early?">
-The earlier you implement a CRM, the less data you lose. Startups that wait until they have 500 contacts find themselves spending weeks cleaning up spreadsheets and reconstructing deal history. Starting with a CRM from day one means every interaction is recorded, every deal is tracked, and every open follow-up is visible, building a data asset that compounds over time.
+The earlier you implement a CRM, the less data you lose. If you wait until hundreds of contacts have piled up, you will have to clean up spreadsheets and reconstruct deal history later. Starting with a CRM from day one means every interaction is recorded, every deal is tracked, and every open follow-up is visible, so your data grows more useful over time.
 </FaqItem>
 
 <FaqItem question="How is Customermates different from HubSpot or Salesforce for startups?">
-Three key differences: First, Customermates gives you the core CRM starting at [[commercial.price.starter.monthly]]/user/month, with the unified inbox on Pro at [[commercial.price.pro.monthly]]/user/month, no surprise paywalls as you grow. HubSpot's free tier limits automation and reporting; Salesforce Starter Suite costs $25/user/month (September 2026). Second, Customermates is open source, so you can self-host and choose where your data lives. Third, the managed cloud keeps its database in the AWS Frankfurt region, with a DPA and disclosed subprocessors, which matters for European startups and those selling into EU markets.
+Three key differences: First, Customermates gives you the core CRM starting at [[commercial.price.starter.monthly]]/user/month, with the unified inbox on Pro at [[commercial.price.pro.monthly]]/user/month, and the API, webhooks and MCP on every plan. For comparison, HubSpot Sales Hub Starter costs €20 per seat per month and Salesforce Starter Suite $25 per user per month billed annually (both from the vendors' pricing pages, September 2026). Second, Customermates is open source, so you can self-host and choose where your data lives. Third, the managed cloud keeps its database in the AWS Frankfurt region, with a DPA and disclosed subprocessors, which matters for European startups and those selling into EU markets.
 </FaqItem>
 
 <FaqItem question="Can I use Customermates to track fundraising and investor relationships?">
@@ -175,6 +175,6 @@ Create an account, import contacts from an Excel workbook (XLSX) or add them man
 </FaqItem>
 
 <FaqItem question="Can Customermates handle our growth from 3 founders to a 50-person sales team?">
-Yes. Customermates is designed to scale with startups. Start with a simple pipeline and basic contact management. As you hire, add roles and permissions, separate segments with custom fields and saved views, connect more automation through webhooks and the API, and integrate with your growing tech stack. Because the core CRM is included at every tier, your team never outgrows the plan, you just add the unified inbox on Pro when messaging becomes part of the workflow.
+Yes. Customermates is designed to scale with startups. Start with a simple pipeline and basic contact management. As you hire, add roles and permissions, separate segments with custom fields and saved views, connect more automation through webhooks and the API, and integrate with your growing tech stack. Because the core CRM is included in every plan, you only add the unified inbox on Pro when messaging becomes part of the workflow.
 </FaqItem>
 </Faq>

@@ -50,7 +50,7 @@ Customermates gives your cleaning company a central place for every client, prop
 
 ### Recurring service contracts
 
-Customermates does not schedule visits or create recurring jobs. What it does well is keep each recurring contract visible: record the contract as a deal or service linked to the client, with custom fields for frequency (daily, weekly, bi-weekly, monthly, quarterly), start date, and renewal date. When a client changes their frequency, the update is in one place and visible to everyone.
+Customermates does not schedule visits or create recurring jobs. What it does well is keep each recurring contract visible: record the contract as a deal linked to the client (with its services attached), with custom fields for frequency (daily, weekly, bi-weekly, monthly, quarterly), start date, and renewal date. When a client changes their frequency, the update is in one place and visible to everyone.
 
 For visit reminders or crew notifications, use your scheduling tool, or connect an external workflow tool such as [n8n](/blog/n8n-for-beginners-build-your-first-workflow) (operated separately) through the REST API or webhooks.
 
@@ -58,7 +58,7 @@ For visit reminders or crew notifications, use your scheduling tool, or connect 
 
 Every client record stores contact information, and custom fields and notes hold property addresses, square footage, room count, key holder contacts, cleaning preferences, and product restrictions, along with an activity history. Keep sensitive access details such as alarm codes in a system built for secrets rather than a CRM field.
 
-For cleaning companies managing multiple properties per client, record the client as an organization and each property as a linked service or deal, so you see the full relationship at a glance.
+For cleaning companies managing multiple properties per client, record the client as an organization and each property as a linked deal, so you see the full relationship at a glance.
 
 ### Crew assignment
 
@@ -76,7 +76,7 @@ Log quality inspections and client feedback as notes and custom fields on proper
 
 ### Contract renewal tracking
 
-Keep the renewal date in a custom date field and use a saved view sorted by that date, so every contract gets attention before it lapses. There are no automatic renewal tasks; a cloud routine or an external tool through the API can do the checking. According to [Harvard Business Review](https://hbr.org/2014/10/the-value-of-keeping-the-right-customers), increasing customer retention by 5% can boost profits by 25-95%.
+Keep the renewal date in a custom date field and use a saved view sorted by that date, so every contract gets attention before it lapses. There are no automatic renewal tasks; a cloud routine or an external tool through the API can do the checking. A 2014 [Harvard Business Review article](https://hbr.org/2014/10/the-value-of-keeping-the-right-customers), citing research by Frederick Reichheld of Bain & Company, reports that increasing customer retention rates by 5% can increase profits by 25% to 95%. The figure is not specific to cleaning, but it shows why renewals deserve attention.
 
 ## Key features for cleaning companies
 
@@ -112,10 +112,10 @@ In the managed cloud, the application database runs in the AWS Frankfurt region;
 
 Cleaning companies need lean operations, not expensive software. Customermates keeps it simple:
 
-- **Starter, [[commercial.price.starter.monthly]] per user per month**, contacts, organizations, deals, services, tasks, custom fields, views, REST, webhooks, and MCP
-- **Pro, [[commercial.price.pro.monthly]] per user per month**, adds the unified inbox for client email and WhatsApp
-- **Priced per user**, with no per-contact or per-property charges
-- **Open source and self-hostable**, no licence cost for the core; the inbox and Mate are cloud-only
+- **Starter ([[commercial.price.starter.monthly]] per user per month)**: contacts, organizations, deals, services, tasks, custom fields, views, REST, webhooks, and MCP
+- **Pro ([[commercial.price.pro.monthly]] per user per month)**: adds the unified inbox for client email and WhatsApp
+- **Priced per user**: no per-contact or per-property charges
+- **Open source and self-hostable**: no licence cost for the core; the inbox and Mate are cloud-only
 
 A solo cleaning business owner pays [[commercial.price.starter.monthly]]/month on Starter. A company with 8 office and field staff pays [[commercial.price.starter.monthly.seats.8]]/month. Field service platforms such as [Jobber](https://www.getjobber.com/pricing/) (from $49/month for Core) and [Housecall Pro](https://www.housecallpro.com/pricing/) (from $79/month for Basic), both billed monthly as listed in September 2026, include scheduling and invoicing that Customermates does not.
 
@@ -125,18 +125,18 @@ Customermates connects to the tools cleaning companies already use through the R
 
 - **Email**: Connect Gmail, Outlook, or IMAP mailboxes to the unified inbox on Pro and above
 - **Calendar**: Read-only calendar access on Pro and above; Customermates does not create or schedule visits
-- **Invoicing and accounting**: Keep lexoffice, sevDesk, Xero, QuickBooks, or another invoicing tool for billing, and connect it through the API if you want records in sync
+- **Invoicing and accounting**: Keep Lexware Office, sevDesk, Xero, QuickBooks, or another invoicing tool for billing, and connect it through the API if you want records in sync
 - **WhatsApp**: In the unified inbox on Pro; SMS is not supported
 - **Web forms**: Customermates has no built-in forms, but an external form tool can create leads through the REST API or n8n
 - **AI clients (MCP)**: Draft proposals, summarize feedback, and identify patterns
 
 ## Getting started
 
-1. **Create an account**, no credit card needed. [[commercial.trial.days]] days free.
-2. **Import your clients**, from an Excel workbook (XLSX), one record type at a time, or through the REST API. There is no CSV import.
-3. **Set up your pipeline**, with stages like Inquiry, Walkthrough, Estimate Sent, Negotiation, Contract Signed, Active.
-4. **Add custom fields**, for property details, cleaning frequency, contract terms, renewal dates, and inspection results.
-5. **Create saved views**, for unanswered estimates and upcoming renewals, and connect automations if you need them.
+1. **Create an account**: no credit card needed. [[commercial.trial.days]] days free.
+2. **Import your clients**: from an Excel workbook (XLSX), one record type at a time, or through the REST API. There is no CSV import.
+3. **Set up your pipeline**: stages such as Inquiry, Walkthrough, Estimate Sent, Negotiation, Contract Signed, Active.
+4. **Add custom fields**: property details, cleaning frequency, contract terms, renewal dates, and inspection results.
+5. **Create saved views**: unanswered estimates and upcoming renewals, and connect automations if you need them.
 
 ## FAQ
 
@@ -146,7 +146,7 @@ Jobber and ZenMaid are built around scheduling, dispatch, and invoicing for serv
 </FaqItem>
 
 <FaqItem question="Can Customermates handle both residential and commercial cleaning clients?">
-Yes. Use a custom single-select field for the client type and filter or group your Kanban board by it, with saved views for each segment. Commercial clients with multiple properties are organizations with linked property records.
+Yes. Use a custom single-select field for the client type and filter or group your Kanban board by it, with saved views for each segment. Commercial clients with multiple properties are organizations with a linked deal per property.
 </FaqItem>
 
 <FaqItem question="How do I manage recurring cleaning schedules in Customermates?">
@@ -166,7 +166,7 @@ Create stages like New Inquiry, Walkthrough Scheduled, Estimate Sent, Follow-Up,
 </FaqItem>
 
 <FaqItem question="Can I connect Customermates to my accounting software?">
-Not natively. Through the REST API, webhooks, or n8n, you can connect accounting tools like lexoffice, sevDesk, Xero, or QuickBooks, for example so a signed contract creates a customer in your invoicing tool. You build and run that workflow yourself.
+Not natively. Through the REST API, webhooks, or n8n, you can connect accounting tools like Lexware Office, sevDesk, Xero, or QuickBooks, for example so a signed contract creates a customer in your invoicing tool. You build and run that workflow yourself.
 </FaqItem>
 </Faq>
 

@@ -58,7 +58,7 @@ Customermates adapts to the multi-layered relationships and extended sales proce
 
 **Organizations and multi-contact management**
 
-Link contacts to organizations and use a link field to record which plant belongs to which parent company. Use [contact management](/features/contact-management) to assign multiple contacts per organization, such as procurement, engineering, quality, and management, and see the activity history across stakeholders.
+Link contacts to organizations, give each plant or subsidiary its own organization record, and record the parent company in a custom field such as a single-select or text field; organizations cannot be linked to each other directly. Use [contact management](/features/contact-management) to assign multiple contacts per organization, such as procurement, engineering, quality, and management, and see the activity history across stakeholders.
 
 **Pipeline management for long sales cycles**
 
@@ -82,20 +82,20 @@ How does Customermates compare with other CRM solutions commonly used in manufac
 
 | Feature | Customermates | Salesforce | HubSpot | Pipedrive | Zoho CRM |
 |---------|--------------|------------|---------|-----------|----------|
-| Listed entry price/user/month | [[commercial.price.starter.monthly]] | $25 (Starter Suite) | Free tier available | $14 (Lite, billed annually) | $14+ |
+| Listed entry price/user/month | [[commercial.price.starter.monthly]] | $25 (Starter Suite) | Free for up to 2 users | €14 (Lite, billed annually) | Free edition for up to 3 users |
 | Open source | <StatusAvailable /> | <StatusUnavailable /> | <StatusUnavailable /> | <StatusUnavailable /> | <StatusUnavailable /> |
 | Self-hosting option | <StatusAvailable /> | <StatusUnavailable /> | <StatusUnavailable /> | <StatusUnavailable /> | <StatusUnavailable /> |
 | Deal stages | One configurable stage column with probabilities | Varies by edition | Varies by plan | Varies by plan | Varies by edition |
 | ERP connection | REST API, webhooks, n8n (separate) | Varies by edition | Varies by plan | Varies by plan | Varies by edition |
 | Data location | Cloud database in Frankfurt (AWS); self-hostable | Depends on region and plan | Depends on region and plan | Depends on region and plan | Depends on region and plan |
-| AI agents operate the CRM (MCP) | [[derived.mcp.tools.total]] tools, every plan | Varies | Varies | Varies | Varies |
+| AI agents operate the CRM (MCP) | [[derived.mcp.tools.total]] tools, every plan | Hosted MCP servers, Enterprise Edition and above | Remote MCP server, all accounts | MCP server, every plan | Pre-built MCP servers |
 | Unified inbox (email/LinkedIn/WhatsApp/Instagram/Telegram) | Pro and above | Varies by add-on | Varies by plan | Varies by plan | Varies by edition |
 
-Salesforce and Pipedrive prices are the entry prices listed on the [Salesforce](https://www.salesforce.com/sales/pricing/) and [Pipedrive](https://www.pipedrive.com/en/pricing) pricing pages in September 2026. Customermates is billed monthly only; there is no annual plan.
+Competitor prices and MCP availability as listed on the vendors' own pages in September 2026: [Salesforce](https://www.salesforce.com/sales/pricing/), [HubSpot](https://www.hubspot.com/pricing/sales), [Pipedrive](https://www.pipedrive.com/en/pricing) (EUR pricing) and [Zoho CRM](https://www.zoho.com/crm/zohocrm-pricing.html). HubSpot's remote MCP server has been available to all accounts since April 2026, and Pipedrive offers its MCP server on every plan. Customermates is billed monthly only; there is no annual plan.
 
 **[Salesforce](https://www.salesforce.com/manufacturing/)** offers deep manufacturing capabilities through Manufacturing Cloud; its Sales Cloud starts at $25/user/month for the Starter Suite, and the larger editions cost considerably more and take more effort to implement. See our [Salesforce alternative](/compare/salesforce-alternative) comparison.
 
-**[HubSpot](https://www.hubspot.com/manufacturing)** provides strong marketing tools and a free tier, with advanced features in higher paid tiers. Compare in our [HubSpot alternative](/compare/hubspot-alternative) review.
+**[HubSpot](https://www.hubspot.com/manufacturing)** provides strong marketing tools and a free tier for up to 2 users, with advanced features in higher paid tiers. Compare in our [HubSpot alternative](/compare/hubspot-alternative) review.
 
 **[Pipedrive](https://www.pipedrive.com/en/industries/crm-for-manufacturing-industry)** is known for visual pipeline management and includes workflow automation in its paid plans, but it is not open source and cannot be self-hosted. See our [Pipedrive alternative](/compare/pipedrive-alternative) analysis.
 
@@ -147,7 +147,7 @@ Through open interfaces, yes; natively, no. Customermates provides a REST [API](
 </FaqItem>
 
 <FaqItem question="How does Customermates handle complex account structures?">
-Customermates uses organizations with multiple contacts and typed custom fields. You can add fields for plant location, region, and parent company (as a link field), and see the activity history across every stakeholder, from plant-level procurement to corporate decision-makers. See our [contact management](/features/contact-management) features.
+Customermates uses organizations with multiple contacts and typed custom fields. You can add fields for plant location, region, and parent company (as a single-select or text field, since organizations cannot be linked to each other), and see the activity history across every stakeholder, from plant-level procurement to corporate decision-makers. See our [contact management](/features/contact-management) features.
 </FaqItem>
 
 <FaqItem question="Is Customermates suitable for both direct sales and distributor-based sales models?">
@@ -161,12 +161,12 @@ Transparency, cost, and control. Customermates is open source, so you can inspec
 <FaqItem question="How do I get started with Customermates for manufacturing?">
 Read our [CRM implementation guide](/blog/crm-implementation) for a step-by-step walkthrough, or jump straight in:
 
-1. **[Create your account](/auth/signup)**, no credit card required, with [[commercial.trial.days]] days free.
+1. **[Create your account](/auth/signup)**: no credit card required, with [[commercial.trial.days]] days free.
 2. **Bring in your records:** import organizations, contacts, and deals from an Excel workbook (XLSX), one record type at a time, use the REST API, or let an AI client connected over MCP create them. There is no CSV import.
 3. **Set up your pipeline:** define stages that match your quoting, approval, and order process, and add custom fields for technical and commercial data.
 4. **Invite your team:** add sales reps, account managers, and support staff with roles and permissions per record type.
 5. **Connect automations:** use webhooks, the REST API, or a separately operated n8n workflow for ERP sync, and on the cloud add a routine that lists upcoming reorders.
 
-Customermates is open source: you can export records as XLSX, reach them through the REST API, or self-host the core. Explore our [open-source CRM](/blog/open-source-crm) philosophy.
+Customermates is open source: you can export records as XLSX one record type at a time, reach them through the REST API, or self-host the core. Explore our [open-source CRM](/blog/open-source-crm) philosophy.
 </FaqItem>
 </Faq>

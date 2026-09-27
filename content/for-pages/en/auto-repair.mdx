@@ -34,7 +34,7 @@ A CRM for auto repair connects your service advisors, mechanics, and customers. 
 
 Here are the pain points an auto repair CRM helps with:
 
-- **Customers do not come back**: You did a great brake job, but six months later the customer forgets about you when they need an oil change. A CRM keeps the next service date on the vehicle record so you can see who is due.
+- **Customers do not come back**: You did a great brake job, but six months later the customer forgets about you when they need an oil change. A CRM keeps the next service date on the customer record so you can see who is due.
 - **Vehicle history is scattered**: Was it the alternator or the starter motor you replaced last year? Without records tied to the customer and vehicle, every visit starts from scratch. [Contact management](/features/contact-management) links every repair to the right owner.
 - **Quotes go cold**: You inspect a vehicle and send a quote for additional work. The customer says they will think about it. You never follow up, and the job never happens.
 - **No view of the business**: How many cars are in the shop right now? Which quotes are outstanding? Without a board or dashboard, you are guessing.
@@ -57,11 +57,11 @@ Here is how Customermates covers the daily work of an automotive service busines
 
 ### Vehicle History Tracking
 
-Customermates has no dedicated vehicle object, so shops model vehicles with the records that exist. A common setup: the owner is a contact (or an organization for fleets), and each vehicle is a service record linked to the owner, with custom fields for make, model, year, license plate, VIN, mileage, and warranty dates. Each repair job is a deal linked to the owner and vehicle, with notes on parts used, diagnostic codes, and quotes given. When a customer calls, the history is on the record.
+Customermates has no dedicated vehicle object, so shops model vehicles with the records that exist. A common setup: the owner is a contact (or an organization for fleets), and each repair job is a deal linked to the owner, with custom fields for make, model, year, license plate, VIN, mileage, and warranty dates, plus notes on parts used, diagnostic codes, and quotes given. Searching by license plate or opening the owner's jobs shows the vehicle's history. When a customer calls, the history is on the record.
 
 ### Service Due Dates
 
-Customermates does not send service reminders. Store the next service date or mileage in a custom field on the vehicle, and use a saved view sorted by that date to see who is due this month. On Customermates Cloud, a [routine](/docs/app-routines) can run on a schedule and have the Mate assistant list vehicles due for service and draft messages for you to review; the assistant asks for confirmation before anything is sent. If you want fully automated reminders, an external tool such as n8n (operated separately) can read the dates through the REST API and send them.
+Customermates does not send service reminders. Store the next service date or mileage in a custom field on the customer or job, and use a saved view sorted by that date to see who is due this month. On Customermates Cloud, a [routine](/docs/app-routines) can run on a schedule and have the Mate assistant list vehicles due for service and draft messages for you to review; the assistant asks for confirmation before anything is sent. If you want fully automated reminders, an external tool such as n8n (operated separately) can read the dates through the REST API and send them.
 
 ### Job Pipeline
 
@@ -85,11 +85,11 @@ Do not let quoted work disappear. A saved view of jobs in the "Quote sent" stage
 
 ### Fleet and Commercial Accounts
 
-Track commercial customers with multiple vehicles as organizations. Link every vehicle and job to the organization to see the whole fleet in one view. Useful for delivery companies, taxi services, rental agencies, and local businesses that depend on their vehicles.
+Track commercial customers with multiple vehicles as organizations. Link every job and contact to the organization to see the whole fleet's work in one view. Useful for delivery companies, taxi services, rental agencies, and local businesses that depend on their vehicles.
 
 ### AI Clients That Operate Your CRM
 
-Connect Claude, ChatGPT, or another AI client through the MCP server ([[derived.mcp.tools.total]] tools) and let it do the data entry: create customer and vehicle records, move jobs between stages, log notes, draft service recommendations from inspection notes, draft follow-ups after quotes, and summarize vehicle histories. You choose and pay for the AI client.
+Connect Claude, ChatGPT, or another AI client through the MCP server ([[derived.mcp.tools.total]] tools) and let it do the data entry: create customer and job records, move jobs between stages, log notes, draft service recommendations from inspection notes, draft follow-ups after quotes, and summarize vehicle histories. You choose and pay for the AI client.
 
 ## How Customermates Compares to Auto Repair Software
 
@@ -102,7 +102,7 @@ Most automotive software falls into two categories: specialized shop management 
 | Appointment scheduling, invoicing | No                                                    | Yes                                  | No, integrates with shop management systems  |
 | Email, WhatsApp, Instagram inbox  | Pro and above                                         | No                                   | No                                           |
 | Open source and self-hostable     | Yes                                                   | No                                   | No                                           |
-| AI clients through MCP            | Yes                                                   | No                                   | No                                           |
+| AI clients through MCP            | Yes                                                   | See vendor                           | See vendor                                   |
 
 Competitor prices are the entry plans listed on the [Shopmonkey](https://www.shopmonkey.io/pricing) and [Autoflow](https://autoflow.com/pricing) pricing pages in September 2026; annual billing lowers them.
 
@@ -147,9 +147,9 @@ Customermates connects to the tools your shop already uses through the REST API,
 
 Customermates keeps pricing simple:
 
-- **Starter, [[commercial.price.starter.monthly]] per user per month**: contacts, organizations, jobs, services, tasks, custom fields, views, REST, webhooks, and MCP
-- **Pro, [[commercial.price.pro.monthly]] per user per month**: adds the unified inbox for customer email and WhatsApp
-- **Same rate for every user**, whether service advisor or mechanic, with no per-contact charges
+- **Starter ([[commercial.price.starter.monthly]] per user per month)**: contacts, organizations, jobs, services, tasks, custom fields, views, REST, webhooks, and MCP
+- **Pro ([[commercial.price.pro.monthly]] per user per month)**: adds the unified inbox for customer email and WhatsApp
+- **Same rate for every user**: service advisor or mechanic, with no per-contact charges
 - **Self-hostable**: the open-source core runs on your own server at no licence cost; the inbox and Mate are cloud-only
 
 An auto repair shop with 5 users pays [[commercial.price.starter.monthly.seats.5]]/month on Starter. Billing is monthly. See our full [pricing details](/pricing).
@@ -158,12 +158,12 @@ An auto repair shop with 5 users pays [[commercial.price.starter.monthly.seats.5
 
 Setting up your auto shop CRM:
 
-1. **[Create your account](/auth/signup)**, no credit card required, [[commercial.trial.days]] days free.
-2. **Import your customers**, from an Excel workbook (XLSX), one record type at a time, or through the REST API. There is no CSV import.
-3. **Set up your job pipeline**, with stages for repair jobs (Booked In, Diagnosis, Quote Sent, Approved, In Progress, Quality Check, Ready for Pickup, Complete).
-4. **Add custom fields**, for vehicle make/model, VIN, license plate, mileage, next service date, warranty dates, and parts ordered.
-5. **Connect automations**, if you need them, through webhooks, n8n, or a cloud routine.
-6. **Connect your channels**, on Pro, link your email and WhatsApp so customer conversations sit next to the customer record.
+1. **[Create your account](/auth/signup)**: no credit card required, [[commercial.trial.days]] days free.
+2. **Import your customers**: from an Excel workbook (XLSX), one record type at a time, or through the REST API. There is no CSV import.
+3. **Set up your job pipeline**: stages for repair jobs (Booked In, Diagnosis, Quote Sent, Approved, In Progress, Quality Check, Ready for Pickup, Complete).
+4. **Add custom fields**: vehicle make/model, VIN, license plate, mileage, next service date, warranty dates, and parts ordered.
+5. **Connect automations**: if you need them, through webhooks, n8n, or a cloud routine.
+6. **Connect your channels**: on Pro, link your email and WhatsApp so customer conversations sit next to the customer record.
 
 ## Frequently Asked Questions
 
@@ -177,7 +177,7 @@ It depends on the bottleneck. If you need appointments, inspections, repair orde
 </FaqItem>
 
 <FaqItem question="Does Customermates send service reminders?">
-No, not by itself. Keep the next service date on the vehicle record and use a saved view sorted by that date. On Customermates Cloud, a routine can check those dates on a schedule and draft messages for you to review. For fully automated reminders, connect an external tool such as n8n through the REST API.
+No, not by itself. Keep the next service date on the customer record and use a saved view sorted by that date. On Customermates Cloud, a routine can check those dates on a schedule and draft messages for you to review. For fully automated reminders, connect an external tool such as n8n through the REST API.
 </FaqItem>
 
 <FaqItem question="Can an auto repair CRM track vehicle history and warranty information?">

@@ -69,7 +69,7 @@ Use custom fields to track contract start and end dates, monthly retainer values
 
 ### Campaigns and Client Reporting
 
-Record campaigns as deals or services linked to the client, with custom fields for campaign type and status. [Dashboards](/features/reporting) show pipeline and revenue by account, service line, or owner for internal reviews. Campaign performance data stays in your ad and analytics platforms; Customermates does not import it natively.
+Record campaigns as deals on the client organization, or as services on those deals, with custom fields for campaign type and status. [Dashboards](/features/reporting) show pipeline and revenue by account, service line, or owner for internal reviews. Campaign performance data stays in your ad and analytics platforms; Customermates does not import it natively.
 
 ### Following Up on New Business
 
@@ -81,7 +81,7 @@ Speed-to-response matters when competing for new agency business. Customermates 
 
 ### Unified Inbox
 
-On Pro and above, the [unified inbox](/features/email-integration) brings email (Gmail, Outlook, IMAP), LinkedIn, WhatsApp, Instagram, and Telegram into Customermates, where you link each conversation to the right contact and deal. When a CMO emails about expanding scope or a prospect replies to your LinkedIn outreach, the team sees the conversation next to the deal history. SMS and phone calls are not channels, and the inbox is not available self-hosted.
+On Pro and above, the [unified inbox](/features/email-integration) brings email (Gmail, Outlook, IMAP), LinkedIn, WhatsApp, Instagram, and Telegram into Customermates, where you link each conversation to the right contact. When a CMO emails about expanding scope or a prospect replies to your LinkedIn outreach, the team sees the conversation next to the contact's history. SMS and phone calls are not channels, and the inbox is not available self-hosted.
 
 ### AI Agents That Operate Your Agency CRM
 
@@ -101,16 +101,16 @@ Most CRM platforms that target marketing agencies fall into two categories: larg
 
 | Feature | Customermates | HubSpot CRM | Pipedrive | Salesforce |
 |---|---|---|---|---|
-| Listed price | [[commercial.price.starter.monthly]]/user/month (Starter), billed monthly | Free tier, paid tiers vary | From $14/user/month (Lite, billed annually) | From $25/user/month (Starter Suite) |
+| Listed price | [[commercial.price.starter.monthly]]/user/month (Starter), billed monthly | Free for up to 2 users; Sales Hub Starter €20/seat/month | From €14/user/month (Lite, billed annually) | From $25/user/month (Starter Suite, billed annually) |
 | Open source | Yes | No | No | No |
 | Self-hosting option | Yes | No | No | No |
 | Data location | Cloud database in Frankfurt (AWS); self-hostable | Depends on region and plan | Depends on region and plan | Depends on region and plan |
 | Marketing automation, email campaigns | No | Yes (Marketing Hub) | Add-on | Separate product |
 | Workflow automation | Webhooks, REST, MCP, cloud routines; n8n connected separately | Built-in on paid tiers | Built-in on paid plans | Built-in |
-| AI agents operate the CRM (MCP) | Yes ([[derived.mcp.tools.total]] tools) | Varies | Varies | Varies |
+| AI agents operate the CRM (MCP) | Yes ([[derived.mcp.tools.total]] tools) | Yes (remote MCP server, all accounts) | Yes (MCP server, every plan) | Enterprise Edition and above (Hosted MCP Servers) |
 | Unified inbox (email, LinkedIn, WhatsApp, Instagram, Telegram) | Pro and above | Varies by plan | Varies by plan | Varies by edition |
 
-Pipedrive and Salesforce prices are the entry prices on the [Pipedrive](https://www.pipedrive.com/en/pricing) and [Salesforce](https://www.salesforce.com/sales/pricing/) pricing pages in September 2026.
+Prices and MCP availability as listed on the [HubSpot](https://www.hubspot.com/pricing/sales), [Pipedrive](https://www.pipedrive.com/en/pricing), [Pipedrive MCP](https://www.pipedrive.com/en/features/mcp-server), and [Salesforce](https://www.salesforce.com/sales/pricing/) pages in September 2026. HubSpot's remote MCP server has been available to all accounts since April 2026.
 
 **Enterprise CRMs** like [Salesforce](/compare/salesforce-alternative) and [HubSpot](/compare/hubspot-alternative) offer powerful platforms with marketing automation and advanced reporting, but agencies often pay considerably more per user once they add the tiers and hubs they need, and implementation can take a long time.
 
@@ -142,7 +142,7 @@ Small agencies and freelancers need a CRM that is fast, affordable, and does not
 
 Customermates connects to the tools marketing agencies already use through the REST API, webhooks, MCP, and n8n, which you operate separately. Native connectors exist only for the unified inbox channels:
 
-- **Email and messaging (native, Pro and above)**: connect Gmail, Outlook, or IMAP mailboxes, LinkedIn, WhatsApp, Instagram, and Telegram to the unified inbox; this does not sync contacts or calendars
+- **Email and messaging (native, Pro and above)**: connect Gmail, Outlook, or IMAP mailboxes, LinkedIn, WhatsApp, Instagram, and Telegram to the unified inbox; contacts are not synced, and from Pro the calendar is shown read-only, so you cannot create events
 - **Project management (customer-built)**: create a project in Asana, Monday, ClickUp, or Basecamp when a deal is won
 - **Team chat (customer-built)**: post deal updates to Slack or Microsoft Teams through a webhook and your own n8n workflow
 - **Time tracking (customer-built)**: sync hours from Harvest, Toggl, or Clockify into a custom field on the client
@@ -155,13 +155,13 @@ Customermates connects to the tools marketing agencies already use through the R
 Customermates keeps pricing simple and transparent, billed monthly per user:
 
 - **Starter, [[commercial.price.starter.monthly]] per user per month:** pipeline, custom fields, views, dashboards, REST API, webhooks, and MCP for AI clients ([[derived.mcp.tools.total]] tools)
-- **Pro, [[commercial.price.pro.monthly]] per user per month:** adds the unified inbox (email, LinkedIn, WhatsApp, Instagram, and Telegram) with [[commercial.entitlement.pro.includedAccountsPerUser]] connected account per user, linked to clients and deals
+- **Pro, [[commercial.price.pro.monthly]] per user per month:** adds the unified inbox (email, LinkedIn, WhatsApp, Instagram, and Telegram) with [[commercial.entitlement.pro.includedAccountsPerUser]] connected account per user, with conversations linked to client contacts
 - **No per-client charges:** pay the same whether you manage 5 clients or 500
 - **Self-hosted:** run the [open-source core](/features/self-hosted) on your own infrastructure with no licence cost; the inbox and Mate are cloud-only
 
 If new business runs on email and LinkedIn conversations, Pro is the plan to look at. A boutique agency of 4 pays [[commercial.price.pro.monthly.seats.4]]/month on Pro. A mid-size agency of 15 pays [[commercial.price.pro.monthly.seats.15]]/month. See our full [pricing details](/pricing).
 
-For comparison: HubSpot's Marketing Hub Professional starts at $800/month (annual) plus onboarding. Salesforce Sales Cloud ranges from $25 (Starter Suite) to $550 (Max, billed annually) per user per month. Pipedrive's Growth to Ultimate plans cost $39-$79/user/month billed annually, or $49-$99 billed monthly. Those products include marketing, forecasting, or automation features Customermates does not have.
+For comparison, as listed on the vendors' pricing pages in September 2026: HubSpot's [Marketing Hub Professional](https://www.hubspot.com/pricing/marketing) costs $800/month including 3 core seats, plus a required one-time $3,000 onboarding fee. Salesforce Sales Cloud ranges from $25 (Starter Suite) to $550 (Max) per user per month, billed annually. Pipedrive's Growth to Ultimate plans cost €39-€79/user/month billed annually, or €49-€99 billed monthly. Those products include marketing, forecasting, or automation features Customermates does not have.
 
 ## How to Choose the Right CRM for Your Marketing Agency
 
@@ -178,12 +178,12 @@ Here is what to evaluate when choosing an agency CRM:
 
 ## Getting Started with Customermates for Your Agency
 
-1. **[Create your account](/auth/signup)**, no credit card required, with [[commercial.trial.days]] days free.
+1. **[Create your account](/auth/signup)**: no credit card required, with [[commercial.trial.days]] days free.
 2. **Bring in your records:** import clients, contacts, and deals from an Excel workbook (XLSX), one record type at a time, use the REST API, or let an AI client connected over MCP create them. There is no CSV import.
 3. **Set up your stages:** define stages for new business (Lead, Qualified, Pitch, Proposal, Negotiation, Won/Lost), and add a "Deal type" field to tell new business and upsells apart. Use the kanban board to visualize your workflow.
 4. **Add custom fields:** retainer value, contract dates, services delivered, campaign types, client industry, and anything else your agency tracks.
 5. **Set up follow-up:** save views for open proposals and contracts ending soon, and on the cloud add a routine that lists them each week.
-6. **Connect your inbox:** on Pro, connect Gmail, Outlook, or IMAP and LinkedIn to the unified inbox and link conversations to clients and deals.
+6. **Connect your inbox:** on Pro, connect Gmail, Outlook, or IMAP and LinkedIn to the unified inbox and link conversations to client contacts.
 
 ## Frequently Asked Questions
 
@@ -197,7 +197,9 @@ A marketing agency CRM should include visual pipeline management, client organiz
 </FaqItem>
 
 <FaqItem question="How much does a CRM for marketing agencies cost?">
-Agency CRM pricing varies widely. HubSpot has a free tier; its Marketing Hub Professional plan starts at $800/month (annual) plus onboarding. Salesforce Sales Cloud runs $25-$550/user/month depending on the edition. Pipedrive costs $14-$79/user/month billed annually, or $24-$99 billed monthly. Customermates starts at [[commercial.price.starter.monthly]]/user/month for the core CRM with MCP access, or [[commercial.price.pro.monthly]]/user/month on Pro for the unified inbox, billed monthly with no per-client fees.
+Agency CRM pricing varies widely. As listed on the vendors' pricing pages in September 2026: HubSpot has a free tier for up to 2 users, and its Marketing Hub Professional plan costs $800/month including 3 core seats, plus a one-time $3,000 onboarding fee. Salesforce Sales Cloud runs $25-$550/user/month billed annually, depending on the edition. Pipedrive costs €14-€79/user/month billed annually, or €24-€99 billed monthly.
+
+Customermates starts at [[commercial.price.starter.monthly]]/user/month for the core CRM with MCP access, or [[commercial.price.pro.monthly]]/user/month on Pro for the unified inbox, billed monthly with no per-client fees.
 </FaqItem>
 
 <FaqItem question="How does Customermates handle GDPR for agencies handling client data?">
