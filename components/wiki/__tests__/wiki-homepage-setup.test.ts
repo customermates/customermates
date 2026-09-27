@@ -28,6 +28,12 @@ vi.mock("next-intl", () => ({
 vi.mock("@/i18n/navigation", () => ({
   useRouter: () => ({ refresh: harness.refresh }),
 }));
+vi.mock("@/core/stores/root-store.provider", () => ({
+  useRootStore: () => ({
+    navigationGuard: { register: vi.fn(), unregister: vi.fn(), isGuarding: false },
+    terminologyStore: { overrides: [] },
+  }),
+}));
 
 import { WikiHomepageSetup } from "../wiki-homepage-setup";
 
@@ -105,6 +111,7 @@ afterEach(() => {
 describe("WikiHomepageSetup", () => {
   it("keeps the onboarding decision focused on the website and two actions", () => {
     expect(input().getAttribute("aria-describedby")).toBeNull();
+    expect(container.querySelector('label[for="wiki-homepage"]')?.textContent).toContain("WikiSetup.homepageLabel");
     expect(input().parentElement?.querySelector("svg")).toBeNull();
     expect(container.querySelectorAll("button")).toHaveLength(2);
     expect(container.textContent).toContain("WikiSetup.skip");
@@ -307,6 +314,7 @@ describe("WikiHomepageSetup", () => {
     });
 
     expect(harness.toast).toHaveBeenCalledTimes(2);
+    expect(harness.toast).toHaveBeenLastCalledWith(error);
     expect(input().value).toBe("bad.example");
     expect(harness.action.mock.calls[1][0].clientRequestId).not.toBe(firstRequestId);
     expect(button("WikiSetup.start").disabled).toBe(false);

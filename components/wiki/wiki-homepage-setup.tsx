@@ -3,17 +3,21 @@
 import type { ReactNode } from "react";
 
 import { useEffect, useRef, useState } from "react";
+import { observer } from "mobx-react-lite";
+import { toJS } from "mobx";
 import { useTranslations } from "next-intl";
 import { CheckCircle2, FileText, Loader2, RotateCcw, Sparkles, TriangleAlert } from "lucide-react";
 
 import { startWikiHomepageSetupAction } from "@/app/[locale]/(protected)/wiki/setup-action";
+import { AppForm } from "@/components/forms/form-context";
+import { FormInput } from "@/components/forms/form-input";
 import { Button } from "@/components/ui/button";
-import { Input } from "@/components/ui/input";
-import { Label } from "@/components/ui/label";
 import { runUserAction } from "@/core/errors/report-application-error";
-import { toastZodErrorTree } from "@/core/utils/toast-zod-error-tree";
+import { useRootStore } from "@/core/stores/root-store.provider";
 import type { WikiHomepageSetupState } from "@/features/wiki/get-wiki-homepage-setup-state.interactor";
 import { useRouter } from "@/i18n/navigation";
+
+import { WikiHomepageSetupFormStore } from "./wiki-homepage-setup.store";
 
 type Props = {
   canStart?: boolean;
@@ -42,7 +46,7 @@ export function useRefreshWhileWikiSetupWorks(working: boolean) {
   }, [router, working]);
 }
 
-export function WikiHomepageSetup({
+export const WikiHomepageSetup = observer(function WikiHomepageSetup({
   canStart = true,
   disabled = false,
   initialState = EMPTY_WIKI_HOMEPAGE_SETUP_STATE,
@@ -52,10 +56,9 @@ export function WikiHomepageSetup({
 }: Props) {
   const t = useTranslations();
   const router = useRouter();
+  const rootStore = useRootStore();
   const [state, setState] = useState(initialState);
-  const [homepage, setHomepage] = useState(initialState.homepage ?? "");
-  const [clientRequestId, setClientRequestId] = useState(() => crypto.randomUUID());
-  const [isSubmitting, setIsSubmitting] = useState(false);
+  const [store] = useState(() => new WikiHomepageSetupFormStore(rootStore, initialState.homepage ?? ""));
   const [retrying, setRetrying] = useState(false);
   const submitting = useRef(false);
   const homepageInput = useRef<HTMLInputElement>(null);
@@ -64,9 +67,9 @@ export function WikiHomepageSetup({
 
   useEffect(() => {
     setState(initialState);
-    if (initialState.homepage) setHomepage(initialState.homepage);
+    if (initialState.homepage) store.onInitOrRefresh({ homepage: initialState.homepage });
     if (initialState.status === "completed") setRetrying(false);
-  }, [initialState]);
+  }, [initialState, store]);
 
   useRefreshWhileWikiSetupWorks(state.status === "working");
 
@@ -85,17 +88,17 @@ export function WikiHomepageSetup({
   }, [retrying, state.status]);
 
   const submit = async () => {
-    if (!canStart || disabled || !homepage.trim() || submitting.current) return;
+    if (!canStart || disabled || !store.form.homepage.trim() || submitting.current) return;
     submitting.current = true;
-    setIsSubmitting(true);
+    store.setIsLoading(true);
     try {
       const result = await startWikiHomepageSetupAction({
-        homepage,
-        clientRequestId,
+        homepage: toJS(store.form).homepage,
+        clientRequestId: store.clientRequestId,
       });
       if (!result.ok) {
-        toastZodErrorTree(result.error);
-        setClientRequestId(crypto.randomUUID());
+        store.setError(result.error);
+        store.renewClientRequestId();
         return;
       }
 
@@ -109,17 +112,18 @@ export function WikiHomepageSetup({
         pages: [],
       };
       setState(workingState);
-      setHomepage(canonicalHomepage);
+      store.onInitOrRefresh({ homepage: canonicalHomepage });
       setRetrying(false);
       router.refresh();
-      setClientRequestId(crypto.randomUUID());
+      store.renewClientRequestId();
     } finally {
       submitting.current = false;
-      setIsSubmitting(false);
+      store.setIsLoading(false);
     }
   };
 
   const showForm = state.status === "idle" || retrying;
+  const isSubmitting = store.isLoading;
   const controlsDisabled = disabled || isSubmitting;
 
   if (!showForm) {
@@ -204,54 +208,40 @@ export function WikiHomepageSetup({
   }
 
   return (
-    <form
-      noValidate
-      aria-busy={controlsDisabled}
-      className="w-full space-y-5 text-left"
-      onSubmit={(event) => {
-        event.preventDefault();
-        runUserAction(submit);
-      }}
-    >
-      <div>
-        <Label htmlFor="wiki-homepage">{t("WikiSetup.homepageLabel")}</Label>
-
-        <Input
+    <AppForm aria-busy={controlsDisabled} store={store} onSubmit={submit}>
+      <div className="w-full space-y-5 text-left">
+        <FormInput
           ref={homepageInput}
           autoComplete="url"
-          className="mt-1.5"
-          disabled={controlsDisabled}
-          id="wiki-homepage"
+          disabled={disabled}
+          id="homepage"
+          inputId="wiki-homepage"
           inputMode="url"
+          label={t("WikiSetup.homepageLabel")}
           placeholder={t("WikiSetup.homepagePlaceholder")}
           type="text"
-          value={homepage}
-          onChange={(event) => {
-            setHomepage(event.currentTarget.value);
-            setClientRequestId(crypto.randomUUID());
-          }}
         />
-      </div>
 
-      <span aria-live="polite" className="sr-only">
-        {isSubmitting ? t("WikiSetup.start") : ""}
-      </span>
+        <span aria-live="polite" className="sr-only">
+          {isSubmitting ? t("WikiSetup.start") : ""}
+        </span>
 
-      <div className="flex flex-wrap justify-end gap-2">
-        {onSkip ? (
-          <Button disabled={controlsDisabled} type="button" variant="secondary" onClick={() => runUserAction(onSkip)}>
-            {disabled ? <Loader2 aria-hidden="true" className="animate-spin motion-reduce:animate-none" /> : null}
+        <div className="flex flex-wrap justify-end gap-2">
+          {onSkip ? (
+            <Button disabled={controlsDisabled} type="button" variant="secondary" onClick={() => runUserAction(onSkip)}>
+              {disabled ? <Loader2 aria-hidden="true" className="animate-spin motion-reduce:animate-none" /> : null}
 
-            {t("WikiSetup.skip")}
+              {t("WikiSetup.skip")}
+            </Button>
+          ) : null}
+
+          <Button disabled={!canStart || !store.form.homepage.trim() || controlsDisabled} type="submit">
+            {isSubmitting ? <Loader2 className="animate-spin motion-reduce:animate-none" /> : <Sparkles />}
+
+            {t("WikiSetup.start")}
           </Button>
-        ) : null}
-
-        <Button disabled={!canStart || !homepage.trim() || controlsDisabled} type="submit">
-          {isSubmitting ? <Loader2 className="animate-spin motion-reduce:animate-none" /> : <Sparkles />}
-
-          {t("WikiSetup.start")}
-        </Button>
+        </div>
       </div>
-    </form>
+    </AppForm>
   );
-}
+});
