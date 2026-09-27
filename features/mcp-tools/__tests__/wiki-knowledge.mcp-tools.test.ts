@@ -24,6 +24,7 @@ vi.mock("next-intl/server", () => ({
 vi.mock("@/core/di", () => ({
   ...createMockDiModule(() => mockUser),
   getSearchWikiPagesInteractor: () => ({ invoke: calls.search }),
+  getSearchExternalizedWikiPagesInteractor: () => ({ invoke: calls.search }),
   getGetWikiPageInteractor: () => ({ invoke: calls.get }),
   getGetWikiCatalogInteractor: () => ({ invoke: calls.catalog }),
   getGetContactByIdInteractor: () => ({ invoke: calls.fetchRecord }),
@@ -59,6 +60,8 @@ vi.mock("../docs.mcp-tools", () => ({
   getDocsPageRaw: calls.fetchDoc,
   listDocsSlugs: () => [],
 }));
+
+import { externalizeWikiPageLinks } from "@/features/wiki/wiki-markdown-links";
 
 import { fetchTool, searchTool } from "../deep-research.mcp-tools";
 import { getWorkspaceContextTool } from "../workspace.mcp-tools";
@@ -152,7 +155,7 @@ describe("read-only Wiki search and fetch compatibility", () => {
     expect(fetchTool.annotations.readOnlyHint).toBe(true);
   });
 
-  it("maps a matched section to the fetch offset of the externalized page and relays suggestions", async () => {
+  it("relays the externalized section offset from the single search query and relays suggestions", async () => {
     const linkedId = "00000000-0000-4000-8000-000000000002";
     const markdown = `Intro with [Support](/wiki?page=${linkedId}).\n\n## Refunds\n\n${"Context. ".repeat(700)}\n\n## Approval\n\nThe finance lead approves refunds.`;
     calls.get.mockResolvedValue({ ok: true, data: { ...page, markdown } });
@@ -165,7 +168,7 @@ describe("read-only Wiki search and fetch compatibility", () => {
             snippet: "The finance lead **approves** refunds.",
             section: "Approval",
             anchor: "approval",
-            offset: markdown.indexOf("## Approval"),
+            offset: externalizeWikiPageLinks(markdown, "http://localhost:4000").indexOf("## Approval"),
           },
         ],
         total: 1,
@@ -178,6 +181,7 @@ describe("read-only Wiki search and fetch compatibility", () => {
     const [hit] = searched.structuredContent.results as Array<{ id: string; offset: number; section: string }>;
     expect(hit).toMatchObject({ id: `wiki:${id}`, section: "Approval" });
     expect(hit.offset).toBeGreaterThan(markdown.indexOf("## Approval"));
+    expect(calls.get).not.toHaveBeenCalled();
 
     const fetched = await fetchTool.execute({ id: hit.id, offset: hit.offset });
     if (!("structuredContent" in fetched)) throw new Error("Expected Wiki content.");

@@ -14,6 +14,7 @@ vi.mock("@/core/di", () => ({
   getGetWikiCatalogInteractor: () => ({ invoke: calls.catalog }),
   getGetWikiPageInteractor: () => ({ invoke: calls.get }),
   getSearchWikiPagesInteractor: () => ({ invoke: calls.search }),
+  getSearchExternalizedWikiPagesInteractor: () => ({ invoke: calls.search }),
   getGetContactByIdInteractor: vi.fn(),
   getGetDealByIdInteractor: vi.fn(),
   getGetOrganizationByIdInteractor: vi.fn(),

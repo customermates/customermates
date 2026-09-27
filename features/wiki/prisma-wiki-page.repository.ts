@@ -106,7 +106,7 @@ export class PrismaWikiPageRepo
     const total = rows[0]?.total ?? (page > 1 ? await this.countWikiSearchMatches(query, data.query) : 0);
     const didYouMean = total === 0 ? await this.wikiSearchSuggestions(query) : [];
     return {
-      items: rows.map(({ markdown, total: _total, ...row }) => ({ ...row, ...wikiSearchMatch(markdown, query) })),
+      items: rows.map(({ total: _total, ...row }) => ({ ...row, ...wikiSearchMatch(row.markdown, query) })),
       total,
       page,
       pageSize,

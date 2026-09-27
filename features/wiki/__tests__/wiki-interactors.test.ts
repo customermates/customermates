@@ -278,6 +278,42 @@ describe("DeleteWikiPageInteractor", () => {
   });
 });
 
+describe("SearchWikiPagesInteractor", () => {
+  const markdown = WikiMarkdownSchema.parse(
+    `Intro with [Support](/wiki?page=${PAGE_ID}).\n\n## Approval\n\nThe finance lead approves refunds.`,
+  );
+  const hit = { ...page({ markdown }), snippet: "The finance lead **approves** refunds.", section: "Approval" };
+  const search = (offsets: "stored" | "externalized") =>
+    runWithTenant(mockUser, () =>
+      new SearchWikiPagesInteractor(
+        {
+          searchPages: vi.fn().mockResolvedValue({
+            items: [{ ...hit, offset: markdown.indexOf("## Approval") }],
+            total: 1,
+            page: 1,
+            pageSize: 5,
+          }),
+        },
+        offsets,
+      ).invoke({ query: "approves", page: 1, pageSize: 5 }),
+    );
+
+  it("keeps stored offsets and never returns the page Markdown", async () => {
+    const result = await search("stored");
+    if (!result.ok) throw new Error("Expected a search result.");
+    expect(result.data.items[0].offset).toBe(markdown.indexOf("## Approval"));
+    expect(result.data.items[0]).not.toHaveProperty("markdown");
+  });
+
+  it("maps offsets onto the link-externalized Markdown from the searched page without another read", async () => {
+    const result = await search("externalized");
+    if (!result.ok) throw new Error("Expected a search result.");
+    const externalized = markdown.replace("/wiki?page=", "http://localhost:4000/wiki?page=");
+    expect(result.data.items[0].offset).toBe(externalized.indexOf("## Approval"));
+    expect(result.data.items[0]).not.toHaveProperty("markdown");
+  });
+});
+
 describe("Wiki permission boundary", () => {
   const noPermissions = createMockUserWithPermissions([]);
   const readUser = createMockUserWithPermissions([{ resource: Resource.wiki, action: Action.readAll }]);
@@ -297,7 +333,7 @@ describe("Wiki permission boundary", () => {
     const calls = [
       () => new GetWikiPagesInteractor(repo).invoke({ page: 1, pageSize: 25 }),
       () =>
-        new SearchWikiPagesInteractor(repo).invoke({
+        new SearchWikiPagesInteractor(repo, "stored").invoke({
           query: "company",
           page: 1,
           pageSize: 25,

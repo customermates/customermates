@@ -1145,7 +1145,9 @@ export const getGetWidgetFilterableFieldsInteractor = () =>
 
 export const getGetWikiPagesInteractor = () => new GetWikiPagesInteractor(getWikiPageRepo());
 export const getGetWikiCatalogInteractor = () => new GetWikiCatalogInteractor(getWikiPageRepo());
-export const getSearchWikiPagesInteractor = () => new SearchWikiPagesInteractor(getWikiPageRepo());
+export const getSearchWikiPagesInteractor = () => new SearchWikiPagesInteractor(getWikiPageRepo(), "stored");
+export const getSearchExternalizedWikiPagesInteractor = () =>
+  new SearchWikiPagesInteractor(getWikiPageRepo(), "externalized");
 export const getGetWikiPageInteractor = () => new GetWikiPageInteractor(getWikiPageRepo());
 export const getCreateWikiPagesInteractor = () => new CreateWikiPagesInteractor(getWikiPageRepo(), getEventService());
 export const getUpdateWikiPageInteractor = () => new UpdateWikiPageInteractor(getWikiPageRepo(), getEventService());

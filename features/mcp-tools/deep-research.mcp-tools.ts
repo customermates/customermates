@@ -25,12 +25,12 @@ import {
   getGetServiceByIdInteractor,
   getGetTaskByIdInteractor,
   getGetWikiPageInteractor,
-  getSearchWikiPagesInteractor,
+  getSearchExternalizedWikiPagesInteractor,
 } from "@/core/di";
 import { extractWikiPageLinks, externalizeWikiPageLinks } from "@/features/wiki/wiki-markdown-links";
 import { parseWikiPageReference, wikiPageFetchId, wikiPageUrl } from "@/features/wiki/wiki-links";
 import { boundedWikiChunk, wikiCodePointBoundary } from "@/features/wiki/wiki-page-chunk";
-import { wikiOutline, wikiSectionOffsetIn } from "@/features/wiki/wiki-search";
+import { wikiOutline } from "@/features/wiki/wiki-search";
 
 type Entity = "contact" | "organization" | "deal" | "service" | "task";
 
@@ -201,32 +201,19 @@ async function fetchWiki(id: string, requestedOffset: number) {
   return { text: JSON.stringify(output), structuredContent: output };
 }
 
-async function externalizedWikiOffset(id: string, offset: number) {
-  if (offset === 0) return 0;
-  const result = await getGetWikiPageInteractor().invoke({ id });
-  if (!result.ok || !result.data) return 0;
-  return wikiSectionOffsetIn(
-    result.data.markdown,
-    offset,
-    externalizeWikiPageLinks(result.data.markdown, env.BASE_URL),
-  );
-}
-
 async function searchWiki(query: string) {
   const wikiQuery = query.slice(0, wikiCodePointBoundary(query, WIKI_SEARCH_QUERY_MAX_LENGTH));
   try {
-    const result = await getSearchWikiPagesInteractor().invoke({ query: wikiQuery, page: 1, pageSize: 5 });
+    const result = await getSearchExternalizedWikiPagesInteractor().invoke({ query: wikiQuery, page: 1, pageSize: 5 });
     if (!result.ok) return { results: [], didYouMean: [] };
-    const results = await Promise.all(
-      result.data.items.map(async (page) => ({
-        id: wikiPageFetchId(page.id),
-        title: page.title,
-        url: wikiPageUrl(env.BASE_URL, page.id),
-        snippet: page.snippet,
-        ...(page.section ? { section: page.section } : {}),
-        offset: await externalizedWikiOffset(page.id, page.offset ?? 0),
-      })),
-    );
+    const results = result.data.items.map((page) => ({
+      id: wikiPageFetchId(page.id),
+      title: page.title,
+      url: wikiPageUrl(env.BASE_URL, page.id),
+      snippet: page.snippet,
+      ...(page.section ? { section: page.section } : {}),
+      offset: page.offset ?? 0,
+    }));
     return { results, didYouMean: result.data.didYouMean ?? [] };
   } catch (error) {
     if (error instanceof ForbiddenError && error.code === AppErrorCode.permissionDenied)

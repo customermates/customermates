@@ -57,7 +57,7 @@ describeDatabase("Workspace Wiki search on PostgreSQL", () => {
   };
   const search = (query: string, tenant = user, page = 1) =>
     runWithTenant(tenant, () =>
-      new SearchWikiPagesInteractor(new PrismaWikiPageRepo()).invoke({ query, page, pageSize: 5 }),
+      new SearchWikiPagesInteractor(new PrismaWikiPageRepo(), "stored").invoke({ query, page, pageSize: 5 }),
     );
   const titles = async (query: string) => {
     const result = await search(query);

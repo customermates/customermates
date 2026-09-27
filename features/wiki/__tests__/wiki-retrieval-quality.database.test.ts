@@ -564,7 +564,7 @@ describeDatabase("Workspace Wiki retrieval quality", () => {
     const misses: string[] = [];
     for (const labelled of WIKI_RETRIEVAL_QUERIES) {
       const result = await runWithTenant(user, () =>
-        new SearchWikiPagesInteractor(new PrismaWikiPageRepo()).invoke({
+        new SearchWikiPagesInteractor(new PrismaWikiPageRepo(), "stored").invoke({
           query: labelled.query,
           page: 1,
           pageSize: 5,
