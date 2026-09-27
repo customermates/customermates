@@ -61,7 +61,10 @@ describe("system prompt", () => {
     expect(prompt).toContain("Put all external provenance only in sources");
     expect(prompt).toContain("never answer it with a guess");
     expect(prompt).toContain("explain that in the conversation and create nothing");
-    expect(prompt).not.toMatch(/exactly five|company_overview|Related pages|—/u);
+    expect(prompt).toContain(
+      "read up to three useful same-domain links returned from that homepage only when they add evidence",
+    );
+    expect(prompt).not.toMatch(/exactly five|company_overview|Related pages|when three are available|—/u);
     expect(prompt).not.toContain("Use web_search");
   });
 
