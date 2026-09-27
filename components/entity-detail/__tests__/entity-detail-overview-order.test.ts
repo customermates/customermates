@@ -1,8 +1,9 @@
+import type * as EntityDetailOverviewModule from "../entity-detail-overview";
+import type * as EntityDetailPersonalizationModule from "../entity-detail-personalization";
 import type { ComponentType, ReactNode } from "react";
 import type { Root } from "react-dom/client";
 import type { CustomColumnDto } from "@/features/custom-column/custom-column.schema";
 import type { EntityDetailPersonalizationConfig } from "../entity-detail-personalization";
-import { resetP13nPersistenceForTests } from "@/components/shared/p13n-persistence-channel";
 import type { P13nEntry } from "@/features/p13n/prisma-p13n.repository";
 
 import { act, createElement } from "react";
@@ -24,9 +25,6 @@ vi.mock("@/components/data-view/custom-columns/custom-field-value-input", () => 
     createElement("input", { "data-custom-index": index, "data-column-id": column.id, defaultValue: column.label }),
 }));
 
-import { EntityDetailOverview } from "../entity-detail-overview";
-import { EntityDetailPersonalizationProvider, useEntityDetailPersonalization } from "../entity-detail-personalization";
-
 const firstId = "10000000-0000-4000-8000-000000000001";
 const secondId = "10000000-0000-4000-8000-000000000002";
 const columns: CustomColumnDto[] = [firstId, secondId].map((id, index) => ({
@@ -39,13 +37,13 @@ const fields = ["name", "createdAt", "updatedAt"].map((id) => ({
   id,
   content: createElement("input", { "data-standard-id": id, defaultValue: id }),
 }));
-const TestProvider = EntityDetailPersonalizationProvider as ComponentType<{
+type TestProviderProps = {
   children?: ReactNode;
   config: EntityDetailPersonalizationConfig;
   customColumnIds: string[];
   initial: P13nEntry;
   persistenceScope: string;
-}>;
+};
 let root: Root | undefined;
 
 function Controls() {
@@ -56,9 +54,19 @@ function Controls() {
   });
 }
 
-beforeEach(() => {
+let EntityDetailOverview: typeof EntityDetailOverviewModule.EntityDetailOverview;
+let TestProvider: ComponentType<TestProviderProps>;
+let EntityDetailPersonalizationProvider: typeof EntityDetailPersonalizationModule.EntityDetailPersonalizationProvider;
+let useEntityDetailPersonalization: typeof EntityDetailPersonalizationModule.useEntityDetailPersonalization;
+
+beforeEach(async () => {
   (globalThis as { IS_REACT_ACT_ENVIRONMENT?: boolean }).IS_REACT_ACT_ENVIRONMENT = true;
-  resetP13nPersistenceForTests();
+  vi.resetModules();
+  ({ EntityDetailOverview } = await import("../entity-detail-overview"));
+  ({ EntityDetailPersonalizationProvider, useEntityDetailPersonalization } = await import(
+    "../entity-detail-personalization"
+  ));
+  TestProvider = EntityDetailPersonalizationProvider as ComponentType<TestProviderProps>;
   upsert.mockReset().mockResolvedValue({ ok: true, data: {} });
 });
 

@@ -1,3 +1,4 @@
+import type * as UseP13nColumnWidthsModule from "../use-p13n-column-widths";
 import type { Root } from "react-dom/client";
 
 import { act, createElement } from "react";
@@ -17,9 +18,6 @@ vi.mock("@/core/errors/report-application-error", () => ({
 vi.mock("@/core/utils/toast-zod-error-tree", () => ({
   toastZodErrorTree: mocks.toast,
 }));
-
-import { resetP13nPersistenceForTests } from "../p13n-persistence-channel";
-import { useP13nColumnWidths } from "../use-p13n-column-widths";
 
 const roots: Root[] = [];
 const containers: HTMLElement[] = [];
@@ -74,7 +72,11 @@ async function flushPersistence() {
   });
 }
 
-beforeEach(() => {
+let useP13nColumnWidths: typeof UseP13nColumnWidthsModule.useP13nColumnWidths;
+
+beforeEach(async () => {
+  vi.resetModules();
+  ({ useP13nColumnWidths } = await import("../use-p13n-column-widths"));
   (globalThis as { IS_REACT_ACT_ENVIRONMENT?: boolean }).IS_REACT_ACT_ENVIRONMENT = true;
   mocks.upsert.mockResolvedValue({
     ok: true,
@@ -89,7 +91,6 @@ afterEach(async () => {
     await Promise.resolve();
   });
   for (const container of containers.splice(0)) container.remove();
-  resetP13nPersistenceForTests();
   vi.clearAllMocks();
 });
 

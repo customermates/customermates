@@ -1,8 +1,9 @@
+import type * as EntityDetailPersonalizationModule from "../entity-detail-personalization";
+import type * as EntityDetailFieldsModule from "../entity-detail-fields";
 import type { Root } from "react-dom/client";
 import type { ComponentType, ReactNode } from "react";
 import type { CustomColumnDto } from "@/features/custom-column/custom-column.schema";
 import type { EntityDetailPersonalizationConfig } from "../entity-detail-personalization";
-import { resetP13nPersistenceForTests } from "@/components/shared/p13n-persistence-channel";
 import type { P13nEntry } from "@/features/p13n/prisma-p13n.repository";
 
 import { act, createElement } from "react";
@@ -31,27 +32,25 @@ vi.mock("next-intl", () => ({
     values?.section ? `${key}:${values.section}` : key,
 }));
 
-import { EntityDetailPersonalizationProvider, useEntityDetailPersonalization } from "../entity-detail-personalization";
 import {
   reconcileAvailableIds,
   reconcileColumnOrder,
   resolveOrderedCustomColumns,
   resolveDetailFieldOrder,
 } from "../entity-detail-personalization.utils";
-import { EntityDetailFieldDragHandle, EntityDetailFields } from "../entity-detail-fields";
 import { FormControlRow } from "@/components/forms/form-control-row";
 
 const firstId = "10000000-0000-4000-8000-000000000001";
 const secondId = "10000000-0000-4000-8000-000000000002";
 const thirdId = "10000000-0000-4000-8000-000000000003";
 const roots = new Set<Root>();
-const TestProvider = EntityDetailPersonalizationProvider as ComponentType<{
+type TestProviderProps = {
   children?: ReactNode;
   config: EntityDetailPersonalizationConfig;
   customColumnIds?: string[];
   initial?: P13nEntry | null;
   persistenceScope: string;
-}>;
+};
 const TestControlRow = FormControlRow as ComponentType<{ children?: ReactNode; startAddon?: ReactNode }>;
 
 describe("entity detail drag handle placement", () => {
@@ -162,9 +161,20 @@ function mountNode(node: ReactNode) {
   return { container, root };
 }
 
-beforeEach(() => {
+let TestProvider: ComponentType<TestProviderProps>;
+let EntityDetailPersonalizationProvider: typeof EntityDetailPersonalizationModule.EntityDetailPersonalizationProvider;
+let useEntityDetailPersonalization: typeof EntityDetailPersonalizationModule.useEntityDetailPersonalization;
+let EntityDetailFieldDragHandle: typeof EntityDetailFieldsModule.EntityDetailFieldDragHandle;
+let EntityDetailFields: typeof EntityDetailFieldsModule.EntityDetailFields;
+
+beforeEach(async () => {
   (globalThis as { IS_REACT_ACT_ENVIRONMENT?: boolean }).IS_REACT_ACT_ENVIRONMENT = true;
-  resetP13nPersistenceForTests();
+  vi.resetModules();
+  ({ EntityDetailPersonalizationProvider, useEntityDetailPersonalization } = await import(
+    "../entity-detail-personalization"
+  ));
+  TestProvider = EntityDetailPersonalizationProvider as ComponentType<TestProviderProps>;
+  ({ EntityDetailFieldDragHandle, EntityDetailFields } = await import("../entity-detail-fields"));
   upsertP13nAction.mockReset();
   upsertP13nAction.mockResolvedValue({ ok: true, data: {} });
   customColumnModalStore.initialize.mockReset();

@@ -1,8 +1,9 @@
+import type * as EntityDetailPersonalizationModule from "../entity-detail-personalization";
+import type * as EntityDetailOverviewModule from "../entity-detail-overview";
 import type { Root } from "react-dom/client";
 import type { ComponentType, ReactNode } from "react";
 import type { CustomColumnDto } from "@/features/custom-column/custom-column.schema";
 import type { EntityDetailPersonalizationConfig } from "../entity-detail-personalization";
-import { resetP13nPersistenceForTests } from "@/components/shared/p13n-persistence-channel";
 
 import { act, createElement, useState } from "react";
 import { createRoot } from "react-dom/client";
@@ -37,17 +38,14 @@ vi.mock("next-intl", () => ({
   useTranslations: () => (key: string) => key,
 }));
 
-import { EntityDetailPersonalizationProvider, useEntityDetailCustomization } from "../entity-detail-personalization";
-import { EntityDetailOverview } from "../entity-detail-overview";
-
 const columnId = "10000000-0000-4000-8000-000000000001";
 const roots = new Set<Root>();
-const TestProvider = EntityDetailPersonalizationProvider as ComponentType<{
+type TestProviderProps = {
   children?: ReactNode;
   config: EntityDetailPersonalizationConfig;
   customColumnIds?: string[];
   persistenceScope: string;
-}>;
+};
 const oneColumn: CustomColumnDto[] = [
   {
     id: columnId,
@@ -132,9 +130,19 @@ function mount(node: ReactNode) {
   return { container, root };
 }
 
-beforeEach(() => {
+let TestProvider: ComponentType<TestProviderProps>;
+let EntityDetailPersonalizationProvider: typeof EntityDetailPersonalizationModule.EntityDetailPersonalizationProvider;
+let useEntityDetailCustomization: typeof EntityDetailPersonalizationModule.useEntityDetailCustomization;
+let EntityDetailOverview: typeof EntityDetailOverviewModule.EntityDetailOverview;
+
+beforeEach(async () => {
   (globalThis as { IS_REACT_ACT_ENVIRONMENT?: boolean }).IS_REACT_ACT_ENVIRONMENT = true;
-  resetP13nPersistenceForTests();
+  vi.resetModules();
+  ({ EntityDetailPersonalizationProvider, useEntityDetailCustomization } = await import(
+    "../entity-detail-personalization"
+  ));
+  TestProvider = EntityDetailPersonalizationProvider as ComponentType<TestProviderProps>;
+  ({ EntityDetailOverview } = await import("../entity-detail-overview"));
   upsertP13nAction.mockReset();
   upsertP13nAction.mockResolvedValue({ ok: true, data: {} });
   customColumnModalStore.initialize.mockReset();

@@ -1,5 +1,3 @@
-"use client";
-
 import type { UpsertP13nData } from "@/features/p13n/upsert-p13n.interactor";
 
 import { upsertP13nAction } from "@/app/actions";
@@ -62,9 +60,4 @@ export function scheduleP13nPersistence(channelKey: string, snapshot: UpsertP13n
     return;
   }
   channel.timer = window.setTimeout(() => flushP13nPersistence(channelKey), delayMs);
-}
-
-export function resetP13nPersistenceForTests() {
-  for (const channel of persistenceChannels.values()) if (channel.timer !== null) window.clearTimeout(channel.timer);
-  persistenceChannels.clear();
 }
