@@ -5,7 +5,7 @@ import { z } from "zod";
 import { GetSocialPostSchema } from "@/ee/messaging/posts/get-social-post.interactor";
 import { ListSocialPostsSchema } from "@/ee/messaging/posts/list-social-posts.interactor";
 import { SocialPostSchema, SocialPostListSchema } from "@/ee/messaging/posts/social-posts.schema";
-import { CommonApiResponses } from "@/core/api/interactor-handler";
+import { CommonApiResponses, MessagingProviderApiResponses, NotFoundApiResponse } from "@/core/api/interactor-handler";
 
 const EXAMPLE_CONNECTED_ACCOUNT_ID = "00000000-0000-4000-8000-000000000001";
 const EXAMPLE_PERSON_ID = "ACoAAExampleProviderProfileId";
@@ -88,5 +88,7 @@ export const getSocialPostsOperation: ZodOpenApiOperationObject = {
       },
     },
     ...CommonApiResponses,
+    ...NotFoundApiResponse,
+    ...MessagingProviderApiResponses,
   },
 };

@@ -194,14 +194,14 @@ const ManageWidgetsSchema = z.object({
 
 const ManageWidgetsOutputSchema = z
   .looseObject({
-    items: z.array(z.looseObject({ id: z.string() })).optional(),
+    items: z.array(z.looseObject({ id: z.string(), error: z.string().optional() })).optional(),
     id: z.string().optional(),
     kind: z.string().optional(),
     name: z.string().optional(),
     deleted: z.literal(true).optional(),
   })
   .describe(
-    "action list and get return items or the widget fields; create and update return id, kind and name; delete returns deleted and id.",
+    "action list and get return items or the widget fields; get returns { id, error } for an id that was not found; create and update return id, kind and name; delete returns deleted and id.",
   );
 
 export const manageWidgetsTool = {
@@ -210,7 +210,7 @@ export const manageWidgetsTool = {
   description:
     "Use this when the user asks to see, create, change or delete their dashboard widgets. A widget you create stays on their dashboard, so never create or update one to work out an answer; answer data questions with list_records filters, sums or groupBy instead. " +
     "action list returns { id, name, kind } entries. " +
-    "action get returns full configuration; chart widgets include computed data points, while activityTimeline widgets expose timelineFilters for reuse with get_activities. " +
+    "action get returns full configuration; chart widgets include computed data points, while activityTimeline widgets expose timelineFilters for reuse with get_activities; an id that was not found returns { id, error }, so inspect every item. " +
     "Each chart data point has value and either { labelKind: literal, label } or { labelKind: system, systemLabelKey }. " +
     "For chart creation omit kind and provide name, entityType, displayType, groupByType, aggregationType. " +
     "For activityTimeline creation provide kind, name, and optional timelineFilters/showFilters. " +
@@ -246,10 +246,11 @@ export const manageWidgetsTool = {
       const results = await Promise.all(
         parsed.data.ids.map(async (id) => {
           const result = await getGetWidgetByIdInteractor().invoke({ id });
-          if (!result.ok) return { error: nestedValidationErrorText(result.error) };
+          if (!result.ok) return { id, error: nestedValidationErrorText(result.error) };
           const widget = result.data;
           if (!widget) {
             return {
+              id,
               error: await nestedCustomErrorText(CustomErrorCode.widgetNotFound),
             };
           }

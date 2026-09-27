@@ -34,6 +34,7 @@ vi.mock("next-intl", () => ({
 
 vi.mock("@/components/forms/form-context", () => ({
   useAppForm: () => ({
+    getError: () => undefined,
     getValue: () => testContext.value,
     isDisabled: testContext.isLoading || testContext.isReadOnly,
     isLoading: testContext.isLoading,
@@ -63,6 +64,7 @@ vi.mock("@/hooks/use-media-query", () => ({
 }));
 
 vi.mock("@/components/ui/calendar", () => ({
+  focusCalendarDay: vi.fn(),
   Calendar: (props: CalendarProps) => {
     testContext.calendarProps = props;
     return null;

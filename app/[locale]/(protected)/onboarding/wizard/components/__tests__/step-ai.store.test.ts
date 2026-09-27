@@ -16,8 +16,10 @@ function makeStore(): AiConnectionStore {
   return new AiConnectionStore(rootStore);
 }
 
+const KEY_EXPIRES_AT = new Date("2027-09-24T10:00:00.000Z");
+
 function successfulKey(id: string, key: string) {
-  return { ok: true, data: { id, key } };
+  return { ok: true, data: { id, key, expiresAt: KEY_EXPIRES_AT } };
 }
 
 beforeEach(() => {
@@ -122,8 +124,9 @@ describe("AiConnectionStore API-key lifecycle", () => {
       name: "Codex",
       expiresIn: 365 * 24 * 60 * 60,
     });
-    expect(store.credential).toEqual({ id: "key-id", key: "secret-key" });
+    expect(store.credential).toEqual({ id: "key-id", key: "secret-key", expiresAt: KEY_EXPIRES_AT });
     expect(store.apiKey).toBe("secret-key");
+    expect(store.apiKeyExpiresAt).toBe(KEY_EXPIRES_AT);
     expect(store.isCreating).toBe(false);
     expect(store.hasError).toBe(false);
     expect(store.canFinish).toBe(true);

@@ -1,4 +1,5 @@
 import { describe, expect, it } from "vitest";
+import { EntityType } from "@/generated/prisma";
 
 import { readFileSync } from "node:fs";
 import { join } from "node:path";
@@ -7,6 +8,7 @@ import {
   FORM_SCOPES,
   NAV_KEYS,
   SCOPES_WITHOUT_FILTER,
+  SCOPES_WITHOUT_SEARCH,
   TOOLBAR_SCOPES_WITH_ADD,
   TOOLBAR_SCOPES_WITHOUT_ADD,
   TRANSFERABLE_SCOPES,
@@ -21,8 +23,9 @@ const ENFORCED = true;
 
 const DOCS_ID_PATTERN = /`#([a-z][a-z0-9]*(?:-[a-z0-9]+)+)`/g;
 const LITERAL_ID_PATTERN =
-  /\b(?:id|inputId)=["']([a-z][a-z0-9]*(?:-[a-z0-9]+)+)["']|\b(?:composerId|fallbackFocusId|usageId):\s*["']([a-z][a-z0-9]*(?:-[a-z0-9]+)+)["']/g;
+  /\b(?:id|inputId)=["']([a-z][a-z0-9]*(?:-[a-z0-9]+)+)["']|\b(?:composerId|fallbackFocusId|usageId|anchorId):\s*["']([a-z][a-z0-9]*(?:-[a-z0-9]+)+)["']/g;
 const ANCHOR_SCOPE_PATTERN = /anchorScope=["']([a-z0-9-]+)["']/g;
+const TERMINOLOGY_ID_TEMPLATE = "id={`terminology-${entityType}`}";
 const DOCS_LOCALES = CONTENT_LOCALES;
 
 const RESERVED_LITERAL_PREFIXES = [
@@ -64,10 +67,12 @@ function codeIds(): Set<string> {
   for (const file of sourceFiles()) {
     const text = readFileSync(file, "utf8");
     for (const match of text.matchAll(LITERAL_ID_PATTERN)) ids.add(match[1] ?? match[2]);
+    if (text.includes(TERMINOLOGY_ID_TEMPLATE))
+      for (const entityType of Object.values(EntityType)) ids.add(`terminology-${entityType}`);
     for (const match of text.matchAll(ANCHOR_SCOPE_PATTERN)) {
       const scope = match[1];
       if (TOOLBAR_SCOPES_WITH_ADD.includes(scope) || TOOLBAR_SCOPES_WITHOUT_ADD.includes(scope)) {
-        ids.add(`${scope}-search`);
+        if (!SCOPES_WITHOUT_SEARCH.has(scope)) ids.add(`${scope}-search`);
         if (!SCOPES_WITHOUT_FILTER.has(scope)) ids.add(`${scope}-filter`);
         ids.add(`${scope}-display-options`);
         ids.add(`${scope}-layout-table`);
@@ -88,7 +93,7 @@ function codeIds(): Set<string> {
 function toolbarSuffixes(scope: string, hasAdd: boolean): string[] {
   return [
     ...(hasAdd ? ["-add"] : []),
-    "-search",
+    ...(SCOPES_WITHOUT_SEARCH.has(scope) ? [] : ["-search"]),
     ...(SCOPES_WITHOUT_FILTER.has(scope) ? [] : ["-filter"]),
     "-display-options",
     "-layout-table",

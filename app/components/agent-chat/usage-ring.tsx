@@ -6,6 +6,7 @@ import { useTranslations } from "next-intl";
 
 import { useAgentChatStore, useAgentChatUiTargets } from "./agent-chat-store-context";
 import { useHydratedIntlStore } from "@/core/stores/use-hydrated-intl-store";
+import { assistantSurfaceProps } from "@/components/modal/assistant-surface";
 import { Popover, PopoverContent, PopoverTrigger } from "@/components/ui/popover";
 import { OVERLAY_TOPMOST_LAYER_CLASS } from "@/components/ui/overlay-contract";
 import { cn } from "@/core/utils/cn";
@@ -49,6 +50,7 @@ export const UsageRing = observer(function UsageRing() {
       </PopoverTrigger>
 
       <PopoverContent
+        {...assistantSurfaceProps()}
         align="end"
         className={cn("w-64 space-y-1 p-3 text-xs text-muted-foreground", OVERLAY_TOPMOST_LAYER_CLASS)}
         side="top"

@@ -29,6 +29,7 @@ export const WidgetCard = observer(({ widget }: Props) => {
           name: widget.name,
         })}
         className="pointer-events-none absolute inset-0 z-20 rounded-xl opacity-0 outline-none focus-visible:opacity-100 focus-visible:ring-[3px] focus-visible:ring-inset focus-visible:ring-ring/50"
+        data-slot="widget-card-open"
         type="button"
         onClick={() => runUserAction(() => openWidgetEditor(widgetModalStore, widget.id))}
       />

@@ -1,18 +1,9 @@
-import rawManifest from "@/generated/raw-docs-manifest.json";
-
 import { env } from "@/env";
 import { DOC_NAV_GROUPS } from "@/features/docs/docs-nav";
+import { getDocsPageRaw } from "@/features/mcp-tools/docs.mcp-tools";
 import { DEFAULT_LOCALE } from "@/i18n/locale-registry";
 
-export const dynamic = "force-static";
-
-type ManifestPage = { title: string; description: string; content: string };
-type Manifest = Record<string, Record<string, Record<string, ManifestPage>>>;
-
-const manifest = rawManifest as Manifest;
-
 export function GET() {
-  const pages = manifest.docs[DEFAULT_LOCALE];
   const sections: string[] = [
     "# Customermates documentation (full text)",
     "",
@@ -21,20 +12,9 @@ export function GET() {
 
   for (const group of DOC_NAV_GROUPS) {
     for (const item of group.items) {
-      const slug = item.slug || "intro-page";
-      const page = pages[slug];
+      const page = getDocsPageRaw(item.slug || "intro-page", DEFAULT_LOCALE, "docs");
       if (!page) continue;
-      const body = page.content.replace(/^---\n[\s\S]*?\n---\n?/, "").trim();
-      sections.push(
-        "",
-        "---",
-        "",
-        `# ${page.title}`,
-        "",
-        `Source: ${env.BASE_URL}/${DEFAULT_LOCALE}/docs/${slug}`,
-        "",
-        body,
-      );
+      sections.push("", "---", "", `# ${page.title}`, "", `Source: ${page.url}`, "", page.markdown);
     }
   }
 

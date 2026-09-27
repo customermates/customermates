@@ -156,6 +156,14 @@ describe("DashboardPageView", () => {
     expect(renderToStaticMarkup(topBar as ReactElement)).toContain('id="dashboard-add-widget"');
   });
 
+  it("keeps the compact Add widget action named when its visible label is hidden", () => {
+    renderDashboard("ready", { withItem: true });
+    const topBar = renderToStaticMarkup(latestTopBar() as ReactElement);
+
+    expect(topBar).toContain('aria-label="Dashboard.addCard"');
+    expect(topBar).toContain('<span class="hidden sm:inline">Dashboard.addCard</span>');
+  });
+
   it("omits both add actions without widget permissions", () => {
     const html = renderDashboard("ready", { canAdd: false });
 

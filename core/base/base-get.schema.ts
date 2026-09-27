@@ -7,6 +7,7 @@ import { FilterOperatorKey, ViewMode } from "./base-query-builder";
 import { normalizeFilterInput } from "./filter-compat";
 
 import { CustomErrorCode } from "@/core/validation/validation.types";
+import { zx } from "@/core/validation/validation.utils";
 import { CustomColumnDtoSchema } from "@/features/custom-column/custom-column.schema";
 import { GROUP_PAGE_SIZE_MAX, GroupPageRequestSchema, GroupingSchema } from "@/core/base/grouping/grouping.schema";
 
@@ -27,7 +28,7 @@ export const FilterSchema = z.preprocess(
           z.literal(FilterOperatorKey.lt).meta({ title: "lt" }),
           z.literal(FilterOperatorKey.lte).meta({ title: "lte" }),
         ]),
-        value: z.string(),
+        value: zx.nulFreeText(),
       })
       .meta({ title: "Single value filter" }),
     z
@@ -38,7 +39,7 @@ export const FilterSchema = z.preprocess(
           z.literal(FilterOperatorKey.notIn).meta({ title: "notIn" }),
           z.literal(FilterOperatorKey.between).meta({ title: "between" }),
         ]),
-        value: z.array(z.string()),
+        value: z.array(zx.nulFreeText()),
       })
       .superRefine((data, ctx) => {
         if (data.operator === FilterOperatorKey.between && data.value.length !== 2) {
@@ -131,7 +132,7 @@ export type SortableFieldDescriptor = Data<typeof SortableFieldDescriptorSchema>
 
 export const GetQueryParamsApiSchema = z.object({
   filters: z.array(FilterSchema).max(50).optional(),
-  searchTerm: z.string().max(200).optional(),
+  searchTerm: zx.nulFreeText().max(200).optional(),
   sortDescriptor: SortDescriptorSchema.optional(),
   pagination: PaginationRequestSchema.optional(),
   groupedPagination: GroupedPaginationRequestSchema.optional(),

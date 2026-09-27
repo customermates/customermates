@@ -7,6 +7,8 @@ import { UndoRedo } from "@tiptap/extensions";
 import { EditorContent, useEditor } from "@tiptap/react";
 import { useEffect, useRef } from "react";
 
+import { keepOpenForAssistantSurface } from "@/components/modal/assistant-surface";
+
 import { isAgentContextSlashCommand } from "./agent-context-shortcut";
 
 type Props = {
@@ -77,6 +79,10 @@ export function AgentComposerTextInput({
         const text = editorText(view.state.doc);
         const { from, to } = view.state.selection;
         const isComposing = event.isComposing || view.composing;
+        if (event.key === "Escape" && !isComposing) {
+          keepOpenForAssistantSurface(event);
+          return true;
+        }
         if (
           event.key === "Backspace" &&
           !isComposing &&
@@ -139,6 +145,11 @@ export function AgentComposerTextInput({
     <div
       className="group max-h-40 min-h-9 min-w-0 overflow-y-auto px-1 py-1.5 text-sm leading-5"
       data-testid="agent-composer-input-line"
+      role="presentation"
+      onMouseDown={(event) => {
+        if (event.button !== 0 || !(event.target instanceof Element) || event.target.closest("button")) return;
+        if (!event.target.closest(".ProseMirror")) event.preventDefault();
+      }}
       onPointerDown={(event) => {
         if (event.button !== 0 || !(event.target instanceof Element) || event.target.closest("button")) return;
         onInputPointerDown?.();

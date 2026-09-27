@@ -68,7 +68,7 @@ export const CompanySettingsForm = observer(({ currency, dealWeightingColumnId }
     >
       <div className="animate-page-result-in flex w-full max-w-3xl flex-col gap-6 motion-reduce:animate-none">
         <div className="flex flex-col gap-1.5">
-          <FormAutocompleteCurrency required id="currency" />
+          <FormAutocompleteCurrency required id="currency" inputId="company-settings-currency" />
 
           <p className="text-subdued text-xs">
             {t("CompanySettings.currencyDescription", {
@@ -82,7 +82,7 @@ export const CompanySettingsForm = observer(({ currency, dealWeightingColumnId }
 
         <div className="border-t border-border" />
 
-        <section className="flex flex-col gap-1">
+        <section className="flex flex-col gap-1" id="company-settings-data-model">
           <h2 className="text-sm font-medium">{t("CompanySettings.dataModelTitle")}</h2>
 
           <TerminologyRelationshipDiagram

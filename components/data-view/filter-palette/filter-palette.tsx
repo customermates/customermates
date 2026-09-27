@@ -7,6 +7,7 @@ import type { KeyboardEvent } from "react";
 import { ChevronLeftIcon } from "lucide-react";
 import { observer } from "mobx-react-lite";
 import { useTranslations } from "next-intl";
+import { useEffect, useRef } from "react";
 
 import { AppForm } from "@/components/forms/form-context";
 import { Button } from "@/components/ui/button";
@@ -33,6 +34,8 @@ type Props = {
 export const FilterPalette = observer(function FilterPalette({ store }: Props) {
   const t = useTranslations();
   const { filterPaletteStore: palette } = useRootStore();
+  const paletteRef = useRef<HTMLDivElement>(null);
+  const usedCommandRef = useRef(true);
 
   const page = palette.page;
   const draft = palette.form.draft;
@@ -45,6 +48,15 @@ export const FilterPalette = observer(function FilterPalette({ store }: Props) {
   const usesCommand = isRoot || pageKind === "select" || pageKind === "operatorOnly" || showDateRows;
   const draftFilter = { field, operator, value: draft.value } as Filter;
   const isValidFilter = !isRoot && hasValidFilterConfiguration(draftFilter);
+
+  useEffect(() => {
+    const cameFromValuePage = !usedCommandRef.current;
+    usedCommandRef.current = usesCommand;
+    if (usesCommand && !cameFromValuePage) return;
+
+    const selector = usesCommand ? "[cmdk-input]" : '[id="draft.value"]';
+    paletteRef.current?.querySelector<HTMLElement>(selector)?.focus({ preventScroll: true });
+  }, [page, usesCommand]);
 
   function handleKeyDownCapture(event: KeyboardEvent<HTMLDivElement>) {
     const target = event.target as HTMLElement;
@@ -132,7 +144,7 @@ export const FilterPalette = observer(function FilterPalette({ store }: Props) {
 
   return (
     <AppForm store={palette}>
-      <div className="flex min-h-0 flex-col" onKeyDownCapture={handleKeyDownCapture}>
+      <div ref={paletteRef} className="flex min-h-0 flex-col" onKeyDownCapture={handleKeyDownCapture}>
         {!isRoot && (
           <div className="flex shrink-0 items-center gap-1.5 px-2 pt-2 pb-1">
             <Button

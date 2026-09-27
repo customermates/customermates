@@ -48,6 +48,10 @@ vi.mock("@/components/forms/form-context", () => ({
 
 vi.mock("@/components/forms/use-form-field", () => ({
   useFormFieldErrors: () => ({ hasError: false }),
+  useFormFieldItemErrors: (_id: string, itemCount: number) => ({
+    hasError: false,
+    itemErrors: Array.from({ length: itemCount }, () => false),
+  }),
   useResolvedFieldLabel: (_id: string, label?: string | null) => label,
 }));
 

@@ -1,10 +1,5 @@
-import { createOpenAPI } from "fumadocs-openapi/server";
 import { createAPIPage } from "fumadocs-openapi/ui";
 
-import { env } from "@/env";
+import { docsOpenApi } from "./openapi-document";
 
-const openapi = createOpenAPI({
-  input: [`${env.BASE_URL}/v1/openapi.json`],
-});
-
-export const APIPage = createAPIPage(openapi);
+export const APIPage = createAPIPage(docsOpenApi);

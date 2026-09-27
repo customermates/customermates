@@ -32,9 +32,12 @@ type AuthResult = { ok: true; user: AuthUser } | { ok: false; error: CustomError
 
 type Session = NonNullable<Awaited<ReturnType<typeof auth.api.getSession>>>;
 export type InteractiveSession = Session;
-type ApiKeyExpirationError = CustomErrorCode.apiKeyMinExpiration | CustomErrorCode.apiKeyMaxExpiration;
+type CreateApiKeyError =
+  | CustomErrorCode.apiKeyMinExpiration
+  | CustomErrorCode.apiKeyMaxExpiration
+  | CustomErrorCode.apiKeyNameLength;
 type CreatedApiKey = Awaited<ReturnType<typeof auth.api.createApiKey>>;
-type CreateApiKeyResult = { ok: true; data: CreatedApiKey } | { ok: false; error: ApiKeyExpirationError };
+type CreateApiKeyResult = { ok: true; data: CreatedApiKey } | { ok: false; error: CreateApiKeyError };
 
 type McpConsentValue = {
   clientId: string;
@@ -279,6 +282,8 @@ export class AuthService {
         return { ok: false, error: CustomErrorCode.apiKeyMinExpiration };
       if (error instanceof APIError && error.body?.code === API_KEY_ERROR_CODES.EXPIRES_IN_IS_TOO_LARGE.code)
         return { ok: false, error: CustomErrorCode.apiKeyMaxExpiration };
+      if (error instanceof APIError && error.body?.code === API_KEY_ERROR_CODES.INVALID_NAME_LENGTH.code)
+        return { ok: false, error: CustomErrorCode.apiKeyNameLength };
 
       throw error;
     }
@@ -355,6 +360,8 @@ export class AuthService {
     const ERROR_MAP: Record<string, CustomErrorCode> = {
       EMAIL_NOT_VERIFIED: CustomErrorCode.emailNotVerified,
       INVALID_EMAIL_OR_PASSWORD: CustomErrorCode.invalidCredentials,
+      PASSWORD_TOO_SHORT: CustomErrorCode.passwordInvalid,
+      PASSWORD_TOO_LONG: CustomErrorCode.passwordInvalid,
       USER_NOT_FOUND: CustomErrorCode.invalidCredentials,
       USER_ALREADY_EXISTS_USE_ANOTHER_EMAIL: CustomErrorCode.emailAlreadyExists,
       GENERIC: CustomErrorCode.generic,

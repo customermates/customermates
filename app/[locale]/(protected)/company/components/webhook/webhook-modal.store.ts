@@ -69,10 +69,12 @@ export class WebhookModalStore extends BaseModalStore<WebhookFormData> {
     this.setIsLoading(true);
 
     try {
-      const { headers, ...form } = toJS(this.form);
+      const { headers, secret, bodyTemplate, ...form } = toJS(this.form);
       const parsed = parseWebhookHeaderLines(headers ?? "");
       const res = await upsertWebhookAction({
         ...form,
+        secret: secret === "" && !this.savedState.secret ? undefined : secret,
+        bodyTemplate: !bodyTemplate?.trim() && !this.savedState.bodyTemplate ? undefined : bodyTemplate,
         headers: Object.keys(parsed).length > 0 ? parsed : null,
       });
 

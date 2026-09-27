@@ -149,3 +149,42 @@ describe("view mode survives the refresh that races its own persistence", () => 
     expect(store.groupingResult?.columnId).toBe(GROUPING_COLUMN_ID);
   });
 });
+
+describe("board group sums after a regroup in table layout", () => {
+  beforeEach(() => {
+    vi.useFakeTimers();
+    saveDataViewStateAction.mockReset();
+    saveDataViewStateAction.mockResolvedValue({ ok: true, data: { viewKey: ALL_VIEW_KEY } });
+  });
+
+  afterEach(() => {
+    vi.useRealTimers();
+  });
+
+  it("refetches the groups with their value sums when the layout switches back to board", async () => {
+    const store = hydrated();
+
+    store.setViewOptions({ grouping: { field: GROUPING_COLUMN_ID } });
+    await vi.advanceTimersByTimeAsync(0);
+
+    expect(store.requestedParams.at(-1)?.groupPage?.includeValueSums).toBe(false);
+
+    store.requestedParams = [];
+    store.setViewOptions({ viewMode: ViewMode.card });
+    await vi.advanceTimersByTimeAsync(0);
+
+    expect(store.requestedParams).toHaveLength(1);
+    expect(store.requestedParams[0]?.viewMode).toBe(ViewMode.card);
+    expect(store.requestedParams[0]?.groupPage?.includeValueSums).toBe(true);
+  });
+
+  it("does not refetch when the layout switches to table or to board without a grouping", async () => {
+    const store = hydrated();
+
+    store.setViewOptions({ viewMode: ViewMode.card });
+    store.setViewOptions({ viewMode: ViewMode.table });
+    await vi.advanceTimersByTimeAsync(0);
+
+    expect(store.requestedParams).toHaveLength(0);
+  });
+});

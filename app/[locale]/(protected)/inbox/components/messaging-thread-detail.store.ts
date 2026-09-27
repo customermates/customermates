@@ -5,6 +5,7 @@ import type { AccountOwnerDto, ThreadFolderContext } from "@/ee/messaging/inbox/
 import type { MessagingMessageDto } from "@/ee/messaging/inbox/inbox.schema";
 
 import { action, makeObservable, observable, runInAction } from "mobx";
+import { Action, Resource } from "@/generated/prisma";
 
 import { getMessagingThreadAction, updateThreadAction, resyncThreadAction, moveEmailThreadAction } from "../actions";
 import { MESSAGING_RATE_LIMITS_DOCS_PATH } from "./lazy-media";
@@ -212,7 +213,13 @@ export class MessagingThreadDetailStore extends BaseStore {
 
   loadOlderMessages = async (): Promise<void> => {
     const thread = this.thread;
-    if (!thread || this.rootStore.appMode === "demo" || this.loadingOlder || this.olderSyncAttempted.has(thread.id))
+    if (
+      !thread ||
+      this.rootStore.appMode === "demo" ||
+      !this.rootStore.userStore.can(Resource.inboxMessages, Action.update) ||
+      this.loadingOlder ||
+      this.olderSyncAttempted.has(thread.id)
+    )
       return;
 
     this.olderSyncAttempted.add(thread.id);

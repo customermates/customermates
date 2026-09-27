@@ -119,4 +119,36 @@ describe("AppModalAction", () => {
     expect(external).toContain('target="_blank"');
     expect(external).toContain('rel="noopener noreferrer"');
   });
+
+  it("renders the anchor id the assistant highlights, and no DOM id from the React key", () => {
+    const anchored = renderAction({
+      id: "resync-account",
+      anchorId: "connected-account-resync",
+      icon: RefreshCw,
+      label: "Resync",
+      onClick: vi.fn(),
+    });
+    const busy = renderAction({
+      id: "resend-webhook-delivery",
+      anchorId: "webhook-delivery-modal-resend",
+      icon: RefreshCw,
+      label: "Resend",
+      busy: true,
+      onClick: vi.fn(),
+    });
+    const link = renderAction({
+      id: "open-inbox",
+      anchorId: "sample-open-link",
+      icon: ExternalLink,
+      label: "Open in Inbox",
+      href: "/inbox",
+    });
+    const plain = renderAction({ id: "delete-webhook", icon: Trash2, label: "Delete", onClick: vi.fn() });
+
+    expect(anchored).toMatch(/<button[^>]*id="connected-account-resync"/);
+    expect(busy).toMatch(/<button[^>]*id="webhook-delivery-modal-resend"/);
+    expect(link).toMatch(/<a[^>]*id="sample-open-link"/);
+    expect(anchored).not.toContain('id="resync-account"');
+    expect(plain).not.toContain(" id=");
+  });
 });

@@ -66,6 +66,7 @@ export const DashboardPageView = observer(function DashboardPageView({
     x: number;
     y: number;
     interactive: boolean;
+    opener: HTMLElement | null;
   } | null>(null);
   const t = useTranslations();
 
@@ -86,7 +87,7 @@ export const DashboardPageView = observer(function DashboardPageView({
   useEffect(() => {
     function onPointerUp(event: PointerEvent) {
       if (!pointerStart.current) return;
-      const { id, x, y, interactive } = pointerStart.current;
+      const { id, x, y, interactive, opener } = pointerStart.current;
       pointerStart.current = null;
       if (
         isWidgetOpeningClick({
@@ -96,8 +97,10 @@ export const DashboardPageView = observer(function DashboardPageView({
           endY: event.clientY,
           startedOnInteractive: interactive,
         })
-      )
+      ) {
+        opener?.focus({ preventScroll: true });
         runUserAction(() => openWidgetEditor(widgetModalStore, id));
+      }
     }
     document.addEventListener("pointerup", onPointerUp);
     return () => document.removeEventListener("pointerup", onPointerUp);
@@ -109,6 +112,7 @@ export const DashboardPageView = observer(function DashboardPageView({
       x: event.clientX,
       y: event.clientY,
       interactive: isInteractiveTarget(event.target),
+      opener: event.currentTarget.querySelector<HTMLElement>('[data-slot="widget-card-open"]'),
     };
   }, []);
   const pageState = resolveResourcePageState(widgetsStore.dataRequest, items.length);
@@ -117,6 +121,7 @@ export const DashboardPageView = observer(function DashboardPageView({
       pageState !== "loading" && pageState !== "error" && canAddWidget ? (
         <div className="flex items-center gap-1">
           <Button
+            aria-label={t("Dashboard.addCard")}
             id="dashboard-add-widget"
             size="sm"
             variant="default"

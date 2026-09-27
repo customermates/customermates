@@ -14,11 +14,12 @@ import {
   ViewKeySchema,
 } from "@/core/data-view/data-view-state.schema";
 import { CustomErrorCode } from "@/core/validation/validation.types";
+import { zx } from "@/core/validation/validation.utils";
 
 export const AgentDataViewStateSchema = z
   .object({
     filters: z.array(FilterSchema).max(50).optional(),
-    searchTerm: z.string().max(200).optional(),
+    searchTerm: zx.nulFreeText().max(200).optional(),
     sortDescriptor: SortDescriptorSchema.nullable().optional(),
     pageSize: DataViewPageSizeSchema.optional(),
     viewMode: z.enum(ViewMode).optional(),

@@ -16,6 +16,9 @@ vi.mock("@/env", () => ({ env: { ...MOCK_ENV_MODULE.env } }));
 vi.mock("@/core/di", () => createMockDiModule(() => mockUser));
 vi.mock("@/core/validation/zod-error-map-server", () => MOCK_ZOD_MODULE);
 vi.mock("@/prisma/db", () => MOCK_PRISMA_DB_MODULE);
+vi.mock("next-intl/server", () => ({
+  getTranslations: () => Promise.resolve({ raw: (key: string) => key }),
+}));
 
 const { RefreshSubscriptionInteractor } = await import("../refresh-subscription.interactor");
 const { runWithTenant } = await import("@/core/decorators/tenant-context");
@@ -117,10 +120,13 @@ describe("RefreshSubscriptionInteractor", () => {
     expect(deleteAccountsForPlan.invoke).not.toHaveBeenCalled();
   });
 
-  it("throws when the subscription has no LemonSqueezy id", async () => {
+  it("reports the subscription as unavailable when it has no LemonSqueezy id", async () => {
     const { interactor, deleteAccountsForPlan } = make({ lemonSqueezyId: null });
 
-    await expect(interactor.invoke()).rejects.toThrow("LemonSqueezy");
+    await expect(interactor.invoke()).resolves.toMatchObject({
+      ok: false,
+      error: { issues: [{ params: { error: "billingPortalUnavailable" } }] },
+    });
     expect(deleteAccountsForPlan.invoke).not.toHaveBeenCalled();
   });
 });

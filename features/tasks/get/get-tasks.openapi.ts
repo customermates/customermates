@@ -5,7 +5,7 @@ import { z } from "zod";
 import { TaskDtoSchema } from "../task.schema";
 
 import { GetQueryParamsApiSchema, GetResultSchema } from "@/core/base/base-get.schema";
-import { CommonApiResponses } from "@/core/api/interactor-handler";
+import { CommonApiResponses, NotFoundApiResponse } from "@/core/api/interactor-handler";
 
 export const getTasksOperation: ZodOpenApiOperationObject = {
   operationId: "getTasks",
@@ -33,5 +33,6 @@ export const getTasksOperation: ZodOpenApiOperationObject = {
       },
     },
     ...CommonApiResponses,
+    ...NotFoundApiResponse,
   },
 };

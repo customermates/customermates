@@ -11,10 +11,11 @@ import { ApiKeyDtoSchema } from "./get-api-keys.interactor";
 import { TenantInteractor } from "@/core/decorators/tenant-interactor.decorator";
 import { Validate } from "@/core/decorators/validate.decorator";
 import { ValidateOutput } from "@/core/decorators/validate-output.decorator";
-import { type Validated } from "@/core/validation/validation.utils";
+import { type Validated, zx } from "@/core/validation/validation.utils";
 import { CustomErrorCode } from "@/core/validation/validation.types";
 import { AuthenticatedInteractor } from "@/core/base/authenticated-interactor";
 import { API_KEY_MAX_EXPIRATION_SECONDS, API_KEY_MIN_EXPIRATION_SECONDS } from "./api-key-expiration";
+import { API_KEY_NAME_MAX_LENGTH } from "./api-key-name";
 
 const OutputSchema = ApiKeyDtoSchema.extend({
   key: z.string(),
@@ -22,7 +23,7 @@ const OutputSchema = ApiKeyDtoSchema.extend({
 
 export const CreateApiKeySchema = z
   .object({
-    name: z.string().min(1).max(255),
+    name: zx.nonBlankText(API_KEY_NAME_MAX_LENGTH),
     expiresIn: z.number().int().optional(),
   })
   .superRefine((data, ctx) => {
@@ -61,7 +62,8 @@ export class CreateApiKeyInteractor extends AuthenticatedInteractor<CreateApiKey
       expiresIn: data.expiresIn,
     });
 
-    if (!result.ok) return fail(result.error, ["expiresIn"]);
+    if (!result.ok)
+      return fail(result.error, [result.error === CustomErrorCode.apiKeyNameLength ? "name" : "expiresIn"]);
 
     const created = result.data;
 

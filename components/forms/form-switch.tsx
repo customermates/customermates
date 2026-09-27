@@ -13,6 +13,7 @@ import { useFormFieldErrors } from "./use-form-field";
 
 type Props = {
   id: string;
+  inputId?: string;
   label?: ReactNode;
   required?: boolean;
   size?: "sm" | "default";
@@ -21,12 +22,13 @@ type Props = {
 };
 
 export const FormSwitch = observer(
-  ({ id, label, required, size = "default", className, containerClassName }: Props) => {
+  ({ id, inputId, label, required, size = "default", className, containerClassName }: Props) => {
     const store = useAppForm();
     const checked = Boolean(store?.getValue(id));
     const { hasError } = useFormFieldErrors(id);
     const isLoading = store?.isLoading ?? false;
     const isReadOnly = !isLoading && (store?.isReadOnly ?? false);
+    const domId = inputId ?? id;
 
     return (
       <div className={cn("space-y-1.5", containerClassName)}>
@@ -37,13 +39,13 @@ export const FormSwitch = observer(
             checked={checked}
             className={className}
             disabled={isLoading}
-            id={id}
+            id={domId}
             size={size}
             onCheckedChange={isReadOnly ? undefined : (next) => store?.onChange(id, next)}
           />
 
           {label && (
-            <FormLabel htmlFor={id}>
+            <FormLabel fieldId={id} htmlFor={domId}>
               {label}
 
               {required ? <span className="text-destructive"> *</span> : null}

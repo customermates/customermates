@@ -6,7 +6,7 @@ import { join } from "path";
 import { generateFiles } from "fumadocs-openapi";
 import { createOpenAPI } from "fumadocs-openapi/server";
 
-import { env } from "@/env";
+import { OPENAPI_DOCUMENT_ID } from "@/core/fumadocs/openapi-document";
 import { generateOpenApiSpec } from "@/core/openapi/openapi-spec";
 import { CONTENT_LOCALES, DEFAULT_LOCALE } from "@/i18n/locale-registry";
 
@@ -43,7 +43,7 @@ for (const file of files) {
   let content = readFileSync(filePath, "utf-8");
   content = content.replace(
     /document=\{"[^"]*\/public\/v1\/openapi\.json"\}/g,
-    `document={"${env.BASE_URL}/v1/openapi.json"}`,
+    `document={"${OPENAPI_DOCUMENT_ID}"}`,
   );
   writeFileSync(filePath, content, "utf-8");
 }

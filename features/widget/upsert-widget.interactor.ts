@@ -11,7 +11,7 @@ import { EntityType, WidgetGroupByType, AggregationType, WidgetKind } from "@/ge
 
 import { WidgetDtoSchema, WidgetDisplayOptionsSchema, ActivityWidgetDisplayOptionsSchema } from "./widget.schema";
 import { CustomErrorCode } from "@/core/validation/validation.types";
-import { type Validated } from "@/core/validation/validation.utils";
+import { type Validated, zx } from "@/core/validation/validation.utils";
 import { AuthenticatedInteractor } from "@/core/base/authenticated-interactor";
 import { TenantInteractor } from "@/core/decorators/tenant-interactor.decorator";
 import { Write } from "@/core/decorators/write.decorator";
@@ -22,7 +22,7 @@ import { ActivityFiltersSchema } from "@/ee/messaging/activities/activities.sche
 const ActivityWidgetInputSchema = z.object({
   id: z.uuid().optional(),
   kind: z.literal(WidgetKind.activityTimeline),
-  name: z.string().min(1).max(255),
+  name: zx.nonBlankText(255),
   timelineFilters: ActivityFiltersSchema.optional(),
   displayOptions: ActivityWidgetDisplayOptionsSchema.optional(),
   isTemplate: z.boolean(),
@@ -32,7 +32,7 @@ const ChartWidgetInputSchema = z
   .object({
     id: z.uuid().optional(),
     kind: z.literal(WidgetKind.chart),
-    name: z.string().min(1).max(255),
+    name: zx.nonBlankText(255),
     entityType: z.enum(EntityType),
     entityFilters: z.array(FilterSchema).optional(),
     dealFilters: z.array(FilterSchema).optional(),

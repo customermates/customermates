@@ -22,7 +22,7 @@ vi.mock("next-intl/server", () => ({
   getLocale: () => Promise.resolve("en"),
 }));
 
-import { CustomColumnType, EntityType } from "@/generated/prisma";
+import { Action, CustomColumnType, EntityType, Resource } from "@/generated/prisma";
 import { CustomErrorCode } from "@/core/validation/validation.types";
 import { DomainEvent } from "@/features/event/domain-events";
 
@@ -30,7 +30,13 @@ import { DeleteCustomColumnInteractor } from "../delete-custom-column.interactor
 
 const CUSTOM_COLUMN_ID = "00000000-0000-4000-8000-000000000001";
 
-function makeInteractor(referenced: boolean) {
+function makeInteractor(
+  referenced: boolean,
+  {
+    weightingColumnId = null,
+    canUpdateCompany = true,
+  }: { weightingColumnId?: string | null; canUpdateCompany?: boolean } = {},
+) {
   const customColumn = {
     id: CUSTOM_COLUMN_ID,
     label: "Customer tier",
@@ -44,8 +50,14 @@ function makeInteractor(referenced: boolean) {
   const routineRepo = {
     hasRoutineFieldReference: vi.fn().mockResolvedValue(referenced),
   };
+  const companyRepo = { getDealWeightingColumnId: vi.fn().mockResolvedValue(weightingColumnId) };
   const userService = {
-    hasPermissionOrThrow: vi.fn().mockResolvedValue(undefined),
+    hasPermission: vi.fn((resource: Resource) => Promise.resolve(resource !== Resource.company || canUpdateCompany)),
+    hasPermissionOrThrow: vi.fn((resource: Resource) =>
+      resource === Resource.company && !canUpdateCompany
+        ? Promise.reject(new Error("User has insufficient permissions"))
+        : Promise.resolve(),
+    ),
   };
   const eventService = { publish: vi.fn().mockResolvedValue(undefined) };
   const validator = { invoke: vi.fn().mockResolvedValue(undefined) };
@@ -54,12 +66,14 @@ function makeInteractor(referenced: boolean) {
     interactor: new DeleteCustomColumnInteractor(
       repo as never,
       routineRepo as never,
+      companyRepo as never,
       userService as never,
       eventService as never,
       validator as never,
     ),
     repo,
     routineRepo,
+    userService,
     eventService,
   };
 }
@@ -100,5 +114,47 @@ describe("DeleteCustomColumnInteractor routine dependencies", () => {
       entityId: CUSTOM_COLUMN_ID,
       payload: expect.objectContaining({ id: CUSTOM_COLUMN_ID }),
     });
+  });
+});
+
+describe("DeleteCustomColumnInteractor deal weighting column", () => {
+  beforeEach(() => vi.clearAllMocks());
+
+  it("refuses to delete the deal weighting column without company update permission", async () => {
+    const { interactor, repo, userService, eventService } = makeInteractor(false, {
+      weightingColumnId: CUSTOM_COLUMN_ID,
+      canUpdateCompany: false,
+    });
+
+    const result = await interactor.invoke({ id: CUSTOM_COLUMN_ID });
+
+    expect(result.ok).toBe(false);
+    if (result.ok) throw new Error("Expected deletion to be refused");
+    expect(result.error.issues[0]).toMatchObject({
+      path: ["id"],
+      params: { error: CustomErrorCode.permissionDenied, kind: "authorization" },
+    });
+    expect(userService.hasPermission).toHaveBeenCalledWith(Resource.company, Action.update);
+    expect(repo.delete).not.toHaveBeenCalled();
+    expect(eventService.publish).not.toHaveBeenCalled();
+  });
+
+  it("deletes the deal weighting column with company update permission", async () => {
+    const { interactor, repo, userService } = makeInteractor(false, { weightingColumnId: CUSTOM_COLUMN_ID });
+
+    await expect(interactor.invoke({ id: CUSTOM_COLUMN_ID })).resolves.toEqual({ ok: true, data: CUSTOM_COLUMN_ID });
+
+    expect(userService.hasPermission).toHaveBeenCalledWith(Resource.company, Action.update);
+    expect(repo.delete).toHaveBeenCalledWith(CUSTOM_COLUMN_ID);
+  });
+
+  it("leaves any other column to the record type permission", async () => {
+    const { interactor, repo, userService } = makeInteractor(false, { canUpdateCompany: false });
+
+    await expect(interactor.invoke({ id: CUSTOM_COLUMN_ID })).resolves.toEqual({ ok: true, data: CUSTOM_COLUMN_ID });
+
+    expect(userService.hasPermissionOrThrow).toHaveBeenCalledWith(Resource.contacts, Action.delete);
+    expect(userService.hasPermission).not.toHaveBeenCalledWith(Resource.company, Action.update);
+    expect(repo.delete).toHaveBeenCalledWith(CUSTOM_COLUMN_ID);
   });
 });

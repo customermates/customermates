@@ -12,7 +12,8 @@ import { CustomColumnDtoSchema } from "@/features/custom-column/custom-column.sc
 export const getOrganizationByIdOperation: ZodOpenApiOperationObject = {
   operationId: "getOrganizationById",
   summary: "Get an organization by ID",
-  description: "Retrieves a single organization by its unique identifier.",
+  description:
+    "Retrieves a single organization by its unique identifier. The response carries `organization: null`, not an error, when no organization with this id is accessible.",
   tags: ["organizations"],
   security: [{ apiKeyAuth: [] }],
   requestParams: {
@@ -20,7 +21,7 @@ export const getOrganizationByIdOperation: ZodOpenApiOperationObject = {
   },
   responses: {
     "200": {
-      description: "The organization was retrieved successfully.",
+      description: "The organization, or `organization: null` when no organization with this id is accessible.",
       content: {
         "application/json": {
           schema: z.object({

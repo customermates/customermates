@@ -1,13 +1,20 @@
 "use client";
 
-import { useEffect } from "react";
+import { useEffect, useRef } from "react";
 import { observer } from "mobx-react-lite";
 import { useTranslations } from "next-intl";
 import { Plus, Search } from "lucide-react";
 
 import type { MessagingProvider } from "@/generated/prisma";
 
-import { CommandEmpty, CommandGroup, CommandItem, CommandList, CommandPrimitive } from "@/components/ui/command";
+import {
+  CommandEmpty,
+  CommandGroup,
+  CommandItem,
+  CommandList,
+  CommandPrimitive,
+  useCommandInputAria,
+} from "@/components/ui/command";
 import { Popover, PopoverAnchor, PopoverContent } from "@/components/ui/popover";
 import { Button } from "@/components/ui/button";
 import { getProviderIcon } from "@/ee/messaging/provider-icon";
@@ -21,6 +28,43 @@ const SOURCE_HINT_KEYS = {
   contact: "EntityChannels.addChannel.sourceContacts",
   lookup: "EntityChannels.addChannel.sourceLookup",
 } as const;
+
+const AddChannelSearchField = observer(({ expanded }: { expanded: boolean }) => {
+  const t = useTranslations();
+  const { addChannelStore: store } = useRootStore();
+  const fieldRef = useRef<HTMLDivElement>(null);
+  useCommandInputAria(fieldRef, expanded);
+
+  return (
+    <PopoverAnchor asChild>
+      <div
+        ref={fieldRef}
+        className="border-input bg-input-background focus-within:border-ring focus-within:ring-ring/50 flex w-full items-center gap-3 rounded-md border px-3 py-2 shadow-xs transition-[color,box-shadow] focus-within:ring-[3px] focus-within:ring-inset"
+      >
+        <Search aria-hidden className="text-muted-foreground size-5 shrink-0" />
+
+        <CommandPrimitive.Input
+          aria-label={t("EntityChannels.addChannel.trigger")}
+          className="placeholder:text-muted-foreground flex-1 bg-transparent text-sm outline-none"
+          placeholder={t("EntityChannels.addChannel.searchPlaceholder")}
+          value={store.query}
+          onClick={() => store.setOpen(true)}
+          onFocus={() => store.setOpen(true)}
+          onKeyDown={(event) => {
+            if (event.key === "Escape") {
+              store.setOpen(false);
+              event.currentTarget.blur();
+            } else if (event.key === "Tab") store.setOpen(false);
+          }}
+          onValueChange={(next) => {
+            store.setOpen(true);
+            store.setQuery(next);
+          }}
+        />
+      </div>
+    </PopoverAnchor>
+  );
+});
 
 export const AddChannelPopover = observer(({ contactId }: { contactId?: string }) => {
   const t = useTranslations();
@@ -42,32 +86,9 @@ export const AddChannelPopover = observer(({ contactId }: { contactId?: string }
   const providerLabel = (provider: MessagingProvider) => t(`Common.providers.${provider}`);
 
   return (
-    <CommandPrimitive shouldFilter={false}>
+    <CommandPrimitive label={t("EntityChannels.addChannel.trigger")} shouldFilter={false}>
       <Popover open={showList} onOpenChange={(next) => store.setOpen(next)}>
-        <PopoverAnchor asChild>
-          <div className="border-input bg-input-background focus-within:border-ring focus-within:ring-ring/50 flex w-full items-center gap-3 rounded-md border px-3 py-2 shadow-xs transition-[color,box-shadow] focus-within:ring-[3px] focus-within:ring-inset">
-            <Search aria-hidden className="text-muted-foreground size-5 shrink-0" />
-
-            <CommandPrimitive.Input
-              aria-label={t("EntityChannels.addChannel.trigger")}
-              className="placeholder:text-muted-foreground flex-1 bg-transparent text-sm outline-none"
-              placeholder={t("EntityChannels.addChannel.searchPlaceholder")}
-              value={store.query}
-              onClick={() => store.setOpen(true)}
-              onFocus={() => store.setOpen(true)}
-              onKeyDown={(event) => {
-                if (event.key === "Escape") {
-                  store.setOpen(false);
-                  event.currentTarget.blur();
-                } else if (event.key === "Tab") store.setOpen(false);
-              }}
-              onValueChange={(next) => {
-                store.setOpen(true);
-                store.setQuery(next);
-              }}
-            />
-          </div>
-        </PopoverAnchor>
+        <AddChannelSearchField expanded={showList} />
 
         <PopoverContent
           align="start"

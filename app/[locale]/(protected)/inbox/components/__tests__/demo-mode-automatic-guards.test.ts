@@ -52,6 +52,21 @@ function demoRoot(): RootStore {
   } as unknown as RootStore;
 }
 
+function readOnlyRoot(): RootStore {
+  return {
+    appMode: "cloud",
+    localeStore: {
+      locale: "en",
+      getTranslation: (key: string) => key,
+    },
+    messagingThreadsStore: {
+      items: [],
+      upsertItemLocal: vi.fn(),
+    },
+    userStore: { can: vi.fn(() => false) },
+  } as unknown as RootStore;
+}
+
 beforeEach(() => {
   vi.clearAllMocks();
   inboxActions.getMessagingThreadAction.mockResolvedValue(null);
@@ -71,6 +86,21 @@ describe("automatic Inbox updates in demo mode", () => {
     expect(inboxActions.resyncThreadAction).not.toHaveBeenCalled();
     expect(inboxActions.getMessagingThreadAction).not.toHaveBeenCalled();
     expect(store.thread?.state).toBe("unread");
+    expect(store.loadingOlder).toBe(false);
+  });
+});
+
+describe("automatic Inbox updates without Inbox manage access", () => {
+  it("does not resync older messages when the role cannot update Inbox messages", async () => {
+    const root = readOnlyRoot();
+    const store = new MessagingThreadDetailStore(root);
+    store.hydrate({ accountOwners: {}, folderContext: null, messages: [], thread: unreadThread() });
+
+    await store.loadOlderMessages();
+
+    expect(root.userStore.can).toHaveBeenCalledWith("inboxMessages", "update");
+    expect(inboxActions.resyncThreadAction).not.toHaveBeenCalled();
+    expect(inboxActions.getMessagingThreadAction).not.toHaveBeenCalled();
     expect(store.loadingOlder).toBe(false);
   });
 });

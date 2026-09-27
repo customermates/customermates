@@ -131,11 +131,13 @@ export class ThreadComposeStore extends BaseFormStore<ThreadComposeForm> {
   private validateEmails(requireRecipients = false): boolean {
     if (!this.isEmail) return true;
 
+    const error = this.t("Common.errors.invalidEmail");
+    const email = z.email({ error });
     const result = z
       .object({
-        recipients: requireRecipients ? z.array(z.email()).min(1) : z.array(z.email()),
-        cc: z.array(z.email()),
-        bcc: z.array(z.email()),
+        recipients: requireRecipients ? z.array(email).min(1, { error }) : z.array(email),
+        cc: z.array(email),
+        bcc: z.array(email),
       })
       .safeParse({
         recipients: this.form.recipients,

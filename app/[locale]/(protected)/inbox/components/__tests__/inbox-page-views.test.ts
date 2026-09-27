@@ -161,6 +161,7 @@ function renderInboxList(
   status: ListStatus,
   options: {
     canConnect?: boolean;
+    canUpdate?: boolean;
     filters?: unknown[];
     locked?: boolean;
     searchTerm?: string;
@@ -184,6 +185,7 @@ function renderInboxList(
   harness.getRootStore.mockReturnValue({
     connectedAccountsStore: { ensureLoaded: harness.ensureLoaded, needsActionCount: 0 },
     messagingThreadsStore,
+    userStore: { can: () => options.canUpdate ?? true },
   });
 
   return renderToStaticMarkup(
@@ -316,6 +318,16 @@ describe("Inbox page-state owners", () => {
     const readOnly = renderInboxList("ready", { canConnect: false });
     expect(readOnly).not.toContain("<button");
     expect(renderToStaticMarkup(latestTopBar() as ReactElement)).not.toContain("ConnectedAccountsCard.title");
+  });
+
+  it("offers Refresh only to a role with Manage on Inbox messages", () => {
+    renderInboxList("ready", { withItem: true });
+    expect(renderToStaticMarkup(latestTopBar() as ReactElement)).toContain("Inbox.refresh");
+
+    renderInboxList("ready", { canConnect: false, canUpdate: false, withItem: true });
+    const readOnlyTopBar = renderToStaticMarkup(latestTopBar() as ReactElement);
+    expect(readOnlyTopBar).not.toContain("Inbox.refresh");
+    expect(readOnlyTopBar).toContain("data-data-view-toolbar");
   });
 
   it("renders locked, loading, empty, and content transcript branches", () => {

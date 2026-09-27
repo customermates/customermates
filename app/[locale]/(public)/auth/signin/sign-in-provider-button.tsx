@@ -23,7 +23,7 @@ export default function SignInProviderButton({ className, providerId, label, isL
       onClick={onClick}
     >
       <AppImage
-        alt={label}
+        alt=""
         className="mr-1 shrink-0 brightness-0 dark:invert"
         height={18}
         src={`${providerId}-icon.svg`}

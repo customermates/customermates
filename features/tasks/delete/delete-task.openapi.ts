@@ -4,7 +4,7 @@ import { z } from "zod";
 
 import { DeleteTaskSchema } from "./delete-task.interactor";
 
-import { CommonApiResponses } from "@/core/api/interactor-handler";
+import { CommonApiResponses, NotFoundApiResponse } from "@/core/api/interactor-handler";
 
 export const deleteTaskOperation: ZodOpenApiOperationObject = {
   operationId: "deleteTask",
@@ -25,5 +25,6 @@ export const deleteTaskOperation: ZodOpenApiOperationObject = {
       },
     },
     ...CommonApiResponses,
+    ...NotFoundApiResponse,
   },
 };
