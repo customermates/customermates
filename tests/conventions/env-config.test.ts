@@ -242,10 +242,11 @@ describe("client instrumentation", () => {
   it("keeps browser transport interruptions and genuine client defects unless an owning boundary handles them", async () => {
     vi.stubEnv("NEXT_PUBLIC_SENTRY_DSN", "https://public@example.invalid/1");
     vi.stubEnv("NODE_ENV", "production");
-    // The client SDK is imported when the main thread next goes idle, not at module evaluation,
-    // so the browser hooks it needs have to exist before the module is pulled in.
+    // The client SDK is imported when an app route's main thread next goes idle, not at module
+    // evaluation, so the browser hooks it needs have to exist before the module is pulled in.
     vi.stubGlobal("window", {
       addEventListener: vi.fn(),
+      location: { href: "https://customermates.test/en/dashboard", pathname: "/en/dashboard" },
       removeEventListener: vi.fn(),
       requestIdleCallback: (callback: () => void) => callback(),
     });

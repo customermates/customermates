@@ -43,7 +43,7 @@ const FORBIDDEN = [
   {
     id: "@sentry/nextjs",
     reason:
-      "the browser SDK is loaded when the main thread goes idle (instrumentation-client.ts); a static import puts it back in front of the first paint",
+      "the browser SDK is loaded on demand by instrumentation-client.ts (idle on app routes, on the first report on marketing routes); a static import puts it back in front of the first paint",
   },
   {
     id: "zod",
