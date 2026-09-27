@@ -8,12 +8,46 @@ import type { SearchWikiPagesRepo } from "./search-wiki-pages.interactor";
 import type { UpdateWikiPageRepo } from "./update-wiki-page.interactor";
 import type { StartWikiHomepageSetupRepo } from "./start-wiki-homepage-setup.interactor";
 import type { WikiPageDto } from "./wiki.schema";
+import type { WikiSearchQuery } from "./wiki-search";
 
 import { Prisma } from "@/generated/prisma";
 
 import { BaseRepository } from "@/core/base/base-repository";
 import { WIKI_CATALOG_PAGE_SIZE } from "./wiki.schema";
-import { wikiRelevantSearchSnippet, wikiRelevantSearchTerms, wikiSubstringSearchTerms } from "./wiki-content";
+import {
+  parseWikiSearchQuery,
+  WIKI_FUZZY_SIMILARITY,
+  WIKI_SEARCH_CONFIGS,
+  wikiSearchMatch,
+  wikiSortedLetters,
+} from "./wiki-search";
+
+const WIKI_RRF_K = 60;
+const WIKI_TEXT_RANK_DEPTH = 100;
+const WIKI_SUGGESTION_SIMILARITY = 0.3;
+const WIKI_SUGGESTION_LIMIT = 3;
+const WIKI_SUBSTRING_ORD_BASE = 1_000;
+
+type WikiSearchRow = WikiPageDto & { total: number };
+
+function wikiFuzzyTerms(terms: WikiSearchQuery["fuzzyTerms"]) {
+  return Prisma.sql`unnest(
+    ${terms.map(({ term }) => term)}::text[],
+    ${terms.map(({ term }) => wikiSortedLetters(term))}::text[],
+    ${terms.map(({ unit }) => unit)}::int[]
+  ) AS terms("term", "sorted", "ord")`;
+}
+
+function wikiFuzzySimilarity(word: Prisma.Sql) {
+  return Prisma.sql`
+    CASE
+      WHEN left(${word}, 1) <> left(terms."term", 1) THEN NULL
+      WHEN similarity(terms."term", ${word}) >= ${WIKI_FUZZY_SIMILARITY} THEN similarity(terms."term", ${word})
+      WHEN length(${word}) = length(terms."term") AND length(${word}) >= 5
+        AND wiki_search_sorted_letters(${word}) = terms."sorted"
+        THEN ${WIKI_FUZZY_SIMILARITY}::float4
+    END`;
+}
 
 export class PrismaWikiPageRepo
   extends BaseRepository<Prisma.WikiPageWhereInput>
@@ -62,30 +96,18 @@ export class PrismaWikiPageRepo
   }
 
   async searchPages(data: RepoArgs<SearchWikiPagesRepo, "searchPages">) {
-    const { page, pageSize, query } = data;
-    const terms = wikiRelevantSearchTerms(query);
-    if (terms.length === 0) return { items: [], total: 0, page, pageSize };
-    const { predicate, rank } = this.wikiSearchSql(terms);
-    const [rows, counts] = await Promise.all([
-      this.prisma.$queryRaw<WikiPageDto[]>(Prisma.sql`
-        SELECT "id", "title", "markdown", "createdAt", "updatedAt"
-        FROM "WikiPage"
-        WHERE ${predicate}
-        ORDER BY ${rank} DESC, "createdAt" ASC, "id" ASC
-        LIMIT ${pageSize} OFFSET ${(page - 1) * pageSize}
-      `),
-      this.prisma.$queryRaw<Array<{ total: number }>>(Prisma.sql`
-        SELECT COUNT(*)::int AS "total" FROM "WikiPage" WHERE ${predicate}
-      `),
-    ]);
+    const { page, pageSize } = data;
+    const query = parseWikiSearchQuery(data.query);
+    if (query.units.length === 0 && query.substringTerms.length === 0) return { items: [], total: 0, page, pageSize };
+    const rows = await this.prisma.$queryRaw<WikiSearchRow[]>(this.wikiSearchSql(query, data.query, page, pageSize));
+    const total = rows[0]?.total ?? (page > 1 ? await this.countWikiSearchMatches(query, data.query) : 0);
+    const didYouMean = total === 0 ? await this.wikiSearchSuggestions(query) : [];
     return {
-      items: rows.map(({ markdown, ...page }) => ({
-        ...page,
-        snippet: wikiRelevantSearchSnippet(markdown, data.query),
-      })),
-      total: counts[0]?.total ?? 0,
+      items: rows.map(({ markdown, total: _total, ...row }) => ({ ...row, ...wikiSearchMatch(markdown, query) })),
+      total,
       page,
       pageSize,
+      ...(didYouMean.length > 0 ? { didYouMean } : {}),
     };
   }
 
@@ -202,29 +224,201 @@ export class PrismaWikiPageRepo
     return { status: "deleted" as const, page };
   }
 
-  private wikiSearchSql(terms: string[]) {
-    const searchQuery = terms.map((term) => `${term}:*`).join(" | ");
-    const document = Prisma.sql`setweight(to_tsvector('simple', "title"), 'A') || setweight(to_tsvector('simple', "markdown"), 'B')`;
-    const fullTextPredicate = Prisma.sql`(${document}) @@ to_tsquery('simple', ${searchQuery})`;
-    const substringTerms = wikiSubstringSearchTerms(terms);
-    const substringPredicates = substringTerms.map(
-      (term) => Prisma.sql`(strpos(lower("title"), ${term}) > 0 OR strpos(lower("markdown"), ${term}) > 0)`,
+  private async countWikiSearchMatches(query: WikiSearchQuery, text: string) {
+    const rows = await this.prisma.$queryRaw<WikiSearchRow[]>(this.wikiSearchSql(query, text, 1, 1));
+    return rows[0]?.total ?? 0;
+  }
+
+  private async wikiSearchSuggestions(query: WikiSearchQuery) {
+    const terms = query.fuzzyTerms.map(({ term }) => term);
+    const [corrections, titles] = await Promise.all([
+      terms.length === 0
+        ? Promise.resolve([])
+        : this.prisma.$queryRaw<Array<{ term: string; correction: string }>>(Prisma.sql`
+          WITH vocabulary AS (
+            SELECT DISTINCT l."lexeme"
+            FROM "WikiPage" p
+            CROSS JOIN LATERAL unnest(tsvector_to_array(p."searchVector")) AS l("lexeme")
+            WHERE p."companyId" = ${this.companyId}
+              AND left(l."lexeme", 1) = ANY(${[...new Set(terms.map((term) => Array.from(term)[0]))]}::text[])
+          )
+          SELECT DISTINCT ON (terms."term") terms."term", v."lexeme" AS "correction"
+          FROM ${wikiFuzzyTerms(query.fuzzyTerms)}
+          JOIN vocabulary v ON left(v."lexeme", 1) = left(terms."term", 1)
+            AND abs(length(v."lexeme") - length(terms."term")) <= 2
+          WHERE ${wikiFuzzySimilarity(Prisma.sql`v."lexeme"`)} IS NOT NULL
+          ORDER BY terms."term", ${wikiFuzzySimilarity(Prisma.sql`v."lexeme"`)} DESC, v."lexeme" ASC
+        `),
+      this.prisma.$queryRaw<Array<{ title: string }>>(Prisma.sql`
+        SELECT "title"
+        FROM "WikiPage"
+        CROSS JOIN LATERAL (
+          SELECT max(word_similarity(terms."term", lower("title"))) AS "score"
+          FROM unnest(${[query.title, ...terms]}::text[]) AS terms("term")
+        ) AS s
+        WHERE "companyId" = ${this.companyId} AND s."score" >= ${WIKI_SUGGESTION_SIMILARITY}
+        ORDER BY s."score" DESC, "createdAt" ASC, "id" ASC
+        LIMIT ${WIKI_SUGGESTION_LIMIT}
+      `),
+    ]);
+    const replacements = new Map(corrections.map(({ term, correction }) => [term, correction]));
+    const corrected = query.title
+      .split(" ")
+      .map((word) => replacements.get(word) ?? word)
+      .join(" ");
+    return [...new Set([...(corrected !== query.title ? [corrected] : []), ...titles.map(({ title }) => title)])].slice(
+      0,
+      WIKI_SUGGESTION_LIMIT,
     );
-    const substringRanks = substringTerms.map(
-      (term) => Prisma.sql`
-        (CASE WHEN strpos(lower("title"), ${term}) > 0 THEN 2 ELSE 0 END) +
-        (CASE WHEN strpos(lower("markdown"), ${term}) > 0 THEN 1 ELSE 0 END)
-      `,
-    );
-    const contentPredicate =
-      substringPredicates.length > 0
-        ? Prisma.sql`(${fullTextPredicate} OR ${Prisma.join(substringPredicates, " OR ")})`
-        : fullTextPredicate;
-    const rank =
-      substringRanks.length > 0
-        ? Prisma.sql`ts_rank_cd((${document}), to_tsquery('simple', ${searchQuery})) + (${Prisma.join(substringRanks, " + ")})`
-        : Prisma.sql`ts_rank_cd((${document}), to_tsquery('simple', ${searchQuery}))`;
-    const predicate = Prisma.sql`"companyId" = ${this.companyId} AND ${contentPredicate}`;
-    return { searchQuery, document, predicate, rank };
+  }
+
+  private wikiSearchSql(query: WikiSearchQuery, text: string, page: number, pageSize: number) {
+    const configured = (value: string, phrase: boolean) =>
+      Prisma.join(
+        WIKI_SEARCH_CONFIGS.map((config) =>
+          phrase
+            ? Prisma.sql`phraseto_tsquery(${config}::regconfig, ${value})`
+            : Prisma.sql`plainto_tsquery(${config}::regconfig, ${value})`,
+        ),
+        " || ",
+      );
+    const unitQueries = query.units.map((unit) => {
+      const exact = Prisma.sql`(${configured(unit.text, unit.phrase || unit.words.length > 1)})`;
+      return {
+        exact,
+        query:
+          unit.text === query.prefix ? Prisma.sql`(${exact} || to_tsquery('simple', ${`'${unit.text}':*`}))` : exact,
+      };
+    });
+    const units =
+      unitQueries.length > 0
+        ? Prisma.sql`SELECT * FROM (VALUES ${Prisma.join(
+            unitQueries.map(
+              ({ exact, query: unitQuery }, index) => Prisma.sql`(${index + 1}::int, ${unitQuery}, ${exact})`,
+            ),
+          )}) AS v("ord", "query", "exact")`
+        : Prisma.sql`SELECT NULL::int AS "ord", NULL::tsquery AS "query", NULL::tsquery AS "exact" WHERE false`;
+    const anyQuery =
+      unitQueries.length > 0
+        ? Prisma.sql`(${Prisma.join(
+            unitQueries.map(({ query: unitQuery }) => unitQuery),
+            " || ",
+          )})`
+        : null;
+    const textHits = anyQuery
+      ? Prisma.sql`
+          SELECT p."id", u."ord", (p."searchVector" @@ u."exact") AS "exact", 1::float8 AS "strength"
+          FROM "WikiPage" p
+          JOIN units u ON p."searchVector" @@ u."query"
+          WHERE p."companyId" = ${this.companyId} AND p."searchVector" @@ (SELECT "query" FROM search)`
+      : Prisma.sql`SELECT NULL::text AS "id", NULL::int AS "ord", NULL::boolean AS "exact", NULL::float8 AS "strength" WHERE false`;
+    const substringHits =
+      query.substringTerms.length > 0
+        ? Prisma.sql`
+          UNION ALL
+          SELECT p."id", ${WIKI_SUBSTRING_ORD_BASE}::int + terms."ord"::int, true, 1::float8
+          FROM "WikiPage" p
+          CROSS JOIN unnest(${query.substringTerms}::text[]) WITH ORDINALITY AS terms("term", "ord")
+          WHERE p."companyId" = ${this.companyId}
+            AND (strpos(lower(p."title"), terms."term") > 0 OR strpos(lower(p."markdown"), terms."term") > 0)`
+        : Prisma.empty;
+    const textRank = anyQuery
+      ? Prisma.sql`CASE WHEN c."coveredRank" <= ${WIKI_TEXT_RANK_DEPTH}::int
+          THEN ts_rank_cd(p."searchVector", (SELECT "query" FROM search), 1) ELSE 0 END`
+      : Prisma.sql`0::float4`;
+    const titleHit = anyQuery
+      ? Prisma.sql`ts_filter(p."searchVector", '{a}'::"char"[]) @@ (SELECT "query" FROM search)`
+      : Prisma.sql`false`;
+    const titleMatchesUnit = anyQuery
+      ? Prisma.sql`EXISTS (SELECT 1 FROM units u WHERE wiki_search_weighted_vector(w."word", 'A') @@ u."query")`
+      : Prisma.sql`false`;
+    const unitCount = query.units.length;
+
+    return Prisma.sql`
+      WITH units AS MATERIALIZED (${units}),
+      search AS MATERIALIZED (SELECT ${anyQuery ?? Prisma.sql`NULL::tsquery`} AS "query"),
+      "textHits" AS MATERIALIZED (${textHits} ${substringHits}),
+      "unknownTerms" AS MATERIALIZED (
+        SELECT terms.* FROM ${wikiFuzzyTerms(query.fuzzyTerms)}
+        WHERE NOT EXISTS (SELECT 1 FROM "textHits" h WHERE h."ord" = terms."ord")
+      ),
+      "fuzzyHits" AS MATERIALIZED (
+        SELECT p."id", terms."ord", true AS "exact", max(${wikiFuzzySimilarity(Prisma.sql`w."word"`)}) AS "strength"
+        FROM "WikiPage" p
+        CROSS JOIN LATERAL wiki_search_words(p."searchHeadings") AS w("word")
+        CROSS JOIN "unknownTerms" terms
+        WHERE p."companyId" = ${this.companyId} AND EXISTS (SELECT 1 FROM "unknownTerms")
+        GROUP BY p."id", terms."ord"
+        HAVING max(${wikiFuzzySimilarity(Prisma.sql`w."word"`)}) IS NOT NULL
+      ),
+      hits AS MATERIALIZED (
+        SELECT * FROM "textHits"
+        UNION ALL
+        SELECT * FROM "fuzzyHits"
+      ),
+      weights AS MATERIALIZED (
+        SELECT f."ord", ln(1 + (n."pages" - f."df" + 0.5) / (f."df" + 0.5)) AS "weight"
+        FROM (SELECT "ord", count(*)::float8 AS "df" FROM hits GROUP BY "ord") AS f
+        CROSS JOIN (SELECT count(*)::float8 AS "pages" FROM "WikiPage" WHERE "companyId" = ${this.companyId}) AS n
+      ),
+      coverage AS MATERIALIZED (
+        SELECT h."id",
+          sum(w."weight" * h."strength") AS "covered",
+          count(*) FILTER (WHERE h."ord" < ${WIKI_SUBSTRING_ORD_BASE}::int) AS "matched",
+          bool_or(h."exact") AS "exact",
+          coalesce(sum(h."strength") FILTER (WHERE h."ord" IN (SELECT "ord" FROM "unknownTerms")), 0) AS "similarity",
+          row_number() OVER (ORDER BY sum(w."weight" * h."strength") DESC, h."id") AS "coveredRank"
+        FROM hits h
+        JOIN weights w ON w."ord" = h."ord"
+        GROUP BY h."id"
+      ),
+      candidates AS MATERIALIZED (
+        SELECT p."id", p."title", p."createdAt", c."covered", c."matched", c."similarity",
+          ${textRank} AS "textRank",
+          (${titleHit} OR c."similarity" > 0) AS "titleHit",
+          (to_tsvector('simple', p."title") = to_tsvector('simple', ${text})) AS "exactTitle"
+        FROM coverage c
+        JOIN "WikiPage" p ON p."id" = c."id" AND p."companyId" = ${this.companyId}
+        WHERE c."exact" OR ${unitCount}::int <= 1
+      ),
+      titles AS MATERIALIZED (
+        SELECT c."id", bool_and(
+          ${titleMatchesUnit}
+          OR EXISTS (SELECT 1 FROM "unknownTerms" terms WHERE ${wikiFuzzySimilarity(Prisma.sql`w."word"`)} IS NOT NULL)
+        ) AS "fullTitle"
+        FROM candidates c
+        CROSS JOIN LATERAL wiki_search_words(c."title") AS w("word")
+        WHERE c."titleHit"
+          AND to_tsvector('english', w."word") <> ''::tsvector
+          AND to_tsvector('german', w."word") <> ''::tsvector
+          AND to_tsvector('spanish', w."word") <> ''::tsvector
+          AND to_tsvector('french', w."word") <> ''::tsvector
+          AND to_tsvector('italian', w."word") <> ''::tsvector
+        GROUP BY c."id"
+      ),
+      ranked AS MATERIALIZED (
+        SELECT c."id", c."createdAt",
+          (${unitCount}::int > 0 AND c."matched" = ${unitCount}::int) AS "allTerms",
+          c."exactTitle",
+          coalesce(t."fullTitle", false) AS "fullTitle",
+          1.0 / (${WIKI_RRF_K}::int + row_number() OVER (ORDER BY c."covered" DESC, c."textRank" DESC))
+            + CASE WHEN c."similarity" > 0
+                THEN 1.0 / (${WIKI_RRF_K}::int + row_number() OVER (ORDER BY c."similarity" DESC))
+                ELSE 0
+              END AS "fusedRank",
+          count(*) OVER () AS "total"
+        FROM candidates c
+        LEFT JOIN titles t ON t."id" = c."id"
+      ),
+      selected AS MATERIALIZED (
+        SELECT * FROM ranked
+        ORDER BY "allTerms" DESC, "exactTitle" DESC, "fullTitle" DESC, "fusedRank" DESC, "createdAt" ASC, "id" ASC
+        LIMIT ${pageSize} OFFSET ${(page - 1) * pageSize}
+      )
+      SELECT p."id", p."title", p."markdown", p."createdAt", p."updatedAt", r."total"::int AS "total"
+      FROM selected r
+      JOIN "WikiPage" p ON p."id" = r."id" AND p."companyId" = ${this.companyId}
+      ORDER BY r."allTerms" DESC, r."exactTitle" DESC, r."fullTitle" DESC, r."fusedRank" DESC, r."createdAt" ASC, r."id" ASC
+    `;
   }
 }

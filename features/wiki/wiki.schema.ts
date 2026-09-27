@@ -69,6 +69,9 @@ export type WikiCatalog = Data<typeof WikiCatalogSchema>;
 
 export const WikiSearchResultSchema = WikiPageSummarySchema.extend({
   snippet: z.string(),
+  offset: z.number().int().min(0).optional(),
+  section: z.string().optional(),
+  anchor: z.string().optional(),
 });
 export type WikiSearchResult = Data<typeof WikiSearchResultSchema>;
 
@@ -106,5 +109,6 @@ export const WikiPageSearchResultSchema = z.object({
   total: z.number().int().min(0),
   page: z.number().int().min(1),
   pageSize: z.number().int().min(1),
+  didYouMean: z.array(z.string()).optional(),
 });
 export type WikiPageSearchResult = Data<typeof WikiPageSearchResultSchema>;

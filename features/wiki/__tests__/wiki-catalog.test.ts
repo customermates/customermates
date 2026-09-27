@@ -12,13 +12,7 @@ vi.mock("@/core/di", () => createMockDiModule(() => mockUser));
 vi.mock("@/core/validation/zod-error-map-server", () => MOCK_ZOD_MODULE);
 
 import { GetWikiCatalogInteractor } from "../get-wiki-catalog.interactor";
-import {
-  wikiExcerpt,
-  wikiPlainText,
-  wikiRelevantSearchSnippet,
-  wikiRelevantSearchTerms,
-  wikiSubstringSearchTerms,
-} from "../wiki-content";
+import { wikiExcerpt, wikiPlainText } from "../wiki-content";
 
 const id = "00000000-0000-4000-8000-000000000001";
 const page = {
@@ -43,58 +37,6 @@ describe("Wiki catalog content", () => {
     expect(excerpt).toBe("a".repeat(198) + "…");
     expect(wikiExcerpt("")).toBe("");
     expect(wikiExcerpt("# Only a heading")).toBe("Only a heading");
-  });
-
-  it("extracts bounded Unicode query terms rather than passing query syntax through", () => {
-    expect(wikiRelevantSearchTerms("VOICE, voice / Für Kunden? 2026")).toEqual(["voice", "kunden", "2026"]);
-    expect(wikiRelevantSearchTerms("如何处理支持请求？")).toEqual(["如何处理支持请求", "如何", "处理", "支持", "请求"]);
-    expect(wikiRelevantSearchTerms("_%!:&|")).toEqual([]);
-    expect(wikiRelevantSearchTerms(Array.from({ length: 40 }, (_, i) => `word${i}`).join(" "))).toHaveLength(32);
-    expect(wikiRelevantSearchTerms("how do i onboard a customer")).toEqual(["onboard", "customer"]);
-    expect(wikiRelevantSearchTerms("What is our refund policy?")).toEqual(["refund", "policy"]);
-    expect(wikiRelevantSearchTerms("Wie ist unsere Rückerstattungsrichtlinie?")).toEqual(["rückerstattungsrichtlinie"]);
-    expect(
-      wikiRelevantSearchTerms(
-        `${"a to our ".repeat(20)}${Array.from({ length: 40 }, (_, i) => `word${i}`).join(" ")} distinctiveprocess`,
-      ),
-    ).toContain("distinctiveprocess");
-    expect(wikiRelevantSearchTerms("a")).toEqual(["a"]);
-    expect(wikiRelevantSearchTerms("a to")).toEqual(["to"]);
-    expect(
-      wikiRelevantSearchTerms(`${Array.from({ length: 80 }, (_, index) => `generic${index}`).join(" ")} tone`),
-    ).toContain("tone");
-    expect(wikiSubstringSearchTerms(["support", "客户支持流程", "サポート", "고객지원절차", "บริการ"])).toEqual([
-      "客户支持流程",
-      "サポート",
-      "고객지원절차",
-      "บริการ",
-    ]);
-  });
-
-  it("keeps query-centered snippets inside the catalog excerpt limit", () => {
-    const snippet = wikiRelevantSearchSnippet(`${"Before ".repeat(80)}needle ${"after ".repeat(80)}😀`, "needle");
-    expect(snippet.length).toBeLessThanOrEqual(200);
-    expect(snippet).toContain("needle");
-    expect(snippet.startsWith("…")).toBe(true);
-    expect(snippet.endsWith("…")).toBe(true);
-    expect(snippet.endsWith("\ud83c")).toBe(false);
-  });
-
-  it("anchors search snippets on the most distinctive query term, not on a one-letter word", () => {
-    const markdown = `A ${"background ".repeat(40)}\n\nOnboarding a customer starts with a kickoff call.`;
-    const snippet = wikiRelevantSearchSnippet(markdown, "how do i onboard a customer");
-
-    expect(snippet).toContain("Onboarding a customer starts with a kickoff call.");
-    expect(snippet.startsWith("…")).toBe(true);
-  });
-
-  it("never starts or ends a search snippet inside an astral character", () => {
-    const snippet = wikiRelevantSearchSnippet(`${"🌍".repeat(41)}needle${"🌍".repeat(100)}`, "needle");
-    const first = snippet.charCodeAt(snippet.startsWith("…") ? 1 : 0);
-    const last = snippet.charCodeAt(snippet.length - (snippet.endsWith("…") ? 2 : 1));
-    expect(first >= 0xdc00 && first <= 0xdfff).toBe(false);
-    expect(last >= 0xd800 && last <= 0xdbff).toBe(false);
-    expect(snippet).toContain("needle");
   });
 });
 

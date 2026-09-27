@@ -198,8 +198,10 @@ describeDatabase("Workspace Wiki public boundaries on PostgreSQL", () => {
     const result = await search("voice support");
     expect(result).toMatchObject({ ok: true, data: { total: 3 } });
     if (!result.ok) throw new Error("Wiki search failed.");
-    expect(result.data.items.map((item) => item.id)).toEqual([local.data[1].id, local.data[2].id, local.data[0].id]);
-    expect(result.data.items[2].snippet).toBe("Our voice is clear.");
+    expect(new Set(result.data.items.slice(0, 2).map((item) => item.id))).toEqual(
+      new Set([local.data[1].id, local.data[2].id]),
+    );
+    expect(result.data.items[2]).toMatchObject({ id: local.data[0].id, snippet: "Our **voice** is clear.", offset: 0 });
     expect(await search("voice support", 2)).toMatchObject({
       ok: true,
       data: { total: 3, items: [] },
@@ -239,11 +241,14 @@ describeDatabase("Workspace Wiki public boundaries on PostgreSQL", () => {
     const refund = await search("What is our refund policy?");
     expect(refund).toMatchObject({ ok: true, data: { total: 1, items: [{ id: created.data[3].id }] } });
     if (!refund.ok) throw new Error("Wiki search failed.");
-    expect(refund.data.items[0].snippet).toContain("Refund policy requires manager approval");
+    expect(refund.data.items[0].snippet).toContain("**Refund** **policy** requires manager approval");
 
     expect(await search("how do i onboard a customer")).toMatchObject({
       ok: true,
-      data: { total: 1, items: [{ id: created.data[4].id, snippet: "Start every onboarding with a kickoff call." }] },
+      data: {
+        total: 1,
+        items: [{ id: created.data[4].id, snippet: "Start every **onboarding** with a kickoff call." }],
+      },
     });
   });
 
@@ -417,7 +422,9 @@ describeDatabase("Workspace Wiki public boundaries on PostgreSQL", () => {
       ok: true,
       data: {
         total: 1,
-        items: [{ id: entry.data[0].id, title: "Escalations", snippet: "The zephyr escalation requires a manager." }],
+        items: [
+          { id: entry.data[0].id, title: "Escalations", snippet: "The **zephyr** **escalation** requires a manager." },
+        ],
       },
     });
     expect(JSON.stringify(searched)).not.toContain("Foreign zephyr guidance");
