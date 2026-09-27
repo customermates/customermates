@@ -277,7 +277,7 @@ function selectUnits(units: WikiSearchUnit[]): WikiSearchUnit[] {
 }
 
 export function parseWikiSearchQuery(query: string): WikiSearchQuery {
-  const lowered = query.toLocaleLowerCase();
+  const lowered = query.normalize("NFC").toLocaleLowerCase();
   const units: WikiSearchUnit[] = [];
   const seen = new Set<string>();
   const add = (unit: WikiSearchUnit) => {
@@ -424,7 +424,7 @@ function isFuzzyMatch(queryWord: string, word: string): boolean {
   );
 }
 
-type ScoredSection = WikiMarkdownSection & { words: string[]; headingWords: string[]; folded: string };
+type ScoredSection = WikiMarkdownSection & { words: string[]; headingWords: string[]; folded: string; lowered: string };
 
 function termVariants(queryWords: string[], vocabulary: Set<string>): Map<string, Set<string>> {
   const entries = [...vocabulary].map((word) => ({
@@ -469,6 +469,7 @@ function bestSection(
       words: foldedWords(text),
       headingWords: foldedWords(section.path.join(" ")),
       folded: fold(text).replace(/\s+/gu, " "),
+      lowered: text.normalize("NFC").toLocaleLowerCase().replace(/\s+/gu, " "),
     };
   });
   const queryWords = [...new Set(query.units.flatMap((unit) => unit.words).map((word) => fold(word)))];
@@ -505,7 +506,7 @@ function bestSection(
       if (unit.phrase && section.folded.includes(fold(unit.text)))
         score += unit.words.reduce((sum, word) => sum + (idf.get(fold(word)) ?? 0), 0);
     }
-    for (const term of query.substringTerms) if (section.folded.includes(term)) score += 1;
+    for (const term of query.substringTerms) if (section.lowered.includes(term)) score += 1;
     score *= 1 + covered / Math.max(1, queryWords.length);
     if (score > bestScore) {
       best = section;
@@ -515,18 +516,39 @@ function bestSection(
   return { section: best, variants };
 }
 
+function substringMatch(text: string, term: string): { start: number; end: number } | null {
+  const lowered = text.toLocaleLowerCase();
+  if (lowered.length === text.length) {
+    const index = lowered.indexOf(term);
+    return index >= 0 ? { start: index, end: index + term.length } : null;
+  }
+  let mapped = "";
+  const origins: number[] = [];
+  for (let index = 0; index < text.length; ) {
+    const character = String.fromCodePoint(text.codePointAt(index) ?? 0);
+    const lower = character.toLocaleLowerCase();
+    for (let offset = 0; offset < lower.length; offset += 1) origins.push(index);
+    mapped += lower;
+    index += character.length;
+  }
+  origins.push(text.length);
+  const index = mapped.indexOf(term);
+  if (index < 0) return null;
+  const last = origins[index + term.length - 1];
+  return { start: origins[index], end: last + String.fromCodePoint(text.codePointAt(last) ?? 0).length };
+}
+
 function highlightedSnippet(text: string, isMatch: (word: string) => boolean, substringTerms: string[]): string {
-  const compact = text.replace(/\s+/gu, " ").trim();
+  const compact = text.normalize("NFC").replace(/\s+/gu, " ").trim();
   const positions: Array<{ start: number; end: number; key: string }> = [];
   for (const match of compact.matchAll(WORD)) {
     const folded = fold(match[0]);
     if (isMatch(folded))
       positions.push({ start: match.index ?? 0, end: (match.index ?? 0) + match[0].length, key: folded });
   }
-  const lowered = compact.toLocaleLowerCase();
   for (const term of substringTerms) {
-    const index = lowered.indexOf(term);
-    if (index >= 0) positions.push({ start: index, end: index + term.length, key: term });
+    const match = substringMatch(compact, term);
+    if (match) positions.push({ ...match, key: term });
   }
   positions.sort((left, right) => left.start - right.start);
 
@@ -572,11 +594,12 @@ export function wikiSearchMatch(markdown: string, query: WikiSearchQuery): WikiS
   const plain = wikiPlainText(bodyWithoutHeading) || section.path.at(-1) || "";
   const snippet = highlightedSnippet(plain, (word) => accepted.has(word), query.substringTerms);
   if (section.level === 0) return { snippet, offset: section.offset };
+  const anchor = slugifyHeading(section.path.at(-1) ?? "");
   return {
     snippet,
     offset: section.offset,
     section: boundedText(section.path.join(" > "), WIKI_SECTION_MAX_LENGTH),
-    anchor: slugifyHeading(section.path.at(-1) ?? ""),
+    ...(anchor ? { anchor } : {}),
   };
 }
 

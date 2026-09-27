@@ -50,6 +50,36 @@ describe("parseWikiSearchQuery", () => {
     ]);
   });
 
+  it("completes only a trailing bare letter or number token so no tsquery syntax reaches the prefix path", () => {
+    const hostile = [
+      "refund'",
+      "refund:*",
+      "refund:* | policy:*",
+      "o'neil",
+      "refund&",
+      "!refund",
+      "'refund'",
+      '"refund"',
+      "(refund)",
+      "refund\\",
+      "re fund <->",
+      "a",
+      "go-live",
+      "AES-256",
+      "30%",
+      "退款",
+    ];
+    for (const query of hostile) {
+      const { prefix } = parseWikiSearchQuery(query);
+      expect(prefix === null || /^[\p{L}\p{N}]{2,}$/u.test(prefix), query).toBe(true);
+    }
+    expect(parseWikiSearchQuery("o'neil").prefix).toBeNull();
+    expect(parseWikiSearchQuery('"refund"').prefix).toBeNull();
+    expect(parseWikiSearchQuery("refund:*").prefix).toBeNull();
+    expect(parseWikiSearchQuery("!refund").prefix).toBe("refund");
+    expect(parseWikiSearchQuery("退款").prefix).toBeNull();
+  });
+
   it("offers only single alphabetic words to typo matching, bound to their unit", () => {
     expect(parseWikiSearchQuery('glosary AES-256 "per diem" q3 milage').fuzzyTerms).toEqual([
       { term: "glosary", unit: 2 },
@@ -158,5 +188,41 @@ describe("wikiSearchMatch", () => {
       snippet: "Private car use is **reimbursed** at 0.30 EUR per kilometre.",
     });
     expect(wikiSearchMatch(markdown, parseWikiSearchQuery("退款申请"))).toMatchObject({ section: "退款" });
+  });
+
+  it("matches Korean Hangul and voiced Japanese kana against the section they appear in, without an empty anchor", () => {
+    const korean = "## 소개\n\n이 페이지는 팀 안내입니다.\n\n## 환불 정책\n\n환불은 30일 이내에 요청할 수 있습니다.";
+    const koreanMatch = wikiSearchMatch(korean, parseWikiSearchQuery("환불"));
+    expect(koreanMatch).toEqual({
+      offset: korean.indexOf("## 환불 정책"),
+      section: "환불 정책",
+      snippet: "**환불**은 30일 이내에 요청할 수 있습니다.",
+    });
+    expect(koreanMatch).not.toHaveProperty("anchor");
+
+    const japanese =
+      "## 概要\n\nチームの案内です。\n\n## がくしゅう\n\n新しいメンバーはがくしゅう計画に従います。\n\n## データベース\n\nデータベースは毎晩バックアップされます。";
+    expect(wikiSearchMatch(japanese, parseWikiSearchQuery("がくしゅう"))).toMatchObject({
+      offset: japanese.indexOf("## がくしゅう"),
+      section: "がくしゅう",
+    });
+    expect(wikiSearchMatch(japanese, parseWikiSearchQuery("データベース"))).toMatchObject({
+      offset: japanese.indexOf("## データベース"),
+      section: "データベース",
+      snippet: "**データベース**は毎晩バックアップされます。",
+    });
+    const decomposed = japanese.normalize("NFD");
+    expect(wikiSearchMatch(decomposed, parseWikiSearchQuery("データベース")).offset).toBe(
+      decomposed.indexOf("## データベース".normalize("NFD")),
+    );
+  });
+
+  it("highlights substring matches at their original positions when lowercasing changes the text length", () => {
+    const markdown = "Die İstanbul Straße liegt nahe dem Bahnhof, 東京 test.";
+    const snippet = wikiSearchMatch(markdown, parseWikiSearchQuery("東京")).snippet;
+    expect(snippet).toBe("Die İstanbul Straße liegt nahe dem Bahnhof, **東京** test.");
+    expect(wikiSearchMatch(markdown, parseWikiSearchQuery("東京 test")).snippet).toBe(
+      "Die İstanbul Straße liegt nahe dem Bahnhof, **東京** **test**.",
+    );
   });
 });
