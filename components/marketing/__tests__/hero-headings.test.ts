@@ -14,13 +14,25 @@ vi.mock("@/components/marketing/agpl-github-badge", () => ({ AgplGithubBadge: ()
 import { HomepageHero } from "@/app/[locale]/(static)/components/homepage-hero";
 import { PageHero } from "../page-hero";
 
+function textOutsideTags(markup: string): string {
+  let text = "";
+  let insideTag = false;
+
+  for (const character of markup) {
+    if (character === "<") insideTag = true;
+    else if (character === ">") insideTag = false;
+    else if (!insideTag) text += character;
+  }
+
+  return text;
+}
+
 function headingText(html: string): string {
   const headings = html.match(/<h1\b[\s\S]*?<\/h1>/gu) ?? [];
 
   expect(headings).toHaveLength(1);
 
-  return (headings[0] ?? "")
-    .replace(/<[^>]+>/gu, "")
+  return textOutsideTags(headings[0] ?? "")
     .replace(/\s+/gu, " ")
     .trim();
 }
