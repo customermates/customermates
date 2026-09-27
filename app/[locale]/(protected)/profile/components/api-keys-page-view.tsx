@@ -39,6 +39,7 @@ export const ApiKeysPageView = observer(({ apiKeys }: Props) => {
     () =>
       pageState !== "loading" && pageState !== "error" && canManage ? (
         <Button
+          aria-label={t("Common.actions.add")}
           className="h-8"
           id="profile-api-keys-generate"
           size="sm"
@@ -104,11 +105,19 @@ export const ApiKeysPageView = observer(({ apiKeys }: Props) => {
             {apiKeysStore.items.map((key) => (
               <Card
                 key={key.id}
-                className="cursor-pointer gap-3 py-4 interactive-surface"
+                className="cursor-pointer gap-3 py-4 interactive-surface outline-none focus-visible:border-ring focus-visible:ring-[3px] focus-visible:ring-ring/50"
+                role="button"
+                tabIndex={0}
                 onClick={() => apiKeyModalStore.view(key)}
+                onKeyDown={(event) => {
+                  if (event.key !== "Enter" && event.key !== " ") return;
+
+                  event.preventDefault();
+                  apiKeyModalStore.view(key);
+                }}
               >
                 <CardContent className="flex flex-col gap-2 px-4">
-                  <p className="truncate text-sm font-medium">{key.name || t("ApiKeysCard.unnamed")}</p>
+                  <p className="truncate text-sm font-medium">{key.name?.trim() || t("ApiKeysCard.unnamed")}</p>
 
                   <InfoRow label={t("Common.table.columns.createdAt")}>
                     {intlStore.formatNumericalShortDateTime(key.createdAt)}

@@ -40,6 +40,7 @@ export const WebhookModal = observer(() => {
           ? [
               {
                 id: "delete-webhook",
+                anchorId: "webhook-modal-delete",
                 label: t("Common.actions.delete"),
                 icon: Trash2,
                 variant: "destructive",
@@ -60,16 +61,17 @@ export const WebhookModal = observer(() => {
 
           <AppCardBody>
             <div className="space-y-1.5">
-              <FormInput required id="url" type="url" />
+              <FormInput required id="url" inputId="webhook-modal-url" type="url" />
 
               <p className="text-subdued text-xs">{t("WebhookModal.urlDescription")}</p>
             </div>
 
-            <FormTextarea id="description" />
+            <FormTextarea id="description" inputId="webhook-modal-description" />
 
             <FormAutocomplete
               required
               id="events"
+              inputId="webhook-modal-events"
               items={WEBHOOK_EVENTS}
               renderValue={(items) =>
                 items.map((item) => <AppChip key={item.key}>{t(`Common.events.${item.key}`)}</AppChip>)
@@ -82,6 +84,7 @@ export const WebhookModal = observer(() => {
             <div className="space-y-1.5">
               <PasswordInput
                 id="secret"
+                inputId="webhook-modal-secret"
                 showPassword={webhookModalStore.showSecret}
                 onToggleVisibility={webhookModalStore.toggleShowSecret}
               />
@@ -90,18 +93,23 @@ export const WebhookModal = observer(() => {
             </div>
 
             <div className="space-y-1.5">
-              <FormTextarea id="headers" placeholder={HEADERS_PLACEHOLDER} rows={3} />
+              <FormTextarea id="headers" inputId="webhook-modal-headers" placeholder={HEADERS_PLACEHOLDER} rows={3} />
 
               <p className="text-subdued text-xs">{t("WebhookModal.headersDescription")}</p>
             </div>
 
             <div className="space-y-1.5">
-              <FormTextarea id="bodyTemplate" placeholder={BODY_TEMPLATE_PLACEHOLDER} rows={3} />
+              <FormTextarea
+                id="bodyTemplate"
+                inputId="webhook-modal-body-template"
+                placeholder={BODY_TEMPLATE_PLACEHOLDER}
+                rows={3}
+              />
 
               <p className="text-subdued text-xs">{t("WebhookModal.bodyTemplateDescription")}</p>
             </div>
 
-            <FormCheckbox id="enabled" label={t("WebhookModal.enabled")} />
+            <FormCheckbox id="enabled" inputId="webhook-modal-enabled" label={t("WebhookModal.enabled")} />
           </AppCardBody>
 
           <FormActions showInitially anchorScope="webhook-modal" store={webhookModalStore} />

@@ -41,7 +41,6 @@ export function useMemberColumns(): ColumnDef<UserDto>[] {
         },
       },
       {
-        accessorKey: "email",
         id: "email",
         header: t("Common.table.columns.email"),
         cell: ({ row }) => <span className="text-sm">{row.original.email}</span>,

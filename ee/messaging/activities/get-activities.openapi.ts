@@ -1,7 +1,7 @@
 import type { ZodOpenApiOperationObject } from "zod-openapi";
 
 import { ActivitiesApiParamsSchema, ActivitiesResultSchema } from "@/ee/messaging/activities/activities.schema";
-import { CommonApiResponses } from "@/core/api/interactor-handler";
+import { CommonApiResponses, NotFoundApiResponse } from "@/core/api/interactor-handler";
 
 export const getActivitiesOperation: ZodOpenApiOperationObject = {
   operationId: "getActivities",
@@ -29,5 +29,6 @@ export const getActivitiesOperation: ZodOpenApiOperationObject = {
       },
     },
     ...CommonApiResponses,
+    ...NotFoundApiResponse,
   },
 };

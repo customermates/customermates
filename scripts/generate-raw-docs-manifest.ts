@@ -1,6 +1,8 @@
 import { readFileSync, readdirSync, mkdirSync, writeFileSync } from "node:fs";
 import path from "node:path";
 
+import { parse } from "yaml";
+
 import { CONTENT_LOCALES } from "@/i18n/locale-registry";
 import { resolveCommercialTokens } from "@/core/commercial/commercial-tokens";
 import { resolveDerivedTokens } from "@/core/content/derived-tokens";
@@ -19,13 +21,13 @@ const manifest: Record<
 function parsePage(slug: string, raw: string, locale: string): ManifestPage {
   raw = resolveDerivedTokens(resolveCommercialTokens(raw, locale));
   const frontmatter = raw.match(/^---\n([\s\S]*?)\n---\n?/);
-  const pick = (key: string) =>
-    frontmatter?.[1].match(
-      new RegExp(`^${key}:\\s*["']?(.+?)["']?$`, "m"),
-    )?.[1] ?? "";
+  const data = (frontmatter ? parse(frontmatter[1]) : {}) as {
+    title?: string;
+    description?: string;
+  };
   return {
-    title: pick("title") || slug,
-    description: pick("description"),
+    title: data.title || slug,
+    description: data.description ?? "",
     content: raw,
   };
 }

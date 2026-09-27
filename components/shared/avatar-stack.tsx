@@ -31,6 +31,7 @@ export function AvatarStack<T extends AvatarStackItem>({
   avatarHref,
 }: Props<T>) {
   const navigateToHref = useNavigateToHref();
+  const opensItems = Boolean(onAvatarClick || avatarHref);
 
   return (
     <OverlappingStack
@@ -62,8 +63,9 @@ export function AvatarStack<T extends AvatarStackItem>({
           </StackDropdownItem>
         );
       }}
-      rowKey={(item) => item.id}
-      rows={items}
+      rowKey={opensItems ? (item) => item.id : undefined}
+      rows={opensItems ? items : undefined}
+      triggerLabel={items.map((item) => `${item.firstName} ${item.lastName}`.trim()).join(", ")}
     />
   );
 }

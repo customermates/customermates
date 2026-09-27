@@ -113,12 +113,28 @@ const GROUPS: DataViewGroup[] = [
   group({ key: "won", count: 0, label: "WON", weight: 80 }),
 ];
 
-function store(grouping: Partial<GroupingResult>, moveItemBetweenGroups = vi.fn()): BaseDataViewStore<Item> {
+const SUMMED_GROUPS: DataViewGroup[] = [
+  group({
+    key: "new",
+    count: 1,
+    label: "NEW",
+    itemIds: ["e-1"],
+    valueSums: { totalValue: 200, weightedValue: 50 },
+  }),
+  group({ key: "won", count: 0, label: "WON", weight: 80, valueSums: { totalValue: 0, weightedValue: 0 } }),
+];
+
+function store(
+  grouping: Partial<GroupingResult>,
+  moveItemBetweenGroups = vi.fn(),
+  isGroupedByDealWeightingColumn = true,
+): BaseDataViewStore<Item> {
   return {
     customColumns: [STORED_COLUMN],
     entityType: "deal",
     hiddenColumns: [],
     isGrouped: true,
+    isGroupedByDealWeightingColumn,
     isRefreshing: false,
     items: ITEMS,
     groupingResult: {
@@ -218,6 +234,31 @@ describe("board drag gating", () => {
       value: "won",
       destinationValueSums: { totalValue: 200, weightedValue: 160 },
     });
+  });
+
+  it("shows the stage probability and projects the weighted sum when the board is grouped by the weighting column", async () => {
+    const moveItemBetweenGroups = vi.fn();
+    render(store({ groups: SUMMED_GROUPS }, moveItemBetweenGroups));
+
+    expect(document.body.textContent).toContain("80%");
+
+    await drop("e-1", "won", "new");
+
+    expect(moveItemBetweenGroups.mock.calls[0][0]).toMatchObject({
+      destinationValueSums: { totalValue: 200, weightedValue: 160 },
+    });
+  });
+
+  it("hides stored option weights and keeps the card's own weighted value when another column is the weighting column", async () => {
+    const moveItemBetweenGroups = vi.fn();
+    render(store({ groups: SUMMED_GROUPS }, moveItemBetweenGroups, false));
+
+    expect(document.body.textContent).not.toContain("80%");
+
+    await drop("e-1", "won", "new");
+
+    expect(moveItemBetweenGroups).toHaveBeenCalledTimes(1);
+    expect(moveItemBetweenGroups.mock.calls[0][0].destinationValueSums).toBeUndefined();
   });
 
   it("ignores a drop back onto the group the card already sits in", async () => {

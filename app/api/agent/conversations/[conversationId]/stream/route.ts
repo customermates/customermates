@@ -1,10 +1,8 @@
-import { type NextRequest, NextResponse } from "next/server";
-import { z } from "zod";
+import type { NextRequest } from "next/server";
 
 import { env } from "@/env";
 import { getGetAgentRunStreamInteractor } from "@/core/di";
-import { handleError } from "@/core/api/interactor-handler";
-import { interactorFailureStatus } from "@/core/validation/validation.utils";
+import { handleError, interactorFailureResponse } from "@/core/api/interactor-handler";
 import { agentTurnSseStream } from "@/ee/agent-chat/agent-turn-stream";
 
 export const runtime = "nodejs";
@@ -23,8 +21,7 @@ export async function GET(request: NextRequest, { params }: { params: Promise<{ 
   try {
     const { conversationId } = await params;
     const result = await getGetAgentRunStreamInteractor().invoke({ conversationId });
-    if (!result.ok)
-      return NextResponse.json(z.prettifyError(result.error), { status: interactorFailureStatus(result.error) });
+    if (!result.ok) return interactorFailureResponse(result.error);
 
     const requestedStartIndex = Number(request.nextUrl.searchParams.get("startIndex") ?? "0");
     const startIndex = Number.isFinite(requestedStartIndex) ? requestedStartIndex : 0;

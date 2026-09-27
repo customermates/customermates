@@ -12,7 +12,8 @@ import { CustomColumnDtoSchema } from "@/features/custom-column/custom-column.sc
 export const getTaskByIdOperation: ZodOpenApiOperationObject = {
   operationId: "getTaskById",
   summary: "Get a task by ID",
-  description: "Retrieves a single task by its unique identifier.",
+  description:
+    "Retrieves a single task by its unique identifier. The response carries `task: null`, not an error, when no task with this id is accessible.",
   tags: ["tasks"],
   security: [{ apiKeyAuth: [] }],
   requestParams: {
@@ -20,7 +21,7 @@ export const getTaskByIdOperation: ZodOpenApiOperationObject = {
   },
   responses: {
     "200": {
-      description: "The task was retrieved successfully.",
+      description: "The task, or `task: null` when no task with this id is accessible.",
       content: {
         "application/json": {
           schema: z.object({

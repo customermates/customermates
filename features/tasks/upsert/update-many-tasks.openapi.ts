@@ -4,7 +4,7 @@ import { TaskDtoSchema } from "../task.schema";
 
 import { UpdateManyTasksSchema } from "./update-many-tasks.interactor";
 
-import { CommonApiResponses } from "@/core/api/interactor-handler";
+import { CommonApiResponses, NotFoundApiResponse } from "@/core/api/interactor-handler";
 
 export const updateManyTasksOperation: ZodOpenApiOperationObject = {
   operationId: "updateManyTasks",
@@ -30,5 +30,6 @@ export const updateManyTasksOperation: ZodOpenApiOperationObject = {
       },
     },
     ...CommonApiResponses,
+    ...NotFoundApiResponse,
   },
 };

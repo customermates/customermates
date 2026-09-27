@@ -4,6 +4,7 @@ import { z } from "zod";
 import { EntityType } from "@/generated/prisma";
 
 import { FilterSchema, SortDescriptorSchema } from "@/core/base/base-get.schema";
+import { zx } from "@/core/validation/validation.utils";
 
 export const SCHEMA_SHEET_NAME = "Schema";
 
@@ -25,7 +26,7 @@ export const ExportRecordsPageSchema = z.object({
   entityType: z.enum(EntityType),
   columns: z.array(RequestedColumnSchema).min(1).max(200),
   filters: z.array(FilterSchema).optional(),
-  searchTerm: z.string().max(500).optional(),
+  searchTerm: zx.nulFreeText().max(500).optional(),
   sortDescriptor: SortDescriptorSchema.optional(),
   selectedIds: z.array(z.uuid()).max(EXPORT_ROW_LIMIT).optional(),
   skip: z.number().int().min(0).max(EXPORT_ROW_LIMIT),

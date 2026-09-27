@@ -4,7 +4,7 @@ import { z } from "zod";
 
 import { DeleteServiceSchema } from "./delete-service.interactor";
 
-import { CommonApiResponses } from "@/core/api/interactor-handler";
+import { CommonApiResponses, NotFoundApiResponse } from "@/core/api/interactor-handler";
 
 export const deleteServiceOperation: ZodOpenApiOperationObject = {
   operationId: "deleteService",
@@ -25,5 +25,6 @@ export const deleteServiceOperation: ZodOpenApiOperationObject = {
       },
     },
     ...CommonApiResponses,
+    ...NotFoundApiResponse,
   },
 };

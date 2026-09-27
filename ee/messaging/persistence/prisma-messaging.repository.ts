@@ -197,7 +197,7 @@ export class PrismaMessagingRepo
   }
 
   getSortableFields() {
-    return [{ field: "lastMessageAt", resolvedFields: ["lastMessageAt"] }];
+    return [{ field: "lastMessageAt", resolvedFields: ["lastMessageAt"], nullable: true }];
   }
 
   protected getDefaultOrderBy() {

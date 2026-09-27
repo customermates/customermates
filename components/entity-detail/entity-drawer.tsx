@@ -15,6 +15,7 @@ import {
   useEntityDrawerStack,
 } from "@/components/entity-detail/hooks/use-entity-drawer-stack";
 import { ENTITY_DETAIL } from "@/components/entity-detail/entity-detail.registry";
+import { keepOpenForAssistantSurface, releaseFocusToAssistantSurface } from "@/components/modal/assistant-surface";
 import { UnsavedChangesGuard } from "@/components/modal/unsaved-changes-guard";
 import { useOverlayFocusReturn } from "@/components/ui/use-overlay-focus-return";
 import { useEntityTerminology } from "@/components/entity-terminology/use-entity-terminology";
@@ -228,6 +229,9 @@ export const EntityDrawer = observer(() => {
           aria-describedby={undefined}
           className="gap-0 sm:max-w-[640px]"
           side="left"
+          onBlur={releaseFocusToAssistantSurface}
+          onEscapeKeyDown={keepOpenForAssistantSurface}
+          onInteractOutside={keepOpenForAssistantSurface}
           {...focusReturn}
           onCloseAutoFocus={handleCloseAutoFocus}
         >

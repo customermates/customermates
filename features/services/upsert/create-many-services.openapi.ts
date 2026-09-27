@@ -4,7 +4,7 @@ import { ServiceDtoSchema } from "../service.schema";
 
 import { CreateManyServicesSchema } from "./create-many-services.interactor";
 
-import { CommonApiResponses } from "@/core/api/interactor-handler";
+import { CommonApiResponses, NotFoundApiResponse } from "@/core/api/interactor-handler";
 
 export const createManyServicesOperation: ZodOpenApiOperationObject = {
   operationId: "createManyServices",
@@ -31,5 +31,6 @@ export const createManyServicesOperation: ZodOpenApiOperationObject = {
       },
     },
     ...CommonApiResponses,
+    ...NotFoundApiResponse,
   },
 };

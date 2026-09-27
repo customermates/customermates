@@ -133,7 +133,7 @@ export class PrismaContactRepo
 
   getSortableFields() {
     return [
-      { field: "name", resolvedFields: ["firstName", "lastName"] },
+      { field: "name", resolvedFields: ["firstName", "lastName"], collate: true },
       { field: "createdAt", resolvedFields: ["createdAt"] },
       { field: "updatedAt", resolvedFields: ["updatedAt"] },
     ];

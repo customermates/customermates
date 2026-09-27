@@ -27,6 +27,7 @@ vi.mock("@/components/entity-terminology/use-entity-terminology", () => ({
 }));
 vi.mock("@/components/ai-elements/message", () => ({
   MessageResponse: () => null,
+  messageHardenRehypePlugins: [],
 }));
 
 import { AgentChatItemView } from "../agent-chat-items";

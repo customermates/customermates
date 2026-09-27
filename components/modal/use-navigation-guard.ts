@@ -4,6 +4,7 @@ import { useEffect } from "react";
 
 import type { BaseFormStore } from "@/core/base/base-form.store";
 
+import { stripLocalePrefix } from "@/i18n/locale-registry";
 import { useRouter } from "@/i18n/navigation";
 import { useRootStore } from "@/core/stores/root-store.provider";
 
@@ -38,14 +39,18 @@ export function useNavigationGuard(store: BaseFormStore): void {
       if (!href || href.startsWith("#")) return;
       if (anchor.target && anchor.target !== "_self") return;
 
-      const isAbsolute = /^[a-z]+:\/\//i.test(href);
-      if (isAbsolute && !href.startsWith(window.location.origin)) return;
+      let destination: URL;
+      try {
+        destination = new URL(href, window.location.href);
+      } catch {
+        return;
+      }
+      if (destination.origin !== window.location.origin) return;
 
       event.preventDefault();
       event.stopPropagation();
-      const path = isAbsolute ? href.slice(window.location.origin.length) : href;
-      const localeStripped = path.replace(/^\/[a-z]{2}(?=\/|$)/, "") || "/";
-      navigationGuard.tryNavigate(() => router.push(localeStripped));
+      const path = `${stripLocalePrefix(destination.pathname)}${destination.search}${destination.hash}`;
+      navigationGuard.tryNavigate(() => router.push(path));
     }
 
     window.addEventListener("beforeunload", handleBeforeUnload);

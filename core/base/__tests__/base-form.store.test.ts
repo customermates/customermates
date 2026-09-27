@@ -55,3 +55,39 @@ describe("BaseFormStore.onChange", () => {
     expect(store.form).toEqual({ a: {} });
   });
 });
+
+describe("BaseFormStore error state", () => {
+  function storeWithFirstNameError() {
+    const store = new TestStore(stubRootStore, { firstName: "Max", lastName: "Muster" });
+    store.onChange("firstName", "");
+    store.error = { errors: [], properties: { firstName: { errors: ["Required"] } } };
+    return store;
+  }
+
+  it("clears the error on reset", () => {
+    const store = storeWithFirstNameError();
+    expect(store.getError("firstName")).toEqual(["Required"]);
+
+    store.resetForm();
+
+    expect(store.form.firstName).toBe("Max");
+    expect(store.getError("firstName")).toBeUndefined();
+  });
+
+  it("clears the error when an edit brings the form back to its saved state", () => {
+    const store = storeWithFirstNameError();
+
+    store.onChange("firstName", "Max");
+
+    expect(store.hasUnsavedChanges).toBe(false);
+    expect(store.getError("firstName")).toBeUndefined();
+  });
+
+  it("keeps the error while the form still differs from its saved state", () => {
+    const store = storeWithFirstNameError();
+
+    store.onChange("lastName", "Mustermann");
+
+    expect(store.getError("firstName")).toEqual(["Required"]);
+  });
+});

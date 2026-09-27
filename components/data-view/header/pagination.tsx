@@ -59,6 +59,7 @@ export const DataViewPagination = observer(function DataViewPagination<E extends
       <div className="flex shrink-0 items-center gap-0.5">
         <Select value={String(pageSize)} onValueChange={(v) => setPageSize(Number(v))}>
           <SelectTrigger
+            aria-label={t("Common.table.rowsPerPage")}
             className="text-muted-foreground hover:text-foreground hover:bg-accent w-auto gap-1 border-0 bg-transparent px-2 shadow-none focus-visible:ring-0"
             size="sm"
           >

@@ -18,6 +18,7 @@ vi.mock("next-intl/server", () => ({
 }));
 
 import { executeMcpTool, expectedMcpToolFailure, mcpInteractorFailure, type McpTool } from "../mcp-tool";
+import { customMcpFailure, nestedCustomErrorText, nestedValidationErrorText } from "../utils";
 
 function testTool(execute: McpTool["execute"]): McpTool {
   return {
@@ -76,6 +77,27 @@ describe("MCP tool execution contract", () => {
             customCode: "serviceNotFound",
           },
         ],
+      },
+    });
+  });
+
+  it("returns a messaging provider rate limit as kind rate_limit with its waiting time", async () => {
+    const message = "This channel reached its limit for now. You can try again in 2 minutes.";
+    const failure = mcpInteractorFailure(
+      createZodError(message, [], { retryAfter: "in 2 minutes", error: CustomErrorCode.unipileRateLimit }),
+    );
+
+    await expect(
+      executeMcpTool(
+        testTool(() => failure),
+        [{}],
+      ),
+    ).resolves.toEqual({
+      ok: false,
+      result: failure.text,
+      failure: {
+        kind: "rate_limit",
+        issues: [{ code: "custom", path: [], message, customCode: "unipileRateLimit" }],
       },
     });
   });
@@ -210,6 +232,12 @@ describe("MCP tool execution contract", () => {
   it.each([
     [CustomErrorCode.notAuthenticated, "authentication", 401],
     [CustomErrorCode.roleSystemImmutable, "conflict", 409],
+    [CustomErrorCode.channelAlreadyLinked, "conflict", 409],
+    [CustomErrorCode.unipileRateLimit, "rate_limit", 429],
+    [CustomErrorCode.unipileResourceNotFound, "not_found", 404],
+    [CustomErrorCode.unipileProviderError, "unavailable", 422],
+    [CustomErrorCode.unipileRequestTimeout, "unavailable", 422],
+    [CustomErrorCode.unipileServiceUnavailable, "unavailable", 422],
   ])("classifies refinement-born %s by its registered kind %s", (customCode, kind, status) => {
     const error = createZodError("Expected failure", [], { error: customCode });
 
@@ -234,5 +262,39 @@ describe("MCP tool execution contract", () => {
     const error = createZodError("Expected failure", [], { error: CustomErrorCode.roleSystemImmutable, kind: "bogus" });
 
     expect(interactorFailureKind(error)).toBe("conflict");
+  });
+});
+
+describe("MCP failure text", () => {
+  it("labels only a validation failure as a validation error", () => {
+    const validation = createZodError("Invalid UUID", ["id"]);
+    const conflict = createZodError("This channel is already linked to another contact.", ["identifiers", 0, "value"], {
+      error: CustomErrorCode.channelAlreadyLinked,
+    });
+
+    expect(mcpInteractorFailure(validation).text).toBe(`Validation error: ${z.prettifyError(validation)}`);
+    expect(mcpInteractorFailure(conflict)).toMatchObject({
+      text: z.prettifyError(conflict),
+      failure: { kind: "conflict" },
+    });
+    expect(nestedValidationErrorText(conflict)).toBe(z.prettifyError(conflict));
+  });
+
+  it("returns a coded not-found refusal as its bare message", async () => {
+    await expect(customMcpFailure(CustomErrorCode.webhookNotFound)).resolves.toEqual({
+      text: "localized:webhookNotFound",
+      failure: {
+        kind: "not_found",
+        issues: [{ code: "custom", path: [], message: "localized:webhookNotFound", customCode: "webhookNotFound" }],
+      },
+    });
+    await expect(nestedCustomErrorText(CustomErrorCode.widgetNotFound)).resolves.toBe("localized:widgetNotFound");
+  });
+
+  it("keeps the validation label on a coded validation refusal", async () => {
+    await expect(customMcpFailure(CustomErrorCode.customColumnTypeMismatch)).resolves.toMatchObject({
+      text: "Validation error: localized:customColumnTypeMismatch",
+      failure: { kind: "validation" },
+    });
   });
 });

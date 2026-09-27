@@ -406,6 +406,16 @@ describe("UpsertWidgetInteractor", () => {
     expect(repo.upsertWidget).not.toHaveBeenCalled();
   });
 
+  it("rejects a name made only of spaces, like record, role and API key names", async () => {
+    const input = { ...activityInput(), name: "   " };
+
+    const result = await makeInteractor(repo).invoke(input);
+
+    expect(result.ok).toBe(false);
+    expect(JSON.stringify(result)).toContain(CustomErrorCode.mustNotBeBlank);
+    expect(repo.upsertWidget).not.toHaveBeenCalled();
+  });
+
   it("rejects changing an existing widget kind", async () => {
     widgetFindIds.mockResolvedValue(new Set([WIDGET_ID]));
     repo.getWidgetKind.mockResolvedValue(WidgetKind.chart);

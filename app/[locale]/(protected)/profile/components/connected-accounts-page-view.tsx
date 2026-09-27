@@ -92,7 +92,13 @@ const ConnectAction = observer(({ id, variant = "default" }: { id: string; varia
   return (
     <DropdownMenu>
       <DropdownMenuTrigger asChild>
-        <Button className="h-8" id={id} size="sm" variant={variant}>
+        <Button
+          aria-label={t("ConnectedAccountsCard.connectAccount")}
+          className="h-8"
+          id={id}
+          size="sm"
+          variant={variant}
+        >
           <span className="-space-x-1.5 flex items-center">
             {FEATURED_PROVIDERS.map((provider) => {
               const ChannelIcon = getProviderIcon(provider);
@@ -122,7 +128,7 @@ const ConnectAction = observer(({ id, variant = "default" }: { id: string; varia
         </Button>
       </DropdownMenuTrigger>
 
-      <DropdownMenuContent align="end">
+      <DropdownMenuContent align="end" aria-labelledby={id}>
         {CONNECT_CHANNEL_OPTIONS.map((option) => {
           const ChannelIcon = getProviderIcon(option.icon);
           return (
@@ -262,8 +268,16 @@ export const ConnectedAccountsPageView = observer(({ accounts, locked = false }:
               return (
                 <Card
                   key={account.id}
-                  className="cursor-pointer gap-3 py-4 interactive-surface"
+                  className="cursor-pointer gap-3 py-4 interactive-surface outline-none focus-visible:border-ring focus-visible:ring-[3px] focus-visible:ring-ring/50"
+                  role="button"
+                  tabIndex={0}
                   onClick={() => connectedAccountModalStore.openWith(account)}
+                  onKeyDown={(event) => {
+                    if (event.key !== "Enter" && event.key !== " ") return;
+
+                    event.preventDefault();
+                    connectedAccountModalStore.openWith(account);
+                  }}
                 >
                   <CardContent className="flex flex-col gap-2 px-4">
                     <div className="flex items-center gap-2">

@@ -215,9 +215,9 @@ export class PrismaRoutineRepo
 
   getSortableFields() {
     return [
-      { field: "name", resolvedFields: ["name"] },
-      { field: "nextRunAt", resolvedFields: ["nextRunAt"] },
-      { field: "lastRunAt", resolvedFields: ["lastRunAt"] },
+      { field: "name", resolvedFields: ["name"], collate: true },
+      { field: "nextRunAt", resolvedFields: ["nextRunAt"], nullable: true },
+      { field: "lastRunAt", resolvedFields: ["lastRunAt"], nullable: true },
       { field: "createdAt", resolvedFields: ["createdAt"] },
       { field: "updatedAt", resolvedFields: ["updatedAt"] },
     ];
@@ -254,14 +254,13 @@ export class PrismaRoutineRepo
   }
 
   async getItems(params: GetQueryParams) {
-    const args = await this.buildQueryArgs(params, this.accessWhere("routine"));
-
-    const routines = await this.prisma.routine.findMany({
-      ...args,
+    return this.list({
+      model: "routine",
+      baseWhere: this.accessWhere("routine"),
       select: ROUTINE_SELECT,
+      params,
+      map: routineDto,
     });
-
-    return routines.map(routineDto);
   }
 
   async getCount(params: GetQueryParams) {

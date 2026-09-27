@@ -94,6 +94,7 @@ export class CompanySettingsStore extends BaseFormStore<CompanySettingsFormData>
       setForecastingRequest: action,
       applyDealStageColumns: action,
       applyStageValueSums: action,
+      applySavedStageWeights: action,
       setDealWeightingColumn: action,
     });
   }
@@ -163,6 +164,7 @@ export class CompanySettingsStore extends BaseFormStore<CompanySettingsFormData>
     if (!isTerminologyPresetKey(entityType, presetKey)) return;
 
     this.form = { ...this.form, terminology: { ...this.form.terminology, [entityType]: presetKey } };
+    this.clearErrorIfSaved();
   };
 
   setForecastingRequest = (forecastingRequest: ForecastingRequestStatus) => {
@@ -183,12 +185,30 @@ export class CompanySettingsStore extends BaseFormStore<CompanySettingsFormData>
     this.forecastingRequest = "ready";
   };
 
+  applySavedStageWeights = (columnId: string | null, dealStageWeights: DealStageWeightDraft[]) => {
+    const weightByOptionValue = new Map(dealStageWeights.map(({ optionValue, weight }) => [optionValue, weight]));
+
+    this.dealStageColumns = this.dealStageColumns.map((column) =>
+      column.id === columnId
+        ? {
+            ...column,
+            options: column.options.map((option) =>
+              weightByOptionValue.has(option.value)
+                ? { ...option, weight: weightByOptionValue.get(option.value) }
+                : option,
+            ),
+          }
+        : column,
+    );
+  };
+
   setDealWeightingColumn = (dealWeightingColumnId: string | null) => {
     this.form = {
       ...this.form,
       dealWeightingColumnId,
       dealStageWeights: this.stageWeightsFor(dealWeightingColumnId),
     };
+    this.clearErrorIfSaved();
 
     if (!dealWeightingColumnId) return;
 
@@ -229,10 +249,7 @@ export class CompanySettingsStore extends BaseFormStore<CompanySettingsFormData>
         ...(forecastingChanged
           ? {
               dealWeightingColumnId: this.form.dealWeightingColumnId,
-              dealStageWeights: this.form.dealStageWeights.map(({ optionValue, weight }) => ({
-                optionValue,
-                weight: weight ?? 0,
-              })),
+              dealStageWeights: this.form.dealStageWeights.map(({ optionValue, weight }) => ({ optionValue, weight })),
             }
           : {}),
       });
@@ -242,6 +259,8 @@ export class CompanySettingsStore extends BaseFormStore<CompanySettingsFormData>
         if (company) this.rootStore.companyStore.setCompany({ ...company, currency: this.form.currency });
 
         await this.rootStore.terminologyStore.refresh();
+        if (forecastingChanged)
+          this.applySavedStageWeights(this.form.dealWeightingColumnId, this.form.dealStageWeights);
         this.onInitOrRefresh({
           currency: this.form.currency,
           terminology: toJS(this.form.terminology),
@@ -258,7 +277,7 @@ export class CompanySettingsStore extends BaseFormStore<CompanySettingsFormData>
     const column = this.dealStageColumns.find((entry) => entry.id === columnId);
     if (!column) return [];
 
-    return column.options.map((option) => ({ optionValue: option.value, weight: option.weight ?? 0 }));
+    return column.options.map((option) => ({ optionValue: option.value, weight: option.weight }));
   };
 
   private loadStageValueSums = async (columnId: string) => {

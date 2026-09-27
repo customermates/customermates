@@ -16,7 +16,7 @@ export class WebhooksStore extends BaseDataViewStore<WebhookDto> {
 
   get columnsDefinition(): TableColumn[] {
     return [
-      { uid: "name", sortable: false },
+      { uid: "name", label: this.t("Common.table.columns.url"), sortable: true },
       { uid: "description", sortable: false },
       { uid: "events", sortable: false },
       { uid: "status", sortable: false },

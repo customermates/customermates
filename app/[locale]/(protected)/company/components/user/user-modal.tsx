@@ -56,19 +56,20 @@ export const CompanyUserModal = observer(() => {
               </Alert>
             )}
 
-            <FormInput readOnly id="email" label={t("Common.email")} type="email" />
+            <FormInput readOnly id="email" inputId="member-modal-email" label={t("Common.email")} type="email" />
 
             <div className="grid w-full grid-cols-1 gap-3 sm:grid-cols-2">
-              <FormInput autoFocus required id="firstName" />
+              <FormInput autoFocus required id="firstName" inputId="member-modal-first-name" />
 
-              <FormInput required id="lastName" />
+              <FormInput required id="lastName" inputId="member-modal-last-name" />
             </div>
 
-            <FormAutocompleteCountry required id="country" value={form.country} />
+            <FormAutocompleteCountry required id="country" inputId="member-modal-country" value={form.country} />
 
             <FormSelect
               required
               id="roleId"
+              inputId="member-modal-role"
               items={rolesStore.items.map((item) => ({
                 value: item.id,
                 label: roleDisplayName(item, t("RoleModal.systemName")),
@@ -76,12 +77,17 @@ export const CompanyUserModal = observer(() => {
               optionsLoading={!rolesStore.isReady}
             />
 
-            <FormInput description={t("Common.avatarUrlDescription")} id="avatarUrl" />
+            <FormInput
+              description={t("Common.avatarUrlDescription")}
+              id="avatarUrl"
+              inputId="member-modal-avatar-url"
+            />
 
             <FormSelectChip
               required
               disabledKeys={new Set([Status.pendingAuthorization])}
               id="status"
+              inputId="member-modal-status"
               items={USER_STATUS_OPTIONS}
               translateFn={(key) => t(`Common.userStatuses.${key}`)}
             />

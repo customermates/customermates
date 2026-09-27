@@ -2,6 +2,7 @@ import type { UserService } from "../user/user.service";
 import type { EventService } from "@/features/event/event.service";
 import type { Data, Validated } from "@/core/validation/validation.utils";
 import type { ValidateCustomColumnIdsInteractor } from "@/core/validation/validators/validate-custom-column-ids.interactor";
+import type { GetDealWeightingColumnRepo } from "@/features/company/get-deal-weighting-column.repo";
 
 import { z } from "zod";
 import { Action, EntityType, Resource } from "@/generated/prisma";
@@ -13,7 +14,7 @@ import { TenantInteractor } from "@/core/decorators/tenant-interactor.decorator"
 import { Write } from "@/core/decorators/write.decorator";
 import { BULK_WRITE_TRANSACTION } from "@/core/decorators/transaction.decorator";
 import { AuthenticatedInteractor } from "@/core/base/authenticated-interactor";
-import { failConflict } from "@/core/validation/interactor-failure-server";
+import { failAuthorization, failConflict } from "@/core/validation/interactor-failure-server";
 import { CustomErrorCode } from "@/core/validation/validation.types";
 
 const Schema = z.object({
@@ -35,6 +36,7 @@ export class DeleteCustomColumnInteractor extends AuthenticatedInteractor<Delete
   constructor(
     private repo: DeleteCustomColumnRepo,
     private routineRepo: DeleteCustomColumnRoutineRepo,
+    private companyRepo: GetDealWeightingColumnRepo,
     private userService: UserService,
     private eventService: EventService,
     private validator: ValidateCustomColumnIdsInteractor,
@@ -71,6 +73,12 @@ export class DeleteCustomColumnInteractor extends AuthenticatedInteractor<Delete
     const permission = entityTypePermissionMap[customColumn.entityType];
 
     await this.userService.hasPermissionOrThrow(permission.resource, permission.action);
+
+    if (
+      (await this.companyRepo.getDealWeightingColumnId()) === customColumn.id &&
+      !(await this.userService.hasPermission(Resource.company, Action.update))
+    )
+      return failAuthorization(CustomErrorCode.permissionDenied, ["id"]);
 
     if (await this.routineRepo.hasRoutineFieldReference(customColumn.id))
       return failConflict(CustomErrorCode.customColumnUsedByRoutineCannotDelete, ["id"]);

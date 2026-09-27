@@ -8,7 +8,7 @@ import { CalendarIcon } from "lucide-react";
 import { useTranslations } from "next-intl";
 import { startOfMonth } from "date-fns";
 
-import { Calendar } from "@/components/ui/calendar";
+import { Calendar, focusCalendarDay } from "@/components/ui/calendar";
 import { Button } from "@/components/ui/button";
 import { FormLabel } from "./form-label";
 import { InputClearButton } from "./input-clear-button";
@@ -157,6 +157,7 @@ export const FormIsoDatePicker = observer(
           <PopoverContent
             align="start"
             className="w-auto max-h-(--radix-popover-content-available-height) overflow-y-auto p-0"
+            onOpenAutoFocus={focusCalendarDay}
           >
             <Calendar
               autoFocus

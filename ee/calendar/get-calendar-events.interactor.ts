@@ -34,14 +34,7 @@ export class GetCalendarEventsInteractor extends BaseGetInteractor<CalendarEvent
     queryParamsPrecheck: QueryParamsPrecheckInteractor,
     private entitlements: EntitlementService,
   ) {
-    super(
-      repo,
-      viewStateRepo,
-      mode,
-      undefined,
-      { sortDescriptor: { field: "startsAt", direction: "asc" } },
-      queryParamsPrecheck,
-    );
+    super(repo, viewStateRepo, mode, undefined, undefined, queryParamsPrecheck);
   }
 
   @Validate(GetQueryParamsSchema)

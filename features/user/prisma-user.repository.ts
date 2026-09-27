@@ -19,6 +19,7 @@ import type { WebhookUserRepo } from "@/ee/messaging/webhooks/account/account-we
 import type { SendLegalDocumentNoticesRepo } from "@/ee/lifecycle/send-legal-document-notices.interactor";
 import type { ExpireAdAttributionRepo } from "@/ee/lifecycle/expire-ad-attribution.interactor";
 import type { WithdrawAdAttributionRepo } from "@/features/acquisition/withdraw-ad-attribution.interactor";
+import type { Prisma } from "@/generated/prisma";
 
 import { randomUUID } from "node:crypto";
 
@@ -164,7 +165,7 @@ export class PrismaUserRepo
 
   getSortableFields() {
     return [
-      { field: "name", resolvedFields: ["firstName", "lastName"] },
+      { field: "name", resolvedFields: ["firstName", "lastName"], collate: true },
       { field: "createdAt", resolvedFields: ["createdAt"] },
       { field: "updatedAt", resolvedFields: ["updatedAt"] },
     ];
@@ -192,14 +193,13 @@ export class PrismaUserRepo
   }
 
   async getItems(params: GetQueryParams) {
-    const args = await this.buildQueryArgs(params, this.accessWhere("user"));
-
-    const users = await this.prisma.user.findMany({
-      ...args,
+    return this.list({
+      model: "user",
+      baseWhere: this.accessWhere("user"),
       select: this.userSelect,
+      params,
+      map: (user: Prisma.UserGetPayload<{ select: PrismaUserRepo["userSelect"] }>) => user,
     });
-
-    return users;
   }
 
   async getCount(params: GetQueryParams) {

@@ -77,6 +77,7 @@ type SortableOptionItemProps = {
 const SortableOptionItem = observer(
   ({
     option,
+    index,
     labelId,
     colorId,
     weightId,
@@ -132,6 +133,7 @@ const SortableOptionItem = observer(
 
         <div className="flex gap-0 w-full">
           <FormInput
+            aria-label={t("Common.ariaLabels.optionName", { number: index + 1 })}
             className="rounded-r-none border-r-0"
             containerClassName="flex-1 min-w-0"
             id={labelId}
@@ -173,7 +175,7 @@ const SortableOptionItem = observer(
 
         {showWeight && (
           <FormNumberInput
-            aria-label={t("CompanySettings.forecasting.weightsTitle")}
+            aria-label={option.label || t("Common.probability")}
             className="text-right font-mono tabular-nums"
             containerClassName="w-24 shrink-0"
             endContent={<span className="mr-1.5">%</span>}
@@ -265,7 +267,11 @@ export const CustomColumnModal = observer(() => {
                 label: t("Common.actions.deleteCustomFields"),
                 icon: Trash2,
                 variant: "destructive",
-                disabled: store.isDisabled,
+                disabled: store.isDeleteColumnDisabled,
+                tooltip:
+                  store.isDeleteColumnDisabled && !store.isDisabled
+                    ? t("Common.customFieldHelp.deleteWeightingColumnPermission", { company: t("UserAvatar.company") })
+                    : undefined,
                 onClick: () => showDeleteConfirmation(() => store.deleteColumn(), form.label),
               },
             ]

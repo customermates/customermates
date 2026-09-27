@@ -5,7 +5,7 @@ import { z } from "zod";
 import { OrganizationDtoSchema } from "../organization.schema";
 
 import { GetQueryParamsApiSchema, GetResultSchema } from "@/core/base/base-get.schema";
-import { CommonApiResponses } from "@/core/api/interactor-handler";
+import { CommonApiResponses, NotFoundApiResponse } from "@/core/api/interactor-handler";
 
 export const getOrganizationsOperation: ZodOpenApiOperationObject = {
   operationId: "getOrganizations",
@@ -33,5 +33,6 @@ export const getOrganizationsOperation: ZodOpenApiOperationObject = {
       },
     },
     ...CommonApiResponses,
+    ...NotFoundApiResponse,
   },
 };

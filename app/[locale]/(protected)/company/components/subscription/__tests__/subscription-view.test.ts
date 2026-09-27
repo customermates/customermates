@@ -69,6 +69,15 @@ describe("SubscriptionView refresh action", () => {
     expect(refreshShown(subscription())).toBe(false);
   });
 
+  it("is hidden while the workspace has no Lemon Squeezy subscription to refresh", () => {
+    expect(refreshShown(subscription({ hasActiveSubscription: false, hasBillingPortal: false }))).toBe(false);
+    expect(
+      refreshShown(
+        subscription({ hasActiveSubscription: false, hasBillingPortal: false, status: SubscriptionStatus.pastDue }),
+      ),
+    ).toBe(false);
+  });
+
   it("is hidden for an enterprise plan and during a trial", () => {
     expect(refreshShown(subscription({ plan: SubscriptionPlan.enterprise }))).toBe(false);
     expect(refreshShown(subscription({ status: SubscriptionStatus.trial }))).toBe(false);

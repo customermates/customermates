@@ -237,7 +237,7 @@ export const ImportWizard = observer(function ImportWizard() {
                 {store.parsed.sources.map((source, index) => (
                   <li key={source.index} className="flex items-center gap-3">
                     <span className="flex w-1/3 min-w-0 flex-col gap-1">
-                      <span className="truncate text-sm font-medium">
+                      <span className="truncate text-sm font-medium" id={`import-source-${source.index}`}>
                         {`${source.letter}. ${source.header || t("DataTransfer.import.unnamedColumn")}`}
                       </span>
 
@@ -254,7 +254,7 @@ export const ImportWizard = observer(function ImportWizard() {
                       value={targetIdentity(store.mapping[index] ?? { kind: "ignore" })}
                       onValueChange={(value) => store.setTarget(index, decodeTarget(value))}
                     >
-                      <SelectTrigger className="w-2/3">
+                      <SelectTrigger aria-labelledby={`import-source-${source.index}`} className="w-2/3">
                         <SelectValue placeholder=" " />
                       </SelectTrigger>
 
