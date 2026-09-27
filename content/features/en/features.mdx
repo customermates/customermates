@@ -18,7 +18,7 @@ features:
     features:
       - icon: Briefcase
         title: Deals & Pipelines
-        description: Track every opportunity from first touch to close. Drag deals across stages, switch between list, card, and Kanban without losing context, and define custom stages per pipeline.
+        description: Track every opportunity from first touch to close. Drag deals across stages, switch between table and Kanban without losing context, and configure one stage column with per-stage probabilities for weighted pipeline values.
       - icon: Users
         title: Contacts
         description: People and the context behind every conversation.
@@ -27,7 +27,7 @@ features:
         description: Companies and accounts, linked to the people behind them.
       - icon: LayoutGrid
         title: Multiple Views
-        description: List, card, and Kanban for the same data.
+        description: Table and Kanban board layouts for the same data.
       - icon: Table
         title: Custom Columns
         description: Typed fields you can filter and group by.
@@ -100,11 +100,11 @@ features:
         title: Reports & Dashboards
         description: Turn stored CRM data into decisions. Build personal dashboards for supported counts, values, and groupings, including custom fields. Derived cycle-time and team-performance metrics require external calculation.
       - icon: Upload
-        title: Create Through Open Interfaces
-        description: An integration you operate can create supported records through REST or an external AI client over MCP. There is no CSV importer.
+        title: XLSX Import & Open Interfaces
+        description: Import one record type at a time from an Excel workbook (XLSX), or create records through REST or an external AI client over MCP. There is no CSV importer.
       - icon: Download
-        title: REST API Access
-        description: Read supported CRM resources through the REST API for integrations you operate. There is no built-in CSV exporter.
+        title: XLSX Export & REST API
+        description: Export the current view of one record type as an Excel workbook (XLSX), or read CRM resources through the REST API. There is no CSV or whole-account export.
       - icon: FileText
         title: Linked CRM Records
         description: Connect contacts, organizations, deals, services, and tasks through supported relations.
@@ -166,8 +166,8 @@ features:
     gridCols: grid-cols-1 md:grid-cols-2
     features:
       - icon: Server
-        title: EU Database Region
-        description: The managed database for the hosted service runs in an EU region. Application hosting and other providers, including US providers, are named in our [subprocessor list](/subprocessors).
+        title: Cloud Database in Frankfurt
+        description: The managed cloud database runs in the AWS Frankfurt region. Application hosting and other providers, including US providers, are named in our [subprocessor list](/subprocessors).
       - icon: ShieldCheck
         title: Self-Hosted AGPL Core
         description: Run the AGPL core CRM application and PostgreSQL with Starter entitlements. The unified inbox and calendar view remain managed-cloud features; connected providers stay separate.
@@ -187,7 +187,7 @@ why:
       description: Webhooks and the REST API connect Customermates to your own n8n instance, and from there to hundreds of tools. Workflows can be built completely individually, from lead capture to service delivery.
     - icon: ShieldCheck
       title: Open infrastructure
-      description: The managed database runs in an EU region and providers are named in the subprocessor list. You can self-host the AGPL core CRM application and PostgreSQL with Starter entitlements; connected providers remain separate.
+      description: The managed database runs in the AWS Frankfurt region and providers, including US providers, are named in the subprocessor list. You can self-host the AGPL core CRM application and PostgreSQL with Starter entitlements; connected providers remain separate.
     - icon: Sparkles
       title: Easy usability
       description: The interface is deliberately streamlined and logically structured. Users find all important features immediately and can work efficiently without training.

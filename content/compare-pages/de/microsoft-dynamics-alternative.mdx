@@ -25,13 +25,13 @@ comparison:
   - title: Preis & Setup
     features:
       - name: Start & Setup
-        source: 2 Minuten
+        source: Arbeitsbereich schnell angelegt; Migration je nach Daten
         competitor: Wochen bis Monate
       - name: Kostenstruktur
         source: Ab [[commercial.price.starter.monthly]] / Monat / User
         competitor: 65$ bis 150$ / Monat / User
       - name: Kostenloser Start
-        source: true
+        source: "[[commercial.trial.days]] Tage Test; Self-Hosting ohne Lizenzkosten"
         competitor: 30-Tage-Testversion
       - name: Kreditkarte nötig
         source: false
@@ -44,12 +44,12 @@ comparison:
         competitor: false
   - title: Kernfunktionen
     features:
-      - name: Uneingeschränkte Einträge
+      - name: Keine tarifabhängigen Eintragslimits
         source: true
         competitor: true
-      - name: Uneingeschränkte Custom Fields
+      - name: Custom Fields in jedem Tarif
         source: true
-        competitor: Eingeschränkt
+        competitor: true
       - name: Deals & Pipelines
         source: true
         competitor: true
@@ -59,14 +59,14 @@ comparison:
       - name: Aufgaben & Services
         source: true
         competitor: true
-      - name: KI-Agenten bedienen das CRM (natives MCP)
+      - name: Externe KI-Clients bedienen das CRM (MCP)
         source: "[[derived.mcp.tools.total]] MCP-Tools (Claude, ChatGPT, Gemini)"
-        competitor: Copilot (kostenpflichtiges Add-on), kein offenes MCP
+        competitor: Copilot (kostenpflichtiges Add-on); MCP-Anbindung beim Anbieter prüfen
       - name: Mobile Optimierung
         source: true
         competitor: true
       - name: Nativer Unified Inbox (E-Mail, LinkedIn, WhatsApp, Instagram, Telegram)
-        source: Ab Pro, KI kann ihn bedienen
+        source: Ab Pro
         competitor: E-Mail (Outlook); Social per Add-ons
   - title: Datenschutz & Sicherheit
     features:
@@ -74,27 +74,27 @@ comparison:
         source: AVV + SCCs; keine Zertifizierung
         competitor: true
       - name: Hosting
-        source: EU-Datenbankregion
-        competitor: Global (Azure)
-      - name: Datensouveränität
+        source: Cloud-Datenbank in Frankfurt (AWS), selbst hostbar
+        competitor: Azure-Regionen, auch in der EU
+      - name: Speicherort selbst bestimmen (Self-Hosting)
         source: true
-        competitor: Eingeschränkt
+        competitor: false
       - name: Self-Hosting Option
         source: true
         competitor: false
   - title: Integration & Automatisierung
     features:
-      - name: n8n-Integration
-        source: true
+      - name: n8n-Integration (n8n separat betrieben)
+        source: Community-Node, REST, Webhooks
         competitor: false
       - name: API-Zugriff
         source: true
         competitor: true
       - name: Automatisierung
-        source: true
+        source: Webhooks, REST, n8n (separat), Cloud-Routinen
         competitor: Ja (Power Automate, Zusatzkosten)
       - name: KI-gestützte Workflows
-        source: true
+        source: Externer KI-Client per MCP; Mate-Routinen in der Cloud
         competitor: Kostenpflichtiges Add-on (Copilot Studio)
 
 cta:
@@ -107,13 +107,13 @@ cta:
   hint: ✓ Keine Kreditkarte benötigt ✓ Erste [[commercial.trial.days]] Tage kostenlos
 ---
 
-> Microsoft Dynamics 365 Sales ist ein Enterprise-CRM der Spitzenklasse, entwickelt für große Konzerne mit komplexen Vertriebsstrukturen, tiefgreifender Microsoft-Integration und dedizierten IT-Teams. Es ist extrem leistungsfähig, aber auch extrem teuer (65-150$ pro User), hochkomplex und erfordert professionelle Implementierung durch zertifizierte Partner. Für moderne Teams ist Dynamics 365 Sales wie ein Flugzeugträger, wenn man nur ein Schnellboot braucht. Customermates bietet alle essentiellen CRM-Funktionen als Open-Source-Software zu einem Bruchteil des Preises, gebaut um zwei Ideen: KI-Agenten (Claude, ChatGPT, Gemini) bedienen das CRM direkt über eine native MCP-Integration ([[derived.mcp.tools.total]] Tools), und ein nativer Unified Inbox bündelt E-Mail, LinkedIn, WhatsApp, Instagram und Telegram an einem Ort, den dieselben Agenten bedienen. Einfach, mit transparenten Tarifen ab [[commercial.price.starter.monthly]]/User/Monat, und sofort einsatzbereit.
+> Microsoft Dynamics 365 Sales ist ein Enterprise-CRM der Spitzenklasse, entwickelt für große Konzerne mit komplexen Vertriebsstrukturen, tiefgreifender Microsoft-Integration und dedizierten IT-Teams. Es ist extrem leistungsfähig, aber auch extrem teuer (65-150$ pro User), hochkomplex und erfordert professionelle Implementierung durch zertifizierte Partner. Für moderne Teams ist Dynamics 365 Sales wie ein Flugzeugträger, wenn man nur ein Schnellboot braucht. Customermates bietet die CRM-Kernfunktionen als Open-Source-Software zu einem Bruchteil des Preises, gebaut um zwei Ideen: externe KI-Clients (Claude, ChatGPT, Gemini) bedienen das CRM direkt über einen eingebauten MCP-Server ([[derived.mcp.tools.total]] Tools), und ein nativer Unified Inbox bündelt ab Pro E-Mail, LinkedIn, WhatsApp, Instagram und Telegram an einem Ort. Einfach, mit transparenten Tarifen ab [[commercial.price.starter.monthly]]/User/Monat, und schnell eingerichtet.
 
 ## Setup & Einstieg
 
-Customermates ist in zwei Minuten einsatzbereit. Keine Konfiguration, keine IT-Abteilung, keine Consultants. Die Oberfläche ist intuitiv, klar strukturiert und erfordert keine Schulung. Sie können sofort mit echten Kundendaten arbeiten.
+Customermates ist schnell eingerichtet. Kein Beraterprojekt, keine IT-Abteilung nötig. Die Oberfläche ist klar strukturiert, und nach dem XLSX-Import arbeiten Sie mit echten Kundendaten; der Aufwand dafür hängt von Ihren Daten ab.
 
-Microsoft Dynamics 365 Sales ist für schnelle Starts nicht ausgelegt. Selbst die Professional-Version bei 65$/User/Monat erfordert umfangreiche Einrichtung: Azure-Integration, Power-Platform-Konfiguration, Security Roles, Business Units, Workflows, Custom Entities und vieles mehr. Die Implementierung dauert Wochen bis Monate und erfordert in den meisten Fällen externe Consultants oder zertifizierte Microsoft-Partner. Implementierungskosten liegen oft bei 10.000-50.000$ oder mehr. Ein 30-Tage-Trial ist verfügbar, aber sich durch die komplexe Registrierung zu kämpfen und das System ohne IT-Ressourcen zu verstehen, ist eine Herausforderung für sich.
+Microsoft Dynamics 365 Sales ist für schnelle Starts nicht ausgelegt. Selbst die Professional-Version bei 65$/User/Monat erfordert umfangreiche Einrichtung: Azure-Integration, Power-Platform-Konfiguration, Security Roles, Business Units, Workflows, Custom Entities und vieles mehr. Die Implementierung dauert oft Wochen bis Monate und wird häufig von externen Consultants oder zertifizierten Microsoft-Partnern begleitet. Ein 30-Tage-Trial ist verfügbar, aber sich durch die komplexe Registrierung zu kämpfen und das System ohne IT-Ressourcen zu verstehen, ist eine Herausforderung für sich.
 
 ## Preis & Kostenmodell
 
@@ -123,44 +123,44 @@ Microsoft Dynamics 365 Sales gliedert sich in drei Hauptstufen: Sales Profession
 
 Ein Team mit fünf Mitarbeitern zahlt bei Dynamics zwischen 325$ und 750$ pro Monat, verglichen mit [[commercial.price.starter.monthly.seats.5]]/Monat bei Customermates Starter.
 
-Versteckte Kosten bei Dynamics umfassen Implementierung (10.000-50.000$+), Consultant-Fees (100-250$/Stunde), Microsoft Copilot for Sales (zusätzlich pro User), Power Automate Premium (15$/User/Monat extra), zusätzlichen Speicher (10$/GB), Copilot Studio Credits für MCP-Zugriff für externe KI-Clients und Team-Member-Lizenzen (8$/User für Read-Only-Zugriff).
+Mögliche Zusatzkosten bei Dynamics umfassen Implementierung und Beratung, Microsoft Copilot for Sales (zusätzlich pro User), Power Automate Premium (15$/User/Monat extra), zusätzlichen Speicher (10$/GB), Copilot Studio Credits für MCP-Zugriff für externe KI-Clients und Team-Member-Lizenzen (8$/User für Read-Only-Zugriff).
 
 ## Lizenzkomplexität
 
 Dynamics 365 hat eines der komplexesten Lizenzmodelle der Software-Industrie: User-Lizenzen, Attach-Lizenzen, Team-Member-Lizenzen, Device-Lizenzen, Copilot-Add-ons, Power-Platform-Seeded-Lizenzen und Capacity-Add-ons. Selbst erfahrene IT-Administratoren haben Schwierigkeiten mit diesem Modell.
 
-Customermates: Drei transparente Tarife. Jede CRM-Kernfunktion in jedem enthalten. Fertig.
+Customermates: Drei veröffentlichte Tarife plus Enterprise nach Vereinbarung. Jede CRM-Kernfunktion ist in jedem enthalten.
 
 ## Open-Source & Freiheit
 
-Customermates ist Open-Source. Sie können den Code einsehen, das System selbst hosten und die volle Kontrolle über Ihre Daten und Infrastruktur behalten. Es gibt keinen Vendor Lock-in und keine Abhängigkeit von einem einzelnen Ökosystem.
+Customermates ist Open-Source. Sie können den Code einsehen und das System selbst hosten; dann bestimmen Sie selbst, wo Ihre Daten liegen. Das verringert Vendor Lock-in und die Abhängigkeit von einem einzelnen Ökosystem.
 
-Dynamics 365 ist tief ins Microsoft-Ökosystem eingebettet. Das bietet zwar leistungsstarke Integration mit Outlook, Teams und SharePoint, erzeugt aber auch starke Abhängigkeit. Der Wechsel weg von Dynamics bedeutet, Integrationen im gesamten Microsoft-Stack zu entflechten. Customermates verbindet sich über n8n mit jedem Tool, ohne Ökosystem-Lock-in.
+Dynamics 365 ist tief ins Microsoft-Ökosystem eingebettet. Das bietet zwar leistungsstarke Integration mit Outlook, Teams und SharePoint, erzeugt aber auch starke Abhängigkeit. Der Wechsel weg von Dynamics bedeutet, Integrationen im gesamten Microsoft-Stack zu entflechten. Customermates verbindet sich über REST-API, Webhooks und eine separat betriebene n8n-Instanz mit weiteren Tools.
 
 ## Funktionsvergleich
 
 Beide Systeme decken CRM-Grundfunktionen ab: Kontakte, Deals, Pipelines, Aufgaben, E-Mail-Integration (bei Customermates ab Pro). Der fundamentale Unterschied liegt in Komplexität und Zielgruppe. Dynamics 365 ist für große Konzerne gebaut mit Multi-Währungs-Support, Territory Management, hierarchischen Strukturen und tiefer Microsoft-Ökosystem-Integration. Diese Power kommt mit massiver Oberflächen-Komplexität und unintuitiver Navigation.
 
-Customermates ist für moderne Teams gebaut: klare Workflows, intuitive Navigation, MCP-Zugriff für externe KI-Clients und alle wichtigen Features ohne unnötigen Ballast. Jede Funktion funktioniert sofort ohne Consultant-Konfiguration.
+Customermates ist für moderne Teams gebaut: klare Workflows, intuitive Navigation, MCP-Zugriff für externe KI-Clients und alle wichtigen Features ohne unnötigen Ballast. Die Funktionen sind ohne Consultant-Konfiguration nutzbar.
 
 ## KI-Agenten & Copilot
 
 Microsoft hat stark in Copilot für Dynamics 365 investiert. Die Sales-Premium-Stufe (150$/User/Monat) enthält einen Sales Qualification Agent mit Basis-Copilot-Kreditkapazität. Für die Professional- und Enterprise-Stufen werden Copilot Studio Credits separat verkauft. Die KI-Fähigkeiten sind leistungsstark, fügen aber erhebliche Kostenkomplexität hinzu.
 
-Customermates verfolgt einen anderen Ansatz: KI-Agenten bedienen das CRM direkt über eine native MCP-Integration ([[derived.mcp.tools.total]] Tools), sodass Claude, ChatGPT oder Gemini Deal-Phasen verschieben, Follow-ups entwerfen und Kontaktnotizen aktuell halten, und ab Pro bedienen dieselben Agenten einen Unified Inbox über E-Mail, LinkedIn, WhatsApp, Instagram und Telegram. Externe KI-Clients über MCP sind in jeder Stufe enthalten, ab [[commercial.price.starter.monthly]]/User/Monat. Kombiniert mit n8n-Automatisierung erhalten Sie intelligente Workflow-Fähigkeiten vom ersten Tag an, ohne Kredit-Pools, Add-on-Lizenzen oder verbrauchsabhängige Abrechnung verwalten zu müssen.
+Customermates verfolgt einen anderen Ansatz: externe KI-Clients bedienen das CRM direkt über einen eingebauten MCP-Server ([[derived.mcp.tools.total]] Tools), sodass Claude, ChatGPT oder Gemini Deal-Phasen verschieben, Follow-ups entwerfen und Kontaktnotizen aktuell halten. Der MCP-Zugang ist in jeder Stufe ab [[commercial.price.starter.monthly]]/User/Monat enthalten; den KI-Client zahlen Sie beim jeweiligen Anbieter. In der Cloud kommt der Assistent Mate mit einem festen monatlichen Credit-Kontingent pro Nutzer dazu, ohne Aufladungen oder automatische Mehrkosten.
 
 ## Datenschutz & Hosting
 
-Customermates hostet ausschließlich in der EU (Deutschland) und bietet vollständige DSGVO-Konformität mit echter Datensouveränität. Self-Hosting steht für Organisationen bereit, die vollständige Kontrolle benötigen.
+In der Cloud-Version von Customermates liegt die Datenbank in der AWS-Region Frankfurt; Hosting und weitere Unterauftragsverarbeiter, auch aus den USA, stehen in der [Liste der Unterauftragsverarbeiter](/subprocessors), ein [Auftragsverarbeitungsvertrag (AVV)](/dpa) liegt vor. Wer den Speicherort vollständig selbst bestimmen will, betreibt den Open-Source-Kern selbst.
 
-Dynamics 365 hostet auf Microsoft Azure, global verteilt. EU-Rechenzentren sind verfügbar und das System ist DSGVO-konform, aber die Datenkontrolle ist eingeschränkt. Microsoft kann Daten für Wartung, Support und KI-Features verarbeiten, sofern nicht durch vertragliche Vereinbarungen explizit eingeschränkt.
+Dynamics 365 hostet auf Microsoft Azure, global verteilt. EU-Rechenzentren sind verfügbar. Welche Verarbeitung etwa für Support oder KI-Features außerhalb der gewählten Region stattfindet, regeln die Vertragsunterlagen von Microsoft.
 
 ## Integrationen & Automatisierung
 
-Dynamics 365 ist tief ins Microsoft-Ökosystem integriert, Outlook, Teams, SharePoint, Power BI, Power Automate. Das ist leistungsstark, wenn Sie vollständig auf Microsoft setzen, erzeugt aber Abhängigkeit und addiert 40-60$ an zusätzlichen Lizenzkosten pro User pro Monat für das volle Ökosystem-Erlebnis.
+Dynamics 365 ist tief ins Microsoft-Ökosystem integriert, Outlook, Teams, SharePoint, Power BI, Power Automate. Das ist leistungsstark, wenn Sie vollständig auf Microsoft setzen, erzeugt aber Abhängigkeit und kann zusätzliche Lizenzkosten pro User verursachen.
 
-Customermates bietet offene, flexible Integrationen über n8n. Sie sind nicht an ein bestimmtes Ökosystem gebunden und können frei wählen, welche Tools Sie nutzen, mit Verbindung zu Tausenden von Services ohne Zusatzkosten.
+Customermates bietet offene Integrationen über REST-API, Webhooks und den Community-Node für eine separat betriebene n8n-Instanz. Sie sind nicht an ein bestimmtes Ökosystem gebunden; Kosten für n8n und angebundene Dienste tragen Sie separat.
 
 ## Fazit
 
-Microsoft Dynamics 365 Sales richtet sich an größere Organisationen mit Microsoft-Ökosystem und Implementierungsbudget. Customermates ist Open Source und startet bei [[commercial.price.starter.monthly]]/User/Monat. Es stellt MCP, API und Webhooks bereit; n8n betreiben und bezahlen Sie separat. Beim verwalteten Dienst liegt die Anwendungsdatenbank in einer EU-Region, während offengelegte Unterauftragsverarbeiter und Übermittlungen weiterhin gelten.
+Microsoft Dynamics 365 Sales richtet sich an größere Organisationen mit Microsoft-Ökosystem und Implementierungsbudget. Customermates ist Open Source und startet bei [[commercial.price.starter.monthly]]/User/Monat. Es stellt MCP, API und Webhooks bereit; n8n betreiben und bezahlen Sie separat. Beim verwalteten Dienst liegt die Anwendungsdatenbank in der AWS-Region Frankfurt, während offengelegte Unterauftragsverarbeiter und Übermittlungen weiterhin gelten.

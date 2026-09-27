@@ -25,7 +25,7 @@ comparison:
   - title: Pricing & Setup
     features:
       - name: Start & Setup
-        source: 2 minutes
+        source: Browser sign-up, no installation
         competitor: Hours to days
       - name: Cost
         source: From [[commercial.price.starter.monthly]] / user / month
@@ -83,16 +83,16 @@ comparison:
         source: false
         competitor: true
       - name: White-label SaaS reseller mode
-        source: White-label (contracted, not built)
+        source: false
         competitor: true (Agency Pro)
   - title: AI & Automation
     features:
       - name: external AI clients via MCP
         source: "[[derived.mcp.tools.total]] MCP tools"
-        competitor: false
+        competitor: Check vendor docs
       - name: Claude / ChatGPT runs your CRM
         source: true
-        competitor: false
+        competitor: Check vendor docs
       - name: n8n community node
         source: true
         competitor: false
@@ -103,18 +103,18 @@ comparison:
         source: Full, OpenAPI 3.1
         competitor: Basic API on Unlimited+
       - name: Built-in automations
-        source: Via n8n + webhooks
+        source: No builder; webhooks, REST, separate n8n
         competitor: true
   - title: Data Protection & Hosting
     features:
       - name: GDPR documentation
         source: DPA + SCCs; no certification
-        competitor: Limited
+        competitor: See vendor DPA
       - name: Hosting region
-        source: EU database region
-        competitor: USA only
-      - name: Data sovereignty
-        source: true
+        source: Cloud database in Frankfurt (AWS)
+        competitor: US-based vendor
+      - name: Choose where data lives
+        source: When self-hosted
         competitor: false
       - name: Self-hosting via Docker
         source: true
@@ -140,7 +140,7 @@ For an agency that wants one vendor for everything, this is convenient. For a sm
 
 ## What is Customermates?
 
-Customermates is a CRM that updates itself if you already use [Claude](/blog/chatgpt-summarize-notes), ChatGPT, or Codex. The pipeline moves, follow-ups get drafted, and contact notes stay current because the AI does the typing. It also ships a native unified inbox (email, LinkedIn, WhatsApp, Instagram, and Telegram in one place) on Pro and up, which the same agents can operate. Underneath that outcome is a modern Pipedrive replacement: contacts, organizations, deals, tasks, services, two views (table and Kanban), ten custom field types, and a full REST API. It is open-source under AGPL-3.0, free to self-host via Docker, and EU-hosted in the cloud from [[commercial.price.starter.monthly]] per user per month on Starter, with the MCP server, REST API, and n8n automation supported at every tier.
+Customermates is a CRM that updates itself if you already use [Claude](/blog/chatgpt-summarize-notes), ChatGPT, or Codex. The pipeline moves, follow-ups get drafted, and contact notes stay current because the AI does the typing. It also ships a native unified inbox (email, LinkedIn, WhatsApp, Instagram, and Telegram in one place) on Pro and up, which the same agents can operate. Underneath that outcome is a modern Pipedrive replacement: contacts, organizations, deals, tasks, services, two views (table and Kanban), ten custom field types, and a full REST API. It is open-source under AGPL-3.0, free of licence cost to self-host via Docker, and available in the managed cloud from [[commercial.price.starter.monthly]] per user per month on Starter, with the MCP server, REST API and webhooks on every tier. n8n connects through a community node to an instance you operate.
 
 The mechanism that makes the AI integration work is a built-in MCP server with [[derived.mcp.tools.total]] tools, an n8n community node, [[derived.webhooks.events.total]] webhook events, and the OpenAPI 3.1 specification at `/api/v1/openapi`. You do not have to use any of that, but it is the reason the agent angle is real and not marketing.
 
@@ -160,7 +160,7 @@ HighLevel's pricing is flat per agency, which looks attractive once you have man
 
 HighLevel takes hours to days to configure properly. The platform is dense because it is bundling a full marketing stack: pipelines, automations, phone systems, email campaigns, funnel builders, and SaaS-mode reseller features. The vendor maintains an extensive academy and there are full-time HighLevel consultants because the learning curve is real.
 
-Customermates is ready in two minutes. Sign up, import contacts, set your pipeline stages, start working. The interface is built for CRM and nothing else, so there is no decision overhead about modules you will not use.
+Customermates' managed cloud is ready as soon as you sign up. Import contacts from an XLSX workbook, set your pipeline stages, start working. The interface is built for CRM and nothing else, so there is no decision overhead about modules you will not use.
 
 ## CRM depth
 
@@ -178,27 +178,27 @@ Customermates was designed from the start to be operated by AI agents. The MCP s
 
 This is the difference between "AI bolted on as a paid add-on" and "the CRM is built so AI can run it." The second one means contact notes, pipeline updates, and follow-up drafting can stop being human work entirely.
 
-## Open-source and data sovereignty
+## Open source and data control
 
-HighLevel is closed-source and US-hosted. There is no self-hosting path. Your data lives on their infrastructure under US data law. Migration off the platform means exporting what you can and rebuilding what you cannot.
+HighLevel is closed-source and run by a US-based company. There is no self-hosting path, and your data lives on the vendor's infrastructure. Migration off the platform means exporting what you can and rebuilding what you cannot.
 
-Customermates is licensed under [AGPL-3.0](https://www.gnu.org/licenses/agpl-3.0.html). The full source is on [GitHub](https://github.com/customermates/customermates). The supplied `docker compose up -d` starts two services: the application on port 4000 and PostgreSQL 16. Background jobs run inside the application process; there is no separate webhook-worker container. The cloud version is hosted in the EU region, GDPR-native by default. If the project ever stops, your data and the code are still yours.
+Customermates is licensed under [AGPL-3.0](https://www.gnu.org/licenses/agpl-3.0.html). The full source is on [GitHub](https://github.com/customermates/customermates). The supplied `docker compose up -d` starts two services: the application on port 4000 and PostgreSQL 16. Background jobs run inside the application process; there is no separate webhook-worker container. In the managed cloud, the application database runs in the AWS Frankfurt region; hosting and other subprocessors, including US providers, are listed on the [subprocessors page](/subprocessors), and a [DPA](/dpa) is available. If you need full control over where data lives, self-host the open-source core.
 
 ## When HighLevel CRM is the better choice
 
 If you run a marketing agency that resells services to small-business clients and you want one vendor to bill, train on, and maintain, HighLevel is genuinely good at that. The white-label SaaS mode (Agency Pro plan, $497/month) lets you stand up branded sub-accounts for every client without building anything. The funnels, SMS, and call routing are real features, not stubs.
 
-If that is your business, Customermates is not your tool today. White-label appears on the Customermates [Enterprise tier](/pricing) as a contracted item, but no reseller branding is implemented in the product today, so it is not something you can switch on.
+If that is your business, Customermates is not your tool today. Customermates has no white-label or reseller branding.
 
 ## When Customermates is the better choice
 
 If you are a small team or solo founder who needs a CRM, you already use Claude or ChatGPT, and you do not want to pay for funnels and SMS credits to get there, Customermates is simpler, cheaper, and built around the AI workflows you already have. The agent runs the pipeline. You stop typing into the CRM.
 
-It is also the right choice when data sovereignty matters: open-source, AGPL-licensed, EU-hosted, self-hostable, GDPR-native. None of those exist in HighLevel.
+It is also the right choice when control over code and data location matters: open-source, AGPL-licensed and self-hostable, with a cloud database in Frankfurt and disclosed subprocessors if you use the managed cloud. HighLevel offers neither open source nor self-hosting.
 
 ## Summary
 
-HighLevel CRM is a marketing platform that includes a CRM. It earns its $97 to $497 monthly price when an agency uses the funnels, SMS, calendar, and SaaS mode. For a small team that just wants a CRM, it is over-engineered and expensive. Customermates delivers focused, open-source CRM from [[commercial.price.starter.monthly]] per user per month, with a real AI agent integration through [[derived.mcp.tools.total]] MCP tools, a native unified inbox across email, LinkedIn, WhatsApp, Instagram, and Telegram, an n8n community node, EU hosting, and self-hosting via Docker. If your wedge is "the CRM updates itself because I already use Claude," that is what Customermates was built for.
+HighLevel CRM is a marketing platform that includes a CRM. It earns its $97 to $497 monthly price when an agency uses the funnels, SMS, calendar, and SaaS mode. For a small team that just wants a CRM, it is over-engineered and expensive. Customermates delivers focused, open-source CRM from [[commercial.price.starter.monthly]] per user per month, with a real AI agent integration through [[derived.mcp.tools.total]] MCP tools, a native unified inbox across email, LinkedIn, WhatsApp, Instagram, and Telegram, an n8n community node, and self-hosting via Docker. If your wedge is "the CRM updates itself because I already use Claude," that is what Customermates was built for.
 
 ## Frequently asked questions
 
@@ -220,6 +220,6 @@ For a small team that wants CRM without paying for funnels and SMS, Customermate
 </FaqItem>
 
 <FaqItem question="Can I use Claude or ChatGPT to operate HighLevel CRM?">
-Not directly. HighLevel exposes some AI features as paid add-ons, but there is no MCP server, so external agents like Claude or Codex cannot read or write the CRM in a structured way. Customermates exposes [[derived.mcp.tools.total]] MCP tools that map to every CRM operation, so any MCP-compatible agent can operate the CRM directly.
+Check HighLevel's current developer documentation for its API and any MCP support; its built-in AI features are sold as paid add-ons. Customermates exposes [[derived.mcp.tools.total]] MCP tools that map to every CRM operation, so any MCP-compatible agent can operate the CRM directly.
 </FaqItem>
 </Faq>
