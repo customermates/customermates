@@ -19,8 +19,8 @@ hero:
     - for OpenClaw.
     - for n8n.
   useCase: Ask ChatGPT to prepare the next follow-up for a warm lead. Review the draft in Customermates, then send it through email or LinkedIn.
-  subtitle: "One inbox for email, LinkedIn, WhatsApp, Instagram and Telegram. Connect ChatGPT, Claude, Gemini or Cursor through MCP, and review every draft and CRM update."
-  buttonLeftText: Start a [[commercial.trial.days]]-day trial for 0€
+  subtitle: "One inbox for email, LinkedIn, WhatsApp, Instagram and Telegram. Connect ChatGPT, Claude, Gemini or Cursor through MCP and review drafts and changes in the CRM."
+  buttonLeftText: Start a [[commercial.trial.days]]-day trial for €0
   buttonLeftHref: /auth/signup
   buttonRightText: Explore the live demo
   buttonRightHref: "#live-demo"
@@ -45,7 +45,7 @@ visualLabels:
 
 howItWorks:
   eyebrow: How it works
-  title: Skip the CRM busywork. Paste a snippet. Done.
+  title: Skip the CRM busywork. Connect your AI client. Done.
   handoff:
     eyebrow: Human control
     title: The agent drafts. You decide what leaves.
@@ -55,14 +55,14 @@ howItWorks:
       title: Sign in with Google or email
       description: One click. No email verification loop. You are inside Customermates.
     - n: "02"
-      title: Click "Create API key"
-      description: Create a key for your supported external client and keep it secret. The client and model have their own setup, subscription, and data handling.
+      title: Add Customermates to Claude or ChatGPT
+      description: Add a custom connector, paste the Customermates MCP endpoint URL and sign in. The client and model have their own setup, subscription, and data handling.
     - n: "03"
-      title: Paste the snippet into Claude, ChatGPT, or Gemini
-      description: A 4-line JSON block goes into your MCP config. Or click "Connect to Claude" and we handle the rest.
+      title: Or use an API key in command-line and editor clients
+      description: For clients such as Claude Code, Codex or Cursor, create an API key in Customermates, keep it secret and add a short JSON block to the client's MCP config.
     - n: "04"
-      title: Ask your external client about allowed CRM data
-      description: "Use MCP operations exposed by Customermates and review every result in the CRM."
+      title: Ask your AI client about your CRM data
+      description: "The client uses the MCP tools Customermates exposes, within your permissions. Review drafts and changes in the CRM; whether the client asks before acting depends on the client."
 walkthrough:
   badge: Unified customer context
   title: Every channel,
@@ -98,7 +98,7 @@ productProof:
 benefits:
   badge: Why Customermates
   title: Everything you need
-  subtitle: Powerful Open-Source CRM without the complexity. Privacy-friendly tools that just work.
+  subtitle: Powerful open-source CRM without the complexity. Privacy-friendly tools that just work.
   groups:
     - title: Customer context
       description: Conversations and linked CRM records.
@@ -168,7 +168,7 @@ benefits:
       description: Connect contacts, organizations, deals, services, and tasks through supported relations.
     - icon: Server
       title: Managed Cloud & Frankfurt Database
-      description: Use the managed cloud with its database in the AWS Frankfurt region, or self-host the AGPL core CRM and PostgreSQL with Starter entitlements.
+      description: Use the managed cloud with its database in the AWS Frankfurt region, or self-host the AGPL core CRM and PostgreSQL with the Starter feature set.
     - icon: Terminal
       title: Open Source Core & Self-Hosting
       description: Self-host the AGPL core CRM and PostgreSQL; the unified inbox and calendar view remain managed-cloud features.
@@ -209,7 +209,7 @@ faq:
   faqs:
     - id: faq-1
       title: Why is your CRM better than others?
-      content: Customermates provides core CRM records, a unified inbox for supported connected accounts, MCP access for supported external AI clients, REST, webhooks, and a community node for your separate n8n instance. External clients, models, automation services, and provider costs remain separate.
+      content: "It is not better for everyone, but it is different in ways that matter to small sales teams. External AI clients such as Claude, ChatGPT or Cursor operate the CRM directly through MCP with [[derived.mcp.tools.total]] tools. From Pro, email, LinkedIn, WhatsApp, Instagram and Telegram conversations sit next to the customer record in one unified inbox. The core is open source (AGPL-3.0) and can be self-hosted, and the managed cloud database runs in the AWS Frankfurt region. If you need marketing automation, quotes or invoicing, a larger suite fits better."
     - id: faq-2
       title: How does the integration with n8n work?
       content: Use the REST API and webhooks, or the published community node, to connect an n8n instance you operate or subscribe to. n8n is a separate product and is not bundled with Customermates.
@@ -218,16 +218,16 @@ faq:
       content: You can create a workspace and first records quickly. Migration, external-client setup, and integration effort depend on your source data and systems.
     - id: faq-4
       title: Where is my data stored?
-      content: The managed database runs in the AWS Frankfurt region, while application hosting and other providers, including US providers, are listed on the [subprocessors page](/subprocessors). You can self-host the AGPL core CRM application and PostgreSQL with Starter entitlements; the unified inbox and calendar view remain managed-cloud features, and connected providers remain separate.
+      content: The managed database runs in the AWS Frankfurt region, while application hosting and other providers, including US providers, are listed on the [subprocessors page](/subprocessors). You can self-host the AGPL core CRM application and PostgreSQL with the Starter feature set; the unified inbox and calendar view remain managed-cloud features, and connected providers remain separate.
     - id: faq-5
       title: Why is your CRM cheaper than others?
-      content: The pricing page states the included Customermates scope. External AI, automation, messaging, and other providers retain their own subscriptions and usage costs.
+      content: "We have no investors to pay back and run a lean team, so we do not need enterprise-style pricing. There is one monthly price per seat, starting at [[commercial.price.starter.monthly]] on Starter, and every core CRM feature is included from Starter. The core is open source, so you can also self-host it. External AI clients, automation tools, and messaging providers you connect keep their own subscriptions and usage costs."
 
 closingEyebrow: Customermates
 
 cta:
   action: Ready to get started?
-  description: Start with Customermates today and switch to an agentic Open-Source CRM built for flexible workflows and external AI clients connected through MCP.
+  description: Start with Customermates today and switch to an agentic open-source CRM built for flexible workflows and external AI clients connected through MCP.
   buttonLeftText: Start for free
   buttonLeftHref: /auth/signup
   buttonRightText: View live demo
