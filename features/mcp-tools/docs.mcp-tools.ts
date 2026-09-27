@@ -270,9 +270,9 @@ export const searchDocsTool = {
   description:
     "Use this when you need to search the Customermates documentation (product guides and REST API reference). " +
     `Required: query. Optional: locale (one of: ${docsLocaleList}; default ${DEFAULT_LOCALE}), source (one of: docs, api, all; default docs). ` +
-    "Returns a compact ranked page list with the best matching section per page (slug#anchor), then the best page's url and its snippet in text, plus up to 5 full {slug, source, title, url, section, anchor, snippet} matches as structured content. " +
-    "App routes in a snippet, such as `/company/subscription`, are relative: for a full link, put the route after the origin of that match's url (in text, the best= url); that origin is the instance's configured BASE_URL. " +
-    "Follow up with get_docs_page for the best page, passing the same question as query; if it does not answer, read the next page the same way.",
+    "Returns ranked pages with the best section of each (slug#anchor), then the best page's url and its snippet in text, plus up to 5 full matches as structured content. " +
+    "App routes in a snippet, such as `/company/subscription`, are relative: prefix them with the origin of the match's url (best= in text); that origin is the instance's configured BASE_URL. " +
+    "Then read the best page with get_docs_page and the same question as query; if it does not answer, read the next page.",
   annotations: { readOnlyHint: true, idempotentHint: true, destructiveHint: false, openWorldHint: false },
   inputSchema: z.object({
     query: z.string().min(2).describe("Free-text search, e.g. 'webhook signature' or 'filter operators'"),
@@ -304,10 +304,10 @@ export const getDocsPageTool = {
   title: "Get documentation page",
   description:
     "Use this when you need one Customermates documentation page as markdown, with its canonical URL. " +
-    "App routes in the markdown, such as `/company/subscription`, are relative: for a full link, put the route after the origin of url; that origin is the instance's configured BASE_URL. " +
-    `Required: slug (as returned by search_docs). Optional: locale (one of: ${docsLocaleList}; default ${DEFAULT_LOCALE}), source (one of: docs, api; default docs). ` +
-    "Pass query with the exact detail you need to put a bounded relevant excerpt first and avoid repeated page reads; omit query only when you need the full page. " +
-    "Unknown slugs return the full list of valid slugs. Use search_docs first when you don't know the slug.",
+    "App routes in the markdown, such as `/company/subscription`, are relative: prefix them with the origin of url; that origin is the instance's configured BASE_URL. " +
+    `Required: slug (from search_docs). Optional: locale (one of: ${docsLocaleList}; default ${DEFAULT_LOCALE}), source (one of: docs, api; default docs). ` +
+    "Pass query with the exact detail you need to get a bounded excerpt; omit it only for the full page. " +
+    "An unknown slug returns the valid slugs.",
   annotations: { readOnlyHint: true, idempotentHint: true, destructiveHint: false, openWorldHint: false },
   outputSchema: GetDocsPageOutputSchema,
   inputSchema: z.object({

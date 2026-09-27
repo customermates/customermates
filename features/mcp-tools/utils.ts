@@ -39,7 +39,7 @@ export const MCP_PAGE_SIZES: readonly McpPageSize[] = [5, 10, 25, 100];
 export const MCP_DEFAULT_PAGE_SIZE: McpPageSize = 25;
 
 export const MCP_PAGE_SIZE_DESCRIPTION =
-  "Results per page, any whole number from 1 to 100, served exactly: page counts in this size, so page 2 of pageSize 50 holds records 51 to 100. When a result was truncated, ask again with about half the size.";
+  "Results per page, any whole number from 1 to 100, served exactly: page 2 of pageSize 50 holds records 51 to 100. When a result was truncated, ask again with about half the size.";
 
 export const McpPageOutputShape = {
   page: z.number().describe("The page returned, counted in pageSize"),
@@ -240,9 +240,9 @@ export const FILTER_FIELD_DESCRIPTION =
   `Operators with one string value: ${FILTER_OPERATOR_GROUPS.singleValue.join(", ")}; with a string array: ${FILTER_OPERATOR_GROUPS.multiValue.join(", ")} (between needs exactly two); with a positive integer of days: ${FILTER_OPERATOR_GROUPS.relativeWindow.join(", ")}; without a value: ${FILTER_OPERATOR_GROUPS.noValue.join(", ")}. ` +
   'Example: [{"field":"name","operator":"contains","value":"acme"},{"field":"createdAt","operator":"inLastDays","value":30}]. ' +
   "On custom columns isNull means the column has no value and isNotNull that it has one, so isNull finds records missing a value. " +
-  "On a field of linked-record ids, in and notIn take those ids and mean linked to any of them or to none of them, while hasSome and hasNone take no value and mean has any link at all or none at all: " +
+  "On a linked-record id field, in and notIn take ids (linked to any or to none of them); hasSome and hasNone take no value (any link or no link): " +
   'to find deals with no open task, list the open tasks, then filter [{"field":"taskIds","operator":"notIn","value":["<task-id>"]}]. ' +
-  "Call get_record_schema to see all filterable fields and which operators each one takes.";
+  "get_record_schema lists every filterable field and its operators.";
 
 export const filtersDescription = (filterableFields: string) =>
   "Array of filter rules, AND-combined. Each rule is { field, operator, value? }. " +

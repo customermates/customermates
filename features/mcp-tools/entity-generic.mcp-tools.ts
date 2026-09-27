@@ -122,9 +122,9 @@ const ListRecordsSchema = z.object({
     })
     .optional()
     .describe(
-      "Count the matching records per value of one field instead of listing them. Returns groups with key, label and count, and for deals the sums of totalValue and weightedValue per group. A record linked to several owners counts in each of their groups. " +
-        "createdAt and updatedAt get one group per day for the last 7 days, per week for the last 7 weeks, or per month for the last 12 months, each up to and including the current one; " +
-        'older records are counted together in one "before <date>" group and records dated after the current period in one "from <date> on" group, and groupNote says so when either holds records.',
+      "Count matching records per value of one field instead of listing them: groups carry key, label and count, and for deals the totalValue and weightedValue sums. A record with several owners counts in each owner's group. " +
+        "createdAt and updatedAt group by day for the last 7 days, by week for the last 7 weeks or by month for the last 12 months, up to and including the current one; " +
+        'older records fall in one "before <date>" group, later ones in one "from <date> on" group, and groupNote says so when either holds records.',
     ),
   include: z
     .array(ListRecordsIncludeSchema)
@@ -586,21 +586,18 @@ export const listRecordsTool = {
     "Required: entity. Optional: searchTerm, filters, sortDescriptor, page, pageSize (1-100, default 25), groupBy, include. " +
     "Returns total first (matching records across all pages; use it for counts), then id and name per item; " +
     "deal items add totalValue, totalQuantity and weightedValue, service items add amount. " +
-    "include adds fields to every item, leaving out any relation you cannot read: owners adds userIds, links the linked record ids (contactIds, organizationIds, dealIds, serviceIds, taskIds), " +
+    "include adds fields to every item, leaving out any relation you cannot read: owners adds userIds, links the linked record ids such as dealIds and taskIds, " +
     "customFields the customFieldValues [{columnId, value}] and dates createdAt and updatedAt. " +
     "Such items are long, so read them through analyze_records where it is offered, or with pageSize 5 when reading them directly. " +
-    "For deals and custom currency columns it also returns sums: each total across " +
-    "every record matching the filters, not just the current page. Read sums directly instead of adding " +
-    "up items, which would only cover one page. For deals sums holds totalValue (pipeline) " +
-    "and weightedValue (pipeline weighted by each stage's win probability). " +
-    "Custom currency columns are summed the same way and appear in sums under the custom-column id from " +
-    "get_record_schema, not the column label, so a question about a money field is one call: filter, then read " +
-    "its sum. Service amount and deal totalQuantity are not in sums; single-select, text and date custom columns are not summable, so filter by those instead. " +
+    "For deals and custom currency columns it also returns sums: each total across every record matching the filters, " +
+    "not just the current page, so read sums instead of adding up items. For deals sums holds totalValue (pipeline) " +
+    "and weightedValue (weighted by each stage's win probability); a currency column's sum is keyed by its " +
+    "custom-column id from get_record_schema, not its label. Service amount and deal totalQuantity are not in sums; single-select, text and date custom columns are not summable, so filter by those instead. " +
     "For a breakdown per status, owner, organization or created/updated month, pass groupBy instead of paging through items: one call returns up to 50 groups plus No value with their counts and, for deals, the totalValue and weightedValue sums of up to 25 of them. " +
     "When a name search without groupBy matches several records, writeTargetGuidance has status ambiguous: ask the user to choose before changing only one result, even when one item exactly equals the search term. " +
     "The current page's items are the canonical candidates. If total exceeds items.length, narrow the search or review more pages first. If candidate names are identical, call get_records for their ids and ask with safe distinguishing fields; never expose raw ids. " +
     "An explicit request to change every match may proceed. " +
-    "Use get_records (batched, pass many ids in one call) to fetch full field/custom-column values.",
+    "Use get_records, with many ids per call, for full field and custom-column values.",
   annotations: { readOnlyHint: true, idempotentHint: true, destructiveHint: false, openWorldHint: false },
   inputSchema: ListRecordsSchema,
   outputSchema: ListRecordsOutputSchema,
@@ -866,9 +863,7 @@ export const manageRecordLinksTool = {
     "Required: action (add, remove or set), entity, sourceId, relation, ids. " +
     "add and remove leave the relation's other links as they are; set makes ids the complete list, so moving a record to a new owner or parent is one call. " +
     "Links to records outside your access are always kept. remove and set never delete the related record. " +
-    "Allowed pairs: contact -> organizations|users|deals|tasks; organization -> contacts|users|deals|tasks; " +
-    "deal -> organizations|users|contacts|services|tasks; service -> users|deals|tasks; " +
-    "task -> users|contacts|organizations|deals|services. " +
+    "relation lists the allowed entity and relation pairs. " +
     "deal -> services adds new services with quantity 1 and keeps the quantity of services that stay (use update_deals for exact quantities). " +
     "Idempotent: adding a linked id or removing an unlinked id is a no-op. " +
     "If an error message mentions the field `mode`, it refers to this tool's `action` argument.",

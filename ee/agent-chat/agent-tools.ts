@@ -217,7 +217,7 @@ const ListUiTargetsSchema = z.object({
     .max(100)
     .optional()
     .describe(
-      "Optional English page names, routes, target prefixes, or exact target ids; sidebar names, including renamed record types, also match in the app's languages. Any word may match, so one query can cover several pages; an exact id comes first, followed by the ids it prefixes.",
+      "Optional English page names, routes, target prefixes or exact ids; sidebar names, renamed record types included, also match in the app's languages. Any word may match, so one query can cover several pages; an exact id comes first, then the ids it prefixes.",
     ),
   cursor: z.number().int().min(0).max(10_000).optional().describe("Continue a previous result page."),
 });
@@ -362,7 +362,7 @@ function uiTools(deps: AgentToolDeps): ToolSet {
   return {
     list_ui_targets: tool({
       description:
-        "List exact stable interface target ids before using an interface tool. Make one focused query with the workflow or page phrase and reuse every relevant id it returns instead of querying ids one by one. Results use action codes n=navigate and h=highlight; >X is what the user must open first: a target id or a named row or card. Continue only when nextCursor is present.",
+        "List exact stable interface target ids before using an interface tool. Make one focused query with the workflow or page phrase and reuse every relevant id it returns. Results use action codes n=navigate and h=highlight; >X is what the user must open first: a target id or a named row or card. Continue only when nextCursor is present.",
       inputSchema: providerSafeSchema(ListUiTargetsSchema),
       execute: (input) => listUiTargets(input, deps.resultMaxChars),
     }),
@@ -397,9 +397,7 @@ function isDeepResearchTool(name: string) {
 }
 
 const LoadToolsetSchema = z.object({
-  toolset: z
-    .enum(AGENT_ON_DEMAND_TOOLSETS)
-    .describe(AGENT_ON_DEMAND_TOOLSETS.map((toolset) => `${toolset} = ${AGENT_TOOLSET_SUMMARY[toolset]}`).join("; ")),
+  toolset: z.enum(AGENT_ON_DEMAND_TOOLSETS).describe("The set to load; the tool description says what each set covers"),
 });
 
 function analyzeRecordsTool(deps: AgentToolDeps) {
