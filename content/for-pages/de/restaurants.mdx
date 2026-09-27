@@ -126,13 +126,13 @@ Der verwaltete [einheitliche Posteingang](/features/unified-inbox) ist ab Pro f�
 
 Ein autorisierter externer KI-Client kann unterstützte [MCP](/docs/mcp)-Aktionen an CRM-Datensätzen ausführen. Er kann unterstützte Firmenkontakt- und Chancendaten innerhalb der Nutzerberechtigungen bearbeiten. Er leitet keine Gästepräferenzen ab, analysiert keine Besuche, schreibt keine Allergiedaten, erstellt kein verifiziertes Menü oder Angebot und führt kein autonomes Marketing aus.
 
-Aufgaben besitzen keine nativen Fälligkeitstermine oder Wiederholungen. Datumsabhängige Aufgabenerstellung oder eine freigegebene externe Nachricht braucht einen kundenseitig betriebenen Scheduler oder separaten [n8n-Workflow](/features/workflow-automation). Dieser Workflow und seine Anbieter bleiben kundenseitig betrieben.
+Aufgaben besitzen keine nativen Fälligkeitstermine oder Wiederholungen. Ein eigenes Datumsfeld am Deal und eine gespeicherte Ansicht, sortiert nach diesem Datum, zeigen, welche Anfrage als Nächstes Aufmerksamkeit braucht. In Customermates Cloud kann eine [Routine](/docs/app-routines) diese Daten regelmäßig prüfen und offene Anfragen auflisten; Erinnerungen oder Benachrichtigungen verschickt Customermates nicht. Datumsabhängige Aufgabenerstellung oder eine freigegebene externe Nachricht braucht sonst einen kundenseitig betriebenen Scheduler oder einen separat betriebenen [n8n-Workflow](/features/workflow-automation) über den Community-Node.
 
 ## Verbindung zu Restaurantsystemen
 
 Bietet ein Kassen-, Reservierungs-, Event- oder Buchhaltungssystem eine geeignete Schnittstelle, kann eine kundenseitig gebaute Verbindung eine minimale Konto-, Chancen- oder externe Buchungsreferenz über [REST API und Webhooks](/features/api), MCP oder die separate n8n-Integration austauschen.
 
-Der Kunde verantwortet Anbietervereinbarungen, Einwilligung, Datenminimierung, Feldzuordnung, Validierung, Wiederholungen und Dublettenbehandlung. Eine native Synchronisierung mit OpenTable, Resy, SevenRooms, Toast, Kassen-, Reservierungs-, Treue-, Lager-, Bestell- oder Zahlungssystemen wird nicht behauptet. Customermates besitzt außerdem keinen CRM-Datensatzimport.
+Der Kunde verantwortet Anbietervereinbarungen, Einwilligung, Datenminimierung, Feldzuordnung, Validierung, Wiederholungen und Dublettenbehandlung. Eine native Synchronisierung mit OpenTable, Resy, SevenRooms, Toast, Kassen-, Reservierungs-, Treue-, Lager-, Bestell- oder Zahlungssystemen wird nicht behauptet. Firmenkontakte und Chancen lassen sich aus einer Excel-Arbeitsmappe (XLSX) importieren und wieder exportieren, jeweils ein Datensatztyp und im Rahmen Ihrer Berechtigungen; CSV-Import und eine laufende Synchronisierung gibt es nicht.
 
 ## Preise und Eignung
 

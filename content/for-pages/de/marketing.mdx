@@ -128,9 +128,9 @@ Customermates kann den CRM-relevanten Ausschnitt über dokumentierte Schnittstel
 
 ## Tarife und Bereitstellungsgrenzen
 
-Starter enthält Kern-CRM-Datensätze, eigene Felder, REST, Webhooks und MCP-Zugang für externe Clients ab [[commercial.price.starter.monthly]] pro Nutzer und Monat. Pro ergänzt das verwaltete Postfach mit Kontenkontingent. Self-Hosting betreibt den AGPL-Community-Kern mit Starter-Berechtigungen; weder verwaltetes Postfach noch gehostete Mate-Funktion oder n8n-Laufzeit sind enthalten.
+Starter enthält Kern-CRM-Datensätze, eigene Felder, REST, Webhooks und MCP-Zugang für externe Clients ab [[commercial.price.starter.monthly]] pro Nutzer und Monat, monatlich abgerechnet. Pro ergänzt das verwaltete Postfach mit Kontenkontingent. Bestehende Kontaktlisten übernehmen Sie per Import aus einer Excel-Arbeitsmappe (XLSX), jeweils einen Datensatztyp nacheinander; einen CSV-Import gibt es nicht. Self-Hosting betreibt den AGPL-Community-Kern mit Starter-Berechtigungen; weder verwaltetes Postfach noch gehostete Mate-Funktion oder n8n-Laufzeit sind enthalten.
 
-Die verwaltete Anwendungsdatenbank liegt in einer EU-Region. Offengelegte Unterauftragsverarbeiter und internationale Übermittlungen gelten weiterhin; die Region ist keine DSGVO-Zertifizierung. Rechtsgrundlage, Einwilligung, Aufbewahrung, Löschung, Anbieterprüfung und Konfiguration bleiben Verantwortung der Organisation.
+In der Cloud-Version liegt die Datenbank in der AWS-Region Frankfurt; Hosting und weitere Unterauftragsverarbeiter, auch aus den USA, stehen in der [Liste der Unterauftragsverarbeiter](/subprocessors), ein [Auftragsverarbeitungsvertrag (AVV)](/dpa) liegt vor. Wer den Speicherort vollständig selbst bestimmen will, betreibt den Open-Source-Kern selbst. Eine Zertifizierung besteht nicht. Rechtsgrundlage, Einwilligung, Aufbewahrung, Löschung, Anbieterprüfung und Konfiguration bleiben Verantwortung der Organisation.
 
 ## Häufige Fragen
 
@@ -159,10 +159,13 @@ Die verwaltete Anwendungsdatenbank liegt in einer EU-Region. Offengelegte Untera
     Feldzuordnung, Zugangsdaten, Duplikate und Fehlerpfade ausdrücklich.
   </FaqItem>
 
-  <FaqItem question="Ist Customermates für Marketingdaten DSGVO-konform?">
-    Keine Softwarewahl stellt allein Compliance her. Die verwaltete Datenbank
-    nutzt eine EU-Region; Unterauftragsverarbeiter und Übermittlungen bleiben
-    dokumentiert. Entscheidend sind Zweck, Rechtsgrundlage, Einwilligung,
-    Aufbewahrung, verbundene Dienste und Konfiguration.
+  <FaqItem question="Wie steht Customermates zur DSGVO bei Marketingdaten?">
+    Keine Softwarewahl stellt allein Compliance her. Customermates stellt einen
+    [AVV](/dpa) bereit und legt seine [Unterauftragsverarbeiter](/subprocessors)
+    offen, darunter US-Anbieter mit Standardvertragsklauseln. In der
+    Cloud-Version liegt die Datenbank in der AWS-Region Frankfurt; eine
+    Zertifizierung besteht nicht, und der Open-Source-Kern ist selbst hostbar.
+    Entscheidend sind Zweck, Rechtsgrundlage, Einwilligung, Aufbewahrung,
+    verbundene Dienste und Konfiguration.
   </FaqItem>
 </Faq>

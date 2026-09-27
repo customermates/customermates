@@ -1,6 +1,6 @@
 ---
 title: "CRM für E-Commerce: Online-Umsatz steigern"
-description: Open-Source E-Commerce CRM-Software für Kundendaten, Automatisierung und B2B-Deals. EU-gehostet, DSGVO-nativ, API-first. Ab [[commercial.price.starter.monthly]]/Nutzer/Monat.
+description: Open-Source E-Commerce CRM für Kundendaten, B2B- und Großhandels-Deals. REST-API, Webhooks, MCP, Cloud-Datenbank in Frankfurt, selbst hostbar.
 industryName: "E-Commerce"
 
 relatedHrefs:
@@ -11,7 +11,7 @@ relatedHrefs:
 
 hero:
   title: Das Open-Source CRM für E-Commerce
-  description: KI-Agenten halten Kundendatensätze und B2B-Deals aktuell, und jede Käufernachricht (WhatsApp, Instagram, E-Mail) landet in einem Posteingang. Das Open-Source-CRM für E-Commerce, mit voller API, n8n-Automatisierung und DSGVO.
+  description: Kundendatensätze und B2B-Deals an einem Ort, per API aus Ihrem Shop befüllt, und ab Pro jede Käufernachricht (WhatsApp, Instagram, E-Mail) in einem Posteingang. Das Open-Source-CRM für E-Commerce, mit REST-API, Webhooks und MCP für KI-Clients.
   buttonLeftText: Kostenlos starten
   buttonLeftHref: /auth/signup
   buttonRightText: Live-Demo ansehen
@@ -30,9 +30,9 @@ cta:
 
 ## Warum E-Commerce-Unternehmen ein CRM für E-Commerce brauchen
 
-Ein CRM für E-Commerce ist das System, das anonyme Transaktionen in verwaltete Kundenbeziehungen verwandelt. Ihre Shop-Plattform verfolgt Bestellungen, aber sie kann nicht das Telefonat mit einem Großhandels-Interessenten nachverfolgen, die Verhandlung mit einem Handelspartner oder den Kontext, der einen Einmalkäufer zum Stammkunden macht.
+Ein CRM für E-Commerce ist das System, das anonyme Transaktionen in verwaltete Kundenbeziehungen verwandelt. Ihre Shop-Plattform verfolgt Bestellungen, aber sie kann nicht das Gespräch mit einem Großhandels-Interessenten nachverfolgen, die Verhandlung mit einem Handelspartner oder den Kontext, der einen Einmalkäufer zum Stammkunden macht.
 
-E-Commerce CRM-Software schließt die Lücke zwischen Ihrem Onlineshop und Ihrem Vertriebsprozess. Sie zentralisiert jede Kundeninteraktion, E-Mails, Anrufe, Meetings, Deal-Verhandlungen, zusammen mit den Kaufdaten. Für Online-Shops, die auch B2B-, Großhandels- oder Partnerschaftsgeschäfte abwickeln, ist ein dediziertes CRM kein Nice-to-have. Es ist das System, das Ihre Umsatz-Pipeline sichtbar und Ihr Team abgestimmt hält.
+E-Commerce CRM-Software schließt die Lücke zwischen Ihrem Onlineshop und Ihrem Vertriebsprozess. Sie zentralisiert Kundeninteraktionen, Notizen und Deal-Verhandlungen zusammen mit den Kundendaten, die Sie aus dem Shop übernehmen. Für Online-Shops, die auch B2B-, Großhandels- oder Partnerschaftsgeschäfte abwickeln, hält ein CRM die Umsatz-Pipeline sichtbar und das Team abgestimmt.
 
 Laut [Harvard Business Review](https://hbr.org/2014/10/the-value-of-keeping-the-right-customers) kostet die Gewinnung eines neuen Kunden 5- bis 25-mal mehr als die Bindung eines bestehenden. Ein CRM hilft Ihnen, in die Beziehungen zu investieren, die bereits existieren.
 
@@ -40,66 +40,70 @@ Laut [Harvard Business Review](https://hbr.org/2014/10/the-value-of-keeping-the-
 
 Online-Händler stehen vor spezifischen Herausforderungen im Beziehungsmanagement, die ein Shopsystem allein nicht lösen kann:
 
-- **Kundendaten in Silos gefangen**: Ihre E-Commerce-Plattform speichert Bestellungen und Transaktionen, aber es fehlt der Kontext zur breiteren Beziehung, Vertriebsgespräche, Support-Interaktionen, Partnerschaftsdiskussionen und strategische [Account-Management](/features/account-management)-Notizen.
+- **Kundendaten in Silos gefangen**: Ihre E-Commerce-Plattform speichert Bestellungen und Transaktionen, aber es fehlt der Kontext zur breiteren Beziehung: Vertriebsgespräche, Support-Interaktionen, Partnerschaftsdiskussionen und [Account-Management](/features/account-management)-Notizen.
 
-- **Kein strukturierter B2B- oder Großhandels-Prozess**: Viele E-Commerce-Unternehmen verkaufen neben Endkunden auch an Händler, Distributoren oder Großhandelspartner. Diese Deals erfordern [Pipeline-Management](/features/pipeline) mit Phasen, Follow-ups und Verhandlungstracking, das ein Shop-Checkout nicht bieten kann.
+- **Kein strukturierter B2B- oder Großhandels-Prozess**: Viele E-Commerce-Unternehmen verkaufen neben Endkunden auch an Händler, Distributoren oder Großhandelspartner. Diese Deals erfordern [Pipeline-Management](/features/pipeline) mit Phasen und Verhandlungstracking, das ein Shop-Checkout nicht bieten kann.
 
-- **Niedrige Wiederkaufraten**: Ohne proaktive Ansprache und strukturierte Reaktivierung kaufen Kunden einmal und verschwinden. [Lead-Tracking](/features/lead-tracking) und automatisierte [Follow-up](/features/follow-up)-Workflows sind essenziell für die Kundenbindung. Dafür ist ein Scheduler in Ihrer eigenen n8n-Instanz oder einem anderen externen Dienst über die API nötig; Customermates führt zeitgesteuerte Follow-ups und Erinnerungen nicht selbst aus.
+- **Niedrige Wiederkaufraten**: Ohne proaktive Ansprache kaufen Kunden einmal und verschwinden. [Lead-Tracking](/features/lead-tracking) und strukturierte [Follow-up](/features/follow-up)-Prozesse helfen bei der Kundenbindung. Zeitgesteuerte Automatisierung braucht dafür einen Scheduler in Ihrer eigenen n8n-Instanz, einem anderen externen Dienst oder in der Cloud eine Routine; Customermates verschickt selbst keine Erinnerungen.
 
 - **Support und Vertrieb arbeiten in Silos**: Das [Kundenservice](/features/customer-service)-Team bearbeitet Beschwerden und Retouren, das [Vertriebsteam](/features/sales) managt Partnerschaften und Großhandelskonten. Keines der Teams sieht das vollständige Kundenbild.
 
-- **Integrationsprobleme über den gesamten Stack**: Shop, E-Mail-Marketing-Tool, Analytics-Plattform und Support-System enthalten jeweils Teile des Kundenpuzzles. Sie zu verbinden erfordert [CRM-Integrationen](/features/integrations), die alle Daten vereinheitlichen.
+- **Integrationsprobleme über den gesamten Stack**: Shop, E-Mail-Marketing-Tool, Analytics-Plattform und Support-System enthalten jeweils Teile des Kundenpuzzles. Sie zu verbinden erfordert [CRM-Integrationen](/features/integrations) über offene Schnittstellen.
 
-- **DSGVO-Konformität für Kundendaten**: E-Commerce-Unternehmen verarbeiten enorme Mengen personenbezogener Daten. Sie brauchen ein CRM, das Datenschutz als Kernfunktion behandelt, mit EU-Hosting und [Self-Hosting](/features/self-hosted)-Optionen.
+- **Datenschutz für Kundendaten**: E-Commerce-Unternehmen verarbeiten viele personenbezogene Daten. Sie brauchen ein CRM, das offenlegt, wo Daten liegen und wer sie verarbeitet, idealerweise mit einer [Self-Hosting](/features/self-hosted)-Option.
 
 ## Wie Customermates E-Commerce-Unternehmen hilft
 
-Customermates gibt Ihrem E-Commerce die Beziehungsmanagement-Infrastruktur, die Sie brauchen, von zentralen Kundenprofilen über B2B-Pipeline-Management bis zu automatisierten Kundenbindungs-Workflows.
+Customermates gibt Ihrem E-Commerce die Beziehungsmanagement-Ebene, von zentralen Kundenprofilen über B2B-Pipeline-Management bis zur Anbindung an Ihren Shop-Stack.
 
 ### Zentrale Kundenprofile mit vollem Kontext
 
-Ziehen Sie Kundendaten per [API](/features/api) oder über einen KI-Agenten per MCP in Customermates. Reichern Sie jedes Profil mit Interaktionshistorie, Notizen, Deal-Status und benutzerdefinierten Feldern an. Nutzen Sie das [Kontaktmanagement](/features/contact-management), um das vollständige Bild jedes Kunden zu sehen, nicht nur was gekauft wurde, sondern jedes Gespräch, jedes Meeting und jeden Berührungspunkt.
+Übernehmen Sie Kundendaten per [API](/features/api), per Excel-Import (XLSX) oder über einen KI-Client per MCP in Customermates. Ergänzen Sie jedes Profil um Notizen, verknüpfte Deals und typisierte eigene Felder. Das [Kontaktmanagement](/features/contact-management) zeigt das Bild jedes Kunden, mit Aktivitätsverlauf und verknüpften Gesprächen aus dem Posteingang ab Pro.
 
-### B2B- und Großhandels-Deal-Pipelines
+### B2B- und Großhandels-Deals in der Pipeline
 
-Wenn Sie neben Endkunden auch an Unternehmen verkaufen, verfolgen Sie diese Deals in einer strukturierten [Pipeline](/features/pipeline). Vom ersten Kontakt über Preisverhandlung zur Erstbestellung bis zum laufenden [Account-Management](/features/account-management), jede B2B-Beziehung bewegt sich transparent durch Ihren Funnel. Mehrere Pipelines ermöglichen die Trennung von Großhandel, Partnerschaften und Key Accounts.
+Wenn Sie neben Endkunden auch an Unternehmen verkaufen, verfolgen Sie diese Deals in einer strukturierten [Pipeline](/features/pipeline). Die Deal-Phase ist eine konfigurierbare Auswahlspalte mit Wahrscheinlichkeiten je Phase, daraus berechnet Customermates gewichtete Deal-Werte. Großhandel, Partnerschaften und Key Accounts trennen Sie über ein eigenes Auswahlfeld „Kanal“ und gespeicherte Ansichten oder Gruppierung nach diesem Feld.
 
-### Automatisierte Reaktivierungs- und Bindungs-Workflows
+### Reaktivierung und Kundenbindung
 
-Richten Sie [Workflow-Automatisierungen](/features/workflow-automation) mit n8n ein, um Kunden engagiert zu halten. Erstellen Sie eine [Follow-up-Aufgabe](/features/follow-up), wenn ein Key Account seit 60 Tagen nicht bestellt hat. Senden Sie [Slack-Benachrichtigungen](/features/slack-integration), wenn ein Großhandels-Interessent in eine neue Phase wechselt. Lösen Sie Reaktivierungssequenzen für ruhende Kunden aus. Verbinden Sie Customermates mit Ihrem E-Mail-Marketing-Tool über die [Vertriebsautomatisierung](/features/sales-automation) für nahtlose Ansprache.
+Customermates hat keinen eigenen Workflow-Builder. Automatisierung läuft über offene Schnittstellen:
 
-### Vollständige REST-API und Webhooks für Ihren E-Commerce-Stack
+- **Routinen (Cloud)**: Der Mate-Assistent führt einen gespeicherten Auftrag nach Zeitplan oder bei einem CRM-Ereignis aus, zum Beispiel „Liste Key Accounts, deren Feld ‚Letzte Bestellung‘ älter als 60 Tage ist, und entwirf je eine Nachricht“. Routinen verbrauchen gehostete KI-Credits.
+- **Webhooks**: Customermates meldet Änderungen, etwa einen Phasenwechsel, an Ihre Systeme.
+- **n8n, separat betrieben**: Ihre eigene n8n-Instanz verbinden Sie über die Community-Node, REST oder Webhooks, etwa um bei einem Phasenwechsel eine Nachricht in Ihrem Team-Chat zu senden oder Kontakte an Ihr E-Mail-Marketing-Tool zu übergeben. Siehe [Workflow-Automatisierung](/features/workflow-automation).
 
-Customermates ist [API-first](/features/api). Verbinden Sie es mit Ihrem Shopsystem, Ihrer E-Mail-Plattform, Analytics-Tools und Support-Desk. Webhooks liefern Echtzeit-Updates, und die umfassende REST-API ermöglicht maßgeschneiderte [Integrationen](/features/integrations), ob Sie Shopify, WooCommerce, Magento oder eine Eigenentwicklung nutzen.
+Newsletter, Kampagnen und E-Mail-Sequenzen versendet Customermates nicht; dafür bleibt Ihr E-Mail-Marketing-Tool zuständig.
+
+### REST-API und Webhooks für Ihren E-Commerce-Stack
+
+Customermates ist [API-first](/features/api). Die REST-API unter /api/v1 mit OpenAPI-Beschreibung und Webhooks ([[derived.webhooks.events.total]] Ereignistypen) erlauben eigene [Integrationen](/features/integrations) mit Shopify, WooCommerce, Magento oder einer Eigenentwicklung. Einen fertigen Shop-Connector gibt es nicht; die Verbindung bauen Sie selbst oder über einen externen Dienst wie n8n.
 
 ### KI-Agenten, die Ihr CRM bedienen
 
-Verbinden Sie Claude, ChatGPT oder Gemini über eine native MCP-Integration direkt mit Customermates. Die KI übernimmt die Dateneingabe: sie aktualisiert Deal-Phasen, hält Kundendatensätze aktuell, entwirft personalisierte Ansprache und analysiert Kaufmuster. Sie arbeitet innerhalb Ihrer CRM-Daten und liefert Erkenntnisse aus dem [Reporting](/features/reporting)-Dashboard, die manuell Stunden dauern würden.
+Externe KI-Clients wie Claude oder ChatGPT verbinden sich über [MCP](/docs/mcp) ([[derived.mcp.tools.total]] Tools) mit Customermates. Den KI-Client wählen und bezahlen Sie selbst. Die KI aktualisiert Deal-Phasen, hält Kundendatensätze aktuell, entwirft Nachrichten und wertet die Daten im CRM aus. In der Cloud-Version erledigt der Mate-Assistent dasselbe in der App und fragt vor dem Versenden oder Löschen nach Bestätigung.
 
 ### Einheitlicher Posteingang für E-Mail, WhatsApp und Instagram
 
-Ihre Käufer erreichen Sie über WhatsApp und Instagram genauso oft wie per E-Mail. Der native einheitliche Posteingang holt alles an einen Ort, E-Mail, WhatsApp, Instagram, LinkedIn und Telegram, jede Nachricht automatisch dem richtigen Kontaktdatensatz zugeordnet. Verbinden Sie sich über [Outlook](/features/outlook-integration) oder einen beliebigen IMAP-Anbieter für E-Mail, dazu die Messaging-Kanäle, die Ihre Kunden tatsächlich nutzen. Dieselben KI-Agenten können über jeden Kanal lesen, entwerfen und senden, sodass die vollständige Kommunikationshistorie an einem Ort lebt, kein Wechseln mehr zwischen Postfach und CRM.
+Ihre Käufer erreichen Sie über WhatsApp und Instagram genauso oft wie per E-Mail. Ab Pro holt der [einheitliche Posteingang](/features/unified-inbox) E-Mail (Gmail, Outlook, IMAP), WhatsApp, Instagram, LinkedIn und Telegram an einen Ort. Sie verknüpfen Gespräche mit dem passenden Kontakt und antworten auf dem ursprünglichen Kanal. Pro umfasst ein verbundenes Konto pro Nutzer, Business drei plus geteilte Konten. SMS gibt es nicht, und selbst gehostet steht der Posteingang nicht zur Verfügung.
 
 ## E-Commerce CRM-Software im Vergleich
 
 | Feature                                                         | Customermates                                 | HubSpot Free          | Salesforce            | Pipedrive             | Zoho CRM              |
 | --------------------------------------------------------------- | --------------------------------------------- | --------------------- | --------------------- | --------------------- | --------------------- |
-| Preis/Nutzer                                                    | Ab [[commercial.price.starter.monthly]]/Monat | Kostenlos (2 Nutzer)  | $25/Mo                | $14/Mo                | $14/Mo                |
-| Unbegrenzte Kontakte                                            | <StatusAvailable />                           | <StatusAvailable />   | <StatusAvailable />   | <StatusAvailable />   | 5.000 max             |
-| E-Commerce-API                                                  | <StatusAvailable />                           | <StatusPartial />     | <StatusAvailable />   | <StatusPartial />     | <StatusPartial />     |
-| Workflow-Automatisierung                                        | <StatusAvailable />                           | <StatusUnavailable /> | <StatusAvailable />   | <StatusPartial />     | <StatusPartial />     |
-| EU/DSGVO-Hosting                                                | <StatusAvailable />                           | <StatusUnavailable /> | <StatusPartial />     | <StatusPartial />     | <StatusPartial />     |
+| Preis/Nutzer                                                    | Ab [[commercial.price.starter.monthly]]/Monat | Kostenlos (2 Nutzer)  | Ab $25/Mo             | Ab 14 €/Mo (jährlich) | $14/Mo                |
+| REST-API und Webhooks                                           | <StatusAvailable />                           | <StatusPartial />     | <StatusAvailable />   | <StatusPartial />     | <StatusPartial />     |
 | Open Source                                                     | <StatusAvailable />                           | <StatusUnavailable /> | <StatusUnavailable /> | <StatusUnavailable /> | <StatusUnavailable /> |
 | Self-Hosting                                                    | <StatusAvailable />                           | <StatusUnavailable /> | <StatusUnavailable /> | <StatusUnavailable /> | <StatusUnavailable /> |
-| KI-Agenten bedienen das CRM (MCP)                               | <StatusAvailable />                           | <StatusUnavailable /> | <StatusPartial />     | <StatusUnavailable /> | <StatusUnavailable /> |
-| Nativer einheitlicher Posteingang (WhatsApp/Instagram/LinkedIn) | <StatusAvailable />                           | <StatusUnavailable /> | <StatusPartial />     | <StatusUnavailable /> | <StatusPartial />     |
-| n8n-Automations-Engine                                          | <StatusAvailable />                           | <StatusUnavailable /> | <StatusUnavailable /> | <StatusUnavailable /> | <StatusUnavailable /> |
+| KI-Clients bedienen das CRM (MCP)                               | <StatusAvailable />                           | <StatusUnavailable /> | <StatusPartial />     | <StatusUnavailable /> | <StatusUnavailable /> |
+| Einheitlicher Posteingang (WhatsApp/Instagram/LinkedIn)         | Ab Pro                                        | <StatusUnavailable /> | <StatusPartial />     | <StatusUnavailable /> | <StatusPartial />     |
 
-**[HubSpot](https://www.hubspot.com/products/crm)** bietet einen großzügigen Free-Tier, sperrt aber Workflow-Automatisierung und benutzerdefinierte Reports hinter teuren Upgrades ($90+/Nutzer/Monat). Kundendaten werden in den USA gespeichert. Siehe unseren [HubSpot-Alternative](/compare/hubspot-alternative)-Vergleich.
+Customermates: Cloud-Datenbank in Frankfurt, selbst hostbar; AVV verfügbar, Unterauftragsverarbeiter offengelegt. Wettbewerberpreise sind die Einstiegstarife der jeweiligen Preisseiten; Salesforce und Pipedrive geprüft im September 2026.
 
-**[Salesforce Commerce Cloud](https://www.salesforce.com/de/)** liefert Enterprise-Grade E-Commerce CRM-Features, startet aber bei $25/Nutzer/Monat mit komplexen Preisstufen. Siehe [Salesforce-Alternative](/compare/salesforce-alternative).
+**[HubSpot](https://www.hubspot.com/products/crm)** bietet einen großzügigen Free-Tier, Workflow-Automatisierung und benutzerdefinierte Reports gibt es aber erst in teureren Tarifen ($90+/Nutzer/Monat). Siehe unseren [HubSpot-Alternative](/compare/hubspot-alternative)-Vergleich.
 
-**[Pipedrive](https://www.pipedrive.com/de/)** ist stark im Sales-Pipeline-Management, hat aber keine nativen E-Commerce-Integrationen und keine Workflow-Automatisierung in günstigeren Tarifen. Siehe [Pipedrive-Alternative](/compare/pipedrive-alternative).
+**[Salesforce](https://www.salesforce.com/de/)** liefert Enterprise-Funktionen; Sales Cloud startet laut Preisseite (September 2026) bei $25/Nutzer/Monat in der Starter Suite, höhere Suiten kosten deutlich mehr. Siehe [Salesforce-Alternative](/compare/salesforce-alternative).
+
+**[Pipedrive](https://www.pipedrive.com/de/)** ist stark im Sales-Pipeline-Management; der Lite-Tarif kostet laut Preisseite (September 2026) 14 € pro Nutzer und Monat bei jährlicher oder 24 € bei monatlicher Abrechnung, Automatisierungen gibt es erst ab Growth. Siehe [Pipedrive-Alternative](/compare/pipedrive-alternative).
 
 **[Zoho CRM](https://www.zoho.com/de/crm/)** bietet solide Features zu günstigeren Preisen, aber kostenlose Pläne sind auf 5.000 Kontakte und 3 Nutzer begrenzt. Siehe [Zoho CRM-Alternative](/compare/zoho-crm-alternative).
 
@@ -107,61 +111,61 @@ Ihre Käufer erreichen Sie über WhatsApp und Instagram genauso oft wie per E-Ma
 
 ### D2C-Marke mit Großhandelskanal
 
-Eine Direct-to-Consumer-Marke verwaltet individuelle Kundenbeziehungen über das [Kontaktmanagement](/features/contact-management) und betreibt parallel eine separate [Pipeline](/features/pipeline) für Großhandelskonten. Wenn ein Großhandels-Deal die Verhandlungsphase erreicht, weist eine [Workflow-Automatisierung](/features/workflow-automation) dem Account-Manager eine Aufgabe zu und sendet eine Slack-Benachrichtigung.
+Eine Direct-to-Consumer-Marke verwaltet Kundenbeziehungen über das [Kontaktmanagement](/features/contact-management) und führt Großhandelskonten als Deals mit dem Auswahlfeld „Kanal = Großhandel“ in einer eigenen gespeicherten Ansicht. Erreicht ein Großhandels-Deal die Verhandlungsphase, meldet ein Webhook das an einen separat betriebenen n8n-Workflow, der den Account-Manager im Team-Chat informiert.
 
 ### Shopify-Shop mit B2B-Partnerschaften
 
-Ein Shopify-Shop synchronisiert Kundendaten über die [API](/features/api) und nutzt das [Lead-Management](/features/lead-management) zur Verfolgung von Partnerschaftsanfragen. Benutzerdefinierte Felder speichern partnerspezifische Daten wie Rabattstufen, Zahlungsbedingungen und Mindestbestellmengen. [Sales-Tracking](/features/sales-tracking) überwacht den Umsatz nach Partner.
+Ein Shopify-Shop überträgt Kundendaten über eine selbst gebaute Verbindung zur [API](/features/api) und nutzt das [Lead-Management](/features/lead-management) zur Verfolgung von Partnerschaftsanfragen. Eigene Felder speichern Rabattstufen, Zahlungsbedingungen und Mindestbestellmengen. Dashboards zeigen den Pipeline-Wert nach Partner.
 
 ### Multi-Channel-Händler
 
-Ein Händler, der über den eigenen Shop, Amazon und stationäre Geschäfte verkauft, nutzt Customermates als zentrales [CRM](/features/simple-crm), um Kundendaten kanalübergreifend zu vereinheitlichen. Die [E-Mail-Integration](/features/email-integration) erfasst die Kommunikation, das [Aufgabenmanagement](/features/task-management) koordiniert das Team, und das [Reporting](/features/reporting) zeigt die Performance nach Kanal.
+Ein Händler, der über den eigenen Shop, Amazon und stationäre Geschäfte verkauft, nutzt Customermates als zentrales [CRM](/features/simple-crm) für Geschäftskunden. Der Posteingang ab Pro bündelt die Kommunikation, das [Aufgabenmanagement](/features/task-management) verteilt nächste Schritte im Team, und das [Reporting](/features/reporting) zeigt Deals gruppiert nach Kanal.
 
 ## Preise für E-Commerce-Unternehmen
 
-E-Commerce-Margen sind eng. Ihr CRM sollte beim Umsatzwachstum helfen, nicht den Gewinn schmälern.
+E-Commerce-Margen sind eng. Ihr CRM sollte beim Umsatzwachstum helfen, nicht den Gewinn schmälern. Abgerechnet wird monatlich:
 
-- **Starter, [[commercial.price.starter.monthly]] pro Nutzer pro Monat**, [API](/features/api), [Automatisierung](/features/workflow-automation), native KI-Integration und Custom Fields
-- **Pro, [[commercial.price.pro.monthly]] pro Nutzer pro Monat**, ergänzt den einheitlichen Posteingang: [E-Mail-Integration](/features/email-integration), WhatsApp und Instagram für Kunden- und Partnerkommunikation
-- **Keine Kosten pro Kontakt**, unbegrenzte Kundendatensätze und Organisationen in jeder Stufe
-- **[Selbst hostbar](/features/self-hosted)**, Open Source, volle Kontrolle über Ihre Kundendaten, für immer kostenlos
+- **Starter, [[commercial.price.starter.monthly]] pro Nutzer pro Monat**, [API](/features/api), Webhooks, MCP, eigene Felder, Ansichten und Dashboards
+- **Pro, [[commercial.price.pro.monthly]] pro Nutzer pro Monat**, ergänzt den einheitlichen Posteingang für E-Mail, WhatsApp, Instagram, LinkedIn und Telegram
+- **Keine Kosten pro Kontakt**, Kundendatensätze und Organisationen werden nicht einzeln berechnet
+- **[Selbst hostbar](/features/self-hosted)**, der Open-Source-Kern läuft ohne Lizenzkosten auf Ihrer eigenen Infrastruktur; Posteingang und Mate gibt es nur in der Cloud
 
-Ob Team mit 3 oder 30 Personen: die Preisgestaltung bleibt einfach, ab [[commercial.price.starter.monthly]] pro Nutzer für das Kern-CRM, [[commercial.price.pro.monthly]] pro Nutzer für den einheitlichen Posteingang. Besuchen Sie unsere [Preisseite](/pricing) für Details.
+Ob Team mit 3 oder 30 Personen: ab [[commercial.price.starter.monthly]] pro Nutzer für das Kern-CRM, [[commercial.price.pro.monthly]] pro Nutzer mit Posteingang. Details auf unserer [Preisseite](/pricing).
 
 ## Häufig gestellte Fragen
 
 <Faq>
 <FaqItem question="Kann Customermates mit Shopify, WooCommerce oder Magento integriert werden?">
-Ja. Customermates bietet eine vollständige [REST-API](/features/api) und Webhooks zur Anbindung an jede E-Commerce-Plattform, Shopify, WooCommerce, Magento oder Eigenentwicklungen. Sie können Kundendaten synchronisieren, CRM-Aktionen basierend auf Shop-Events auslösen und bidirektionale [Integrationen](/features/integrations) mit der n8n-Automations-Engine bauen, ohne Code zu schreiben.
+Ja, über eine eigene Verbindung. Customermates bietet eine [REST-API](/features/api) und Webhooks zur Anbindung an jede E-Commerce-Plattform. Einen fertigen Shop-Connector gibt es nicht. Sie bauen die Verbindung selbst oder mit einer separat betriebenen n8n-Instanz, die Sie über die Community-Node anbinden, und lösen so CRM-Aktionen aus Shop-Ereignissen aus.
 </FaqItem>
 
 <FaqItem question="Eignet sich Customermates sowohl für B2C- als auch B2B-E-Commerce?">
-Absolut. Customermates verwaltet individuelle Kundenprofile und Unternehmenskonten gleichermaßen gut. Sie können separate [Pipelines](/features/pipeline) für B2B-Großhandelsgeschäfte und konsumentenorientierte Workflows betreiben, mit benutzerdefinierten Feldern für jeden Kontext. Es ist für die Komplexität moderner E-Commerce-Unternehmen gebaut, die über mehrere Kanäle operieren.
+Ja. Customermates verwaltet Kontakte und Organisationen gleichermaßen. Die Pipeline hat eine konfigurierbare Phasenspalte; B2B-Großhandel und andere Geschäftsarten trennen Sie über ein eigenes Auswahlfeld und gespeicherte Ansichten oder Gruppierung. Für sehr große Endkundenbestände mit Bestelldaten bleibt Ihr Shopsystem die führende Quelle.
 </FaqItem>
 
 <FaqItem question="Wie unterscheidet sich Customermates von Klaviyo oder Drip?">
-[Klaviyo](https://www.klaviyo.com/) und Drip sind primär E-Mail-Marketing-Plattformen mit angehängten CRM-Funktionen. Customermates ist ein vollständiges CRM mit [Pipeline-Management](/features/pipeline), [Kontaktmanagement](/features/contact-management), [Aufgabenmanagement](/features/task-management) und [Workflow-Automatisierung](/features/workflow-automation), plus Anbindung an jedes E-Mail-Marketing-Tool über n8n. Wenn Sie Beziehungsmanagement über E-Mail-Kampagnen hinaus benötigen, ist Customermates die bessere Grundlage.
+[Klaviyo](https://www.klaviyo.com/) und Drip sind E-Mail-Marketing-Plattformen mit Kampagnen und Automatisierungsstrecken. Customermates ist ein CRM mit [Pipeline-Management](/features/pipeline), [Kontaktmanagement](/features/contact-management), [Aufgabenmanagement](/features/task-management) und Posteingang ab Pro, versendet aber keine Newsletter oder Sequenzen. Viele Teams nutzen beides und verbinden sie über REST, Webhooks oder einen separat betriebenen n8n-Workflow.
 </FaqItem>
 
 <FaqItem question="Wie hilft Customermates bei der Kundenbindung?">
-Customermates ermöglicht den Aufbau automatisierter Reaktivierungs-Workflows mit n8n, die Verfolgung der Kundeninteraktionshistorie zur Identifikation gefährdeter Konten, den Anbindung Ihres KI-Assistenten zur Erkennung von Kaufmusteränderungen und die Erstellung strukturierter [Follow-up](/features/follow-up)-Prozesse. In Kombination mit der [E-Mail-Integration](/features/email-integration) hat Ihr Team immer den Kontext, um zum richtigen Zeitpunkt mit der richtigen Nachricht zu reagieren.
+Mit eigenen Feldern wie „Letzte Bestellung“ oder „Kundensegment“ und gespeicherten Ansichten sehen Sie, welche Konten Aufmerksamkeit brauchen. In der Cloud kann eine Routine diese Konten regelmäßig auflisten und Nachrichten zur Freigabe entwerfen. Ab Pro hat Ihr Team im [Posteingang](/features/unified-inbox) den Gesprächskontext, um mit der passenden Nachricht zu reagieren.
 </FaqItem>
 
 <FaqItem question="Was unterscheidet Customermates von HubSpot oder Salesforce für E-Commerce?">
-Drei Dinge: transparente Preise (ab [[commercial.price.starter.monthly]]/Nutzer/Monat, einheitlicher Posteingang ab Pro für [[commercial.price.pro.monthly]]), Datensouveränität (EU-gehostet, DSGVO-nativ, [selbst hostbar](/features/self-hosted)) und Open Source. HubSpot sperrt Automatisierung hinter $90+/Nutzer-Tarifen. Salesforce erfordert komplexes Setup und US-basierte Datenspeicherung. Customermates enthält [API](/features/api), Automatisierung, native KI-Integration und [Reporting](/features/reporting) in jeder Stufe. Siehe unsere [HubSpot-Alternative](/compare/hubspot-alternative)- und [Salesforce-Alternative](/compare/salesforce-alternative)-Seiten für ausführliche Vergleiche.
+Drei Dinge: transparente Preise (ab [[commercial.price.starter.monthly]]/Nutzer/Monat, Posteingang ab Pro für [[commercial.price.pro.monthly]]), Kontrolle über den Speicherort (Cloud-Datenbank in Frankfurt oder [selbst gehostet](/features/self-hosted)) und Open Source. [API](/features/api), Webhooks, MCP und [Reporting](/features/reporting) sind in jedem Tarif enthalten. Einen eigenen Workflow-Builder hat Customermates nicht. Siehe unsere [HubSpot-Alternative](/compare/hubspot-alternative)- und [Salesforce-Alternative](/compare/salesforce-alternative)-Seiten.
 </FaqItem>
 
-<FaqItem question="Ist Customermates DSGVO-konform für E-Commerce-Kundendaten?">
-Ja. Customermates ist DSGVO-nativ, EU-gehostet auf europäischer Infrastruktur und kann für volle Datensouveränität [selbst gehostet](/features/self-hosted) werden. Audit-Logging verfolgt Änderungen an Kontakt-, Organisations-, Deal-, Service- und Aufgabendatensätzen, und rollenbasierte Berechtigungen stellen sicher, dass nur autorisierte Teammitglieder auf sensible Daten zugreifen. Das ist entscheidend für E-Commerce-Unternehmen, die Namen, Adressen, Kaufhistorien und Zahlungsinformationen verarbeiten.
+<FaqItem question="Wie steht Customermates zur DSGVO bei E-Commerce-Kundendaten?">
+Ob der Einsatz DSGVO-konform ist, hängt davon ab, wie Sie als Verantwortlicher ein Werkzeug nutzen. In der Cloud-Version liegt die Datenbank in der AWS-Region Frankfurt; Hosting und weitere Unterauftragsverarbeiter, auch aus den USA, stehen in der [Liste der Unterauftragsverarbeiter](/subprocessors), ein [Auftragsverarbeitungsvertrag (AVV)](/dpa) liegt vor. Wer den Speicherort vollständig selbst bestimmen will, betreibt den Open-Source-Kern selbst. Das Audit-Log verfolgt Änderungen an Kontakten, Organisationen, Deals, Services und Aufgaben, Rollen begrenzen den Zugriff. Eine Zertifizierung besitzt Customermates nicht. Zahlungsdaten gehören ins Shop- oder Zahlungssystem, nicht ins CRM.
 </FaqItem>
 </Faq>
 
 ## So starten Sie mit Customermates für E-Commerce
 
-1. **[Kostenloses Konto erstellen](/auth/signup)**, keine Kreditkarte nötig, [[commercial.trial.days]] Tage zum Erkunden aller Funktionen.
-2. **Unterstützte Kundendaten migrieren**, bereiten Sie Shop-Exporte außerhalb des Produkts auf und erstellen Sie die Datensätze über eine eigene [REST-API](/features/api)-Integration oder einen externen KI-Client per MCP. Customermates hat keinen CSV-Uploader.
-3. **Pipelines einrichten**, [Pipelines](/features/pipeline) für Großhandels-Deals, Handelspartnerschaften oder Key-Account-Management erstellen.
-4. **Benutzerdefinierte Felder konfigurieren**, E-Commerce-spezifische Datenpunkte wie durchschnittlicher Bestellwert, Kundensegment oder Loyalitätsstufe hinzufügen.
-5. **Automatisierungen bauen**, Customermates mit der [n8n-Automatisierung](/features/workflow-automation) an Ihren E-Commerce-Stack anbinden und Kundenbindungs- sowie Outreach-Workflows automatisieren.
+1. **[Konto erstellen](/auth/signup)**, keine Kreditkarte nötig, [[commercial.trial.days]] Tage zum Erkunden.
+2. **Kundendaten übernehmen**, bereiten Sie Shop-Exporte als Excel-Datei (XLSX) auf und importieren Sie sie, einen Datensatztyp nach dem anderen, oder erstellen Sie Datensätze über eine eigene [REST-API](/features/api)-Integration.
+3. **Pipeline einrichten**, Phasen für Großhandels-Deals und Partnerschaften definieren und ein Auswahlfeld „Kanal“ anlegen.
+4. **Eigene Felder konfigurieren**, E-Commerce-spezifische Datenpunkte wie durchschnittlicher Bestellwert, Kundensegment oder Loyalitätsstufe hinzufügen.
+5. **Anbindungen bauen**, Customermates über Webhooks, REST oder eine separat betriebene [n8n-Instanz](/features/workflow-automation) mit Ihrem E-Commerce-Stack verbinden.
 
-Customermates gibt Ihrem E-Commerce die Beziehungsmanagement-Ebene, die aus Transaktionen dauerhafte Kundenbeziehungen macht, Open Source, DSGVO-konform und gebaut für Teams, die Kundendaten ernst nehmen.
+Customermates gibt Ihrem E-Commerce die Beziehungsmanagement-Ebene, die aus Transaktionen dauerhafte Kundenbeziehungen macht: Open Source, selbst hostbar und gebaut für Teams, die Kundendaten ernst nehmen.

@@ -20,7 +20,7 @@ hero:
 
 cta:
   action: Prüfen Sie den Workflow vor der Datenübernahme
-  description: Sehen Sie, wie Kontakte, Organisationen, anpassbare Pipelines und Aufgaben zu Ihrem Beratungsprozess passen, während Fachsysteme die regulierten Datensätze behalten.
+  description: Sehen Sie, wie Kontakte, Organisationen, anpassbare Pipeline-Phasen und Aufgaben zu Ihrem Beratungsprozess passen, während Fachsysteme die regulierten Datensätze behalten.
   buttonLeftText: Pro-Testphase starten
   buttonLeftHref: /auth/signup
   buttonRightText: Demo ansehen
@@ -109,7 +109,7 @@ Bilden Sie ein mögliches Mandat als Deal ab, nicht als Portfolio oder Konto. Di
 
 ## Reviews, Vermögensreferenzen und Haushalte
 
-Ein Review-Monat oder Beziehungsstatus kann als eigener Wert gespeichert und in gefilterten Ansichten verwendet werden. Ein kundenseitig betriebener Scheduler oder separater [n8n-Workflow](/features/workflow-automation) kann aus einer freigegebenen Datumsquelle eine Aufgabe erzeugen. Customermates hat keinen eingebauten Scheduler, keine Erinnerungssequenz und keine automatische Review-Kampagne.
+Ein Review-Monat oder Beziehungsstatus kann als eigener Wert gespeichert und in gefilterten Ansichten verwendet werden. Ein kundenseitig betriebener Scheduler oder separater [n8n-Workflow](/features/workflow-automation) kann aus einer freigegebenen Datumsquelle eine Aufgabe erzeugen. In der Cloud-Version kann eine [Routine](/docs/app-routines) des Mate-Assistenten nach Zeitplan die Kontakte mit anstehendem Review-Monat auflisten; Routinen verbrauchen gehostete KI-Credits und sind keine Erinnerungen. Customermates hat keine Erinnerungssequenz und keine automatische Review-Kampagne.
 
 Hält ein Team einen AUM- oder Vermögensreferenzwert in einem eigenen Feld, bleibt dieser manuell bereitgestellter Kontext. Customermates berechnet, synchronisiert, gleicht oder prüft verwaltetes Vermögen nicht. Das Feld ist weder Portfolioledger noch Performancebericht oder Abrechnungsgrundlage.
 
@@ -125,7 +125,7 @@ Ein externer KI-Client kann nach Autorisierung unterstützte [MCP](/docs/mcp)-To
 
 ## Daten-, Bereitstellungs- und Integrationsgrenzen
 
-Die verwaltete Customermates-Datenbank läuft in einer EU-Region. Das ist keine DSGVO- oder Finanzdienstleistungszertifizierung. Application-Hosting, verbundene Kanäle, externe KI-Clients und Automatisierungsanbieter haben eigene Grenzen. Berechtigungen gelten auf Ressourcenebene, nicht je Feld oder Datensatz.
+In der Cloud-Version liegt die Datenbank in der AWS-Region Frankfurt; Hosting und weitere Unterauftragsverarbeiter, auch aus den USA, stehen in der [Liste der Unterauftragsverarbeiter](/subprocessors), ein [Auftragsverarbeitungsvertrag (AVV)](/dpa) liegt vor. Wer den Speicherort vollständig selbst bestimmen will, betreibt den Open-Source-Kern selbst. Das ist keine DSGVO- oder Finanzdienstleistungszertifizierung; Customermates besitzt keine Zertifizierung. Verbundene Kanäle, externe KI-Clients und Automatisierungsanbieter haben eigene Grenzen. Berechtigungen gelten auf Ressourcenebene, nicht je Feld oder Datensatz.
 
 Kundenseitig gebaute Integrationen können [REST API und Webhooks](/features/api), MCP oder die separate n8n-Community-Integration verwenden. Der Kunde verantwortet Anbietervereinbarungen, Feldzuordnung, Validierung, Wiederholungen, Dublettenbehandlung und Compliance. Eine native Anbindung an Depotbanken, Portfolios, Planung oder Aufsichtssysteme wird nicht behauptet.
 

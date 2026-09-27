@@ -1,6 +1,6 @@
 ---
 title: "Personal CRM: Manage Contacts & Build Relationships"
-description: "Best personal CRM app in 2026. Manage contacts, set reminders, and nurture your network. Open-source, EU-hosted, GDPR-native. Start free, then [[commercial.price.starter.monthly]]/mo."
+description: "Personal CRM app to manage contacts, notes and follow-ups for your network. Open source and self-hostable, from [[commercial.price.starter.monthly]] per user per month."
 industryName: "Personal"
 relatedHrefs:
   - /for/freelancers
@@ -10,7 +10,7 @@ relatedHrefs:
 
 hero:
   title: "The Personal CRM That Keeps Every Relationship on Track"
-  description: "Stop losing touch with people who matter. AI agents keep your contacts and reminders current, and a native inbox brings email, LinkedIn, WhatsApp, Instagram, and Telegram into one place, without enterprise complexity."
+  description: "Stop losing touch with people who matter. AI agents help keep your contacts and notes current, and on Pro a native inbox brings email, LinkedIn, WhatsApp, Instagram, and Telegram into one place, without enterprise complexity."
   buttonLeftText: Start for free
   buttonLeftHref: /auth/signup
   buttonRightText: Watch live demo
@@ -18,7 +18,7 @@ hero:
   hint: "✓ No credit card required ✓ First [[commercial.trial.days]] days free"
 cta:
   action: "Start Managing Your Relationships Today"
-  description: "Join thousands of professionals who use Customermates as their personal CRM. Set up in 2 minutes, no credit card required."
+  description: "Add your contacts, the fields that matter to you and your first follow-up list. Setup takes minutes, no credit card required."
   buttonLeftText: Start for free
   buttonLeftHref: /auth/signup
   buttonRightText: Watch live demo
@@ -34,7 +34,7 @@ Traditional CRM tools like Salesforce or HubSpot are built for companies managin
 
 - **One place for every contact**, no more scattered data across your phone, email, LinkedIn, and sticky notes.
 - **Context for every relationship**, notes on how you met, what you discussed, and what matters to each person.
-- **Reminders to follow up**, so valuable connections do not go cold because life got busy.
+- **A follow-up list**, so valuable connections do not go cold because life got busy.
 
 Whether you call it a personal CRM, a relationship management app, or a contact manager, the goal is the same: be intentional about the people in your life.
 
@@ -68,24 +68,24 @@ There are several personal CRM tools on the market, Dex, Clay, Monica, Folk, and
 
 ### Open Source and Transparent
 
-Customermates is fully open source. You can inspect every line of code on GitHub, contribute improvements, or [self-host](/features/self-hosted) it on your own server. No black boxes, no vendor lock-in.
+The Customermates core is open source under the AGPL; a small set of enterprise modules carries a commercial licence. You can inspect the code on GitHub, contribute improvements, or [self-host](/features/self-hosted) it on your own server.
 
-### EU-Hosted and GDPR-Native
+### Transparent About Where Data Lives
 
-Your personal network data is sensitive. Customermates is hosted in the EU region and built with [GDPR compliance](https://gdpr.eu/) from the ground up, not retrofitted as an afterthought. The hosted database runs in the EU region, and self-hosting puts the location entirely in your hands.
+Your personal network data is sensitive. In the managed cloud, the application database runs in the AWS Frankfurt region; hosting and other subprocessors, including US providers, are listed on the [subprocessors page](/subprocessors), and a [DPA](/dpa) is available. If you need full control over where data lives, self-host the open-source core.
 
-### Two Simple Tiers
+### Two Plans That Fit Personal Use
 
-Most personal CRM software forces you into confusing tiers with crippled free plans. Customermates keeps it to two honest options:
+For personal use, two of the Customermates plans are relevant:
 
-- **Starter, [[commercial.price.starter.monthly]] per user per month**: unlimited contacts and custom fields, [visual pipeline](/features/pipeline) for tracking opportunities, [task management](/features/task-management) with reminders, native AI integration, n8n automation, and full API access
-- **Pro, [[commercial.price.pro.monthly]] per user per month**: everything in Starter plus the unified inbox, [email integration](/features/email-integration) with full conversation history, plus LinkedIn, WhatsApp, Instagram, and Telegram in one place
+- **Starter, [[commercial.price.starter.monthly]] per user per month**: contacts, custom fields, a [visual pipeline](/features/pipeline) for tracking opportunities, [task management](/features/task-management), AI clients through MCP, REST API and webhooks
+- **Pro, [[commercial.price.pro.monthly]] per user per month**: everything in Starter plus the unified inbox: [email](/features/email-integration) (Gmail, Outlook, IMAP), LinkedIn, WhatsApp, Instagram, and Telegram in one place
 
-No hidden fees. No surprises.
+Billing is monthly. See [pricing](/pricing) for every plan.
 
-### 2-Minute Setup
+### Quick Setup
 
-Create an account, add contacts manually, or migrate supported records through REST or an external AI client over MCP. Customermates has no CSV uploader.
+Create an account, add contacts manually, or import them from an Excel workbook (XLSX). There is no CSV import, so save a CSV export as XLSX first.
 
 ## Key Features for Personal CRM Use
 
@@ -95,16 +95,16 @@ Add contacts with the fields that matter to you. Customermates lets you create [
 
 Unlike enterprise CRMs that force you into rigid structures (company, deal size, lead score), Customermates adapts to how you actually think about people.
 
-### Follow-Up Reminders and Tasks
+### Follow-Up Lists
 
-The biggest value of a personal CRM app is never forgetting to follow up. Create [tasks](/features/task-management) tied to specific contacts with due dates:
+The biggest value of a personal CRM app is never forgetting to follow up. Customermates has no reminders or task due dates, but you can add a date field such as "Next check-in" and a single-select field for how often you want to be in touch, then keep a saved view sorted by that date:
 
 - **Weekly**: Close friends and active collaborators
 - **Monthly**: Professional contacts and mentors
 - **Quarterly**: Industry peers and acquaintances
 - **Annually**: Holiday greetings and birthday messages
 
-See at a glance who you have not reached out to and who needs attention next.
+See at a glance who needs attention next. [Tasks](/features/task-management) linked to a contact hold the next thing you want to do. On Customermates Cloud, a [routine](/docs/app-routines) can have the Mate assistant list the contacts whose check-in date has passed every Monday.
 
 ### Notes and Interaction History
 
@@ -119,9 +119,9 @@ When someone calls you six months later, you can pull up their profile and pick 
 
 ### Email Integration
 
-Link your email to Customermates so conversations are automatically associated with contacts. No more digging through your inbox to find that one thread from three months ago.
+On Pro and above, connect your mailbox to the unified inbox and link conversations to your contacts. No more digging through your inbox to find that one thread from three months ago.
 
-The [email integration](/features/email-integration) works with Gmail, Outlook, and any IMAP provider.
+The [email integration](/features/email-integration) works with Gmail, Outlook, and any IMAP provider. It is not available when self-hosting.
 
 ### Visual Pipeline for Opportunities
 
@@ -132,25 +132,26 @@ A personal CRM is not just about staying in touch, it is also about tracking opp
 - Investment discussions
 - Partnership or collaboration ideas
 
-Drag and drop contacts between stages to see where every opportunity stands.
+Drag opportunities between stages on the kanban board to see where each one stands.
 
 ### AI agents that keep your network current
 
-Customermates connects Claude, ChatGPT, or Gemini directly to your CRM through a native MCP integration ([[derived.mcp.tools.total]] tools). The agent does the upkeep you never get around to:
+Customermates connects AI clients such as Claude or ChatGPT to your CRM through its MCP server ([[derived.mcp.tools.total]] tools); you choose and pay for the AI client. The agent does the upkeep you never get around to:
 
 - **Draft personalized messages** based on your relationship history
 - **Log notes and update contacts** straight from a conversation, so records stay current without manual data entry
-- **Suggest follow-up timing** based on interaction patterns
-- **Summarize long email threads** so you can catch up quickly
+- **List who you have not contacted** since a date you track in a field
+- **Summarize a contact's notes** so you can catch up quickly
 
 ### Automation With n8n
 
-For power users, Customermates integrates with [n8n](https://n8n.io/) to create custom automations:
+For power users, a separately operated [n8n](https://n8n.io/) instance connects through the Customermates community node, the REST API or webhooks. With your own n8n workflows you can, for example:
 
-- Send yourself a daily digest of overdue follow-ups
-- Trigger birthday greetings automatically
-- Sync contacts with other tools you use
-- Create Slack or email notifications based on pipeline changes
+- Send yourself a daily digest of contacts whose check-in date has passed
+- Post a message to Slack or email when a record changes
+- Keep contacts in step with other tools you use
+
+n8n is not part of Customermates and is set up and run by you.
 
 ## Personal CRM vs. Business CRM: What Is the Difference?
 
@@ -158,40 +159,40 @@ For power users, Customermates integrates with [n8n](https://n8n.io/) to create 
 | ------------------ | ---------------------------- | ------------------------------------ |
 | **Primary user**   | Individuals                  | Sales teams and companies            |
 | **Contact focus**  | People you know personally   | Leads and customers                  |
-| **Pricing**        | €12-29/month                 | €50-300/user/month                   |
+| **Pricing**        | Low monthly price            | Per user, often tiered by features   |
 | **Setup time**     | Minutes                      | Weeks to months                      |
 | **Complexity**     | Low, designed for simplicity | High, built for enterprise workflows |
 | **Data ownership** | Often self-hostable          | Vendor-controlled                    |
 | **Key metric**     | Relationship quality         | Revenue and conversion               |
 
-Customermates bridges this gap. It is simple enough for personal use but powerful enough to grow with you if your needs expand into business territory.
+Customermates sits between the two. It is simple enough for personal use and can grow with you if your needs expand into business territory.
 
 ## How to Get Started With Customermates as Your Personal CRM
 
-Setting up takes about 2 minutes:
+Setting up takes a few minutes:
 
 1. **Sign up for free** at [customermates.com/auth/signup](/auth/signup), no credit card required, first [[commercial.trial.days]] days free.
-2. **Migrate supported records**, use the REST API, or hand a prepared source export to an AI agent connected over MCP. Customermates has no CSV uploader.
+2. **Import your contacts**, from an Excel workbook (XLSX), or through the REST API or an AI agent connected over MCP. There is no CSV import.
 3. **Add custom fields**, create fields for birthday, how you met, interests, or anything that helps you remember what matters.
-4. **Set up follow-up tasks**, create reminders to reach out to key people at the right intervals.
-5. **Connect your email**, link Gmail, Outlook, or IMAP so conversations attach to contacts automatically.
-6. **Explore automations**, set up n8n workflows for birthday reminders, follow-up digests, or custom notifications.
+4. **Build a follow-up view**, add a "Next check-in" date field and save a view sorted by it.
+5. **Connect your email (Pro)**, link Gmail, Outlook, or IMAP and assign conversations to contacts.
+6. **Explore automations**, connect your own n8n or use a cloud routine for a weekly follow-up list.
 
-Your data stays accessible through open interfaces. Customermates is open source, lets you read supported records through REST, and can be self-hosted; it has no built-in full-data exporter.
+Your data stays accessible through open interfaces. You can export records to XLSX, one record type at a time, read them through REST, or self-host the open-source core. There is no single whole-account export.
 
 ## Personal CRM Use Cases
 
 ### Networking After Conferences
 
-You come home from a conference with 30 new contacts. Without a system, most of those connections fade within weeks. With Customermates, you add each person with notes about your conversation, create a follow-up task with a due-date column for next week, and track the relationship over time.
+You come home from a conference with 30 new contacts. Without a system, most of those connections fade within weeks. With Customermates, you add each person with notes about your conversation, set the check-in date field to next week, and track the relationship over time.
 
 ### Managing a Job Search
 
-You are applying to 15 companies and talking to 3 recruiters. Use the pipeline to track each opportunity, add notes after every interview, and set reminders for follow-up emails. Never lose track of where you stand.
+You are applying to 15 companies and talking to 3 recruiters. Use the pipeline to track each opportunity, add notes after every interview, and keep a view of the ones waiting for a follow-up email. Never lose track of where you stand.
 
 ### Staying Close to Friends and Family
 
-Life gets busy. A personal CRM helps you remember birthdays, keep track of what your friends are going through, and remind you to reach out to people you have not spoken to in a while.
+Life gets busy. A personal CRM helps you keep birthdays in a date field, keep track of what your friends are going through, and see who you have not spoken to in a while.
 
 ### Building a Professional Network
 
@@ -201,12 +202,12 @@ As a consultant, freelancer, or founder, your network is your business. Track ev
 
 Customermates keeps it simple:
 
-- **Starter, [[commercial.price.starter.monthly]]/user/month**, contacts, pipeline, native AI/MCP integration, automation, API
+- **Starter, [[commercial.price.starter.monthly]]/user/month**, contacts, pipeline, AI clients through MCP, REST API and webhooks
 - **Pro, [[commercial.price.pro.monthly]]/user/month**, adds the unified inbox: email, LinkedIn, WhatsApp, Instagram, and Telegram in one place
-- **Self-hosting available**, run it on your own infrastructure for free
+- **Self-hosting available**, run the open-source core on your own infrastructure with no licence cost; the inbox and Mate are cloud-only
 - **First [[commercial.trial.days]] days of Pro free**, try everything before you pay
 
-Most people who want their conversations attached to contacts land on Pro. Compared to personal CRMs like Dex or Clay, you also get a native inbox and AI agents that do the data entry, in open-source software you can self-host.
+Most people who want their conversations attached to contacts land on Pro. What sets Customermates apart from many personal CRMs is the combination of a native inbox, AI clients through MCP, and an open-source core you can self-host.
 
 Check the [pricing page](/pricing) for full details.
 
@@ -222,22 +223,22 @@ Yes, if your network has grown beyond what you can manage in your head. Once you
 </FaqItem>
 
 <FaqItem question="Can I use Customermates as a free personal CRM?">
-Customermates offers a free [[commercial.trial.days]]-day trial of Pro with all features unlocked. After that, plans start at [[commercial.price.starter.monthly]]/month, or [[commercial.price.pro.monthly]]/month for the unified inbox with email, LinkedIn, WhatsApp, Instagram, and Telegram. If you want a completely free option, you can self-host the open-source version on your own server at no cost.
+Customermates offers a free [[commercial.trial.days]]-day trial of Pro with all features unlocked. After that, plans start at [[commercial.price.starter.monthly]] per user per month, or [[commercial.price.pro.monthly]] per user per month for the unified inbox with email, LinkedIn, WhatsApp, Instagram, and Telegram. If you want to avoid a subscription, you can self-host the open-source core on your own server with no licence cost; you then run the server, backups and updates yourself, and the inbox and Mate are not included.
 </FaqItem>
 
 <FaqItem question="How is a personal CRM different from Google Contacts?">
-Google Contacts stores names and phone numbers. A personal CRM like Customermates adds context: notes, interaction history, typed custom fields you can filter and sort on, email integration, and pipeline tracking. There is no separate tagging feature; a single-select custom column does the same job. It turns a static address book into an active relationship management system.
+Google Contacts stores names and phone numbers. A personal CRM like Customermates adds context: notes, interaction history, typed custom fields you can filter and sort on, an email inbox on Pro, and pipeline tracking. There is no separate tagging feature; a single-select custom column does the same job. It turns a static address book into an active relationship management system.
 </FaqItem>
 
 <FaqItem question="Is my data safe in a personal CRM?">
-With Customermates, your data is hosted in the EU region and protected by GDPR. The software is open source, so you can audit exactly how your data is handled. You also have the option to self-host, giving you complete control over your information.
+On Customermates Cloud, the application database runs in the AWS Frankfurt region; hosting and other subprocessors, including US providers, are listed on the [subprocessors page](/subprocessors), and a [DPA](/dpa) is available. The core is open source, so you can audit how your data is handled, and you can self-host it if you want full control over where data lives.
 </FaqItem>
 
 <FaqItem question="Can I import contacts from my phone or email?">
-Yes. Customermates has no CSV importer. Exports from Google Contacts, Apple Contacts, Outlook, LinkedIn, and most other sources are loaded through the REST API or by an AI agent over MCP. You can also add contacts manually or through the API.
+Yes, with a step in between. Customermates imports contacts from an Excel workbook (XLSX), one record type at a time; there is no CSV import and no two-way sync with Google or Outlook contacts. Save an export from Google Contacts, Outlook or LinkedIn as XLSX, then import it. You can also add contacts manually, through the REST API or with an AI agent over MCP.
 </FaqItem>
 
 <FaqItem question="What makes Customermates different from other personal CRM tools like Dex or Monica?">
-Customermates combines the simplicity of personal CRM tools with features usually found only in business CRMs, visual pipelines, email integration, native AI integration, and n8n automation. It is also open source, EU-hosted, and priced from [[commercial.price.starter.monthly]]/month, with email integration on Pro at [[commercial.price.pro.monthly]]/month. Monica is open source but lacks pipeline and automation features. Dex offers good LinkedIn integration but is not open source and costs more for fewer features.
+Customermates combines the simplicity of personal CRM tools with features usually found only in business CRMs, a visual pipeline, a unified inbox on Pro, AI clients through MCP, and REST, webhooks and n8n connections. Its core is open source and self-hostable, and cloud plans start at [[commercial.price.starter.monthly]] per user per month, with the inbox on Pro at [[commercial.price.pro.monthly]]. Monica is also open source and focuses on personal relationships; Dex focuses on keeping in touch and LinkedIn. Compare their current plans on their own sites.
 </FaqItem>
 </Faq>

@@ -1,6 +1,6 @@
 ---
 title: "CRM für Versicherungsmakler: Leads & Follow-ups"
-description: "Interessenten, Kundenbeziehungen, Empfehlungspartner und Wiedervorlagen verwalten. Ergänzt ein MVP; keine Policen-, Schaden- oder Provisionsverwaltung."
+description: "Interessenten, Kundenbeziehungen, Empfehlungspartner und Follow-ups verwalten. Ergänzt ein MVP; keine Policen-, Schaden- oder Provisionsverwaltung."
 industryName: "Versicherungsmakler"
 
 relatedHrefs:
@@ -109,7 +109,7 @@ Erstellen Sie einen Deal für eine mögliche Kundenbeziehung oder ein Verlänger
 
 ## Verlängerungs-Follow-up ohne Verlängerungs-Engine
 
-Ein Verlängerungsmonat oder eine externe Policenreferenz kann helfen, CRM-Chancen zu filtern und ein Beziehungsgespräch vorzubereiten. Ein kundenseitig betriebener Scheduler oder separater [n8n-Workflow](/features/workflow-automation) kann aus einem freigegebenen Datum eine Aufgabe erzeugen. Customermates berechnet keine Vertragslaufzeit, startet keine Erinnerungssequenz, versendet keine Massenkampagne und verhindert keinen Vertragsablauf.
+Ein Verlängerungsmonat oder eine externe Policenreferenz kann helfen, CRM-Chancen zu filtern und ein Beziehungsgespräch vorzubereiten. Ein kundenseitig betriebener Scheduler oder separater [n8n-Workflow](/features/workflow-automation) kann aus einem freigegebenen Datum eine Aufgabe erzeugen. In der Cloud kann eine [Routine](/docs/app-routines) des Assistenten Mate nach Zeitplan Chancen mit anstehendem Verlängerungsmonat auflisten und Gesprächsentwürfe zur Prüfung vorbereiten; sie verbraucht KI-Credits und ist keine Erinnerungsfunktion. Customermates berechnet keine Vertragslaufzeit, startet keine Erinnerungssequenz, versendet keine Massenkampagne und verhindert keinen Vertragsablauf.
 
 Dasselbe gilt für Schäden. Ein Nutzer kann festhalten, dass ein beziehungsbezogenes Follow-up nötig ist. Customermates nimmt jedoch keine Schadenmeldung an, führt keine Schadenakte, weist keinen Regulierer zu, berechnet keine Reserve, prüft keine Deckung und erstellt keine Regulierungskommunikation.
 
@@ -129,9 +129,9 @@ Kundenseitig gebaute Verbindungen können [REST API und Webhooks](/features/api)
 
 ## Daten- und Bereitstellungsgrenzen
 
-Policendokumente, Deckungsdetails, Gesundheitsinformationen, Schadenakten, Provisionsabrechnungen und regulierte Beratung bleiben in dafür freigegebenen Systemen. Customermates-Berechtigungen gelten nach Ressource und Aktion, nicht je Feld oder Datensatz. Eine Versicherungs- oder DSGVO-Compliance-Zertifizierung besteht nicht.
+Policendokumente, Deckungsdetails, Gesundheitsinformationen, Schadenakten, Provisionsabrechnungen und regulierte Beratung bleiben in dafür freigegebenen Systemen. Customermates-Berechtigungen gelten nach Ressource und Aktion, nicht je Feld oder Datensatz. Eine Versicherungs- oder DSGVO-Zertifizierung besteht nicht. In der Cloud-Version liegt die Datenbank in der AWS-Region Frankfurt; Hosting und weitere Unterauftragsverarbeiter, auch aus den USA, stehen in der [Liste der Unterauftragsverarbeiter](/subprocessors), ein [Auftragsverarbeitungsvertrag (AVV)](/dpa) liegt vor. Wer den Speicherort vollständig selbst bestimmen will, betreibt den Open-Source-Kern selbst.
 
-Starter enthält das Kern-CRM. Pro ergänzt den verwalteten einheitlichen Posteingang und ein verbundenes Konto pro Nutzer. Self-Hosting nutzt die Starter-Berechtigungen und enthält keinen einheitlichen Posteingang. Die aktuellen Tarifdetails stehen auf der [Preisseite](/pricing).
+Starter enthält das Kern-CRM, monatlich abgerechnet. Bestehende Kontakte übernehmen Sie per Import aus einer Excel-Arbeitsmappe (XLSX), jeweils einen Datensatztyp nacheinander. Pro ergänzt den verwalteten einheitlichen Posteingang und ein verbundenes Konto pro Nutzer. Self-Hosting nutzt die Starter-Berechtigungen und enthält keinen einheitlichen Posteingang. Die aktuellen Tarifdetails stehen auf der [Preisseite](/pricing).
 
 ## Häufig gestellte Fragen
 
@@ -145,7 +145,7 @@ Nein. Ein Deal kann das geschäftliche Gespräch abbilden und eigene Felder kön
 </FaqItem>
 
 <FaqItem question="Kann ein Makler Customermates für Verlängerungs-Follow-ups nutzen?">
-Ja, als anpassbare Beziehungschance mit gefilterten Referenzfeldern und manuellen Aufgaben. Native wiederkehrende Erinnerungen und Verlängerungssequenzen existieren nicht; datumsabhängige Aufgaben brauchen einen kundenseitig betriebenen externen Workflow.
+Ja, als anpassbare Beziehungschance mit gefilterten Referenzfeldern und manuellen Aufgaben. Native wiederkehrende Erinnerungen und Verlängerungssequenzen existieren nicht; datumsabhängige Aufgaben brauchen einen kundenseitig betriebenen externen Workflow. In der Cloud kann eine Routine regelmäßig eine Liste anstehender Verlängerungen erstellen.
 </FaqItem>
 
 <FaqItem question="Ist Customermates direkt mit Versicherern verbunden?">

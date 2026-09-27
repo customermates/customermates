@@ -40,8 +40,8 @@ Ein **CRM für SHK- und HLK-Betriebe** kann ein Vertriebs-CRM oder eine vollstä
     Follow-ups miteinander verbinden.
   </SummaryItem>
   <SummaryItem label="Verifizierter Umfang">
-    Kontakte, Organisationen, anpassbare Deals, eigene Felder, Filter, Kanban
-    und verknüpfte Aufgaben.
+    Kontakte, Organisationen, anpassbare Deals mit Phasenwahrscheinlichkeiten,
+    eigene Felder, Filter, Kanban und verknüpfte Aufgaben.
   </SummaryItem>
   <SummaryItem label="Systemgrenze">
     Keine Disposition, Technikerplanung, Arbeitsaufträge, Routenplanung,
@@ -117,7 +117,7 @@ Eine anstehende Verlängerung eines Wartungsvertrags kann als kommerzielle Chanc
 
 ## Follow-up, Saison und Messaging
 
-Aufgaben erfassen gewöhnliche nächste Aktionen, haben aber keine nativen Fälligkeitstermine oder Wiederholungen. Ein kundenseitig betriebener Scheduler oder separater [n8n-Workflow](/features/workflow-automation) kann aus einer freigegebenen Datumsquelle eine Aufgabe erzeugen. Eine eingebaute Saisonkampagne, sofortige Lead-Zuweisung, automatische Disposition oder Wartungserinnerungs-Engine gibt es nicht.
+Aufgaben erfassen gewöhnliche nächste Aktionen, haben aber keine nativen Fälligkeitstermine oder Wiederholungen. Ein kundenseitig betriebener Scheduler oder separater [n8n-Workflow](/features/workflow-automation) kann aus einer freigegebenen Datumsquelle eine Aufgabe erzeugen. Ein eigenes Datumsfeld wie „Wartungsvertrag endet“ und eine gespeicherte persönliche Ansicht, sortiert nach diesem Datum, zeigen anstehende Verlängerungen. In der Cloud-Version kann eine [Routine](/docs/app-routines) des Mate-Assistenten diese Liste nach Zeitplan erstellen und Nachfassnachrichten zur Freigabe entwerfen. Eine eingebaute Saisonkampagne, sofortige Lead-Zuweisung, automatische Disposition oder Wartungserinnerungs-Engine gibt es nicht.
 
 Der verwaltete [einheitliche Posteingang](/features/unified-inbox) ist ab Pro für unterstützte Einzelgespräche verfügbar. Teilnehmer können mit Kontaktkontext verbunden werden. Eine Nachricht wird nicht automatisch einem Objekt, einer Anlage, einem Serviceauftrag oder Deal zugeordnet. Self-Hosting enthält keinen Posteingang.
 
@@ -127,7 +127,7 @@ Ein autorisierter externer KI-Client kann unterstützte [MCP](/docs/mcp)-Aktione
 
 Eine kundenseitig gebaute Verbindung kann [REST API und Webhooks](/features/api), MCP oder die separate n8n-Integration nutzen, um eine minimale Kunden- oder Chancenreferenz mit Handwerkersoftware, Buchhaltung oder einem anderen Werkzeug auszutauschen. Der Kunde verantwortet externen Anbieter, Feldzuordnung, Validierung, Berechtigungen, Wiederholungen und Dublettenbehandlung.
 
-Eine native Anbindung an ServiceTitan, Jobber, Housecall Pro, lexoffice, sevDesk, GPS, Routenplanung, Kalender-Schreiben, Anlagen, Lager oder Rechnungsstellung wird nicht behauptet. Customermates besitzt keinen CRM-Datensatzimport; jede Migration muss über unterstützte Schnittstellen separat vorbereitet und validiert werden.
+Eine native Anbindung an ServiceTitan, Jobber, Housecall Pro, lexoffice, sevDesk, GPS, Routenplanung, Kalender-Schreiben, Anlagen, Lager oder Rechnungsstellung wird nicht behauptet. Kunden, Organisationen und Deals übernehmen Sie per Excel-Import (XLSX), einen Datensatztyp nach dem anderen, und exportieren sie im selben Format. CSV-Dateien und eine laufende Synchronisation mit Ihrer Handwerkersoftware werden nicht unterstützt.
 
 ## Preise und Produkteignung
 

@@ -20,7 +20,7 @@ hero:
 
 cta:
   action: Die CRM-Ebene prüfen
-  description: Testen Sie Kundenkonten und Chancenpipelines, ohne das System zu ersetzen, das Techniker plant und Außendiensteinsätze ausführt.
+  description: Testen Sie Kundenkonten und die Chancenpipeline, ohne das System zu ersetzen, das Techniker plant und Außendiensteinsätze ausführt.
   buttonLeftText: Pro-Testphase starten
   buttonLeftHref: /auth/signup
   buttonRightText: Demo ansehen
@@ -40,8 +40,8 @@ Ein **CRM für technischen Außendienst** verwaltet Kundengewinnung, Kundenkonte
     manuelle nächste Schritte miteinander verbinden.
   </SummaryItem>
   <SummaryItem label="Verifizierter Umfang">
-    Kontakte, Organisationen, anpassbare Deals, eigene Felder, Filter, Kanban,
-    Aktivität und verknüpfte Aufgaben.
+    Kontakte, Organisationen, anpassbare Deals mit Phasenwahrscheinlichkeiten,
+    eigene Felder, Filter, Kanban, Aktivität und verknüpfte Aufgaben.
   </SummaryItem>
   <SummaryItem label="Systemgrenze">
     Keine Disposition, Technikerplanung, Arbeitsauftrags-Engine, Offline-App,
@@ -115,9 +115,9 @@ Bei Kunden mit mehreren Standorten kann Customermates den Einkaufs- und Beziehun
 
 ## Aufgaben, mobile Erwartungen und Automatisierung
 
-Aufgaben erfassen gewöhnliche Follow-ups, enthalten aber keine nativen Fälligkeitstermine oder Workflow-Status. Customermates hat keinen Technikerkalender, keine Verfügbarkeits-Engine, Routenoptimierung, Offline-App oder Doppelbuchungsprüfung. Eine Weboberfläche darf nicht als technikergerechte native FSM-App dargestellt werden.
+Aufgaben erfassen gewöhnliche Follow-ups, enthalten aber keine nativen Fälligkeitstermine oder Workflow-Status. Ein eigenes Datumsfeld am Deal, etwa „Vertragsende“, und eine gespeicherte persönliche Ansicht, sortiert nach diesem Datum, zeigen anstehende Verlängerungen. Customermates hat keinen Technikerkalender, keine Verfügbarkeits-Engine, Routenoptimierung, Offline-App oder Doppelbuchungsprüfung. Die Weboberfläche passt sich an Smartphone-Bildschirme an, ist aber keine technikergerechte native FSM-App.
 
-Ein kundenseitig betriebener Scheduler oder separater [n8n-Workflow](/features/workflow-automation) kann aus einem freigegebenen externen Datum eine Aufgabe erzeugen. Der separate Workflow verantwortet Zeitplan, Anbieteraufrufe, Feldzuordnung, Wiederholungen und Monitoring. Customermates enthält keine Dispositions- oder wiederkehrende Wartungsautomatisierung.
+Ein kundenseitig betriebener Scheduler oder separater [n8n-Workflow](/features/workflow-automation) kann aus einem freigegebenen externen Datum eine Aufgabe erzeugen. Der separate Workflow verantwortet Zeitplan, Anbieteraufrufe, Feldzuordnung, Wiederholungen und Monitoring. In der Cloud-Version kann eine [Routine](/docs/app-routines) des Mate-Assistenten nach Zeitplan offene Verlängerungschancen auflisten und Nachfassnachrichten zur Freigabe entwerfen; Routinen verbrauchen gehostete KI-Credits. Customermates enthält keine Dispositions- oder wiederkehrende Wartungsautomatisierung.
 
 Der verwaltete [einheitliche Posteingang](/features/unified-inbox) ist ab Pro für unterstützte Einzelgespräche verfügbar. Teilnehmer können mit Kontaktkontext verbunden werden. Nachrichten werden nicht automatisch einem Standort, einer Anlage, einem Arbeitsauftrag oder Deal zugeordnet. Self-Hosting enthält keinen Posteingang.
 
@@ -127,7 +127,7 @@ Ein autorisierter externer KI-Client kann unterstützte [MCP](/docs/mcp)-Aktione
 
 Bietet ein FSM eine geeignete Schnittstelle, kann eine kundenseitig gebaute Verbindung minimalen Kunden- oder Chancenkontext über [REST API und Webhooks](/features/api), MCP oder eine separate n8n-Integration austauschen. Der Kunde verantwortet Quellautorität, Berechtigungen, Zuordnung, Validierung, Wiederholungen und Dublettenbehandlung.
 
-Eine native Anbindung an Jobber, ServiceTitan, Salesforce Field Service, Kalender-Schreiben, GPS, Routenplanung, Lager, Buchhaltung, Angebote, Rechnungen oder Zahlungen wird nicht behauptet. Customermates besitzt außerdem keinen CRM-Datensatzimport.
+Eine native Anbindung an Jobber, ServiceTitan, Salesforce Field Service, Kalender-Schreiben, GPS, Routenplanung, Lager, Buchhaltung, Angebote, Rechnungen oder Zahlungen wird nicht behauptet. Kundenkonten und Kontakte übernehmen Sie per Excel-Import (XLSX), einen Datensatztyp nach dem anderen; ein Export im selben Format ist ebenfalls möglich. CSV-Dateien und eine laufende Synchronisation werden nicht unterstützt.
 
 ## Preise und Eignung
 

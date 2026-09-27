@@ -20,7 +20,7 @@ hero:
 
 cta:
   action: Prüfen Sie Customermates für nicht-klinische Beziehungen
-  description: Testen Sie Partnerdatensätze, Beziehungspipelines und Aufgaben, ohne Patienten- oder Behandlungsdaten im CRM abzulegen.
+  description: Testen Sie Partnerdatensätze, die Beziehungspipeline und Aufgaben, ohne Patienten- oder Behandlungsdaten im CRM abzulegen.
   buttonLeftText: Pro-Testphase starten
   buttonLeftHref: /auth/signup
   buttonRightText: Demo ansehen
@@ -112,10 +112,12 @@ Sinnvolle CRM-Felder sind nicht-klinisch: Partnertyp, Region, Beziehungsphase, i
 Patientenidentität, Zuweisungsgrund, Diagnose, Behandlung, Versicherungsstatus, Termindetails und Koordination von Behandlungsteams gehören in Patientenakte oder Praxissoftware. Berechtigungen in Customermates gelten nicht je Feld oder Datensatz. Eine Healthcare- oder DSGVO-Zertifizierung besteht nicht.
 
 <AcquisitionCallout title="Hosting ist keine Compliance-Zertifizierung" variant="proof">
-  Die verwaltete Customermates-Datenbank läuft in einer EU-Region. Application-
-  Hosting und verbundene Anbieter haben eigene offengelegte Grenzen. Beim
-  Self-Hosting wählt der Betreiber die Infrastruktur für Anwendung und
-  Datenbank; dadurch werden Bereitstellung und Gesamtprozess nicht zertifiziert.
+  In der Cloud-Version liegt die Datenbank in der AWS-Region Frankfurt; Hosting
+  und weitere Unterauftragsverarbeiter, auch aus den USA, stehen in der
+  [Liste der Unterauftragsverarbeiter](/subprocessors), ein
+  [Auftragsverarbeitungsvertrag (AVV)](/dpa) liegt vor. Wer den Speicherort
+  vollständig selbst bestimmen will, betreibt den Open-Source-Kern selbst;
+  dadurch werden Bereitstellung und Gesamtprozess nicht zertifiziert.
 </AcquisitionCallout>
 
 ## Grenzen von Messaging, Automatisierung und KI
@@ -148,6 +150,6 @@ Wenn das andere System eine geeignete Schnittstelle anbietet, kann ein Kunde ein
 </FaqItem>
 
 <FaqItem question="Ist Customermates für Healthcare oder DSGVO-Compliance zertifiziert?">
-Nein. EU-Datenbankregion und Self-Hosting sind Bereitstellungsfakten, keine rechtliche Bewertung. Der Betreiber muss Datenarten, Anbieter, Berechtigungen, Aufbewahrung und den vollständigen Prozess prüfen.
+Nein. Customermates besitzt keine Zertifizierung. Die Cloud-Datenbank in der AWS-Region Frankfurt, der [AVV](/dpa), die offengelegten [Unterauftragsverarbeiter](/subprocessors) (auch aus den USA) und die Möglichkeit zum Self-Hosting sind Bereitstellungsfakten, keine rechtliche Bewertung. Der Betreiber muss Datenarten, Anbieter, Berechtigungen, Aufbewahrung und den vollständigen Prozess prüfen.
 </FaqItem>
 </Faq>

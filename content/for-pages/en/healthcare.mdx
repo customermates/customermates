@@ -111,8 +111,10 @@ Useful CRM fields are non-clinical: partner type, region, relationship stage, in
 Patient identity, referral reason, diagnosis, treatment, insurance status, appointment details, and care-team coordination belong in the clinical or practice system. Resource permissions in Customermates are not field- or record-level access controls, and Customermates carries no healthcare or GDPR compliance certification.
 
 <AcquisitionCallout title="Hosting is not a compliance certification" variant="proof">
-  The managed Customermates database runs in an EU region. Application hosting
-  and connected providers have their own disclosed boundaries. Self-hosting
+  In the managed cloud, the application database runs in the AWS Frankfurt
+  region; hosting and other subprocessors, including US providers, are listed
+  on the [subprocessors page](/subprocessors), and a [DPA](/dpa) is available.
+  Connected providers have their own disclosed boundaries. Self-hosting
   lets the operator choose application and database infrastructure, but it does
   not certify the resulting deployment or the surrounding workflow.
 </AcquisitionCallout>
@@ -147,6 +149,6 @@ If the other system exposes a suitable interface, a customer can build a bounded
 </FaqItem>
 
 <FaqItem question="Is Customermates certified for healthcare or GDPR compliance?">
-No compliance certification is claimed. EU-region database hosting and self-hosting are deployment facts, not a legal conclusion. The operator must assess data categories, providers, permissions, retention, and the complete workflow.
+No. Customermates holds no compliance certification. It provides a [DPA](/dpa), discloses its subprocessors, including US providers with standard contractual clauses, on the [subprocessors page](/subprocessors), runs the cloud database in the AWS Frankfurt region, and can be self-hosted. Those are deployment facts, not a legal conclusion. The operator must assess data categories, providers, permissions, retention, and the complete workflow.
 </FaqItem>
 </Faq>
