@@ -1,0 +1,479 @@
+{
+  "rule": "Unchanged gate per language on the blind bank: mean page-first gain >= 5 points over the shipped ranker, two-sided sign test on per-question majority outcomes (3 runs) p < 0.05, and classifier p95 <= 1000 ms. English is gated on the 60 original plus 120 new questions; German on its 60 questions. Timed-out or failed calls fall back to the shipped ranker's top section and count as such.",
+  "bank": {
+    "original": "fixtures/docs-blind-bank.ts (60 en, 60 de)",
+    "extension": "fixtures/docs-blind-bank-en-2.ts (120 en)",
+    "provenance": "Questions written from the English page titles and descriptions only, frozen (sha256 ca67973e) before any page body was read; slug, alternatives, anchors (slug#anchor, empty anchor = page lead) and fact were labelled afterwards from the page bodies. Never tune on this set."
+  },
+  "reuse": "Rows for de are reused from the first run (docs-arms.json); every English row is fresh.",
+  "deadlines": {
+    "jevMs": 800,
+    "geminiMs": 2000
+  },
+  "candidates": 20,
+  "judge": {
+    "model": "google/gemini-3-flash",
+    "providerOptions": "vertex, thinking low, ZDR, no training",
+    "originalBank": "question only",
+    "extension": "question plus the labelled reference fact",
+    "verdictErrors": 0
+  },
+  "offlineTimeoutMs": 15000,
+  "perSet": {
+    "blind:en": {
+      "n": 60,
+      "off": {
+        "pageFirst": 49,
+        "pageFirstPct": 81.7,
+        "pageExcerptYesPct": 63.3,
+        "topSectionYesPct": 61.7,
+        "keywordMsP50": 13.9,
+        "keywordMsP95": 27.2
+      },
+      "jev": {
+        "pageFirstPerRun": [
+          54,
+          54,
+          55
+        ],
+        "pageFirstMeanPct": 90.6,
+        "deltaPts": 8.9,
+        "majorityWins": 6,
+        "majorityLosses": 1,
+        "signTestP": 0.125,
+        "sectionYesPerRun": [
+          47,
+          47,
+          46
+        ],
+        "sectionYesMeanPct": 77.8,
+        "addedMsP50": 323.4,
+        "addedMsP95": 480.7,
+        "failedCalls": 2,
+        "reusedRows": 0,
+        "usdPerQueryMeasured": 0.000114
+      },
+      "gemini": {
+        "pageFirstPerRun": [
+          55,
+          56,
+          56
+        ],
+        "pageFirstMeanPct": 92.8,
+        "deltaPts": 11.1,
+        "majorityWins": 8,
+        "majorityLosses": 1,
+        "signTestP": 0.0391,
+        "sectionYesPerRun": [
+          49,
+          49,
+          50
+        ],
+        "sectionYesMeanPct": 82.2,
+        "addedMsP50": 672.3,
+        "addedMsP95": 877.4,
+        "failedCalls": 0,
+        "reusedRows": 0,
+        "usdPerQueryMeasured": 0.00086
+      }
+    },
+    "blind2:en": {
+      "n": 120,
+      "off": {
+        "pageFirst": 100,
+        "pageFirstPct": 83.3,
+        "pageExcerptYesPct": 59.2,
+        "topSectionYesPct": 55,
+        "topSectionAnchorPct": 55,
+        "keywordMsP50": 12.8,
+        "keywordMsP95": 19.1
+      },
+      "jev": {
+        "pageFirstPerRun": [
+          107,
+          109,
+          110
+        ],
+        "pageFirstMeanPct": 90.6,
+        "deltaPts": 7.3,
+        "majorityWins": 17,
+        "majorityLosses": 8,
+        "signTestP": 0.108,
+        "sectionYesPerRun": [
+          91,
+          90,
+          90
+        ],
+        "sectionYesMeanPct": 75.3,
+        "sectionAnchorPerRun": [
+          96,
+          98,
+          99
+        ],
+        "sectionAnchorMeanPct": 81.4,
+        "addedMsP50": 315.4,
+        "addedMsP95": 422.2,
+        "failedCalls": 2,
+        "reusedRows": 0,
+        "usdPerQueryMeasured": 0.000114
+      },
+      "gemini": {
+        "pageFirstPerRun": [
+          110,
+          106,
+          104
+        ],
+        "pageFirstMeanPct": 88.9,
+        "deltaPts": 5.6,
+        "majorityWins": 14,
+        "majorityLosses": 7,
+        "signTestP": 0.189,
+        "sectionYesPerRun": [
+          92,
+          89,
+          89
+        ],
+        "sectionYesMeanPct": 75,
+        "sectionAnchorPerRun": [
+          95,
+          91,
+          88
+        ],
+        "sectionAnchorMeanPct": 76.1,
+        "addedMsP50": 665.5,
+        "addedMsP95": 916.6,
+        "failedCalls": 4,
+        "reusedRows": 0,
+        "usdPerQueryMeasured": 0.000859
+      }
+    },
+    "blindAll:en": {
+      "n": 180,
+      "off": {
+        "pageFirst": 149,
+        "pageFirstPct": 82.8,
+        "pageExcerptYesPct": 60.6,
+        "topSectionYesPct": 57.2,
+        "keywordMsP50": 13.3,
+        "keywordMsP95": 20.4
+      },
+      "jev": {
+        "pageFirstPerRun": [
+          161,
+          163,
+          165
+        ],
+        "pageFirstMeanPct": 90.6,
+        "deltaPts": 7.8,
+        "majorityWins": 23,
+        "majorityLosses": 9,
+        "signTestP": 0.0201,
+        "sectionYesPerRun": [
+          138,
+          137,
+          136
+        ],
+        "sectionYesMeanPct": 76.1,
+        "addedMsP50": 317.9,
+        "addedMsP95": 446.6,
+        "failedCalls": 4,
+        "reusedRows": 0,
+        "usdPerQueryMeasured": 0.000114
+      },
+      "gemini": {
+        "pageFirstPerRun": [
+          165,
+          162,
+          160
+        ],
+        "pageFirstMeanPct": 90.2,
+        "deltaPts": 7.4,
+        "majorityWins": 22,
+        "majorityLosses": 8,
+        "signTestP": 0.0161,
+        "sectionYesPerRun": [
+          141,
+          138,
+          139
+        ],
+        "sectionYesMeanPct": 77.4,
+        "addedMsP50": 668.1,
+        "addedMsP95": 902.8,
+        "failedCalls": 4,
+        "reusedRows": 0,
+        "usdPerQueryMeasured": 0.000859
+      }
+    },
+    "blind:de": {
+      "n": 60,
+      "off": {
+        "pageFirst": 47,
+        "pageFirstPct": 78.3,
+        "pageExcerptYesPct": 68.3,
+        "topSectionYesPct": 66.7,
+        "keywordMsP50": 14.7,
+        "keywordMsP95": 21.8
+      },
+      "jev": {
+        "pageFirstPerRun": [
+          55,
+          54,
+          55
+        ],
+        "pageFirstMeanPct": 91.1,
+        "deltaPts": 12.8,
+        "majorityWins": 10,
+        "majorityLosses": 2,
+        "signTestP": 0.0386,
+        "sectionYesPerRun": [
+          48,
+          49,
+          49
+        ],
+        "sectionYesMeanPct": 81.1,
+        "addedMsP50": 323.3,
+        "addedMsP95": 399.2,
+        "failedCalls": 0,
+        "reusedRows": 180,
+        "usdPerQueryMeasured": 0.000129
+      },
+      "gemini": {
+        "pageFirstPerRun": [
+          56,
+          56,
+          56
+        ],
+        "pageFirstMeanPct": 93.3,
+        "deltaPts": 15,
+        "majorityWins": 11,
+        "majorityLosses": 2,
+        "signTestP": 0.0225,
+        "sectionYesPerRun": [
+          51,
+          49,
+          51
+        ],
+        "sectionYesMeanPct": 83.9,
+        "addedMsP50": 697.8,
+        "addedMsP95": 1179.5,
+        "failedCalls": 5,
+        "reusedRows": 180,
+        "usdPerQueryMeasured": 0.000919
+      }
+    },
+    "blindAll:pooled": {
+      "n": 240,
+      "off": {
+        "pageFirst": 196,
+        "pageFirstPct": 81.7,
+        "pageExcerptYesPct": 62.5,
+        "topSectionYesPct": 59.6,
+        "keywordMsP50": 13.5,
+        "keywordMsP95": 21.2
+      },
+      "jev": {
+        "pageFirstPerRun": [
+          216,
+          217,
+          220
+        ],
+        "pageFirstMeanPct": 90.7,
+        "deltaPts": 9,
+        "majorityWins": 33,
+        "majorityLosses": 11,
+        "signTestP": 0.00126,
+        "sectionYesPerRun": [
+          186,
+          186,
+          185
+        ],
+        "sectionYesMeanPct": 77.4,
+        "addedMsP50": 318.8,
+        "addedMsP95": 422.2,
+        "failedCalls": 4,
+        "reusedRows": 180,
+        "usdPerQueryMeasured": 0.000118
+      },
+      "gemini": {
+        "pageFirstPerRun": [
+          221,
+          218,
+          216
+        ],
+        "pageFirstMeanPct": 91,
+        "deltaPts": 9.3,
+        "majorityWins": 33,
+        "majorityLosses": 10,
+        "signTestP": 0.000606,
+        "sectionYesPerRun": [
+          192,
+          187,
+          190
+        ],
+        "sectionYesMeanPct": 79,
+        "addedMsP50": 674,
+        "addedMsP95": 945.2,
+        "failedCalls": 9,
+        "reusedRows": 180,
+        "usdPerQueryMeasured": 0.000874
+      }
+    },
+    "golden:en": {
+      "n": 67,
+      "off": {
+        "pageFirst": 67,
+        "pageFirstPct": 100,
+        "keywordMsP50": 11.8,
+        "keywordMsP95": 16.3
+      },
+      "jev": {
+        "pageFirstPerRun": [
+          65,
+          65,
+          65
+        ],
+        "pageFirstMeanPct": 97,
+        "deltaPts": -3,
+        "majorityWins": 0,
+        "majorityLosses": 2,
+        "signTestP": 0.5,
+        "addedMsP50": 309,
+        "addedMsP95": 378.2,
+        "failedCalls": 0,
+        "reusedRows": 0,
+        "usdPerQueryMeasured": 0.000112
+      },
+      "gemini": {
+        "pageFirstPerRun": [
+          63,
+          63,
+          63
+        ],
+        "pageFirstMeanPct": 94,
+        "deltaPts": -6,
+        "majorityWins": 0,
+        "majorityLosses": 4,
+        "signTestP": 0.125,
+        "addedMsP50": 671.6,
+        "addedMsP95": 961.4,
+        "failedCalls": 0,
+        "reusedRows": 0,
+        "usdPerQueryMeasured": 0.000839
+      }
+    },
+    "golden:de": {
+      "n": 37,
+      "off": {
+        "pageFirst": 37,
+        "pageFirstPct": 100,
+        "keywordMsP50": 13,
+        "keywordMsP95": 18.5
+      },
+      "jev": {
+        "pageFirstPerRun": [
+          37,
+          37,
+          37
+        ],
+        "pageFirstMeanPct": 100,
+        "deltaPts": 0,
+        "majorityWins": 0,
+        "majorityLosses": 0,
+        "signTestP": 1,
+        "addedMsP50": 319.2,
+        "addedMsP95": 433.8,
+        "failedCalls": 0,
+        "reusedRows": 111,
+        "usdPerQueryMeasured": 0.00013
+      },
+      "gemini": {
+        "pageFirstPerRun": [
+          37,
+          37,
+          37
+        ],
+        "pageFirstMeanPct": 100,
+        "deltaPts": 0,
+        "majorityWins": 0,
+        "majorityLosses": 0,
+        "signTestP": 1,
+        "addedMsP50": 695.3,
+        "addedMsP95": 894.2,
+        "failedCalls": 0,
+        "reusedRows": 111,
+        "usdPerQueryMeasured": 0.000924
+      }
+    }
+  },
+  "gates": {
+    "jev:enNewOnly": {
+      "deltaPts": 7.3,
+      "signTestP": 0.108,
+      "addedMsP95": 422.2,
+      "pass": false
+    },
+    "gemini:enNewOnly": {
+      "deltaPts": 5.6,
+      "signTestP": 0.189,
+      "addedMsP95": 916.6,
+      "pass": false
+    },
+    "jev:en": {
+      "deltaPts": 7.8,
+      "signTestP": 0.0201,
+      "addedMsP95": 446.6,
+      "pass": true
+    },
+    "gemini:en": {
+      "deltaPts": 7.4,
+      "signTestP": 0.0161,
+      "addedMsP95": 902.8,
+      "pass": true
+    },
+    "jev:de": {
+      "deltaPts": 12.8,
+      "signTestP": 0.0386,
+      "addedMsP95": 399.2,
+      "pass": true
+    },
+    "gemini:de": {
+      "deltaPts": 15,
+      "signTestP": 0.0225,
+      "addedMsP95": 1179.5,
+      "pass": false
+    },
+    "jev:pooled": {
+      "deltaPts": 9,
+      "signTestP": 0.00126,
+      "addedMsP95": 422.2,
+      "pass": true
+    },
+    "gemini:pooled": {
+      "deltaPts": 9.3,
+      "signTestP": 0.000606,
+      "addedMsP95": 945.2,
+      "pass": true
+    }
+  },
+  "spendThisCampaignUsd": 1.1646,
+  "spendByUse": {
+    "docs:jev:jev": {
+      "usd": 0.08338385999999996,
+      "zdrUsd": 0.07340000000000108,
+      "calls": 734,
+      "unmeasured": 0
+    },
+    "docs:gemini:gemini": {
+      "usd": 0.6266684600000001,
+      "zdrUsd": 0.07340000000000108,
+      "calls": 734,
+      "unmeasured": 0
+    },
+    "docs:judge:google/gemini-3-flash": {
+      "usd": 0.21989499999999937,
+      "zdrUsd": 0.08790000000000149,
+      "calls": 879,
+      "unmeasured": 0
+    }
+  }
+}

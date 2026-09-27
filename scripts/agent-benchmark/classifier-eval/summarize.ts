@@ -8,7 +8,11 @@ type Gate = { pass: boolean } & Record<string, unknown>;
 const read = <T>(name: string) =>
   JSON.parse(readFileSync(join(REPORT_DIR, name), "utf8")) as T;
 
-const docs = read<{ gates: Record<string, Gate> }>("docs-rerank.json");
+const firstDocs = read<{ gates: Record<string, Gate> }>("docs-rerank.json");
+const docs = read<{
+  gates: Record<string, Gate>;
+  spendThisCampaignUsd: number;
+}>("docs-rerank-en-extended.json");
 const routing = read<{ gates: Record<string, Gate> }>("routing.json");
 const text = read<{ gates: Record<string, Gate> }>("text-checks.json");
 const figures = read<{ results: Record<string, Gate> }>("figure-check.json");
@@ -26,8 +30,9 @@ const uses = {
     gate: "Per language on the blind bank: page-first +5 points, paired sign test p < 0.05, added p95 <= 1 s.",
     pass: { jev: docsModel("jev"), gemini: docsModel("gemini") },
     detail: docs.gates,
+    firstRunDetail: firstDocs.gates,
     winner: "jev",
-    note: "Page-first and section answers are within noise between the models; Jev is about 7.5x cheaper and 2x faster. English misses significance (7 wins, 1 loss); Gemini's German p95 exceeds 1 s.",
+    note: "Re-tested with the gate unchanged after the English bank grew from 60 to 180 blind questions (docs-rerank-en-extended.json). English now clears it for both models (Jev +7.8 points, 23 wins and 9 losses, p 0.020; Gemini +7.4, p 0.016); German is unchanged from the first run, where Gemini's p95 exceeds 1 s. The 120 new questions alone do not reach significance, and the golden set loses 2 (Jev) or 4 (Gemini) of 67 English questions. Jev is about 7.5x cheaper and 2x faster at equal quality.",
   },
   routingShadow: {
     gate: "Recall above the lexicon in >= 2 languages at no more false-hit bytes; primary arms use the product toolset summaries.",
@@ -70,6 +75,7 @@ writeReport("report.json", {
   module: "ee/agent-chat/classifier",
   spendCapUsd: 5,
   spendUsd: Number(spentUsd().toFixed(4)),
+  docsRetestSpendUsd: docs.spendThisCampaignUsd,
   spendNote:
     "Model cost is the gateway's measured cost per call; the ZDR fee is estimated at 0.0001 USD per request because the per-request cost omits it.",
   spendByUse: spendByUse(),

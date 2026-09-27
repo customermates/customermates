@@ -29,12 +29,15 @@ export const RAW_DIR = join(
   process.cwd(),
   "scripts/agent-benchmark/.runs/classifier-eval",
 );
-export const SPEND_CAP_USD = 5;
-const SPEND_STOP_USD = 4.75;
+export const SPEND_CAP_USD = Number(process.env.CLASSIFIER_EVAL_CAP_USD ?? 5);
+const SPEND_STOP_USD = SPEND_CAP_USD * 0.95;
 export const ZDR_FEE_USD_PER_REQUEST = 0.0001;
 const UNREADABLE_COST_USD = 0.002;
 const MICROCENTS_PER_USD = 100_000_000;
-const LEDGER = join(RAW_DIR, "spend.jsonl");
+const LEDGER = join(
+  RAW_DIR,
+  process.env.CLASSIFIER_EVAL_LEDGER ?? "spend.jsonl",
+);
 
 mkdirSync(RAW_DIR, { recursive: true });
 mkdirSync(REPORT_DIR, { recursive: true });
