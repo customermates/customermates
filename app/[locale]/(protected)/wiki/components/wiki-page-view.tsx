@@ -83,19 +83,11 @@ const WikiPageViewComponent = ({
   const initialPanelSizes = readStoredPanelSizes(columnWidths, WIKI_PANEL_LAYOUT_ID, WIKI_PANEL_IDS, false);
   const canManage = store.canManage;
   const agentChatStore = rootStore.agentChatStore;
-  const acceptedSetupConversationId = agentChatStore.wikiHomepageSetupConversationId;
-  const setupConversationId =
-    initialSetupState.status === "working" ? initialSetupState.conversationId : acceptedSetupConversationId;
-  const setupActive = initialSetupState.status === "working" || Boolean(acceptedSetupConversationId);
-  const setupDomain =
-    initialSetupState.status === "working"
-      ? initialSetupState.domain
-      : (agentChatStore.wikiHomepageSetup?.domain ?? null);
+  const setupActive = initialSetupState.status === "working";
+  const setupConversationId = setupActive ? initialSetupState.conversationId : null;
+  const setupDomain = setupActive ? initialSetupState.domain : null;
 
   useEffect(() => store.receivePage(initialPage), [initialPage, store]);
-  useEffect(() => {
-    if (initialPage || initialSetupState.status !== "idle") agentChatStore.acknowledgeWikiHomepageSetup();
-  }, [initialPage, initialSetupState.status, agentChatStore]);
   useEffect(() => {
     if (store.creating) titleContainer.current?.querySelector("input")?.focus();
   }, [store.creating]);

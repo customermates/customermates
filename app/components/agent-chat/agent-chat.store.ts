@@ -1,7 +1,6 @@
 import { makeObservable, observable, action, computed, reaction, runInAction } from "mobx";
 
 import type { RootStore } from "@/core/stores/root.store";
-import type { WikiHomepageSetupState } from "@/features/wiki/get-wiki-homepage-setup-state.interactor";
 import type { AgentUsageSummary } from "@/ee/agent-chat/agent-usage.service";
 import type { AgentMessageTurn } from "@/ee/agent-chat/agent-history";
 import {
@@ -285,8 +284,6 @@ export class AgentChatStore extends BaseStore {
   olderMessagesPending = false;
   items: AgentChatItem[] = [];
   composerDraft = "";
-  wikiHomepageSetup: WikiHomepageSetupState | null = null;
-  wikiHomepageSetupConversationId: string | null = null;
   private composerStarterDraft: string | null = null;
   composerContexts: AgentContextAttachment[] = [];
   queuedPrompt: string | null = null;
@@ -374,8 +371,6 @@ export class AgentChatStore extends BaseStore {
       items: observable,
       composerDraft: observable,
       composerContexts: observable,
-      wikiHomepageSetup: observable.ref,
-      wikiHomepageSetupConversationId: observable,
       queuedPrompt: observable,
       queuedPromptNeedsAttention: observable,
       routeRefreshRevision: observable,
@@ -398,10 +393,6 @@ export class AgentChatStore extends BaseStore {
       open: action,
       openWithDraft: action,
       openWithContextDraft: action,
-      openWikiHomepageSetup: action,
-      markWikiHomepageSetupAccepted: action,
-      acknowledgeWikiHomepageSetup: action,
-      dismissWikiHomepageSetup: action,
       close: action,
       toggle: action,
       toggleExpanded: action,
@@ -434,40 +425,10 @@ export class AgentChatStore extends BaseStore {
   };
 
   openWithDraft = (value: string) => {
-    this.wikiHomepageSetup = null;
     this.isHistoryOpen = false;
     this.composerStarterDraft = null;
     this.composerDraft = value;
     this.open();
-  };
-
-  openWikiHomepageSetup = (state: WikiHomepageSetupState) => {
-    if (this.isWorking || this.historyMutationPending) return;
-    this.composerStarterDraft = null;
-    this.composerDraft = "";
-    this.isHistoryOpen = false;
-    this.wikiHomepageSetup = {
-      ...state,
-      pages: [...state.pages],
-    };
-    this.setOpenState(true);
-    void this.loadConfig();
-  };
-
-  markWikiHomepageSetupAccepted = (state: WikiHomepageSetupState) => {
-    this.wikiHomepageSetupConversationId = state.conversationId;
-    this.wikiHomepageSetup = {
-      ...state,
-      pages: [...state.pages],
-    };
-  };
-
-  acknowledgeWikiHomepageSetup = () => {
-    this.wikiHomepageSetupConversationId = null;
-  };
-
-  dismissWikiHomepageSetup = () => {
-    this.wikiHomepageSetup = null;
   };
 
   openWithContextDraft = ({
@@ -479,7 +440,6 @@ export class AgentChatStore extends BaseStore {
     draft: string;
     pageRoute?: string;
   }) => {
-    this.wikiHomepageSetup = null;
     this.isHistoryOpen = false;
     this.addComposerContext(context, pageRoute, draft, { replaceOldestAtLimit: true });
     this.open();
@@ -565,7 +525,6 @@ export class AgentChatStore extends BaseStore {
   };
 
   close = () => {
-    this.wikiHomepageSetup = null;
     this.setOpenState(false);
   };
 
@@ -580,7 +539,6 @@ export class AgentChatStore extends BaseStore {
 
   toggleHistory = () => {
     const opening = !this.isHistoryOpen;
-    if (opening) this.wikiHomepageSetup = null;
     this.isHistoryOpen = opening;
     if (opening) void this.refreshConversations();
   };
@@ -591,7 +549,6 @@ export class AgentChatStore extends BaseStore {
   };
 
   private beginNewConversation() {
-    this.wikiHomepageSetup = null;
     this.resetConversation(null);
     this.isDraftConversationSelected = true;
     this.composerStarterDraft = null;
@@ -617,8 +574,6 @@ export class AgentChatStore extends BaseStore {
     this.openPreference = readAgentChatOpenPreference(storageKey);
     this.isOpen = this.openOverride ?? this.openPreference === true;
     this.demoAutoOpened = false;
-    this.wikiHomepageSetup = null;
-    this.wikiHomepageSetupConversationId = null;
   }
 
   setComposerDraft = (value: string) => {

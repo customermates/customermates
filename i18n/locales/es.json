@@ -820,6 +820,10 @@
             }
           },
           "empty": {
+            "first-wiki-page": {
+              "label": "Crear desde mi sitio web",
+              "prompt": "Crea mi wiki a partir del sitio web de mi empresa."
+            },
             "wiki-structure": {
               "label": "Sugerir una estructura para la wiki",
               "prompt": "Revisa mi espacio de trabajo y sugiere entre tres y cinco páginas útiles para la wiki. No crees nada todavía."
@@ -3747,7 +3751,6 @@
     "skip": "Ahora no",
     "start": "Crear mi wiki",
     "startFailed": "Mate no pudo iniciar la configuración de la wiki. Inténtalo de nuevo.",
-    "startFromWebsite": "Crear desde mi sitio web",
     "status": {
       "completedBody": "Tus páginas wiki iniciales están listas, con datos respaldados por el sitio web. Revisa las páginas nuevas y confirma lo que esté marcado como pendiente de confirmar.",
       "completedBodyOnboarding": "Mate ha creado tus páginas iniciales con datos respaldados por el sitio web. Podrás revisarlas más tarde en la wiki y confirmar lo que esté marcado como pendiente de confirmar.",

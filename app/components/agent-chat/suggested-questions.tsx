@@ -15,7 +15,6 @@ import { usePathname } from "@/i18n/navigation";
 import { useRootStore } from "@/core/stores/root-store.provider";
 
 import { Button } from "@/components/ui/button";
-import { EMPTY_WIKI_HOMEPAGE_SETUP_STATE } from "@/components/wiki/wiki-homepage-setup";
 import { useEntityTerminology } from "@/components/entity-terminology/use-entity-terminology";
 
 import { focusAgentComposer } from "./chat-ui";
@@ -121,7 +120,6 @@ const AvailableAgentStarterActions = observer(function AvailableAgentStarterActi
   const buttons = ([1, 2, 3] as const).map((index) => {
     const action = actions[index - 1];
     if (!action) return null;
-    const websiteSetup = action.id === WIKI_WEBSITE_SETUP_ACTION_ID;
     const Icon = suggestionIcon(action.id);
 
     return (
@@ -129,12 +127,9 @@ const AvailableAgentStarterActions = observer(function AvailableAgentStarterActi
         key={index}
         className="h-auto gap-1.5 rounded-full px-3 py-2 text-xs font-normal whitespace-normal"
         data-agent-focus-return={surface === "page" ? "" : undefined}
-        disabled={websiteSetup && (store.isWorking || Boolean(store.historyMutationPending))}
         size="sm"
         variant="secondary"
-        onClick={() =>
-          websiteSetup ? store.openWikiHomepageSetup(EMPTY_WIKI_HOMEPAGE_SETUP_STATE) : choose(action.prompt)
-        }
+        onClick={() => choose(action.prompt)}
       >
         <Icon aria-hidden="true" className="size-3.5" />
 

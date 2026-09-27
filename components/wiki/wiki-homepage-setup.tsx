@@ -18,7 +18,6 @@ import { IntlLink, useRouter } from "@/i18n/navigation";
 
 type Props = {
   canStart?: boolean;
-  compact?: boolean;
   disabled?: boolean;
   initialState?: WikiHomepageSetupState;
   onboarding?: boolean;
@@ -49,7 +48,6 @@ export function useRefreshWhileWikiSetupWorks(working: boolean) {
 
 export function WikiHomepageSetup({
   canStart = true,
-  compact = false,
   disabled = false,
   initialState = EMPTY_WIKI_HOMEPAGE_SETUP_STATE,
   onboarding = false,
@@ -80,8 +78,8 @@ export function WikiHomepageSetup({
   useRefreshWhileWikiSetupWorks(state.status === "working");
 
   useEffect(() => {
-    if (retrying || (compact && state.status === "idle")) homepageInput.current?.focus();
-  }, [compact, retrying, state.status]);
+    if (retrying) homepageInput.current?.focus();
+  }, [retrying]);
 
   useEffect(() => {
     if (!canStart) setRetrying(false);
@@ -253,7 +251,7 @@ export function WikiHomepageSetup({
     <form
       noValidate
       aria-busy={controlsDisabled}
-      className={compact ? "w-full space-y-3 text-left" : "w-full space-y-5 text-left"}
+      className="w-full space-y-5 text-left"
       onSubmit={(event) => {
         event.preventDefault();
         runUserAction(submit);

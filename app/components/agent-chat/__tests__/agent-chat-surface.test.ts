@@ -1,4 +1,4 @@
-import { readFileSync } from "node:fs";
+import { existsSync, readFileSync } from "node:fs";
 import { join } from "node:path";
 
 import { describe, expect, it } from "vitest";
@@ -32,15 +32,12 @@ describe("agent chat surface contract", () => {
     expect(read("conversation-history.tsx")).toContain("layerClassName={OVERLAY_TOPMOST_LAYER_CLASS}");
   });
 
-  it("hosts trusted Wiki setup in the Mate panel without exposing the ordinary composer", () => {
+  it("has no bespoke Wiki setup panel mode: website setup is an ordinary chat", () => {
     const chat = read("agent-chat.tsx");
-    const setup = read("agent-wiki-homepage-setup.tsx");
 
-    expect(chat).toContain("<AgentWikiHomepageSetup initialState={store.wikiHomepageSetup} />");
-    expect(chat).toContain("!store.isHistoryOpen && !store.wikiHomepageSetup && <AgentComposer />");
-    expect(setup).toContain("<WikiHomepageSetup");
-    expect(setup).toContain("compact");
-    expect(setup).toContain("await store.selectConversation(conversationId)");
+    expect(existsSync(join(AGENT_CHAT_COMPONENTS, "agent-wiki-homepage-setup.tsx"))).toBe(false);
+    expect(chat).not.toContain("wikiHomepageSetup");
+    expect(chat).toContain("{!store.isHistoryOpen && <AgentComposer />}");
   });
 
   it("uses one icon-only context picker for click and slash entry", () => {

@@ -8,7 +8,6 @@ import { afterEach, beforeEach, describe, expect, it, vi } from "vitest";
 const harness = vi.hoisted(() => ({
   focusComposer: vi.fn(),
   openWithDraft: vi.fn(),
-  openWikiHomepageSetup: vi.fn(),
   root: {} as Record<string, unknown>,
 }));
 
@@ -27,9 +26,6 @@ vi.mock("@/components/entity-terminology/use-entity-terminology", () => ({
   useEntityTerminology: () => ({ map: () => ({}) }),
 }));
 vi.mock("../chat-ui", () => ({ focusAgentComposer: harness.focusComposer }));
-vi.mock("@/components/wiki/wiki-homepage-setup", () => ({
-  EMPTY_WIKI_HOMEPAGE_SETUP_STATE: { status: "idle", homepage: null, domain: null, conversationId: null, pages: [] },
-}));
 
 import { AgentStarterActions } from "../suggested-questions";
 
@@ -45,7 +41,6 @@ beforeEach(() => {
       counts: null,
       enabled: true,
       openWithDraft: harness.openWithDraft,
-      openWikiHomepageSetup: harness.openWikiHomepageSetup,
     },
     userStore: { can: () => true },
   };
@@ -116,7 +111,7 @@ describe("AgentStarterActions", () => {
     expect(harness.focusComposer).toHaveBeenCalledOnce();
   });
 
-  it("opens the website setup panel from the first Wiki action without drafting a prompt", () => {
+  it("opens Mate with an ordinary website prompt from the first Wiki action, like every starter", () => {
     act(() => {
       reactRoot.render(
         createElement(AgentStarterActions, {
@@ -129,35 +124,15 @@ describe("AgentStarterActions", () => {
 
     const buttons = container.querySelectorAll("button");
     expect(buttons).toHaveLength(3);
-    expect(buttons[0]?.textContent).toBe("WikiSetup.startFromWebsite");
+    expect(buttons[0]?.textContent).toBe("AgentChat.suggestions.pages.wiki.empty.first-wiki-page.label");
     expect([...buttons].every((button) => button.hasAttribute("data-agent-focus-return"))).toBe(true);
 
     act(() => buttons[0]?.click());
 
-    expect(harness.openWikiHomepageSetup).toHaveBeenCalledExactlyOnceWith({
-      status: "idle",
-      homepage: null,
-      domain: null,
-      conversationId: null,
-      pages: [],
-    });
-    expect(harness.openWithDraft).not.toHaveBeenCalled();
-    expect(harness.focusComposer).not.toHaveBeenCalled();
-  });
-
-  it.each([
-    ["Mate is working", { isWorking: true }],
-    ["a history change is pending", { historyMutationPending: "archive" }],
-  ])("disables website setup while %s", (_reason, busy) => {
-    Object.assign(harness.root.agentChatStore as object, busy);
-    act(() => {
-      reactRoot.render(createElement(AgentStarterActions, { pageId: "wiki", state: "empty", surface: "page" }));
-    });
-
-    const first = container.querySelector<HTMLButtonElement>("button");
-    expect(first?.disabled).toBe(true);
-    act(() => first?.click());
-    expect(harness.openWikiHomepageSetup).not.toHaveBeenCalled();
+    expect(harness.openWithDraft).toHaveBeenCalledExactlyOnceWith(
+      "AgentChat.suggestions.pages.wiki.empty.first-wiki-page.prompt",
+    );
+    expect(harness.focusComposer).toHaveBeenCalledOnce();
   });
 
   it("keeps chat-surface chips out of the page focus-return order", () => {
@@ -165,7 +140,9 @@ describe("AgentStarterActions", () => {
       reactRoot.render(createElement(AgentStarterActions, { pageId: "wiki", state: "empty" }));
     });
 
-    expect(container.querySelector("button")?.textContent).toBe("WikiSetup.startFromWebsite");
+    expect(container.querySelector("button")?.textContent).toBe(
+      "AgentChat.suggestions.pages.wiki.empty.first-wiki-page.label",
+    );
     expect(container.querySelector("[data-agent-focus-return]")).toBeNull();
   });
 

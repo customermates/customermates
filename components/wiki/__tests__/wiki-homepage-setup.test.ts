@@ -120,23 +120,6 @@ describe("WikiHomepageSetup", () => {
     expect(container.textContent).toContain("WikiSetup.start");
   });
 
-  it("keeps the on-demand Wiki setup focused on one website field", () => {
-    render(undefined, { compact: true });
-
-    expect(input()).toMatchObject({ type: "text", inputMode: "url", autocomplete: "url" });
-    expect(container.querySelector('label[for="wiki-homepage"]')?.textContent).toBe("WikiSetup.homepageLabel");
-    expect(input().getAttribute("aria-describedby")).toBe("wiki-homepage-help");
-    expect(input().parentElement?.querySelector("svg")).toBeNull();
-    expect(container.textContent).toContain("WikiSetup.homepageHelp");
-    expect(button("WikiSetup.start").disabled).toBe(true);
-    expect(container.querySelectorAll("button")).toHaveLength(2);
-    expect(document.activeElement).toBe(input());
-
-    act(() => button("WikiSetup.skip").click());
-    expect(onSkip).toHaveBeenCalledOnce();
-    expect(harness.action).not.toHaveBeenCalled();
-  });
-
   it("deduplicates submission and transitions to a durable visible-task state", async () => {
     let resolve!: (value: unknown) => void;
     harness.action.mockReturnValue(new Promise((done) => (resolve = done)));

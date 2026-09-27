@@ -160,7 +160,6 @@ function isEntityPage(page: SupportedPage): page is EntityPage {
 }
 
 function suggestionAction(page: SupportedPage, state: PageState, id: string, t: AgentTranslator) {
-  if (id === WIKI_WEBSITE_SETUP_ACTION_ID) return { id, label: t("WikiSetup.startFromWebsite"), prompt: "" };
   return {
     id,
     label: t(`AgentChat.suggestions.pages.${page}.${state}.${id}.label`),
