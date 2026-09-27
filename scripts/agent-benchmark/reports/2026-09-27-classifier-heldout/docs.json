@@ -1,0 +1,3932 @@
+{
+  "track": "docs",
+  "fixture": "heldout/docs-heldout.ts (40 questions: en, de, es, fr, it)",
+  "method": {
+    "agentQuery": "Fixed before any run: the agent query is the first 6 words of the question that have at least 4 letters or digits, lowercased, in question order, punctuation dropped; it stays in the question's language. The question itself is latestUserMessage.",
+    "keyword": "Control: searchDocsRaw (the keyword ranker behind search_docs without a re-rank) on the agent query in the item's docsLocale.",
+    "v2": "Candidate: searchDocsRanked, the product search_docs path with docs re-rank v2 (docsRankSpec, docsRankState with docsRankUserMessage(question), docsRankOrder), product timeout 800 ms for both models, 3 runs per model. A failed or timed-out call falls back to the keyword output, as the product does.",
+    "pageFirst": "The first result's page is the gold slug or the page of an alternative anchor.",
+    "sectionFirst": "The first result's slug#anchor is a gold anchor or an alternative anchor (lenient); strict counts gold anchors only.",
+    "answer": "The first returned section (heading path plus body, first 1,400 characters, docsRerankExcerpt) is judged against the gold fact by the earlier judge: google/gemini-3-flash on Vertex, thinking low, ZDR, the reference-fact prompt; only 'yes' passes.",
+    "stats": "Per language and pooled: keyword once (deterministic), each model 3 runs with per-run counts and means; exact sign test (McNemar) on per-item majority outcomes against the keyword ranker, Holm-corrected over the two models; mean difference with a 95% item-cluster paired bootstrap over all runs.",
+    "latency": "Added latency is the classifier call's wall time per query; the keyword ranker's own time is reported beside it."
+  },
+  "preRegisteredOffline": "Descriptive only: page-first and anchor-hit rates per language for the keyword ranker and the classifier (majority of 3 runs), with the exact sign test; with 3 runs and majority outcomes the sign test needs at least 6 wins and no losses to reach p < 0.05. The docs gate is judged live (DH cases, k = 10).",
+  "judge": {
+    "model": "google/gemini-3-flash",
+    "verdictErrors": 0
+  },
+  "table": {
+    "pooled": {
+      "n": 40,
+      "keyword": {
+        "pageFirst": {
+          "hits": 24,
+          "pct": 60,
+          "wilson95": [
+            44.6,
+            73.7
+          ]
+        },
+        "sectionFirst": {
+          "hits": 15,
+          "pct": 37.5,
+          "wilson95": [
+            24.2,
+            53
+          ]
+        },
+        "sectionFirstStrict": {
+          "hits": 13,
+          "pct": 32.5,
+          "wilson95": [
+            20.1,
+            48
+          ]
+        },
+        "answer": {
+          "hits": 15,
+          "pct": 37.5,
+          "wilson95": [
+            24.2,
+            53
+          ]
+        },
+        "toolMsP50": 13.54,
+        "toolMsP95": 72.17
+      },
+      "jev": {
+        "pageFirst": {
+          "perRun": [
+            32,
+            32,
+            32
+          ],
+          "meanPct": 80,
+          "majorityHits": 32,
+          "majorityPct": 80,
+          "majorityWilson95": [
+            65.2,
+            89.5
+          ],
+          "majorityWins": 8,
+          "majorityLosses": 0,
+          "signTestP": 0.00781,
+          "diffPtsVsKeyword": {
+            "clusters": 40,
+            "units": 120,
+            "meanDiff": 20,
+            "ci95": [
+              7.5,
+              32.5
+            ]
+          }
+        },
+        "sectionFirst": {
+          "perRun": [
+            31,
+            31,
+            31
+          ],
+          "meanPct": 77.5,
+          "majorityHits": 31,
+          "majorityPct": 77.5,
+          "majorityWilson95": [
+            62.5,
+            87.7
+          ],
+          "majorityWins": 16,
+          "majorityLosses": 0,
+          "signTestP": 0.0000305,
+          "diffPtsVsKeyword": {
+            "clusters": 40,
+            "units": 120,
+            "meanDiff": 40,
+            "ci95": [
+              25,
+              55
+            ]
+          }
+        },
+        "sectionFirstStrict": {
+          "perRun": [
+            30,
+            30,
+            30
+          ],
+          "meanPct": 75,
+          "majorityHits": 30,
+          "majorityPct": 75,
+          "majorityWilson95": [
+            59.8,
+            85.8
+          ],
+          "majorityWins": 17,
+          "majorityLosses": 0,
+          "signTestP": 0.0000153,
+          "diffPtsVsKeyword": {
+            "clusters": 40,
+            "units": 120,
+            "meanDiff": 42.5,
+            "ci95": [
+              27.5,
+              57.5
+            ]
+          }
+        },
+        "answer": {
+          "perRun": [
+            29,
+            29,
+            29
+          ],
+          "meanPct": 72.5,
+          "majorityHits": 29,
+          "majorityPct": 72.5,
+          "majorityWilson95": [
+            57.2,
+            83.9
+          ],
+          "majorityWins": 14,
+          "majorityLosses": 0,
+          "signTestP": 0.000122,
+          "diffPtsVsKeyword": {
+            "clusters": 40,
+            "units": 120,
+            "meanDiff": 35,
+            "ci95": [
+              20,
+              50
+            ]
+          }
+        },
+        "calls": 105,
+        "failedOrTimedOut": 0,
+        "addedMsP50": 349.4,
+        "addedMsP95": 491.4,
+        "usdPerQueryMeasured": 0.00022
+      },
+      "gemini": {
+        "pageFirst": {
+          "perRun": [
+            32,
+            32,
+            29
+          ],
+          "meanPct": 77.5,
+          "majorityHits": 32,
+          "majorityPct": 80,
+          "majorityWilson95": [
+            65.2,
+            89.5
+          ],
+          "majorityWins": 8,
+          "majorityLosses": 0,
+          "signTestP": 0.00781,
+          "diffPtsVsKeyword": {
+            "clusters": 40,
+            "units": 120,
+            "meanDiff": 17.5,
+            "ci95": [
+              7.5,
+              29.17
+            ]
+          }
+        },
+        "sectionFirst": {
+          "perRun": [
+            30,
+            30,
+            27
+          ],
+          "meanPct": 72.5,
+          "majorityHits": 30,
+          "majorityPct": 75,
+          "majorityWilson95": [
+            59.8,
+            85.8
+          ],
+          "majorityWins": 15,
+          "majorityLosses": 0,
+          "signTestP": 0.000061,
+          "diffPtsVsKeyword": {
+            "clusters": 40,
+            "units": 120,
+            "meanDiff": 35,
+            "ci95": [
+              21.67,
+              50
+            ]
+          }
+        },
+        "sectionFirstStrict": {
+          "perRun": [
+            30,
+            30,
+            26
+          ],
+          "meanPct": 71.7,
+          "majorityHits": 30,
+          "majorityPct": 75,
+          "majorityWilson95": [
+            59.8,
+            85.8
+          ],
+          "majorityWins": 17,
+          "majorityLosses": 0,
+          "signTestP": 0.0000153,
+          "diffPtsVsKeyword": {
+            "clusters": 40,
+            "units": 120,
+            "meanDiff": 39.17,
+            "ci95": [
+              25,
+              54.17
+            ]
+          }
+        },
+        "answer": {
+          "perRun": [
+            28,
+            28,
+            25
+          ],
+          "meanPct": 67.5,
+          "majorityHits": 28,
+          "majorityPct": 70,
+          "majorityWilson95": [
+            54.6,
+            81.9
+          ],
+          "majorityWins": 13,
+          "majorityLosses": 0,
+          "signTestP": 0.000244,
+          "diffPtsVsKeyword": {
+            "clusters": 40,
+            "units": 120,
+            "meanDiff": 30,
+            "ci95": [
+              16.67,
+              44.17
+            ]
+          }
+        },
+        "calls": 105,
+        "failedOrTimedOut": 6,
+        "addedMsP50": 625.8,
+        "addedMsP95": 801.1,
+        "usdPerQueryMeasured": 0.00111
+      }
+    },
+    "en": {
+      "n": 8,
+      "keyword": {
+        "pageFirst": {
+          "hits": 4,
+          "pct": 50,
+          "wilson95": [
+            21.5,
+            78.5
+          ]
+        },
+        "sectionFirst": {
+          "hits": 0,
+          "pct": 0,
+          "wilson95": [
+            0,
+            32.4
+          ]
+        },
+        "sectionFirstStrict": {
+          "hits": 0,
+          "pct": 0,
+          "wilson95": [
+            0,
+            32.4
+          ]
+        },
+        "answer": {
+          "hits": 1,
+          "pct": 12.5,
+          "wilson95": [
+            2.2,
+            47.1
+          ]
+        },
+        "toolMsP50": 15.9,
+        "toolMsP95": 77.43
+      },
+      "jev": {
+        "pageFirst": {
+          "perRun": [
+            8,
+            8,
+            8
+          ],
+          "meanPct": 100,
+          "majorityHits": 8,
+          "majorityPct": 100,
+          "majorityWilson95": [
+            67.6,
+            100
+          ],
+          "majorityWins": 4,
+          "majorityLosses": 0,
+          "signTestP": 0.125,
+          "diffPtsVsKeyword": {
+            "clusters": 8,
+            "units": 24,
+            "meanDiff": 50,
+            "ci95": [
+              12.5,
+              87.5
+            ]
+          }
+        },
+        "sectionFirst": {
+          "perRun": [
+            7,
+            7,
+            7
+          ],
+          "meanPct": 87.5,
+          "majorityHits": 7,
+          "majorityPct": 87.5,
+          "majorityWilson95": [
+            52.9,
+            97.8
+          ],
+          "majorityWins": 7,
+          "majorityLosses": 0,
+          "signTestP": 0.0156,
+          "diffPtsVsKeyword": {
+            "clusters": 8,
+            "units": 24,
+            "meanDiff": 87.5,
+            "ci95": [
+              62.5,
+              100
+            ]
+          }
+        },
+        "sectionFirstStrict": {
+          "perRun": [
+            7,
+            7,
+            7
+          ],
+          "meanPct": 87.5,
+          "majorityHits": 7,
+          "majorityPct": 87.5,
+          "majorityWilson95": [
+            52.9,
+            97.8
+          ],
+          "majorityWins": 7,
+          "majorityLosses": 0,
+          "signTestP": 0.0156,
+          "diffPtsVsKeyword": {
+            "clusters": 8,
+            "units": 24,
+            "meanDiff": 87.5,
+            "ci95": [
+              62.5,
+              100
+            ]
+          }
+        },
+        "answer": {
+          "perRun": [
+            7,
+            7,
+            7
+          ],
+          "meanPct": 87.5,
+          "majorityHits": 7,
+          "majorityPct": 87.5,
+          "majorityWilson95": [
+            52.9,
+            97.8
+          ],
+          "majorityWins": 6,
+          "majorityLosses": 0,
+          "signTestP": 0.0313,
+          "diffPtsVsKeyword": {
+            "clusters": 8,
+            "units": 24,
+            "meanDiff": 75,
+            "ci95": [
+              37.5,
+              100
+            ]
+          }
+        },
+        "calls": 24,
+        "failedOrTimedOut": 0,
+        "addedMsP50": 354.6,
+        "addedMsP95": 567.9,
+        "usdPerQueryMeasured": 0.000206
+      },
+      "gemini": {
+        "pageFirst": {
+          "perRun": [
+            8,
+            8,
+            7
+          ],
+          "meanPct": 95.8,
+          "majorityHits": 8,
+          "majorityPct": 100,
+          "majorityWilson95": [
+            67.6,
+            100
+          ],
+          "majorityWins": 4,
+          "majorityLosses": 0,
+          "signTestP": 0.125,
+          "diffPtsVsKeyword": {
+            "clusters": 8,
+            "units": 24,
+            "meanDiff": 45.83,
+            "ci95": [
+              12.5,
+              79.17
+            ]
+          }
+        },
+        "sectionFirst": {
+          "perRun": [
+            6,
+            6,
+            5
+          ],
+          "meanPct": 70.8,
+          "majorityHits": 6,
+          "majorityPct": 75,
+          "majorityWilson95": [
+            40.9,
+            92.9
+          ],
+          "majorityWins": 6,
+          "majorityLosses": 0,
+          "signTestP": 0.0313,
+          "diffPtsVsKeyword": {
+            "clusters": 8,
+            "units": 24,
+            "meanDiff": 70.83,
+            "ci95": [
+              37.5,
+              95.83
+            ]
+          }
+        },
+        "sectionFirstStrict": {
+          "perRun": [
+            6,
+            6,
+            5
+          ],
+          "meanPct": 70.8,
+          "majorityHits": 6,
+          "majorityPct": 75,
+          "majorityWilson95": [
+            40.9,
+            92.9
+          ],
+          "majorityWins": 6,
+          "majorityLosses": 0,
+          "signTestP": 0.0313,
+          "diffPtsVsKeyword": {
+            "clusters": 8,
+            "units": 24,
+            "meanDiff": 70.83,
+            "ci95": [
+              37.5,
+              95.83
+            ]
+          }
+        },
+        "answer": {
+          "perRun": [
+            6,
+            6,
+            5
+          ],
+          "meanPct": 70.8,
+          "majorityHits": 6,
+          "majorityPct": 75,
+          "majorityWilson95": [
+            40.9,
+            92.9
+          ],
+          "majorityWins": 5,
+          "majorityLosses": 0,
+          "signTestP": 0.0625,
+          "diffPtsVsKeyword": {
+            "clusters": 8,
+            "units": 24,
+            "meanDiff": 58.33,
+            "ci95": [
+              25,
+              87.5
+            ]
+          }
+        },
+        "calls": 24,
+        "failedOrTimedOut": 1,
+        "addedMsP50": 632.4,
+        "addedMsP95": 786.4,
+        "usdPerQueryMeasured": 0.000987
+      }
+    },
+    "de": {
+      "n": 8,
+      "keyword": {
+        "pageFirst": {
+          "hits": 8,
+          "pct": 100,
+          "wilson95": [
+            67.6,
+            100
+          ]
+        },
+        "sectionFirst": {
+          "hits": 7,
+          "pct": 87.5,
+          "wilson95": [
+            52.9,
+            97.8
+          ]
+        },
+        "sectionFirstStrict": {
+          "hits": 5,
+          "pct": 62.5,
+          "wilson95": [
+            30.6,
+            86.3
+          ]
+        },
+        "answer": {
+          "hits": 5,
+          "pct": 62.5,
+          "wilson95": [
+            30.6,
+            86.3
+          ]
+        },
+        "toolMsP50": 15.88,
+        "toolMsP95": 72.17
+      },
+      "jev": {
+        "pageFirst": {
+          "perRun": [
+            8,
+            8,
+            8
+          ],
+          "meanPct": 100,
+          "majorityHits": 8,
+          "majorityPct": 100,
+          "majorityWilson95": [
+            67.6,
+            100
+          ],
+          "majorityWins": 0,
+          "majorityLosses": 0,
+          "signTestP": 1,
+          "diffPtsVsKeyword": {
+            "clusters": 8,
+            "units": 24,
+            "meanDiff": 0,
+            "ci95": [
+              0,
+              0
+            ]
+          }
+        },
+        "sectionFirst": {
+          "perRun": [
+            8,
+            8,
+            8
+          ],
+          "meanPct": 100,
+          "majorityHits": 8,
+          "majorityPct": 100,
+          "majorityWilson95": [
+            67.6,
+            100
+          ],
+          "majorityWins": 1,
+          "majorityLosses": 0,
+          "signTestP": 1,
+          "diffPtsVsKeyword": {
+            "clusters": 8,
+            "units": 24,
+            "meanDiff": 12.5,
+            "ci95": [
+              0,
+              37.5
+            ]
+          }
+        },
+        "sectionFirstStrict": {
+          "perRun": [
+            8,
+            8,
+            8
+          ],
+          "meanPct": 100,
+          "majorityHits": 8,
+          "majorityPct": 100,
+          "majorityWilson95": [
+            67.6,
+            100
+          ],
+          "majorityWins": 3,
+          "majorityLosses": 0,
+          "signTestP": 0.25,
+          "diffPtsVsKeyword": {
+            "clusters": 8,
+            "units": 24,
+            "meanDiff": 37.5,
+            "ci95": [
+              12.5,
+              75
+            ]
+          }
+        },
+        "answer": {
+          "perRun": [
+            7,
+            7,
+            7
+          ],
+          "meanPct": 87.5,
+          "majorityHits": 7,
+          "majorityPct": 87.5,
+          "majorityWilson95": [
+            52.9,
+            97.8
+          ],
+          "majorityWins": 2,
+          "majorityLosses": 0,
+          "signTestP": 0.5,
+          "diffPtsVsKeyword": {
+            "clusters": 8,
+            "units": 24,
+            "meanDiff": 25,
+            "ci95": [
+              0,
+              62.5
+            ]
+          }
+        },
+        "calls": 24,
+        "failedOrTimedOut": 0,
+        "addedMsP50": 368.4,
+        "addedMsP95": 491.4,
+        "usdPerQueryMeasured": 0.000267
+      },
+      "gemini": {
+        "pageFirst": {
+          "perRun": [
+            8,
+            8,
+            8
+          ],
+          "meanPct": 100,
+          "majorityHits": 8,
+          "majorityPct": 100,
+          "majorityWilson95": [
+            67.6,
+            100
+          ],
+          "majorityWins": 0,
+          "majorityLosses": 0,
+          "signTestP": 1,
+          "diffPtsVsKeyword": {
+            "clusters": 8,
+            "units": 24,
+            "meanDiff": 0,
+            "ci95": [
+              0,
+              0
+            ]
+          }
+        },
+        "sectionFirst": {
+          "perRun": [
+            8,
+            8,
+            8
+          ],
+          "meanPct": 100,
+          "majorityHits": 8,
+          "majorityPct": 100,
+          "majorityWilson95": [
+            67.6,
+            100
+          ],
+          "majorityWins": 1,
+          "majorityLosses": 0,
+          "signTestP": 1,
+          "diffPtsVsKeyword": {
+            "clusters": 8,
+            "units": 24,
+            "meanDiff": 12.5,
+            "ci95": [
+              0,
+              37.5
+            ]
+          }
+        },
+        "sectionFirstStrict": {
+          "perRun": [
+            8,
+            8,
+            8
+          ],
+          "meanPct": 100,
+          "majorityHits": 8,
+          "majorityPct": 100,
+          "majorityWilson95": [
+            67.6,
+            100
+          ],
+          "majorityWins": 3,
+          "majorityLosses": 0,
+          "signTestP": 0.25,
+          "diffPtsVsKeyword": {
+            "clusters": 8,
+            "units": 24,
+            "meanDiff": 37.5,
+            "ci95": [
+              12.5,
+              75
+            ]
+          }
+        },
+        "answer": {
+          "perRun": [
+            7,
+            7,
+            7
+          ],
+          "meanPct": 87.5,
+          "majorityHits": 7,
+          "majorityPct": 87.5,
+          "majorityWilson95": [
+            52.9,
+            97.8
+          ],
+          "majorityWins": 2,
+          "majorityLosses": 0,
+          "signTestP": 0.5,
+          "diffPtsVsKeyword": {
+            "clusters": 8,
+            "units": 24,
+            "meanDiff": 25,
+            "ci95": [
+              0,
+              62.5
+            ]
+          }
+        },
+        "calls": 24,
+        "failedOrTimedOut": 0,
+        "addedMsP50": 625.1,
+        "addedMsP95": 707.6,
+        "usdPerQueryMeasured": 0.00133
+      }
+    },
+    "es": {
+      "n": 8,
+      "keyword": {
+        "pageFirst": {
+          "hits": 4,
+          "pct": 50,
+          "wilson95": [
+            21.5,
+            78.5
+          ]
+        },
+        "sectionFirst": {
+          "hits": 4,
+          "pct": 50,
+          "wilson95": [
+            21.5,
+            78.5
+          ]
+        },
+        "sectionFirstStrict": {
+          "hits": 4,
+          "pct": 50,
+          "wilson95": [
+            21.5,
+            78.5
+          ]
+        },
+        "answer": {
+          "hits": 4,
+          "pct": 50,
+          "wilson95": [
+            21.5,
+            78.5
+          ]
+        },
+        "toolMsP50": 9.06,
+        "toolMsP95": 12.96
+      },
+      "jev": {
+        "pageFirst": {
+          "perRun": [
+            5,
+            5,
+            5
+          ],
+          "meanPct": 62.5,
+          "majorityHits": 5,
+          "majorityPct": 62.5,
+          "majorityWilson95": [
+            30.6,
+            86.3
+          ],
+          "majorityWins": 1,
+          "majorityLosses": 0,
+          "signTestP": 1,
+          "diffPtsVsKeyword": {
+            "clusters": 8,
+            "units": 24,
+            "meanDiff": 12.5,
+            "ci95": [
+              0,
+              37.5
+            ]
+          }
+        },
+        "sectionFirst": {
+          "perRun": [
+            5,
+            5,
+            5
+          ],
+          "meanPct": 62.5,
+          "majorityHits": 5,
+          "majorityPct": 62.5,
+          "majorityWilson95": [
+            30.6,
+            86.3
+          ],
+          "majorityWins": 1,
+          "majorityLosses": 0,
+          "signTestP": 1,
+          "diffPtsVsKeyword": {
+            "clusters": 8,
+            "units": 24,
+            "meanDiff": 12.5,
+            "ci95": [
+              0,
+              37.5
+            ]
+          }
+        },
+        "sectionFirstStrict": {
+          "perRun": [
+            5,
+            5,
+            5
+          ],
+          "meanPct": 62.5,
+          "majorityHits": 5,
+          "majorityPct": 62.5,
+          "majorityWilson95": [
+            30.6,
+            86.3
+          ],
+          "majorityWins": 1,
+          "majorityLosses": 0,
+          "signTestP": 1,
+          "diffPtsVsKeyword": {
+            "clusters": 8,
+            "units": 24,
+            "meanDiff": 12.5,
+            "ci95": [
+              0,
+              37.5
+            ]
+          }
+        },
+        "answer": {
+          "perRun": [
+            5,
+            5,
+            5
+          ],
+          "meanPct": 62.5,
+          "majorityHits": 5,
+          "majorityPct": 62.5,
+          "majorityWilson95": [
+            30.6,
+            86.3
+          ],
+          "majorityWins": 1,
+          "majorityLosses": 0,
+          "signTestP": 1,
+          "diffPtsVsKeyword": {
+            "clusters": 8,
+            "units": 24,
+            "meanDiff": 12.5,
+            "ci95": [
+              0,
+              37.5
+            ]
+          }
+        },
+        "calls": 18,
+        "failedOrTimedOut": 0,
+        "addedMsP50": 332.5,
+        "addedMsP95": 436,
+        "usdPerQueryMeasured": 0.00018
+      },
+      "gemini": {
+        "pageFirst": {
+          "perRun": [
+            5,
+            5,
+            4
+          ],
+          "meanPct": 58.3,
+          "majorityHits": 5,
+          "majorityPct": 62.5,
+          "majorityWilson95": [
+            30.6,
+            86.3
+          ],
+          "majorityWins": 1,
+          "majorityLosses": 0,
+          "signTestP": 1,
+          "diffPtsVsKeyword": {
+            "clusters": 8,
+            "units": 24,
+            "meanDiff": 8.33,
+            "ci95": [
+              0,
+              25
+            ]
+          }
+        },
+        "sectionFirst": {
+          "perRun": [
+            5,
+            5,
+            4
+          ],
+          "meanPct": 58.3,
+          "majorityHits": 5,
+          "majorityPct": 62.5,
+          "majorityWilson95": [
+            30.6,
+            86.3
+          ],
+          "majorityWins": 1,
+          "majorityLosses": 0,
+          "signTestP": 1,
+          "diffPtsVsKeyword": {
+            "clusters": 8,
+            "units": 24,
+            "meanDiff": 8.33,
+            "ci95": [
+              0,
+              25
+            ]
+          }
+        },
+        "sectionFirstStrict": {
+          "perRun": [
+            5,
+            5,
+            4
+          ],
+          "meanPct": 58.3,
+          "majorityHits": 5,
+          "majorityPct": 62.5,
+          "majorityWilson95": [
+            30.6,
+            86.3
+          ],
+          "majorityWins": 1,
+          "majorityLosses": 0,
+          "signTestP": 1,
+          "diffPtsVsKeyword": {
+            "clusters": 8,
+            "units": 24,
+            "meanDiff": 8.33,
+            "ci95": [
+              0,
+              25
+            ]
+          }
+        },
+        "answer": {
+          "perRun": [
+            5,
+            5,
+            4
+          ],
+          "meanPct": 58.3,
+          "majorityHits": 5,
+          "majorityPct": 62.5,
+          "majorityWilson95": [
+            30.6,
+            86.3
+          ],
+          "majorityWins": 1,
+          "majorityLosses": 0,
+          "signTestP": 1,
+          "diffPtsVsKeyword": {
+            "clusters": 8,
+            "units": 24,
+            "meanDiff": 8.33,
+            "ci95": [
+              0,
+              25
+            ]
+          }
+        },
+        "calls": 18,
+        "failedOrTimedOut": 1,
+        "addedMsP50": 603.7,
+        "addedMsP95": 802.2,
+        "usdPerQueryMeasured": 0.00101
+      }
+    },
+    "fr": {
+      "n": 8,
+      "keyword": {
+        "pageFirst": {
+          "hits": 4,
+          "pct": 50,
+          "wilson95": [
+            21.5,
+            78.5
+          ]
+        },
+        "sectionFirst": {
+          "hits": 2,
+          "pct": 25,
+          "wilson95": [
+            7.1,
+            59.1
+          ]
+        },
+        "sectionFirstStrict": {
+          "hits": 2,
+          "pct": 25,
+          "wilson95": [
+            7.1,
+            59.1
+          ]
+        },
+        "answer": {
+          "hits": 3,
+          "pct": 37.5,
+          "wilson95": [
+            13.7,
+            69.4
+          ]
+        },
+        "toolMsP50": 14.32,
+        "toolMsP95": 15.44
+      },
+      "jev": {
+        "pageFirst": {
+          "perRun": [
+            7,
+            7,
+            7
+          ],
+          "meanPct": 87.5,
+          "majorityHits": 7,
+          "majorityPct": 87.5,
+          "majorityWilson95": [
+            52.9,
+            97.8
+          ],
+          "majorityWins": 3,
+          "majorityLosses": 0,
+          "signTestP": 0.25,
+          "diffPtsVsKeyword": {
+            "clusters": 8,
+            "units": 24,
+            "meanDiff": 37.5,
+            "ci95": [
+              12.5,
+              75
+            ]
+          }
+        },
+        "sectionFirst": {
+          "perRun": [
+            7,
+            7,
+            7
+          ],
+          "meanPct": 87.5,
+          "majorityHits": 7,
+          "majorityPct": 87.5,
+          "majorityWilson95": [
+            52.9,
+            97.8
+          ],
+          "majorityWins": 5,
+          "majorityLosses": 0,
+          "signTestP": 0.0625,
+          "diffPtsVsKeyword": {
+            "clusters": 8,
+            "units": 24,
+            "meanDiff": 62.5,
+            "ci95": [
+              25,
+              87.5
+            ]
+          }
+        },
+        "sectionFirstStrict": {
+          "perRun": [
+            7,
+            7,
+            7
+          ],
+          "meanPct": 87.5,
+          "majorityHits": 7,
+          "majorityPct": 87.5,
+          "majorityWilson95": [
+            52.9,
+            97.8
+          ],
+          "majorityWins": 5,
+          "majorityLosses": 0,
+          "signTestP": 0.0625,
+          "diffPtsVsKeyword": {
+            "clusters": 8,
+            "units": 24,
+            "meanDiff": 62.5,
+            "ci95": [
+              25,
+              87.5
+            ]
+          }
+        },
+        "answer": {
+          "perRun": [
+            6,
+            6,
+            6
+          ],
+          "meanPct": 75,
+          "majorityHits": 6,
+          "majorityPct": 75,
+          "majorityWilson95": [
+            40.9,
+            92.9
+          ],
+          "majorityWins": 3,
+          "majorityLosses": 0,
+          "signTestP": 0.25,
+          "diffPtsVsKeyword": {
+            "clusters": 8,
+            "units": 24,
+            "meanDiff": 37.5,
+            "ci95": [
+              0,
+              75
+            ]
+          }
+        },
+        "calls": 24,
+        "failedOrTimedOut": 0,
+        "addedMsP50": 353.4,
+        "addedMsP95": 520.2,
+        "usdPerQueryMeasured": 0.000234
+      },
+      "gemini": {
+        "pageFirst": {
+          "perRun": [
+            7,
+            7,
+            6
+          ],
+          "meanPct": 83.3,
+          "majorityHits": 7,
+          "majorityPct": 87.5,
+          "majorityWilson95": [
+            52.9,
+            97.8
+          ],
+          "majorityWins": 3,
+          "majorityLosses": 0,
+          "signTestP": 0.25,
+          "diffPtsVsKeyword": {
+            "clusters": 8,
+            "units": 24,
+            "meanDiff": 33.33,
+            "ci95": [
+              8.33,
+              66.67
+            ]
+          }
+        },
+        "sectionFirst": {
+          "perRun": [
+            7,
+            7,
+            6
+          ],
+          "meanPct": 83.3,
+          "majorityHits": 7,
+          "majorityPct": 87.5,
+          "majorityWilson95": [
+            52.9,
+            97.8
+          ],
+          "majorityWins": 5,
+          "majorityLosses": 0,
+          "signTestP": 0.0625,
+          "diffPtsVsKeyword": {
+            "clusters": 8,
+            "units": 24,
+            "meanDiff": 58.33,
+            "ci95": [
+              25,
+              87.5
+            ]
+          }
+        },
+        "sectionFirstStrict": {
+          "perRun": [
+            7,
+            7,
+            6
+          ],
+          "meanPct": 83.3,
+          "majorityHits": 7,
+          "majorityPct": 87.5,
+          "majorityWilson95": [
+            52.9,
+            97.8
+          ],
+          "majorityWins": 5,
+          "majorityLosses": 0,
+          "signTestP": 0.0625,
+          "diffPtsVsKeyword": {
+            "clusters": 8,
+            "units": 24,
+            "meanDiff": 58.33,
+            "ci95": [
+              25,
+              87.5
+            ]
+          }
+        },
+        "answer": {
+          "perRun": [
+            6,
+            6,
+            5
+          ],
+          "meanPct": 70.8,
+          "majorityHits": 6,
+          "majorityPct": 75,
+          "majorityWilson95": [
+            40.9,
+            92.9
+          ],
+          "majorityWins": 3,
+          "majorityLosses": 0,
+          "signTestP": 0.25,
+          "diffPtsVsKeyword": {
+            "clusters": 8,
+            "units": 24,
+            "meanDiff": 33.33,
+            "ci95": [
+              0,
+              62.5
+            ]
+          }
+        },
+        "calls": 24,
+        "failedOrTimedOut": 2,
+        "addedMsP50": 634.2,
+        "addedMsP95": 801.1,
+        "usdPerQueryMeasured": 0.00109
+      }
+    },
+    "it": {
+      "n": 8,
+      "keyword": {
+        "pageFirst": {
+          "hits": 4,
+          "pct": 50,
+          "wilson95": [
+            21.5,
+            78.5
+          ]
+        },
+        "sectionFirst": {
+          "hits": 2,
+          "pct": 25,
+          "wilson95": [
+            7.1,
+            59.1
+          ]
+        },
+        "sectionFirstStrict": {
+          "hits": 2,
+          "pct": 25,
+          "wilson95": [
+            7.1,
+            59.1
+          ]
+        },
+        "answer": {
+          "hits": 2,
+          "pct": 25,
+          "wilson95": [
+            7.1,
+            59.1
+          ]
+        },
+        "toolMsP50": 10.08,
+        "toolMsP95": 16.48
+      },
+      "jev": {
+        "pageFirst": {
+          "perRun": [
+            4,
+            4,
+            4
+          ],
+          "meanPct": 50,
+          "majorityHits": 4,
+          "majorityPct": 50,
+          "majorityWilson95": [
+            21.5,
+            78.5
+          ],
+          "majorityWins": 0,
+          "majorityLosses": 0,
+          "signTestP": 1,
+          "diffPtsVsKeyword": {
+            "clusters": 8,
+            "units": 24,
+            "meanDiff": 0,
+            "ci95": [
+              0,
+              0
+            ]
+          }
+        },
+        "sectionFirst": {
+          "perRun": [
+            4,
+            4,
+            4
+          ],
+          "meanPct": 50,
+          "majorityHits": 4,
+          "majorityPct": 50,
+          "majorityWilson95": [
+            21.5,
+            78.5
+          ],
+          "majorityWins": 2,
+          "majorityLosses": 0,
+          "signTestP": 0.5,
+          "diffPtsVsKeyword": {
+            "clusters": 8,
+            "units": 24,
+            "meanDiff": 25,
+            "ci95": [
+              0,
+              62.5
+            ]
+          }
+        },
+        "sectionFirstStrict": {
+          "perRun": [
+            3,
+            3,
+            3
+          ],
+          "meanPct": 37.5,
+          "majorityHits": 3,
+          "majorityPct": 37.5,
+          "majorityWilson95": [
+            13.7,
+            69.4
+          ],
+          "majorityWins": 1,
+          "majorityLosses": 0,
+          "signTestP": 1,
+          "diffPtsVsKeyword": {
+            "clusters": 8,
+            "units": 24,
+            "meanDiff": 12.5,
+            "ci95": [
+              0,
+              37.5
+            ]
+          }
+        },
+        "answer": {
+          "perRun": [
+            4,
+            4,
+            4
+          ],
+          "meanPct": 50,
+          "majorityHits": 4,
+          "majorityPct": 50,
+          "majorityWilson95": [
+            21.5,
+            78.5
+          ],
+          "majorityWins": 2,
+          "majorityLosses": 0,
+          "signTestP": 0.5,
+          "diffPtsVsKeyword": {
+            "clusters": 8,
+            "units": 24,
+            "meanDiff": 25,
+            "ci95": [
+              0,
+              62.5
+            ]
+          }
+        },
+        "calls": 15,
+        "failedOrTimedOut": 0,
+        "addedMsP50": 345.4,
+        "addedMsP95": 434.4,
+        "usdPerQueryMeasured": 0.000192
+      },
+      "gemini": {
+        "pageFirst": {
+          "perRun": [
+            4,
+            4,
+            4
+          ],
+          "meanPct": 50,
+          "majorityHits": 4,
+          "majorityPct": 50,
+          "majorityWilson95": [
+            21.5,
+            78.5
+          ],
+          "majorityWins": 0,
+          "majorityLosses": 0,
+          "signTestP": 1,
+          "diffPtsVsKeyword": {
+            "clusters": 8,
+            "units": 24,
+            "meanDiff": 0,
+            "ci95": [
+              0,
+              0
+            ]
+          }
+        },
+        "sectionFirst": {
+          "perRun": [
+            4,
+            4,
+            4
+          ],
+          "meanPct": 50,
+          "majorityHits": 4,
+          "majorityPct": 50,
+          "majorityWilson95": [
+            21.5,
+            78.5
+          ],
+          "majorityWins": 2,
+          "majorityLosses": 0,
+          "signTestP": 0.5,
+          "diffPtsVsKeyword": {
+            "clusters": 8,
+            "units": 24,
+            "meanDiff": 25,
+            "ci95": [
+              0,
+              62.5
+            ]
+          }
+        },
+        "sectionFirstStrict": {
+          "perRun": [
+            4,
+            4,
+            3
+          ],
+          "meanPct": 45.8,
+          "majorityHits": 4,
+          "majorityPct": 50,
+          "majorityWilson95": [
+            21.5,
+            78.5
+          ],
+          "majorityWins": 2,
+          "majorityLosses": 0,
+          "signTestP": 0.5,
+          "diffPtsVsKeyword": {
+            "clusters": 8,
+            "units": 24,
+            "meanDiff": 20.83,
+            "ci95": [
+              0,
+              50
+            ]
+          }
+        },
+        "answer": {
+          "perRun": [
+            4,
+            4,
+            4
+          ],
+          "meanPct": 50,
+          "majorityHits": 4,
+          "majorityPct": 50,
+          "majorityWilson95": [
+            21.5,
+            78.5
+          ],
+          "majorityWins": 2,
+          "majorityLosses": 0,
+          "signTestP": 0.5,
+          "diffPtsVsKeyword": {
+            "clusters": 8,
+            "units": 24,
+            "meanDiff": 25,
+            "ci95": [
+              0,
+              62.5
+            ]
+          }
+        },
+        "calls": 15,
+        "failedOrTimedOut": 2,
+        "addedMsP50": 656.6,
+        "addedMsP95": 807.7,
+        "usdPerQueryMeasured": 0.00108
+      }
+    }
+  },
+  "pooledSignTestHolm": {
+    "pageFirst": {
+      "jev": 0.0156,
+      "gemini": 0.0156
+    },
+    "sectionFirst": {
+      "jev": 0.000061,
+      "gemini": 0.000061
+    },
+    "sectionFirstStrict": {
+      "jev": 0.0000306,
+      "gemini": 0.0000306
+    },
+    "answer": {
+      "jev": 0.000244,
+      "gemini": 0.000244
+    }
+  },
+  "perItem": [
+    {
+      "id": "dh-en-01",
+      "lang": "en",
+      "docsLocale": "en",
+      "agentQuery": "automation that fires every time deal",
+      "gold": [
+        "app-routines#what-are-the-limits"
+      ],
+      "alternatives": [
+        "app-routines#how-do-event-triggers-work"
+      ],
+      "keyword": {
+        "first": "app-routines#how-do-i-create-a-routine",
+        "pageFirst": true,
+        "sectionFirst": false,
+        "answer": "no"
+      },
+      "jev": [
+        {
+          "first": "app-routines#what-are-the-limits",
+          "pageFirst": true,
+          "sectionFirst": true,
+          "answer": "yes"
+        },
+        {
+          "first": "app-routines#what-are-the-limits",
+          "pageFirst": true,
+          "sectionFirst": true,
+          "answer": "yes"
+        },
+        {
+          "first": "app-routines#what-are-the-limits",
+          "pageFirst": true,
+          "sectionFirst": true,
+          "answer": "yes"
+        }
+      ],
+      "gemini": [
+        {
+          "first": "app-routines#what-is-a-routine-made-of",
+          "pageFirst": true,
+          "sectionFirst": false,
+          "answer": "partial"
+        },
+        {
+          "first": "app-routines#what-is-a-routine-made-of",
+          "pageFirst": true,
+          "sectionFirst": false,
+          "answer": "partial"
+        },
+        {
+          "first": "app-routines#what-is-a-routine-made-of",
+          "pageFirst": true,
+          "sectionFirst": false,
+          "answer": "partial"
+        }
+      ]
+    },
+    {
+      "id": "dh-en-02",
+      "lang": "en",
+      "docsLocale": "en",
+      "agentQuery": "deactivated people left still paying their",
+      "gold": [
+        "app-company#how-are-seats-counted-and-billed"
+      ],
+      "alternatives": [],
+      "keyword": {
+        "first": "app-company#subscription-tab",
+        "pageFirst": true,
+        "sectionFirst": false,
+        "answer": "yes"
+      },
+      "jev": [
+        {
+          "first": "app-company#how-are-seats-counted-and-billed",
+          "pageFirst": true,
+          "sectionFirst": true,
+          "answer": "yes"
+        },
+        {
+          "first": "app-company#how-are-seats-counted-and-billed",
+          "pageFirst": true,
+          "sectionFirst": true,
+          "answer": "yes"
+        },
+        {
+          "first": "app-company#how-are-seats-counted-and-billed",
+          "pageFirst": true,
+          "sectionFirst": true,
+          "answer": "yes"
+        }
+      ],
+      "gemini": [
+        {
+          "first": "app-company#how-are-seats-counted-and-billed",
+          "pageFirst": true,
+          "sectionFirst": true,
+          "answer": "yes"
+        },
+        {
+          "first": "app-company#how-are-seats-counted-and-billed",
+          "pageFirst": true,
+          "sectionFirst": true,
+          "answer": "yes"
+        },
+        {
+          "first": "app-company#how-are-seats-counted-and-billed",
+          "pageFirst": true,
+          "sectionFirst": true,
+          "answer": "yes"
+        }
+      ]
+    },
+    {
+      "id": "dh-en-03",
+      "lang": "en",
+      "docsLocale": "en",
+      "agentQuery": "somebody wiped contact yesterday where find",
+      "gold": [
+        "app-company#audit-logs-tab"
+      ],
+      "alternatives": [
+        "architecture-security#what-does-the-audit-log-record",
+        "architecture-security#who-can-read-the-audit-log-and-where"
+      ],
+      "keyword": {
+        "first": "app-search#what-does-global-search-find",
+        "pageFirst": false,
+        "sectionFirst": false,
+        "answer": "no"
+      },
+      "jev": [
+        {
+          "first": "app-company#what-happens-when-the-trial-ends-or-a-payment-fails",
+          "pageFirst": true,
+          "sectionFirst": false,
+          "answer": "no"
+        },
+        {
+          "first": "app-company#what-is-the-admin-role",
+          "pageFirst": true,
+          "sectionFirst": false,
+          "answer": "no"
+        },
+        {
+          "first": "app-company#what-happens-when-the-trial-ends-or-a-payment-fails",
+          "pageFirst": true,
+          "sectionFirst": false,
+          "answer": "no"
+        }
+      ],
+      "gemini": [
+        {
+          "first": "app-company#what-happens-when-the-trial-ends-or-a-payment-fails",
+          "pageFirst": true,
+          "sectionFirst": false,
+          "answer": "no"
+        },
+        {
+          "first": "app-company#what-happens-when-the-trial-ends-or-a-payment-fails",
+          "pageFirst": true,
+          "sectionFirst": false,
+          "answer": "no"
+        },
+        {
+          "first": "app-company#what-happens-when-the-trial-ends-or-a-payment-fails",
+          "pageFirst": true,
+          "sectionFirst": false,
+          "answer": "no"
+        }
+      ]
+    },
+    {
+      "id": "dh-en-04",
+      "lang": "en",
+      "docsLocale": "en",
+      "agentQuery": "there maximum number mailboxes linkedin accounts",
+      "gold": [
+        "app-profile#how-many-channels-can-i-connect"
+      ],
+      "alternatives": [
+        "app-company#what-happens-to-connected-accounts-when-the-plan-changes"
+      ],
+      "keyword": {
+        "first": "app-profile#private-or-shared",
+        "pageFirst": true,
+        "sectionFirst": false,
+        "answer": "no"
+      },
+      "jev": [
+        {
+          "first": "app-profile#how-many-channels-can-i-connect",
+          "pageFirst": true,
+          "sectionFirst": true,
+          "answer": "yes"
+        },
+        {
+          "first": "app-profile#how-many-channels-can-i-connect",
+          "pageFirst": true,
+          "sectionFirst": true,
+          "answer": "yes"
+        },
+        {
+          "first": "app-profile#how-many-channels-can-i-connect",
+          "pageFirst": true,
+          "sectionFirst": true,
+          "answer": "yes"
+        }
+      ],
+      "gemini": [
+        {
+          "first": "app-profile#how-many-channels-can-i-connect",
+          "pageFirst": true,
+          "sectionFirst": true,
+          "answer": "yes"
+        },
+        {
+          "first": "app-profile#how-many-channels-can-i-connect",
+          "pageFirst": true,
+          "sectionFirst": true,
+          "answer": "yes"
+        },
+        {
+          "first": "app-profile#how-many-channels-can-i-connect",
+          "pageFirst": true,
+          "sectionFirst": true,
+          "answer": "yes"
+        }
+      ]
+    },
+    {
+      "id": "dh-en-05",
+      "lang": "en",
+      "docsLocale": "en",
+      "agentQuery": "have customer mobile number store person",
+      "gold": [
+        "app-records#what-is-special-about-each-record-type"
+      ],
+      "alternatives": [
+        "concepts#which-five-record-types-exist"
+      ],
+      "keyword": {
+        "first": "app-search#what-does-global-search-find",
+        "pageFirst": false,
+        "sectionFirst": false,
+        "answer": "partial"
+      },
+      "jev": [
+        {
+          "first": "app-records#what-is-special-about-each-record-type",
+          "pageFirst": true,
+          "sectionFirst": true,
+          "answer": "yes"
+        },
+        {
+          "first": "app-records#what-is-special-about-each-record-type",
+          "pageFirst": true,
+          "sectionFirst": true,
+          "answer": "yes"
+        },
+        {
+          "first": "app-records#what-is-special-about-each-record-type",
+          "pageFirst": true,
+          "sectionFirst": true,
+          "answer": "yes"
+        }
+      ],
+      "gemini": [
+        {
+          "first": "app-records#what-is-special-about-each-record-type",
+          "pageFirst": true,
+          "sectionFirst": true,
+          "answer": "yes"
+        },
+        {
+          "first": "app-records#what-is-special-about-each-record-type",
+          "pageFirst": true,
+          "sectionFirst": true,
+          "answer": "yes"
+        },
+        {
+          "first": "app-records#what-is-special-about-each-record-type",
+          "pageFirst": true,
+          "sectionFirst": true,
+          "answer": "yes"
+        }
+      ]
+    },
+    {
+      "id": "dh-en-06",
+      "lang": "en",
+      "docsLocale": "en",
+      "agentQuery": "webhook consumer received updated event before",
+      "gold": [
+        "webhooks#are-deliveries-ordered"
+      ],
+      "alternatives": [],
+      "keyword": {
+        "first": "webhooks#how-do-i-create-a-webhook",
+        "pageFirst": true,
+        "sectionFirst": false,
+        "answer": "no"
+      },
+      "jev": [
+        {
+          "first": "webhooks#are-deliveries-ordered",
+          "pageFirst": true,
+          "sectionFirst": true,
+          "answer": "yes"
+        },
+        {
+          "first": "webhooks#are-deliveries-ordered",
+          "pageFirst": true,
+          "sectionFirst": true,
+          "answer": "yes"
+        },
+        {
+          "first": "webhooks#are-deliveries-ordered",
+          "pageFirst": true,
+          "sectionFirst": true,
+          "answer": "yes"
+        }
+      ],
+      "gemini": [
+        {
+          "first": "webhooks#are-deliveries-ordered",
+          "pageFirst": true,
+          "sectionFirst": true,
+          "answer": "yes"
+        },
+        {
+          "first": "webhooks#are-deliveries-ordered",
+          "pageFirst": true,
+          "sectionFirst": true,
+          "answer": "yes"
+        },
+        {
+          "first": "webhooks#are-deliveries-ordered",
+          "pageFirst": true,
+          "sectionFirst": true,
+          "answer": "yes"
+        }
+      ]
+    },
+    {
+      "id": "dh-en-07",
+      "lang": "en",
+      "docsLocale": "en",
+      "agentQuery": "server what lose compared hosted version",
+      "gold": [
+        "self-hosting#which-features-are-not-available-when-self-hosting"
+      ],
+      "alternatives": [
+        "self-hosting#should-i-self-host-or-use-the-cloud"
+      ],
+      "keyword": {
+        "first": "app-inbox#who-can-use-the-inbox",
+        "pageFirst": false,
+        "sectionFirst": false,
+        "answer": "partial"
+      },
+      "jev": [
+        {
+          "first": "self-hosting#which-features-are-not-available-when-self-hosting",
+          "pageFirst": true,
+          "sectionFirst": true,
+          "answer": "yes"
+        },
+        {
+          "first": "self-hosting#which-features-are-not-available-when-self-hosting",
+          "pageFirst": true,
+          "sectionFirst": true,
+          "answer": "yes"
+        },
+        {
+          "first": "self-hosting#which-features-are-not-available-when-self-hosting",
+          "pageFirst": true,
+          "sectionFirst": true,
+          "answer": "yes"
+        }
+      ],
+      "gemini": [
+        {
+          "first": "self-hosting#which-features-are-not-available-when-self-hosting",
+          "pageFirst": true,
+          "sectionFirst": true,
+          "answer": "yes"
+        },
+        {
+          "first": "self-hosting#which-features-are-not-available-when-self-hosting",
+          "pageFirst": true,
+          "sectionFirst": true,
+          "answer": "yes"
+        },
+        {
+          "first": "app-inbox#who-can-use-the-inbox",
+          "pageFirst": false,
+          "sectionFirst": false,
+          "answer": "partial"
+        }
+      ]
+    },
+    {
+      "id": "dh-en-08",
+      "lang": "en",
+      "docsLocale": "en",
+      "agentQuery": "does search look inside people email",
+      "gold": [
+        "app-search#what-does-global-search-find"
+      ],
+      "alternatives": [],
+      "keyword": {
+        "first": "app-inbox#which-ids-does-the-inbox-have",
+        "pageFirst": false,
+        "sectionFirst": false,
+        "answer": "no"
+      },
+      "jev": [
+        {
+          "first": "app-search#what-does-global-search-find",
+          "pageFirst": true,
+          "sectionFirst": true,
+          "answer": "yes"
+        },
+        {
+          "first": "app-search#what-does-global-search-find",
+          "pageFirst": true,
+          "sectionFirst": true,
+          "answer": "yes"
+        },
+        {
+          "first": "app-search#what-does-global-search-find",
+          "pageFirst": true,
+          "sectionFirst": true,
+          "answer": "yes"
+        }
+      ],
+      "gemini": [
+        {
+          "first": "app-search#what-does-global-search-find",
+          "pageFirst": true,
+          "sectionFirst": true,
+          "answer": "yes"
+        },
+        {
+          "first": "app-search#what-does-global-search-find",
+          "pageFirst": true,
+          "sectionFirst": true,
+          "answer": "yes"
+        },
+        {
+          "first": "app-search#what-does-global-search-find",
+          "pageFirst": true,
+          "sectionFirst": true,
+          "answer": "yes"
+        }
+      ]
+    },
+    {
+      "id": "dh-de-01",
+      "lang": "de",
+      "docsLocale": "de",
+      "agentQuery": "kann eine automatisierung loslaufen sobald jemand",
+      "gold": [
+        "app-routines#how-do-event-triggers-work"
+      ],
+      "alternatives": [
+        "app-routines#how-do-i-create-a-routine"
+      ],
+      "keyword": {
+        "first": "app-routines#how-do-i-create-a-routine",
+        "pageFirst": true,
+        "sectionFirst": true,
+        "answer": "partial"
+      },
+      "jev": [
+        {
+          "first": "app-routines#how-do-event-triggers-work",
+          "pageFirst": true,
+          "sectionFirst": true,
+          "answer": "yes"
+        },
+        {
+          "first": "app-routines#how-do-event-triggers-work",
+          "pageFirst": true,
+          "sectionFirst": true,
+          "answer": "yes"
+        },
+        {
+          "first": "app-routines#how-do-event-triggers-work",
+          "pageFirst": true,
+          "sectionFirst": true,
+          "answer": "yes"
+        }
+      ],
+      "gemini": [
+        {
+          "first": "app-routines#how-do-event-triggers-work",
+          "pageFirst": true,
+          "sectionFirst": true,
+          "answer": "yes"
+        },
+        {
+          "first": "app-routines#how-do-event-triggers-work",
+          "pageFirst": true,
+          "sectionFirst": true,
+          "answer": "yes"
+        },
+        {
+          "first": "app-routines#how-do-event-triggers-work",
+          "pageFirst": true,
+          "sectionFirst": true,
+          "answer": "yes"
+        }
+      ]
+    },
+    {
+      "id": "dh-de-02",
+      "lang": "de",
+      "docsLocale": "de",
+      "agentQuery": "darf rechte admin rolle einschränken",
+      "gold": [
+        "app-company#what-is-the-admin-role"
+      ],
+      "alternatives": [
+        "app-company#how-does-the-role-editor-work"
+      ],
+      "keyword": {
+        "first": "app-company#how-does-the-role-editor-work",
+        "pageFirst": true,
+        "sectionFirst": true,
+        "answer": "no"
+      },
+      "jev": [
+        {
+          "first": "app-company#what-is-the-admin-role",
+          "pageFirst": true,
+          "sectionFirst": true,
+          "answer": "partial"
+        },
+        {
+          "first": "app-company#what-is-the-admin-role",
+          "pageFirst": true,
+          "sectionFirst": true,
+          "answer": "partial"
+        },
+        {
+          "first": "app-company#what-is-the-admin-role",
+          "pageFirst": true,
+          "sectionFirst": true,
+          "answer": "partial"
+        }
+      ],
+      "gemini": [
+        {
+          "first": "app-company#what-is-the-admin-role",
+          "pageFirst": true,
+          "sectionFirst": true,
+          "answer": "partial"
+        },
+        {
+          "first": "app-company#what-is-the-admin-role",
+          "pageFirst": true,
+          "sectionFirst": true,
+          "answer": "partial"
+        },
+        {
+          "first": "app-company#what-is-the-admin-role",
+          "pageFirst": true,
+          "sectionFirst": true,
+          "answer": "partial"
+        }
+      ]
+    },
+    {
+      "id": "dh-de-03",
+      "lang": "de",
+      "docsLocale": "de",
+      "agentQuery": "wechseln starter passiert dann unseren verbundenen",
+      "gold": [
+        "app-company#what-happens-to-connected-accounts-when-the-plan-changes"
+      ],
+      "alternatives": [
+        "app-profile#how-many-channels-can-i-connect"
+      ],
+      "keyword": {
+        "first": "app-company#what-happens-to-connected-accounts-when-the-plan-changes",
+        "pageFirst": true,
+        "sectionFirst": true,
+        "answer": "yes"
+      },
+      "jev": [
+        {
+          "first": "app-company#what-happens-to-connected-accounts-when-the-plan-changes",
+          "pageFirst": true,
+          "sectionFirst": true,
+          "answer": "yes"
+        },
+        {
+          "first": "app-company#what-happens-to-connected-accounts-when-the-plan-changes",
+          "pageFirst": true,
+          "sectionFirst": true,
+          "answer": "yes"
+        },
+        {
+          "first": "app-company#what-happens-to-connected-accounts-when-the-plan-changes",
+          "pageFirst": true,
+          "sectionFirst": true,
+          "answer": "yes"
+        }
+      ],
+      "gemini": [
+        {
+          "first": "app-company#what-happens-to-connected-accounts-when-the-plan-changes",
+          "pageFirst": true,
+          "sectionFirst": true,
+          "answer": "yes"
+        },
+        {
+          "first": "app-company#what-happens-to-connected-accounts-when-the-plan-changes",
+          "pageFirst": true,
+          "sectionFirst": true,
+          "answer": "yes"
+        },
+        {
+          "first": "app-company#what-happens-to-connected-accounts-when-the-plan-changes",
+          "pageFirst": true,
+          "sectionFirst": true,
+          "answer": "yes"
+        }
+      ]
+    },
+    {
+      "id": "dh-de-04",
+      "lang": "de",
+      "docsLocale": "de",
+      "agentQuery": "ändere mein passwort",
+      "gold": [
+        "app-profile#what-can-i-not-change-here"
+      ],
+      "alternatives": [],
+      "keyword": {
+        "first": "app-profile#what-can-i-not-change-here",
+        "pageFirst": true,
+        "sectionFirst": true,
+        "answer": "yes"
+      },
+      "jev": [
+        {
+          "first": "app-profile#what-can-i-not-change-here",
+          "pageFirst": true,
+          "sectionFirst": true,
+          "answer": "yes"
+        },
+        {
+          "first": "app-profile#what-can-i-not-change-here",
+          "pageFirst": true,
+          "sectionFirst": true,
+          "answer": "yes"
+        },
+        {
+          "first": "app-profile#what-can-i-not-change-here",
+          "pageFirst": true,
+          "sectionFirst": true,
+          "answer": "yes"
+        }
+      ],
+      "gemini": [
+        {
+          "first": "app-profile#what-can-i-not-change-here",
+          "pageFirst": true,
+          "sectionFirst": true,
+          "answer": "yes"
+        },
+        {
+          "first": "app-profile#what-can-i-not-change-here",
+          "pageFirst": true,
+          "sectionFirst": true,
+          "answer": "yes"
+        },
+        {
+          "first": "app-profile#what-can-i-not-change-here",
+          "pageFirst": true,
+          "sectionFirst": true,
+          "answer": "yes"
+        }
+      ]
+    },
+    {
+      "id": "dh-de-05",
+      "lang": "de",
+      "docsLocale": "de",
+      "agentQuery": "kann eine kundenliste excel hochladen",
+      "gold": [
+        "app-records#how-do-i-import-or-export-records"
+      ],
+      "alternatives": [],
+      "keyword": {
+        "first": "app-records#how-do-i-import-or-export-records",
+        "pageFirst": true,
+        "sectionFirst": true,
+        "answer": "yes"
+      },
+      "jev": [
+        {
+          "first": "app-records#how-do-i-import-or-export-records",
+          "pageFirst": true,
+          "sectionFirst": true,
+          "answer": "yes"
+        },
+        {
+          "first": "app-records#how-do-i-import-or-export-records",
+          "pageFirst": true,
+          "sectionFirst": true,
+          "answer": "yes"
+        },
+        {
+          "first": "app-records#how-do-i-import-or-export-records",
+          "pageFirst": true,
+          "sectionFirst": true,
+          "answer": "yes"
+        }
+      ],
+      "gemini": [
+        {
+          "first": "app-records#how-do-i-import-or-export-records",
+          "pageFirst": true,
+          "sectionFirst": true,
+          "answer": "yes"
+        },
+        {
+          "first": "app-records#how-do-i-import-or-export-records",
+          "pageFirst": true,
+          "sectionFirst": true,
+          "answer": "yes"
+        },
+        {
+          "first": "app-records#how-do-i-import-or-export-records",
+          "pageFirst": true,
+          "sectionFirst": true,
+          "answer": "yes"
+        }
+      ]
+    },
+    {
+      "id": "dh-de-06",
+      "lang": "de",
+      "docsLocale": "de",
+      "agentQuery": "kann notizen fett schreiben oder aufzählungen",
+      "gold": [
+        "concepts#what-are-notes"
+      ],
+      "alternatives": [],
+      "keyword": {
+        "first": "concepts#what-are-notes",
+        "pageFirst": true,
+        "sectionFirst": true,
+        "answer": "yes"
+      },
+      "jev": [
+        {
+          "first": "concepts#what-are-notes",
+          "pageFirst": true,
+          "sectionFirst": true,
+          "answer": "yes"
+        },
+        {
+          "first": "concepts#what-are-notes",
+          "pageFirst": true,
+          "sectionFirst": true,
+          "answer": "yes"
+        },
+        {
+          "first": "concepts#what-are-notes",
+          "pageFirst": true,
+          "sectionFirst": true,
+          "answer": "yes"
+        }
+      ],
+      "gemini": [
+        {
+          "first": "concepts#what-are-notes",
+          "pageFirst": true,
+          "sectionFirst": true,
+          "answer": "yes"
+        },
+        {
+          "first": "concepts#what-are-notes",
+          "pageFirst": true,
+          "sectionFirst": true,
+          "answer": "yes"
+        },
+        {
+          "first": "concepts#what-are-notes",
+          "pageFirst": true,
+          "sectionFirst": true,
+          "answer": "yes"
+        }
+      ]
+    },
+    {
+      "id": "dh-de-07",
+      "lang": "de",
+      "docsLocale": "de",
+      "agentQuery": "finde filter firmen entweder berlin oder",
+      "gold": [
+        "filter-syntax#what-does-a-filter-rule-look-like"
+      ],
+      "alternatives": [
+        "filter-syntax#which-operators-exist",
+        "filter-syntax#which-operators-work-on-custom-columns"
+      ],
+      "keyword": {
+        "first": "filter-syntax#which-relationship-operators-exist",
+        "pageFirst": true,
+        "sectionFirst": false,
+        "answer": "no"
+      },
+      "jev": [
+        {
+          "first": "filter-syntax#what-does-a-filter-rule-look-like",
+          "pageFirst": true,
+          "sectionFirst": true,
+          "answer": "yes"
+        },
+        {
+          "first": "filter-syntax#what-does-a-filter-rule-look-like",
+          "pageFirst": true,
+          "sectionFirst": true,
+          "answer": "yes"
+        },
+        {
+          "first": "filter-syntax#what-does-a-filter-rule-look-like",
+          "pageFirst": true,
+          "sectionFirst": true,
+          "answer": "yes"
+        }
+      ],
+      "gemini": [
+        {
+          "first": "filter-syntax#what-does-a-filter-rule-look-like",
+          "pageFirst": true,
+          "sectionFirst": true,
+          "answer": "yes"
+        },
+        {
+          "first": "filter-syntax#what-does-a-filter-rule-look-like",
+          "pageFirst": true,
+          "sectionFirst": true,
+          "answer": "yes"
+        },
+        {
+          "first": "filter-syntax#what-does-a-filter-rule-look-like",
+          "pageFirst": true,
+          "sectionFirst": true,
+          "answer": "yes"
+        }
+      ]
+    },
+    {
+      "id": "dh-de-08",
+      "lang": "de",
+      "docsLocale": "de",
+      "agentQuery": "sichere datenbank meiner eigenen installation spiele",
+      "gold": [
+        "self-hosting#backups"
+      ],
+      "alternatives": [],
+      "keyword": {
+        "first": "self-hosting#backups",
+        "pageFirst": true,
+        "sectionFirst": true,
+        "answer": "yes"
+      },
+      "jev": [
+        {
+          "first": "self-hosting#backups",
+          "pageFirst": true,
+          "sectionFirst": true,
+          "answer": "yes"
+        },
+        {
+          "first": "self-hosting#backups",
+          "pageFirst": true,
+          "sectionFirst": true,
+          "answer": "yes"
+        },
+        {
+          "first": "self-hosting#backups",
+          "pageFirst": true,
+          "sectionFirst": true,
+          "answer": "yes"
+        }
+      ],
+      "gemini": [
+        {
+          "first": "self-hosting#backups",
+          "pageFirst": true,
+          "sectionFirst": true,
+          "answer": "yes"
+        },
+        {
+          "first": "self-hosting#backups",
+          "pageFirst": true,
+          "sectionFirst": true,
+          "answer": "yes"
+        },
+        {
+          "first": "self-hosting#backups",
+          "pageFirst": true,
+          "sectionFirst": true,
+          "answer": "yes"
+        }
+      ]
+    },
+    {
+      "id": "dh-es-01",
+      "lang": "es",
+      "docsLocale": "en",
+      "agentQuery": "puedo programar rutina para ejecute todos",
+      "gold": [
+        "app-routines#how-do-schedules-work"
+      ],
+      "alternatives": [],
+      "keyword": {
+        "first": "app-records#how-do-i-change-a-deal-stage-or-a-task-status-on-the-board",
+        "pageFirst": false,
+        "sectionFirst": false,
+        "answer": "no"
+      },
+      "jev": [
+        {
+          "first": "n8n#how-do-i-run-scheduled-jobs",
+          "pageFirst": false,
+          "sectionFirst": false,
+          "answer": "partial"
+        },
+        {
+          "first": "n8n#how-do-i-run-scheduled-jobs",
+          "pageFirst": false,
+          "sectionFirst": false,
+          "answer": "partial"
+        },
+        {
+          "first": "n8n#how-do-i-run-scheduled-jobs",
+          "pageFirst": false,
+          "sectionFirst": false,
+          "answer": "partial"
+        }
+      ],
+      "gemini": [
+        {
+          "first": "n8n#how-do-i-run-scheduled-jobs",
+          "pageFirst": false,
+          "sectionFirst": false,
+          "answer": "partial"
+        },
+        {
+          "first": "n8n#how-do-i-run-scheduled-jobs",
+          "pageFirst": false,
+          "sectionFirst": false,
+          "answer": "partial"
+        },
+        {
+          "first": "n8n#how-do-i-run-scheduled-jobs",
+          "pageFirst": false,
+          "sectionFirst": false,
+          "answer": "partial"
+        }
+      ]
+    },
+    {
+      "id": "dh-es-02",
+      "lang": "es",
+      "docsLocale": "en",
+      "agentQuery": "puede cambiar nombre deals oportunidades espacio",
+      "gold": [
+        "app-company#how-do-i-rename-record-types-in-the-data-model"
+      ],
+      "alternatives": [],
+      "keyword": {
+        "first": "app-company#how-do-i-rename-record-types-in-the-data-model",
+        "pageFirst": true,
+        "sectionFirst": true,
+        "answer": "yes"
+      },
+      "jev": [
+        {
+          "first": "app-company#how-do-i-rename-record-types-in-the-data-model",
+          "pageFirst": true,
+          "sectionFirst": true,
+          "answer": "yes"
+        },
+        {
+          "first": "app-company#how-do-i-rename-record-types-in-the-data-model",
+          "pageFirst": true,
+          "sectionFirst": true,
+          "answer": "yes"
+        },
+        {
+          "first": "app-company#how-do-i-rename-record-types-in-the-data-model",
+          "pageFirst": true,
+          "sectionFirst": true,
+          "answer": "yes"
+        }
+      ],
+      "gemini": [
+        {
+          "first": "app-company#how-do-i-rename-record-types-in-the-data-model",
+          "pageFirst": true,
+          "sectionFirst": true,
+          "answer": "yes"
+        },
+        {
+          "first": "app-company#how-do-i-rename-record-types-in-the-data-model",
+          "pageFirst": true,
+          "sectionFirst": true,
+          "answer": "yes"
+        },
+        {
+          "first": "app-company#how-do-i-rename-record-types-in-the-data-model",
+          "pageFirst": true,
+          "sectionFirst": true,
+          "answer": "yes"
+        }
+      ]
+    },
+    {
+      "id": "dh-es-03",
+      "lang": "es",
+      "docsLocale": "en",
+      "agentQuery": "administrador puede leer conversaciones privadas",
+      "gold": [
+        "app-inbox#which-conversations-do-i-see"
+      ],
+      "alternatives": [
+        "app-profile#private-or-shared"
+      ],
+      "keyword": {
+        "first": null,
+        "pageFirst": false,
+        "sectionFirst": false,
+        "answer": "no"
+      },
+      "jev": [
+        {
+          "first": null,
+          "pageFirst": false,
+          "sectionFirst": false,
+          "answer": "no"
+        },
+        {
+          "first": null,
+          "pageFirst": false,
+          "sectionFirst": false,
+          "answer": "no"
+        },
+        {
+          "first": null,
+          "pageFirst": false,
+          "sectionFirst": false,
+          "answer": "no"
+        }
+      ],
+      "gemini": [
+        {
+          "first": null,
+          "pageFirst": false,
+          "sectionFirst": false,
+          "answer": "no"
+        },
+        {
+          "first": null,
+          "pageFirst": false,
+          "sectionFirst": false,
+          "answer": "no"
+        },
+        {
+          "first": null,
+          "pageFirst": false,
+          "sectionFirst": false,
+          "answer": "no"
+        }
+      ]
+    },
+    {
+      "id": "dh-es-04",
+      "lang": "es",
+      "docsLocale": "en",
+      "agentQuery": "cómo oculto carpeta spam bandeja entrada",
+      "gold": [
+        "app-profile#what-does-the-folders-tab-control"
+      ],
+      "alternatives": [
+        "app-inbox#which-conversations-do-i-see"
+      ],
+      "keyword": {
+        "first": "app-profile#what-does-the-folders-tab-control",
+        "pageFirst": true,
+        "sectionFirst": true,
+        "answer": "yes"
+      },
+      "jev": [
+        {
+          "first": "app-profile#what-does-the-folders-tab-control",
+          "pageFirst": true,
+          "sectionFirst": true,
+          "answer": "yes"
+        },
+        {
+          "first": "app-profile#what-does-the-folders-tab-control",
+          "pageFirst": true,
+          "sectionFirst": true,
+          "answer": "yes"
+        },
+        {
+          "first": "app-profile#what-does-the-folders-tab-control",
+          "pageFirst": true,
+          "sectionFirst": true,
+          "answer": "yes"
+        }
+      ],
+      "gemini": [
+        {
+          "first": "app-profile#what-does-the-folders-tab-control",
+          "pageFirst": true,
+          "sectionFirst": true,
+          "answer": "yes"
+        },
+        {
+          "first": "app-profile#what-does-the-folders-tab-control",
+          "pageFirst": true,
+          "sectionFirst": true,
+          "answer": "yes"
+        },
+        {
+          "first": "app-profile#what-does-the-folders-tab-control",
+          "pageFirst": true,
+          "sectionFirst": true,
+          "answer": "yes"
+        }
+      ]
+    },
+    {
+      "id": "dh-es-05",
+      "lang": "es",
+      "docsLocale": "en",
+      "agentQuery": "cómo calcula importe total oportunidad",
+      "gold": [
+        "concepts#how-is-a-deals-total-value-calculated"
+      ],
+      "alternatives": [
+        "app-records#what-is-special-about-each-record-type"
+      ],
+      "keyword": {
+        "first": "concepts#how-is-a-deals-total-value-calculated",
+        "pageFirst": true,
+        "sectionFirst": true,
+        "answer": "yes"
+      },
+      "jev": [
+        {
+          "first": "concepts#how-is-a-deals-total-value-calculated",
+          "pageFirst": true,
+          "sectionFirst": true,
+          "answer": "yes"
+        },
+        {
+          "first": "concepts#how-is-a-deals-total-value-calculated",
+          "pageFirst": true,
+          "sectionFirst": true,
+          "answer": "yes"
+        },
+        {
+          "first": "concepts#how-is-a-deals-total-value-calculated",
+          "pageFirst": true,
+          "sectionFirst": true,
+          "answer": "yes"
+        }
+      ],
+      "gemini": [
+        {
+          "first": "concepts#how-is-a-deals-total-value-calculated",
+          "pageFirst": true,
+          "sectionFirst": true,
+          "answer": "yes"
+        },
+        {
+          "first": "concepts#how-is-a-deals-total-value-calculated",
+          "pageFirst": true,
+          "sectionFirst": true,
+          "answer": "yes"
+        },
+        {
+          "first": "concepts#how-is-a-deals-total-value-calculated",
+          "pageFirst": true,
+          "sectionFirst": true,
+          "answer": "yes"
+        }
+      ]
+    },
+    {
+      "id": "dh-es-06",
+      "lang": "es",
+      "docsLocale": "en",
+      "agentQuery": "servidor estuvo caído hora customermates vuelve",
+      "gold": [
+        "webhooks#how-do-retries-and-failed-deliveries-work"
+      ],
+      "alternatives": [
+        "app-company#deliveries-tab"
+      ],
+      "keyword": {
+        "first": null,
+        "pageFirst": false,
+        "sectionFirst": false,
+        "answer": "no"
+      },
+      "jev": [
+        {
+          "first": null,
+          "pageFirst": false,
+          "sectionFirst": false,
+          "answer": "no"
+        },
+        {
+          "first": null,
+          "pageFirst": false,
+          "sectionFirst": false,
+          "answer": "no"
+        },
+        {
+          "first": null,
+          "pageFirst": false,
+          "sectionFirst": false,
+          "answer": "no"
+        }
+      ],
+      "gemini": [
+        {
+          "first": null,
+          "pageFirst": false,
+          "sectionFirst": false,
+          "answer": "no"
+        },
+        {
+          "first": null,
+          "pageFirst": false,
+          "sectionFirst": false,
+          "answer": "no"
+        },
+        {
+          "first": null,
+          "pageFirst": false,
+          "sectionFirst": false,
+          "answer": "no"
+        }
+      ]
+    },
+    {
+      "id": "dh-es-07",
+      "lang": "es",
+      "docsLocale": "en",
+      "agentQuery": "tienen inicio sesión único saml para",
+      "gold": [
+        "architecture-security#does-customermates-support-sso-or-saml"
+      ],
+      "alternatives": [
+        "self-hosting#which-features-are-not-available-when-self-hosting"
+      ],
+      "keyword": {
+        "first": "architecture-security#does-customermates-support-sso-or-saml",
+        "pageFirst": true,
+        "sectionFirst": true,
+        "answer": "yes"
+      },
+      "jev": [
+        {
+          "first": "architecture-security#does-customermates-support-sso-or-saml",
+          "pageFirst": true,
+          "sectionFirst": true,
+          "answer": "yes"
+        },
+        {
+          "first": "architecture-security#does-customermates-support-sso-or-saml",
+          "pageFirst": true,
+          "sectionFirst": true,
+          "answer": "yes"
+        },
+        {
+          "first": "architecture-security#does-customermates-support-sso-or-saml",
+          "pageFirst": true,
+          "sectionFirst": true,
+          "answer": "yes"
+        }
+      ],
+      "gemini": [
+        {
+          "first": "architecture-security#does-customermates-support-sso-or-saml",
+          "pageFirst": true,
+          "sectionFirst": true,
+          "answer": "yes"
+        },
+        {
+          "first": "architecture-security#does-customermates-support-sso-or-saml",
+          "pageFirst": true,
+          "sectionFirst": true,
+          "answer": "yes"
+        },
+        {
+          "first": "architecture-security#does-customermates-support-sso-or-saml",
+          "pageFirst": true,
+          "sectionFirst": true,
+          "answer": "yes"
+        }
+      ]
+    },
+    {
+      "id": "dh-es-08",
+      "lang": "es",
+      "docsLocale": "en",
+      "agentQuery": "cuánto tiempo sigue conectado claude antes",
+      "gold": [
+        "connect-custom-connector#it-syncs-and-stays-connected"
+      ],
+      "alternatives": [],
+      "keyword": {
+        "first": "connect-cli#claude-desktop-config-file",
+        "pageFirst": false,
+        "sectionFirst": false,
+        "answer": "no"
+      },
+      "jev": [
+        {
+          "first": "connect-custom-connector#it-syncs-and-stays-connected",
+          "pageFirst": true,
+          "sectionFirst": true,
+          "answer": "yes"
+        },
+        {
+          "first": "connect-custom-connector#it-syncs-and-stays-connected",
+          "pageFirst": true,
+          "sectionFirst": true,
+          "answer": "yes"
+        },
+        {
+          "first": "connect-custom-connector#it-syncs-and-stays-connected",
+          "pageFirst": true,
+          "sectionFirst": true,
+          "answer": "yes"
+        }
+      ],
+      "gemini": [
+        {
+          "first": "connect-custom-connector#it-syncs-and-stays-connected",
+          "pageFirst": true,
+          "sectionFirst": true,
+          "answer": "yes"
+        },
+        {
+          "first": "connect-custom-connector#it-syncs-and-stays-connected",
+          "pageFirst": true,
+          "sectionFirst": true,
+          "answer": "yes"
+        },
+        {
+          "first": "connect-cli#claude-desktop-config-file",
+          "pageFirst": false,
+          "sectionFirst": false,
+          "answer": "no"
+        }
+      ]
+    },
+    {
+      "id": "dh-fr-01",
+      "lang": "fr",
+      "docsLocale": "en",
+      "agentQuery": "signifient différents statuts exécution routine",
+      "gold": [
+        "app-routines#what-do-the-runs-and-their-statuses-mean"
+      ],
+      "alternatives": [],
+      "keyword": {
+        "first": "app-routines#how-do-i-create-a-routine",
+        "pageFirst": true,
+        "sectionFirst": false,
+        "answer": "no"
+      },
+      "jev": [
+        {
+          "first": "app-routines#what-do-the-runs-and-their-statuses-mean",
+          "pageFirst": true,
+          "sectionFirst": true,
+          "answer": "partial"
+        },
+        {
+          "first": "app-routines#what-do-the-runs-and-their-statuses-mean",
+          "pageFirst": true,
+          "sectionFirst": true,
+          "answer": "partial"
+        },
+        {
+          "first": "app-routines#what-do-the-runs-and-their-statuses-mean",
+          "pageFirst": true,
+          "sectionFirst": true,
+          "answer": "partial"
+        }
+      ],
+      "gemini": [
+        {
+          "first": "app-routines#what-do-the-runs-and-their-statuses-mean",
+          "pageFirst": true,
+          "sectionFirst": true,
+          "answer": "partial"
+        },
+        {
+          "first": "app-routines#what-do-the-runs-and-their-statuses-mean",
+          "pageFirst": true,
+          "sectionFirst": true,
+          "answer": "partial"
+        },
+        {
+          "first": "app-routines#what-do-the-runs-and-their-statuses-mean",
+          "pageFirst": true,
+          "sectionFirst": true,
+          "answer": "partial"
+        }
+      ]
+    },
+    {
+      "id": "dh-fr-02",
+      "lang": "fr",
+      "docsLocale": "en",
+      "agentQuery": "pourquoi arrive modifier propre rôle",
+      "gold": [
+        "app-company#what-are-the-rules-for-editing-roles"
+      ],
+      "alternatives": [],
+      "keyword": {
+        "first": "app-company#what-are-the-rules-for-editing-roles",
+        "pageFirst": true,
+        "sectionFirst": true,
+        "answer": "yes"
+      },
+      "jev": [
+        {
+          "first": "app-company#what-are-the-rules-for-editing-roles",
+          "pageFirst": true,
+          "sectionFirst": true,
+          "answer": "yes"
+        },
+        {
+          "first": "app-company#what-are-the-rules-for-editing-roles",
+          "pageFirst": true,
+          "sectionFirst": true,
+          "answer": "yes"
+        },
+        {
+          "first": "app-company#what-are-the-rules-for-editing-roles",
+          "pageFirst": true,
+          "sectionFirst": true,
+          "answer": "yes"
+        }
+      ],
+      "gemini": [
+        {
+          "first": "app-company#what-are-the-rules-for-editing-roles",
+          "pageFirst": true,
+          "sectionFirst": true,
+          "answer": "yes"
+        },
+        {
+          "first": "app-company#what-are-the-rules-for-editing-roles",
+          "pageFirst": true,
+          "sectionFirst": true,
+          "answer": "yes"
+        },
+        {
+          "first": "app-company#what-are-the-rules-for-editing-roles",
+          "pageFirst": true,
+          "sectionFirst": true,
+          "answer": "yes"
+        }
+      ]
+    },
+    {
+      "id": "dh-fr-03",
+      "lang": "fr",
+      "docsLocale": "en",
+      "agentQuery": "boîte réception verrouillée avec offre starter",
+      "gold": [
+        "app-inbox#who-can-use-the-inbox"
+      ],
+      "alternatives": [],
+      "keyword": {
+        "first": "app-company#what-happens-to-connected-accounts-when-the-plan-changes",
+        "pageFirst": false,
+        "sectionFirst": false,
+        "answer": "yes"
+      },
+      "jev": [
+        {
+          "first": "app-inbox#who-can-use-the-inbox",
+          "pageFirst": true,
+          "sectionFirst": true,
+          "answer": "yes"
+        },
+        {
+          "first": "app-inbox#who-can-use-the-inbox",
+          "pageFirst": true,
+          "sectionFirst": true,
+          "answer": "yes"
+        },
+        {
+          "first": "app-inbox#who-can-use-the-inbox",
+          "pageFirst": true,
+          "sectionFirst": true,
+          "answer": "yes"
+        }
+      ],
+      "gemini": [
+        {
+          "first": "app-inbox#who-can-use-the-inbox",
+          "pageFirst": true,
+          "sectionFirst": true,
+          "answer": "yes"
+        },
+        {
+          "first": "app-inbox#who-can-use-the-inbox",
+          "pageFirst": true,
+          "sectionFirst": true,
+          "answer": "yes"
+        },
+        {
+          "first": "app-inbox#who-can-use-the-inbox",
+          "pageFirst": true,
+          "sectionFirst": true,
+          "answer": "yes"
+        }
+      ]
+    },
+    {
+      "id": "dh-fr-04",
+      "lang": "fr",
+      "docsLocale": "en",
+      "agentQuery": "comment rendre boîte mail connectée visible",
+      "gold": [
+        "app-profile#private-or-shared"
+      ],
+      "alternatives": [
+        "app-inbox#how-do-i-share-a-single-conversation"
+      ],
+      "keyword": {
+        "first": "app-profile#private-or-shared",
+        "pageFirst": true,
+        "sectionFirst": true,
+        "answer": "yes"
+      },
+      "jev": [
+        {
+          "first": "app-profile#private-or-shared",
+          "pageFirst": true,
+          "sectionFirst": true,
+          "answer": "yes"
+        },
+        {
+          "first": "app-profile#private-or-shared",
+          "pageFirst": true,
+          "sectionFirst": true,
+          "answer": "yes"
+        },
+        {
+          "first": "app-profile#private-or-shared",
+          "pageFirst": true,
+          "sectionFirst": true,
+          "answer": "yes"
+        }
+      ],
+      "gemini": [
+        {
+          "first": "app-profile#private-or-shared",
+          "pageFirst": true,
+          "sectionFirst": true,
+          "answer": "yes"
+        },
+        {
+          "first": "app-profile#private-or-shared",
+          "pageFirst": true,
+          "sectionFirst": true,
+          "answer": "yes"
+        },
+        {
+          "first": "app-profile#private-or-shared",
+          "pageFirst": true,
+          "sectionFirst": true,
+          "answer": "yes"
+        }
+      ]
+    },
+    {
+      "id": "dh-fr-05",
+      "lang": "fr",
+      "docsLocale": "en",
+      "agentQuery": "comment modifier supprimer plusieurs contacts coup",
+      "gold": [
+        "app-records#how-do-i-bulk-update-or-delete-many-records-at-once"
+      ],
+      "alternatives": [],
+      "keyword": {
+        "first": "app-onboarding#what-does-an-invited-person-see",
+        "pageFirst": false,
+        "sectionFirst": false,
+        "answer": "no"
+      },
+      "jev": [
+        {
+          "first": "app-records#how-do-i-bulk-update-or-delete-many-records-at-once",
+          "pageFirst": true,
+          "sectionFirst": true,
+          "answer": "yes"
+        },
+        {
+          "first": "app-records#how-do-i-bulk-update-or-delete-many-records-at-once",
+          "pageFirst": true,
+          "sectionFirst": true,
+          "answer": "yes"
+        },
+        {
+          "first": "app-records#how-do-i-bulk-update-or-delete-many-records-at-once",
+          "pageFirst": true,
+          "sectionFirst": true,
+          "answer": "yes"
+        }
+      ],
+      "gemini": [
+        {
+          "first": "app-records#how-do-i-bulk-update-or-delete-many-records-at-once",
+          "pageFirst": true,
+          "sectionFirst": true,
+          "answer": "yes"
+        },
+        {
+          "first": "app-records#how-do-i-bulk-update-or-delete-many-records-at-once",
+          "pageFirst": true,
+          "sectionFirst": true,
+          "answer": "yes"
+        },
+        {
+          "first": "app-records#how-do-i-bulk-update-or-delete-many-records-at-once",
+          "pageFirst": true,
+          "sectionFirst": true,
+          "answer": "yes"
+        }
+      ]
+    },
+    {
+      "id": "dh-fr-06",
+      "lang": "fr",
+      "docsLocale": "en",
+      "agentQuery": "comment trouver contacts sont rattachés aucune",
+      "gold": [
+        "filter-syntax#which-relationship-operators-exist"
+      ],
+      "alternatives": [
+        "filter-syntax#examples"
+      ],
+      "keyword": {
+        "first": "app-onboarding#what-does-an-invited-person-see",
+        "pageFirst": false,
+        "sectionFirst": false,
+        "answer": "no"
+      },
+      "jev": [
+        {
+          "first": "app-records#what-is-the-shared-layout-of-a-record-type",
+          "pageFirst": false,
+          "sectionFirst": false,
+          "answer": "no"
+        },
+        {
+          "first": "app-records#what-is-the-shared-layout-of-a-record-type",
+          "pageFirst": false,
+          "sectionFirst": false,
+          "answer": "no"
+        },
+        {
+          "first": "app-records#what-is-the-shared-layout-of-a-record-type",
+          "pageFirst": false,
+          "sectionFirst": false,
+          "answer": "no"
+        }
+      ],
+      "gemini": [
+        {
+          "first": "app-records#what-is-the-shared-layout-of-a-record-type",
+          "pageFirst": false,
+          "sectionFirst": false,
+          "answer": "no"
+        },
+        {
+          "first": "app-records#what-is-the-shared-layout-of-a-record-type",
+          "pageFirst": false,
+          "sectionFirst": false,
+          "answer": "no"
+        },
+        {
+          "first": "concepts#how-do-relationships-link-records",
+          "pageFirst": false,
+          "sectionFirst": false,
+          "answer": "no"
+        }
+      ]
+    },
+    {
+      "id": "dh-fr-07",
+      "lang": "fr",
+      "docsLocale": "en",
+      "agentQuery": "deux webhooks pointent vers même passe",
+      "gold": [
+        "webhooks#one-url-one-configuration"
+      ],
+      "alternatives": [],
+      "keyword": {
+        "first": "webhooks#how-do-i-create-a-webhook",
+        "pageFirst": true,
+        "sectionFirst": false,
+        "answer": "partial"
+      },
+      "jev": [
+        {
+          "first": "webhooks#one-url-one-configuration",
+          "pageFirst": true,
+          "sectionFirst": true,
+          "answer": "yes"
+        },
+        {
+          "first": "webhooks#one-url-one-configuration",
+          "pageFirst": true,
+          "sectionFirst": true,
+          "answer": "yes"
+        },
+        {
+          "first": "webhooks#one-url-one-configuration",
+          "pageFirst": true,
+          "sectionFirst": true,
+          "answer": "yes"
+        }
+      ],
+      "gemini": [
+        {
+          "first": "webhooks#one-url-one-configuration",
+          "pageFirst": true,
+          "sectionFirst": true,
+          "answer": "yes"
+        },
+        {
+          "first": "webhooks#one-url-one-configuration",
+          "pageFirst": true,
+          "sectionFirst": true,
+          "answer": "yes"
+        },
+        {
+          "first": "webhooks#one-url-one-configuration",
+          "pageFirst": true,
+          "sectionFirst": true,
+          "answer": "yes"
+        }
+      ]
+    },
+    {
+      "id": "dh-fr-08",
+      "lang": "fr",
+      "docsLocale": "en",
+      "agentQuery": "passe quand atteins limite envoi messages",
+      "gold": [
+        "messaging-rate-limits#what-happens-when-a-limit-is-reached"
+      ],
+      "alternatives": [
+        "messaging-rate-limits#what-are-the-limits-for-sending-and-profile-lookups"
+      ],
+      "keyword": {
+        "first": "app-inbox#how-do-i-start-a-new-conversation",
+        "pageFirst": false,
+        "sectionFirst": false,
+        "answer": "no"
+      },
+      "jev": [
+        {
+          "first": "messaging-rate-limits#what-happens-when-a-limit-is-reached",
+          "pageFirst": true,
+          "sectionFirst": true,
+          "answer": "yes"
+        },
+        {
+          "first": "messaging-rate-limits#what-happens-when-a-limit-is-reached",
+          "pageFirst": true,
+          "sectionFirst": true,
+          "answer": "yes"
+        },
+        {
+          "first": "messaging-rate-limits#what-happens-when-a-limit-is-reached",
+          "pageFirst": true,
+          "sectionFirst": true,
+          "answer": "yes"
+        }
+      ],
+      "gemini": [
+        {
+          "first": "messaging-rate-limits#what-happens-when-a-limit-is-reached",
+          "pageFirst": true,
+          "sectionFirst": true,
+          "answer": "yes"
+        },
+        {
+          "first": "messaging-rate-limits#what-happens-when-a-limit-is-reached",
+          "pageFirst": true,
+          "sectionFirst": true,
+          "answer": "yes"
+        },
+        {
+          "first": "app-inbox#how-do-i-start-a-new-conversation",
+          "pageFirst": false,
+          "sectionFirst": false,
+          "answer": "no"
+        }
+      ]
+    },
+    {
+      "id": "dh-it-01",
+      "lang": "it",
+      "docsLocale": "en",
+      "agentQuery": "cosa succede quando finisce periodo prova",
+      "gold": [
+        "app-company#what-happens-when-the-trial-ends-or-a-payment-fails"
+      ],
+      "alternatives": [
+        "app-company#what-does-each-subscription-status-mean"
+      ],
+      "keyword": {
+        "first": null,
+        "pageFirst": false,
+        "sectionFirst": false,
+        "answer": "no"
+      },
+      "jev": [
+        {
+          "first": null,
+          "pageFirst": false,
+          "sectionFirst": false,
+          "answer": "no"
+        },
+        {
+          "first": null,
+          "pageFirst": false,
+          "sectionFirst": false,
+          "answer": "no"
+        },
+        {
+          "first": null,
+          "pageFirst": false,
+          "sectionFirst": false,
+          "answer": "no"
+        }
+      ],
+      "gemini": [
+        {
+          "first": null,
+          "pageFirst": false,
+          "sectionFirst": false,
+          "answer": "no"
+        },
+        {
+          "first": null,
+          "pageFirst": false,
+          "sectionFirst": false,
+          "answer": "no"
+        },
+        {
+          "first": null,
+          "pageFirst": false,
+          "sectionFirst": false,
+          "answer": "no"
+        }
+      ]
+    },
+    {
+      "id": "dh-it-02",
+      "lang": "it",
+      "docsLocale": "en",
+      "agentQuery": "come funzionano probabilità fase valore ponderato",
+      "gold": [
+        "app-company#how-do-stage-probabilities-and-totals-work"
+      ],
+      "alternatives": [
+        "concepts#how-does-a-weighted-pipeline-work"
+      ],
+      "keyword": {
+        "first": "app-company#how-do-i-choose-or-change-a-plan",
+        "pageFirst": true,
+        "sectionFirst": false,
+        "answer": "no"
+      },
+      "jev": [
+        {
+          "first": "app-company#how-do-stage-probabilities-and-totals-work",
+          "pageFirst": true,
+          "sectionFirst": true,
+          "answer": "yes"
+        },
+        {
+          "first": "app-company#how-do-stage-probabilities-and-totals-work",
+          "pageFirst": true,
+          "sectionFirst": true,
+          "answer": "yes"
+        },
+        {
+          "first": "app-company#how-do-stage-probabilities-and-totals-work",
+          "pageFirst": true,
+          "sectionFirst": true,
+          "answer": "yes"
+        }
+      ],
+      "gemini": [
+        {
+          "first": "app-company#how-do-stage-probabilities-and-totals-work",
+          "pageFirst": true,
+          "sectionFirst": true,
+          "answer": "yes"
+        },
+        {
+          "first": "app-company#how-do-stage-probabilities-and-totals-work",
+          "pageFirst": true,
+          "sectionFirst": true,
+          "answer": "yes"
+        },
+        {
+          "first": "app-company#how-do-stage-probabilities-and-totals-work",
+          "pageFirst": true,
+          "sectionFirst": true,
+          "answer": "yes"
+        }
+      ]
+    },
+    {
+      "id": "dh-it-03",
+      "lang": "it",
+      "docsLocale": "en",
+      "agentQuery": "cosa significano stati conversazione nella posta",
+      "gold": [
+        "app-inbox#what-do-the-thread-states-mean"
+      ],
+      "alternatives": [],
+      "keyword": {
+        "first": null,
+        "pageFirst": false,
+        "sectionFirst": false,
+        "answer": "no"
+      },
+      "jev": [
+        {
+          "first": null,
+          "pageFirst": false,
+          "sectionFirst": false,
+          "answer": "no"
+        },
+        {
+          "first": null,
+          "pageFirst": false,
+          "sectionFirst": false,
+          "answer": "no"
+        },
+        {
+          "first": null,
+          "pageFirst": false,
+          "sectionFirst": false,
+          "answer": "no"
+        }
+      ],
+      "gemini": [
+        {
+          "first": null,
+          "pageFirst": false,
+          "sectionFirst": false,
+          "answer": "no"
+        },
+        {
+          "first": null,
+          "pageFirst": false,
+          "sectionFirst": false,
+          "answer": "no"
+        },
+        {
+          "first": null,
+          "pageFirst": false,
+          "sectionFirst": false,
+          "answer": "no"
+        }
+      ]
+    },
+    {
+      "id": "dh-it-04",
+      "lang": "it",
+      "docsLocale": "en",
+      "agentQuery": "posso cambiare carattere firma delle email",
+      "gold": [
+        "app-profile#email-appearance-and-signature"
+      ],
+      "alternatives": [
+        "app-inbox#how-do-i-set-an-email-signature"
+      ],
+      "keyword": {
+        "first": "app-inbox#which-permissions-does-the-inbox-need",
+        "pageFirst": true,
+        "sectionFirst": false,
+        "answer": "no"
+      },
+      "jev": [
+        {
+          "first": "app-inbox#how-do-i-set-an-email-signature",
+          "pageFirst": true,
+          "sectionFirst": true,
+          "answer": "yes"
+        },
+        {
+          "first": "app-inbox#how-do-i-set-an-email-signature",
+          "pageFirst": true,
+          "sectionFirst": true,
+          "answer": "yes"
+        },
+        {
+          "first": "app-inbox#how-do-i-set-an-email-signature",
+          "pageFirst": true,
+          "sectionFirst": true,
+          "answer": "yes"
+        }
+      ],
+      "gemini": [
+        {
+          "first": "app-profile#email-appearance-and-signature",
+          "pageFirst": true,
+          "sectionFirst": true,
+          "answer": "yes"
+        },
+        {
+          "first": "app-profile#email-appearance-and-signature",
+          "pageFirst": true,
+          "sectionFirst": true,
+          "answer": "yes"
+        },
+        {
+          "first": "app-inbox#how-do-i-set-an-email-signature",
+          "pageFirst": true,
+          "sectionFirst": true,
+          "answer": "yes"
+        }
+      ]
+    },
+    {
+      "id": "dh-it-05",
+      "lang": "it",
+      "docsLocale": "en",
+      "agentQuery": "posso condividere vista salvata colleghi",
+      "gold": [
+        "app-records#how-do-saved-views-work"
+      ],
+      "alternatives": [],
+      "keyword": {
+        "first": null,
+        "pageFirst": false,
+        "sectionFirst": false,
+        "answer": "no"
+      },
+      "jev": [
+        {
+          "first": null,
+          "pageFirst": false,
+          "sectionFirst": false,
+          "answer": "no"
+        },
+        {
+          "first": null,
+          "pageFirst": false,
+          "sectionFirst": false,
+          "answer": "no"
+        },
+        {
+          "first": null,
+          "pageFirst": false,
+          "sectionFirst": false,
+          "answer": "no"
+        }
+      ],
+      "gemini": [
+        {
+          "first": null,
+          "pageFirst": false,
+          "sectionFirst": false,
+          "answer": "no"
+        },
+        {
+          "first": null,
+          "pageFirst": false,
+          "sectionFirst": false,
+          "answer": "no"
+        },
+        {
+          "first": null,
+          "pageFirst": false,
+          "sectionFirst": false,
+          "answer": "no"
+        }
+      ]
+    },
+    {
+      "id": "dh-it-06",
+      "lang": "it",
+      "docsLocale": "en",
+      "agentQuery": "come filtro trattative create negli ultimi",
+      "gold": [
+        "filter-syntax#which-date-operators-exist"
+      ],
+      "alternatives": [
+        "filter-syntax#examples"
+      ],
+      "keyword": {
+        "first": "app-onboarding#what-are-the-three-steps",
+        "pageFirst": false,
+        "sectionFirst": false,
+        "answer": "no"
+      },
+      "jev": [
+        {
+          "first": "n8n#how-do-i-write-to-customermates-from-n8n",
+          "pageFirst": false,
+          "sectionFirst": false,
+          "answer": "no"
+        },
+        {
+          "first": "n8n#how-do-i-write-to-customermates-from-n8n",
+          "pageFirst": false,
+          "sectionFirst": false,
+          "answer": "no"
+        },
+        {
+          "first": "n8n#how-do-i-write-to-customermates-from-n8n",
+          "pageFirst": false,
+          "sectionFirst": false,
+          "answer": "no"
+        }
+      ],
+      "gemini": [
+        {
+          "first": "mcp#saved-views",
+          "pageFirst": false,
+          "sectionFirst": false,
+          "answer": "no"
+        },
+        {
+          "first": "mcp#saved-views",
+          "pageFirst": false,
+          "sectionFirst": false,
+          "answer": "no"
+        },
+        {
+          "first": "app-onboarding#what-are-the-three-steps",
+          "pageFirst": false,
+          "sectionFirst": false,
+          "answer": "no"
+        }
+      ]
+    },
+    {
+      "id": "dh-it-07",
+      "lang": "it",
+      "docsLocale": "en",
+      "agentQuery": "cosa devo impostare base dominio",
+      "gold": [
+        "self-hosting#base-url"
+      ],
+      "alternatives": [
+        "self-hosting#env-values"
+      ],
+      "keyword": {
+        "first": "self-hosting#base-url",
+        "pageFirst": true,
+        "sectionFirst": true,
+        "answer": "yes"
+      },
+      "jev": [
+        {
+          "first": "self-hosting#base-url",
+          "pageFirst": true,
+          "sectionFirst": true,
+          "answer": "yes"
+        },
+        {
+          "first": "self-hosting#base-url",
+          "pageFirst": true,
+          "sectionFirst": true,
+          "answer": "yes"
+        },
+        {
+          "first": "self-hosting#base-url",
+          "pageFirst": true,
+          "sectionFirst": true,
+          "answer": "yes"
+        }
+      ],
+      "gemini": [
+        {
+          "first": "self-hosting#base-url",
+          "pageFirst": true,
+          "sectionFirst": true,
+          "answer": "yes"
+        },
+        {
+          "first": "self-hosting#base-url",
+          "pageFirst": true,
+          "sectionFirst": true,
+          "answer": "yes"
+        },
+        {
+          "first": "self-hosting#base-url",
+          "pageFirst": true,
+          "sectionFirst": true,
+          "answer": "yes"
+        }
+      ]
+    },
+    {
+      "id": "dh-it-08",
+      "lang": "it",
+      "docsLocale": "en",
+      "agentQuery": "timeline delle attività mostrare anche eventi",
+      "gold": [
+        "app-dashboard#what-can-an-activity-timeline-show"
+      ],
+      "alternatives": [],
+      "keyword": {
+        "first": "app-dashboard#what-can-an-activity-timeline-show",
+        "pageFirst": true,
+        "sectionFirst": true,
+        "answer": "yes"
+      },
+      "jev": [
+        {
+          "first": "app-dashboard#what-can-an-activity-timeline-show",
+          "pageFirst": true,
+          "sectionFirst": true,
+          "answer": "yes"
+        },
+        {
+          "first": "app-dashboard#what-can-an-activity-timeline-show",
+          "pageFirst": true,
+          "sectionFirst": true,
+          "answer": "yes"
+        },
+        {
+          "first": "app-dashboard#what-can-an-activity-timeline-show",
+          "pageFirst": true,
+          "sectionFirst": true,
+          "answer": "yes"
+        }
+      ],
+      "gemini": [
+        {
+          "first": "app-dashboard#what-can-an-activity-timeline-show",
+          "pageFirst": true,
+          "sectionFirst": true,
+          "answer": "yes"
+        },
+        {
+          "first": "app-dashboard#what-can-an-activity-timeline-show",
+          "pageFirst": true,
+          "sectionFirst": true,
+          "answer": "yes"
+        },
+        {
+          "first": "app-dashboard#what-can-an-activity-timeline-show",
+          "pageFirst": true,
+          "sectionFirst": true,
+          "answer": "yes"
+        }
+      ]
+    }
+  ],
+  "spendAfterTrackUsd": 0.3697,
+  "spendByUse": {
+    "heldout-guard:jev:jev": {
+      "usd": 0.00069317,
+      "zdrUsd": 0.0037999999999999974,
+      "calls": 38,
+      "unmeasured": 0
+    },
+    "heldout-routing:jev:jev": {
+      "usd": 0.010069640000000006,
+      "zdrUsd": 0.02389999999999991,
+      "calls": 239,
+      "unmeasured": 0
+    },
+    "heldout-routing:gemini:gemini": {
+      "usd": 0.12563815,
+      "zdrUsd": 0.02379999999999991,
+      "calls": 238,
+      "unmeasured": 0
+    },
+    "heldout-docs:jev:jev": {
+      "usd": 0.02307978,
+      "zdrUsd": 0.010499999999999992,
+      "calls": 105,
+      "unmeasured": 0
+    },
+    "heldout-docs:gemini:gemini": {
+      "usd": 0.10968373000000001,
+      "zdrUsd": 0.009899999999999996,
+      "calls": 99,
+      "unmeasured": 0
+    },
+    "heldout-docs:judge:google/gemini-3-flash": {
+      "usd": 0.020805,
+      "zdrUsd": 0.0078000000000000074,
+      "calls": 78,
+      "unmeasured": 0
+    }
+  }
+}
