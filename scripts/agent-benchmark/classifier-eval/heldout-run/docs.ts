@@ -40,6 +40,7 @@ import {
   searchDocsRaw,
   searchDocsRanked,
 } from "@/features/mcp-tools/docs.mcp-tools";
+import { CONTENT_LOCALES } from "@/i18n/locale-registry";
 
 const MODELS: ClassifierModel[] = ["jev", "gemini"];
 const JUDGE_MODEL = "google/gemini-3-flash";
@@ -72,7 +73,7 @@ function agentQuery(question: string) {
 }
 
 const sectionsByKey = new Map<string, DocsSection>();
-for (const locale of ["en", "de"] as const)
+for (const locale of CONTENT_LOCALES)
   for (const slug of listDocsSlugs(locale, "docs")) {
     const page = getDocsPageRaw(slug, locale, "docs")!;
     for (const section of splitSections({ slug, source: "docs", pageTitle: page.title, markdown: page.markdown }))
