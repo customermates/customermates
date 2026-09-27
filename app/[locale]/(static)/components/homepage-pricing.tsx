@@ -69,7 +69,7 @@ export async function HomepagePricing() {
                   <h3 className="text-lg font-medium">{t(`HomepagePricing.${card.titleKey}.title`)}</h3>
 
                   {card.badgeKey ? (
-                    <span className="rounded-full bg-primary/10 px-2.5 py-1 text-[10px] font-medium text-primary">
+                    <span className="rounded-full bg-primary/10 px-2.5 py-1 text-[10px] font-medium text-primary-soft-foreground">
                       {t(`HomepagePricing.${card.titleKey}.${card.badgeKey}`)}
                     </span>
                   ) : null}
