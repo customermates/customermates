@@ -173,20 +173,10 @@ export type StoredEpisode = {
   prompts: readonly string[];
   judgeFacts: readonly string[];
   turnTexts: string[];
-  toolNames: string[];
   oracle: {
     passed: boolean;
-    checks: { id: string; passed: boolean; gate?: string }[];
+    checks: { id: string; passed: boolean }[];
   } | null;
-  judge?: {
-    judges: {
-      model: string;
-      scores: Record<string, number>;
-      overall: number;
-    }[];
-    mean: number | null;
-    disagreement: boolean;
-  };
 };
 
 function walkJson(dir: string): string[] {
@@ -208,10 +198,7 @@ export function loadEpisodes(): StoredEpisode[] {
     >;
     if (!Array.isArray(raw.observed) || typeof raw.caseId !== "string")
       continue;
-    const observed = raw.observed as {
-      text: string;
-      tools: { name: string }[];
-    }[];
+    const observed = raw.observed as { text: string }[];
     out.push({
       file: relative(root, file),
       episodeId: String(raw.episodeId ?? relative(root, file)),
@@ -219,11 +206,7 @@ export function loadEpisodes(): StoredEpisode[] {
       prompts: (raw.prompts as string[] | undefined) ?? [],
       judgeFacts: (raw.judgeFacts as string[] | undefined) ?? [],
       turnTexts: observed.map((turn) => turn.text ?? ""),
-      toolNames: observed.flatMap((turn) =>
-        turn.tools.map((tool) => tool.name),
-      ),
       oracle: (raw.oracle as StoredEpisode["oracle"]) ?? null,
-      judge: raw.judge as StoredEpisode["judge"],
     });
   }
   return out;

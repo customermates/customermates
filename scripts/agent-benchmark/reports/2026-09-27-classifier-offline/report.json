@@ -213,33 +213,6 @@
       "winner": "gemini",
       "note": "Gemini makes 5.7 false hits per run against Jev's 18 (Jev adds views to widget and analysis requests), which is not within noise. The live A/B required by the keep-or-drop rule was not run."
     },
-    "textChecks": {
-      "gate": "Per check: >= 98% agreement with gold and at least one regex error fixed.",
-      "pass": {
-        "jev": false,
-        "gemini": false
-      },
-      "detail": {
-        "jev": {
-          "pooledAgreementWithGoldPct": 99.43,
-          "regexAgreementWithGoldPct": 99.04,
-          "fixes": 4,
-          "breaks": 2,
-          "checksMeetingBothConditions": [],
-          "pass": false
-        },
-        "gemini": {
-          "pooledAgreementWithGoldPct": 99.04,
-          "regexAgreementWithGoldPct": 99.04,
-          "fixes": 4,
-          "breaks": 4,
-          "checksMeetingBothConditions": [],
-          "pass": false
-        }
-      },
-      "winner": "jev",
-      "note": "Both models agree with the regex on every instance outside M8; the M8 fixes come with M8 agreement below 98%."
-    },
     "figureSelfCheck": {
       "gate": ">= 1 real catch and 0 false alarms on passing episodes.",
       "pass": {
@@ -276,6 +249,17 @@
       },
       "winner": "tie",
       "note": "Evidence is the expected facts because stored episodes keep no tool outputs; the false alarms are legitimate intermediate figures missing from those facts."
+    }
+  },
+  "removed": {
+    "textChecks": {
+      "gate": "Per check: >= 98% agreement with gold and at least one regex error fixed.",
+      "pass": {
+        "jev": false,
+        "gemini": false
+      },
+      "evidence": "text-checks.json",
+      "decision": "Removed on 2026-09-27 by owner decision: no check met both conditions, so the regex oracles stay; the evaluation code is deleted and its report kept."
     },
     "advisoryJudge": {
       "gate": "At least one low classifier score on an oracle-failed episode that both judges scored >= 4.",
@@ -283,98 +267,8 @@
         "jev": false,
         "gemini": false
       },
-      "detail": {
-        "jev": {
-          "scoredEpisodes": 100,
-          "perDimension": {
-            "grounding": {
-              "maeVsJudgeMean": 0.81,
-              "within1OfJudgeMeanPct": 61,
-              "pearsonVsJudgeMean": 0.69,
-              "pearsonJudgeVsJudge": 0.72
-            },
-            "completeness": {
-              "maeVsJudgeMean": 0.43,
-              "within1OfJudgeMeanPct": 91,
-              "pearsonVsJudgeMean": 0.9,
-              "pearsonJudgeVsJudge": 0.89
-            },
-            "reasoning": {
-              "maeVsJudgeMean": 0.75,
-              "within1OfJudgeMeanPct": 74,
-              "pearsonVsJudgeMean": 0.78,
-              "pearsonJudgeVsJudge": 0.83
-            },
-            "actionability": {
-              "maeVsJudgeMean": 0.37,
-              "within1OfJudgeMeanPct": 96,
-              "pearsonVsJudgeMean": 0.95,
-              "pearsonJudgeVsJudge": 0.88
-            },
-            "fabricationFree": {
-              "maeVsJudgeMean": 0.93,
-              "within1OfJudgeMeanPct": 64,
-              "pearsonVsJudgeMean": 0.65,
-              "pearsonJudgeVsJudge": 0.79
-            }
-          },
-          "overallPearsonVsJudgeMean": 0.86,
-          "overallPearsonVsOraclePass": 0.61,
-          "judgesOverallPearsonVsOraclePass": 0.73,
-          "oracleFailedButJudgesHigh": 9,
-          "oracleFailedJudgesHighClassifierLow": 0,
-          "classifierLowJudgesHigh": 1,
-          "classifierLowJudgesHighOracleFailed": 0,
-          "classifierLowJudgesHighOraclePassed": 1,
-          "classifierHighJudgesLow": 0
-        },
-        "gemini": {
-          "scoredEpisodes": 100,
-          "perDimension": {
-            "grounding": {
-              "maeVsJudgeMean": 0.46,
-              "within1OfJudgeMeanPct": 85,
-              "pearsonVsJudgeMean": 0.88,
-              "pearsonJudgeVsJudge": 0.72
-            },
-            "completeness": {
-              "maeVsJudgeMean": 0.58,
-              "within1OfJudgeMeanPct": 84,
-              "pearsonVsJudgeMean": 0.86,
-              "pearsonJudgeVsJudge": 0.89
-            },
-            "reasoning": {
-              "maeVsJudgeMean": 0.47,
-              "within1OfJudgeMeanPct": 90,
-              "pearsonVsJudgeMean": 0.92,
-              "pearsonJudgeVsJudge": 0.83
-            },
-            "actionability": {
-              "maeVsJudgeMean": 0.54,
-              "within1OfJudgeMeanPct": 85,
-              "pearsonVsJudgeMean": 0.91,
-              "pearsonJudgeVsJudge": 0.88
-            },
-            "fabricationFree": {
-              "maeVsJudgeMean": 0.66,
-              "within1OfJudgeMeanPct": 78,
-              "pearsonVsJudgeMean": 0.6,
-              "pearsonJudgeVsJudge": 0.79
-            }
-          },
-          "overallPearsonVsJudgeMean": 0.9,
-          "overallPearsonVsOraclePass": 0.64,
-          "judgesOverallPearsonVsOraclePass": 0.73,
-          "oracleFailedButJudgesHigh": 9,
-          "oracleFailedJudgesHighClassifierLow": 0,
-          "classifierLowJudgesHigh": 0,
-          "classifierLowJudgesHighOracleFailed": 0,
-          "classifierLowJudgesHighOraclePassed": 0,
-          "classifierHighJudgesLow": 0
-        }
-      },
-      "winner": "gemini",
-      "note": "Both track the judges (overall r 0.86 and 0.90) but flag none of the 9 oracle failures the judges scored high."
+      "evidence": "advisory-judge.json",
+      "decision": "Removed on 2026-09-27 by owner decision: both models track the judges but flag none of the 9 oracle failures the judges scored high; the evaluation code is deleted and its report kept."
     }
   }
 }

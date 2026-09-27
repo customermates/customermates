@@ -19,12 +19,6 @@ const SPEC: ClassifierSpec = {
       options: { read: "look something up", write: "change something" },
     },
     {
-      id: "scope",
-      type: "score",
-      instruction: "How much work does `message` ask for?",
-      levels: ["one", "few", "many"],
-    },
-    {
       id: "needs_admin",
       type: "boolean",
       instruction: "Does `message` manage team members?",
@@ -51,7 +45,6 @@ function gatewayMetadata(provider: string, cost: string) {
 const JEV_BODY = {
   answers: {
     intent: { type: "choice", choice: "write", probabilities: { read: 0.1, write: 0.9 }, confidence: 0.88 },
-    scope: { type: "score", score: 0.2, probabilities: { "0": 0.8, "1": 0.2, "2": 0 }, confidence: 0.8 },
     needs_admin: { type: "boolean", probability: 0.93 },
   },
   providerMetadata: gatewayMetadata("typesafe-ai", "0.000016002"),
@@ -93,7 +86,7 @@ describe("classifier spec", () => {
       id: "broken",
       questions: [
         { id: "a", type: "choice", instruction: "Pick", options: { only: "one option" } },
-        { id: "a", type: "score", instruction: "Rate", levels: ["one"] },
+        { id: "a", type: "boolean", instruction: "Again" },
         { id: "Bad-Id", type: "boolean", instruction: " " },
       ],
     });
@@ -101,7 +94,6 @@ describe("classifier spec", () => {
     expect(problems).toEqual([
       'choice "a" needs 2 to 255 options',
       'question id "a" is used twice',
-      'score "a" needs 2 to 10 levels',
       'question id "Bad-Id" is not a lowercase identifier',
       'question "Bad-Id" has no instruction',
     ]);
@@ -118,11 +110,6 @@ describe("Jev runner", () => {
           type: "choice",
           instructions: "What does `message` ask for?",
           criteria: { read: "look something up", write: "change something" },
-        },
-        scope: {
-          type: "score",
-          instructions: "How much work does `message` ask for?",
-          criteria: ["one", "few", "many"],
         },
         needs_admin: {
           type: "boolean",
@@ -152,7 +139,6 @@ describe("Jev runner", () => {
     expect(result.costMicrocents).toBe(1600);
     expect(result.answers).toEqual({
       intent: { type: "choice", choice: "write", probabilities: { read: 0.1, write: 0.9 }, confidence: 0.88 },
-      scope: { type: "score", score: 0.2, probabilities: { "0": 0.8, "1": 0.2, "2": 0 }, confidence: 0.8 },
       needs_admin: { type: "boolean", value: true, probability: 0.93 },
     });
   });
@@ -167,7 +153,7 @@ describe("Jev runner", () => {
 
 describe("Gemini runner", () => {
   it("asks for one enum-typed object on Vertex in the EU zone with minimal thinking, ZDR and no training", async () => {
-    const model = geminiModel(JSON.stringify({ intent: "write", scope: "2", needs_admin: false }));
+    const model = geminiModel(JSON.stringify({ intent: "write", needs_admin: false }));
 
     const result = await runGemini(SPEC, STATE, { model });
 
@@ -188,7 +174,6 @@ describe("Gemini runner", () => {
       costMicrocents: 40_000,
       answers: {
         intent: { type: "choice", choice: "write", probabilities: null, confidence: null },
-        scope: { type: "score", score: 2, probabilities: null, confidence: null },
         needs_admin: { type: "boolean", value: false, probability: null },
       },
     });
@@ -199,10 +184,9 @@ describe("Gemini runner", () => {
       type: "object",
       properties: {
         intent: { type: "string", enum: ["read", "write"] },
-        scope: { type: "string", enum: ["0", "1", "2"] },
         needs_admin: { type: "boolean" },
       },
-      required: ["intent", "scope", "needs_admin"],
+      required: ["intent", "needs_admin"],
       additionalProperties: false,
     });
   });
@@ -212,7 +196,7 @@ describe("classify", () => {
   it("runs the chosen model", async () => {
     const jev = await classify(SPEC, STATE, "jev", { jev: { apiKey: "k", fetch: replyWith(JEV_BODY) } });
     const gemini = await classify(SPEC, STATE, "gemini", {
-      gemini: { model: geminiModel(JSON.stringify({ intent: "read", scope: "0", needs_admin: true })) },
+      gemini: { model: geminiModel(JSON.stringify({ intent: "read", needs_admin: true })) },
     });
 
     expect(jev?.answers.intent).toMatchObject({ choice: "write" });
@@ -241,7 +225,7 @@ describe("classify", () => {
   });
 
   it("returns null when Gemini answers outside the spec", async () => {
-    const model = geminiModel(JSON.stringify({ intent: "write", scope: "7", needs_admin: true }));
+    const model = geminiModel(JSON.stringify({ intent: "delete", needs_admin: true }));
 
     expect(await classify(SPEC, STATE, "gemini", { gemini: { model } })).toBeNull();
   });

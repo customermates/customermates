@@ -9,13 +9,6 @@ export type ClassifierChoiceQuestion = {
   options: Readonly<Record<string, string>>;
 };
 
-export type ClassifierScoreQuestion = {
-  id: string;
-  type: "score";
-  instruction: string;
-  levels: readonly string[];
-};
-
 export type ClassifierBooleanQuestion = {
   id: string;
   type: "boolean";
@@ -23,7 +16,7 @@ export type ClassifierBooleanQuestion = {
   criteria?: { true: string; false: string };
 };
 
-export type ClassifierQuestion = ClassifierChoiceQuestion | ClassifierScoreQuestion | ClassifierBooleanQuestion;
+export type ClassifierQuestion = ClassifierChoiceQuestion | ClassifierBooleanQuestion;
 
 export type ClassifierSpec = {
   id: string;
@@ -37,20 +30,13 @@ export type ClassifierChoiceAnswer = {
   confidence: number | null;
 };
 
-export type ClassifierScoreAnswer = {
-  type: "score";
-  score: number;
-  probabilities: Record<string, number> | null;
-  confidence: number | null;
-};
-
 export type ClassifierBooleanAnswer = {
   type: "boolean";
   value: boolean;
   probability: number | null;
 };
 
-export type ClassifierAnswer = ClassifierChoiceAnswer | ClassifierScoreAnswer | ClassifierBooleanAnswer;
+export type ClassifierAnswer = ClassifierChoiceAnswer | ClassifierBooleanAnswer;
 
 export const CLASSIFIER_MODELS = ["jev", "gemini"] as const;
 
@@ -65,8 +51,6 @@ export type ClassifierResult = {
 
 const QUESTION_ID = /^[a-z][a-z0-9_]{0,63}$/;
 const MAX_CHOICE_OPTIONS = 255;
-const MIN_SCORE_LEVELS = 2;
-const MAX_SCORE_LEVELS = 10;
 
 export function classifierSpecProblems(spec: ClassifierSpec): string[] {
   const problems: string[] = [];
@@ -83,11 +67,6 @@ export function classifierSpecProblems(spec: ClassifierSpec): string[] {
         problems.push(`choice "${question.id}" needs 2 to ${MAX_CHOICE_OPTIONS} options`);
       if (keys.some((key) => !key.trim())) problems.push(`choice "${question.id}" has an empty option key`);
     }
-    if (
-      question.type === "score" &&
-      (question.levels.length < MIN_SCORE_LEVELS || question.levels.length > MAX_SCORE_LEVELS)
-    )
-      problems.push(`score "${question.id}" needs ${MIN_SCORE_LEVELS} to ${MAX_SCORE_LEVELS} levels`);
   }
   return problems;
 }
@@ -117,15 +96,6 @@ export function parseClassifierAnswer(question: ClassifierQuestion, raw: unknown
     const probabilities = answer.probabilities === undefined ? null : probabilityRecord(answer.probabilities, keys);
     if (answer.probabilities !== undefined && probabilities === null) return null;
     return { type: "choice", choice: answer.choice, probabilities, confidence: unitInterval(answer.confidence) };
-  }
-  if (question.type === "score") {
-    const top = question.levels.length - 1;
-    if (typeof answer.score !== "number" || !Number.isFinite(answer.score) || answer.score < 0 || answer.score > top)
-      return null;
-    const keys = question.levels.map((_, index) => String(index));
-    const probabilities = answer.probabilities === undefined ? null : probabilityRecord(answer.probabilities, keys);
-    if (answer.probabilities !== undefined && probabilities === null) return null;
-    return { type: "score", score: answer.score, probabilities, confidence: unitInterval(answer.confidence) };
   }
   if (typeof answer.value === "boolean")
     return { type: "boolean", value: answer.value, probability: unitInterval(answer.probability) };

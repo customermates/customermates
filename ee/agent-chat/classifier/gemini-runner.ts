@@ -20,7 +20,6 @@ export type GeminiRunnerOptions = {
 
 function questionSchema(question: ClassifierQuestion): JSONSchema7 {
   if (question.type === "choice") return { type: "string", enum: Object.keys(question.options) };
-  if (question.type === "score") return { type: "string", enum: question.levels.map((_, index) => String(index)) };
   return { type: "boolean" };
 }
 
@@ -37,12 +36,6 @@ function questionLines(question: ClassifierQuestion): string[] {
   const head = `${question.id} (${question.type}): ${question.instruction}`;
   if (question.type === "choice")
     return [head, ...Object.entries(question.options).map(([key, description]) => `  - ${key}: ${description}`)];
-  if (question.type === "score") {
-    return [
-      `${head} Answer with the index of the level that fits, from lowest to highest.`,
-      ...question.levels.map((level, index) => `  - ${index}: ${level}`),
-    ];
-  }
   return question.criteria
     ? [head, `  - true: ${question.criteria.true}`, `  - false: ${question.criteria.false}`]
     : [head];
@@ -65,12 +58,7 @@ function toRawAnswers(spec: ClassifierSpec, output: unknown): Record<string, unk
   for (const question of spec.questions) {
     const value = values[question.id];
     if (question.type === "choice") raw[question.id] = { type: "choice", choice: value };
-    else if (question.type === "score") {
-      raw[question.id] = {
-        type: "score",
-        score: typeof value === "string" && /^\d+$/.test(value) ? Number(value) : NaN,
-      };
-    } else raw[question.id] = { type: "boolean", value };
+    else raw[question.id] = { type: "boolean", value };
   }
   return raw;
 }

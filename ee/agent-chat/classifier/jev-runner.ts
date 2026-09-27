@@ -19,8 +19,6 @@ export type JevRunnerOptions = {
 function jevQuestion(question: ClassifierSpec["questions"][number]) {
   if (question.type === "choice")
     return { type: "choice", instructions: question.instruction, criteria: question.options };
-  if (question.type === "score")
-    return { type: "score", instructions: question.instruction, criteria: question.levels };
   return {
     type: "boolean",
     instructions: question.instruction,

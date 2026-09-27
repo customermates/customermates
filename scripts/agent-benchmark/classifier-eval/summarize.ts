@@ -14,16 +14,10 @@ const docs = read<{
   spendThisCampaignUsd: number;
 }>("docs-rerank-en-extended.json");
 const routing = read<{ gates: Record<string, Gate> }>("routing.json");
-const text = read<{ gates: Record<string, Gate> }>("text-checks.json");
 const figures = read<{ results: Record<string, Gate> }>("figure-check.json");
-const judge = read<{ results: Record<string, Record<string, unknown>> }>(
-  "advisory-judge.json",
-);
 
 const docsModel = (model: string) =>
   docs.gates[`${model}:en`]!.pass && docs.gates[`${model}:de`]!.pass;
-const judgePass = (model: string) =>
-  Number(judge.results[model]!.classifierLowJudgesHighOracleFailed) > 0;
 
 const uses = {
   docsRerank: {
@@ -44,13 +38,6 @@ const uses = {
     winner: "gemini",
     note: "Gemini makes 5.7 false hits per run against Jev's 18 (Jev adds views to widget and analysis requests), which is not within noise. The live A/B required by the keep-or-drop rule was not run.",
   },
-  textChecks: {
-    gate: "Per check: >= 98% agreement with gold and at least one regex error fixed.",
-    pass: { jev: text.gates.jev!.pass, gemini: text.gates.gemini!.pass },
-    detail: text.gates,
-    winner: "jev",
-    note: "Both models agree with the regex on every instance outside M8; the M8 fixes come with M8 agreement below 98%.",
-  },
   figureSelfCheck: {
     gate: ">= 1 real catch and 0 false alarms on passing episodes.",
     pass: {
@@ -61,12 +48,22 @@ const uses = {
     winner: "tie",
     note: "Evidence is the expected facts because stored episodes keep no tool outputs; the false alarms are legitimate intermediate figures missing from those facts.",
   },
+};
+
+const removed = {
+  textChecks: {
+    gate: "Per check: >= 98% agreement with gold and at least one regex error fixed.",
+    pass: { jev: false, gemini: false },
+    evidence: "text-checks.json",
+    decision:
+      "Removed on 2026-09-27 by owner decision: no check met both conditions, so the regex oracles stay; the evaluation code is deleted and its report kept.",
+  },
   advisoryJudge: {
     gate: "At least one low classifier score on an oracle-failed episode that both judges scored >= 4.",
-    pass: { jev: judgePass("jev"), gemini: judgePass("gemini") },
-    detail: judge.results,
-    winner: "gemini",
-    note: "Both track the judges (overall r 0.86 and 0.90) but flag none of the 9 oracle failures the judges scored high.",
+    pass: { jev: false, gemini: false },
+    evidence: "advisory-judge.json",
+    decision:
+      "Removed on 2026-09-27 by owner decision: both models track the judges but flag none of the 9 oracle failures the judges scored high; the evaluation code is deleted and its report kept.",
   },
 };
 
@@ -80,6 +77,7 @@ writeReport("report.json", {
     "Model cost is the gateway's measured cost per call; the ZDR fee is estimated at 0.0001 USD per request because the per-request cost omits it.",
   spendByUse: spendByUse(),
   uses,
+  removed,
 });
 console.log(
   JSON.stringify(
