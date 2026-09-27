@@ -1,5 +1,4 @@
 import { Resource } from "@/generated/prisma";
-import { env } from "@/env";
 
 import { PageContainer } from "@/components/shared/page-container";
 import { getGetWikiHomepageSetupStateInteractor, getGetWikiPageInteractor, getGetWikiPagesInteractor } from "@/core/di";
@@ -50,7 +49,6 @@ export default async function WikiPage({ searchParams }: Props) {
         layoutInitial={layout?.columnWidths}
         listPage={pages}
         pinnedPage={pinnedPage}
-        readOnly={env.APP_MODE === "demo"}
         unavailable={Boolean(requestedId && !selectedPage)}
       />
     </PageContainer>

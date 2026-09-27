@@ -1,7 +1,6 @@
 import { beforeEach, describe, expect, it, vi } from "vitest";
 
 const mocks = vi.hoisted(() => ({
-  appMode: "cloud" as "cloud" | "demo",
   getPage: vi.fn(),
   getP13n: vi.fn(),
   getSetupState: vi.fn(),
@@ -21,13 +20,6 @@ vi.mock("@/features/auth/next/require", () => ({
 }));
 vi.mock("@/features/p13n/next/get-optional-p13n", () => ({
   getOptionalP13n: mocks.getP13n,
-}));
-vi.mock("@/env", () => ({
-  env: {
-    get APP_MODE() {
-      return mocks.appMode;
-    },
-  },
 }));
 vi.mock("@/components/shared/page-container", () => ({
   PageContainer: "page-container",
@@ -50,7 +42,6 @@ const summary = (({ markdown: _markdown, ...value }) => value)(page);
 
 beforeEach(() => {
   vi.clearAllMocks();
-  mocks.appMode = "cloud";
   mocks.requireAccess.mockResolvedValue(undefined);
   mocks.getP13n.mockResolvedValue(null);
   mocks.getSetupState.mockResolvedValue({
@@ -90,7 +81,6 @@ describe("WikiPage", () => {
     expect(result.props.children.props.listPage.items).toEqual(firstPage);
     expect(result.props.children.props.listPage.items).toHaveLength(25);
     expect(result.props.children.props.pinnedPage).toBeNull();
-    expect(result.props.children.props.readOnly).toBe(false);
     expect(mocks.getP13n).toHaveBeenCalledExactlyOnceWith("wiki-layout");
   });
 
@@ -109,19 +99,6 @@ describe("WikiPage", () => {
     const result = await WikiPage({ searchParams: Promise.resolve({}) });
 
     expect(result.props.children.props.layoutInitial).toEqual(columnWidths);
-  });
-
-  it("marks the Wiki read-only in demo mode", async () => {
-    mocks.appMode = "demo";
-    mocks.listPages.mockResolvedValue({
-      ok: true,
-      data: { items: [summary], total: 1, page: 1, pageSize: 25 },
-    });
-    mocks.getPage.mockResolvedValue({ ok: true, data: page });
-
-    const result = await WikiPage({ searchParams: Promise.resolve({}) });
-
-    expect(result.props.children.props.readOnly).toBe(true);
   });
 
   it("shows an unavailable page rather than substituting another document for a missing link", async () => {

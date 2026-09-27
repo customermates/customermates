@@ -45,7 +45,6 @@ type Props = {
   layoutInitial?: Record<string, number>;
   listPage: WikiPageListResult;
   pinnedPage?: WikiPageSummary | null;
-  readOnly?: boolean;
   unavailable?: boolean;
 };
 
@@ -55,7 +54,6 @@ const WikiPageViewComponent = ({
   layoutInitial,
   listPage,
   pinnedPage = null,
-  readOnly = false,
   unavailable = false,
 }: Props) => {
   const t = useTranslations();
@@ -79,11 +77,11 @@ const WikiPageViewComponent = ({
   const pages = useWikiPages(listPage);
   const { columnWidths, commitColumnWidths } = useP13nColumnWidths({
     initial: layoutInitial,
-    p13nId: readOnly ? undefined : WIKI_LAYOUT_P13N_ID,
+    p13nId: rootStore.appMode === "demo" ? undefined : WIKI_LAYOUT_P13N_ID,
     persistenceScope: rootStore.userStore?.user?.id ?? "anonymous",
   });
   const initialPanelSizes = readStoredPanelSizes(columnWidths, WIKI_PANEL_LAYOUT_ID, WIKI_PANEL_IDS, false);
-  const canManage = store.canManage && !readOnly;
+  const canManage = store.canManage;
   const acceptedSetupConversationId = rootStore.agentChatStore.wikiHomepageSetupConversationId;
   const setupConversationId =
     initialSetupState.status === "working" ? initialSetupState.conversationId : acceptedSetupConversationId;

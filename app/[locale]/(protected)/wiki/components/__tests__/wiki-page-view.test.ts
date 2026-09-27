@@ -392,26 +392,6 @@ describe("Wiki document view", () => {
     expect(topBar).not.toContain("Wiki.newPage");
   });
 
-  it("renders demo managers through the same read-only document surface", () => {
-    configure(true, true);
-    harness.store.form = page;
-    const html = renderToStaticMarkup(
-      createElement(WikiPageView, {
-        initialPage: page,
-        listPage: populatedList,
-        readOnly: true,
-      }),
-    );
-    const topBar = renderToStaticMarkup(harness.topBar);
-
-    expect(html).toContain('data-editor-readonly="true"');
-    expect(html).toContain(`<h1 class="break-words text-3xl font-semibold tracking-tight">${page.title}</h1>`);
-    expect(html).not.toContain('aria-label="Wiki.pageTitle"');
-    expect(topBar).not.toContain("Wiki.save");
-    expect(topBar).not.toContain("Wiki.newPage");
-    expect(topBar).not.toContain("Wiki.delete");
-  });
-
   it("pins a selected page outside the current list page without changing pagination", async () => {
     configure(false, false);
     const selected = {
