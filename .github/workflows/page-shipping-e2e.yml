@@ -34,7 +34,7 @@ jobs:
           set -euo pipefail
 
           server_log="$RUNNER_TEMP/page-shipping-server.log"
-          yarn next start --hostname 127.0.0.1 -p 40196 >"$server_log" 2>&1 &
+          yarn next start -p 40196 >"$server_log" 2>&1 &
           server_pid=$!
           trap 'kill "$server_pid" 2>/dev/null || true; wait "$server_pid" 2>/dev/null || true' EXIT
 
