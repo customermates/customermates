@@ -84,6 +84,13 @@ describe("manage_wiki_pages registry", () => {
     expect(MCP_TOOL_GROUPS.wiki).toEqual([manageWikiPagesTool]);
     expect(ALL_MCP_TOOLS.filter(({ name }) => name === "manage_wiki_pages")).toEqual([manageWikiPagesTool]);
   });
+
+  it("warns that delete is irreversible and that a changed page restarts chunking", () => {
+    expect(manageWikiPagesTool.description).toContain("action delete is IRREVERSIBLE.");
+    expect(manageWikiPagesTool.description).toContain(
+      "If updatedAt differs from the previous chunk, restart at offset 0.",
+    );
+  });
 });
 
 describe("homepage setup create", () => {
@@ -293,11 +300,14 @@ describe("manage_wiki_pages reads", () => {
       },
     });
 
-    const result = await run({ action: "list", page: 2, pageSize: 5 });
+    const result = await run({ action: "list", page: 2, pageSize: 25 });
     const output = decode(mcpToolResultText(result));
 
     expect(calls.list).toHaveBeenCalledWith({ page: 2, pageSize: 5 });
     expect(output).toEqual({
+      total: 1,
+      page: 2,
+      pageSize: 5,
       items: [
         {
           id: PAGE_ID,
@@ -306,10 +316,8 @@ describe("manage_wiki_pages reads", () => {
           updatedAt: UPDATED_AT.toISOString(),
         },
       ],
-      total: 1,
-      page: 2,
-      pageSize: 5,
     });
+    expect(Object.keys(output as object)).toEqual(["total", "page", "pageSize", "items"]);
     expect(JSON.stringify(output)).not.toContain("markdown");
   });
 
@@ -339,10 +347,12 @@ describe("manage_wiki_pages reads", () => {
       page: 1,
       pageSize: 5,
     });
-    expect(decode(mcpToolResultText(result))).toMatchObject({
+    const output = decode(mcpToolResultText(result));
+    expect(output).toMatchObject({
       items: [{ id: PAGE_ID, snippet: "A useful match" }],
       total: 1,
     });
+    expect(Object.keys(output as object)).toEqual(["total", "page", "pageSize", "items"]);
   });
 
   it("keeps a maximum-width search page below the agent result limit without truncation", async () => {
@@ -375,13 +385,7 @@ describe("manage_wiki_pages reads", () => {
     expect(text.length).toBeLessThan(6_000);
     expect(output).toMatchObject({ total: 23, page: 1, pageSize: 5 });
     expect(output.items).toHaveLength(5);
-    expect(
-      manageWikiPagesTool.inputSchema.safeParse({
-        action: "search",
-        query: "match",
-        pageSize: 10,
-      }).success,
-    ).toBe(false);
+    expect(calls.search).toHaveBeenCalledWith({ query: "match", page: 1, pageSize: 5 });
   });
 
   it("returns long Unicode Markdown in bounded, contiguous chunks", async () => {
@@ -568,6 +572,7 @@ describe("manage_wiki_pages writes", () => {
       "update",
     ],
     [{ action: "delete", id: PAGE_ID }, "delete"],
+    [{ action: "delete", id: PAGE_ID, expectedUpdatedAt: "yesterday" }, "delete"],
   ] as const)("rejects incomplete %s input before invoking an interactor", async (input, action) => {
     const result = await run(input as unknown as Record<string, unknown>);
 

@@ -34,15 +34,10 @@ import {
 } from "./utils";
 
 const WIKI_MCP_TEXT_TARGET_LENGTH = 5_500;
-const WikiMcpPageSizeSchema = z.literal(5).default(5).describe("Results per page (fixed at 5)");
+const WIKI_MCP_PAGE_SIZE = 5;
 
-const PagingSchema = z.object({
-  page: mcpPage(),
-  pageSize: WikiMcpPageSizeSchema,
-});
-
-const ListSchema = PagingSchema;
-const SearchSchema = PagingSchema.extend({
+const ListSchema = z.object({ page: mcpPage() });
+const SearchSchema = ListSchema.extend({
   query: z.string().trim().min(1).max(200),
 });
 const GetSchema = z.object({
@@ -202,17 +197,20 @@ const DeleteSchema = z.object({
 });
 
 const ManageWikiPagesSchema = z.object({
-  action: z.enum(["list", "search", "get", "create", "update", "delete"]),
-  id: z.uuid().optional(),
-  query: z.string().optional(),
-  offset: z.coerce.number().int().min(0).optional(),
+  action: z
+    .enum(["list", "search", "get", "create", "update", "delete"])
+    .describe(
+      "list = optional page; search = query, optional page; get = id, optional offset; create = pages, optional requireEmpty; update = id, expectedUpdatedAt, title and/or markdown; delete = id, expectedUpdatedAt.",
+    ),
+  id: z.uuid().optional().describe("Page id."),
+  query: z.string().optional().describe("Search terms."),
+  offset: z.coerce.number().int().min(0).optional().describe("nextOffset of the previous chunk."),
   page: mcpPage(),
-  pageSize: WikiMcpPageSizeSchema,
-  pages: z.array(PageInputSchema).min(1).max(5).optional(),
-  requireEmpty: z.boolean().optional(),
-  expectedUpdatedAt: z.iso.datetime().optional(),
-  title: z.string().optional(),
-  markdown: z.string().optional(),
+  pages: z.array(PageInputSchema).min(1).max(5).optional().describe("Created atomically."),
+  requireEmpty: z.boolean().optional().describe("Refuses create unless the Wiki is empty."),
+  expectedUpdatedAt: z.string().optional().describe("updatedAt from a prior read."),
+  title: z.string().optional().describe("New title."),
+  markdown: z.string().optional().describe("New Markdown."),
 });
 
 const ManageWikiPagesOutputSchema = z.looseObject({
@@ -286,15 +284,28 @@ function wikiPageChunk(
   return payload(offset, end);
 }
 
+function wikiListResult({
+  total,
+  page,
+  pageSize,
+  items,
+}: {
+  total: number;
+  page: number;
+  pageSize: number;
+  items: unknown[];
+}) {
+  return toonResult({ total, page, pageSize, items: formatDatesInResponse(items) });
+}
+
 export const manageWikiPagesTool = {
   name: "manage_wiki_pages",
   title: "Manage Workspace Wiki pages",
   description:
     "Read and manage the shared Workspace Wiki; read its company facts, processes, voice, and support guidance before relying on them. " +
-    "list returns pages in creation order. search ranks query terms in titles and Markdown, with snippets. " +
-    "get returns one Markdown chunk; pass nextOffset back as offset until it is null. " +
-    "create makes one to five pages atomically; requireEmpty=true refuses the batch unless the Wiki is empty. " +
-    "update changes title and/or Markdown; update and delete need expectedUpdatedAt from a prior read; delete permanently removes the page. " +
+    "list returns 5 pages in creation order; search ranks query terms in titles and Markdown, with snippets. " +
+    "get returns one Markdown chunk; pass nextOffset back as offset until it is null. If updatedAt differs from the previous chunk, restart at offset 0. " +
+    "action delete is IRREVERSIBLE. " +
     "Link pages with Markdown links to /wiki?page=<page-id>; ids stay stable when titles change.",
   annotations: {
     readOnlyHint: false,
@@ -308,16 +319,18 @@ export const manageWikiPagesTool = {
     if (params.action === "list") {
       const parsed = ListSchema.safeParse(params);
       if (!parsed.success) return mcpValidationFailure(parsed.error);
-      return runInteractor(getGetWikiPagesInteractor().invoke(parsed.data), (data) =>
-        toonResult(formatDatesInResponse(data)),
+      return runInteractor(
+        getGetWikiPagesInteractor().invoke({ ...parsed.data, pageSize: WIKI_MCP_PAGE_SIZE }),
+        wikiListResult,
       );
     }
 
     if (params.action === "search") {
       const parsed = SearchSchema.safeParse(params);
       if (!parsed.success) return mcpValidationFailure(parsed.error);
-      return runInteractor(getSearchWikiPagesInteractor().invoke(parsed.data), (data) =>
-        toonResult(formatDatesInResponse(data)),
+      return runInteractor(
+        getSearchWikiPagesInteractor().invoke({ ...parsed.data, pageSize: WIKI_MCP_PAGE_SIZE }),
+        wikiListResult,
       );
     }
 

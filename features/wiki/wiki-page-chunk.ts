@@ -28,10 +28,6 @@ function completeWikiLinkBoundary(markdown: string, requestedOffset: number, max
   return { offset, end };
 }
 
-/**
- * Finds the longest Markdown chunk from requestedOffset whose serialized payload still fits. The start snaps to a code
- * point and never splits a Markdown link; the end prefers a complete link and falls back to a code point boundary.
- */
 export function boundedWikiChunk(
   markdown: string,
   requestedOffset: number,

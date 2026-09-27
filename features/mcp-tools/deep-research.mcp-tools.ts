@@ -251,7 +251,7 @@ export const fetchTool = {
   description:
     "Read a result from search, including Workspace Wiki Markdown by wiki:<uuid>. " +
     "Wiki pages may also be fetched by their exact relative, localized, or same-origin absolute Wiki URL. " +
-    "Wiki content is returned in bounded chunks with absolute internal links and a source URL for citations; pass nextOffset back as offset until it is null. Wiki Read is required for Wiki pages. " +
+    "Wiki content is returned in bounded chunks with absolute internal links and a source URL for citations; pass nextOffset back as offset until it is null. If updatedAt differs from the previous chunk, restart at offset 0. Wiki Read is required for Wiki pages. " +
     "Compatible with ChatGPT company knowledge and deep research. For focused CRM or product-documentation retrieval, prefer get_records or get_docs_page. " +
     "For a docs result, app routes in text, such as `/company/subscription`, are relative: for a full link, put the route after the origin of url; that origin is the instance's configured BASE_URL.",
   annotations: { readOnlyHint: true, idempotentHint: true, destructiveHint: false, openWorldHint: false },

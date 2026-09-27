@@ -1338,7 +1338,7 @@
       "widgetNotFound": "ID widget non trovato o non accessibile.",
       "widgetTaskCanOnlyGroupByCustomColumn": "Le attività possono essere raggruppate solo per colonne personalizzate, non per tipi di elemento.",
       "widgetWeightedValueNotAllowedForService": "L'aggregazione del valore ponderato non è consentita per il tipo di elemento Servizio.",
-      "wikiNotEmpty": "La configurazione della wiki dell’area di lavoro può essere eseguita solo quando la wiki è vuota.",
+      "wikiNotEmpty": "Questa azione richiede una wiki vuota.",
       "wikiPageConflict": "Questa pagina wiki è cambiata dopo che l’hai aperta. Ricaricala e riprova.",
       "wikiPageNotFound": "Pagina wiki non trovata o non accessibile."
     },
