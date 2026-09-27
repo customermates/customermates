@@ -1338,6 +1338,7 @@
       "widgetNotFound": "ID de widget no encontrado o no accesible.",
       "widgetTaskCanOnlyGroupByCustomColumn": "Las tareas solo se pueden agrupar por columnas personalizadas, no por tipos de elemento.",
       "widgetWeightedValueNotAllowedForService": "La agregación de valor ponderado no está permitida para el tipo de elemento Servicio.",
+      "wikiHomepageSetupStartFailed": "Mate no pudo iniciar la configuración de la wiki. Inténtalo de nuevo.",
       "wikiNotEmpty": "Esta acción requiere que la wiki esté vacía.",
       "wikiPageConflict": "Esta página de la wiki cambió después de que la abrieras. Vuelve a cargarla e inténtalo de nuevo.",
       "wikiPageNotFound": "Página de la wiki no encontrada o no accesible."
@@ -3749,7 +3750,6 @@
     "progressLoading": "Cargando el progreso de Mate",
     "skip": "Ahora no",
     "start": "Crear mi wiki",
-    "startFailed": "Mate no pudo iniciar la configuración de la wiki. Inténtalo de nuevo.",
     "status": {
       "completedBodyOnboarding": "Mate ha creado tus páginas iniciales con datos respaldados por el sitio web. Podrás revisarlas más tarde en la wiki y confirmar lo que esté marcado como pendiente de confirmar.",
       "completedExistingBody": "Tu wiki ya contiene páginas. Continúa la incorporación o revisa el contenido existente.",

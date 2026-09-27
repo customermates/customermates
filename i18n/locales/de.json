@@ -1338,6 +1338,7 @@
       "widgetNotFound": "Widget-ID nicht gefunden oder nicht zugänglich.",
       "widgetTaskCanOnlyGroupByCustomColumn": "Aufgaben können nur nach benutzerdefinierten Spalten gruppiert werden, nicht nach Elementtypen.",
       "widgetWeightedValueNotAllowedForService": "Gewichtete Wert-Aggregation ist für den Elementtyp Service nicht erlaubt.",
+      "wikiHomepageSetupStartFailed": "Mate konnte die Wiki-Einrichtung nicht starten. Bitte versuche es erneut.",
       "wikiNotEmpty": "Diese Aktion erfordert ein leeres Wiki.",
       "wikiPageConflict": "Diese Wiki-Seite wurde geändert, nachdem du sie geöffnet hast. Lade sie neu und versuche es erneut.",
       "wikiPageNotFound": "Wiki-Seite nicht gefunden oder nicht zugänglich."
@@ -3749,7 +3750,6 @@
     "progressLoading": "Mates Fortschritt wird geladen",
     "skip": "Nicht jetzt",
     "start": "Wiki erstellen",
-    "startFailed": "Mate konnte die Wiki-Einrichtung nicht starten. Bitte versuche es erneut.",
     "status": {
       "completedBodyOnboarding": "Mate hat deine Startseiten mit belegten Website-Fakten erstellt. Du kannst sie später im Wiki prüfen und alles bestätigen, was als noch zu klären markiert ist.",
       "completedExistingBody": "Dein Wiki enthält bereits Seiten. Fahre mit dem Onboarding fort oder prüfe die vorhandenen Inhalte.",

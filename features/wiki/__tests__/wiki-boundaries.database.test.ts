@@ -611,7 +611,10 @@ describeDatabase("Workspace Wiki public boundaries on PostgreSQL", () => {
         ok: true,
         data: { status: "idle", homepage: null, domain: null, conversationId: null, pages: [] },
       });
-      expect(await startSetup(user)).toMatchObject({ ok: true, data: { disposition: "run" } });
+      expect(await startSetup(user)).toMatchObject({
+        ok: true,
+        data: { homepage: "https://example.org/", domain: "example.org" },
+      });
       expect(agent.invoke).toHaveBeenCalledExactlyOnceWith(
         expect.objectContaining({
           wikiHomepageSetupUrl: "https://example.org/",

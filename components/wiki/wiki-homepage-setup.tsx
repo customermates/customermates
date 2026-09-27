@@ -8,7 +8,7 @@ import { toJS } from "mobx";
 import { useTranslations } from "next-intl";
 import { CheckCircle2, FileText, Loader2, RotateCcw, Sparkles, TriangleAlert } from "lucide-react";
 
-import { startWikiHomepageSetupAction } from "@/app/[locale]/(protected)/wiki/setup-action";
+import { startWikiHomepageSetupAction } from "@/app/[locale]/(protected)/wiki/actions";
 import { AppForm } from "@/components/forms/form-context";
 import { FormInput } from "@/components/forms/form-input";
 import { Button } from "@/components/ui/button";

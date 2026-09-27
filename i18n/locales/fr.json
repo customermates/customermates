@@ -1338,6 +1338,7 @@
       "widgetNotFound": "ID de widget introuvable ou inaccessible.",
       "widgetTaskCanOnlyGroupByCustomColumn": "Les tâches ne peuvent être regroupées que par colonnes personnalisées, pas par types d'élément.",
       "widgetWeightedValueNotAllowedForService": "L'agrégation de valeur pondérée n'est pas autorisée pour le type d'élément Service.",
+      "wikiHomepageSetupStartFailed": "Mate n’a pas pu démarrer la configuration du wiki. Réessayez.",
       "wikiNotEmpty": "Cette action nécessite un wiki vide.",
       "wikiPageConflict": "Cette page du wiki a été modifiée après son ouverture. Rechargez-la et réessayez.",
       "wikiPageNotFound": "Page du wiki introuvable ou inaccessible."
@@ -3749,7 +3750,6 @@
     "progressLoading": "Chargement de la progression de Mate",
     "skip": "Pas maintenant",
     "start": "Créer mon wiki",
-    "startFailed": "Mate n’a pas pu démarrer la configuration du wiki. Réessayez.",
     "status": {
       "completedBodyOnboarding": "Mate a créé vos pages initiales avec des faits issus du site web. Vous pourrez les vérifier plus tard dans le wiki et confirmer tout ce qui est indiqué comme point à confirmer.",
       "completedExistingBody": "Votre wiki contient déjà des pages. Poursuivez l’intégration ou vérifiez le contenu existant.",

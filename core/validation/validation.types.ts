@@ -80,6 +80,7 @@ export enum CustomErrorCode {
   wikiPageNotFound = "wikiPageNotFound",
   wikiPageConflict = "wikiPageConflict",
   wikiNotEmpty = "wikiNotEmpty",
+  wikiHomepageSetupStartFailed = "wikiHomepageSetupStartFailed",
   threadNotFound = "threadNotFound",
   emailFolderNotFound = "emailFolderNotFound",
   emailFolderNotMovable = "emailFolderNotMovable",

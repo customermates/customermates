@@ -82,7 +82,14 @@ describe("StartWikiHomepageSetupInteractor", () => {
       locale: "de",
     });
 
-    expect(result).toBe(outcome);
+    expect(result).toEqual({
+      ok: true,
+      data: {
+        conversationId: "00000000-0000-4000-8000-000000000002",
+        homepage: "https://www.example.com/about",
+        domain: "example.com",
+      },
+    });
     expect(agent.invoke).toHaveBeenCalledOnce();
     expect(agent.invoke).toHaveBeenCalledWith({
       clientRequestId: CLIENT_REQUEST_ID,
@@ -143,7 +150,7 @@ describe("StartWikiHomepageSetupInteractor", () => {
     expect(agent.invoke).not.toHaveBeenCalled();
   });
 
-  it("returns the Assistant's exactly-once replay outcome unchanged", async () => {
+  it("reports the Assistant's exactly-once replay as the started setup", async () => {
     const repo = {
       wikiIsEmpty: vi.fn().mockResolvedValue(true),
       findReusableWikiHomepageSetupTurn: vi.fn().mockResolvedValue({
@@ -169,7 +176,10 @@ describe("StartWikiHomepageSetupInteractor", () => {
         clientRequestId: CLIENT_REQUEST_ID,
         locale: "fr",
       }),
-    ).resolves.toBe(replay);
+    ).resolves.toEqual({
+      ok: true,
+      data: { conversationId: replay.data.conversationId, homepage: "https://example.com/", domain: "example.com" },
+    });
     expect(repo.wikiIsEmpty).not.toHaveBeenCalled();
     expect(agent.invoke).toHaveBeenCalledWith(expect.objectContaining({ text: "Persisted setup prompt." }));
   });
@@ -240,7 +250,7 @@ describe("StartWikiHomepageSetupInteractor", () => {
         clientRequestId: CLIENT_REQUEST_ID,
         locale: "en",
       }),
-    ).resolves.toBe(replay);
+    ).resolves.toMatchObject({ ok: true, data: { conversationId: replay.data.conversationId } });
     expect(repo.wikiIsEmpty).not.toHaveBeenCalled();
   });
 
@@ -266,5 +276,69 @@ describe("StartWikiHomepageSetupInteractor", () => {
     }
     expect(repo.wikiIsEmpty).not.toHaveBeenCalled();
     expect(agent.invoke).not.toHaveBeenCalled();
+  });
+
+  it("retries a pre-provider failure once with the same request identity", async () => {
+    const repo = {
+      wikiIsEmpty: vi.fn().mockResolvedValue(true),
+      findReusableWikiHomepageSetupTurn: vi.fn().mockResolvedValue(null),
+    };
+    const turn = (disposition: string, retryAllowed: boolean) => ({
+      ok: true,
+      data: {
+        disposition,
+        clientRequestId: CLIENT_REQUEST_ID,
+        conversationId: "00000000-0000-4000-8000-000000000002",
+        retryAllowed,
+      },
+    });
+    const agent = {
+      invoke: vi.fn().mockResolvedValueOnce(turn("failed", true)).mockResolvedValueOnce(turn("run", false)),
+    };
+
+    const result = await setupInteractor(repo, agent).invoke({
+      homepage: "example.com",
+      clientRequestId: CLIENT_REQUEST_ID,
+      locale: "en",
+    });
+
+    expect(result).toMatchObject({ ok: true, data: { domain: "example.com" } });
+    expect(agent.invoke.mock.calls.map(([input]) => [input.clientRequestId, input.retry])).toEqual([
+      [CLIENT_REQUEST_ID, false],
+      [CLIENT_REQUEST_ID, true],
+    ]);
+  });
+
+  it.each([
+    ["an uncertain", { disposition: "uncertain", conversationId: "00000000-0000-4000-8000-000000000002" }],
+    ["a conflicting", { disposition: "conflict" }],
+    ["an at-capacity", { disposition: "atCapacity", conversationId: "00000000-0000-4000-8000-000000000002" }],
+    ["a non-retryable failed", { disposition: "failed", conversationId: "00000000-0000-4000-8000-000000000002" }],
+  ])("does not present %s turn as started", async (_case, outcome) => {
+    const repo = {
+      wikiIsEmpty: vi.fn().mockResolvedValue(true),
+      findReusableWikiHomepageSetupTurn: vi.fn().mockResolvedValue(null),
+    };
+    const agent = {
+      invoke: vi.fn().mockResolvedValue({
+        ok: true,
+        data: { clientRequestId: CLIENT_REQUEST_ID, retryAllowed: false, ...outcome },
+      }),
+    };
+
+    const result = await setupInteractor(repo, agent).invoke({
+      homepage: "example.com",
+      clientRequestId: CLIENT_REQUEST_ID,
+      locale: "en",
+    });
+
+    expect(result.ok).toBe(false);
+    if (!result.ok) {
+      expect(result.error.issues[0]).toMatchObject({
+        path: ["homepage"],
+        params: { error: CustomErrorCode.wikiHomepageSetupStartFailed },
+      });
+    }
+    expect(agent.invoke).toHaveBeenCalledOnce();
   });
 });

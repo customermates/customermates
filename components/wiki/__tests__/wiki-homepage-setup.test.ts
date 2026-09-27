@@ -12,7 +12,7 @@ const harness = vi.hoisted(() => ({
   toast: vi.fn(),
 }));
 
-vi.mock("@/app/[locale]/(protected)/wiki/setup-action", () => ({
+vi.mock("@/app/[locale]/(protected)/wiki/actions", () => ({
   startWikiHomepageSetupAction: harness.action,
 }));
 vi.mock("@/core/errors/report-application-error", () => ({

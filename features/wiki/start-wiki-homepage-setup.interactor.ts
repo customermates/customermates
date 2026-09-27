@@ -19,9 +19,16 @@ export const StartWikiHomepageSetupSchema = z.object({
   homepage: z.string().trim().min(1).max(2_000),
   clientRequestId: z.uuid(),
   locale: z.enum([firstAppLocale, ...otherAppLocales]),
-  retry: z.boolean().optional(),
 });
 export type StartWikiHomepageSetupData = Data<typeof StartWikiHomepageSetupSchema>;
+
+export type StartedWikiHomepageSetup = {
+  conversationId: string;
+  homepage: string;
+  domain: string;
+};
+
+const ACCEPTED_DISPOSITIONS = new Set<SendAgentMessageResult["disposition"]>(["run", "running", "completedReplay"]);
 
 export abstract class StartWikiHomepageSetupRepo {
   abstract wikiIsEmpty(): Promise<boolean>;
@@ -37,7 +44,7 @@ export abstract class StartWikiHomepageSetupTurnRepo {
 @TenantInteractor({ resource: Resource.wiki, action: Action.create })
 export class StartWikiHomepageSetupInteractor extends AuthenticatedInteractor<
   StartWikiHomepageSetupData,
-  SendAgentMessageResult
+  StartedWikiHomepageSetup
 > {
   constructor(
     private repo: StartWikiHomepageSetupRepo,
@@ -48,7 +55,7 @@ export class StartWikiHomepageSetupInteractor extends AuthenticatedInteractor<
   }
 
   @Write({ input: StartWikiHomepageSetupSchema, tx: false })
-  async invoke(data: StartWikiHomepageSetupData): Validated<SendAgentMessageResult> {
+  async invoke(data: StartWikiHomepageSetupData): Validated<StartedWikiHomepageSetup> {
     const homepage = parsePublicWikiHomepage(data.homepage);
     if (!homepage) return fail(CustomErrorCode.invalidUrl, ["homepage"]);
     const reusable = await this.setupTurnRepo.findReusableWikiHomepageSetupTurn({
@@ -64,12 +71,28 @@ export class StartWikiHomepageSetupInteractor extends AuthenticatedInteractor<
       text = t("agentPrompt", { homepage: homepage.url });
     }
 
-    return this.agent.invoke({
-      clientRequestId: reusable?.clientRequestId ?? data.clientRequestId,
-      text,
-      locale: data.locale,
-      retry: data.retry === true,
-      wikiHomepageSetupUrl: homepage.url,
-    });
+    const start = (retry: boolean) =>
+      this.agent.invoke({
+        clientRequestId: reusable?.clientRequestId ?? data.clientRequestId,
+        text,
+        locale: data.locale,
+        retry,
+        wikiHomepageSetupUrl: homepage.url,
+      });
+
+    let result = await start(false);
+    if (result.ok && result.data.disposition === "failed" && result.data.retryAllowed) result = await start(true);
+    if (!result.ok) return result;
+    if (!ACCEPTED_DISPOSITIONS.has(result.data.disposition) || !result.data.conversationId)
+      return fail(CustomErrorCode.wikiHomepageSetupStartFailed, ["homepage"]);
+
+    return {
+      ok: true,
+      data: {
+        conversationId: result.data.conversationId,
+        homepage: homepage.url,
+        domain: homepage.registrableDomain,
+      },
+    };
   }
 }
