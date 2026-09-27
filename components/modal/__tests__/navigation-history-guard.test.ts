@@ -361,4 +361,29 @@ describe("shared dirty history navigation", () => {
       browser.removeEventListener("popstate", nextRouter);
     }
   });
+
+  it("starts without crypto.randomUUID and degrades to no guard when history cannot be marked", () => {
+    const randomUUID = Object.getOwnPropertyDescriptor(globalThis.crypto, "randomUUID");
+    Object.defineProperty(globalThis.crypto, "randomUUID", { configurable: true, value: undefined });
+    const browserWith = (replaceState: (data: unknown) => void) =>
+      Object.assign(new EventTarget(), {
+        history: { state: null, pushState: () => undefined, replaceState },
+      }) as unknown as Window;
+
+    try {
+      let marked: unknown = null;
+      const insecure = browserWith((data) => (marked = data));
+      const disconnect = connectNavigationHistoryGuard(new NavigationGuardController(), insecure);
+      expect(marked).toMatchObject({ __customermatesHistory: { session: expect.any(String), index: 0 } });
+      disconnect();
+
+      const broken = browserWith(() => {
+        throw new Error("history unavailable");
+      });
+      expect(() => connectNavigationHistoryGuard(new NavigationGuardController(), broken)()).not.toThrow();
+    } finally {
+      if (randomUUID) Object.defineProperty(globalThis.crypto, "randomUUID", randomUUID);
+      else delete (globalThis.crypto as { randomUUID?: unknown }).randomUUID;
+    }
+  });
 });

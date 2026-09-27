@@ -7,6 +7,11 @@ type HistoryGuard = {
   connect: (guard: NavigationGuardController) => () => void;
 };
 const adapters = new WeakMap<Window, HistoryGuard>();
+const UNGUARDED: HistoryGuard = { connect: () => () => undefined };
+
+function newSession(): Position {
+  return { session: `${Date.now().toString(36)}-${Math.random().toString(36).slice(2)}`, index: 0 };
+}
 
 function positionFrom(state: unknown): Position | null {
   if (!state || typeof state !== "object" || !(HISTORY_KEY in state)) return null;
@@ -29,10 +34,7 @@ function createHistoryGuard(browser: Window): HistoryGuard {
   const pushState = history.pushState.bind(history);
   const replaceState = history.replaceState.bind(history);
   const guards = new Map<NavigationGuardController, number>();
-  let position = positionFrom(history.state) ?? {
-    session: crypto.randomUUID(),
-    index: 0,
-  };
+  let position = positionFrom(history.state) ?? newSession();
   let restoring: RestoreTarget | null = null;
   let approved: Position | null = null;
   let approvedPrevious = false;
@@ -60,7 +62,7 @@ function createHistoryGuard(browser: Window): HistoryGuard {
       if (!next || next.session !== position.session) {
         if (approvedPrevious) {
           approvedPrevious = false;
-          position = next ?? { session: crypto.randomUUID(), index: 0 };
+          position = next ?? newSession();
           replaceState(withPosition(history.state, position), "");
           approved = null;
           return;
@@ -72,7 +74,7 @@ function createHistoryGuard(browser: Window): HistoryGuard {
           history.forward();
           return;
         }
-        position = next ?? { session: crypto.randomUUID(), index: 0 };
+        position = next ?? newSession();
         replaceState(withPosition(history.state, position), "");
         restoring = null;
         approved = null;
@@ -124,7 +126,11 @@ function createHistoryGuard(browser: Window): HistoryGuard {
 export function initializeNavigationHistoryGuard(browser: Window = window) {
   let adapter = adapters.get(browser);
   if (!adapter) {
-    adapter = createHistoryGuard(browser);
+    try {
+      adapter = createHistoryGuard(browser);
+    } catch {
+      adapter = UNGUARDED;
+    }
     adapters.set(browser, adapter);
   }
   return adapter;
