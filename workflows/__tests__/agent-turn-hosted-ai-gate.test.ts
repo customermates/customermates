@@ -738,6 +738,49 @@ describe("agent-turn credit-bounded continuation", () => {
     );
   });
 
+  describe("benchmark tool output recording", () => {
+    const runOneToolRound = async (recordToolOutputs: boolean | undefined) => {
+      state.definitions.push({ name: "list_records", description: "list_records", inputSchema: { type: "object" } });
+      state.normalize.mockResolvedValue({ ok: true, input: { entity: "deal" } });
+      state.execute.mockResolvedValue({ ok: true, result: "total: 42" });
+      state.runTools = async ({ messages, executeAndCompleteTool }) => {
+        await executeAndCompleteTool("list_records", { entity: "deal" }, "call-recorded");
+        return {
+          finishReason: "stop",
+          messages,
+          steps: [
+            streamedToolCallStep("list_records", "call-recorded", { entity: "deal" }),
+            streamedStep("Done.", "stop"),
+          ],
+        };
+      };
+      await runAgentTurn(recordToolOutputs === undefined ? payload : { ...payload, recordToolOutputs });
+      return state.recordRound.mock.calls.flatMap(([args]) => (args as { parts: unknown[] }).parts);
+    };
+
+    it("stores the output text next to the tool call when the benchmark asks for it", async () => {
+      const parts = await runOneToolRound(true);
+
+      expect(parts).toContainEqual(
+        expect.objectContaining({
+          type: "benchmark-tool-output",
+          toolCallId: "call-recorded",
+          toolName: "list_records",
+          ok: true,
+          text: "total: 42",
+        }),
+      );
+      expect(state.finalize).toHaveBeenCalledWith(expect.objectContaining({ terminalCode: "completed" }));
+    });
+
+    it("stores no output for an ordinary turn", async () => {
+      const parts = await runOneToolRound(undefined);
+
+      expect(parts).toContainEqual(expect.objectContaining({ type: "tool-call", toolCallId: "call-recorded" }));
+      expect(parts).not.toContainEqual(expect.objectContaining({ type: "benchmark-tool-output" }));
+    });
+  });
+
   it("adaptively retains only the current partial output when two large length steps do not fit", async () => {
     state.contextFits.mockImplementation((context: unknown, stepMessages: unknown, maxBytes: unknown) => {
       if (typeof maxBytes !== "number") return false;

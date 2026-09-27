@@ -16,6 +16,7 @@ import type {
 import type { JudgeVerdict } from "./judge";
 import type { SseFrame, SseTiming } from "./sse";
 import type { AgentContextAttachment } from "@/ee/agent-chat/agent-context";
+import type { BenchmarkToolOutputPart } from "@/ee/agent-chat/benchmark-tool-output";
 import type { AgentModelEntry } from "@/ee/agent-chat/model-catalog";
 
 import { runWithoutTenant } from "@/core/decorators/tenant-context";
@@ -138,6 +139,7 @@ export type EpisodeArtifact = {
   mergeRequired: boolean;
   turns: TurnRecord[];
   observed: ObservedTurn[];
+  toolOutputs?: (RecordedToolOutput | null)[][];
   metrics: { turns: { id: string; status: string; terminalCode: string | null; stopReason: string | null; modelSpec: string | null; servingProvider: string | null; createdAt: string; providerStartedAt: string | null; terminalAt: string | null;
     }[]; rounds: RoundMetric[];
   };
@@ -156,6 +158,23 @@ export type EpisodeArtifact = {
   capturedAt: string;
   judge?: JudgeVerdict;
 };
+
+export type RecordedToolOutput = Omit<BenchmarkToolOutputPart, "type">;
+
+export function recordedToolOutputs(
+  roundParts: readonly Record<string, unknown>[],
+): (RecordedToolOutput | null)[] {
+  const outputs = new Map<string, RecordedToolOutput>();
+  for (const part of roundParts) {
+    if (part.type !== "benchmark-tool-output" || typeof part.toolCallId !== "string")
+      continue;
+    const { type: _type, ...recorded } = part as BenchmarkToolOutputPart;
+    outputs.set(part.toolCallId, recorded);
+  }
+  return roundParts
+    .filter((part) => part.type === "tool-call")
+    .map((part) => outputs.get(String(part.toolCallId)) ?? null);
+}
 
 export type EpisodeRequest = {
   db: BenchmarkDb;
@@ -507,6 +526,7 @@ async function observeEpisode(db: BenchmarkDb, fixture: Fixture) {
     }),
   );
   const observed: ObservedTurn[] = [];
+  const toolOutputs: (RecordedToolOutput | null)[][] = [];
   const metrics: EpisodeArtifact["metrics"] = { turns: [], rounds: [] };
   for (const turn of turns) {
     const assistant = turn.messages.filter(
@@ -567,6 +587,7 @@ async function observeEpisode(db: BenchmarkDb, fixture: Fixture) {
           roundIndex,
         } as ObservedTurn["tools"][number];
       });
+    toolOutputs.push(recordedToolOutputs(rawParts.map(({ part }) => part)));
     const approvals = await runWithoutTenant(() =>
       db.prisma.agentApproval.findMany({
         where: {
@@ -621,6 +642,7 @@ async function observeEpisode(db: BenchmarkDb, fixture: Fixture) {
   return {
     turns,
     observed,
+    toolOutputs,
     metrics,
     usage: usage.map((event) => ({
       turnRequestId: event.turnRequestId,
@@ -917,6 +939,8 @@ export async function runEpisode(
     ...turn,
     streamEvents: artifact.turns[index]?.streamEvents ?? [],
   }));
+  if (observation.toolOutputs.some((turn) => turn.some(Boolean)))
+    artifact.toolOutputs = observation.toolOutputs;
   artifact.metrics = observation.metrics;
   artifact.usage = observation.usage;
   const submittedPrompts = observation.turns.flatMap((turn) =>

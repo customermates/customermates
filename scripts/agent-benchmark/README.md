@@ -47,6 +47,8 @@ Run nothing else against the same database while a campaign runs. Any other appl
 
 Every command exits the process when it finishes: loading the product graph starts a workflow worker that would otherwise keep the run alive indefinitely after the last episode.
 
+In benchmark mode (`LOCAL_AGENT_BENCHMARK=true`) the server also stores each tool call's result text in its round record, bounded to 8,000 characters per call, plus the structured content when it serializes to at most 2,000 characters. Episodes save it as `toolOutputs`, one list per turn aligned with `observed[turn].tools`; oracles and judges do not read it. A server started without the flag records nothing extra.
+
 `--variant <label>` groups a run's artifacts and report rows under a label of your choice; the application has one runtime, so the label records what you changed between runs rather than selecting a code path.
 
 Commands (`yarn agent:benchmark <command>`):

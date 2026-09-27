@@ -62,6 +62,7 @@ import {
   type AgentContinuationStep,
 } from "@/ee/agent-chat/agent-continuation";
 import { isAgentStepContextWithinBudget } from "@/ee/agent-chat/agent-provider-context";
+import { benchmarkToolOutputPart } from "@/ee/agent-chat/benchmark-tool-output";
 import { getAgentChatRepo, getBackgroundTaskService } from "@/core/di";
 import { internalToolIdentity } from "@/ee/agent-chat/tool-identity";
 import { readAgentProviderCharge } from "@/ee/agent-chat/gateway-cost";
@@ -109,6 +110,7 @@ export type AgentTurnWorkflowPayload = {
   tenant: WorkflowTenant;
   surface?: AgentTurnSurface;
   toolsets?: string[];
+  recordToolOutputs?: boolean;
 };
 
 export type AgentTurnSurface = "chat" | "routine";
@@ -860,9 +862,15 @@ export async function runAgentTurn(payload: AgentTurnWorkflowPayload): Promise<v
       if (deferredRound) deferredRound.outcomes.push(...outcomes);
     };
 
+    const benchmarkToolOutputs: AgentToolOutcome[] = [];
+    const recordBenchmarkToolOutput = (outcome: AgentToolOutcome) => {
+      if (payload.recordToolOutputs) benchmarkToolOutputs.push(outcome);
+    };
+
     const settleToolOutcome = (toolCallId: string, toolName: string | undefined, output: unknown) => {
       if (settledToolCallIds.has(toolCallId)) return;
       settledToolCallIds.add(toolCallId);
+      recordBenchmarkToolOutput({ toolCallId, toolName: toolName ?? "", output });
 
       const outcome = agentToolOutcomeStatus(output);
       transcript.completeToolCall({
@@ -909,6 +917,7 @@ export async function runAgentTurn(payload: AgentTurnWorkflowPayload): Promise<v
         if (!("threw" in outcome)) settleToolOutcome(outcome.toolCallId, outcome.toolName, outcome.output);
         else if (!settledToolCallIds.has(outcome.toolCallId)) {
           settledToolCallIds.add(outcome.toolCallId);
+          recordBenchmarkToolOutput(outcome);
           transcript.failToolCall(outcome.toolCallId);
         }
       }
@@ -962,6 +971,7 @@ export async function runAgentTurn(payload: AgentTurnWorkflowPayload): Promise<v
         for (const completed of outcomes) {
           if ("threw" in completed) {
             settledToolCallIds.add(completed.toolCallId);
+            recordBenchmarkToolOutput(completed);
             transcript.failToolCall(completed.toolCallId);
             continue;
           }
@@ -991,7 +1001,9 @@ export async function runAgentTurn(payload: AgentTurnWorkflowPayload): Promise<v
 
         const roundOutcome = await persistRound(payload, {
           roundIndex: roundIndex++,
-          parts: step.content,
+          parts: payload.recordToolOutputs
+            ? [...step.content, ...benchmarkToolOutputs.splice(0).map(benchmarkToolOutputPart)]
+            : step.content,
           finishReason: step.finishReason,
           tokens: roundTokens,
           reasoningTokens: step.usage.outputTokenDetails?.reasoningTokens ?? 0,

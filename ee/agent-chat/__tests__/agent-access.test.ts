@@ -422,6 +422,63 @@ describe("agent access", () => {
     );
   });
 
+  it.each([
+    { benchmark: "true", recorded: true },
+    { benchmark: undefined, recorded: false },
+  ])(
+    "asks the turn to record tool outputs only on a local benchmark server ($benchmark)",
+    async ({ benchmark, recorded }) => {
+      vi.stubEnv("LOCAL_AGENT_BENCHMARK", benchmark);
+      try {
+        const background = backgroundTasks();
+        const repo = {
+          normalizeExpiredAgentRunLease: vi.fn().mockResolvedValue(undefined),
+          findAgentTurnRequestForAdmission: vi.fn().mockResolvedValue(null),
+          claimAgentRunLease: vi.fn().mockResolvedValue("claimed"),
+          isAtAgentRunLimit: vi.fn().mockResolvedValue(false),
+          createAgentConversationForRun: vi.fn(),
+          deleteUnusedAgentConversation: vi.fn(),
+          recordAgentTurnExternalRun: vi.fn().mockResolvedValue(undefined),
+          findConversation: vi.fn().mockResolvedValue({
+            id: CONVERSATION_ID,
+            origin: "routine",
+            modelKey: null,
+            creditCeiling: 2,
+          }),
+          admitAgentTurnOrThrow: vi.fn().mockImplementation((args) =>
+            Promise.resolve({
+              conversationId: CONVERSATION_ID,
+              userMessageId: args.turn.userMessageId,
+              recentMessages: [
+                { id: args.turn.userMessageId, role: "user", parts: [{ type: "text", text: "Inspect the deal" }] },
+              ],
+            }),
+          ),
+        };
+
+        await runWithTenant(mockUser, () =>
+          new SendAgentMessageInteractor(
+            repo as never,
+            usageService() as never,
+            mockEntitlementService(),
+            background as never,
+            { getCustomColumns: () => Promise.resolve([]) } as never,
+          ).invokeRoutine({
+            clientRequestId: CLIENT_REQUEST_ID,
+            conversationId: CONVERSATION_ID,
+            text: "Inspect the deal",
+            retry: false,
+          }),
+        );
+
+        const dispatched = background.dispatchTracked.mock.calls[0]?.[1] as Record<string, unknown>;
+        expect(dispatched.recordToolOutputs === true).toBe(recorded);
+      } finally {
+        vi.unstubAllEnvs();
+      }
+    },
+  );
+
   it("reports temporary capacity pressure separately for a queued routine", async () => {
     const usage = usageService();
     const repo = {
