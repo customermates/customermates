@@ -46,6 +46,19 @@ function FieldLabel({ children, field, invalid, required }: FieldLabelProps) {
   );
 }
 
+type FieldErrorProps = {
+  field: ContactFormField;
+  message: string;
+};
+
+function FieldError({ field, message }: FieldErrorProps) {
+  return (
+    <p className="text-xs text-destructive" id={`${field}-error`} role="alert">
+      {message}
+    </p>
+  );
+}
+
 export function ContactForm() {
   const t = useTranslations();
   const [form, setForm] = useState<ContactFormValues>(EMPTY_CONTACT_FORM);
@@ -90,8 +103,11 @@ export function ContactForm() {
         setErrors(undefined);
         toast.success(t("ContactPage.form.successToast"));
       } else {
-        setErrors(result.error as ContactFormErrors);
-        toastZodErrorTree(result.error);
+        const nextErrors = result.error as ContactFormErrors;
+
+        setErrors(nextErrors);
+        if (Object.keys(nextErrors.properties ?? {}).length > 0) toast.error(t("ContactPage.form.errors.checkFields"));
+        else toastZodErrorTree(result.error);
       }
     } finally {
       setIsLoading(false);
@@ -100,6 +116,11 @@ export function ContactForm() {
 
   const invalid = (field: ContactFormField) => hasFieldError(errors, field);
   const privacyInvalid = invalid("privacyAcknowledged");
+  const describedBy = (field: ContactFormField) => (invalid(field) ? `${field}-error` : undefined);
+  const messageError =
+    form.message.trim().length >= 10
+      ? t("ContactPage.form.errors.messageTooLong")
+      : t("ContactPage.form.errors.messageTooShort");
 
   return (
     <>
@@ -159,6 +180,7 @@ export function ContactForm() {
 
                   <Input
                     required
+                    aria-describedby={describedBy("name")}
                     aria-invalid={invalid("name")}
                     autoComplete="name"
                     disabled={isLoading}
@@ -166,6 +188,8 @@ export function ContactForm() {
                     value={form.name}
                     onChange={(event) => change("name", event.target.value)}
                   />
+
+                  {invalid("name") ? <FieldError field="name" message={t("ContactPage.form.errors.name")} /> : null}
                 </div>
 
                 <div className="space-y-1.5">
@@ -175,6 +199,7 @@ export function ContactForm() {
 
                   <Input
                     required
+                    aria-describedby={describedBy("email")}
                     aria-invalid={invalid("email")}
                     autoComplete="email"
                     disabled={isLoading}
@@ -183,6 +208,8 @@ export function ContactForm() {
                     value={form.email}
                     onChange={(event) => change("email", event.target.value)}
                   />
+
+                  {invalid("email") ? <FieldError field="email" message={t("ContactPage.form.errors.email")} /> : null}
                 </div>
               </div>
 
@@ -192,6 +219,7 @@ export function ContactForm() {
                 </FieldLabel>
 
                 <Input
+                  aria-describedby={describedBy("company")}
                   aria-invalid={invalid("company")}
                   autoComplete="organization"
                   disabled={isLoading}
@@ -199,6 +227,10 @@ export function ContactForm() {
                   value={form.company}
                   onChange={(event) => change("company", event.target.value)}
                 />
+
+                {invalid("company") ? (
+                  <FieldError field="company" message={t("ContactPage.form.errors.company")} />
+                ) : null}
               </div>
 
               <div className="space-y-1.5">
@@ -208,6 +240,7 @@ export function ContactForm() {
 
                 <Textarea
                   required
+                  aria-describedby={describedBy("message")}
                   aria-invalid={invalid("message")}
                   disabled={isLoading}
                   id="message"
@@ -216,6 +249,8 @@ export function ContactForm() {
                   value={form.message}
                   onChange={(event) => change("message", event.target.value)}
                 />
+
+                {invalid("message") ? <FieldError field="message" message={messageError} /> : null}
               </div>
 
               <div className="space-y-1.5">

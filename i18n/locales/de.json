@@ -1874,6 +1874,14 @@
   "ContactPage": {
     "description": "Frage, Walkthrough oder Partnerschaft? Schreiben Sie mir kurz, ich melde mich innerhalb eines Tages zurück.",
     "form": {
+      "errors": {
+        "checkFields": "Bitte prüfen Sie die markierten Felder.",
+        "company": "Bitte halten Sie den Firmennamen unter 200 Zeichen.",
+        "email": "Bitte geben Sie eine gültige E-Mail-Adresse ein.",
+        "messageTooLong": "Bitte halten Sie Ihre Nachricht unter 5.000 Zeichen.",
+        "messageTooShort": "Bitte schreiben Sie mindestens 10 Zeichen.",
+        "name": "Bitte geben Sie Ihren Namen ein."
+      },
       "founderName": "Benjamin Wagner",
       "founderNote": "Ihre Nachricht kommt direkt bei mir an. Schreiben Sie kurz, was Sie heute nutzen und wo der Workflow hakt.",
       "founderRole": "Gründer von Customermates",

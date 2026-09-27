@@ -1874,6 +1874,14 @@
   "ContactPage": {
     "description": "Have a question, want a walkthrough, or exploring a partnership? Drop me a note and I'll get back within a day.",
     "form": {
+      "errors": {
+        "checkFields": "Please check the highlighted fields.",
+        "company": "Please keep the company name under 200 characters.",
+        "email": "Please enter a valid email address.",
+        "messageTooLong": "Please keep your message under 5,000 characters.",
+        "messageTooShort": "Please write at least 10 characters.",
+        "name": "Please enter your name."
+      },
       "founderName": "Benjamin Wagner",
       "founderNote": "Your message comes directly to me. Tell me what you use today and where the workflow gets stuck.",
       "founderRole": "Founder, Customermates",

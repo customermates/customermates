@@ -146,8 +146,12 @@ describe("contact form", () => {
     expect(query("#name").getAttribute("aria-invalid")).toBe("false");
     expect(query("label[for=email]").className).toContain("text-destructive");
     expect(query("#privacyAcknowledged").getAttribute("aria-describedby")).toBe("privacyAcknowledged-error");
-    expect(query("[role=alert]").textContent).toBe("ContactPage.form.privacyAcknowledgementRequired");
+    expect(query("#email").getAttribute("aria-describedby")).toBe("email-error");
+    expect(query("#email-error").textContent).toBe("ContactPage.form.errors.email");
+    expect(query("#privacyAcknowledged-error").textContent).toBe("ContactPage.form.privacyAcknowledgementRequired");
+    expect(document.querySelector("#name-error")).toBeNull();
     expect(harness.toastError).toHaveBeenCalledTimes(1);
+    expect(harness.toastError).toHaveBeenCalledWith("ContactPage.form.errors.checkFields");
     expect(query<HTMLInputElement>("#email").value).toBe("not-an-email");
     expect(query<HTMLButtonElement>("button[type=submit]").disabled).toBe(false);
   });
