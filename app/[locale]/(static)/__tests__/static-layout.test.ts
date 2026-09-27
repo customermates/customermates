@@ -1,3 +1,5 @@
+import type { ReactNode } from "react";
+
 import { renderToStaticMarkup } from "react-dom/server";
 import { jsx } from "react/jsx-runtime";
 import { beforeEach, describe, expect, it, vi } from "vitest";
@@ -11,6 +13,12 @@ vi.mock("@vercel/analytics/next", () => ({
   Analytics: () => jsx("script", { src: "/_vercel/insights/script.js" }),
 }));
 vi.mock("@/components/ui/sonner", () => ({ Toaster: () => null }));
+vi.mock("@/features/auth/next/resolve-account-state", () => ({
+  resolveRequestAccountState: () => Promise.resolve({ state: "unauthenticated", user: null }),
+}));
+vi.mock("@/app/components/navigation/marketing-shell", () => ({
+  MarketingShell: ({ children }: { children: ReactNode }) => children,
+}));
 vi.mock("next/navigation", () => ({
   notFound: (): never => {
     throw new Error("NEXT_HTTP_ERROR_FALLBACK;404");
