@@ -21,10 +21,14 @@ import { malformedRequestPathResponse } from "./core/api/request-path-error";
 import { SYNTHETIC_SEED_USER } from "./core/config/synthetic-seed-user";
 import { legacyHubPageRedirect } from "./core/seo/hub-pagination";
 import { LANDING_HUBS } from "./core/seo/landing-hubs";
+import { isMissingContentPage, type ContentSlugManifest } from "./core/seo/missing-content-page";
+import contentSlugs from "./generated/content-slugs.json";
 import { SESSION_HINT_COOKIE_NAME, expiredSessionHintCookie, sessionHintCookie } from "./features/auth/session-hint";
 
 const intlAppMiddleware = createMiddleware(appRouting);
 const intlContentMiddleware = createMiddleware(contentRouting);
+
+const NEXT_INTL_LOCALE_HEADER = "X-NEXT-INTL-LOCALE";
 
 const LOCALE_SHAPED_SEGMENT = /^[a-z]{2}(?:-[a-z0-9]{2,8})*$/i;
 
@@ -105,6 +109,13 @@ function appendSetCookieHeaders(response: NextResponse, authResponse: Response):
   for (const cookie of setCookies) response.headers.append("set-cookie", cookie);
 }
 
+function notFoundResponse(req: NextRequest, locale: string): NextResponse {
+  const headers = new Headers(req.headers);
+  headers.set(NEXT_INTL_LOCALE_HEADER, locale);
+
+  return NextResponse.rewrite(new URL("/_not-found", req.url), { request: { headers } });
+}
+
 function legacyHubPageResponse(req: NextRequest, locale: string, base: string | URL): NextResponse | null {
   const unprefixedPath = stripLocalePrefix(req.nextUrl.pathname).replace(/\/$/u, "") || "/";
   const hub = LANDING_HUBS.find(({ hubPath }) => hubPath === unprefixedPath);
@@ -113,8 +124,7 @@ function legacyHubPageResponse(req: NextRequest, locale: string, base: string | 
   const resolution = legacyHubPageRedirect(hub.hubPath, req.nextUrl.searchParams);
   if (!resolution) return null;
 
-  if (resolution.kind === "not-found")
-    return NextResponse.rewrite(new URL(buildLocalePath(locale, `${hub.hubPath}/page/0`), req.url));
+  if (resolution.kind === "not-found") return notFoundResponse(req, locale);
 
   return NextResponse.redirect(new URL(buildLocalePath(locale, resolution.href), base), 308);
 }
@@ -250,6 +260,9 @@ async function routePageRequest(
 
     const legacyHubPage = legacyHubPageResponse(req, currentLocale, base);
     if (legacyHubPage) return legacyHubPage;
+
+    if (isMissingContentPage(stripLocalePrefix(pathname), currentLocale, contentSlugs as ContentSlugManifest))
+      return notFoundResponse(req, currentLocale);
 
     return intlContentMiddleware(req);
   }

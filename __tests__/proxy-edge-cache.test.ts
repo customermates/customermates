@@ -99,15 +99,54 @@ describe("proxy legacy hub page queries", () => {
     for (const query of ["page=2junk", "page=2&page=3", "page=0"]) {
       const result = await call(`/en/compare?${query}`);
       expect(result.location, query).toBeNull();
-      expect(result.rewrite, query).toBe("http://localhost:4000/en/compare/page/0");
+      expect(result.rewrite, query).toBe("http://localhost:4000/_not-found");
     }
   });
 
   it("leaves hub pages without a page query and non-hub pages untouched", async () => {
-    for (const path of ["/en/blog", "/en/blog/page/2", "/en/pricing?page=2", "/en/blog/some-post?page=2"]) {
+    for (const path of ["/en/blog", "/en/blog/page/2", "/en/pricing?page=2", "/en/blog/open-source-crm?page=2"]) {
       const result = await call(path);
       expect(result.status, path).toBe(200);
       expect(result.location, path).toBeNull();
+      expect(result.rewrite, path).toBeNull();
+    }
+  });
+});
+
+describe("proxy missing content pages", () => {
+  beforeEach(() => {
+    authMocks.getSession.mockReset();
+    authMocks.getSession.mockResolvedValue(null);
+  });
+
+  it("renders the global not-found for a missing slug or hub page instead of a client-only 404 shell", async () => {
+    for (const path of [
+      "/en/blog/unknown-slug",
+      "/de/compare/unknown",
+      "/en/for/unknown",
+      "/en/features/unknown",
+      "/de/docs/unknown",
+      "/en/docs/openapi/unknown",
+      "/en/blog/page/99",
+      "/en/compare/page/1",
+      "/en/features/all/page/abc",
+    ]) {
+      const result = await call(path);
+      expect(result.location, path).toBeNull();
+      expect(result.rewrite, path).toBe("http://localhost:4000/_not-found");
+    }
+  });
+
+  it("passes existing content pages and hubs through", async () => {
+    for (const path of [
+      "/en/blog/open-source-crm",
+      "/de/compare/twenty-alternative",
+      "/en/features/all",
+      "/en/docs/openapi",
+      "/en/docs/mcp",
+    ]) {
+      const result = await call(path);
+      expect(result.status, path).toBe(200);
       expect(result.rewrite, path).toBeNull();
     }
   });

@@ -62,3 +62,27 @@ writeFileSync(outPath, JSON.stringify(manifest));
 console.log(
   `Wrote ${outPath} (${Object.keys(manifest).length} sources, ${Object.values(manifest).reduce((sum, src) => sum + Object.values(src).reduce((s, l) => s + Object.keys(l).length, 0), 0)} files)`,
 );
+
+const SLUG_COLLECTIONS = ["blog-posts", "compare-pages", "feature-pages", "for-pages", "docs", "api"] as const;
+
+const slugs: Record<string, Record<string, string[]>> = {};
+
+for (const collection of SLUG_COLLECTIONS) {
+  slugs[collection] = {};
+  for (const locale of LOCALES) {
+    let files: string[] = [];
+    try {
+      files = readdirSync(path.join(root, collection, locale));
+    } catch {
+      files = [];
+    }
+    slugs[collection][locale] = files
+      .filter((file) => file.endsWith(".mdx"))
+      .map((file) => file.slice(0, -4))
+      .sort();
+  }
+}
+
+const slugsPath = path.join(outDir, "content-slugs.json");
+writeFileSync(slugsPath, JSON.stringify(slugs));
+console.log(`Wrote ${slugsPath}`);
