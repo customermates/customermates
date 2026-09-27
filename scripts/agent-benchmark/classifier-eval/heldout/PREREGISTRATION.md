@@ -196,3 +196,19 @@ needs at least 6 wins and no losses to reach p < 0.05.
 
 Budget at the planned sizes, from the A/B's cost of $0.0128 to $0.0135 per episode: docs live and full suite about
 $9, routing about $10, Live Gate C about $4 per arm; within the plan's $60 with every run capped.
+
+## Amendment 1 (before any run)
+
+Recorded 2026-09-27 on parent commit `76fa13c6`, before any rule or classifier was scored on these sets and
+before any v2 code existed. The frozen fixtures and their sha256 are unchanged.
+
+- **Docs live repetitions raised from 5 to 10.** The primary docs comparison becomes 30 `DH` cases × k = 10 =
+  300 pairs, and the docs gate reads "paired p < 0.05 over k = 10". Reason: the power table shows 150 pairs are
+  underpowered if the live gain is half the offline one (δ 0.05, ψ 0.11 needs 343 pairs). At 300 pairs the exact
+  McNemar detects δ ≥ 5.3 pts at ψ 0.11 and δ ≥ 6.4 pts at ψ 0.16. Cluster-adjusted with intra-case
+  correlation 0.3, the design effect at k = 10 is 3.7 (81 effective pairs), which detects δ ≥ 12.3 pts. The
+  extra 150 pairs cost about $4 at the A/B's per-episode cost, within the plan's $60.
+- **Guard arm (c) threshold fixed at 0.8.** The classifier in arm (c) may only mark a mention as "every candidate
+  covered" (bulk), and only a probability of at least 0.8 counts; below it the mention keeps the structural
+  decision. The classifier can never allow a single-candidate write to a contested name. The threshold is not
+  tuned on any held-out item.
