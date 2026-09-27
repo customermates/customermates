@@ -5,6 +5,7 @@ import { beforeEach, describe, expect, it, vi } from "vitest";
 import { z } from "zod";
 
 import { AppErrorCode, ForbiddenError } from "@/core/errors/app-errors";
+import { Action, Resource } from "@/generated/prisma";
 import { runWithTenant } from "@/core/decorators/tenant-context";
 import { createMockUser } from "@/tests/helpers/mock-user";
 import { mockEntitlementService } from "@/tests/helpers/mock-entitlement-service";
@@ -77,8 +78,8 @@ function fixture() {
   const catalog = {
     invoke: vi.fn().mockResolvedValue({ ok: true, data: catalogData() }),
   };
-  const websiteSetup = {
-    invoke: vi.fn().mockResolvedValue({ ok: true, data: true }),
+  const userService = {
+    hasPermission: vi.fn().mockResolvedValue(true),
   };
   const repo = {
     normalizeExpiredAgentRunLease: vi.fn().mockResolvedValue(undefined),
@@ -136,14 +137,14 @@ function fixture() {
     background as never,
     { getCustomColumns: () => Promise.resolve([]) },
     catalog,
-    websiteSetup,
+    userService,
   );
   const payload = () => {
     const call = background.dispatchTracked.mock.calls.at(-1);
     if (!call) throw new Error("Expected an admitted turn.");
     return call[1] as AgentTurnWorkflowPayload;
   };
-  return { catalog, websiteSetup, repo, usage, background, interactor, payload };
+  return { catalog, userService, repo, usage, background, interactor, payload };
 }
 
 describe("Workspace Wiki admission bootstrap", () => {
@@ -361,7 +362,7 @@ describe("Workspace Wiki admission bootstrap", () => {
       });
 
       expect(result).toMatchObject({ ok: true, data: { disposition: "run" } });
-      expect(state.websiteSetup.invoke).toHaveBeenCalledOnce();
+      expect(state.userService.hasPermission).toHaveBeenCalledExactlyOnceWith(Resource.wiki, Action.create);
       const payload = state.payload();
       expect(payload.wikiCatalog).toBeNull();
       expect(payload.wikiWebsiteSetup).toEqual({ userHomepages: ["https://acme-gmbh.de/"] });
@@ -404,7 +405,7 @@ describe("Workspace Wiki admission bootstrap", () => {
           retry: false,
         }),
       );
-      expect(state.websiteSetup.invoke).not.toHaveBeenCalled();
+      expect(state.userService.hasPermission).not.toHaveBeenCalled();
       expect(state.payload().wikiWebsiteSetup).toBeUndefined();
       expect(definitions).toHaveBeenCalledWith(
         expect.objectContaining({ surface: "routine", wikiWebsiteSetup: false }),
@@ -414,18 +415,15 @@ describe("Workspace Wiki admission bootstrap", () => {
     it("does not offer the website tools when the Wiki already has pages", async () => {
       const state = fixture();
       await state.interactor.invoke({ clientRequestId: CLIENT_REQUEST_ID, text: "acme-widgets.com", retry: false });
-      expect(state.websiteSetup.invoke).not.toHaveBeenCalled();
+      expect(state.userService.hasPermission).not.toHaveBeenCalled();
       expect(state.payload().wikiWebsiteSetup).toBeUndefined();
       expect(definitions).toHaveBeenCalledWith(expect.objectContaining({ wikiWebsiteSetup: false }));
     });
 
-    it.each([
-      ["a read-only user", () => Promise.reject(new ForbiddenError("Wiki create denied"))],
-      ["a Wiki that filled up meanwhile", () => Promise.resolve({ ok: true, data: false })],
-    ])("does not offer the website tools to %s", async (_case, availability) => {
+    it("does not offer the website tools to a user without Wiki create access", async () => {
       const state = fixture();
       state.catalog.invoke.mockResolvedValue({ ok: true, data: EMPTY });
-      state.websiteSetup.invoke.mockImplementation(availability);
+      state.userService.hasPermission.mockResolvedValue(false);
       const result = await state.interactor.invoke({
         clientRequestId: CLIENT_REQUEST_ID,
         text: "acme-widgets.com",
@@ -436,11 +434,11 @@ describe("Workspace Wiki admission bootstrap", () => {
       expect(definitions).toHaveBeenCalledWith(expect.objectContaining({ wikiWebsiteSetup: false }));
     });
 
-    it("does not treat an unexpected availability failure as missing permission", async () => {
+    it("does not treat an unexpected permission lookup failure as missing permission", async () => {
       const state = fixture();
       const error = new Error("Database unavailable");
       state.catalog.invoke.mockResolvedValue({ ok: true, data: EMPTY });
-      state.websiteSetup.invoke.mockRejectedValue(error);
+      state.userService.hasPermission.mockRejectedValue(error);
       await expect(
         state.interactor.invoke({ clientRequestId: CLIENT_REQUEST_ID, text: "Hello", retry: false }),
       ).rejects.toBe(error);

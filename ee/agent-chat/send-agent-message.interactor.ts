@@ -14,7 +14,7 @@ import { env } from "@/env";
 
 import { resolveUserLocale } from "@/i18n/user-locale";
 import { getTranslator } from "@/i18n/get-translator";
-import { AgentConversationOrigin } from "@/generated/prisma";
+import { Action, AgentConversationOrigin, Resource } from "@/generated/prisma";
 
 import {
   SendAgentMessageSchema,
@@ -53,7 +53,7 @@ import type { GetCustomColumnsRepo } from "@/features/custom-column/get-custom-c
 import { fail, failConflict, failNotFound, failRateLimit } from "@/core/validation/interactor-failure-server";
 import { CustomErrorCode } from "@/core/validation/validation.types";
 import type { GetWikiCatalogInteractor } from "@/features/wiki/get-wiki-catalog.interactor";
-import type { GetWikiWebsiteSetupAvailabilityInteractor } from "@/features/wiki/get-wiki-website-setup-availability.interactor";
+import type { UserService } from "@/features/user/user.service";
 import { parsePublicWikiHomepage, type PublicWikiHomepage } from "@/features/wiki/wiki-homepage";
 import { AppErrorCode, appErrorDetails } from "@/core/errors/app-errors";
 import { agentWebSearchEnabled } from "./agent-web-search";
@@ -110,21 +110,14 @@ export class SendAgentMessageInteractor extends AuthenticatedInteractor<SendAgen
     private backgroundTaskService: BackgroundTaskService,
     private customColumns: GetCustomColumnsRepo,
     private wikiCatalog: Pick<GetWikiCatalogInteractor, "invoke">,
-    private wikiWebsiteSetupAvailability?: Pick<GetWikiWebsiteSetupAvailabilityInteractor, "invoke">,
+    private userService?: Pick<UserService, "hasPermission">,
   ) {
     super();
   }
 
   private async wikiWebsiteSetupAvailable() {
-    if (!this.wikiWebsiteSetupAvailability) return false;
-    try {
-      const result = await this.wikiWebsiteSetupAvailability.invoke();
-      return result.ok && result.data;
-    } catch (error) {
-      const code = appErrorDetails(error)?.code;
-      if (code === AppErrorCode.permissionDenied || code === AppErrorCode.demoMode) return false;
-      throw error;
-    }
+    if (!this.userService || env.APP_MODE === "demo") return false;
+    return this.userService.hasPermission(Resource.wiki, Action.create);
   }
 
   private async schemaDigest() {

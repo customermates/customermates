@@ -40,7 +40,7 @@ const state = vi.hoisted(() => ({
   tenantCompanyId: "company-1",
   prepared: null as unknown,
   readPage: vi.fn(),
-  websiteSetupAvailability: vi.fn(),
+  wikiCreatePermission: vi.fn(),
   definitions: [] as {
     name: string;
     description: string;
@@ -187,8 +187,8 @@ vi.mock("@/core/di", () => ({
   getGetWikiPagesInteractor: () => ({
     invoke: state.wikiCatalogAuthorization,
   }),
-  getGetWikiWebsiteSetupAvailabilityInteractor: () => ({
-    invoke: state.websiteSetupAvailability,
+  getUserService: () => ({
+    hasPermission: state.wikiCreatePermission,
   }),
 }));
 
@@ -249,6 +249,8 @@ vi.mock("../capture-failure", () => ({
 
 import { runAgentTurn, type AgentTurnWorkflowPayload } from "../agent-turn";
 
+const notEmpty = { ok: true, data: { total: 1 } };
+
 const payload: AgentTurnWorkflowPayload = {
   turnRequestId: "turn-1",
   conversationId: "conversation-1",
@@ -286,6 +288,7 @@ beforeEach(() => {
   state.providerContexts = [];
   state.tenantCompanyId = "company-1";
   state.wikiCatalogAuthorization.mockReset().mockResolvedValue({ ok: true, data: {} });
+  state.wikiCreatePermission.mockReset().mockResolvedValue(true);
   state.prepared = null;
   state.readPage.mockReset().mockResolvedValue({
     ok: true,
@@ -2323,15 +2326,19 @@ describe("routine browse-or-mutate batch safety", () => {
   describe("Wiki homepage setup", () => {
     beforeEach(() => {
       state.definitions = ["read_public_page", "manage_wiki_pages"].map(definition);
-      state.websiteSetupAvailability.mockReset().mockResolvedValue({ ok: true, data: true });
+      state.wikiCatalogAuthorization.mockResolvedValue({ ok: true, data: { total: 0 } });
     });
 
     it.each([
-      ["Wiki create permission was revoked", () => Promise.reject(new ForbiddenError("Wiki create revoked"))],
-      ["the Wiki is no longer empty", () => Promise.resolve({ ok: true, data: false })],
-    ])("refuses the setup read when %s", async (_, availability) => {
+      ["Wiki create permission was revoked", () => state.wikiCreatePermission.mockResolvedValue(false)],
+      [
+        "Wiki create permission is denied",
+        () => state.wikiCreatePermission.mockRejectedValue(new ForbiddenError("Wiki create revoked")),
+      ],
+      ["the Wiki is no longer empty", () => state.wikiCatalogAuthorization.mockResolvedValue(notEmpty)],
+    ])("refuses the setup read when %s", async (_, revoke) => {
       let readResult: unknown;
-      state.websiteSetupAvailability.mockImplementation(availability);
+      revoke();
       state.runTools = async ({ executeAndCompleteTool }) => {
         readResult = await executeAndCompleteTool("read_public_page", read, "read-home");
         return finish();
@@ -2359,7 +2366,7 @@ describe("routine browse-or-mutate batch safety", () => {
       state.runTools = async ({ executeAndCompleteTool, completeStepAndPrepareNext }) => {
         await executeAndCompleteTool("read_public_page", read, "read-home");
         await completeStepAndPrepareNext(streamedStep("", "tool-calls"));
-        state.websiteSetupAvailability.mockResolvedValue({ ok: true, data: false });
+        state.wikiCatalogAuthorization.mockResolvedValue(notEmpty);
         createResult = await executeAndCompleteTool("manage_wiki_pages", setupWrite(), "write-1");
         return finish();
       };
@@ -2600,7 +2607,7 @@ describe("routine browse-or-mutate batch safety", () => {
 
     beforeEach(() => {
       state.definitions = ["manage_wiki_pages", "read_public_page", "create_wiki_from_website"].map(definition);
-      state.websiteSetupAvailability.mockReset().mockResolvedValue({ ok: true, data: true });
+      state.wikiCatalogAuthorization.mockResolvedValue({ ok: true, data: { total: 0 } });
       state.readPage.mockResolvedValue(homeResult());
     });
 
@@ -2673,7 +2680,7 @@ describe("routine browse-or-mutate batch safety", () => {
 
     it("rechecks Wiki create permission and emptiness at execution", async () => {
       let readResult: unknown;
-      state.websiteSetupAvailability.mockResolvedValue({ ok: true, data: false });
+      state.wikiCatalogAuthorization.mockResolvedValue(notEmpty);
       state.runTools = async ({ executeAndCompleteTool }) => {
         readResult = await executeAndCompleteTool("read_public_page", home, "read-1");
         return finish();
@@ -2695,7 +2702,7 @@ describe("routine browse-or-mutate batch safety", () => {
       await runAgentTurn({ ...websitePayload, surface: "routine" });
 
       expect(readResult).toMatchObject({ ok: false });
-      expect(state.websiteSetupAvailability).not.toHaveBeenCalled();
+      expect(state.wikiCreatePermission).not.toHaveBeenCalled();
       expect(state.readPage).not.toHaveBeenCalled();
     });
 

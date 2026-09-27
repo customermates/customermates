@@ -373,17 +373,20 @@ readAgentPublicPage.maxRetries = 0;
 async function authorizedWikiSetup(payload: AgentTurnWorkflowPayload): Promise<boolean> {
   "use step";
   if (!(payload.wikiWebsiteSetup || payload.wikiHomepageSetup) || (payload.surface ?? "chat") !== "chat") return false;
-  const { getGetWikiWebsiteSetupAvailabilityInteractor } = await import("@/core/di");
+  const { getGetWikiPagesInteractor, getUserService } = await import("@/core/di");
   const { AppErrorCode, appErrorDetails } = await import("@/core/errors/app-errors");
   const { getTenantUser } = await import("@/core/decorators/tenant-context");
+  const { Action, Resource } = await import("@/generated/prisma");
+  const { env } = await import("@/env");
+  if (env.APP_MODE === "demo") return false;
   return runAsBackgroundTenant(payload.userId, async () => {
     try {
       if (getTenantUser().companyId !== payload.companyId) return false;
-      const result = await getGetWikiWebsiteSetupAvailabilityInteractor().invoke();
-      return result.ok && result.data;
+      if (!(await getUserService().hasPermission(Resource.wiki, Action.create))) return false;
+      const result = await getGetWikiPagesInteractor().invoke({ page: 1, pageSize: 5 });
+      return result.ok && result.data.total === 0;
     } catch (error) {
-      const code = appErrorDetails(error)?.code;
-      if (code === AppErrorCode.permissionDenied || code === AppErrorCode.demoMode) return false;
+      if (appErrorDetails(error)?.code === AppErrorCode.permissionDenied) return false;
       throw error;
     }
   });
