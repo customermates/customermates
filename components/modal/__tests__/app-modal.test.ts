@@ -9,6 +9,8 @@ import type { BaseModalStore } from "@/core/base/base-modal.store";
 
 import { OVERLAY_TOPMOST_LAYER_CLASS } from "@/components/ui/overlay-contract";
 
+import { keepOpenForAssistantSurface, releaseFocusToAssistantSurface } from "../assistant-surface";
+
 const testContext = vi.hoisted(() => ({
   isWide: true,
   rootStore: {
@@ -17,6 +19,7 @@ const testContext = vi.hoisted(() => ({
   },
   contentCloseAutoFocus: undefined as ((event: Event) => void) | undefined,
   contentOpenAutoFocus: undefined as (() => void) | undefined,
+  contentProps: {} as Record<string, unknown>,
   useOverlayFocusReturn:
     vi.fn<(open?: boolean, preferredOpener?: HTMLElement | null, fallbackOpener?: HTMLElement | null) => void>(),
   focusReturn: {
@@ -60,6 +63,7 @@ vi.mock("@/components/ui/dialog", () => ({
   DialogContent: ({ children, onCloseAutoFocus, onOpenAutoFocus, ...props }: TestContentProps) => {
     testContext.contentCloseAutoFocus = onCloseAutoFocus;
     testContext.contentOpenAutoFocus = onOpenAutoFocus;
+    testContext.contentProps = props;
     return createElement("div", { ...props, "data-slot": "dialog-content" }, children);
   },
   DialogTitle: ({ children }: { children: ReactNode }) => createElement("h1", null, children),
@@ -67,11 +71,16 @@ vi.mock("@/components/ui/dialog", () => ({
 }));
 
 vi.mock("@/components/ui/drawer", () => ({
-  Drawer: ({ children, modal }: { children: ReactNode; modal?: boolean }) =>
-    createElement("section", { "data-modal": String(modal), "data-root": "drawer" }, children),
+  Drawer: ({ autoFocus, children, modal }: { autoFocus?: boolean; children: ReactNode; modal?: boolean }) =>
+    createElement(
+      "section",
+      { "data-auto-focus": String(autoFocus), "data-modal": String(modal), "data-root": "drawer" },
+      children,
+    ),
   DrawerContent: ({ children, onCloseAutoFocus, onOpenAutoFocus, ...props }: TestContentProps) => {
     testContext.contentCloseAutoFocus = onCloseAutoFocus;
     testContext.contentOpenAutoFocus = onOpenAutoFocus;
+    testContext.contentProps = props;
     return createElement("div", { ...props, "data-slot": "drawer-content" }, children);
   },
   DrawerTitle: ({ children }: { children: ReactNode }) => createElement("h1", null, children),
@@ -126,6 +135,7 @@ beforeEach(() => {
   testContext.rootStore.agentUiControlStore.active = null;
   testContext.contentCloseAutoFocus = undefined;
   testContext.contentOpenAutoFocus = undefined;
+  testContext.contentProps = {};
   testContext.useOverlayFocusReturn.mockReset();
   testContext.focusReturn.onCloseAutoFocus.mockReset();
   testContext.focusReturn.onOpenAutoFocus.mockReset();
@@ -203,47 +213,79 @@ describe("AppModal actions", () => {
 });
 
 describe("AppModal beside the assistant", () => {
-  function renderSurface(isWide: boolean, layerClassName?: string) {
+  function renderSurface(isWide: boolean, layerClassName?: string, description?: string) {
     testContext.isWide = isWide;
 
     return renderToStaticMarkup(
-      createElement(TestAppModal, { layerClassName, open: true, title: "Example modal", onClose: vi.fn() }),
+      createElement(TestAppModal, {
+        description,
+        layerClassName,
+        open: true,
+        title: "Example modal",
+        onClose: vi.fn(),
+      }),
     );
   }
 
-  it.each([
-    ["dialog", true],
-    ["drawer", false],
-  ])("stays modal on the %s surface while no assistant surface is on screen", (_surface, isWide) => {
-    expect(renderSurface(isWide)).toContain('data-modal="true"');
-  });
+  const assistantStates = [
+    ["no assistant surface is on screen", () => undefined],
+    [
+      "the assistant panel is open",
+      () => {
+        testContext.rootStore.agentChatStore.isOpen = true;
+      },
+    ],
+    [
+      "an assistant highlight or tour step is shown",
+      () => {
+        testContext.rootStore.agentUiControlStore.active = { targetId: "company-webhooks-add" };
+      },
+    ],
+  ] as const;
 
   it.each([
     ["dialog", true],
     ["drawer", false],
-  ])("steps down to non-modal on the %s surface while the assistant panel is open", (_surface, isWide) => {
-    testContext.rootStore.agentChatStore.isOpen = true;
+  ])("keeps the %s surface modal whatever the assistant shows, so its content never remounts", (_surface, isWide) => {
+    const rendered = assistantStates.map(([, apply]) => {
+      apply();
+      return renderSurface(isWide);
+    });
 
-    expect(renderSurface(isWide)).toContain('data-modal="false"');
+    for (const html of rendered) expect(html).toContain('data-modal="undefined"');
+    expect(new Set(rendered).size).toBe(1);
   });
 
-  it("steps down to non-modal while an assistant highlight or tour step is shown", () => {
-    testContext.rootStore.agentUiControlStore.active = { targetId: "company-webhooks-add" };
+  it.each([
+    ["dialog", true],
+    ["drawer", false],
+  ])("lets presses and focus reach assistant surfaces from the %s surface", (_surface, isWide) => {
+    renderSurface(isWide);
 
-    expect(renderSurface(true)).toContain('data-modal="false"');
+    expect(testContext.contentProps.onInteractOutside).toBe(keepOpenForAssistantSurface);
+    expect(testContext.contentProps.onBlur).toBe(releaseFocusToAssistantSurface);
   });
 
-  it("ignores a remembered open panel while the assistant is not enabled", () => {
-    testContext.rootStore.agentChatStore.enabled = null;
-    testContext.rootStore.agentChatStore.isOpen = true;
+  it("keeps the focus trap of a modal launched from the assistant's own topmost layer", () => {
+    renderSurface(true, OVERLAY_TOPMOST_LAYER_CLASS);
 
-    expect(renderSurface(true)).toContain('data-modal="true"');
+    expect(testContext.contentProps.onBlur).toBeUndefined();
   });
 
-  it("keeps a modal launched from the assistant's own topmost layer modal", () => {
-    testContext.rootStore.agentChatStore.isOpen = true;
+  it("moves focus into the small-screen drawer when it opens", () => {
+    expect(renderSurface(false)).toContain('data-auto-focus="true"');
+  });
 
-    expect(renderSurface(true, OVERLAY_TOPMOST_LAYER_CLASS)).toContain('data-modal="true"');
+  it.each([
+    ["dialog", true],
+    ["drawer", false],
+  ])("points the %s surface at no missing description", (_surface, isWide) => {
+    renderSurface(isWide);
+    expect("aria-describedby" in testContext.contentProps).toBe(true);
+    expect(testContext.contentProps["aria-describedby"]).toBeUndefined();
+
+    renderSurface(isWide, undefined, "Example description");
+    expect("aria-describedby" in testContext.contentProps).toBe(false);
   });
 });
 

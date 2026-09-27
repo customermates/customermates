@@ -585,13 +585,17 @@ export function compareCustomFieldValues(
   if (isMissingSortValue(a)) return isMissingSortValue(b) ? 0 : 1;
   if (isMissingSortValue(b)) return -1;
 
+  const isRetiredOption = (value: string) => optionRank !== undefined && !optionRank.has(value);
+  if (isRetiredOption(a)) return isRetiredOption(b) ? collator.compare(a, b) : 1;
+  if (isRetiredOption(b)) return -1;
+
   const cmp =
     columnType === "currency"
       ? Number(a) - Number(b)
       : columnType === "date" || columnType === "dateTime"
         ? new Date(a).getTime() - new Date(b).getTime()
         : optionRank
-          ? (optionRank.get(a) ?? optionRank.size) - (optionRank.get(b) ?? optionRank.size) || collator.compare(a, b)
+          ? (optionRank.get(a) ?? optionRank.size) - (optionRank.get(b) ?? optionRank.size)
           : collator.compare(a, b);
   return direction === "asc" ? cmp : -cmp;
 }

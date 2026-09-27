@@ -123,7 +123,7 @@ export const searchTool = {
   description:
     "Required by ChatGPT deep research connectors: it returns records and documentation pages mixed in one list, with no total and no filters. " +
     "Do not use it to answer a question about the workspace: prefer search_records or list_records, which carry the totals and filters you need, and search_docs for the documentation. " +
-    "App routes in the docs text that fetch returns, such as `/company/subscription`, are relative: for a full link, put the route after the origin of the result's url.",
+    "App routes in the docs text that fetch returns, such as `/company/subscription`, are relative: for a full link, put the route after the origin of the result's url; that origin is the instance's configured BASE_URL.",
   annotations: { readOnlyHint: true, idempotentHint: true, destructiveHint: false, openWorldHint: false },
   inputSchema: z.object({
     query: z.string().min(2).describe("Free-text query matched against CRM record names and the documentation"),
@@ -157,7 +157,7 @@ export const fetchTool = {
   title: "Fetch (deep research)",
   description:
     "Required by ChatGPT deep research connectors. Interactive agents should prefer get_records or get_docs_page. " +
-    "For a docs result, app routes in text, such as `/company/subscription`, are relative: for a full link, put the route after the origin of url.",
+    "For a docs result, app routes in text, such as `/company/subscription`, are relative: for a full link, put the route after the origin of url; that origin is the instance's configured BASE_URL.",
   annotations: { readOnlyHint: true, idempotentHint: true, destructiveHint: false, openWorldHint: false },
   inputSchema: z.object({
     id: z

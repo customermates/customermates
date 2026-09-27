@@ -4,7 +4,7 @@ import type { Editor } from "@tiptap/react";
 
 import { Check, Link, Trash2 } from "lucide-react";
 import { useTranslations } from "next-intl";
-import { useEffect, useState } from "react";
+import { useEffect, useRef, useState } from "react";
 
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
@@ -22,6 +22,7 @@ type Props = {
 export function LinkPopover({ editor, open, onOpenChange, normalizeUrl, disabled = false }: Props) {
   const t = useTranslations();
   const [url, setUrl] = useState("");
+  const urlInputRef = useRef<HTMLInputElement>(null);
 
   const isActive = editor.isActive("link");
   const normalizedUrl = url.trim() ? (normalizeUrl?.(url) ?? (normalizeUrl ? null : url.trim())) : "";
@@ -69,9 +70,10 @@ export function LinkPopover({ editor, open, onOpenChange, normalizeUrl, disabled
         </Button>
       </PopoverTrigger>
 
-      <PopoverContent align="start" className="w-80 p-2">
+      <PopoverContent align="start" className="w-80 p-2" onOpenAutoFocus={() => urlInputRef.current?.focus()}>
         <div className="flex w-full items-center gap-1">
           <Input
+            ref={urlInputRef}
             autoFocus
             aria-invalid={normalizedUrl === null}
             disabled={disabled}

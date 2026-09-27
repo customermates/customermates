@@ -2,7 +2,7 @@ import { EntityType, Resource } from "@/generated/prisma";
 
 import { WORKSPACE_SECTIONS, type WorkspaceSection } from "@/app/components/navigation/workspace-sections";
 import {
-  CANONICAL_TERMINOLOGY_PRESET_KEY,
+  ENTITY_TERMINOLOGY_PRESETS,
   terminologyMessageKey,
 } from "@/features/entity-terminology/entity-terminology.constants";
 
@@ -434,13 +434,15 @@ export type PrimaryNavPage = {
   key: string;
   route: string;
   description: string;
-  labelKey: string;
+  labelKeys: string[];
   resource?: Resource;
   cloudOnly?: boolean;
 };
 
-function entityPageLabelKey(entityType: EntityType) {
-  return terminologyMessageKey(entityType, CANONICAL_TERMINOLOGY_PRESET_KEY[entityType], "plural");
+function entityPageLabelKeys(entityType: EntityType) {
+  return ENTITY_TERMINOLOGY_PRESETS[entityType].map((presetKey) =>
+    terminologyMessageKey(entityType, presetKey, "plural"),
+  );
 }
 
 export const PRIMARY_NAV_PAGES: PrimaryNavPage[] = [
@@ -448,13 +450,13 @@ export const PRIMARY_NAV_PAGES: PrimaryNavPage[] = [
     key: "dashboard",
     route: "/dashboard",
     description: "Sidebar link to the dashboard with pipeline widgets",
-    labelKey: "NavigationBar.dashboard",
+    labelKeys: ["NavigationBar.dashboard"],
   },
   {
     key: "inbox",
     route: "/inbox",
     description: "Sidebar link to the unified messaging inbox",
-    labelKey: "NavigationBar.inbox",
+    labelKeys: ["NavigationBar.inbox"],
     resource: Resource.inboxMessages,
     cloudOnly: true,
   },
@@ -462,55 +464,80 @@ export const PRIMARY_NAV_PAGES: PrimaryNavPage[] = [
     key: "tasks",
     route: "/tasks",
     description: "Sidebar link to the tasks list",
-    labelKey: entityPageLabelKey(EntityType.task),
+    labelKeys: entityPageLabelKeys(EntityType.task),
     resource: Resource.tasks,
   },
   {
     key: "contacts",
     route: "/contacts",
     description: "Sidebar link to the contacts list",
-    labelKey: entityPageLabelKey(EntityType.contact),
+    labelKeys: entityPageLabelKeys(EntityType.contact),
     resource: Resource.contacts,
   },
   {
     key: "organizations",
     route: "/organizations",
     description: "Sidebar link to the organizations list",
-    labelKey: entityPageLabelKey(EntityType.organization),
+    labelKeys: entityPageLabelKeys(EntityType.organization),
     resource: Resource.organizations,
   },
   {
     key: "deals",
     route: "/deals",
     description: "Sidebar link to the deals pipeline",
-    labelKey: entityPageLabelKey(EntityType.deal),
+    labelKeys: entityPageLabelKeys(EntityType.deal),
     resource: Resource.deals,
   },
   {
     key: "services",
     route: "/services",
     description: "Sidebar link to the services list",
-    labelKey: entityPageLabelKey(EntityType.service),
+    labelKeys: entityPageLabelKeys(EntityType.service),
     resource: Resource.services,
   },
   {
     key: "routines",
     route: "/routines",
     description: "Sidebar link to the scheduled assistant routines",
-    labelKey: "NavigationBar.routines",
+    labelKeys: ["NavigationBar.routines"],
     resource: Resource.routines,
     cloudOnly: true,
   },
 ];
 
-export const WORKSPACE_NAV_GROUPS: { section: WorkspaceSection; route: string; description: string }[] = [
-  { section: "profile", route: "/profile/settings", description: "Sidebar group for personal settings" },
-  { section: "company", route: "/company/settings", description: "Sidebar group for company settings (admin)" },
+export const WORKSPACE_NAV_GROUPS: {
+  section: WorkspaceSection;
+  route: string;
+  description: string;
+  labelKey: string;
+}[] = [
+  {
+    section: "profile",
+    route: "/profile/settings",
+    description: "Sidebar group for personal settings",
+    labelKey: "UserAvatar.profile",
+  },
+  {
+    section: "company",
+    route: "/company/settings",
+    description: "Sidebar group for company settings (admin)",
+    labelKey: "UserAvatar.company",
+  },
 ];
 
-export const STATIC_NAV_PAGES: { key: string; route: string; description: string }[] = [
-  { key: "documentation", route: "*", description: "Sidebar link that opens the product documentation" },
-  { key: "feedback", route: "*", description: "Sidebar link that opens the feedback dialog" },
+export const STATIC_NAV_PAGES: { key: string; route: string; description: string; labelKey: string }[] = [
+  {
+    key: "documentation",
+    route: "*",
+    description: "Sidebar link that opens the product documentation",
+    labelKey: "UserAvatar.documentation",
+  },
+  {
+    key: "feedback",
+    route: "*",
+    description: "Sidebar link that opens the feedback dialog",
+    labelKey: "Common.inputs.feedback",
+  },
 ];
 
 export function workspaceNavKeys(section: WorkspaceSection): string[] {

@@ -917,6 +917,7 @@
       "disabledReason": "Motif de désactivation",
       "effectiveAt": "En vigueur à partir du",
       "emails": "Adresses e-mail",
+      "headers": "En-têtes personnalisés",
       "isNewCompany": "Première personne de l'espace",
       "postalCode": "Code postal",
       "prompt": "Consignes",
@@ -1017,6 +1018,7 @@
       "collapseSearch": "Réduire la recherche",
       "explainField": "À propos de {field}",
       "hidePassword": "Masquer le mot de passe",
+      "optionName": "Nom de l'option {number}",
       "selectOption": "Sélectionner une option",
       "showPassword": "Afficher le mot de passe",
       "switchToBoardView": "Passer à la vue board",
@@ -1050,6 +1052,7 @@
       "singleSelect": "Choix unique"
     },
     "customFieldHelp": {
+      "deleteWeightingColumnPermission": "Ce champ alimente le pipeline pondéré dans « {company} », donc le supprimer désactive la pondération. Demandez à un administrateur l’autorisation de modifier « {company} ».",
       "immutableType": "Le type du champ est définitif après sa création. Créez un nouveau champ personnalisé pour utiliser un autre type.",
       "probabilityPermission": "Les probabilités d’étape sont gérées dans « {company} ». Demandez à un administrateur l’autorisation de les modifier."
     },
@@ -1505,6 +1508,8 @@
       "prompt": "Consignes",
       "roleId": "Rôle",
       "scheduleDayOfMonth": "Jour du mois",
+      "scheduleHour": "Heure",
+      "scheduleMinute": "Minute",
       "schedulePreset": "Répétition",
       "scheduleWeekday": "Jour de la semaine",
       "secret": "Secret",
@@ -1653,6 +1658,7 @@
       "paginationEmpty": "0 sur 0",
       "paginationRange": "{from}-{to} sur {total}",
       "previousPage": "Page précédente",
+      "rowsPerPage": "Lignes par page",
       "search": "Rechercher..."
     },
     "taskTypes": {

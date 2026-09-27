@@ -137,6 +137,65 @@ describe("MessageResponse link prompt", () => {
     expect(document.querySelector(PROMPT)).toBeNull();
   });
 
+  it("asks first for a middle click and a modified click, as for a plain click", () => {
+    render("Read [the guide](https://example.com/guide).");
+
+    const middleClick = new MouseEvent("auxclick", { bubbles: true, cancelable: true, button: 1 });
+    act(() => {
+      link("the guide").dispatchEvent(middleClick);
+    });
+
+    expect(middleClick.defaultPrevented).toBe(true);
+    expect(document.querySelector(PROMPT)).not.toBeNull();
+
+    act(() => {
+      document.activeElement?.dispatchEvent(
+        new KeyboardEvent("keydown", { bubbles: true, cancelable: true, key: "Escape" }),
+      );
+    });
+    expect(document.querySelector(PROMPT)).toBeNull();
+
+    const modifiedClick = new MouseEvent("click", { bubbles: true, cancelable: true, button: 0, metaKey: true });
+    act(() => {
+      link("the guide").dispatchEvent(modifiedClick);
+    });
+
+    expect(modifiedClick.defaultPrevented).toBe(true);
+    expect(document.querySelector(PROMPT)).not.toBeNull();
+    expect(openWindow).not.toHaveBeenCalled();
+  });
+
+  it("keeps the host of a protocol-relative link and asks before opening it", () => {
+    render("Read [the guide](//example.net/path).");
+
+    const expected = new URL("//example.net/path", window.location.href).toString();
+    expect(link("the guide").getAttribute("href")).toBe(expected);
+    expect(link("the guide").hasAttribute("data-intl-link")).toBe(false);
+
+    act(() => link("the guide").click());
+
+    expect(document.querySelector(PROMPT)?.querySelector('[data-slot="message-link-url"]')?.textContent).toBe(expected);
+    expect(openWindow).not.toHaveBeenCalled();
+  });
+
+  it("hands email and phone links to their app without the website prompt or a new tab", () => {
+    render("[Mail us](mailto:support@example.com) or [Call](tel:+491234).");
+
+    expect(link("Mail us").getAttribute("href")).toBe("mailto:support@example.com");
+    expect(link("Call").getAttribute("href")).toBe("tel:+491234");
+    expect(link("Mail us").hasAttribute("target")).toBe(false);
+    expect(link("Call").hasAttribute("target")).toBe(false);
+
+    const keepJsdomFromNavigating = (event: Event) => event.preventDefault();
+    document.addEventListener("click", keepJsdomFromNavigating, true);
+    act(() => link("Mail us").click());
+    act(() => link("Call").click());
+    document.removeEventListener("click", keepJsdomFromNavigating, true);
+
+    expect(document.querySelector(PROMPT)).toBeNull();
+    expect(openWindow).not.toHaveBeenCalled();
+  });
+
   it("lets Escape close only the prompt by marking the key as handled", () => {
     const panelSawEscape = vi.fn();
     const onKeyDown = (event: KeyboardEvent) => {

@@ -7,13 +7,13 @@ Customermates ist das Open-Source-KI-CRM. Einmal verbunden, liest und schreibt I
 
 > Nutzen Sie stattdessen die **App** von Claude oder ChatGPT? Die verbinden sich mit [dem Custom Connector](/docs/connect-custom-connector) (OAuth, kein Key).
 
-## API-Key anlegen
+## API-Key anlegen [#create-an-api-key]
 
 Öffnen Sie in Customermates **Mein Profil → API & Konnektoren**, klicken Sie auf **Hinzufügen** und wählen Sie **Standard-API-Key**. Geben Sie ihm einen Namen, der den Client beschreibt (z.B. `Claude Code`); ohne Datum unter **Läuft ab** läuft er nie ab. Der 64-Zeichen-Key wird einmal angezeigt, also sofort kopieren. Die **Schnellverbindungen** im selben Dialog erledigen das automatisch: Dort wird der Key nach dem Client benannt, läuft nach 365 Tagen ab und steht bereits im angezeigten Setup-Snippet; darunter steht sein Ablaufdatum. Zum Anlegen eines Keys braucht Ihre Rolle **Verwalten** auf **Ja** in der Zeile **API & Webhooks**, und die Seite selbst braucht **Lesen** **Alle** in dieser Zeile; die eingebaute Rolle **Admin** hat beides. Siehe [API-Keys](/docs/api-keys). Ein Key erbt die Berechtigungen des Users, der ihn erstellt hat; einen Scope pro Key gibt es nicht. Legen Sie pro Client einen eigenen Key an, damit Sie einen Client einzeln widerrufen können, ohne die anderen zu treffen; das Audit-Log protokolliert den User, dem ein Key gehört, nicht den Key selbst. API-Keys und MCP funktionieren in jedem Tarif und auf selbst gehosteten Instanzen.
 
 **Link:** die Seite **API & Konnektoren**, `/profile/api-keys`. **Mate:** `navigate` und `highlight_element` mit `nav-profile-api-keys`; `highlight_element` nimmt außerdem `profile-api-keys-generate` für **Hinzufügen** an (Rollen mit **Verwalten** auf **API & Webhooks**), danach `api-key-option-standard` für **Standard-API-Key** (Voraussetzung `profile-api-keys-generate`) sowie `api-key-name`, `api-key-expires` und `api-key-save` für **Name**, **Läuft ab** und **Speichern** (Voraussetzung `api-key-option-standard`). Die Kacheln der **Schnellverbindungen** sind keine Highlight-Ziele, deshalb nennt Mate sie beim Namen.
 
-## Claude Code
+## Claude Code [#claude-code]
 
 Claude Code fügt MCP-Server über sein CLI hinzu. Ein Befehl erledigt das Setup. In einem beliebigen Terminal ausführen, `YOUR_KEY` ersetzen:
 
@@ -23,23 +23,21 @@ Kein Neustart, keine Konfigurationsdatei. Claude Code verbindet sich automatisch
 
 **Scope:** Der Befehl nutzt standardmäßig den lokalen Scope. Mit `--scope user` ist Customermates auf Ihrer Maschine überall verfügbar, mit `--scope project` landet die Konfiguration in der `.mcp.json` des Repos, sodass Teammitglieder sie übernehmen.
 
-## Codex
+## Codex [#codex]
 
 Das Codex CLI von OpenAI nutzt eine TOML-Konfigurationsdatei. Der `codex mcp add`-Befehl unterstützt nur stdio-Server. Für einen HTTP-MCP-Server wie Customermates fügen Sie den Block manuell ein. `~/.codex/config.toml` öffnen (anlegen falls nötig) und anhängen, `YOUR_KEY` ersetzen:
 
 <McpInstallSnippet tool="codex" />
 
-Um den Key aus einer Umgebungsvariable zu lesen, statt ihn in der Datei zu speichern:
+Um den Key aus einer Umgebungsvariable zu lesen, statt ihn in der Datei zu speichern, ersetzen Sie die `http_headers`-Zeile im Block oben durch:
 
 ```toml
-[mcp_servers.customermates]
-url = "<BASE_URL>/api/v1/mcp"
 env_http_headers = { "x-api-key" = "CUSTOMERMATES_API_KEY" }
 ```
 
 Dann `CUSTOMERMATES_API_KEY` im Shell-Profil exportieren. Neue Sessions erkennen den Server, also die aktuelle beenden und eine neue starten.
 
-## Cursor
+## Cursor [#cursor]
 
 **Settings → Tools & MCP → Add new MCP server** öffnen und Folgendes einfügen, `YOUR_KEY` ersetzen:
 
@@ -47,7 +45,7 @@ Dann `CUSTOMERMATES_API_KEY` im Shell-Profil exportieren. Neue Sessions erkennen
 
 Cursor lädt hot: kein Neustart nötig, die Tools erscheinen direkt im Composer. Um die Datei direkt zu bearbeiten, kommt derselbe Block in `~/.cursor/mcp.json` (global) oder `<project>/.cursor/mcp.json` (pro Projekt), eingebettet unter `mcpServers`.
 
-## Gemini CLI
+## Gemini CLI [#gemini-cli]
 
 Die Gemini CLI lädt MCP-Server aus `~/.gemini/settings.json`. Folgendes mergen, `YOUR_KEY` ersetzen:
 
@@ -55,7 +53,7 @@ Die Gemini CLI lädt MCP-Server aus `~/.gemini/settings.json`. Folgendes mergen,
 
 Falls `mcpServers` bereits Einträge enthält, fügen Sie `customermates` daneben ein, statt das Objekt zu überschreiben.
 
-## Claude Desktop (config file)
+## Claude Desktop (config file) [#claude-desktop-config-file]
 
 Der empfohlene Weg für Claude Desktop ist der [Connector-Weg](/docs/connect-custom-connector#claude): OAuth, kein Key, über Ihre Geräte synchronisiert. Im Free-Plan, oder wenn Sie lieber einen statischen Key nutzen, funktioniert die Konfigurationsdatei unten auch.
 
@@ -72,7 +70,7 @@ Diesen Block mergen, `YOUR_KEY` ersetzen:
 
 Danach neu starten: vollständig beenden (⌘Q auf macOS, nicht nur das Fenster schließen) und neu öffnen. Customermates erscheint im Tools-Panel mit den CRM-Tools.
 
-## Probieren Sie Ihren ersten Prompt
+## Probieren Sie Ihren ersten Prompt [#try-your-first-prompt]
 
 Der Server brieft Ihren Agent beim Verbinden; die Tool-Oberfläche und die Sicherheitsregeln kennt er also schon. In Clients, die MCP-Prompts unterstützen (etwa Claude Code), können Sie den eingebauten `get-started`-Prompt für einen geführten Start nutzen: Er befragt Sie und fasst dann Ihren Workspace zusammen.
 
@@ -82,7 +80,7 @@ Der Server brieft Ihren Agent beim Verbinden; die Tool-Oberfläche und die Siche
 
 Die verfügbaren Record-Typen sind Contact, Organization, Deal, Service und Task. Deals und Tasks haben kein festes Pipeline-Feld. Attribute wie der Status eines Deals oder die Priorität eines Tasks sind konfigurierbare Custom Columns, die Werte in einem Prompt hängen also davon ab, wie Ihr Workspace eingerichtet ist. Rufen Sie `get_record_schema` auf, um die Spalten zu sehen, die ein Record-Typ aktuell hat.
 
-## Troubleshooting
+## Troubleshooting [#troubleshooting]
 
 | Client | Symptom | Ursache | Lösung |
 |---|---|---|---|
@@ -95,7 +93,7 @@ Die verfügbaren Record-Typen sind Contact, Organization, Deal, Service und Task
 
 **Link:** die Seite **API & Konnektoren**, `/profile/api-keys`, und die Seite **Mitglieder**, `/company/members`. **Mate:** `navigate` und `highlight_element` mit `nav-profile-api-keys` oder `nav-company-members`, und `highlight_element` mit `profile-api-keys-generate` für **Hinzufügen** (Rollen mit **Verwalten** auf **API & Webhooks**); die Key-Karten und die Zeilen der Mitglieder sind keine Highlight-Ziele, deshalb nennt Mate sie beim Namen; ist eine Mitgliedszeile geöffnet, heben `member-modal-status` **Status** und `member-modal-save` **Speichern** im Dialog **Benutzer** hervor (Rollen mit **Verwalten** auf **Benutzer & Rollen**).
 
-## Weiter
+## Weiter [#next]
 
 - [Custom Connector](/docs/connect-custom-connector): der OAuth-Weg für die Apps von Claude und ChatGPT.
 - [MCP-Tool-Katalog](/docs/mcp#tool-catalog): jedes Tool, das der Agent aufrufen kann.

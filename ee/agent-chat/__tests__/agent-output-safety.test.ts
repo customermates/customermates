@@ -13,6 +13,7 @@ import {
   AgentVisibleTextStreamSanitizer,
   agentPlainTextPreview,
   sanitizeAgentConversationTitle,
+  sanitizeAgentPlainText,
   sanitizeAgentVisibleText,
   sanitizeAgentVisibleTextForApp,
 } from "../agent-output-safety";
@@ -607,6 +608,27 @@ describe("agent client-visible output safety", () => {
     expect(title).not.toMatch(/page_context|never-show/);
     expect(sanitizeAgentConversationTitle('<page_context route="/private"/>')).toBeNull();
   });
+
+  it("shows a record link on plain-text surfaces as its label, never its route or id", () => {
+    const dealId = "80000000-0000-4000-8000-000000000003";
+    const threadId = "90000000-0000-4000-8000-000000000009";
+    const cases = [
+      [`Follow up on [CRM Rollout](/deals/${dealId})`, "Follow up on CRM Rollout"],
+      [`Reply in [Roche rollout](/inbox?threadId=${threadId}) today`, "Reply in Roche rollout today"],
+      [`[CRM *Rollout*](/de/deals/${dealId} "Deal")`, "CRM Rollout"],
+      [`[Deal [Q3]](/deals/${dealId})`, "Deal [Q3]"],
+      [`[Deal \\] x](</deals/${dealId}>)`, "Deal ] x"],
+      [`[Deal ${dealId}](/deals/${dealId})`, "Deal [internal reference]"],
+      ["Go to [Deals](/deals).", "Go to [Deals](/deals)."],
+    ] as const;
+
+    for (const [source, expected] of cases) {
+      expect(sanitizeAgentPlainText(source)).toBe(expected);
+      expect(sanitizeAgentPlainText(sanitizeAgentPlainText(source))).toBe(expected);
+      expect(sanitizeAgentConversationTitle(source)).toBe(expected);
+    }
+    expect(sanitizeAgentVisibleText(cases[0][0])).toBe(cases[0][0]);
+  });
 });
 
 describe("agent conversation preview", () => {
@@ -644,6 +666,20 @@ describe("agent conversation preview", () => {
     expect(agentPlainTextPreview("Total: €1,200 (up 5%) — nothing to strip.", 140)).toBe(
       "Total: €1,200 (up 5%) — nothing to strip.",
     );
+  });
+
+  it("reads a kept record link as its label, whatever brackets the label holds", () => {
+    const dealId = "80000000-0000-4000-8000-000000000003";
+
+    for (const [source, expected] of [
+      [`Record: [Deal [Q3]](/deals/${dealId})`, "Record: Deal [Q3]"],
+      [`Record: [Deal \\] x](/deals/${dealId})`, "Record: Deal ] x"],
+      [`Record: [CRM Rollout](</deals/${dealId}>)`, "Record: CRM Rollout"],
+    ] as const) {
+      const preview = agentPlainTextPreview(sanitizeAgentVisibleText(source), 140);
+      expect(preview).toBe(expected);
+      expect(preview).not.toContain(dealId);
+    }
   });
 
   it("still bounds the preview length", () => {

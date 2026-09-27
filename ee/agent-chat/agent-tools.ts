@@ -32,7 +32,7 @@ import { hostedToolInputGuard } from "./agent-hosted-guards";
 import { APP_LOCALES, isContentLocale } from "@/i18n/locale-registry";
 import { getTranslator } from "@/i18n/get-translator";
 import { type AgentToolCancellation as AgentToolCancellationValue } from "./agent-tool-cancellation";
-import { AGENT_UI_TARGETS, UiTargetIdSchema, agentUiPageLabelKey, type AgentUiTarget } from "./ui-targets";
+import { AGENT_UI_TARGETS, UiTargetIdSchema, agentUiPageLabelKeys, type AgentUiTarget } from "./ui-targets";
 import { AgentTourSchema } from "./agent-tours";
 import { NavigateInputSchema } from "./ui-operations";
 import type { AgentApprovalContextResolution } from "./agent-external-approval-context";
@@ -223,7 +223,7 @@ const ListUiTargetsSchema = z.object({
     .max(100)
     .optional()
     .describe(
-      "Optional English page names, routes, target prefixes, or exact target ids; sidebar page names also match in the app's languages. Any word may match, so one query can cover several pages.",
+      "Optional English page names, routes, target prefixes, or exact target ids; sidebar names, including renamed record types, also match in the app's languages. Any word may match, so one query can cover several pages; an exact id comes first, followed by the ids it prefixes.",
     ),
   cursor: z.number().int().min(0).max(10_000).optional().describe("Continue a previous result page."),
 });
@@ -245,8 +245,14 @@ function localizedUiTargetPageNames() {
     (translators) =>
       new Map(
         AGENT_UI_TARGETS.map((target) => {
-          const labelKey = agentUiPageLabelKey(target.route);
-          return [target.id, labelKey ? translators.map((t) => t(labelKey)).join(" ") : ""];
+          const labelKeys = [...(target.labelKey ? [target.labelKey] : []), ...agentUiPageLabelKeys(target.route)];
+          return [
+            target.id,
+            labelKeys
+              .flatMap((labelKey) => translators.map((t) => t(labelKey)))
+              .join("\n")
+              .toLocaleLowerCase(),
+          ];
         }),
       ),
   );
@@ -271,16 +277,29 @@ function uiTargetPrefixes(limit: number): string[] {
     .map(([prefix]) => `${prefix}-`);
 }
 
-async function matchingUiTargets(tokens: string[]) {
+const UI_TARGET_QUERY_WORD_MIN_LENGTH = 4;
+
+async function matchingUiTargets(query: string | undefined) {
+  const tokens: string[] = uiTargetQueryTokens(query);
   if (!tokens.length) return AGENT_UI_TARGETS;
-  const exact = AGENT_UI_TARGETS.filter((target) => tokens.includes(target.id));
-  if (exact.length === new Set(tokens).size) return exact;
   const pageNames = await localizedUiTargetPageNames();
-  return AGENT_UI_TARGETS.filter((target) => matchesUiTargetQuery(target, tokens, pageNames));
+  const phrase = query?.trim().toLocaleLowerCase().replace(/\s+/g, " ") ?? "";
+  const words = tokens.filter((token) => token.length >= UI_TARGET_QUERY_WORD_MIN_LENGTH);
+  const phraseMatches = phrase.includes(" ")
+    ? AGENT_UI_TARGETS.filter((target) => pageNames.get(target.id)?.includes(phrase))
+    : [];
+  const wordMatches = AGENT_UI_TARGETS.filter((target) => matchesUiTargetQuery(target, words, pageNames));
+  const matches = phraseMatches.length
+    ? phraseMatches
+    : wordMatches.length
+      ? wordMatches
+      : AGENT_UI_TARGETS.filter((target) => matchesUiTargetQuery(target, tokens, pageNames));
+  const exact = matches.filter((target) => tokens.includes(target.id));
+  return [...exact, ...matches.filter((target) => !exact.includes(target))];
 }
 
 async function listUiTargets(input: z.infer<typeof ListUiTargetsSchema>, resultMaxChars: number) {
-  const targets = await matchingUiTargets(uiTargetQueryTokens(input.query));
+  const targets = await matchingUiTargets(input.query);
   if (targets.length === 0) {
     return `No interface target matches "${input.query ?? ""}". Target names are English: query with the English page or workflow phrase (for example "deals", "inbox", "settings"), or with one of these id prefixes: ${uiTargetPrefixes(10).join(", ")}.`.slice(
       0,

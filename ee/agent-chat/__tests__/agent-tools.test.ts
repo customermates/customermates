@@ -620,8 +620,8 @@ describe("agent tools", () => {
     expect(await lineOf("connected-account-signature")).toContain("|>connected-account-tab-email");
     expect(await lineOf("widget-modal-save")).toBe("widget-modal-save|/dashboard|nh|>widget-modal-kind");
     expect(await lineOf("widget-modal-kind")).toBe("widget-modal-kind|/dashboard|nh|>dashboard-add-widget");
-    expect(await lineOf("nav-company-members")).toBe("nav-company-members|/company/members|nh|>nav-company");
-    expect(await lineOf("nav-profile-api-keys")).toBe("nav-profile-api-keys|/profile/api-keys|nh|>nav-profile");
+    expect(await lineOf("nav-company-members")).toBe("nav-company-members|/company/members|nh");
+    expect(await lineOf("nav-profile-api-keys")).toBe("nav-profile-api-keys|/profile/api-keys|nh");
     expect(await lineOf("widget-modal-reset")).toContain("|>a widget card");
     expect(await lineOf("webhook-modal-url")).toContain("|>company-webhooks-add");
   });
@@ -660,6 +660,90 @@ describe("agent tools", () => {
     expect(inbox).toContain("nav-inbox|/inbox|nh");
     expect(tasks).toContain("nav-tasks|/tasks|nh");
     expect(tasks).toContain("tasks-add|/tasks|nh");
+  });
+
+  it.each([
+    ["Mein Unternehmen", "nav-company"],
+    ["Dokumentation", "nav-documentation"],
+    ["Suchen", "nav-search"],
+    ["perfil", "nav-profile"],
+    ["empresa", "nav-company"],
+    ["entreprise", "nav-company"],
+    ["profilo", "nav-profile"],
+    ["azienda", "nav-company"],
+    ["Buscar", "nav-search"],
+    ["Rechercher", "nav-search"],
+    ["Cerca", "nav-search"],
+    ["Documentación", "nav-documentation"],
+    ["Documentazione", "nav-documentation"],
+    ["Comentarios", "nav-feedback"],
+    ["Commentaires", "nav-feedback"],
+  ])("matches the localized sidebar name %s of a group or utility entry", async (query, id) => {
+    const tools = getAgentAiTools(deps({ resultMaxChars: 6000 }));
+    const result = String(await execute(tools.list_ui_targets, { query }));
+
+    expect(result).toContain(`\n${id}|`);
+  });
+
+  it.each([
+    ["leads", "nav-contacts", "contacts-add"],
+    ["Clients", "nav-contacts", "contacts-search"],
+    ["Accounts", "nav-organizations", "organizations-add"],
+    ["Opportunities", "nav-deals", "deals-add"],
+    ["Products", "nav-services", "services-add"],
+    ["To-dos", "nav-tasks", "tasks-add"],
+    ["Aufträge", "nav-deals", "deals-filter"],
+    ["Cuentas", "nav-organizations", "organizations-filter"],
+  ])("matches the renamed record type %s to its page", async (query, nav, control) => {
+    const tools = getAgentAiTools(deps({ resultMaxChars: 6000 }));
+    const result = String(await execute(tools.list_ui_targets, { query }));
+
+    expect(result).toContain(`\n${nav}|`);
+    expect(result).toContain(`\n${control}|`);
+  });
+
+  it.each([
+    ["Posta in arrivo", "nav-inbox"],
+    ["Bandeja de entrada", "nav-inbox"],
+    ["Boîte de réception", "nav-inbox"],
+    ["Tableau de bord", "nav-dashboard"],
+    ["Registros de auditoría", "nav-company-audit-logs"],
+    ["Registri di controllo", "nav-company-audit-logs"],
+    ["API et connecteurs", "nav-profile-api-keys"],
+    ["La mia azienda", "nav-company"],
+  ])("answers the multi-word page name %s with that page instead of most of the catalog", async (query, id) => {
+    const tools = getAgentAiTools(deps({ resultMaxChars: 6000 }));
+    const result = String(await execute(tools.list_ui_targets, { query }));
+    const ids = result.split("\n").filter((line) => line.includes("|"));
+
+    expect(result).toContain(`\n${id}|`);
+    expect(ids.length).toBeLessThanOrEqual(10);
+  });
+
+  it("lists an exact id first and still lists the targets it prefixes", async () => {
+    const tools = getAgentAiTools(deps({ resultMaxChars: 6000 }));
+    const lines = String(await execute(tools.list_ui_targets, { query: "nav-company" }))
+      .split("\n")
+      .filter((line) => line.includes("|"))
+      .map((line) => line.split("|")[0]);
+    const prefixed = String(await execute(tools.list_ui_targets, { query: "nav-company-" }))
+      .split("\n")
+      .filter((line) => line.includes("|"))
+      .map((line) => line.split("|")[0]);
+    const subLinks = AGENT_UI_TARGETS.filter((target) => target.id.startsWith("nav-company-")).map(
+      (target) => target.id,
+    );
+
+    expect(lines[0]).toBe("nav-company");
+    expect(lines.slice(1)).toEqual(subLinks);
+    expect(prefixed).toEqual(subLinks);
+
+    const layout = String(await execute(tools.list_ui_targets, { query: "contacts-layout-table deals" }))
+      .split("\n")
+      .filter((line) => line.includes("|"))
+      .map((line) => line.split("|")[0]);
+    expect(layout[0]).toBe("contacts-layout-table");
+    expect(layout).toContain("nav-deals");
   });
 
   it("discovers the connected-account destination and walkthrough control together", async () => {

@@ -917,6 +917,7 @@
       "disabledReason": "Deaktivierungsgrund",
       "effectiveAt": "Gültig ab",
       "emails": "E-Mail-Adressen",
+      "headers": "Eigene Header",
       "isNewCompany": "Erste Person im Workspace",
       "postalCode": "Postleitzahl",
       "prompt": "Anweisungen",
@@ -1017,6 +1018,7 @@
       "collapseSearch": "Suche einklappen",
       "explainField": "Informationen zu {field}",
       "hidePassword": "Passwort ausblenden",
+      "optionName": "Name der Option {number}",
       "selectOption": "Option auswählen",
       "showPassword": "Passwort anzeigen",
       "switchToBoardView": "Zur Board-Ansicht wechseln",
@@ -1050,6 +1052,7 @@
       "singleSelect": "Einzelauswahl"
     },
     "customFieldHelp": {
+      "deleteWeightingColumnPermission": "Dieses Feld steuert die gewichtete Pipeline unter „{company}“, deshalb schaltet das Löschen die Gewichtung aus. Bitte einen Administrator um die Berechtigung, „{company}“ zu ändern.",
       "immutableType": "Der Feldtyp ist nach dem Erstellen festgelegt. Erstelle ein neues benutzerdefiniertes Feld, um einen anderen Typ zu verwenden.",
       "probabilityPermission": "Phasenwahrscheinlichkeiten werden unter „{company}“ verwaltet. Bitte einen Administrator um die Berechtigung, sie zu ändern."
     },
@@ -1505,6 +1508,8 @@
       "prompt": "Anweisungen",
       "roleId": "Rolle",
       "scheduleDayOfMonth": "Tag des Monats",
+      "scheduleHour": "Stunde",
+      "scheduleMinute": "Minute",
       "schedulePreset": "Wiederholung",
       "scheduleWeekday": "Wochentag",
       "secret": "Secret",
@@ -1653,6 +1658,7 @@
       "paginationEmpty": "0 von 0",
       "paginationRange": "{from}-{to} von {total}",
       "previousPage": "Vorherige Seite",
+      "rowsPerPage": "Zeilen pro Seite",
       "search": "Suchen..."
     },
     "taskTypes": {

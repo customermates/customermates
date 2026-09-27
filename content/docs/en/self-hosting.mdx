@@ -11,7 +11,7 @@ Self-hosting runs Customermates from two files, `docker-compose.yml` and `.env`,
 |---|---|---|
 | Application and database operations | Customermates operates them | You operate Docker, PostgreSQL, network access, TLS, updates and backups |
 | Core CRM records and views | Included by plan | Starter baseline |
-| Unified inbox and connected calendar | Available on entitled cloud plans | Not included |
+| Unified inbox and connected calendars | Available on entitled cloud plans | Self-hosting does not include them |
 | AI access | External MCP, plus the hosted assistant Mate with the hosted AI credits of your plan | External MCP with your own client and provider |
 | Connected providers | Configured within the managed product | You configure and assess every external provider |
 | Pricing | Per-user cloud subscription from [[commercial.price.starter.monthly]] per month | Your infrastructure, providers and operator time |
@@ -28,13 +28,13 @@ Customermates is open core. Code outside `ee/`, and material in `ee/` that is se
 
 ## Which features are not available when self-hosting?
 
-Every self-hosted installation uses the Starter entitlements. These cloud-only features are missing and stay off, even if you also pay for a cloud plan: connected messaging accounts (email, LinkedIn, WhatsApp, Instagram, Telegram), the unified **Inbox**, the connected calendar view, the hosted assistant Mate with its hosted AI credits, and **Routines**, which Mate runs. External AI clients still work through MCP with your own AI provider. Enterprise SSO (SAML) and white-labeling are not implemented in either deployment model.
+Every self-hosted installation uses the Starter entitlements. These cloud-only features are missing and stay off, even if you also pay for a cloud plan: connected messaging accounts (email, LinkedIn, WhatsApp, Instagram, Telegram), the unified **Inbox**, connected calendars and their events, the hosted assistant Mate with its hosted AI credits, and **Routines**, which Mate runs. External AI clients still work through MCP with your own AI provider. Enterprise SSO (SAML) and white-labeling are not implemented in either deployment model.
 
 The app hides what does not apply. The sidebar shows no **Subscription** entry under **My Company**, no **Channels** entry under **My Profile**, and no **Inbox** or **Routines**, and the role editor under **My Company** › **Roles** hides the **Inbox messages** and **Routines** rows. Opening one of those pages by URL returns you to the Dashboard.
 
 The CRM itself works as in the cloud: records, views, Excel import and export, custom columns, dashboard widgets, members and roles, the audit log, REST, webhooks and MCP.
 
-## How do I install Customermates with Docker Compose?
+## How do I install and self-host Customermates with Docker Compose? [#how-do-i-install-customermates-with-docker-compose]
 
 You need Docker with Docker Compose v2; the image is built for `linux/amd64` and `linux/arm64`. A domain name is needed only for HTTPS.
 
@@ -77,7 +77,7 @@ Keep `.env` out of source control. Apply changes with `docker compose up -d`.
 
 Set `BASE_URL` to exactly the address people type into the browser: scheme, host name and, unless it is 80 or 443, the port, with no path. Examples: `https://crm.example.com` or `http://192.168.1.20:4000`. The template value `http://localhost:4000` only works on the machine that runs Docker. The app refuses to start if `BASE_URL` contains a path, a query or credentials.
 
-Customermates builds these addresses from `BASE_URL`: sign-in redirects, the links in invitation and other emails, the MCP OAuth address, the MCP address in the documentation's install snippets and behind **Copy MCP Config**, **Copy MCP Command**, **Connect to Cursor** and **Connect to VS Code** on a documentation page, and the `url` that `search_docs`, `get_docs_page` and `fetch` return, whose origin agents put in front of an app route to build a full link. For a request that arrives under another host name, IP address or port, these addresses still point to `BASE_URL`, so after signing in, users can land on the wrong address. Three addresses the app shows you to copy use the address the browser opened the app with instead: the **Invitation link** on the **Share link** tab of **Invite User** and of the onboarding invite step, the MCP address shown under **Quick connections** and in the onboarding step **Connect your AI**, and links from **Copy link** on a saved view. Copy them from a browser that uses the public address. When you change the domain or `APP_PORT`, update `BASE_URL` as well and run `docker compose up -d`. With an `https://` address, sign-in cookies are marked Secure, so the app must then be opened through HTTPS.
+Customermates builds these addresses from `BASE_URL`: sign-in redirects, the links in invitation and other emails, and the MCP OAuth address; on a documentation page, the MCP address in the install snippets and behind **Copy MCP Config**, **Copy MCP Command**, **Connect to Cursor** and **Connect to VS Code**, and the page address that **Open in ChatGPT** and **Open in Claude** pass on; in the REST API reference, the **Server URL**, the code samples and the address that **Send** calls; the links in `llms.txt` and `llms-full.txt`, which lead to the pages as raw markdown, the addresses in `sitemap.xml` and `robots.txt`, and the canonical links of the public pages; and the `url` that `search_docs`, `get_docs_page`, `search` and `fetch` return, whose origin agents put in front of an app route to build a full link. For a request that arrives under another host name, IP address or port, these addresses still point to `BASE_URL`, so after signing in, users can land on the wrong address, and **Send** in the REST API reference fails, because the browser does not let a page opened under another address call the API at `BASE_URL`. Three addresses the app shows you to copy use the address the browser opened the app with instead: the **Invitation link** on the **Share link** tab of **Invite User** and of the onboarding invite step, the MCP address shown under **Quick connections** and in the onboarding step **Connect your AI**, and links from **Copy link** on a saved view. Copy them from a browser that uses the public address. When you change the domain or `APP_PORT`, update `BASE_URL` as well and run `docker compose up -d`. With an `https://` address, sign-in cookies are marked Secure, so the app must then be opened through HTTPS.
 
 ## How do I put Customermates behind a reverse proxy with HTTPS?
 

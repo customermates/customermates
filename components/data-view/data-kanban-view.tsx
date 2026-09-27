@@ -336,7 +336,7 @@ export const DataKanbanView = observer(function DataKanbanView<E extends HasCust
       fromGroupKey,
       toGroupKey: targetGroup,
       value: nextValue,
-      destinationValueSums: projectValueSumsForGroup(item, weight),
+      destinationValueSums: store.isGroupedByDealWeightingColumn ? projectValueSumsForGroup(item, weight) : undefined,
     });
   }
 
@@ -367,7 +367,7 @@ export const DataKanbanView = observer(function DataKanbanView<E extends HasCust
                 label={groupLabel(group)}
                 loadMore={loadMore}
                 valueSums={group.valueSums}
-                weight={group.weight}
+                weight={store.isGroupedByDealWeightingColumn ? group.weight : undefined}
                 onHeaderClick={editableColumn ? () => customColumnModalStore.openWithColumn(editableColumn) : undefined}
               >
                 {group.itemIds.map((itemId) => {

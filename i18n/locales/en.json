@@ -917,6 +917,7 @@
       "disabledReason": "Disabled reason",
       "effectiveAt": "Effective from",
       "emails": "Email addresses",
+      "headers": "Custom headers",
       "isNewCompany": "First user in the workspace",
       "postalCode": "Postal code",
       "prompt": "Instructions",
@@ -1017,6 +1018,7 @@
       "collapseSearch": "Collapse search",
       "explainField": "About {field}",
       "hidePassword": "Hide password",
+      "optionName": "Option {number} name",
       "selectOption": "Select an option",
       "showPassword": "Show password",
       "switchToBoardView": "Switch to board view",
@@ -1050,6 +1052,7 @@
       "singleSelect": "Single Select"
     },
     "customFieldHelp": {
+      "deleteWeightingColumnPermission": "This field drives the weighted pipeline in {company}, so deleting it turns weighting off. Ask a workspace administrator for permission to update {company}.",
       "immutableType": "Field type is fixed after creation. Create a new custom field to use another type.",
       "probabilityPermission": "Stage probabilities are managed in {company}. Ask a workspace administrator for permission to update them."
     },
@@ -1505,6 +1508,8 @@
       "prompt": "Instructions",
       "roleId": "Role",
       "scheduleDayOfMonth": "Day of month",
+      "scheduleHour": "Hour",
+      "scheduleMinute": "Minute",
       "schedulePreset": "Repeats",
       "scheduleWeekday": "Weekday",
       "secret": "Secret",
@@ -1653,6 +1658,7 @@
       "paginationEmpty": "0 of 0",
       "paginationRange": "{from}-{to} of {total}",
       "previousPage": "Previous page",
+      "rowsPerPage": "Rows per page",
       "search": "Search..."
     },
     "taskTypes": {

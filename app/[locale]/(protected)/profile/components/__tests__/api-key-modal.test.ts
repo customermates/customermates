@@ -101,7 +101,7 @@ function renderModal(
   return renderToStaticMarkup(createElement(ApiKeyModal));
 }
 
-function renderViewModal() {
+function renderViewModal(name = "Gemini") {
   const rootStore = {
     apiKeysStore: { delete: vi.fn(), refresh: vi.fn() },
     intlStore: {
@@ -120,7 +120,7 @@ function renderViewModal() {
   const store = new ApiKeyModalStore(rootStore);
   const key: ApiKey = {
     id: "key-1",
-    name: "Gemini",
+    name,
     createdAt: new Date("2026-08-06T12:00:00.000Z"),
     expiresAt: new Date("2027-08-06T12:00:00.000Z"),
     lastRequest: null,
@@ -179,6 +179,16 @@ describe("ApiKeyModal add wizard", () => {
     }
   });
 
+  it("marks the expiry trigger invalid while its error is shown, like the name input", () => {
+    const expiryTrigger = (html: string) => /<button[^>]*id="api-key-expires"[^>]*>/.exec(html)?.[0] ?? "";
+    const invalid = renderModal("plain", undefined, (store) =>
+      store.setError({ errors: [], properties: { expiresIn: { errors: ["expiresIn"] } } }),
+    );
+
+    expect(expiryTrigger(invalid)).toContain('aria-invalid="true"');
+    expect(expiryTrigger(renderModal("plain"))).not.toContain('aria-invalid="true"');
+  });
+
   it("uses the shared full-card key action for quick connections", () => {
     const html = renderModal("wizard", "cursor");
     const createCard = (html.match(/<button\b[\s\S]*?<\/button>/g) ?? []).find((button) =>
@@ -212,6 +222,13 @@ describe("ApiKeyModal add wizard", () => {
     expect(html).not.toContain("Common.actions.cancel");
     expect(html).not.toContain("ApiKeyModal.backToOptions");
     expect(html).not.toContain("<h2>OnboardingWizard.ai.screen.setup.title</h2>");
+  });
+
+  it("titles a key whose stored name is only spaces as unnamed", () => {
+    const html = renderViewModal("   ");
+    const contentHeader = html.match(/<div[^>]*data-slot="card-header"[^>]*>[\s\S]*?<\/div>/)?.[0];
+
+    expect(contentHeader).toContain("ApiKeysCard.unnamed");
   });
 
   it("places the view-mode Delete action in the modal rail instead of the content header", () => {

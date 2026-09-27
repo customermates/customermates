@@ -155,10 +155,11 @@ export abstract class BaseGetInteractor<T> {
 
     const context = interactive ? await this.loadViewContext(surfaceKey, params.viewId) : emptyViewContext();
 
+    const defaults = interactive ? this.defaultState : defaultsForUnsurfacedRequest(params, this.defaultState);
     const resolved = resolveDataViewState({
       params: toParamsLayer(params),
       base: context.base,
-      defaults: interactive ? this.defaultState : defaultsForUnsurfacedRequest(params, this.defaultState),
+      defaults,
     });
 
     const page = params.page ?? params.pagination?.page ?? 1;
@@ -193,11 +194,12 @@ export abstract class BaseGetInteractor<T> {
     }
 
     const filters = this.repo.validateFilters({ filters: resolved.filters, filterableFields });
-    const sortDescriptor = this.repo.validateSortDescriptor({
-      sortDescriptor: resolved.sortDescriptor,
-      sortableFields,
-      customColumns,
-    });
+    const validSort = (candidate: SortDescriptor | null | undefined) =>
+      this.repo.validateSortDescriptor({ sortDescriptor: candidate ?? undefined, sortableFields, customColumns });
+    const sortDescriptor =
+      validSort(resolved.sortDescriptor) ??
+      validSort(context.base?.sortDescriptor) ??
+      validSort(defaults.sortDescriptor);
 
     const baseQuery: BaseQuery = { filters, searchTerm: resolved.searchTerm, sortDescriptor };
     const requested = normaliseGroupingRequest(params, resolved);

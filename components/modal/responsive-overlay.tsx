@@ -25,6 +25,12 @@ import { OVERLAY_SCROLL_REGION } from "@/components/ui/overlay-contract";
 import { cn } from "@/core/utils/cn";
 import { useIsWiderThan } from "@/hooks/use-media-query";
 
+import { keepOpenForAssistantSurface, releaseFocusToAssistantSurface } from "./assistant-surface";
+
+function focusOverlayContent(event: Event) {
+  if (event.currentTarget instanceof HTMLElement) event.currentTarget.focus({ preventScroll: true });
+}
+
 type Props = {
   trigger: ReactNode;
   title: ReactNode;
@@ -55,6 +61,11 @@ export function ResponsiveOverlay({
   const isWide = useIsWiderThan("md");
   const titleId = useId();
 
+  function handleEscapeKeyDown(event: KeyboardEvent) {
+    keepOpenForAssistantSurface(event);
+    if (!event.defaultPrevented) onEscapeKeyDown?.(event);
+  }
+
   return isWide ? (
     <Popover open={open} onOpenChange={onOpenChange}>
       <PopoverTrigger asChild aria-expanded={open}>
@@ -69,10 +80,9 @@ export function ResponsiveOverlay({
           popoverClassName,
         )}
         onCloseAutoFocus={onCloseAutoFocus}
-        onEscapeKeyDown={onEscapeKeyDown}
-        onInteractOutside={(event) => {
-          if (event.target instanceof Element && event.target.closest("[data-agent-surface]")) event.preventDefault();
-        }}
+        onEscapeKeyDown={handleEscapeKeyDown}
+        onInteractOutside={keepOpenForAssistantSurface}
+        onOpenAutoFocus={focusOverlayContent}
       >
         <PopoverHeader className={cn("shrink-0 p-3", headerAction && "flex-row items-center gap-2 py-1.5 pr-1.5")}>
           <PopoverTitle className={cn(headerAction && "min-w-0 flex-1 truncate")} id={titleId}>
@@ -94,9 +104,13 @@ export function ResponsiveOverlay({
       </DrawerTrigger>
 
       <DrawerContent
+        aria-describedby={undefined}
         data-overlay-actions={headerAction ? "" : undefined}
+        onBlur={releaseFocusToAssistantSurface}
         onCloseAutoFocus={onCloseAutoFocus}
-        onEscapeKeyDown={onEscapeKeyDown}
+        onEscapeKeyDown={handleEscapeKeyDown}
+        onInteractOutside={keepOpenForAssistantSurface}
+        onOpenAutoFocus={focusOverlayContent}
       >
         <DrawerHeader className={cn(headerAction && "flex-row items-center gap-2 py-1.5 pr-[3.125rem]")}>
           <DrawerTitle className={cn("min-w-0 truncate", headerAction && "flex-1")}>{title}</DrawerTitle>

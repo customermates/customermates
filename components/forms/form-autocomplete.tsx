@@ -112,6 +112,7 @@ export const FormAutocomplete = observer(
     const [optionAttempt, setOptionAttempt] = useState(0);
     const [isCreating, setIsCreating] = useState(false);
     const [selectedData, setSelectedData] = useState<Map<string, T>>(new Map());
+    const searchInputRef = useRef<HTMLInputElement>(null);
     const debouncedInput = useDebouncedValue(input);
 
     const raw = controlledValue ?? (store?.getValue(id) as string | string[] | undefined);
@@ -441,9 +442,11 @@ export const FormAutocomplete = observer(
                     ? "min-w-(--radix-popover-trigger-width) max-w-(--radix-popover-content-available-width) w-max"
                     : "w-(--radix-popover-trigger-width)",
                 )}
+                onOpenAutoFocus={() => searchInputRef.current?.focus()}
               >
                 <Command shouldFilter={false}>
                   <CommandInput
+                    ref={searchInputRef}
                     autoFocus
                     disabled={isCreating}
                     placeholder={t("Common.table.search")}

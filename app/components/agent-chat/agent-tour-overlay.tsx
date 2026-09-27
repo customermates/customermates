@@ -7,6 +7,7 @@ import { X } from "lucide-react";
 
 import { useRootStore } from "@/core/stores/root-store.provider";
 import { MessageResponse } from "@/components/ai-elements/message";
+import { assistantSurfaceProps, claimEscapeForAssistant } from "@/components/modal/assistant-surface";
 import { Button } from "@/components/ui/button";
 import { Popover, PopoverAnchor, PopoverContent, PopoverTitle } from "@/components/ui/popover";
 import { OVERLAY_TOPMOST_LAYER_CLASS } from "@/components/ui/overlay-contract";
@@ -31,7 +32,6 @@ export const AgentTourOverlay = observer(function AgentTourOverlay() {
   const nextButtonRef = useRef<HTMLButtonElement>(null);
 
   const active = store.active;
-  const hasRect = Boolean(rect);
 
   useEffect(() => {
     if (!active) {
@@ -42,6 +42,7 @@ export const AgentTourOverlay = observer(function AgentTourOverlay() {
     const update = () => {
       const element = findAgentTargetElement(active.targetId);
       setRect(element ? element.getBoundingClientRect() : null);
+      store.reportTourTarget(active, element !== null);
     };
     update();
     const interval = setInterval(update, 300);
@@ -50,39 +51,55 @@ export const AgentTourOverlay = observer(function AgentTourOverlay() {
       clearInterval(interval);
       window.removeEventListener("resize", update);
     };
-  }, [active]);
+  }, [active, store]);
+
+  useEffect(() => {
+    if (!active || active.note === null) return;
+
+    const endOnAssistantEscape = (event: KeyboardEvent) => {
+      if (claimEscapeForAssistant(event)) store.end();
+    };
+    document.addEventListener("keydown", endOnAssistantEscape);
+    return () => document.removeEventListener("keydown", endOnAssistantEscape);
+  }, [active, store]);
 
   if (!active) return null;
-  if (!rect) return null;
 
   const isTour = active.note !== null;
+  if (!rect && !isTour) return null;
 
   return (
     <>
-      <div
-        className={cn("pointer-events-none fixed rounded-lg border-2 border-primary", OVERLAY_TOPMOST_LAYER_CLASS)}
-        style={{
-          top: rect.top - 4,
-          left: rect.left - 4,
-          width: rect.width + 8,
-          height: rect.height + 8,
-          boxShadow: "0 0 0 9999px rgba(0, 0, 0, 0.55)",
-        }}
-      />
+      {rect && (
+        <div
+          className={cn("pointer-events-none fixed rounded-lg border-2 border-primary", OVERLAY_TOPMOST_LAYER_CLASS)}
+          style={{
+            top: rect.top - 4,
+            left: rect.left - 4,
+            width: rect.width + 8,
+            height: rect.height + 8,
+            boxShadow: "0 0 0 9999px rgba(0, 0, 0, 0.55)",
+          }}
+        />
+      )}
 
       {isTour && (
-        <Popover open={hasRect}>
+        <Popover open>
           <PopoverAnchor asChild>
             <div
               className="pointer-events-none fixed"
-              style={{ top: rect.top, left: rect.left, width: rect.width, height: rect.height }}
+              style={
+                rect
+                  ? { top: rect.top, left: rect.left, width: rect.width, height: rect.height }
+                  : { top: "50%", left: "50%", width: 0, height: 0 }
+              }
             />
           </PopoverAnchor>
 
           <PopoverContent
-            align="start"
+            {...assistantSurfaceProps()}
+            align={rect ? "start" : "center"}
             className={cn("w-80 p-3", OVERLAY_TOPMOST_LAYER_CLASS)}
-            data-agent-surface=""
             side="bottom"
             onEscapeKeyDown={store.end}
             onOpenAutoFocus={() => nextButtonRef.current?.focus({ preventScroll: true })}

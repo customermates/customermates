@@ -9,6 +9,8 @@ A fresh sign-up first lands on `/onboarding`, where you choose **Create a new wo
 
 ## What are the three steps of the onboarding wizard? [#what-are-the-three-steps]
 
+The onboarding wizard has three steps: **Your profile**, **Invite your team** and **Connect your AI**.
+
 <Steps>
 <Step title="Your profile">
 Your name and country. The email field shows your sign-in address and cannot be changed here; **First Name**, **Last Name** and **Country** are ordinary form inputs (`firstName`, `lastName`, `country`) addressed by their visible labels, and the terms checkbox (`agreeToTerms`) is rendered only in cloud mode. **Continue** saves the profile, creates the workspace when you chose to create one, and moves to the invite step. This step is required. Once it is saved the wizard cannot return to it; change your name or country later under **My Profile › Settings**.
@@ -20,6 +22,8 @@ The step has two tabs. **Share link**, open by default, shows a link of the form
 Connect an external AI client (Claude, ChatGPT and Codex, Cursor, or Gemini) to the workspace's [MCP endpoint](/docs/mcp). For the local setups (Claude Code or Claude Desktop, Codex, Cursor, Gemini) the flow creates an API key for the chosen client that expires after 365 days, and shows its setup snippet together with the date and time the key expires; the Claude account and ChatGPT app methods connect through the hosted connector and create no key. On the list of clients, **Back** returns to the invite step and **Skip for now** opens **Set up an AI later**. Once a client is chosen, **Back** returns to the list and **Finish** completes the wizard; **Finish** becomes available after you create the key for a local client, pick a connector method, or skip. The same flow stays available under [**My Profile › API & Connectors**](/docs/app-profile#api--connectors-tab), and the in-app [Assistant](/docs/app-assistant) works without it.
 </Step>
 </Steps>
+
+**Link:** the onboarding wizard, `/onboarding/wizard`; it opens only until onboarding is finished and otherwise leads to the dashboard. **Mate:** no target, and Mate is not available during onboarding, so it can only give the link; `#onboarding-back` and `#onboarding-next` are element ids, not highlightable by Mate.
 
 ## What does an invited person see?
 
@@ -41,8 +45,10 @@ The invite step reuses the email form of the **Invite User** dialog, so it carri
 ## Frequently asked questions
 
 <Faq>
-<FaqItem question="Can I skip steps?">
+<FaqItem question="Can I skip parts of the onboarding?">
 The invite and AI steps are skippable: **Next** leaves the invite step without sending anything, and **Skip for now** followed by **Finish** leaves the AI step. Invitations can be sent later from **My Company › Members**, and the AI-client flow stays available under **My Profile › API & Connectors**. The profile step is required.
+
+**Link:** the onboarding wizard, `/onboarding/wizard`, until onboarding is finished; afterwards invitations on `/company/members` and the AI setup on `/profile/api-keys`. **Mate:** not available during onboarding, so it can only give the link; afterwards `navigate` and `highlight_element` with `nav-company-members` or `nav-profile-api-keys`.
 </FaqItem>
 <FaqItem question="Can I go back to my profile?">
 No. Once **Your profile** is saved, **Back** on the invite step stays disabled. Change your name, country and other personal settings later under **My Profile › Settings**.

@@ -1,9 +1,9 @@
 import type { ComponentProps, ComponentType, ReactNode } from "react";
 import type { Root } from "react-dom/client";
 
-import { act, createElement } from "react";
+import { act, createElement, useState } from "react";
 import { createRoot } from "react-dom/client";
-import { observable } from "mobx";
+import { observable, runInAction } from "mobx";
 import { afterEach, beforeEach, describe, expect, it, vi } from "vitest";
 
 const testContext = vi.hoisted(() => ({ rootStore: null as unknown }));
@@ -151,4 +151,73 @@ describe("AgentChat panel", () => {
     expect(document.activeElement).toBe(composer);
     expect(document.getElementById("webhook-modal-secret")).not.toBeNull();
   });
+
+  it("keeps an open dialog mounted and hands focus back to its field, unselected, when the panel closes", async () => {
+    const getClientRects = Object.getOwnPropertyDescriptor(Element.prototype, "getClientRects");
+    Object.defineProperty(Element.prototype, "getClientRects", {
+      configurable: true,
+      value: () => [new DOMRect(0, 0, 10, 10)],
+    });
+    try {
+      const onClose = vi.fn();
+      setPanelOpen(false);
+      renderPanel([
+        createElement(
+          TestAppModal,
+          { key: "dialog", open: true, title: "Invite", onClose },
+          createElement(InviteContent),
+        ),
+      ]);
+      await nextFrame();
+      act(() => document.getElementById("invite-modal-tab-email")?.click());
+      const content = document.querySelector('[data-slot="dialog-content"]');
+      const emails = document.getElementById("invite-modal-emails") as HTMLInputElement;
+      act(() => emails.focus());
+      emails.value = "e2e-a11y-draft";
+      emails.setSelectionRange(emails.value.length, emails.value.length);
+
+      setPanelOpen(true);
+      await nextFrame();
+
+      expect(document.activeElement).toBe(document.getElementById("agent-composer"));
+
+      setPanelOpen(false);
+      await nextFrame();
+
+      expect(document.querySelector('[data-slot="dialog-content"]')).toBe(content);
+      expect(document.getElementById("invite-modal-emails")).toBe(emails);
+      expect(document.activeElement).toBe(emails);
+      expect(emails.value).toBe("e2e-a11y-draft");
+      expect(emails.selectionStart).toBe(emails.value.length);
+      expect(onClose).not.toHaveBeenCalled();
+    } finally {
+      if (getClientRects) Object.defineProperty(Element.prototype, "getClientRects", getClientRects);
+    }
+  });
 });
+
+function InviteContent() {
+  const [tab, setTab] = useState<"link" | "email">("link");
+
+  return createElement(
+    "div",
+    null,
+    createElement("button", { id: "invite-modal-tab-email", type: "button", onClick: () => setTab("email") }, "Email"),
+    tab === "email" ? createElement("input", { "aria-label": "Emails", id: "invite-modal-emails" }) : null,
+  );
+}
+
+function setPanelOpen(isOpen: boolean) {
+  act(() => {
+    runInAction(() => {
+      agentChatStore.isOpen = isOpen;
+    });
+  });
+}
+
+async function nextFrame() {
+  await act(async () => {
+    await new Promise((resolve) => setTimeout(resolve, 0));
+    await new Promise((resolve) => requestAnimationFrame(resolve));
+  });
+}

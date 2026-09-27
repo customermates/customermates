@@ -92,7 +92,13 @@ const ConnectAction = observer(({ id, variant = "default" }: { id: string; varia
   return (
     <DropdownMenu>
       <DropdownMenuTrigger asChild>
-        <Button className="h-8" id={id} size="sm" variant={variant}>
+        <Button
+          aria-label={t("ConnectedAccountsCard.connectAccount")}
+          className="h-8"
+          id={id}
+          size="sm"
+          variant={variant}
+        >
           <span className="-space-x-1.5 flex items-center">
             {FEATURED_PROVIDERS.map((provider) => {
               const ChannelIcon = getProviderIcon(provider);

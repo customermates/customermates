@@ -85,10 +85,9 @@ export const SignInForm = observer(({ callbackURL, inviterName, onboardingIntent
 
           {(socialProviders.google || socialProviders.microsoft) && (
             <>
-              <div className="flex flex-col items-center gap-4 sm:flex-row">
+              <div className="flex flex-col items-center gap-4">
                 {socialProviders.google && (
                   <SignInProviderButton
-                    className="w-full sm:flex-1"
                     isLoading={isLoading}
                     label={t("SignInForm.buttonLabel", { provider: "Google" })}
                     providerId="google"
@@ -98,7 +97,6 @@ export const SignInForm = observer(({ callbackURL, inviterName, onboardingIntent
 
                 {socialProviders.microsoft && (
                   <SignInProviderButton
-                    className="w-full sm:flex-1"
                     isLoading={isLoading}
                     label={t("SignInForm.buttonLabel", {
                       provider: "Microsoft",

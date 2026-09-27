@@ -219,6 +219,39 @@ function headerSortableColumns(source: string): string[] {
   return found;
 }
 
+function headerLabelKeys(source: string): Array<{ id: string; key: string }> {
+  const file = ts.createSourceFile("columns.tsx", source, ts.ScriptTarget.Latest, true, ts.ScriptKind.TSX);
+  const found: Array<{ id: string; key: string }> = [];
+  const visit = (node: ts.Node) => {
+    if (ts.isObjectLiteralExpression(node)) {
+      const id = stringProperty(node, "id") ?? stringProperty(node, "accessorKey");
+      const header = node.properties.find(
+        (candidate): candidate is ts.PropertyAssignment =>
+          ts.isPropertyAssignment(candidate) && ts.isIdentifier(candidate.name) && candidate.name.text === "header",
+      )?.initializer;
+      const key =
+        header && ts.isCallExpression(header) && header.arguments[0] && ts.isStringLiteralLike(header.arguments[0])
+          ? header.arguments[0].text
+          : undefined;
+      if (id && key) found.push({ id, key });
+    }
+    ts.forEachChild(node, visit);
+  };
+  visit(file);
+
+  return found;
+}
+
+function storeLabelKeys(source: string): Map<string, string> {
+  return new Map(
+    [...source.matchAll(/\{[^{}]*\}/g)].flatMap(([literal]) => {
+      const uid = /\buid:\s*"([^"]+)"/.exec(literal)?.[1];
+      const key = /\blabel:\s*this\.t\("([^"]+)"\)/.exec(literal)?.[1];
+      return uid && key ? [[uid, key] as const] : [];
+    }),
+  );
+}
+
 function prismaModelFields(model: string): Map<string, ModelField> {
   const schema = read("prisma/schema.prisma");
   const start = schema.search(new RegExp(`^model ${model} \\{`, "m"));
@@ -334,6 +367,17 @@ describe("every column header that sorts is one its repository applies", () => {
 
     expect(content).toContain("store.sortableColumnIds.has(column.id)");
     expect(content).toContain("enableSorting: false");
+  });
+});
+
+describe("every column keeps one label in the table header and in the Fields and Sort by lists", () => {
+  it.each(Object.entries(COLUMN_HOOK_STORE))("labels every column %s headers the same way in its store", (hook, store) => {
+    const storeLabels = storeLabelKeys(read(store));
+    const mismatched = headerLabelKeys(read(hook))
+      .filter(({ id, key }) => (storeLabels.get(id) ?? `Common.table.columns.${id}`) !== key)
+      .map(({ id }) => id);
+
+    expect(mismatched, `${store} labels these columns differently from the headers in ${hook}`).toEqual([]);
   });
 });
 

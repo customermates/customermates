@@ -12,7 +12,7 @@ import { AppChip } from "@/components/chip/app-chip";
 import { FormLabel } from "./form-label";
 import { cn } from "@/core/utils/cn";
 import { useAppForm } from "./form-context";
-import { useResolvedFieldLabel } from "./use-form-field";
+import { useFormFieldItemErrors, useResolvedFieldLabel } from "./use-form-field";
 
 type SharedProps = {
   id: string;
@@ -21,7 +21,7 @@ type SharedProps = {
   placeholder?: string;
   required?: boolean;
   allowMultiple?: boolean;
-  renderChip?: (value: string, endContent: ReactNode) => ReactNode;
+  renderChip?: (value: string, endContent: ReactNode, hasError: boolean) => ReactNode;
   chipColor?: ChipColor;
   onChipClick?: (value: string) => void;
   disabled?: boolean;
@@ -36,6 +36,10 @@ type Props = SharedProps &
     | { arrayMode: true; value?: string[]; onValueChange?: (value: string[]) => void }
     | { arrayMode?: false; value?: string; onValueChange?: (value: string | undefined) => void }
   );
+
+export function splitChipValue(value: unknown): string[] {
+  return typeof value === "string" ? value.split(",").filter((item) => item.trim() !== "") : [];
+}
 
 export const FormInputChips = observer(
   ({
@@ -64,24 +68,15 @@ export const FormInputChips = observer(
     const resolvedLabel = useResolvedFieldLabel(id, label);
     const storeValue = store?.getValue(id) as string[] | string | undefined;
     const fieldValue = controlledValue ?? storeValue;
-    const hasErrorAt = (path: string) => {
-      const e = store?.getError(path);
-      return Array.isArray(e) ? e.length > 0 : Boolean(e);
-    };
     const isDisabled = Boolean(disabled) || Boolean(store?.isLoading);
     const isReadOnly = !isDisabled && (Boolean(readOnly) || Boolean(store?.isReadOnly));
     const labelId = `${id}-label`;
     const domId = inputId ?? id;
     const hasInteractiveChips = isReadOnly && Boolean(onChipClick) && !isDisabled;
 
-    let chipValues: string[] = [];
-    if (arrayMode) {
-      if (Array.isArray(fieldValue)) chipValues = fieldValue;
-    } else if (typeof fieldValue === "string" && fieldValue !== "")
-      chipValues = fieldValue.split(",").filter((v) => v.trim() !== "");
+    const chipValues = arrayMode ? (Array.isArray(fieldValue) ? fieldValue : []) : splitChipValue(fieldValue);
 
-    const chipErrors = chipValues.map((_, i) => hasErrorAt(`${id}[${i}]`));
-    const hasError = hasErrorAt(id) || chipErrors.some(Boolean);
+    const { itemErrors: chipErrors, hasError } = useFormFieldItemErrors(id, chipValues.length);
 
     function commit(next: string[]) {
       if (isReadOnly || isDisabled) return;
@@ -187,7 +182,7 @@ export const FormInputChips = observer(
                 </button>
               );
             const chip = renderChip ? (
-              renderChip(item, removeButton)
+              renderChip(item, removeButton, chipHasError)
             ) : (
               <AppChip
                 endContent={removeButton}
@@ -227,6 +222,7 @@ export const FormInputChips = observer(
           {!isReadOnly && (
             <input
               aria-invalid={hasError}
+              aria-labelledby={ariaLabelledBy}
               className="flex-1 min-w-24 border-0 bg-transparent px-1 py-0.5 text-base outline-none placeholder:text-muted-foreground disabled:cursor-not-allowed md:text-sm"
               disabled={isDisabled}
               id={domId}

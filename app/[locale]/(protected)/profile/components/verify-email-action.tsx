@@ -13,6 +13,7 @@ export function VerifyEmailAction() {
 
   return (
     <Button
+      aria-label={t("EmailVerification.resend")}
       className="h-8"
       id="profile-settings-verify-email"
       size="sm"

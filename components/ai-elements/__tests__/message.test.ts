@@ -115,10 +115,78 @@ describe("MessageResponse links", () => {
       url: "https://customermates.com/company/settings",
     });
     expect(messageLinkTarget("mailto:team@example.com", page)).toEqual({
-      kind: "external",
+      kind: "handoff",
       url: "mailto:team@example.com",
     });
+    expect(messageLinkTarget("tel:+491234", page)).toEqual({ kind: "handoff", url: "tel:+491234" });
     expect(messageLinkTarget("http://[broken", page)).toBeNull();
+  });
+
+  it("keeps the host of a protocol-relative link and treats it as external", () => {
+    const markup = renderToStaticMarkup(
+      createElement(
+        MessageResponse,
+        null,
+        [
+          "[Proto link](//example.net/path)",
+          "[Settings](//evil.example/company/settings)",
+          '<a href="/\\example.net/other">Backslash</a>',
+          '<a href="//example.net/raw">Raw</a>',
+          "![Chart](//example.net/chart.png)",
+        ].join(" "),
+      ),
+    );
+
+    expect(markup).toContain('href="https://example.net/path"');
+    expect(markup).toContain('href="https://evil.example/company/settings"');
+    expect(markup).toContain('href="https://example.net/other"');
+    expect(markup).toContain('href="https://example.net/raw"');
+    expect(markup).toContain('src="https://example.net/chart.png"');
+    expect(markup).not.toContain('href="/en/');
+    expect(markup).not.toContain("data-intl-link");
+  });
+
+  it("shows a blocked link or image as its text, with no untranslated marker", () => {
+    const markup = renderToStaticMarkup(
+      createElement(
+        MessageResponse,
+        null,
+        [
+          "[Bad link](javascript:alert(1))",
+          "[Upper](HTTP://LOCALHOST:4012/company/roles)",
+          "[No slash](company/subscription)",
+          "![Bad image](javascript:alert(1))",
+        ].join(" "),
+      ),
+    );
+
+    for (const text of ["Bad link", "Upper", "No slash", "Bad image"]) expect(markup).toContain(text);
+    expect(markup).not.toContain("[blocked]");
+    expect(markup).not.toContain("Blocked URL");
+    expect(markup).not.toContain("Image blocked");
+    expect(markup).not.toContain('href="javascript');
+  });
+
+  it("shows a link that is still streaming as its text, with no untranslated marker", () => {
+    const markup = renderToStaticMarkup(
+      createElement(MessageResponse, { mode: "streaming" }, "Read [the guide](https://example.com/gui"),
+    );
+
+    expect(markup).toContain("the guide");
+    expect(markup).not.toContain("[blocked]");
+    expect(markup).not.toContain("Blocked URL");
+    expect(markup).not.toContain("streamdown:");
+  });
+
+  it("hands email and phone links to their app in place, without the website prompt", () => {
+    const markup = renderToStaticMarkup(
+      createElement(MessageResponse, null, "[Mail us](mailto:support@example.com) or [Call](tel:+491234)."),
+    );
+
+    expect(markup).toContain('href="mailto:support@example.com"');
+    expect(markup).toContain('href="tel:+491234"');
+    expect(markup).not.toContain("target=");
+    expect(markup).not.toContain("data-intl-link");
   });
 
   it("keeps same-origin paths that are not localized pages unprefixed", () => {

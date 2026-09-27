@@ -52,6 +52,24 @@ describe("docs pages served to agents", () => {
     ).toContain("**Endpoint:** `GET /api/v1/contacts/{id}`, operationId `getContactById`.");
   });
 
+  it("quotes each REST reference page's description, not the YAML block marker of a folded description", () => {
+    const pages = CONTENT_LOCALES.flatMap((locale) =>
+      listDocsSlugs(locale, "api").map((slug) => ({
+        id: `${locale}:${slug}`,
+        page: getDocsPageRaw(slug, locale, "api"),
+      })),
+    );
+    const markers = pages.filter(({ page }) => /^[>|][-+]?$/.test(page?.description ?? "")).map(({ id }) => id);
+
+    expect(pages.length).toBeGreaterThan(0);
+    expect(markers).toEqual([]);
+    expect(
+      mcpToolResultText(
+        getDocsPageTool.execute({ slug: "createContact", locale: "en", source: "api" }) as McpToolResult,
+      ),
+    ).toContain("\n> Creates a new contact. First name and last name are required. All other fields are optional.\n");
+  });
+
   it("treats inherited object keys as unknown slugs", () => {
     expect(getDocsPageRaw("constructor", "en", "docs")).toBeNull();
     expect(getPage({ slug: "toString" }).startsWith("Validation error:")).toBe(true);

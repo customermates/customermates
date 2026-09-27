@@ -5,7 +5,7 @@ description: "Visuelle Workflows über Customermates mit Webhook-Triggern und HT
 
 Verbinden Sie n8n mit Customermates, indem Sie einen Webhook-Node auf CRM-Events abonnieren und die REST-API aus HTTP-Request-Nodes aufrufen. Dafür ist kein Custom-Node nötig; die REST- und MCP-Oberflächen funktionieren direkt. Zusätzlich gibt es einen Customermates-Community-Node unter [github.com/customermates/n8n-nodes-crm](https://github.com/customermates/n8n-nodes-crm), falls Sie dedizierte CRM-Nodes den generischen HTTP-Request-Nodes vorziehen.
 
-## Wann passt n8n?
+## Wann passt n8n? [#when-does-n8n-fit]
 
 - Ihr Team bevorzugt visuelle Flows gegenüber Code.
 - Sie wollen Events verzweigen und transformieren, bevor Sie sie an ein anderes System weiterleiten, etwa Slack, HubSpot, Google Sheets oder ein Data Warehouse.
@@ -13,7 +13,7 @@ Verbinden Sie n8n mit Customermates, indem Sie einen Webhook-Node auf CRM-Events
 
 Wenn eine KI das CRM im Gespräch steuern soll, nutzen Sie stattdessen oder zusätzlich [MCP](/docs/mcp).
 
-## Wie kann ich n8n auslösen, wenn sich Datensätze im CRM ändern?
+## Wie kann ich n8n auslösen, wenn sich Datensätze im CRM ändern? [#how-do-i-trigger-n8n-from-crm-changes]
 
 <Steps>
 <Step title="Webhook-Node in n8n anlegen">
@@ -69,7 +69,7 @@ Der Body ist ein JSON-RPC-2.0-Aufruf:
 
 Die Antwort kommt als Server-Sent Event: Das JSON-RPC-Ergebnis steht in der Zeile, die mit `data:` beginnt. Lesen Sie die Antwort deshalb als Text und parsen Sie diese Zeile, etwa in einem Code-Node. Ein abgelehnter Aufruf antwortet trotzdem, mit `result.isError: true`. Eine Ablehnung, die das Tool entscheidet, trägt ein kind in `_meta.failure`; Argumente, die nicht zum Input-Schema des Tools passen, werden abgewiesen, bevor das Tool läuft, mit einem Text, der mit `MCP error -32602:` beginnt, und ohne `_meta.failure`. Siehe [Wenn ein Aufruf abgelehnt wird](/docs/mcp#when-a-call-is-refused). Die MCP-Tools tragen zusätzliche Guardrails: Relations-ID-Felder werden bei Updates nicht akzeptiert (außer `services` in `update_deals`, das die Service-Liste des Deals ersetzt), andere Verknüpfungen ändern sich also nur über `manage_record_links`.
 
-## Wie führe ich geplante Jobs aus?
+## Wie führe ich geplante Jobs aus? [#how-do-i-run-scheduled-jobs]
 
 Der Cron-Trigger von n8n plus die Customermates-REST-API deckt wiederkehrende Arbeit ab:
 
@@ -79,19 +79,19 @@ Der Cron-Trigger von n8n plus die Customermates-REST-API deckt wiederkehrende Ar
 
 Lebenszyklus-Werte von Deals und Aufgaben wie Status oder Priorität sind pro Workspace konfigurierbare singleSelect-Custom-Columns, keine festen Felder. `GET /api/v1/<endpoint>/configuration` (oder `get_record_schema` über MCP) zeigt, welche Spalten und Optionen in Ihrem Workspace existieren; lesen Sie das, bevor Sie danach filtern. Für wiederkehrende Arbeit, die Urteilsvermögen braucht, führt eine [Routine](/docs/app-routines) den Assistenten nach Zeitplan innerhalb von Customermates aus.
 
-## Wie funktioniert die Authentifizierung?
+## Wie funktioniert die Authentifizierung? [#how-does-authentication-work]
 
-Legen Sie den Key in Customermates unter **Mein Profil → API & Konnektoren** mit **Hinzufügen** und **Standard-API-Key** an; dafür braucht Ihre Rolle **Verwalten** **Ja** in der Zeile **API & Webhooks**, und die Seite selbst braucht **Lesen** **Alle** in dieser Zeile. Speichern Sie den API-Key als n8n-**Header Auth**-Credential mit dem Header-Namen `x-api-key`. Verwenden Sie ihn über Nodes hinweg wieder, damit Sie ihn an einer Stelle ersetzen. Keys bestehen aus 64 ASCII-Buchstaben (`a-z`, `A-Z`) und erben die Berechtigungen des besitzenden Users; ein Scoping pro Key gibt es nicht. Ein falscher, abgelaufener oder gelöschter Key erhält HTTP `401`, ein Key, dessen Besitzer auf **Inaktiv** steht, `403`. Siehe [API-Keys](/docs/api-keys).
+Legen Sie den Key in Customermates unter **Mein Profil → API & Konnektoren** mit **Hinzufügen** und **Standard-API-Key** an; dafür braucht Ihre Rolle **Verwalten** **Ja** in der Zeile **API & Webhooks**, und die Seite selbst braucht **Lesen** **Alle** in dieser Zeile. Speichern Sie den API-Key als n8n-**Header Auth**-Credential mit dem Header-Namen `x-api-key`. Verwenden Sie ihn über Nodes hinweg wieder, damit Sie ihn an einer Stelle ersetzen. Keys bestehen aus 64 ASCII-Buchstaben (`a-z`, `A-Z`) und erben die Berechtigungen des besitzenden Users; ein Scoping pro Key gibt es nicht. An den REST-Endpunkten erhält ein falscher, abgelaufener oder gelöschter Key HTTP `401` und ein Key, dessen Besitzer auf **Inaktiv** steht, `403`. Am MCP-Endpunkt verbindet sich die Anfrage trotzdem und listet die Tools, und jeder Aufruf, der Workspace-Daten liest oder ändert, wird stattdessen abgelehnt: bei einem falschen Key mit „Sign in to use this action.“, bei einem inaktiven Besitzer mit „Your user account is inactive. Contact a workspace administrator.“ (die Meldungen kommen auf Englisch). Siehe [API-Keys](/docs/api-keys).
 
 **Link:** die Seite **API & Konnektoren**, `/profile/api-keys`. **Mate:** `navigate` und `highlight_element` mit `nav-profile-api-keys`; `highlight_element` nimmt außerdem `profile-api-keys-generate` für **Hinzufügen** an (Rollen mit **Verwalten** auf **API & Webhooks**), danach `api-key-option-standard` für **Standard-API-Key** (Voraussetzung `profile-api-keys-generate`) sowie `api-key-name`, `api-key-expires` und `api-key-save` für **Name**, **Läuft ab** und **Speichern** (Voraussetzung `api-key-option-standard`). Die Kacheln der **Schnellverbindungen** sind keine Highlight-Ziele, deshalb nennt Mate sie beim Namen.
 
-## Was sind typische Fallstricke?
+## Was sind typische Fallstricke? [#what-are-the-common-gotchas]
 
 - **Relationship-Arrays über REST**: `null` oder `[]` für ein Relationship-Array wie `organizationIds` löscht jede Verknüpfung dieser Art; lassen Sie das Feld weg, um Verknüpfungen unangetastet zu lassen. Über MCP nutzen Sie `manage_record_links`, um einzelne Verknüpfungen hinzuzufügen oder zu entfernen.
 - **Batch-Größe**: Customermates setzt kein Request-Rate-Limit für API-Keys, aber die `/many`-Endpunkte nehmen höchstens 100 Datensätze pro Anfrage, also teilen Sie größere Jobs auf. Verbundene Messaging-Kanäle haben Lese- und Sendelimits pro Anbieter; siehe [Messaging-Rate-Limits](/docs/messaging-rate-limits).
 - **Webhook-Reihenfolge**: Deliveries sind nicht strikt geordnet. Behandeln Sie sie als idempotente Nachrichten mit Schlüssel `entityId` und nutzen Sie den `timestamp` der Payload, um sie zu ordnen.
 
-## Weiter
+## Weiter [#next]
 
 - [Webhooks](/docs/webhooks): die Trigger-Seite im Detail.
 - [OpenAPI](/docs/openapi): vollständige REST-Referenz für die Action-Seite.

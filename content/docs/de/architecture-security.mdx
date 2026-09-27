@@ -17,7 +17,7 @@ Jedes Unternehmen ist ein isolierter Mandant in einer gemeinsamen PostgreSQL-Dat
 
 ## Wie funktioniert die Mandantentrennung (Multi-Tenancy)? [#how-does-multi-tenancy-keep-each-tenant-isolated]
 
-Alle Unternehmen teilen sich eine Datenbank, und jeder Datensatz trägt die ID seines Unternehmens. Die Trennung wird auf drei Ebenen erzwungen:
+Die Daten jedes Mandanten sind getrennt: Alle Unternehmen teilen sich eine Datenbank, und jeder Datensatz trägt die ID seines Unternehmens. Die Trennung wird auf drei Ebenen erzwungen:
 
 1. **Interactors**: Jede fachliche Operation läuft als angemeldeter Nutzer und filtert nach dessen Unternehmen.
 2. **Query-Guard**: Eine Prisma-Erweiterung bricht mit einem Fehler ab, wenn eine Abfrage auf eine Workspace-Tabelle die aktuelle Unternehmens-ID nicht im Filter hat oder ein anderes Unternehmen nennt, und wenn eine neue Zeile die ID eines anderen Unternehmens trägt. Nur die Authentifizierungstabellen sind ausgenommen (Anmeldeidentitäten, Anmeldekonten, Sitzungen, Bestätigungstokens, API-Keys sowie die MCP-OAuth-Clients, -Tokens und -Zustimmungen), und einige ausdrücklich markierte Systemoperationen umgehen den Guard.
@@ -70,7 +70,7 @@ Die MCP-Oberfläche ergänzt Eingabe-Schutzregeln, die Tool-Aufrufe absichern:
 
 Die vollständige Liste finden Sie im [MCP-Tool-Katalog](/docs/mcp#tool-catalog).
 
-## Wie werden Daten im Ruhezustand und bei der Übertragung geschützt? [#how-is-data-protected-at-rest-and-in-transit]
+## Wie werden Daten im Ruhezustand und bei der Übertragung geschützt, wie werden Passwörter gespeichert, und wo werden die Daten gehostet? [#how-is-data-protected-at-rest-and-in-transit]
 
 - Die Verschlüsselung der Postgres-Daten im Ruhezustand (at rest) hängt von Ihrem Anbieter ab. In der gehosteten Cloud liegen die Daten in einer EU-Region und sind im Ruhezustand auf Datenträgerebene verschlüsselt.
 - Passwörter und API-Keys werden nur als Hash gespeichert.

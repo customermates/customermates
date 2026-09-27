@@ -1,7 +1,7 @@
 "use client";
 
 import * as React from "react";
-import { Command as CommandPrimitive } from "cmdk";
+import { Command as CommandPrimitive, useCommandState } from "cmdk";
 import { SearchIcon } from "lucide-react";
 
 import { cn } from "@/core/utils/cn";
@@ -67,9 +67,35 @@ function CommandDialog({
   );
 }
 
+function useCommandInputAria(containerRef: React.RefObject<HTMLElement | null>, expanded?: boolean) {
+  const selectedValue = useCommandState((state) => state.value);
+  const listIdRef = React.useRef<string | null>(null);
+
+  React.useLayoutEffect(() => {
+    const input = containerRef.current?.querySelector<HTMLInputElement>("[cmdk-input]");
+    if (!input) return;
+
+    listIdRef.current ??= input.getAttribute("aria-controls");
+    const listId = listIdRef.current;
+    if (expanded !== undefined) {
+      input.setAttribute("aria-expanded", String(expanded));
+      if (expanded && listId) input.setAttribute("aria-controls", listId);
+      else input.removeAttribute("aria-controls");
+    }
+
+    const list = expanded !== false && listId ? document.getElementById(listId) : null;
+    const option = selectedValue ? list?.querySelector<HTMLElement>('[cmdk-item][aria-selected="true"]') : null;
+    if (option?.id) input.setAttribute("aria-activedescendant", option.id);
+    else input.removeAttribute("aria-activedescendant");
+  });
+}
+
 function CommandInput({ className, ...props }: React.ComponentProps<typeof CommandPrimitive.Input>) {
+  const wrapperRef = React.useRef<HTMLDivElement>(null);
+  useCommandInputAria(wrapperRef);
+
   return (
-    <div className="flex h-9 items-center gap-2 border-b px-3" data-slot="command-input-wrapper">
+    <div ref={wrapperRef} className="flex h-9 items-center gap-2 border-b px-3" data-slot="command-input-wrapper">
       <SearchIcon className="size-4 shrink-0 opacity-50" />
 
       <CommandPrimitive.Input
@@ -158,4 +184,5 @@ export {
   CommandItem,
   CommandShortcut,
   CommandSeparator,
+  useCommandInputAria,
 };

@@ -8,7 +8,7 @@ demo:
 
 Customermates ist ein Open-Source-CRM mit einem nativen MCP-Endpoint. Claude, ChatGPT, Cursor und jeder andere Client, der das Model Context Protocol spricht, liest und schreibt Ihr CRM direkt, ganz ohne Copy-Paste.
 
-## Client wählen und loslegen
+## Client wählen und loslegen [#pick-your-client-and-start]
 
 | Ihre KI | Volles Setup auf einer Seite |
 |---|---|
@@ -21,7 +21,7 @@ Jede Seite ist in sich abgeschlossen: die Verbindungsschritte und Ihre ersten Ko
 
 Für einen Durchlauf mit Webhook und erster KI-Interaktion siehe [Quickstart](/docs/quickstart).
 
-## Was Customermates ist
+## Was Customermates ist [#what-customermates-is]
 
 Ein CRM mit fünf Record-Typen (Contacts, Organizations, Deals, Services, Tasks), Custom Columns, Tabellen- und Board-Ansichten und Dashboards, plus:
 
@@ -35,7 +35,7 @@ Ein CRM mit fünf Record-Typen (Contacts, Organizations, Deals, Services, Tasks)
 - **Posteingang** für E-Mail und verbundene LinkedIn-, WhatsApp-, Instagram- und Telegram-Konten, in Customermates Cloud. Siehe [Posteingang](/docs/app-inbox).
 - **Rollen**, die je Bereich festlegen, wer alle Datensätze, nur zugewiesene oder keine lesen und wer sie verwalten darf. Siehe [Unternehmen](/docs/app-company).
 
-## Vier Wege, wie Customermates mit Ihrem Stack spricht
+## Vier Wege, wie Customermates mit Ihrem Stack spricht [#four-ways-customermates-connects-to-your-stack]
 
 | Ich will | Nehmen Sie |
 |---|---|
@@ -46,11 +46,11 @@ Ein CRM mit fünf Record-Typen (Contacts, Organizations, Deals, Services, Tasks)
 
 MCP, OpenAPI und n8n authentifizieren sich mit einem API-Key, und MCP-Clients wie Claude und ChatGPT können sich auch per OAuth ohne Key verbinden; siehe [API-Keys](/docs/api-keys). Webhooks funktionieren umgekehrt: Customermates sendet jede Zustellung an Ihre URL und signiert sie, wenn der Webhook ein Secret hat, mit diesem Secret; Ihr Empfänger prüft also die Signatur oder einen eigenen Header, den Sie am Webhook hinterlegen, statt eines Keys.
 
-## Design-Ansatz
+## Design-Ansatz [#design-approach]
 
 Customermates behandelt den KI-Client als First-Class-User. Tools sind imperativ benannt, Fehler sind umsetzbar, Beziehungen lassen sich inkrementell ändern, und die MCP-Oberfläche bleibt klein ([[derived.mcp.tools.total]] Tools, standardmäßig alle aktiv), damit auch kleinere Modelle sie zuverlässig bedienen können.
 
-## Wie die Docs organisiert sind
+## Wie die Docs organisiert sind [#how-the-docs-are-organized]
 
 - **Getting Started**: [Quickstart](/docs/quickstart), [Konzepte](/docs/concepts).
 - **KI verbinden**: [Custom Connector](/docs/connect-custom-connector), [CLI & Editoren](/docs/connect-cli), [Ratenlimits](/docs/messaging-rate-limits).
@@ -59,6 +59,6 @@ Customermates behandelt den KI-Client als First-Class-User. Tools sind imperativ
 - **Self-Hosting**: [Start und Betrieb](/docs/self-hosting), [Architektur und Sicherheit](/docs/architecture-security).
 - **Reference**: [MCP-Tool-Katalog](/docs/mcp#tool-catalog), [Filter-Syntax](/docs/filter-syntax), [API-Keys](/docs/api-keys).
 
-## Ausprobieren
+## Ausprobieren [#try-it]
 
 Die eingebettete Demo auf dieser Seite ist eine schreibgeschützte Live-Instanz mit Beispieldaten: Sie können sie durchsehen und durchsuchen, aber Datensätze anlegen, ändern oder löschen und Mate fragen ist gesperrt; stattdessen erscheint ein Hinweis, dass die Aktion im Demo-Modus nicht verfügbar ist. [Starten Sie eine kostenlose Testphase](/auth/signup), um mit Ihren eigenen Daten zu arbeiten.

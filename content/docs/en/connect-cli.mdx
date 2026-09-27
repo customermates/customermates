@@ -29,11 +29,9 @@ OpenAI's Codex CLI uses a TOML config file. The `codex mcp add` subcommand only 
 
 <McpInstallSnippet tool="codex" />
 
-To pull the key from your environment instead of storing it in the file:
+To pull the key from your environment instead of storing it in the file, replace the `http_headers` line of the block above with:
 
 ```toml
-[mcp_servers.customermates]
-url = "<BASE_URL>/api/v1/mcp"
 env_http_headers = { "x-api-key" = "CUSTOMERMATES_API_KEY" }
 ```
 

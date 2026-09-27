@@ -3,7 +3,7 @@ import type { RootStore } from "@/core/stores/root.store";
 import { describe, expect, it, vi } from "vitest";
 import { Currency, EntityType } from "@/generated/prisma";
 
-const actions = vi.hoisted(() => ({ updateCompanyAction: vi.fn() }));
+const actions = vi.hoisted(() => ({ getDealStageValueSumsAction: vi.fn(), updateCompanyAction: vi.fn() }));
 
 vi.mock("../../../actions", () => actions);
 vi.mock("@/app/actions", () => ({ upsertEntityTerminologyAction: vi.fn() }));
@@ -162,5 +162,171 @@ describe("CompanySettingsStore pipeline totals", () => {
 
     expect(store.pipelineTotal).toBe(0);
     expect(store.weightedPipelineTotal).toBe(0);
+  });
+});
+
+describe("CompanySettingsStore stale errors", () => {
+  const COLUMN_ID = "column-stage";
+  const weightError = {
+    errors: [],
+    properties: {
+      dealStageWeights: {
+        errors: [],
+        items: [undefined, { errors: [], properties: { weight: { errors: ["Too big"] } } }],
+      },
+    },
+  } as never;
+
+  function storeWithStageColumn() {
+    const store = new CompanySettingsStore(makeRootStore());
+    store.applyDealStageColumns(
+      [
+        {
+          id: COLUMN_ID,
+          label: "Status",
+          options: [
+            { value: "option-open", label: "Open", color: "warning", isDefault: true, index: 0, weight: 30 },
+            { value: "option-won", label: "Won", color: "success", isDefault: false, index: 1, weight: 100 },
+          ],
+        },
+      ] as never,
+      COLUMN_ID,
+    );
+    store.applyStageValueSums(COLUMN_ID, {});
+    return store;
+  }
+
+  it("keeps a weight error while another stage field is chosen and clears it once the saved field returns", () => {
+    const store = storeWithStageColumn();
+    store.onChange("dealStageWeights[1].weight", 150);
+    store.error = weightError;
+
+    store.setDealWeightingColumn(null);
+
+    expect(store.error).toBeDefined();
+
+    store.setDealWeightingColumn(COLUMN_ID);
+
+    expect(store.hasUnsavedChanges).toBe(false);
+    expect(store.error).toBeUndefined();
+    expect(store.getError("dealStageWeights[1].weight")).toBeUndefined();
+  });
+
+  it("clears an error once the terminology preset returns to its saved value, and not before", () => {
+    const store = new CompanySettingsStore(makeRootStore());
+    store.initTerminology(savedOverrides);
+    store.setTerminologyPreset(EntityType.task, "followUp");
+    store.error = weightError;
+
+    store.setTerminologyPreset(EntityType.task, "todo");
+
+    expect(store.error).toBeDefined();
+
+    store.setTerminologyPreset(EntityType.task, "task");
+
+    expect(store.hasUnsavedChanges).toBe(false);
+    expect(store.error).toBeUndefined();
+  });
+});
+
+describe("CompanySettingsStore stages without a weight", () => {
+  const COLUMN_ID = "column-stage";
+  const OPEN = "option-open";
+  const UNWEIGHTED = "option-unweighted";
+
+  function storeWithUnweightedStage() {
+    const store = new CompanySettingsStore(makeRootStore());
+    store.applyDealStageColumns(
+      [
+        {
+          id: COLUMN_ID,
+          label: "Status",
+          options: [
+            { value: OPEN, label: "Open", color: "warning", isDefault: true, index: 0, weight: 30 },
+            { value: UNWEIGHTED, label: "Parked", color: "secondary", isDefault: false, index: 1 },
+          ],
+        },
+      ] as never,
+      COLUMN_ID,
+    );
+    store.applyStageValueSums(COLUMN_ID, {
+      [OPEN]: { totalValue: 1000 },
+      [UNWEIGHTED]: { totalValue: 500 },
+    });
+    return store;
+  }
+
+  it("shows a stage stored without a weight as empty, like the Edit Field dialog, and counts it at nothing", () => {
+    const store = storeWithUnweightedStage();
+
+    expect(store.form.dealStageWeights).toEqual([
+      { optionValue: OPEN, weight: 30 },
+      { optionValue: UNWEIGHTED, weight: undefined },
+    ]);
+    expect(store.getValue("dealStageWeights[1].weight")).toBeUndefined();
+    expect(store.weightedPipelineTotal).toBe(300);
+    expect(store.hasUnsavedChanges).toBe(false);
+  });
+
+  it("keeps the stage unweighted when another stage's probability is saved", async () => {
+    const store = storeWithUnweightedStage();
+    store.onChange("dealStageWeights[0].weight", 40);
+    actions.updateCompanyAction.mockResolvedValue({ ok: true, data: {} });
+
+    await store.onSubmit();
+
+    expect(actions.updateCompanyAction).toHaveBeenLastCalledWith(
+      expect.objectContaining({
+        dealStageWeights: [
+          { optionValue: OPEN, weight: 40 },
+          { optionValue: UNWEIGHTED, weight: undefined },
+        ],
+      }),
+    );
+  });
+
+  it("keeps the saved probabilities when the stage field is switched away and back after a save", async () => {
+    const store = storeWithUnweightedStage();
+    store.onChange("dealStageWeights[0].weight", 40);
+    actions.updateCompanyAction.mockResolvedValue({ ok: true, data: {} });
+
+    await store.onSubmit();
+
+    store.setDealWeightingColumn(null);
+    store.setDealWeightingColumn(COLUMN_ID);
+
+    expect(store.form.dealStageWeights).toEqual([
+      { optionValue: OPEN, weight: 40 },
+      { optionValue: UNWEIGHTED, weight: undefined },
+    ]);
+    expect(store.savedState.dealStageWeights).toEqual(store.form.dealStageWeights);
+    expect(store.hasUnsavedChanges).toBe(false);
+  });
+
+  it("leaves the stage field untouched when the save fails", async () => {
+    const store = storeWithUnweightedStage();
+    store.onChange("dealStageWeights[0].weight", 40);
+    actions.updateCompanyAction.mockResolvedValue({ ok: false, error: { errors: [], properties: {} } });
+
+    await store.onSubmit();
+
+    expect(store.selectedStageColumn?.options.map((option) => option.weight)).toEqual([30, undefined]);
+  });
+
+  it("sends a cleared probability as no weight rather than keeping the stored one", async () => {
+    const store = storeWithUnweightedStage();
+    store.onChange("dealStageWeights[0].weight", undefined);
+    actions.updateCompanyAction.mockResolvedValue({ ok: true, data: {} });
+
+    await store.onSubmit();
+
+    expect(actions.updateCompanyAction).toHaveBeenLastCalledWith(
+      expect.objectContaining({
+        dealStageWeights: [
+          { optionValue: OPEN, weight: undefined },
+          { optionValue: UNWEIGHTED, weight: undefined },
+        ],
+      }),
+    );
   });
 });

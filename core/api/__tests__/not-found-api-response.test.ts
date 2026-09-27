@@ -43,7 +43,6 @@ const NOT_FOUND_ON_MISSING = [
   "createWebhook",
   "deleteWebhook",
   "getMessagingThread",
-  "discardDraft",
   "sendChatMessage",
   "searchSalesPeople",
 ];
@@ -62,6 +61,17 @@ describe("documented 404 responses", () => {
 
   it.each(NOT_FOUND_ON_MISSING)("documents 404 on %s, whose handler can answer not found", (operationId) => {
     expect(Object.keys(operations.get(operationId)?.responses ?? {})).toContain("404");
+  });
+
+  it("documents discardDraft as a no-op answering null for a missing draft and 404 only for a stale revision", () => {
+    const operation = operations.get("discardDraft") as
+      | (Operation & { responses?: Record<string, { description?: string }> })
+      | undefined;
+    expect(operation).toBeDefined();
+    expect(Object.keys(operation?.responses ?? {})).toContain("404");
+    expect(operation?.description).toContain("safe no-op that returns `threadId: null`");
+    expect(operation?.description).toContain("draftRevision that no longer matches the saved draft answers 404");
+    expect(operation?.responses?.["200"]?.description).toContain("`threadId: null` when no draft with this id exists");
   });
 
   it.each(NEVER_NOT_FOUND)("documents no 404 on %s, which looks up no id", (operationId) => {

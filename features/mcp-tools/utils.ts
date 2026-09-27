@@ -190,7 +190,8 @@ export const SORT_SYNTAX = {
     email: "locale-aware string",
     phone: "locale-aware string",
     link: "locale-aware string",
-    singleSelect: "by stored option uuid (ordering between options is not user-meaningful)",
+    singleSelect:
+      "by option order, as listed in the column's options (desc reverses it); a stored value that is no longer an option sorts after the known options in either direction",
   },
   nullHandling: "rows missing the value sort last regardless of direction",
   examples: [

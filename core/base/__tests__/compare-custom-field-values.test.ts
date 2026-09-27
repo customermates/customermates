@@ -43,8 +43,12 @@ describe("compareCustomFieldValues", () => {
       expect(sorted([low, null, high, medium], "desc")).toEqual([low, medium, high, null]);
     });
 
-    it("puts a stored value that is no longer an option after the known options", () => {
-      expect(sorted(["retired-option", low, high], "asc")).toEqual([high, low, "retired-option"]);
+    it("puts a stored value that is no longer an option after the known options and before empty values", () => {
+      expect(sorted(["retired-option", null, low, high], "asc")).toEqual([high, low, "retired-option", null]);
+    });
+
+    it("keeps a stored value that is no longer an option after the known options when descending", () => {
+      expect(sorted(["retired-option", null, low, high], "desc")).toEqual([low, high, "retired-option", null]);
     });
   });
 });

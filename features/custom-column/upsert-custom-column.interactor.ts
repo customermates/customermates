@@ -18,7 +18,7 @@ import { CHIP_COLORS } from "@/constants/chip-colors";
 import { DATE_DISPLAY_FORMATS } from "@/constants/date-format";
 import { calculateChanges } from "@/core/utils/calculate-changes";
 import { AuthenticatedInteractor } from "@/core/base/authenticated-interactor";
-import { failConflict } from "@/core/validation/interactor-failure-server";
+import { failAuthorization, failConflict } from "@/core/validation/interactor-failure-server";
 import { CustomErrorCode } from "@/core/validation/validation.types";
 
 export const OptionSchema = z.object({
@@ -185,8 +185,11 @@ export class UpsertCustomColumnInteractor extends AuthenticatedInteractor<Upsert
         });
       }
 
-      if (await this.changesDealStageWeights(previousCustomColumn, data))
-        await this.userService.hasPermissionOrThrow(Resource.company, Action.update);
+      if (
+        (await this.changesDealStageWeights(previousCustomColumn, data)) &&
+        !(await this.userService.hasPermission(Resource.company, Action.update))
+      )
+        return failAuthorization(CustomErrorCode.permissionDenied, ["options"]);
     }
 
     const customColumn = await this.repo.upsertCustomColumnOrThrow(

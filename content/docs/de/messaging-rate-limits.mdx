@@ -7,7 +7,7 @@ Wenn Sie einen Kanal verbinden (LinkedIn, WhatsApp, E-Mail und so weiter), kommu
 
 Eine pausierte Synchronisierung ist erwartetes Verhalten: Sie hält das verbundene Konto innerhalb der Anbieterlimits und setzt von selbst fort.
 
-## Wie funktionieren die Limits?
+## Wie funktionieren die Limits? [#how-do-the-limits-work]
 
 Die Limits werden im Unipile-Dashboard konfiguriert und von Unipile erzwungen. Sie gelten **pro verbundenem Konto** und gleichzeitig auf drei Ebenen:
 
@@ -17,7 +17,7 @@ Die Limits werden im Unipile-Dashboard konfiguriert und von Unipile erzwungen. S
 
 Ist ein Fenster voll, werden weitere Aufrufe abgelehnt, bis es sich erneuert.
 
-## Welche Leselimits gelten pro Anbieter?
+## Welche Leselimits gelten pro Anbieter? [#what-are-the-read-limits-per-provider]
 
 Lesevorgänge synchronisieren den Verlauf. Sie sind höher angesetzt als Schreibvorgänge, da Lesen selten eine Anbieter-Sperre auslöst.
 
@@ -33,7 +33,7 @@ Lesevorgänge synchronisieren den Verlauf. Sie sind höher angesetzt als Schreib
 
 LinkedIn bleibt am konservativsten, da die Erkennung automatisierter Aktivität dort am strengsten ist. Einige Werte richten sich nach den Obergrenzen des Anbieters: soziale Kanäle begrenzen das Minuten-Leselimit auf 50, E-Mail-Kanäle auf 100, und das Tageslimit bewegt sich in 30er-Schritten (ein Zielwert von 500 wird daher als 510 angewendet). Telegram und die E-Mail-Anbieter bieten kein separates Tages-Leselimit.
 
-## Welche Limits gelten für Senden und Profilabrufe?
+## Welche Limits gelten für Senden und Profilabrufe? [#what-are-the-limits-for-sending-and-profile-lookups]
 
 Die riskanteren Operationen bleiben unabhängig vom Lesebudget konservativ: Profilabrufe (die Anbieter als scraping-sensibel behandeln) und jede Sendeaktion.
 
@@ -51,7 +51,7 @@ Die riskanteren Operationen bleiben unabhängig vom Lesebudget konservativ: Prof
 
 Operationen ohne eigene Zeile, etwa das Senden einer LinkedIn-Nachricht oder InMail und Suchen in LinkedIn Sales Navigator, fallen trotzdem unter die Grenzen pro Endpunkt und pro Konto und liefern dieselbe Rate-Limit-Meldung, wenn ein Fenster voll ist.
 
-## Was passiert, wenn ein Limit erreicht wird?
+## Was passiert, wenn ein Limit erreicht wird? [#what-happens-when-a-limit-is-reached]
 
 Weitere Aufrufe für dieses Konto werden abgelehnt, bis sich das Fenster erneuert, und die Aktion nennt die Wartezeit. Beim Senden einer Nachricht oder Starten einer Konversation erscheint:
 
@@ -67,6 +67,6 @@ Die Wartezeit in der Meldung stammt aus dem `Retry-After`-Wert der Rate-Limit-An
 
 **Link:** die Seite **Posteingang**, `/inbox`. **Mate:** `navigate` und `highlight_element` mit `nav-inbox`; **Aktualisieren** und **Konversation neu synchronisieren** sind keine Highlight-Ziele, deshalb nennt Mate sie beim Namen.
 
-## Setzt der Verlaufsimport von selbst fort?
+## Setzt der Verlaufsimport von selbst fort? [#does-the-history-import-resume-by-itself]
 
 Der Import des gesamten Nachrichtenverlaufs kann umfangreich sein, etwa eine Anfrage pro Unterhaltung. Wird mitten im Import ein Limit erreicht, **pausiert der Hintergrund-Import und setzt automatisch fort**, sobald sich das Fenster erneuert; Sie müssen nichts tun. Eine Wartezeit von mehr als zehn Minuten verschiebt den Import auf einen späteren Durchlauf. Mit **Verwalten** bei **Inbox-Nachrichten** lädt Scrollen bis zum Anfang einer Unterhaltung oder **Konversation neu synchronisieren** ältere Nachrichten vom Anbieter, und beides zählt gegen dieselben Limits; neue Aktivität trifft in Echtzeit über Webhooks ein.

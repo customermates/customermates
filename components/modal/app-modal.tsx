@@ -13,12 +13,12 @@ import { Drawer, DrawerContent, DrawerDescription, DrawerTitle } from "@/compone
 import { TooltipProvider } from "@/components/ui/tooltip";
 import { OVERLAY_TOPMOST_LAYER_CLASS } from "@/components/ui/overlay-contract";
 import { useOverlayFocusReturn } from "@/components/ui/use-overlay-focus-return";
-import { useRootStore } from "@/core/stores/root-store.provider";
 import { cn } from "@/core/utils/cn";
 import { useIsWiderThan } from "@/hooks/use-media-query";
 
 import { UnsavedChangesGuard } from "./unsaved-changes-guard";
 import { AppModalAction, APP_MODAL_ACTION_RAIL_CLASS } from "./app-modal-action";
+import { keepOpenForAssistantSurface, releaseFocusToAssistantSurface } from "./assistant-surface";
 
 export type AppModalActions =
   | readonly []
@@ -56,8 +56,26 @@ function hasStore(props: Props): props is SharedProps & StoreProps {
   return props.store !== undefined;
 }
 
-function keepOpenForAssistantSurface(event: Event) {
-  if (event.target instanceof Element && event.target.closest("[data-agent-surface]")) event.preventDefault();
+const INITIAL_FOCUS_CANDIDATES =
+  "input:not([type='hidden']), select, textarea, button, [contenteditable='true'], [tabindex]";
+const INITIAL_FOCUS_EXCLUDED =
+  '[data-slot="app-modal-actions"], [data-slot="dialog-close"], [data-slot="drawer-close"], [data-slot="tooltip-trigger"]';
+
+function focusFirstContentControl(event: Event) {
+  const content = event.currentTarget;
+  if (!(content instanceof HTMLElement)) return;
+
+  event.preventDefault();
+  for (const candidate of content.querySelectorAll<HTMLElement>(INITIAL_FOCUS_CANDIDATES)) {
+    if (candidate.tabIndex < 0 || candidate.closest(INITIAL_FOCUS_EXCLUDED)) continue;
+
+    candidate.focus({ preventScroll: true });
+    if (document.activeElement !== candidate) continue;
+
+    if (candidate instanceof HTMLInputElement) candidate.select();
+    return;
+  }
+  content.focus({ preventScroll: true });
 }
 
 function AppModalActionRail({ actions }: { actions: readonly AppModalActionProps[] }) {
@@ -77,10 +95,7 @@ export const AppModal = observer((props: Props) => {
   const store = hasStore(props) ? props.store : undefined;
   const isOpen = hasStore(props) ? props.store.isOpen : props.open;
   const navigationGuard = store?.rootStore.navigationGuard;
-  const { agentChatStore, agentUiControlStore } = useRootStore();
-  const assistantActive =
-    (agentChatStore.enabled === true && agentChatStore.isOpen) || agentUiControlStore.active !== null;
-  const modal = !assistantActive || layerClassName === OVERLAY_TOPMOST_LAYER_CLASS;
+  const releaseFocus = layerClassName === OVERLAY_TOPMOST_LAYER_CLASS ? undefined : releaseFocusToAssistantSurface;
   const isWide = useIsWiderThan("md");
   const actionCount = actions.length;
   const hasActions = actionCount > 0;
@@ -95,6 +110,11 @@ export const AppModal = observer((props: Props) => {
   function handleCloseAutoFocus(event: Event) {
     props.onCloseAutoFocus?.(event);
     if (!event.defaultPrevented) focusReturn.onCloseAutoFocus(event);
+  }
+
+  function handleOpenAutoFocus(event: Event) {
+    focusReturn.onOpenAutoFocus();
+    if (hasActions) focusFirstContentControl(event);
   }
 
   useEffect(() => {
@@ -119,7 +139,7 @@ export const AppModal = observer((props: Props) => {
   return (
     <>
       {isWide ? (
-        <Dialog modal={modal} open={isOpen} onOpenChange={handleOpenChange}>
+        <Dialog open={isOpen} onOpenChange={handleOpenChange}>
           <DialogContent
             className={cn(
               "flex flex-col gap-0 border-0 bg-transparent p-0 shadow-none",
@@ -129,11 +149,13 @@ export const AppModal = observer((props: Props) => {
             data-overlay-action-count={hasActions ? actionCount : undefined}
             data-overlay-actions={hasActions ? "" : undefined}
             overlayClassName={layerClassName}
-            onFocusOutside={modal ? undefined : (event) => event.preventDefault()}
+            onBlur={releaseFocus}
+            onEscapeKeyDown={keepOpenForAssistantSurface}
             onInteractOutside={keepOpenForAssistantSurface}
             {...(!description ? { "aria-describedby": undefined } : {})}
             {...focusReturn}
             onCloseAutoFocus={handleCloseAutoFocus}
+            onOpenAutoFocus={handleOpenAutoFocus}
           >
             <VisuallyHidden.Root>
               <DialogTitle>{title}</DialogTitle>
@@ -147,21 +169,19 @@ export const AppModal = observer((props: Props) => {
           </DialogContent>
         </Dialog>
       ) : (
-        <Drawer
-          key={modal ? "modal" : "non-modal"}
-          modal={modal}
-          open={isOpen}
-          repositionInputs={false}
-          onOpenChange={handleOpenChange}
-        >
+        <Drawer autoFocus open={isOpen} repositionInputs={false} onOpenChange={handleOpenChange}>
           <DrawerContent
             className={cn("gap-0", layerClassName)}
             data-overlay-action-count={hasActions ? actionCount : undefined}
             data-overlay-actions={hasActions ? "" : undefined}
             overlayClassName={layerClassName}
+            onBlur={releaseFocus}
+            onEscapeKeyDown={keepOpenForAssistantSurface}
             onInteractOutside={keepOpenForAssistantSurface}
+            {...(!description ? { "aria-describedby": undefined } : {})}
             {...focusReturn}
             onCloseAutoFocus={handleCloseAutoFocus}
+            onOpenAutoFocus={handleOpenAutoFocus}
           >
             <VisuallyHidden.Root>
               <DrawerTitle>{title}</DrawerTitle>

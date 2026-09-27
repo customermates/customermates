@@ -5,16 +5,22 @@ import { createMockDiModule, MOCK_ENV_MODULE, MOCK_ZOD_MODULE } from "@/tests/he
 
 const mockUser = createMockUser();
 const spies = vi.hoisted(() => ({
+  adminUpdateUserDetails: vi.fn(),
+  getTeamMember: vi.fn(),
   updateCompanySettings: vi.fn(),
   updateUserDetails: vi.fn(),
+}));
+
+vi.mock("next-intl/server", () => ({
+  getTranslations: () => Promise.resolve({ raw: (key: string) => key }),
 }));
 
 vi.mock("@/env", () => MOCK_ENV_MODULE);
 vi.mock("@/core/validation/zod-error-map-server", () => MOCK_ZOD_MODULE);
 vi.mock("@/core/di", () => ({
   ...createMockDiModule(() => mockUser),
-  getAdminUpdateUserDetailsInteractor: vi.fn(),
-  getGetUserByIdInteractor: vi.fn(),
+  getAdminUpdateUserDetailsInteractor: () => ({ invoke: spies.adminUpdateUserDetails }),
+  getGetTeamMemberInteractor: () => ({ invoke: spies.getTeamMember }),
   getInviteUsersByEmailInteractor: vi.fn(),
   getUpdateCompanySettingsInteractor: () => ({
     invoke: spies.updateCompanySettings,
@@ -22,8 +28,12 @@ vi.mock("@/core/di", () => ({
   getUpdateUserDetailsInteractor: () => ({ invoke: spies.updateUserDetails }),
 }));
 
-import { updateWorkspaceSettingsTool } from "../admin.mcp-tools";
-import { mcpToolResultText } from "../mcp-tool";
+import { ForbiddenError } from "@/core/errors/app-errors";
+
+import { manageTeamTool, updateWorkspaceSettingsTool } from "../admin.mcp-tools";
+import { executeMcpTool, mcpToolResultText } from "../mcp-tool";
+
+const MEMBER_ID = "30000000-0000-4000-8000-000000000002";
 
 beforeEach(() => {
   vi.clearAllMocks();
@@ -152,5 +162,46 @@ describe("update_workspace_settings", () => {
         terminology: [{ entityType: "deal", presetKey: "banana" }],
       }),
     ).toThrow();
+  });
+});
+
+describe("manage_team update_member", () => {
+  it("reports a caller who may not manage members as an authorization failure, not a missing member", async () => {
+    spies.getTeamMember.mockRejectedValue(new ForbiddenError("Access denied. Required permissions: update on users"));
+
+    const outcome = await executeMcpTool(manageTeamTool, [
+      manageTeamTool.inputSchema.parse({ action: "update_member", userId: MEMBER_ID, status: "active" }),
+    ]);
+
+    expect(outcome.ok).toBe(false);
+    expect(outcome).toMatchObject({ failure: { kind: "authorization" } });
+    expect(spies.getTeamMember).toHaveBeenCalledWith({ id: MEMBER_ID });
+    expect(spies.adminUpdateUserDetails).not.toHaveBeenCalled();
+  });
+
+  it("still reports a member the caller may manage but cannot find as not found", async () => {
+    spies.getTeamMember.mockResolvedValue({ ok: true, data: { user: null } });
+
+    const outcome = await executeMcpTool(manageTeamTool, [
+      manageTeamTool.inputSchema.parse({ action: "update_member", userId: MEMBER_ID, status: "active" }),
+    ]);
+
+    expect(outcome).toMatchObject({ ok: false, failure: { kind: "not_found" } });
+    expect(spies.adminUpdateUserDetails).not.toHaveBeenCalled();
+  });
+});
+
+describe("admin tool descriptions", () => {
+  it("state the role permissions the interactors check instead of admin rights", () => {
+    const texts = [
+      updateWorkspaceSettingsTool.description,
+      updateWorkspaceSettingsTool.inputSchema.shape.target.description ?? "",
+      manageTeamTool.description,
+    ];
+
+    for (const text of texts) expect(text).not.toContain("admin rights");
+    expect(updateWorkspaceSettingsTool.description).toContain("update permission on the company");
+    expect(manageTeamTool.description).toContain("invite requires create permission on users");
+    expect(manageTeamTool.description).toContain("update_member requires update permission");
   });
 });

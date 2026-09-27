@@ -129,6 +129,21 @@ describe("CreateApiKeyInteractor name contract", () => {
     expect(createApiKey).not.toHaveBeenCalled();
   });
 
+  it.each(["", "   "])("rejects the blank name %j before calling Better Auth", async (name) => {
+    const { createApiKey, interactor } = makeInteractor();
+
+    const result = await interactor.invoke({ name, expiresIn: undefined });
+
+    expect(result).toMatchObject({ ok: false });
+    if (!result.ok) {
+      expect(result.error.issues[0]).toMatchObject({
+        path: ["name"],
+        params: { error: CustomErrorCode.mustNotBeBlank },
+      });
+    }
+    expect(createApiKey).not.toHaveBeenCalled();
+  });
+
   it("returns the Better Auth name length fallback as a name field error", async () => {
     const { createApiKey, interactor } = makeInteractor();
     createApiKey.mockResolvedValueOnce({ ok: false, error: CustomErrorCode.apiKeyNameLength });

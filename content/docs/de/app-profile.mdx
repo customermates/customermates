@@ -23,15 +23,15 @@ Rollen bearbeitet unter **Mein Unternehmen › Rollen** ein Mitglied, dessen Rol
 | **Kanäle** | `/profile/connected-accounts` | `nav-profile-connected-accounts`, auch `profile-connected-accounts-connect` | `profile-connected-accounts-connect`; im Kanal-Dialog `connected-account-tab-details`, `connected-account-visibility`, `connected-account-tab-email`, `connected-account-signature`, `connected-account-email-save`, `connected-account-tab-folders`, `connected-account-reactivate`, `connected-account-resync`, `connected-account-disconnect` | [Kanäle](#channels-tab) |
 | **API & Konnektoren** | `/profile/api-keys` | `nav-profile-api-keys` | `profile-api-keys-generate`; im Key-Dialog `api-key-option-standard`, `api-key-name`, `api-key-expires`, `api-key-save`, `api-key-delete` | [API & Konnektoren](#api--connectors-tab) |
 
-## Tab Einstellungen [#settings-tab]
+## Seite Einstellungen (Profileinstellungen) [#settings-tab]
 
-Route `/profile/settings`, Seitenleisten-Eintrag **Einstellungen**. Jedes angemeldete Mitglied kann die Seite öffnen, unabhängig von der Rolle, und das Formular ändert nur Ihr eigenes Profil. Speichern oder verwerfen Sie mit **Speichern** (`#profile-settings-save`) und **Zurücksetzen** (`#profile-settings-reset`) unter dem Formular; beide Buttons erscheinen, sobald das Formular ungespeicherte Änderungen hat. **Speichern** sichert alle Felder auf einmal.
+Die Seite **Einstellungen** des Profils enthält Ihren Namen, Avatar, Sprache, Formate und Darstellung. Route `/profile/settings`, Seitenleisten-Eintrag **Einstellungen**. Jedes angemeldete Mitglied kann die Seite öffnen, unabhängig von der Rolle, und das Formular ändert nur Ihr eigenes Profil. Speichern oder verwerfen Sie mit **Speichern** (`#profile-settings-save`) und **Zurücksetzen** (`#profile-settings-reset`) unter dem Formular; beide Buttons erscheinen, sobald das Formular ungespeicherte Änderungen hat. **Speichern** sichert alle Felder auf einmal.
 
-**Link:** die Seite **Einstellungen**, `/profile/settings`. **Mate:** `navigate` und `highlight_element` mit `nav-profile-settings`; `highlight_element` nimmt außerdem die Feld-Ids unten ohne `#` an, `profile-settings-verify-email`, solange Ihre E-Mail nicht verifiziert ist, sowie `profile-settings-save` und `profile-settings-reset`, die erst bei ungespeicherten Änderungen sichtbar sind.
+**Link:** der Link zur Seite **Einstellungen** des Profils, `/profile/settings`. **Mate:** `navigate` und `highlight_element` mit `nav-profile-settings`; `highlight_element` nimmt außerdem die Feld-Ids unten ohne `#` an, `profile-settings-verify-email`, solange Ihre E-Mail nicht verifiziert ist, sowie `profile-settings-save` und `profile-settings-reset`, die erst bei ungespeicherten Änderungen sichtbar sind.
 
 ### Wie ändere ich Namen, Avatar, Sprache oder Darstellung? [#how-do-i-change-my-name-avatar-language-or-theme]
 
-Ändern Sie das Feld und klicken Sie auf **Speichern**.
+Ändern Sie das Feld und klicken Sie auf **Speichern**: **Anzeigesprache** legt die Sprache der Oberfläche fest, in der auch der Assistent antwortet, und **Darstellung** schaltet auf eine helle oder dunkle Oberfläche (Dark Mode) oder folgt dem System.
 
 | Feld | Id | Optionen und Regeln | Wirkung |
 |---|---|---|---|
@@ -48,23 +48,23 @@ Das Avatar-Menü unten in der Seitenleiste enthält den Schalter **Dunkler Modus
 
 **Link:** `/profile/settings`. **Mate:** `navigate` und `highlight_element` mit `nav-profile-settings`, danach `highlight_element` mit der Feld-Id dieser Tabelle ohne `#`, zum Beispiel `profile-settings-first-name`, `profile-settings-avatar-url` oder `profile-settings-theme`, und, sobald sich etwas geändert hat, `profile-settings-save`. Der Kopfbereich und das Avatar-Menü haben kein Ziel, deshalb nennt Mate sie beim Namen.
 
-### Wie verifiziere ich meine E-Mail-Adresse? [#how-do-i-verify-my-email-address]
+### Wie verifiziere ich meine E-Mail-Adresse oder sende die Bestätigungs-E-Mail erneut? [#how-do-i-verify-my-email-address]
 
-Solange Ihre Adresse nicht verifiziert ist, zeigt die Seitenleiste unter dem Markennamen **E-Mail nicht verifiziert**. Ein Klick öffnet diese Seite, deren Kopfleiste **Verifizierungs-E-Mail erneut senden** anbietet. Ein neues Konto lässt sich 24 Stunden ohne Verifizierung nutzen. Danach leitet jede Seite auf den Verifizierungs-Screen um, bis Sie die Adresse über den Link in der E-Mail bestätigen.
+Solange Ihre Adresse nicht verifiziert ist, zeigt die Seitenleiste unter dem Markennamen **E-Mail nicht verifiziert**. Ein Klick öffnet **Mein Profil › Einstellungen** (`/profile/settings`), deren Kopfleiste **Verifizierungs-E-Mail erneut senden** anbietet. Ein neues Konto lässt sich 24 Stunden ohne Verifizierung nutzen. Danach leitet jede Seite auf den Verifizierungs-Screen um, bis Sie die Adresse über den Link in der E-Mail bestätigen.
 
 **Link:** `/profile/settings`. **Mate:** `navigate` und `highlight_element` mit `nav-profile-settings`; `highlight_element` nimmt außerdem `profile-settings-verify-email` für **Verifizierungs-E-Mail erneut senden** (`#profile-settings-verify-email`) an, sichtbar nur, solange Ihre E-Mail nicht verifiziert ist. Das Kennzeichen **E-Mail nicht verifiziert** hat keine Id, deshalb nennt Mate es beim Namen.
 
-### Was lässt sich hier nicht ändern? [#what-can-i-not-change-here]
+### Was lässt sich hier nicht ändern, etwa das Passwort? [#what-can-i-not-change-here]
 
-Es gibt keine Einstellung für Passwort, E-Mail-Adresse, Zeitzone, Benachrichtigungen oder das Löschen Ihres Kontos. Für ein neues Passwort melden Sie sich ab und nutzen auf der Anmeldeseite **Passwort vergessen?**. E-Mail-Signaturen gehören zum jeweiligen E-Mail-Konto auf der Seite Kanäle, siehe E-Mail-Darstellung und Signatur weiter unten.
+Es gibt keine Einstellung für Passwort, E-Mail-Adresse, Zeitzone, Benachrichtigungen oder das Löschen Ihres Kontos. Für ein neues Passwort melden Sie sich ab und nutzen auf der Anmeldeseite **Passwort vergessen?**. E-Mail-Signaturen gehören zum jeweiligen E-Mail-Konto auf der Seite Kanäle, siehe [E-Mail-Darstellung und Signatur](#email-appearance-and-signature) weiter unten.
 
 Im Assistenten und über MCP ändert `update_workspace_settings` mit `target: "profile"` nur **Vorname**, **Nachname**, **Land** und **Avatar-URL**. **Anzeigesprache**, **Regionales Format** und **Darstellung** stellen Sie nur in der App ein. Die REST-API liest Ihr Profil mit `GET /v1/users/me`, kann es aber nicht ändern.
 
 **Link:** `/profile/settings`. **Mate:** `navigate` und `highlight_element` mit `nav-profile-settings`; **Abmelden** und die Anmeldeseite mit **Passwort vergessen?** haben kein Ziel, deshalb nennt Mate sie beim Namen.
 
-## Tab API & Konnektoren [#api--connectors-tab]
+## Seite API & Konnektoren: Ihre API-Keys [#api--connectors-tab]
 
-Route `/profile/api-keys`, Seitenleisten-Eintrag **API & Konnektoren**. Keys für MCP- und REST-Clients; alle Regeln stehen unter [API-Keys](/docs/api-keys). Die Seite listet nur Ihre eigenen Keys. Zum Öffnen braucht die Zeile **API & Webhooks** Ihrer Rolle **Lesen** **Alle**, zum Hinzufügen und Löschen von Keys **Verwalten** **Ja** in derselben Zeile. Dieselbe Zeile steuert auch **Mein Unternehmen › Webhooks** und **Letzte Zustellungen**.
+Die Seite **API & Konnektoren** enthält Ihre API-Keys. Route `/profile/api-keys`, Seitenleisten-Eintrag **API & Konnektoren**. Keys für MCP- und REST-Clients; alle Regeln stehen unter [API-Keys](/docs/api-keys). Die Seite listet nur Ihre eigenen Keys. Zum Öffnen braucht die Zeile **API & Webhooks** Ihrer Rolle **Lesen** **Alle**, zum Hinzufügen und Löschen von Keys **Verwalten** **Ja** in derselben Zeile. Dieselbe Zeile steuert auch **Mein Unternehmen › Webhooks** und **Letzte Zustellungen**.
 
 | Aktion | Wo | Anchor-Id | Was passiert |
 |---|---|---|---|
@@ -78,11 +78,11 @@ Der Bereich Schnellverbindungen bietet vier Kacheln: **Claude**, **ChatGPT & Cod
 
 Es gibt keinen Rotate- oder Revoke-Button: Erstellen Sie einen neuen Key, aktualisieren Sie den Client und löschen Sie dann den alten. Wird einer Rolle **API & Webhooks** entzogen, bleiben die Keys ihrer Mitglieder gültig; um die Keys eines Mitglieds zu stoppen, setzen Sie es unter **Mein Unternehmen › Mitglieder** auf **Inaktiv**.
 
-**Link:** die Seite **API & Konnektoren**, `/profile/api-keys`. **Mate:** `navigate` und `highlight_element` mit `nav-profile-api-keys`; `highlight_element` nimmt außerdem `profile-api-keys-generate` für **Hinzufügen** an (Rollen mit **Verwalten** auf **API & Webhooks**). Im Dialog nimmt es `api-key-option-standard` an (Voraussetzung `profile-api-keys-generate`), danach `api-key-name`, `api-key-expires` und `api-key-save` (Voraussetzung `api-key-option-standard`; **Speichern** ist aktiv, sobald sich etwas geändert hat) und `api-key-delete`, sobald die Person einen Key über seine Karte geöffnet hat. Die Kacheln der Schnellverbindungen und die Key-Karten haben kein Ziel, deshalb nennt Mate sie beim Namen.
+**Link:** der Link zur Seite mit den API-Keys, `/profile/api-keys`, mit dem Titel **API & Konnektoren**. **Mate:** `navigate` und `highlight_element` mit `nav-profile-api-keys`; `highlight_element` nimmt außerdem `profile-api-keys-generate` für **Hinzufügen** an (Rollen mit **Verwalten** auf **API & Webhooks**). Im Dialog nimmt es `api-key-option-standard` an (Voraussetzung `profile-api-keys-generate`), danach `api-key-name`, `api-key-expires` und `api-key-save` (Voraussetzung `api-key-option-standard`; **Speichern** ist aktiv, sobald sich etwas geändert hat) und `api-key-delete`, sobald die Person einen Key über seine Karte geöffnet hat. Die Kacheln der Schnellverbindungen und die Key-Karten haben kein Ziel, deshalb nennt Mate sie beim Namen.
 
-## Tab Kanäle [#channels-tab]
+## Seite Kanäle [#channels-tab]
 
-Route `/profile/connected-accounts`, Seitenleisten-Eintrag **Kanäle** (`#nav-profile-connected-accounts`), nur in Customermates Cloud; einen Kanal verbinden Sie mit **Kanal verbinden** (`#profile-connected-accounts-connect`). Kanäle sind die E-Mail-, LinkedIn-, WhatsApp-, Instagram- und Telegram-Konten, die den [Posteingang](/docs/app-inbox) speisen. Die Seite listet zuerst Ihre eigenen Kanäle, danach jeden Kanal, den ein Teammitglied mit dem Workspace geteilt hat. Brauchen Kanäle Aufmerksamkeit (**Erneute Verbindung nötig**, **Berechtigungsproblem** oder **Fehler**), zeigt der Seitenleisten-Eintrag ihre Anzahl, einschließlich geteilter Kanäle von Teammitgliedern, die nur deren Besitzer beheben kann.
+Kanäle sind die E-Mail-, LinkedIn-, WhatsApp-, Instagram- und Telegram-Konten, die den [Posteingang](/docs/app-inbox) speisen, und die Seite **Kanäle** listet sie auf. Der Link zur Seite **Kanäle** ist `/profile/connected-accounts`, Seitenleisten-Eintrag **Kanäle** (`#nav-profile-connected-accounts`), nur in Customermates Cloud; einen Kanal verbinden Sie mit **Kanal verbinden** (`#profile-connected-accounts-connect`). Die Seite listet zuerst Ihre eigenen Kanäle, danach jeden Kanal, den ein Teammitglied mit dem Workspace geteilt hat. Brauchen Kanäle Aufmerksamkeit (**Erneute Verbindung nötig**, **Berechtigungsproblem** oder **Fehler**), zeigt der Seitenleisten-Eintrag ihre Anzahl, einschließlich geteilter Kanäle von Teammitgliedern, die nur deren Besitzer beheben kann.
 
 | Aktion | Wo | Anchor-Id | Was passiert |
 |---|---|---|---|
@@ -94,9 +94,9 @@ Route `/profile/connected-accounts`, Seitenleisten-Eintrag **Kanäle** (`#nav-pr
 | Tab E-Mail | Kanal-Dialog | `#connected-account-tab-email` (**E-Mail**) | Darstellung und Signatur; nur bei einem eigenen Gmail-, Outlook- oder IMAP-Konto |
 | Signatur und Speichern | Tab E-Mail | `#connected-account-signature` (**Signatur hinzufügen**) / `#connected-account-email-save` (**E-Mail-Einstellungen speichern**) | Der Signatur-Schalter und der Button, der den Tab sichert, sobald sich etwas geändert hat |
 | Tab Ordner | Kanal-Dialog | `#connected-account-tab-folders` (**Ordner** mit Zähler, zum Beispiel **Ordner 4/6**) | Ein Schalter pro Ordner; nur, wenn das Konto Ordner meldet |
-| Reaktivieren, neu synchronisieren oder trennen | Kanal-Dialog | `#connected-account-reactivate` (**Reaktivieren**) / `#connected-account-resync` (**Neu synchronisieren**) / `#connected-account-disconnect` (**Trennen**) | Nur für den Besitzer mit **Verwalten** auf **Inbox-Nachrichten**; **Reaktivieren** oder **Neu synchronisieren** je nach Status, siehe unten |
+| Reaktivieren, neu synchronisieren oder trennen | Kanal-Dialog | `#connected-account-reactivate` (**Reaktivieren**) / `#connected-account-resync` (**Neu synchronisieren**) / `#connected-account-disconnect` (**Trennen**) | Nur für den Besitzer mit **Verwalten** auf **Inbox-Nachrichten**; **Reaktivieren** oder **Neu synchronisieren** je nach Status |
 
-**Link:** die Seite **Kanäle**, `/profile/connected-accounts`. **Mate:** `navigate` und `highlight_element` mit `nav-profile-connected-accounts`, dazu `highlight_element` mit `profile-connected-accounts-connect` für **Kanal verbinden**, das nur sichtbar ist, wenn Ihre Rolle verbinden darf und die Seite weder gesperrt ist noch lädt oder einen Fehler zeigt; hat die Person einen Kanal über seine Karte geöffnet, nimmt es außerdem `connected-account-tab-details`, `connected-account-visibility` (nur für den Besitzer), `connected-account-tab-email` (eigene E-Mail-Konten), `connected-account-tab-folders` (Konten mit Ordnern), `connected-account-reactivate`, `connected-account-resync` und `connected-account-disconnect` an (nur für den Besitzer mit **Verwalten** auf **Inbox-Nachrichten**, je nach Status), und bei geöffnetem Tab **E-Mail** (Voraussetzung `connected-account-tab-email`) `connected-account-signature` und `connected-account-email-save`. Der Button im Leerzustand `#profile-connected-accounts-connect-empty` ist kein Highlight-Ziel, weil er nur erscheint, wenn der Assistent nicht verfügbar ist, und die Karten haben kein Ziel, deshalb nennt Mate sie beim Namen.
+**Link:** der Link zur Seite **Kanäle**, `/profile/connected-accounts`. **Mate:** `navigate` und `highlight_element` mit `nav-profile-connected-accounts`, dazu `highlight_element` mit `profile-connected-accounts-connect` für **Kanal verbinden**, sichtbar nur, wenn Ihre Rolle verbinden darf und die Seite weder gesperrt ist noch lädt oder einen Fehler zeigt. Hat die Person einen Kanal über seine Karte geöffnet, nimmt es außerdem die Ids des Kanal-Dialogs aus der Tabelle oben ohne `#` an, jeweils nur dort, wo die Tabelle sie nennt; die Karten und der Button im Leerzustand `#profile-connected-accounts-connect-empty` sind keine Highlight-Ziele, deshalb nennt Mate sie beim Namen.
 
 ### Wer kann Kanäle nutzen? [#who-can-use-channels]
 
@@ -119,7 +119,7 @@ Der Tarif des Workspace muss Messaging enthalten: Pro, Business, Enterprise oder
 | **LinkedIn (Classic & Sales Navigator)**, **LinkedIn (Classic & Recruiter)** | Ihr LinkedIn-Konto zusammen mit Sales Navigator oder Recruiter |
 | **Instagram**, **Telegram** | Ihr Instagram- oder Telegram-Konto |
 
-Die Wahl eines Eintrags leitet den aktuellen Browser-Tab auf eine sichere Verbindungsseite um, kein Popup. Der Link ist 30 Minuten gültig. Wenn Sie dort fertig sind, kehren Sie zu **Kanäle** zurück, und eine Meldung zeigt das Ergebnis:
+Die Wahl eines Eintrags leitet den aktuellen Browser-Tab auf eine sichere Verbindungsseite um, kein Popup; dort haben Sie 30 Minuten Zeit. Wenn Sie dort fertig sind, kehren Sie zu **Kanäle** zurück, und eine Meldung zeigt das Ergebnis:
 
 - **Kanal verbunden**: Ihr Verlauf wird im Hintergrund importiert, und die Karte zeigt so lange **Wird im Hintergrund synchronisiert**. Das dauert meist wenige Minuten, bei großen Konten bis zu einer Stunde.
 - **Konto bereits verbunden**: Dieses Konto ist bereits von einem Mitglied Ihres Workspace verbunden. Ist das jemand anderes, bitten Sie die Person, es mit dem Workspace zu teilen, statt es doppelt zu verbinden.
@@ -135,7 +135,9 @@ Ist das Limit in Pro erreicht, öffnet **Kanal verbinden** den Dialog **Upgrade,
 
 **Link:** `/profile/connected-accounts`, und `/company/subscription` für **Tarife ansehen**. **Mate:** `navigate` und `highlight_element` mit `nav-profile-connected-accounts`, danach `highlight_element` mit `profile-connected-accounts-connect`, oder `nav-company-subscription` für die Tarife; **Tarife ansehen** und der Upgrade-Dialog haben keine Id, deshalb nennt Mate sie beim Namen.
 
-### Was bedeutet welcher Status? [#what-does-each-status-mean]
+### Was bedeutet welcher Kanalstatus? [#what-does-each-status-mean]
+
+Der Status auf der Karte eines Kanals zeigt, ob er synchronisiert: **Verbunden** funktioniert normal, und **Wird verbunden** wird noch eingerichtet; bei **Erneute Verbindung nötig**, **Berechtigungsproblem**, **Fehler** und **Gestoppt** klickt der Besitzer auf **Reaktivieren**; bei **Gelöscht** bleibt nur **Trennen**.
 
 | Status | Bedeutung | Was tun |
 |---|---|---|
@@ -149,7 +151,7 @@ Ist das Limit in Pro erreicht, öffnet **Kanal verbinden** den Dialog **Upgrade,
 
 **Link:** `/profile/connected-accounts`. **Mate:** `navigate` und `highlight_element` mit `nav-profile-connected-accounts`; ist der Kanal geöffnet, nimmt `highlight_element` `connected-account-resync`, `connected-account-reactivate` oder `connected-account-disconnect` an. Die Status-Chips und die Karten sind keine Highlight-Ziele, deshalb nennt Mate sie beim Namen.
 
-### Privat oder geteilt? [#private-or-shared]
+### Wie teile ich einen Kanal, etwa ein Postfach, und mache ihn für Teammitglieder sichtbar, oder halte ich ihn privat? [#private-or-shared]
 
 Ein neuer Kanal ist **Privat**: Nur Sie sehen seine Unterhaltungen. Der Besitzer stellt **Sichtbarkeit** auf dem Tab **Details** auf **Geteilt**, und die Änderung gilt sofort, bestätigt mit **Konto mit deinem Workspace geteilt**. Ein geteilter Kanal wird mit allen Unterhaltungen für jedes Mitglied sichtbar, dessen Rolle bei **Inbox-Nachrichten** Lesezugriff hat, und wer in dieser Zeile **Verwalten** hat, kann darüber auch antworten und senden. Mit **Privat** blenden Sie ihn wieder aus.
 
@@ -157,7 +159,7 @@ Teilen erfordert den Business- oder Enterprise-Tarif; in anderen Tarifen ist der
 
 **Link:** `/profile/connected-accounts`. **Mate:** `navigate` und `highlight_element` mit `nav-profile-connected-accounts`; die Kanal-Karte hat kein Ziel, deshalb nennt Mate sie beim Namen. Hat die Person den Kanal geöffnet, nimmt `highlight_element` `connected-account-visibility` für den Schalter **Sichtbarkeit** (`#connected-account-visibility`) an, sichtbar nur für den Besitzer und unterhalb des Business-Tarifs deaktiviert.
 
-### Was steuert der Tab Ordner? [#what-does-the-folders-tab-control]
+### Was steuert der Tab Ordner, und wie kann ich den Spam-Ordner im Posteingang ausblenden? [#what-does-the-folders-tab-control]
 
 E-Mail-Konten, deren Anbieter Ordner meldet, erhalten einen Tab **Ordner** mit einem Schalter pro Ordner. Ein Schalter entscheidet, ob die Nachrichten dieses Ordners im Posteingang erscheinen, für Sie und für alle, die den Kanal sehen; ein ausgeschalteter Ordner blendet seine Nachrichten aus, ohne sie zu löschen. Die Änderung gilt sofort.
 
@@ -165,9 +167,9 @@ Standardmäßig ist jeder Ordner eingeschaltet außer Papierkorb, Junk oder Spam
 
 **Link:** `/profile/connected-accounts`. **Mate:** `navigate` und `highlight_element` mit `nav-profile-connected-accounts`; hat die Person den Kanal geöffnet, nimmt `highlight_element` `connected-account-tab-folders` für den Tab **Ordner** (`#connected-account-tab-folders`) an, sichtbar nur bei Konten mit Ordnern; die Ordner-Schalter sind keine Highlight-Ziele, deshalb nennt Mate sie beim Namen.
 
-### E-Mail-Darstellung und Signatur [#email-appearance-and-signature]
+### Wie ändere ich Schriftart, Linkfarbe und Signatur ausgehender E-Mails? [#email-appearance-and-signature]
 
-Der Tab **E-Mail** legt fest, wie Nachrichten aus diesem Konto aussehen. Er erscheint nur bei einem eigenen Gmail-, Outlook- oder IMAP-Konto, Bearbeiten erfordert **Verwalten** bei **Inbox-Nachrichten**, und **E-Mail-Einstellungen speichern** sichert beide Bereiche.
+Der Tab **E-Mail** legt fest, wie E-Mails aus diesem Konto aussehen: Schriftart, Schriftgröße, Linkfarbe und Signatur. Er erscheint nur bei einem eigenen Gmail-, Outlook- oder IMAP-Konto, Bearbeiten erfordert **Verwalten** bei **Inbox-Nachrichten**, und **E-Mail-Einstellungen speichern** sichert beide Bereiche.
 
 | Feld | Optionen | Standard |
 |---|---|---|
@@ -203,7 +205,7 @@ Alle drei erfordern **Verwalten** bei **Inbox-Nachrichten**.
 - Bevorzugen Sie MCP-Tools, wenn ein Tool existiert: `connect_messaging_account` erstellt den Verbindungslink für einen der neun Kanal-Einträge, nach denselben Regeln zu Tarif, Berechtigung und Kontingent, und `get_workspace_context` listet Ihre eigenen und geteilten Kanäle mit ihrem Status und liefert eine leere Liste, wenn Ihre Rolle bei **Inbox-Nachrichten** kein Leserecht hat. Kein Tool ändert Sichtbarkeit, Ordner, Darstellung oder Signatur, reaktiviert, synchronisiert oder trennt einen Kanal, ändert Anzeigesprache, regionales Format oder Darstellung der Oberfläche oder erstellt einen API-Key; nutzen Sie dafür die Seiten oben. Der REST-Endpoint `GET /v1/messaging/connected-accounts` liest nur.
 - Ein generierter API-Key wird genau einmal angezeigt, ob als Standard-Key oder über die lokale Einrichtung einer Schnellverbindung erstellt. Kopieren Sie ihn im selben Schritt.
 
-## Verwandt
+## Verwandt [#related]
 
 - [API-Keys](/docs/api-keys): Keys erstellen, nutzen, ablaufen lassen und löschen.
 - [App-Guide, Posteingang](/docs/app-inbox): der Screen, den Ihre Kanäle speisen.

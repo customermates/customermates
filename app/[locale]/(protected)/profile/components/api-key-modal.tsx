@@ -14,10 +14,11 @@ import { AppCardFooter } from "@/components/card/app-card-footer";
 import { AppCardHeader } from "@/components/card/app-card-header";
 import { AppForm } from "@/components/forms/form-context";
 import { FormInput } from "@/components/forms/form-input";
-import { Calendar } from "@/components/ui/calendar";
+import { Calendar, focusCalendarDay } from "@/components/ui/calendar";
 import { Popover, PopoverContent, PopoverTrigger } from "@/components/ui/popover";
 import { cn } from "@/core/utils/cn";
 import { FormLabel } from "@/components/forms/form-label";
+import { useFormFieldErrors } from "@/components/forms/use-form-field";
 import { useRootStore } from "@/core/stores/root-store.provider";
 import { useHydratedIntlStore } from "@/core/stores/use-hydrated-intl-store";
 import { useDeleteConfirmation } from "@/components/modal/hooks/use-delete-confirmation";
@@ -31,6 +32,7 @@ const ExpiresInPicker = observer(() => {
   const { apiKeyModalStore } = useRootStore();
   const intlStore = useHydratedIntlStore();
   const { expiresAt } = apiKeyModalStore;
+  const { hasError } = useFormFieldErrors("expiresIn");
 
   const today = new Date();
   const firstMonth = new Date(today.getFullYear(), today.getMonth());
@@ -45,6 +47,7 @@ const ExpiresInPicker = observer(() => {
       <Popover>
         <PopoverTrigger asChild>
           <Button
+            aria-invalid={hasError}
             className={cn("w-full justify-start text-left font-normal", !expiresAt && "text-muted-foreground")}
             disabled={apiKeyModalStore.isDisabled}
             id="api-key-expires"
@@ -61,7 +64,7 @@ const ExpiresInPicker = observer(() => {
           </Button>
         </PopoverTrigger>
 
-        <PopoverContent align="start" className="w-auto p-0">
+        <PopoverContent align="start" className="w-auto p-0" onOpenAutoFocus={focusCalendarDay}>
           <Calendar
             autoFocus
             captionLayout="dropdown"
@@ -128,7 +131,7 @@ export const ApiKeyModal = observer(() => {
               });
 
   const title = isView
-    ? viewingKey?.name || t("ApiKeysCard.unnamed")
+    ? viewingKey?.name?.trim() || t("ApiKeysCard.unnamed")
     : isPlain || createdKey
       ? t("ApiKeyModal.title")
       : wizardTitle;
@@ -187,7 +190,7 @@ export const ApiKeyModal = observer(() => {
                     const deleted = await apiKeysStore.delete(viewingKey.id);
                     if (deleted) close();
                     return deleted;
-                  }, viewingKey.name ?? undefined),
+                  }, viewingKey.name?.trim() || undefined),
               },
             ]
           : []

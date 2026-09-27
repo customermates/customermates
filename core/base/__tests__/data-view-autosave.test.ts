@@ -335,6 +335,24 @@ describe("data view autosave", () => {
     expect(store.views[0].state).toMatchObject({ filters: [filter("won")] });
   });
 
+  it("keeps saving into All when another tab has made a saved view the remembered selection", async () => {
+    const store = hydrated();
+    store.nextRefresh = () => {
+      const params = store.requestedParams.at(-1);
+      const remembered = params?.viewId === undefined ? { ...params, viewId: VIEW_ID } : params;
+      return Promise.resolve(serverEcho(remembered));
+    };
+
+    store.setQueryOptions({ sortDescriptor: { field: "stage", direction: "desc" } });
+    await vi.advanceTimersByTimeAsync(1000);
+
+    expect(store.requestedParams.at(-1)).toMatchObject({ viewId: ALL_VIEW_KEY });
+    expect(store.activeViewKey).toBe(ALL_VIEW_KEY);
+    expect(saveDataViewStateAction).toHaveBeenCalledExactlyOnceWith(
+      expect.objectContaining({ surfaceKey: SURFACE.tasks, viewKey: ALL_VIEW_KEY }),
+    );
+  });
+
   it("drops a pending write when the caller discards it", async () => {
     const store = hydrated();
 

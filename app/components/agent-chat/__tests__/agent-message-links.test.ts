@@ -249,4 +249,15 @@ describe("saved-view message links", () => {
     expect(markup).toMatch(/<a[^>]*target="_blank"[^>]*>External<\/a>/);
     expect(state.links).toHaveLength(1);
   });
+
+  it("hardens the chat's links like every other message: hosts kept, blocked links shown as their text", () => {
+    const markup = renderMessage("[Proto link](//example.net/path) [Bad link](javascript:alert(1))");
+
+    expect(markup).toMatch(/<a[^>]*target="_blank"[^>]*>Proto link<\/a>/);
+    expect(markup).toContain('href="https://example.net/path"');
+    expect(markup).toContain("<span>Bad link</span>");
+    expect(markup).not.toContain("[blocked]");
+    expect(markup).not.toContain("Blocked URL");
+    expect(state.links).toHaveLength(0);
+  });
 });

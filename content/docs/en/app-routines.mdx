@@ -7,6 +7,12 @@ A routine is a saved instruction plus a trigger. When the trigger fires, Custome
 
 **Link:** the **Routines** page, `/routines`; a single routine has no link of its own, so open it from the list. **Mate:** `navigate` and `highlight_element` with `nav-routines`; `routines-add` highlights **Add** (present only with **Manage** **Yes** on **Routines**), `routines-search` and `routines-filter` the search box and filters, `routines-display-options` the display options with `routines-layout-table` and `routines-layout-board` inside them. Once the routine dialog is open, `routine-modal-save` and `routine-modal-reset` highlight **Save** and **Reset**, which are shown only to the routine's owner with **Manage** **Yes**, **Reset** only after a change, and neither while **Run details** is open; the dialog's fields, **Test trigger**, **Delete** and **Pause routine** are not highlight targets, so Mate names them.
 
+## How do I create a routine or automation? [#how-do-i-create-a-routine]
+
+Open **Routines** and click **Add**, which needs **Manage** **Yes** on **Routines**. Enter a **Name** and **Instructions**, choose a trigger and click **Save**. The routine is saved **Active** unless you switch it to **Paused** first. You can also ask Mate to create one; Mate saves it as a draft unless you ask for it to be active.
+
+**Link:** the **Routines** page, `/routines`. **Mate:** `navigate` and `highlight_element` with `nav-routines`, then `highlight_element` with `routines-add` for **Add** and, once the dialog is open, `routine-modal-save` for **Save**; the dialog's fields are not highlight targets, so Mate names them.
+
 ## What is a routine made of?
 
 - **Name**: required, up to 120 characters.
@@ -18,13 +24,15 @@ A routine you add in the app is saved **Active**; switch it to **Paused** before
 
 The creator becomes the routine owner. Only that owner can change its instructions or triggers, activate or pause it, or use **Test trigger**, because every run uses that person's identity, access and AI credits. Deleting a routine, your own included, needs the **Admin** role and is refused while one of its runs is running (**Wait for the active run to finish before deleting this routine.**); deleting also removes the run history. On another person's routine, a member with the **Admin** role can pause or delete it but cannot edit, test or run it. Members are never deleted, only set to **Inactive** under **My Company › Members**. When an owner stops being **Active**, their routines are paused at once, their queued or running runs end as **Blocked**, and each routine keeps its history. It then stays paused and read-only until a member with the **Admin** role deletes it, or until the owner is set to **Active** again and switches it back on.
 
+**Link:** the **Routines** page, `/routines`. **Mate:** `navigate` and `highlight_element` with `nav-routines`, then `routines-add` for **Add**; **Name**, **Instructions** and the trigger in the dialog are not highlight targets, so Mate names them.
+
 ## How many routines does my plan include?
 
 Each user gets a separate allowance: Starter includes [[commercial.entitlement.starter.includedRoutinesPerUser]] routine per user, Pro includes [[commercial.entitlement.pro.includedRoutinesPerUser]] routines per user, and Business and Enterprise include [[commercial.entitlement.business.includedRoutinesPerUser]] routines per user. Another user's routines never use your slots. Pausing a routine does not free a slot, deleting one does. At the limit, a new routine is refused with a prompt to upgrade, which a role with **Manage** on the **Company** row does under **My Company › Subscription**; the limit is checked only when a routine is created, so routines above a lower plan's limit are kept after a downgrade. See [Plans and credits](/docs/app-assistant#plans-and-credits) for the credit allowance the runs draw on.
 
 **Link:** the **Routines** page, `/routines`, and the **Subscription** page, `/company/subscription`. **Mate:** `navigate` and `highlight_element` with `nav-routines`, or `nav-company-subscription` (highlightable only while **My Company** is expanded in the sidebar); on the **Subscription** page, `company-subscription-plan-picker` highlights the plan cards where they are shown.
 
-## What are the limits?
+## What are the limits, such as runs per hour and credits per run? [#what-are-the-limits]
 
 | Limit | Value | What happens at the limit |
 |---|---|---|
@@ -37,6 +45,8 @@ Each user gets a separate allowance: Starter includes [[commercial.entitlement.s
 
 Skipped runs do not count against the hourly cap. A routine paused after repeated failures is re-enabled by its owner once the cause is fixed.
 
+**Link:** the **Routines** page, `/routines`. **Mate:** `navigate` and `highlight_element` with `nav-routines`; the limits are not controls, so Mate states them.
+
 ## Schedules: how do I run a routine every morning or every Monday? [#how-do-schedules-work]
 
 Under **Repeats**, pick how often the routine runs: **Every 15 minutes**, **Every 30 minutes**, **Every hour**, **Every day**, **Every week** or **Every month**, plus the weekday, day of the month or time in five-minute steps where the choice needs one. A schedule that fits none of these, for example weekdays only, can be set only through Mate or an MCP client (`manage_routines` passes a five-field cron expression); the dialog then shows **This routine uses a custom schedule** with the expression and **Switch to a preset**. For **Every hour**, **Every day**, **Every week** and **Every month**, the schedule is spelled out in words underneath so you can check it at a glance. Times use an IANA time zone, taken from the browser the routine was created in (UTC when that is unknown) and shown after the spelled-out schedule for those same four presets, including **Every hour** (**Times are shown in ...**); only Mate or an MCP client can change it. The monthly preset accepts days 1 to 28. The default schedule is daily at 09:00.
@@ -45,9 +55,9 @@ The scheduler checks for due routines every five minutes, so a run may start a f
 
 **Link:** the **Routines** page, `/routines`. **Mate:** `navigate` and `highlight_element` with `nav-routines`, then `routines-add` for **Add** and `routine-modal-save` for **Save** once the owner has the dialog open; **Repeats**, the time selects and **Switch to a preset** are not highlight targets, so Mate names them.
 
-## How do event triggers work?
+## How do event triggers work, for example to run a routine when a deal changes? [#how-do-event-triggers-work]
 
-An event trigger names one or more in-app events: every record event and every messaging event that a [webhook](/docs/webhooks#which-events-exist) can subscribe to, except **Email Deleted** and **Chat Deleted** (`messaging.email.deleted`, `messaging.chat.deleted`). Pick them under **Events**. Changes a routine run makes never trigger routines, so routines cannot chain or loop; changes made in the app, in a Mate chat, over the API or over MCP do. Two optional controls narrow it further, so the routine spends credits only on the cases you care about.
+An event trigger starts a routine when something changes in the app, for example a deal. An event trigger names one or more in-app events: every record event and every messaging event that a [webhook](/docs/webhooks#which-events-exist) can subscribe to, except **Email Deleted** and **Chat Deleted** (`messaging.email.deleted`, `messaging.chat.deleted`). Pick them under **Events**. Changes a routine run makes never trigger routines, so routines cannot chain or loop; changes made in the app, in a Mate chat, over the API or over MCP do. Two optional controls narrow it further, so the routine spends credits only on the cases you care about.
 
 **Changed fields** applies to update events only. Name the fields you want to watch, for example a deal's value or one of your custom columns, and the routine runs only when one of them actually changed. The control is hidden when no update event is selected, because creations and deletions do not report field-level changes.
 
@@ -83,7 +93,7 @@ Use **Test trigger** to start a real run immediately. It is available to the own
 
 ## What a routine may do without approval
 
-An unattended run may do everything that Mate does without approval in a chat: read your workspace and create or update contacts, organizations, deals, services, tasks, notes and record links, save and discard drafts, send emails and chat messages, triage the inbox, change custom fields, widgets, webhooks, team roles and workspace settings, generate account-connection links, create, update, pause and run routines, and, on a connected account, send social connection requests and change Sales Navigator lists.
+An unattended run may do everything that Mate does without approval in a chat: read your workspace and create or update contacts, organizations, deals, services, tasks, notes and record links, save and discard drafts, send emails and chat messages, triage the inbox, change custom fields, widgets, webhooks and workspace settings, change a member's role or status, generate account-connection links, create, update, pause and run routines, and, on a connected account, send social connection requests and change Sales Navigator lists.
 
 Every action that asks for approval in a chat is declined in a routine, because nobody is there to answer: deleting records, custom fields, widgets, webhooks or routines, inviting team members, resending webhook deliveries, and sending support requests. Mate is told that the approval timed out, and the run records the refusal. The complete list is on the [assistant page](/docs/app-assistant#what-runs-immediately-and-what-asks-first).
 
@@ -91,11 +101,13 @@ Interface tools are unavailable to routines, because there is no browser attache
 
 ## How does Mate manage routines?
 
-In a chat, Mate uses `manage_routines` to list routines, read run history, create and update routines, pause them, and start a run now; none of these actions asks you first. A routine Mate creates is saved as a draft unless you explicitly asked for it to be active. Mate can also set what the dialog cannot: a custom five-field cron expression such as `0 9 * * 1-5` for weekdays at 09:00, the time zone, and the event debounce. Deleting a routine asks for your approval and, as in the app, needs the **Admin** role. Pausing through the tool uses the administrator path, so it needs the same permission as pausing another person's routine in the app; an owner pausing their own routine sets `enabled` to false with an update instead.
+In a chat, Mate uses `manage_routines` to list routines, read run history, create and update routines, pause them, and start a run now; none of these actions asks you first. A routine Mate creates is saved as a draft unless you explicitly asked for it to be active. Mate can also set what the dialog cannot: a custom five-field cron expression such as `0 9 * * 1-5` for weekdays at 09:00, the time zone, and the event debounce. Deleting a routine asks for your approval and, as in the app, needs the **Admin** role. The tool's `pause` action needs the **Admin** role, even on your own routine; an owner without it pauses their own routine by updating it with `enabled: false`.
+
+**Link:** the **Routines** page, `/routines`. **Mate:** `navigate` and `highlight_element` with `nav-routines`, then `routines-add` for **Add**; the dialog's fields are not highlight targets, so Mate names them.
 
 ## Which ids does the page have?
 
-Mate can navigate to and highlight these targets:
+The **Routines** page has these ids, and Mate can navigate to and highlight these targets:
 
 | Surface | Route | Nav anchor | Toolbar anchors |
 |---|---|---|---|
@@ -104,3 +116,5 @@ Mate can navigate to and highlight these targets:
 Layout controls inside the display options: `#routines-layout-table`, `#routines-layout-board`. `#routines-add` is rendered only for roles with **Manage** set to **Yes** on **Routines**. Routines have no import and export menu.
 
 The routine dialog (open a routine or add one first) has **Save** (`#routine-modal-save`) and **Reset** (`#routine-modal-reset`), which Mate can highlight once the dialog is open; they are shown only to the routine's owner with **Manage** **Yes**, **Reset** only after a change, and neither while **Run details** is open. It also has the element ids `#routine-admin-pause` for **Pause routine** and `#routine-tab-details` and `#routine-tab-runs` for the tabs on narrow screens, for external browser clients; these are not Mate highlight targets, so Mate names them.
+
+**Link:** the link to the **Routines** page, `/routines`. **Mate:** `navigate` and `highlight_element` with `nav-routines`; `highlight_element` also takes the toolbar anchors in this table without `#`, `routines-add` only for roles with **Manage** **Yes** on **Routines**, the layout ids only while the display options are open, and `routine-modal-save` and `routine-modal-reset` once the owner has the routine dialog open; `#routine-admin-pause` and the tab ids are not highlight targets, so Mate names them.

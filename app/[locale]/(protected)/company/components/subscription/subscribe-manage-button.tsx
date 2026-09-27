@@ -30,6 +30,7 @@ export const SubscribeManageButton = observer(() => {
 
   return (
     <Button
+      aria-label={t("Subscription.manageWithLemonSqueezy")}
       className="h-8"
       id="company-subscription-manage"
       size="sm"

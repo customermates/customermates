@@ -40,6 +40,7 @@ type Props = {
   value?: string;
   onValueChange?: (value: string) => void;
   labelEndAddon?: ReactNode;
+  ariaLabel?: string;
 };
 
 export const FormSelect = observer(
@@ -60,6 +61,7 @@ export const FormSelect = observer(
     value: controlledValue,
     onValueChange,
     labelEndAddon,
+    ariaLabel,
   }: Props) => {
     const t = useTranslations();
     const store = useAppForm();
@@ -98,6 +100,7 @@ export const FormSelect = observer(
           <SelectTrigger
             aria-busy={optionsLoading || undefined}
             aria-invalid={hasError}
+            aria-label={resolvedLabel ? undefined : ariaLabel}
             aria-readonly={isReadOnly || undefined}
             className={cn("w-full", className, isReadOnly && "[&>svg:last-child]:hidden")}
             id={domId}

@@ -174,6 +174,7 @@ export const DealServicesSelection = observer(
 
                       <FormNumberInput
                         required
+                        aria-label={t("DealModal.quantityLabel")}
                         className="text-right font-mono tabular-nums"
                         containerClassName="w-full"
                         id={`services[${index}].quantity`}

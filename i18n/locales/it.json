@@ -917,6 +917,7 @@
       "disabledReason": "Motivo disattivazione",
       "effectiveAt": "In vigore dal",
       "emails": "Indirizzi e-mail",
+      "headers": "Intestazioni personalizzate",
       "isNewCompany": "Prima persona nello spazio",
       "postalCode": "Codice postale",
       "prompt": "Istruzioni",
@@ -1017,6 +1018,7 @@
       "collapseSearch": "Comprimi la ricerca",
       "explainField": "Informazioni su {field}",
       "hidePassword": "Nascondi password",
+      "optionName": "Nome dell'opzione {number}",
       "selectOption": "Seleziona un'opzione",
       "showPassword": "Mostra password",
       "switchToBoardView": "Passa alla vista board",
@@ -1050,6 +1052,7 @@
       "singleSelect": "Scelta singola"
     },
     "customFieldHelp": {
+      "deleteWeightingColumnPermission": "Questo campo determina la pipeline ponderata in «{company}», quindi eliminarlo disattiva la ponderazione. Chiedi a un amministratore l’autorizzazione per modificare «{company}».",
       "immutableType": "Il tipo di campo è fisso dopo la creazione. Crea un nuovo campo personalizzato per usare un altro tipo.",
       "probabilityPermission": "Le probabilità di fase sono gestite in «{company}». Chiedi a un amministratore l’autorizzazione per modificarle."
     },
@@ -1505,6 +1508,8 @@
       "prompt": "Istruzioni",
       "roleId": "Ruolo",
       "scheduleDayOfMonth": "Giorno del mese",
+      "scheduleHour": "Ora",
+      "scheduleMinute": "Minuto",
       "schedulePreset": "Ripetizione",
       "scheduleWeekday": "Giorno della settimana",
       "secret": "Segreto",
@@ -1653,6 +1658,7 @@
       "paginationEmpty": "0 di 0",
       "paginationRange": "{from}-{to} di {total}",
       "previousPage": "Pagina precedente",
+      "rowsPerPage": "Righe per pagina",
       "search": "Cerca..."
     },
     "taskTypes": {

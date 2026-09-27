@@ -5,9 +5,9 @@ description: "API-Key unter Mein Profil anlegen: nötige Rollenberechtigung, Hea
 
 API-Keys authentifizieren Clients für das Model Context Protocol (MCP) und die REST-API gegen Ihr Customermates-CRM. Legen Sie einen Key pro Client an, speichern Sie ihn in einer Umgebungsvariable und löschen Sie ihn, wenn das Gerät oder das Teammitglied, das ihn hatte, wegfällt.
 
-## Wie lege ich einen API-Key an?
+## API-Key anlegen: Wie lege ich einen API-Key an? [#how-do-i-create-an-api-key]
 
-Öffnen Sie in der Seitenleiste in der Gruppe **Workspace** den Eintrag **Mein Profil**, wählen Sie **API & Konnektoren** (`/profile/api-keys`) und klicken Sie oben in der Leiste auf **Hinzufügen**. Der Dialog **API-Key hinzufügen** bietet zwei Wege:
+Zum Anlegen eines API-Keys öffnen Sie in der Seitenleiste in der Gruppe **Workspace** den Eintrag **Mein Profil**, wählen Sie **API & Konnektoren** (`/profile/api-keys`) und klicken Sie oben in der Leiste auf **Hinzufügen**. Der Dialog **API-Key hinzufügen** bietet zwei Wege:
 
 - **Standard-API-Key**: Geben Sie unter **Name** an, wo der Key eingesetzt wird, zum Beispiel `Claude Desktop, privater Laptop` (bis zu 255 Zeichen), wählen Sie optional unter **Läuft ab** ein Datum und klicken Sie auf **Speichern**. Der Key wird einmal unter **API-Schlüssel erfolgreich erstellt** angezeigt; kopieren Sie ihn, bevor Sie den Dialog schließen.
 - **Schnellverbindungen**: Wählen Sie **Claude**, **ChatGPT & Codex**, **Cursor** oder **Gemini** und dann die Einrichtung, die zu Ihrer Nutzung passt. Bei einer lokalen Einrichtung (**Claude Code oder Desktop**, dann **Claude Code** oder **Claude Desktop**; **Codex CLI oder IDE**; Cursor oder Gemini) klicken Sie auf **API-Key erstellen**: Der Dialog legt den Key an und zeigt das Setup-Snippet dieses Clients mit bereits eingesetztem Key. **Claude-Konto** und **ChatGPT-App** verbinden sich stattdessen per OAuth und legen keinen Key an. Klicken Sie zum Abschluss auf **Fertig**.
@@ -16,9 +16,9 @@ Ein Key aus den **Schnellverbindungen** trägt den Namen seines Clients (`Claude
 
 Keys gehören dem Nutzer, der sie angelegt hat, und erben dessen Berechtigungen.
 
-**Link:** `/profile/api-keys`. **Mate:** `navigate` und `highlight_element` mit `nav-profile-api-keys` (hervorhebbar nur, solange **Mein Profil** aufgeklappt ist, standardmäßig auf jeder seiner Seiten, sofern das Mitglied es nicht zugeklappt hat); `highlight_element` nimmt außerdem `profile-api-keys-generate` für **Hinzufügen** an (Rollen mit **Verwalten** auf **API & Webhooks**), danach im Dialog `api-key-option-standard` für **Standard-API-Key** (Voraussetzung `profile-api-keys-generate`) sowie `api-key-name` für **Name**, `api-key-expires` für **Läuft ab** und `api-key-save` für **Speichern** (Voraussetzung `api-key-option-standard`; **Speichern** ist aktiv, sobald sich etwas geändert hat). Die Kacheln der **Schnellverbindungen** und ihre Einrichtungsschritte sind keine Highlight-Ziele, deshalb nennt Mate sie beim Namen.
+**Link:** der Link zur Seite mit den API-Keys, `/profile/api-keys`, mit dem Titel **API & Konnektoren**. **Mate:** `navigate` und `highlight_element` mit `nav-profile-api-keys`; `highlight_element` nimmt außerdem `profile-api-keys-generate` für **Hinzufügen** an (Rollen mit **Verwalten** auf **API & Webhooks**), danach im Dialog `api-key-option-standard` für **Standard-API-Key** (Voraussetzung `profile-api-keys-generate`) sowie `api-key-name` für **Name**, `api-key-expires` für **Läuft ab** und `api-key-save` für **Speichern** (Voraussetzung `api-key-option-standard`; **Speichern** ist aktiv, sobald sich etwas geändert hat). Die Kacheln der **Schnellverbindungen** und ihre Einrichtungsschritte sind keine Highlight-Ziele, deshalb nennt Mate sie beim Namen.
 
-## Wer kann API-Keys anlegen und sehen?
+## Wer kann API-Keys anlegen und sehen? [#who-can-create-and-see-api-keys]
 
 Die Seite **API & Konnektoren** und ihre Schaltfläche **Hinzufügen** richten sich nach der Zeile **API & Webhooks** Ihrer Rolle. Diese Zeile setzt ein Mitglied mit **Verwalten** auf **Benutzer & Rollen** unter **Mein Unternehmen → Rollen**:
 
@@ -27,11 +27,13 @@ Die Seite **API & Konnektoren** und ihre Schaltfläche **Hinzufügen** richten s
 
 Eine neue Rolle startet mit **Verwalten** **Nein** und **Lesen** **Keine**; ohne Anpassung können also nur Mitglieder mit der eingebauten Rolle **Admin** API-Keys anlegen. Dieselbe Zeile öffnet auch **Mein Unternehmen → Webhooks** und **Mein Unternehmen → Letzte Zustellungen**. Wer sie für API-Keys vergibt, lässt das Mitglied also auch jeden Webhook des Workspace sehen und mit **Verwalten** ändern.
 
-Jede Person sieht nur ihre eigenen Keys. Niemand, auch nicht die Rolle **Admin**, kann die Keys eines anderen Mitglieds auflisten oder löschen. Kein Assistenten- oder MCP-Tool legt API-Keys an, listet oder löscht sie; verwaltet werden sie nur auf dieser Seite, und der gehostete Assistent kann Ihnen höchstens diese Seite öffnen.
+Jede Person sieht nur ihre eigenen Keys. Niemand, auch nicht die Rolle **Admin**, kann die Keys eines anderen Mitglieds auflisten oder löschen. Kein Assistenten- oder MCP-Tool legt API-Keys an, listet oder löscht sie; verwaltet werden sie nur unter **Mein Profil → API & Konnektoren** (`/profile/api-keys`), und der gehostete Assistent kann Ihnen höchstens diese App-Seite öffnen.
 
 Der Custom Connector für Claude und ChatGPT meldet sich per OAuth an und braucht weder einen API-Key noch die Berechtigung **API & Webhooks**. Siehe [Mit einem Custom Connector verbinden](/docs/connect-custom-connector).
 
-## Wie kann ich einen Key nutzen?
+**Link:** `/profile/api-keys`, und für die Zeile **API & Webhooks** der Rolle `/company/roles`. **Mate:** `navigate` mit `nav-profile-api-keys` oder `nav-company-roles`; `highlight_element` mit `nav-profile-api-keys` auf einer Seite unter **Mein Profil** und mit `nav-company-roles` auf einer Seite unter **Mein Unternehmen**, weil ein Sidebar-Eintrag nur hervorhebbar ist, solange seine Gruppe aufgeklappt ist, und mit `profile-api-keys-generate` für **Hinzufügen** (Rollen mit **Verwalten** auf **API & Webhooks**); die Zeilen der Rollen sind keine Highlight-Ziele, deshalb nennt Mate sie beim Namen.
+
+## Wie kann ich einen Key nutzen, und in welchen Header gehört er? [#how-do-i-use-a-key]
 
 Senden Sie ihn bei jeder Anfrage im Header `x-api-key`, hier an den MCP-Endpunkt `<BASE_URL>/api/v1/mcp`, wobei `<BASE_URL>` die Adresse ist, unter der Sie Customermates öffnen:
 
@@ -45,11 +47,13 @@ curl -H "x-api-key: $CUSTOMERMATES_API_KEY" \
 
 Der Header `Accept: application/json, text/event-stream` wird vom MCP-Streamable-HTTP-Transport verlangt; ohne ihn liefert der Endpoint `406 Not Acceptable`. Bei MCP-Clients gehört der Key in die Konfiguration des Clients, siehe [CLI- und Editor-Clients](/docs/connect-cli) und [ChatGPT mit einem API-Key](/docs/connect-custom-connector#chatgpt).
 
-## Wie lange ist ein Key gültig, und laufen Keys ab? [#laufen-keys-ab]
+## Wie lange ist ein Key gültig, und laufen Keys ab? [#do-keys-expire]
 
 Ein **Standard-API-Key** läuft nur ab, wenn Sie unter **Läuft ab** ein Datum wählen. Die Voreinstellung **Läuft nie ab** hält den Key gültig, bis Sie ihn löschen. Ein Datum muss zwischen 1 und 365 Tagen in der Zukunft liegen. Ein Key aus den **Schnellverbindungen** (Schnellverbindungs-Schlüssel), auch aus dem Onboarding-Assistenten, gilt 365 Tage: Er läuft immer 365 Tage nach der Erstellung ab. Das Ablaufdatum lässt sich nicht verlängern: Legen Sie vorher einen neuen Key an und aktualisieren Sie den Client. Die Key-Karte zeigt **Erstellt am**, **Läuft ab** (**Nie**, wenn kein Datum gesetzt ist) und **Zuletzt verwendet**.
 
-## Wie kann ich einen Key widerrufen, löschen oder rotieren?
+**Link:** `/profile/api-keys`. **Mate:** `navigate` und `highlight_element` mit `nav-profile-api-keys`; in dem Dialog, den **Hinzufügen** öffnet, hebt `api-key-expires` **Läuft ab** hervor (Voraussetzung `api-key-option-standard`). Die Key-Karten und die Kacheln der **Schnellverbindungen** sind keine Highlight-Ziele, deshalb nennt Mate sie beim Namen.
+
+## Wie kann ich einen Key widerrufen, löschen oder rotieren? [#how-do-i-revoke-delete-or-rotate-a-key]
 
 Öffnen Sie den Key über seine Karte und wählen Sie **Löschen**; eine Bestätigung folgt, und der Key funktioniert sofort nicht mehr. Zum Löschen brauchen Sie **Verwalten** auf **API & Webhooks**. Eine separate Rotate- oder Revoke-Aktion gibt es nicht: Zum Rotieren legen Sie einen neuen Key an, aktualisieren jeden Client, der den alten genutzt hat, und löschen dann den alten Key.
 
@@ -59,15 +63,17 @@ Nur der Besitzer kann einen Key löschen. Um die Keys eines ausscheidenden Mitgl
 
 **Link:** `/profile/api-keys`, und zum Deaktivieren eines Mitglieds `/company/members`. **Mate:** `navigate` mit `nav-profile-api-keys` oder `nav-company-members`; `highlight_element` mit `nav-profile-api-keys` auf einer Seite unter **Mein Profil** und mit `nav-company-members` auf einer Seite unter **Mein Unternehmen**, weil ein Sidebar-Eintrag nur hervorhebbar ist, solange seine Gruppe aufgeklappt ist; die Key-Karten und die Zeilen der Mitglieder sind keine Highlight-Ziele, deshalb nennt Mate sie beim Namen. Hat die Person einen Key über seine Karte geöffnet, nimmt `highlight_element` `api-key-delete` für **Löschen** an; ist eine Mitgliedszeile geöffnet, nimmt es `member-modal-status` für **Status** und `member-modal-save` für **Speichern** an (Rollen mit **Verwalten** auf **Benutzer & Rollen**).
 
-## Welches Format hat ein Key, und wie lang darf sein Name sein? [#welches-format-hat-ein-key]
+## Welches Format hat ein Key, und wie lang darf sein Name sein? [#what-is-the-key-format]
 
 Der **Name** eines Keys ist 1 bis 255 Zeichen lang. Keys bestehen aus 64 ASCII-Buchstaben (`a-z A-Z`), erzeugt vom better-auth-API-Key-Plugin und gehasht gespeichert. Der vollständige Key wird nur bei der Erstellung angezeigt und lässt sich danach nicht mehr abrufen.
 
-## Welche Berechtigungen hat ein Key?
+**Link:** `/profile/api-keys`. **Mate:** `navigate` und `highlight_element` mit `nav-profile-api-keys`; in dem Dialog, den **Hinzufügen** öffnet, hebt `api-key-name` **Name** hervor (Voraussetzung `api-key-option-standard`).
 
-Alles, was sein Besitzer darf, und nicht mehr. Ein Berechtigungs-Scoping pro Key gibt es nicht. Jeder Aufruf wird gegen die aktuelle Rolle des Besitzers geprüft. Eine Änderung dieser Rolle, etwa wenn das Mitglied von der Rolle **Admin** in eine eigene Rolle mit weniger Rechten wechselt, gilt für seine Keys also ab dem nächsten Aufruf. Steht der **Status** des Besitzers auf **Inaktiv**, wird jeder Aufruf mit seinen Keys abgelehnt, der Workspace-Daten liest oder ändert.
+## Welche Berechtigungen hat ein Key, und kann ich ihn auf Lesezugriff beschränken? [#what-permissions-does-a-key-have]
 
-## Weiter
+Alles, was sein Besitzer darf, und nicht mehr. Ein Berechtigungs-Scoping pro Key gibt es nicht. Ein Key lässt sich nicht auf Lesezugriff beschränken. Jeder Aufruf wird gegen die aktuelle Rolle des Besitzers geprüft. Eine Änderung dieser Rolle, etwa wenn das Mitglied von der Rolle **Admin** in eine eigene Rolle mit weniger Rechten wechselt, gilt für seine Keys also ab dem nächsten Aufruf. Steht der **Status** des Besitzers auf **Inaktiv**, wird jeder Aufruf mit seinen Keys abgelehnt, der Workspace-Daten liest oder ändert.
+
+## Weiter [#next]
 
 - [Schnellstart](/docs/quickstart): erster End-to-End-Lauf.
 - [MCP-Übersicht](/docs/mcp): was ein Key freischaltet.

@@ -7,8 +7,10 @@ import { ENTITY_URL_SEGMENT } from "@/components/entity-detail/entity-relations"
 import { EntityType } from "@/generated/prisma";
 import {
   agentRouteVisible,
+  agentSidebarGroupId,
   findAgentNavigationTarget,
   findAgentUiTarget,
+  isToolbarSearchTarget,
   type AgentUiTarget,
 } from "@/ee/agent-chat/ui-targets";
 import { stripLocalePrefix } from "@/i18n/locale-registry";
@@ -70,15 +72,79 @@ export function findAgentTargetElement(targetId: string) {
 }
 
 const TARGET_SETTLE_TIMEOUT_MS = 2000;
+const TARGET_LOADING_TIMEOUT_MS = 8000;
 const TARGET_SETTLE_POLL_MS = 100;
+const TOUR_START_TIMEOUT_MS = 12_000;
 
-async function awaitAgentTargetElement(targetId: string, stillCurrent: () => boolean = () => true) {
-  const deadline = Date.now() + TARGET_SETTLE_TIMEOUT_MS;
+function routeIsLoading() {
+  return document.querySelector('main [data-page-state="loading"]') !== null;
+}
+
+async function awaitAgentTargetElement(
+  targetId: string,
+  stillCurrent: () => boolean = () => true,
+  settleFrom = Date.now(),
+) {
+  const settled = settleFrom + TARGET_SETTLE_TIMEOUT_MS;
+  const loadingLimit = settleFrom + TARGET_LOADING_TIMEOUT_MS;
+  let deadline = settled;
   for (;;) {
     const element = findAgentTargetElement(targetId);
-    if (element || Date.now() >= deadline || !stillCurrent()) return element;
+    if (element || !stillCurrent()) return element;
+    const now = Date.now();
+    if (now >= settled && now < loadingLimit && routeIsLoading())
+      deadline = Math.min(loadingLimit, now + TARGET_SETTLE_TIMEOUT_MS);
+    if (now >= deadline) return null;
     await new Promise<void>((resolve) => setTimeout(resolve, TARGET_SETTLE_POLL_MS));
   }
+}
+
+const ASSISTANT_PANEL_ID = "agent-panel-dialog";
+
+function assistantPanelCovers(element: Element) {
+  const panel = document.getElementById(ASSISTANT_PANEL_ID);
+  if (!panel || panel.contains(element)) return false;
+  const cover = panel.getBoundingClientRect();
+  const target = element.getBoundingClientRect();
+  const x = target.left + target.width / 2;
+  const y = target.top + target.height / 2;
+  return (
+    cover.width > 0 && cover.height > 0 && x >= cover.left && x <= cover.right && y >= cover.top && y <= cover.bottom
+  );
+}
+
+async function awaitCoveredByAssistantPanel(targetId: string, stillCurrent: () => boolean) {
+  if (!document.getElementById(ASSISTANT_PANEL_ID)) return false;
+  const deadline = Date.now() + TARGET_SETTLE_TIMEOUT_MS;
+  let previous: DOMRect | null = null;
+  for (;;) {
+    const element = findAgentTargetElement(targetId);
+    if (!element || !stillCurrent()) return false;
+    const current = element.getBoundingClientRect();
+    if ((previous && current.top === previous.top && current.left === previous.left) || Date.now() >= deadline)
+      return assistantPanelCovers(element);
+    previous = current;
+    await new Promise<void>((resolve) => setTimeout(resolve, TARGET_SETTLE_POLL_MS));
+  }
+}
+
+function coveredTargetMessage(targetId: string) {
+  return `Target ${targetId} is on screen but behind the assistant panel, so the user cannot see or click it. Ask the user to close the panel (an open dialog stays open) and use the control, instead of saying it is highlighted.`;
+}
+
+function sidebarRevealStep(target: AgentUiTarget) {
+  if (!document.getElementById("sidebar-trigger")) return null;
+  const group = agentSidebarGroupId(target.id);
+  const anchor = document.getElementById(group ?? target.id);
+  const groupClosed = group !== null && document.getElementById(target.id) === null;
+  if (!anchor) {
+    const groupOpensItself = currentAppPathname()?.startsWith(`/${target.route.split("/")[1]}/`) ?? false;
+    const thenOpenGroup = group && !groupOpensItself ? `, then open ${group} in it` : "";
+    return `open the sidebar with the sidebar button at the top left of the header${thenOpenGroup}`;
+  }
+  if (anchor.closest('[data-collapsible="icon"]'))
+    return `expand the collapsed sidebar with the sidebar button at the top left of the header${groupClosed ? `, then open ${group} in it` : ""}`;
+  return groupClosed ? `open ${group} in the sidebar` : null;
 }
 
 export class AgentUiControlStore extends BaseStore {
@@ -88,6 +154,8 @@ export class AgentUiControlStore extends BaseStore {
   private clearTimer: ReturnType<typeof setTimeout> | null = null;
   private previousFocus: OverlayFocusTarget | null = null;
   private tourRunVersion = 0;
+  private settledTourRunVersion = 0;
+  private vanishedTourStep: { spotlight: Spotlight; since: number; skipped: boolean } | null = null;
 
   constructor(rootStore: RootStore) {
     super(rootStore);
@@ -129,9 +197,9 @@ export class AgentUiControlStore extends BaseStore {
   };
 
   highlight = async (targetId: string) => {
-    const element = targetBelongsToCurrentPage(targetId)
-      ? await awaitAgentTargetElement(targetId)
-      : findAgentTargetElement(targetId);
+    let element = findAgentTargetElement(targetId);
+    if (!element && !this.blockedTargetMessage(targetId) && targetBelongsToCurrentPage(targetId))
+      element = await awaitAgentTargetElement(targetId);
     if (!element) {
       return {
         ok: false,
@@ -139,11 +207,15 @@ export class AgentUiControlStore extends BaseStore {
       };
     }
 
-    this.tourRunVersion += 1;
+    const runVersion = ++this.tourRunVersion;
     this.tourSteps = [];
     this.showStep({ targetId, note: null, stepIndex: 0, totalSteps: 1 });
     this.scheduleClear(8000);
     element.scrollIntoView({ block: "center", behavior: "smooth" });
+    if (await awaitCoveredByAssistantPanel(targetId, () => runVersion === this.tourRunVersion)) {
+      this.end();
+      return { ok: false, result: coveredTargetMessage(targetId) };
+    }
     return { ok: true, result: `Highlighted ${targetId}.` };
   };
 
@@ -159,7 +231,18 @@ export class AgentUiControlStore extends BaseStore {
 
     this.captureFocus();
     const runVersion = ++this.tourRunVersion;
-    const shown = await this.showTourStep(0, runVersion, 1);
+    const startedAt = Date.now();
+    const shown = await this.showTourStep(0, runVersion, 1, startedAt, startedAt + TOUR_START_TIMEOUT_MS);
+    this.settleTourStep(runVersion);
+    const shownTargetId = this.active?.targetId;
+    if (
+      shown &&
+      shownTargetId &&
+      (await awaitCoveredByAssistantPanel(shownTargetId, () => runVersion === this.tourRunVersion))
+    ) {
+      this.end();
+      return { ok: false, result: coveredTargetMessage(shownTargetId) };
+    }
     return shown
       ? {
           ok: true,
@@ -188,6 +271,7 @@ export class AgentUiControlStore extends BaseStore {
     this.tourRunVersion += 1;
     this.active = null;
     this.tourSteps = [];
+    this.vanishedTourStep = null;
     if (this.clearTimer) clearTimeout(this.clearTimer);
     focusOverlayTarget(this.previousFocus);
     this.previousFocus = null;
@@ -198,17 +282,51 @@ export class AgentUiControlStore extends BaseStore {
     this.active = spotlight;
   };
 
+  reportTourTarget = (spotlight: Spotlight, rendered: boolean) => {
+    if (
+      spotlight !== this.active ||
+      spotlight.note === null ||
+      rendered ||
+      this.settledTourRunVersion !== this.tourRunVersion
+    ) {
+      this.vanishedTourStep = null;
+      return;
+    }
+    if (this.vanishedTourStep?.spotlight !== spotlight)
+      this.vanishedTourStep = { spotlight, since: Date.now(), skipped: false };
+    if (this.vanishedTourStep.skipped || Date.now() - this.vanishedTourStep.since < TARGET_SETTLE_TIMEOUT_MS) return;
+    this.vanishedTourStep.skipped = true;
+    const route = this.tourSteps[spotlight.stepIndex]?.route;
+    if (route && route !== currentAppPathname()) this.end();
+    else this.nextStep();
+  };
+
   private requestTourStep(index: number, direction: 1 | -1) {
     const runVersion = ++this.tourRunVersion;
-    void this.showTourStep(index, runVersion, direction);
+    void this.showTourStep(index, runVersion, direction).then(() => this.settleTourStep(runVersion));
   }
 
-  private async showTourStep(index: number, runVersion: number, direction: 1 | -1): Promise<boolean> {
+  private settleTourStep(runVersion: number) {
+    if (runVersion === this.tourRunVersion) this.settledTourRunVersion = runVersion;
+  }
+
+  private async showTourStep(
+    index: number,
+    runVersion: number,
+    direction: 1 | -1,
+    settleFrom = Date.now(),
+    giveUpAt = Number.POSITIVE_INFINITY,
+  ): Promise<boolean> {
     if (runVersion !== this.tourRunVersion) return false;
     const step = this.tourSteps[index];
     if (!step) return false;
+    if (Date.now() >= giveUpAt) {
+      if (direction === 1) this.end();
+      return false;
+    }
 
     if (step.route && this.navigateCallback) {
+      const from = currentAppPathname();
       const outcome = this.canOpen(step.route) ? await this.navigateCallback(step.route) : "blocked";
       if (runVersion !== this.tourRunVersion) return false;
       if (outcome !== "navigated") {
@@ -217,13 +335,18 @@ export class AgentUiControlStore extends BaseStore {
           if (direction === 1) this.end();
           return false;
         }
-        return this.showTourStep(next, runVersion, direction);
+        return this.showTourStep(next, runVersion, direction, settleFrom, giveUpAt);
       }
       await new Promise<void>((resolve) => requestAnimationFrame(() => requestAnimationFrame(() => resolve())));
       if (runVersion !== this.tourRunVersion) return false;
+      if (currentAppPathname() !== from) settleFrom = Date.now();
     }
 
-    const element = await awaitAgentTargetElement(step.targetId, () => runVersion === this.tourRunVersion);
+    const element = await awaitAgentTargetElement(
+      step.targetId,
+      () => runVersion === this.tourRunVersion && Date.now() < giveUpAt,
+      settleFrom,
+    );
     if (runVersion !== this.tourRunVersion) return false;
     if (!element) {
       const next = index + direction;
@@ -231,7 +354,7 @@ export class AgentUiControlStore extends BaseStore {
         if (direction === 1) this.end();
         return false;
       }
-      return this.showTourStep(next, runVersion, direction);
+      return this.showTourStep(next, runVersion, direction, settleFrom, giveUpAt);
     }
 
     element.scrollIntoView({
@@ -251,12 +374,24 @@ export class AgentUiControlStore extends BaseStore {
     return agentRouteVisible(path, this.rootStore.appMode, this.rootStore.userStore.canAccess);
   }
 
-  private missingTargetMessage(targetId: string) {
+  private blockedTargetMessage(targetId: string) {
     const target = findAgentUiTarget(targetId);
-    if (target?.route.startsWith("/") && !this.canOpen(target.route))
-      return `Target ${targetId} cannot be shown. ${unavailableRouteMessage(target.route)}`;
+    return target?.route.startsWith("/") && !this.canOpen(target.route)
+      ? `Target ${targetId} cannot be shown. ${unavailableRouteMessage(target.route)}`
+      : null;
+  }
+
+  private missingTargetMessage(targetId: string) {
+    const blocked = this.blockedTargetMessage(targetId);
+    if (blocked) return blocked;
+    const target = findAgentUiTarget(targetId);
     if (!target || !targetBelongsToCurrentPage(targetId))
       return `Target ${targetId} is not on the current page. Navigate first.`;
+    const revealStep = isSidebarTarget(target) ? sidebarRevealStep(target) : null;
+    if (revealStep)
+      return `Target ${targetId} is a sidebar entry that is not visible right now. Ask the user to ${revealStep}, then highlight it again.`;
+    if (isToolbarSearchTarget(targetId) && document.getElementById(targetId))
+      return `Target ${targetId} is the list's search box, which narrower screens collapse behind the Search button (magnifier icon) in the toolbar. Ask the user to click that button, then highlight it again.`;
     const opener = target.prerequisite ? ` (${target.prerequisite})` : "";
     return `Target ${targetId} belongs to this page but is not rendered right now. It may be inside a dialog, tab or menu the user must open first${opener}, or hidden by role, plan or state.`;
   }

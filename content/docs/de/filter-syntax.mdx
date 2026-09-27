@@ -20,7 +20,7 @@ Datumsfelder bieten **Vor…**, **Bis…**, **Nach…**, **Ab…** und **Zwische
 
 **Link:** die Listenseiten, zum Beispiel die Seite **Deals**, `/deals`. **Mate:** `navigate` und `highlight_element` mit `deals-filter` (oder `contacts-filter`, `organizations-filter`, `services-filter`, `tasks-filter`); die Palette darin ist kein Highlight-Ziel, deshalb nennt Mate **Filter hinzufügen…**, die Felder und **Leeren** beim Namen.
 
-## Wie sieht eine Filterregel aus? [#what-does-a-filter-rule-look-like]
+## Wie sieht eine Filterregel aus, und kann ich Filter mit ODER verknüpfen? [#what-does-a-filter-rule-look-like]
 
 ```json
 [
@@ -32,6 +32,8 @@ Datumsfelder bieten **Vor…**, **Bis…**, **Nach…**, **Ab…** und **Zwische
 Regeln sind UND-verknüpft. Für ODER-Logik lassen Sie zwei Abfragen laufen und mergen client-seitig, oder Sie nutzen den `in`-Operator, wenn Sie gegen eine Liste vergleichen. Eine Anfrage nimmt bis zu 50 Regeln und einen `searchTerm` mit bis zu 200 Zeichen.
 
 ## Welche Operatoren gibt es? [#which-operators-exist]
+
+Es gibt siebzehn Filter-Operatoren; jeder erwartet einen Wert, ein Array oder keinen Wert:
 
 | Operator | Erwartet | Wirkt auf | Beispielwert |
 |---|---|---|---|
@@ -46,7 +48,7 @@ Regeln sind UND-verknüpft. Für ODER-Logik lassen Sie zwei Abfragen laufen und 
 | `hasNone`, `hasSome` | keinen Wert | Relationship-Felder, `draft` von Messaging-Threads | (keiner) |
 | `hasUnset`, `allSet` | keinen Wert | `participants` von Messaging-Threads | (keiner) |
 
-### Welche Datums-Operatoren gibt es? [#which-date-operators-exist]
+### Welche Datums-Operatoren gibt es, etwa für die letzten 7 Tage? [#which-date-operators-exist]
 
 Eingebaute Datumsfelder wie `createdAt` und `updatedAt` akzeptieren `gt`, `gte`, `lt`, `lte`, `between` und `inLastDays`. Nutzen Sie `inLastDays` mit einer positiven ganzzahligen Anzahl von Tagen für ein rollierendes Fenster vom Beginn des Tages vor N Tagen bis jetzt, zum Beispiel `{ "field": "createdAt", "operator": "inLastDays", "value": 7 }` für Datensätze, die in der letzten Woche erstellt wurden. In der App setzen die Auswahlen 7, 30, 90 und 365 Tage sowie **Eigener Zeitraum…** den Operator `inLastDays`.
 
@@ -56,11 +58,11 @@ Custom Columns der Typen Datum und Datum & Uhrzeit akzeptieren `gt`, `gte`, `lt`
 
 Textfelder wie `firstName` und `lastName` eines Kontakts oder `name` einer Organisation akzeptieren `equals`, `startsWith` und `contains`. `contains` und `startsWith` vergleichen ohne Beachtung der Groß- und Kleinschreibung; `equals` ist ein exakter Abgleich mit Beachtung der Groß- und Kleinschreibung. `url` nimmt nur `equals` und `contains`.
 
-### Welche Relationship-Operatoren gibt es? [#which-relationship-operators-exist]
+### Welche Operatoren gibt es für Beziehungen, etwa um Kontakte ohne Organisation zu finden? [#which-relationship-operators-exist]
 
 Relationship-Arrays (`organizationIds`, `dealIds`, `userIds`, `contactIds`, `serviceIds`, `taskIds`) akzeptieren `in`, `notIn`, `hasNone` und `hasSome`. `hasNone` trifft Datensätze ohne jede Verknüpfung dieser Art, `hasSome` Datensätze mit mindestens einer. Das Feld für den Verknüpfungsstatus der Teilnehmer auf `get_messaging_threads` nutzt `hasUnset` und `allSet`, um Threads danach zu filtern, ob ihre Teilnehmer mit Datensätzen verknüpft sind. Das Feld `draft` desselben Tools akzeptiert die wertlosen Operatoren `hasSome` (der Thread enthält einen ungesendeten Entwurf) und `hasNone` (er enthält keinen), womit Sie Entwürfe auflisten oder ausschließen.
 
-### Welche Operatoren wirken auf Custom Columns? [#which-operators-work-on-custom-columns]
+### Wie filtere ich nach einem benutzerdefinierten Feld (Custom Column), und welche Operatoren wirken darauf? [#which-operators-work-on-custom-columns]
 
 Nutzen Sie die UUID der Spalte als `field`. Die Operatoren hängen vom Spaltentyp ab:
 
@@ -117,7 +119,7 @@ Datensätze, deren Datums-Custom-Column (identifiziert über ihre UUID) vor Juli
 { "field": "date_col_uuid", "operator": "lt", "value": "2024-07-01" }
 ```
 
-## Freitextsuche oder Filter? [#free-text-search-or-a-filter]
+## Soll ich searchTerm (Freitextsuche) oder einen Filter nutzen? [#free-text-search-or-a-filter]
 
 `list_records` akzeptiert auch `searchTerm`, eine Freitextsuche über die Namensfelder der Entity plus verwandte Felder: bei Kontakten `firstName`, `lastName`, Werte der Kanal-Identifikatoren und Namen verknüpfter Organisationen; bei Organisationen `name` plus Vor- und Nachnamen verknüpfter Kontakte; bei Deals, Services und Aufgaben `name`. Jedes Wort muss eines dieser Felder treffen, ohne Beachtung der Groß- und Kleinschreibung, `"acme berlin"` braucht also beide Wörter. Kanalwerte sind keine Filterfelder; um einen Kontakt über seine E-Mail-Adresse zu finden, setzen Sie die Adresse in `searchTerm`.
 

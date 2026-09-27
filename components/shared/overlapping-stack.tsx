@@ -25,6 +25,7 @@ type Props<TBadge, TRow> = {
   rows?: TRow[];
   rowKey?: (row: TRow) => string;
   renderRow?: (row: TRow, close: () => void) => ReactNode;
+  triggerLabel?: string;
 };
 
 export function OverlappingStack<TBadge, TRow = never>({
@@ -39,6 +40,7 @@ export function OverlappingStack<TBadge, TRow = never>({
   renderOverflow,
   rowKey,
   renderRow,
+  triggerLabel,
 }: Props<TBadge, TRow>) {
   const [isOpen, setIsOpen] = useState(false);
 
@@ -47,26 +49,40 @@ export function OverlappingStack<TBadge, TRow = never>({
   const visible = badges.slice(0, maxVisible);
   const remaining = badges.length - visible.length;
 
-  const stack = (
-    <div
-      className={cn("flex outline-none **:data-[slot=avatar]:rounded-full!", STACK_CLASSES[size])}
-      tabIndex={-1}
-      onFocus={(e) => e.target.blur()}
-    >
+  const stackClassName = cn("flex **:data-[slot=avatar]:rounded-full!", STACK_CLASSES[size]);
+  const stackBadges = (
+    <>
       {visible.map((badge) => (
         <Fragment key={badgeKey(badge)}>{renderBadge(badge)}</Fragment>
       ))}
 
       {remaining > 0 && renderOverflow(remaining)}
-    </div>
+    </>
   );
 
-  if (!rows || !rowKey || !renderRow) return <div className={cn("flex items-center", className)}>{stack}</div>;
+  if (!rows || !rowKey || !renderRow) {
+    return (
+      <div className={cn("flex items-center", className)}>
+        <div className={stackClassName}>{stackBadges}</div>
+      </div>
+    );
+  }
 
   return (
     <div className={cn("flex cursor-pointer items-center select-none", className)}>
       <DropdownMenu open={isOpen} onOpenChange={setIsOpen}>
-        <DropdownMenuTrigger asChild>{stack}</DropdownMenuTrigger>
+        <DropdownMenuTrigger asChild>
+          <button
+            aria-label={triggerLabel}
+            className={cn(
+              stackClassName,
+              "cursor-pointer rounded-full outline-none focus-visible:ring-[3px] focus-visible:ring-ring/50",
+            )}
+            type="button"
+          >
+            {stackBadges}
+          </button>
+        </DropdownMenuTrigger>
 
         <DropdownMenuContent align={contentAlign} className="max-h-60 overflow-y-auto">
           {rows.map((row) => (

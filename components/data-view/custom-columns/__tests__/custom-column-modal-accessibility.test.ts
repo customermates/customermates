@@ -2,7 +2,7 @@ import type { ComponentType, ReactNode } from "react";
 
 import { createElement } from "react";
 import { renderToStaticMarkup } from "react-dom/server";
-import { describe, expect, it, vi } from "vitest";
+import { afterEach, describe, expect, it, vi } from "vitest";
 
 const store = vi.hoisted(() => ({
   form: {
@@ -41,7 +41,10 @@ const { passthrough } = vi.hoisted(() => ({
 vi.mock("mobx-react-lite", () => ({
   observer: <T extends ComponentType<any>>(component: T) => component,
 }));
-vi.mock("next-intl", () => ({ useTranslations: () => (key: string) => key }));
+vi.mock("next-intl", () => ({
+  useTranslations: () => (key: string, values?: { number?: number }) =>
+    values?.number === undefined ? key : `${key}:${values.number}`,
+}));
 vi.mock("@dnd-kit/core", () => ({
   DndContext: passthrough,
   KeyboardSensor: {},
@@ -61,14 +64,27 @@ vi.mock("@/core/stores/root-store.provider", () => ({
 vi.mock("@/core/stores/use-hydrated-intl-store", () => ({
   useHydratedIntlStore: () => ({ dateFormatMap: {}, dateTimeFormatMap: {} }),
 }));
-vi.mock("@/components/modal", () => ({ AppModal: passthrough }));
+vi.mock("@/components/modal", () => ({
+  AppModal: ({ actions = [], children }: { actions?: Array<{ id: string; tooltip?: string }>; children?: ReactNode }) =>
+    createElement(
+      "div",
+      null,
+      ...actions.map((action) =>
+        createElement("span", { key: action.id, "data-action-id": action.id, "data-action-tooltip": action.tooltip }),
+      ),
+      children,
+    ),
+}));
 vi.mock("@/components/modal/hooks/use-delete-confirmation", () => ({
   useDeleteConfirmation: () => ({ showDeleteConfirmation: vi.fn() }),
 }));
 vi.mock("@/components/forms/form-context", () => ({ AppForm: passthrough }));
 vi.mock("@/components/forms/form-autocomplete-currency", () => ({ FormAutocompleteCurrency: () => null }));
 vi.mock("@/components/forms/form-field-help", () => ({ FormFieldHelp: () => null }));
-vi.mock("@/components/forms/form-input", () => ({ FormInput: () => null }));
+vi.mock("@/components/forms/form-input", () => ({
+  FormInput: ({ id, "aria-label": ariaLabel }: { id: string; "aria-label"?: string }) =>
+    createElement("input", { "aria-label": ariaLabel, "data-label-id": id }),
+}));
 vi.mock("@/components/forms/form-select", () => ({ FormSelect: () => null }));
 vi.mock("@/components/forms/form-switch", () => ({ FormSwitch: () => null }));
 vi.mock("@/components/forms/form-number-input", () => ({
@@ -90,6 +106,12 @@ vi.mock("@/components/ui/dropdown-menu", () => ({
 
 import { CustomColumnModal } from "../custom-column-modal";
 
+function optionNameLabels(markup: string): Record<string, string> {
+  return Object.fromEntries(
+    [...markup.matchAll(/<input aria-label="([^"]*)" data-label-id="([^"]*)"/g)].map(([, label, id]) => [id, label]),
+  );
+}
+
 function weightLabels(markup: string): Record<string, string> {
   return Object.fromEntries(
     [...markup.matchAll(/<input aria-label="([^"]*)" data-weight-id="([^"]*)"/g)].map(([, label, id]) => [id, label]),
@@ -105,5 +127,48 @@ describe("CustomColumnModal stage probability inputs", () => {
       "options.options[1].weight": "Won",
       "options.options[2].weight": "Common.probability",
     });
+  });
+});
+
+describe("CustomColumnModal option name inputs", () => {
+  it("names each option's text field by its position, since the Name header is not its label", () => {
+    const markup = renderToStaticMarkup(createElement(CustomColumnModal));
+
+    expect(optionNameLabels(markup)).toEqual({
+      "options.options[0].label": "Common.ariaLabels.optionName:1",
+      "options.options[1].label": "Common.ariaLabels.optionName:2",
+      "options.options[2].label": "Common.ariaLabels.optionName:3",
+    });
+  });
+});
+
+describe("CustomColumnModal delete action on the deal weighting column", () => {
+  afterEach(() => {
+    store.isDeleteColumnDisabled = false;
+    store.isDisabled = false;
+  });
+
+  function deleteTooltip(): string | undefined {
+    const markup = renderToStaticMarkup(createElement(CustomColumnModal));
+    const match = /data-action-id="delete-custom-field"(?: data-action-tooltip="([^"]*)")?/.exec(markup);
+    if (!match) throw new Error(`Expected the delete action in ${markup}`);
+    return match[1];
+  }
+
+  it("explains why deleting the weighting column is disabled without company update permission", () => {
+    store.isDeleteColumnDisabled = true;
+
+    expect(deleteTooltip()).toBe("Common.customFieldHelp.deleteWeightingColumnPermission");
+  });
+
+  it("keeps the plain label when the whole dialog is read-only", () => {
+    store.isDeleteColumnDisabled = true;
+    store.isDisabled = true;
+
+    expect(deleteTooltip()).toBeUndefined();
+  });
+
+  it("keeps the plain label while deleting is allowed", () => {
+    expect(deleteTooltip()).toBeUndefined();
   });
 });

@@ -65,7 +65,7 @@ Ask the client to list its tools. All [[derived.mcp.tools.total]] should appear,
 | Codex | API key | [Connect Codex](/docs/connect-cli#codex) |
 | Cursor | API key | [Connect Cursor](/docs/connect-cli#cursor) |
 | Gemini CLI | API key | [Connect Gemini](/docs/connect-cli#gemini-cli) |
-| Any MCP client | Key header | Use the endpoint and header above |
+| Any MCP client | Key header | Use the endpoint and header from [What is the MCP server endpoint URL?](#the-endpoint) |
 
 The server exposes instructions when a client connects. Whether a client presents them to the model and how the model follows them depends on the exact client. Clients that support MCP prompts can also run the built-in `get-started` prompt for a personalized start.
 
@@ -407,25 +407,25 @@ For a company, call `get_social_profile` with `profileType=company` and an `iden
 {/* mcp-catalog:docs */}
 #### `search_docs`
 
-Full-text search over the docs; defaults to the product guides (source=docs); pass source=api or all to include the REST API reference. Returns up to 5 pages, each with slug, source, title, url, its best-matching section and anchor, and a snippet, plus the total. App routes in a snippet, such as `/company/subscription`, are relative: a full link is the origin of that page's URL followed by the route.
+Full-text search over the docs; defaults to the product guides (source=docs); pass source=api or all to include the REST API reference. Returns up to 5 pages, each with slug, source, title, url, its best-matching section and anchor, and a snippet, plus the total. App routes in a snippet, such as `/company/subscription`, are relative: a full link is the origin of that page's URL followed by the route; that origin is the instance's configured `BASE_URL`.
 
 **Read-only.** Required: `query`. Optional: `locale`, `source`.
 
 #### `get_docs_page`
 
-One documentation page as markdown with its canonical URL. App routes in the page, such as `/company/subscription`, are relative: a full link is the origin of that URL followed by the route. Pass `query` to get a focused excerpt of about 1,400 characters from the best-matching section (plus a second section when it fits) instead of the full page. Lists valid slugs on a miss.
+One documentation page as markdown with its canonical URL. App routes in the page, such as `/company/subscription`, are relative: a full link is the origin of that URL followed by the route; that origin is the instance's configured `BASE_URL`. Pass `query` to get a focused excerpt of about 1,400 characters from the best-matching section (plus a second section when it fits) instead of the full page. Lists valid slugs on a miss.
 
 **Read-only.** Required: `slug`. Optional: `query`, `locale`, `source`.
 
 #### `search`
 
-Required by ChatGPT deep research connectors; federates CRM records and docs. Interactive agents should prefer `search_records` or `search_docs`. App routes in the docs that `fetch` returns, such as `/company/subscription`, are relative: a full link is the origin of the result's URL followed by the route.
+Required by ChatGPT deep research connectors; federates CRM records and docs. Interactive agents should prefer `search_records` or `search_docs`. App routes in the docs that `fetch` returns, such as `/company/subscription`, are relative: a full link is the origin of the result's URL followed by the route; that origin is the instance's configured `BASE_URL`.
 
 **Read-only.** Required: `query`.
 
 #### `fetch`
 
-Deep-research companion to `search`: fetches one result by its id. App routes in a docs result, such as `/company/subscription`, are relative: a full link is the origin of its URL followed by the route.
+Deep-research companion to `search`: fetches one result by its id. App routes in a docs result, such as `/company/subscription`, are relative: a full link is the origin of its URL followed by the route; that origin is the instance's configured `BASE_URL`.
 
 **Read-only.** Required: `id`.
 {/* /mcp-catalog */}
@@ -481,7 +481,7 @@ Required: `target`. Optional: `firstName`, `lastName`, `country`, `avatarUrl`, `
 
 #### `manage_team`
 
-Invite members by email (action invite, up to 20, sends real invitation emails) or change a member's role and status (action update_member). Both actions need Manage on Users & Roles.
+Invite members by email (action invite, up to 20, sends real invitation emails) or change a member's role and status (action update_member). invite needs Manage on Users & Roles; update_member needs Manage and read access All on Users & Roles.
 
 Required: `action`. Optional: `emails`, `userId`, `roleId`, `status`.
 {/* /mcp-catalog */}
@@ -562,13 +562,13 @@ Plans refuse the same way. Messaging, calendar and social tools need a plan with
 Send your 64-character API key in the `x-api-key` header, or connect through OAuth where the client supports it. Create keys under **My Profile → API & Connectors → Add**. Every key carries your own permissions, so a client can never do more than you can.
 </FaqItem>
 <FaqItem question="Which AI clients can connect?">
-Claude on web, mobile and desktop, ChatGPT, Claude Code, Codex, Cursor and the Gemini CLI have documented connection paths above. Another client may connect when it supports MCP over streamable HTTP and the required authentication, but verify its exact compatibility and instruction handling before use.
+Claude on web, mobile and desktop, ChatGPT, Claude Code, Codex, Cursor and the Gemini CLI have documented connection paths under [Connect a client](#connect-a-client). Another client may connect when it supports MCP over streamable HTTP and the required authentication, but verify its exact compatibility and instruction handling before use.
 </FaqItem>
 <FaqItem question="Which plan do I need for MCP?">
 None in particular. The MCP endpoint and API keys work on every plan, during the trial, and on self-hosted instances. The plan changes what some tools allow: the messaging, calendar and social tools need a plan with messaging, Pro or higher in the cloud, and on Starter or self-hosted they refuse with a plan message; connecting a messaging account stops at the plan's account limit per user; `manage_routines` refuses a new routine once the caller has reached the plan's routine limit; and activity widgets leave out messages and calendar events without messaging. See [when a call is refused](/docs/mcp#when-a-call-is-refused). When a trial ends or a payment fails, the web app pauses first, while API keys and MCP connections keep working until the members are set **Inactive**; see [what happens when the trial ends](/docs/app-company#what-happens-when-the-trial-ends-or-a-payment-fails).
 </FaqItem>
 <FaqItem question="Can I reduce the number of tools a client sees?">
-Yes. Append `?toolsets=` with a comma-separated list of the groups above to the endpoint URL and only those tools are advertised. The two connector tools `search` and `fetch` stay always on.
+Yes. Append `?toolsets=` with a comma-separated list of group keys (`records`, `workspace`, `views`, `messaging`, `social`, `docs`, `custom-columns`, `widgets`, `routines`, `webhooks`, `admin`, `support`) to the endpoint URL and only those tools are advertised. The two connector tools `search` and `fetch` stay always on.
 </FaqItem>
 <FaqItem question="How do I recognize dangerous tools?">
 Every destructive tool is flagged in the catalog above and says `IRREVERSIBLE` in its description. Tools that send something real, such as `send_email`, `send_chat_message` or the `manage_team` invite, carry no destructive flag; the [Tool catalog](/docs/mcp#tool-catalog) lists them. Clients that honor MCP annotations also receive `destructiveHint` and can ask for confirmation before calling. This metadata helps the client; it is not a second server-side approval gate.

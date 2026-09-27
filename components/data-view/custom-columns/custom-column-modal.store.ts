@@ -191,6 +191,7 @@ export class CustomColumnModalStore extends BaseModalStore<UpsertCustomColumnDat
       ...this.form,
       options: { options },
     };
+    this.clearErrorIfSaved();
   };
 
   addOption = () => {
@@ -237,6 +238,7 @@ export class CustomColumnModalStore extends BaseModalStore<UpsertCustomColumnDat
         options: reordered,
       },
     };
+    this.clearErrorIfSaved();
   };
 
   get canDeleteOption(): boolean {
@@ -260,6 +262,7 @@ export class CustomColumnModalStore extends BaseModalStore<UpsertCustomColumnDat
       ...this.form,
       options: { options },
     };
+    this.clearErrorIfSaved();
   };
 
   deleteColumn = async (): Promise<boolean> => {

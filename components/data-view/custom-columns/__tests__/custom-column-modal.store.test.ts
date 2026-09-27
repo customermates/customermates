@@ -272,3 +272,59 @@ describe("CustomColumnModalStore delete action on the deal weighting column", ()
     expect(store.isDeleteColumnDisabled).toBe(false);
   });
 });
+
+describe("CustomColumnModalStore stale errors", () => {
+  const optionError = { errors: [], properties: { options: { errors: ["Rejected"] } } } as never;
+
+  function singleSelectStore() {
+    const store = new CustomColumnModalStore(rootStore((_key, values) => `Option ${String(values?.number)}`));
+    store.initialize(CustomColumnType.singleSelect, EntityType.contact);
+    return store;
+  }
+
+  function options(store: CustomColumnModalStore) {
+    if (store.form.type !== CustomColumnType.singleSelect) throw new Error("expected a single select form");
+    return store.form.options.options;
+  }
+
+  it("clears the error once toggling the default brings the form back to its saved state", () => {
+    const store = singleSelectStore();
+    const [first] = options(store);
+
+    store.toggleDefaultOption(first);
+    store.error = optionError;
+    store.toggleDefaultOption(first);
+
+    expect(store.hasUnsavedChanges).toBe(false);
+    expect(store.error).toBeUndefined();
+  });
+
+  it("clears the error once deleting an added option brings the form back to its saved state", () => {
+    const store = singleSelectStore();
+    store.addOption();
+    store.error = optionError;
+
+    store.deleteOption(options(store)[1]);
+
+    expect(store.hasUnsavedChanges).toBe(false);
+    expect(store.error).toBeUndefined();
+  });
+
+  it("clears the error once reordering brings the form back to its saved state, and not before", () => {
+    const store = singleSelectStore();
+    store.addOption();
+    store.onInitOrRefresh(store.form);
+
+    store.reorderOptions(0, 1);
+    store.error = optionError;
+    store.reorderOptions(1, 0);
+
+    expect(store.error).toBeUndefined();
+
+    store.reorderOptions(0, 1);
+    store.error = optionError;
+    store.addOption();
+
+    expect(store.error).toBeDefined();
+  });
+});

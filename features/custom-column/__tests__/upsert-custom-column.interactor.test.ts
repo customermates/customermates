@@ -74,11 +74,12 @@ function makeInteractor({
     upsertCustomColumnOrThrow: vi.fn((data: UpsertCustomColumnData) => Promise.resolve({ ...stored, ...data })),
   };
   const companyRepo = { getDealWeightingColumnId: vi.fn().mockResolvedValue(STAGE_COLUMN_ID) };
+  const allowed = (resource: Resource) =>
+    !(resource === Resource.company && !canUpdateCompany) && !(resource === Resource.deals && !canUpdateDeals);
   const userService = {
+    hasPermission: vi.fn((resource: Resource) => Promise.resolve(allowed(resource))),
     hasPermissionOrThrow: vi.fn((resource: Resource) =>
-      (resource === Resource.company && !canUpdateCompany) || (resource === Resource.deals && !canUpdateDeals)
-        ? Promise.reject(new Error("User has insufficient permissions"))
-        : Promise.resolve(),
+      allowed(resource) ? Promise.resolve() : Promise.reject(new Error("User has insufficient permissions")),
     ),
   };
   const eventService = { publish: vi.fn().mockResolvedValue(undefined) };
@@ -101,26 +102,35 @@ function update(columnId: string, options: ReturnType<typeof stageOption>[]): Up
   return { ...stageColumn(columnId, options), label: "Stage" };
 }
 
+function expectPermissionDenied(result: Awaited<ReturnType<UpsertCustomColumnInteractor["invoke"]>>) {
+  expect(result.ok).toBe(false);
+  if (result.ok) throw new Error("Expected the weight change to be refused");
+  expect(result.error.issues[0]).toMatchObject({
+    path: ["options"],
+    params: { error: CustomErrorCode.permissionDenied, kind: "authorization" },
+  });
+}
+
 describe("UpsertCustomColumnInteractor deal stage weights", () => {
   beforeEach(() => vi.clearAllMocks());
 
   it("refuses a changed weight on the deal weighting column without company update permission", async () => {
     const { interactor, repo, userService } = makeInteractor({ canUpdateCompany: false });
 
-    await expect(
-      interactor.invoke(update(STAGE_COLUMN_ID, [stageOption(QUALIFIED, 0, 35), stageOption(PROPOSAL, 1, 60)])),
-    ).rejects.toThrow("User has insufficient permissions");
+    expectPermissionDenied(
+      await interactor.invoke(update(STAGE_COLUMN_ID, [stageOption(QUALIFIED, 0, 35), stageOption(PROPOSAL, 1, 60)])),
+    );
 
-    expect(userService.hasPermissionOrThrow).toHaveBeenCalledWith(Resource.company, Action.update);
+    expect(userService.hasPermission).toHaveBeenCalledWith(Resource.company, Action.update);
     expect(repo.upsertCustomColumnOrThrow).not.toHaveBeenCalled();
   });
 
   it("refuses dropping a stored weight on the deal weighting column without company update permission", async () => {
     const { interactor, repo } = makeInteractor({ canUpdateCompany: false });
 
-    await expect(
-      interactor.invoke(update(STAGE_COLUMN_ID, [stageOption(QUALIFIED, 0), stageOption(PROPOSAL, 1, 60)])),
-    ).rejects.toThrow("User has insufficient permissions");
+    expectPermissionDenied(
+      await interactor.invoke(update(STAGE_COLUMN_ID, [stageOption(QUALIFIED, 0), stageOption(PROPOSAL, 1, 60)])),
+    );
 
     expect(repo.upsertCustomColumnOrThrow).not.toHaveBeenCalled();
   });
@@ -131,9 +141,9 @@ describe("UpsertCustomColumnInteractor deal stage weights", () => {
       storedOptions: [stageOption(QUALIFIED, 0, 20), stageOption(PROPOSAL, 1, 0)],
     });
 
-    await expect(
-      interactor.invoke(update(STAGE_COLUMN_ID, [stageOption(QUALIFIED, 0, 20), stageOption(PROPOSAL, 1)])),
-    ).rejects.toThrow("User has insufficient permissions");
+    expectPermissionDenied(
+      await interactor.invoke(update(STAGE_COLUMN_ID, [stageOption(QUALIFIED, 0, 20), stageOption(PROPOSAL, 1)])),
+    );
 
     expect(repo.upsertCustomColumnOrThrow).not.toHaveBeenCalled();
   });
@@ -144,9 +154,11 @@ describe("UpsertCustomColumnInteractor deal stage weights", () => {
       storedOptions: [stageOption(QUALIFIED, 0, 20), stageOption(UNWEIGHTED_STAGE, 1)],
     });
 
-    await expect(
-      interactor.invoke(update(STAGE_COLUMN_ID, [stageOption(QUALIFIED, 0, 20), stageOption(UNWEIGHTED_STAGE, 1, 0)])),
-    ).rejects.toThrow("User has insufficient permissions");
+    expectPermissionDenied(
+      await interactor.invoke(
+        update(STAGE_COLUMN_ID, [stageOption(QUALIFIED, 0, 20), stageOption(UNWEIGHTED_STAGE, 1, 0)]),
+      ),
+    );
 
     expect(repo.upsertCustomColumnOrThrow).not.toHaveBeenCalled();
   });
@@ -154,9 +166,9 @@ describe("UpsertCustomColumnInteractor deal stage weights", () => {
   it("refuses a new stage with a non-zero weight without company update permission", async () => {
     const { interactor, repo } = makeInteractor({ canUpdateCompany: false });
 
-    await expect(
-      interactor.invoke(update(STAGE_COLUMN_ID, [...STORED_OPTIONS, stageOption(NEW_STAGE, 2, 40)])),
-    ).rejects.toThrow("User has insufficient permissions");
+    expectPermissionDenied(
+      await interactor.invoke(update(STAGE_COLUMN_ID, [...STORED_OPTIONS, stageOption(NEW_STAGE, 2, 40)])),
+    );
 
     expect(repo.upsertCustomColumnOrThrow).not.toHaveBeenCalled();
   });
@@ -168,7 +180,7 @@ describe("UpsertCustomColumnInteractor deal stage weights", () => {
     const result = await interactor.invoke(update(STAGE_COLUMN_ID, storedOptions));
 
     expect(result.ok).toBe(true);
-    expect(userService.hasPermissionOrThrow).not.toHaveBeenCalledWith(Resource.company, Action.update);
+    expect(userService.hasPermission).not.toHaveBeenCalledWith(Resource.company, Action.update);
     expect(repo.upsertCustomColumnOrThrow).toHaveBeenCalledTimes(1);
   });
 
@@ -180,7 +192,7 @@ describe("UpsertCustomColumnInteractor deal stage weights", () => {
     );
 
     expect(result.ok).toBe(true);
-    expect(userService.hasPermissionOrThrow).toHaveBeenCalledWith(Resource.company, Action.update);
+    expect(userService.hasPermission).toHaveBeenCalledWith(Resource.company, Action.update);
     expect(repo.upsertCustomColumnOrThrow).toHaveBeenCalledTimes(1);
   });
 
@@ -196,7 +208,7 @@ describe("UpsertCustomColumnInteractor deal stage weights", () => {
     );
 
     expect(result.ok).toBe(true);
-    expect(userService.hasPermissionOrThrow).not.toHaveBeenCalledWith(Resource.company, Action.update);
+    expect(userService.hasPermission).not.toHaveBeenCalledWith(Resource.company, Action.update);
     expect(repo.upsertCustomColumnOrThrow).toHaveBeenCalledTimes(1);
   });
 
@@ -209,7 +221,7 @@ describe("UpsertCustomColumnInteractor deal stage weights", () => {
 
     expect(result.ok).toBe(true);
     expect(userService.hasPermissionOrThrow).toHaveBeenCalledWith(Resource.deals, Action.update);
-    expect(userService.hasPermissionOrThrow).not.toHaveBeenCalledWith(Resource.company, Action.update);
+    expect(userService.hasPermission).not.toHaveBeenCalledWith(Resource.company, Action.update);
     expect(repo.upsertCustomColumnOrThrow).toHaveBeenCalledTimes(1);
   });
 });
@@ -264,7 +276,7 @@ describe("UpsertCustomColumnInteractor stored column identity", () => {
         expectedType: CustomColumnType.plain,
       },
     });
-    expect(userService.hasPermissionOrThrow).not.toHaveBeenCalledWith(Resource.company, Action.update);
+    expect(userService.hasPermission).not.toHaveBeenCalledWith(Resource.company, Action.update);
     expect(repo.upsertCustomColumnOrThrow).not.toHaveBeenCalled();
   });
 });

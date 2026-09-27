@@ -39,6 +39,7 @@ export const ApiKeysPageView = observer(({ apiKeys }: Props) => {
     () =>
       pageState !== "loading" && pageState !== "error" && canManage ? (
         <Button
+          aria-label={t("Common.actions.add")}
           className="h-8"
           id="profile-api-keys-generate"
           size="sm"
@@ -116,7 +117,7 @@ export const ApiKeysPageView = observer(({ apiKeys }: Props) => {
                 }}
               >
                 <CardContent className="flex flex-col gap-2 px-4">
-                  <p className="truncate text-sm font-medium">{key.name || t("ApiKeysCard.unnamed")}</p>
+                  <p className="truncate text-sm font-medium">{key.name?.trim() || t("ApiKeysCard.unnamed")}</p>
 
                   <InfoRow label={t("Common.table.columns.createdAt")}>
                     {intlStore.formatNumericalShortDateTime(key.createdAt)}

@@ -11,10 +11,12 @@ import {
   useState,
   type ComponentProps,
   type JSX,
+  type MouseEvent,
   type ReactNode,
 } from "react";
 import { toast } from "sonner";
 import {
+  defaultRehypePlugins,
   extractTableDataFromElement,
   Streamdown,
   tableDataToCSV,
@@ -146,13 +148,15 @@ function MessageTableCell({ className, ...props }: MarkdownElementProps<"td">) {
 }
 
 const MESSAGE_LINK_BASE = "https://internal.invalid";
-const INCOMPLETE_MESSAGE_LINK_HREF = "streamdown:incomplete-link";
 const MESSAGE_LINK_CLASS = "wrap-anywhere font-medium text-primary underline";
+const MESSAGE_URL_PROPERTIES = ["href", "src"] as const;
+const MESSAGE_HANDOFF_PROTOCOLS = ["mailto:", "tel:"];
 const UNLOCALIZED_PATH_PATTERN = /^\/(?:api|og|monitoring|\.well-known|_next|_vercel)(?:\/|$)|\.[a-z0-9]+$/i;
 
 export type MessageLinkTarget =
   | { kind: "app"; href: string }
   | { kind: "resource"; href: string }
+  | { kind: "handoff"; url: string }
   | { kind: "external"; url: string };
 
 export function messageLinkTarget(href: string, pageUrl: string = MESSAGE_LINK_BASE): MessageLinkTarget | null {
@@ -164,6 +168,7 @@ export function messageLinkTarget(href: string, pageUrl: string = MESSAGE_LINK_B
     return null;
   }
 
+  if (MESSAGE_HANDOFF_PROTOCOLS.includes(target.protocol)) return { kind: "handoff", url: target.toString() };
   if (target.origin !== page.origin) return { kind: "external", url: target.toString() };
   if (UNLOCALIZED_PATH_PATTERN.test(target.pathname))
     return { kind: "resource", href: `${target.pathname}${target.search}${target.hash}` };
@@ -173,6 +178,44 @@ export function messageLinkTarget(href: string, pageUrl: string = MESSAGE_LINK_B
 function currentPageUrl() {
   return typeof window === "undefined" ? undefined : window.location.href;
 }
+
+type MarkdownNode = { properties?: Record<string, unknown>; children?: MarkdownNode[] };
+type MessageRehypePlugin = NonNullable<ComponentProps<typeof Streamdown>["rehypePlugins"]>[number];
+
+function absoluteNetworkPathUrl(value: string) {
+  const page = new URL(currentPageUrl() ?? MESSAGE_LINK_BASE);
+  try {
+    const target = new URL(value, page);
+    const web = target.protocol === "http:" || target.protocol === "https:";
+    return web && target.origin !== page.origin ? target.toString() : value;
+  } catch {
+    return value;
+  }
+}
+
+function rehypeAbsoluteNetworkPathUrls() {
+  return function transform(node: MarkdownNode) {
+    const properties = node.properties;
+    for (const name of MESSAGE_URL_PROPERTIES) {
+      const value = properties?.[name];
+      if (properties && typeof value === "string") properties[name] = absoluteNetworkPathUrl(value);
+    }
+    node.children?.forEach(transform);
+  };
+}
+
+const [hardenPlugin, hardenOptions] = defaultRehypePlugins.harden as Extract<MessageRehypePlugin, readonly unknown[]>;
+
+export const messageHardenRehypePlugins: MessageRehypePlugin[] = [
+  rehypeAbsoluteNetworkPathUrls,
+  [hardenPlugin, { ...hardenOptions, linkBlockPolicy: "text-only", imageBlockPolicy: "text-only" }],
+];
+
+const messageRehypePlugins: MessageRehypePlugin[] = [
+  defaultRehypePlugins.raw,
+  defaultRehypePlugins.sanitize,
+  ...messageHardenRehypePlugins,
+];
 
 function MessageExternalLink({ children, className, url }: { children: ReactNode; className?: string; url: string }) {
   const t = useTranslations();
@@ -189,6 +232,11 @@ function MessageExternalLink({ children, className, url }: { children: ReactNode
     window.open(url, "_blank", "noopener,noreferrer");
   };
 
+  const askFirst = (event: MouseEvent<HTMLAnchorElement>) => {
+    event.preventDefault();
+    setPromptOpen(true);
+  };
+
   return (
     <>
       <AppLink
@@ -196,10 +244,10 @@ function MessageExternalLink({ children, className, url }: { children: ReactNode
         appearance="unstyled"
         className={cn(MESSAGE_LINK_CLASS, className)}
         href={url}
-        onClick={(event) => {
-          event.preventDefault();
-          setPromptOpen(true);
+        onAuxClick={(event) => {
+          if (event.button === 1) askFirst(event);
         }}
+        onClick={askFirst}
       >
         {children}
       </AppLink>
@@ -244,13 +292,15 @@ function MessageExternalLink({ children, className, url }: { children: ReactNode
 }
 
 function MessageLink({ children, className, href }: MarkdownElementProps<"a">) {
-  const target = href && href !== INCOMPLETE_MESSAGE_LINK_HREF ? messageLinkTarget(href, currentPageUrl()) : null;
+  const target = href ? messageLinkTarget(href, currentPageUrl()) : null;
 
-  if (!target) {
+  if (!target) return <span className={cn(MESSAGE_LINK_CLASS, className)}>{children}</span>;
+
+  if (target.kind === "handoff") {
     return (
-      <span className={cn(MESSAGE_LINK_CLASS, className)} data-incomplete={href === INCOMPLETE_MESSAGE_LINK_HREF}>
+      <a className={cn(MESSAGE_LINK_CLASS, className)} href={target.url}>
         {children}
-      </span>
+      </a>
     );
   }
 
@@ -323,6 +373,7 @@ export const MessageResponse = memo(function MessageResponse({
       <Streamdown
         className={cn("size-full [&>*:first-child]:mt-0 [&>*:last-child]:mb-0", className)}
         components={resolvedComponents}
+        rehypePlugins={messageRehypePlugins}
         translations={translations}
         {...props}
       />

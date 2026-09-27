@@ -64,6 +64,7 @@ vi.mock("@/hooks/use-media-query", () => ({
 }));
 
 vi.mock("@/components/ui/calendar", () => ({
+  focusCalendarDay: vi.fn(),
   Calendar: (props: CalendarProps) => {
     testContext.calendarProps = props;
     return null;

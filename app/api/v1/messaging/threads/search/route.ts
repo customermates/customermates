@@ -2,14 +2,14 @@ import type { NextRequest } from "next/server";
 
 import { NextResponse } from "next/server";
 
-import { getGetMessagingThreadsInteractor } from "@/core/di";
+import { getGetMessagingThreadsApiInteractor } from "@/core/di";
 import { handleError, interactorFailureResponse } from "@/core/api/interactor-handler";
 import { mapRequestJsonError } from "@/core/api/request-json-error";
 
 export async function POST(request: NextRequest) {
   try {
     const data = await request.json().catch(mapRequestJsonError);
-    const result = await getGetMessagingThreadsInteractor().invoke(data);
+    const result = await getGetMessagingThreadsApiInteractor().invoke(data);
 
     if (!result.ok) return interactorFailureResponse(result.error);
 

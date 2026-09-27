@@ -129,6 +129,19 @@ describe("DealServicesSelection relation actions", () => {
     expect(markup).toContain('aria-label="About Value"');
   });
 
+  it("names each line's quantity field after the Quantity column it sits under", () => {
+    dealDetailStore.form.services = [
+      { quantity: 2, serviceId: "service-1" },
+      { quantity: 1, serviceId: "service-2" },
+    ];
+
+    const markup = renderToStaticMarkup(createElement(DealServicesSelection));
+    const quantityInputs = markup.split("<input").filter((input) => input.includes('].quantity"'));
+
+    expect(quantityInputs).toHaveLength(2);
+    for (const input of quantityInputs) expect(input).toContain('aria-label="Quantity"');
+  });
+
   it("keeps line-value and weighted-value help without repeating help icons beside sums", () => {
     dealDetailStore.form.services = [{ quantity: 2, serviceId: "service-1" }];
     dealDetailStore.totalQuantity = 2;

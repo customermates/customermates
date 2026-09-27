@@ -5,15 +5,15 @@ description: "Der Customermates-Posteingang bündelt E-Mail-, LinkedIn-, WhatsAp
 
 Diese Seite dokumentiert den Managed-Cloud-Screen **Posteingang** für Menschen und für autorisierte Clients, die die UI steuern.
 
-## Was ist der Posteingang? [#what-is-the-inbox]
+## Was ist der Posteingang, und wo finde ich seinen Link? [#what-is-the-inbox]
 
 Der Posteingang ist vereinheitlichtes Messaging in Customermates Cloud: E-Mail-, LinkedIn-, WhatsApp-, Instagram- und Telegram-Konversationen (Threads) in einer Liste, die jüngste Aktivität zuerst. Klicken Sie eine Konversation in der Liste an, um sie neben der Liste zu lesen; auf schmalen Bildschirmen wechseln sich Liste und Konversation ab. Aus einer Konversation heraus antworten Sie auf ihrem ursprünglichen Kanal, setzen ihren Status, verschieben eine E-Mail in einen anderen Ordner, teilen die Konversation mit Ihrem Team und verknüpfen ihre Teilnehmer mit Kontakten. Die Kanäle selbst verbinden Sie unter **Mein Profil › Kanäle**, siehe [App-Guide, Profil](/docs/app-profile).
 
-**Link:** die Seite **Posteingang**, `/inbox`. **Mate:** `navigate` und `highlight_element` mit `nav-inbox`; Thread-Liste, Antwortfeld, Status- und Ordner-Auswahl, Konversationseinstellungen, Suche, Filter, **Aktualisieren** und **Kanäle** sind keine Highlight-Ziele, deshalb nennt Mate sie beim Namen.
+**Link:** der Link zur Seite **Posteingang**, `/inbox`. **Mate:** `navigate` und `highlight_element` mit `nav-inbox`; Thread-Liste, Antwortfeld, Status- und Ordner-Auswahl, Konversationseinstellungen, Suche, Filter, **Aktualisieren** und **Kanäle** sind keine Highlight-Ziele, deshalb nennt Mate sie beim Namen.
 
-## Wer kann den Posteingang nutzen? [#who-can-use-the-inbox]
+## Wer kann den Posteingang nutzen, und warum ist er im Starter-Tarif gesperrt oder fehlt bei Self-Hosting? [#who-can-use-the-inbox]
 
-Alle vier Bedingungen müssen erfüllt sein:
+Alle vier Bedingungen müssen erfüllt sein; fehlt eine, etwa im Starter-Tarif, ist der Posteingang gesperrt oder ausgeblendet:
 
 - **Customermates Cloud.** Self-Hosted-Installationen haben keinen Posteingang: Der Seitenleisten-Eintrag ist ausgeblendet, und `/inbox` leitet zum Dashboard um.
 - **Ein Tarif mit Messaging:** Pro, Business, Enterprise oder eine Testphase. Im Starter-Tarif bleibt die Seite in der Seitenleiste, ist aber gesperrt mit **Upgrade nötig, um Messaging freizuschalten**, und **Tarif upgraden** öffnet **Mein Unternehmen › Abonnement**.
@@ -28,7 +28,7 @@ Nicht zum Öffnen des Posteingangs: Ohne eigenen Kanal sehen Sie trotzdem, was T
 
 **Link:** die Seite **Kanäle**, `/profile/connected-accounts`. **Mate:** `navigate` und `highlight_element` mit `nav-profile-connected-accounts`, danach `highlight_element` mit `profile-connected-accounts-connect` (**Kanal verbinden**); der Button **Kanäle** im leeren Posteingang hat keine Id, deshalb nennt Mate ihn beim Namen.
 
-## Welche Konversationen sehe ich? [#which-conversations-do-i-see]
+## Welche Konversationen sehe ich, und sieht ein Admin meine privaten Chats? [#which-conversations-do-i-see]
 
 Die Liste vereint drei Quellen: die Kanäle, die Sie selbst verbunden haben, Kanäle, die ein Teammitglied mit dem ganzen Workspace geteilt hat, und einzelne Konversationen, die ein Teammitglied aus einem privaten Kanal geteilt hat. Private Konversationen anderer erscheinen nie, unabhängig von Ihrer Rolle, auch als **Admin**.
 
@@ -70,7 +70,7 @@ Klicken Sie eine Zeile in der Liste an; die Adresse wird zu `/inbox?threadId=<id
 
 Mit **Verwalten** bei **Inbox-Nachrichten** lädt Scrollen bis zum Anfang einer Konversation ältere Nachrichten vom Anbieter, einmal pro Konversation, bis Sie die Seite neu laden; ohne diese Berechtigung wird nichts nachgeladen. **Konversation neu synchronisieren** in der Kopfleiste lädt die Konversation erneut und braucht dieselbe Berechtigung.
 
-**Link:** die Seite **Posteingang**, `/inbox`; eine einzelne Konversation ist `/inbox?threadId=<id>`. **Mate:** `navigate` und `highlight_element` mit `nav-inbox`, das den Posteingang öffnet, aber keine einzelne Konversation, deshalb gibt Mate stattdessen den Konversationslink; die Zeilen und **Zum Posteingang** sind keine Highlight-Ziele, deshalb nennt Mate sie beim Namen.
+**Link:** die Seite **Posteingang**, `/inbox`; eine einzelne Konversation ist `/inbox?threadId=<id>`. **Mate:** `navigate` und `highlight_element` mit `nav-inbox`, das den Posteingang öffnet, aber keine einzelne Konversation, deshalb öffnet Mate den Posteingang und nennt die Konversation beim Namen; die Zeilen und **Zum Posteingang** sind keine Highlight-Ziele, deshalb nennt Mate sie beim Namen.
 
 ## Was steht in der Kopfleiste einer Konversation? [#what-is-in-the-conversation-header]
 
@@ -111,7 +111,7 @@ Das Verschieben in einen Ordner, der auf dem Tab **Ordner** des Kontos ausgescha
 
 ## Wie teile ich eine einzelne Konversation? [#how-do-i-share-a-single-conversation]
 
-Klicken Sie in der Kopfleiste auf den Chip **Private Konversation** oder **Geteilte Konversation**, um **Konversationseinstellungen** zu öffnen. Unter **Sichtbarkeitseinstellungen** teilt der Schalter (`#thread-shared`) nur diese Konversation mit allen, deren Rolle den Posteingang lesen darf; **Im CRM geteilt** bestätigt das, und beim Ausschalten erscheint **Die Konversation ist jetzt privat**. Nur der Besitzer des Kanals kann den Schalter nutzen, in einem Tarif mit Messaging (Pro, Business, Enterprise oder eine Testphase) und mit **Verwalten** bei **Inbox-Nachrichten**. Teammitglieder können die Konversation lesen, ihren Status ändern und **Konversation neu synchronisieren** nutzen, aber sie nicht in einen anderen Ordner verschieben (der Ordner-Chip erscheint für sie nicht), und Antworten werden über den Kanal gesendet, deshalb können nur Sie antworten, solange der Kanal selbst privat ist.
+Um eine einzelne Konversation mit dem Team zu teilen, klicken Sie in der Kopfleiste auf den Chip **Private Konversation** oder **Geteilte Konversation**, um **Konversationseinstellungen** zu öffnen. Unter **Sichtbarkeitseinstellungen** teilt der Schalter (`#thread-shared`) nur diese Konversation mit allen, deren Rolle den Posteingang lesen darf; **Im CRM geteilt** bestätigt das, und beim Ausschalten erscheint **Die Konversation ist jetzt privat**. Nur der Besitzer des Kanals kann den Schalter nutzen, in einem Tarif mit Messaging (Pro, Business, Enterprise oder eine Testphase) und mit **Verwalten** bei **Inbox-Nachrichten**. Teammitglieder können die Konversation lesen, ihren Status ändern und **Konversation neu synchronisieren** nutzen, aber sie nicht in einen anderen Ordner verschieben (der Ordner-Chip erscheint für sie nicht), und Antworten werden über den Kanal gesendet, deshalb können nur Sie antworten, solange der Kanal selbst privat ist.
 
 Um jede Konversation eines Kanals zu teilen, teilen Sie den Kanal: **Sichtbarkeit** auf seinem Tab **Details** unter **Mein Profil › Kanäle**, in Business oder Enterprise. Der Schalter pro Konversation bleibt dann eingeschaltet und gesperrt, mit dem Hinweis, dass das Konto mit dem Team geteilt ist und daher alle Konversationen sichtbar sind.
 
@@ -131,7 +131,7 @@ Antworten erfordert **Verwalten** bei **Inbox-Nachrichten**; ohne diese Berechti
 
 **Link:** die Seite **Posteingang**, `/inbox`. **Mate:** `navigate` und `highlight_element` mit `nav-inbox`; der Composer und seine Buttons sind keine Highlight-Ziele, deshalb nennt Mate sie beim Namen.
 
-## Wie starte ich eine neue Konversation? [#how-do-i-start-a-new-conversation]
+## Wie starte ich eine neue Konversation oder schreibe einem Kontakt eine neue E-Mail? [#how-do-i-start-a-new-conversation]
 
 Der Posteingang hat keinen Button für eine neue Konversation. Starten Sie sie bei einem Kontakt: Im Block **Kanäle** des Kontakts öffnet das Symbol **Neue Nachricht** neben einer E-Mail-Adresse oder einem Handle ein Verfassen-Feld für diesen Kanal. Können mehrere Ihrer Kanäle senden, wählen Sie einen unter **Von**; bei LinkedIn mit Sales Navigator oder Recruiter wählt **Senden als** zwischen **Classic**, **Sales Navigator InMail** und **Recruiter InMail**. Nach **Senden** erscheint „Nachricht gesendet. Die Konversation erscheint in Kürze.“ Das Symbol erfordert Customermates Cloud und **Verwalten** bei **Inbox-Nachrichten**. Über MCP starten auch `send_email`, `send_chat_message` und `save_message_draft` Konversationen.
 

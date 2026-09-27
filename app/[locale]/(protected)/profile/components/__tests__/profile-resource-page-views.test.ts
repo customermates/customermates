@@ -285,6 +285,19 @@ describe("profile resource page views", () => {
     expect(renderToStaticMarkup(latestTopBar())).toContain('id="profile-connected-accounts-connect"');
   });
 
+  it("keeps the compact top-bar actions named when their visible label is hidden", () => {
+    renderApiKeys("ready", { withItem: true });
+    const addApiKey = renderToStaticMarkup(latestTopBar());
+
+    renderConnected("ready", { withItem: true });
+    const connectChannel = renderToStaticMarkup(latestTopBar());
+
+    expect(addApiKey).toContain('aria-label="Common.actions.add"');
+    expect(addApiKey).toContain('<span class="hidden sm:inline">Common.actions.add</span>');
+    expect(connectChannel).toContain('aria-label="ConnectedAccountsCard.connectAccount"');
+    expect(connectChannel).toContain('<span class="hidden sm:inline">ConnectedAccountsCard.connectAccount</span>');
+  });
+
   it.each([
     ["a channel", () => renderConnected("ready", { withItem: true }), () => harness.openAccount, "Inbox"],
     ["an API key", () => renderApiKeys("ready", { withItem: true }), () => harness.viewApiKey, "Integration"],

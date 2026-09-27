@@ -175,6 +175,7 @@ export abstract class BaseDataViewStore<Entity extends HasId> extends BaseStore 
       massEditableCustomColumns: computed,
       canBoard: computed,
       isGrouped: computed,
+      isGroupedByDealWeightingColumn: computed,
       groupingKey: computed,
       currentGroupableFieldId: computed,
 
@@ -373,6 +374,12 @@ export abstract class BaseDataViewStore<Entity extends HasId> extends BaseStore 
 
   get isGrouped(): boolean {
     return Boolean(this.grouping && this.groupingResult);
+  }
+
+  get isGroupedByDealWeightingColumn(): boolean {
+    const columnId = this.groupingResult?.columnId;
+
+    return columnId !== undefined && columnId === this.rootStore.companyStore.company?.dealWeightingColumnId;
   }
 
   get groupingKey(): string {
@@ -955,11 +962,11 @@ export abstract class BaseDataViewStore<Entity extends HasId> extends BaseStore 
     const params: GetQueryParams = resolveFromServer
       ? {
           p13nId: this.p13nId,
-          viewId: this.activeViewKey === ALL_VIEW_KEY ? ALL_VIEW_KEY : this.activeViewKey,
+          viewId: this.activeViewKey,
         }
       : {
           p13nId: this.p13nId,
-          viewId: this.activeViewKey === ALL_VIEW_KEY ? undefined : this.activeViewKey,
+          viewId: wasInitialized ? this.activeViewKey : undefined,
           filters: toJS(this.filters),
           searchTerm: toJS(this.searchTerm),
           sortDescriptor: toJS(this.sortDescriptor),

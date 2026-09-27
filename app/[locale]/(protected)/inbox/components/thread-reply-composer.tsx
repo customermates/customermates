@@ -1,6 +1,6 @@
 "use client";
 
-import { useEffect, useRef, useState } from "react";
+import { useEffect, useId, useRef, useState } from "react";
 import { useTranslations } from "next-intl";
 import { observer } from "mobx-react-lite";
 import { Send, Loader2, Check, ChevronDown, Paperclip, Smile } from "lucide-react";
@@ -100,6 +100,7 @@ type Props = {
 export const ThreadReplyComposer = observer(
   ({ threadId, provider, defaultSubject, defaultRecipients, defaultCc, bare, newThreadTarget }: Props) => {
     const t = useTranslations();
+    const recipientLabelId = useId();
     const intlStore = useHydratedIntlStore();
     const rootStore = useRootStore();
     const router = useRouter();
@@ -335,12 +336,13 @@ export const ThreadReplyComposer = observer(
 
             {!isNewThread && (
               <div className="border-border flex items-center gap-2 border-b px-3 py-1">
-                <span className="text-muted-foreground w-8 shrink-0 text-xs font-medium">
+                <span className="text-muted-foreground w-8 shrink-0 text-xs font-medium" id={`${recipientLabelId}-to`}>
                   {t("Inbox.compose.toLabel")}
                 </span>
 
                 <FormInputChips
                   arrayMode
+                  ariaLabelledBy={`${recipientLabelId}-to`}
                   className="min-h-7 border-0 bg-transparent p-0 text-sm shadow-none focus-within:ring-0"
                   containerClassName="flex-1"
                   id="recipients"
@@ -352,12 +354,16 @@ export const ThreadReplyComposer = observer(
             {showCcBcc && (
               <div className="border-border flex flex-col border-b">
                 <div className="flex items-center gap-2 px-3 py-1">
-                  <span className="text-muted-foreground w-8 shrink-0 text-xs font-medium">
+                  <span
+                    className="text-muted-foreground w-8 shrink-0 text-xs font-medium"
+                    id={`${recipientLabelId}-cc`}
+                  >
                     {t("Inbox.compose.ccLabel")}
                   </span>
 
                   <FormInputChips
                     arrayMode
+                    ariaLabelledBy={`${recipientLabelId}-cc`}
                     className="min-h-7 border-0 bg-transparent p-0 text-sm shadow-none focus-within:ring-0"
                     containerClassName="flex-1"
                     id="cc"
@@ -366,12 +372,16 @@ export const ThreadReplyComposer = observer(
                 </div>
 
                 <div className="border-border flex items-center gap-2 border-t px-3 py-1">
-                  <span className="text-muted-foreground w-8 shrink-0 text-xs font-medium">
+                  <span
+                    className="text-muted-foreground w-8 shrink-0 text-xs font-medium"
+                    id={`${recipientLabelId}-bcc`}
+                  >
                     {t("Inbox.compose.bccLabel")}
                   </span>
 
                   <FormInputChips
                     arrayMode
+                    ariaLabelledBy={`${recipientLabelId}-bcc`}
                     className="min-h-7 border-0 bg-transparent p-0 text-sm shadow-none focus-within:ring-0"
                     containerClassName="flex-1"
                     id="bcc"

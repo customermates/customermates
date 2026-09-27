@@ -14,7 +14,7 @@ import { TenantInteractor } from "@/core/decorators/tenant-interactor.decorator"
 import { Write } from "@/core/decorators/write.decorator";
 import { BULK_WRITE_TRANSACTION } from "@/core/decorators/transaction.decorator";
 import { AuthenticatedInteractor } from "@/core/base/authenticated-interactor";
-import { failConflict } from "@/core/validation/interactor-failure-server";
+import { failAuthorization, failConflict } from "@/core/validation/interactor-failure-server";
 import { CustomErrorCode } from "@/core/validation/validation.types";
 
 const Schema = z.object({
@@ -74,8 +74,11 @@ export class DeleteCustomColumnInteractor extends AuthenticatedInteractor<Delete
 
     await this.userService.hasPermissionOrThrow(permission.resource, permission.action);
 
-    if ((await this.companyRepo.getDealWeightingColumnId()) === customColumn.id)
-      await this.userService.hasPermissionOrThrow(Resource.company, Action.update);
+    if (
+      (await this.companyRepo.getDealWeightingColumnId()) === customColumn.id &&
+      !(await this.userService.hasPermission(Resource.company, Action.update))
+    )
+      return failAuthorization(CustomErrorCode.permissionDenied, ["id"]);
 
     if (await this.routineRepo.hasRoutineFieldReference(customColumn.id))
       return failConflict(CustomErrorCode.customColumnUsedByRoutineCannotDelete, ["id"]);

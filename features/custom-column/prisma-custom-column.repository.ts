@@ -206,7 +206,7 @@ export class PrismaCustomColumnRepo
   }
 
   @Transaction
-  async setOptionWeights(columnId: string, entries: Array<{ optionValue: string; weight: number }>) {
+  async setOptionWeights(columnId: string, entries: Array<{ optionValue: string; weight?: number }>) {
     const { companyId } = this.user;
 
     const column = await this.prisma.customColumn.findFirst({

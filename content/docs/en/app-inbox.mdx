@@ -5,15 +5,15 @@ description: "The Customermates Inbox puts email, LinkedIn, WhatsApp, Instagram,
 
 This page documents the managed-cloud **Inbox** screen for humans and for authorized clients that drive the UI.
 
-## What is the Inbox?
+## What is the Inbox, and where is its link? [#what-is-the-inbox]
 
 The Inbox is unified messaging on Customermates Cloud: email, LinkedIn, WhatsApp, Instagram and Telegram conversations (threads) in one list, the most recent activity first. Click a conversation in the list to read it next to the list; on narrow screens the list and the conversation take turns. From a conversation you reply on its original channel, set its state, move an email to another folder, share the conversation with your team and link its participants to contacts. The channels themselves are connected under **My Profile › Channels**, see [App guide, Profile](/docs/app-profile).
 
-**Link:** the **Inbox** page, `/inbox`. **Mate:** `navigate` and `highlight_element` with `nav-inbox`; the thread list, reply box, state and folder selects, thread settings, search, filters, **Refresh** and **Channels** are not highlight targets, so Mate names them.
+**Link:** the link to the **Inbox** page, `/inbox`. **Mate:** `navigate` and `highlight_element` with `nav-inbox`; the thread list, reply box, state and folder selects, thread settings, search, filters, **Refresh** and **Channels** are not highlight targets, so Mate names them.
 
-## Who can use the Inbox?
+## Who can use the Inbox, and why is it locked on Starter or missing in the self-hosted version? [#who-can-use-the-inbox]
 
-All four conditions must hold:
+All four conditions must hold; when one is missing, for example on Starter, the Inbox is locked or hidden:
 
 - **Customermates Cloud.** Self-hosted installations have no Inbox: the sidebar entry is hidden and `/inbox` redirects to the Dashboard.
 - **A plan with messaging:** Pro, Business, Enterprise or a trial. On Starter the page stays in the sidebar but is locked under **Upgrade to unlock messaging**, and **Upgrade your plan** opens **My Company › Subscription**.
@@ -28,7 +28,7 @@ Not to open the Inbox: without a channel of your own you still see what teammate
 
 **Link:** the **Channels** page, `/profile/connected-accounts`. **Mate:** `navigate` and `highlight_element` with `nav-profile-connected-accounts`, then `highlight_element` with `profile-connected-accounts-connect` (**Connect channel**); the **Channels** button in the empty Inbox has no id, so Mate names it.
 
-## Which conversations do I see?
+## Which conversations do I see, and can an admin read my private ones? [#which-conversations-do-i-see]
 
 The list combines three sources: the channels you connected yourself, channels a teammate shared with the whole workspace, and single conversations a teammate shared from a private channel. A teammate's private conversations never appear, whatever your role, **Admin** included.
 
@@ -70,7 +70,7 @@ Click a row in the list; the address becomes `/inbox?threadId=<id>`, which you c
 
 With **Manage** on **Inbox messages**, scrolling to the top of a conversation fetches older messages from the provider, once per conversation until you reload the page; without it nothing more loads. **Resync thread** in the header fetches the conversation again and needs the same permission.
 
-**Link:** the **Inbox** page, `/inbox`; one conversation is `/inbox?threadId=<id>`. **Mate:** `navigate` and `highlight_element` with `nav-inbox`, which opens the Inbox but not a single conversation, so Mate gives the conversation link instead; the rows and **Go to inbox** are not highlight targets, so Mate names them.
+**Link:** the **Inbox** page, `/inbox`; one conversation is `/inbox?threadId=<id>`. **Mate:** `navigate` and `highlight_element` with `nav-inbox`, which opens the Inbox but not a single conversation, so Mate opens the Inbox and names the conversation; the rows and **Go to inbox** are not highlight targets, so Mate names them.
 
 ## What is in the conversation header?
 
@@ -111,7 +111,7 @@ Moving into a folder that is switched off on the account's **Folders** tab remov
 
 ## How do I share a single conversation?
 
-Click the chip **Private Thread** or **Shared Thread** in the header to open **Thread settings**. Under **Visibility Settings**, the switch (`#thread-shared`) shares just this conversation with everyone whose role can read the Inbox; **Shared to CRM** confirms it, and switching off shows **Conversation is now private**. Only the owner of the channel can use the switch, on a plan with messaging (Pro, Business, Enterprise or a trial) and with **Manage** on **Inbox messages**. Teammates can read the conversation, change its state and use **Resync thread**, but they cannot move it to another folder (the folder chip does not appear for them), and replies go out from the channel, so only you can answer while the channel itself is private.
+To share a single conversation with your team, click the chip **Private Thread** or **Shared Thread** in the header to open **Thread settings**. Under **Visibility Settings**, the switch (`#thread-shared`) shares just this conversation with everyone whose role can read the Inbox; **Shared to CRM** confirms it, and switching off shows **Conversation is now private**. Only the owner of the channel can use the switch, on a plan with messaging (Pro, Business, Enterprise or a trial) and with **Manage** on **Inbox messages**. Teammates can read the conversation, change its state and use **Resync thread**, but they cannot move it to another folder (the folder chip does not appear for them), and replies go out from the channel, so only you can answer while the channel itself is private.
 
 To share every conversation of a channel, share the channel: **Visibility** on its **Details** tab under **My Profile › Channels**, on Business or Enterprise. The per-conversation switch then stays on and locked, with the note "This account is shared with your team, so all its conversations are visible".
 
@@ -131,7 +131,7 @@ Replying needs **Manage** on **Inbox messages**; without it the composer is hidd
 
 **Link:** the **Inbox** page, `/inbox`. **Mate:** `navigate` and `highlight_element` with `nav-inbox`; the composer and its buttons are not highlight targets, so Mate names them.
 
-## How do I start a new conversation?
+## How do I start a new conversation or write a new email to a contact? [#how-do-i-start-a-new-conversation]
 
 The Inbox has no button for a new conversation. Start one from a contact: in the contact's **Channels** block, the **New message** icon next to an email address or handle opens a compose box for that channel. When several of your channels can send, pick one under **From**; for LinkedIn with Sales Navigator or Recruiter, **Send as** chooses **Classic**, **Sales Navigator InMail** or **Recruiter InMail**. After **Send** you see "Message sent. The conversation will appear shortly." The icon needs Customermates Cloud and **Manage** on **Inbox messages**. Over MCP, `send_email`, `send_chat_message` and `save_message_draft` start conversations too.
 

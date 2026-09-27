@@ -2,8 +2,9 @@
 
 import type { ConnectedAccountDto } from "@/ee/messaging/messaging.schema";
 import type { AccountSignatureStore } from "./account-signature.store";
+import type { EmailMarkdownEditorHandle } from "@/components/editor/email-markdown-editor";
 
-import { useState } from "react";
+import { useRef, useState } from "react";
 import { observer } from "mobx-react-lite";
 import { useTranslations } from "next-intl";
 
@@ -38,6 +39,7 @@ const FieldError = observer(({ id }: { id: string }) => {
 
 export const AccountSignature = observer(({ account, store }: Props) => {
   const t = useTranslations();
+  const signatureEditorRef = useRef<EmailMarkdownEditorHandle>(null);
   useState(() => {
     if (store.accountId !== account.id) store.hydrate(account);
   });
@@ -160,9 +162,12 @@ export const AccountSignature = observer(({ account, store }: Props) => {
                 )}
 
                 <div className="flex flex-col gap-1.5">
-                  <FormLabel htmlFor="signature">{t("ConnectedAccountsCard.emailSignatureContent")}</FormLabel>
+                  <FormLabel htmlFor="signature" onClick={() => signatureEditorRef.current?.focus()}>
+                    {t("ConnectedAccountsCard.emailSignatureContent")}
+                  </FormLabel>
 
                   <EmailMarkdownEditor
+                    ref={signatureEditorRef}
                     appearance={previewSettings.appearance}
                     ariaLabel={t("ConnectedAccountsCard.emailSignatureContent")}
                     className="min-h-32"

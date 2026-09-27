@@ -310,7 +310,7 @@ function unwrapModelAuthoredDataViewLinks(value: string) {
     ...markdown.dataViewLinks.map((link) => ({
       start: link.start,
       end: link.end,
-      text: plainModelAuthoredDataViewLinkLabel(value.slice(link.label.start + 1, link.label.end - 1)),
+      text: plainLinkLabel(value.slice(link.label.start + 1, link.label.end - 1)),
     })),
     ...markdown.dataViewDefinitions.map((definition) => ({ ...definition, text: "" })),
   ]
@@ -401,7 +401,7 @@ function unwrapAlreadyRedactedDataViewLinks(value: string, appBaseUrl?: string) 
       cursor = labelEnd + 1;
       continue;
     }
-    const label = plainModelAuthoredDataViewLinkLabel(value.slice(labelStart + 1, labelEnd));
+    const label = plainLinkLabel(value.slice(labelStart + 1, labelEnd));
     output += `${value.slice(copiedUntil, labelStart)}${label}`;
     copiedUntil = destinationEnd + 1;
     cursor = copiedUntil;
@@ -512,6 +512,23 @@ function replaceUuidOutsideRecordPageLinks(value: string) {
   }
 
   return `${visible}${replaceUuid(value.slice(copiedUntil))}`;
+}
+
+function unwrapRecordPageLinks(value: string): string {
+  if (value.search(UUID_PATTERN) < 0) return value;
+  return markdownResourceLinks(value)
+    .filter(
+      (link) =>
+        link.type === "link" &&
+        link.destination !== null &&
+        RECORD_PAGE_ROUTE_PATTERN.test(decodeString(value.slice(link.destination.start, link.destination.end))),
+    )
+    .sort((left, right) => right.start - left.start)
+    .reduce(
+      (plainValue, link) =>
+        `${plainValue.slice(0, link.start)}${link.text ? plainLinkLabel(value.slice(link.text.start, link.text.end)) : ""}${plainValue.slice(link.end)}`,
+      value,
+    );
 }
 
 function replacePartialUuidTail(value: string) {
@@ -798,7 +815,7 @@ function sanitizeTextFragment(value: string) {
   return replacePartialUuidTail(complete);
 }
 
-function plainModelAuthoredDataViewLinkLabel(value: string) {
+function plainLinkLabel(value: string) {
   const decodedLabel = decodeString(value);
   const plainLabel = agentPlainTextPreview(decodedLabel, decodedLabel.length);
   return sanitizeTextFragment(plainLabel).replace(/[<>]/g, "");
@@ -819,6 +836,10 @@ export function sanitizeAgentVisibleTextForApp(value: string, appBaseUrl: string
   return sanitizeVisibleText(value, appBaseUrl);
 }
 
+export function sanitizeAgentPlainText(value: string) {
+  return unwrapRecordPageLinks(sanitizeVisibleText(value));
+}
+
 const LEGACY_USER_PAGE_CONTEXT_PREFIX =
   /^(?:\uFEFF)?[ \t]*<page_context[ \t]+route="[^"\r\n]{0,500}"[ \t]*\/>[ \t]*(?:\r?\n)?/i;
 
@@ -837,7 +858,7 @@ const MARKDOWN_UNDERSCORE_EMPHASIS_PATTERN = /(?<![\w\\])(_{1,3})(?=\S)([\s\S]*?
 const MARKDOWN_CODE_PATTERN = /`+([^`]+)`+/g;
 
 export function agentPlainTextPreview(value: string, maxChars: number) {
-  const plain = value
+  const plain = unwrapRecordPageLinks(value)
     .replace(MARKDOWN_FENCE_PATTERN, " ")
     .replace(MARKDOWN_RULE_LINE_PATTERN, " ")
     .replace(MARKDOWN_BLOCK_PREFIX_PATTERN, "")
@@ -854,7 +875,7 @@ export function agentPlainTextPreview(value: string, maxChars: number) {
 
 export function sanitizeAgentConversationTitle(value: string | null | undefined) {
   if (!value) return null;
-  const title = sanitizeAgentVisibleText(stripLegacyUserPageContextPrefix(value))
+  const title = sanitizeAgentPlainText(stripLegacyUserPageContextPrefix(value))
     .replace(/\s+/g, " ")
     .trim()
     .slice(0, 80);

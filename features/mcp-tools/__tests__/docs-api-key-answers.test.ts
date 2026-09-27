@@ -22,8 +22,8 @@ describe("docs answers about API keys and invitation links", () => {
     ["en", "how long is a quick connection API key valid", "do-keys-expire"],
     ["en", "how long is an API key valid", "do-keys-expire"],
     ["en", "how long does an API key last", "do-keys-expire"],
-    ["de", "Wie lange gilt ein Schnellverbindungs-Schlüssel?", "laufen-keys-ab"],
-    ["de", "Wie lange ist ein API-Key gültig", "laufen-keys-ab"],
+    ["de", "Wie lange gilt ein Schnellverbindungs-Schlüssel?", "do-keys-expire"],
+    ["de", "Wie lange ist ein API-Key gültig", "do-keys-expire"],
   ] as const)("answers the %s key lifetime question %j with the 365-day expiry", (locale, query, anchor) => {
     const best = bestHit(query, locale);
 
@@ -34,7 +34,7 @@ describe("docs answers about API keys and invitation links", () => {
   it.each([
     ["en", "API key name length", "what-is-the-key-format"],
     ["en", "how long can an API key name be", "what-is-the-key-format"],
-    ["de", "Wie lang darf der Name eines API-Keys sein", "welches-format-hat-ein-key"],
+    ["de", "Wie lang darf der Name eines API-Keys sein", "what-is-the-key-format"],
   ] as const)("answers the %s key name question %j with the 255-character limit", (locale, query, anchor) => {
     const best = bestHit(query, locale);
 

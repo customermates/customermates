@@ -191,10 +191,14 @@ export abstract class BaseFormStore<T extends object = object> extends BaseStore
     (parent as Record<string, unknown>)[leaf] = value;
     this.afterChange(id, value, previousValue);
 
-    if (this.error && !this.hasUnsavedChanges) this.error = undefined;
+    this.clearErrorIfSaved();
   };
 
   protected afterChange(_id: string, _value: unknown, _previousValue: unknown): void {}
+
+  protected clearErrorIfSaved(): void {
+    if (this.error && !this.hasUnsavedChanges) this.error = undefined;
+  }
 
   private normalizeJsonPath(id: string): string {
     if (id.startsWith("$")) return id;

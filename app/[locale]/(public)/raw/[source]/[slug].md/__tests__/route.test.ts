@@ -4,6 +4,8 @@ import { describe, expect, it, vi } from "vitest";
 
 import type { env } from "@/env";
 
+import { generateOpenApiSpec } from "@/core/openapi/openapi-spec";
+import { WEBHOOK_EVENTS } from "@/features/webhook/webhook-event-registry";
 import { CONTENT_LOCALES } from "@/i18n/locale-registry";
 
 vi.mock("@/env", async (importOriginal) => {
@@ -64,9 +66,29 @@ describe("raw markdown twin route", () => {
 
     expect(status).toBe(200);
     expect(text).toContain(
-      "**Webhook:** `contactCreated`, sent as `POST` to your webhook URL, operationId `webhookContactCreated`.",
+      "**Webhook:** `contact.created`, sent as `POST` to your webhook URL, operationId `webhookContactCreated`.",
     );
+    expect(text).not.toContain("`contactCreated`");
     expect(text).not.toContain("<APIPage");
+  });
+
+  it.each(CONTENT_LOCALES)("names every webhook twin by the event a subscription uses (%s)", async (locale) => {
+    const operationIds = Object.values(generateOpenApiSpec().webhooks ?? {}).map(
+      (entry) => (entry as { post?: { operationId?: string } }).post?.operationId ?? "",
+    );
+    const named: string[] = [];
+
+    for (const operationId of operationIds) {
+      const { status, text } = await getRaw(locale, "openapi", `${operationId}.md`);
+      const marker = "**Webhook:** `";
+      const start = text.indexOf(marker);
+
+      expect(status, operationId).toBe(200);
+      expect(start, operationId).toBeGreaterThan(-1);
+      named.push(text.slice(start + marker.length, text.indexOf("`", start + marker.length)));
+    }
+
+    expect(named.sort()).toEqual([...WEBHOOK_EVENTS].sort());
   });
 
   it.each([

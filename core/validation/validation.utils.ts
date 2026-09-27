@@ -220,6 +220,13 @@ function nonBlankText(max: number) {
     });
 }
 
+function nulFreeText() {
+  return z.string().superRefine((value, ctx) => {
+    if (/\u0000/.test(value))
+      ctx.addIssue({ code: "custom", params: { error: CustomErrorCode.mustNotContainNullChars } });
+  });
+}
+
 export const PASSWORD_MIN_LENGTH = 8;
 export const PASSWORD_MAX_LENGTH = 128;
 
@@ -242,6 +249,7 @@ function passwordSchema() {
 
 export const zx = {
   nonBlankText,
+  nulFreeText,
   secureUrl: secureUrlSchema,
   password: passwordSchema,
 };

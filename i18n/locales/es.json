@@ -917,6 +917,7 @@
       "disabledReason": "Motivo de desactivación",
       "effectiveAt": "Vigente desde",
       "emails": "Direcciones de correo",
+      "headers": "Cabeceras personalizadas",
       "isNewCompany": "Primera persona del espacio",
       "postalCode": "Código postal",
       "prompt": "Instrucciones",
@@ -1017,6 +1018,7 @@
       "collapseSearch": "Contraer la búsqueda",
       "explainField": "Acerca de {field}",
       "hidePassword": "Ocultar contraseña",
+      "optionName": "Nombre de la opción {number}",
       "selectOption": "Selecciona una opción",
       "showPassword": "Mostrar contraseña",
       "switchToBoardView": "Cambiar a la vista de tablero",
@@ -1050,6 +1052,7 @@
       "singleSelect": "Selección única"
     },
     "customFieldHelp": {
+      "deleteWeightingColumnPermission": "Este campo determina la cartera ponderada en «{company}», así que eliminarlo desactiva la ponderación. Solicita a un administrador permiso para actualizar «{company}».",
       "immutableType": "El tipo de campo queda fijo después de crearlo. Crea un nuevo campo personalizado para usar otro tipo.",
       "probabilityPermission": "Las probabilidades de etapa se gestionan en «{company}». Solicita a un administrador permiso para actualizarlas."
     },
@@ -1505,6 +1508,8 @@
       "prompt": "Instrucciones",
       "roleId": "Rol",
       "scheduleDayOfMonth": "Día del mes",
+      "scheduleHour": "Hora",
+      "scheduleMinute": "Minuto",
       "schedulePreset": "Se repite",
       "scheduleWeekday": "Día de la semana",
       "secret": "Secreto",
@@ -1653,6 +1658,7 @@
       "paginationEmpty": "0 de 0",
       "paginationRange": "{from}-{to} de {total}",
       "previousPage": "Página anterior",
+      "rowsPerPage": "Filas por página",
       "search": "Buscar..."
     },
     "taskTypes": {

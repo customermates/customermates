@@ -6253,6 +6253,7 @@ describe("AgentUiControlStore", () => {
     vi.stubGlobal("document", {
       activeElement: null,
       getElementById: vi.fn((id: string) => elements.get(id) ?? null),
+      querySelector: () => null,
     });
     vi.stubGlobal("requestAnimationFrame", (callback: FrameRequestCallback) => {
       callback(0);
@@ -6301,6 +6302,7 @@ describe("AgentUiControlStore", () => {
     vi.stubGlobal("document", {
       activeElement: null,
       getElementById: vi.fn((id: string) => elements.get(id) ?? null),
+      querySelector: () => null,
     });
     vi.stubGlobal("requestAnimationFrame", (callback: FrameRequestCallback) => {
       callback(0);
@@ -6348,6 +6350,7 @@ describe("AgentUiControlStore", () => {
     vi.stubGlobal("document", {
       activeElement: null,
       getElementById: vi.fn().mockReturnValue(null),
+      querySelector: () => null,
     });
     vi.stubGlobal("requestAnimationFrame", (callback: FrameRequestCallback) => {
       callback(0);
@@ -6389,6 +6392,7 @@ describe("AgentUiControlStore", () => {
     vi.stubGlobal("document", {
       activeElement: null,
       getElementById: vi.fn().mockReturnValue(null),
+      querySelector: () => null,
     });
     const store = new AgentUiControlStore(uiRoot() as never);
     store.registerNavigate(
@@ -6483,6 +6487,7 @@ describe("AgentUiControlStore", () => {
     vi.stubGlobal("document", {
       activeElement: null,
       getElementById: vi.fn((id: string) => elements.get(id) ?? null),
+      querySelector: () => null,
     });
     vi.stubGlobal("requestAnimationFrame", (callback: FrameRequestCallback) => {
       callback(0);
@@ -6523,6 +6528,7 @@ describe("AgentUiControlStore", () => {
     vi.stubGlobal("document", {
       activeElement: null,
       getElementById: vi.fn((id: string) => elements.get(id) ?? null),
+      querySelector: () => null,
     });
     vi.stubGlobal("requestAnimationFrame", (callback: FrameRequestCallback) => {
       callback(0);

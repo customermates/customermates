@@ -29,6 +29,7 @@ export type AgentUiTarget = {
   route: string;
   description: string;
   prerequisite?: string;
+  labelKey?: string;
 };
 
 function navTargets(): AgentUiTarget[] {
@@ -37,12 +38,12 @@ function navTargets(): AgentUiTarget[] {
       id: `nav-${group.section}`,
       route: group.route,
       description: group.description,
+      labelKey: group.labelKey,
     },
     ...WORKSPACE_SECTIONS[group.section].map((subroute) => ({
       id: `nav-${group.section}-${subroute.slug}`,
       route: `/${group.section}/${subroute.slug}`,
       description: `Sidebar link to ${group.section} ${subroute.slug.replace(/-/g, " ")}`,
-      prerequisite: `nav-${group.section}`,
     })),
   ]);
 
@@ -56,12 +57,14 @@ function navTargets(): AgentUiTarget[] {
       id: "nav-search",
       route: "*",
       description: "Global search button in the sidebar (Cmd+K)",
+      labelKey: "NavigationBar.search",
     },
     ...workspace,
     ...STATIC_NAV_PAGES.map((page) => ({
       id: `nav-${page.key}`,
       route: page.route,
       description: page.description,
+      labelKey: page.labelKey,
     })),
   ];
 }
@@ -204,11 +207,29 @@ function primaryNavPage(section: string | undefined) {
   return PRIMARY_NAV_PAGES.find((page) => page.route === `/${section}`);
 }
 
-export function agentUiPageLabelKey(route: string): string | null {
+export function agentUiPageLabelKeys(route: string): string[] {
   const [section, slug] = routeSegments(route);
-  if (isWorkspaceSection(section))
-    return WORKSPACE_SECTIONS[section].find((subroute) => subroute.slug === slug)?.labelKey ?? null;
-  return primaryNavPage(section)?.labelKey ?? null;
+  if (isWorkspaceSection(section)) {
+    const labelKey = WORKSPACE_SECTIONS[section].find((subroute) => subroute.slug === slug)?.labelKey;
+    return labelKey ? [labelKey] : [];
+  }
+  return primaryNavPage(section)?.labelKeys ?? [];
+}
+
+export function agentSidebarGroupId(targetId: string) {
+  const [section] = routeSegments(findAgentUiTarget(targetId)?.route ?? "");
+  const group = `nav-${section}`;
+  return isWorkspaceSection(section) && targetId.startsWith(`${group}-`) ? group : null;
+}
+
+const TOOLBAR_SEARCH_TARGET_IDS = new Set(
+  [...TOOLBAR_PAGES_WITH_ADD, ...TOOLBAR_PAGES_WITHOUT_ADD]
+    .filter((page) => !SCOPES_WITHOUT_SEARCH.has(page.scope))
+    .map((page) => `${page.scope}-search`),
+);
+
+export function isToolbarSearchTarget(targetId: string) {
+  return TOOLBAR_SEARCH_TARGET_IDS.has(targetId);
 }
 
 export function agentRouteVisible(path: string, appMode: AppMode, canAccess: (resource: Resource) => boolean) {

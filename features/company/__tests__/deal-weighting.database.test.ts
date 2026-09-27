@@ -93,6 +93,23 @@ describeDatabase("company-owned deal weighting configuration", () => {
     expect(await readDeal(fixture.deal.id)).toEqual({ totalValue: 200, totalQuantity: 2, weightedValue: 120 });
   });
 
+  it("leaves a stage without a weight when its weight is cleared, so its deals are not weighted", async () => {
+    const fixture = await makeWorkspace();
+    await runWithTenant(fixture.user, () =>
+      new PrismaCompanyRepo().setDealStageWeights([{ optionValue: fixture.optionValue, weight: undefined }]),
+    );
+    const column = await runWithoutTenant(() =>
+      prisma.customColumn.findUniqueOrThrow({
+        where: { id: fixture.column.id },
+        select: { options: true },
+      }),
+    );
+    expect(column.options).toEqual({
+      options: [{ value: fixture.optionValue, label: "Qualified", color: "info", isDefault: true, index: 0 }],
+    });
+    expect(await readDeal(fixture.deal.id)).toEqual({ totalValue: 200, totalQuantity: 2, weightedValue: null });
+  });
+
   it("rolls back stage weights and weighted totals when the outer transaction fails", async () => {
     const fixture = await makeWorkspace();
     const companyRepo = new PrismaCompanyRepo();

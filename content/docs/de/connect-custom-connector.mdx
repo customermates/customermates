@@ -17,7 +17,9 @@ Das ist der empfohlene Weg für **Claude** (Web, Desktop und Mobile) und **ChatG
 
 `<BASE_URL>` ist die Adresse, unter der Sie Customermates öffnen, in der Cloud oder auf Ihrer eigenen Instanz. Der Connector funktioniert in jedem Customermates-Tarif und auf selbst gehosteten Instanzen; nur die Messaging-, Kalender- und Social-Tools brauchen einen Tarif mit Messaging, ab Pro in der Cloud.
 
-## Wie verbinde ich Claude? [#claude]
+## Wie verbinde ich Claude mit dem Customermates-CRM? [#claude]
+
+Um Claude mit Ihrem CRM zu verbinden, fügen Sie Customermates in Claude als Custom Connector hinzu:
 
 <Steps>
 <Step title="Connector-Formular öffnen">
@@ -42,7 +44,7 @@ Noch schneller: Öffnen Sie in Customermates **Mein Profil → API & Konnektoren
 
 ## Wie verbinde ich ChatGPT? [#chatgpt]
 
-In ChatGPT: **Settings → Connectors → Add connector → Custom connector (MCP)**.
+Um ChatGPT zu verbinden, öffnen Sie in ChatGPT: **Settings → Connectors → Add connector → Custom connector (MCP)**.
 
 - **Name:** Customermates
 - **URL:** `<BASE_URL>/api/v1/mcp`
@@ -134,7 +136,7 @@ Lassen Sie jedes Tool, das nicht read-only ist, auf *Ask*. Die vollständige Lis
 
 Custom Connectors brauchen einen bezahlten Plan, und CLI- und Editor-Clients nutzen den Connector-Flow gar nicht. Beide authentifizieren sich stattdessen mit einem API-Key: siehe [CLI & Editoren](/docs/connect-cli). Claude Desktop im Free-Plan kann den [Konfigurationsdatei-Fallback](/docs/connect-cli#claude-desktop-config-file) nutzen.
 
-## Weiter
+## Weiter [#next]
 
 - [MCP-Tool-Katalog](/docs/mcp#tool-catalog): jedes Tool, das Ihre KI aufrufen kann.
 - [Webhooks](/docs/webhooks): die andere Hälfte der agentischen Schleife.

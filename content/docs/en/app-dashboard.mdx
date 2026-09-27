@@ -5,15 +5,15 @@ description: "The landing screen after sign-in: chart and activity-timeline widg
 
 Customermates is an open-source, AI-native CRM. This page documents the **Dashboard** screen of the web app for humans and for AI agents that drive the UI. Route: `/dashboard`, locale-prefixed like `/en/dashboard`, sidebar id `#nav-dashboard`.
 
-## What does the Dashboard show?
+## What does the Dashboard show, and can I share widgets with my team? [#what-does-the-dashboard-show]
 
 The Dashboard is the landing screen after sign-in. It shows configurable widgets over your CRM data: pipelines, task counts, recent activity, whatever you set up. Every widget belongs to you as a user; teammates see it only after you share it with **Share as a template**, which lets them start their own copy from it. Adding widgets needs no role permission, but a chart counts only the records your role can read (**Read access** **Assigned** or **All**), so a teammate's copy of your template can show other numbers. **Add widget** appears only if your role can read at least one record type; the **Activity timeline** kind needs read access to the **Audit Log** or, on a plan with messaging, to **Inbox messages**.
 
 **Link:** the **Dashboard** page, `/dashboard`. **Mate:** `navigate` and `highlight_element` with `nav-dashboard` or `dashboard-add-widget`; inside the editor `widget-modal-kind` (the two kinds on step 1), `widget-modal-save` (**Create widget** on step 2, **Save changes** when editing) and `widget-modal-reset` (**Reset**, when editing with unsaved changes) are targets too, while the tabs, switches and widgets are not, so Mate names them.
 
-## Which widget types exist?
+## Which widget types exist, and which charts can they show? [#which-widget-types-exist]
 
-Press **Add widget** (`#dashboard-add-widget`); creation starts with a choice between two kinds, or a template a teammate shared:
+Press **Add widget** (`#dashboard-add-widget`) to choose one of two widget types, a **Chart**, which aggregates one record type into bars, a doughnut or a radar, or an **Activity timeline**, or a template a teammate shared:
 
 - **Chart**: aggregates one record type. On the **Data** tab choose the **Element** (the record type), a **Metric** and a **Grouping**. Every type can be counted; contacts, organizations and deals also offer deal value, plus weighted deal value once a deal stage field is set under **My Company › Settings**; services offer deal value and the number of services in deals; tasks can only be counted. Deal-based metrics need read access to deals. **Grouping** offers **No Grouping**, a single-select custom field of that record type, or, with a metric other than count, each record itself, for example deal value per contact (not for tasks). **Chart style** on the **Appearance** tab: **Vertical Bar Chart** or **Horizontal Bar Chart**, each also **with Labels**, **Doughnut Chart** or **Radar Chart**. Filters narrow the data set; a chart over contacts, organizations or services with a deal-based metric gets a separate filter for the related deals.
 - **Activity timeline**: a newest-first feed of changes, messages and connected-account activity. Its filters belong to that widget, so several timeline widgets can show different views without changing each other or the timeline on a record page.
@@ -22,13 +22,15 @@ Over MCP, `manage_widgets` lists, reads, creates, updates and deletes both kinds
 
 **Link:** the **Dashboard** page, `/dashboard`. **Mate:** `navigate` and `highlight_element` with `dashboard-add-widget` for **Add widget**, then `widget-modal-kind` for the two kinds once the editor is open; the template choices are not highlight targets, so Mate names them.
 
-### What can an activity timeline show?
+### What can an activity timeline show, including calendar events? [#what-can-an-activity-timeline-show]
 
-The **Record changes** category contains audit-log changes. **Messages** contains Inbox messages. **Account & calendar** contains connected-account activity, such as accepted LinkedIn connections, and calendar events.
+An activity timeline widget shows entries from three categories. The **Record changes** category contains audit-log changes. **Messages** contains Inbox messages. **Account & calendar** contains connected-account activity, such as accepted LinkedIn connections, and calendar events. Customermates has no calendar page of its own: on Customermates Cloud, events from the calendar of a connected Gmail or Outlook account appear in this category, and `get_calendars` reads them over MCP.
 
 All accessible records are the implicit baseline. Filter a timeline by category, provider, connected account, conversation, or related contacts, organizations, deals, services, and tasks. Each field can be configured once. Relationship filters use the same operators as record lists: **in** and **not in** accept one or more records, while **has some** and **has none** need no value. Different filter fields are AND-combined, and multiple values within one **in** filter are OR-combined. Unlinked entries fail positive relationship filters and pass negative ones. Filters become persistent when you save the widget.
 
 Entries are shown newest first. Use **Load older** for the next bounded page. A row can show one primary record, up to three related records, and a remaining-record count. Permitted record links open the relevant record, and message details can open the permitted Inbox thread. Rows without a CRM association remain visible without a record link.
+
+**Link:** the **Dashboard** page, `/dashboard`. **Mate:** `navigate` and `highlight_element` with `dashboard-add-widget` for **Add widget**, then `widget-modal-kind` for the **Activity timeline** kind once the editor is open; the timeline filters and rows are not highlight targets, so Mate names them.
 
 ### Who sees what in a timeline?
 
@@ -40,6 +42,8 @@ Entries are shown newest first. Use **Load older** for the next bounded page. A 
 | Neither | A non-sensitive unavailable state |
 
 The two permissions are the **Audit Log** and **Inbox messages** rows of the member's role under **My Company › Roles**, each with **Read access** set to **All**. Audit-log changes are available independently of the messaging entitlement. Messages, connected-account activities, and calendar events require cloud mode, Inbox access, and a plan with messaging (Pro and above); on Starter, **Inbox** shows **Upgrade to unlock messaging** with an **Upgrade your plan** button that opens **My Company › Subscription**. A missing connected messaging account removes messaging-based sources but does not hide permitted audit changes. Deleted or newly inaccessible filter values stop matching, are shown as **Filter not available** on the filter chip and **Selection unavailable** in the value picker for safe removal, and never expose their raw ids.
+
+**Link:** the **Dashboard** page, `/dashboard`, and for the role rows `/company/roles`. **Mate:** `navigate` and `highlight_element` with `nav-dashboard` or `nav-company-roles`; the timeline and the role rows are not highlight targets, so Mate names them.
 
 ## How do I create or edit a chart or timeline widget in the widget editor? [#how-does-the-widget-editor-work]
 
@@ -71,9 +75,13 @@ Entries sit in three groups: **Overview** (**Dashboard**, plus **Inbox** and **R
 | Workspace administration | Workspace group | `#nav-company` | **My Company** expands or collapses **Subscription**, **Settings**, **Members**, **Roles**, **Audit Logs**, **Webhooks** and **Recent Deliveries**; see [My Company](/docs/app-company) |
 | Theme and sign-out | Sidebar footer, your name | none | **Dark Mode** or **Light Mode** switches and saves your theme; **Sign Out** ends the session |
 
+**Link:** the sidebar appears everywhere in the app; the **Dashboard** is `/dashboard`. **Mate:** `navigate` and `highlight_element` with each `nav-*` id in this section that your role can open, except `nav-search`, `nav-documentation` and `nav-feedback`, which it can only highlight, and `#nav-add` and `#nav-assistant`, which are not targets; entries under **My Profile** and **My Company** can be highlighted only while their group is expanded. The plan chip, **Email not verified** and the menu under your name are not highlight targets, so Mate names them.
+
 ## What happens on first run?
 
 New accounts land in the [onboarding wizard](/docs/app-onboarding) at `/onboarding/wizard` before they see the Dashboard. It has three steps: your profile, team invites, and connecting an AI client. Only the invite step carries the stable ids `#onboarding-next` and `#onboarding-back`.
+
+**Link:** the onboarding wizard, `/onboarding/wizard`, until onboarding is finished; afterwards the **Dashboard** page, `/dashboard`. **Mate:** not available during onboarding, so it can only give the wizard's link; on the Dashboard, `navigate` and `highlight_element` with `nav-dashboard`.
 
 ## Tips for agents
 

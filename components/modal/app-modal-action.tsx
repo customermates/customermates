@@ -125,7 +125,7 @@ export function AppModalAction(props: AppModalActionProps) {
   );
 
   return (
-    <Tooltip>
+    <Tooltip key={isDisabled ? "disabled" : "enabled"}>
       <TooltipTrigger asChild>{trigger}</TooltipTrigger>
 
       <TooltipContent>{tooltip ?? label}</TooltipContent>
