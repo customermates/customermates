@@ -2,6 +2,7 @@ import { CONTENT_LOCALES, DEFAULT_LOCALE, buildLocalePath } from "../../i18n/loc
 
 const RETIRED_ROUTE_ALIASES = {
   "/blog/ai-native-crm": "/blog/agentic-crm",
+  "/blog/crm-system": "/blog/crm-systems",
   "/compare/monday-vs-hubspot": "/compare/hubspot-vs-monday",
   "/compare/pipedrive-vs-hubspot": "/compare/hubspot-vs-pipedrive",
   "/compare/zoho-vs-hubspot": "/compare/hubspot-vs-zoho",
