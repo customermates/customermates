@@ -805,3 +805,38 @@ describe("ThreadComposeStore draft lifecycle", () => {
     },
   );
 });
+
+describe("ThreadComposeStore email recipient validation", () => {
+  beforeEach(() => {
+    vi.clearAllMocks();
+  });
+
+  function composeEmailReply(recipients: string[], cc: string[] = []) {
+    const { store } = makeHarness();
+    store.initialize({
+      provider: MessagingProvider.google,
+      threadId: THREAD_ID,
+      defaultSubject: "Subject",
+      defaultRecipients: recipients,
+      defaultCc: cc,
+    });
+    store.onChange("body", "Prepared reply");
+    return store;
+  }
+
+  it.each([
+    { label: "an invalid To address", recipients: ["not-an-email"], cc: [], field: "recipients" },
+    { label: "an invalid Cc address", recipients: [RECIPIENT], cc: ["not-an-email"], field: "cc" },
+    { label: "an empty To field", recipients: [], cc: [], field: "recipients" },
+  ])("reports $label in the viewer's language instead of zod's English text", async ({ recipients, cc, field }) => {
+    const store = composeEmailReply(recipients, cc);
+
+    await store.send();
+
+    const tree = store.error as { properties?: Record<string, { errors: string[]; items?: { errors: string[] }[] }> };
+    const node = tree.properties?.[field];
+    const messages = [...(node?.errors ?? []), ...(node?.items ?? []).flatMap((item) => item?.errors ?? [])];
+    expect(messages).toEqual(["Common.errors.invalidEmail"]);
+    expect(actions.sendEmailAction).not.toHaveBeenCalled();
+  });
+});

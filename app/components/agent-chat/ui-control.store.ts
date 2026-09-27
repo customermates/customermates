@@ -153,6 +153,7 @@ export class AgentUiControlStore extends BaseStore {
   private navigateCallback: ((path: string) => Promise<AgentNavigationOutcome>) | null = null;
   private clearTimer: ReturnType<typeof setTimeout> | null = null;
   private previousFocus: OverlayFocusTarget | null = null;
+  private pageFocus: OverlayFocusTarget | null = null;
   private tourRunVersion = 0;
   private settledTourRunVersion = 0;
   private vanishedTourStep: { spotlight: Spotlight; since: number; skipped: boolean } | null = null;
@@ -273,8 +274,13 @@ export class AgentUiControlStore extends BaseStore {
     this.tourSteps = [];
     this.vanishedTourStep = null;
     if (this.clearTimer) clearTimeout(this.clearTimer);
-    focusOverlayTarget(this.previousFocus);
+    focusOverlayTarget(this.pageFocus, this.previousFocus);
+    this.pageFocus = null;
     this.previousFocus = null;
+  };
+
+  rememberPageFocus = (element: Element) => {
+    if (this.active && this.active.note !== null) this.pageFocus = captureOverlayFocusTarget(element);
   };
 
   showStep = (spotlight: Spotlight) => {
@@ -303,7 +309,9 @@ export class AgentUiControlStore extends BaseStore {
 
   private requestTourStep(index: number, direction: 1 | -1) {
     const runVersion = ++this.tourRunVersion;
-    void this.showTourStep(index, runVersion, direction).then(() => this.settleTourStep(runVersion));
+    void this.showTourStep(index, runVersion, direction, Date.now(), Number.POSITIVE_INFINITY, true).then(() =>
+      this.settleTourStep(runVersion),
+    );
   }
 
   private settleTourStep(runVersion: number) {
@@ -316,6 +324,7 @@ export class AgentUiControlStore extends BaseStore {
     direction: 1 | -1,
     settleFrom = Date.now(),
     giveUpAt = Number.POSITIVE_INFINITY,
+    skipCovered = false,
   ): Promise<boolean> {
     if (runVersion !== this.tourRunVersion) return false;
     const step = this.tourSteps[index];
@@ -329,14 +338,8 @@ export class AgentUiControlStore extends BaseStore {
       const from = currentAppPathname();
       const outcome = this.canOpen(step.route) ? await this.navigateCallback(step.route) : "blocked";
       if (runVersion !== this.tourRunVersion) return false;
-      if (outcome !== "navigated") {
-        const next = index + direction;
-        if (next < 0 || next >= this.tourSteps.length) {
-          if (direction === 1) this.end();
-          return false;
-        }
-        return this.showTourStep(next, runVersion, direction, settleFrom, giveUpAt);
-      }
+      if (outcome !== "navigated")
+        return this.showFollowingTourStep(index, runVersion, direction, settleFrom, giveUpAt, skipCovered);
       await new Promise<void>((resolve) => requestAnimationFrame(() => requestAnimationFrame(() => resolve())));
       if (runVersion !== this.tourRunVersion) return false;
       if (currentAppPathname() !== from) settleFrom = Date.now();
@@ -348,19 +351,15 @@ export class AgentUiControlStore extends BaseStore {
       settleFrom,
     );
     if (runVersion !== this.tourRunVersion) return false;
-    if (!element) {
-      const next = index + direction;
-      if (next < 0 || next >= this.tourSteps.length) {
-        if (direction === 1) this.end();
-        return false;
-      }
-      return this.showTourStep(next, runVersion, direction, settleFrom, giveUpAt);
-    }
+    if (!element) return this.showFollowingTourStep(index, runVersion, direction, settleFrom, giveUpAt, skipCovered);
 
     element.scrollIntoView({
       block: "center",
       behavior: "smooth",
     });
+    if (skipCovered && (await awaitCoveredByAssistantPanel(step.targetId, () => runVersion === this.tourRunVersion)))
+      return this.showFollowingTourStep(index, runVersion, direction, settleFrom, giveUpAt, skipCovered);
+    if (runVersion !== this.tourRunVersion) return false;
     this.showStep({
       targetId: step.targetId,
       note: step.note,
@@ -368,6 +367,22 @@ export class AgentUiControlStore extends BaseStore {
       totalSteps: this.tourSteps.length,
     });
     return true;
+  }
+
+  private async showFollowingTourStep(
+    index: number,
+    runVersion: number,
+    direction: 1 | -1,
+    settleFrom: number,
+    giveUpAt: number,
+    skipCovered: boolean,
+  ): Promise<boolean> {
+    const next = index + direction;
+    if (next < 0 || next >= this.tourSteps.length) {
+      if (direction === 1) this.end();
+      return false;
+    }
+    return this.showTourStep(next, runVersion, direction, settleFrom, giveUpAt, skipCovered);
   }
 
   private canOpen(path: string) {
@@ -398,6 +413,7 @@ export class AgentUiControlStore extends BaseStore {
 
   private captureFocus() {
     this.previousFocus = captureOverlayFocusTarget(document.activeElement);
+    this.pageFocus = null;
   }
 
   private scheduleClear(ms: number) {

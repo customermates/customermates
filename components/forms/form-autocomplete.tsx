@@ -30,6 +30,7 @@ type Props<T extends Identifiable> = {
   id: string;
   inputId?: string;
   label?: string | null;
+  ariaLabel?: string;
   labelEndAddon?: ReactNode;
   controlStartAddon?: ReactNode;
   placeholder?: string;
@@ -73,6 +74,7 @@ export const FormAutocomplete = observer(
     id,
     inputId,
     label,
+    ariaLabel,
     labelEndAddon,
     controlStartAddon,
     placeholder,
@@ -403,7 +405,7 @@ export const FormAutocomplete = observer(
             <Button asChild className={fieldClassName} variant="field">
               <div
                 aria-busy={isOptionsLoading || undefined}
-                aria-label={!resolvedLabel ? resolvedPlaceholder : undefined}
+                aria-label={resolvedLabel ? undefined : (ariaLabel ?? resolvedPlaceholder)}
                 aria-labelledby={resolvedLabel ? labelId : undefined}
                 data-field-state="read-only"
                 data-invalid={hasError || undefined}
@@ -421,6 +423,7 @@ export const FormAutocomplete = observer(
                   aria-busy={isOptionsLoading || undefined}
                   aria-expanded={popoverOpen}
                   aria-invalid={hasError}
+                  aria-label={resolvedLabel ? undefined : (ariaLabel ?? resolvedPlaceholder)}
                   className={fieldClassName}
                   disabled={isDisabled}
                   id={domId}

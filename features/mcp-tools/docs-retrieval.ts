@@ -200,19 +200,7 @@ const SYNONYM_GROUPS: string[][] = [
   ["stage", "status", "singleselect", "pipeline", "phase", "stufe"],
   ["message", "messaging", "nachricht", "nachrichten"],
   ["retry", "retries", "redeliver", "resend", "wiederholung", "erneut"],
-  [
-    "whatsapp",
-    "telegram",
-    "instagram",
-    "linkedin",
-    "gmail",
-    "outlook",
-    "channel",
-    "kanal",
-    "konto",
-    "account",
-    "connected",
-  ],
+  ["whatsapp", "telegram", "instagram", "linkedin", "gmail", "outlook", "channel", "kanal", "konto", "account"],
   ["webhook", "webhooks", "hook"],
   ["delivery", "deliveries", "zustellung", "zustellungen"],
   ["column", "columns", "field", "fields", "feld", "felder", "spalte", "spalten", "custom", "benutzerdefiniert"],
@@ -489,6 +477,7 @@ const PHRASE_EQUIVALENTS: readonly [RegExp, string | Record<DocsStemmer, string>
   [/\b(?:automatisch lauft|lauft automatisch)\b/g, "automatisch"],
   [/\b(?:set|sets|setting) up (a|an|new)\b/g, "create $1"],
   [/\b(?:lauft|laufen)((?: [a-z0-9]+){0,6}?) ab\b/g, "ablaufen$1"],
+  [/\be (mails?)\b/g, { english: "e$1", german: "e $1" }],
   [/\bmcp servers?\b/g, "mcp"],
   [/\bcustom fields?\b/g, "custom column"],
   [/\bbenutzerdefinierte[mnrs]? (?:feld|felder|feldern)\b/g, "custom column"],
@@ -934,6 +923,17 @@ const MESSAGE_WORD =
 const CHANNEL_SETUP_OR_RATE =
   /\b(?:connect\w*|verbind\w*|limits?|rate|folders?|ordner|daily|hourly|taglich|stundlich)\b|\b(?:per|pro) (?:day|hour|week|minute|tag|stunde|woche)\b/;
 
+const CONNECT_WORD = /\bconnect\w*/;
+
+const EMAIL_WORD = /\b(?:emails?|mailbox\w*|inbox\w*|imap)\b/;
+
+const CHANNEL_STATUS_LABEL = /\b(?:reconnect needed|erneute verbindung notig)\b/;
+
+const CHANNEL_TROUBLE =
+  /\b(?:reconnect\w*|permission issues?|berechtigungsproblem\w*|error|fehler|stopped|gestoppt|disconnected|getrennt)\b|\b(?:stopped|not|isn t|nicht mehr) (?:sync\w*|synchronis\w*)\b/;
+
+const CHANNEL_NOUN = /\b(?:channels?|kanal|kanale|kanals)\b/;
+
 const ASSISTANT_WORD = /\b(?:mate|assistant|assistent\w*)\b/;
 
 const TOOL_LIST_QUESTION =
@@ -973,6 +973,18 @@ const QUERY_CONCEPTS: readonly QueryConcept[] = [
     when: (folded) =>
       MESSAGING_PROVIDER.test(folded) && MESSAGE_WORD.test(folded) && !CHANNEL_SETUP_OR_RATE.test(folded),
     add: { english: "inbox", german: "posteingang" },
+  },
+  {
+    when: (folded) => CONNECT_WORD.test(folded) && EMAIL_WORD.test(folded),
+    add: { english: "channel", german: "kanal" },
+  },
+  {
+    when: (folded) =>
+      CHANNEL_STATUS_LABEL.test(folded) ||
+      ((MESSAGING_PROVIDER.test(folded) || CHANNEL_NOUN.test(folded)) &&
+        CHANNEL_TROUBLE.test(folded) &&
+        !CHANNEL_SETUP_OR_RATE.test(folded)),
+    add: { english: "reactivate status", german: "reaktivieren status" },
   },
   {
     when: (folded) => TOOL_LIST_QUESTION.test(folded) && !ASSISTANT_WORD.test(folded),
@@ -1434,14 +1446,17 @@ function renderExcerptBlock(block: ExcerptBlock, index: number, state: ExcerptSt
       else if (started) blank = true;
       return;
     }
-    if (omitted) out.push(ELLIPSIS);
-    else if (blank) out.push("");
+    const rendered = renderExcerptLine(line, state.picked[index][lineIndex], trimmed);
+    const elided = out.at(-1)?.endsWith(ELLIPSIS) ?? false;
+    if (omitted) {
+      if (!elided && !rendered.startsWith(ELLIPSIS)) out.push(ELLIPSIS);
+    } else if (blank) out.push("");
     omitted = false;
     blank = false;
     started = true;
-    out.push(renderExcerptLine(line, state.picked[index][lineIndex], trimmed));
+    out.push(elided && rendered.startsWith(`${ELLIPSIS} `) ? rendered.slice(ELLIPSIS.length + 1) : rendered);
   });
-  if (omitted) out.push(ELLIPSIS);
+  if (omitted && !out.at(-1)?.endsWith(ELLIPSIS)) out.push(ELLIPSIS);
   if (keptLinks) out.push(...block.links);
   return out.join("\n");
 }

@@ -267,6 +267,59 @@ const SECTION_QUESTIONS: [ContentLocale, string, string, string | null][] = [
     "/company/settings",
   ],
   ["de", "Onboarding überspringen", "app-onboarding#kann-ich-teile-des-onboardings-uberspringen", "/onboarding/wizard"],
+  [
+    "en",
+    "where can I change the stage field used for deal weighting",
+    "app-company#how-do-stage-probabilities-and-totals-work",
+    "/company/settings",
+  ],
+  [
+    "de",
+    "Wo ändere ich das Deal-Phasenfeld für die Gewichtung?",
+    "app-company#how-do-stage-probabilities-and-totals-work",
+    "/company/settings",
+  ],
+  [
+    "en",
+    "My Gmail channel says Reconnect needed",
+    "app-profile#what-does-each-status-mean",
+    "/profile/connected-accounts",
+  ],
+  [
+    "en",
+    "My Outlook channel shows Permission issue",
+    "app-profile#what-does-each-status-mean",
+    "/profile/connected-accounts",
+  ],
+  [
+    "de",
+    "Mein Gmail-Kanal zeigt Erneute Verbindung nötig",
+    "app-profile#how-do-i-reactivate-resync-or-disconnect-a-channel",
+    "/profile/connected-accounts",
+  ],
+  [
+    "de",
+    "Mein Outlook-Kanal zeigt Berechtigungsproblem",
+    "app-profile#how-do-i-reactivate-resync-or-disconnect-a-channel",
+    "/profile/connected-accounts",
+  ],
+  ["en", "how do I connect Gmail", "app-profile#how-do-i-connect-a-channel", "/profile/connected-accounts"],
+  ["de", "Gmail verbinden", "app-profile#how-do-i-connect-a-channel", "/profile/connected-accounts"],
+  ["en", "Error connecting my Gmail channel", "app-profile#how-do-i-connect-a-channel", "/profile/connected-accounts"],
+  [
+    "de",
+    "Fehler beim Verbinden des Gmail-Kanals",
+    "app-profile#how-do-i-connect-a-channel",
+    "/profile/connected-accounts",
+  ],
+  [
+    "en",
+    "LinkedIn rate limit error",
+    "messaging-rate-limits#what-are-the-limits-for-sending-and-profile-lookups",
+    null,
+  ],
+  ["de", "LinkedIn Limit Fehler", "messaging-rate-limits#what-are-the-limits-for-sending-and-profile-lookups", null],
+  ["de", "Claude erneute Verbindung", "connect-custom-connector#claude", null],
 ];
 
 describe("search_docs", () => {
@@ -337,6 +390,28 @@ describe("search_docs", () => {
         .map((hit) => `${hit.slug}#${hit.anchor}: ${hit.snippet}`);
       expect(empty, `${locale} "${query}"`).toEqual([]);
     }
+  });
+
+  it("marks each elided stretch of a snippet or an excerpt with one ellipsis", () => {
+    for (const [query, locale] of [
+      ["webhooks page link", "en"],
+      ["cancel subscription", "en"],
+      ["create api key", "en"],
+      ["how do I create an API key", "en"],
+      ["webhook signature", "en"],
+      ["Webhooks Seite Link", "de"],
+    ] as const) {
+      const doubled = searchHits(query, locale)
+        .filter((hit) => hit.snippet.includes("… …"))
+        .map((hit) => `${hit.slug}#${hit.anchor}: ${hit.snippet}`);
+      expect(doubled, `${locale} "${query}"`).toEqual([]);
+    }
+    for (const [slug, query] of [
+      ["app-records", "board view group by field"],
+      ["api-keys", "rotate an api key"],
+      ["concepts", "weighted pipeline value"],
+    ] as const)
+      expect(excerptOf(slug, query), query).not.toMatch(/…\s*\n\s*…/);
   });
 
   it("answers a page-link question with a section whose link line names that page", () => {
@@ -716,6 +791,23 @@ describe("get_docs_page", () => {
     }
   });
 
+  it("keeps the step that answers a question in the words of that step, not a row that shares one word", () => {
+    const excerpt = excerptOf("webhooks", "Wo trage ich die Webhook-URL ein", "de");
+    expect(excerpt).toContain("**UI:** Um einen Webhook anzulegen");
+    expect(firstLinkLine(excerpt)).toContain("`/company/webhooks`");
+  });
+
+  it("answers a channel status question with the instruction to reactivate the channel", () => {
+    for (const [locale, query, action] of [
+      ["en", "My Gmail channel says Reconnect needed", "**Reactivate**"],
+      ["de", "Mein Gmail-Kanal zeigt Erneute Verbindung nötig", "**Reaktivieren**"],
+    ] as const) {
+      const excerpt = excerptOf("app-profile", query, locale);
+      expect(excerpt, query).toContain(action);
+      expect(firstLinkLine(excerpt), query).toContain("`/profile/connected-accounts`");
+    }
+  });
+
   it("keeps the formula a calculation question asks for, and the link line of the section that states it", () => {
     for (const [locale, query, formula] of [
       ["en", "How is the weighted pipeline value calculated?", "multiplied by the weight of its current option"],
@@ -776,6 +868,37 @@ describe("get_docs_page", () => {
     expect(getDocsPageTool.description).toMatch(
       /App routes in the markdown, such as `\/company\/subscription`, are relative/,
     );
+  });
+
+  it("names every widget editor target of the Dashboard page in its tips for agents", () => {
+    for (const locale of CONTENT_LOCALES) {
+      const { markdown } = (
+        getDocsPageTool.execute({ slug: "app-dashboard", locale, source: "docs" }) as {
+          structuredContent: { markdown: string };
+        }
+      ).structuredContent;
+      const tipsStart = markdown.search(/^## (?:Tips for agents|Tipps für Agents)/m);
+      const tipsEnd = markdown.indexOf("\n## ", tipsStart + 1);
+      const tips = markdown.slice(tipsStart, tipsEnd === -1 ? undefined : tipsEnd);
+      const targets = new Set(markdown.match(/widget-modal-[a-z-]+/g));
+      expect(tipsStart, locale).toBeGreaterThan(-1);
+      expect(targets.size, locale).toBeGreaterThan(0);
+      for (const target of targets) expect(tips, `${locale} ${target}`).toContain(`#${target}`);
+    }
+  });
+
+  it("describes the My Company sidebar entry as a toggle in its tips for agents", () => {
+    for (const [locale, toggle] of [
+      ["en", "`#nav-company` only expands or collapses the sidebar group"],
+      ["de", "`#nav-company` klappt die Sidebar-Gruppe nur auf oder zu"],
+    ] as const) {
+      const { markdown } = (
+        getDocsPageTool.execute({ slug: "app-company", locale, source: "docs" }) as {
+          structuredContent: { markdown: string };
+        }
+      ).structuredContent;
+      expect(markdown, locale).toContain(toggle);
+    }
   });
 
   it("keeps full-page behavior when no focused query is supplied", () => {

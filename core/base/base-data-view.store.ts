@@ -53,6 +53,8 @@ export type DataViewRequestState =
 
 export type DataViewRefreshMode = "background" | "visible";
 
+type SelectionScope = { filters: Filter[]; searchTerm: string | null };
+
 function readItemValueSums(item: unknown, fields: readonly string[]): GroupValueSums | undefined {
   const values = item as Record<string, unknown>;
   const summed = fields.flatMap((field) =>
@@ -94,7 +96,7 @@ export abstract class BaseDataViewStore<Entity extends HasId> extends BaseStore 
   groupableFields: GroupableFieldDto[] = [];
   collapsedGroupKeys: ObservableSet<string> = observable.set();
   selectedIds: ObservableSet<string> = observable.set();
-  selectedScopeKey: string | undefined = undefined;
+  selectedScope: SelectionScope | undefined = undefined;
 
   groupCounts: Record<string, number> = {};
   groupValueSums: Record<string, GroupValueSums> = {};
@@ -150,7 +152,7 @@ export abstract class BaseDataViewStore<Entity extends HasId> extends BaseStore 
       groupableFields: observable,
       collapsedGroupKeys: observable,
       selectedIds: observable,
-      selectedScopeKey: observable,
+      selectedScope: observable.ref,
 
       groupCounts: observable,
       groupValueSums: observable,
@@ -170,7 +172,7 @@ export abstract class BaseDataViewStore<Entity extends HasId> extends BaseStore 
       selectedVisibleCount: computed,
       selectedOffViewCount: computed,
       isSelectionAtLimit: computed,
-      currentSelectionScopeKey: computed,
+      currentSelectionScope: computed,
       isSelectionScopeStale: computed,
       massEditableCustomColumns: computed,
       canBoard: computed,
@@ -447,14 +449,14 @@ export abstract class BaseDataViewStore<Entity extends HasId> extends BaseStore 
     return this.selectedIds.size >= MAX_SELECTION_SIZE;
   }
 
-  get currentSelectionScopeKey(): string {
-    return JSON.stringify({ filters: toJS(this.filters) ?? null, searchTerm: this.searchTerm ?? null });
+  get currentSelectionScope(): SelectionScope {
+    return { filters: toJS(this.filters) ?? [], searchTerm: this.searchTerm || null };
   }
 
   get isSelectionScopeStale(): boolean {
-    if (!this.hasSelection || this.selectedScopeKey === undefined) return false;
+    if (!this.hasSelection || this.selectedScope === undefined) return false;
 
-    return this.selectedScopeKey !== this.currentSelectionScopeKey;
+    return !deepEqual(this.selectedScope, this.currentSelectionScope);
   }
 
   get massEditableCustomColumns(): CustomColumnDto[] {
@@ -469,7 +471,7 @@ export abstract class BaseDataViewStore<Entity extends HasId> extends BaseStore 
 
   setSelectedIds = (keys: Set<string>) => {
     this.selectedIds.clear();
-    this.selectedScopeKey = undefined;
+    this.selectedScope = undefined;
     [...keys].slice(0, MAX_SELECTION_SIZE).forEach((id) => this.selectedIds.add(id));
     this.rememberSelectionScope();
   };
@@ -510,21 +512,21 @@ export abstract class BaseDataViewStore<Entity extends HasId> extends BaseStore 
   keepSelectionInView = (): void => {
     const visible = new Set(this.items.map((item) => item.id));
     for (const id of [...this.selectedIds]) if (!visible.has(id)) this.selectedIds.delete(id);
-    this.selectedScopeKey = this.selectedIds.size > 0 ? this.currentSelectionScopeKey : undefined;
+    this.selectedScope = this.selectedIds.size > 0 ? this.currentSelectionScope : undefined;
   };
 
   clearSelection = () => {
     this.selectedIds.clear();
-    this.selectedScopeKey = undefined;
+    this.selectedScope = undefined;
   };
 
   private rememberSelectionScope(): void {
     if (this.selectedIds.size === 0) {
-      this.selectedScopeKey = undefined;
+      this.selectedScope = undefined;
       return;
     }
 
-    if (this.selectedScopeKey === undefined) this.selectedScopeKey = this.currentSelectionScopeKey;
+    if (this.selectedScope === undefined) this.selectedScope = this.currentSelectionScope;
   }
 
   get orderedColumns() {
@@ -791,7 +793,8 @@ export abstract class BaseDataViewStore<Entity extends HasId> extends BaseStore 
       }
     }
 
-    if ("viewMode" in updates && this.viewMode !== updates.viewMode) {
+    const viewModeChanged = "viewMode" in updates && this.viewMode !== updates.viewMode;
+    if (viewModeChanged) {
       this.viewMode = updates.viewMode ?? ViewMode.table;
       hasChanges = true;
     }
@@ -810,6 +813,7 @@ export abstract class BaseDataViewStore<Entity extends HasId> extends BaseStore 
 
     if (hasChanges) this.persistViewState();
     if (groupingChanged) this.refreshQueryInBackground();
+    else if (viewModeChanged && this.viewMode === ViewMode.card && this.grouping) this.refreshInBackground();
   };
 
   setQueryOptions = (updates: {

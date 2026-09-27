@@ -197,6 +197,28 @@ describe("data view selection", () => {
     expect(store.isSelectionScopeStale).toBe(false);
   });
 
+  it("does not mark the selection stale when the next page returns the same filters with their keys reordered", () => {
+    const store = makeStore();
+    const stored = JSON.parse('[{"field":"userIds","value":["me"],"operator":"in"}]') as Filter[];
+    const reparsed = JSON.parse('[{"field":"userIds","operator":"in","value":["me"]}]') as Filter[];
+    store.setItems(page(["a"], { filters: stored, pagination: { page: 1, pageSize: 5, total: 2, totalPages: 2 } }));
+    store.setPageSelection(true);
+
+    store.setItems(page(["b"], { filters: reparsed, pagination: { page: 2, pageSize: 5, total: 2, totalPages: 2 } }));
+
+    expect(store.isSelectionScopeStale).toBe(false);
+  });
+
+  it("treats an empty search and no search as the same selection scope", () => {
+    const store = makeStore();
+    store.setItems(page(["a"], { searchTerm: "" }));
+    store.setPageSelection(true);
+
+    store.setItems(page(["b"]));
+
+    expect(store.isSelectionScopeStale).toBe(false);
+  });
+
   it("keeps only the rows still in view and clears the stale marker", () => {
     const store = makeStore();
     store.setItems(page(["a", "b"], { searchTerm: "acme" }));
@@ -242,7 +264,7 @@ describe("data view selection", () => {
 
     store.clearSelection();
 
-    expect(store.selectedScopeKey).toBeUndefined();
+    expect(store.selectedScope).toBeUndefined();
     expect(store.isSelectionScopeStale).toBe(false);
   });
 

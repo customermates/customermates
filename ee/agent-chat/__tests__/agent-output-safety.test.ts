@@ -89,6 +89,44 @@ describe("agent client-visible output safety", () => {
     );
   });
 
+  it("keeps a Markdown-emphasized field label intact while still redacting emphasized values", () => {
+    const boldSecretLabel = "- **Secret:** Optional shared secret used to sign outgoing requests.";
+    const boldApiKeyLabel = "- **API key:** Created under My Profile › API keys.";
+    const italicPasswordLabel = "*Password:* At least eight characters.";
+
+    expect(sanitizeAgentVisibleText(boldSecretLabel)).toBe(boldSecretLabel);
+    expect(sanitizeAgentVisibleText(boldApiKeyLabel)).toBe(boldApiKeyLabel);
+    expect(sanitizeAgentVisibleText(italicPasswordLabel)).toBe(italicPasswordLabel);
+    expect(sanitizeAgentVisibleText("Secret: **hunter2**")).toBe("Secret: [redacted]");
+    expect(sanitizeAgentVisibleText("secret: s3cr3tValue123")).toBe("secret: [redacted]");
+    expect(sanitizeAgentVisibleText("password=[redacted]; Safe.")).toBe("password=[redacted]; Safe.");
+  });
+
+  it("still hides a Markdown-emphasized internal metadata label", () => {
+    for (const source of [
+      "**Input tokens:** 1234",
+      "**Cost microcents:** 4200",
+      "**Internal cost:** 0.03",
+      "**Provider id:** vertex-ai",
+    ]) {
+      const visible = sanitizeAgentVisibleText(source);
+      expect(visible).toContain("[internal details]");
+      expect(visible).not.toMatch(/input tokens|cost microcents|internal cost|provider id/i);
+    }
+  });
+
+  it("keeps a Markdown-emphasized field label intact across every provider chunk boundary", () => {
+    const source = "- **Secret:** Optional shared secret used to sign outgoing requests.\nSecret: **hunter2** done.";
+    const expected = "- **Secret:** Optional shared secret used to sign outgoing requests.\nSecret: [redacted] done.";
+
+    expect(sanitizeAgentVisibleText(source)).toBe(expected);
+    for (let split = 0; split <= source.length; split += 1) {
+      const sanitizer = new AgentVisibleTextStreamSanitizer();
+      const visible = `${sanitizer.push(source.slice(0, split))}${sanitizer.push(source.slice(split))}${sanitizer.finish()}`;
+      expect(visible).toBe(expected);
+    }
+  });
+
   it("produces the same safe text across every provider chunk boundary", () => {
     const source = [
       "Before ",

@@ -142,6 +142,22 @@ describe("DealServicesSelection relation actions", () => {
     for (const input of quantityInputs) expect(input).toContain('aria-label="Quantity"');
   });
 
+  it("names each line's service picker after the service entity", () => {
+    dealDetailStore.form.services = [
+      { quantity: 2, serviceId: "service-1" },
+      { quantity: 1, serviceId: "service-2" },
+    ];
+
+    const markup = renderToStaticMarkup(createElement(DealServicesSelection));
+    const pickers = markup.split("<button").filter((button) => button.includes('].serviceId"'));
+
+    expect(pickers).toHaveLength(2);
+    for (const picker of pickers) {
+      expect(picker).toContain('role="combobox"');
+      expect(picker).toContain('aria-label="Service"');
+    }
+  });
+
   it("keeps line-value and weighted-value help without repeating help icons beside sums", () => {
     dealDetailStore.form.services = [{ quantity: 2, serviceId: "service-1" }];
     dealDetailStore.totalQuantity = 2;

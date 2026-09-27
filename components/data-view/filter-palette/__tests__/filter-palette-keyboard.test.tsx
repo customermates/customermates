@@ -25,12 +25,16 @@ vi.mock("@/core/stores/root-store.provider", () => ({
   useRootStore: () => ({
     filterPaletteStore: harness.palette.current,
     intlStore: {
+      dateFormatMap: { descriptiveLong: () => "" },
+      dateTimeFormatMap: { descriptiveLong: () => "" },
       formatNumber: () => "",
       formatNumberForEditing: () => "",
       formatNumericalShortDate: () => "",
       parseNumberToCanonical: (value: string) => value,
+      resolvedFormattingLanguageTag: "en-US",
       use12Hour: false,
     },
+    localeStore: { locale: "en" },
     terminologyStore: { overrides: [] },
   }),
 }));
@@ -74,13 +78,25 @@ const FILTERABLE_FIELDS: FilterableField[] = [
   { field: "email", operators: [FilterOperatorKey.contains] },
 ];
 
+const DATE_FIELD: FilterableField = {
+  field: "createdAt",
+  operators: [
+    FilterOperatorKey.gt,
+    FilterOperatorKey.gte,
+    FilterOperatorKey.lt,
+    FilterOperatorKey.lte,
+    FilterOperatorKey.between,
+    FilterOperatorKey.inLastDays,
+  ],
+};
+
 const roots: Root[] = [];
 const containers: HTMLElement[] = [];
 
-function tableStore(filters: Filter[] = []) {
+function tableStore(filters: Filter[] = [], filterableFields: FilterableField[] = FILTERABLE_FIELDS) {
   const table = {
     customColumns: [],
-    filterableFields: FILTERABLE_FIELDS,
+    filterableFields,
     filters,
     p13nId: "contacts",
     setQueryOptions: vi.fn((args: { filters?: Filter[] }) => {
@@ -256,6 +272,71 @@ describe("filter palette keyboard", () => {
     press(input, "Enter");
 
     expect(palette.page.kind).toBe("root");
+  });
+});
+
+describe("filter palette focus when a value page replaces the search", () => {
+  function draftValue() {
+    return document.querySelector<HTMLElement>("#draft\\.value");
+  }
+
+  it("moves focus to the date control when Enter picks a date operator", () => {
+    const table = tableStore([], [...FILTERABLE_FIELDS, DATE_FIELD]);
+    const palette = openPalette(table);
+    const container = mount(createElement(FilterPalette, { store: table as unknown as BaseDataViewStore<HasId> }));
+
+    act(() => palette.pickField("createdAt"));
+    act(() => searchInput(container).focus());
+    type(searchInput(container), "dateBefore");
+    press(searchInput(container), "Enter");
+
+    expect(palette.page).toMatchObject({ kind: "dateInput", field: "createdAt", operator: FilterOperatorKey.lt });
+    expect(draftValue()).not.toBeNull();
+    expect(document.activeElement).toBe(draftValue());
+    expect(document.activeElement).not.toBe(document.body);
+  });
+
+  it("moves focus to the text input when Enter picks a text field from the root page", () => {
+    const table = tableStore();
+    const palette = openPalette(table);
+    const container = mount(createElement(FilterPalette, { store: table as unknown as BaseDataViewStore<HasId> }));
+
+    act(() => searchInput(container).focus());
+    type(searchInput(container), "name");
+    press(searchInput(container), "Enter");
+
+    expect(palette.page).toEqual({ kind: "value", field: "name" });
+    expect(draftValue()?.tagName).toBe("INPUT");
+    expect(document.activeElement).toBe(draftValue());
+    expect(document.activeElement).not.toBe(document.body);
+  });
+
+  it("returns focus to the search when Enter commits a text value and the palette goes back to the root", () => {
+    const table = tableStore();
+    const palette = openPalette(table);
+    const container = mount(createElement(FilterPalette, { store: table as unknown as BaseDataViewStore<HasId> }));
+
+    act(() => searchInput(container).focus());
+    type(searchInput(container), "name");
+    press(searchInput(container), "Enter");
+    type(draftValue() as HTMLInputElement, "acme");
+    press(draftValue() as HTMLInputElement, "Enter");
+
+    expect(palette.page.kind).toBe("root");
+    expect(document.activeElement).toBe(searchInput(container));
+  });
+
+  it("leaves focus alone when the palette opens on the root page", () => {
+    const table = tableStore();
+    openPalette(table);
+    const outside = document.createElement("button");
+    document.body.append(outside);
+    containers.push(outside);
+    act(() => outside.focus());
+
+    mount(createElement(FilterPalette, { store: table as unknown as BaseDataViewStore<HasId> }));
+
+    expect(document.activeElement).toBe(outside);
   });
 });
 

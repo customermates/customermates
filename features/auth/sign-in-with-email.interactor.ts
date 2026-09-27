@@ -15,7 +15,10 @@ import { onboardingIntentFromPath, pathWithOnboardingIntent } from "@/features/c
 
 const Schema = z.object({
   email: z.email(),
-  password: z.string().min(PASSWORD_MIN_LENGTH),
+  password: z.string().superRefine((password, ctx) => {
+    if (password.length < PASSWORD_MIN_LENGTH)
+      ctx.addIssue({ code: "custom", params: { error: CustomErrorCode.invalidCredentials } });
+  }),
   rememberMe: z.boolean(),
   callbackURL: callbackUrlSchema.optional(),
 });

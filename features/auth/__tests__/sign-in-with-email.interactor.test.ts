@@ -18,6 +18,7 @@ vi.mock("@/core/validation/validation.utils", async (importOriginal) => {
 });
 
 import { SignInWithEmailInteractor } from "../sign-in-with-email.interactor";
+import { CustomErrorCode } from "@/core/validation/validation.types";
 
 describe("SignInWithEmailInteractor", () => {
   it("passes the callback through authentication and returns it as the safe destination", async () => {
@@ -95,7 +96,16 @@ describe("SignInWithEmailInteractor", () => {
     });
 
     expect(result).toMatchObject({ ok: false });
-    if ("ok" in result && !result.ok) expect(result.error.issues[0]).toMatchObject({ path: ["password"] });
+    if ("ok" in result && !result.ok) {
+      expect(result.error.issues).toEqual([
+        expect.objectContaining({
+          code: "custom",
+          path: ["password"],
+          params: { error: CustomErrorCode.invalidCredentials },
+          message: "Common.errors.invalidCredentials",
+        }),
+      ]);
+    }
     expect(signInWithEmail).not.toHaveBeenCalled();
   });
 });

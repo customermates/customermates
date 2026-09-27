@@ -796,6 +796,12 @@ describe("vocabulary families", () => {
     expect(tokenize("chat with Mate")).toContain(stem("chat", "english"));
   });
 
+  it("reads an English e-mail as email, and leaves the German E-Mail as it is", () => {
+    expect(tokenize("send an e-mail signature")).toEqual(tokenize("send an email signature"));
+    expect(tokenize("E-Mails")).toEqual(tokenize("emails"));
+    expect(tokenize("E-Mail senden", "german")).toEqual(tokenize("Mail senden", "german"));
+  });
+
   it("keeps words that often mean a customer's people, or several kinds of history, out of the account and audit families", () => {
     for (const word of ["colleague", "employee", "salesperson"])
       expect(synonymsOf(word), word).not.toContain(stem("member", "english"));
@@ -993,10 +999,55 @@ describe("query concepts", () => {
     expect(concepts("Sehe ich meine WhatsApp-Nachrichten im CRM?", "german")).toEqual(termsOf("posteingang", "german"));
     for (const query of [
       "How do I connect WhatsApp?",
-      "reactivate a disconnected LinkedIn account",
       "How many LinkedIn messages can I send per day?",
       "What are the LinkedIn rate limits?",
     ])
+      expect(concepts(query), query).toEqual([]);
+    expect(concepts("reactivate a disconnected LinkedIn account")).not.toContain(stem("inbox", "english"));
+  });
+
+  it("reads a channel's status label or trouble as a question about channel status and reactivating", () => {
+    for (const query of [
+      "My Gmail channel says Reconnect needed",
+      "Reconnect needed",
+      "My Outlook channel shows Permission issue",
+      "Gmail stopped syncing",
+    ])
+      expect(concepts(query), query).toEqual(termsOf("reactivate status"));
+    for (const query of [
+      "Mein Gmail-Kanal zeigt Erneute Verbindung nötig",
+      "Mein Outlook-Kanal zeigt Berechtigungsproblem",
+    ])
+      expect(concepts(query, "german"), query).toEqual(termsOf("reaktivieren status", "german"));
+    expect(concepts("Erneute Verbindung nötig", "german")).toEqual(termsOf("reaktivieren status", "german"));
+    for (const query of [
+      "How do I connect WhatsApp?",
+      "I have a permission issue creating contacts",
+      "webhook delivery error",
+      "How do I reconnect Claude after the connection expired?",
+      "LinkedIn rate limit error",
+      "Error connecting my Gmail channel",
+    ])
+      expect(concepts(query), query).toEqual([]);
+    for (const query of [
+      "LinkedIn Limit Fehler",
+      "Fehler beim Verbinden des Gmail-Kanals",
+      "Claude erneute Verbindung",
+      "Wie stelle ich eine erneute Verbindung zu Claude her?",
+    ])
+      expect(concepts(query, "german"), query).toEqual([]);
+  });
+
+  it("reads connecting an email account or inbox as a question about channels", () => {
+    for (const query of [
+      "how do I connect my email",
+      "can I connect my work email",
+      "Can I connect my e-mail account?",
+      "can I connect a shared inbox",
+      "connect IMAP",
+    ])
+      expect(concepts(query), query).toEqual(termsOf("channel"));
+    for (const query of ["How do I set an email signature?", "connect Claude", "How do I connect WhatsApp?"])
       expect(concepts(query), query).toEqual([]);
   });
 

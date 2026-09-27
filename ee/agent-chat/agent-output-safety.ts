@@ -61,7 +61,7 @@ const COOKIE_HEADER_PATTERN = /(\b(?:cookie|set-cookie)\b\s*[:=]\s*)[^\r\n]*/gi;
 const SECRET_LABEL_SOURCE =
   "(?:api[ _-]?key|password|passcode|secret|client[ _-]?secret|access[ _-]?token|refresh[ _-]?token|auth[ _-]?token|credential)";
 const SECRET_ASSIGNMENT_PATTERN = new RegExp(
-  `(\\b${SECRET_LABEL_SOURCE}\\b\\s*[:=]\\s*)(?!(?:\\[redacted\\]|\\[internal details\\]))(?:"[^"\\r\\n]*(?:"|$)|'[^'\\r\\n]*(?:'|$)|[^\\s,;}\\]"'\\r\\n]+)`,
+  `(\\b${SECRET_LABEL_SOURCE}\\b\\s*[:=]\\s*)(?!(?:\\[redacted\\]|\\[internal details\\]|[*_]{1,3}(?:\\s|$)))(?:"[^"\\r\\n]*(?:"|$)|'[^'\\r\\n]*(?:'|$)|[^\\s,;}\\]"'\\r\\n]+)`,
   "gi",
 );
 const URL_CREDENTIAL_PATTERN = /(\b[a-z][a-z0-9+.-]*:\/\/[^\s/:@]+:)[^\s/@]+@/gi;

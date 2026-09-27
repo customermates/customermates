@@ -17,7 +17,7 @@ Alle vier Bedingungen müssen erfüllt sein; fehlt eine, etwa im Starter-Tarif, 
 
 - **Customermates Cloud.** Self-Hosted-Installationen haben keinen Posteingang: Der Seitenleisten-Eintrag ist ausgeblendet, und `/inbox` leitet zum Dashboard um.
 - **Ein Tarif mit Messaging:** Pro, Business, Enterprise oder eine Testphase. Im Starter-Tarif bleibt die Seite in der Seitenleiste, ist aber gesperrt mit **Upgrade nötig, um Messaging freizuschalten**, und **Tarif upgraden** öffnet **Mein Unternehmen › Abonnement**.
-- **Ein nutzbares Abonnement**, also den Status **Aktiv** oder eine noch nicht abgelaufene Testphase.
+- **Ein nutzbares Abonnement**, also den Status **Aktiv** oder eine noch nicht abgelaufene Testphase. Solange der Status **Überfällig** oder **Gekündigt** ist, ist die Seite ebenso gesperrt, mit dem Text „Das Verbinden von Kanälen erfordert ein aktives Abonnement oder eine noch nicht abgelaufene Testphase.“
 - **Ihre Rolle:** die Zeile **Inbox-Nachrichten** mit **Lesen** auf **Alle**. Bei **Keine** ist der Seitenleisten-Eintrag ausgeblendet, und wer `/inbox` öffnet, landet wieder auf dem Dashboard. Die Rolle **Admin** hat immer Zugriff.
 
 **Link:** die Seite **Posteingang**, `/inbox`, und die Seite **Abonnement** für **Tarif upgraden**, `/company/subscription`. **Mate:** `navigate` und `highlight_element` mit `nav-inbox`, oder `nav-company-subscription` und danach `company-subscription-plan-picker` für die Tarifkarten (sichtbar bis zum ersten Checkout) oder `company-subscription-manage` für **Verwalten mit Lemon Squeezy** (um einen laufenden Tarif zu wechseln), beide nur für Rollen mit **Verwalten** bei **Unternehmen**; **Tarif upgraden** hat keine Id, deshalb nennt Mate den Button beim Namen.
@@ -57,7 +57,7 @@ Die Kopfleiste über der Liste enthält diese Steuerelemente:
 
 - **Suchen...** findet Konversationen nach Betreff, Nachrichtentext, Konversationsname sowie Namen oder Adressen der Teilnehmer.
 - **Filter** (Trichter-Symbol) bietet **Status**, **Kontakt** (benannt nach Ihrer Bezeichnung für Kontakte; Konversationen mit diesem verknüpften Kontakt), **Teilnehmer** (**nicht vollständig verknüpft** findet Konversationen mit jemandem, der noch nicht mit einem Kontakt verknüpft ist), **Anbieter** (der Kanal) und **Entwurf** (**hat welche** findet Konversationen mit einem gespeicherten Entwurf).
-- **Aktualisieren** holt sofort neue Nachrichten aus Ihren Kanälen und den geteilten Kanälen des Workspace (**Posteingang aktualisiert.**); bremst ein Anbieter, erscheint „Einige Kanäle haben ihr Rate-Limit erreicht. Bitte in ein paar Minuten erneut versuchen.“
+- **Aktualisieren** holt sofort neue Nachrichten aus Ihren Kanälen und den geteilten Kanälen des Workspace (**Posteingang aktualisiert.**); bremst ein Anbieter, erscheint „Einige Kanäle haben ihr Rate-Limit erreicht. Bitte in ein paar Minuten erneut versuchen.“ Der Button erscheint nur mit **Verwalten** bei **Inbox-Nachrichten**.
 - **Kanäle** öffnet **Mein Profil › Kanäle**, mit einer Zahl, wenn Kanäle Aufmerksamkeit brauchen. Der Button erscheint nur mit **Verwalten** bei **Inbox-Nachrichten**.
 
 Die Ansichtsleiste bietet **Alle** und Ihre persönlichen gespeicherten Ansichten. Die Liste zeigt 25 Konversationen pro Seite; die Seitennavigation wechselt zwischen 5, 10, 25 und 100. Der Seitenleisten-Eintrag **Posteingang** zeigt, wie viele der Konversationen, die Sie sehen können, **Ungelesen** sind.

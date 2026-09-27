@@ -11,13 +11,14 @@ import { assistantSurfaceProps, claimEscapeForAssistant } from "@/components/mod
 import { Button } from "@/components/ui/button";
 import { Popover, PopoverAnchor, PopoverContent, PopoverTitle } from "@/components/ui/popover";
 import { OVERLAY_TOPMOST_LAYER_CLASS } from "@/components/ui/overlay-contract";
+import { usableOverlayFocusTarget } from "@/components/ui/overlay-focus-target";
 import { cn } from "@/core/utils/cn";
 import { findAgentTargetElement } from "./ui-control.store";
 
 export function AgentTourNote({ note }: { note: string }) {
   return (
     <div aria-live="polite" className="mt-1 text-sm">
-      <MessageResponse controls={false} mode="static" showTableActions={false}>
+      <MessageResponse key={note} controls={false} mode="static" showTableActions={false}>
         {note}
       </MessageResponse>
     </div>
@@ -59,8 +60,20 @@ export const AgentTourOverlay = observer(function AgentTourOverlay() {
     const endOnAssistantEscape = (event: KeyboardEvent) => {
       if (claimEscapeForAssistant(event)) store.end();
     };
+    const rememberPageFocus = (event: FocusEvent) => {
+      if (
+        event.target instanceof Element &&
+        !event.target.closest("[data-agent-surface]") &&
+        usableOverlayFocusTarget(event.target)
+      )
+        store.rememberPageFocus(event.target);
+    };
     document.addEventListener("keydown", endOnAssistantEscape);
-    return () => document.removeEventListener("keydown", endOnAssistantEscape);
+    document.addEventListener("focusin", rememberPageFocus);
+    return () => {
+      document.removeEventListener("keydown", endOnAssistantEscape);
+      document.removeEventListener("focusin", rememberPageFocus);
+    };
   }, [active, store]);
 
   if (!active) return null;

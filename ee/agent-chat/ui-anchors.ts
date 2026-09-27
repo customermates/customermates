@@ -158,7 +158,7 @@ export const CONTROL_PAGES: ControlPage[] = [
       {
         control: "refresh",
         description:
-          "Refresh button that reloads the subscription status from billing (roles with company Manage; not during the trial or on Enterprise)",
+          "Refresh button that reloads the subscription status from billing (roles with company Manage once the workspace has a Lemon Squeezy subscription; not during the trial or on Enterprise)",
       },
       {
         control: "plan-picker",

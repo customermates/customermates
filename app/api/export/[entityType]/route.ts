@@ -27,6 +27,7 @@ import { buildExportColumns, buildSchemaSheetRows } from "@/features/data-transf
 import { buildWorkbook } from "@/features/data-transfer/workbook-writer";
 import { handleError, interactorFailureResponse } from "@/core/api/interactor-handler";
 import { mapRequestJsonError } from "@/core/api/request-json-error";
+import { getZodParseContext } from "@/core/validation/zod-error-map-server";
 
 export const runtime = "nodejs";
 
@@ -65,7 +66,7 @@ export async function POST(request: NextRequest, { params }: { params: Promise<{
 
     const entityType = parsedEntityType.data;
     const body = await request.json().catch(mapRequestJsonError);
-    const parsedBody = ExportRequestSchema.safeParse(body);
+    const parsedBody = ExportRequestSchema.safeParse(body, await getZodParseContext());
     if (!parsedBody.success) return NextResponse.json(z.prettifyError(parsedBody.error), { status: 400 });
 
     const invoke = invokerFor(entityType);

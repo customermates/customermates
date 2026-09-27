@@ -12,6 +12,13 @@ function bestHit(query: string, locale: ContentLocale): DocsSearchHit | undefine
   return result.structuredContent.results[0];
 }
 
+function hits(query: string, locale: ContentLocale): string[] {
+  const result = searchDocsTool.execute({ query, locale, source: "docs" }) as {
+    structuredContent: { results: DocsSearchHit[] };
+  };
+  return result.structuredContent.results.map((hit) => `${hit.slug}#${hit.anchor}`);
+}
+
 function excerpt(slug: string, query: string, locale: ContentLocale) {
   return mcpToolResultText(getDocsPageTool.execute({ slug, query, locale, source: "docs" }) as McpToolResult);
 }
@@ -29,6 +36,28 @@ describe("docs answers about API keys and invitation links", () => {
 
     expect([best?.slug, best?.anchor]).toEqual(["api-keys", anchor]);
     expect(excerpt("api-keys", query, locale)).toContain("365");
+  });
+
+  it("answers both halves of a key lifetime and webhook secret question, without drifting to channel sections", () => {
+    const combined = hits("How long does a quick connection key last, and who can see webhook secrets?", "en");
+
+    expect(combined[0]).toBe("api-keys#do-keys-expire");
+    expect(combined).toContain("webhooks#who-can-see-and-change-webhooks");
+    const keywords = hits("quick connection key webhook secrets", "en");
+    expect(keywords[0]).toBe("architecture-security#how-are-webhook-secrets-and-destinations-secured");
+    expect(keywords.filter((hit) => hit.startsWith("app-profile#") || hit.startsWith("app-inbox#"))).toEqual([]);
+  });
+
+  it.each([
+    ["en", "how do I connect a channel", "app-profile#how-do-i-connect-a-channel"],
+    ["en", "connect whatsapp", "app-profile#how-do-i-connect-a-channel"],
+    ["en", "connected accounts", "app-company#what-happens-to-connected-accounts-when-the-plan-changes"],
+    ["en", "how do I connect my email", "app-profile#how-do-i-connect-a-channel"],
+    ["en", "can I connect my work email", "app-profile#how-do-i-connect-a-channel"],
+    ["en", "connect my e-mail account", "app-profile#how-do-i-connect-a-channel"],
+    ["en", "can I connect a shared inbox", "app-inbox#do-i-need-a-connected-channel"],
+  ] as const)("keeps the %s channel question %j on its channel section", (locale, query, expected) => {
+    expect(hits(query, locale)[0]).toBe(expected);
   });
 
   it.each([

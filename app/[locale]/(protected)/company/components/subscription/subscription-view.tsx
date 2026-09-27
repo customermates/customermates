@@ -27,8 +27,9 @@ export const SubscriptionView = observer(({ initialSubscription }: Props) => {
   const subscription = subscriptionStore.subscription ?? initialSubscription;
   const showRefresh =
     userStore.canManage(Resource.company) &&
-    subscription?.plan !== SubscriptionPlan.enterprise &&
-    subscription?.status !== SubscriptionStatus.trial;
+    subscription?.hasActiveSubscription === true &&
+    subscription.plan !== SubscriptionPlan.enterprise &&
+    subscription.status !== SubscriptionStatus.trial;
 
   const topBarActions = useMemo(
     () => (

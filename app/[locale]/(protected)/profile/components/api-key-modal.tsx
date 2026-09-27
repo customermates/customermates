@@ -98,8 +98,17 @@ export const ApiKeyModal = observer(() => {
   const t = useTranslations();
   const { apiKeyModalStore, apiKeysStore } = useRootStore();
   const intlStore = useHydratedIntlStore();
-  const { aiConnectionStore, createdKey, creationPath, isLoading, close, hasUnsavedChanges, mode, viewingKey } =
-    apiKeyModalStore;
+  const {
+    aiConnectionStore,
+    canManage,
+    createdKey,
+    creationPath,
+    isLoading,
+    close,
+    hasUnsavedChanges,
+    mode,
+    viewingKey,
+  } = apiKeyModalStore;
   const { showDeleteConfirmation } = useDeleteConfirmation();
 
   const isView = mode === "view" && viewingKey !== null;
@@ -176,7 +185,7 @@ export const ApiKeyModal = observer(() => {
   return (
     <AppModal
       actions={
-        isView && viewingKey
+        isView && viewingKey && canManage
           ? [
               {
                 id: "delete-api-key",

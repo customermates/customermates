@@ -7,7 +7,7 @@ import type { ReactNode } from "react";
 import { CornerDownLeft, Loader2, Search } from "lucide-react";
 import { observer } from "mobx-react-lite";
 import { useTranslations } from "next-intl";
-import { useEffect, useMemo } from "react";
+import { useEffect, useMemo, useState } from "react";
 import { EntityType } from "@/generated/prisma";
 
 import { useRootStore } from "@/core/stores/root-store.provider";
@@ -35,6 +35,7 @@ export const GlobalSearchModal = observer(() => {
   const { globalSearchModalStore } = useRootStore();
   const openEntity = useOpenEntity();
   const { isOpen, debouncedSearchTerm, isLoading, results, recentItems } = globalSearchModalStore;
+  const [selectedValue, setSelectedValue] = useState("");
 
   useEffect(() => globalSearchModalStore.setWithUnsavedChangesGuard(false), []);
 
@@ -91,10 +92,17 @@ export const GlobalSearchModal = observer(() => {
   }, [results, recentItems, hasQuery, globalSearchModalStore, openEntity, t]);
 
   const hasItems = groupedResults.some((group) => group.items.length > 0);
+  const firstItem = groupedResults[0]?.items[0];
+  const firstValue = firstItem ? `${firstItem.type}-${firstItem.id}` : "";
+
+  useEffect(
+    () => setSelectedValue((current) => (isOpen && current ? firstValue : "")),
+    [firstValue, results, recentItems, isOpen],
+  );
 
   return (
     <CommandDialog
-      commandProps={{ shouldFilter: false }}
+      commandProps={{ shouldFilter: false, value: selectedValue, onValueChange: setSelectedValue }}
       description={t("GlobalSearch.placeholder")}
       focusReturnFallback={globalSearchModalStore.focusReturnFallback}
       focusReturnTarget={globalSearchModalStore.focusReturnTarget}

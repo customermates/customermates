@@ -17,7 +17,7 @@ All four conditions must hold; when one is missing, for example on Starter, the 
 
 - **Customermates Cloud.** Self-hosted installations have no Inbox: the sidebar entry is hidden and `/inbox` redirects to the Dashboard.
 - **A plan with messaging:** Pro, Business, Enterprise or a trial. On Starter the page stays in the sidebar but is locked under **Upgrade to unlock messaging**, and **Upgrade your plan** opens **My Company › Subscription**.
-- **A usable subscription**, meaning status **Active** or a trial that has not ended.
+- **A usable subscription**, meaning status **Active** or a trial that has not ended. While the status is **Past Due** or **Cancelled**, the page is locked the same way, with the text "Connecting channels requires an active subscription or a trial that hasn't expired."
 - **Your role:** the **Inbox messages** row set to **Read access** **All**. With **None** the sidebar entry is hidden and opening `/inbox` brings you back to the Dashboard. The **Admin** role always has access.
 
 **Link:** the **Inbox** page, `/inbox`, and the **Subscription** page for **Upgrade your plan**, `/company/subscription`. **Mate:** `navigate` and `highlight_element` with `nav-inbox`, or `nav-company-subscription` and then `company-subscription-plan-picker` for the plan cards (shown until the first checkout) or `company-subscription-manage` for **Manage with Lemon Squeezy** (to change a running plan), both only for roles with **Manage** on **Company**; **Upgrade your plan** has no id, so Mate names it.
@@ -57,7 +57,7 @@ The top bar above the list holds these controls:
 
 - **Search...** finds conversations by subject, message text, conversation name, and participant names or addresses.
 - **Filters** (funnel icon) offers **State**, **Contact** (named after your term for contacts; conversations with that linked contact), **Participants** (**not fully linked** finds conversations with someone not linked to a contact yet), **Provider** (the channel) and **Draft** (**has some** finds conversations with a saved draft).
-- **Refresh** pulls new messages from your channels and the workspace's shared channels right away (**Inbox refreshed.**); when a provider pushes back it says "Some channels hit their rate limit. Try again in a few minutes."
+- **Refresh** pulls new messages from your channels and the workspace's shared channels right away (**Inbox refreshed.**); when a provider pushes back it says "Some channels hit their rate limit. Try again in a few minutes." It appears only with **Manage** on **Inbox messages**.
 - **Channels** opens **My Profile › Channels**, with a number when channels need attention. It appears only with **Manage** on **Inbox messages**.
 
 The views rail offers **All** and your personal saved views. The list shows 25 conversations per page; the pagination switches between 5, 10, 25 and 100. The sidebar entry **Inbox** shows how many of the conversations you can see are **Unread**.

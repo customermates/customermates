@@ -2,6 +2,7 @@
 
 import type { RootStore } from "@/core/stores/root.store";
 
+import { reaction } from "mobx";
 import { afterEach, beforeEach, describe, expect, it, vi } from "vitest";
 
 import { AgentUiControlStore } from "@/app/components/agent-chat/ui-control.store";
@@ -75,6 +76,65 @@ describe("AgentUiControlStore beside the assistant panel", () => {
     expect(result.result).toContain("invite-modal-emails");
     expect(result.result).toContain("behind the assistant panel");
     expect(store.active).toBeNull();
+  });
+
+  it("skips a tour stop reached with Next or Back that sits behind the assistant panel", async () => {
+    assistantPanel();
+    control("connected-account-signature", new DOMRect(600, 500, 40, 20));
+    control("connected-account-email-save", new DOMRect(1054, 827, 153, 32));
+    control("connected-account-visibility", new DOMRect(600, 560, 40, 20));
+    const store = controlStore();
+    const shown: string[] = [];
+    const stopRecording = reaction(
+      () => store.active?.targetId,
+      (targetId) => {
+        if (targetId) shown.push(targetId);
+      },
+    );
+
+    const result = await store.startGuidedTour([
+      { targetId: "connected-account-signature", note: "Turn on the signature." },
+      { targetId: "connected-account-email-save", note: "Save the email settings." },
+      { targetId: "connected-account-visibility", note: "Share the account." },
+    ]);
+    expect(result.ok).toBe(true);
+
+    store.nextStep();
+    await vi.waitFor(() => expect(store.active?.targetId).toBe("connected-account-visibility"));
+    expect(store.active?.stepIndex).toBe(2);
+
+    store.previousStep();
+    await vi.waitFor(() => expect(store.active?.targetId).toBe("connected-account-signature"));
+
+    stopRecording();
+    expect(shown).not.toContain("connected-account-email-save");
+    store.end();
+  });
+
+  it("ends the tour when the last stop reached with Next sits behind the assistant panel", async () => {
+    assistantPanel();
+    control("connected-account-signature", new DOMRect(600, 500, 40, 20));
+    control("connected-account-email-save", new DOMRect(1054, 827, 153, 32));
+    const store = controlStore();
+    const shown: string[] = [];
+    const stopRecording = reaction(
+      () => store.active?.targetId,
+      (targetId) => {
+        if (targetId) shown.push(targetId);
+      },
+    );
+
+    const result = await store.startGuidedTour([
+      { targetId: "connected-account-signature", note: "Turn on the signature." },
+      { targetId: "connected-account-email-save", note: "Save the email settings." },
+    ]);
+    expect(result.ok).toBe(true);
+
+    store.nextStep();
+    await vi.waitFor(() => expect(store.active).toBeNull());
+
+    stopRecording();
+    expect(shown).toEqual(["connected-account-signature"]);
   });
 
   it("still highlights a target beside the assistant panel", async () => {

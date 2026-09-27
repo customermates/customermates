@@ -101,7 +101,7 @@ function renderModal(
   return renderToStaticMarkup(createElement(ApiKeyModal));
 }
 
-function renderViewModal(name = "Gemini") {
+function renderViewModal(name = "Gemini", canManage = true) {
   const rootStore = {
     apiKeysStore: { delete: vi.fn(), refresh: vi.fn() },
     intlStore: {
@@ -113,7 +113,7 @@ function renderViewModal(name = "Gemini") {
     userStore: {
       can: vi.fn().mockReturnValue(true),
       canAccess: vi.fn().mockReturnValue(true),
-      canManage: vi.fn().mockReturnValue(true),
+      canManage: vi.fn().mockReturnValue(canManage),
       user: null,
     },
   } as unknown as RootStore;
@@ -241,5 +241,13 @@ describe("ApiKeyModal add wizard", () => {
     expect(actionRail).toContain('data-variant="destructive"');
     expect(contentHeader).toContain("Gemini");
     expect(contentHeader).not.toContain("Common.actions.delete");
+  });
+
+  it("offers no Delete action to a role that can read keys but not manage them", () => {
+    const html = renderViewModal("Gemini", false);
+
+    expect(html).not.toContain('data-slot="app-modal-actions"');
+    expect(html).not.toContain("Common.actions.delete");
+    expect(html).toContain("Gemini");
   });
 });

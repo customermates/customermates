@@ -231,6 +231,7 @@ describe("agent interface targets", () => {
     expect(findAgentUiTarget("company-subscription-manage")?.description).toContain("Lemon Squeezy subscription");
     expect(findAgentUiTarget("company-subscription-manage")?.description).toContain("not on Enterprise");
     expect(findAgentUiTarget("company-subscription-refresh")?.description).toContain("not during the trial");
+    expect(findAgentUiTarget("company-subscription-refresh")?.description).toContain("Lemon Squeezy subscription");
     expect(findAgentUiTarget("company-subscription-plan-picker")?.description).toContain(
       "no Lemon Squeezy subscription",
     );
