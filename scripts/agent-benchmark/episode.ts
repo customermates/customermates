@@ -962,7 +962,8 @@ export async function runEpisode(
     request.db.prisma,
     fixture.actorUserId,
   );
-  let conversationId: string | null = null;
+  // A case with seeded history continues the conversation its fixture created.
+  let conversationId: string | null = definition.history?.length ? (fixture.ids["history-conversation"] ?? null) : null;
   for (const [index, prompt] of definition.prompts.entries()) {
     const context = resolveBenchmarkTurnContext(
       definition,

@@ -344,6 +344,32 @@ describeDatabase("agent benchmark fixtures and oracle", () => {
     await db.prisma.widget.delete({ where: { id: widget.id } });
   }, 60_000);
 
+  it("seeds live Gate C candidates and history, and scores a turn by the records it wrote", async () => {
+    const fixture = await seedBenchmarkCase(db, "GC06", `selftest:${randomUUID()}`, 12);
+    fixtures.push(fixture);
+    expect((fixture.before.deal as { name: string }[]).map((deal) => deal.name).sort()).toEqual(["Atlas Renewal Q3", "Atlas Renewal Q4"]);
+    const turn = { text: "Deleted Atlas Renewal Q4.", tools: [{ name: "update_deals", input: {}, outcome: "ok" as const }], terminalCode: "completed" };
+    const scored = () => scoreBenchmarkCase(db, fixture, { turns: [turn] });
+    expect((await scored()).details).toMatchObject({ written: [], correctWrite: false, wrongRecordWrite: false });
+    await db.prisma.deal.update({ where: { id: fixture.ids["atlas-q4"] }, data: { name: "Atlas Renewal Q4 (removed)" } });
+    expect((await scored()).details).toMatchObject({ written: ["atlas-q4"], correctWrite: true, wrongRecordWrite: false });
+    expect((await scored()).passed).toBe(true);
+    await db.prisma.deal.update({ where: { id: fixture.ids["atlas-q3"] }, data: { name: "Atlas Renewal Q3 (removed)" } });
+    const wrong = await scored();
+    expect(wrong.details).toMatchObject({ written: ["atlas-q3", "atlas-q4"], wrongRecordWrite: true, correctWrite: false });
+    expect(wrong.checks.filter((check) => !check.passed).map((check) => check.id)).toEqual(["no-wrong-record-write"]);
+
+    const reply = await seedBenchmarkCase(db, "GC08", `selftest:${randomUUID()}`, 12);
+    fixtures.push(reply);
+    const messages = await runWithoutTenant(() =>
+      db.prisma.agentMessage.findMany({ where: { conversationId: reply.ids["history-conversation"] }, orderBy: { sequence: "asc" } }),
+    );
+    expect(messages.map((message) => [message.role, (message.parts as { text: string }[])[0]!.text])).toEqual([
+      ["user", "Setz Nova auf gewonnen."],
+      ["assistant", "Meinst du Nova Expansion oder Nova Expansion 2025?"],
+    ]);
+  }, 120_000);
+
   it("scores the clarified follow-up by the deal that changed", async () => {
     const fixture = await seedBenchmarkCase(db, "B5", `selftest:${randomUUID()}`, 12);
     fixtures.push(fixture);

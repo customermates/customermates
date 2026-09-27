@@ -23,6 +23,14 @@ import {
 import { SCALE_CASES, isScaleCaseId, scoreScaleCase, seedScaleCase, type ScaleCaseId } from "./scale-cases";
 import { DOCS_CASES, isDocsCaseId, scoreDocsCase, type DocsCaseId } from "./docs-cases";
 import { HELDOUT_CASES, isHeldoutCaseId, scoreHeldoutCase, type HeldoutCaseId } from "./heldout-cases";
+import {
+  GUARD_LIVE_CASES,
+  isGuardLiveCaseId,
+  scoreGuardLiveCase,
+  seedGuardLiveCase,
+  type GuardLiveCaseId,
+  type GuardLiveDetails,
+} from "./guard-live-cases";
 import { isOutboundOrSupportAction } from "./tool-safety";
 
 export const FIXTURE_VERSION = "chat-benchmark-fixture-v7";
@@ -77,7 +85,8 @@ export type CaseId =
   | ComplexCaseId
   | ScaleCaseId
   | DocsCaseId
-  | HeldoutCaseId;
+  | HeldoutCaseId
+  | GuardLiveCaseId;
 export type BenchmarkDb = { prisma: PrismaClient; appOrigin: string };
 type Entity = "contact" | "organization" | "deal" | "service" | "task";
 type JsonObject = Prisma.InputJsonObject;
@@ -163,6 +172,8 @@ export type BenchmarkCase = { id: CaseId; title: string; actor: "driver" | "read
   judgeFacts?: readonly string[];
   /** Fair-retest held-out case: excluded from the merge check and from default case selection. */
   heldout?: boolean;
+  /** Earlier messages seeded into the episode's conversation before its first prompt (never sent as turns). */
+  history?: readonly { role: "user" | "assistant"; text: string }[];
 };
 
 function benchmarkMessage(template: string, values: Record<string, string> = {}) {
@@ -486,6 +497,19 @@ export const BENCHMARK_CASES: readonly BenchmarkCase[] = [
   ...SCALE_CASES,
   ...DOCS_CASES,
   ...HELDOUT_CASES,
+  ...GUARD_LIVE_CASES.map(({ id, title, actor, prompts, contexts, history, driver, judgeFacts, comparative, judgeable, heldout }) => ({
+    id,
+    title,
+    actor,
+    prompts,
+    contexts,
+    ...(history ? { history } : {}),
+    driver,
+    judgeFacts,
+    comparative,
+    judgeable,
+    heldout,
+  })),
 ] as const;
 
 export type Fixture = {
@@ -1020,6 +1044,7 @@ export async function seedBenchmarkCase(
     };
     if (isComplexCaseId(caseId)) await seedComplexCase(caseId, seedHelpers);
     if (isScaleCaseId(caseId)) await seedScaleCase(caseId, { ...seedHelpers, fullRoleId: id("full-role") });
+    if (isGuardLiveCaseId(caseId)) await seedGuardLiveCase(caseId, seedHelpers, id(actorKey));
   }, { timeout: 180_000 });
   return { caseId, namespace, companyId, sentinelCompanyId, actorUserId: id(actorKey), actorEmail, ids, before: await snapshotBenchmarkCompany(db, companyId), sentinelBefore: await snapshotBenchmarkCompany(db, sentinelCompanyId) };
 }
@@ -1033,7 +1058,7 @@ export type OracleCheck = {
   passed: boolean;
   gate: OracleCheckGate;
 };
-export type OracleResult = { caseId: CaseId; passed: boolean; checks: OracleCheck[] };
+export type OracleResult = { caseId: CaseId; passed: boolean; checks: OracleCheck[]; details?: GuardLiveDetails };
 const DATA_NEUTRAL_HOSTED_TOOLS = new Set<string>(["load_toolset", ...AGENT_UI_TOOL_NAMES]);
 const MCP_TOOLS_BY_NAME = new Map(ALL_MCP_TOOLS.map((tool) => [tool.name, tool]));
 export function isReadCall(tool: { name: string; input?: unknown }): boolean {
@@ -2251,6 +2276,17 @@ export async function scoreBenchmarkCase(db: BenchmarkDb, fixture: Fixture, obse
   if (isDocsCaseId(fixture.caseId)) scoreDocsCase(fixture.caseId, { text, unchanged, noMutatingTools, check });
   if (isHeldoutCaseId(fixture.caseId))
     scoreHeldoutCase(fixture.caseId, { turnTools: observed.turns.map((turn) => turn.tools), unchanged, noMutatingTools, check });
+  const details = isGuardLiveCaseId(fixture.caseId)
+    ? scoreGuardLiveCase(fixture.caseId, {
+        before: fixture.before,
+        after,
+        ids: fixture.ids,
+        text,
+        tools,
+        approvals: observed.turns.reduce((total, turn) => total + (turn.approvalDecisions?.length ?? 0), 0),
+        check,
+      })
+    : undefined;
   if (isScaleCaseId(fixture.caseId))
     scoreScaleCase(fixture.caseId, {
       text,
@@ -2269,7 +2305,7 @@ export async function scoreBenchmarkCase(db: BenchmarkDb, fixture: Fixture, obse
       without,
       soleLine,
     });
-  return { caseId: fixture.caseId, passed: checks.every((entry) => entry.passed), checks };
+  return { caseId: fixture.caseId, passed: checks.every((entry) => entry.passed), checks, ...(details ? { details } : {}) };
 }
 
 export async function assertBenchmarkCase(db: BenchmarkDb, fixture: Fixture, observed: ObservedCase) {
