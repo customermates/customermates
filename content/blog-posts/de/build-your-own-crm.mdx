@@ -77,7 +77,7 @@ Das ist der Weg, den die meisten überspringen, weil sie nicht wissen, dass es i
 
 **Realistische Optionen:**
 
-- **Customermates** (das CRM, das ich baue): moderner Stack, EU-gehostete Cloud oder selbst gehostet, Agent-nativ über MCP, vollständige REST-API, n8n-Community-Node. Modernes Pipedrive-Pendant.
+- **Customermates** (das CRM, das ich baue): moderner Stack, Cloud-Version (Datenbank in der AWS-Region Frankfurt) oder selbst gehostet, Agent-nativ über MCP, vollständige REST-API, n8n-Community-Node für ein separat betriebenes n8n. Modernes Pipedrive-Pendant.
 - **EspoCRM**: PHP-basiert, ausgereift, viele Module, etwas in die Jahre gekommen bei der UI.
 - **SuiteCRM**: SugarCRM-Fork, enterprise-tauglich, betrieblich aufwendiger.
 - **Twenty**: sehr moderne Oberfläche, jüngeres Projekt, noch weniger Funktionsumfang.
@@ -121,7 +121,8 @@ Für DACH-Unternehmen kommt zur Frage „welcher Weg lohnt sich" eine zweite Fra
 
 - **Selbst programmieren auf eigenen Servern**: maximale Datenhoheit, aber dafür voller Wartungsaufwand und eigene Verantwortung für Sicherheit, Backups, Verschlüsselung und Audit-Logs.
 - **No-Code US-Plattform**: AVV nötig, Schrems-II-Analyse, Risiko bei jedem Datenschutz-Vorfall. Funktioniert, ist aber mit Aufwand verbunden, den Sie als Geschäftsführer dauerhaft tragen.
-- **Open-Source selbst in der EU-Region gehostet oder der EU**: kein AVV mit Drittlandanbieter, klare Datenresidenz, Quellcode auditierbar. Der einfachste Weg zur DSGVO-Konformität, den ich kenne.
+- **Open-Source selbst gehostet in Deutschland oder der EU**: kein AVV mit Drittlandanbieter, klare Datenresidenz, Quellcode auditierbar. Der einfachste Weg zu einer sauberen DSGVO-Dokumentation, den ich kenne.
+- **Open-Source in der Cloud des Projekts**: ein normaler SaaS-Dienst mit AVV. Bei Customermates liegt die Datenbank in der AWS-Region Frankfurt; Hosting und weitere Unterauftragsverarbeiter, auch aus den USA, stehen in der [Liste der Unterauftragsverarbeiter](/subprocessors), ein [Auftragsverarbeitungsvertrag (AVV)](/dpa) liegt vor.
 
 Das ist kein Marketing-Argument, sondern eine rechtliche Realität. Wenn Sie im Mittelstand sind, mit Personalakten oder sensiblen Geschäftspartner-Daten arbeiten, oder einfach keine Lust auf laufende Compliance-Diskussionen haben, ist Open-Source-Selbst-Hosting der pragmatische Weg.
 

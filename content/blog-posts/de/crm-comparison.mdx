@@ -29,7 +29,7 @@ Genau das liefert diese Seite. Wir vergleichen 12 CRM-Plattformen in Feature-Tab
 
 | CRM                    | Typ                                  | Hauptsitz        | Bekannt für                                                                 |
 | ---------------------- | ------------------------------------ | ---------------- | --------------------------------------------------------------------------- |
-| Customermates          | Open Source, Cloud + Self-Hosted     | EU (Deutschland) | KI-Agenten bedienen das CRM, nativer Multi-Channel-Posteingang, DSGVO-nativ |
+| Customermates          | Open Source, Cloud + Self-Hosted     | EU (Deutschland) | MCP-Server für KI-Clients, Multi-Channel-Posteingang, selbst hostbar       |
 | Salesforce             | Cloud                                | USA              | Enterprise-Skalierung, AppExchange                                          |
 | HubSpot CRM            | Cloud (Free + kostenpflichtige Hubs) | USA              | Benutzerfreundlichkeit, Inbound-Marketing                                   |
 | Pipedrive              | Cloud                                | Estland/USA      | Visuelle Pipeline, Vertriebsfokus                                           |
@@ -52,19 +52,19 @@ Diese Vergleichstabelle beantwortet die wichtigste Frage pro Zeile: Bietet diese
 | Unternehmensmanagement | Ja | Ja | Ja | Ja | Ja | Ja | Ja | Ja | Ja | Ja | Ja | Ja |
 | Visuelle Vertriebspipeline | Ja | Ja | Ja | Ja | Ja | Ja | Ja | Ja | Ja | Ja | Ja | Ja |
 | Benutzerdefinierte Felder | Ja | Ja | Ja | Begrenzt | Ja | Ja | Begrenzt | Ja | Begrenzt | Ja | Ja | Begrenzt |
-| Benutzerdefinierte Entitäten | Ja | Ja | Nein | Nein | Ja | Ja | Nein | Nein | Nein | Ja | Nein | Nein |
-| E-Mail-Integration | Ja | Ja | Ja | Ja | Ja | Ja | Ja | Ja | Ja | Ja | Ja | Ja |
-| Integrierte Automatisierung | Nein; externes n8n | Ja | Kostenpflichtig | Kostenpflichtig | Ja | Ja | Kostenpflichtig | Ja | Ja | Ja | Ja | Begrenzt |
+| Benutzerdefinierte Entitäten | Nein (5 feste) | Ja | Nein | Nein | Ja | Ja | Nein | Nein | Nein | Ja | Nein | Nein |
+| E-Mail-Integration | Ab Pro (Cloud) | Ja | Ja | Ja | Ja | Ja | Ja | Ja | Ja | Ja | Ja | Ja |
+| Integrierte Automatisierung | Kein Regel-Baukasten; Routinen (Cloud) + externes n8n | Ja | Kostenpflichtig | Kostenpflichtig | Ja | Ja | Kostenpflichtig | Ja | Ja | Ja | Ja | Begrenzt |
 | Visueller Workflow-Builder | Externes n8n | Ja | Ja | Nein | Ja | Ja | Nein | Ja | Ja | Ja | Nein | Nein |
-| KI-Funktionen | Über externe MCP-Clients | Ja | Kostenpflichtig | Kostenpflichtig | Kostenpflichtig | Ja | Ja | Kostenpflichtig | Begrenzt | Begrenzt | Begrenzt | Begrenzt |
-| KI-Agenten bedienen das CRM (native MCP) | Ja | Nein | Nein | Nein | Nein | Nein | Nein | Nein | Nein | Nein | Nein | Nein |
-| Nativer vereinheitlichter Posteingang (E-Mail + LinkedIn + WhatsApp + Instagram + Telegram) | Ja | Begrenzt | Begrenzt | Begrenzt | Begrenzt | Begrenzt | Begrenzt | Begrenzt | Begrenzt | Begrenzt | Begrenzt | Begrenzt |
+| KI-Funktionen | Mate (Cloud) + MCP | Ja | Kostenpflichtig | Kostenpflichtig | Kostenpflichtig | Ja | Ja | Kostenpflichtig | Begrenzt | Begrenzt | Begrenzt | Begrenzt |
+| MCP-Server für KI-Agenten | Ja, jeder Tarif | Ja (gehostet, ab Enterprise Edition) | Ja (Remote-MCP-Server) | Ja (jeder Tarif) | Ja | Prüfen | Prüfen | Prüfen | Prüfen | Prüfen | Prüfen | Prüfen |
+| Nativer einheitlicher Posteingang (E-Mail + LinkedIn + WhatsApp + Instagram + Telegram) | Ab Pro (Cloud) | Begrenzt | Begrenzt | Begrenzt | Begrenzt | Begrenzt | Begrenzt | Begrenzt | Begrenzt | Begrenzt | Begrenzt | Begrenzt |
 | API-Zugang | Inklusive | Kostenpflichtig | Kostenpflichtig | Inklusive | Inklusive | Inklusive | Inklusive | Inklusive | Inklusive | Inklusive | Inklusive | Inklusive |
 | Reporting-Dashboards | Ja | Ja | Ja | Ja | Ja | Ja | Ja | Ja | Ja | Ja | Ja | Ja |
 | Benutzerdefinierte Berichte | Ja | Ja | Kostenpflichtig | Kostenpflichtig | Ja | Ja | Kostenpflichtig | Kostenpflichtig | Begrenzt | Ja | Kostenpflichtig | Begrenzt |
 | Audit-Logging | Ja | Kostenpflichtig | Kostenpflichtig | Nein | Kostenpflichtig | Ja | Nein | Nein | Nein | Ja | Nein | Nein |
 | Mobile App | Nur responsive Weboberfläche | Ja | Ja | Ja | Ja | Ja | Ja | Ja | Ja | Ja | Ja | Ja |
-| Datenimport/-export | REST API oder MCP; kein CSV-Workflow | Ja | Ja | Ja | Ja | Ja | Ja | Ja | Ja | Ja | Ja | Ja |
+| Datenimport/-export | XLSX je Entität, REST, MCP; kein CSV | Ja | Ja | Ja | Ja | Ja | Ja | Ja | Ja | Ja | Ja | Ja |
 
 ## CRM Vergleichstabelle: Datenschutz und Hosting
 
@@ -74,51 +74,47 @@ Für EU-Unternehmen und alle, die Datensouveränität ernst nehmen, ist diese Ta
 |-----------|:---:|:---:|:---:|:---:|:---:|:---:|:---:|:---:|:---:|:---:|:---:|:---:|
 | Open Source | Ja | Nein | Nein | Nein | Nein | Nein | Nein | Nein | Nein | Nein | Nein | Nein |
 | Self-Hosting möglich | Ja | Nein | Nein | Nein | Nein | On-Prem-Option | Nein | Nein | Nein | Nein | Nein | Nein |
-| EU-Hosting (Standard) | Datenbankregion in der EU | Nein | Nein | Nein | Nein | Nein | Nein | Nein | Nein | Nein | Nein | Nein |
-| EU-Hosting (verfügbar) | Ja | Ja | Kostenpflichtig | Ja | Ja | Ja | Begrenzt | Begrenzt | Nein | Begrenzt | Nein | Nein |
-| DSGVO-nativ | Ja | Nein | Nein | Nein | Nein | Nein | Nein | Nein | Nein | Nein | Nein | Nein |
-| Vollständiger Datenexport | REST API; kein Export-Workflow | Ja | Ja | Ja | Ja | Ja | Ja | Ja | Begrenzt | Ja | Ja | Ja |
+| EU-Hosting (verfügbar) | Cloud-DB in Frankfurt (AWS) | Ja | Bezahlte Konten | Ja | Ja | Ja | Begrenzt | Begrenzt | Nein | Begrenzt | Nein | Nein |
+| Datenexport | XLSX je Datensatztyp + REST-API; kein Komplett-Export | Ja | Ja | Ja | Ja | Ja | Ja | Ja | Begrenzt | Ja | Ja | Ja |
 | AVV inklusive | Ja | Ja | Ja | Ja | Ja | Ja | Ja | Ja | Ja | Ja | Ja | Ja |
 
 ## CRM Preisvergleich
 
-Beworbene Einstiegspreise verschleiern die realen Kosten. Diese Tabelle zeigt, was ein typisches KMU tatsächlich zahlt, wenn es Automatisierung, Reporting, API und benutzerdefinierte Felder benötigt.
+Beworbene Einstiegspreise verschleiern die realen Kosten. Diese Tabelle zeigt, was ein typisches KMU tatsächlich zahlt, wenn es Automatisierung, Reporting, API und benutzerdefinierte Felder benötigt. Die Preise der Wettbewerber sind Listenpreise von der offiziellen Preisseite des jeweiligen Anbieters, Stand September 2026, ohne Mehrwertsteuer: [Salesforce](https://www.salesforce.com/sales/pricing/), [HubSpot](https://www.hubspot.de/pricing/sales), [Pipedrive](https://www.pipedrive.com/de/pricing), [Zoho CRM](https://www.zoho.com/de/crm/zohocrm-pricing.html), [Dynamics 365](https://www.microsoft.com/de-de/dynamics-365/products/sales/pricing), [Freshsales](https://www.freshworks.com/de/crm/pricing/), [monday CRM](https://monday.com/crm/pricing), [GoHighLevel](https://www.gohighlevel.com/pricing), [Insightly](https://www.insightly.com/pricing/) und [Close](https://www.close.com/pricing).
 
 | CRM           | Günstigster Plan     | Plan für die meisten KMUs | Preis (pro Nutzer/Monat)             | Jahresabrechnung nötig? |
 | ------------- | -------------------- | ------------------------- | ------------------------------------ | ----------------------- |
 | Customermates | Starter              | Starter                   | [[commercial.price.starter.monthly]] | Nein                    |
-| Salesforce    | Starter Suite        | Pro Suite                 | 95 Euro                              | Ja                      |
-| HubSpot       | Free                 | Sales Professional        | 100 Euro                             | Ja                      |
-| Pipedrive     | Lite                 | Premium                   | 49 Euro                              | Ja                      |
-| Zoho CRM      | Free (3 Nutzer)      | Professional              | 23 Euro                              | Ja                      |
-| Dynamics 365  | Sales Professional   | Sales Enterprise          | 100 Euro                             | Ja                      |
-| Freshsales    | Free                 | Pro                       | 39 Euro                              | Ja                      |
-| Monday CRM    | Basic (min. 3 Seats) | Pro                       | 28 Euro                              | Ja                      |
-| GoHighLevel   | Starter              | Unlimited                 | 297 USD (Flatrate)                   | Nein                    |
-| NetSuite CRM  | Im ERP enthalten     | Im ERP enthalten          | 99+ USD                              | Ja                      |
-| Insightly     | Plus                 | Professional              | 49 USD                               | Ja                      |
-| Close         | Solo                 | Growth                    | 99 USD                               | Ja                      |
+| Salesforce    | Free Suite           | Pro Suite                 | 100 $                                | Ja                      |
+| HubSpot       | Free                 | Sales Professional        | 90 € (100 € monatlich) + 1.470 € Onboarding | Nein, monatlich teurer |
+| Pipedrive     | Lite                 | Premium                   | 59 € (79 € monatlich)                | Nein, monatlich teurer  |
+| Zoho CRM      | Free (3 Nutzer)      | Professional              | Regionale Preise (siehe Anbieter)    | Nein                    |
+| Dynamics 365  | Sales Professional   | Sales Enterprise          | 91 €                                 | Ja                      |
+| Freshsales    | Free                 | Pro                       | 39 € (jährlich)                      | Nein, monatlich teurer  |
+| Monday CRM    | Basic (min. 3 Plätze) | Pro                      | 28 € (41 € monatlich)                | Nein, monatlich teurer  |
+| GoHighLevel   | Starter              | Unlimited                 | 297 $ (Pauschale je Konto)           | Nein                    |
+| NetSuite CRM  | Im ERP enthalten     | Im ERP enthalten          | Auf Anfrage                          | Auf Anfrage             |
+| Insightly     | Plus                 | Professional              | 49 $                                 | Ja                      |
+| Close         | Solo                 | Growth                    | 109 $ Listenpreis (Aktionen variieren) | Nein                  |
 
 ### 3-Jahres-Gesamtkosten (10 Nutzer)
 
-Das ist die Zahl, die zählt: Abonnementkosten plus realistische Implementierungs-, Schulungs- und Add-on-Kosten.
+Das ist die Zahl, die zählt: Abonnementkosten für 10 Nutzer über 36 Monate im Plan aus der Tabelle oben plus realistische Implementierungs-, Schulungs- und Add-on-Kosten. Zoho CRM und NetSuite fehlen, weil ihre Preise je Region variieren oder nur auf Anfrage genannt werden.
 
 | CRM                           | 3-Jahres-Abo                                            | Implementierung (Schätzung) | 3-Jahres-Gesamt                          |
 | ----------------------------- | ------------------------------------------------------- | --------------------------- | ---------------------------------------- |
-| Customermates                 | [[commercial.price.starter.monthly.seats.10.months.36]] | 0-500 Euro                  | Katalog-Abo + 0-500 Euro Implementierung |
-| Zoho CRM Professional         | 8.280 Euro                                              | 500-2.000 Euro              | 8.780-10.280 Euro                        |
-| Monday CRM Pro                | 10.080 Euro                                             | 500-1.000 Euro              | 10.580-11.080 Euro                       |
-| Freshsales Pro                | 14.040 Euro                                             | 500-1.000 Euro              | 14.540-15.040 Euro                       |
-| Pipedrive Premium             | 17.640 Euro                                             | 500-1.000 Euro              | 18.140-18.640 Euro                       |
-| HubSpot Sales Professional    | 36.000 Euro                                             | 1.000-5.000 Euro            | 37.000-41.000 Euro                       |
-| Salesforce Pro Suite          | 34.200 Euro                                             | 5.000-15.000 Euro           | 39.200-49.200 Euro                       |
-| Dynamics 365 Sales Enterprise | 36.000 Euro                                             | 5.000-20.000 Euro           | 41.000-56.000 Euro                       |
-| GoHighLevel Unlimited         | 10.692 USD (Flatrate)                                   | 500-2.000 USD               | 11.192-12.692 USD                        |
-| NetSuite CRM                  | 35.000+ USD                                             | 10.000-30.000 USD           | 45.000-65.000 USD                        |
-| Close Growth                  | 35.640 USD                                              | 500-1.000 USD               | 36.140-36.640 USD                        |
-| Insightly Professional        | 17.640 USD                                              | 500-2.000 USD               | 18.140-19.640 USD                        |
+| Customermates Starter         | [[commercial.price.starter.monthly.seats.10.months.36]] | 0–500 €                     | [[commercial.price.starter.monthly.seats.10.months.36]] + 0–500 € |
+| Monday CRM Pro                | 10.080 €                                                | 500–1.000 €                 | 10.580–11.080 €                          |
+| Freshsales Pro                | 14.040 €                                                | 500–1.000 €                 | 14.540–15.040 €                          |
+| Pipedrive Premium             | 21.240 €                                                | 500–1.000 €                 | 21.740–22.240 €                          |
+| HubSpot Sales Professional    | 32.400 €                                                | 1.470 € Onboarding + 1.000–5.000 € | 34.870–38.870 €                   |
+| Salesforce Pro Suite          | 36.000 $                                                | 5.000–15.000 $              | 41.000–51.000 $                          |
+| Dynamics 365 Sales Enterprise | 32.760 €                                                | 5.000–20.000 €              | 37.760–52.760 €                          |
+| GoHighLevel Unlimited         | 10.692 $ (Pauschale)                                    | 500–2.000 $                 | 11.192–12.692 $                          |
+| Close Growth                  | 39.240 $                                                | 500–1.000 $                 | 39.740–40.240 $                          |
+| Insightly Professional        | 17.640 $                                                | 500–2.000 $                 | 18.140–19.640 $                          |
 
-Der Unterschied zwischen der günstigsten und teuersten Option über drei Jahre übersteigt 50.000 Euro für ein 10-Personen-Team. Das ist ein zusätzlicher Mitarbeiter, ein Marketingbudget oder eine Produktinvestition.
+Der Unterschied zwischen der günstigsten und der teuersten Option über drei Jahre kann für ein 10-Personen-Team mehr als 45.000 € betragen. Das ist ein zusätzlicher Mitarbeiter, ein Marketingbudget oder eine Produktinvestition.
 
 ## CRM Vergleich für kleine Unternehmen
 
@@ -126,14 +122,14 @@ Kleine Unternehmen (1-50 Mitarbeiter) haben andere Anforderungen als Konzerne. S
 
 | Kriterium                               | Beste Optionen                    | Warum                                                                                                    |
 | --------------------------------------- | --------------------------------- | -------------------------------------------------------------------------------------------------------- |
-| Schnellste Einrichtung                  | HubSpot, Pipedrive, Customermates | Unter 1 Stunde bis zum ersten Deal in der Pipeline                                                       |
-| Niedrigste Kosten (mit Automatisierung) | Customermates                     | [[commercial.price.starter.monthly]]/Nutzer, Automatisierung in jedem Plan inklusive                     |
+| Schnellste Einrichtung                  | HubSpot, Pipedrive, Customermates | Selbstregistrierung und eine einfache Standard-Pipeline                                                  |
+| Günstig mit Automatisierung             | Zoho CRM, Freshsales, Customermates | Zohos kostenlose Edition (bis 3 Nutzer) enthält einfache Workflow-Automatisierung; Freshsales Growth enthält einfache Workflows für 9 €/Nutzer bei jährlicher Abrechnung; Customermates Starter für [[commercial.price.starter.monthly]]/Nutzer hat keinen Regel-Baukasten, aber Webhooks, REST-API und n8n-Anbindung ohne Aufpreis (n8n separat) |
 | Ohne Kreditkarte starten                | HubSpot, Zoho, Freshsales         | Kostenlose Pläne verfügbar (mit Einschränkungen)                                                         |
 | Für einzelne Vertriebsmitarbeiter       | Pipedrive, Close                  | Pipeline-first-Design, minimaler Overhead                                                                |
-| DSGVO-Konformität                       | Customermates                     | EU-gehostet, DSGVO-nativ, Open Source                                                                    |
+| Datenschutz und Kontrolle               | Customermates                     | Selbst hostbar, AVV, Cloud-Datenbank in Frankfurt, Open Source                                           |
 | Für Agenturen                           | GoHighLevel                       | White-Label, Mandantenfähigkeit                                                                          |
 | Bei vorhandenem Microsoft 365           | Dynamics 365                      | Native Outlook-/Teams-Integration                                                                        |
-| Bestes Gesamtpaket zum kleinen Preis    | Customermates, Zoho               | Voller Funktionsumfang ohne Editions-Aufschlag (Customermates) oder zu wettbewerbsfähigen Preisen (Zoho) |
+| Bestes Gesamtpaket zum kleinen Preis    | Customermates, Zoho               | Kern-CRM ohne Editions-Aufschlag (Customermates) oder zu wettbewerbsfähigen Preisen (Zoho) |
 
 ### Was kleine Unternehmen vermeiden sollten
 
@@ -147,7 +143,7 @@ Unterschiedliche Geschäftsprioritäten erfordern unterschiedliche CRM-Stärken.
 
 | Ihre Priorität | Erste Wahl | Zweite Wahl | Warum |
 |-----------------|-----------|-------------|------|
-| Datenschutz und DSGVO | Customermates | Dynamics 365 (On-Prem) | Eine der wenigen Open-Source-Optionen mit EU-Hosting und Self-Hosting |
+| Datenschutz und DSGVO | Customermates | Dynamics 365 (On-Prem) | Open Source und selbst hostbar; Cloud-Datenbank in Frankfurt |
 | Niedrigste Gesamtkosten | Customermates | Zoho CRM | [[commercial.price.starter.monthly]]/Nutzer mit dem vollen Kern-CRM vs. gestaffelte Preise |
 | Enterprise-Skalierung (500+ Nutzer) | Salesforce | Dynamics 365 | Bewährt im Großeinsatz mit breitem Ökosystem |
 | Inbound-Marketing | HubSpot | GoHighLevel | Marketing Hub ist Klassenbester (zum entsprechenden Preis) |
@@ -156,7 +152,7 @@ Unterschiedliche Geschäftsprioritäten erfordern unterschiedliche CRM-Stärken.
 | Visuelle/projektartige Arbeit | Monday CRM | Insightly | Board-basierte Oberfläche, bekannt aus Projekttools |
 | Marketing-Agentur | GoHighLevel | HubSpot | White-Label, Multi-Mandant, für Agenturen gebaut |
 | Integriertes Telefonieren | Close | Freshsales | Nativer Dialer, Anrufaufzeichnung, keine Add-ons nötig |
-| Workflow-Automatisierung | Customermates | Salesforce | n8n-Automatisierung unterstützt vs. kostenpflichtige Flow-Add-ons |
+| Workflow-Automatisierung | Salesforce | Customermates + n8n | Flow-Builder im Produkt vs. separat betriebenes n8n über Webhooks und REST-API |
 | Microsoft-Ökosystem | Dynamics 365 | Salesforce | Native Outlook-, Teams-, Power-BI-Integration |
 | Budget + KI-Funktionen | Freshsales | Zoho CRM | Freddy AI in mittleren Plänen enthalten |
 
@@ -166,11 +162,11 @@ Bestimmte Branchen haben spezifische CRM-Anforderungen. Hier sehen Sie, welche P
 
 | Branche              | Zentrale CRM-Anforderung                     | Beste Wahl                             | Warum                                        |
 | -------------------- | -------------------------------------------- | -------------------------------------- | -------------------------------------------- |
-| Dienstleistungen     | Projektverfolgung nach Abschluss             | Insightly, Customermates               | Projektmanagement im CRM integriert          |
+| Dienstleistungen     | Projektverfolgung nach Abschluss             | Insightly                              | Projektmanagement im CRM integriert          |
 | Fertigung/Produktion | ERP-Integration, Angebotswesen               | NetSuite, Dynamics 365                 | Native ERP-Verbindung für Aufträge und Lager |
-| Gesundheitswesen     | DSGVO, Datensicherheit                       | Customermates, Salesforce Health Cloud | Privacy-first-Architektur                    |
+| Gesundheitswesen     | DSGVO, Datensicherheit                       | Customermates (selbst gehostet), Salesforce Health Cloud | Eigene Infrastruktur bzw. Branchen-Cloud |
 | Immobilien           | Pipeline pro Objekt, visuelle Boards         | Pipedrive, Monday CRM                  | Visuelle Pipeline, einfache Anpassung        |
-| SaaS / Technologie   | Automatisierung, API, Integrationen          | Customermates, HubSpot                 | Starke API + Automatisierung auf jeder Stufe |
+| SaaS / Technologie   | Automatisierung, API, Integrationen          | Customermates, HubSpot                 | Starke API und Webhooks auf jeder Stufe      |
 | Handel / E-Commerce  | Marketing-Automatisierung, Kontaktvolumen    | HubSpot, Zoho                          | Marketing-Tools + große Kontaktmengen        |
 | Agenturen            | White-Label, Multi-Mandant                   | GoHighLevel                            | Speziell für das Agenturmodell gebaut        |
 | Startups             | Niedrige Kosten, schneller Start, skalierbar | Customermates, Pipedrive               | Günstiger Einstieg mit Raum zum Wachsen      |
@@ -189,7 +185,7 @@ Eine der wichtigsten strategischen Entscheidungen ist, ob Sie ein spezialisierte
 - Vorteil: Ein Anbieter, einheitliche Daten, weniger Integration nötig
 - Nachteil: Höhere Kosten, Vendor Lock-in, Features teils weniger tief als bei Spezialisten
 
-**Der Mittelweg**: Customermates verbindet sich über Webhooks, REST API und Community-Node mit einer separat betriebenen n8n-Instanz. Das CRM bleibt fokussiert, während die externe Workflow-Engine weitere Tools verbindet.
+**Der Mittelweg**: Customermates verbindet sich über Webhooks, REST-API und einen Community-Node mit einer separat betriebenen n8n-Instanz. Das CRM bleibt fokussiert, während die externe Workflow-Engine weitere Tools verbindet.
 
 ## So erstellen Sie Ihre eigene CRM-Vergleichstabelle
 
@@ -221,37 +217,37 @@ Dieser strukturierte Ansatz entfernt Emotion und Anbietereinfluss aus der Entsch
 
 ### Open Source und Datensouveränität
 
-Die Bewegung hin zu Open-Source-CRM beschleunigt sich, da Unternehmen Dateneigentum und Anbieterunabhängigkeit priorisieren. Customermates ist Open Source und self-hostbar, mit einer verwalteten Datenbank in einer EU-Region und API-Zugang zu den eigenen Daten.
+Die Bewegung hin zu Open-Source-CRM beschleunigt sich, da Unternehmen Dateneigentum und Anbieterunabhängigkeit priorisieren. Customermates ist Open Source und self-hostbar, mit einer verwalteten Datenbank in der AWS-Region Frankfurt, offengelegten Unterauftragsverarbeitern und API-Zugang zu den eigenen Daten.
 
 ### KI: Vom Hype zum Nutzen
 
-Jeder CRM-Anbieter bewirbt mittlerweile KI-Funktionen. Customermates geht einen anderen Weg: Über eine native MCP-Integration bedienen KI-Agenten (Claude, ChatGPT, Gemini) das CRM direkt. Sie übernehmen die Dateneingabe, die Vertriebsmitarbeiter meiden, Deal-Phasen wandern weiter, Follow-ups werden entworfen und Kontaktnotizen bleiben aktuell, sodass die Pipeline die Realität abbildet. Diese native KI-Bedienung ist im Standardpreis enthalten, statt hinter Enterprise-Stufen versteckt zu werden.
+Jeder CRM-Anbieter bewirbt mittlerweile KI-Funktionen. Customermates geht einen anderen Weg: Über eine native MCP-Integration bedienen KI-Agenten (Claude, ChatGPT, Gemini) das CRM direkt. Ein KI-Client kann die Dateneingabe übernehmen, die Vertriebsmitarbeiter meiden (Deal-Phasen weiterschieben, Follow-ups entwerfen, Kontaktnotizen aktuell halten), während Sie seine Änderungen und Entwürfe prüfen. So bildet die Pipeline die Realität ab. Der MCP-Zugang ist in jedem Tarif enthalten, statt hinter Enterprise-Stufen versteckt zu sein; den KI-Client und dessen Anbieter bezahlen Sie separat.
 
 ### Automatisierung als Basisfunktion
 
-Die wirkungsvollste Verschiebung: Automatisierung wandelt sich vom Premium-Add-on zur Grunderwartung. CRMs mit integrierter visueller Workflow-Automatisierung (wie Customermates mit n8n) ermöglichen Teams, ohne Zapier, Make oder individuelle Entwicklung zu automatisieren.
+Die wirkungsvollste Verschiebung: Automatisierung wandelt sich vom Premium-Add-on zur Grunderwartung. CRMs mit eingebautem Workflow-Builder oder offenen Webhooks und einer Anbindung an Tools wie n8n (so macht es Customermates) ermöglichen Teams, ohne teure Automatisierungs-Add-ons zu automatisieren.
 
 ### Datenschutzregulierung verschärft sich
 
-Die DSGVO-Durchsetzung intensiviert sich in ganz Europa, und ähnliche Regulierungen breiten sich weltweit aus. CRMs, die DSGVO-nativ und standardmäßig in der EU gehostet sind, haben einen strukturellen Vorteil gegenüber denen, die Compliance als Zusatz nachrüsten.
+Die DSGVO-Durchsetzung intensiviert sich in ganz Europa, und ähnliche Regulierungen breiten sich weltweit aus. CRMs mit transparentem Datenstandort, offengelegten Unterauftragsverarbeitern und Self-Hosting-Option haben einen strukturellen Vorteil gegenüber denen, die Datenschutz als Zusatz nachrüsten.
 
 ## Wo Customermates für KMUs am besten passt
 
 Über die Vergleichstabellen auf dieser Seite hinweg schneidet Customermates bei den Kriterien gut ab, die für kleine und mittlere Unternehmen am wichtigsten sind:
 
-**KI-Agenten bedienen das CRM**: Über eine native MCP-Integration ([[derived.mcp.tools.total]] Tools) lesen und schreiben Claude, ChatGPT und Gemini direkt im CRM. Sie übernehmen die Dateneingabe, sodass Deal-Phasen weiterwandern, Follow-ups entworfen werden und Notizen aktuell bleiben, ohne dass ein Mitarbeiter ein Formular anfasst.
+**KI-Clients arbeiten im CRM**: Über eine native MCP-Integration ([[derived.mcp.tools.total]] Tools) lesen und schreiben Claude, ChatGPT und Gemini direkt im CRM. Ein KI-Client kann die Dateneingabe übernehmen (Deal-Phasen weiterschieben, Follow-ups entwerfen, Notizen aktuell halten), während Sie seine Änderungen und Entwürfe prüfen.
 
-**Nativer vereinheitlichter Posteingang**: E-Mail, LinkedIn, WhatsApp, Instagram und Telegram in einem Posteingang im CRM (ab der Pro-Stufe), und dieselben KI-Agenten können über jeden Kanal lesen, entwerfen und senden. Wenige CRMs bieten natives Multi-Channel-Messaging, und fast keines lässt eine KI es bedienen.
+**Nativer einheitlicher Posteingang**: E-Mail, LinkedIn, WhatsApp, Instagram und Telegram in einem Posteingang im CRM (ab der Pro-Stufe), und dieselben KI-Agenten können über jeden Kanal lesen, entwerfen und senden. Wenige CRMs verbinden natives Multi-Channel-Messaging mit einem MCP-Server.
 
 **Niedrige Gesamtbetriebskosten**: ab [[commercial.price.starter.monthly]] pro Nutzer und Monat mit dem vollen Kern-CRM inklusive. Keine Kontakt-Aufpreise. Zehn Nutzer kosten auf Starter aktuell [[commercial.price.starter.monthly.seats.10]] pro Monat, ein Bruchteil der meisten Alternativen.
 
-**Open Source und selbst hostbar**: Vollständiger Quellcode-Zugang, Self-Hosting via Docker (AGPL-3.0), kein Vendor Lock-in. Sie können den Code inspizieren, ändern und auf Ihrer eigenen Infrastruktur bereitstellen.
+**Open Source und selbst hostbar**: Öffentlicher Quellcode unter AGPL-3.0 (mit einem kommerziell lizenzierten `ee/`-Ordner), Self-Hosting via Docker. Sie können den Code prüfen, ändern und auf Ihrer eigenen Infrastruktur betreiben; Datensätze lassen sich per REST-API und XLSX-Export (je Datensatztyp) übernehmen.
 
-**n8n-Automatisierung**: Visuelle Workflow-Automatisierung ohne Aufpreis inklusive. Automatisieren Sie Lead-Routing, Follow-ups, Datensynchronisation, Benachrichtigungen und jeden wiederholbaren Prozess, ohne Drittanbieter-Tools.
+**Automatisierung über n8n**: Webhooks, die REST-API und ein Community-Node binden ein separat betriebenes n8n ohne Aufpreis an. Automatisieren Sie Lead-Routing, Follow-up-Aufgaben, Datensynchronisation und Benachrichtigungen; in der Cloud kommen Routinen des Assistenten Mate hinzu.
 
-**DSGVO-nativ, EU-gehostet**: In der EU entwickelt und gehostet, mit Datenschutz als grundlegendem Designprinzip, nicht als nachträglich hinzugefügtes Compliance-Häkchen.
+**Datenschutz transparent**: In Mannheim entwickelt. In der Cloud-Version liegt die Datenbank in der AWS-Region Frankfurt; Hosting und weitere Unterauftragsverarbeiter, auch aus den USA, stehen in der [Liste der Unterauftragsverarbeiter](/subprocessors), ein [AVV](/dpa) liegt vor. Wer den Speicherort vollständig selbst bestimmen will, betreibt den Open-Source-Kern selbst.
 
-**Benutzerdefinierte Felder und Entitäten**: Bilden Sie jeden Geschäftsprozess ab, ohne auf Anbieter-Features zu warten oder Berater zu engagieren.
+**Benutzerdefinierte Felder**: Zehn typisierte Spaltentypen auf Kontakten, Organisationen, Deals, Services und Aufgaben bilden die meisten Geschäftsprozesse ab, ohne auf Anbieter-Features zu warten oder Berater zu engagieren.
 
 **Vollständiger API-Zugang inklusive**: Jede Integration ist ab dem ersten Tag möglich, nicht hinter einer Enterprise-Stufe gesperrt.
 
@@ -267,19 +263,19 @@ Erstellen Sie eine gewichtete Bewertungsmatrix. Listen Sie Ihre Must-have-Featur
 </FaqItem>
 
 <FaqItem question="Welches CRM mit Automatisierung ist am günstigsten?">
-Customermates bietet ab [[commercial.price.starter.monthly]]/Nutzer/Monat n8n-Workflow-Automatisierung ohne Nutzungslimits. Zoho CRM enthält Basisautomatisierung ab 23 Euro/Nutzer/Monat. HubSpot und Pipedrive erfordern kostenpflichtige Pläne (49-100 Euro/Nutzer/Monat) für Automatisierungsfunktionen. Kostenlose CRM-Pläne bieten in der Regel keine nennenswerte Automatisierung.
+Die kostenlose Edition von Zoho CRM (bis 3 Nutzer) enthält einfache Workflow-Automatisierung, Freshsales enthält einfache Workflows ab 9 €/Nutzer/Monat bei jährlicher Abrechnung (Stand September 2026). Customermates bietet ab [[commercial.price.starter.monthly]]/Nutzer/Monat Webhooks und eine REST-API für ein separat betriebenes n8n ohne Aufpreis; einen eingebauten Regel-Baukasten hat es nicht. Pipedrive beginnt mit Automatisierungen im Growth-Plan (39 € pro Platz und Monat bei jährlicher Abrechnung, Stand September 2026), HubSpot bietet Workflows in bezahlten Tarifen. Kostenlose Pläne begrenzen Nutzer und Funktionen; prüfen Sie die Grenzen.
 </FaqItem>
 
 <FaqItem question="Ist ein Open-Source-CRM zuverlässig für den Geschäftseinsatz?">
-Ja. Open-Source-CRM-Software wie Customermates ist produktionsreif und wird täglich von Unternehmen genutzt. Open Source bedeutet, dass Sie den Code inspizieren, selbst hosten und Vendor Lock-in vermeiden können. Es bedeutet nicht ohne Support. Customermates bietet eine vollständig verwaltete Cloud-Option mit EU-Hosting ab [[commercial.price.starter.monthly]]/Nutzer/Monat.
+Ja. Open-Source-CRM-Software wie Customermates ist produktionsreif. Open Source bedeutet, dass Sie den Code prüfen, selbst hosten und die Abhängigkeit vom Anbieter verringern können. Es bedeutet nicht ohne Support. Customermates bietet eine vollständig verwaltete Cloud-Option (Datenbank in der AWS-Region Frankfurt) ab [[commercial.price.starter.monthly]]/Nutzer/Monat.
 </FaqItem>
 
 <FaqItem question="Welches CRM ist am besten für die DSGVO-Konformität?">
-Customermates ist Open Source und self-hostbar. Die verwaltete Datenbank ist in einer EU-Region konfiguriert; die Rechtsseiten legen Cloud-Subdienstleister und Transfergarantien offen. Prüfen Sie das vollständige Deployment und den Vertrag statt eines pauschalen Hosting-Labels.
+Customermates ist Open Source und self-hostbar. Die verwaltete Datenbank liegt in der AWS-Region Frankfurt; die [Liste der Unterauftragsverarbeiter](/subprocessors) legt Cloud-Dienstleister, auch aus den USA, und Transfergarantien offen, ein [AVV](/dpa) liegt vor, eine Zertifizierung gibt es nicht. Prüfen Sie das vollständige Deployment und den Vertrag statt eines pauschalen Hosting-Labels.
 </FaqItem>
 
 <FaqItem question="Kann ich später das CRM-System wechseln?">
-Ja, aber der Aufwand variiert. CRMs mit vollständigem Datenexport (CSV, API) machen die Migration unkompliziert. Open-Source-CRMs wie Customermates minimieren Lock-in, weil Sie die Daten und das System besitzen. Plattformen mit tiefen Multi-Hub-Abhängigkeiten (HubSpot) oder umfangreichen Anpassungen (Salesforce) sind schwieriger und teurer zu verlassen.
+Ja, aber der Aufwand variiert. CRMs mit vollständigem Datenexport (CSV, API) machen die Migration unkompliziert. Open-Source-CRMs wie Customermates verringern die Abhängigkeit mit XLSX-Export je Datensatztyp, REST-API und der Option zum Self-Hosting. Plattformen mit tiefen Multi-Hub-Abhängigkeiten (HubSpot) oder umfangreichen Anpassungen (Salesforce) sind schwieriger und teurer zu verlassen.
 </FaqItem>
 
 <FaqItem question="Was gehört in eine CRM-Vergleichstabelle?">
@@ -287,7 +283,7 @@ Eine praktische CRM-Vergleichstabelle enthält Spalten für CRM-Name, monatliche
 </FaqItem>
 
 <FaqItem question="Was kostet CRM-Software wirklich?">
-Beworbene Preise unterschätzen die realen Kosten. Für ein 10-Personen-Team über 3 Jahre reichen die tatsächlichen Kosten von [[commercial.price.starter.monthly.seats.10.months.36]] (Customermates) bis über 50.000 Euro (Salesforce, Dynamics 365), wenn Sie den Plan einbeziehen, den die meisten Unternehmen brauchen, plus Implementierung, Schulung und Add-ons. Berechnen Sie immer die Gesamtbetriebskosten, nicht nur den Listenpreis.
+Beworbene Preise unterschätzen die realen Kosten. Für ein 10-Personen-Team über 3 Jahre reichen die tatsächlichen Kosten von [[commercial.price.starter.monthly.seats.10.months.36]] (Customermates) bis über 50.000 € (Dynamics 365) oder 50.000 $ (Salesforce), wenn Sie den Plan einbeziehen, den die meisten Unternehmen brauchen, plus Implementierung, Schulung und Add-ons. Berechnen Sie immer die Gesamtbetriebskosten, nicht nur den Listenpreis.
 </FaqItem>
 </Faq>
 
@@ -297,4 +293,4 @@ Die CRM-Vergleichstabellen auf dieser Seite decken Features, Preise, Datenschutz
 
 Nutzen Sie diese Vergleichstabellen als Ausgangspunkt. Erstellen Sie Ihre eigene Bewertungsmatrix mit dem Framework oben. Testen Sie Ihre Top-2-3-Optionen mit echten Workflows und echten Daten. Berechnen Sie die 3-Jahres-Gesamtbetriebskosten, nicht nur den monatlichen Preis pro Nutzer.
 
-Für die meisten kleinen und mittleren Unternehmen, die transparente Preise, Dateneigentum, Automatisierung und DSGVO-Konformität schätzen, liefert Customermates ab [[commercial.price.starter.monthly]] pro Nutzer und Monat starken Wert pro Euro gegenüber den Alternativen in diesem Vergleich.
+Für die meisten kleinen und mittleren Unternehmen, die transparente Preise, Dateneigentum, Automatisierung und Datenschutz schätzen, liefert Customermates ab [[commercial.price.starter.monthly]] pro Nutzer und Monat starken Wert pro Euro gegenüber den Alternativen in diesem Vergleich.

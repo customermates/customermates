@@ -10,6 +10,7 @@ import type { RoutingLocale } from "@/i18n/locale-registry";
 import { createContext, useContext, useEffect, useLayoutEffect, useState } from "react";
 
 import { RootStore } from "@/core/stores/root.store";
+import { NavigationGuardProvider } from "@/core/stores/navigation-guard.context";
 import type { AppMode } from "@/core/config/environment";
 import { initializeNavigationHistoryGuard } from "@/components/modal/navigation-history-guard";
 
@@ -50,7 +51,11 @@ export function RootStoreProvider({ agentChatEnabled, appMode, children, initial
     rootStore.intlStore.markClientHydrated();
   }, [rootStore]);
 
-  return <RootStoreContext.Provider value={rootStore}>{children}</RootStoreContext.Provider>;
+  return (
+    <RootStoreContext.Provider value={rootStore}>
+      <NavigationGuardProvider guard={rootStore.navigationGuard}>{children}</NavigationGuardProvider>
+    </RootStoreContext.Provider>
+  );
 }
 
 export function useRootStore() {

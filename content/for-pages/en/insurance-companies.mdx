@@ -39,9 +39,9 @@ A **CRM for insurance companies** can support distribution, broker, agency, and 
     Keep partner organizations, stakeholders, relationship stages, and next
     actions connected.
   </SummaryItem>
-  <SummaryItem label="Useful proof">
+  <SummaryItem label="Feature scope">
     Organizations, contacts, configurable deals, custom fields, filters,
-    kanban, activity, and linked tasks.
+    table and Kanban views, activity, and linked tasks.
   </SummaryItem>
   <SummaryItem label="System boundary">
     No policy administration, claims, underwriting, rating, billing, actuarial
@@ -49,7 +49,7 @@ A **CRM for insurance companies** can support distribution, broker, agency, and 
   </SummaryItem>
 </ArticleSummary>
 
-<ProofRail label="Verified CRM capabilities for insurance distribution relationships">
+<ProofRail label="CRM capabilities for insurance distribution relationships">
   <ProofItem label="Partners">Agencies and broker organizations</ProofItem>
   <ProofItem label="People">Business contacts and relations</ProofItem>
   <ProofItem label="Pipeline">Configurable opportunities</ProofItem>
@@ -69,12 +69,12 @@ Customermates can give a partnership team a structured view of agencies, brokers
 | Partner-development opportunity | Deals, custom stages, filters, and kanban | Formal due diligence and appointment controls |
 | Next relationship action | Tasks linked to CRM records | Regulated workflow, service levels, and escalations |
 | Connected conversation | Managed unified inbox from Pro | Official communication and document archive |
-| Integration surface | REST, webhooks, MCP, and separate n8n option | Policy, claims, underwriting, billing, and data platforms |
+| Interfaces | REST, webhooks, MCP, and separate n8n option | Policy, claims, underwriting, billing, and data platforms |
 
 <AcquisitionCallout title="Do not model core insurance operations as generic deals" variant="boundary">
   A configurable pipeline is useful for a commercial partner relationship. It
-  is not a claims engine, underwriting workbench, policy lifecycle, reserve
-  ledger, commission system, or evidence that operational controls exist.
+  does not replace claims, underwriting, policy, reserve or commission
+  systems, and it is no evidence that operational controls exist.
 </AcquisitionCallout>
 
 ## A practical broker-relationship workflow
@@ -91,8 +91,8 @@ Create an organization for a brokerage or agency and connect the relevant busine
     without importing policyholder or claims records.
   </Step>
   <Step title="Configure the commercial stages">
-    Use stages such as identified, contacted, due diligence handled externally,
-    commercial review, active relationship, or closed.
+    Use stages such as “Identified”, “Contacted”, “Due diligence handled
+    externally”, “Commercial review”, “Active relationship” or “Closed”.
   </Step>
   <Step title="Add bounded partner fields">
     Store non-authoritative values such as partner type, territory, internal
@@ -108,23 +108,23 @@ Create an organization for a brokerage or agency and connect the relevant busine
 
 Customermates does not administer policies, accept first notice of loss, assign claims, calculate reserves, adjudicate coverage, perform underwriting, price risk, calculate commissions, collect premiums, issue documents, or maintain actuarial models.
 
-Written premium, loss ratios, risk classifications, policyholder health or financial information, claims evidence, and formal appointment status should not be copied into generic CRM fields unless the insurer has separately designed and approved that data flow. Resource permissions do not provide field- or record-level isolation, and Customermates carries no insurance compliance certification.
+Written premium, loss ratios, risk classifications, policyholder health or financial information, claims evidence, and formal appointment status should not be copied into generic CRM fields unless the insurer has separately designed and approved that data flow. Permissions apply per resource and action, not per field; read access can be limited to records a user is assigned to. Customermates carries no insurance compliance certification.
 
 For partner-performance analysis, keep the authoritative measures in the insurance data platform. A bounded reference or a manually reviewed summary can support a conversation, but a CRM view is not the regulatory or financial report.
 
 ## Messaging, AI, and system connections
 
-The managed [unified inbox](/features/unified-inbox) is available from Pro upward for supported individual conversations. Participants can be associated with contact context. The inbox is not a policyholder campaign engine, and a message is not automatically linked to a policy, claim, underwriting file, or deal. Self-hosted deployments do not include messaging.
+The managed [unified inbox](/features/unified-inbox) is available from Pro upward for supported individual conversations. Participants can be associated with contact context. The inbox is not a policyholder campaign engine, and conversations are linked to contacts, not to policies, claims, underwriting files or deals. Self-hosted deployments do not include messaging.
 
 An authorized external AI client can use supported [MCP](/docs/mcp) actions on general CRM records. It does not become an underwriting, claims, actuarial, or regulatory agent. Sensitive insurance data should not enter an external client or model path without independent approval of the complete data flow.
 
-A customer-built connection can use the [REST API and webhooks](/features/api), MCP, or the separate [n8n integration](/features/workflow-automation). The insurer owns source authority, field mapping, permissions, validation, retries, duplicate handling, and operational controls. No native policy-administration, claims, underwriting, carrier, or actuarial integration is claimed.
+A customer-built connection can use the [REST API and webhooks](/features/api), MCP, or the separate [n8n integration](/features/workflow-automation). The insurer owns source authority, field mapping, permissions, validation, retries, duplicate handling, and operational controls. There is no native policy-administration, claims, underwriting, carrier, or actuarial integration.
 
 ## Deployment and commercial fit
 
-The managed Customermates database runs in an EU region; this is not a GDPR or insurance certification. Self-hosting lets the operator choose application and database infrastructure, but connected services and the surrounding control environment remain separate.
+In the managed cloud, the application database runs in the AWS Frankfurt region; hosting and other subprocessors, including US providers, are listed on the [subprocessors page](/subprocessors), and a [DPA](/dpa) is available. This is not a GDPR or insurance certification, and Customermates holds none. Self-hosting the open-source core lets the operator choose application and database infrastructure, but connected services and the surrounding control environment remain separate.
 
-Starter includes the core CRM. Pro adds the managed unified inbox and one connected account per user. Self-hosted deployments use Starter entitlements and do not include the unified inbox. See the [pricing page](/pricing) for current plan details.
+Starter includes the core CRM. Pro adds the managed unified inbox and one connected account per user. Self-hosted deployments have the Starter feature set and do not include the unified inbox. See the [pricing page](/pricing) for current plan details.
 
 Choose Customermates when a distribution or partnership team needs a configurable relationship CRM beside established insurance systems. Choose a specialist platform when the product itself must run policy, claims, underwriting, rating, billing, commission, or regulatory operations.
 
@@ -144,6 +144,6 @@ The strongest fit is agency, broker, service-partner, and commercial relationshi
 </FaqItem>
 
 <FaqItem question="Can Customermates integrate with core insurance systems?">
-A customer can build a bounded connection when the other system exposes a suitable interface. No native policy, claims, underwriting, billing, or carrier connector is claimed.
+A customer can build a bounded connection when the other system exposes a suitable interface. There is no native policy, claims, underwriting, billing, or carrier connector.
 </FaqItem>
 </Faq>

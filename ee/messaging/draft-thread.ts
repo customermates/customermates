@@ -1,11 +1,8 @@
 import type { MessagingProvider } from "@/generated/prisma";
 
-import { createHash } from "node:crypto";
 import { z } from "zod";
 
 import { normalizeChannelValue } from "@/features/contacts/channel-value";
-
-import { DRAFT_THREAD_PREFIX } from "./provider";
 
 export type DraftThreadTarget = {
   id: string;
@@ -52,17 +49,6 @@ export function normalizeDraftThreadRecipients(
     if (!normalizedRecipients.includes(normalized)) normalizedRecipients.push(normalized);
   }
   return normalizedRecipients;
-}
-
-function providerIdFromNormalizedRecipients(provider: MessagingProvider, recipients: readonly string[]): string {
-  const identity = JSON.stringify([provider, [...recipients].sort()]);
-  return `${DRAFT_THREAD_PREFIX}${createHash("sha256").update(identity).digest("hex")}`;
-}
-
-export function draftThreadProviderId(provider: MessagingProvider, recipients: readonly string[]): string {
-  const normalizedRecipients = normalizeDraftThreadRecipients(provider, recipients);
-  if (!normalizedRecipients) throw new Error("Cannot create a draft-thread ID from an invalid recipient");
-  return providerIdFromNormalizedRecipients(provider, normalizedRecipients);
 }
 
 export function draftThreadRecipientSetsMatch(

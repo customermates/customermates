@@ -10,6 +10,7 @@ import { IntlLink } from "@/i18n/navigation";
 
 import { AgplGithubBadge } from "./agpl-github-badge";
 import { MarketingContainer } from "./marketing-container";
+import { contentLinkPrefetch } from "@/i18n/content-links";
 
 type HeroBaseProps = {
   badge?: string;
@@ -58,7 +59,9 @@ function HeroAction({ href, label, variant }: { href: string; label: string; var
           {content}
         </a>
       ) : (
-        <IntlLink href={href}>{content}</IntlLink>
+        <IntlLink href={href} prefetch={contentLinkPrefetch(href)}>
+          {content}
+        </IntlLink>
       )}
     </Button>
   );
@@ -97,11 +100,11 @@ export function PageHero(props: Props) {
               </div>
             ) : null}
 
-            <h1 className={cn("m-0", visual ? "text-display-sm" : "text-display max-w-5xl")}>
-              {title}
+            <div className={cn("m-0", visual ? "text-display-sm" : "text-display max-w-5xl")}>
+              <h1 className="inline">{title}</h1>
 
               {titleAccent ? <span> {titleAccent}</span> : null}
-            </h1>
+            </div>
 
             <p className={cn("text-lede mt-7", !visual && "mx-auto")}>{description}</p>
 

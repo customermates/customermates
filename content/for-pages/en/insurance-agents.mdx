@@ -39,9 +39,9 @@ A **CRM for insurance agents** organizes the people, conversations, opportunitie
     Connect prospects, client contacts, referral partners, sales opportunities,
     and manual follow-up.
   </SummaryItem>
-  <SummaryItem label="Useful proof">
-    Organizations, contacts, custom deal stages, custom fields, filtered views,
-    kanban, and linked tasks.
+  <SummaryItem label="Feature scope">
+    Organizations, contacts, custom deal stages, custom fields, filtered table
+    and Kanban views, and linked tasks.
   </SummaryItem>
   <SummaryItem label="System boundary">
     No policy administration, carrier download, claims processing, commission
@@ -49,7 +49,7 @@ A **CRM for insurance agents** organizes the people, conversations, opportunitie
   </SummaryItem>
 </ArticleSummary>
 
-<ProofRail label="Verified relationship CRM capabilities for insurance agencies">
+<ProofRail label="Relationship CRM capabilities for insurance agencies">
   <ProofItem label="Prospects">Contacts and organizations</ProofItem>
   <ProofItem label="Sales">Configurable deal pipeline</ProofItem>
   <ProofItem label="Context">Carrier and source references</ProofItem>
@@ -87,15 +87,15 @@ Create a deal for a prospective relationship or renewal conversation. Connect it
     without copying a complete policy or claims file into the CRM.
   </Step>
   <Step title="Configure the sales stages">
-    Use stages such as inquiry, needs discussion, quote prepared externally,
-    customer decision, won, or closed.
+    Use stages such as “Inquiry”, “Needs discussion”, “Quote prepared
+    externally”, “Customer decision”, “Won” or “Closed”.
   </Step>
   <Step title="Add bounded reference fields">
     Store a product category, carrier reference, renewal month, referral source,
     or external AMS identifier when the agency's data policy permits it.
   </Step>
   <Step title="Record the next action">
-    Attach a task to the relevant CRM record. The task has no native due date,
+    Attach a task to the relevant CRM record. The task has no due date,
     recurrence, or automatic renewal schedule.
   </Step>
   <Step title="Continue insurance operations in the AMS">
@@ -106,7 +106,7 @@ Create a deal for a prospective relationship or renewal conversation. Connect it
 
 ## Renewal follow-up without a renewal engine
 
-A renewal month or external policy reference can help a user filter CRM opportunities and prepare a relationship review. A customer-operated scheduler or separate [n8n workflow](/features/workflow-automation) can create a task from an approved source date. Customermates does not calculate policy terms, start reminder sequences, send bulk renewal campaigns, or prevent a policy from lapsing.
+A renewal month or external policy reference can help a user filter CRM opportunities and prepare a relationship review. A separately operated [n8n workflow](/features/workflow-automation) can create tasks from a date field. On the cloud, a Mate [routine](/docs/app-routines) can list opportunities with an upcoming renewal month on a schedule and prepare conversation drafts for review; it uses AI credits and is not a reminder feature. Customermates does not calculate policy terms, start reminder sequences, send bulk renewal campaigns, or prevent a policy from lapsing.
 
 The same boundary applies to claims. A user can record that a relationship follow-up is needed, but Customermates does not accept first notice of loss, maintain the claim file, assign adjusters, calculate reserves, adjudicate coverage, or issue settlement communications.
 
@@ -114,21 +114,21 @@ The same boundary applies to claims. A user can record that a relationship follo
 
 Custom fields may hold high-level product references selected by the agency. Filtered views can help a user inspect those records. Customermates does not infer coverage gaps, recommend products, score clients, or run cross-sell campaigns.
 
-Commission rates, statements, reconciliation, clawbacks, and revenue forecasting belong in the AMS or accounting system. A configurable numeric field is not commission accounting and should not be described as one.
+Commission rates, statements, reconciliation, clawbacks, and revenue forecasting belong in the AMS or accounting system. A custom currency field holding a commission amount does not replace commission accounting.
 
 ## Individual conversations, AI, and integrations
 
-The managed [unified inbox](/features/unified-inbox) is available from Pro upward. It brings supported individual email and messaging conversations into the CRM, where participants can be associated with contact context. It is not a bulk campaign or sequence tool, and a message is not automatically attached to a policy or claim. Self-hosted deployments do not include the inbox.
+The managed [unified inbox](/features/unified-inbox) is available from Pro upward. It brings supported individual email and messaging conversations into the CRM, where participants can be associated with contact context. It is not a bulk campaign or sequence tool. Conversations are linked to contacts, not to policies, claims or deals. Self-hosted deployments do not include the inbox.
 
 An authorized external AI client can use supported [MCP](/docs/mcp) actions on CRM records. It does not quote insurance, determine coverage, analyze claims, calculate commissions, or replace a licensed professional's review.
 
-Customer-built connections can use the [REST API and webhooks](/features/api), MCP, or the separate n8n integration. The customer owns carrier and vendor contracts, field mapping, permissions, validation, retries, and duplicate handling. No native carrier-download, comparative-rater, policy, or claims integration is claimed.
+Customer-built connections can use the [REST API and webhooks](/features/api), MCP, or the separate n8n integration. The customer owns carrier and vendor contracts, field mapping, permissions, validation, retries, and duplicate handling. There is no native carrier-download, comparative-rater, policy, or claims integration.
 
 ## Data and deployment boundaries
 
-Keep policy documents, coverage details, health information, claim files, commission statements, and regulated advice in systems approved for them. Customermates permissions operate by resource and action, not by field or individual record. It carries no insurance or GDPR compliance certification.
+Keep policy documents, coverage details, health information, claim files, commission statements, and regulated advice in systems approved for them. Permissions apply per resource and action, not per field; read access can be limited to records a user is assigned to. Customermates carries no insurance or GDPR compliance certification.
 
-Starter includes the core CRM. Pro adds the managed unified inbox and one connected account per user. Self-hosted deployments use Starter entitlements and do not include the unified inbox. See the [pricing page](/pricing) for current plan details.
+Starter includes the core CRM. Pro adds the managed unified inbox and one connected account per user. Self-hosted deployments have the Starter feature set and do not include the unified inbox. See the [pricing page](/pricing) for current plan details.
 
 ## Frequently asked questions
 
@@ -142,10 +142,10 @@ No. A deal may represent the commercial conversation, and custom fields may hold
 </FaqItem>
 
 <FaqItem question="Can an agency use Customermates for renewal follow-up?">
-Yes, as a configurable relationship opportunity with filtered reference fields and manual tasks. Native recurring reminders and renewal sequences do not exist; date-driven task creation requires a customer-operated external workflow.
+Yes, as a configurable relationship opportunity with filtered reference fields and manual tasks. Recurring reminders and renewal sequences do not exist; date-driven tasks come from a separately operated workflow. On the cloud, a routine can build a list of upcoming renewals on a schedule.
 </FaqItem>
 
 <FaqItem question="Does Customermates connect directly to insurance carriers?">
-No native carrier or download connector is claimed. A customer may build a bounded integration when the carrier, AMS, or vendor exposes a suitable interface.
+There is no native carrier or download connector. A customer may build a bounded integration when the carrier, AMS, or vendor exposes a suitable interface.
 </FaqItem>
 </Faq>

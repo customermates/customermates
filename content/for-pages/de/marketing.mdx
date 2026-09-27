@@ -12,27 +12,27 @@ relatedHrefs:
 hero:
   title: "Die CRM-Beziehungsebene für Marketing und Vertrieb"
   description: "Halten Sie Kontakte, Organisationen, Quellenfelder und Deal-Kontext in einem CRM. Erfassung, Einwilligung, Kampagnen, Analytics und Scoring bleiben in separat betriebenen Systemen."
-  buttonLeftText: Pro-Test starten
+  buttonLeftText: Pro-Testphase starten
   buttonLeftHref: /auth/signup
   buttonRightText: Live-Demo erkunden
   buttonRightHref: https://demo.customermates.com
-  hint: "Keine Kreditkarte • [[commercial.trial.days]] Tage Testphase • Marketing-Automation bleibt separat"
+  hint: "Keine Kreditkarte • [[commercial.trial.days]] Tage Testphase • Marketing-Automatisierung bleibt separat"
 
 cta:
   action: Übergabe vom Marketing an den Vertrieb testen
   description: Legen Sie einen repräsentativen Lead an, erfassen Sie seine Quelle, verknüpfen Sie einen Deal und bestimmen Sie, welche Marketingdaten ins CRM gehören.
-  buttonLeftText: Pro-Test starten
+  buttonLeftText: Pro-Testphase starten
   buttonLeftHref: /auth/signup
   buttonRightText: CRM-Schnittstellen prüfen
   buttonRightHref: /features/api
-  hint: "Customermates hat keine native Kampagne, Form, Bewertung, Sequenz oder Attributions-Engine."
+  hint: "Customermates hat keine eigenen Kampagnen, Formulare, kein Lead-Scoring, keine Sequenzen und keine Attribution."
 ---
 
 ## Was ein CRM für Marketing leisten sollte
 
 Ein **CRM für Marketing-Teams** sollte den Beziehungs- und Vertriebskontext bewahren, der nach einem Kampagnenklick bleibt: wer die Person ist, zu welcher Organisation sie gehört, welchen Quellen- oder Kampagnenwert das Team erfasst hat, ob ein Deal besteht und wer die nächste Aktion verantwortet. Es sollte die Grenze zu Systemen für Einwilligung, Kampagnenzustellung, Attribution und Engagement nicht verwischen.
 
-Customermates stellt die Beziehungs- und Pipeline-Ebene bereit. Es enthält kein Kampagnenobjekt, keinen Form-Builder, Tracking-Pixel, Consent-Manager, natives Attributionsmodell, Lead-Scoring, Anreicherungs-Feed, Nurture-Sequenzen oder eingebettete n8n-Laufzeit.
+Customermates stellt die Beziehungs- und Pipeline-Ebene bereit. Es enthält keine Kampagnenobjekte, keinen Formular-Baukasten, kein Tracking-Pixel, keine Einwilligungsverwaltung, kein eigenes Attributionsmodell, kein Lead-Scoring, keine Datenanreicherung, keine Nurture-Sequenzen und keine eingebaute n8n-Laufzeit.
 
 <ArticleSummary title="Marketing-CRM auf einen Blick">
   <SummaryItem label="Nativer CRM-Umfang">
@@ -44,21 +44,21 @@ Customermates stellt die Beziehungs- und Pipeline-Ebene bereit. Es enthält kein
     Einwilligungsreferenzfelder und entscheidet, welches System sie schreiben darf.
   </SummaryItem>
   <SummaryItem label="Externer Marketing-Umfang">
-    Forms, Cookies, Consent, E-Mail-Kampagnen, Anzeigen, Analytics, Anreicherung,
-    Scoring und Zeitplanung bleiben separat.
+    Formulare, Cookies, Einwilligungen, E-Mail-Kampagnen, Anzeigen, Webanalyse,
+    Anreicherung, Scoring und Zeitplanung bleiben separat.
   </SummaryItem>
-  <SummaryItem label="Integrationsgrenze">
-    REST, Webhooks und MCP stellen unterstützte CRM-Aktionen bereit. Ein
-    kundenseitiger Workflow verantwortet Zugangsdaten, Zuordnung und Fehlerpfade.
+  <SummaryItem label="Schnittstellen">
+    REST, Webhooks und MCP stellen CRM-Aktionen bereit. Zugangsdaten, Zuordnung
+    und Fehlerbehandlung liegen bei Ihrem eigenen Workflow.
   </SummaryItem>
 </ArticleSummary>
 
-<ProofRail label="Verifizierte Customermates-Funktionen für die Marketing-Übergabe">
+<ProofRail label="Customermates-Funktionen für die Übergabe vom Marketing an den Vertrieb">
   <ProofItem label="Beziehungen">Kontakte und Organisationen</ProofItem>
-  <ProofItem label="Kontext">Kundendefinierte Quellenfelder</ProofItem>
+  <ProofItem label="Kontext">Eigene Quellenfelder</ProofItem>
   <ProofItem label="Umsatzpfad">Deals und konfigurierbare Phasen</ProofItem>
   <ProofItem label="Schnittstellen">REST, Webhooks und MCP</ProofItem>
-  <ProofItem label="Kommunikation">Cloud-Postfach ab Pro</ProofItem>
+  <ProofItem label="Kommunikation">Einheitlicher Posteingang ab Pro (Cloud)</ProofItem>
 </ProofRail>
 
 ## Welche Fragen das CRM beantworten sollte
@@ -66,12 +66,12 @@ Customermates stellt die Beziehungs- und Pipeline-Ebene bereit. Es enthält kein
 Für eine saubere Übergabe sollte das CRM wenige operative Fragen beantworten:
 
 - Existiert die Person oder Organisation bereits?
-- Welcher Quellen- oder Kampagnenwert wurde von welchem Ablauf und wann geliefert?
+- Welcher Quellen- oder Kampagnenwert wurde wann und von welchem Ablauf eingetragen?
 - Gibt es einen aktiven Deal und in welcher konfigurierten Phase befindet er sich?
 - Wer verantwortet Beziehung und nächste CRM-Aufgabe?
-- Welches externe System bleibt für Consent, Kampagnenzustellung und Analytics führend?
+- Welches externe System bleibt für Einwilligungen, Kampagnenversand und Webanalyse führend?
 
-Eigene Felder können Quellenname, Kampagnen-ID, Qualifizierungsnotiz oder die Referenz auf einen externen Einwilligungsdatensatz speichern. Diese Werte sind nur so verlässlich wie Erfassung und Zuordnung. Customermates ermittelt kein First-, Last- oder Multi-Touch-Modell.
+Eigene Felder können Quellenname, Kampagnen-ID, Qualifizierungsnotiz oder die Referenz auf einen externen Einwilligungsdatensatz speichern. Diese Werte sind nur so verlässlich wie Erfassung und Zuordnung. Customermates berechnet kein First-Touch-, Last-Touch- oder Multi-Touch-Modell.
 
 <AcquisitionCallout title="Gespeicherte Quelle ist keine automatische Attribution" variant="boundary">
   Ein Quellen- oder Kampagnenfeld kann Analysen stützen, wenn die Erfassungsregel
@@ -82,13 +82,13 @@ Eigene Felder können Quellenname, Kampagnen-ID, Qualifizierungsnotiz oder die R
 ## Ein begrenzter Workflow vom Marketing zum Vertrieb
 
 <Steps>
-  <Step title="Akquise-Autorität festlegen">
-    Form, Anzeigenplattform, Analytics- oder Eventsystem bleiben für die von
-    ihnen erfassten Daten einschließlich Consent und Tracking verantwortlich.
+  <Step title="Führendes System festlegen">
+    Formular-Tool, Anzeigenplattform, Webanalyse- oder Eventsystem bleiben für
+    die von ihnen erfassten Daten verantwortlich, einschließlich Einwilligung und Tracking.
   </Step>
   <Step title="Nur freigegebene Felder zuordnen">
-    Eine kundenseitige Integration kann unterstützte CRM-Datensätze per REST
-    oder MCP anlegen oder aktualisieren. Definieren Sie Zuordnung, Validierung
+    Ihre eigene Integration kann CRM-Datensätze per REST oder MCP anlegen oder
+    aktualisieren. Definieren Sie Zuordnung, Validierung
     und Duplikatprüfung vor dem Schreiben.
   </Step>
   <Step title="Vertriebskontext erstellen">
@@ -96,73 +96,76 @@ Eigene Felder können Quellenname, Kampagnen-ID, Qualifizierungsnotiz oder die R
     Deal mit konfigurierter Phase und verantwortlicher Person an.
   </Step>
   <Step title="Aus ausdrücklichen Werten messen">
-    Nutzen Sie gespeicherte Felder und Deal-Ergebnisse für deterministische
-    Auswertungen. Impressionen, Klicks, Sitzungen und Attribution bleiben im
-    Marketing-Analytics-System.
+    Nutzen Sie gespeicherte Felder und Deal-Ergebnisse für nachvollziehbare
+    Auswertungen. Impressionen, Klicks, Sitzungen und Attribution bleiben in
+    Ihrem Webanalyse-System.
   </Step>
 </Steps>
 
 ## Lead-Scoring und Anreicherung
 
-Customermates bewertet Leads nicht und reichert Datensätze nicht nativ an. Bei Bedarf kann ein separat betriebener Workflow zulässige Signale aus rechtmäßig genutzten Systemen lesen, einen dokumentierten Wert berechnen und ihn in ein eigenes Feld schreiben. Der externe Ablauf besitzt Formel, Zeitplan, Anbieterverträge, Ausschlussregeln, Wiederholungen, Monitoring und Kosten.
+Customermates bewertet Leads nicht und reichert Datensätze nicht nativ an. Bei Bedarf kann ein separat betriebener Workflow zulässige Signale aus Ihren Systemen lesen, einen nachvollziehbaren Wert berechnen und ihn in ein eigenes Feld schreiben. Formel, Zeitplan, Anbieterverträge, Ausschlussregeln, Wiederholungen, Überwachung und Kosten verantwortet dieser externe Ablauf.
 
-Dasselbe gilt für Anreicherung. Ein kundenseitig gewählter Anbieter kann Daten an einen Workflow liefern; eine autorisierte REST- oder MCP-Aktion schreibt ausgewählte Werte. Customermates enthält diesen Anbieter nicht, prüft seine Quelle nicht und aktualisiert Werte nicht fortlaufend.
+Dasselbe gilt für Anreicherung. Ein von Ihnen gewählter Anbieter kann Daten an einen Workflow liefern; eine berechtigte REST- oder MCP-Aktion schreibt dann ausgewählte Werte ins CRM. Customermates enthält diesen Anbieter nicht, prüft seine Quelle nicht und aktualisiert Werte nicht fortlaufend.
 
-## Postfach, Kampagnen und Follow-up
+## Posteingang, Kampagnen und Follow-up
 
-Das verwaltete einheitliche Postfach ist ab Pro für unterstützte verbundene Konten verfügbar. Es kann einzelne E-Mail- und Kanalgespräche in die Nähe eines Kontakts bringen. Es ist kein E-Mail-Marketing-System: Bulk-Kampagnen, Sequenz-Engine, Zustellinfrastruktur, Präferenzzentrum und Kampagnenanalyse fehlen.
+Der einheitliche Posteingang ist in der Cloud ab Pro für verbundene Konten verfügbar. Er ordnet einzelne Gespräche aus E-Mail und anderen Kanälen einem Kontakt zu. Er ist kein E-Mail-Marketing-System: Massenversand, automatische Sequenzen, Versandinfrastruktur, Abo- und Präferenzverwaltung sowie Kampagnenauswertung fehlen.
 
-Ein autorisierter externer MCP-Client kann unterstützte CRM-Datensätze bearbeiten. In einem berechtigten Cloud-Konto kann er außerdem einen vorhandenen Thread lesen, darin einen Entwurf speichern oder ausdrücklich eine einzelne Nachricht senden. Client, Bestätigungsoberfläche, Modell und Abonnement bleiben separat. Neue ausgehende Nachrichten lassen sich über diese Oberfläche nicht als Entwurf speichern; Sendewerkzeuge stellen beim Aufruf zu.
+Ein externer KI-Client, den Sie per MCP verbinden, kann CRM-Datensätze bearbeiten. In der Cloud ab Pro kann er außerdem ein vorhandenes Gespräch lesen, darin einen Entwurf speichern oder gezielt eine einzelne Nachricht senden. Client, Modell und Abonnement wählen Sie selbst, und ob der Client vor dem Senden nachfragt, entscheidet der Client, nicht Customermates. Neue Nachrichten außerhalb eines vorhandenen Gesprächs lassen sich darüber nicht als Entwurf speichern; Sendebefehle versenden die Nachricht sofort.
 
 ## Wann eine Marketing-Plattform bleiben sollte
 
 Behalten Sie ein spezialisiertes System für:
 
-- Forms, Landingpages, Cookie-Steuerung oder Einwilligungsdatensätze;
-- Bulk-E-Mail, Journeys, Sequenzen, Präferenzzentren oder Zustellbarkeit;
+- Formulare, Landingpages, Cookie-Steuerung oder Einwilligungsnachweise;
+- Massen-E-Mails, Customer Journeys, Sequenzen, Abo- und Präferenzverwaltung oder Zustellbarkeit;
 - Anzeigenzielgruppen, Conversion APIs, Identitätsauflösung oder Multi-Touch-Attribution;
 - Website-Engagement, Produktanalyse oder verhaltensbasiertes Scoring;
 - Anreicherung, Intent-Daten oder Kampagnenbudget-Optimierung.
 
-Customermates kann den CRM-relevanten Ausschnitt über dokumentierte Schnittstellen empfangen. Es sollte nicht führend für operative Daten werden, die es nicht modelliert.
+Customermates kann den CRM-relevanten Ausschnitt über dokumentierte Schnittstellen empfangen. Für Daten, die es nicht abbildet, sollte es nicht zum führenden System werden.
 
 ## Tarife und Bereitstellungsgrenzen
 
-Starter enthält Kern-CRM-Datensätze, eigene Felder, REST, Webhooks und MCP-Zugang für externe Clients ab [[commercial.price.starter.monthly]] pro Nutzer und Monat. Pro ergänzt das verwaltete Postfach mit Kontenkontingent. Self-Hosting betreibt den AGPL-Community-Kern mit Starter-Berechtigungen; weder verwaltetes Postfach noch gehostete Mate-Funktion oder n8n-Laufzeit sind enthalten.
+Starter enthält Kern-CRM-Datensätze, eigene Felder, REST, Webhooks und MCP-Zugang für externe Clients ab [[commercial.price.starter.monthly]] pro Nutzer und Monat, monatlich abgerechnet. Pro ergänzt den einheitlichen Posteingang mit [[commercial.entitlement.pro.includedAccountsPerUser]] verbundenen Konto pro Nutzer. Bestehende Kontaktlisten übernehmen Sie per Import aus einer Excel-Arbeitsmappe (XLSX), jeweils einen Datensatztyp; einen CSV-Import gibt es nicht. Self-Hosting mit dem AGPL-Community-Kern umfasst den Funktionsumfang von Starter; der einheitliche Posteingang, der Assistent Mate und eine n8n-Laufzeit sind nicht enthalten.
 
-Die verwaltete Anwendungsdatenbank liegt in einer EU-Region. Offengelegte Unterauftragsverarbeiter und internationale Übermittlungen gelten weiterhin; die Region ist keine DSGVO-Zertifizierung. Rechtsgrundlage, Einwilligung, Aufbewahrung, Löschung, Anbieterprüfung und Konfiguration bleiben Verantwortung der Organisation.
+In der Cloud-Version liegt die Datenbank in der AWS-Region Frankfurt; Hosting und weitere Unterauftragsverarbeiter, auch aus den USA, stehen in der [Liste der Unterauftragsverarbeiter](/subprocessors), ein [Auftragsverarbeitungsvertrag (AVV)](/dpa) liegt vor. Wer den Speicherort vollständig selbst bestimmen will, betreibt den Open-Source-Kern selbst. Eine Zertifizierung besteht nicht. Rechtsgrundlage, Einwilligung, Aufbewahrung, Löschung, Anbieterprüfung und Konfiguration bleiben Verantwortung der Organisation.
 
 ## Häufige Fragen
 
 <Faq>
   <FaqItem question="Ersetzt Customermates eine Marketing-Automation-Plattform?">
     Nein. Es stellt CRM-Datensätze, eigene Felder, Pipelines und offene
-    Schnittstellen bereit. Kampagnenzustellung, Forms, Consent, Tracking,
-    Scoring und Attribution bleiben in separat geprüften Systemen.
+    Schnittstellen bereit. Kampagnenversand, Formulare, Einwilligungen, Tracking,
+    Scoring und Attribution bleiben in eigenen, separat geprüften Systemen.
   </FaqItem>
 
   <FaqItem question="Können wir Kampagnenquellen in Customermates erfassen?">
-    Ja, als ausdrückliche eigene Feldwerte eines Nutzers oder autorisierten
-    Ablaufs. Das CRM speichert sie, entdeckt die Quelle jedoch nicht selbst und
+    Ja, als Werte in eigenen Feldern, eingetragen von einem Nutzer oder einem
+    berechtigten Ablauf. Das CRM speichert sie, entdeckt die Quelle jedoch nicht selbst und
     berechnet kein Attributionsmodell.
   </FaqItem>
 
   <FaqItem question="Enthält Customermates Lead-Scoring?">
-    Nein. Ein kundenseitiger Workflow kann aus zulässigen Daten einen
-    dokumentierten Score berechnen und in ein eigenes Feld schreiben. Logik,
+    Nein. Ihr eigener Workflow kann aus zulässigen Daten einen
+    nachvollziehbaren Score berechnen und in ein eigenes Feld schreiben. Logik,
     Signale, Anbieter, Zeitplan und Überwachung bleiben extern.
   </FaqItem>
 
   <FaqItem question="Können wir bestehende Marketing-Tools anbinden?">
-    REST, Webhooks und MCP unterstützen zusammengesetzte Integrationen für
-    dokumentierte CRM-Operationen. Prüfen Sie die API des anderen Tools,
-    Feldzuordnung, Zugangsdaten, Duplikate und Fehlerpfade ausdrücklich.
+    Ja, über eigene Integrationen: REST, Webhooks und MCP decken die
+    dokumentierten CRM-Operationen ab. Prüfen Sie vorab die API des anderen
+    Tools, Feldzuordnung, Zugangsdaten, Duplikate und Fehlerbehandlung.
   </FaqItem>
 
-  <FaqItem question="Ist Customermates für Marketingdaten DSGVO-konform?">
-    Keine Softwarewahl stellt allein Compliance her. Die verwaltete Datenbank
-    nutzt eine EU-Region; Unterauftragsverarbeiter und Übermittlungen bleiben
-    dokumentiert. Entscheidend sind Zweck, Rechtsgrundlage, Einwilligung,
-    Aufbewahrung, verbundene Dienste und Konfiguration.
+  <FaqItem question="Wie steht Customermates zur DSGVO bei Marketingdaten?">
+    Keine Softwarewahl stellt allein Compliance her. Customermates stellt einen
+    [AVV](/dpa) bereit und legt seine [Unterauftragsverarbeiter](/subprocessors)
+    offen, darunter US-Anbieter mit Standardvertragsklauseln. In der
+    Cloud-Version liegt die Datenbank in der AWS-Region Frankfurt; eine
+    Zertifizierung besteht nicht, und der Open-Source-Kern ist selbst hostbar.
+    Entscheidend sind Zweck, Rechtsgrundlage, Einwilligung, Aufbewahrung,
+    verbundene Dienste und Konfiguration.
   </FaqItem>
 </Faq>

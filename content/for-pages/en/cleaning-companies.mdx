@@ -1,6 +1,6 @@
 ---
-title: "CRM for Cleaning Companies: Scheduling & Crew Mgmt"
-description: "Best CRM for cleaning companies in 2026. Recurring schedules, crew assignments, and estimate-to-contract pipelines. Open-source, GDPR-native. [[commercial.price.starter.monthly]]/user/mo."
+title: "CRM for Cleaning Companies: Clients & Contracts"
+description: "CRM for cleaning companies: track estimates to signed contracts, keep property details and renewal dates, answer email and WhatsApp in one inbox on Pro."
 industryName: "Cleaning Companies"
 
 relatedHrefs:
@@ -11,12 +11,12 @@ relatedHrefs:
 
 hero:
   title: "CRM for Cleaning Companies"
-  description: "AI agents keep client records and follow-ups current, while client email and WhatsApp sit in one inbox tied to every property and contract. The cleaning business CRM that handles recurring schedules, crew assignment, and the full estimate-to-contract pipeline, so you can focus on winning and keeping clients."
+  description: "Every inquiry, estimate and contract in one pipeline, every client and property with its details, and client email and WhatsApp in one inbox on Pro. The cleaning business CRM for winning and keeping clients, open source and quick to set up."
   buttonLeftText: Start for free
   buttonLeftHref: /auth/signup
   buttonRightText: Watch live demo
   buttonRightHref: https://demo.customermates.com
-  hint: "✓ No credit card required ✓ First [[commercial.trial.days]] days free ✓ 2-minute setup"
+  hint: "✓ No credit card required ✓ First [[commercial.trial.days]] days free"
 
 cta:
   action: Ready to organize your cleaning business?
@@ -28,146 +28,148 @@ cta:
   hint: "✓ No credit card required ✓ First [[commercial.trial.days]] days free"
 ---
 
-A **CRM for cleaning companies** replaces the patchwork of spreadsheets, group chats, and paper calendars that most cleaning businesses rely on. Whether you run a residential maid service, a commercial janitorial operation, or a specialized cleaning company, Customermates gives you one system for clients, schedules, crews, estimates, contracts, and follow-ups, open-source, EU-hosted, and GDPR-native from day one.
+A **CRM for cleaning companies** replaces the patchwork of spreadsheets, group chats, and notes that many cleaning businesses rely on. Whether you run a residential maid service, a commercial janitorial operation, or a specialized cleaning company, Customermates gives you one system for clients, properties, estimates, contracts, and follow-ups. It is open source and can be self-hosted.
 
 ## Why cleaning companies need a dedicated CRM
 
-Cleaning businesses look simple from the outside, but behind the scenes the operational complexity is real. You are juggling recurring service scheduling, one-time deep cleans, multiple client properties, crew rosters that change weekly, supplies that need to be at the right site, and clients who expect reliable communication. Growth makes everything harder unless you have a system.
+Cleaning businesses look simple from the outside, but behind the scenes the complexity is real. You are juggling recurring contracts, one-time deep cleans, multiple client properties, crews, and clients who expect reliable communication. Growth makes everything harder unless you have a system.
 
-Common pain points a cleaning company CRM solves:
+Common pain points a cleaning company CRM helps with:
 
-- **Leads slip through the cracks**: A property manager emails about office cleaning, but you are dispatching crews. By the time you respond, they have already signed with a competitor.
-- **Recurring schedules become unmanageable**: Weekly office cleans, bi-weekly residential visits, monthly deep cleans, quarterly window washes, when changes and cancellations live in a spreadsheet, mistakes are inevitable.
+- **Leads slip through the cracks**: A property manager emails about office cleaning, but you are busy on site. By the time you respond, they have already signed with a competitor.
 - **Client property details get lost**: The office on Main Street needs the conference room done first. The residential client is allergic to certain products. Without notes tied to the right record, every crew starts blind.
-- **Estimates never become contracts**: You send a quote after a walkthrough, but nobody follows up. The prospect goes quiet. A structured [estimate-to-contract pipeline](/for/field-service) turns quotes into revenue.
-- **Contract renewals are forgotten**: A 12-month contract expires next week, but nobody flagged it. The client assumes you have moved on.
-- **Crew assignment is chaotic**: Who is available on Thursday? Which team has the right certifications for the hospital contract? Without visibility, scheduling is guesswork.
-- **No business overview**: How many active contracts? Total monthly recurring revenue? Which clients are at risk? Without a [CRM dashboard](/blog/crm-best-practices), growing the business is flying blind.
+- **Estimates never become contracts**: You send a quote after a walkthrough, but nobody follows up. The prospect goes quiet. A structured estimate-to-contract pipeline shows which quotes need a call.
+- **Contract renewals are forgotten**: A 12-month contract expires next week, but nobody noticed. The client assumes you have moved on.
+- **No business overview**: How many active contracts? What is their monthly value? Which clients have open complaints? Without a [CRM dashboard](/blog/crm-best-practices), growing the business is guesswork.
+
+Customermates is a CRM, not a cleaning scheduler or field service suite. It does not plan visits, dispatch crews, or send invoices. Many cleaning companies keep a scheduling or invoicing tool next to it.
 
 ## How Customermates works as a cleaning business CRM
 
-Customermates gives your cleaning company a central hub for every client, property, crew, estimate, contract, and follow-up task. It is not a stripped-down cleaning scheduler, it is a full CRM with the flexibility to match your specific operations.
+Customermates gives your cleaning company a central place for every client, property, estimate, contract, and follow-up task, with custom fields and views that match your operations.
 
-### Recurring service scheduling
+### Recurring service contracts
 
-Cleaning businesses live and die by the schedule. Customermates lets you define recurring jobs by frequency, daily, weekly, bi-weekly, monthly, quarterly, and attach them to client property records. When a client changes their schedule or cancels a visit, the update is in one place and visible to everyone involved.
+Customermates does not schedule visits or create recurring jobs. What it does well is keep each recurring contract visible: record the contract as a deal linked to the client (with its services attached), with custom fields for frequency (daily, weekly, bi-weekly, monthly, quarterly), start date, and renewal date. When a client changes their frequency, the update is in one place and visible to everyone.
 
-Use [n8n automations](/blog/n8n-for-beginners-build-your-first-workflow) to trigger reminders before each recurring service: notify the crew the day before, send the client a confirmation, and flag any special instructions.
+For visit reminders or crew notifications, use your scheduling tool, or connect an external workflow tool such as [n8n](/blog/n8n-for-beginners-build-your-first-workflow) (operated separately) through the REST API or webhooks.
 
 ### Client property details
 
-Every client record stores contact information, property addresses, square footage, room count, access codes, alarm details, key holder contacts, cleaning preferences, product restrictions, and a complete communication history. When you assign a crew to a new site, they have every detail they need on their phone.
+Every client record stores contact information, and custom fields and notes hold property addresses, square footage, room count, key holder contacts, cleaning preferences, and product restrictions, along with an activity history. Keep sensitive access details such as alarm codes in a system built for secrets rather than a CRM field.
 
-For cleaning companies managing multiple properties per client, office buildings, retail locations, residential units, each property links back to the parent account so you can see the full relationship at a glance.
+For cleaning companies managing multiple properties per client, record the client as an organization and each property as a linked deal, so you see the full relationship at a glance.
 
-### Crew assignment and dispatch
+### Crew assignment
 
-Use custom fields or dedicated pipelines to manage crew allocation. See which teams are assigned to which properties, track workloads, and reassign when someone calls in sick. Field staff can check their assignments, view property instructions, and update job stages from a mobile browser, no app install required.
+Use a custom single-select field for the assigned crew or set the record owner, then group or filter by crew to see which team covers which properties. Crew leaders can check property instructions and update stages from a phone browser; there is no native app. Customermates does not check availability or plan routes.
 
 ### Estimate-to-contract pipeline
 
-Track every opportunity through a visual Kanban pipeline: New Inquiry, Site Walkthrough Scheduled, Walkthrough Complete, Estimate Sent, Follow-Up, Negotiation, Contract Signed, Active. Move deals between columns as they progress and never lose sight of where each opportunity stands. This requires a scheduler in your own n8n instance or another external service through the API; Customermates does not run scheduled follow-ups or reminders itself.
+Track every opportunity through a visual Kanban pipeline: New Inquiry, Site Walkthrough Scheduled, Walkthrough Complete, Estimate Sent, Follow-Up, Negotiation, Contract Signed, Active. Move deals between columns as they progress and see where each opportunity stands.
 
-Automate the bottlenecks: if an estimate has been sent and there is no response after three days, Customermates creates a follow-up task. If a walkthrough was completed but no estimate was sent within 48 hours, it flags it. The pipeline keeps revenue moving.
+Customermates does not create follow-up tasks or reminders by itself. A saved view of the Estimate Sent stage sorted by last update shows which estimates need a call. On Customermates Cloud, a [routine](/docs/app-routines) can have the Mate assistant list unanswered estimates every few days and draft follow-ups for you to review.
 
 ### Inspection checklists and quality tracking
 
-Log quality inspections and client feedback against individual property records. Track satisfaction scores over time, spot patterns before they become complaints, and demonstrate consistent service quality when contract renewals come around. Use custom fields to build inspection checklists that crews complete on-site, rooms checked, tasks verified, issues noted.
+Log quality inspections and client feedback as notes and custom fields on property records. Track a satisfaction score field over time and spot patterns before they become complaints. Custom fields can hold the checklist results a crew leader records on site: rooms checked, issues noted.
 
-### Contract renewal automation
+### Contract renewal tracking
 
-Customermates creates renewal tasks automatically: 90 days before expiry for review, 60 days for re-quoting, 30 days for final confirmation. Every contract gets attention before it lapses. According to [Harvard Business Review](https://hbr.org/2014/10/the-value-of-keeping-the-right-customers), increasing customer retention by just 5% can boost profits by 25-95%, and in cleaning, a renewed contract is almost pure margin.
+Keep the renewal date in a custom date field and use a saved view sorted by that date, so every contract gets attention before it lapses. There are no automatic renewal tasks; a cloud routine or an external tool through the API can do the checking. A 2014 [Harvard Business Review article](https://hbr.org/2014/10/the-value-of-keeping-the-right-customers), citing research by Frederick Reichheld of Bain & Company, reports that increasing customer retention rates by 5% can increase profits by 25% to 95%. The figure is not specific to cleaning, but it shows why renewals deserve attention.
 
 ## Key features for cleaning companies
 
 ### Kanban pipeline view
 
-See all opportunities and active contracts on a visual board. Filter by service type (residential, commercial, industrial), contract value, renewal date, or assigned salesperson. Drag and drop to update status.
+See all opportunities and active contracts on a visual board. Filter by service type (residential, commercial, industrial), contract value, renewal date, or assigned salesperson. Drag and drop to update the stage.
 
 ### Custom fields for cleaning operations
 
-Property size, room count, cleaning frequency, required supplies, access codes, alarm info, key holder contacts, inspection scores, certifications needed, configure Customermates to match how your cleaning company actually operates.
+Property size, room count, cleaning frequency, required supplies, key holder contacts, inspection scores, certifications needed: configure Customermates to match how your cleaning company operates.
 
-### follow-ups through your own automation and reminders
+### Follow-ups through views, routines, or your own automation
 
-Set rules for the repetitive work. New inquiry? Auto-acknowledge within minutes. Quote unanswered after 3 days? Create a task. Contract expiring in 60 days? Alert the account manager. Client feedback below threshold? Escalate. All powered by [n8n workflow automation](/blog/n8n-for-beginners-build-your-first-workflow).
+Customermates has no built-in rules engine. Saved views show unanswered estimates and upcoming renewals. On Customermates Cloud, routines let the Mate assistant check them on a schedule. For fully automated steps, such as acknowledging a new inquiry or alerting the account manager 60 days before renewal, connect [n8n](/blog/n8n-for-beginners-build-your-first-workflow) (operated separately) through webhooks and the REST API.
 
 ### Unified inbox for client communication
 
-On Pro, client email and WhatsApp come together in one [unified inbox](/features/email-integration), each message tied to the right property and contract. Confirm visits, answer schedule questions, and send inspection results without leaving the CRM, and let AI agents draft the routine replies.
+On Pro and above, client email and WhatsApp come together in one [unified inbox](/features/email-integration), and you link each conversation to the client. Answer schedule questions and send inspection results without leaving the CRM, and let the Mate assistant draft routine replies that you confirm before sending. SMS is not a channel.
 
-### AI agents that operate your CRM
+### AI clients that operate your CRM
 
-Connect Claude, ChatGPT, or Gemini through the native MCP integration ([[derived.mcp.tools.total]] tools) and let them do the data entry: create client and property records, move estimates through the pipeline, log feedback, draft cleaning proposals from walkthrough notes, summarize client feedback across properties, and flag upsell opportunities (window cleaning, carpet shampooing, post-construction cleanup).
+Connect Claude, ChatGPT, or another AI client through the MCP server ([[derived.mcp.tools.total]] tools) and let it do the data entry: create client and property records, move estimates through the pipeline, log feedback, draft cleaning proposals from walkthrough notes, and summarize client feedback across properties. You choose and pay for the AI client.
 
 ### Mobile access
 
-Crew leaders check property details, view access instructions, update job status, and log inspection results from any phone browser. Office staff see real-time updates without waiting for a call or text.
+Crew leaders check property details, update job stages, and log inspection results from a phone browser. There is no native iOS or Android app.
 
-### GDPR-native and EU-hosted
+### Data protection and self-hosting
 
-The managed application database is configured in an EU region, while the legal pages disclose the cloud service's subprocessors and transfer safeguards. For companies with stricter data-location requirements, especially those serving [healthcare](/for/healthcare) or government facilities, self-hosting gives you control over where the application and data run.
+In the managed cloud, the application database runs in the AWS Frankfurt region; hosting and other subprocessors, including US providers, are listed on the [subprocessors page](/subprocessors), and a [DPA](/dpa) is available. For companies with stricter data-location requirements, especially those serving [healthcare](/for/healthcare) or government facilities, self-host the open-source core.
 
 ## Pricing that works for cleaning companies
 
 Cleaning companies need lean operations, not expensive software. Customermates keeps it simple:
 
-- **Starter, [[commercial.price.starter.monthly]] per user per month**, automation, custom fields, API access, and native AI integration
-- **Pro, [[commercial.price.pro.monthly]] per user per month**, adds the unified inbox for client email and WhatsApp tied to every property and contract
-- **Unlimited clients and properties**, no per-contact or per-property charges at any tier
-- **Open-source and self-hostable**, full data control if you need it, free forever
+- **Starter ([[commercial.price.starter.monthly]] per user per month)**: contacts, organizations, deals, services, tasks, custom fields, views, REST, webhooks, and MCP
+- **Pro ([[commercial.price.pro.monthly]] per user per month)**: adds the unified inbox for client email and WhatsApp
+- **Priced per user**: no per-contact or per-property charges
+- **Open source and self-hostable**: no licence cost for the core; the inbox and Mate are cloud-only
 
-A solo cleaning business owner pays [[commercial.price.starter.monthly]]/month on Starter. A company with 8 office and field staff pays [[commercial.price.starter.monthly.seats.8]]/month. That is less than the revenue from a single residential cleaning session. Compare that to Jobber from $39/month or Housecall Pro from $59/month for similar functionality, both of which climb past $300/month for teams and add-ons, without the open-source flexibility or EU data hosting.
+A solo cleaning business owner pays [[commercial.price.starter.monthly]]/month on Starter. A company with 8 office and field staff pays [[commercial.price.starter.monthly.seats.8]]/month. Field service platforms such as [Jobber](https://www.getjobber.com/pricing/) (from $49/month for Core) and [Housecall Pro](https://www.housecallpro.com/pricing/) (from $79/month for Basic), both billed monthly as listed in September 2026, include scheduling and invoicing that Customermates does not.
 
 ## Integrations for cleaning companies
 
-Customermates connects to the tools cleaning companies already use through [n8n automation](https://n8n.io):
+Customermates connects to the tools cleaning companies already use through the REST API, webhooks, and [n8n](https://n8n.io) (operated separately):
 
-- **Email integration**: Sync emails with client records so every conversation is tracked
-- **read-only CRM calendar view**: Keep recurring schedules connected to Google Calendar, Outlook, or your team calendar
-- **Invoicing and accounting**: Connect to lexoffice, sevDesk, Xero, QuickBooks, or any invoicing tool for billing and payment tracking
-- **WhatsApp and SMS**: Notify clients about upcoming visits, schedule changes, completed jobs, or inspection results
-- **Online booking forms**: Connect a web form to create leads automatically when prospects request a quote
-- **Native AI integration**: Draft proposals, summarize feedback, identify patterns, and automate repetitive communication
+- **Email**: Connect Gmail, Outlook, or IMAP mailboxes to the unified inbox on Pro and above
+- **Calendar**: Read-only calendar access on Pro and above; Customermates does not create or schedule visits
+- **Invoicing and accounting**: Keep Lexware Office, sevDesk, Xero, QuickBooks, or another invoicing tool for billing, and connect it through the API if you want records in sync
+- **WhatsApp**: In the unified inbox on Pro; SMS is not supported
+- **Web forms**: Customermates has no built-in forms, but an external form tool can create leads through the REST API or n8n
+- **AI clients (MCP)**: Draft proposals, summarize feedback, and identify patterns
 
-## Getting started in 2 minutes
+## Getting started
 
-1. **Create an account**, free, no credit card needed. [[commercial.trial.days]] days to try everything.
-2. **Migrate supported records**, use the REST API, or hand a prepared source export to an AI agent connected over MCP. Customermates has no CSV uploader.
-3. **Set up your pipeline**, define stages like Inquiry, Walkthrough, Estimate Sent, Negotiation, Contract Signed, Active.
-4. **Add custom fields**, property details, cleaning frequency, access instructions, contract terms, inspection checklists.
-5. **Set up automations**, lead follow-ups, estimate reminders, contract renewal alerts, crew notifications.
+1. **Create an account**: no credit card needed. [[commercial.trial.days]] days free.
+2. **Import your clients**: from an Excel workbook (XLSX), one record type at a time, or through the REST API. There is no CSV import.
+3. **Set up your pipeline**: stages such as Inquiry, Walkthrough, Estimate Sent, Negotiation, Contract Signed, Active.
+4. **Add custom fields**: property details, cleaning frequency, contract terms, renewal dates, and inspection results.
+5. **Create saved views**: unanswered estimates and upcoming renewals, and connect automations if you need them.
 
 ## FAQ
 
 <Faq>
 <FaqItem question="What makes Customermates different from cleaning-specific software like Jobber or ZenMaid?">
-Customermates is an open-source CRM that you can self-host and customize. Cleaning-specific tools like Jobber or ZenMaid are closed-source SaaS products with fixed feature sets. With Customermates, you get CRM, pipeline management, n8n connectivity, and native AI integration starting at [[commercial.price.starter.monthly]]/user/month, with the unified inbox for client messaging on Pro at [[commercial.price.pro.monthly]]/user/month. The managed database is configured in an EU region, and the legal pages disclose cloud subprocessors and transfer safeguards.
+Jobber and ZenMaid are built around scheduling, dispatch, and invoicing for service businesses. Customermates is an open-source CRM that you can self-host and customize: pipeline management, client and property records, an API for n8n and other tools, and MCP for AI clients, starting at [[commercial.price.starter.monthly]]/user/month, with the unified inbox for client messaging on Pro at [[commercial.price.pro.monthly]]/user/month. It does not schedule visits or send invoices.
 </FaqItem>
 
 <FaqItem question="Can Customermates handle both residential and commercial cleaning clients?">
-Yes. You can create separate pipelines for residential and commercial clients, use custom fields to track different property types, and filter your Kanban view by service type. Commercial contracts with multiple properties link back to one parent account.
+Yes. Use a custom single-select field for the client type and filter or group your Kanban board by it, with saved views for each segment. Commercial clients with multiple properties are organizations with a linked deal per property.
 </FaqItem>
 
 <FaqItem question="How do I manage recurring cleaning schedules in Customermates?">
-Use deal records with custom fields for service frequency (daily, weekly, bi-weekly, monthly) and attach them to client property records. Set up n8n automations to trigger reminders before each service, notify crews, and alert you when a recurring contract is approaching renewal.
+Customermates does not schedule recurring visits. Record each contract with custom fields for frequency and renewal date, and keep the visit schedule in your scheduling tool or calendar. An external tool such as n8n can read the contracts through the REST API if you want notifications.
 </FaqItem>
 
-<FaqItem question="Is Customermates GDPR-compliant for cleaning companies in Europe?">
-Customermates is GDPR-native. Data is hosted in the EU region (EU), and the platform is built from the ground up with privacy by design. You can also self-host for complete data sovereignty. There are no US data transfers involved.
+<FaqItem question="How does Customermates handle GDPR for cleaning companies in Europe?">
+GDPR compliance depends on how your company uses any tool. Customermates provides a [DPA](/dpa), discloses its subprocessors (including US providers under standard contractual clauses) on the [subprocessors page](/subprocessors), and runs the cloud database in the AWS Frankfurt region. It holds no certification such as ISO 27001 or SOC 2. You can also self-host the open-source core and choose where data lives.
 </FaqItem>
 
 <FaqItem question="Can my cleaning crews access Customermates in the field?">
-Yes. Customermates works in any mobile browser. Crew leaders can view property details, access instructions, inspection checklists, and update job status from their phone, no app installation needed.
+Yes, in a phone browser. Crew leaders can view property details and instructions and update job stages. There is no native iOS or Android app.
 </FaqItem>
 
 <FaqItem question="How does the estimate-to-contract pipeline work?">
-Create a Kanban pipeline with stages like New Inquiry, Walkthrough Scheduled, Estimate Sent, Follow-Up, Negotiation, and Contract Signed. Each estimate becomes a deal that moves through stages. Automations create follow-up tasks when estimates go unanswered and flag walkthroughs that have not been followed by an estimate. This requires a scheduler in your own n8n instance or another external service through the API; Customermates does not run scheduled follow-ups or reminders itself.
+Create stages like New Inquiry, Walkthrough Scheduled, Estimate Sent, Follow-Up, Negotiation, and Contract Signed. Each estimate becomes a deal that moves through stages. Customermates does not create follow-up tasks or reminders by itself; a saved view shows unanswered estimates, and on the cloud a routine can list them and draft follow-ups.
 </FaqItem>
 
 <FaqItem question="Can I connect Customermates to my accounting software?">
-Yes. Through n8n integrations, Customermates connects to accounting tools like lexoffice, sevDesk, Xero, QuickBooks, and others. When a contract is signed or an invoice is due, automations can trigger the appropriate actions in your accounting system.
-
-Stop losing contracts to disorganization and missed follow-ups. Customermates is the CRM for cleaning service businesses that keeps everything, from the first inquiry to every contract renewal and inspection checklist, in one place.
+Not natively. Through the REST API, webhooks, or n8n, you can connect accounting tools like Lexware Office, sevDesk, Xero, or QuickBooks, for example so a signed contract creates a customer in your invoicing tool. You build and run that workflow yourself.
 </FaqItem>
 </Faq>
+
+---
+
+Stop losing contracts to disorganization and missed follow-ups. Customermates keeps every client, property, and contract, from the first inquiry to the renewal date, in one place.

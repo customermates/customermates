@@ -55,6 +55,31 @@ describe("Vercel build safety", () => {
     expect(reset).toBeGreaterThan(directUrlGuard);
   });
 
+  it("deepens Vercel's shallow clone from the repository URL without risking the deployment", () => {
+    const script = readFileSync(join(REPO_ROOT, "scripts", "vercel-build.sh"), "utf8");
+    const fetches = script
+      .replace(/\\\n\s*/g, " ")
+      .split("\n")
+      .filter((line) => !line.trimStart().startsWith("#") && /\bgit\b.*\bfetch\b/.test(line));
+    const probe = script.indexOf('shallow="$(git rev-parse --is-shallow-repository');
+    const fetch = script.indexOf("GIT_TERMINAL_PROMPT=0 git -c http.lowSpeedLimit=1000");
+    const recheck = script.indexOf('"$(git rev-parse --is-shallow-repository 2>/dev/null)" == "false"');
+    const warning = script.indexOf("WARNING: could not deepen the Git clone");
+    const build = script.indexOf("yarn build");
+
+    // Vercel's clone has no usable remote, so a bare `git fetch --unshallow` exits 0 and deepens
+    // nothing. Only an explicit URL deepens it, and only the shallow flag proves that it did.
+    expect(fetches).toHaveLength(1);
+    expect(fetches[0]).toContain('"https://github.com/${VERCEL_GIT_REPO_OWNER}/${VERCEL_GIT_REPO_SLUG}.git"');
+    expect(fetches[0]).toContain("--unshallow --filter=blob:none");
+    expect(fetches[0]).toMatch(/\|\| true$/u);
+    expect(probe).toBeGreaterThan(-1);
+    expect(fetch).toBeGreaterThan(probe);
+    expect(recheck).toBeGreaterThan(fetch);
+    expect(warning).toBeGreaterThan(recheck);
+    expect(build).toBeGreaterThan(warning);
+  });
+
   it("keeps migration connection configuration provider-neutral", () => {
     const prismaConfig = readFileSync(join(REPO_ROOT, "prisma.config.ts"), "utf8");
 

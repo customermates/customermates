@@ -68,7 +68,6 @@ import { AuditLogModalStore } from "@/app/[locale]/(protected)/company/component
 import { AuditLogsStore } from "@/app/[locale]/(protected)/company/components/audit-log/audit-logs.store";
 import { FeedbackModalStore } from "@/app/[locale]/(protected)/company/components/feedback/feedback-modal.store";
 import { TimelineDetailModalStore } from "@/features/messaging/activities/activities-detail-modal.store";
-import { ContactStore } from "@/app/[locale]/(public)/contact/contact.store";
 import { ErrorTestStore } from "@/app/[locale]/(protected)/test/error/error-test.store";
 
 import { AgentChatStore } from "@/app/components/agent-chat/agent-chat.store";
@@ -122,7 +121,6 @@ export class RootStore {
   private _stepProfileStore?: StepProfileStore;
   private _onboardingWizardStore?: OnboardingWizardStore;
   private _resetPasswordStore?: ResetPasswordStore;
-  private _contactStore?: ContactStore;
   private _errorTestStore?: ErrorTestStore;
   private _signInStore?: SignInStore;
   private _signUpStore?: SignUpStore;
@@ -299,10 +297,6 @@ export class RootStore {
 
   get onboardingWizardStore() {
     return (this._onboardingWizardStore ??= new OnboardingWizardStore(this));
-  }
-
-  get contactStore() {
-    return (this._contactStore ??= new ContactStore(this));
   }
 
   get errorTestStore() {

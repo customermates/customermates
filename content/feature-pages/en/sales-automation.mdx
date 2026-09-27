@@ -1,6 +1,6 @@
 ---
 title: "Sales Automation Software: No-Code Workflows"
-description: "Sales automation through REST, webhooks, MCP, and a community node for a separate n8n instance. Run deal triggers and follow-up sequences in external workflows."
+description: "Sales automation through REST, webhooks, MCP, and a community node for a separate n8n instance. Run deal triggers and follow-ups in external workflows."
 featureName: Sales Automation
 
 relatedHrefs:
@@ -34,7 +34,7 @@ Sales automation software handles repetitive sales tasks, triggers actions based
 
 The average sales representative spends [less than 30% of their time actually selling](https://www.salesforce.com/resources/research-reports/state-of-sales/). Data entry, reminder management, status updates, and routine communications eat into the time that should be spent building relationships and closing deals. Organizations that adopt AI-driven sales automation strategies are [twice as likely to report revenue growth](https://www.mckinsey.com/capabilities/growth-marketing-and-sales/our-insights/ai-powered-marketing-and-sales-reach-new-heights-with-generative-ai).
 
-Sales automation does not replace human judgment, it eliminates the mechanical tasks that surround it:
+Sales automation does not replace human judgment. It eliminates the mechanical tasks that surround it:
 
 - When a deal moves to negotiation, the system creates the contract preparation task.
 - When a follow-up is due, the reminder appears automatically.
@@ -45,13 +45,15 @@ The result: a sales team that spends its time on conversations, demos, and relat
 
 ## Sales Automation vs. CRM: What's the Difference?
 
-Sales Force Automation (SFA) focuses specifically on automating the selling process, follow-ups, task assignments, deal progression, and pipeline workflows. A CRM (Customer Relationship Management) system manages the broader customer lifecycle including marketing, support, and account management.
+Sales Force Automation (SFA) focuses specifically on automating the selling process: follow-ups, task assignments, deal progression, and pipeline workflows. A CRM (Customer Relationship Management) system manages the broader customer lifecycle including marketing, support, and account management.
 
 In practice, sales automation needs reliable CRM interfaces. Customermates provides [contact management](/features/contact-management), [pipeline tracking](/features/pipeline), [lead management](/features/lead-management), REST, webhooks, MCP, and a community node for a separate n8n instance. The external workflow owns scheduling, logic, notifications, and delivery; supported external AI clients remain separate from the CRM.
 
 ## How Sales Automation Works in Customermates
 
-Customermates connects to [n8n](https://n8n.io/), a separate open-source automation product you run or subscribe to. Customermates supplies open interfaces and the community node; n8n supplies its visual builder, runtime, connectors, schedules, logs, limits, and pricing.
+Customermates connects to [n8n](https://n8n.io/), a separate source-available automation product you run or subscribe to. Customermates supplies open interfaces and the community node; n8n supplies its visual builder, runtime, connectors, schedules, logs, limits, and pricing.
+
+**Cloud routines with Mate.** On Customermates Cloud, a [routine](/docs/app-routines) runs a saved prompt through the hosted Mate assistant on a schedule or when a CRM event happens, for example to list deals that have not moved for two weeks and draft follow-ups for you to review. Routines use hosted AI credits, Starter includes [[commercial.entitlement.starter.includedRoutinesPerUser]] routine per user and Pro includes [[commercial.entitlement.pro.includedRoutinesPerUser]], and they are not available when self-hosting. They are not reminders or sequences.
 
 **External deal-stage triggers.** A separately operated workflow can react to a documented deal event. It may create a supported task, notify a manager through an external provider, or ask a campaign tool to start onboarding. Customermates does not schedule the later actions or run sequences itself.
 
@@ -63,7 +65,7 @@ Customermates connects to [n8n](https://n8n.io/), a separate open-source automat
 
 **External data synchronization.** A customer-run n8n workflow can pass supported deal or contact fields to accounting, [email marketing](/features/email-integration), or project tools and write approved results back through REST. Every external system owns its records, credentials, limits, and data handling.
 
-**External AI clients operate allowed CRM data.** Supported clients such as Claude, ChatGPT, or Gemini can use [[derived.mcp.tools.total]] MCP tools to move deal stages, draft one [follow-up email](/blog/sales-follow-up-email), summarize allowed notes, or update fields. Customermates includes no client, model, lead scoring, enrichment, or autonomous outcome.
+**External AI clients operate allowed CRM data.** Supported clients such as Claude, ChatGPT, or Gemini can use [[derived.mcp.tools.total]] MCP tools to move deal stages, draft one [follow-up email](/blog/sales-follow-up-email), summarize allowed notes, or update fields. The client and model are yours; Customermates adds no lead scoring, enrichment, or autonomous outcome.
 
 ## Key Benefits of Sales Automation
 
@@ -75,7 +77,7 @@ Customermates connects to [n8n](https://n8n.io/), a separate open-source automat
 
 **Scalable without adding headcount.** As your deal volume grows, automation scales with you. The same workflows that handle ten deals per month handle a hundred without requiring additional team members for administrative tasks.
 
-**Reduced human error.** Manual processes are prone to mistakes, wrong data entered, notifications sent to the wrong person, follow-ups scheduled for the wrong date. Sales automation software eliminates these errors by executing the same steps precisely every time.
+**Reduced human error.** Manual processes are prone to mistakes: wrong data entered, notifications sent to the wrong person, follow-ups scheduled for the wrong date. Sales automation software eliminates these errors by executing the same steps precisely every time.
 
 ## Sales Automation Software Comparison
 
@@ -88,11 +90,10 @@ Customermates connects to [n8n](https://n8n.io/), a separate open-source automat
 | External follow-up sequences | Via separate provider | <StatusAvailable /> | <StatusAvailable /> | <StatusPartial /> |
 | 400+ integrations (n8n) | <StatusAvailable /> | <StatusPartial /> | <StatusPartial /> | <StatusPartial /> |
 | External AI-client access | Via MCP | <StatusPartial /> | <StatusPartial /> | <StatusUnavailable /> |
-| Managed database in an EU region | <StatusAvailable /> | <StatusUnavailable /> | <StatusPartial /> | <StatusPartial /> |
 | Open source | <StatusAvailable /> | <StatusUnavailable /> | <StatusUnavailable /> | <StatusUnavailable /> |
 | Self-hosting option | <StatusAvailable /> | <StatusUnavailable /> | <StatusUnavailable /> | <StatusUnavailable /> |
 
-[**HubSpot**](https://www.hubspot.com/products/crm) locks sales automation behind its Professional tier at $90+/user/month. The free and Starter tiers offer only basic customer-defined task-date notifications through an external workflow. See our detailed [HubSpot alternative comparison](/compare/hubspot-alternative).
+[**HubSpot**](https://www.hubspot.com/products/crm) locks sales automation behind its Professional tier at $90+/user/month. The free and Starter tiers offer only basic automation features. See our detailed [HubSpot alternative comparison](/compare/hubspot-alternative).
 
 **Salesforce** offers powerful automation through Flow Builder but requires significant configuration expertise. Sales automation is spread across multiple clouds with separate pricing.
 
@@ -112,13 +113,13 @@ Customermates connects to [n8n](https://n8n.io/), a separate open-source automat
 
 ## Why Choose Customermates for Sales Automation
 
-**Two separate open-source products.** The Customermates AGPL core and n8n can both be inspected and extended, but they are operated and governed independently. Build custom automation in the n8n instance you run, against documented CRM interfaces.
+**Two separate products with public code.** The Customermates AGPL core and n8n can both be inspected and extended, but they are operated and governed independently. Build custom automation in the n8n instance you run, against documented CRM interfaces.
 
-**EU database region with documented providers.** The hosted Customermates database runs in an EU region. n8n, application hosting, and connected providers may process data elsewhere, including through US providers; this is not a compliance certification.
+**Cloud database in Frankfurt, providers disclosed.** In the managed cloud, the application database runs in the AWS Frankfurt region; hosting and other subprocessors, including US providers, are listed on the [subprocessors page](/subprocessors), and a [DPA](/dpa) is available. A separately operated n8n instance adds its own data boundary.
 
 **From [[commercial.price.starter.monthly]]/user/month.** REST, webhooks, MCP, and the community node start with Starter, without a per-workflow charge from Customermates. n8n and every connected provider have separate plans, executions, limits, logs, and costs. [See pricing →](/pricing)
 
-**Self-hostable core CRM.** [Self-hosting Customermates](/features/self-hosted) runs the application and PostgreSQL database with Starter entitlements. n8n is a separate deployment, and connected providers keep their own data and credential boundaries.
+**Self-hostable core CRM.** [Self-hosting Customermates](/features/self-hosted) runs the application and PostgreSQL database with the Starter feature set. n8n is a separate deployment, and connected providers keep their own data and credential boundaries.
 
 ## Frequently Asked Questions
 

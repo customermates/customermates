@@ -33,7 +33,7 @@ Every booking requires re-typing names, email addresses, phone numbers, and cust
 
 ### 2. Missed Follow-Ups
 
-If the booking never makes it into the CRM, no task gets created, no reminder fires, and the lead goes cold. Research shows that responding within 5 minutes of a lead event increases conversion by 8x. A gap between Calendly and your CRM is a gap in your pipeline.
+If the booking never makes it into the CRM, no task gets created, nobody sees the follow-up, and the lead goes cold. A gap between Calendly and your CRM is a gap in your pipeline.
 
 ### 3. Inconsistent Data
 
@@ -94,7 +94,7 @@ No native Calendly connector exists for Zoho CRM. The integration is built throu
 
 ### Calendly + Customermates
 
-Customermates connects to Calendly via n8n and the Calendly API/webhook system. Because Customermates works with n8n as a built-in integration engine, no separate automation platform is needed. You get full control over how bookings map to contacts, deals, and follow-up actions.
+Customermates has no native Calendly connector. You connect the two through n8n (which you run separately, self-hosted or on n8n Cloud) using Calendly webhooks and the Customermates REST API or community node. You get full control over how bookings map to contacts, deals, and follow-up tasks.
 
 ## Calendly Features That Impact CRM Integration
 
@@ -104,7 +104,7 @@ Calendly's routing forms let you ask qualifying questions before a prospect even
 
 **CRM integration impact:** Routing form answers flow into the webhook payload, so your n8n workflow can use them to:
 
-- Set different lead scores in the CRM
+- Write a score calculated in your workflow into a CRM field
 - Assign deals to different pipelines based on qualification
 - Route high-value prospects to senior reps and lower-value ones to SDRs
 
@@ -118,7 +118,7 @@ Calendly distributes bookings evenly across team members. When a prospect books,
 
 Calendly supports group bookings where multiple people book the same time slot. This is useful for webinars, training sessions, and group demos.
 
-**CRM integration impact:** Each attendee triggers a separate webhook event, so your automation creates individual contact records and deals for each participant. Tag them with the event name for easy filtering.
+**CRM integration impact:** Each attendee triggers a separate webhook event, so your automation creates individual contact records and deals for each participant. Store the event name in a field (a tag or, in Customermates, a single-select column) for easy filtering.
 
 ### Cancellation and Rescheduling
 
@@ -163,7 +163,7 @@ n8n is an open-source workflow automation platform you can self-host on your own
 **Setup time:** 30-60 minutes (including server setup).
 **Monthly cost:** EUR 0 (self-hosted) or EUR 20-50/month (n8n Cloud) + CRM subscription.
 
-For teams already using Customermates, n8n is built in. No separate hosting or configuration needed.
+Customermates does not include or host n8n. You run n8n yourself (or on n8n Cloud) and connect it through the Customermates community node or REST API.
 
 ### Comparison: Native vs. Zapier vs. n8n
 
@@ -183,14 +183,14 @@ For teams already using Customermates, n8n is built in. No separate hosting or c
 
 ## Step-by-Step: Connect Calendly to Customermates via n8n
 
-Here is a concrete walkthrough for connecting Calendly to Customermates CRM (from [[commercial.price.starter.monthly]] per user/month, Starter tier, with a full REST API included). This same pattern works for any CRM with an API.
+Here is a concrete walkthrough for connecting Calendly to Customermates CRM (from [[commercial.price.starter.monthly]] per user/month, Starter tier, with a full REST API included). This same pattern works for any CRM with an API. Check the exact request bodies against the [OpenAPI spec](/docs/openapi) and the [n8n guide](/docs/n8n).
 
 ### Prerequisites
 
 - A Calendly account (free or paid; webhooks require Standard plan or above)
 - A Customermates account
-- n8n running (built into Customermates, or self-hosted via Docker, or n8n Cloud)
-- A Customermates API key (generate under Profile > API Keys)
+- n8n running (self-hosted via Docker, or n8n Cloud; Customermates does not include n8n)
+- A Customermates API key (see [API keys](/docs/api-keys))
 
 ### Step 1: Create the Calendly Webhook Trigger in n8n
 
@@ -227,42 +227,46 @@ Add any transformation logic here: split "John Smith" into first name and last n
 Add an **HTTP Request** node:
 
 - **Method:** POST
-- **URL:** `https://api.customermates.com/v1/contacts`
-- **Headers:** `Authorization: Bearer YOUR_API_KEY`
+- **URL:** `<BASE_URL>/api/v1/contacts` (the address you open Customermates at)
+- **Headers:** `x-api-key: YOUR_API_KEY`
 - **Body (JSON):**
 
 ```json
 {
   "firstName": "{{firstName}}",
   "lastName": "{{lastName}}",
-  "email": "{{email}}",
-  "phone": "{{phone}}",
-  "company": "{{company}}",
-  "source": "Calendly - {{eventType}}"
+  "identifiers": [{ "provider": "mail", "value": "{{email}}" }],
+  "customFieldValues": [
+    { "columnId": "<id of your Lead source column>", "value": "Calendly - {{eventType}}" }
+  ]
 }
 ```
 
-To avoid duplicates, add a preceding HTTP Request node that searches for the contact by email. If found, update instead of create. Use an **IF** node to branch between the two paths.
+Fields such as phone, lead source, or company size are custom columns in your workspace; `GET /api/v1/contacts/configuration` lists their ids. Link the company by creating or finding an organization and passing its id in `organizationIds`.
+
+To avoid duplicates, add a preceding HTTP Request node that searches for the contact by email (`POST /api/v1/contacts/search`). If found, update instead of create (`PUT /api/v1/contacts/{id}`). Use an **IF** node to branch between the two paths.
 
 ### Step 4: Create a Deal Automatically
 
 Add another **HTTP Request** node:
 
 - **Method:** POST
-- **URL:** `https://api.customermates.com/v1/deals`
+- **URL:** `<BASE_URL>/api/v1/deals`
 - **Body (JSON):**
 
 ```json
 {
   "name": "{{contactName}} - {{eventType}}",
-  "contactId": "{{contactId}}",
-  "pipelineStage": "Meeting Booked",
-  "source": "Calendly",
-  "owner": "{{assignedRepEmail}}",
-  "expectedCloseDate": "{{30 days from now}}",
-  "notes": "Booked via Calendly on {{scheduledTime}}. Event: {{eventType}}."
+  "contactIds": ["{{contactId}}"],
+  "userIds": ["{{assignedRepUserId}}"],
+  "customFieldValues": [
+    { "columnId": "<id of your Stage column>", "value": "<Meeting Booked option>" },
+    { "columnId": "<id of your Expected close date column>", "value": "{{30 days from now}}" }
+  ]
 }
 ```
+
+The deal stage is a configurable single-select column, and an expected close date is a custom date column you add yourself; `GET /api/v1/deals/configuration` shows the column ids and options in your workspace. Map the Calendly host's email to the matching Customermates user id in n8n.
 
 ### Step 5: Add Follow-Up Actions
 
@@ -270,9 +274,9 @@ Extend the workflow with additional nodes:
 
 - **Slack notification:** Alert the sales channel that a new meeting was booked, including the prospect's name, company, and scheduled time
 - **Email confirmation:** Send the prospect a personalized pre-meeting email via Gmail API with prep materials
-- **Task creation:** Create a follow-up task in Customermates for 2 days after the meeting
+- **Task creation:** Create a follow-up task in Customermates linked to the deal (Customermates tasks have no due date or reminder, so put the target date in the title or a custom date column and let n8n handle any timed nudge)
 - **Google Sheet log:** Append every booking to a shared spreadsheet for reporting and attribution analysis
-- **Lead scoring:** Based on custom question answers, assign a score and route high-value leads to senior reps
+- **Qualification:** Based on custom question answers, calculate a score in n8n, store the result in a custom column (for example a single-select Hot, Warm, Cold), and route high-value leads to senior reps
 
 ### Step 6: Handle Cancellations
 
@@ -280,7 +284,7 @@ Add a separate branch triggered by `invitee.canceled`:
 
 1. Look up the contact in Customermates by email
 2. Update the deal stage to "Meeting Cancelled"
-3. Create a re-engagement task for the assigned rep (due in 3 days)
+3. Create a re-engagement task for the assigned rep
 4. Optionally have your own n8n instance call an external email provider for a "sorry we missed you" sequence; Customermates does not run sequences
 5. Log the cancellation in the Google Sheet
 
@@ -301,7 +305,7 @@ Beyond basic deal creation, here are workflows that high-performing sales teams 
 
 Calendly's routing forms ask qualifying questions before showing time slots ("What is your team size?", "What is your annual budget?", "What is your biggest challenge?"). Route answers through n8n to:
 
-- Assign a lead score in the CRM based on answers (team size > 50 = high priority)
+- Write a score calculated in n8n into a CRM field based on answers (team size > 50 = high priority)
 - Route high-value leads to senior reps automatically
 - Tag low-fit leads for nurture sequences instead of sales calls
 - Skip the call entirely and redirect to a self-serve onboarding page if the lead is too small
@@ -311,7 +315,7 @@ Calendly's routing forms ask qualifying questions before showing time slots ("Wh
 After a meeting ends, automatically:
 
 1. Move the deal to "Meeting Completed" stage
-2. Create a follow-up task for the rep (due next business day)
+2. Create a follow-up task for the rep
 3. Send a meeting summary email to the prospect (with notes template)
 4. Schedule a check-in for 3 days later
 5. If no deal progression after 7 days, send the rep a reminder
@@ -331,7 +335,7 @@ If different team members have different Calendly event types (e.g., "Sales Call
 
 For Calendly group events (webinars, workshops):
 
-1. Each attendee creates a contact in the CRM tagged with the event name
+1. Each attendee creates a contact in the CRM with the event name stored in a field
 2. After the event, trigger a follow-up sequence for all attendees
 3. Track attendance (who actually joined vs. who registered but no-showed)
 4. Score leads based on engagement (attendees get +10 points, no-shows get +2)
@@ -388,17 +392,17 @@ Add an error-handling branch in n8n that sends a Slack message or email if any n
 | CRM           | Native Calendly Integration | Automation Cost       | CRM Price                                            | Best For                                      |
 | ------------- | --------------------------- | --------------------- | ---------------------------------------------------- | --------------------------------------------- |
 | HubSpot       | Yes (Professional+)         | Included              | Free-$150+/user/month                                | Marketing-heavy teams with budget             |
-| Salesforce    | Yes (Enterprise+)           | Included              | $25-300+/user/month                                  | Large enterprises                             |
+| Salesforce    | Yes (Enterprise+)           | Included              | $25-550/user/month                                   | Large enterprises                             |
 | Pipedrive     | Via Marketplace/Zapier      | $20-70/month (Zapier) | $14-99/user/month                                    | Pipeline-focused sales teams                  |
-| Zoho CRM      | Via Zapier/n8n              | $0-70/month           | Free-$52/user/month                                  | All-in-one suite seekers                      |
+| Zoho CRM      | Via Zapier/n8n              | $0-70/month           | Free (up to 3 users); paid plans see zoho.com        | All-in-one suite seekers                      |
 | Freshsales    | Via Zapier/n8n              | $0-70/month           | Free-$69/user/month                                  | Teams needing built-in phone                  |
 | Customermates | API/webhooks to customer-run n8n | Separate n8n hosting or subscription | From [[commercial.price.starter.monthly]]/user/month | Teams able to operate the external workflow |
 
-For small and mid-size teams, Customermates from [[commercial.price.starter.monthly]] per user/month combined with its n8n (free, no per-task fees) delivers a Calendly CRM integration at a fraction of what HubSpot or Salesforce charge. You get full API access, GDPR-compliant data handling, and zero per-automation fees.
+For small and mid-size teams, Customermates from [[commercial.price.starter.monthly]] per user/month combined with a self-hosted n8n (no licence fee, no per-task fees, but you operate the server) delivers a Calendly CRM integration at a fraction of what HubSpot or Salesforce charge. You get full API access, a DPA, disclosed subprocessors, and no per-automation fees from Customermates.
 
 ## ROI of Automating Calendly-to-CRM
 
-A calculation for a team of 5 reps booking 20 appointments per week:
+An illustrative calculation for a team of 5 reps booking 20 appointments per week (your numbers will differ):
 
 | Metric                           | Manual        | Automated       |
 | -------------------------------- | ------------- | --------------- |
@@ -407,7 +411,6 @@ A calculation for a team of 5 reps booking 20 appointments per week:
 | Missed follow-ups per month      | 3-5           | 0               |
 | Duplicate contacts per month     | 5-10          | 0               |
 | Lead response time               | 30-60 minutes | Under 5 minutes |
-| Data quality score               | 60-70%        | 95%+            |
 
 **Financial impact:**
 
@@ -415,11 +418,11 @@ At an internal hourly rate of EUR 50, saving 5 hours/month equals EUR 250/month 
 
 Add 2-3 recovered deals per year from better follow-up (at EUR 1,000 average deal value): EUR 2,000-3,000 additional revenue.
 
-Add improved conversion from faster lead response (5-minute response = 8x higher conversion): conservatively 1-2 additional deals/year worth EUR 1,000-2,000.
+Add improved conversion from faster lead response: if that wins 1-2 additional deals/year, that is EUR 1,000-2,000.
 
-**Total annual ROI: EUR 6,000-8,000.**
+**Illustrative annual value: EUR 6,000-8,000.**
 
-The investment: Customermates Starter at [[commercial.price.starter.monthly]]/user/month ([[commercial.price.starter.monthly.seats.5.months.12]]/year for 5 users) plus a self-hosted n8n instance (free). Break-even in the first month.
+The investment: Customermates Starter at [[commercial.price.starter.monthly]]/user/month ([[commercial.price.starter.monthly.seats.5.months.12]]/year for 5 users) plus a self-hosted n8n instance (no licence fee; you pay for the server and upkeep). Under these assumptions, break-even comes within the first months.
 
 ## Troubleshooting Common Issues
 
@@ -459,7 +462,7 @@ Yes. Calendly integrates natively with HubSpot and Salesforce. For other CRMs li
 </FaqItem>
 
 <FaqItem question="What is the best way to connect Calendly to a CRM?">
-For HubSpot and Salesforce, start with the native integration for basic needs. For any other CRM, or for advanced workflows (conditional deal creation, lead scoring, cancellation handling), n8n gives you the most flexibility with zero per-task costs and full GDPR compliance. Zapier is a good alternative if you prefer a no-code visual builder and do not need self-hosting.
+For HubSpot and Salesforce, start with the native integration for basic needs. For any other CRM, or for advanced workflows (conditional deal creation, lead scoring, cancellation handling), n8n gives you the most flexibility with zero per-task costs and the option to self-host for data control. Zapier is a good alternative if you prefer a no-code visual builder and do not need self-hosting.
 </FaqItem>
 
 <FaqItem question="Can Calendly automatically create deals in my CRM?">
@@ -475,7 +478,7 @@ Add a lookup step in your automation workflow that searches for existing contact
 </FaqItem>
 
 <FaqItem question="What is the cheapest CRM for a Calendly integration?">
-Customermates from [[commercial.price.starter.monthly]] per user/month is one of the most affordable CRMs with a full REST API for Calendly integration. Combined with its n8n (free, no per-task fees), the total cost of a complete Calendly CRM integration is just [[commercial.price.starter.monthly]]/user/month. Compare this to HubSpot Professional ($100+/user/month for native Calendly integration) or Salesforce Enterprise ($175+/user/month).
+Customermates from [[commercial.price.starter.monthly]] per user/month is one of the most affordable CRMs with a full REST API for Calendly integration. Combined with a self-hosted n8n (no licence or per-task fees, only server cost), the software cost of a complete Calendly CRM integration stays close to [[commercial.price.starter.monthly]]/user/month. Compare this to HubSpot Professional ($100+/user/month for native Calendly integration) or Salesforce Core ($195/user/month, billed annually, as of September 2026).
 </FaqItem>
 
 <FaqItem question="Can I handle Calendly cancellations in my CRM automatically?">
@@ -483,7 +486,7 @@ Yes. Subscribe to the `invitee.canceled` webhook event in your automation tool (
 </FaqItem>
 
 <FaqItem question="Does Calendly work with self-hosted CRMs?">
-Yes. Calendly's webhook system sends data to any publicly accessible URL. If your CRM is self-hosted (like Customermates with n8n), you just need to expose the webhook endpoint. Use a reverse proxy with HTTPS for security.
+Yes. Calendly's webhook system sends data to any publicly accessible URL. If your CRM and n8n are self-hosted (like a self-hosted Customermates next to your own n8n), you just need to expose the n8n webhook endpoint. Use a reverse proxy with HTTPS for security.
 </FaqItem>
 </Faq>
 
@@ -491,7 +494,7 @@ Yes. Calendly's webhook system sends data to any publicly accessible URL. If you
 
 A Calendly CRM integration is not a luxury. It is basic sales infrastructure. Every booking that does not automatically land in your CRM is a potential follow-up missed, a deal forgotten, a revenue leak.
 
-For teams using HubSpot or Salesforce, native integrations get you started in minutes. For everyone else, and for teams that want advanced workflows like lead scoring, cancellation handling, and post-meeting automation, n8n plus your CRM's API gives you unlimited power at zero ongoing cost.
+For teams using HubSpot or Salesforce, native integrations get you started in minutes. For everyone else, and for teams that want advanced workflows like lead scoring, cancellation handling, and post-meeting automation, n8n plus your CRM's API gives you full control without per-task fees.
 
 If you are looking for a CRM that pairs well with Calendly and n8n, Customermates delivers the core features sales teams need from [[commercial.price.starter.monthly]] per user/month, with a clean API, integration for separately operated n8n, and an EU database region plus a DPA and SCCs without compliance certification. API access is included in every tier.
 

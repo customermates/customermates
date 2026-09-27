@@ -45,7 +45,7 @@ The case for retention is well documented and worth restating because most budge
 
 - **Acquisition costs more.** Bain & Company's research, popularized by Frederick Reichheld, put the cost of acquiring a new customer at roughly 5 to 25 times the cost of keeping an existing one. The exact ratio varies, but the direction does not.
 - **Retained customers spend more.** [HBR's research on retention economics](https://hbr.org/2014/10/the-value-of-keeping-the-right-customers) shows compounding revenue effects: existing customers buy more often, try more product lines, and refer cheaper leads.
-- **Churn punishes growth.** A SaaS business with 5 percent monthly logo churn caps out at roughly 75 percent of theoretical ARR even with strong new business. The math is unforgiving.
+- **Churn punishes growth.** A SaaS business with high monthly logo churn has to win ever more new business just to stand still. The math is unforgiving.
 - **NRR is the single best growth signal.** Public SaaS multiples correlate more tightly with net revenue retention than with growth rate alone. Investors price retention because retention is what compounds.
 
 The implication for budget: most companies underspend on retention relative to acquisition. A 1 percentage point improvement in NRR is usually cheaper to produce than a 1 percentage point improvement in win rate, and it pays back forever rather than once.
@@ -124,7 +124,7 @@ The customer retention management software category covers four broad types of t
 
 ### CRM with Retention Workflows
 
-The CRM is your contact and deal database. Most modern CRMs let you add custom fields for renewal date, health score, churn risk, and run workflows on those fields. For small and mid-size teams this is often enough, especially when the CRM has a real automation layer. With Customermates, for example, the AI agents you already use, Claude or ChatGPT, can read and write directly into the CRM through [[derived.mcp.tools.total]] MCP tools, so renewal dates, health notes, and follow-up tasks update themselves while you focus on the conversation.
+The CRM is your contact and deal database. Most modern CRMs let you add custom fields for renewal date, health score, churn risk, and run workflows on those fields. For small and mid-size teams this is often enough, especially when the CRM has a real automation layer. With Customermates, for example, the AI agents you already use, Claude or ChatGPT, can read and write directly into the CRM through [[derived.mcp.tools.total]] MCP tools, so renewal dates, health notes, and follow-up tasks get updated when you ask the agent, instead of being typed in by hand. Customermates has no built-in rules engine; trigger-based playbooks run through webhooks, the REST API, a separately operated n8n instance, or cloud routines.
 
 This is the lightest option. It does not give you product usage data out of the box. It does give you ownership of one source of truth.
 
@@ -214,7 +214,7 @@ If you are early stage and not ready to buy a customer success platform, you can
 
 This setup costs nothing beyond your existing CRM seat and a few hours of configuration. It is not as elegant as a dedicated platform. It works.
 
-If you are using AI agents like Claude or ChatGPT in your daily workflow, the boring parts get even cheaper. With the right CRM integration the agent can update health notes, log meeting outcomes, and create the follow-up tasks itself, so the system stays current without you typing into it. That is the bet behind Customermates: an [open-source, self-hostable CRM](/features/self-hosted) with [[derived.mcp.tools.total]] MCP tools so AI agents can operate it directly. EU-hosted, GDPR-first, [from [[commercial.price.starter.monthly]] per user per month](/pricing).
+If you are using AI agents like Claude or ChatGPT in your daily workflow, the boring parts get even cheaper. With the right CRM integration the agent can update health notes, log meeting outcomes, and create the follow-up tasks itself, so the system stays current without you typing into it. That is the bet behind Customermates: an [open-source, self-hostable CRM](/features/self-hosted) with [[derived.mcp.tools.total]] MCP tools so AI agents can operate it directly. The cloud database runs in the AWS Frankfurt region, with a [DPA](/dpa) and disclosed [subprocessors](/subprocessors), [from [[commercial.price.starter.monthly]] per user per month](/pricing).
 
 ## Common Customer Retention Management Mistakes
 
@@ -290,4 +290,4 @@ Two places. First, scoring: machine learning models can identify churn signals e
 
 Retention compounds. So does the lack of it. The teams that build a real retention system, one source of truth, an honest health score, playbooks tied to triggers, and a renewal motion that gets serious attention, end up looking very different at year three from the teams that did not. The work is not glamorous. The math is.
 
-If you want a CRM foundation that takes the boring parts off your plate, [Customermates](/pricing) is open source, EU-hosted, and built so the AI agents you already use can run the retention system for you. Or pick another tool. Just make sure you have one.
+If you want a CRM foundation that takes the boring parts off your plate, [Customermates](/pricing) is open source, self-hostable, runs its cloud database in Frankfurt, and is built so the AI agents you already use can run the retention system for you. Or pick another tool. Just make sure you have one.

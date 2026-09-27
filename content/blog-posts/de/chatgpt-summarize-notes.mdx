@@ -195,7 +195,7 @@ Der beste Workflow für Gesprächsnotizen beginnt vor dem Anruf. Durch die Integ
 2. Nach dem Gespräch exportieren Sie das Transkript über die Otter-API.
 3. n8n verarbeitet das Transkript mit ChatGPT und schreibt die Ergebnisse ins CRM.
 
-**Manueller Kalender-Fallback:** Falls Sie kein Aufnahme-Tool nutzen, erstellen Sie eine Kalendertermin-Vorlage mit einem Notizbereich, der Ihre Prompt-Struktur enthält (Hauptthema, Entscheidungen, nächste Schritte). Füllen Sie während des Gesprächs Stichpunkte ein und fügen Sie diese anschließend in ChatGPT ein. Selbst dieser semi-manuelle Ansatz reduziert die Dokumentationszeit um 60 %.
+**Manueller Kalender-Fallback:** Falls Sie kein Aufnahme-Tool nutzen, erstellen Sie eine Kalendertermin-Vorlage mit einem Notizbereich, der Ihre Prompt-Struktur enthält (Hauptthema, Entscheidungen, nächste Schritte). Füllen Sie während des Gesprächs Stichpunkte ein und fügen Sie diese anschließend in ChatGPT ein. Selbst dieser semi-manuelle Ansatz spart spürbar Dokumentationszeit.
 
 ## Den gesamten Ablauf mit n8n automatisieren
 
@@ -224,13 +224,13 @@ Verwenden Sie einen n8n-Webhook-Node als Einstiegspunkt. Verbinden Sie ihn mit I
 Fügen Sie einen OpenAI-Node in n8n hinzu. Konfigurieren Sie ihn mit Ihrem API-Key und dem Drei-Satz-Prompt von oben. Übergeben Sie den Transkript-Text als Input. Der Node gibt die strukturierte Zusammenfassung zurück.
 
 **3. Ins CRM schreiben.**
-Fügen Sie einen CRM-Node hinzu (Customermates, HubSpot, Pipedrive oder jedes CRM mit API). Mappen Sie die Zusammenfassung auf das Notizfeld des jeweiligen Deals oder Kontakts. Bei Customermates ist die n8n-Integration nativ vorhanden, Kontakt auswählen, "Notiz hinzufügen" wählen und das Zusammenfassungs-Feld zuordnen.
+Fügen Sie einen CRM-Node hinzu (Customermates, HubSpot, Pipedrive oder jedes CRM mit API). Mappen Sie die Zusammenfassung auf das Notizfeld des jeweiligen Deals oder Kontakts. Für Customermates installieren Sie den Community-Node in Ihrem separat betriebenen n8n (oder nutzen den HTTP-Request-Node gegen die REST-API), wählen den Datensatz und schreiben die Zusammenfassung in dessen Notizen.
 
 **4. Team benachrichtigen (optional).**
 Fügen Sie einen Slack- oder E-Mail-Node hinzu, um den Deal-Verantwortlichen zu informieren, dass eine neue Zusammenfassung vorliegt. Fügen Sie den Zusammenfassungstext in die Benachrichtigung ein, damit der Empfänger ohne CRM-Login prüfen kann.
 
 **5. Follow-up-Aufgaben automatisch erstellen (optional).**
-Fügen Sie einen zweiten ChatGPT-Node hinzu, der Aktionspunkte aus demselben Transkript extrahiert. Erstellen Sie dann per CRM-Node Aufgaben oder Kalendereinträge für jeden Aktionspunkt mit dem zugewiesenen Verantwortlichen und der Frist.
+Fügen Sie einen zweiten ChatGPT-Node hinzu, der Aktionspunkte aus demselben Transkript extrahiert. Erstellen Sie dann per CRM-Node Aufgaben für jeden Aktionspunkt mit dem zugewiesenen Verantwortlichen. In Customermates haben Aufgaben kein natives Fälligkeitsdatum, und Kalendereinträge schreibt Customermates nicht; die Frist gehört dort in den Aufgabentitel oder eine eigene Datumsspalte.
 
 ### Kosten des Workflows
 
@@ -268,13 +268,13 @@ Der Kompromiss: Lokale Modelle erfordern mehr Hardware (ein Server mit GPU) und 
 
 ### CRM-seitige Compliance
 
-Stellen Sie sicher, dass Ihr CRM Daten DSGVO-konform speichert. Customermates hostet Daten standardmäßig in der EU und ist vollständig DSGVO-konform. Bei anderen CRM-Systemen prüfen Sie Hosting-Region und Auftragsverarbeitungs-Bedingungen.
+Prüfen Sie auch beim CRM Speicherort, Unterauftragsverarbeiter und AVV. In der Cloud-Version von Customermates liegt die Datenbank in der AWS-Region Frankfurt; Hosting und weitere Unterauftragsverarbeiter, auch aus den USA, stehen in der [Liste der Unterauftragsverarbeiter](/subprocessors), ein [Auftragsverarbeitungsvertrag (AVV)](/dpa) liegt vor. Wer den Speicherort vollständig selbst bestimmen will, betreibt den Open-Source-Kern selbst. Bei anderen CRM-Systemen prüfen Sie Hosting-Region und Auftragsverarbeitungs-Bedingungen ebenso.
 
 ## Das richtige CRM für KI-gestütztes Notiz-Management
 
 Nicht jedes CRM geht gleich gut mit Notizen und Automatisierung um. So schneiden populäre Optionen für diesen konkreten Workflow ab:
 
-**Customermates.** Ab [[commercial.price.starter.monthly]]/Nutzer/Monat (Starter), das volle Kern-CRM inklusive. Native n8n-Integration, dazu ein nativer MCP-Server, sodass ein KI-Agent (Claude, ChatGPT oder Gemini) Datensätze direkt lesen und schreiben kann, Notizen an Deals und Kontakten, DSGVO-konformes EU-Hosting, Open Source. Ab der Pro-Stufe kommt ein nativer vereinheitlichter Posteingang (E-Mail, LinkedIn, WhatsApp, Instagram, Telegram) hinzu, den derselbe Agent bedienen kann. Entwickelt für Teams, die schnelle Dateneingabe ohne komplexe Konfiguration wollen. Native KI und MCP sind ab der Einstiegsstufe enthalten, kein separates Upgrade nötig.
+**Customermates.** Ab [[commercial.price.starter.monthly]]/Nutzer/Monat (Starter), das volle Kern-CRM inklusive. n8n-Community-Node für ein separat betriebenes n8n, dazu ein nativer MCP-Server, sodass ein KI-Agent (Claude, ChatGPT oder Gemini) Datensätze direkt lesen und schreiben kann, Notizen an Deals und Kontakten, Cloud-Datenbank in Frankfurt mit AVV, Open Source. Ab der Pro-Stufe kommt ein nativer einheitlicher Posteingang (E-Mail, LinkedIn, WhatsApp, Instagram, Telegram) hinzu, den derselbe Agent bedienen kann. Entwickelt für Teams, die schnelle Dateneingabe ohne komplexe Konfiguration wollen. Native KI und MCP sind ab der Einstiegsstufe enthalten, kein separates Upgrade nötig.
 
 **HubSpot.** Kostenlose CRM-Stufe verfügbar; kostenpflichtige Sales-Hub-Pläne beginnen bei 15 USD/Sitz/Monat (Starter), die Automatisierung, die die meisten Teams wollen, greift ab Professional (90 USD/Sitz/Monat, plus einmalige Onboarding-Gebühr). Notizen funktionieren gut, die Oberfläche ist aber komplexer. Sinnvoll, wenn Sie zusätzlich Marketing-Automatisierung benötigen. Meeting-Aufnahme-Integrationen sind in kostenpflichtigen Tarifen eingebaut.
 

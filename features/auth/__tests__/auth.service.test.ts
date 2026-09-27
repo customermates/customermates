@@ -9,9 +9,12 @@ const mocks = vi.hoisted(() => ({
   signInEmail: vi.fn(),
   signInSocial: vi.fn(),
   signUpEmail: vi.fn(),
+  signOut: vi.fn(),
+  deleteCookie: vi.fn(),
 }));
 
 vi.mock("next/headers", () => ({
+  cookies: () => Promise.resolve({ delete: mocks.deleteCookie }),
   headers: () =>
     new Headers({
       host: "feat-inbox.customermates.com",
@@ -29,6 +32,7 @@ vi.mock("@/core/auth/better-auth", () => ({
       signInEmail: mocks.signInEmail,
       signInSocial: mocks.signInSocial,
       signUpEmail: mocks.signUpEmail,
+      signOut: mocks.signOut,
       createApiKey: mocks.createApiKey,
     },
   },
@@ -69,6 +73,13 @@ describe("AuthService", () => {
       url: "https://accounts.example.com",
     });
     mocks.createApiKey.mockResolvedValue({ id: "key-id", key: "one-time-secret" });
+  });
+
+  it("drops the session hint with the session, so a cached marketing page stops asking for the account", async () => {
+    await service.signOut();
+
+    expect(mocks.signOut).toHaveBeenCalledOnce();
+    expect(mocks.deleteCookie).toHaveBeenCalledWith("app.session_hint");
   });
 
   it("lets Better Auth infer the current request origin when email sign-in has no callback", async () => {

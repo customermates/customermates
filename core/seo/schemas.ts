@@ -80,6 +80,7 @@ export function articleSchema(params: {
     image: [ogImage],
     datePublished: params.datePublished,
     dateModified: params.dateModified ?? params.datePublished,
+    inLanguage: params.locale,
     author: {
       "@type": "Person",
       name: params.authorName ?? FOUNDER_NAME,

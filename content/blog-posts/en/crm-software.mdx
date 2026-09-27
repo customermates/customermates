@@ -89,12 +89,12 @@ For most SMBs the following vendors are relevant. I list entry pricing and the m
 
 | Vendor                                                    | Price per user/month                      | Strength                                                | GDPR / EU Hosting    |
 | --------------------------------------------------------- | ----------------------------------------- | ------------------------------------------------------- | -------------------- |
-| **Customermates**                                         | From [[commercial.price.starter.monthly]] | Open source, AI agents operate it, native unified inbox | Yes, EU/DE hosting   |
+| **Customermates**                                         | From [[commercial.price.starter.monthly]] | Open source, AI agents operate it, native unified inbox | Cloud DB in Frankfurt; self-hostable |
 | [HubSpot](https://www.hubspot.com/products/crm)           | Free, Pro from $90                        | Marketing + CRM, generous free tier                     | Optional EU region   |
 | [Salesforce](https://www.salesforce.com/)                 | From $25                                  | Market leader, enterprise ecosystem                     | Optional EU region   |
 | [Pipedrive](https://www.pipedrive.com/)                   | From $14                                  | Sales focus, simple pipeline                            | EU hosting available |
-| [Zoho CRM](https://www.zoho.com/crm/)                     | From $14                                  | Broad ecosystem, many modules                           | EU hosting available |
-| [Monday CRM](https://monday.com/crm)                      | From $12                                  | Visual project management roots                         | EU region available  |
+| [Zoho CRM](https://www.zoho.com/crm/)                     | Free up to 3 users; paid plans see zoho.com | Broad ecosystem, many modules                           | EU hosting available |
+| [Monday CRM](https://monday.com/crm)                      | From €12 (as of September 2026)           | Visual project management roots                         | EU region available  |
 | [Freshsales](https://www.freshworks.com/crm/sales/)       | From $9                                   | Simple pipeline, AI assistant                           | EU region available  |
 | [Microsoft Dynamics 365](https://dynamics.microsoft.com/) | From $65                                  | Office 365 integration, enterprise                      | EU hosting available |
 
@@ -108,11 +108,11 @@ Prices range from free to triple-digit per user per month. Four bands are common
 
 **Free.** HubSpot Free, Zoho Free, Bitrix24 Free. All have caps on users, contacts, or features. Usable for solo operators and trials, not for a team. More in [Free CRM Compared](/blog/free-crm).
 
-**Entry tier, $9 to $20 per user.** Freshsales ($9), Monday ($12), Customermates ([[commercial.price.starter.monthly]]), Pipedrive ($14), Zoho ($14). Full CRM functionality for SMBs.
+**Entry tier, $9 to $20 per user.** Freshsales ($9), monday CRM (€12, as of September 2026), Customermates ([[commercial.price.starter.monthly]]), Pipedrive ($14). Full CRM functionality for SMBs.
 
-**Mid tier, $20 to $50 per user.** Salesforce Essentials, HubSpot Starter, Microsoft Dynamics Sales Professional. Advanced automation, reporting, often with ERP connectivity.
+**Mid tier, $20 to $50 per user.** Salesforce Starter Suite, HubSpot Starter, Microsoft Dynamics Sales Professional. Advanced automation, reporting, often with ERP connectivity.
 
-**Enterprise, $50 to $300+ per user.** Salesforce Enterprise, HubSpot Enterprise, SAP Sales Cloud. For large companies with complex compliance requirements.
+**Enterprise, $50 to $300+ per user.** Salesforce Pro Suite and above, HubSpot Enterprise, SAP Sales Cloud. For large companies with complex compliance requirements.
 
 Watch for hidden costs. Many vendors lure with low entry prices but lock automation, API access, or permission tiers behind pricier plans. A realistic comparison adds license costs plus all required add-ons. A detailed cost analysis sits in [CRM Costs in Detail](/blog/crm-cost) and on the [Customermates pricing page](/pricing).
 
@@ -164,14 +164,14 @@ Implementations rarely fail on technology. They fail on adoption. Three points m
 
 Customermates is a CRM for SMBs, freelancers, and consulting teams. I built it because no existing solution fit. Two features carry the product:
 
-- **AI agents operate the CRM.** If you already use Claude, ChatGPT, or Gemini daily, your pipeline updates itself. The agent adds the contact, moves the deal, writes the note, and schedules the follow-up through a native MCP integration with [[derived.mcp.tools.total]] tools. You stop typing into the CRM; the CRM listens.
-- **Native unified inbox.** Email, LinkedIn, WhatsApp, Instagram, and Telegram in one inbox inside the CRM, and the same AI agents can read, draft, and send across every channel. Few CRMs put those channels in one native inbox, and fewer let an AI operate it.
+- **AI agents operate the CRM.** If you already use Claude, ChatGPT, or Gemini daily, your pipeline updates itself. The agent adds the contact, moves the deal, writes the note, and creates the follow-up task through a native MCP integration with [[derived.mcp.tools.total]] tools. You stop typing into the CRM; the CRM listens.
+- **Native unified inbox (cloud, Pro and above).** Email, LinkedIn, WhatsApp, Instagram, and Telegram in one inbox inside the CRM, and the hosted Mate assistant can read threads and draft replies, sending only after you confirm. Few CRMs put those channels in one native inbox, and fewer let an AI operate it.
 
 Around those two sits the trust layer:
 
 - **Open source under AGPL-3.0.** The full [source code](https://github.com/customermates/customermates) is on GitHub. Self-hosting via Docker is free and documented.
-- **Made in Germany.** EU hosting, GDPR-native, transparent pricing.
-- **From [[commercial.price.starter.monthly]] per user per month in the cloud (Starter),** with the full core CRM: contacts, companies, deals, services, tasks, custom fields, workflow automation, API, audit log, permissions. Pro at [[commercial.price.pro.monthly]] adds the unified inbox, Business at [[commercial.price.business.monthly]] adds shared team accounts and more connected accounts per user.
+- **Made in Germany.** In the managed cloud, the application database runs in the AWS Frankfurt region; hosting and other subprocessors, including US providers, are listed on the [subprocessors page](/subprocessors), and a [DPA](/dpa) is available. If you need full control over where data lives, self-host the open-source core.
+- **From [[commercial.price.starter.monthly]] per user per month in the cloud (Starter),** with the full core CRM: contacts, companies, deals, services, tasks, custom fields, REST API, webhooks, MCP, audit log, permissions. Pro at [[commercial.price.pro.monthly]] adds the unified inbox, Business at [[commercial.price.business.monthly]] adds shared team accounts and more connected accounts per user.
 - **No vendor lock-in trap.** Read supported records through REST API or MCP anytime, and plan any migration externally.
 
 [See pricing](/pricing) · [Try Customermates free for [[commercial.trial.days]] days](/auth/signup) · [View on GitHub](https://github.com/customermates/customermates)
@@ -184,11 +184,11 @@ A CRM stores and connects every piece of data about your customers: contacts, co
 </FaqItem>
 
 <FaqItem question="Which CRM software is best for SMBs?">
-There is no single best answer. For small teams that need simple usability, Pipedrive, Freshsales, or Customermates are good picks. If you need marketing, HubSpot makes sense. If you want open source and EU hosting, Customermates or SuiteCRM are the natural choices. A detailed evaluation is in [Best CRM Software](/blog/best-crm-software).
+There is no single best answer. For small teams that need simple usability, Pipedrive, Freshsales, or Customermates are good picks. If you need marketing, HubSpot makes sense. If you want open source and control over where your data lives, Customermates or SuiteCRM are natural choices. A detailed evaluation is in [Best CRM Software](/blog/best-crm-software).
 </FaqItem>
 
 <FaqItem question="What does a CRM cost per month?">
-Prices range from free to over $300 per user per month. Most SMBs pay $10 to $30 per user. Customermates starts at [[commercial.price.starter.monthly]] per user per month (Starter), with the full core CRM and no upsells.
+Prices range from free to over $300 per user per month. Most SMBs pay $10 to $30 per user. Customermates starts at [[commercial.price.starter.monthly]] per user per month (Starter) with the full core CRM; the unified inbox starts on Pro at [[commercial.price.pro.monthly]].
 </FaqItem>
 
 <FaqItem question="Is HubSpot really free?">
@@ -200,11 +200,11 @@ Yes, with open-source solutions. Customermates, SuiteCRM, EspoCRM, and Vtiger ru
 </FaqItem>
 
 <FaqItem question="Is CRM with a DPA and SCCs possible with US vendors?">
-Partially. Since the Schrems II ruling and the current EU-US Data Privacy Framework, there is a legal basis, but it remains contested. The safer route is a CRM hosted in the EU, like Customermates or other EU-native options.
+Partially. Since the Schrems II ruling and the current EU-US Data Privacy Framework, there is a legal basis, but it remains contested. Check where the database runs, which subprocessors are involved, and whether a DPA is offered. Customermates runs its cloud database in the AWS Frankfurt region, discloses all subprocessors (including US providers) on its [subprocessors page](/subprocessors), offers a [DPA](/dpa), and can be self-hosted if you need full control.
 </FaqItem>
 
 <FaqItem question="What is the difference between CRM software and a CRM system?">
-The terms are used interchangeably. "CRM software" emphasizes the application; "[CRM system](/blog/crm-system)" emphasizes the broader operational context with processes, data, and users. In practice they mean the same thing.
+The terms are used interchangeably. "CRM software" emphasizes the application; "[CRM system](/blog/crm-systems)" emphasizes the broader operational context with processes, data, and users. In practice they mean the same thing.
 </FaqItem>
 
 <FaqItem question="Do I need a CRM if I have only 2 employees?">
@@ -214,7 +214,7 @@ Yes, as soon as you regularly work with multiple customers in parallel and the o
 
 ## Bottom Line
 
-CRM software is not an end in itself. It exists to save your team time, close leaks in the sales process, and end the work of reconstructing customer knowledge from old emails. Choose a system the team actually uses, that respects data privacy, and that grows with you. For European businesses, a solution with EU hosting, transparent pricing, and an honest open-source option is often the more sustainable pick.
+CRM software is not an end in itself. It exists to save your team time, close leaks in the sales process, and end the work of reconstructing customer knowledge from old emails. Choose a system the team actually uses, that respects data privacy, and that grows with you. For European businesses, a solution with a documented data location, disclosed subprocessors, transparent pricing, and an honest open-source option is often the more sustainable pick.
 
 If you are already using Claude or ChatGPT, take a look at Customermates. The CRM updates itself because your AI agents can read and write directly inside the system, and email, LinkedIn, WhatsApp, Instagram, and Telegram sit in one inbox next to the records. You skip the upkeep work that hits every CRM project at 5 PM on a Wednesday.
 

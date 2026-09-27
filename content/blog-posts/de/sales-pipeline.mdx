@@ -21,7 +21,7 @@ blogPost:
 
 Eine gut geführte Sales Pipeline ist der Unterschied zwischen planbarem Umsatz und Ratespiel. Hier finden Sie alles, was Sie zum Aufbau, zur Messung und zur Optimierung brauchen.
 
-Jedes Unternehmen, das etwas verkauft, hat eine Sales Pipeline, ob bewusst oder unbewusst. Die Frage ist, ob diese Vertriebspipeline aktiv gemanagt wird oder dem Zufall überlassen bleibt. Studien zeigen, dass Unternehmen mit einer formal definierten Sales Pipeline 28 Prozent mehr Umsatzwachstum erzielen als solche ohne. Sie schließen Deals schneller ab, prognostizieren Umsätze genauer und erkennen Probleme, bevor sie zur Krise werden.
+Jedes Unternehmen, das etwas verkauft, hat eine Sales Pipeline, ob bewusst oder unbewusst. Die Frage ist, ob diese Vertriebspipeline aktiv gemanagt wird oder dem Zufall überlassen bleibt. Teams mit einer klar definierten Sales Pipeline schließen Deals in der Regel schneller ab, prognostizieren Umsätze genauer und erkennen Probleme, bevor sie zur Krise werden.
 
 Dieser Leitfaden deckt alles ab, was Sie über den Aufbau und das Management einer funktionierenden Sales Pipeline wissen müssen: von der Definition Ihrer Phasen über die Messung der Pipeline-Gesundheit bis hin zum Revenue Forecasting.
 
@@ -135,9 +135,9 @@ Zum Beispiel:
 
 ### Schritt 3: CRM einrichten
 
-Ihre Pipeline lebt in Ihrem [CRM-System](/blog/crm-system). Konfigurieren Sie die Phasen, richten Sie Pflichtfelder für jede Phase ein und erstellen Sie Automatisierungsregeln für häufige Aktionen wie Follow-up-Erinnerungen und Phasenübergangs-Benachrichtigungen.
+Ihre Pipeline lebt in Ihrem [CRM-System](/blog/crm-systems). Konfigurieren Sie die Phasen, richten Sie Pflichtfelder für jede Phase ein und erstellen Sie Automatisierungsregeln für häufige Aktionen wie Follow-up-Erinnerungen und Phasenübergangs-Benachrichtigungen.
 
-Customermates ermöglicht Pipelines als Card-Ansicht (Kanban), gruppiert nach einem eigenen Phasenfeld, mit Custom Fields und n8n-Automatisierung, die Aktionen auf Basis von Deal-Bewegungen auslöst. Da Customermates [Open Source](/blog/open-source-crm) und in der EU gehostet ist, bleiben Ihre Pipeline-Daten unter Ihrer Kontrolle und sind von Beginn an DSGVO-konform.
+Customermates zeigt die Pipeline als Card-Ansicht (Kanban), gruppiert nach einem konfigurierbaren Phasenfeld mit Wahrscheinlichkeit pro Phase, dazu Custom Fields und Webhooks, mit denen eine separat betriebene n8n-Instanz auf Deal-Bewegungen reagieren kann. Erinnerungen und Pflichtfelder pro Phase gibt es nicht eingebaut. Customermates ist [Open Source](/blog/open-source-crm); in der Cloud-Version liegt die Datenbank in der AWS-Region Frankfurt, und wer den Speicherort vollständig selbst bestimmen will, hostet selbst.
 
 ### Schritt 4: Bestehende Deals einpflegen
 
@@ -175,13 +175,13 @@ Jeder im Vertriebsteam muss die Pipeline-Phasen, die Kriterien für den Phasenü
 
 Für kleinere Teams reicht eine einfache Pipeline. Fünf Phasen genügen:
 
-1. **Neuer Lead**, Kontakt hergestellt, Basisinformationen erfasst
-2. **Qualifiziert**, Passung, Budget und Zeitrahmen bestätigt
-3. **Angebot gesendet**, Formelles Angebot zugestellt
-4. **Mündliche Zusage**, Interessent stimmt zu, Formalitäten ausstehend
-5. **Gewonnen / Verloren**, Deal abgeschlossen oder verloren
+1. **Neuer Lead**: Kontakt hergestellt, Basisinformationen erfasst
+2. **Qualifiziert**: Passung, Budget und Zeitrahmen bestätigt
+3. **Angebot gesendet**: Formelles Angebot zugestellt
+4. **Mündliche Zusage**: Interessent stimmt zu, Formalitäten ausstehend
+5. **Gewonnen / Verloren**: Deal abgeschlossen oder verloren
 
-Customermates unterstützt all diese Vorlagen direkt. Sie können individuelle Pipelines mit beliebig vielen oder wenigen Phasen erstellen, ab [[commercial.price.starter.monthly]] pro Nutzer und Monat, in jeder Stufe enthalten.
+Customermates unterstützt jede dieser Vorlagen: Sie legen die Phasen und ihre Wahrscheinlichkeiten in einer konfigurierbaren Phasen-Spalte selbst fest, ab [[commercial.price.starter.monthly]] pro Nutzer und Monat, in jeder Stufe enthalten.
 
 ## Wichtige Kennzahlen für Ihr Pipeline-Management
 
@@ -235,7 +235,7 @@ Nutzen Sie vergangene Ergebnisse, um zukünftige vorherzusagen. Wenn Ihr Team in
 
 ### KI-gestütztes Forecasting
 
-Moderne CRM-Systeme nutzen Machine Learning, um Deal-Eigenschaften, Verhalten der Vertriebsmitarbeiter und historische Muster zu analysieren und vorherzusagen, welche Deals am wahrscheinlichsten wann abgeschlossen werden. In Customermates können die KI-Agenten, die das CRM bedienen (Claude, ChatGPT oder Gemini über die native MCP-Integration), gefährdete Deals identifizieren, nächste Schritte empfehlen und den Deal-Datensatz direkt aktualisieren, damit sich Ihr Team auf die vielversprechendsten Chancen konzentriert.
+Moderne CRM-Systeme nutzen Machine Learning, um Deal-Eigenschaften, Verhalten der Vertriebsmitarbeiter und historische Muster zu analysieren und vorherzusagen, welche Deals am wahrscheinlichsten wann abgeschlossen werden. Customermates hat kein eingebautes prädiktives Forecasting; es rechnet gewichtete Deal-Werte aus den Phasenwahrscheinlichkeiten. KI-Agenten, die das CRM bedienen (Claude, ChatGPT oder Gemini über die MCP-Integration), können aber auf Anweisung gefährdete Deals identifizieren, nächste Schritte vorschlagen und den Deal-Datensatz direkt aktualisieren, damit sich Ihr Team auf die vielversprechendsten Chancen konzentriert.
 
 ## Häufige Fehler im Pipeline-Management
 
@@ -277,11 +277,11 @@ Nicht jeder Deal hat die gleiche Abschlusswahrscheinlichkeit. Weisen Sie jeder P
 
 Nutzen Sie die Automatisierungsfunktionen Ihres CRM, um manuelle Arbeit zu reduzieren. Automatische Follow-up-Erinnerungen, Phasenübergangs-Benachrichtigungen, Aktivitätsprotokollierung und Deal-Rotationsregeln halten die Pipeline in Bewegung, ohne zusätzlichen Aufwand für Ihr Vertriebsteam.
 
-Mit Customermates verbinden Sie n8n-Workflows, um Aktionen zu automatisieren: zum Beispiel eine Follow-up-E-Mail senden, wenn ein Deal in die Angebotsphase eintritt, einen Manager benachrichtigen, wenn ein hochwertiger Deal stagniert, oder eine Aufgabe erstellen, wenn ein Deal in die Verhandlung wechselt.
+Mit Customermates verbinden Sie über Webhooks und den n8n-Community-Node eine separat betriebene n8n-Instanz, um Aktionen zu automatisieren: zum Beispiel eine Follow-up-E-Mail senden, wenn ein Deal in die Angebotsphase eintritt, einen Manager benachrichtigen, wenn ein hochwertiger Deal stagniert, oder eine Aufgabe erstellen, wenn ein Deal in die Verhandlung wechselt.
 
 ### CRM-Daten aktuell halten
 
-Eine Pipeline ist nur so verlässlich wie die Daten dahinter. Machen Sie es zur Teamnorm, Deal-Status, Notizen und nächste Schritte nach jeder Kundeninteraktion zu aktualisieren. Customermates hilft dabei auf zwei Weisen: E-Mail, LinkedIn, WhatsApp, Instagram und Telegram liegen in einem nativen Posteingang direkt im CRM, sodass sich Gespräche selbst dem richtigen Deal zuordnen, und die KI-Agenten können Phasen und nächste Schritte direkt aus einem Thread aktualisieren. Zusätzlich können Sie automatische Datenerfassung über n8n-Integrationen einrichten.
+Eine Pipeline ist nur so verlässlich wie die Daten dahinter. Machen Sie es zur Teamnorm, Deal-Status, Notizen und nächste Schritte nach jeder Kundeninteraktion zu aktualisieren. Customermates hilft dabei auf zwei Weisen: In der Cloud ab Pro liegen E-Mail, LinkedIn, WhatsApp, Instagram und Telegram in einem nativen Posteingang direkt im CRM; verknüpfte Teilnehmer bringen jedes Gespräch auf die Timeline des Kontakts, und KI-Agenten können Phasen und nächste Schritte auf Anweisung direkt aus einem Thread aktualisieren. Zusätzlich können Sie Datenerfassung über eigene n8n-Workflows einrichten.
 
 ### Quantität und Qualität in Balance halten
 
@@ -289,11 +289,11 @@ Viele Deals in der Pipeline zu haben, bringt nichts, wenn die meisten unqualifiz
 
 ### Pipeline segmentieren
 
-Wenn Sie an verschiedene Märkte, Unternehmensgrößen oder Produktlinien verkaufen, erwägen Sie separate Pipelines für jeden Bereich. Das liefert sauberere Daten und genauere Forecasts. Customermates unterstützt mehrere Pipelines pro Account, sodass Sie Enterprise-Deals getrennt von KMU-Deals verfolgen können, ohne die Daten zu vermischen.
+Wenn Sie an verschiedene Märkte, Unternehmensgrößen oder Produktlinien verkaufen, erwägen Sie separate Pipelines für jeden Bereich. Das liefert sauberere Daten und genauere Forecasts. Customermates hat eine konfigurierbare Phasen-Spalte statt mehrerer Pipelines; Enterprise- und KMU-Deals trennen Sie über ein eigenes Auswahlfeld, Gruppierung und gespeicherte Ansichten.
 
 ## Wie CRM-Software das Pipeline-Management unterstützt
 
-Ein [CRM-System](/blog/what-is-crm) ist das operative Rückgrat Ihrer Sales Pipeline. Ohne CRM basiert das Pipeline-Management auf Tabellen, Gedächtnis und manuellen Updates, alles Dinge, die mit wachsendem Team und steigendem Deal-Volumen zusammenbrechen. Studien von Nucleus Research zeigen, dass CRM-Systeme durchschnittlich 8,71 Euro Rendite für jeden investierten Euro liefern.
+Ein [CRM-System](/blog/what-is-crm) ist das operative Rückgrat Ihrer Sales Pipeline. Ohne CRM basiert das Pipeline-Management auf Tabellen, Gedächtnis und manuellen Updates, alles Dinge, die mit wachsendem Team und steigendem Deal-Volumen zusammenbrechen.
 
 ### Worauf Sie bei Pipeline-Management-Software achten sollten
 
@@ -310,11 +310,11 @@ Ein [CRM-System](/blog/what-is-crm) ist das operative Rückgrat Ihrer Sales Pipe
 Customermates bietet alles Genannte, mit einigen entscheidenden Unterschieden:
 
 - **Open Source**: Volle Transparenz darüber, wie Ihre Daten verarbeitet werden. Kein Vendor Lock-in. Prüfen Sie den Code selbst oder hosten Sie selbst, wenn Sie möchten.
-- **EU-gehostet und DSGVO-nativ**: Ihre Pipeline-Daten werden in der EU gespeichert und sind von Tag eins an nach europäischen Datenschutzstandards geschützt, nicht als nachträglicher Gedanke.
+- **Datenstandort offengelegt**: In der Cloud-Version liegt die Datenbank in der AWS-Region Frankfurt; Hosting und weitere Unterauftragsverarbeiter, auch aus den USA, stehen in der [Liste der Unterauftragsverarbeiter](/subprocessors), ein [Auftragsverarbeitungsvertrag (AVV)](/dpa) liegt vor.
 - **Das volle Kern-CRM ab [[commercial.price.starter.monthly]] pro Nutzer und Monat**: transparente, veröffentlichte Stufen, kein „Kontaktieren Sie den Vertrieb für Enterprise-Preise". Jeder Nutzer erhält jede Kernfunktion; mehr zahlen Sie für Messaging-Umfang und ein größeres Kontingent für die gehostete KI.
-- **n8n-Automatisierung**: Verbinden Sie Ihre Pipeline mit Hunderten anderer Tools über visuelle, No-Code-Workflows. Automatisieren Sie Lead-Routing, Follow-ups, Slack-Benachrichtigungen und mehr.
-- **KI-Agenten bedienen das CRM**: Claude, ChatGPT und Gemini lesen und schreiben Ihre Pipeline über eine native MCP-Integration, sodass Phasenwechsel, Follow-ups und Deal-Notizen ohne manuelle Dateneingabe erledigt werden.
-- **Nativer vereinheitlichter Posteingang**: E-Mail, LinkedIn, WhatsApp, Instagram und Telegram in einem Posteingang direkt im CRM (ab Pro-Stufe), sodass jedes Gespräch dem richtigen Deal zugeordnet ist und dieselben Agenten Antworten entwerfen und senden.
+- **Offen für n8n**: Über Webhooks, REST API und den n8n-Community-Node verbinden Sie Ihre Pipeline in einer separat betriebenen n8n-Instanz mit Hunderten anderer Tools und automatisieren Lead-Routing, Follow-ups oder Slack-Benachrichtigungen.
+- **KI-Agenten bedienen das CRM**: Claude, ChatGPT und Gemini lesen und schreiben Ihre Pipeline über eine native MCP-Integration, sodass Phasenwechsel, Follow-ups und Deal-Notizen ohne manuelles Tippen erledigt werden.
+- **Nativer einheitlicher Posteingang**: E-Mail, LinkedIn, WhatsApp, Instagram und Telegram in einem Posteingang direkt im CRM (Cloud, ab Pro-Stufe), sodass Gespräche neben dem Kontakt liegen und der Assistent Mate Antworten entwirft und nach Ihrer Bestätigung sendet.
 - **[Erschwinglich für kleine Teams](/blog/crm-cost)**: Starten Sie Ihre erste Pipeline in Minuten. Keine Implementierungsberater nötig.
 
 ## Häufig gestellte Fragen

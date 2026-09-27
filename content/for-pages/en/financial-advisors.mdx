@@ -20,7 +20,7 @@ hero:
 
 cta:
   action: Evaluate the workflow before moving client data
-  description: See how contacts, organizations, configurable pipelines, and tasks fit your advisory process while specialist systems retain regulated records.
+  description: See how contacts, organizations, configurable deal stages, and tasks fit your advisory process while specialist systems retain regulated records.
   buttonLeftText: Start the Pro trial
   buttonLeftHref: /auth/signup
   buttonRightText: Explore the demo
@@ -39,7 +39,7 @@ A **CRM for financial advisors** should make relationships and next actions easi
     Connect prospects, client contacts, referral partners, opportunities, and
     the next manual action.
   </SummaryItem>
-  <SummaryItem label="Useful proof">
+  <SummaryItem label="What is included">
     Contacts, organizations, configurable deal stages, custom fields, filters,
     kanban, and linked tasks.
   </SummaryItem>
@@ -49,7 +49,7 @@ A **CRM for financial advisors** should make relationships and next actions easi
   </SummaryItem>
 </ArticleSummary>
 
-<ProofRail label="Verified relationship CRM capabilities for advisory practices">
+<ProofRail label="Relationship CRM capabilities for advisory practices">
   <ProofItem label="Relationships">Contacts and organizations</ProofItem>
   <ProofItem label="Pipeline">Configurable prospect stages</ProofItem>
   <ProofItem label="Context">Typed custom fields</ProofItem>
@@ -69,7 +69,7 @@ Customermates is a general relationship CRM. It can organize the first group wit
 | New-business workflow | Deals, configurable stages, filters, and kanban | Advice and onboarding controls |
 | Relationship attributes | User-defined fields and views | Calculated portfolio and risk data |
 | Next action | Tasks linked to CRM records | Booking, review calendar, and supervised workflow |
-| Integration surface | REST, webhooks, MCP, and separate n8n option | Custodian, planning, document, and compliance connectors |
+| Interfaces | REST, webhooks, MCP, and separate n8n option | Custodian, planning, document, and compliance connectors |
 
 <AcquisitionCallout title="A relationship record is not a compliance record" variant="boundary">
   Keep regulated advice, suitability evidence, signed documents, portfolio
@@ -92,13 +92,13 @@ Represent a prospective engagement as a deal, not as a portfolio or account. The
     Use stages such as new inquiry, discovery planned, evaluating fit, scope
     discussed, won, or closed.
   </Step>
-  <Step title="Add bounded business fields">
+  <Step title="Add a few custom fields">
     Store values such as relationship tier, preferred contact method, referral
     source, review month, or an external-system reference.
   </Step>
   <Step title="Keep the next action with the record">
-    Attach a task for the next manual follow-up. Tasks do not provide native due
-    dates, recurring schedules, or a supervised review workflow.
+    Attach a task for the next manual follow-up. Tasks have no due dates,
+    recurring schedules, or supervised review workflow.
   </Step>
   <Step title="Hand regulated work to the specialist system">
     Once advice, onboarding, custody, or documentation begins, continue that
@@ -118,17 +118,17 @@ Contacts and organizations can represent related people and entities, but there 
 
 Accountants, attorneys, mortgage brokers, and other introducers can be represented as contacts and organizations. A referral-source field and configurable views help a user review where opportunities came from. The CRM does not run referral-request campaigns or calculate attribution automatically.
 
-The managed [unified inbox](/features/unified-inbox) is available from Pro upward and brings supported individual conversations into the CRM. Participants can be associated with contact context; messages are not automatically attached to advice records or deals. There is no bulk outreach or sequence engine, and self-hosted deployments do not include the inbox.
+On Pro and above, the [unified inbox](/features/unified-inbox) on Customermates Cloud brings in conversations from email, LinkedIn, WhatsApp, Instagram, and Telegram. You link conversations to contacts; messages are not attached to advice records or deals. There is no bulk outreach or sequence engine, and self-hosted deployments do not include the inbox.
 
-An external AI client can use supported [MCP](/docs/mcp) tools after authorization. It can operate supported CRM records within the requesting user's permissions. It does not become a financial planner, portfolio analyst, suitability engine, or compliance reviewer.
+An external AI client connected through [MCP](/docs/mcp) works with CRM records within the connecting user's permissions. It does not become a financial planner, portfolio analyst, suitability engine, or compliance reviewer.
 
 ## Data, deployment, and integration boundaries
 
-The managed Customermates database runs in an EU region. That fact is not a GDPR or financial-services certification. Application hosting, connected channels, external AI clients, and automation providers have their own boundaries. Resource permissions are not field- or record-level controls.
+In the managed cloud, the application database runs in the AWS Frankfurt region; hosting and other subprocessors, including US providers, are listed on the [subprocessors page](/subprocessors), and a [DPA](/dpa) is available. That is not a GDPR or financial-services certification, and Customermates holds none. Connected channels, external AI clients, and automation providers have their own boundaries. If you need full control over where data lives, self-host the open-source core. Permissions apply per resource and action, not per field, and read access can be limited to the records a user is assigned to.
 
-Customer-built integrations can use the [REST API and webhooks](/features/api), MCP, or the separate n8n community integration. The customer owns provider contracts, field mapping, validation, retries, duplicate handling, and compliance. No native custodian, portfolio, planning, or regulatory connector is claimed.
+Customer-built integrations can use the [REST API and webhooks](/features/api), MCP, or the separate n8n community integration. You own provider contracts, field mapping, validation, retries, duplicate handling, and compliance. There is no native custodian, portfolio, planning, or regulatory connector.
 
-Starter includes the core CRM. Pro adds the managed unified inbox and one connected account per user. Self-hosted deployments use Starter entitlements and do not include the unified inbox. See the [pricing page](/pricing) for current plan details.
+Starter includes the core CRM. Pro adds the managed unified inbox and one connected account per user. Self-hosting includes the Starter feature set, without the unified inbox. See the [pricing page](/pricing) for current plan details.
 
 ## Frequently asked questions
 
@@ -146,6 +146,6 @@ No. Keep regulated advice, suitability evidence, signed documents, supervisory r
 </FaqItem>
 
 <FaqItem question="Does Customermates integrate with custodians or planning tools?">
-No native connector is claimed. A customer may build a bounded connection through REST, webhooks, MCP, or a separately operated n8n workflow when the other system exposes a suitable interface.
+No, there is no native connector. You can build your own connection through REST, webhooks, MCP, or a separately operated n8n workflow when the other system exposes a suitable interface.
 </FaqItem>
 </Faq>

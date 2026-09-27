@@ -34,7 +34,7 @@ CRM integrations connect your customer relationship management system to the oth
 
 No CRM operates in isolation. Your sales team uses [email](/features/email-integration), [Slack](/features/slack-integration), [Outlook](/features/outlook-integration), accounting software, marketing platforms, and project management tools daily. Without integrations, data lives in silos, team members waste hours on duplicate data entry, and information becomes inconsistent across tools. CRM integrations eliminate these problems by turning your CRM into the connected hub of your business operations.
 
-The average SMB uses 20 to 40 software tools. Each disconnected tool creates friction, delays, and errors. A well-integrated CRM becomes the single source of truth that ties everything together, and the value compounds with every new connection you add.
+Each disconnected tool creates friction, delays, and errors. A well-integrated CRM becomes the single source of truth that ties everything together, and the value compounds with every new connection you add.
 
 ## How CRM Integrations Work in Customermates
 
@@ -50,7 +50,7 @@ Email, LinkedIn, WhatsApp, Instagram, and Telegram threads land in one inbox ins
 
 ### n8n Automation Engine (Bring Your Own)
 
-Customermates works with [n8n](https://n8n.io), a widely used open-source workflow automation platform that you self-host or subscribe to. It is not embedded in the CRM; webhooks, the REST API, and a published community node connect the two. n8n provides a visual, drag-and-drop workflow builder with pre-built connectors for over 400 services including:
+Customermates works with [n8n](https://n8n.io), a widely used source-available (fair-code) workflow automation platform that you self-host or subscribe to. It is not embedded in the CRM; webhooks, the REST API, and a published community node connect the two. n8n provides a visual, drag-and-drop workflow builder with pre-built connectors for over 400 services including:
 
 - **Communication:** Slack, Microsoft Teams, Discord, Telegram
 - **Email:** Gmail, Outlook, SMTP, Mailchimp, SendGrid
@@ -98,7 +98,7 @@ Receive real-time push notifications when records change. Customermates emits [[
 | Self-hostable | Yes | No | No |
 | Open source | Yes | No | No |
 | Custom connector development | Through your separate n8n instance | Requires partner program | Requires developer plan |
-| Data processing location | Database in an EU region; providers vary | US by default | US by default |
+| Data processing location | Cloud database in Frankfurt (AWS), subprocessors disclosed; self-hostable | US by default | US by default |
 | Usage limits | Follow current CRM, n8n, and provider contracts | Tier-dependent | Tier-dependent |
 
 While HubSpot offers more marketplace apps and Zapier connects more services, Customermates is a strong fit for teams that want open integration interfaces and external AI access. A separate n8n instance can handle complex multi-step workflows; its hosting, subscription, connectors, execution limits, logs, and provider costs remain external.
@@ -113,7 +113,7 @@ While HubSpot offers more marketplace apps and Zapier connects more services, Cu
 
 **Real-time data flow.** Webhooks deliver instant event notifications. Your connected systems react to CRM changes in real time. No batch processing delays and no stale data.
 
-**Open-source alternative to Zapier.** A separately operated n8n instance can replace some Zapier or Make workflows when its connector coverage, plans, limits, and operating model fit. Customermates supplies the CRM interfaces and community node, not the automation service.
+**Self-hostable alternative to Zapier.** A separately operated n8n instance can replace some Zapier or Make workflows when its connector coverage, plans, limits, and operating model fit. Customermates supplies the CRM interfaces and community node, not the automation service.
 
 **Self-hosted CRM with external integrations.** Self-hosting runs the Customermates application and PostgreSQL database on your infrastructure. n8n is a separate deployment, and each connected provider receives the data your workflow sends under its own terms.
 
@@ -121,9 +121,9 @@ While HubSpot offers more marketplace apps and Zapier connects more services, Cu
 
 **Open interfaces from the entry tier.** REST, [[derived.webhooks.events.total]] webhook event values, and MCP access are available from [[commercial.price.starter.monthly]] per user per month. n8n, AI clients, models, connectors, runtimes, delivery providers, limits, and costs remain separate. The native unified inbox starts with Pro, and shared team accounts with Business.
 
-**Open source and extensible.** The Customermates AGPL core and n8n are separate open-source products. Build against their documented interfaces or add connectors in the n8n service you operate, while governing each system, provider, credential, and update independently.
+**Open source and extensible.** The Customermates AGPL core is open source, and n8n is a separate source-available product. Build against their documented interfaces or add connectors in the n8n service you operate, while governing each system, provider, credential, and update independently.
 
-**EU database region with documented providers.** The hosted Customermates database runs in an EU region. Application hosting, n8n, and connected providers, including US providers, may process data elsewhere; this is a deployment fact, not a GDPR or other compliance certification.
+**Cloud database in Frankfurt, providers disclosed.** In the managed cloud, the application database runs in the AWS Frankfurt region; hosting and other subprocessors, including US providers, are listed on the [subprocessors page](/subprocessors), and a [DPA](/dpa) is available.
 
 **Self-hostable application and database.** Deploy the Customermates application and PostgreSQL database on your infrastructure. External AI, workflow, messaging, and business providers still receive data your configuration sends and retain their own credentials and logs.
 

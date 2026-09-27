@@ -9,13 +9,16 @@ import { MarketingSection } from "@/components/marketing/marketing-section";
 import { PageHero } from "@/components/marketing/page-hero";
 import { generateMetadataFromMeta } from "@/core/fumadocs/metadata";
 import { Footer } from "@/app/components/footer";
+import { enableStaticLocale, type StaticLocaleProps } from "@/i18n/static-locale";
 
 export async function generateMetadata({ params }: { params: Promise<{ locale: string }> }): Promise<Metadata> {
   const { locale } = await params;
   return generateMetadataFromMeta({ locale, route: "/contact" });
 }
 
-export default async function ContactPage() {
+export default async function ContactPage({ params }: StaticLocaleProps) {
+  await enableStaticLocale(params);
+
   const t = await getTranslations();
 
   const highlights = [

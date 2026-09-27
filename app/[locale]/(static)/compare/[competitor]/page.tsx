@@ -13,12 +13,18 @@ import { generateMetadataFromMeta } from "@/core/fumadocs/metadata";
 import { comparePagesSource } from "@/core/fumadocs/source";
 import { getMDXComponents } from "@/core/fumadocs/mdx-components";
 import { breadcrumbListSchema } from "@/core/seo/schemas";
+import { enableStaticLocale } from "@/i18n/static-locale";
+import { localizedSlugParams } from "@/core/fumadocs/static-params";
 
 interface Props {
   params: Promise<{
     locale: string;
     competitor: string;
   }>;
+}
+
+export function generateStaticParams({ params }: { params: { locale: string } }) {
+  return localizedSlugParams(comparePagesSource, params.locale, "competitor");
 }
 
 export async function generateMetadata({ params }: Props): Promise<Metadata> {
@@ -32,6 +38,8 @@ export async function generateMetadata({ params }: Props): Promise<Metadata> {
 }
 
 export default async function CompetitorComparePage({ params }: Props) {
+  await enableStaticLocale(params);
+
   const locale = await getLocale();
   const t = await getTranslations("StructuredData.breadcrumb");
   const { competitor } = await params;

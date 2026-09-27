@@ -11,7 +11,7 @@ import { MessagingProvider } from "@/generated/prisma";
 import { runWithTenant } from "@/core/decorators/tenant-context";
 import { getLocalDatabaseTestUrl } from "@/tests/helpers/database-test";
 import { createMockUser } from "@/tests/helpers/mock-user";
-import { draftThreadProviderId } from "../../draft-thread";
+import { draftThreadProviderId } from "../../draft-thread-id";
 import { PrismaMessagingRepo } from "../prisma-messaging.repository";
 
 const databaseUrl = getLocalDatabaseTestUrl();

@@ -15,6 +15,7 @@ const testEnvironment = {
 const domTestFiles = [
   "components/ai-elements/__tests__/message-links.test.ts",
   "app/[locale]/(public)/auth/reset-password/__tests__/reset-password-form.test.ts",
+  "app/[locale]/(static)/contact/__tests__/contact-form.test.ts",
   "app/**/company/components/company-settings/__tests__/company-settings-form.test.ts",
   "app/**/wiki/components/__tests__/wiki-page-view.test.ts",
   "app/**/wiki/components/__tests__/wiki-page-outline.test.ts",
@@ -92,6 +93,7 @@ const domTestFiles = [
   "app/[locale]/(protected)/routines/components/__tests__/routine-runs-pane.render.test.tsx",
   "features/messaging/__tests__/email-frame.test.ts",
   "app/[locale]/(protected)/inbox/components/__tests__/thread-reply-composer-navigation.test.ts",
+  "app/components/navigation/__tests__/use-marketing-account-state.test.ts",
 ];
 
 export default defineConfig({

@@ -5,6 +5,7 @@ import { parse } from "yaml";
 import { describe, expect, it } from "vitest";
 
 import { resolveCommercialTokens } from "@/core/commercial/commercial-tokens";
+import { brandedTitle } from "@/core/seo/branded-title";
 import { resolveDerivedTokens } from "@/core/content/derived-tokens";
 import type { ContentLocale } from "@/i18n/locale-registry";
 
@@ -13,12 +14,20 @@ import { CONTENT_LOCALES } from "@/i18n/locale-registry";
 import { REPO_ROOT, walkFiles } from "./walk";
 
 const TITLE_LIMIT = 60;
-const DESCRIPTION_LIMIT = 160;
+const TITLE_MINIMUM = 30;
+const DESCRIPTION_LIMIT = 158;
+const DESCRIPTION_MINIMUM = 70;
 
-// A paginated hub appends " - Page 2" to its own title AND description, so both bases have to
-// leave room or the page-2 URL is over the limit while the page-1 URL looks fine. Without the
-// description suffix a hub and its ?page=N variants all shipped one identical description.
-const PAGE_SUFFIX_ALLOWANCE = 9;
+// A paginated hub appends " - Page 2" (" - Seite 2" in German) to its own title AND description, so
+// both bases have to leave room or the page-2 URL is over the limit while the page-1 URL looks fine.
+// Without the description suffix a hub and its ?page=N variants all shipped one identical description.
+function pageSuffixAllowance(locale: string): number {
+  const messages = JSON.parse(readFileSync(join(REPO_ROOT, "i18n", "locales", `${locale}.json`), "utf8")) as {
+    Common: { pageNumber: string };
+  };
+
+  return ` - ${messages.Common.pageNumber.replace("{page}", "99")}`.length;
+}
 const PAGINATED_HUB_COLLECTIONS = new Set(["blog", "compare", "features-all", "for"]);
 
 // /docs/openapi/* and the auth routes ship noindex and are not in the sitemap, so their titles
@@ -72,12 +81,14 @@ function contentMeta(): Meta[] {
 
 const META = contentMeta();
 
-function limitFor(collection: string): number {
-  return PAGINATED_HUB_COLLECTIONS.has(collection) ? TITLE_LIMIT - PAGE_SUFFIX_ALLOWANCE : TITLE_LIMIT;
+function limitFor({ collection, locale }: Meta): number {
+  return PAGINATED_HUB_COLLECTIONS.has(collection) ? TITLE_LIMIT - pageSuffixAllowance(locale) : TITLE_LIMIT;
 }
 
-function descriptionLimitFor(collection: string): number {
-  return PAGINATED_HUB_COLLECTIONS.has(collection) ? DESCRIPTION_LIMIT - PAGE_SUFFIX_ALLOWANCE : DESCRIPTION_LIMIT;
+function descriptionLimitFor({ collection, locale }: Meta): number {
+  return PAGINATED_HUB_COLLECTIONS.has(collection)
+    ? DESCRIPTION_LIMIT - pageSuffixAllowance(locale)
+    : DESCRIPTION_LIMIT;
 }
 
 describe("seo metadata length", () => {
@@ -89,21 +100,37 @@ describe("seo metadata length", () => {
     // Lengths are measured with commercial tokens resolved: the source
     // [[commercial.price.starter.monthly]] is 36 characters but renders as "12 €", so counting the
     // raw frontmatter flags pages that are actually fine and misses ones that are not.
-    const over = META.filter((page) => page.title.length > limitFor(page.collection)).map(
+    const over = META.filter((page) => page.title.length > limitFor(page)).map(
       (page) =>
-        `${relative(REPO_ROOT, page.path)}: title is ${page.title.length}, limit ${limitFor(page.collection)}`,
+        `${relative(REPO_ROOT, page.path)}: title is ${page.title.length}, limit ${limitFor(page)}`,
     );
 
     expect(over, over.join("\n")).toEqual([]);
   });
 
   it("keeps every description within what a search result renders", () => {
-    const over = META.filter((page) => page.description.length > descriptionLimitFor(page.collection)).map(
+    const over = META.filter((page) => page.description.length > descriptionLimitFor(page)).map(
       (page) =>
-        `${relative(REPO_ROOT, page.path)}: description is ${page.description.length}, limit ${descriptionLimitFor(page.collection)}`,
+        `${relative(REPO_ROOT, page.path)}: description is ${page.description.length}, limit ${descriptionLimitFor(page)}`,
     );
 
     expect(over, over.join("\n")).toEqual([]);
+  });
+
+  it("renders no title too short to describe its page, counting the brand suffix", () => {
+    const short = META.filter((page) => brandedTitle(page.title).length < TITLE_MINIMUM).map(
+      (page) => `${relative(REPO_ROOT, page.path)}: "${brandedTitle(page.title)}" is under ${TITLE_MINIMUM}`,
+    );
+
+    expect(short, short.join("\n")).toEqual([]);
+  });
+
+  it("renders no description too short for a search snippet", () => {
+    const short = META.filter((page) => page.description.length < DESCRIPTION_MINIMUM).map(
+      (page) => `${relative(REPO_ROOT, page.path)}: description is ${page.description.length}`,
+    );
+
+    expect(short, short.join("\n")).toEqual([]);
   });
 
   it("gives every page a description to render", () => {

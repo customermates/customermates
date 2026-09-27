@@ -1,4 +1,4 @@
-import { beforeEach, describe, expect, it, vi } from "vitest";
+import { afterEach, beforeEach, describe, expect, it, vi } from "vitest";
 import { AggregationType, EntityType, WidgetGroupByType, WidgetKind } from "@/generated/prisma";
 
 import type { WidgetDto } from "@/features/widget/widget.schema";
@@ -59,6 +59,11 @@ function widget(id: string, x: number, y: number): WidgetDto {
 describe("WidgetsStore refresh compatibility", () => {
   beforeEach(() => {
     vi.clearAllMocks();
+    vi.stubEnv("NEXT_PUBLIC_SENTRY_DSN", "https://public@example.invalid/1");
+  });
+
+  afterEach(() => {
+    vi.unstubAllEnvs();
   });
 
   it("rebuilds layouts through the setItems override and preserves custom columns", async () => {

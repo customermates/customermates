@@ -39,7 +39,7 @@ A **CRM for field service** manages customer acquisition, account relationships,
     Connect customer organizations, stakeholders, enquiries, renewal
     opportunities, and manual next actions.
   </SummaryItem>
-  <SummaryItem label="Useful proof">
+  <SummaryItem label="What is included">
     Contacts, organizations, configurable deals, custom fields, filters,
     kanban, activity, and linked tasks.
   </SummaryItem>
@@ -49,7 +49,7 @@ A **CRM for field service** manages customer acquisition, account relationships,
   </SummaryItem>
 </ArticleSummary>
 
-<ProofRail label="Verified CRM capabilities around field-service relationships">
+<ProofRail label="CRM capabilities for field-service customer relationships">
   <ProofItem label="Accounts">Organizations and contacts</ProofItem>
   <ProofItem label="Enquiries">Configurable deal stages</ProofItem>
   <ProofItem label="Context">External system references</ProofItem>
@@ -69,7 +69,7 @@ A relationship CRM addresses the commercial layer: Who is the customer? Which st
 | Enquiry or contract opportunity | Deals, custom stages, filters, and kanban | Booking, work order, and service execution |
 | Next relationship action | Task linked to a CRM record | Technician calendar, dispatch, route, and SLA |
 | Reference to operational work | User-defined external identifier | Equipment, service history, parts, photos, and time |
-| Integration surface | REST, webhooks, MCP, and separate n8n option | Scheduling, FSM, inventory, accounting, and payment |
+| Interfaces | REST, webhooks, MCP, and separate n8n option | Scheduling, FSM, inventory, accounting, and payment |
 
 <AcquisitionCallout title="A pipeline is not a dispatch board" variant="boundary">
   Moving a deal between stages does not check technician availability, skills,
@@ -114,23 +114,23 @@ For multi-location or enterprise service customers, Customermates can preserve t
 
 ## Tasks, mobile expectations, and automation
 
-Tasks capture ordinary follow-up but do not provide native due dates or workflow statuses. Customermates has no technician calendar, availability engine, route optimization, offline mobile application, or double-booking prevention. A web interface should not be presented as a technician-native FSM app.
+Tasks hold next steps but have no due dates or statuses. Customermates has no technician calendar, availability engine, route optimization, offline mobile application, or double-booking prevention. The web app adapts to phone screens but does not replace a native FSM app for technicians.
 
 A customer-operated scheduler or separate [n8n workflow](/features/workflow-automation) can create a task from an approved external date. The separate workflow owns its schedule, provider calls, mapping, retries, and monitoring. Customermates does not include a dispatch or recurring-maintenance automation engine.
 
-The managed [unified inbox](/features/unified-inbox) is available from Pro upward for supported individual conversations. Participants can be associated with contact context. Messages are not automatically attached to a site, piece of equipment, work order, or deal. Self-hosted deployments do not include the inbox.
+On Pro and above, the [unified inbox](/features/unified-inbox) on Customermates Cloud brings in conversations from email, LinkedIn, WhatsApp, Instagram, and Telegram. You link conversations to contacts; messages are not attached to a site, piece of equipment, work order, or deal. Self-hosted deployments do not include the inbox.
 
 ## AI and integrations
 
-An authorized external AI client can use supported [MCP](/docs/mcp) actions on CRM records. It can operate supported customer and opportunity data within user permissions. It does not create a verified service report, infer parts used, optimize a schedule, dispatch a technician, or analyze equipment failures.
+An external AI client connected through [MCP](/docs/mcp) can read and edit customer and opportunity data within your permissions. It does not create a verified service report, infer parts used, optimize a schedule, dispatch a technician, or analyze equipment failures.
 
-Where an FSM exposes a suitable interface, a customer-built connection can exchange minimal account or opportunity context through the [REST API and webhooks](/features/api), MCP, or a separate n8n integration. The customer owns source authority, permissions, mapping, validation, retries, and duplicate handling.
+Where an FSM exposes a suitable interface, a customer-built connection can exchange minimal account or opportunity context through the [REST API and webhooks](/features/api), MCP, or a separate n8n integration. You own source authority, permissions, mapping, validation, retries, and duplicate handling.
 
-No native Jobber, ServiceTitan, Salesforce Field Service, calendar-write, GPS, routing, inventory, accounting, quote, invoice, or payment connector is claimed. Customermates also has no CRM record importer.
+There is no native Jobber, ServiceTitan, Salesforce Field Service, GPS, routing, inventory, accounting, quote, invoice, or payment connector, and appointments cannot be written to a calendar. To bring existing accounts in, Customermates imports and exports Excel workbooks (XLSX), one record type at a time; there is no scheduled sync with an FSM.
 
 ## Pricing and fit
 
-Starter includes the core CRM. Pro adds the managed unified inbox and one connected account per user. Self-hosted deployments use Starter entitlements and do not include the unified inbox. See the [pricing page](/pricing) for current plan details.
+Starter includes the core CRM. Pro adds the managed unified inbox and one connected account per user. Self-hosting includes the Starter feature set, without the unified inbox. See the [pricing page](/pricing) for current plan details.
 
 Choose Customermates when customer relationships and commercial opportunities need a clear home beside a working FSM. Choose a field-service platform when technician scheduling, work orders, offline field use, service history, equipment, inventory, time, or billing must live in one operational product.
 

@@ -21,11 +21,11 @@ blogPost:
 
 Senden Sie Ihre Follow-Up E-Mail innerhalb von 24 Stunden nach dem Verkaufsgespräch. Bedanken Sie sich, fassen Sie 2-3 besprochene Schmerzpunkte zusammen, bestätigen Sie die nächsten Schritte und fügen Sie eine klare Handlungsaufforderung ein. Halten Sie es unter 150 Wörtern.
 
-Studien des [Harvard Business Review](https://hbr.org/2011/03/the-short-life-of-online-sales-leads) zeigen: 80 % aller Abschlüsse erfordern mindestens fünf Follow-Up-Kontakte nach dem Erstgespräch, aber 44 % der Vertriebsmitarbeiter geben nach einem einzigen Versuch auf. Dieser Leitfaden gibt Ihnen 7 sofort einsetzbare Vorlagen, den optimalen Timing-Plan und eine Schritt-für-Schritt-Automatisierung.
+Eine im [Harvard Business Review](https://hbr.org/2011/03/the-short-life-of-online-sales-leads) veröffentlichte Untersuchung zeigt, wie stark Geschwindigkeit zählt: Unternehmen, die sich innerhalb einer Stunde bei einem Interessenten meldeten, hatten eine rund siebenmal höhere Chance auf ein qualifizierendes Gespräch als jene, die länger warteten. Trotzdem bleibt es in vielen Teams bei einem einzigen Nachfassversuch. Dieser Leitfaden gibt Ihnen 7 sofort einsetzbare Vorlagen, den optimalen Timing-Plan und eine Schritt-für-Schritt-Automatisierung.
 
 ## Warum Follow-Up E-Mails wichtiger sind als das Gespräch selbst
 
-**Erinnerungen verblassen schnell.** Innerhalb von 24 Stunden vergessen Menschen rund 70 % neuer Informationen. Ihr Interessent war begeistert vom Demo, aber morgen erinnert er sich kaum noch, welche Features ihn überzeugt haben. Eine Follow-Up E-Mail verstärkt die Kernpunkte, solange sie noch wirken.
+**Erinnerungen verblassen schnell.** Schon nach einem Tag ist ein großer Teil neuer Informationen vergessen. Ihr Interessent war begeistert vom Demo, aber morgen erinnert er sich kaum noch, welche Features ihn überzeugt haben. Eine Follow-Up E-Mail verstärkt die Kernpunkte, solange sie noch wirken.
 
 **Kaufentscheidungen brauchen Zeit.** B2B-Einkäufe involvieren mehrere Entscheider, Budgetfreigaben und Wettbewerbsvergleiche. Ihre Follow-Ups halten Sie sichtbar während eines Prozesses, der Wochen dauern kann.
 
@@ -41,14 +41,14 @@ Spezifisch, nicht generisch. „Kurze Rückfrage" wird ignoriert. Referenzieren 
 
 - „Zusammenfassung: [konkretes Problem] lösen mit [Produkt]"
 - „Die ROI-Zahlen aus unserem heutigen Gespräch"
-- „[Firma des Interessenten] + [Ihre Firma], nächste Schritte"
+- „[Firma des Interessenten] + [Ihre Firma]: nächste Schritte"
 
 ### Eröffnungssatz
 
 Kein „Ich hoffe, es geht Ihnen gut." Starten Sie mit Mehrwert:
 
 - „Hier ist die Case Study, die ich erwähnt hatte"
-- „Sie fragten nach [Feature], hier die Details"
+- „Sie fragten nach [Feature]: hier die Details"
 - „Basierend auf Ihrem Zeitplan bis [Datum], hier die nächsten Schritte"
 
 ### Inhalt
@@ -162,7 +162,7 @@ Hallo [Vorname],
 
 ich wollte kurz zum Stand Ihrer Evaluierung nachfragen. Bei unserem Gespräch am [Datum] erwähnten Sie eine Entscheidung um [Datum].
 
-Falls das Thema noch Priorität hat, stehe ich diese Woche für Rückfragen bereit. Falls sich der Zeitplan verschoben hat, kein Problem, lassen Sie mich wissen, wann es besser passt.
+Falls das Thema noch Priorität hat, stehe ich diese Woche für Rückfragen bereit. Falls sich der Zeitplan verschoben hat, ist das kein Problem. Lassen Sie mich wissen, wann es besser passt.
 
 Beste Grüße, [Ihr Name]
 
@@ -205,22 +205,22 @@ Erstellen Sie Automatisierungen für Deal-Stufen-Wechsel:
 
 ### Workflow aufbauen
 
-Mit Customermates und [n8n-Automatisierung](/features/workflow-automation):
+Mit Customermates und einer separat betriebenen n8n-Instanz ([Workflow-Automatisierung](/features/workflow-automation)); Customermates selbst führt keine Sequenzen aus, der Workflow läuft in n8n:
 
-1. **Trigger:** Deal wechselt zu „Demo abgeschlossen"
+1. **Trigger:** Ein Customermates-Webhook meldet, dass der Deal zu „Demo abgeschlossen" wechselt
 2. **Warten:** 1 Stunde → Vorlage 1 senden
 3. **Bedingung:** Antwort innerhalb 48 Stunden?
 4. **Wenn nein:** Warten bis Tag 3 → Vorlage 2 senden
 5. **Weiter** durch die gesamte Sequenz bis Antwort oder Abschluss
 
-Die Automatisierung läuft im Hintergrund, während Sie sich auf neue Gespräche konzentrieren. Bei einer Antwort pausiert die Sequenz automatisch. [Mehr zu n8n-Workflows →](/n8n-crm)
+Die Automatisierung läuft im Hintergrund, während Sie sich auf neue Gespräche konzentrieren. Damit die Sequenz bei einer Antwort stoppt, bauen Sie in n8n eine Prüfung ein, etwa auf eine neue Nachricht im Verlauf oder eine geänderte Deal-Phase. [Mehr zu n8n-Workflows →](/n8n-crm)
 
 ## Häufige Follow-Up Fehler
 
 - **Zu lang.** Unter 150 Wörter. Wenn der Empfänger scrollen muss, haben Sie zu viel geschrieben.
 - **Zu generisch.** „Kurze Rückfrage" bringt keinen Mehrwert. Jede E-Mail braucht einen Grund.
 - **Zu aggressiv.** Mehrere E-Mails am selben Tag beschädigen die Beziehung.
-- **Nicht personalisiert.** Vorlagen sind Startpunkte, passen Sie mit Details aus dem echten Gespräch an.
+- **Nicht personalisiert.** Vorlagen sind Startpunkte. Passen Sie sie mit Details aus dem echten Gespräch an.
 - **CRM ignoriert.** Wenn Follow-Up-Aktivität nicht im [CRM](/features/contact-management) erfasst ist, ist sie für das Team unsichtbar.
 
 ## Häufig gestellte Fragen
@@ -235,12 +235,12 @@ Zwischen 5 und 7 über einen Zeitraum von 3-4 Wochen. Oft generiert das 5. Follo
 </FaqItem>
 
 <FaqItem question="Wie automatisiere ich Follow-Up E-Mails?">
-Nutzen Sie ein CRM mit Workflow-Automatisierung. Setzen Sie Trigger basierend auf Deal-Stufen (z.B. „Demo abgeschlossen" löst die Zusammenfassungs-E-Mail aus). Customermates mit [n8n-Integration](/features/workflow-automation) ermöglicht visuelle Automatisierungssequenzen. [So funktioniert es →](/n8n-crm)
+Nutzen Sie ein CRM mit Workflow-Automatisierung. Setzen Sie Trigger basierend auf Deal-Stufen (z.B. „Demo abgeschlossen" löst die Zusammenfassungs-E-Mail aus). Customermates hat keine eingebauten Sequenzen; mit Webhooks und dem n8n-Community-Node bauen Sie sie in einer separat betriebenen n8n-Instanz visuell nach. [So funktioniert es →](/n8n-crm)
 </FaqItem>
 </Faq>
 
 ## Ihr Follow-Up System aufbauen
 
-Customermates gibt Ihnen die Infrastruktur: [E-Mail-Integration](/features/email-integration) zum Versenden, [Pipeline-Management](/features/pipeline) zur Nachverfolgung und [n8n-Automatisierung](/features/workflow-automation) für die Sequenzierung, auf der Pro-Stufe für [[commercial.price.pro.monthly]]/Nutzer/Monat. [Preise ansehen →](/pricing)
+Customermates gibt Ihnen die Infrastruktur: [E-Mail-Integration](/features/email-integration) zum Versenden aus dem Posteingang (Pro-Stufe für [[commercial.price.pro.monthly]]/Nutzer/Monat), [Pipeline-Management](/features/pipeline) zur Nachverfolgung und Webhooks für Ihre eigene [n8n-Automatisierung](/features/workflow-automation), die die Sequenzierung übernimmt. [Preise ansehen →](/pricing)
 
 [Jetzt [[commercial.trial.days]] Tage kostenlos testen →](/auth/signup)

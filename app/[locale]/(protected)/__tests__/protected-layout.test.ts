@@ -38,7 +38,9 @@ vi.mock("@/app/components/navigation/protected-enhancements-context", () => ({
   useProtectedEnhancementsAllowed: () => state.protectedEnhancementsAllowed,
 }));
 
-vi.mock("@/components/data-transfer/import-wizard", () => ({ ImportWizard: () => "import-wizard" }));
+vi.mock("@/components/data-transfer/import-wizard", () => ({
+  ImportWizard: () => "import-wizard",
+}));
 vi.mock("../company/components/feedback/feedback-modal", () => ({
   FeedbackModal: () => "feedback-modal",
 }));
@@ -101,7 +103,7 @@ vi.mock("@/features/messaging/activities/activities-detail-modal", () => ({
   TimelineDetailModal: () => "timeline-detail-modal",
 }));
 
-import ProtectedLayout from "../layout";
+import { ProtectedShell as ProtectedLayout } from "../protected-shell";
 
 let container: HTMLDivElement;
 let root: Root;
@@ -128,17 +130,18 @@ afterEach(() => {
   container.remove();
 });
 
-function renderLayout() {
-  act(() => {
+async function renderLayout() {
+  await act(async () => {
     root.render(createElement(ProtectedLayout, null, "recovery-card"));
+    await Promise.resolve();
   });
 }
 
 describe("ProtectedLayout account-state boundary", () => {
-  it("mounts only recovery-safe infrastructure without assistant store access when restricted", () => {
+  it("mounts only recovery-safe infrastructure without assistant store access when restricted", async () => {
     state.agentChatEnabled = true;
     state.agentConfigEnabled = true;
-    renderLayout();
+    await renderLayout();
     document.dispatchEvent(new KeyboardEvent("keydown", { key: "k", metaKey: true, bubbles: true }));
     document.dispatchEvent(new KeyboardEvent("keydown", { key: "j", metaKey: true, bubbles: true }));
 
@@ -159,9 +162,9 @@ describe("ProtectedLayout account-state boundary", () => {
     expect(state.toggleAgentChat).not.toHaveBeenCalled();
   });
 
-  it("mounts tenant enhancements but not the assistant when its process gate is off", () => {
+  it("mounts tenant enhancements but not the assistant when its process gate is off", async () => {
     state.protectedEnhancementsAllowed = true;
-    renderLayout();
+    await renderLayout();
     document.dispatchEvent(new KeyboardEvent("keydown", { key: "k", metaKey: true, bubbles: true }));
     document.dispatchEvent(new KeyboardEvent("keydown", { key: "j", metaKey: true, bubbles: true }));
 
@@ -177,23 +180,10 @@ describe("ProtectedLayout account-state boundary", () => {
     expect(state.toggleAgentChat).not.toHaveBeenCalled();
   });
 
-  it("never mounts the floating assistant inside the restricted onboarding shell", () => {
-    state.pathname = "/en/onboarding/wizard";
-    state.agentChatEnabled = true;
-    state.agentConfigEnabled = true;
-    state.agentOpen = true;
-    renderLayout();
-
-    expect(container.textContent).not.toContain("agent-chat");
-    expect(container.textContent).not.toContain("global-search-modal");
-    expect(container.textContent).not.toContain("company-user-modal");
-    expect(state.getAgentChatStore).not.toHaveBeenCalled();
-  });
-
-  it("mounts the assistant but ignores Cmd+J while its config is unresolved", () => {
+  it("mounts the assistant but ignores Cmd+J while its config is unresolved", async () => {
     state.protectedEnhancementsAllowed = true;
     state.agentChatEnabled = true;
-    renderLayout();
+    await renderLayout();
     document.dispatchEvent(new KeyboardEvent("keydown", { key: "j", ctrlKey: true, bubbles: true }));
 
     expect(container.textContent).toContain("agent-chat");
@@ -201,11 +191,11 @@ describe("ProtectedLayout account-state boundary", () => {
     expect(state.toggleAgentChat).not.toHaveBeenCalled();
   });
 
-  it("toggles the available assistant with Cmd+J", () => {
+  it("toggles the available assistant with Cmd+J", async () => {
     state.protectedEnhancementsAllowed = true;
     state.agentChatEnabled = true;
     state.agentConfigEnabled = true;
-    renderLayout();
+    await renderLayout();
     document.dispatchEvent(new KeyboardEvent("keydown", { key: "j", metaKey: true, bubbles: true }));
 
     expect(container.textContent).toContain("agent-chat");

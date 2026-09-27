@@ -4,11 +4,13 @@ import type {
   PublicAdAttributionDecisionData,
   PublicAdAttributionVisitInput,
 } from "@/features/acquisition/ad-attribution.schema";
+import type { AccountState } from "@/features/auth/account-state";
 
 import {
   getCaptureAdClickInteractor,
   getDecideAdAttributionConsentInteractor,
   getReadAdAttributionConsentInteractor,
+  getRouteGuardService,
   getSignOutInteractor,
   getWithdrawAdAttributionInteractor,
 } from "@/core/di";
@@ -18,6 +20,10 @@ import { getLocale } from "next-intl/server";
 import { serializeResult } from "@/core/utils/action-result";
 import { unwrapValidated } from "@/core/validation/validation.utils";
 import { buildLocalePath } from "@/i18n/locale-registry";
+
+export async function readMarketingAccountStateAction(): Promise<AccountState> {
+  return (await getRouteGuardService().resolveAccountState()).state;
+}
 
 export async function signOutAction() {
   return serializeResult(getSignOutInteractor().invoke());

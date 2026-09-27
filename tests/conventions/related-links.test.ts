@@ -149,23 +149,29 @@ describe("related links", () => {
       );
   });
 
-  it("registers the components so MDX can resolve them", () => {
-    // These are plain MDX components with no per-route wiring: an unregistered one renders as an
-    // unknown tag rather than failing, so the block would silently vanish from every page.
-    // Anchored to the returned map, not the file: the import line alone contains both names, so a
-    // substring check passes even when the component was dropped from the registry object.
+  it("registers every related-link tag that MDX actually uses, and nothing it does not", () => {
+    // An unregistered MDX component renders as an unknown tag rather than failing, so the block
+    // would silently vanish from every page. The inverse is just as costly and less visible: a
+    // registered component nobody writes still ships to every marketing page's client bundle.
+    // Anchored to the returned map, not the file: the import line alone contains both names.
     const registry = readFileSync(
       join(REPO_ROOT, "core/fumadocs/mdx-components.tsx"),
       "utf8",
     );
-    expect(
-      registry,
-      "RelatedPages is not in the returned component map",
-    ).toMatch(/^\s+RelatedPages,$/mu);
-    expect(
-      registry,
-      "RelatedPage is not in the returned component map",
-    ).toMatch(/^\s+RelatedPage,$/mu);
+
+    for (const tag of ["RelatedPage", "RelatedPages"]) {
+      const usedInContent = walkFiles(join(REPO_ROOT, "content"), (path) => path.endsWith(".mdx")).some((path) =>
+        new RegExp(`<${tag}(?=[\\s/>])`, "u").test(readFileSync(path, "utf8")),
+      );
+      const registered = new RegExp(`^\\s+${tag},$`, "mu").test(registry);
+
+      expect(
+        registered,
+        usedInContent
+          ? `${tag} is written in MDX but missing from the returned component map`
+          : `${tag} is in the MDX component map but no MDX file uses it; page-ending.tsx imports it directly`,
+      ).toBe(usedInContent);
+    }
   });
 
   it("gives every detail page four distinct, non-self links to published content", () => {

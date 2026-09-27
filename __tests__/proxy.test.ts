@@ -13,6 +13,7 @@ const mocks = vi.hoisted(() => ({
   intlMiddleware: vi.fn<(request: NextRequest) => NextResponse>(),
   isPublicPage: vi.fn<(request: NextRequest) => boolean>(),
   isContentPage: vi.fn<(request: NextRequest) => boolean>(),
+  isProtectedPage: vi.fn<(request: NextRequest) => boolean>(),
   signInEmail: vi.fn<(input: unknown) => Promise<Response>>(),
   signOut: vi.fn<(input: unknown) => Promise<Response>>(),
 }));
@@ -34,6 +35,7 @@ vi.mock("@/i18n/routing", () => ({
   appRouting: {},
   isPublicPage: mocks.isPublicPage,
   isContentPage: mocks.isContentPage,
+  isProtectedPage: mocks.isProtectedPage,
   contentRouting: {},
 }));
 
@@ -51,6 +53,7 @@ vi.mock("@/core/auth/better-auth", () => ({
   },
 }));
 
+import { sessionHintCookie } from "@/features/auth/session-hint";
 import proxy from "@/proxy";
 import { SYNTHETIC_SEED_USER } from "@/core/config/synthetic-seed-user";
 
@@ -62,6 +65,12 @@ function request(pathname: string, cookie?: string, origin = "http://localhost:4
   return new NextRequestValue(`${origin}${pathname}`, {
     headers: cookie ? { cookie } : undefined,
   });
+}
+
+function embeddedRequest(pathname: string, cookie?: string, origin = "http://localhost:4000"): NextRequest {
+  const headers: Record<string, string> = { "sec-fetch-dest": "iframe" };
+  if (cookie) headers.cookie = cookie;
+  return new NextRequestValue(`${origin}${pathname}`, { headers });
 }
 
 function responseWithCookies(status: number, cookies: string[]): Response {
@@ -89,6 +98,8 @@ describe("automatic demo authentication proxy", () => {
     mockEnv.BASE_URL = "http://localhost:4000";
     mocks.intlMiddleware.mockImplementation(() => NextResponse.next());
     mocks.isPublicPage.mockReturnValue(false);
+    mocks.isContentPage.mockReturnValue(false);
+    mocks.isProtectedPage.mockReturnValue(true);
   });
 
   it("round-trips an unauthenticated visitor through a same-URL redirect carrying every auth cookie", async () => {
@@ -182,8 +193,74 @@ describe("automatic demo authentication proxy", () => {
     expect(mocks.signInEmail).toHaveBeenCalledOnce();
     expect(response.status).toBe(307);
     expect(response.headers.get("location")).toBe("http://localhost:4000/en/inbox");
-    expect(setCookieHeaders(response)).toEqual([CLEARED_SESSION_COOKIE, SESSION_TOKEN_COOKIE, SESSION_DATA_COOKIE]);
+    expect(setCookieHeaders(response)).toEqual([
+      CLEARED_SESSION_COOKIE,
+      SESSION_TOKEN_COOKIE,
+      SESSION_DATA_COOKIE,
+      sessionHintCookie(),
+    ]);
     expect(mocks.intlMiddleware).not.toHaveBeenCalled();
+  });
+
+  it("marks the redirect when the demo is embedded, so a frame that cannot store the cookie stops after one attempt", async () => {
+    mocks.signInEmail.mockResolvedValue(responseWithCookies(200, [SESSION_TOKEN_COOKIE, SESSION_DATA_COOKIE]));
+
+    const response = await proxy(embeddedRequest("/en/dashboard?agentChat=open"));
+
+    expect(response.status).toBe(307);
+    expect(response.headers.get("location")).toBe("http://localhost:4000/en/dashboard?agentChat=open&cm_demo_auth=1");
+  });
+
+  it("stops signing in when an embedded frame comes back unauthenticated a second time", async () => {
+    // A cross-site iframe drops the SameSite=Lax cookie, so without this bound the demo redirected
+    // to itself until the browser gave up with ERR_TOO_MANY_REDIRECTS.
+    mocks.signInEmail.mockResolvedValue(responseWithCookies(200, [SESSION_TOKEN_COOKIE, SESSION_DATA_COOKIE]));
+
+    const response = await proxy(embeddedRequest("/en/dashboard?agentChat=open&cm_demo_auth=1"));
+
+    expect(mocks.signInEmail).not.toHaveBeenCalled();
+    expect(response.headers.get("location")).toContain("/auth/signin");
+  });
+
+  it("keeps signing a direct visitor in on every attempt, because their cookies do stick", async () => {
+    mocks.signInEmail.mockResolvedValue(responseWithCookies(200, [SESSION_TOKEN_COOKIE, SESSION_DATA_COOKIE]));
+
+    const response = await proxy(request("/en/dashboard?cm_demo_auth=1"));
+
+    expect(mocks.signInEmail).toHaveBeenCalledOnce();
+    expect(response.headers.get("location")).toBe("http://localhost:4000/en/dashboard?cm_demo_auth=1");
+  });
+
+  it("serves a public marketing page on the demo host without minting a session", async () => {
+    mocks.isContentPage.mockReturnValue(true);
+
+    const response = await proxy(request("/en/terms"));
+
+    expect(mocks.signInEmail).not.toHaveBeenCalled();
+    expect(mocks.intlMiddleware).toHaveBeenCalledOnce();
+    expect(response.headers.get("location")).toBeNull();
+  });
+
+  it("still sends the demo root to the dashboard even though the root is a content page", async () => {
+    mocks.isContentPage.mockReturnValue(true);
+    mocks.signInEmail.mockResolvedValue(responseWithCookies(200, [SESSION_TOKEN_COOKIE, SESSION_DATA_COOKIE]));
+
+    const response = await proxy(request("/en"));
+
+    expect(mocks.signInEmail).toHaveBeenCalledOnce();
+    expect(response.status).toBe(307);
+  });
+
+  it("recognises the __Secure- prefixed session cookie that https actually sets", async () => {
+    mocks.getSession.mockResolvedValue({
+      session: { expiresAt: new Date(Date.now() + 60_000) },
+      user: { email: SYNTHETIC_SEED_USER.email },
+    });
+
+    await proxy(request("/en/dashboard", "__Secure-app.session_token=existing-synthetic-token"));
+
+    expect(mocks.getSession).toHaveBeenCalledOnce();
+    expect(mocks.signInEmail).not.toHaveBeenCalled();
   });
 
   it("fails closed without rendering when automatic sign-in is rejected", async () => {
@@ -209,6 +286,72 @@ describe("automatic demo authentication proxy", () => {
       );
     },
   );
+
+  it("hands a signed-out request for a path no route serves to the app router, which answers 404", async () => {
+    mockEnv.APP_MODE = "cloud";
+    mocks.isProtectedPage.mockReturnValue(false);
+
+    const response = await proxy(request("/en/this-page-does-not-exist"));
+
+    expect(response.status).toBe(200);
+    expect(response.headers.get("location")).toBeNull();
+    expect(mocks.intlMiddleware).toHaveBeenCalledOnce();
+  });
+
+  it("still sends a signed-out request for a protected detail page to sign-in with its callback", async () => {
+    mockEnv.APP_MODE = "cloud";
+
+    const response = await proxy(request("/de/contacts/40000000-0000-4000-8000-000000000001?tab=notes"));
+
+    expect(response.status).toBe(307);
+    expect(response.headers.get("location")).toBe(
+      `http://localhost:4000/de/auth/signin?callbackURL=${encodeURIComponent(
+        "http://localhost:4000/de/contacts/40000000-0000-4000-8000-000000000001?tab=notes",
+      )}`,
+    );
+  });
+
+  it("never asks whether a signed-in request is protected, so signed-in routing is unchanged", async () => {
+    mockEnv.APP_MODE = "cloud";
+    mocks.getSession.mockResolvedValue({
+      session: { expiresAt: new Date(Date.now() + 60_000) },
+      user: { email: "member@example.com" },
+    });
+
+    const response = await proxy(request("/en/this-page-does-not-exist", "app.session_token=member"));
+
+    expect(response.status).toBe(200);
+    expect(mocks.isProtectedPage).not.toHaveBeenCalled();
+  });
+
+  it("sends an unprefixed content path to its default-locale version with a 308, even for a German reader", async () => {
+    mockEnv.APP_MODE = "cloud";
+    mocks.isContentPage.mockReturnValue(true);
+    mocks.getSession.mockResolvedValue({
+      session: { expiresAt: new Date(Date.now() + 60_000) },
+      user: { email: "member@example.com" },
+    });
+
+    const response = await proxy(request("/docs/self-hosting?ref=hn", "app.session_token=member; APP_LOCALE=de"));
+
+    expect(response.status).toBe(308);
+    expect(response.headers.get("location")).toBe("http://localhost:4000/en/docs/self-hosting?ref=hn");
+    expect(mocks.getSession, "a permanent content redirect needs no session lookup").not.toHaveBeenCalled();
+    expect(mocks.intlMiddleware).not.toHaveBeenCalled();
+  });
+
+  it("keeps an unprefixed application path on the signed-in reader's preferred locale", async () => {
+    mockEnv.APP_MODE = "cloud";
+    mocks.getSession.mockResolvedValue({
+      session: { expiresAt: new Date(Date.now() + 60_000) },
+      user: { email: "member@example.com" },
+    });
+
+    const response = await proxy(request("/dashboard", "app.session_token=member; APP_LOCALE=de"));
+
+    expect(response.status).toBe(307);
+    expect(response.headers.get("location")).toBe("http://localhost:4000/de/dashboard");
+  });
 
   it("falls back to the configured deployment origin for an untrusted request host", async () => {
     mockEnv.APP_MODE = "cloud";
@@ -236,6 +379,7 @@ describe("MCP OAuth authorization proxy", () => {
     mockEnv.BASE_URL = "https://customermates.com";
     mocks.intlMiddleware.mockImplementation(() => NextResponse.next());
     mocks.isPublicPage.mockReturnValue(false);
+    mocks.isProtectedPage.mockReturnValue(true);
   });
 
   it("preserves a loopback redirect URI inside the unauthenticated sign-in callback", async () => {

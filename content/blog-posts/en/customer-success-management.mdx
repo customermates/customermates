@@ -36,7 +36,7 @@ Three things separate customer success management from adjacent functions:
 - **Outcome focused, not feature focused.** A customer success manager cares whether the customer hit the business result they bought the product for, not whether they used feature X.
 - **Revenue accountable.** Customer success owns net revenue retention, gross retention, and expansion. It is not a cost center.
 
-According to [Gartner research on customer success](https://www.gartner.com/en/customer-service-support/topics/customer-success), companies with mature customer success programs see net retention 20 to 30 percentage points higher than companies without one. That gap compounds. A SaaS company at 110 percent net retention doubles revenue from existing customers in roughly seven years with zero new sales. A company at 90 percent net retention has to replace 10 percent of revenue every year just to stand still.
+According to [Gartner research on customer success](https://www.gartner.com/en/customer-service-support/topics/customer-success), mature customer success programs are linked to stronger retention and expansion. Any retention gap compounds. A SaaS company at 110 percent net retention doubles revenue from existing customers in roughly seven years with zero new sales. A company at 90 percent net retention has to replace 10 percent of revenue every year just to stand still.
 
 ## What Does a Customer Success Manager Do?
 
@@ -134,7 +134,7 @@ Gainsight, ChurnZero, Totango, Vitally, and Catalyst. These are full purpose bui
 
 A general CRM with custom fields, automation, and reporting can carry the customer success function up to several hundred customers. You add custom fields for health score, renewal date, expansion potential, and churn risk. You build automations for renewal reminders, health score updates, and expansion alerts. You build dashboards for retention metrics.
 
-This is what Customermates is built for. It is a CRM from [[commercial.price.starter.monthly]] per user per month with an n8n workflow node and [[derived.webhooks.events.total]] webhook events covering every record and messaging change, so you can build your own customer success automations without paying for a dedicated platform. The [[derived.mcp.tools.total]] [MCP tools](/docs/mcp) mean Claude, ChatGPT, or Gemini can read and write the CRM directly, so a customer success manager can ask "which of my accounts has a renewal in the next 60 days and below 50 percent feature adoption" in plain English and get a list. On the Pro tier and up, a native unified inbox pulls email, LinkedIn, WhatsApp, Instagram, and Telegram into the CRM, and the same agents can draft and send replies across every channel, so customer conversations and the account record stay in one place. The CRM updates itself when the customer success manager dictates a call summary into Claude. The data entry tax disappears.
+This is what Customermates is built for. It is a CRM from [[commercial.price.starter.monthly]] per user per month with [[derived.webhooks.events.total]] webhook events covering record and messaging changes, a REST API, and a community node for a separately operated n8n instance, so you can build your own customer success automations without paying for a dedicated platform. The [[derived.mcp.tools.total]] [MCP tools](/docs/mcp) mean Claude, ChatGPT, or Gemini can read and write the CRM directly, so a customer success manager can ask "which of my accounts has a renewal in the next 60 days and below 50 percent feature adoption" in plain English and get a list. On the Pro tier and up, a native unified inbox pulls email, LinkedIn, WhatsApp, Instagram, and Telegram into the CRM, and the hosted Mate assistant can draft replies that are sent only after you confirm, so customer conversations and the account record stay in one place. The CRM updates itself when the customer success manager dictates a call summary into Claude. The data entry tax disappears.
 
 The pitch I make to lean teams is simple: spend the money you would have spent on Gainsight on actually doing customer success work. See [pricing](/pricing) for the full breakdown. If you are evaluating dedicated alternatives, the [HubSpot comparison](/compare/hubspot-alternative) covers the all in one CRM and customer success suite trade off.
 
@@ -146,11 +146,11 @@ Below 50 customers, a spreadsheet with a renewal column, a health column, and a 
 
 The interesting shift in customer success in 2026 is what AI agents do to the data entry and analysis side of the job.
 
-Most customer success managers spend 40 to 60 percent of their time on administrative work: updating CRM fields after calls, writing follow up emails, building quarterly business review decks, summarizing support tickets, building health score reports. None of that work makes the customer happier. It just keeps the system fed.
+Customer success managers spend a large share of their time on administrative work: updating CRM fields after calls, writing follow up emails, building quarterly business review decks, summarizing support tickets, building health score reports. None of that work makes the customer happier. It just keeps the system fed.
 
-When the CRM has an MCP server, an agent like Claude or ChatGPT can do that work directly. After a customer call, the customer success manager dictates a two minute summary. Claude reads the recording, updates the contact notes, logs the call as a task, flags expansion signals as a custom field, and drafts the follow up email. The customer success manager reviews and sends. Total time: 90 seconds. Total time without the agent: 15 minutes.
+When the CRM has an MCP server, an agent like Claude or ChatGPT can do that work directly. After a customer call, the customer success manager dictates a two minute summary. Claude reads the recording, updates the contact notes, logs the call as a task, flags expansion signals as a custom field, and drafts the follow up email. The customer success manager reviews and sends. A job that used to take a quarter of an hour shrinks to a quick review.
 
-This is not a hypothetical. The [[derived.mcp.tools.total]] MCP tools in Customermates cover every entity create, update, link, and search operation. An agent can read your full pipeline, write health scores, link contacts to deals, and trigger webhooks. The outcome is that the [contact management](/features/contact-management) and [workflow automation](/features/workflow-automation) work happens without the customer success manager touching the CRM. They focus on the customer instead.
+This is not a hypothetical. The [[derived.mcp.tools.total]] MCP tools in Customermates cover creating, updating, linking, and searching records. An agent can read your pipeline, write health scores into custom columns, and link contacts to deals, and those changes fire the same webhook events as edits in the app. The outcome is that the [contact management](/features/contact-management) and [workflow automation](/features/workflow-automation) work happens without the customer success manager touching the CRM. They focus on the customer instead.
 
 The mechanism is interesting. The outcome is the point. A customer success manager who spends 80 percent of their time on customers and 20 percent on admin is going to outperform one who splits it 50/50.
 
@@ -186,7 +186,7 @@ If you are a founder hiring your first customer success manager, three rules.
 
 **Pay variable compensation tied to retention.** Base 70 percent, variable 30 percent, with the variable tied to net retention or gross retention against a quota. This puts the right incentives in place from day one.
 
-**Give them the data and the tools on day one.** A customer success manager who spends their first 90 days fighting the CRM is going to deliver nothing. The CRM should be set up, the renewal calendar should be visible, the health scores should exist before they start. The [contact management](/features/contact-management) and [follow up](/features/follow-up) features in Customermates ship preconfigured with the fields you need for a customer success motion.
+**Give them the data and the tools on day one.** A customer success manager who spends their first 90 days fighting the CRM is going to deliver nothing. The CRM should be set up, the renewal calendar should be visible, the health scores should exist before they start. In Customermates you add typed custom columns such as renewal date, health score, and churn risk to [contact and organization records](/features/contact-management), and a saved view sorted by renewal date becomes your [follow up](/features/follow-up) list. There are no built-in reminders, so someone has to check that view.
 
 For broader context on building the post sale function, see [customer success metrics from Salesforce](https://www.salesforce.com/resources/research-reports/state-of-service/) State of Service research, which tracks the trends across thousands of companies.
 
@@ -212,16 +212,15 @@ Customer success management is the discipline of helping paying customers achiev
 </FaqItem>
 
 <FaqItem question="How much do customer success managers make?">
-  Median total compensation for a customer success manager in the United States is around 141,000 dollars per year, with
-  base salaries of 80,000 to 120,000 plus variable compensation of 20 to 40 percent tied to retention and expansion
-  targets. Senior customer success managers and directors earn 150,000 to 250,000 plus equity in venture backed SaaS
-  companies.
+  Median total compensation for a customer success manager in the United States is around 141,000 dollars per year
+  according to Coursera salary data, usually split into a base salary plus variable compensation tied to retention and
+  expansion targets. Figures vary widely by seniority, region, and company stage.
 </FaqItem>
 
 <FaqItem question="What software do customer success teams use?">
   Customer success teams use a combination of CRM, dedicated customer success platforms, support tools, and product
   analytics. Dedicated platforms like Gainsight, ChurnZero, and Totango are common above 1,000 customers. Below that
-  scale, a CRM like Customermates with custom fields, automation, and AI agent integration covers the function at a
+  scale, a CRM like Customermates with custom fields, webhooks and API access for automation, and AI agent integration covers the function at a
   fraction of the cost.
 </FaqItem>
 
@@ -240,7 +239,7 @@ Customer success management is the discipline of helping paying customers achiev
 </FaqItem>
 
 <FaqItem question="Can AI agents do customer success management?">
-AI agents like Claude and ChatGPT can automate the administrative side of customer success management, including CRM updates, follow up email drafts, meeting summaries, and report generation. They cannot replace the customer relationship work itself, but they can free a customer success manager from 40 to 60 percent of their data entry burden. CRMs with MCP integration, like Customermates, allow agents to read and write the customer record directly.
+AI agents like Claude and ChatGPT can automate the administrative side of customer success management, including CRM updates, follow up email drafts, meeting summaries, and report generation. They cannot replace the customer relationship work itself, but they can free a customer success manager from much of the data entry burden. CRMs with MCP integration, like Customermates, allow agents to read and write the customer record directly.
 </FaqItem>
 </Faq>
 
@@ -248,6 +247,6 @@ AI agents like Claude and ChatGPT can automate the administrative side of custom
 
 Customer success management is not magic. It is a process, a set of metrics, and a discipline. The teams that get it right are the ones that treat it as a revenue function, not a support function. They define outcomes, track health, run renewal motions early, and build a stack that supports the work rather than burying the customer success manager in admin.
 
-If you are running customer success out of a spreadsheet right now, the upgrade path is a CRM with strong automation, not a dedicated customer success platform. Customermates was built for that scale: open source, AGPL licensed, EU hosted, from [[commercial.price.starter.monthly]] per user per month, with the AI agent integration that lets your customer success manager focus on customers rather than data entry. Open source means no vendor lock in, EU hosting means GDPR is handled, and the [pricing](/pricing) means you do not need to justify a 50,000 dollar customer success platform line item to keep the function running.
+If you are running customer success out of a spreadsheet right now, the upgrade path is a CRM with strong automation, not a dedicated customer success platform. Customermates was built for that scale: open source, AGPL licensed, from [[commercial.price.starter.monthly]] per user per month, with the AI agent integration that lets your customer success manager focus on customers rather than data entry. Open source means you can self-host instead of depending on one vendor, the cloud database runs in the AWS Frankfurt region with a [DPA](/dpa) and disclosed [subprocessors](/subprocessors), and the [pricing](/pricing) means you do not need to justify a 50,000 dollar customer success platform line item to keep the function running.
 
 The point of customer success management is not the tool. It is the customer hitting the outcome they bought. Pick the leanest stack that lets your team focus on that.

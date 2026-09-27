@@ -25,9 +25,9 @@ That is the short answer. The rest of this guide gives you 7 ready-to-use sales 
 
 ## Why Follow-Up Emails Matter More Than the Call
 
-Research from the [Harvard Business Review](https://hbr.org/2011/03/the-short-life-of-online-sales-leads) shows that 80% of sales require at least five follow-up contacts after the initial meeting, yet 44% of salespeople give up after a single attempt. The gap between what works and what most people do is enormous.
+Research such as the [Harvard Business Review](https://hbr.org/2011/03/the-short-life-of-online-sales-leads) study on lead response shows how quickly interest fades when nobody follows up. Most deals need several touches after the first meeting, yet many salespeople stop after one or two attempts. The gap between what works and what most people do is enormous.
 
-**Memory fades fast.** Within 24 hours, people forget roughly 70% of new information. Your prospect may have loved the demo, but by tomorrow they will struggle to recall which features excited them. A follow-up email reinforces the key points while they still resonate.
+**Memory fades fast.** The forgetting curve described by Hermann Ebbinghaus shows that people lose much of new information within a day. Your prospect may have loved the demo, but by tomorrow they will struggle to recall which features excited them. A follow-up email reinforces the key points while they still resonate.
 
 **Buying decisions take time.** B2B purchases involve multiple stakeholders, budget approvals, and competitive evaluations. Your follow-up emails keep you visible during a process that can span weeks.
 
@@ -43,14 +43,14 @@ Keep it specific. Generic lines like "Following up" or "Checking in" get ignored
 
 - "Recap: solving [specific problem] with [your product]"
 - "The ROI numbers we discussed today"
-- "[Prospect's company] + [Your company], next steps"
+- "[Prospect's company] + [Your company]: next steps"
 
 ### Opening line
 
 Skip "I hope this email finds you well." Open with value:
 
 - "Here is the case study I mentioned about [similar company]"
-- "You asked about [feature], here is the detail"
+- "You asked about [feature]: here is the detail"
 - "Based on your timeline of [date], here are the next steps"
 
 ### Body content
@@ -68,7 +68,7 @@ End with one clear, low-friction action, not three options:
 
 - "Can you confirm Tuesday at 2 PM for the deep-dive?"
 - "Would a 15-minute call with our technical team answer the integration questions?"
-- "I have attached the proposal, could you share it with [stakeholder] by Friday?"
+- "I have attached the proposal. Could you share it with [stakeholder] by Friday?"
 
 ## 7 Sales Follow Up Email Templates
 
@@ -221,7 +221,7 @@ Keep all templates in the CRM so every team member uses the same proven sequence
 
 ### Step 3: Build the automation workflow
 
-With Customermates and [n8n automation](/features/workflow-automation), a typical sequence:
+Customermates does not run email sequences itself. With Customermates webhooks and your own, separately operated n8n instance (see [workflow automation](/features/workflow-automation)), a typical sequence looks like this:
 
 1. **Trigger:** Deal stage changes to "Demo Completed"
 2. **Wait:** 1 hour → Send Template 1 (Recap)
@@ -230,16 +230,16 @@ With Customermates and [n8n automation](/features/workflow-automation), a typica
 5. **If no reply:** Wait to Day 5 → Send Template 3 (Social Proof)
 6. **Continue** through the full sequence until response or breakup
 
-The automation runs in the background while you focus on new calls. When a prospect replies, it pauses and you take over personally.
+The automation runs in n8n in the background while you focus on new calls. Build a reply check into each wait step, so the workflow stops when a prospect answers and you take over personally.
 
 ### Step 4: Track and optimize
 
 Monitor these metrics to refine your process:
 
-- **Open rates by template**, which subject lines get attention
-- **Reply rates by position**, which follow-up generates the most responses
-- **Time to response**, how quickly prospects re-engage
-- **Conversion rate**, percentage that re-engage from the sequence
+- **Open rates by template:** which subject lines get attention
+- **Reply rates by position:** which follow-up generates the most responses
+- **Time to response:** how quickly prospects re-engage
+- **Conversion rate:** percentage that re-engage from the sequence
 
 ## Common Follow-Up Mistakes
 
@@ -258,7 +258,7 @@ Within 2 hours of the call, ideally within 30 minutes. The faster you follow up,
 </FaqItem>
 
 <FaqItem question="How many follow-up emails should I send?">
-Between 5 and 7 over a 3-4 week period. Research shows that the 5th follow-up often generates the most responses. Most salespeople quit too early.
+Between 5 and 7 over a 3-4 week period. Later follow-ups often get replies that the first email did not, so track reply rates by position for your own market. Most salespeople quit too early.
 </FaqItem>
 
 <FaqItem question="What should I write in a sales follow-up email?">
@@ -266,7 +266,7 @@ Reference the specific conversation you had. Summarize 2-3 key pain points discu
 </FaqItem>
 
 <FaqItem question="How do I automate follow-up emails?">
-Use a CRM with workflow automation. Set triggers based on deal stage changes (e.g., "Demo Completed" triggers the recap email). Tools like Customermates with [n8n integration](/features/workflow-automation) let you build visual automation sequences that send the right template at the right time. [See how it works →](/n8n-crm)
+Use a CRM with workflow automation. Set triggers based on deal stage changes (e.g., "Demo Completed" triggers the recap email). With Customermates, deal stage changes fire webhooks that a separately operated n8n instance can use to build visual sequences that send the right template at the right time; Customermates itself has no built-in sequences. [See how it works →](/n8n-crm)
 </FaqItem>
 </Faq>
 
@@ -274,6 +274,6 @@ Use a CRM with workflow automation. Set triggers based on deal stage changes (e.
 
 The numbers are clear: most salespeople quit too early, and most follow-up emails are generic. By combining proven templates with automated sequencing in a [CRM pipeline](/features/pipeline), you create a systematic advantage.
 
-Customermates gives you the infrastructure: [email integration](/features/email-integration) for sending, [pipeline management](/features/pipeline) for tracking, and [n8n automation](/features/workflow-automation) for sequencing, on the Pro tier at [[commercial.price.pro.monthly]]/user/month. [See pricing →](/pricing)
+Customermates gives you the CRM side: [email in the unified inbox](/features/email-integration) for individual replies on the Pro tier at [[commercial.price.pro.monthly]]/user/month, [pipeline management](/features/pipeline) for tracking, and webhooks plus an n8n community node so your own n8n instance can handle [sequencing](/features/workflow-automation). [See pricing →](/pricing)
 
 [Start your free [[commercial.trial.days]]-day trial →](/auth/signup)

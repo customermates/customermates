@@ -10,13 +10,16 @@ import { CTASection } from "@/components/marketing/cta-section";
 import { PageHero } from "@/components/marketing/page-hero";
 import { generateMetadataFromMeta } from "@/core/fumadocs/metadata";
 import { affiliateSource } from "@/core/fumadocs/source";
+import { enableStaticLocale, type StaticLocaleProps } from "@/i18n/static-locale";
 
 export async function generateMetadata({ params }: { params: Promise<{ locale: string }> }): Promise<Metadata> {
   const { locale } = await params;
   return generateMetadataFromMeta({ locale, route: "/affiliate" });
 }
 
-export default async function AffiliatePage() {
+export default async function AffiliatePage({ params }: StaticLocaleProps) {
+  await enableStaticLocale(params);
+
   const locale = await getLocale();
   const page = affiliateSource.getPage(["affiliate"], locale);
 

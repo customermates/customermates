@@ -21,17 +21,16 @@ acquisition:
       - product:mcp-tools
       - product:rest-and-webhooks
     excludedClaims:
-      - claim:no-import-export
       - claim:no-self-hosted-inbox
       - claim:no-hosted-ai-self-hosted
   cta:
     action: Evaluate Customermates as an open-source CRM
-    description: Try the managed cloud CRM or review the self-hosted edition with its AGPL core, Docker and PostgreSQL. Self-hosting uses Starter entitlements and includes neither the hosted inbox nor Mate.
+    description: Try the managed cloud CRM or review the self-hosted edition with its AGPL core, Docker and PostgreSQL. Self-hosting uses the Starter feature set and includes neither the hosted inbox nor Mate.
     buttonLeftText: Try managed cloud
     buttonLeftHref: /auth/signup
     buttonRightText: Review self-hosting
     buttonRightHref: /features/self-hosted
-    hint: "Free for [[commercial.trial.days]] days • Self-hosting: Starter entitlements, no hosted inbox and no Mate"
+    hint: "Free for [[commercial.trial.days]] days • Self-hosting: Starter feature set, no hosted inbox and no Mate"
   relatedHrefs:
     - /features/self-hosted
     - /docs/self-hosting
@@ -163,6 +162,8 @@ Treat an unmeasured or undocumented capability as unknown, not as included.
 
 Open-source CRM searches surface projects with very different scopes. Customermates, SuiteCRM, EspoCRM and Twenty are useful starting points for a source-led shortlist. Odoo Community and CiviCRM can be relevant when a broader business-suite or membership context is part of the requirement. Verify the current official license, edition boundary, deployment documentation and maintenance state before deciding.
 
+For side-by-side detail on two of them, see the [EspoCRM alternative](/compare/espocrm-alternative) and [Twenty alternative](/compare/twenty-alternative) comparisons, which list licence, stack, pricing, channels and MCP support from each project's official pages.
+
 Their intended breadth differs. Some focus on CRM, some sit inside a broader business suite, and some are shaped around nonprofit or membership workflows. That makes a universal “number one” less useful than a shortlist scored against your own requirements.
 
 ### Official source map checked on 28 August 2026
@@ -187,24 +188,28 @@ This table is a source map, not a product ranking or a claim that the projects h
 
 ## Where Customermates fits
 
-Customermates is an open-core relationship-and-pipeline CRM made in Germany. First-party material outside `ee/` is AGPL-3.0-only. Inside `ee/`, material is commercially licensed except for the client material identified as AGPL-3.0-only in Section 6 of `ee/LICENSE.md`.
+Customermates is an open-core CRM for customer relationships and pipelines, made in Germany. First-party material outside `ee/` is AGPL-3.0-only. Inside `ee/`, material is commercially licensed except for the client material identified as AGPL-3.0-only in Section 6 of `ee/LICENSE.md`.
 
-The official [self-hosted CRM](/features/self-hosted) deployment contains the application and PostgreSQL 16. The self-hosted edition uses Starter entitlements.
+The official [self-hosted CRM](/features/self-hosted) deployment contains the application and PostgreSQL 16. The self-hosted edition has the Starter feature set.
 
 | Customermates self-hosted capability               | Status                                              |
 | -------------------------------------------------- | --------------------------------------------------- |
 | Contacts, organizations, deals, services and tasks | Included                                            |
-| Custom fields, table, card and kanban views        | Included                                            |
+| Custom fields, table and Kanban views              | Included                                            |
 | REST, webhooks and MCP                             | Included                                            |
 | External AI clients through MCP                    | Included; customer supplies the client and provider |
 | Unified inbox and messaging accounts               | Not included                                        |
 | Cloud-only Mate assistant and hosted credits       | Not included                                        |
 | Connected read-only calendar view                  | Not included                                        |
-| Dedicated CRM-record import/export workflow        | Not included                                        |
+| Record import and export as XLSX workbooks         | Included, one record type at a time                 |
 
-This makes Customermates a fit when you want a focused CRM, Docker/PostgreSQL deployment and an open MCP surface. It is not a fit when self-hosting must include the managed-cloud inbox or when you need a turnkey migration, PSA, invoicing or time-tracking suite.
+This makes Customermates a fit when you want a focused CRM, Docker/PostgreSQL deployment and an open MCP interface. It is not a fit when self-hosting must include the managed-cloud inbox, when you need custom object types, or when you need a PSA, invoicing or time-tracking suite.
 
 <ProductDemo hostedBoundary path="/dashboard" />
+
+## Open source is not the same as self-hosted
+
+The two terms are often searched together but answer different questions. **Open source** is about rights: what the licence lets you inspect, change and redistribute. **Self-hosted** is about operations: whose servers run the application and database. A project can be open source and still be used mainly as a cloud service, and a self-hosted product can be proprietary. This guide covers the licence and shortlist questions; the [self-hosted CRM](/features/self-hosted) page covers the Customermates deployment itself, and the [agentic CRM guide](/blog/agentic-crm) covers how AI clients work with it through MCP.
 
 ## Self-hosting changes who operates the system
 
@@ -282,6 +287,6 @@ It means the CRM code is offered under an open-source license that grants define
 </FaqItem>
 
 <FaqItem question="Can I import or export CRM records in self-hosted Customermates?">
-Customermates has no dedicated CRM-record import or export workflow. Any migration needs a separately designed and validated API or database procedure.
+Yes. Records move in and out as XLSX workbooks, one record type at a time, scoped to the user's read access and the current view, with row limits in both directions. CSV is not accepted, so save CSV files as `.xlsx` first. For anything beyond that, such as attachments or a complete account transfer, design a migration through the REST API.
 </FaqItem>
 </Faq>

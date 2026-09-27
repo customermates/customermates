@@ -233,7 +233,7 @@ Add a **Customermates** node (or HubSpot, Pipedrive, or your CRM of choice). Con
 2. Select **"Create Contact"** as the action
 3. Map name, email, company, and other fields from the webhook data
 
-With [Customermates](/) (from [[commercial.price.starter.monthly]]/user/month), the n8n integration is native, dedicated nodes instead of raw API calls.
+With [Customermates](/) (from [[commercial.price.starter.monthly]]/user/month), you install the [Customermates community node](https://github.com/customermates/n8n-nodes-crm) in your n8n instance and get dedicated operations instead of raw API calls. n8n itself runs separately; it is not part of any Customermates plan.
 
 ### Step 4: Send Notification
 
@@ -379,7 +379,7 @@ Every form submission on your website automatically creates a new contact in you
 ### Example 2: AI-Powered Lead Qualification
 
 ```
-New Contact in CRM -> OpenAI Node (Score lead) -> Customermates (Update Contact with Score) -> Slack (Notify if Hot)
+Customermates webhook (contact created) -> OpenAI Node (Score lead) -> Customermates (Update Contact with Score) -> Slack (Notify if Hot)
 ```
 
 When a new lead enters the CRM, n8n sends the lead data to ChatGPT for BANT scoring, writes the score back to a custom field, and notifies the sales team on Slack if the lead is classified as hot. See our guide on [lead qualification with ChatGPT](/blog/lead-qualification-chatgpt) for the full setup.
@@ -387,10 +387,10 @@ When a new lead enters the CRM, n8n sends the lead data to ChatGPT for BANT scor
 ### Example 3: Automated Follow-Up Emails
 
 ```
-Schedule Trigger (daily) -> Customermates (Get Deals without activity in 7 days) -> Gmail (Send follow-up)
+Schedule Trigger (daily) -> Customermates (Get Deals) -> Filter (not updated in 7 days) -> Gmail (Send follow-up)
 ```
 
-Every morning, n8n checks for deals that have had no activity in 7 days and automatically sends a follow-up email to the contact. The email content can be personalized using deal data from the CRM.
+Every morning, n8n fetches open deals, keeps the ones that have not been updated in 7 days, and sends a follow-up email to the contact. Customermates has no built-in reminders or sequences, so this schedule lives in n8n. The email content can be personalized using deal data from the CRM.
 
 ### Example 4: Meeting Notes to CRM
 
@@ -402,9 +402,9 @@ After every customer call, the meeting transcript is automatically summarized by
 
 ### Why Customermates Works Well with n8n
 
-Customermates (from [[commercial.price.starter.monthly]]/user/month, full core CRM included) has a native n8n integration. This means you can use dedicated Customermates nodes in n8n rather than configuring raw API calls. The integration supports creating, reading, updating, and deleting contacts, deals, organizations, and notes.
+Customermates (from [[commercial.price.starter.monthly]]/user/month, full core CRM included) publishes a community node for n8n, so you can use dedicated Customermates operations in your own n8n instance rather than configuring raw API calls. It works with CRM records such as contacts, organizations, deals, services, and tasks, and [[derived.webhooks.events.total]] webhook event types can start workflows when records change.
 
-For teams that use n8n as their automation backbone, a CRM with native n8n support eliminates the friction of manual API configuration and reduces setup time from hours to minutes.
+For teams that use n8n as their automation backbone, a dedicated node removes most of the manual API configuration. n8n stays a separate product that you self-host or subscribe to.
 
 ## Building a Multi-Part Workflow: Data Warehouse to CRM
 
@@ -498,7 +498,7 @@ n8n is more flexible and significantly cheaper at scale. Zapier excels in the br
 </FaqItem>
 
 <FaqItem question="Can n8n connect to any CRM?">
-n8n has dedicated nodes for popular CRMs including Customermates, HubSpot, Pipedrive, Salesforce, and Zoho. For CRMs without a dedicated node, the HTTP Request node lets you connect to any CRM with a REST API. Community nodes extend this further. In practice, this covers virtually every modern CRM system.
+n8n has built-in nodes for popular CRMs including HubSpot, Pipedrive, Salesforce, and Zoho, and Customermates publishes a community node. For CRMs without a dedicated node, the HTTP Request node lets you connect to any CRM with a REST API. Community nodes extend this further. In practice, this covers virtually every modern CRM system.
 </FaqItem>
 
 <FaqItem question="Is n8n suitable for production use?">
@@ -506,7 +506,7 @@ Yes. Thousands of companies run n8n in production. For reliability, self-host on
 </FaqItem>
 
 <FaqItem question="How does n8n handle GDPR and data privacy?">
-Self-hosted n8n gives you complete control, data never leaves your servers. For n8n Cloud, data is processed in the EU. In both cases, n8n itself does not access or store your workflow data beyond execution. Combined with a CRM with a DPA and SCCs like Customermates (EU-hosted, from [[commercial.price.starter.monthly]]/user/month), you can build fully compliant automation pipelines.
+Self-hosted n8n gives you complete control, data never leaves your servers. For n8n Cloud, data is processed in the EU. In both cases, n8n itself does not access or store your workflow data beyond execution. Pair it with a CRM whose data location and subprocessors you can document. Customermates (from [[commercial.price.starter.monthly]]/user/month) runs its cloud database in the AWS Frankfurt region, lists all subprocessors including US providers, offers a [DPA](/dpa), and can be self-hosted next to your n8n instance.
 </FaqItem>
 
 <FaqItem question="What is the easiest first workflow to build?">

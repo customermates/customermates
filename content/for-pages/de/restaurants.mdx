@@ -20,7 +20,7 @@ hero:
 
 cta:
   action: Catering-Pipeline aufbauen
-  description: Testen Sie Firmenkunden, Eventchancen und nächste Schritte, ohne eine weitere Gästedatenbank anzulegen oder den Restaurantbetrieb zu ersetzen.
+  description: Verwalten Sie Firmenkunden, Eventanfragen und nächste Schritte in einer Pipeline, ohne eine weitere Gästedatenbank anzulegen oder den Restaurantbetrieb zu ersetzen.
   buttonLeftText: Pro-Testphase starten
   buttonLeftHref: /auth/signup
   buttonRightText: Demo ansehen
@@ -39,7 +39,7 @@ Ein **CRM für Restaurants** kann eine mit Reservierung und Treueprogramm verbun
     Unternehmen, Eventplaner, geschäftliche Anfragen, Beziehungsphasen und
     manuelle nächste Schritte miteinander verbinden.
   </SummaryItem>
-  <SummaryItem label="Verifizierter Umfang">
+  <SummaryItem label="Funktionsumfang">
     Kontakte, Organisationen, anpassbare Deals, eigene Felder, Filter, Kanban,
     Aktivität und verknüpfte Aufgaben.
   </SummaryItem>
@@ -49,11 +49,11 @@ Ein **CRM für Restaurants** kann eine mit Reservierung und Treueprogramm verbun
   </SummaryItem>
 </ArticleSummary>
 
-<ProofRail label="Verifizierte CRM-Funktionen für Catering- und Eventvertrieb">
+<ProofRail label="CRM-Funktionen für Catering- und Eventvertrieb">
   <ProofItem label="Firmenkunden">Organisationen</ProofItem>
   <ProofItem label="Personen">Eventplaner und Einkäufer</ProofItem>
   <ProofItem label="Pipeline">Catering- und Eventchancen</ProofItem>
-  <ProofItem label="Follow-up">Verknüpfte Aufgaben</ProofItem>
+  <ProofItem label="Nachfassen">Verknüpfte Aufgaben</ProofItem>
   <ProofItem label="Erweiterungen">REST, Webhooks und MCP</ProofItem>
 </ProofRail>
 
@@ -61,46 +61,46 @@ Ein **CRM für Restaurants** kann eine mit Reservierung und Treueprogramm verbun
 
 Ein Kassensystem verarbeitet Bestellungen und Zahlungen. Reservierungs- und Hospitality-Plattformen verwalten Tische, Buchungen, Besuchshistorie, Gästepräferenzen und Treueprogramme. Ein CRM ist besonders für beziehungsgetriebenen Umsatz sinnvoll, der einem Vertriebsprozess folgt: Catering, private Events, Firmenverpflegung, Veranstaltungspartner und Lieferantenbeziehungen.
 
-Customermates stellt diese Business-Development-Ebene bereit. Es als Gäste-CRM zu bezeichnen, würde Funktionen versprechen, die nicht vorhanden sind.
+Customermates deckt diesen Vertriebsteil ab. Ein Gäste-CRM ist es nicht.
 
 | Bedarf im Restaurant | Customermates | Operatives Gastronomiesystem |
 | --- | --- | --- |
 | Firmenkundenkontext | Organisationen, Kontakte, Beziehungen, Notizen und Aktivität | Abrechnung, Bestellung und operative Kundenführung |
 | Catering- oder Eventchance | Deals, eigene Phasen, Filter und Kanban | Menü, Angebotsdokument, Anzahlung, Buchung und Eventplan |
 | Nächste geschäftliche Aktion | Aufgabe am CRM-Datensatz | Buchungsfrist, Personal, Produktion und Lieferplan |
-| Einzelnes Gespräch | Verwalteter Posteingang ab Pro | Reservierung und offizielle Eventkommunikation |
-| Integrationsoberfläche | REST, Webhooks, MCP und separate n8n-Option | Kasse, Reservierung, Treueprogramm, Zahlung, Lager und Events |
+| Einzelnes Gespräch | Einheitlicher Posteingang ab Pro | Reservierung und offizielle Eventkommunikation |
+| Schnittstellen | REST, Webhooks, MCP und separat betriebenes n8n | Kasse, Reservierung, Treueprogramm, Zahlung, Lager und Events |
 
 <AcquisitionCallout title="Keine Schatten-Gästedatenbank aufbauen" variant="boundary">
   Customermates übernimmt keine Besuche oder Umsätze aus der Kasse, erkennt
   keine Stammgäste, verwaltet keine Treuepunkte, reserviert keine Tische und
   führt keine Ernährungs- oder Allergieprofile. Gäste- und Betriebsdaten bleiben
-  in Systemen, die für diese Datensätze entwickelt und freigegeben wurden.
+  in den Systemen, die dafür gebaut sind.
 </AcquisitionCallout>
 
-## Ein unterstützter Catering- und Eventworkflow
+## So läuft eine Catering- oder Eventanfrage
 
-Eine Firmen-Catering-Anfrage ist eine echte CRM-Chance: Eine Person steht für Einkäufer oder Planer, eine Organisation für das Unternehmen und ein Deal für das geschäftliche Gespräch. Das Event selbst bleibt in Buchungs- und Betriebswerkzeugen.
+Eine Firmen-Catering-Anfrage ist eine echte CRM-Chance: Ein Kontakt steht für Einkäufer oder Planer, eine Organisation für das Unternehmen und ein Deal für das geschäftliche Gespräch. Das Event selbst bleibt in Buchungs- und Betriebswerkzeugen.
 
 <Steps>
-  <Step title="Firmenkonto anlegen">
+  <Step title="Firmenkunden anlegen">
     Erfassen Sie Unternehmen, Veranstaltungspartner oder Organisation und
     verbinden Sie Einkäufer, Assistenz, Eventplaner und weitere Beteiligte.
   </Step>
-  <Step title="Chance anlegen">
+  <Step title="Deal anlegen">
     Erstellen Sie einen Deal für Catering-Anfrage, private Veranstaltung,
     Firmenverpflegung oder die besprochene Partnerschaft.
   </Step>
   <Step title="Geschäftliche Phasen konfigurieren">
-    Nutzen Sie neue Anfrage, qualifiziert, Anforderungen bestätigt, Angebot
-    extern erstellt, Kundenentscheidung, gewonnen oder beendet.
+    Zum Beispiel „Neue Anfrage“, „Qualifiziert“, „Anforderungen bestätigt“,
+    „Angebot versendet“, „Kundenentscheidung“, „Gewonnen“ oder „Beendet“.
   </Step>
-  <Step title="Begrenzte Eventreferenz halten">
-    Speichern Sie Eventmonat, Kontotyp, Quelle oder externe Buchungs-ID, statt
+  <Step title="Nur die Eckdaten zum Event festhalten">
+    Speichern Sie Eventmonat, Kundentyp, Quelle oder externe Buchungs-ID, statt
     die operative Eventakte zu kopieren.
   </Step>
   <Step title="Nächste Aktion erfassen und übergeben">
-    Verknüpfen Sie eine Aufgabe für das manuelle Follow-up. Menü,
+    Verknüpfen Sie eine Aufgabe für das Nachfassen. Menü,
     Ernährungsangaben, Angebotsdokument, Anzahlung, Buchung, Personal, Produktion
     und Service bleiben in ihren Fachsystemen.
   </Step>
@@ -108,37 +108,37 @@ Eine Firmen-Catering-Anfrage ist eine echte CRM-Chance: Eine Person steht für E
 
 ## Firmenkunden, Partner und Lieferanten
 
-Organisationen und Kontakte bewahren die Beziehung zwischen Restaurant und Firmenkunde, Hotel, Veranstaltungsort, Eventagentur, Concierge oder lokalem Partner. Ein Quellenfeld kann zeigen, wie die Chance entstanden ist. Gefilterte Ansichten helfen einem Nutzer, offene Deals nach Phase, Quelle oder Konto zu prüfen.
+Organisationen und Kontakte bewahren die Beziehung zwischen Restaurant und Firmenkunde, Hotel, Veranstaltungsort, Eventagentur, Concierge oder lokalem Partner. Ein Quellenfeld kann zeigen, wie die Chance entstanden ist. Mit gefilterten Ansichten prüfen Sie offene Deals nach Phase, Quelle oder Kunde.
 
 Auch Lieferantenbeziehungen können Organisationen und Kontakte für den geschäftlichen Kontext und das nächste Gespräch nutzen. Bestellungen, Lieferpläne, Preislisten, Lebensmittelsicherheitsnachweise, Lager und Rechnungen bleiben in Beschaffungs-, Lager- oder Buchhaltungssoftware.
 
-Customermates berechnet weder Catering-Umsatz noch Gäste-Lifetime-Value, Durchschnittsausgaben, Treueprogrammleistung, Lieferantenbewertung oder Eventprofitabilität. Finanzielle und operative Kennzahlen bleiben in dem System verbindlich, das sie berechnet.
+Customermates berechnet weder Catering-Umsatz noch Gäste-Lifetime-Value, Durchschnittsausgaben, Treueprogrammleistung, Lieferantenbewertung oder Eventprofitabilität. Finanzielle und operative Kennzahlen kommen weiter aus dem System, das sie berechnet.
 
 ## Gäste- und Datenschutzgrenzen
 
 Verwenden Sie allgemeine CRM-Felder nicht für eine parallele Historie von Restaurantbesuchen, Lieblingstischen, Mahlzeiten, Ernährungsbeschränkungen oder Allergien. Diese Werte können sensibel sein, veralten schnell und benötigen operative Kontrollen, die Customermates nicht bereitstellt.
 
-Bei einer Eventchance bleibt nur der geschäftliche Beziehungskontext im CRM, den das Vertriebsteam braucht. Detaillierte Teilnehmer-, Menü-, Ernährungs-, Allergie-, Sitz- und Serviceinformationen gehören in das freigegebene Buchungs- oder Eventsystem. Customermates-Berechtigungen gelten nach Ressource und Aktion, nicht je Feld oder Datensatz. Eine Hospitality- oder DSGVO-Compliance-Zertifizierung besteht nicht.
+Bei einer Eventchance bleibt nur der geschäftliche Beziehungskontext im CRM, den das Vertriebsteam braucht. Detaillierte Teilnehmer-, Menü-, Ernährungs-, Allergie-, Sitz- und Serviceinformationen gehören in das freigegebene Buchungs- oder Eventsystem. Berechtigungen gelten je Ressource und Aktion, nicht je Feld; den Lesezugriff können Sie auf zugewiesene Datensätze beschränken. Eine Zertifizierung hat Customermates nicht.
 
 ## Messaging, Kampagnen und KI
 
-Der verwaltete [einheitliche Posteingang](/features/unified-inbox) ist ab Pro für unterstützte E-Mail- und Nachrichtenkanäle verfügbar. Er bringt einzelne Gespräche ins CRM und erlaubt die Zuordnung von Teilnehmern zu Kontakten. Er erfasst keine Reservierungen, erstellt keine Gästeprofile, versendet keine Massenwerbung und führt keine Geburtstags-, Treue- oder Reaktivierungskampagnen aus. Eine Nachricht wird nicht automatisch einem Event-Deal zugeordnet. Self-Hosting enthält keinen Posteingang.
+Der [einheitliche Posteingang](/features/unified-inbox) ist ab Pro verfügbar, in der Cloud, für E-Mail, LinkedIn, WhatsApp, Instagram und Telegram. Er bringt einzelne Gespräche ins CRM und ordnet sie Kontakten zu. Er erfasst keine Reservierungen, erstellt keine Gästeprofile, versendet keine Massenwerbung und führt keine Geburtstags-, Treue- oder Reaktivierungskampagnen aus. Nachrichten hängen am Kontakt, nicht an einem Event-Deal. Self-Hosting enthält keinen Posteingang.
 
-Ein autorisierter externer KI-Client kann unterstützte [MCP](/docs/mcp)-Aktionen an CRM-Datensätzen ausführen. Er kann unterstützte Firmenkontakt- und Chancendaten innerhalb der Nutzerberechtigungen bearbeiten. Er leitet keine Gästepräferenzen ab, analysiert keine Besuche, schreibt keine Allergiedaten, erstellt kein verifiziertes Menü oder Angebot und führt kein autonomes Marketing aus.
+Ein externer KI-Client, den Sie über [MCP](/docs/mcp) verbinden, kann Firmenkontakte und Deals im Rahmen Ihrer Berechtigungen lesen und bearbeiten. Gästepräferenzen, Besuchsanalysen, Allergiedaten, Menüs, Angebote oder automatisches Marketing gehören nicht dazu.
 
-Aufgaben besitzen keine nativen Fälligkeitstermine oder Wiederholungen. Datumsabhängige Aufgabenerstellung oder eine freigegebene externe Nachricht braucht einen kundenseitig betriebenen Scheduler oder separaten [n8n-Workflow](/features/workflow-automation). Dieser Workflow und seine Anbieter bleiben kundenseitig betrieben.
+Aufgaben haben keine Fälligkeitsdaten und wiederholen sich nicht. Ein eigenes Datumsfeld am Deal und eine gespeicherte Ansicht, sortiert nach diesem Datum, zeigen, welche Anfrage als Nächstes Aufmerksamkeit braucht. In Customermates Cloud kann eine [Routine](/docs/app-routines) diese Daten regelmäßig prüfen und offene Anfragen auflisten; Erinnerungen oder Benachrichtigungen verschickt Customermates nicht. Wer Aufgaben nach Datum anlegen oder freigegebene Nachrichten automatisch versenden will, braucht einen eigenen Zeitplaner oder einen separat betriebenen [n8n-Workflow](/features/workflow-automation) über den Community-Node.
 
 ## Verbindung zu Restaurantsystemen
 
-Bietet ein Kassen-, Reservierungs-, Event- oder Buchhaltungssystem eine geeignete Schnittstelle, kann eine kundenseitig gebaute Verbindung eine minimale Konto-, Chancen- oder externe Buchungsreferenz über [REST API und Webhooks](/features/api), MCP oder die separate n8n-Integration austauschen.
+Bietet ein Kassen-, Reservierungs-, Event- oder Buchhaltungssystem eine geeignete Schnittstelle, können Sie selbst eine Verbindung bauen, die nur die nötigen Eckdaten (Kunde, Deal, externe Buchungs-ID) über [REST-API und Webhooks](/features/api), MCP oder ein separat betriebenes n8n austauscht.
 
-Der Kunde verantwortet Anbietervereinbarungen, Einwilligung, Datenminimierung, Feldzuordnung, Validierung, Wiederholungen und Dublettenbehandlung. Eine native Synchronisierung mit OpenTable, Resy, SevenRooms, Toast, Kassen-, Reservierungs-, Treue-, Lager-, Bestell- oder Zahlungssystemen wird nicht behauptet. Customermates besitzt außerdem keinen CRM-Datensatzimport.
+Verträge mit den Anbietern, Einwilligungen, Datenminimierung, Feldzuordnung, Validierung, Wiederholungsversuche und Dublettenprüfung liegen dabei bei Ihnen. Eine native Anbindung an OpenTable, Resy, SevenRooms, Toast oder andere Kassen-, Reservierungs-, Treue-, Lager-, Bestell- oder Zahlungssysteme gibt es nicht. Firmenkontakte und Chancen lassen sich aus einer Excel-Arbeitsmappe (XLSX) importieren und wieder exportieren, je Datensatztyp und im Rahmen Ihrer Berechtigungen; CSV-Import und eine laufende Synchronisierung gibt es nicht.
 
 ## Preise und Eignung
 
-Starter enthält das Kern-CRM. Pro ergänzt den verwalteten einheitlichen Posteingang und ein verbundenes Konto pro Nutzer. Self-Hosting nutzt die Starter-Berechtigungen und enthält keinen einheitlichen Posteingang. Die aktuellen Tarifdetails stehen auf der [Preisseite](/pricing).
+Starter enthält das Kern-CRM. Pro ergänzt den einheitlichen Posteingang mit einem verbundenen Konto pro Nutzer. Self-Hosting umfasst den Funktionsumfang von Starter, ohne einheitlichen Posteingang. Die aktuellen Tarifdetails stehen auf der [Preisseite](/pricing).
 
-Wählen Sie Customermates, wenn Catering, private Events, Firmenkunden, Partnerschaften oder Lieferantenbeziehungen eine sichtbare geschäftliche Pipeline brauchen. Wählen Sie eine Hospitality-Plattform, wenn Gästeprofile, Reservierungen, Treueprogramme, Tische, Bestellungen, Zahlungen, Lager oder Eventausführung in einem System leben müssen.
+Wählen Sie Customermates, wenn Catering, private Events, Firmenkunden, Partnerschaften oder Lieferantenbeziehungen eine sichtbare geschäftliche Pipeline brauchen. Wählen Sie eine Hospitality-Plattform, wenn Gästeprofile, Reservierungen, Treueprogramme, Tische, Bestellungen, Zahlungen, Lager oder Eventausführung in einem System liegen müssen.
 
 ## Häufig gestellte Fragen
 
@@ -148,14 +148,14 @@ Nein. Es verwaltet keine Tische, Buchungen, Bestellungen, Zahlungen, Menüs, Lag
 </FaqItem>
 
 <FaqItem question="Kann ein Restaurant Catering- und Eventvertrieb in Customermates verwalten?">
-Ja. Kontakte, Organisationen, anpassbare Deals, eigene Felder, Filter und Aufgaben können die Firmenbeziehung und geschäftliche Chance bis zur operativen Übergabe darstellen.
+Ja. Kontakte, Organisationen, anpassbare Deals, eigene Felder, Filter und Aufgaben bilden die Firmenbeziehung und den Deal bis zur Übergabe an den Betrieb ab.
 </FaqItem>
 
 <FaqItem question="Pflegt Customermates Gästeprofile, Besuche, Treue oder Allergien?">
-Nein. Es gibt kein natives Modell für Gästehistorie oder Treueprogramme. Besuche, Präferenzen, Ernährungsangaben und Allergien bleiben in Systemen, die für den Gastronomiebetrieb entwickelt und freigegeben wurden.
+Nein. Es gibt kein natives Modell für Gästehistorie oder Treueprogramme. Besuche, Präferenzen, Ernährungsangaben und Allergien bleiben in Systemen, die für den Gastronomiebetrieb gebaut sind.
 </FaqItem>
 
 <FaqItem question="Ist Customermates nativ mit Restaurantplattformen verbunden?">
-Eine native Kassen-, Reservierungs-, Treue- oder Restaurantplattform-Anbindung wird nicht behauptet. Ein Kunde kann eine begrenzte Verbindung bauen, wenn das andere System eine geeignete Schnittstelle anbietet.
+Nein. Eine native Anbindung an Kassen-, Reservierungs-, Treue- oder andere Restaurantplattformen gibt es nicht. Sie können selbst eine Verbindung bauen, wenn das andere System eine geeignete Schnittstelle anbietet.
 </FaqItem>
 </Faq>

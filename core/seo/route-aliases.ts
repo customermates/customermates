@@ -2,11 +2,26 @@ import { CONTENT_LOCALES, DEFAULT_LOCALE, buildLocalePath } from "../../i18n/loc
 
 const RETIRED_ROUTE_ALIASES = {
   "/blog/ai-native-crm": "/blog/agentic-crm",
+  "/blog/crm-system": "/blog/crm-systems",
   "/compare/monday-vs-hubspot": "/compare/hubspot-vs-monday",
   "/compare/pipedrive-vs-hubspot": "/compare/hubspot-vs-pipedrive",
   "/compare/zoho-vs-hubspot": "/compare/hubspot-vs-zoho",
   "/compare/salesforce-vs-pipedrive": "/compare/pipedrive-vs-salesforce",
   "/compare/salesforce-vs-zoho": "/compare/zoho-vs-salesforce",
+
+  "/compare/cobra": "/compare/cobra-alternative",
+  "/compare/freshsales": "/compare/freshsales-alternative",
+  "/compare/hubspot": "/compare/hubspot-alternative",
+  "/compare/microsoft-dynamics": "/compare/microsoft-dynamics-alternative",
+  "/compare/monday": "/compare/monday-alternative",
+  "/compare/notion": "/compare/notion-alternative",
+  "/compare/pipedrive": "/compare/pipedrive-alternative",
+  "/compare/salesflare": "/compare/salesflare-alternative",
+  "/compare/salesforce": "/compare/salesforce-alternative",
+  "/compare/salesmate": "/compare/salesmate-alternative",
+  "/compare/vtiger": "/compare/vtiger-alternative",
+  "/compare/weclapp": "/compare/weclapp-alternative",
+  "/compare/zoho-crm": "/compare/zoho-crm-alternative",
 
   "/docs/account-settings": "/docs/app-profile",
   "/docs/company-settings": "/docs/app-company",

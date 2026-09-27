@@ -21,7 +21,7 @@ blogPost:
 
 # Günstige CRM-Software: Was günstig tatsächlich kostet
 
-Fast jede Liste über „günstige CRM-Software" vergleicht Listenpreise und hört dort auf. HubSpot ist kostenlos. Zoho kostet 14 €. Pipedrive 14 €. Monday 12 €. Die echten Kosten liegen ganz woanders.
+Fast jede Liste über „günstige CRM-Software" vergleicht Listenpreise und hört dort auf. HubSpot ist kostenlos. Zoho CRM hat eine kostenlose Edition für bis zu 3 Nutzer. Pipedrive 14 €. monday CRM 12 € pro Platz (Stand: September 2026). Die echten Kosten liegen ganz woanders.
 
 Ich baue Customermates, ein Open-Source-CRM aus Deutschland. Ich begleite jede Woche Preisgespräche mit kleinen Teams. Das Muster ist konsistent: Das Team wählt den günstigsten Listenpreis, registriert sich für die Einstiegsstufe, läuft in 8 bis 14 Wochen gegen eine Wand und zahlt am Ende das Drei- bis Fünffache des Geplanten. Manchmal migrieren sie zu der Alternative, die sie zuerst hätten wählen sollen. Oft bleiben sie hängen, weil der Export auch teuer ist.
 
@@ -65,7 +65,7 @@ Kostenlose Stufen können für Solo-Gründer oder Zwei-Personen-Teams die richti
 
 ### Zoho CRM Standard / Professional
 
-14 € für Standard, 23 € für Professional pro User pro Monat (Jahresabrechnung). Hohe Funktionsbreite zu niedrigem Preis. Geeignet für Teams im Zoho-Ökosystem (Zoho Books, Zoho Desk, Zoho Mail). Vorsicht bei der Implementierungskomplexität und dem etwas in die Jahre gekommenen UI.
+Kostenlose Edition für bis zu 3 Nutzer; bezahlte Tarife laut [Zoho-Preisseite](https://www.zoho.com/de/crm/zohocrm-pricing.html). Hohe Funktionsbreite zu niedrigem Preis. Geeignet für Teams im Zoho-Ökosystem (Zoho Books, Zoho Desk, Zoho Mail). Vorsicht bei der Implementierungskomplexität und dem etwas in die Jahre gekommenen UI.
 
 ### Pipedrive Lite / Growth
 
@@ -91,9 +91,9 @@ Kalender-fokussiert mit CRM-Funktionen, ab 10 €/User/Monat. Aufstrebender Anbi
 
 ### Customermates
 
-Das CRM, das ich baue. Open Source, EU-gehostet oder selbst hostbar. Cloud-Stufen ab [[commercial.price.starter.monthly]]/User/Monat bis [[commercial.price.business.monthly]] für Business, oder selbst gehostet für immer kostenlos. Modernes Pipedrive-Pendant, agent-nativ über MCP, vollständige REST-API, n8n-Community-Node. Geeignet für Teams, die Datenhoheit, EU-Hosting und KI-getriebene Workflows wertschätzen. Vorsicht bei: jüngeres Projekt als Zoho oder HubSpot, kleinere Community.
+Das CRM, das ich baue. Open Source, als Cloud-Version oder selbst hostbar. Cloud-Stufen ab [[commercial.price.starter.monthly]]/User/Monat bis [[commercial.price.business.monthly]] für Business (monatliche Abrechnung), oder selbst gehostet ohne Lizenzkosten für den Open-Source-Kern. Modernes Pipedrive-Pendant, agent-nativ über MCP, vollständige REST-API, n8n-Community-Node für ein separat betriebenes n8n. In der Cloud-Version liegt die Datenbank in der AWS-Region Frankfurt; Hosting und weitere Unterauftragsverarbeiter, auch aus den USA, stehen in der [Liste der Unterauftragsverarbeiter](/subprocessors). Geeignet für Teams, die Kontrolle über ihre Daten, Self-Hosting als Option und KI-getriebene Workflows wertschätzen. Vorsicht bei: jüngeres Projekt als Zoho oder HubSpot, kleinere Community.
 
-**Was in [[commercial.price.starter.monthly]]/User/Monat (Starter) enthalten ist:** unbegrenzte Deals, Kontakte, Unternehmen, benutzerdefinierte Felder, eigene Pipelines, rollenbasierte Berechtigungen, mobile App, REST-API, [[derived.mcp.tools.total]] [MCP-Tools](/docs/mcp), [[derived.webhooks.events.total]] Webhook-Ereignisse, [n8n-Integration](/blog/n8n-for-beginners-build-your-first-workflow), [Self-Hosting](/features/self-hosted) mit demselben Quellcode. Der vereinheitlichte Posteingang (E-Mail, LinkedIn, WhatsApp, Instagram, Telegram), Kalendersync und Sales Navigator liegen ab Pro bei [[commercial.price.pro.monthly]]/User/Monat. Jede der genannten Kern-CRM-Funktionen ist in jeder Stufe enthalten; mehr zahlen Sie für Messaging-Kapazität und ein größeres Kontingent für die gehostete KI.
+**Was in [[commercial.price.starter.monthly]]/User/Monat (Starter) enthalten ist:** Deals, Kontakte, Unternehmen, Services und Aufgaben, typisierte benutzerdefinierte Spalten, eine konfigurierbare Deal-Stufenspalte mit Wahrscheinlichkeiten, rollenbasierte Berechtigungen, Audit-Log, XLSX-Import und -Export, REST-API, [[derived.mcp.tools.total]] [MCP-Tools](/docs/mcp), [[derived.webhooks.events.total]] Webhook-Ereignisse, der [n8n-Community-Node](/blog/n8n-for-beginners-build-your-first-workflow) für ein separat betriebenes n8n, [Self-Hosting](/features/self-hosted) mit demselben Quellcode. Eine native mobile App gibt es nicht; die Web-App läuft im Browser auch auf dem Smartphone. Der einheitliche Posteingang (E-Mail, LinkedIn, WhatsApp, Instagram, Telegram), Lesezugriff auf den Kalender und Sales Navigator liegen ab Pro bei [[commercial.price.pro.monthly]]/User/Monat. Die Kern-CRM-Funktionen sind in jeder Stufe enthalten; mehr zahlen Sie für Messaging-Kapazität und ein größeres Kontingent für die gehostete KI.
 
 ### Die Open-Source-selbst-gehostete-Option (die die meisten Listen überspringen)
 
@@ -105,11 +105,11 @@ Fast jedes „günstige CRM" hat dieselbe Falle: Der Einstiegstarif fehlt eine o
 
 **HubSpot Sales Hub:** Starter (15 €) fehlt Meeting-Buchung über 1.000 Teilnehmer hinaus, Sequenzen, Custom Reporting und Forecasting. Professional (90 €/User) hat das alles. Drei Monate Adoption, dann ist der Effektivpreis 1.080 €/User/Jahr, nicht 180 €.
 
-**Pipedrive:** Lite (14 €) fehlt E-Mail-Öffnungs-Tracking, Custom Fields jenseits der Basis und E-Mail-Sync-Regeln. Growth (39 €) hat das alles. Effektivpreis ist 468 €/User/Jahr für die Stufe, die Teams tatsächlich nutzen.
+**Pipedrive:** Lite (14 €) fehlt E-Mail-Öffnungs-Tracking, Custom Fields jenseits der Basis und E-Mail-Sync-Regeln. Growth (39 €) hat das alles. Effektivpreis ist 468 €/User/Jahr für die Stufe, die Teams tatsächlich nutzen. Alle Pläne mit Rechenbeispielen: [Pipedrive Preise](/blog/pipedrive-pricing).
 
-**Zoho CRM:** Standard (14 €) fehlt Custom-Module, fortgeschrittene Workflow-Regeln, Blueprints und Territory-Management. Professional (23 €) deckt das meiste ab. Enterprise (40 €) deckt den Rest inklusive Zoho-KI ab. Die meisten Teams landen bei Professional.
+**Zoho CRM:** Standard fehlt Custom-Module, fortgeschrittene Workflow-Regeln, Blueprints und Territory-Management. Professional deckt das meiste ab. Enterprise deckt den Rest inklusive Zoho-KI ab. Die meisten Teams landen bei Professional.
 
-**Monday CRM:** Basic (12 USD, 3-Platz-Minimum) fehlt Automatisierung jenseits 250 Aktionen/Monat, Integrationen jenseits 250 Aktionen/Monat, Custom-Dashboards. Standard (17 USD) deckt Basics. Pro (28 USD) deckt alles, was die meisten Teams brauchen.
+**Monday CRM:** Basic (12 €, 3-Platz-Minimum) fehlt Automatisierung jenseits 250 Aktionen/Monat, Integrationen jenseits 250 Aktionen/Monat, Custom-Dashboards. Standard (17 €) deckt Basics. Pro (28 €) deckt alles, was die meisten Teams brauchen (pro Platz und Monat bei jährlicher Abrechnung, Stand: September 2026).
 
 Das Muster ist konsistent: Budgetieren Sie für den Zweittarif-Preis, nicht den Einstiegstarif-Preis. Wer Ihnen ein CRM zum Einstiegstarif verkauft, verkauft Ihnen implizit den zweiten Tarif.
 
@@ -119,11 +119,10 @@ Das Muster ist konsistent: Budgetieren Sie für den Zweittarif-Preis, nicht den 
 | ----------------------------- | ------------------------------------------------------- | ----------------- | ---------- | --------------------- | ---------------------------------- |
 | HubSpot Pro                   | 54.000 €                                                | 5.000 €           | 100 Std.   | hoch                  | ~70.000 €                          |
 | Salesforce Sales Cloud        | 30.000 €                                                | 10.000 €          | 300 Std.   | sehr hoch             | ~80.000 €+                         |
-| Zoho CRM Pro                  | 12.600 €                                                | 2.000 €           | 80 Std.    | mittel                | ~20.000 €                          |
 | Pipedrive Growth              | 14.040 €                                                | 3.000 € (Add-ons) | 50 Std.    | niedrig               | ~20.000 €                          |
 | HubSpot Free + Sales Starter  | 7.200 €                                                 | 1.000 €           | 60 Std.    | mittel                | ~12.000 €                          |
 | CentralStationCRM             | 6.480 €                                                 | 500 €             | 40 Std.    | niedrig               | ~8.000 €                           |
-| Customermates Cloud           | [[commercial.price.starter.monthly.seats.10.months.36]] | 500 €             | 30 Std.    | keines (eigene Daten) | Katalog-Abo + Add-ons + Admin-Zeit |
+| Customermates Cloud           | [[commercial.price.starter.monthly.seats.10.months.36]] | 500 €             | 30 Std.    | niedrig (XLSX-Export) | Katalog-Abo + Add-ons + Admin-Zeit |
 | Customermates selbst gehostet | 1.500 € (Server)                                        | 1.000 €           | 80 Std.    | keines (eigener Code) | ~4.000 €                           |
 | EspoCRM selbst gehostet       | 1.500 € (Server)                                        | 500 €             | 100 Std.   | keines (eigener Code) | ~3.500 €                           |
 
@@ -147,11 +146,11 @@ Das passende „günstige" CRM ändert sich, wenn das Team wächst. Die richtige
 
 **3 bis 5 Personen, 50 bis 200 aktive Deals:** Kostenlose Stufe von HubSpot, Bitrix24 oder Zoho. Die echten Kosten sind Ihre Betriebszeit plus das unvermeidliche Upgrade in 6 bis 12 Monaten.
 
-**5 bis 15 Personen, 200 bis 1.000 aktive Deals:** [Customermates](/) Cloud (ab [[commercial.price.starter.monthly]]/User) oder selbst gehostet (nur Serverkosten), Pipedrive Lite (14 €) oder Zoho Standard (14 €). In dieser Phase beginnt der Per-User-Preis bezahlter Tools zu zählen; selbst gehostetes Open Source beginnt mathematisch zu gewinnen.
+**5 bis 15 Personen, 200 bis 1.000 aktive Deals:** [Customermates](/) Cloud (ab [[commercial.price.starter.monthly]]/User) oder selbst gehostet (nur Serverkosten), Pipedrive Lite (14 €) oder Zoho CRM Standard (bezahlte Tarife laut Zoho-Preisseite). In dieser Phase beginnt der Per-User-Preis bezahlter Tools zu zählen; selbst gehostetes Open Source beginnt mathematisch zu gewinnen.
 
 **15 bis 50 Personen, 1.000 bis 5.000 aktive Deals:** Pipedrive Growth (39 €) oder [Customermates](/) selbst gehostet mit Managed Hosting. SaaS-Preise skalieren linear mit Nutzern, Open Source nicht. Das Argument für selbst gehostet wird hier stärker.
 
-**50+ Personen:** Salesforce oder HubSpot Pro werden tragfähig, weil Admin-Overhead amortisiert wird. Aber [Customermates](/) selbst gehostet mit kleinem Ops-Team bleibt typischerweise 5- bis 10-mal günstiger.
+**50+ Personen:** Salesforce oder HubSpot Pro werden tragfähig, weil Admin-Overhead amortisiert wird. Aber [Customermates](/) selbst gehostet mit kleinem Ops-Team bleibt bei den Lizenzkosten deutlich günstiger, weil für den Open-Source-Kern keine Lizenzgebühr anfällt.
 
 ## Günstiges CRM nach Anwendungsfall
 
@@ -165,7 +164,7 @@ Die Frage „welches CRM ist günstig" hat unterschiedliche Antworten je nach T�
 
 **Account-Management auf Bestandskunden:** Folk oder [Customermates](/) am günstigen Ende. Bigin von Zoho, wenn Sie im Zoho-Stack sind.
 
-**Service- oder Projektarbeit:** Monday CRM, Bitrix24 oder [Customermates](/) für Projekt-Pipelines konfiguriert. Reine Vertriebs-CRMs (Pipedrive, Close) passen hier nicht gut.
+**Service- oder Projektarbeit:** Monday CRM, Bitrix24 oder [Customermates](/) mit einer auf Projekte zugeschnittenen Stufenspalte. Reine Vertriebs-CRMs (Pipedrive, Close) passen hier nicht gut.
 
 ## Wann selbst gehostetes Open Source wirklich gewinnt
 
@@ -192,9 +191,9 @@ Für alle anderen kippt die Mathematik zunehmend zu Open Source.
 
 ## DSGVO-Aspekt: warum „günstig" für DACH oft Open Source bedeutet
 
-Im DACH-Raum kommt zur Kostendiskussion die DSGVO-Frage. US-gehostete CRMs (HubSpot, Pipedrive, Zoho, Salesforce, Monday) brauchen einen Auftragsverarbeitungs-Vertrag, eine Schrems-II-Analyse und tragen das Risiko bei jedem Datenschutz-Vorfall. Selbst gehostet auf einem deutschen oder EU-Server eliminiert all das.
+Im DACH-Raum kommt zur Kostendiskussion die DSGVO-Frage. Jedes SaaS-CRM braucht einen Auftragsverarbeitungsvertrag, und sobald Anbieter oder Unterauftragsverarbeiter aus den USA beteiligt sind, auch eine Prüfung der Drittlandübermittlung. Das gilt auch für die Cloud-Version von Customermates: Die Datenbank liegt in der AWS-Region Frankfurt; Hosting und weitere Unterauftragsverarbeiter, auch aus den USA, stehen in der [Liste der Unterauftragsverarbeiter](/subprocessors), ein [Auftragsverarbeitungsvertrag (AVV)](/dpa) liegt vor. Wer selbst auf einem deutschen oder EU-Server hostet, bestimmt den Speicherort vollständig selbst und reduziert die Zahl der beteiligten Dienstleister deutlich.
 
-Die DSGVO-Mehrkosten der US-CRMs (Compliance-Aufwand, mögliche Bußgeldrisiken, externe Datenschutz-Beratung) tauchen in keiner Preistabelle auf. Sie sind aber real.
+Der Datenschutz-Aufwand (Prüfung der Dienstleister, Dokumentation, externe Datenschutz-Beratung) taucht in keiner Preistabelle auf. Er ist aber real.
 
 ## Was ich tatsächlich tun würde
 
@@ -202,7 +201,7 @@ Wenn Sie ein 1- bis 3-Personen-Team sind, das bei null startet: HubSpot Free ode
 
 Wenn Sie ein 4- bis 15-Personen-Team sind, das Datenhoheit schätzt und KI-Tools nutzt: [Customermates](/) Cloud ab [[commercial.price.starter.monthly]]/User/Monat oder selbst gehostet, wenn Sie die technische Kapazität haben. Customermates selbst gehostet auf einem kleinen EU-VPS ist der günstigste glaubwürdige Weg, den ich kenne.
 
-Wenn Sie ein 4- bis 15-Personen-Team in einem reinen DACH-Kontext ohne KI-Fokus sind: Pipedrive Growth, Zoho CRM Pro oder CentralStationCRM. Alle im 12 € bis 39 €/User/Monat-Bereich, alle glaubwürdig.
+Wenn Sie ein 4- bis 15-Personen-Team in einem reinen DACH-Kontext ohne KI-Fokus sind: Pipedrive Growth, Zoho CRM Pro oder CentralStationCRM. CentralStationCRM und Pipedrive Growth liegen im Bereich 18 € bis 39 €/User/Monat, die bezahlten Zoho-Tarife stehen auf der Zoho-Preisseite; alle glaubwürdig.
 
 Wenn Sie ein 15- bis 50-Personen-Team sind: Pipedrive Growth oder [Customermates](/) selbst gehostet sind die zwei, die ich ernsthaft evaluieren würde.
 
@@ -218,7 +217,7 @@ Drei zusammengesetzte Beispiele aus Teams, mit denen ich gearbeitet habe, anonym
 
 **Die 5-Personen-Dienstleistungsfirma aus Hamburg.** Startete auf Salesforce Starter Suite, weil der Geschäftsführer dachte „Salesforce ist die sichere Standardwahl". Verbrachte 80 Stunden Admin-Zeit in den ersten 3 Monaten mit Konfiguration. Kosten: 25 € × 5 = 125 €/Monat Basis plus 4.000 € Implementierungspaket von einem Berater. Jahr-1-Total: 5.500 €. Im heutigen Vergleich kosten fünf Customermates-Cloud-Starter-Sitze [[commercial.price.starter.monthly.seats.5]] pro Monat.
 
-Das Muster: **Teams, die mit dem günstigsten zweckmäßigen CRM starten und bei Bedarf upgraden, sparen 50 bis 80 % gegenüber Teams, die mit dem „führenden" CRM starten und die Funktionen nie nutzen.** Der [Gartner Magic Quadrant](https://www.gartner.com/en/research/methodologies/magic-quadrants-research) hilft Konzernen bei der Auswahl von Konzern-Tools; für Teams unter 25 Personen ist der Magic Quadrant das falsche Bewertungsraster.
+Das Muster: **Teams, die mit dem günstigsten zweckmäßigen CRM starten und bei Bedarf upgraden, zahlen in diesen Beispielen deutlich weniger als Teams, die mit dem „führenden" CRM starten und die Funktionen nie nutzen.** Der [Gartner Magic Quadrant](https://www.gartner.com/en/research/methodologies/magic-quadrants-research) hilft Konzernen bei der Auswahl von Konzern-Tools; für Teams unter 25 Personen ist der Magic Quadrant das falsche Bewertungsraster.
 
 ## Migrationskosten: was Sie bindet
 
@@ -259,7 +258,7 @@ Pipedrive Lite, Zoho CRM Standard, OnePageCRM, Less Annoying CRM, [Customermates
 </FaqItem>
 
 <FaqItem question="Ist Open-Source-CRM wirklich günstiger?">
-Über drei Jahre ja, für Teams ab 5 Personen. Die Lizenzkosten sinken auf reine Serverkosten (20 € bis 200 €/Monat). Der Preis ist Ihre Zeit für den Betrieb. Für technisch komfortable Teams sind die Einsparungen drei- bis fünffach.
+Über drei Jahre ja, für Teams ab 5 Personen. Die Lizenzkosten sinken auf reine Serverkosten (20 € bis 200 €/Monat). Der Preis ist Ihre Zeit für den Betrieb. Für technisch komfortable Teams sind die Einsparungen bei den Lizenzkosten erheblich.
 </FaqItem>
 
 <FaqItem question="Ist Salesforce für den Mittelstand günstig?">
