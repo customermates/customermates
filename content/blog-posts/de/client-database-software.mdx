@@ -89,7 +89,7 @@ Ich schreibe diesen Vergleich nicht aus der Vogelperspektive eines Analysten, so
 | Airtable          | Custom Datenbanken                                                   | 20 € / Nutzer                                                        | Ja, eingeschränkt            | Nein            | Nein         | Über API                   | USA                                                 |
 | Notion            | Leichtgewichtig, Content-zentriert                                   | 10 € / Nutzer                                                        | Ja                           | Nein            | Nein         | Über API                   | USA                                                 |
 | Salesforce        | Enterprise-Standard                                                  | 25 € / Nutzer (Starter)                                              | Nein                         | Nein            | Nein         | Einstein (kostenpflichtig) | EU-Option                                           |
-| **Customermates** | **Open Source, KI-nativ, vereinheitlichter Posteingang, EU-Hosting** | **Ab [[commercial.price.starter.monthly]] / Nutzer / Monat (Cloud)** | **Kostenlos selbst hostbar** | **Ja (Docker)** | **AGPL-3.0** | **Nativer MCP-Server**     | **Deutschland (Cloud), eigener Server (Self-Host)** |
+| **Customermates** | **Open Source, KI-nativ, vereinheitlichter Posteingang, selbst hostbar** | **Ab [[commercial.price.starter.monthly]] / Nutzer / Monat (Cloud)** | **Selbst hostbar ohne Lizenzkosten** | **Ja (Docker)** | **AGPL-3.0** | **Nativer MCP-Server**     | **DB in Frankfurt (Cloud), eigener Server (Self-Host)** |
 
 Im Folgenden eine kurze Einordnung pro Tool.
 
@@ -113,7 +113,7 @@ Pipedrive ist ein Vertriebs-CRM mit Fokus auf einfacher, visueller Pipeline-Steu
 
 **Spezifische Funktionen.** Drag-and-drop-Pipeline-Ansicht als Kernkonzept. Smart-Docs für Angebote und Verträge. Aktivitäts-basiertes Vertriebsmodell (jeder Deal hat eine nächste Aktion). LeadBooster-Add-on für Chatbot, Webformulare und Live-Chat. Workflow-Automatisierung ab Growth-Plan.
 
-**Preisstaffel.** Nach der Umbenennung der Pipedrive-Pläne im Juli 2025: Lite 14 Euro pro Nutzer pro Monat (jährlich). Growth 39 Euro. Premium 49 Euro. Ultimate 79 Euro. Add-ons wie LeadBooster und Web Visitors kommen oben drauf. Kein Free-Tier, nur 14 Tage Test ohne Kreditkarte.
+**Preisstaffel.** Nach der Umbenennung der Pipedrive-Pläne im Juli 2025: Lite 14 Euro pro Nutzer pro Monat (jährlich). Growth 39 Euro. Premium 59 Euro. Ultimate 79 Euro (Stand September 2026). Add-ons wie LeadBooster und Web Visitors kommen oben drauf. Kein Free-Tier, nur 14 Tage Test ohne Kreditkarte.
 
 **Stärken.** Schnellstes Onboarding aller hier verglichenen Tools. Klare, vertriebszentrierte UX ohne Marketing-Overhead. Solide Mobile-App. EU-Datenresidenz (Frankfurt) verfügbar.
 
@@ -169,7 +169,7 @@ Der Marktstandard für Enterprise-CRM. Vollständige Funktionsabdeckung, riesige
 
 **Spezifische Funktionen.** Sales Cloud, Service Cloud, Marketing Cloud, Commerce Cloud als separate Produkte. Einstein AI für Forecasting, Lead Scoring und Empfehlungen. AppExchange mit Tausenden Drittanbieter-Erweiterungen. Apex und Lightning für Custom-Entwicklung. Komplexe Berechtigungen und Genehmigungs-Workflows.
 
-**Preisstaffel.** Starter Suite 25 Euro pro Nutzer pro Monat. Pro Suite 100 Euro. Enterprise 175 Euro. Unlimited 350 Euro (jährliche Abrechnung erforderlich). Realistische Mittelstandsimplementierung mit Sales Cloud Enterprise plus Service Cloud plus Add-ons landet schnell bei 1.250 bis 5.000 Euro pro Monat für 10 bis 25 Nutzer. Implementierungspartner nicht eingerechnet.
+**Preisstaffel** (laut Salesforce-Preisseite, Stand September 2026, in US-Dollar). Starter Suite 25 Dollar pro Nutzer pro Monat. Pro Suite 100 Dollar. Core 195 Dollar. Advanced 395 Dollar. Max 550 Dollar (oberhalb von Starter jährliche Abrechnung). Realistische Mittelstandsimplementierung mit Sales Cloud Core plus Service Cloud plus Add-ons landet schnell bei 1.250 bis 5.000 Euro pro Monat für 10 bis 25 Nutzer. Implementierungspartner nicht eingerechnet.
 
 **Stärken.** Funktionsabdeckung ohne Konkurrenz. Größtes Integrations-Ökosystem. Beste Wahl für komplexe Enterprise-Anforderungen.
 
@@ -183,13 +183,13 @@ Customermates ist ein Open-Source-CRM und damit zugleich Kundendatenbank, gebaut
 
 **Spezifische Funktionen.** Eingebauter MCP-Server mit [[derived.mcp.tools.total]] Tools für direkten Zugriff durch Claude, Codex oder ChatGPT. Der Agent legt Kontakte an, schreibt Notizen, aktualisiert Deals und liest oder sendet Nachrichten im vereinheitlichten Posteingang, ohne dass Sie ins CRM einloggen. Nativer vereinheitlichter Posteingang für E-Mail, LinkedIn, WhatsApp, Instagram und Telegram ab der Pro-Stufe. n8n-Community-Node für visuelle Workflow-Automatisierung. [[derived.webhooks.events.total]] Webhook-Events ab dem Einstiegstarif. Zehn typisierte Custom-Field-Typen (Text, E-Mail, Telefon, Link, Datum, Datumsbereich, Datum und Uhrzeit, Datum-und-Uhrzeit-Bereich, Währung, Single-Select). Self-Hosting via `docker compose up -d` in 30 Minuten produktiv.
 
-**Preisstaffel.** Self-Hosting kostenlos unter AGPL-3.0 via Docker Compose, eigene Infrastruktur. Cloud ab [[commercial.price.starter.monthly]] pro Nutzer pro Monat (Starter-Stufe), in der EU-Region gehostet. Keine Add-on-Aufschläge für Webhooks, API oder MCP, alles im Basistarif (der vereinheitlichte Posteingang startet in der Pro-Stufe für [[commercial.price.pro.monthly]]).
+**Preisstaffel.** Self-Hosting ohne Lizenzkosten unter AGPL-3.0 via Docker Compose, eigene Infrastruktur, Starter-Funktionsumfang. Cloud ab [[commercial.price.starter.monthly]] pro Nutzer pro Monat (Starter-Stufe), mit der Datenbank in der AWS-Region Frankfurt. Keine Add-on-Aufschläge für Webhooks, API oder MCP, alles im Basistarif (der vereinheitlichte Posteingang startet in der Pro-Stufe für [[commercial.price.pro.monthly]]).
 
-**Stärken.** Native KI-Agent-Steuerung über MCP, die keines der anderen sechs Tools bietet. Ein nativer vereinheitlichter Posteingang, den dieselben Agenten bedienen. Vollständige Datenhoheit durch Self-Hosting. Transparentes Pricing ohne Mindestbestellmengen oder Onboarding-Gebühren. EU-Hosting (Deutschland) als Standard, nicht als Premium-Option.
+**Stärken.** Native KI-Agent-Steuerung über MCP, die keines der anderen sechs Tools bietet. Ein nativer vereinheitlichter Posteingang, den dieselben Agenten bedienen. Vollständige Datenhoheit durch Self-Hosting. Transparentes Pricing ohne Mindestbestellmengen oder Onboarding-Gebühren. In der Cloud-Version liegt die Datenbank in der AWS-Region Frankfurt; Hosting und weitere Unterauftragsverarbeiter, auch aus den USA, stehen in der [Liste der Unterauftragsverarbeiter](/subprocessors), ein [AVV](/dpa) liegt vor.
 
 **Schwächen.** Kleines Team (Solo-Founder), jüngeres Ökosystem als HubSpot oder Salesforce. Keine native Marketing-Automation oder Service-Hub-Funktionen. Integrationen über n8n und API, nicht über einen App Marketplace.
 
-**Geeignet für:** technisch affine Solo-Founder, kleine Teams, datenschutzbewusste Mittelständler und alle, die Claude, ChatGPT oder Codex bereits nutzen und das CRM von der KI bedienen lassen wollen. In Deutschland besonders relevant für Branchen mit hohen DSGVO-Anforderungen wie Beratung, Kanzleien, Gesundheitsdienstleister und Bildungsträger.
+**Geeignet für:** technisch affine Solo-Founder, kleine Teams, datenschutzbewusste Mittelständler und alle, die Claude, ChatGPT oder Codex bereits nutzen und das CRM von der KI bedienen lassen wollen. In Deutschland besonders als selbst gehostete Variante relevant für Branchen mit hohen Datenschutzanforderungen wie Beratung, Kanzleien, Gesundheitsdienstleister und Bildungsträger.
 
 ## Was kosten Free-Tarife wirklich?
 
@@ -199,7 +199,7 @@ Customermates ist ein Open-Source-CRM und damit zugleich Kundendatenbank, gebaut
 
 **Pipedrive ohne Free-Tier.** Pipedrive ist ehrlich: kein Free-Tier, nur 14 Tage Test ohne Kreditkarte. Das vermeidet die Free-zu-Paid-Falle, kostet aber ab Tag 15 mindestens 14 Euro pro Nutzer pro Monat. Bei 5 Nutzern sind das 840 Euro pro Jahr im günstigsten Tarif.
 
-**Salesforce-Skalierungsspirale.** Salesforce startet bei 25 Euro pro Nutzer im Starter-Plan, aber der echte Mittelstandsstandard ist Sales Cloud Enterprise (175 Euro) oder Unlimited (350 Euro). Hinzu kommen Service Cloud, Marketing Cloud, AppExchange-Add-ons und ein Implementierungspartner. Eine 25-Personen-Organisation landet realistisch bei 4.000 bis 10.000 Euro pro Monat plus einmaligen Implementierungskosten von 30.000 bis 150.000 Euro.
+**Salesforce-Skalierungsspirale.** Salesforce startet bei 25 Euro pro Nutzer im Starter-Plan, aber der echte Mittelstandsstandard ist Pro Suite (100 Dollar) oder Core (195 Dollar), laut Salesforce-Preisseite im September 2026. Hinzu kommen Service Cloud, Marketing Cloud, AppExchange-Add-ons und ein Implementierungspartner. Eine 25-Personen-Organisation landet realistisch bei 4.000 bis 10.000 Euro pro Monat plus einmaligen Implementierungskosten von 30.000 bis 150.000 Euro.
 
 **Versteckte Kosten.** Integrationen kosten oft separat (HubSpot Operations Hub für Datenanbindung). Storage-Limits zwingen zu Upgrades, bevor Nutzer-Limits greifen. API-Limits machen ernsthafte Automatisierung in unteren Tarifen unmöglich. Premium-Support ab Enterprise-Tarifen, in unteren Tarifen nur Self-Service.
 
@@ -211,7 +211,7 @@ Customermates ist ein Open-Source-CRM und damit zugleich Kundendatenbank, gebaut
 
 Wer Open Source als Auswahlkriterium ernst nimmt, hat vier produktionsreife Optionen am Markt. Hier die ehrliche Einordnung.
 
-**Customermates (AGPL-3.0).** Mein eigenes Projekt, Solo-Founder-Build aus Deutschland. Fünf Entitäten, zehn typisierte Custom-Field-Typen, zwei Ansichten, ein nativer vereinheitlichter Posteingang (E-Mail, LinkedIn, WhatsApp, Instagram, Telegram) ab der Pro-Stufe und eine REST-API mit [[derived.mcp.tools.total]] MCP-Tools für native KI-Agent-Bedienung. Self-Hosting in 30 Minuten via Docker, Cloud ab [[commercial.price.starter.monthly]] pro Nutzer pro Monat (Starter). Verwaltete Datenbank in einer EU-Region; beim Self-Hosting wählen Sie den Standort selbst. Wann wählen: wenn Sie KI-Agenten (Claude, Codex, ChatGPT) bereits nutzen und das CRM von der KI bedient werden soll, wenn DSGVO und Datenhoheit harte Kriterien sind, wenn Sie ein modernes, schlankes CRM ohne Marketing-Ballast suchen.
+**Customermates (AGPL-3.0).** Mein eigenes Projekt, Solo-Founder-Build aus Deutschland. Fünf Entitäten, zehn typisierte Custom-Field-Typen, Tabellen- und Kanban-Ansicht, ein nativer vereinheitlichter Posteingang (E-Mail, LinkedIn, WhatsApp, Instagram, Telegram) ab der Pro-Stufe und eine REST-API mit [[derived.mcp.tools.total]] MCP-Tools für native KI-Agent-Bedienung. Self-Hosting in 30 Minuten via Docker, Cloud ab [[commercial.price.starter.monthly]] pro Nutzer pro Monat (Starter). Verwaltete Datenbank in der AWS-Region Frankfurt, Hosting und weitere Unterauftragsverarbeiter offengelegt; beim Self-Hosting wählen Sie den Standort selbst. Wann wählen: wenn Sie KI-Agenten (Claude, Codex, ChatGPT) bereits nutzen und das CRM von der KI bedient werden soll, wenn DSGVO und Datenhoheit harte Kriterien sind, wenn Sie ein modernes, schlankes CRM ohne Marketing-Ballast suchen.
 
 **EspoCRM (GPL-3.0).** Reifes Projekt, gestartet 2014, breite Funktionsabdeckung mit Lead-Management, Vertriebsautomatisierung, E-Mail-Marketing, Kalender, Telefonie-Integration. Plugin-Ökosystem mit über 100 Erweiterungen. Self-Hosting auf eigenem Server, Cloud-Variante ebenfalls verfügbar. Wann wählen: wenn Sie ein vollständiges, klassisches CRM mit Marketing- und Vertriebsfunktionen suchen und Open Source für Auditierbarkeit oder Anpassbarkeit brauchen.
 
@@ -245,17 +245,17 @@ Für Banken, Versicherungen, Gesundheitswesen, öffentlichen Sektor und auditpfl
 Vier Schritte, die in fast jedem Migrationsprojekt vorkommen:
 
 1. **Datenbereinigung im Excel**: Duplikate entfernen, Telefonnummern normalisieren, Pflichtfelder identifizieren. Diese Vorarbeit halbiert den Aufwand der Migration selbst.
-2. **CSV-Export aus Excel** mit allen relevanten Spalten.
-3. **Import in die neue Software**: alle modernen Tools haben CSV-Import. Mapping zwischen Excel-Spalten und Datenbankfeldern braucht meist eine Iteration.
-4. **Custom Fields nachpflegen**: Felder, die im Excel als Spalten existierten, aber nicht zum Standardschema passen, werden als Custom Fields nachgebaut. Bei Customermates über die zehn typisierten Custom-Field-Typen.
+2. **Export aus Excel** mit allen relevanten Spalten, als CSV oder XLSX je nach Zielsystem.
+3. **Import in die neue Software**: die meisten Tools haben einen CSV-Import; Customermates importiert stattdessen XLSX-Dateien (Excel-Arbeitsmappe), einen Datensatztyp pro Import. Mapping zwischen Excel-Spalten und Datenbankfeldern braucht meist eine Iteration.
+4. **Custom Fields nachpflegen**: Felder, die im Excel als Spalten existierten, aber nicht zum Standardschema passen, werden als Custom Fields nachgebaut. Bei Customermates über die zehn typisierten Custom-Field-Typen, die Sie vor dem Import anlegen.
 
-Bei Datenbeständen über 5.000 Kontakten lohnt sich ein KI-Agent für die Migration. Mit Customermates und Claude über MCP läuft das Setup so: Claude liest die Excel-Datei, identifiziert Felder, schlägt das Mapping vor, prüft Duplikate, importiert in Customermates und logt jede Anomalie. Was klassisch zwei Beratungstage waren, läuft an einem Vormittag.
+Bei Datenbeständen über 5.000 Kontakten lohnt sich ein KI-Agent für die Migration. Mit Customermates und Claude über MCP läuft das Setup so: Claude liest die Excel-Datei, identifiziert Felder, schlägt das Mapping vor, prüft Duplikate, legt die Datensätze in Customermates an und meldet jede Anomalie. Das spart vor allem bei unordentlichen Daten viel Handarbeit.
 
 ### Schritt-für-Schritt-Migration in der Praxis
 
 **Werkzeuge für die Datenbereinigung.** OpenRefine ist das beste Open-Source-Tool für strukturierte Datenbereinigung: Cluster-Funktionen finden ähnliche Schreibweisen ("GmbH" vs "Gmbh" vs "G.m.b.H."), Facetten zeigen Verteilungen, Reconciliation-APIs reichern Daten an. In Excel oder Google Sheets reichen oft regex-basierte Funktionen wie `=REGEXEXTRACT()` und `=SUBSTITUTE()` für Telefonnummern und E-Mail-Normalisierung. KI-gestützt: Claude oder ChatGPT auf einen 50-Zeilen-Auszug der Daten loslassen, Bereinigungsregeln vorschlagen lassen, dann auf den Vollbestand anwenden.
 
-**CSV-Mapping-Strategien.** Firmennamen sind das schwierigste Feld: "Müller GmbH" und "Mueller GmbH & Co. KG" sind oft dieselbe Entität, aber String-Match findet das nicht. Fuzzy-Matching mit Levenshtein-Distanz oder Token-Sort-Ratio (über Python `rapidfuzz` oder online-Tools) erkennt bis zu 90 Prozent solcher Duplikate. Telefonnummern auf E.164-Format normalisieren (+49 30 12345678), nicht auf nationale Formate. E-Mail-Adressen kleinschreiben und auf gültige Domains prüfen.
+**CSV-Mapping-Strategien.** Firmennamen sind das schwierigste Feld: "Müller GmbH" und "Mueller GmbH & Co. KG" sind oft dieselbe Entität, aber String-Match findet das nicht. Fuzzy-Matching mit Levenshtein-Distanz oder Token-Sort-Ratio (über Python `rapidfuzz` oder online-Tools) erkennt viele solcher Duplikate. Telefonnummern auf E.164-Format normalisieren (+49 30 12345678), nicht auf nationale Formate. E-Mail-Adressen kleinschreiben und auf gültige Domains prüfen.
 
 **Custom Fields umwandeln.** Spalten in der Excel-Datei, die nicht zum Standardschema gehören, werden zu Custom Fields. Vor dem Import festlegen: welche Felder typisiert (Datum, Währung, Single-Select), welche als reiner Text. Single-Select-Felder erfordern eine vorab definierte Liste von Optionen, also vorher die Excel-Spalte distinkt sortieren und prüfen, ob die Werte konsistent sind.
 
@@ -275,7 +275,7 @@ Mein Empfehlungs-Schema:
 - **Sie haben ein ungewöhnliches Datenmodell**: Airtable.
 - **Sie sind solo und arbeiten ohnehin in Notion**: Notion als Kundendatenbank.
 - **Sie brauchen Enterprise-Funktionen und sind über 50 Nutzer**: Salesforce.
-- **Sie wollen Open Source, EU-Hosting und KI-Agent-Steuerung**: Customermates.
+- **Sie wollen Open Source, Self-Hosting-Option und KI-Agent-Steuerung**: Customermates.
 
 Probieren Sie zwei oder drei Optionen vier Wochen lang mit echten Daten. Lizenzkosten sind oft das kleinste Problem. Adoption, Datenpflege und Migrierbarkeit entscheiden mittelfristig.
 
@@ -291,7 +291,7 @@ Bis etwa 50 bis 100 aktive Kontakte funktioniert Excel. Darüber wird die Pflege
 </FaqItem>
 
 <FaqItem question="Welche Kundendatenbank-Software ist DSGVO-konform?">
-Alle ernsthaften Anbieter bieten DSGVO-konforme Auftragsverarbeitungsverträge. Die Frage ist eher: wo werden die Daten gehostet, und wer hat darauf Zugriff. EU-Datenresidenz bei HubSpot, Salesforce und Pipedrive optional verfügbar. Vollständige Datenhoheit ohne Drittlandstransfers nur bei Self-Hosting (Customermates, EspoCRM, SuiteCRM).
+Alle ernsthaften Anbieter bieten DSGVO-konforme Auftragsverarbeitungsverträge. Die Frage ist eher: wo werden die Daten gehostet, und wer hat darauf Zugriff. EU-Datenresidenz bei HubSpot, Salesforce und Pipedrive optional verfügbar. Vollständige Datenhoheit ohne Drittlandstransfers nur bei Self-Hosting (Customermates, EspoCRM, SuiteCRM). In der Cloud-Version von Customermates liegt die Datenbank in Frankfurt; Unterauftragsverarbeiter, auch aus den USA, sind offengelegt, ein AVV liegt vor, eine Zertifizierung gibt es nicht.
 </FaqItem>
 
 <FaqItem question="Kann ich eine Kundendatenbank selbst hosten?">
@@ -303,11 +303,11 @@ Für deutsche Mittelständler unter 20 Nutzern empfehle ich HubSpot CRM Free (we
 </FaqItem>
 
 <FaqItem question="Wie übertrage ich meine Kundendaten von Excel in eine richtige Kundendatenbank?">
-Der Weg hängt vom Zielsystem ab. Bereinigen und normalisieren Sie zunächst die Quelldaten. Systeme mit einem CSV-Importer können anschließend eine Feldzuordnung anbieten. Customermates hat keinen CSV-Importer; legen Sie unterstützte Datensätze über die REST API oder einen autorisierten KI-Agenten per MCP an. Dauer und Aufwand hängen von Datenqualität, Mapping, Volumen und dem verwendeten Client ab.
+Der Weg hängt vom Zielsystem ab. Bereinigen und normalisieren Sie zunächst die Quelldaten. Systeme mit einem CSV-Importer können anschließend eine Feldzuordnung anbieten. Customermates importiert XLSX-Dateien (Excel-Arbeitsmappe), einen Datensatztyp pro Import; einen CSV-Import gibt es nicht. Größere oder verknüpfte Bestände legen Sie alternativ über die REST API oder einen autorisierten KI-Agenten per MCP an. Dauer und Aufwand hängen von Datenqualität, Mapping, Volumen und dem verwendeten Client ab.
 </FaqItem>
 
 <FaqItem question="Welche Kundendatenbank-Software hat das beste Free-Tier?">
-HubSpot CRM Free ist das großzügigste Free-Tier am Markt: bis zu 1 Million Kontakte, fünf Pipelines, einfaches E-Mail-Tracking, keine Zeitbegrenzung. Customermates Community Edition ist unter AGPL-3.0 vollständig kostenlos selbst hostbar, ohne Funktions-Paywall, und damit das technisch flexibelste „Free-Tier" überhaupt. Notion Free funktioniert für Solo-Nutzer mit kleinen Datenbeständen. Die wichtigere Frage ist meist nicht das Free-Tier, sondern wie schnell und teuer der Upgrade-Pfad ist, wenn Sie aus dem Free-Tier herauswachsen.
+HubSpot CRM Free ist das großzügigste Free-Tier am Markt: bis zu 1 Million Kontakte, fünf Pipelines, einfaches E-Mail-Tracking, keine Zeitbegrenzung. Der Open-Source-Kern von Customermates ist unter AGPL-3.0 ohne Lizenzkosten selbst hostbar, mit dem Starter-Funktionsumfang (ohne Posteingang und ohne den gehosteten Assistenten Mate), und damit ein technisch sehr flexibles „Free-Tier". Notion Free funktioniert für Solo-Nutzer mit kleinen Datenbeständen. Die wichtigere Frage ist meist nicht das Free-Tier, sondern wie schnell und teuer der Upgrade-Pfad ist, wenn Sie aus dem Free-Tier herauswachsen.
 </FaqItem>
 
 <FaqItem question="Kann ich mehrere CRMs parallel betreiben?">
@@ -315,6 +315,6 @@ Technisch ja, praktisch selten sinnvoll. Zwei CRMs parallel führen fast immer z
 </FaqItem>
 
 <FaqItem question="Wie lange dauert die Migration einer Datenbank mit 10.000 Kontakten?">
-Einen bereinigten OpenRefine-Export von Hand zu laden, Aufruf für Aufruf, dauert etwa 1,5 bis 2 Arbeitstage: ein halber Tag Bereinigung, ein halber Tag Mapping und Test-Import, ein halber Tag Vollimport und Verifikation. Mit einem KI-Agenten wie Claude über den Customermates MCP-Server reduziert sich das auf einen Vormittag, weil Claude die Bereinigung, das Mapping, den Import und die Anomalie-Erkennung parallel ausführt. Beratungsdienstleister kalkulieren typisch 2 bis 3 Tage à 1.200 bis 1.500 Euro, ein KI-Agent-Setup kostet die Cloud-Lizenz und ein paar Stunden Ihrer Zeit.
+Einen bereinigten OpenRefine-Export von Hand zu laden, Aufruf für Aufruf, dauert etwa 1,5 bis 2 Arbeitstage: ein halber Tag Bereinigung, ein halber Tag Mapping und Test-Import, ein halber Tag Vollimport und Verifikation. Mit einem KI-Agenten wie Claude über den Customermates MCP-Server lässt sich das deutlich verkürzen, weil Claude Bereinigung, Mapping, Anlage und Anomalie-Erkennung übernimmt; Sie prüfen die Ergebnisse. Beratungsdienstleister kalkulieren typisch 2 bis 3 Tage à 1.200 bis 1.500 Euro, ein KI-Agent-Setup kostet die Cloud-Lizenz und ein paar Stunden Ihrer Zeit.
 </FaqItem>
 </Faq>

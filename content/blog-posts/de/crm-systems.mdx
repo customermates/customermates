@@ -143,7 +143,7 @@ Salesforce ist der weltweite Marktführer unter den CRM Systemen. Die Plattform 
 
 **Schwächen:**
 
-- Hohe Kosten, besonders mit Add-ons (25 bis über 300 Euro pro Nutzer/Monat)
+- Hohe Kosten, besonders mit Add-ons (25 bis 550 US-Dollar pro Nutzer/Monat, Stand September 2026)
 - Steile Lernkurve, oft Berater nötig
 - Datenhosting primär in den USA
 - Komplexe Preisstruktur mit versteckten Kosten
@@ -239,7 +239,7 @@ CAS genesisWorld ist ein CRM-System des deutschen Anbieters CAS Software. Die L�
 - Deutscher Anbieter mit Rechenzentren in Deutschland
 - Starke Funktionen für Kontakt- und Beziehungsmanagement
 - Gute Integration mit Microsoft-Produkten
-- DSGVO-konform ohne Zusatzaufwand
+- Auf Anforderungen des deutschen Datenschutzes ausgerichtet
 
 **Schwächen:**
 
@@ -258,10 +258,10 @@ Customermates ist ein Open-Source-CRM-System, das von Grund auf für den europä
 - KI-Agenten (Claude, ChatGPT, Gemini) bedienen das CRM über [[derived.mcp.tools.total]] MCP-Tools, sodass die Dateneingabe von selbst passiert
 - Nativer Sammelposteingang für E-Mail, LinkedIn, WhatsApp, Instagram und Telegram, bedienbar durch dieselben Agenten (ab der Pro-Stufe)
 - Open Source mit vollem Quellcode-Zugang
-- Verwaltete Anwendungsdatenbank in einer EU-Region, offengelegte Cloud-Unterauftragsverarbeiter und Transfergarantien
+- Cloud-Datenbank in der AWS-Region Frankfurt, AVV verfügbar, Unterauftragsverarbeiter (auch aus den USA) offengelegt
 - Self-Hosting-Option für volle Datenkontrolle
 - Transparente Stufen ab [[commercial.price.starter.monthly]] pro Nutzer und Monat, das volle Kern-CRM in jeder Stufe
-- [n8n-Integration](/n8n-crm) für flexible Workflow-Automatisierung
+- REST API, Webhooks und ein [n8n-Community-Node](/n8n-crm) für eine separat betriebene n8n-Instanz
 
 **Schwächen:**
 
@@ -277,29 +277,29 @@ Welches CRM-System bietet welche Funktionen? Die folgende Tabelle zeigt die wich
 | Kontaktverwaltung                                                   | ✅            | ✅                     | ✅            | ✅               | ✅            | ✅            | ✅                       |
 | Pipeline-Management                                                 | ✅            | ✅                     | ✅            | ✅               | ✅            | ✅            | ✅                       |
 | E-Mail-Integration                                                  | ✅            | ✅                     | ✅            | ✅               | ✅            | ✅            | ✅                       |
-| Nativer Sammelposteingang (LinkedIn, WhatsApp, Instagram, Telegram) | Eingeschränkt | Eingeschränkt          | Eingeschränkt | ❌               | Eingeschränkt | ❌            | ✅                       |
-| Marketing-Automatisierung                                           | ✅            | ✅                     | ✅            | Eingeschränkt    | ✅            | Eingeschränkt | Über n8n                 |
+| Nativer Sammelposteingang (LinkedIn, WhatsApp, Instagram, Telegram) | Eingeschränkt | Eingeschränkt          | Eingeschränkt | ❌               | Eingeschränkt | ❌            | ✅ (Cloud, ab Pro)       |
+| Marketing-Automatisierung                                           | ✅            | ✅                     | ✅            | Eingeschränkt    | ✅            | Eingeschränkt | ❌ (extern über n8n)     |
 | KI-Funktionen                                                       | ✅ (Einstein) | ✅ (Breeze)            | ✅            | ✅               | ✅ (Zia)      | Eingeschränkt | ✅ (Mate und MCP)        |
 | Workflow-Automatisierung                                            | ✅            | ✅ (ab Pro)            | ✅            | ✅ (ab Growth)   | ✅            | ✅            | Über n8n (separat)       |
 | Benutzerdefinierte Felder                                           | ✅            | ✅ (limitiert in Free) | ✅            | ✅               | ✅            | ✅            | ✅                       |
 | API-Zugang                                                          | ✅            | ✅                     | ✅            | ✅               | ✅            | Eingeschränkt | ✅                       |
 | Self-Hosting                                                        | ❌            | ❌                     | ❌            | ❌               | ❌            | Auf Anfrage   | ✅                       |
 | Open Source                                                         | ❌            | ❌                     | ❌            | ❌               | ❌            | ❌            | ✅                       |
-| DSGVO / EU-Hosting                                                  | Teilweise     | Teilweise              | ✅            | Teilweise        | Teilweise     | ✅            | ✅                       |
+| Datenstandort                                                       | Teilweise EU  | Teilweise EU           | ✅            | Teilweise EU     | Teilweise EU  | ✅            | Cloud-DB Frankfurt, selbst hostbar |
 
 ## CRM Systeme im Preisvergleich
 
-Die Kosten sind häufig das entscheidende Kriterium bei der Auswahl eines CRM-Systems. Hier ein Überblick über Listenpreise pro Nutzer und Monat. Die Pipedrive-Werte sind die Preise bei jährlicher Abrechnung, Stand September 2026; prüfen Sie bei jedem Anbieter Edition, Abrechnungsintervall und Steuer, bevor Sie vergleichen:
+Die Kosten sind häufig das entscheidende Kriterium bei der Auswahl eines CRM-Systems. Hier ein Überblick über Listenpreise pro Nutzer und Monat. Die Pipedrive-Werte sind die Preise bei jährlicher Abrechnung, die Salesforce-Werte sind US-Dollar, jeweils Stand September 2026; prüfen Sie bei jedem Anbieter Edition, Abrechnungsintervall und Steuer, bevor Sie vergleichen:
 
 | CRM-System       | Einstieg                             | Mittel                           | Enterprise                             | Kostenlose Version   |
 | ---------------- | ------------------------------------ | -------------------------------- | -------------------------------------- | -------------------- |
-| Salesforce       | 25 €                                 | 100 €                            | 300+ €                                 | ❌                   |
+| Salesforce       | 25 $                                 | 100 $                            | 195 bis 550 $                          | ❌                   |
 | HubSpot          | 0 € (Basis)                          | 90 €                             | 150+ €                                 | ✅ (eingeschränkt)   |
 | SAP Sales Cloud  | Auf Anfrage                          | Auf Anfrage                      | Auf Anfrage                            | ❌                   |
 | Pipedrive        | 14 €                                 | 39 €                             | 79 €                                   | ❌ (14 Tage Test)    |
 | Zoho CRM         | 14 €                                 | 23 €                             | 52 €                                   | ✅ (3 Nutzer)        |
 | CAS genesisWorld | Auf Anfrage                          | Auf Anfrage                      | Auf Anfrage                            | ❌                   |
-| Customermates    | [[commercial.price.starter.monthly]] | [[commercial.price.pro.monthly]] | [[commercial.price.business.monthly]]+ | ✅ (selbst gehostet) |
+| Customermates    | [[commercial.price.starter.monthly]] | [[commercial.price.pro.monthly]] | [[commercial.price.business.monthly]]+ | Self-Hosting ohne Lizenzkosten |
 
 ### Was kostet ein CRM-System?
 
@@ -404,7 +404,7 @@ Bei Self-Hosting installieren Sie das CRM-System auf Ihrer eigenen Infrastruktur
 
 **Nachteile:** Eigener IT-Aufwand für Wartung und Updates, initiale Einrichtung aufwändiger.
 
-**Customermates bietet beides:** Sie können die Cloud-Version mit EU-Hosting nutzen oder das System dank Open Source auf Ihrer eigenen Infrastruktur betreiben. So bleiben Sie flexibel.
+**Customermates bietet beides:** Sie können die Cloud-Version mit Datenbank in der AWS-Region Frankfurt nutzen oder das System dank Open Source auf Ihrer eigenen Infrastruktur betreiben. So bleiben Sie flexibel.
 
 ## Datenschutz und DSGVO bei CRM Systemen
 
@@ -412,7 +412,7 @@ Für europäische Unternehmen ist Datenschutz kein optionales Feature, sondern e
 
 ### Datenstandort
 
-Wo werden Ihre Kundendaten physisch gespeichert? CRM Systeme amerikanischer Anbieter hosten Daten häufig in den USA. Seit dem Schrems-II-Urteil ist die rechtliche Grundlage für Datentransfers in die USA unsicher. EU-Hosting eliminiert dieses Risiko.
+Wo werden Ihre Kundendaten physisch gespeichert? CRM Systeme amerikanischer Anbieter hosten Daten häufig in den USA. Seit dem Schrems-II-Urteil (2020) und dem EU-US Data Privacy Framework (2023) ist die Rechtslage für Datentransfers in die USA im Fluss. Ein Speicherort in der EU verringert das Risiko, beseitigt es aber nicht, solange US-Unterauftragsverarbeiter beteiligt sind.
 
 ### Auftragsverarbeitung
 
@@ -426,7 +426,7 @@ Kann das CRM-System Löschanfragen und Auskunftsersuchen gemäß DSGVO effizient
 
 Wer kann auf welche Kundendaten zugreifen? Rollenbasierte Zugriffskontrollen und Audit-Logs sind Pflicht, um die DSGVO-Anforderungen zu erfüllen.
 
-**So handhabt es Customermates:** Die verwaltete Anwendungsdatenbank läuft in einer EU-Region, AVV und die Liste der Cloud-Unterauftragsverarbeiter mit ihren Transfergarantien sind veröffentlicht, Rollen und Berechtigungen steuern, wer was sieht, und Änderungen an CRM-Datensätzen landen im Audit-Log. Wenn Sie den gesamten Stack selbst kontrollieren müssen, können Sie die Open-Source-Edition selbst hosten.
+**So handhabt es Customermates:** In der Cloud-Version liegt die Datenbank in der AWS-Region Frankfurt. Hosting und weitere Unterauftragsverarbeiter, auch aus den USA, stehen in der [Liste der Unterauftragsverarbeiter](/subprocessors), ein [AVV](/dpa) liegt vor. Rollen und Berechtigungen steuern, wer was sieht, und Änderungen an CRM-Datensätzen landen im Audit-Log. Wenn Sie den gesamten Stack selbst kontrollieren müssen, können Sie die Open-Source-Edition selbst hosten.
 
 ## Worauf Sie bei der Auswahl eines CRM-Systems achten sollten
 
@@ -488,7 +488,7 @@ Zu den bekanntesten CRM Systemen gehören Salesforce, HubSpot, SAP Sales Cloud, 
 </FaqItem>
 
 <FaqItem question="Was kostet ein CRM-System?">
-Die Kosten variieren stark: von kostenlos (eingeschränkte Basisversionen) über [[commercial.price.starter.monthly]] pro Nutzer/Monat (Customermates) bis hin zu mehreren hundert Euro pro Nutzer/Monat (Salesforce Enterprise). Hinzu kommen oft Kosten für Einführung, Schulung und Anpassung.
+Die Kosten variieren stark: von kostenlos (eingeschränkte Basisversionen) über [[commercial.price.starter.monthly]] pro Nutzer/Monat (Customermates) bis hin zu mehreren hundert US-Dollar pro Nutzer/Monat (Salesforce Max, 550 $, Stand September 2026). Hinzu kommen oft Kosten für Einführung, Schulung und Anpassung.
 </FaqItem>
 
 <FaqItem question="Welche Arten von CRM-Systemen gibt es?">
@@ -508,7 +508,7 @@ Sobald Sie mehr als eine Handvoll Kunden haben und mehrere Personen im Vertrieb 
 </FaqItem>
 
 <FaqItem question="Was ist besser: Cloud-CRM oder Self-Hosting?">
-Das hängt von Ihren Prioritäten ab. Cloud-CRM ist schneller einsatzbereit und erfordert keinen IT-Aufwand. Self-Hosting bietet maximale Datenkontrolle und DSGVO-Sicherheit. Customermates bietet beide Optionen, sodass Sie flexibel bleiben.
+Das hängt von Ihren Prioritäten ab. Cloud-CRM ist schneller einsatzbereit und erfordert keinen IT-Aufwand. Self-Hosting bietet maximale Kontrolle darüber, wo Ihre Daten liegen. Customermates bietet beide Optionen, sodass Sie flexibel bleiben.
 </FaqItem>
 </Faq>
 
@@ -522,6 +522,6 @@ Es gibt kein universell bestes CRM-System. Die richtige Wahl hängt von Ihren An
 
 **Für vertriebsfokussierte Teams** ist Pipedrive eine schlanke, intuitive Wahl.
 
-**Für europäische Unternehmen, die Wert auf Datenschutz, Transparenz und faire Preise legen**, verdient Customermates einen Platz auf Ihrer Shortlist: Open Source, mit EU-Datenbankregion in der Cloud oder selbst gehostet und ab [[commercial.price.starter.monthly]] pro Nutzer und Monat mit dem vollen Kern-CRM, ohne versteckte Kosten.
+**Für europäische Unternehmen, die Wert auf Datenschutz, Transparenz und faire Preise legen**, verdient Customermates einen Platz auf Ihrer Shortlist: Open Source, in der Cloud mit Datenbank in Frankfurt oder selbst gehostet und ab [[commercial.price.starter.monthly]] pro Nutzer und Monat mit dem vollen Kern-CRM, ohne versteckte Kosten.
 
 [Jetzt [[commercial.trial.days]] Tage kostenlos testen](/auth/signup) oder [Preise vergleichen](/pricing).

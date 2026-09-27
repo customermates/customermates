@@ -24,7 +24,7 @@ Ihre CRM-Datenbank ist die Grundlage jeder Kundeninteraktion. Dieser Leitfaden z
 
 Jedes [CRM-System](/blog/crm-systems) basiert auf einer Datenbank. Diese Datenbank enthält sämtliche Informationen über Ihre Kunden, Interessenten, Deals und Interaktionen. Wenn die Datenbank gut strukturiert und sauber ist, arbeiten Ihre Vertriebs- und Marketingteams souverän. Wenn sie unordentlich, veraltet oder unvollständig ist, leidet alles nachgelagert: E-Mails gehen an die falschen Personen, Berichte zeigen falsche Zahlen und Vertriebsmitarbeiter verschwenden Zeit mit toten Leads.
 
-Laut [Gartner](https://www.gartner.com/en/information-technology/glossary/customer-relationship-management-crm) ist CRM der weltweit größte Markt für Unternehmenssoftware mit einem prognostizierten Volumen von über 80 Milliarden Dollar bis 2027. Dennoch scheitern viele Unternehmen nicht an der Auswahl eines CRM, sondern am Aufbau und der Pflege der zugrundeliegenden Datenbank. Dieser Leitfaden zeigt, wie Sie diesen Teil richtig angehen.
+Laut [Gartner](https://www.gartner.com/en/information-technology/glossary/customer-relationship-management-crm) zählt CRM zu den größten Märkten für Unternehmenssoftware. Dennoch scheitern viele Unternehmen nicht an der Auswahl eines CRM, sondern am Aufbau und der Pflege der zugrundeliegenden Datenbank. Dieser Leitfaden zeigt, wie Sie diesen Teil richtig angehen.
 
 ## Was ist eine CRM-Datenbank?
 
@@ -142,13 +142,13 @@ Einige Unternehmen erwägen, eine Kundendatenbank von Grund auf mit Tools wie My
 | Zeit bis zur Produktivität | Monate                  | Tage                    |
 | Laufende Wartung           | Ihre Verantwortung      | Vom Anbieter verwaltet  |
 
-**Fazit:** Eine eigenständige Datenbank ist nur dann sinnvoll, wenn Ihr Datenmodell so ungewöhnlich ist, dass kein CRM es abbilden kann. Für 95 % der Unternehmen spart ein dediziertes CRM mit flexiblem Datenmodell Monate an Entwicklung und laufender Wartung.
+**Fazit:** Eine eigenständige Datenbank ist nur dann sinnvoll, wenn Ihr Datenmodell so ungewöhnlich ist, dass kein CRM es abbilden kann. Für die allermeisten Unternehmen spart ein dediziertes CRM mit flexiblem Datenmodell Monate an Entwicklung und laufender Wartung.
 
 ### Warum Ihre CRM-Datenbank entscheidend ist
 
 Ihre CRM-Datenbank ist die einzige Quelle der Wahrheit für Kundenbeziehungen. Jede Entscheidung, die Vertrieb und Marketing treffen, hängt von der Qualität dieser Daten ab. Genaue Daten bedeuten bessere Segmentierung, personalisierte Ansprache, verlässliche [Sales-Pipeline](/blog/sales-pipeline)-Prognosen und fundierte strategische Entscheidungen. Schlechte Daten bedeuten Verschwendung, verpasste Chancen und frustrierte Kunden.
 
-Studien schätzen, dass schlechte CRM-Daten Unternehmen zwischen 15 und 25 Prozent ihres Umsatzes kosten. Doppelte Datensätze bedeuten, dass mehrere Vertriebsmitarbeiter denselben Interessenten kontaktieren. Veraltete Kontaktdaten bedeuten, dass E-Mails zurückkommen und Anrufe ins Leere laufen. Unvollständige Datensätze bedeuten, dass Vertriebsmitarbeiter ohne Kontext in Meetings gehen.
+Schlechte CRM-Daten kosten Unternehmen spürbar Umsatz. Doppelte Datensätze bedeuten, dass mehrere Vertriebsmitarbeiter denselben Interessenten kontaktieren. Veraltete Kontaktdaten bedeuten, dass E-Mails zurückkommen und Anrufe ins Leere laufen. Unvollständige Datensätze bedeuten, dass Vertriebsmitarbeiter ohne Kontext in Meetings gehen.
 
 ## So strukturieren Sie Ihre CRM-Datenbank
 
@@ -299,16 +299,16 @@ Planen Sie regelmäßige Datenhygiene-Sessions ein. Monatlich ist ein guter Rhyt
 - **Interaktionslogs prüfen**, um sicherzustellen, dass aktuelle Aktivitäten korrekt erfasst sind
 - **Tags und Kategorien bereinigen**, um unkontrolliertes Wachstum zu verhindern
 
-### Statistiken zum Datenverfall
+### Wie schnell CRM-Daten verfallen
 
 CRM-Daten verfallen schneller, als die meisten Unternehmen annehmen:
 
-- 30 % der Kontaktdaten veralten jährlich (Jobwechsel, Umfirmierungen)
-- B2B-E-Mail-Adressen haben eine durchschnittliche jährliche Verfallsrate von 22,5 %
-- 25 % einer typischen CRM-Datenbank enthalten Duplikate
-- Unternehmen verlieren schätzungsweise 12 % ihres Umsatzes durch schlechte Datenqualität
+- Kontaktdaten veralten laufend durch Jobwechsel und Umfirmierungen
+- B2B-E-Mail-Adressen werden ungültig, sobald jemand das Unternehmen verlässt
+- Importe und parallele Eingaben erzeugen Duplikate
+- Schlechte Datenqualität kostet Zeit und Umsatz
 
-Diese Zahlen sprechen für proaktive, automatisierte Datenhygiene statt gelegentlicher manueller Bereinigung.
+Das spricht für proaktive, automatisierte Datenhygiene statt gelegentlicher manueller Bereinigung.
 
 ### Automatisierte Datenqualität mit n8n
 
@@ -321,9 +321,9 @@ Manuelle Datenhygiene skaliert nicht. Nutzen Sie Automatisierung, um die Qualit�
 - E-Mail-Formate validieren und offensichtlich ungültige Adressen markieren
 - Datensätze mit externen Datenquellen anreichern (Unternehmensgröße, Branchenklassifikation)
 
-Customermates unterstützt automatisierte Datenqualitäts-Workflows durch [n8n-Integration](/features/workflow-automation). Sie können visuelle Automatisierungen erstellen, die auf Duplikate prüfen, Datenformate validieren, Datensätze anreichern und Teammitglieder bei Qualitätsproblemen benachrichtigen, ohne eine Zeile Code. [Mehr zu n8n-Workflows](/blog/n8n-for-beginners-build-your-first-workflow)
+Customermates unterstützt automatisierte Datenqualitäts-Workflows über Webhooks, REST und einen Community-Node für ein separat betriebenes [n8n](/features/workflow-automation). Dort bauen Sie visuelle Automatisierungen, die auf Duplikate prüfen, Datenformate validieren, Datensätze mit einer externen Datenquelle anreichern und Teammitglieder bei Qualitätsproblemen benachrichtigen, ohne eine Zeile Code. Customermates selbst hat keine eingebaute Anreicherung. [Mehr zu n8n-Workflows](/blog/n8n-for-beginners-build-your-first-workflow)
 
-Über n8n hinaus können KI-Agenten die Datenbank direkt über die native MCP-Integration ([[derived.mcp.tools.total]] Tools) bedienen. Ein Agent (Claude, ChatGPT oder Gemini) mit einem API-Key kann Duplikate zusammenführen, Datensätze anreichern, Felder aktualisieren und Notizen schreiben, als wäre er ein menschlicher Nutzer, was Routine-Datenpflege in eine Aufgabe verwandelt, die ein Agent in Minuten erledigt.
+Über n8n hinaus können KI-Agenten die Datenbank direkt über die native MCP-Integration ([[derived.mcp.tools.total]] Tools) bedienen. Ein Agent (Claude, ChatGPT oder Gemini) mit einem API-Key kann Dubletten finden und bereinigen, Datensätze mit selbst recherchierten Angaben ergänzen, Felder aktualisieren und Notizen schreiben, im Rahmen der Berechtigungen seines Nutzers, was Routine-Datenpflege in eine Aufgabe verwandelt, die ein Agent in Minuten erledigt.
 
 ### Daten-Ownership zuweisen
 
@@ -373,17 +373,17 @@ Für europäische Unternehmen ist DSGVO-Konformität beim Management einer CRM-D
 
 Der physische Standort Ihrer CRM-Datenbank hat direkte Compliance-Auswirkungen. In den USA gehostete CRM-Systeme stehen nach dem Schrems-II-Urteil unter europäischem Datenschutzrecht vor rechtlicher Unsicherheit. Datentransfers in die USA erfordern zusätzliche Schutzmaßnahmen (Standardvertragsklauseln, Angemessenheitsbeschlüsse), die in der Praxis möglicherweise keinen ausreichenden Schutz bieten.
 
-EU-gehostete oder Self-Hosted-Systeme beseitigen diese Unsicherheit vollständig. Ihre Daten bleiben im Geltungsbereich der DSGVO, und Sie sind nicht auf die Compliance-Haltung eines Anbieters oder dessen Unterauftragsverarbeiter angewiesen.
+Self-Hosting auf EU-Infrastruktur reduziert diese Unsicherheit deutlich, weil Sie den Speicherort und die beteiligten Dienstleister selbst bestimmen. Bei EU-gehosteten SaaS-Systemen lohnt der Blick in die Liste der Unterauftragsverarbeiter, denn auch dort sind oft US-Dienstleister beteiligt.
 
 ### Wie Customermates Datensicherheit handhabt
 
 Customermates adressiert Sicherheit und Compliance der CRM-Datenbank direkt:
 
-- **EU-Hosting als Standard**: Daten werden in europäischen Rechenzentren gespeichert, nicht in die USA übertragen
+- **Transparenter Datenstandort**: In der Cloud-Version liegt die Datenbank in der AWS-Region Frankfurt; Hosting und weitere Unterauftragsverarbeiter, auch aus den USA, stehen in der [Liste der Unterauftragsverarbeiter](/subprocessors), ein [Auftragsverarbeitungsvertrag (AVV)](/dpa) liegt vor.
 - **Self-Hosting-Option**: Deployment auf eigener Infrastruktur mit Docker für volle Kontrolle über den Datenstandort
-- **Integriertes Audit-Logging**: Jede Änderung an jedem Datensatz wird mit Zeitstempel, Benutzer und Vorher/Nachher-Werten protokolliert
-- **Rollenbasierte Zugriffskontrolle**: Definieren Sie exakt, wer welche Daten sehen, bearbeiten oder löschen darf
-- **Datenexport**: Volle Datenportabilität zur Erfüllung von DSGVO Artikel 20
+- **Integriertes Audit-Logging**: Änderungen an Datensätzen werden mit Zeitstempel und Benutzer protokolliert, in jedem Tarif
+- **Rollenbasierte Zugriffskontrolle**: Legen Sie pro Ressource und Aktion fest, wer lesen, bearbeiten oder löschen darf (Berechtigungen auf Feldebene gibt es nicht)
+- **Datenexport**: XLSX-Export je Datensatztyp und die REST-API unterstützen Auskunfts- und Portabilitätsanfragen nach DSGVO Artikel 15 und 20
 - **Open Source**: Prüfen Sie den Code selbst, um zu verifizieren, wie Ihre Daten verarbeitet werden
 
 ## CRM-Datenbank-Vergleich: Salesforce vs. HubSpot vs. Pipedrive vs. Customermates
@@ -394,13 +394,13 @@ Die Wahl der richtigen CRM-Datenbank hängt von Teamgröße, Budget und Datenanf
 | --------------------------- | ----------------------- | ------------------------- | ----------------- | ---------------------------------------------------- |
 | **Einstiegspreis**          | 25 $/Nutzer/Monat       | Kostenlos (eingeschränkt) | 14 €/Nutzer/Monat | Ab [[commercial.price.starter.monthly]]/Nutzer/Monat |
 | **Individuelle Felder**     | Unbegrenzt (Enterprise) | Im Free-Plan limitiert    | Im Lite limitiert | Ja (10 Feldtypen)                                    |
-| **Daten-Hosting**           | USA (Standard)          | USA (Standard)            | EU verfügbar      | EU (Standard)                                        |
+| **Daten-Hosting**           | USA (Standard)          | USA (Standard)            | EU verfügbar      | Cloud-DB Frankfurt, selbst hostbar                   |
 | **Self-Hosting**            | Nein                    | Nein                      | Nein              | Ja (Open Source)                                     |
 | **Audit-Logging**           | Nur Enterprise          | Nur Enterprise            | Nicht verfügbar   | Alle Pläne                                           |
 | **API-Zugang**              | Ja                      | Ja (Rate-limitiert)       | Ja                | Ja                                                   |
-| **n8n-Integration**         | Via API                 | Via API                   | Via API           | Nativ                                                |
-| **DSGVO-Tools**             | Zusatzmodul             | Zusatzmodul               | Basis             | Integriert                                           |
-| **Duplikaterkennung**       | Ja                      | Ja                        | Basis             | Ja                                                   |
+| **n8n-Integration**         | Via API                 | Via API                   | Via API           | Community-Node (n8n separat)                         |
+| **DSGVO-Tools**             | Zusatzmodul             | Zusatzmodul               | Basis             | AVV, Audit-Log, Unterauftragsverarbeiter offengelegt |
+| **Duplikaterkennung**       | Ja                      | Ja                        | Basis             | Über API oder KI-Agent                               |
 | **Einrichtungskomplexität** | Hoch                    | Mittel                    | Niedrig           | Niedrig                                              |
 
 **Salesforce** bietet die leistungsfähigste CRM-Datenbank für Unternehmen mit komplexen Datenmodellen und großen Teams. Aber Komplexität, Kosten und US-Standard-Hosting machen es für die meisten KMU überdimensioniert.
@@ -409,7 +409,7 @@ Die Wahl der richtigen CRM-Datenbank hängt von Teamgröße, Budget und Datenanf
 
 **Pipedrive** konzentriert sich auf Sales-Pipeline-Management mit einer sauberen Oberfläche. Die Datenbankfunktionen sind solide für Vertriebsteams, aber weniger geeignet für Marketing- oder Service-Anwendungsfälle.
 
-**Customermates** liefert eine komplette CRM-Datenbank mit individuellen Feldern (zehn Feldtypen), EU-Hosting, Self-Hosting, Audit-Logging und n8n-Automatisierung ab [[commercial.price.starter.monthly]]/Nutzer/Monat. Zwei Funktionen heben es ab: KI-Agenten bedienen die Datenbank direkt über eine native MCP-Integration (Duplikate zusammenführen, anreichern, Datensätze aktualisieren), und ein nativer vereinheitlichter Posteingang protokolliert E-Mail-, LinkedIn-, WhatsApp-, Instagram- und Telegram-Interaktionen automatisch in der Timeline (ab der Pro-Stufe).
+**Customermates** liefert eine komplette CRM-Datenbank mit individuellen Feldern (zehn Feldtypen), Cloud-Datenbank in Frankfurt oder Self-Hosting, Audit-Logging und Anbindung an ein separat betriebenes n8n ab [[commercial.price.starter.monthly]]/Nutzer/Monat. Zwei Funktionen heben es ab: KI-Agenten bedienen die Datenbank direkt über eine native MCP-Integration (Dubletten bereinigen, Datensätze aktualisieren), und ein nativer vereinheitlichter Posteingang bringt E-Mail-, LinkedIn-, WhatsApp-, Instagram- und Telegram-Unterhaltungen neben den Kontakt (Cloud, ab der Pro-Stufe).
 
 ## Best Practices für Ihre CRM-Datenbank
 
@@ -489,11 +489,11 @@ Planen Sie monatliche Datenhygiene-Sessions: Duplikate zusammenführen, Schlüss
 </FaqItem>
 
 <FaqItem question="Ist eine CRM-Datenbank DSGVO-konform?">
-Eine CRM-Datenbank kann DSGVO-konform sein, wenn das System die nötigen Funktionen unterstützt: Rechtsgrundlagen-Tracking, Datenminimierung, Recht auf Löschung, Datenportabilität und Audit-Logging. Der Hosting-Standort ist ebenfalls relevant, EU-gehostete oder Self-Hosted-Systeme bieten mehr Rechtssicherheit als US-gehostete Alternativen. Customermates wird standardmäßig in der EU gehostet, ist Open Source und enthält integriertes Audit-Logging sowie rollenbasierte Zugriffskontrolle für DSGVO-Konformität.
+Eine CRM-Datenbank kann DSGVO-konform sein, wenn das System die nötigen Funktionen unterstützt: Rechtsgrundlagen-Tracking, Datenminimierung, Recht auf Löschung, Datenportabilität und Audit-Logging. Der Hosting-Standort ist ebenfalls relevant, EU-gehostete oder Self-Hosted-Systeme bieten mehr Rechtssicherheit als US-gehostete Alternativen. Bei Customermates liegt die Cloud-Datenbank in der AWS-Region Frankfurt, Unterauftragsverarbeiter (auch aus den USA) sind offengelegt, ein AVV liegt vor; dazu kommen Open Source, Self-Hosting, Audit-Logging und rollenbasierte Zugriffskontrolle. Ob Ihr Einsatz DSGVO-konform ist, hängt auch davon ab, wie Sie das System nutzen.
 </FaqItem>
 
 <FaqItem question="Was kostet eine CRM-Datenbank?">
-Die Kosten für CRM-Datenbanken reichen von kostenlos (mit erheblichen Einschränkungen) bis über 300 Euro pro Nutzer und Monat bei Enterprise-Plattformen wie Salesforce. Die meisten kleinen und mittelständischen Unternehmen zahlen zwischen 10 und 50 Euro pro Nutzer und Monat. Customermates kostet ab [[commercial.price.starter.monthly]] pro Nutzer und Monat für das volle Kern-CRM, ohne Zusatzkosten für die Basisfunktionen. Self-Hosting ist kostenlos und Open Source. [Vollständiger CRM-Kostenvergleich](/blog/crm-cost)
+Die Kosten für CRM-Datenbanken reichen von kostenlos (mit erheblichen Einschränkungen) bis über 300 Euro pro Nutzer und Monat bei Enterprise-Plattformen wie Salesforce. Die meisten kleinen und mittelständischen Unternehmen zahlen zwischen 10 und 50 Euro pro Nutzer und Monat. Customermates kostet ab [[commercial.price.starter.monthly]] pro Nutzer und Monat für das volle Kern-CRM, ohne Zusatzkosten für die Basisfunktionen. Self-Hosting des Open-Source-Kerns kostet keine Lizenzgebühren. [Vollständiger CRM-Kostenvergleich](/blog/crm-cost)
 </FaqItem>
 </Faq>
 
@@ -503,4 +503,4 @@ Ihre CRM-Datenbank ist nicht nur eine Liste von Namen und E-Mail-Adressen. Sie i
 
 Die Entscheidung zwischen Eigenentwicklung und dediziertem CRM ist für die meisten Unternehmen eindeutig: Ein CRM liefert Datenmodell, Automatisierung, Reporting und Compliance-Funktionen, deren Eigenentwicklung Monate dauern würde.
 
-Customermates bietet Ihnen eine flexible, DSGVO-konforme CRM-Datenbank mit individuellen Feldern über zehn Feldtypen, leistungsstarker Segmentierung, automatisierter Datenqualität via n8n und KI-Agenten (native MCP), voller Self-Hosting-Kontrolle und EU-Hosting als Standard, ab [[commercial.price.starter.monthly]] pro Nutzer und Monat. [Preise ansehen](/pricing)
+Customermates bietet Ihnen eine flexible CRM-Datenbank mit individuellen Feldern über zehn Feldtypen, Filtern und gespeicherten Ansichten, Datenqualitäts-Workflows über n8n und KI-Agenten (native MCP), voller Self-Hosting-Kontrolle und einer Cloud-Datenbank in Frankfurt, ab [[commercial.price.starter.monthly]] pro Nutzer und Monat. [Preise ansehen](/pricing)

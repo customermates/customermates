@@ -23,9 +23,9 @@ Schluss mit dem Wechsel zwischen Outlook und CRM. Vergleichen Sie die besten Int
 
 Ihr Vertriebsteam arbeitet bereits in Outlook. E-Mails, Kalendereinladungen, Besprechungsnotizen, alles findet in Microsoft 365 statt. Das Problem? Jedes Mal, wenn ein Mitarbeiter in einen separaten CRM-Tab wechselt, geht Kontext verloren, Dateneingaben werden übersprungen und Follow-ups geraten in Vergessenheit.
 
-Eine Outlook CRM Integration löst dieses Problem, indem Kundendaten in den Posteingang gebracht werden, oder der Posteingang ins CRM. Einige CRMs bieten native Outlook-Add-Ins mit Sidebar. Andere, wie Customermates, ziehen Ihre Outlook-Mails in einen [nativen vereinheitlichten Posteingang](/features/email-integration) im CRM (neben LinkedIn, WhatsApp, Instagram und Telegram) und setzen [n8n-Workflows](/features/workflow-automation) für die Automatisierung obendrauf.
+Eine Outlook CRM Integration löst dieses Problem, indem Kundendaten in den Posteingang gebracht werden, oder der Posteingang ins CRM. Einige CRMs bieten native Outlook-Add-Ins mit Sidebar. Andere, wie Customermates, ziehen Ihre Outlook-Mails in einen [nativen vereinheitlichten Posteingang](/features/unified-inbox) im CRM (neben LinkedIn, WhatsApp, Instagram und Telegram) und lassen sich für Automatisierung mit Ihren eigenen [n8n-Workflows](/features/workflow-automation) verbinden. Was genau synchronisiert wird, zeigt die Seite zur [Outlook-Integration von Customermates](/features/outlook-integration).
 
-Dieser Leitfaden vergleicht 8 CRM-Systeme, die sich mit Microsoft Outlook integrieren lassen, erklärt die verschiedenen Integrationsansätze und hilft Ihnen bei der Auswahl der richtigen Lösung.
+Dieser Leitfaden vergleicht 8 CRM-Systeme, die sich mit Microsoft Outlook integrieren lassen, erklärt die verschiedenen Integrationsansätze und hilft Ihnen bei der Auswahl der richtigen Lösung. Wenn Ihr Team mit Google Workspace arbeitet, lesen Sie den Leitfaden zur [Gmail CRM-Integration](/blog/gmail-crm-integration).
 
 ## Was bedeutet "Outlook CRM Integration" konkret?
 
@@ -41,7 +41,7 @@ Das CRM synchronisiert E-Mails und Kalendertermine automatisch mit dem korrekten
 
 ### Workflow-Automatisierung über n8n
 
-Ein flexiblerer Ansatz. Anstatt auf ein eingebautes Add-In zu setzen, verbinden Sie Outlook und CRM über [n8n](https://n8n.io/)-Workflows mit der Microsoft Graph API. So lassen sich Aktionen automatisieren: Deal-Statusänderungen lösen Outlook-E-Mails aus, neue Kontakte werden bidirektional synchronisiert oder Kalendertermine erzeugen CRM-Aktivitäten. Customermates nutzt dieses Modell.
+Ein flexiblerer Ansatz. Anstatt auf ein eingebautes Add-In zu setzen, verbinden Sie Outlook und CRM über [n8n](https://n8n.io/)-Workflows mit der Microsoft Graph API. So lassen sich Aktionen automatisieren: Deal-Statusänderungen lösen Outlook-E-Mails aus, neue Kontakte werden bidirektional synchronisiert oder Kalendertermine erzeugen CRM-Aktivitäten. Customermates kombiniert den Postfach-Sync im Posteingang mit diesem Modell: Eigene n8n-Workflows docken über Webhooks und die REST API an. Die Kalenderansicht in Customermates ist nur lesend; sie kann keine Termine anlegen, ändern oder planen.
 
 ### Native Microsoft-Ökosystem-Integration
 
@@ -68,31 +68,30 @@ Nicht jede Integration ist gleich. Hier sind die 10 Funktionen, die bei der Wahl
 
 **Preis:** [[commercial.price.pro.monthly]]/Nutzer/Monat (Pro-Stufe mit vereinheitlichtem E-Mail-Posteingang; Kern-CRM ab [[commercial.price.starter.monthly]])
 
-**Integrationsansatz:** Nativer vereinheitlichter Posteingang (Outlook-Mails im CRM) plus n8n-Workflow-Automatisierung über Microsoft Graph API
+**Integrationsansatz:** Nativer vereinheitlichter Posteingang (Outlook-Mails im CRM, Customermates Cloud ab Pro) plus Workflows in Ihrer separat betriebenen n8n-Instanz über die Microsoft Graph API
 
-Customermates synchronisiert Ihr Outlook-Postfach in einen nativen vereinheitlichten Posteingang im CRM, neben LinkedIn, WhatsApp, Instagram und Telegram. Jede Nachricht landet am Kontakt, und KI-Agenten können über jeden Kanal lesen, entwerfen und antworten. Es nutzt keine klassische Outlook-Sidebar; Sie arbeiten stattdessen aus dem CRM-Posteingang. Für tiefergehende Automatisierung verbinden Sie n8n über die Microsoft Graph API, um E-Mail-Versand, Kontakt-Synchronisation, Deal-Updates und Follow-up-Sequenzen aus CRM-Events auszulösen.
+Customermates synchronisiert Ihr Outlook-Postfach in einen nativen vereinheitlichten Posteingang im CRM, neben LinkedIn, WhatsApp, Instagram und Telegram. Sobald Sie die Teilnehmer einer Konversation mit Kontakten verknüpft haben, erscheint jede Nachricht auf der Timeline des Kontakts. KI-Agenten können über jeden Kanal lesen und Antworten entwerfen; der Assistent Mate sendet erst nach Ihrer Bestätigung. Es gibt keine klassische Outlook-Sidebar; Sie arbeiten stattdessen aus dem CRM-Posteingang. Für tiefergehende Automatisierung verbinden Sie Ihre eigene n8n-Instanz über die Microsoft Graph API, um etwa E-Mails oder Deal-Updates aus CRM-Ereignissen auszulösen. Eine Kontakt-Synchronisation mit Outlook und E-Mail-Sequenzen bietet Customermates nicht.
 
 **So funktioniert die Outlook-Integration:**
 
 1. Customermates sendet Webhooks an Ihre n8n-Instanz, wenn sich Deals, Kontakte oder Aktivitäten ändern
 2. n8n verarbeitet die Daten und interagiert mit Outlook über die Microsoft Graph API
 3. E-Mails werden von Ihrem echten Outlook-Konto gesendet (mit Ihrer Signatur und Ihrem Branding)
-4. Antworten und Kalendertermine werden automatisch zurück in Customermates synchronisiert
+4. Antworten landen im vereinheitlichten Posteingang, und Kalender des verbundenen Kontos werden in Customermates eingelesen; der Kalender ist nur lesend, n8n kann also keine Termine in Customermates zurückschreiben
 
 **Was Sie automatisieren können:**
 
 - Deal gewonnen → Bestätigungs-E-Mail wird via Outlook gesendet
-- Neuer Kontakt erstellt → Willkommens-E-Mail-Sequenz startet
-- Meeting gebucht → Kalendertermin wird in Outlook und CRM erstellt
-- Keine Antwort nach 3 Tagen → Follow-up-E-Mail wird automatisch ausgelöst
-- Angebot freigegeben → PDF wird angehängt und über Outlook versendet
+- Neuer Kontakt erstellt → Ihre eigene n8n-Instanz startet eine Willkommensserie über einen externen E-Mail-Dienst; Customermates selbst führt keine Sequenzen aus
+- Meeting gebucht → ein externer Workflow legt den Termin in Outlook an; Customermates zeigt verbundene Termine nur lesend an
+- Keine Antwort nach 3 Tagen → Ihr n8n-Workflow löst eine Follow-up-E-Mail aus
 
 **Zentrale Stärken:**
 
 - Nativer vereinheitlichter Posteingang: Outlook-Mails plus LinkedIn, WhatsApp, Instagram und Telegram an einem Ort, von KI-Agenten bedienbar
-- separate n8n-Integration bedeutet, dass Webhooks sofort funktionieren
+- Webhooks, REST API und ein n8n-Community-Node für Ihre separat betriebene n8n-Instanz
 - Volle Kontrolle über Automatisierungslogik (kein Vendor Lock-in)
-- Open Source und selbst-hostbar für DSGVO-Konformität
+- Open Source; in der Cloud liegt die Datenbank in der AWS-Region Frankfurt, Unterauftragsverarbeiter sind offengelegt (der Posteingang läuft nur in der Cloud, nicht in selbst gehosteten Installationen)
 - Mit [[commercial.price.pro.monthly]]/Nutzer/Monat deutlich günstiger als die meisten Alternativen
 - Funktioniert mit Microsoft 365 Business und Enterprise
 
@@ -274,13 +273,13 @@ Pipedrive ist bekannt für seine visuelle Vertriebs-Pipeline. Die Outlook-Integr
 | ------------------------------ | ------------------------------------------------------------------------------------------ | ------------ | ----------------- | ------------- | ------------- | ------------- | -------- | --------- |
 | Outlook Sidebar / Add-In       | Nativer Posteingang                                                                        | Nativ        | Add-In            | Add-In        | Eingebettet   | Add-In        | Add-In   | Add-In    |
 | Auto. E-Mail-Protokollierung   | Ja (nativ)                                                                                 | Ja           | Ja                | Ja            | Ja            | Ja            | Ja       | Ja        |
-| Kalender-Sync                  | Ja (nativ)                                                                                 | Nativ        | Ja                | Ja            | Ja            | Eingeschränkt | Ja       | Ja        |
-| Automatische Kontakterstellung | Ja                                                                                         | Ja           | Kostenpflichtig   | Ja            | Ja            | Ja            | Nein     | Nein      |
-| E-Mail-Vorlagen aus Outlook    | Ja (n8n)                                                                                   | Ja           | Ja                | Ja            | Ja            | Eingeschränkt | Ja       | Ja        |
-| E-Mail-Tracking                | Via n8n                                                                                    | Ja           | Ja                | Ja            | Ja            | Ja            | Ja       | Ja        |
-| Automatisierte Workflows       | Voll (n8n)                                                                                 | Ja           | Kostenpflichtig   | Eingeschränkt | Eingeschränkt | Nein          | Basis    | Basis     |
-| Bidirektionale Kontakt-Sync    | Ja                                                                                         | Ja           | Ja                | Ja            | Ja            | Ja            | Ja       | Ja        |
-| Selbst-hostbar                 | Ja                                                                                         | Nein         | Nein              | Nein          | On-Prem       | Nein          | Nein     | Nein      |
+| Kalender-Sync                  | Nur lesende Ansicht                                                                        | Nativ        | Ja                | Ja            | Ja            | Eingeschränkt | Ja       | Ja        |
+| Automatische Kontakterstellung | Per Klick aus einem E-Mail-Teilnehmer                                                      | Ja           | Kostenpflichtig   | Ja            | Ja            | Ja            | Nein     | Nein      |
+| E-Mail-Vorlagen aus Outlook    | Über eigenes n8n                                                                           | Ja           | Ja                | Ja            | Ja            | Eingeschränkt | Ja       | Ja        |
+| E-Mail-Tracking                | Nein                                                                                       | Ja           | Ja                | Ja            | Ja            | Ja            | Ja       | Ja        |
+| Automatisierte Workflows       | Über Webhooks und eigenes n8n                                                              | Ja           | Kostenpflichtig   | Eingeschränkt | Eingeschränkt | Nein          | Basis    | Basis     |
+| Bidirektionale Kontakt-Sync    | Nein                                                                                       | Ja           | Ja                | Ja            | Ja            | Ja            | Ja       | Ja        |
+| Selbst-hostbar                 | Ja (ohne Posteingang)                                                                      | Nein         | Nein              | Nein          | On-Prem       | Nein          | Nein     | Nein      |
 | Preis/Nutzer/Monat             | Ab [[commercial.price.starter.monthly]] (E-Mail auf Pro, [[commercial.price.pro.monthly]]) | 65+ USD      | Kostenlos/15+ USD | 49+ USD       | 28+ USD       | 29,90 USD     | 13+ USD  | 14+ USD   |
 
 ## So richten Sie die Outlook CRM Integration mit Customermates und n8n ein
@@ -298,7 +297,7 @@ Wenn Sie den Automatisierungs-Ansatz wählen, verbinden Sie Customermates in wen
 
 ### Schritt 2: Customermates mit n8n verbinden
 
-Customermates bietet separate n8n-Integration. Konfigurieren Sie Ihre Webhooks in den Customermates-Einstellungen, das System generiert automatisch Webhook-URLs für Deal-Änderungen, Kontakt-Updates und Aktivitäts-Events.
+Customermates bietet einen separaten n8n-Community-Node. Alternativ legen Sie in den Customermates-Einstellungen einen Webhook an, der auf die URL Ihres n8n-Workflows zeigt, und wählen die unterstützten Ereignisse für Deals und Kontakte.
 
 ### Schritt 3: Ihren ersten Outlook-Workflow erstellen
 
@@ -308,9 +307,9 @@ Beginnen Sie mit einer einfachen Follow-up-Automatisierung:
 2. **Warten:** n8n pausiert 72 Stunden
 3. **Prüfen:** Customermates-API abfragen, hat sich der Deal-Status geändert?
 4. **Senden:** Falls noch "Angebot versendet," Follow-up-E-Mail via Microsoft Graph API senden
-5. **Protokollieren:** Versandbestätigung zurück in Customermates schreiben
+5. **Protokollieren:** Versandbestätigung per REST API als Notiz zurück in Customermates schreiben
 
-Dieser einzelne Workflow kann 10-15 % der stagnierenden Deals reaktivieren, ohne manuellen Aufwand.
+So bleibt kein Angebot unbeantwortet liegen, ohne dass jemand manuell nachhalten muss.
 
 ### Schritt 4: E-Mail-Vorlagen in Ihrer eigenen n8n-Instanz
 
@@ -337,9 +336,9 @@ Jede E-Mail wird von Ihrem echten Outlook-Konto mit Ihrer Signatur versendet, Em
 Sobald der Basis-Flow funktioniert, fügen Sie weitere Workflows hinzu:
 
 - **Neue Lead-Benachrichtigung:** Outlook-E-Mail an den Vertriebsleiter bei Erstellung eines hochwertigen Leads
-- **Meeting-Vorbereitung:** Outlook-Kalendertermin mit CRM-Notizen 24 Stunden vor einem Meeting
+- **Meeting-Vorbereitung:** n8n legt 24 Stunden vor einem Meeting einen Outlook-Termin mit CRM-Notizen an (in Customermates bleibt der Kalender nur lesend)
 - **Gewinn-/Verlust-Benachrichtigungen:** Team-Benachrichtigung via Outlook beim Abschluss von Deals
-- **Re-Engagement:** Automatisierte Sequenz für Kontakte ohne Aktivität seit 30 Tagen
+- **Re-Engagement:** Kontakte ohne Aktivität seit 30 Tagen an einen externen E-Mail-Dienst übergeben
 
 ## Kann man Outlook als CRM nutzen?
 
@@ -362,7 +361,7 @@ Es gibt zwei grundlegend verschiedene Wege, wie CRMs sich mit Outlook verbinden:
 - Eingeschränkte Automatisierungsmöglichkeiten
 - Abhängig davon, dass der Outlook-Client geöffnet ist
 
-### Der API-/n8n-Ansatz (Customermates)
+### Der API-/n8n-Ansatz (Customermates mit eigenem n8n)
 
 - Läuft serverseitig über die Microsoft Graph API
 - Funktioniert rund um die Uhr, unabhängig davon, ob Outlook geöffnet ist
@@ -372,7 +371,7 @@ Es gibt zwei grundlegend verschiedene Wege, wie CRMs sich mit Outlook verbinden:
 
 **Fazit:** Wenn Ihr Team hauptsächlich CRM-Daten beim Lesen von E-Mails einsehen muss, funktioniert ein Add-In gut. Wenn Sie repetitive E-Mail-Aufgaben automatisieren und Workflows erstellen möchten, die ohne menschliches Eingreifen laufen, ist der API-Ansatz über n8n leistungsfähiger.
 
-## DSGVO-Konformität und Datenschutz
+## Datenschutz und DSGVO
 
 Für europäische Unternehmen ist Datenschutz bei der Verbindung von CRM und E-Mail nicht verhandelbar.
 
@@ -384,17 +383,17 @@ Für europäische Unternehmen ist Datenschutz bei der Verbindung von CRM und E-M
 - **Self-Hosting-Option:** n8n kann auf EU-Infrastruktur selbst gehostet werden für volle Datenkontrolle
 - **Verschlüsselung:** Microsoft 365 nutzt standardmäßig TLS; stellen Sie sicher, dass Ihr CRM diesem Standard entspricht
 
-Customermates in Kombination mit selbst gehostetem n8n gibt Ihnen maximale Kontrolle: CRM-Daten bleiben auf Ihrem Server, und nur der E-Mail-Versand und -Empfang läuft über Microsofts Infrastruktur.
+Wer Customermates und n8n selbst hostet, bestimmt den Speicherort der CRM-Daten selbst; nur Versand und Empfang laufen über Microsofts Infrastruktur. Der vereinheitlichte Posteingang steht selbst gehostet allerdings nicht zur Verfügung. In der Cloud-Version liegt die Datenbank in der AWS-Region Frankfurt; Hosting und weitere Unterauftragsverarbeiter, auch aus den USA, stehen in der [Liste der Unterauftragsverarbeiter](/subprocessors), ein [Auftragsverarbeitungsvertrag (AVV)](/dpa) liegt vor.
 
 ## Häufig gestellte Fragen
 
 <Faq>
 <FaqItem question="Gibt es ein CRM, das sich mit Outlook integrieren lässt?">
-Ja, viele CRMs integrieren sich mit Outlook. Die beliebtesten Optionen sind HubSpot (kostenloses Add-In), Microsoft Dynamics 365 (native Integration), Salesflare (automatische Datenerfassung) und Customermates (n8n-Workflow-Automatisierung). Die beste Wahl hängt davon ab, ob Sie eine einfache Sidebar, tiefe Microsoft-Ökosystem-Integration oder vollständige E-Mail-Automatisierung benötigen.
+Ja, viele CRMs integrieren sich mit Outlook. Die beliebtesten Optionen sind HubSpot (kostenloses Add-In), Microsoft Dynamics 365 (native Integration), Salesflare (automatische Datenerfassung) und Customermates (Outlook-E-Mails im vereinheitlichten Posteingang des CRM, plus eigene n8n-Workflows). Die beste Wahl hängt davon ab, ob Sie eine einfache Sidebar, tiefe Microsoft-Ökosystem-Integration oder vollständige E-Mail-Automatisierung benötigen.
 </FaqItem>
 
 <FaqItem question="Wie integriere ich ein CRM mit Outlook?">
-Die meisten CRMs bieten ein Outlook-Add-In, das Sie über den Microsoft AppSource-Marktplatz oder die Einstellungsseite des CRMs installieren. Bei Customermates verbinden Sie sich über n8n und die Microsoft Graph API. Dazu erstellen Sie eine Azure AD App Registration, konfigurieren API-Berechtigungen und erstellen Workflows in n8n. Das Setup dauert etwa 30 Minuten.
+Die meisten CRMs bieten ein Outlook-Add-In, das Sie über den Microsoft AppSource-Marktplatz oder die Einstellungsseite des CRMs installieren. In Customermates verbinden Sie Ihr Outlook-Konto ab dem Tarif Pro unter **Mein Profil › Kanäle**, sodass seine E-Mails im vereinheitlichten Posteingang erscheinen und seine Kalendertermine nur lesend auf den CRM-Timelines. Für Automatisierung darüber hinaus, etwa Outlook-E-Mails bei einer Deal-Änderung, verbinden Sie Ihre eigene n8n-Instanz über die Microsoft Graph API.
 </FaqItem>
 
 <FaqItem question="Kann man Outlook als CRM verwenden?">
@@ -414,7 +413,7 @@ Microsoft 365 enthält kein vollwertiges CRM. Microsoft Dynamics 365 ist ein sep
 </FaqItem>
 
 <FaqItem question="Was ist das beste CRM für kleine Unternehmen mit Outlook?">
-Für kleine Unternehmen hängt die beste Wahl von den Prioritäten ab. Customermates (ab [[commercial.price.starter.monthly]]/Nutzer/Monat; Outlook-Posteingang auf Pro für [[commercial.price.pro.monthly]]) bietet die stärkste Automatisierung via n8n. HubSpot bietet eine solide kostenlose Stufe. Nutshell und Pipedrive sind erschwinglich und einfach zu bedienen. Wenn Sie das CRM vollständig in Outlook eingebettet benötigen, ist eWay-CRM eine Überlegung wert.
+Für kleine Unternehmen hängt die beste Wahl von den Prioritäten ab. Customermates (ab [[commercial.price.starter.monthly]]/Nutzer/Monat; Outlook-Posteingang auf Pro für [[commercial.price.pro.monthly]]) bietet die flexibelste Automatisierung über Webhooks und eine eigene n8n-Instanz. HubSpot bietet eine solide kostenlose Stufe. Nutshell und Pipedrive sind erschwinglich und einfach zu bedienen. Wenn Sie das CRM vollständig in Outlook eingebettet benötigen, ist eWay-CRM eine Überlegung wert.
 </FaqItem>
 </Faq>
 
@@ -422,7 +421,7 @@ Für kleine Unternehmen hängt die beste Wahl von den Prioritäten ab. Customerm
 
 Die beste Outlook CRM Integration hängt davon ab, wie Ihr Team arbeitet:
 
-- **Volle Automatisierung gewünscht?** Customermates + n8n bietet workflow-gesteuerte Outlook-Integration ab [[commercial.price.pro.monthly]]/Nutzer/Monat (Pro)
+- **Outlook im CRM plus eigene Automatisierung?** Customermates bringt Outlook ab [[commercial.price.pro.monthly]]/Nutzer/Monat (Pro) in den Posteingang, Ihre separat betriebene n8n-Instanz übernimmt die Workflows
 - **Voll auf Microsoft gesetzt?** Dynamics 365 bietet die tiefste native Integration
 - **Kostenlos starten?** HubSpot CRM beinhaltet ein grundlegendes Outlook-Add-In ohne Kosten
 - **Keine manuelle Dateneingabe?** Salesflare erfasst Kontakte und E-Mails automatisch
@@ -430,4 +429,4 @@ Die beste Outlook CRM Integration hängt davon ab, wie Ihr Team arbeitet:
 
 Beginnen Sie mit der Identifikation Ihres größten Schmerzpunktes: Ist es manuelle Dateneingabe? Vergessene Follow-ups? Fehlende Pipeline-Sichtbarkeit? Die Antwort wird Sie zum richtigen Integrationsansatz führen.
 
-Für die meisten kleinen und mittelständischen Teams liefert die Kombination eines erschwinglichen CRMs wie Customermates mit n8n-Automatisierung das beste Preis-Leistungs-Verhältnis. Sie erhalten Enterprise-Level Outlook-Workflows ohne Enterprise-Preise.
+Für viele kleine und mittelständische Teams ist die Kombination eines erschwinglichen CRMs wie Customermates mit einer separat betriebenen n8n-Instanz ein gutes Preis-Leistungs-Verhältnis: Outlook-E-Mails liegen im CRM, und Workflows bauen Sie genau so, wie Ihr Prozess es braucht.

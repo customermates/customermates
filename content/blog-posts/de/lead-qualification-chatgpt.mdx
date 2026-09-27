@@ -289,7 +289,7 @@ Neuer Lead kommt an (Webhook / CRM-Trigger / Formular)
 ### Schritt-für-Schritt-Umsetzung
 
 **1. Trigger: Neue Leads erfassen.**
-Verwenden Sie einen n8n-Webhook-Node oder einen CRM-Trigger. Bei [Customermates](/) lösen neue Kontakte automatisch Workflows über die separate n8n-Integration aus. Alternativ lassen sich Webformulare, E-Mail-Parser oder Chatbot-Ausgaben anbinden.
+Verwenden Sie einen n8n-Webhook-Node oder einen CRM-Trigger. Bei [Customermates](/) sendet ein Webhook ein Ereignis, sobald ein neuer Kontakt angelegt wird; der n8n-Community-Node oder ein Webhook-Node in Ihrer separat betriebenen n8n-Instanz startet damit den Workflow. Alternativ lassen sich Webformulare, E-Mail-Parser oder Chatbot-Ausgaben anbinden.
 
 **2. Lead-Daten anreichern (optional).**
 Vor dem Scoring können Sie zusätzlichen Kontext ergänzen. Nutzen Sie einen HTTP-Request-Node, um Unternehmensdaten von Clearbit, Apollo oder LinkedIn abzurufen. Mehr Kontext verbessert die Scoring-Genauigkeit. Selbst Basis-Anreicherung (Unternehmensgröße, Branche, Standort) kann den ICP-Fit-Score eines Leads von "Unbekannt" zu "Stark" oder "Schwach" verschieben.
@@ -356,8 +356,8 @@ Viele CRMs bieten eingebautes Lead-Scoring. So schneiden sie im Vergleich zum Ch
 | Scoring-Konsistenz      | Sehr hoch (KI wendet gleiche Kriterien an)                 | Hoch (Regeln sind konsistent)          | N/A                           |
 | Anpassungsfähigkeit     | Prompt ändern = Framework ändern                           | Regeln für jede Änderung neu bauen     | N/A                           |
 | Qualitative Analyse     | Ja (liest Text, erkennt Signale)                           | Nein (nur numerische/boolesche Regeln) | N/A                           |
-| Kosten                  | [[commercial.price.starter.monthly]]/Nutzer + 5-10 EUR API | Ab ~90 EUR/Sitz (Professional-Plan)    | 14 EUR/Nutzer + externes Tool |
-| n8n-Integration         | Nativ                                                      | API verfügbar                          | API verfügbar                 |
+| Kosten                  | [[commercial.price.starter.monthly]]/Nutzer + n8n + API    | Ab ~90 EUR/Sitz (Professional-Plan)    | 14 EUR/Nutzer + externes Tool |
+| n8n-Integration         | Community-Node (n8n separat)                               | API verfügbar                          | API verfügbar                 |
 
 **HubSpots eingebautes Scoring** ist regelbasiert: Sie definieren Punkte für Aktionen (E-Mail geöffnet = +5, Preisseite besucht = +10). Es funktioniert für Engagement-Scoring, kann aber den Inhalt einer Lead-Nachricht nicht analysieren oder Qualifizierungs-Frameworks auf Freitext anwenden.
 
@@ -384,19 +384,19 @@ Konsistentes, schnelles Scoring verbessert Conversions auf drei Wegen:
 2. **Schnellere Reaktionszeit.** Automatisches Routing sorgt dafür, dass Top-Leads innerhalb von Minuten kontaktiert werden, nicht nach Stunden. Die Datenlage ist eindeutig: Unternehmen, die am schnellsten reagieren, gewinnen mehr Deals.
 3. **Datenbasierte Optimierung.** Mit strukturierten Scores in Ihrem CRM analysieren Sie, welche Lead-Quellen, Kanäle und Botschaften die qualitativ hochwertigsten Leads liefern, und investieren gezielt in das, was funktioniert.
 
-Teams, die von manueller auf KI-gestützte Qualifizierung umstellen, sehen typischerweise Conversion-Verbesserungen von 15-30 %.
+Wie groß der Effekt bei Ihnen ist, zeigt erst ein Vorher-nachher-Vergleich mit Ihren eigenen Daten; messen Sie deshalb die Conversion-Rate vor der Umstellung.
 
 ## Das richtige CRM für KI-gestützte Qualifizierung
 
 Ihr CRM muss Custom-Felder, Tagging und Automatisierungs-Trigger unterstützen, damit dieser Workflow reibungslos funktioniert.
 
-**Customermates.** Ab [[commercial.price.starter.monthly]]/Nutzer/Monat (Starter), das volle Kern-CRM inklusive. Custom-Felder für Scores, Tags für Klassifizierung, native n8n-Integration für automatische Updates, DSGVO-konformes EU-Hosting. Über die native MCP-Integration ([[derived.mcp.tools.total]] Tools) bedienen Claude, ChatGPT oder Gemini das CRM direkt, und ein vereinheitlichter Posteingang bringt E-Mail, LinkedIn, WhatsApp, Instagram und Telegram ab der Pro-Stufe an einem Ort zusammen. Automatisierung ist in jeder Stufe enthalten, Sie zahlen also nicht extra für Funktionen, die Enterprise-CRMs hinter höheren Tarifen verstecken.
+**Customermates.** Ab [[commercial.price.starter.monthly]]/Nutzer/Monat (Starter), das volle Kern-CRM inklusive. Custom-Felder für Scores, Einfachauswahl-Felder für die Klassifizierung, Webhooks, REST API und ein n8n-Community-Node für Updates aus Ihrer separat betriebenen n8n-Instanz. Ein eingebautes Lead-Scoring gibt es nicht; die Bewertung übernimmt Ihr Workflow. In der Cloud-Version liegt die Datenbank in der AWS-Region Frankfurt, Unterauftragsverarbeiter sind [offengelegt](/subprocessors). Über die MCP-Integration ([[derived.mcp.tools.total]] Tools) bedienen Claude, ChatGPT oder Gemini das CRM direkt, und ein vereinheitlichter Posteingang bringt E-Mail, LinkedIn, WhatsApp, Instagram und Telegram ab der Pro-Stufe an einem Ort zusammen. API, Webhooks und MCP sind in jeder Stufe enthalten.
 
 **HubSpot.** Lead-Scoring ist im Professional-Plan verfügbar (ab etwa 90 EUR pro Sitz und Monat). Das integrierte Scoring ist regelbasiert, nicht KI-gestützt. Für KI-Scoring über n8n funktioniert der kostenlose CRM-Tarif, bietet aber keine fortgeschrittenen Automatisierungs-Trigger.
 
 **Pipedrive.** Custom-Felder und Tags in allen Plänen verfügbar (ab 14 EUR/Nutzer/Monat). Kein natives Lead-Scoring, aber die API integriert sich gut mit n8n für externe Scoring-Workflows.
 
-Für Teams, die maximale Automatisierung bei minimalen Kosten wollen, liefert Customermates plus n8n plus ChatGPT-API Enterprise-Grade-Lead-Qualifizierung zu einem Bruchteil des üblichen Preises.
+Für Teams, die Automatisierung bei überschaubaren Kosten wollen, ist Customermates plus n8n plus ChatGPT-API eine flexible Kombination, die Sie vollständig selbst steuern.
 
 ## Häufig gestellte Fragen
 
@@ -422,7 +422,7 @@ Bauen Sie eine Feedback-Schleife ein. Wenn ein Vertriebsmitarbeiter mit einem KI
 </FaqItem>
 
 <FaqItem question="Ist es DSGVO-konform, Lead-Daten an ChatGPT zu senden?">
-Bei Nutzung der OpenAI-API mit Business-Vereinbarung und AVV werden Daten verarbeitet, aber nicht für Training verwendet. Für maximale Compliance minimieren Sie die gesendeten personenbezogenen Daten (Firmenname und Nachrichteninhalt statt persönlicher E-Mail-Adressen) und erwägen Sie ein selbst gehostetes LLM über Ollama für sensible Daten. Auf CRM-Seite speichert Customermates Daten standardmäßig in der EU und stellt AVV und SCCs bereit, besitzt aber keine Compliance-Zertifizierung.
+Bei Nutzung der OpenAI-API mit Business-Vereinbarung und AVV werden Daten verarbeitet, aber nicht für Training verwendet. Für maximale Compliance minimieren Sie die gesendeten personenbezogenen Daten (Firmenname und Nachrichteninhalt statt persönlicher E-Mail-Adressen) und erwägen Sie ein selbst gehostetes LLM über Ollama für sensible Daten. Auf CRM-Seite liegt die Datenbank der Cloud-Version von Customermates in der AWS-Region Frankfurt; Hosting und weitere Unterauftragsverarbeiter, auch aus den USA, stehen in der [Liste der Unterauftragsverarbeiter](/subprocessors), ein [AVV](/dpa) liegt vor, eine Compliance-Zertifizierung gibt es nicht.
 </FaqItem>
 
 <FaqItem question="Lohnt sich Automatisierung auch bei nur 20 Leads pro Monat?">

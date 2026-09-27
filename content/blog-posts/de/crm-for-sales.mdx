@@ -54,7 +54,7 @@ Worauf Sie beim Pipeline-Management achten sollten:
 - **Stagnations-Warnungen**, die Deals markieren, die zu lange in einer Phase verharren
 - **Gewichtete Pipeline-Werte**, die den Deal-Wert mit der Phasen-Wahrscheinlichkeit multiplizieren
 
-Customermates bietet vollständig anpassbare Pipelines mit Drag-and-Drop und benutzerdefinierten Feldern. Eine Stagnations-Benachrichtigung ist nicht eingebaut; sie entsteht aus einem Webhook plus einem geplanten Job in Ihrer eigenen n8n-Instanz.
+Customermates bietet eine konfigurierbare Deal-Stufenspalte mit Wahrscheinlichkeiten je Stufe (für gewichtete Pipeline-Werte), eine Kanban-Ansicht mit Drag-and-Drop und benutzerdefinierte Felder. Mehrere Pipelines gibt es nicht; unterschiedliche Prozesse trennen Sie über eine eigene Auswahlspalte und gespeicherte Ansichten. Eine Stagnations-Benachrichtigung ist nicht eingebaut; sie entsteht aus einem Webhook plus einem geplanten Job in Ihrer eigenen n8n-Instanz.
 
 ### Sales-Automatisierung
 
@@ -68,7 +68,7 @@ Wichtige Automatisierungsfunktionen:
 - **Phasenbasierte Aktionen**: Vertragsvorlage senden, wenn ein Deal in die Verhandlungsphase wechselt
 - **Eskalationsregeln**: Vertriebsleiter benachrichtigen, wenn ein hochpreisiger Deal sieben Tage keine Aktivität aufweist
 
-Customermates integriert sich mit [n8n](/blog/n8n-for-beginners-build-your-first-workflow) für unbegrenzte Automatisierungs-Workflows. Im Gegensatz zu Plattformen, die für Automatisierungs-Stufen Aufpreise verlangen, hat jeder Customermates-Nutzer Zugriff auf die vollständige Automatisierungs-Engine.
+Customermates hat keinen eingebauten Regel-Baukasten und keine Sequenzen. Automatisierung läuft über Webhooks, REST und einen Community-Node für ein separat betriebenes [n8n](/blog/n8n-for-beginners-build-your-first-workflow), ohne Aufpreis in jeder Stufe; in der Cloud kommen Routinen des Assistenten Mate hinzu, die einen gespeicherten Prompt nach Zeitplan oder bei einem CRM-Ereignis ausführen.
 
 ### Kontakt- und Account-Management
 
@@ -128,7 +128,7 @@ Ein Vertriebs-CRM muss sich mit den Tools verbinden, die Ihr Team bereits nutzt:
 
 ### 1. Null Lead-Verlust
 
-Ohne CRM verschwinden Leads in E-Mail-Postfächern, werden auf Notizzetteln vergessen oder landen in Tabellen, die niemand aktualisiert. Studien zeigen, dass Unternehmen ohne CRM bis zu 30 Prozent ihrer Leads verlieren, weil niemand nachfasst.
+Ohne CRM verschwinden Leads in E-Mail-Postfächern, werden auf Notizzetteln vergessen oder landen in Tabellen, die niemand aktualisiert. Ohne CRM gehen regelmäßig Leads verloren, weil niemand nachfasst.
 
 Ein Vertriebs-CRM eliminiert dies durch automatische Lead-Erfassung aus Webformularen, E-Mail, Telefon und Chat, sofortige Zuweisung an den zuständigen Mitarbeiter und Follow-up-Erinnerungen, die bei Nichtbeachtung eskalieren.
 
@@ -141,7 +141,7 @@ Je länger ein Deal in der Pipeline steht, desto unwahrscheinlicher wird der Abs
 - Sichtbarmachung von Engpässen durch Pipeline-Analysen
 - Schnellere interne Freigaben durch geteilten Deal-Kontext
 
-Unternehmen, die ein Vertriebs-CRM implementieren, sehen typischerweise eine Verkürzung des durchschnittlichen Deal-Zyklus um 20 bis 30 Prozent innerhalb von sechs Monaten.
+Wie stark sich der Deal-Zyklus verkürzt, hängt vom Ausgangsniveau ab; messen Sie ihn vor und nach der Einführung.
 
 ### 3. Höhere Abschlussquoten
 
@@ -166,22 +166,22 @@ Die Wahl des richtigen Vertriebs-CRM hängt von Teamgröße, Budget und den wich
 
 | Funktion | Customermates | Salesforce Sales Cloud | HubSpot Sales Hub | Pipedrive | Monday CRM | Zoho CRM |
 |---|---|---|---|---|---|---|
-| Startpreis pro Nutzer/Monat | Ab [[commercial.price.starter.monthly]] | 25 EUR | Kostenlos (limitiert) / 15 EUR | 14 EUR | 12 EUR (min. 3 Seats) | Kostenlos (limitiert) / 14 EUR |
+| Startpreis pro Nutzer/Monat | Ab [[commercial.price.starter.monthly]] | 25 USD | Kostenlos (limitiert) / 15 EUR | 14 EUR | 12 EUR (min. 3 Seats) | Kostenlos (limitiert) / 14 EUR |
 | Visuelle Pipeline | Ja | Ja | Ja | Ja | Ja | Ja |
-| Individuelle Pipelines | Unbegrenzt | Unbegrenzt | Im Free-Plan limitiert | Unbegrenzt | Ja | Ja |
-| Sales-Automatisierung | Via n8n (unbegrenzt) | Integriert (gestuft) | Integriert (gestuft) | Integriert (gestuft) | Integriert (Basis) | Integriert (gestuft) |
+| Individuelle Pipelines | Eine Stufenspalte | Unbegrenzt | Im Free-Plan limitiert | Unbegrenzt | Ja | Ja |
+| Sales-Automatisierung | Via n8n (separat) | Integriert (gestuft) | Integriert (gestuft) | Integriert (gestuft) | Integriert (Basis) | Integriert (gestuft) |
 | E-Mail-Integration | Gmail + Outlook (Pro-Stufe, [[commercial.price.pro.monthly]]) | Gmail + Outlook | Gmail + Outlook | Gmail + Outlook | Gmail + Outlook | Gmail + Outlook |
-| KI-Funktionen | Externe KI-Clients via MCP inklusive | Einstein (Aufpreis) | KI (ab Pro-Plan) | KI (Aufpreis) | KI (limitiert) | Zia (inklusive) |
-| KI-Agenten bedienen das CRM (native MCP) | Ja | Nein | Nein | Nein | Nein | Nein |
+| KI-Funktionen | Mate (Cloud) + MCP | Einstein (Aufpreis) | KI (ab Pro-Plan) | KI (Aufpreis) | KI (limitiert) | Zia (inklusive) |
+| MCP-Server für KI-Agenten | Ja, jeder Tarif | Ja (ab Enterprise Ed.) | Ja | Prüfen | Prüfen | Prüfen |
 | Nativer vereinheitlichter Posteingang (E-Mail/LinkedIn/WhatsApp/Instagram/Telegram) | Ja (ab Pro) | Begrenzt | Begrenzt | Begrenzt | Begrenzt | Begrenzt |
-| DSGVO / EU-Hosting | Ja, EU + Self-Hosting | Primär US | Primär US | EU verfügbar | Primär US | EU verfügbar |
+| DSGVO / EU-Hosting | Cloud-DB Frankfurt + Self-Hosting | Primär US | Primär US | EU verfügbar | Primär US | EU verfügbar |
 | Open Source | Ja | Nein | Nein | Nein | Nein | Nein |
 | Self-Hosting-Option | Ja | Nein | Nein | Nein | Nein | Nein |
-| Feature-Stufen | Keine, alles inklusive | Ja | Ja | Ja | Ja | Ja |
+| Feature-Stufen | Kern-CRM in jeder Stufe | Ja | Ja | Ja | Ja | Ja |
 
 ### Wichtigste Erkenntnisse aus dem Vergleich
 
-**Customermates** hebt sich für Vertriebsteams hervor, die volle Funktionalität ohne Feature-Preisstufen wollen. Ab [[commercial.price.starter.monthly]] pro Nutzer und Monat erhält jeder Mitarbeiter Pipeline-Management, Automatisierung via n8n, externe KI über MCP, bei der Agenten das CRM direkt bedienen, und Reporting; die Pro-Stufe für [[commercial.price.pro.monthly]] ergänzt den nativen vereinheitlichten Posteingang (E-Mail, LinkedIn, WhatsApp, Instagram, Telegram). Das Open-Source-Modell und die Self-Hosting-Option sprechen zudem Teams mit strengen Datenschutzanforderungen an.
+**Customermates** hebt sich für Vertriebsteams hervor, die das Kern-CRM ohne Feature-Aufpreise wollen. Ab [[commercial.price.starter.monthly]] pro Nutzer und Monat erhält jeder Mitarbeiter Pipeline-Management, Webhooks und REST für ein separat betriebenes n8n, externe KI über MCP, bei der Agenten das CRM direkt bedienen, und Dashboards; die Pro-Stufe für [[commercial.price.pro.monthly]] ergänzt den nativen vereinheitlichten Posteingang (E-Mail, LinkedIn, WhatsApp, Instagram, Telegram). Das Open-Source-Modell und die Self-Hosting-Option sprechen zudem Teams mit strengen Datenschutzanforderungen an.
 
 **Salesforce** bleibt die funktionsreichste Option, bringt aber erhebliche Komplexität und Kosten mit sich. Es eignet sich am besten für Unternehmen mit dedizierten Administratoren.
 
@@ -240,6 +240,8 @@ Reagieren Sie sofort auf niedrige Adoption. Wenn ein Mitarbeiter nach Woche drei
 
 ## CRM für Vertrieb in der Praxis: Zwei Beispiele
 
+Beide Beispiele sind illustrativ zusammengesetzt und keine Kundenfallstudien; die Zahlen zeigen, wie Sie Effekte messen können.
+
 ### Beispiel 1: IT-Dienstleister mit 8 Vertriebsmitarbeitern
 
 **Vor dem CRM**:
@@ -278,16 +280,16 @@ Reagieren Sie sofort auf niedrige Adoption. Wenn ein Mitarbeiter nach Woche drei
 
 Customermates bietet alles, was ein Vertriebsteam braucht, ohne die Komplexität oder Kosten von Enterprise-Plattformen:
 
-- **Pipeline-Management**: Visuelle Boards mit Drag-and-Drop, individuellen Phasen und Stagnations-Warnungen
-- **Unbegrenzte Automatisierung**: Verbindung mit [n8n](/blog/n8n-for-beginners-build-your-first-workflow) für Follow-up-Sequenzen, Lead-Routing, phasenbasierte Aktionen und Eskalationsregeln
+- **Pipeline-Management**: Kanban-Board mit Drag-and-Drop, individuellen Phasen und gespeicherten Ansichten, um stagnierende Deals zu finden
+- **Automatisierung über n8n**: Webhooks, REST und Community-Node für ein separat betriebenes [n8n](/blog/n8n-for-beginners-build-your-first-workflow) für Lead-Routing, phasenbasierte Aktionen und Eskalationen
 - **KI-Agenten bedienen das CRM**: Über eine native MCP-Integration ([[derived.mcp.tools.total]] Tools) aktualisieren Claude, ChatGPT oder Gemini Deal-Phasen, entwerfen Follow-ups und halten Kontaktnotizen aktuell, sodass Mitarbeiter das System nicht mehr meiden und die Pipeline die Realität abbildet
 - **Nativer vereinheitlichter Posteingang** (ab der Pro-Stufe): E-Mail, LinkedIn, WhatsApp, Instagram und Telegram in einem Posteingang im CRM, und dieselben KI-Agenten können über jeden Kanal lesen, entwerfen und senden
-- **Reporting**: Echtzeit-Dashboards für Pipeline-Gesundheit, Mitarbeiter-Performance, Conversion-Raten und Prognosegenauigkeit
+- **Reporting**: Dashboards für gewichtete Pipeline-Werte, Deals je Stufe und je Mitarbeiter (Konversionsraten und Prognosen berechnet Customermates nicht)
 - **Kontakt- und Deal-Management**: Verknüpfung von Kontakten, Organisationen und Deals mit vollständiger Interaktionshistorie
-- **DSGVO-konform**: EU-Hosting und [Self-Hosting](/features/self-hosted)-Option für vollständige Datenhoheit
+- **Datenschutz transparent**: Cloud-Datenbank in der AWS-Region Frankfurt, [Unterauftragsverarbeiter offengelegt](/subprocessors), [AVV](/dpa), dazu die [Self-Hosting](/features/self-hosted)-Option für vollständige Datenhoheit
 - **Open Source**: Kein Vendor Lock-in, volle Code-Transparenz und Community-getriebene Entwicklung
 
-All das ab [[commercial.price.starter.monthly]] pro Nutzer und Monat, ohne Automatisierungs-Limits. Jede Kernfunktion ist in jeder Stufe enthalten; mehr zahlen Sie für Messaging-Umfang und ein größeres Kontingent für die gehostete KI.
+All das ab [[commercial.price.starter.monthly]] pro Nutzer und Monat. Jede Kernfunktion ist in jeder Stufe enthalten; mehr zahlen Sie für Messaging-Umfang und ein größeres Kontingent für die gehostete KI.
 
 Möchten Sie sehen, wie Customermates Ihren Vertriebsprozess abbildet? [Starten Sie Ihre kostenlose Testphase](/auth/signup) oder entdecken Sie die [Pipeline-Management-Funktionen](/features/pipeline).
 
@@ -299,7 +301,7 @@ Ein CRM für den Vertrieb ist eine Software, die Vertriebsteams hilft, ihre Pipe
 </FaqItem>
 
 <FaqItem question="Was ist das beste CRM für den Vertrieb?">
-Das beste CRM für den Vertrieb hängt von Ihrer Teamgröße, Ihrem Budget und Ihren technischen Anforderungen ab. Salesforce ist die funktionsreichste, aber auch komplexeste und teuerste Lösung. HubSpot bietet einen Free-Tarif, schränkt aber fortgeschrittene Funktionen hinter steilen Preisstufen ein. Pipedrive ist intuitiv, limitiert aber die Automatisierung in niedrigeren Tarifen. Customermates bietet das volle Kern-CRM ab [[commercial.price.starter.monthly]] pro Nutzer und Monat, mit Open-Source-Transparenz und EU-Hosting, das beste Preis-Leistungs-Verhältnis für kleine bis mittelgroße Vertriebsteams.
+Das beste CRM für den Vertrieb hängt von Ihrer Teamgröße, Ihrem Budget und Ihren technischen Anforderungen ab. Salesforce ist die funktionsreichste, aber auch komplexeste und teuerste Lösung. HubSpot bietet einen Free-Tarif, schränkt aber fortgeschrittene Funktionen hinter steilen Preisstufen ein. Pipedrive ist intuitiv, limitiert aber die Automatisierung in niedrigeren Tarifen. Customermates bietet das volle Kern-CRM ab [[commercial.price.starter.monthly]] pro Nutzer und Monat, mit Open-Source-Transparenz, Cloud-Datenbank in Frankfurt oder Self-Hosting, ein starkes Preis-Leistungs-Verhältnis für kleine bis mittelgroße Vertriebsteams.
 </FaqItem>
 
 <FaqItem question="Wie unterscheidet sich ein Vertriebs-CRM von einem Marketing-CRM?">
@@ -311,7 +313,7 @@ Die Preise für Vertriebs-CRM reichen von kostenlos (mit eingeschränkten Funkti
 </FaqItem>
 
 <FaqItem question="Wie lange dauert die Implementierung eines Vertriebs-CRM?">
-Die Implementierungsdauer variiert je nach Komplexität. Ein kleines Team von drei bis fünf Mitarbeitern kann mit einem modernen Cloud-CRM in ein bis zwei Tagen voll einsatzbereit sein, Kontakte importieren, Pipeline-Phasen konfigurieren, E-Mail verbinden und mit dem Verkaufen beginnen. Größere Teams mit individuellen Workflows, Datenmigration aus Legacy-Systemen und Integrationsanforderungen benötigen möglicherweise zwei bis vier Wochen. Enterprise-Salesforce-Implementierungen können Monate dauern. Customermates ist für schnelles Setup mit vorgefertigten Vorlagen und geführtem Onboarding konzipiert.
+Die Implementierungsdauer variiert je nach Komplexität. Ein kleines Team von drei bis fünf Mitarbeitern kann mit einem modernen Cloud-CRM in ein bis zwei Tagen voll einsatzbereit sein, Kontakte importieren, Pipeline-Phasen konfigurieren, E-Mail verbinden und mit dem Verkaufen beginnen. Größere Teams mit individuellen Workflows, Datenmigration aus Legacy-Systemen und Integrationsanforderungen benötigen möglicherweise zwei bis vier Wochen. Enterprise-Salesforce-Implementierungen können Monate dauern. Customermates ist für schnelles Self-Service-Setup konzipiert; Daten kommen per XLSX-Import, REST oder KI-Agent hinein.
 </FaqItem>
 
 <FaqItem question="Kann ein CRM meine Vertriebs-Tabelle ersetzen?">
@@ -323,4 +325,4 @@ Ja, und es sollte es auch. Tabellen bieten keine Automatisierung, keine Echtzeit
 
 Ein CRM für den Vertrieb ist keine Kostenstelle, es ist ein Umsatz-Multiplikator. Es liefert Ergebnisse über fünf Mechanismen: null Lead-Verlust, kürzere Verkaufszyklen, höhere Abschlussquoten, systematisches Expansions-Selling und präzise Prognosen. Der Unterschied zwischen einem CRM, das Staub ansetzt, und einem, das Umsatz treibt, liegt in der Adoption, und die hängt davon ab, ein System zu wählen, das widerspiegelt, wie Ihr Team tatsächlich verkauft, und die Reibung für Vertriebsmitarbeiter zu minimieren.
 
-Wenn Sie ein Vertriebs-CRM suchen, bei dem KI-Agenten das CRM direkt bedienen (native MCP), ein nativer vereinheitlichter Posteingang E-Mail, LinkedIn, WhatsApp, Instagram und Telegram abwickelt und Sie zugleich volles Pipeline-Management und unbegrenzte Automatisierung ohne Enterprise-Komplexität oder -Preise erhalten, ist [Customermates](/auth/signup) dafür gebaut. Open Source, DSGVO-nativ und ab [[commercial.price.starter.monthly]] pro Nutzer und Monat.
+Wenn Sie ein Vertriebs-CRM suchen, bei dem KI-Agenten das CRM direkt bedienen (native MCP), ein nativer vereinheitlichter Posteingang E-Mail, LinkedIn, WhatsApp, Instagram und Telegram abwickelt und Sie zugleich volles Pipeline-Management und offene Automatisierung über n8n ohne Enterprise-Komplexität oder -Preise erhalten, ist [Customermates](/auth/signup) dafür gebaut. Open Source, selbst hostbar und ab [[commercial.price.starter.monthly]] pro Nutzer und Monat.

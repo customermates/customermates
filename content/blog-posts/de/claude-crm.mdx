@@ -76,7 +76,7 @@ Eine brauchbare Daumenregel: wenn Sie diesen Artikel zur Arbeitszeit lesen, woll
 
 ## Kann ich Claude Code geschäftlich nutzen?
 
-Ja, im DACH-Raum. Claude Code wird unter den kommerziellen Anthropic-Nutzungsbedingungen betrieben, nicht unter den Verbraucherbedingungen, die geschäftliche Nutzung in Europa einschränken würden. Die übliche Compliance-Sorgfalt gilt: Auftragsverarbeitungsvereinbarung mit Anthropic, Standardvertragsklauseln für Datenübermittlung, Dokumentation der Verarbeitungstätigkeiten. Für CRM-Daten ist die saubere Antwort, sensible Felder maskiert oder gefiltert an Claude zu senden, oder das CRM gleich so zu hosten, dass die Daten in der EU bleiben.
+Ja, im DACH-Raum. Claude Code wird unter den kommerziellen Anthropic-Nutzungsbedingungen betrieben, nicht unter den Verbraucherbedingungen, die geschäftliche Nutzung in Europa einschränken würden. Die übliche Compliance-Sorgfalt gilt: Auftragsverarbeitungsvereinbarung mit Anthropic, Standardvertragsklauseln für Datenübermittlung, Dokumentation der Verarbeitungstätigkeiten. Für CRM-Daten ist die saubere Antwort, sensible Felder maskiert oder gefiltert an Claude zu senden, und beim CRM selbst Speicherort und Unterauftragsverarbeiter zu prüfen oder es selbst zu hosten.
 
 ## Was kostet Claude für Firmen?
 
@@ -89,19 +89,19 @@ Anthropic bietet drei Stufen für Teams.
 
 Plus API-Kosten, wenn Sie Claude in Ihre eigene Anwendung einbetten. Pro 1 Million Input-Token von Sonnet sind das in der Größenordnung 3 bis 15 USD, je nach Modell und Caching.
 
-Die wichtige Zahl ist nicht der Claude-Preis, sondern die Summe aus Claude plus CRM plus Connector. Wenn das CRM einen separaten Connector-Tarif hat (HubSpot, Salesforce), addiert sich das zu 50 bis 100 USD pro Sitz oben drauf. MCP-native Open-Source-CRMs vermeiden diesen Aufschlag.
+Die wichtige Zahl ist nicht der Claude-Preis, sondern die Summe aus Claude plus CRM plus Zugang. Manche Anbieter knüpfen ihre MCP-Server an bestimmte Editionen (Salesforce ab Enterprise Edition), bei anderen hängen einzelne Tools von bezahlten Abos ab (HubSpot). MCP-native CRMs ohne eigene KI-Stufe vermeiden diesen Aufschlag.
 
 ## Claude an ein bestehendes CRM anbinden
 
 Der Mittelweg. Drei Connector-Muster dominieren in 2026.
 
-**Offizielle Hersteller-Connectoren.** HubSpot publiziert einen Claude-Connector, der CRM-Datensätze erstellt und aktualisiert, Aktivitäten loggt und Engagement-Historie analysiert. Setup ist ein 5-Minuten-Klick-Flow in Claudes Connector-Bibliothek. Trade-off: Sie brauchen eine HubSpot-Pro-/Enterprise-Lizenz, damit das meiste sinnvoll wird, was die Vollkosten auf 50 bis 100 USD pro Sitz bringt.
+**Offizielle MCP-Server der Hersteller.** Die großen CRMs veröffentlichen inzwischen eigene MCP-Server. Der Remote-MCP-Server von HubSpot ist seit April 2026 für alle HubSpot-Konten allgemein verfügbar; er liest und schreibt Datensätze und Aktivitäten, löscht aber nicht, und zuerst legt jemand in HubSpot eine MCP-Auth-App an ([HubSpot-MCP-Leitfaden](/blog/hubspot-mcp)). Die gehosteten MCP-Server von Salesforce sind seit April 2026 für Orgs ab Enterprise Edition allgemein verfügbar und werden von einem Administrator eingerichtet ([Salesforce-MCP-Leitfaden](/blog/salesforce-mcp)).
 
-**MCP-Server (Community).** Open-Source-MCP-Server existieren für Salesforce, Pipedrive, Close, Attio und andere. Sie lassen Claude Datensätze lesen und schreiben, die Tiefe schwankt aber stark: manche decken nur Kontakte ab, andere das gesamte Entitätsmodell. Qualität hängt von der Community ab.
+**MCP-Server (Community).** Für CRMs ohne offiziellen Server füllen Community-Projekte die Lücke. Sie lassen Claude Datensätze lesen und schreiben, die Tiefe schwankt aber stark: manche decken nur Kontakte ab, andere das gesamte Entitätsmodell. Qualität und Wartung hängen vom Projekt ab.
 
 **Zapier und Middleware.** Die unschönste Option: Zapier- oder n8n-Flows, die Claude-Prompts in CRM-Aktionen übersetzen. Funktioniert für einfache Flows, scheitert an mehrstufigen Workflows und strukturierten Outputs. Nicht als primäre Architektur empfohlen, brauchbar als Klebstoff.
 
-Der Connect-Pfad ist richtig, wenn Sie auf einem CRM sind, das Sie nicht verlassen können (HubSpot Enterprise, Salesforce Mid-Market) und Claude es bedienen lassen wollen. Der Trade-off sind die geschichteten Kosten: Sie zahlen fürs CRM und Sie zahlen für die Connector-Stufe (oder den MCP-Server, den Sie selbst bauen müssen).
+Der Connect-Pfad ist richtig, wenn Sie bereits auf einem CRM sind, das Sie nicht verlassen können, und Claude es bedienen lassen wollen. Die Trade-offs sind der Einrichtungsaufwand, die Editions-Voraussetzungen mancher Anbieter und alles, was der Server des Anbieters auslässt.
 
 ## Was Claude im CRM tatsächlich tun kann
 
@@ -133,19 +133,19 @@ Für CRMs ändert MCP die Integrations-Geschichte:
 - Mehrere Tool-Aufrufe können in einem Konversations-Turn verkettet werden
 - Das Protokoll ist offen, jedes CRM und jeder KI-Assistent nutzen das gleiche Wire-Format
 
-Der HubSpot-Claude-Connector ist eine MCP-Implementierung hinter Bezahlschranke. Open-Source-MCP-Server existieren für viele andere CRMs. Und manche CRMs sind MCP-nativ, was bedeutet, dass die Tool-Oberfläche die primäre Integrations-Schicht ist und nicht ein Nachgedanke. Das ist das effizienteste Muster für Claude-getriebene Workflows.
+HubSpot und Salesforce betreiben offizielle MCP-Server neben ihren Produkten, und für viele andere CRMs gibt es Community-Server. Manche CRMs sind MCP-nativ: Die Tool-Oberfläche ist in jedem Tarif Teil des Produkts statt ein separat einzurichtender Server. Das ist das direkteste Muster für Claude-getriebene Workflows; der [Leitfaden zum agentischen CRM](/blog/agentic-crm) erklärt genauer, was KI-nativ bedeutet.
 
 ## DSGVO und Self-Hosting
 
 Wer im DACH-Raum CRM-Daten verarbeitet, kommt an drei Punkten nicht vorbei.
 
-**Datenresidenz.** EU-Cloud als Standort für CRM-Daten ist Standard, US-Cloud rechtlich aufwendiger. Bei generativer KI: prüfen, ob der Modellanbieter EU-Inferenz-Endpoints anbietet (Anthropic tut das für Claude über AWS Bedrock in Frankfurt).
+**Datenresidenz.** EU-Cloud als Standort für CRM-Daten ist Standard, US-Cloud rechtlich aufwendiger. Bei generativer KI: prüfen, ob der Modellanbieter oder die genutzte Cloud-Plattform EU-Regionen für die Verarbeitung anbietet.
 
 **Auftragsverarbeitung (AVV).** AVV mit Anthropic, AVV mit dem CRM-Anbieter, AVV mit jedem Subprozessor. Standardvertragsklauseln zwingend, wenn Daten USA berühren.
 
-**Self-Hosting als saubere Antwort.** Self-Hosting via Docker auf eigener Infrastruktur ist die DSGVO-Antwort, bei der die Daten die eigene Umgebung nie verlassen. Closed-Source-SaaS bietet das nicht an, Open-Source-CRMs schon.
+**Self-Hosting als saubere Antwort.** Self-Hosting via Docker auf eigener Infrastruktur hält die CRM-Datenbank in Ihrer Umgebung; was Claude liest, geht dabei an den Modellanbieter. Closed-Source-SaaS bietet Self-Hosting nicht an, Open-Source-CRMs schon.
 
-Customermates ist nativ DSGVO-konform, EU-Cloud oder Self-Hosting via Docker, AGPL-3.0 lizenziert, Made in Germany. Claude operiert auf Daten, die Ihre Infrastruktur nicht verlassen, wenn das die Anforderung ist.
+Customermates ist AGPL-3.0 lizenziert und kommt aus Mannheim. In der Cloud-Version liegt die Datenbank in der AWS-Region Frankfurt; Hosting und weitere Unterauftragsverarbeiter, auch aus den USA, stehen in der [Liste der Unterauftragsverarbeiter](/subprocessors), ein [Auftragsverarbeitungsvertrag (AVV)](/dpa) liegt vor. Wer den Speicherort vollständig selbst bestimmen will, betreibt den Open-Source-Kern selbst via Docker; der MCP-Server läuft dort ebenfalls.
 
 ## Customermates: ein CRM, in dem Claude von Haus aus Operator ist
 
@@ -157,7 +157,7 @@ Customermates ist nativ DSGVO-konform, EU-Cloud oder Self-Hosting via Docker, AG
 - **Docs ([[derived.mcp.tools.groups.docs]]):** Produktdokumentation durchsuchen und lesen
 - **Workspace ([[derived.mcp.tools.groups.workspace]]):** Kontext zu aktuellem Nutzer und Workspace
 - **Admin ([[derived.mcp.tools.groups.admin]]):** Rollen und Unternehmensverwaltung
-- **Custom Columns ([[derived.mcp.tools.groups.custom-columns]]):** Custom Fields über zehn Feldtypen verwalten
+- **Custom Columns ([[derived.mcp.tools.groups.custom-columns]]):** typisierte Custom Fields verwalten
 - **Widgets ([[derived.mcp.tools.groups.widgets]]):** Dashboard-Widgets
 - **Webhooks ([[derived.mcp.tools.groups.webhooks]]):** Webhook-Abonnements verwalten
 - **Support ([[derived.mcp.tools.groups.support]]):** Produktsupport anfordern
@@ -165,15 +165,57 @@ Customermates ist nativ DSGVO-konform, EU-Cloud oder Self-Hosting via Docker, AG
 
 Das Messaging-Toolset ist die zweite Hälfte der Geschichte. Dieselben Agenten, die Datensätze aktuell halten, bedienen auch einen nativen, vereinheitlichten Posteingang und lesen, entwerfen und senden über E-Mail, LinkedIn, WhatsApp, Instagram und Telegram von einer Tool-Oberfläche aus. Messaging- und Social-Tools erfordern eine Pro- oder Business-Stufe, die Kern-Tools für Datensätze, Custom Fields und Workspace sind ab der Starter-Stufe verfügbar.
 
-Jede Aktion, die ein Vertriebler, Marketer oder Service-Mitarbeiter über die Customermates-UI auslöst, ist auch ein Tool, das Claude aufrufen kann. Es gibt keine Lücke zwischen "funktioniert im Chat, aber nicht im Code". Es gibt keine Connector-Stufe. Es gibt keine separate Lizenz für KI-Funktionen. Der MCP-Server ist Open Source unter AGPL-3.0, derselben Lizenz wie der Rest der Anwendung.
+Die zentrale Datensatz-Arbeit, die ein Vertriebler oder Account Manager in der Customermates-Oberfläche erledigt, steht auch als Tools bereit, die Claude aufrufen kann. Es gibt keine Connector-Stufe und keine separate Lizenz für den MCP-Zugang. Der MCP-Server ist Teil des AGPL-3.0-Kerns und läuft deshalb auch auf selbst gehosteten Installationen.
 
 Wie das in der Praxis aussieht. Ein Nutzer öffnet Claude und tippt:
 
-> "Lege einen Kontakt für Sarah Lee bei Northwind an, VP Sales. Verlinke sie mit der Northwind-Organisation. Erstelle einen Deal über 25.000 EUR in der Stage Discovery. Lege eine Folgeaufgabe für mich am Freitag an, um das Angebot zu schicken."
+> "Lege einen Kontakt für Sarah Lee bei Northwind an, VP Sales. Verlinke sie mit der Northwind-Organisation. Erstelle einen Deal über 25.000 EUR in der Stage Discovery. Lege eine Aufgabe für mich an, ihr das Angebot zu schicken."
 
-Claude liest die MCP-Tool-Liste, identifiziert `create_contacts`, `manage_record_links`, `create_deals` und `create_tasks`. Führt sie nacheinander in einem Turn aus, gibt die neuen Datensatz-IDs zurück und bestätigt, was er getan hat. Die ganze Interaktion dauert Sekunden. Keine Webhook-Konfiguration, kein Zapier, keine Admin-Arbeit.
+Claude liest die MCP-Tool-Liste, identifiziert `create_contacts`, `manage_record_links`, `create_deals` und `create_tasks`. Führt sie nacheinander aus, gibt die neuen Datensätze zurück und bestätigt, was er getan hat. Keine Webhook-Konfiguration, kein Zapier, keine Admin-Arbeit.
 
 Das ist der dritte Weg: nicht ein CRM mit Claude Code bauen, nicht Claude über einen bezahlten Connector an ein CRM anbinden, sondern ein CRM nutzen, das von Tag eins an für Claude (und ChatGPT, und Gemini) zur Bedienung entworfen wurde.
+
+## Claude CRM vs. ChatGPT CRM
+
+Für ChatGPT gelten dieselben Fragen, mit zwei Unterschieden.
+
+**MCP-Unterstützung.** Anthropic hat MCP veröffentlicht und zuerst in Claude unterstützt. ChatGPT unterstützt Custom-MCP-Connectoren inzwischen ebenfalls in den bezahlten Tarifen, sodass derselbe CRM-Endpunkt in beiden funktioniert. Custom Connectors sind in beiden Produkten ein bezahltes Feature: Claude Pro, Max, Team und Enterprise sowie ChatGPT Plus, Pro, Business und Enterprise.
+
+**Custom GPTs und Actions.** ChatGPT hat mit Custom-GPT-Actions einen eigenen Integrationsmechanismus, der älter ist als MCP. Für CRM-Anwendungsfälle ist MCP heute das langlebigere Protokoll; Actions sind noch verbreitet, aber weniger allgemein.
+
+In der Praxis funktioniert ein MCP-natives CRM wie Customermates mit Claude, ChatGPT und Gemini gleichermaßen. Das CRM stellt eine Tool-Oberfläche bereit, und der KI-Assistent, den Ihr Team bevorzugt, liest dieselbe Oberfläche.
+
+## So verbinden Sie Claude mit einem CRM
+
+Unabhängig vom CRM folgt die Verbindung demselben Muster: Das CRM stellt einen MCP-Endpunkt bereit, Claude fügt ihn als Connector hinzu, und Sie melden sich an, damit Claude mit Ihren Berechtigungen handelt. Mit Customermates sind es drei Schritte, beschrieben in der [Connector-Anleitung](/docs/connect-custom-connector):
+
+<Steps>
+  <Step title="Custom Connector hinzufügen">
+    Öffnen Sie in Claude **Settings → Connectors → Add custom connector** und
+    fügen Sie Ihre Customermates-Adresse gefolgt von `/api/v1/mcp` ein.
+  </Step>
+  <Step title="Anmelden und freigeben">
+    Ein Customermates-Fenster öffnet sich. Melden Sie sich an und geben Sie den
+    Zugriff frei; ein API-Key ist nicht nötig.
+  </Step>
+  <Step title="Tools prüfen">
+    Zurück in Claude erscheint Customermates mit seinen Tools. Fragen Sie Claude
+    als ersten, rein lesenden Test nach Ihren offenen Deals.
+  </Step>
+</Steps>
+
+Für Claude Code und andere Kommandozeilen-Clients legen Sie unter **Mein Profil → API & Konnektoren** einen API-Key an und folgen der [CLI-Anleitung](/docs/connect-cli).
+
+## CRMs mit Claude-Unterstützung heute
+
+Eine kurze Übersicht, wie verbreitete CRMs sich laut aktueller Herstellerdokumentation mit Claude verbinden:
+
+1. **Customermates.** MCP-Server in jedem Tarif und in jeder selbst gehosteten Installation, [[derived.mcp.tools.total]] Tools, Open-Source-Kern, keine separate KI-Stufe.
+2. **HubSpot.** Offizieller Remote-MCP-Server, seit April 2026 für alle Konten allgemein verfügbar; liest und schreibt Datensätze und Aktivitäten, keine Löschungen. Siehe den [HubSpot-MCP-Leitfaden](/blog/hubspot-mcp).
+3. **Salesforce.** Offizielle gehostete MCP-Server, seit April 2026 ab Enterprise Edition allgemein verfügbar, von einem Administrator eingerichtet. Siehe den [Salesforce-MCP-Leitfaden](/blog/salesforce-mcp).
+4. **Pipedrive und andere.** Prüfen Sie die aktuelle Herstellerdokumentation auf einen offiziellen Server; andernfalls gibt es Community-MCP-Server mit unterschiedlicher Tiefe.
+
+Die richtige Wahl hängt von Teamgröße, bestehendem Stack und davon ab, wie viel Claude tatsächlich tun soll (nicht nur vorschlagen).
 
 ## Entscheidungshilfe: Bauen, Anbinden oder Customermates
 
@@ -181,9 +223,9 @@ Eine Flussdiagramm-Entscheidung.
 
 **Sie sind Solo-Founder mit Dev-Skills, Prototyp-Stimmung und Zeit → bauen.** Nutzen Sie Claude Code, liefern Sie etwas, lernen Sie aus dem Betrieb. Die Lektion ist die Wartung wert.
 
-**Sie sind auf HubSpot Enterprise oder Salesforce, das CRM ändert sich nicht → anbinden.** Nutzen Sie den offiziellen Connector oder einen Community-MCP-Server. Zahlen Sie die Connector-Stufe, sie ist günstiger als eine Migration.
+**Sie sind auf HubSpot oder Salesforce, das CRM ändert sich nicht → anbinden.** Nutzen Sie den offiziellen MCP-Server des Herstellers. Die Einrichtung ist günstiger als eine Migration.
 
-**Sie wollen KI im CRM, Ihr Team ist 1 bis 30 Personen, Sie wollen keine Connector-Steuer → MCP-nativ.** Nutzen Sie Customermates. Self-Hosting via Docker kostenlos, EU-Cloud ab [[commercial.price.starter.monthly]] pro Nutzer pro Monat (Starter-Stufe), Open Source AGPL-3.0. Claude bedient es direkt über [[derived.mcp.tools.total]] MCP-Tools, und dieselben Agenten betreiben ab Pro den vereinheitlichten Posteingang über E-Mail, LinkedIn, WhatsApp, Instagram und Telegram.
+**Sie wollen KI im CRM, Ihr Team ist 1 bis 30 Personen, Sie wollen keine Connector-Steuer → MCP-nativ.** Nutzen Sie Customermates. Den Open-Source-Kern via Docker ohne Lizenzgebühren selbst hosten oder die verwaltete Cloud ab [[commercial.price.starter.monthly]] pro Nutzer pro Monat (Starter-Stufe) nutzen, Open Source AGPL-3.0. Claude bedient es direkt über [[derived.mcp.tools.total]] MCP-Tools, und dieselben Agenten betreiben ab Pro den vereinheitlichten Posteingang über E-Mail, LinkedIn, WhatsApp, Instagram und Telegram.
 
 **Sie sind klassisch und wollen einfach ein CRM ohne KI → traditionell.** Pipedrive, Zoho oder eine der einfacheren Optionen. Der Smart-CRM-Artikel oben ist nicht für Sie, und das ist okay.
 
@@ -215,18 +257,22 @@ Das Model Context Protocol, ein offener Standard von Anthropic, mit dem KI-Assis
 </FaqItem>
 
 <FaqItem question="Hat HubSpot eine Claude-Integration?">
-Ja. HubSpot publiziert einen offiziellen Claude-Connector, der CRM-Datensätze erstellt und aktualisiert, Aktivitäten loggt und Engagement analysiert. Funktioniert nur auf HubSpot-Pro-/Enterprise-Stufen.
+Ja. Der Remote-MCP-Server von HubSpot, seit April 2026 für alle HubSpot-Konten allgemein verfügbar, lässt Claude CRM-Datensätze und Aktivitäten lesen und schreiben. Löschen unterstützt er nicht, und einige Tools hängen von bezahlten HubSpot-Abos ab.
 </FaqItem>
 
 <FaqItem question="Was ist die günstigste Variante, Claude mit einem CRM zu nutzen?">
-[Customermates](/) ist ab [[commercial.price.starter.monthly]] pro Nutzer pro Monat auf EU-Cloud oder kostenlos selbst gehostet via Docker, mit nativer Claude-Unterstützung über [[derived.mcp.tools.total]] MCP-Tools. Die Kern-Tools für Datensätze und Workspace sind ab der Starter-Stufe dabei; es gibt keine separate KI-Stufe oder Connector-Gebühr.
+[Customermates](/) ist ab [[commercial.price.starter.monthly]] pro Nutzer pro Monat in der verwalteten Cloud oder selbst gehostet via Docker ohne Lizenzgebühren verfügbar, mit nativer Claude-Unterstützung über [[derived.mcp.tools.total]] MCP-Tools. Die Kern-Tools für Datensätze und Workspace sind ab der Starter-Stufe dabei; es gibt keine separate KI-Stufe oder Connector-Gebühr.
 </FaqItem>
 
 <FaqItem question="Gibt es ein Open-Source-Claude-CRM?">
-Ja. [Customermates](/) ist ein Open-Source-CRM unter AGPL-3.0 mit nativer Claude-Unterstützung über MCP. Außerdem eines der wenigen, das keinen Connector und keine separate KI-Lizenz für KI-Funktionen verlangt.
+Ja. [Customermates](/) ist ein Open-Source-CRM unter AGPL-3.0 mit nativer Claude-Unterstützung über MCP. Außerdem eines der wenigen, das keinen Connector und keine separate KI-Lizenz für den MCP-Zugang verlangt.
 </FaqItem>
 
 <FaqItem question="Funktioniert Claude mit Salesforce?">
-Ja, über Community-MCP-Server und Salesforces eigene Agentforce-Plattform. Die Tiefe ist Enterprise-Grade, die Kosten ebenfalls. Die meisten kleinen Teams überzahlen für die Integrations-Tiefe, die sie tatsächlich nutzen.
+Ja. Die gehosteten MCP-Server von Salesforce, seit April 2026 für Orgs ab Enterprise Edition allgemein verfügbar, lassen Claude mit Salesforce-Daten arbeiten, nachdem ein Administrator sie eingerichtet hat. Der Salesforce-DX-MCP-Server richtet sich an Entwickler.
+</FaqItem>
+
+<FaqItem question="Welche CRMs funktionieren mit Claude?">
+Customermates (MCP-Server in jedem Tarif), HubSpot (offizieller Remote-MCP-Server), Salesforce (offizielle gehostete MCP-Server ab Enterprise Edition) und viele weitere über Community-MCP-Server. Tiefe und Einrichtungsaufwand unterscheiden sich.
 </FaqItem>
 </Faq>

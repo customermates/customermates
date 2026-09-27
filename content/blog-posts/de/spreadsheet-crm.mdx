@@ -198,15 +198,15 @@ Drei Kriterien für die Wahl:
 
 - **Vertriebs-orientiert mit Pipeline-Fokus**: Pipedrive ab 14 Euro pro Nutzer, einfaches Onboarding.
 - **Marketing-Inbound-Anbindung gewünscht**: HubSpot CRM Free, später Marketing Hub.
-- **Open Source, EU-Hosting, KI-Agent-Steuerung**: Customermates ab [[commercial.price.starter.monthly]] pro Nutzer im Cloud-Tarif (Starter), kostenlos selbst hostbar.
+- **Open Source, Self-Hosting, KI-Agent-Steuerung**: Customermates ab [[commercial.price.starter.monthly]] pro Nutzer im Cloud-Tarif (Starter, Datenbank in Frankfurt), ohne Lizenzkosten selbst hostbar.
 
 ## Vom Excel-CRM zur Open-Source-Alternative
 
 Customermates ist gebaut für genau diesen Übergang. Die Tabellen-Ansicht (eine von zwei Standard-Ansichten neben der Kanban-Karten-Ansicht) fühlt sich für Excel-Nutzer vertraut an: Spalten, Zeilen, Filter, Sortierung. Zehn typisierte Custom-Field-Typen (plain, singleSelect, currency, date, date range, dateTime, dateTime range, email, link, phone) bilden die meisten Spalten ab, die Sie aus Excel mitbringen, jetzt allerdings mit Validierung und Such-Indexierung.
 
-Der entscheidende Unterschied zur Excel-Welt: Customermates lässt sich von KI-Agenten bedienen. Über einen eingebauten [MCP-Server](https://modelcontextprotocol.io) mit [[derived.mcp.tools.total]] Tools können Claude, ChatGPT oder Codex direkt im CRM lesen und schreiben, inklusive eines nativen vereinheitlichten Posteingangs über E-Mail, LinkedIn, WhatsApp, Instagram und Telegram. Praktisch heißt das: Sie leiten eine E-Mail an Claude weiter, und Claude legt den Kontakt an, schreibt die Notiz, aktualisiert den Deal-Status. Die Datenpflege, die in Excel manuell laufen muss, übernimmt der Agent.
+Der entscheidende Unterschied zur Excel-Welt: Customermates lässt sich von KI-Agenten bedienen. Über einen eingebauten [MCP-Server](https://modelcontextprotocol.io) mit [[derived.mcp.tools.total]] Tools können Claude, ChatGPT oder Codex direkt im CRM lesen und schreiben, in der Cloud ab Pro inklusive eines nativen vereinheitlichten Posteingangs über E-Mail, LinkedIn, WhatsApp, Instagram und Telegram. Praktisch heißt das: Sie leiten eine E-Mail an Claude weiter, und Claude legt den Kontakt an, schreibt die Notiz, aktualisiert den Deal-Status. Die Datenpflege, die in Excel manuell laufen muss, übernimmt der Agent.
 
-Cloud-Hosting in der EU-Region ab [[commercial.price.starter.monthly]] pro Nutzer pro Monat (Starter-Stufe), Self-Hosting via `docker compose up -d` kostenlos unter [AGPL-3.0](https://www.gnu.org/licenses/agpl-3.0.html). Migration von Excel: Tabelle exportieren, Datensätze über die REST API oder einen KI-Agenten per MCP anlegen, Custom Fields anpassen. Mit einem KI-Agenten ist auch die Migration in einem Vormittag erledigt.
+Cloud ab [[commercial.price.starter.monthly]] pro Nutzer pro Monat (Starter-Stufe, Datenbank in der AWS-Region Frankfurt, Unterauftragsverarbeiter [offengelegt](/subprocessors)), Self-Hosting via `docker compose up -d` ohne Lizenzkosten unter [AGPL-3.0](https://www.gnu.org/licenses/agpl-3.0.html). Migration von Excel: Custom Fields anlegen, dann jedes Blatt als `.xlsx` über den Import-Assistenten laden und Spalten den Feldern zuordnen, oder einen KI-Agenten per MCP die Datensätze anlegen lassen. Kleine Bestände sind so an einem Vormittag umgezogen.
 
 ## Fazit
 
@@ -234,7 +234,7 @@ Für Multi-User-Setups ja, weil Google Sheets von Haus aus für gleichzeitige Be
 </FaqItem>
 
 <FaqItem question="Gibt es ein kostenloses Open-Source-CRM?">
-Ja. Customermates ist unter AGPL-3.0 lizenziert und kostenlos selbst hostbar via `docker compose up -d`. Zwei Container laufen, in 30 Minuten ist das System einsatzbereit. Andere Optionen: EspoCRM, SuiteCRM, Krayin. Die Cloud-Variante von Customermates startet bei [[commercial.price.starter.monthly]] pro Nutzer pro Monat (Starter) und ist in der EU-Region gehostet.
+Ja. Customermates ist unter AGPL-3.0 lizenziert und ohne Lizenzkosten selbst hostbar via `docker compose up -d`. Zwei Container laufen, in 30 Minuten ist das System einsatzbereit. Andere Optionen: EspoCRM, SuiteCRM, Krayin. Die Cloud-Variante von Customermates startet bei [[commercial.price.starter.monthly]] pro Nutzer pro Monat (Starter); ihre Datenbank liegt in der AWS-Region Frankfurt.
 </FaqItem>
 
 <FaqItem question="Brauche ich Apps Script für ein Excel-CRM?">
@@ -242,6 +242,6 @@ Nein, nicht zwingend. Die Vorlage funktioniert ohne jede Skripterweiterung für 
 </FaqItem>
 
 <FaqItem question="Was ist der günstigste Weg von Excel zu einem echten CRM?">
-Self-Hosting eines Open-Source-CRMs. Customermates läuft auf einem 5-Euro-VPS via `docker compose up -d`, kostenlos unter AGPL-3.0, einzige Kosten sind der Server. EspoCRM, SuiteCRM und Krayin funktionieren genauso. Wer keinen Server pflegen möchte, findet die günstigste Cloud-Option in HubSpot Free (für bis zu 1.000 Kontakte tatsächlich kostenlos) oder Customermates Cloud ab [[commercial.price.starter.monthly]] pro Nutzer pro Monat (Starter). Pipedrive startet bei 14 Euro, Salesforce bei 25 Euro.
+Self-Hosting eines Open-Source-CRMs. Customermates läuft auf einem 5-Euro-VPS via `docker compose up -d`, ohne Lizenzkosten unter AGPL-3.0, einzige Kosten sind der Server und Ihre Admin-Zeit. EspoCRM, SuiteCRM und Krayin funktionieren genauso. Wer keinen Server pflegen möchte, findet die günstigste Cloud-Option in HubSpot Free (für bis zu 1.000 Kontakte tatsächlich kostenlos) oder Customermates Cloud ab [[commercial.price.starter.monthly]] pro Nutzer pro Monat (Starter). Pipedrive startet bei 14 Euro (jährliche Zahlung), Salesforce bei 25 US-Dollar (Stand September 2026).
 </FaqItem>
 </Faq>

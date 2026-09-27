@@ -45,7 +45,7 @@ Die drei Begriffe werden im Marketing oft durcheinandergeworfen. Sie meinen aber
 
 **Kollaboratives CRM** sorgt dafür, dass Vertrieb, Marketing und Service sowie externe Partner mit denselben Daten arbeiten. Es geht um die Synchronisation zwischen Abteilungen und um Kanäle wie Telefon, Mail, Chat und Social Media, die einheitlich in eine Kundenakte fließen. Es ist die Brücke, die alles miteinander verbindet.
 
-Die drei Bereiche überschneiden sich. Eine moderne CRM-Software wie [Customermates](/), HubSpot oder Salesforce deckt alle drei ab. Trotzdem hilft die Trennung, wenn Sie ein System bewerten: Was kann es auf der operativen Ebene? Wie tief sind die Analysen? Wie gut spielt es mit anderen Tools zusammen?
+Die drei Bereiche überschneiden sich. Große CRM-Suiten wie HubSpot oder Salesforce decken alle drei ab; ein fokussiertes CRM wie [Customermates](/) konzentriert sich auf den Vertrieb und bindet Marketing- und Service-Tools über Schnittstellen an. Trotzdem hilft die Trennung, wenn Sie ein System bewerten: Was kann es auf der operativen Ebene? Wie tief sind die Analysen? Wie gut spielt es mit anderen Tools zusammen?
 
 In der Praxis ist das operative CRM die Pflicht und das analytische CRM die Kür. Wer keine sauberen operativen Prozesse hat, hat auch keine sauberen Daten zum Analysieren. Das operative CRM ist die Voraussetzung für alles andere.
 
@@ -106,7 +106,7 @@ Die Module sind nur die Bühne. Der Wert entsteht durch das, was darauf passiert
 
 Drei Stufen der Automatisierung lassen sich unterscheiden.
 
-**Regelbasierte Workflows.** Wenn Bedingung X, dann Aktion Y. Beispiel: Wenn ein Formular ausgefüllt wird, lege einen Kontakt an, weise ihn dem zuständigen Vertriebler zu und schicke eine Bestätigungsmail. Tools wie [n8n](/blog/n8n-for-beginners-build-your-first-workflow), Zapier oder Make decken das visuell ab. Auch jedes ernsthafte CRM bringt einen eigenen Workflow-Builder mit.
+**Regelbasierte Workflows.** Wenn Bedingung X, dann Aktion Y. Beispiel: Wenn ein Formular ausgefüllt wird, lege einen Kontakt an, weise ihn dem zuständigen Vertriebler zu und schicke eine Bestätigungsmail. Tools wie [n8n](/blog/n8n-for-beginners-build-your-first-workflow), Zapier oder Make decken das visuell ab. Viele CRMs bringen zusätzlich einen eigenen Workflow-Builder mit; Customermates setzt stattdessen auf Webhooks, REST API und einen n8n-Community-Node für eine separat betriebene n8n-Instanz.
 
 **Trigger-Kampagnen.** Eine Sequenz aus mehreren Schritten, die sich an Verhalten orientiert. Wer auf eine Mail klickt, bekommt nach drei Tagen die nächste. Wer nicht klickt, fällt aus der Strecke. Klassische Marketing-Automation.
 
@@ -120,7 +120,7 @@ Der deutsche Markt ist groß und teils unübersichtlich. Ich liste hier die Anbi
 
 | Anbieter          | Stärke im operativen CRM                                         | Einstiegspreis pro Nutzer/Monat                   | EU-Hosting      |
 | ----------------- | ---------------------------------------------------------------- | ------------------------------------------------- | --------------- |
-| **Customermates** | KI-Agenten-Bedienung, vollständige Pipeline, Workflow-Automation | Ab [[commercial.price.starter.monthly]] monatlich | Ja, Deutschland |
+| **Customermates** | KI-Agenten-Bedienung, Pipeline, offene API und Webhooks          | Ab [[commercial.price.starter.monthly]] monatlich | Cloud-Datenbank in Frankfurt, selbst hostbar |
 | Pipedrive         | Vertriebsfokus, sehr saubere Pipeline-Logik                      | Ab 14 €                                           | Ja, wählbar     |
 | HubSpot           | Marketingautomation in der Tiefe, große Gratis-Version           | Kostenlos, Pro ab 90 €                            | Ja, optional    |
 | Salesforce        | Enterprise, alle drei Module mit hoher Tiefe                     | Ab 25 €                                           | Ja, optional    |
@@ -174,19 +174,19 @@ Ein paar typische Szenarien, in denen operatives CRM seinen Wert zeigt.
 
 **Online-Shop mit Marketingautomation.** Wer einen Warenkorb abbricht, bekommt nach 24 Stunden eine Erinnerung, nach 72 Stunden ein Angebot mit Rabatt. Wer kauft, fällt aus der Strecke. Wer nicht reagiert, bekommt vier Wochen später eine Reaktivierungsmail. Das ist klassische operative CRM-Arbeit, die jedes vernünftige System abdeckt. Lesen Sie dazu auch [CRM-Beispiele](/blog/crm-examples).
 
-**Selbstständiger Berater mit KI-Assistent.** Statt nach jedem Telefonat ins CRM zu wechseln, beschreibt der Berater dem Assistenten kurz, was besprochen wurde. Der Assistent legt die Notiz an, schiebt das Angebot und plant die Folge-Aufgabe. Bei Customermates ist genau das die Hauptidee.
+**Selbstständiger Berater mit KI-Assistent.** Statt nach jedem Telefonat ins CRM zu wechseln, beschreibt der Berater dem Assistenten kurz, was besprochen wurde. Der Assistent legt die Notiz an, schiebt das Angebot und legt die Folge-Aufgabe an. Bei Customermates ist genau das die Hauptidee.
 
 ## Customermates: operatives CRM, das sich selbst aktualisiert
 
 Customermates ist ein operatives CRM für KMU, Selbstständige und Beratungsteams in Deutschland. Ich habe es gebaut, weil mir keine bestehende Lösung gefallen hat. Die Pflegearbeit, die jeden Mittwoch um 17 Uhr in jedem CRM-Projekt anfällt, soll wegfallen.
 
-- **KI-Agenten-Anbindung.** Wenn Sie Claude oder ChatGPT bereits täglich nutzen, aktualisiert sich Ihre Pipeline von selbst. Sie beschreiben das Telefonat, der Assistent legt den Kontakt an, schiebt das Angebot, schreibt die Notiz, plant die Folge-Aufgabe. Sie tippen nicht ins CRM, das CRM hört Ihnen zu.
-- **Volle operative Module.** Kontakte, Unternehmen, Pipeline, Aufgaben, Workflow-Automatisierung, API, Webhooks, Audit-Log, Berechtigungen, alles im Kern-CRM ab der Starter-Stufe.
-- **Nativer vereinheitlichter Posteingang.** E-Mail, LinkedIn, WhatsApp, Instagram und Telegram in einem Posteingang im CRM (Pro-Stufe), und dieselben KI-Agenten können über jeden Kanal lesen und antworten.
-- **Open Source unter AGPL-3.0.** Der gesamte [Quellcode](https://github.com/customermates/customermates) liegt auf GitHub. Selbst-Hosting via Docker ist kostenlos und dokumentiert.
-- **Made in Germany.** Hosting in der EU, deutsche Rechnung, deutsche Ansprache, DSGVO von Tag eins.
+- **KI-Agenten-Anbindung.** Wenn Sie Claude oder ChatGPT bereits täglich nutzen, aktualisiert sich Ihre Pipeline von selbst. Sie beschreiben das Telefonat, der Assistent legt den Kontakt an, schiebt das Angebot, schreibt die Notiz, legt die Folge-Aufgabe an. Sie tippen nicht ins CRM, das CRM hört Ihnen zu.
+- **Volle operative Module.** Kontakte, Unternehmen, Pipeline, Aufgaben, REST API, Webhooks, MCP, Audit-Log, Berechtigungen, alles im Kern-CRM ab der Starter-Stufe.
+- **Nativer vereinheitlichter Posteingang.** E-Mail, LinkedIn, WhatsApp, Instagram und Telegram in einem Posteingang im CRM (Cloud, ab Pro). Der Assistent Mate liest mit und entwirft Antworten; gesendet wird erst nach Ihrer Bestätigung.
+- **Open Source unter AGPL-3.0.** Der gesamte [Quellcode](https://github.com/customermates/customermates) liegt auf GitHub. Selbst-Hosting via Docker Compose ist ohne Lizenzkosten möglich und dokumentiert.
+- **Made in Germany.** Entwickelt in Mannheim, deutsche Rechnung, deutsche Ansprache. In der Cloud-Version liegt die Datenbank in der AWS-Region Frankfurt; Hosting und weitere Unterauftragsverarbeiter, auch aus den USA, stehen in der [Liste der Unterauftragsverarbeiter](/subprocessors), ein [Auftragsverarbeitungsvertrag (AVV)](/dpa) liegt vor.
 - **Ab [[commercial.price.starter.monthly]] pro Nutzer und Monat in der Cloud (Starter).** Das volle Kern-CRM in jeder Stufe, keine Add-on-Kosten für die Basis.
-- **Kein Vendor Lock-in.** Vollständiger Daten-Export jederzeit.
+- **Kein Vendor Lock-in.** Excel-Export je Datensatztyp und Zugriff über die REST API jederzeit.
 
 [Preise ansehen](/pricing) · [Customermates [[commercial.trial.days]] Tage kostenlos testen](/auth/signup) · [Auf GitHub ansehen](https://github.com/customermates/customermates)
 
@@ -218,7 +218,7 @@ Die Preise reichen von kostenlos bis dreistellig pro Nutzer und Monat. Die meist
 </FaqItem>
 
 <FaqItem question="Ist Open-Source-CRM für das operative CRM geeignet?">
-Ja, sehr gut sogar. Lösungen wie Customermates, SuiteCRM und EspoCRM bilden die operativen Module komplett ab und lassen sich auf eigenen Servern betreiben. Sie haben volle Datenkontrolle, sind aber für Updates und Backups selbst verantwortlich.
+Ja, sehr gut sogar. Lösungen wie Customermates, SuiteCRM und EspoCRM bilden das operative Tagesgeschäft ab und lassen sich auf eigenen Servern betreiben. Sie haben volle Datenkontrolle, sind aber für Updates und Backups selbst verantwortlich.
 </FaqItem>
 </Faq>
 

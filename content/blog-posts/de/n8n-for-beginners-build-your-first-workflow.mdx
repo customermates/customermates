@@ -227,13 +227,13 @@ Die visuelle Mapping-Oberfläche zeigt exakt, welche Datenfelder vom Trigger zum
 
 ### Schritt 3: CRM-Kontakt erstellen
 
-Fügen Sie einen **Customermates**-Node hinzu (oder HubSpot, Pipedrive oder Ihr CRM). Konfiguration:
+Fügen Sie einen **Customermates**-Node aus dem Community-Node-Paket hinzu (oder HubSpot, Pipedrive oder Ihr CRM). Konfiguration:
 
 1. CRM-Account verbinden
 2. **"Create Contact"** als Aktion wählen
 3. Name, E-Mail, Firma und andere Felder aus den Webhook-Daten mappen
 
-Bei [Customermates](/) (ab [[commercial.price.starter.monthly]]/Nutzer/Monat) ist die n8n-Integration nativ, dedizierte Nodes statt roher API-Aufrufe.
+Für [Customermates](/) (ab [[commercial.price.starter.monthly]]/Nutzer/Monat) installieren Sie den Community-Node [customermates/n8n-nodes-crm](https://github.com/customermates/n8n-nodes-crm) in Ihrer n8n-Instanz und erhalten dedizierte Nodes statt roher API-Aufrufe. Ohne ihn funktioniert derselbe Schritt mit einem HTTP-Request-Node gegen die REST API. n8n selbst ist nicht Teil von Customermates, Sie betreiben oder abonnieren es separat.
 
 ### Schritt 4: Benachrichtigung senden
 
@@ -402,7 +402,7 @@ Nach jedem Kundengespräch wird das Meeting-Transkript automatisch von ChatGPT z
 
 ### Warum Customermates gut mit n8n zusammenarbeitet
 
-Customermates (ab [[commercial.price.starter.monthly]]/Nutzer/Monat, volles Kern-CRM inklusive) bietet eine separate n8n-Integration. Das bedeutet, dass Sie in n8n dedizierte Customermates-Nodes verwenden können, anstatt rohe API-Aufrufe zu konfigurieren. Die Integration unterstützt das Erstellen, Lesen, Aktualisieren und Löschen von Kontakten, Deals, Organisationen und Notizen.
+Customermates (ab [[commercial.price.starter.monthly]]/Nutzer/Monat, volles Kern-CRM inklusive) veröffentlicht einen Community-Node für n8n. Damit verwenden Sie in Ihrer separat betriebenen n8n-Instanz dedizierte Customermates-Nodes, anstatt rohe API-Aufrufe zu konfigurieren. Über die REST API legen Sie Kontakte, Organisationen, Deals, Services und Aufgaben an, lesen, ändern und löschen sie, und Webhooks lösen Ihre Workflows bei Änderungen im CRM aus.
 
 Für Teams, die n8n als Automatisierungs-Backbone einsetzen, beseitigt ein CRM mit separater n8n-Unterstützung die Reibungsverluste manueller API-Konfiguration und reduziert die Einrichtungszeit von Stunden auf Minuten.
 
@@ -498,7 +498,7 @@ n8n ist flexibler und bei wachsendem Volumen deutlich günstiger. Zapier punktet
 </FaqItem>
 
 <FaqItem question="Kann n8n sich mit jedem CRM verbinden?">
-n8n hat dedizierte Nodes für verbreitete CRMs, darunter Customermates, HubSpot, Pipedrive, Salesforce und Zoho. Für CRMs ohne dedizierten Node ermöglicht der HTTP-Request-Node die Anbindung an jedes CRM mit REST-API. Community Nodes erweitern die Möglichkeiten noch weiter. In der Praxis deckt das praktisch jedes moderne CRM-System ab.
+n8n hat dedizierte Nodes für verbreitete CRMs wie HubSpot, Pipedrive, Salesforce und Zoho; für Customermates gibt es einen Community-Node. Für CRMs ohne dedizierten Node ermöglicht der HTTP-Request-Node die Anbindung an jedes CRM mit REST-API. Community Nodes erweitern die Möglichkeiten noch weiter. In der Praxis deckt das praktisch jedes moderne CRM-System ab.
 </FaqItem>
 
 <FaqItem question="Ist n8n für den Produktiveinsatz geeignet?">
@@ -506,7 +506,7 @@ Ja. Tausende Unternehmen betreiben n8n in Produktion. Für Zuverlässigkeit host
 </FaqItem>
 
 <FaqItem question="Wie geht n8n mit DSGVO und Datenschutz um?">
-Selbst gehostetes n8n gibt Ihnen die vollständige Kontrolle, Daten verlassen nie Ihre Server. Bei n8n Cloud werden Daten in der EU verarbeitet. In beiden Fällen greift n8n selbst nicht auf Ihre Workflow-Daten zu und speichert sie nicht über die Ausführung hinaus. In Kombination mit einem DSGVO-konformen CRM wie Customermates (EU-gehostet, ab [[commercial.price.starter.monthly]]/Nutzer/Monat) lassen sich vollständig konforme Automatisierungs-Pipelines aufbauen.
+Selbst gehostetes n8n gibt Ihnen die vollständige Kontrolle, Daten verlassen nie Ihre Server. Bei n8n Cloud werden Daten in der EU verarbeitet. In beiden Fällen greift n8n selbst nicht auf Ihre Workflow-Daten zu und speichert sie nicht über die Ausführung hinaus. Auf CRM-Seite liegt bei Customermates (ab [[commercial.price.starter.monthly]]/Nutzer/Monat) die Datenbank der Cloud-Version in der AWS-Region Frankfurt; Unterauftragsverarbeiter, auch aus den USA, sind [offengelegt](/subprocessors), ein [AVV](/dpa) liegt vor. Wer alles unter eigener Kontrolle haben will, hostet n8n und den Open-Source-Kern von Customermates selbst.
 </FaqItem>
 
 <FaqItem question="Was ist der einfachste erste Workflow?">

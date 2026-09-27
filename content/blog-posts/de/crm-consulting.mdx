@@ -115,13 +115,13 @@ Die letzten fünf Jahre haben das Marktbild verändert. Pipedrive, HubSpot, Folk
 
 Eine Pipedrive- oder HubSpot-Free-Einführung dauert für ein zehnköpfiges Team oft drei bis fünf Tage interner Arbeit, verteilt über zwei Wochen, ohne externen Berater. Bei einem internen Tagessatz von 600 Euro bleibt das unter 5.000 Euro Aufwand. Eine vergleichbare beratungsgestützte Einführung mit Datenmigration und Schulung kostet 25.000 bis 60.000 Euro. Die Differenz finanziert in vielen Fällen mehrere Jahre Lizenzkosten.
 
-Customermates positioniert sich in dieser Lücke: ein Open-Source-CRM mit Tabellen- und Kartenansicht (Kanban), fünf Entitäten (Kontakte, Unternehmen, Deals, Services, Aufgaben), zehn Feldtypen, einer vollständigen REST-API und einem MCP-Server mit [[derived.mcp.tools.total]] Tools, der KI-Agenten den direkten Zugriff erlaubt. Cloud ab [[commercial.price.starter.monthly]] pro Nutzer pro Monat (Starter-Stufe), kostenlos selbst hostbar via Docker, AGPL-3.0-lizenziert.
+Customermates positioniert sich in dieser Lücke: ein Open-Source-CRM mit Tabellen- und Kartenansicht (Kanban), fünf Entitäten (Kontakte, Unternehmen, Deals, Services, Aufgaben), zehn Feldtypen, einer vollständigen REST-API und einem MCP-Server mit [[derived.mcp.tools.total]] Tools, der KI-Agenten den direkten Zugriff erlaubt. Cloud ab [[commercial.price.starter.monthly]] pro Nutzer pro Monat (Starter-Stufe), selbst hostbar via Docker ohne Lizenzkosten, AGPL-3.0-lizenziert.
 
 ## KI-Agenten reduzieren den Beratungsumfang
 
 Eine zweite Veränderung kommt aus dem KI-Lager. Junior-Beratungsstunden werden klassisch verbraten für Datenhygiene (Duplikate erkennen, Adressen vereinheitlichen, Felder normalisieren), Datenanreicherung (Firmographics, LinkedIn-URLs, Branchencodes) und Workflow-Automatisierung (E-Mail-Sequenzen, Follow-up-Erinnerungen, Reportings). Die meisten dieser Aufgaben kann ein KI-Agent heute übernehmen, wenn das CRM dafür ausgelegt ist.
 
-Customermates exponiert über den MCP-Server jede CRM-Operation. Claude oder Codex bekommt einen API-Key, verbindet sich mit `/api/v1/mcp` und kann Kontakte zusammenführen, Notizen schreiben, Felder aktualisieren, Webhooks konfigurieren oder Reports generieren, als wäre er ein menschlicher Nutzer. Ein Vormittag mit einem KI-Agenten, der 10.000 Datensätze entdoppelt und anreichert, ersetzt einen Beratungsmonat zum gleichen Ergebnis.
+Customermates exponiert über den MCP-Server die zentralen CRM-Operationen. Claude oder Codex bekommt einen API-Key, verbindet sich mit `/api/v1/mcp` und kann Dubletten finden und bereinigen, Notizen schreiben, Felder aktualisieren, Webhooks konfigurieren oder Dashboard-Widgets anlegen, im Rahmen der Berechtigungen des Nutzers. Für Anreicherung braucht der Agent eine externe Datenquelle. Ein Vormittag mit einem KI-Agenten kann so einen erheblichen Teil klassischer Junior-Beratungsstunden für Datenhygiene ersetzen.
 
 Die Frage lautet nicht mehr „brauchen wir einen Berater oder bauen wir es selbst", sondern „brauchen wir einen Berater oder lassen wir die Datenarbeit von einem Agenten machen und kaufen Beratung nur für strategische Entscheidungen". Bei richtigem Setup verschiebt sich das Verhältnis dramatisch zugunsten interner Setups.
 
@@ -131,13 +131,11 @@ Der deutsche Markt hat Eigenheiten, die jede CRM-Einführung prägen. DSGVO-Konf
 
 Mittelständische CRM-Beratungen konzentrieren sich in München, Berlin, Hamburg, Frankfurt und Düsseldorf. Tagessätze in München liegen oft 10 bis 20 Prozent über dem Bundesschnitt, in Berlin im Mittelfeld, in Frankfurt höher wegen Banken- und Versicherungsbranche. Spezialberatungen für Salesforce, Microsoft Dynamics oder SAP CRM sitzen oft in Walldorf, München oder Düsseldorf in der Nähe der Vendorzentralen.
 
-Eine Customermates-Eigenheit für DACH-Käufer: das Produkt wird in der EU-Region gehostet, ist DSGVO-nativ entwickelt und steht unter AGPL. Wer Open Source als Compliance-Vorteil nutzen will (volle Code-Audit-Möglichkeit, kein Vendor Lock-in, Datenhoheit beim Self-Hosting), bekommt eine Konstellation, die kommerzielle SaaS-CRMs strukturell nicht bieten können.
+Eine Customermates-Eigenheit für DACH-Käufer: das Produkt kommt aus Mannheim und steht unter AGPL. In der Cloud-Version liegt die Datenbank in der AWS-Region Frankfurt; Hosting und weitere Unterauftragsverarbeiter, auch aus den USA, stehen in der [Liste der Unterauftragsverarbeiter](/subprocessors), ein [AVV](/dpa) liegt vor. Wer Open Source als Compliance-Vorteil nutzen will (volle Code-Audit-Möglichkeit, kein Vendor Lock-in, Datenhoheit beim Self-Hosting), bekommt eine Konstellation, die kommerzielle SaaS-CRMs strukturell nicht bieten können.
 
-## Für Beratungen und Agenturen: CRM unter eigener Marke
+## Für Beratungen und Agenturen: CRM unter eigener Marke?
 
-Wenn Sie selbst CRM-Beratung anbieten und Ihr eigenes CRM-Produkt unter Ihrer Marke vermarkten wollen, entsteht mit Customermates ein White-Label-Partnerprogramm. Geplant ist eine gehostete Instanz unter Ihrer Domain (etwa `crm.ihreagentur.de`) mit Ihrem Logo und Ihren Farben, Hosting, Updates und Wartung übernommen, abgerechnet an Ihre Kunden zu Ihrem eigenen Preis. Die Branding-Funktion ist noch nicht implementiert, heute ist das also ein Gespräch und ein Vertrag, kein Schalter.
-
-White-Label gehört zur Enterprise-Stufe und wird individuell bepreist, als vertraglich vereinbarter Punkt und nicht als ausgelieferte Funktion. Das passt für Beratungen, die Implementierung und Betrieb in einer Hand anbieten wollen, ohne ein eigenes Produkt entwickeln und betreuen zu müssen. Mehr dazu auf Anfrage über das Kontaktformular.
+Ein White-Label-Angebot mit eigenem Logo und eigener Domain bietet Customermates nicht. Beratungen können Customermates aber für ihre Kunden einrichten und betreuen: in der Cloud mit einem eigenen Konto pro Kunde oder selbst gehostet auf eigener Infrastruktur unter den Bedingungen der AGPL. REST, Webhooks und MCP erlauben dabei kundenspezifische Integrationen, ohne ein eigenes Produkt entwickeln zu müssen. Individuelle Anforderungen lassen sich im Enterprise-Tarif besprechen.
 
 ## Häufige Fehler in CRM-Projekten
 
@@ -148,7 +146,7 @@ Sechs Muster, die in fast jedem gescheiterten CRM-Projekt auftauchen:
 3. **Schulung als Nachgedanke**: das System ist live, aber die Vertriebsmitarbeiter nutzen es nicht, weil niemand sie strukturiert eingearbeitet hat. Adoption ist 30 Prozent statt 90 Prozent. Planen Sie 2 bis 4 Tage Schulung pro Team und nicht 2 Stunden.
 4. **Kein Executive-Sponsor**: das Projekt wird in der IT verortet, aber niemand aus der Geschäftsführung steht dahinter. Spätestens beim ersten Konflikt mit dem Vertrieb gewinnt der Vertrieb.
 5. **Zu viele Custom Fields zu früh**: das System wird mit 200 Feldern überfrachtet, von denen 180 leer bleiben. Starten Sie mit den 20 Feldern, die wirklich täglich genutzt werden.
-6. **Keine kontinuierliche Datenpflege**: das CRM wird einmal befüllt und verkommt dann. Ohne Pflegekonzept ist die Datenqualität nach 18 Monaten zurück auf Excel-Niveau. Hier setzen agentische CRMs wie Customermates strukturell an, weil der Agent die Pflege übernimmt.
+6. **Keine kontinuierliche Datenpflege**: das CRM wird einmal befüllt und verkommt dann. Ohne Pflegekonzept ist die Datenqualität nach 18 Monaten zurück auf Excel-Niveau. Hier setzen agentische CRMs wie Customermates an, weil ein KI-Agent einen Teil der Pflege übernehmen kann.
 
 ## Warnsignale in Beratungsangeboten
 
@@ -193,7 +191,7 @@ Ein Berater ist meist plattformunabhängig oder zumindest in der Auswahlphase ne
 </FaqItem>
 
 <FaqItem question="Kann KI einen CRM-Berater ersetzen?">
-Teilweise. KI-Agenten wie Claude oder Codex können Datenhygiene, Anreicherung, Workflow-Automatisierung und Reporting übernehmen, wenn das CRM dafür ausgelegt ist (etwa via MCP wie bei Customermates). Strategieberatung, Anforderungsanalyse, Change Management und komplexe Systemintegration bleiben menschliche Aufgabe. Realistisch ist eine Umverteilung: 30 bis 50 Prozent klassischer Beratungsstunden lassen sich durch KI-Agenten ersetzen, der Rest bleibt Beraterarbeit.
+Teilweise. KI-Agenten wie Claude oder Codex können Datenhygiene, Anreicherung, Workflow-Automatisierung und Reporting übernehmen, wenn das CRM dafür ausgelegt ist (etwa via MCP wie bei Customermates). Strategieberatung, Anforderungsanalyse, Change Management und komplexe Systemintegration bleiben menschliche Aufgabe. Realistisch ist eine Umverteilung: Ein Teil klassischer Beratungsstunden lässt sich durch KI-Agenten ersetzen, der Rest bleibt Beraterarbeit.
 </FaqItem>
 
 <FaqItem question="Sollte ich einen Generalisten oder einen Plattform-Spezialisten beauftragen?">
