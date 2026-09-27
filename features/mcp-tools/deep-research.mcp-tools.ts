@@ -28,7 +28,7 @@ import {
 } from "@/core/di";
 import { extractWikiPageLinks, externalizeWikiPageLinks } from "@/features/wiki/wiki-markdown-links";
 import { parseWikiPageReference, wikiPageFetchId, wikiPageUrl } from "@/features/wiki/wiki-links";
-import { wikiCodePointBoundary, wikiMarkdownChunk } from "@/features/wiki/wiki-page-chunk";
+import { boundedWikiChunk, wikiCodePointBoundary } from "@/features/wiki/wiki-page-chunk";
 
 type Entity = "contact" | "organization" | "deal" | "service" | "task";
 
@@ -145,8 +145,7 @@ async function fetchWiki(id: string, requestedOffset: number) {
   const page = result.data;
   const links = extractWikiPageLinks(page.markdown, env.BASE_URL, 6);
   const markdown = externalizeWikiPageLinks(page.markdown, env.BASE_URL);
-  const offset = wikiMarkdownChunk(markdown, requestedOffset, 0, env.BASE_URL).offset;
-  const base = {
+  const outputAt = (offset: number, end: number) => ({
     id: wikiPageFetchId(page.id),
     title: page.title,
     url: wikiPageUrl(env.BASE_URL, page.id),
@@ -165,29 +164,17 @@ async function fetchWiki(id: string, requestedOffset: number) {
       outgoingWikiLinksTruncated: String(links.length > 5),
     },
     offset,
-    nextOffset: null as number | null,
-    totalChars: markdown.length,
-  };
-  const outputAt = (end: number) => ({
-    ...base,
-    text: markdown.slice(offset, end),
     nextOffset: end < markdown.length ? end : null,
+    totalChars: markdown.length,
+    text: markdown.slice(offset, end),
   });
-
-  let low = offset;
-  let high = markdown.length;
-  while (low < high) {
-    const middle = Math.ceil((low + high) / 2);
-    if (JSON.stringify(outputAt(middle)).length <= WIKI_FETCH_TEXT_TARGET_LENGTH) low = middle;
-    else high = middle - 1;
-  }
-
-  const safe = wikiMarkdownChunk(markdown, offset, Math.max(0, low - offset), env.BASE_URL);
-  const safeOutput = outputAt(safe.nextOffset ?? safe.totalChars);
-  const output =
-    JSON.stringify(safeOutput).length <= WIKI_FETCH_TEXT_TARGET_LENGTH
-      ? safeOutput
-      : outputAt(wikiCodePointBoundary(markdown, low));
+  const { offset, end } = boundedWikiChunk(
+    markdown,
+    requestedOffset,
+    (start, stop) => JSON.stringify(outputAt(start, stop)).length <= WIKI_FETCH_TEXT_TARGET_LENGTH,
+    env.BASE_URL,
+  );
+  const output = outputAt(offset, end);
   return { text: JSON.stringify(output), structuredContent: output };
 }
 

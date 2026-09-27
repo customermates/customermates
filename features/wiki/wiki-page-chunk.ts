@@ -28,17 +28,25 @@ function completeWikiLinkBoundary(markdown: string, requestedOffset: number, max
   return { offset, end };
 }
 
-export function wikiMarkdownChunk(
+/**
+ * Finds the longest Markdown chunk from requestedOffset whose serialized payload still fits. The start snaps to a code
+ * point and never splits a Markdown link; the end prefers a complete link and falls back to a code point boundary.
+ */
+export function boundedWikiChunk(
   markdown: string,
   requestedOffset: number,
-  maximumChars: number,
-  baseUrl = "https://wiki.invalid",
+  fits: (offset: number, end: number) => boolean,
+  baseUrl: string,
 ) {
-  const { offset, end } = completeWikiLinkBoundary(markdown, requestedOffset, maximumChars, baseUrl);
-  return {
-    markdownChunk: markdown.slice(offset, end),
-    offset,
-    nextOffset: end < markdown.length ? end : null,
-    totalChars: markdown.length,
-  };
+  const { offset } = completeWikiLinkBoundary(markdown, requestedOffset, 0, baseUrl);
+  let low = offset;
+  let high = markdown.length;
+  while (low < high) {
+    const middle = Math.ceil((low + high) / 2);
+    if (fits(offset, middle)) low = middle;
+    else high = middle - 1;
+  }
+
+  const safeEnd = completeWikiLinkBoundary(markdown, offset, Math.max(0, low - offset), baseUrl).end;
+  return { offset, end: fits(offset, safeEnd) ? safeEnd : wikiCodePointBoundary(markdown, low) };
 }

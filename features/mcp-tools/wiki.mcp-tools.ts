@@ -9,7 +9,7 @@ import {
   getUpdateWikiPageInteractor,
 } from "@/core/di";
 import { CustomErrorCode } from "@/core/validation/validation.types";
-import { wikiCodePointBoundary, wikiMarkdownChunk } from "@/features/wiki/wiki-page-chunk";
+import { boundedWikiChunk } from "@/features/wiki/wiki-page-chunk";
 import {
   extractWikiPageLinks,
   wikiMarkdownHasHeadings,
@@ -263,38 +263,27 @@ function wikiPageChunk(
   requestedOffset: number,
 ) {
   const discoveredLinks = extractWikiPageLinks(page.markdown, env.BASE_URL, 6);
-  const offset = wikiMarkdownChunk(page.markdown, requestedOffset, 0, env.BASE_URL).offset;
-  const base = formatDatesInResponse({
-    id: page.id,
-    title: page.title,
-    url: wikiPageUrl(env.BASE_URL, page.id),
-    offset,
-    nextOffset: null as number | null,
-    totalChars: page.markdown.length,
-    createdAt: page.createdAt,
-    updatedAt: page.updatedAt,
-    links: discoveredLinks.slice(0, 5),
-    linksTruncated: discoveredLinks.length > 5,
-  });
-  const payload = (end: number) => ({
-    ...base,
-    nextOffset: end < page.markdown.length ? end : null,
-    markdownChunk: page.markdown.slice(offset, end),
-  });
-
-  let low = offset;
-  let high = page.markdown.length;
-  while (low < high) {
-    const middle = Math.ceil((low + high) / 2);
-    if (encodeToToon(payload(middle)).length <= WIKI_MCP_TEXT_TARGET_LENGTH) low = middle;
-    else high = middle - 1;
-  }
-
-  const safe = wikiMarkdownChunk(page.markdown, offset, Math.max(0, low - offset), env.BASE_URL);
-  const safePayload = payload(safe.nextOffset ?? safe.totalChars);
-  return encodeToToon(safePayload).length <= WIKI_MCP_TEXT_TARGET_LENGTH
-    ? safePayload
-    : payload(wikiCodePointBoundary(page.markdown, low));
+  const payload = (offset: number, end: number) =>
+    formatDatesInResponse({
+      id: page.id,
+      title: page.title,
+      url: wikiPageUrl(env.BASE_URL, page.id),
+      offset,
+      nextOffset: end < page.markdown.length ? end : null,
+      totalChars: page.markdown.length,
+      createdAt: page.createdAt,
+      updatedAt: page.updatedAt,
+      links: discoveredLinks.slice(0, 5),
+      linksTruncated: discoveredLinks.length > 5,
+      markdownChunk: page.markdown.slice(offset, end),
+    });
+  const { offset, end } = boundedWikiChunk(
+    page.markdown,
+    requestedOffset,
+    (start, stop) => encodeToToon(payload(start, stop)).length <= WIKI_MCP_TEXT_TARGET_LENGTH,
+    env.BASE_URL,
+  );
+  return payload(offset, end);
 }
 
 export const manageWikiPagesTool = {
