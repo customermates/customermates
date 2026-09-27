@@ -7,10 +7,11 @@ import type { EntityTerminologyOverride } from "@/features/entity-terminology/en
 import type { SubscriptionDto } from "@/ee/subscription/get-subscription.interactor";
 import type { RoutingLocale } from "@/i18n/locale-registry";
 
-import { createContext, useContext, useEffect, useState } from "react";
+import { createContext, useContext, useEffect, useLayoutEffect, useState } from "react";
 
 import { RootStore } from "@/core/stores/root.store";
 import type { AppMode } from "@/core/config/environment";
+import { initializeNavigationHistoryGuard } from "@/components/modal/navigation-history-guard";
 
 const RootStoreContext = createContext<RootStore | null>(null);
 
@@ -41,6 +42,9 @@ function createRootStore(agentChatEnabled: boolean, appMode: AppMode, initialSta
 
 export function RootStoreProvider({ agentChatEnabled, appMode, children, initialState }: Props) {
   const [rootStore] = useState(() => createRootStore(agentChatEnabled, appMode, initialState));
+  useLayoutEffect(() => {
+    initializeNavigationHistoryGuard();
+  }, []);
 
   useEffect(() => {
     rootStore.intlStore.markClientHydrated();
