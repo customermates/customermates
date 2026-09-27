@@ -112,7 +112,7 @@ For CRMs, MCP changes the integration story:
 - Multiple tool calls can chain in a single conversation turn
 - The protocol is open, so any CRM and any AI assistant can use the same wire format
 
-HubSpot and Salesforce run official MCP servers next to their products, and community servers exist for many other CRMs. Some CRMs are MCP-native, meaning the tool surface is part of the product on every plan rather than a separate server to set up. That is the most direct pattern for Claude-driven workflows; the [agentic CRM guide](/blog/agentic-crm) explains what AI-native means in more detail.
+HubSpot, Salesforce, Pipedrive, and Zoho CRM run official MCP servers next to their products, and community servers exist for many other CRMs. Some CRMs are MCP-native, meaning the tool surface is part of the product on every plan rather than a separate server to set up. That is the most direct pattern for Claude-driven workflows; the [agentic CRM guide](/blog/agentic-crm) explains what AI-native means in more detail.
 
 ## Customermates: a CRM where Claude is a first-class operator
 
@@ -180,7 +180,7 @@ A short list of how common CRMs connect to Claude, based on each vendor's curren
 1. **Customermates.** MCP server built into every plan and self-hosted installation, [[derived.mcp.tools.total]] tools, open-source core, no separate AI tier.
 2. **HubSpot.** Official remote MCP server, generally available to all accounts since April 2026; reads and writes records and activities, no deletes. See the [HubSpot MCP guide](/blog/hubspot-mcp) and the [HubSpot alternative](/compare/hubspot-alternative).
 3. **Salesforce.** Official hosted MCP servers, generally available since April 2026 for Enterprise Edition and above, set up by an administrator. See the [Salesforce MCP guide](/blog/salesforce-mcp).
-4. **Pipedrive and others.** Check the vendor's current documentation for an official server; otherwise community MCP servers exist, with varying depth. The [Pipedrive alternative](/compare/pipedrive-alternative) covers when to switch.
+4. **Pipedrive and Zoho CRM.** Pipedrive offers an official MCP server on every plan ([Pipedrive MCP](https://www.pipedrive.com/en/features/mcp-server)), and Zoho CRM provides MCP servers too ([Zoho CRM docs](https://www.zoho.com/crm/developer/docs/mcp/overview.html)). For other CRMs, community MCP servers exist, with varying depth. The [Pipedrive alternative](/compare/pipedrive-alternative) covers when to switch.
 
 The right pick depends on team size, existing stack, and how much you want Claude to actually do (not just suggest).
 
@@ -228,7 +228,7 @@ ChatGPT can scaffold a basic CRM in conversation. Claude Code is the better tool
 </FaqItem>
 
 <FaqItem question="Which CRMs work with Claude?">
-Customermates (MCP server built into every plan), HubSpot (official remote MCP server), Salesforce (official hosted MCP servers for Enterprise Edition and above), and many others through community MCP servers. The depth and setup effort vary.
+Customermates (MCP server built into every plan), HubSpot (official remote MCP server), Salesforce (official hosted MCP servers for Enterprise Edition and above), Pipedrive (official MCP server on every plan), Zoho CRM (official MCP servers), and many others through community MCP servers. The depth and setup effort vary.
 </FaqItem>
 
 <FaqItem question="Is there an open-source Claude CRM?">

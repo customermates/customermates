@@ -133,7 +133,7 @@ Für CRMs ändert MCP die Integrations-Geschichte:
 - Mehrere Tool-Aufrufe können in einem Konversations-Turn verkettet werden
 - Das Protokoll ist offen, jedes CRM und jeder KI-Assistent nutzen das gleiche Wire-Format
 
-HubSpot und Salesforce betreiben offizielle MCP-Server neben ihren Produkten, und für viele andere CRMs gibt es Community-Server. Manche CRMs sind MCP-nativ: Die Tool-Oberfläche ist in jedem Tarif Teil des Produkts statt ein separat einzurichtender Server. Das ist das direkteste Muster für Claude-getriebene Workflows; der [Leitfaden zum agentischen CRM](/blog/agentic-crm) erklärt genauer, was KI-nativ bedeutet.
+HubSpot, Salesforce, Pipedrive und Zoho CRM betreiben offizielle MCP-Server neben ihren Produkten, und für viele andere CRMs gibt es Community-Server. Manche CRMs sind MCP-nativ: Die Tool-Oberfläche ist in jedem Tarif Teil des Produkts statt ein separat einzurichtender Server. Das ist das direkteste Muster für Claude-getriebene Workflows; der [Leitfaden zum agentischen CRM](/blog/agentic-crm) erklärt genauer, was KI-nativ bedeutet.
 
 ## DSGVO und Self-Hosting
 
@@ -163,7 +163,7 @@ Customermates ist AGPL-3.0 lizenziert und kommt aus Mannheim. In der Cloud-Versi
 - **Support ([[derived.mcp.tools.groups.support]]):** Produktsupport anfordern
 - **Deep Research ([[derived.mcp.tools.alwaysOn]]):** stets aktive `search`- und `fetch`-Connectoren
 
-Das Messaging-Toolset ist die zweite Hälfte der Geschichte. Dieselben Agenten, die Datensätze aktuell halten, bedienen auch einen nativen, vereinheitlichten Posteingang und lesen, entwerfen und senden über E-Mail, LinkedIn, WhatsApp, Instagram und Telegram von einer Tool-Oberfläche aus. Messaging- und Social-Tools erfordern eine Pro- oder Business-Stufe, die Kern-Tools für Datensätze, Custom Fields und Workspace sind ab der Starter-Stufe verfügbar.
+Das Messaging-Toolset ist die zweite Hälfte der Geschichte. Dieselben Agenten, die Datensätze aktuell halten, bedienen auch einen nativen, einheitlichen Posteingang und lesen, entwerfen und senden über E-Mail, LinkedIn, WhatsApp, Instagram und Telegram von einer Tool-Oberfläche aus. Messaging- und Social-Tools erfordern eine Pro- oder Business-Stufe, die Kern-Tools für Datensätze, Custom Fields und Workspace sind ab der Starter-Stufe verfügbar.
 
 Die zentrale Datensatz-Arbeit, die ein Vertriebler oder Account Manager in der Customermates-Oberfläche erledigt, steht auch als Tools bereit, die Claude aufrufen kann. Es gibt keine Connector-Stufe und keine separate Lizenz für den MCP-Zugang. Der MCP-Server ist Teil des AGPL-3.0-Kerns und läuft deshalb auch auf selbst gehosteten Installationen.
 
@@ -213,7 +213,7 @@ Eine kurze Übersicht, wie verbreitete CRMs sich laut aktueller Herstellerdokume
 1. **Customermates.** MCP-Server in jedem Tarif und in jeder selbst gehosteten Installation, [[derived.mcp.tools.total]] Tools, Open-Source-Kern, keine separate KI-Stufe.
 2. **HubSpot.** Offizieller Remote-MCP-Server, seit April 2026 für alle Konten allgemein verfügbar; liest und schreibt Datensätze und Aktivitäten, keine Löschungen. Siehe den [HubSpot-MCP-Leitfaden](/blog/hubspot-mcp).
 3. **Salesforce.** Offizielle gehostete MCP-Server, seit April 2026 ab Enterprise Edition allgemein verfügbar, von einem Administrator eingerichtet. Siehe den [Salesforce-MCP-Leitfaden](/blog/salesforce-mcp).
-4. **Pipedrive und andere.** Prüfen Sie die aktuelle Herstellerdokumentation auf einen offiziellen Server; andernfalls gibt es Community-MCP-Server mit unterschiedlicher Tiefe.
+4. **Pipedrive und Zoho CRM.** Pipedrive bietet einen offiziellen MCP-Server in jedem Tarif ([Pipedrive MCP](https://www.pipedrive.com/en/features/mcp-server)), Zoho CRM stellt ebenfalls MCP-Server bereit ([Zoho-CRM-Dokumentation](https://www.zoho.com/crm/developer/docs/mcp/overview.html)). Für andere CRMs gibt es Community-MCP-Server mit unterschiedlicher Tiefe.
 
 Die richtige Wahl hängt von Teamgröße, bestehendem Stack und davon ab, wie viel Claude tatsächlich tun soll (nicht nur vorschlagen).
 
@@ -225,7 +225,7 @@ Eine Flussdiagramm-Entscheidung.
 
 **Sie sind auf HubSpot oder Salesforce, das CRM ändert sich nicht → anbinden.** Nutzen Sie den offiziellen MCP-Server des Herstellers. Die Einrichtung ist günstiger als eine Migration.
 
-**Sie wollen KI im CRM, Ihr Team ist 1 bis 30 Personen, Sie wollen keine Connector-Steuer → MCP-nativ.** Nutzen Sie Customermates. Den Open-Source-Kern via Docker ohne Lizenzgebühren selbst hosten oder die verwaltete Cloud ab [[commercial.price.starter.monthly]] pro Nutzer pro Monat (Starter-Stufe) nutzen, Open Source AGPL-3.0. Claude bedient es direkt über [[derived.mcp.tools.total]] MCP-Tools, und dieselben Agenten betreiben ab Pro den vereinheitlichten Posteingang über E-Mail, LinkedIn, WhatsApp, Instagram und Telegram.
+**Sie wollen KI im CRM, Ihr Team ist 1 bis 30 Personen, Sie wollen keine Connector-Steuer → MCP-nativ.** Nutzen Sie Customermates. Den Open-Source-Kern via Docker ohne Lizenzgebühren selbst hosten oder die verwaltete Cloud ab [[commercial.price.starter.monthly]] pro Nutzer pro Monat (Starter-Stufe) nutzen, Open Source AGPL-3.0. Claude bedient es direkt über [[derived.mcp.tools.total]] MCP-Tools, und dieselben Agenten betreiben ab Pro den einheitlichen Posteingang über E-Mail, LinkedIn, WhatsApp, Instagram und Telegram.
 
 **Sie sind klassisch und wollen einfach ein CRM ohne KI → traditionell.** Pipedrive, Zoho oder eine der einfacheren Optionen. Der Smart-CRM-Artikel oben ist nicht für Sie, und das ist okay.
 
@@ -273,6 +273,6 @@ Ja. Die gehosteten MCP-Server von Salesforce, seit April 2026 für Orgs ab Enter
 </FaqItem>
 
 <FaqItem question="Welche CRMs funktionieren mit Claude?">
-Customermates (MCP-Server in jedem Tarif), HubSpot (offizieller Remote-MCP-Server), Salesforce (offizielle gehostete MCP-Server ab Enterprise Edition) und viele weitere über Community-MCP-Server. Tiefe und Einrichtungsaufwand unterscheiden sich.
+Customermates (MCP-Server in jedem Tarif), HubSpot (offizieller Remote-MCP-Server), Salesforce (offizielle gehostete MCP-Server ab Enterprise Edition), Pipedrive (offizieller MCP-Server in jedem Tarif), Zoho CRM (offizielle MCP-Server) und viele weitere über Community-MCP-Server. Tiefe und Einrichtungsaufwand unterscheiden sich.
 </FaqItem>
 </Faq>

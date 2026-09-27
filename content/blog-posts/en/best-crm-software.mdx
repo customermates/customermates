@@ -32,15 +32,17 @@ If you would rather run your own evaluation, [how to compare CRM systems](/blog/
 | CRM                        | Best For                            | Starting Price                                    | Free Tier                 |
 | -------------------------- | ----------------------------------- | ------------------------------------------------- | ------------------------- |
 | **Customermates**          | Privacy-focused European businesses | From [[commercial.price.starter.monthly]]/user/mo | No (3 tiers + Enterprise) |
-| **Salesforce**             | Large enterprises                   | $25/user/mo                                       | No                        |
-| **HubSpot**                | Marketing-led growth                | €15/seat/mo                                       | Yes                       |
+| **Salesforce**             | Large enterprises                   | $25/user/mo (paid)                                | Yes (Free Suite)          |
+| **HubSpot**                | Marketing-led growth                | €20/seat/mo                                       | Yes (2 users)             |
 | **Pipedrive**              | Sales-first teams                   | €14/user/mo                                       | No (14-day trial)         |
-| **Zoho CRM**               | Budget all-in-one suite             | €14/user/mo                                       | Yes (3 users)             |
-| **Freshsales**             | Teams new to CRM                    | €9/user/mo                                        | Yes (3 users)             |
-| **Monday CRM**             | Team collaboration                  | €15/seat/mo                                       | No (3-seat min)           |
+| **Zoho CRM**               | Budget all-in-one suite             | Regional pricing (see vendor)                     | Yes (3 users)             |
+| **Freshsales**             | Teams new to CRM                    | €9/user/mo (annual)                               | Yes                       |
+| **Monday CRM**             | Team collaboration                  | €12/seat/mo (annual)                              | No (3-seat min)           |
 | **Less Annoying CRM**      | Simplicity seekers                  | $15/user/mo                                       | No                        |
-| **Microsoft Dynamics 365** | Microsoft-stack companies           | €65/user/mo                                       | No                        |
+| **Microsoft Dynamics 365** | Microsoft-stack companies           | €56.30/user/mo (annual)                           | No                        |
 | **SugarCRM**               | Mid-market customization            | $59/user/mo (15-user min)                         | No                        |
+
+Competitor prices are list prices per user or seat per month, taken from each vendor's official pricing page as of September 2026 and billed annually unless stated; they exclude VAT.
 
 ## How We Evaluated
 
@@ -64,7 +66,7 @@ Customermates is an [open-source CRM](/blog/open-source-crm) built for the Europ
 - Contacts, organizations, deals, services, and tasks with typed custom columns
 - Visual [sales pipeline](/blog/sales-pipeline) as a kanban board, with per-stage probabilities for weighted deal values
 - [n8n community node](/blog/n8n-for-beginners-build-your-first-workflow) for teams that run n8n themselves, plus REST API and webhooks
-- MCP integration for external AI clients covering [lead qualification](/blog/lead-qualification-chatgpt), [note summarization](/blog/chatgpt-summarize-notes), and email drafting
+- MCP integration for external AI clients covering record updates, [note summarization](/blog/chatgpt-summarize-notes), and email drafts
 - Audit logging and role-based access for compliance
 - On Pro and above, [Gmail](/blog/gmail-crm-integration), [Outlook](/blog/outlook-crm-integration), and IMAP mailboxes in the unified inbox
 - Cloud database in the AWS Frankfurt region, subprocessors disclosed, DPA available, and a self-hosting option
@@ -83,7 +85,7 @@ Customermates is an [open-source CRM](/blog/open-source-crm) built for the Europ
 **Cons**:
 
 - Younger ecosystem than Salesforce or HubSpot
-- Fewer native third-party integrations (REST, webhooks, and a separately run n8n bridge many gaps)
+- Fewer native third-party integrations; REST, webhooks and a separately run n8n instance fill many gaps
 - No built-in workflow rules engine, reminders, or email sequences
 - No free cloud tier (though [[commercial.price.starter.monthly]]/user/month is the entry point, covering the full CRM)
 
@@ -102,7 +104,7 @@ Salesforce remains the most comprehensive CRM platform available. Its breadth of
 - Multi-cloud architecture (Sales, Service, Marketing, Commerce)
 - Territory management and advanced forecasting
 
-**Pricing**: Starts at $25/user/month (Starter Suite). As of September 2026, Salesforce lists Pro Suite at $100, Core at $195, Advanced at $395, and Max at $550 per user per month, billed annually; most growing businesses land on Pro Suite or Core. Add-ons like CPQ, Pardot, and advanced analytics increase costs significantly. Read our full breakdown at [Salesforce Pricing](/blog/salesforce-pricing).
+**Pricing**: As of September 2026, the [Salesforce pricing page](https://www.salesforce.com/sales/pricing/) lists a Free Suite at $0 and paid editions from $25/user/month (Starter Suite). It lists Pro Suite at $100, Core at $195, Advanced at $395, and Max at $550 per user per month, billed annually; most growing businesses land on Pro Suite or Core. Add-ons like CPQ, Pardot, and advanced analytics increase costs significantly. Read our full breakdown at [Salesforce Pricing](/blog/salesforce-pricing).
 
 **Pros**:
 
@@ -117,14 +119,14 @@ Salesforce remains the most comprehensive CRM platform available. Its breadth of
 - Expensive, especially when you add needed features and modules
 - Complex to administer, often requires a dedicated Salesforce admin
 - Steep learning curve for end users
-- Data primarily hosted in the US
+- Data location depends on edition and region; check it before you sign
 - Long implementation timelines (months, not days)
 
 **Best for**: Large enterprises with 200+ users, dedicated CRM administrators, and budget for customization.
 
 ### 3. HubSpot CRM: Best Free CRM and Marketing-Led Growth
 
-HubSpot offers the tightest integration between CRM, marketing automation, and content management. Its [free CRM tier](/blog/free-crm) makes it the most popular entry point for businesses trying CRM for the first time.
+HubSpot offers the tightest integration between CRM, marketing automation, and content management. Its [free CRM tier](/blog/free-crm) makes it a common entry point for businesses trying CRM for the first time.
 
 **Key features**:
 
@@ -135,7 +137,7 @@ HubSpot offers the tightest integration between CRM, marketing automation, and c
 - Comprehensive onboarding resources and HubSpot Academy
 - Breeze AI for content generation and data enrichment
 
-**Pricing**: Free tier available (limited features). Sales Hub Starter at €15/seat/month. Professional at €90. Enterprise at €150. Marketing Hub, Sales Hub, and Service Hub are priced separately, bundling all three gets expensive fast.
+**Pricing**: Free tier for up to 2 users (limited features). As of September 2026, [HubSpot's pricing page](https://www.hubspot.de/pricing/sales) lists Sales Hub Starter at €20 per seat per month, Professional at €90 per seat per month billed annually (€100 billed monthly) plus a €1,470 onboarding fee, and Enterprise from €150 per seat per month plus a €3,420 onboarding fee. Marketing Hub, Sales Hub, and Service Hub are priced separately; bundling all three gets expensive fast.
 
 **Pros**:
 
@@ -148,7 +150,7 @@ HubSpot offers the tightest integration between CRM, marketing automation, and c
 **Cons**:
 
 - Costs escalate quickly when you add multiple Hubs
-- Data center region depends on account setup; check HubSpot's current data hosting options
+- Paid accounts can choose HubSpot's data centre in Germany; check which region your account uses
 - Free tier has HubSpot branding on forms and emails
 - Less flexible than open-source alternatives for custom workflows
 - Contact-based pricing in Marketing Hub can get very expensive
@@ -190,18 +192,18 @@ Pipedrive is built around the sales pipeline. Its visual interface and sales-cen
 
 ### 5. Zoho CRM: Best Value All-in-One Suite
 
-Zoho CRM offers solid functionality at competitive prices, especially when combined with other apps from the Zoho ecosystem of 45+ products.
+Zoho CRM offers solid functionality at competitive prices, especially when combined with other apps from the wider Zoho suite.
 
 **Key features**:
 
 - Comprehensive CRM with sales, marketing, and service tools
 - Zia AI assistant for predictions and anomaly detection
 - Canvas design studio for custom module views
-- Extensive integration with 45+ Zoho apps
+- Extensive integration with other Zoho apps
 - Multi-channel communication (email, phone, social, live chat)
 - Blueprint process automation
 
-**Pricing**: Standard at €14/user/month. Professional at €23. Enterprise at €40. Ultimate at €52.
+**Pricing**: Free edition for up to 3 users. The paid editions (Standard, Professional, Enterprise, Ultimate) are priced per user per month by region, so check [Zoho's pricing page](https://www.zoho.com/crm/zohocrm-pricing.html) for your currency.
 
 **Pros**:
 
@@ -234,11 +236,11 @@ Freshsales (part of Freshworks) offers a clean and approachable CRM experience w
 - Territory management and auto-assignment
 - 360-degree customer view
 
-**Pricing**: Free tier for up to 3 users. Growth at €9/user/month. Pro at €39. Enterprise at €59.
+**Pricing**: A free plan is available. As of September 2026, the [Freshsales pricing page](https://www.freshworks.com/crm/pricing/) lists Growth at €9, Pro at €39, and Enterprise at €59 per user per month, billed annually.
 
 **Pros**:
 
-- Lowest paid entry point at €9/user/month
+- Low paid entry point at €9/user/month (billed annually)
 - Built-in phone reduces tool sprawl
 - Freddy AI is genuinely useful for lead prioritization
 - Clean UI that new CRM users find approachable
@@ -267,7 +269,7 @@ Monday CRM extends Monday.com's popular work management platform into CRM territ
 - Dashboard widgets for custom reporting
 - Integrations with popular tools (Slack, Gmail, Zoom)
 
-**Pricing**: No free plan (14-day trial), with a three-seat minimum. Basic at €15/seat/month. Standard at €20. Pro at €41. Ultimate on request.
+**Pricing**: No free plan (14-day trial), with a three-seat minimum. As of September 2026, the [monday CRM pricing page](https://monday.com/crm/pricing) lists Basic at €12, Standard at €17, and Pro at €28 per seat per month billed annually (€18, €25, and €41 billed monthly). Ultimate on request.
 
 **Pros**:
 
@@ -279,7 +281,7 @@ Monday CRM extends Monday.com's popular work management platform into CRM territ
 
 **Cons**:
 
-- Not a traditional CRM, lacks depth in sales-specific features
+- Not a traditional CRM; lacks depth in sales-specific features
 - Reporting is limited compared to dedicated CRM platforms
 - Automation limits on lower tiers
 - Can get expensive for large teams on Pro tier
@@ -300,11 +302,11 @@ Less Annoying CRM does exactly what the name promises: it strips away complexity
 - Daily agenda email
 - No feature tiers or upsells
 
-**Pricing**: $15/user/month. One price, all features. No contracts.
+**Pricing**: $15/user/month as of September 2026 ([Less Annoying CRM pricing](https://www.lessannoyingcrm.com/pricing)). One price, all features. No contracts.
 
 **Pros**:
 
-- Genuinely the easiest CRM to learn and use
+- Very easy to learn and use
 - Transparent pricing with no surprises
 - Excellent customer support (real humans, fast response)
 - Perfect for non-technical users
@@ -333,7 +335,7 @@ Dynamics 365 is Microsoft's enterprise CRM platform, deeply integrated with the 
 - Advanced analytics with Power BI integration
 - Industry-specific modules (finance, retail, manufacturing)
 
-**Pricing**: Sales Professional at €65/user/month. Sales Enterprise at €105. Sales Premium at €150. Customer Service priced separately, from around €50/user/month. Marketing module priced separately.
+**Pricing**: As of September 2026, the [Dynamics 365 Sales pricing page](https://www.microsoft.com/de-de/dynamics-365/products/sales/pricing) lists Sales Professional at €56.30, Sales Enterprise at €91.00, and Sales Premium at €130.00 per user per month, billed annually and excluding VAT. Customer Service and Marketing are licensed separately.
 
 **Pros**:
 
@@ -366,7 +368,7 @@ SugarCRM targets the mid-market with a focus on customization and a time-aware C
 - Self-hosting option available (Sugar Enterprise)
 - Sentiment analysis on customer interactions
 
-**Pricing**: Sugar Sell Standard at $59/user/month, Advanced at $85, Premier at $135, all with a 15-user minimum (effective September 2025). Serve at $80/user/month. Market at $1,000/month (10k contacts). Billed annually only.
+**Pricing**: As of September 2026, the [Sugar pricing page](https://www.sugarai.com/pricing) lists Sugar Sell Standard at $59, Advanced at $85, and Premier at $135 per user per month, billed annually with a 15-user minimum. Serve and Market are quoted separately.
 
 **Pros**:
 
@@ -382,26 +384,25 @@ SugarCRM targets the mid-market with a focus on customization and a time-aware C
 - 15-user minimum on the Sugar Sell plans
 - Smaller ecosystem than Salesforce or HubSpot
 - UI feels less modern than newer competitors
-- Marketing module pricing is contact-based
+- Marketing module priced separately
 
 **Best for**: Mid-market B2B companies that need deep customization and historical data tracking.
 
 ## Detailed Pricing Comparison
 
-For a team of 10 users with full feature access:
+For a team of 10 users with full feature access, using the competitor list prices above (as of September 2026, annual billing where the vendor offers it). Zoho CRM is left out because its prices vary by region.
 
 | CRM                       | Plan                        | Monthly Cost (10 Users)                   | Annual Cost                                         |
 | ------------------------- | --------------------------- | ----------------------------------------- | --------------------------------------------------- |
 | Customermates             | Pro                         | [[commercial.price.pro.monthly.seats.10]] | [[commercial.price.pro.monthly.seats.10.months.12]] |
-| Less Annoying CRM         | All features                | ~€140                                     | ~€1,680                                             |
+| Less Annoying CRM         | All features                | $150                                      | $1,800                                              |
 | Freshsales (Pro)          | Pro                         | €390                                      | €4,680                                              |
-| Zoho CRM (Enterprise)     | Enterprise                  | €400                                      | €4,800                                              |
 | Pipedrive (Premium)       | Premium, billed annually    | €590                                      | €7,080                                              |
-| Monday CRM (Pro)          | Pro                         | €410                                      | €4,920                                              |
-| HubSpot (Professional)    | Professional                | €900                                      | €10,800                                             |
+| Monday CRM (Pro)          | Pro, billed annually        | €280                                      | €3,360                                              |
+| HubSpot (Professional)    | Professional, billed annually | €900                                    | €10,800 + €1,470 onboarding                         |
 | Salesforce (Core)         | Core, billed annually       | $1,950                                    | $23,400                                             |
-| Dynamics 365 (Enterprise) | Sales Enterprise            | €1,050                                    | €12,600                                             |
-| SugarCRM (Sell)           | Sell Standard (15-user min) | ~€820                                     | ~€9,840                                             |
+| Dynamics 365 (Enterprise) | Sales Enterprise            | €910                                      | €10,920                                             |
+| SugarCRM (Sell)           | Sell Standard (15-user min) | $885 (15 seats minimum)                   | $10,620                                             |
 
 For 10 users, Customermates Pro costs [[commercial.price.pro.monthly.seats.10.months.12]] per year, while Salesforce Core is listed above at $23,400. The gap compounds over time.
 
@@ -412,25 +413,25 @@ For 10 users, Customermates Pro costs [[commercial.price.pro.monthly.seats.10.mo
 | Contact Management  | Yes            | Yes             | Yes             | Yes        | Yes            | Yes            | Yes             |
 | Pipeline Management | Yes            | Yes             | Yes             | Yes        | Yes            | Yes            | Yes             |
 | Email Integration   | Pro tier inbox | Yes             | Yes             | Yes        | Yes            | Built-in       | Yes             |
-| Workflow Automation | API/webhooks   | Yes             | Paid tiers      | Paid tiers | Paid tiers     | Paid tiers     | Paid tiers      |
+| Workflow Automation | Cloud routines; API/webhooks | Yes             | Paid tiers      | Paid tiers | Paid tiers     | Paid tiers     | Paid tiers      |
 | AI Features         | MCP; Mate cloud| Einstein (paid) | Breeze (paid)   | Paid tiers | Zia (paid)     | Freddy (paid)  | Limited         |
 | Custom Fields       | Typed columns  | Yes             | Limited free    | Limited    | Plan-dependent | Plan-dependent | Yes             |
 | Self-Hosting        | Yes            | No              | No              | No         | No             | No             | No              |
 | Open Source         | Yes            | No              | No              | No         | No             | No             | No              |
 | Data Location       | Cloud DB Frankfurt; self-host | Region depends on plan | Region depends on plan | Region depends on plan | Region depends on plan | Region depends on plan | Region depends on plan |
 | Built-in Phone      | No             | Add-on          | Add-on          | Add-on     | Yes            | Yes            | No              |
-| Free Tier           | No             | No              | Yes             | No         | Yes (3 users)  | Yes (3 users)  | No (3-seat min) |
+| Free Tier           | No             | Yes (Free Suite) | Yes (2 users)  | No         | Yes (3 users)  | Yes            | No (3-seat min) |
 
 ## What Is the Most Popular CRM Software?
 
-Salesforce has held the largest global CRM market share for years in industry rankings such as IDC's. HubSpot is the most popular among small and mid-sized businesses due to its free tier and marketing tools. However, popularity does not equal best fit. Many businesses adopt Salesforce or HubSpot because of brand recognition, then discover these platforms are either too complex or too expensive for their needs.
+Salesforce has held the largest global CRM market share for years in industry rankings such as IDC's. HubSpot is widely used by small and mid-sized businesses thanks to its free tier and marketing tools. However, popularity does not equal best fit. Many businesses adopt Salesforce or HubSpot because of brand recognition, then discover these platforms are either too complex or too expensive for their needs.
 
-The most popular CRM by category:
+Common choices by category:
 
 - **Enterprise**: Salesforce, Microsoft Dynamics 365
 - **Mid-market**: HubSpot, Zoho CRM, SugarCRM
 - **Small business**: [Customermates](/blog/crm-for-small-business), Pipedrive, Freshsales, Less Annoying CRM
-- **Free CRM**: HubSpot (limited), Freshsales (3 users), [truly free CRM options](/blog/free-crm)
+- **Free CRM**: HubSpot (limited), Salesforce Free Suite, Freshsales, Zoho CRM (3 users), [truly free CRM options](/blog/free-crm)
 
 ## What Is the Best and Easiest CRM?
 
@@ -438,7 +439,7 @@ If ease of use is your top priority, three CRM platforms stand out:
 
 1. **Less Annoying CRM** is the simplest CRM you can buy. It is designed for people who have never used a CRM and want to keep it that way. The trade-off is very limited functionality.
 
-2. **Pipedrive** is the easiest CRM for sales teams specifically. Its visual pipeline is intuitive, and most sales reps can start using it productively within an hour.
+2. **Pipedrive** is the easiest CRM for sales teams specifically. Its visual pipeline is intuitive, and sales reps usually find their way around quickly.
 
 3. **Customermates** combines ease of use with full functionality. The interface is modern and clean, and every core CRM feature (contacts, pipeline, permissions, API, MCP) is included from the first tier. What scales with price is messaging and the hosted AI allowance: Pro adds the unified inbox, Business adds extra connected accounts.
 
@@ -449,7 +450,8 @@ If you want easy plus powerful, Customermates or Pipedrive are the best choices.
 If your budget is zero, these are your options:
 
 - **HubSpot Free CRM**: A solid free option for marketing-focused teams. Includes contact management, pipeline, and basic email tools. Limited to 5 email templates and includes HubSpot branding.
-- **Freshsales Free**: Suited to very small teams (up to 3 users). Includes built-in phone and email.
+- **Salesforce Free Suite**: Salesforce's free entry edition ($0 as of September 2026); check its limits on the Salesforce pricing page.
+- **Freshsales Free**: Suited to very small teams. Includes built-in phone and email.
 - **Zoho CRM Free**: Up to 3 users with basic CRM features.
 
 Note: Monday CRM no longer offers a free plan (14-day trial only, three-seat minimum); the free 2-seat plan is limited to Monday's work-management product, not the CRM.
@@ -460,10 +462,10 @@ Free CRM tiers come with significant limitations. Read our full comparison in [F
 
 Small businesses have different CRM needs than enterprises. You need software that is [affordable](/blog/crm-cost), quick to set up, and does not require a dedicated administrator. The best CRM options for small business in 2026:
 
-1. **Customermates** (from [[commercial.price.starter.monthly]]/user/month), Full CRM at every tier, no complexity, self-hostable
-2. **Pipedrive** (from €14/user/month), Sales-focused, fast to adopt
-3. **Freshsales** (from €9/user/month), Built-in phone, low cost
-4. **Less Annoying CRM** ($15/user/month), Maximum simplicity
+1. **Customermates** (from [[commercial.price.starter.monthly]]/user/month): full CRM at every tier, no complexity, self-hostable
+2. **Pipedrive** (from €14/user/month billed annually): sales-focused, fast to adopt
+3. **Freshsales** (from €9/user/month billed annually): built-in phone, low cost
+4. **Less Annoying CRM** ($15/user/month): maximum simplicity
 
 Read our detailed guide: [CRM for Small Business](/blog/crm-for-small-business).
 
@@ -484,7 +486,7 @@ Choosing a CRM is not about finding the objectively best platform. It is about f
 
 If you operate in Europe or handle sensitive data, where your CRM stores customer information matters. US-based CRM vendors are subject to US data access laws regardless of where their data centers are located.
 
-In the Customermates managed cloud, the application database runs in the AWS Frankfurt region; hosting and other subprocessors, including US providers, are listed on the [subprocessors page](/subprocessors), and a [DPA](/dpa) is available. If you need full control over where data lives, self-host the open-source core, which the US-headquartered vendors on this list do not offer. Read more about [CRM data privacy and GDPR](/blog/crm-best-practices).
+In the Customermates managed cloud, the application database runs in the AWS Frankfurt region; hosting and other subprocessors, including US providers, are listed on the [subprocessors page](/subprocessors), and a [DPA](/dpa) is available. If you need full control over where data lives, self-host the open-source core, which most of the US-headquartered cloud vendors on this list do not offer. Read more about [CRM data privacy and GDPR](/blog/crm-best-practices).
 
 ### Calculate the True Cost
 
@@ -506,7 +508,7 @@ Your CRM needs to connect with email, calendar, accounting, marketing tools, and
 
 Several trends are shaping the CRM landscape this year:
 
-- **MCP integration for external AI clients**: CRMs are moving beyond AI assistants to autonomous agents that can qualify leads, draft follow-ups, and update records without human intervention. Salesforce (Agentforce), HubSpot (Breeze), and Customermates (MCP integration for external AI clients) are leading this shift.
+- **MCP integration for external AI clients**: CRMs are moving beyond chat assistants to AI agents that draft follow-ups and update records while people review the results. Salesforce (Agentforce and hosted MCP servers), HubSpot (Breeze and a remote MCP server), and Customermates (an MCP server for external AI clients) all support this shift.
 - **Composable CRM**: Businesses are moving away from monolithic platforms toward modular systems they can customize. Open-source CRM and n8n-style automation enable this approach.
 - **Data sovereignty**: With increasing regulatory pressure in the EU and beyond, where your CRM data lives is becoming a selection criterion, not an afterthought.
 - **Pricing transparency**: The market is pushing back on hidden fees and feature gates disguised as tiers. Simple, published tiers like Customermates' [[commercial.price.starter.monthly]]-[[commercial.price.business.monthly]]/user/month, with the full CRM included from the first tier, are gaining ground.
@@ -520,12 +522,12 @@ If you want a CRM that is [open source](/blog/open-source-crm), transparent abou
 ## Frequently Asked Questions
 
 <Faq>
-<FaqItem question="What is no 1 CRM?">
-By market share, Salesforce has been the number one CRM globally for years in industry rankings such as IDC's. By user count, HubSpot likely has the most users due to its free tier. However, the best CRM for your business depends on your size, budget, and requirements. For European businesses prioritizing data control and value, Customermates is worth a look: open source, self-hostable, and transparent about its subprocessors.
+<FaqItem question="What is the No. 1 CRM?">
+By market share, Salesforce has been the number one CRM globally for years in industry rankings such as IDC's. HubSpot is widely used thanks to its free tier. However, the best CRM for your business depends on your size, budget, and requirements. For European businesses prioritizing data control and value, Customermates is worth a look: open source, self-hostable, and transparent about its subprocessors.
 </FaqItem>
 
 <FaqItem question="What is the most popular CRM software?">
-Salesforce is the most popular CRM by revenue, HubSpot by user count, and Zoho by number of business customers globally. Among small businesses, Pipedrive and Freshsales are increasingly popular for their simplicity and affordability.
+Salesforce leads by CRM revenue in industry rankings such as IDC's. HubSpot is widely used thanks to its free tier, and Zoho CRM is a common budget choice. Among small businesses, Pipedrive and Freshsales are popular for their simplicity and affordability.
 </FaqItem>
 
 <FaqItem question="What is the best and easiest CRM?">
@@ -533,11 +535,11 @@ Less Annoying CRM is the easiest CRM to learn, but it has very limited features.
 </FaqItem>
 
 <FaqItem question="Is there a CRM that is completely free?">
-HubSpot, Freshsales, and Zoho all offer free tiers, but with significant limitations (user caps, feature restrictions, branding). Monday CRM dropped its free plan and now offers only a 14-day trial. For a CRM without licence fees, open-source options like Customermates can be self-hosted at no licensing cost (you still pay for the server and your time). Read more in our [Free CRM guide](/blog/free-crm).
+HubSpot, Salesforce (Free Suite), Freshsales, and Zoho all offer free tiers, but with significant limitations (user caps, feature restrictions, branding). Monday CRM dropped its free plan and now offers only a 14-day trial. For a CRM without licence fees, open-source options like Customermates can be self-hosted at no licensing cost (you still pay for the server and your time). Read more in our [Free CRM guide](/blog/free-crm).
 </FaqItem>
 
 <FaqItem question="How much should a small business pay for CRM?">
-A small business should expect to pay between €10 and €50 per user per month for a solid CRM. Anything above €50/user/month is typically enterprise pricing with features most small businesses do not need. Customermates at [[commercial.price.starter.monthly]]/user/month and Freshsales at €9/user/month offer the best value for small teams. See our [CRM cost analysis](/blog/crm-cost) for details.
+A small business should expect to pay between €10 and €50 per user per month for a solid CRM. Anything above €50/user/month is typically enterprise pricing with features most small businesses do not need. Customermates at [[commercial.price.starter.monthly]]/user/month and Freshsales at €9/user/month (billed annually) offer strong value for small teams. See our [CRM cost analysis](/blog/crm-cost) for details.
 </FaqItem>
 
 <FaqItem question="What CRM do most startups use?">
@@ -545,6 +547,6 @@ Most startups begin with HubSpot's free tier or Pipedrive due to ease of setup. 
 </FaqItem>
 
 <FaqItem question="Can I switch CRM systems later?">
-Yes, but CRM migration involves effort. You need to export contacts, deals, and activity history, then map fields to the new system. The earlier you choose the right CRM, the less painful migration will be. If future flexibility matters, choosing an open-source CRM with full data export gives you the most control.
+Yes, but CRM migration involves effort. You need to export contacts, deals, and activity history, then map fields to the new system. The earlier you choose the right CRM, the less painful migration will be. If future flexibility matters, an open-source CRM with a documented export path and API gives you more control.
 </FaqItem>
 </Faq>

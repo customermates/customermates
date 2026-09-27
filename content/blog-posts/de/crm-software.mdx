@@ -89,11 +89,11 @@ Für den deutschen Markt sind die folgenden Anbieter relevant. Ich liste Einstie
 
 | Anbieter                                          | Preis pro Nutzer/Monat                            | Stärke                                                         | Datenstandort         |
 | ------------------------------------------------- | ------------------------------------------------- | -------------------------------------------------------------- | --------------------- |
-| **Customermates**                                 | Ab [[commercial.price.starter.monthly]] monatlich | Open Source, KI-Agenten bedienen es, nativer Sammelposteingang | Cloud-Datenbank in Frankfurt, selbst hostbar |
+| **Customermates**                                 | Ab [[commercial.price.starter.monthly]] monatlich | Open Source, KI-Agenten bedienen es, nativer einheitlicher Posteingang | Cloud-Datenbank in Frankfurt, selbst hostbar |
 | [HubSpot](https://www.hubspot.de/products/crm)    | Kostenlos, Pro ab 90 €                            | Marketing + CRM, große Gratis-Version                          | Optionale EU-Region   |
 | [Salesforce](https://www.salesforce.com/de/)      | Ab 25 $                                           | Marktführer, Enterprise-Ökosystem                              | Optionale EU-Region   |
 | [Pipedrive](https://www.pipedrive.com/de)         | Ab 14 €                                           | Vertriebsfokus, einfache Pipeline                              | EU-Hosting wählbar    |
-| [Zoho CRM](https://www.zoho.com/de/crm/)          | Ab 14 €                                           | Breites Ökosystem, viele Module                                | EU-Hosting wählbar    |
+| [Zoho CRM](https://www.zoho.com/de/crm/)          | Kostenlos bis 3 Nutzer; bezahlte Tarife laut Zoho-Preisseite | Breites Ökosystem, viele Module                                | EU-Hosting wählbar    |
 | [CentralStationCRM](https://centralstationcrm.de) | Kostenlos, Pro ab 18 €                            | Einfach, deutschsprachig, EU-Hosting                           | Ja, deutsches Hosting |
 | [weclapp](https://www.weclapp.com)                | Ab 39 €                                           | CRM + ERP integriert                                           | Ja, deutsches Hosting |
 | [SAP Sales Cloud](https://www.sap.com/germany)    | Auf Anfrage                                       | Enterprise, ERP-Integration                                    | Ja                    |
@@ -108,7 +108,7 @@ Die Preise reichen von kostenlos bis dreistellig pro Nutzer und Monat. Vier Prei
 
 **Kostenlos.** HubSpot Free, CentralStation Free, Zoho Free. Alle haben Einschränkungen bei Nutzern, Kontakten oder Funktionen. Brauchbar für Einzelpersonen und Tests, nicht für ein Team. Mehr im Artikel [Kostenloses CRM im Vergleich](/blog/free-crm).
 
-**Einstiegsklasse, 9 bis 20 € pro Nutzer.** Freshsales (9 €), Customermates ([[commercial.price.starter.monthly]]), Pipedrive (14 €), Zoho (14 €), CentralStation (18 €). Vollwertige CRM-Funktionen für KMU.
+**Einstiegsklasse, 9 bis 20 € pro Nutzer.** Freshsales (9 €), Customermates ([[commercial.price.starter.monthly]]), Pipedrive (14 €), CentralStation (18 €). Vollwertige CRM-Funktionen für KMU.
 
 **Mittelklasse, 20 bis 50 € pro Nutzer.** Salesforce Starter Suite (25 $, Stand September 2026), HubSpot Starter, weclapp, Microsoft Dynamics Sales Professional. Erweiterte Automatisierung, Reporting, oft ERP-Anbindung.
 
@@ -165,13 +165,13 @@ Die Einführung scheitert selten an der Technik. Sie scheitert an der Akzeptanz.
 Customermates ist eine CRM-Software für KMU, Selbstständige und Beratungsteams in Deutschland. Ich habe sie gebaut, weil mir keine bestehende Lösung gefallen hat. Zwei Funktionen tragen das Produkt:
 
 - **KI-Agenten bedienen das CRM.** Wenn Sie Claude, ChatGPT oder Gemini bereits täglich nutzen, aktualisiert sich Ihre Pipeline von selbst. Der Agent legt den Kontakt an, schiebt das Angebot in die nächste Stufe, schreibt die Notiz und legt die Folge-Aufgabe an, über eine native MCP-Integration mit [[derived.mcp.tools.total]] Tools. Sie tippen nicht mehr ins CRM, das CRM hört Ihnen zu.
-- **Nativer Sammelposteingang (Cloud, ab Pro).** E-Mail, LinkedIn, WhatsApp, Instagram und Telegram in einem Posteingang direkt im CRM. Der gehostete Assistent Mate kann darin lesen und Antworten entwerfen und fragt vor jedem Versand nach Ihrer Bestätigung.
+- **Nativer einheitlicher Posteingang (Cloud, ab Pro).** E-Mail, LinkedIn, WhatsApp, Instagram und Telegram in einem Posteingang direkt im CRM. Der gehostete Assistent Mate kann darin lesen und Antworten entwerfen und fragt vor jedem Versand nach Ihrer Bestätigung.
 
 Um diese zwei herum liegt die Vertrauensebene:
 
 - **Open Source unter AGPL-3.0.** Der gesamte [Quellcode](https://github.com/customermates/customermates) liegt auf GitHub. Selbst-Hosting via Docker Compose ist ohne Lizenzkosten möglich und dokumentiert.
 - **Made in Germany.** Entwickelt in Mannheim, deutsche Rechnung, deutsche Ansprache. In der Cloud-Version liegt die Datenbank in der AWS-Region Frankfurt; Hosting und weitere Unterauftragsverarbeiter, auch aus den USA, stehen in der [Liste der Unterauftragsverarbeiter](/subprocessors), ein [Auftragsverarbeitungsvertrag (AVV)](/dpa) liegt vor.
-- **Ab [[commercial.price.starter.monthly]] pro Nutzer und Monat in der Cloud (Starter),** mit dem vollen Kern-CRM: Kontakte, Unternehmen, Angebote, Services, Aufgaben, benutzerdefinierte Felder, REST API, Webhooks, MCP, Audit-Log, Berechtigungen. Die Pro-Stufe für [[commercial.price.pro.monthly]] ergänzt den Sammelposteingang, die Business-Stufe für [[commercial.price.business.monthly]] geteilte Team-Konten und mehr verbundene Konten pro Nutzer.
+- **Ab [[commercial.price.starter.monthly]] pro Nutzer und Monat in der Cloud (Starter),** mit dem vollen Kern-CRM: Kontakte, Unternehmen, Angebote, Services, Aufgaben, benutzerdefinierte Felder, REST API, Webhooks, MCP, Audit-Log, Berechtigungen. Die Pro-Stufe für [[commercial.price.pro.monthly]] ergänzt den einheitlichen Posteingang, die Business-Stufe für [[commercial.price.business.monthly]] geteilte Team-Konten und mehr verbundene Konten pro Nutzer.
 - **Keine Vendor-Lock-in-Falle.** Unterstützte Datensätze jederzeit per REST API oder MCP lesen und jede Migration extern planen.
 
 [Preise ansehen](/pricing) · [Customermates [[commercial.trial.days]] Tage kostenlos testen](/auth/signup) · [Auf GitHub ansehen](https://github.com/customermates/customermates)

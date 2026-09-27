@@ -26,7 +26,7 @@ relatedHrefs:
 
 # Salesforce MCP erklärt: Welcher Server was kann
 
-**Salesforce MCP** ist kein einzelnes Produkt. Salesforce unterstützt das Model Context Protocol (MCP), den offenen Standard, über den KI-Clients wie Claude, ChatGPT oder Cursor Werkzeuge in anderen Systemen aufrufen, mit mehreren Servern für unterschiedliche Zielgruppen: gehostete Server, die einem KI-Client Zugriff auf CRM-Daten geben, ein lokaler Server für Salesforce-Entwickler sowie Server für MuleSoft und Heroku. Welcher gemeint ist, entscheidet darüber, wer ihn einrichtet, was er kann und was er kostet.
+**Salesforce MCP** ist kein einzelnes Produkt. MCP (Model Context Protocol) ist der offene Standard, über den KI-Clients wie Claude, ChatGPT oder Cursor Werkzeuge in anderen Systemen aufrufen. Salesforce unterstützt ihn mit mehreren Servern für unterschiedliche Zielgruppen: gehostete Server, die einem KI-Client Zugriff auf CRM-Daten geben, ein lokaler Server für Salesforce-Entwickler sowie Server für MuleSoft und Heroku. Welcher gemeint ist, entscheidet darüber, wer ihn einrichtet, was er kann und was er kostet.
 
 Dieser Leitfaden fasst jedes Salesforce-MCP-Angebot anhand der Salesforce-Dokumentation mit Stand 27. September 2026 zusammen und vergleicht den Ansatz anschließend mit einem CRM, dessen MCP-Server Teil des Produkts ist. Offenlegung: Customermates, das zweite hier besprochene CRM, veröffentlicht diesen Leitfaden.
 
@@ -47,7 +47,7 @@ Dieser Leitfaden fasst jedes Salesforce-MCP-Angebot anhand der Salesforce-Dokume
   </SummaryItem>
   <SummaryItem label="Eingebaute Alternative">
     Ein CRM mit eigenem MCP-Endpunkt wie Customermates braucht keine separate
-    Server-Einrichtung; der Preis dafür ist eine kleinere Plattform.
+    Server-Einrichtung; der Preis dafür: eine kleinere Plattform.
   </SummaryItem>
 </ArticleSummary>
 
@@ -62,7 +62,7 @@ Dieser Leitfaden fasst jedes Salesforce-MCP-Angebot anhand der Salesforce-Dokume
 
 ## Salesforce Hosted MCP Servers
 
-Die Salesforce Hosted MCP Servers meinen die meisten, wenn sie nach „Salesforce MCP“ suchen: ein verwalteter MCP-Endpunkt vor den Daten Ihrer Org, über den ein externer KI-Client mit Accounts, Kontakten, Opportunities und anderen Objekten arbeiten kann.
+Die meisten meinen die Salesforce Hosted MCP Servers, wenn sie nach „Salesforce MCP“ suchen: ein verwalteter MCP-Endpunkt vor den Daten Ihrer Org, über den ein externer KI-Client mit Accounts, Kontakten, Opportunities und anderen Objekten arbeiten kann.
 
 **Was sie tun.** Salesforce stellt [Standard-Server](https://developer.salesforce.com/docs/platform/hosted-mcp-servers/references/reference/servers-reference.html) mit unterschiedlichem Umfang bereit. Die SObject-Server gibt es in Varianten für vollen Zugriff, nur Lesen, Anlegen und Ändern ohne Löschen sowie Löschen. Zu den Werkzeugen gehören Schema-Abfragen, SOQL-Abfragen, SOSL-Suche und das Lesen verknüpfter Datensätze. Weitere Standard-Server decken Data 360, Tableau Next, Archive und einen Headless-360-Server ab, den Salesforce im Summer-'26-Release-Guide als Beta führte. Darüber hinaus können [eigene Server](https://developer.salesforce.com/docs/platform/hosted-mcp-servers/guide/products-supporting-mcp.html) Apex-Aktionen, Flows, Named Queries, API-Catalog-Endpunkte und Prompt-Builder-Vorlagen als Werkzeuge bereitstellen.
 
@@ -76,7 +76,7 @@ Die Salesforce Hosted MCP Servers meinen die meisten, wenn sie nach „Salesforc
 
 Der [Salesforce DX MCP Server](https://github.com/salesforcecli/mcp) ist ein Open-Source-Server (Apache-2.0) für Entwickler. Er läuft lokal über `npx` mit dem Paket `@salesforce/mcp` und arbeitet mit Orgs, die Sie bereits in der Salesforce CLI autorisiert haben. Seine Toolsets decken Orgs, Metadaten, Daten, Nutzer, Tests, DevOps, Code-Analyse, Lightning Web Components, Aura und Mobile ab, insgesamt mit mehr als 60 Werkzeugen. Werkzeuge, die noch nicht allgemein verfügbar sind, brauchen ein ausdrückliches Flag.
 
-Er ist der richtige Server, wenn ein KI-Coding-Assistent Metadaten deployen, Apex-Tests ausführen oder eine Scratch-Org abfragen soll. Als Fenster für Fachanwender auf CRM-Daten ist er nicht gedacht.
+Er ist der richtige Server, wenn ein KI-Coding-Assistent Metadaten deployen, Apex-Tests ausführen oder eine Scratch-Org abfragen soll. Als CRM-Zugang für Fachanwender ist er nicht gedacht.
 
 ## MuleSoft und Heroku MCP
 
@@ -90,7 +90,7 @@ Der Aufwand ist organisatorisch: Ein Administrator muss die External Client App 
 
 ## Ein CRM mit eingebautem MCP-Server
 
-Ein anderes Modell ist ein CRM, dessen MCP-Server von Anfang an Teil des Produkts ist. [Customermates](/) stellt auf jedem Cloud-Tarif und in selbst gehosteten Installationen einen MCP-Endpunkt unter `/api/v1/mcp` bereit. Er nutzt Streamable HTTP und authentifiziert per OAuth für Custom Connectors in Claude und ChatGPT oder per API-Schlüssel für Kommandozeilen- und Editor-Clients. Ein verbundener Client findet [[derived.mcp.tools.total]] Werkzeuge für Kontakte, Organisationen, Deals, Services, Aufgaben, benutzerdefinierte Felder, Dashboards, Webhooks und, in Tarifen mit Messaging, für den einheitlichen Posteingang über E-Mail, LinkedIn, WhatsApp, Instagram und Telegram.
+Ein anderes Modell ist ein CRM, dessen MCP-Server von Anfang an Teil des Produkts ist. [Customermates](/) stellt auf jedem Cloud-Tarif und in selbst gehosteten Installationen einen MCP-Endpunkt unter `/api/v1/mcp` bereit. Er nutzt Streamable HTTP und authentifiziert per OAuth für benutzerdefinierte Connectors in Claude und ChatGPT oder per API-Schlüssel für Kommandozeilen- und Editor-Clients. Ein verbundener Client findet [[derived.mcp.tools.total]] Werkzeuge für Kontakte, Organisationen, Deals, Services, Aufgaben, eigene Felder, Dashboards, Webhooks und, in Tarifen mit Messaging, für den einheitlichen Posteingang über E-Mail, LinkedIn, WhatsApp, Instagram und Telegram.
 
 | Frage                           | Salesforce Hosted MCP Servers                              | Customermates MCP                                           |
 | ------------------------------- | ---------------------------------------------------------- | ----------------------------------------------------------- |
@@ -108,7 +108,7 @@ Ein Unterschied bei der Kontrolle ist für die Bewertung wichtig. Die Server-Anw
 - **Sie nutzen Salesforce und bleiben dabei:** Setzen Sie die gehosteten MCP-Server ein, beginnen Sie mit einem Lese-Server für eine Pilotgruppe und ergänzen Sie eigene Server für Ihre Prozesse.
 - **Sie entwickeln auf Salesforce:** Nutzen Sie den DX MCP Server in Ihrem Editor.
 - **Sie wählen ein CRM und möchten, dass KI-Clients es ab dem ersten Tag bedienen:** Ein CRM mit eingebautem MCP-Server erspart ein separates Server-Projekt. Der [Vergleich mit Salesforce](/compare/salesforce-alternative) zeigt die weiteren Abwägungen.
-- **Sie nutzen HubSpot:** Der [Leitfaden zum HubSpot MCP Server](/blog/hubspot-mcp) erklärt dessen Remote-Server.
+- **Sie nutzen HubSpot:** Der [Leitfaden zum HubSpot-MCP-Server](/blog/hubspot-mcp) erklärt dessen Remote-Server.
 
 ## Häufig gestellte Fragen
 

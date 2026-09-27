@@ -19,7 +19,7 @@ blogPost:
 
 # Gmail CRM Integration: How It Works and What to Check
 
-A **Gmail CRM integration** connects a Gmail or Google Workspace mailbox to the system that holds your contacts and deals, so an email thread and the customer record it belongs to stop living in two places. Every product in this category promises that. They deliver it in very different ways, and the difference decides what your team can actually do: read the CRM while writing an email, see every customer email from inside the CRM, or let an automation or AI client act on both.
+A **Gmail CRM integration** connects a Gmail or Google Workspace mailbox to the system that holds your contacts and deals, so an email thread and the customer record it belongs to stop sitting in two places. Every product in this category promises that. They deliver it in very different ways, and the difference decides what your team can actually do: read the CRM while writing an email, see every customer email from inside the CRM, or let an automation or AI client act on both.
 
 This guide explains the three integration architectures, the Google rules every vendor has to follow, the questions worth asking before you connect a mailbox, and how a Gmail account works in [Customermates](/features/email-integration) step by step. Disclosure: Customermates publishes this guide.
 
@@ -48,7 +48,7 @@ This guide explains the three integration architectures, the Google rules every 
 
 The CRM appears as a panel next to the open email. You look up the sender, log the message, or create a record without leaving Gmail. Streak goes furthest and runs its whole pipeline inside the Gmail interface; HubSpot, Copper and Pipedrive offer Gmail extensions or add-ons next to their own web apps.
 
-- **Good for:** people who live in Gmail and want CRM context while they write.
+- **Good for:** people who spend their day in Gmail and want CRM context while they write.
 - **Watch for:** what gets logged automatically versus one message at a time, and whether the panel works in the Gmail mobile app or only on the web.
 
 ### 2. Mailbox sync into the CRM
@@ -81,7 +81,7 @@ Two things on Google's side shape what any vendor can offer.
 
 **Workspace admin controls.** In Google Workspace, an administrator can restrict which third-party apps may access Google data. If a connection fails for one user but works for another, check the organization's API access controls before debugging the CRM.
 
-**Sending limits.** Google Workspace allows up to 2,000 messages per user per day on paid accounts, 1,500 for mail merge and 500 during a trial, with a maximum of 500 external recipients per message, according to [Google's sending-limits page](https://knowledge.workspace.google.com/admin/gmail/gmail-sending-limits-in-google-workspace) (checked 27 September 2026). A CRM that sends through your Gmail account counts against those limits and may apply its own, stricter budget on top.
+**Sending limits.** Google Workspace allows up to 2,000 messages per user per day on paid accounts, 1,500 for mail merge and 500 during a trial, with a maximum of 500 external recipients per message, according to [Google's sending-limits page](https://knowledge.workspace.google.com/admin/gmail/gmail-sending-limits-in-google-workspace) (checked 27 September 2026). Mail a CRM sends through your Gmail account counts against those limits.
 
 ## What to check before you connect a mailbox
 
@@ -95,7 +95,7 @@ Two things on Google's side shape what any vendor can offer.
 
 ## How Gmail works in Customermates
 
-Customermates connects Gmail as a channel of its [unified inbox](/features/unified-inbox). The inbox runs on Customermates Cloud and needs a plan with messaging: Pro, Business, Enterprise or a trial. Each member on Pro can connect [[commercial.entitlement.pro.includedAccountsPerUser]] channel and on Business [[commercial.entitlement.business.includedAccountsPerUser]]; see [pricing](/pricing).
+Customermates connects Gmail as a channel of its [unified inbox](/features/unified-inbox). The inbox runs on Customermates Cloud and needs a plan with messaging: Pro, Business, Enterprise or a trial. Each member can connect [[commercial.entitlement.pro.includedAccountsPerUser]] connected account on Pro and [[commercial.entitlement.business.includedAccountsPerUser]] connected accounts on Business; see [pricing](/pricing).
 
 <Steps>
   <Step title="Connect the account">
@@ -131,19 +131,18 @@ A few Gmail-specific details from the [inbox guide](/docs/app-inbox):
 - **Folders are read-only for Gmail.** Outlook and IMAP conversations can be moved to another folder from the CRM; a Gmail conversation shows its folder as a read-only chip.
 - **Thread state is shared.** **Unread**, **Open**, **Closed** and **Spam** are one value for everyone who can see the conversation, and setting a state never sends anything to the other side.
 - **Drafts are one per conversation.** A saved draft is visible in the inbox and can be sent, edited or discarded later. Drafts cannot keep attachments.
-- **Provider budgets apply.** Customermates applies a conservative request budget per connected account and pauses before Google would push back. The current values are on the [rate limits page](/docs/messaging-rate-limits).
 
 <AcquisitionCallout title="What this integration does not do" variant="boundary">
   There is no Gmail sidebar or Chrome extension. Connected calendar data is
   read-only: Customermates shows events but does not create, change or book
-  them. There are no sequences or bulk sends, because messaging is individual
-  and draft-first. Self-hosted installations have no inbox at all; there you
+  them. There are no sequences or bulk sends, because messaging is one-to-one:
+  each message goes to one conversation. Self-hosted installations have no inbox at all; there you
   would use the REST API, webhooks or your own workflow instead.
 </AcquisitionCallout>
 
 ## AI on top of the Gmail inbox
 
-Because Gmail conversations live next to CRM records, an AI client can use both. External clients such as Claude or ChatGPT connect through [MCP](/docs/mcp) and use tools like `get_messaging_threads` to read conversations, `save_message_draft` to prepare a reply for review, and `send_email` to send one. Customermates registers [[derived.mcp.tools.total]] MCP tools in total; the messaging tools need a plan with messaging.
+Because Gmail conversations sit next to CRM records, an AI client can use both. External clients such as Claude or ChatGPT connect through [MCP](/docs/mcp) and use tools like `get_messaging_threads` to read conversations, `save_message_draft` to prepare a reply for review, and `send_email` to send one. Customermates registers [[derived.mcp.tools.total]] MCP tools in total; the messaging tools need a plan with messaging.
 
 A practical, reversible first workflow: ask the client to read the latest thread with a contact, summarize it into a note on the deal, and save a reply as a draft. You read the draft in the inbox and press **Send** yourself. The MCP server instructions tell clients to ask before sending, but that confirmation happens in the client, not as a second approval on the server, so check how your client handles it. Mate, the assistant inside Customermates Cloud, requires a fresh approval for every send.
 
@@ -179,11 +178,11 @@ No. The inbox and connected channels are part of Customermates Cloud. A self-hos
 </FaqItem>
 
 <FaqItem question="Can I send email campaigns or sequences from Gmail through the CRM?">
-No. Messaging in Customermates is individual and draft-first. Campaigns and sequences belong in a dedicated email provider, which you can connect to CRM events through webhooks.
+No. Messaging in Customermates is one-to-one, with no bulk sends. Campaigns and sequences belong in a dedicated email provider, which you can connect to CRM events through webhooks.
 </FaqItem>
 
 <FaqItem question="How many emails can I send through Gmail per day?">
-Google limits paid Workspace accounts to 2,000 messages per user per day and trial accounts to 500. Customermates applies its own per-account budget on top; see the rate limits documentation for the current values.
+Google limits paid Workspace accounts to 2,000 messages per user per day and trial accounts to 500, according to Google's sending-limits page. Mail you send through Customermates from your Gmail account counts against those limits.
 </FaqItem>
 </Faq>
 

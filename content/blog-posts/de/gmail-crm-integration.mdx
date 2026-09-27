@@ -1,9 +1,9 @@
 ---
-title: "Gmail CRM-Integration: So funktioniert sie, das prüfen Sie"
-description: "Wie eine Gmail CRM-Integration funktioniert: Add-on, Postfach-Sync oder API. Googles Scope-Regeln, Workspace-Limits und die Einrichtung in Customermates."
+title: "Gmail-CRM-Integration: Funktionsweise und Prüfpunkte"
+description: "Wie eine Gmail-CRM-Integration funktioniert: Add-on, Postfach-Sync oder API. Googles Scope-Regeln, Workspace-Limits und die Einrichtung in Customermates."
 
 hero:
-  title: "Gmail CRM-Integration: So funktioniert sie und das sollten Sie prüfen"
+  title: "Gmail-CRM-Integration: So funktioniert sie und das sollten Sie prüfen"
   description: "Die drei Wege, auf denen ein CRM sich mit Gmail verbindet, was jeder davon sieht und was nicht, die Google-Regeln hinter jeder Integration und wie ein Gmail-Konto im Posteingang von Customermates genau funktioniert."
 
 blogPost:
@@ -17,9 +17,9 @@ blogPost:
     - E-Mail-Integration
 ---
 
-# Gmail CRM-Integration: So funktioniert sie und das sollten Sie prüfen
+# Gmail-CRM-Integration: So funktioniert sie und das sollten Sie prüfen
 
-Eine **Gmail CRM-Integration** verbindet ein Gmail- oder Google-Workspace-Postfach mit dem System, in dem Ihre Kontakte und Deals liegen, sodass ein E-Mail-Verlauf und der passende Kundendatensatz nicht länger an zwei Orten leben. Das versprechen alle Produkte in dieser Kategorie. Sie lösen es aber sehr unterschiedlich, und genau dieser Unterschied entscheidet, was Ihr Team tatsächlich tun kann: das CRM beim Schreiben einer E-Mail lesen, jede Kunden-E-Mail im CRM sehen oder eine Automatisierung beziehungsweise einen KI-Client auf beidem arbeiten lassen.
+Eine **Gmail-CRM-Integration** verbindet ein Gmail- oder Google-Workspace-Postfach mit dem System, in dem Ihre Kontakte und Deals liegen, sodass ein E-Mail-Verlauf und der passende Kundendatensatz nicht länger an zwei Orten liegen. Das versprechen alle Produkte in dieser Kategorie. Sie lösen es aber sehr unterschiedlich, und genau dieser Unterschied entscheidet, was Ihr Team tatsächlich tun kann: das CRM beim Schreiben einer E-Mail lesen, jede Kunden-E-Mail im CRM sehen oder eine Automatisierung beziehungsweise einen KI-Client auf beidem arbeiten lassen.
 
 Dieser Leitfaden erklärt die drei Integrationsarten, die Google-Regeln, an die sich jeder Anbieter halten muss, die Fragen, die Sie vor dem Verbinden eines Postfachs stellen sollten, und Schritt für Schritt, wie ein Gmail-Konto in [Customermates](/features/email-integration) funktioniert. Transparenzhinweis: Dieser Leitfaden stammt von Customermates.
 
@@ -35,7 +35,7 @@ Dieser Leitfaden erklärt die drei Integrationsarten, die Google-Regeln, an die 
   </SummaryItem>
   <SummaryItem label="Ansatz von Customermates">
     Ein verbundenes Gmail-Konto speist in Customermates Cloud ab Pro den
-    vereinheitlichten Posteingang, neben LinkedIn, WhatsApp, Instagram und
+    einheitlichen Posteingang, neben LinkedIn, WhatsApp, Instagram und
     Telegram.
   </SummaryItem>
   <SummaryItem label="Grenzen">
@@ -50,19 +50,19 @@ Dieser Leitfaden erklärt die drei Integrationsarten, die Google-Regeln, an die 
 
 Das CRM erscheint als Panel neben der geöffneten E-Mail. Sie schlagen den Absender nach, protokollieren die Nachricht oder legen einen Datensatz an, ohne Gmail zu verlassen. Streak geht am weitesten und betreibt seine gesamte Pipeline in der Gmail-Oberfläche; HubSpot, Copper und Pipedrive bieten Gmail-Erweiterungen oder Add-ons neben ihren eigenen Web-Apps.
 
-- **Geeignet für:** Menschen, die in Gmail leben und beim Schreiben CRM-Kontext wollen.
+- **Geeignet für:** Menschen, die den ganzen Tag in Gmail arbeiten und beim Schreiben CRM-Kontext wollen.
 - **Achten Sie auf:** was automatisch protokolliert wird und was nur Nachricht für Nachricht, und ob das Panel in der mobilen Gmail-App funktioniert oder nur im Web.
 
 ### 2. Postfach-Sync ins CRM
 
-Sie autorisieren das Postfach einmal, und das CRM liest die Verläufe serverseitig. Konversationen erscheinen im CRM neben dem Kontakt, und Antworten gehen über dasselbe Gmail-Konto hinaus, sodass sie wie gewohnt in Ihrem Ordner „Gesendet“ liegen. Dieses Modell nutzt Customermates.
+Sie autorisieren das Postfach einmal, und das CRM liest die Verläufe serverseitig. Konversationen erscheinen im CRM neben dem Kontakt, und Antworten werden über dasselbe Gmail-Konto versendet, sodass sie wie gewohnt in Ihrem Ordner „Gesendet“ liegen. Dieses Modell nutzt Customermates.
 
 - **Geeignet für:** Teams, die vom Kundendatensatz aus arbeiten und jede Konversation dort sehen wollen, auch Nachrichten, die niemand protokolliert hat.
 - **Achten Sie auf:** welche Ordner synchronisiert werden, wer sonst einen synchronisierten Verlauf lesen kann und wie das CRM entscheidet, zu welchem Kontakt ein Verlauf gehört.
 
 ### 3. Eine API- oder Workflow-Integration, die Sie selbst bauen
 
-Sie verbinden die Gmail API mit der API oder den Webhooks des CRM, etwa über ein Workflow-Tool wie n8n oder eigenen Code. Ein Phasenwechsel eines Deals kann dann eine Gmail-Nachricht senden, eine eingehende E-Mail kann einen Datensatz anlegen. Sie bestimmen genau, was fließt.
+Sie verbinden die Gmail-API mit der API oder den Webhooks des CRM, etwa über ein Workflow-Tool wie n8n oder eigenen Code. Ein Phasenwechsel eines Deals kann dann eine Gmail-Nachricht senden, eine eingehende E-Mail kann einen Datensatz anlegen. Sie bestimmen genau, was fließt.
 
 - **Geeignet für:** konkrete, wiederholbare Automatisierungen, die das Produkt selbst nicht bietet.
 - **Achten Sie auf:** Ihnen gehören die OAuth-App, die Fehlerbehandlung und die Wartung. Die unten beschriebenen Prüfregeln von Google gelten dann für Ihre App, nicht für den CRM-Anbieter.
@@ -83,7 +83,7 @@ Zwei Dinge auf Googles Seite bestimmen, was ein Anbieter überhaupt anbieten kan
 
 **Admin-Einstellungen in Workspace.** In Google Workspace kann ein Administrator einschränken, welche Drittanbieter-Apps auf Google-Daten zugreifen dürfen. Wenn eine Verbindung bei einer Person scheitert und bei einer anderen funktioniert, prüfen Sie zuerst die API-Zugriffssteuerung der Organisation, bevor Sie das CRM untersuchen.
 
-**Versandlimits.** Google Workspace erlaubt laut [Googles Seite zu Versandlimits](https://knowledge.workspace.google.com/admin/gmail/gmail-sending-limits-in-google-workspace) (Stand 27. September 2026) bei bezahlten Konten bis zu 2.000 Nachrichten pro Nutzer und Tag, 1.500 für Serienmails und 500 während einer Testphase, mit höchstens 500 externen Empfängern pro Nachricht. Ein CRM, das über Ihr Gmail-Konto sendet, zählt gegen diese Limits und kann zusätzlich ein eigenes, strengeres Budget anwenden.
+**Versandlimits.** Google Workspace erlaubt laut [Googles Seite zu Versandlimits](https://knowledge.workspace.google.com/admin/gmail/gmail-sending-limits-in-google-workspace) (Stand 27. September 2026) bei bezahlten Konten bis zu 2.000 Nachrichten pro Nutzer und Tag, 1.500 für Serienmails und 500 während einer Testphase, mit höchstens 500 externen Empfängern pro Nachricht. Ein CRM, das über Ihr Gmail-Konto sendet, zählt gegen diese Limits.
 
 ## Was Sie vor dem Verbinden eines Postfachs prüfen sollten
 
@@ -97,7 +97,7 @@ Zwei Dinge auf Googles Seite bestimmen, was ein Anbieter überhaupt anbieten kan
 
 ## So funktioniert Gmail in Customermates
 
-Customermates verbindet Gmail als Kanal des [vereinheitlichten Posteingangs](/features/unified-inbox). Der Posteingang läuft in Customermates Cloud und setzt einen Tarif mit Messaging voraus: Pro, Business, Enterprise oder eine Testphase. Jedes Mitglied kann in Pro [[commercial.entitlement.pro.includedAccountsPerUser]] Kanal verbinden und in Business [[commercial.entitlement.business.includedAccountsPerUser]]; Details stehen unter [Preise](/pricing).
+Customermates verbindet Gmail als Kanal des [einheitlichen Posteingangs](/features/unified-inbox). Der Posteingang läuft in Customermates Cloud und setzt einen Tarif mit Messaging voraus: Pro, Business, Enterprise oder eine Testphase. Jedes Mitglied kann in Pro [[commercial.entitlement.pro.includedAccountsPerUser]] verbundenes Konto einrichten und in Business [[commercial.entitlement.business.includedAccountsPerUser]]; Details stehen unter [Preise](/pricing).
 
 <Steps>
   <Step title="Konto verbinden">
@@ -109,8 +109,8 @@ Customermates verbindet Gmail als Kanal des [vereinheitlichten Posteingangs](/fe
   <Step title="Ordner auswählen">
     Auf dem Tab **Ordner** des Kontos ist jeder Ordner standardmäßig
     eingeschaltet, außer Papierkorb, Junk oder Spam, Entwürfe und dem Ordner mit
-    allen E-Mails. Schalten Sie einen Ordner ein, wenn E-Mails daraus, etwa aus
-    einem Archiv, im Posteingang erscheinen sollen.
+    allen E-Mails. Schalten Sie einen Ordner ein, wenn E-Mails daraus (etwa aus
+    einem Archiv) im Posteingang erscheinen sollen.
   </Step>
   <Step title="Teilnehmer mit Kontakten verknüpfen">
     Öffnen Sie in einer Konversation die **Konversationseinstellungen** und
@@ -127,7 +127,7 @@ Customermates verbindet Gmail als Kanal des [vereinheitlichten Posteingangs](/fe
   <Step title="Antworten und neue E-Mails schreiben">
     Antworten Sie direkt in der Konversation, oder starten Sie eine neue E-Mail
     über das Symbol **Neue Nachricht** neben der Adresse eines Kontakts. Die
-    E-Mail geht über Ihr Gmail-Konto hinaus, mit der Signatur, die Sie auf dem
+    E-Mail wird über Ihr Gmail-Konto versendet, mit der Signatur, die Sie auf dem
     Tab **E-Mail** des Kontos festgelegt haben.
   </Step>
 </Steps>
@@ -135,17 +135,16 @@ Customermates verbindet Gmail als Kanal des [vereinheitlichten Posteingangs](/fe
 Einige Gmail-spezifische Details aus dem [Leitfaden zum Posteingang](/docs/app-inbox):
 
 - **Ordner sind bei Gmail schreibgeschützt.** Outlook- und IMAP-Konversationen lassen sich aus dem CRM in einen anderen Ordner verschieben; eine Gmail-Konversation zeigt ihren Ordner als schreibgeschützten Chip.
-- **Der Status ist gemeinsam.** **Ungelesen**, **Offen**, **Geschlossen** und **Spam** sind ein Wert für alle, die die Konversation sehen, und einen Status zu setzen sendet nie etwas an die Gegenseite.
+- **Der Status gilt für alle.** **Ungelesen**, **Offen**, **Geschlossen** und **Spam** sind ein Wert für alle, die die Konversation sehen, und einen Status zu setzen sendet nie etwas an die Gegenseite.
 - **Ein Entwurf pro Konversation.** Ein gespeicherter Entwurf ist im Posteingang sichtbar und lässt sich später senden, bearbeiten oder verwerfen. Entwürfe können keine Anhänge behalten.
-- **Budgets der Anbieter gelten.** Customermates wendet pro verbundenem Konto ein vorsichtiges Anfragebudget an und pausiert, bevor Google bremsen würde. Die aktuellen Werte stehen auf der Seite zu [Ratenlimits](/docs/messaging-rate-limits).
 
 <AcquisitionCallout title="Was diese Integration nicht kann" variant="boundary">
   Es gibt keine Gmail-Seitenleiste und keine Chrome-Erweiterung. Verbundene
   Kalenderdaten sind nur lesbar: Customermates zeigt Termine an, legt aber
   keine an, ändert keine und bucht keine. Es gibt keine Sequenzen und keinen
-  Massenversand, weil Messaging individuell ist und mit Entwürfen arbeitet.
+  Massenversand: Nachrichten werden einzeln verfasst, auf Wunsch zunächst als Entwurf.
   Selbst gehostete Installationen haben keinen Posteingang; dort nutzen Sie
-  stattdessen die REST API, Webhooks oder einen eigenen Workflow.
+  stattdessen die REST-API, Webhooks oder einen eigenen Workflow.
 </AcquisitionCallout>
 
 ## KI auf dem Gmail-Posteingang
@@ -156,7 +155,7 @@ Ein praktischer und umkehrbarer erster Workflow: Bitten Sie den Client, den letz
 
 ## Gmail-Integration für Automatisierung
 
-Wenn ein Workflow auf Änderungen im CRM reagieren soll, nutzen Sie [Webhooks](/docs/webhooks): Customermates sendet [[derived.webhooks.events.total]] Ereignistypen für Datensätze und Messaging, die eine separat betriebene n8n-Instanz oder Ihr eigener Dienst verarbeiten kann. Der [n8n-Community-Node](/docs/n8n) und die REST API decken die andere Richtung ab. Das ist Architektur 3 von oben, die neben dem synchronisierten Posteingang läuft, statt ihn zu ersetzen.
+Wenn ein Workflow auf Änderungen im CRM reagieren soll, nutzen Sie [Webhooks](/docs/webhooks): Customermates sendet [[derived.webhooks.events.total]] Ereignistypen für Datensätze und Messaging, die eine separat betriebene n8n-Instanz oder Ihr eigener Dienst verarbeiten kann. Der [n8n-Community-Node](/docs/n8n) und die REST-API decken die andere Richtung ab. Das ist Architektur 3 von oben, die neben dem synchronisierten Posteingang läuft, statt ihn zu ersetzen.
 
 ## Kann man Gmail als CRM verwenden?
 
@@ -182,16 +181,16 @@ Kalenderdaten eines verbundenen Google-Kontos können in Customermates eingelese
 </FaqItem>
 
 <FaqItem question="Funktioniert die Gmail-Integration im selbst gehosteten Customermates?">
-Nein. Der Posteingang und verbundene Kanäle gehören zu Customermates Cloud. Eine selbst gehostete Installation enthält das Kern-CRM, REST, Webhooks und MCP, eine Gmail-Anbindung ist dort also ein Workflow, den Sie selbst bauen und betreiben.
+Nein. Der Posteingang und verbundene Kanäle gehören zu Customermates Cloud. Eine selbst gehostete Installation enthält das Kern-CRM, REST, Webhooks und MCP; eine Gmail-Anbindung ist dort also ein Workflow, den Sie selbst bauen und betreiben.
 </FaqItem>
 
 <FaqItem question="Kann ich über das CRM E-Mail-Kampagnen oder Sequenzen aus Gmail versenden?">
-Nein. Messaging in Customermates ist individuell und arbeitet mit Entwürfen. Kampagnen und Sequenzen gehören in einen spezialisierten E-Mail-Dienst, den Sie über Webhooks an CRM-Ereignisse anbinden können.
+Nein. Nachrichten in Customermates werden einzeln verfasst, auf Wunsch zunächst als Entwurf. Kampagnen und Sequenzen gehören in einen spezialisierten E-Mail-Dienst, den Sie über Webhooks an CRM-Ereignisse anbinden können.
 </FaqItem>
 
 <FaqItem question="Wie viele E-Mails kann ich pro Tag über Gmail senden?">
-Google begrenzt bezahlte Workspace-Konten auf 2.000 Nachrichten pro Nutzer und Tag und Testkonten auf 500. Customermates wendet zusätzlich ein eigenes Budget pro Konto an; die aktuellen Werte stehen in der Dokumentation zu Ratenlimits.
+Google begrenzt bezahlte Workspace-Konten auf 2.000 Nachrichten pro Nutzer und Tag und Testkonten auf 500 (Stand: 27. September 2026). E-Mails, die Customermates über Ihr Gmail-Konto sendet, zählen gegen diese Limits.
 </FaqItem>
 </Faq>
 
-Für Microsoft-365-Postfächer gelten dieselben Fragen; siehe den Leitfaden zur [Outlook CRM-Integration](/blog/outlook-crm-integration).
+Für Microsoft-365-Postfächer gelten dieselben Fragen; siehe den Leitfaden zur [Outlook-CRM-Integration](/blog/outlook-crm-integration).
