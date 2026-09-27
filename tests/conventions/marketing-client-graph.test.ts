@@ -24,6 +24,7 @@ const CLIENT_ENTRY_POINTS = [
   "app/[locale]/error.tsx",
   "app/[locale]/(static)/layout.tsx",
   "app/[locale]/(static)/page.tsx",
+  "app/[locale]/(static)/contact/page.tsx",
   "app/[locale]/(static)/blog/[slug]/page.tsx",
   "app/[locale]/(static)/pricing/page.tsx",
   "app/[locale]/(static)/compare/[competitor]/page.tsx",
