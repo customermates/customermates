@@ -819,6 +819,7 @@ describe("agent access", () => {
       clientRequestId: CLIENT_REQUEST_ID,
       text: "retry this",
       retry: true,
+      wikiHomepageSetupUrl: "https://example.com/",
     });
 
     expect(result.ok && result.data.disposition).toBe("run");
@@ -846,6 +847,61 @@ describe("agent access", () => {
         },
       }),
     );
+  });
+
+  it("refuses a homepage-setup retry that did not come through the setup path", async () => {
+    const usage = usageService();
+    const repo = {
+      normalizeExpiredAgentRunLease: vi.fn().mockResolvedValue(undefined),
+      findAgentTurnRequestForAdmission: vi.fn().mockResolvedValue({
+        snapshot: {
+          id: "turn-1",
+          conversationId: CONVERSATION_ID,
+          clientRequestId: CLIENT_REQUEST_ID,
+          text: "retry this",
+          pageRoute: null,
+          wikiHomepageSetupUrl: "https://example.com/",
+          status: "failed",
+          runId: "run-1",
+          attemptCount: 1,
+          providerStartedAt: null,
+          userMessageId: MESSAGE_ID,
+          assistantMessageId: null,
+          terminalCode: null,
+          affectedResources: [],
+          hasLaterMessages: false,
+        },
+        assistantMessage: null,
+      }),
+      claimAgentRunLease: vi.fn(),
+      isAtAgentRunLimit: vi.fn().mockResolvedValue(false),
+      createAgentConversationForRun: vi.fn(),
+      deleteUnusedAgentConversation: vi.fn(),
+      recordAgentTurnExternalRun: vi.fn().mockResolvedValue(undefined),
+      findInteractiveConversation: vi.fn(),
+      admitAgentTurnOrThrow: vi.fn(),
+    };
+    const tasks = backgroundTasks();
+
+    const result = await new SendAgentMessageInteractor(
+      repo as never,
+      usage as never,
+      mockEntitlementService(),
+      tasks as never,
+      emptyCustomColumns(),
+      emptyWikiCatalog(),
+    ).invoke({
+      clientRequestId: CLIENT_REQUEST_ID,
+      text: "retry this",
+      retry: true,
+    });
+
+    expect(result.ok && result.data.disposition).toBe("conflict");
+    expect(usage.prepareTurn).not.toHaveBeenCalled();
+    expect(repo.findInteractiveConversation).not.toHaveBeenCalled();
+    expect(repo.claimAgentRunLease).not.toHaveBeenCalled();
+    expect(repo.admitAgentTurnOrThrow).not.toHaveBeenCalled();
+    expect(tasks.dispatchTracked).not.toHaveBeenCalled();
   });
 
   it("rejects attempts to mutate durable retry tool metadata before budget or persistence work", async () => {

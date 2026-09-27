@@ -2323,6 +2323,54 @@ describe("routine browse-or-mutate batch safety", () => {
   describe("Wiki homepage setup", () => {
     beforeEach(() => {
       state.definitions = ["read_public_page", "manage_wiki_pages"].map(definition);
+      state.websiteSetupAvailability.mockReset().mockResolvedValue({ ok: true, data: true });
+    });
+
+    it.each([
+      ["Wiki create permission was revoked", () => Promise.reject(new ForbiddenError("Wiki create revoked"))],
+      ["the Wiki is no longer empty", () => Promise.resolve({ ok: true, data: false })],
+    ])("refuses the setup read when %s", async (_, availability) => {
+      let readResult: unknown;
+      state.websiteSetupAvailability.mockImplementation(availability);
+      state.runTools = async ({ executeAndCompleteTool }) => {
+        readResult = await executeAndCompleteTool("read_public_page", read, "read-home");
+        return finish();
+      };
+
+      await runAgentTurn({
+        ...payload,
+        wikiHomepageSetup: { url: read.url, registrableDomain: "example.com" },
+      });
+
+      expect(readResult).toMatchObject({ ok: false, result: expect.stringContaining("Wiki is empty") });
+      expect(state.readPage).not.toHaveBeenCalled();
+    });
+
+    it("rechecks setup availability before the setup create", async () => {
+      let createResult: unknown;
+      state.readPage.mockResolvedValue({
+        ok: true,
+        url: read.url,
+        title: "Example",
+        text: "Useful information",
+        links: [],
+        truncated: false,
+      });
+      state.runTools = async ({ executeAndCompleteTool, completeStepAndPrepareNext }) => {
+        await executeAndCompleteTool("read_public_page", read, "read-home");
+        await completeStepAndPrepareNext(streamedStep("", "tool-calls"));
+        state.websiteSetupAvailability.mockResolvedValue({ ok: true, data: false });
+        createResult = await executeAndCompleteTool("manage_wiki_pages", setupWrite(), "write-1");
+        return finish();
+      };
+
+      await runAgentTurn({
+        ...payload,
+        wikiHomepageSetup: { url: read.url, registrableDomain: "example.com" },
+      });
+
+      expect(createResult).toMatchObject({ ok: false, result: expect.stringContaining("no longer available") });
+      expect(state.execute).not.toHaveBeenCalled();
     });
 
     it.each([false, true])(

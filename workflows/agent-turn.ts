@@ -370,9 +370,9 @@ async function readAgentPublicPage(url: string, allowedDomain: string) {
 }
 readAgentPublicPage.maxRetries = 0;
 
-async function authorizedWikiWebsiteSetup(payload: AgentTurnWorkflowPayload): Promise<boolean> {
+async function authorizedWikiSetup(payload: AgentTurnWorkflowPayload): Promise<boolean> {
   "use step";
-  if (!payload.wikiWebsiteSetup || (payload.surface ?? "chat") !== "chat") return false;
+  if (!(payload.wikiWebsiteSetup || payload.wikiHomepageSetup) || (payload.surface ?? "chat") !== "chat") return false;
   const { getGetWikiWebsiteSetupAvailabilityInteractor } = await import("@/core/di");
   const { AppErrorCode, appErrorDetails } = await import("@/core/errors/app-errors");
   const { getTenantUser } = await import("@/core/decorators/tenant-context");
@@ -388,7 +388,7 @@ async function authorizedWikiWebsiteSetup(payload: AgentTurnWorkflowPayload): Pr
     }
   });
 }
-authorizedWikiWebsiteSetup.maxRetries = 0;
+authorizedWikiSetup.maxRetries = 0;
 
 async function authorizedWikiCatalog(payload: AgentTurnWorkflowPayload): Promise<string | null> {
   "use step";
@@ -1231,7 +1231,7 @@ export async function runAgentTurn(payload: AgentTurnWorkflowPayload): Promise<v
                             ? !readOnly
                             : Boolean(payload.wikiWebsiteSetup) && shell.name === WIKI_WEBSITE_CREATE_TOOL_NAME;
                           if (websiteCreate) {
-                            if (payload.wikiWebsiteSetup && !(await authorizedWikiWebsiteSetup(payload))) {
+                            if (!(await authorizedWikiSetup(payload))) {
                               return {
                                 ok: false,
                                 result:
@@ -1274,7 +1274,7 @@ export async function runAgentTurn(payload: AgentTurnWorkflowPayload): Promise<v
                             };
                           }
                           if (shell.name === "read_public_page") {
-                            if (payload.wikiWebsiteSetup && !(await authorizedWikiWebsiteSetup(payload))) {
+                            if (!(await authorizedWikiSetup(payload))) {
                               return {
                                 ok: false,
                                 result:

@@ -233,7 +233,11 @@ export class SendAgentMessageInteractor extends AuthenticatedInteractor<SendAgen
       };
     }
 
-    if (decision.disposition === "conflict") {
+    const setupRetryOutsideSetup =
+      decision.disposition === "retry" &&
+      Boolean(decision.turn.wikiHomepageSetupUrl) &&
+      data.wikiHomepageSetupUrl === undefined;
+    if (decision.disposition === "conflict" || setupRetryOutsideSetup) {
       return {
         ok: true as const,
         data: {

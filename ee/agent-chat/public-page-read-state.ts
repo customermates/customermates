@@ -28,7 +28,6 @@ export function userWebsiteHomepage(userHomepages: readonly string[], value: str
   if (!homepage) return null;
   if (userHomepages.includes(homepage.url)) return homepage;
   const host = new URL(homepage.url).hostname;
-  // A host-only match never keeps the requested path, which could carry data the user did not write.
   return userHomepages.some((userHomepage) => new URL(userHomepage).hostname === host)
     ? parsePublicWikiHomepage(`https://${host}/`)
     : null;
