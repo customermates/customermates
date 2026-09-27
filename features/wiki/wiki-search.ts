@@ -1,4 +1,4 @@
-import { fold, slugifyHeading, stem } from "@/features/mcp-tools/docs-retrieval";
+import { fold, slugifyHeading, stem } from "@/core/utils/search-text";
 
 import { wikiCodePointBoundary } from "./wiki-page-chunk";
 import { WIKI_EXCERPT_MAX_LENGTH, wikiPlainText } from "./wiki-content";
