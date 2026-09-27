@@ -1,6 +1,7 @@
 import type { ModelMessage } from "ai";
-import { WIKI_REFERENCE_MATERIAL_RULE } from "@/features/mcp-tools/server-instructions";
 import type { WikiCatalog } from "@/features/wiki/wiki.schema";
+
+import { WIKI_REFERENCE_MATERIAL_RULE } from "@/features/mcp-tools/server-instructions";
 import { wikiPagePath } from "@/features/wiki/wiki-links";
 
 const WIKI_REFERENCE_MAX_BYTES = 6000;

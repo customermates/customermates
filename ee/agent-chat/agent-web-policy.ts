@@ -1,9 +1,8 @@
-export function isAgentWebTool(name: string) {
-  return name === "web_search" || name === "read_public_page";
-}
+import { AGENT_WEB_SEARCH_TOOL_NAME, record } from "./agent-web-search";
+import { READ_PUBLIC_PAGE_TOOL_NAME } from "./tool-identity";
 
-function record(value: unknown): Record<string, unknown> | null {
-  return value && typeof value === "object" && !Array.isArray(value) ? (value as Record<string, unknown>) : null;
+export function isAgentWebTool(name: string) {
+  return name === AGENT_WEB_SEARCH_TOOL_NAME || name === READ_PUBLIC_PAGE_TOOL_NAME;
 }
 
 export function agentBatchContainsWebCall(messages: readonly unknown[] = [], toolCallId: string) {

@@ -1,6 +1,8 @@
+import type { AgentSurface } from "./agent-surface-policy";
+
 import { gateway } from "ai";
 
-import { isUnattendedSurface, type AgentSurface } from "./agent-surface-policy";
+import { isUnattendedSurface } from "./agent-surface-policy";
 
 export const AGENT_WEB_SEARCH_TOOL_NAME = "web_search";
 export const AGENT_WEB_SEARCH_RELEASED = false;
@@ -37,7 +39,7 @@ export function getAgentWebSearchTool(options: AgentWebSearchOptions = {}) {
   });
 }
 
-function record(value: unknown): Record<string, unknown> | null {
+export function record(value: unknown): Record<string, unknown> | null {
   return value && typeof value === "object" && !Array.isArray(value) ? (value as Record<string, unknown>) : null;
 }
 

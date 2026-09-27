@@ -36,12 +36,11 @@ import { AGENT_UI_TARGETS, UiTargetIdSchema, agentUiPageLabelKeys, type AgentUiT
 import { AgentTourSchema } from "./agent-tours";
 import { NavigateInputSchema } from "./ui-operations";
 import type { AgentApprovalContextResolution } from "./agent-external-approval-context";
-import { internalToolIdentity } from "./tool-identity";
+import { internalToolIdentity, WIKI_WEBSITE_CREATE_TOOL_NAME } from "./tool-identity";
 import { providerWireInputSchema } from "./provider-safe-json-schema";
 import type { AgentToolInputResult } from "./agent-tool-input";
 import { getAgentWebSearchTool } from "./agent-web-search";
-import { wikiHomepageSetupTool } from "@/features/mcp-tools/wiki-website-setup-tool";
-import { WIKI_WEBSITE_CREATE_TOOL_NAME } from "./public-page-read-state";
+import { createWikiFromWebsiteTool } from "@/features/mcp-tools/wiki-website-setup-tool";
 import { hostedWorkspaceContextTool } from "@/features/mcp-tools/workspace.mcp-tools";
 import { localizeWikiPageUrls } from "@/features/wiki/wiki-links";
 import { env } from "@/env";
@@ -462,7 +461,7 @@ export function isWikiWebsiteSetupTurn(
 function wikiWebsiteSetupTools(deps: AgentToolDeps, locale: string | undefined): ToolSet {
   return {
     read_public_page: readPublicPageTool(),
-    [WIKI_WEBSITE_CREATE_TOOL_NAME]: crmTool(wikiHomepageSetupTool(locale), deps),
+    [WIKI_WEBSITE_CREATE_TOOL_NAME]: crmTool(createWikiFromWebsiteTool(locale), deps),
   };
 }
 
@@ -471,7 +470,7 @@ export function getAgentAiTools(deps: AgentToolDeps, options: AgentToolOptions =
     return withCallerContext(
       {
         read_public_page: readPublicPageTool(),
-        manage_wiki_pages: crmTool(wikiHomepageSetupTool(options.locale), deps),
+        manage_wiki_pages: crmTool(createWikiFromWebsiteTool(options.locale), deps),
       },
       deps,
     );

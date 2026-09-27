@@ -1,9 +1,10 @@
 import type { z } from "zod";
+import type { AppLocale } from "@/i18n/locale-registry";
 
 import { getCreateWikiPagesInteractor } from "@/core/di";
-import { WIKI_WEBSITE_CREATE_TOOL_NAME } from "@/ee/agent-chat/public-page-read-state";
+import { WIKI_WEBSITE_CREATE_TOOL_NAME } from "@/ee/agent-chat/tool-identity";
 import { getTranslator } from "@/i18n/get-translator";
-import { DEFAULT_LOCALE, isAppLocale, type AppLocale } from "@/i18n/locale-registry";
+import { DEFAULT_LOCALE, isAppLocale } from "@/i18n/locale-registry";
 
 import { formatDatesInResponse, mcpValidationFailure, runInteractor, toonResult } from "./utils";
 import { ManageWikiPagesOutputSchema, WikiHomepageSetupCreateSchema, wikiPageSummary } from "./wiki.mcp-tools";
@@ -20,7 +21,7 @@ async function setupPages(input: z.infer<typeof WikiHomepageSetupCreateSchema>, 
   }));
 }
 
-export function wikiHomepageSetupTool(locale: string | undefined) {
+export function createWikiFromWebsiteTool(locale: string | undefined) {
   const appLocale = isAppLocale(locale) ? locale : DEFAULT_LOCALE;
   return {
     name: WIKI_WEBSITE_CREATE_TOOL_NAME,

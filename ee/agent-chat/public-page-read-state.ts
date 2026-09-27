@@ -3,7 +3,6 @@ import type { PublicWikiHomepage } from "@/features/wiki/wiki-homepage";
 import { parsePublicPageUrl, parsePublicWikiHomepage } from "@/features/wiki/wiki-homepage";
 
 export const MAX_PUBLIC_PAGE_ATTEMPTS = 4;
-export const WIKI_WEBSITE_CREATE_TOOL_NAME = "create_wiki_from_website";
 
 const MAX_USER_WEBSITES = 20;
 const USER_TEXT_TOKEN_SEPARATOR = /[\s<>"'`()[\]{}|,;«»“”‘’]+/u;

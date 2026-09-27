@@ -44,7 +44,6 @@ import {
 } from "@/ee/agent-chat/agent-web-policy";
 import { agentWebSourcesFooter, collectAgentWebSources } from "@/ee/agent-chat/agent-web-search";
 import {
-  WIKI_WEBSITE_CREATE_TOOL_NAME,
   createPublicPageReadState,
   normalizePublicPageSources,
   reservePublicPageRead,
@@ -71,7 +70,7 @@ import {
 } from "@/ee/agent-chat/agent-continuation";
 import { isAgentStepContextWithinBudget } from "@/ee/agent-chat/agent-provider-context";
 import { getAgentChatRepo, getBackgroundTaskService } from "@/core/di";
-import { internalToolIdentity } from "@/ee/agent-chat/tool-identity";
+import { internalToolIdentity, WIKI_WEBSITE_CREATE_TOOL_NAME } from "@/ee/agent-chat/tool-identity";
 import { readAgentProviderCharge, readGatewayCostMicrocents } from "@/ee/agent-chat/gateway-cost";
 import { isReadOnlyAgentToolCall, requiresApproval } from "@/ee/agent-chat/gated-tools";
 import { isAgentToolCancellation } from "@/ee/agent-chat/agent-tool-cancellation";

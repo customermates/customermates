@@ -6,11 +6,10 @@ import { parsePublicPageUrl } from "@/features/wiki/wiki-homepage";
 
 import { approvalFreeActionsForTool, readOnlyActionsForTool } from "./gated-tools";
 import type { AgentToolIdentity } from "./tool-identity";
-import { internalToolIdentity, isInternalToolIdentity } from "./tool-identity";
+import { internalToolIdentity, isInternalToolIdentity, WIKI_WEBSITE_CREATE_TOOL_NAME } from "./tool-identity";
 
 import { sanitizeAgentPlainText } from "./agent-output-safety";
 import { LOAD_TOOLSET_TOOL_NAME } from "./agent-toolset-routing";
-import { WIKI_WEBSITE_CREATE_TOOL_NAME } from "./public-page-read-state";
 
 const ViewMutationActionSchema = z.enum(["create", "update", "select", "delete"]);
 const DataViewNavigationHrefSchema = z

@@ -7,7 +7,7 @@ import {
 } from "@/features/mcp-tools/server-instructions";
 import { routineTriggerGuide } from "@/ee/routines/routine-trigger-doc";
 import { toolsetIndexSentence } from "./agent-toolset-routing";
-import { WIKI_WEBSITE_CREATE_TOOL_NAME } from "./public-page-read-state";
+import { WIKI_WEBSITE_CREATE_TOOL_NAME } from "./tool-identity";
 
 export type SystemPromptContext = {
   userName: string;

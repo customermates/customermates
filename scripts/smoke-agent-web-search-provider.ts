@@ -1,3 +1,5 @@
+import type { TokenCounts } from "@/ee/agent-chat/model-pricing";
+
 import "dotenv/config";
 
 import { resolve } from "node:path";
@@ -18,7 +20,6 @@ import {
 import { buildAgentUsageSettlement, usageToTokenCounts } from "@/ee/agent-chat/agent-usage-settlement";
 import { readAgentProviderCharge } from "@/ee/agent-chat/gateway-cost";
 import { MODEL_CATALOG, SHIPPED_AGENT_MODEL_KEY } from "@/ee/agent-chat/model-catalog";
-import type { TokenCounts } from "@/ee/agent-chat/model-pricing";
 
 const MODEL = MODEL_CATALOG[SHIPPED_AGENT_MODEL_KEY];
 const MODEL_URL = "https://ai-gateway.vercel.sh/v4/ai/language-model";

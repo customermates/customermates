@@ -41,7 +41,7 @@ vi.mock("@/core/di", () => ({
 
 import { ALL_MCP_TOOLS, MCP_TOOL_GROUPS } from "../tool-registry";
 import { manageWikiPagesTool, WIKI_HOMEPAGE_RESERVED_HEADINGS, WikiHomepageSetupCreateSchema } from "../wiki.mcp-tools";
-import { wikiHomepageSetupTool } from "../wiki-website-setup-tool";
+import { createWikiFromWebsiteTool } from "../wiki-website-setup-tool";
 import { executeMcpTool, mcpToolResultText } from "../mcp-tool";
 
 const PAGE_ID = "00000000-0000-4000-8000-000000000001";
@@ -212,7 +212,7 @@ describe("homepage setup create", () => {
       }),
     );
 
-    await wikiHomepageSetupTool("en").execute(input);
+    await createWikiFromWebsiteTool("en").execute(input);
 
     const markdown = calls.create.mock.calls[0][0].pages[0].markdown;
     expect(WikiMarkdownSchema.parse(markdown).length).toBeLessThanOrEqual(MAX_NOTES_LENGTH);
@@ -225,7 +225,7 @@ describe("homepage setup create", () => {
       sources: [`https://example.com/${index}`],
     }));
 
-    await wikiHomepageSetupTool("en").execute(WikiHomepageSetupCreateSchema.parse(setup(...pages)));
+    await createWikiFromWebsiteTool("en").execute(WikiHomepageSetupCreateSchema.parse(setup(...pages)));
 
     expect(calls.create).toHaveBeenCalledOnce();
     const created = calls.create.mock.calls[0][0];
@@ -245,7 +245,7 @@ describe("homepage setup create", () => {
   it("relays the empty-Wiki refusal instead of writing into an existing Wiki", async () => {
     calls.create.mockResolvedValue(failConflict(CustomErrorCode.wikiNotEmpty, ["requireEmpty"]));
 
-    const result = await executeMcpTool(wikiHomepageSetupTool("en"), [
+    const result = await executeMcpTool(createWikiFromWebsiteTool("en"), [
       WikiHomepageSetupCreateSchema.parse(setup(PAGE)),
     ]);
 
@@ -269,7 +269,7 @@ describe("homepage setup create", () => {
       }),
     );
 
-    await wikiHomepageSetupTool(locale).execute(input);
+    await createWikiFromWebsiteTool(locale).execute(input);
 
     const { markdown } = calls.create.mock.calls[0][0].pages[0];
     expect(markdown).toContain(`## ${sources}\n\n- <https://example.com/>\n- <https://example.com/about>`);
