@@ -316,6 +316,7 @@ import { UpdateWikiPageInteractor } from "@/features/wiki/update-wiki-page.inter
 import { DeleteWikiPageInteractor } from "@/features/wiki/delete-wiki-page.interactor";
 import { StartWikiHomepageSetupInteractor } from "@/features/wiki/start-wiki-homepage-setup.interactor";
 import { GetWikiHomepageSetupStateInteractor } from "@/features/wiki/get-wiki-homepage-setup-state.interactor";
+import { GetWikiWebsiteSetupAvailabilityInteractor } from "@/features/wiki/get-wiki-website-setup-availability.interactor";
 // Custom Column interactors
 import { GetCustomColumnsInteractor } from "@/features/custom-column/get-custom-columns.interactor";
 import { GetCustomColumnsByEntityTypeInteractor } from "@/features/custom-column/get-custom-columns-by-entity-type.interactor";
@@ -1154,6 +1155,8 @@ export const getStartWikiHomepageSetupInteractor = () =>
   new StartWikiHomepageSetupInteractor(getWikiPageRepo(), getAgentChatRepo(), getSendAgentMessageInteractor());
 export const getGetWikiHomepageSetupStateInteractor = () =>
   new GetWikiHomepageSetupStateInteractor(getWikiPageRepo(), getAgentChatRepo());
+export const getGetWikiWebsiteSetupAvailabilityInteractor = () =>
+  new GetWikiWebsiteSetupAvailabilityInteractor(getWikiPageRepo());
 
 // --- Webhook ---
 
@@ -1761,6 +1764,7 @@ export const getSendAgentMessageInteractor = () =>
     getBackgroundTaskService(),
     getCustomColumnRepo(),
     getGetWikiCatalogInteractor(),
+    getGetWikiWebsiteSetupAvailabilityInteractor(),
   );
 
 export const getGetRoutinesInteractor = () =>

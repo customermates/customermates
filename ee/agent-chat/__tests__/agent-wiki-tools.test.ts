@@ -521,3 +521,57 @@ describe("homepage setup tool boundary", () => {
     expect(deps.runInCallerContext).toHaveBeenCalledOnce();
   });
 });
+
+describe("website Wiki setup in ordinary chat", () => {
+  const setupPages = [
+    {
+      title: "Company overview",
+      sections: [{ heading: "Details", content: "Verified overview" }],
+      sources: ["https://example.com/"],
+    },
+  ];
+
+  it("adds the bounded reader and the one-time empty-Wiki create beside the ordinary chat catalog", () => {
+    const options = { surface: "chat" as const, wikiWebsiteSetup: true };
+    const tools = getAgentAiTools(dependencies(), options);
+
+    expect(tools.read_public_page).toBeDefined();
+    expect(tools.create_wiki_from_website).toBeDefined();
+    expect(tools.manage_wiki_pages).toBeDefined();
+    expect(tools.get_workspace_context).toBeDefined();
+    for (const provider of ["azure", "vertex"])
+      expect(getAgentAiToolDefinitions(provider, options)).toEqual(describeAgentAiTools(tools, provider));
+  });
+
+  it.each([
+    ["a routine", { surface: "routine" as const, wikiWebsiteSetup: true }],
+    ["a turn without the admitted flag", { surface: "chat" as const }],
+    ["an onboarding setup turn", { surface: "chat" as const, wikiWebsiteSetup: true, wikiHomepageSetup: true }],
+  ])("keeps the chat website tools out of %s", (_case, options) => {
+    const tools = getAgentAiTools(dependencies(), options);
+    expect(tools.create_wiki_from_website).toBeUndefined();
+    if (!("wikiHomepageSetup" in options)) expect(tools.read_public_page).toBeUndefined();
+  });
+
+  it("creates only empty-only sourced pages through the normal interactor without approval", async () => {
+    calls.create.mockResolvedValue({ ok: true, data: [{ ...page, markdown: "Verified" }] });
+    const deps = dependencies();
+    const options = { surface: "chat" as const, wikiWebsiteSetup: true };
+    const input = { action: "create", requireEmpty: true, pages: setupPages };
+
+    expect(await normalizeAgentAiToolInput("create_wiki_from_website", input, 6_000, options)).toMatchObject({
+      ok: true,
+    });
+    expect(
+      await normalizeAgentAiToolInput("create_wiki_from_website", { ...input, requireEmpty: false }, 6_000, options),
+    ).toMatchObject({ ok: false });
+
+    const tools = getAgentAiTools(deps, options);
+    expect(await execute(tools.create_wiki_from_website, input)).toMatchObject({ ok: true });
+    expect(calls.create).toHaveBeenCalledWith({
+      requireEmpty: true,
+      pages: [{ title: "Company overview", markdown: expect.stringContaining("<https://example.com/>") }],
+    });
+    expect(deps.requestApproval).not.toHaveBeenCalled();
+  });
+});

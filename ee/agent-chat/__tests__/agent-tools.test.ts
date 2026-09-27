@@ -308,26 +308,47 @@ describe("agent tools", () => {
         truncated: true,
       });
       const released = surface === "routine" ? AGENT_WEB_SEARCH_ROUTINES_RELEASED : AGENT_WEB_SEARCH_RELEASED;
+      const states = [
+        { wikiCatalog: catalog, wikiWebsiteSetup: false },
+        { wikiCatalog: null, wikiWebsiteSetup: true },
+      ];
       for (const model of Object.values(MODEL_CATALOG)) {
-        const toolDefinitions = getAgentAiToolDefinitions(model.servingProvider, { surface, webSearchEnabled });
-        expect(toolDefinitions.some(({ name }) => name === "web_search")).toBe(webSearchEnabled);
-        const requiredContextBytes = conservativeAgentInitialContextBytes({
-          systemPrompt: buildAgentSystemPrompt({ userName: "Test", locale: "en", surface, webSearchEnabled }),
-          currentText: "x".repeat(surface === "routine" ? 5000 : 20000),
-          pageRoute: null,
-          toolDefinitions,
-          wikiCatalog: catalog,
-        });
-        expect(requiredContextBytes, model.modelId).not.toBeNull();
-        const fits =
-          (requiredContextBytes ?? Number.POSITIVE_INFINITY) <= agentContextTokensToBytes(model.maxContextTokens) &&
-          resolveAgentTurnBudget({
-            model,
-            availableCredits: agentRoundWorstCaseCredits(model),
-            requiredContextBytes: requiredContextBytes ?? undefined,
-          }) !== null;
-        if (webSearchEnabled && !fits) expect(released, model.modelId).toBe(false);
-        else expect(fits, model.modelId).toBe(true);
+        for (const { wikiCatalog, wikiWebsiteSetup } of states) {
+          const label = `${model.modelId} catalog=${Boolean(wikiCatalog)} website=${wikiWebsiteSetup}`;
+          const toolDefinitions = getAgentAiToolDefinitions(model.servingProvider, {
+            surface,
+            webSearchEnabled,
+            wikiWebsiteSetup,
+          });
+          expect(toolDefinitions.some(({ name }) => name === "web_search")).toBe(webSearchEnabled);
+          expect(
+            toolDefinitions.some(({ name }) => name === "read_public_page"),
+            label,
+          ).toBe(wikiWebsiteSetup && surface === "chat");
+          const requiredContextBytes = conservativeAgentInitialContextBytes({
+            systemPrompt: buildAgentSystemPrompt({
+              userName: "Test",
+              locale: "en",
+              surface,
+              webSearchEnabled,
+              wikiWebsiteSetup,
+            }),
+            currentText: "x".repeat(surface === "routine" ? 5000 : 20000),
+            pageRoute: null,
+            toolDefinitions,
+            wikiCatalog,
+          });
+          expect(requiredContextBytes, label).not.toBeNull();
+          const fits =
+            (requiredContextBytes ?? Number.POSITIVE_INFINITY) <= agentContextTokensToBytes(model.maxContextTokens) &&
+            resolveAgentTurnBudget({
+              model,
+              availableCredits: agentRoundWorstCaseCredits(model),
+              requiredContextBytes: requiredContextBytes ?? undefined,
+            }) !== null;
+          if (webSearchEnabled && !fits) expect(released, label).toBe(false);
+          else expect(fits, label).toBe(true);
+        }
       }
     },
   );

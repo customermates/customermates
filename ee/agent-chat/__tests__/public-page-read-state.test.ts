@@ -5,6 +5,8 @@ import {
   normalizePublicPageSources,
   recordPublicPageLinks,
   reservePublicPageRead,
+  userWebsiteHomepage,
+  userWebsiteHomepages,
 } from "../public-page-read-state";
 
 const homepage = {
@@ -374,5 +376,43 @@ describe("public page read state", () => {
       ok: false,
       reason: "invalid_url",
     });
+  });
+});
+
+describe("user-supplied website homepages", () => {
+  it("extracts canonical homepages from what the user typed", () => {
+    expect(
+      userWebsiteHomepages([
+        "Build my Wiki from my company website.",
+        "Sure: it's acme-widgets.com. Our docs live at https://docs.acme-widgets.com/start?x=1 (mail me at ada@acme-widgets.com)",
+        "e.g. or v1.2 are not websites",
+      ]),
+    ).toEqual(["https://acme-widgets.com/", "https://docs.acme-widgets.com/start"]);
+  });
+
+  it("accepts the exact canonical URL or a host the user wrote, and nothing else", () => {
+    const homepages = userWebsiteHomepages(["Our site is acme-widgets.com/about"]);
+
+    expect(userWebsiteHomepage(homepages, "http://acme-widgets.com/about")).toEqual({
+      url: "https://acme-widgets.com/about",
+      registrableDomain: "acme-widgets.com",
+    });
+    expect(userWebsiteHomepage(homepages, "https://acme-widgets.com")?.url).toBe("https://acme-widgets.com/");
+    expect(userWebsiteHomepage(homepages, "https://www.acme-widgets.com/")).toBeNull();
+    expect(userWebsiteHomepage(homepages, "https://acme-widgets.com.evil-site.com/")).toBeNull();
+    expect(userWebsiteHomepage(homepages, "https://evil-site.com/")).toBeNull();
+    expect(userWebsiteHomepage([], "https://acme-widgets.com/")).toBeNull();
+  });
+
+  it("keeps follow-up reads on links the chosen homepage returned", () => {
+    const chosen = userWebsiteHomepage(["https://acme-widgets.com/"], "acme-widgets.com");
+    if (!chosen) throw new Error("Expected a homepage.");
+    const state = createPublicPageReadState(chosen);
+
+    expect(reservePublicPageRead(state, "https://acme-widgets.com/pricing")).toEqual({
+      ok: false,
+      reason: "not_linked",
+    });
+    expect(reservePublicPageRead(state, chosen.url)).toMatchObject({ ok: true, url: chosen.url });
   });
 });

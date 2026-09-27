@@ -41,6 +41,7 @@ import { providerWireInputSchema } from "./provider-safe-json-schema";
 import type { AgentToolInputResult } from "./agent-tool-input";
 import { getAgentWebSearchTool } from "./agent-web-search";
 import { wikiHomepageSetupTool } from "@/features/mcp-tools/wiki.mcp-tools";
+import { WIKI_WEBSITE_CREATE_TOOL_NAME } from "./public-page-read-state";
 import { hostedWorkspaceContextTool } from "@/features/mcp-tools/workspace.mcp-tools";
 import { localizeWikiPageUrls } from "@/features/wiki/wiki-links";
 import { env } from "@/env";
@@ -50,6 +51,7 @@ export type AgentToolOptions = {
   locale?: string;
   webSearchEnabled?: boolean;
   wikiHomepageSetup?: boolean;
+  wikiWebsiteSetup?: boolean;
   surface?: AgentSurface;
 };
 const ReadPublicPageSchema = z.object({ url: z.url().max(2_000) });
@@ -443,15 +445,32 @@ export function hostedMcpTools() {
   );
 }
 
+function readPublicPageTool() {
+  return tool({
+    description:
+      "Read one public HTTP(S) page as text for this homepage setup. Supply its exact URL; follow only useful explicit source links. Network protections and page limits are enforced by the runtime.",
+    inputSchema: providerSafeSchema(ReadPublicPageSchema),
+  });
+}
+
+export function isWikiWebsiteSetupTurn(
+  options: Pick<AgentToolOptions, "wikiHomepageSetup" | "wikiWebsiteSetup" | "surface">,
+) {
+  return Boolean(options.wikiWebsiteSetup && !options.wikiHomepageSetup && options.surface === "chat");
+}
+
+function wikiWebsiteSetupTools(deps: AgentToolDeps, locale: string | undefined): ToolSet {
+  return {
+    read_public_page: readPublicPageTool(),
+    [WIKI_WEBSITE_CREATE_TOOL_NAME]: crmTool(wikiHomepageSetupTool(locale), deps),
+  };
+}
+
 export function getAgentAiTools(deps: AgentToolDeps, options: AgentToolOptions = {}): ToolSet {
   if (options.wikiHomepageSetup) {
     return withCallerContext(
       {
-        read_public_page: tool({
-          description:
-            "Read one public HTTP(S) page as text for this homepage setup. Supply its exact URL; follow only useful explicit source links. Network protections and page limits are enforced by the runtime.",
-          inputSchema: providerSafeSchema(ReadPublicPageSchema),
-        }),
+        read_public_page: readPublicPageTool(),
         manage_wiki_pages: crmTool(wikiHomepageSetupTool(options.locale), deps),
       },
       deps,
@@ -464,6 +483,7 @@ export function getAgentAiTools(deps: AgentToolDeps, options: AgentToolOptions =
       ...(options.surface === "routine" ? {} : uiTools(deps)),
       [LOAD_TOOLSET_TOOL_NAME]: loadToolsetTool(),
       ...(options.webSearchEnabled ? { web_search: getAgentWebSearchTool() } : {}),
+      ...(isWikiWebsiteSetupTurn(options) ? wikiWebsiteSetupTools(deps, options.locale) : {}),
       request_support: tool({
         description:
           "Email a support request to the Customermates team. Use when the user asks for a human, reports a bug, or you cannot help after a genuine attempt. The recent Assistant conversation is included, and the team replies to the email address on the user's account.",
@@ -543,6 +563,7 @@ export function agentToolDefinitionsForTurn(args: {
   locale?: string;
   webSearchEnabled?: boolean;
   wikiHomepageSetup?: boolean;
+  wikiWebsiteSetup?: boolean;
 }): AgentTurnToolDefinition[] {
   const panelToolNames = new Set<string>(AGENT_UI_TOOL_NAMES);
   const unattended = isUnattendedSurface(args.surface);

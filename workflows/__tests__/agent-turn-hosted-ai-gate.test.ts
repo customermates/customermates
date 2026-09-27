@@ -40,6 +40,7 @@ const state = vi.hoisted(() => ({
   tenantCompanyId: "company-1",
   prepared: null as unknown,
   readPage: vi.fn(),
+  websiteSetupAvailability: vi.fn(),
   definitions: [] as {
     name: string;
     description: string;
@@ -185,6 +186,9 @@ vi.mock("@/core/di", () => ({
   getBackgroundTaskService: () => ({ dispatch: state.dispatch }),
   getGetWikiPagesInteractor: () => ({
     invoke: state.wikiCatalogAuthorization,
+  }),
+  getGetWikiWebsiteSetupAvailabilityInteractor: () => ({
+    invoke: state.websiteSetupAvailability,
   }),
 }));
 
@@ -1636,6 +1640,7 @@ describe("agent-turn authoritative tool inputs", () => {
       locale: payload.locale,
       pageRoute: payload.pageRoute,
       wikiHomepageSetup: false,
+      wikiWebsiteSetup: false,
       webSearchEnabled: undefined,
       surface: "chat",
     });
@@ -2526,6 +2531,137 @@ describe("routine browse-or-mutate batch safety", () => {
         result: expect.stringContaining("exact URL that this task read successfully"),
       });
       expect(state.execute).not.toHaveBeenCalled();
+    });
+  });
+
+  describe("website Wiki setup in ordinary chat", () => {
+    const home = { url: "https://acme-widgets.com/" };
+    const websitePayload = {
+      ...payload,
+      wikiWebsiteSetup: { userHomepages: ["https://acme-widgets.com/"] },
+    };
+    const websiteWrite = (source = "https://acme-widgets.com/") => ({ ...setupWrite(source) });
+    const homeResult = (links: string[] = []) => ({
+      ok: true,
+      url: home.url,
+      title: "Acme",
+      text: "Acme builds widgets.",
+      links: links.map((url) => ({ url })),
+      truncated: false,
+    });
+
+    beforeEach(() => {
+      state.definitions = ["manage_wiki_pages", "read_public_page", "create_wiki_from_website"].map(definition);
+      state.websiteSetupAvailability.mockReset().mockResolvedValue({ ok: true, data: true });
+      state.readPage.mockResolvedValue(homeResult());
+    });
+
+    it("refuses the first read until the user has written that website in the conversation", async () => {
+      let readResult: unknown;
+      state.runTools = async ({ executeAndCompleteTool }) => {
+        readResult = await executeAndCompleteTool("read_public_page", { url: "https://other-site.com/" }, "read-1");
+        return finish();
+      };
+
+      await runAgentTurn({ ...websitePayload, wikiWebsiteSetup: { userHomepages: [] } });
+
+      expect(readResult).toMatchObject({
+        ok: false,
+        result: expect.stringContaining("Ask the user for their company website first"),
+      });
+      expect(state.readPage).not.toHaveBeenCalled();
+    });
+
+    it("never lets a URL injected through a tool result become the homepage", async () => {
+      const results: unknown[] = [];
+      state.readPage.mockResolvedValue(homeResult(["https://acme-widgets.com/about"]));
+      state.runTools = async ({ executeAndCompleteTool, completeStepAndPrepareNext }) => {
+        results.push(await executeAndCompleteTool("read_public_page", { url: "https://evil-site.com/" }, "read-evil"));
+        results.push(await executeAndCompleteTool("read_public_page", { url: "http://acme-widgets.com" }, "read-home"));
+        await completeStepAndPrepareNext(streamedStep("", "tool-calls"));
+        results.push(
+          await executeAndCompleteTool("read_public_page", { url: "https://evil-site.com/" }, "read-evil-2"),
+        );
+        return finish();
+      };
+
+      await runAgentTurn(websitePayload);
+
+      expect(results[0]).toMatchObject({ ok: false, result: expect.stringContaining("the user wrote") });
+      expect(results[1]).toMatchObject({ ok: true });
+      expect(results[2]).toEqual({ ok: false, reason: "outside_domain" });
+      expect(state.readPage).toHaveBeenCalledExactlyOnceWith({ url: home.url, allowedDomain: "acme-widgets.com" });
+    });
+
+    it("creates sourced pages through the one-time empty-Wiki create only after the homepage read", async () => {
+      let early: unknown;
+      let sameBatch: unknown;
+      let created: unknown;
+      state.runTools = async ({ executeAndCompleteTool, completeStepAndPrepareNext }) => {
+        early = await executeAndCompleteTool("create_wiki_from_website", websiteWrite(), "write-early");
+        const batch = [
+          {
+            role: "assistant",
+            content: [call("read_public_page", "read-home", home), call("create_wiki_from_website", "write-1", {})],
+          },
+        ];
+        await executeAndCompleteTool("read_public_page", home, "read-home", batch);
+        sameBatch = await executeAndCompleteTool("create_wiki_from_website", websiteWrite(), "write-1", batch);
+        await completeStepAndPrepareNext(streamedStep("", "tool-calls"));
+        created = await executeAndCompleteTool("create_wiki_from_website", websiteWrite(), "write-2");
+        return finish();
+      };
+
+      await runAgentTurn(websitePayload);
+
+      expect(early).toMatchObject({ ok: false, result: expect.stringContaining("Read the submitted homepage") });
+      expect(sameBatch).toMatchObject({ ok: false, result: expect.stringContaining("later step") });
+      expect(created).toMatchObject({ ok: true });
+      expect(state.execute).toHaveBeenCalledExactlyOnceWith(
+        websiteWrite(),
+        expect.objectContaining({ toolCallId: "write-2" }),
+      );
+    });
+
+    it("rechecks Wiki create permission and emptiness at execution", async () => {
+      let readResult: unknown;
+      state.websiteSetupAvailability.mockResolvedValue({ ok: true, data: false });
+      state.runTools = async ({ executeAndCompleteTool }) => {
+        readResult = await executeAndCompleteTool("read_public_page", home, "read-1");
+        return finish();
+      };
+
+      await runAgentTurn(websitePayload);
+
+      expect(readResult).toMatchObject({ ok: false, result: expect.stringContaining("Wiki is empty") });
+      expect(state.readPage).not.toHaveBeenCalled();
+    });
+
+    it("keeps a forged website flag out of routines", async () => {
+      let readResult: unknown;
+      state.runTools = async ({ executeAndCompleteTool }) => {
+        readResult = await executeAndCompleteTool("read_public_page", home, "read-1");
+        return finish();
+      };
+
+      await runAgentTurn({ ...websitePayload, surface: "routine" });
+
+      expect(readResult).toMatchObject({ ok: false });
+      expect(state.websiteSetupAvailability).not.toHaveBeenCalled();
+      expect(state.readPage).not.toHaveBeenCalled();
+    });
+
+    it("does not gate ordinary Wiki writes on the website read", async () => {
+      let result: unknown;
+      state.runTools = async ({ executeAndCompleteTool }) => {
+        result = await executeAndCompleteTool("manage_wiki_pages", write, "write-1");
+        return finish();
+      };
+
+      await runAgentTurn(websitePayload);
+
+      expect(result).toMatchObject({ ok: true });
+      expect(state.execute).toHaveBeenCalledOnce();
     });
   });
 });

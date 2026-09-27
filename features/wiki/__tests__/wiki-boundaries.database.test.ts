@@ -15,7 +15,9 @@ import { PrismaRoleRepo } from "@/features/role/prisma-role.repository";
 import { PrismaAgentChatRepo } from "@/ee/agent-chat/prisma-agent-chat.repository";
 import type { UpsertRoleData } from "@/features/role/upsert-role.interactor";
 import { getLocalDatabaseTestUrl } from "@/tests/helpers/database-test";
-import { createMockUser } from "@/tests/helpers/mock-user";
+import { createMockUser, createMockUserWithPermissions } from "@/tests/helpers/mock-user";
+import { Action, Resource } from "@/generated/prisma";
+import { AppErrorCode, appErrorDetails } from "@/core/errors/app-errors";
 import messages from "@/i18n/locales/en.json";
 
 vi.mock("next-intl/server", () => ({
@@ -29,6 +31,7 @@ import { GetWikiPageInteractor } from "../get-wiki-page.interactor";
 import { GetWikiPagesInteractor } from "../get-wiki-pages.interactor";
 import { GetWikiCatalogInteractor } from "../get-wiki-catalog.interactor";
 import { GetWikiHomepageSetupStateInteractor } from "../get-wiki-homepage-setup-state.interactor";
+import { GetWikiWebsiteSetupAvailabilityInteractor } from "../get-wiki-website-setup-availability.interactor";
 import { PrismaWikiPageRepo } from "../prisma-wiki-page.repository";
 import { SearchWikiPagesInteractor } from "../search-wiki-pages.interactor";
 import { StartWikiHomepageSetupInteractor } from "../start-wiki-homepage-setup.interactor";
@@ -619,6 +622,26 @@ describeDatabase("Workspace Wiki public boundaries on PostgreSQL", () => {
     } finally {
       await client.query('DELETE FROM "AgentConversation" WHERE "id" = $1', [foreignConversationId]);
     }
+  });
+
+  it("offers chat website setup only to a Wiki creator while the local Wiki is empty", async () => {
+    const available = (tenant: TenantUser) =>
+      runWithTenant(tenant, () => new GetWikiWebsiteSetupAvailabilityInteractor(new PrismaWikiPageRepo()).invoke());
+    const readOnly = {
+      ...createMockUserWithPermissions([{ resource: Resource.wiki, action: Action.readAll }]),
+      id: userId,
+      companyId,
+    };
+
+    expect(await create(foreignUser, [{ title: "Foreign page", markdown: "Foreign body" }])).toMatchObject({
+      ok: true,
+    });
+    expect(await available(user)).toEqual({ ok: true, data: true });
+    const denied = await available(readOnly).catch((error: unknown) => error);
+    expect(appErrorDetails(denied)?.code).toBe(AppErrorCode.permissionDenied);
+
+    expect(await create(user, [{ title: "Local page", markdown: "Local body" }])).toMatchObject({ ok: true });
+    expect(await available(user)).toEqual({ ok: true, data: false });
   });
 
   it("cascades Wiki pages when their company is deleted", async () => {

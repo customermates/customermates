@@ -53,10 +53,12 @@ import type { GetCustomColumnsRepo } from "@/features/custom-column/get-custom-c
 import { fail, failConflict, failNotFound, failRateLimit } from "@/core/validation/interactor-failure-server";
 import { CustomErrorCode } from "@/core/validation/validation.types";
 import type { GetWikiCatalogInteractor } from "@/features/wiki/get-wiki-catalog.interactor";
+import type { GetWikiWebsiteSetupAvailabilityInteractor } from "@/features/wiki/get-wiki-website-setup-availability.interactor";
 import { parsePublicWikiHomepage, type PublicWikiHomepage } from "@/features/wiki/wiki-homepage";
 import { AppErrorCode, appErrorDetails } from "@/core/errors/app-errors";
 import { agentWebSearchEnabled } from "./agent-web-search";
 import { serializeAgentWikiCatalog } from "./agent-wiki-context";
+import { userWebsiteHomepages } from "./public-page-read-state";
 
 type AdmittedAgentRun = { disposition: "run"; externalRunId: string } & Omit<AgentRunContext, "appBaseUrl">;
 type AgentInvocationMode = "interactive" | "routine";
@@ -108,8 +110,21 @@ export class SendAgentMessageInteractor extends AuthenticatedInteractor<SendAgen
     private backgroundTaskService: BackgroundTaskService,
     private customColumns: GetCustomColumnsRepo,
     private wikiCatalog: Pick<GetWikiCatalogInteractor, "invoke">,
+    private wikiWebsiteSetupAvailability?: Pick<GetWikiWebsiteSetupAvailabilityInteractor, "invoke">,
   ) {
     super();
+  }
+
+  private async wikiWebsiteSetupAvailable() {
+    if (!this.wikiWebsiteSetupAvailability) return false;
+    try {
+      const result = await this.wikiWebsiteSetupAvailability.invoke();
+      return result.ok && result.data;
+    } catch (error) {
+      const code = appErrorDetails(error)?.code;
+      if (code === AppErrorCode.permissionDenied || code === AppErrorCode.demoMode) return false;
+      throw error;
+    }
   }
 
   private async schemaDigest() {
@@ -269,22 +284,26 @@ export class SendAgentMessageInteractor extends AuthenticatedInteractor<SendAgen
       conversationTitle = t("conversationTitle");
     }
     const webSearchEnabled = agentWebSearchEnabled(surface, env.AGENT_WEB_SEARCH_LOCAL_OPT_IN);
-    const toolOptions = {
-      locale,
-      surface,
-      wikiHomepageSetup: Boolean(wikiHomepageSetup),
-      webSearchEnabled,
-    };
     let wikiCatalog: string | null = null;
+    let wikiWebsiteSetup = false;
     if (!wikiHomepageSetup) {
       try {
         const result = await this.wikiCatalog.invoke({ page: 1 });
         if (!result.ok) return result;
         wikiCatalog = serializeAgentWikiCatalog(result.data);
+        wikiWebsiteSetup =
+          mode === "interactive" && result.data.total === 0 && (await this.wikiWebsiteSetupAvailable());
       } catch (error) {
         if (appErrorDetails(error)?.code !== AppErrorCode.permissionDenied) throw error;
       }
     }
+    const toolOptions = {
+      locale,
+      surface,
+      wikiHomepageSetup: Boolean(wikiHomepageSetup),
+      wikiWebsiteSetup,
+      webSearchEnabled,
+    };
 
     const userName = `${user.firstName} ${user.lastName}`.trim();
     const requestedToolsets = toolsetsForRequest({ text: data.text, pageRoute, contexts });
@@ -297,6 +316,7 @@ export class SendAgentMessageInteractor extends AuthenticatedInteractor<SendAgen
         triggerEvent: routineTriggerEventOf(data.text),
         schemaDigest,
         wikiHomepageSetup: Boolean(wikiHomepageSetup),
+        wikiWebsiteSetup,
         webSearchEnabled,
       }),
       currentText: data.text,
@@ -477,6 +497,17 @@ export class SendAgentMessageInteractor extends AuthenticatedInteractor<SendAgen
         toolsets,
         ...(schemaDigest ? { schemaDigest } : {}),
         wikiHomepageSetup,
+        ...(wikiWebsiteSetup
+          ? {
+              wikiWebsiteSetup: {
+                userHomepages: userWebsiteHomepages(
+                  admission.recentMessages
+                    .filter((message) => message.role === "user")
+                    .map((message) => partsToText(message.parts)),
+                ),
+              },
+            }
+          : {}),
         wikiCatalog,
         webSearchEnabled,
       });

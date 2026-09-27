@@ -75,6 +75,23 @@ describe("system prompt", () => {
     expect(buildAgentSystemPrompt({ ...base, webSearchEnabled: true })).not.toContain(rule);
   });
 
+  it("adds one compact website Wiki instruction only to an admitted chat turn", () => {
+    const website = buildAgentSystemPrompt({ ...base, locale: "de", wikiWebsiteSetup: true });
+    const paragraph = website.split("\n").find((line) => line.startsWith("The Wiki is empty."));
+
+    expect(paragraph).toContain("ask for the site's URL unless the user already wrote it");
+    expect(paragraph).toContain("read_public_page that exact URL");
+    expect(paragraph).toContain("create_wiki_from_website once with one to five pages in German");
+    expect(paragraph).toContain("list missing details as gaps");
+    expect(paragraph).toContain("Never invent facts");
+    expect(paragraph).toContain("If nothing usable was found, say so and create nothing.");
+    expect(new TextEncoder().encode(paragraph).byteLength).toBeLessThan(700);
+    expect(buildAgentSystemPrompt({ ...base })).not.toContain("create_wiki_from_website");
+    expect(buildAgentSystemPrompt({ ...base, surface: "routine", wikiWebsiteSetup: true })).not.toContain(
+      "create_wiki_from_website",
+    );
+  });
+
   it("keeps direct page reads setup-only and uses native search for ordinary turns", () => {
     const unavailable = buildAgentSystemPrompt({ ...base, webSearchEnabled: false });
     const available = buildAgentSystemPrompt({ ...base, webSearchEnabled: true });

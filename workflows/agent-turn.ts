@@ -44,10 +44,13 @@ import {
 } from "@/ee/agent-chat/agent-web-policy";
 import { agentWebSourcesFooter, collectAgentWebSources } from "@/ee/agent-chat/agent-web-search";
 import {
+  WIKI_WEBSITE_CREATE_TOOL_NAME,
   createPublicPageReadState,
   normalizePublicPageSources,
   reservePublicPageRead,
   recordPublicPageLinks,
+  userWebsiteHomepage,
+  type PublicPageReadState,
 } from "@/ee/agent-chat/public-page-read-state";
 import { buildAgentUsageSettlement, usageToTokenCounts } from "@/ee/agent-chat/agent-usage-settlement";
 import { computeCostMicrocents } from "@/ee/agent-chat/model-pricing";
@@ -116,6 +119,7 @@ export type AgentTurnWorkflowPayload = {
   surface?: AgentTurnSurface;
   toolsets?: string[];
   wikiHomepageSetup?: PublicWikiHomepage;
+  wikiWebsiteSetup?: { userHomepages: string[] };
   wikiCatalog?: string | null;
   webSearchEnabled?: boolean;
 };
@@ -343,8 +347,9 @@ async function executeAgentTool(
   const tools = getAgentAiTools(backgroundToolDeps(payload, grant), {
     locale: payload.locale,
     wikiHomepageSetup: Boolean(payload.wikiHomepageSetup),
+    wikiWebsiteSetup: Boolean(payload.wikiWebsiteSetup),
     webSearchEnabled: payload.webSearchEnabled,
-    surface: payload.surface,
+    surface: payload.surface ?? "chat",
   }) as Record<
     string,
     {
@@ -364,6 +369,26 @@ async function readAgentPublicPage(url: string, allowedDomain: string) {
   return readPublicPage({ url, allowedDomain });
 }
 readAgentPublicPage.maxRetries = 0;
+
+async function authorizedWikiWebsiteSetup(payload: AgentTurnWorkflowPayload): Promise<boolean> {
+  "use step";
+  if (!payload.wikiWebsiteSetup || (payload.surface ?? "chat") !== "chat") return false;
+  const { getGetWikiWebsiteSetupAvailabilityInteractor } = await import("@/core/di");
+  const { AppErrorCode, appErrorDetails } = await import("@/core/errors/app-errors");
+  const { getTenantUser } = await import("@/core/decorators/tenant-context");
+  return runAsBackgroundTenant(payload.userId, async () => {
+    try {
+      if (getTenantUser().companyId !== payload.companyId) return false;
+      const result = await getGetWikiWebsiteSetupAvailabilityInteractor().invoke();
+      return result.ok && result.data;
+    } catch (error) {
+      const code = appErrorDetails(error)?.code;
+      if (code === AppErrorCode.permissionDenied || code === AppErrorCode.demoMode) return false;
+      throw error;
+    }
+  });
+}
+authorizedWikiWebsiteSetup.maxRetries = 0;
 
 async function authorizedWikiCatalog(payload: AgentTurnWorkflowPayload): Promise<string | null> {
   "use step";
@@ -403,6 +428,7 @@ async function normalizeAgentToolInput(
         locale: payload.locale,
         pageRoute: payload.pageRoute,
         wikiHomepageSetup: Boolean(payload.wikiHomepageSetup),
+        wikiWebsiteSetup: Boolean(payload.wikiWebsiteSetup),
         webSearchEnabled: payload.webSearchEnabled,
         surface: payload.surface ?? "chat",
       },
@@ -844,6 +870,7 @@ export async function runAgentTurn(payload: AgentTurnWorkflowPayload): Promise<v
     const shells = await loadAgentToolShells(surface, payload.turnBudget.servingProvider, {
       locale: payload.locale,
       wikiHomepageSetup: Boolean(payload.wikiHomepageSetup),
+      wikiWebsiteSetup: Boolean(payload.wikiWebsiteSetup),
       webSearchEnabled: payload.webSearchEnabled,
     });
     const writable = getWritable();
@@ -862,6 +889,7 @@ export async function runAgentTurn(payload: AgentTurnWorkflowPayload): Promise<v
       schemaDigest: payload.schemaDigest ?? null,
       triggerEvent: routineTriggerEventOf(payload.messages.findLast((message) => message.role === "user")?.text),
       wikiHomepageSetup: Boolean(payload.wikiHomepageSetup),
+      wikiWebsiteSetup: Boolean(payload.wikiWebsiteSetup),
       webSearchEnabled: payload.webSearchEnabled,
     });
     const toolDefinitions = shells.map(
@@ -894,7 +922,9 @@ export async function runAgentTurn(payload: AgentTurnWorkflowPayload): Promise<v
     let performedWrite = false;
     let browsed = false;
     const webSources = new Set<string>();
-    const publicPageState = payload.wikiHomepageSetup ? createPublicPageReadState(payload.wikiHomepageSetup) : null;
+    let publicPageState: PublicPageReadState | null = payload.wikiHomepageSetup
+      ? createPublicPageReadState(payload.wikiHomepageSetup)
+      : null;
 
     const continuationSteps: AgentContinuationStep[] = [];
     let deferredRound: {
@@ -1197,7 +1227,17 @@ export async function runAgentTurn(payload: AgentTurnWorkflowPayload): Promise<v
                           if (!prepared.ok) return prepared;
                           const readOnly = isReadOnlyAgentToolCall(shell.name, shell, prepared.input);
                           let executionInput = prepared.input;
-                          if (payload.wikiHomepageSetup && !readOnly) {
+                          const websiteCreate = payload.wikiHomepageSetup
+                            ? !readOnly
+                            : Boolean(payload.wikiWebsiteSetup) && shell.name === WIKI_WEBSITE_CREATE_TOOL_NAME;
+                          if (websiteCreate) {
+                            if (payload.wikiWebsiteSetup && !(await authorizedWikiWebsiteSetup(payload))) {
+                              return {
+                                ok: false,
+                                result:
+                                  "Website Wiki setup is no longer available: it needs Wiki create access and an empty Wiki. Nothing was changed.",
+                              };
+                            }
                             if (!publicPageState?.homepageSucceeded) {
                               return {
                                 ok: false,
@@ -1234,16 +1274,36 @@ export async function runAgentTurn(payload: AgentTurnWorkflowPayload): Promise<v
                             };
                           }
                           if (shell.name === "read_public_page") {
+                            if (payload.wikiWebsiteSetup && !(await authorizedWikiWebsiteSetup(payload))) {
+                              return {
+                                ok: false,
+                                result:
+                                  "Website reading is only available while the Wiki is empty and you may create Wiki pages.",
+                              };
+                            }
+                            let requestedUrl = (prepared.input as { url: string }).url;
+                            if (!publicPageState && payload.wikiWebsiteSetup) {
+                              const homepage = userWebsiteHomepage(
+                                payload.wikiWebsiteSetup.userHomepages,
+                                requestedUrl,
+                              );
+                              if (!homepage) {
+                                return {
+                                  ok: false,
+                                  result:
+                                    "Read only a website the user wrote in this conversation. Ask the user for their company website first. Nothing was read.",
+                                };
+                              }
+                              publicPageState = createPublicPageReadState(homepage);
+                              requestedUrl = homepage.url;
+                            }
                             if (!publicPageState) {
                               return {
                                 ok: false,
                                 result: "Website reading is only available during Workspace Wiki homepage setup.",
                               };
                             }
-                            const request = reservePublicPageRead(
-                              publicPageState,
-                              (prepared.input as { url: string }).url,
-                            );
+                            const request = reservePublicPageRead(publicPageState, requestedUrl);
                             if (!request.ok) return request;
                             const result = await readAgentPublicPage(request.url, request.allowedDomain);
                             recordPublicPageLinks(publicPageState, request.url, result);

@@ -77,6 +77,9 @@ function fixture() {
   const catalog = {
     invoke: vi.fn().mockResolvedValue({ ok: true, data: catalogData() }),
   };
+  const websiteSetup = {
+    invoke: vi.fn().mockResolvedValue({ ok: true, data: true }),
+  };
   const repo = {
     normalizeExpiredAgentRunLease: vi.fn().mockResolvedValue(undefined),
     findAgentTurnRequestForAdmission: vi.fn().mockResolvedValue(null),
@@ -133,13 +136,14 @@ function fixture() {
     background as never,
     { getCustomColumns: () => Promise.resolve([]) },
     catalog,
+    websiteSetup,
   );
   const payload = () => {
     const call = background.dispatchTracked.mock.calls.at(-1);
     if (!call) throw new Error("Expected an admitted turn.");
     return call[1] as AgentTurnWorkflowPayload;
   };
-  return { catalog, repo, usage, background, interactor, payload };
+  return { catalog, websiteSetup, repo, usage, background, interactor, payload };
 }
 
 describe("Workspace Wiki admission bootstrap", () => {
@@ -194,6 +198,7 @@ describe("Workspace Wiki admission bootstrap", () => {
       locale: "en",
       surface,
       wikiHomepageSetup: false,
+      wikiWebsiteSetup: false,
       webSearchEnabled: false,
     });
   });
@@ -327,6 +332,122 @@ describe("Workspace Wiki admission bootstrap", () => {
     expect(state.payload().wikiCatalog).toBeNull();
   });
 
+  describe("website Wiki setup in ordinary chat", () => {
+    const EMPTY = { items: [], total: 0, page: 1, nextPage: null, truncated: false };
+
+    it("offers the website tools to a chat turn when the Wiki is empty and the user may create pages", async () => {
+      const state = fixture();
+      state.catalog.invoke.mockResolvedValue({ ok: true, data: EMPTY });
+      state.repo.admitAgentTurnOrThrow.mockImplementation((args) =>
+        Promise.resolve({
+          conversationId: args.conversationId,
+          userMessageId: args.turn.userMessageId,
+          recentMessages: [
+            { id: "m1", role: "user", parts: [{ type: "text", text: "Build my Wiki from my company website." }] },
+            {
+              id: "m2",
+              role: "assistant",
+              parts: [{ type: "text", text: "Which website? For example https://attacker-site.com/" }],
+            },
+            { id: args.turn.userMessageId, role: "user", parts: [{ type: "text", text: args.title }] },
+          ],
+        }),
+      );
+
+      const result = await state.interactor.invoke({
+        clientRequestId: CLIENT_REQUEST_ID,
+        text: "It is acme-gmbh.de, thanks.",
+        retry: false,
+      });
+
+      expect(result).toMatchObject({ ok: true, data: { disposition: "run" } });
+      expect(state.websiteSetup.invoke).toHaveBeenCalledOnce();
+      const payload = state.payload();
+      expect(payload.wikiCatalog).toBeNull();
+      expect(payload.wikiWebsiteSetup).toEqual({ userHomepages: ["https://acme-gmbh.de/"] });
+      const admission = state.usage.prepareTurn.mock.calls[0][2];
+      expect(definitions).toHaveBeenCalledWith({
+        servingProvider: admission.model.servingProvider,
+        locale: "en",
+        surface: "chat",
+        wikiHomepageSetup: false,
+        wikiWebsiteSetup: true,
+        webSearchEnabled: false,
+      });
+      const systemPrompt = buildAgentSystemPrompt({
+        userName: payload.userName,
+        locale: payload.locale,
+        surface: "chat",
+        wikiWebsiteSetup: true,
+        webSearchEnabled: false,
+      });
+      expect(systemPrompt).toContain("create_wiki_from_website");
+      expect(admission.requiredContextBytes).toBe(
+        conservativeAgentInitialContextBytes({
+          systemPrompt,
+          currentText: "It is acme-gmbh.de, thanks.",
+          pageRoute: null,
+          toolDefinitions: [],
+          wikiCatalog: null,
+        }),
+      );
+    });
+
+    it("never offers the website tools to a routine, even with an empty Wiki", async () => {
+      const state = fixture();
+      state.catalog.invoke.mockResolvedValue({ ok: true, data: EMPTY });
+      await runWithTenant(mockUser, () =>
+        state.interactor.invokeRoutine({
+          clientRequestId: CLIENT_REQUEST_ID,
+          conversationId: CONVERSATION_ID,
+          text: "Build the Wiki from https://acme-widgets.com/",
+          retry: false,
+        }),
+      );
+      expect(state.websiteSetup.invoke).not.toHaveBeenCalled();
+      expect(state.payload().wikiWebsiteSetup).toBeUndefined();
+      expect(definitions).toHaveBeenCalledWith(
+        expect.objectContaining({ surface: "routine", wikiWebsiteSetup: false }),
+      );
+    });
+
+    it("does not offer the website tools when the Wiki already has pages", async () => {
+      const state = fixture();
+      await state.interactor.invoke({ clientRequestId: CLIENT_REQUEST_ID, text: "acme-widgets.com", retry: false });
+      expect(state.websiteSetup.invoke).not.toHaveBeenCalled();
+      expect(state.payload().wikiWebsiteSetup).toBeUndefined();
+      expect(definitions).toHaveBeenCalledWith(expect.objectContaining({ wikiWebsiteSetup: false }));
+    });
+
+    it.each([
+      ["a read-only user", () => Promise.reject(new ForbiddenError("Wiki create denied"))],
+      ["a Wiki that filled up meanwhile", () => Promise.resolve({ ok: true, data: false })],
+    ])("does not offer the website tools to %s", async (_case, availability) => {
+      const state = fixture();
+      state.catalog.invoke.mockResolvedValue({ ok: true, data: EMPTY });
+      state.websiteSetup.invoke.mockImplementation(availability);
+      const result = await state.interactor.invoke({
+        clientRequestId: CLIENT_REQUEST_ID,
+        text: "acme-widgets.com",
+        retry: false,
+      });
+      expect(result).toMatchObject({ ok: true, data: { disposition: "run" } });
+      expect(state.payload().wikiWebsiteSetup).toBeUndefined();
+      expect(definitions).toHaveBeenCalledWith(expect.objectContaining({ wikiWebsiteSetup: false }));
+    });
+
+    it("does not treat an unexpected availability failure as missing permission", async () => {
+      const state = fixture();
+      const error = new Error("Database unavailable");
+      state.catalog.invoke.mockResolvedValue({ ok: true, data: EMPTY });
+      state.websiteSetup.invoke.mockRejectedValue(error);
+      await expect(
+        state.interactor.invoke({ clientRequestId: CLIENT_REQUEST_ID, text: "Hello", retry: false }),
+      ).rejects.toBe(error);
+      expect(state.background.dispatchTracked).not.toHaveBeenCalled();
+    });
+  });
+
   it("loads an edit on the next admission rather than reusing a cached catalog", async () => {
     const state = fixture();
     await state.interactor.invoke({
@@ -421,6 +542,7 @@ describe("Workspace Wiki admission bootstrap", () => {
       locale: "en",
       surface: "chat",
       wikiHomepageSetup: true,
+      wikiWebsiteSetup: false,
       webSearchEnabled: false,
     });
     expect(state.repo.createAgentConversationForRun).toHaveBeenCalledWith(

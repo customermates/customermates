@@ -10,6 +10,7 @@ import { internalToolIdentity, isInternalToolIdentity } from "./tool-identity";
 
 import { sanitizeAgentPlainText } from "./agent-output-safety";
 import { LOAD_TOOLSET_TOOL_NAME } from "./agent-toolset-routing";
+import { WIKI_WEBSITE_CREATE_TOOL_NAME } from "./public-page-read-state";
 
 const ViewMutationActionSchema = z.enum(["create", "update", "select", "delete"]);
 const DataViewNavigationHrefSchema = z
@@ -300,6 +301,10 @@ export function describeAgentTool(identity: AgentToolIdentity, input: unknown): 
       ...(sourceDomain ? { sourceDomain } : {}),
       ...(sourcePage ? { sourcePage } : {}),
     };
+  }
+  if (toolName === WIKI_WEBSITE_CREATE_TOOL_NAME) {
+    const count = boundedCount(details.pages);
+    return { ...descriptor("records.create", "wiki", "write"), ...(count ? { count } : {}) };
   }
   if (toolName === "manage_wiki_pages") {
     const action = actionValue(details);
