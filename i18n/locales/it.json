@@ -2830,6 +2830,7 @@
   "NotFoundPage": {
     "body": "Siamo stati avvisati automaticamente che questa pagina è andata in vacanza. La rintracceremo e la riporteremo presto qui!",
     "ctaLabel": "Torna alla home",
+    "documentTitle": "Pagina non trovata | Customermates",
     "subtitle": "Questa pagina è andata in vacanza senza avvisarci",
     "title": "Ops! Sei finito nel vuoto"
   },

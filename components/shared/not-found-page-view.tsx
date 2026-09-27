@@ -17,6 +17,8 @@ export async function NotFoundPageView({ locale }: Props = {}) {
 
   return (
     <CenteredCardPage>
+      <title>{t("NotFoundPage.documentTitle")}</title>
+
       <AppCard className="max-w-md">
         <CardHeroHeader subtitle={t("NotFoundPage.subtitle")} title={t("NotFoundPage.title")} />
 

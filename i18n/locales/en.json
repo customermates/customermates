@@ -2830,6 +2830,7 @@
   "NotFoundPage": {
     "body": "We've been automatically notified that this page went on vacation. We'll track it down and bring it back soon!",
     "ctaLabel": "Back to home",
+    "documentTitle": "Page not found | Customermates",
     "subtitle": "This page went on vacation without telling us",
     "title": "Oops! You've entered the void"
   },
