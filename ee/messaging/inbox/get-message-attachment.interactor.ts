@@ -7,7 +7,7 @@ import { z } from "zod";
 import { Resource, Action, type MessagingProvider } from "@/generated/prisma";
 
 import { TenantInteractor } from "@/core/decorators/tenant-interactor.decorator";
-import { Enforce } from "@/core/decorators/enforce.decorator";
+import { Validate } from "@/core/decorators/validate.decorator";
 import { AllowInDemoMode } from "@/core/decorators/allow-in-demo-mode.decorator";
 import { AuthenticatedInteractor } from "@/core/base/authenticated-interactor";
 
@@ -52,7 +52,7 @@ export class GetMessageAttachmentInteractor extends AuthenticatedInteractor<
     super();
   }
 
-  @Enforce(Schema)
+  @Validate(Schema)
   async invoke(data: GetMessageAttachmentData): Validated<MessageAttachment> {
     const denied = await this.entitlements.require("messaging");
     if (denied) return denied;

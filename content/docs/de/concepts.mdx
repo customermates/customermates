@@ -5,11 +5,13 @@ description: "Die fünf Datensatztypen, wie sie sich verknüpfen, die zehn Custo
 
 Customermates verfolgt fünf Datensatztypen, lässt jeden davon benutzerdefinierte Felder tragen, verknüpft sie über typisierte Beziehungen miteinander und löst einen Webhook aus, sobald sich etwas davon ändert.
 
-## Welche fünf Datensatztypen gibt es?
+## Welche fünf Datensatztypen gibt es? [#which-five-record-types-exist]
+
+Jeder Datensatz im CRM ist ein Kontakt, eine Organisation, ein Deal, ein Service oder eine Aufgabe:
 
 | Datensatztyp | Was er abbildet | Eingebaute Felder |
 |---|---|---|
-| **Kontakt** | Eine Person | firstName, lastName, Kanal-Identifikatoren (E-Mail, Telefon, LinkedIn, WhatsApp, Instagram, Telegram), notes |
+| **Kontakt** | Eine Person | firstName, lastName, Kanal-Identifikatoren (E-Mail-Adresse, WhatsApp-Telefonnummer, LinkedIn, Instagram, Telegram; eine reine Telefonnummer gehört in eine Custom Column vom Typ **Telefon**), notes |
 | **Organisation** | Eine Firma | name, notes |
 | **Deal** | Eine Verkaufschance | name, totalValue und totalQuantity (abgeleitet aus verknüpften Services), weightedValue, notes |
 | **Service** | Ein Produkt oder eine Leistung an einem Deal | name, amount, notes |
@@ -17,9 +19,13 @@ Customermates verfolgt fünf Datensatztypen, lässt jeden davon benutzerdefinier
 
 Jeder Datensatz hat `id`, `createdAt`, `updatedAt` und unterstützt Markdown-`notes`. Alles andere ist entweder eine Beziehung zu einem anderen Datensatz oder ein Custom-Column-Wert. Es gibt auf keinem Datensatztyp feste Felder für Status, Phase, Priorität oder Fälligkeitsdatum; auch Aufgaben haben kein eingebautes Fälligkeitsdatum. Nutzen Sie dafür Custom Columns, und rufen Sie `get_record_schema` auf, um die Spalten zu lesen, die in einem Workspace existieren.
 
-## Wie verknüpfen Beziehungen Datensätze?
+## Wie wird der Gesamtwert eines Deals berechnet? [#how-is-a-deals-total-value-calculated]
 
-Beziehungen sind typisiert und many-to-many. Ein Kontakt gehört zu null oder mehr Organisationen, Deals und Nutzern. Ein Deal gehört zu null oder mehr Kontakten, Organisationen und Services (mit Mengen), plus zugewiesenen Nutzern.
+`totalValue` und `totalQuantity` eines Deals sind abgeleitet aus verknüpften Services: `totalValue` ist die Summe aus Preis (**Betrag**) mal Menge jedes verknüpften Services an diesem Deal, und `totalQuantity` ist die Summe dieser Mengen. Der gewichtete Wert baut auf dem Gesamtwert auf, siehe [gewichtete Pipeline](#how-does-a-weighted-pipeline-work).
+
+## Wie verknüpfen Beziehungen Datensätze, etwa einen Kontakt mit mehreren Organisationen? [#how-do-relationships-link-records]
+
+Beziehungen sind typisiert und many-to-many: Ein Kontakt kann zu mehreren Organisationen gehören, und ein Deal kann mehrere Services mit Mengen tragen. Ein Kontakt gehört zu null oder mehr Organisationen, Deals und Nutzern. Ein Deal gehört zu null oder mehr Kontakten, Organisationen und Services (mit Mengen), plus zugewiesenen Nutzern.
 
 | Von zu | Beispiel |
 |---|---|
@@ -32,9 +38,9 @@ Beziehungen sind typisiert und many-to-many. Ein Kontakt gehört zu null oder me
 
 Aufgaben verknüpfen sich mit Nutzern, Kontakten, Organisationen, Deals und Services. Über MCP ändern sich Verknüpfungen über `manage_record_links`, mit einer Ausnahme: `update_deals` behält `services` (Deal-zu-Service-Verknüpfungen mit Mengen) in seinem Update-Schema. Jede andere Beziehung ändert sich nur über `manage_record_links`; die übrigen Update-Tools rühren Verknüpfungen nie an. Über REST ersetzt ein gesendetes Relations-Array die gesamte Menge, und `null` oder `[]` leert sie.
 
-## Was sind Custom Columns?
+## Was sind benutzerdefinierte Felder (Custom Columns), und welche Feldtypen gibt es? [#what-are-custom-columns]
 
-Das Standard-Schema deckt die Basics ab. Für alles andere fügen Sie eine Custom Column hinzu.
+Das Standard-Schema deckt die Basics ab. Für alles andere fügen Sie eine Custom Column hinzu, ein eigenes Feld in einem von zehn Feldtypen.
 
 Zehn Typen:
 
@@ -55,29 +61,43 @@ Einzelauswahl-Columns sind das Mittel, um eigene Workflows abzubilden. Eine Deal
 
 Custom Columns sind First-Class in Filtern, Widgets und der MCP-Oberfläche: `manage_custom_columns` legt sie an und ändert sie, und jedes Datensatz-Tool liest und schreibt ihre Werte über `customFieldValues` mit der Column-Id aus `get_record_schema`.
 
-### Wie funktioniert eine gewichtete Pipeline? [#how-does-a-weighted-pipeline-work]
+## Wie lege ich eigene Felder (benutzerdefinierte Felder, Custom Columns) an, ändere oder lösche sie, etwa das Deal-Phasenfeld? [#how-do-i-add-change-or-delete-a-custom-column]
 
-Ein Workspace kann eine Einzelauswahl-Deal-Column als Gewichtungs-Column markieren und jeder ihrer Optionen ein Gewicht in Prozent geben, zum Beispiel Qualifiziert 20 und Angebot 60. Jeder Deal trägt dann `weightedValue` = sein Gesamtwert multipliziert mit dem Gewicht seiner aktuellen Option, oder keinen gewichteten Wert, wenn die Option kein Gewicht trägt. `list_records` gibt die Summe beider Werte über alle passenden Deals zurück, und ein Dashboard-Chart kann nach dem gewichteten Deal-Wert aggregieren.
+Zum Anlegen, Ändern oder Löschen eigener Felder öffnen Sie einen beliebigen Datensatz und klicken auf **Anpassen**: **Feld hinzufügen** legt eine Custom Column für diesen Datensatztyp an, und der Stift **Spalte bearbeiten** neben einer Column öffnet den Dialog **Feld bearbeiten**, in dem Sie die Column ändern oder nach einer Bestätigung mit **Feld löschen** entfernen. Das Löschen entfernt alle darin gespeicherten Werte und lässt sich nicht rückgängig machen. All das braucht **Verwalten** auf diesem Datensatztyp. Das Löschen des Deal-Phasenfelds, das die gewichtete Pipeline steuert, braucht zusätzlich **Verwalten** in der Zeile **Unternehmen** oder die Rolle **Admin**, weil es die Gewichtung abschaltet. Eine Column, die eine Routine in ihren Filtern nutzt, lässt sich weder in der App noch über MCP löschen; die Ablehnung lautet „Diese benutzerdefinierte Spalte wird in mindestens einem Routinefilter verwendet. Entferne sie aus den betroffenen Routinen, bevor du sie löschst.“ Über MCP erledigt `manage_custom_columns` dasselbe mit `upsert` und `delete`.
 
-## Was sind Widgets?
+**Link:** jeder Datensatz, zum Beispiel `/contacts/<id>` (ebenso `/organizations/<id>`, `/deals/<id>`, `/services/<id>`, `/tasks/<id>`). **Mate:** `navigate` mit der Entität und ihrer recordId; **Anpassen** und die Steuerelemente, die es einblendet, sind keine Highlight-Ziele, deshalb nennt Mate sie beim Namen.
+
+## Wie funktioniert eine gewichtete Pipeline? [#how-does-a-weighted-pipeline-work]
+
+Eine gewichtete Pipeline bewertet jeden Deal mit der Abschlusswahrscheinlichkeit seiner Phase. Ein Workspace kann eine Einzelauswahl-Deal-Column als Gewichtungs-Column markieren und jeder ihrer Optionen ein Gewicht in Prozent geben, zum Beispiel Qualifiziert 20 und Angebot 60. Jeder Deal trägt dann `weightedValue` = sein Gesamtwert multipliziert mit dem Gewicht seiner aktuellen Option, oder keinen gewichteten Wert, wenn die Option kein Gewicht trägt. `list_records` gibt die Summe beider Werte über alle passenden Deals zurück, und ein Dashboard-Chart kann nach dem gewichteten Deal-Wert aggregieren.
+
+Eingerichtet wird das unter **Mein Unternehmen › Einstellungen**. Wählen Sie im Feld **Deal-Phasenfeld** das Einzelauswahl-Feld der Deals (benannt nach Ihrem Begriff für Deals, zum Beispiel **Projekt-Phasenfeld**; **Nicht konfiguriert** schaltet die Gewichtung ab), und tragen Sie dann neben jeder seiner Optionen eine Abschlusswahrscheinlichkeit von 0 bis 100 Prozent ein. Darunter zeigen **Gesamtpipeline** und **Gewichtete Pipeline** das Ergebnis mit den eingetragenen Wahrscheinlichkeiten als Vorschau, bezogen auf die Deals, die Sie lesen dürfen; ist bei einigen dieser Deals keine Phase ausgewählt, zeigt eine Zeile, die mit **Nicht gewichtet · kein** und dem Namen Ihres Feldes beginnt, deren Wert. Beim Speichern wird der gewichtete Wert jedes Deals neu berechnet. Ein neuer Workspace startet mit seinem Deal-Feld **Phase** als Phasenfeld und bereits eingetragenen Wahrscheinlichkeiten.
+
+Auf **Mein Unternehmen › Einstellungen** erfordern die Wahl des Feldes und das Eintragen der Wahrscheinlichkeiten eine Rolle mit **Verwalten** auf **Ja** in der Zeile **Unternehmen** oder die Rolle **Admin**. Dieselben Wahrscheinlichkeiten erscheinen in der Spalte **Wahrscheinlichkeit**, wenn Sie die Optionen des Phasenfelds bearbeiten; bearbeitbar sind sie dort nur mit **Verwalten** auf **Ja** in den Zeilen **Unternehmen** und **Deals** oder mit der Rolle **Admin**.
+
+Über MCP setzt `manage_custom_columns` sie als `weight` jeder Option des Phasenfelds; das Ändern eines Gewichts erfordert dort **Verwalten** auf **Ja** in den Zeilen **Unternehmen** und **Deals** oder die Rolle **Admin**, andere Änderungen am Feld nur die Zeile **Deals** (geben Sie bei jedem Update das aktuelle Gewicht jeder Option mit, weil ein Update die gesamte Optionsliste ersetzt und ein weggelassenes Gewicht als Änderung zählt). Das Löschen des Phasenfelds schaltet die Gewichtung ab wie **Nicht konfiguriert** und braucht deshalb in der App und über MCP dieselbe Berechtigung auf **Unternehmen** und zusätzlich **Verwalten** auf **Deals**; ohne sie ist **Feld löschen** deaktiviert. Kein Tool legt fest, welches Feld das Phasenfeld ist. Siehe [Mein Unternehmen](/docs/app-company).
+
+**Link:** `/company/settings`. **Mate:** `navigate` und `highlight_element` mit `nav-company-settings`; `highlight_element` nimmt außerdem `company-settings-deal-stage-field` für **Deal-Phasenfeld** an; `company-settings-stage-weights` für die Liste der Wahrscheinlichkeiten sowie `company-settings-total-pipeline` und `company-settings-weighted-pipeline` für die beiden Summen, sobald ein Phasenfeld gewählt ist, für Mitglieder mit Leserecht auf Deals; und `company-settings-save` für **Speichern**, sichtbar nur für Rollen mit **Verwalten** auf **Ja** in der Zeile **Unternehmen**. Ein einzelnes Prozentfeld trägt die Element-Id `#dealStageWeights[0].weight`, fortlaufend gezählt, und ist nicht hervorhebbar, deshalb nennt Mate die Phase beim Namen.
+
+## Was sind Widgets? [#what-are-widgets]
 
 Widgets sind Dashboard-Charts auf Live-Daten. Sie wählen einen Datensatztyp, eine Group-by-Achse (ein verknüpfter Datensatztyp, eine Custom Column oder keine), eine Aggregation (Anzahl, Deal-Wert, Deal-Menge oder gewichteter Deal-Wert) und einen Darstellungstyp (vertikale oder horizontale Balken mit oder ohne Beschriftung, Doughnut oder Radar). Filter grenzen die Datenmenge ein. Ein Aktivitäts-Timeline-Widget zeigt statt eines Charts einen Feed. Siehe [Dashboard](/docs/app-dashboard).
 
-## Was sind Webhooks?
+## Was sind Webhooks? [#what-are-webhooks]
 
 Jeder Write löst ein Domain-Event aus: `contact.created`, `deal.updated`, `task.deleted` und so weiter. Sie abonnieren per URL und Event-Liste. Jede Update-Zustellung enthält den geänderten Datensatz plus eine `changes`-Map, die zeigt, was sich von welchem zu welchem Wert geändert hat, sodass Abonnenten auf Diffs reagieren können, ohne zu pollen.
 
 Siehe [Webhooks](/docs/webhooks) für den vollständigen Event-Katalog und die Payload-Struktur.
 
-## Was sind Notizen?
+## Was sind Notizen, und sind sie Markdown? [#what-are-notes]
 
-Notizen sind Markdown pro Datensatz. In der UI rendern sie über einen Tiptap-Editor, überall sonst sind sie reines Markdown. Sie können sie über `update_record_notes` mit dem passenden `mode` ersetzen oder anhängen.
+Notizen sind Rich Text pro Datensatz. Die App bearbeitet sie in einem Tiptap-Editor und speichert sie als Tiptap-JSON, das auch Webhook-Payloads enthalten. Über MCP sind sie Markdown: `get_records` mit `include: "withNotes"` liefert sie als Markdown, und Sie können sie über `update_record_notes` mit dem passenden `mode` ersetzen oder Markdown anhängen.
 
-## Wer sind Nutzer, Rollen und die Company?
+## Wer sind Nutzer, Rollen und die Company, und was bedeutet Lesen Zugewiesen? [#who-are-users-roles-and-the-company]
 
-Nutzer sind Ihre Teammitglieder. Rollen werden pro Workspace definiert und steuern, was jeder Nutzer lesen und schreiben darf. Die Company ist der Tenant. Jeder Datensatz lebt in genau einer Company, und Cross-Tenant-Zugriff ist nicht möglich.
+Nutzer sind Ihre Teammitglieder und stehen unter **Mein Unternehmen › Mitglieder**. Rollen werden pro Workspace unter **Mein Unternehmen › Rollen** definiert und steuern, was jeder Nutzer lesen und schreiben darf: Jede Zeile des Rolleneditors legt **Verwalten** fest (**Ja** umfasst Anlegen, Ändern und Entfernen) und **Lesen** (**Alle**; **Zugewiesen**, was ein Mitglied auf das beschränkt, was ihm zugewiesen ist oder gehört; oder **Keine**), soweit die Zeile diese Optionen anbietet. Die eingebaute Rolle **Admin** hat vollen Zugriff und kann weder bearbeitet noch gelöscht werden. Die Company ist der Tenant. Jeder Datensatz lebt in genau einer Company, und Cross-Tenant-Zugriff ist nicht möglich.
 
-## Weiter
+## Weiter [#next]
 
 - **[CRM-Datensätze](/docs/app-records)**: die Listen-, Drawer- und Detail-Oberflächen.
 - **[Filter-Syntax](/docs/filter-syntax)**: Operatoren und Beispiele.

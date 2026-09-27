@@ -44,7 +44,7 @@ function triggerDownload(blob: Blob, name: string): void {
   URL.revokeObjectURL(url);
 }
 
-export type ExportOutcome = { rowCount: number; truncated: boolean };
+export type ExportOutcome = { ok: true; rowCount: number; truncated: boolean } | { ok: false; status: number };
 
 export function useExportDownload<E extends HasId>(store: BaseDataViewStore<E>) {
   const columnLabel = useColumnLabel();
@@ -95,12 +95,13 @@ export function useExportDownload<E extends HasId>(store: BaseDataViewStore<E>) 
       }),
     });
 
-    if (!response.ok) throw new Error(`Export failed with status ${response.status}`);
+    if (!response.ok) return { ok: false, status: response.status };
 
     const blob = await response.blob();
     triggerDownload(blob, fileNameFrom(response.headers.get("content-disposition"), `${entityType}.xlsx`));
 
     return {
+      ok: true,
       rowCount: Number(response.headers.get("x-export-row-count") ?? 0),
       truncated: response.headers.get("x-export-truncated") === "true",
     };
@@ -112,14 +113,15 @@ export function useExportAction<E extends HasId>(store: BaseDataViewStore<E>) {
   const t = useTranslations();
 
   return useCallback(async () => {
-    try {
-      const outcome = await download();
+    const outcome = await download();
 
-      toast.success(t("DataTransfer.export.success", { count: outcome.rowCount }));
-      if (outcome.truncated) toast.warning(t("DataTransfer.export.truncated", { limit: EXPORT_ROW_LIMIT }));
-    } catch (error) {
-      if (!isDemoEnvironment()) toast.error(t("DataTransfer.export.failed"));
-      throw error;
+    if (!outcome.ok) {
+      if (isDemoEnvironment()) throw new Error(`Export failed with status ${outcome.status}`);
+      toast.error(t("DataTransfer.export.failed"));
+      return;
     }
+
+    toast.success(t("DataTransfer.export.success", { count: outcome.rowCount }));
+    if (outcome.truncated) toast.warning(t("DataTransfer.export.truncated", { limit: EXPORT_ROW_LIMIT }));
   }, [download, t]);
 }

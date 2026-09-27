@@ -21,7 +21,7 @@ import {
 import type { RangePresetKey } from "@/components/forms/iso-date-values";
 import { TimeInput } from "@/components/forms/time-input";
 import { Button } from "@/components/ui/button";
-import { Calendar } from "@/components/ui/calendar";
+import { Calendar, focusCalendarDay } from "@/components/ui/calendar";
 import { Popover, PopoverContent, PopoverTrigger } from "@/components/ui/popover";
 import { Separator } from "@/components/ui/separator";
 import { useHydratedIntlStore } from "@/core/stores/use-hydrated-intl-store";
@@ -131,6 +131,7 @@ export const FilterInputIsoDateRange = observer(({ id, isValidFilter, granularit
       <PopoverContent
         align="start"
         className="w-auto max-h-(--radix-popover-content-available-height) overflow-y-auto p-0"
+        onOpenAutoFocus={focusCalendarDay}
       >
         <Calendar
           autoFocus

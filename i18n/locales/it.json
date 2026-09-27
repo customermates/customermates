@@ -821,16 +821,24 @@
       "back": "Torna alla chat",
       "cancel": "Annulla",
       "chats": "Chat",
+      "copyCode": "Copia codice",
+      "copyLink": "Copia link",
       "copyTable": "Copia tabella",
       "deleteChat": "Elimina chat",
       "deleteChatBody": "Questa operazione elimina definitivamente i messaggi, le approvazioni e le azioni dell’assistente della chat. Restano i dati di utilizzo AI e di fatturazione e i record CRM creati tramite la chat. Le e-mail di assistenza già inviate non vengono richiamate.",
       "deleteChatTitle": "Eliminare definitivamente questa chat?",
       "deletePermanently": "Elimina definitivamente",
+      "downloadFile": "Scarica file",
+      "downloadImage": "Scarica immagine",
       "downloadTable": "Scarica tabella",
       "editQueued": "Modifica il messaggio in coda",
+      "externalLinkTitle": "Aprire il link esterno?",
+      "externalLinkWarning": "Questo link porta a un sito esterno a Customermates. Controllare l’indirizzo prima di aprirlo.",
       "finalizing": "Completamento e salvataggio delle modifiche…",
       "history": "Cronologia chat",
+      "imageNotAvailable": "Immagine non disponibile",
       "jumpToLatest": "Vai ai messaggi più recenti",
+      "linkCopied": "Link copiato",
       "loadChatFailed": "Non è stato possibile caricare la chat. Selezionarla di nuovo per riprovare.",
       "loadingChat": "Caricamento della chat…",
       "loadingOlderMessages": "Caricamento dei messaggi precedenti",
@@ -839,6 +847,7 @@
       "newChat": "Nuova chat",
       "noChats": "Ancora nessuna chat",
       "noChatsBody": "Avvia una chat per ritrovare in seguito le domande e il lavoro completato.",
+      "openLink": "Apri link",
       "preparingAction": "Preparazione della prossima azione…",
       "queued": "In coda",
       "reconnecting": "Riconnessione a Mate…",
@@ -908,6 +917,7 @@
       "disabledReason": "Motivo disattivazione",
       "effectiveAt": "In vigore dal",
       "emails": "Indirizzi e-mail",
+      "headers": "Intestazioni personalizzate",
       "isNewCompany": "Prima persona nello spazio",
       "postalCode": "Codice postale",
       "prompt": "Istruzioni",
@@ -1008,6 +1018,7 @@
       "collapseSearch": "Comprimi la ricerca",
       "explainField": "Informazioni su {field}",
       "hidePassword": "Nascondi password",
+      "optionName": "Nome dell'opzione {number}",
       "selectOption": "Seleziona un'opzione",
       "showPassword": "Mostra password",
       "switchToBoardView": "Passa alla vista board",
@@ -1041,6 +1052,7 @@
       "singleSelect": "Scelta singola"
     },
     "customFieldHelp": {
+      "deleteWeightingColumnPermission": "Questo campo determina la pipeline ponderata in «{company}», quindi eliminarlo disattiva la ponderazione. Chiedi a un amministratore l’autorizzazione per modificare «{company}».",
       "immutableType": "Il tipo di campo è fisso dopo la creazione. Crea un nuovo campo personalizzato per usare un altro tipo.",
       "probabilityPermission": "Le probabilità di fase sono gestite in «{company}». Chiedi a un amministratore l’autorizzazione per modificarle."
     },
@@ -1133,6 +1145,7 @@
       "agentTurnAlreadyRunning": "È già in corso un’altra richiesta dell’assistente.",
       "apiKeyMaxExpiration": "La scadenza di una chiave API non può superare i 365 giorni.",
       "apiKeyMinExpiration": "La scadenza di una chiave API deve essere di almeno 1 giorno.",
+      "apiKeyNameLength": "Il nome di una chiave API deve contenere tra 1 e 255 caratteri.",
       "assigneeRequired": "Devi assegnare questo elemento a te stesso. Nota che potrai vedere solo gli elementi assegnati a te.",
       "billingPortalUnavailable": "Il portale di fatturazione non è disponibile per questo spazio di lavoro. Contatta l’assistenza per apportare modifiche.",
       "calendarEventNotFound": "ID evento del calendario non trovato o non accessibile.",
@@ -1202,7 +1215,7 @@
       "operatorTrialEndRequired": "La data di fine prova non può essere rimossa, solo spostata. Cancellarla lascerebbe l'area di lavoro su una prova che non scade mai.",
       "operatorUnavailable": "La correzione richiesta non è disponibile per la configurazione corrente dell’account.",
       "organizationNotFound": "ID organizzazione non trovato o non accessibile.",
-      "passwordInvalid": "La password deve contenere almeno 8 caratteri e includere almeno una lettera maiuscola, una minuscola, un numero e un carattere speciale.",
+      "passwordInvalid": "La password deve contenere tra 8 e 128 caratteri e includere almeno una lettera maiuscola, una minuscola, un numero e un carattere speciale.",
       "passwordMismatch": "Le password devono coincidere.",
       "permissionDenied": "Questa azione non è disponibile con le tue autorizzazioni attuali.",
       "privacyAcknowledgementRequired": "Conferma di aver letto l’Informativa sulla privacy.",
@@ -1495,6 +1508,8 @@
       "prompt": "Istruzioni",
       "roleId": "Ruolo",
       "scheduleDayOfMonth": "Giorno del mese",
+      "scheduleHour": "Ora",
+      "scheduleMinute": "Minuto",
       "schedulePreset": "Ripetizione",
       "scheduleWeekday": "Giorno della settimana",
       "secret": "Segreto",
@@ -1643,6 +1658,7 @@
       "paginationEmpty": "0 di 0",
       "paginationRange": "{from}-{to} di {total}",
       "previousPage": "Pagina precedente",
+      "rowsPerPage": "Righe per pagina",
       "search": "Cerca..."
     },
     "taskTypes": {
@@ -1687,7 +1703,6 @@
       "noColumn": "Non configurato",
       "totalPipeline": "Pipeline totale",
       "totalPipelineHelp": "Somma di tutti i valori in «{deals}». Le modifiche derivano da «{services}» o quantità in tali elementi.",
-      "weightsTitle": "Probabilità per fase",
       "withoutStage": "Non ponderato · senza {column}",
       "withoutStageHelp": "Valore degli elementi in «{deals}» senza selezione in «{column}». Selezionando una fase, vengono inclusi nella pipeline ponderata."
     }
@@ -2861,6 +2876,7 @@
         "createFailed": "Impossibile creare la chiave API. Riprova."
       },
       "install": {
+        "expiryNote": "Questa chiave API scade il {date}. Creane una nuova prima di allora per mantenere {tool} collegato.",
         "instruction": {
           "claudeCode": "Esegui questo comando in un terminale qualsiasi:",
           "claudeDesktop": "Apri Claude → Impostazioni → Sviluppatore → Modifica configurazione, unisci questo blocco, poi chiudi e riapri Claude Desktop:",

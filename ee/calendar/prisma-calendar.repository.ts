@@ -33,7 +33,7 @@ export class PrismaCalendarRepo
   }
 
   getSortableFields() {
-    return [{ field: "name", resolvedFields: ["name"] }];
+    return [{ field: "name", resolvedFields: ["name"], collate: true }];
   }
 
   getFilterableFields() {
@@ -50,11 +50,19 @@ export class PrismaCalendarRepo
   }
 
   async getItems(params: GetQueryParams) {
-    const args = await this.buildQueryArgs(params, calendarAccessWhere(this.companyId, this.userId));
-
-    const rows = await this.prisma.calendar.findMany({ ...args, select: this.calendarSelect });
-
-    return rows.map(({ connectedAccount, ...calendar }) => ({ ...calendar, provider: connectedAccount.provider }));
+    return this.list({
+      model: "calendar",
+      baseWhere: calendarAccessWhere(this.companyId, this.userId),
+      select: this.calendarSelect,
+      params: { ...params, sortDescriptor: params.sortDescriptor ?? { field: "name", direction: "asc" } },
+      map: ({
+        connectedAccount,
+        ...calendar
+      }: Prisma.CalendarGetPayload<{ select: PrismaCalendarRepo["calendarSelect"] }>) => ({
+        ...calendar,
+        provider: connectedAccount.provider,
+      }),
+    });
   }
 
   async getCount(params: GetQueryParams) {

@@ -25,8 +25,9 @@ import {
 import { EXPORT_PAGE_SIZE, EXPORT_ROW_LIMIT, ExportRequestSchema } from "@/features/data-transfer/data-transfer.schema";
 import { buildExportColumns, buildSchemaSheetRows } from "@/features/data-transfer/workbook-columns";
 import { buildWorkbook } from "@/features/data-transfer/workbook-writer";
-import { handleError } from "@/core/api/interactor-handler";
+import { handleError, interactorFailureResponse } from "@/core/api/interactor-handler";
 import { mapRequestJsonError } from "@/core/api/request-json-error";
+import { getZodParseContext } from "@/core/validation/zod-error-map-server";
 
 export const runtime = "nodejs";
 
@@ -65,14 +66,14 @@ export async function POST(request: NextRequest, { params }: { params: Promise<{
 
     const entityType = parsedEntityType.data;
     const body = await request.json().catch(mapRequestJsonError);
-    const parsedBody = ExportRequestSchema.safeParse(body);
+    const parsedBody = ExportRequestSchema.safeParse(body, await getZodParseContext());
     if (!parsedBody.success) return NextResponse.json(z.prettifyError(parsedBody.error), { status: 400 });
 
     const invoke = invokerFor(entityType);
     const exportRequest = parsedBody.data;
 
     const firstPage = await invoke({ ...exportRequest, entityType, skip: 0, take: EXPORT_PAGE_SIZE });
-    if (!firstPage.ok) return NextResponse.json(z.prettifyError(firstPage.error), { status: 400 });
+    if (!firstPage.ok) return interactorFailureResponse(firstPage.error);
 
     const columns = buildExportColumns(exportRequest.columns, firstPage.data.customColumns);
 
@@ -99,7 +100,7 @@ export async function POST(request: NextRequest, { params }: { params: Promise<{
         const page = await invoke({ ...exportRequest, entityType, skip, take: EXPORT_PAGE_SIZE });
 
         if (!page.ok) {
-          failure = NextResponse.json(z.prettifyError(page.error), { status: 400 });
+          failure = interactorFailureResponse(page.error);
           return null;
         }
 

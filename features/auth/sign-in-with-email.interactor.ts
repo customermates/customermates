@@ -10,12 +10,15 @@ import { callbackUrlSchema } from "./callback-url.schema";
 import { Validate } from "@/core/decorators/validate.decorator";
 import { SystemInteractor } from "@/core/decorators/system-interactor.decorator";
 import { CustomErrorCode } from "@/core/validation/validation.types";
-import { createZodError } from "@/core/validation/validation.utils";
+import { createZodError, PASSWORD_MIN_LENGTH } from "@/core/validation/validation.utils";
 import { onboardingIntentFromPath, pathWithOnboardingIntent } from "@/features/company/onboarding-intent-url";
 
 const Schema = z.object({
   email: z.email(),
-  password: z.string().min(8),
+  password: z.string().superRefine((password, ctx) => {
+    if (password.length < PASSWORD_MIN_LENGTH)
+      ctx.addIssue({ code: "custom", params: { error: CustomErrorCode.invalidCredentials } });
+  }),
   rememberMe: z.boolean(),
   callbackURL: callbackUrlSchema.optional(),
 });

@@ -13,11 +13,21 @@ const RELATION_FIELD_ENTITY: Record<string, EntityType> = {
   taskIds: EntityType.task,
 };
 
+function hasErrors(errors: string | string[] | undefined) {
+  return Array.isArray(errors) ? errors.length > 0 : Boolean(errors);
+}
+
 export function useFormFieldErrors(id: string) {
   const store = useAppForm();
   const errors = store?.getError(id);
-  const hasError = Array.isArray(errors) ? errors.length > 0 : Boolean(errors);
+  const hasError = hasErrors(errors);
   return { store, errors, hasError };
+}
+
+export function useFormFieldItemErrors(id: string, itemCount: number) {
+  const { store, hasError: hasFieldError } = useFormFieldErrors(id);
+  const itemErrors = Array.from({ length: itemCount }, (_, index) => hasErrors(store?.getError(`${id}[${index}]`)));
+  return { itemErrors, hasError: hasFieldError || itemErrors.some(Boolean) };
 }
 
 export function useResolvedFieldLabel(id: string, label: string | null | undefined) {

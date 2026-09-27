@@ -27,7 +27,7 @@ export default async function StaticLayout({ children, params }: Props) {
 
       {env.APP_MODE === "cloud" ? (
         <>
-          <Analytics />
+          {env.VERCEL_ENV ? <Analytics /> : null}
 
           <script
             dangerouslySetInnerHTML={{

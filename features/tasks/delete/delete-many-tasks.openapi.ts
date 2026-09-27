@@ -2,7 +2,7 @@ import type { ZodOpenApiOperationObject } from "zod-openapi";
 
 import { DeleteManyTasksSchema } from "./delete-many-tasks.interactor";
 
-import { CommonApiResponses } from "@/core/api/interactor-handler";
+import { CommonApiResponses, NotFoundApiResponse } from "@/core/api/interactor-handler";
 
 export const deleteManyTasksOperation: ZodOpenApiOperationObject = {
   operationId: "deleteManyTasks",
@@ -28,5 +28,6 @@ export const deleteManyTasksOperation: ZodOpenApiOperationObject = {
       },
     },
     ...CommonApiResponses,
+    ...NotFoundApiResponse,
   },
 };

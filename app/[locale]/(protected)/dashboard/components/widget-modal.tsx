@@ -320,7 +320,11 @@ export const WidgetModal = observer(({ customColumns, filterableFields, activity
             </Button>
           </DropdownMenuTrigger>
 
-          <DropdownMenuContent align="start" className="w-(--radix-dropdown-menu-trigger-width)">
+          <DropdownMenuContent
+            align="start"
+            aria-labelledby="displayOptions.barColors"
+            className="w-(--radix-dropdown-menu-trigger-width)"
+          >
             {Object.entries(chartColors).map(([key, color], index) => {
               const selected = (form.displayOptions?.barColors ?? []).includes(key as ChartColor);
               const label = t("Dashboard.widgetEditor.appearance.colorOption", { number: index + 1 });
@@ -493,17 +497,17 @@ export const WidgetModal = observer(({ customColumns, filterableFields, activity
                     </TabsTrigger>
                   </TabsList>
 
-                  <TabsContent className="pt-5" value="data">
+                  <TabsContent aria-labelledby="widget-tab-data" className="pt-5" value="data">
                     {renderDataSettings()}
                   </TabsContent>
 
                   {form.kind === WidgetKind.chart && (
-                    <TabsContent className="pt-5" value="filters">
+                    <TabsContent aria-labelledby="widget-tab-filters" className="pt-5" value="filters">
                       {renderChartFilters()}
                     </TabsContent>
                   )}
 
-                  <TabsContent className="pt-5" value="appearance">
+                  <TabsContent aria-labelledby="widget-tab-appearance" className="pt-5" value="appearance">
                     {renderAppearanceSettings()}
                   </TabsContent>
                 </Tabs>

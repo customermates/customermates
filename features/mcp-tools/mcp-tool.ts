@@ -19,6 +19,10 @@ export function validationError(error: z.ZodError): string {
   return `${VALIDATION_ERROR_PREFIX} ${z.prettifyError(error)}`;
 }
 
+export function mcpFailureText(error: z.ZodError, kind: InteractorFailureKind = interactorFailureKind(error)): string {
+  return kind === "validation" ? validationError(error) : z.prettifyError(error);
+}
+
 export type McpToolFailureResult = {
   text: string;
   failure: SerializedInteractorFailure;
@@ -58,7 +62,7 @@ export type McpToolExecutionResult =
 export function mcpInteractorFailure(
   error: z.ZodError,
   kind: InteractorFailureKind = interactorFailureKind(error),
-  text = validationError(error),
+  text = mcpFailureText(error, kind),
 ): McpToolFailureResult {
   return {
     text,

@@ -75,7 +75,7 @@ export default async function OpenApiOverviewPage() {
 
   return (
     <>
-      <PageContainer>
+      <PageContainer className="relative">
         <DocsPageHeader description={page.data.description} mcpUrl={`${env.BASE_URL}/api/v1/mcp`} title={headline} />
 
         <Alert color="warning">

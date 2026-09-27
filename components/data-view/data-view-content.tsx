@@ -36,7 +36,7 @@ export const DataViewContent = observer(function DataViewContent<E extends HasId
       const withHeader = column.header ? column : { ...column, header: columnLabel(column.id ?? "") };
       return column.id && store.sortableColumnIds.has(column.id)
         ? ({ ...withHeader, accessorKey: column.id } as ColumnDef<E>)
-        : withHeader;
+        : ({ ...withHeader, enableSorting: false } as ColumnDef<E>);
     });
 
   if (view === "table") {

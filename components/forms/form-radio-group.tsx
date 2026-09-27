@@ -56,7 +56,7 @@ export const FormRadioGroup = observer(
     return (
       <div className={cn("space-y-1.5", containerClassName)}>
         {label && (
-          <FormLabel id={labelId}>
+          <FormLabel fieldId={id} id={labelId}>
             {label}
 
             {required ? <span className="text-destructive"> *</span> : null}

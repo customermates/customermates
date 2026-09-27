@@ -16,7 +16,7 @@ export class WebhookDeliveriesStore extends BaseDataViewStore<WebhookDeliveryDto
 
   get columnsDefinition(): TableColumn[] {
     return [
-      { uid: "name" },
+      { uid: "name", label: this.t("Common.table.columns.url") },
       { uid: "event" },
       { uid: "entity" },
       { uid: "status" },

@@ -289,7 +289,7 @@ describe("manage_custom_columns option defaults", () => {
       label: "Roof note",
     } as never);
 
-    expect(mcpToolResultText(result)).toContain("Validation error:");
+    expect(mcpToolResultText(result)).toBe("customColumnNotFound");
     expect(result).toMatchObject({
       failure: {
         kind: "not_found",

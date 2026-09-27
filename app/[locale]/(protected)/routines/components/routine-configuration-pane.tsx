@@ -219,6 +219,7 @@ export const RoutineConfigurationPane = observer(({ store, onPause }: Props) => 
 
             {preset === "weekly" && (
               <FormSelect
+                ariaLabel={t("Common.inputs.scheduleWeekday")}
                 containerClassName="min-w-36"
                 id="scheduleWeekday"
                 items={ROUTINE_WEEKDAY_KEYS.map((key, index) => ({
@@ -231,6 +232,7 @@ export const RoutineConfigurationPane = observer(({ store, onPause }: Props) => 
 
             {preset === "monthly" && (
               <FormSelect
+                ariaLabel={t("Common.inputs.scheduleDayOfMonth")}
                 containerClassName="w-24"
                 id="scheduleDayOfMonth"
                 items={DAYS_OF_MONTH.map((value) => ({
@@ -249,6 +251,7 @@ export const RoutineConfigurationPane = observer(({ store, onPause }: Props) => 
 
                 {preset !== "hourly" && (
                   <FormSelect
+                    ariaLabel={t("Common.inputs.scheduleHour")}
                     containerClassName="w-20"
                     id="scheduleHour"
                     items={HOURS.map((value) => ({
@@ -260,6 +263,7 @@ export const RoutineConfigurationPane = observer(({ store, onPause }: Props) => 
                 )}
 
                 <FormSelect
+                  ariaLabel={t("Common.inputs.scheduleMinute")}
                   containerClassName="w-20"
                   id="scheduleMinute"
                   items={MINUTES.map((value) => ({

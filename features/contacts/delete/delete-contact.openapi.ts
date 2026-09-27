@@ -4,7 +4,7 @@ import { z } from "zod";
 
 import { ContactKeySchema } from "../contact-key";
 
-import { CommonApiResponses } from "@/core/api/interactor-handler";
+import { CommonApiResponses, NotFoundApiResponse } from "@/core/api/interactor-handler";
 
 export const deleteContactOperation: ZodOpenApiOperationObject = {
   operationId: "deleteContact",
@@ -23,5 +23,6 @@ export const deleteContactOperation: ZodOpenApiOperationObject = {
       },
     },
     ...CommonApiResponses,
+    ...NotFoundApiResponse,
   },
 };

@@ -13,6 +13,7 @@ import { globalSearchAction } from "@/app/[locale]/(protected)/search/actions";
 import { useEntityTerminology } from "@/components/entity-terminology/use-entity-terminology";
 import { ENTITY_ICON } from "@/components/entity-detail/entity-relations";
 import { entitySearchResultLabel } from "@/components/entity-detail/entity-search-result-label";
+import { assistantSurfaceProps } from "@/components/modal/assistant-surface";
 import { Button } from "@/components/ui/button";
 import { Command, CommandEmpty, CommandGroup, CommandInput, CommandItem, CommandList } from "@/components/ui/command";
 import { OVERLAY_TOPMOST_LAYER_CLASS } from "@/components/ui/overlay-contract";
@@ -170,6 +171,7 @@ export const AgentContextPicker = observer(function AgentContextPicker({
       </ActionTooltip>
 
       <PopoverContent
+        {...assistantSurfaceProps()}
         align="start"
         className={cn("w-80 overflow-hidden p-0", OVERLAY_TOPMOST_LAYER_CLASS)}
         side="top"

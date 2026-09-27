@@ -1,5 +1,8 @@
 import { beforeEach, describe, expect, it, vi } from "vitest";
 import { decode } from "@toon-format/toon";
+import { createTranslator } from "next-intl";
+
+import messages from "@/i18n/locales/en.json";
 
 import { createMockUser } from "@/tests/helpers/mock-user";
 import { MOCK_ENV_MODULE, MOCK_ZOD_MODULE, createMockDiModule } from "@/tests/helpers/interactor-test-setup";
@@ -12,6 +15,10 @@ const spies = vi.hoisted(() => ({
   upsertWidget: vi.fn(),
 }));
 
+vi.mock("next-intl/server", () => ({
+  getTranslations: (namespace: "Common.errors") =>
+    Promise.resolve(createTranslator({ locale: "en", messages, namespace })),
+}));
 vi.mock("@/env", () => MOCK_ENV_MODULE);
 vi.mock("@/core/validation/zod-error-map-server", () => MOCK_ZOD_MODULE);
 vi.mock("@/core/di", () => ({
@@ -387,6 +394,23 @@ describe("manage_widgets read and delete", () => {
     });
     const get = await run({ action: "get", ids: [WIDGET_ID, RECORD_ID] });
     expect(decode(get)).toEqual(formatDatesInResponse([chartWidget(), activityWidget({ id: RECORD_ID })]));
+  });
+
+  it("answers a missing id with an id-keyed error that fits the output schema and keeps the found widgets", async () => {
+    spies.getWidgetById
+      .mockResolvedValueOnce({ ok: true, data: chartWidget() })
+      .mockResolvedValueOnce({ ok: true, data: null });
+
+    const output = await manageWidgetsTool.execute(
+      manageWidgetsTool.inputSchema.parse({ action: "get", ids: [WIDGET_ID, RECORD_ID] }),
+    );
+
+    if (typeof output === "string" || !("structuredContent" in output))
+      throw new Error("Expected a structured MCP result");
+    expect(manageWidgetsTool.outputSchema.safeParse(output.structuredContent).success).toBe(true);
+    expect(decode(output.text)).toEqual(
+      formatDatesInResponse([chartWidget(), { id: RECORD_ID, error: "Widget ID not found or not accessible." }]),
+    );
   });
 
   it("deletes either stored kind after existence is confirmed", async () => {

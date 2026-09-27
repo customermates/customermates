@@ -67,7 +67,7 @@ export const CustomFieldEditor = observer(
             chipColor={column.options?.color}
             id={id ?? inputId}
             label={formLabel}
-            renderChip={(url, endContent) => {
+            renderChip={(url, endContent, hasError) => {
               let startContent: React.ReactNode;
               let displayLabel: string;
 
@@ -100,7 +100,7 @@ export const CustomFieldEditor = observer(
                 <AppChip
                   endContent={endContent}
                   startContent={startContent}
-                  variant={column.options?.color ? column.options.color : "secondary"}
+                  variant={hasError ? "destructive" : column.options?.color ? column.options.color : "secondary"}
                 >
                   {displayLabel}
                 </AppChip>

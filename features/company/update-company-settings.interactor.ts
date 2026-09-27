@@ -20,7 +20,7 @@ import { AuthenticatedInteractor } from "@/core/base/authenticated-interactor";
 
 export const DealStageWeightSchema = z.object({
   optionValue: z.string(),
-  weight: z.number().min(0).max(100),
+  weight: z.number().min(0).max(100).optional(),
 });
 
 export const UpdateCompanySettingsSchema = z.object({

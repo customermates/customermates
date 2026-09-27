@@ -90,7 +90,7 @@ export class PrismaServiceRepo
 
   getSortableFields() {
     return [
-      { field: "name", resolvedFields: ["name"] },
+      { field: "name", resolvedFields: ["name"], collate: true },
       { field: "amount", resolvedFields: ["amount"] },
       { field: "createdAt", resolvedFields: ["createdAt"] },
       { field: "updatedAt", resolvedFields: ["updatedAt"] },

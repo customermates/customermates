@@ -105,7 +105,6 @@ export function useOperatorUserColumns(): ColumnDef<OperatorUserRowDto>[] {
         ),
       },
       {
-        accessorKey: "adProvider",
         id: "adProvider",
         header: t("Common.table.columns.adProvider"),
         cell: ({ row }) => {

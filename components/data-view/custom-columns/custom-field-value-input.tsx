@@ -13,6 +13,9 @@ import { FormLabel } from "@/components/forms/form-label";
 import { FormControlRow } from "@/components/forms/form-control-row";
 import { useRootStore } from "@/core/stores/root-store.provider";
 import { useAppForm } from "@/components/forms/form-context";
+import { splitChipValue } from "@/components/forms/form-input-chips";
+import { useFormFieldItemErrors } from "@/components/forms/use-form-field";
+import { cn } from "@/core/utils/cn";
 
 type Props = {
   isEditing: boolean;
@@ -33,10 +36,15 @@ export const CustomFieldValueInput = observer(
     const id = `customFieldValues[${index}].value`;
     const labelId = `${id}-label`;
     const value = store?.getValue(id) as string | undefined;
+    const { hasError } = useFormFieldItemErrors(id, splitChipValue(value).length);
 
     const fieldLabel = label && (
       <div className="flex items-center gap-1.5">
-        <FormLabel className="flex items-center gap-1.5" htmlFor={id} id={labelId}>
+        <FormLabel
+          className={cn("flex items-center gap-1.5", hasError && "text-destructive")}
+          htmlFor={id}
+          id={labelId}
+        >
           {labelStartAddon}
 
           {label}

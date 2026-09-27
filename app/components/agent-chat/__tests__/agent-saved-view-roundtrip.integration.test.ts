@@ -1,4 +1,4 @@
-import type { ComponentProps } from "react";
+import type { ComponentProps, ReactNode } from "react";
 import type { Root } from "react-dom/client";
 
 import { act, createElement, forwardRef } from "react";
@@ -36,7 +36,8 @@ vi.mock("@/core/di", () => ({
     invoke: harness.sendAgentMessageInvoke,
   }),
 }));
-vi.mock("@/core/api/interactor-handler", () => ({
+vi.mock("@/core/api/interactor-handler", async (importOriginal) => ({
+  ...(await importOriginal<Record<string, unknown>>()),
   handleError: (error: unknown) => new Response(String(error), { status: 500 }),
 }));
 vi.mock("@/ee/agent-chat/agent-turn-stream", () => ({
@@ -62,6 +63,13 @@ vi.mock("@/core/errors/report-application-error", () => ({
 }));
 vi.mock("@/components/entity-terminology/use-entity-terminology", () => ({
   useEntityTerminology: () => ({ plural: () => "Contacts" }),
+}));
+vi.mock("@/core/stores/root-store.provider", () => ({
+  useRootStore: () => ({ agentChatStore: { enabled: true, isOpen: true }, agentUiControlStore: { active: null } }),
+}));
+vi.mock("@/i18n/navigation", () => ({
+  IntlLink: ({ children, href }: { children?: ReactNode; href: string }) => createElement("a", { href }, children),
+  usePathname: () => "/contacts",
 }));
 vi.mock("@/components/shared/app-link", () => {
   const MockAppLink = forwardRef<HTMLAnchorElement, ComponentProps<"a"> & { appearance?: string }>(

@@ -17,6 +17,7 @@ import { appRouting, contentRouting, isContentPage, isProtectedPage, isPublicPag
 import { env } from "./env";
 import { auth } from "./core/auth/better-auth";
 import { resolveRequestOrigin } from "./core/config/environment";
+import { malformedRequestPathResponse } from "./core/api/request-path-error";
 import { SYNTHETIC_SEED_USER } from "./core/config/synthetic-seed-user";
 
 const intlAppMiddleware = createMiddleware(appRouting);
@@ -116,7 +117,7 @@ export default async function proxy(req: NextRequest) {
     if (req.nextUrl.searchParams.get("prompt") !== "consent") return NextResponse.redirect(authorizeWithConsent);
   }
 
-  if (isApiRoute) return NextResponse.next();
+  if (isApiRoute) return malformedRequestPathResponse(pathname) ?? NextResponse.next();
 
   let session;
   let isAuthenticated = false;
@@ -226,7 +227,7 @@ export const config = {
        * - .well-known (Vercel Workflow SDK + OAuth discovery routes, must bypass auth/i18n)
        * - _next/static, _next/image (Next.js internal)
        * - _vercel (Vercel internal routes)
-       * - Files with extensions (images, scripts, etc.)
+       * - Files with extensions (images, scripts, etc.), except API paths such as attachment file names
        * - favicon.ico, sitemap.xml, robots.txt (metadata files)
        *
        * Exclude prefetch requests:
@@ -235,7 +236,7 @@ export const config = {
        *
        */
       source:
-        "/((?!og(?:/|$)|monitoring(?:/|$)|\\.well-known(?:/|$)|_next/static|_next/image|_vercel|favicon\\.ico|sitemap\\.xml|robots\\.txt|.*\\.[a-z0-9]+$).*)",
+        "/((?!og(?:/|$)|monitoring(?:/|$)|\\.well-known(?:/|$)|_next/static|_next/image|_vercel|favicon\\.ico|sitemap\\.xml|robots\\.txt|(?!api/).*\\.[a-z0-9]+$).*)",
       missing: [
         { type: "header", key: "next-router-prefetch" },
         { type: "header", key: "purpose", value: "prefetch" },

@@ -5,11 +5,13 @@ description: "The five record types, how they link to each other, the ten custom
 
 Customermates tracks five record types, lets each one carry user-defined fields, links them to each other through typed relationships, and emits webhooks whenever any of that changes.
 
-## Which five record types exist?
+## Which five record types exist, and which built-in fields does each have? [#which-five-record-types-exist]
+
+Every record in the CRM is a contact, an organization, a deal, a service or a task:
 
 | Record type | What it represents | Built-in fields |
 |---|---|---|
-| **Contact** | A person | firstName, lastName, channel identifiers (email, phone, LinkedIn, WhatsApp, Instagram, Telegram), notes |
+| **Contact** | A person | firstName, lastName, channel identifiers (email address, WhatsApp phone number, LinkedIn, Instagram, Telegram; a plain phone number belongs in a **Phone** custom column), notes |
 | **Organization** | A company | name, notes |
 | **Deal** | A sales opportunity | name, totalValue and totalQuantity (derived from linked services), weightedValue, notes |
 | **Service** | A product or offering attached to a deal | name, amount, notes |
@@ -17,9 +19,13 @@ Customermates tracks five record types, lets each one carry user-defined fields,
 
 Each record has `id`, `createdAt`, `updatedAt`, and supports markdown `notes`. Everything else is either a relationship to another record or a custom column value. There are no fixed status, stage, priority, or due-date fields on any record type; tasks have no built-in due date either. Use custom columns for those, and call `get_record_schema` to read the columns that exist in a given workspace.
 
-## How do relationships link records?
+## How is a deal's total value calculated? [#how-is-a-deals-total-value-calculated]
 
-Relationships are typed and many-to-many. A contact belongs to zero or more organizations, deals, and users. A deal belongs to zero or more contacts, organizations, and services (with quantities), plus assignees.
+A deal's `totalValue` and `totalQuantity` are derived from linked services: `totalValue` is the sum of each linked service's price (**Amount**) times its quantity on that deal, and `totalQuantity` is the sum of those quantities. The weighted value builds on the total value, see [weighted pipeline](#how-does-a-weighted-pipeline-work).
+
+## How do relationships link records, for example a contact to several organizations? [#how-do-relationships-link-records]
+
+Relationships are typed and many-to-many: a contact can belong to several organizations, and a deal can carry several services with quantities. A contact belongs to zero or more organizations, deals, and users. A deal belongs to zero or more contacts, organizations, and services (with quantities), plus assignees.
 
 | From to | Example |
 |---|---|
@@ -32,7 +38,7 @@ Relationships are typed and many-to-many. A contact belongs to zero or more orga
 
 Tasks link to users, contacts, organizations, deals, and services. Over MCP, links change through `manage_record_links`, with one exception: `update_deals` keeps `services` (deal-to-service links with quantities) on its update schema. Every other relation changes only through `manage_record_links`; the other update tools never touch links. Over REST, sending a relation array replaces that whole set, and `null` or `[]` clears it.
 
-## What are custom columns?
+## What are custom columns, and which field types are there? [#what-are-custom-columns]
 
 The default schema covers the basics. For anything else, add a custom column.
 
@@ -55,11 +61,25 @@ Single Select columns are how you model your own workflows. A deal "Stage" or a 
 
 Custom columns are first-class in filters, widgets, and the MCP surface: `manage_custom_columns` creates and updates them, and every record tool reads and writes their values through `customFieldValues` with the column id from `get_record_schema`.
 
-### How does a weighted pipeline work?
+## How do I add, change or delete custom columns, including the deal stage column? [#how-do-i-add-change-or-delete-a-custom-column]
 
-A workspace can mark one Single Select deal column as the weighting column and give each of its options a weight in percent, for example Qualified 20 and Proposal 60. Each deal then carries `weightedValue` = its total value multiplied by the weight of its current option, or no weighted value when the option carries no weight. `list_records` returns the sum of both values across every matching deal, and a dashboard chart can aggregate by deal weighted value.
+Open any record and press **Customize**: **Add Field** creates a custom column for that record type, and the **Edit column** pencil next to a column opens the **Edit Field** dialog, where you change the column or remove it with **Delete Field** after a confirmation. Deleting a column removes every value stored in it and cannot be undone. All of this needs **Manage** on that record type. Deleting the deal stage field that drives the weighted pipeline also needs **Manage** on the **Company** row, or the **Admin** role, because it turns weighting off. A column that a routine uses in its filters cannot be deleted, in the app or over MCP: the refusal reads "This custom column is used in one or more routine filters. Remove it from those routines before deleting it." Over MCP, `manage_custom_columns` does the same with `upsert` and `delete`.
 
-## What are widgets?
+**Link:** any record, for example `/contacts/<id>` (likewise `/organizations/<id>`, `/deals/<id>`, `/services/<id>`, `/tasks/<id>`). **Mate:** `navigate` with the entity and its recordId; **Customize** and the controls it reveals are not highlight targets, so Mate names them.
+
+## How does a weighted pipeline work?
+
+A weighted pipeline values each deal by the win probability of its stage. A workspace can mark one Single Select deal column as the weighting column and give each of its options a weight in percent, for example Qualified 20 and Proposal 60. Each deal then carries `weightedValue` = its total value multiplied by the weight of its current option, or no weighted value when the option carries no weight. `list_records` returns the sum of both values across every matching deal, and a dashboard chart can aggregate by deal weighted value.
+
+You set this up on **My Company › Settings**. Choose the Single Select deal field in **Deal stage field** (named after your term for deals, for example **Project stage field**; **Not configured** turns weighting off), then enter a win probability from 0 to 100 percent next to each of its options. Below, **Total pipeline** and **Weighted pipeline** preview the result with the probabilities you entered, over the deals you can read; when some of those deals have no stage selected, a line starting **Not weighted · no** followed by your field's name shows their value. Saving recalculates the weighted value of every deal. A new workspace starts with its deal **Stage** field selected and probabilities already filled in.
+
+On **My Company › Settings**, choosing the field and entering probabilities needs a role with **Manage** set to **Yes** on the **Company** row, or the **Admin** role. The same probabilities appear in the **Probability** column when you edit the stage field's options, where they are editable only with **Manage** set to **Yes** on both the **Company** and **Deals** rows, or with the **Admin** role.
+
+Over MCP, `manage_custom_columns` sets them as each option's `weight` on the stage field; changing a weight there needs **Manage** set to **Yes** on both the **Company** and **Deals** rows, or the **Admin** role, while other edits to the field need only the **Deals** row (send each option's current weight with every update, because an update replaces the whole option list and a dropped weight counts as a change). Deleting the stage field turns weighting off like **Not configured**, so in the app and over MCP it needs the same **Company** permission as well as **Manage** on **Deals**; without it, **Delete Field** is disabled. No tool chooses which field is the stage field. See [My Company](/docs/app-company).
+
+**Link:** `/company/settings`. **Mate:** `navigate` and `highlight_element` with `nav-company-settings`; `highlight_element` also takes `company-settings-deal-stage-field` for **Deal stage field**; `company-settings-stage-weights` for the probability list and `company-settings-total-pipeline` and `company-settings-weighted-pipeline` for the two totals, once a stage field is chosen and for members who can read deals; and `company-settings-save` for **Save**, shown only for roles with **Manage** set to **Yes** on the **Company** row. A single probability input carries the element id `#dealStageWeights[0].weight`, counting up, and is not highlightable, so Mate names the stage.
+
+## What are widgets? [#what-are-widgets]
 
 Widgets are dashboard charts driven by live data. You pick a record type, a group-by axis (a linked record type, a custom column, or none), an aggregation (count, deal value, deal quantity, or deal weighted value), and a display type (vertical or horizontal bars with or without labels, doughnut, or radar). Filters narrow the data set. An activity-timeline widget shows a feed instead of a chart. See the [Dashboard](/docs/app-dashboard).
 
@@ -69,13 +89,13 @@ Every write emits a domain event: `contact.created`, `deal.updated`, `task.delet
 
 See [Webhooks](/docs/webhooks) for the full event catalog and payload shape.
 
-## What are notes?
+## What are notes, and are they markdown? [#what-are-notes]
 
-Notes are per-record markdown. They render through a Tiptap editor in the UI and are plain markdown everywhere else. You can replace them or append to them via `update_record_notes` with the matching `mode`.
+Notes are per-record rich text. The app edits them in a Tiptap editor and stores them as Tiptap JSON, which is also what webhook payloads carry. Over MCP they are markdown: `get_records` with `include: "withNotes"` returns them as markdown, and you can replace them or append to them via `update_record_notes` with the matching `mode`.
 
-## Who are users, roles, and the company?
+## Who are users, roles, and the company, and what does Assigned read access mean? [#who-are-users-roles-and-the-company]
 
-Users are your teammates. Roles are defined per workspace and control what each user can read and write. The company is the tenant. Every record lives inside one company, and cross-tenant access is not possible.
+Users are your teammates, listed under **My Company › Members**. Roles are defined per workspace under **My Company › Roles** and control what each user can read and write: each row of the role editor sets **Manage** (**Yes** covers creating, updating and deleting) and **Read access** (**All**; **Assigned**, which limits a member to what is assigned to them or owned by them; or **None**), where the row offers them. The built-in **Admin** role has full access and cannot be edited or deleted. The company is the tenant. Every record lives inside one company, and cross-tenant access is not possible.
 
 ## Next
 
