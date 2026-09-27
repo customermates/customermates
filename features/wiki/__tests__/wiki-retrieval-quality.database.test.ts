@@ -14,6 +14,7 @@ import { createMockUser } from "@/tests/helpers/mock-user";
 import { PrismaWikiPageRepo } from "../prisma-wiki-page.repository";
 import { SearchWikiPagesInteractor } from "../search-wiki-pages.interactor";
 import { WikiMarkdownSchema } from "../wiki.schema";
+import { wikiMarkdownSections } from "../wiki-search";
 
 const databaseUrl = getLocalDatabaseTestUrl();
 const describeDatabase = databaseUrl ? describe : describe.skip;
@@ -245,6 +246,22 @@ const WIKI_RETRIEVAL_CORPUS: Array<{ title: string; markdown: string }> = [
   {
     title: "客户支持手册",
     markdown: "退款申请需要在30天内提交。客户支持团队会在一个工作日内回复。",
+  },
+  {
+    title: "고객 지원 안내",
+    markdown: [
+      "## 소개\n\n이 페이지는 고객 지원 팀의 기본 안내입니다.",
+      "## 환불 정책\n\n환불은 구매 후 30일 이내에 요청할 수 있습니다.",
+      "## 배송\n\n배송은 영업일 기준 3일이 걸립니다.",
+    ].join("\n\n"),
+  },
+  {
+    title: "社内研修ガイド",
+    markdown: [
+      "## 概要\n\nこのページは新入社員向けの案内です。",
+      "## がくしゅう\n\n新入社員はがくしゅう計画に沿って三か月学びます。",
+      "## データベース\n\n本番のデータベースは毎晩バックアップされます。",
+    ].join("\n\n"),
   },
   {
     title: "Glossary",
@@ -486,14 +503,16 @@ const WIKI_RETRIEVAL_QUERIES: EvalQuery[] = [
   { category: "rare-term", query: "AVV", expect: ["Datenschutz und Sicherheit"] },
   { category: "cjk", query: "退款申请", expect: ["客户支持手册"] },
   { category: "cjk", query: "客户支持", expect: ["客户支持手册"] },
+  { category: "cjk", query: "환불", expect: ["고객 지원 안내"], answer: "30일 이내에 요청" },
+  { category: "cjk", query: "배송", expect: ["고객 지원 안내"], answer: "영업일 기준 3일" },
+  { category: "cjk", query: "がくしゅう", expect: ["社内研修ガイド"], answer: "がくしゅう計画に沿って" },
+  { category: "cjk", query: "データベース", expect: ["社内研修ガイド"], answer: "毎晩バックアップ" },
   { category: "no-match", query: "blockchain mining rig", expect: [] },
   { category: "no-match", query: "xylophone", expect: [] },
   { category: "no-match", query: "quantum teleportation experiment", expect: [] },
   { category: "no-match", query: "Weltraumtourismus", expect: [] },
   { category: "no-match", query: "zzqxv", expect: [] },
 ];
-
-const SECTION_WINDOW = 2_000;
 
 const RETRIEVAL_TARGETS: Record<string, { recallAt1: number; recallAt5: number; mrr: number; sectionHitAt1?: number }> =
   {
@@ -507,9 +526,9 @@ const RETRIEVAL_TARGETS: Record<string, { recallAt1: number; recallAt5: number; 
     "cross-language": { recallAt1: 1, recallAt5: 1, mrr: 1 },
     section: { recallAt1: 1, recallAt5: 1, mrr: 1, sectionHitAt1: 1 },
     "rare-term": { recallAt1: 1, recallAt5: 1, mrr: 1, sectionHitAt1: 1 },
-    cjk: { recallAt1: 1, recallAt5: 1, mrr: 1 },
+    cjk: { recallAt1: 1, recallAt5: 1, mrr: 1, sectionHitAt1: 1 },
     "no-match": { recallAt1: 1, recallAt5: 1, mrr: 1 },
-    overall: { recallAt1: 0.98, recallAt5: 0.98, mrr: 0.98, sectionHitAt1: 1 },
+    overall: { recallAt1: 0.985, recallAt5: 0.985, mrr: 0.985, sectionHitAt1: 1 },
   };
 
 type Metrics = { queries: number; recallAt1: number; recallAt5: number; mrr: number; sectionHitAt1: number | null };
@@ -549,11 +568,14 @@ describeDatabase("Workspace Wiki retrieval quality", () => {
     await client.end();
   });
 
-  function sectionHit(item: WikiSearchResult & { offset?: number }, answer: string) {
-    if (item.snippet.toLocaleLowerCase().includes(answer.toLocaleLowerCase())) return true;
-    if (item.offset === undefined) return false;
-    const position = (markdownByTitle.get(item.title) ?? "").toLocaleLowerCase().indexOf(answer.toLocaleLowerCase());
-    return position >= item.offset && position < item.offset + SECTION_WINDOW;
+  function sectionHit(item: WikiSearchResult, answer: string) {
+    const expected = answer.toLocaleLowerCase();
+    if (item.snippet.replaceAll("**", "").toLocaleLowerCase().includes(expected)) return true;
+    const markdown = markdownByTitle.get(item.title) ?? "";
+    const section = wikiMarkdownSections(markdown).find(({ offset }) => offset === (item.offset ?? 0));
+    if (!section) return false;
+    const text = markdown.slice(section.offset, section.end).replaceAll("**", "").toLocaleLowerCase();
+    return text.includes(expected);
   }
 
   it("meets the labelled retrieval targets per query category", async () => {
@@ -573,9 +595,8 @@ describeDatabase("Workspace Wiki retrieval quality", () => {
       if (!result.ok) throw new Error(`Search failed for ${labelled.query}`);
       const titles = result.data.items.map((item) => item.title);
       const rank = titles.findIndex((title) => labelled.expect.includes(title)) + 1;
-      const top = result.data.items[0] as (WikiSearchResult & { offset?: number }) | undefined;
-      const hit =
-        labelled.answer === undefined ? null : rank === 1 && top !== undefined && sectionHit(top, labelled.answer);
+      const [top] = result.data.items;
+      const hit = labelled.answer === undefined ? null : rank === 1 && sectionHit(top, labelled.answer);
       const outcome = { rank, sectionHit: hit, empty: titles.length === 0 };
       byCategory.set(labelled.category, [...(byCategory.get(labelled.category) ?? []), outcome]);
       const passed = labelled.expect.length === 0 ? outcome.empty : rank === 1 && hit !== false;
