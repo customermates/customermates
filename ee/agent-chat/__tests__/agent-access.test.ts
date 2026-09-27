@@ -356,8 +356,8 @@ describe("agent access", () => {
       emptyWikiCatalog(),
     ).invoke({
       clientRequestId: CLIENT_REQUEST_ID,
-      text: "Set up the Workspace Wiki from example.com.",
-      wikiHomepageSetupDomain: "example.com",
+      text: "Set up the Workspace Wiki from localhost.",
+      wikiHomepageSetupUrl: "https://localhost/",
       retry: false,
     });
 
@@ -767,7 +767,6 @@ describe("agent access", () => {
       clientRequestId: CLIENT_REQUEST_ID,
       text: "retry this",
       pageRoute: null,
-      wikiHomepageSetupDomain: "example.com",
       wikiHomepageSetupUrl: "https://example.com/",
       status: "failed",
       runId: "run-1",
@@ -832,7 +831,7 @@ describe("agent access", () => {
           turnRequestId: "turn-1",
           priorRunId: "run-1",
           priorAttemptCount: 1,
-          wikiHomepageSetupDomain: "example.com",
+          wikiHomepageSetupUrl: "https://example.com/",
           userMessageId: MESSAGE_ID,
         },
       }),
@@ -860,7 +859,7 @@ describe("agent access", () => {
           clientRequestId: CLIENT_REQUEST_ID,
           text: "retry this",
           pageRoute: null,
-          wikiHomepageSetupDomain: "example.com",
+          wikiHomepageSetupUrl: "https://example.com/",
           status: "failed",
           runId: "run-1",
           attemptCount: 1,
@@ -893,7 +892,7 @@ describe("agent access", () => {
       clientRequestId: CLIENT_REQUEST_ID,
       text: "retry this",
       retry: true,
-      wikiHomepageSetupDomain: "other.com",
+      wikiHomepageSetupUrl: "https://other.com/",
     });
 
     expect(result.ok && result.data.disposition).toBe("conflict");
@@ -1155,7 +1154,6 @@ describe("agent access", () => {
       clientRequestId: CLIENT_REQUEST_ID,
       text: "Set up the Workspace Wiki from https://example.com/",
       retry: false,
-      wikiHomepageSetupDomain: "example.com",
       wikiHomepageSetupUrl: "https://example.com/",
     });
 

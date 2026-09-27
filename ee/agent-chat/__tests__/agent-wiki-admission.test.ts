@@ -402,7 +402,6 @@ describe("Workspace Wiki admission bootstrap", () => {
       text: "Set up our Wiki from https://customermates.com/",
       retry: false,
       wikiHomepageSetupUrl: "https://customermates.com/",
-      wikiHomepageSetupDomain: "customermates.com",
     });
     expect(result).toMatchObject({ ok: true, data: { disposition: "run" } });
     expect(state.catalog.invoke).not.toHaveBeenCalled();

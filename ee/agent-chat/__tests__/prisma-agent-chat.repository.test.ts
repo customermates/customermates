@@ -87,7 +87,7 @@ function storedTurn(overrides: Record<string, unknown> = {}) {
     clientRequestId: "request-1",
     text: "Create a contact",
     pageRoute: "/en/contacts",
-    wikiHomepageSetupDomain: null,
+    wikiHomepageSetupUrl: null,
     status: "running",
     runId: "run-1",
     attemptCount: 1,
@@ -345,7 +345,7 @@ describe("PrismaAgentChatRepo tenant boundaries", () => {
             },
           ],
           pageRoute: "/en/contacts",
-          wikiHomepageSetupDomain: "example.com",
+          wikiHomepageSetupUrl: "https://example.com/",
           userMessageId: "user-message-1",
         },
       }),
@@ -380,7 +380,7 @@ describe("PrismaAgentChatRepo tenant boundaries", () => {
         clientRequestId: "request-1",
         runId: "run-1",
         userMessageId: "user-message-1",
-        wikiHomepageSetupDomain: "example.com",
+        wikiHomepageSetupUrl: "https://example.com/",
       }),
     });
     expect(prismaMock.agentMessage.create).toHaveBeenCalledWith({
@@ -456,7 +456,6 @@ describe("PrismaAgentChatRepo tenant boundaries", () => {
             clientRequestId: "request-2",
             text: "Set up the Wiki from https://example.com/",
             pageRoute: "/en/wiki",
-            wikiHomepageSetupDomain: "example.com",
             wikiHomepageSetupUrl: "https://example.com/",
             userMessageId: "user-message-2",
           },
@@ -470,7 +469,7 @@ describe("PrismaAgentChatRepo tenant boundaries", () => {
       where: {
         id: { not: "turn-2" },
         companyId: user.companyId,
-        wikiHomepageSetupDomain: { not: null },
+        wikiHomepageSetupUrl: { not: null },
         status: { in: ["running", "waitingBudget"] },
         OR: [{ heartbeatAt: { gt: expect.any(Date) } }, { heartbeatAt: null, updatedAt: { gt: expect.any(Date) } }],
       },
@@ -508,7 +507,7 @@ describe("PrismaAgentChatRepo tenant boundaries", () => {
             turnRequestId: "failed-setup",
             priorRunId: "failed-run",
             priorAttemptCount: 1,
-            wikiHomepageSetupDomain: "example.com",
+            wikiHomepageSetupUrl: "https://example.com/",
             userMessageId: "failed-user-message",
           },
         }),
@@ -519,7 +518,7 @@ describe("PrismaAgentChatRepo tenant boundaries", () => {
       where: {
         id: { not: "failed-setup" },
         companyId: user.companyId,
-        wikiHomepageSetupDomain: { not: null },
+        wikiHomepageSetupUrl: { not: null },
         status: { in: ["running", "waitingBudget"] },
         OR: [{ heartbeatAt: { gt: expect.any(Date) } }, { heartbeatAt: null, updatedAt: { gt: expect.any(Date) } }],
       },
@@ -547,7 +546,7 @@ describe("PrismaAgentChatRepo tenant boundaries", () => {
             clientRequestId: "request-expired",
             text: "Hello",
             pageRoute: null,
-            wikiHomepageSetupDomain: null,
+            wikiHomepageSetupUrl: null,
             userMessageId: "message-expired",
           },
         }),
@@ -610,7 +609,7 @@ describe("PrismaAgentChatRepo tenant boundaries", () => {
             clientRequestId: "request-missing",
             text: "Hello",
             pageRoute: null,
-            wikiHomepageSetupDomain: null,
+            wikiHomepageSetupUrl: null,
             userMessageId: "message-missing",
           },
         }),
@@ -684,9 +683,7 @@ describe("PrismaAgentChatRepo tenant boundaries", () => {
     });
     expect(prismaMock.agentTurnRequest.create).not.toHaveBeenCalled();
     expect(prismaMock.agentMessage.create).not.toHaveBeenCalled();
-    expect(prismaMock.agentTurnRequest.updateMany.mock.calls[0]?.[0]?.data).not.toHaveProperty(
-      "wikiHomepageSetupDomain",
-    );
+    expect(prismaMock.agentTurnRequest.updateMany.mock.calls[0]?.[0]?.data).not.toHaveProperty("wikiHomepageSetupUrl");
   });
 
   it("verifies the prelinked routine conversation before admitting its agent turn", async () => {
@@ -1425,7 +1422,7 @@ describe("PrismaAgentChatRepo tenant boundaries", () => {
     prismaMock.agentTurnRequest.findFirst.mockResolvedValue(
       storedTurn({
         status: "failed",
-        wikiHomepageSetupDomain: "example.com",
+        wikiHomepageSetupUrl: "https://example.com/",
       }),
     );
     prismaMock.agentMessage.findFirst
@@ -1445,7 +1442,7 @@ describe("PrismaAgentChatRepo tenant boundaries", () => {
     );
 
     expect(replay?.snapshot).toMatchObject({
-      wikiHomepageSetupDomain: "example.com",
+      wikiHomepageSetupUrl: "https://example.com/",
     });
     expect(prismaMock.agentTurnRequest.findFirst).toHaveBeenCalledWith({
       where: {
@@ -1454,7 +1451,7 @@ describe("PrismaAgentChatRepo tenant boundaries", () => {
         clientRequestId: "request-1",
       },
       select: expect.objectContaining({
-        wikiHomepageSetupDomain: true,
+        wikiHomepageSetupUrl: true,
       }),
     });
   });

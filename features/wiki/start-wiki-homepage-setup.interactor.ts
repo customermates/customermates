@@ -31,7 +31,6 @@ export abstract class StartWikiHomepageSetupTurnRepo {
   abstract findReusableWikiHomepageSetupTurn(data: {
     clientRequestId: string;
     homepageUrl: string;
-    registrableDomain: string;
   }): Promise<{ disposition: "reuse"; clientRequestId: string; text: string } | { disposition: "blocked" } | null>;
 }
 
@@ -55,7 +54,6 @@ export class StartWikiHomepageSetupInteractor extends AuthenticatedInteractor<
     const reusable = await this.setupTurnRepo.findReusableWikiHomepageSetupTurn({
       clientRequestId: data.clientRequestId,
       homepageUrl: homepage.url,
-      registrableDomain: homepage.registrableDomain,
     });
     if (reusable?.disposition === "blocked") return failConflict(CustomErrorCode.agentTurnAlreadyRunning, ["homepage"]);
     if (!reusable && !(await this.repo.wikiIsEmpty())) return failConflict(CustomErrorCode.wikiNotEmpty, ["homepage"]);
@@ -71,7 +69,6 @@ export class StartWikiHomepageSetupInteractor extends AuthenticatedInteractor<
       text,
       locale: data.locale,
       retry: data.retry === true,
-      wikiHomepageSetupDomain: homepage.registrableDomain,
       wikiHomepageSetupUrl: homepage.url,
     });
   }

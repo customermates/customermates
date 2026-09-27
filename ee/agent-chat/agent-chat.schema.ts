@@ -3,7 +3,6 @@ import { APP_LOCALES } from "@/i18n/locale-registry";
 import { z } from "zod";
 
 import { type Data } from "@/core/validation/validation.utils";
-import { parsePublicDomainName } from "@/features/wiki/wiki-homepage";
 
 import type { AgentActivityDescriptor } from "./agent-activity";
 import { AgentActivityDescriptorSchema, describeAgentTool } from "./agent-activity";
@@ -28,12 +27,6 @@ export const AgentPageContextSchema = z.object({
 
 const [firstAppLocale, ...otherAppLocales] = APP_LOCALES;
 const AgentAppLocaleSchema = z.enum([firstAppLocale, ...otherAppLocales]);
-export const WikiHomepageSetupDomainSchema = z
-  .string()
-  .trim()
-  .toLowerCase()
-  .max(253)
-  .refine((value) => parsePublicDomainName(value) === value, "Use a registrable public domain.");
 
 const SendAgentMessageObjectSchema = z.object({
   conversationId: z.uuid().optional(),
@@ -44,7 +37,6 @@ const SendAgentMessageObjectSchema = z.object({
   modelKey: z.string().min(1).max(50).optional(),
   locale: AgentAppLocaleSchema.optional(),
   retry: z.boolean().default(false),
-  wikiHomepageSetupDomain: WikiHomepageSetupDomainSchema.optional(),
   wikiHomepageSetupUrl: z.url().max(2_000).optional(),
 });
 
@@ -72,7 +64,6 @@ function refineSelectedViewContext(
 export const SendAgentMessageSchema = SendAgentMessageObjectSchema.superRefine(refineSelectedViewContext);
 
 export const PublicSendAgentMessageSchema = SendAgentMessageObjectSchema.omit({
-  wikiHomepageSetupDomain: true,
   wikiHomepageSetupUrl: true,
 }).superRefine(refineSelectedViewContext);
 

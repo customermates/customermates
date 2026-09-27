@@ -157,7 +157,6 @@ export class SendAgentMessageInteractor extends AuthenticatedInteractor<SendAgen
           text: data.text,
           pageRoute,
           retry: data.retry,
-          wikiHomepageSetupDomain: data.wikiHomepageSetupDomain,
           wikiHomepageSetupUrl: data.wikiHomepageSetupUrl,
         });
 
@@ -258,13 +257,10 @@ export class SendAgentMessageInteractor extends AuthenticatedInteractor<SendAgen
     if (requestedModelKey !== null && !isAgentModelKey(requestedModelKey))
       return fail(CustomErrorCode.agentModelUnavailable, ["modelKey"]);
     const setupUrl = decision.disposition === "retry" ? decision.turn.wikiHomepageSetupUrl : data.wikiHomepageSetupUrl;
-    const setupDomain =
-      decision.disposition === "retry" ? decision.turn.wikiHomepageSetupDomain : data.wikiHomepageSetupDomain;
     const wikiHomepageSetup: PublicWikiHomepage | undefined = setupUrl
       ? (parsePublicWikiHomepage(setupUrl) ?? undefined)
       : undefined;
-    if ((setupDomain || setupUrl) && (!wikiHomepageSetup || wikiHomepageSetup.registrableDomain !== setupDomain))
-      return fail(CustomErrorCode.invalidUrl, ["wikiHomepageSetupUrl"]);
+    if (setupUrl && !wikiHomepageSetup) return fail(CustomErrorCode.invalidUrl, ["wikiHomepageSetupUrl"]);
     const turnModel = resolveAgentModel(requestedModelKey);
     const locale = data.locale ?? resolveUserLocale(user);
     let conversationTitle = data.text;
@@ -413,7 +409,7 @@ export class SendAgentMessageInteractor extends AuthenticatedInteractor<SendAgen
                 turnRequestId,
                 priorRunId: decision.turn.runId,
                 priorAttemptCount: decision.turn.attemptCount,
-                wikiHomepageSetupDomain: wikiHomepageSetup?.registrableDomain,
+                wikiHomepageSetupUrl: wikiHomepageSetup?.url,
                 userMessageId,
               }
             : {
@@ -423,7 +419,6 @@ export class SendAgentMessageInteractor extends AuthenticatedInteractor<SendAgen
                 text: data.text,
                 contexts,
                 pageRoute,
-                wikiHomepageSetupDomain: wikiHomepageSetup?.registrableDomain,
                 wikiHomepageSetupUrl: wikiHomepageSetup?.url,
                 userMessageId,
               },

@@ -89,7 +89,6 @@ describe("StartWikiHomepageSetupInteractor", () => {
       text: "Informiere dich auf https://www.example.com/about über unser Unternehmen und erstelle unsere Wiki-Seiten.",
       locale: "de",
       retry: false,
-      wikiHomepageSetupDomain: "example.com",
       wikiHomepageSetupUrl: "https://www.example.com/about",
     });
     expect(agent.invoke.mock.calls[0][0].text).not.toContain("?ref=");
@@ -97,7 +96,6 @@ describe("StartWikiHomepageSetupInteractor", () => {
     expect(repo.findReusableWikiHomepageSetupTurn).toHaveBeenCalledWith({
       clientRequestId: CLIENT_REQUEST_ID,
       homepageUrl: "https://www.example.com/about",
-      registrableDomain: "example.com",
     });
   });
 

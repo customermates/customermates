@@ -1826,7 +1826,6 @@ model AgentTurnRequest {
   clientRequestId         String
   text                    String
   pageRoute               String?
-  wikiHomepageSetupDomain String?
   wikiHomepageSetupUrl    String?
   status                  AgentTurnStatus
   runId                   String

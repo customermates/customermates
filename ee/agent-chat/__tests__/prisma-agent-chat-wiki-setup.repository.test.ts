@@ -26,7 +26,7 @@ const homepageUrl = "https://example.com/";
 const registrableDomain = "example.com";
 const activeSetupWhere = {
   companyId: user.companyId,
-  wikiHomepageSetupDomain: { not: null },
+  wikiHomepageSetupUrl: { not: null },
   status: { in: ["running", "waitingBudget"] },
   OR: [{ heartbeatAt: { gt: expect.any(Date) } }, { heartbeatAt: null, updatedAt: { gt: expect.any(Date) } }],
 };
@@ -34,7 +34,6 @@ const turnSelect = {
   status: true,
   terminalCode: true,
   wikiHomepageSetupUrl: true,
-  wikiHomepageSetupDomain: true,
   conversationId: true,
   userId: true,
   affectedResources: true,
@@ -43,14 +42,12 @@ const requestSelect = {
   clientRequestId: true,
   text: true,
   userId: true,
-  wikiHomepageSetupDomain: true,
   wikiHomepageSetupUrl: true,
 };
 const storedSetup = {
   status: "running",
   terminalCode: null,
   wikiHomepageSetupUrl: homepageUrl,
-  wikiHomepageSetupDomain: registrableDomain,
   conversationId: "conversation-other",
   userId: "00000000-0000-4000-8000-000000000099",
   affectedResources: [],
@@ -64,7 +61,6 @@ const findReusable = (homepage = homepageUrl) =>
     new PrismaAgentChatRepo().findReusableWikiHomepageSetupTurn({
       clientRequestId,
       homepageUrl: homepage,
-      registrableDomain,
     }),
   );
 
@@ -102,12 +98,20 @@ describe("PrismaAgentChatRepo Wiki homepage setup turns", () => {
     expect(prismaMock.agentTurnRequest.findFirst).toHaveBeenNthCalledWith(2, {
       where: {
         companyId: user.companyId,
-        wikiHomepageSetupDomain: { not: null },
         wikiHomepageSetupUrl: { not: null },
       },
       orderBy: [{ createdAt: "desc" }, { id: "desc" }],
       select: turnSelect,
     });
+  });
+
+  it("returns no setup when the stored homepage no longer parses as a public page", async () => {
+    prismaMock.agentTurnRequest.findFirst.mockResolvedValueOnce({
+      ...storedSetup,
+      wikiHomepageSetupUrl: "https://localhost/",
+    });
+
+    await expect(findSetupTurn()).resolves.toBeNull();
   });
 
   it("returns no setup when the company never started one", async () => {
@@ -125,7 +129,7 @@ describe("PrismaAgentChatRepo Wiki homepage setup turns", () => {
       where: {
         companyId: user.companyId,
         userId: user.id,
-        wikiHomepageSetupDomain: { not: null },
+        wikiHomepageSetupUrl: { not: null },
         clientRequestId,
       },
       select: requestSelect,
@@ -142,7 +146,6 @@ describe("PrismaAgentChatRepo Wiki homepage setup turns", () => {
       clientRequestId,
       text: prompt,
       userId: user.id,
-      wikiHomepageSetupDomain: registrableDomain,
       wikiHomepageSetupUrl: homepageUrl,
     });
 
@@ -155,7 +158,6 @@ describe("PrismaAgentChatRepo Wiki homepage setup turns", () => {
       clientRequestId: "00000000-0000-4000-8000-000000000099",
       text: "Set up the Workspace Wiki from https://other.example/.",
       userId: "00000000-0000-4000-8000-000000000099",
-      wikiHomepageSetupDomain: "other.example",
       wikiHomepageSetupUrl: "https://other.example/",
     });
 
@@ -169,7 +171,6 @@ describe("PrismaAgentChatRepo Wiki homepage setup turns", () => {
       clientRequestId: activeClientRequestId,
       text: persistedText,
       userId: user.id,
-      wikiHomepageSetupDomain: registrableDomain,
       wikiHomepageSetupUrl: homepageUrl,
     });
 
@@ -185,7 +186,6 @@ describe("PrismaAgentChatRepo Wiki homepage setup turns", () => {
       clientRequestId,
       text: prompt,
       userId: user.id,
-      wikiHomepageSetupDomain: registrableDomain,
       wikiHomepageSetupUrl: homepageUrl,
     });
 

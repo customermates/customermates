@@ -561,8 +561,8 @@ describeDatabase("Workspace Wiki public boundaries on PostgreSQL", () => {
       [foreignConversationId, foreignCompanyId, foreignUserId],
     );
     await client.query(
-      `INSERT INTO "AgentTurnRequest" ("id", "companyId", "userId", "conversationId", "clientRequestId", "text", "wikiHomepageSetupDomain", "wikiHomepageSetupUrl", "status", "runId", "userMessageId", "heartbeatAt", "updatedAt")
-       VALUES ($1, $2, $3, $4, $5, $6, $7, $8, 'running', $9, $10, CURRENT_TIMESTAMP, CURRENT_TIMESTAMP)`,
+      `INSERT INTO "AgentTurnRequest" ("id", "companyId", "userId", "conversationId", "clientRequestId", "text", "wikiHomepageSetupUrl", "status", "runId", "userMessageId", "heartbeatAt", "updatedAt")
+       VALUES ($1, $2, $3, $4, $5, $6, $7, 'running', $8, $9, CURRENT_TIMESTAMP, CURRENT_TIMESTAMP)`,
       [
         randomUUID(),
         foreignCompanyId,
@@ -570,7 +570,6 @@ describeDatabase("Workspace Wiki public boundaries on PostgreSQL", () => {
         foreignConversationId,
         randomUUID(),
         "Set up the Wiki from https://example.com/",
-        "example.com",
         "https://example.com/",
         randomUUID(),
         randomUUID(),
@@ -613,7 +612,6 @@ describeDatabase("Workspace Wiki public boundaries on PostgreSQL", () => {
       expect(await startSetup(user)).toMatchObject({ ok: true, data: { disposition: "run" } });
       expect(agent.invoke).toHaveBeenCalledExactlyOnceWith(
         expect.objectContaining({
-          wikiHomepageSetupDomain: "example.org",
           wikiHomepageSetupUrl: "https://example.org/",
         }),
       );

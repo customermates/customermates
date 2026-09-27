@@ -17,7 +17,7 @@ const turn: AgentTurnRequestSnapshot = {
   clientRequestId: "request-1",
   text: "Create a contact",
   pageRoute: "/en/contacts",
-  wikiHomepageSetupDomain: "example.com",
+  wikiHomepageSetupUrl: "https://example.com/",
   status: "running",
   runId: "run-1",
   attemptCount: 1,
@@ -121,7 +121,7 @@ describe("agent turn request admission", () => {
     expect(
       decideAgentTurnAdmission(turn, {
         ...input,
-        wikiHomepageSetupDomain: "other.com",
+        wikiHomepageSetupUrl: "https://other.com/",
       }),
     ).toEqual({ disposition: "conflict" });
   });

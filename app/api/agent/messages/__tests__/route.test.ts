@@ -51,7 +51,7 @@ describe("agent message admission route", () => {
       data: { disposition: "conflict", clientRequestId, retryAllowed: false },
     });
 
-    const response = await POST(request({ wikiHomepageSetupDomain: "example.com" }));
+    const response = await POST(request({ wikiHomepageSetupUrl: "https://example.com/" }));
 
     expect(response.status).toBe(409);
     expect(invoke).toHaveBeenCalledWith({ clientRequestId, text: "Hello", retry: false });
