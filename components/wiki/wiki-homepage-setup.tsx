@@ -36,6 +36,17 @@ export const EMPTY_WIKI_HOMEPAGE_SETUP_STATE: WikiHomepageSetupState = {
   conversationId: null,
   pages: [],
 };
+export function useRefreshWhileWikiSetupWorks(working: boolean) {
+  const router = useRouter();
+  useEffect(() => {
+    if (!working) return;
+    const poll = globalThis.setInterval(() => {
+      if (document.visibilityState === "visible") router.refresh();
+    }, 2_500);
+    return () => globalThis.clearInterval(poll);
+  }, [router, working]);
+}
+
 export function WikiHomepageSetup({
   canStart = true,
   compact = false,
@@ -66,13 +77,7 @@ export function WikiHomepageSetup({
     if (initialState.status === "completed") setRetrying(false);
   }, [initialState]);
 
-  useEffect(() => {
-    if (state.status !== "working") return;
-    const poll = globalThis.setInterval(() => {
-      if (document.visibilityState === "visible") router.refresh();
-    }, 2_500);
-    return () => globalThis.clearInterval(poll);
-  }, [router, state.status]);
+  useRefreshWhileWikiSetupWorks(state.status === "working");
 
   useEffect(() => {
     if (retrying || (compact && state.status === "idle")) homepageInput.current?.focus();

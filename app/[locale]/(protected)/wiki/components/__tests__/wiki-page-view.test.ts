@@ -25,6 +25,7 @@ const harness = vi.hoisted(() => ({
   selectConversation: vi.fn(),
   openWikiHomepageSetup: vi.fn(),
   acknowledgeWikiHomepageSetup: vi.fn(),
+  refreshWhileSetupWorks: vi.fn(),
   p13nUpsert: vi.fn(),
   tryNavigate: vi.fn((navigate: () => void) => {
     navigate();
@@ -118,6 +119,7 @@ vi.mock("@/components/ui/button", () => ({
   },
 }));
 vi.mock("@/components/wiki/wiki-homepage-setup", () => ({
+  useRefreshWhileWikiSetupWorks: harness.refreshWhileSetupWorks,
   EMPTY_WIKI_HOMEPAGE_SETUP_STATE: {
     status: "idle",
     homepage: null,
@@ -751,18 +753,51 @@ describe("Wiki empty state", () => {
     expect(harness.loadConfig).not.toHaveBeenCalled();
   });
 
-  it.each([
-    [false, true],
-    [true, false],
-  ])(
-    "uses the manual fallback when deployment=%s and tenant=%s do not jointly enable Mate",
-    async (agentChatEnabled, agentEnabled) => {
-      const { container, recoverableErrors } = await hydrate(true, agentChatEnabled, agentEnabled);
+  it("uses the manual fallback when the tenant has Mate disabled", async () => {
+    const { container, recoverableErrors } = await hydrate(true, true, false);
 
-      expect(recoverableErrors).toEqual([]);
-      expect(container.innerHTML).toContain("Wiki.emptyBody");
-      expect(container.textContent).toContain("Wiki.newPage");
-      expect(container.innerHTML).not.toContain("data-wiki-homepage-setup");
-    },
-  );
+    expect(recoverableErrors).toEqual([]);
+    expect(container.innerHTML).toContain("Wiki.emptyBody");
+    expect(container.textContent).toContain("Wiki.newPage");
+    expect(container.innerHTML).not.toContain("empty-page-agent-suggestions");
+  });
+
+  it("offers readers the read-only Mate actions and no creation fallback", async () => {
+    const { container, recoverableErrors, serverHtml } = await hydrate(false, true, null, true);
+
+    expect(serverHtml).toContain("Wiki.emptyBodyReadOnly");
+    expect(serverHtml).not.toContain("Wiki.newPage");
+    expect(recoverableErrors).toEqual([]);
+    const chips = container.querySelectorAll('[data-testid="empty-page-agent-suggestions"] button');
+    expect(chips).toHaveLength(3);
+    expect(chips[0]?.textContent).toContain("AgentChat.suggestions.readOnly.explain.label");
+    expect(container.textContent).not.toContain("WikiSetup.startFromWebsite");
+  });
+
+  it("shows setup progress without a task link to managers who did not start it", async () => {
+    configure(true, true, true);
+    const { container } = await mount(
+      createElement(WikiPageView, {
+        initialPage: null,
+        initialSetupState: {
+          status: "working",
+          homepage: "https://example.com/",
+          domain: "example.com",
+          conversationId: null,
+          pages: [],
+        },
+        listPage,
+      }),
+    );
+    const { container: topBar } = await mount(harness.topBar);
+
+    expect(container.textContent).toContain("WikiSetup.status.workingTitle");
+    expect(container.textContent).toContain("WikiSetup.status.workingBodyNoTaskWiki");
+    expect(container.textContent).not.toContain("Wiki.emptyTitle");
+    expect(container.textContent).not.toContain("WikiSetup.openTask");
+    expect(container.textContent).not.toContain("Wiki.newPage");
+    expect(container.querySelector('[data-testid="empty-page-agent-suggestions"]')).toBeNull();
+    expect(topBar.querySelector('[aria-label="Wiki.newPage"]')).toBeNull();
+    expect(harness.refreshWhileSetupWorks).toHaveBeenLastCalledWith(true);
+  });
 });

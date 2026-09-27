@@ -458,7 +458,6 @@ const AGENT_SUGGESTION_KEYS = [
   "AgentChat.suggestions.pages.wiki.data.create-wiki-page",
   "AgentChat.suggestions.pages.wiki.data.wiki-gaps",
   "AgentChat.suggestions.pages.wiki.data.wiki-summary",
-  "AgentChat.suggestions.pages.wiki.empty.first-wiki-page",
   "AgentChat.suggestions.pages.wiki.empty.wiki-structure",
   "AgentChat.suggestions.pages.wiki.empty.wiki-tour",
   "AgentChat.suggestions.pages.services.data.create-service",

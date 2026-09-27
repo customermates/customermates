@@ -5,16 +5,17 @@ import type { ReactNode } from "react";
 import { observer } from "mobx-react-lite";
 import { useSyncExternalStore } from "react";
 import { useLocale, useTranslations } from "next-intl";
-import { Compass, Link2, Plus, Search, Sparkles } from "lucide-react";
+import { Compass, Globe2, Link2, Plus, Search, Sparkles } from "lucide-react";
 import { Action, EntityType, Resource } from "@/generated/prisma";
 
 import { suggestionPageId, type SuggestionPageId } from "@/ee/agent-chat/agent-chat.schema";
-import { agentPageActions, agentPageState } from "@/ee/agent-chat/agent-page-actions";
+import { agentPageActions, agentPageState, WIKI_WEBSITE_SETUP_ACTION_ID } from "@/ee/agent-chat/agent-page-actions";
 
 import { usePathname } from "@/i18n/navigation";
 import { useRootStore } from "@/core/stores/root-store.provider";
 
 import { Button } from "@/components/ui/button";
+import { EMPTY_WIKI_HOMEPAGE_SETUP_STATE } from "@/components/wiki/wiki-homepage-setup";
 import { useEntityTerminology } from "@/components/entity-terminology/use-entity-terminology";
 
 import { focusAgentComposer } from "./chat-ui";
@@ -27,20 +28,11 @@ const SUGGESTION_ICONS = [
 ] as const;
 
 function suggestionIcon(id: string) {
+  if (id === WIKI_WEBSITE_SETUP_ACTION_ID) return Globe2;
   return SUGGESTION_ICONS.find((candidate) => candidate.match.test(id))?.icon ?? Sparkles;
 }
 
 type Props = {
-  actionOverrides?: Readonly<
-    Record<
-      string,
-      {
-        disabled?: boolean;
-        label: string;
-        onChoose: () => void;
-      }
-    >
-  >;
   fallback?: ReactNode;
   pageId?: SuggestionPageId;
   state?: "data" | "empty";
@@ -67,7 +59,6 @@ export const AgentStarterActions = observer(function AgentStarterActions({ fallb
 });
 
 const AvailableAgentStarterActions = observer(function AvailableAgentStarterActions({
-  actionOverrides,
   pageId: explicitPageId,
   state: explicitState,
   surface = "chat",
@@ -130,23 +121,24 @@ const AvailableAgentStarterActions = observer(function AvailableAgentStarterActi
   const buttons = ([1, 2, 3] as const).map((index) => {
     const action = actions[index - 1];
     if (!action) return null;
-    const override = actionOverrides?.[action.id];
-    const question = override?.label ?? action.label;
-    const prompt = action.prompt;
+    const websiteSetup = action.id === WIKI_WEBSITE_SETUP_ACTION_ID;
     const Icon = suggestionIcon(action.id);
 
     return (
       <Button
         key={index}
         className="h-auto gap-1.5 rounded-full px-3 py-2 text-xs font-normal whitespace-normal"
-        disabled={override?.disabled}
+        data-agent-focus-return={surface === "page" ? "" : undefined}
+        disabled={websiteSetup && (store.isWorking || Boolean(store.historyMutationPending))}
         size="sm"
         variant="secondary"
-        onClick={() => (override ? override.onChoose() : choose(prompt))}
+        onClick={() =>
+          websiteSetup ? store.openWikiHomepageSetup(EMPTY_WIKI_HOMEPAGE_SETUP_STATE) : choose(action.prompt)
+        }
       >
         <Icon aria-hidden="true" className="size-3.5" />
 
-        {question}
+        {action.label}
       </Button>
     );
   });

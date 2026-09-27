@@ -820,10 +820,6 @@
             }
           },
           "empty": {
-            "first-wiki-page": {
-              "label": "Crea la mia prima pagina Wiki",
-              "prompt": "Aiutami a creare la prima pagina del nostro Wiki dello spazio di lavoro. Chiedi quali processi, informazioni sui prodotti, indicazioni per l’assistenza o indicazioni sul tono servono a Mate e agli strumenti di IA connessi, poi creala dopo la mia conferma."
-            },
             "wiki-structure": {
               "label": "Suggerisci una struttura Wiki",
               "prompt": "Esamina il mio spazio di lavoro e suggerisci da tre a cinque pagine utili per il Wiki. Non creare ancora nulla."

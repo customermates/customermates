@@ -5,7 +5,7 @@ import type { ResizablePanelDefinition } from "@/components/shared/resizable-pan
 
 import { useCallback, useEffect, useId, useMemo, useRef, useState, useTransition } from "react";
 import { observer } from "mobx-react-lite";
-import { BookOpen, ChevronDown, FileText, Plus, Search } from "lucide-react";
+import { BookOpen, ChevronDown, FileText, Plus, Search, Sparkles } from "lucide-react";
 import { useTranslations } from "next-intl";
 
 import { useSetTopBarActions } from "@/app/components/topbar-actions-context";
@@ -22,7 +22,7 @@ import { useRootStore } from "@/core/stores/root-store.provider";
 import { runUserAction } from "@/core/errors/report-application-error";
 import { useRouter } from "@/i18n/navigation";
 import { cn } from "@/core/utils/cn";
-import { EMPTY_WIKI_HOMEPAGE_SETUP_STATE } from "@/components/wiki/wiki-homepage-setup";
+import { EMPTY_WIKI_HOMEPAGE_SETUP_STATE, useRefreshWhileWikiSetupWorks } from "@/components/wiki/wiki-homepage-setup";
 import { wikiPagePath } from "@/features/wiki/wiki-links";
 import type { WikiHomepageSetupState } from "@/features/wiki/get-wiki-homepage-setup-state.interactor";
 import { ResizablePanelGroup } from "@/components/shared/resizable-panels";
@@ -60,7 +60,6 @@ const WikiPageViewComponent = ({
   const rootStore = useRootStore();
   const router = useRouter();
   const [isNavigating, startNavigation] = useTransition();
-  const [hasMounted, setHasMounted] = useState(false);
   const [mobileOpen, setMobileOpen] = useState(false);
   const [store] = useState(
     () =>
@@ -82,26 +81,29 @@ const WikiPageViewComponent = ({
   });
   const initialPanelSizes = readStoredPanelSizes(columnWidths, WIKI_PANEL_LAYOUT_ID, WIKI_PANEL_IDS, false);
   const canManage = store.canManage;
-  const acceptedSetupConversationId = rootStore.agentChatStore.wikiHomepageSetupConversationId;
+  const agentChatStore = rootStore.agentChatStore;
+  const acceptedSetupConversationId = agentChatStore.wikiHomepageSetupConversationId;
   const setupConversationId =
     initialSetupState.status === "working" ? initialSetupState.conversationId : acceptedSetupConversationId;
   const setupActive = initialSetupState.status === "working" || Boolean(acceptedSetupConversationId);
-  const homepageSetupBusy =
-    rootStore.agentChatStore.isWorking || Boolean(rootStore.agentChatStore.historyMutationPending);
+  const setupDomain =
+    initialSetupState.status === "working"
+      ? initialSetupState.domain
+      : (agentChatStore.wikiHomepageSetup?.domain ?? null);
 
   useEffect(() => store.receivePage(initialPage), [initialPage, store]);
-  useEffect(() => setHasMounted(true), []);
   useEffect(() => {
-    if (initialPage || initialSetupState.status !== "idle") rootStore.agentChatStore.acknowledgeWikiHomepageSetup();
-  }, [initialPage, initialSetupState.status, rootStore.agentChatStore]);
+    if (initialPage || initialSetupState.status !== "idle") agentChatStore.acknowledgeWikiHomepageSetup();
+  }, [initialPage, initialSetupState.status, agentChatStore]);
   useEffect(() => {
     if (store.creating) titleContainer.current?.querySelector("input")?.focus();
   }, [store.creating]);
 
   const missing = !store.creating && (unavailable || store.unavailable);
   const hasDocument = !missing && (store.creating || Boolean(store.form.id));
-  const canSetupWithMate =
-    hasMounted && canManage && rootStore.agentChatEnabled && rootStore.agentChatStore.enabled !== false;
+  useRefreshWhileWikiSetupWorks(setupActive && !initialPage);
+  const canOpenSetupTask =
+    Boolean(setupConversationId) && rootStore.agentChatEnabled && agentChatStore.enabled !== false;
   const tryNavigate = useCallback(
     (navigate: () => void) => rootStore.navigationGuard.tryNavigate(navigate),
     [rootStore],
@@ -294,59 +296,59 @@ const WikiPageViewComponent = ({
             <PageState background={<WikiPageSkeleton documentOnly />} label={t("PageState.loading")} state="loading" />
           ) : missing ? (
             <PageState description={t("Wiki.unavailableBody")} state="error" title={t("Wiki.unavailableTitle")} />
+          ) : !hasDocument && setupActive ? (
+            <PageState
+              action={
+                canOpenSetupTask ? (
+                  <Button
+                    data-agent-focus-return
+                    disabled={
+                      Boolean(agentChatStore.historyMutationPending) ||
+                      (agentChatStore.isWorking && agentChatStore.conversationId !== setupConversationId)
+                    }
+                    size="sm"
+                    variant="secondary"
+                    onClick={() => {
+                      agentChatStore.open();
+                      runUserAction(async () => {
+                        await agentChatStore.loadConfig();
+                        if (setupConversationId) await agentChatStore.selectConversation(setupConversationId);
+                      });
+                    }}
+                  >
+                    {t("WikiSetup.openTask")}
+                  </Button>
+                ) : undefined
+              }
+              background={<WikiPageSkeleton documentOnly animated={false} />}
+              description={
+                !setupDomain
+                  ? undefined
+                  : setupConversationId
+                    ? t("WikiSetup.status.workingBodyWiki", { domain: setupDomain })
+                    : t("WikiSetup.status.workingBodyNoTaskWiki", { domain: setupDomain })
+              }
+              icon={Sparkles}
+              state="empty"
+              title={t("WikiSetup.status.workingTitle")}
+            />
           ) : !hasDocument ? (
             <PageState
               action={
-                canManage ? (
-                  setupActive && canSetupWithMate && setupConversationId ? (
-                    <Button
-                      data-agent-focus-return
-                      disabled={
-                        Boolean(rootStore.agentChatStore.historyMutationPending) ||
-                        (rootStore.agentChatStore.isWorking &&
-                          rootStore.agentChatStore.conversationId !== setupConversationId)
-                      }
-                      size="sm"
-                      variant="secondary"
-                      onClick={() => {
-                        rootStore.agentChatStore.open();
-                        runUserAction(async () => {
-                          await rootStore.agentChatStore.loadConfig();
-                          await rootStore.agentChatStore.selectConversation(setupConversationId);
-                        });
-                      }}
-                    >
-                      {t("WikiSetup.openTask")}
-                    </Button>
-                  ) : canSetupWithMate ? (
-                    <AgentStarterActions
-                      actionOverrides={{
-                        "first-wiki-page": {
-                          disabled: homepageSetupBusy,
-                          label: t("WikiSetup.startFromWebsite"),
-                          onChoose: () =>
-                            rootStore.agentChatStore.openWikiHomepageSetup(EMPTY_WIKI_HOMEPAGE_SETUP_STATE),
-                        },
-                      }}
-                      fallback={
-                        <Button disabled={store.isLoading} size="sm" variant="secondary" onClick={create}>
-                          <Plus />
+                <AgentStarterActions
+                  fallback={
+                    canManage ? (
+                      <Button disabled={store.isLoading} size="sm" variant="secondary" onClick={create}>
+                        <Plus aria-hidden="true" />
 
-                          {t("Wiki.newPage")}
-                        </Button>
-                      }
-                      pageId="wiki"
-                      state="empty"
-                      surface="page"
-                    />
-                  ) : !setupActive ? (
-                    <Button disabled={store.isLoading} size="sm" variant="secondary" onClick={create}>
-                      <Plus />
-
-                      {t("Wiki.newPage")}
-                    </Button>
-                  ) : undefined
-                ) : undefined
+                        {t("Wiki.newPage")}
+                      </Button>
+                    ) : undefined
+                  }
+                  pageId="wiki"
+                  state="empty"
+                  surface="page"
+                />
               }
               background={<WikiPageSkeleton documentOnly animated={false} />}
               description={canManage ? t("Wiki.emptyBody") : t("Wiki.emptyBodyReadOnly")}

@@ -820,10 +820,6 @@
             }
           },
           "empty": {
-            "first-wiki-page": {
-              "label": "Create my first Wiki page",
-              "prompt": "Help me create the first page in our Workspace Wiki. Ask what company process, product knowledge, support guidance, or voice guidance Mate and connected AI tools need, then create it after I confirm."
-            },
             "wiki-structure": {
               "label": "Suggest a Wiki structure",
               "prompt": "Review my workspace and suggest three to five useful Workspace Wiki pages. Do not create anything yet."

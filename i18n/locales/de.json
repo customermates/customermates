@@ -820,10 +820,6 @@
             }
           },
           "empty": {
-            "first-wiki-page": {
-              "label": "Meine erste Wiki-Seite erstellen",
-              "prompt": "Hilf mir, die erste Seite in unserem Workspace-Wiki zu erstellen. Frage, welches Unternehmenswissen, welcher Prozess, welche Produkt- oder Supportinformation oder welche Sprachrichtlinie Mate und verbundene KI-Tools benötigen, und erstelle sie nach meiner Bestätigung."
-            },
             "wiki-structure": {
               "label": "Wiki-Struktur vorschlagen",
               "prompt": "Prüfe meinen Arbeitsbereich und schlage drei bis fünf nützliche Seiten für das Workspace-Wiki vor. Erstelle noch nichts."
