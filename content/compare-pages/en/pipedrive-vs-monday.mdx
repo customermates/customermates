@@ -13,7 +13,7 @@ relatedHrefs:
 
 hero:
   title: "Pipedrive vs Monday CRM: There Is a Better Way"
-  description: Pipedrive is a sales-first CRM. Monday is project management with CRM bolted on. Customermates adds AI agents that operate the CRM through native MCP and a native unified inbox for email, LinkedIn, WhatsApp, Instagram, and Telegram, open-source and EU-hosted from [[commercial.price.starter.monthly]]/user/month.
+  description: Pipedrive is a sales-first CRM. Monday is project management with CRM bolted on. Customermates adds AI that operates the CRM through MCP and a unified inbox for email, LinkedIn, WhatsApp, Instagram, and Telegram, open-source and self-hostable, from [[commercial.price.starter.monthly]]/user/month.
   buttonLeftText: Start for free
   buttonLeftHref: /auth/signup
   buttonRightText: Watch live demo
@@ -26,22 +26,18 @@ comparison:
   sections:
   - title: Pricing & Setup
     features:
-    - name: Start & Setup
-      source: 2 minutes
-      competitor: hours
-      competitor2: hours
     - name: Starting price
       source: From [[commercial.price.starter.monthly]] / month / user
-      competitor: $14/user Lite
-      competitor2: $36/mo (3-seat min)
+      competitor: $14/seat Lite (annual)
+      competitor2: $12/seat Basic (annual, 3-seat min)
     - name: Mid-tier price
       source: "[[commercial.price.pro.monthly]] / month / user (Pro)"
-      competitor: $24/user Growth
-      competitor2: $51/mo Standard
-    - name: Top-tier price
+      competitor: $39/seat Growth (annual)
+      competitor2: $17/seat Standard (annual)
+    - name: Top published price
       source: "[[commercial.price.business.monthly]] / month / user (Business)"
-      competitor: $69/user Ultimate
-      competitor2: custom (Ultimate)
+      competitor: $79/seat Ultimate (annual)
+      competitor2: $28/seat Pro (annual); Ultimate custom
     - name: Free trial
       source: "[[commercial.trial.days]] days (full Pro access)"
       competitor: 14 days
@@ -54,22 +50,22 @@ comparison:
       source: '1'
       competitor: '1'
       competitor2: '3'
-    - name: Hidden costs (add-ons)
+    - name: Paid add-ons
       source: None
-      competitor: LeadBooster $32.50/mo, Smart Docs $32.50/mo
+      competitor: LeadBooster, Smart Docs, Projects below Premium; Campaigns, Web Visitors on all plans
       competitor2: seat minimums
   - title: Core features
     features:
-    - name: Unlimited records
-      source: true
-      competitor: limited (2,500 to 300,000 by tier)
-      competitor2: limited per plan
+    - name: Plan-based record caps
+      source: None
+      competitor: 2,500 to 20,000 open deals per seat
+      competitor2: 1,000 to 100,000 active contacts & deals (Basic to Pro)
     - name: Custom fields
-      source: All tiers (10 field types)
-      competitor: tier-dependent (30 to 500)
-      competitor2: limited
-    - name: Deals & pipelines
-      source: true
+      source: All plans (10 typed column types)
+      competitor: 30 to 500 per company
+      competitor2: 5 to 75 columns per board
+    - name: Deals & pipeline
+      source: One configurable stage column with stage probabilities
       competitor: yes (core strength)
       competitor2: yes (board-based)
     - name: Contacts & organizations
@@ -80,14 +76,14 @@ comparison:
       source: true
       competitor: activities
       competitor2: 'yes'
-    - name: Native unified inbox (email, LinkedIn, WhatsApp, Instagram, Telegram)
-      source: Pro+ (all 5 channels)
-      competitor: Email sync (Growth+)
-      competitor2: Email sync (Standard+)
-    - name: AI agents operate the CRM (native MCP, [[derived.mcp.tools.total]] tools)
-      source: true
-      competitor: AI Sales Assistant (add-on)
-      competitor2: Monday AI (credits)
+    - name: Unified inbox (email, LinkedIn, WhatsApp, Instagram, Telegram)
+      source: Pro+ (cloud)
+      competitor: Two-way email sync (Growth+)
+      competitor2: Email integration
+    - name: AI clients operate the CRM (MCP, [[derived.mcp.tools.total]] tools)
+      source: All plans
+      competitor: Pipedrive MCP and AI features
+      competitor2: monday AI
     - name: Open source
       source: true
       competitor: 'no'
@@ -95,35 +91,31 @@ comparison:
   - title: Data protection & security
     features:
     - name: GDPR documentation
-      source: DPA + SCCs; no certification
-      competitor: yes (EU-based, Estonia)
-      competitor2: partially
+      source: DPA available, subprocessors disclosed; no certification
+      competitor: DPA available; check vendor
+      competitor2: DPA available; check vendor
     - name: Hosting
-      source: EU database region
-      competitor: EU & US mixed (Frankfurt, Dublin)
-      competitor2: USA (AWS)
+      source: Cloud database in Frankfurt (AWS); self-hostable
+      competitor: Region depends on account; check vendor
+      competitor2: Region depends on plan; check vendor
     - name: Self-hosting available
       source: true
       competitor: 'no'
       competitor2: 'no'
-    - name: Data sovereignty
-      source: Full, EU only
-      competitor: partial (US subprocessors)
-      competitor2: EU only on Enterprise
   - title: Integration & automation
     features:
     - name: n8n integration
-      source: true
+      source: Community node for your own n8n
       competitor: 'yes'
       competitor2: 'yes'
     - name: API access
-      source: Full, no limits
+      source: REST API with OpenAPI, webhooks
       competitor: 'yes'
       competitor2: 'yes'
     - name: Automation
-      source: Unlimited
+      source: Webhooks, REST, n8n (separate), cloud routines
       competitor: Growth+ (50 to 250 active)
-      competitor2: quota-limited (250-25,000/mo)
+      competitor2: Standard+ (250 to 25,000 actions/month)
 cta:
   action: Ready to get started?
   description: Get started with Customermates today and switch to an agentic Open-Source CRM built for flexible workflows.
@@ -134,112 +126,112 @@ cta:
   hint: ✓ No credit card required ✓ First [[commercial.trial.days]] days free
 ---
 
-> Pipedrive and Monday CRM are two of the most popular CRM choices for small and mid-sized sales teams, but they come from different worlds. Pipedrive was built as a sales CRM from the start, pipeline management is its core identity, with activity-based selling methodology and deal-centric workflows. Monday CRM grew out of Monday.com's project management platform, adding sales features as an expansion to coordinate teams across broader business operations. Both are capable within their strengths, but both limit functionality by plan tier and both bring pricing trade-offs as teams grow. Customermates offers a third option: purpose-built CRM with every core feature included from [[commercial.price.starter.monthly]]/user/month, EU-hosted and open-source. AI agents (Claude, ChatGPT, Gemini) operate the CRM through a native MCP integration and do the data entry, and a native unified inbox brings email, LinkedIn, WhatsApp, Instagram, and Telegram into one place.
+> Pipedrive and Monday CRM are two of the most popular CRM choices for small and mid-sized sales teams, but they come from different worlds. Pipedrive was built as a sales CRM from the start: pipeline management is its core identity, with activity-based selling and deal-centric workflows. Monday CRM grew out of Monday.com's project management platform, adding sales features as an expansion to coordinate teams across broader business operations. Both are capable within their strengths, but both limit functionality by plan tier and both bring pricing trade-offs as teams grow. Customermates offers a third option: a purpose-built CRM with every core feature included from [[commercial.price.starter.monthly]]/user/month, open-source and self-hostable. AI clients such as Claude or ChatGPT operate the CRM through MCP and take over the data entry, and on Pro and above a unified inbox brings email, LinkedIn, WhatsApp, Instagram, and Telegram into one place.
 
 ## Sales CRM vs. project management CRM
 
-This distinction matters more than any feature comparison. Pipedrive thinks in deals, activities, and pipeline stages. Every screen, workflow, and metric is designed around moving deals forward. The platform originated from salespeople solving their own problem, how to keep track of what needs to happen next to close a deal.
+This distinction matters more than any feature comparison. Pipedrive thinks in deals, activities, and pipeline stages. Every screen, workflow, and metric is designed around moving deals forward. The platform originated from salespeople solving their own problem: how to keep track of what needs to happen next to close a deal.
 
-Monday CRM thinks in boards, columns, and automations. CRM functionality is layered onto a project management interface designed for cross-team coordination. Modern platforms like Monday.com allow seamless coordination between teams, but the CRM layer is secondary to the project management foundation.
+Monday CRM thinks in boards, columns, and automations. CRM functionality is layered onto a project management interface designed for cross-team coordination. Modern platforms like Monday.com allow smooth coordination between teams, but the CRM layer is secondary to the project management foundation.
 
-For sales teams, this means Pipedrive feels native, deal tracking, activity scheduling, email integration, and sales reporting are first-class features. Monday CRM feels flexible, you can build almost any workflow with boards, but CRM-specific depth is limited.
+For sales teams, this means Pipedrive feels native: deal tracking, activity scheduling, email integration, and sales reporting are first-class features. Monday CRM feels flexible: you can build almost any workflow with boards, but CRM-specific depth is limited.
 
-Customermates takes the dedicated CRM approach further. Like Pipedrive, contacts, deals, and pipelines are native concepts. Unlike Pipedrive, every core CRM feature is included at every tier starting at [[commercial.price.starter.monthly]]/user/month, the platform is open-source, and the hosted database runs in the EU.
+Customermates takes the dedicated CRM approach. Like Pipedrive, contacts, organizations, and deals are native concepts. Unlike Pipedrive, every core CRM feature is included in every plan starting at [[commercial.price.starter.monthly]]/user/month, and the platform is open-source, so you can run it on your own server.
 
 ## What are the cons of Pipedrive?
 
 Pipedrive is a strong sales CRM, but several limitations matter as teams grow:
 
-1. **Feature gating by tier**: The Lite plan ($14/user) is deliberately limited, 2,500 open deals per seat, one-way email, no automation. Two-way email sync and automation require Growth ($24/user). Revenue forecasts and lead scoring require Premium ($49/user). Meaningful CRM functionality starts at $24/user/month.
+1. **Feature gating by tier**: The Lite plan ($14/seat, annual) is deliberately limited: 2,500 open deals per seat, no two-way email sync, no automations. Both require Growth ($39/seat). Custom scoring requires Premium ($59/seat). Meaningful CRM functionality starts at $39 per seat per month.
 
-2. **Expensive add-ons**: LeadBooster costs $32.50/month, Smart Docs $32.50/month, Campaigns $13.33/month. A 10-person team on Growth with LeadBooster pays $272.50/month, and that does not include Smart Docs or AI features.
+2. **Add-ons**: LeadBooster, Smart Docs, and Projects are paid add-ons on Lite and Growth and only included from Premium; Campaigns and Web Visitors are paid add-ons on every plan. LeadBooster alone costs from $32.50 per month billed annually.
 
-3. **Deal limits on lower tiers**: Lite allows 2,500 open deals per seat. Growth raises it to 5,000 and Premium to 15,000. Ultimate ($69/user) reaches the highest limit (20,000 per seat). For high-volume sales teams, this creates artificial constraints.
+3. **Deal limits on lower tiers**: Lite allows 2,500 open deals per seat. Growth raises it to 5,000 and Premium to 15,000. Ultimate ($79/seat) reaches the highest limit (20,000 per seat, up to 300,000 per company). For high-volume sales teams, this creates artificial constraints.
 
-4. **Mixed data residency**: Pipedrive is headquartered in Estonia (EU) and hosts in Frankfurt and Dublin, but some subprocessors are US-based. Full EU data sovereignty is not guaranteed across all processing.
+4. **Plan-bound support**: phone support starts on Premium, and extended phone support on Ultimate.
 
 5. **No self-hosting**: Like most SaaS CRMs, Pipedrive offers no option for on-premise deployment or self-hosted instances.
 
-Customermates addresses all five limitations: no core-feature tier gating, no add-on costs, unlimited records, exclusive EU hosting in the EU region, and self-hosting available.
+Customermates addresses these limitations with no core-feature tier gating, no add-ons, no plan-based record caps, and a self-hostable open-source core.
 
 ## Pricing breakdown (2026)
 
-**Pipedrive** (per user, billed annually; Pipedrive renamed its plans to Lite, Growth, Premium, and Ultimate in July 2025):
+Prices from the vendors' pricing pages ([Pipedrive](https://www.pipedrive.com/en/pricing), [monday CRM](https://monday.com/crm/pricing)), checked September 2026; per seat per month, annual billing unless stated.
 
-- Lite: $14/user/month, basic pipeline, 2,500 open deals per seat, one-way email
-- Growth: $24/user/month, two-way email sync, automation, 5,000 open deals per seat
-- Premium: $49/user/month, revenue forecasting, lead scoring, 15,000 open deals per seat
-- Ultimate: $69/user/month, highest limits, enhanced security, dedicated support
+**Pipedrive** (plans renamed to Lite, Growth, Premium, and Ultimate in 2025):
 
-Add-ons increase costs: LeadBooster ($32.50/month), Smart Docs ($32.50/month), Campaigns ($13.33/month), AI Sales Assistant (paid add-on). A 10-person team on Growth with LeadBooster pays $272.50/month.
+- Lite: $14 ($24 billed monthly), pipeline and lead management, 2,500 open deals per seat
+- Growth: $39 ($49 monthly), two-way email sync, automations, sequences, forecast reports, 5,000 open deals per seat
+- Premium: $59 ($79 monthly), LeadBooster, Smart Docs and Projects included, custom scoring, phone support, 15,000 open deals per seat
+- Ultimate: $79 ($99 monthly), highest limits, enhanced security, extended phone support, 20,000 open deals per seat
+
+Add-ons increase costs on lower plans: LeadBooster from $32.50/month, plus Campaigns and Web Visitors on every plan. A 10-person team on Growth pays $390 per month, or $422.50 with LeadBooster.
 
 **Monday CRM** (per seat, 3-seat minimum):
 
-- Basic: $12/seat/month, boards, contacts, 5 GB storage
-- Standard: $17/seat/month, email integration, 250 automations/month
-- Pro: $28/seat/month, advanced analytics, 25,000 automations/month
-- Enterprise: custom pricing
+- Basic: $12 ($18 monthly), up to 1,000 active contacts and deals, no custom automations
+- Standard: $17 ($25 monthly), up to 10,000 active contacts and deals, 250 automation actions/month
+- Pro: $28 ($41 monthly), up to 100,000 active contacts and deals, 25,000 automation actions/month
+- Ultimate: custom pricing
 
-A 10-person team on Standard pays $170/month. On Pro, $280/month. The 3-seat minimum means even solo users pay for 3 seats ($36-$84/month).
+A 10-person team on Standard pays $170/month. On Pro, $280/month. The 3-seat minimum means even solo users pay for 3 seats ($36 to $84/month).
 
-**Customermates**: from [[commercial.price.starter.monthly]]/user/month (Starter) for every core CRM feature. A 10-person team pays [[commercial.price.starter.monthly.seats.10]]/month. No add-ons, no deal limits, no automation caps, no seat minimums; Pro ([[commercial.price.pro.monthly]]) and Business ([[commercial.price.business.monthly]]) add messaging capacity and a larger hosted AI allowance.
+**Customermates**: from [[commercial.price.starter.monthly]]/user/month (Starter) for every core CRM feature. A 10-person team pays [[commercial.price.starter.monthly.seats.10]]/month. No add-ons, no plan-based record caps, no seat minimums; Pro ([[commercial.price.pro.monthly]]) and Business ([[commercial.price.business.monthly]]) add the unified inbox, connected accounts, and a larger hosted AI allowance.
 
 ## Feature comparison
 
 ### Pipeline management
 
-Pipedrive's pipeline view is its flagship feature. Visual deal stages, drag-and-drop management, probability-weighted forecasting, and activity-based selling methodology are deeply integrated. Deal rot alerts warn when deals stagnate. Loss reasons analysis helps improve close rates. Pipeline velocity metrics show how fast deals move through stages. It is one of the best pipeline experiences in the CRM market.
+Pipedrive's pipeline view is its flagship feature. Visual deal stages, drag-and-drop management, probability-weighted forecast reports (from Growth), and activity-based selling are deeply integrated. Rotting deals are highlighted when they stagnate, and lost reasons help teams learn from missed deals. It is one of the best pipeline experiences in the CRM market.
 
-Monday CRM provides pipeline views through Kanban boards. The visual experience is clean and customizable, but it lacks the sales-specific depth, deal rot alerts, loss reasons analysis, pipeline velocity metrics, that Pipedrive offers natively. Forecasting is available only on Pro and above.
+Monday CRM provides pipeline views through Kanban boards. The visual experience is clean and customizable, but it lacks some of the sales-specific depth that Pipedrive offers natively.
 
-Customermates delivers native pipeline management with deal stages, weighted forecasts, and full customization. It matches Pipedrive's CRM orientation without the tier-gated feature limitations.
+Customermates delivers the pipeline as one configurable stage column with a Kanban board. Each stage carries a probability, so deal values and pipeline totals are weighted automatically. This is a deterministic calculation, not predictive forecasting. If you run different kinds of deals, separate them with a custom single-select field plus saved views or grouping.
 
 ### Contact and deal management
 
-Pipedrive provides solid contact and organization management with deal-contact linking, activity tracking, and contact timelines. Records are limited by plan: 2,500 open deals per seat on Lite, 5,000 on Growth, 15,000 on Premium, 20,000 on Ultimate.
+Pipedrive provides solid contact and organization management with deal-contact linking, activity tracking, and contact timelines. Open deals are limited by plan: 2,500 per seat on Lite, 5,000 on Growth, 15,000 on Premium, 20,000 on Ultimate.
 
-Monday CRM stores contacts as board items. Relationship mapping between contacts, organizations, and deals is basic. There is no native concept of organizational hierarchies or contact roles within deals.
+Monday CRM stores contacts as board items, capped at 1,000, 10,000, or 100,000 active contacts and deals depending on the plan. Relationship mapping between contacts, organizations, and deals is basic.
 
-Customermates provides unlimited contacts and organizations as native objects with full relationship mapping, custom fields, and activity tracking. No deal limits at any level.
+Customermates provides contacts, organizations, deals, services, and tasks as native linked records with typed custom columns and an activity history. There are no plan-based record caps.
 
 ### Email integration
 
-Pipedrive offers two-way email sync from the Growth plan ($24/user/month) onward, including email tracking, templates, and email scheduling. The Lite plan ($14) includes only one-way email, a limitation for sales teams.
+Pipedrive offers two-way email sync from the Growth plan ($39/seat) onward, including email tracking, templates, and email scheduling. The Lite plan ($14) has no two-way sync, a limitation for sales teams.
 
-Monday CRM has limited email capabilities. Basic email tracking is available on Standard ($17/seat) and above, but full email sync and sequences are not core features. Communication relies primarily on integrations with Gmail, Outlook, and third-party tools.
+Monday CRM offers email integration with Gmail and Outlook, but communication features are less central than in a dedicated sales CRM.
 
-Customermates includes email integration as part of the unified inbox starting on Pro ([[commercial.price.pro.monthly]]/user/month); every other core CRM feature is already available on Starter ([[commercial.price.starter.monthly]]/user/month).
+Customermates connects Gmail, Outlook, or IMAP mailboxes to the unified inbox starting on Pro ([[commercial.price.pro.monthly]]/user/month), next to LinkedIn, WhatsApp, Instagram, and Telegram; every other core CRM feature is already available on Starter ([[commercial.price.starter.monthly]]/user/month).
 
 ### Automation
 
-Pipedrive unlocks workflow automation starting with the Growth plan. Automations include deal stage changes, activity creation, email sending, and webhook triggers. The number of active automations is capped by tier (50 on Growth up to 250 on Ultimate).
+Pipedrive unlocks workflow automation starting with the Growth plan. Automations include deal stage changes, activity creation, email sending, and webhook triggers. The number of active automations is capped by tier (50 on Growth, 150 on Premium, 250 on Ultimate).
 
-Monday CRM includes automations from the Standard plan, capped at 250 actions/month. Pro raises the cap to 25,000. Automations are visual and easy to create but limited in scope compared to dedicated CRM automation.
+Monday CRM includes custom automations from the Standard plan, capped at 250 actions per month. Pro raises the cap to 25,000. Automations are visual and easy to create but limited in scope compared to dedicated CRM automation.
 
-Customermates works with n8n automation from day one with no action limits, connecting to thousands of services through a visual workflow builder.
+Customermates has no built-in rules engine. Automation runs through webhooks on CRM events, the REST API, a community node for your own separately operated [n8n](https://n8n.io/) instance, and AI clients over MCP. In the managed cloud, routines let the hosted assistant run a saved instruction on a schedule or when a CRM event happens; they use the plan's hosted AI credits.
 
 ## Who is Zoho's biggest competitor?
 
 While this comparison focuses on Pipedrive and Monday, Zoho CRM is a frequent alternative that teams evaluate alongside both. Zoho's biggest competitors include Salesforce (in the enterprise segment), HubSpot (in the marketing-integrated CRM space), and increasingly, focused alternatives like Customermates that compete on simplicity and pricing.
 
-Zoho CRM offers broad functionality at mid-range pricing ($14-$52/user/month) with a generous free tier for up to 3 users. However, like Pipedrive and Monday, it gates features by tier and hosts data primarily outside the EU. For teams that prioritize EU data sovereignty, open-source transparency, and transparent tiered pricing, Customermates is a direct alternative to all three.
+Zoho CRM offers broad functionality at mid-range pricing ($14 to $52 per user per month billed annually, per [Zoho's pricing page](https://www.zoho.com/crm/zohocrm-pricing.html), checked September 2026) with a free edition for up to 3 users. Like Pipedrive and Monday, it gates features by tier. For teams that prioritize open-source transparency, the option to self-host, and transparent tiered pricing, Customermates is a direct alternative to all three.
 
 ## Data protection and hosting
 
-Pipedrive is headquartered in Estonia (EU) and hosts data in EU data centers (Frankfurt, Dublin). This gives it better GDPR positioning than most US-based competitors. However, some subprocessors are US-based, and not all data processing is guaranteed to stay within the EU. For teams that need strict data sovereignty, this partial approach may not satisfy compliance requirements.
+Pipedrive and Monday.com both offer data processing agreements, and both run on their own hosting regions and subprocessors. Check which region your account uses and review each vendor's DPA and subprocessor list against your requirements.
 
-Monday.com hosts data primarily on AWS in the US. EU data residency is available on Enterprise plans but not standard. For European teams on Basic, Standard, or Pro plans, this creates a compliance gap under GDPR.
-
-Customermates hosts exclusively in Germany with all data processing within the EU. Self-hosting is available for full data sovereignty. GDPR/DSGVO compliance is built into the architecture, not layered on as an enterprise feature.
+In the managed cloud, the Customermates application database runs in the AWS Frankfurt region; hosting and other subprocessors, including US providers, are listed on the [subprocessors page](/subprocessors), and a [DPA](/dpa) is available. Customermates holds no compliance certification. If you need full control over where data lives, [self-host](/features/self-hosted) the open-source core.
 
 ## Who should choose which
 
-**Choose Pipedrive** if pipeline-centric sales management is your primary need, your team is willing to pay for the Growth or Premium tier to unlock meaningful functionality, and EU data compliance is a secondary concern. Pipedrive is a genuine sales CRM that does pipeline management exceptionally well.
+**Choose Pipedrive** if pipeline-centric sales management is your primary need and your team is willing to pay for the Growth or Premium tier to unlock meaningful functionality. Pipedrive is a genuine sales CRM that does pipeline management exceptionally well.
 
 **Choose Monday CRM** if your team already uses Monday.com for project management, your CRM needs are lightweight (basic deal tracking, simple contact storage), and you value having everything in one workspace over CRM depth.
 
-**Choose Customermates** if you want dedicated CRM with full core features at a transparent price starting at [[commercial.price.starter.monthly]]/user/month. It fits teams that need pipeline management, contact and organization management, AI agents that operate the CRM, a native unified inbox, and automation, without per-tier core-feature gates, deal limits, add-on costs, or seat minimums. Email, LinkedIn, WhatsApp, Instagram, and Telegram unify on the Pro tier. EU hosting and open-source code are included from day one.
+**Choose Customermates** if you want a dedicated CRM with full core features at a transparent price starting at [[commercial.price.starter.monthly]]/user/month. It fits teams that need a pipeline, contact and organization management, AI that operates the CRM, and integration surfaces for their own automation, without core-feature tier gates, record caps, add-on costs, or seat minimums. Email, LinkedIn, WhatsApp, Instagram, and Telegram come together in the unified inbox on Pro. The open-source core is available from day one.
 
 ## Conclusion
 
-Pipedrive is a strong sales CRM but gates key features behind higher tiers, two-way email sync requires Growth ($24/user), forecasting requires Premium ($49/user), and charges separately for add-ons like LeadBooster and Smart Docs. Monday CRM is a versatile project management tool but treats CRM as a secondary use case, caps automation at 250-25,000 actions per month, and lacks sales-specific depth like deal rot alerts and pipeline velocity metrics. Both increase costs as teams grow and need more features. Customermates provides purpose-built CRM with every core feature included from [[commercial.price.starter.monthly]]/user/month, data hosted in the EU region, and open-source transparency. For teams that want focused CRM without compromise, it is the clear choice.
+Pipedrive is a strong sales CRM but gates key features behind higher tiers: two-way email sync and automations require Growth ($39/seat), custom scoring requires Premium ($59/seat), and LeadBooster and Smart Docs cost extra below Premium. Monday CRM is a versatile project management tool but treats CRM as a secondary use case and caps automation at 250 to 25,000 actions per month. Both increase costs as teams grow and need more features. Customermates provides a purpose-built CRM with every core feature included from [[commercial.price.starter.monthly]]/user/month, a cloud database in Frankfurt or your own server, and open-source transparency. For teams that want a focused CRM without tier gates, it is a strong choice.

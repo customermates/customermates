@@ -11,7 +11,7 @@ relatedHrefs:
 
 hero:
   title: "Pipedrive vs Salesforce: Es gibt einen besseren Weg"
-  description: Vergleichen Sie Pipedrive, Salesforce und Customermates. Customermates ergänzt KI-Agenten, die das CRM über natives MCP bedienen, und eine native Unified Inbox für E-Mail, LinkedIn, WhatsApp, Instagram und Telegram.
+  description: Vergleichen Sie Pipedrive, Salesforce und Customermates. Customermates ergänzt KI-Clients, die das CRM über MCP bedienen, und ab Pro eine Unified Inbox für E-Mail, LinkedIn, WhatsApp, Instagram und Telegram.
   buttonLeftText: Kostenlos starten
   buttonLeftHref: /auth/signup
   buttonRightText: Live-Demo ansehen
@@ -24,26 +24,22 @@ comparison:
   sections:
   - title: Preis & Setup
     features:
-    - name: Start & Setup
-      source: 2 Minuten
-      competitor: Stunden bis Tage
-      competitor2: Wochen bis Monate
     - name: Einstiegspreis
       source: Ab [[commercial.price.starter.monthly]] / Monat / User
-      competitor: $14 Lite
-      competitor2: $25 Starter Suite
+      competitor: 14 € Lite
+      competitor2: 25 € Starter Suite
     - name: Mittlerer Tarif
       source: "[[commercial.price.pro.monthly]] / Monat / User (Pro)"
-      competitor: $49 Premium
-      competitor2: $100 Pro Suite
+      competitor: 59 € Premium
+      competitor2: 100 € Pro Suite
     - name: Top-Tarif
       source: "[[commercial.price.business.monthly]] / Monat / User (Business)"
-      competitor: $69 Ultimate
-      competitor2: $350 Unlimited
+      competitor: 79 € Ultimate
+      competitor2: 550 € Max
     - name: Kostenlose Testphase
       source: "[[commercial.trial.days]] Tage (voller Pro-Zugang)"
       competitor: 14 Tage
-      competitor2: 30 Tage
+      competitor2: Testversion; Free Suite für 0 €
     - name: Kreditkarte nötig
       source: false
       competitor: nein
@@ -51,20 +47,20 @@ comparison:
     - name: Implementierungsberatung nötig
       source: false
       competitor: nein
-      competitor2: typischerweise ja ($10.000-$50.000+)
-    - name: Gesamtkosten 10 User/Jahr (Mittelklasse)
+      competitor2: typischerweise ja
+    - name: Lizenzkosten 10 User/Jahr (Mittelklasse)
       source: ~[[commercial.price.pro.monthly.seats.10.months.12]]
-      competitor: ~$5.880
-      competitor2: ~$21.000+
+      competitor: ~7.080 € (Premium)
+      competitor2: ~12.000 € (Pro Suite)
   - title: Kernfunktionen
     features:
-    - name: Uneingeschränkte Einträge
-      source: true
-      competitor: je nach Tarif begrenzt
-      competitor2: je nach Tarif begrenzt
+    - name: Tarifabhängige Eintragslimits
+      source: Keine
+      competitor: 2.500 bis 20.000 offene Deals pro Nutzer
+      competitor2: Speicherlimits je Edition
     - name: Custom Fields
-      source: Alle Tarife (10 Feldtypen)
-      competitor: tariflimitiert (30 bis 500)
+      source: Alle Tarife (10 typisierte Spaltentypen)
+      competitor: 30 bis 500 pro Unternehmen
       competitor2: je nach Edition begrenzt
     - name: Visuelle Pipeline (Kanban)
       source: true
@@ -78,46 +74,46 @@ comparison:
       source: true
       competitor: ja
       competitor2: ja
-    - name: Mobile Optimierung
-      source: true
-      competitor: hervorragend
-      competitor2: ja
-    - name: Native Unified Inbox (E-Mail, LinkedIn, WhatsApp, Instagram, Telegram)
-      source: Ab Pro (alle 5 Kanäle)
-      competitor: Nur E-Mail
-      competitor2: E-Mail; Social per Add-on
-    - name: KI-Agenten bedienen das CRM (natives MCP, [[derived.mcp.tools.total]] Tools)
+    - name: Mobiler Zugriff
+      source: Responsive Web-App
+      competitor: native Apps
+      competitor2: native Apps
+    - name: Unified Inbox (E-Mail, LinkedIn, WhatsApp, Instagram, Telegram)
+      source: Ab Pro (Cloud)
+      competitor: Zwei-Wege-E-Mail-Sync (ab Growth)
+      competitor2: E-Mail-Sync; weitere Kanäle über andere Clouds
+    - name: KI-Clients bedienen das CRM (MCP, [[derived.mcp.tools.total]] Tools)
       source: Alle Tarife
-      competitor: KI Sales Assistant (ab Premium)
-      competitor2: Agentforce Add-on
+      competitor: Pipedrive MCP; KI-E-Mail-Werkzeuge (ab Premium)
+      competitor2: KI-Add-ons ab Core; Agentforce in Max
   - title: Datenschutz & Sicherheit
     features:
     - name: DSGVO-Dokumentation
-      source: AVV + SCCs; keine Zertifizierung
-      competitor: teilweise
-      competitor2: teilweise
+      source: AVV verfügbar, Unterauftragsverarbeiter offengelegt; keine Zertifizierung
+      competitor: AVV verfügbar; beim Anbieter prüfen
+      competitor2: AVV verfügbar; beim Anbieter prüfen
     - name: Hosting
-      source: EU-Datenbankregion
-      competitor: gemischt EU & USA
-      competitor2: global/USA
-    - name: Datenkontrolle
-      source: Vollständig (Self-Hosting verfügbar)
-      competitor: eingeschränkt
-      competitor2: eingeschränkt
+      source: Cloud-Datenbank in Frankfurt (AWS), selbst hostbar
+      competitor: Region je nach Konto; beim Anbieter prüfen
+      competitor2: Region je nach Org; beim Anbieter prüfen
+    - name: Self-Hosting
+      source: true
+      competitor: nein
+      competitor2: nein
   - title: Integration & Automatisierung
     features:
     - name: n8n-Integration
-      source: true
+      source: Community-Node für Ihr eigenes n8n
       competitor: ja
-      competitor2: eingeschränkt
+      competitor2: ja
     - name: API-Zugriff
-      source: Vollständig, ohne Limits
-      competitor: ja, aber tarifabhängig
-      competitor2: ja, aber tarifabhängig
+      source: REST API mit OpenAPI, Webhooks
+      competitor: ja
+      competitor2: ja, je nach Edition
     - name: Automatisierung
-      source: Unbegrenzt
-      competitor: je Stufe gedeckelt (30-60 aktive)
-      competitor2: tarifabhängig
+      source: Webhooks, REST, n8n (separat), Cloud-Routinen
+      competitor: ab Growth (50 bis 250 aktive)
+      competitor2: Flow Builder, je nach Edition
     - name: Open Source
       source: true
       competitor: nein
@@ -132,114 +128,110 @@ cta:
   hint: ✓ Keine Kreditkarte benötigt ✓ Erste [[commercial.trial.days]] Tage kostenlos
 ---
 
-> Wenn Sie Pipedrive mit Salesforce vergleichen, schätzen Sie wahrscheinlich Einfachheit und Vertriebsfokus höher als Enterprise-Komplexität. Pipedrive ist das leichtgewichtige, Pipeline-first-CRM, gebaut für intuitives Deal-Management, schnelle User-Adoption und kosteneffektive Vertriebsautomatisierung. Salesforce ist der Enterprise-Gigant, umfassende Marketing-Automatisierung, erweiterte Anpassung und All-in-one-Fähigkeiten in großem Maßstab. Customermates bietet den Mittelweg, den beide verpassen: KI-Agenten (Claude, ChatGPT, Gemini), die das CRM über eine native MCP-Integration bedienen, eine native Unified Inbox für E-Mail, LinkedIn, WhatsApp, Instagram und Telegram, vollständige CRM-Kernfunktionen ab [[commercial.price.starter.monthly]]/User/Monat, EU-Hosting und Open-Source-Flexibilität.
+> Wenn Sie Pipedrive mit Salesforce vergleichen, schätzen Sie wahrscheinlich Einfachheit und Vertriebsfokus höher als Enterprise-Komplexität. Pipedrive ist das leichtgewichtige Pipeline-first-CRM, gebaut für intuitives Deal-Management, schnelle Akzeptanz im Team und kosteneffektive Vertriebsautomatisierung. Salesforce ist der Enterprise-Gigant mit umfassender Marketing-Automatisierung, tiefer Anpassung und All-in-one-Fähigkeiten in großem Maßstab. Customermates bietet den Mittelweg, den beide verpassen: KI-Clients (Claude, ChatGPT, Gemini), die das CRM über MCP bedienen, ab Pro eine Unified Inbox für E-Mail, LinkedIn, WhatsApp, Instagram und Telegram, vollständige CRM-Kernfunktionen ab [[commercial.price.starter.monthly]]/User/Monat, eine Cloud-Datenbank in Frankfurt und Open-Source-Flexibilität mit der Option zum Selbsthosten.
 
 ## Wie schneidet Pipedrive im Vergleich zu Salesforce ab?
 
-Pipedrive gewinnt bei Benutzeroberflächen-Einfachheit, Setup-Geschwindigkeit und Kostentransparenz. Salesforce gewinnt bei umfassender Automatisierung, Anpassungstiefe und Ökosystem-Breite. Laut Bewertungsplattformen erreicht Pipedrive 4,3/5 auf G2 (2.700+ Bewertungen) und 4,5/5 auf Capterra (3.000+ Bewertungen), wobei User durchgehend die Benutzerfreundlichkeit loben. Salesforce erreicht 4,4/5 auf G2 (12.000+ Bewertungen) und 4,4/5 auf Capterra (4.400+ Bewertungen), wobei User die umfassende Funktionalität schätzen, aber anmerken, dass „die Kosten für Salesforce-Abonnements und zusätzliche Add-ons erhebliche finanzielle Herausforderungen darstellen können."
+Pipedrive gewinnt bei Einfachheit der Oberfläche, Setup-Geschwindigkeit und Kostentransparenz. Salesforce gewinnt bei umfassender Automatisierung, Anpassungstiefe und Ökosystem-Breite. Laut Bewertungsplattformen erreicht Pipedrive 4,3/5 auf G2 (2.700+ Bewertungen) und 4,5/5 auf Capterra (3.000+ Bewertungen), wobei User durchgehend die Benutzerfreundlichkeit loben. Salesforce erreicht 4,4/5 auf G2 (12.000+ Bewertungen) und 4,4/5 auf Capterra (4.400+ Bewertungen), wobei User die umfassende Funktionalität schätzen, aber anmerken, dass „die Kosten für Salesforce-Abonnements und zusätzliche Add-ons erhebliche finanzielle Herausforderungen darstellen können."
 
-Die erfolgreichsten CRM-Implementierungen teilen gemeinsame Merkmale: klare Prozessdokumentation, realistische User-Adoption-Zeitpläne und Übereinstimmung zwischen Plattform-Fähigkeiten und tatsächlichen Geschäftsanforderungen. Die Plattform ist weniger wichtig als die Passung.
+Die erfolgreichsten CRM-Einführungen teilen gemeinsame Merkmale: klare Prozessdokumentation, realistische Zeitpläne für die Einführung im Team und Übereinstimmung zwischen Plattform-Fähigkeiten und tatsächlichen Geschäftsanforderungen. Die Plattform ist weniger wichtig als die Passung.
 
 So entscheiden Sie:
 
-- **Wählen Sie Pipedrive**, wenn Sie weniger als 50 User haben, schnelle Adoption mit minimalem Training wünschen und primär visuelles Deal-Tracking und Aktivitätsmanagement brauchen. Pipedrive erreicht User-Adoption innerhalb von Tagen.
+- **Wählen Sie Pipedrive**, wenn Sie weniger als 50 User haben, schnelle Akzeptanz mit minimalem Training wünschen und primär visuelles Deal-Tracking und Aktivitätsmanagement brauchen. Pipedrive ist meist innerhalb von Tagen im Team angekommen.
 - **Wählen Sie Salesforce**, wenn Sie komplexe abteilungsübergreifende Workflows, erweitertes Territory-Management, branchenspezifische Lösungen oder tiefe Anpassung jenseits von Standard-CRM benötigen. Rechnen Sie mit erheblichem Aufwand bei Zeit, Beratung und Lizenzierung. Die vollständige Implementierung erfordert Wochen bis Monate.
-- **Wählen Sie Customermates**, wenn Sie Pipedrives Benutzerfreundlichkeit mit der Tiefe zum Wachsen wollen, unbegrenzte Einträge, KI-Agenten, die das CRM bedienen, eine native Unified Inbox, voller API-Zugriff, n8n-Automatisierung, ab [[commercial.price.starter.monthly]]/User/Monat ohne gesperrte CRM-Kernfunktionen und mit EU-Datenresidenz.
+- **Wählen Sie Customermates**, wenn Sie Pipedrives Benutzerfreundlichkeit mit Raum zum Wachsen wollen: keine tarifabhängigen Eintragslimits, KI, die das CRM bedient, eine Unified Inbox ab Pro, REST API und Webhooks sowie eine Community-Node für Ihr eigenes n8n, ab [[commercial.price.starter.monthly]]/User/Monat ohne gesperrte CRM-Kernfunktionen, mit Cloud-Datenbank in Frankfurt und der Option zum Selbsthosten.
 
 ## Benutzerfreundlichkeit
 
-Hier glänzt Pipedrive am deutlichsten gegenüber Salesforce. Pipedrives Kanban-Pipeline ist vom ersten Tag an intuitiv. Deals zwischen Phasen verschieben, Aktivitäten planen und Fortschritt verfolgen, ohne Schulung. Die visuelle Einfachheit sorgt für überlegene User-Adoption, die meisten Teams sind innerhalb von Stunden produktiv. G2 und Gartner Peer Insights bewerten Pipedrive bei der Benutzerfreundlichkeit durchgehend höher als Salesforce. TrustRadius gibt Pipedrive 8/10 gegenüber Salesforce 8,5/10, wobei sich der Abstand bei Usability-spezifischen Kriterien verringert.
+Hier glänzt Pipedrive am deutlichsten gegenüber Salesforce. Pipedrives Kanban-Pipeline ist vom ersten Tag an intuitiv. Deals zwischen Phasen verschieben, Aktivitäten planen und Fortschritt verfolgen, ohne Schulung. Die visuelle Einfachheit sorgt für hohe Akzeptanz, die meisten Teams sind innerhalb von Stunden produktiv. G2 und Gartner Peer Insights bewerten Pipedrive bei der Benutzerfreundlichkeit durchgehend höher als Salesforce. TrustRadius gibt Pipedrive 8/10 gegenüber Salesforce 8,5/10, wobei sich der Abstand bei Usability-spezifischen Kriterien verringert.
 
-Salesforce hingegen erfordert dedizierte Administratoren. Die Oberfläche ist dicht mit Optionen, die Navigation erstreckt sich über mehrere Ebenen, und einfache Aufgaben erfordern oft Klicks durch geschachtelte Menüs. Die meisten Teams unterschätzen die Lernkurve, und Adoptionsprobleme sind ein häufiges Thema in Reddit- und Community-Diskussionen über Salesforce. Die Lightning-Experience-Oberfläche mit Flow Builder verbesserte die Usability, doch die grundlegende Komplexität bleibt.
+Salesforce hingegen erfordert dedizierte Administratoren. Die Oberfläche ist dicht mit Optionen, die Navigation erstreckt sich über mehrere Ebenen, und einfache Aufgaben erfordern oft Klicks durch geschachtelte Menüs. Die meisten Teams unterschätzen die Lernkurve, und Akzeptanzprobleme sind ein häufiges Thema in Reddit- und Community-Diskussionen über Salesforce. Die Lightning-Experience-Oberfläche mit Flow Builder verbesserte die Usability, doch die grundlegende Komplexität bleibt.
 
-Customermates erreicht Pipedrives Einfachheit. Die Oberfläche ist klar und Pipeline-fokussiert, konzipiert, damit Teams innerhalb von Minuten nach der Anmeldung produktiv sind. Keine Admin-Zertifizierung erforderlich.
+Customermates erreicht Pipedrives Einfachheit. Die Oberfläche ist klar und Pipeline-fokussiert, und die Cloud-Version ist direkt nach der Registrierung bereit. Keine Admin-Zertifizierung erforderlich.
 
 ## Preisvergleich
 
-**Pipedrive-Preise (pro Nutzer und Monat; Stand: September 2026 laut [Pipedrive-Preisseite](https://www.pipedrive.com/de/pricing), alle Pläne und Rechenbeispiele in [Pipedrive Preise](/blog/pipedrive-pricing)):**
+Preise laut den Preisseiten der Anbieter ([Pipedrive](https://www.pipedrive.com/de/pricing), [Salesforce Sales Cloud](https://www.salesforce.com/de/sales/pricing/)), geprüft im September 2026; pro Nutzer und Monat in Euro. Bestätigen Sie die Preise vor dem Kauf beim jeweiligen Anbieter.
 
-- Lite: 14 € (jährlich) / 24 € (monatlich), grundlegendes Pipeline-Management
-- Growth: 39 € (jährlich) / 49 € (monatlich), E-Mail-Synchronisierung, Automations
-- Premium: 59 € (jährlich) / 79 € (monatlich), LeadBooster, Verträge mit eSignaturen, KI-E-Mail-Werkzeuge
-- Ultimate: 79 € (jährlich) / 99 € (monatlich), höchste Limits, erweiterte Sicherheit, erweiterter Telefonsupport
+| Stufe   | Pipedrive (jährliche / monatliche Zahlung) | Salesforce Sales Cloud (jährliche Abrechnung) |
+| ------- | ------------------------------------------ | --------------------------------------------- |
+| Kostenlos | keine (14 Tage Testversion)              | Free Suite: 0 €                               |
+| Einstieg | Lite: 14 € / 24 €                         | Starter Suite: 25 € (auch monatlich)          |
+| Mitte   | Growth: 39 € / 49 €                        | Pro Suite: 100 €                              |
+| Oben    | Premium: 59 € / 79 €                       | Core: 195 €                                   |
+| Spitze  | Ultimate: 79 € / 99 €                      | Advanced: 395 €, Max: 550 €                   |
 
-Pipedrives Preisgestaltung ist transparenter als Salesforce, doch Features bleiben gestuft. Automatisierung erfordert den Growth-Tarif, KI erfordert Premium, und Add-ons wie Campaigns (ab 13,33 €) und Webbesucher (ab 41 €) erhöhen die Gesamtkosten; LeadBooster ist ab Premium enthalten. Ein Rezensent bemerkte: „Die Preise steigen für wachsende Teams schnell."
+Salesforce führt die früheren Editionen Enterprise und Unlimited nicht mehr auf seiner Sales-Cloud-Preisseite; an ihre Stelle treten Core, Advanced und Max.
 
-**Salesforce-Preise (pro User/Monat, jährliche Abrechnung):**
+**Pipedrive:** Automations und E-Mail-Sequenzen beginnen mit Growth, mit 50 aktiven Automatisierungen pro Unternehmen (150 in Premium, 250 in Ultimate). LeadBooster, Projects und Smart Docs sind ab Premium enthalten und darunter kostenpflichtige Add-ons; Campaigns (ab 13,33 €) und Webbesucher (ab 41 €) kosten in jedem Tarif extra. Alle Pläne und Rechenbeispiele finden Sie in [Pipedrive Preise](/blog/pipedrive-pricing).
 
-- Starter Suite: $25, Basis-CRM mit eingeschränkter Anpassung
-- Pro Suite: $100, Workflow-Automatisierung, Prognosen
-- Enterprise: $175, erweiterte Anpassung, API-Zugriff, Agentforce AI
-- Unlimited: $350, Premier-Support, Sandbox, vollständige Agentforce-Suite
-
-Hinweis: Salesforce hat im August 2025 eine Preiserhöhung von 6 % umgesetzt. Über Lizenzgebühren hinaus erfordert Salesforce typischerweise Implementierungsberatung ($10.000-$50.000+), laufende Admin-Kosten ($80.000-$120.000/Jahr für einen dedizierten Administrator) und kostenpflichtige Add-ons. Viele kritische Funktionen, Workflow-Automatisierung, erweitertes Reporting, uneingeschränkter API-Zugriff, sind hinter Enterprise bei $175/User/Monat gesperrt.
+**Salesforce:** Free Suite, Starter Suite und Pro Suite sind die Editionen für kleine Unternehmen. Core, Advanced und Max sind die vollständigen Sales-Cloud-Editionen; KI lässt sich laut Salesforce ab Core hinzubuchen, Max enthält Agentforce for Sales. Über die Lizenzen hinaus planen die meisten Salesforce-Projekte Budget für Implementierungshilfe und laufende Administration ein.
 
 **Customermates-Preise:**
 
-- Starter ([[commercial.price.starter.monthly]]/User/Monat): jede CRM-Kernfunktion. Pro ([[commercial.price.pro.monthly]]) ergänzt den Unified Inbox. Business ([[commercial.price.business.monthly]]) ergänzt mehr verbundene Konten. Keine Implementierungskosten, keine Add-ons, keine Sperren bei Kernfunktionen.
+- Starter ([[commercial.price.starter.monthly]]/User/Monat): jede CRM-Kernfunktion. Pro ([[commercial.price.pro.monthly]]) ergänzt die Unified Inbox. Business ([[commercial.price.business.monthly]]) ergänzt mehr verbundene Konten. Monatliche Abrechnung, keine Implementierungskosten, keine Add-ons, keine Sperren bei Kernfunktionen.
 
 ## Was ist das Nummer-eins-CRM?
 
-Nach Marktanteil hält Salesforce die Spitzenposition mit rund 21,8 % global. Nach User-Zufriedenheit und Benutzerfreundlichkeit rangieren Plattformen wie Pipedrive, HubSpot und Customermates durchgehend vor Salesforce. Das „Nummer-eins"-CRM hängt vollständig von Ihren Kriterien ab. Für Enterprise-Skalierung: Salesforce. Für Vertriebseinfachheit: Pipedrive. Für Wert und Vollständigkeit zu einem fairen Preis: Customermates.
+Nach Marktanteil hält Salesforce die Spitzenposition mit rund 21,8 % global. Bei Zufriedenheit und Benutzerfreundlichkeit schneiden Plattformen wie Pipedrive und HubSpot auf Bewertungsportalen oft besser ab als Salesforce. Das „Nummer-eins"-CRM hängt vollständig von Ihren Kriterien ab. Für Enterprise-Skalierung: Salesforce. Für Vertriebseinfachheit: Pipedrive. Für Wert und Vollständigkeit zu einem fairen Preis: Customermates.
 
 ## Pipeline-Management
 
-Pipedrives visuelle Pipeline ist sein Markenzeichen. Das Kanban-Board macht Deal-Phasen sofort sichtbar, Drag-and-Drop ist natürlich, und der Fokus auf Aktivitäten (Anrufe, E-Mails, Meetings) hält Vertriebsteams handlungsorientiert. Automatisierte Follow-ups, Deal-Rot-Warnungen und umfassende Mobile Apps für iOS und Android machen es zu einem kompletten Vertriebsworkflow-Tool. Für Teams, deren täglicher Workflow sich ums Voranbringen von Deals dreht, ist Pipedrives Design schwer zu schlagen.
+Pipedrives visuelle Pipeline ist sein Markenzeichen. Das Kanban-Board macht Deal-Phasen sofort sichtbar, Drag-and-Drop ist natürlich, und der Fokus auf Aktivitäten (Anrufe, E-Mails, Meetings) hält Vertriebsteams handlungsorientiert. Automations mit Sequenzen (ab Growth), Hinweise auf stagnierende Deals und native Mobile Apps für iOS und Android machen es zu einem kompletten Vertriebswerkzeug. Für Teams, deren täglicher Workflow sich ums Voranbringen von Deals dreht, ist Pipedrives Design schwer zu schlagen.
 
-Salesforce unterstützt mehrere Pipelines mit komplexer Automatisierung über Flow Builder, doch der Konfigurationsaufwand ist erheblich. Pipeline-Ansichten existieren, fühlen sich aber sekundär zum breiteren Feature-Set an. Eine effektive Pipeline in Salesforce einzurichten, erfordert typischerweise Admin-Beteiligung und Lightning-Experience-Konfiguration.
+Salesforce unterstützt mehrere Pipelines mit komplexer Automatisierung über Flow Builder, doch der Konfigurationsaufwand ist erheblich. Pipeline-Ansichten existieren, wirken aber gegenüber dem breiteren Feature-Set nachrangig. Eine effektive Pipeline in Salesforce einzurichten, erfordert typischerweise Admin-Beteiligung und Lightning-Experience-Konfiguration.
 
-Customermates bietet visuelles Pipeline-Management mit Kanban-Boards vergleichbar mit Pipedrive, kombiniert mit der Flexibilität für komplexe Deal-Strukturen. Der Unterschied: kein Konfigurationsoverhead und keine tarifbasierten Einschränkungen.
+Customermates bildet die Pipeline als eine konfigurierbare Phasenspalte mit Kanban-Board ab. Phasenwahrscheinlichkeiten gewichten jeden Deal-Wert und die Pipeline-Summe, eine feste Berechnung statt vorausschauender Prognose. Unterschiedliche Deal-Arten trennen Sie über ein eigenes Einfachauswahl-Feld plus gespeicherte Ansichten oder Gruppierung. Tarifabhängige Eintragslimits gibt es nicht.
 
 ## Skalierbarkeit: die eigentliche Frage
 
-Ein häufiges Argument für Salesforce ist Skalierbarkeit: „Sie werden aus Pipedrive herauswachsen." Das stimmt teilweise, Pipedrives Eintrags-Limits, eingeschränkte Custom Fields und gedeckelte Automatisierungen auf niedrigeren Tarifen können wachsende Teams einschränken. Doch die Lösung ist nicht zwangsläufig Salesforce-Komplexität und -Kosten. Die falsche Wahl kostet mehr als Geld, sie beeinträchtigt Teamproduktivität, Kundenbeziehungen und Geschäftswachstum über Jahre.
+Ein häufiges Argument für Salesforce ist Skalierbarkeit: „Sie werden aus Pipedrive herauswachsen." Das stimmt teilweise, Pipedrives Deal-Limits, eingeschränkte Custom Fields und gedeckelte Automatisierungen auf niedrigeren Tarifen können wachsende Teams einschränken. Doch die Lösung ist nicht zwangsläufig Salesforce-Komplexität und -Kosten. Die falsche Wahl kostet mehr als Geld, sie beeinträchtigt Teamproduktivität, Kundenbeziehungen und Geschäftswachstum über Jahre.
 
-Customermates skaliert anders. Unbegrenzte Einträge, unbegrenzte Custom Fields und unbegrenzte Automatisierungen sind in jeder Stufe enthalten, ab [[commercial.price.starter.monthly]]/User/Monat. Für Teams, die über die gehostete Version hinauswachsen, bietet Self-Hosting vollständige Kontrolle. Sie lösen das Skalierbarkeitsargument ohne Salesforce-Preisschild oder Komplexitäts-Overhead.
+Customermates skaliert anders. Es gibt keine tarifabhängigen Eintragslimits, typisierte eigene Spalten stehen in jedem Tarif bereit, und Automatisierung läuft über Webhooks, die REST API, Ihr eigenes n8n und KI-Clients, ab [[commercial.price.starter.monthly]]/User/Monat. Teams, die das CRM selbst betreiben wollen, hosten den Open-Source-Kern selbst, dann ohne Unified Inbox und gehosteten Assistenten, die nur in der Cloud laufen. So lösen Sie das Skalierbarkeitsargument ohne Salesforce-Preisschild oder Komplexitäts-Overhead.
 
 ## Welches CRM nutzt Coca-Cola?
 
-Coca-Cola nutzt Salesforce als Enterprise-CRM-Plattform, was für einen globalen Konzern mit Tausenden von Usern über mehrere Kontinente und komplexen Supply-Chain-Management-Bedürfnissen Sinn ergibt. Doch was für einen $45-Milliarden-Multinationalen funktioniert, passt selten zu einem wachsenden Unternehmen. Die meisten Teams, die Pipedrive vs Salesforce evaluieren, haben 5-100 User und unkomplizierte Vertriebsprozesse, sie brauchen effektives Deal-Management, keine Enterprise-Architektur.
+Coca-Cola nutzt Salesforce als Enterprise-CRM-Plattform, was für einen globalen Konzern mit Tausenden von Usern über mehrere Kontinente und komplexen Supply-Chain-Anforderungen Sinn ergibt. Doch was für einen Multinationalen mit 45 Milliarden Dollar Umsatz funktioniert, passt selten zu einem wachsenden Unternehmen. Die meisten Teams, die Pipedrive vs Salesforce evaluieren, haben 5 bis 100 User und unkomplizierte Vertriebsprozesse; sie brauchen effektives Deal-Management, keine Enterprise-Architektur.
 
 ## Datenschutz und Hosting
 
-Pipedrive nutzt eine Mischung aus EU- (Frankfurt, Dublin) und US-Infrastruktur. Daten-Routing hängt von Features und aktivierten Integrationen ab, was trotz Pipedrives europäischer Herkunft (Estland) potenzielle DSGVO-Komplexität erzeugt.
+Pipedrive und Salesforce bieten beide Auftragsverarbeitungsverträge und nutzen eigene Hosting-Regionen und Unterauftragsverarbeiter; bei Salesforce kommen über AppExchange-Apps weitere Anbieter hinzu. Prüfen Sie, welche Region Ihr Konto nutzt, und gleichen Sie AVV und Unterauftragsverarbeiter des jeweiligen Anbieters mit Ihren Anforderungen ab.
 
-Salesforce verarbeitet Daten primär über US-basierte Infrastruktur. EU-Rechenzentren sind auf Enterprise-Ebene verfügbar, doch Datenresidenz ist nicht über alle Services, Features und Drittanbieter-AppExchange-Integrationen garantiert.
-
-Customermates hostet ausschließlich in der EU (Deutschland) und ist DSGVO-nativ. Self-Hosting steht für Teams bereit, die vollständige Datensouveränität benötigen. Keine grenzüberschreitenden Datenfragen, keine Compliance-Unklarheit.
+In der Cloud-Version liegt die Datenbank von Customermates in der AWS-Region Frankfurt; Hosting und weitere Unterauftragsverarbeiter, auch aus den USA, stehen in der [Liste der Unterauftragsverarbeiter](/subprocessors), ein [Auftragsverarbeitungsvertrag (AVV)](/dpa) liegt vor. Customermates besitzt keine Compliance-Zertifizierung. Wer den Speicherort vollständig selbst bestimmen will, betreibt den Open-Source-Kern [selbst](/features/self-hosted).
 
 ## Anpassung und Konfiguration
 
-Salesforce-Anpassungstiefe ist seine größte Stärke. Custom Objects, komplexe Validierungsregeln, Genehmigungsprozesse und Apex-Code geben Administratoren praktisch unbegrenzte Kontrolle. Flow Builder ermöglicht anspruchsvolle Automatisierung ohne Code. Das macht Salesforce zur richtigen Wahl für Unternehmen mit einzigartigen Geschäftsprozessen, die sich nicht an Standard-CRM-Workflows anpassen können.
+Die Anpassungstiefe von Salesforce ist seine größte Stärke. Custom Objects, komplexe Validierungsregeln, Genehmigungsprozesse und Apex-Code geben Administratoren praktisch unbegrenzte Kontrolle. Flow Builder ermöglicht anspruchsvolle Automatisierung ohne Code. Das macht Salesforce zur richtigen Wahl für Unternehmen mit einzigartigen Geschäftsprozessen, die sich nicht an Standard-CRM-Workflows anpassen lassen.
 
-Diese Anpassung hat jedoch ihren Preis. Salesforce-Implementierungen kosten durchschnittlich $10.000 bis $50.000+ für die Ersteinrichtung, mit laufenden Admin-Gehältern von $80.000 bis $120.000/Jahr für einen dedizierten Salesforce-Administrator. Jede Anpassung fügt Komplexität hinzu, die gewartet, dokumentiert und über Plattform-Updates hinweg unterstützt werden muss.
+Diese Anpassung hat jedoch ihren Preis. Salesforce-Implementierungen kosten häufig 10.000 bis 50.000 Dollar und mehr für die Ersteinrichtung, dazu kommen laufende Gehälter für einen dedizierten Salesforce-Administrator. Jede Anpassung fügt Komplexität hinzu, die gewartet, dokumentiert und über Plattform-Updates hinweg unterstützt werden muss.
 
-Pipedrive bietet moderate Anpassung. Custom Fields, Pipeline-Phasen und grundlegende Workflow-Regeln decken die meisten Vertriebsteam-Bedürfnisse ab. Doch Pipedrive stößt schnell an Grenzen, wenn Teams Custom Modules, komplexe Datenbeziehungen oder erweiterte Automatisierungslogik brauchen. Der Enterprise-Tarif fügt primär höhere Limits und Support hinzu, nicht neue Funktionalität.
+Pipedrive bietet moderate Anpassung. Custom Fields, Pipeline-Phasen und grundlegende Workflow-Regeln decken die meisten Vertriebsteam-Bedürfnisse ab. Doch Pipedrive stößt schnell an Grenzen, wenn Teams eigene Module, komplexe Datenbeziehungen oder erweiterte Automatisierungslogik brauchen. Der Ultimate-Tarif bringt vor allem höhere Limits, mehr Sicherheit und Support, weniger neue Funktionalität.
 
-Customermates verfolgt einen anderen Ansatz. Als Open-Source-Plattform ist die Anpassung nicht durch Herstellerentscheidungen begrenzt. Ändern Sie den Quellcode, erweitern Sie das Datenmodell oder bauen Sie eigene Module, ohne auf Feature-Requests warten zu müssen. Die n8n-Integration bietet visuelle Automatisierung, die Salesforce Flow Builders Leistung ebenbürtig ist, ohne Admin-Expertise zu erfordern.
+Customermates verfolgt einen anderen Ansatz. Als Open-Source-Plattform ist die Anpassung nicht durch Herstellerentscheidungen begrenzt: Sie können in Ihrer eigenen Installation den Quellcode ändern oder das Datenmodell erweitern. Eine eingebaute Regel-Engine hat Customermates nicht; für visuelle Workflows verbinden Sie Ihre eigene, separat betriebene n8n-Instanz über die Community-Node, REST oder Webhooks.
 
 ## KI und Automatisierung
 
-**Salesforce Agentforce** (das die früheren Einstein-KI-Funktionen aufgenommen hat) ist einer der leistungsfähigsten CRM-KI-Stacks auf dem Markt. Prädiktives Lead-Scoring, Opportunity-Insights, Prognosen und autonome Agenten über die Atlas Reasoning Engine bieten echten Wert für datenreiche Unternehmen. Der Haken: Sinnvolle Agentforce-Funktionen erfordern den Enterprise-Tarif ($175/User/Monat) oder dedizierte Add-ons, und ihre Effektivität hängt von Datenvolumen und -qualität ab.
+**Salesforce Agentforce** (das die früheren Einstein-KI-Funktionen aufgenommen hat) ist einer der leistungsfähigsten CRM-KI-Stacks auf dem Markt. Prädiktives Lead-Scoring, Opportunity-Insights, Prognosen und autonome Agenten bieten echten Wert für datenreiche Unternehmen. Der Haken: Salesforce positioniert seine KI ab der Core-Edition (195 € pro User und Monat) oder als Add-ons, Agentforce for Sales ist in Max enthalten, und die Wirkung hängt von Datenvolumen und -qualität ab.
 
-**Pipedrive AI Sales Assistant** bietet Deal-Empfehlungen und Performance-Insights, verfügbar ab dem Premium-Tarif (59 € pro Nutzer und Monat bei jährlicher Zahlung). Die KI ist enger gefasst und fokussiert darauf, einzelnen Reps bei der Priorisierung von Deals und Aktivitäten zu helfen.
+**Pipedrive-KI** umfasst KI-gestützte Berichte in jedem Tarif und KI-E-Mail-Werkzeuge ab Premium (59 € pro Nutzer und Monat bei jährlicher Zahlung). Sie ist enger gefasst und hilft einzelnen Vertriebsmitarbeitern, Deals zu priorisieren, E-Mails zu schreiben und ihre Zahlen zu lesen.
 
-**Customermates** verfolgt einen anderen Ansatz: Externe KI-Clients (Claude, ChatGPT, Gemini) bedienen das CRM direkt über eine native MCP-Integration ([[derived.mcp.tools.total]] Tools), verfügbar ab [[commercial.price.starter.monthly]]/User/Monat. Sie übernehmen Dateneingabe, Notizsynthese, Kontaktanreicherung und Follow-up-Entwürfe, und dieselben Clients können ab Pro über die Unified Inbox (E-Mail, LinkedIn, WhatsApp, Instagram, Telegram) lesen und senden, zu einem Bruchteil der Kosten.
+**Customermates** verfolgt einen anderen Ansatz: Externe KI-Clients (Claude, ChatGPT, Gemini) bedienen das CRM direkt über MCP ([[derived.mcp.tools.total]] Tools), verfügbar ab [[commercial.price.starter.monthly]]/User/Monat. Den KI-Client bringen und bezahlen Sie selbst. Er übernimmt Dateneingabe, Notizzusammenfassungen und Follow-up-Entwürfe; in der Cloud-Version kann der gehostete Assistent Mate dasselbe mit den monatlichen KI-Credits des Tarifs tun und fragt vor destruktiven Aktionen oder dem Versand von Nachrichten nach Bestätigung. Ab Pro kann die KI zudem in der Unified Inbox (E-Mail, LinkedIn, WhatsApp, Instagram, Telegram) lesen und Entwürfe schreiben.
 
 ## Integrationen und Automatisierung
 
-Pipedrive bietet über 500 Marketplace-Integrationen und integrierte Workflow-Automatisierung. Allerdings sind Automatisierungsläufe nach Tarif gedeckelt (30 auf niedrigeren Stufen, 60 auf mittlerer Stufe), und erweiterte Integrationsfunktionen erfordern höhere Tarifstufen. Die RESTful API und Webhooks stehen allen Usern zur Verfügung, und Zapier-Kompatibilität füllt Lücken.
+Pipedrive bietet über 500 Marketplace-Integrationen und integrierte Workflow-Automatisierung. Automations beginnen allerdings erst mit Growth, und die Anzahl aktiver Automatisierungen ist pro Unternehmen gedeckelt (50 in Growth, 150 in Premium, 250 in Ultimate). Die REST API und Webhooks stehen allen Usern zur Verfügung, und Zapier-Kompatibilität füllt Lücken.
 
-Salesforce hat den AppExchange mit Tausenden von Integrationen und den Flow Builder für Automatisierung. Flow Builder ist leistungsstark, erfordert aber Admin-Expertise für effektive Konfiguration. Viele Integrationen und API-Fähigkeiten sind nach Tarifstufe eingeschränkt.
+Salesforce hat den AppExchange mit Tausenden von Integrationen und den Flow Builder für Automatisierung. Flow Builder ist leistungsstark, erfordert aber Admin-Expertise für eine effektive Konfiguration. Viele Integrationen und API-Fähigkeiten hängen von der Edition ab.
 
-Customermates bringt n8n-Automatisierung von Haus aus ohne Einschränkungen mit. Voller API-Zugriff zum Basispreis verbindet sich mit Tausenden von Services ohne Caps bei Automatisierungen oder API-Aufrufen. Open-Source-Architektur bedeutet, dass eigene Integrationen immer möglich sind.
+Customermates enthält REST API, Webhooks und MCP in jedem Tarif und verbindet sich über eine Community-Node mit Ihrer eigenen, separat betriebenen n8n-Instanz für visuelle Workflows über Hunderte von Diensten. In der Cloud-Version führen Routinen eine gespeicherte Anweisung nach Zeitplan oder bei einem CRM-Ereignis aus. Die Open-Source-Architektur macht eigene Integrationen jederzeit möglich.
 
 ## Migrationsentscheidungen
 
 Der Wechsel von Salesforce zu einem anderen CRM ist ein erhebliches Unterfangen aufgrund von Custom Objects, Workflows und Integrationen. Wenn Sie jedoch gerade evaluieren (und noch nicht gebunden sind), überlegen Sie, ob die Implementierungsinvestition proportionalen Wert liefern wird.
 
-Wenn Sie auf Pipedrive sind und Salesforce für Skalierbarkeit erwägen, bietet Customermates möglicherweise den Wachstumspfad, den Sie brauchen, ohne Migrationskomplexität. Unbegrenzte Einträge, volle API und Open-Source-Erweiterbarkeit adressieren die häufigsten Gründe, warum Teams aus Pipedrive herauswachsen, ohne die $50.000+ Erstjahresinvestition, die Salesforce erfordert.
+Wenn Sie auf Pipedrive sind und Salesforce wegen der Skalierbarkeit erwägen, bietet Customermates möglicherweise den Wachstumspfad, den Sie brauchen, ohne Migrationskomplexität. Keine tarifabhängigen Eintragslimits, die REST API und Open-Source-Erweiterbarkeit adressieren die häufigsten Gründe, warum Teams aus Pipedrive herauswachsen, ohne das Implementierungsprojekt, das eine Salesforce-Einführung meist mit sich bringt.
 
 ## Fazit
 
-Pipedrive und Salesforce stehen für zwei Extreme: Einfachheit mit Einschränkungen oder Power mit Komplexität. Wenn Sie aus der Pipedrive-Perspektive kommen, Benutzerfreundlichkeit und Vertriebsfokus schätzend, fühlt sich Salesforce vermutlich überdimensioniert an. Wenn Sie Salesforce-Tiefe brauchen, aber die Kosten und Komplexität scheuen, gibt es einen besseren Weg. Customermates bietet, was beiden fehlt: vollständige CRM-Kernfunktionalität ab [[commercial.price.starter.monthly]]/User/Monat, EU-gehostet, Open-Source und in Minuten einsatzbereit. Für Teams, die mehr Tiefe als Pipedrive wollen, ohne Salesforce-Overhead, ist es die klare Alternative.
+Pipedrive und Salesforce stehen für zwei Extreme: Einfachheit mit Einschränkungen oder Leistung mit Komplexität. Wenn Sie aus der Pipedrive-Perspektive kommen und Benutzerfreundlichkeit und Vertriebsfokus schätzen, fühlt sich Salesforce vermutlich überdimensioniert an. Wenn Sie Salesforce-Tiefe brauchen, aber Kosten und Komplexität scheuen, gibt es einen besseren Weg. Customermates bietet, was beiden fehlt: vollständige CRM-Kernfunktionalität ab [[commercial.price.starter.monthly]]/User/Monat, Open Source, mit Cloud-Datenbank in Frankfurt oder auf Ihrem eigenen Server. Für Teams, die mehr Tiefe als Pipedrive wollen, ohne Salesforce-Overhead, ist es eine starke Alternative.
