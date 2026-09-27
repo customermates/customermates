@@ -137,7 +137,7 @@ vi.mock("../wiki-page.store", () => ({
   },
 }));
 
-import { WikiPageView } from "../wiki-page-view";
+import { resolveWikiPageState, WikiPageView } from "../wiki-page-view";
 import { TopBarActionsProvider, useTopBarActions } from "@/app/components/topbar-actions-context";
 
 const listPage = { items: [], total: 0, page: 1, pageSize: 25 };
@@ -806,5 +806,17 @@ describe("Wiki empty state", () => {
     expect(container.querySelector('[data-testid="empty-page-agent-suggestions"]')).toBeNull();
     expect(topBar.querySelector('[aria-label="Wiki.newPage"]')).toBeNull();
     expect(harness.refreshWhileSetupWorks).toHaveBeenLastCalledWith(true);
+  });
+});
+
+describe("resolveWikiPageState", () => {
+  const base = { isNavigating: false, missing: false, hasDocument: false, setupActive: false };
+
+  it("orders navigation, unavailability, document, setup and empty states", () => {
+    expect(resolveWikiPageState({ ...base, isNavigating: true, missing: true })).toBe("loading");
+    expect(resolveWikiPageState({ ...base, missing: true, setupActive: true })).toBe("error");
+    expect(resolveWikiPageState({ ...base, hasDocument: true, setupActive: true })).toBe("content");
+    expect(resolveWikiPageState({ ...base, setupActive: true })).toBe("setup");
+    expect(resolveWikiPageState(base)).toBe("empty");
   });
 });
