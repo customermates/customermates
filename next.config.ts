@@ -33,7 +33,12 @@ const nextConfig: NextConfig = {
 
   compress: true,
 
+  images: {
+    formats: ["image/avif", "image/webp"],
+  },
+
   experimental: {
+    globalNotFound: true,
     serverActions: {
       bodySizeLimit: "25mb",
     },

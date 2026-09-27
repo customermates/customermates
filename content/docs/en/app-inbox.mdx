@@ -17,7 +17,7 @@ All four conditions must hold; when one is missing, for example on Starter, the 
 
 - **Customermates Cloud.** Self-hosted installations have no Inbox: the sidebar entry is hidden and `/inbox` redirects to the Dashboard.
 - **A plan with messaging:** Pro, Business, Enterprise or a trial. On Starter the page stays in the sidebar but is locked under **Upgrade to unlock messaging**, and **Upgrade your plan** opens **My Company › Subscription**.
-- **A usable subscription**, meaning status **Active** or a trial that has not ended. While the status is **Past Due** or **Cancelled**, the page is locked the same way, with the text "Connecting channels requires an active subscription or a trial that hasn't expired."
+- **A usable subscription:** status **Active** or a trial that has not ended. While the status is **Past Due** or **Cancelled**, the page is locked the same way, with the text "Connecting channels requires an active subscription or a trial that hasn't expired."
 - **Your role:** the **Inbox messages** row set to **Read access** **All**. With **None** the sidebar entry is hidden and opening `/inbox` brings you back to the Dashboard. The **Admin** role always has access.
 
 **Link:** the **Inbox** page, `/inbox`, and the **Subscription** page for **Upgrade your plan**, `/company/subscription`. **Mate:** `navigate` and `highlight_element` with `nav-inbox`, or `nav-company-subscription` and then `company-subscription-plan-picker` for the plan cards (shown until the first checkout) or `company-subscription-manage` for **Manage with Lemon Squeezy** (to change a running plan), both only for roles with **Manage** on **Company**; **Upgrade your plan** has no id, so Mate names it.

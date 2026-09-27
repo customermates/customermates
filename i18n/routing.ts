@@ -3,7 +3,6 @@ import type { NextRequest } from "next/server";
 import { defineRouting } from "next-intl/routing";
 
 import { APP_LOCALES, CONTENT_LOCALES, DEFAULT_LOCALE, ROUTING_LOCALES } from "./locale-registry";
-import { CONTENT_LOCALE_COOKIE_NAME, LOCALE_COOKIE_MAX_AGE } from "./locale-preference";
 
 export const NOINDEX_PUBLIC_ROUTES = [
   "/auth/signin",
@@ -54,8 +53,16 @@ export const SITEMAP_CONTENT_ROUTES: readonly PublicSeoRoute[] = PUBLIC_ROUTES_S
 
 export const SITEMAP_EXTRA_CONTENT_ROUTES = ["/contact", "/docs/openapi"] as const;
 
+export const HUB_PAGE_ROUTES = [
+  "/blog/page/:page",
+  "/compare/page/:page",
+  "/features/all/page/:page",
+  "/for/page/:page",
+] as const;
+
 export const PUBLIC_ROUTES = [
   ...PUBLIC_ROUTES_SEO,
+  ...HUB_PAGE_ROUTES,
   "/contact",
   "/styleguide",
   "/styleguide/foundations",
@@ -70,8 +77,47 @@ export const PUBLIC_ROUTES = [
   "/docs/openapi",
 ] as const;
 
+export const PROTECTED_ROUTES = [
+  "/auth/mcp-consent",
+  "/company/audit-logs",
+  "/company/members",
+  "/company/roles",
+  "/company/settings",
+  "/company/subscription",
+  "/company/webhook-deliveries",
+  "/company/webhooks",
+  "/contacts",
+  "/contacts/:id",
+  "/dashboard",
+  "/deals",
+  "/deals/:id",
+  "/inbox",
+  "/legal-update",
+  "/onboarding",
+  "/onboarding/join",
+  "/onboarding/wizard",
+  "/operator/audit",
+  "/operator/overview",
+  "/operator/users",
+  "/operator/workspaces",
+  "/organizations",
+  "/organizations/:id",
+  "/profile/api-keys",
+  "/profile/connected-accounts",
+  "/profile/settings",
+  "/routines",
+  "/services",
+  "/services/:id",
+  "/subscription-expired",
+  "/tasks",
+  "/tasks/:id",
+  "/test/error",
+  "/test/overlays",
+] as const;
+
 export const CONTENT_ROUTES = [
   ...PUBLIC_ROUTES_SEO.filter((route) => !route.startsWith("/auth/")),
+  ...HUB_PAGE_ROUTES,
   "/docs/openapi/:slug",
   "/docs/openapi",
 ] as const;
@@ -96,11 +142,7 @@ export const contentRouting = defineRouting({
   locales: CONTENT_LOCALES,
   defaultLocale: DEFAULT_LOCALE,
   localePrefix: "always",
-  localeCookie: {
-    name: CONTENT_LOCALE_COOKIE_NAME,
-    maxAge: LOCALE_COOKIE_MAX_AGE,
-    sameSite: "lax",
-  },
+  localeCookie: false,
   alternateLinks: false,
 });
 
@@ -122,6 +164,33 @@ export function isContentPathname(pathname: string) {
   for (const p of CONTENT_ROUTES) if (buildLocaleAwareRegex(p).test(pathname)) return true;
 
   return false;
+}
+
+export function isMarketingPathname(pathname: string) {
+  return (
+    isContentPathname(pathname) || SITEMAP_EXTRA_CONTENT_ROUTES.some((p) => buildLocaleAwareRegex(p).test(pathname))
+  );
+}
+
+export function isProtectedPage(req: NextRequest) {
+  return isProtectedPathname(req.nextUrl.pathname);
+}
+
+export function isProtectedPathname(pathname: string) {
+  const decoded = decodePathname(pathname);
+  if (decoded === null) return true;
+
+  for (const p of PROTECTED_ROUTES) if (buildLocaleAwareRegex(p).test(decoded)) return true;
+
+  return false;
+}
+
+function decodePathname(pathname: string): string | null {
+  try {
+    return pathname.split("/").map(decodeURIComponent).join("/");
+  } catch {
+    return null;
+  }
 }
 
 function escapeRegExp(value: string): string {

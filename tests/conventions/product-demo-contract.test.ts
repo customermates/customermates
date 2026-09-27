@@ -191,12 +191,12 @@ describe("seeded public product demo", () => {
     expect(demo).toContain("synthetic sample data");
     expect(demo).toContain("Öffentliche, vorbefüllte Produktdemo");
     expect(demo).toContain("not a self-hosted deployment");
-    expect(demo).toContain("kein Self-Hosted-Deployment");
+    expect(demo).toContain("keine selbst gehostete Installation");
     expect(demo).toContain(
       "When Mate is enabled for this demo environment, it starts closed",
     );
     expect(demo).toContain(
-      "Wenn Mate für diese Demo-Umgebung aktiviert ist, startet es geschlossen",
+      "Ist Mate in dieser Demo aktiviert, bleibt das Mate-Fenster anfangs geschlossen",
     );
     expect(demo).not.toMatch(/(?:^|[.!?]\s+)Mate starts closed/);
     expect(demo).not.toMatch(/(?:^|[.!?]\s+)Mate startet geschlossen/);

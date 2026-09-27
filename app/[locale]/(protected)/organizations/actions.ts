@@ -6,12 +6,15 @@ import type { GetOrganizationByIdData } from "@/features/organizations/get/get-o
 import type { CreateOrganizationData } from "@/features/organizations/upsert/create-organization.interactor";
 import type { UpdateOrganizationData } from "@/features/organizations/upsert/update-organization.interactor";
 
+import { EntityType } from "@/generated/prisma";
+
 import {
   getGetOrganizationsInteractor,
   getGetOrganizationByIdInteractor,
   getCreateOrganizationInteractor,
   getUpdateOrganizationInteractor,
   getDeleteOrganizationInteractor,
+  getGetCustomColumnsByEntityTypeInteractor,
 } from "@/core/di";
 import { serializeResult } from "@/core/utils/action-result";
 import { unwrapValidated } from "@/core/validation/validation.utils";
@@ -33,8 +36,13 @@ export async function deleteOrganizationAction(data: DeleteOrganizationData) {
 }
 
 export async function getOrganizationByIdAction(data: GetOrganizationByIdData) {
-  const result = await unwrapValidated(getGetOrganizationByIdInteractor().invoke(data));
-  return { entity: result.organization, customColumns: result.customColumns };
+  const result = await getGetOrganizationByIdInteractor().invoke(data);
+  if (result.ok) return { entity: result.data.organization, customColumns: result.data.customColumns };
+
+  const customColumns = await unwrapValidated(
+    getGetCustomColumnsByEntityTypeInteractor().invoke({ entityType: EntityType.organization }),
+  );
+  return { entity: null, customColumns };
 }
 
 export async function createOrganizationByNameAction(name: string, userId: string | null | undefined) {

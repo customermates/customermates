@@ -193,7 +193,7 @@ describe("public acquisition UI contract", () => {
   it("mounts one route-persistent consent controller above the public route groups", () => {
     const localeLayout = source("app/[locale]/layout.tsx");
     const staticLayout = source("app/[locale]/(static)/layout.tsx");
-    const contactPage = source("app/[locale]/(public)/contact/page.tsx");
+    const contactPage = source("app/[locale]/(static)/contact/page.tsx");
 
     expect(localeLayout).toContain("<PublicAdAttributionConsentCard />");
     expect(localeLayout).toContain('env.APP_MODE === "cloud" && isContentLocale(locale)');
@@ -238,7 +238,7 @@ describe("public acquisition UI contract", () => {
 
   it("keeps retired public decoration code and assets out of every marketing shell", () => {
     for (const route of [
-      "app/[locale]/(public)/contact/page.tsx",
+      "app/[locale]/(static)/contact/page.tsx",
       "app/[locale]/(static)/affiliate/page.tsx",
       "app/[locale]/(static)/help-and-feedback/page.tsx",
     ]) {
@@ -280,7 +280,7 @@ describe("public acquisition UI contract", () => {
   });
 
   it("keeps the contact form personal without adding another contact card", () => {
-    const form = source("app/[locale]/(public)/contact/contact-form.tsx");
+    const form = source("app/[locale]/(static)/contact/contact-form.tsx");
 
     expect(form).toContain("<AppImage");
     expect(form).toContain('src="benjamin-wagner.png"');

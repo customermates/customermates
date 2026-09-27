@@ -192,7 +192,7 @@ The best meeting note workflow starts before the call. By integrating your calen
 2. After the call, export the transcript via Otter's API.
 3. n8n processes the transcript with ChatGPT and writes results to the CRM.
 
-**Manual calendar fallback:** If you do not use a recording tool, create a calendar event template with a notes section that includes your prompt structure (main topic, decisions, next steps). Fill in bullet points during the call, then paste into ChatGPT afterwards. Even this semi-manual approach cuts documentation time by 60%.
+**Manual calendar fallback:** If you do not use a recording tool, create a calendar event template with a notes section that includes your prompt structure (main topic, decisions, next steps). Fill in bullet points during the call, then paste into ChatGPT afterwards. Even this semi-manual approach cuts documentation time noticeably.
 
 ## Automating the Entire Flow with n8n
 
@@ -221,13 +221,13 @@ Use an n8n Webhook node as the entry point. Connect it to your meeting tool (Fir
 Add an OpenAI node in n8n. Configure it with your API key and the three-sentence prompt from above. Pass the transcript text as input. The node returns the structured summary.
 
 **3. Write to CRM.**
-Add a CRM node (Customermates, HubSpot, Pipedrive, or any CRM with an API). Map the summary to the notes field on the relevant deal or contact. If you use Customermates, the n8n integration is native, select the contact, choose "Add Note", and map the summary field.
+Add a CRM node (Customermates, HubSpot, Pipedrive, or any CRM with an API). Map the summary to the notes field on the relevant deal or contact. For Customermates, use the Customermates community node for n8n or an HTTP Request node against the [REST API](/docs/n8n) to update the contact's or deal's notes.
 
 **4. Notify the team (optional).**
 Add a Slack or email node to ping the deal owner that a new summary is available. Include the summary text in the notification so they can review it without opening the CRM.
 
 **5. Auto-create follow-up tasks (optional).**
-Add a second ChatGPT node to extract action items from the same transcript. Then use a CRM node to create tasks or calendar events for each action item with the assigned owner and deadline.
+Add a second ChatGPT node to extract action items from the same transcript. Then use a CRM node to create a task for each action item with the assigned owner. In Customermates, tasks have no due date or reminder, so keep the deadline in the task title or a custom date column.
 
 ### Cost of Running This Workflow
 
@@ -265,13 +265,13 @@ The trade-off: local models require more hardware (a GPU-equipped server) and pr
 
 ### CRM-Side Compliance
 
-Ensure your CRM stores data in a GDPR-compliant way. Customermates hosts data in the EU by default and is fully GDPR-compliant. For other CRM systems, verify the hosting region and data processing terms.
+Check where your CRM stores data and under which terms. In the Customermates managed cloud, the application database runs in the AWS Frankfurt region; hosting and other subprocessors, including US providers, are listed on the [subprocessors page](/subprocessors), and a [DPA](/dpa) is available. If you need full control over where data lives, self-host the open-source core. For other CRM systems, verify the hosting region and data processing terms.
 
 ## Choosing the Right CRM for AI-Powered Note Management
 
 Not every CRM handles notes and automation equally well. Here is how popular options compare for this specific workflow:
 
-**Customermates.** From [[commercial.price.starter.monthly]]/user/month (Starter), the full core CRM included. Native n8n integration, plus a native MCP server so an AI agent (Claude, ChatGPT, or Gemini) can read and write records directly, notes on deals and contacts, GDPR-compliant EU hosting, open-source. On the Pro tier it adds a native unified inbox (email, LinkedIn, WhatsApp, Instagram, Telegram) that the same agent can operate. Built for teams that want fast data entry without complex configuration. Native AI and MCP are included from the entry tier, no separate upgrade needed.
+**Customermates.** From [[commercial.price.starter.monthly]]/user/month (Starter), the full core CRM included. A community node for n8n (which you run separately), REST API and webhooks, plus a native MCP server so an AI agent (Claude, ChatGPT, or Gemini) can read and write records directly, notes on deals and contacts, cloud database in the AWS Frankfurt region with a DPA, open-source and self-hostable. On the Pro tier it adds a native unified inbox (email, LinkedIn, WhatsApp, Instagram, Telegram) that the same agent can operate. Built for teams that want fast data entry without complex configuration. Native AI and MCP are included from the entry tier, no separate upgrade needed.
 
 **HubSpot.** Free CRM tier available; paid Sales Hub plans start at USD 15/seat/month (Starter), with the automation most teams want gating at Professional (USD 90/seat/month, plus a one-time onboarding fee). Notes work well, but the interface is more complex. Good if you also need marketing automation. Meeting recording integrations are built in on paid tiers.
 

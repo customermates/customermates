@@ -1,4 +1,4 @@
-import type { AppLocale } from "./locale-registry";
+import type { AppLocale, ContentLocale } from "./locale-registry";
 
 import {
   DEFAULT_LOCALE,
@@ -50,6 +50,10 @@ export function expiredAppLocaleCookie(): string {
 
 export function appLocaleCookie(locale: AppLocale): string {
   return `${APP_LOCALE_COOKIE_NAME}=${locale}; Path=/; Max-Age=${LOCALE_COOKIE_MAX_AGE}; SameSite=Lax`;
+}
+
+export function contentLocaleCookie(locale: ContentLocale): string {
+  return `${CONTENT_LOCALE_COOKIE_NAME}=${locale}; Path=/; Max-Age=${LOCALE_COOKIE_MAX_AGE}; SameSite=Lax`;
 }
 
 export function appLocaleCookieUpdate(displayLanguage: unknown, cookieHeader: string): string | null {

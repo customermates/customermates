@@ -14,8 +14,9 @@ import {
 import { ROUTE_SOURCE_MAP } from "@/core/fumadocs/route-source-map";
 import {
   HUB_PAGE_PARAM,
+  HUB_PAGE_SEGMENT,
   hubPageCount,
-  resolveHubPage,
+  resolveHubPageSegment,
 } from "@/core/seo/hub-pagination";
 import { LANDING_HUBS } from "@/core/seo/landing-hubs";
 import {
@@ -91,6 +92,10 @@ const CODE_BACKED_ROUTE_FILES = {
   "/auth/verify-email": "app/[locale]/(public)/auth/verify-email/page.tsx",
   "/auth/invitation": "app/[locale]/(public)/auth/invitation/page.tsx",
   "/invitation/:token": "app/[locale]/(public)/invitation/[token]/route.ts",
+  "/blog/page/:page": "app/[locale]/(static)/blog/page/[page]/page.tsx",
+  "/compare/page/:page": "app/[locale]/(static)/compare/page/[page]/page.tsx",
+  "/features/all/page/:page": "app/[locale]/(static)/features/all/page/[page]/page.tsx",
+  "/for/page/:page": "app/[locale]/(static)/for/page/[page]/page.tsx",
 } as const;
 const FRONTMATTER = /^---\r?\n([\s\S]*?)\r?\n---(?:\r?\n|$)/u;
 const FRONTMATTER_HREF = /^\s*(?:-\s*)?([a-z0-9_-]*href)\s*:\s*(.*?)\s*$/iu;
@@ -261,18 +266,20 @@ function contentBackedTargets(locale: ContentLocale): Set<string> {
   return targets;
 }
 
-function hasValidHubQuery(target: NormalizedTarget): boolean {
-  const hub = LANDING_HUBS.find(({ hubPath }) => hubPath === target.path);
+function hasValidHubTarget(target: NormalizedTarget): boolean {
+  const hubRoot = LANDING_HUBS.find(({ hubPath }) => hubPath === target.path);
+  if (hubRoot) return !new URLSearchParams(target.query).has(HUB_PAGE_PARAM);
+
+  const hub = LANDING_HUBS.find(({ hubPath }) =>
+    target.path.startsWith(`${hubPath}/${HUB_PAGE_SEGMENT}/`),
+  );
   if (!hub) return true;
 
-  const params = new URLSearchParams(target.query);
-  if (!params.has(HUB_PAGE_PARAM)) return true;
-  const values = params.getAll(HUB_PAGE_PARAM);
-  const raw = values.length === 1 ? values[0] : values;
+  const raw = target.path.slice(`${hub.hubPath}/${HUB_PAGE_SEGMENT}/`.length);
   const pageCount = hubPageCount(
     collectionSlugs(hub.collection, DEFAULT_LOCALE).length,
   );
-  return resolveHubPage(raw, pageCount).kind === "page";
+  return resolveHubPageSegment(raw, pageCount).kind === "page";
 }
 
 function matchesCodeBackedRoute(path: string): boolean {
@@ -296,7 +303,7 @@ function targetResolves(
   const published =
     targetsByLocale.get(targetLocale)?.has(normalized.path) ||
     matchesCodeBackedRoute(normalized.path);
-  return Boolean(published && hasValidHubQuery(normalized));
+  return Boolean(published && hasValidHubTarget(normalized));
 }
 
 function contentLinks(): ContentLink[] {
@@ -473,22 +480,22 @@ describe("internal link targets", () => {
     );
   });
 
-  it("keeps hub query semantics instead of discarding the page parameter", () => {
+  it("accepts only published paginated hub paths and rejects the legacy page query", () => {
     const targetsByLocale = new Map(
       CONTENT_LOCALES.map((locale) => [locale, contentBackedTargets(locale)]),
     );
 
     expect(
-      targetResolves("/blog?page=2", DEFAULT_LOCALE, targetsByLocale),
+      targetResolves("/blog/page/2", DEFAULT_LOCALE, targetsByLocale),
     ).toBe(true);
     expect(
-      targetResolves("/blog?page=1", DEFAULT_LOCALE, targetsByLocale),
+      targetResolves("/blog/page/1", DEFAULT_LOCALE, targetsByLocale),
     ).toBe(false);
     expect(
-      targetResolves("/blog?page=99", DEFAULT_LOCALE, targetsByLocale),
+      targetResolves("/blog/page/99", DEFAULT_LOCALE, targetsByLocale),
     ).toBe(false);
     expect(
-      targetResolves("/blog?page=2&page=3", DEFAULT_LOCALE, targetsByLocale),
+      targetResolves("/blog?page=2", DEFAULT_LOCALE, targetsByLocale),
     ).toBe(false);
     expect(targetResolves("/contact", DEFAULT_LOCALE, targetsByLocale)).toBe(
       true,

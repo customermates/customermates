@@ -123,7 +123,7 @@ describe("hosted AI pricing contract", () => {
 
     const productDemo = read("components/marketing/product-demo.tsx");
     expect(productDemo).toContain("When Mate is enabled for this demo environment, it starts closed");
-    expect(productDemo).toContain("Wenn Mate für diese Demo-Umgebung aktiviert ist, startet es geschlossen");
+    expect(productDemo).toContain("Ist Mate in dieser Demo aktiviert, bleibt das Mate-Fenster anfangs geschlossen");
     expect(productDemo).not.toMatch(/(?:^|[.!?]\s+)Mate starts closed/);
     expect(productDemo).not.toMatch(/(?:^|[.!?]\s+)Mate startet geschlossen/);
   });

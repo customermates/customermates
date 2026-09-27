@@ -42,7 +42,12 @@ export function Toc({ items, children, actions, asideFooter, layout = "default" 
         >
           {actions ? <div className="shrink-0 pt-3 pb-1">{actions}</div> : null}
 
-          <FumaToc.TOCScrollArea className={cn("min-h-0 flex-1 [&_a]:text-xs", hasMobileFooter && "hidden lg:block")}>
+          <FumaToc.TOCScrollArea
+            className={cn(
+              "min-h-0 flex-1 [&_a]:min-h-6 [&_a]:text-xs [&_code]:before:content-none [&_code]:after:content-none",
+              hasMobileFooter && "hidden lg:block",
+            )}
+          >
             <TocClerk.TOCItems />
           </FumaToc.TOCScrollArea>
 

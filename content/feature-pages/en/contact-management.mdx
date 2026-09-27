@@ -43,13 +43,12 @@ Whether you manage customers, leads, partners, or suppliers, structured contact 
 | Price/user | From [[commercial.price.starter.monthly]]/month | Free (2 users) | $14/mo | $14/mo | $25/mo |
 | Contact records | <StatusAvailable /> | <StatusAvailable /> | 5,000 max | <StatusAvailable /> | <StatusAvailable /> |
 | Custom fields | <StatusAvailable /> | <StatusPartial /> | <StatusPartial /> | <StatusPartial /> | <StatusAvailable /> |
-| Managed database in an EU region | <StatusAvailable /> | <StatusUnavailable /> | <StatusPartial /> | <StatusPartial /> | <StatusPartial /> |
 | Open source | <StatusAvailable /> | <StatusUnavailable /> | <StatusUnavailable /> | <StatusUnavailable /> | <StatusUnavailable /> |
 | External automation interfaces | <StatusAvailable /> | <StatusUnavailable /> | <StatusPartial /> | <StatusPartial /> | <StatusAvailable /> |
 | API access | <StatusAvailable /> | <StatusPartial /> | <StatusPartial /> | <StatusAvailable /> | <StatusAvailable /> |
 | Self-hosting | <StatusAvailable /> | <StatusUnavailable /> | <StatusUnavailable /> | <StatusUnavailable /> | <StatusUnavailable /> |
 
-**[HubSpot](https://www.hubspot.com/products/crm)** offers a generous free tier but locks custom fields and automation behind expensive upgrades ($90+/user/month). Data stored in the US.
+**[HubSpot](https://www.hubspot.com/products/crm)** offers a generous free tier but locks custom fields and automation behind expensive upgrades ($90+/user/month).
 
 **[Zoho CRM](https://www.zoho.com/crm/)** provides solid contact management at a lower price, but free plans are limited to 5,000 contacts and 3 users.
 
@@ -81,8 +80,8 @@ Your contact management adapts to your workflow, not the other way around. Other
 Finding the right contact takes seconds. Customermates offers:
 
 - **Full-text search** across all contact fields
-- **Advanced filters** with combinable conditions
-- **Saved filter templates** for recurring queries
+- **Advanced filters** with conditions combined by AND
+- **Personal saved views** for recurring queries
 - **Table and Kanban views** for different work styles
 
 ### Activity timeline
@@ -93,9 +92,9 @@ Each contact record can show supported messages, notes, linked tasks, and deal c
 
 Switching is straightforward:
 
-- **Migration through REST or MCP** after preparing and mapping source data outside Customermates
-- **Data access through REST or MCP** for supported records; there is no dedicated export workflow
-- **API access** for automated sync with other systems
+- **XLSX import** of contacts or organizations from an Excel workbook, one record type at a time and within row limits
+- **XLSX export** of the current view, scoped to your permissions and row-capped; there is no CSV and no whole-account export
+- **REST and MCP access** for larger migrations and automated sync with other systems
 
 ### Custom fields and segmentation
 
@@ -115,13 +114,13 @@ Custom fields become essential here: retainer value, contract renewal date, pref
 
 Healthcare providers manage patient relationships, referral networks, supplier contacts, and insurance representatives, all with strict data privacy requirements. Contact management in healthcare demands GDPR compliance (or HIPAA in the US), audit trails for every data change, and the ability to restrict access by role.
 
-The managed database runs in an EU region, while application hosting and connected providers are documented separately; Customermates claims no compliance certification or complete audit trail. Custom fields can capture non-clinical specialization, referral source, or preferred contact details, and single-select fields support segmentation. Each practice must assess legal and security suitability for its data.
+In the managed cloud, the application database runs in the AWS Frankfurt region; hosting and other subprocessors, including US providers, are listed on the [subprocessors page](/subprocessors), and a [DPA](/dpa) is available. Customermates claims no compliance certification, and practices that need full control over where data lives can self-host the open-source core. Custom fields can capture non-clinical specialization, referral source, or preferred contact details, and single-select fields support segmentation. Each practice must assess legal and security suitability for its data.
 
 ### Startups and small businesses
 
 Startups typically start with everyone knowing every customer. That breaks down fast. By the time a team reaches five or six people, customer information scatters across personal email inboxes, messaging apps, and individual spreadsheets. The first hire in sales or customer success usually triggers the need for structured contact management.
 
-For startups, the key requirements are speed and simplicity. Customermates starts at [[commercial.price.starter.monthly]]/user/month with the core CRM, but has no built-in CSV importer, web form, routing engine, or reminders. Prepare source data externally and connect customer-run workflows through REST, webhooks, MCP, or a separate [n8n instance](/features/workflow-automation) when needed.
+For startups, the key requirements are speed and simplicity. Customermates starts at [[commercial.price.starter.monthly]]/user/month with the core CRM, including XLSX import for existing spreadsheets, but has no CSV import, web forms, routing engine, or reminders. Connect customer-run workflows through REST, webhooks, MCP, or a separate [n8n instance](/features/workflow-automation) when needed.
 
 ### Consultants and freelancers
 
@@ -147,13 +146,13 @@ Spreadsheets are where most contact management starts. Excel and Google Sheets a
 
 ### Where spreadsheets fall short
 
-**No activity history.** A spreadsheet stores static data: name, email, phone number, company. It cannot show you the last email you sent to a contact, the notes from your last call, or the deal you are working on together. Every interaction lives somewhere else, your inbox, your calendar, your memory, disconnected from the contact record.
+**No activity history.** A spreadsheet stores static data: name, email, phone number, company. It cannot show you the last email you sent to a contact, the notes from your last call, or the deal you are working on together. Every interaction lives somewhere else (your inbox, your calendar, your memory), disconnected from the contact record.
 
 **No collaboration in real time.** Even with Google Sheets, multiple people editing contact data leads to overwritten fields, conflicting entries, and no audit trail of who changed what. There is no permission system: everyone sees everything, and accidental deletions are one click away.
 
 **No relationships between records.** Spreadsheets are flat. You cannot link a contact to an organization, then link that organization to three active deals, then see all related tasks and emails in one view. In a CRM, these connections are automatic. In a spreadsheet, you are maintaining them manually, and they will fall out of sync.
 
-**No automation.** When a new lead fills out a form on your website, a CRM can automatically create the contact record, assign it to a sales rep, and trigger a welcome email. A spreadsheet requires someone to notice the form submission, open the file, type in the data, and remember to follow up. At scale, this manual process is where leads get lost.
+**No automation.** With a CRM and a connected form or workflow tool, a new lead from your website can become a contact record, be assigned to a sales rep, and receive a welcome email without manual copying. A spreadsheet requires someone to notice the form submission, open the file, type in the data, and remember to follow up. At scale, this manual process is where leads get lost.
 
 **Compliance risk.** GDPR requires you to know exactly what personal data you hold, who has access, and when it was last modified. Spreadsheets have no access controls, no audit log, and no easy way to fulfill data deletion requests. A single shared spreadsheet passed around by email can become a compliance liability.
 
@@ -167,17 +166,17 @@ If your contact list has fewer than 100 entries and you are the only person mana
 - **You are losing leads** because follow-ups slip through the cracks
 - **Compliance requirements** demand audit trails and access controls
 
-The transition does not have to be disruptive. Customermates has no CSV importer. Prepare, map, validate, and deduplicate the spreadsheet outside the product, then create supported records through a customer-run REST integration or a supported external AI client over MCP. That integration owns parsing, retries, and migration quality. An [Excel CRM template](/blog/excel-crm-template) can help structure the source first.
+The transition does not have to be disruptive. Save the spreadsheet as an Excel workbook and import it with the XLSX import, one record type at a time and within row limits. Clean up duplicates and column names first; there is no CSV import and no undo. For very large lists, a customer-run REST integration or an external AI client over MCP can create records instead. An [Excel CRM template](/blog/excel-crm-template) can help structure the source first.
 
 ## Why Customermates for Contact Management
 
-**Open-source core.** The AGPL core CRM application is publicly inspectable and can run with PostgreSQL on [your infrastructure](/features/self-hosted) under Starter entitlements. Managed-cloud messaging and calendar features remain separate.
+**Open-source core.** The AGPL core CRM application is publicly inspectable and can run with PostgreSQL on [your infrastructure](/features/self-hosted) with the Starter feature set. Managed-cloud messaging and calendar features remain separate.
 
-**EU database region with documented providers.** The managed database runs in an EU region. Application hosting and other providers, including US providers, may process data elsewhere; this deployment fact is not a GDPR or other compliance certification.
+**Cloud database in Frankfurt, providers disclosed.** In the managed cloud, the application database runs in the AWS Frankfurt region; hosting and other subprocessors, including US providers, are listed on the [subprocessors page](/subprocessors), and a [DPA](/dpa) is available.
 
 **From [[commercial.price.starter.monthly]]/user/month.** Core contacts, custom fields (10 field types), [pipeline management](/features/pipeline), REST, webhooks, MCP, and a community node start with Starter. [n8n automation](/features/workflow-automation) remains a separate service. [Email integration](/features/email-integration) and the unified inbox start with Pro at [[commercial.price.pro.monthly]]/user/month. [See pricing →](/pricing)
 
-**External AI clients can update contacts.** Supported clients such as Claude, ChatGPT, and Gemini can use [[derived.mcp.tools.total]] MCP tools for allowed contact operations. Customermates supplies neither an AI chat nor a model; the client, subscription, usage, provider handling, and results remain separate.
+**External AI clients can update contacts.** Supported clients such as Claude, ChatGPT, and Gemini can use [[derived.mcp.tools.total]] MCP tools for allowed contact operations. The external client, subscription, usage, and provider handling remain yours. On cloud plans, the hosted Mate assistant can also update contacts inside the CRM and asks for confirmation before destructive actions.
 
 **Separate n8n automation.** A customer-run n8n workflow can receive external form submissions, synchronize supported fields, or request notifications through external providers. Runtime, connectors, credentials, delivery, limits, logs, and costs remain separate.
 
@@ -189,7 +188,7 @@ Prices range from free to $300+/user/month for enterprise CRM. Customermates sta
 </FaqItem>
 
 <FaqItem question="Is there free contact management software?">
-Yes. HubSpot and Zoho offer free versions with user limits and restricted features. The Customermates AGPL core CRM can be self-hosted with PostgreSQL under Starter entitlements; external services remain separate. More details: [Free CRM comparison](/blog/free-crm).
+Yes. HubSpot and Zoho offer free versions with user limits and restricted features. The Customermates AGPL core CRM can be self-hosted with PostgreSQL and the Starter feature set; external services remain separate. More details: [Free CRM comparison](/blog/free-crm).
 </FaqItem>
 
 <FaqItem question="What's the difference between contact management and CRM?">
@@ -201,7 +200,7 @@ For solo operators with few contacts, Excel can work. Once multiple people maint
 </FaqItem>
 
 <FaqItem question="Can I import contacts from Excel?">
-Customermates has no CSV import tool. Prepare, map, validate, and deduplicate the spreadsheet outside the product, then create supported records through a customer-run REST integration or a supported external AI client over MCP. Your integration owns parsing, preview, retries, and merge decisions; Customermates does not supply that import workflow.
+Yes, from an Excel workbook (XLSX). The import handles one record type at a time within row limits and respects your permissions. CSV files are not supported, so save them as XLSX first, and clean up duplicates beforehand because an import cannot be undone. Attachments are not transferred.
 </FaqItem>
 
 <FaqItem question="How many contacts can I manage?">
@@ -211,6 +210,6 @@ Customermates publishes per-user rather than per-contact pricing, but this page 
 
 ## Start Managing Contacts Today
 
-Create a free account, prepare any existing contacts outside Customermates, then add supported records manually or through a customer-run integration. Invite your team and begin with the core contact-management functions.
+Start your free trial, import existing contacts from an Excel workbook or add them manually, or connect a customer-run integration. Invite your team and begin with the core contact-management functions.
 
 [Try Customermates free for [[commercial.trial.days]] days →](/auth/signup)

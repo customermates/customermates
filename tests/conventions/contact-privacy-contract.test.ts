@@ -56,20 +56,21 @@ describe("contact privacy acknowledgement", () => {
   });
 
   it("renders a required acknowledgement with a localized privacy link", () => {
-    const form = source("app/[locale]/(public)/contact/contact-form.tsx");
-    const store = source("app/[locale]/(public)/contact/contact.store.ts");
+    const form = source("app/[locale]/(static)/contact/contact-form.tsx");
+    const state = source("app/[locale]/(static)/contact/contact-form.state.ts");
 
-    expect(form).toContain("<FormCheckbox");
+    expect(form).toContain("<Checkbox");
     expect(form).toContain('id="privacyAcknowledged"');
     expect(form).toContain('t.rich("ContactPage.form.privacyAcknowledgement"');
     expect(form).toContain('t("ContactPage.form.privacyAcknowledgementRequired")');
     expect(form).toContain('href="/privacy"');
-    expect(source("components/forms/form-checkbox.tsx")).toContain("aria-describedby={hasError ? errorId : undefined}");
-    expect(source("components/forms/form-checkbox.tsx")).toContain('role="alert"');
+    expect(form).toContain('aria-describedby={privacyInvalid ? "privacyAcknowledged-error" : undefined}');
+    expect(form).toContain('role="alert"');
     expect(source("features/contact/send-contact-inquiry.schema.ts")).not.toContain(
       "Privacy policy acknowledgement is required",
     );
-    expect(store.match(/privacyAcknowledged: false/gu)).toHaveLength(3);
+    expect(state.match(/privacyAcknowledged: false/gu)).toHaveLength(1);
+    expect(form).toContain("setForm(EMPTY_CONTACT_FORM)");
   });
 
   it("keeps the acknowledgement available in every routing locale", () => {

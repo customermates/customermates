@@ -8,6 +8,7 @@ import { TokenTable, TypeTable } from "../components/style-readout";
 import { MarketingSection } from "@/components/marketing/marketing-section";
 import { Button } from "@/components/ui/button";
 import { GridPattern } from "@/components/shared/grid-pattern";
+import { enableStaticLocale, type StaticLocaleProps } from "@/i18n/static-locale";
 
 export const metadata: Metadata = {
   title: "Marketing foundations",
@@ -161,7 +162,9 @@ const FORBIDDEN = [
   ["No silent locale fallback", "Every visible label must exist in the requested locale and fit without truncation."],
 ] as const;
 
-export default function FoundationsPage() {
+export default async function FoundationsPage({ params }: StaticLocaleProps) {
+  await enableStaticLocale(params);
+
   return (
     <StyleguideChapter chapter="foundations">
       <MarketingSection

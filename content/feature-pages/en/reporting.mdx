@@ -34,7 +34,7 @@ CRM reporting is the process of turning your customer relationship data into act
 
 Effective CRM reporting answers the questions that matter most to sales leaders and business owners. How much revenue is in the pipeline? Which sales stages have the highest drop-off rates? How is each team member performing against their targets? What is the average time to close a deal? Without structured reporting, these questions require hours of manual analysis. With the right reporting tools, the answers are available instantly.
 
-For growing teams, CRM reporting is not a luxury feature. It is the mechanism that transforms scattered activity into strategic decision-making. Organizations that use data-driven sales reporting see measurable improvements: companies leveraging analytics in their CRM achieve up to 29 percent higher sales and 42 percent better forecast accuracy compared to those relying on intuition alone.
+For growing teams, CRM reporting is not a luxury feature. It is the mechanism that transforms scattered activity into strategic decision-making.
 
 ## Five Essential CRM Reports Every Team Needs
 
@@ -54,7 +54,7 @@ Not every team needs the same reports, but these five cover the fundamentals tha
 
 Customermates gives you reporting through configurable dashboard widgets over your CRM data, without a separate BI tool. Widgets update as supported records change; an external AI client can query permitted data through MCP.
 
-**External AI clients can update and query CRM data.** Supported clients such as Claude, ChatGPT, or Gemini can use MCP to update allowed contacts, deal fields, and notes or query permitted records. Customermates includes no AI chat or model; client subscription, model usage, and provider handling remain external.
+**External AI clients can update and query CRM data.** Supported clients such as Claude, ChatGPT, or Gemini can use MCP to update allowed contacts, deal fields, and notes or query permitted records. With an external client, the subscription, model usage, and provider handling remain yours. On cloud plans, the hosted Mate assistant can also answer pipeline questions inside the CRM using monthly hosted AI credits.
 
 **Pipeline dashboards.** Build a dashboard of chart widgets (bar, doughnut, or radar) that show deal distribution across stages and pipeline value by stage. Widgets update automatically as deals progress, so you always see the current state of your business.
 
@@ -76,7 +76,7 @@ Getting reporting right is not just about having the tools. It is about building
 
 **Standardize definitions.** Make sure every team member agrees on what counts as a qualified deal, when a deal moves to the next stage, and how activities are logged. Inconsistent data entry produces unreliable reports. Clear definitions are the foundation of trustworthy analytics.
 
-**Automate report delivery externally.** A separate n8n instance can schedule pipeline summaries through Slack or another provider, evaluate customer-defined thresholds, and deliver performance digests. Customermates does not bundle n8n, Slack, a scheduler, or an alert engine.
+**Automate report delivery externally.** A separately operated n8n instance can schedule pipeline summaries through Slack or another provider, evaluate customer-defined thresholds, and deliver performance digests. On the cloud, a Mate routine can also run a saved prompt on a schedule, for example to summarize the pipeline. Customermates does not bundle n8n or Slack and has no alert engine.
 
 **Act on the data.** The best reporting system in the world is worthless if the insights do not lead to action. Every report review should end with specific next steps: deals to follow up on, processes to adjust, coaching conversations to have, or resources to reallocate.
 
@@ -88,7 +88,7 @@ Getting reporting right is not just about having the tools. It is about building
 
 **Lead source analysis.** Store lead source in a custom field and chart supported deal counts or values by source. Calculate source conversion rates and attribution in a separate reporting system when your analysis requires derived metrics.
 
-**Forecasting and planning.** Use pipeline data and historical conversion rates to forecast future revenue. Chart pipeline value by stage, and apply your own win probabilities (as a custom field or an n8n calculation) to get a realistic view of expected income from your current deals.
+**Forecasting and planning.** Customermates multiplies each deal value by the probability you set for its stage, so dashboards show weighted deal values and weighted pipeline totals for your current deals. This is a deterministic calculation, not predictive forecasting; projections based on historical conversion rates belong in a separate reporting system.
 
 **Sales coaching inputs.** Use supported records and customer-defined fields as inputs for coaching. Cross-user performance comparisons, conversion rates, targets, and cycle metrics require a separate calculation or reporting system.
 
@@ -98,7 +98,7 @@ Getting reporting right is not just about having the tools. It is about building
 
 **Open source and transparent.** Your reporting runs on code you can inspect and extend. There are no black-box algorithms or hidden data transformations between your raw data and your reports.
 
-**EU database region with documented providers.** Reporting reads the managed database, which runs in an EU region. Application hosting and other providers may process data elsewhere; this deployment fact is not a GDPR or other compliance certification.
+**Cloud database in Frankfurt, providers disclosed.** In the managed cloud, the application database runs in the AWS Frankfurt region; hosting and other subprocessors, including US providers, are listed on the [subprocessors page](/subprocessors), and a [DPA](/dpa) is available. Customermates holds no compliance certification.
 
 **Simple, fair pricing.** CRM reporting is included from [[commercial.price.starter.monthly]] per user per month (Starter tier). Dashboard chart widgets, filters, and MCP access for external AI clients are included at every tier. No per-report charges, and you can add as many widgets as you need.
 

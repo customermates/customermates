@@ -53,11 +53,11 @@ Ein [agent-natives CRM](/blog/ai-sales-agent) umgeht alle drei: Der Agent ist di
 
 Drei Schichten, die zusammen laufen:
 
-**Schicht 1: Native Automation-Regeln.** Feldänderungs-Trigger, zeitbasierte Erinnerungen, einfache mehrstufige Sequenzen. Jedes moderne CRM hat das. Customermates liefert regelbasierte [Workflow-Automation](/features/workflow-automation) plus [[derived.webhooks.events.total]] Webhook-Events, die bei wichtigen Statusänderungen feuern.
+**Schicht 1: Native Automation-Regeln.** Feldänderungs-Trigger, zeitbasierte Erinnerungen, einfache mehrstufige Sequenzen. Viele klassische CRMs haben das. Customermates hat bewusst keinen eigenen Regel-Baukasten: Stattdessen feuern [[derived.webhooks.events.total]] Webhook-Events bei Änderungen an Datensätzen, und die [Workflow-Automation](/features/workflow-automation) läuft über ein angebundenes n8n. In der Cloud-Version kommen Routinen hinzu: Der gehostete Assistent Mate führt einen gespeicherten Prompt nach Zeitplan oder bei einem CRM-Ereignis aus.
 
-**Schicht 2: Integrationsplattform.** Eine Workflow-Engine, die das CRM ohne Code mit anderen Tools verbindet. n8n, Make, Zapier. Customermates bringt eine [n8n-Community-Node](/features/integrations) mit plus eine vollständige [REST-API](/features/api), sodass jedes externe System CRM-Daten lesen und schreiben kann.
+**Schicht 2: Integrationsplattform.** Eine Workflow-Engine, die das CRM ohne Code mit anderen Tools verbindet. n8n, Make, Zapier. Für Customermates gibt es einen [n8n-Community-Node](/features/integrations) für ein separat betriebenes n8n, plus eine vollständige [REST-API](/features/api), sodass jedes externe System CRM-Daten lesen und schreiben kann.
 
-**Schicht 3: KI-Agent über MCP.** Claude, ChatGPT, Gemini oder ein beliebiger MCP-fähiger Agent verbindet sich über Model Context Protocol mit dem CRM. Der Agent liest Kontakte, Deals, Aufgaben; schreibt Notizen, Wiedervorlagen, Stufenwechsel; und führt mehrstufige Workflows in normaler Sprache aus, statt vorgefertigter Regeln. Customermates stellt [[[derived.mcp.tools.total]] MCP-Tools](/features/api) genau dafür bereit.
+**Schicht 3: KI-Agent über MCP.** Claude, ChatGPT, Gemini oder ein beliebiger MCP-fähiger Agent verbindet sich über Model Context Protocol mit dem CRM. Der Agent liest Kontakte, Deals, Aufgaben; schreibt Notizen, Aufgaben, Stufenwechsel; und führt mehrstufige Workflows in normaler Sprache aus, statt vorgefertigter Regeln. Customermates stellt [[[derived.mcp.tools.total]] MCP-Tools](/features/api) genau dafür bereit.
 
 Die ersten beiden Schichten sind Standard. Die dritte ist die, in der sich die Erfahrung ändert.
 
@@ -65,15 +65,15 @@ Die ersten beiden Schichten sind Standard. Die dritte ist die, in der sich die E
 
 Die Automatisierungen mit der größten Hebelwirkung, geordnet nach ROI:
 
-**Automatisches Erfassen jeder E-Mail und jedes Termins.** [E-Mail-Integration](/features/email-integration) ordnet jeden Thread mit einem Kontakt automatisch dessen Datensatz zu. Kalendereinladungen für Vertriebsgespräche werden zu Deal-Aktivitäten. Aufwand: einmaliges Setup. Wert: Die CRM-Hygiene des gesamten Teams verbessert sich über Nacht.
+**E-Mails dort sehen, wo der Kontakt liegt.** Eine [E-Mail-Integration](/features/email-integration) bringt Threads neben den passenden Datensatz. In Customermates übernimmt das der einheitliche Posteingang (Cloud, ab Pro) für Gmail, Outlook und IMAP; Kalender sind dort nur lesend angebunden, eine Kalendersynchronisation gibt es nicht. Aufwand: einmaliges Setup. Wert: Der Kontext zu jedem Kontakt liegt an einem Ort.
 
-**Stale-Deal-Alarme.** Workflow-Regel feuert, wenn ein Deal länger als X Tage ohne Aktivität in einer Stufe sitzt. Erstellt eine Aufgabe: „Mit [Kontakt] erneut Kontakt aufnehmen." Stoppt das häufigste Umsatzleck (stille Deals), ohne dem Vertriebler Arbeit hinzuzufügen.
+**Stale-Deal-Hinweise.** Eine Regel oder ein Agent erkennt Deals, die länger als X Tage ohne Änderung in einer Stufe sitzen, und schlägt eine Aufgabe vor: „Mit [Kontakt] erneut Kontakt aufnehmen." In Customermates geht das über eine gespeicherte Ansicht, sortiert nach der letzten Änderung, oder in der Cloud über eine Routine, die solche Deals regelmäßig auflistet. Das adressiert ein häufiges Umsatzleck (stille Deals), ohne dem Vertriebler Arbeit hinzuzufügen.
 
-**Stufenwechsel-Sequenzen.** Wenn ein Deal in „Verhandlung" wandert, automatisch interne Angebotsvorbereitungs-Aufgabe anlegen, Wiedervorlage in sieben Tagen, Vertragsvorlage entwerfen. Wenn er in „Gewonnen" wandert, Onboarding-Aufgabenkette erstellen, Kickoff-Webhook auslösen, Dankesnachricht entwerfen.
+**Stufenwechsel-Sequenzen.** Wenn ein Deal in „Verhandlung" wandert, automatisch interne Angebotsvorbereitungs-Aufgabe anlegen, Wiedervorlage in sieben Tagen, Vertragsvorlage entwerfen. Wenn er in „Gewonnen" wandert, Onboarding-Aufgaben erstellen, Kickoff-Webhook auslösen, Dankesnachricht entwerfen. In Customermates starten Sie solche Ketten über das Webhook-Ereignis zum Deal-Update und einen n8n-Flow; Wiedervorlagen mit Fälligkeitsdatum gibt es dort nicht, die Aufgabe selbst schon.
 
-**Inbound-Lead-Routing.** Formular-Eingang erstellt Kontakt, bewertet gegen ICP-Kriterien, routet an den richtigen Vertriebler, plant Erstkontakt-Aufgabe. Geschwindigkeit zum ersten Kontakt ist der stärkste Conversion-Prädiktor; das ist die billigste Verdopplung der Quote.
+**Inbound-Lead-Routing.** Formular-Eingang erstellt Kontakt, bewertet gegen ICP-Kriterien, routet an den richtigen Vertriebler, plant Erstkontakt-Aufgabe. Schnelle Reaktion auf neue Anfragen ist einer der einfachsten Hebel im Vertrieb. Customermates hat keine eigenen Webformulare; der Formular-Eingang kommt über REST, Webhooks oder n8n aus Ihrem Formular-Tool.
 
-**Agent-getriebene Notizen.** Nach einem Vertriebsgespräch das Transkript bei Claude einfügen. Der Agent extrahiert Entscheidungen, Action Items und nächste Schritte, schreibt sie in den Kontaktdatensatz, erstellt Wiedervorlagen und aktualisiert die Deal-Stufe. Der Vertriebler verlässt das Gespräch ohne CRM-Verwaltung.
+**Agent-getriebene Notizen.** Nach einem Vertriebsgespräch das Transkript bei Claude einfügen. Der Agent extrahiert Entscheidungen, Action Items und nächste Schritte, schreibt sie in den Kontaktdatensatz, legt Follow-up-Aufgaben an und aktualisiert die Deal-Stufe. Der Vertriebler verlässt das Gespräch ohne CRM-Verwaltung.
 
 **Wöchentlicher Stale-Pipeline-Report.** Agent fragt das CRM jeden Montagmorgen ab, erzeugt eine Übersicht von Deals, die seit 14 Tagen nicht bewegt wurden, entwirft Re-Engagement-Mails, die der Vertriebler prüft und sendet. Fünf Minuten Agent-Arbeit ersparen dem Manager eine Stunde Pipeline-Review.
 
@@ -105,17 +105,17 @@ Acht Kriterien, in der Reihenfolge der Wirkung:
 
 **Open Source oder vollständiger Datenexport.** Vendor-Lock-in ist schlimmer als die falsche Funktionsausstattung. Wenn Sie nicht weg können, haben Sie keinen Hebel.
 
-**EU-Hosting, falls relevant.** Kundendaten auf US-Infrastruktur erzeugen Schrems-II-Compliance-Aufwand. Self-Hosted oder EU-verwaltete CRMs eliminieren das strukturell.
+**Datenstandort, falls relevant.** Kundendaten bei US-Dienstleistern erzeugen Prüfaufwand für die Drittlandübermittlung. Prüfen Sie bei Cloud-CRMs Datenbankregion und Unterauftragsverarbeiter; Self-Hosting lässt Sie den Speicherort selbst bestimmen.
 
 **Pricing, das Automation nicht bestraft.** Manche CRMs verlangen extra für API-Zugriff, Webhooks oder einen „Advanced Automation Tier". Die Wirtschaftlichkeit von Automation bricht zusammen, wenn Nutzung gemessen wird.
 
-Customermates erfüllt alle acht. Die [Preise](/pricing) starten bei [[commercial.price.starter.monthly]] pro Nutzer pro Monat (Starter-Stufe); Workflow-Automation, Webhooks und der MCP-Server sind in jeder Stufe enthalten, ohne separaten „Automatisierungs-Tier".
+Customermates erfüllt die meisten davon, mit zwei ehrlichen Einschränkungen: Es gibt keinen eingebauten Regel-Baukasten mit Verzweigungen und Verzögerungen (die Logik läuft über Webhooks, n8n, MCP-Clients oder Cloud-Routinen), und E-Mail kommt über den einheitlichen Posteingang ab Pro, der Kalender nur lesend, ohne bidirektionale Kalendersynchronisation. Die [Preise](/pricing) starten bei [[commercial.price.starter.monthly]] pro Nutzer pro Monat (Starter-Stufe); REST-API, Webhooks und der MCP-Server sind in jeder Stufe enthalten, ohne separaten „Automatisierungs-Tier".
 
 ## CRM-Automation-Tools im Vergleich
 
 Der Markt 2026 teilt sich in drei Kategorien:
 
-**Native CRM-Automation.** HubSpot Sales Hub, Salesforce, Pipedrive, Zoho CRM liefern Workflow-Regeln und begrenzte Sequenzen. Stark in der UI, schwach im Agent-nativen Betrieb. Preise skalieren schnell: HubSpot Sales Hub Professional bei 90 €/Nutzer, Salesforce Sales Cloud Enterprise bei 175 €/Nutzer.
+**Native CRM-Automation.** HubSpot Sales Hub, Salesforce, Pipedrive, Zoho CRM liefern Workflow-Regeln und begrenzte Sequenzen. Stark in der UI, schwach im Agent-nativen Betrieb. Preise skalieren schnell: HubSpot Sales Hub Professional bei 90 €/Nutzer, Salesforce Sales Cloud Pro Suite bei 100 US-Dollar/Nutzer (Stand September 2026, jährliche Abrechnung).
 
 **Externe Automation-Plattformen.** n8n, Make, Zapier verbinden jedes CRM mit allem. Stark in der Flexibilität, schwach in der UX (Sie entwerfen die Workflows selbst). Funktionieren am besten kombiniert mit einem CRM, das eine saubere API hat.
 
@@ -127,17 +127,17 @@ Die Wahl hängt davon ab, ob Ihr Team bereits KI-Agenten im Workflow nutzt. Wenn
 
 Customermates ist auf der Annahme gebaut, dass ein KI-Agent das System bedient. Das prägt jede Designentscheidung:
 
-**Native Workflow-Automation.** Regelbasierte [Workflow-Automation](/features/workflow-automation) mit bedingter Logik, Zeitverzögerungen und [[derived.webhooks.events.total]] Webhook-Events für jede Statusänderung. Im Basisplan inklusive, kein separater Tier.
+**Webhooks und Routinen statt Regel-Baukasten.** [[derived.webhooks.events.total]] Webhook-Events bei Änderungen an Datensätzen, die externe [Workflow-Automation](/features/workflow-automation) auslösen. Im Basisplan inklusive, kein separater Tier. In der Cloud führen Routinen des Assistenten Mate einen gespeicherten Prompt nach Zeitplan oder bei einem CRM-Ereignis aus (Starter [[commercial.entitlement.starter.includedRoutinesPerUser]] Routine pro Nutzer, Pro [[commercial.entitlement.pro.includedRoutinesPerUser]]; sie verbrauchen gehostete KI-Credits).
 
-**n8n-Community-Node.** Visuelle Workflow-Gestaltung, die Customermates mit n8ns über 400 Integrationen verbindet. Nützlich für nicht-technische Teams, die Automation ohne Code wollen.
+**n8n-Community-Node.** Visuelle Workflow-Gestaltung in einem separat betriebenen n8n, das Customermates mit den Integrationen von n8n verbindet. Nützlich für nicht-technische Teams, die Automation ohne Code wollen.
 
-**[[derived.mcp.tools.total]] MCP-Tools.** Nativer MCP-Server stellt jede CRM-Operation (Kontakt anlegen, Deal aktualisieren, Aktivität protokollieren, Pipeline abfragen, Report generieren) Claude, ChatGPT, Gemini oder einem anderen MCP-fähigen Agenten bereit. Der Agent liest den Posteingang und schreibt in normaler Sprache zurück ins CRM.
+**[[derived.mcp.tools.total]] MCP-Tools.** Nativer MCP-Server stellt die zentralen CRM-Operationen (Kontakt anlegen, Deal aktualisieren, Notiz schreiben, Datensätze abfragen) Claude, ChatGPT, Gemini oder einem anderen MCP-fähigen Agenten bereit. Der Agent liest den Posteingang und schreibt in normaler Sprache zurück ins CRM.
 
-**Nativer vereinheitlichter Posteingang.** E-Mail, LinkedIn, WhatsApp, Instagram und Telegram in einem Posteingang im CRM (ab Pro). Neun der MCP-Tools bedienen diesen Posteingang, sodass derselbe Agent, der Datensätze aktualisiert, über jeden Kanal lesen, entwerfen und senden kann. Pipeline und Gespräch bleiben in einem System.
+**Nativer einheitlicher Posteingang.** E-Mail, LinkedIn, WhatsApp, Instagram und Telegram in einem Posteingang im CRM (ab Pro). Eigene MCP-Tools bedienen diesen Posteingang, sodass derselbe Agent, der Datensätze aktualisiert, über jeden Kanal lesen, entwerfen und senden kann. Pipeline und Gespräch bleiben in einem System.
 
 **REST-API.** Vollständige CRUD-Operationen auf allen Entitäten, in jedem Plan. Für Teams, die eigene Integrationen vorgefertigten Nodes vorziehen.
 
-**Open Source unter AGPL-3.0.** Self-Hosted oder Cloud, Ihre Wahl. EU-Hosting ist die Standardoption für Cloud, kein Premium-Upgrade.
+**Open Source unter AGPL-3.0.** Self-Hosted oder Cloud, Ihre Wahl. In der Cloud-Version liegt die Datenbank in der AWS-Region Frankfurt; Hosting und weitere Unterauftragsverarbeiter, auch aus den USA, stehen in der [Liste der Unterauftragsverarbeiter](/subprocessors). Self-Hosted gilt der Starter-Funktionsumfang, ohne Posteingang und ohne Mate.
 
 Das Ergebnis: ein CRM, das sich selbst pflegt, wenn Sie ohnehin täglich KI-Tools nutzen, und das auch dann nützlich bleibt, wenn Sie nächstes Jahr den Agenten-Anbieter wechseln.
 
@@ -147,15 +147,15 @@ Ein praktischer Vergleich der Plattformen, die die meisten Teams evaluieren. All
 
 **HubSpot Sales Hub.** Starke native Automation-Regeln mit bedingten Verzweigungen und Zeitverzögerungen. Der Workflow-Editor ist sehr poliert und das Sequenz-Tooling ist stark. Free-Tier deckt Kontakte und einfaches E-Mail-Tracking ab; ernsthafte Automation startet bei Sales Hub Professional (90 €/Nutzer/Monat) plus rund 1.500 € einmalige Onboarding-Gebühr. Gut geeignet für marketing-getriebene Mittelständler, die Inbound-Automation brauchen. Schwach bei Agent-nativem Betrieb; Claude oder ChatGPT integrieren erfordert externen Klebstoff (Zapier, Make).
 
-**Salesforce + Agentforce.** Tiefe Agent-Automation über [Agentforce](/blog/agentforce), als Add-on im Bereich von 125 bis 550 €/Nutzer/Monat zusätzlich zur Salesforce-Plattform-Lizenz (175 €/Nutzer/Monat für Sales Cloud Enterprise, jährliche Abrechnung). Gut geeignet für Enterprise-Salesforce-Häuser mit reifer Datenlage und Budget. Die Plattform-Steuer (Sales Cloud + Agentforce + Implementierungspartner) startet bei rund 50.000 € pro Jahr für ein kleines Team, was es zur Enterprise-Wahl macht.
+**Salesforce + Agentforce.** Tiefe Agent-Automation über [Agentforce](/blog/agentforce), als Add-on im Bereich von 125 bis 550 US-Dollar/Nutzer/Monat zusätzlich zur Salesforce-Plattform-Lizenz (Sales Cloud laut Salesforce-Preisseite im September 2026 zum Beispiel 195 US-Dollar/Nutzer/Monat für Core, jährliche Abrechnung). Gut geeignet für Enterprise-Salesforce-Häuser mit reifer Datenlage und Budget. Die Plattform-Steuer (Sales Cloud + Agentforce + Implementierungspartner) startet bei rund 50.000 € pro Jahr für ein kleines Team, was es zur Enterprise-Wahl macht.
 
-**Pipedrive.** Vertriebs-fokussierte Workflow-Automation mit sauberer UX. Nach dem Rebrand im Juli 2025 heißen die Stufen Lite für 14 €/Nutzer/Monat, Growth für 39 €, Premium für 49 € und Ultimate für 79 € (jährliche Abrechnung, kein Free-Plan). Workflow-Automation ab Growth. Sequenzen schwach im Vergleich zu dedizierten Outreach-Tools. Gut geeignet für outbound-fokussierte Vertriebsteams, die Pipeline-Automation ohne Marketing-Ballast wollen.
+**Pipedrive.** Vertriebs-fokussierte Workflow-Automation mit sauberer UX. Nach dem Rebrand im Juli 2025 heißen die Stufen Lite für 14 €/Nutzer/Monat, Growth für 39 €, Premium für 59 € und Ultimate für 79 € (jährliche Abrechnung, Stand September 2026, kein Free-Plan). Workflow-Automation ab Growth. Sequenzen schwach im Vergleich zu dedizierten Outreach-Tools. Gut geeignet für outbound-fokussierte Vertriebsteams, die Pipeline-Automation ohne Marketing-Ballast wollen.
 
-**Zoho CRM.** Eine günstige Option, 14 bis 52 €/Nutzer/Monat je nach Tier (Standard 14 €, Professional 23 €, Enterprise 40 €, Ultimate 52 €, jährlich). Workflow-Regeln und Blueprints bieten Flexibilität auf Salesforce-Niveau zu einem Bruchteil der Kosten. UX wirkt veraltet und die Lernkurve ist steil. Gut geeignet für kostenbewusste Teams, die bereit sind, Politur gegen Wert einzutauschen.
+**Zoho CRM.** Eine günstige Option mit kostenloser Edition für bis zu 3 Nutzer; bezahlte Tarife laut [Zoho-Preisseite](https://www.zoho.com/de/crm/zohocrm-pricing.html). Workflow-Regeln und Blueprints bieten Flexibilität auf Salesforce-Niveau zu einem Bruchteil der Kosten. UX wirkt veraltet und die Lernkurve ist steil. Gut geeignet für kostenbewusste Teams, die bereit sind, Politur gegen Wert einzutauschen.
 
-**Customermates.** Open Source unter AGPL-3.0, EU-gehostete Cloud ab [[commercial.price.starter.monthly]]/Nutzer/Monat (Starter) oder Self-Hosted kostenlos. Native [Workflow-Automation](/features/workflow-automation), [[derived.webhooks.events.total]] Webhook-Events, [n8n-Community-Node](/features/integrations), ein nativer vereinheitlichter Posteingang (E-Mail, LinkedIn, WhatsApp, Instagram, Telegram ab Pro) und [[derived.mcp.tools.total]] MCP-Tools für direkten KI-Agenten-Betrieb. Kleineres Ökosystem als HubSpot oder Salesforce; die Agent-native Architektur ist der Differenzierungspunkt. Gut geeignet für technisch affine Mittelständler oder Teams, die ohnehin täglich Claude, ChatGPT oder Gemini nutzen.
+**Customermates.** Open Source unter AGPL-3.0, Cloud ab [[commercial.price.starter.monthly]]/Nutzer/Monat (Starter, Datenbank in der AWS-Region Frankfurt) oder Self-Hosted ohne Lizenzkosten für den Open-Source-Kern. Kein eigener Regel-Baukasten, dafür [[derived.webhooks.events.total]] Webhook-Events, [n8n-Community-Node](/features/integrations) für ein separat betriebenes n8n, Routinen in der Cloud, ein nativer einheitlicher Posteingang (E-Mail, LinkedIn, WhatsApp, Instagram, Telegram ab Pro) und [[derived.mcp.tools.total]] MCP-Tools für direkten KI-Agenten-Betrieb. Kleineres Ökosystem als HubSpot oder Salesforce; die Agent-native Architektur ist der Differenzierungspunkt. Gut geeignet für technisch affine Mittelständler oder Teams, die ohnehin täglich Claude, ChatGPT oder Gemini nutzen.
 
-**Monday CRM.** Visuelle Automation über Mondays „Boards"-Modell. Stark in Team-Workflow-Sichtbarkeit, schwächer in vertriebsspezifischen Automation-Mustern. Preise zwischen 15 und 41 €/Nutzer/Monat (jährlich) mit Drei-Sitze-Minimum und ohne Free-Plan. Gut geeignet für funktionsübergreifende Teams, die Monday bereits für Projektmanagement nutzen und ein CRM in demselben Tool wollen.
+**Monday CRM.** Visuelle Automation über Mondays „Boards"-Modell. Stark in Team-Workflow-Sichtbarkeit, schwächer in vertriebsspezifischen Automation-Mustern. Preise: Basic 12 €, Standard 17 € und Pro 28 € pro Platz und Monat bei jährlicher Abrechnung (18 €, 25 € und 41 € bei monatlicher), Ultimate auf Anfrage, mit Drei-Sitze-Minimum und ohne Free-Plan (Stand: September 2026, [monday-CRM-Preisseite](https://monday.com/crm/pricing)). Gut geeignet für funktionsübergreifende Teams, die Monday bereits für Projektmanagement nutzen und ein CRM in demselben Tool wollen.
 
 **Der Entscheidungsrahmen.** Wer einen täglichen KI-Workflow hat und den Agenten das CRM bedienen lassen will, gewinnt mit einer Agent-nativen Plattform (Customermates, Agentforce). Wenn Marketing-Inbound-Funnel Priorität haben, HubSpot. Wenn Outbound-Vertriebspipelines der ganze Job sind, Pipedrive. Wenn Kosten die bindende Begrenzung sind, Zoho. Wenn das Team ohnehin in Monday lebt, ist die Monday-CRM-Erweiterung der reibungsärmste Weg.
 
@@ -165,7 +165,7 @@ Der ehrliche Test: zwei Plattformen aussuchen, die plausibel erscheinen, eine 30
 
 Zwei Dinge, die Sie wissen sollten, bevor Sie Customermates als automatisiertes CRM wählen:
 
-**Kleineres Ökosystem.** Salesforce und HubSpot haben Tausende von vorgefertigten Integrationen. Customermates hat ein fokussiertes Set: n8n-Node, Zapier-App, MCP-Server, REST-API. Für Teams, die ein Nischen-Tool in 30 Sekunden anstecken wollen, gewinnen die Legacy-CRMs in der Integrationstiefe.
+**Kleineres Ökosystem.** Salesforce und HubSpot haben Tausende von vorgefertigten Integrationen. Customermates hat ein fokussiertes Set: n8n-Community-Node, Webhooks, MCP-Server, REST-API. Für Teams, die ein Nischen-Tool in 30 Sekunden anstecken wollen, gewinnen die Legacy-CRMs in der Integrationstiefe.
 
 **Jüngeres Produkt.** Customermates ist 2025 öffentlich an den Start gegangen. Das Produkt ist solide, aber die Best-Practice-Spielbücher für „so nutzt man Customermates richtig" werden gerade erst geschrieben. Wer ein System mit zehn Jahren community-erprobter Workflows will, ist bei HubSpot oder Pipedrive besser aufgehoben.
 
@@ -187,7 +187,7 @@ Fünf Muster, die ich bei deutschen Mittelständlern wiederholt sehe und die jed
 
 ## DSGVO-Hinweis für deutsche Teams
 
-Workflow-Regeln und Webhooks verarbeiten personenbezogene Daten, das CRM ist also Auftragsverarbeiter und Sie brauchen einen [Auftragsverarbeitungsvertrag](https://eur-lex.europa.eu/eli/reg/2016/679/oj). KI-Agenten, die CRM-Daten lesen, schaffen ein zweites Auftragsverarbeitungs-Verhältnis mit dem LLM-Anbieter (Anthropic, OpenAI). Self-Hosted CRM plus EU-gehostete Modelle eliminieren Schrems-II-Bedenken; Cloud-CRM plus US-LLM heißt zwei AVVs unterschreiben und das Restrisiko akzeptieren.
+Workflow-Regeln und Webhooks verarbeiten personenbezogene Daten, das CRM ist also Auftragsverarbeiter und Sie brauchen einen [Auftragsverarbeitungsvertrag](https://eur-lex.europa.eu/eli/reg/2016/679/oj). KI-Agenten, die CRM-Daten lesen, schaffen ein zweites Auftragsverarbeitungs-Verhältnis mit dem LLM-Anbieter (Anthropic, OpenAI). Self-Hosted CRM plus EU-gehostete Modelle reduzieren die Drittland-Fragen deutlich; Cloud-CRM plus US-LLM heißt zwei AVVs unterschreiben und das Restrisiko bewerten. Auch die Cloud-Version von Customermates nutzt Unterauftragsverarbeiter aus den USA; sie stehen in der [Liste der Unterauftragsverarbeiter](/subprocessors), ein [AVV](/dpa) liegt vor.
 
 Customermates Self-Hosted auf einem deutschen Server (zum Beispiel Hetzner) ist ein sauberer Weg für regulierte Branchen oder besonders sensible Kundendaten.
 
@@ -195,13 +195,13 @@ Customermates Self-Hosted auf einem deutschen Server (zum Beispiel Hetzner) ist 
 
 Der schnellste Weg von Null zu einem funktionierenden automatisierten CRM, in vier Wochen aufgeteilt. Funktioniert für jede der oben genannten Plattformen; spezifische Schritte beziehen sich auf Customermates als Beispiel.
 
-**Woche 1: Datenfundament.** Die Kontaktliste bereinigen, bevor irgendeine Automation sie anfasst. OpenRefine oder ein vergleichbares Tool nutzen, um Duplikate zu entfernen, Telefonnummern auf E.164-Format zu normalisieren und Firmennamen zu standardisieren. Bestehende Felder auf das CRM-Schema mappen. Entscheiden, welche eigenen Felder Sie wirklich brauchen; der Versuchung widerstehen, jede Excel-Spalte nachzubauen. Zuerst eine 50-Kontakt-Stichprobe importieren, um das Feld-Mapping zu validieren, dann den Rest bulk-importieren. Zeitaufwand: 1 bis 2 Tage für eine 5.000-Kontakt-Datenbank.
+**Woche 1: Datenfundament.** Die Kontaktliste bereinigen, bevor irgendeine Automation sie anfasst. OpenRefine oder ein vergleichbares Tool nutzen, um Duplikate zu entfernen, Telefonnummern auf E.164-Format zu normalisieren und Firmennamen zu standardisieren. Bestehende Felder auf das CRM-Schema mappen. Entscheiden, welche eigenen Felder Sie wirklich brauchen; der Versuchung widerstehen, jede Excel-Spalte nachzubauen. Zuerst eine 50-Kontakt-Stichprobe importieren, um das Feld-Mapping zu validieren, dann den Rest importieren (in Customermates per XLSX-Datei, ein Datensatztyp pro Import; CSV-Import gibt es nicht). Zeitaufwand: 1 bis 2 Tage für eine 5.000-Kontakt-Datenbank.
 
-**Woche 2: Eingaben verbinden.** Bidirektionale E-Mail-Synchronisation (Gmail oder Outlook), Kalender-Sync und das Meeting-Aufnahme-Tool Ihrer Wahl (Fathom, Fireflies, Read.ai). Ohne diese drei ist jede andere Automation unvollständig. Testen, ob eine eingehende E-Mail eines Interessenten automatisch einen Kontakt anlegt und den Thread protokolliert. Wenn nicht, die Integration reparieren, bevor es weitergeht. Zeitaufwand: 4 bis 6 Stunden pro Eingabekanal plus 1 Tag Test.
+**Woche 2: Eingaben verbinden.** Postfächer und das Meeting-Aufnahme-Tool Ihrer Wahl (Fathom, Fireflies, Read.ai) anbinden. In Customermates verbinden Sie Gmail, Outlook oder IMAP mit dem einheitlichen Posteingang (Cloud, ab Pro); Kalender sind nur lesend angebunden. Testen, ob eingehende Nachrichten eines Interessenten im Posteingang landen und beim richtigen Kontakt nachvollziehbar sind. Wenn nicht, die Anbindung reparieren, bevor es weitergeht. Zeitaufwand: 4 bis 6 Stunden pro Eingabekanal plus 1 Tag Test.
 
-**Woche 3: Native Regeln und Sequenzen.** Die ersten drei Workflow-Regeln einrichten: Stale-Deal-Alarm (Deal länger als 14 Tage ohne Aktivität in einer Stufe erzeugt Wiedervorlage), Inbound-Lead-Routing (Formular-Eingang legt Kontakt an und weist dem richtigen Vertriebler zu) und Stufenwechsel-Automation (Deal wandert in „Verhandlung" erzeugt interne Angebotsvorbereitungs-Aufgabe). Komplexere Regeln überspringen, bis diese drei zwei Wochen lang funktionieren. Zeitaufwand: 2 bis 3 Tage, dann 2 Wochen Monitoring.
+**Woche 3: Erste Automatisierungen.** Drei Abläufe einrichten: Stale-Deal-Übersicht (gespeicherte Ansicht nach letzter Änderung, in der Cloud zusätzlich eine Routine, die solche Deals regelmäßig auflistet), Inbound-Lead-Routing (ein n8n-Flow oder REST-Aufruf legt aus dem Formular-Eingang den Kontakt an und setzt den Verantwortlichen) und Stufenwechsel-Automation (das Webhook-Ereignis zum Deal-Update startet einen n8n-Flow, der eine Aufgabe zur Angebotsvorbereitung anlegt). Komplexere Abläufe überspringen, bis diese drei zwei Wochen lang funktionieren. Zeitaufwand: 2 bis 3 Tage, dann 2 Wochen Monitoring.
 
-**Woche 4: KI-Agenten-Schicht.** Claude (oder ChatGPT, oder Ihr bevorzugtes Modell) über [MCP](/features/api) mit dem CRM verbinden. Ein Projekt mit Ihrem ICP, Ihrem Tonfall und Ihren Standard-Einwand-Antworten konfigurieren. Den Agenten in der ersten Woche im Human-Review-Modus laufen lassen: Er entwirft Antworten und Outreach, Sie prüfen vor Versand. Pro Vertriebler pro Tag gesparte Zeit messen. Bis Ende Woche 4 sollte das Team 30 bis 60 Minuten pro Vertriebler pro Tag allein bei CRM-Verwaltung sparen. Zeitaufwand: 1 Tag für das MCP-Setup, laufende Iteration der Prompts.
+**Woche 4: KI-Agenten-Schicht.** Claude (oder ChatGPT, oder Ihr bevorzugtes Modell) über [MCP](/features/api) mit dem CRM verbinden. Ein Projekt mit Ihrem ICP, Ihrem Tonfall und Ihren Standard-Einwand-Antworten konfigurieren. Den Agenten in der ersten Woche im Human-Review-Modus laufen lassen: Er entwirft Antworten und Outreach, Sie prüfen vor Versand. Pro Vertriebler pro Tag gesparte Zeit messen. Bis Ende Woche 4 sollte das Team messbar weniger Zeit mit CRM-Verwaltung verbringen; halten Sie den tatsächlichen Wert fest. Zeitaufwand: 1 Tag für das MCP-Setup, laufende Iteration der Prompts.
 
 Der Fehler, den die meisten Teams machen: in Woche 1 direkt zu Woche 4 springen. Das Datenfundament ist unglamourös, aber jeder spätere Schritt baut darauf auf. Eine saubere Datenbank mit drei funktionierenden Regeln schlägt eine chaotische Datenbank mit zwanzig schicken Automationen.
 
@@ -213,7 +213,7 @@ Ein CRM, das sich selbst pflegt, statt darauf zu warten, dass der Vertriebler ti
 </FaqItem>
 
 <FaqItem question="Kann ich ein bestehendes CRM automatisieren oder brauche ich ein neues?">
-Bestehende CRMs (HubSpot, Salesforce, Pipedrive) haben alle Workflow-Regeln und Basis-Sequenzen; Sie können n8n, Make oder Zapier nutzen, um sie mit KI-Tools zu verbinden. Die Begrenzung ist die Tiefe der Integration: Die meisten Legacy-CRMs wurden nicht für Agenten-Bedienung gebaut, der Agent muss also durch API-Kanten arbeiten. Agent-native CRMs wie Customermates stellen reichere Schnittstellen ([[derived.mcp.tools.total]] MCP-Tools) bereit, sodass der Agent alles nativ bedienen kann.
+Bestehende CRMs (HubSpot, Salesforce, Pipedrive) haben alle Workflow-Regeln und Basis-Sequenzen; Sie können n8n, Make oder Zapier nutzen, um sie mit KI-Tools zu verbinden. Die Begrenzung ist die Tiefe der Integration: Die meisten Legacy-CRMs wurden nicht für Agenten-Bedienung gebaut, der Agent muss also durch API-Kanten arbeiten. Agent-native CRMs wie Customermates stellen reichere Schnittstellen ([[derived.mcp.tools.total]] MCP-Tools) bereit, sodass der Agent die zentralen CRM-Operationen direkt bedienen kann.
 </FaqItem>
 
 <FaqItem question="Was ist die einfachste erste Automation?">
@@ -221,7 +221,7 @@ Bidirektionale E-Mail-Synchronisation. Jede E-Mail mit einem Kunden wird automat
 </FaqItem>
 
 <FaqItem question="Wird ein automatisiertes CRM mein Vertriebsteam ersetzen?">
-Nein. Es entfernt die Daten-Eingabe-Steuer aus dem Team. Gespräche, Ermessensentscheidungen und Beziehungsarbeit bleiben menschlich. Vertriebler, die ein automatisiertes CRM gut nutzen, schließen mehr Deals ab als Vertriebler, die manuell ins CRM tippen.
+Nein. Es entfernt die Daten-Eingabe-Steuer aus dem Team. Gespräche, Ermessensentscheidungen und Beziehungsarbeit bleiben menschlich. Vertriebler, die ein automatisiertes CRM gut nutzen, haben mehr Zeit für Gespräche als Vertriebler, die manuell ins CRM tippen.
 </FaqItem>
 
 <FaqItem question="Was kostet ein automatisiertes CRM?">
@@ -229,11 +229,11 @@ Managed Customermates startet bei [[commercial.price.starter.monthly]] pro Nutze
 </FaqItem>
 
 <FaqItem question="Lohnt sich ein Open-Source-automatisiertes-CRM?">
-Ja, wenn Sie technische Grundkenntnisse oder Budget für Managed Hosting haben. Die Kosten sind Servermiete (10 bis 30 € pro Monat für ein kleines Team) statt Pro-Nutzer-Preise. Der Vorteil: keine Upgrade-Steuer, kein Vendor-Lock-in und der Quellcode als langfristige Exit-Option. Customermates Self-Hosted ist dasselbe Produkt wie die Cloud-Version, kostenlos unter AGPL-3.0.
+Ja, wenn Sie technische Grundkenntnisse oder Budget für Managed Hosting haben. Die Kosten sind Servermiete (10 bis 30 € pro Monat für ein kleines Team) statt Pro-Nutzer-Preise. Der Vorteil: keine Upgrade-Steuer, kein Vendor-Lock-in und der Quellcode als langfristige Exit-Option. Customermates Self-Hosted nutzt denselben Open-Source-Kern wie die Cloud-Version, ohne Lizenzkosten unter AGPL-3.0; den einheitlichen Posteingang und den gehosteten Assistenten Mate gibt es nur in der Cloud.
 </FaqItem>
 
 <FaqItem question="Wie funktioniert CRM-Automatisierung mit DSGVO?">
-Workflow-Regeln und Webhooks verarbeiten personenbezogene Daten, das CRM ist Auftragsverarbeiter und Sie brauchen einen AVV. KI-Agenten, die CRM-Daten lesen, schaffen ein zweites Auftragsverarbeitungs-Verhältnis mit dem LLM-Anbieter. Self-Hosted CRM plus EU-gehostete Modelle eliminieren Schrems-II-Bedenken; Cloud-CRM plus US-LLM heißt zwei AVVs unterschreiben und das Restrisiko akzeptieren.
+Workflow-Regeln und Webhooks verarbeiten personenbezogene Daten, das CRM ist Auftragsverarbeiter und Sie brauchen einen AVV. KI-Agenten, die CRM-Daten lesen, schaffen ein zweites Auftragsverarbeitungs-Verhältnis mit dem LLM-Anbieter. Self-Hosted CRM plus EU-gehostete Modelle reduzieren die Drittland-Fragen deutlich; Cloud-CRM plus US-LLM heißt zwei AVVs unterschreiben und das Restrisiko bewerten.
 </FaqItem>
 
 <FaqItem question="Wie verhält sich CRM-Automatisierung zu KI-Agenten?">

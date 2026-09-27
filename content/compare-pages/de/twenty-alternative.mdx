@@ -1,0 +1,176 @@
+---
+title: "Twenty-CRM-Alternative: Customermates vs. Twenty"
+description: "Twenty CRM vs. Customermates: zwei moderne Open-Source-CRMs im Vergleich zu Lizenz, Datenmodell, Preisen, Self-Hosting, E-Mail- und Chat-Kanälen und MCP."
+competitorName: Twenty
+
+relatedHrefs:
+  - /compare/espocrm-alternative
+  - /compare/folk
+  - /features/self-hosted
+  - /blog/open-source-crm
+
+hero:
+  title: "Twenty-CRM-Alternative: Customermates und Twenty im Vergleich"
+  description: "Twenty und Customermates sind beide moderne Open-Source-CRMs mit eingebautem MCP-Server. Twenty punktet beim flexiblen Datenmodell; Customermates holt WhatsApp, LinkedIn, Instagram und Telegram in denselben Posteingang wie E-Mail. Dieser Vergleich nutzt die offiziellen Twenty-Seiten mit Stand 27. September 2026."
+  buttonLeftText: Kostenlos starten
+  buttonLeftHref: /auth/signup
+  buttonRightText: Live-Demo ansehen
+  buttonRightHref: https://demo.customermates.com
+  hint: "✓ Keine Kreditkarte benötigt ✓ Erste [[commercial.trial.days]] Tage kostenlos"
+
+comparison:
+  competitorName: Twenty
+  title: "Customermates vs. Twenty: Funktionsvergleich"
+  sections:
+  - title: Lizenz & Betrieb
+    features:
+      - name: Open-Source-Lizenz
+        source: AGPL-3.0-Kern; separat lizenziertes ee/-Verzeichnis
+        competitor: AGPL-3.0 mit kommerziell lizenzierten Enterprise-Dateien
+      - name: Self-Hosting
+        source: Docker Compose (Anwendung + PostgreSQL 16)
+        competitor: Docker Compose
+      - name: Verwaltete Cloud
+        source: true
+        competitor: true
+  - title: Preise
+    features:
+      - name: Cloud-Einstiegspreis
+        source: Ab [[commercial.price.starter.monthly]] / Nutzer / Monat
+        competitor: 9 $ / Nutzer / Monat (Pro, jährliche Abrechnung)
+      - name: Abrechnung
+        source: Monatlich
+        competitor: Monatlich oder jährlich
+      - name: Kostenlose Testphase
+        source: "[[commercial.trial.days]] Tage"
+        competitor: 30 Tage
+  - title: CRM-Funktionen
+    features:
+      - name: Kontakte, Organisationen, Deals
+        source: true
+        competitor: true
+      - name: Eigene Objekte
+        source: false
+        competitor: true
+      - name: Eigene Felder
+        source: true
+        competitor: true
+      - name: Berechtigungen auf Feldebene
+        source: false
+        competitor: true
+      - name: SSO (SAML/OIDC)
+        source: false
+        competitor: Organization-Tarif
+  - title: Kommunikation
+    features:
+      - name: E-Mail-Synchronisierung
+        source: Gmail, Outlook, IMAP (ab Pro)
+        competitor: Gmail, Outlook, IMAP
+      - name: Kalender
+        source: Nur lesend (ab Pro)
+        competitor: Google, Microsoft, CalDAV
+      - name: LinkedIn, WhatsApp, Instagram, Telegram
+        source: Einheitlicher Posteingang (ab Pro)
+        competitor: false
+  - title: KI & Schnittstellen
+    features:
+      - name: MCP-Server
+        source: "Eingebaut, [[derived.mcp.tools.total]] Werkzeuge"
+        competitor: Eingebaut
+      - name: KI in der App
+        source: Mate-Assistent (Cloud)
+        competitor: KI-Agenten
+      - name: API
+        source: REST (OpenAPI) und Webhooks
+        competitor: REST, GraphQL und Webhooks
+
+cta:
+  action: Sie vergleichen Twenty und Customermates?
+  description: "Verbinden Sie in einer Customermates-Testphase Ihre Kanäle und einen KI-Client und sehen Sie mit Ihren eigenen Daten, wie sich beide Ansätze unterscheiden."
+  buttonLeftText: Kostenlos starten
+  buttonLeftHref: /auth/signup
+  buttonRightText: Live-Demo ansehen
+  buttonRightHref: https://demo.customermates.com
+  hint: "✓ Keine Kreditkarte benötigt ✓ Erste [[commercial.trial.days]] Tage kostenlos"
+---
+
+> [Twenty](https://twenty.com/) gehört zu den sichtbarsten modernen Open-Source-CRMs: eine TypeScript-Anwendung mit flexiblem Datenmodell, Workflows, KI-Agenten und eingebautem MCP-Server, als Cloud-Dienst oder selbst gehostet mit Docker Compose. Auch Customermates ist ein modernes Open-Source-CRM mit eingebautem MCP-Server. Die größten Unterschiede liegen im Datenmodell, bei den Nachrichtenkanälen und in der Paketierung der Funktionen.
+
+## Warum Teams Twenty mit Customermates vergleichen
+
+Wer sich Twenty ansieht, sucht meist ein Open-Source-CRM, das sich wie aktuelle Software anfühlt und das KI-Clients bedienen können. Beide Ziele teilt Customermates. Entscheidend sind konkretere Fragen:
+
+- Müssen Sie eigene Objekttypen modellieren, oder decken Kontakte, Organisationen, Deals, Services und Aufgaben Ihre Arbeit ab?
+- Schreiben Ihre Kunden nur per E-Mail oder auch über WhatsApp, LinkedIn, Instagram oder Telegram?
+- Brauchen Sie heute schon Single Sign-On oder Berechtigungen auf Feldebene?
+- Welches KI-Setup möchten Sie: Agenten in der App, externe Clients über MCP oder beides?
+
+## Twenty vs. Customermates auf einen Blick
+
+| Frage                      | Customermates                                                    | Twenty                                                           |
+| -------------------------- | ---------------------------------------------------------------- | ---------------------------------------------------------------- |
+| Lizenz                     | AGPL-3.0-Kern; `ee/` unter separater Lizenz                      | AGPL-3.0; als Enterprise markierte Dateien unter kommerzieller Lizenz |
+| Datenmodell                | Fünf Datensatzarten plus typisierte eigene Felder                | Eigene Objekte und Felder, auch als Code definierbar             |
+| Self-Hosting               | Docker Compose mit PostgreSQL 16                                 | Docker Compose                                                   |
+| Cloud-Einstiegspreis       | [[commercial.price.starter.monthly]] pro Nutzer / Monat, monatlich abgerechnet | 9 $ pro Nutzer / Monat im Pro-Tarif, jährlich abgerechnet |
+| E-Mail und Kalender        | Gmail, Outlook, IMAP; Kalender nur lesend (ab Pro)               | Gmail, Outlook, IMAP; Google-, Microsoft- und CalDAV-Kalender    |
+| Chat-Kanäle                | LinkedIn, WhatsApp, Instagram, Telegram (ab Pro)                 | Nicht enthalten                                                  |
+| MCP                        | Eingebaut, [[derived.mcp.tools.total]] typisierte Werkzeuge      | Eingebaut                                                        |
+| API                        | REST mit OpenAPI, Webhooks                                       | REST, GraphQL, Webhooks                                          |
+| SSO, Berechtigungen auf Feldebene | Nicht verfügbar                                           | SSO im Organization-Tarif; Feldberechtigungen ab Pro             |
+
+Die Angaben zu Twenty stammen von der [Preisseite](https://twenty.com/pricing), der [Lizenz](https://github.com/twentyhq/twenty/blob/main/LICENSE) und dem [GitHub-Repository](https://github.com/twentyhq/twenty) mit Stand 27. September 2026. Twenty nennt für Organization 19 $ pro Nutzer und Monat bei jährlicher Abrechnung und für Enterprise ab 50.000 $ pro Jahr.
+
+## Wann Twenty besser passt
+
+- **Ihre Daten passen nicht in ein Standard-CRM.** Mit eigenen Objekten modellieren Sie Projekte, Immobilien, Beteiligungen oder anderes als eigenständige Datensätze. Customermates erweitert stattdessen feste Datensatzarten um eigene Felder.
+- **Sie brauchen jetzt SSO oder Berechtigungen auf Feldebene.** Twenty nennt Single Sign-On per SAML/OIDC im Organization-Tarif und Feldberechtigungen ab Pro. Customermates bietet heute beides nicht.
+- **Sie möchten GraphQL** nutzen oder Ihr Schema als Code definieren.
+- **Der Kalender steht im Mittelpunkt.** Twenty synchronisiert Google-, Microsoft- und CalDAV-Kalender; Customermates zeigt verbundene Kalenderdaten nur lesend an.
+
+## Wann Customermates besser passt
+
+- **Ihre Kunden schreiben nicht nur per E-Mail.** In Customermates Cloud ab Pro holt der [einheitliche Posteingang](/features/unified-inbox) WhatsApp, LinkedIn (einschließlich Sales Navigator und Recruiter), Instagram und Telegram neben Gmail, Outlook und IMAP ins CRM, und KI-Clients können über alle diese Kanäle lesen, entwerfen und senden.
+- **Ein typisierter Werkzeugkatalog für KI-Clients.** Der [MCP-Server von Customermates](/docs/mcp) stellt [[derived.mcp.tools.total]] benannte Werkzeuge für Datensätze, Nachrichten, eigene Felder, Dashboards und Webhooks bereit, sodass ein Client genau sieht, was er tun kann. Die Server-Anweisungen bitten Clients, vor Löschen und Senden nachzufragen; ob das geschieht, entscheidet der Client. Mehr dazu im [Leitfaden zu agentischem CRM](/blog/agentic-crm).
+- **Ein gehosteter Assistent mit erzwungenen Freigaben.** Mate fragt vor dem Senden und Löschen verbindlich nach: In Customermates Cloud verlangt der Assistent für jede destruktive Aktion und jedes Senden eine neue Freigabe, und Routinen lassen ihn gespeicherte Anweisungen nach Zeitplan oder bei Datensatzänderungen ausführen.
+- **Monatliche Abrechnung** ab [[commercial.price.starter.monthly]] pro Nutzer, mit der verwalteten Datenbank in einer EU-Region.
+
+## Self-Hosting im Vergleich
+
+Beide Produkte veröffentlichen ein Docker-Compose-Setup. Customermates läuft mit zwei Diensten (Anwendung und PostgreSQL 16), und die selbst gehostete Edition enthält den CRM-Kern mit REST, Webhooks und MCP im Starter-Funktionsumfang; Posteingang und Mate bleiben in der Cloud. Die selbst gehostete Edition von Twenty ist kostenlos, und laut Preisseite können Self-Hoster auf Organization-Funktionen upgraden. Lesen Sie beide Lizenzdateien, bevor Sie eines der Produkte verändern oder Dritten anbieten; der [Leitfaden zu Open-Source-CRM](/blog/open-source-crm) erklärt, worauf es ankommt, und die Seite zum [selbst gehosteten CRM](/features/self-hosted) beschreibt die Grenzen von Customermates im Detail.
+
+## Umstieg von Twenty
+
+1. **Exportieren** Sie Companies, People und Opportunities aus Twenty.
+2. **Ordnen** Sie sie den Customermates-Organisationen, -Kontakten und -Deals zu; legen Sie für zusätzliche Eigenschaften eigene Felder an. Für eigene Objekte ohne Entsprechung brauchen Sie eine Entscheidung: ein eigenes Feld, ein Service oder ein separates System.
+3. **Importieren** Sie jede Datensatzart als XLSX-Arbeitsmappe, zuerst die Organisationen, oder nutzen Sie die REST-API.
+4. **Bilden** Sie Ihre Phasen als Optionen der Deal-Phase mit Wahrscheinlichkeiten nach.
+5. **Verbinden** Sie ab Pro E-Mail- und Chat-Kanäle und richten Sie Ihren KI-Client auf den MCP-Endpunkt.
+
+## Häufig gestellte Fragen
+
+<Faq>
+<FaqItem question="Ist Twenty CRM Open Source?">
+Ja. Twenty wird laut seiner Lizenzdatei auf GitHub unter der AGPL-3.0 veröffentlicht; als Enterprise markierte Dateien stehen unter einer separaten kommerziellen Lizenz.
+</FaqItem>
+
+<FaqItem question="Hat Twenty einen MCP-Server?">
+Ja. Twenty enthält in Cloud und Self-Hosting einen eingebauten MCP-Server. Auch Customermates enthält einen, mit [[derived.mcp.tools.total]] typisierten Werkzeugen in jedem Tarif und jeder Installation.
+</FaqItem>
+
+<FaqItem question="Was kostet Twenty?">
+Mit Stand 27. September 2026 nannte Twenty für Pro 9 $ und für Organization 19 $ pro Nutzer und Monat bei jährlicher Abrechnung sowie für Enterprise ab 50.000 $ pro Jahr. Self-Hosting ist kostenlos. Customermates beginnt bei [[commercial.price.starter.monthly]] pro Nutzer und Monat, monatlich abgerechnet.
+</FaqItem>
+
+<FaqItem question="Unterstützt Twenty WhatsApp- oder LinkedIn-Nachrichten?">
+Die Dokumentation von Twenty beschreibt die Synchronisierung von E-Mail und Kalender; Kanäle für WhatsApp, LinkedIn, Instagram oder Telegram haben wir nicht gefunden. Customermates holt diese Kanäle in Customermates Cloud ab Pro in seinen einheitlichen Posteingang.
+</FaqItem>
+
+<FaqItem question="Kann Customermates eigene Objekte anlegen wie Twenty?">
+Nein. Customermates hat Kontakte, Organisationen, Deals, Services und Aufgaben, jeweils erweiterbar um typisierte eigene Felder. Hängt Ihr Prozess an völlig neuen Datensatztypen, ist Twenty die flexiblere Wahl.
+</FaqItem>
+</Faq>
+
+## Fazit
+
+Twenty ist die stärkere Wahl, wenn Sie eigene Objekte, SSO oder Berechtigungen auf Feldebene brauchen. Customermates passt zu Teams, deren Kunden neben E-Mail auch über WhatsApp, LinkedIn, Instagram und Telegram schreiben, die diese Gespräche neben ihren Deals sehen wollen und deren KI-Clients das CRM über einen typisierten MCP-Katalog bedienen sollen. Wie Customermates im Vergleich zu einem PHP-basierten Open-Source-CRM abschneidet, zeigt die Seite [EspoCRM-Alternative](/compare/espocrm-alternative); oder [starten Sie jetzt kostenlos](/auth/signup).

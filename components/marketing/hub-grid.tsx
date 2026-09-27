@@ -28,7 +28,7 @@ export function HubGrid({ hero, items }: Props) {
             <li key={item.href} className="border-t border-border">
               <IntlLink className="group flex h-full min-h-40 flex-col py-6 text-foreground" href={item.href}>
                 <div className="flex items-start justify-between gap-3">
-                  <h3 className="text-lg font-semibold leading-snug text-balance">{item.name}</h3>
+                  <h2 className="text-lg font-semibold leading-snug text-balance">{item.name}</h2>
 
                   <ArrowRight className="mt-1 size-4 shrink-0 text-subdued transition-transform group-hover:translate-x-0.5 group-hover:text-foreground" />
                 </div>

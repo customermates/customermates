@@ -31,9 +31,9 @@ export function PostCard({ bottom, description, featured = false, href, title, t
           </div>
         ) : null}
 
-        <h3 className={cn("font-semibold leading-tight text-balance", featured ? "text-2xl sm:text-3xl" : "text-lg")}>
+        <h2 className={cn("font-semibold leading-tight text-balance", featured ? "text-2xl sm:text-3xl" : "text-lg")}>
           {title}
-        </h3>
+        </h2>
 
         {description ? (
           <p className={cn("text-sm leading-6 text-subdued", featured ? "line-clamp-4 sm:text-base" : "line-clamp-3")}>

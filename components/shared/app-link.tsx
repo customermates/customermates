@@ -14,6 +14,7 @@ import {
   stripLocalePrefix,
 } from "@/i18n/locale-registry";
 import { isContentPathname, isPublicPathname } from "@/i18n/routing";
+import { leavesContentTree } from "@/i18n/content-links";
 import { cn } from "@/core/utils/cn";
 
 type BaseProps = {
@@ -116,5 +117,12 @@ export function AppLink(props: Props) {
     );
   }
 
-  return <IntlLink className={mergedClassName} {...internalProps} />;
+  const prefetch =
+    internalProps.prefetch === undefined && typeof internalProps.href === "string"
+      ? leavesContentTree(internalProps.href, pathname)
+        ? false
+        : undefined
+      : internalProps.prefetch;
+
+  return <IntlLink className={mergedClassName} {...internalProps} prefetch={prefetch} />;
 }

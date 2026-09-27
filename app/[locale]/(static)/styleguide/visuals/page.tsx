@@ -5,6 +5,7 @@ import { StyleguideChapter } from "../components/styleguide-chapter";
 import { VisualsChapter } from "../components/visuals-chapter";
 
 import { isContentLocale } from "@/i18n/locale-registry";
+import { enableStaticLocale } from "@/i18n/static-locale";
 
 export const metadata: Metadata = {
   title: "Marketing visuals",
@@ -15,6 +16,8 @@ type Props = {
 };
 
 export default async function VisualsPage({ params }: Props) {
+  await enableStaticLocale(params);
+
   const { locale } = await params;
   if (!isContentLocale(locale)) notFound();
 

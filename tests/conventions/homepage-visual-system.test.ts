@@ -135,9 +135,17 @@ describe("homepage visual-system adoption", () => {
     const leadLine = readOpeningElementContaining(hero, 'data-homepage-hero-line="lead"');
     const rotationLine = readOpeningElementContaining(hero, 'data-homepage-hero-line="rotation"');
 
-    expect(hero).toContain("accessibleHeadline");
-    expect(hero).toContain("[heroSection.title, accentRotations[0]]");
-    expect(hero).toContain('className="sr-only"');
+    const heading = hero.slice(hero.indexOf("<h1"), hero.indexOf("</h1>"));
+
+    expect(hero.match(/<h1\b/gu)).toHaveLength(1);
+    expect(heading).toContain('data-homepage-hero-line="lead"');
+    expect(heading).toContain("{heroSection.title}");
+    expect(heading).toContain('className="sr-only"');
+    expect(heading).toContain("headlineAccent");
+    expect(heading).not.toContain("RotatingAccent");
+    expect(heading).not.toContain('data-homepage-hero-line="rotation"');
+    expect(rotationLine).toContain("aria-hidden");
+    expect(hero).toContain("const headlineAccent = accentRotations[0];");
     expect(hero).toContain("<RotatingAccent");
     expect(hero.match(/data-homepage-hero-line="lead"/gu)).toHaveLength(1);
     expect(hero.match(/data-homepage-hero-line="rotation"/gu)).toHaveLength(1);

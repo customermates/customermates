@@ -55,11 +55,11 @@ The reality of modern sales: your team is hybrid. They work in the office, at cu
 
 ### Immediate Documentation Beats Next-Day Notes
 
-Information entered the next morning is incomplete. Research shows that people forget roughly 50 percent of new information within one hour. When a salesperson drives back to the office and enters meeting notes from memory, critical details about objections, buying signals, and next steps are lost. A CRM app enables documentation in the elevator right after the meeting, while everything is still fresh.
+Information entered the next morning is incomplete. Memory research going back to Ebbinghaus shows that much of new information fades within hours. When a salesperson drives back to the office and enters meeting notes from memory, critical details about objections, buying signals, and next steps are lost. A CRM app enables documentation in the elevator right after the meeting, while everything is still fresh.
 
 ### AI Makes Mobile CRM Smarter
 
-The biggest shift in CRM apps since 2024 is AI integration. Modern CRM apps do not just store data, they actively help you sell:
+The biggest shift in CRM apps since 2024 is AI integration. Modern CRM apps do not just store data. They actively help you sell:
 
 - **Pre-meeting briefings**: AI summarizes the customer relationship, recent interactions, and open deals before you walk into a meeting
 - **Next-step suggestions**: Based on deal stage and activity patterns, AI recommends what to do next
@@ -75,7 +75,7 @@ Picture this: you are standing in the lobby of a prospect's office with five min
 
 ### No More Double Entry
 
-Without a CRM app, salespeople collect information during the day on paper, in personal note apps, or in their heads. Back at the office, they transfer everything into the CRM. This double handling wastes 30 to 60 minutes daily and introduces errors. A CRM app eliminates this entirely by making the CRM the single point of entry from the start.
+Without a CRM app, salespeople collect information during the day on paper, in personal note apps, or in their heads. Back at the office, they transfer everything into the CRM. This double handling wastes time every day and introduces errors. A CRM app eliminates this entirely by making the CRM the single point of entry from the start.
 
 ## Key Features Every CRM App Must Have
 
@@ -144,12 +144,12 @@ Mobile users have zero patience for slow apps. Your CRM app must load in under t
 
 | CRM App | Type | Offline Access | AI Features | Push Notifications | Starting Price |
 |---|---|---|---|---|---|
-| **Customermates** | Responsive Web App | Yes | MCP integration for external AI clients | Yes | From [[commercial.price.starter.monthly]]/user/mo |
-| **Salesforce** | Native iOS & Android | Yes (Enterprise+) | Einstein AI | Yes | $25/user/mo |
+| **Customermates** | Responsive Web App | No (needs a connection) | MCP integration for external AI clients | No | From [[commercial.price.starter.monthly]]/user/mo |
+| **Salesforce** | Native iOS & Android | Yes (higher editions) | Einstein AI | Yes | $25/user/mo |
 | **HubSpot** | Native iOS & Android | Partial | ChatSpot AI | Yes | Free (limited) |
 | **Pipedrive** | Native iOS & Android | Partial | AI Sales Assistant | Yes | €14/user/mo |
-| **Zoho CRM** | Native iOS & Android | Yes | Zia AI | Yes | €14/user/mo |
-| **Monday CRM** | Native iOS & Android | Limited | AI automations | Yes | €12/seat/mo |
+| **Zoho CRM** | Native iOS & Android | Yes | Zia AI | Yes | Free (up to 3 users); paid plans see zoho.com |
+| **Monday CRM** | Native iOS & Android | Limited | AI automations | Yes | €12/seat/mo (annual, as of September 2026) |
 | **Freshsales** | Native iOS & Android | Limited | Freddy AI | Yes | €9/user/mo |
 | **Attio** | Native iOS & Android | Limited | AI-first design | Yes | $29/user/mo |
 | **Copper** | Native iOS & Android | Partial | AI suggestions | Yes | $23/user/mo |
@@ -157,22 +157,22 @@ Mobile users have zero patience for slow apps. Your CRM app must load in under t
 
 ### 1. Customermates: A CRM App Built for European Teams
 
-Customermates delivers a fully responsive web CRM that works identically on desktop, tablet, and smartphone. Every feature available on the desktop is available on mobile with no compromises.
+Customermates delivers a fully responsive web CRM that runs in the browser on desktop, tablet, and smartphone. It is the same web application on every device; there is no native iOS or Android app.
 
 **What makes the CRM app stand out**:
 
-- Complete access to contacts, deals, pipelines, and reports on mobile
+- Complete access to contacts, deals, pipelines, and dashboards on mobile
 - MCP integration for external AI clients covering meeting prep, follow-up drafts, and deal summaries
-- Activity logging with quick-entry templates
-- Push notifications for tasks, reminders, and deal updates
-- Native unified inbox for email, LinkedIn, WhatsApp, Instagram, and Telegram works on mobile, with templates (Pro tier and above)
+- Notes and task creation on the record, with activity history
+- Native unified inbox for email, LinkedIn, WhatsApp, Instagram, and Telegram works on mobile (Pro tier and above)
 - Responsive design adapts to any screen size
-- All data stored in the EU with [self-hosting option](/blog/open-source-crm) for full control
-- n8n workflow automation works on mobile-triggered events
+- Cloud database in the AWS Frankfurt region, with a [self-hosting option](/blog/open-source-crm) for full control
+- Webhooks fire on record changes made on mobile too, so a separately run n8n can react
+- No offline mode and no push notifications
 
 **Pricing**: From [[commercial.price.starter.monthly]] per user per month (Starter tier) for the full core CRM. Pro at [[commercial.price.pro.monthly]] adds the unified inbox and email on mobile. No hidden costs. Native MCP access for AI integration like ChatGPT and Claude is included at every tier.
 
-**Best for**: European teams that want a complete CRM app with AI, GDPR compliance, and no per-feature pricing.
+**Best for**: European teams that want a complete browser-based CRM with AI access, a DPA, a self-hosting option, and no per-feature pricing.
 
 ### 2. Salesforce: Best CRM App for Enterprise Customization
 
@@ -186,9 +186,9 @@ Salesforce Mobile App gives large organizations access to their heavily customiz
 - Offline data access (available on Enterprise plan and above)
 - Integration with Slack for team communication
 
-**Limitations**: The app mirrors Salesforce's complexity. Without proper mobile layout configuration, the experience is overwhelming. Offline access requires Enterprise edition ($175/user/mo). High learning curve. Einstein AI requires additional licensing on lower tiers.
+**Limitations**: The app mirrors Salesforce's complexity. Without proper mobile layout configuration, the experience is overwhelming. Offline access requires a higher edition. High learning curve. Einstein AI requires additional licensing on lower tiers.
 
-**Pricing**: From $25 per user per month (Starter). Enterprise with offline from $175/user/mo.
+**Pricing**: From $25 per user per month (Starter Suite). As of September 2026, higher suites run from $100 (Pro Suite) to $550 (Max) per user per month, billed annually.
 
 ### 3. HubSpot: Best Free CRM App for Getting Started
 
@@ -239,7 +239,7 @@ Zoho CRM's mobile app is feature-rich with particularly strong offline support a
 
 **Limitations**: The interface can feel dated compared to competitors. The sheer number of features makes the app complex for new users. Performance slows with large datasets.
 
-**Pricing**: From €14 per user per month (Standard). Free plan for up to 3 users.
+**Pricing**: Free plan for up to 3 users; paid plans see [Zoho's pricing page](https://www.zoho.com/crm/zohocrm-pricing.html).
 
 ### 6. Monday CRM: Best CRM App for Team Collaboration
 
@@ -256,7 +256,7 @@ Monday CRM's mobile app extends its collaboration-focused approach to mobile, ma
 
 **Limitations**: CRM-specific features are less mature than dedicated CRM platforms. Offline capability is limited to viewing cached boards. Automation setup is desktop-only.
 
-**Pricing**: From €12 per seat per month.
+**Pricing**: From €12 per seat per month billed annually (€18 billed monthly), 3-seat minimum, as of September 2026.
 
 ### 7. Freshsales: Best CRM App for Teams New to Mobile CRM
 
@@ -406,7 +406,7 @@ For organizations with MDM solutions (Microsoft Intune, VMware Workspace ONE, Ja
 
 ### AI-Powered Mobile Assistants
 
-AI in CRM apps is moving from basic automation to genuine sales intelligence. Modern CRM apps can generate a customer briefing before a meeting, suggest talking points based on deal history, predict which deals will close this quarter, and draft follow-up emails after a call. Customermates already includes MCP integration for external AI clients that works on mobile, providing salespeople with intelligent context and next-step recommendations.
+AI in CRM apps is moving from basic automation to genuine sales intelligence. Modern CRM apps can generate a customer briefing before a meeting, suggest talking points based on deal history, predict which deals will close this quarter, and draft follow-up emails after a call. With Customermates, an external AI client connected over MCP can produce that kind of briefing from CRM data, on mobile as on desktop.
 
 ### Voice-First CRM Interaction
 
@@ -418,7 +418,7 @@ CRM apps are surfacing predictive insights on the mobile home screen: deals like
 
 ### Autonomous AI Workflows
 
-The next frontier: CRM apps where AI does not just suggest actions but executes them. Automatic follow-up scheduling, intelligent lead routing based on behavior patterns, and proactive alerts when a customer's engagement pattern changes. Customermates is building toward this future with n8n-powered automations triggered by AI insights.
+The next frontier: CRM apps where AI does not just suggest actions but executes them. Automatic follow-up scheduling, intelligent lead routing based on behavior patterns, and proactive alerts when a customer's engagement pattern changes. In the Customermates cloud, routines let the hosted Mate assistant run a saved prompt on a schedule or on a CRM event, asking for confirmation before destructive actions and sends.
 
 ## Frequently Asked Questions About CRM Apps
 
@@ -440,11 +440,11 @@ For small businesses, the best CRM app balances features with simplicity and cos
 </FaqItem>
 
 <FaqItem question="Do CRM apps work offline?">
-Most CRM apps offer some level of offline access, but the depth varies significantly. Zoho CRM and Customermates provide the most robust offline capabilities, allowing you to view, create, and edit records without a connection. Pipedrive and HubSpot cache recently viewed records. Salesforce requires the Enterprise plan ($175/user/mo) for offline access. Always test offline functionality before committing to a CRM app.
+Most CRM apps offer some level of offline access, but the depth varies significantly. Zoho CRM provides robust offline capabilities, allowing you to view, create, and edit records without a connection. Pipedrive and HubSpot cache recently viewed records. Salesforce reserves offline access for higher editions. Customermates runs in the browser and needs a connection; it has no offline mode. Always test offline functionality before committing to a CRM app.
 </FaqItem>
 
 <FaqItem question="Are CRM apps secure enough for customer data?">
-Yes, when properly configured. Leading CRM apps encrypt data in transit and at rest, support biometric authentication, and enable remote wipe. For GDPR compliance, choose a CRM app that stores data in the EU (like Customermates) or offers data residency controls. Pair the CRM app with device security policies (PIN, auto-lock, MDM) for a complete security posture.
+Yes, when properly configured. Leading CRM apps encrypt data in transit and at rest, support biometric authentication, and enable remote wipe. For GDPR, check where the CRM stores data and which subprocessors it uses. In the Customermates cloud, the database runs in the AWS Frankfurt region, subprocessors (including US providers) are disclosed, and a DPA is available; self-hosting lets you choose the location yourself. Pair the CRM app with device security policies (PIN, auto-lock, MDM) for a complete security posture.
 </FaqItem>
 
 <FaqItem question="What is the difference between a native CRM app and a responsive web CRM?">
@@ -452,7 +452,7 @@ A native CRM app is downloaded from the App Store or Google Play and is built sp
 </FaqItem>
 
 <FaqItem question="How much does a CRM app cost?">
-CRM app pricing ranges from free to over $175/user/month. Free options (HubSpot, Zoho, Freshsales) have meaningful limitations. Mid-range CRM apps like Customermates (from [[commercial.price.starter.monthly]]/user/mo) and Pipedrive (€14/user/mo) offer the best value for most teams. Enterprise CRM apps like Salesforce start at $25/user/mo but escalate quickly when you add features like offline access and advanced AI.
+CRM app pricing ranges from free to over $500/user/month. Free options (HubSpot, Zoho, Freshsales) have meaningful limitations. Mid-range CRM apps like Customermates (from [[commercial.price.starter.monthly]]/user/mo) and Pipedrive (€14/user/mo) offer the best value for most teams. Enterprise CRM apps like Salesforce start at $25/user/mo but escalate quickly when you add features like offline access and advanced AI.
 </FaqItem>
 
 <FaqItem question="Can a CRM app replace the desktop version?">

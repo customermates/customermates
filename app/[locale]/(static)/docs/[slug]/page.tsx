@@ -9,7 +9,7 @@ import { DocsPageHeader } from "../components/docs-page-header";
 import { env } from "@/env";
 import { DocsDemo } from "@/core/fumadocs/docs-demo";
 import { docsSource } from "@/core/fumadocs/source";
-import { getMDXComponents } from "@/core/fumadocs/mdx-components";
+import { getDocsMDXComponents } from "@/core/fumadocs/mdx-components";
 import { generateMetadataFromMeta } from "@/core/fumadocs/metadata";
 import { docNavI18nKey } from "@/features/docs/docs-nav";
 import { PageContainer } from "@/components/shared/page-container";
@@ -17,6 +17,12 @@ import { Toc } from "@/components/shared/toc";
 import { Footer } from "@/app/components/footer";
 import { JsonLd } from "@/components/seo/json-ld";
 import { breadcrumbListSchema } from "@/core/seo/schemas";
+import { enableStaticLocale } from "@/i18n/static-locale";
+import { localizedSlugParams } from "@/core/fumadocs/static-params";
+
+export function generateStaticParams({ params }: { params: { locale: string } }) {
+  return localizedSlugParams(docsSource, params.locale, "slug");
+}
 
 export async function generateMetadata({
   params,
@@ -27,7 +33,9 @@ export async function generateMetadata({
   return generateMetadataFromMeta({ locale, route: "/docs/:slug", params: { slug } });
 }
 
-export default async function DocPage({ params }: { params: Promise<{ slug: string }> }) {
+export default async function DocPage({ params }: { params: Promise<{ locale: string; slug: string }> }) {
+  await enableStaticLocale(params);
+
   const { slug } = await params;
   const locale = await getLocale();
   const page = docsSource.getPage([slug], locale);
@@ -39,7 +47,7 @@ export default async function DocPage({ params }: { params: Promise<{ slug: stri
   const headline = navKey ? t(navKey) : page.data.title;
 
   const MDX = page.data.body;
-  const components = getMDXComponents();
+  const components = getDocsMDXComponents();
   const markdownUrl = `/${locale}/raw/docs/${slug}.md`;
   const mcpUrl = `${env.BASE_URL}/api/v1/mcp`;
 

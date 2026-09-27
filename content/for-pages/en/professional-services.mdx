@@ -118,7 +118,7 @@ Customermates is a **CRM for professional services** teams that sell expertise t
     Keep stakeholders, deals, services and next actions connected instead of
     splitting them across personal notes and spreadsheets.
   </SummaryItem>
-  <SummaryItem label="Strongest proof">
+  <SummaryItem label="Core capabilities">
     Configurable deal stages, deterministic weighted values, linked services and
     record-linked tasks.
   </SummaryItem>
@@ -128,9 +128,9 @@ Customermates is a **CRM for professional services** teams that sell expertise t
   </SummaryItem>
 </ArticleSummary>
 
-<ProofRail label="Verified professional-services CRM capabilities">
+<ProofRail label="Professional-services CRM capabilities">
   <ProofItem label="Relationships">Contacts and organizations</ProofItem>
-  <ProofItem label="Pipeline">Configurable stages and kanban</ProofItem>
+  <ProofItem label="Pipeline">Configurable stages and Kanban board</ProofItem>
   <ProofItem label="Value">Stage-based weighted totals</ProofItem>
   <ProofItem label="Scope">Services and linked tasks</ProofItem>
   <ProofItem label="Extensions">REST, webhooks and MCP</ProofItem>
@@ -169,7 +169,7 @@ The team can attach the services, quantities and amounts currently under discuss
 | Business-development need      | Customermates owns                                       | Specialist system owns                          |
 | ------------------------------ | -------------------------------------------------------- | ----------------------------------------------- |
 | Client and stakeholder context | Contacts, organizations, relations, notes and activity   | Documents and matter files                      |
-| Opportunity pipeline           | Deals, configurable stages and kanban views              | Proposals, statements of work and contracts     |
+| Opportunity pipeline           | Deals, configurable stages and Kanban views              | Proposals, statements of work and contracts     |
 | Commercial value               | Service amounts, stage probabilities and weighted totals | Predictive forecasting and financial planning   |
 | Follow-up                      | Tasks linked to CRM records and users                    | Scheduling, project plans, time and utilization |
 
@@ -181,12 +181,12 @@ The team can attach the services, quantities and amounts currently under discuss
   project execution, capacity, time entries and invoices in the tools that
   already own those records. Connect them through the [REST API and
   webhooks](/features/api) or a separately operated [n8n
-  workflow](/features/workflow-automation) when a validated handoff is useful.
+  workflow](/features/workflow-automation) when a controlled handoff is useful.
 </AcquisitionCallout>
 
 ## How weighted pipeline values work
 
-Deal stages can carry probabilities. Customermates multiplies the deal value by the configured stage probability and adds those deterministic values into weighted pipeline totals. This makes assumptions visible and repeatable. It is not predictive revenue forecasting, enrichment or an automated close score.
+Deal stages can carry probabilities. Customermates multiplies the deal value by the configured stage probability and adds those deterministic values into weighted pipeline totals. The calculation stays transparent. It is not predictive revenue forecasting, enrichment or an automated close score.
 
 Use weighted value as a review aid: inspect the underlying deal, confirm that the stage still reflects reality and update the record when the commercial situation changes.
 
@@ -203,9 +203,9 @@ The shared model works across consultancies, [agencies](/for/agencies), accounti
 
 ## Cloud, self-hosted and AI access
 
-Core relationship and pipeline records are available in managed cloud and [self-hosted Customermates](/features/self-hosted). Self-hosting uses the Starter entitlement baseline and can expose supported records to an external AI client through [MCP](/docs/mcp).
+Core relationship and pipeline records are available in managed cloud and [self-hosted Customermates](/features/self-hosted). Self-hosting includes the Starter feature set and can expose supported records to an external AI client through [MCP](/docs/mcp).
 
-The [unified inbox](/features/unified-inbox) is a managed-cloud feature from Pro upward. It can bring supported conversations into one list and associate participants with contact context. External MCP clients and model providers remain customer-selected services with their own data and control boundaries.
+The [unified inbox](/features/unified-inbox) is a managed-cloud feature from Pro upward. It brings conversations from the supported channels into one list and links them to the right contacts. You choose the external MCP client and AI model provider yourself; their own terms govern how they process data.
 
 ## Frequently asked questions
 
@@ -233,6 +233,6 @@ No. It is a relationship and pipeline CRM. It does not provide native project de
 </FaqItem>
 
 <FaqItem question="Is the unified inbox available when self-hosting?">
-No. The unified inbox and connected calendar view are managed-cloud features from Pro upward. Self-hosted deployments use Starter entitlements and can connect external AI clients through MCP.
+No. The unified inbox and connected calendar view are managed-cloud features from Pro upward. Self-hosting includes the Starter feature set and can connect external AI clients through MCP.
 </FaqItem>
 </Faq>

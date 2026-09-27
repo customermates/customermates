@@ -1,0 +1,8 @@
+export const PUBLIC_AD_ATTRIBUTION_COOKIE_NAME = "cm_ad_attribution";
+export const PUBLIC_AD_ATTRIBUTION_COOKIE_MAX_AGE_SECONDS = 60 * 60 * 24 * 90;
+export const PUBLIC_AD_ATTRIBUTION_PENDING_PARAM = "cm_ads_pending";
+export const PUBLIC_AD_ATTRIBUTION_PENDING_MAX_AGE_SECONDS = 60 * 60 * 24;
+export const PUBLIC_AD_ATTRIBUTION_PENDING_FUTURE_SKEW_SECONDS = 60 * 5;
+export const AD_IDENTIFIER_VALUE_MAX_LENGTH = 512;
+export const AD_IDENTIFIER_VALUE_PATTERN = /^[^\p{Cc}\p{Cf}\p{Z}=+@][^\p{Cc}\p{Cf}\p{Z}]*$/u;
+export const AD_SEARCH_MAX_LENGTH = 2048;

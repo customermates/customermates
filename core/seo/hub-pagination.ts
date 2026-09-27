@@ -4,7 +4,7 @@ export const HUB_PAGE_SIZE = 24;
 
 export const HUB_PAGE_PARAM = "page";
 
-export type HubSearchParams = Record<string, string | string[] | undefined>;
+export const HUB_PAGE_SEGMENT = "page";
 
 export type HubPage<T> = {
   items: T[];
@@ -12,10 +12,9 @@ export type HubPage<T> = {
   pageCount: number;
 };
 
-export type HubPageResolution =
-  | { kind: "page"; page: number }
-  | { kind: "redirect-page-one"; page: 1 }
-  | { kind: "not-found" };
+export type HubPageResolution = { kind: "page"; page: number } | { kind: "not-found" };
+
+export type LegacyHubPageResolution = { kind: "redirect"; href: string } | { kind: "not-found" };
 
 export type HubPagerModel = {
   nextPage: number | null;
@@ -47,34 +46,42 @@ export function hubPageCountForSource(source: HubPageCountSource): number {
   return hubPageCount(source.getPages(DEFAULT_LOCALE).length);
 }
 
-export function resolveHubPage(raw: string | string[] | undefined, pageCount: number): HubPageResolution {
+export function resolveHubPageSegment(raw: string, pageCount: number): HubPageResolution {
   if (!Number.isSafeInteger(pageCount) || pageCount < 1) throw new RangeError("Hub page count must be positive");
-  if (raw === undefined) return { kind: "page", page: 1 };
-  if (Array.isArray(raw) || !/^[1-9]\d*$/u.test(raw)) return { kind: "not-found" };
+  if (!/^[1-9]\d*$/u.test(raw)) return { kind: "not-found" };
 
   const page = Number(raw);
-  if (!Number.isSafeInteger(page) || page > pageCount) return { kind: "not-found" };
-  if (page === 1) return { kind: "redirect-page-one", page: 1 };
+  if (!Number.isSafeInteger(page) || page < 2 || page > pageCount) return { kind: "not-found" };
 
   return { kind: "page", page };
 }
 
-export function hubPageHref(basePath: string, page: number): string {
-  if (!Number.isSafeInteger(page) || page < 1) throw new RangeError("Hub page must be a positive integer");
-  return page === 1 ? basePath : `${basePath}?${HUB_PAGE_PARAM}=${page}`;
+export function hubPageStaticParams(pageCount: number): { page: string }[] {
+  return Array.from({ length: Math.max(0, pageCount - 1) }, (_, index) => ({ page: String(index + 2) }));
 }
 
-export function hubPageOneRedirectHref(basePath: string, searchParams: HubSearchParams): string {
-  const preserved = new URLSearchParams();
+export function hubPageHref(basePath: string, page: number): string {
+  if (!Number.isSafeInteger(page) || page < 1) throw new RangeError("Hub page must be a positive integer");
+  return page === 1 ? basePath : `${basePath}/${HUB_PAGE_SEGMENT}/${page}`;
+}
 
-  for (const [key, value] of Object.entries(searchParams)) {
-    if (key === HUB_PAGE_PARAM || value === undefined) continue;
-    if (Array.isArray(value)) for (const entry of value) preserved.append(key, entry);
-    else preserved.append(key, value);
-  }
+export function hubPageRoute(basePath: string): string {
+  return `${basePath}/${HUB_PAGE_SEGMENT}/:${HUB_PAGE_PARAM}`;
+}
 
+export function legacyHubPageRedirect(basePath: string, searchParams: URLSearchParams): LegacyHubPageResolution | null {
+  if (!searchParams.has(HUB_PAGE_PARAM)) return null;
+
+  const values = searchParams.getAll(HUB_PAGE_PARAM);
+  const raw = values.length === 1 ? values[0] : undefined;
+  if (raw === undefined || !/^[1-9]\d*$/u.test(raw) || !Number.isSafeInteger(Number(raw))) return { kind: "not-found" };
+
+  const preserved = new URLSearchParams(searchParams);
+  preserved.delete(HUB_PAGE_PARAM);
   const query = preserved.toString();
-  return query ? `${basePath}?${query}` : basePath;
+  const path = hubPageHref(basePath, Number(raw));
+
+  return { kind: "redirect", href: query ? `${path}?${query}` : path };
 }
 
 export function paginateHub<T>(items: readonly T[], page: number, size: number = HUB_PAGE_SIZE): HubPage<T> {

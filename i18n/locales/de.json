@@ -1874,6 +1874,14 @@
   "ContactPage": {
     "description": "Frage, Walkthrough oder Partnerschaft? Schreiben Sie mir kurz, ich melde mich innerhalb eines Tages zurück.",
     "form": {
+      "errors": {
+        "checkFields": "Bitte prüfen Sie die markierten Felder.",
+        "company": "Bitte halten Sie den Firmennamen unter 200 Zeichen.",
+        "email": "Bitte geben Sie eine gültige E-Mail-Adresse ein.",
+        "messageTooLong": "Bitte halten Sie Ihre Nachricht unter 5000 Zeichen.",
+        "messageTooShort": "Bitte schreiben Sie mindestens 10 Zeichen.",
+        "name": "Bitte geben Sie Ihren Namen ein."
+      },
       "founderName": "Benjamin Wagner",
       "founderNote": "Ihre Nachricht kommt direkt bei mir an. Schreiben Sie kurz, was Sie heute nutzen und wo der Workflow hakt.",
       "founderRole": "Gründer von Customermates",
@@ -2477,7 +2485,7 @@
       "compareText": "Tarife vergleichen",
       "ctaText": "Kostenlos starten",
       "featureBusiness": "Business: {accounts, plural, one {# Konto pro Nutzer} other {# Konten pro Nutzer}}, geteilte Konten & Priority-Support",
-      "featurePro": "Pro: zentraler Posteingang, {accounts, plural, one {# verbundenes Konto pro Nutzer} other {# verbundene Konten pro Nutzer}}",
+      "featurePro": "Pro: einheitlicher Posteingang, {accounts, plural, one {# verbundenes Konto pro Nutzer} other {# verbundene Konten pro Nutzer}}",
       "featureStarter": "Starter: die CRM-Kernfunktionen",
       "period": "/ Nutzer / Monat",
       "price": "ab {price}",
@@ -2748,7 +2756,7 @@
   },
   "MessagingUpsell": {
     "cta": "Tarif upgraden",
-    "description": "Messaging ist ab dem Pro-Tarif verfügbar. Mit einem Upgrade verbindest du einen Kanal und nutzt den zentralen Posteingang.",
+    "description": "Messaging ist ab dem Pro-Tarif verfügbar. Mit einem Upgrade verbindest du einen Kanal und nutzt den einheitlichen Posteingang.",
     "title": "Upgrade nötig, um Messaging freizuschalten"
   },
   "NavigationBar": {
@@ -2811,7 +2819,7 @@
       "solutions": "Lösungen",
       "startups": "Startups",
       "taskManagement": "Aufgabenverwaltung",
-      "unifiedInbox": "Zentraler Posteingang"
+      "unifiedInbox": "Einheitlicher Posteingang"
     },
     "routines": "Routinen",
     "search": "Suchen",
@@ -2822,6 +2830,7 @@
   "NotFoundPage": {
     "body": "Wir wurden automatisch benachrichtigt, dass diese Seite in den Urlaub gefahren ist. Wir werden sie finden und bald zurückbringen!",
     "ctaLabel": "Zurück zur Startseite",
+    "documentTitle": "Seite nicht gefunden | Customermates",
     "subtitle": "Diese Seite ist ohne uns zu informieren in den Urlaub gefahren",
     "title": "Huch! Sie haben die Leere betreten"
   },
@@ -3469,7 +3478,7 @@
       "creditNote": "Credits für den gehosteten KI-Assistenten werden monatlich erneuert; nicht genutzte Credits werden nicht übertragen. Externe MCP-Clients nutzen deinen eigenen KI-Anbieter und verbrauchen diese Credits nicht.",
       "features": {
         "business": ["Alles aus Pro", "Geteilte Konten und priorisierter Support"],
-        "pro": ["Alles aus Starter", "Zentraler Posteingang"],
+        "pro": ["Alles aus Starter", "Einheitlicher Posteingang"],
         "starter": [
           "Vollständiges CRM: Kontakte, Deals, Organisationen, Aufgaben",
           "Audit-Log",

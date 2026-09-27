@@ -7,7 +7,7 @@ export const blogPostSchema = z.object({
   author: z.string(),
   backToBlog: z.string(),
   by: z.string(),
-  date: z.date().or(z.string()),
+  date: z.date().or(z.iso.date()),
   tags: z.array(z.string()),
 });
 export type BlogPost = z.infer<typeof blogPostSchema>;

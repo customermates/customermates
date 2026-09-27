@@ -1,10 +1,10 @@
 ---
-title: "Excel CRM Vorlage: Anleitung & Grenzen"
-description: "Kostenlose Excel CRM Vorlage erstellen: Kontaktblätter, Deal-Pipeline, Dashboard-Formeln, Excel vs. CRM Vergleich und Migrationsleitfaden."
+title: "Excel CRM Vorlage: Kundenliste als XLSX selbst erstellen"
+description: "Excel CRM Vorlage in 5 Blättern: Kontakte, Firmen, Deals, Aktivitäten und Dashboard mit Formeln. Plus: So bauen Sie die XLSX-Datei für den CRM-Import."
 
 hero:
-  title: "Excel CRM Vorlage: Kostenlose Einrichtung für kleine Unternehmen"
-  description: Eine Tabelle ist der Startpunkt jeder CRM-Reise. Bauen Sie eine effektive Excel CRM Vorlage mit unserer Schritt-für-Schritt-Anleitung und erkennen Sie, wann der Umstieg sinnvoll wird.
+  title: "Excel CRM Vorlage: Kundenliste und Pipeline in Excel aufbauen"
+  description: Eine gut gebaute Excel-Tabelle trägt ein kleines Team erstaunlich weit. Diese Anleitung zeigt Spalte für Spalte, wie Sie eine Excel CRM Vorlage mit Kontakten, Firmen, Deals und Dashboard aufbauen, und wie Sie sie so anlegen, dass der spätere Umzug in ein CRM ohne Nacharbeit gelingt.
 
 blogPost:
   author: Benjamin Wagner
@@ -14,13 +14,17 @@ blogPost:
   tags:
     - Excel
     - CRM Vorlage
-    - Kostenloser Download
+    - Kundenliste
     - Tabellen-CRM
 ---
 
-# Excel CRM Vorlage: Kostenlose Anleitung, Grenzen und wann Sie umsteigen sollten
+# Excel CRM Vorlage: Kundenliste und Pipeline in Excel aufbauen
 
-Eine Tabelle ist der Startpunkt jeder CRM-Reise. Bauen Sie eine effektive Excel CRM Vorlage mit unserer Schritt-für-Schritt-Anleitung und erkennen Sie, wann der Umstieg sinnvoll wird.
+Eine gut gebaute Excel-Tabelle trägt ein kleines Team erstaunlich weit. Diese Anleitung zeigt Spalte für Spalte, wie Sie eine Excel CRM Vorlage mit Kontakten, Firmen, Deals und Dashboard aufbauen, und wie Sie sie so anlegen, dass der spätere Umzug in ein CRM ohne Nacharbeit gelingt.
+
+<AcquisitionCallout title="Kurz zusammengefasst">
+Legen Sie fünf Blätter an: Kontakte, Firmen, Deals, Aktivitäten und Dashboard. Eine Zeile pro Datensatz, Dropdowns für jeden Status, Firmennamen immer identisch geschrieben. Speichern Sie die Datei als `.xlsx`, nicht als altes `.xls` oder CSV. Dann können Sie jedes Blatt später direkt in ein CRM importieren.
+</AcquisitionCallout>
 
 Microsoft Excel gehört nach wie vor zu den meistgenutzten Werkzeugen für die Verwaltung von Kundenbeziehungen, insbesondere bei kleinen Unternehmen, Selbstständigen und Freiberuflern. Bevor es dedizierte CRM-Plattformen gab, gab es Tabellenkalkulationen. Und für viele Teams ist eine gut strukturierte Excel CRM Vorlage heute noch ein vollkommen tragfähiger Startpunkt.
 
@@ -210,160 +214,118 @@ Pivot-Tabellen sind das mächtigste Analysewerkzeug in Excel und funktionieren h
 
 7. **Datumsformate einheitlich halten**: Verwenden Sie ein einziges Datumsformat über alle Blätter hinweg. Gemischte Formate verursachen Sortierfehler und fehlerhafte Datumsberechnungen.
 
+## XLSX, XLS oder CSV: Welches Format für die CRM-Vorlage?
+
+Wer nach "CRM xls" sucht, meint meist einfach eine Excel-Datei. Der Unterschied ist trotzdem wichtig:
+
+- **`.xlsx`** ist das aktuelle Excel-Format seit Excel 2007. Es speichert mehrere Blätter, Dropdowns, Formeln und Formatierungen und wird von Google Tabellen, LibreOffice und den meisten CRM-Importen gelesen. Nehmen Sie dieses Format.
+- **`.xls`** ist das alte Format bis Excel 2003. Es ist auf 65.536 Zeilen begrenzt und wird von vielen Programmen nur noch eingeschränkt unterstützt. Speichern Sie alte Dateien einmal mit "Speichern unter" als `.xlsx`.
+- **`.csv`** ist reiner Text ohne Blätter, Formeln und Formatierung. Beim Öffnen in Excel gehen Umlaute und führende Nullen in Postleitzahlen oft verloren. Für den Austausch mit manchen Systemen nötig, als Arbeitsdatei ungeeignet.
+
+## So bauen Sie die Vorlage, damit der CRM-Import später klappt
+
+Die meisten Teams ziehen irgendwann in ein CRM um. Mit ein paar Regeln von Anfang an wird daraus ein Import in wenigen Minuten statt einer Woche Datenputz:
+
+1. **Ein Blatt pro Datensatztyp.** Kontakte, Firmen und Deals gehören in getrennte Blätter, weil CRMs sie getrennt importieren.
+2. **Vor- und Nachname in eigenen Spalten.** Viele CRMs, auch Customermates, verlangen beide Felder für einen neuen Kontakt.
+3. **Firmennamen exakt gleich schreiben.** Beim Import verknüpft das CRM einen Kontakt über den Namen mit seiner Firma. "Müller GmbH" und "Müller GmbH & Co. KG" sind zwei verschiedene Firmen.
+4. **Keine verbundenen Zellen, keine Zwischensummen im Datenbereich.** Die erste Zeile enthält die Spaltennamen, darunter folgt eine Zeile pro Datensatz.
+5. **Statuswerte als feste Liste.** Legen Sie Phasen wie "Neu", "Angebot", "Verhandlung", "Gewonnen" per Dropdown an. Diese Werte werden im CRM zu Auswahlfeldern.
+6. **Datum als echtes Datum.** Keine Texte wie "Anfang März". Prüfen Sie, dass Excel die Spalte als Datum erkennt.
+7. **Eine ID-Spalte pro Blatt.** Sie hilft beim Abgleich, wenn Sie Daten nach dem Import noch einmal aktualisieren.
+
 ## Die 8 Grenzen eines Excel-CRMs
 
-Ein Tabellen-CRM funktioniert innerhalb klarer Grenzen. Hier sind die Einschränkungen, die mit wachsendem Unternehmen schmerzhaft werden:
+Ein Tabellen-CRM funktioniert innerhalb klarer Grenzen. Diese werden mit wachsendem Team schmerzhaft:
 
-### 1. Keine echte Mehrbenutzerfähigkeit
+1. **Mehrere Personen gleichzeitig.** Selbst mit OneDrive oder SharePoint entstehen beim gleichzeitigen Bearbeiten Konflikte und Kopien.
+2. **Keine Erinnerungen.** Excel meldet sich nicht, wenn ein Follow-up fällig ist. Sie müssen daran denken, die Datei zu öffnen und zu filtern.
+3. **Verknüpfungen sind fragil.** SVERWEIS und XVERWEIS verbinden Blätter, brechen aber bei jedem Tippfehler.
+4. **Kaum mobil nutzbar.** Eine Tabelle mit 15 Spalten auf dem Smartphone zu pflegen, macht niemand gern.
+5. **Keine Rechte pro Person.** Wer die Datei öffnen kann, sieht und ändert alles.
+6. **Langsam bei großen Datenmengen.** Mit vielen Formeln wird die Datei ab einigen tausend Zeilen spürbar träge.
+7. **Keine Verbindung zum Postfach.** E-Mails, LinkedIn- oder WhatsApp-Nachrichten landen nicht automatisch beim Kontakt.
+8. **Datenschutz ist Handarbeit.** Auskunftsanfragen und Löschungen bedeuten Suchen in mehreren Blättern und Dateikopien. Welche Kopien im Umlauf sind, weiß oft niemand.
 
-Wenn zwei Personen gleichzeitig dieselbe Excel-Datei bearbeiten, entstehen Konflikte. Selbst mit OneDrive oder SharePoint ist gleichzeitiges Bearbeiten unzuverlässig. Das CRM wird zum Engpass statt zum Werkzeug.
+## Excel CRM Vorlage vs. CRM-Software
 
-### 2. Keine Automatisierung
+| Funktion | Excel CRM Vorlage | CRM-Software (Beispiel Customermates) |
+| --- | --- | --- |
+| Kosten | In Microsoft 365 enthalten | Ab [[commercial.price.starter.monthly]] pro Nutzer und Monat |
+| Einrichtung | 1 bis 2 Stunden | Pipeline anlegen und Excel-Liste importieren |
+| Mehrere Personen | Konfliktanfällig | Gleichzeitiger Zugriff |
+| Rechte | Nur auf Dateiebene | Pro Rolle, Datensatztyp und Aktion |
+| Firma, Kontakt, Deal verknüpfen | SVERWEIS | Verknüpfte Datensätze |
+| Pipeline | Manuelle Diagramme | Board mit Phasen und gewichteten Werten |
+| Nachrichten beim Kontakt | Keine | E-Mail, LinkedIn, WhatsApp, Instagram, Telegram ab Pro |
+| Änderungsprotokoll | Keines | Audit-Log |
+| Schnittstellen | Keine | REST-API, Webhooks, MCP |
+| Zurück nach Excel | Ist schon Excel | Export als `.xlsx` |
 
-Excel kann keine E-Mails versenden, keine Erinnerungen auslösen und keine Workflows ausführen. Jede Aktion erfordert manuelle Eingabe. Bei 5 Deals ist das machbar. Bei 50 Deals kostet es Stunden pro Woche.
+## Wann Sie von Excel auf ein CRM umsteigen sollten
 
-### 3. Keine Beziehungsverknüpfung
+Der Umstieg lohnt sich, wenn mindestens drei dieser Punkte zutreffen:
 
-SVERWEIS und INDEX/VERGLEICH schaffen rudimentäre Verbindungen zwischen Blättern, sind aber fehleranfällig, bei großen Datenmengen langsam und geben immer nur einzelne Werte zurück. Sie können nicht auf eine Firma klicken und alle Kontakte, Deals und Aktivitäten in einer einheitlichen Ansicht sehen.
+- Mehr als zwei Personen arbeiten regelmäßig mit der Kundenliste
+- Sie haben mehr als 200 Kontakte und 30 offene Deals
+- Follow-ups gehen unter, weil niemand an die Datei denkt
+- Zwei Kollegen haben denselben Kunden angerufen, ohne es zu wissen
+- Sie pflegen die Datei mehr als 30 Minuten am Tag
+- Anfragen kommen über LinkedIn oder WhatsApp und landen nie in der Tabelle
+- Ihr Datenschutzbeauftragter fragt, wer Zugriff auf die Kundendaten hat
 
-### 4. Keine mobile Nutzung
+## Von der Excel-Vorlage ins CRM: Schritt für Schritt
 
-Durch eine 15-Spalten-Tabelle auf dem Smartphone navigieren und einen Kontakt aktualisieren ist in der Praxis nicht machbar. Außendienst-Teams und mobile Mitarbeiter sind faktisch ausgesperrt.
+Am Beispiel von Customermates, das Excel-Dateien direkt importiert:
 
-### 5. Keine Sicherheit und Zugriffskontrolle
+1. **Daten bereinigen.** Duplikate entfernen (Daten > Duplikate entfernen), Firmennamen vereinheitlichen, leere Zeilen löschen.
+2. **Als `.xlsx` speichern.** Eine Datei pro Datensatztyp ist am übersichtlichsten. Der Import liest das erste Blatt und bis zu 10.000 Zeilen pro Datei.
+3. **Eigene Felder anlegen.** Für jede Spalte ohne Standardfeld, etwa "Quelle" oder "Region", legen Sie in Customermates ein eigenes Feld an. Dropdown-Spalten werden zu Auswahlfeldern.
+4. **In der richtigen Reihenfolge importieren.** Erst Firmen, dann Kontakte, dann Deals. So findet der Import die Firma zu jedem Kontakt über den Namen.
+5. **Spalten zuordnen.** Der Import-Assistent zeigt Ihre Spalten und lässt Sie jede einem Feld zuordnen. E-Mail-Adresse oder WhatsApp-Nummer ordnen Sie den Kanälen des Kontakts zu.
+6. **Fehler prüfen.** Der Assistent prüft jede Zeile vorab. Zeilen mit Problemen können Sie überspringen, korrigieren und später nachladen.
+7. **Stichprobe machen.** Prüfen Sie 20 bis 30 Datensätze: Stimmt die Firma, der Dealwert, die Phase, das Datum?
 
-Jeder mit Dateizugang sieht alles. Blattschutz lässt sich mit einem Klick aufheben. Es gibt keine rollenbasierten Berechtigungen, keine Audit-Trails und keine Zugriffsprotokollierung.
+Die genauen Regeln stehen in der [Dokumentation zu Import und Export](/docs/app-records#how-do-i-import-or-export-records). Aktivitäten aus Blatt 4 übertragen Sie am besten als Notizen oder lassen die alte Datei als Archiv liegen.
 
-### 6. Performance-Einbruch bei Skalierung
+## Warum Customermates nach der Excel-Vorlage passt
 
-Excel wird ab 5.000 bis 10.000 Zeilen mit Formeln spürbar langsam. Dashboard-Berechnungen über mehrere Blätter können mehrere Sekunden für die Neuberechnung benötigen. Ein dediziertes CRM verarbeitet Hunderttausende Datensätze ohne Performance-Probleme.
+- **Direkter Excel-Import und -Export.** Ihre Tabelle ist der Startpunkt, und Sie kommen jederzeit als `.xlsx` wieder heraus.
+- **Das CRM ist in jedem Plan gleich.** Kontakte, Firmen, Deals, Aufgaben, eigene Felder und Dashboards ab [[commercial.price.starter.monthly]] pro Nutzer und Monat, monatlich kündbar.
+- **Nachrichten am Kontakt.** Ab Pro landen E-Mail, LinkedIn, WhatsApp, Instagram und Telegram im CRM.
+- **Open Source.** Sie können den Code prüfen und Customermates [selbst betreiben](/features/self-hosted).
+- **Datenbank in Frankfurt.** Die Cloud-Version speichert in der AWS-Region Frankfurt, eingesetzte Dienstleister stehen in der [Liste der Unterauftragsverarbeiter](/subprocessors).
 
-### 7. Keine Integrationen
-
-Excel steht allein. Es kann sich nicht mit Ihrem E-Mail-Client verbinden, keine Web-Formular-Eingaben verarbeiten, nicht mit Ihrem Kalender synchronisieren und keine Daten an die Buchhaltungssoftware senden. Jede Information muss manuell eingegeben werden.
-
-### 8. DSGVO- und Compliance-Lücken
-
-Tabellenkalkulationen bieten keine Einwilligungsverfolgung, keinen strukturierten Prozess für Auskunftsanfragen, keinen Löschworkflow und keine Audit-Protokollierung. Compliance gegenüber Aufsichtsbehörden nachzuweisen ist mit einem Excel-basierten System nahezu unmöglich.
-
-## Excel CRM vs Dediziertes CRM: Vergleichstabelle
-
-| Funktion                 | Excel CRM Vorlage               | Dediziertes CRM (z. B. Customermates)                        |
-| ------------------------ | ------------------------------- | ------------------------------------------------------------ |
-| Kosten                   | Kostenlos (mit Microsoft 365)   | Ab [[commercial.price.starter.monthly]] pro Nutzer und Monat |
-| Einrichtungszeit         | 1 bis 2 Stunden                 | 30 Minuten bis 1 Tag                                         |
-| Kontaktlimit             | Wird ab 5.000+ Zeilen langsam   | Unbegrenzt                                                   |
-| Mehrbenutzer-Bearbeitung | Konfliktanfällig                | Echtzeit, keine Konflikte                                    |
-| Mobile Nutzung           | Unpraktisch                     | Volle mobile Unterstützung                                   |
-| E-Mail-Integration       | Keine                           | Integriert                                                   |
-| Automatisierung          | Keine (nur manuelles VBA)       | Workflows, Erinnerungen, n8n-Integration                     |
-| Pipeline-Visualisierung  | Manuelle Diagramme              | Drag-and-Drop-Kanban-Board                                   |
-| Reporting                | Pivot-Tabellen                  | Integrierte Dashboards und Analysen                          |
-| DSGVO-Konformität        | Keine integrierte Unterstützung | Audit-Logs, Einwilligungsverfolgung, EU-Hosting              |
-| Berechtigungen           | Keine (nur auf Dateiebene)      | Rollenbasierte Zugriffskontrolle                             |
-| Datenbeziehungen         | SVERWEIS (fragil)               | Automatische Verknüpfung über alle Datensätze                |
-| Änderungsverlauf         | Keiner                          | Vollständige Änderungshistorie                               |
-| Integrationen            | Keine                           | API, Webhooks, n8n-Automatisierung                           |
-| Backup und Recovery      | Manuell                         | Automatisch                                                  |
-| Self-Hosting-Option      | N/A                             | Verfügbar (Open Source)                                      |
-
-## Wann Sie von Excel auf ein echtes CRM umsteigen sollten
-
-Der Wechsel vom Tabellen-CRM zu dedizierter CRM-Software ist sinnvoll, wenn mindestens drei dieser Aussagen auf Sie zutreffen:
-
-- Mehr als 2 Personen arbeiten regelmäßig mit den CRM-Daten
-- Sie verwalten mehr als 200 Kontakte und 30 oder mehr offene Deals
-- Sie vergessen Follow-ups oder verpassen Termine, weil die Tabelle Sie nicht erinnert
-- Ihre Kunden oder Ihr Datenschutzbeauftragter fragen nach DSGVO-Konformität
-- Sie verbringen mehr als 30 Minuten pro Tag mit der Pflege der Excel-Datei
-- Sie brauchen Berichte, die über Pivot-Tabellen hinausgehen
-- Sie wollen E-Mail, Kalender oder andere Tools integrieren
-- Sie haben Deals verloren, weil Follow-ups untergegangen sind
-
-Wenn drei oder mehr Punkte zutreffen, übersteigen die Kosten des Excel-Verbleibs die Kosten eines CRM-Abonnements. Ab [[commercial.price.starter.monthly]] pro Nutzer und Monat mit Customermates erreichen Sie den Break-even innerhalb der ersten Woche durch wiedergewonnene Produktivität.
-
-## Migration von der Excel CRM Vorlage zum dedizierten CRM
-
-### Schritt 1: Daten bereinigen
-
-Bevor Sie exportieren:
-
-- Duplikate entfernen (Daten > Duplikate entfernen)
-- Firmennamen und Statuswerte standardisieren
-- Leere Zeilen und Spalten löschen
-- Fehlende Daten wo möglich ergänzen
-- Prüfen, dass Datumsfelder als Datum formatiert sind
-
-### Schritt 2: Jedes Blatt als CSV exportieren
-
-Speichern Sie jedes Arbeitsblatt als separate CSV-Datei: Kontakte.csv, Firmen.csv, Deals.csv und Aktivitäten.csv. Verwenden Sie UTF-8-Kodierung, damit Umlaute korrekt übernommen werden.
-
-### Schritt 3: In der richtigen Reihenfolge importieren
-
-Importieren Sie in dieser Reihenfolge, um Beziehungen zu erhalten:
-
-1. **Firmen zuerst**: Die Firmendatensätze anlegen
-2. **Kontakte als Zweites**: Kontakte beim Import mit ihren Firmen verknüpfen
-3. **Deals als Drittes**: Deals mit Kontakten und Firmen verknüpfen
-4. **Aktivitäten zuletzt**: Interaktionen den richtigen Datensätzen zuordnen
-
-### Schritt 4: Felder beim Import zuordnen
-
-Customermates besitzt weder einen CSV-Importer noch eine Feldzuordnungsmaske; Datensätze entstehen über die REST API oder durch einen externen KI-Client per MCP. Für die Migration ordnen Sie Ihre CSV-Spalten vorab den CRM-Feldern zu, prüfen die Zuordnung und laden die Datensätze dann per REST API oder MCP. Gängige Spaltennamen wie Vorname, E-Mail und Firma können Sie dabei direkt angleichen.
-
-### Schritt 5: Nach dem Import verifizieren
-
-Prüfen Sie stichprobenartig 20 bis 30 Datensätze:
-
-- Bestätigen Sie, dass Kontakt-zu-Firma-Beziehungen korrekt sind
-- Überprüfen Sie, dass Dealwerte und Phasen korrekt importiert wurden
-- Testen Sie, ob Datumsfelder richtig geparst wurden
-- Kontrollieren Sie, ob Dropdown- und Statuswerte korrekt zugeordnet sind
-
-### Schritt 6: Erste Automatisierung einrichten
-
-Wenn Sie ein zeitgesteuertes Follow-Up brauchen, betreiben Sie es in Ihrer eigenen n8n-Instanz oder einem anderen Scheduler. Speichern Sie das Follow-Up-Datum in einem Custom Field, lesen Sie Datensätze über die API und lassen Sie den externen Workflow zum gewählten Zeitpunkt eine Aufgabe oder Benachrichtigung erstellen. Customermates hostet n8n nicht und plant selbst keine Erinnerungen.
-
-## Warum Customermates der logische nächste Schritt nach Excel ist
-
-Customermates wurde mit dem Verständnis entwickelt, dass viele Unternehmen in Excel oder Google Sheets starten und irgendwann ein echtes CRM brauchen:
-
-- **Open Source**: Volle Transparenz, kein Vendor-Lock-in, prüfen Sie den Code selbst
-- **Selbst hostbar**: Betreiben Sie Customermates auf Ihrem eigenen Server oder nutzen Sie die EU-Cloud
-- **DSGVO-nativ**: Rollenbasierte Zugriffskontrolle, Audit-Logs und EU-Hosting für Unternehmen, die Datenschutz ernst nehmen
-- **n8n-Automatisierung**: Die Workflow-Automatisierung, die Excel nie bieten kann, ohne Programmierung
-- **Ab [[commercial.price.starter.monthly]] pro Nutzer und Monat**: Das volle Kern-CRM inklusive, keine Kontaktgebühren, keine Überraschungen
+Mehr zur Kontaktverwaltung im CRM lesen Sie auf der Seite [Kontaktverwaltung Software](/features/contact-management).
 
 ## Häufig gestellte Fragen
 
 <Faq>
 <FaqItem question="Reicht Excel als CRM für kleine Unternehmen?">
-Excel funktioniert als CRM für sehr kleine Teams mit weniger als 200 Kontakten und 1 bis 2 Nutzern. Es ist geeignet für Freiberufler und Unternehmen in der Frühphase, die ihren Vertriebsprozess noch definieren. Sobald Sie Mehrbenutzerzugriff, Automatisierung oder DSGVO-Konformität benötigen, wird ein dediziertes CRM notwendig.
+Für ein bis zwei Personen mit weniger als 200 Kontakten ja. Sobald mehrere Personen gleichzeitig arbeiten, Follow-ups untergehen oder Anfragen über mehrere Kanäle kommen, lohnt sich ein CRM.
 </FaqItem>
 
-<FaqItem question="Kann ich eine kostenlose Excel CRM Vorlage herunterladen?">
-Ja, viele kostenlose Excel CRM Vorlagen sind online verfügbar. Allerdings sind die meisten herunterladbaren Vorlagen generisch und erfordern erhebliche Anpassungen. Die Fünf-Blatt-Struktur in diesem Ratgeber (Kontakte, Firmen, Deals, Aktivitäten, Dashboard) bietet Ihnen einen vollständigeren und funktionaleren Startpunkt als die meisten kostenlosen Downloads.
+<FaqItem question="Gibt es eine kostenlose Excel CRM Vorlage?">
+Im Netz finden Sie viele Vorlagen, die meisten sind aber generisch. Mit der Fünf-Blatt-Struktur aus dieser Anleitung bauen Sie in ein bis zwei Stunden eine Vorlage, die zu Ihrem Vertrieb passt und sich später sauber in ein CRM importieren lässt.
 </FaqItem>
 
-<FaqItem question="Was ist der Unterschied zwischen einem Tabellen-CRM und einem dedizierten CRM?">
-Ein Tabellen-CRM speichert Daten in Zeilen und Spalten ohne integrierte Automatisierung, ohne Beziehungsverknüpfung und ohne Mehrbenutzerfähigkeit. Ein dediziertes CRM bietet automatische Datenverknüpfung, Workflow-Automatisierung, E-Mail-Integration, mobilen Zugang, rollenbasierte Berechtigungen und Reporting-Dashboards. Die Tabelle ist ein flacher Datenspeicher; das CRM ist ein Beziehungsmanagement-System.
+<FaqItem question="Soll ich die CRM-Vorlage als XLS, XLSX oder CSV speichern?">
+Als `.xlsx`. Das Format speichert mehrere Blätter, Dropdowns und Formeln und wird von den meisten CRM-Importen gelesen. Das alte `.xls` ist auf 65.536 Zeilen begrenzt, CSV verliert Blätter und Formatierung.
 </FaqItem>
 
 <FaqItem question="Wie viele Kontakte verträgt ein Excel-CRM?">
-Excel kann technisch über eine Million Zeilen speichern, aber die Performance verschlechtert sich erheblich ab 5.000 bis 10.000 Zeilen, wenn Formeln, bedingte Formatierungen und Pivot-Tabellen aktiv sind. Für die praktische CRM-Nutzung liegt die komfortable Obergrenze bei 500 bis 1.000 Kontakten, bevor Verlangsamungen störend werden.
+Technisch über eine Million Zeilen. Mit Formeln, bedingter Formatierung und Pivot-Tabellen wird die Datei aber schon ab einigen tausend Zeilen langsam. Für den Alltag sind 500 bis 1.000 Kontakte eine realistische Obergrenze.
 </FaqItem>
 
-<FaqItem question="Wie migriere ich meine Excel-CRM-Daten in ein echtes CRM?">
-Exportieren Sie jedes Blatt als CSV-Datei und importieren Sie dann in dieser Reihenfolge in Ihr CRM: Firmen, Kontakte, Deals, Aktivitäten. Die meisten modernen CRM-Plattformen unterstützen CSV-Import mit Feldzuordnung. Customermates nicht; dort läuft die Migration über die REST API oder einen KI-Agenten per MCP. Bereinigen Sie Ihre Daten (Duplikate entfernen, Namen standardisieren) vor dem Export für den reibungslosesten Übergang.
+<FaqItem question="Wie übertrage ich meine Excel-Vorlage in ein CRM?">
+Daten bereinigen, als `.xlsx` speichern, eigene Felder anlegen und in der Reihenfolge Firmen, Kontakte, Deals importieren. Customermates liest Excel-Dateien mit bis zu 10.000 Zeilen und lässt Sie jede Spalte einem Feld zuordnen.
 </FaqItem>
 
-<FaqItem question="Ist Google Sheets besser als Excel für eine CRM-Vorlage?">
-Google Sheets bietet bessere Echtzeit-Zusammenarbeit und kostenlosen Zugang ohne Microsoft 365, hat aber ähnliche Einschränkungen als CRM: keine Automatisierung, keine Beziehungsverknüpfung, keine mobiloptimierte Erfahrung und Performance-Probleme bei Skalierung. Für Einzelnutzung funktioniert beides. Für Teams ersetzt keines davon ein dediziertes CRM. Lesen Sie unseren ausführlichen [Google Sheets CRM Ratgeber](/blog/google-sheets-crm) für einen vollständigen Vergleich.
+<FaqItem question="Ist Google Tabellen besser als Excel für ein CRM?">
+Google Tabellen ist bei der Zusammenarbeit im Browser angenehmer, hat als CRM aber dieselben Grenzen. Mehr dazu im [Google Sheets CRM Ratgeber](/blog/google-sheets-crm) und in [Spreadsheet CRM](/blog/spreadsheet-crm).
 </FaqItem>
 </Faq>
 
 ## Fazit
 
-Eine Excel CRM Vorlage ist ein sinnvoller Startpunkt für die Verwaltung von Kundenbeziehungen. Sie lehrt Sie, welche Daten wichtig sind, wie Ihr Vertriebsprozess fließt und was Sie tatsächlich von einem CRM-System brauchen. Dieses Wissen macht Sie zu einem besseren Käufer, wenn Sie bereit sind, in dedizierte Software zu investieren.
-
-Bauen Sie die Fünf-Blatt-Vorlage aus diesem Ratgeber auf, befolgen Sie die Best Practices für Datenhygiene und migrieren Sie, wenn die Einschränkungen Sie mehr kosten als die Lösung. Mit Customermates ab [[commercial.price.starter.monthly]] pro Nutzer und Monat ist der Aufstieg von der Tabelle zum professionellen CRM einen API-Aufruf oder eine Agenten-Sitzung entfernt.
+Eine Excel CRM Vorlage ist ein guter Start. Sie zwingt Sie, festzulegen, welche Daten Sie brauchen und welche Phasen Ihr Vertrieb hat. Bauen Sie die Datei von Anfang an importfähig: ein Blatt pro Typ, eine Zeile pro Datensatz, einheitliche Firmennamen, `.xlsx`. Dann ist der Umstieg ins CRM ein Import und kein Projekt. Customermates können Sie [[commercial.trial.days]] Tage ohne Kreditkarte [testen](/auth/signup) und Ihre Liste direkt importieren.

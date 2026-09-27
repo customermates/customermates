@@ -6,13 +6,19 @@ import { cn } from "@/core/utils/cn";
 
 import { getDocMethod, getDocMethodColor } from "../../docs.utils";
 import { apiDocsSource } from "@/core/fumadocs/source";
-import { getMDXComponents } from "@/core/fumadocs/mdx-components";
+import { getApiMDXComponents } from "@/core/fumadocs/api-mdx-components";
 import { PageContainer } from "@/components/shared/page-container";
 import { AppLink } from "@/components/shared/app-link";
 import { AppChip } from "@/components/chip/app-chip";
 import { Footer } from "@/app/components/footer";
 import { generateMetadataFromMeta } from "@/core/fumadocs/metadata";
 import { contentLocaleOrDefault, formattingTagFor, stripLocalePrefix } from "@/i18n/locale-registry";
+import { enableStaticLocale } from "@/i18n/static-locale";
+import { localizedSlugParams } from "@/core/fumadocs/static-params";
+
+export function generateStaticParams({ params }: { params: { locale: string } }) {
+  return localizedSlugParams(apiDocsSource, params.locale, "slug");
+}
 
 export async function generateMetadata({
   params,
@@ -23,7 +29,9 @@ export async function generateMetadata({
   return generateMetadataFromMeta({ locale, route: "/docs/openapi/:slug", params: { slug } });
 }
 
-export default async function OpenApiDocPage({ params }: { params: Promise<{ slug: string }> }) {
+export default async function OpenApiDocPage({ params }: { params: Promise<{ locale: string; slug: string }> }) {
+  await enableStaticLocale(params);
+
   const { slug } = await params;
   const locale = await getLocale();
   const t = await getTranslations();
@@ -36,7 +44,7 @@ export default async function OpenApiDocPage({ params }: { params: Promise<{ slu
   if (!page) notFound();
 
   const MDX = page.data.body;
-  const components = getMDXComponents();
+  const components = getApiMDXComponents();
 
   return (
     <>

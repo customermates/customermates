@@ -48,6 +48,8 @@ Customermates provides two mechanisms for managing follow-ups: tasks linked to t
 
 **Externally triggered reminders.** A separate workflow can evaluate recorded activity or customer-defined dates through the API or webhooks, then create a supported task or send a notification through an external provider. Customermates itself does not monitor inactivity or send reminder notifications.
 
+**Cloud routines as a follow-up check.** On Customermates Cloud, a Mate [routine](/docs/app-routines) can run a saved prompt on a schedule, for example every Monday: list contacts whose next-contact date has passed and draft a short follow-up for each one for you to review. Routines use hosted AI credits; Starter includes [[commercial.entitlement.starter.includedRoutinesPerUser]] routine per user and Pro includes [[commercial.entitlement.pro.includedRoutinesPerUser]]. They are not available when self-hosting and are not reminders or sequences.
+
 **External multi-channel workflows.** Use a separate n8n instance and delivery providers to orchestrate a customer-defined cadence. The native inbox supports individual messages on email, LinkedIn, WhatsApp, Instagram, and Telegram, but Customermates has no sequence engine, bulk outreach, or telephony.
 
 **Behavior-based external triggers.** A separate email or analytics provider can emit engagement events, and a customer-run workflow can request an individual follow-up while interest is fresh. Customermates has no native email-open, web-visit, or behavior-trigger sequence engine.
@@ -68,7 +70,7 @@ An agent can help decide and record the next action, but its availability is not
 
 Tasks, custom fields, webhooks, REST API access, and MCP are part of the core CRM from Starter at [[commercial.price.starter.monthly]] per user per month. The connected unified inbox begins on Pro at [[commercial.price.pro.monthly]] per user per month. Business at [[commercial.price.business.monthly]] per user per month increases connected-account capacity and supports shared accounts.
 
-The community self-hosted build includes the core task, API, webhook, and MCP capabilities. It does not include a bundled n8n container or the Enterprise Edition unified inbox. Run any automation service separately and secure its credentials and network access yourself.
+The community self-hosted build includes the core task, API, webhook, and MCP capabilities. It does not include a bundled n8n container, the managed-cloud unified inbox, or the hosted Mate assistant. Run any automation service separately and secure its credentials and network access yourself.
 
 **Test and iterate.** Track open rates, response rates, and conversion rates in the external sequence provider. A/B test subject lines, timing, and message content there, then use the results to refine your approach.
 
@@ -78,7 +80,7 @@ No. The current Task model has no due-date or reminder field and does not schedu
 
 **Make follow-up gaps visible.** Store a next-action date in a custom field and review it in a filtered view. A separately operated scheduler can evaluate that field and send a notification through an external provider; Customermates sends no native reminder or inactivity alert.
 
-Yes, through a customer-run automation service. Use webhooks and APIs to observe record changes, keep dates in custom fields, create tasks, or call a messaging service. Customermates itself does not run the timer.
+**Reminders through your own automation.** A customer-run automation service can use webhooks and APIs to observe record changes, read dates from custom fields, create tasks, or call a messaging service. Customermates itself does not run the timer.
 
 **Reduced reliance on individual memory.** Linked tasks and custom fields let sales teams record what should happen, when, and for whom. The CRM stores those values; a person or customer-run workflow decides when action is required.
 
@@ -86,7 +88,7 @@ Yes, through a customer-run automation service. Use webhooks and APIs to observe
 
 **Scale with external outreach tools.** As your team and pipeline grow, Customermates keeps individual CRM context while a separate campaign or sequence provider runs automated or bulk outreach under its own limits and safeguards.
 
-No. The managed connected-account calendar is a read-only CRM view.
+**Calendar context, read-only.** The connected calendar on Customermates Cloud (Pro and above) is a read-only CRM view; Customermates does not book or schedule follow-up meetings.
 
 **New lead follow-up sequence.** A customer-run external workflow can start a timed cadence in separate channel providers: day 1 email, day 3 call action, day 5 LinkedIn step, day 7 value-add email, day 14 final outreach. Customermates stores only supported CRM records and individual messages.
 
@@ -104,11 +106,11 @@ No. The managed connected-account calendar is a read-only CRM view.
 
 **Open-source core.** The AGPL core CRM application and linked-task model are inspectable. Reminder scheduling, sequences, delivery providers, external AI clients, and n8n workflows remain separate systems with their own code and terms.
 
-**EU database region with documented providers.** The hosted database runs in an EU region. Application hosting and connected providers, including US providers, may process data elsewhere; this is a deployment fact, not a GDPR or other compliance certification.
+**Cloud database in Frankfurt, providers disclosed.** In the managed cloud, the application database runs in the AWS Frankfurt region; hosting and other subprocessors, including US providers, are listed on the [subprocessors page](/subprocessors), and a [DPA](/dpa) is available.
 
 **Simple, fair CRM pricing.** Core CRM records and linked tasks start at [[commercial.price.starter.monthly]] per user per month; the unified inbox starts with Pro at [[commercial.price.pro.monthly]]. Native reminders, sequences, and per-sequence delivery are not included. A separate n8n instance and delivery providers have their own plans, limits, and costs.
 
-**External AI clients draft individual follow-ups.** Supported clients such as Claude, ChatGPT, or Gemini can use [[derived.mcp.tools.total]] MCP tools to read allowed context, draft one message, and send where permitted on a messaging tier. Customermates includes no AI client, model, subscription, or autonomous result.
+**External AI clients draft individual follow-ups.** Supported clients such as Claude, ChatGPT, or Gemini can use [[derived.mcp.tools.total]] MCP tools to read allowed context, draft one message, and send where permitted on a messaging tier. The external client, model, and subscription are yours; on cloud plans the hosted Mate assistant can also draft follow-ups inside the CRM and asks for confirmation before sending.
 
 **Separate n8n for advanced sequences.** Connect your own n8n instance through REST, webhooks, MCP, or the community node. Multi-step timing, conditions, and external delivery run there, not in Customermates; the n8n plan, connectors, logs, limits, and costs remain separate.
 

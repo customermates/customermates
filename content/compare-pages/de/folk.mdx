@@ -25,8 +25,8 @@ comparison:
   - title: Preis & Setup
     features:
       - name: Start & Setup
-        source: 2 Minuten
-        competitor: Minuten bis Stunden
+        source: Arbeitsbereich schnell angelegt; Migration je nach Daten
+        competitor: Arbeitsbereich schnell angelegt; Migration je nach Daten
       - name: Einstiegspreis
         source: "[[commercial.price.starter.monthly]] / User / Monat (Starter)"
         competitor: $24 / Mitglied / Monat (jährlich), $30 monatlich
@@ -60,9 +60,9 @@ comparison:
         source: Mobil-optimierte Web-App
         competitor: false
       - name: LinkedIn-Integration
-        source: Über API + n8n / Apify
+        source: LinkedIn im einheitlichen Posteingang (ab Pro); keine Browser-Extension
         competitor: Native Chrome-Extension
-      - name: Nativer Unified Inbox (E-Mail, LinkedIn, WhatsApp, Instagram, Telegram)
+      - name: Nativer einheitlicher Posteingang (E-Mail, LinkedIn, WhatsApp, Instagram, Telegram)
         source: Ab Pro, 5 Kanäle
         competitor: E-Mail-, LinkedIn-, WhatsApp-Sync
   - title: KI & Automatisierung
@@ -83,7 +83,7 @@ comparison:
         source: Vollständig, OpenAPI 3.1
         competitor: API ab Premium
       - name: E-Mail-Sequenzen
-        source: Über n8n / Resend
+        source: Nicht enthalten; extern über separat betriebenes n8n möglich
         competitor: Native (Premium)
   - title: Datenschutz & Hosting
     features:
@@ -91,9 +91,9 @@ comparison:
         source: AVV + SCCs; keine Zertifizierung
         competitor: true
       - name: Hosting-Region
-        source: EU-Datenbankregion
+        source: Cloud-Datenbank in Frankfurt (AWS), selbst hostbar
         competitor: USA / EU-Optionen
-      - name: Datensouveränität
+      - name: Speicherort selbst bestimmen (Self-Hosting)
         source: true
         competitor: false
       - name: Self-Hosting via Docker
@@ -102,7 +102,7 @@ comparison:
 
 cta:
   action: Probieren Sie ein CRM, das die KI tatsächlich bedienen kann
-  description: Folk hat KI-Assistenten. Customermates erlaubt Ihrem Claude- oder Codex-Agenten, das gesamte CRM und einen nativen Unified Inbox über E-Mail, LinkedIn, WhatsApp, Instagram und Telegram zu bedienen, über [[derived.mcp.tools.total]] MCP-Tools, einen n8n-Node und [[derived.webhooks.events.total]] Webhook-Events ([[derived.webhooks.events.records]] Datensatz + [[derived.webhooks.events.messaging]] Messaging).
+  description: Folk hat KI-Assistenten. Customermates erlaubt Ihrem Claude- oder Codex-Agenten, das CRM und ab Pro einen nativen einheitlichen Posteingang über E-Mail, LinkedIn, WhatsApp, Instagram und Telegram zu bedienen, über [[derived.mcp.tools.total]] MCP-Tools, einen Community-Node für Ihr separat betriebenes n8n und [[derived.webhooks.events.total]] Webhook-Events ([[derived.webhooks.events.records]] Datensatz + [[derived.webhooks.events.messaging]] Messaging).
   buttonLeftText: Kostenlos starten
   buttonLeftHref: /auth/signup
   buttonRightText: Live-Demo ansehen
@@ -110,7 +110,7 @@ cta:
   hint: ✓ Keine Kreditkarte benötigt ✓ Erste [[commercial.trial.days]] Tage kostenlos
 ---
 
-> Folk CRM ist ein schlankes, beziehungsorientiertes CRM, das kleine Teams wählen, sobald Tabellen, Notion oder Airtable nicht mehr reichen. Customermates ist ein Open-Source-CRM mit derselben modernen UX und zwei Features, die Folk nicht vollständig abdeckt: KI-Agenten, die das CRM direkt über [[derived.mcp.tools.total]] [MCP](/features/api)-Tools bedienen (plus einen [n8n](/features/workflow-automation)-Community-Node und [[derived.webhooks.events.total]] Webhook-Events, [[derived.webhooks.events.records]] Datensatz und [[derived.webhooks.events.messaging]] Messaging), und ein nativer Unified Inbox, der E-Mail, LinkedIn, WhatsApp, Instagram und Telegram an einem Ort zusammenbringt, wobei dieselbe KI über alle Kanäle lesen, schreiben und senden kann. Diese Seite stellt beide gegenüber, damit Sie das richtige Tool für Ihre Situation finden.
+> Folk CRM ist ein schlankes, beziehungsorientiertes CRM, das kleine Teams wählen, sobald Tabellen, Notion oder Airtable nicht mehr reichen. Customermates ist ein Open-Source-CRM mit derselben modernen UX und zwei Features, die Folk nicht vollständig abdeckt: KI-Agenten, die das CRM direkt über [[derived.mcp.tools.total]] [MCP](/features/api)-Tools bedienen (plus einen [n8n](/features/workflow-automation)-Community-Node und [[derived.webhooks.events.total]] Webhook-Events, [[derived.webhooks.events.records]] Datensatz und [[derived.webhooks.events.messaging]] Messaging), und ein nativer einheitlicher Posteingang, der E-Mail, LinkedIn, WhatsApp, Instagram und Telegram an einem Ort zusammenbringt, wobei dieselbe KI über alle Kanäle lesen, schreiben und senden kann. Diese Seite stellt beide gegenüber, damit Sie das richtige Tool für Ihre Situation finden.
 
 ## Was ist Folk CRM?
 
@@ -120,7 +120,7 @@ Der Premium-Tarif ergänzt Custom Objects, E-Mail-Sequenzen, erweiterte Berechti
 
 ## Was ist Customermates?
 
-Customermates ist ein CRM, das sich selbst aktualisiert, wenn Sie bereits [Claude](/blog/chatgpt-summarize-notes), ChatGPT oder Codex nutzen. Die Pipeline bewegt sich, Follow-ups werden entworfen und Kontaktnotizen bleiben aktuell, weil der Agent tippt. Dazu kommt ein nativer Unified Inbox (E-Mail, LinkedIn, WhatsApp, Instagram und Telegram an einem Ort) ab Pro, den dieselben Agenten bedienen können. Unter dieser Outcome-Schicht steckt ein moderner Pipedrive-Ersatz: Kontakte, Unternehmen, Deals, Services, Aufgaben, zwei Ansichten (Tabelle und Kanban), zehn Custom-Field-Typen und eine vollständige REST-API. Open Source unter AGPL-3.0, kostenlos selbst hostbar via Docker, in der Cloud EU-gehostet ab [[commercial.price.starter.monthly]] pro User pro Monat, mit MCP-Server, REST-API und n8n-Automatisierung in jeder Stufe inklusive, nicht hinter einem Upgrade versperrt.
+Customermates ist ein CRM, das sich selbst aktualisiert, wenn Sie bereits [Claude](/blog/chatgpt-summarize-notes), ChatGPT oder Codex nutzen. Die Pipeline bewegt sich, Follow-ups werden entworfen und Kontaktnotizen bleiben aktuell, weil der Agent tippt. Dazu kommt ein nativer einheitlicher Posteingang (E-Mail, LinkedIn, WhatsApp, Instagram und Telegram an einem Ort) ab Pro, den dieselben Agenten bedienen können. Unter dieser Outcome-Schicht steckt ein moderner Pipedrive-Ersatz: Kontakte, Unternehmen, Deals, Services, Aufgaben, zwei Ansichten (Tabelle und Kanban), zehn Custom-Field-Typen und eine vollständige REST-API. Open Source unter AGPL-3.0, ohne Lizenzkosten selbst hostbar via Docker, in der Cloud ab [[commercial.price.starter.monthly]] pro User pro Monat mit Datenbank in der AWS-Region Frankfurt, mit MCP-Server, REST-API, Webhooks und dem n8n-Community-Node in jeder Stufe, nicht hinter einem Upgrade versperrt. n8n selbst betreiben oder abonnieren Sie separat.
 
 Der Mechanismus, der die KI-Integration real macht: ein eingebauter MCP-Server mit [[derived.mcp.tools.total]] Tools, ein n8n-Community-Node, [[derived.webhooks.events.total]] Webhook-Events ([[derived.webhooks.events.records]] Datensatz + [[derived.webhooks.events.messaging]] Messaging) und die OpenAPI-3.1-Spezifikation unter `/api/v1/openapi`.
 
@@ -130,29 +130,29 @@ Der Mechanismus, der die KI-Integration real macht: ein eingebauter MCP-Server m
 | ------------------ | ------------------------------------------------------------------- | ------------------------------------------------------------------------------------------------------------------------------ |
 | Einstieg           | Standard, $24/Mitglied/Monat bei jährlicher Abrechnung              | Starter, [[commercial.price.starter.monthly]]/User/Monat                                                                       |
 | Einstieg monatlich | Standard, $30/Mitglied/Monat                                        | Starter, [[commercial.price.starter.monthly]]/User/Monat                                                                       |
-| Höhere Stufe       | Premium, $48/Mitglied (jährlich) für Custom Objects, Sequenzen, API | Pro, [[commercial.price.pro.monthly]]/User/Monat ergänzt den Unified Inbox; API, MCP und n8n sind bereits im Starter enthalten |
+| Höhere Stufe       | Premium, $48/Mitglied (jährlich) für Custom Objects, Sequenzen, API | Pro, [[commercial.price.pro.monthly]]/User/Monat ergänzt den einheitlichen Posteingang; API, MCP und Webhooks (auch für Ihr eigenes n8n) sind bereits im Starter enthalten |
 | Kostenloser Start  | 14 Tage Premium-Test                                                | [[commercial.trial.days]] Tage Pro, keine Kreditkarte                                                                          |
 | Self-Hosting       | Nicht verfügbar                                                     | Kostenlos, Docker Compose                                                                                                      |
 
-Ein Fünfer-Team auf Folk Standard zahlt $120 monatlich im Jahresplan oder $150 monatlich. Dasselbe Team auf Customermates zahlt [[commercial.price.starter.monthly.seats.5]] monatlich im Starter-Tarif, mit REST-API, n8n-Automatisierung und MCP-Server vom ersten Tag an, statt hinter einem Premium-artigen Upgrade versperrt.
+Ein Fünfer-Team auf Folk Standard zahlt $120 monatlich im Jahresplan oder $150 monatlich. Dasselbe Team auf Customermates zahlt [[commercial.price.starter.monthly.seats.5]] monatlich im Starter-Tarif, mit REST-API, Webhooks und MCP-Server vom ersten Tag an, statt hinter einem Premium-artigen Upgrade versperrt.
 
 ## Setup und Onboarding
 
 Beide Produkte sind im Vergleich zu Legacy-CRMs schnell eingerichtet. Folks Stärke ist die LinkedIn-Chrome-Extension, die den Kontakt-Import schmerzfrei macht, wenn LinkedIn Ihr Sourcing-Kanal ist. Die Standard-Ansichten und Templates passen für beziehungsorientierten Vertrieb out of the box.
 
-Customermates ist ebenfalls in zwei Minuten einsatzbereit. Die Card-View gruppiert nach jeder Single-Select-Spalte, also kann jede Entität (Deals, Kontakte, Unternehmen, Aufgaben) ein Kanban-Board sein. Es gibt keine native LinkedIn-Extension, aber der MCP-Server plus ein Apify- oder n8n-Flow deckt dasselbe Import-Muster programmatisch ab.
+Auch in Customermates legen Sie einen Arbeitsbereich schnell an; der Aufwand für die Migration hängt von Ihren Daten ab. Die Card-View gruppiert nach jeder Single-Select-Spalte, also kann jede Entität (Deals, Kontakte, Unternehmen, Aufgaben) ein Kanban-Board sein. Es gibt keine LinkedIn-Browser-Extension. Ab Pro verbinden Sie LinkedIn mit dem einheitlichen Posteingang; Kontakte legen Sie manuell, per XLSX-Import, über die REST-API oder mit einem MCP-Client an.
 
 ## CRM-Tiefe
 
 Das CRM von Folk ist solide für den beziehungsorientierten Anwendungsfall. Kontakte, Deals, Pipelines, einfache Custom Fields auf Standard. Custom Objects schalten in Premium frei. E-Mail-Sequenzen sind nativ. Die KI-Assistenten entwerfen Nachrichten und reichern Profile mit Credits an (500 Anreicherungen pro Monat auf Standard, 1.000 auf Premium).
 
-Customermates liefert fünf Entitätstypen als erstklassige Bürger: Kontakte, Unternehmen, Deals, Services, Aufgaben, die bidirektional über API und MCP verlinken. Custom Fields sind über zehn Feldtypen typisiert (plain, link, email, phone, currency, singleSelect, date, dateRange, dateTime, dateTimeRange), ab Tag eins verfügbar statt als Upsell. Die REST-API und der MCP-Server legen jede Operation offen, das heißt E-Mail-Sequenzen, Anreicherung und Follow-up-Entwürfe laufen über Ihre eigenen n8n-Flows oder Claude-Prompts ohne Zusatzkosten.
+Customermates liefert fünf Entitätstypen als erstklassige Bürger: Kontakte, Unternehmen, Deals, Services, Aufgaben, die bidirektional über API und MCP verlinken. Custom Fields sind über zehn Feldtypen typisiert (plain, link, email, phone, currency, singleSelect, date, dateRange, dateTime, dateTimeRange), ab Tag eins verfügbar statt als Upsell. E-Mail-Sequenzen und Kontaktanreicherung enthält Customermates nicht. Wer so etwas braucht, baut es über REST-API, Webhooks oder MCP mit einem separat betriebenen n8n oder einem externen KI-Client, mit den Kosten dieser Dienste.
 
 ## KI: Assistenten vs. ein Agent, der das CRM bedient
 
 Die KI von Folk ist in die UI eingebaut: Assistenten entwerfen Nachrichten, fassen Threads zusammen und schlagen Anreicherungen vor. Sie bleiben im CRM, die KI schlägt vor. Praktisch und gut in dem, was sie tut.
 
-Customermates wurde so gebaut, dass KI-Agenten das CRM direkt bedienen. Der MCP-Server stellt [[derived.mcp.tools.total]] Tools bereit, die jede CRM-Operation abdecken: Deals anlegen, Notizen aktualisieren, Entitäten verknüpfen, Custom Columns konfigurieren, Filter ausführen, Webhooks listen. Richten Sie Claude oder Codex auf `/api/v1/mcp` mit Ihrem API-Key ein, und das Modell liest und schreibt das CRM, als wäre es ein menschlicher Nutzer. Dieselbe Schicht treibt einen [nativen n8n-Community-Node](/blog/n8n-for-beginners-build-your-first-workflow) und [[derived.webhooks.events.total]] Webhook-Events ([[derived.webhooks.events.records]] Datensatz + [[derived.webhooks.events.messaging]] Messaging), sodass KI-Workflows in n8n synchron bleiben, ohne pollen zu müssen.
+Customermates wurde so gebaut, dass KI-Agenten das CRM direkt bedienen. Der MCP-Server stellt [[derived.mcp.tools.total]] Tools für die zentralen CRM-Operationen bereit: Deals anlegen, Notizen aktualisieren, Entitäten verknüpfen, Custom Columns konfigurieren, Filter ausführen, Webhooks listen. Richten Sie Claude oder Codex auf `/api/v1/mcp` mit Ihrem API-Key ein, und das Modell liest und schreibt das CRM, als wäre es ein menschlicher Nutzer. Dieselbe Schicht treibt einen [n8n-Community-Node für Ihre eigene n8n-Instanz](/blog/n8n-for-beginners-build-your-first-workflow) und [[derived.webhooks.events.total]] Webhook-Events ([[derived.webhooks.events.records]] Datensatz + [[derived.webhooks.events.messaging]] Messaging), sodass KI-Workflows in n8n synchron bleiben, ohne pollen zu müssen.
 
 Der Unterschied zählt, wenn das CRM sich selbst aus E-Mails, Anrufen, Transkripten oder Chats heraus aktualisieren soll, statt einen Menschen zum Copy-Paste anzustupsen. Folks KI hilft Ihnen, weniger zu tippen. Die KI von Customermates lässt Sie aufhören zu tippen.
 
@@ -160,7 +160,7 @@ Der Unterschied zählt, wenn das CRM sich selbst aus E-Mails, Anrufen, Transkrip
 
 Folk ist Closed-Source und von Folk gehostet. EU-Residenz wird angeboten. Migration weg von Folk heißt: Export und Neuaufbau im nächsten CRM.
 
-Customermates steht unter [AGPL-3.0](https://www.gnu.org/licenses/agpl-3.0.html). Der vollständige Quellcode liegt auf [GitHub](https://github.com/customermates/customermates). Das mitgelieferte `docker compose up -d` startet zwei Dienste: Anwendung und PostgreSQL 16. Hintergrundjobs laufen im Anwendungsprozess, nicht in einem separaten Webhook-Worker-Container. Beim verwalteten Dienst liegt die Anwendungsdatenbank in einer EU-Region; offengelegte Unterauftragsverarbeiter und internationale Übermittlungen gelten weiterhin. Beim Self-Hosting kontrolliert der Betreiber Datenbank und Bereitstellung.
+Customermates steht unter [AGPL-3.0](https://www.gnu.org/licenses/agpl-3.0.html). Der vollständige Quellcode liegt auf [GitHub](https://github.com/customermates/customermates). Das mitgelieferte `docker compose up -d` startet zwei Dienste: Anwendung und PostgreSQL 16. Hintergrundjobs laufen im Anwendungsprozess, nicht in einem separaten Webhook-Worker-Container. Beim verwalteten Dienst liegt die Anwendungsdatenbank in der AWS-Region Frankfurt; das Hosting läuft bei Vercel (USA), und offengelegte Unterauftragsverarbeiter und internationale Übermittlungen gelten weiterhin. Beim Self-Hosting kontrolliert der Betreiber Datenbank und Bereitstellung.
 
 ## Wann Folk CRM die bessere Wahl ist
 
@@ -168,11 +168,11 @@ Wenn LinkedIn Ihr Sourcing-Kanal ist und Sie eine polierte native Chrome-Extensi
 
 ## Wann Customermates die bessere Wahl ist
 
-Wenn Sie Claude, ChatGPT oder Codex bereits nutzen und wollen, dass ein KI-Agent das CRM tatsächlich bedient (nicht nur Vorschläge in einer Seitenleiste macht), wurde Customermates dafür gebaut. Wenn Sie Open-Source, selbst hostbares, EU-gehostetes, AGPL-lizenziertes CRM ohne Vendor-Lock-in wollen, bietet Folk es nicht. Wenn Sie ab [[commercial.price.starter.monthly]] pro User pro Monat statt $24 bis $48 pro Mitglied zahlen wollen und volle API, MCP, n8n-Integration und Webhooks in jeder Stufe, auch der günstigsten, ohne Premium-Upgrade bekommen, ist die Rechnung klar.
+Wenn Sie Claude, ChatGPT oder Codex bereits nutzen und wollen, dass ein KI-Agent das CRM tatsächlich bedient (nicht nur Vorschläge in einer Seitenleiste macht), wurde Customermates dafür gebaut. Wenn Sie ein selbst hostbares, AGPL-lizenziertes Open-Source-CRM ohne Vendor-Lock-in wollen, bietet Folk es nicht. Wenn Sie ab [[commercial.price.starter.monthly]] pro User pro Monat statt $24 bis $48 pro Mitglied zahlen wollen und REST-API, MCP, Webhooks und den n8n-Community-Node in jeder Stufe, auch der günstigsten, ohne Premium-Upgrade bekommen, ist die Rechnung klar.
 
 ## Fazit
 
-Folk CRM ist ein poliertes beziehungsorientiertes CRM mit starker LinkedIn-Ergonomie und hilfreichen KI-Assistenten. Customermates ist ein Open-Source-CRM mit derselben modernen UX, aber von Grund auf so gebaut, dass KI-Agenten es direkt über [[derived.mcp.tools.total]] MCP-Tools, n8n und Webhooks bedienen, plus einen nativen Unified Inbox über E-Mail, LinkedIn, WhatsApp, Instagram und Telegram. Beide funktionieren für kleine Teams. Wählen Sie Folk, wenn LinkedIn Ihr Kanal ist und Sie ein Closed-Source-SaaS wollen, das Ihnen hilft, weniger zu tippen. Wählen Sie Customermates, wenn die KI für Sie tippen soll und Open Source, EU-Hosting und Self-Hosting Teil von „fertig" sind.
+Folk CRM ist ein poliertes beziehungsorientiertes CRM mit starker LinkedIn-Ergonomie und hilfreichen KI-Assistenten. Customermates ist ein Open-Source-CRM mit derselben modernen UX, aber von Grund auf so gebaut, dass KI-Agenten es direkt über [[derived.mcp.tools.total]] MCP-Tools, n8n und Webhooks bedienen, plus einen nativen einheitlichen Posteingang über E-Mail, LinkedIn, WhatsApp, Instagram und Telegram. Beide funktionieren für kleine Teams. Wählen Sie Folk, wenn LinkedIn Ihr Kanal ist und Sie ein Closed-Source-SaaS wollen, das Ihnen hilft, weniger zu tippen. Wählen Sie Customermates, wenn die KI für Sie tippen soll und Open Source und Self-Hosting Teil von „fertig" sind.
 
 ## Häufig gestellte Fragen
 
@@ -190,7 +190,7 @@ Folk wird von einem Pariser Startup gebaut, gegründet von Simo Lemhandez und Te
 </FaqItem>
 
 <FaqItem question="Integriert Folk LinkedIn?">
-Ja, über eine native Chrome-Extension, die Profile mit einem Klick ins CRM erfasst. Das ist einer der stärksten LinkedIn-first-CRM-Flows am Markt. Customermates hat keine native LinkedIn-Extension, deckt denselben Workflow aber programmatisch über MCP-Server, REST-API und n8n- / Apify-Scraper ab.
+Ja, über eine native Chrome-Extension, die Profile mit einem Klick ins CRM erfasst. Das ist einer der stärksten LinkedIn-first-CRM-Flows am Markt. Customermates hat keine LinkedIn-Browser-Extension. Ab Pro verbinden Sie LinkedIn (auch Sales Navigator) mit dem einheitlichen Posteingang; Kontakte legen Sie manuell, per XLSX-Import, REST-API oder MCP an.
 </FaqItem>
 
 <FaqItem question="Was ist die beste Alternative zu Folk CRM?">

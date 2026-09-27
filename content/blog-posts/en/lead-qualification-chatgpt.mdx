@@ -30,7 +30,7 @@ The bigger problem is inconsistency. What one rep considers a hot lead, another 
 
 And then there is speed. According to research by [Lead Response Management](https://www.leadresponsemanagement.org/), responding to a lead within 5 minutes is 21x more effective than responding after 30 minutes. The [Harvard Business Review](https://hbr.org/2011/03/the-short-life-of-online-sales-leads) found that companies that contacted leads within an hour were 7x more likely to have a meaningful conversation. Manual scoring creates a bottleneck that kills response time.
 
-AI-powered lead qualification solves all three problems. ChatGPT applies the same criteria every time, processes leads in seconds, and scales to any volume. According to [McKinsey](https://www.mckinsey.com/capabilities/growth-marketing-and-sales/our-insights/the-future-of-b2b-sales), sales teams spend an average of 65% of their time on non-selling activities. Automated qualification reclaims a significant portion of that time.
+AI-powered lead qualification solves all three problems. ChatGPT applies the same criteria every time, processes leads in seconds, and scales to any volume. According to [McKinsey](https://www.mckinsey.com/capabilities/growth-marketing-and-sales/our-insights/the-future-of-b2b-sales), sales teams spend a large share of their time on non-selling activities. Automated qualification reclaims a significant portion of that time.
 
 ## Step Zero: Define Your Ideal Customer Profile (ICP)
 
@@ -286,7 +286,7 @@ New lead arrives (webhook / CRM trigger / form)
 ### Step-by-Step Implementation
 
 **1. Trigger: Capture new leads.**
-Use an n8n Webhook node or a CRM trigger. If you use [Customermates](/), new contacts automatically trigger workflows via the separate n8n integration. Alternatively, connect web forms, email parsers, or chatbot outputs.
+Use an n8n Webhook node or a CRM trigger. If you use [Customermates](/), point a contact-created webhook at the n8n Webhook node of your separately operated n8n instance, so every new contact starts the workflow. Alternatively, connect web forms, email parsers, or chatbot outputs.
 
 **2. Enrich lead data (optional).**
 Before scoring, you may want to add context. Use an HTTP Request node to pull company data from Clearbit, Apollo, or LinkedIn. More context improves scoring accuracy. Even basic enrichment (company size, industry, location) can move a lead's ICP fit score from "Unknown" to "Strong" or "Weak."
@@ -298,14 +298,14 @@ Add an OpenAI node. Paste the BANT, MEDDIC, or ANUM prompt and insert the lead d
 Use a Code node or JSON parser to extract the individual scores, classification, and recommended action from ChatGPT's response. Map these to variables for the next steps.
 
 **5. Update CRM.**
-Add a CRM node to write the results. In Customermates, map the total score to a custom field, set the classification as a single-select custom column, and add the detailed scoring as a note. This makes the qualification visible on the deal card without opening a separate report.
+Add a CRM node to write the results. For Customermates, use the community node or an HTTP Request node against the REST API: map the total score to a custom field, set the classification as a single-select custom column, and add the detailed scoring as a note. This makes the qualification visible on the deal card without opening a separate report.
 
 **6. Route by classification.**
 Use an If node to branch the workflow:
 
 - **Hot leads (score 16-20):** Send an immediate Slack message or email to the assigned sales rep with the lead summary and score breakdown.
-- **Warm leads (score 10-15):** Add to an email nurture sequence or schedule a follow-up task in the CRM.
-- **Cold leads (score 1-9):** Tag for periodic review. Do not discard, circumstances change.
+- **Warm leads (score 10-15):** Add to an email nurture sequence in your email tool or create a follow-up task in the CRM.
+- **Cold leads (score 1-9):** Mark for periodic review. Do not discard, circumstances change.
 - **Disqualified leads:** Archive with the disqualification reason logged in the CRM. This data helps refine your ICP and marketing targeting over time.
 
 ### Workflow Cost Estimate
@@ -354,7 +354,7 @@ Many CRMs offer built-in lead scoring. Here is how they compare to the ChatGPT a
 | Adaptability         | Change prompt to change framework                        | Rebuild rules for each change         | N/A                          |
 | Qualitative analysis | Yes (reads text, detects signals)                        | No (numeric/boolean rules only)       | N/A                          |
 | Cost                 | [[commercial.price.starter.monthly]]/user + EUR 5-10 API | From ~EUR 90/seat (Professional plan) | EUR 14/user + external tool  |
-| n8n integration      | Native                                                   | API available                         | API available                |
+| n8n integration      | Community node (n8n runs separately)                     | API available                         | API available                |
 
 **HubSpot's built-in scoring** is rule-based: you define points for actions (opened email = +5, visited pricing page = +10). It works for engagement scoring but cannot analyze the content of a lead's message or apply qualification frameworks to free-text input.
 
@@ -365,6 +365,8 @@ Many CRMs offer built-in lead scoring. Here is how they compare to the ChatGPT a
 ## Measuring ROI of Automated Lead Qualification
 
 ### Time Savings
+
+An illustrative calculation for a team that currently scores leads by hand for about 90 minutes a day:
 
 | Metric               | Before AI | After AI                 |
 | -------------------- | --------- | ------------------------ |
@@ -381,13 +383,13 @@ Consistent, fast scoring improves conversions in three ways:
 2. **Faster response time.** Automated routing means top leads are contacted within minutes, not hours. The data is clear: the companies that respond fastest win more deals.
 3. **Data-driven optimization.** With structured scores in your CRM, you can analyze which lead sources, channels, and messaging produce the highest-quality leads and double down on what works.
 
-Teams that switch from manual to AI-assisted qualification typically see conversion improvements of 15-30%.
+Measure your own baseline conversion rate before you switch, so you can see what the automation actually changes.
 
 ## Choosing the Right CRM for AI-Powered Qualification
 
 Your CRM needs to support custom fields, tagging, and automation triggers for this workflow to function smoothly.
 
-**Customermates.** From [[commercial.price.starter.monthly]]/user/month (Starter), the full core CRM included. Custom fields for scores, tags for classification, native n8n integration for automated updates, GDPR-compliant EU hosting. The native MCP integration ([[derived.mcp.tools.total]] tools) lets Claude, ChatGPT, or Gemini operate the CRM directly, and a unified inbox brings email, LinkedIn, WhatsApp, Instagram, and Telegram into one place on the Pro tier. Automation is included at every tier, so you do not pay extra for features that enterprise CRMs gate behind higher plans.
+**Customermates.** From [[commercial.price.starter.monthly]]/user/month (Starter), the full core CRM included. Custom fields for scores, single-select columns for classification, webhooks and an n8n community node for automated updates, and a cloud database in the AWS Frankfurt region with a [DPA](/dpa). The native MCP integration ([[derived.mcp.tools.total]] tools) lets Claude, ChatGPT, or Gemini operate the CRM directly, and a unified inbox brings email, LinkedIn, WhatsApp, Instagram, and Telegram into one place on the Pro tier. Webhooks, the REST API, and MCP are included at every tier, so you do not pay extra for the interfaces that enterprise CRMs gate behind higher plans. n8n itself runs separately and is billed by n8n or your own hosting.
 
 **HubSpot.** Lead scoring is available on the Professional plan (from about EUR 90 per seat per month). The built-in scoring is rule-based, not AI-powered. For AI scoring via n8n, the free CRM tier works but lacks advanced automation triggers.
 
@@ -419,7 +421,7 @@ Build a feedback loop. When a sales rep disagrees with an AI score, they update 
 </FaqItem>
 
 <FaqItem question="Is it GDPR-compliant to send lead data to ChatGPT?">
-When using the OpenAI API with a business agreement and DPA, data is processed but not used for training. For maximum compliance, minimize the PII sent (use company name and message content, not personal email addresses), and consider a self-hosted LLM via Ollama for sensitive data. On the CRM side, Customermates uses an EU region for the managed database and publishes a DPA and SCCs, but holds no compliance certification.
+When using the OpenAI API with a business agreement and DPA, data is processed but not used for training. For maximum compliance, minimize the PII sent (use company name and message content, not personal email addresses), and consider a self-hosted LLM via Ollama for sensitive data. On the CRM side, Customermates runs its managed database in the AWS Frankfurt region, lists all subprocessors (including US providers) on its [subprocessors page](/subprocessors), and offers a [DPA](/dpa), but holds no compliance certification.
 </FaqItem>
 
 <FaqItem question="What if I only get 20 leads per month, is automation worth it?">
