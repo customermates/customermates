@@ -135,6 +135,23 @@ Customermates supports both operating models. Every cloud plan includes a Mate e
   <ProofItem label="Deployment">Cloud and self-hosted MCP</ProofItem>
 </ProofRail>
 
+## What is an AI-native CRM?
+
+An **AI-native CRM** is designed so that AI can work with it as a first-class user, not as an add-on bolted onto screens built for people. In practice that means three properties:
+
+- **Typed interfaces for every core action.** Reading, creating, updating and linking records are exposed as tools with schemas, not only as buttons.
+- **The same permissions for people and AI.** An AI client acts as a specific user and sees exactly what that user may see.
+- **AI available where the work happens.** An assistant inside the product, an open interface for external AI clients, or both.
+
+Many established CRMs are adding AI after the fact: a separate AI tier, an assistant limited to summaries, or an MCP server that sits beside the product and needs its own setup. The [Salesforce MCP](/blog/salesforce-mcp) and [HubSpot MCP](/blog/hubspot-mcp) guides show how two large vendors do it. An AI-native CRM ships the interface as part of the product on every plan.
+
+| Question                            | AI added to an existing CRM                  | AI-native CRM                                  |
+| ----------------------------------- | -------------------------------------------- | ---------------------------------------------- |
+| Where AI can act                    | Selected features or a separate server       | Every core record and action through typed tools |
+| Setup for an external AI client     | Often an admin project                       | Connect the endpoint and sign in               |
+| Pricing                             | Often a separate AI tier or add-on           | Part of the plan                               |
+| Permissions                         | Depends on the add-on                        | The connected user's role, enforced on the server |
+
 ## What makes a CRM agentic?
 
 A useful agentic CRM needs four things:
@@ -197,6 +214,8 @@ Self-hosting uses Starter entitlements. It remains a strong option for teams tha
 
 “AI-native CRM” usually describes architecture: the CRM exposes structured data and actions that AI can use. “Agentic CRM” describes behavior: an AI system can carry out supported work. A product can be AI-operable without pretending that every process is autonomous.
 
+If you want to connect Claude specifically, the [Claude CRM guide](/blog/claude-crm) walks through the build, connect and native options. If you want to run the CRM and its MCP endpoint on your own servers, see the [open-source CRM](/blog/open-source-crm) comparison and the [self-hosted CRM](/features/self-hosted) boundary. For AI working on customer conversations, see [customer communication management](/blog/customer-communication-management).
+
 For buyers, the practical questions matter more than the label:
 
 - Which records and actions are exposed?
@@ -242,6 +261,14 @@ For buyers, the practical questions matter more than the label:
 <Faq>
 <FaqItem question="What is an agentic CRM?">
 It is a CRM whose structured records and actions can be operated by an authorized AI client or assistant. A responsible implementation keeps server-side permissions and explicit approval boundaries for destructive or external actions.
+</FaqItem>
+
+<FaqItem question="What is an AI-native CRM?">
+An AI-native CRM exposes its records and actions to AI through typed interfaces from the start, applies the same permissions to AI clients as to people, and includes AI access in the product rather than as a separate add-on. Customermates does this through its MCP server, with [[derived.mcp.tools.total]] tools on every plan and installation.
+</FaqItem>
+
+<FaqItem question="What is the difference between an AI-native CRM and an agentic CRM?">
+AI-native describes the architecture: structured data and typed actions AI can use. Agentic describes the behavior: an AI client or assistant carries out multi-step work with those actions. An agentic CRM needs an AI-native foundation.
 </FaqItem>
 
 <FaqItem question="Is Mate available in every Customermates Cloud environment?">

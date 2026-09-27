@@ -106,6 +106,8 @@ cta:
 
 Customermates is a **self-hosted CRM** you can run as two Docker Compose services: the application and PostgreSQL 16. It is a good fit when your team wants to operate its CRM infrastructure and use an open-source core. It is not the self-hosted edition of every Customermates Cloud feature.
 
+A self-hosted CRM runs on servers you control instead of the vendor's cloud: you decide where the application and database live, and you take on updates, backups and security. Whether the code is open source is a separate question about licence rights, covered in the [open-source CRM guide](/blog/open-source-crm). This page covers the operational side for Customermates.
+
 <ArticleSummary title="At a glance">
   <SummaryItem label="Runs on your infrastructure">
     The Customermates application and PostgreSQL 16 run as two services in the
@@ -172,7 +174,7 @@ The [unified CRM inbox](/features/unified-inbox) is a managed-cloud feature from
 
 First-party material outside `ee/` is licensed under AGPL-3.0-only. Inside `ee/`, material is commercially licensed except for the client-side images, fonts, CSS and JavaScript material identified as AGPL Client Material in Section 6 of `ee/LICENSE.md`. Review both licenses before modifying, redistributing or operating the software for your use case.
 
-That distinction matters when comparing an [open-source CRM](/blog/open-source-crm): a public repository alone does not tell you which code you may use under which terms.
+That distinction matters when comparing an [open-source CRM](/blog/open-source-crm): a public repository alone does not tell you which code you may use under which terms. If you are weighing other self-hostable projects, the [EspoCRM](/compare/espocrm-alternative) and [Twenty](/compare/twenty-alternative) comparisons show how their deployment and licence boundaries differ.
 
 ## What control does self-hosting provide?
 
@@ -189,7 +191,7 @@ Connected services remain separate processing boundaries. OAuth providers, SMTP,
 | you want external AI clients to use MCP     | you want cloud plan entitlements and managed connected accounts |
 | you will own updates, backups and recovery  | you prefer a subscription with managed operations               |
 
-There is no dedicated CRM-record import or export workflow. Treat any move between systems as a separate migration project using documented interfaces and a procedure you validate.
+Records move between installations or from another CRM as XLSX workbooks, one record type at a time and within row limits, or through the REST API. Attachments and a complete account transfer are not part of that path, so plan a larger move as a migration project you validate.
 
 ## How to evaluate the deployment
 
@@ -231,8 +233,9 @@ First-party material outside `ee/` is AGPL-3.0-only. Inside `ee/`, the client ma
 
 <FaqItem question="Can I use AI with the self-hosted CRM?">
   Yes, through [MCP](/docs/mcp) and an external AI client and provider that you
-  select and fund. The cloud-only Mate assistant and hosted AI credits are not
-  part of self-hosting.
+  select and fund, for example Claude as described in the [Claude CRM
+  guide](/blog/claude-crm). The cloud-only Mate assistant and hosted AI credits
+  are not part of self-hosting.
 </FaqItem>
 
 <FaqItem question="Does self-hosting make the CRM GDPR compliant?">
