@@ -3,7 +3,7 @@ title: "Customermates als On-Premise-CRM mit Docker hosten"
 description: "Customermates mit Docker Compose selbst betreiben: Installation, .env-Werte, E-Mail, Registrierung, Updates, Backup und Restore, Unterschiede zur Cloud."
 ---
 
-Self-Hosting betreibt Customermates mit zwei Dateien, `docker-compose.yml` und `.env`, und dem Befehl `docker compose up -d`. Beide Dateien holen Sie mit `curl` aus dem [Customermates-Repo](https://github.com/customermates/customermates); ein `git clone` und ein Build-Schritt sind nicht nötig. Die Compose-Datei startet zwei Container: PostgreSQL 16 (`postgres:16-alpine`) und das App-Image `ghcr.io/customermates/customermates:latest`, das bei jedem Start ausstehende Datenbank-Migrationen anwendet.
+Self-Hosting betreibt Customermates mit zwei Dateien, `docker-compose.yml` und `.env`, und dem Befehl `docker compose up -d`. Beide Dateien holen Sie mit `curl` aus dem [Customermates-Repo](https://github.com/customermates/customermates); ein `git clone` und ein Build-Schritt sind nicht nötig. Die Compose-Datei startet zwei Container: PostgreSQL 16 (`postgres:16-alpine`) und das App-Image `ghcr.io/customermates/customermates:latest`, das bei jedem Start ausstehende Datenbank-Migrationen anwendet. Die Datenbank braucht die Erweiterung `pg_trgm`, die die Migrationen anlegen: Ab PostgreSQL 13 gilt sie als vertrauenswürdig, manche verwaltete Anbieter verlangen aber, dass Sie sie vorher freischalten.
 
 ## Sollte ich selbst hosten oder die Cloud nutzen? [#should-i-self-host-or-use-the-cloud]
 
