@@ -807,26 +807,26 @@
         "wiki": {
           "data": {
             "create-wiki-page": {
-              "label": "Crear una página Wiki",
-              "prompt": "Ayúdame a crear una nueva página del Wiki del espacio de trabajo. Pregunta qué proceso, conocimiento de producto, guía de soporte o guía de voz necesitan Mate y las herramientas de IA conectadas, y créala después de mi confirmación."
+              "label": "Crear una página de la wiki",
+              "prompt": "Ayúdame a crear una nueva página de la wiki del espacio de trabajo. Pregunta qué proceso, conocimiento de producto, guía de soporte o guía de voz necesitan Mate y las herramientas de IA conectadas, y créala después de mi confirmación."
             },
             "wiki-gaps": {
               "label": "Encontrar vacíos de conocimiento",
-              "prompt": "Revisa nuestro Wiki del espacio de trabajo e identifica la información más importante que falte, esté desactualizada o sea contradictoria. No hagas cambios."
+              "prompt": "Revisa nuestra wiki del espacio de trabajo e identifica la información más importante que falte, esté desactualizada o sea contradictoria. No hagas cambios."
             },
             "wiki-summary": {
-              "label": "Resumir el Wiki",
-              "prompt": "Resume nuestro Wiki del espacio de trabajo, incluidos los procesos, el conocimiento de producto, las guías de soporte y las guías de voz que contiene."
+              "label": "Resumir la wiki",
+              "prompt": "Resume nuestra wiki del espacio de trabajo, incluidos los procesos, el conocimiento de producto, las guías de soporte y las guías de voz que contiene."
             }
           },
           "empty": {
             "wiki-structure": {
-              "label": "Sugerir una estructura Wiki",
-              "prompt": "Revisa mi espacio de trabajo y sugiere entre tres y cinco páginas útiles para el Wiki. No crees nada todavía."
+              "label": "Sugerir una estructura para la wiki",
+              "prompt": "Revisa mi espacio de trabajo y sugiere entre tres y cinco páginas útiles para la wiki. No crees nada todavía."
             },
             "wiki-tour": {
-              "label": "Aprender cómo funciona el Wiki",
-              "prompt": "Explica cómo Mate, las rutinas y las herramientas de IA conectadas utilizan el Wiki del espacio de trabajo, incluidos los enlaces y permisos. No hagas cambios."
+              "label": "Aprender cómo funciona la wiki",
+              "prompt": "Explica cómo Mate, las rutinas y las herramientas de IA conectadas utilizan la wiki del espacio de trabajo, incluidos los enlaces y permisos. No hagas cambios."
             }
           }
         }
@@ -3749,14 +3749,14 @@
     "startFailed": "Mate no pudo iniciar la configuración de la wiki. Inténtalo de nuevo.",
     "startFromWebsite": "Crear desde mi sitio web",
     "status": {
-      "completedBody": "Tus páginas wiki iniciales están listas. Incluyen datos respaldados por el sitio web y vacíos claros para lo que no se pudo verificar.",
-      "completedBodyOnboarding": "Mate ha creado tus páginas iniciales con datos respaldados por el sitio web y vacíos claros para lo que no pudo verificar. Podrás revisarlas y editarlas más tarde en la wiki.",
+      "completedBody": "Tus páginas wiki iniciales están listas, con datos respaldados por el sitio web. Revisa las páginas nuevas y confirma lo que esté marcado como pendiente de confirmar.",
+      "completedBodyOnboarding": "Mate ha creado tus páginas iniciales con datos respaldados por el sitio web. Podrás revisarlas más tarde en la wiki y confirmar lo que esté marcado como pendiente de confirmar.",
       "completedExistingBody": "Tu wiki ya contiene páginas. Continúa la incorporación o revisa el contenido existente.",
       "completedTitle": "Tu wiki inicial está lista",
       "failedBody": "No se añadió ninguna página. Prueba otro sitio o continúa y añade páginas más tarde.",
       "failedTitle": "La configuración no terminó",
       "noContentBody": "Revisa la tarea de Mate para ver los detalles. Puedes probar con otro sitio web o continuar y añadir páginas más tarde.",
-      "noContentTitle": "No se crearon páginas del Wiki",
+      "noContentTitle": "No se crearon páginas de la wiki",
       "workingBody": "Mate está leyendo {domain}, comprobando páginas útiles e incorporando información con fuentes a tu wiki. Puedes seguir el progreso aquí o continuar con el siguiente paso.",
       "workingBodyNoTask": "Mate está leyendo {domain} e incorporando información con fuentes a tu wiki. Puedes continuar con el siguiente paso mientras trabaja.",
       "workingBodyNoTaskWiki": "Mate está leyendo {domain} y creando la wiki. Puedes volver más tarde para ver las páginas terminadas.",

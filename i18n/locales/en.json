@@ -3749,8 +3749,8 @@
     "startFailed": "Mate could not start the Wiki setup. Please try again.",
     "startFromWebsite": "Build from my website",
     "status": {
-      "completedBody": "Your starter pages are ready, with cited website facts and clear gaps for anything the site could not verify.",
-      "completedBodyOnboarding": "Mate created your starter pages with cited website facts and clear gaps for anything it could not verify. You can review and edit them later in the Wiki.",
+      "completedBody": "Your starter pages are ready, with cited website facts. Review the new pages and confirm anything marked as a gap.",
+      "completedBodyOnboarding": "Mate created your starter pages with cited website facts. You can review them later in the Wiki and confirm anything marked as a gap.",
       "completedExistingBody": "Your Wiki already contains pages. Continue onboarding or review the existing content.",
       "completedTitle": "Your starter Wiki is ready",
       "failedBody": "No pages were added. Try another website, or continue and add pages later.",
