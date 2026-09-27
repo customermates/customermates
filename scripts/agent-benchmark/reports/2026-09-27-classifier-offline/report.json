@@ -1,0 +1,329 @@
+{
+  "date": "2026-09-27",
+  "module": "ee/agent-chat/classifier",
+  "spendCapUsd": 5,
+  "spendUsd": 2.6102,
+  "spendNote": "Model cost is the gateway's measured cost per call; the ZDR fee is estimated at 0.0001 USD per request because the per-request cost omits it.",
+  "spendByUse": {
+    "docs:jev:jev": {
+      "usd": 0.08293335000000002,
+      "zdrUsd": 0.06900000000000095,
+      "calls": 690,
+      "unmeasured": 0
+    },
+    "docs:gemini:gemini": {
+      "usd": 0.6001628600000003,
+      "zdrUsd": 0.06820000000000093,
+      "calls": 682,
+      "unmeasured": 0
+    },
+    "docs:judge:google/gemini-3-flash": {
+      "usd": 0.37202949999999924,
+      "zdrUsd": 0.08710000000000147,
+      "calls": 871,
+      "unmeasured": 0
+    },
+    "routing:jev:jev": {
+      "usd": 0.015516630000000024,
+      "zdrUsd": 0.03840000000000007,
+      "calls": 384,
+      "unmeasured": 0
+    },
+    "routing:gemini:gemini": {
+      "usd": 0.19027722999999983,
+      "zdrUsd": 0.037100000000000036,
+      "calls": 371,
+      "unmeasured": 0
+    },
+    "text-checks:jev:jev": {
+      "usd": 0.024403920000000107,
+      "zdrUsd": 0.13440000000000152,
+      "calls": 1344,
+      "unmeasured": 0
+    },
+    "text-checks:gemini:gemini": {
+      "usd": 0.15167955000000022,
+      "zdrUsd": 0.13440000000000152,
+      "calls": 1344,
+      "unmeasured": 0
+    },
+    "figures:jev:jev": {
+      "usd": 0.019126049999999933,
+      "zdrUsd": 0.08940000000000153,
+      "calls": 894,
+      "unmeasured": 0
+    },
+    "figures:gemini:gemini": {
+      "usd": 0.19126316000000046,
+      "zdrUsd": 0.08940000000000153,
+      "calls": 894,
+      "unmeasured": 0
+    },
+    "judge:jev:jev": {
+      "usd": 0.011602259999999994,
+      "zdrUsd": 0.029999999999999874,
+      "calls": 300,
+      "unmeasured": 0
+    },
+    "judge:gemini:gemini": {
+      "usd": 0.14384898000000007,
+      "zdrUsd": 0.029999999999999874,
+      "calls": 300,
+      "unmeasured": 0
+    }
+  },
+  "uses": {
+    "docsRerank": {
+      "gate": "Per language on the blind bank: page-first +5 points, paired sign test p < 0.05, added p95 <= 1 s.",
+      "pass": {
+        "jev": false,
+        "gemini": false
+      },
+      "detail": {
+        "jev:en": {
+          "deltaPts": 9.4,
+          "signTestP": 0.0703,
+          "addedMsP95": 501.8,
+          "pass": false
+        },
+        "gemini:en": {
+          "deltaPts": 9.4,
+          "signTestP": 0.0703,
+          "addedMsP95": 992.3,
+          "pass": false
+        },
+        "jev:de": {
+          "deltaPts": 12.8,
+          "signTestP": 0.0386,
+          "addedMsP95": 399.2,
+          "pass": true
+        },
+        "gemini:de": {
+          "deltaPts": 15,
+          "signTestP": 0.0225,
+          "addedMsP95": 1179.5,
+          "pass": false
+        }
+      },
+      "winner": "jev",
+      "note": "Page-first and section answers are within noise between the models; Jev is about 7.5x cheaper and 2x faster. English misses significance (7 wins, 1 loss); Gemini's German p95 exceeds 1 s."
+    },
+    "routingShadow": {
+      "gate": "Recall above the lexicon in >= 2 languages at no more false-hit bytes; primary arms use the product toolset summaries.",
+      "pass": {
+        "jev": true,
+        "gemini": true
+      },
+      "detail": {
+        "jev:product": {
+          "betterLanguages": [
+            "de",
+            "es",
+            "fr",
+            "it"
+          ],
+          "falseHitBytesPerRun": 130060,
+          "lexiconFalseHitBytesPerRun": 277713,
+          "pass": true
+        },
+        "gemini:product": {
+          "betterLanguages": [
+            "de",
+            "es",
+            "fr",
+            "it"
+          ],
+          "falseHitBytesPerRun": 38245,
+          "lexiconFalseHitBytesPerRun": 277713,
+          "pass": true
+        },
+        "jev:probeTuned": {
+          "betterLanguages": [
+            "de",
+            "es",
+            "fr",
+            "it"
+          ],
+          "falseHitBytesPerRun": 55778,
+          "lexiconFalseHitBytesPerRun": 277713,
+          "pass": true
+        },
+        "gemini:probeTuned": {
+          "betterLanguages": [
+            "de",
+            "es",
+            "it"
+          ],
+          "falseHitBytesPerRun": 0,
+          "lexiconFalseHitBytesPerRun": 277713,
+          "pass": true
+        }
+      },
+      "winner": "gemini",
+      "note": "Gemini makes 5.7 false hits per run against Jev's 18 (Jev adds views to widget and analysis requests), which is not within noise. The live A/B required by the keep-or-drop rule was not run."
+    },
+    "textChecks": {
+      "gate": "Per check: >= 98% agreement with gold and at least one regex error fixed.",
+      "pass": {
+        "jev": false,
+        "gemini": false
+      },
+      "detail": {
+        "jev": {
+          "pooledAgreementWithGoldPct": 99.43,
+          "regexAgreementWithGoldPct": 99.04,
+          "fixes": 4,
+          "breaks": 2,
+          "checksMeetingBothConditions": [],
+          "pass": false
+        },
+        "gemini": {
+          "pooledAgreementWithGoldPct": 99.04,
+          "regexAgreementWithGoldPct": 99.04,
+          "fixes": 4,
+          "breaks": 4,
+          "checksMeetingBothConditions": [],
+          "pass": false
+        }
+      },
+      "winner": "jev",
+      "note": "Both models agree with the regex on every instance outside M8; the M8 fixes come with M8 agreement below 98%."
+    },
+    "figureSelfCheck": {
+      "gate": ">= 1 real catch and 0 false alarms on passing episodes.",
+      "pass": {
+        "jev": false,
+        "gemini": false
+      },
+      "detail": {
+        "jev": {
+          "episodes": 320,
+          "episodesWithFigures": 298,
+          "numericFailures": 52,
+          "passing": 267,
+          "catches": 41,
+          "catchRatePct": 78.8,
+          "falseAlarmsOnPassing": 10,
+          "falseAlarmRatePct": 3.7,
+          "flaggedOtherFailures": 0,
+          "failedCalls": 0,
+          "pass": false
+        },
+        "gemini": {
+          "episodes": 320,
+          "episodesWithFigures": 298,
+          "numericFailures": 52,
+          "passing": 267,
+          "catches": 40,
+          "catchRatePct": 76.9,
+          "falseAlarmsOnPassing": 10,
+          "falseAlarmRatePct": 3.7,
+          "flaggedOtherFailures": 0,
+          "failedCalls": 0,
+          "pass": false
+        }
+      },
+      "winner": "tie",
+      "note": "Evidence is the expected facts because stored episodes keep no tool outputs; the false alarms are legitimate intermediate figures missing from those facts."
+    },
+    "advisoryJudge": {
+      "gate": "At least one low classifier score on an oracle-failed episode that both judges scored >= 4.",
+      "pass": {
+        "jev": false,
+        "gemini": false
+      },
+      "detail": {
+        "jev": {
+          "scoredEpisodes": 100,
+          "perDimension": {
+            "grounding": {
+              "maeVsJudgeMean": 0.81,
+              "within1OfJudgeMeanPct": 61,
+              "pearsonVsJudgeMean": 0.69,
+              "pearsonJudgeVsJudge": 0.72
+            },
+            "completeness": {
+              "maeVsJudgeMean": 0.43,
+              "within1OfJudgeMeanPct": 91,
+              "pearsonVsJudgeMean": 0.9,
+              "pearsonJudgeVsJudge": 0.89
+            },
+            "reasoning": {
+              "maeVsJudgeMean": 0.75,
+              "within1OfJudgeMeanPct": 74,
+              "pearsonVsJudgeMean": 0.78,
+              "pearsonJudgeVsJudge": 0.83
+            },
+            "actionability": {
+              "maeVsJudgeMean": 0.37,
+              "within1OfJudgeMeanPct": 96,
+              "pearsonVsJudgeMean": 0.95,
+              "pearsonJudgeVsJudge": 0.88
+            },
+            "fabricationFree": {
+              "maeVsJudgeMean": 0.93,
+              "within1OfJudgeMeanPct": 64,
+              "pearsonVsJudgeMean": 0.65,
+              "pearsonJudgeVsJudge": 0.79
+            }
+          },
+          "overallPearsonVsJudgeMean": 0.86,
+          "overallPearsonVsOraclePass": 0.61,
+          "judgesOverallPearsonVsOraclePass": 0.73,
+          "oracleFailedButJudgesHigh": 9,
+          "oracleFailedJudgesHighClassifierLow": 0,
+          "classifierLowJudgesHigh": 1,
+          "classifierLowJudgesHighOracleFailed": 0,
+          "classifierLowJudgesHighOraclePassed": 1,
+          "classifierHighJudgesLow": 0
+        },
+        "gemini": {
+          "scoredEpisodes": 100,
+          "perDimension": {
+            "grounding": {
+              "maeVsJudgeMean": 0.46,
+              "within1OfJudgeMeanPct": 85,
+              "pearsonVsJudgeMean": 0.88,
+              "pearsonJudgeVsJudge": 0.72
+            },
+            "completeness": {
+              "maeVsJudgeMean": 0.58,
+              "within1OfJudgeMeanPct": 84,
+              "pearsonVsJudgeMean": 0.86,
+              "pearsonJudgeVsJudge": 0.89
+            },
+            "reasoning": {
+              "maeVsJudgeMean": 0.47,
+              "within1OfJudgeMeanPct": 90,
+              "pearsonVsJudgeMean": 0.92,
+              "pearsonJudgeVsJudge": 0.83
+            },
+            "actionability": {
+              "maeVsJudgeMean": 0.54,
+              "within1OfJudgeMeanPct": 85,
+              "pearsonVsJudgeMean": 0.91,
+              "pearsonJudgeVsJudge": 0.88
+            },
+            "fabricationFree": {
+              "maeVsJudgeMean": 0.66,
+              "within1OfJudgeMeanPct": 78,
+              "pearsonVsJudgeMean": 0.6,
+              "pearsonJudgeVsJudge": 0.79
+            }
+          },
+          "overallPearsonVsJudgeMean": 0.9,
+          "overallPearsonVsOraclePass": 0.64,
+          "judgesOverallPearsonVsOraclePass": 0.73,
+          "oracleFailedButJudgesHigh": 9,
+          "oracleFailedJudgesHighClassifierLow": 0,
+          "classifierLowJudgesHigh": 0,
+          "classifierLowJudgesHighOracleFailed": 0,
+          "classifierLowJudgesHighOraclePassed": 0,
+          "classifierHighJudgesLow": 0
+        }
+      },
+      "winner": "gemini",
+      "note": "Both track the judges (overall r 0.86 and 0.90) but flag none of the 9 oracle failures the judges scored high."
+    }
+  }
+}
