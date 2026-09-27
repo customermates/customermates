@@ -166,6 +166,12 @@ export function isContentPathname(pathname: string) {
   return false;
 }
 
+export function isMarketingPathname(pathname: string) {
+  return (
+    isContentPathname(pathname) || SITEMAP_EXTRA_CONTENT_ROUTES.some((p) => buildLocaleAwareRegex(p).test(pathname))
+  );
+}
+
 export function isProtectedPage(req: NextRequest) {
   return isProtectedPathname(req.nextUrl.pathname);
 }

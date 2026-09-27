@@ -40,6 +40,12 @@ describe("marketing prefetch budget", () => {
     expect(contentLinkPrefetch("/contact")).toBe(false);
   });
 
+  it("applies the same rule on marketing pages outside the content routes, such as contact", () => {
+    expect(leavesContentTree("/auth/signin", "/en/contact")).toBe(true);
+    expect(leavesContentTree("/dashboard", "/de/contact")).toBe(true);
+    expect(leavesContentTree("/pricing", "/en/contact")).toBe(false);
+  });
+
   it("leaves app-internal navigation alone, because the rule is about the page you are on", () => {
     expect(leavesContentTree("/auth/signup", "/dashboard")).toBe(false);
     expect(leavesContentTree("/contact", "/tasks")).toBe(false);

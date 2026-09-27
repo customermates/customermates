@@ -1,4 +1,4 @@
-import { isContentPathname } from "./routing";
+import { isContentPathname, isMarketingPathname } from "./routing";
 
 const INTERNAL_URL_BASE = "https://internal.invalid";
 
@@ -9,7 +9,7 @@ function staysInContentTree(href: string): boolean {
 }
 
 export function leavesContentTree(href: string, pathname: string): boolean {
-  return isContentPathname(pathname) && !staysInContentTree(href);
+  return isMarketingPathname(pathname) && !staysInContentTree(href);
 }
 
 export function contentLinkPrefetch(href: string): false | undefined {
