@@ -109,37 +109,12 @@ afterEach(() => {
 });
 
 describe("WikiHomepageSetup", () => {
-  it("lists the knowledge areas as guidance and keeps setup optional", () => {
-    expect(input()).toMatchObject({
-      type: "text",
-      inputMode: "url",
-      autocomplete: "url",
-    });
-    expect(input().getAttribute("aria-describedby")).toBe("wiki-homepage-help");
-    expect(button("WikiSetup.start").disabled).toBe(true);
-    for (const topic of ["company", "products", "customers", "voice", "support"])
-      expect(container.textContent).toContain(`WikiSetup.topics.${topic}`);
-
-    act(() => button("WikiSetup.skip").click());
-
-    expect(onSkip).toHaveBeenCalledOnce();
-    expect(harness.action).not.toHaveBeenCalled();
-  });
-
   it("keeps the onboarding decision focused on the website and two actions", () => {
     render(undefined, { onboarding: true });
 
     expect(input().getAttribute("aria-describedby")).toBeNull();
-    expect(input().className).toContain("pr-9");
-    expect(input().className).not.toContain("pl-9");
-    const suffix = container.querySelector<SVGElement>('[data-testid="wiki-homepage-suffix"]');
-    expect(suffix?.classList.contains("right-3")).toBe(true);
-    expect(suffix?.classList.contains("left-3")).toBe(false);
-    expect(container.textContent).not.toContain("WikiSetup.description");
-    expect(container.textContent).not.toContain("WikiSetup.gapsNote");
+    expect(input().parentElement?.querySelector("svg")).toBeNull();
     expect(container.textContent).not.toContain("WikiSetup.homepageHelp");
-    for (const topic of ["company", "products", "customers", "voice", "support"])
-      expect(container.textContent).not.toContain(`WikiSetup.topics.${topic}`);
     expect(container.querySelectorAll("button")).toHaveLength(2);
     expect(container.textContent).toContain("WikiSetup.skip");
     expect(container.textContent).toContain("WikiSetup.start");
@@ -148,14 +123,18 @@ describe("WikiHomepageSetup", () => {
   it("keeps the on-demand Wiki setup focused on one website field", () => {
     render(undefined, { compact: true });
 
+    expect(input()).toMatchObject({ type: "text", inputMode: "url", autocomplete: "url" });
+    expect(container.querySelector('label[for="wiki-homepage"]')?.textContent).toBe("WikiSetup.homepageLabel");
     expect(input().getAttribute("aria-describedby")).toBe("wiki-homepage-help");
-    expect(container.textContent).not.toContain("WikiSetup.description");
-    expect(container.textContent).not.toContain("WikiSetup.gapsNote");
-    for (const topic of ["company", "products", "customers", "voice", "support"])
-      expect(container.textContent).not.toContain(`WikiSetup.topics.${topic}`);
+    expect(input().parentElement?.querySelector("svg")).toBeNull();
     expect(container.textContent).toContain("WikiSetup.homepageHelp");
+    expect(button("WikiSetup.start").disabled).toBe(true);
     expect(container.querySelectorAll("button")).toHaveLength(2);
     expect(document.activeElement).toBe(input());
+
+    act(() => button("WikiSetup.skip").click());
+    expect(onSkip).toHaveBeenCalledOnce();
+    expect(harness.action).not.toHaveBeenCalled();
   });
 
   it("deduplicates submission and transitions to a durable visible-task state", async () => {
@@ -386,7 +365,6 @@ describe("WikiHomepageSetup", () => {
       "Company Overview",
     );
     expect(container.textContent).not.toContain("WikiSetup.tryAnother");
-    expect(container.textContent).not.toContain("WikiSetup.createBlank");
   });
 
   it("keeps completed onboarding pages non-navigable until the account leaves the wizard", () => {

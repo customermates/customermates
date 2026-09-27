@@ -3739,9 +3739,6 @@
     "continue": "Weiter",
     "continueBackground": "Weiter, während Mate arbeitet",
     "conversationTitle": "Workspace-Wiki einrichten",
-    "createBlank": "Leere Seite erstellen",
-    "description": "Verwandle deine Website in nützliche Wiki-Seiten für Mate und verbundene KI-Tools.",
-    "gapsNote": "Mate belegt gefundene Informationen mit Quellen und markiert Lücken, statt zu raten.",
     "generated": {
       "gapsHeading": "Noch zu klären",
       "sourcesHeading": "Quellen"
@@ -3770,13 +3767,6 @@
       "workingBodyNoTaskWiki": "Mate liest {domain} und erstellt das Wiki. Du kannst später zurückkehren, um die fertigen Seiten zu sehen.",
       "workingBodyWiki": "Mate liest {domain}, prüft hilfreiche Seiten und überträgt Informationen aus diesen Quellen in dein Wiki. Du kannst diese Aufgabe geöffnet lassen oder später zurückkehren.",
       "workingTitle": "Mate lernt dein Unternehmen kennen"
-    },
-    "topics": {
-      "company": "Unternehmensüberblick",
-      "customers": "Kunden, Markt und Wettbewerb",
-      "products": "Produkte, Leistungen und Mehrwert",
-      "support": "Vertrieb, Onboarding und Support",
-      "voice": "Sprache, Ton und Botschaften"
     },
     "tryAnother": "Andere Website versuchen",
     "unavailable": "Die Einrichtung mit Mate ist derzeit nicht verfügbar. Du kannst später im Wiki Seiten erstellen."

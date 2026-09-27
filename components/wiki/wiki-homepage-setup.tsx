@@ -4,16 +4,7 @@ import type { ReactNode } from "react";
 
 import { useEffect, useRef, useState } from "react";
 import { useTranslations } from "next-intl";
-import {
-  CheckCircle2,
-  ExternalLink,
-  FileText,
-  Globe2,
-  Loader2,
-  RotateCcw,
-  Sparkles,
-  TriangleAlert,
-} from "lucide-react";
+import { CheckCircle2, ExternalLink, FileText, Loader2, RotateCcw, Sparkles, TriangleAlert } from "lucide-react";
 
 import { startWikiHomepageSetupAction } from "@/app/[locale]/(protected)/wiki/setup-action";
 import { Button } from "@/components/ui/button";
@@ -34,7 +25,6 @@ type Props = {
   onAccepted: (conversationId: string) => void | Promise<void>;
   onStarted?: (state: WikiHomepageSetupState) => void;
   onContinue?: () => void | Promise<void>;
-  onCreateBlank?: () => void;
   onSkip?: () => void | Promise<void>;
   renderConversation?: (conversationId: string) => ReactNode;
 };
@@ -55,7 +45,6 @@ export function WikiHomepageSetup({
   onAccepted,
   onStarted,
   onContinue,
-  onCreateBlank,
   onSkip,
   renderConversation,
 }: Props) {
@@ -70,13 +59,6 @@ export function WikiHomepageSetup({
   const homepageInput = useRef<HTMLInputElement>(null);
   const statusHeading = useRef<HTMLHeadingElement>(null);
   const focusStatusAfterSubmit = useRef(false);
-  const topics = [
-    { id: "company", label: t("WikiSetup.topics.company") },
-    { id: "products", label: t("WikiSetup.topics.products") },
-    { id: "customers", label: t("WikiSetup.topics.customers") },
-    { id: "voice", label: t("WikiSetup.topics.voice") },
-    { id: "support", label: t("WikiSetup.topics.support") },
-  ] as const;
 
   useEffect(() => {
     setState(initialState);
@@ -236,14 +218,6 @@ export function WikiHomepageSetup({
             </Button>
           ) : null}
 
-          {!working && !completed && onCreateBlank ? (
-            <Button disabled={controlsDisabled} type="button" variant="secondary" onClick={onCreateBlank}>
-              <FileText />
-
-              {t("WikiSetup.createBlank")}
-            </Button>
-          ) : null}
-
           {state.conversationId && !renderConversation ? (
             <Button
               data-agent-focus-return
@@ -280,50 +254,25 @@ export function WikiHomepageSetup({
         runUserAction(submit);
       }}
     >
-      {!onboarding && !compact ? (
-        <div className="space-y-3">
-          <p className="text-sm text-muted-foreground">{t("WikiSetup.description")}</p>
-
-          <div className="grid gap-1.5 sm:grid-cols-2">
-            {topics.map((topic) => (
-              <div key={topic.id} className="flex items-center gap-2 text-sm">
-                <FileText className="size-4 shrink-0 text-muted-foreground" />
-
-                <span>{topic.label}</span>
-              </div>
-            ))}
-          </div>
-
-          <p className="text-xs text-muted-foreground">{t("WikiSetup.gapsNote")}</p>
-        </div>
-      ) : null}
-
       <div>
         <Label htmlFor="wiki-homepage">{t("WikiSetup.homepageLabel")}</Label>
 
-        <div className="relative mt-1.5">
-          <Globe2
-            className="pointer-events-none absolute right-3 top-1/2 size-4 -translate-y-1/2 text-muted-foreground"
-            data-testid="wiki-homepage-suffix"
-          />
-
-          <Input
-            ref={homepageInput}
-            aria-describedby={onboarding ? undefined : "wiki-homepage-help"}
-            autoComplete="url"
-            className="pr-9"
-            disabled={controlsDisabled}
-            id="wiki-homepage"
-            inputMode="url"
-            placeholder={t("WikiSetup.homepagePlaceholder")}
-            type="text"
-            value={homepage}
-            onChange={(event) => {
-              setHomepage(event.currentTarget.value);
-              setClientRequestId(crypto.randomUUID());
-            }}
-          />
-        </div>
+        <Input
+          ref={homepageInput}
+          aria-describedby={onboarding ? undefined : "wiki-homepage-help"}
+          autoComplete="url"
+          className="mt-1.5"
+          disabled={controlsDisabled}
+          id="wiki-homepage"
+          inputMode="url"
+          placeholder={t("WikiSetup.homepagePlaceholder")}
+          type="text"
+          value={homepage}
+          onChange={(event) => {
+            setHomepage(event.currentTarget.value);
+            setClientRequestId(crypto.randomUUID());
+          }}
+        />
 
         {!onboarding ? (
           <p className="mt-2 text-xs text-muted-foreground" id="wiki-homepage-help">
@@ -342,12 +291,6 @@ export function WikiHomepageSetup({
             {disabled ? <Loader2 aria-hidden="true" className="animate-spin motion-reduce:animate-none" /> : null}
 
             {t("WikiSetup.skip")}
-          </Button>
-        ) : null}
-
-        {onCreateBlank ? (
-          <Button disabled={controlsDisabled} type="button" variant="secondary" onClick={onCreateBlank}>
-            {t("WikiSetup.createBlank")}
           </Button>
         ) : null}
 

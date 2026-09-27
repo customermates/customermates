@@ -3739,9 +3739,6 @@
     "continue": "Continuar",
     "continueBackground": "Continuar mientras Mate trabaja",
     "conversationTitle": "Configurar la wiki del espacio de trabajo",
-    "createBlank": "Crear una página en blanco",
-    "description": "Convierte tu sitio web en páginas wiki útiles para Mate y las herramientas de IA que conectes.",
-    "gapsNote": "Mate cita lo que encuentra y marca la información que falta en vez de inventarla.",
     "generated": {
       "gapsHeading": "Aspectos por confirmar",
       "sourcesHeading": "Fuentes"
@@ -3770,13 +3767,6 @@
       "workingBodyNoTaskWiki": "Mate está leyendo {domain} y creando la wiki. Puedes volver más tarde para ver las páginas terminadas.",
       "workingBodyWiki": "Mate está leyendo {domain}, comprobando páginas útiles e incorporando información con fuentes a tu wiki. Puedes dejar esta tarea abierta o volver más tarde.",
       "workingTitle": "Mate está conociendo tu empresa"
-    },
-    "topics": {
-      "company": "Resumen de la empresa",
-      "customers": "Clientes, mercado y competencia",
-      "products": "Productos, servicios y valor",
-      "support": "Ventas, incorporación de clientes y soporte",
-      "voice": "Voz, tono y mensajes"
     },
     "tryAnother": "Probar otro sitio",
     "unavailable": "La configuración con Mate no está disponible ahora. Puedes crear páginas más adelante desde la wiki."

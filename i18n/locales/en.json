@@ -3739,9 +3739,6 @@
     "continue": "Continue",
     "continueBackground": "Continue while Mate works",
     "conversationTitle": "Set up Workspace Wiki",
-    "createBlank": "Create a blank page",
-    "description": "Turn your website into useful Wiki pages for Mate and the AI tools you connect.",
-    "gapsNote": "Mate cites what it finds and marks missing information instead of guessing.",
     "generated": {
       "gapsHeading": "Gaps to confirm",
       "sourcesHeading": "Sources"
@@ -3770,13 +3767,6 @@
       "workingBodyNoTaskWiki": "Mate is reading {domain} and building the Wiki. You can return later to see the finished pages.",
       "workingBodyWiki": "Mate is reading {domain}, checking useful pages, and turning sourced information into your Wiki. You can keep this task open or return later.",
       "workingTitle": "Mate is learning about your company"
-    },
-    "topics": {
-      "company": "Company overview",
-      "customers": "Customers, market and competition",
-      "products": "Products, services and value",
-      "support": "Sales, onboarding and support",
-      "voice": "Voice, tone and messaging"
     },
     "tryAnother": "Try another website",
     "unavailable": "Mate setup is not available right now. You can create Wiki pages later in the Wiki."
