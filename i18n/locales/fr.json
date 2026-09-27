@@ -3285,7 +3285,6 @@
     "title": "Réinitialisez votre mot de passe"
   },
   "ResizablePanels": {
-    "hint": "Faites glisser pour redimensionner. Double-cliquez pour réinitialiser.",
     "resize": "Redimensionner {before} et {after}. Faites glisser ou utilisez les touches fléchées ; touchez deux fois ou appuyez sur Entrée pour réinitialiser."
   },
   "RoleModal": {

@@ -3285,7 +3285,6 @@
     "title": "Reimposta la tua password"
   },
   "ResizablePanels": {
-    "hint": "Trascina per ridimensionare. Fai doppio clic per ripristinare.",
     "resize": "Ridimensiona {before} e {after}. Trascina o usa i tasti freccia; tocca due volte o premi Invio per ripristinare."
   },
   "RoleModal": {

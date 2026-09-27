@@ -2,7 +2,6 @@ import { describe, expect, it } from "vitest";
 
 import {
   fixedFirstPanelTemplate,
-  isPanelTouchReset,
   keyboardPanelDelta,
   mergeStoredPanelSizes,
   normalizePanelSizes,
@@ -67,13 +66,6 @@ describe("resizable panel geometry", () => {
     expect(keyboardPanelDelta({ ...input, key: "Home" })).toBe(-108);
     expect(keyboardPanelDelta({ ...input, key: "End" })).toBe(84);
     expect(keyboardPanelDelta({ ...input, key: "PageDown" })).toBeUndefined();
-  });
-
-  it("recognizes only a prompt positive touch double-tap", () => {
-    expect(isPanelTouchReset(undefined, 100)).toBe(false);
-    expect(isPanelTouchReset(100, 500)).toBe(true);
-    expect(isPanelTouchReset(100, 501)).toBe(false);
-    expect(isPanelTouchReset(100, 100)).toBe(false);
   });
 });
 

@@ -1,8 +1,4 @@
-export const PANEL_RESIZE_KEYBOARD_STEP = 10;
-export const PANEL_RESIZE_KEYBOARD_LARGE_STEP = 30;
-export const PANEL_RESIZE_TOUCH_RESET_MS = 400;
-
-const roundSize = (value: number) => Math.round(value * 100) / 100;
+import { resizeKeyboardStep, roundResizeSize as roundSize } from "./resize-interaction";
 
 export function normalizePanelSizes(sizes: readonly number[]): number[] | null {
   if (sizes.length < 2 || sizes.some((size) => !Number.isFinite(size) || size <= 0)) return null;
@@ -72,7 +68,7 @@ export function keyboardPanelDelta({
   leftMaximum?: number;
   rightMaximum?: number;
 }): number | undefined {
-  const step = shiftKey ? PANEL_RESIZE_KEYBOARD_LARGE_STEP : PANEL_RESIZE_KEYBOARD_STEP;
+  const step = resizeKeyboardStep(shiftKey);
   const total = leftSize + rightSize;
   const minimum = Math.max(leftMinimum, total - (rightMaximum ?? Number.POSITIVE_INFINITY));
   const maximum = Math.min(leftMaximum ?? Number.POSITIVE_INFINITY, total - rightMinimum);
@@ -82,12 +78,6 @@ export function keyboardPanelDelta({
   if (key === "Home") return minimum - leftSize;
   if (key === "End") return maximum - leftSize;
   return undefined;
-}
-
-export function isPanelTouchReset(previousTapAt: number | undefined, currentTapAt: number): boolean {
-  if (previousTapAt === undefined) return false;
-  const elapsed = currentTapAt - previousTapAt;
-  return elapsed > 0 && elapsed <= PANEL_RESIZE_TOUCH_RESET_MS;
 }
 
 export function panelSizeStorageKey(layoutId: string, panelId: string): string {

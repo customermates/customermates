@@ -3285,7 +3285,6 @@
     "title": "Passwort zurücksetzen"
   },
   "ResizablePanels": {
-    "hint": "Zum Ändern der Größe ziehen. Zum Zurücksetzen doppelklicken.",
     "resize": "Größe von {before} und {after} ändern. Ziehen oder Pfeiltasten verwenden; durch Doppeltippen oder die Eingabetaste zurücksetzen."
   },
   "RoleModal": {

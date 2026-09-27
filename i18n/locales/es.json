@@ -3285,7 +3285,6 @@
     "title": "Restablece tu contraseña"
   },
   "ResizablePanels": {
-    "hint": "Arrastra para redimensionar. Haz doble clic para restablecer.",
     "resize": "Redimensiona {before} y {after}. Arrastra o usa las flechas; toca dos veces o pulsa Intro para restablecer."
   },
   "RoleModal": {

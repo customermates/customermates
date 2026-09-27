@@ -8,9 +8,9 @@ import { Fragment, useCallback, useEffect, useLayoutEffect, useMemo, useRef, use
 import { useTranslations } from "next-intl";
 
 import { cn } from "@/core/utils/cn";
+import { isResizeDoubleTap } from "./resize-interaction";
 import {
   fixedFirstPanelTemplate,
-  isPanelTouchReset,
   keyboardPanelDelta,
   normalizePanelSizes,
   proportionalPanelTemplate,
@@ -280,7 +280,7 @@ export function ResizablePanelGroup({
     setRenderedSizes(active.startSizes);
     if (active.pointerType !== "touch") return;
     const previousTap = lastTouchTapRef.current;
-    if (previousTap?.dividerIndex === active.dividerIndex && isPanelTouchReset(previousTap.at, event.timeStamp)) {
+    if (previousTap?.dividerIndex === active.dividerIndex && isResizeDoubleTap(previousTap.at, event.timeStamp)) {
       resetSizes();
       return;
     }
@@ -365,7 +365,7 @@ export function ResizablePanelGroup({
           role="separator"
           // eslint-disable-next-line jsx-a11y/no-noninteractive-tabindex -- an adjustable WAI-ARIA separator is keyboard focusable
           tabIndex={0}
-          title={t("ResizablePanels.hint")}
+          title={t("DataView.resizeHint")}
           onDoubleClick={(event) => {
             event.preventDefault();
             resetSizes();
