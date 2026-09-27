@@ -1,9 +1,11 @@
+import type { Data } from "@/core/validation/validation.utils";
+
 import { z } from "zod";
 
 import { parseMarkdownToJSON, serializeJSONToMarkdown } from "@/components/editor/editor.utils";
 import { MAX_NOTES_LENGTH } from "@/core/validation/validate-notes";
 import { CustomErrorCode } from "@/core/validation/validation.types";
-import { zx, type Data } from "@/core/validation/validation.utils";
+import { zx } from "@/core/validation/validation.utils";
 
 export const WIKI_TITLE_MAX_LENGTH = 120;
 
@@ -35,16 +37,16 @@ export const WikiMarkdownSchema = z.string().transform((markdown, ctx) => {
   }
 });
 
-export const WikiPageSchema = z.object({
+export const WikiPageDtoSchema = z.object({
   id: z.uuid(),
   title: z.string(),
   markdown: z.string(),
   createdAt: z.date(),
   updatedAt: z.date(),
 });
-export type WikiPageDto = Data<typeof WikiPageSchema>;
+export type WikiPageDto = Data<typeof WikiPageDtoSchema>;
 
-export const WikiPageSummarySchema = WikiPageSchema.omit({ markdown: true });
+export const WikiPageSummarySchema = WikiPageDtoSchema.omit({ markdown: true });
 export type WikiPageSummary = Data<typeof WikiPageSummarySchema>;
 
 export const WIKI_CATALOG_PAGE_SIZE = 10;
@@ -105,4 +107,4 @@ export const WikiPageSearchResultSchema = z.object({
   page: z.number().int().min(1),
   pageSize: z.number().int().min(1),
 });
-export type WikiPageSearchPage = Data<typeof WikiPageSearchResultSchema>;
+export type WikiPageSearchResult = Data<typeof WikiPageSearchResultSchema>;

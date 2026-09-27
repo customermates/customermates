@@ -3046,6 +3046,9 @@
         "subtitle": "Ajoutez le site web de votre entreprise. Mate transforme les informations vérifiables en pages wiki modifiables pour Mate et les outils d’IA que vous connectez.",
         "title": "Donnez à Mate le contexte de votre entreprise"
       }
+    },
+    "wiki": {
+      "skip": "Pas maintenant"
     }
   },
   "OperatorAudit": {
@@ -3747,7 +3750,6 @@
     "openTask": "Ouvrir la tâche Mate",
     "progressLoadFailed": "La progression de Mate n’a pas pu être chargée ici. Réessayez.",
     "progressLoading": "Chargement de la progression de Mate",
-    "skip": "Pas maintenant",
     "start": "Créer mon wiki",
     "status": {
       "completedBodyOnboarding": "Mate a créé vos pages initiales avec des faits issus du site web. Vous pourrez les vérifier plus tard dans le wiki et confirmer tout ce qui est indiqué comme point à confirmer.",

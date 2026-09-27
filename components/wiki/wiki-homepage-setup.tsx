@@ -1,6 +1,7 @@
 "use client";
 
 import type { ReactNode } from "react";
+import type { WikiHomepageSetupState } from "@/features/wiki/get-wiki-homepage-setup-state.interactor";
 
 import { useEffect, useRef, useState } from "react";
 import { observer } from "mobx-react-lite";
@@ -14,10 +15,9 @@ import { FormInput } from "@/components/forms/form-input";
 import { Button } from "@/components/ui/button";
 import { runUserAction } from "@/core/errors/report-application-error";
 import { useRootStore } from "@/core/stores/root-store.provider";
-import type { WikiHomepageSetupState } from "@/features/wiki/get-wiki-homepage-setup-state.interactor";
 import { useRouter } from "@/i18n/navigation";
 
-import { WikiHomepageSetupFormStore } from "./wiki-homepage-setup.store";
+import { WikiHomepageSetupStore } from "./wiki-homepage-setup.store";
 
 type Props = {
   canStart?: boolean;
@@ -58,7 +58,7 @@ export const WikiHomepageSetup = observer(function WikiHomepageSetup({
   const router = useRouter();
   const rootStore = useRootStore();
   const [state, setState] = useState(initialState);
-  const [store] = useState(() => new WikiHomepageSetupFormStore(rootStore, initialState.homepage ?? ""));
+  const [store] = useState(() => new WikiHomepageSetupStore(rootStore, initialState.homepage ?? ""));
   const [retrying, setRetrying] = useState(false);
   const submitting = useRef(false);
   const homepageInput = useRef<HTMLInputElement>(null);
@@ -231,7 +231,7 @@ export const WikiHomepageSetup = observer(function WikiHomepageSetup({
             <Button disabled={controlsDisabled} type="button" variant="secondary" onClick={() => runUserAction(onSkip)}>
               {disabled ? <Loader2 aria-hidden="true" className="animate-spin motion-reduce:animate-none" /> : null}
 
-              {t("WikiSetup.skip")}
+              {t("OnboardingWizard.wiki.skip")}
             </Button>
           ) : null}
 

@@ -1,12 +1,11 @@
 import { SkeletonShape as Shape } from "@/components/page-state/skeleton-shape";
 
-export function WikiPageSkeleton({
-  animated = true,
-  documentOnly = false,
-}: {
+type Props = {
   animated?: boolean;
   documentOnly?: boolean;
-}) {
+};
+
+export function WikiPageSkeleton({ animated = true, documentOnly = false }: Props) {
   return (
     <div
       className={

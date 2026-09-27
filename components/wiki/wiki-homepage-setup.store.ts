@@ -6,7 +6,7 @@ import { BaseFormStore } from "@/core/base/base-form.store";
 
 type WikiHomepageSetupForm = { homepage: string };
 
-export class WikiHomepageSetupFormStore extends BaseFormStore<WikiHomepageSetupForm> {
+export class WikiHomepageSetupStore extends BaseFormStore<WikiHomepageSetupForm> {
   clientRequestId = crypto.randomUUID();
 
   constructor(rootStore: RootStore, homepage: string) {

@@ -1,8 +1,9 @@
 "use client";
 
 import type { EditorLinkPickerProps } from "@/components/editor/editor-link-picker";
-import { wikiPagePath } from "@/features/wiki/wiki-links";
 import type { WikiPageListResult } from "@/features/wiki/wiki.schema";
+
+import { wikiPagePath } from "@/features/wiki/wiki-links";
 
 import { useTranslations } from "next-intl";
 import { FileText } from "lucide-react";
@@ -11,7 +12,7 @@ import { Button } from "@/components/ui/button";
 import { Command, CommandGroup, CommandInput, CommandItem, CommandList } from "@/components/ui/command";
 import { useWikiPages } from "./use-wiki-pages";
 
-const emptyList: WikiPageListResult = {
+const EMPTY_WIKI_PAGE_LIST: WikiPageListResult = {
   items: [],
   total: 0,
   page: 1,
@@ -20,7 +21,7 @@ const emptyList: WikiPageListResult = {
 
 export function WikiLinkPicker({ onSelect }: EditorLinkPickerProps) {
   const t = useTranslations();
-  const pages = useWikiPages(emptyList, true);
+  const pages = useWikiPages(EMPTY_WIKI_PAGE_LIST, true);
 
   return (
     <Command shouldFilter={false}>

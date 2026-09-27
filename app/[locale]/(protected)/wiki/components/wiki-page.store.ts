@@ -55,6 +55,9 @@ export class WikiPageStore extends BaseFormStore<WikiPageForm> {
       resetDocument: action,
       setConflict: action,
       setUnavailable: action,
+      reload: action,
+      onSubmit: action,
+      delete: action,
     });
   }
 

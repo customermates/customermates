@@ -114,7 +114,7 @@ describe("WikiHomepageSetup", () => {
     expect(container.querySelector('label[for="wiki-homepage"]')?.textContent).toContain("WikiSetup.homepageLabel");
     expect(input().parentElement?.querySelector("svg")).toBeNull();
     expect(container.querySelectorAll("button")).toHaveLength(2);
-    expect(container.textContent).toContain("WikiSetup.skip");
+    expect(container.textContent).toContain("OnboardingWizard.wiki.skip");
     expect(container.textContent).toContain("WikiSetup.start");
   });
 
@@ -137,7 +137,7 @@ describe("WikiHomepageSetup", () => {
     expect(form().getAttribute("aria-busy")).toBe("true");
     expect(input().disabled).toBe(true);
     expect(button("WikiSetup.start").disabled).toBe(true);
-    expect(button("WikiSetup.skip").disabled).toBe(true);
+    expect(button("OnboardingWizard.wiki.skip").disabled).toBe(true);
 
     await act(async () => {
       resolve({
@@ -202,8 +202,8 @@ describe("WikiHomepageSetup", () => {
     render(undefined, { disabled: true });
 
     expect(form().getAttribute("aria-busy")).toBe("true");
-    expect(button("WikiSetup.skip").disabled).toBe(true);
-    expect(button("WikiSetup.skip").querySelector("svg.animate-spin")).not.toBeNull();
+    expect(button("OnboardingWizard.wiki.skip").disabled).toBe(true);
+    expect(button("OnboardingWizard.wiki.skip").querySelector("svg.animate-spin")).not.toBeNull();
   });
 
   it("uses the inline task instead of duplicate completed-page rows", () => {

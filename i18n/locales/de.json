@@ -3046,6 +3046,9 @@
         "subtitle": "Füge deine Unternehmenswebsite hinzu. Mate macht aus verifizierbaren Informationen bearbeitbare Wiki-Seiten für Mate und verbundene KI-Tools.",
         "title": "Gib Mate Kontext zu deinem Unternehmen"
       }
+    },
+    "wiki": {
+      "skip": "Nicht jetzt"
     }
   },
   "OperatorAudit": {
@@ -3747,7 +3750,6 @@
     "openTask": "Mate-Aufgabe öffnen",
     "progressLoadFailed": "Mates Fortschritt konnte hier nicht geladen werden. Versuche es erneut.",
     "progressLoading": "Mates Fortschritt wird geladen",
-    "skip": "Nicht jetzt",
     "start": "Wiki erstellen",
     "status": {
       "completedBodyOnboarding": "Mate hat deine Startseiten mit belegten Website-Fakten erstellt. Du kannst sie später im Wiki prüfen und alles bestätigen, was als noch zu klären markiert ist.",

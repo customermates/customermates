@@ -297,7 +297,7 @@ describe("OnboardingWizard", () => {
     const html = renderWizard(true, false, false);
 
     expect(html).toContain("WikiSetup.unavailable");
-    expect(html).toContain("WikiSetup.skip");
+    expect(html).toContain("OnboardingWizard.wiki.skip");
     expect(testContext.wikiProps).toBeNull();
   });
 

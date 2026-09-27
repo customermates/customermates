@@ -1,3 +1,7 @@
+import type { Data, Validated } from "@/core/validation/validation.utils";
+import type { EventService } from "@/features/event/event.service";
+import type { WikiPageDto } from "./wiki.schema";
+
 import { z } from "zod";
 import { Action, Resource } from "@/generated/prisma";
 
@@ -6,12 +10,10 @@ import { TenantInteractor } from "@/core/decorators/tenant-interactor.decorator"
 import { Write } from "@/core/decorators/write.decorator";
 import { failConflict, failNotFound } from "@/core/validation/interactor-failure-server";
 import { CustomErrorCode } from "@/core/validation/validation.types";
-import { type Data, type Validated } from "@/core/validation/validation.utils";
 import { calculateChanges } from "@/core/utils/calculate-changes";
 import { DomainEvent } from "@/features/event/domain-events";
-import type { EventService } from "@/features/event/event.service";
 
-import { WikiMarkdownSchema, WikiPageSchema, WikiTitleSchema, type WikiPageDto } from "./wiki.schema";
+import { WikiMarkdownSchema, WikiPageDtoSchema, WikiTitleSchema } from "./wiki.schema";
 
 export const UpdateWikiPageSchema = z
   .object({
@@ -47,7 +49,7 @@ export class UpdateWikiPageInteractor extends AuthenticatedInteractor<UpdateWiki
     super();
   }
 
-  @Write({ input: UpdateWikiPageSchema, output: WikiPageSchema })
+  @Write({ input: UpdateWikiPageSchema, output: WikiPageDtoSchema })
   async invoke(data: UpdateWikiPageData): Validated<WikiPageDto> {
     const result = await this.repo.updatePage(data);
     if (result.status === "not-found") return failNotFound(CustomErrorCode.wikiPageNotFound, ["id"]);
@@ -62,6 +64,6 @@ export class UpdateWikiPageInteractor extends AuthenticatedInteractor<UpdateWiki
       });
     }
 
-    return { ok: true, data: result.page };
+    return { ok: true as const, data: result.page };
   }
 }

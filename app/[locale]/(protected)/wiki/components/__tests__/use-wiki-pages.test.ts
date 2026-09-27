@@ -6,7 +6,7 @@ import { createRoot } from "react-dom/client";
 import { afterEach, beforeEach, describe, expect, it, vi } from "vitest";
 
 const actions = vi.hoisted(() => ({ list: vi.fn(), search: vi.fn() }));
-vi.mock("../../actions", () => ({ listWikiPagesAction: actions.list, searchWikiPagesAction: actions.search }));
+vi.mock("../../actions", () => ({ getWikiPagesAction: actions.list, searchWikiPagesAction: actions.search }));
 vi.mock("@/core/errors/report-application-error", () => ({ reportApplicationError: vi.fn() }));
 
 import { useWikiPages } from "../use-wiki-pages";

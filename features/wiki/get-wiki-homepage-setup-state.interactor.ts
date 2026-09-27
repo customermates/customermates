@@ -1,3 +1,6 @@
+import type { Data, Validated } from "@/core/validation/validation.utils";
+import type { GetWikiPagesRepo } from "./get-wiki-pages.interactor";
+
 import { z } from "zod";
 import { Action, Resource } from "@/generated/prisma";
 
@@ -5,9 +8,6 @@ import { AuthenticatedInteractor } from "@/core/base/authenticated-interactor";
 import { AllowInDemoMode } from "@/core/decorators/allow-in-demo-mode.decorator";
 import { TenantInteractor } from "@/core/decorators/tenant-interactor.decorator";
 import { ValidateOutput } from "@/core/decorators/validate-output.decorator";
-import type { Data, Validated } from "@/core/validation/validation.utils";
-
-import type { GetWikiPagesRepo } from "./get-wiki-pages.interactor";
 import { WikiPageSummarySchema } from "./wiki.schema";
 
 const WikiHomepageSetupStatusSchema = z.enum(["idle", "working", "completed", "noContent", "failed"]);
@@ -52,7 +52,7 @@ export class GetWikiHomepageSetupStateInteractor extends AuthenticatedInteractor
     ]);
     if (setup?.active) {
       return {
-        ok: true,
+        ok: true as const,
         data: {
           status: "working",
           homepage: setup.homepage,
@@ -67,7 +67,7 @@ export class GetWikiHomepageSetupStateInteractor extends AuthenticatedInteractor
       const createdBySetup =
         setup?.status === "completed" && setup.terminalCode === "completed" && affectedResources.includes("wiki");
       return {
-        ok: true,
+        ok: true as const,
         data: {
           status: "completed",
           homepage: createdBySetup ? setup.homepage : null,
@@ -79,7 +79,7 @@ export class GetWikiHomepageSetupStateInteractor extends AuthenticatedInteractor
     }
     if (!setup) {
       return {
-        ok: true,
+        ok: true as const,
         data: { status: "idle", homepage: null, domain: null, conversationId: null, pages: [] },
       };
     }
@@ -89,13 +89,13 @@ export class GetWikiHomepageSetupStateInteractor extends AuthenticatedInteractor
       setup.status === "completed" && setup.terminalCode === "completed" && affectedResources.includes("wiki");
     if (successfulButDeleted) {
       return {
-        ok: true,
+        ok: true as const,
         data: { status: "idle", homepage: null, domain: null, conversationId: null, pages: [] },
       };
     }
     const status = setup.status === "completed" && setup.terminalCode === "completed" ? "noContent" : "failed";
     return {
-      ok: true,
+      ok: true as const,
       data: {
         status,
         homepage: setup.homepage,

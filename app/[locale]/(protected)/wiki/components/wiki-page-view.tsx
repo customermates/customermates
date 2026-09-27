@@ -3,10 +3,11 @@
 import type { WikiPageListResult, WikiPageDto, WikiPageSummary } from "@/features/wiki/wiki.schema";
 import type { ReactNode } from "react";
 import type { ResizablePanelDefinition } from "@/components/shared/resizable-panels";
+import type { WikiHomepageSetupState } from "@/features/wiki/get-wiki-homepage-setup-state.interactor";
 
 import { useCallback, useEffect, useId, useMemo, useRef, useState, useTransition } from "react";
 import { observer } from "mobx-react-lite";
-import { BookOpen, ChevronDown, FileText, Plus, Search, Sparkles } from "lucide-react";
+import { BookOpen, ChevronDown, Plus, Sparkles } from "lucide-react";
 import { useTranslations } from "next-intl";
 
 import { useSetTopBarActions } from "@/app/components/topbar-actions-context";
@@ -18,47 +19,27 @@ import { EditorLinkPickerContext } from "@/components/editor/editor-link-picker"
 import { PageState } from "@/components/page-state/page-state";
 import { Alert } from "@/components/shared/alert";
 import { Button } from "@/components/ui/button";
-import { Input } from "@/components/ui/input";
 import { Sheet, SheetBody, SheetContent, SheetHeader, SheetTitle, SheetTrigger } from "@/components/ui/sheet";
 import { useRootStore } from "@/core/stores/root-store.provider";
 import { runUserAction } from "@/core/errors/report-application-error";
-import { IntlLink, useRouter } from "@/i18n/navigation";
-import { cn } from "@/core/utils/cn";
+import { useRouter } from "@/i18n/navigation";
 import { EMPTY_WIKI_HOMEPAGE_SETUP_STATE, useRefreshWhileWikiSetupWorks } from "@/components/wiki/wiki-homepage-setup";
 import { wikiPagePath } from "@/features/wiki/wiki-links";
-import type { WikiHomepageSetupState } from "@/features/wiki/get-wiki-homepage-setup-state.interactor";
 import { ResizablePanelGroup } from "@/components/shared/resizable-panels";
 import { useP13nColumnWidths } from "@/components/shared/use-p13n-column-widths";
 import { mergeStoredPanelSizes, readStoredPanelSizes } from "@/components/shared/resizable-panels.utils";
-import { WIKI_LAYOUT_P13N_ID, WIKI_PANEL_LAYOUT_ID } from "@/features/wiki/wiki-layout";
 
 import { WikiPageStore } from "./wiki-page.store";
 import { WikiPageActions } from "./wiki-page-actions";
 import { WikiPageOutline } from "./wiki-page-outline";
 import { WikiPageSkeleton } from "./wiki-page-skeleton";
 import { WikiLinkPicker } from "./wiki-link-picker";
+import { WikiPageRail } from "./wiki-page-rail";
+import { resolveWikiPageState } from "./wiki-page-state";
+import { WIKI_LAYOUT_P13N_ID, WIKI_PANEL_LAYOUT_ID } from "./wiki-personalization";
 import { useWikiPages } from "./use-wiki-pages";
 
 const WIKI_PANEL_IDS = ["pages", "document"] as const;
-
-export type WikiPageState = "loading" | "error" | "setup" | "empty" | "content";
-
-export function resolveWikiPageState({
-  isNavigating,
-  missing,
-  hasDocument,
-  setupActive,
-}: {
-  isNavigating: boolean;
-  missing: boolean;
-  hasDocument: boolean;
-  setupActive: boolean;
-}): WikiPageState {
-  if (isNavigating) return "loading";
-  if (missing) return "error";
-  if (hasDocument) return "content";
-  return setupActive ? "setup" : "empty";
-}
 
 type Props = {
   initialPage: WikiPageDto | null;
@@ -69,14 +50,14 @@ type Props = {
   unavailable?: boolean;
 };
 
-const WikiPageViewComponent = ({
+export const WikiPageView = observer(function WikiPageView({
   initialPage,
   initialSetupState = EMPTY_WIKI_HOMEPAGE_SETUP_STATE,
   layoutInitial,
   listPage,
   pinnedPage = null,
   unavailable = false,
-}: Props) => {
+}: Props) {
   const t = useTranslations();
   const rootStore = useRootStore();
   const router = useRouter();
@@ -168,117 +149,14 @@ const WikiPageViewComponent = ({
   useSetTopBarActions(topBar);
   const pinnedRailPage = pinnedPage && !pages.result.items.some(({ id }) => id === pinnedPage.id) ? pinnedPage : null;
   const railBusy = store.isLoading || isNavigating;
-  const pageLink = (page: WikiPageSummary) => {
-    const current = !store.creating && page.id === store.form.id;
-    return (
-      <Button
-        key={page.id}
-        asChild
-        className={cn(
-          "mb-0.5 h-auto min-h-9 w-full justify-start gap-2 p-2 text-left font-normal",
-          current && "bg-accent text-accent-foreground",
-          railBusy && "pointer-events-none opacity-50",
-        )}
-        variant="ghost"
-      >
-        <IntlLink
-          aria-current={current ? "page" : undefined}
-          aria-disabled={railBusy || undefined}
-          href={wikiPagePath(page.id)}
-          onClick={(event) => {
-            if (event.metaKey || event.ctrlKey || event.shiftKey || event.altKey || event.button !== 0) return;
-            event.preventDefault();
-            if (!railBusy) selectPage(page.id);
-          }}
-        >
-          <FileText aria-hidden="true" className="size-4 shrink-0 text-muted-foreground" />
-
-          <span className="truncate">{page.title}</span>
-        </IntlLink>
-      </Button>
-    );
-  };
-
   const pageList = (
-    <div className="flex min-h-0 flex-1 flex-col">
-      <div className="relative mx-3 mb-3 mt-4">
-        <Search
-          aria-hidden="true"
-          className="pointer-events-none absolute left-2.5 top-1/2 size-3.5 -translate-y-1/2 text-muted-foreground"
-        />
-
-        <Input
-          aria-label={t("Wiki.search")}
-          className="h-8 pl-8"
-          maxLength={200}
-          placeholder={t("Wiki.search")}
-          type="search"
-          value={pages.query}
-          onChange={(event) => pages.search(event.target.value)}
-        />
-      </div>
-
-      <nav
-        aria-busy={pages.loading}
-        aria-label={t("Wiki.pagesLabel")}
-        className="flex min-h-0 flex-1 flex-col px-2 pb-2"
-      >
-        {pinnedRailPage && <div className="pb-1">{pageLink(pinnedRailPage)}</div>}
-
-        <div className="min-h-0 flex-1 overflow-y-auto">
-          {pages.failed ? (
-            <div className="space-y-2 p-3 text-sm text-muted-foreground">
-              <p>{t("Wiki.loadFailed")}</p>
-
-              <Button size="xs" variant="secondary" onClick={pages.retry}>
-                {t("ErrorCard.retry")}
-              </Button>
-            </div>
-          ) : pages.result.items.length === 0 ? (
-            pages.query ? (
-              <p className="p-3 text-sm text-muted-foreground">{t("Wiki.noResults")}</p>
-            ) : null
-          ) : (
-            pages.result.items.map(pageLink)
-          )}
-        </div>
-
-        {pages.loading && (
-          <span className="sr-only" role="status">
-            {t("PageState.loading")}
-          </span>
-        )}
-      </nav>
-
-      {pages.result.total > pages.result.pageSize && (
-        <div className="flex items-center justify-between gap-1 border-t border-border p-2 text-xs text-muted-foreground">
-          <Button
-            disabled={pages.loading || pages.page <= 1}
-            size="xs"
-            variant="ghost"
-            onClick={() => pages.setPage(pages.page - 1)}
-          >
-            {t("Wiki.previous")}
-          </Button>
-
-          <span>
-            {t("Wiki.page", {
-              current: pages.page,
-              total: Math.ceil(pages.result.total / pages.result.pageSize),
-            })}
-          </span>
-
-          <Button
-            disabled={pages.loading || pages.page * pages.result.pageSize >= pages.result.total}
-            size="xs"
-            variant="ghost"
-            onClick={() => pages.setPage(pages.page + 1)}
-          >
-            {t("Wiki.next")}
-          </Button>
-        </div>
-      )}
-    </div>
+    <WikiPageRail
+      busy={railBusy}
+      currentPageId={store.creating ? null : store.form.id}
+      pages={pages}
+      pinnedPage={pinnedRailPage}
+      onSelect={selectPage}
+    />
   );
 
   let documentBody: ReactNode;
@@ -480,6 +358,4 @@ const WikiPageViewComponent = ({
       onSizesCommit={savePanelSizes}
     />
   );
-};
-
-export const WikiPageView = observer(WikiPageViewComponent);
+});

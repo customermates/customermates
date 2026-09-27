@@ -3046,6 +3046,9 @@
         "subtitle": "Add your company website. Mate turns what it can verify into editable Wiki pages for Mate and the AI tools you connect.",
         "title": "Give Mate your company context"
       }
+    },
+    "wiki": {
+      "skip": "Not now"
     }
   },
   "OperatorAudit": {
@@ -3747,7 +3750,6 @@
     "openTask": "Open Mate task",
     "progressLoadFailed": "Mate’s progress could not be loaded here. Try again.",
     "progressLoading": "Loading Mate’s progress",
-    "skip": "Not now",
     "start": "Build my Wiki",
     "status": {
       "completedBodyOnboarding": "Mate created your starter pages with cited website facts. You can review them later in the Wiki and confirm anything marked as a gap.",

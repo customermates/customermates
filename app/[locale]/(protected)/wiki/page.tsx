@@ -5,7 +5,7 @@ import { getGetWikiHomepageSetupStateInteractor, getGetWikiPageInteractor, getGe
 import { unwrapValidated } from "@/core/validation/validation.utils";
 import { requireAccess } from "@/features/auth/next/require";
 import { getOptionalP13n } from "@/features/p13n/next/get-optional-p13n";
-import { WIKI_LAYOUT_P13N_ID } from "@/features/wiki/wiki-layout";
+import { WIKI_LAYOUT_P13N_ID } from "./components/wiki-personalization";
 
 import { WikiPageView } from "./components/wiki-page-view";
 

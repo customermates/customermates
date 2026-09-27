@@ -1,7 +1,9 @@
 "use client";
 
-import { createContext, type ComponentType } from "react";
+import type { ComponentType } from "react";
 import type { Editor } from "@tiptap/react";
+
+import { createContext } from "react";
 
 export type EditorLinkPickerProps = {
   onSelect: (link: { href: string; title: string }) => void;

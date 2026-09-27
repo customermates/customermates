@@ -1,3 +1,7 @@
+import type { Data, Validated } from "@/core/validation/validation.utils";
+import type { EventService } from "@/features/event/event.service";
+import type { WikiPageDto, WikiPageInput } from "./wiki.schema";
+
 import { randomUUID } from "node:crypto";
 import { z } from "zod";
 import { Action, Resource } from "@/generated/prisma";
@@ -7,11 +11,9 @@ import { TenantInteractor } from "@/core/decorators/tenant-interactor.decorator"
 import { Write } from "@/core/decorators/write.decorator";
 import { failConflict } from "@/core/validation/interactor-failure-server";
 import { CustomErrorCode } from "@/core/validation/validation.types";
-import type { Data, Validated } from "@/core/validation/validation.utils";
 import { DomainEvent } from "@/features/event/domain-events";
-import type { EventService } from "@/features/event/event.service";
 
-import { WikiPageInputSchema, WikiPageSchema, type WikiPageDto, type WikiPageInput } from "./wiki.schema";
+import { WikiPageInputSchema, WikiPageDtoSchema } from "./wiki.schema";
 
 export const CreateWikiPagesSchema = z.object({
   pages: z.array(WikiPageInputSchema).min(1).max(5),
@@ -38,7 +40,7 @@ export class CreateWikiPagesInteractor extends AuthenticatedInteractor<CreateWik
     super();
   }
 
-  @Write({ input: CreateWikiPagesSchema, output: WikiPageSchema })
+  @Write({ input: CreateWikiPagesSchema, output: WikiPageDtoSchema })
   async invoke(data: CreateWikiPagesData): Validated<WikiPageDto[]> {
     const result = await this.repo.createPages({
       ...data,
@@ -57,6 +59,6 @@ export class CreateWikiPagesInteractor extends AuthenticatedInteractor<CreateWik
       ),
     );
 
-    return { ok: true, data: pages };
+    return { ok: true as const, data: pages };
   }
 }

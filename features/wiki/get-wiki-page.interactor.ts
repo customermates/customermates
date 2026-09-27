@@ -1,3 +1,6 @@
+import type { Data, Validated } from "@/core/validation/validation.utils";
+import type { WikiPageDto } from "./wiki.schema";
+
 import { z } from "zod";
 import { Action, Resource } from "@/generated/prisma";
 
@@ -6,9 +9,8 @@ import { AllowInDemoMode } from "@/core/decorators/allow-in-demo-mode.decorator"
 import { TenantInteractor } from "@/core/decorators/tenant-interactor.decorator";
 import { Validate } from "@/core/decorators/validate.decorator";
 import { ValidateOutput } from "@/core/decorators/validate-output.decorator";
-import type { Data, Validated } from "@/core/validation/validation.utils";
 
-import { WikiPageSchema, type WikiPageDto } from "./wiki.schema";
+import { WikiPageDtoSchema } from "./wiki.schema";
 
 export const GetWikiPageSchema = z.object({ id: z.uuid() });
 export type GetWikiPageData = Data<typeof GetWikiPageSchema>;
@@ -25,8 +27,8 @@ export class GetWikiPageInteractor extends AuthenticatedInteractor<GetWikiPageDa
   }
 
   @Validate(GetWikiPageSchema)
-  @ValidateOutput(WikiPageSchema.nullable())
+  @ValidateOutput(WikiPageDtoSchema.nullable())
   async invoke(data: GetWikiPageData): Validated<WikiPageDto | null> {
-    return { ok: true, data: await this.repo.getPage(data.id) };
+    return { ok: true as const, data: await this.repo.getPage(data.id) };
   }
 }

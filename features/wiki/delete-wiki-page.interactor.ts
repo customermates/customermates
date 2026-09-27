@@ -1,3 +1,7 @@
+import type { Data, Validated } from "@/core/validation/validation.utils";
+import type { EventService } from "@/features/event/event.service";
+import type { WikiPageDto } from "./wiki.schema";
+
 import { z } from "zod";
 import { Action, Resource } from "@/generated/prisma";
 
@@ -6,11 +10,9 @@ import { TenantInteractor } from "@/core/decorators/tenant-interactor.decorator"
 import { Write } from "@/core/decorators/write.decorator";
 import { failConflict, failNotFound } from "@/core/validation/interactor-failure-server";
 import { CustomErrorCode } from "@/core/validation/validation.types";
-import type { Data, Validated } from "@/core/validation/validation.utils";
 import { DomainEvent } from "@/features/event/domain-events";
-import type { EventService } from "@/features/event/event.service";
 
-import { WikiPageSchema, type WikiPageDto } from "./wiki.schema";
+import { WikiPageDtoSchema } from "./wiki.schema";
 
 export const DeleteWikiPageSchema = z.object({
   id: z.uuid(),
@@ -36,7 +38,7 @@ export class DeleteWikiPageInteractor extends AuthenticatedInteractor<DeleteWiki
     super();
   }
 
-  @Write({ input: DeleteWikiPageSchema, output: WikiPageSchema })
+  @Write({ input: DeleteWikiPageSchema, output: WikiPageDtoSchema })
   async invoke(data: DeleteWikiPageData): Validated<WikiPageDto> {
     const result = await this.repo.deletePage(data);
     if (result.status === "not-found") return failNotFound(CustomErrorCode.wikiPageNotFound, ["id"]);
@@ -47,6 +49,6 @@ export class DeleteWikiPageInteractor extends AuthenticatedInteractor<DeleteWiki
       payload: result.page,
     });
 
-    return { ok: true, data: result.page };
+    return { ok: true as const, data: result.page };
   }
 }

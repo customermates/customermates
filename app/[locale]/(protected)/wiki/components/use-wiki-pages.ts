@@ -7,7 +7,7 @@ import { useEffect, useState } from "react";
 import { reportApplicationError } from "@/core/errors/report-application-error";
 import { useDebouncedValue } from "@/core/utils/use-debounced-value";
 
-import { listWikiPagesAction, searchWikiPagesAction } from "../actions";
+import { getWikiPagesAction, searchWikiPagesAction } from "../actions";
 
 export function useWikiPages(initial: WikiPageListResult, loadInitial = false) {
   const [query, setQuery] = useState("");
@@ -32,7 +32,7 @@ export function useWikiPages(initial: WikiPageListResult, loadInitial = false) {
     setFailed(false);
     const request = debouncedQuery
       ? searchWikiPagesAction({ query: debouncedQuery, page, pageSize: 25 })
-      : listWikiPagesAction({ page, pageSize: 25 });
+      : getWikiPagesAction({ page, pageSize: 25 });
 
     void request
       .then((response) => {

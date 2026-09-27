@@ -3046,6 +3046,9 @@
         "subtitle": "Añade el sitio web de tu empresa. Mate convierte la información que puede verificar en páginas wiki editables para Mate y las herramientas de IA que conectes.",
         "title": "Dale a Mate el contexto de tu empresa"
       }
+    },
+    "wiki": {
+      "skip": "Ahora no"
     }
   },
   "OperatorAudit": {
@@ -3747,7 +3750,6 @@
     "openTask": "Abrir tarea de Mate",
     "progressLoadFailed": "No se pudo cargar aquí el progreso de Mate. Inténtalo de nuevo.",
     "progressLoading": "Cargando el progreso de Mate",
-    "skip": "Ahora no",
     "start": "Crear mi wiki",
     "status": {
       "completedBodyOnboarding": "Mate ha creado tus páginas iniciales con datos respaldados por el sitio web. Podrás revisarlas más tarde en la wiki y confirmar lo que esté marcado como pendiente de confirmar.",

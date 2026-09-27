@@ -1,3 +1,6 @@
+import type { Data, Validated } from "@/core/validation/validation.utils";
+import type { SendAgentMessageInteractor, SendAgentMessageResult } from "@/ee/agent-chat/send-agent-message.interactor";
+
 import { z } from "zod";
 import { Action, Resource } from "@/generated/prisma";
 
@@ -8,8 +11,6 @@ import { TenantInteractor } from "@/core/decorators/tenant-interactor.decorator"
 import { Write } from "@/core/decorators/write.decorator";
 import { fail, failConflict } from "@/core/validation/interactor-failure-server";
 import { CustomErrorCode } from "@/core/validation/validation.types";
-import type { Data, Validated } from "@/core/validation/validation.utils";
-import type { SendAgentMessageInteractor, SendAgentMessageResult } from "@/ee/agent-chat/send-agent-message.interactor";
 
 import { parsePublicWikiHomepage } from "./wiki-homepage";
 
@@ -87,7 +88,7 @@ export class StartWikiHomepageSetupInteractor extends AuthenticatedInteractor<
       return fail(CustomErrorCode.wikiHomepageSetupStartFailed, ["homepage"]);
 
     return {
-      ok: true,
+      ok: true as const,
       data: {
         conversationId: result.data.conversationId,
         homepage: homepage.url,

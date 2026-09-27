@@ -137,7 +137,8 @@ vi.mock("../wiki-page.store", () => ({
   },
 }));
 
-import { resolveWikiPageState, WikiPageView } from "../wiki-page-view";
+import { resolveWikiPageState } from "../wiki-page-state";
+import { WikiPageView } from "../wiki-page-view";
 import { TopBarActionsProvider, useTopBarActions } from "@/app/components/topbar-actions-context";
 
 const listPage = { items: [], total: 0, page: 1, pageSize: 25 };

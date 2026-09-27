@@ -1,8 +1,4 @@
-import { Prisma } from "@/generated/prisma";
-
-import { BaseRepository } from "@/core/base/base-repository";
 import type { RepoArgs } from "@/core/utils/types";
-
 import type { CreateWikiPagesRepo } from "./create-wiki-pages.interactor";
 import type { DeleteWikiPageRepo } from "./delete-wiki-page.interactor";
 import type { GetWikiPageRepo } from "./get-wiki-page.interactor";
@@ -12,6 +8,10 @@ import type { SearchWikiPagesRepo } from "./search-wiki-pages.interactor";
 import type { UpdateWikiPageRepo } from "./update-wiki-page.interactor";
 import type { StartWikiHomepageSetupRepo } from "./start-wiki-homepage-setup.interactor";
 import type { WikiPageDto } from "./wiki.schema";
+
+import { Prisma } from "@/generated/prisma";
+
+import { BaseRepository } from "@/core/base/base-repository";
 import { WIKI_CATALOG_PAGE_SIZE } from "./wiki.schema";
 import { wikiRelevantSearchSnippet, wikiRelevantSearchTerms, wikiSubstringSearchTerms } from "./wiki-content";
 

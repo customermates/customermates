@@ -1,11 +1,13 @@
 "use server";
 
-import { getLocale } from "next-intl/server";
-
+import type { StartWikiHomepageSetupData } from "@/features/wiki/start-wiki-homepage-setup.interactor";
 import type { CreateWikiPagesData } from "@/features/wiki/create-wiki-pages.interactor";
 import type { DeleteWikiPageData } from "@/features/wiki/delete-wiki-page.interactor";
 import type { UpdateWikiPageData } from "@/features/wiki/update-wiki-page.interactor";
 import type { WikiPageListData, WikiPageSearchData } from "@/features/wiki/wiki.schema";
+import type { AppLocale } from "@/i18n/locale-registry";
+
+import { getLocale } from "next-intl/server";
 
 import {
   getCreateWikiPagesInteractor,
@@ -18,7 +20,6 @@ import {
 } from "@/core/di";
 import { serializeResult } from "@/core/utils/action-result";
 import { interactorFailureKind } from "@/core/validation/validation.utils";
-import type { AppLocale } from "@/i18n/locale-registry";
 
 export async function createWikiPagesAction(data: CreateWikiPagesData) {
   return serializeResult(getCreateWikiPagesInteractor().invoke(data));
@@ -44,7 +45,7 @@ export async function getWikiPageAction(id: string) {
   return serializeResult(getGetWikiPageInteractor().invoke({ id }));
 }
 
-export async function listWikiPagesAction(data: WikiPageListData) {
+export async function getWikiPagesAction(data: WikiPageListData) {
   return serializeResult(getGetWikiPagesInteractor().invoke(data));
 }
 
@@ -52,7 +53,7 @@ export async function searchWikiPagesAction(data: WikiPageSearchData) {
   return serializeResult(getSearchWikiPagesInteractor().invoke(data));
 }
 
-export async function startWikiHomepageSetupAction(data: { homepage: string; clientRequestId: string }) {
+export async function startWikiHomepageSetupAction(data: Omit<StartWikiHomepageSetupData, "locale">) {
   const locale = (await getLocale()) as AppLocale;
   return serializeResult(getStartWikiHomepageSetupInteractor().invoke({ ...data, locale }));
 }
