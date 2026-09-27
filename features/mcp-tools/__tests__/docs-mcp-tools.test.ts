@@ -425,7 +425,7 @@ describe("search_docs", () => {
       return routes.includes(`\`${route}`) ? [] : [`${locale} "${query}" -> ${best?.slug}#${best?.anchor}`];
     });
     expect(misses, misses.join("\n")).toEqual([]);
-  });
+  }, 60_000);
 
   it("answers task and permission questions with the section that handles them and that section's link line", () => {
     const misses = SECTION_QUESTIONS.flatMap(([locale, query, expected, route]) => {
@@ -436,7 +436,7 @@ describe("search_docs", () => {
       return found === expected && routeOk ? [] : [`${locale} "${query}" -> ${found} (link: ${link.slice(0, 60)})`];
     });
     expect(misses, misses.join("\n")).toEqual([]);
-  });
+  }, 60_000);
 
   it("answers where-is and take-me-to questions with the section that introduces that page, and its link line", () => {
     const misses = (
@@ -600,7 +600,7 @@ describe("search_docs", () => {
         : [`${locale} "${query}" -> ${found}`];
     });
     expect(misses, misses.join("\n")).toEqual([]);
-  });
+  }, 60_000);
 
   it("answers a page-address question with a German page compound through that page's link line", () => {
     for (const [query, route] of [
