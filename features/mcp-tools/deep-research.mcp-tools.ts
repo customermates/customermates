@@ -1,6 +1,7 @@
 import { z } from "zod";
 
 import type { ContentLocale } from "@/i18n/locale-registry";
+import type { WikiOutlineEntry } from "@/features/wiki/wiki-search";
 
 import { customMcpFailure, formatDatesInResponse, mcpInteractorFailure, mcpMessageFailure } from "./utils";
 import { getDocsPageRaw, listDocsSlugs, searchDocsRaw } from "./docs.mcp-tools";
@@ -29,6 +30,7 @@ import {
 import { extractWikiPageLinks, externalizeWikiPageLinks } from "@/features/wiki/wiki-markdown-links";
 import { parseWikiPageReference, wikiPageFetchId, wikiPageUrl } from "@/features/wiki/wiki-links";
 import { boundedWikiChunk, wikiCodePointBoundary } from "@/features/wiki/wiki-page-chunk";
+import { wikiOutline, wikiSectionOffsetIn } from "@/features/wiki/wiki-search";
 
 type Entity = "contact" | "organization" | "deal" | "service" | "task";
 
@@ -72,8 +74,20 @@ const SearchOutputSchema = z.object({
         .describe("Result id, pass to fetch: 'wiki:<uuid>', 'record:<entity>:<uuid>', or 'doc:<locale>:<slug>'"),
       title: z.string().describe("Display name of the Wiki page, record, or product docs page"),
       url: z.string().describe("Canonical app or docs URL"),
+      snippet: z.string().optional().describe("Wiki excerpt around the matched terms, which are wrapped in **"),
+      section: z.string().optional().describe("Heading path of the matched Wiki section"),
+      offset: z
+        .number()
+        .int()
+        .nonnegative()
+        .optional()
+        .describe("Pass to fetch as offset to open the Wiki page at the matched section"),
     }),
   ),
+  didYouMean: z
+    .array(z.string())
+    .optional()
+    .describe("Closest Wiki terms or titles when no Wiki page matched; search again with one"),
 });
 
 const FetchOutputSchema = z.object({
@@ -93,6 +107,10 @@ const FetchOutputSchema = z.object({
     .optional()
     .describe("Next Wiki chunk offset, or null at the end"),
   totalChars: z.number().int().nonnegative().optional().describe("Total characters in the externalized Wiki Markdown"),
+  outline: z
+    .array(z.object({ level: z.number().int(), heading: z.string(), offset: z.number().int().nonnegative() }))
+    .optional()
+    .describe("At offset 0 of a multi-chunk Wiki page: its H1-H3 headings with the offset each starts at"),
 });
 
 async function fetchRecord(entity: Entity, key: string) {
@@ -145,7 +163,7 @@ async function fetchWiki(id: string, requestedOffset: number) {
   const page = result.data;
   const links = extractWikiPageLinks(page.markdown, env.BASE_URL, 6);
   const markdown = externalizeWikiPageLinks(page.markdown, env.BASE_URL);
-  const outputAt = (offset: number, end: number) => ({
+  const outputAt = (offset: number, end: number, outline: WikiOutlineEntry[]) => ({
     id: wikiPageFetchId(page.id),
     title: page.title,
     url: wikiPageUrl(env.BASE_URL, page.id),
@@ -166,30 +184,53 @@ async function fetchWiki(id: string, requestedOffset: number) {
     offset,
     nextOffset: end < markdown.length ? end : null,
     totalChars: markdown.length,
+    ...(outline.length > 0 ? { outline } : {}),
     text: markdown.slice(offset, end),
   });
-  const { offset, end } = boundedWikiChunk(
-    markdown,
-    requestedOffset,
-    (start, stop) => JSON.stringify(outputAt(start, stop)).length <= WIKI_FETCH_TEXT_TARGET_LENGTH,
-    env.BASE_URL,
-  );
-  const output = outputAt(offset, end);
+  const chunk = (outline: WikiOutlineEntry[]) =>
+    boundedWikiChunk(
+      markdown,
+      requestedOffset,
+      (start, stop) => JSON.stringify(outputAt(start, stop, outline)).length <= WIKI_FETCH_TEXT_TARGET_LENGTH,
+      env.BASE_URL,
+    );
+  const plain = chunk([]);
+  const outline = plain.offset === 0 && plain.end < markdown.length ? wikiOutline(markdown) : [];
+  const { offset, end } = outline.length > 1 ? chunk(outline) : plain;
+  const output = outputAt(offset, end, outline.length > 1 ? outline : []);
   return { text: JSON.stringify(output), structuredContent: output };
+}
+
+async function externalizedWikiOffset(id: string, offset: number) {
+  if (offset === 0) return 0;
+  const result = await getGetWikiPageInteractor().invoke({ id });
+  if (!result.ok || !result.data) return 0;
+  return wikiSectionOffsetIn(
+    result.data.markdown,
+    offset,
+    externalizeWikiPageLinks(result.data.markdown, env.BASE_URL),
+  );
 }
 
 async function searchWiki(query: string) {
   const wikiQuery = query.slice(0, wikiCodePointBoundary(query, WIKI_SEARCH_QUERY_MAX_LENGTH));
   try {
     const result = await getSearchWikiPagesInteractor().invoke({ query: wikiQuery, page: 1, pageSize: 5 });
-    if (!result.ok) return [];
-    return result.data.items.map((page) => ({
-      id: wikiPageFetchId(page.id),
-      title: page.title,
-      url: wikiPageUrl(env.BASE_URL, page.id),
-    }));
+    if (!result.ok) return { results: [], didYouMean: [] };
+    const results = await Promise.all(
+      result.data.items.map(async (page) => ({
+        id: wikiPageFetchId(page.id),
+        title: page.title,
+        url: wikiPageUrl(env.BASE_URL, page.id),
+        snippet: page.snippet,
+        ...(page.section ? { section: page.section } : {}),
+        offset: await externalizedWikiOffset(page.id, page.offset ?? 0),
+      })),
+    );
+    return { results, didYouMean: result.data.didYouMean ?? [] };
   } catch (error) {
-    if (error instanceof ForbiddenError && error.code === AppErrorCode.permissionDenied) return [];
+    if (error instanceof ForbiddenError && error.code === AppErrorCode.permissionDenied)
+      return { results: [], didYouMean: [] };
     throw error;
   }
 }
@@ -199,7 +240,8 @@ export const searchTool = {
   title: "Search workspace knowledge",
   description:
     "Required by ChatGPT company-knowledge and deep-research connectors. Returns relevant Workspace Wiki pages, CRM records, and product documentation in one list, without totals or filters. " +
-    "Fetch every relevant Wiki result and follow its linked Wiki pages. Wiki matches are ranked by query terms with title matches weighted higher. " +
+    "Wiki results rank pages matching every query term first, tolerate inflections and typos, and carry a snippet with the matched terms in **, the matched section, and its offset: fetch with that offset to open at the answer, then follow linked Wiki pages. " +
+    "When no Wiki page fits, search again with other words or a returned didYouMean. " +
     "For focused CRM or product-doc queries prefer search_records or list_records, which carry totals and filters, or search_docs. " +
     "App routes in the docs text that fetch returns, such as `/company/subscription`, are relative: for a full link, put the route after the origin of the result's url; that origin is the instance's configured BASE_URL.",
   annotations: { readOnlyHint: true, idempotentHint: true, destructiveHint: false, openWorldHint: false },
@@ -212,7 +254,7 @@ export const searchTool = {
   }),
   outputSchema: SearchOutputSchema,
   execute: async ({ query }: { query: string }) => {
-    const [recordGroups, wikiResults] = await Promise.all([
+    const [recordGroups, wiki] = await Promise.all([
       Promise.all(
         ENTITIES.map(async (entity) => {
           try {
@@ -239,7 +281,10 @@ export const searchTool = {
       .results.slice(0, 3)
       .map((hit) => ({ id: `doc:${DEFAULT_LOCALE}:${hit.slug}`, title: hit.title, url: hit.url }));
 
-    const output = { results: [...wikiResults, ...recordGroups.flat(), ...docResults] };
+    const output = {
+      results: [...wiki.results, ...recordGroups.flat(), ...docResults],
+      ...(wiki.didYouMean.length > 0 ? { didYouMean: wiki.didYouMean } : {}),
+    };
 
     return { text: JSON.stringify(output), structuredContent: output };
   },
@@ -252,6 +297,7 @@ export const fetchTool = {
     "Read a result from search, including Workspace Wiki Markdown by wiki:<uuid>. " +
     "Wiki pages may also be fetched by their exact relative, localized, or same-origin absolute Wiki URL. " +
     "Wiki content is returned in bounded chunks with absolute internal links and a source URL for citations; pass nextOffset back as offset until it is null. If updatedAt differs from the previous chunk, restart at offset 0. Wiki Read is required for Wiki pages. " +
+    "Start at a search result's offset to land on the matched section; at offset 0 a multi-chunk page also returns an outline of its headings with their offsets. " +
     "Compatible with ChatGPT company knowledge and deep research. For focused CRM or product-documentation retrieval, prefer get_records or get_docs_page. " +
     "For a docs result, app routes in text, such as `/company/subscription`, are relative: for a full link, put the route after the origin of url; that origin is the instance's configured BASE_URL.",
   annotations: { readOnlyHint: true, idempotentHint: true, destructiveHint: false, openWorldHint: false },
@@ -265,7 +311,7 @@ export const fetchTool = {
       .int()
       .min(0)
       .default(0)
-      .describe("For Wiki results, the nextOffset from the previous fetch; start at 0"),
+      .describe("For Wiki results, the offset from search or the nextOffset from the previous fetch; start at 0"),
   }),
   outputSchema: FetchOutputSchema,
   execute: async ({ id, offset = 0 }: { id: string; offset?: number }) => {

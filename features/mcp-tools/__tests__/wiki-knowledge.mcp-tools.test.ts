@@ -105,7 +105,10 @@ beforeEach(() => {
       },
     ],
   });
-  calls.search.mockResolvedValue({ ok: true, data: { items: [page] } });
+  calls.search.mockResolvedValue({
+    ok: true,
+    data: { items: [{ ...page, snippet: "Current **content**", offset: 0 }] },
+  });
   calls.get.mockResolvedValue({ ok: true, data: page });
   calls.catalog.mockResolvedValue({ ok: true, data: catalog });
   calls.accounts.mockResolvedValue({ ok: true, data: [] });
@@ -135,6 +138,8 @@ describe("read-only Wiki search and fetch compatibility", () => {
         id: `wiki:${id}`,
         title: page.title,
         url: `http://localhost:4000/wiki?page=${id}`,
+        snippet: "Current **content**",
+        offset: 0,
       },
       {
         id: "doc:en:guide",
@@ -145,6 +150,55 @@ describe("read-only Wiki search and fetch compatibility", () => {
     expect(JSON.parse(result.text)).toEqual(result.structuredContent);
     expect(searchTool.annotations.readOnlyHint).toBe(true);
     expect(fetchTool.annotations.readOnlyHint).toBe(true);
+  });
+
+  it("maps a matched section to the fetch offset of the externalized page and relays suggestions", async () => {
+    const linkedId = "00000000-0000-4000-8000-000000000002";
+    const markdown = `Intro with [Support](/wiki?page=${linkedId}).\n\n## Refunds\n\n${"Context. ".repeat(700)}\n\n## Approval\n\nThe finance lead approves refunds.`;
+    calls.get.mockResolvedValue({ ok: true, data: { ...page, markdown } });
+    calls.search.mockResolvedValue({
+      ok: true,
+      data: {
+        items: [
+          {
+            ...page,
+            snippet: "The finance lead **approves** refunds.",
+            section: "Approval",
+            anchor: "approval",
+            offset: markdown.indexOf("## Approval"),
+          },
+        ],
+        total: 1,
+        page: 1,
+        pageSize: 5,
+      },
+    });
+
+    const searched = await searchTool.execute({ query: "who approves refunds" });
+    const [hit] = searched.structuredContent.results as Array<{ id: string; offset: number; section: string }>;
+    expect(hit).toMatchObject({ id: `wiki:${id}`, section: "Approval" });
+    expect(hit.offset).toBeGreaterThan(markdown.indexOf("## Approval"));
+
+    const fetched = await fetchTool.execute({ id: hit.id, offset: hit.offset });
+    if (!("structuredContent" in fetched)) throw new Error("Expected Wiki content.");
+    expect(fetched.structuredContent.text).toMatch(/^## Approval\n/);
+    expect(fetched.structuredContent).not.toHaveProperty("outline");
+
+    const opened = await fetchTool.execute({ id: hit.id, offset: 0 });
+    if (!("structuredContent" in opened)) throw new Error("Expected Wiki content.");
+    expect((opened.structuredContent as { outline?: unknown }).outline).toEqual([
+      { level: 2, heading: "Refunds", offset: expect.any(Number) },
+      { level: 2, heading: "Approval", offset: hit.offset },
+    ]);
+    expect(opened.text.length).toBeLessThanOrEqual(5_500);
+
+    calls.search.mockResolvedValue({
+      ok: true,
+      data: { items: [], total: 0, page: 1, pageSize: 5, didYouMean: ["pagerduty"] },
+    });
+    expect((await searchTool.execute({ query: "PagerDutty" })).structuredContent).toMatchObject({
+      didYouMean: ["pagerduty"],
+    });
   });
 
   it("returns every character of long Markdown through bounded external fetch chunks", async () => {
@@ -369,6 +423,9 @@ describe("workspace-context Wiki discovery", () => {
     expect(PUBLIC_MCP_WIKI_INSTRUCTION).toContain(WIKI_REFERENCE_MATERIAL_RULE);
     expect(HOSTED_WORKSPACE_WIKI_INSTRUCTION).toContain("workspace_wiki_reference");
     expect(HOSTED_WORKSPACE_WIKI_INSTRUCTION).toContain("manage_wiki_pages search");
+    expect(HOSTED_WORKSPACE_WIKI_INSTRUCTION).toContain("get each hit from its offset");
+    expect(PUBLIC_MCP_WIKI_INSTRUCTION).toContain("at its returned offset");
+    expect(PUBLIC_MCP_WIKI_INSTRUCTION).toContain("didYouMean");
     expect(HOSTED_WORKSPACE_WIKI_INSTRUCTION).toContain(WIKI_REFERENCE_MATERIAL_RULE);
     expect(HOSTED_WORKSPACE_WIKI_INSTRUCTION).not.toContain("preview");
     expect(WIKI_REFERENCE_MATERIAL_RULE).toContain(

@@ -235,7 +235,9 @@ describeDatabase("Workspace Wiki authenticated MCP transport", () => {
   it("discovers, writes, searches, follows, renames, and isolates Wiki pages through the production MCP route", async () => {
     const initialized = await initialize(managerApiKey);
     expect(initialized.data?.result?.capabilities).toHaveProperty("resources");
-    expect(initialized.data?.result?.instructions).toContain("fetch every relevant wiki:<uuid> result");
+    expect(initialized.data?.result?.instructions).toContain(
+      "Fetch every relevant wiki:<uuid> result at its returned offset",
+    );
     expect(initialized.data?.result?.instructions).toContain("manage_wiki_pages lists and searches Wiki pages");
 
     const listedTools = await rpc(managerApiKey, mcpBody("tools/list", 2), initialized.sessionId);
@@ -358,11 +360,9 @@ describeDatabase("Workspace Wiki authenticated MCP transport", () => {
         results: Array<{ id: string; title: string; url: string }>;
       }
     ).results;
-    expect(searchResults).toContainEqual({
-      id: `wiki:${source.id}`,
-      title: "Company voice",
-      url: source.url,
-    });
+    expect(searchResults).toContainEqual(
+      expect.objectContaining({ id: `wiki:${source.id}`, title: "Company voice", url: source.url, offset: 0 }),
+    );
 
     const sourceFetched = await rpc(
       managerApiKey,

@@ -143,7 +143,8 @@ beforeEach(() => {
         {
           id: PAGE_ID,
           title: page.title,
-          snippet: "plain language",
+          snippet: "**plain** language",
+          offset: 0,
           createdAt: CREATED_AT,
           updatedAt: UPDATED_AT,
         },
@@ -253,6 +254,8 @@ describe("Wiki MCP transport", () => {
         id: `wiki:${PAGE_ID}`,
         title: page.title,
         url: `http://localhost:4105/wiki?page=${PAGE_ID}`,
+        snippet: "**plain** language",
+        offset: 0,
       },
     ]);
     expect(searchResult.content).toEqual([{ type: "text", text: JSON.stringify(searchResult.structuredContent) }]);

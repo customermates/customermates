@@ -1,3 +1,6 @@
+import type { WikiOutlineEntry } from "@/features/wiki/wiki-search";
+import type { WikiPageSearchResult } from "@/features/wiki/wiki.schema";
+
 import { z } from "zod";
 
 import {
@@ -17,6 +20,7 @@ import {
   wikiMarkdownPlainText,
 } from "@/features/wiki/wiki-markdown-links";
 import { wikiPageUrl } from "@/features/wiki/wiki-links";
+import { wikiOutline } from "@/features/wiki/wiki-search";
 import { WikiMarkdownSchema, WIKI_TITLE_MAX_LENGTH } from "@/features/wiki/wiki.schema";
 import { env } from "@/env";
 
@@ -202,7 +206,7 @@ const ManageWikiPagesSchema = z.object({
     ),
   id: z.uuid().optional().describe("Page id."),
   query: z.string().optional().describe("Search terms."),
-  offset: z.coerce.number().int().min(0).optional().describe("nextOffset of the previous chunk."),
+  offset: z.coerce.number().int().min(0).optional().describe("Hit offset or prior nextOffset."),
   page: mcpPage(),
   pages: z.array(PageInputSchema).min(1).max(5).optional().describe("Created atomically."),
   requireEmpty: z.boolean().optional().describe("Refuses create unless the Wiki is empty."),
@@ -235,6 +239,8 @@ export const ManageWikiPagesOutputSchema = z.looseObject({
     )
     .optional(),
   linksTruncated: z.boolean().optional(),
+  outline: z.array(z.looseObject({ level: z.number(), heading: z.string(), offset: z.number() })).optional(),
+  didYouMean: z.array(z.string()).optional(),
   deleted: z.boolean().optional(),
 });
 
@@ -265,7 +271,7 @@ function wikiPageChunk(
   requestedOffset: number,
 ) {
   const discoveredLinks = extractWikiPageLinks(page.markdown, env.BASE_URL, 6);
-  const payload = (offset: number, end: number) =>
+  const payload = (offset: number, end: number, outline: WikiOutlineEntry[]) =>
     formatDatesInResponse({
       id: page.id,
       title: page.title,
@@ -277,15 +283,20 @@ function wikiPageChunk(
       updatedAt: page.updatedAt,
       links: discoveredLinks.slice(0, 5),
       linksTruncated: discoveredLinks.length > 5,
+      ...(outline.length > 0 ? { outline } : {}),
       markdownChunk: page.markdown.slice(offset, end),
     });
-  const { offset, end } = boundedWikiChunk(
-    page.markdown,
-    requestedOffset,
-    (start, stop) => encodeToToon(payload(start, stop)).length <= WIKI_MCP_TEXT_TARGET_LENGTH,
-    env.BASE_URL,
-  );
-  return payload(offset, end);
+  const chunk = (outline: WikiOutlineEntry[]) =>
+    boundedWikiChunk(
+      page.markdown,
+      requestedOffset,
+      (start, stop) => encodeToToon(payload(start, stop, outline)).length <= WIKI_MCP_TEXT_TARGET_LENGTH,
+      env.BASE_URL,
+    );
+  const plain = chunk([]);
+  const outline = plain.offset === 0 && plain.end < page.markdown.length ? wikiOutline(page.markdown) : [];
+  const { offset, end } = outline.length > 1 ? chunk(outline) : plain;
+  return payload(offset, end, outline.length > 1 ? outline : []);
 }
 
 function wikiListResult({
@@ -302,13 +313,33 @@ function wikiListResult({
   return toonResult({ total, page, pageSize, items: formatDatesInResponse(items) });
 }
 
+function wikiSearchResult(result: WikiPageSearchResult) {
+  return toonResult({
+    total: result.total,
+    page: result.page,
+    pageSize: result.pageSize,
+    items: formatDatesInResponse(
+      result.items.map(({ id, title, section, offset, snippet, createdAt, updatedAt }) => ({
+        id,
+        title,
+        section: section ?? "",
+        offset: offset ?? 0,
+        snippet,
+        createdAt,
+        updatedAt,
+      })),
+    ),
+    ...(result.didYouMean ? { didYouMean: result.didYouMean } : {}),
+  });
+}
+
 export const manageWikiPagesTool = {
   name: "manage_wiki_pages",
   title: "Manage Workspace Wiki pages",
   description:
-    "Read and manage the shared Workspace Wiki; read its company facts, processes, voice, and support guidance before relying on them. " +
-    "list returns 5 pages in creation order; search ranks query terms in titles and Markdown, with snippets. " +
-    "get returns one Markdown chunk; pass nextOffset back as offset until it is null. If updatedAt differs from the previous chunk, restart at offset 0. " +
+    "Read and manage the shared Workspace Wiki of company facts, processes, voice, and support guidance. " +
+    "list returns 5 pages in creation order; search returns snippets and each hit's section offset, or didYouMean. " +
+    "get returns one Markdown chunk (outline at 0); pass nextOffset back as offset until it is null. If updatedAt differs from the previous chunk, restart at offset 0. " +
     "action delete is IRREVERSIBLE. " +
     "Link pages with Markdown links to /wiki?page=<page-id>; ids stay stable when titles change.",
   annotations: {
@@ -334,7 +365,7 @@ export const manageWikiPagesTool = {
       if (!parsed.success) return mcpValidationFailure(parsed.error);
       return runInteractor(
         getSearchWikiPagesInteractor().invoke({ ...parsed.data, pageSize: WIKI_MCP_PAGE_SIZE }),
-        wikiListResult,
+        wikiSearchResult,
       );
     }
 

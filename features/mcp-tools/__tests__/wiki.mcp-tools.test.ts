@@ -325,12 +325,23 @@ describe("manage_wiki_pages reads", () => {
           {
             id: PAGE_ID,
             title: "Company Overview",
-            snippet: "A useful match",
+            snippet: "A **useful** match",
+            offset: 42,
+            section: "Support > Escalations",
+            anchor: "escalations",
+            createdAt: CREATED_AT,
+            updatedAt: UPDATED_AT,
+          },
+          {
+            id: "00000000-0000-4000-8000-000000000002",
+            title: "Short page",
+            snippet: "Also **useful**",
+            offset: 0,
             createdAt: CREATED_AT,
             updatedAt: UPDATED_AT,
           },
         ],
-        total: 1,
+        total: 2,
         page: 1,
         pageSize: 5,
       },
@@ -343,12 +354,34 @@ describe("manage_wiki_pages reads", () => {
       page: 1,
       pageSize: 5,
     });
-    const output = decode(mcpToolResultText(result));
+    const text = mcpToolResultText(result);
+    const output = decode(text);
     expect(output).toMatchObject({
-      items: [{ id: PAGE_ID, snippet: "A useful match" }],
-      total: 1,
+      items: [
+        { id: PAGE_ID, section: "Support > Escalations", offset: 42, snippet: "A **useful** match" },
+        { id: "00000000-0000-4000-8000-000000000002", section: "", offset: 0, snippet: "Also **useful**" },
+      ],
+      total: 2,
     });
+    expect(text).toContain("items[2]{id,title,section,offset,snippet,createdAt,updatedAt}:");
     expect(Object.keys(output as object)).toEqual(["total", "page", "pageSize", "items"]);
+  });
+
+  it("relays zero-result suggestions so the agent can search again", async () => {
+    calls.search.mockResolvedValue({
+      ok: true,
+      data: { items: [], total: 0, page: 1, pageSize: 5, didYouMean: ["pagerduty", "Support escalation process"] },
+    });
+
+    const output = decode(mcpToolResultText(await run({ action: "search", query: "PagerDutty" })));
+
+    expect(output).toEqual({
+      total: 0,
+      page: 1,
+      pageSize: 5,
+      items: [],
+      didYouMean: ["pagerduty", "Support escalation process"],
+    });
   });
 
   it("keeps a maximum-width search page below the agent result limit without truncation", async () => {
@@ -361,6 +394,8 @@ describe("manage_wiki_pages reads", () => {
           id: `00000000-0000-4000-8000-00000000000${index + 1}`,
           title,
           snippet,
+          offset: 65_535,
+          section: `${'"|,😀'.repeat(40).slice(0, 159)}…`,
           createdAt: CREATED_AT,
           updatedAt: UPDATED_AT,
         })),
@@ -413,6 +448,32 @@ describe("manage_wiki_pages reads", () => {
     }
 
     expect(reconstructed).toBe(markdown);
+  });
+
+  it("opens a long page with its heading outline so an agent can jump to a section", async () => {
+    const markdown = WikiMarkdownSchema.parse(
+      Array.from({ length: 12 }, (_, index) => `## Section ${index + 1}\n\n${"Detail sentence. ".repeat(40)}`).join(
+        "\n\n",
+      ),
+    );
+    calls.get.mockResolvedValue({ ok: true, data: page(markdown) });
+
+    const first = decode(mcpToolResultText(await run({ action: "get", id: PAGE_ID }))) as {
+      outline: Array<{ level: number; heading: string; offset: number }>;
+      nextOffset: number | null;
+    };
+    expect(first.outline).toHaveLength(12);
+    for (const entry of first.outline)
+      expect(markdown.slice(entry.offset)).toMatch(new RegExp(`^## ${entry.heading}\n`));
+
+    const jumped = decode(
+      mcpToolResultText(await run({ action: "get", id: PAGE_ID, offset: first.outline[7].offset })),
+    ) as { markdownChunk: string; outline?: unknown };
+    expect(jumped.markdownChunk.startsWith("## Section 8")).toBe(true);
+    expect(jumped).not.toHaveProperty("outline");
+
+    calls.get.mockResolvedValue({ ok: true, data: page("## One\n\nShort.\n\n## Two\n\nShort.") });
+    expect(decode(mcpToolResultText(await run({ action: "get", id: PAGE_ID })))).not.toHaveProperty("outline");
   });
 
   it("never splits a Wiki link across continuation chunks", async () => {
