@@ -665,6 +665,10 @@ path:focus {
     @apply relative text-xs tracking-tight;
   }
 
+  .markdown-code {
+    @apply px-1.5 py-0.5 text-[0.9em] before:content-none after:content-none;
+  }
+
   .text-subdued {
     @apply relative text-muted-foreground;
   }

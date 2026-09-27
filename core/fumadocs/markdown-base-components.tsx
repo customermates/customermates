@@ -59,12 +59,12 @@ export const markdownBaseComponents: Pick<
     </h6>
   ),
   p: ({ className, children, ...props }) => (
-    <p className={cn("text-x-md text-default-900 dark:text-default-800", className)} {...props}>
+    <p className={cn("text-x-md", className)} {...props}>
       {children}
     </p>
   ),
   li: ({ className, children, ...props }) => (
-    <li className={cn("text-x-md text-default-900 dark:text-default-800", className)} {...props}>
+    <li className={cn("text-x-md", className)} {...props}>
       {children}
     </li>
   ),
@@ -79,10 +79,7 @@ export const markdownBaseComponents: Pick<
     </Alert>
   ),
   code: ({ className, children, ...props }) => (
-    <code
-      className={cn("rounded-small px-1.5 py-0.5 text-[0.9em] before:content-none after:content-none", className)}
-      {...props}
-    >
+    <code className={cn("markdown-code", className)} {...props}>
       {children}
     </code>
   ),
