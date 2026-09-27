@@ -404,6 +404,26 @@ describe("user-supplied website homepages", () => {
     expect(userWebsiteHomepage([], "https://acme-widgets.com/")).toBeNull();
   });
 
+  it("never treats an email address as a website", () => {
+    const homepages = userWebsiteHomepages(["Draft a reply to john@evil-partner.com", "mail ada@acme.io."]);
+
+    expect(homepages).toEqual([]);
+    expect(userWebsiteHomepage(homepages, "https://evil-partner.com/c/Acme-deal-EUR-250000")).toBeNull();
+  });
+
+  it("reads only the host root when the requested path was not written by the user", () => {
+    const homepages = userWebsiteHomepages(["Our site is acme-widgets.com/about"]);
+    const chosen = userWebsiteHomepage(homepages, "https://acme-widgets.com/c/Acme-deal-EUR-250000");
+
+    expect(chosen).toEqual({ url: "https://acme-widgets.com/", registrableDomain: "acme-widgets.com" });
+    if (!chosen) throw new Error("Expected a homepage.");
+    const state = createPublicPageReadState(chosen);
+    expect(reservePublicPageRead(state, "https://acme-widgets.com/c/Acme-deal-EUR-250000")).toEqual({
+      ok: false,
+      reason: "not_linked",
+    });
+  });
+
   it("keeps follow-up reads on links the chosen homepage returned", () => {
     const chosen = userWebsiteHomepage(["https://acme-widgets.com/"], "acme-widgets.com");
     if (!chosen) throw new Error("Expected a homepage.");

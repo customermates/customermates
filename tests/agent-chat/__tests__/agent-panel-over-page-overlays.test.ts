@@ -35,7 +35,6 @@ vi.mock("@/app/components/agent-chat/conversation-history", () => ({
   ArchiveUndo: () => null,
   ConversationHistory: () => null,
 }));
-vi.mock("@/app/components/agent-chat/agent-wiki-homepage-setup", () => ({ AgentWikiHomepageSetup: () => null }));
 vi.mock("@/app/components/agent-chat/suggested-questions", () => ({ SuggestedQuestions: () => null }));
 vi.mock("@/app/components/agent-chat/agent-conversation", () => ({
   AgentComposer: () => createElement("textarea", { "aria-label": "Ask", id: "agent-composer" }),

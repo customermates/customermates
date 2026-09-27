@@ -28,7 +28,6 @@ vi.mock("../agent-status-announcer", () => ({
   AgentStatusAnnouncer: () => null,
 }));
 vi.mock("../conversation-history", () => ({ ArchiveUndo: () => null, ConversationHistory: () => null }));
-vi.mock("../agent-wiki-homepage-setup", () => ({ AgentWikiHomepageSetup: () => null }));
 vi.mock("../suggested-questions", () => ({ SuggestedQuestions: () => null }));
 vi.mock("../agent-conversation", async () => {
   const { MessageResponse } = await import("@/components/ai-elements/message");

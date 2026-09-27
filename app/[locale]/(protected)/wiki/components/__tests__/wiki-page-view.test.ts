@@ -787,7 +787,7 @@ describe("Wiki empty state", () => {
     const chips = container.querySelectorAll('[data-testid="empty-page-agent-suggestions"] button');
     expect(chips).toHaveLength(3);
     expect(chips[0]?.textContent).toContain("AgentChat.suggestions.readOnly.explain.label");
-    expect(container.textContent).not.toContain("WikiSetup.startFromWebsite");
+    expect(container.querySelector('form, input[type="url"]')).toBeNull();
   });
 
   it("shows setup progress without a task link to managers who did not start it", async () => {

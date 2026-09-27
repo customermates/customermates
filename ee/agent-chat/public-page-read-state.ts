@@ -13,10 +13,8 @@ export function userWebsiteHomepages(userTexts: readonly string[]): string[] {
   for (const text of userTexts) {
     for (const rawToken of text.split(USER_TEXT_TOKEN_SEPARATOR)) {
       if (homepages.size >= MAX_USER_WEBSITES) return [...homepages];
-      const token = rawToken
-        .slice(rawToken.lastIndexOf("@") + 1)
-        .replace(/[.:!?]+$/u, "")
-        .trim();
+      if (rawToken.includes("@")) continue;
+      const token = rawToken.replace(/[.:!?]+$/u, "").trim();
       if (!token.includes(".")) continue;
       const homepage = parsePublicWikiHomepage(token);
       if (homepage) homepages.add(homepage.url);
@@ -28,9 +26,11 @@ export function userWebsiteHomepages(userTexts: readonly string[]): string[] {
 export function userWebsiteHomepage(userHomepages: readonly string[], value: string): PublicWikiHomepage | null {
   const homepage = parsePublicWikiHomepage(value);
   if (!homepage) return null;
+  if (userHomepages.includes(homepage.url)) return homepage;
   const host = new URL(homepage.url).hostname;
-  return userHomepages.some((userHomepage) => userHomepage === homepage.url || new URL(userHomepage).hostname === host)
-    ? homepage
+  // A host-only match never keeps the requested path, which could carry data the user did not write.
+  return userHomepages.some((userHomepage) => new URL(userHomepage).hostname === host)
+    ? parsePublicWikiHomepage(`https://${host}/`)
     : null;
 }
 
