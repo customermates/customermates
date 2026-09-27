@@ -1878,7 +1878,7 @@
         "checkFields": "Veuillez vérifier les champs signalés.",
         "company": "Le nom de l’entreprise doit compter moins de 200 caractères.",
         "email": "Veuillez saisir une adresse e-mail valide.",
-        "messageTooLong": "Votre message doit compter moins de 5 000 caractères.",
+        "messageTooLong": "Votre message doit compter moins de 5000 caractères.",
         "messageTooShort": "Veuillez écrire au moins 10 caractères.",
         "name": "Veuillez saisir votre nom."
       },

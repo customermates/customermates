@@ -1878,7 +1878,7 @@
         "checkFields": "Bitte prüfen Sie die markierten Felder.",
         "company": "Bitte halten Sie den Firmennamen unter 200 Zeichen.",
         "email": "Bitte geben Sie eine gültige E-Mail-Adresse ein.",
-        "messageTooLong": "Bitte halten Sie Ihre Nachricht unter 5.000 Zeichen.",
+        "messageTooLong": "Bitte halten Sie Ihre Nachricht unter 5000 Zeichen.",
         "messageTooShort": "Bitte schreiben Sie mindestens 10 Zeichen.",
         "name": "Bitte geben Sie Ihren Namen ein."
       },

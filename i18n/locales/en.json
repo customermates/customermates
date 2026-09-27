@@ -1878,7 +1878,7 @@
         "checkFields": "Please check the highlighted fields.",
         "company": "Please keep the company name under 200 characters.",
         "email": "Please enter a valid email address.",
-        "messageTooLong": "Please keep your message under 5,000 characters.",
+        "messageTooLong": "Please keep your message under 5000 characters.",
         "messageTooShort": "Please write at least 10 characters.",
         "name": "Please enter your name."
       },
