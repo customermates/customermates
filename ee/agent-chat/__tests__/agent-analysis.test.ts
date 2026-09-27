@@ -7,17 +7,21 @@ import { createMockUser } from "@/tests/helpers/mock-user";
 import { MOCK_ENV_MODULE, MOCK_ZOD_MODULE, createMockDiModule } from "@/tests/helpers/interactor-test-setup";
 
 const mockUser = createMockUser();
-const listed = vi.hoisted(() => ({ deal: vi.fn(), task: vi.fn() }));
+const listed = vi.hoisted(() => ({ deal: vi.fn(), task: vi.fn(), reactions: vi.fn() }));
 
 vi.mock("@/env", () => MOCK_ENV_MODULE);
 vi.mock("@/core/validation/zod-error-map-server", () => MOCK_ZOD_MODULE);
-vi.mock("@/core/di", () => createMockDiModule(() => mockUser));
+vi.mock("@/core/di", () => ({
+  ...createMockDiModule(() => mockUser),
+  getListSocialPostReactionsInteractor: () => ({ invoke: listed.reactions }),
+}));
 vi.mock("@/features/search/entity-list-executors", () => ({
   entityListExecutors: { deal: listed.deal, task: listed.task },
   entityNameExtractors: { deal: (item: { name: string }) => item.name, task: (item: { name: string }) => item.name },
 }));
 
 import { listRecordsTool } from "@/features/mcp-tools/entity-generic.mcp-tools";
+import { getSocialPostEngagementTool } from "@/features/mcp-tools/social-posts.mcp-tools";
 
 import {
   ANALYSIS_MAX_BYTES,
@@ -771,6 +775,19 @@ describe("analyze_records on a read that holds only part of its rows", () => {
       ok: false,
       result: `${name} returned ${rows} rows and more may follow, so the analysis did not run on a partial set. Pass a limit above the row count, at most 100, or call ${name} directly and page through it. ${NOT_RUN}`,
     });
+    const pageThrough = (name: string, rows: number) => ({
+      ok: false,
+      result: `${name} returned ${rows} rows and more may follow, so the analysis did not run on a partial set. Call ${name} directly and page through it. ${NOT_RUN}`,
+    });
+    function cappedRead(name: string, shape: z.ZodRawShape, rows: number, pageCap: number) {
+      const all = comments(rows);
+      const capped = fixedRead(name, shape, {});
+      capped.execute.mockImplementation((({ offset = 0 }: { offset?: number }) => {
+        const content = { next_cursor: null, items: all.slice(offset, offset + pageCap) };
+        return { text: JSON.stringify(content), structuredContent: content };
+      }) as never);
+      return capped;
+    }
 
     it("reads a list that fits on its first page, and a single object that has no list", async () => {
       const engagement = fixedRead("get_social_post_engagement", cursorShape, {
@@ -784,11 +801,22 @@ describe("analyze_records on a read that holds only part of its rows", () => {
         next_offset: 7,
         items: comments(7),
       });
+      const counted = fixedRead("get_social_post_engagement", cursorShape, {
+        total: 100,
+        next_cursor: null,
+        items: comments(100),
+      });
 
       await expect(analyze(engagement.tool, { postId: "post-1", limit: 100 })).resolves.toEqual({
         ok: true,
         result: JSON.stringify({ rowsRead: 0, result: 12 }),
       });
+      await expect(analyze(counted.tool, { postId: "post-1", limit: 100 })).resolves.toEqual({
+        ok: true,
+        result: JSON.stringify({ rowsRead: 0, result: 100 }),
+      });
+      expect(engagement.execute).toHaveBeenCalledOnce();
+      expect(counted.execute).toHaveBeenCalledOnce();
       await expect(analyze(post.tool, { postId: "post-1" })).resolves.toEqual({
         ok: true,
         result: JSON.stringify({ rowsRead: 0, result: "post-1" }),
@@ -805,28 +833,110 @@ describe("analyze_records on a read that holds only part of its rows", () => {
         next_cursor: "cursor-2",
         items: comments(12),
       });
-      const full = fixedRead("get_social_post_engagement", cursorShape, {
-        total: 100,
-        next_cursor: null,
-        items: comments(100),
-      });
+      const full = fixedRead("get_social_post_engagement", cursorShape, { next_cursor: null, items: comments(100) });
       const defaultLimit = fixedRead("linkedin_search_sales_leads", cursorShape, {
-        total: 10,
         next_offset: 10,
         items: comments(10),
       });
       const counted = fixedRead("get_social_posts", cursorShape, { total: 40, next_cursor: null, items: comments(7) });
 
       await expect(analyze(cursored.tool, { postId: "post-1", limit: 100 })).resolves.toEqual(
-        morePossible("get_social_post_engagement", 12),
+        pageThrough("get_social_post_engagement", 12),
       );
       await expect(analyze(full.tool, { postId: "post-1", limit: 100 })).resolves.toEqual(
-        morePossible("get_social_post_engagement", 100),
+        pageThrough("get_social_post_engagement", 100),
       );
       await expect(analyze(defaultLimit.tool, {})).resolves.toEqual(morePossible("linkedin_search_sales_leads", 10));
+      expect(full.execute).toHaveBeenLastCalledWith({ postId: "post-1", offset: 100, limit: 100 });
+      expect(defaultLimit.execute).toHaveBeenLastCalledWith({ offset: 10, limit: 10 });
       await expect(analyze(counted.tool, { limit: 100 })).resolves.toEqual({
         ok: false,
         result: `get_social_posts returned 7 of 40 rows, so the analysis did not run on a partial set. ${NOT_RUN}`,
+      });
+    });
+
+    it("reads past a short page without a total, and runs only when that read comes back empty", async () => {
+      const whole = cappedRead("get_social_post_engagement", cursorShape, 50, 50);
+      const capped = cappedRead("get_social_post_engagement", cursorShape, 180, 50);
+      const empty = cappedRead("get_social_post_engagement", cursorShape, 0, 50);
+      const totalled = { code: "(data) => ({ total: data[0].total, rows: data[0].items.length })" };
+
+      await expect(
+        analyzeRecords(
+          { reads: [read(whole.tool.name, { postId: "post-1", limit: 100 })], ...totalled },
+          deps(whole.tool),
+        ),
+      ).resolves.toEqual({ ok: true, result: JSON.stringify({ rowsRead: 0, result: { total: 50, rows: 50 } }) });
+      expect(whole.execute.mock.calls).toEqual([
+        [{ postId: "post-1", limit: 100 }],
+        [{ postId: "post-1", offset: 50, limit: 100 }],
+      ]);
+      await expect(analyze(capped.tool, { postId: "post-1", limit: 100 })).resolves.toEqual(
+        pageThrough("get_social_post_engagement", 50),
+      );
+      await expect(
+        analyzeRecords({ reads: [read(empty.tool.name, { postId: "post-1" })], ...totalled }, deps(empty.tool)),
+      ).resolves.toEqual({ ok: true, result: JSON.stringify({ rowsRead: 0, result: { total: 0, rows: 0 } }) });
+      expect(empty.execute).toHaveBeenCalledOnce();
+    });
+
+    it("refuses a short page without a total when the tool takes no offset or the read past it fails", async () => {
+      const cursorOnly = cappedRead(
+        "get_social_post_engagement",
+        { postId: z.string().optional(), cursor: z.string().optional(), limit: z.number().optional() },
+        50,
+        50,
+      );
+      const failing = fixedRead("get_social_posts", cursorShape, {});
+      failing.execute.mockImplementation(((input: { offset?: number }) =>
+        input.offset === undefined
+          ? { text: "posts", structuredContent: { next_cursor: null, items: comments(20) } }
+          : "Validation error: authorIdentifier is required with offset.") as never);
+
+      await expect(analyze(cursorOnly.tool, { postId: "post-1", limit: 100 })).resolves.toEqual(
+        pageThrough("get_social_post_engagement", 50),
+      );
+      expect(cursorOnly.execute).toHaveBeenCalledOnce();
+      await expect(analyze(failing.tool, { limit: 100 })).resolves.toEqual({
+        ok: false,
+        result: `get_social_posts returned 20 rows and no total, and the read at offset 20 that checks for more failed, so the analysis did not run on a partial set. get_social_posts: Validation error: authorIdentifier is required with offset. ${NOT_RUN}`,
+      });
+    });
+
+    it("refuses the post reactions a provider caps at 50 a page when it counts none", async () => {
+      const reactors = (from: number, count: number) =>
+        Array.from({ length: count }, (_, index) => ({
+          value: "LIKE",
+          sender: { id: `person-${from + index}`, display_name: `Person ${from + index}` },
+        }));
+      const reactions = (rows: number) => (input: { offset?: number }) => {
+        const offset = input.offset ?? 0;
+        return Promise.resolve({
+          ok: true,
+          data: { data: reactors(offset, Math.max(0, Math.min(50, rows - offset))) },
+        });
+      };
+      const input = {
+        connectedAccountId: "00000000-0000-4000-8000-000000000001",
+        postId: "post-1",
+        kind: "reactions",
+        limit: 100,
+      };
+      const engagement = {
+        reads: [read(getSocialPostEngagementTool.name, input)],
+        code: "(data) => ({ total: data[0].total, reactors: new Set(data[0].items.map((item) => item.sender.id)).size })",
+      };
+
+      listed.reactions.mockImplementation(reactions(180));
+      await expect(analyzeRecords(engagement, deps(getSocialPostEngagementTool))).resolves.toEqual(
+        pageThrough(getSocialPostEngagementTool.name, 50),
+      );
+      expect(listed.reactions).toHaveBeenLastCalledWith(expect.objectContaining({ offset: 50, limit: 100 }));
+
+      listed.reactions.mockImplementation(reactions(50));
+      await expect(analyzeRecords(engagement, deps(getSocialPostEngagementTool))).resolves.toEqual({
+        ok: true,
+        result: JSON.stringify({ rowsRead: 0, result: { total: 50, reactors: 50 } }),
       });
     });
 

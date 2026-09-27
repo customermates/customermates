@@ -11,6 +11,7 @@ export const ANALYSIS_MAX_ROWS = 10_000;
 export const ANALYSIS_MAX_BYTES = 8 * 1024 * 1024;
 const ANALYSIS_PAGE_SIZE = 100;
 const CURSOR_PAGE_DEFAULT_LIMIT = 10;
+const CURSOR_PAGE_MAX_LIMIT = 100;
 
 export const AnalyzeRecordsSchema = z.object({
   reads: z
@@ -139,18 +140,6 @@ function unpagedResult(mcp: McpTool, content: Record<string, unknown>): ReadResu
   return { ok: true, data: content, rows: 0 };
 }
 
-function cursorPageResult(mcp: McpTool, input: Record<string, unknown>, content: Record<string, unknown>): ReadResult {
-  const { items, next_cursor: nextCursor } = content;
-  const limit = typeof input.limit === "number" ? input.limit : CURSOR_PAGE_DEFAULT_LIMIT;
-  if (Array.isArray(items) && (typeof nextCursor === "string" || items.length >= limit)) {
-    return {
-      ok: false,
-      error: `${mcp.name} returned ${items.length} rows and more may follow, so the analysis did not run on a partial set. Pass a limit above the row count, at most 100, or call ${mcp.name} directly and page through it.`,
-    };
-  }
-  return unpagedResult(mcp, content);
-}
-
 async function runPage(
   mcp: McpTool,
   input: Record<string, unknown>,
@@ -166,6 +155,42 @@ async function runPage(
     input: parsed.data as Record<string, unknown>,
     content: outcome.structuredContent ?? { text: outcome.result },
   };
+}
+
+function moreRowsResult(mcp: McpTool, rows: number, limit: number): ReadResult {
+  const advice =
+    rows >= limit && limit < CURSOR_PAGE_MAX_LIMIT
+      ? `Pass a limit above the row count, at most ${CURSOR_PAGE_MAX_LIMIT}, or call ${mcp.name} directly and page through it.`
+      : `Call ${mcp.name} directly and page through it.`;
+  return {
+    ok: false,
+    error: `${mcp.name} returned ${rows} rows and more may follow, so the analysis did not run on a partial set. ${advice}`,
+  };
+}
+
+async function cursorPageResult(
+  mcp: McpTool,
+  input: Record<string, unknown>,
+  content: Record<string, unknown>,
+): Promise<ReadResult> {
+  const { items, next_cursor: nextCursor, total } = content;
+  if (!Array.isArray(items)) return unpagedResult(mcp, content);
+  const limit = typeof input.limit === "number" ? input.limit : CURSOR_PAGE_DEFAULT_LIMIT;
+  if (typeof nextCursor === "string") return moreRowsResult(mcp, items.length, limit);
+  if (typeof total === "number") return unpagedResult(mcp, content);
+  if (items.length > 0) {
+    if (!("offset" in inputShape(mcp))) return moreRowsResult(mcp, items.length, limit);
+    const after = await runPage(mcp, { ...input, offset: items.length, limit });
+    if (!after.ok) {
+      return {
+        ok: false,
+        error: `${mcp.name} returned ${items.length} rows and no total, and the read at offset ${items.length} that checks for more failed, so the analysis did not run on a partial set. ${after.error}`,
+      };
+    }
+    const more = after.content.items;
+    if (!Array.isArray(more) || more.length > 0) return moreRowsResult(mcp, items.length, limit);
+  }
+  return unpagedResult(mcp, { total: items.length, ...content });
 }
 
 async function runRead(mcp: McpTool, read: Read, rowBudget: number, usage: DataUsage): Promise<ReadResult> {
@@ -184,7 +209,7 @@ async function runRead(mcp: McpTool, read: Read, rowBudget: number, usage: DataU
     if (!single.ok) return single;
     return counted(
       usage,
-      byCursor ? cursorPageResult(mcp, single.input, single.content) : unpagedResult(mcp, single.content),
+      byCursor ? await cursorPageResult(mcp, single.input, single.content) : unpagedResult(mcp, single.content),
     );
   }
 
