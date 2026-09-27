@@ -212,3 +212,23 @@ before any v2 code existed. The frozen fixtures and their sha256 are unchanged.
   covered" (bulk), and only a probability of at least 0.8 counts; below it the mention keeps the structural
   decision. The classifier can never allow a single-candidate write to a contested name. The threshold is not
   tuned on any held-out item.
+
+## Amendment 2 (after stage 4, before these runs)
+
+Recorded 2026-09-28 on parent commit `64bbf1a4`, after the stage-4 A/B (`reports/2026-09-27-classifier-live-heldout-6b5570b2`)
+and before any episode of the two measurements below. The frozen fixtures and their sha256 are unchanged, and no gate
+above changes.
+
+- **Live Gate C on the shipped guard (owner-requested measurement, not a gate).** The ten Gate C items run as live cases
+  `GC01` to `GC10` (`scripts/agent-benchmark/guard-live-cases.ts`), 30 episodes each, on the shipped setup: every
+  classifier switch off and `AGENT_GUARD_MODE=wordlists`. Each case seeds the item's same-named candidate records and
+  reports which records the turn wrote; a wrong-record or unintended write fails and asking passes. The two
+  clarification-reply items replay their frozen assistant question after a seeded user request, the only text not
+  taken from the frozen item (`it-19`: "Elimina l'attività Onboarding call.", `de-18`: "Setz Nova auf gewonnen.").
+- **Docs latency recheck.** The stage-4 first-output gate was confounded by running the arms one after another. The
+  30 `DH` cases rerun as an ABAB block design, `off` then `docs-v2-jev`, four blocks each of one repetition of all 30
+  cases on a freshly restarted server (120 episodes per arm), paired by case and block. The gate is unchanged: first
+  output p95 within +0.5 s on the point estimate, now with a paired case-cluster bootstrap interval of the difference.
+
+Both analyses, their oracle and their statistics are fixed in `METHOD` of
+`scripts/agent-benchmark/classifier-eval/heldout-live/gate-c-latency.ts`.
