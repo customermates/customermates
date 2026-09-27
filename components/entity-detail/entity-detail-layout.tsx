@@ -138,7 +138,7 @@ export const EntityDetailLayout = observer(function EntityDetailLayout<
   const showEditFieldsAction = !canPersonalize && canManage && !isEditingCustomField;
   const showEditFieldsActiveActions = canManage && isEditingCustomField;
   const hasSummary = Boolean(summary) && (!canPersonalize || starredFieldIds.length > 0);
-  const showActivityPanel = hasMounted && canSeeHistory;
+  const showActivityPanel = canSeeHistory;
   const panelIds = useMemo(
     () => ["details", ...(showNotesPanel ? ["notes"] : []), ...(showActivityPanel ? ["activities"] : [])],
     [showActivityPanel, showNotesPanel],
@@ -484,7 +484,7 @@ export const EntityDetailLayout = observer(function EntityDetailLayout<
                 id={`${formId}-activities-panel`}
                 {...panelSemantics("activities", t("Common.actions.labelHistory"))}
               >
-                {historyPanel}
+                {hasMounted ? historyPanel : null}
               </div>
             ),
           },
@@ -532,7 +532,7 @@ export const EntityDetailLayout = observer(function EntityDetailLayout<
 
                   {canSeeHistory && (
                     <TabsTrigger
-                      aria-controls={hasMounted ? `${formId}-activities-panel` : undefined}
+                      aria-controls={`${formId}-activities-panel`}
                       className="h-full rounded-none px-4 after:z-10 group-data-[orientation=horizontal]/tabs:after:-bottom-px"
                       id={`${formId}-activities-tab`}
                       value="activities"

@@ -337,7 +337,7 @@ describe("EntityDetailLayout", () => {
     });
   });
 
-  it("keeps compact pre-mount markup stable while reserving activities for client hydration", () => {
+  it("keeps compact pre-mount markup stable and renders the activities panel shell before hydration", () => {
     harness.canReadHistory = true;
 
     const { html } = renderState("content");
@@ -352,7 +352,8 @@ describe("EntityDetailLayout", () => {
     expect(html).toContain('data-detail-grid="true"');
     expect(html).toContain('data-detail-panel="details"');
     expect(html).toContain('data-detail-panel="notes"');
-    expect(html).not.toContain('data-detail-panel="activities"');
+    expect(html).toContain('data-detail-panel="activities"');
+    expect(html).not.toContain('data-history="true"');
     const switcherClasses = html.match(/data-detail-panel-switcher="true" class="([^"]+)"/)?.[1].split(" ");
     expect(switcherClasses).not.toContain("border-t");
     const tabClasses = html.match(/role="tab"[^>]*class="([^"]+)"/)?.[1].split(" ") ?? [];
@@ -362,8 +363,8 @@ describe("EntityDetailLayout", () => {
     expect(html).toContain("EntityDetail.sections.notes");
     expect(html).toContain("EntityTimeline.types.activities");
     expect(html).toContain("@6xl/detail:grid-cols-[var(--panel-grid-template)]");
-    expect(html).toContain("--panel-grid-template:minmax(0, 2fr) 1px minmax(0, 1fr)");
-    expect(html.match(/role="separator"/g)).toHaveLength(1);
+    expect(html).toContain("--panel-grid-template:minmax(0, 3fr) 1px minmax(0, 2fr) 1px 360px");
+    expect(html.match(/role="separator"/g)).toHaveLength(2);
   });
 
   it("hydrates the permitted activity panel and both wide-layout separators", async () => {
@@ -378,6 +379,25 @@ describe("EntityDetailLayout", () => {
     expect(
       container.querySelector<HTMLElement>("[data-detail-grid]")?.style.getPropertyValue("--panel-grid-template"),
     ).toBe("minmax(0, 3fr) 1px minmax(0, 2fr) 1px 360px");
+  });
+
+  it("gives a history reader the same template and layout key before and after hydration", async () => {
+    harness.canReadHistory = true;
+    harness.columnWidths = {
+      "panel:details-notes-activities:details": 450,
+      "panel:details-notes-activities:notes": 300,
+      "panel:details-notes-activities:activities": 250,
+    };
+    const expected = "minmax(320px, 450fr) 1px minmax(280px, 300fr) 1px minmax(320px, 250fr)";
+
+    const { html } = renderState("content");
+    const { container } = await mountState("content");
+
+    expect(html).toContain(`--panel-grid-template:${expected}`);
+    expect(
+      container.querySelector<HTMLElement>("[data-detail-grid]")?.style.getPropertyValue("--panel-grid-template"),
+    ).toBe(expected);
+    expect(container.querySelector('[data-detail-panel="activities"] [data-history="true"]')).not.toBeNull();
   });
 
   it("initializes and persists three-panel widths under the layout namespace without remounting unsaved content", async () => {
