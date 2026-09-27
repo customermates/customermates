@@ -70,11 +70,11 @@ Not every integration is equal. Here are the 10 capabilities that matter most wh
 
 **Integration approach:** Native unified inbox (Outlook mail synced into the CRM) plus n8n workflow automation via Microsoft Graph API
 
-Customermates syncs your Outlook mailbox into a native unified inbox inside the CRM, alongside LinkedIn, WhatsApp, Instagram, and Telegram. Every message lands against the contact, and AI agents can read, draft, and send replies across every channel. It does not use a traditional Outlook sidebar; you work from the CRM inbox instead. For deeper automation, you connect n8n via the Microsoft Graph API to trigger email sending, contact syncing, deal updates, and follow-up sequences from CRM events.
+Customermates syncs your Outlook mailbox into a native unified inbox inside the CRM, alongside LinkedIn, WhatsApp, Instagram, and Telegram. Every message lands against the linked contact, and AI agents can read threads and draft replies; the hosted Mate assistant sends only after you confirm. It does not use a traditional Outlook sidebar; you work from the CRM inbox instead. For deeper automation, you connect your own n8n instance (run separately) to the Microsoft Graph API and let CRM events trigger email sending, deal updates, or follow-ups that n8n runs.
 
 **How the Outlook integration works:**
 
-1. Customermates sends webhooks to your n8n instance when deals, contacts, or activities change
+1. Customermates sends webhooks to your n8n instance when deals, contacts, tasks, or other records change
 2. n8n processes the data and interacts with Outlook via the Microsoft Graph API
 3. Emails are sent from your real Outlook account (with your signature and branding)
 4. Replies land in the unified inbox, and calendars from the connected account are read into Customermates; the calendar is read-only, so n8n cannot write events back
@@ -85,14 +85,14 @@ Customermates syncs your Outlook mailbox into a native unified inbox inside the 
 - New contact created → your own n8n instance calls an external email provider for a welcome sequence; Customermates does not run sequences
 - Meeting booked → an external workflow can create the event in Outlook; Customermates only displays connected events read-only
 - No reply after 3 days → follow-up email triggered automatically
-- Quote approved → PDF attached and sent via Outlook
+- Deal moved to a "Quote approved" stage → your workflow fetches the PDF from your quoting tool and sends it via Outlook (Customermates does not create quotes)
 
 **Key strengths:**
 
 - Native unified inbox: Outlook mail plus LinkedIn, WhatsApp, Instagram, and Telegram in one place, operable by AI agents
-- A separate n8n integration means webhooks work out of the box
+- Webhooks and the n8n community node work out of the box; n8n itself runs separately
 - Full control over automation logic (no vendor lock-in)
-- Open source, with an EU database region in the managed cloud (the unified inbox runs on the managed cloud, not in self-hosted installs)
+- Open source, with the managed cloud database in the AWS Frankfurt region and all subprocessors disclosed (the unified inbox runs on the managed cloud, not in self-hosted installs)
 - At [[commercial.price.pro.monthly]]/user/month, significantly cheaper than most alternatives
 - Works with Microsoft 365 Business and Enterprise
 
@@ -298,7 +298,7 @@ If you choose the automation-first approach, here is how to connect Customermate
 
 ### Step 2: Connect Customermates to n8n
 
-Customermates provides a separate n8n integration. Configure webhooks in Customermates settings to generate URLs for supported deal, contact, and activity events.
+Customermates provides a separate n8n integration. Configure webhooks in Customermates settings and point them at your n8n webhook URLs for the record and messaging events you need.
 
 ### Step 3: Build Your First Outlook Workflow
 
@@ -384,7 +384,7 @@ For European businesses, data protection is non-negotiable when connecting CRM a
 - **Self-hosting option:** n8n can be self-hosted on EU infrastructure for full data control
 - **Encryption:** Microsoft 365 uses TLS by default; ensure your CRM matches this standard
 
-Customermates combined with self-hosted n8n gives you the most control: CRM data stays on your server, and only the email sending/receiving passes through Microsoft's infrastructure.
+Self-hosted Customermates combined with self-hosted n8n gives you the most control: CRM data stays on your server, and only the email sending and receiving passes through Microsoft's infrastructure. Note that the unified inbox is cloud-only, so in a self-hosted setup Outlook mail reaches the CRM only through your own n8n workflows. In the managed cloud, the database runs in the AWS Frankfurt region, and hosting and other subprocessors, including US providers, are listed on the [subprocessors page](/subprocessors).
 
 ## Frequently Asked Questions
 
@@ -414,7 +414,7 @@ Microsoft 365 does not include a full CRM out of the box. Microsoft Dynamics 365
 </FaqItem>
 
 <FaqItem question="What is the best CRM for small businesses using Outlook?">
-For small businesses, the best choice depends on priorities. Customermates (from [[commercial.price.starter.monthly]]/user/month; Outlook inbox on Pro at [[commercial.price.pro.monthly]]) offers the strongest automation via n8n. HubSpot provides a solid free tier. Nutshell and Pipedrive are affordable and easy to use. If you need the CRM fully embedded inside Outlook, eWay-CRM is worth considering.
+For small businesses, the best choice depends on priorities. Customermates (from [[commercial.price.starter.monthly]]/user/month; Outlook inbox on Pro at [[commercial.price.pro.monthly]]) pairs well with your own n8n instance for automation. HubSpot provides a solid free tier. Nutshell and Pipedrive are affordable and easy to use. If you need the CRM fully embedded inside Outlook, eWay-CRM is worth considering.
 </FaqItem>
 </Faq>
 

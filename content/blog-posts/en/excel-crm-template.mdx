@@ -259,17 +259,17 @@ Spreadsheets offer no consent tracking, no structured process for data subject a
 | Setup time             | 1 to 2 hours              | 30 minutes to 1 day                                          |
 | Contact limit          | Slows at 5,000+ rows      | Unlimited                                                    |
 | Multi-user editing     | Conflict-prone            | Real-time, no conflicts                                      |
-| Mobile access          | Impractical               | Full mobile support                                          |
-| Email integration      | None                      | Built-in                                                     |
-| Automation             | None (manual VBA only)    | Workflows, reminders, n8n integration                        |
+| Mobile access          | Impractical               | Works in the phone browser (no native app)                   |
+| Email integration      | None                      | Unified inbox for Gmail, Outlook, IMAP (Pro and above)       |
+| Automation             | None (manual VBA only)    | Webhooks, REST API, n8n via community node                   |
 | Pipeline visualization | Manual charts             | Drag-and-drop Kanban board                                   |
 | Reporting              | Pivot tables              | Built-in dashboards and analytics                            |
-| GDPR compliance        | No built-in support       | Audit logs, consent tracking, EU hosting                     |
+| Data protection        | No built-in support       | Audit log, DPA, cloud database in Frankfurt                  |
 | Permissions            | None (file-level only)    | Role-based access control                                    |
-| Data relationships     | VLOOKUP (fragile)         | Automatic linking across all records                         |
+| Data relationships     | VLOOKUP (fragile)         | Linked contacts, organizations, deals, services, tasks       |
 | Audit trail            | None                      | Full change history                                          |
-| Integrations           | None                      | API, webhooks, n8n automation                                |
-| Backup and recovery    | Manual                    | Automatic                                                    |
+| Integrations           | None                      | REST API, webhooks, MCP, n8n community node                  |
+| Backup and recovery    | Manual                    | Provider-managed in the cloud                                |
 | Self-hosting option    | N/A                       | Available (open source)                                      |
 
 ## When to Upgrade From Excel to a Real CRM
@@ -285,7 +285,7 @@ The transition from spreadsheet CRM to dedicated CRM software makes sense when a
 - You want to integrate email, calendar, or other tools
 - You have lost deals because follow-ups fell through the cracks
 
-If three or more items resonate, the cost of staying on Excel exceeds the cost of a CRM subscription. From [[commercial.price.starter.monthly]] per user per month with Customermates, the break-even point arrives within the first week of recovered productivity.
+If three or more items resonate, the cost of staying on Excel exceeds the cost of a CRM subscription. At [[commercial.price.starter.monthly]] per user per month with Customermates, a few recovered hours per month usually cover the subscription.
 
 ## How to Migrate From Your Excel CRM Template to a Dedicated CRM
 
@@ -299,9 +299,9 @@ Before exporting:
 - Fill in missing data where possible
 - Verify that date fields are formatted as dates
 
-### Step 2: Export Each Sheet as CSV
+### Step 2: Save One Workbook per Record Type
 
-Save each worksheet as a separate CSV file: Contacts.csv, Companies.csv, Deals.csv, and Activities.csv. Use UTF-8 encoding to preserve special characters.
+Save each worksheet as its own file: Contacts, Companies, Deals, and Activities. Many CRMs expect CSV with UTF-8 encoding. Customermates imports Excel workbooks (`.xlsx`) directly and does not accept CSV, so keep the files in Excel format; it reads the first sheet that is not named "Schema".
 
 ### Step 3: Import in the Right Order
 
@@ -310,11 +310,11 @@ Import in this sequence to preserve relationships:
 1. **Companies first**: Establish the company records
 2. **Contacts second**: Link contacts to their companies during import
 3. **Deals third**: Associate deals with contacts and companies
-4. **Activities last**: Link interactions to the relevant records
+4. **Activities last**: Link interactions to the relevant records. In Customermates, import open follow-ups as tasks; older interaction history can stay in your archived workbook or go into a custom text column
 
 ### Step 4: Map Fields During Import
 
-Customermates has no CSV importer or field-mapping screen; records are created through the REST API or by an external AI client over MCP. For migration, map CSV columns to CRM fields outside the product, verify the mapping, and then load supported records through REST or MCP. Align common columns such as First Name, Email, and Company directly.
+In Customermates, open **Import and export** on the list you are filling, choose **Add from file**, and pick the workbook (up to 10 MB and 10,000 rows per file). The wizard lets you match spreadsheet columns to fields, custom fields, and channels, checks every row, and flags problems before anything is added. Link columns, such as the company on a contact, are matched by record name, so standardized company names pay off here. The import runs one record type at a time and has no undo, so test with a small file first. Larger or automated migrations can also go through the REST API or an AI agent over MCP.
 
 ### Step 5: Verify After Import
 
@@ -327,16 +327,17 @@ After import, spot-check 20 to 30 records:
 
 ### Step 6: Set Up Your First Automation
 
-If you need a timed follow-up, run it in your own n8n instance or another scheduler. Keep the follow-up date in a custom field, read records through the API, and have the external workflow create a task or notification at the chosen time. Customermates does not host n8n or schedule reminders itself.
+Customermates has no built-in reminders. Keep the follow-up date in a custom date column and use a saved view sorted by that date as your daily follow-up list. If you need a timed nudge, run it in your own n8n instance or another scheduler: read records through the API and have the external workflow create a task or notification at the chosen time. On the cloud plans, a routine can also check that date on a schedule and list or draft the follow-ups. Customermates does not host n8n.
 
 ## Why Customermates Is the Natural Next Step After Excel
 
 Customermates was built with the understanding that many businesses start in Excel or Google Sheets and eventually need a real CRM:
 
 - **Open source**: Full transparency, no vendor lock-in, inspect the code yourself
-- **Self-hostable**: Run Customermates on your own server or use the EU cloud
-- **GDPR-native**: Role-based access, audit logs, and EU hosting for businesses that take data privacy seriously
-- **n8n automation**: The workflow automation that Excel can never offer, without programming
+- **Excel import and export**: Bring each sheet in as an `.xlsx` workbook, one record type at a time, and export any list back to Excel
+- **Self-hostable**: Run Customermates on your own server or use the managed cloud, whose database runs in the AWS Frankfurt region
+- **Data protection**: Role-based permissions, an audit log, a [DPA](/dpa), and disclosed [subprocessors](/subprocessors)
+- **Open automation**: Webhooks, a REST API, and a community node for a separately operated n8n instance
 - **From [[commercial.price.starter.monthly]] per user per month**: The full core CRM included, no per-contact fees, no surprises
 
 ## Frequently Asked Questions
@@ -359,7 +360,7 @@ Excel can technically store over one million rows, but performance degrades sign
 </FaqItem>
 
 <FaqItem question="How Do I Migrate My Excel CRM Data to a Real CRM?">
-Export each sheet as a CSV file, then import into your CRM in this order: companies, contacts, deals, activities. Most modern CRM platforms support CSV import with field mapping. Customermates does not; it migrates through the REST API or an AI agent over MCP. Clean your data (remove duplicates, standardize names) before exporting for the smoothest transition.
+Save each sheet as its own file, then import into your CRM in this order: companies, contacts, deals, activities. Most modern CRM platforms support CSV import with field mapping. Customermates imports Excel workbooks (`.xlsx`) instead, one record type at a time, with a wizard that matches columns to fields; the REST API and AI agents over MCP are alternatives for larger migrations. Clean your data (remove duplicates, standardize names) before exporting for the smoothest transition.
 </FaqItem>
 
 <FaqItem question="Is Google Sheets Better Than Excel for a CRM Template?">
@@ -371,4 +372,4 @@ Google Sheets offers better real-time collaboration and free access without Micr
 
 An Excel CRM template is a valid starting point for managing customer relationships. It teaches you which data matters, how your sales process flows, and what you actually need from a CRM system. That knowledge makes you a better buyer when you are ready to invest in dedicated software.
 
-Build the five-sheet template from this guide, follow the best practices for data hygiene, and migrate when the limitations start costing you more than the solution. With Customermates from [[commercial.price.starter.monthly]] per user per month, the upgrade from spreadsheet to professional CRM is an API call or one agent session away.
+Build the five-sheet template from this guide, follow the best practices for data hygiene, and migrate when the limitations start costing you more than the solution. With Customermates from [[commercial.price.starter.monthly]] per user per month, the upgrade from spreadsheet to professional CRM is one workbook import per record type.

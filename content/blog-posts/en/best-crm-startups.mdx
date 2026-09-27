@@ -49,7 +49,7 @@ You cannot spend weeks configuring a CRM. The best startup CRM should be operati
 
 ### Intuitive interface
 
-Startups do not have time for extensive training programs. Research shows 72% of executives prioritize ease of use over functionality, and 65% of sales professionals identify ease of use as their most critical CRM feature. If the tool requires a dedicated administrator, it is probably too complex for a startup.
+Startups do not have time for extensive training programs. If the tool requires a dedicated administrator, it is probably too complex for a startup.
 
 ### Scalable architecture
 
@@ -84,11 +84,11 @@ Customermates is an open-source CRM that combines startup-friendly pricing with 
 - From [[commercial.price.starter.monthly]] per user per month, the full core CRM included from the first tier, no surprise upgrades to unlock basics
 - Open source with full transparency, know exactly what the software does with your data
 - Self-hosting option for data control and cost optimization (€0 licensing)
-- n8n integration for automation without coding, connect to any tool in your stack
+- REST API, webhooks, and a community node for n8n (which you run separately) to connect the tools in your stack
 - Native AI and MCP so agents (Claude, ChatGPT, Gemini) operate the CRM directly and do the data entry; on the Pro tier ([[commercial.price.pro.monthly]]/user/month) a native unified inbox adds email, LinkedIn, WhatsApp, Instagram, and Telegram, and the same agents draft and send across every channel
-- GDPR-native and EU-hosted, important for European startups and clients
+- Cloud database in the AWS Frankfurt region, DPA available, subprocessors (including US providers) disclosed on the [subprocessors page](/subprocessors)
 - Quick setup with intuitive interface, operational within hours
-- Full data export at any time, no lock-in, no data hostage situations
+- XLSX export per record type plus the REST API, and the option to self-host the open-source core
 
 **Best for**: European startups, privacy-conscious teams, founders who want to avoid vendor lock-in, and startups planning to scale beyond 20 users without pricing shocks.
 
@@ -108,7 +108,7 @@ HubSpot's free CRM tier is a legitimate option for startups that need zero-cost 
 - Large integration ecosystem with most business tools
 - Strong brand recognition that investors recognize
 
-**Watch out for**: Costs jump dramatically once you need automation, reporting, or marketing features. Sales Hub Professional costs $90 per seat per month with a mandatory $1,500 onboarding fee. A startup that grows into HubSpot's paid plans can easily spend €500+ per month within a year. The free plan limits you to one pipeline and basic reporting. Data is hosted in the US, which may be a compliance concern for European startups under GDPR.
+**Watch out for**: Costs jump dramatically once you need automation, reporting, or marketing features. Sales Hub Professional costs $90 per seat per month with a mandatory $1,500 onboarding fee. A startup that grows into HubSpot's paid plans can easily spend €500+ per month within a year. The free plan limits you to one pipeline and basic reporting. European startups should check which data center region their HubSpot account uses.
 
 **Pricing for 5 users**: €0 (free tier) / €450+ (Sales Hub Professional)
 
@@ -123,7 +123,7 @@ If your startup's growth depends on outbound sales, Pipedrive's pipeline-first a
 - Quick to learn and use with minimal training
 - Competitive starting price at around €14 per user per month (Lite plan)
 
-**Watch out for**: Limited beyond sales functionality. Marketing and support features are weak. Automation is restricted in lower-tier plans. After the July 2025 rebrand the tiers are Lite, Growth, Premium, and Ultimate; email sequences and workflow automation require the Growth plan at around €39 per user. The mobile app has received lower ratings (3.3/5 on some platforms), and the email plugin integration is notably weak. Requires significant manual data entry compared to newer competitors.
+**Watch out for**: Limited beyond sales functionality. Marketing and support features are weak. Automation is restricted in lower-tier plans. After the July 2025 rebrand the tiers are Lite, Growth, Premium, and Ultimate; email sequences and workflow automation require the Growth plan at around €39 per user. Mobile app and email plugin reviews are mixed. Requires significant manual data entry compared to newer competitors.
 
 **Pricing for 5 users**: €70/month (Lite) / €195/month (Growth)
 
@@ -213,12 +213,12 @@ folk is a newer CRM designed around relationship management rather than pure sal
 
 | CRM           | 5-User Monthly Cost                          | All Features Included | Free Tier     | Automation      | Mobile App | GDPR/EU   | Data Export  | Open Source |
 | ------------- | -------------------------------------------- | --------------------- | ------------- | --------------- | ---------- | --------- | ------------ | ----------- |
-| Customermates | [[commercial.price.starter.monthly.seats.5]] | Core CRM (Starter)    | Self-hosted   | n8n (extensive) | Yes        | Native    | Full         | Yes         |
-| HubSpot       | €0-450+                                      | No (tiered)           | Yes           | Paid only       | Good       | US-hosted | Limited free | No          |
+| Customermates | [[commercial.price.starter.monthly.seats.5]] | Core CRM (Starter)    | Self-hosted   | API, webhooks   | Browser    | Frankfurt DB, self-host | XLSX, API | Yes |
+| HubSpot       | €0-450+                                      | No (tiered)           | Yes           | Paid only       | Good       | Varies    | Limited free | No          |
 | Pipedrive     | €70-195                                      | No (tiered)           | No            | Limited basic   | Weak       | EU option | CSV          | No          |
 | Salesflare    | ~€225                                        | Yes (per tier)        | No            | Good            | Excellent  | EU option | Good         | No          |
-| Close         | €225-455                                     | No (tiered)           | No            | Good            | Good       | US-hosted | Good         | No          |
-| Freshsales    | €0-180                                       | No (tiered)           | Yes (3 users) | Limited basic   | Fair       | US-hosted | Good         | No          |
+| Close         | €225-455                                     | No (tiered)           | No            | Good            | Good       | Varies    | Good         | No          |
+| Freshsales    | €0-180                                       | No (tiered)           | Yes (3 users) | Limited basic   | Fair       | Varies    | Good         | No          |
 | Zoho          | €70-115                                      | No (tiered)           | Yes (3 users) | Good (paid)     | Good       | EU option | Good         | No          |
 | folk          | ~€100                                        | Per tier              | Trial only    | Basic           | Good       | EU        | Good         | No          |
 
@@ -251,7 +251,7 @@ Even in the "can wait" category, setting up a CRM early establishes good habits.
 
 ### Mistake 1: Choosing based on brand alone
 
-Salesforce is the market leader with 24% market share, but that does not make it the best choice for a startup. Its Sales Cloud Pro Suite costs $100 per user per month, requires paid consultant assistance for setup, and earned only 7.5/10 for setup ease and 8.1/10 for ease of use on G2. Enterprise CRM platforms are built for enterprise workflows. A startup paying for Salesforce is like renting an office building when you need a desk.
+Salesforce is the market leader, but that does not make it the best choice for a startup. Its Sales Cloud Pro Suite costs $100 per user per month, requires paid consultant assistance for setup, and earned only 7.5/10 for setup ease and 8.1/10 for ease of use on G2. Enterprise CRM platforms are built for enterprise workflows. A startup paying for Salesforce is like renting an office building when you need a desk.
 
 ### Mistake 2: Starting with a free plan you will outgrow
 
@@ -259,11 +259,11 @@ Free CRM plans are useful for evaluation, but do not build your business process
 
 ### Mistake 3: Over-customizing from day one
 
-Resist the urge to configure every possible field and automation before you have a working sales process. Research shows 43% of CRM customers use fewer than half of available features. Start with defaults, run your process for a few months, and customize based on real experience. Your pipeline stages will change. Your qualification criteria will evolve. Let the CRM adapt to your process, not the other way around.
+Resist the urge to configure every possible field and automation before you have a working sales process. Most teams use only part of the features they pay for. Start with defaults, run your process for a few months, and customize based on real experience. Your pipeline stages will change. Your qualification criteria will evolve. Let the CRM adapt to your process, not the other way around.
 
 ### Mistake 4: Ignoring data privacy
 
-If your startup serves European customers or plans to, GDPR compliance matters from day one. Choosing a US-hosted CRM now and migrating later is expensive and disruptive. Start with a GDPR-compliant solution. The cost difference is often zero, but the migration pain later is significant. Customermates, Pipedrive (EU hosting option), and Zoho (EU data center option) support EU data residency from the start.
+If your startup serves European customers or plans to, GDPR compliance matters from day one. Switching CRMs later because of data protection concerns is expensive and disruptive, so check the data processing agreement, subprocessors, and data location before you commit. In the Customermates managed cloud, the application database runs in the AWS Frankfurt region; hosting and other subprocessors, including US providers, are listed on the [subprocessors page](/subprocessors), and a [DPA](/dpa) is available. If you need full control over where data lives, self-host the open-source core. Pipedrive and Zoho also offer EU data center options.
 
 ### Mistake 5: Not getting team buy-in
 
@@ -275,7 +275,7 @@ Your CRM is a living system. Review it monthly: Are the pipeline stages still ri
 
 ### Mistake 7: Ignoring total cost of ownership
 
-The per-user price is only part of the story. Factor in: add-ons (SMS credits, AI features, additional pipelines), integration costs, onboarding fees (HubSpot charges $1,500), training time, and the cost of upgrading to unlock essential features. Industry data suggests hidden costs increase total CRM investment by 20-40%. A CRM that is [[commercial.price.starter.monthly]] per user with the core CRM included often costs less over 12 months than one that is "free" but charges for every capability you need.
+The per-user price is only part of the story. Factor in: add-ons (SMS credits, AI features, additional pipelines), integration costs, onboarding fees (HubSpot charges $1,500), training time, and the cost of upgrading to unlock essential features. A CRM that is [[commercial.price.starter.monthly]] per user with the core CRM included often costs less over 12 months than one that is "free" but charges for every capability you need.
 
 ## CRM pricing for startups: The full picture
 
@@ -306,7 +306,7 @@ Get every team member into the CRM. Show them how to log activities, move deals 
 
 ### Week 3: First automations
 
-Set up basic automations: lead capture from your website, follow-up reminders for new leads, and deal stage notifications. These small automations save significant time. With Customermates and n8n, you can set up web form capture, Slack notifications on new deals, and follow-up reminders through your own automation in under an hour.
+Set up basic automations: lead capture from your website, follow-up reminders for new leads, and deal stage notifications. These small automations save significant time. Customermates has no built-in reminders, web forms, or rules engine; if you run n8n yourself, the community node and webhooks let you post new deals to Slack or create records from your website form, and a saved view sorted by a custom "next follow-up" date field keeps due follow-ups visible.
 
 ### Week 4: Review and refine
 
@@ -320,11 +320,11 @@ Start as soon as you have more than 10-20 active prospects or more than one pers
 </FaqItem>
 
 <FaqItem question="What is the best free CRM for startups?">
-HubSpot Free offers basic CRM features at no cost, making it suitable for very early-stage evaluation. Freshsales and Zoho also offer free tiers for up to 3 users. For a free self-hosted option with no user limits, Customermates is open-source and can be run on your own infrastructure without licensing fees. The managed hosting option starts at [[commercial.price.starter.monthly]] per user per month for the full core CRM, with Pro and Business tiers available for teams that need more messaging channels.
+HubSpot Free offers basic CRM features at no cost, making it suitable for very early-stage evaluation. Freshsales and Zoho also offer free tiers for up to 3 users. For a self-hosted option without licence fees, Customermates is open-source and can be run on your own infrastructure without licensing fees. The managed hosting option starts at [[commercial.price.starter.monthly]] per user per month for the full core CRM, with Pro and Business tiers available for teams that need more messaging channels.
 </FaqItem>
 
 <FaqItem question="How much should a startup spend on CRM?">
-For a five-person startup, expect to spend from [[commercial.price.starter.monthly.seats.5]] to €225 per month for a professional CRM. Customermates Starter costs [[commercial.price.starter.monthly.seats.5]] per month for five users with the full core CRM included. Avoid spending more than 1-2% of your monthly revenue on CRM tooling in the early stages. Watch out for hidden costs from add-ons, onboarding fees, and tier upgrades that can increase your bill by 20-40%.
+For a five-person startup, expect to spend from [[commercial.price.starter.monthly.seats.5]] to €225 per month for a professional CRM. Customermates Starter costs [[commercial.price.starter.monthly.seats.5]] per month for five users with the full core CRM included. Avoid spending more than 1-2% of your monthly revenue on CRM tooling in the early stages. Watch out for hidden costs from add-ons, onboarding fees, and tier upgrades that can increase your bill significantly.
 </FaqItem>
 
 <FaqItem question="Should a startup use Salesforce?">
@@ -332,11 +332,11 @@ In most cases, no. Salesforce costs $100 per user per month for its Pro Suite, e
 </FaqItem>
 
 <FaqItem question="What CRM features do startups need most?">
-The essential features for startups are: contact management, a visual sales pipeline, task and follow-up reminders, email integration, basic automation, and data export. Advanced features like AI lead scoring, multi-currency support, and complex reporting can wait until your process matures. Prioritize ease of use above all, 65% of sales professionals say it is the most critical CRM feature.
+The essential features for startups are: contact management, a visual sales pipeline, task and follow-up reminders, email integration, basic automation, and data export. Advanced features like AI lead scoring, multi-currency support, and complex reporting can wait until your process matures. Prioritize ease of use above all, because a CRM the team avoids produces no data.
 </FaqItem>
 
 <FaqItem question="Can a startup switch CRM later?">
-Yes, but migration is always painful. The best approach is to choose a CRM with good data export capabilities (CSV export, API access) and avoid building too much customization on a platform you might outgrow. Open-source CRMs like Customermates minimize this risk because you own the data and the code, you can never be locked out.
+Yes, but migration is always painful. The best approach is to choose a CRM with good data export capabilities (CSV export, API access) and avoid building too much customization on a platform you might outgrow. Open-source CRMs like Customermates reduce this risk: the cloud offers XLSX export and a REST API, and you can self-host the open-source core if you want the database and code under your own control.
 </FaqItem>
 
 <FaqItem question="What is better: a free CRM with paid upgrades or a paid CRM with all features?">
@@ -348,7 +348,7 @@ For most startups beyond the first 3-6 months, a paid CRM with the core included
 
 The best CRM for startups balances affordability, simplicity, and scalability. You need a system that works today without breaking the bank and grows with you as your team and customer base expand.
 
-Customermates offers this balance from [[commercial.price.starter.monthly]] per user per month for the full core CRM, with published tiers and no hidden costs. It is open source, GDPR-native, and designed to scale with your startup from day one. Whether you are a two-person team just starting out or a twenty-person team hitting product-market fit, it provides the pipeline visibility, automation, and customer context that turn early-stage hustle into repeatable revenue.
+Customermates offers this balance from [[commercial.price.starter.monthly]] per user per month for the full core CRM, with published tiers and no hidden costs. It is open source, self-hostable, transparent about its subprocessors, and designed to scale with your startup from day one. Whether you are a two-person team just starting out or a twenty-person team hitting product-market fit, it provides the pipeline visibility, integrations, and customer context that turn early-stage hustle into repeatable revenue.
 
 For teams that need zero-cost entry, HubSpot Free and Freshsales Free provide legitimate starting points, but plan your upgrade path carefully. For phone-heavy sales, Close has the strongest built-in calling. For minimal data entry, Salesflare automates the busywork. And for relationship-driven growth, folk offers a fresh approach.
 

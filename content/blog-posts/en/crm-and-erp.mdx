@@ -95,7 +95,7 @@ Use this model only when the lighter module handles the actual work. A contact l
 | Operating effort   | Configuration, governance, and suite-specific customization    | Integration, monitoring, reconciliation, and two product lifecycles                |
 | Replacement risk   | Replacing one module may affect the wider suite                | Replacing one side requires preserving the boundary and historical references      |
 
-Neither column is inherently simpler. Simplicity means fewer mismatches between the system and the work—not necessarily fewer applications.
+Neither column is inherently simpler. Simplicity means fewer mismatches between the system and the work, not necessarily fewer applications.
 
 ## Define the operating boundary before evaluating products
 
@@ -166,7 +166,7 @@ Assign owners for configuration, access, data quality, vendor changes, reconcili
 2. **Assign authorities.** Mark the system or module that owns every important entity and field.
 3. **Shortlist architectures before vendors.** Decide whether a suite, specialist stack, or lighter companion model is plausible.
 4. **Test with representative records.** Include duplicates, corrections, cancellations, permissions, and historical references.
-5. **Estimate operating effort.** Include configuration, migration, training, reporting, integration ownership, and product changes—not only subscriptions.
+5. **Estimate operating effort.** Include configuration, migration, training, reporting, integration ownership, and product changes, not only subscriptions.
 6. **Check exit paths.** Confirm how data, identifiers, documents, and audit history can be exported or retained.
 7. **Pilot one complete journey.** Measure whether users can move work across the boundary without re-entry or unclear authority.
 
@@ -178,7 +178,7 @@ Customermates covers CRM records such as contacts, organizations, deals, service
 
 Customermates is not an ERP. It does not natively provide sales quotes, invoices, orders, payments, inventory, purchasing, production planning, or an embedded n8n runtime. It also does not promise a native connector for a particular ERP.
 
-A truthful setup therefore keeps governed operational transactions in the chosen ERP and gives Customermates only the dependable customer, deal, and status context its users need. The boundary and any integration remain separately designed and operated. For the implementation layer—mapping, authentication, idempotency, retries, monitoring, and reconciliation—continue with the [CRM ERP integration guide](/blog/crm-erp-integration).
+A truthful setup therefore keeps governed operational transactions in the chosen ERP and gives Customermates only the dependable customer, deal, and status context its users need. The boundary and any integration remain separately designed and operated. For the implementation layer (mapping, authentication, idempotency, retries, monitoring, and reconciliation), continue with the [CRM ERP integration guide](/blog/crm-erp-integration).
 
 ## Frequently asked questions
 

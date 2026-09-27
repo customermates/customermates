@@ -21,7 +21,7 @@ blogPost:
 
 A well-managed sales pipeline is the difference between predictable revenue and guesswork. Here is everything you need to build, measure, and optimize yours.
 
-Every business that sells something has a sales pipeline, whether they realize it or not. The question is whether that pipeline is managed deliberately or left to chance. Research consistently shows that companies with a formally defined sales pipeline achieve 28 percent higher revenue growth than those without one. They close deals faster, forecast revenue more accurately, and identify problems before they become crises.
+Every business that sells something has a sales pipeline, whether they realize it or not. The question is whether that pipeline is managed deliberately or left to chance. Teams with a formally defined sales pipeline tend to close deals faster, forecast revenue more accurately, and identify problems before they become crises.
 
 This guide covers everything you need to know about building and managing a sales pipeline that actually works, from defining your stages to measuring pipeline health and forecasting revenue.
 
@@ -137,7 +137,7 @@ For example:
 
 Your pipeline lives in your [CRM system](/blog/crm-systems). Configure the stages, set up required fields for each stage, and create automation rules for common actions like follow-up reminders and stage progression notifications.
 
-Customermates lets you build pipelines as Card (kanban) views grouped by a custom stage field, with custom fields and n8n-powered automation that triggers actions based on deal movement. Because Customermates is [open-source](/blog/open-source-crm) and EU-hosted, your pipeline data stays under your control and is GDPR-compliant by design.
+In Customermates, the deal stage is one configurable single-select column with a probability per stage, shown as a kanban board or a table, with custom fields and webhooks that let a separately operated n8n instance react to deal movement. Customermates is [open-source](/blog/open-source-crm): in the managed cloud, the database runs in the AWS Frankfurt region with a [DPA](/dpa) and disclosed [subprocessors](/subprocessors), and if you need full control over where data lives, you self-host.
 
 ### Step 4: Populate with Existing Deals
 
@@ -181,7 +181,7 @@ For smaller teams, keep the pipeline simple. Five stages are enough:
 4. **Verbal Commitment**, Prospect agrees, pending paperwork
 5. **Closed Won / Lost**, Deal completed or lost
 
-Customermates supports all of these templates out of the box. You can create custom pipelines with as many or as few stages as you need, from [[commercial.price.starter.monthly]] per user per month, included in every tier.
+You can set up any of these templates in Customermates by configuring the deal stage column with as many or as few stages and probabilities as you need, from [[commercial.price.starter.monthly]] per user per month, included in every tier.
 
 ## Sales Pipeline Metrics That Matter
 
@@ -235,7 +235,7 @@ Use past performance to predict future results. If your team has closed 25 perce
 
 ### AI-Assisted Forecasting
 
-Modern CRM systems use machine learning to analyze deal characteristics, rep behavior, and historical patterns to predict which deals are most likely to close and when. In Customermates, the AI agents that operate the CRM (Claude, ChatGPT, or Gemini through the native MCP integration) can surface deals at risk of stalling, recommend next actions, and update the deal record directly, helping your team focus on the opportunities that matter most.
+Modern CRM systems use machine learning to analyze deal characteristics, rep behavior, and historical patterns to predict which deals are most likely to close and when. Customermates does not do predictive forecasting; it calculates weighted deal values and weighted pipeline totals from your stage probabilities. AI agents that connect through the native MCP integration (Claude, ChatGPT, or Gemini) can list deals that have not moved in a while, suggest next actions, and update the deal record directly, helping your team focus on the opportunities that matter most.
 
 ## Common Sales Pipeline Mistakes
 
@@ -277,11 +277,11 @@ Not every deal is equally likely to close. Assign probability percentages to eac
 
 Use your CRM's automation features to reduce manual work. Automated follow-up reminders, stage progression notifications, activity logging, and deal rotation rules keep the pipeline moving without additional effort from your sales team.
 
-With Customermates, you connect n8n workflows to automate actions like sending a follow-up email when a deal enters the Proposal stage, notifying a manager when a high-value deal stalls, or creating a task when a deal moves to Negotiation.
+With Customermates, you connect webhooks to your own n8n instance (run separately) to automate actions like sending a follow-up email when a deal enters the Proposal stage, notifying a manager when a high-value deal stalls, or creating a task when a deal moves to Negotiation.
 
 ### Keep Your CRM Data Current
 
-A pipeline is only as reliable as the data behind it. Make it a team norm to update deal status, notes, and next steps after every customer interaction. Customermates helps here in two ways: email, LinkedIn, WhatsApp, Instagram, and Telegram live in one native inbox inside the CRM, so conversations attach themselves to the right deal, and the AI agents can update stages and next steps straight from a thread. You can also set up automated data capture through n8n integrations.
+A pipeline is only as reliable as the data behind it. Make it a team norm to update deal status, notes, and next steps after every customer interaction. Customermates helps here in two ways: email, LinkedIn, WhatsApp, Instagram, and Telegram live in one native inbox inside the CRM, on the Pro tier and above, so conversations sit on the linked contact next to their deals, and AI agents can update stages and next steps straight from a thread. You can also set up automated data capture through webhooks and your own n8n workflows.
 
 ### Balance Pipeline Quantity and Quality
 
@@ -289,11 +289,11 @@ Having many deals in your pipeline means nothing if most are unqualified. Focus 
 
 ### Segment Your Pipeline
 
-If you sell to different markets, company sizes, or product lines, consider separate pipelines for each. This gives you cleaner data and more accurate forecasts. Customermates supports multiple pipelines per account, so you can track enterprise deals separately from SMB deals without mixing the data.
+If you sell to different markets, company sizes, or product lines, consider separate pipelines for each. This gives you cleaner data and more accurate forecasts. Customermates has one configurable stage column rather than multiple pipelines, so you add a segment field (for example Enterprise or SMB) and use saved views or grouping to track enterprise deals separately from SMB deals.
 
 ## How CRM Software Supports Pipeline Management
 
-A [CRM system](/blog/what-is-crm) is the operational backbone of your sales pipeline. Without it, pipeline management relies on spreadsheets, memory, and manual updates, all of which break down as your team and deal volume grow. A study by Nucleus Research found that CRM systems deliver an average return of 8.71 euros for every euro spent.
+A [CRM system](/blog/what-is-crm) is the operational backbone of your sales pipeline. Without it, pipeline management relies on spreadsheets, memory, and manual updates, all of which break down as your team and deal volume grow.
 
 ### What to Look for in Pipeline Management Software
 
@@ -307,14 +307,14 @@ A [CRM system](/blog/what-is-crm) is the operational backbone of your sales pipe
 
 ### Why Teams Choose Customermates for Pipeline Management
 
-Customermates provides everything listed above, with a few critical differences:
+Customermates covers these points, with automation through open interfaces rather than a built-in rules engine, and a few critical differences:
 
 - **Open-source**: Full transparency into how your data is handled. No vendor lock-in. Audit the code yourself or self-host if you prefer.
-- **EU-hosted and GDPR-native**: Your pipeline data is stored in the EU and protected by European data privacy standards from day one, not as an afterthought.
+- **Transparent data location**: In the managed cloud, the application database runs in the AWS Frankfurt region; hosting and other subprocessors, including US providers, are listed on the [subprocessors page](/subprocessors), and a [DPA](/dpa) is available. If you need full control over where data lives, self-host the open-source core.
 - **The full core CRM from [[commercial.price.starter.monthly]] per user per month**: transparent published tiers, no "contact sales for enterprise pricing." Every user gets every core feature; you pay more for messaging scale and a larger monthly hosted AI allowance.
-- **n8n automation**: Connect your pipeline to hundreds of other tools with visual, no-code workflows. Automate lead routing, follow-ups, Slack notifications, and more.
+- **Open automation**: Webhooks, the REST API, and an n8n community node connect your pipeline to a separately operated n8n instance and from there to hundreds of other tools. Automate lead routing, follow-ups, Slack notifications, and more.
 - **AI agents operate the CRM**: Claude, ChatGPT, and Gemini read and write your pipeline through a native MCP integration, so stage changes, follow-ups, and deal notes get done without manual data entry.
-- **Native unified inbox**: Email, LinkedIn, WhatsApp, Instagram, and Telegram in one inbox inside the CRM (Pro tier and above), so every conversation is attached to the right deal and the same agents can draft and send replies.
+- **Native unified inbox**: Email, LinkedIn, WhatsApp, Instagram, and Telegram in one inbox inside the CRM (Pro tier and above), so conversations sit next to the contact and its deals, and the hosted Mate assistant can draft replies that go out after your confirmation.
 - **[Affordable for small teams](/blog/crm-cost)**: Start with your first pipeline in minutes. No implementation consultants required.
 
 ## Frequently Asked Questions

@@ -117,13 +117,13 @@ Your CRM should grow with your business. Check whether the system works as well 
 - Native unified inbox on Pro and up: email, LinkedIn, WhatsApp, Instagram, and Telegram in one place, and the same AI agents can read, draft, and send across all of them
 - Published tiers with no hidden upgrades: Starter covers the core CRM, Pro adds messaging
 - Open source with self-hosting option for full data control
-- GDPR-native with EU hosting, built for European compliance requirements
-- n8n automation integration for building custom workflows without code
+- Cloud database in the AWS Frankfurt region, DPA available, subprocessors (including US providers) disclosed
+- REST API, webhooks, and a community node for n8n (which you run separately) for custom workflows
 - Intuitive interface designed for teams without CRM experience
 
 **Best for**: European small businesses that value data privacy, transparent pricing, and the flexibility of open-source software.
 
-**Considerations**: Younger ecosystem compared to Salesforce or HubSpot. Fewer native third-party integrations, though n8n bridges most gaps by connecting to thousands of apps.
+**Considerations**: Younger ecosystem compared to Salesforce or HubSpot. Fewer native third-party integrations, though a separately run n8n bridges many gaps. No built-in reminders, email sequences, or workflow rules engine.
 
 ### HubSpot CRM
 
@@ -140,7 +140,7 @@ Your CRM should grow with your business. Check whether the system works as well 
 
 ### Salesforce Starter Suite
 
-**Price**: 25 EUR per user/month (Starter Suite)
+**Price**: 25 USD per user/month (Starter Suite)
 
 **Why it fits small businesses**:
 
@@ -152,7 +152,7 @@ Your CRM should grow with your business. Check whether the system works as well 
 
 ### Pipedrive
 
-**Price**: 14 to 69 EUR per user/month (Lite to Ultimate, billed annually)
+**Price**: 14 to 79 EUR per user/month (Lite to Ultimate, billed annually; 24 to 99 EUR billed monthly, as of September 2026)
 
 **Why it fits small businesses**:
 
@@ -226,7 +226,7 @@ For most small businesses that are serious about growth, a free CRM works for th
 
 ### The Middle Ground
 
-Customermates, from [[commercial.price.starter.monthly]] per user per month, offers a middle ground: affordable enough that cost is not a barrier, but fully featured so you never hit artificial limitations. For a team of five, Starter is [[commercial.price.starter.monthly.seats.5]] per month, less than many teams spend on coffee.
+Customermates, from [[commercial.price.starter.monthly]] per user per month, offers a middle ground: affordable enough that cost is not a barrier, with the core CRM included so you do not hit free-plan limits. For a team of five, Starter is [[commercial.price.starter.monthly.seats.5]] per month, less than many teams spend on coffee.
 
 ## Does Microsoft 365 Have a CRM Tool?
 
@@ -238,7 +238,7 @@ The challenge is that Dynamics 365 is built for mid-size and enterprise organiza
 
 Some small businesses try to use **Microsoft Excel or SharePoint** as a makeshift CRM. While this can work temporarily for very small teams, it lacks automation, proper pipeline management, and the collaborative features that make a real CRM valuable.
 
-A better approach for Microsoft 365 users: choose a CRM for small business that integrates natively with Outlook and other Microsoft tools. Customermates, HubSpot, Pipedrive, and most modern CRM systems offer Outlook integration, giving you the best of both worlds.
+A better approach for Microsoft 365 users: choose a CRM for small business that integrates natively with Outlook and other Microsoft tools. HubSpot, Pipedrive, and most modern CRM systems offer Outlook integration; Customermates connects Outlook mailboxes to its unified inbox on Pro and above.
 
 ## CRM Implementation for Small Businesses: Step by Step
 
@@ -326,11 +326,11 @@ Consider a small business with five salespeople:
 
 **Measurable benefits**:
 
-- 2 hours per employee per week less on manual data maintenance = 520 hours/year saved
+- If each employee spends 2 hours per week less on manual data maintenance, that is 520 hours/year
 - At an average cost of 30 EUR/hour, that is 15,600 EUR in recovered productive time
-- 10 percent improvement in close rates through systematic follow-up
-- Zero revenue lost from forgotten leads and missed follow-ups
-- Better forecasting accuracy from data-driven pipeline analysis
+- Better close rates through systematic follow-up
+- Fewer leads lost to forgotten follow-ups
+- Better forecasting from a weighted pipeline
 
 Calculate the ROI with your measured recovered time and revenue gains against the current annual subscription above. The result and payback period depend on your actual adoption, hourly costs, and close-rate change rather than a fixed multiple.
 
@@ -342,7 +342,7 @@ One of the most affordable fully-featured CRMs for small business is Customermat
 </FaqItem>
 
 <FaqItem question="What Is the Easiest CRM to Set Up?">
-Less Annoying CRM and Pipedrive are known for fast setup times. Customermates also prioritizes ease of setup with an intuitive interface and guided onboarding. There is no CSV importer; migration runs through the REST API or an AI agent over MCP. Most small business CRM systems can be operational within a day. The real question is how quickly your team adopts daily usage, which depends more on workflow fit than software complexity.
+Less Annoying CRM and Pipedrive are known for fast setup times. Customermates also prioritizes ease of setup with an intuitive interface. Existing data comes in through Excel (XLSX) import, one record type at a time, or through the REST API or an AI agent over MCP; there is no CSV importer. Most small business CRM systems can be operational within a day. The real question is how quickly your team adopts daily usage, which depends more on workflow fit than software complexity.
 </FaqItem>
 
 <FaqItem question="Can I Use a CRM for Small Business for Free?">

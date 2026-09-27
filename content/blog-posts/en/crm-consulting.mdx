@@ -115,13 +115,13 @@ The last five years have shifted the market. Pipedrive, HubSpot, Folk, Notion, A
 
 A Pipedrive or HubSpot Free rollout for a ten-person team typically takes three to five days of internal effort spread over two weeks, no consultant. At a $600 internal day rate, that's under $5,000 total. A comparable consultant-led rollout with data migration and training runs $25,000 to $60,000. The difference funds multiple years of license fees in many cases.
 
-Customermates positions in this gap: an open-source CRM with Table and Card (Kanban) views, five entities (Contacts, Organizations, Deals, Services, Tasks), ten custom field types, a full REST API, and a built-in MCP server with [[derived.mcp.tools.total]] tools that lets AI agents operate the CRM directly. Cloud from [[commercial.price.starter.monthly]] per user per month (Starter tier), free to self-host via Docker, AGPL-3.0 licensed.
+Customermates positions in this gap: an open-source CRM with Table and Card (Kanban) views, five entities (Contacts, Organizations, Deals, Services, Tasks), typed custom columns, XLSX import and export, a full REST API, and a built-in MCP server with [[derived.mcp.tools.total]] tools that lets AI agents operate the CRM directly. Cloud from [[commercial.price.starter.monthly]] per user per month (Starter tier), self-hostable via Docker without licence fees, AGPL-3.0 licensed.
 
 ## AI agents reduce consulting scope
 
 A second shift comes from the AI side. Junior consulting hours classically get burned on data hygiene (deduping, normalizing addresses, normalizing fields), data enrichment (firmographics, LinkedIn URLs, industry codes), and workflow automation (email sequences, follow-up reminders, reporting). Most of these are jobs an AI agent can do today if the CRM is built for it.
 
-Customermates exposes every CRM operation through its MCP server. Claude or Codex gets an API key, connects to `/api/v1/mcp`, and can merge contacts, write notes, update fields, configure webhooks, or generate reports as if it were a human user. A morning with an agent that dedupes and enriches 10,000 records replaces a consulting month delivering the same outcome.
+Customermates exposes every CRM operation through its MCP server. Claude or Codex gets an API key, connects to `/api/v1/mcp`, and can find and clean up duplicates, write notes, update fields, configure webhooks, or summarize the pipeline within the permissions of the user it acts for. Customermates does not enrich data itself; with an external data source, an agent can work through missing fields in hours instead of billing weeks of junior consulting time.
 
 The question is no longer "do we need a consultant or do we build it ourselves?" but "do we need a consultant or do we let an agent handle the data work and only buy consulting for strategic decisions?" With the right setup, the ratio shifts dramatically toward internal execution.
 
@@ -133,9 +133,7 @@ Industry-specific specializations matter for procurement. Healthcare and life sc
 
 ## For agencies and consultants: offering CRM under your own brand
 
-If you offer CRM consulting yourself and want to package a CRM product under your own brand, Customermates has a white-label partner programme in the making. The intent is a hosted instance under your domain (like `crm.youragency.com`) with your logo and colours, with hosting, updates, and maintenance handled for you, billed on to your clients at your own price. The branding capability is not implemented yet, so today this is a conversation and a contract rather than a switch.
-
-White-label sits on the Enterprise tier and is priced individually, as a contracted item rather than a shipped feature. It fits consultancies that want to combine implementation and ongoing operations under one offering, without building and supporting their own product. More on request through the contact form.
+If you offer CRM consulting yourself and want to package a CRM product under your own brand: Customermates does not offer a white-label edition. What agencies can do today is implement and support Customermates for their clients, either on the managed cloud or by operating the open-source core themselves (under AGPL-3.0, whose terms apply when you offer a modified version over a network). For larger client setups, Enterprise terms are available on request through the contact form.
 
 ## Common CRM project failures
 
@@ -146,7 +144,7 @@ Six patterns that show up in almost every failed CRM project:
 3. **Training as an afterthought**: the system is live, but reps don't use it because nobody walked them through it. Adoption sits at 30 percent instead of 90 percent. Plan two to four days of training per team, not two hours.
 4. **No executive sponsor**: the project lives in IT but nobody on the leadership team owns it. The first conflict with sales, sales wins.
 5. **Too many custom fields too early**: the system gets buried under 200 fields, 180 of which stay empty. Start with the 20 fields that actually get used daily.
-6. **No ongoing data hygiene**: the CRM gets populated once and decays. Without a maintenance plan, data quality is back to spreadsheet levels in 18 months. This is where agentic CRMs like Customermates change the structure, because the agent does the maintenance.
+6. **No ongoing data hygiene**: the CRM gets populated once and decays. Without a maintenance plan, data quality is back to spreadsheet levels in 18 months. This is where agentic CRMs like Customermates help, because an AI agent can take on much of the routine maintenance.
 
 ## Red flags in CRM consulting proposals
 
@@ -191,7 +189,7 @@ A consultant is usually platform-independent or at least neutral in the selectio
 </FaqItem>
 
 <FaqItem question="Can AI replace a CRM consultant?">
-Partly. AI agents like Claude or Codex can take over data hygiene, enrichment, workflow automation, and reporting if the CRM is built for it (for example via MCP, as in Customermates). Strategy advice, requirements analysis, change management, and complex system integration stay human. Realistically, expect a redistribution: 30 to 50 percent of classic consulting hours can be replaced by AI agents, the rest stays consulting work.
+Partly. AI agents like Claude or Codex can take over data hygiene, enrichment, workflow automation, and reporting if the CRM is built for it (for example via MCP, as in Customermates). Strategy advice, requirements analysis, change management, and complex system integration stay human. Realistically, expect a redistribution: part of the classic consulting hours moves to AI agents, the rest stays consulting work.
 </FaqItem>
 
 <FaqItem question="How do CRM partner tier programs work?">

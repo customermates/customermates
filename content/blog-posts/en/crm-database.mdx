@@ -98,7 +98,7 @@ A strategic CRM database combines operational and analytical capabilities with l
 **Best for**: Enterprises with complex, high-value customer relationships
 **Examples**: SAP CRM, Oracle CX, enterprise Salesforce implementations
 
-Most small and mid-sized businesses need an operational CRM database with basic analytical capabilities built in. Customermates delivers both: day-to-day pipeline and contact management plus dashboards and reports that surface the insights you need, all in one system from [[commercial.price.starter.monthly]]/user/month.
+Most small and mid-sized businesses need an operational CRM database with basic analytical capabilities built in. Customermates delivers both: day-to-day pipeline and contact management plus dashboards with weighted pipeline values, all in one system from [[commercial.price.starter.monthly]]/user/month.
 
 ## Is Excel a CRM Database?
 
@@ -142,13 +142,13 @@ Some businesses consider building a customer database from scratch using tools l
 | Time to production     | Months              | Days                |
 | Ongoing maintenance    | Your responsibility | Vendor-managed      |
 
-**Bottom line:** A standalone database makes sense only when your data model is so unusual that no CRM can accommodate it. For 95% of businesses, a dedicated CRM with a flexible data model saves months of development and ongoing maintenance.
+**Bottom line:** A standalone database makes sense only when your data model is so unusual that no CRM can accommodate it. For most businesses, a dedicated CRM with a flexible data model saves months of development and ongoing maintenance.
 
 ### Why Your CRM Database Matters
 
 Your CRM database is the single source of truth for customer relationships. Every decision your sales and marketing teams make depends on the quality of this data. Accurate data means better segmentation, personalized outreach, reliable [sales pipeline](/blog/sales-pipeline) forecasts, and informed strategic decisions. Poor data means wasted effort, missed opportunities, and frustrated customers.
 
-Studies estimate that bad CRM data costs businesses between 15 and 25 percent of their revenue. Duplicate records mean multiple salespeople pursue the same prospect. Outdated contact information means emails bounce and calls go nowhere. Incomplete records mean salespeople enter meetings without context.
+Bad CRM data costs real money. Duplicate records mean multiple salespeople pursue the same prospect. Outdated contact information means emails bounce and calls go nowhere. Incomplete records mean salespeople enter meetings without context.
 
 ## How to Structure Your CRM Database
 
@@ -301,14 +301,14 @@ Schedule regular data hygiene sessions. Monthly is a good starting cadence:
 
 ### Data Decay Statistics
 
-CRM data decays faster than most businesses realize:
+CRM data decays faster than most businesses realize. Exact figures vary by study and industry, but the pattern is consistent:
 
-- 30% of contact data becomes outdated every year (people change jobs, companies rebrand)
-- B2B email addresses have an average annual decay rate of 22.5%
-- 25% of a typical CRM database contains duplicate records
-- Companies lose an estimated 12% of revenue due to poor data quality
+- A sizeable share of B2B contact data goes out of date every year as people change jobs and companies rebrand
+- Email addresses bounce once people leave, often without anyone noticing
+- Every import, web form, and manual entry adds duplicates unless someone checks
+- Decisions made on that data inherit its errors
 
-These numbers make the case for proactive, automated data hygiene rather than occasional manual cleanup.
+This makes the case for proactive, automated data hygiene rather than occasional manual cleanup.
 
 ### Automated Data Quality with n8n
 
@@ -321,9 +321,9 @@ Manual data hygiene does not scale. Use automation to maintain quality passively
 - Validate email formats and flag obviously invalid addresses
 - Enrich records with external data sources (company size, industry classification)
 
-Customermates supports automated data quality workflows through [n8n integration](/features/workflow-automation). You can build visual automations that check for duplicates, validate data formats, enrich records, and alert team members about quality issues, without writing code. [Learn more about n8n workflows](/blog/n8n-for-beginners-build-your-first-workflow)
+Customermates supports automated data quality workflows through its community node for [n8n](/features/workflow-automation), which you run separately. You can build visual automations that check for duplicates, validate data formats, enrich records from an external data source, and alert team members about quality issues, without writing code. [Learn more about n8n workflows](/blog/n8n-for-beginners-build-your-first-workflow)
 
-Beyond n8n, AI agents can operate the database directly through the native MCP integration ([[derived.mcp.tools.total]] tools). An agent (Claude, ChatGPT, or Gemini) with an API key can merge duplicates, enrich records, update fields, and write notes as if it were a human user, which turns routine data hygiene into a task an agent runs in minutes.
+Beyond n8n, AI agents can operate the database directly through the native MCP integration ([[derived.mcp.tools.total]] tools). An agent (Claude, ChatGPT, or Gemini) with an API key can clean up duplicates, fill in fields from sources you provide, update records, and write notes within the permissions of the user it acts for, which turns routine data hygiene into a task an agent runs in minutes.
 
 ### Assign Data Ownership
 
@@ -373,17 +373,18 @@ For European businesses, GDPR compliance is non-negotiable when managing a CRM d
 
 The physical location of your CRM database has direct compliance implications. US-hosted CRM systems face legal uncertainty under European data protection law following the Schrems II ruling. Data transfers to the US require additional safeguards (Standard Contractual Clauses, adequacy decisions) that may not provide sufficient protection in practice.
 
-EU-hosted or self-hosted systems eliminate this uncertainty entirely. Your data stays within the jurisdiction of the GDPR, and you do not depend on a vendor's sub-processors or their compliance posture.
+Self-hosted systems give you the most control: you decide where the data lives and which providers touch it. EU-hosted cloud services reduce the question but do not always remove it, because their subprocessors may include US providers, so read the subprocessor list.
 
 ### How Customermates Handles Data Security
 
 Customermates addresses CRM database security and compliance directly:
 
-- **EU hosting by default**: Data is stored in European data centers, not transferred to the US
+- **Cloud data location**: In the managed cloud, the application database runs in the AWS Frankfurt region; hosting and other subprocessors, including US providers, are listed on the [subprocessors page](/subprocessors), and a [DPA](/dpa) is available
 - **Self-hosting option**: Deploy on your own infrastructure with Docker for complete control over data residency
-- **Built-in audit logging**: Every change to every record is logged with timestamp, user, and before/after values
-- **Role-based access control**: Define exactly who can see, edit, or delete which data
-- **Data export**: Full data portability for compliance with GDPR Article 20
+- **Built-in audit logging**: Changes are recorded in an audit log on every plan
+- **Role-based access control**: Define who can see, edit, or delete which record types
+- **Data export**: XLSX export per record type and the REST API support access and portability requests (GDPR Articles 15 and 20)
+- **No certification**: Customermates holds no ISO 27001 or SOC 2 certification
 - **Open source**: Inspect the code yourself to verify how your data is handled
 
 ## CRM Database Comparison: Salesforce vs. HubSpot vs. Pipedrive vs. Customermates
@@ -394,22 +395,22 @@ Choosing the right CRM database depends on your team size, budget, and data requ
 | ----------------------- | ---------------------- | -------------------- | --------------- | ------------------------------------------------- |
 | **Starting price**      | $25/user/mo            | Free (limited)       | €14/user/mo     | From [[commercial.price.starter.monthly]]/user/mo |
 | **Custom fields**       | Unlimited (Enterprise) | Limited on free plan | Limited on Lite | Yes (10 field types)                              |
-| **Data hosting**        | US (default)           | US (default)         | EU available    | EU (default)                                      |
+| **Data hosting**        | Region depends on plan | Region depends on plan | Region depends on plan | Cloud DB in Frankfurt (AWS); US subprocessors listed |
 | **Self-hosting**        | No                     | No                   | No              | Yes (open source)                                 |
 | **Audit logging**       | Enterprise only        | Enterprise only      | Not available   | All plans                                         |
 | **API access**          | Yes                    | Yes (rate-limited)   | Yes             | Yes                                               |
-| **n8n integration**     | Via API                | Via API              | Via API         | Native                                            |
-| **GDPR tools**          | Add-on                 | Add-on               | Basic           | Built-in                                          |
-| **Duplicate detection** | Yes                    | Yes                  | Basic           | Yes                                               |
+| **n8n integration**     | Via API                | Via API              | Via API         | Community node                                    |
+| **GDPR tools**          | Add-on                 | Add-on               | Basic           | DPA, audit log, XLSX export                       |
+| **Duplicate detection** | Yes                    | Yes                  | Basic           | Via search, API, or an AI agent                   |
 | **Setup complexity**    | High                   | Medium               | Low             | Low                                               |
 
-**Salesforce** offers the most powerful CRM database for enterprises with complex data models and large teams. But the complexity, cost, and US-default hosting make it overkill for most SMBs.
+**Salesforce** offers the most powerful CRM database for enterprises with complex data models and large teams. But the complexity and cost make it overkill for most SMBs.
 
 **HubSpot** provides a free tier that works well for getting started, but the database capabilities are limited until you move to paid plans. Custom fields, advanced reporting, and audit logs require Marketing or Sales Hub Enterprise.
 
 **Pipedrive** focuses on sales pipeline management with a clean interface. The database capabilities are solid for sales teams but less suited for marketing or service use cases.
 
-**Customermates** delivers a complete CRM database with custom fields (ten types), EU hosting, self-hosting, audit logging, and n8n automation from [[commercial.price.starter.monthly]]/user/month. Two features set it apart: AI agents operate the database directly through a native MCP integration (deduping, enriching, and updating records), and a native unified inbox logs email, LinkedIn, WhatsApp, Instagram, and Telegram interactions into the timeline automatically (Pro tier and up).
+**Customermates** delivers a complete CRM database with custom fields (ten types), a cloud database in the AWS Frankfurt region, self-hosting, audit logging, XLSX import and export, and an n8n community node from [[commercial.price.starter.monthly]]/user/month. Two features set it apart: AI agents operate the database directly through a native MCP integration (cleaning up and updating records), and a native unified inbox keeps email, LinkedIn, WhatsApp, Instagram, and Telegram conversations next to the contact (Pro tier and up).
 
 ## CRM Database Best Practices
 
@@ -425,9 +426,9 @@ Your CRM database is only as good as the people entering data into it. Train eve
 
 Connect your CRM database with other systems to reduce manual entry and keep data current:
 
-- [Email integration](/features/email-integration) with Gmail and Outlook for automatic interaction logging
-- Calendar sync for meeting records
-- Web form connections for lead capture
+- [Email integration](/features/email-integration) (in Customermates: Gmail, Outlook, or IMAP mailboxes in the unified inbox on Pro and above)
+- Calendar access for meeting context (read-only in Customermates Pro)
+- Web form connections for lead capture, via your form tool and the API or n8n
 - Accounting system links for invoice and payment data
 - [n8n workflows](/features/workflow-automation) for connecting any tool with an API
 
@@ -489,18 +490,18 @@ Schedule monthly data hygiene sessions: merge duplicates, update key accounts, r
 </FaqItem>
 
 <FaqItem question="Is a CRM database GDPR-compliant?">
-A CRM database can be GDPR-compliant if the system supports the necessary features: lawful basis tracking, data minimization, right to erasure, data portability, and audit logging. The hosting location matters too, EU-hosted or self-hosted systems provide more legal certainty than US-hosted alternatives. Customermates is EU-hosted by default, open source, and includes built-in audit logging and role-based access control for GDPR compliance.
+A CRM database can be GDPR-compliant if the system supports the necessary features: lawful basis tracking, data minimization, right to erasure, data portability, and audit logging. The hosting location and subprocessors matter too. In the Customermates cloud, the application database runs in the AWS Frankfurt region; hosting and other subprocessors, including US providers, are listed on the [subprocessors page](/subprocessors), and a [DPA](/dpa) is available. Customermates is open source, can be self-hosted, and includes audit logging and role-based access control; whether your use is GDPR-compliant depends on how you, as controller, use it.
 </FaqItem>
 
 <FaqItem question="How much does a CRM database cost?">
-CRM database costs range from free (with significant limitations) to over $300/user/month for enterprise platforms like Salesforce. Most small and mid-sized businesses pay between $10 and $50 per user per month. Customermates costs from [[commercial.price.starter.monthly]]/user/month for the full core CRM, no add-ons needed for the basics. Self-hosting is free and open source. [Full CRM cost comparison](/blog/crm-cost)
+CRM database costs range from free (with significant limitations) to over $300/user/month for enterprise platforms like Salesforce. Most small and mid-sized businesses pay between $10 and $50 per user per month. Customermates costs from [[commercial.price.starter.monthly]]/user/month for the full core CRM, no add-ons needed for the basics. Self-hosting the open-source core has no licence cost. [Full CRM cost comparison](/blog/crm-cost)
 </FaqItem>
 </Faq>
 
 ## Conclusion
 
-Your CRM database is not just a list of names and email addresses. It is the operational foundation of your customer relationships, your sales forecasts, and your strategic decisions. Build it with a clear data model, maintain it with regular hygiene, secure it with proper access controls, and protect it with GDPR-compliant hosting.
+Your CRM database is not just a list of names and email addresses. It is the operational foundation of your customer relationships, your sales forecasts, and your strategic decisions. Build it with a clear data model, maintain it with regular hygiene, secure it with proper access controls, and host it where you know the data location and the subprocessors.
 
 The choice between building a custom database and using a dedicated CRM is straightforward for most businesses: a CRM gives you the data model, automation, reporting, and compliance features that would take months to build from scratch.
 
-Customermates gives you a flexible, GDPR-compliant CRM database with custom fields across ten field types, powerful segmentation, automated data quality via n8n and AI agents (native MCP), full self-hosting control, and EU hosting by default, from [[commercial.price.starter.monthly]] per user per month. [See pricing](/pricing)
+Customermates gives you a flexible CRM database with custom fields across ten field types, powerful segmentation, data quality work via n8n (run separately) and AI agents (native MCP), full self-hosting control, and a cloud database in the AWS Frankfurt region with a DPA, from [[commercial.price.starter.monthly]] per user per month. [See pricing](/pricing)

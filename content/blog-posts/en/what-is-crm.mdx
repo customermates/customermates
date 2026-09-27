@@ -106,7 +106,7 @@ Modern CRM systems automate recurring tasks and save valuable time:
 - Status changes and workflow triggers
 - Integration with automation platforms like n8n
 
-At Customermates we rely on **n8n integration**, which lets you build arbitrarily complex automations, entirely without code. Learn more about n8n automation in our [n8n beginner guide](/blog/n8n-for-beginners-build-your-first-workflow).
+Customermates has no built-in rules engine. Instead it offers webhooks, a REST API, and an **n8n community node**, so a separately operated n8n instance can run arbitrarily complex automations with visual workflows. Learn more about n8n automation in our [n8n beginner guide](/blog/n8n-for-beginners-build-your-first-workflow).
 
 ### Reporting, Dashboards, and Analytics
 
@@ -127,7 +127,7 @@ More and more CRM systems use **Artificial Intelligence (AI)** to help sales tea
 - Predictions on close probabilities
 - Automated data capture and maintenance
 
-Customermates includes a **MCP integration for external AI clients** that assists with [lead qualification](/blog/lead-qualification-chatgpt), [summarizing notes](/blog/chatgpt-summarize-notes), and many other tasks, directly inside the CRM, without additional tools.
+Customermates includes an **MCP integration for external AI clients** such as Claude or ChatGPT that assists with [lead qualification](/blog/lead-qualification-chatgpt), [summarizing notes](/blog/chatgpt-summarize-notes), and many other tasks by working directly on your CRM records. In the cloud, the hosted Mate assistant does the same inside the app. Customermates does not do predictive scoring or data enrichment.
 
 ## What Are the 4 Types of CRM?
 
@@ -209,7 +209,7 @@ The software runs on your own servers in your data center.
 
 ### Self-Hosting (the Best of Both Worlds)
 
-Modern open-source solutions like Customermates offer the best compromise: you can either **self-host** the software (full data control) or use the **managed EU cloud version**. As an open-source solution you always have access to the complete source code, with zero vendor lock-in.
+Modern open-source solutions like Customermates offer the best compromise: you can either **self-host** the software (full data control) or use the **managed cloud version**, whose database runs in the AWS Frankfurt region. As an open-source solution you always have access to the complete source code, with zero vendor lock-in.
 
 Learn more about open-source options in our [Open Source CRM comparison](/blog/open-source-crm).
 
@@ -304,7 +304,7 @@ For European businesses, **GDPR compliance** (General Data Protection Regulation
 
 Your CRM must support the rights of data subjects: access, rectification, deletion, and data portability.
 
-**Customermates is GDPR-native by design**: Data is hosted exclusively in the EU, a DPA is included by default, and the open-source architecture provides full transparency over data processing. There are no hidden data flows to third countries.
+**How Customermates handles this**: In the managed cloud, the application database runs in the AWS Frankfurt region; hosting and other subprocessors, including US providers, are listed on the [subprocessors page](/subprocessors), and a [DPA](/dpa) is available. The open-source code shows how data is processed, and if you need full control over where data lives, you self-host the open-source core. Customermates holds no compliance certification.
 
 ## CRM Market Overview: Which CRM Systems Exist?
 
@@ -324,7 +324,7 @@ The CRM market is large and diverse. Here is an overview of the best-known syste
 
 ### Open-Source CRM
 
-- **Customermates**: Open source, EU-hosted, GDPR-native, full core CRM from [[commercial.price.starter.monthly]] per user/month, including native AI integration and n8n automation
+- **Customermates**: Open source, self-hostable, cloud database in Frankfurt, full core CRM from [[commercial.price.starter.monthly]] per user/month, including MCP for AI clients and an n8n community node
 - **SuiteCRM**: Open source, requires self-hosting and technical expertise
 - **Odoo CRM**: Part of the Odoo suite, open source but with paid modules
 
@@ -352,7 +352,7 @@ Many vendors lure you with low entry prices but charge extra for:
 - Advanced reports and dashboards
 - Phone support
 
-**Customermates takes a radically transparent approach**: three published tiers from **[[commercial.price.starter.monthly]] per user per month** (Starter), with every core CRM feature in every tier and no hidden fees. You get MCP integration for external AI clients, n8n automation, unlimited pipelines, API access, and EU hosting from the first tier; Pro at [[commercial.price.pro.monthly]] adds the unified inbox, Business at [[commercial.price.business.monthly]] adds messaging scale.
+**Customermates takes a radically transparent approach**: three published tiers from **[[commercial.price.starter.monthly]] per user per month** (Starter), with every core CRM feature in every tier and no hidden fees. You get MCP integration for external AI clients, a configurable deal pipeline, REST API, webhooks, and XLSX import and export from the first tier; Pro at [[commercial.price.pro.monthly]] adds the unified inbox, Business at [[commercial.price.business.monthly]] adds messaging scale.
 
 Read a detailed cost comparison in our article [How Much Does a CRM System Really Cost?](/blog/crm-cost).
 
@@ -365,10 +365,10 @@ What does CRM look like in practice? Three concrete scenarios show the value:
 A B2B software company uses Customermates for its entire sales process:
 
 1. A prospect fills out a form on the website
-2. The CRM automatically creates a contact and a lead
-3. The MCP integration for external AI clients evaluates the lead and suggests a priority
-4. The lead is assigned to a sales rep based on defined criteria
-5. Automatic follow-up emails are sent via n8n at scheduled intervals
+2. The company's own n8n instance receives the form data and creates a contact and a deal through the Customermates community node
+3. An AI client connected through MCP evaluates the lead and suggests a priority
+4. The n8n workflow assigns the deal to a sales rep based on defined criteria
+5. Follow-up emails are sent by n8n at scheduled intervals
 6. The deal moves through the pipeline to close
 7. Every step is documented, measurable, and traceable
 
@@ -460,9 +460,9 @@ The importance of CRM continues to grow because customer relationships are becom
 **Customermates** gives you a modern CRM system that checks every box:
 
 - **Open source**, full source code access, no vendor lock-in
-- **GDPR-native**, data hosted exclusively in the EU
+- **Transparent data protection**, cloud database in the AWS Frankfurt region, DPA available, subprocessors disclosed, self-hostable
 - **MCP integration for external AI clients**, intelligent assistance in your daily workflow
-- **n8n automation**, arbitrarily complex workflows without code
+- **Open automation**, webhooks, REST API, and an n8n community node for your own n8n workflows
 - **Fair pricing**, from [[commercial.price.starter.monthly]] per user per month, the full core CRM included
 
 [Get started today](/) and see what a great CRM can do for your business.

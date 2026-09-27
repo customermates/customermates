@@ -228,7 +228,7 @@ When a company changes its name or a contact moves to a different organization, 
 
 Google Sheets cannot natively trigger actions based on data changes. You cannot create a rule that says "when a deal moves to Proposal Sent, email the customer a pricing sheet" or "when a follow-up date passes, alert the assigned rep in Slack."
 
-You can build workarounds with Apps Script or Zapier, but these are fragile, limited to simple triggers, and require technical maintenance. In comparison, a CRM like Customermates includes separate n8n integration that provides visual, code-free [workflow automation](/features/workflow-automation) for processes of any complexity.
+You can build workarounds with Apps Script or Zapier, but these are fragile, limited to simple triggers, and require technical maintenance. In comparison, a CRM like Customermates emits webhook events on every record change and offers a community node for a separately operated n8n instance, so you can build visual [workflow automation](/features/workflow-automation) on stable record IDs instead of column positions.
 
 ### 3. Poor Multi-User Collaboration
 
@@ -272,7 +272,7 @@ For EU businesses, using Google Sheets as a CRM creates compliance risks:
 - No field-level encryption for sensitive data
 - Data potentially stored outside the EU depending on Google Workspace settings
 
-A GDPR-native CRM like Customermates includes audit logging, data retention policies, and EU hosting options that handle these requirements systematically. Learn more about [CRM best practices](/blog/crm-best-practices) for compliance.
+A CRM like Customermates adds role-based permissions and an audit log. In the managed cloud, the application database runs in the AWS Frankfurt region; hosting and other subprocessors, including US providers, are listed on the [subprocessors page](/subprocessors), and a [DPA](/dpa) is available. If you need full control over where data lives, self-host the open-source core. Learn more about [CRM best practices](/blog/crm-best-practices) for compliance.
 
 ## When to Upgrade: 6 Signs Your Google Sheets CRM Is Costing You Money
 
@@ -314,11 +314,13 @@ Before migrating, invest one to two hours in data cleanup:
 4. Remove contacts you no longer need
 5. Verify that deal stages are consistent across all rows
 
-### Step 2: Export as CSV
+### Step 2: Download Each Tab as Excel
 
-1. Go to each sheet tab (Contacts, Deals, Activities)
-2. File > Download > Comma Separated Values (.csv)
-3. Save each CSV with a clear filename (contacts.csv, deals.csv, activities.csv)
+1. Go to each sheet tab (Contacts, Deals, Activities) and move it to its own spreadsheet, or make it the first tab
+2. File > Download > Microsoft Excel (.xlsx)
+3. Save each file with a clear filename (contacts.xlsx, deals.xlsx, activities.xlsx)
+
+Customermates imports Excel workbooks and does not accept CSV. Other CRMs may expect CSV instead.
 
 ### Step 3: Set Up Your CRM
 
@@ -327,24 +329,24 @@ In Customermates:
 1. Create your pipeline with stages matching your Google Sheet dropdown values
 2. Set up custom fields that match your Google Sheet columns
 3. Configure user accounts and role-based permissions for your team
-4. Set your data retention and GDPR preferences
+4. Decide who owns which records and which roles may import and export data
 
 ### Step 4: Import Your Data
 
-1. Import Contacts and Companies first (these are the base entities everything else connects to)
-2. Import Deals next (link to existing contacts and companies during the mapping step)
-3. Import Activities last (associate with contacts and deals)
+1. Import Companies first as organizations, then Contacts (these are the base entities everything else connects to)
+2. Import Deals next (link to existing contacts and organizations during the mapping step)
+3. Import open follow-ups from the Activities tab as tasks last
 
-Customermates has no import screen and no field-mapping interface. An AI agent over MCP does the mapping conversationally instead. Most teams complete the entire migration in a single afternoon.
+In Customermates, open **Import and export** on each list and choose **Add from file**. The wizard lets you match spreadsheet columns to fields, custom fields, and channels, checks every row, and matches link columns by record name. It imports one record type at a time (up to 10,000 rows per file) and has no undo, so test with a small file first. An AI agent over MCP or the REST API are alternatives for larger or scripted migrations.
 
 ### Step 5: Build What Google Sheets Could Not
 
 Now set up the capabilities your spreadsheet lacked:
 
-- **Automated follow-up reminders** based on deal stage and last contact date
-- **Email integration** to automatically log correspondence
+- **A follow-up view**: a custom follow-up date column plus a saved view sorted by it (Customermates has no built-in reminders)
+- **Unified inbox** on Pro and above, so Gmail, Outlook, and IMAP conversations sit next to the contact
 - **Pipeline views** with drag-and-drop deal management
-- **Automated lead scoring and routing** with n8n workflows
+- **Lead routing and notifications** through webhooks or your own n8n instance
 - **Real-time dashboards** that update without manual formula maintenance
 - **Role-based permissions** so team members see only relevant data
 - **MCP integration for external AI clients** for data entry, follow-up drafting, and task management
@@ -357,15 +359,15 @@ Does Google have a CRM option? Not directly. Google Workspace includes productiv
 
 **Transparent pricing.** From [[commercial.price.starter.monthly]] per user per month with the full core CRM included. No per-contact charges, no add-on costs to unlock the basics. That is barely more than many Google Workspace subscriptions.
 
-**Automation from day one.** A separate n8n integration means you can automate the follow-ups, notifications, and data updates that consumed your time in the spreadsheet. No coding required.
+**Open automation interfaces.** Webhooks, the REST API, and a community node for a separately operated n8n instance let you automate the notifications and data updates that consumed your time in the spreadsheet, with visual workflows instead of Apps Script.
 
 **MCP integration for external AI clients.** Let artificial intelligence handle data entry, follow-up drafting, meeting summaries, and task management. These are the repetitive tasks that ate your time in Google Sheets.
 
-**GDPR compliance built in.** Purpose-built for EU data protection. Audit logging, access controls, data retention policies, and EU hosting replace the compliance gaps Google Sheets leaves open.
+**Data protection you can document.** Audit logging and role-based access controls close the gaps Google Sheets leaves open. The cloud database runs in the AWS Frankfurt region, a [DPA](/dpa) is available, and all subprocessors, including US providers, are listed on the [subprocessors page](/subprocessors).
 
 **Self-hostable and open source.** Deploy on your own servers for complete data control. Inspect and modify the source code. No vendor lock-in, ever.
 
-**API and agent import.** Migrating from Google Sheets means exporting the data and creating the records through the REST API, or letting an AI agent over MCP do it from the file. The field mapper handles the rest.
+**Excel import.** Download each tab as an `.xlsx` file and bring it in with the import wizard, one record type at a time. The REST API and AI agents over MCP cover larger or scripted migrations.
 
 ## Frequently Asked Questions
 
@@ -401,6 +403,6 @@ Google Sheets is a capable starting point for customer relationship management. 
 
 But recognize the ceiling. When your team grows, when you need automation, when follow-ups start falling through the cracks, or when compliance requirements surface, Google Sheets stops being a solution and starts being an obstacle that costs you real revenue.
 
-The good news is that modern CRM software has become remarkably affordable and easy to adopt. Customermates, from [[commercial.price.starter.monthly]] per user per month, provides everything a Google Sheets CRM cannot: relational data, [workflow automation](/features/workflow-automation), pipeline visualization, email integration, GDPR compliance, and MCP integration for external AI clients, all in an [open-source](/blog/open-source-crm), self-hostable package.
+The good news is that modern CRM software has become remarkably affordable and easy to adopt. Customermates, from [[commercial.price.starter.monthly]] per user per month, provides what a Google Sheets CRM cannot: relational data, webhooks and API access for [workflow automation](/features/workflow-automation), pipeline visualization, a unified inbox on Pro and above, permissions with an audit log, and MCP integration for external AI clients, all in an [open-source](/blog/open-source-crm), self-hostable package.
 
 Start with the templates if you need to. But bookmark this guide for when it is time to graduate.

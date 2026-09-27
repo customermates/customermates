@@ -77,7 +77,7 @@ This is the path most people skip because they do not know it exists. There is a
 
 **Realistic options:**
 
-- **Customermates** (the CRM I build): modern stack, EU-hosted cloud or self-hosted, agent-native via MCP, full REST API, n8n community node. Pipedrive replacement category.
+- **Customermates** (the CRM I build): modern stack, managed cloud (database in the AWS Frankfurt region) or self-hosted, agent-native via MCP, full REST API, n8n community node. Pipedrive replacement category.
 - **EspoCRM**: PHP-based, mature, lots of modules, slightly dated UI.
 - **SuiteCRM**: SugarCRM fork, enterprise-grade, heavier to operate.
 - **Twenty**: very modern UI, newer project, fewer features yet.
@@ -123,13 +123,13 @@ This is the path most lists skip and the one I see deliver best ROI. A practical
 
 **Days 3-5: install and explore.** Customermates self-hosted runs on Docker Compose; one command brings up the full stack. EspoCRM and SuiteCRM have similar Docker images. Spend two days clicking through the default UI, configuring custom fields, and importing a sample of your real data to understand what already works.
 
-**Days 6-9: configure for your workflow.** Add the entities specific to your business (project, asset, customer-type, whatever maps to your domain), configure pipeline stages, set up role-based permissions, connect [email](/features/email-integration) and calendar.
+**Days 6-9: configure for your workflow.** Add the entities specific to your business (project, asset, customer-type, whatever maps to your domain), configure pipeline stages, set up role-based permissions. On the Customermates cloud (Pro and above), connect mailboxes and messaging accounts to the [unified inbox](/features/email-integration); self-hosted installs have no inbox, so email stays in your mail client.
 
-**Days 10-12: integrate.** Wire up the integrations you actually need. Customermates exposes a [REST API](/features/api), n8n community node, and [[derived.webhooks.events.total]] webhook events; most integrations are 30-60 minutes of setup. For DACH businesses, the most common integrations are lexoffice/sevDesk for invoicing, DATEV for accounting, and Google Workspace or Microsoft 365 for email.
+**Days 10-12: integrate.** Wire up the integrations you actually need. Customermates exposes a [REST API](/features/api), n8n community node, and [[derived.webhooks.events.total]] webhook events; most integrations are 30-60 minutes of setup through REST or a separately run n8n. For DACH businesses, the most common integrations are lexoffice/sevDesk for invoicing (the CRM itself creates no invoices), DATEV for accounting, and Google Workspace or Microsoft 365 for email.
 
-**Days 13-14: AI extensions.** This is the modern angle missing from older "build your own CRM" guides. Point Claude or Codex at the [[[derived.mcp.tools.total]] MCP tools](/docs/mcp) and describe the workflows you want: "auto-create a deal when an inbound email matches X criteria," "draft follow-up emails three days after stage change to Negotiation," "weekly report of stale deals to my Slack." These are 1-2 hour builds that would have been multi-week dev projects in 2022.
+**Days 13-14: AI extensions.** This is the modern angle missing from older "build your own CRM" guides. Point Claude or Codex at the [[[derived.mcp.tools.total]] MCP tools](/docs/mcp) and describe the workflows you want: "auto-create a deal when an inbound email matches X criteria," "draft follow-up emails three days after stage change to Negotiation," "weekly report of stale deals to my Slack." The MCP tools do the CRM work; the trigger comes from elsewhere: a cloud routine run by the hosted Mate assistant, a webhook, or a separately run n8n. These are 1-2 hour builds that would have been multi-week dev projects in 2022.
 
-**Practical maintenance burden.** A small EU VPS (Hetzner CX21 at €5/month) runs Customermates comfortably for a 20-person team. Backups are 1 hour/month with [Restic](https://restic.net/) or [BorgBackup](https://www.borgbackup.org/). Security updates are handled by `docker compose pull` weekly. Total ongoing operational time: 3-5 hours per month for a non-DevOps team owner.
+**Practical maintenance burden.** A small EU VPS (around €5 to €20/month) is enough to run Customermates for a small team. Backups are 1 hour/month with [Restic](https://restic.net/) or [BorgBackup](https://www.borgbackup.org/). Security updates are handled by `docker compose pull` weekly. Total ongoing operational time: 3-5 hours per month for a non-DevOps team owner.
 
 ## Common mistakes that kill custom CRM projects
 
@@ -145,7 +145,7 @@ Five patterns I see repeatedly:
 
 For DACH and EU businesses, the build-your-own decision has a compliance dimension that most US-centric guides ignore.
 
-**The DSGVO (GDPR) baseline.** Customer data must be stored on servers under controls you can audit. US-hosted SaaS (Salesforce, HubSpot, Pipedrive at most price points, Zoho) requires a data processing agreement (Auftragsverarbeitungsvertrag), Schrems II analysis, and acceptance of the residual risk that the US CLOUD Act could theoretically subpoena your data. This is legal, but it is a compliance burden that grows with your data sensitivity.
+**The DSGVO (GDPR) baseline.** Customer data must be stored on servers under controls you can audit. SaaS that relies on US providers (including US-headquartered vendors such as Salesforce and HubSpot) requires a data processing agreement (Auftragsverarbeitungsvertrag), a transfer impact assessment, and acceptance of the residual risk that the US CLOUD Act could theoretically subpoena your data. This is legal, but it is a compliance burden that grows with your data sensitivity. The same applies to the Customermates managed cloud: its database runs in the AWS Frankfurt region, but hosting and other subprocessors include US providers, all listed on the [subprocessors page](/subprocessors) with a [DPA](/dpa).
 
 **Open-source self-hosted on EU servers** eliminates the burden structurally. You control the storage, the backups, the access logs, and the data export. Your DPA is with your hosting provider (Hetzner, IONOS, OVH), not a US SaaS vendor. Schrems II analysis is not required because no third-country transfer is happening.
 

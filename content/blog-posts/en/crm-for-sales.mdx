@@ -54,7 +54,7 @@ What to look for in pipeline management:
 - **Stale deal alerts** that flag opportunities sitting too long in one stage
 - **Weighted pipeline values** that multiply deal value by stage probability for accurate forecasting
 
-Customermates provides fully customizable pipelines with drag-and-drop and custom fields. Stale-deal alerting is not built in; it is a webhook plus a scheduled job in your own n8n instance.
+Customermates provides one configurable deal-stage column with per-stage probabilities (for weighted deal values), a kanban board, and custom fields; separate processes run through a custom single-select field plus saved views. Stale-deal alerting is not built in; it is a webhook plus a scheduled job in your own n8n instance.
 
 ### Sales Automation
 
@@ -68,7 +68,7 @@ Key automation capabilities:
 - **Stage-based actions**: Send a contract template when a deal moves to the negotiation stage
 - **Escalation rules**: Alert the sales manager when a high-value deal has no activity for seven days
 
-Customermates integrates with [n8n](/blog/n8n-for-beginners-build-your-first-workflow) for unlimited automation workflows. Unlike platforms that charge extra for automation tiers, every Customermates user has access to the full automation engine.
+Customermates has no built-in workflow rules engine. It connects to [n8n](/blog/n8n-for-beginners-build-your-first-workflow), which you run separately, through a community node, webhooks, and the REST API, and Customermates charges nothing extra for that access.
 
 ### Contact and Account Management
 
@@ -128,9 +128,7 @@ A sales CRM must connect to the tools your team already uses:
 
 ### 1. Zero Lead Leakage
 
-Without a CRM, leads disappear in email inboxes, get forgotten on sticky notes, or end up in spreadsheets nobody updates. Research suggests that businesses without a CRM lose up to 30 percent of their leads simply because nobody follows up.
-
-A sales CRM eliminates this through automatic lead capture from web forms, email, phone, and chat, immediate assignment to the responsible rep, and follow-up reminders that escalate if ignored.
+Without a CRM, leads disappear in email inboxes, get forgotten on sticky notes, or end up in spreadsheets nobody updates. A sales CRM reduces this through automatic lead capture from web forms, email, phone, and chat, immediate assignment to the responsible rep, and follow-up reminders that escalate if ignored.
 
 ### 2. Shorter Sales Cycles
 
@@ -140,8 +138,6 @@ The longer a deal sits in the pipeline, the less likely it is to close. A sales 
 - Defining clear next steps for every deal stage
 - Making bottlenecks visible through pipeline analytics
 - Enabling faster internal approvals with shared deal context
-
-Companies that implement a sales CRM typically see their average deal cycle decrease by 20 to 30 percent within six months.
 
 ### 3. Higher Close Rates
 
@@ -166,22 +162,22 @@ Choosing the right sales CRM depends on team size, budget, and which features ma
 
 | Feature | Customermates | Salesforce Sales Cloud | HubSpot Sales Hub | Pipedrive | Monday CRM | Zoho CRM |
 |---|---|---|---|---|---|---|
-| Starting price per user/month | From [[commercial.price.starter.monthly]] | 25 EUR | Free (limited) / 15 EUR | 14 EUR | 12 EUR (3-seat min) | Free (limited) / 14 EUR |
+| Starting price per user/month | From [[commercial.price.starter.monthly]] | 25 USD | Free (limited) / 15 EUR | 14 EUR | 12 EUR (3-seat min) | Free (limited) / 14 EUR |
 | Visual pipeline | Yes | Yes | Yes | Yes | Yes | Yes |
-| Custom pipelines | Unlimited | Unlimited | Limited on free | Unlimited | Yes | Yes |
-| Sales automation | Via n8n (unlimited) | Built-in (tiered) | Built-in (tiered) | Built-in (tiered) | Built-in (basic) | Built-in (tiered) |
-| Email integration | Gmail + Outlook (Pro tier, [[commercial.price.pro.monthly]]) | Gmail + Outlook | Gmail + Outlook | Gmail + Outlook | Gmail + Outlook | Gmail + Outlook |
+| Custom pipelines | One configurable stage column | Unlimited | Limited on free | Unlimited | Yes | Yes |
+| Sales automation | Via webhooks/API and your own n8n | Built-in (tiered) | Built-in (tiered) | Built-in (tiered) | Built-in (basic) | Built-in (tiered) |
+| Email integration | Gmail, Outlook, IMAP (Pro tier, [[commercial.price.pro.monthly]]) | Gmail + Outlook | Gmail + Outlook | Gmail + Outlook | Gmail + Outlook | Gmail + Outlook |
 | AI features | External AI clients via MCP included | Einstein (add-on) | AI (Pro+ plans) | AI (add-on) | AI (limited) | Zia (included) |
 | AI agents operate the CRM (native MCP) | Yes | No | No | No | No | No |
 | Native unified inbox (email/LinkedIn/WhatsApp/Instagram/Telegram) | Yes (Pro+) | Limited | Limited | Limited | Limited | Limited |
-| GDPR / EU hosting | Yes, EU + self-host | US-primary | US-primary | EU available | US-primary | EU available |
+| Data location | Cloud DB in Frankfurt (AWS) + self-host | Check plan | Check plan | EU available | Check plan | EU available |
 | Open source | Yes | No | No | No | No | No |
 | Self-hosting option | Yes | No | No | No | No | No |
-| Feature tiers | None, all included | Yes | Yes | Yes | Yes | Yes |
+| Feature tiers | Core CRM in every tier | Yes | Yes | Yes | Yes | Yes |
 
 ### Key Takeaways from the Comparison
 
-**Customermates** stands out for sales teams that want full functionality without per-feature pricing. From [[commercial.price.starter.monthly]] per user per month, every rep gets pipeline management, automation via n8n, native AI where agents operate the CRM directly, and reporting; the Pro tier at [[commercial.price.pro.monthly]] adds the native unified inbox (email, LinkedIn, WhatsApp, Instagram, Telegram). The open-source model and self-hosting option also appeal to teams with strict data sovereignty requirements.
+**Customermates** stands out for sales teams that want full functionality without per-feature pricing. From [[commercial.price.starter.monthly]] per user per month, every rep gets pipeline management, open integrations (REST, webhooks, n8n community node), native AI where agents operate the CRM directly, and dashboards; the Pro tier at [[commercial.price.pro.monthly]] adds the native unified inbox (email, LinkedIn, WhatsApp, Instagram, Telegram). The open-source model and self-hosting option also appeal to teams with strict data sovereignty requirements.
 
 **Salesforce** remains the most feature-rich option but comes with significant complexity and cost. It is best suited for enterprises with dedicated administrators.
 
@@ -240,6 +236,8 @@ Address low adoption immediately. If a rep stops using the CRM after week three,
 
 ## CRM for Sales in Practice: Two Examples
 
+The two examples below are illustrative composites, not customer case studies; the numbers show how to reason about impact.
+
 ### Example 1: IT Services Firm with 8 Sales Reps
 
 **Before CRM**:
@@ -278,16 +276,16 @@ Address low adoption immediately. If a rep stops using the CRM after week three,
 
 Customermates provides everything a sales team needs without the complexity or cost of enterprise platforms:
 
-- **Pipeline management**: Visual boards with drag-and-drop, custom stages, and stale deal alerts
-- **Unlimited automation**: Connect to [n8n](/blog/n8n-for-beginners-build-your-first-workflow) for follow-up sequences, lead routing, stage-based actions, and escalation rules
+- **Pipeline management**: Kanban board, configurable stages with per-stage probabilities, and weighted pipeline values
+- **Automation you control**: Connect your own [n8n](/blog/n8n-for-beginners-build-your-first-workflow) through the community node, webhooks, or REST for lead routing, stage-based actions, and escalations; in the cloud, routines let the hosted Mate assistant run a saved prompt on a schedule or CRM event
 - **AI agents operate the CRM**: Through a native MCP integration ([[derived.mcp.tools.total]] tools), Claude, ChatGPT, or Gemini update deal stages, draft follow-ups, and keep contact notes current, so reps stop avoiding the system and the pipeline tells the truth
 - **Native unified inbox** (Pro tier and up): email, LinkedIn, WhatsApp, Instagram, and Telegram in one inbox inside the CRM, and the same AI agents can read, draft, and send across every channel
-- **Reporting**: Real-time dashboards for pipeline health, rep performance, conversion rates, and forecast accuracy
+- **Reporting**: Dashboards for pipeline health, deals per owner, and weighted pipeline values
 - **Contact and deal management**: Link contacts, organizations, and deals with full interaction history
-- **GDPR-compliant**: EU hosting and [self-hosting](/features/self-hosted) option for complete data sovereignty
+- **Data protection**: Cloud database in the AWS Frankfurt region, DPA available, subprocessors disclosed, and a [self-hosting](/features/self-hosted) option for complete control over where data lives
 - **Open source**: No vendor lock-in, full code transparency, and community-driven development
 
-All of this from [[commercial.price.starter.monthly]] per user per month, with no per-automation pricing. Every core feature is in every tier; you pay more for messaging scale and a larger monthly hosted AI allowance.
+All of this from [[commercial.price.starter.monthly]] per user per month, billed monthly, with no per-automation pricing. Every core feature is in every tier; you pay more for messaging scale and a larger monthly hosted AI allowance.
 
 Ready to see how Customermates handles your sales process? [Start your free trial](/auth/signup) or explore the [pipeline management features](/features/pipeline).
 
@@ -299,7 +297,7 @@ A CRM for sales is software that helps sales teams manage their pipeline, track 
 </FaqItem>
 
 <FaqItem question="Which is the best CRM for sales?">
-The best CRM for sales depends on your team size, budget, and technical requirements. Salesforce is the most feature-rich but complex and expensive. HubSpot offers a free tier but gates advanced features behind steep pricing tiers. Pipedrive is intuitive but limits automation on lower plans. Customermates offers the full core CRM from [[commercial.price.starter.monthly]] per user per month, open-source transparency, and EU hosting, making it the best value for small to mid-sized sales teams.
+The best CRM for sales depends on your team size, budget, and technical requirements. Salesforce is the most feature-rich but complex and expensive. HubSpot offers a free tier but gates advanced features behind steep pricing tiers. Pipedrive is intuitive but limits automation on lower plans. Customermates offers the full core CRM from [[commercial.price.starter.monthly]] per user per month, open-source transparency, and a self-hosting option, making it a strong value for small to mid-sized sales teams.
 </FaqItem>
 
 <FaqItem question="How does a sales CRM differ from a marketing CRM?">
@@ -311,7 +309,7 @@ Sales CRM pricing ranges from free (with limited features) to over 100 euros per
 </FaqItem>
 
 <FaqItem question="How long does it take to implement a sales CRM?">
-Implementation time varies by complexity. A small team of three to five reps can be fully operational in one to two days with a modern cloud CRM, import contacts, configure pipeline stages, connect email, and start selling. Larger teams with custom workflows, data migration from legacy systems, and integration requirements may need two to four weeks. Enterprise Salesforce implementations can take months. Customermates is designed for fast setup with pre-built templates and guided onboarding.
+Implementation time varies by complexity. A small team of three to five reps can be fully operational in one to two days with a modern cloud CRM, import contacts, configure pipeline stages, connect email, and start selling. Larger teams with custom workflows, data migration from legacy systems, and integration requirements may need two to four weeks. Enterprise Salesforce implementations can take months. Customermates is designed for fast setup, with XLSX import for existing contacts and deals.
 </FaqItem>
 
 <FaqItem question="Can a CRM replace my sales spreadsheet?">
@@ -323,4 +321,4 @@ Yes, and it should. Spreadsheets lack automation, real-time collaboration, activ
 
 A CRM for sales is not a cost center, it is a revenue multiplier. It drives results through five mechanisms: zero lead leakage, shorter sales cycles, higher close rates, systematic expansion selling, and accurate forecasting. The difference between a CRM that collects dust and one that drives revenue is adoption, which depends on choosing a system that matches how your team actually sells and minimizing friction for reps.
 
-If you want a sales CRM where AI agents operate the CRM directly (native MCP), a native unified inbox handles email, LinkedIn, WhatsApp, Instagram, and Telegram, and you still get full pipeline management and unlimited automation without enterprise complexity or pricing, [Customermates](/auth/signup) is built for that. Open source, GDPR-native, and from [[commercial.price.starter.monthly]] per user per month.
+If you want a sales CRM where AI agents operate the CRM directly (native MCP), a native unified inbox handles email, LinkedIn, WhatsApp, Instagram, and Telegram, and you still get full pipeline management and open integrations without enterprise complexity or pricing, [Customermates](/auth/signup) is built for that. Open source, self-hostable, and from [[commercial.price.starter.monthly]] per user per month.

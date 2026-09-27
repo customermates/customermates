@@ -143,7 +143,7 @@ Salesforce is the global market leader among CRM systems. The platform covers sa
 
 **Weaknesses:**
 
-- High costs, especially with add-ons (25 to over 300 euros per user/month)
+- High costs, especially with add-ons (Sales Cloud from $25 to $550 per user/month as of September 2026)
 - Steep learning curve, consultants often required
 - Data hosting primarily in the US
 - Complex pricing structure with hidden costs
@@ -258,10 +258,10 @@ Customermates is an open-source CRM system built from the ground up for the Euro
 - AI agents (Claude, ChatGPT, Gemini) operate the CRM through [[derived.mcp.tools.total]] MCP tools, so data entry happens on its own
 - Native unified inbox for email, LinkedIn, WhatsApp, Instagram, and Telegram, operable by the same agents (Pro tier and up)
 - Open source with full source code access
-- GDPR-focused, with an EU-region managed application database, disclosed cloud subprocessors and transfer safeguards, and a self-hosting option
+- Cloud database in the AWS Frankfurt region, a [DPA](/dpa), and disclosed [subprocessors](/subprocessors) (including US providers) with their transfer safeguards
 - Self-hosting option for complete data control
 - Transparent tiers from [[commercial.price.starter.monthly]] per user per month, the full core CRM in every tier
-- [n8n integration](/n8n-crm) for flexible workflow automation
+- [n8n community node](/n8n-crm), webhooks and REST API for flexible workflow automation (n8n runs separately)
 
 **Weaknesses:**
 
@@ -285,21 +285,21 @@ Which CRM system offers which features? The following table shows the most impor
 | API access                                                     | ✅            | ✅                   | ✅      | ✅                 | ✅       | Limited    | ✅                     |
 | Self-hosting                                                   | ❌            | ❌                   | ❌      | ❌                 | ❌       | On request | ✅                     |
 | Open source                                                    | ❌            | ❌                   | ❌      | ❌                 | ❌       | ❌         | ✅                     |
-| GDPR / EU hosting                                              | Partial       | Partial              | ✅      | Partial            | Partial  | ✅         | ✅                     |
+| Data location                                                  | Depends on plan and region | Depends on plan and region | Depends on plan and region | Depends on plan and region | Depends on plan and region | Depends on plan and region | Cloud DB in Frankfurt; self-hostable |
 
 ## CRM Systems Price Comparison
 
-Cost is often the deciding factor when choosing a CRM system. Here is an overview of list prices per user per month. Pipedrive figures are its annual-billing prices as of September 2026; check every vendor's current edition, billing cadence and tax treatment before you compare:
+Cost is often the deciding factor when choosing a CRM system. Here is an overview of list prices per user per month. Pipedrive figures are its annual-billing prices and Salesforce figures are its USD Sales Cloud prices, both as of September 2026; check every vendor's current edition, billing cadence and tax treatment before you compare:
 
 | CRM System       | Entry                                | Mid-Tier                         | Enterprise                             | Free Version      |
 | ---------------- | ------------------------------------ | -------------------------------- | -------------------------------------- | ----------------- |
-| Salesforce       | €25                                  | €100                             | €300+                                  | ❌                |
+| Salesforce       | $25                                  | $100                             | $195 to $550                           | ✅ (Free Suite)   |
 | HubSpot          | €0 (Basic)                           | €90                              | €150+                                  | ✅ (limited)      |
 | SAP Sales Cloud  | On request                           | On request                       | On request                             | ❌                |
 | Pipedrive        | €14                                  | €39                              | €79                                    | ❌ (14-day trial) |
 | Zoho CRM         | €14                                  | €23                              | €52                                    | ✅ (3 users)      |
 | CAS genesisWorld | On request                           | On request                       | On request                             | ❌                |
-| Customermates    | [[commercial.price.starter.monthly]] | [[commercial.price.pro.monthly]] | [[commercial.price.business.monthly]]+ | ✅ (self-hosted)  |
+| Customermates    | [[commercial.price.starter.monthly]] | [[commercial.price.pro.monthly]] | [[commercial.price.business.monthly]]+ | Self-hosted core, no licence cost |
 
 ### How Much Does a CRM System Cost?
 
@@ -404,7 +404,7 @@ With self-hosting, you install the CRM system on your own infrastructure or with
 
 **Disadvantages:** Own IT effort for maintenance and updates, initial setup more involved.
 
-**Customermates offers both:** You can use the cloud version with EU hosting or run the system on your own infrastructure thanks to open source. This keeps you flexible.
+**Customermates offers both:** You can use the cloud version, whose database runs in the AWS Frankfurt region, or run the open-source core on your own infrastructure. This keeps you flexible.
 
 ## Data Privacy and GDPR in CRM Systems
 
@@ -412,7 +412,7 @@ For European businesses, data privacy is not an optional feature but a legal obl
 
 ### Data Location
 
-Where is your customer data physically stored? CRM systems from American vendors frequently host data in the US. Since the Schrems II ruling, the legal basis for data transfers to the US has been uncertain. EU hosting eliminates this risk.
+Where is your customer data physically stored? CRM systems from American vendors frequently host data in the US. Since the Schrems II ruling, the legal basis for data transfers to the US has been uncertain. EU hosting reduces this risk, but check the subprocessors too, because hosting, email, and monitoring providers may still sit in the US.
 
 ### Data Processing Agreements
 
@@ -426,7 +426,7 @@ Can the CRM system efficiently handle deletion requests and subject access reque
 
 Who can access which customer data? Role-based access controls and audit logs are mandatory to meet GDPR requirements.
 
-**How Customermates handles this:** the managed application database runs in an EU region, the DPA and the list of cloud subprocessors with their transfer safeguards are published, roles and permissions control who sees what, and changes to CRM records are recorded in an audit log. If you need to control the full stack, you can self-host the open-source edition.
+**How Customermates handles this:** the managed application database runs in the AWS Frankfurt region, the DPA and the list of cloud subprocessors with their transfer safeguards are published, roles and permissions control who sees what, and changes to CRM records are recorded in an audit log. If you need to control the full stack, you can self-host the open-source edition.
 
 ## What to Look For When Choosing a CRM System
 
@@ -488,7 +488,7 @@ The best-known CRM systems include Salesforce, HubSpot, SAP Sales Cloud, Pipedri
 </FaqItem>
 
 <FaqItem question="How much does a CRM system cost?">
-Costs vary widely: from free (limited basic versions) to [[commercial.price.starter.monthly]]/user/month (Customermates) to several hundred euros per user per month (Salesforce Enterprise). Implementation, training and customization costs often come on top.
+Costs vary widely: from free (limited basic versions) to [[commercial.price.starter.monthly]]/user/month (Customermates) to several hundred dollars per user per month (Salesforce's higher Sales Cloud editions). Implementation, training and customization costs often come on top.
 </FaqItem>
 
 <FaqItem question="What are the main types of CRM systems?">
@@ -508,7 +508,7 @@ As soon as you have more than a handful of customers and multiple people working
 </FaqItem>
 
 <FaqItem question="What is better: cloud CRM or self-hosting?">
-That depends on your priorities. Cloud CRM is faster to deploy and requires no IT overhead. Self-hosting offers maximum data control and GDPR certainty. Customermates offers both options, so you stay flexible.
+That depends on your priorities. Cloud CRM is faster to deploy and requires no IT overhead. Self-hosting offers maximum data control, because you decide where the data lives. Customermates offers both options, so you stay flexible.
 </FaqItem>
 </Faq>
 

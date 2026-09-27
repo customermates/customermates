@@ -48,7 +48,7 @@ CIM and CRM overlap heavily and the vendors blur the line on purpose. The cleane
 
 In a small company you run both inside one tool. CRMs that take logging and notes seriously, with native email sync, calendar sync, and webhook events for every change, function as CIM platforms for any team under about 50 people. Past that scale you usually layer a dedicated contact center or helpdesk on top, and the integration question becomes the most important one.
 
-Pipedrive's product team puts it nicely: CIM is the front of house, the conversations themselves; CRM is the back of house, the database those conversations update. You need both rooms.
+A useful way to picture it: CIM is the front of house, the conversations themselves; CRM is the back of house, the database those conversations update. You need both rooms.
 
 ## Why Customer Interaction Management Matters
 
@@ -117,9 +117,9 @@ The CIM software category fragments into several adjacent product types. Pick th
 
 ### CRM with Strong Activity Logging
 
-Modern CRMs (HubSpot, Pipedrive, Customermates, Salesforce, Zoho) function as CIM platforms for sales-led businesses. They sync email, calendar, and notes; they store activities; they trigger workflows. For teams under 50 people, this is often the entire stack you need.
+Modern CRMs (HubSpot, Pipedrive, Customermates, Salesforce, Zoho) function as CIM platforms for sales-led businesses. They connect email and notes to records and store activities; most also sync calendars and trigger workflows, though the depth varies by product. For teams under 50 people, this is often the entire stack you need.
 
-The differentiator is how easy the interaction record is to maintain. Customermates provides a unified inbox for connected messaging channels and a read-only CRM view of connected Google or Microsoft calendar events. Agents such as Claude or ChatGPT can read and write supported CRM records through [[derived.mcp.tools.total]] [MCP](https://modelcontextprotocol.io) tools; users still choose what the agent changes, and calendar events are not written back from Customermates.
+The differentiator is how easy the interaction record is to maintain. On Customermates Cloud from Pro, Customermates provides a unified inbox for connected messaging channels and a read-only CRM view of connected Google or Microsoft calendar events. Agents such as Claude or ChatGPT can read and write supported CRM records through [[derived.mcp.tools.total]] [MCP](https://modelcontextprotocol.io) tools; users still choose what the agent changes, and calendar events are not written back from Customermates.
 
 ### Contact Centers and Helpdesks
 
@@ -195,7 +195,7 @@ Teams sometimes treat automation as a threat to the human relationship. The fram
 
 ### Privacy and Compliance Gaps
 
-Especially in EU markets, capturing every conversation creates a GDPR exposure. Fix: pick tools that are GDPR-compliant by design, prefer EU-hosted vendors when the customer base is EU, document the data processing agreement, and limit retention to what the relationship justifies. Customermates is open source under [AGPL-3.0](/features/self-hosted), self-hostable, and EU-hosted in its cloud version, so the data stays on infrastructure you can point at on a map.
+Especially in EU markets, capturing every conversation creates a GDPR exposure. Fix: pick tools that are GDPR-compliant by design, prefer EU-hosted vendors when the customer base is EU, document the data processing agreement, and limit retention to what the relationship justifies. Customermates is open source under [AGPL-3.0](/features/self-hosted) and self-hostable. In the managed cloud, the application database runs in the AWS Frankfurt region; hosting and other subprocessors, including US providers, are listed on the [subprocessors page](/subprocessors), and a [DPA](/dpa) is available. If you need full control over where data lives, self-host the open-source core.
 
 ## Building a CIM System on a CRM Foundation
 
@@ -268,4 +268,4 @@ The discipline is. The implementation can fail. GDPR requires a lawful basis for
 
 Customer interaction management is not a category to buy. It is a system to build, mostly out of tools you already have, glued together with discipline. The teams that get it right end up with one place where every conversation lives, every owner is named, and every next step has a date. The teams that do not get it right end up with five inboxes and a lot of customers who feel forgotten.
 
-If you want a CRM foundation that takes the boring parts off your plate, [Customermates](/pricing) is open source, EU-hosted, and built so the AI agents you already use can run the interaction system for you. Or pick another tool. Just make sure you have one.
+If you want a CRM foundation that takes the boring parts off your plate, [Customermates](/pricing) is open source, self-hostable, runs its cloud database in Frankfurt, and is built so the AI agents you already use can run the interaction system for you. Or pick another tool. Just make sure you have one.

@@ -21,7 +21,7 @@ blogPost:
 
 Stop wasting time on dead-end leads. Learn the frameworks, CRM strategies, and automation techniques that help you focus on prospects most likely to convert.
 
-Every sales team faces the same challenge: limited time and too many leads. Not every prospect who fills out a contact form or books a demo is a good fit for your product. Research consistently shows that roughly half of all leads are a poor match. The difference between high-performing sales teams and the rest often comes down to one skill: client qualification.
+Every sales team faces the same challenge: limited time and too many leads. Not every prospect who fills out a contact form or books a demo is a good fit for your product. The difference between high-performing sales teams and the rest often comes down to one skill: client qualification.
 
 Client qualification is the systematic process of evaluating whether a prospect has the need, authority, budget, and timeline to become a customer. When done well, it shortens sales cycles, improves close rates, and ensures your team invests energy where it matters most.
 
@@ -33,7 +33,7 @@ In 2026, buyers are more informed than ever. They research solutions independent
 
 When your sales team spends time on unqualified leads, the costs compound quickly:
 
-- **Wasted selling hours**: Representatives spend 30-40% of their time on prospects who will never buy
+- **Wasted selling hours**: Representatives spend time on prospects who will never buy
 - **Lower morale**: Repeated rejections from poor-fit prospects drain motivation
 - **Inaccurate forecasting**: Bloated pipelines filled with unqualified deals skew revenue predictions
 - **Longer sales cycles**: Unqualified prospects stall, delay, and ghost
@@ -44,7 +44,7 @@ The math is straightforward. If a rep saves even five hours per week by eliminat
 
 ### Qualification as a competitive advantage
 
-Companies that master client qualification see measurable improvements. Teams that use formal qualification criteria report close rates 15-25% higher than those that rely on gut instinct. The reason is simple: when you understand exactly who your ideal customer is and build a repeatable process to identify them, you stop guessing and start executing.
+Companies that master client qualification see measurable improvements. The reason is simple: when you understand exactly who your ideal customer is and build a repeatable process to identify them, you stop guessing and start executing.
 
 ## Defining your Ideal Customer Profile (ICP)
 
@@ -261,7 +261,7 @@ Create custom fields in your CRM that map directly to your chosen framework. For
 - **Qualification Status**: Dropdown (Not Qualified, In Qualification, MQL, SQL, Disqualified)
 - **Disqualification Reason**: Dropdown (No budget, Wrong timing, No need, Wrong contact, Competitor, Other)
 
-In Customermates, custom fields are flexible and can be added to any entity type, contacts, organizations, or deals. You can create dropdown fields, date pickers, number fields, and text areas to capture exactly the qualification data your team needs.
+In Customermates, typed custom columns can be added to contacts, organizations, deals, services, and tasks. You can create single-select (dropdown), date, currency, and text columns to capture exactly the qualification data your team needs.
 
 ### CRM pipeline stages for qualification
 
@@ -294,7 +294,7 @@ Manual qualification is time-consuming and inconsistent. Automation ensures ever
 
 ### Automated lead scoring workflows
 
-With n8n connected to your CRM, you can build workflows that automatically score leads as data comes in:
+With n8n connected to your CRM, you can build workflows that automatically score leads as data comes in. Customermates does not score or enrich leads itself; the scoring logic lives in n8n, which you run separately, and the result is written into a custom column, for example a single-select score band:
 
 **Workflow: New lead auto-scoring**
 
@@ -454,16 +454,16 @@ Track these metrics to evaluate how well your qualification process works:
 - **Pipeline Accuracy**: Compare forecasted revenue against actual outcomes. Better qualification leads to more accurate forecasting.
 - **Disqualification Rate**: What percentage of leads are disqualified, and at which stage? This reveals whether you are attracting the right audience.
 - **Rep Efficiency**: Revenue per rep per hour of selling time. This should increase as qualification improves.
-- **Lead Response Time**: How quickly do sales reps engage MQLs? Leads contacted within an hour are 7x more likely to qualify.
+- **Lead Response Time**: How quickly do sales reps engage MQLs? Faster first contact generally improves qualification rates.
 - **Cost per SQL**: Total marketing and sales cost divided by SQLs generated. This should decrease as qualification improves targeting.
 
-Customermates provides built-in analytics and custom dashboards where you can track these metrics in real time. Combined with n8n automation for data collection and scoring, you have a complete qualification engine.
+Customermates dashboards show counts and values from your records, for example deals per stage or leads per qualification status, and weighted pipeline values from per-stage probabilities. Conversion rates and cycle lengths need an XLSX export or an external tool fed through the API.
 
 ## FAQ: Client qualification
 
 <Faq>
 <FaqItem question="What is client qualification in sales?">
-Client qualification is the systematic process of evaluating whether a prospect has the need, authority, budget, and timeline to become a customer. It uses frameworks like BANT, CHAMP, MEDDIC, ANUM, FAINT, or SPICED to structure the evaluation and lead scoring to quantify fit. The goal is to ensure sales teams focus their time on prospects most likely to convert, improving close rates by 15-25%.
+Client qualification is the systematic process of evaluating whether a prospect has the need, authority, budget, and timeline to become a customer. It uses frameworks like BANT, CHAMP, MEDDIC, ANUM, FAINT, or SPICED to structure the evaluation and lead scoring to quantify fit. The goal is to ensure sales teams focus their time on prospects most likely to convert.
 </FaqItem>
 
 <FaqItem question="What is the difference between BANT and CHAMP?">
@@ -487,7 +487,7 @@ The best qualification questions are open-ended and focused on the prospect's si
 </FaqItem>
 
 <FaqItem question="How can CRM help with client qualification?">
-A CRM centralizes qualification data in custom fields, automates lead scoring through integrations like n8n, structures the sales pipeline around qualification stages (MQL, SQL, Proposal, Negotiation), and provides analytics to measure qualification effectiveness. Customermates supports flexible custom fields, automation through separately operated n8n, and configurable pipelines from [[commercial.price.starter.monthly]] per user per month.
+A CRM centralizes qualification data in custom fields, automates lead scoring through integrations like n8n, structures the sales pipeline around qualification stages (MQL, SQL, Proposal, Negotiation), and provides analytics to measure qualification effectiveness. Customermates supports typed custom columns, automation through separately operated n8n, and a configurable deal-stage column from [[commercial.price.starter.monthly]] per user per month.
 </FaqItem>
 
 <FaqItem question="When should you disqualify a lead?">
@@ -517,6 +517,6 @@ Client qualification is not a one-time project. It is a discipline that, when pr
 
 The result is a sales team that spends its time on the right prospects, closes deals faster, and forecasts revenue with confidence. Whether you use BANT, CHAMP, MEDDIC, ANUM, SPICED, or a hybrid approach, the key is to start qualifying deliberately and refine your process over time.
 
-With Customermates from [[commercial.price.starter.monthly]] per user per month, you get a CRM with flexible custom fields, native n8n integration, and full pipeline management, everything you need to build a qualification engine that scales with your business. Open-source, self-hostable, and GDPR-compliant by design.
+With Customermates from [[commercial.price.starter.monthly]] per user per month, you get a CRM with typed custom columns, a community node for n8n (which you run separately), a REST API, webhooks, and full pipeline management, a solid base for a qualification process that scales with your business. Open-source, self-hostable, with a DPA and disclosed subprocessors for the managed cloud.
 
 Stop guessing. Start qualifying.
