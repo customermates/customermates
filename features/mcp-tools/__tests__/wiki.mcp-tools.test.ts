@@ -40,12 +40,8 @@ vi.mock("@/core/di", () => ({
 }));
 
 import { ALL_MCP_TOOLS, MCP_TOOL_GROUPS } from "../tool-registry";
-import {
-  manageWikiPagesTool,
-  WIKI_HOMEPAGE_RESERVED_HEADINGS,
-  WikiHomepageSetupCreateSchema,
-  wikiHomepageSetupTool,
-} from "../wiki.mcp-tools";
+import { manageWikiPagesTool, WIKI_HOMEPAGE_RESERVED_HEADINGS, WikiHomepageSetupCreateSchema } from "../wiki.mcp-tools";
+import { wikiHomepageSetupTool } from "../wiki-website-setup-tool";
 import { executeMcpTool, mcpToolResultText } from "../mcp-tool";
 
 const PAGE_ID = "00000000-0000-4000-8000-000000000001";

@@ -40,7 +40,7 @@ import { internalToolIdentity } from "./tool-identity";
 import { providerWireInputSchema } from "./provider-safe-json-schema";
 import type { AgentToolInputResult } from "./agent-tool-input";
 import { getAgentWebSearchTool } from "./agent-web-search";
-import { wikiHomepageSetupTool } from "@/features/mcp-tools/wiki.mcp-tools";
+import { wikiHomepageSetupTool } from "@/features/mcp-tools/wiki-website-setup-tool";
 import { WIKI_WEBSITE_CREATE_TOOL_NAME } from "./public-page-read-state";
 import { hostedWorkspaceContextTool } from "@/features/mcp-tools/workspace.mcp-tools";
 import { localizeWikiPageUrls } from "@/features/wiki/wiki-links";

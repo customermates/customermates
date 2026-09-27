@@ -19,8 +19,6 @@ import {
 import { wikiPageUrl } from "@/features/wiki/wiki-links";
 import { WikiMarkdownSchema, WIKI_TITLE_MAX_LENGTH } from "@/features/wiki/wiki.schema";
 import { env } from "@/env";
-import { getTranslator } from "@/i18n/get-translator";
-import { DEFAULT_LOCALE, isAppLocale, type AppLocale } from "@/i18n/locale-registry";
 
 import {
   customMcpFailure,
@@ -213,7 +211,7 @@ const ManageWikiPagesSchema = z.object({
   markdown: z.string().optional().describe("New Markdown."),
 });
 
-const ManageWikiPagesOutputSchema = z.looseObject({
+export const ManageWikiPagesOutputSchema = z.looseObject({
   items: z.array(z.looseObject({ id: z.string(), title: z.string() })).optional(),
   total: z.number().optional(),
   page: z.number().optional(),
@@ -240,7 +238,13 @@ const ManageWikiPagesOutputSchema = z.looseObject({
   deleted: z.boolean().optional(),
 });
 
-function pageSummary(page: { id: string; title: string; markdown: string; createdAt: Date; updatedAt: Date }) {
+export function wikiPageSummary(page: {
+  id: string;
+  title: string;
+  markdown: string;
+  createdAt: Date;
+  updatedAt: Date;
+}) {
   return {
     id: page.id,
     title: page.title,
@@ -350,7 +354,7 @@ export const manageWikiPagesTool = {
       const parsed = CreateSchema.safeParse(params);
       if (!parsed.success) return mcpValidationFailure(parsed.error);
       return runInteractor(getCreateWikiPagesInteractor().invoke(parsed.data), (pages) =>
-        toonResult({ items: formatDatesInResponse(pages.map(pageSummary)) }),
+        toonResult({ items: formatDatesInResponse(pages.map(wikiPageSummary)) }),
       );
     }
 
@@ -362,7 +366,7 @@ export const manageWikiPagesTool = {
           ...parsed.data,
           expectedUpdatedAt: new Date(parsed.data.expectedUpdatedAt),
         }),
-        (page) => toonResult(formatDatesInResponse(pageSummary(page))),
+        (page) => toonResult(formatDatesInResponse(wikiPageSummary(page))),
       );
     }
 
@@ -377,36 +381,3 @@ export const manageWikiPagesTool = {
     );
   },
 };
-
-async function setupPages(input: z.infer<typeof WikiHomepageSetupCreateSchema>, locale: AppLocale) {
-  const t = await getTranslator(locale, "WikiSetup.generated");
-  return input.pages.map(({ title, sections, sources, gaps }) => ({
-    title,
-    markdown: [
-      ...sections.map(({ heading, content }) => `## ${heading}\n\n${content}`),
-      `## ${t("sourcesHeading")}\n\n${[...new Set(sources)].map((source) => `- <${source}>`).join("\n")}`,
-      ...(gaps?.length ? [`## ${t("gapsHeading")}\n\n${gaps.map((gap) => `- ${gap}`).join("\n")}`] : []),
-    ].join("\n\n"),
-  }));
-}
-
-export function wikiHomepageSetupTool(locale: string | undefined) {
-  const appLocale = isAppLocale(locale) ? locale : DEFAULT_LOCALE;
-  return {
-    ...manageWikiPagesTool,
-    description:
-      "Create one to five evidence-backed Wiki pages in one atomic call that succeeds only while the Wiki is empty. Create a page only for a knowledge area the read pages support; merge thin areas and skip unsupported ones. Each page needs a localized title, one to five structured sections, one to four exact successfully read source URLs, and optional page-specific gaps. The server adds the H2 headings, the localized Sources list, and a gaps list only when gaps are provided.",
-    inputSchema: WikiHomepageSetupCreateSchema,
-    execute: async (params: z.infer<typeof WikiHomepageSetupCreateSchema>) => {
-      const parsed = WikiHomepageSetupCreateSchema.safeParse(params);
-      if (!parsed.success) return mcpValidationFailure(parsed.error);
-      return runInteractor(
-        getCreateWikiPagesInteractor().invoke({
-          requireEmpty: true,
-          pages: await setupPages(parsed.data, appLocale),
-        }),
-        (pages) => toonResult({ items: formatDatesInResponse(pages.map(pageSummary)) }),
-      );
-    },
-  };
-}

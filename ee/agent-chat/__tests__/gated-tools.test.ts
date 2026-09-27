@@ -9,6 +9,7 @@ vi.mock("next-intl/server", () => ({
 }));
 
 import { ALL_MCP_TOOLS, MCP_TOOL_GROUPS, MCP_ALWAYS_ON_TOOLS } from "@/features/mcp-tools/tool-registry";
+import { wikiHomepageSetupTool } from "@/features/mcp-tools/wiki-website-setup-tool";
 import { describeAgentTool } from "../agent-activity";
 import {
   AGENT_APPROVAL_POLICY_TOOL_NAMES,
@@ -117,6 +118,17 @@ describe("gated-tools", () => {
       expect(approvalNeeded(toolByName(name), { action })).toBe(true);
   });
 
+  it("runs the website Wiki setup create without approval under both registrations, with an accurate label", () => {
+    const setup = wikiHomepageSetupTool("en");
+    const input = { action: "create", requireEmpty: true, pages: [] };
+
+    expect(setup.annotations).toMatchObject({ readOnlyHint: false, destructiveHint: false });
+    expect(approvalNeeded(setup, input)).toBe(false);
+    expect(requiresApproval(internalToolIdentity("manage_wiki_pages"), setup, input)).toBe(false);
+    for (const name of [setup.name, "manage_wiki_pages"])
+      expect(describeInternalTool(name, input)).toMatchObject({ kind: "records.create", risk: "write" });
+  });
+
   it("lets ordinary CRM work run without approval", () => {
     const freeCalls: [string, unknown][] = [
       ["create_contacts", {}],
@@ -153,7 +165,7 @@ describe("gated-tools", () => {
   });
 
   it("keeps every policy key pointing at a real tool", () => {
-    const names = new Set(ALL_MCP_TOOLS.map((tool) => tool.name));
+    const names = new Set([...ALL_MCP_TOOLS, wikiHomepageSetupTool("en")].map((tool) => tool.name));
     for (const name of AGENT_APPROVAL_POLICY_TOOL_NAMES) expect(names.has(name)).toBe(true);
   });
 

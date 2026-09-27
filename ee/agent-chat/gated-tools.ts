@@ -18,6 +18,7 @@ const INTERNAL_APPROVAL_POLICY: Record<string, AgentApprovalPolicy> = {
   create_organizations: { approvalFree: true },
   create_services: { approvalFree: true },
   create_tasks: { approvalFree: true },
+  create_wiki_from_website: { approvalFree: true },
   discard_message_draft: { approvalFree: true },
   manage_custom_columns: { approvalFreeActions: ["list", "upsert"], readOnlyActions: ["list"] },
   manage_record_links: { approvalFree: true },

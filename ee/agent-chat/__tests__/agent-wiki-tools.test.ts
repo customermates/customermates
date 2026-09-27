@@ -516,7 +516,11 @@ describe("homepage setup tool boundary", () => {
       pages: setupPages.map(({ title }) => ({ title, markdown: expect.stringContaining("## Sources") })),
     });
     expect(calls.create.mock.calls[0][0].pages[0].markdown).toContain("<https://example.com/0>");
-    expect(deps.runExactlyOnce).toHaveBeenCalledWith("wiki-test-call", "manage_wiki_pages", expect.any(Function));
+    expect(deps.runExactlyOnce).toHaveBeenCalledWith(
+      "wiki-test-call",
+      "create_wiki_from_website",
+      expect.any(Function),
+    );
     expect(deps.requestApproval).not.toHaveBeenCalled();
     expect(deps.runInCallerContext).toHaveBeenCalledOnce();
   });
