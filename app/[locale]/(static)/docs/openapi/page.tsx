@@ -45,6 +45,18 @@ function sortDocGroupEntries<T>(entries: [string, T][]): [string, T][] {
   });
 }
 
+function renderInlineCode(text: string) {
+  return text.split("`").map((part, index) =>
+    index % 2 === 1 ? (
+      <code key={index} className="markdown-code">
+        {part}
+      </code>
+    ) : (
+      part
+    ),
+  );
+}
+
 export default async function OpenApiOverviewPage({ params }: StaticLocaleProps) {
   await enableStaticLocale(params);
 
@@ -115,7 +127,7 @@ export default async function OpenApiOverviewPage({ params }: StaticLocaleProps)
                     )}
                   </div>
 
-                  <p className="text-x-sm text-subdued my-auto wrap-break-word">{doc.description}</p>
+                  <p className="text-x-sm text-subdued my-auto wrap-break-word">{renderInlineCode(doc.description)}</p>
                 </AppCardBody>
               </AppCard>
             </AppLink>
