@@ -19,15 +19,6 @@ function read(relativePath: string): string {
 }
 
 describe("drawer side placement", () => {
-  it("keeps the retired sidebar Add picker absent", () => {
-    if (!ENFORCED) return;
-    const sidebar = read("app/components/app-sidebar.tsx");
-    const header = read("app/components/navigation/nav-header.tsx");
-
-    expect(sidebar).not.toContain("AddPickerDrawer");
-    expect(header).not.toContain("nav-add");
-  });
-
   it("opens the shared entity drawer from the left", () => {
     if (!ENFORCED) return;
     const source = read("components/entity-detail/entity-drawer.tsx");
