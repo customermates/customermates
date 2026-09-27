@@ -324,6 +324,35 @@ describe("automatic demo authentication proxy", () => {
     expect(mocks.isProtectedPage).not.toHaveBeenCalled();
   });
 
+  it("sends an unprefixed content path to its default-locale version with a 308, even for a German reader", async () => {
+    mockEnv.APP_MODE = "cloud";
+    mocks.isContentPage.mockReturnValue(true);
+    mocks.getSession.mockResolvedValue({
+      session: { expiresAt: new Date(Date.now() + 60_000) },
+      user: { email: "member@example.com" },
+    });
+
+    const response = await proxy(request("/docs/self-hosting?ref=hn", "app.session_token=member; APP_LOCALE=de"));
+
+    expect(response.status).toBe(308);
+    expect(response.headers.get("location")).toBe("http://localhost:4000/en/docs/self-hosting?ref=hn");
+    expect(mocks.getSession, "a permanent content redirect needs no session lookup").not.toHaveBeenCalled();
+    expect(mocks.intlMiddleware).not.toHaveBeenCalled();
+  });
+
+  it("keeps an unprefixed application path on the signed-in reader's preferred locale", async () => {
+    mockEnv.APP_MODE = "cloud";
+    mocks.getSession.mockResolvedValue({
+      session: { expiresAt: new Date(Date.now() + 60_000) },
+      user: { email: "member@example.com" },
+    });
+
+    const response = await proxy(request("/dashboard", "app.session_token=member; APP_LOCALE=de"));
+
+    expect(response.status).toBe(307);
+    expect(response.headers.get("location")).toBe("http://localhost:4000/de/dashboard");
+  });
+
   it("falls back to the configured deployment origin for an untrusted request host", async () => {
     mockEnv.APP_MODE = "cloud";
     mockEnv.BASE_URL = "https://customermates-git-feat-inbox-customermates.vercel.app";

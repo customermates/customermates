@@ -22,7 +22,7 @@ export function PricingCardComponent({ card, displayPrice, priceSubtext }: Props
       data-pricing-plan={card.plan}
     >
       <div className="mb-1 flex items-center justify-between">
-        <h3 className="m-0 text-[19px] font-semibold">{card.title}</h3>
+        <h2 className="m-0 text-[19px] font-semibold">{card.title}</h2>
 
         {card.badge && (
           <span className="rounded-full border border-border bg-background px-2.5 py-1 text-[10px] font-medium text-foreground">

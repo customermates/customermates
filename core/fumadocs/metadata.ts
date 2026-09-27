@@ -6,6 +6,7 @@ import { ROUTE_SOURCE_MAP } from "./route-source-map";
 
 import { env } from "@/env";
 import { buildAlternateLanguages } from "@/core/seo/alternates";
+import { brandedTitle } from "@/core/seo/branded-title";
 import { CONTENT_LOCALES, DEFAULT_LOCALE, buildLocalePath, isContentLocale } from "@/i18n/locale-registry";
 import { isContentPathname, isNoindexPublicRoute } from "@/i18n/routing";
 
@@ -81,7 +82,7 @@ export function generateMetadataFromMeta({
       images: [image],
       title,
     },
-    title,
+    title: brandedTitle(title),
   };
 
   if (description) metadata.description = description;

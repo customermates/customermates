@@ -107,7 +107,6 @@ function BadgeLink({ badge, label, ariaHidden }: BadgeLinkProps) {
   return (
     <a
       aria-hidden={ariaHidden || undefined}
-      aria-label={ariaHidden ? undefined : label}
       className="shrink-0 opacity-70 grayscale transition-[opacity,filter] duration-200 hover:opacity-100 hover:grayscale-0"
       href={badge.href}
       rel="noopener noreferrer"
@@ -116,7 +115,7 @@ function BadgeLink({ badge, label, ariaHidden }: BadgeLinkProps) {
     >
       {/* eslint-disable-next-line @next/next/no-img-element */}
       <img
-        alt={ariaHidden ? "" : label}
+        alt={label}
         className="h-8 w-auto dark:hidden"
         height={badge.height}
         loading="lazy"
@@ -126,7 +125,7 @@ function BadgeLink({ badge, label, ariaHidden }: BadgeLinkProps) {
 
       {/* eslint-disable-next-line @next/next/no-img-element */}
       <img
-        alt={ariaHidden ? "" : label}
+        alt={label}
         className="h-8 w-auto not-dark:hidden"
         height={badge.height}
         loading="lazy"

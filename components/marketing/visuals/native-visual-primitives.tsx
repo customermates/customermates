@@ -23,9 +23,9 @@ import {
 
 const STATUS_CLASSES: Record<VisualStatusFixtureId, string> = {
   "deal-abandoned": "bg-foreground/5 text-foreground/80",
-  "deal-lost": "bg-destructive/20 text-destructive",
-  "deal-open": "bg-warning/20 text-warning",
-  "deal-won": "bg-success/20 text-success",
+  "deal-lost": "bg-destructive/20 text-[color-mix(in_oklab,var(--destructive)_50%,var(--foreground))]",
+  "deal-open": "bg-warning/20 text-[color-mix(in_oklab,var(--warning)_50%,var(--foreground))]",
+  "deal-won": "bg-success/20 text-[color-mix(in_oklab,var(--success)_50%,var(--foreground))]",
 };
 
 const STATUS_LABELS: Record<ContentLocale, Record<VisualStatusFixtureId, string>> = {

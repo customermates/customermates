@@ -1136,7 +1136,7 @@ export function HomepagePipelineVisual({ className, labels, locale }: VisualProp
       ].map(({ className: cardClassName, record, status }) => (
         <div
           key={status}
-          className={cn("absolute z-10 opacity-75 saturate-50", cardClassName)}
+          className={cn("absolute z-10 saturate-50", cardClassName)}
           data-homepage-pipeline-background-card={status}
         >
           <PipelineCard labels={labels} locale={locale} record={record} />

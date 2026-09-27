@@ -563,6 +563,21 @@ describe("hub pagination and rendered reachability", () => {
   );
 
   it.skipIf(!E2E_BASE_URL)(
+    "permanently sends unprefixed content paths to the default locale and negotiates only the root",
+    async () => {
+      for (const path of ["/docs", "/docs/self-hosting", "/blog?page=2", "/pricing"]) {
+        const response = await e2eResponse(path, { headers: { "accept-language": "de-DE,de;q=0.9" } });
+        expect(await semanticRedirectPath(response, path), path).toBe(buildLocalePath(DEFAULT_LOCALE, path));
+      }
+
+      const root = await e2eResponse("/", { headers: { "accept-language": "de-DE,de;q=0.9" } });
+      expect(root.status, "the x-default root negotiates").toBe(307);
+      expect(sameOriginPath(root.headers.get("location") ?? "", E2E_BASE_URL as string)).toBe("/de");
+    },
+    60_000,
+  );
+
+  it.skipIf(!E2E_BASE_URL)(
     "crawls the production server output, metadata, semantic pagination outcomes, sitemap, and every localized detail route",
     async () => {
       const graph = new Map<string, string[]>();

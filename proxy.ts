@@ -44,6 +44,18 @@ function localeRedirect(locale: string, unprefixedPath: string, base: string | U
   return NextResponse.redirect(target);
 }
 
+function isUnprefixedContentPath(req: NextRequest): boolean {
+  const pathname = req.nextUrl.pathname;
+  if (pathname === "/" || routingLocaleFromPathname(pathname) !== null) return false;
+  return !isUnsupportedLocalePrefix(pathname) && isContentPage(req);
+}
+
+function defaultLocaleContentRedirect(req: NextRequest, base: string | URL) {
+  const target = new URL(buildLocalePath(DEFAULT_LOCALE, req.nextUrl.pathname), base);
+  target.search = req.nextUrl.search;
+  return NextResponse.redirect(target, 308);
+}
+
 function negotiateLocale(req: NextRequest, base: string | URL, domain: "app" | "auto" = "auto") {
   const useContentLocale = domain === "auto" && isContentPage(req);
 
@@ -150,6 +162,8 @@ export default async function proxy(req: NextRequest) {
   }
 
   if (isApiRoute) return malformedRequestPathResponse(pathname) ?? NextResponse.next();
+
+  if (isUnprefixedContentPath(req)) return defaultLocaleContentRedirect(req, base);
 
   let session: ProxySession;
   let isAuthenticated = false;

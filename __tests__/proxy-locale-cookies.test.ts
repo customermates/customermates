@@ -106,15 +106,26 @@ describe("proxy locale preference cookies", () => {
     expect(app.location).toBe("http://localhost:4000/it/dashboard");
   });
 
-  it("honours the content selection the language menu stored for later locale-less content navigation", async () => {
+  it("honours the content selection the language menu stored for a later visit to the locale-less root", async () => {
     const selection = await call("/de/terms", { acceptLanguage: "en-US,en;q=0.9" });
     expect(selection.setCookies).toEqual([]);
 
-    const subsequent = await call("/pricing", {
+    const subsequent = await call("/", {
       acceptLanguage: "en-US,en;q=0.9",
       cookie: `${CONTENT_LOCALE_COOKIE_NAME}=de`,
     });
-    expect(subsequent.location).toBe("http://localhost:4000/de/pricing");
+    expect(subsequent.status).toBe(307);
+    expect(subsequent.location).toMatch(/^http:\/\/localhost:4000\/de\/?$/);
+  });
+
+  it("sends a locale-less content page to its default-locale URL permanently, whatever the preference", async () => {
+    const remembered = await call("/pricing", {
+      acceptLanguage: "de-DE,de;q=0.9",
+      cookie: `${CONTENT_LOCALE_COOKIE_NAME}=de`,
+    });
+    expect(remembered.status).toBe(308);
+    expect(remembered.location).toBe("http://localhost:4000/en/pricing");
+    expect(remembered.setCookies).toEqual([]);
   });
 
   it("ignores stale or cross-domain locale cookie values safely", async () => {
@@ -124,10 +135,10 @@ describe("proxy locale preference cookies", () => {
     });
     expect(staleApp.location).toBe("http://localhost:4000/fr/dashboard");
 
-    const appOnlyContent = await call("/pricing", {
+    const appOnlyContent = await call("/", {
       acceptLanguage: "de-DE,de;q=0.9",
       cookie: `${CONTENT_LOCALE_COOKIE_NAME}=fr`,
     });
-    expect(appOnlyContent.location).toBe("http://localhost:4000/de/pricing");
+    expect(appOnlyContent.location).toMatch(/^http:\/\/localhost:4000\/de\/?$/);
   });
 });

@@ -207,12 +207,48 @@ describe("proxy locale routing", () => {
     }
   });
 
-  it("never emits a permanently cached redirect", async () => {
+  it("emits a permanent redirect only for an unprefixed content path", async () => {
     for (const path of PATHS) {
       const { status } = await call(path);
-      expect(status, `${path} returned a permanent redirect`).not.toBe(308);
-      expect(status, `${path} returned a permanent redirect`).not.toBe(301);
+      const expectedPermanent = path === "/pricing";
+      expect(status === 308, `${path} permanence`).toBe(expectedPermanent);
+      expect(status, `${path} returned a 301`).not.toBe(301);
     }
+  });
+
+  it("permanently sends an unprefixed content path to its default-locale version, whatever the reader prefers", async () => {
+    for (const path of [
+      "/docs",
+      "/docs/webhooks",
+      "/docs/self-hosting",
+      "/blog/crm-app",
+      "/pricing",
+      "/features/all",
+    ]) {
+      for (const acceptLanguage of [undefined, "de-DE,de;q=0.9", "nl-NL,nl;q=0.9"]) {
+        const { status, location, response } = await call(path, acceptLanguage);
+        expect(status, `${path} ${acceptLanguage ?? ""}`).toBe(308);
+        expect(location, `${path} ${acceptLanguage ?? ""}`).toBe(`http://localhost:4000/en${path}`);
+        expect(response.headers.get("vary"), "a permanent target must not vary by request").toBeNull();
+      }
+    }
+  });
+
+  it("keeps the query string on the permanent redirect", async () => {
+    const { status, location } = await call("/blog?page=2&utm_source=proof");
+    expect(status).toBe(308);
+    expect(location).toBe("http://localhost:4000/en/blog?page=2&utm_source=proof");
+  });
+
+  it("keeps the site root as the language-negotiating x-default entry point", async () => {
+    const german = await call("/", "de-DE,de;q=0.9");
+    expect(german.status).toBe(307);
+    expect(german.location).toMatch(/^http:\/\/localhost:4000\/de\/?$/);
+    expect(german.response.headers.get("vary")).toBe("accept-language, cookie");
+
+    const english = await call("/");
+    expect(english.status).toBe(307);
+    expect(english.location).toMatch(/^http:\/\/localhost:4000\/en\/?$/);
   });
 
   it("404s an unsupported locale prefix instead of redirecting", async () => {
@@ -234,18 +270,15 @@ describe("proxy locale routing", () => {
     }
   });
 
-  it("negotiates an unprefixed path into a content locale only", async () => {
-    const german = await call("/pricing", "de-DE,de;q=0.9");
-    expect(german.status).toBe(307);
-    expect(german.location).toContain("/de/pricing");
-    expect(german.response.headers.get("vary")).toBe("accept-language, cookie");
-
-    const french = await call("/pricing", "fr-FR,fr;q=0.9");
+  it("negotiates the unprefixed root into a content locale only", async () => {
+    const french = await call("/", "fr-FR,fr;q=0.9");
     expect(french.status).toBe(307);
-    expect(french.location, "an application-only locale must never be an auto-detect target").toContain("/en/pricing");
+    expect(french.location, "an application-only locale must never be an auto-detect target").toMatch(
+      /^http:\/\/localhost:4000\/en\/?$/,
+    );
 
-    const dutch = await call("/pricing", "nl-NL,nl;q=0.9");
-    expect(dutch.location, "a content locale remains negotiable").toContain("/nl/pricing");
+    const dutch = await call("/", "nl-NL,nl;q=0.9");
+    expect(dutch.location, "a content locale remains negotiable").toMatch(/^http:\/\/localhost:4000\/nl\/?$/);
   });
 
   it("negotiates an unprefixed application path into any routing locale", async () => {
