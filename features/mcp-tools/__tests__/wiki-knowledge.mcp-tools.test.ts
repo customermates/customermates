@@ -312,6 +312,27 @@ describe("read-only Wiki search and fetch compatibility", () => {
     });
     expect(calls.get).not.toHaveBeenCalled();
   });
+
+  it("returns a CRM record unchanged and refuses a Wiki offset for it", async () => {
+    calls.fetchRecord.mockResolvedValue({ ok: true, data: { contact: { id, name: "Ada Lovelace" } } });
+
+    const result = await fetchTool.execute({ id: `record:contact:${id}` });
+    if (!("structuredContent" in result)) throw new Error("Expected a CRM record.");
+    expect(calls.fetchRecord).toHaveBeenCalledWith({ id });
+    expect(result.structuredContent).toEqual({
+      id: `record:contact:${id}`,
+      title: "Ada Lovelace",
+      text: JSON.stringify({ id, name: "Ada Lovelace" }, null, 2),
+      url: `http://localhost:4000/contacts/${id}`,
+      metadata: { entity: "contact" },
+    });
+
+    calls.fetchRecord.mockClear();
+    const withOffset = await fetchTool.execute({ id: `record:contact:${id}`, offset: 5 });
+    expect(mcpToolResultText(withOffset)).toContain("offset is supported only for Workspace Wiki results.");
+    expect(calls.fetchRecord).not.toHaveBeenCalled();
+    expect(calls.get).not.toHaveBeenCalled();
+  });
 });
 
 describe("workspace-context Wiki discovery", () => {

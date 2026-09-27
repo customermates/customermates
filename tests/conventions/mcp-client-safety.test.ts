@@ -1,3 +1,6 @@
+import { readFileSync } from "node:fs";
+import { join } from "node:path";
+
 import { describe, expect, it } from "vitest";
 
 import {
@@ -12,6 +15,7 @@ import {
 import { requiresApproval } from "@/ee/agent-chat/gated-tools";
 import { internalToolIdentity } from "@/ee/agent-chat/tool-identity";
 import { ALL_MCP_TOOLS } from "@/features/mcp-tools/tool-registry";
+import { CONTENT_LOCALES } from "@/i18n/locale-registry";
 
 const MCP_SERVER_INSTRUCTIONS = buildMcpServerInstructions(ALL_MCP_TOOLS.map(({ name }) => name));
 const EXTERNAL_TEXTS = { MCP_SERVER_INSTRUCTIONS, GET_STARTED_PROMPT };
@@ -70,5 +74,18 @@ describe("what an external MCP client is told", () => {
 
   it("keeps the hosted approval instruction for the hosted prompt only", () => {
     expect(TOOL_APPROVAL_INSTRUCTION).toMatch(/nothing happens until that confirmation is granted/);
+  });
+
+  it("keeps em dashes and spaced en dashes out of every text an external client reads", () => {
+    const summaries = CONTENT_LOCALES.map((locale) =>
+      readFileSync(join(process.cwd(), "content/docs", locale, "mcp-catalog-summaries.json"), "utf8"),
+    );
+    const texts = [
+      MCP_SERVER_INSTRUCTIONS,
+      GET_STARTED_PROMPT,
+      ...ALL_MCP_TOOLS.map(({ name, description }) => `${name}: ${description}`),
+      ...summaries,
+    ];
+    expect(texts.filter((text) => /\u2014|\s\u2013\s/u.test(text))).toEqual([]);
   });
 });
