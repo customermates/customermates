@@ -2322,15 +2322,14 @@ describe("routine browse-or-mutate batch safety", () => {
       "does not create setup pages before a usable homepage read (failed read attempted: %s)",
       async (attempted) => {
         state.readPage.mockResolvedValue({ ok: false, reason: "unavailable" });
+        let readResult: unknown;
+        let createResult: unknown;
         state.runTools = async ({ executeAndCompleteTool, completeStepAndPrepareNext }) => {
           if (attempted) {
-            expect(await executeAndCompleteTool("read_public_page", read, "read-home")).toMatchObject({ ok: false });
+            readResult = await executeAndCompleteTool("read_public_page", read, "read-home");
             await completeStepAndPrepareNext(streamedStep("", "tool-calls"));
           }
-          expect(await executeAndCompleteTool("manage_wiki_pages", setupWrite(), "write-1")).toMatchObject({
-            ok: false,
-            result: expect.stringContaining("Read the submitted homepage successfully"),
-          });
+          createResult = await executeAndCompleteTool("manage_wiki_pages", setupWrite(), "write-1");
           return finish();
         };
         await runAgentTurn({
@@ -2339,6 +2338,11 @@ describe("routine browse-or-mutate batch safety", () => {
             url: "https://example.com/",
             registrableDomain: "example.com",
           },
+        });
+        if (attempted) expect(readResult).toMatchObject({ ok: false });
+        expect(createResult).toMatchObject({
+          ok: false,
+          result: expect.stringContaining("Read the submitted homepage successfully"),
         });
         expect(state.readPage).toHaveBeenCalledTimes(attempted ? 1 : 0);
         expect(state.execute).not.toHaveBeenCalled();
@@ -2440,6 +2444,7 @@ describe("routine browse-or-mutate batch safety", () => {
 
     it("never creates setup pages in the same batch as website reads", async () => {
       const citedWrite = setupWrite();
+      let createResult: unknown;
       state.runTools = async ({ executeAndCompleteTool }) => {
         const batch = [
           {
@@ -2451,10 +2456,7 @@ describe("routine browse-or-mutate batch safety", () => {
           },
         ];
         await executeAndCompleteTool("read_public_page", read, "read-home", batch);
-        expect(await executeAndCompleteTool("manage_wiki_pages", citedWrite, "write-same-batch", batch)).toMatchObject({
-          ok: false,
-          result: expect.stringContaining("later step"),
-        });
+        createResult = await executeAndCompleteTool("manage_wiki_pages", citedWrite, "write-same-batch", batch);
         return finish();
       };
 
@@ -2466,14 +2468,17 @@ describe("routine browse-or-mutate batch safety", () => {
         },
       });
 
+      expect(createResult).toMatchObject({ ok: false, result: expect.stringContaining("later step") });
       expect(state.execute).not.toHaveBeenCalled();
     });
 
     it("creates setup pages only when every cited source was read successfully", async () => {
       const citedWrite = setupWrite("https://example.com/#evidence");
+      let readResult: unknown;
+      let createResult: unknown;
       state.runTools = async ({ executeAndCompleteTool }) => {
-        expect(await executeAndCompleteTool("read_public_page", read, "read-1")).toMatchObject({ ok: true });
-        expect(await executeAndCompleteTool("manage_wiki_pages", citedWrite, "write-1")).toMatchObject({ ok: true });
+        readResult = await executeAndCompleteTool("read_public_page", read, "read-1");
+        createResult = await executeAndCompleteTool("manage_wiki_pages", citedWrite, "write-1");
         return finish();
       };
 
@@ -2485,6 +2490,8 @@ describe("routine browse-or-mutate batch safety", () => {
         },
       });
 
+      expect(readResult).toMatchObject({ ok: true });
+      expect(createResult).toMatchObject({ ok: true });
       expect(state.execute).toHaveBeenCalledOnce();
       expect(state.execute).toHaveBeenCalledWith(
         {
@@ -2497,12 +2504,10 @@ describe("routine browse-or-mutate batch safety", () => {
 
     it("rejects a setup citation to an unread or failed page", async () => {
       const unsupportedWrite = setupWrite("https://example.com/guessed");
+      let createResult: unknown;
       state.runTools = async ({ executeAndCompleteTool }) => {
         await executeAndCompleteTool("read_public_page", read, "read-1");
-        expect(await executeAndCompleteTool("manage_wiki_pages", unsupportedWrite, "write-1")).toMatchObject({
-          ok: false,
-          result: expect.stringContaining("exact URL that this task read successfully"),
-        });
+        createResult = await executeAndCompleteTool("manage_wiki_pages", unsupportedWrite, "write-1");
         return finish();
       };
 
@@ -2514,6 +2519,10 @@ describe("routine browse-or-mutate batch safety", () => {
         },
       });
 
+      expect(createResult).toMatchObject({
+        ok: false,
+        result: expect.stringContaining("exact URL that this task read successfully"),
+      });
       expect(state.execute).not.toHaveBeenCalled();
     });
   });
