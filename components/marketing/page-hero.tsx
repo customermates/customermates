@@ -100,11 +100,11 @@ export function PageHero(props: Props) {
               </div>
             ) : null}
 
-            <h1 className={cn("m-0", visual ? "text-display-sm" : "text-display max-w-5xl")}>
-              {title}
+            <div className={cn("m-0", visual ? "text-display-sm" : "text-display max-w-5xl")}>
+              <h1 className="inline">{title}</h1>
 
               {titleAccent ? <span> {titleAccent}</span> : null}
-            </h1>
+            </div>
 
             <p className={cn("text-lede mt-7", !visual && "mx-auto")}>{description}</p>
 
