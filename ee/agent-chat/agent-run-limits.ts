@@ -10,10 +10,22 @@ export type AgentToolOutcome =
   | { toolCallId: string; toolName: string; output: unknown }
   | { toolCallId: string; toolName: string; threw: true };
 
+function inCallOrder(content: readonly unknown[], outcomes: readonly AgentToolOutcome[]): AgentToolOutcome[] {
+  const position = new Map<string, number>();
+  content.forEach((part, index) => {
+    const call = part as { type?: string; toolCallId?: unknown };
+    if (call?.type === "tool-call" && typeof call.toolCallId === "string" && !position.has(call.toolCallId))
+      position.set(call.toolCallId, index);
+  });
+  const rank = (outcome: AgentToolOutcome) => position.get(outcome.toolCallId) ?? Number.MAX_SAFE_INTEGER;
+  return outcomes.toSorted((left, right) => rank(left) - rank(right));
+}
+
 export function toAgentContinuationStep(
   step: { finishReason: string; content: readonly unknown[] },
-  outcomes: readonly AgentToolOutcome[],
+  resolved: readonly AgentToolOutcome[],
 ): AgentContinuationStep {
+  const outcomes = inCallOrder(step.content, resolved);
   const results = outcomes.map((outcome) =>
     "threw" in outcome
       ? { type: "tool-error", toolCallId: outcome.toolCallId, toolName: outcome.toolName }
