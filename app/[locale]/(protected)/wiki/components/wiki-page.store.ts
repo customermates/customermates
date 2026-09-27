@@ -138,8 +138,9 @@ export class WikiPageStore extends BaseFormStore<WikiPageForm> {
           });
 
       if (!result.ok) {
-        this.setConflict("conflict" in result && result.conflict === true);
-        this.setError(result.error);
+        const conflict = "conflict" in result && result.conflict === true;
+        this.setConflict(conflict);
+        this.setError(conflict ? undefined : result.error);
         return;
       }
 
@@ -161,7 +162,6 @@ export class WikiPageStore extends BaseFormStore<WikiPageForm> {
         expectedUpdatedAt: this.form.updatedAt,
       });
       if (!result.ok) {
-        this.setConflict(result.conflict);
         this.setError(result.error);
         return false;
       }

@@ -2,7 +2,7 @@ import type { ReactNode } from "react";
 import type { Root as ReactRoot } from "react-dom/client";
 import type * as TopBarActionsModule from "@/app/components/topbar-actions-context";
 
-import { act, createElement, startTransition, Suspense, use, useState } from "react";
+import { act, cloneElement, createElement, isValidElement, startTransition, Suspense, use, useState } from "react";
 import { createRoot, hydrateRoot } from "react-dom/client";
 import { renderToStaticMarkup } from "react-dom/server";
 import { observable, runInAction } from "mobx";
@@ -42,6 +42,8 @@ vi.mock("@/core/stores/root-store.provider", () => ({
   useRootStore: () => harness.rootStore,
 }));
 vi.mock("@/i18n/navigation", () => ({
+  IntlLink: ({ children, ...props }: { children?: ReactNode; [key: string]: unknown }) =>
+    createElement("a", props, children),
   usePathname: () => "/wiki",
   useRouter: () => ({
     replace: harness.replace,
@@ -111,11 +113,13 @@ vi.mock("@/components/shared/icon", () => ({
   Icon: () => createElement("span"),
 }));
 vi.mock("@/components/ui/button", () => ({
-  Button: ({ children, ...props }: { children?: ReactNode; [key: string]: unknown }) => {
+  Button: ({ children, asChild, ...props }: { children?: ReactNode; asChild?: boolean; [key: string]: unknown }) => {
     const buttonProps = Object.fromEntries(
-      Object.entries(props).filter(([name]) => !["asChild", "size", "variant"].includes(name)),
+      Object.entries(props).filter(([name]) => !["size", "variant"].includes(name)),
     );
-    return createElement("button", buttonProps, children);
+    return asChild && isValidElement(children)
+      ? cloneElement(children, buttonProps)
+      : createElement("button", buttonProps, children);
   },
 }));
 vi.mock("@/components/wiki/wiki-homepage-setup", () => ({
@@ -270,7 +274,11 @@ describe("Wiki document view", () => {
 
     expect(layout?.className.split(" ")).toEqual(expect.arrayContaining(["px-6", "py-8", "md:px-10", "md:py-10"]));
     expect(layout?.closest("form")?.className).toBe("");
-    expect(container.querySelector("main")?.className).toContain("@container/wiki");
+    const documentPanel = container.querySelector("#wiki-document-panel");
+    expect(documentPanel?.tagName).toBe("SECTION");
+    expect(documentPanel?.getAttribute("aria-label")).toBe("Wiki.document");
+    expect(documentPanel?.className).toContain("@container/wiki");
+    expect(container.querySelector("main")).toBeNull();
     expect(container.querySelector("aside")?.className).toContain("lg:flex");
     expect(group?.className).toContain("lg:grid-cols-[var(--panel-grid-template)]");
     expect(group?.style.getPropertyValue("--panel-grid-template")).toContain("280px");
@@ -295,7 +303,7 @@ describe("Wiki document view", () => {
         }),
       ]),
     );
-    const save = () => container.querySelector<HTMLButtonElement>('header [aria-label="Wiki.save"]');
+    const save = () => container.querySelector<HTMLButtonElement>('header [aria-label="Common.actions.save"]');
     expect(save()?.disabled).toBe(true);
     expect(harness.toolbarRenders).toBeLessThan(10);
     const settledRenders = harness.toolbarRenders;
@@ -330,7 +338,7 @@ describe("Wiki document view", () => {
     );
     const { container: topBar } = await mount(harness.topBar);
     const form = container.querySelector("form");
-    const save = topBar.querySelector<HTMLButtonElement>('[aria-label="Wiki.save"]');
+    const save = topBar.querySelector<HTMLButtonElement>('[aria-label="Common.actions.save"]');
 
     expect(container.querySelector('[data-editor-readonly="false"]')).not.toBeNull();
     expect(harness.editorProps?.data).toBe(harness.store.editorDocument);
@@ -390,7 +398,7 @@ describe("Wiki document view", () => {
     expect(html).toContain('data-editor-readonly="true"');
     expect(html).toContain(`<h1 class="break-words text-3xl font-semibold tracking-tight">${page.title}</h1>`);
     expect(html).not.toContain('aria-label="Wiki.pageTitle"');
-    expect(topBar).not.toContain("Wiki.save");
+    expect(topBar).not.toContain("Common.actions.save");
     expect(topBar).not.toContain("Wiki.newPage");
   });
 
@@ -417,7 +425,7 @@ describe("Wiki document view", () => {
       }),
     );
 
-    expect(container.querySelectorAll("nav button")).toHaveLength(26);
+    expect(container.querySelectorAll("nav a")).toHaveLength(26);
     expect(container.querySelector('nav [aria-current="page"]')?.textContent).toBe("Support");
     expect(container.textContent).toContain("Wiki.page");
   });
@@ -453,9 +461,7 @@ describe("Wiki document view", () => {
         listPage: populatedList,
       }),
     );
-    const pageButton = [...container.querySelectorAll("nav button")].find(
-      (button) => button.textContent === page.title,
-    );
+    const pageButton = [...container.querySelectorAll("nav a")].find((button) => button.textContent === page.title);
 
     act(() => (pageButton as HTMLButtonElement).click());
     expect(harness.push).not.toHaveBeenCalled();
@@ -507,7 +513,7 @@ describe("Wiki document view", () => {
           createElement(Suspense, { key: "route", fallback: "Incoming route" }, createElement(Route)),
         ]),
       );
-      const pageButton = [...container.querySelectorAll<HTMLButtonElement>("nav button")].find(
+      const pageButton = [...container.querySelectorAll<HTMLAnchorElement>("nav a")].find(
         (button) => button.textContent === nextPage.title,
       );
 
@@ -526,15 +532,17 @@ describe("Wiki document view", () => {
       }
 
       expect(harness.push).toHaveBeenCalledExactlyOnceWith(`/wiki?page=${nextPage.id}`);
-      expect(container.querySelector('main [data-page-state="loading"]')).not.toBeNull();
-      expect(container.querySelector('main [role="status"]')?.textContent).toBe("PageState.loading");
+      expect(container.querySelector('#wiki-document-panel [data-page-state="loading"]')).not.toBeNull();
+      expect(container.querySelector('#wiki-document-panel [role="status"]')?.textContent).toBe("PageState.loading");
       expect(container.querySelector('input[aria-label="Wiki.pageTitle"]')).toBeNull();
       expect(container.querySelector("[data-editor-readonly]")).toBeNull();
       expect(container.querySelector('[aria-label="Wiki.newPage"]')).toBeNull();
-      expect(container.querySelector('[aria-label="Wiki.save"]')).toBeNull();
-      expect([...container.querySelectorAll<HTMLButtonElement>("nav button")].every((button) => button.disabled)).toBe(
-        true,
-      );
+      expect(container.querySelector('[aria-label="Common.actions.save"]')).toBeNull();
+      expect(
+        [...container.querySelectorAll<HTMLAnchorElement>("nav a")].every(
+          (link) => link.getAttribute("aria-disabled") === "true",
+        ),
+      ).toBe(true);
       expect(harness.store.startCreate).not.toHaveBeenCalled();
 
       await act(async () => {
@@ -543,7 +551,7 @@ describe("Wiki document view", () => {
         await routeResponse;
       });
 
-      expect(container.querySelector('main [data-page-state="loading"]')).toBeNull();
+      expect(container.querySelector('#wiki-document-panel [data-page-state="loading"]')).toBeNull();
       expect(container.querySelector('nav [aria-current="page"]')?.textContent).toBe(nextPage.title);
       expect(container.querySelector('input[aria-label="Wiki.pageTitle"]')).not.toBeNull();
       expect(container.querySelector('[data-editor-readonly="false"]')).not.toBeNull();
@@ -578,6 +586,49 @@ describe("Wiki document view", () => {
     expect(harness.store.reload).not.toHaveBeenCalled();
     act(() => pending?.());
     expect(harness.store.reload).toHaveBeenCalledOnce();
+  });
+
+  it("renders rail pages as links to their Wiki URL and leaves a true-empty rail blank", async () => {
+    configure(false, false);
+    harness.store.form = page;
+    const { container } = await mount(createElement(WikiPageView, { initialPage: page, listPage: populatedList }));
+    const link = container.querySelector<HTMLAnchorElement>("nav a");
+
+    expect(link?.getAttribute("href")).toBe(`/wiki?page=${page.id}`);
+    expect(link?.getAttribute("aria-current")).toBe("page");
+
+    configure(true, false);
+    const { container: empty } = await mount(createElement(WikiPageView, { initialPage: null, listPage }));
+    expect(empty.querySelector("nav")?.textContent).toBe("");
+  });
+
+  it("cancels a new draft back to the page it started from through the unsaved-changes guard", async () => {
+    configure(true, false);
+    harness.store.creating = true;
+    let pending: (() => void) | undefined;
+    harness.tryNavigate.mockImplementation((navigate: () => void) => {
+      pending = navigate;
+      return false;
+    });
+    await mount(createElement(WikiPageView, { initialPage: page, listPage: populatedList }));
+    const { container: topBar } = await mount(harness.topBar);
+
+    act(() => topBar.querySelector<HTMLButtonElement>('[aria-label="Common.actions.cancel"]')?.click());
+    expect(harness.store.load).not.toHaveBeenCalled();
+    act(() => pending?.());
+    expect(harness.store.load).toHaveBeenCalledExactlyOnceWith(page);
+  });
+
+  it("shows a stale update as the shared warning alert with a Reload action", async () => {
+    configure(true, false);
+    harness.store.form = page;
+    harness.store.conflict = true;
+    const { container } = await mount(createElement(WikiPageView, { initialPage: page, listPage: populatedList }));
+    const alert = container.querySelector('[data-slot="alert"]');
+
+    expect(alert?.getAttribute("role")).toBe("alert");
+    expect(alert?.textContent).toContain("Wiki.conflict");
+    expect(alert?.querySelector("button")?.textContent).toBe("Wiki.reload");
   });
 
   it("focuses the blank title when starting a new document", async () => {
@@ -705,7 +756,7 @@ describe("Wiki empty state", () => {
     const { container: topBar } = await mount(harness.topBar);
 
     await act(async () => {
-      [...container.querySelectorAll<HTMLButtonElement>("main button")]
+      [...container.querySelectorAll<HTMLButtonElement>("#wiki-document-panel button")]
         .find((button) => button.textContent?.includes("WikiSetup.openTask"))
         ?.click();
       await Promise.resolve();

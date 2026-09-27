@@ -15,12 +15,13 @@ import { FormInput } from "@/components/forms/form-input";
 import { Editor } from "@/components/editor/editor";
 import { EditorLinkPickerContext } from "@/components/editor/editor-link-picker";
 import { PageState } from "@/components/page-state/page-state";
+import { Alert } from "@/components/shared/alert";
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
 import { Sheet, SheetBody, SheetContent, SheetHeader, SheetTitle, SheetTrigger } from "@/components/ui/sheet";
 import { useRootStore } from "@/core/stores/root-store.provider";
 import { runUserAction } from "@/core/errors/report-application-error";
-import { useRouter } from "@/i18n/navigation";
+import { IntlLink, useRouter } from "@/i18n/navigation";
 import { cn } from "@/core/utils/cn";
 import { EMPTY_WIKI_HOMEPAGE_SETUP_STATE, useRefreshWhileWikiSetupWorks } from "@/components/wiki/wiki-homepage-setup";
 import { wikiPagePath } from "@/features/wiki/wiki-links";
@@ -126,6 +127,7 @@ const WikiPageViewComponent = ({
     });
   };
   const reload = useCallback(() => tryNavigate(() => runUserAction(store.reload)), [store, tryNavigate]);
+  const cancelCreate = useCallback(() => tryNavigate(() => store.load(initialPage)), [initialPage, store, tryNavigate]);
   const savePanelSizes = useCallback(
     (sizes: readonly number[] | null) => {
       commitColumnWidths((current) =>
@@ -143,36 +145,54 @@ const WikiPageViewComponent = ({
           formId={formId}
           hasDocument={hasDocument}
           store={store}
+          onCancelCreate={cancelCreate}
           onCreate={create}
           onReload={reload}
         />
       ),
-    [canManage, create, formId, hasDocument, isNavigating, reload, setupActive, store],
+    [canManage, cancelCreate, create, formId, hasDocument, isNavigating, reload, setupActive, store],
   );
   useSetTopBarActions(topBar);
   const pinnedRailPage = pinnedPage && !pages.result.items.some(({ id }) => id === pinnedPage.id) ? pinnedPage : null;
-  const pageButton = (page: WikiPageSummary) => (
-    <Button
-      key={page.id}
-      aria-current={!store.creating && page.id === store.form.id ? "page" : undefined}
-      className={cn(
-        "mb-0.5 h-auto min-h-9 w-full justify-start gap-2 p-2 text-left font-normal",
-        !store.creating && page.id === store.form.id && "bg-accent text-accent-foreground",
-      )}
-      disabled={store.isLoading || isNavigating}
-      variant="ghost"
-      onClick={() => selectPage(page.id)}
-    >
-      <FileText className="size-4 shrink-0 text-muted-foreground" />
+  const railBusy = store.isLoading || isNavigating;
+  const pageLink = (page: WikiPageSummary) => {
+    const current = !store.creating && page.id === store.form.id;
+    return (
+      <Button
+        key={page.id}
+        asChild
+        className={cn(
+          "mb-0.5 h-auto min-h-9 w-full justify-start gap-2 p-2 text-left font-normal",
+          current && "bg-accent text-accent-foreground",
+          railBusy && "pointer-events-none opacity-50",
+        )}
+        variant="ghost"
+      >
+        <IntlLink
+          aria-current={current ? "page" : undefined}
+          aria-disabled={railBusy || undefined}
+          href={wikiPagePath(page.id)}
+          onClick={(event) => {
+            if (event.metaKey || event.ctrlKey || event.shiftKey || event.altKey || event.button !== 0) return;
+            event.preventDefault();
+            if (!railBusy) selectPage(page.id);
+          }}
+        >
+          <FileText aria-hidden="true" className="size-4 shrink-0 text-muted-foreground" />
 
-      <span className="truncate">{page.title}</span>
-    </Button>
-  );
+          <span className="truncate">{page.title}</span>
+        </IntlLink>
+      </Button>
+    );
+  };
 
   const pageList = (
     <div className="flex min-h-0 flex-1 flex-col">
       <div className="relative mx-3 mb-3 mt-4">
-        <Search className="pointer-events-none absolute left-2.5 top-1/2 size-3.5 -translate-y-1/2 text-muted-foreground" />
+        <Search
+          aria-hidden="true"
+          className="pointer-events-none absolute left-2.5 top-1/2 size-3.5 -translate-y-1/2 text-muted-foreground"
+        />
 
         <Input
           aria-label={t("Wiki.search")}
@@ -190,7 +210,7 @@ const WikiPageViewComponent = ({
         aria-label={t("Wiki.pagesLabel")}
         className="flex min-h-0 flex-1 flex-col px-2 pb-2"
       >
-        {pinnedRailPage && <div className="pb-1">{pageButton(pinnedRailPage)}</div>}
+        {pinnedRailPage && <div className="pb-1">{pageLink(pinnedRailPage)}</div>}
 
         <div className="min-h-0 flex-1 overflow-y-auto">
           {pages.failed ? (
@@ -202,11 +222,11 @@ const WikiPageViewComponent = ({
               </Button>
             </div>
           ) : pages.result.items.length === 0 ? (
-            <p className="p-3 text-sm text-muted-foreground">
-              {pages.query ? t("Wiki.noResults") : t("Wiki.pagesLabel")}
-            </p>
+            pages.query ? (
+              <p className="p-3 text-sm text-muted-foreground">{t("Wiki.noResults")}</p>
+            ) : null
           ) : (
-            pages.result.items.map(pageButton)
+            pages.result.items.map(pageLink)
           )}
         </div>
 
@@ -269,16 +289,20 @@ const WikiPageViewComponent = ({
       minimumSize: 480,
       defaultSize: 720,
       element: (
-        <main className="@container/wiki flex min-h-0 min-w-0 flex-1 flex-col overflow-y-auto" id="wiki-document-panel">
+        <section
+          aria-label={t("Wiki.document")}
+          className="@container/wiki flex min-h-0 min-w-0 flex-1 flex-col overflow-y-auto"
+          id="wiki-document-panel"
+        >
           <Sheet open={mobileOpen} onOpenChange={setMobileOpen}>
             <div className="flex min-w-0 items-center border-b border-border px-4 py-2 lg:hidden">
               <SheetTrigger asChild>
                 <Button className="min-w-0 max-w-full justify-between gap-3 font-normal" variant="ghost">
-                  <BookOpen className="shrink-0" />
+                  <BookOpen aria-hidden="true" className="shrink-0" />
 
                   <span className="truncate">{store.form.title || t("Wiki.pagesLabel")}</span>
 
-                  <ChevronDown className="shrink-0" />
+                  <ChevronDown aria-hidden="true" className="shrink-0" />
                 </Button>
               </SheetTrigger>
             </div>
@@ -359,21 +383,23 @@ const WikiPageViewComponent = ({
           ) : (
             <AppForm id={formId} store={store}>
               <div
-                className="mx-auto grid w-full max-w-6xl flex-1 items-start gap-12 px-6 py-8 md:px-10 md:py-10 @6xl/wiki:grid-cols-[minmax(0,48rem)_12rem] @6xl/wiki:justify-center"
+                className="mx-auto grid w-full max-w-6xl flex-1 items-start gap-12 px-6 py-8 md:px-10 md:py-10 @min-[68rem]/wiki:grid-cols-[minmax(0,48rem)_12rem] @min-[68rem]/wiki:justify-center"
                 data-wiki-document-layout=""
               >
-                <div ref={documentContainer} className="mx-auto w-full max-w-3xl min-w-0 space-y-6 @6xl/wiki:mx-0">
+                <div
+                  ref={documentContainer}
+                  className="mx-auto w-full max-w-3xl min-w-0 space-y-6 @min-[68rem]/wiki:mx-0"
+                >
                   {store.conflict && (
-                    <div
-                      className="flex flex-wrap items-center justify-between gap-3 rounded-md border border-border p-3 text-sm"
-                      role="alert"
-                    >
-                      <p>{t("Wiki.conflict")}</p>
+                    <Alert color="warning">
+                      <div className="flex flex-wrap items-center justify-between gap-3">
+                        <p>{t("Wiki.conflict")}</p>
 
-                      <Button disabled={store.isLoading} size="sm" variant="secondary" onClick={reload}>
-                        {t("Wiki.reload")}
-                      </Button>
-                    </div>
+                        <Button disabled={store.isLoading} size="sm" variant="secondary" onClick={reload}>
+                          {t("Wiki.reload")}
+                        </Button>
+                      </div>
+                    </Alert>
                   )}
 
                   <div ref={titleContainer}>
@@ -405,7 +431,7 @@ const WikiPageViewComponent = ({
               </div>
             </AppForm>
           )}
-        </main>
+        </section>
       ),
     },
   ];

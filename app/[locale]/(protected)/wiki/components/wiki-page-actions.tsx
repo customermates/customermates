@@ -3,7 +3,7 @@
 import type { WikiPageStore } from "./wiki-page.store";
 
 import { observer } from "mobx-react-lite";
-import { Link, MoreHorizontal, Plus, RotateCcw, Save, Trash2 } from "lucide-react";
+import { Link, MoreHorizontal, Plus, RotateCcw, Save, Trash2, X } from "lucide-react";
 import { useTranslations } from "next-intl";
 
 import { Button } from "@/components/ui/button";
@@ -24,12 +24,13 @@ type Props = {
   store: WikiPageStore;
   formId: string;
   hasDocument: boolean;
+  onCancelCreate: () => void;
   onCreate: () => void;
   onReload: () => void;
 };
 
 export const WikiPageActions = observer((props: Props) => {
-  const { canManage, canCreate, store, formId, hasDocument, onCreate, onReload } = props;
+  const { canManage, canCreate, store, formId, hasDocument, onCancelCreate, onCreate, onReload } = props;
   const t = useTranslations();
   const copyToClipboard = useCopyToClipboard();
   const { showDeleteConfirmation } = useDeleteConfirmation();
@@ -44,9 +45,23 @@ export const WikiPageActions = observer((props: Props) => {
           variant="secondary"
           onClick={onCreate}
         >
-          <Plus className="size-4" />
+          <Plus aria-hidden="true" className="size-4" />
 
           <span className="hidden sm:inline">{t("Wiki.newPage")}</span>
+        </Button>
+      )}
+
+      {store.creating && (
+        <Button
+          aria-label={t("Common.actions.cancel")}
+          disabled={store.isLoading}
+          size="sm"
+          variant="secondary"
+          onClick={onCancelCreate}
+        >
+          <X aria-hidden="true" className="size-4 sm:hidden" />
+
+          <span className="hidden sm:inline">{t("Common.actions.cancel")}</span>
         </Button>
       )}
 
@@ -58,7 +73,7 @@ export const WikiPageActions = observer((props: Props) => {
           variant="secondary"
           onClick={store.resetDocument}
         >
-          <RotateCcw className="size-4 sm:hidden" />
+          <RotateCcw aria-hidden="true" className="size-4 sm:hidden" />
 
           <span className="hidden sm:inline">{t("Common.actions.reset")}</span>
         </Button>
@@ -66,15 +81,15 @@ export const WikiPageActions = observer((props: Props) => {
 
       {hasDocument && canManage && (
         <Button
-          aria-label={t("Wiki.save")}
+          aria-label={t("Common.actions.save")}
           disabled={store.isLoading || !store.hasUnsavedChanges}
           form={formId}
           size="sm"
           type="submit"
         >
-          <Save className="size-4 sm:hidden" />
+          <Save aria-hidden="true" className="size-4 sm:hidden" />
 
-          <span className="hidden sm:inline">{t("Wiki.save")}</span>
+          <span className="hidden sm:inline">{t("Common.actions.save")}</span>
         </Button>
       )}
 
@@ -82,7 +97,7 @@ export const WikiPageActions = observer((props: Props) => {
         <DropdownMenu>
           <DropdownMenuTrigger asChild>
             <Button aria-label={t("Wiki.pageActions")} disabled={store.isLoading} size="icon-sm" variant="ghost">
-              <MoreHorizontal />
+              <MoreHorizontal aria-hidden="true" />
             </Button>
           </DropdownMenuTrigger>
 
@@ -92,13 +107,13 @@ export const WikiPageActions = observer((props: Props) => {
                 runUserAction(() => copyToClipboard(wikiPageUrl(window.location.origin, store.form.id as string)))
               }
             >
-              <Link />
+              <Link aria-hidden="true" />
 
               {t("Wiki.copyLink")}
             </DropdownMenuItem>
 
             <DropdownMenuItem onSelect={onReload}>
-              <RotateCcw />
+              <RotateCcw aria-hidden="true" />
 
               {t("Wiki.reload")}
             </DropdownMenuItem>
@@ -108,7 +123,7 @@ export const WikiPageActions = observer((props: Props) => {
                 className="text-destructive focus:text-destructive"
                 onSelect={() => showDeleteConfirmation(() => store.delete(), store.form.title)}
               >
-                <Trash2 />
+                <Trash2 aria-hidden="true" />
 
                 {t("Wiki.delete")}
               </DropdownMenuItem>

@@ -8,6 +8,7 @@ const actions = vi.hoisted(() => ({
   update: vi.fn(),
   delete: vi.fn(),
   get: vi.fn(),
+  toast: vi.fn(),
 }));
 
 vi.mock("../../actions", () => ({
@@ -17,7 +18,7 @@ vi.mock("../../actions", () => ({
   getWikiPageAction: actions.get,
 }));
 vi.mock("@/core/utils/toast-zod-error-tree", () => ({
-  toastZodErrorTree: vi.fn(),
+  toastZodErrorTree: actions.toast,
 }));
 
 import { WikiPageStore } from "../wiki-page.store";
@@ -49,6 +50,7 @@ beforeEach(() => {
   actions.update.mockReset().mockResolvedValue({ ok: true, data: latest });
   actions.delete.mockReset().mockResolvedValue({ ok: true, data: page });
   actions.get.mockReset().mockResolvedValue({ ok: true, data: latest });
+  actions.toast.mockReset();
 });
 
 describe("Wiki document editing", () => {
@@ -150,6 +152,7 @@ describe("Wiki document editing", () => {
     store.onChange("markdown", "My draft");
     await store.onSubmit();
     expect(store.conflict).toBe(true);
+    expect(actions.toast).not.toHaveBeenCalled();
     expect(store.form.markdown).toBe("My draft");
     expect(store.form.updatedAt).toEqual(page.updatedAt);
     expect(actions.get).not.toHaveBeenCalled();
@@ -202,7 +205,7 @@ describe("Wiki document editing", () => {
     expect(actions.delete).not.toHaveBeenCalled();
   });
 
-  it("retains the page and signals conflict on stale delete", async () => {
+  it("retains the page and only toasts on stale delete", async () => {
     actions.delete.mockResolvedValue({
       ok: false,
       conflict: true,
@@ -211,7 +214,8 @@ describe("Wiki document editing", () => {
     const changed = vi.fn();
     const store = new WikiPageStore(rootStore(), page, changed);
     expect(await store.delete()).toBe(false);
-    expect(store.conflict).toBe(true);
+    expect(store.conflict).toBe(false);
+    expect(actions.toast).toHaveBeenCalledExactlyOnceWith({ errors: ["Conflict"] });
     expect(store.form.id).toBe(page.id);
     expect(changed).not.toHaveBeenCalled();
   });

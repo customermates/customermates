@@ -126,7 +126,7 @@ describe("Wiki page outline", () => {
     const headings = container.querySelectorAll<HTMLElement>(".tiptap h1, .tiptap h2, .tiptap h3");
 
     expect(outline?.className).toContain("hidden");
-    expect(outline?.className).toContain("@6xl/wiki:block");
+    expect(outline?.className).toContain("@min-[68rem]/wiki:block");
     expect(buttons.map((button) => button.textContent)).toEqual(["Overview", "Products", "Support process"]);
     expect(buttons[0]?.className).not.toContain("pl-3");
     expect(buttons[1]?.className).toContain("pl-3");
