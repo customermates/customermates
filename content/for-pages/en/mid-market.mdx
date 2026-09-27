@@ -1,6 +1,6 @@
 ---
-title: "Mid-Market CRM: Reporting, Roles & Automation"
-description: "Mid-market CRM with role-based permissions, audit log, management reporting, and ERP integration through the API. Open source and self-hostable."
+title: "Mid-Market CRM: Roles, Audit Log and Integrations"
+description: "A midmarket CRM for teams that outgrew simple tools: roles per team, audit log, weighted pipelines, REST, webhooks and MCP. Open source, cloud or self-hosted."
 industryName: "Mid-Market"
 
 relatedHrefs:
@@ -10,8 +10,8 @@ relatedHrefs:
   - /for/startups
 
 hero:
-  title: "The Open-Source Mid-Market CRM That Scales Without the Bloat"
-  description: "A mid-market CRM where AI agents keep records current across teams and a unified inbox spans email, LinkedIn, WhatsApp, Instagram, and Telegram, built for growing companies that need multi-team access, role-based permissions, management reporting, and deep integrations, without enterprise complexity or enterprise pricing."
+  title: "The Mid-Market CRM Between Simple Tools and Enterprise Suites"
+  description: "For midmarket companies that have outgrown a starter CRM but do not want a year-long enterprise rollout: roles per team, an audit log, weighted pipelines, a unified inbox across email and chat, and open interfaces for your ERP and AI clients."
   buttonLeftText: Start for free
   buttonLeftHref: /auth/signup
   buttonRightText: Watch live demo
@@ -19,8 +19,8 @@ hero:
   hint: "✓ No credit card required ✓ First [[commercial.trial.days]] days free"
 
 cta:
-  action: Ready to give your mid-market company the CRM it deserves?
-  description: Start with Customermates today, the open-source mid-market CRM software that combines enterprise-grade features with startup-level simplicity. Set up in 2 minutes.
+  action: Ready to evaluate a mid-market CRM without a consulting project?
+  description: Set up roles, pipelines and your first integration in a trial workspace, then decide with real data.
   buttonLeftText: Start for free
   buttonLeftHref: /auth/signup
   buttonRightText: Watch live demo
@@ -28,126 +28,114 @@ cta:
   hint: "✓ No credit card required ✓ First [[commercial.trial.days]] days free"
 ---
 
-## Why mid-market companies need a dedicated mid-market CRM
+## What a mid-market CRM has to do
 
-A mid-market CRM is not a luxury, it is the infrastructure that connects sales, service, and leadership around one shared source of truth. Mid-market companies with 50 to 1,000 employees face a unique challenge: they have outgrown the spreadsheets and simple tools that worked when the team was small, but enterprise CRM platforms like Salesforce or Microsoft Dynamics bring complexity, cost, and implementation timelines that do not match mid-market realities.
+A **mid-market CRM** (often written *midmarket CRM*) serves companies that are too large for a single shared pipeline and too lean for an enterprise implementation program: typically several teams, dozens to a few hundred CRM users, an ERP or accounting system that must stay the system of record for money, and no dedicated CRM administration department.
 
-According to [Gartner's research on mid-market technology adoption](https://www.gartner.com/en/information-technology/topics/midsize-enterprise-it), mid-size businesses that invest in scalable, right-sized software grow revenue 20% faster than those stuck on legacy tools or oversized enterprise systems. The right CRM for mid-market companies bridges this gap, delivering the power of enterprise software at a price and complexity level that fits the mid-market.
+Those companies need a specific set of things from a CRM:
 
-If you are still evaluating whether a CRM is the right move, our [CRM introduction guide](/blog/what-is-crm) covers the fundamentals. For companies already using a basic tool and looking to scale up, this page explains exactly what a CRM for mid-size business needs to deliver.
+- **Separation between teams** without building a permission project.
+- **Traceability**: who changed which record and when.
+- **Numbers leadership trusts**: pipeline value by stage and owner, weighted by realistic probabilities.
+- **Integration** with the ERP, accounting, email and data tools that already run the business.
+- **Room to grow** without renegotiating licences for every new feature.
 
-## The mid-market CRM gap: too big for simple tools, too lean for enterprise software
+If you are still deciding whether a CRM is the right step, start with [what a CRM is](/blog/what-is-crm). This page explains how Customermates covers the mid-market list above and where it deliberately stops.
 
-Mid-market companies face a specific set of CRM challenges that neither small-business tools nor enterprise platforms address well:
+## How Customermates fits mid-market teams
 
-- **Scaling from SMB tools**: The startup-era CRM or spreadsheet that tracked 200 contacts now needs to handle 10,000+. Multiple teams need access simultaneously, but the tool was not built for concurrency, permissions, or cross-department visibility. Our guide on [CRM best practices](/blog/crm-best-practices) covers the warning signs that you have outgrown your current system.
+### Roles per team and resource
 
-- **Multi-team access requirements**: Sales, account management, customer success, service, and leadership all need CRM access, but they need different views, different permissions, and different workflows. A CRM for mid-market companies must support this without requiring a dedicated admin to manage it.
+Roles define read and manage access per resource: contacts, organizations, deals, services, tasks, inbox messages, API and webhooks, and more. Read access can be limited to records a person is assigned to, so sales, account management and service each see what they own. Permissions are per resource and action; there is no field-level permission model, which keeps configuration understandable for a small operations team.
 
-- **Reporting for management**: Leadership needs pipeline forecasts, revenue attribution, team performance, and conversion metrics. Mid-market reporting requirements go far beyond "how many deals did we close this month", but most mid-range CRMs lock advanced reporting behind expensive tiers.
+### Audit log included in every plan
 
-- **Integration with existing systems**: Mid-market companies already run an ERP, accounting software, email systems, and often industry-specific tools. The CRM must connect to these systems rather than replacing them. Read our guide on [CRM and ERP integration](/blog/crm-erp-integration) for a deeper look at this challenge.
+Changes to CRM records and the workspace configuration around them are recorded in the audit log, visible to roles with audit permission. It is part of the open-source core, so every cloud plan and the self-hosted edition include it. The audit log is not an immutable archive, and it does not cover inbox content, authentication or API keys.
 
-- **GDPR and data compliance**: For European mid-market companies, GDPR compliance is non-negotiable. Many US-based CRM vendors cannot fully guarantee EU data residency or offer the data processing agreements that mid-market compliance teams require.
+### Pipelines and weighted values leadership can read
 
-- **IT resources are limited**: Unlike enterprises with dedicated CRM administrators, mid-market companies need systems that business users can configure and maintain without deep technical expertise.
+Deal stage is a configurable single-select field, and each option can carry a weight. Customermates uses those weights to calculate weighted deal values and weighted pipeline totals, and dashboards show counts, values and weighted totals. Group any list by owner, organization, stage or a custom field to break the pipeline down per team. These are deterministic calculations from your own weights, not predictive forecasts; for deeper analysis, read the data through REST into your BI tool. See [pipeline management](/features/pipeline).
 
-- **Avoiding enterprise bloat**: Salesforce, Dynamics 365, and similar platforms offer immense power, but also immense complexity. Mid-market companies rarely need 90% of enterprise CRM features, yet they pay for all of them. The implementation alone can take 6-12 months and cost more than the software itself.
+### Integration with ERP and accounting
 
-## How Customermates solves mid-market CRM challenges
+The REST API is versioned under `/api/v1` with an OpenAPI document, and [webhooks](/features/workflow-automation) cover [[derived.webhooks.events.total]] event types across records and messaging. Common mid-market patterns: an accepted deal creates an order in the ERP, invoice status flows back into a custom field, and customer master data stays aligned in both directions. You run those flows in your own integration service or through the n8n community node. The [CRM and ERP integration guide](/blog/crm-erp-integration) covers the patterns.
 
-Customermates is the mid-market CRM software that closes the gap between simple tools and bloated enterprise platforms. The core CRM, pipelines, automation, API, native AI agents ([[derived.mcp.tools.total]] MCP tools that let Claude, ChatGPT, or Gemini read and write the CRM), role-based permissions, and audit log, is included in every tier, and the only thing that changes as you scale is how many connected inboxes and accounts your team needs.
+### Records in and out as Excel workbooks
 
-### Role-based permissions for every department
+Import and export run per record type as XLSX workbooks, scoped to what the user may read and to the current view. That covers the initial migration of contacts, organizations and deals and regular hand-offs to finance or management, alongside the API.
 
-Use resource-level roles to define access across contacts, organizations, deals, services, tasks, and messaging. Permissions apply to a complete resource rather than individual fields, records, or personal team views. Separate pipelines can organize account-management work, and people with access see the same underlying records. Administrators configure these role boundaries in the interface; there is no field-level permission model.
+### One inbox across teams
 
-### Multi-pipeline management
+On Customermates Cloud from Pro, the [unified inbox](/features/unified-inbox) brings email, LinkedIn, WhatsApp, Instagram and Telegram into the CRM. Business adds shared accounts, so a team mailbox can be visible to everyone who needs it, and [[commercial.entitlement.business.includedAccountsPerUser]] connected accounts per user.
 
-Run separate pipelines for different business processes: new customer acquisition, existing client expansion, partner management, renewal tracking. Each pipeline has independent stages, and contacts can appear across multiple pipelines simultaneously. Visualize every pipeline in [Kanban view](/features/pipeline) with drag-and-drop stage management.
+### AI through MCP and the Mate assistant
 
-### Management reporting and dashboards
+External AI clients such as Claude or ChatGPT connect through [MCP](/docs/mcp) and use [[derived.mcp.tools.total]] tools within the permissions of the connected user. On Customermates Cloud, the Mate assistant works inside the app and asks for a fresh approval before destructive actions and sends; routines let it run saved instructions on a schedule or when a record changes.
 
-Give leadership current CRM data without asking IT to build every view. Configurable dashboards show stored deal counts, values, and deterministic stage-weighted pipeline totals. Customermates does not calculate conversion metrics or predictive revenue forecasts. Read supported data through REST for board reports or analysis in an external BI tool. For measurement guidance, see our [CRM ROI guide](/blog/crm-roi).
+## Where Customermates stops
 
-### Deep integration via API and n8n
+Mid-market buyers should know the boundaries before a pilot:
 
-Connect Customermates to your ERP, accounting, email, calendar, and any other system through the REST API, webhooks, and [n8n workflow automation](/blog/n8n-for-beginners-build-your-first-workflow). Bidirectional data sync means your CRM stays current without manual data entry. Automate lead routing, follow-up sequences, task creation, notifications, and data enrichment, all without writing code.
+- no SSO or SAML today; single sign-on is a contracted Enterprise item that is not built yet;
+- no field-level permissions and no shared team views; saved views are personal;
+- no predictive forecasting, lead scoring or data enrichment;
+- no quotes, invoicing or telephony;
+- self-hosted installations use the Starter feature set without the inbox or Mate.
 
-### GDPR-native and EU-hosted
+If single sign-on or field-level security is mandatory today, an enterprise suite is the safer choice. See the [Salesforce](/compare/salesforce-alternative), [Microsoft Dynamics](/compare/microsoft-dynamics-alternative) and [HubSpot](/compare/hubspot-alternative) comparisons for those trade-offs.
 
-For the hosted service, the managed database runs in an EU region. Application hosting and other providers, including US providers, are documented in the subprocessor list. Audit history is available in the product; privacy requests and external data access require your process and supported APIs. Customermates is open source and can be [self-hosted](/features/self-hosted), but deployment facts are not a compliance certification.
+## Mid-market CRM options compared
 
-### AI agents that operate your mid-market CRM
+| Criterion                      | Customermates                                | Enterprise suites (Salesforce, Dynamics 365) | Sales-first tools (Pipedrive and similar) |
+| ------------------------------ | -------------------------------------------- | -------------------------------------------- | ----------------------------------------- |
+| Time to a working pilot        | Days                                         | Usually a project with partners              | Days                                      |
+| Team separation                | Roles per resource, assigned-only read       | Very fine-grained, including fields          | Varies by plan                            |
+| Audit log                      | Included in every plan                       | Available, depth varies by edition           | Varies by plan                            |
+| SSO                            | Not built yet                                | Yes                                          | Varies by plan                            |
+| Open source and self-hosting   | Yes                                          | No                                           | No                                        |
+| AI clients through MCP         | Built in                                     | Available, see the [Salesforce MCP guide](/blog/salesforce-mcp) | Varies                   |
 
-Connect Claude, ChatGPT, or Gemini directly to your CRM through [[derived.mcp.tools.total]] MCP tools, so an AI agent can read and write records and do the data entry teams avoid: enriching contact data, summarizing meeting notes, updating deal stages, and automating repetitive work. The pipeline stays current because the agent keeps it that way. Learn how teams use AI for [summarizing notes](/blog/chatgpt-summarize-notes) and [qualifying leads](/blog/lead-qualification-chatgpt).
+## Pricing for mid-market teams
 
-## Mid-market CRM comparison: Customermates vs. enterprise platforms
+- **Starter, [[commercial.price.starter.monthly]] per user per month:** the core CRM, roles, audit log, REST, webhooks and MCP.
+- **Pro, [[commercial.price.pro.monthly]] per user per month:** adds the unified inbox with [[commercial.entitlement.pro.includedAccountsPerUser]] connected account per user.
+- **Business, [[commercial.price.business.monthly]] per user per month:** [[commercial.entitlement.business.includedAccountsPerUser]] connected accounts per user, shared accounts and priority support.
+- **Enterprise:** contracted terms; SSO and white-label are negotiated there and are not built in the product yet.
 
-Mid-market companies often evaluate Salesforce, HubSpot, Microsoft Dynamics, Zoho, and Pipedrive before choosing a CRM. Here is how Customermates compares on the criteria that matter most to CRM for mid-market companies:
+Billing is monthly per user. 25 users on Business cost [[commercial.price.business.monthly.seats.25]] per month, and 50 users cost [[commercial.price.business.monthly.seats.50]] per month. See [pricing](/pricing) and the [CRM cost guide](/blog/crm-cost).
 
-**[Salesforce](https://www.salesforce.com/)** is an established enterprise platform but comes with enterprise complexity and pricing (Sales Cloud runs $25-350/user/month, and its Agentforce AI is a separate add-on). Implementation typically takes 3-6 months with consultant involvement. Powerful, but often more than mid-market teams need. See our [Salesforce alternative comparison](/compare/salesforce-alternative).
+## A mid-market rollout in five steps
 
-**[HubSpot](https://www.hubspot.com/products/crm)** offers a free tier but locks multi-team features, custom reporting, and advanced automation behind expensive upgrades ($90+/user/month). Data stored in the US. See our [HubSpot alternative comparison](/compare/hubspot-alternative).
-
-**[Microsoft Dynamics 365](https://dynamics.microsoft.com/)** integrates well with the Microsoft stack but carries enterprise-level complexity and pricing (Sales Professional $65, Enterprise $105, Premium $150/user/month). Best suited for companies already deeply invested in Microsoft infrastructure. See our [Dynamics alternative comparison](/compare/microsoft-dynamics-alternative).
-
-**[Pipedrive](https://www.pipedrive.com/)** excels at simple pipeline management but lacks the depth mid-market companies need for multi-team access, advanced permissions, and management reporting. See our [Pipedrive alternative comparison](/compare/pipedrive-alternative).
-
-**Customermates** includes the core CRM, pipelines, automation, API, native AI agents ([[derived.mcp.tools.total]] MCP tools), role-based permissions, audit log, and self-hosting, starting at [[commercial.price.starter.monthly]]/user/month. Pro at [[commercial.price.pro.monthly]]/user/month adds the unified inbox (email, LinkedIn, WhatsApp, Instagram, Telegram); Business at [[commercial.price.business.monthly]]/user/month adds [[commercial.entitlement.business.includedAccountsPerUser]] connected accounts per user and priority support; Enterprise is a contract: SSO and white-label are negotiated there and are not built yet. No hidden costs at any tier. Open source, EU-hosted, GDPR-native. Setup takes 2 minutes.
-
-## Pricing that works for mid-market companies
-
-Mid-market CRM software should have fair, transparent pricing, not nested license models that punish growth. The core CRM, automation, API, native AI agents ([[derived.mcp.tools.total]] MCP tools), audit log, and advanced reporting, is in every tier:
-
-- **Starter, [[commercial.price.starter.monthly]] per user per month**, full CRM, no messaging inbox
-- **Pro, [[commercial.price.pro.monthly]] per user per month**, adds the unified inbox: email, LinkedIn, WhatsApp, Instagram, and Telegram
-- **Business, [[commercial.price.business.monthly]] per user per month**, [[commercial.entitlement.business.includedAccountsPerUser]] connected accounts per user, shared accounts across teams, priority support
-- **Enterprise**, custom pricing, [[commercial.entitlement.enterprise.includedAccountsPerUser]] connected accounts (fair use), custom AI agents, and done-for-you setup; SSO and white-label are contracted items that do not exist in the product yet
-- **Predictable billing**, you pay per active user, and seat changes are prorated on your next invoice
-- **Open source**, no vendor lock-in, no dependency on a single provider
-
-Mid-market teams whose sales, service, and success functions all need shared inboxes typically land on Business. 25 users on Business costs [[commercial.price.business.monthly.seats.25]]/month. 50 users costs [[commercial.price.business.monthly.seats.50]]/month. Compare this with enterprise CRM pricing: a 50-user Salesforce deployment at $150/user costs $7,500/month. For a broader cost analysis, see our [CRM cost guide](/blog/crm-cost).
+1. **[Create a trial workspace](/auth/signup)** with the first [[commercial.trial.days]] days free.
+2. **Model roles** for each team and decide who reads all records and who only reads assigned ones.
+3. **Import a real slice of data** from XLSX: one team's organizations, contacts and open deals.
+4. **Connect one integration**, for example deal won to ERP order, through webhooks and the REST API.
+5. **Review the audit log and dashboards** with the people who will depend on them, then extend to the next team.
 
 ## Frequently asked questions
 
 <Faq>
-<FaqItem question={"What makes a CRM a \"mid-market CRM\" rather than a small business or enterprise CRM?"}>
-A mid-market CRM is designed for companies with roughly 50 to 1,000 employees that need multi-team access, role-based permissions, management reporting, and system integrations, but do not need the complexity, implementation overhead, or cost of enterprise platforms like Salesforce or Dynamics 365. Customermates fits this space by including the core CRM at every tier, from [[commercial.price.starter.monthly]]/user/month, with a setup time measured in minutes, not months.
+<FaqItem question="What is a mid-market CRM?">
+A mid-market or midmarket CRM is built for companies with several teams and dozens to hundreds of users that need separation between teams, traceable changes, reliable pipeline numbers and integration with existing systems, without the implementation effort of an enterprise suite.
 </FaqItem>
 
-<FaqItem question="How does Customermates handle the transition from a small business CRM to a mid-market CRM?">
-Customermates supports contacts, organizations, deals, configurable pipelines, and resource-level roles. Migrate supported records through REST or an external AI client over MCP; there is no CSV uploader. Any automation service is operated separately.
+<FaqItem question="Does Customermates have an audit log?">
+Yes. Changes to CRM records and the surrounding workspace configuration are recorded and visible to roles with audit permission, on every cloud plan and in the self-hosted edition. It does not cover inbox content, authentication, API keys or saved views.
 </FaqItem>
 
-<FaqItem question="Can Customermates integrate with our ERP and accounting system?">
-Yes. Customermates provides a full REST API and webhooks for real-time integration with any system that has an API. Through n8n workflow automation, you can set up bidirectional data sync with SAP, Oracle, DATEV, lexoffice, Xero, QuickBooks, or any other ERP and accounting platform. See our [CRM-ERP integration guide](/blog/crm-erp-integration) for implementation patterns.
+<FaqItem question="Does Customermates support SSO?">
+Not yet. Single sign-on is a contracted Enterprise item that has not been built. If SSO is a hard requirement today, plan for it before a rollout.
 </FaqItem>
 
-<FaqItem question="Is Customermates suitable for companies with multiple departments and teams?">
-Absolutely. Customermates supports multiple pipelines and resource-level permissions. Sales, account management, customer success, and service can work in the same CRM over shared accessible records, while each user's saved views and filter configurations remain personal. Leadership can use dashboards and reporting over permitted data without a shared team-view object.
+<FaqItem question="Can Customermates integrate with our ERP?">
+Yes, through the REST API and webhooks, operated by your integration service or the n8n community node. Typical flows create ERP orders from won deals and write invoice status back to the CRM.
 </FaqItem>
 
-<FaqItem question="How does Customermates handle GDPR compliance for mid-market companies?">
-The hosted Customermates database runs in an EU region, while application and other providers, including US providers, are documented separately. Audit history is viewable; there is no built-in full-data exporter, consent workflow, or compliance certification. Self-hosting lets your team choose and operate application and database infrastructure, with connected providers assessed separately.
+<FaqItem question="How do we migrate from our current CRM?">
+Export your records to Excel and import them as XLSX workbooks, one record type at a time, or move them through the REST API. Test with one team's data first.
 </FaqItem>
 
-<FaqItem question={"What does \"open source\" mean for a mid-market CRM?"}>
-Open source means the complete source code of Customermates is publicly available. Your IT team can audit the code, verify security practices, and customize the system if needed. It also eliminates vendor lock-in, your data and your CRM infrastructure remain under your control regardless of what happens to the vendor. For mid-market companies that value independence, this is a decisive advantage.
-</FaqItem>
-
-<FaqItem question="How long does it take to set up Customermates for a mid-market company?">
-Initial setup takes about 2 minutes, create an account, invite your first users, and start working. A full mid-market deployment including data import, pipeline configuration, permission setup, and automation workflows typically takes 1-2 weeks with your own team. No external consultants required. Compare this with 3-6 month implementation timelines for enterprise CRM platforms.
+<FaqItem question="Can we self-host a mid-market CRM?">
+Yes. The open-source core runs as the application and PostgreSQL with Docker Compose. Self-hosted installations use the Starter feature set, without the unified inbox or Mate. See the [self-hosted CRM](/features/self-hosted) page.
 </FaqItem>
 </Faq>
-
-## Get started with Customermates for your mid-market company
-
-1. **[Create your free account](/auth/signup)**, no credit card required, first [[commercial.trial.days]] days of Pro free to explore.
-2. **Migrate supported records**, use the REST API, or hand a prepared source export to an AI agent connected over MCP. Customermates has no CSV uploader.
-3. **Set up pipelines**, configure separate pipelines for new business, account expansion, partnerships, and renewals.
-4. **Configure teams and permissions**, create user roles for each department with appropriate access levels.
-5. **Connect your systems**, integrate with ERP, email, and other tools via API and n8n.
-6. **Activate automations**, automate follow-ups, task routing, notifications, and data workflows.
-
-Customermates is the mid-market CRM that delivers enterprise-grade capability without enterprise complexity. Open source, EU-hosted, GDPR-native, and priced fairly from [[commercial.price.starter.monthly]]/user/month. Explore our [CRM comparison guide](/blog/crm-comparison) to evaluate your options, or read about [CRM implementation strategies](/blog/crm-implementation) to plan your rollout.
