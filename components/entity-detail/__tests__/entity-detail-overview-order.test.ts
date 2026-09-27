@@ -2,6 +2,7 @@ import type { ComponentType, ReactNode } from "react";
 import type { Root } from "react-dom/client";
 import type { CustomColumnDto } from "@/features/custom-column/custom-column.schema";
 import type { EntityDetailPersonalizationConfig } from "../entity-detail-personalization";
+import { resetP13nPersistenceForTests } from "@/components/shared/p13n-persistence-channel";
 import type { P13nEntry } from "@/features/p13n/prisma-p13n.repository";
 
 import { act, createElement } from "react";
@@ -24,11 +25,7 @@ vi.mock("@/components/data-view/custom-columns/custom-field-value-input", () => 
 }));
 
 import { EntityDetailOverview } from "../entity-detail-overview";
-import {
-  EntityDetailPersonalizationProvider,
-  resetEntityDetailPersonalizationPersistenceForTests,
-  useEntityDetailPersonalization,
-} from "../entity-detail-personalization";
+import { EntityDetailPersonalizationProvider, useEntityDetailPersonalization } from "../entity-detail-personalization";
 
 const firstId = "10000000-0000-4000-8000-000000000001";
 const secondId = "10000000-0000-4000-8000-000000000002";
@@ -61,7 +58,7 @@ function Controls() {
 
 beforeEach(() => {
   (globalThis as { IS_REACT_ACT_ENVIRONMENT?: boolean }).IS_REACT_ACT_ENVIRONMENT = true;
-  resetEntityDetailPersonalizationPersistenceForTests();
+  resetP13nPersistenceForTests();
   upsert.mockReset().mockResolvedValue({ ok: true, data: {} });
 });
 

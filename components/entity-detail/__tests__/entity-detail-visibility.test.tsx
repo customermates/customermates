@@ -1,6 +1,7 @@
 import type { Root } from "react-dom/client";
 import type { ComponentType, ReactNode } from "react";
 import type { EntityDetailPersonalizationConfig } from "../entity-detail-personalization";
+import { resetP13nPersistenceForTests } from "@/components/shared/p13n-persistence-channel";
 import type { P13nEntry } from "@/features/p13n/prisma-p13n.repository";
 
 import { act, createElement } from "react";
@@ -43,11 +44,7 @@ vi.mock("@/components/ui/icon-button", () => ({
       label,
     ),
 }));
-import {
-  EntityDetailPersonalizationProvider,
-  resetEntityDetailPersonalizationPersistenceForTests,
-  useEntityDetailPersonalization,
-} from "../entity-detail-personalization";
+import { EntityDetailPersonalizationProvider, useEntityDetailPersonalization } from "../entity-detail-personalization";
 import { EntityDetailField } from "../entity-detail-field";
 import { EntityDetailFieldActions } from "../entity-detail-field-actions";
 
@@ -142,7 +139,7 @@ function mount(node: ReactNode) {
 
 beforeEach(() => {
   (globalThis as { IS_REACT_ACT_ENVIRONMENT?: boolean }).IS_REACT_ACT_ENVIRONMENT = true;
-  resetEntityDetailPersonalizationPersistenceForTests();
+  resetP13nPersistenceForTests();
   upsertP13nAction.mockReset();
   upsertP13nAction.mockResolvedValue({ ok: true, data: {} });
 });

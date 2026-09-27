@@ -2,6 +2,7 @@ import type { Root } from "react-dom/client";
 import type { ComponentType, ReactNode } from "react";
 import type { CustomColumnDto } from "@/features/custom-column/custom-column.schema";
 import type { EntityDetailPersonalizationConfig } from "../entity-detail-personalization";
+import { resetP13nPersistenceForTests } from "@/components/shared/p13n-persistence-channel";
 
 import { act, createElement, useState } from "react";
 import { createRoot } from "react-dom/client";
@@ -36,11 +37,7 @@ vi.mock("next-intl", () => ({
   useTranslations: () => (key: string) => key,
 }));
 
-import {
-  EntityDetailPersonalizationProvider,
-  resetEntityDetailPersonalizationPersistenceForTests,
-  useEntityDetailCustomization,
-} from "../entity-detail-personalization";
+import { EntityDetailPersonalizationProvider, useEntityDetailCustomization } from "../entity-detail-personalization";
 import { EntityDetailOverview } from "../entity-detail-overview";
 
 const columnId = "10000000-0000-4000-8000-000000000001";
@@ -137,7 +134,7 @@ function mount(node: ReactNode) {
 
 beforeEach(() => {
   (globalThis as { IS_REACT_ACT_ENVIRONMENT?: boolean }).IS_REACT_ACT_ENVIRONMENT = true;
-  resetEntityDetailPersonalizationPersistenceForTests();
+  resetP13nPersistenceForTests();
   upsertP13nAction.mockReset();
   upsertP13nAction.mockResolvedValue({ ok: true, data: {} });
   customColumnModalStore.initialize.mockReset();

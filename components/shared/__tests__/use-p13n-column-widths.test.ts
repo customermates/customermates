@@ -18,7 +18,8 @@ vi.mock("@/core/utils/toast-zod-error-tree", () => ({
   toastZodErrorTree: mocks.toast,
 }));
 
-import { resetP13nColumnWidthPersistenceForTests, useP13nColumnWidths } from "../use-p13n-column-widths";
+import { resetP13nPersistenceForTests } from "../p13n-persistence-channel";
+import { useP13nColumnWidths } from "../use-p13n-column-widths";
 
 const roots: Root[] = [];
 const containers: HTMLElement[] = [];
@@ -88,7 +89,7 @@ afterEach(async () => {
     await Promise.resolve();
   });
   for (const container of containers.splice(0)) container.remove();
-  resetP13nColumnWidthPersistenceForTests();
+  resetP13nPersistenceForTests();
   vi.clearAllMocks();
 });
 
