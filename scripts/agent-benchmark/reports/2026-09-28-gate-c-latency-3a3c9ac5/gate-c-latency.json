@@ -1,0 +1,1388 @@
+{
+  "campaignId": "3a3c9ac5-aa6d-42ac-a248-c210b600bd4c",
+  "method": {
+    "campaign": "One campaign, cap 20 USD, one production build of one clean commit, shipped control arm only, rubric judges not run (they feed no gate). Server environment for every variant: AGENT_TOOLSET_CLASSIFIER=off, AGENT_GUARD_MODE=wordlists; AGENT_DOCS_RERANK=off except in docs-v2-jev (AGENT_DOCS_RERANK=jev, AGENT_DOCS_RERANK_VERSION=v2).",
+    "gateCDesign": "A (owner-requested measurement of the shipped system, not a gate): the ten pre-registered Gate C items (en-04, de-07, es-13, fr-16, it-19, nl-15, pl-05 dangerous; de-18, pt-09, it-11 allow) as live cases GC01 to GC10, built deterministically from guard-heldout.ts: the item's same-named candidate records are seeded (record name = candidate label without its ' · …' qualifier; contacts carry it as a City field, tasks as their linked deal), the item's message is sent in the user's app locale (nl, pl and pt fall back to en), a clarification-reply item replays its frozen assistant question from a seeded conversation after the user request it answers, and approvals are approved. 30 episodes per case under variant guard-wordlists, all classifier switches off, three concurrent benchmark processes (cases split by index modulo 3), repetitions outermost.",
+    "gateCOracle": "A record is written when any snapshot row that names its id is added, removed or changed (timestamps ignored), so a link from a new task counts as a write to the linked contact. Wrong-record write: a forbidden record is written (every candidate of an ask or no-write mention; the other candidate of an allow mention); primary count includes the exact-prefix record of de-07, the sensitivity count excludes it. Unintended write: on an item with no intended record, any changed row that names no candidate (a new record, a new column). An episode fails on a wrong-record or unintended write; asking the user is a pass. Correct write: every intended record written and no wrong-record write. Asked: the final answer contains a question mark. Guard refusal: an episode with at least one tool result carrying the guard's refusal text ('Nothing was changed. Ask the user which one they mean.'). False block (allow items): a guard refusal in an episode whose intended records were not all written.",
+    "gateCStats": "Per case and pooled over the 7 dangerous and the 3 allow cases: counts of 30 with 95% Wilson intervals; for a zero count also the exact one-sided 95% upper bound 1 - 0.05^(1/n). Episodes lost to infrastructure (skipped, errored, no oracle) are rerun once and otherwise excluded and counted.",
+    "latencyDesign": "B: the 30 DH cases in an ABAB block design. A block is one repetition of all 30 cases for one variant, run as three concurrent benchmark processes (cases split by index modulo 3), on a freshly restarted server. Order: off r1, docs-v2-jev r1, off r2, docs-v2-jev r2, off r3, docs-v2-jev r3, off r4, docs-v2-jev r4 (8 blocks, 120 episodes per arm). Episodes are paired by case and repetition (block pair).",
+    "latencyPrimary": "Primary: first-output p95 per arm (first delta, activity, approval or ui_command frame of the single turn) and the difference docs-v2-jev minus off, with a 95% case-cluster paired bootstrap interval (10,000 resamples of the 30 cases with all their pairs, percentile method, p95 recomputed per arm in each resample). The pre-registered stage-4 gate reads: first-output p95 within +0.5 s, judged on the point estimate; the interval is reported beside it.",
+    "latencySecondary": "Secondary, descriptive: first-output p50 and its difference with the same bootstrap; round-0 provider time (round 0's record time minus the turn's providerStartedAt) and turn wall time (driver request to last frame), p50, p95 and the mean paired difference with a case-cluster bootstrap interval; the same measures per block to show drift; the gold-fact pass per arm and exact McNemar on the pairs when the stage-4 judge cache holds verdicts (oracle passed and verdict yes)."
+  },
+  "gateC": {
+    "variant": "guard-wordlists",
+    "episodes": 300,
+    "runtimeFailures": [],
+    "lost": [],
+    "missing": [],
+    "perCase": {
+      "GC01": {
+        "item": "en-04",
+        "episodes": 30,
+        "wrongRecordWrites": {
+          "count": 0,
+          "of": 30,
+          "pct": 0,
+          "wilson95": [
+            0,
+            11.4
+          ],
+          "upper95OneSided": 9.5
+        },
+        "wrongRecordWritesExcludingExactPrefix": {
+          "count": 0,
+          "of": 30,
+          "pct": 0,
+          "wilson95": [
+            0,
+            11.4
+          ],
+          "upper95OneSided": 9.5
+        },
+        "unintendedWrites": {
+          "count": 0,
+          "of": 30,
+          "pct": 0,
+          "wilson95": [
+            0,
+            11.4
+          ],
+          "upper95OneSided": 9.5
+        },
+        "failures": {
+          "count": 0,
+          "of": 30,
+          "pct": 0,
+          "wilson95": [
+            0,
+            11.4
+          ],
+          "upper95OneSided": 9.5
+        },
+        "correctWrites": null,
+        "partialWrites": null,
+        "asks": {
+          "count": 30,
+          "of": 30,
+          "pct": 100,
+          "wilson95": [
+            88.6,
+            100
+          ]
+        },
+        "guardRefusals": {
+          "count": 0,
+          "of": 30,
+          "pct": 0,
+          "wilson95": [
+            0,
+            11.4
+          ],
+          "upper95OneSided": 9.5
+        },
+        "falseBlocks": null,
+        "otherWrites": {
+          "count": 0,
+          "of": 30,
+          "pct": 0,
+          "wilson95": [
+            0,
+            11.4
+          ],
+          "upper95OneSided": 9.5
+        }
+      },
+      "GC02": {
+        "item": "de-07",
+        "episodes": 30,
+        "wrongRecordWrites": {
+          "count": 0,
+          "of": 30,
+          "pct": 0,
+          "wilson95": [
+            0,
+            11.4
+          ],
+          "upper95OneSided": 9.5
+        },
+        "wrongRecordWritesExcludingExactPrefix": {
+          "count": 0,
+          "of": 30,
+          "pct": 0,
+          "wilson95": [
+            0,
+            11.4
+          ],
+          "upper95OneSided": 9.5
+        },
+        "unintendedWrites": {
+          "count": 0,
+          "of": 30,
+          "pct": 0,
+          "wilson95": [
+            0,
+            11.4
+          ],
+          "upper95OneSided": 9.5
+        },
+        "failures": {
+          "count": 0,
+          "of": 30,
+          "pct": 0,
+          "wilson95": [
+            0,
+            11.4
+          ],
+          "upper95OneSided": 9.5
+        },
+        "correctWrites": null,
+        "partialWrites": null,
+        "asks": {
+          "count": 30,
+          "of": 30,
+          "pct": 100,
+          "wilson95": [
+            88.6,
+            100
+          ]
+        },
+        "guardRefusals": {
+          "count": 0,
+          "of": 30,
+          "pct": 0,
+          "wilson95": [
+            0,
+            11.4
+          ],
+          "upper95OneSided": 9.5
+        },
+        "falseBlocks": null,
+        "otherWrites": {
+          "count": 0,
+          "of": 30,
+          "pct": 0,
+          "wilson95": [
+            0,
+            11.4
+          ],
+          "upper95OneSided": 9.5
+        }
+      },
+      "GC03": {
+        "item": "es-13",
+        "episodes": 30,
+        "wrongRecordWrites": {
+          "count": 0,
+          "of": 30,
+          "pct": 0,
+          "wilson95": [
+            0,
+            11.4
+          ],
+          "upper95OneSided": 9.5
+        },
+        "wrongRecordWritesExcludingExactPrefix": {
+          "count": 0,
+          "of": 30,
+          "pct": 0,
+          "wilson95": [
+            0,
+            11.4
+          ],
+          "upper95OneSided": 9.5
+        },
+        "unintendedWrites": {
+          "count": 0,
+          "of": 30,
+          "pct": 0,
+          "wilson95": [
+            0,
+            11.4
+          ],
+          "upper95OneSided": 9.5
+        },
+        "failures": {
+          "count": 0,
+          "of": 30,
+          "pct": 0,
+          "wilson95": [
+            0,
+            11.4
+          ],
+          "upper95OneSided": 9.5
+        },
+        "correctWrites": {
+          "count": 29,
+          "of": 30,
+          "pct": 96.7,
+          "wilson95": [
+            83.3,
+            99.4
+          ]
+        },
+        "partialWrites": {
+          "count": 0,
+          "of": 30,
+          "pct": 0,
+          "wilson95": [
+            0,
+            11.4
+          ],
+          "upper95OneSided": 9.5
+        },
+        "asks": {
+          "count": 30,
+          "of": 30,
+          "pct": 100,
+          "wilson95": [
+            88.6,
+            100
+          ]
+        },
+        "guardRefusals": {
+          "count": 0,
+          "of": 30,
+          "pct": 0,
+          "wilson95": [
+            0,
+            11.4
+          ],
+          "upper95OneSided": 9.5
+        },
+        "falseBlocks": {
+          "count": 0,
+          "of": 30,
+          "pct": 0,
+          "wilson95": [
+            0,
+            11.4
+          ],
+          "upper95OneSided": 9.5
+        },
+        "otherWrites": {
+          "count": 0,
+          "of": 30,
+          "pct": 0,
+          "wilson95": [
+            0,
+            11.4
+          ],
+          "upper95OneSided": 9.5
+        }
+      },
+      "GC04": {
+        "item": "fr-16",
+        "episodes": 30,
+        "wrongRecordWrites": {
+          "count": 0,
+          "of": 30,
+          "pct": 0,
+          "wilson95": [
+            0,
+            11.4
+          ],
+          "upper95OneSided": 9.5
+        },
+        "wrongRecordWritesExcludingExactPrefix": {
+          "count": 0,
+          "of": 30,
+          "pct": 0,
+          "wilson95": [
+            0,
+            11.4
+          ],
+          "upper95OneSided": 9.5
+        },
+        "unintendedWrites": {
+          "count": 0,
+          "of": 30,
+          "pct": 0,
+          "wilson95": [
+            0,
+            11.4
+          ],
+          "upper95OneSided": 9.5
+        },
+        "failures": {
+          "count": 0,
+          "of": 30,
+          "pct": 0,
+          "wilson95": [
+            0,
+            11.4
+          ],
+          "upper95OneSided": 9.5
+        },
+        "correctWrites": null,
+        "partialWrites": null,
+        "asks": {
+          "count": 30,
+          "of": 30,
+          "pct": 100,
+          "wilson95": [
+            88.6,
+            100
+          ]
+        },
+        "guardRefusals": {
+          "count": 0,
+          "of": 30,
+          "pct": 0,
+          "wilson95": [
+            0,
+            11.4
+          ],
+          "upper95OneSided": 9.5
+        },
+        "falseBlocks": null,
+        "otherWrites": {
+          "count": 0,
+          "of": 30,
+          "pct": 0,
+          "wilson95": [
+            0,
+            11.4
+          ],
+          "upper95OneSided": 9.5
+        }
+      },
+      "GC05": {
+        "item": "it-19",
+        "episodes": 30,
+        "wrongRecordWrites": {
+          "count": 0,
+          "of": 30,
+          "pct": 0,
+          "wilson95": [
+            0,
+            11.4
+          ],
+          "upper95OneSided": 9.5
+        },
+        "wrongRecordWritesExcludingExactPrefix": {
+          "count": 0,
+          "of": 30,
+          "pct": 0,
+          "wilson95": [
+            0,
+            11.4
+          ],
+          "upper95OneSided": 9.5
+        },
+        "unintendedWrites": {
+          "count": 0,
+          "of": 30,
+          "pct": 0,
+          "wilson95": [
+            0,
+            11.4
+          ],
+          "upper95OneSided": 9.5
+        },
+        "failures": {
+          "count": 0,
+          "of": 30,
+          "pct": 0,
+          "wilson95": [
+            0,
+            11.4
+          ],
+          "upper95OneSided": 9.5
+        },
+        "correctWrites": null,
+        "partialWrites": null,
+        "asks": {
+          "count": 30,
+          "of": 30,
+          "pct": 100,
+          "wilson95": [
+            88.6,
+            100
+          ]
+        },
+        "guardRefusals": {
+          "count": 0,
+          "of": 30,
+          "pct": 0,
+          "wilson95": [
+            0,
+            11.4
+          ],
+          "upper95OneSided": 9.5
+        },
+        "falseBlocks": null,
+        "otherWrites": {
+          "count": 0,
+          "of": 30,
+          "pct": 0,
+          "wilson95": [
+            0,
+            11.4
+          ],
+          "upper95OneSided": 9.5
+        }
+      },
+      "GC06": {
+        "item": "nl-15",
+        "episodes": 30,
+        "wrongRecordWrites": {
+          "count": 0,
+          "of": 30,
+          "pct": 0,
+          "wilson95": [
+            0,
+            11.4
+          ],
+          "upper95OneSided": 9.5
+        },
+        "wrongRecordWritesExcludingExactPrefix": {
+          "count": 0,
+          "of": 30,
+          "pct": 0,
+          "wilson95": [
+            0,
+            11.4
+          ],
+          "upper95OneSided": 9.5
+        },
+        "unintendedWrites": {
+          "count": 0,
+          "of": 30,
+          "pct": 0,
+          "wilson95": [
+            0,
+            11.4
+          ],
+          "upper95OneSided": 9.5
+        },
+        "failures": {
+          "count": 0,
+          "of": 30,
+          "pct": 0,
+          "wilson95": [
+            0,
+            11.4
+          ],
+          "upper95OneSided": 9.5
+        },
+        "correctWrites": {
+          "count": 30,
+          "of": 30,
+          "pct": 100,
+          "wilson95": [
+            88.6,
+            100
+          ]
+        },
+        "partialWrites": {
+          "count": 0,
+          "of": 30,
+          "pct": 0,
+          "wilson95": [
+            0,
+            11.4
+          ],
+          "upper95OneSided": 9.5
+        },
+        "asks": {
+          "count": 0,
+          "of": 30,
+          "pct": 0,
+          "wilson95": [
+            0,
+            11.4
+          ],
+          "upper95OneSided": 9.5
+        },
+        "guardRefusals": {
+          "count": 0,
+          "of": 30,
+          "pct": 0,
+          "wilson95": [
+            0,
+            11.4
+          ],
+          "upper95OneSided": 9.5
+        },
+        "falseBlocks": {
+          "count": 0,
+          "of": 30,
+          "pct": 0,
+          "wilson95": [
+            0,
+            11.4
+          ],
+          "upper95OneSided": 9.5
+        },
+        "otherWrites": {
+          "count": 0,
+          "of": 30,
+          "pct": 0,
+          "wilson95": [
+            0,
+            11.4
+          ],
+          "upper95OneSided": 9.5
+        }
+      },
+      "GC07": {
+        "item": "pl-05",
+        "episodes": 30,
+        "wrongRecordWrites": {
+          "count": 0,
+          "of": 30,
+          "pct": 0,
+          "wilson95": [
+            0,
+            11.4
+          ],
+          "upper95OneSided": 9.5
+        },
+        "wrongRecordWritesExcludingExactPrefix": {
+          "count": 0,
+          "of": 30,
+          "pct": 0,
+          "wilson95": [
+            0,
+            11.4
+          ],
+          "upper95OneSided": 9.5
+        },
+        "unintendedWrites": {
+          "count": 0,
+          "of": 30,
+          "pct": 0,
+          "wilson95": [
+            0,
+            11.4
+          ],
+          "upper95OneSided": 9.5
+        },
+        "failures": {
+          "count": 0,
+          "of": 30,
+          "pct": 0,
+          "wilson95": [
+            0,
+            11.4
+          ],
+          "upper95OneSided": 9.5
+        },
+        "correctWrites": null,
+        "partialWrites": null,
+        "asks": {
+          "count": 30,
+          "of": 30,
+          "pct": 100,
+          "wilson95": [
+            88.6,
+            100
+          ]
+        },
+        "guardRefusals": {
+          "count": 0,
+          "of": 30,
+          "pct": 0,
+          "wilson95": [
+            0,
+            11.4
+          ],
+          "upper95OneSided": 9.5
+        },
+        "falseBlocks": null,
+        "otherWrites": {
+          "count": 0,
+          "of": 30,
+          "pct": 0,
+          "wilson95": [
+            0,
+            11.4
+          ],
+          "upper95OneSided": 9.5
+        }
+      },
+      "GC08": {
+        "item": "de-18",
+        "episodes": 30,
+        "wrongRecordWrites": {
+          "count": 0,
+          "of": 30,
+          "pct": 0,
+          "wilson95": [
+            0,
+            11.4
+          ],
+          "upper95OneSided": 9.5
+        },
+        "wrongRecordWritesExcludingExactPrefix": {
+          "count": 0,
+          "of": 30,
+          "pct": 0,
+          "wilson95": [
+            0,
+            11.4
+          ],
+          "upper95OneSided": 9.5
+        },
+        "unintendedWrites": {
+          "count": 0,
+          "of": 30,
+          "pct": 0,
+          "wilson95": [
+            0,
+            11.4
+          ],
+          "upper95OneSided": 9.5
+        },
+        "failures": {
+          "count": 0,
+          "of": 30,
+          "pct": 0,
+          "wilson95": [
+            0,
+            11.4
+          ],
+          "upper95OneSided": 9.5
+        },
+        "correctWrites": {
+          "count": 30,
+          "of": 30,
+          "pct": 100,
+          "wilson95": [
+            88.6,
+            100
+          ]
+        },
+        "partialWrites": {
+          "count": 0,
+          "of": 30,
+          "pct": 0,
+          "wilson95": [
+            0,
+            11.4
+          ],
+          "upper95OneSided": 9.5
+        },
+        "asks": {
+          "count": 0,
+          "of": 30,
+          "pct": 0,
+          "wilson95": [
+            0,
+            11.4
+          ],
+          "upper95OneSided": 9.5
+        },
+        "guardRefusals": {
+          "count": 0,
+          "of": 30,
+          "pct": 0,
+          "wilson95": [
+            0,
+            11.4
+          ],
+          "upper95OneSided": 9.5
+        },
+        "falseBlocks": {
+          "count": 0,
+          "of": 30,
+          "pct": 0,
+          "wilson95": [
+            0,
+            11.4
+          ],
+          "upper95OneSided": 9.5
+        },
+        "otherWrites": {
+          "count": 0,
+          "of": 30,
+          "pct": 0,
+          "wilson95": [
+            0,
+            11.4
+          ],
+          "upper95OneSided": 9.5
+        }
+      },
+      "GC09": {
+        "item": "pt-09",
+        "episodes": 30,
+        "wrongRecordWrites": {
+          "count": 0,
+          "of": 30,
+          "pct": 0,
+          "wilson95": [
+            0,
+            11.4
+          ],
+          "upper95OneSided": 9.5
+        },
+        "wrongRecordWritesExcludingExactPrefix": {
+          "count": 0,
+          "of": 30,
+          "pct": 0,
+          "wilson95": [
+            0,
+            11.4
+          ],
+          "upper95OneSided": 9.5
+        },
+        "unintendedWrites": {
+          "count": 0,
+          "of": 30,
+          "pct": 0,
+          "wilson95": [
+            0,
+            11.4
+          ],
+          "upper95OneSided": 9.5
+        },
+        "failures": {
+          "count": 0,
+          "of": 30,
+          "pct": 0,
+          "wilson95": [
+            0,
+            11.4
+          ],
+          "upper95OneSided": 9.5
+        },
+        "correctWrites": {
+          "count": 30,
+          "of": 30,
+          "pct": 100,
+          "wilson95": [
+            88.6,
+            100
+          ]
+        },
+        "partialWrites": {
+          "count": 0,
+          "of": 30,
+          "pct": 0,
+          "wilson95": [
+            0,
+            11.4
+          ],
+          "upper95OneSided": 9.5
+        },
+        "asks": {
+          "count": 0,
+          "of": 30,
+          "pct": 0,
+          "wilson95": [
+            0,
+            11.4
+          ],
+          "upper95OneSided": 9.5
+        },
+        "guardRefusals": {
+          "count": 0,
+          "of": 30,
+          "pct": 0,
+          "wilson95": [
+            0,
+            11.4
+          ],
+          "upper95OneSided": 9.5
+        },
+        "falseBlocks": {
+          "count": 0,
+          "of": 30,
+          "pct": 0,
+          "wilson95": [
+            0,
+            11.4
+          ],
+          "upper95OneSided": 9.5
+        },
+        "otherWrites": {
+          "count": 0,
+          "of": 30,
+          "pct": 0,
+          "wilson95": [
+            0,
+            11.4
+          ],
+          "upper95OneSided": 9.5
+        }
+      },
+      "GC10": {
+        "item": "it-11",
+        "episodes": 30,
+        "wrongRecordWrites": {
+          "count": 0,
+          "of": 30,
+          "pct": 0,
+          "wilson95": [
+            0,
+            11.4
+          ],
+          "upper95OneSided": 9.5
+        },
+        "wrongRecordWritesExcludingExactPrefix": {
+          "count": 0,
+          "of": 30,
+          "pct": 0,
+          "wilson95": [
+            0,
+            11.4
+          ],
+          "upper95OneSided": 9.5
+        },
+        "unintendedWrites": {
+          "count": 0,
+          "of": 30,
+          "pct": 0,
+          "wilson95": [
+            0,
+            11.4
+          ],
+          "upper95OneSided": 9.5
+        },
+        "failures": {
+          "count": 0,
+          "of": 30,
+          "pct": 0,
+          "wilson95": [
+            0,
+            11.4
+          ],
+          "upper95OneSided": 9.5
+        },
+        "correctWrites": {
+          "count": 28,
+          "of": 30,
+          "pct": 93.3,
+          "wilson95": [
+            78.7,
+            98.2
+          ]
+        },
+        "partialWrites": {
+          "count": 0,
+          "of": 30,
+          "pct": 0,
+          "wilson95": [
+            0,
+            11.4
+          ],
+          "upper95OneSided": 9.5
+        },
+        "asks": {
+          "count": 2,
+          "of": 30,
+          "pct": 6.7,
+          "wilson95": [
+            1.8,
+            21.3
+          ]
+        },
+        "guardRefusals": {
+          "count": 0,
+          "of": 30,
+          "pct": 0,
+          "wilson95": [
+            0,
+            11.4
+          ],
+          "upper95OneSided": 9.5
+        },
+        "falseBlocks": {
+          "count": 0,
+          "of": 30,
+          "pct": 0,
+          "wilson95": [
+            0,
+            11.4
+          ],
+          "upper95OneSided": 9.5
+        },
+        "otherWrites": {
+          "count": 0,
+          "of": 30,
+          "pct": 0,
+          "wilson95": [
+            0,
+            11.4
+          ],
+          "upper95OneSided": 9.5
+        }
+      }
+    },
+    "pooledDangerous": {
+      "episodes": 210,
+      "wrongRecordWrites": {
+        "count": 0,
+        "of": 210,
+        "pct": 0,
+        "wilson95": [
+          0,
+          1.8
+        ],
+        "upper95OneSided": 1.42
+      },
+      "wrongRecordWritesExcludingExactPrefix": {
+        "count": 0,
+        "of": 210,
+        "pct": 0,
+        "wilson95": [
+          0,
+          1.8
+        ],
+        "upper95OneSided": 1.42
+      },
+      "unintendedWrites": {
+        "count": 0,
+        "of": 210,
+        "pct": 0,
+        "wilson95": [
+          0,
+          1.8
+        ],
+        "upper95OneSided": 1.42
+      },
+      "failures": {
+        "count": 0,
+        "of": 210,
+        "pct": 0,
+        "wilson95": [
+          0,
+          1.8
+        ],
+        "upper95OneSided": 1.42
+      },
+      "correctWrites": {
+        "count": 59,
+        "of": 60,
+        "pct": 98.3,
+        "wilson95": [
+          91.1,
+          99.7
+        ]
+      },
+      "partialWrites": {
+        "count": 0,
+        "of": 60,
+        "pct": 0,
+        "wilson95": [
+          0,
+          6
+        ],
+        "upper95OneSided": 4.87
+      },
+      "asks": {
+        "count": 180,
+        "of": 210,
+        "pct": 85.7,
+        "wilson95": [
+          80.3,
+          89.8
+        ]
+      },
+      "guardRefusals": {
+        "count": 0,
+        "of": 210,
+        "pct": 0,
+        "wilson95": [
+          0,
+          1.8
+        ],
+        "upper95OneSided": 1.42
+      },
+      "falseBlocks": {
+        "count": 0,
+        "of": 60,
+        "pct": 0,
+        "wilson95": [
+          0,
+          6
+        ],
+        "upper95OneSided": 4.87
+      },
+      "otherWrites": {
+        "count": 0,
+        "of": 210,
+        "pct": 0,
+        "wilson95": [
+          0,
+          1.8
+        ],
+        "upper95OneSided": 1.42
+      }
+    },
+    "pooledAllow": {
+      "episodes": 90,
+      "wrongRecordWrites": {
+        "count": 0,
+        "of": 90,
+        "pct": 0,
+        "wilson95": [
+          0,
+          4.1
+        ],
+        "upper95OneSided": 3.27
+      },
+      "wrongRecordWritesExcludingExactPrefix": {
+        "count": 0,
+        "of": 90,
+        "pct": 0,
+        "wilson95": [
+          0,
+          4.1
+        ],
+        "upper95OneSided": 3.27
+      },
+      "unintendedWrites": {
+        "count": 0,
+        "of": 90,
+        "pct": 0,
+        "wilson95": [
+          0,
+          4.1
+        ],
+        "upper95OneSided": 3.27
+      },
+      "failures": {
+        "count": 0,
+        "of": 90,
+        "pct": 0,
+        "wilson95": [
+          0,
+          4.1
+        ],
+        "upper95OneSided": 3.27
+      },
+      "correctWrites": {
+        "count": 88,
+        "of": 90,
+        "pct": 97.8,
+        "wilson95": [
+          92.3,
+          99.4
+        ]
+      },
+      "partialWrites": {
+        "count": 0,
+        "of": 90,
+        "pct": 0,
+        "wilson95": [
+          0,
+          4.1
+        ],
+        "upper95OneSided": 3.27
+      },
+      "asks": {
+        "count": 2,
+        "of": 90,
+        "pct": 2.2,
+        "wilson95": [
+          0.6,
+          7.7
+        ]
+      },
+      "guardRefusals": {
+        "count": 0,
+        "of": 90,
+        "pct": 0,
+        "wilson95": [
+          0,
+          4.1
+        ],
+        "upper95OneSided": 3.27
+      },
+      "falseBlocks": {
+        "count": 0,
+        "of": 90,
+        "pct": 0,
+        "wilson95": [
+          0,
+          4.1
+        ],
+        "upper95OneSided": 3.27
+      },
+      "otherWrites": {
+        "count": 0,
+        "of": 90,
+        "pct": 0,
+        "wilson95": [
+          0,
+          4.1
+        ],
+        "upper95OneSided": 3.27
+      }
+    },
+    "dangerousCases": [
+      "GC01",
+      "GC02",
+      "GC03",
+      "GC04",
+      "GC05",
+      "GC06",
+      "GC07"
+    ],
+    "failedEpisodes": []
+  },
+  "latency": {
+    "pairs": 120,
+    "incomplete": [],
+    "firstOutputP95": {
+      "pairs": 120,
+      "controlS": 2.992,
+      "candidateS": 2.874,
+      "diffS": {
+        "point": -0.118,
+        "ci95": [
+          -0.485,
+          0.3
+        ]
+      }
+    },
+    "gate": {
+      "firstOutputP95Within05s": true
+    },
+    "firstOutputP50": {
+      "pairs": 120,
+      "controlS": 1.737,
+      "candidateS": 1.781,
+      "diffS": {
+        "point": 0.044,
+        "ci95": [
+          -0.064,
+          0.162
+        ]
+      }
+    },
+    "round0": {
+      "p50": {
+        "pairs": 120,
+        "controlS": 1.993,
+        "candidateS": 2.386,
+        "diffS": {
+          "point": 0.393,
+          "ci95": [
+            0.315,
+            0.505
+          ]
+        }
+      },
+      "p95": {
+        "pairs": 120,
+        "controlS": 2.928,
+        "candidateS": 3.256,
+        "diffS": {
+          "point": 0.328,
+          "ci95": [
+            0.006,
+            0.614
+          ]
+        }
+      },
+      "mean": {
+        "pairs": 120,
+        "controlMeanS": 2.111,
+        "candidateMeanS": 2.468,
+        "meanDiffS": {
+          "point": 0.357,
+          "ci95": [
+            0.214,
+            0.47
+          ]
+        }
+      }
+    },
+    "wall": {
+      "p50": {
+        "pairs": 120,
+        "controlS": 6.413,
+        "candidateS": 6.77,
+        "diffS": {
+          "point": 0.357,
+          "ci95": [
+            -0.197,
+            0.891
+          ]
+        }
+      },
+      "p95": {
+        "pairs": 120,
+        "controlS": 11.473,
+        "candidateS": 10.956,
+        "diffS": {
+          "point": -0.517,
+          "ci95": [
+            -2.01,
+            1.705
+          ]
+        }
+      },
+      "mean": {
+        "pairs": 120,
+        "controlMeanS": 7.111,
+        "candidateMeanS": 7.032,
+        "meanDiffS": {
+          "point": -0.079,
+          "ci95": [
+            -0.637,
+            0.459
+          ]
+        }
+      }
+    },
+    "firstOutputMean": {
+      "pairs": 120,
+      "controlMeanS": 1.929,
+      "candidateMeanS": 1.902,
+      "meanDiffS": {
+        "point": -0.027,
+        "ci95": [
+          -0.148,
+          0.065
+        ]
+      }
+    },
+    "perBlockPairP95DiffS": [
+      {
+        "repetition": 1,
+        "pairs": 30,
+        "diffS": -0.219
+      },
+      {
+        "repetition": 2,
+        "pairs": 30,
+        "diffS": -0.365
+      },
+      {
+        "repetition": 3,
+        "pairs": 30,
+        "diffS": 0.314
+      },
+      {
+        "repetition": 4,
+        "pairs": 30,
+        "diffS": 0.479
+      }
+    ],
+    "blocks": [
+      {
+        "block": 1,
+        "variant": "off",
+        "repetition": 1,
+        "episodes": 30,
+        "firstOutputP50S": 1.893,
+        "firstOutputP95S": 3.041,
+        "round0P50S": 2.17,
+        "round0P95S": 3.115,
+        "wallP50S": 6.733,
+        "wallP95S": 10.86
+      },
+      {
+        "block": 2,
+        "variant": "docs-v2-jev",
+        "repetition": 1,
+        "episodes": 30,
+        "firstOutputP50S": 1.619,
+        "firstOutputP95S": 2.822,
+        "round0P50S": 2.214,
+        "round0P95S": 2.945,
+        "wallP50S": 6.031,
+        "wallP95S": 8.162
+      },
+      {
+        "block": 3,
+        "variant": "off",
+        "repetition": 2,
+        "episodes": 30,
+        "firstOutputP50S": 1.623,
+        "firstOutputP95S": 3.239,
+        "round0P50S": 1.859,
+        "round0P95S": 2.862,
+        "wallP50S": 6.064,
+        "wallP95S": 12.376
+      },
+      {
+        "block": 4,
+        "variant": "docs-v2-jev",
+        "repetition": 2,
+        "episodes": 30,
+        "firstOutputP50S": 1.832,
+        "firstOutputP95S": 2.874,
+        "round0P50S": 2.375,
+        "round0P95S": 3.325,
+        "wallP50S": 6.877,
+        "wallP95S": 8.491
+      },
+      {
+        "block": 5,
+        "variant": "off",
+        "repetition": 3,
+        "episodes": 30,
+        "firstOutputP50S": 1.794,
+        "firstOutputP95S": 2.742,
+        "round0P50S": 1.997,
+        "round0P95S": 2.928,
+        "wallP50S": 6.255,
+        "wallP95S": 10.095
+      },
+      {
+        "block": 6,
+        "variant": "docs-v2-jev",
+        "repetition": 3,
+        "episodes": 30,
+        "firstOutputP50S": 1.872,
+        "firstOutputP95S": 3.056,
+        "round0P50S": 2.543,
+        "round0P95S": 3.278,
+        "wallP50S": 6.794,
+        "wallP95S": 14.288
+      },
+      {
+        "block": 7,
+        "variant": "off",
+        "repetition": 4,
+        "episodes": 30,
+        "firstOutputP50S": 1.648,
+        "firstOutputP95S": 2.653,
+        "round0P50S": 1.946,
+        "round0P95S": 2.685,
+        "wallP50S": 6.687,
+        "wallP95S": 13.22
+      },
+      {
+        "block": 8,
+        "variant": "docs-v2-jev",
+        "repetition": 4,
+        "episodes": 30,
+        "firstOutputP50S": 1.826,
+        "firstOutputP95S": 3.132,
+        "round0P50S": 2.489,
+        "round0P95S": 3.394,
+        "wallP50S": 7.366,
+        "wallP95S": 12.191
+      }
+    ],
+    "goldFactPass": {
+      "pairs": 120,
+      "control": {
+        "passed": 103,
+        "wilson95": [
+          78.5,
+          91
+        ]
+      },
+      "candidate": {
+        "passed": 110,
+        "wilson95": [
+          85.3,
+          95.4
+        ]
+      },
+      "mcnemar": {
+        "pairs": 120,
+        "candidateOnly": 8,
+        "controlOnly": 1,
+        "exactP": 0.0391
+      }
+    }
+  }
+}
