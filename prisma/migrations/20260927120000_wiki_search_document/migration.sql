@@ -1,31 +1,29 @@
 CREATE EXTENSION IF NOT EXISTS pg_trgm;
 
 CREATE OR REPLACE FUNCTION wiki_search_markdown_text(markdown text) RETURNS text
-LANGUAGE sql IMMUTABLE PARALLEL SAFE SET search_path FROM CURRENT AS $$
+LANGUAGE sql IMMUTABLE PARALLEL SAFE SET search_path = public, pg_catalog AS $$
   SELECT regexp_replace(markdown, E'\\]\\([^)\\n]*\\)', ']', 'g')
 $$;
 
 CREATE OR REPLACE FUNCTION wiki_search_heading_text(markdown text) RETURNS text
-LANGUAGE sql IMMUTABLE PARALLEL SAFE SET search_path FROM CURRENT AS $$
-  SELECT btrim(
-    regexp_replace(
-      regexp_replace(
-        regexp_replace(wiki_search_markdown_text(markdown), E'^(?!#{1,6}[ \\t]).*$', '', 'gn'),
-        E'^#{1,6}[ \\t]+', '', 'gn'
-      ),
-      E'\\n{2,}', E'\n', 'g'
-    ),
-    E'\n'
-  )
+LANGUAGE sql IMMUTABLE PARALLEL SAFE SET search_path = public, pg_catalog AS $$
+  SELECT coalesce(string_agg(regexp_replace(l."line", E'^#{1,6}[ \\t]+', ''), E'\n' ORDER BY l."n"), '')
+  FROM (
+    SELECT s."line", s."n",
+      count(*) FILTER (WHERE s."line" ~ E'^[ \\t]{0,3}(```|~~~)')
+        OVER (ORDER BY s."n" ROWS BETWEEN UNBOUNDED PRECEDING AND 1 PRECEDING) AS "fences"
+    FROM regexp_split_to_table(wiki_search_markdown_text(markdown), E'\n') WITH ORDINALITY AS s("line", "n")
+  ) AS l
+  WHERE l."fences" % 2 = 0 AND l."line" ~ E'^#{1,6}[ \\t]+[^ \\t]'
 $$;
 
 CREATE OR REPLACE FUNCTION wiki_search_headings(title text, markdown text) RETURNS text
-LANGUAGE sql IMMUTABLE PARALLEL SAFE SET search_path FROM CURRENT AS $$
+LANGUAGE sql IMMUTABLE PARALLEL SAFE SET search_path = public, pg_catalog AS $$
   SELECT lower(title || E'\n' || wiki_search_heading_text(markdown))
 $$;
 
 CREATE OR REPLACE FUNCTION wiki_search_weighted_vector(content text, weight "char") RETURNS tsvector
-LANGUAGE sql IMMUTABLE PARALLEL SAFE SET search_path FROM CURRENT AS $$
+LANGUAGE sql IMMUTABLE PARALLEL SAFE SET search_path = public, pg_catalog AS $$
   SELECT
     setweight(to_tsvector('simple'::regconfig, content), weight) ||
     setweight(to_tsvector('english'::regconfig, content), weight) ||
@@ -36,7 +34,7 @@ LANGUAGE sql IMMUTABLE PARALLEL SAFE SET search_path FROM CURRENT AS $$
 $$;
 
 CREATE OR REPLACE FUNCTION wiki_search_vector(title text, markdown text) RETURNS tsvector
-LANGUAGE sql IMMUTABLE PARALLEL SAFE SET search_path FROM CURRENT AS $$
+LANGUAGE sql IMMUTABLE PARALLEL SAFE SET search_path = public, pg_catalog AS $$
   SELECT
     wiki_search_weighted_vector(title, 'A') ||
     wiki_search_weighted_vector(wiki_search_heading_text(markdown), 'B') ||
@@ -44,19 +42,17 @@ LANGUAGE sql IMMUTABLE PARALLEL SAFE SET search_path FROM CURRENT AS $$
 $$;
 
 CREATE OR REPLACE FUNCTION wiki_search_words(content text) RETURNS SETOF text
-LANGUAGE sql IMMUTABLE PARALLEL SAFE ROWS 16 SET search_path = pg_catalog AS $$
+LANGUAGE sql IMMUTABLE PARALLEL SAFE ROWS 16 SET search_path = public, pg_catalog AS $$
   SELECT w FROM regexp_split_to_table(lower(content), '[^[:alnum:]]+') AS w WHERE w <> ''
 $$;
 
 CREATE OR REPLACE FUNCTION wiki_search_sorted_letters(word text) RETURNS text
-LANGUAGE sql IMMUTABLE PARALLEL SAFE SET search_path = pg_catalog AS $$
+LANGUAGE sql IMMUTABLE PARALLEL SAFE SET search_path = public, pg_catalog AS $$
   SELECT string_agg(c, '' ORDER BY c COLLATE "C") FROM regexp_split_to_table(word, '') AS c
 $$;
 
 ALTER TABLE "WikiPage"
-  ADD COLUMN "searchHeadings" TEXT GENERATED ALWAYS AS (wiki_search_headings("title", "markdown")) STORED;
-
-ALTER TABLE "WikiPage"
+  ADD COLUMN "searchHeadings" TEXT GENERATED ALWAYS AS (wiki_search_headings("title", "markdown")) STORED,
   ADD COLUMN "searchVector" tsvector GENERATED ALWAYS AS (wiki_search_vector("title", "markdown")) STORED;
 
 CREATE INDEX "WikiPage_searchVector_idx" ON "WikiPage" USING GIN ("searchVector");
