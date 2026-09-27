@@ -27,6 +27,9 @@ const WIKI_TEXT_RANK_DEPTH = 100;
 const WIKI_SUGGESTION_SIMILARITY = 0.3;
 const WIKI_SUGGESTION_LIMIT = 3;
 const WIKI_SUBSTRING_ORD_BASE = 1_000;
+const WIKI_SUGGESTION_BODY_PAGES = 200;
+const WIKI_SUGGESTION_BODY_CHARS = 20_000;
+const WIKI_SUGGESTION_VOCABULARY_LIMIT = 5_000;
 
 type WikiSearchRow = WikiPageDto & { total: number };
 
@@ -235,19 +238,39 @@ export class PrismaWikiPageRepo
       terms.length === 0
         ? Promise.resolve([])
         : this.prisma.$queryRaw<Array<{ term: string; correction: string }>>(Prisma.sql`
-          WITH vocabulary AS (
-            SELECT DISTINCT l."lexeme"
+          WITH words AS (
+            SELECT h."word", 2::int AS "source", count(*) AS "frequency"
             FROM "WikiPage" p
-            CROSS JOIN LATERAL unnest(tsvector_to_array(p."searchVector")) AS l("lexeme")
+            CROSS JOIN LATERAL wiki_search_words(p."searchHeadings") AS h("word")
             WHERE p."companyId" = ${this.companyId}
-              AND left(l."lexeme", 1) = ANY(${[...new Set(terms.map((term) => Array.from(term)[0]))]}::text[])
+            GROUP BY h."word"
+            UNION ALL
+            SELECT b."lexeme", 1::int, sum(coalesce(array_length(b."positions", 1), 1))
+            FROM (
+              SELECT "markdown" FROM "WikiPage"
+              WHERE "companyId" = ${this.companyId}
+              ORDER BY "updatedAt" DESC, "id" ASC
+              LIMIT ${WIKI_SUGGESTION_BODY_PAGES}
+            ) AS p
+            CROSS JOIN LATERAL unnest(
+              to_tsvector('simple', wiki_search_markdown_text(left(p."markdown", ${WIKI_SUGGESTION_BODY_CHARS})))
+            ) AS b
+            GROUP BY b."lexeme"
+          ),
+          vocabulary AS (
+            SELECT w."word"
+            FROM words w
+            WHERE left(w."word", 1) = ANY(${[...new Set(terms.map((term) => Array.from(term)[0]))]}::text[])
+            GROUP BY w."word"
+            ORDER BY max(w."source") DESC, sum(w."frequency") DESC, w."word" ASC
+            LIMIT ${WIKI_SUGGESTION_VOCABULARY_LIMIT}
           )
-          SELECT DISTINCT ON (terms."term") terms."term", v."lexeme" AS "correction"
+          SELECT DISTINCT ON (terms."term") terms."term", v."word" AS "correction"
           FROM ${wikiFuzzyTerms(query.fuzzyTerms)}
-          JOIN vocabulary v ON left(v."lexeme", 1) = left(terms."term", 1)
-            AND abs(length(v."lexeme") - length(terms."term")) <= 2
-          WHERE ${wikiFuzzySimilarity(Prisma.sql`v."lexeme"`)} IS NOT NULL
-          ORDER BY terms."term", ${wikiFuzzySimilarity(Prisma.sql`v."lexeme"`)} DESC, v."lexeme" ASC
+          JOIN vocabulary v ON left(v."word", 1) = left(terms."term", 1)
+            AND abs(length(v."word") - length(terms."term")) <= 2
+          WHERE ${wikiFuzzySimilarity(Prisma.sql`v."word"`)} IS NOT NULL
+          ORDER BY terms."term", ${wikiFuzzySimilarity(Prisma.sql`v."word"`)} DESC, v."word" ASC
         `),
       this.prisma.$queryRaw<Array<{ title: string }>>(Prisma.sql`
         SELECT "title"

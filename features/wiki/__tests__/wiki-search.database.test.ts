@@ -211,6 +211,24 @@ describeDatabase("Workspace Wiki search on PostgreSQL", () => {
     expect(JSON.stringify(await search("Pagerdutty runbook"))).not.toContain("foreign");
   });
 
+  it("suggests only words that occur in the Wiki, never stemmed index lexemes", async () => {
+    await insert(user, [
+      {
+        title: "Travel",
+        markdown: "Reimbursements follow the statutory guidelines and all company policies.",
+      },
+    ]);
+
+    for (const [query, suggestion] of [
+      ["reimbursemnets", "reimbursements"],
+      ["guidlines", "guidelines"],
+      ["policeis", "policies"],
+    ]) {
+      const result = await search(query);
+      expect(result, query).toMatchObject({ ok: true, data: { total: 0, didYouMean: [suggestion] } });
+    }
+  });
+
   it("finds CJK substrings, reports totals beyond the last page, and never interprets query syntax", async () => {
     await insert(user, [
       { title: "客户支持手册", markdown: "## 退款\n\n退款申请需要在30天内提交。" },
