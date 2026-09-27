@@ -271,15 +271,18 @@ model Company {
 }
 
 model WikiPage {
-  id        String   @id @default(uuid())
-  companyId String
-  title     String
-  markdown  String
-  createdAt DateTime @default(now())
-  updatedAt DateTime @updatedAt
-  company   Company  @relation(fields: [companyId], references: [id], onDelete: Cascade)
+  id             String                   @id @default(uuid())
+  companyId      String
+  title          String
+  markdown       String
+  searchHeadings String?                  @default(dbgenerated("wiki_search_headings(title, markdown)"))
+  searchVector   Unsupported("tsvector")? @default(dbgenerated("wiki_search_vector(title, markdown)"))
+  createdAt      DateTime                 @default(now())
+  updatedAt      DateTime                 @updatedAt
+  company        Company                  @relation(fields: [companyId], references: [id], onDelete: Cascade)
 
   @@index([companyId, createdAt, id])
+  @@index([searchVector], type: Gin)
 }
 
 model EntityTerminology {
