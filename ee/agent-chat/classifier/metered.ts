@@ -12,7 +12,7 @@ import { GEMINI_CLASSIFIER_ENTRY, GEMINI_CLASSIFIER_MAX_OUTPUT_TOKENS, geminiSys
 import { classifyAttempt } from "./index";
 import { JEV_MODEL_ID, JEV_PRICING_PROVIDER, jevRequestBody } from "./jev-runner";
 
-export const CLASSIFIER_USES = ["docs_rerank", "toolset_preload"] as const;
+export const CLASSIFIER_USES = ["docs_rerank", "toolset_preload", "guard_bulk"] as const;
 
 export type ClassifierUse = (typeof CLASSIFIER_USES)[number];
 
@@ -41,7 +41,11 @@ export function hostedClassifierModel(setting: ClassifierSwitch): ClassifierMode
   return setting;
 }
 
+export const GUARD_BULK_CLASSIFIER_MODEL: ClassifierModel = "jev";
+
 export function hostedClassifierModelFor(use: ClassifierUse): ClassifierModel | null {
+  if (use === "guard_bulk")
+    return env.AGENT_GUARD_MODE === "structural-classifier" ? hostedClassifierModel(GUARD_BULK_CLASSIFIER_MODEL) : null;
   return hostedClassifierModel(use === "docs_rerank" ? env.AGENT_DOCS_RERANK : env.AGENT_TOOLSET_CLASSIFIER);
 }
 

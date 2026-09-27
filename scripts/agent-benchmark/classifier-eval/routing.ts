@@ -24,6 +24,7 @@ import {
 } from "@/ee/agent-chat/agent-toolset-routing";
 import {
   predictedToolsets,
+  TOOLSET_ROUTING_TUNED_SUMMARY,
   toolsetPreloadSpec,
 } from "@/ee/agent-chat/toolset-preload";
 import {
@@ -36,19 +37,7 @@ const LANGUAGES: RoutingLanguage[] = [
 ];
 const MODELS: ClassifierModel[] = ["jev", "gemini"];
 
-const PROBE_TUNED_SUMMARY: Record<AgentOnDemandToolset, string> = {
-  ...AGENT_TOOLSET_SUMMARY,
-  views:
-    "opening, creating or changing saved views, or changing how the current table is filtered, sorted, grouped or laid out; not computing or comparing figures",
-  routines:
-    "routines: the user wants something to happen automatically later, on a schedule or whenever an event occurs inside the CRM",
-  webhooks:
-    "webhooks: sending event notifications to an external URL, and their deliveries",
-  messaging:
-    "reading, drafting or sending email, chat or WhatsApp messages, the inbox, the calendar and connected messaging accounts; not a summary the CRM sends by itself",
-  admin:
-    "inviting or managing team members, renaming terminology, changing workspace settings or the user's own profile; not questions about how the product works",
-};
+const PROBE_TUNED_SUMMARY = TOOLSET_ROUTING_TUNED_SUMMARY;
 
 const WORDINGS = {
   product: AGENT_TOOLSET_SUMMARY,

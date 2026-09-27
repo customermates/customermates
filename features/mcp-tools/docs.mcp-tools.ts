@@ -182,19 +182,23 @@ const LINK_LINE_START = /^\*\*Link:\*\*/m;
 export function relevantDocsExcerpt(
   page: { source: DocsSource; locale: DocsLocale; slug: string },
   query: string,
+  preferredAnchor?: string,
 ): string {
   const index = buildIndex(page.source, page.locale);
   const own = index.sections.filter((section) => section.slug === page.slug);
   const target = slugifyHeading(query);
+  const preferred = (section: DocsSection) =>
+    preferredAnchor !== undefined && section.anchor === preferredAnchor ? 1 : 0;
   const named = (section: DocsSection) =>
     target.length > 0 && (section.anchor === target || slugifyHeading(section.headingPath.at(-1) ?? "") === target)
       ? 1
       : 0;
   const ranked = own
     .map((section) => ({ section, score: scoreSection(index, section, query) }))
-    .filter((hit) => hit.score > 0 || named(hit.section) === 1)
+    .filter((hit) => hit.score > 0 || named(hit.section) === 1 || preferred(hit.section) === 1)
     .sort(
       (left, right) =>
+        preferred(right.section) - preferred(left.section) ||
         named(right.section) - named(left.section) ||
         right.score - left.score ||
         left.section.order - right.section.order,
@@ -290,8 +294,8 @@ export function docsSectionCandidates(query: string, locale: DocsLocale, source:
   return topSectionCandidates(buildIndex(source, locale), query);
 }
 
-export function docsRerankExcerpt(section: DocsSection): string {
-  return `## ${section.headingPath.join(" > ")}\n${section.text}`.slice(0, DOCS_RERANK_EXCERPT_CHARS);
+export function docsRerankExcerpt(section: DocsSection, chars = DOCS_RERANK_EXCERPT_CHARS): string {
+  return `## ${section.headingPath.join(" > ")}\n${section.text}`.slice(0, chars);
 }
 
 function rerankedDocsSearchText(results: DocsSearchHit[], total: number, chosen: DocsSection): string {
@@ -337,6 +341,88 @@ export async function searchDocs(input: SearchDocsInput, rerank: DocsSectionRera
   const keyword = keywordDocsSearch(input);
   if (input.source !== "docs") return keyword;
   return (await rerankedDocsSearch(input, keyword.structuredContent, rerank)) ?? keyword;
+}
+
+export const DOCS_RANK_TOP_PAGES = 5;
+export const DOCS_RANK_RETURNED = 3;
+export const DOCS_RANK_MAX_CANDIDATES = 120;
+export const DOCS_RANK_SECONDARY_EXCERPT_CHARS = 400;
+
+export type DocsRankCandidate = DocsRerankCandidate & { titleOnly: boolean };
+
+export type DocsSectionRanker = (query: string, candidates: readonly DocsRankCandidate[]) => Promise<number[] | null>;
+
+export function docsRankCandidates(query: string, locale: DocsLocale): DocsRankCandidate[] {
+  const index = buildIndex("docs", locale);
+  const lexical = topSectionCandidates(index, query);
+  const lexicalIds = new Set(lexical.map(({ id }) => id));
+  const topPages = new Set(
+    rankPages(searchSections(index, query, 40))
+      .slice(0, DOCS_RANK_TOP_PAGES)
+      .map((page) => `${page.source}:${page.slug}`),
+  );
+  const titles = index.sections.flatMap((section, id) =>
+    !lexicalIds.has(id) && topPages.has(`${section.source}:${section.slug}`) ? [{ id, section, titleOnly: true }] : [],
+  );
+  const candidates = [...lexical.map((candidate) => ({ ...candidate, titleOnly: false })), ...titles];
+  return candidates.slice(0, DOCS_RANK_MAX_CANDIDATES);
+}
+
+export function docsPageRankCandidates(page: { source: DocsSource; locale: DocsLocale; slug: string }) {
+  const sections = buildIndex(page.source, page.locale).sections;
+  const own: DocsRankCandidate[] = sections.flatMap((section, id) =>
+    section.slug === page.slug ? [{ id, section, titleOnly: false }] : [],
+  );
+  return own.slice(0, DOCS_RANK_MAX_CANDIDATES);
+}
+
+async function rankedSections(
+  query: string,
+  candidates: readonly DocsRankCandidate[],
+  rank: DocsSectionRanker,
+): Promise<DocsSection[] | null> {
+  if (candidates.length < 2) return null;
+  let ids: number[] | null;
+  try {
+    ids = await rank(query, candidates);
+  } catch {
+    return null;
+  }
+  const chosen = [...new Set(ids ?? [])]
+    .flatMap((id) => candidates.find((candidate) => candidate.id === id)?.section ?? [])
+    .slice(0, DOCS_RANK_RETURNED);
+  return chosen.length > 0 ? chosen : null;
+}
+
+function rankedDocsSearchText(results: DocsSearchHit[], total: number, chosen: readonly DocsSection[]): string {
+  const matches = results.map(({ slug, source, anchor }) => `${source}:${slug}#${anchor}`).join("\n");
+  const excerpts = chosen
+    .map((section, index) =>
+      docsRerankExcerpt(section, index === 0 ? DOCS_RERANK_EXCERPT_CHARS : DOCS_RANK_SECONDARY_EXCERPT_CHARS),
+    )
+    .join("\n\n");
+  return `matches:\n${matches}\ntotal=${total}\nbest=${results[0].url}\nexcerpt=\n${excerpts}`;
+}
+
+export async function searchDocsRanked(input: SearchDocsInput, rank: DocsSectionRanker) {
+  const keyword = keywordDocsSearch(input);
+  if (input.source !== "docs") return keyword;
+  const chosen = await rankedSections(input.query, docsRankCandidates(input.query, input.locale), rank);
+  if (!chosen) return keyword;
+  const chosenHits: DocsSearchHit[] = chosen.map((section) => ({
+    slug: section.slug,
+    source: "docs",
+    title: section.pageTitle,
+    url: pageUrl("docs", input.locale, section.slug),
+    section: section.headingPath.join(" > "),
+    anchor: section.anchor,
+    snippet: sectionSnippet(section, input.query, input.locale),
+  }));
+  const chosenSlugs = new Set(chosen.map((section) => section.slug));
+  const others = keyword.structuredContent.results.filter((hit) => !chosenSlugs.has(hit.slug));
+  const results = [...chosenHits, ...others].slice(0, 5);
+  const total = Math.max(keyword.structuredContent.total, new Set(results.map((hit) => hit.slug)).size);
+  return { text: rankedDocsSearchText(results, total, chosen), structuredContent: { results, total } };
 }
 
 export const searchDocsTool = {
@@ -391,37 +477,39 @@ export const getDocsPageTool = {
     locale: docsLocaleSchema,
     source: z.enum(["docs", "api"]).default("docs").describe("docs = product guides, api = REST endpoint reference"),
   }),
-  execute: ({
-    slug,
-    query,
-    locale,
-    source,
-  }: {
-    slug: string;
-    query?: string;
-    locale: DocsLocale;
-    source: DocsSource;
-  }) => {
-    const page = getDocsPageRaw(slug, locale, source);
-
-    if (!page) {
-      const validSlugs = listDocsSlugs(locale, source).join(", ");
-      return mcpMessageFailure(`Unknown ${source} page "${slug}" for locale "${locale}". Valid slugs: ${validSlugs}`);
-    }
-
-    if (query) {
-      const excerpt = relevantDocsExcerpt({ source, locale, slug: page.slug }, query);
-      return {
-        text: [excerpt, "", `Source: ${page.title}`, `URL: ${page.url}`].join("\n"),
-        structuredContent: { title: page.title, url: page.url, markdown: excerpt, excerpt: true },
-      };
-    }
-
-    return {
-      text: [`# ${page.title}`, "", `> ${page.description}`, "", `Canonical URL: ${page.url}`, "", page.markdown].join(
-        "\n",
-      ),
-      structuredContent: { title: page.title, url: page.url, markdown: page.markdown, excerpt: false },
-    };
-  },
+  execute: (input: GetDocsPageInput) => docsPageResult(input),
 };
+
+export type GetDocsPageInput = { slug: string; query?: string; locale: DocsLocale; source: DocsSource };
+
+function docsPageResult({ slug, query, locale, source }: GetDocsPageInput, preferredAnchor?: string) {
+  const page = getDocsPageRaw(slug, locale, source);
+
+  if (!page) {
+    const validSlugs = listDocsSlugs(locale, source).join(", ");
+    return mcpMessageFailure(`Unknown ${source} page "${slug}" for locale "${locale}". Valid slugs: ${validSlugs}`);
+  }
+
+  if (query) {
+    const excerpt = relevantDocsExcerpt({ source, locale, slug: page.slug }, query, preferredAnchor);
+    return {
+      text: [excerpt, "", `Source: ${page.title}`, `URL: ${page.url}`].join("\n"),
+      structuredContent: { title: page.title, url: page.url, markdown: excerpt, excerpt: true },
+    };
+  }
+
+  return {
+    text: [`# ${page.title}`, "", `> ${page.description}`, "", `Canonical URL: ${page.url}`, "", page.markdown].join(
+      "\n",
+    ),
+    structuredContent: { title: page.title, url: page.url, markdown: page.markdown, excerpt: false },
+  };
+}
+
+export async function getDocsPageRanked(input: GetDocsPageInput, rank: DocsSectionRanker) {
+  const page = input.query ? getDocsPageRaw(input.slug, input.locale, input.source) : null;
+  if (!page || !input.query) return docsPageResult(input);
+  const candidates = docsPageRankCandidates({ source: input.source, locale: input.locale, slug: page.slug });
+  const chosen = await rankedSections(input.query, candidates, rank);
+  return docsPageResult(input, chosen?.[0]?.anchor);
+}

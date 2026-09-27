@@ -63,6 +63,27 @@ export function resolveClassifierSwitch(name: string, value: string | undefined)
   throw new Error(`${name} must be configured as "off", "jev" or "gemini"`);
 }
 
+export const DOCS_RERANK_VERSIONS = ["v1", "v2"] as const;
+export type DocsRerankVersion = (typeof DOCS_RERANK_VERSIONS)[number];
+
+export const TOOLSET_CLASSIFIER_MODES = ["additive-v1", "parallel-v2"] as const;
+export type ToolsetClassifierMode = (typeof TOOLSET_CLASSIFIER_MODES)[number];
+
+export const AGENT_GUARD_MODES = ["wordlists", "structural", "structural-classifier"] as const;
+export type AgentGuardMode = (typeof AGENT_GUARD_MODES)[number];
+
+export function resolveEnumSetting<const T extends readonly string[]>(
+  name: string,
+  value: string | undefined,
+  allowed: T,
+  fallback: T[number],
+): T[number] {
+  const normalized = value?.trim();
+  if (!normalized) return fallback;
+  if ((allowed as readonly string[]).includes(normalized)) return normalized as T[number];
+
+  throw new Error(`${name} must be configured as one of: ${allowed.join(", ")}`);
+}
 export function resolveOptionalBigInt(name: string, value: string | undefined): bigint | null {
   const normalized = value?.trim();
   if (!normalized) return null;

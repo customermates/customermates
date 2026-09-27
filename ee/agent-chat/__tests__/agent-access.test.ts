@@ -16,7 +16,11 @@ import { MODEL_CATALOG } from "../model-catalog";
 
 const mockUser = createMockUserWithPermissions([]);
 const request = vi.hoisted(() => ({ origin: "http://127.0.0.1:4016" }));
-const classifierSwitch = vi.hoisted(() => ({ toolset: "off" as "off" | "jev" | "gemini" }));
+const classifierSwitch = vi.hoisted(() => ({
+  toolset: "off" as "off" | "jev" | "gemini",
+  toolsetMode: "parallel-v2" as "additive-v1" | "parallel-v2",
+  guard: "wordlists" as "wordlists" | "structural" | "structural-classifier",
+}));
 
 vi.mock("@/env", () => ({
   env: {
@@ -25,6 +29,12 @@ vi.mock("@/env", () => ({
     AUTH_ALLOWED_HOSTS: ["localhost:4000", "127.0.0.1:4016"],
     get AGENT_TOOLSET_CLASSIFIER() {
       return classifierSwitch.toolset;
+    },
+    get AGENT_TOOLSET_CLASSIFIER_MODE() {
+      return classifierSwitch.toolsetMode;
+    },
+    get AGENT_GUARD_MODE() {
+      return classifierSwitch.guard;
     },
   },
 }));
@@ -1367,6 +1377,75 @@ describe("agent access", () => {
         expect(dispatched.toolsetPreloadModel).toBe(expected);
       } finally {
         classifierSwitch.toolset = "off";
+      }
+    },
+  );
+
+  it.each([
+    {
+      toolset: "jev" as const,
+      toolsetMode: "parallel-v2" as const,
+      guard: "structural-classifier" as const,
+      expected: {
+        toolsetClassifierMode: "parallel-v2",
+        removableToolsets: ["webhooks"],
+        guardMode: "structural-classifier",
+        guardBulkModel: "jev",
+      },
+    },
+    {
+      toolset: "jev" as const,
+      toolsetMode: "additive-v1" as const,
+      guard: "structural" as const,
+      expected: { guardMode: "structural" },
+    },
+    { toolset: "off" as const, toolsetMode: "parallel-v2" as const, guard: "wordlists" as const, expected: {} },
+  ])(
+    "carries the routing mode, the lexicon-only toolsets and the guard mode ($toolset, $toolsetMode, $guard)",
+    async ({ toolset, toolsetMode, guard, expected }) => {
+      Object.assign(classifierSwitch, { toolset, toolsetMode, guard });
+      try {
+        const background = backgroundTasks();
+        const repo = {
+          normalizeExpiredAgentRunLease: vi.fn().mockResolvedValue(undefined),
+          findAgentTurnRequestForAdmission: vi.fn().mockResolvedValue(null),
+          claimAgentRunLease: vi.fn().mockResolvedValue("claimed"),
+          isAtAgentRunLimit: vi.fn().mockResolvedValue(false),
+          createAgentConversationForRun: vi.fn(),
+          deleteUnusedAgentConversation: vi.fn(),
+          recordAgentTurnExternalRun: vi.fn().mockResolvedValue(undefined),
+          admitAgentTurnOrThrow: vi.fn().mockImplementation((args) =>
+            Promise.resolve({
+              conversationId: CONVERSATION_ID,
+              userMessageId: args.turn.userMessageId,
+              recentMessages: [
+                {
+                  id: args.turn.userMessageId,
+                  role: "user",
+                  parts: [{ type: "text", text: "Send a webhook on won deals" }],
+                },
+              ],
+            }),
+          ),
+        };
+
+        await runWithTenant(mockUser, () =>
+          new SendAgentMessageInteractor(
+            repo as never,
+            usageService() as never,
+            mockEntitlementService(),
+            background as never,
+            { getCustomColumns: () => Promise.resolve([]) } as never,
+          ).invoke({ clientRequestId: CLIENT_REQUEST_ID, text: "Send a webhook on won deals", retry: false }),
+        );
+
+        const dispatched = background.dispatchTracked.mock.calls[0]?.[1] as Record<string, unknown>;
+        const keys = ["toolsetClassifierMode", "removableToolsets", "guardMode", "guardBulkModel"];
+        expect(
+          Object.fromEntries(keys.filter((key) => key in dispatched).map((key) => [key, dispatched[key]])),
+        ).toEqual(expected);
+      } finally {
+        Object.assign(classifierSwitch, { toolset: "off", toolsetMode: "parallel-v2", guard: "wordlists" });
       }
     },
   );

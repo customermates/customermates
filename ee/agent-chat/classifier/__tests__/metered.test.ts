@@ -6,6 +6,7 @@ const envState = vi.hoisted(() => ({
   APP_MODE: "cloud" as "cloud" | "demo" | "self-hosted",
   AGENT_DOCS_RERANK: "off" as "off" | "jev" | "gemini",
   AGENT_TOOLSET_CLASSIFIER: "off" as "off" | "jev" | "gemini",
+  AGENT_GUARD_MODE: "wordlists" as "wordlists" | "structural" | "structural-classifier",
   AI_GATEWAY_API_KEY: undefined as string | undefined,
 }));
 
@@ -54,6 +55,7 @@ beforeEach(() => {
   envState.APP_MODE = "cloud";
   envState.AGENT_DOCS_RERANK = "off";
   envState.AGENT_TOOLSET_CLASSIFIER = "off";
+  envState.AGENT_GUARD_MODE = "wordlists";
 });
 
 describe("hosted classifier switches", () => {
@@ -72,6 +74,16 @@ describe("hosted classifier switches", () => {
 
     expect(hostedClassifierModelFor("docs_rerank")).toBe("jev");
     expect(hostedClassifierModelFor("toolset_preload")).toBe("gemini");
+  });
+
+  it("runs the guard's bulk classifier on Jev only in the structural-classifier guard mode", () => {
+    expect(hostedClassifierModelFor("guard_bulk")).toBeNull();
+    envState.AGENT_GUARD_MODE = "structural";
+    expect(hostedClassifierModelFor("guard_bulk")).toBeNull();
+    envState.AGENT_GUARD_MODE = "structural-classifier";
+    expect(hostedClassifierModelFor("guard_bulk")).toBe("jev");
+    envState.APP_MODE = "self-hosted";
+    expect(hostedClassifierModelFor("guard_bulk")).toBeNull();
   });
 });
 

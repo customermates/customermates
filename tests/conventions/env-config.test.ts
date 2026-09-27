@@ -8,8 +8,12 @@ import {
   resolveAppMode,
   resolveAuthAllowedHosts,
   resolveBaseUrl,
+  AGENT_GUARD_MODES,
+  DOCS_RERANK_VERSIONS,
   resolveClassifierSwitch,
+  resolveEnumSetting,
   resolveOptionalBigInt,
+  TOOLSET_CLASSIFIER_MODES,
   resolveRequestOrigin,
   resolveStrictBoolean,
   resolveVercelBranchOrigin,
@@ -250,9 +254,15 @@ describe("client instrumentation", () => {
     };
     const event = { event_id: "event" };
 
-    expect(options.beforeSend?.(event, { originalException: new TypeError("Failed to fetch") })).toBe(event);
     expect(
-      options.beforeSend?.(event, { originalException: new TypeError("Cannot read properties of undefined") }),
+      options.beforeSend?.(event, {
+        originalException: new TypeError("Failed to fetch"),
+      }),
+    ).toBe(event);
+    expect(
+      options.beforeSend?.(event, {
+        originalException: new TypeError("Cannot read properties of undefined"),
+      }),
     ).toBe(event);
   });
 });
@@ -285,7 +295,8 @@ describe("hosted-AI control configuration", () => {
   });
 
   it("reads an unset classifier switch as off and rejects anything but the three literals", () => {
-    for (const absent of [undefined, "", "   "]) expect(resolveClassifierSwitch("AGENT_DOCS_RERANK", absent)).toBe("off");
+    for (const absent of [undefined, "", "   "])
+      expect(resolveClassifierSwitch("AGENT_DOCS_RERANK", absent)).toBe("off");
 
     expect(resolveClassifierSwitch("AGENT_DOCS_RERANK", "jev")).toBe("jev");
     expect(resolveClassifierSwitch("AGENT_TOOLSET_CLASSIFIER", " gemini ")).toBe("gemini");
@@ -300,6 +311,23 @@ describe("hosted-AI control configuration", () => {
 
     expect(template).toMatch(/^AGENT_DOCS_RERANK="off"$/m);
     expect(template).toMatch(/^AGENT_TOOLSET_CLASSIFIER="off"$/m);
+    expect(template).toMatch(/^AGENT_DOCS_RERANK_VERSION="v2"$/m);
+    expect(template).toMatch(/^AGENT_TOOLSET_CLASSIFIER_MODE="parallel-v2"$/m);
+    expect(template).toMatch(/^AGENT_GUARD_MODE="wordlists"$/m);
+  });
+
+  it("defaults the v2 designs and the shipped guard, and rejects anything but their literals", () => {
+    expect(resolveEnumSetting("AGENT_DOCS_RERANK_VERSION", undefined, DOCS_RERANK_VERSIONS, "v2")).toBe("v2");
+    expect(resolveEnumSetting("AGENT_DOCS_RERANK_VERSION", " v1 ", DOCS_RERANK_VERSIONS, "v2")).toBe("v1");
+    expect(resolveEnumSetting("AGENT_TOOLSET_CLASSIFIER_MODE", "", TOOLSET_CLASSIFIER_MODES, "parallel-v2")).toBe(
+      "parallel-v2",
+    );
+    expect(resolveEnumSetting("AGENT_GUARD_MODE", "structural-classifier", AGENT_GUARD_MODES, "wordlists")).toBe(
+      "structural-classifier",
+    );
+    expect(() => resolveEnumSetting("AGENT_GUARD_MODE", "classifier", AGENT_GUARD_MODES, "wordlists")).toThrow(
+      /AGENT_GUARD_MODE must be configured as one of: wordlists, structural, structural-classifier/,
+    );
   });
 });
 

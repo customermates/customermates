@@ -4,6 +4,10 @@ import {
   resolveAuthAllowedHosts,
   resolveBaseUrl,
   resolveClassifierSwitch,
+  resolveEnumSetting,
+  AGENT_GUARD_MODES,
+  DOCS_RERANK_VERSIONS,
+  TOOLSET_CLASSIFIER_MODES,
   resolveOptionalBigInt,
   resolveStrictBoolean,
 } from "@/core/config/environment";
@@ -33,7 +37,25 @@ export const env = {
     ? resolveStrictBoolean("AGENT_ANALYSIS_TOOL_ENABLED", process.env.AGENT_ANALYSIS_TOOL_ENABLED)
     : true,
   AGENT_DOCS_RERANK: resolveClassifierSwitch("AGENT_DOCS_RERANK", process.env.AGENT_DOCS_RERANK),
+  AGENT_DOCS_RERANK_VERSION: resolveEnumSetting(
+    "AGENT_DOCS_RERANK_VERSION",
+    process.env.AGENT_DOCS_RERANK_VERSION,
+    DOCS_RERANK_VERSIONS,
+    "v2",
+  ),
   AGENT_TOOLSET_CLASSIFIER: resolveClassifierSwitch("AGENT_TOOLSET_CLASSIFIER", process.env.AGENT_TOOLSET_CLASSIFIER),
+  AGENT_TOOLSET_CLASSIFIER_MODE: resolveEnumSetting(
+    "AGENT_TOOLSET_CLASSIFIER_MODE",
+    process.env.AGENT_TOOLSET_CLASSIFIER_MODE,
+    TOOLSET_CLASSIFIER_MODES,
+    "parallel-v2",
+  ),
+  AGENT_GUARD_MODE: resolveEnumSetting(
+    "AGENT_GUARD_MODE",
+    process.env.AGENT_GUARD_MODE,
+    AGENT_GUARD_MODES,
+    "wordlists",
+  ),
   AI_GATEWAY_API_KEY: process.env.AI_GATEWAY_API_KEY,
   HOSTED_AI_OPERATOR_CONTROLS_ENABLED: resolveStrictBoolean(
     "HOSTED_AI_OPERATOR_CONTROLS_ENABLED",

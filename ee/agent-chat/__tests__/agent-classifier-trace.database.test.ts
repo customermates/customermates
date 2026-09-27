@@ -118,6 +118,7 @@ describeDatabase("agent turn classifier trace persistence", { timeout: 120_000 }
     const charges = [
       { use: "toolset_preload" as const, model: "jev" as const, costMicrocents: 300, measured: true, answered: true },
       { use: "docs_rerank" as const, model: "jev" as const, costMicrocents: 1_600, measured: true, answered: true },
+      { use: "guard_bulk" as const, model: "jev" as const, costMicrocents: 50, measured: true, answered: true },
     ];
     const classifierTrace = buildAgentTurnClassifierTrace(
       {
@@ -128,8 +129,13 @@ describeDatabase("agent turn classifier trace persistence", { timeout: 120_000 }
         added: ["webhooks"],
         costMicrocents: 300,
         measured: true,
+        mode: "parallel-v2",
+        rejected: ["views"],
+        removed: [],
+        appliedAtRound: 1,
       },
       charges,
+      { promptBytesByRound: [14_000, 15_200], guardCovered: 1 },
     );
     const usageSettlement = buildAgentUsageSettlement({
       model: run.turnBudget.modelSpec,
@@ -138,7 +144,7 @@ describeDatabase("agent turn classifier trace persistence", { timeout: 120_000 }
       tokens: { inputTokens: 100, outputTokens: 10, cacheReadTokens: 0, cacheWriteTokens: 0 },
       reservedCredits: run.turnBudget.reservedCredits,
       providerCharge: { billed: true, measuredCostMicrocents: 50_000, stepTokens: [], unreadableReason: null },
-      auxiliary: { costMicrocents: 1_900, measured: true },
+      auxiliary: { costMicrocents: 1_950, measured: true },
     });
 
     await repo.finalizeAgentTurnOrThrowUnscoped({
@@ -158,31 +164,38 @@ describeDatabase("agent turn classifier trace persistence", { timeout: 120_000 }
       }),
     );
     expect(stored.classifierTrace).toEqual(classifierTrace);
+    expect(stored.classifierTrace).toMatchObject({
+      guardBulk: { calls: 1, covered: 1 },
+      promptBytesByRound: [14_000, 15_200],
+    });
     expect(stored.rounds).toHaveLength(0);
     expect(stored.usageEvents).toHaveLength(1);
-    expect(stored.usageEvents[0]).toMatchObject({ state: "settled", costSource: "measured", costMicrocents: 51_900n });
+    expect(stored.usageEvents[0]).toMatchObject({ state: "settled", costSource: "measured", costMicrocents: 51_950n });
   });
 
-  it("refuses a malformed classifier trace before touching the turn", async () => {
-    await expect(
-      new PrismaAgentChatRepo().finalizeAgentTurnOrThrowUnscoped({
-        turnRequestId: randomUUID(),
-        conversationId: randomUUID(),
-        companyId,
-        userId,
-        runId: randomUUID(),
-        parts: [{ type: "text", text: "Done." }],
-        terminalCode: "completed",
-        stopReason: null,
-        affectedResources: [],
-        usageSettlement: null,
-        classifierTrace: {
-          auxiliaryCostMicrocents: -5,
-          auxiliaryMeasured: true,
-          toolsetPreload: null,
-          docsRerank: null,
-        },
-      }),
-    ).rejects.toThrow("Agent turn classifier trace is invalid.");
-  });
+  it.each([{ auxiliaryCostMicrocents: -5 }, { auxiliaryCostMicrocents: 0, promptBytesByRound: [-1] }])(
+    "refuses a malformed classifier trace before touching the turn (%o)",
+    async (malformed) => {
+      await expect(
+        new PrismaAgentChatRepo().finalizeAgentTurnOrThrowUnscoped({
+          turnRequestId: randomUUID(),
+          conversationId: randomUUID(),
+          companyId,
+          userId,
+          runId: randomUUID(),
+          parts: [{ type: "text", text: "Done." }],
+          terminalCode: "completed",
+          stopReason: null,
+          affectedResources: [],
+          usageSettlement: null,
+          classifierTrace: {
+            auxiliaryMeasured: true,
+            toolsetPreload: null,
+            docsRerank: null,
+            ...malformed,
+          },
+        }),
+      ).rejects.toThrow("Agent turn classifier trace is invalid.");
+    },
+  );
 });

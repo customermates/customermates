@@ -2,13 +2,17 @@ import { describe, expect, it } from "vitest";
 
 import { agentContextProviderPrefix } from "../agent-context";
 import { agentPageContextPrefix } from "../agent-page-context";
-import { AGENT_ON_DEMAND_TOOLSETS, AGENT_TOOLSET_SUMMARY } from "../agent-toolset-routing";
+import { AGENT_ON_DEMAND_TOOLSETS, AGENT_TOOLSET_SUMMARY, lexiconOnlyToolsets } from "../agent-toolset-routing";
 import { buildAgentTurnClassifierTrace, isAgentTurnClassifierTrace } from "../agent-classifier-trace";
 import {
   TOOLSET_PRELOAD_MAX_ADDED,
   TOOLSET_PRELOAD_TEXT_CHARS,
+  TOOLSET_REMOVE_MAX_PROBABILITY,
+  TOOLSET_ROUTING_TUNED_SUMMARY,
+  decideParallelToolsetRouting,
   latestUserRequestText,
   predictedToolsets,
+  rejectedToolsets,
   selectPreloadToolsets,
   toolsetPreloadSpec,
 } from "../toolset-preload";
@@ -134,5 +138,106 @@ describe("turn classifier trace", () => {
     const empty = { auxiliaryCostMicrocents: 0, auxiliaryMeasured: true, toolsetPreload: null, docsRerank: null };
     expect(isAgentTurnClassifierTrace(empty)).toBe(true);
     expect(isAgentTurnClassifierTrace({ ...empty, auxiliaryCostMicrocents: -1 })).toBe(false);
+  });
+});
+
+describe("toolset routing v2", () => {
+  it("uses the tuned wording from the offline probe for the sets it changed, and the product summary for the rest", () => {
+    const spec = toolsetPreloadSpec(TOOLSET_ROUTING_TUNED_SUMMARY);
+    const instruction = (toolset: string) =>
+      spec.questions.find((question) => question.id === `toolset_${toolset}`)?.instruction ?? "";
+
+    expect(instruction("views")).toContain("not computing or comparing figures");
+    expect(instruction("messaging")).toContain("not a summary the CRM sends by itself");
+    expect(instruction("admin")).toContain("not questions about how the product works");
+    expect(instruction("social")).toContain(AGENT_TOOLSET_SUMMARY.social);
+    expect(instruction("widgets")).toContain(AGENT_TOOLSET_SUMMARY.widgets);
+  });
+
+  it("rejects a set only on a measured probability at or below 0.1", () => {
+    expect(TOOLSET_REMOVE_MAX_PROBABILITY).toBe(0.1);
+    expect(
+      rejectedToolsets(
+        booleans({ toolset_views: 0.05, toolset_messaging: 0.1, toolset_social: 0.11, toolset_widgets: 0.9 }),
+      ),
+    ).toEqual(["views", "messaging"]);
+    expect(rejectedToolsets(booleans({ toolset_views: false }))).toEqual([]);
+    expect(rejectedToolsets(null)).toEqual([]);
+  });
+
+  it("removes rejected lexicon sets the model has not used, keeps pinned and used ones, and adds at most two", () => {
+    const decision = decideParallelToolsetRouting({
+      loaded: ["views", "messaging", "social", "widgets"],
+      removable: ["views", "messaging", "social"],
+      used: ["messaging"],
+      predicted: ["webhooks", "routines", "admin"],
+      rejected: ["views", "messaging", "widgets"],
+      fits: () => true,
+    });
+
+    expect(decision.removed).toEqual(["views"]);
+    expect(decision.added).toEqual(["webhooks", "routines"]);
+    expect(decision.toolsets).toEqual(["messaging", "social", "widgets", "webhooks", "routines"]);
+  });
+
+  it("never removes a set loaded with load_toolset, and adds only while the context still fits", () => {
+    const decision = decideParallelToolsetRouting({
+      loaded: ["views"],
+      removable: ["views"],
+      used: ["views", "social"],
+      predicted: ["social", "webhooks", "admin"],
+      rejected: ["views"],
+      fits: (toolsets) => !toolsets.includes("webhooks"),
+    });
+
+    expect(decision).toEqual({ removed: [], added: ["admin"], toolsets: ["views", "admin"] });
+  });
+
+  it("treats only sets matched by the lexicon in the user's words as removable", () => {
+    expect(
+      lexiconOnlyToolsets({ texts: ["Email Anna about the dashboard", "Create a webhook"], pinned: ["widgets"] }),
+    ).toEqual(["messaging", "webhooks"]);
+  });
+
+  it("records the v2 decisions and the prompt bytes of every round", () => {
+    const preload = {
+      model: "jev" as const,
+      answered: true,
+      lexicon: ["views"],
+      predicted: ["webhooks"],
+      added: ["webhooks"],
+      costMicrocents: 300,
+      measured: true,
+      mode: "parallel-v2" as const,
+      rejected: ["views"],
+      removed: ["views"],
+      appliedAtRound: 1,
+    };
+    const trace = buildAgentTurnClassifierTrace(
+      preload,
+      [
+        { use: "toolset_preload", model: "jev", costMicrocents: 300, measured: true, answered: true },
+        { use: "guard_bulk", model: "jev", costMicrocents: 50, measured: true, answered: true },
+      ],
+      { promptBytesByRound: [12_000, 9_000], guardCovered: 1 },
+    );
+
+    expect(trace).toEqual({
+      auxiliaryCostMicrocents: 350,
+      auxiliaryMeasured: true,
+      toolsetPreload: preload,
+      docsRerank: null,
+      guardBulk: { model: "jev", calls: 1, answered: 1, costMicrocents: 50, measured: true, covered: 1 },
+      promptBytesByRound: [12_000, 9_000],
+    });
+    expect(isAgentTurnClassifierTrace(trace)).toBe(true);
+    expect(buildAgentTurnClassifierTrace(null, [], { promptBytesByRound: [5_000] })).toEqual({
+      auxiliaryCostMicrocents: 0,
+      auxiliaryMeasured: true,
+      toolsetPreload: null,
+      docsRerank: null,
+      promptBytesByRound: [5_000],
+    });
+    expect(isAgentTurnClassifierTrace({ ...trace, promptBytesByRound: [-1] })).toBe(false);
   });
 });

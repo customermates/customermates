@@ -15,7 +15,15 @@ import {
   type McpToolExecutionResult,
 } from "@/features/mcp-tools/mcp-tool";
 import { RequestSupportSchema } from "@/features/mcp-tools/support.mcp-tools";
-import { searchDocs, searchDocsTool, type SearchDocsInput } from "@/features/mcp-tools/docs.mcp-tools";
+import {
+  getDocsPageRanked,
+  getDocsPageTool,
+  searchDocs,
+  searchDocsRanked,
+  searchDocsTool,
+  type GetDocsPageInput,
+  type SearchDocsInput,
+} from "@/features/mcp-tools/docs.mcp-tools";
 import { redactUnexpectedError } from "@/core/errors/redact-unexpected-error";
 
 import { agentToolResultText } from "./agent-budget-policy";
@@ -45,7 +53,7 @@ import { ANALYZE_RECORDS_DESCRIPTION, AnalyzeRecordsSchema, analyzeRecords } fro
 import { env } from "@/env";
 import type { AgentToolInputResult } from "./agent-tool-input";
 import { agentViewToolMismatch } from "./agent-page-context";
-import { hostedDocsReranker } from "./docs-rerank";
+import { hostedDocsRanking } from "./docs-rerank";
 
 export { isAgentToolCancellation, type AgentToolCancellation } from "./agent-tool-cancellation";
 
@@ -76,6 +84,7 @@ export type AgentToolDeps = {
   resultMaxChars: number;
   surface?: AgentSurface;
   pageRoute?: string | null;
+  latestUserMessage?: string | null;
 };
 
 function withCallerContext(tools: ToolSet, deps: AgentToolDeps): ToolSet {
@@ -325,10 +334,17 @@ async function listUiTargets(input: z.infer<typeof ListUiTargetsSchema>, resultM
   return `${header}${lines.join("\n")}\n${footer}`;
 }
 
-function hostedMcpTool(mcp: (typeof ALL_MCP_TOOLS)[number]): (typeof ALL_MCP_TOOLS)[number] {
-  if (mcp.name !== searchDocsTool.name) return mcp;
-  const rerank = hostedDocsReranker();
-  return rerank ? { ...mcp, execute: (input: SearchDocsInput) => searchDocs(input, rerank) } : mcp;
+function hostedMcpTool(mcp: (typeof ALL_MCP_TOOLS)[number], deps: AgentToolDeps): (typeof ALL_MCP_TOOLS)[number] {
+  if (mcp.name !== searchDocsTool.name && mcp.name !== getDocsPageTool.name) return mcp;
+  const ranking = hostedDocsRanking(deps.latestUserMessage ?? null);
+  if (!ranking) return mcp;
+  if (ranking.version === "v1") {
+    if (mcp.name !== searchDocsTool.name) return mcp;
+    return { ...mcp, execute: (input: SearchDocsInput) => searchDocs(input, ranking.rerank) };
+  }
+  if (mcp.name === searchDocsTool.name)
+    return { ...mcp, execute: (input: SearchDocsInput) => searchDocsRanked(input, ranking.rank) };
+  return { ...mcp, execute: (input: GetDocsPageInput) => getDocsPageRanked(input, ranking.rank) };
 }
 
 function crmTool(mcp: (typeof ALL_MCP_TOOLS)[number], deps: AgentToolDeps) {
@@ -337,7 +353,7 @@ function crmTool(mcp: (typeof ALL_MCP_TOOLS)[number], deps: AgentToolDeps) {
     inputSchema: providerSafeSchema(mcp.inputSchema),
     execute: async (input: unknown, { toolCallId }) => {
       const execute = async () => {
-        const outcome = await executeMcpTool(hostedMcpTool(mcp), [input]);
+        const outcome = await executeMcpTool(hostedMcpTool(mcp, deps), [input]);
         return agentToolResult(outcome, deps.resultMaxChars, { toolName: mcp.name, pageRoute: deps.pageRoute });
       };
       const enrollable = !isReadOnlyTool(mcp) && !hasNonTransactionalEffect(mcp.name);
