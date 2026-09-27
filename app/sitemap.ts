@@ -10,6 +10,8 @@ import { CONTENT_LOCALES, stripLocalePrefix } from "@/i18n/locale-registry";
 import { SITEMAP_CONTENT_ROUTES, SITEMAP_EXTRA_CONTENT_ROUTES } from "@/i18n/routing";
 import { ROUTE_SOURCE_MAP } from "@/core/fumadocs/route-source-map";
 
+export const dynamic = "force-dynamic";
+
 function collectLocalizedRoutes(): LocalizedRoute[] {
   const localizedRoutes: LocalizedRoute[] = [];
   const emitted = new Set<string>();

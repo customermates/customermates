@@ -187,6 +187,15 @@ describe("grouped table rows", () => {
     expect(loadMoreInGroup).toHaveBeenCalledWith("won");
   });
 
+  it("shows a group's stage probability only when the grouped column is the weighting column", () => {
+    const weighted = groupingResult({ groups: [group({ key: "won", count: 1, label: "Won", weight: 80 })] });
+    const byWeightingColumn = render(store({ groupingResult: weighted, isGroupedByDealWeightingColumn: true }));
+    const byAnotherColumn = render(store({ groupingResult: weighted, isGroupedByDealWeightingColumn: false }));
+
+    expect(byWeightingColumn.querySelector('[data-slot="group-header-row"]')?.textContent).toBe("Won180%");
+    expect(byAnotherColumn.querySelector('[data-slot="group-header-row"]')?.textContent).toBe("Won1");
+  });
+
   it("reports how many groups the axis kept", () => {
     const host = render(store({ groupingResult: groupingResult({ overflow: { shown: 12 } }) }));
 

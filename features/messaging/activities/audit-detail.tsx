@@ -289,18 +289,20 @@ export const AuditDetail = observer(({ entry, customColumns }: Props) => {
 
         return (
           <div className="flex flex-wrap items-center gap-1.5">
-            {(value as { optionValue: string; weight: number }[]).map((stage) => {
+            {(value as { optionValue: string; weight?: number }[]).map((stage) => {
               const option = stageOptions.get(stage.optionValue);
 
               return (
                 <AppChip
                   key={stage.optionValue}
                   endContent={
-                    <span className="flex shrink-0 items-center gap-1">
-                      <span className="opacity-60">·</span>
+                    stage.weight === undefined ? undefined : (
+                      <span className="flex shrink-0 items-center gap-1">
+                        <span className="opacity-60">·</span>
 
-                      <span className="tabular-nums">{stage.weight}%</span>
-                    </span>
+                        <span className="tabular-nums">{stage.weight}%</span>
+                      </span>
+                    )
                   }
                   size="sm"
                   variant={option?.color}

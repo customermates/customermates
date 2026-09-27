@@ -32,6 +32,7 @@ describe("UpdateCompanySettingsInteractor", () => {
     mockRepo = {
       updateDetails: vi.fn().mockResolvedValue(undefined),
       upsertTerminology: vi.fn().mockResolvedValue(undefined),
+      setDealStageWeights: vi.fn().mockResolvedValue(undefined),
     };
     mockEventService = {
       publish: vi.fn().mockResolvedValue(undefined),
@@ -87,6 +88,23 @@ describe("UpdateCompanySettingsInteractor", () => {
 
     expect(result.ok).toBe(true);
     expect(result.data).toEqual({ currency: Currency.idr });
+  });
+
+  it("accepts a stage without a weight, so an unweighted stage stays unweighted", async () => {
+    const dealStageWeights = [{ optionValue: "stage-open", weight: 30 }, { optionValue: "stage-parked" }];
+    const interactor = createInteractor();
+    const result: any = await interactor.invoke({ dealStageWeights });
+
+    expect(result.ok).toBe(true);
+    expect(mockRepo.setDealStageWeights).toHaveBeenCalledWith(dealStageWeights);
+  });
+
+  it.each([-1, 101])("rejects a stage weight of %s", async (weight) => {
+    const interactor = createInteractor();
+    const result: any = await interactor.invoke({ dealStageWeights: [{ optionValue: "stage-open", weight }] });
+
+    expect(result.ok).toBe(false);
+    expect(mockRepo.setDealStageWeights).not.toHaveBeenCalled();
   });
 
   it.each(["xau", "xxx", "zzz"])("rejects unsupported currency code %s", async (currency) => {

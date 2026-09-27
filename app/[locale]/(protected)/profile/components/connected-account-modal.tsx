@@ -76,6 +76,7 @@ export const ConnectedAccountModal = observer(() => {
     ? canReconnect
       ? {
           id: "reconnect-account",
+          anchorId: "connected-account-reactivate",
           label: t("ConnectedAccountsCard.reactivate"),
           icon: Plug,
           onClick: () => connectedAccountsStore.reconnect(account.id),
@@ -83,6 +84,7 @@ export const ConnectedAccountModal = observer(() => {
       : canResync
         ? {
             id: "resync-account",
+            anchorId: "connected-account-resync",
             label: t("ConnectedAccountsCard.resync"),
             icon: RefreshCw,
             onClick: () => connectedAccountsStore.resync(account.id),
@@ -93,6 +95,7 @@ export const ConnectedAccountModal = observer(() => {
     hasAccountActions && canDelete
       ? {
           id: "disconnect-account",
+          anchorId: "connected-account-disconnect",
           label: t("ConnectedAccountsCard.disconnect"),
           icon: Trash2,
           variant: "destructive",
@@ -162,7 +165,7 @@ export const ConnectedAccountModal = observer(() => {
               )}
             </TabsList>
 
-            <TabsContent className="pt-5" value="details">
+            <TabsContent aria-labelledby="connected-account-tab-details" className="pt-5" value="details">
               <div className="flex flex-col gap-2">
                 <InfoRow label={t("ConnectedAccountsCard.provider")}>{providerLabel}</InfoRow>
 
@@ -256,7 +259,12 @@ export const ConnectedAccountModal = observer(() => {
             </TabsContent>
 
             {showEmailTab && (
-              <TabsContent forceMount className="pt-5 data-[state=inactive]:hidden" value="email">
+              <TabsContent
+                forceMount
+                aria-labelledby="connected-account-tab-email"
+                className="pt-5 data-[state=inactive]:hidden"
+                value="email"
+              >
                 <AccountSignature
                   key={account.id}
                   account={account}
@@ -266,7 +274,7 @@ export const ConnectedAccountModal = observer(() => {
             )}
 
             {showFoldersTab && (
-              <TabsContent className="pt-5" value="folders">
+              <TabsContent aria-labelledby="connected-account-tab-folders" className="pt-5" value="folders">
                 <AccountFolders
                   account={account}
                   editable={account.isOwner && canUpdate}

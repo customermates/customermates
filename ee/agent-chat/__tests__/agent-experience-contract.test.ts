@@ -669,6 +669,28 @@ describe("agent experience contract", () => {
     expect(JSON.stringify(email)).not.toContain("never-show");
   });
 
+  it("shows a record link in an activity preview as its label, never its route or id", () => {
+    const dealId = "80000000-0000-4000-8000-000000000003";
+    const draft = describeInternalTool("save_message_draft", {
+      subject: `Next steps for [CRM Rollout](/deals/${dealId})`,
+      body: `Open [CRM Rollout](/de/deals/${dealId}) before the call.`,
+    });
+    const persisted = AgentActivityDescriptorSchema.parse({
+      kind: "messages.draft",
+      resource: "messages",
+      affectedResources: ["messages"],
+      risk: "write",
+      consequence: { action: "draft.save", preview: `See [Deal [Q3]](/deals/${dealId})` },
+    });
+
+    expect(draft.consequence?.subject).toBe("Next steps for CRM Rollout");
+    expect(draft.consequence?.preview).toBe("Open CRM Rollout before the call.");
+    expect(persisted.consequence?.preview).toBe("See Deal [Q3]");
+    expect(agentActivityCopy(draft, enT).detail).toContain("CRM Rollout");
+    expect(JSON.stringify([draft, persisted, agentActivityCopy(draft, enT)])).not.toContain(dealId);
+    expect(JSON.stringify([draft, persisted])).not.toContain("](");
+  });
+
   it("redacts split internal markup and identifiers before any model text becomes visible", () => {
     const sanitizer = new AgentVisibleTextStreamSanitizer();
     const visible = [

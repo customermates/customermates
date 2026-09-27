@@ -2,6 +2,7 @@ import type { AgentTurnStatus, AgentTurnTerminalCode } from "@/generated/prisma"
 import type { AgentTurnStopReason } from "@/ee/agent-chat/agent-turn-request";
 
 import { RoutineRunStatus } from "@/generated/prisma";
+import { agentPlainTextPreview, sanitizeAgentPlainText } from "@/ee/agent-chat/agent-output-safety";
 
 export const ROUTINE_SUMMARY_MAX_CHARS = 280;
 
@@ -44,7 +45,8 @@ export function routineRunDetail(
   },
   t: (key: string) => string,
 ): string {
-  if (run.summary) return run.summary;
+  const summary = run.summary ? plainRoutineSummary(run.summary) : "";
+  if (summary) return summary;
 
   const reason = run.error;
   if (reason && (ROUTINE_RUN_REASONS as readonly string[]).includes(reason)) return t(`RoutineRunReason.${reason}`);
@@ -101,18 +103,23 @@ export function routineRunStatusFor(
   return RoutineRunStatus.failed;
 }
 
+function plainRoutineSummary(value: string): string {
+  const visible = sanitizeAgentPlainText(value);
+  return agentPlainTextPreview(visible, visible.length);
+}
+
 export function summarizeAssistantParts(parts: unknown): string | null {
   if (!Array.isArray(parts)) return null;
 
-  const text = parts
-    .flatMap((part) => {
-      if (!part || typeof part !== "object") return [];
-      const candidate = part as { type?: unknown; text?: unknown };
-      return candidate.type === "text" && typeof candidate.text === "string" ? [candidate.text] : [];
-    })
-    .join(" ")
-    .replace(/\s+/g, " ")
-    .trim();
+  const text = plainRoutineSummary(
+    parts
+      .flatMap((part) => {
+        if (!part || typeof part !== "object") return [];
+        const candidate = part as { type?: unknown; text?: unknown };
+        return candidate.type === "text" && typeof candidate.text === "string" ? [candidate.text] : [];
+      })
+      .join(" "),
+  );
 
   if (!text) return null;
 

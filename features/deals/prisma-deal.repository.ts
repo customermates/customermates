@@ -121,10 +121,10 @@ export class PrismaDealRepo
 
   getSortableFields() {
     return [
-      { field: "name", resolvedFields: ["name"] },
+      { field: "name", resolvedFields: ["name"], collate: true },
       { field: "totalValue", resolvedFields: ["totalValue"] },
       { field: "totalQuantity", resolvedFields: ["totalQuantity"] },
-      { field: "weightedValue", resolvedFields: ["weightedValue"] },
+      { field: "weightedValue", resolvedFields: ["weightedValue"], nullable: true },
       { field: "createdAt", resolvedFields: ["createdAt"] },
       { field: "updatedAt", resolvedFields: ["updatedAt"] },
     ];

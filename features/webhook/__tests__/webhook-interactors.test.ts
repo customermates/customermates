@@ -231,6 +231,61 @@ describe("UpsertWebhookInteractor (update)", () => {
   });
 });
 
+describe("UpsertWebhookInteractor (credential changes)", () => {
+  const credentialed = makeWebhookDto({
+    secret: "old-signing-secret",
+    headers: { Authorization: "Bearer old-token", "X-Trace": "same" },
+  });
+
+  async function publishedChanges(next: ReturnType<typeof makeWebhookDto>, input: Record<string, unknown>) {
+    const mockEventService = { publish: vi.fn().mockResolvedValue(undefined) };
+    const mockRepo = {
+      upsertWebhookOrThrow: vi.fn().mockResolvedValue(next),
+      getWebhookByIdOrThrow: vi.fn().mockResolvedValue(credentialed),
+      getWebhookById: vi.fn().mockResolvedValue(credentialed),
+    };
+    const interactor = new UpsertWebhookInteractor(
+      mockRepo as never,
+      mockEventService as never,
+      new ValidateWebhookIdsInteractor(getWebhookRepo()),
+    );
+
+    await interactor.invoke({ id: WEBHOOK_ID, ...input });
+
+    const [event, data] = mockEventService.publish.mock.calls[0];
+    expect(event).toBe(DomainEvent.WEBHOOK_UPDATED);
+
+    return data.payload as { changes: Record<string, { previous: unknown; current: unknown }> };
+  }
+
+  it("records a rotated secret as a masked change", async () => {
+    const payload = await publishedChanges(makeWebhookDto({ ...credentialed, secret: "new-signing-secret" }), {
+      secret: "new-signing-secret",
+    });
+
+    expect(payload.changes).toEqual({ secret: { previous: "********", current: "********" } });
+    expect(JSON.stringify(payload)).not.toContain("signing-secret");
+  });
+
+  it("records a changed header value under its name with both values masked", async () => {
+    const payload = await publishedChanges(
+      makeWebhookDto({ ...credentialed, headers: { Authorization: "Bearer new-token", "X-Trace": "same" } }),
+      { headers: { Authorization: "Bearer new-token", "X-Trace": "same" } },
+    );
+
+    expect(payload.changes).toEqual({
+      headers: { previous: { Authorization: "********" }, current: { Authorization: "********" } },
+    });
+    expect(JSON.stringify(payload)).not.toContain("token");
+  });
+
+  it("still yields no changes for a save that changed nothing", async () => {
+    const payload = await publishedChanges(makeWebhookDto({ ...credentialed }), { enabled: true });
+
+    expect(payload.changes).toEqual({});
+  });
+});
+
 describe("DeleteWebhookInteractor", () => {
   let mockRepo: any;
   let mockEventService: any;

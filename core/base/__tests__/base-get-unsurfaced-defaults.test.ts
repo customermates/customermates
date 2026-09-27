@@ -99,7 +99,7 @@ describe("a request that reaches no data-view surface keeps the documented api c
   });
 
   it("keeps the hundred row floor for a search term, the way the messaging thread route is wired", async () => {
-    const { data } = await resultOf("interactive", { searchTerm: "invoice" });
+    const { data } = await resultOf("api", { searchTerm: "invoice" });
 
     expect(data.pagination?.pageSize).toBe(100);
     expect(data.sortDescriptor).toBeUndefined();

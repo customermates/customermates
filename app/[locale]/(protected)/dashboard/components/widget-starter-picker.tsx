@@ -29,7 +29,11 @@ export function WidgetStarterPicker({ availableKinds, disabled, templates, onSel
 
   return (
     <div className="flex min-w-0 flex-col gap-5">
-      <section aria-label={t("Dashboard.widgetEditor.kind.title")} className="grid gap-2 sm:grid-cols-2">
+      <section
+        aria-label={t("Dashboard.widgetEditor.kind.title")}
+        className="grid gap-2 sm:grid-cols-2"
+        id="widget-modal-kind"
+      >
         {availableKinds.map((kind) => {
           const KindIcon = KIND_ICON[kind];
           return (

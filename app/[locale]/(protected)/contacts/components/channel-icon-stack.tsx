@@ -67,6 +67,7 @@ export function ChannelIconStack({ identifiers, maxVisible = 3, className, onIte
       }}
       rowKey={(id) => id.id}
       rows={identifiers}
+      triggerLabel={channels.map((provider) => t(`Common.providers.${channelLabelKey(provider)}`)).join(", ")}
     />
   );
 }

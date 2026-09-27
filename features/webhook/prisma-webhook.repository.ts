@@ -8,7 +8,7 @@ import type { GetWebhooksForEventRepo } from "@/features/event/event.service";
 import type { GetWebhookByIdRepo } from "./get-webhook-by-id.interactor";
 import type { DeliverWebhookConfigRepo } from "./deliver-webhook.interactor";
 
-import { Prisma } from "@/generated/prisma";
+import { Action, Prisma, Resource } from "@/generated/prisma";
 
 import { BaseRepository } from "@/core/base/base-repository";
 import { transactionStorage } from "@/core/decorators/transaction-context";
@@ -18,6 +18,7 @@ import { type GetQueryParams } from "@/core/base/base-get.schema";
 import { FilterFieldKey } from "@/core/types/filter-field-key";
 import { FILTER_FIELD_DEFAULT_OPERATORS } from "@/core/types/filter-field-operators";
 import { parseStoredWebhookHeaders } from "./webhook-headers";
+import { WEBHOOK_MASKED_VALUE } from "./webhook.schema";
 
 export class PrismaWebhookRepo
   extends BaseRepository<Prisma.WebhookWhereInput>
@@ -45,10 +46,19 @@ export class PrismaWebhookRepo
     } as const;
   }
 
-  private toWebhookDto(row: { headers: unknown }): WebhookDto {
+  private toWebhookDto(row: { secret: string | null; headers: unknown }): WebhookDto {
     const headers = parseStoredWebhookHeaders(row.headers);
+    const webhook = { ...row, headers: Object.keys(headers).length > 0 ? headers : null } as WebhookDto;
 
-    return { ...row, headers: Object.keys(headers).length > 0 ? headers : null } as WebhookDto;
+    if (this.hasPermission(Resource.api, Action.update)) return webhook;
+
+    return {
+      ...webhook,
+      secret: webhook.secret ? WEBHOOK_MASKED_VALUE : webhook.secret,
+      headers: webhook.headers
+        ? Object.fromEntries(Object.keys(webhook.headers).map((name) => [name, WEBHOOK_MASKED_VALUE]))
+        : null,
+    };
   }
 
   getSearchableFields() {
@@ -57,7 +67,7 @@ export class PrismaWebhookRepo
 
   getSortableFields() {
     return [
-      { field: "name", resolvedFields: ["url"] },
+      { field: "name", resolvedFields: ["url"], collate: true },
       { field: "createdAt", resolvedFields: ["createdAt"] },
       { field: "updatedAt", resolvedFields: ["updatedAt"] },
     ];
@@ -71,14 +81,14 @@ export class PrismaWebhookRepo
   }
 
   async getItems(params: GetQueryParams) {
-    const args = await this.buildQueryArgs(params, { companyId: this.companyId });
-
-    const webhooks = await this.prisma.webhook.findMany({
-      ...args,
+    return this.list({
+      model: "webhook",
+      baseWhere: { companyId: this.companyId },
       select: this.baseSelect,
+      params,
+      map: (webhook: Prisma.WebhookGetPayload<{ select: PrismaWebhookRepo["baseSelect"] }>) =>
+        this.toWebhookDto(webhook),
     });
-
-    return webhooks.map((webhook) => this.toWebhookDto(webhook));
   }
 
   async getCount(params: GetQueryParams) {

@@ -4,6 +4,7 @@ import type { ComponentProps } from "react";
 import { defaultRehypePlugins, type Components } from "streamdown";
 import { useTranslations } from "next-intl";
 
+import { messageHardenRehypePlugins } from "@/components/ai-elements/message";
 import { AppLink } from "@/components/shared/app-link";
 import { dataViewNavigationHref, dataViewNavigationRanges } from "@/core/data-view/data-view-links";
 import { AI_MANAGEABLE_DATA_VIEW_SURFACE_KEYS } from "@/core/data-view/ai-manageable-surfaces";
@@ -136,6 +137,6 @@ export const agentMessageRehypePlugins = [
   defaultRehypePlugins.sanitize,
   rehypeInertMalformedViewLinks,
   rehypeSavedViewLinks,
-  defaultRehypePlugins.harden,
+  ...messageHardenRehypePlugins,
 ];
 export const agentMessageComponents: Components = { span: AgentMessageSpan };

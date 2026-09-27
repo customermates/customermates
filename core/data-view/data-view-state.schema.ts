@@ -5,6 +5,7 @@ import { z } from "zod";
 import { FilterSchema, SortDescriptorSchema } from "@/core/base/base-get.schema";
 import { GroupingSchema } from "@/core/base/grouping/grouping.schema";
 import { ViewMode } from "@/core/base/base-query-builder";
+import { zx } from "@/core/validation/validation.utils";
 
 import { SurfaceKeySchema } from "./data-view-identity.schema";
 
@@ -23,7 +24,7 @@ function dropUndefinedKeys<T extends Record<string, unknown>>(value: T): T {
 export const DataViewStateWireSchema = z
   .object({
     filters: z.array(FilterSchema),
-    searchTerm: z.string().max(200),
+    searchTerm: zx.nulFreeText().max(200),
     sortDescriptor: SortDescriptorSchema.nullable(),
     pageSize: DataViewPageSizeSchema,
     viewMode: z.enum(ViewMode),

@@ -230,6 +230,7 @@ export const DataViewViewsRail = observer(function DataViewViewsRail<E extends H
 
           <DropdownMenuContent
             align="end"
+            aria-labelledby="global-data-views-menu"
             onCloseAutoFocus={(event) => {
               const handoff = pendingAi.current;
               if (handoff) {

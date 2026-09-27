@@ -40,7 +40,7 @@ export default async function OpenApiDocPage({ params }: { params: Promise<{ slu
 
   return (
     <>
-      <PageContainer>
+      <PageContainer className="relative">
         <div className="flex flex-row items-start">
           <aside className="hidden lg:flex w-72 shrink-0 self-start sticky top-0 h-full md:h-[calc(100dvh-3rem)] flex-col mr-6">
             <nav className="space-y-2 min-h-0 overflow-y-auto">

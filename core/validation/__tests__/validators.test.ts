@@ -658,7 +658,7 @@ describe("validateIdentifierConflicts", () => {
     );
   });
 
-  it("adds issue when two batch rows claim the same identifier", () => {
+  it("reports a channel two batch rows both list as a duplicate, not as held by another contact", () => {
     const ctx = createMockCtx();
     validateIdentifierConflicts(
       [
@@ -670,6 +670,43 @@ describe("validateIdentifierConflicts", () => {
       (i) => ["rows", i],
     );
     expect(ctx.addIssue).toHaveBeenCalledTimes(1);
+    expect(ctx.addIssue).toHaveBeenCalledWith(
+      expect.objectContaining({ params: { error: CustomErrorCode.duplicateChannel }, path: ["rows", 1, 0, "value"] }),
+    );
+  });
+
+  it("reports a later batch row claiming a stored contact's channel as held by another contact", () => {
+    const ctx = createMockCtx();
+    validateIdentifierConflicts(
+      [
+        { selfContactId: "contact-1", identifiers: [mailIdentifier("a@b.com")] },
+        { selfContactId: "contact-2", identifiers: [mailIdentifier("a@b.com")] },
+      ],
+      new Map([["email:a@b.com", "contact-1"]]),
+      ctx,
+      (i) => ["contacts", i, "identifiers"],
+    );
+    expect(ctx.addIssue).toHaveBeenCalledTimes(1);
+    expect(ctx.addIssue).toHaveBeenCalledWith(
+      expect.objectContaining({
+        params: { error: CustomErrorCode.channelAlreadyLinked },
+        path: ["contacts", 1, "identifiers", 0, "value"],
+      }),
+    );
+  });
+
+  it("lets the same contact list its channel in two rows of one batch", () => {
+    const ctx = createMockCtx();
+    validateIdentifierConflicts(
+      [
+        { selfContactId: "contact-1", identifiers: [mailIdentifier("a@b.com")] },
+        { selfContactId: "contact-1", identifiers: [mailIdentifier("a@b.com")] },
+      ],
+      new Map<string, string>(),
+      ctx,
+      (i) => ["contacts", i, "identifiers"],
+    );
+    expect(ctx.addIssue).not.toHaveBeenCalled();
   });
 
   it("rejects a repeated identifier inside one batch row", () => {

@@ -13,6 +13,7 @@ import { useFormFieldErrors } from "./use-form-field";
 
 type Props = {
   id: string;
+  inputId?: string;
   label?: ReactNode;
   errorMessage?: ReactNode;
   required?: boolean;
@@ -20,46 +21,49 @@ type Props = {
   containerClassName?: string;
 };
 
-export const FormCheckbox = observer(({ id, label, errorMessage, required, className, containerClassName }: Props) => {
-  const store = useAppForm();
-  const checked = Boolean(store?.getValue(id));
-  const { errors, hasError } = useFormFieldErrors(id);
-  const isLoading = store?.isLoading ?? false;
-  const isReadOnly = !isLoading && (store?.isReadOnly ?? false);
-  const errorId = `${id}-error`;
-  const resolvedErrorMessage = errorMessage ?? (Array.isArray(errors) ? errors.join(" ") : errors);
+export const FormCheckbox = observer(
+  ({ id, inputId, label, errorMessage, required, className, containerClassName }: Props) => {
+    const store = useAppForm();
+    const checked = Boolean(store?.getValue(id));
+    const { errors, hasError } = useFormFieldErrors(id);
+    const isLoading = store?.isLoading ?? false;
+    const isReadOnly = !isLoading && (store?.isReadOnly ?? false);
+    const errorId = `${id}-error`;
+    const domId = inputId ?? id;
+    const resolvedErrorMessage = errorMessage ?? (Array.isArray(errors) ? errors.join(" ") : errors);
 
-  return (
-    <div className={cn("space-y-1.5", containerClassName)}>
-      <div className="flex items-center gap-2">
-        <Checkbox
-          aria-describedby={hasError ? errorId : undefined}
-          aria-invalid={hasError}
-          aria-readonly={isReadOnly || undefined}
-          aria-required={required}
-          checked={checked}
-          className={className}
-          disabled={isLoading}
-          id={id}
-          onCheckedChange={isReadOnly ? undefined : (next) => store?.onChange(id, next === true)}
-        />
+    return (
+      <div className={cn("space-y-1.5", containerClassName)}>
+        <div className="flex items-center gap-2">
+          <Checkbox
+            aria-describedby={hasError ? errorId : undefined}
+            aria-invalid={hasError}
+            aria-readonly={isReadOnly || undefined}
+            aria-required={required}
+            checked={checked}
+            className={className}
+            disabled={isLoading}
+            id={domId}
+            onCheckedChange={isReadOnly ? undefined : (next) => store?.onChange(id, next === true)}
+          />
 
-        {label && (
-          <FormLabel htmlFor={id}>
-            <span>
-              {label}
+          {label && (
+            <FormLabel fieldId={id} htmlFor={domId}>
+              <span>
+                {label}
 
-              {required ? <span className="text-destructive"> *</span> : null}
-            </span>
-          </FormLabel>
-        )}
+                {required ? <span className="text-destructive"> *</span> : null}
+              </span>
+            </FormLabel>
+          )}
+        </div>
+
+        {hasError && resolvedErrorMessage ? (
+          <p className="text-xs text-destructive" id={errorId} role="alert">
+            {resolvedErrorMessage}
+          </p>
+        ) : null}
       </div>
-
-      {hasError && resolvedErrorMessage ? (
-        <p className="text-xs text-destructive" id={errorId} role="alert">
-          {resolvedErrorMessage}
-        </p>
-      ) : null}
-    </div>
-  );
-});
+    );
+  },
+);

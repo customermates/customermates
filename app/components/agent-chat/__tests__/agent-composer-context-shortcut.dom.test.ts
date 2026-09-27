@@ -323,6 +323,25 @@ describe("AgentComposer context shortcut", () => {
     expect(harness.store.setComposerDraft).not.toHaveBeenCalled();
   });
 
+  it("keeps focus in the focused editor when the press lands beside its text", async () => {
+    harness.store.composerDraft = "";
+    act(() => root.render(createElement(AgentComposer)));
+    await act(() => new Promise((resolve) => setTimeout(resolve, 0)));
+
+    const inputLine = container.querySelector<HTMLElement>('[data-testid="agent-composer-input-line"]');
+    const editor = inputLine?.querySelector<HTMLElement>('[role="textbox"]');
+    act(() => editor?.focus());
+    expect(document.activeElement).toBe(editor);
+
+    const besideText = new MouseEvent("mousedown", { bubbles: true, cancelable: true, button: 0 });
+    act(() => {
+      inputLine?.dispatchEvent(besideText);
+    });
+
+    expect(besideText.defaultPrevented).toBe(true);
+    expect(document.activeElement).toBe(editor);
+  });
+
   it("leaves Backspace to the editor when the caret is after draft text", async () => {
     harness.store.removeLastComposerContext = vi.fn().mockReturnValue(true);
     act(() => root.render(createElement(AgentComposer)));

@@ -94,6 +94,8 @@ export const EntityDetailLayout = observer(function EntityDetailLayout<
   const { enabled: canPersonalize, starredFieldIds } = useEntityDetailPersonalization();
   const [hasMounted, setHasMounted] = useState(false);
   const [activePanel, setActivePanel] = useState<DetailPanel>("details");
+  const [isSplit, setIsSplit] = useState(false);
+  const panelSwitcherRef = useRef<HTMLDivElement | null>(null);
   const formId = useId();
   const drawerWasOpenRef = useRef(entityDrawerStack.length > 0);
   useEffect(() => {
@@ -117,6 +119,7 @@ export const EntityDetailLayout = observer(function EntityDetailLayout<
   });
   const hasId = form && typeof form === "object" && "id" in form && Boolean(form.id);
   const canSeeHistory = userStore.can(Resource.auditLog, Action.readAll);
+  const hasPanelTabs = showNotesPanel || canSeeHistory;
   const selectedPanel =
     (activePanel === "notes" && !showNotesPanel) || (activePanel === "activities" && !canSeeHistory)
       ? "details"
@@ -336,6 +339,30 @@ export const EntityDetailLayout = observer(function EntityDetailLayout<
 
   useSetTopBarActions(topBarActions);
 
+  useEffect(() => {
+    const switcher = panelSwitcherRef.current;
+    if (!switcher) return;
+
+    const update = () => setIsSplit(getComputedStyle(switcher).display === "none");
+    update();
+
+    if (typeof ResizeObserver === "undefined") {
+      window.addEventListener("resize", update);
+      return () => window.removeEventListener("resize", update);
+    }
+
+    const observer = new ResizeObserver(update);
+    observer.observe(switcher);
+    return () => observer.disconnect();
+  }, [pageState, hasPanelTabs]);
+
+  function panelSemantics(panel: DetailPanel, label: string) {
+    if (!hasPanelTabs) return {};
+    return isSplit
+      ? { role: "region", "aria-label": label }
+      : { role: "tabpanel", "aria-labelledby": `${formId}-${panel}-tab` };
+  }
+
   switch (pageState) {
     case "loading":
       return (
@@ -400,7 +427,6 @@ export const EntityDetailLayout = observer(function EntityDetailLayout<
       defaultSize: threePanels ? 600 : 640,
       element: (
         <div
-          aria-labelledby={`${formId}-details-tab`}
           className={cn(
             "flex flex-col bg-background",
             selectedPanel !== "details" && "hidden",
@@ -408,7 +434,7 @@ export const EntityDetailLayout = observer(function EntityDetailLayout<
           )}
           data-detail-panel="details"
           id={`${formId}-details-panel`}
-          role="tabpanel"
+          {...panelSemantics("details", t("EntityDetail.overview"))}
         >
           <div className="p-4 @6xl/detail:flex-1 @6xl/detail:min-h-0">{masterData}</div>
         </div>
@@ -424,7 +450,6 @@ export const EntityDetailLayout = observer(function EntityDetailLayout<
             defaultSize: threePanels ? 400 : 320,
             element: (
               <div
-                aria-labelledby={`${formId}-notes-tab`}
                 className={cn(
                   "min-h-[28rem] flex-col bg-background",
                   selectedPanel === "notes" ? "flex" : "hidden",
@@ -432,7 +457,7 @@ export const EntityDetailLayout = observer(function EntityDetailLayout<
                 )}
                 data-detail-panel="notes"
                 id={`${formId}-notes-panel`}
-                role="tabpanel"
+                {...panelSemantics("notes", t("EntityDetail.sections.notes"))}
               >
                 <EntityNotesPanel key={entityId} store={store} />
               </div>
@@ -450,7 +475,6 @@ export const EntityDetailLayout = observer(function EntityDetailLayout<
             defaultSize: 360,
             element: (
               <div
-                aria-labelledby={`${formId}-activities-tab`}
                 className={cn(
                   "min-h-[28rem] flex-col bg-background",
                   selectedPanel === "activities" ? "flex" : "hidden",
@@ -458,7 +482,7 @@ export const EntityDetailLayout = observer(function EntityDetailLayout<
                 )}
                 data-detail-panel="activities"
                 id={`${formId}-activities-panel`}
-                role="tabpanel"
+                {...panelSemantics("activities", t("Common.actions.labelHistory"))}
               >
                 {historyPanel}
               </div>
@@ -474,8 +498,9 @@ export const EntityDetailLayout = observer(function EntityDetailLayout<
         <div className="animate-page-result-in flex min-h-0 w-full flex-1 flex-col overflow-y-auto motion-reduce:animate-none @6xl/detail:overflow-y-visible">
           {hasSummary ? summary : null}
 
-          {(showNotesPanel || canSeeHistory) && (
+          {hasPanelTabs && (
             <div
+              ref={panelSwitcherRef}
               data-detail-panel-switcher
               className="sticky top-0 z-10 border-b border-border bg-background @6xl/detail:hidden"
             >
@@ -507,7 +532,7 @@ export const EntityDetailLayout = observer(function EntityDetailLayout<
 
                   {canSeeHistory && (
                     <TabsTrigger
-                      aria-controls={`${formId}-activities-panel`}
+                      aria-controls={hasMounted ? `${formId}-activities-panel` : undefined}
                       className="h-full rounded-none px-4 after:z-10 group-data-[orientation=horizontal]/tabs:after:-bottom-px"
                       id={`${formId}-activities-tab`}
                       value="activities"

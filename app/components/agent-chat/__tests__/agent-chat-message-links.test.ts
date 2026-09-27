@@ -23,6 +23,8 @@ vi.mock("../chat-ui", () => ({
   chatUiCopy: () => ({ turnFailed: "Failed", retryTurn: "Retry" }),
   focusAgentComposer: vi.fn(),
 }));
+vi.mock("@/i18n/navigation", () => ({ usePathname: () => "/dashboard" }));
+vi.mock("@/hooks/use-media-query", () => ({ useIsWiderThan: () => true }));
 vi.mock("@/components/shared/app-link", async () => {
   const { createElement } = await import("react");
   return {
@@ -79,6 +81,8 @@ describe("AgentChatItemView message links", () => {
   it("keeps the standard link renderer for ordinary chat surfaces", async () => {
     await renderMessage(false);
 
-    expect(container.querySelector('[data-streamdown="link"]')).not.toBeNull();
+    expect(container.querySelector('a[href="/wiki?page=fbdddad0-7f4f-4159-bc04-20c5ae6d666b"]')?.textContent).toBe(
+      "Company Overview",
+    );
   });
 });

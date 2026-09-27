@@ -164,4 +164,9 @@ function CalendarDayButton({ className, day, modifiers, ...props }: React.Compon
   );
 }
 
-export { Calendar, CalendarDayButton };
+function focusCalendarDay(event: Event) {
+  const content = event.currentTarget as HTMLElement | null;
+  content?.querySelector<HTMLElement>('[role="grid"] button[tabindex="0"]')?.focus();
+}
+
+export { Calendar, CalendarDayButton, focusCalendarDay };

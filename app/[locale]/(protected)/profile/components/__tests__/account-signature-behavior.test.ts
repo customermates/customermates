@@ -422,7 +422,7 @@ describe("AccountSignature shared form", () => {
       SignatureTemplate.plain,
     );
     expect(container.querySelector('[id="settings.signature.logoUrl"]')).toBeNull();
-    await click(field(container, "settings.signature.enabled"));
+    await click(field(container, "connected-account-signature"));
     expect(container.querySelector("#signature")).toBeNull();
     await click(saveButton(container));
     expect(store.form.signature).toBe("Retained");
@@ -431,7 +431,7 @@ describe("AccountSignature shared form", () => {
       enabled: false,
       template: SignatureTemplate.plain,
     });
-    await click(field(container, "settings.signature.enabled"));
+    await click(field(container, "connected-account-signature"));
     expect(field<HTMLTextAreaElement>(container, "signature").value).toBe("Retained");
     setValue(
       requiredElement(container.querySelector<HTMLSelectElement>('[aria-label="signature-template"]')),

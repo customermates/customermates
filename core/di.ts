@@ -187,6 +187,7 @@ import { CompleteOnboardingWizardInteractor } from "@/features/onboarding-wizard
 import { CompleteOnboardingWikiStepInteractor } from "@/features/onboarding-wizard/complete-onboarding-wiki-step.interactor";
 import { GetUserDetailsInteractor } from "@/features/user/get/get-user-details.interactor";
 import { GetUserByIdInteractor } from "@/features/user/get/get-user-by-id.interactor";
+import { GetTeamMemberInteractor } from "@/features/user/get/get-team-member.interactor";
 import { AdminUpdateUserDetailsInteractor } from "@/features/user/upsert/admin-update-user-details.interactor";
 import { GetUsersInteractor } from "@/features/user/get/get-users.interactor";
 // Auth interactors
@@ -1030,6 +1031,8 @@ export const getGetUserDetailsInteractor = () => new GetUserDetailsInteractor();
 
 export const getGetUserByIdInteractor = () => new GetUserByIdInteractor(getUserRepo());
 
+export const getGetTeamMemberInteractor = () => new GetTeamMemberInteractor(getUserRepo());
+
 export const getAdminUpdateUserDetailsInteractor = () =>
   new AdminUpdateUserDetailsInteractor(
     getUserRepo(),
@@ -1594,6 +1597,7 @@ export const getGetCustomColumnsByEntityTypeInteractor = () =>
 export const getUpsertCustomColumnInteractor = () =>
   new UpsertCustomColumnInteractor(
     getCustomColumnRepo(),
+    getCompanyRepo(),
     getUserService(),
     getEventService(),
     getCustomColumnIdsValidator(),
@@ -1603,6 +1607,7 @@ export const getDeleteCustomColumnInteractor = () =>
   new DeleteCustomColumnInteractor(
     getCustomColumnRepo(),
     getRoutineRepo(),
+    getCompanyRepo(),
     getUserService(),
     getEventService(),
     getCustomColumnIdsValidator(),

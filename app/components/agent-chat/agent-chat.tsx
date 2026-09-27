@@ -1,7 +1,7 @@
 "use client";
 
 import { observer } from "mobx-react-lite";
-import { useEffect, useRef } from "react";
+import { useEffect, useRef, type FocusEvent } from "react";
 import { useTranslations } from "next-intl";
 import { ChevronLeft, History, Maximize2, Minimize2, Plus, Sparkles, X } from "lucide-react";
 
@@ -12,7 +12,14 @@ import { useRootStore } from "@/core/stores/root-store.provider";
 import { Button } from "@/components/ui/button";
 import { TooltipProvider } from "@/components/ui/tooltip";
 import { IconContainer } from "@/components/shared/icon-container";
+import { assistantSurfaceProps, claimEscapeForAssistant } from "@/components/modal/assistant-surface";
 import { OVERLAY_RAISED_PANEL_LAYER_CLASS, OVERLAY_SCROLL_REGION } from "@/components/ui/overlay-contract";
+import {
+  captureOverlayFocusTarget,
+  focusOverlayTarget,
+  type OverlayFocusTarget,
+  usableOverlayFocusTarget,
+} from "@/components/ui/overlay-focus-target";
 import { cn } from "@/core/utils/cn";
 
 import { ActionTooltip, chatUiCopy } from "./chat-ui";
@@ -24,6 +31,8 @@ import { AgentWikiHomepageSetup } from "./agent-wiki-homepage-setup";
 import { AgentRouteReloadBridge } from "./agent-route-reload";
 import { useAgentChatConfig } from "./use-agent-chat-config";
 
+const PAGE_OVERLAY_SELECTOR = "[data-overlay-surface], [data-slot='popover-content']";
+
 export const AgentChat = observer(function AgentChat() {
   const { agentChatStore: store, agentUiControlStore } = useRootStore();
   const router = useRouter();
@@ -31,6 +40,7 @@ export const AgentChat = observer(function AgentChat() {
   const pathnameRef = useRef(pathname);
   const routerRef = useRef(router);
   const wasOpenRef = useRef(store.isOpen);
+  const pageOverlayFocusRef = useRef<OverlayFocusTarget | null>(null);
   const pendingNavigationRef = useRef<{
     path: string;
     resolve: (outcome: "navigated" | "timeout") => void;
@@ -95,7 +105,12 @@ export const AgentChat = observer(function AgentChat() {
         ? "nav-assistant"
         : null;
     if (!targetId) return;
+    const closing = !store.isOpen;
+    const pageOverlayFocus = closing ? pageOverlayFocusRef.current : null;
+    if (closing) pageOverlayFocusRef.current = null;
     requestAnimationFrame(() => {
+      if (closing && document.activeElement?.closest(PAGE_OVERLAY_SELECTOR)) return;
+      if (focusOverlayTarget(pageOverlayFocus)) return;
       const target =
         document.getElementById(targetId) ??
         (targetId === "nav-assistant"
@@ -105,6 +120,12 @@ export const AgentChat = observer(function AgentChat() {
     });
   }, [store.isHistoryOpen, store.isOpen, store.wikiHomepageSetup]);
 
+  function rememberPageOverlayFocus(from: EventTarget | null) {
+    const target = from instanceof Element && !from.closest("[data-agent-surface]") ? from : null;
+    if (target?.closest(PAGE_OVERLAY_SELECTOR) && usableOverlayFocusTarget(target))
+      pageOverlayFocusRef.current = captureOverlayFocusTarget(target);
+  }
+
   if (store.enabled !== true) return null;
 
   return (
@@ -113,7 +134,7 @@ export const AgentChat = observer(function AgentChat() {
 
       {store.isOpen && (
         <TooltipProvider>
-          <AgentChatPanel />
+          <AgentChatPanel onFocusEnter={rememberPageOverlayFocus} />
         </TooltipProvider>
       )}
 
@@ -124,17 +145,34 @@ export const AgentChat = observer(function AgentChat() {
   );
 });
 
-const AgentChatPanel = observer(function AgentChatPanel() {
+const AgentChatPanel = observer(function AgentChatPanel({
+  onFocusEnter,
+}: {
+  onFocusEnter: (from: EventTarget | null) => void;
+}) {
   const { agentChatStore: store, agentUiControlStore } = useRootStore();
   const t = useTranslations();
   const copy = chatUiCopy(t);
+  const surface = assistantSurfaceProps({
+    right: "max(1rem, var(--safe-right))",
+    bottom: "max(1rem, var(--safe-bottom))",
+    maxHeight: "var(--overlay-block-budget)",
+  });
+
+  function handleFocus(event: FocusEvent<HTMLDivElement>) {
+    surface.onFocus(event);
+    if (!(event.relatedTarget instanceof Node && event.currentTarget.contains(event.relatedTarget)))
+      onFocusEnter(event.relatedTarget);
+  }
 
   const usage = store.usage;
   const blocked = usage?.blockedReason ?? null;
 
   useEffect(() => {
     const onKeyDown = (event: KeyboardEvent) => {
-      if (event.key === "Escape" && !event.defaultPrevented && !agentUiControlStore.active) store.close();
+      if (event.key !== "Escape" || agentUiControlStore.active) return;
+      if (document.querySelector('[data-streamdown="link-safety-modal"]')) return;
+      if (claimEscapeForAssistant(event)) store.close();
     };
     document.addEventListener("keydown", onKeyDown);
     return () => document.removeEventListener("keydown", onKeyDown);
@@ -142,6 +180,7 @@ const AgentChatPanel = observer(function AgentChatPanel() {
 
   return (
     <div
+      {...surface}
       aria-label={t("AgentChat.title")}
       className={cn(
         "fixed flex flex-col overflow-hidden rounded-2xl border bg-card",
@@ -154,12 +193,8 @@ const AgentChatPanel = observer(function AgentChatPanel() {
       data-testid="agent-panel"
       id="agent-panel-dialog"
       role="dialog"
-      style={{
-        right: "max(1rem, var(--safe-right))",
-        bottom: "max(1rem, var(--safe-bottom))",
-        maxHeight: "var(--overlay-block-budget)",
-      }}
       tabIndex={-1}
+      onFocus={handleFocus}
     >
       <div className="flex items-center gap-1 border-b px-3 py-2">
         {store.isHistoryOpen && (

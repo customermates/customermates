@@ -8,7 +8,7 @@ import { approvalFreeActionsForTool, readOnlyActionsForTool } from "./gated-tool
 import type { AgentToolIdentity } from "./tool-identity";
 import { internalToolIdentity, isInternalToolIdentity } from "./tool-identity";
 
-import { sanitizeAgentVisibleText } from "./agent-output-safety";
+import { sanitizeAgentPlainText } from "./agent-output-safety";
 import { LOAD_TOOLSET_TOOL_NAME } from "./agent-toolset-routing";
 
 const ViewMutationActionSchema = z.enum(["create", "update", "select", "delete"]);
@@ -121,27 +121,11 @@ export const AGENT_CONSEQUENCE_ACTIONS = [
 export const AgentActivityConsequenceSchema = z
   .object({
     action: z.enum(AGENT_CONSEQUENCE_ACTIONS),
-    target: z
-      .string()
-      .max(240)
-      .transform((value) => sanitizeAgentVisibleText(value))
-      .optional(),
-    subject: z
-      .string()
-      .max(200)
-      .transform((value) => sanitizeAgentVisibleText(value))
-      .optional(),
-    preview: z
-      .string()
-      .max(240)
-      .transform((value) => sanitizeAgentVisibleText(value))
-      .optional(),
+    target: z.string().max(240).transform(sanitizeAgentPlainText).optional(),
+    subject: z.string().max(200).transform(sanitizeAgentPlainText).optional(),
+    preview: z.string().max(240).transform(sanitizeAgentPlainText).optional(),
     count: z.number().int().min(0).max(100).optional(),
-    state: z
-      .string()
-      .max(80)
-      .transform((value) => sanitizeAgentVisibleText(value))
-      .optional(),
+    state: z.string().max(80).transform(sanitizeAgentPlainText).optional(),
   })
   .strict();
 
@@ -241,7 +225,7 @@ function inputRecord(input: unknown): Record<string, unknown> {
 
 function safeText(value: unknown, max: number) {
   if (typeof value !== "string") return undefined;
-  const sanitized = sanitizeAgentVisibleText(value).replace(/\s+/g, " ").trim();
+  const sanitized = sanitizeAgentPlainText(value).replace(/\s+/g, " ").trim();
   return sanitized ? sanitized.slice(0, max) : undefined;
 }
 

@@ -7,6 +7,8 @@ import type { FindRolesByIdsRepo } from "./find-roles-by-ids.repo";
 
 import { Action, Resource } from "@/generated/prisma";
 
+import type { Prisma } from "@/generated/prisma";
+
 import { BaseRepository } from "@/core/base/base-repository";
 import { Transaction } from "@/core/decorators/transaction.decorator";
 import { type GetQueryParams } from "@/core/base/base-get.schema";
@@ -51,18 +53,18 @@ export class PrismaRoleRepo
   }
 
   getSortableFields() {
-    return [{ field: "type", resolvedFields: ["isSystemRole", "name"] }];
+    return [{ field: "type", resolvedFields: ["isSystemRole", "name"], collate: true }];
   }
 
   async getItems(params: GetQueryParams) {
-    const args = await this.buildQueryArgs(params, { companyId: this.companyId });
-
-    const roles = await this.prisma.userRole.findMany({
-      ...args,
+    return this.list({
+      model: "userRole",
+      baseWhere: { companyId: this.companyId },
       select: this.withAssignmentsSelect,
+      params,
+      map: (role: Prisma.UserRoleGetPayload<{ select: PrismaRoleRepo["withAssignmentsSelect"] }>) =>
+        mapRoleWithAssignments(role),
     });
-
-    return roles.map(mapRoleWithAssignments);
   }
 
   async getCount() {

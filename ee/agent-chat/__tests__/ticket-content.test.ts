@@ -48,4 +48,11 @@ describe("formatSupportTranscript", () => {
     expect(transcript).toContain("user: Please help");
     expect(transcript).not.toMatch(/page_context|00000000|never-show|gpt-5\.6|inputTokens|321/);
   });
+
+  it("names a linked record by its label, without its route or id", () => {
+    const dealId = "80000000-0000-4000-8000-000000000003";
+    const transcript = formatSupportTranscript([message("assistant", `I updated [CRM Rollout](/deals/${dealId}).`)]);
+
+    expect(transcript).toBe("assistant: I updated CRM Rollout.");
+  });
 });

@@ -7,6 +7,8 @@ import { WEBHOOK_EVENTS } from "./webhook-event-registry";
 
 export const WebhookEventSchema = z.enum(WEBHOOK_EVENTS);
 
+export const WEBHOOK_MASKED_VALUE = "********";
+
 export const WebhookDtoSchema = z.object({
   id: z.uuid(),
   url: zx.secureUrl(),

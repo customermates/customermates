@@ -28,7 +28,9 @@ type Identifiable = { id: string } | { key: string } | { value: string };
 
 type Props<T extends Identifiable> = {
   id: string;
+  inputId?: string;
   label?: string | null;
+  ariaLabel?: string;
   labelEndAddon?: ReactNode;
   controlStartAddon?: ReactNode;
   placeholder?: string;
@@ -70,7 +72,9 @@ function textOf(rendered: ReactElement<{ textValue?: string; children?: ReactNod
 export const FormAutocomplete = observer(
   <T extends Identifiable>({
     id,
+    inputId,
     label,
+    ariaLabel,
     labelEndAddon,
     controlStartAddon,
     placeholder,
@@ -110,6 +114,7 @@ export const FormAutocomplete = observer(
     const [optionAttempt, setOptionAttempt] = useState(0);
     const [isCreating, setIsCreating] = useState(false);
     const [selectedData, setSelectedData] = useState<Map<string, T>>(new Map());
+    const searchInputRef = useRef<HTMLInputElement>(null);
     const debouncedInput = useDebouncedValue(input);
 
     const raw = controlledValue ?? (store?.getValue(id) as string | string[] | undefined);
@@ -120,6 +125,7 @@ export const FormAutocomplete = observer(
     const isReadOnly = !isDisabled && (Boolean(readOnly) || Boolean(store?.isReadOnly));
     const canEdit = !isReadOnly && !isDisabled;
     const labelId = `${id}-label`;
+    const domId = inputId ?? id;
 
     const itemsArray: T[] = useMemo(() => Array.from(items ?? []), [items]);
     const popoverOpen = canEdit && open;
@@ -384,7 +390,7 @@ export const FormAutocomplete = observer(
       <div className={cn("space-y-1.5", containerClassName)}>
         {resolvedLabel && (
           <div className="flex items-center gap-1.5">
-            <FormLabel htmlFor={isReadOnly ? undefined : id} id={labelId}>
+            <FormLabel fieldId={id} htmlFor={isReadOnly ? undefined : domId} id={labelId}>
               {resolvedLabel}
 
               {required ? <span className="text-destructive"> *</span> : null}
@@ -399,11 +405,11 @@ export const FormAutocomplete = observer(
             <Button asChild className={fieldClassName} variant="field">
               <div
                 aria-busy={isOptionsLoading || undefined}
-                aria-label={!resolvedLabel ? resolvedPlaceholder : undefined}
+                aria-label={resolvedLabel ? undefined : (ariaLabel ?? resolvedPlaceholder)}
                 aria-labelledby={resolvedLabel ? labelId : undefined}
                 data-field-state="read-only"
                 data-invalid={hasError || undefined}
-                id={id}
+                id={domId}
                 role="group"
                 tabIndex={hasReadOnlyChipActions ? undefined : 0}
               >
@@ -417,9 +423,10 @@ export const FormAutocomplete = observer(
                   aria-busy={isOptionsLoading || undefined}
                   aria-expanded={popoverOpen}
                   aria-invalid={hasError}
+                  aria-label={resolvedLabel ? undefined : (ariaLabel ?? resolvedPlaceholder)}
                   className={fieldClassName}
                   disabled={isDisabled}
-                  id={id}
+                  id={domId}
                   role="combobox"
                   type="button"
                   variant="field"
@@ -438,9 +445,11 @@ export const FormAutocomplete = observer(
                     ? "min-w-(--radix-popover-trigger-width) max-w-(--radix-popover-content-available-width) w-max"
                     : "w-(--radix-popover-trigger-width)",
                 )}
+                onOpenAutoFocus={() => searchInputRef.current?.focus()}
               >
                 <Command shouldFilter={false}>
                   <CommandInput
+                    ref={searchInputRef}
                     autoFocus
                     disabled={isCreating}
                     placeholder={t("Common.table.search")}

@@ -871,16 +871,24 @@
       "back": "Zurück zum Chat",
       "cancel": "Abbrechen",
       "chats": "Chats",
+      "copyCode": "Code kopieren",
+      "copyLink": "Link kopieren",
       "copyTable": "Tabelle kopieren",
       "deleteChat": "Chat löschen",
       "deleteChatBody": "Nachrichten, Freigaben und Assistentenaktionen dieses Chats werden endgültig gelöscht. KI-Nutzungs- und Abrechnungsdaten sowie über den Chat erstellte CRM-Einträge bleiben erhalten. Bereits gesendete Support-E-Mails werden nicht zurückgerufen.",
       "deleteChatTitle": "Chat endgültig löschen?",
       "deletePermanently": "Endgültig löschen",
+      "downloadFile": "Datei herunterladen",
+      "downloadImage": "Bild herunterladen",
       "downloadTable": "Tabelle herunterladen",
       "editQueued": "Vorgemerkte Nachricht bearbeiten",
+      "externalLinkTitle": "Externen Link öffnen?",
+      "externalLinkWarning": "Dieser Link führt zu einer Website außerhalb von Customermates. Prüfe die Adresse, bevor du ihn öffnest.",
       "finalizing": "Änderungen werden abgeschlossen und gespeichert…",
       "history": "Chatverlauf",
+      "imageNotAvailable": "Bild nicht verfügbar",
       "jumpToLatest": "Zu den neuesten Nachrichten",
+      "linkCopied": "Link kopiert",
       "loadChatFailed": "Der Chat konnte nicht geladen werden. Wähle ihn erneut, um es noch einmal zu versuchen.",
       "loadingChat": "Chat wird geladen …",
       "loadingOlderMessages": "Ältere Nachrichten werden geladen",
@@ -889,6 +897,7 @@
       "newChat": "Neuer Chat",
       "noChats": "Noch keine Chats",
       "noChatsBody": "Starte einen Chat, um Fragen und Arbeitsschritte später wiederzufinden.",
+      "openLink": "Link öffnen",
       "preparingAction": "Die nächste Aktion wird vorbereitet…",
       "queued": "Als Nächstes",
       "reconnecting": "Verbindung zu Mate wird wiederhergestellt…",
@@ -960,6 +969,7 @@
       "disabledReason": "Deaktivierungsgrund",
       "effectiveAt": "Gültig ab",
       "emails": "E-Mail-Adressen",
+      "headers": "Eigene Header",
       "isNewCompany": "Erste Person im Workspace",
       "markdown": "Markdown",
       "postalCode": "Postleitzahl",
@@ -1061,6 +1071,7 @@
       "collapseSearch": "Suche einklappen",
       "explainField": "Informationen zu {field}",
       "hidePassword": "Passwort ausblenden",
+      "optionName": "Name der Option {number}",
       "selectOption": "Option auswählen",
       "showPassword": "Passwort anzeigen",
       "switchToBoardView": "Zur Board-Ansicht wechseln",
@@ -1094,6 +1105,7 @@
       "singleSelect": "Einzelauswahl"
     },
     "customFieldHelp": {
+      "deleteWeightingColumnPermission": "Dieses Feld steuert die gewichtete Pipeline unter „{company}“, deshalb schaltet das Löschen die Gewichtung aus. Bitte einen Administrator um die Berechtigung, „{company}“ zu ändern.",
       "immutableType": "Der Feldtyp ist nach dem Erstellen festgelegt. Erstelle ein neues benutzerdefiniertes Feld, um einen anderen Typ zu verwenden.",
       "probabilityPermission": "Phasenwahrscheinlichkeiten werden unter „{company}“ verwaltet. Bitte einen Administrator um die Berechtigung, sie zu ändern."
     },
@@ -1186,6 +1198,7 @@
       "agentTurnAlreadyRunning": "Eine andere Assistenten-Anfrage wird bereits ausgeführt.",
       "apiKeyMaxExpiration": "Die Ablaufzeit des API-Schlüssels darf 365 Tage nicht überschreiten.",
       "apiKeyMinExpiration": "Die Ablaufzeit des API-Schlüssels muss mindestens 1 Tag betragen.",
+      "apiKeyNameLength": "Der Name eines API-Schlüssels muss zwischen 1 und 255 Zeichen lang sein.",
       "assigneeRequired": "Du musst dich diesem Element zuweisen. Beachte, dass du nur Elemente sehen kannst, die dir zugewiesen sind.",
       "billingPortalUnavailable": "Das Abrechnungsportal ist für diesen Workspace nicht verfügbar. Wende dich für Änderungen an den Support.",
       "calendarEventNotFound": "Kalenderereignis-ID nicht gefunden oder nicht zugänglich.",
@@ -1255,7 +1268,7 @@
       "operatorTrialEndRequired": "Ein Testende kann nicht entfernt, sondern nur verschoben werden. Ein Löschen würde den Arbeitsbereich in einer Testphase belassen, die nie abläuft.",
       "operatorUnavailable": "Die gewünschte Korrektur ist für die aktuelle Kontokonfiguration nicht verfügbar.",
       "organizationNotFound": "Organisations-ID nicht gefunden oder nicht zugänglich.",
-      "passwordInvalid": "Das Passwort muss mindestens 8 Zeichen lang sein und mindestens einen Großbuchstaben, einen Kleinbuchstaben, eine Zahl und ein Sonderzeichen enthalten.",
+      "passwordInvalid": "Das Passwort muss zwischen 8 und 128 Zeichen lang sein und mindestens einen Großbuchstaben, einen Kleinbuchstaben, eine Zahl und ein Sonderzeichen enthalten.",
       "passwordMismatch": "Passwörter müssen übereinstimmen.",
       "permissionDenied": "Diese Aktion ist mit deinen aktuellen Berechtigungen nicht verfügbar.",
       "privacyAcknowledgementRequired": "Bitte bestätigen Sie, dass Sie die Datenschutzerklärung gelesen haben.",
@@ -1556,6 +1569,8 @@
       "prompt": "Anweisungen",
       "roleId": "Rolle",
       "scheduleDayOfMonth": "Tag des Monats",
+      "scheduleHour": "Stunde",
+      "scheduleMinute": "Minute",
       "schedulePreset": "Wiederholung",
       "scheduleWeekday": "Wochentag",
       "secret": "Secret",
@@ -1704,6 +1719,7 @@
       "paginationEmpty": "0 von 0",
       "paginationRange": "{from}-{to} von {total}",
       "previousPage": "Vorherige Seite",
+      "rowsPerPage": "Zeilen pro Seite",
       "search": "Suchen..."
     },
     "taskTypes": {
@@ -1748,7 +1764,6 @@
       "noColumn": "Nicht konfiguriert",
       "totalPipeline": "Gesamtpipeline",
       "totalPipelineHelp": "Summe aller Werte in „{deals}“. Änderungen ergeben sich aus „{services}“ oder Mengen in diesen Einträgen.",
-      "weightsTitle": "Phasenwahrscheinlichkeiten",
       "withoutStage": "Nicht gewichtet · kein {column}",
       "withoutStageHelp": "Wert der Einträge in „{deals}“ ohne Auswahl in „{column}“. Mit einer Phase fließen sie in die gewichtete Pipeline ein."
     }
@@ -2921,6 +2936,7 @@
         "createFailed": "API-Key konnte nicht erstellt werden. Bitte erneut versuchen."
       },
       "install": {
+        "expiryNote": "Dieser API-Key läuft am {date} ab. Erstelle vorher einen neuen, damit {tool} verbunden bleibt.",
         "instruction": {
           "claudeCode": "In einem Terminal ausführen:",
           "claudeDesktop": "Claude → Settings → Developer → Edit Config öffnen, das hier mergen, dann Claude Desktop beenden und neu öffnen:",

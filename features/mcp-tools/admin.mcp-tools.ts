@@ -11,7 +11,7 @@ import {
 
 import {
   getAdminUpdateUserDetailsInteractor,
-  getGetUserByIdInteractor,
+  getGetTeamMemberInteractor,
   getInviteUsersByEmailInteractor,
   getUpdateCompanySettingsInteractor,
   getUpdateUserDetailsInteractor,
@@ -27,7 +27,9 @@ import { ENTITY_TERMINOLOGY_PRESETS } from "@/features/entity-terminology/entity
 const UpdateWorkspaceSettingsSchema = z.object({
   target: z
     .enum(["profile", "company"])
-    .describe("profile = the authenticated user's own profile, company = the company profile (admin rights required)"),
+    .describe(
+      "profile = the authenticated user's own profile, company = the company profile (requires update permission on the company)",
+    ),
   firstName: UpdateUserDetailsSchema.shape.firstName.describe("profile target: omit to keep existing"),
   lastName: UpdateUserDetailsSchema.shape.lastName.describe("profile target: omit to keep existing"),
   country: UpdateUserDetailsSchema.shape.country.describe("profile target: ISO country code. Omit to keep existing."),
@@ -80,7 +82,7 @@ export const updateWorkspaceSettingsTool = {
   description:
     "Use this when updating the current user's profile or the company profile. " +
     "target profile is a partial update of firstName, lastName, country, avatarUrl; omitted fields keep their current values. " +
-    "target company updates currency and/or the preset names used for contacts, organizations, deals, services, and tasks; admin rights are required.",
+    "target company updates currency and/or the preset names used for contacts, organizations, deals, services, and tasks; requires update permission on the company (Manage on the Company row of the caller's role).",
   annotations: {
     readOnlyHint: false,
     destructiveHint: false,
@@ -148,7 +150,7 @@ export const manageTeamTool = {
     "action update_member changes an existing member's role or status: pass userId from list_users.items[].id plus roleId from get_workspace_context.roles[].id and/or status, omitted fields keep their current values; " +
     "a member who has no role assigned yet (e.g. a still pending invite) has no role to keep, so you must pass roleId together with the change or the call is rejected. " +
     "last-admin protection is enforced server-side, the workspace can never lose its last active admin. " +
-    "Needs users admin rights.",
+    "invite requires create permission on users; update_member requires update permission and read access to all users (Manage and read All on Users & Roles).",
   annotations: {
     readOnlyHint: false,
     destructiveHint: false,
@@ -167,7 +169,7 @@ export const manageTeamTool = {
     }
     const parsed = UpdateMemberSchema.safeParse(params);
     if (!parsed.success) return mcpValidationFailure(parsed.error);
-    const loaded = await getGetUserByIdInteractor().invoke({
+    const loaded = await getGetTeamMemberInteractor().invoke({
       id: parsed.data.userId,
     });
     if (!loaded.ok) return mcpInteractorFailure(loaded.error);

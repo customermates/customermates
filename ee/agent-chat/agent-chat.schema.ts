@@ -14,7 +14,11 @@ import {
   agentContextsFromMessageParts,
   type AgentContextAttachment,
 } from "./agent-context";
-import { sanitizeAgentVisibleText, stripLegacyUserPageContextPrefix } from "./agent-output-safety";
+import {
+  sanitizeAgentPlainText,
+  sanitizeAgentVisibleText,
+  stripLegacyUserPageContextPrefix,
+} from "./agent-output-safety";
 import { internalToolIdentity } from "./tool-identity";
 import { agentViewRequestTarget } from "./agent-page-context";
 
@@ -247,7 +251,7 @@ export function formatSupportTranscript(messages: { role: string; parts: unknown
   return messages
     .map((message) => {
       const rawText = partsToText(message.parts);
-      const text = sanitizeAgentVisibleText(
+      const text = sanitizeAgentPlainText(
         message.role === "user" ? stripLegacyUserPageContextPrefix(rawText) : rawText,
       ).slice(0, SUPPORT_TRANSCRIPT_LINE_MAX_CHARS);
       return `${message.role === "user" ? "user" : "assistant"}: ${text}`;

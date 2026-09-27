@@ -78,10 +78,9 @@ export const SignUpForm = observer(({ invitationIntent, inviterName, socialProvi
 
           {(socialProviders.google || socialProviders.microsoft) && (
             <>
-              <div className="flex flex-col items-center gap-4 sm:flex-row">
+              <div className="flex flex-col items-center gap-4">
                 {socialProviders.google && (
                   <SignInProviderButton
-                    className="w-full sm:flex-1"
                     isLoading={isLoading}
                     label={t("SignUpForm.buttonLabel", { provider: "Google" })}
                     providerId="google"
@@ -91,7 +90,6 @@ export const SignUpForm = observer(({ invitationIntent, inviterName, socialProvi
 
                 {socialProviders.microsoft && (
                   <SignInProviderButton
-                    className="w-full sm:flex-1"
                     isLoading={isLoading}
                     label={t("SignUpForm.buttonLabel", {
                       provider: "Microsoft",

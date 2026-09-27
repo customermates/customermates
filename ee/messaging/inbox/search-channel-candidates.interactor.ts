@@ -9,6 +9,7 @@ import { TenantInteractor } from "@/core/decorators/tenant-interactor.decorator"
 import { Validate } from "@/core/decorators/validate.decorator";
 import { ValidateOutput } from "@/core/decorators/validate-output.decorator";
 import { AuthenticatedInteractor } from "@/core/base/authenticated-interactor";
+import { zx } from "@/core/validation/validation.utils";
 
 const OutputSchema = z.object({
   provider: z.enum(MessagingProvider),
@@ -20,7 +21,7 @@ const OutputSchema = z.object({
 export type ChannelCandidateDto = Data<typeof OutputSchema>;
 
 const Schema = z.object({
-  query: z.string().trim().min(2),
+  query: zx.nulFreeText().trim().min(2),
 });
 export type SearchChannelCandidatesData = Data<typeof Schema>;
 

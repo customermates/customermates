@@ -60,7 +60,7 @@ export const DealServicesSelection = observer(
     const entityHref = useEntityHref();
     const locale = useLocale();
     const t = useTranslations();
-    const { plural } = useEntityTerminology();
+    const { plural, singular } = useEntityTerminology();
     const columnLabel = useColumnLabel();
     const computedFieldHelp = useDealComputedFieldHelp(weightedValueBreakdown);
 
@@ -122,6 +122,7 @@ export const DealServicesSelection = observer(
                     <Fragment key={index}>
                       <FormAutocomplete
                         required
+                        ariaLabel={singular(EntityType.service)}
                         chipHref={(id) => entityHref(EntityType.service, id)}
                         containerClassName="min-w-0"
                         filterFunction={(availableService) => !selectedServiceIds.includes(availableService.id)}
@@ -174,6 +175,7 @@ export const DealServicesSelection = observer(
 
                       <FormNumberInput
                         required
+                        aria-label={t("DealModal.quantityLabel")}
                         className="text-right font-mono tabular-nums"
                         containerClassName="w-full"
                         id={`services[${index}].quantity`}

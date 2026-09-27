@@ -69,6 +69,7 @@ const NOT_FOUND_FAILURE_CODES = new Set<CustomErrorCode>([
   CustomErrorCode.serviceNotFound,
   CustomErrorCode.taskNotFound,
   CustomErrorCode.threadNotFound,
+  CustomErrorCode.unipileResourceNotFound,
   CustomErrorCode.userNotFound,
   CustomErrorCode.webhookDeliveryNotFound,
   CustomErrorCode.webhookNotFound,
@@ -76,10 +77,17 @@ const NOT_FOUND_FAILURE_CODES = new Set<CustomErrorCode>([
   CustomErrorCode.widgetNotFound,
 ]);
 const CONFLICT_FAILURE_CODES = new Set<CustomErrorCode>([
+  CustomErrorCode.channelAlreadyLinked,
   CustomErrorCode.operatorConflict,
   CustomErrorCode.roleSystemImmutable,
   CustomErrorCode.wikiNotEmpty,
   CustomErrorCode.wikiPageConflict,
+]);
+const RATE_LIMIT_FAILURE_CODES = new Set<CustomErrorCode>([CustomErrorCode.unipileRateLimit]);
+const UNAVAILABLE_FAILURE_CODES = new Set<CustomErrorCode>([
+  CustomErrorCode.unipileProviderError,
+  CustomErrorCode.unipileRequestTimeout,
+  CustomErrorCode.unipileServiceUnavailable,
 ]);
 
 function issueCustomCode(issue: $ZodIssue): CustomErrorCode | null {
@@ -106,6 +114,8 @@ export function interactorFailureKind(error: z.ZodError): InteractorFailureKind 
   if (codes.some((code) => AUTHORIZATION_FAILURE_CODES.has(code))) return "authorization";
   if (codes.some((code) => NOT_FOUND_FAILURE_CODES.has(code))) return "not_found";
   if (codes.some((code) => CONFLICT_FAILURE_CODES.has(code))) return "conflict";
+  if (codes.some((code) => RATE_LIMIT_FAILURE_CODES.has(code))) return "rate_limit";
+  if (codes.some((code) => UNAVAILABLE_FAILURE_CODES.has(code))) return "unavailable";
   return "validation";
 }
 
@@ -213,15 +223,25 @@ function nonBlankText(max: number) {
     });
 }
 
+function nulFreeText() {
+  return z.string().superRefine((value, ctx) => {
+    if (/\u0000/.test(value))
+      ctx.addIssue({ code: "custom", params: { error: CustomErrorCode.mustNotContainNullChars } });
+  });
+}
+
+export const PASSWORD_MIN_LENGTH = 8;
+export const PASSWORD_MAX_LENGTH = 128;
+
 function passwordSchema() {
   return z.string().superRefine((password, ctx) => {
-    const hasMinLength = password.length >= 8;
+    const hasAllowedLength = password.length >= PASSWORD_MIN_LENGTH && password.length <= PASSWORD_MAX_LENGTH;
     const hasUppercase = /[A-Z]/.test(password);
     const hasLowercase = /[a-z]/.test(password);
     const hasNumber = /\d/.test(password);
     const hasSpecialChar = /[!@#$%^&*()_+\-=\[\]{};':"\\|,.<>\/?]/.test(password);
 
-    if (!hasMinLength || !hasUppercase || !hasLowercase || !hasNumber || !hasSpecialChar) {
+    if (!hasAllowedLength || !hasUppercase || !hasLowercase || !hasNumber || !hasSpecialChar) {
       ctx.addIssue({
         code: "custom",
         params: { error: CustomErrorCode.passwordInvalid },
@@ -232,6 +252,7 @@ function passwordSchema() {
 
 export const zx = {
   nonBlankText,
+  nulFreeText,
   secureUrl: secureUrlSchema,
   password: passwordSchema,
 };

@@ -158,3 +158,48 @@ describe("a board drag moves the card the board actually renders", () => {
     ]);
   });
 });
+
+describe("a board grouped by a column other than the weighting column", () => {
+  function storeWithWeightingColumn(dealWeightingColumnId: string | null) {
+    const store = new TestStore({
+      ...rootStore(),
+      companyStore: { company: { dealWeightingColumnId } },
+    } as unknown as RootStore);
+    store.setItems(boardResult());
+
+    return store;
+  }
+
+  it("uses the stage weights only when the grouped column is the company's weighting column", () => {
+    expect(storeWithWeightingColumn(COLUMN_ID).isGroupedByDealWeightingColumn).toBe(true);
+    expect(storeWithWeightingColumn("another-column").isGroupedByDealWeightingColumn).toBe(false);
+    expect(storeWithWeightingColumn(null).isGroupedByDealWeightingColumn).toBe(false);
+  });
+
+  it("credits the card's own weighted value to the destination when no projection is given", async () => {
+    const store = createStore();
+    store.setItems({
+      ...boardResult(),
+      items: [
+        { id: "deal-1", totalValue: 300, weightedValue: 75 },
+        { id: "deal-2", totalValue: 100, weightedValue: 25 },
+      ],
+      groupValueSums: { open: { totalValue: 300, weightedValue: 75 }, won: { totalValue: 100, weightedValue: 25 } },
+    });
+    updateEntityCustomFieldValueAction.mockResolvedValue({ ok: true, data: { id: "deal-1", totalValue: 300 } });
+    const item = { id: "deal-1", totalValue: 300, weightedValue: 75 };
+
+    await store.moveItemBetweenGroups({
+      item,
+      optimisticItem: item,
+      fromGroupKey: "open",
+      toGroupKey: "won",
+      value: "won",
+    });
+
+    expect(store.groupValueSums).toEqual({
+      open: { totalValue: 0, weightedValue: 0 },
+      won: { totalValue: 400, weightedValue: 100 },
+    });
+  });
+});

@@ -110,6 +110,7 @@ export const RoleModal = observer(({ store }: Props) => {
           ? [
               {
                 id: "delete-role",
+                anchorId: "role-modal-delete",
                 label: t("Common.actions.delete"),
                 icon: Trash2,
                 variant: "destructive",
@@ -191,7 +192,7 @@ export const RoleModal = observer(({ store }: Props) => {
             </div>
           </AppCardBody>
 
-          <FormActions showInitially overrideDisabled={isDisabledOrSystemRole} store={store} />
+          <FormActions showInitially anchorScope="role-modal" overrideDisabled={isDisabledOrSystemRole} store={store} />
         </AppCard>
       </AppForm>
     </AppModal>

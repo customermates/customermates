@@ -9,14 +9,13 @@ import { Resource, Action } from "@/generated/prisma";
 
 import { WebhookEventSchema, WebhookDtoSchema } from "./webhook.schema";
 import { WebhookHeadersSchema, allowsCredentialedHeaders } from "./webhook-headers";
-import { toWebhookEventPayload } from "./webhook-event-payload";
+import { calculateWebhookChanges, toWebhookEventPayload } from "./webhook-event-payload";
 import { WEBHOOK_BODY_TEMPLATE_MAX_CHARS, isRenderableWebhookBodyTemplate } from "./webhook-body-template";
 
 import { DomainEvent } from "@/features/event/domain-events";
 import { TenantInteractor } from "@/core/decorators/tenant-interactor.decorator";
 import { zx, type Validated } from "@/core/validation/validation.utils";
 import { CustomErrorCode } from "@/core/validation/validation.types";
-import { calculateChanges } from "@/core/utils/calculate-changes";
 import { Write } from "@/core/decorators/write.decorator";
 import { AuthenticatedInteractor } from "@/core/base/authenticated-interactor";
 
@@ -93,14 +92,11 @@ export class UpsertWebhookInteractor extends AuthenticatedInteractor<UpsertWebho
     const webhook = await this.repo.upsertWebhookOrThrow(data);
 
     if (previousWebhook) {
-      const previousPayload = toWebhookEventPayload(previousWebhook);
-      const nextPayload = toWebhookEventPayload(webhook);
-
       await this.eventService.publish(DomainEvent.WEBHOOK_UPDATED, {
         entityId: webhook.id,
         payload: {
-          webhook: nextPayload,
-          changes: calculateChanges(previousPayload, nextPayload),
+          webhook: toWebhookEventPayload(webhook),
+          changes: calculateWebhookChanges(previousWebhook, webhook),
         },
       });
     } else {

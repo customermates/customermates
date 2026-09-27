@@ -17,7 +17,7 @@ import { redirect } from "next/navigation";
 import { getTranslations } from "next-intl/server";
 import { PageContainer } from "@/components/shared/page-container";
 import { LockedFeatureOverlay } from "@/components/shared/locked-feature-overlay";
-import { getEntitlements } from "@/ee/subscription/entitlements";
+import { getEntitlements, isSubscriptionUsable } from "@/ee/subscription/entitlements";
 import { env } from "@/env";
 import { cn } from "@/core/utils/cn";
 import { unwrapValidated } from "@/core/validation/validation.utils";
@@ -35,7 +35,8 @@ export default async function InboxPage({ searchParams }: Props) {
     getGetSubscriptionInteractor().invoke(),
     getUserService().hasPermission(Resource.inboxMessages, Action.create),
   ]);
-  const locked = !getEntitlements(subscriptionResult.data.plan).messaging;
+  const planLocked = !getEntitlements(subscriptionResult.data.plan).messaging;
+  const locked = planLocked || !isSubscriptionUsable(subscriptionResult.data);
 
   const { threadId: threadIdRaw, ...listParams } = await searchParams;
   const threadId = !locked && typeof threadIdRaw === "string" ? threadIdRaw : null;
@@ -74,7 +75,9 @@ export default async function InboxPage({ searchParams }: Props) {
       <LockedFeatureOverlay
         ctaHref="/company/subscription"
         ctaLabel={t("MessagingUpsell.cta")}
-        description={t("MessagingUpsell.description")}
+        description={
+          planLocked ? t("MessagingUpsell.description") : t("ConnectedAccountsCard.paidSubscriptionRequired")
+        }
         title={t("MessagingUpsell.title")}
       >
         {content}

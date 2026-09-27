@@ -143,19 +143,20 @@ export const ProfileSettingsForm = observer(({ userDetails, emailVerified }: Pro
 
         <div className="flex flex-col gap-4">
           <div className="grid w-full grid-cols-1 gap-3 sm:grid-cols-2">
-            <FormInput required id="firstName" />
+            <FormInput required id="firstName" inputId="profile-settings-first-name" />
 
-            <FormInput required id="lastName" />
+            <FormInput required id="lastName" inputId="profile-settings-last-name" />
           </div>
 
-          <FormAutocompleteCountry required id="country" />
+          <FormAutocompleteCountry required id="country" inputId="profile-settings-country" />
 
-          <FormInput id="avatarUrl" />
+          <FormInput id="avatarUrl" inputId="profile-settings-avatar-url" />
 
           <FormSelect
             required
             description={t("UserSettingsForm.displayLanguageHint")}
             id="displayLanguage"
+            inputId="profile-settings-display-language"
             items={displayLanguageItems}
             label={t("Common.inputs.displayLanguage")}
           />
@@ -164,11 +165,18 @@ export const ProfileSettingsForm = observer(({ userDetails, emailVerified }: Pro
             required
             description={t("UserSettingsForm.formattingLocaleHint")}
             id="formattingLocale"
+            inputId="profile-settings-formatting-locale"
             items={formattingLocaleItems}
             label={t("Common.inputs.formattingLocale")}
           />
 
-          <FormSelect required id="theme" items={themeItems} label={t("Common.inputs.theme")} />
+          <FormSelect
+            required
+            id="theme"
+            inputId="profile-settings-theme"
+            items={themeItems}
+            label={t("Common.inputs.theme")}
+          />
         </div>
 
         <FormActions anchorScope="profile-settings" store={store} />

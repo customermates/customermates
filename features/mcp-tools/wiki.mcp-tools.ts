@@ -301,14 +301,12 @@ export const manageWikiPagesTool = {
   name: "manage_wiki_pages",
   title: "Manage Workspace Wiki pages",
   description:
-    "Read and manage the shared Workspace Wiki. " +
-    "Read company facts, processes, voice, and support guidance before answering or acting on them. " +
-    "list returns pages in creation order. search ranks query terms in titles and Markdown and returns short snippets. " +
+    "Read and manage the shared Workspace Wiki; read its company facts, processes, voice, and support guidance before relying on them. " +
+    "list returns pages in creation order. search ranks query terms in titles and Markdown, with snippets. " +
     "get returns one Markdown chunk; pass nextOffset back as offset until it is null. " +
-    "create atomically creates one to five pages; requireEmpty=true refuses the whole batch unless the Wiki is empty. " +
-    "update changes title and/or Markdown and requires expectedUpdatedAt from a prior read. " +
-    "delete permanently deletes one page and requires expectedUpdatedAt; deletion is irreversible. " +
-    "Link pages with ordinary Markdown links to /wiki?page=<page-id>; page ids remain stable when titles change.",
+    "create makes one to five pages atomically; requireEmpty=true refuses the batch unless the Wiki is empty. " +
+    "update changes title and/or Markdown; update and delete need expectedUpdatedAt from a prior read; delete permanently removes the page. " +
+    "Link pages with Markdown links to /wiki?page=<page-id>; ids stay stable when titles change.",
   annotations: {
     readOnlyHint: false,
     destructiveHint: true,

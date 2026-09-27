@@ -79,7 +79,7 @@ If you want the full decision guide, see the [Self-hosting docs](https://custome
 
 ## 🐳 Self-Hosting
 
-Self-hosting is two files (`docker-compose.yml` and `.env`) plus `docker compose up -d`. No `git clone`, no build step. The published image at `ghcr.io/customermates/customermates:latest` runs migrations on first boot.
+Self-hosting is two files (`docker-compose.yml` and `.env`) plus `docker compose up -d`. No `git clone`, no build step. The published image at `ghcr.io/customermates/customermates:latest` applies pending migrations every time it starts.
 
 ### Prerequisites
 
@@ -104,17 +104,19 @@ Required `.env` values:
 - `BASE_URL`: your public URL (e.g. `https://crm.example.com`).
 - `RESEND_API_KEY` and `RESEND_OPERATOR_EMAIL`: for signup verification, password reset, and invitation emails.
 
-First boot takes ~1 minute while Prisma applies migrations. Watch with `docker compose logs -f app`, then open `http://localhost:4000` (or your `APP_PORT`).
+Optional: uncomment `GOOGLE_CLIENT_ID` and `GOOGLE_CLIENT_SECRET`, or `AZURE_AD_CLIENT_ID` and `AZURE_AD_CLIENT_SECRET`, to offer sign-in with Google or Microsoft. See [Can users sign in with Google or Microsoft?](https://customermates.com/docs/self-hosting#can-users-sign-in-with-google-or-microsoft).
+
+First boot takes ~1 minute while Prisma applies migrations. Watch with `docker compose logs -f app`, then open `<BASE_URL>/auth/signup`.
 
 ### Day-to-day
 
 ```bash
 docker compose pull && docker compose up -d   # update
-docker compose restart                         # restart after .env changes
+docker compose up -d                           # apply .env changes
 docker compose logs -f app                     # logs
 ```
 
-Front the app with a reverse proxy (Caddy, nginx, Traefik) for TLS. Customermates sets secure cookies when `BASE_URL` uses `https://`, so make sure the proxy forwards `X-Forwarded-Proto`.
+Front the app with a reverse proxy (Caddy, nginx, Traefik) for TLS and set `BASE_URL` to the public `https://` address. Customermates takes the scheme and host for its links from `BASE_URL` and sets secure cookies when it uses `https://`, so `X-Forwarded-Proto` is not required. The proxy must pass on the original `Host` header, because the app rejects form submissions whose origin does not match it, including sign-in and sign-up.
 
 More docs:
 

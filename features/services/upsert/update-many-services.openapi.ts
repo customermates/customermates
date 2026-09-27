@@ -4,7 +4,7 @@ import { ServiceDtoSchema } from "../service.schema";
 
 import { UpdateManyServicesSchema } from "./update-many-services.interactor";
 
-import { CommonApiResponses } from "@/core/api/interactor-handler";
+import { CommonApiResponses, NotFoundApiResponse } from "@/core/api/interactor-handler";
 
 export const updateManyServicesOperation: ZodOpenApiOperationObject = {
   operationId: "updateManyServices",
@@ -30,5 +30,6 @@ export const updateManyServicesOperation: ZodOpenApiOperationObject = {
       },
     },
     ...CommonApiResponses,
+    ...NotFoundApiResponse,
   },
 };

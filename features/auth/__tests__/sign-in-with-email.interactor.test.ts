@@ -1,4 +1,5 @@
 import type { AuthService } from "../auth.service";
+import type * as ValidationUtils from "@/core/validation/validation.utils";
 
 import { describe, expect, it, vi } from "vitest";
 
@@ -11,7 +12,13 @@ vi.mock("next-intl/server", () => ({
   ),
 }));
 
+vi.mock("@/core/validation/validation.utils", async (importOriginal) => {
+  const actual = await importOriginal<typeof ValidationUtils>();
+  return { ...actual, PASSWORD_MIN_LENGTH: 12 };
+});
+
 import { SignInWithEmailInteractor } from "../sign-in-with-email.interactor";
+import { CustomErrorCode } from "@/core/validation/validation.types";
 
 describe("SignInWithEmailInteractor", () => {
   it("passes the callback through authentication and returns it as the safe destination", async () => {
@@ -76,5 +83,29 @@ describe("SignInWithEmailInteractor", () => {
         rememberMe: true,
       }),
     ).resolves.toEqual({ redirect: "/auth/error?type=invalidOnboardingIntent" });
+  });
+
+  it("rejects a password below the shared minimum length before authentication", async () => {
+    const signInWithEmail = vi.fn();
+    const interactor = new SignInWithEmailInteractor({ signInWithEmail } as unknown as AuthService);
+
+    const result = await interactor.invoke({
+      email: "synthetic@example.com",
+      password: "p".repeat(11),
+      rememberMe: true,
+    });
+
+    expect(result).toMatchObject({ ok: false });
+    if ("ok" in result && !result.ok) {
+      expect(result.error.issues).toEqual([
+        expect.objectContaining({
+          code: "custom",
+          path: ["password"],
+          params: { error: CustomErrorCode.invalidCredentials },
+          message: "Common.errors.invalidCredentials",
+        }),
+      ]);
+    }
+    expect(signInWithEmail).not.toHaveBeenCalled();
   });
 });

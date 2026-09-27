@@ -82,7 +82,7 @@ const FetchOutputSchema = z.object({
   text: z
     .string()
     .describe("Content. Wiki results return one bounded Markdown chunk; records and product docs return full content"),
-  url: z.string().describe("Canonical app or docs URL"),
+  url: z.string().describe("Canonical app or docs URL; its origin completes the relative app routes in text"),
   metadata: z.record(z.string(), z.string()).optional().describe("Extra context such as entity type or locale"),
   offset: z.number().int().nonnegative().optional().describe("Wiki chunk start offset"),
   nextOffset: z
@@ -213,7 +213,8 @@ export const searchTool = {
   description:
     "Required by ChatGPT company-knowledge and deep-research connectors. Returns relevant Workspace Wiki pages, CRM records, and product documentation in one list, without totals or filters. " +
     "Fetch every relevant Wiki result and follow its linked Wiki pages. Wiki matches are ranked by query terms with title matches weighted higher. " +
-    "For focused CRM or product-doc queries prefer search_records or list_records, which carry totals and filters, or search_docs.",
+    "For focused CRM or product-doc queries prefer search_records or list_records, which carry totals and filters, or search_docs. " +
+    "App routes in the docs text that fetch returns, such as `/company/subscription`, are relative: for a full link, put the route after the origin of the result's url; that origin is the instance's configured BASE_URL.",
   annotations: { readOnlyHint: true, idempotentHint: true, destructiveHint: false, openWorldHint: false },
   inputSchema: z.object({
     query: z
@@ -264,7 +265,8 @@ export const fetchTool = {
     "Read a result from search, including Workspace Wiki Markdown by wiki:<uuid>. " +
     "Wiki pages may also be fetched by their exact relative, localized, or same-origin absolute Wiki URL. " +
     "Wiki content is returned in bounded chunks with absolute internal links and a source URL for citations; pass nextOffset back as offset until it is null. Wiki Read is required for Wiki pages. " +
-    "Compatible with ChatGPT company knowledge and deep research. For focused CRM or product-documentation retrieval, prefer get_records or get_docs_page.",
+    "Compatible with ChatGPT company knowledge and deep research. For focused CRM or product-documentation retrieval, prefer get_records or get_docs_page. " +
+    "For a docs result, app routes in text, such as `/company/subscription`, are relative: for a full link, put the route after the origin of url; that origin is the instance's configured BASE_URL.",
   annotations: { readOnlyHint: true, idempotentHint: true, destructiveHint: false, openWorldHint: false },
   inputSchema: z.object({
     id: z

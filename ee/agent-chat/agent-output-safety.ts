@@ -18,6 +18,7 @@ const WIKI_TO_LINK_PATTERN = /\]\(to:(\/(?:[a-z]{2}\/)?wiki\?page=[^)]+)\)/giu;
 
 const UUID_PATTERN = /(^|[^0-9a-f])([0-9a-f]{8}(?:-[0-9a-f]{4}){3}-[0-9a-f]{12})(?=$|[^0-9a-f])/gi;
 const PARTIAL_UUID_PATTERN = /(^|[^0-9a-f])([0-9a-f]{8}-(?:[0-9a-f]{0,4}(?:-[0-9a-f]{0,4}){0,3})?)$/gi;
+const REDACTION_TOKEN_SOURCE = "\\[(?:internal reference|internal details|redacted)\\]";
 const SAVED_VIEW_PATHS = AI_MANAGEABLE_DATA_VIEW_SURFACE_KEYS.map((surfaceKey) => DATA_VIEW_PATHS[surfaceKey]).filter(
   (path): path is string => path !== null,
 );
@@ -44,6 +45,10 @@ const MAX_TIMELINE_VIEW_URL_LENGTH =
   SURFACE.entityTimeline.length;
 const MAX_SAVED_VIEW_URL_LENGTH = Math.max(MAX_STANDALONE_VIEW_URL_LENGTH, MAX_TIMELINE_VIEW_URL_LENGTH);
 const PROTECTED_STREAM_CONTEXT_CHARS = 2;
+const MESSAGING_THREADS_PATH = DATA_VIEW_PATHS[SURFACE.messagingThreads];
+const RECORD_PAGE_ROUTE_PATTERN = new RegExp(
+  `^/${LOCALE_PREFIX_SOURCE}(?:(?:${ENTITY_TIMELINE_PARENT_PATHS.map((path) => escapePattern(path.slice(1))).join("|")})/${UUID_SOURCE}${MESSAGING_THREADS_PATH ? `|${escapePattern(MESSAGING_THREADS_PATH.slice(1))}\\?threadId=${UUID_SOURCE}` : ""})$`,
+);
 
 const PAGE_CONTEXT_BLOCK_PATTERN = /<page_context\b[^>]*>[\s\S]*?<\/page_context\s*>/gi;
 const PAGE_CONTEXT_TAG_PATTERN = /<\/?page_context\b[^>]*>/gi;
@@ -61,7 +66,7 @@ const COOKIE_HEADER_PATTERN = /(\b(?:cookie|set-cookie)\b\s*[:=]\s*)[^\r\n]*/gi;
 const SECRET_LABEL_SOURCE =
   "(?:api[ _-]?key|password|passcode|secret|client[ _-]?secret|access[ _-]?token|refresh[ _-]?token|auth[ _-]?token|credential)";
 const SECRET_ASSIGNMENT_PATTERN = new RegExp(
-  `(\\b${SECRET_LABEL_SOURCE}\\b\\s*[:=]\\s*)(?!(?:\\[redacted\\]|\\[internal details\\]))(?:"[^"\\r\\n]*(?:"|$)|'[^'\\r\\n]*(?:'|$)|[^\\s,;}\\]"'\\r\\n]+)`,
+  `(\\b${SECRET_LABEL_SOURCE}\\b\\s*[:=]\\s*)(?!(?:\\[redacted\\]|\\[internal details\\]|[*_]{1,3}(?:\\s|$)))(?:"[^"\\r\\n]*(?:"|$)|'[^'\\r\\n]*(?:'|$)|[^\\s,;}\\]"'\\r\\n]+)`,
   "gi",
 );
 const URL_CREDENTIAL_PATTERN = /(\b[a-z][a-z0-9+.-]*:\/\/[^\s/:@]+:)[^\s/@]+@/gi;
@@ -145,6 +150,7 @@ type MarkdownContainer = TextRange & { type: string };
 type CanonicalDestination = TextRange & { href: string };
 type DataViewLink = TextRange & { label: TextRange };
 type DataViewAutolink = TextRange & { href: string };
+type ResourceLink = MarkdownContainer & { text: TextRange | null; destination: TextRange | null };
 
 function modelAuthoredDataViewHref(value: string) {
   try {
@@ -310,7 +316,7 @@ function unwrapModelAuthoredDataViewLinks(value: string) {
     ...markdown.dataViewLinks.map((link) => ({
       start: link.start,
       end: link.end,
-      text: plainModelAuthoredDataViewLinkLabel(value.slice(link.label.start + 1, link.label.end - 1)),
+      text: plainLinkLabel(value.slice(link.label.start + 1, link.label.end - 1)),
     })),
     ...markdown.dataViewDefinitions.map((definition) => ({ ...definition, text: "" })),
   ]
@@ -401,7 +407,7 @@ function unwrapAlreadyRedactedDataViewLinks(value: string, appBaseUrl?: string) 
       cursor = labelEnd + 1;
       continue;
     }
-    const label = plainModelAuthoredDataViewLinkLabel(value.slice(labelStart + 1, labelEnd));
+    const label = plainLinkLabel(value.slice(labelStart + 1, labelEnd));
     output += `${value.slice(copiedUntil, labelStart)}${label}`;
     copiedUntil = destinationEnd + 1;
     cursor = copiedUntil;
@@ -478,6 +484,74 @@ function normalizeWikiLinkAliases(value: string, wikiBaseUrl?: string) {
   });
 }
 
+function markdownResourceLinks(value: string) {
+  const links: ResourceLink[] = [];
+  const events = postprocess(
+    parse()
+      .document()
+      .write(preprocess()(value, undefined, true)),
+  );
+
+  for (const [phase, token] of events) {
+    if (phase !== "enter") continue;
+    const start = token.start.offset;
+    const end = token.end.offset;
+    if (start === undefined || end === undefined) continue;
+    if (token.type === "link" || token.type === "image") {
+      links.push({ start, end, type: token.type, text: null, destination: null });
+      continue;
+    }
+    if (token.type !== "labelText" && token.type !== "resourceDestinationString") continue;
+    const parent = links
+      .filter((link) => start >= link.start && end <= link.end)
+      .sort((left, right) => left.end - left.start - (right.end - right.start))[0];
+    if (!parent) continue;
+    if (token.type === "labelText") parent.text ??= { start, end };
+    else parent.destination ??= { start, end };
+  }
+
+  return links;
+}
+
+function replaceUuidOutsideRecordPageLinks(value: string, wikiBaseUrl?: string) {
+  if (value.search(UUID_PATTERN) < 0) return value;
+  let visible = "";
+  let copiedUntil = 0;
+
+  for (const link of markdownResourceLinks(value)) {
+    if (link.start < copiedUntil || !link.destination) continue;
+    const destination = value.slice(link.destination.start, link.destination.end);
+    const decodedDestination = decodeString(destination);
+    if (decodedDestination.search(UUID_PATTERN) < 0) continue;
+    visible += replaceUuid(value.slice(copiedUntil, link.start), wikiBaseUrl);
+    if (link.type === "link" && RECORD_PAGE_ROUTE_PATTERN.test(decodedDestination))
+      visible += `${replaceUuid(value.slice(link.start, link.destination.start), wikiBaseUrl)}${destination}${replaceUuid(value.slice(link.destination.end, link.end), wikiBaseUrl)}`;
+    else if (link.type === "link" && parseWikiPageHref(decodedDestination, wikiBaseUrl))
+      visible += replaceUuid(value.slice(link.start, link.end), wikiBaseUrl);
+    else visible += replaceUuid(link.text ? value.slice(link.text.start, link.text.end) : "", wikiBaseUrl);
+    copiedUntil = link.end;
+  }
+
+  return `${visible}${replaceUuid(value.slice(copiedUntil), wikiBaseUrl)}`;
+}
+
+function unwrapRecordPageLinks(value: string): string {
+  if (value.search(UUID_PATTERN) < 0) return value;
+  return markdownResourceLinks(value)
+    .filter(
+      (link) =>
+        link.type === "link" &&
+        link.destination !== null &&
+        RECORD_PAGE_ROUTE_PATTERN.test(decodeString(value.slice(link.destination.start, link.destination.end))),
+    )
+    .sort((left, right) => right.start - left.start)
+    .reduce(
+      (plainValue, link) =>
+        `${plainValue.slice(0, link.start)}${link.text ? plainLinkLabel(value.slice(link.text.start, link.text.end)) : ""}${plainValue.slice(link.end)}`,
+      value,
+    );
+}
+
 function replacePartialUuidTail(value: string) {
   return value.replace(PARTIAL_UUID_PATTERN, (_match, prefix: string) => `${prefix}${INTERNAL_REFERENCE}`);
 }
@@ -530,7 +604,7 @@ function openPrivateContentStart(value: string) {
   return start;
 }
 
-function incompletePrivateMarkerStart(value: string) {
+function incompletePrivateMarkerStart(value: string, streamTail = false) {
   const lower = value.toLowerCase();
   let start: number | null = null;
 
@@ -546,6 +620,7 @@ function incompletePrivateMarkerStart(value: string) {
         start = earliest(start, fullStart);
     }
 
+    if (!streamTail) continue;
     for (let length = Math.min(marker.length - 1, lower.length); length > 0; length -= 1) {
       if (marker.startsWith("```") && length <= 3) continue;
       if (!lower.endsWith(marker.slice(0, length))) continue;
@@ -756,7 +831,7 @@ function sanitizeTextFragment(value: string, wikiBaseUrl?: string) {
     ),
     toolProtocolStart(withoutClosedPrivateContent),
   );
-  const complete = replaceUuid(
+  const complete = replaceUuidOutsideRecordPageLinks(
     redactCompleteAgentVisibleText(
       unsafeStart === null ? withoutClosedPrivateContent : withoutClosedPrivateContent.slice(0, unsafeStart),
       wikiBaseUrl,
@@ -766,7 +841,7 @@ function sanitizeTextFragment(value: string, wikiBaseUrl?: string) {
   return replacePartialUuidTail(complete);
 }
 
-function plainModelAuthoredDataViewLinkLabel(value: string) {
+function plainLinkLabel(value: string) {
   const decodedLabel = decodeString(value);
   const plainLabel = agentPlainTextPreview(decodedLabel, decodedLabel.length);
   return sanitizeTextFragment(plainLabel).replace(/[<>]/g, "");
@@ -787,6 +862,10 @@ export function sanitizeAgentVisibleTextForApp(value: string, appBaseUrl: string
   return sanitizeVisibleText(value, appBaseUrl, appBaseUrl);
 }
 
+export function sanitizeAgentPlainText(value: string) {
+  return unwrapRecordPageLinks(sanitizeVisibleText(value));
+}
+
 const LEGACY_USER_PAGE_CONTEXT_PREFIX =
   /^(?:\uFEFF)?[ \t]*<page_context[ \t]+route="[^"\r\n]{0,500}"[ \t]*\/>[ \t]*(?:\r?\n)?/i;
 
@@ -797,15 +876,15 @@ export function stripLegacyUserPageContextPrefix(value: string) {
 const MARKDOWN_BLOCK_PREFIX_PATTERN = /^[ \t]{0,3}(?:#{1,6}[ \t]+|>[ \t]?|[-*+][ \t]+|\d{1,9}[.)][ \t]+)/gm;
 const MARKDOWN_RULE_LINE_PATTERN = /^[ \t]{0,3}(?:[-*_][ \t]*){3,}$/gm;
 const MARKDOWN_FENCE_PATTERN = /^[ \t]{0,3}(?:`{3,}|~{3,}).*$/gm;
-const MARKDOWN_IMAGE_PATTERN = /!\[([^\]]*)\]\([^)]*\)/g;
-const MARKDOWN_LINK_PATTERN = /\[([^\]]+)\]\([^)]*\)/g;
+const MARKDOWN_IMAGE_PATTERN = new RegExp(`!\\[((?:${REDACTION_TOKEN_SOURCE}|[^\\]])*)\\]\\([^)]*\\)`, "g");
+const MARKDOWN_LINK_PATTERN = new RegExp(`\\[((?:${REDACTION_TOKEN_SOURCE}|[^\\]])+)\\]\\([^)]*\\)`, "g");
 const MARKDOWN_BOLD_ITALIC_PATTERN = /(\*{1,3})(?=\S)([\s\S]*?\S)\1/g;
 const MARKDOWN_STRIKETHROUGH_PATTERN = /~~(?=\S)([\s\S]*?\S)~~/g;
 const MARKDOWN_UNDERSCORE_EMPHASIS_PATTERN = /(?<![\w\\])(_{1,3})(?=\S)([\s\S]*?\S)\1(?![\w])/g;
 const MARKDOWN_CODE_PATTERN = /`+([^`]+)`+/g;
 
 export function agentPlainTextPreview(value: string, maxChars: number) {
-  const plain = value
+  const plain = unwrapRecordPageLinks(value)
     .replace(MARKDOWN_FENCE_PATTERN, " ")
     .replace(MARKDOWN_RULE_LINE_PATTERN, " ")
     .replace(MARKDOWN_BLOCK_PREFIX_PATTERN, "")
@@ -822,7 +901,7 @@ export function agentPlainTextPreview(value: string, maxChars: number) {
 
 export function sanitizeAgentConversationTitle(value: string | null | undefined) {
   if (!value) return null;
-  const title = sanitizeAgentVisibleText(stripLegacyUserPageContextPrefix(value))
+  const title = sanitizeAgentPlainText(stripLegacyUserPageContextPrefix(value))
     .replace(/\s+/g, " ")
     .trim()
     .slice(0, 80);
@@ -854,7 +933,7 @@ export class AgentVisibleTextStreamSanitizer {
 
     const requestedEnd = Math.max(0, this.buffer.length - STREAM_TAIL_LENGTH);
     const unsafeStart = earliest(
-      earliest(openPrivateContentStart(this.buffer), incompletePrivateMarkerStart(this.buffer)),
+      earliest(openPrivateContentStart(this.buffer), incompletePrivateMarkerStart(this.buffer, true)),
       incompleteToolProtocolStart(this.buffer),
     );
     const safeEnd = protectStreamBoundary(

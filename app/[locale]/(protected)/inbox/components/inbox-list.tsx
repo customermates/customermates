@@ -10,6 +10,7 @@ import { useTranslations } from "next-intl";
 import { Cable, RefreshCw } from "lucide-react";
 import { useSearchParams } from "next/navigation";
 import { toast } from "sonner";
+import { Action, Resource } from "@/generated/prisma";
 
 import { AgentStarterActions } from "@/app/components/agent-chat/suggested-questions";
 import { IntlLink as Link, useRouter, usePathname } from "@/i18n/navigation";
@@ -46,7 +47,8 @@ export const InboxList = observer(({ canConnect, threads, selectedThreadId, lock
   const router = useRouter();
   const pathname = usePathname();
   const searchParams = useSearchParams();
-  const { messagingThreadsStore, connectedAccountsStore } = useRootStore();
+  const { messagingThreadsStore, connectedAccountsStore, userStore } = useRootStore();
+  const canUpdate = userStore.can(Resource.inboxMessages, Action.update);
 
   useEffect(() => {
     if (locked) return;
@@ -86,18 +88,20 @@ export const InboxList = observer(({ canConnect, threads, selectedThreadId, lock
             store={messagingThreadsStore}
           />
 
-          <Button
-            aria-label={t("Inbox.refresh")}
-            className="h-8"
-            disabled={isRefreshing}
-            size="sm"
-            variant="secondary"
-            onClick={() => runUserAction(() => messagingThreadsStore.refreshInbox())}
-          >
-            <RefreshCw className={cn("size-3.5", isRefreshing && "animate-spin")} />
+          {canUpdate && (
+            <Button
+              aria-label={t("Inbox.refresh")}
+              className="h-8"
+              disabled={isRefreshing}
+              size="sm"
+              variant="secondary"
+              onClick={() => runUserAction(() => messagingThreadsStore.refreshInbox())}
+            >
+              <RefreshCw className={cn("size-3.5", isRefreshing && "animate-spin")} />
 
-            <span className="hidden sm:inline">{t("Inbox.refresh")}</span>
-          </Button>
+              <span className="hidden sm:inline">{t("Inbox.refresh")}</span>
+            </Button>
+          )}
 
           {canConnect && (
             <Button asChild className="h-8" size="sm" variant="default">
@@ -116,7 +120,7 @@ export const InboxList = observer(({ canConnect, threads, selectedThreadId, lock
           )}
         </div>
       ),
-    [isRefreshing, messagingThreadsStore, searchPlaceholder, t, channelsNeedingAction, canConnect, locked],
+    [isRefreshing, messagingThreadsStore, searchPlaceholder, t, channelsNeedingAction, canConnect, canUpdate, locked],
   );
   useSetTopBarActions(topBarNode);
 

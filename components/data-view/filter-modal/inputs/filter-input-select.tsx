@@ -3,7 +3,7 @@
 import type { Filter } from "@/core/base/base-get.schema";
 import type { CustomColumnDto } from "@/features/custom-column/custom-column.schema";
 
-import { useEffect, useMemo, useState } from "react";
+import { useEffect, useMemo, useRef, useState } from "react";
 import { observer } from "mobx-react-lite";
 import { useTranslations } from "next-intl";
 import { ChevronsUpDownIcon, XIcon } from "lucide-react";
@@ -36,6 +36,7 @@ export const FilterInputSelect = observer(({ customColumns, filter, id, isValidF
 
   const [open, setOpen] = useState(false);
   const [input, setInput] = useState("");
+  const searchInputRef = useRef<HTMLInputElement>(null);
   const [optionResult, setOptionResult] = useState<{
     key: string;
     resolver: typeof getItems;
@@ -201,9 +202,18 @@ export const FilterInputSelect = observer(({ customColumns, filter, id, isValidF
         </Button>
       </PopoverTrigger>
 
-      <PopoverContent align="start" className="w-(--radix-popover-trigger-width) p-0">
+      <PopoverContent
+        align="start"
+        className="w-(--radix-popover-trigger-width) p-0"
+        onOpenAutoFocus={() => searchInputRef.current?.focus()}
+      >
         <Command shouldFilter={false}>
-          <CommandInput placeholder={t("Common.table.search")} value={input} onValueChange={setInput} />
+          <CommandInput
+            ref={searchInputRef}
+            placeholder={t("Common.table.search")}
+            value={input}
+            onValueChange={setInput}
+          />
 
           <CommandList aria-busy={asyncLoading || undefined}>
             {asyncLoading && <SelectionOptionsSkeleton label={t("Loading.text")} />}

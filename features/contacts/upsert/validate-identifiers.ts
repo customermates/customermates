@@ -60,7 +60,7 @@ export function validateIdentifierConflicts(
   ctx: z.RefinementCtx,
   basePathFor: (index: number) => (string | number)[],
 ): void {
-  const claimedBy = new Map<string, string | undefined>(owners);
+  const claimedByEarlierItem = new Map<string, string | undefined>();
 
   contacts.forEach(({ selfContactId, identifiers }, index) => {
     const claimedInPayload = new Set<string>();
@@ -77,7 +77,7 @@ export function validateIdentifierConflicts(
         return;
       }
 
-      if (keys.some((key) => claimedBy.has(key) && claimedBy.get(key) !== selfContactId)) {
+      if (keys.some((key) => owners.has(key) && owners.get(key) !== selfContactId)) {
         ctx.addIssue({
           code: "custom",
           params: { error: CustomErrorCode.channelAlreadyLinked },
@@ -86,8 +86,17 @@ export function validateIdentifierConflicts(
         return;
       }
 
+      if (keys.some((key) => claimedByEarlierItem.has(key) && claimedByEarlierItem.get(key) !== selfContactId)) {
+        ctx.addIssue({
+          code: "custom",
+          params: { error: CustomErrorCode.duplicateChannel },
+          path: [...basePathFor(index), i, "value"],
+        });
+        return;
+      }
+
       for (const key of keys) {
-        claimedBy.set(key, selfContactId);
+        claimedByEarlierItem.set(key, selfContactId);
         claimedInPayload.add(key);
       }
     });

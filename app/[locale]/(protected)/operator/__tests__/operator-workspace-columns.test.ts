@@ -38,7 +38,7 @@ function renderedColumnIds(): string[] {
 function declaredColumnUids(): string[] {
   const descriptor = Object.getOwnPropertyDescriptor(OperatorWorkspacesStore.prototype, "columnsDefinition");
   if (!descriptor?.get) throw new Error("The operator workspaces store must declare its columns.");
-  return (descriptor.get.call({}) as TableColumn[]).map(({ uid }) => uid);
+  return (descriptor.get.call({ t: (key: string) => key }) as TableColumn[]).map(({ uid }) => uid);
 }
 
 describe("operator workspace columns", () => {

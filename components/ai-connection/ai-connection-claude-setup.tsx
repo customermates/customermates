@@ -139,6 +139,7 @@ export const AiConnectionClaudeSetup = observer(function AiConnectionClaudeSetup
               nested
               apiKey={store.apiKey}
               baseUrl={baseUrl}
+              expiresAt={store.apiKeyExpiresAt}
               hasError={store.hasError}
               isCreating={store.isCreating}
               resultHeadingRef={resultHeadingRef}

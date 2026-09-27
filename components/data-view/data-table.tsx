@@ -271,6 +271,7 @@ export const DataTable = observer(function DataTable<E extends HasId>({
             return;
           }
           if (onRowClick) {
+            e.currentTarget.querySelector<HTMLElement>('[data-slot="data-row-open"]')?.focus({ preventScroll: true });
             onRowClick(row.original);
             return;
           }
@@ -289,6 +290,7 @@ export const DataTable = observer(function DataTable<E extends HasId>({
             isNameCell && rowHref ? (
               <a
                 className="block truncate text-inherit [&:hover_span:not([data-slot])]:underline"
+                data-slot="data-row-open"
                 href={rowHref}
                 onClick={(e) => {
                   if (e.metaKey || e.ctrlKey || e.shiftKey || e.button === 1) return;
@@ -297,8 +299,10 @@ export const DataTable = observer(function DataTable<E extends HasId>({
                     return;
                   }
                   e.preventDefault();
-                  if (onRowClick) onRowClick(row.original);
-                  else navigateToHref(rowHref);
+                  if (onRowClick) {
+                    e.currentTarget.focus({ preventScroll: true });
+                    onRowClick(row.original);
+                  } else navigateToHref(rowHref);
                 }}
               >
                 {content}
@@ -314,6 +318,7 @@ export const DataTable = observer(function DataTable<E extends HasId>({
                     store.toggleItemSelection(row.original.id);
                     return;
                   }
+                  e.currentTarget.focus({ preventScroll: true });
                   onRowClick(row.original);
                 }}
               >
@@ -525,7 +530,7 @@ export const DataTable = observer(function DataTable<E extends HasId>({
 
                         <span className="shrink-0 text-xs text-muted-foreground tabular-nums">{group.count}</span>
 
-                        {group.weight !== undefined && (
+                        {store.isGroupedByDealWeightingColumn && group.weight !== undefined && (
                           <span className="shrink-0 text-xs text-muted-foreground tabular-nums">{group.weight}%</span>
                         )}
                       </div>
