@@ -1,5 +1,5 @@
 ---
-title: "EspoCRM Alternative: Open-Source-CRMs im Vergleich"
+title: "EspoCRM-Alternative: Open-Source-CRMs im Vergleich"
 description: "EspoCRM vs. Customermates: zwei AGPL-Open-Source-CRMs im Vergleich zu Lizenz, Stack, Self-Hosting, Cloud-Preisen, Erweiterungen, Kanälen und KI über MCP."
 competitorName: EspoCRM
 
@@ -10,7 +10,7 @@ relatedHrefs:
   - /blog/open-source-crm
 
 hero:
-  title: "EspoCRM Alternative: Customermates und EspoCRM im Vergleich"
+  title: "EspoCRM-Alternative: Customermates und EspoCRM im Vergleich"
   description: "EspoCRM und Customermates sind beide AGPL-Open-Source-CRMs, die Sie selbst hosten können. Sie unterscheiden sich im Stack, in der Paketierung der Funktionen, bei den Nachrichtenkanälen und darin, wie KI-Clients mit ihnen arbeiten. Dieser Vergleich zeigt, wo was passt, auf Basis der offiziellen EspoCRM-Seiten mit Stand 27. September 2026."
   buttonLeftText: Kostenlos starten
   buttonLeftHref: /auth/signup
@@ -39,8 +39,8 @@ comparison:
   - title: Preise
     features:
       - name: Cloud-Einstiegspreis
-        source: Ab [[commercial.price.starter.monthly]] / User / Monat
-        competitor: 12,90 € / User / Monat (Basic, mind. 3 User)
+        source: Ab [[commercial.price.starter.monthly]] / Nutzer / Monat
+        competitor: 12,90 € / Nutzer / Monat (Basic, mind. 3 Nutzer)
       - name: Abrechnungszeitraum
         source: Monatlich
         competitor: 6 oder 12 Monate (Basic, Enterprise)
@@ -55,7 +55,7 @@ comparison:
       - name: Kontakte, Organisationen, Deals
         source: true
         competitor: true
-      - name: Benutzerdefinierte Felder
+      - name: Eigene Felder
         source: true
         competitor: true
       - name: Eigene Entitätstypen
@@ -102,7 +102,7 @@ cta:
 
 > [EspoCRM](https://www.espocrm.com/) ist ein etabliertes Open-Source-CRM in PHP. Seit Version 8.1 im Januar 2024 steht es unter der [AGPL-3.0](https://www.espocrm.com/blog/espocrm-license/) und läuft auf dem eigenen Server oder in der EspoCRM Cloud. Customermates ist ein jüngeres Open-Source-CRM mit AGPL-Kern, einem einheitlichen Posteingang für E-Mail und Chat-Kanäle und einem eingebauten MCP-Server für KI-Clients. Beide sind ernsthafte Optionen; sie passen zu unterschiedlichen Teams.
 
-## Warum Teams eine EspoCRM Alternative suchen
+## Warum Teams eine EspoCRM-Alternative suchen
 
 EspoCRM ist flexibel und ausgereift. Teams, die sich umsehen, nennen meist einen dieser Gründe:
 
@@ -116,9 +116,9 @@ EspoCRM ist flexibel und ausgereift. Teams, die sich umsehen, nennen meist einen
 | Frage                            | Customermates                                          | EspoCRM                                                   |
 | -------------------------------- | ------------------------------------------------------ | --------------------------------------------------------- |
 | Lizenz                           | AGPL-3.0-Kern; `ee/` unter separater Lizenz            | AGPL-3.0                                                  |
-| Datenmodell                      | Kontakte, Organisationen, Deals, Services, Aufgaben plus benutzerdefinierte Felder | Standard-Entitäten plus eigene Entitätstypen |
+| Datenmodell                      | Kontakte, Organisationen, Deals, Services, Aufgaben plus eigene Felder | Standard-Entitäten plus eigene Entitätstypen |
 | Self-Hosting                     | Docker Compose mit PostgreSQL 16                       | Installer oder Docker; MySQL, MariaDB oder PostgreSQL     |
-| Cloud-Einstiegspreis             | [[commercial.price.starter.monthly]] pro User / Monat, monatlich abgerechnet | 12,90 € pro User / Monat, mindestens 3 User, 6 oder 12 Monate |
+| Cloud-Einstiegspreis             | [[commercial.price.starter.monthly]] pro Nutzer / Monat, monatlich abgerechnet | 12,90 € pro Nutzer / Monat, mindestens 3 Nutzer, 6 oder 12 Monate |
 | E-Mail                           | Gmail, Outlook, IMAP im einheitlichen Posteingang (ab Pro) | IMAP/SMTP enthalten; Gmail und Outlook über Erweiterungen |
 | Chat-Kanäle                      | LinkedIn, WhatsApp, Instagram, Telegram (ab Pro)       | Nicht enthalten                                           |
 | Kampagnen und Massen-E-Mails     | Nicht enthalten                                        | Enthalten                                                 |
@@ -129,26 +129,26 @@ Die EspoCRM-Preise stammen von den Seiten [EspoCRM Cloud](https://www.espocrm.co
 
 ## Wann EspoCRM besser passt
 
-- **Sie brauchen eigene Entitätstypen.** Mit dem Entity Manager von EspoCRM legen Sie neue Datensatztypen an; Customermates hat fünf feste Datensatzarten, die Sie mit benutzerdefinierten Feldern erweitern.
-- **Sie versenden Kampagnen aus dem CRM.** EspoCRM enthält Massen-E-Mails und Kampagnen. Nachrichten in Customermates sind bewusst individuell und entwurfsbasiert.
+- **Sie brauchen eigene Entitätstypen.** Mit dem Entity Manager von EspoCRM legen Sie neue Datensatztypen an; Customermates hat fünf feste Datensatzarten, die Sie mit eigenen Feldern erweitern.
+- **Sie versenden Kampagnen aus dem CRM.** EspoCRM enthält Massen-E-Mails und Kampagnen. Nachrichten in Customermates werden bewusst einzeln verfasst, auf Wunsch zunächst als Entwurf.
 - **Sie wollen umfassendes BPM.** Das Advanced Pack bringt Geschäftsprozessmanagement, das Customermates nicht abbildet.
 - **Ihr Team betreibt PHP-Anwendungen** und möchte das CRM auf demselben Stack.
 
 ## Wann Customermates besser passt
 
-- **Gespräche über alle Kanäle.** In Customermates Cloud ab Pro landen E-Mail (Gmail, Outlook, IMAP), LinkedIn, WhatsApp, Instagram und Telegram in einem [einheitlichen Posteingang](/features/unified-inbox), verknüpft mit Kontakten und Deals.
+- **Gespräche über alle Kanäle.** In Customermates Cloud ab Pro landen E-Mail (Gmail, Outlook, IMAP), LinkedIn, WhatsApp, Instagram und Telegram in einem [einheitlichen Posteingang](/features/unified-inbox), verknüpft mit den passenden Kontakten.
 - **KI-Clients, die das CRM bedienen.** Claude, ChatGPT, Cursor und andere MCP-Clients verbinden sich in jedem Tarif und jeder Installation mit dem [eingebauten MCP-Server](/docs/mcp), mit den Rechten des verbundenen Nutzers. In Customermates Cloud arbeitet der Mate-Assistent direkt in der App und fragt vor destruktiven Aktionen und dem Senden jedes Mal neu nach Ihrer Freigabe.
 - **Keine Erweiterungslizenzen.** Die [selbst gehostete Edition](/features/self-hosted) ist der Open-Source-Kern mit dem Starter-Funktionsumfang; pro Instanz ist nichts zusätzlich zu lizenzieren. Posteingang und Mate gibt es nur in der Cloud.
-- **Monatliche Abrechnung** ab [[commercial.price.starter.monthly]] pro User, ohne Mindestanzahl an Nutzern.
+- **Monatliche Abrechnung** ab [[commercial.price.starter.monthly]] pro Nutzer, ohne Mindestanzahl an Nutzern.
 
 ## Self-Hosting im Vergleich
 
-Beide Produkte laufen auf Ihrer Infrastruktur. EspoCRM bietet einen Installer und ein Docker-Image und unterstützt MySQL, MariaDB oder PostgreSQL. Customermates liefert eine Docker-Compose-Datei mit zwei Diensten, der Anwendung und PostgreSQL 16. In beiden Fällen verantwortet Ihr Team Updates, Backups, TLS und Monitoring. Der Unterschied liegt im Umfang der selbst gehosteten Edition: der EspoCRM-Kern plus lizenzierte Erweiterungen oder der Customermates-Kern mit REST, Webhooks und MCP. Der [Leitfaden zu Open-Source-CRM](/blog/open-source-crm) enthält eine Checkliste, die bei der Lizenz beginnt.
+Beide Produkte laufen auf Ihrer Infrastruktur. EspoCRM bietet einen Installer und ein Docker-Image und unterstützt MySQL, MariaDB oder PostgreSQL. Customermates liefert eine Docker-Compose-Datei mit zwei Diensten: der Anwendung und PostgreSQL 16. In beiden Fällen verantwortet Ihr Team Updates, Backups, TLS und Monitoring. Der Unterschied liegt im Umfang der selbst gehosteten Edition: der EspoCRM-Kern plus lizenzierte Erweiterungen oder der Customermates-Kern mit REST, Webhooks und MCP. Der [Leitfaden zu Open-Source-CRM](/blog/open-source-crm) enthält eine Checkliste, die bei der Lizenz beginnt.
 
 ## Umstieg von EspoCRM
 
 1. **Exportieren** Sie Accounts, Kontakte und Opportunities aus EspoCRM in Tabellen.
-2. **Ordnen** Sie EspoCRM-Felder den Customermates-Organisationen, -Kontakten und -Deals zu und legen Sie für den Rest benutzerdefinierte Felder an.
+2. **Ordnen** Sie EspoCRM-Felder den Customermates-Organisationen, -Kontakten und -Deals zu und legen Sie für den Rest eigene Felder an.
 3. **Importieren** Sie jede Datensatzart als XLSX-Arbeitsmappe, zuerst die Organisationen, oder übertragen Sie Daten über die REST-API.
 4. **Bilden** Sie Ihre Phasen als Optionen der Deal-Phase nach und vergeben Sie Wahrscheinlichkeiten.
 5. **Verbinden** Sie ab Pro Ihre Postfächer und Chat-Kanäle und verknüpfen Sie Gespräche mit Kontakten.
@@ -169,14 +169,14 @@ Mit Stand 27. September 2026 haben wir keinen offiziellen MCP-Server von EspoCRM
 </FaqItem>
 
 <FaqItem question="Was ist günstiger, EspoCRM oder Customermates?">
-Das hängt vom Aufbau ab. Selbst gehostet kosten beide Kernprodukte keine Lizenzgebühr, doch EspoCRM-Erweiterungen wie das Advanced Pack sind Jahreslizenzen. In der Cloud nennt EspoCRM für Basic 12,90 € pro User und Monat bei mindestens drei Usern und 6 oder 12 Monaten Laufzeit; Customermates beginnt bei [[commercial.price.starter.monthly]] pro User und Monat, monatlich abgerechnet.
+Das hängt vom Aufbau ab. Selbst gehostet kosten beide Kernprodukte keine Lizenzgebühr, doch EspoCRM-Erweiterungen wie das Advanced Pack sind Jahreslizenzen. In der Cloud nennt EspoCRM für Basic 12,90 € pro Nutzer und Monat bei mindestens drei Nutzern und 6 oder 12 Monaten Laufzeit; Customermates beginnt bei [[commercial.price.starter.monthly]] pro Nutzer und Monat, monatlich abgerechnet.
 </FaqItem>
 
 <FaqItem question="Kann Customermates E-Mail-Kampagnen versenden wie EspoCRM?">
-Nein. Nachrichten in Customermates sind individuell und entwurfsbasiert. Nutzen Sie für Kampagnen einen spezialisierten E-Mail-Anbieter und verbinden Sie ihn über Webhooks mit CRM-Ereignissen.
+Nein. Nachrichten in Customermates werden einzeln verfasst, auf Wunsch zunächst als Entwurf. Nutzen Sie für Kampagnen einen spezialisierten E-Mail-Anbieter und verbinden Sie ihn über Webhooks mit CRM-Ereignissen.
 </FaqItem>
 </Faq>
 
 ## Fazit
 
-EspoCRM ist eine starke Wahl, wenn Sie eigene Entitätstypen, Kampagnen und BPM auf einem PHP-Stack brauchen. Customermates passt zu Teams, die Kundengespräche über E-Mail und Chat-Kanäle neben ihren Deals sehen wollen, deren KI-Clients das CRM über MCP bedienen sollen und die monatlich ohne Erweiterungslizenzen abrechnen möchten. Wie Customermates im Vergleich zu einem weiteren modernen Open-Source-CRM abschneidet, zeigt die Seite [Twenty Alternative](/compare/twenty-alternative); oder [starten Sie jetzt kostenlos](/auth/signup).
+EspoCRM ist eine starke Wahl, wenn Sie eigene Entitätstypen, Kampagnen und BPM auf einem PHP-Stack brauchen. Customermates passt zu Teams, die Kundengespräche über E-Mail und Chat-Kanäle neben ihren Deals sehen wollen, deren KI-Clients das CRM über MCP bedienen sollen und die monatlich ohne Erweiterungslizenzen abrechnen möchten. Wie Customermates im Vergleich zu einem weiteren modernen Open-Source-CRM abschneidet, zeigt die Seite [Twenty-CRM-Alternative](/compare/twenty-alternative); oder [starten Sie jetzt kostenlos](/auth/signup).

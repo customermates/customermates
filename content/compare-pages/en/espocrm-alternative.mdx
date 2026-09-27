@@ -130,26 +130,26 @@ EspoCRM prices are from the [EspoCRM Cloud](https://www.espocrm.com/cloud/) and 
 ## Where EspoCRM is the better fit
 
 - **You need custom entity types.** EspoCRM's entity manager lets you add new record types; Customermates has a fixed set of five record families extended with custom fields.
-- **You send campaigns from the CRM.** EspoCRM includes mass email and campaigns. Customermates messaging is individual and draft-first by design.
+- **You send campaigns from the CRM.** EspoCRM includes mass email and campaigns. Customermates messaging is one-to-one by design; there are no bulk sends.
 - **You want deep BPM.** The Advanced Pack brings business process management that Customermates does not attempt.
 - **Your team runs PHP applications** and wants the CRM on the same stack.
 
 ## Where Customermates is the better fit
 
-- **Conversations across channels.** On Customermates Cloud from Pro, email (Gmail, Outlook, IMAP), LinkedIn, WhatsApp, Instagram and Telegram arrive in one [unified inbox](/features/unified-inbox), linked to contacts and deals.
+- **Conversations across channels.** On Customermates Cloud from Pro, email (Gmail, Outlook, IMAP), LinkedIn, WhatsApp, Instagram and Telegram arrive in one [unified inbox](/features/unified-inbox), linked to contacts.
 - **AI clients that operate the CRM.** Claude, ChatGPT, Cursor and other MCP clients connect to the [built-in MCP server](/docs/mcp) on every plan and every installation, with the permissions of the connected user. On Customermates Cloud, the Mate assistant works in the app and asks for a fresh approval before destructive actions and sends.
 - **No extension licences.** The [self-hosted edition](/features/self-hosted) is the open-source core with the Starter feature set; there is nothing extra to license per instance. The inbox and Mate are cloud-only.
 - **Monthly billing** from [[commercial.price.starter.monthly]] per user, without a minimum user count.
 
 ## Self-hosting compared
 
-Both products can run on your infrastructure. EspoCRM publishes an installer and a Docker image and supports MySQL, MariaDB or PostgreSQL. Customermates ships a Docker Compose file with two services, the application and PostgreSQL 16. In both cases your team owns updates, backups, TLS and monitoring. The difference is what the self-hosted edition includes: EspoCRM's core plus any extensions you license, or the Customermates core with REST, webhooks and MCP. See the [open-source CRM guide](/blog/open-source-crm) for a licence-first checklist.
+Both products can run on your infrastructure. EspoCRM publishes an installer and a Docker image and supports MySQL, MariaDB or PostgreSQL. Customermates ships a Docker Compose file with two services: the application and PostgreSQL 16. In both cases your team owns updates, backups, TLS and monitoring. The difference is what the self-hosted edition includes: EspoCRM's core plus any extensions you license, or the Customermates core with REST, webhooks and MCP. See the [open-source CRM guide](/blog/open-source-crm) for a licence-first checklist.
 
 ## Migrating from EspoCRM
 
 1. **Export** accounts, contacts and opportunities from EspoCRM to spreadsheets.
 2. **Map** EspoCRM fields to Customermates organizations, contacts and deals, and create custom fields for the rest.
-3. **Import** each record type as an XLSX workbook, organizations first, or move data through the REST API.
+3. **Import** each record type as an XLSX workbook (organizations first, then contacts, then deals), or move data through the REST API.
 4. **Rebuild** stages as the deal-stage options and assign probabilities.
 5. **Connect** your mailboxes and chat channels on Pro and link conversations to contacts.
 
@@ -173,7 +173,7 @@ It depends on the setup. Self-hosted, both core products have no licence fee, bu
 </FaqItem>
 
 <FaqItem question="Can Customermates send email campaigns like EspoCRM?">
-No. Customermates messaging is individual and draft-first. Use a dedicated email provider for campaigns and connect it to CRM events through webhooks.
+No. Customermates messaging is one-to-one, with no bulk sends. Use a dedicated email provider for campaigns and connect it to CRM events through webhooks.
 </FaqItem>
 </Faq>
 

@@ -28,20 +28,20 @@ comparison:
     features:
     - name: Starting price
       source: From [[commercial.price.starter.monthly]] / month / user
-      competitor: $14/mo
-      competitor2: $25/mo
+      competitor: Free (up to 3 users); paid per Zoho's pricing page
+      competitor2: $0 Free Suite; $25/mo Starter Suite (as of September 2026)
     - name: Mid-tier price
       source: "[[commercial.price.pro.monthly]] / month / user (Pro)"
-      competitor: $23/mo (Professional)
-      competitor2: $100/mo (Pro Suite)
+      competitor: Professional (per Zoho's pricing page)
+      competitor2: $100/mo (Pro Suite, billed annually, as of September 2026)
     - name: Enterprise price
       source: "[[commercial.price.business.monthly]] / month / user (Business)"
-      competitor: $40/mo
-      competitor2: $195/mo (Core)
+      competitor: Enterprise / Ultimate (per Zoho's pricing page)
+      competitor2: $195/mo (Core, billed annually, as of September 2026)
     - name: Free plan
       source: "[[commercial.trial.days]]-day trial + free self-host"
       competitor: free for 3 users
-      competitor2: 30-day trial only
+      competitor2: Free Suite; 30-day trial without card
     - name: Implementation cost
       source: Self-service
       competitor: Usually self-service
@@ -49,11 +49,11 @@ comparison:
     - name: Credit card required
       source: false
       competitor: 'no'
-      competitor2: 'yes'
+      competitor2: 'no'
     - name: No core-feature gating
       source: true
-      competitor: no, features gated by tier
-      competitor2: no, features gated by tier
+      competitor: no (features gated by tier)
+      competitor2: no (features gated by tier)
   - title: Setup & Onboarding
     features:
     - name: Time to first deal
@@ -92,8 +92,8 @@ comparison:
       competitor2: 'yes'
     - name: AI agents operate the CRM (native MCP)
       source: "[[derived.mcp.tools.total]] tools (from Starter)"
-      competitor: Zia on Enterprise ($40/mo)
-      competitor2: Agentforce (higher editions or add-on)
+      competitor: Zoho CRM MCP servers; Zia (Enterprise)
+      competitor2: Hosted MCP servers (Enterprise+); Agentforce add-on
     - name: Native unified inbox (email, LinkedIn, WhatsApp, Instagram, Telegram)
       source: Pro+ ([[commercial.price.pro.monthly]])
       competitor: email + limited social
@@ -140,7 +140,7 @@ comparison:
       competitor2: 'yes'
     - name: Marketplace integrations
       source: REST, webhooks, MCP, n8n node
-      competitor: 50+ own products
+      competitor: 55+ own products
       competitor2: 5,000+ AppExchange
 cta:
   action: Ready to get started?
@@ -156,11 +156,11 @@ cta:
 
 ## Why teams consider Zoho CRM over Salesforce
 
-The primary reason teams evaluate Zoho CRM as a Salesforce alternative is cost. Zoho CRM Enterprise costs $40 per user per month. Salesforce Core, the closest current Sales Cloud edition, costs $195. That is almost a 5x difference before you factor in Salesforce consulting, implementation, and add-on fees.
+The primary reason teams evaluate Zoho CRM as a Salesforce alternative is cost. Salesforce Core, the closest current Sales Cloud edition, costs $195 per user per month billed annually, before you factor in Salesforce consulting, implementation, and add-on fees. Zoho's paid editions are listed on Zoho's pricing page, so compare the edition you need there.
 
-Zoho CRM also offers a free tier for up to 3 users, making it accessible for solo founders and micro-teams. Salesforce offers only a 30-day trial.
+Zoho CRM also offers a free edition for up to 3 users, making it accessible for solo founders and micro-teams. Salesforce offers a Free Suite at $0 and a 30-day free trial that needs no credit card.
 
-For teams that need CRM basics, contacts, deals, pipelines, email, without enterprise-grade complexity, Zoho is the more accessible option. But it comes with trade-offs.
+For teams that need CRM basics (contacts, deals, pipelines, email) without enterprise-grade complexity, Zoho is the more accessible option. But it comes with trade-offs.
 
 ## Is Zoho CRM better than Salesforce?
 
@@ -168,36 +168,36 @@ Neither platform is categorically better. Zoho CRM is better for teams that need
 
 ## Pricing comparison: Zoho CRM vs Salesforce vs Customermates
 
-**Zoho CRM pricing (per user/month, billed annually):**
+**Zoho CRM pricing:** a free edition for up to 3 users; paid editions per [Zoho's pricing page](https://www.zoho.com/crm/zohocrm-pricing.html):
 
-- Free: $0 for up to 3 users
-- Standard: $14, scoring rules, limited workflows
-- Professional: $23, process management, validation rules
-- Enterprise: $40, Zia AI, custom modules, multi-user portals
-- Ultimate: $52, advanced BI, enhanced storage
+- Free: up to 3 users
+- Standard: scoring rules, limited workflows
+- Professional: process management, validation rules
+- Enterprise: Zia AI, custom modules, multi-user portals
+- Ultimate: advanced BI, enhanced storage
 
 **Salesforce Sales Cloud pricing (per user/month):**
 
 - Free Suite: $0
-- Starter Suite: $25, monthly or annual billing
+- Starter Suite: $25
 - Pro Suite: $100
 - Core: $195
 - Advanced: $395
 - Max: $550
 
-Prices from [salesforce.com](https://www.salesforce.com/sales/pricing/) as of September 2026; Pro Suite and above are billed annually.
+Prices from [salesforce.com](https://www.salesforce.com/sales/pricing/) as of September 2026; Starter Suite billed monthly or annually, Pro Suite and above billed annually.
 
 **Customermates pricing:**
 
 - Starter ([[commercial.price.starter.monthly]]/user/month): every core CRM feature. Pro ([[commercial.price.pro.monthly]]) and Business ([[commercial.price.business.monthly]]) add the unified inbox and a larger hosted AI allowance. Billing is monthly.
 
-Zoho is significantly cheaper than Salesforce at every tier. But Customermates Starter is cheaper than both, and includes core features such as audit logs and API access that the others gate by tier.
+Customermates Starter includes core features such as audit logs and API access that the others gate by tier.
 
 ## Where Zoho CRM beats Salesforce
 
 ### Value for money at the entry level
 
-Zoho's free plan and $14 Standard tier give small teams immediate access to CRM without a major financial commitment. Salesforce starts at $25 and quickly climbs to $100 or $195 for meaningful functionality.
+Zoho's free edition for up to 3 users and its entry paid editions give small teams immediate access to CRM without a major financial commitment. Salesforce has a Free Suite and a $25 Starter Suite, but climbs to $100 or $195 for meaningful functionality.
 
 ### Ecosystem breadth
 
@@ -205,7 +205,7 @@ Zoho offers 55+ integrated business products: email, project management, invoici
 
 ### Lower implementation overhead
 
-Zoho CRM does not typically require certified consultants or months-long implementations. Most teams can self-configure within hours to days, compared to weeks or months for Salesforce. Zoho's interface is described as "easy, handy and simple to navigate", a marked contrast to Salesforce's complexity.
+Zoho CRM does not typically require certified consultants or months-long implementations. Most teams can self-configure within hours to days, compared to weeks or months for Salesforce. Zoho's interface is described as "easy, handy and simple to navigate": a marked contrast to Salesforce's complexity.
 
 ## Where Salesforce beats Zoho CRM
 
@@ -223,26 +223,26 @@ With 5,000+ apps on AppExchange, Salesforce has the largest CRM integration mark
 
 ### AI capabilities at scale
 
-Salesforce Einstein offers well-integrated generative AI capabilities with predictive lead scoring, opportunity insights, and automated activity capture. While Zoho's Zia AI assistant is cheaper, Salesforce's AI is more deeply embedded across the platform.
+Salesforce Einstein offers well-integrated generative AI capabilities with predictive lead scoring, opportunity insights, and automated activity capture. Zoho's Zia AI assistant covers the common scenarios, but Salesforce's AI is more deeply embedded across the platform.
 
 ## What are the disadvantages of Zoho?
 
 The most commonly cited disadvantages of Zoho include:
 
 - **Ecosystem overwhelm:** 55+ products create decision fatigue and management overhead
-- **Tier-gated features:** Zia AI, custom modules, and advanced analytics require the $40 Enterprise plan
+- **Tier-gated features:** Zia AI, custom modules, and advanced analytics require the Enterprise edition
 - **Quota-limited workflows:** Workflow rules are capped by module and plan tier
 - **Learning curve:** Despite being simpler than Salesforce, Zoho's breadth creates its own complexity
 - **Scalability concerns:** Even at the Enterprise level, Zoho may not scale for large organizations with thousands of users
 - **Vendor lock-in:** Adopting multiple Zoho products creates dependency that is difficult to unwind
 
-## Where both fall short: and Customermates fills the gap
+## Where both fall short and Customermates fills the gap
 
 ### Tier-gating
 
-Both Zoho and Salesforce lock essential features behind higher tiers. Zoho gates Zia AI, custom modules, and advanced analytics behind Enterprise ($40/mo). Salesforce gates advanced automation, AI, and customization behind its higher editions ($195/mo and up).
+Both Zoho and Salesforce lock essential features behind higher tiers. Zoho gates Zia AI, custom modules, and advanced analytics behind Enterprise. Salesforce gates advanced automation, AI, and customization behind its higher editions ($195/mo and up).
 
-Customermates includes every core feature starting at [[commercial.price.starter.monthly]] per user per month. AI agents that operate the CRM (native MCP), webhooks and REST, custom fields, pipelines, and reporting, all from day one.
+Customermates includes every core feature starting at [[commercial.price.starter.monthly]] per user per month: AI agents that operate the CRM (native MCP), webhooks and REST, custom fields, pipelines, and reporting, all from day one.
 
 ### Data residency and GDPR
 
@@ -258,7 +258,7 @@ Customermates is purpose-built for CRM workflows. The cloud is ready after sign-
 
 ## Why is Salesforce falling?
 
-Salesforce is not falling in absolute terms, it remains the market leader with the largest CRM market share. However, its growth rate has slowed as smaller, more agile competitors offer comparable core CRM functionality at a fraction of the cost. The main reasons teams leave Salesforce include total cost of ownership (licenses + consultants + administration), implementation complexity, and the rise of focused alternatives that cover what many teams need without the enterprise overhead.
+Salesforce is not falling in absolute terms: it remains the market leader with the largest CRM market share. However, its growth rate has slowed as smaller, more agile competitors offer comparable core CRM functionality at a fraction of the cost. The main reasons teams leave Salesforce include total cost of ownership (licenses + consultants + administration), implementation complexity, and the rise of focused alternatives that cover what many teams need without the enterprise overhead.
 
 ## Who should choose Zoho CRM?
 
@@ -266,7 +266,7 @@ Zoho CRM makes sense for organizations already invested in the Zoho ecosystem th
 
 ## Who should choose Customermates?
 
-Customermates is the right fit for teams that want core CRM features, pipeline management, contacts, webhooks and API access, and AI agents that operate the CRM (native MCP), without ecosystem lock-in, core-feature tier escalation, or implementation overhead. From [[commercial.price.starter.monthly]] per user per month, it is open-source and self-hostable, with a cloud database in Frankfurt, and email, LinkedIn, WhatsApp, Instagram, and Telegram unified in the Pro tier. For teams that want a focused CRM at a fraction of the cost, it is the modern alternative.
+Customermates is the right fit for teams that want core CRM features (pipeline management, contacts, webhooks and API access, and AI agents that operate the CRM through native MCP) without ecosystem lock-in, core-feature tier escalation, or implementation overhead. From [[commercial.price.starter.monthly]] per user per month, it is open-source and self-hostable, with a cloud database in Frankfurt, and from the Pro tier it unifies email, LinkedIn, WhatsApp, Instagram, and Telegram in one inbox. For teams that want a focused CRM at a fraction of the cost, it is the modern alternative.
 
 ## Frequently asked questions
 
@@ -276,7 +276,9 @@ For basic to mid-level CRM needs, yes. Zoho CRM covers contacts, deals, pipeline
 </FaqItem>
 
 <FaqItem question="How much can I save switching from Salesforce to Customermates?">
-A 10-person team on Salesforce Pro Suite costs $1,000 per month, or $1,950 on Core. The current annual Customermates Starter total for the same team is [[commercial.price.starter.monthly.seats.10.months.12]]. Compare that with Salesforce's current 12-month total to calculate the saving.
+A 10-person team on Salesforce Pro Suite costs $1,000 per month, or $1,950 on Core, billed annually (as of September 2026).
+
+The current 12-month Customermates Starter total for the same team is [[commercial.price.starter.monthly.seats.10.months.12]]. Compare that with Salesforce's current 12-month total to calculate the saving.
 </FaqItem>
 
 <FaqItem question="Does Zoho CRM have better GDPR support than Salesforce?">
@@ -288,7 +290,7 @@ Yes. Customermates imports XLSX workbooks, one record type at a time, and also a
 </FaqItem>
 
 <FaqItem question="Is Customermates open-source?">
-Yes. Customermates is fully open-source. You can inspect the code, self-host, and customize to your requirements.
+Yes. The core is licensed under AGPL-3.0; code in the `ee/` directory is under a commercial license. You can inspect the code, self-host the open-source core, and customize it to your requirements.
 </FaqItem>
 
 <FaqItem question="Is Salesforce overkill for small teams?">
@@ -296,7 +298,7 @@ For most teams under 50 users, yes. Salesforce's power is designed for enterpris
 </FaqItem>
 
 <FaqItem question="What about Salesforce's AI capabilities?">
-Salesforce Einstein and Agentforce are powerful, but the fuller AI capabilities sit in the higher editions (Advanced at $395 and Max at $550 per user per month) or add-ons. Customermates connects Claude, ChatGPT, and Gemini to the CRM through a native MCP integration ([[derived.mcp.tools.total]] tools) at every tier, starting at [[commercial.price.starter.monthly]], so those external clients operate the CRM directly. For teams that need AI-driven CRM without enterprise budgets, Customermates is the accessible option.
+Salesforce Einstein and Agentforce are powerful, but the fuller AI capabilities sit in the higher editions (Advanced at $395 and Max at $550 per user per month, billed annually, as of September 2026) or add-ons. External AI clients connect through Salesforce Hosted MCP Servers, announced as generally available on 29 April 2026 for Enterprise Edition orgs and above (some servers still in beta). Customermates connects Claude, ChatGPT, and Gemini to the CRM through a native MCP integration ([[derived.mcp.tools.total]] tools) at every tier, starting at [[commercial.price.starter.monthly]], so those external clients operate the CRM directly. For teams that need AI-driven CRM without enterprise budgets, Customermates is the accessible option.
 </FaqItem>
 
 <FaqItem question="Is Customermates secure enough for enterprise use?">

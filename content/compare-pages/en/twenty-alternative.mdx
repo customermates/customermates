@@ -131,19 +131,19 @@ Twenty facts are from its [pricing page](https://twenty.com/pricing), [licence](
 ## Where Customermates is the better fit
 
 - **Customers write on more than email.** On Customermates Cloud from Pro, the [unified inbox](/features/unified-inbox) brings WhatsApp, LinkedIn (including Sales Navigator and Recruiter), Instagram and Telegram into the CRM next to Gmail, Outlook and IMAP, and AI clients can read, draft and send across all of them.
-- **A typed tool catalog for AI clients.** The [Customermates MCP server](/docs/mcp) exposes [[derived.mcp.tools.total]] named tools for records, messaging, custom fields, dashboards and webhooks, so a client sees exactly what it can do. See the [agentic CRM guide](/blog/agentic-crm) for how confirmation works.
+- **A typed tool catalog for AI clients.** The [Customermates MCP server](/docs/mcp) exposes [[derived.mcp.tools.total]] named tools for records, messaging, custom fields, dashboards and webhooks, so a client sees exactly what it can do. The server instructions ask clients to confirm before deletes and sends, but only the client enforces that; the [agentic CRM guide](/blog/agentic-crm) explains the difference.
 - **A hosted assistant with enforced approvals.** On Customermates Cloud, the Mate assistant requires a fresh approval for each destructive action and each send, and routines let it run saved instructions on a schedule or when a record changes.
 - **Monthly billing** from [[commercial.price.starter.monthly]] per user, with the managed cloud database in the AWS Frankfurt region and [subprocessors](/subprocessors) disclosed.
 
 ## Self-hosting compared
 
-Both products publish a Docker Compose setup. Customermates runs as two services, the application and PostgreSQL 16, and the self-hosted edition includes the core CRM with REST, webhooks and MCP under the Starter feature set; the inbox and Mate stay cloud-only. Twenty's self-hosted edition is free, and its pricing page notes that self-hosters can upgrade to Organization features. Read both licence files before you modify or offer either product to others; the [open-source CRM guide](/blog/open-source-crm) explains what to check, and the [self-hosted CRM](/features/self-hosted) page lists the Customermates boundary in detail.
+Both products publish a Docker Compose setup. Customermates runs as two services (the application and PostgreSQL 16), and the self-hosted edition includes the core CRM with REST, webhooks and MCP under the Starter feature set; the inbox and Mate stay cloud-only. Twenty's self-hosted edition is free, and its pricing page notes that self-hosters can upgrade to Organization features. Read both licence files before you modify or offer either product to others; the [open-source CRM guide](/blog/open-source-crm) explains what to check, and the [self-hosted CRM](/features/self-hosted) page lists the Customermates boundary in detail.
 
 ## Migrating from Twenty
 
 1. **Export** companies, people and opportunities from Twenty.
 2. **Map** them to Customermates organizations, contacts and deals; create custom fields for your own properties. Custom objects without an equivalent need a decision: a custom field, a service or a separate system.
-3. **Import** each record type as an XLSX workbook, organizations first, or use the REST API.
+3. **Import** each record type as an XLSX workbook (organizations first, then contacts, then deals), or use the REST API.
 4. **Rebuild** your stages as deal-stage options with probabilities.
 5. **Connect** email and chat channels on Pro, then point your AI client at the MCP endpoint.
 
