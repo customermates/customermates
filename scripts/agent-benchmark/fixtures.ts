@@ -22,6 +22,7 @@ import {
 } from "./complex-cases";
 import { SCALE_CASES, isScaleCaseId, scoreScaleCase, seedScaleCase, type ScaleCaseId } from "./scale-cases";
 import { DOCS_CASES, isDocsCaseId, scoreDocsCase, type DocsCaseId } from "./docs-cases";
+import { HELDOUT_CASES, isHeldoutCaseId, scoreHeldoutCase, type HeldoutCaseId } from "./heldout-cases";
 import { isOutboundOrSupportAction } from "./tool-safety";
 
 export const FIXTURE_VERSION = "chat-benchmark-fixture-v7";
@@ -75,7 +76,8 @@ export type CaseId =
   | "R53"
   | ComplexCaseId
   | ScaleCaseId
-  | DocsCaseId;
+  | DocsCaseId
+  | HeldoutCaseId;
 export type BenchmarkDb = { prisma: PrismaClient; appOrigin: string };
 type Entity = "contact" | "organization" | "deal" | "service" | "task";
 type JsonObject = Prisma.InputJsonObject;
@@ -159,6 +161,8 @@ export type BenchmarkCase = { id: CaseId; title: string; actor: "driver" | "read
   judgeable?: boolean;
   mergeRequired?: boolean;
   judgeFacts?: readonly string[];
+  /** Fair-retest held-out case: excluded from the merge check and from default case selection. */
+  heldout?: boolean;
 };
 
 function benchmarkMessage(template: string, values: Record<string, string> = {}) {
@@ -481,6 +485,7 @@ export const BENCHMARK_CASES: readonly BenchmarkCase[] = [
   ...COMPLEX_CASES,
   ...SCALE_CASES,
   ...DOCS_CASES,
+  ...HELDOUT_CASES,
 ] as const;
 
 export type Fixture = {
@@ -2244,6 +2249,8 @@ export async function scoreBenchmarkCase(db: BenchmarkDb, fixture: Fixture, obse
     });
   }
   if (isDocsCaseId(fixture.caseId)) scoreDocsCase(fixture.caseId, { text, unchanged, noMutatingTools, check });
+  if (isHeldoutCaseId(fixture.caseId))
+    scoreHeldoutCase(fixture.caseId, { turnTools: observed.turns.map((turn) => turn.tools), unchanged, noMutatingTools, check });
   if (isScaleCaseId(fixture.caseId))
     scoreScaleCase(fixture.caseId, {
       text,

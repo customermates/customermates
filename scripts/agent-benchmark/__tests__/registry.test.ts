@@ -7,9 +7,13 @@ import { benchmarkCaseModelSelection } from "../episode";
 import { BENCHMARK_CASES } from "../fixtures";
 
 describe("unified benchmark registry", () => {
-  it("contains the complete 72-case, 79-turn suite without duplicate ids", () => {
-    expect(BENCHMARK_CASES).toHaveLength(72);
-    expect(BENCHMARK_CASES.reduce((total, definition) => total + definition.prompts.length, 0)).toBe(79);
+  it("contains the complete 72-case, 79-turn suite plus 90 held-out cases without duplicate ids", () => {
+    const suite = BENCHMARK_CASES.filter((definition) => definition.heldout !== true);
+    const heldout = BENCHMARK_CASES.filter((definition) => definition.heldout === true);
+    expect(suite).toHaveLength(72);
+    expect(suite.reduce((total, definition) => total + definition.prompts.length, 0)).toBe(79);
+    expect(heldout).toHaveLength(90);
+    expect(heldout.reduce((total, definition) => total + definition.prompts.length, 0)).toBe(110);
     expect(new Set(BENCHMARK_CASES.map((definition) => definition.id)).size).toBe(BENCHMARK_CASES.length);
   });
 
