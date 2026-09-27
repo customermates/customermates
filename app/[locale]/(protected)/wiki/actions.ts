@@ -17,14 +17,8 @@ import {
   getUpdateWikiPageInteractor,
 } from "@/core/di";
 import { serializeResult } from "@/core/utils/action-result";
-import { CustomErrorCode } from "@/core/validation/validation.types";
+import { interactorFailureKind } from "@/core/validation/validation.utils";
 import type { AppLocale } from "@/i18n/locale-registry";
-
-function isWikiPageConcurrencyConflict(error: { issues: Array<{ code: string; params?: { error?: unknown } }> }) {
-  return error.issues.some(
-    (issue) => issue.code === "custom" && issue.params?.error === CustomErrorCode.wikiPageConflict,
-  );
-}
 
 export async function createWikiPagesAction(data: CreateWikiPagesData) {
   return serializeResult(getCreateWikiPagesInteractor().invoke(data));
@@ -34,7 +28,7 @@ export async function updateWikiPageAction(data: UpdateWikiPageData) {
   const result = await getUpdateWikiPageInteractor().invoke(data);
   return {
     ...(await serializeResult(result)),
-    conflict: !result.ok && isWikiPageConcurrencyConflict(result.error),
+    conflict: !result.ok && interactorFailureKind(result.error) === "conflict",
   };
 }
 
@@ -42,7 +36,7 @@ export async function deleteWikiPageAction(data: DeleteWikiPageData) {
   const result = await getDeleteWikiPageInteractor().invoke(data);
   return {
     ...(await serializeResult(result)),
-    conflict: !result.ok && isWikiPageConcurrencyConflict(result.error),
+    conflict: !result.ok && interactorFailureKind(result.error) === "conflict",
   };
 }
 
