@@ -1961,12 +1961,14 @@ describe("routine browse-or-mutate batch safety", () => {
   it.each(["chat", "routine"] as const)(
     "fails closed when a %s turn reads a public page outside homepage setup",
     async (surface) => {
+      let readResult: unknown;
       state.definitions = ["read_public_page", "manage_wiki_pages"].map(definition);
       state.runTools = async ({ executeAndCompleteTool }) => {
-        expect(await executeAndCompleteTool("read_public_page", read, "read-1")).toMatchObject({ ok: false });
+        readResult = await executeAndCompleteTool("read_public_page", read, "read-1");
         return finish();
       };
       await runAgentTurn({ ...payload, surface });
+      expect(readResult).toMatchObject({ ok: false });
       expect(state.readPage).not.toHaveBeenCalled();
     },
   );

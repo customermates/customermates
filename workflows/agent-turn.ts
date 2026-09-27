@@ -1217,7 +1217,7 @@ export async function runAgentTurn(payload: AgentTurnWorkflowPayload): Promise<v
                               return {
                                 ok: false,
                                 result:
-                                  "Every setup page with factual content must cite an exact URL that this task read successfully. Nothing was changed.",
+                                  "Every setup page must cite at least one exact URL that this task read successfully. Nothing was changed.",
                               };
                             }
                             executionInput = normalized.input;
