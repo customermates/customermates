@@ -4,7 +4,7 @@ import type { ReactNode } from "react";
 
 import { useEffect, useRef, useState } from "react";
 import { useTranslations } from "next-intl";
-import { CheckCircle2, ExternalLink, FileText, Loader2, RotateCcw, Sparkles, TriangleAlert } from "lucide-react";
+import { CheckCircle2, FileText, Loader2, RotateCcw, Sparkles, TriangleAlert } from "lucide-react";
 
 import { startWikiHomepageSetupAction } from "@/app/[locale]/(protected)/wiki/setup-action";
 import { Button } from "@/components/ui/button";
@@ -13,19 +13,15 @@ import { Label } from "@/components/ui/label";
 import { runUserAction } from "@/core/errors/report-application-error";
 import { toastZodErrorTree } from "@/core/utils/toast-zod-error-tree";
 import type { WikiHomepageSetupState } from "@/features/wiki/get-wiki-homepage-setup-state.interactor";
-import { wikiPagePath } from "@/features/wiki/wiki-links";
-import { IntlLink, useRouter } from "@/i18n/navigation";
+import { useRouter } from "@/i18n/navigation";
 
 type Props = {
   canStart?: boolean;
   disabled?: boolean;
   initialState?: WikiHomepageSetupState;
-  onboarding?: boolean;
-  onAccepted: (conversationId: string) => void | Promise<void>;
-  onStarted?: (state: WikiHomepageSetupState) => void;
   onContinue?: () => void | Promise<void>;
   onSkip?: () => void | Promise<void>;
-  renderConversation?: (conversationId: string) => ReactNode;
+  renderConversation: (conversationId: string) => ReactNode;
 };
 
 export const EMPTY_WIKI_HOMEPAGE_SETUP_STATE: WikiHomepageSetupState = {
@@ -50,9 +46,6 @@ export function WikiHomepageSetup({
   canStart = true,
   disabled = false,
   initialState = EMPTY_WIKI_HOMEPAGE_SETUP_STATE,
-  onboarding = false,
-  onAccepted,
-  onStarted,
   onContinue,
   onSkip,
   renderConversation,
@@ -118,10 +111,7 @@ export function WikiHomepageSetup({
       setState(workingState);
       setHomepage(canonicalHomepage);
       setRetrying(false);
-      onStarted?.(workingState);
-      const accepted = onAccepted(conversationId);
       router.refresh();
-      await accepted;
       setClientRequestId(crypto.randomUUID());
     } finally {
       submitting.current = false;
@@ -129,10 +119,6 @@ export function WikiHomepageSetup({
     }
   };
 
-  const openConversation = () => {
-    const conversationId = state.conversationId;
-    if (conversationId) runUserAction(() => onAccepted(conversationId));
-  };
   const showForm = state.status === "idle" || retrying;
   const controlsDisabled = disabled || isSubmitting;
 
@@ -140,18 +126,12 @@ export function WikiHomepageSetup({
     const completed = state.status === "completed";
     const working = state.status === "working";
     const domain = state.domain ?? state.homepage ?? "";
-    const workingBody = onboarding
-      ? state.conversationId
-        ? t("WikiSetup.status.workingBody", { domain })
-        : t("WikiSetup.status.workingBodyNoTask", { domain })
-      : state.conversationId
-        ? t("WikiSetup.status.workingBodyWiki", { domain })
-        : t("WikiSetup.status.workingBodyNoTaskWiki", { domain });
-    const completedBody = !state.homepage
-      ? t("WikiSetup.status.completedExistingBody")
-      : onboarding
-        ? t("WikiSetup.status.completedBodyOnboarding")
-        : t("WikiSetup.status.completedBody");
+    const workingBody = state.conversationId
+      ? t("WikiSetup.status.workingBody", { domain })
+      : t("WikiSetup.status.workingBodyNoTask", { domain });
+    const completedBody = state.homepage
+      ? t("WikiSetup.status.completedBodyOnboarding")
+      : t("WikiSetup.status.completedExistingBody");
     return (
       <section aria-busy={controlsDisabled} className="w-full space-y-4 text-left">
         <div aria-live="polite" className="flex items-start gap-3">
@@ -188,29 +168,19 @@ export function WikiHomepageSetup({
           </div>
         </div>
 
-        {completed && !(state.conversationId && renderConversation) ? (
+        {completed && !state.conversationId ? (
           <div className="grid gap-1.5">
-            {state.pages.map((page) =>
-              onboarding ? (
-                <div key={page.id} className="flex items-center gap-2 px-3 py-2 text-sm">
-                  <FileText className="text-muted-foreground" />
+            {state.pages.map((page) => (
+              <div key={page.id} className="flex items-center gap-2 px-3 py-2 text-sm">
+                <FileText className="text-muted-foreground" />
 
-                  <span className="truncate">{page.title}</span>
-                </div>
-              ) : (
-                <Button key={page.id} asChild className="h-auto justify-start px-3 py-2 font-normal" variant="ghost">
-                  <IntlLink href={wikiPagePath(page.id)}>
-                    <FileText className="text-muted-foreground" />
-
-                    <span className="truncate">{page.title}</span>
-                  </IntlLink>
-                </Button>
-              ),
-            )}
+                <span className="truncate">{page.title}</span>
+              </div>
+            ))}
           </div>
         ) : null}
 
-        {state.conversationId && renderConversation ? renderConversation(state.conversationId) : null}
+        {state.conversationId ? renderConversation(state.conversationId) : null}
 
         <div className="flex flex-wrap justify-end gap-2">
           {canStart && !working && !completed ? (
@@ -221,25 +191,11 @@ export function WikiHomepageSetup({
             </Button>
           ) : null}
 
-          {state.conversationId && !renderConversation ? (
-            <Button
-              data-agent-focus-return
-              disabled={controlsDisabled}
-              type="button"
-              variant="secondary"
-              onClick={openConversation}
-            >
-              <ExternalLink />
-
-              {t("WikiSetup.openTask")}
-            </Button>
-          ) : null}
-
           {onContinue ? (
             <Button disabled={controlsDisabled} type="button" onClick={() => runUserAction(onContinue)}>
               {disabled ? <Loader2 aria-hidden="true" className="animate-spin motion-reduce:animate-none" /> : null}
 
-              {working && onboarding ? t("WikiSetup.continueBackground") : t("WikiSetup.continue")}
+              {working ? t("WikiSetup.continueBackground") : t("WikiSetup.continue")}
             </Button>
           ) : null}
         </div>
@@ -262,7 +218,6 @@ export function WikiHomepageSetup({
 
         <Input
           ref={homepageInput}
-          aria-describedby={onboarding ? undefined : "wiki-homepage-help"}
           autoComplete="url"
           className="mt-1.5"
           disabled={controlsDisabled}
@@ -276,12 +231,6 @@ export function WikiHomepageSetup({
             setClientRequestId(crypto.randomUUID());
           }}
         />
-
-        {!onboarding ? (
-          <p className="mt-2 text-xs text-muted-foreground" id="wiki-homepage-help">
-            {t("WikiSetup.homepageHelp")}
-          </p>
-        ) : null}
       </div>
 
       <span aria-live="polite" className="sr-only">

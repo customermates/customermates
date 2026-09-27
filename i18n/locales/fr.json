@@ -3742,7 +3742,6 @@
       "gapsHeading": "Points à confirmer",
       "sourcesHeading": "Sources"
     },
-    "homepageHelp": "Site web HTTP(S) public. Mate lit cette page et peut suivre jusqu’à trois liens utiles sur le même site.",
     "homepageLabel": "Site web de l’entreprise",
     "homepagePlaceholder": "https://exemple.fr",
     "openTask": "Ouvrir la tâche Mate",
@@ -3752,7 +3751,6 @@
     "start": "Créer mon wiki",
     "startFailed": "Mate n’a pas pu démarrer la configuration du wiki. Réessayez.",
     "status": {
-      "completedBody": "Vos pages wiki initiales sont prêtes, avec des faits issus du site web. Vérifiez les nouvelles pages et confirmez tout ce qui est indiqué comme point à confirmer.",
       "completedBodyOnboarding": "Mate a créé vos pages initiales avec des faits issus du site web. Vous pourrez les vérifier plus tard dans le wiki et confirmer tout ce qui est indiqué comme point à confirmer.",
       "completedExistingBody": "Votre wiki contient déjà des pages. Poursuivez l’intégration ou vérifiez le contenu existant.",
       "completedTitle": "Votre wiki de départ est prêt",

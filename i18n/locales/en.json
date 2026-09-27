@@ -3742,7 +3742,6 @@
       "gapsHeading": "Gaps to confirm",
       "sourcesHeading": "Sources"
     },
-    "homepageHelp": "Public HTTP(S) website. Mate reads this page and may follow up to three useful links on the same site.",
     "homepageLabel": "Company website",
     "homepagePlaceholder": "https://example.com",
     "openTask": "Open Mate task",
@@ -3752,7 +3751,6 @@
     "start": "Build my Wiki",
     "startFailed": "Mate could not start the Wiki setup. Please try again.",
     "status": {
-      "completedBody": "Your starter pages are ready, with cited website facts. Review the new pages and confirm anything marked as a gap.",
       "completedBodyOnboarding": "Mate created your starter pages with cited website facts. You can review them later in the Wiki and confirm anything marked as a gap.",
       "completedExistingBody": "Your Wiki already contains pages. Continue onboarding or review the existing content.",
       "completedTitle": "Your starter Wiki is ready",

@@ -12,12 +12,10 @@ import { beforeEach, describe, expect, it, vi } from "vitest";
 const testContext = vi.hoisted(() => ({
   rootStore: null as RootStore | null,
   wikiProps: null as null | {
-    onAccepted: (conversationId: string) => void | Promise<void>;
     onContinue?: () => void | Promise<void>;
     onSkip?: () => void | Promise<void>;
     canStart?: boolean;
     disabled?: boolean;
-    onboarding?: boolean;
     renderConversation?: (conversationId: string) => ReactNode;
   },
   embeddedSelectConversation: vi.fn(),
@@ -92,12 +90,10 @@ vi.mock("@/components/wiki/wiki-homepage-setup", () => ({
     pages: [],
   },
   WikiHomepageSetup: (props: {
-    onAccepted: (conversationId: string) => void | Promise<void>;
     onContinue?: () => void | Promise<void>;
     onSkip?: () => void | Promise<void>;
     canStart?: boolean;
     disabled?: boolean;
-    onboarding?: boolean;
     renderConversation?: (conversationId: string) => ReactNode;
   }) => {
     testContext.wikiProps = props;
@@ -184,19 +180,6 @@ describe("OnboardingWizard", () => {
   it("starts a registered invitee after Wiki and starts an owner with pages after Wiki", () => {
     expect(renderWizard(true, true)).toContain('data-step="invite"');
     expect(renderWizard(true, false, true, true)).toContain('data-step="invite"');
-  });
-
-  it("keeps acceptance lightweight and leaves loading to the inline viewer", async () => {
-    renderWizard(true);
-    const props = testContext.wikiProps;
-    if (!props) throw new Error("Wiki setup did not render.");
-    testContext.rootStore?.onboardingWizardStore.setInitialStep(1);
-
-    await props.onAccepted("conversation-1");
-
-    expect(testContext.rootStore?.onboardingWizardStore.currentStep).toBe("wiki");
-    expect(testContext.embeddedSelectConversation).not.toHaveBeenCalled();
-    expect(props.renderConversation).toBeTypeOf("function");
   });
 
   it("renders the selected setup conversation read-only with text-only links", () => {
@@ -327,7 +310,7 @@ describe("OnboardingWizard", () => {
       pages: [],
     });
 
-    expect(testContext.wikiProps).toMatchObject({ canStart: false, onboarding: true });
+    expect(testContext.wikiProps).toMatchObject({ canStart: false });
   });
 
   it("does not mutate the shared wizard store during render", () => {

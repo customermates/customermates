@@ -1,4 +1,3 @@
-import type { ReactNode } from "react";
 import type { Root } from "react-dom/client";
 
 import { act, createElement, type ComponentProps } from "react";
@@ -26,19 +25,14 @@ vi.mock("next-intl", () => ({
   useTranslations: () => (key: string, values?: Record<string, string>) =>
     values ? `${key} ${Object.values(values).join(" ")}` : key,
 }));
-vi.mock("@/i18n/navigation", async () => {
-  const { createElement } = await import("react");
-  return {
-    IntlLink: ({ children, href }: { children: ReactNode; href: string }) => createElement("a", { href }, children),
-    useRouter: () => ({ refresh: harness.refresh }),
-  };
-});
+vi.mock("@/i18n/navigation", () => ({
+  useRouter: () => ({ refresh: harness.refresh }),
+}));
 
 import { WikiHomepageSetup } from "../wiki-homepage-setup";
 
 let container: HTMLDivElement;
 let root: Root;
-let onAccepted: ReturnType<typeof vi.fn<(conversationId: string) => void | Promise<void>>>;
 let onContinue: ReturnType<typeof vi.fn<() => void>>;
 let onSkip: ReturnType<typeof vi.fn<() => void>>;
 
@@ -71,7 +65,8 @@ function render(initialState?: WikiHomepageSetupState, props: Partial<ComponentP
     root.render(
       createElement(WikiHomepageSetup, {
         initialState,
-        onAccepted: (conversationId) => onAccepted(conversationId),
+        renderConversation: (conversationId) =>
+          createElement("div", { "data-inline-conversation": conversationId }, "Inline Mate task"),
         onContinue: () => onContinue(),
         onSkip: () => onSkip(),
         ...props,
@@ -97,7 +92,6 @@ beforeEach(() => {
   container = document.createElement("div");
   document.body.append(container);
   root = createRoot(container);
-  onAccepted = vi.fn<(conversationId: string) => void | Promise<void>>();
   onContinue = vi.fn<() => void>();
   onSkip = vi.fn<() => void>();
   render();
@@ -110,11 +104,8 @@ afterEach(() => {
 
 describe("WikiHomepageSetup", () => {
   it("keeps the onboarding decision focused on the website and two actions", () => {
-    render(undefined, { onboarding: true });
-
     expect(input().getAttribute("aria-describedby")).toBeNull();
     expect(input().parentElement?.querySelector("svg")).toBeNull();
-    expect(container.textContent).not.toContain("WikiSetup.homepageHelp");
     expect(container.querySelectorAll("button")).toHaveLength(2);
     expect(container.textContent).toContain("WikiSetup.skip");
     expect(container.textContent).toContain("WikiSetup.start");
@@ -153,50 +144,17 @@ describe("WikiHomepageSetup", () => {
       await Promise.resolve();
     });
 
-    expect(onAccepted).toHaveBeenCalledExactlyOnceWith("conversation-1");
+    expect(container.querySelector('[data-inline-conversation="conversation-1"]')).not.toBeNull();
     expect(container.textContent).toContain("WikiSetup.status.workingTitle");
     expect(container.textContent).toContain("example.com");
     expect(container.querySelector("form")).toBeNull();
     expect(harness.refresh).toHaveBeenCalledOnce();
 
-    act(() => button("WikiSetup.continue").click());
+    act(() => button("WikiSetup.continueBackground").click());
     expect(onContinue).toHaveBeenCalledOnce();
   });
 
-  it("refreshes the page as soon as setup is accepted without waiting for the task transcript", async () => {
-    let finishLoading!: () => void;
-    onAccepted.mockReturnValue(
-      new Promise<void>((resolve) => {
-        finishLoading = resolve;
-      }),
-    );
-    harness.action.mockResolvedValue({
-      ok: true,
-      data: {
-        conversationId: "conversation-1",
-        homepage: "https://example.com/",
-        domain: "example.com",
-      },
-    });
-    typeHomepage("example.com");
-
-    await act(async () => {
-      submit();
-      await Promise.resolve();
-      await Promise.resolve();
-    });
-
-    expect(onAccepted).toHaveBeenCalledExactlyOnceWith("conversation-1");
-    expect(harness.refresh).toHaveBeenCalledOnce();
-    expect(button("WikiSetup.openTask").disabled).toBe(true);
-
-    await act(async () => {
-      finishLoading();
-      await Promise.resolve();
-    });
-  });
-
-  it("restores working state after refresh and reopens the same Mate task", () => {
+  it("embeds the restored Mate task and keeps Continue below it", () => {
     render({
       status: "working",
       homepage: "https://example.com/",
@@ -205,35 +163,10 @@ describe("WikiHomepageSetup", () => {
       pages: [],
     });
 
-    expect(container.textContent).toContain("WikiSetup.status.workingTitle");
-    expect(container.textContent).toContain("WikiSetup.status.workingBodyWiki");
-    expect(container.querySelector("form")).toBeNull();
-    act(() => button("WikiSetup.openTask").click());
-    expect(onAccepted).toHaveBeenCalledExactlyOnceWith("conversation-1");
-  });
-
-  it("embeds the restored Mate task and keeps Continue below it during onboarding", () => {
-    render(
-      {
-        status: "working",
-        homepage: "https://example.com/",
-        domain: "example.com",
-        conversationId: "conversation-1",
-        pages: [],
-      },
-      {
-        onboarding: true,
-        renderConversation: (conversationId) =>
-          createElement("div", { "data-inline-conversation": conversationId }, "Inline Mate task"),
-      },
-    );
-
     const inlineConversation = container.querySelector('[data-inline-conversation="conversation-1"]');
     if (!inlineConversation) throw new Error("Inline conversation did not render.");
     expect(container.textContent).toContain("Inline Mate task");
-    expect(container.textContent).toContain("WikiSetup.status.workingBody");
-    expect(container.textContent).not.toContain("WikiSetup.status.workingBodyWiki");
-    expect(container.textContent).not.toContain("WikiSetup.openTask");
+    expect(container.textContent).toContain("WikiSetup.status.workingBody example.com");
     expect(container.textContent).toContain("WikiSetup.continueBackground");
     expect(button("WikiSetup.continueBackground").compareDocumentPosition(inlineConversation)).toBe(
       Node.DOCUMENT_POSITION_PRECEDING,
@@ -251,11 +184,7 @@ describe("WikiHomepageSetup", () => {
         conversationId: "conversation-1",
         pages: [],
       },
-      {
-        disabled: true,
-        onboarding: true,
-        renderConversation: () => createElement("div", null, "Inline Mate task"),
-      },
+      { disabled: true },
     );
 
     const status = container.querySelector("section");
@@ -263,7 +192,7 @@ describe("WikiHomepageSetup", () => {
     expect(button("WikiSetup.continueBackground").disabled).toBe(true);
     expect(button("WikiSetup.continueBackground").querySelector("svg.animate-spin")).not.toBeNull();
 
-    render(undefined, { disabled: true, onboarding: true });
+    render(undefined, { disabled: true });
 
     expect(form().getAttribute("aria-busy")).toBe("true");
     expect(button("WikiSetup.skip").disabled).toBe(true);
@@ -271,64 +200,6 @@ describe("WikiHomepageSetup", () => {
   });
 
   it("uses the inline task instead of duplicate completed-page rows", () => {
-    render(
-      {
-        status: "completed",
-        homepage: "https://example.com/",
-        domain: "example.com",
-        conversationId: "conversation-1",
-        pages: [
-          {
-            id: "00000000-0000-4000-8000-000000000001",
-            title: "Company Overview",
-            createdAt: new Date("2026-09-22T00:00:00.000Z"),
-            updatedAt: new Date("2026-09-22T00:00:00.000Z"),
-          },
-        ],
-      },
-      {
-        onboarding: true,
-        renderConversation: (conversationId) =>
-          createElement("div", { "data-inline-conversation": conversationId }, "Inline Mate task"),
-      },
-    );
-
-    expect(container.querySelector('[data-inline-conversation="conversation-1"]')).not.toBeNull();
-    expect(container.textContent).not.toContain("Company Overview");
-    expect(container.textContent).not.toContain("WikiSetup.openTask");
-    expect(container.textContent).toContain("WikiSetup.continue");
-    expect(container.textContent).not.toContain("WikiSetup.continueBackground");
-  });
-
-  it("keeps completed page names when the initiating conversation is not visible to this user", () => {
-    render(
-      {
-        status: "completed",
-        homepage: "https://example.com/",
-        domain: "example.com",
-        conversationId: null,
-        pages: [
-          {
-            id: "00000000-0000-4000-8000-000000000001",
-            title: "Company Overview",
-            createdAt: new Date("2026-09-22T00:00:00.000Z"),
-            updatedAt: new Date("2026-09-22T00:00:00.000Z"),
-          },
-        ],
-      },
-      {
-        onboarding: true,
-        renderConversation: (conversationId) =>
-          createElement("div", { "data-inline-conversation": conversationId }, "Inline Mate task"),
-      },
-    );
-
-    expect(container.textContent).toContain("Company Overview");
-    expect(container.querySelector("a")).toBeNull();
-    expect(container.querySelector("[data-inline-conversation]")).toBeNull();
-  });
-
-  it("renders completed pages without offering an impossible retry", () => {
     render({
       status: "completed",
       homepage: "https://example.com/",
@@ -344,34 +215,33 @@ describe("WikiHomepageSetup", () => {
       ],
     });
 
-    expect(container.querySelector('a[href="/wiki?page=00000000-0000-4000-8000-000000000001"]')?.textContent).toContain(
-      "Company Overview",
-    );
-    expect(container.textContent).not.toContain("WikiSetup.tryAnother");
+    expect(container.querySelector('[data-inline-conversation="conversation-1"]')).not.toBeNull();
+    expect(container.textContent).not.toContain("Company Overview");
+    expect(container.textContent).toContain("WikiSetup.continue");
+    expect(container.textContent).not.toContain("WikiSetup.continueBackground");
   });
 
-  it("keeps completed onboarding pages non-navigable until the account leaves the wizard", () => {
-    render(
-      {
-        status: "completed",
-        homepage: "https://example.com/",
-        domain: "example.com",
-        conversationId: "conversation-1",
-        pages: [
-          {
-            id: "00000000-0000-4000-8000-000000000001",
-            title: "Company Overview",
-            createdAt: new Date("2026-09-22T00:00:00.000Z"),
-            updatedAt: new Date("2026-09-22T00:00:00.000Z"),
-          },
-        ],
-      },
-      { onboarding: true },
-    );
+  it("keeps completed page names when the initiating conversation is not visible to this user", () => {
+    render({
+      status: "completed",
+      homepage: "https://example.com/",
+      domain: "example.com",
+      conversationId: null,
+      pages: [
+        {
+          id: "00000000-0000-4000-8000-000000000001",
+          title: "Company Overview",
+          createdAt: new Date("2026-09-22T00:00:00.000Z"),
+          updatedAt: new Date("2026-09-22T00:00:00.000Z"),
+        },
+      ],
+    });
 
     expect(container.textContent).toContain("WikiSetup.status.completedBodyOnboarding");
     expect(container.textContent).toContain("Company Overview");
     expect(container.querySelector("a")).toBeNull();
+    expect(container.querySelector("[data-inline-conversation]")).toBeNull();
+    expect(container.textContent).not.toContain("WikiSetup.tryAnother");
   });
 
   it("focuses the homepage field when retry opens and hides retry when setup is unavailable", () => {
@@ -392,7 +262,7 @@ describe("WikiHomepageSetup", () => {
     expect(container.textContent).toContain("WikiSetup.continue");
   });
 
-  it("does not promise a task link when another workspace member started setup", () => {
+  it("does not embed a task when another workspace member started setup", () => {
     render({
       status: "working",
       homepage: "https://example.com/",
@@ -401,28 +271,22 @@ describe("WikiHomepageSetup", () => {
       pages: [],
     });
 
-    expect(container.textContent).toContain("WikiSetup.status.workingBodyNoTaskWiki");
-    expect(container.textContent).not.toContain("WikiSetup.openTask");
+    expect(container.textContent).toContain("WikiSetup.status.workingBodyNoTask example.com");
+    expect(container.querySelector("[data-inline-conversation]")).toBeNull();
   });
 
   it("shows a neutral zero-page result and keeps the Mate task available", () => {
-    render(
-      {
-        status: "noContent",
-        homepage: "https://example.com/",
-        domain: "example.com",
-        conversationId: "conversation-1",
-        pages: [],
-      },
-      {
-        renderConversation: (conversationId) =>
-          createElement("div", { "data-inline-conversation": conversationId }, "Mate task details"),
-      },
-    );
+    render({
+      status: "noContent",
+      homepage: "https://example.com/",
+      domain: "example.com",
+      conversationId: "conversation-1",
+      pages: [],
+    });
 
     expect(container.textContent).toContain("WikiSetup.status.noContentTitle");
     expect(container.textContent).toContain("WikiSetup.status.noContentBody");
-    expect(container.textContent).toContain("Mate task details");
+    expect(container.textContent).toContain("Inline Mate task");
     expect(container.textContent).toContain("WikiSetup.tryAnother");
   });
 

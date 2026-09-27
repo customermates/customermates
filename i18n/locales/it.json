@@ -3308,7 +3308,7 @@
       "services": "Servizi",
       "tasks": "Attività",
       "users": "Utenti e ruoli",
-      "wiki": "Wiki dell’area di lavoro"
+      "wiki": "Wiki dello spazio di lavoro"
     },
     "systemAlert": "Questo è un ruolo di sistema e non può essere modificato né eliminato.",
     "systemDescription": "Accesso completo a tutte le funzionalità e le impostazioni. Non può essere modificato né eliminato.",
@@ -3742,7 +3742,6 @@
       "gapsHeading": "Aspetti da confermare",
       "sourcesHeading": "Fonti"
     },
-    "homepageHelp": "Sito web HTTP(S) pubblico. Mate legge questa pagina e può seguire fino a tre link utili sullo stesso sito.",
     "homepageLabel": "Sito web dell’azienda",
     "homepagePlaceholder": "https://esempio.it",
     "openTask": "Apri attività Mate",
@@ -3752,7 +3751,6 @@
     "start": "Crea la mia wiki",
     "startFailed": "Mate non è riuscito ad avviare la configurazione della wiki. Riprova.",
     "status": {
-      "completedBody": "Le pagine wiki iniziali sono pronte, con fatti supportati dal sito web. Controlla le nuove pagine e conferma ciò che è segnato come da confermare.",
       "completedBodyOnboarding": "Mate ha creato le tue pagine iniziali con fatti supportati dal sito web. Potrai controllarle in seguito nella wiki e confermare ciò che è segnato come da confermare.",
       "completedExistingBody": "La wiki contiene già delle pagine. Continua l’onboarding o controlla i contenuti esistenti.",
       "completedTitle": "La tua wiki iniziale è pronta",

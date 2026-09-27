@@ -440,7 +440,6 @@ describe("Wiki document view", () => {
     expect(html).toContain("Wiki.unavailableTitle");
     expect(html).not.toContain("data-editor-readonly");
     expect(html).not.toContain("Wiki.emptyTitle");
-    expect(html).not.toContain("data-wiki-homepage-setup");
   });
 
   it("keeps a new draft until navigation is confirmed, including returning to its original page", async () => {
@@ -649,29 +648,25 @@ describe("Wiki empty state", () => {
     const html = render(false, true);
 
     expect(html).toContain("Wiki.emptyBodyReadOnly");
-    expect(html).not.toContain("data-wiki-homepage-setup");
     expect(html).not.toContain("Wiki.newPage");
   });
 
-  it("keeps a compact manual fallback when Mate is unavailable", () => {
+  it("offers only the manual new-page action without Mate suggestions when Mate is unavailable", () => {
     const html = render(true, true, false);
 
     expect(html).toContain("Wiki.emptyBody");
     expect(html).toContain("Wiki.newPage");
-    expect(html).not.toContain("data-wiki-homepage-setup");
     expect(html).not.toContain("empty-page-agent-suggestions");
   });
 
-  it("replaces the homepage form with three standard Mate actions", async () => {
+  it("shows three Mate suggestion actions instead of the manual new-page action once hydrated", async () => {
     const { container, recoverableErrors, serverHtml } = await hydrate(true, true, null, true);
 
     expect(serverHtml).toContain("Wiki.emptyBody");
     expect(serverHtml).toContain("Wiki.newPage");
-    expect(serverHtml).not.toContain("data-wiki-homepage-setup");
     expect(recoverableErrors).toEqual([]);
     expect(container.querySelector('[data-testid="empty-page-agent-suggestions"]')).not.toBeNull();
     expect(container.querySelectorAll('[data-testid="empty-page-agent-suggestions"] button')).toHaveLength(3);
-    expect(container.innerHTML).not.toContain("data-wiki-homepage-setup");
     expect(container.textContent).not.toContain("Wiki.newPage");
   });
 
@@ -687,7 +682,6 @@ describe("Wiki empty state", () => {
     expect(harness.openWithDraft).toHaveBeenCalledExactlyOnceWith(
       "AgentChat.suggestions.pages.wiki.empty.first-wiki-page.prompt",
     );
-    expect(container.innerHTML).not.toContain("data-wiki-homepage-setup");
     expect(container.innerHTML).not.toContain("wiki-homepage");
   });
 
@@ -727,7 +721,6 @@ describe("Wiki empty state", () => {
       await Promise.resolve();
     });
 
-    expect(container.innerHTML).not.toContain("data-wiki-homepage-setup");
     expect(container.textContent).not.toContain("Wiki.newPage");
     expect(topBar.querySelector('[aria-label="Wiki.newPage"]')).toBeNull();
     expect(harness.store.startCreate).not.toHaveBeenCalled();
@@ -753,7 +746,6 @@ describe("Wiki empty state", () => {
     );
     const { container: topBar } = await mount(harness.topBar);
 
-    expect(container.innerHTML).not.toContain("data-wiki-homepage-setup");
     expect(container.textContent).not.toContain("Wiki.newPage");
     expect(topBar.querySelector('[aria-label="Wiki.newPage"]')).toBeNull();
   });
@@ -762,7 +754,6 @@ describe("Wiki empty state", () => {
     const { container, recoverableErrors, serverHtml } = await hydrate(true, true, null, null);
 
     expect(serverHtml).toContain("Wiki.newPage");
-    expect(serverHtml).not.toContain("data-wiki-homepage-setup");
     expect(recoverableErrors).toEqual([]);
     expect(container.textContent).toContain("Wiki.newPage");
     expect(container.innerHTML).not.toContain("empty-page-agent-suggestions");

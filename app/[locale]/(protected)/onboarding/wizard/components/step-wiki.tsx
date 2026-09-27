@@ -127,12 +127,10 @@ export const StepWiki = observer(
 
     return (
       <WikiHomepageSetup
-        onboarding
         canStart={canSetupWithMate}
         disabled={onboardingWizardStore.isSubmitting}
         initialState={initialState}
         renderConversation={(conversationId) => <WikiSetupConversation conversationId={conversationId} />}
-        onAccepted={() => undefined}
         onContinue={completeStep}
         onSkip={completeStep}
       />
