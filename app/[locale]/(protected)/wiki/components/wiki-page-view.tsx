@@ -2,7 +2,7 @@
 
 import type { WikiPageListResult, WikiPageDto, WikiPageSummary } from "@/features/wiki/wiki.schema";
 import type { ReactNode } from "react";
-import type { ResizablePanelDefinition } from "@/components/shared/resizable-panels";
+import type { ResizablePanelDefinition } from "@/components/layout/resizable-panels";
 import type { WikiHomepageSetupState } from "@/features/wiki/get-wiki-homepage-setup-state.interactor";
 
 import { useCallback, useEffect, useId, useMemo, useRef, useState, useTransition } from "react";
@@ -25,9 +25,9 @@ import { runUserAction } from "@/core/errors/report-application-error";
 import { useRouter } from "@/i18n/navigation";
 import { EMPTY_WIKI_HOMEPAGE_SETUP_STATE, useRefreshWhileWikiSetupWorks } from "@/components/wiki/wiki-homepage-setup";
 import { wikiPagePath } from "@/features/wiki/wiki-links";
-import { ResizablePanelGroup } from "@/components/shared/resizable-panels";
+import { ResizablePanelGroup } from "@/components/layout/resizable-panels";
 import { useP13nColumnWidths } from "@/components/shared/use-p13n-column-widths";
-import { mergeStoredPanelSizes, readStoredPanelSizes } from "@/components/shared/resizable-panels.utils";
+import { mergeStoredPanelSizes, readStoredPanelSizes } from "@/components/layout/resizable-panels.utils";
 
 import { WikiPageStore } from "./wiki-page.store";
 import { WikiPageActions } from "./wiki-page-actions";

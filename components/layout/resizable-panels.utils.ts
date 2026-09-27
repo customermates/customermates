@@ -1,4 +1,4 @@
-import { resizeKeyboardStep, roundResizeSize as roundSize } from "./resize-interaction";
+import { resizeKeyboardStep, roundResizeSize as roundSize } from "@/components/shared/resize-interaction";
 
 export function normalizePanelSizes(sizes: readonly number[]): number[] | null {
   if (sizes.length < 2 || sizes.some((size) => !Number.isFinite(size) || size <= 0)) return null;

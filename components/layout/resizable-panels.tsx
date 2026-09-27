@@ -8,7 +8,7 @@ import { Fragment, useCallback, useEffect, useLayoutEffect, useMemo, useRef, use
 import { useTranslations } from "next-intl";
 
 import { cn } from "@/core/utils/cn";
-import { isResizeDoubleTap } from "./resize-interaction";
+import { isResizeDoubleTap } from "@/components/shared/resize-interaction";
 import {
   fixedFirstPanelTemplate,
   keyboardPanelDelta,

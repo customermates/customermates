@@ -81,7 +81,7 @@ const domTestFiles = [
   "components/acquisition/__tests__/public-ad-attribution-consent.test.ts",
   "components/scroll/__tests__/messages-scroll-container.test.ts",
   "components/shared/__tests__/overflow-rail.test.ts",
-  "components/shared/__tests__/resizable-panels.test.ts",
+  "components/layout/__tests__/resizable-panels.test.ts",
   "components/shared/__tests__/use-p13n-column-widths.test.ts",
   "components/shared/__tests__/unexpected-error-toaster.test.ts",
   "core/stores/__tests__/root-store-provider.test.ts",

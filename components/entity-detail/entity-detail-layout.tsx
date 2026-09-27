@@ -1,7 +1,7 @@
 "use client";
 
 import type { ReactNode } from "react";
-import type { ResizablePanelDefinition } from "@/components/shared/resizable-panels";
+import type { ResizablePanelDefinition } from "@/components/layout/resizable-panels";
 import type { BaseFormStore } from "@/core/base/base-form.store";
 import type {
   BaseCustomColumnEntityModalStore,
@@ -28,9 +28,9 @@ import { cn } from "@/core/utils/cn";
 import { PageState } from "@/components/page-state/page-state";
 import { useEntityDrawerStack } from "@/components/entity-detail/hooks/use-entity-drawer-stack";
 import { reportApplicationError, runUserAction } from "@/core/errors/report-application-error";
-import { ResizablePanelGroup } from "@/components/shared/resizable-panels";
+import { ResizablePanelGroup } from "@/components/layout/resizable-panels";
 import { useP13nColumnWidths } from "@/components/shared/use-p13n-column-widths";
-import { mergeStoredPanelSizes, readStoredPanelSizes } from "@/components/shared/resizable-panels.utils";
+import { mergeStoredPanelSizes, readStoredPanelSizes } from "@/components/layout/resizable-panels.utils";
 
 import { EntityNotesPanel } from "./entity-notes-panel";
 import { EntityDetailPageSkeleton } from "./entity-detail-page-skeleton";
