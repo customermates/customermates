@@ -336,6 +336,58 @@ describe("AgentUsageService admission and ledger", () => {
     });
   });
 
+  it("adds classifier charges to the measured turn cost as one auxiliary amount", () => {
+    const settlement = buildAgentUsageSettlement({
+      model: "openai/gpt-5-nano",
+      provider: "azure",
+      tokens: { inputTokens: 10, outputTokens: 10, cacheReadTokens: 0, cacheWriteTokens: 0 },
+      reservedCredits: 14,
+      providerCharge: { billed: true, measuredCostMicrocents: 999_000, stepTokens: [], unreadableReason: null },
+      auxiliary: { costMicrocents: 2_000, measured: true },
+    });
+
+    expect(settlement).toMatchObject({ costMicrocents: 1_001_000, costSource: "measured", chargedCredits: 2 });
+  });
+
+  it("marks the turn cost estimated when a classifier charge was estimated", () => {
+    const settlement = buildAgentUsageSettlement({
+      model: "openai/gpt-5-nano",
+      provider: "azure",
+      tokens: { inputTokens: 10, outputTokens: 10, cacheReadTokens: 0, cacheWriteTokens: 0 },
+      reservedCredits: 14,
+      providerCharge: { billed: true, measuredCostMicrocents: 1_000, stepTokens: [], unreadableReason: null },
+      auxiliary: { costMicrocents: 500, measured: false },
+    });
+
+    expect(settlement).toMatchObject({ costMicrocents: 1_500, costSource: "estimated" });
+  });
+
+  it("charges a classifier call even when no provider round was billed", () => {
+    const settlement = buildAgentUsageSettlement({
+      model: "openai/gpt-5-nano",
+      tokens: { inputTokens: 0, outputTokens: 0, cacheReadTokens: 0, cacheWriteTokens: 0 },
+      reservedCredits: 14,
+      providerCharge: { billed: false, measuredCostMicrocents: null, stepTokens: [], unreadableReason: null },
+      auxiliary: { costMicrocents: 1_600, measured: true },
+    });
+
+    expect(settlement).toMatchObject({ costMicrocents: 1_600, costSource: "measured", chargedCredits: 1 });
+  });
+
+  it("rejects a negative or fractional auxiliary cost", () => {
+    for (const costMicrocents of [-1, 1.5]) {
+      expect(() =>
+        buildAgentUsageSettlement({
+          model: "openai/gpt-5-nano",
+          tokens: { inputTokens: 0, outputTokens: 0, cacheReadTokens: 0, cacheWriteTokens: 0 },
+          reservedCredits: 14,
+          providerCharge: { billed: false, measuredCostMicrocents: null, stepTokens: [], unreadableReason: null },
+          auxiliary: { costMicrocents, measured: true },
+        }),
+      ).toThrow(/auxiliary usage cost/);
+    }
+  });
+
   it("quarantines an unreadable cost against the pinned estimate instead of throwing", () => {
     const settlement = buildAgentUsageSettlement({
       model: "openai/gpt-5-nano",

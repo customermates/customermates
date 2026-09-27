@@ -8,6 +8,7 @@ import {
   resolveAppMode,
   resolveAuthAllowedHosts,
   resolveBaseUrl,
+  resolveClassifierSwitch,
   resolveOptionalBigInt,
   resolveRequestOrigin,
   resolveStrictBoolean,
@@ -281,6 +282,24 @@ describe("hosted-AI control configuration", () => {
 
     for (const invalid of ["TRUE", "1", "yes", "on"])
       expect(() => resolveStrictBoolean("HOSTED_AI_PROVIDER_WORK_PAUSED", invalid)).toThrow(/"true" or "false"/);
+  });
+
+  it("reads an unset classifier switch as off and rejects anything but the three literals", () => {
+    for (const absent of [undefined, "", "   "]) expect(resolveClassifierSwitch("AGENT_DOCS_RERANK", absent)).toBe("off");
+
+    expect(resolveClassifierSwitch("AGENT_DOCS_RERANK", "jev")).toBe("jev");
+    expect(resolveClassifierSwitch("AGENT_TOOLSET_CLASSIFIER", " gemini ")).toBe("gemini");
+    expect(resolveClassifierSwitch("AGENT_TOOLSET_CLASSIFIER", "off")).toBe("off");
+
+    for (const invalid of ["JEV", "true", "on", "gemini-flash"])
+      expect(() => resolveClassifierSwitch("AGENT_DOCS_RERANK", invalid)).toThrow(/"off", "jev" or "gemini"/);
+  });
+
+  it("ships both classifier switches off in the cloud template until the A/B decides", () => {
+    const template = readFileSync(new URL("../../.env.cloud.template", import.meta.url), "utf8");
+
+    expect(template).toMatch(/^AGENT_DOCS_RERANK="off"$/m);
+    expect(template).toMatch(/^AGENT_TOOLSET_CLASSIFIER="off"$/m);
   });
 });
 

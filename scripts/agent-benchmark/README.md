@@ -51,6 +51,8 @@ In benchmark mode (`LOCAL_AGENT_BENCHMARK=true`) the server also stores each too
 
 `--variant <label>` groups a run's artifacts and report rows under a label of your choice; the application has one runtime, so the label records what you changed between runs rather than selecting a code path.
 
+The classifier A/B uses the same mechanism. `AGENT_DOCS_RERANK` and `AGENT_TOOLSET_CLASSIFIER` (`off`, `jev` or `gemini`) are server environment variables, so restart the server with the setting under test and run with a matching label, for example `--variant docs-jev`. Each turn stores a classifier trace (predicted and added toolsets, docs re-rank calls and answers, auxiliary cost; never text). Episodes copy it into `metrics.turns[].classifierTrace` and summarise it as `classifier`. Accounting treats the classifier cost as part of the turn's settled charge and never as a round. The report's Classifier table shows, per arm, the classifier cost per turn, its share of spend, docs tool calls per turn, docs re-rank calls per turn and the share of turns with a preload. Cases D1 to D10 are live documentation questions in English and German. Each has a deterministic oracle for its gold fact and passes without a classifier.
+
 Commands (`yarn agent:benchmark <command>`):
 
 - `arms`, `cases`: list arms and cases. Counts always come from this live registry rather than a number copied into

@@ -3,6 +3,7 @@ import {
   resolveAppMode,
   resolveAuthAllowedHosts,
   resolveBaseUrl,
+  resolveClassifierSwitch,
   resolveOptionalBigInt,
   resolveStrictBoolean,
 } from "@/core/config/environment";
@@ -31,6 +32,8 @@ export const env = {
   AGENT_ANALYSIS_TOOL_ENABLED: process.env.AGENT_ANALYSIS_TOOL_ENABLED?.trim()
     ? resolveStrictBoolean("AGENT_ANALYSIS_TOOL_ENABLED", process.env.AGENT_ANALYSIS_TOOL_ENABLED)
     : true,
+  AGENT_DOCS_RERANK: resolveClassifierSwitch("AGENT_DOCS_RERANK", process.env.AGENT_DOCS_RERANK),
+  AGENT_TOOLSET_CLASSIFIER: resolveClassifierSwitch("AGENT_TOOLSET_CLASSIFIER", process.env.AGENT_TOOLSET_CLASSIFIER),
   AI_GATEWAY_API_KEY: process.env.AI_GATEWAY_API_KEY,
   HOSTED_AI_OPERATOR_CONTROLS_ENABLED: resolveStrictBoolean(
     "HOSTED_AI_OPERATOR_CONTROLS_ENABLED",

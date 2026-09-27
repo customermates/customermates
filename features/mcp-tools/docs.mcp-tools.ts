@@ -264,6 +264,81 @@ export function getDocsPageRaw(
   };
 }
 
+export const DOCS_RERANK_CANDIDATES = 20;
+export const DOCS_RERANK_EXCERPT_CHARS = 1_400;
+
+export type DocsRerankCandidate = { id: number; section: DocsSection };
+
+export type DocsSectionReranker = (query: string, candidates: readonly DocsRerankCandidate[]) => Promise<number | null>;
+
+export type SearchDocsInput = { query: string; locale: DocsLocale; source: "docs" | "api" | "all" };
+
+export function topSectionCandidates(
+  index: DocsSectionIndex,
+  query: string,
+  limit = DOCS_RERANK_CANDIDATES,
+): DocsRerankCandidate[] {
+  return index.sections
+    .map((section, id) => ({ id, section, score: scoreSection(index, section, query) }))
+    .filter((hit) => hit.score > 0)
+    .sort((left, right) => right.score - left.score)
+    .slice(0, limit)
+    .map(({ id, section }) => ({ id, section }));
+}
+
+export function docsSectionCandidates(query: string, locale: DocsLocale, source: DocsSource): DocsRerankCandidate[] {
+  return topSectionCandidates(buildIndex(source, locale), query);
+}
+
+export function docsRerankExcerpt(section: DocsSection): string {
+  return `## ${section.headingPath.join(" > ")}\n${section.text}`.slice(0, DOCS_RERANK_EXCERPT_CHARS);
+}
+
+function rerankedDocsSearchText(results: DocsSearchHit[], total: number, chosen: DocsSection): string {
+  const matches = results.map(({ slug, source, anchor }) => `${source}:${slug}#${anchor}`).join("\n");
+  return `matches:\n${matches}\ntotal=${total}\nbest=${results[0].url}\nexcerpt=\n${docsRerankExcerpt(chosen)}`;
+}
+
+async function rerankedDocsSearch(
+  input: SearchDocsInput,
+  ranked: { results: DocsSearchHit[]; total: number },
+  rerank: DocsSectionReranker,
+): Promise<{ text: string; structuredContent: { results: DocsSearchHit[]; total: number } } | null> {
+  const candidates = docsSectionCandidates(input.query, input.locale, "docs");
+  if (candidates.length < 2) return null;
+  let choice: number | null;
+  try {
+    choice = await rerank(input.query, candidates);
+  } catch {
+    return null;
+  }
+  const chosen = candidates.find((candidate) => candidate.id === choice)?.section;
+  if (!chosen) return null;
+  const best: DocsSearchHit = {
+    slug: chosen.slug,
+    source: "docs",
+    title: chosen.pageTitle,
+    url: pageUrl("docs", input.locale, chosen.slug),
+    section: chosen.headingPath.join(" > "),
+    anchor: chosen.anchor,
+    snippet: sectionSnippet(chosen, input.query, input.locale),
+  };
+  const results = [best, ...ranked.results.filter((hit) => hit.slug !== chosen.slug)].slice(0, 5);
+  const total = Math.max(ranked.total, results.length);
+  return { text: rerankedDocsSearchText(results, total, chosen), structuredContent: { results, total } };
+}
+
+function keywordDocsSearch(input: SearchDocsInput) {
+  const { results, total } = searchDocsRaw(input.query, input.locale, input.source);
+  return { text: compactDocsSearchText(results, total), structuredContent: { results, total } };
+}
+
+export async function searchDocs(input: SearchDocsInput, rerank: DocsSectionReranker) {
+  const keyword = keywordDocsSearch(input);
+  if (input.source !== "docs") return keyword;
+  return (await rerankedDocsSearch(input, keyword.structuredContent, rerank)) ?? keyword;
+}
+
 export const searchDocsTool = {
   name: "search_docs",
   title: "Search documentation",
@@ -283,13 +358,7 @@ export const searchDocsTool = {
       .describe("docs = product guides, api = REST endpoint reference, all = both"),
   }),
   outputSchema: DocsSearchOutputSchema,
-  execute: ({ query, locale, source }: { query: string; locale: DocsLocale; source: "docs" | "api" | "all" }) => {
-    const { results, total } = searchDocsRaw(query, locale, source);
-    return {
-      text: compactDocsSearchText(results, total),
-      structuredContent: { results, total },
-    };
-  },
+  execute: (input: SearchDocsInput) => keywordDocsSearch(input),
 };
 
 const GetDocsPageOutputSchema = z.object({

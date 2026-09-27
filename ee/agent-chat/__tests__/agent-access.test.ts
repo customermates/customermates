@@ -16,12 +16,16 @@ import { MODEL_CATALOG } from "../model-catalog";
 
 const mockUser = createMockUserWithPermissions([]);
 const request = vi.hoisted(() => ({ origin: "http://127.0.0.1:4016" }));
+const classifierSwitch = vi.hoisted(() => ({ toolset: "off" as "off" | "jev" | "gemini" }));
 
 vi.mock("@/env", () => ({
   env: {
     ...MOCK_ENV_MODULE.env,
     APP_MODE: "cloud" as const,
     AUTH_ALLOWED_HOSTS: ["localhost:4000", "127.0.0.1:4016"],
+    get AGENT_TOOLSET_CLASSIFIER() {
+      return classifierSwitch.toolset;
+    },
   },
 }));
 vi.mock("@/core/di", () => createMockDiModule(() => mockUser));
@@ -1314,5 +1318,105 @@ describe("agent access", () => {
     expect(tasks.resume).toHaveBeenCalledWith(agentUiCommandHookToken(CONVERSATION_ID), {
       commandId: "command-1",
     });
+  });
+
+  it.each([
+    { setting: "jev" as const, expected: "jev" },
+    { setting: "off" as const, expected: undefined },
+  ])(
+    "carries the toolset preload model into an interactive turn only when its switch is on ($setting)",
+    async ({ setting, expected }) => {
+      classifierSwitch.toolset = setting;
+      try {
+        const background = backgroundTasks();
+        const repo = {
+          normalizeExpiredAgentRunLease: vi.fn().mockResolvedValue(undefined),
+          findAgentTurnRequestForAdmission: vi.fn().mockResolvedValue(null),
+          claimAgentRunLease: vi.fn().mockResolvedValue("claimed"),
+          isAtAgentRunLimit: vi.fn().mockResolvedValue(false),
+          createAgentConversationForRun: vi.fn(),
+          deleteUnusedAgentConversation: vi.fn(),
+          recordAgentTurnExternalRun: vi.fn().mockResolvedValue(undefined),
+          admitAgentTurnOrThrow: vi.fn().mockImplementation((args) =>
+            Promise.resolve({
+              conversationId: CONVERSATION_ID,
+              userMessageId: args.turn.userMessageId,
+              recentMessages: [
+                {
+                  id: args.turn.userMessageId,
+                  role: "user",
+                  parts: [{ type: "text", text: "Send a webhook on won deals" }],
+                },
+              ],
+            }),
+          ),
+        };
+
+        await runWithTenant(mockUser, () =>
+          new SendAgentMessageInteractor(
+            repo as never,
+            usageService() as never,
+            mockEntitlementService(),
+            background as never,
+            { getCustomColumns: () => Promise.resolve([]) } as never,
+          ).invoke({ clientRequestId: CLIENT_REQUEST_ID, text: "Send a webhook on won deals", retry: false }),
+        );
+
+        const dispatched = background.dispatchTracked.mock.calls[0]?.[1] as Record<string, unknown>;
+        expect(dispatched.surface).toBe("chat");
+        expect(dispatched.toolsetPreloadModel).toBe(expected);
+      } finally {
+        classifierSwitch.toolset = "off";
+      }
+    },
+  );
+
+  it("never carries a toolset preload model into a routine turn", async () => {
+    classifierSwitch.toolset = "jev";
+    try {
+      const background = backgroundTasks();
+      const repo = {
+        normalizeExpiredAgentRunLease: vi.fn().mockResolvedValue(undefined),
+        findAgentTurnRequestForAdmission: vi.fn().mockResolvedValue(null),
+        claimAgentRunLease: vi.fn().mockResolvedValue("claimed"),
+        isAtAgentRunLimit: vi.fn().mockResolvedValue(false),
+        createAgentConversationForRun: vi.fn(),
+        deleteUnusedAgentConversation: vi.fn(),
+        recordAgentTurnExternalRun: vi.fn().mockResolvedValue(undefined),
+        findConversation: vi
+          .fn()
+          .mockResolvedValue({ id: CONVERSATION_ID, origin: "routine", modelKey: null, creditCeiling: 2 }),
+        admitAgentTurnOrThrow: vi.fn().mockImplementation((args) =>
+          Promise.resolve({
+            conversationId: CONVERSATION_ID,
+            userMessageId: args.turn.userMessageId,
+            recentMessages: [
+              { id: args.turn.userMessageId, role: "user", parts: [{ type: "text", text: "Inspect the deal" }] },
+            ],
+          }),
+        ),
+      };
+
+      await runWithTenant(mockUser, () =>
+        new SendAgentMessageInteractor(
+          repo as never,
+          usageService() as never,
+          mockEntitlementService(),
+          background as never,
+          { getCustomColumns: () => Promise.resolve([]) } as never,
+        ).invokeRoutine({
+          clientRequestId: CLIENT_REQUEST_ID,
+          conversationId: CONVERSATION_ID,
+          text: "Inspect the deal",
+          retry: false,
+        }),
+      );
+
+      const dispatched = background.dispatchTracked.mock.calls[0]?.[1] as Record<string, unknown>;
+      expect(dispatched.surface).toBe("routine");
+      expect(dispatched).not.toHaveProperty("toolsetPreloadModel");
+    } finally {
+      classifierSwitch.toolset = "off";
+    }
   });
 });

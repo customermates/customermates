@@ -52,7 +52,37 @@ export type ArmSummary = {
   lengthFinishShare: number;
   incompleteTurnShare: number;
   neverSolvedCases: string[];
+  classifierUsdPerTurn: number;
+  classifierCostShare: number;
+  docsToolCallsPerTurn: number;
+  docsRerankCallsPerTurn: number;
+  toolsetPreloadShare: number;
 };
+
+const DOCS_TOOL_NAMES = new Set(["search_docs", "get_docs_page"]);
+const MICROCENTS_PER_USD = 100_000_000;
+
+function classifierMetrics(scored: readonly EpisodeArtifact[], turnCount: number, totalUsd: number) {
+  const traces = scored.flatMap((artifact) => artifact.metrics.turns.map((turn) => turn.classifierTrace ?? null));
+  const classifierUsd =
+    traces.reduce((total, trace) => total + (trace?.auxiliaryCostMicrocents ?? 0), 0) / MICROCENTS_PER_USD;
+  const docsCalls = scored.reduce(
+    (total, artifact) =>
+      total + artifact.observed.flatMap((turn) => turn.tools).filter((tool) => DOCS_TOOL_NAMES.has(tool.name)).length,
+    0,
+  );
+  return {
+    classifierUsdPerTurn: turnCount ? classifierUsd / turnCount : 0,
+    classifierCostShare: totalUsd > 0 ? classifierUsd / totalUsd : 0,
+    docsToolCallsPerTurn: turnCount ? docsCalls / turnCount : 0,
+    docsRerankCallsPerTurn: turnCount
+      ? traces.reduce((total, trace) => total + (trace?.docsRerank?.calls ?? 0), 0) / turnCount
+      : 0,
+    toolsetPreloadShare: turnCount
+      ? traces.filter((trace) => (trace?.toolsetPreload?.added.length ?? 0) > 0).length / turnCount
+      : 0,
+  };
+}
 
 export type Comparison = { arm: string; control: string; cases: number; wins: number; losses: number; ties: number; meanDifference: number; p: number; holmP: number; floor: number };
 
@@ -205,6 +235,7 @@ function summarizeArm(key: string, artifacts: EpisodeArtifact[]): ArmSummary {
     lengthFinishShare: rounds.length ? rounds.filter((round) => round.finishReason === "length").length / rounds.length : 0,
     incompleteTurnShare: drivenTurns.length ? drivenTurns.filter(turnIsIncomplete).length / drivenTurns.length : 0,
     neverSolvedCases: [...byCase].filter(([, results]) => results.length > 0 && results.every((passed) => !passed)).map(([caseId]) => caseId).sort(),
+    ...classifierMetrics(scored, turnCount, totalUsd),
   };
 }
 
@@ -381,6 +412,9 @@ export function renderReport(report: BenchmarkReport): string {
   lines.push("## Arms", "", "| Arm | Comparable episodes | Strict contracts passed | Pass | Pass^3 | Judge | Judge coverage | Judge split | $/episode | $/turn | Credits/turn | $/success | Measured | Cache read | Cache write | Rounds/turn | First output p50 | First output p95 | TTFT p50 | TTFT p95 | Wall p50 | Wall p95 | Length stops | Incomplete turns | Never solved |", "| --- | ---: | ---: | ---: | ---: | ---: | ---: | ---: | ---: | ---: | ---: | ---: | ---: | ---: | ---: | ---: | ---: | ---: | ---: | ---: | ---: | ---: | ---: | ---: | --- |");
   for (const arm of report.arms)
     lines.push(`| ${arm.runtimeVariant}/${arm.arm} | ${arm.episodes}${arm.skipped ? ` (+${arm.skipped} skipped)` : ""} | ${arm.contractPassed}/${arm.contractEpisodes} | ${pct(arm.passRate)} | ${arm.passAt3 === null ? "n/a" : pct(arm.passAt3)} | ${arm.judgeMean === null ? "n/a" : arm.judgeMean.toFixed(2)} | ${arm.judgeComplete}/${arm.judgeEligible} | ${arm.judgeDisagreementShare === null ? "n/a" : pct(arm.judgeDisagreementShare)} | ${usd(arm.usdPerEpisode)} | ${usd(arm.usdPerTurn)} | ${arm.creditsPerTurn.toFixed(1)} | ${usd(arm.costPerSuccessfulTask)} | ${pct(arm.measuredShare)} | ${pct(arm.cacheReadShare)} | ${pct(arm.cacheWriteShare)} | ${arm.roundsPerTurn.toFixed(1)} | ${ms(arm.firstOutputP50Ms)} | ${ms(arm.firstOutputP95Ms)} | ${ms(arm.ttftP50Ms)} | ${ms(arm.ttftP95Ms)} | ${ms(arm.wallP50Ms)} | ${ms(arm.wallP95Ms)} | ${pct(arm.lengthFinishShare)} | ${pct(arm.incompleteTurnShare)} | ${arm.neverSolvedCases.join(" ") || "-"} |`);
+  lines.push("", "## Classifier", "", "| Arm | Classifier $/turn | Classifier cost share | Docs tool calls/turn | Docs re-rank calls/turn | Turns with toolset preload |", "| --- | ---: | ---: | ---: | ---: | ---: |");
+  for (const arm of report.arms)
+    lines.push(`| ${arm.runtimeVariant}/${arm.arm} | ${usd(arm.classifierUsdPerTurn ?? 0)} | ${pct(arm.classifierCostShare ?? 0)} | ${(arm.docsToolCallsPerTurn ?? 0).toFixed(2)} | ${(arm.docsRerankCallsPerTurn ?? 0).toFixed(2)} | ${pct(arm.toolsetPreloadShare ?? 0)} |`);
   lines.push("", "## Judges", "", "| Judge | Judged | Mean |", "| --- | ---: | ---: |");
   for (const judge of report.judgeModels)
     lines.push(`| ${judge.model} | ${judge.judged}/${judge.episodes} | ${judge.mean === null ? "n/a" : judge.mean.toFixed(2)} |`);

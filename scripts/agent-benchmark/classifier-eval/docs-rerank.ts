@@ -19,11 +19,9 @@ import { createHash } from "node:crypto";
 
 import { generateText, jsonSchema, Output } from "ai";
 
-import type {
-  ClassifierModel,
-  ClassifierSpec,
-} from "@/ee/agent-chat/classifier";
+import type { ClassifierModel } from "@/ee/agent-chat/classifier";
 import type { DocsSection } from "@/features/mcp-tools/docs-retrieval";
+import type { ContentLocale } from "@/i18n/locale-registry";
 
 import { DOCS_BLIND_BANK } from "./fixtures/docs-blind-bank";
 import {
@@ -31,22 +29,26 @@ import {
   DOCS_BLIND_BANK_EN_2_PROVENANCE,
 } from "./fixtures/docs-blind-bank-en-2";
 
+import { docsRerankSpec } from "@/ee/agent-chat/docs-rerank";
 import { readAgentProviderCharge } from "@/ee/agent-chat/gateway-cost";
 import {
   buildSectionIndex,
   docsStemmerForLocale,
-  scoreSection,
   splitSections,
 } from "@/features/mcp-tools/docs-retrieval";
 import {
+  DOCS_RERANK_CANDIDATES,
+  docsRerankExcerpt,
   getDocsPageRaw,
   listDocsSlugs,
   relevantDocsExcerpt,
   searchDocsRaw,
+  topSectionCandidates,
 } from "@/features/mcp-tools/docs.mcp-tools";
+import { CONTENT_LOCALES } from "@/i18n/locale-registry";
 import { GOLDEN_QUESTIONS } from "@/tests/conventions/fixtures/docs-retrieval-golden";
 
-type Locale = "en" | "de";
+type Locale = ContentLocale;
 type QuestionSet = "blind" | "blind2" | "golden";
 type Question = {
   id: string;
@@ -60,10 +62,8 @@ type Question = {
 };
 type Verdict = "yes" | "partial" | "no" | "error";
 
-const LOCALES: Locale[] = ["en", "de"];
-const CANDIDATES = 20;
-const EXCERPT_CHARS = 1_400;
-const OPTION_EXCERPT_CHARS = 400;
+const LOCALES: readonly Locale[] = CONTENT_LOCALES;
+const CANDIDATES = DOCS_RERANK_CANDIDATES;
 const ARMS: ClassifierModel[] = ["jev", "gemini"];
 const JUDGE_MODEL = "google/gemini-3-flash";
 const REUSED_LOCALES: Locale[] = process.env.FRESH_DE ? [] : ["de"];
@@ -123,19 +123,7 @@ const indexes = Object.fromEntries(
   }),
 ) as Record<Locale, ReturnType<typeof buildSectionIndex>>;
 
-const plain = (value: string) =>
-  value
-    .replace(/\*\*Link:\*\*.*$/gm, "")
-    .replace(/[`*_>#|]/g, " ")
-    .replace(/\[([^\]]*)\]\([^)]*\)/g, "$1")
-    .replace(/\s+/g, " ")
-    .trim();
-
-const sectionExcerpt = (section: DocsSection) =>
-  `## ${section.headingPath.join(" > ")}\n${section.text}`.slice(
-    0,
-    EXCERPT_CHARS,
-  );
+const sectionExcerpt = docsRerankExcerpt;
 const sectionKey = (section: DocsSection) =>
   `${section.slug}#${section.anchor}`;
 const correct = (q: Question, slug: string | undefined) =>
@@ -144,40 +132,15 @@ const anchorHit = (q: Question, section: string | null) =>
   section !== null && q.anchors.includes(section);
 
 function keywordCandidates(q: Question) {
-  const index = indexes[q.locale];
-  return index.sections
-    .map((section, id) => ({
-      id,
-      score: scoreSection(index, section, q.query),
-    }))
-    .filter((hit) => hit.score > 0)
-    .sort((a, b) => b.score - a.score)
-    .slice(0, CANDIDATES)
-    .map((hit) => hit.id);
+  return topSectionCandidates(indexes[q.locale], q.query, CANDIDATES).map(
+    (hit) => hit.id,
+  );
 }
 
-function rerankSpec(q: Question, ids: readonly number[]): ClassifierSpec {
-  const options = Object.fromEntries(
-    ids.map((id) => {
-      const s = indexes[q.locale].sections[id]!;
-      return [
-        `s${id}`,
-        `${s.pageTitle} > ${s.headingPath.join(" > ")}: ${plain(s.text).slice(0, OPTION_EXCERPT_CHARS)}`,
-      ];
-    }),
+function rerankSpec(q: Question, ids: readonly number[]) {
+  return docsRerankSpec(
+    ids.map((id) => ({ id, section: indexes[q.locale].sections[id]! })),
   );
-  return {
-    id: "docs-rerank",
-    questions: [
-      {
-        id: "best",
-        type: "choice",
-        instruction:
-          "Which documentation section best answers `question`? If none answers it fully, pick the closest one.",
-        options,
-      },
-    ],
-  };
 }
 
 type OffRow = {
@@ -555,20 +518,24 @@ async function main() {
   }
 
   const pick = (filter: (q: Question) => boolean) => questions.filter(filter);
+  const perLocale = (name: string, filter: (q: Question) => boolean) =>
+    Object.fromEntries(
+      LOCALES.map((locale) => [
+        `${name}:${locale}`,
+        pick((q) => q.locale === locale && filter(q)),
+      ]),
+    );
   const groups: Record<string, Question[]> = {
-    "blind:en": pick((q) => q.set === "blind" && q.locale === "en"),
+    ...perLocale("blind", (q) => q.set === "blind"),
     "blind2:en": pick((q) => q.set === "blind2"),
-    "blindAll:en": pick((q) => q.set !== "golden" && q.locale === "en"),
-    "blind:de": pick((q) => q.set === "blind" && q.locale === "de"),
+    ...perLocale("blindAll", (q) => q.set !== "golden"),
     "blindAll:pooled": pick((q) => q.set !== "golden"),
-    "golden:en": pick((q) => q.set === "golden" && q.locale === "en"),
-    "golden:de": pick((q) => q.set === "golden" && q.locale === "de"),
+    ...perLocale("golden", (q) => q.set === "golden"),
   };
   const perSet: Record<string, unknown> = {};
   const gates: Record<string, GateInput & { pass: boolean }> = {};
   const gatedSets: Record<string, string> = {
-    en: "blindAll:en",
-    de: "blind:de",
+    ...Object.fromEntries(LOCALES.map((locale) => [locale, `blindAll:${locale}`])),
     pooled: "blindAll:pooled",
     enNewOnly: "blind2:en",
   };

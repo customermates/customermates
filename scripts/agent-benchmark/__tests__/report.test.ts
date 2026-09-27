@@ -179,6 +179,39 @@ describe("benchmark report", () => {
     expect(rendered).toContain(`| ${JUDGE_MODELS[0].id} | 12/36 | 3.67 |\n| ${JUDGE_MODELS[1].id} | 8/36 | 4.50 |`);
   });
 
+  it("shows classifier cost share, docs tool calls and preloads per arm", async () => {
+    const dir = await mkdtemp(join(tmpdir(), "agent-benchmark-"));
+    const trace = {
+      auxiliaryCostMicrocents: 500_000,
+      auxiliaryMeasured: true,
+      toolsetPreload: { model: "jev" as const, answered: true, lexicon: [], predicted: ["webhooks"], added: ["webhooks"], costMicrocents: 100_000, measured: true },
+      docsRerank: { model: "jev" as const, calls: 2, answered: 2, costMicrocents: 400_000, measured: true },
+    };
+    const withClassifier = (entry: EpisodeArtifact, reranked: boolean): EpisodeArtifact => ({
+      ...entry,
+      observed: [{ text: "answer", tools: [{ name: "search_docs", input: {} }, { name: "get_docs_page", input: {} }, { name: "list_records", input: {} }], terminalCode: "completed" }],
+      metrics: { ...entry.metrics, turns: entry.metrics.turns.map((turn) => ({ ...turn, classifierTrace: reranked ? trace : null })) },
+    });
+    const artifacts = [
+      ...[1, 2].map((rep) => withClassifier(artifact("shipped", "D1", rep, true, 0.05, 10_000, 4), false)),
+      ...[1, 2].map((rep) => ({ ...withClassifier(artifact("shipped", "D1", rep, true, 0.05, 10_000, 4), true), runtimeVariant: "docs-jev" })),
+    ];
+    for (const entry of artifacts) {
+      const path = join(dir, entry.runtimeVariant, entry.arm);
+      await mkdir(path, { recursive: true });
+      await writeFile(join(path, `${entry.caseId}-r${entry.repetition}.json`), JSON.stringify(entry));
+    }
+
+    const report = await buildReport("c", dir);
+    const off = report.arms.find((arm) => arm.runtimeVariant === "current");
+    const jev = report.arms.find((arm) => arm.runtimeVariant === "docs-jev");
+
+    expect(off).toMatchObject({ classifierUsdPerTurn: 0, classifierCostShare: 0, docsToolCallsPerTurn: 2, toolsetPreloadShare: 0 });
+    expect(jev).toMatchObject({ classifierUsdPerTurn: 0.005, docsToolCallsPerTurn: 2, docsRerankCallsPerTurn: 2, toolsetPreloadShare: 1 });
+    expect(jev?.classifierCostShare).toBeCloseTo(0.1, 6);
+    expect(renderReport(report)).toContain("| docs-jev/shipped | $0.0050 | 10.0 % | 2.00 | 2.00 | 100.0 % |");
+  });
+
   it("keeps full-suite coverage and the exact merge-check result separate from comparative metrics", async () => {
     const dir = await mkdtemp(join(tmpdir(), "agent-benchmark-"));
     const runtimeFailure = artifact("shipped", "H10", 1, false, 0.02, 20_000, 4);

@@ -13,21 +13,35 @@ export type ClassifyOptions = {
   gemini?: GeminiRunnerOptions;
 };
 
+export type ClassifierAttempt = { result: ClassifierResult | null; requested: boolean };
+
+export async function classifyAttempt(
+  spec: ClassifierSpec,
+  state: ClassifierState,
+  model: ClassifierModel,
+  options: ClassifyOptions = {},
+): Promise<ClassifierAttempt> {
+  if (classifierSpecProblems(spec).length > 0) return { result: null, requested: false };
+  const apiKey = model === "jev" ? (options.jev?.apiKey ?? env.AI_GATEWAY_API_KEY?.trim()) : undefined;
+  if (model === "jev" && !apiKey) return { result: null, requested: false };
+  try {
+    const result =
+      model === "gemini"
+        ? await runGemini(spec, state, options.gemini)
+        : await runJev(spec, state, { ...options.jev, apiKey: apiKey as string });
+    return { result, requested: true };
+  } catch {
+    return { result: null, requested: true };
+  }
+}
+
 export async function classify(
   spec: ClassifierSpec,
   state: ClassifierState,
   model: ClassifierModel,
   options: ClassifyOptions = {},
 ): Promise<ClassifierResult | null> {
-  try {
-    if (classifierSpecProblems(spec).length > 0) return null;
-    if (model === "gemini") return await runGemini(spec, state, options.gemini);
-    const apiKey = options.jev?.apiKey ?? env.AI_GATEWAY_API_KEY?.trim();
-    if (!apiKey) return null;
-    return await runJev(spec, state, { ...options.jev, apiKey });
-  } catch {
-    return null;
-  }
+  return (await classifyAttempt(spec, state, model, options)).result;
 }
 
 export type * from "./spec";

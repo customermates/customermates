@@ -35,6 +35,7 @@ const PINNED = [
   pin("moonshotai/kimi-k2.7-code", "baseten", null),
   pin("mistral/mistral-large-3", "mistral", null),
   pin("alibaba/qwen3-coder-next", "bedrock", null),
+  pin("typesafe-ai/jev", "digitalocean", null),
 ];
 
 type CatalogTier = { cost: string; min?: number; max?: number };
@@ -118,7 +119,7 @@ async function main() {
       provider: pin.provider,
       inferenceRegion: pin.inferenceRegion,
       contextLength: served.context_length as number,
-      maxCompletionTokens: (served.max_completion_tokens as number | null) ?? null,
+      maxCompletionTokens: (served.max_completion_tokens as number | null) || null,
       requestUsd: (pricing.request as string) ?? "0",
       webSearchUsdPerThousandCalls: (pricing.web_search as string) ?? "0",
       prompt: tiers(pricing, "prompt", "prompt_tiers"),

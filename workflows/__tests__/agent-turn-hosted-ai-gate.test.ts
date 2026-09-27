@@ -45,6 +45,9 @@ const state = vi.hoisted(() => ({
   extendReservation: vi.fn(),
   instructions: [] as string[],
   toolDeps: [] as AgentToolDeps[],
+  promptToolsets: [] as string[][],
+  classifyMetered: vi.fn(),
+  toolCharges: [] as unknown[],
 }));
 
 vi.mock("@ai-sdk/workflow", () => {
@@ -233,8 +236,18 @@ vi.mock("@/features/mcp-tools/tool-registry", () => ({
     { name: "delete_records", annotations: { readOnlyHint: false } },
   ],
 }));
+vi.mock("@/ee/agent-chat/classifier/metered", () => ({
+  classifyMetered: (...args: unknown[]) => state.classifyMetered(...args),
+  collectClassifierCharges: async (run: () => Promise<unknown>) => ({
+    value: await run(),
+    charges: state.toolCharges.splice(0),
+  }),
+}));
 vi.mock("@/ee/agent-chat/system-prompt", () => ({
-  buildAgentSystemPrompt: () => "system",
+  buildAgentSystemPrompt: (args: { loadedToolsets?: string[] }) => {
+    state.promptToolsets.push(args.loadedToolsets ?? []);
+    return "system";
+  },
   routineTriggerEventOf: () => null,
 }));
 vi.mock("@/ee/agent-chat/agent-provider-context", () => ({
@@ -319,6 +332,9 @@ beforeEach(() => {
   state.budgetFits.mockReset();
   state.approvedCallsRunFirst = false;
   state.instructions.length = 0;
+  state.promptToolsets = [];
+  state.classifyMetered.mockReset();
+  state.toolCharges = [];
   state.reconcile.mockReset().mockResolvedValue({ reconciled: true });
   state.close.mockReset().mockResolvedValue(undefined);
   state.reportFailure.mockReset().mockResolvedValue(undefined);
@@ -2056,5 +2072,147 @@ describe("routine run settlement", () => {
     state.dispatch.mockRejectedValue(new Error("dispatch unavailable"));
 
     await expect(runAgentTurn({ ...payload, surface: "routine" })).resolves.toBeUndefined();
+  });
+});
+
+describe("agent-turn classifier uses", () => {
+  const preloadAnswer = (values: Record<string, boolean>) => ({
+    model: "jev",
+    answers: Object.fromEntries(
+      Object.entries(values).map(([toolset, value]) => [
+        `toolset_${toolset}`,
+        { type: "boolean", value, probability: value ? 0.9 : 0.1 },
+      ]),
+    ),
+    costMicrocents: 300,
+    latencyMs: 120,
+  });
+  const preloadCharge = { use: "toolset_preload", model: "jev", costMicrocents: 300, measured: true, answered: true };
+  const finalizeArgs = () =>
+    state.finalize.mock.calls.at(-1)?.[0] as {
+      classifierTrace: {
+        auxiliaryCostMicrocents: number;
+        toolsetPreload: { added: string[]; predicted: string[]; lexicon: string[] } | null;
+        docsRerank: { calls: number; answered: number } | null;
+      } | null;
+      usageSettlement: { costMicrocents: number; costSource: string };
+    };
+
+  it("preloads at most two predicted toolsets before round 0 and charges the classifier to the turn", async () => {
+    state.classifyMetered.mockResolvedValue({
+      result: preloadAnswer({ views: true, messaging: true, webhooks: true, admin: true }),
+      charge: preloadCharge,
+    });
+
+    await runAgentTurn({ ...payload, toolsets: ["views"], toolsetPreloadModel: "jev" });
+
+    expect(state.classifyMetered).toHaveBeenCalledWith(
+      "toolset_preload",
+      expect.objectContaining({ id: "toolset-routing" }),
+      { latest_user_message: "Hello" },
+      "jev",
+    );
+    expect(state.promptToolsets.at(-1)).toEqual(["views", "messaging", "webhooks"]);
+    expect(finalizeArgs().classifierTrace).toEqual({
+      auxiliaryCostMicrocents: 300,
+      auxiliaryMeasured: true,
+      toolsetPreload: {
+        model: "jev",
+        answered: true,
+        lexicon: ["views"],
+        predicted: ["views", "messaging", "webhooks", "admin"],
+        added: ["messaging", "webhooks"],
+        costMicrocents: 300,
+        measured: true,
+      },
+      docsRerank: null,
+    });
+    expect(state.recordRound).toHaveBeenCalledTimes(0);
+  });
+
+  it("adds a predicted toolset only while the initial context still fits", async () => {
+    state.classifyMetered.mockResolvedValue({
+      result: preloadAnswer({ messaging: true, webhooks: true }),
+      charge: preloadCharge,
+    });
+    state.contextFits.mockReturnValueOnce(false);
+
+    await runAgentTurn({ ...payload, toolsetPreloadModel: "jev" });
+
+    expect(state.promptToolsets.at(-1)).toEqual(["webhooks"]);
+    expect(finalizeArgs().classifierTrace?.toolsetPreload?.added).toEqual(["webhooks"]);
+  });
+
+  it("keeps the lexicon toolsets when the classifier gives no answer", async () => {
+    state.classifyMetered.mockResolvedValue({
+      result: null,
+      charge: { ...preloadCharge, model: "gemini", measured: false, answered: false },
+    });
+
+    await runAgentTurn({ ...payload, toolsets: ["routines"], toolsetPreloadModel: "gemini" });
+
+    expect(state.promptToolsets.at(-1)).toEqual(["routines"]);
+    expect(finalizeArgs().classifierTrace?.toolsetPreload).toMatchObject({ answered: false, added: [], predicted: [] });
+    expect(finalizeArgs().usageSettlement.costSource).toBe("estimated");
+  });
+
+  it("keeps the lexicon toolsets and records nothing when the preload step fails", async () => {
+    state.classifyMetered.mockRejectedValue(new Error("classifier step crashed"));
+
+    await runAgentTurn({ ...payload, toolsets: ["views"], toolsetPreloadModel: "jev" });
+
+    expect(state.promptToolsets.at(-1)).toEqual(["views"]);
+    expect(finalizeArgs().classifierTrace).toBeNull();
+    expect(state.finalize).toHaveBeenCalledWith(expect.objectContaining({ terminalCode: "completed" }));
+  });
+
+  it("never classifies a routine turn or a turn admitted with the switch off", async () => {
+    await runAgentTurn({ ...payload, surface: "routine", toolsets: ["views"], toolsetPreloadModel: "jev" });
+    await runAgentTurn({ ...payload, toolsets: ["views"] });
+
+    expect(state.classifyMetered).not.toHaveBeenCalled();
+    expect(state.promptToolsets.at(-1)).toEqual(["views"]);
+    expect(finalizeArgs().classifierTrace).toBeNull();
+  });
+
+  it("settles a docs re-rank charge from a tool call as auxiliary cost, never as a round", async () => {
+    const runDocsRound = async (charges: unknown[]) => {
+      state.finalize.mockClear();
+      state.recordRound.mockClear();
+      state.definitions = [{ name: "search_docs", description: "search_docs", inputSchema: { type: "object" } }];
+      state.normalize.mockResolvedValue({ ok: true, input: { query: "api key header" } });
+      state.execute.mockResolvedValue({ ok: true, result: "matches: ..." });
+      state.runTools = async ({ messages, executeAndCompleteTool }) => {
+        state.toolCharges = [...charges];
+        await executeAndCompleteTool("search_docs", { query: "api key header" }, "call-docs");
+        return {
+          finishReason: "stop",
+          messages,
+          steps: [
+            streamedToolCallStep("search_docs", "call-docs", { query: "api key header" }),
+            streamedStep("Use x-api-key.", "stop"),
+          ],
+        };
+      };
+      await runAgentTurn(payload);
+      return finalizeArgs();
+    };
+
+    const plain = await runDocsRound([]);
+    const reranked = await runDocsRound([
+      { use: "docs_rerank", model: "jev", costMicrocents: 1_600, measured: true, answered: true },
+    ]);
+
+    expect(state.recordRound).toHaveBeenCalledTimes(2);
+    expect(reranked.usageSettlement.costMicrocents - plain.usageSettlement.costMicrocents).toBe(1_600);
+    expect(plain.classifierTrace).toBeNull();
+    expect(reranked.classifierTrace).toMatchObject({
+      auxiliaryCostMicrocents: 1_600,
+      toolsetPreload: null,
+      docsRerank: { calls: 1, answered: 1 },
+    });
+    expect(state.writes).toContainEqual(
+      expect.objectContaining({ type: "turn_done", payload: expect.objectContaining({ numTurns: 2 }) }),
+    );
   });
 });

@@ -10,10 +10,7 @@ import {
   writeReport,
 } from "./shared";
 
-import type {
-  ClassifierModel,
-  ClassifierSpec,
-} from "@/ee/agent-chat/classifier";
+import type { ClassifierModel } from "@/ee/agent-chat/classifier";
 import type { AgentOnDemandToolset } from "@/ee/agent-chat/agent-toolset-routing";
 import type { RoutingItem, RoutingLanguage } from "./fixtures/routing-items";
 
@@ -26,14 +23,18 @@ import {
   toolsetsForRequest,
 } from "@/ee/agent-chat/agent-toolset-routing";
 import {
+  predictedToolsets,
+  toolsetPreloadSpec,
+} from "@/ee/agent-chat/toolset-preload";
+import {
   MODEL_CATALOG,
   SHIPPED_AGENT_MODEL_KEY,
 } from "@/ee/agent-chat/model-catalog";
 
-const LANGUAGES: RoutingLanguage[] = ["en", "de", "es", "fr", "it"];
+const LANGUAGES: RoutingLanguage[] = [
+  ...new Set(ROUTING_ITEMS.map((item) => item.lang)),
+];
 const MODELS: ClassifierModel[] = ["jev", "gemini"];
-const CORE =
-  "The assistant always has tools for records (contacts, organizations, deals, services, tasks: reading, counting, creating, updating, deleting, notes and links), documentation, custom fields and support.";
 
 const PROBE_TUNED_SUMMARY: Record<AgentOnDemandToolset, string> = {
   ...AGENT_TOOLSET_SUMMARY,
@@ -55,18 +56,7 @@ const WORDINGS = {
 } as const;
 type Wording = keyof typeof WORDINGS;
 
-function routingSpec(
-  summary: Record<AgentOnDemandToolset, string>,
-): ClassifierSpec {
-  return {
-    id: "toolset-routing",
-    questions: AGENT_ON_DEMAND_TOOLSETS.map((toolset) => ({
-      id: `toolset_${toolset}`,
-      type: "boolean" as const,
-      instruction: `${CORE} Does handling \`latest_user_message\` need the additional "${toolset}" tool set (${summary[toolset]})? Words that are part of a record, company or person name are data, not a request.`,
-    })),
-  };
-}
+const routingSpec = toolsetPreloadSpec;
 
 const definitions = agentToolDefinitionsForTurn({
   servingProvider: MODEL_CATALOG[SHIPPED_AGENT_MODEL_KEY].servingProvider,
@@ -162,12 +152,7 @@ async function main() {
             { latest_user_message: item.text },
             model,
           );
-          const predicted = call.result
-            ? AGENT_ON_DEMAND_TOOLSETS.filter((t) => {
-                const answer = call.result!.answers[`toolset_${t}`];
-                return answer?.type === "boolean" && answer.value;
-              })
-            : null;
+          const predicted = predictedToolsets(call.result);
           return { id: item.id, run, predicted, ms: call.ms };
         },
       );

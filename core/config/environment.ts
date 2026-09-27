@@ -52,6 +52,17 @@ export function resolveStrictBoolean(name: string, value: string | undefined): b
   throw new Error(`${name} must be configured as "true" or "false"`);
 }
 
+export const CLASSIFIER_SWITCH_VALUES = ["off", "jev", "gemini"] as const;
+export type ClassifierSwitch = (typeof CLASSIFIER_SWITCH_VALUES)[number];
+
+export function resolveClassifierSwitch(name: string, value: string | undefined): ClassifierSwitch {
+  const normalized = value?.trim();
+  if (!normalized) return "off";
+  if ((CLASSIFIER_SWITCH_VALUES as readonly string[]).includes(normalized)) return normalized as ClassifierSwitch;
+
+  throw new Error(`${name} must be configured as "off", "jev" or "gemini"`);
+}
+
 export function resolveOptionalBigInt(name: string, value: string | undefined): bigint | null {
   const normalized = value?.trim();
   if (!normalized) return null;

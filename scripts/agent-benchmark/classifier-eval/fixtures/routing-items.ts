@@ -1,6 +1,6 @@
 import type { AgentOnDemandToolset } from "@/ee/agent-chat/agent-toolset-routing";
 
-export type RoutingLanguage = "en" | "de" | "es" | "fr" | "it";
+export type RoutingLanguage = string;
 
 export type RoutingItem = { id: string; set: "lexicon-tests" | "multilingual"; lang: RoutingLanguage; text: string; toolsets: readonly AgentOnDemandToolset[] };
 

@@ -17,6 +17,7 @@ import type { JudgeVerdict } from "./judge";
 import type { SseFrame, SseTiming } from "./sse";
 import type { AgentContextAttachment } from "@/ee/agent-chat/agent-context";
 import type { BenchmarkToolOutputPart } from "@/ee/agent-chat/benchmark-tool-output";
+import type { AgentTurnClassifierTrace } from "@/ee/agent-chat/agent-classifier-trace";
 import type { AgentModelEntry } from "@/ee/agent-chat/model-catalog";
 
 import { runWithoutTenant } from "@/core/decorators/tenant-context";
@@ -25,6 +26,7 @@ import {
   agentContextsFromMessageParts,
 } from "@/ee/agent-chat/agent-context";
 import { agentToolOutcomeStatus } from "@/ee/agent-chat/agent-durable-stream";
+import { isAgentTurnClassifierTrace } from "@/ee/agent-chat/agent-classifier-trace";
 import { AGENT_PANEL_TOOL_NAMES, isAgentPanelTool,
 } from "@/ee/agent-chat/agent-ui-command";
 import { AGENT_RUN_LEASE_MS } from "@/ee/agent-chat/agent-turn-request";
@@ -141,8 +143,10 @@ export type EpisodeArtifact = {
   observed: ObservedTurn[];
   toolOutputs?: (RecordedToolOutput | null)[][];
   metrics: { turns: { id: string; status: string; terminalCode: string | null; stopReason: string | null; modelSpec: string | null; servingProvider: string | null; createdAt: string; providerStartedAt: string | null; terminalAt: string | null;
+      classifierTrace?: AgentTurnClassifierTrace | null;
     }[]; rounds: RoundMetric[];
   };
+  classifier?: EpisodeClassifierSummary;
   usage: { turnRequestId: string | null; costMicrocents: string; costSource: string; chargedCredits: number; state: string; model: string;
   }[];
   usd: number;
@@ -160,6 +164,57 @@ export type EpisodeArtifact = {
 };
 
 export type RecordedToolOutput = Omit<BenchmarkToolOutputPart, "type">;
+
+export type EpisodeClassifierSummary = {
+  docsRerankCalls: number;
+  docsRerankAnswered: number;
+  docsRerankFired: boolean;
+  toolsetPreloadTurns: number;
+  toolsetPreloadFired: boolean;
+  toolsetPreloadAdded: string[];
+  costMicrocents: number;
+  measured: boolean;
+};
+
+export function episodeClassifierSummary(
+  traces: readonly (AgentTurnClassifierTrace | null | undefined)[],
+): EpisodeClassifierSummary {
+  const present = traces.filter((trace): trace is AgentTurnClassifierTrace => Boolean(trace));
+  const docsRerankCalls = present.reduce((total, trace) => total + (trace.docsRerank?.calls ?? 0), 0);
+  const docsRerankAnswered = present.reduce((total, trace) => total + (trace.docsRerank?.answered ?? 0), 0);
+  const preloads = present.flatMap((trace) => (trace.toolsetPreload ? [trace.toolsetPreload] : []));
+  const toolsetPreloadAdded = [...new Set(preloads.flatMap((preload) => preload.added))];
+  return {
+    docsRerankCalls,
+    docsRerankAnswered,
+    docsRerankFired: docsRerankAnswered > 0,
+    toolsetPreloadTurns: preloads.length,
+    toolsetPreloadFired: toolsetPreloadAdded.length > 0,
+    toolsetPreloadAdded,
+    costMicrocents: present.reduce((total, trace) => total + trace.auxiliaryCostMicrocents, 0),
+    measured: present.every((trace) => trace.auxiliaryMeasured),
+  };
+}
+
+export function turnAccountingBalanced(args: {
+  rounds: readonly { roundIndex: number; costMicrocents: bigint }[];
+  usage: readonly { state: string; costSource: string; costMicrocents: string }[];
+  terminal: Record<string, unknown> | null | undefined;
+  terminalCode: string;
+  classifierTrace: AgentTurnClassifierTrace | null;
+}): boolean {
+  const roundCost = args.rounds.reduce((total, round) => total + round.costMicrocents, 0n);
+  const expectedCost = roundCost + BigInt(args.classifierTrace?.auxiliaryCostMicrocents ?? 0);
+  const [event] = args.usage;
+  return (
+    Number(args.terminal?.numTurns) === args.rounds.length &&
+    args.rounds.every((round, roundIndex) => round.roundIndex === roundIndex) &&
+    args.usage.length === 1 &&
+    event?.state === "settled" &&
+    (event.costSource !== "measured" || BigInt(event.costMicrocents) === expectedCost) &&
+    String(args.terminal?.terminalCode ?? "") === args.terminalCode
+  );
+}
 
 export function recordedToolOutputs(
   roundParts: readonly Record<string, unknown>[],
@@ -618,6 +673,7 @@ async function observeEpisode(db: BenchmarkDb, fixture: Fixture) {
       createdAt: turn.createdAt.toISOString(),
       providerStartedAt: turn.providerStartedAt?.toISOString() ?? null,
       terminalAt: turn.terminalAt?.toISOString() ?? null,
+      classifierTrace: isAgentTurnClassifierTrace(turn.classifierTrace) ? turn.classifierTrace : null,
     });
     for (const round of turn.rounds)
       metrics.rounds.push({
@@ -943,6 +999,9 @@ export async function runEpisode(
     artifact.toolOutputs = observation.toolOutputs;
   artifact.metrics = observation.metrics;
   artifact.usage = observation.usage;
+  artifact.classifier = episodeClassifierSummary(
+    observation.metrics.turns.map((turn) => turn.classifierTrace),
+  );
   const submittedPrompts = observation.turns.flatMap((turn) =>
     turn.messages
       .filter((message) => message.role === "user")
@@ -961,27 +1020,17 @@ export async function runEpisode(
   );
   const accountingBalanced =
     observation.turns.length > 0 &&
-    observation.turns.every((turn, index) => {
-      const rounds = turn.rounds;
-      const event = observation.usage.filter(
-        (usage) => usage.turnRequestId === turn.id,
-      );
-      const terminal = artifact.turns[index]?.terminal;
-      const measuredCost = rounds.reduce(
-        (total, round) => total + round.costMicrocents,
-        0n,
-      );
-      return (
-        Number(terminal?.numTurns) === rounds.length &&
-        rounds.every((round, roundIndex) => round.roundIndex === roundIndex) &&
-        event.length === 1 &&
-        event[0]?.state === "settled" &&
-        (event[0]?.costSource !== "measured" ||
-          BigInt(event[0].costMicrocents) === measuredCost) &&
-        String(terminal?.terminalCode ?? "") ===
-          String(turn.terminalCode ?? turn.status)
-      );
-    });
+    observation.turns.every((turn, index) =>
+      turnAccountingBalanced({
+        rounds: turn.rounds,
+        usage: observation.usage.filter(
+          (usage) => usage.turnRequestId === turn.id,
+        ),
+        terminal: artifact.turns[index]?.terminal,
+        terminalCode: String(turn.terminalCode ?? turn.status),
+        classifierTrace: observation.metrics.turns[index]?.classifierTrace ?? null,
+      }),
+    );
   const streamSequenceUnique = artifact.turns.every(
     (turn) =>
       turn.frameSeqs.length === turn.frameCount &&

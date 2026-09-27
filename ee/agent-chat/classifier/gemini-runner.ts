@@ -10,7 +10,7 @@ import { parseClassifierAnswers } from "./spec";
 
 export const GEMINI_CLASSIFIER_ENTRY = MODEL_CATALOG.balanced;
 export const GEMINI_CLASSIFIER_DEADLINE_MS = 2000;
-const GEMINI_CLASSIFIER_MAX_OUTPUT_TOKENS = 1024;
+export const GEMINI_CLASSIFIER_MAX_OUTPUT_TOKENS = 1024;
 
 export type GeminiRunnerOptions = {
   model?: LanguageModel;

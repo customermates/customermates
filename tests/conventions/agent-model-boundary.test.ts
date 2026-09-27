@@ -36,6 +36,17 @@ describe("agent model budget boundary", () => {
     expect(matchingProductionFiles(MODEL_CALL_PATTERN)).toEqual([...APPROVED_MODEL_CALL_FILES].sort());
   });
 
+  it("reaches the classifier runners only through the metered entry point that charges the turn", () => {
+    const unmeteredClassifierCall = /\b(?:classify|classifyAttempt|runJev|runGemini)\s*\(/;
+    const outsideClassifier = (path: string) => !path.startsWith("ee/agent-chat/classifier/");
+
+    expect(matchingProductionFiles(unmeteredClassifierCall).filter(outsideClassifier)).toEqual([]);
+    expect(matchingProductionFiles(/\bclassifyMetered\s*\(/).filter(outsideClassifier)).toEqual([
+      "ee/agent-chat/docs-rerank.ts",
+      "workflows/agent-turn.ts",
+    ]);
+  });
+
   it("never constructs a provider instance, so no api key can reach a durable step argument", () => {
     expect(matchingProductionFiles(PROVIDER_FACTORY_PATTERN)).toEqual([]);
   });

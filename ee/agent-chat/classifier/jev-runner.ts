@@ -7,6 +7,7 @@ import { parseClassifierAnswers } from "./spec";
 export const JEV_EVALUATE_URL = "https://ai-gateway.vercel.sh/v1/evaluate";
 export const JEV_MODEL_ID = "typesafe-ai/jev";
 export const JEV_SERVING_PROVIDER = "typesafe-ai";
+export const JEV_PRICING_PROVIDER = "digitalocean";
 export const JEV_DEADLINE_MS = 800;
 
 export type JevRunnerOptions = {

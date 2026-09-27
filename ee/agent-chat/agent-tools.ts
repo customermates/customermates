@@ -15,6 +15,7 @@ import {
   type McpToolExecutionResult,
 } from "@/features/mcp-tools/mcp-tool";
 import { RequestSupportSchema } from "@/features/mcp-tools/support.mcp-tools";
+import { searchDocs, searchDocsTool, type SearchDocsInput } from "@/features/mcp-tools/docs.mcp-tools";
 import { redactUnexpectedError } from "@/core/errors/redact-unexpected-error";
 
 import { agentToolResultText } from "./agent-budget-policy";
@@ -44,6 +45,7 @@ import { ANALYZE_RECORDS_DESCRIPTION, AnalyzeRecordsSchema, analyzeRecords } fro
 import { env } from "@/env";
 import type { AgentToolInputResult } from "./agent-tool-input";
 import { agentViewToolMismatch } from "./agent-page-context";
+import { hostedDocsReranker } from "./docs-rerank";
 
 export { isAgentToolCancellation, type AgentToolCancellation } from "./agent-tool-cancellation";
 
@@ -323,13 +325,19 @@ async function listUiTargets(input: z.infer<typeof ListUiTargetsSchema>, resultM
   return `${header}${lines.join("\n")}\n${footer}`;
 }
 
+function hostedMcpTool(mcp: (typeof ALL_MCP_TOOLS)[number]): (typeof ALL_MCP_TOOLS)[number] {
+  if (mcp.name !== searchDocsTool.name) return mcp;
+  const rerank = hostedDocsReranker();
+  return rerank ? { ...mcp, execute: (input: SearchDocsInput) => searchDocs(input, rerank) } : mcp;
+}
+
 function crmTool(mcp: (typeof ALL_MCP_TOOLS)[number], deps: AgentToolDeps) {
   return tool({
     description: mcp.description,
     inputSchema: providerSafeSchema(mcp.inputSchema),
     execute: async (input: unknown, { toolCallId }) => {
       const execute = async () => {
-        const outcome = await executeMcpTool(mcp, [input]);
+        const outcome = await executeMcpTool(hostedMcpTool(mcp), [input]);
         return agentToolResult(outcome, deps.resultMaxChars, { toolName: mcp.name, pageRoute: deps.pageRoute });
       };
       const enrollable = !isReadOnlyTool(mcp) && !hasNonTransactionalEffect(mcp.name);

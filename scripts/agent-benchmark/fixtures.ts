@@ -21,6 +21,7 @@ import {
   type ComplexCaseId,
 } from "./complex-cases";
 import { SCALE_CASES, isScaleCaseId, scoreScaleCase, seedScaleCase, type ScaleCaseId } from "./scale-cases";
+import { DOCS_CASES, isDocsCaseId, scoreDocsCase, type DocsCaseId } from "./docs-cases";
 import { isOutboundOrSupportAction } from "./tool-safety";
 
 export const FIXTURE_VERSION = "chat-benchmark-fixture-v7";
@@ -73,7 +74,8 @@ export type CaseId =
   | "R52"
   | "R53"
   | ComplexCaseId
-  | ScaleCaseId;
+  | ScaleCaseId
+  | DocsCaseId;
 export type BenchmarkDb = { prisma: PrismaClient; appOrigin: string };
 type Entity = "contact" | "organization" | "deal" | "service" | "task";
 type JsonObject = Prisma.InputJsonObject;
@@ -478,6 +480,7 @@ export const BENCHMARK_CASES: readonly BenchmarkCase[] = [
   },
   ...COMPLEX_CASES,
   ...SCALE_CASES,
+  ...DOCS_CASES,
 ] as const;
 
 export type Fixture = {
@@ -2240,6 +2243,7 @@ export async function scoreBenchmarkCase(db: BenchmarkDb, fixture: Fixture, obse
       assertsAmount,
     });
   }
+  if (isDocsCaseId(fixture.caseId)) scoreDocsCase(fixture.caseId, { text, unchanged, noMutatingTools, check });
   if (isScaleCaseId(fixture.caseId))
     scoreScaleCase(fixture.caseId, {
       text,

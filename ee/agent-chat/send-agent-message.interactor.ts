@@ -36,6 +36,7 @@ import { AGENT_RUN_LEASE_MS, decideAgentTurnAdmission, type AgentTurnRequestSnap
 import { buildAgentSystemPrompt, routineTriggerEventOf } from "./system-prompt";
 import { agentToolDefinitionsForTurn } from "./agent-tools";
 import { toolsetsForRequest, toolsetsFromActivities } from "./agent-toolset-routing";
+import { hostedClassifierModelFor } from "./classifier/metered";
 import { AgentActivityDescriptorSchema, type AgentActivityDescriptor } from "./agent-activity";
 import { conservativeAgentInitialContextBytes } from "./agent-provider-context";
 import { renderAgentSchemaDigest } from "./agent-schema-digest";
@@ -385,6 +386,7 @@ export class SendAgentMessageInteractor extends AuthenticatedInteractor<SendAgen
           }),
         ]);
       const toolsets = [...new Set([...requestedToolsets, ...priorToolsets, ...earlierRequestToolsets])];
+      const toolsetPreloadModel = surface === "chat" ? hostedClassifierModelFor("toolset_preload") : null;
       const pageContext = agentPageContextPrefix(pageRoute);
       const replayInputs = admission.recentMessages.map((message) => {
         const text = partsToText(message.parts);
@@ -425,6 +427,7 @@ export class SendAgentMessageInteractor extends AuthenticatedInteractor<SendAgen
         tenant: { userId: user.id, companyId: user.companyId },
         surface,
         toolsets,
+        ...(toolsetPreloadModel ? { toolsetPreloadModel } : {}),
         ...(schemaDigest ? { schemaDigest } : {}),
         ...(recordsBenchmarkToolOutputs(process.env) ? { recordToolOutputs: true } : {}),
       });
