@@ -24,7 +24,6 @@ acquisition:
     excludedClaims:
       - claim:no-self-hosted-inbox
       - claim:no-hosted-ai-self-hosted
-      - claim:no-import-export
   cta:
     action: Möchten Sie Self-Hosting prüfen?
     description: Prüfen Sie Deployment-Anforderungen und Produktgrenzen, bevor Sie das CRM auf Ihrer Infrastruktur betreiben.
@@ -173,7 +172,7 @@ Der [einheitliche CRM-Posteingang](/features/unified-inbox) ist eine Managed-Clo
 
 Das Customermates-eigene Material außerhalb von `ee/` steht ausschließlich unter AGPL-3.0. Innerhalb von `ee/` gilt grundsätzlich die kommerzielle Lizenz; ausgenommen sind die in Abschnitt 6 von `ee/LICENSE.md` beschriebenen clientseitigen Bilder, Schriften, CSS- und JavaScript-Bestandteile, die ebenfalls unter AGPL-3.0 stehen. Prüfen Sie beide Lizenzen, bevor Sie die Software für Ihren Anwendungsfall ändern, weitergeben oder betreiben.
 
-Diese Trennung ist beim Vergleich eines [Open Source CRM](/blog/open-source-crm) wichtig: Ein öffentliches Repository sagt allein noch nicht, welcher Code unter welchen Bedingungen genutzt werden darf.
+Diese Trennung ist beim Vergleich eines [Open Source CRM](/blog/open-source-crm) wichtig: Ein öffentliches Repository sagt allein noch nicht, welcher Code unter welchen Bedingungen genutzt werden darf. Wenn Sie andere selbst hostbare Projekte abwägen, zeigen die Vergleiche mit [EspoCRM](/compare/espocrm-alternative) und [Twenty](/compare/twenty-alternative), wie sich deren Bereitstellung und Lizenzen unterscheiden.
 
 ## Welche Kontrolle bietet Self-Hosting?
 
@@ -190,7 +189,7 @@ Jeder angebundene Dienst bildet weiterhin eine eigene Grenze der Datenverarbeitu
 | externe KI-Clients MCP verwenden sollen                 | Sie Cloud-Tarife und verwaltete verbundene Konten benötigen                     |
 | Sie Updates, Backups und Wiederherstellung verantworten | Sie einen verwalteten Betrieb bevorzugen                                        |
 
-Es gibt keinen eigenen Import- oder Export-Workflow für CRM-Datensätze. Behandeln Sie jeden Systemwechsel als separates Migrationsprojekt mit dokumentierten Schnittstellen und einem von Ihnen geprüften Verfahren.
+Datensätze wechseln zwischen Installationen oder aus einem anderen CRM als XLSX-Arbeitsmappen, jeweils ein Datensatztyp und innerhalb der Zeilenlimits, oder über die REST-API. Anhänge und eine vollständige Kontoübertragung gehören nicht dazu. Planen Sie einen größeren Umzug daher als Migrationsprojekt, das Sie selbst prüfen.
 
 ## So prüfen Sie das Deployment
 

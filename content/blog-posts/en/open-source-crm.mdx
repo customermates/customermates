@@ -21,7 +21,6 @@ acquisition:
       - product:mcp-tools
       - product:rest-and-webhooks
     excludedClaims:
-      - claim:no-import-export
       - claim:no-self-hosted-inbox
       - claim:no-hosted-ai-self-hosted
   cta:
@@ -288,6 +287,6 @@ It means the CRM code is offered under an open-source license that grants define
 </FaqItem>
 
 <FaqItem question="Can I import or export CRM records in self-hosted Customermates?">
-Yes. Records move in and out as XLSX workbooks, one record type at a time, scoped to the user's read access and the current view, with row limits in both directions. For anything beyond that, such as attachments or a complete account transfer, design a migration through the REST API.
+Yes. Records move in and out as XLSX workbooks, one record type at a time, scoped to the user's read access and the current view, with row limits in both directions. CSV is not accepted, so save CSV files as `.xlsx` first. For anything beyond that, such as attachments or a complete account transfer, design a migration through the REST API.
 </FaqItem>
 </Faq>

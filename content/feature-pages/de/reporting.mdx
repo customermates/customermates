@@ -34,7 +34,7 @@ CRM Reporting ist der Prozess, Ihre Kundendaten in verwertbare Business Intellig
 
 Effektives CRM Reporting beantwortet die Fragen, die für Vertriebsleiter und Geschäftsführer am wichtigsten sind. Wie viel Umsatz steckt in der Pipeline? Welche Vertriebsphasen haben die höchsten Abbruchraten? Wie performt jedes Teammitglied im Vergleich zu seinen Zielen? Wie lange dauert es durchschnittlich, einen Deal abzuschließen? Ohne strukturiertes Reporting erfordern diese Fragen stundenlange manuelle Analysen. Mit den richtigen Reporting-Tools sind die Antworten sofort verfügbar.
 
-Für wachsende Teams ist CRM Reporting kein Luxusfeature. Es ist der Mechanismus, der verstreute Aktivitäten in strategische Entscheidungsfindung verwandelt. Unternehmen, die datenbasiertes Vertriebsreporting einsetzen, sehen messbare Verbesserungen: Organisationen, die Analysen in ihrem CRM nutzen, erzielen bis zu 29 Prozent mehr Umsatz und 42 Prozent genauere Prognosen im Vergleich zu denen, die sich allein auf Intuition verlassen.
+Für wachsende Teams ist CRM Reporting kein Luxusfeature. Es ist der Mechanismus, der verstreute Aktivitäten in strategische Entscheidungsfindung verwandelt.
 
 ## Fünf essenzielle CRM-Berichte, die jedes Team braucht
 
@@ -54,7 +54,7 @@ Nicht jedes Team braucht die gleichen Berichte, aber diese fünf decken die Grun
 
 Customermates bietet Reporting über konfigurierbare Dashboard-Widgets zu Ihren CRM-Daten, ohne separates BI-Tool. Widgets aktualisieren sich bei Änderungen unterstützter Datensätze; ein externer KI-Client kann zulässige Daten über MCP abfragen.
 
-**Externe KI-Clients können CRM-Daten aktualisieren und abfragen.** Unterstützte Clients wie Claude, ChatGPT oder Gemini können über MCP zulässige Kontakte, Deal-Felder und Notizen aktualisieren oder erlaubte Datensätze abfragen. Customermates enthält weder KI-Chat noch Modell; Client-Abo, Modellnutzung und Anbieter-Verarbeitung bleiben extern.
+**Externe KI-Clients können CRM-Daten aktualisieren und abfragen.** Unterstützte Clients wie Claude, ChatGPT oder Gemini können über MCP zulässige Kontakte, Deal-Felder und Notizen aktualisieren oder erlaubte Datensätze abfragen. Bei einem externen Client bleiben Abo, Modellnutzung und Anbieter-Verarbeitung bei Ihnen. In den Cloud-Tarifen beantwortet zusätzlich der gehostete Mate-Assistent Fragen zur Pipeline direkt im CRM und nutzt dafür monatliche gehostete KI-Credits.
 
 **Pipeline-Dashboards.** Bauen Sie ein Dashboard aus Diagramm-Widgets (Balken-, Doughnut- oder Radardiagramme), die die Deal-Verteilung über Phasen und den Pipeline-Wert nach Phase zeigen. Widgets aktualisieren sich automatisch, wenn Deals fortschreiten, sodass Sie immer den aktuellen Stand Ihres Geschäfts sehen.
 
@@ -76,7 +76,7 @@ Gutes Reporting bedeutet nicht nur die richtigen Tools zu haben. Es geht darum, 
 
 **Definitionen standardisieren.** Stellen Sie sicher, dass jedes Teammitglied übereinstimmt, was als qualifizierter Deal zählt, wann ein Deal in die nächste Phase wechselt und wie Aktivitäten protokolliert werden. Inkonsistente Dateneingabe produziert unzuverlässige Berichte.
 
-**Berichtslieferung extern automatisieren.** Eine separate n8n-Instanz kann Pipeline-Zusammenfassungen über Slack oder andere Anbieter planen, kundendefinierte Schwellenwerte auswerten und Leistungs-Digests zustellen. Customermates bündelt weder n8n noch Slack, Scheduler oder Alarm-Engine.
+**Berichtslieferung extern automatisieren.** Eine separat betriebene n8n-Instanz kann Pipeline-Zusammenfassungen über Slack oder andere Anbieter planen, kundendefinierte Schwellenwerte auswerten und Leistungs-Digests zustellen. In der Cloud kann außerdem eine Mate-Routine einen gespeicherten Prompt nach Zeitplan ausführen, etwa für eine Pipeline-Zusammenfassung. Customermates bündelt weder n8n noch Slack und hat keine Alarm-Engine.
 
 **Auf die Daten reagieren.** Das beste Reporting-System der Welt ist wertlos, wenn die Erkenntnisse nicht zu Handlung führen. Jedes Report-Review sollte mit konkreten nächsten Schritten enden: Deals für Follow-Up, Prozesse zum Anpassen, Coaching-Gespräche zum Führen oder Ressourcen zum Umverteilen.
 
@@ -88,7 +88,7 @@ Gutes Reporting bedeutet nicht nur die richtigen Tools zu haben. Es geht darum, 
 
 **Lead-Quellen-Analyse.** Speichern Sie die Lead-Quelle in einem eigenen Feld und stellen Sie unterstützte Deal-Anzahlen oder Werte nach Quelle dar. Berechnen Sie Quellen-Konversionsraten und Attribution bei Bedarf in einem separaten Reporting-System.
 
-**Prognosen und Planung.** Nutzen Sie Pipeline-Daten und historische Konversionsraten für Umsatzprognosen. Stellen Sie den Pipeline-Wert nach Phase dar und wenden Sie Ihre eigenen Gewinnwahrscheinlichkeiten an (als benutzerdefiniertes Feld oder n8n-Berechnung), um eine realistische Sicht auf die erwarteten Einnahmen aus Ihren aktuellen Deals zu erhalten.
+**Prognosen und Planung.** Customermates multipliziert jeden Deal-Wert mit der Wahrscheinlichkeit, die Sie für seine Phase hinterlegen. Dashboards zeigen so gewichtete Deal-Werte und gewichtete Pipeline-Summen Ihrer aktuellen Deals. Das ist eine feste Berechnung, keine vorausschauende Prognose; Projektionen auf Basis historischer Konversionsraten gehören in ein separates Reporting-System.
 
 **Eingaben für Vertriebscoaching.** Nutzen Sie unterstützte Datensätze und kundendefinierte Felder als Coaching-Grundlage. Nutzerübergreifende Performance-Vergleiche, Konversionsraten, Ziele und Zyklusmetriken benötigen eine separate Berechnung oder ein externes Reporting-System.
 
@@ -98,7 +98,7 @@ Gutes Reporting bedeutet nicht nur die richtigen Tools zu haben. Es geht darum, 
 
 **Open Source und transparent.** Ihr Reporting läuft auf Code, den Sie einsehen und erweitern können. Keine Black-Box-Algorithmen oder versteckten Datentransformationen zwischen Ihren Rohdaten und Ihren Berichten.
 
-**EU-Datenbankregion mit dokumentierten Anbietern.** Reporting liest die verwaltete Datenbank, die in einer EU-Region läuft. Anwendungshosting und weitere Anbieter können Daten andernorts verarbeiten; diese Bereitstellungsangabe ist keine DSGVO- oder andere Compliance-Zertifizierung.
+**Cloud-Datenbank in Frankfurt, Anbieter offengelegt.** In der Cloud-Version liegt die Datenbank in der AWS-Region Frankfurt; Hosting und weitere Unterauftragsverarbeiter, auch aus den USA, stehen in der [Liste der Unterauftragsverarbeiter](/subprocessors), ein [Auftragsverarbeitungsvertrag (AVV)](/dpa) liegt vor. Customermates besitzt keine Compliance-Zertifizierung.
 
 **Einfache, faire Preisgestaltung.** CRM Reporting ist ab [[commercial.price.starter.monthly]] pro Nutzer und Monat (Starter-Stufe) enthalten. Dashboard-Diagramm-Widgets, Filter und MCP-Zugang für externe KI-Clients sind in jeder Stufe enthalten. Keine Kosten pro Bericht, und Sie können so viele Widgets hinzufügen, wie Sie brauchen.
 

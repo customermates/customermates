@@ -51,7 +51,7 @@ Die Authentifizierung findet im Verbindungsablauf des Anbieters statt. Customerm
 
 **Einzelner E-Mail-Versand.** Senden Sie jeweils eine geprüfte Nachricht über ein unterstütztes Konto und halten Sie sie im unterstützten Gesprächsverlauf fest. Customermates bietet weder Massen-E-Mail-Versand noch Bulk-Outreach; nutzen Sie für Gruppen einen separaten Kampagnenanbieter.
 
-**E-Mail-Sequenzen in einem externen Anbieter mit n8n.** Gehen Sie über manuelles E-Mailing hinaus mit der n8n-Automatisierungs-Engine. Richten Sie Trigger ein, die automatisch E-Mails basierend auf CRM-Ereignissen senden:
+**E-Mail-Sequenzen in einem externen Anbieter mit n8n.** Gehen Sie über manuelles E-Mailing hinaus mit einer separat betriebenen n8n-Instanz. Richten Sie dort Trigger ein, die automatisch E-Mails basierend auf CRM-Ereignissen senden:
 
 - Wenn ein Deal zu "Angebot gesendet" wechselt, senden Sie nach 3 Tagen ohne Antwort eine Follow-up-Vorlage
 - Wenn ein neuer Kontakt über ein Webformular erstellt wird, starten Sie eine Willkommens-E-Mail-Sequenz
@@ -74,11 +74,11 @@ Das Produkt nimmt außerdem nicht an, dass jede synchronisierte Nachricht zu ein
 
 Das verbundene gemeinsame Postfach ist ab Pro für [[commercial.price.pro.monthly]] pro Nutzer und Monat verfügbar. Starter für [[commercial.price.starter.monthly]] pro Nutzer und Monat deckt das Kern-CRM ohne verbundene Konten ab. Business für [[commercial.price.business.monthly]] pro Nutzer und Monat erhöht die Kapazität verbundener Konten und unterstützt geteilte Konten.
 
-Der Transport verbundener Konten läuft über Unipile. Die verwaltete Anwendungsdatenbank ist in einer EU-Region konfiguriert; die rechtlichen Seiten nennen die relevanten Cloud-Unterauftragsverarbeiter, Verarbeitungsorte und Übermittlungsgarantien. Die Datenbankeinstellung ist keine Zusage, dass jede Verarbeitung in einem Land bleibt oder nie einen US-Anbieter einbezieht. Siehe [Datenschutz](/privacy), [Unterauftragsverarbeiter](/subprocessors) und [AVV](/dpa).
+Der Transport verbundener Konten läuft über Unipile, das Daten in Frankreich speichert. In der Cloud-Version liegt die Datenbank in der AWS-Region Frankfurt; Hosting und weitere Unterauftragsverarbeiter, auch aus den USA, stehen mit Verarbeitungsorten und Übermittlungsgarantien auf den rechtlichen Seiten. Siehe [Datenschutz](/privacy), [Unterauftragsverarbeiter](/subprocessors) und [AVV](/dpa).
 
 Der Self-Hosted-Build verwendet immer Starter-Berechtigungen und enthält weder den einheitlichen Posteingang noch verbundene Konten. Der Posteingang ist ausschließlich in Customermates Cloud ab Pro verfügbar; dort bildet jeder aktivierte Anbieter und Unterauftragsverarbeiter eine eigene Grenze der Datenverarbeitung.
 
-**Dokumentierte Hosting-Grenzen.** Die verwaltete Customermates-Datenbank läuft in einer EU-Region. Anwendungshosting, Messaging-Dienste und weitere Anbieter, darunter US-Anbieter, können Daten andernorts verarbeiten und werden separat dokumentiert; dies ist keine Compliance-Zertifizierung. Self-Hosting hat Starter-Berechtigungen und enthält kein Cloud-Postfach.
+**Dokumentierte Hosting-Grenzen.** In der Cloud-Version liegt die Datenbank in der AWS-Region Frankfurt; Hosting und weitere Unterauftragsverarbeiter, auch aus den USA, stehen in der [Liste der Unterauftragsverarbeiter](/subprocessors), ein [Auftragsverarbeitungsvertrag (AVV)](/dpa) liegt vor. Self-Hosting hat Starter-Berechtigungen und enthält kein Cloud-Postfach.
 
 **n8n-getriebene E-Mail-Automatisierung.** Verbinden Sie eine separate n8n-Instanz und einen externen Versandanbieter über die Customermates-Schnittstellen. Kampagnen und Sequenzen laufen außerhalb des CRM; Tarife, Limits, Logs und Kosten bleiben separat.
 
@@ -109,8 +109,8 @@ Ja, über separate Dienste. Ein von Ihnen betriebener n8n-Workflow kann auf doku
 Nein. Verbundene Google- oder Microsoft-Kalendertermine erscheinen in einer schreibgeschützten CRM-Ansicht. Customermates erstellt, bearbeitet oder plant keine Termine im Anbieter-Kalender.
 </FaqItem>
 
-<FaqItem question="Werden meine E-Mail-Daten in der EU gespeichert?">
-Die verwaltete Customermates-Datenbank läuft in einer EU-Region. Anwendungshosting, Messaging-Dienste und verbundene Anbieter können Daten andernorts verarbeiten, auch über US-Anbieter; dies ist keine Compliance-Zertifizierung. Self-Hosting enthält die Cloud-E-Mail-Integration nicht.
+<FaqItem question="Wo werden meine E-Mail-Daten gespeichert?">
+In der Cloud-Version liegt die Datenbank in der AWS-Region Frankfurt; Unipile, das die verbundenen Konten transportiert, speichert Daten in Frankreich. Die Anwendung wird von Vercel in den USA gehostet, weitere Unterauftragsverarbeiter, auch aus den USA, stehen in der [Liste der Unterauftragsverarbeiter](/subprocessors). Self-Hosting enthält die Cloud-E-Mail-Integration nicht.
 </FaqItem>
 </Faq>
 

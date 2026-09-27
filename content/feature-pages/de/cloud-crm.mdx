@@ -26,7 +26,6 @@ acquisition:
       - product:docker-postgresql-deployment
       - product:self-hosted-starter-entitlements
     excludedClaims:
-      - claim:no-import-export
       - claim:no-predictive-sales-analytics
       - claim:no-self-hosted-inbox
   cta:
@@ -103,7 +102,7 @@ Eine **Cloud-CRM-Software** ist ein Kundenmanagementsystem, das der Anbieter als
 <ProofRail label="Verifizierte Funktionen von Customermates Cloud">
   <ProofItem label="Datensätze">Fünf Kernfamilien im CRM</ProofItem>
   <ProofItem label="Workspace">Eigene Felder und Ansichten</ProofItem>
-  <ProofItem label="Vertrieb">Konfigurierbare Deal-Pipelines</ProofItem>
+  <ProofItem label="Vertrieb">Konfigurierbare Deal-Phasen</ProofItem>
   <ProofItem label="Schnittstellen">REST, Webhooks und MCP</ProofItem>
   <ProofItem label="Betrieb">Managed Cloud oder Self-Hosted-Kern</ProofItem>
 </ProofRail>
@@ -199,7 +198,7 @@ Für Automatisierung können Teams REST aufrufen, Webhooks empfangen, MCP verwen
 
 ## Migration und Auswertung
 
-Customermates besitzt keinen eigenen CSV- oder CRM-Datensatz-Import/Export-Ablauf. Eine Migration aus einem anderen CRM benötigt einen separat entworfenen REST- oder MCP-Prozess mit expliziter Zuordnung, Validierung, Duplikatprüfung, Wiederholungen und vereinbartem Rollback.
+Datensätze lassen sich als XLSX-Arbeitsmappen importieren und exportieren, jeweils ein Datensatztyp, im Rahmen Ihrer Berechtigungen und der aktuellen Ansicht und innerhalb der Zeilenlimits. Nicht dazu gehören CSV, ein Export des gesamten Kontos, Anhänge und ein Rückgängigmachen. Einen größeren Umzug aus einem anderen CRM planen Sie daher als Migrationsprojekt mit expliziter Zuordnung, Validierung und Duplikatprüfung, bei Bedarf ergänzt über REST oder MCP.
 
 Dashboards, Aktivitätshistorie, Phasenwahrscheinlichkeiten sowie gewichtete Deal- und Pipeline-Werte helfen bei der Prüfung des aktuellen Workspace. Sie sind keine prädiktive Abschluss- oder Umsatzprognose, kein Lead-Scoring und keine Conversion- oder Pipeline-Geschwindigkeitsanalyse.
 
@@ -248,9 +247,11 @@ Es passt nicht, wenn ein vollständiges ERP, Buchhaltung, Lager, Rechnungsstellu
 </FaqItem>
 
 <FaqItem question="Enthält Customermates einen Datenimport oder Migrationsassistenten?">
-  Nein. Es gibt keinen eigenen CSV- oder CRM-Datensatz-Importer/Exporter. Eine
-  Migration benötigt einen separat entworfenen REST- oder MCP-Ablauf mit
-  ausdrücklicher Zuordnung, Validierung und Duplikatprüfung.
+  Es gibt einen XLSX-Import und -Export pro Datensatztyp, begrenzt auf Ihre
+  Berechtigungen, die aktuelle Ansicht und eine maximale Zeilenzahl. CSV, ein
+  Export des gesamten Kontos und ein Migrationsassistent fehlen. Größere
+  Umzüge planen Sie mit Zuordnung, Validierung und Duplikatprüfung, bei Bedarf
+  über REST oder MCP.
 </FaqItem>
 
 <FaqItem question="Welche Auswertungen bietet Customermates?">

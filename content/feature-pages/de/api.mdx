@@ -46,7 +46,7 @@ Customermates bietet eine versionierte REST API für dokumentierte CRM-Ressource
 
 **OpenAPI-Spezifikation.** Die API ist mit einer vollständigen OpenAPI-3.1-Spezifikation dokumentiert, verfügbar unter `/api/v1/openapi`. Importieren Sie die Spec in Postman, Insomnia oder jeden beliebigen API-Client, um Endpoints interaktiv zu erkunden. Nutzen Sie die Spec zur automatischen Generierung von Client-Libraries in jeder Programmiersprache.
 
-**MCP-Endpoint für unterstützte externe KI-Clients.** Customermates stellt [[derived.mcp.tools.total]] MCP-Tools für zulässige CRM- und Messaging-Operationen bereit, je nach Client-Flow authentifiziert per API-Key oder OAuth-Bearer-Token. Unterstützte Clients wie Claude, ChatGPT oder Gemini bleiben extern; Customermates enthält weder Client noch KI-Modell.
+**MCP-Endpoint für unterstützte externe KI-Clients.** Customermates stellt [[derived.mcp.tools.total]] MCP-Tools für zulässige CRM- und Messaging-Operationen bereit, je nach Client-Flow authentifiziert per API-Key oder OAuth-Bearer-Token. Unterstützte Clients wie Claude, ChatGPT oder Gemini bleiben extern und nutzen das Modell und Abonnement Ihrer Wahl; der gehostete Mate-Assistent ist eine separate Cloud-Funktion.
 
 **Filterung, Sortierung und Paginierung.** Nutzen Sie die je Ressource unterstützten Filter- und Sortierparameter. Mehrere nutzerseitige Filterbedingungen werden mit UND verknüpft, und generische Listen-Endpunkte verwenden `page` und `pageSize`; ODER auf oberster Ebene und Cursor-Paginierung werden nicht unterstützt.
 
@@ -56,7 +56,7 @@ Customermates bietet eine versionierte REST API für dokumentierte CRM-Ressource
 
 **Unterstützter Zugriff auf eigene Felder.** Lesen oder schreiben Sie Werte nur dort, wo die dokumentierten Ressourcen und Operationen dies ausweisen. Das aktuelle OpenAPI-Dokument, Feldtypen und Validierungsantworten bilden den Integrationsvertrag.
 
-**Große Datenoperationen über Integrationen.** Customermates hat keinen eingebauten CSV-Importer, Exporter oder generischen Batch-Endpunkt. Eine kundenseitige Integration kann unterstützte Datensätze über dokumentierte API-Aufrufe anlegen oder aktualisieren und übernimmt Batching, Validierung, Zuordnung, Deduplizierung und Retries.
+**Große Datenoperationen über Integrationen.** In der App lässt sich jeder Datensatztyp als XLSX-Arbeitsmappe importieren und exportieren, im Rahmen von Berechtigungen und aktueller Ansicht und mit Zeilenlimit; CSV und einen generischen Batch-Endpunkt gibt es nicht. Für größere oder wiederkehrende Datenmengen kann eine kundenseitige Integration unterstützte Datensätze über dokumentierte API-Aufrufe anlegen oder aktualisieren und übernimmt Batching, Validierung, Zuordnung, Deduplizierung und Retries.
 
 **Endpoint-Verhalten.** Planen Sie Durchsatz und Retries anhand der aktuellen API-Dokumentation und Antworten. Customermates veröffentlicht für diese API-Oberfläche keine generische Anwendungsquote oder Rate-Limit-Header.
 
@@ -84,9 +84,9 @@ Customermates bietet eine versionierte REST API für dokumentierte CRM-Ressource
 
 **Website- und Formular-Integration.** Wenn ein Besucher ein externes Formular absendet, nutzen Sie die API für unterstützte CRM-Datensätze. Ordnen Sie Formularfelder zu; berechnen Sie Lead-Scores oder Routing extern und schreiben Sie freigegebene Werte dort zurück, wo die API es erlaubt.
 
-**Datenmigration von anderen CRMs.** Bereiten Sie Quelldaten außerhalb von Customermates auf und ordnen Sie sie zu, dann erstellen Sie unterstützte Datensätze über eine kundenseitige API-Integration. Es gibt keinen eingebauten Import-Workflow; Ihre Integration übernimmt Batching, Validierung, Feldzuordnung, Deduplizierung und Transformation.
+**Datenmigration von anderen CRMs.** Bereiten Sie Quelldaten außerhalb von Customermates auf und ordnen Sie sie zu, dann erstellen Sie unterstützte Datensätze über eine kundenseitige API-Integration. Für kleinere Umzüge verarbeitet der XLSX-Import in der App jeweils einen Datensatztyp innerhalb der Zeilenlimits; bei größeren Mengen übernimmt Ihre Integration Batching, Validierung, Feldzuordnung, Deduplizierung und Transformation.
 
-**ERP- und Buchhaltungssystem-Sync.** Synchronisieren Sie Deal-Daten mit Ihrem ERP- oder Buchhaltungssystem. Wenn ein Deal gewonnen wird, übertragen Sie Rechnungsdaten an Ihr Abrechnungssystem. Wenn eine Zahlung eingeht, aktualisieren Sie den Deal-Status im CRM. Bidirektionaler Sync hält beide Systeme aktuell.
+**ERP- und Buchhaltungssystem-Sync.** Synchronisieren Sie Deal-Daten mit Ihrem ERP- oder Buchhaltungssystem. Wenn ein Deal gewonnen wird, übertragen Sie Rechnungsdaten an Ihr Abrechnungssystem. Wenn eine Zahlung eingeht, aktualisieren Sie die Deal-Phase oder ein eigenes Feld im CRM. Eine von Ihnen gebaute und betriebene Zwei-Wege-Integration hält beide Systeme abgestimmt.
 
 **Webhook-gesteuerte Workflow-Orchestrierung.** Nutzen Sie Webhooks für externe Prozesse bei dokumentierten CRM-Ereignissen. Bei Deal-Gewinn kann Ihr Produkt bereitstellen, bei Kontaktaktualisierung unterstützte Änderungen synchronisieren. Muss ein eigenes Aufgaben-Datumsfeld beachtet werden, wertet ein externer Scheduler es aus und sendet eine Slack-Benachrichtigung über einen externen Anbieter; native Fälligkeit oder Überfälligkeit gibt es nicht.
 
@@ -100,7 +100,7 @@ Customermates bietet eine versionierte REST API für dokumentierte CRM-Ressource
 
 **Open Source und voll transparent.** Die API ist Teil der Open-Source-Codebasis von Customermates. Einsehen, verstehen, beitragen. Kein Black-Box-API-Verhalten.
 
-**EU-Datenbankregion und dokumentierte Anbieter.** Die gehostete Datenbank läuft in einer EU-Region. Anwendungshosting und weitere Anbieter, darunter US-Anbieter, werden separat dokumentiert; dies ist keine DSGVO- oder andere Compliance-Zertifizierung.
+**Cloud-Datenbank in Frankfurt, Anbieter offengelegt.** In der Cloud-Version liegt die Datenbank in der AWS-Region Frankfurt; Hosting und weitere Unterauftragsverarbeiter, auch aus den USA, stehen in der [Liste der Unterauftragsverarbeiter](/subprocessors), ein [Auftragsverarbeitungsvertrag (AVV)](/dpa) liegt vor.
 
 **Einfache, veröffentlichte Preisgestaltung.** Dokumentierter API-Zugang ist in veröffentlichten Plänen ab [[commercial.price.starter.monthly]] pro Nutzer und Monat enthalten. Für unterstützte Operationen und Grenzen gilt die aktuelle Dokumentation; unbeschränkte Nutzung oder vollständige Parität wird nicht versprochen.
 

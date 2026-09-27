@@ -21,7 +21,6 @@ acquisition:
       - product:mcp-tools
       - product:rest-and-webhooks
     excludedClaims:
-      - claim:no-import-export
       - claim:no-self-hosted-inbox
       - claim:no-hosted-ai-self-hosted
   cta:
@@ -165,6 +164,8 @@ Behandeln Sie einen nicht gemessenen oder nicht dokumentierten Punkt als unbekan
 
 Bei der Suche nach Open Source CRM erscheinen Projekte mit sehr unterschiedlichem Umfang. Customermates, SuiteCRM, EspoCRM und Twenty sind sinnvolle Ausgangspunkte für eine quellengestützte Shortlist. Odoo Community und CiviCRM können relevant sein, wenn eine breitere Business-Suite oder ein Mitgliederkontext zur Anforderung gehört. Prüfen Sie vor einer Entscheidung die aktuelle offizielle Lizenz, Editionsgrenze, Deployment-Dokumentation sowie den Wartungsstatus.
 
+Einen direkten Vergleich zu zwei davon liefern die Seiten [EspoCRM-Alternative](/compare/espocrm-alternative) und [Twenty-Alternative](/compare/twenty-alternative): Lizenz, Technik, Preise, Kanäle und MCP-Unterstützung, jeweils aus den offiziellen Seiten der Projekte.
+
 Die Produkte unterscheiden sich in Funktionsumfang und Zielgruppe. Einige Projekte konzentrieren sich auf CRM, andere gehören zu einer umfassenderen Business-Suite, wieder andere sind auf Nonprofit- oder Mitglieder-Workflows ausgerichtet. Deshalb ist eine nach den eigenen Anforderungen bewertete Shortlist nützlicher als ein pauschaler Testsieger.
 
 ### Offizielle Quellen, geprüft am 28. August 2026
@@ -203,9 +204,9 @@ Das offizielle [Self-Hosted CRM](/features/self-hosted) besteht aus der Anwendun
 | Einheitlicher Posteingang und Messaging-Konten              | Nicht enthalten                                       |
 | Cloudbasierter Mate-Assistent und gehostete Credits         | Nicht enthalten                                       |
 | Verbundene schreibgeschützte Kalenderansicht                | Nicht enthalten                                       |
-| Eigener Import-/Export-Workflow für CRM-Datensätze          | Nicht enthalten                                       |
+| Import und Export von Datensätzen als XLSX-Arbeitsmappen    | Enthalten, jeweils ein Datensatztyp                   |
 
-Customermates passt, wenn Sie ein fokussiertes CRM, Docker/PostgreSQL und eine offene MCP-Oberfläche suchen. Es passt nicht, wenn Sie beim Self-Hosting den Posteingang der Managed Cloud oder eine fertige Migration, PSA, Rechnungsstellung oder Zeiterfassung benötigen.
+Customermates passt, wenn Sie ein fokussiertes CRM, Docker/PostgreSQL und eine offene MCP-Oberfläche suchen. Es passt nicht, wenn Sie beim Self-Hosting den Posteingang der Managed Cloud, eigene Objekttypen oder eine PSA-, Rechnungs- oder Zeiterfassungs-Suite benötigen.
 
 <ProductDemo hostedBoundary path="/dashboard" />
 
@@ -253,8 +254,8 @@ Bei Customermates ist die Trennung ausdrücklich: Kern-CRM, REST, Webhooks und M
     gemeinsam.
   </Step>
   <Step title="Migration separat planen">
-    Entwerfen und prüfen Sie ein Migrationsverfahren, wenn kein eigener Import-
-    oder Export-Workflow vorhanden ist.
+    Entwerfen und prüfen Sie ein Migrationsverfahren, wenn das Produkt keinen
+    eigenen Import- oder Export-Workflow hat.
   </Step>
 </Steps>
 
@@ -288,6 +289,6 @@ Der CRM-Code wird unter einer Open-Source-Lizenz angeboten, die definierte Recht
 </FaqItem>
 
 <FaqItem question="Kann ich CRM-Datensätze in Self-Hosted Customermates importieren oder exportieren?">
-Customermates hat keinen eigenen Import- oder Export-Workflow für CRM-Datensätze. Jede Migration braucht ein separat entworfenes und geprüftes API- oder Datenbankverfahren.
+Ja. Datensätze kommen als XLSX-Arbeitsmappen hinein und hinaus, jeweils ein Datensatztyp, beschränkt auf die Leserechte des Nutzers und die aktuelle Ansicht, mit Zeilenlimits in beide Richtungen. CSV wird nicht akzeptiert, speichern Sie CSV-Dateien also zuerst als `.xlsx`. Für alles darüber hinaus, etwa Anhänge oder die Übertragung eines kompletten Kontos, entwerfen Sie eine Migration über die REST API.
 </FaqItem>
 </Faq>

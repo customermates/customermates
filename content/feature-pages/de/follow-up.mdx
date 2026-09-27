@@ -48,6 +48,8 @@ Customermates bietet zwei Mechanismen für Follow-ups: Aufgaben am Datensatz mit
 
 **Extern ausgelöste Erinnerungen.** Ein separater Workflow kann protokollierte Aktivität oder kundendefinierte Datumswerte über API oder Webhooks auswerten, eine unterstützte Aufgabe erstellen oder über einen externen Anbieter eine Benachrichtigung senden. Customermates überwacht selbst keine Inaktivität und versendet keine Erinnerungen.
 
+**Cloud-Routinen als Follow-Up-Prüfung.** In Customermates Cloud kann eine Mate-[Routine](/docs/app-routines) einen gespeicherten Prompt nach Zeitplan ausführen, etwa jeden Montag: Kontakte auflisten, deren Datum für den nächsten Kontakt überschritten ist, und für jeden eine kurze Nachricht zur Prüfung entwerfen. Routinen verbrauchen gehostete KI-Credits; Starter enthält [[commercial.entitlement.starter.includedRoutinesPerUser]] Routine pro Nutzer, Pro enthält [[commercial.entitlement.pro.includedRoutinesPerUser]]. Beim Self-Hosting sind sie nicht verfügbar, und sie sind weder Erinnerungen noch Sequenzen.
+
 **Externe Multi-Channel-Workflows.** Nutzen Sie eine separate n8n-Instanz und Zustellanbieter für eine kundendefinierte Kadenz. Das native Postfach unterstützt einzelne Nachrichten über E-Mail, LinkedIn, WhatsApp, Instagram und Telegram; Customermates hat keine Sequenz-Engine, kein Bulk-Outreach und keine Telefonie.
 
 **Externe verhaltensbasierte Trigger.** Ein separater E-Mail- oder Analytics-Anbieter kann Engagement-Ereignisse liefern; ein kundeneigener Workflow kann daraufhin ein einzelnes Follow-Up anfordern. Customermates besitzt keine native E-Mail-Öffnungs-, Websitebesuchs- oder Verhaltens-Sequenz-Engine.
@@ -68,7 +70,7 @@ Ein Agent kann bei der Entscheidung und Dokumentation des nächsten Schritts hel
 
 Aufgaben, Custom Fields, Webhooks, REST-API-Zugang und MCP gehören ab Starter für [[commercial.price.starter.monthly]] pro Nutzer und Monat zum Kern-CRM. Das verbundene gemeinsame Postfach beginnt mit Pro für [[commercial.price.pro.monthly]] pro Nutzer und Monat. Business für [[commercial.price.business.monthly]] pro Nutzer und Monat erhöht die Kapazität verbundener Konten und unterstützt geteilte Konten.
 
-Der selbst gehostete Community-Build enthält Aufgaben, API, Webhooks und MCP. Er enthält weder einen gebündelten n8n-Container noch das gemeinsame Postfach der Enterprise Edition. Betreiben Sie jeden Automatisierungsdienst getrennt und sichern Sie dessen Zugangsdaten und Netzwerkzugriff selbst.
+Der selbst gehostete Community-Build enthält Aufgaben, API, Webhooks und MCP. Er enthält weder einen gebündelten n8n-Container noch das gemeinsame Postfach der Managed Cloud oder den gehosteten Mate-Assistenten. Betreiben Sie jeden Automatisierungsdienst getrennt und sichern Sie dessen Zugangsdaten und Netzwerkzugriff selbst.
 
 **Testen und iterieren.** Verfolgen Sie Öffnungs-, Antwort- und Konversionsraten im externen Sequenzanbieter. Testen Sie dort Betreffzeilen, Timing und Inhalte und nutzen Sie die Ergebnisse zur laufenden Verbesserung.
 
@@ -78,7 +80,7 @@ Nein. Das aktuelle Task-Modell hat weder Fälligkeits- noch Erinnerungsfeld und 
 
 **Follow-Up-Lücken sichtbar machen.** Speichern Sie das nächste Aktionsdatum in einem eigenen Feld und prüfen Sie es in einer gefilterten Ansicht. Ein separat betriebener Scheduler kann es auswerten und extern eine Benachrichtigung senden; Customermates versendet keine native Erinnerung oder Inaktivitätswarnung.
 
-Ja, über einen kundenseitig betriebenen Automatisierungsdienst. Nutzen Sie Webhooks und APIs, um Datensatzänderungen zu beobachten, Datumswerte in Custom Fields zu halten, Aufgaben zu erstellen oder einen Messaging-Dienst aufzurufen. Customermates selbst führt den Timer nicht aus.
+**Erinnerungen über eigene Automatisierung.** Ein kundenseitig betriebener Automatisierungsdienst kann über Webhooks und APIs Datensatzänderungen beobachten, Datumswerte aus Custom Fields lesen, Aufgaben erstellen oder einen Messaging-Dienst aufrufen. Customermates selbst führt den Timer nicht aus.
 
 **Weniger Abhängigkeit vom Gedächtnis.** Verknüpfte Aufgaben und eigene Felder halten fest, was wann für wen passieren soll. Das CRM speichert die Werte; ein Mensch oder kundeneigener Workflow entscheidet, wann gehandelt wird.
 
@@ -86,7 +88,7 @@ Ja, über einen kundenseitig betriebenen Automatisierungsdienst. Nutzen Sie Webh
 
 **Skalieren mit externen Outreach-Tools.** Mit wachsender Pipeline bewahrt Customermates den Kontext einzelner Vorgänge; automatisierter oder massenhafter Outreach läuft in einem separaten Kampagnen- oder Sequenzanbieter mit eigenen Limits und Schutzregeln.
 
-Nein. Der Kalender des verwalteten verbundenen Kontos ist eine schreibgeschützte CRM-Ansicht.
+**Kalenderkontext, nur lesend.** Der verbundene Kalender in Customermates Cloud (ab Pro) ist eine schreibgeschützte CRM-Ansicht; Customermates bucht oder plant keine Follow-Up-Termine.
 
 **Neue-Lead-Follow-Up-Sequenz.** Ein kundeneigener externer Workflow kann eine zeitgesteuerte Kadenz in separaten Kanalanbietern starten: Tag 1 E-Mail, Tag 3 Anrufaktion, Tag 5 LinkedIn-Schritt, Tag 7 Mehrwert-E-Mail, Tag 14 Abschluss. Customermates speichert nur unterstützte CRM-Datensätze und einzelne Nachrichten.
 
@@ -104,11 +106,11 @@ Nein. Der Kalender des verwalteten verbundenen Kontos ist eine schreibgeschützt
 
 **Open-Source-Kern.** AGPL-Kern-CRM-Anwendung und verknüpftes Aufgabenmodell sind einsehbar. Erinnerungsplanung, Sequenzen, Zustellanbieter, externe KI-Clients und n8n-Workflows bleiben separate Systeme mit eigenen Bedingungen.
 
-**EU-Datenbankregion mit dokumentierten Anbietern.** Die gehostete Datenbank läuft in einer EU-Region. Anwendungshosting und verbundene Anbieter, darunter US-Anbieter, können Daten andernorts verarbeiten; das ist eine Bereitstellungsangabe, keine DSGVO- oder andere Compliance-Zertifizierung.
+**Cloud-Datenbank in Frankfurt, Anbieter offengelegt.** In der Cloud-Version liegt die Datenbank in der AWS-Region Frankfurt; Hosting und weitere Unterauftragsverarbeiter, auch aus den USA, stehen in der [Liste der Unterauftragsverarbeiter](/subprocessors), ein [Auftragsverarbeitungsvertrag (AVV)](/dpa) liegt vor.
 
 **Einfache, faire CRM-Preise.** Kern-CRM und verknüpfte Aufgaben starten bei [[commercial.price.starter.monthly]] pro Nutzer und Monat; das gemeinsame Postfach startet mit Pro bei [[commercial.price.pro.monthly]]. Native Erinnerungen, Sequenzen und Sequenz-Zustellung sind nicht enthalten. Separate n8n-Instanz und Zustellanbieter haben eigene Pläne, Limits und Kosten.
 
-**Externe KI-Clients entwerfen einzelne Follow-ups.** Unterstützte Clients wie Claude, ChatGPT oder Gemini können [[derived.mcp.tools.total]] MCP-Tools nutzen, zulässigen Kontext lesen, eine Nachricht entwerfen und sie in einem Messaging-Tarif soweit erlaubt senden. Customermates enthält weder KI-Client noch Modell, Abonnement oder autonomes Ergebnis.
+**Externe KI-Clients entwerfen einzelne Follow-ups.** Unterstützte Clients wie Claude, ChatGPT oder Gemini können [[derived.mcp.tools.total]] MCP-Tools nutzen, zulässigen Kontext lesen, eine Nachricht entwerfen und sie in einem Messaging-Tarif soweit erlaubt senden. Client, Modell und Abonnement stammen von Ihnen; in den Cloud-Tarifen kann zusätzlich der gehostete Mate-Assistent Follow-ups direkt im CRM entwerfen und fragt vor dem Senden nach Ihrer Bestätigung.
 
 **Separates n8n für fortgeschrittene Sequenzen.** Verbinden Sie Ihre n8n-Instanz über REST, Webhooks, MCP oder Community-Node. Mehrstufiges Timing, Bedingungen und externe Zustellung laufen dort, nicht in Customermates; Tarif, Konnektoren, Logs, Limits und Kosten bleiben separat.
 

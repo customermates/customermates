@@ -11,7 +11,7 @@ relatedHrefs:
 
 hero:
   title: Slack Integration, Built on Webhooks and Your Own n8n
-  description: Customermates has no native Slack app. What it has is [[derived.webhooks.events.total]] webhook events, a full REST API, and an MCP endpoint — everything an automation tool needs to post deal alerts into Slack and write back from it. Bring your own n8n, Make, or Zapier.
+  description: Customermates has no native Slack app. What it has is [[derived.webhooks.events.total]] webhook events, a full REST API, and an MCP endpoint, which is everything an automation tool needs to post deal alerts into Slack and write back from it. Bring your own n8n, Make, or Zapier.
   buttonLeftText: Start for free
   buttonLeftHref: /auth/signup
   buttonRightText: Watch live demo
@@ -46,13 +46,13 @@ We would rather write that down than let the page imply a product we have not bu
 
 The pattern is always the same: Customermates fires a webhook, your automation tool receives it, formats a message, and posts it to Slack. Create the webhook under **Company → Webhooks → New** and choose the events you care about. The payload shape is documented at [Webhooks](/docs/webhooks).
 
-**Deal change notifications.** Subscribe to `deal.created` and `deal.updated` and post to a channel when a deal changes. Deal stage is a single-select custom column rather than a fixed product field, so your workflow reads the column value from the payload and branches on it — which also means you can alert on any custom column, not only stage.
+**Deal change notifications.** Subscribe to `deal.created` and `deal.updated` and post to a channel when a deal changes. Deal stage is a single-select custom column rather than a fixed product field, so your workflow reads the column value from the payload and branches on it. That also means you can alert on any custom column, not only stage.
 
 **New lead alerts.** Subscribe to `contact.created` and notify the team the moment a record lands. Include the fields you care about and a link back to the record.
 
-**Pipeline summary reports.** Webhooks are event-driven, so a digest is a scheduled job in your automation tool: run on a cron, call `GET /api/v1/deals`, aggregate, post the summary. The REST API is documented in the [OpenAPI spec](/docs/openapi).
+**Pipeline summary reports.** Webhooks are event-driven, so a digest is a scheduled job in your automation tool (Customermates has no built-in notification or digest feature): run on a cron, call `GET /api/v1/deals`, aggregate, post the summary. The REST API is documented in the [OpenAPI spec](/docs/openapi).
 
-**Messaging alerts.** Subscribe to `messaging.message.received` or `messaging.email.received` to route new inbound conversations into Slack. These events require a messaging tier.
+**Messaging alerts.** Subscribe to `messaging.message.received` or `messaging.email.received` to route new inbound conversations into Slack. These events require the unified inbox, which is available in Customermates Cloud from Pro; Starter and self-hosted installations have no messaging events.
 
 ## Slack-to-CRM Actions
 

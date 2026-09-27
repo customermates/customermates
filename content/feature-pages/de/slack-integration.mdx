@@ -11,7 +11,7 @@ relatedHrefs:
 
 hero:
   title: Slack-Integration, gebaut auf Webhooks und Ihrem eigenen n8n
-  description: Customermates hat keine native Slack-App. Was es hat, sind [[derived.webhooks.events.total]] Webhook-Events, eine vollständige REST API und einen MCP-Endpoint — alles, was ein Automatisierungstool braucht, um Deal-Alarme nach Slack zu posten und von dort zurückzuschreiben. Bringen Sie Ihr eigenes n8n, Make oder Zapier mit.
+  description: Customermates hat keine native Slack-App. Was es hat, sind [[derived.webhooks.events.total]] Webhook-Events, eine vollständige REST API und einen MCP-Endpoint. Das ist alles, was ein Automatisierungstool braucht, um Deal-Alarme nach Slack zu posten und von dort zurückzuschreiben. Bringen Sie Ihr eigenes n8n, Make oder Zapier mit.
   buttonLeftText: Kostenlos starten
   buttonLeftHref: /auth/signup
   buttonRightText: Live-Demo ansehen
@@ -46,13 +46,13 @@ Das schreiben wir lieber auf, als die Seite ein Produkt andeuten zu lassen, das 
 
 Das Muster ist immer dasselbe: Customermates feuert einen Webhook, Ihr Automatisierungstool empfängt ihn, formatiert eine Nachricht und postet sie nach Slack. Legen Sie den Webhook unter **Unternehmen → Webhooks → Neu** an und wählen Sie die Events, die Sie brauchen. Die Payload-Struktur ist unter [Webhooks](/docs/webhooks) dokumentiert.
 
-**Benachrichtigungen bei Deal-Änderungen.** Abonnieren Sie `deal.created` und `deal.updated` und posten Sie in einen Kanal, wenn sich ein Deal ändert. Die Deal-Phase ist eine Einfachauswahl-Spalte und kein festes Produktfeld, Ihr Workflow liest den Spaltenwert also aus der Payload und verzweigt darauf — womit Sie auf jede benutzerdefinierte Spalte reagieren können, nicht nur auf die Phase.
+**Benachrichtigungen bei Deal-Änderungen.** Abonnieren Sie `deal.created` und `deal.updated` und posten Sie in einen Kanal, wenn sich ein Deal ändert. Die Deal-Phase ist eine Einfachauswahl-Spalte und kein festes Produktfeld, Ihr Workflow liest den Spaltenwert also aus der Payload und verzweigt darauf. Damit können Sie auf jede benutzerdefinierte Spalte reagieren, nicht nur auf die Phase.
 
 **Alarme bei neuen Leads.** Abonnieren Sie `contact.created` und informieren Sie das Team in dem Moment, in dem ein Datensatz entsteht. Nehmen Sie die Felder auf, die Sie brauchen, plus einen Link zurück auf den Datensatz.
 
-**Pipeline-Zusammenfassungen.** Webhooks sind ereignisgetrieben, ein Digest ist deshalb ein geplanter Job in Ihrem Automatisierungstool: per Cron laufen lassen, `GET /api/v1/deals` aufrufen, aggregieren, Zusammenfassung posten. Die REST API ist in der [OpenAPI-Spezifikation](/docs/openapi) dokumentiert.
+**Pipeline-Zusammenfassungen.** Webhooks sind ereignisgetrieben, ein Digest ist deshalb ein geplanter Job in Ihrem Automatisierungstool (eine eingebaute Benachrichtigungs- oder Digest-Funktion hat Customermates nicht): per Cron laufen lassen, `GET /api/v1/deals` aufrufen, aggregieren, Zusammenfassung posten. Die REST API ist in der [OpenAPI-Spezifikation](/docs/openapi) dokumentiert.
 
-**Messaging-Alarme.** Abonnieren Sie `messaging.message.received` oder `messaging.email.received`, um neue eingehende Konversationen nach Slack zu leiten. Diese Events erfordern eine Messaging-Stufe.
+**Messaging-Alarme.** Abonnieren Sie `messaging.message.received` oder `messaging.email.received`, um neue eingehende Konversationen nach Slack zu leiten. Diese Events setzen den einheitlichen Posteingang voraus, der in Customermates Cloud ab Pro verfügbar ist; Starter und Self-Hosting kennen keine Messaging-Events.
 
 ## Aktionen von Slack ins CRM
 

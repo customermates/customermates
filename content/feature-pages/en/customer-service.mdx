@@ -46,7 +46,6 @@ Good customer service is not just about speed. It is about making customers feel
 | CRM + service unified | <StatusAvailable /> | <StatusAvailable /> | <StatusAvailable /> | <StatusUnavailable /> | <StatusUnavailable /> |
 | MCP for external AI clients | <StatusAvailable /> | <StatusAvailable /> | <StatusPartial /> | <StatusAvailable /> | <StatusAvailable /> |
 | External automation interfaces | <StatusAvailable /> | <StatusAvailable /> | <StatusPartial /> | <StatusPartial /> | <StatusPartial /> |
-| Managed database in an EU region | <StatusAvailable /> | <StatusPartial /> | <StatusUnavailable /> | <StatusPartial /> | <StatusUnavailable /> |
 | Open source | <StatusAvailable /> | <StatusUnavailable /> | <StatusUnavailable /> | <StatusUnavailable /> | <StatusUnavailable /> |
 | Self-hosting option | <StatusAvailable /> | <StatusUnavailable /> | <StatusUnavailable /> | <StatusUnavailable /> | <StatusUnavailable /> |
 
@@ -54,7 +53,7 @@ Good customer service is not just about speed. It is about making customers feel
 
 Customermates provides the tools to manage customer service directly within your CRM, keeping service interactions connected to sales, [account management](/features/account-management), and [contact](/features/contact-management) data in one unified system.
 
-**Complete customer timeline.** Every interaction with a customer is logged in a unified timeline: notes added, tasks created, deals closed, meetings held, and activities recorded, with emails sent and received logged automatically once you connect a mailbox on the [Pro tier](/features/email-integration) and above. When a customer contacts you, your team sees the full relationship history instantly, no switching between systems or asking colleagues for context.
+**Complete customer timeline.** Every interaction with a customer is logged in a unified timeline: notes added, tasks created, deals closed, and record changes, with emails sent and received appearing automatically once you connect a mailbox on the managed cloud from the [Pro tier](/features/email-integration) upward. When a customer contacts you, your team sees the full relationship history instantly, no switching between systems or asking colleagues for context.
 
 **Notes and communication logging.** Log every customer communication directly on the contact or organization record. Document phone call outcomes, meeting notes, email exchanges, and chat conversations. Every interaction becomes part of the permanent record, building the institutional knowledge that enables better service over time.
 
@@ -62,17 +61,17 @@ Customermates provides the tools to manage customer service directly within your
 
 **Linked deal and account context.** When handling a service request, your team sees the customer's full business context: deal history, current subscriptions, account value, contract terms, and relationship tier. A long-standing, high-value customer may warrant a different response than a trial user, and your team has the data to make that judgment call.
 
-**Native unified inbox.** Customers reach out on many channels. Customermates brings email, LinkedIn, WhatsApp, Instagram, and Telegram into one unified inbox inside the CRM, so every message is logged on the customer's record automatically and your team replies without leaving the CRM. The unified inbox is included from the Pro tier ([[commercial.price.pro.monthly]]/user/month); shared, team-wide inboxes come with the Business tier ([[commercial.price.business.monthly]]/user/month). Phone calls, meetings, and notes are logged on the same timeline.
+**Native unified inbox.** Customers reach out on many channels. Customermates brings email, LinkedIn, WhatsApp, Instagram, and Telegram into one unified inbox inside the CRM, so every message is logged on the customer's record automatically and your team replies without leaving the CRM. The unified inbox is a managed-cloud feature included from the Pro tier ([[commercial.price.pro.monthly]]/user/month, one connected account per user); the Business tier ([[commercial.price.business.monthly]]/user/month) adds three accounts per user and shared accounts. Notes about phone calls and meetings sit on the same record; Customermates has no telephony or SMS.
 
 **Custom fields for service data.** Add custom fields to contact and organization records to track service-specific information: preferred communication channel, service level agreement (SLA), contract type, support tier, product version, or any attribute that helps your team deliver better service.
 
 **External service workflows.** A separate n8n instance can react to documented CRM events, create supported tasks, or ask external providers to deliver surveys and routing notifications. Customermates does not bundle n8n and has no native SLA, escalation, survey, or routing engine.
 
-**External AI-client assistance.** Supported clients such as Claude, ChatGPT, or Gemini can use [[derived.mcp.tools.total]] MCP tools to summarize allowed context, draft an individual response, and update supported fields. Customermates includes no AI chat or model; classification logic, client subscription, usage, and provider handling remain external.
+**External AI-client assistance.** Supported clients such as Claude, ChatGPT, or Gemini can use [[derived.mcp.tools.total]] MCP tools to summarize allowed context, draft an individual response, and update supported fields. Classification logic, client subscription, usage, and provider handling remain external. On cloud plans, the hosted Mate assistant can also summarize a customer's context inside the CRM and asks for confirmation before sending.
 
 ## Key Benefits of a Customer Service CRM
 
-**Faster first-contact resolution.** When your service team has instant access to complete customer history, they resolve issues faster. No time wasted gathering context, transferring between departments, or asking the customer to repeat their story. Research shows that first-contact resolution is the strongest predictor of customer satisfaction.
+**Faster first-contact resolution.** When your service team has instant access to complete customer history, they resolve issues faster. No time wasted gathering context, transferring between departments, or asking the customer to repeat their story.
 
 **Consistent service quality.** With all customer information in one place, every team member delivers the same quality of service. Customers get a consistent experience regardless of who they speak with or which channel they use.
 
@@ -82,7 +81,7 @@ Customermates provides the tools to manage customer service directly within your
 
 **Recorded service context.** Supported messages, notes, tasks, and record changes retain timestamps and user context where the product records them. Do not describe this as a complete compliance audit trail or native SLA record; Customermates holds no compliance certification.
 
-**Reduced customer churn.** Customers leave when they feel ignored or when issues go unresolved. A customer service CRM ensures no request falls through the cracks, follow-ups happen on time, and your team has the context to resolve issues thoroughly the first time.
+**Reduced customer churn.** Customers leave when they feel ignored or when issues go unresolved. A customer service CRM keeps every request recorded with its context, so fewer issues fall through the cracks and your team has the context to resolve issues thoroughly the first time.
 
 ## Common Customer Service Use Cases
 
@@ -104,9 +103,9 @@ Customermates provides the tools to manage customer service directly within your
 
 **Open-source core.** The AGPL core CRM application and supported record model are inspectable and extensible. The managed-cloud unified inbox, connected messaging providers, external AI clients, and workflow services remain separate boundaries.
 
-**EU database region with documented providers.** The managed database runs in an EU region. Application hosting, messaging services, and other providers, including US providers, may process data elsewhere; this deployment fact is not a GDPR or other compliance certification.
+**Cloud database in Frankfurt, providers disclosed.** In the managed cloud, the application database runs in the AWS Frankfurt region; hosting and other subprocessors, including US providers, are listed on the [subprocessors page](/subprocessors), and a [DPA](/dpa) is available.
 
-**From [[commercial.price.starter.monthly]] per user per month.** Core CRM records, linked tasks, custom fields, and dashboards start with Starter; the unified inbox starts with Pro at [[commercial.price.pro.monthly]]. Customermates includes no service desk, ticket system, SLA engine, AI model, or n8n runtime.
+**From [[commercial.price.starter.monthly]] per user per month.** Core CRM records, linked tasks, custom fields, and dashboards start with Starter; the unified inbox starts with Pro at [[commercial.price.pro.monthly]]. Customermates includes no service desk, ticket system, SLA engine, or n8n runtime; the hosted Mate assistant is available on cloud plans.
 
 **Separate n8n for service workflows.** Connect your own n8n instance through REST, webhooks, MCP, or the community node. Request routing, surveys, SLA calculations, escalation logic, provider delivery, logs, limits, and costs remain external.
 

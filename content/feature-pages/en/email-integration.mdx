@@ -61,7 +61,7 @@ Authentication happens in the provider connection flow. Customermates does not a
 
 **Individual email sending.** Send a reviewed message to one recipient at a time through a supported account and keep it with the supported conversation history. Customermates does not provide bulk email or mass outreach; use a separate campaign provider for groups.
 
-**Email sequences in an external provider with n8n.** Go beyond manual email with the n8n automation engine. Set up triggers that send emails automatically based on CRM events:
+**Email sequences in an external provider with n8n.** Go beyond manual email with a separately operated n8n instance. Set up triggers there that send emails automatically based on CRM events:
 
 - When a deal moves to "Proposal Sent," send a follow-up template after 3 days if no reply
 - When a new contact is created from a web form, trigger a welcome email sequence
@@ -70,7 +70,7 @@ Authentication happens in the provider connection flow. Customermates does not a
 
 Build these workflows visually in a separate n8n instance with no coding required. Campaigns and sequences run in that workflow and an external delivery provider, not directly inside Customermates.
 
-Connected-account transport is provided through Unipile. The managed application database is configured in an EU region, while the legal pages disclose every relevant cloud subprocessor, processing location, and transfer safeguard. Do not treat that database setting as a promise that all processing stays in one country or never involves a US provider. See [Privacy](/privacy), [Subprocessors](/subprocessors), and the [DPA](/dpa).
+Connected-account transport is provided through Unipile, which stores data in France. In the managed cloud, the application database runs in the AWS Frankfurt region; hosting and other subprocessors, including US providers, are listed with their locations and transfer safeguards on the legal pages. See [Privacy](/privacy), [Subprocessors](/subprocessors), and the [DPA](/dpa).
 
 The self-hosted build always uses Starter entitlements and does not include the unified inbox or connected accounts. The inbox is available only in Customermates Cloud from Pro upward, where each enabled provider and subprocessor remains a separate processing boundary.
 
@@ -82,9 +82,9 @@ The self-hosted build always uses Starter entitlements and does not include the 
 
 ## Why Choose Customermates for Email Integration
 
-**Native integration, no separate add-on.** Email integration is included from the Pro tier at [[commercial.price.pro.monthly]] per user per month, as part of the unified messaging inbox alongside LinkedIn, WhatsApp, Instagram, and Telegram. There are no per-email charges and no separate email sync product to buy on top of Pro. Compare that to CRMs that charge $50 or more per user for email features.
+**Native integration, no separate add-on.** Email integration is included from the Pro tier at [[commercial.price.pro.monthly]] per user per month, as part of the unified messaging inbox alongside LinkedIn, WhatsApp, Instagram, and Telegram. There are no per-email charges and no separate email sync product to buy on top of Pro.
 
-**Documented hosting boundaries.** The managed Customermates database runs in an EU region. Application hosting, messaging services, and other providers, including US providers, may process data elsewhere and are documented separately; this is not a compliance certification. Self-hosting has Starter entitlements and excludes the cloud inbox.
+**Documented hosting boundaries.** In the managed cloud, the application database runs in the AWS Frankfurt region; hosting and other subprocessors, including US providers, are listed on the [subprocessors page](/subprocessors), and a [DPA](/dpa) is available. Self-hosting has Starter entitlements and excludes the cloud inbox.
 
 **n8n-powered email automation.** Connect a separate n8n instance and external delivery provider through Customermates interfaces. Campaigns and sequences run outside the CRM; their plans, limits, logs, and costs remain separate.
 
@@ -115,8 +115,8 @@ Yes, through separate services. A customer-run n8n workflow can react to documen
 No. Connected Google or Microsoft calendar events appear in a read-only CRM view. Customermates does not create, edit, or schedule provider-calendar events.
 </FaqItem>
 
-<FaqItem question="Is my email data stored in the EU?">
-The managed Customermates database runs in an EU region. Application hosting, messaging services, and connected providers may process data elsewhere, including through US providers; this is not a compliance certification. Self-hosting excludes the cloud email integration.
+<FaqItem question="Where is my email data stored?">
+In the managed cloud, the application database runs in the AWS Frankfurt region, and Unipile, which transports connected accounts, stores data in France. The application is hosted by Vercel in the USA, and other subprocessors, including US providers, are listed on the [subprocessors page](/subprocessors). Self-hosting excludes the cloud email integration.
 </FaqItem>
 </Faq>
 

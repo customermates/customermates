@@ -30,7 +30,7 @@ cta:
 
 ## What Is CRM Task Management?
 
-CRM task management is the practice of creating, assigning, and tracking action items directly within the context of your customer relationships. Unlike standalone task management tools such as Asana, Todoist, or Monday, tasks in a CRM are linked to contacts, deals, and organizations. Every follow-up call, proposal deadline, document request, or internal review is tied to the relationship it serves.
+CRM task management is the practice of creating, assigning, and tracking action items directly within the context of your customer relationships. Unlike standalone task management tools such as Asana, Todoist, or Monday, tasks in a CRM are linked to contacts, deals, and organizations. Every follow-up call, proposal, document request, or internal review is tied to the relationship it serves.
 
 Without integrated task management, teams rely on separate apps, sticky notes, or memory. Follow-ups get missed, handoffs between reps create information gaps, and managers lose visibility into workload distribution. A CRM with built-in task management solves these problems by making tasks a natural part of the customer workflow.
 
@@ -46,7 +46,7 @@ Customermates models tasks as first-class CRM records. Core task management is a
 
 **Typed custom fields.** Tasks support the same custom-column system as other CRM records. Add a single-select column for a priority or workflow category, a date column for a target date, or another field type that matches your process.
 
-**Dates without a hidden scheduler.** Customermates has no built-in task due-date, reminder, or overdue-notification engine. If your process needs a target date, add a date custom column and filter or sort on it. A customer-run automation can read that field and send reminders through an external service.
+**Dates without a hidden scheduler.** Customermates has no built-in task due-date, reminder, or overdue-notification engine. If your process needs a target date, add a date custom column and save a personal view sorted by it. On the managed cloud, a routine can check that date on a schedule and have Mate list the tasks that need attention; alternatively, an external scheduler such as your own n8n can read the field through REST and deliver a message through a service you choose.
 
 **Recurring work through external automation.** There is no native recurring-task scheduler. Your own n8n instance or another integration can create task records on a schedule through the REST API or MCP.
 
@@ -64,7 +64,7 @@ Customermates models tasks as first-class CRM records. Core task management is a
 
 **Deal progression tasks.** Relate action items to the relevant deal and assign the people responsible. If you want tasks generated from a stage change, configure that logic in a customer-run automation.
 
-**Follow-up work after meetings.** Create a related task for the next action and add a custom date field if your team needs a target date. Native reminders are not included; an external workflow can deliver them.
+**Follow-up work after meetings.** Create a related task for the next action and add a custom date field if your team needs a target date. Customermates does not send reminders; a saved view sorted by that date, a cloud routine, or an external workflow covers the follow-up.
 
 **Onboarding new customers.** Keep onboarding action items linked to the won deal and customer records. Teams that need an automatically generated checklist can build it in their own n8n workflow.
 
@@ -80,7 +80,7 @@ Customermates models tasks as first-class CRM records. Core task management is a
 
 **External workflow tasks.** Customer-run n8n workflows can create tasks with assignees, relations, notes, and custom-field values when CRM events occur.
 
-**Flexible views for different work styles.** Table, card, and Kanban views let each user organize tasks around their own saved configuration. There is no task calendar view.
+**Flexible views for different work styles.** Table and Kanban views, grouping, and personal saved views let each user organize tasks their own way. There is no task calendar view.
 
 **Reduced tool sprawl.** Managing tasks inside your CRM eliminates the need for separate task management apps. Fewer tools means fewer context switches, less duplicate data entry, and simpler onboarding for new hires.
 
@@ -90,11 +90,11 @@ Customermates models tasks as first-class CRM records. Core task management is a
 
 **Integrated, not bolted on.** Task management in Customermates is deeply connected to contacts, deals, and pipelines. Tasks are first-class objects visible everywhere they are relevant, not a sidebar feature with loose links.
 
-**Core tasks from the entry tier.** Task records, relations, assignments, custom columns, filters, and data views are part of the core CRM on Starter. Recurrence and reminder delivery remain external workflow concerns.
+**Core tasks from the entry tier.** Task records, relations, assignments, custom columns, filters, and data views are part of the core CRM on Starter. Recurring tasks and reminders are not built in; external workflows or cloud routines cover them.
 
 **Open-source flexibility.** Customermates is open source, so you can customize the task management system to fit your exact needs. Add custom fields, modify workflows, extend the API, or build integrations with external tools.
 
-**A clear deployment choice.** The managed service uses a database in an EU region and documented subprocessors. Self-hosted teams choose and operate their own infrastructure and remain responsible for that deployment.
+**A clear deployment choice.** In the managed cloud, the application database runs in the AWS Frankfurt region; hosting and other subprocessors, including US providers, are listed on the [subprocessors page](/subprocessors), and a [DPA](/dpa) is available. Self-hosted teams choose where the data lives and operate their own infrastructure.
 
 **n8n integration without bundling n8n.** REST and webhook access can drive workflows in an n8n instance you operate. Customermates does not include an n8n runtime or subscription.
 
@@ -102,4 +102,4 @@ Customermates models tasks as first-class CRM records. Core task management is a
 
 ## Get Started with Task Management Today
 
-Start by creating task records, assigning teammates, and linking the relevant contacts, organizations, deals, or services. Add custom fields for the workflow dimensions you need, then connect an external automation only if your process calls for scheduling or reminders.
+Start by creating task records, assigning teammates, and linking the relevant contacts, organizations, deals, or services. Add custom fields for the workflow dimensions you need, then connect an external automation or a cloud routine only if your process needs scheduled follow-up.

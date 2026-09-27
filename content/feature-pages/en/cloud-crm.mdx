@@ -26,7 +26,6 @@ acquisition:
       - product:docker-postgresql-deployment
       - product:self-hosted-starter-entitlements
     excludedClaims:
-      - claim:no-import-export
       - claim:no-predictive-sales-analytics
       - claim:no-self-hosted-inbox
   cta:
@@ -102,7 +101,7 @@ cta:
 <ProofRail label="Verified Customermates Cloud capabilities">
   <ProofItem label="Records">Five core CRM families</ProofItem>
   <ProofItem label="Workspace">Custom fields and views</ProofItem>
-  <ProofItem label="Sales">Configurable deal pipelines</ProofItem>
+  <ProofItem label="Sales">Configurable deal stages</ProofItem>
   <ProofItem label="Interfaces">REST, webhooks and MCP</ProofItem>
   <ProofItem label="Deployment">Managed cloud or self-hosted core</ProofItem>
 </ProofRail>
@@ -196,7 +195,7 @@ For automation, teams can call REST, receive webhooks, use MCP or connect a sepa
 
 ## Migration and reporting boundaries
 
-Customermates has no dedicated CSV or CRM-record import/export workflow. Moving data from another CRM requires a separately designed REST or MCP process with explicit source mapping, validation, deduplication, retries and an agreed rollback.
+Records can be imported and exported as XLSX workbooks, one record type at a time, scoped to your permissions and the current view and within row limits. CSV, a whole-account export, attachments and undo are not part of that path, so plan a larger move from another CRM as a migration project with explicit mapping, validation and deduplication, extended through REST or MCP where needed.
 
 Dashboards, activity history, stage probabilities and weighted deal or pipeline values help a team inspect the current workspace. They are not predictive close or revenue forecasts, lead scores, conversion analytics or pipeline-velocity analysis.
 
@@ -245,9 +244,10 @@ It is not a fit when the requirement is a complete ERP, accounting, inventory, i
 </FaqItem>
 
 <FaqItem question="Does Customermates include data import or migration?">
-  There is no dedicated CSV or CRM-record importer/exporter. Migration requires
-  a separately designed REST or MCP workflow with explicit mapping, validation
-  and deduplication.
+  There is XLSX import and export per record type, limited to your
+  permissions, the current view and a maximum row count. There is no CSV, no
+  whole-account export and no migration wizard. Plan larger moves with mapping,
+  validation and deduplication, using REST or MCP where needed.
 </FaqItem>
 
 <FaqItem question="What analytics does Customermates provide?">

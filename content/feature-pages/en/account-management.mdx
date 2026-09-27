@@ -1,6 +1,6 @@
 ---
 title: "CRM for Account Management: B2B Key Accounts"
-description: "CRM for account management: track key accounts, linked contacts, deal history, and revenue in one open-source CRM with a database in an EU region."
+description: "CRM for account management: track key accounts, linked contacts, deal history, and revenue in one open-source CRM, as managed cloud or self-hosted."
 featureName: Account Management
 
 relatedHrefs:
@@ -40,13 +40,12 @@ Effective account management requires structure: a centralized system that track
 
 | Feature | Customermates | Salesforce | HubSpot | Zoho CRM | Pipedrive |
 |---------|--------------|------------|---------|----------|-----------|
-| Price/user | From [[commercial.price.starter.monthly]]/month | $25/mo | Free (limited) | $14/mo | $14/mo |
+| Price/user | From [[commercial.price.starter.monthly]]/month | $25/mo | Free (limited) | $14/mo | $14/mo (annual) |
 | Organization management | <StatusAvailable /> | <StatusAvailable /> | <StatusAvailable /> | <StatusAvailable /> | <StatusAvailable /> |
 | Multi-contact linking | <StatusAvailable /> | <StatusAvailable /> | <StatusAvailable /> | <StatusAvailable /> | <StatusAvailable /> |
 | Revenue per account | <StatusAvailable /> | <StatusAvailable /> | <StatusPartial /> | <StatusPartial /> | <StatusPartial /> |
 | Unlimited custom fields | <StatusAvailable /> | <StatusAvailable /> | <StatusPartial /> | <StatusPartial /> | <StatusPartial /> |
 | External automation interfaces | <StatusAvailable /> | <StatusAvailable /> | <StatusPartial /> | <StatusPartial /> | <StatusPartial /> |
-| Managed database in an EU region | <StatusAvailable /> | <StatusPartial /> | <StatusUnavailable /> | <StatusPartial /> | <StatusPartial /> |
 | Open source | <StatusAvailable /> | <StatusUnavailable /> | <StatusUnavailable /> | <StatusUnavailable /> | <StatusUnavailable /> |
 | Self-hosting option | <StatusAvailable /> | <StatusUnavailable /> | <StatusUnavailable /> | <StatusUnavailable /> | <StatusUnavailable /> |
 
@@ -54,13 +53,13 @@ Effective account management requires structure: a centralized system that track
 
 Customermates gives you a comprehensive account management module that connects contacts, deals, activities, and revenue data into a 360-degree view of every business relationship.
 
-**Organization records.** Every account is an organization record in Customermates. It holds structured data, company name, industry, website, address, employee count, annual revenue, plus unlimited custom fields you define. Each organization serves as the central hub connecting all related contacts, deals, tasks, notes, and activities.
+**Organization records.** Every account is an organization record in Customermates. It holds the company name plus the typed custom fields you define, such as industry, website, address, employee count, or annual revenue. Each organization serves as the central hub connecting all related contacts, deals, tasks, notes, and activities.
 
-**Multi-contact relationships.** Link multiple contacts to each organization and define their roles: decision maker, day-to-day contact, billing contact, technical lead, executive sponsor. Understanding the people behind each account is essential for navigating complex B2B relationships and ensuring you engage the right stakeholders at the right time.
+**Multi-contact relationships.** Link multiple contacts to each organization and record their roles in a custom single-select field: decision maker, day-to-day contact, billing contact, technical lead, executive sponsor. Understanding the people behind each account is essential for navigating complex B2B relationships and ensuring you engage the right stakeholders at the right time.
 
-**Complete interaction history.** Every email, note, task, deal, and activity linked to an organization is visible in a unified timeline. With the native unified inbox on the Pro tier and above, email, LinkedIn, WhatsApp, Instagram, and Telegram conversations are logged automatically against the account too. When anyone on your team opens an account, they see the full relationship history without asking colleagues for context. This eliminates information silos and ensures continuity even when team members change, which is critical for [contact management](/features/contact-management) across your business.
+**Complete interaction history.** Notes, linked tasks, deals, and recorded changes for an organization are visible in its activity history. With the unified inbox (cloud, Pro and above), email, LinkedIn, WhatsApp, Instagram, and Telegram conversations appear next to the matching contacts too. When anyone on your team opens an account, they see the full relationship history without asking colleagues for context. This eliminates information silos and ensures continuity even when team members change, which is critical for [contact management](/features/contact-management) across your business.
 
-**Deal history and revenue tracking.** View all deals associated with an account, current pipeline, historical wins, and lost opportunities. Track total lifetime revenue, active pipeline value, and deal win rate per organization. This financial perspective helps you prioritize time and resources toward the accounts with the highest value and growth potential.
+**Deal history and revenue tracking.** View all deals associated with an account, current pipeline, historical wins, and lost opportunities. Group or filter deals by organization to see won value and active pipeline value per account; derived metrics such as win rate per account are calculated outside Customermates. This financial perspective helps you prioritize time and resources toward the accounts with the highest value and growth potential.
 
 **Account health fields.** Define health indicators with custom fields and values supplied by your team or an external integration. Store engagement, renewal, survey, or deal-activity signals without implying that Customermates calculates an overall score or churn risk.
 
@@ -86,7 +85,7 @@ Customermates gives you a comprehensive account management module that connects 
 
 **Key account programs.** Identify your top accounts by revenue, growth potential, or strategic value. Create structured engagement plans with quarterly business reviews, annual strategy sessions, and regular check-ins. Use custom fields to track account tier, assigned manager, and engagement score.
 
-**Renewal management.** Store contract renewal dates in custom fields and filter or sort on them. A separate n8n workflow you operate can evaluate those dates and deliver reminders through an external provider; Customermates has no native reminder engine.
+**Renewal management.** Store contract renewal dates in custom fields and filter or sort on them. Customermates sends no reminders. On the cloud, a Mate [routine](/docs/app-routines) can check that date every Monday and list renewals due soon (Starter includes [[commercial.entitlement.starter.includedRoutinesPerUser]] routine per user, Pro [[commercial.entitlement.pro.includedRoutinesPerUser]]); alternatively a separately operated n8n workflow can evaluate the dates and notify you through an external provider.
 
 **Upsell and cross-sell tracking.** Monitor accounts for expansion opportunities. Track which products or services each account uses, identify coverage gaps, and create deals for upsell opportunities. Link expansion deals to the organization to measure account growth over time.
 
@@ -100,7 +99,7 @@ Customermates gives you a comprehensive account management module that connects 
 
 **Open-source core.** The AGPL core CRM application that manages account records is code you can inspect and modify. Self-hosting runs that core with PostgreSQL under Starter entitlements; managed-cloud features and connected providers remain separate.
 
-**EU database region with documented providers.** The hosted database runs in an EU region. Application hosting and other providers, including US providers, are documented separately; this is not a GDPR or other compliance certification.
+**Cloud database in Frankfurt, providers disclosed.** In the managed cloud, the application database runs in the AWS Frankfurt region; hosting and other subprocessors, including US providers, are listed on the [subprocessors page](/subprocessors), and a [DPA](/dpa) is available.
 
 **From [[commercial.price.starter.monthly]] per user per month, every tier.** Organization management, multi-contact linking, deal history, revenue tracking, unlimited custom fields, and all account management features are included starting with the entry-level Starter tier. No per-account charges. No hidden costs for the features you actually need.
 
@@ -108,7 +107,7 @@ Customermates gives you a comprehensive account management module that connects 
 
 **Self-hostable infrastructure.** Run the Customermates application and PostgreSQL database on infrastructure you control. Connected providers still receive data your configuration sends, and self-hosting is not itself a security or compliance certification.
 
-**External AI clients can operate the CRM.** Supported clients such as Claude, ChatGPT, or Gemini can use [[derived.mcp.tools.total]] MCP tools for allowed account operations. Customermates includes neither an AI chat nor a model; client subscriptions, usage, and provider handling remain separate.
+**External AI clients can operate the CRM.** Supported clients such as Claude, ChatGPT, or Gemini can use [[derived.mcp.tools.total]] MCP tools for allowed account operations. External client subscriptions, usage, and provider handling remain yours. On cloud plans, the hosted Mate assistant also works inside the CRM with monthly hosted AI credits.
 
 ## Frequently Asked Questions
 
@@ -136,4 +135,4 @@ Pricing varies significantly. Salesforce starts at $25/user/month, Zoho CRM at $
 
 ## Get Started with Account Management Today
 
-Start managing your accounts in Customermates today. Create organization records, link contacts, track deal history, and build a complete picture of every business relationship. Core account records, relations, notes, custom fields, and deal context are available from day one; calculate health scores and deliver reminders externally. Sign up for a free account and turn your customer relationships into your strongest competitive advantage.
+Start managing your accounts in Customermates today. Create organization records, link contacts, track deal history, and build a complete picture of every business relationship. Core account records, relations, notes, custom fields, and deal context are available from day one; calculate health scores and deliver reminders externally. Start your free trial and turn your customer relationships into your strongest competitive advantage.

@@ -1,6 +1,6 @@
 ---
 title: "Sales CRM: All-in-One Platform for Teams"
-description: "Sales CRM with contacts, deals, pipelines, tasks, and dashboards in one open-source system. MCP and REST connect external AI clients and your own n8n."
+description: "Sales CRM with contacts, deals, pipeline, tasks, and dashboards in one open-source system. MCP and REST connect external AI clients and your own n8n."
 featureName: Sales Software
 
 relatedHrefs:
@@ -11,7 +11,7 @@ relatedHrefs:
 
 hero:
   title: Sales Software That Gives Your Team Everything They Need to Close
-  description: Manage deals, contacts, pipelines, tasks, and supported reporting in one CRM. Connect separate automation through open interfaces when needed, without bundling its runtime, limits, or costs.
+  description: Manage deals, contacts, your pipeline, tasks, and supported reporting in one CRM. Connect separate automation through open interfaces when needed, without bundling its runtime, limits, or costs.
   buttonLeftText: Start for free
   buttonLeftHref: /auth/signup
   buttonRightText: Watch live demo
@@ -32,7 +32,7 @@ cta:
 
 Sales software is a platform that manages every aspect of the sales process, from initial lead capture through deal close and beyond. It provides the tools your team needs to track contacts, manage deals, visualize pipelines, automate repetitive tasks, and report on performance, all from a single system.
 
-Modern sales teams need more than a digital address book. They need a platform that captures every interaction, provides real-time pipeline visibility, automates the administrative work that eats into selling time, and delivers the analytics needed to improve continuously. Companies using a structured sales CRM report an average 29 percent increase in sales, 34 percent improvement in productivity, and 42 percent better forecast accuracy compared to teams working without one.
+Modern sales teams need more than a digital address book. They need a platform that captures every interaction, provides real-time pipeline visibility, automates the administrative work that eats into selling time, and delivers the analytics needed to improve continuously.
 
 Strong sales software fits your process rather than forcing you into a rigid template. It adapts to your deal stages, your data requirements, your team structure, and your technology stack. It should be powerful enough for complex B2B sales yet simple enough that your team actually uses it every day.
 
@@ -44,7 +44,7 @@ Sales software has evolved far beyond contact databases. Today, the most effecti
 
 **Deal and opportunity tracking.** Every active opportunity needs structured data: value, stage, expected close date, owner, and linked contacts. Deal management provides the visibility to know exactly what is in play at any given moment and the historical record to understand how deals progress over time.
 
-**Visual pipeline management.** Kanban boards, stage-based views, and drag-and-drop deal progression give your team instant visual clarity on pipeline health. Multiple pipelines support different sales processes or product lines without creating confusion.
+**Visual pipeline management.** Kanban boards, stage-based views, and drag-and-drop deal progression give your team instant visual clarity on pipeline health. Separate views per sales process or product line keep different kinds of deals apart without creating confusion.
 
 **Task and activity management.** Sales is driven by daily actions: calls to make, emails to send, meetings to prepare for, and follow-ups to complete. Task management integrated directly into the CRM ensures nothing falls through the cracks and every activity is logged against the right record.
 
@@ -60,7 +60,7 @@ Customermates combines core contact, deal, pipeline, task, dashboard, and messag
 
 **Deal management.** Create deal records with structured values, stage, owner, linked contacts, and your own expected-close field. Track deals through the pipeline and review the supported activity, notes, and stage context recorded by the product; this is not a compliance audit trail.
 
-**Visual pipeline.** View your deals on a drag-and-drop kanban board organized by stage. Get instant visibility into pipeline value, deal distribution, and progression. Create multiple pipelines for different sales processes or product lines.
+**Visual pipeline.** View your deals on a drag-and-drop kanban board organized by stage. Get instant visibility into pipeline value, deal distribution, and progression. Stages live in one configurable single-select column; to separate sales processes or product lines, add a custom single-select field and use saved views or grouping.
 
 **Task management.** Create and assign tasks linked to deals, contacts, and organizations. Native tasks have no due date, priority, status, overdue state, or reminder; model those values with your own date and single-select fields when needed.
 
@@ -70,7 +70,7 @@ Customermates combines core contact, deal, pipeline, task, dashboard, and messag
 
 **External AI clients operate allowed CRM data.** Supported clients such as Claude, ChatGPT, or Gemini can use [[derived.mcp.tools.total]] MCP tools to move deal stages, draft an individual message, summarize allowed notes, and update supported fields. External MCP clients bring their own client, model, and subscription and do not consume hosted Mate credits. Customermates adds no lead scoring, enrichment, or autonomous outcome to this MCP flow. MCP access starts with Starter.
 
-**Reporting and analytics.** Configure dashboard widgets over stored pipeline values, stage-weighted deal values, counts, and supported fields. Customermates has no dedicated record or report exporter and does not calculate predictive forecasts; use REST or MCP for external analysis and delivery.
+**Reporting and analytics.** Configure dashboard widgets over stored pipeline values, stage-weighted deal values, counts, and supported fields. Customermates does not calculate predictive forecasts. For external analysis, export a record type as XLSX (permission and view scoped, row-capped) or read data through REST or MCP.
 
 **Permissions and recorded activity.** Resource/action permissions control access at whole-resource scope, not per field or record. Supported activity history provides context where recorded; do not treat it as a complete compliance audit trail.
 
@@ -98,7 +98,7 @@ Good sales software does not force a methodology on your team. It adapts to the 
 
 **Open source with no vendor lock-in.** Your sales data lives in a platform you can inspect, extend, and migrate from at any time. No proprietary lock-in, no hidden features, and no forced upgrades.
 
-**Data access from day one.** Read supported cloud CRM records through REST or MCP; there is no dedicated full-data export workflow. Self-hosted operators control their PostgreSQL database and backup process.
+**Data access from day one.** Export each record type as an XLSX workbook within your permissions, the current view and row limits, or read records through REST or MCP. There is no CSV or whole-account export. Self-hosted operators control their PostgreSQL database and backup process.
 
 **Measurable ROI.** Starting at [[commercial.price.starter.monthly]] per user per month for the core CRM, Customermates delivers enterprise-grade capabilities at a fraction of enterprise pricing. Clear, predictable tiers, no per-feature charges, no surprise invoices as your team grows.
 
@@ -106,9 +106,9 @@ Good sales software does not force a methodology on your team. It adapts to the 
 
 **Open-source core.** The AGPL core CRM application is inspectable and extensible. Self-hosting runs that core with PostgreSQL under Starter entitlements; managed-cloud messaging and calendar features, external AI clients, and workflow providers remain separate.
 
-**EU database region with documented providers.** The hosted database runs in an EU region. Application hosting and connected providers, including US providers, may process data elsewhere; this is a deployment fact, not a GDPR or other compliance certification.
+**Cloud database in Frankfurt, providers disclosed.** In the managed cloud, the application database runs in the AWS Frankfurt region; hosting and other subprocessors, including US providers, are listed on the [subprocessors page](/subprocessors), and a [DPA](/dpa) is available. If you need full control over where data lives, self-host the open-source core.
 
-**Simple, fair pricing.** From [[commercial.price.starter.monthly]] per user per month. Deals, contacts, pipelines, linked tasks, custom fields, REST, webhooks, MCP, resource permissions, and dashboard widgets start with Starter; the unified inbox starts with Pro at [[commercial.price.pro.monthly]]. AI clients and n8n remain separate.
+**Simple, fair pricing.** From [[commercial.price.starter.monthly]] per user per month. Deals, contacts, pipeline stages, linked tasks, custom fields, REST, webhooks, MCP, resource permissions, and dashboard widgets start with Starter; the unified inbox starts with Pro at [[commercial.price.pro.monthly]]. AI clients and n8n remain separate.
 
 **Self-hostable core CRM.** Deploy the application and PostgreSQL database on your infrastructure with Starter entitlements. You operate security and backups; connected AI, workflow, and messaging providers remain separate and receive configured data.
 
@@ -116,4 +116,4 @@ Good sales software does not force a methodology on your team. It adapts to the 
 
 ## Get Started with Customermates Sales Software Today
 
-Create your account, define pipeline stages, and add supported contacts manually or through a customer-run REST or MCP integration. Customermates has no CSV importer or exporter; begin with the CRM capabilities in your plan and connect external workflow tools only when needed.
+Create your account, define pipeline stages, and add contacts manually, from an XLSX workbook (one record type at a time, row-capped; no CSV), or through a customer-run REST or MCP integration. Begin with the CRM capabilities in your plan and connect external workflow tools only when needed.

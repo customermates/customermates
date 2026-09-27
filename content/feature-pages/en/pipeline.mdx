@@ -1,6 +1,6 @@
 ---
 title: "Sales Pipeline Management Software: Visual Kanban"
-description: "Sales pipeline management software with drag-and-drop kanban boards, customizable deal stages, and dashboard charts. Open source, database in an EU region."
+description: "Sales pipeline management software with drag-and-drop kanban boards, customizable deal stages, and dashboard charts. Open source and self-hostable."
 featureName: Sales Pipeline
 
 relatedHrefs:
@@ -20,7 +20,7 @@ hero:
 
 cta:
   action: Ready to take control of your pipeline?
-  description: Set up your sales pipeline in Customermates in minutes. Define your stages, create your first deals, and start managing visually.
+  description: Set up your sales pipeline in Customermates. Define your stages, create your first deals, and start managing visually.
   buttonLeftText: Start for free
   buttonLeftHref: /auth/signup
   buttonRightText: Watch live demo
@@ -32,7 +32,7 @@ cta:
 
 Sales pipeline management is the process of tracking, organizing, and optimizing every deal your team is working on as it moves through your sales process. A well-managed pipeline transforms an abstract list of opportunities into a structured, visual system that shows exactly where every deal stands and what needs to happen next.
 
-Without a clearly defined pipeline, sales teams operate in the dark. Managers cannot forecast revenue accurately, individual contributors lose track of their next steps, and deals stall without anyone noticing. Research shows that companies with a formal sales process achieve 18 percent more revenue growth than those without one. A structured pipeline is the foundation of that process.
+Without a clearly defined pipeline, sales teams operate in the dark. Managers cannot forecast revenue accurately, individual contributors lose track of their next steps, and deals stall without anyone noticing. A structured pipeline is the foundation of that process.
 
 Pipeline management goes beyond simply listing your deals. It encompasses six key disciplines: tracking pipeline metrics, maintaining pipeline hygiene, optimizing stage progression, managing team performance, forecasting revenue, and integrating the right tools. When all six work together, your pipeline becomes the operational backbone of your sales organization.
 
@@ -52,15 +52,15 @@ Every pipeline follows a progression from initial contact to closed deal. While 
 
 **Closing.** Finalizing the agreement and converting the prospect into a customer. The deal is marked as won or lost, and the outcome feeds into your pipeline analytics.
 
-**Follow-up.** Post-close activities including onboarding, relationship building, and identifying expansion opportunities. Many teams manage this in a separate pipeline to keep new business and account management distinct.
+**Follow-up.** Post-close activities including onboarding, relationship building, and identifying expansion opportunities. Many teams keep this in a separate saved view, split by a pipeline-type field, to keep new business and account management distinct.
 
 ## How Pipeline Management Works in Customermates
 
-Customermates provides a visual pipeline with kanban boards, customizable stages, and dashboard charts. A pipeline is a saved view of your deals grouped by the stage column you choose, on a board or in a table. A supported external AI client may update permitted fields through MCP; Customermates itself runs no AI agent.
+Customermates provides a visual pipeline with kanban boards, customizable stages, and dashboard charts. A pipeline is a saved view of your deals grouped by the stage column you choose, on a board or in a table. A supported external AI client may update permitted fields through MCP, and on cloud plans the hosted Mate assistant can do the same inside the CRM.
 
-**External AI clients can update the pipeline.** Through [[derived.mcp.tools.total]] MCP tools, supported clients such as Claude, ChatGPT, or Gemini can move permitted deals between stages, update fields, and draft an individual follow-up. Customermates includes neither the client nor an AI model; subscription, usage, and provider handling remain external.
+**External AI clients can update the pipeline.** Through [[derived.mcp.tools.total]] MCP tools, supported clients such as Claude, ChatGPT, or Gemini can move permitted deals between stages, update fields, and draft an individual follow-up. The external client's subscription, usage, and provider handling remain yours.
 
-**Visual kanban board.** Your pipeline is displayed as a drag-and-drop kanban board where each column represents a deal stage. Deals appear as cards showing key information at a glance: deal name, value, contact, and expected close date. Moving a deal to the next stage is as simple as dragging the card to the next column.
+**Visual kanban board.** Your pipeline is displayed as a drag-and-drop kanban board where each column represents a deal stage. Deals appear as cards showing key information at a glance: deal name, value, contact, and fields you choose, such as an expected close date. Moving a deal to the next stage is as simple as dragging the card to the next column.
 
 **Customizable deal stages.** Define the stages that match your actual sales process. Whether your pipeline has four stages or twelve, Customermates adapts to your workflow. Rename stages, reorder them, add new ones, or remove stages that do not apply. Your pipeline reflects how your team actually sells.
 
@@ -68,13 +68,13 @@ Customermates provides a visual pipeline with kanban boards, customizable stages
 
 **Personal saved views.** A view remembers the whole list: its filters, its sorting, its grouping, its layout, and its columns. Switch between your views from the tabs above the list; every change you make is saved into the view as you make it, so each pipeline opens exactly as you left it.
 
-**Deal cards with context.** Each deal card on the kanban board displays the information you need for quick decisions. See the deal value, assigned owner, expected close date, and linked organization without opening the full record. Click through to the detailed deal view when you need the complete picture.
+**Deal cards with context.** Each deal card on the kanban board displays the information you need for quick decisions. See the deal value, assigned owner, linked organization, and any custom field such as an expected close date without opening the full record. Click through to the detailed deal view when you need the complete picture.
 
 **Dashboard charts over your pipeline.** Each user builds a personal dashboard of chart widgets (bar, doughnut, or radar) over the deal data: pipeline value by stage, deal count by owner, won versus lost by source. Widgets filter by any standard or custom field and update as deals change, so you can see where value sits and where deals stall without exporting to a spreadsheet.
 
 ## Measuring Pipeline Performance
 
-The most effective pipeline managers track a core set of metrics that reveal the health and trajectory of their sales operation.
+The most effective pipeline managers track a core set of metrics that reveal the health and trajectory of their sales operation. Customermates dashboards show stored counts, values, and stage-weighted totals; the derived metrics below are calculated in a spreadsheet or reporting tool.
 
 **Sales velocity.** Sales velocity measures how quickly revenue moves through your pipeline. The formula is straightforward: (Number of Deals x Average Deal Value x Win Rate) divided by Average Sales Cycle Length. For example, if you have 40 deals averaging EUR 3,000 each with a 25 percent win rate and a 30-day cycle, your sales velocity is EUR 1,000 per day. Tracking this metric over time shows whether your pipeline is accelerating or slowing.
 
@@ -112,7 +112,7 @@ A pipeline is not a static structure. Regular optimization keeps your sales proc
 
 **Open-source core.** The AGPL core CRM application and pipeline code are inspectable. Pipeline stages remain customer-defined fields; Customermates includes no hidden forecast or scoring algorithm, while managed-cloud features and connected providers remain separate.
 
-**EU database region with documented providers.** The managed database runs in an EU region. Application hosting and other providers, including US providers, may process data elsewhere; this deployment fact is not a GDPR or other compliance certification.
+**Cloud database in Frankfurt, providers disclosed.** In the managed cloud, the application database runs in the AWS Frankfurt region; hosting and other subprocessors, including US providers, are listed on the [subprocessors page](/subprocessors), and a [DPA](/dpa) is available.
 
 **Simple, fair pricing.** Pipeline management is included from [[commercial.price.starter.monthly]] per user per month (Starter tier). Board and table views, custom stages, deal cards, dashboard charts, and MCP access for external AI clients are included at every tier. No premium tier required for advanced pipeline capabilities.
 
@@ -122,4 +122,4 @@ A pipeline is not a static structure. Regular optimization keeps your sales proc
 
 ## Get Started with Your Sales Pipeline Today
 
-Set up your sales pipeline in Customermates in minutes. Define your stages, create your first deals, and start managing your pipeline visually. Every pipeline feature is available from day one, with no configuration gates or premium upgrades. Sign up for a free account and see your sales process come to life.
+Set up your sales pipeline in Customermates. Define your stages, create your first deals, and start managing your pipeline visually. Every pipeline feature is available from day one, with no configuration gates or premium upgrades. Start your free trial and see your sales process come to life.

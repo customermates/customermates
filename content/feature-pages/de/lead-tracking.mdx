@@ -40,12 +40,11 @@ Effektives Lead-Tracking beseitigt diese blinden Flecken. Jeder Lead wird mit Qu
 
 | Funktion | Customermates | Pipedrive | HubSpot | Salesforce | Freshsales |
 |----------|--------------|-----------|---------|------------|------------|
-| Preis/Nutzer | Ab [[commercial.price.starter.monthly]]/Monat | 14 $/Monat | Kostenlos (eingeschränkt) | 25 $/Monat | 9 $/Monat |
+| Preis/Nutzer | Ab [[commercial.price.starter.monthly]]/Monat | 14 $/Monat (jährlich) | Kostenlos (eingeschränkt) | 25 $/Monat | 9 $/Monat |
 | Natives Lead-Scoring | <StatusUnavailable /> | <StatusPartial /> | <StatusPartial /> | <StatusAvailable /> | <StatusAvailable /> |
 | Quellenattribution | <StatusAvailable /> | <StatusAvailable /> | <StatusAvailable /> | <StatusAvailable /> | <StatusAvailable /> |
 | Eingebaute Workflow-Engine | <StatusUnavailable /> | <StatusPartial /> | <StatusPartial /> | <StatusAvailable /> | <StatusPartial /> |
 | Benutzerdefinierte Felder (10 Typen) | <StatusAvailable /> | <StatusPartial /> | <StatusPartial /> | <StatusAvailable /> | <StatusPartial /> |
-| Gehostete Datenbank in einer EU-Region | <StatusAvailable /> | <StatusPartial /> | <StatusUnavailable /> | <StatusPartial /> | <StatusUnavailable /> |
 | Open Source | <StatusAvailable /> | <StatusUnavailable /> | <StatusUnavailable /> | <StatusUnavailable /> | <StatusUnavailable /> |
 | Self-Hosting-Option | <StatusAvailable /> | <StatusUnavailable /> | <StatusUnavailable /> | <StatusUnavailable /> | <StatusUnavailable /> |
 
@@ -63,7 +62,7 @@ Customermates verfolgt Leads als Kontakte und Deals mit konfigurierbaren Phasen,
 
 **Konversionskontext.** Nutzen Sie konfigurierte Phasen und Dashboard-Widgets für aktuelle gespeicherte Anzahlen, Werte und phasengewichtete Pipeline-Gesamtsummen. Customermates berechnet weder einen festen MQL-zu-SQL-Funnel noch prädiktive Konversions- und Umsatzmodelle; analysieren Sie solche Metriken bei Bedarf extern.
 
-**Aktivitäts-Tracking.** Protokollieren Sie jeden Kontaktpunkt bei einem Lead-Datensatz: E-Mails, Anrufe, Meetings, Notizen und Aufgaben. Mit verbundenem gemeinsamem Postfach (Pro-Stufe) werden Nachrichten aus E-Mail, LinkedIn, WhatsApp, Instagram und Telegram automatisch beim Lead protokolliert. Die vollständige Aktivitäts-Timeline gibt Ihrem Team Kontext für jedes Gespräch. Jeder kann einen Lead übernehmen und fortsetzen, ohne zu fragen: "Was war das Letzte?"
+**Aktivitäts-Tracking.** Halten Sie jeden Kontaktpunkt beim Lead fest: Notizen zu Anrufen und Meetings, verknüpfte Aufgaben und Datensatzänderungen. Mit verbundenem gemeinsamem Postfach (Cloud, ab Pro) erscheinen Nachrichten aus E-Mail, LinkedIn, WhatsApp, Instagram und Telegram automatisch beim passenden Kontakt. Die vollständige Aktivitäts-Timeline gibt Ihrem Team Kontext für jedes Gespräch. Jeder kann einen Lead übernehmen und fortsetzen, ohne zu fragen: "Was war das Letzte?"
 
 **Externe Lead-Zuweisung und Routing.** Ein separater n8n-Workflow kann Region, extern berechneten Score, Produktinteresse oder Round-Robin-Logik auswerten und unterstützte Zuständigkeitsfelder per REST schreiben. Customermates besitzt keine native Routing-Engine.
 
@@ -75,7 +74,7 @@ Customermates verfolgt Leads als Kontakte und Deals mit konfigurierbaren Phasen,
 
 **Mit definiertem Prozess reagieren.** Studien zeigen, dass schnelle Antworten wichtig sind. Nutzen Sie Zuständigkeiten und Datensätze in Customermates; automatisches Routing oder Zustell-Timing muss in einem separaten kundeneigenen Workflow laufen.
 
-**Funnel-Engpässe identifizieren.** Phase-für-Phase-Konversionsmetriken zeigen genau, wo Leads abspringen. Wenn 80 % der qualifizierten Leads in der Angebotsphase stagnieren, wissen Sie, wo Sie Ihren Prozess verbessern müssen.
+**Funnel-Engpässe identifizieren.** Phase-für-Phase-Konversionsmetriken, extern aus Ihren Phasendaten berechnet, zeigen, wo Leads abspringen. Wenn 80 % der qualifizierten Leads in der Angebotsphase stagnieren, wissen Sie, wo Sie Ihren Prozess verbessern müssen.
 
 **Institutionelles Wissen aufbauen.** Unterstützte Nachrichten, Notizen, Aufgaben, eigene Werte und Phasenwechsel liefern dort Kontext, wo sie erfasst werden. Extern berechnete Scores bleiben gewöhnliche Feldwerte statt nativer Score-Historie oder vollständigem Audit-Trail.
 
@@ -91,15 +90,15 @@ Customermates verfolgt Leads als Kontakte und Deals mit konfigurierbaren Phasen,
 
 **Lead-Recycling.** Verschieben Sie einen Lead in eine Recycling-Phase und speichern Sie das nächste Aktionsdatum in einem eigenen Feld. Ein separat betriebener Scheduler kann es nach 90 oder 180 Tagen auswerten und extern eine Benachrichtigung senden; Customermates sendet keine native Erinnerung.
 
-**Quellen-Performance-Reporting.** Verfolgen Sie Lead-Volumen, Konversionsrate, durchschnittlichen Deal-Wert und Umsatz nach Quelle. Monatliche Berichte zeigen Ihnen genau, welche Kanäle skaliert werden sollten und welche unterperformen.
+**Quellen-Performance-Reporting.** Stellen Sie Lead-Volumen, Deal-Wert und gewonnenen Umsatz nach Quelle in Dashboard-Widgets dar. Konversionsraten je Quelle berechnen Sie in einem externen Reporting-Tool.
 
-**Multi-Touch-Attribution.** Für Leads, die vor der Konversion mit mehreren Kanälen interagieren, verfolgen Sie alle Berührungspunkte. Verstehen Sie die vollständige Customer Journey vom ersten Klick bis zum abgeschlossenen Deal.
+**Multi-Touch-Attribution.** Speichern Sie Erst- und letzte Quelle in eigenen Feldern. Vollständige Multi-Touch-Modelle über jeden Klick brauchen ein separates Analyse-Tool; Customermates speichert die Werte, die Sie schreiben.
 
 ## Warum Customermates für Lead-Tracking?
 
 **Open Source und transparent.** Customermates ist Open Source; Sie können seine CRM-Schnittstellen prüfen und anpassen. Scoring-Logik, Routing-Regeln, Anreicherung und Sequenzzustellung bleiben in separaten Systemen, die Sie auswählen und betreiben.
 
-**EU-Datenbankregion mit dokumentierten Anbietern.** Die gehostete Datenbank läuft in einer EU-Region. Anwendungshosting und verbundene Anbieter, darunter US-Anbieter, können Daten andernorts verarbeiten; das ist keine DSGVO- oder andere Compliance-Zertifizierung.
+**Cloud-Datenbank in Frankfurt, Anbieter offengelegt.** In der Cloud-Version liegt die Datenbank in der AWS-Region Frankfurt; Hosting und weitere Unterauftragsverarbeiter, auch aus den USA, stehen in der [Liste der Unterauftragsverarbeiter](/subprocessors), ein [Auftragsverarbeitungsvertrag (AVV)](/dpa) liegt vor.
 
 **Ab [[commercial.price.starter.monthly]] pro Nutzer und Monat.** Pipeline-Phasen, eigene Felder, REST, Webhooks und MCP starten mit Starter. Lead-Scoring, Routing, Anreicherung, n8n und KI-Clients bleiben separat. Das gemeinsame Postfach startet mit Pro bei [[commercial.price.pro.monthly]].
 
@@ -129,7 +128,7 @@ Ja. Customermates unterstützt Quellenattribution über benutzerdefinierte Felde
 </FaqItem>
 
 <FaqItem question="Was kostet Lead-Tracking Software?">
-Die Preise variieren stark. Salesforce verlangt ab 25 $/Nutzer/Monat, Pipedrive startet bei 14 $/Nutzer/Monat, und viele Tools beschränken Lead-Scoring auf Premium-Stufen. Customermates startet bei [[commercial.price.starter.monthly]]/Nutzer/Monat für Kern-Tracking und besitzt kein natives Lead-Scoring-Add-on.
+Die Preise variieren stark. Salesforce verlangt ab 25 $/Nutzer/Monat, Pipedrive startet bei 14 $/Nutzer/Monat bei jährlicher Abrechnung (24 $ monatlich, Stand September 2026), und viele Tools beschränken Lead-Scoring auf Premium-Stufen. Customermates startet bei [[commercial.price.starter.monthly]]/Nutzer/Monat für Kern-Tracking und besitzt kein natives Lead-Scoring-Add-on.
 </FaqItem>
 </Faq>
 

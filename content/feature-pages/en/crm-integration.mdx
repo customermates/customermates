@@ -1,6 +1,6 @@
 ---
 title: "CRM Integration: API, Webhooks, MCP & n8n"
-description: "CRM integration through REST, [[derived.webhooks.events.total]] webhook events, [[derived.mcp.tools.total]] MCP tools, and a community node for a separate n8n instance. The managed database uses an EU region."
+description: "CRM integration through REST, [[derived.webhooks.events.total]] webhook events, [[derived.mcp.tools.total]] MCP tools, and a community node for a separately operated n8n instance."
 featureName: CRM Integration
 
 relatedHrefs:
@@ -42,17 +42,17 @@ Customermates provides four integration surfaces: MCP for supported external AI 
 
 ### External AI Clients via MCP
 
-Customermates ships a native Model Context Protocol (MCP) endpoint at `https://customermates.com/api/v1/mcp`, authenticated by API key or OAuth bearer token depending on the client flow. Supported external clients such as Claude, ChatGPT, or Gemini can use [[derived.mcp.tools.total]] tools — [[derived.mcp.tools.grouped]] across [[derived.mcp.toolsets.count]] toolsets plus [[derived.mcp.tools.alwaysOn]] always-on research connectors — to read and write allowed records, move deal stages, draft follow-ups, and, on a messaging tier, work with the unified inbox. The external client and its provider receive the context you permit and remain separate from Customermates. MCP starts with Starter; messaging tools require Pro or above. Narrow exposed tools per client with `?toolsets=`.
+Customermates ships a native Model Context Protocol (MCP) endpoint at `https://customermates.com/api/v1/mcp`, authenticated by API key or OAuth bearer token depending on the client flow. Supported external clients such as Claude, ChatGPT, or Gemini can use [[derived.mcp.tools.total]] tools ([[derived.mcp.tools.grouped]] across [[derived.mcp.toolsets.count]] toolsets plus [[derived.mcp.tools.alwaysOn]] always-on research connectors) to read and write allowed records, move deal stages, draft follow-ups, and, on a messaging tier, work with the unified inbox. The external client and its provider receive the context you permit and remain separate from Customermates. MCP starts with Starter; messaging tools require Pro or above. Narrow exposed tools per client with `?toolsets=`.
 
 ### Native Unified Inbox
 
-Most CRMs bolt on email and messaging through third-party add-ons. Customermates includes them natively. Email, LinkedIn, WhatsApp, Instagram, and Telegram live in one unified inbox inside the CRM, and every conversation is logged against the right contact automatically. The unified inbox is included from the Pro tier ([[commercial.price.pro.monthly]]/user/month); shared, team-wide inboxes come with the Business tier ([[commercial.price.business.monthly]]/user/month).
+Most CRMs bolt on email and messaging through third-party add-ons. Customermates includes them natively. Email, LinkedIn, WhatsApp, Instagram, and Telegram live in one unified inbox inside the CRM, and every conversation is logged against the right contact automatically. The unified inbox is a managed-cloud feature included from the Pro tier ([[commercial.price.pro.monthly]]/user/month, one connected account per user); the Business tier ([[commercial.price.business.monthly]]/user/month) adds three accounts per user plus shared accounts. It is not available when self-hosting.
 
 ### n8n Automation (Replaces Zapier)
 
 Connect an [n8n](https://n8n.io) instance you run or subscribe to through REST, webhooks, MCP, or the Customermates community node. The visual workflow builder and connector catalog belong to n8n, not Customermates. Use that separate service to connect Slack, Google Sheets, Mailchimp, Stripe, Notion, Airtable, Xero, lexoffice, and other providers.
 
-n8n can serve as a separate open-source alternative to Zapier or Make. Its runtime, subscription, connectors, credentials, logs, execution limits, scheduling, and costs remain outside Customermates, and data flows to every provider the workflow calls. Build multi-step workflows in the n8n service through its visual interface.
+n8n can serve as a separate, self-hostable alternative to Zapier or Make. Its runtime, subscription, connectors, credentials, logs, execution limits, scheduling, and costs remain outside Customermates, and data flows to every provider the workflow calls. Build multi-step workflows in the n8n service through its visual interface.
 
 **Example external workflow:** A documented deal event can trigger a separately operated n8n flow that asks lexoffice to create and store an invoice, Slack to deliver a message, Notion to create a project, and Brevo to run a post-sale sequence. Customermates itself includes none of those external services, invoice records, or sequence delivery.
 
@@ -96,7 +96,7 @@ Many businesses use Zapier or n8n to connect a CRM with other tools. Customermat
 | Error handling | Handled by external runtime | Limited on free/starter plans |
 | Self-hostable | CRM self-hostable; n8n separate | No |
 | Open source | Customermates open source; n8n separate | No |
-| Data processing | Hosted database in EU region; providers vary | US by default |
+| Data processing | Cloud database in Frankfurt (AWS), subprocessors disclosed; self-hostable | US by default |
 
 A separately operated n8n instance can replace some Zapier workflows, depending on connector coverage, provider plans, execution limits, and operating costs. Customermates supplies integration interfaces and a community node, not the n8n service or an unlimited-use promise.
 
@@ -106,7 +106,7 @@ Hosted connection flows support Gmail, Microsoft Outlook, and IMAP inboxes. Conn
 
 **Automate cross-system workflows externally.** A customer-run workflow can react to documented CRM events and coordinate lead capture, provider-owned sequences, notifications, invoice creation, or project setup. Those records, runtimes, delivery systems, limits, logs, and costs remain external.
 
-**Open interfaces without a dedicated exporter.** Customermates is open source and exposes documented API operations. A customer-run integration can read supported resources for migration or external analysis; there is no full-parity API or dedicated CRM-record export workflow.
+**Open interfaces and XLSX export.** Customermates is open source and exposes documented API operations. Each record type can be exported as an XLSX workbook within your permissions, the current view and row limits, and a customer-run integration can read supported resources for migration or external analysis. There is no CSV, whole-account export, or full UI/API parity.
 
 **Connect a separate Zapier alternative.** Use an n8n instance you operate through REST, webhooks, MCP, or the community node. Its subscription, hosting, connectors, executions, limits, logs, credentials, and costs are not included with Customermates.
 
@@ -118,9 +118,9 @@ Hosted connection flows support Gmail, Microsoft Outlook, and IMAP inboxes. Conn
 
 **Integration interfaces from the entry tier.** Documented API access, webhooks, MCP, and the community node start with published CRM plans. n8n workflows and every external provider remain governed and billed separately.
 
-**EU database region with documented providers.** The hosted database runs in an EU region. Application hosting, n8n, and other connected providers, including US providers, may process data elsewhere; this is not a GDPR or other compliance certification.
+**Cloud database in Frankfurt, providers disclosed.** In the managed cloud, the application database runs in the AWS Frankfurt region; hosting and other subprocessors, including US providers, are listed on the [subprocessors page](/subprocessors), and a [DPA](/dpa) is available. A separately operated n8n instance and other connected providers add their own data boundaries.
 
-**Open source and extensible.** The Customermates AGPL core and n8n are open source. Build connectors for proprietary systems, modify workflows to match your exact requirements, and contribute improvements back to the community.
+**Open source and extensible.** The Customermates AGPL core is open source, and n8n is source-available. Build connectors for proprietary systems, modify workflows to match your exact requirements, and contribute improvements back to the community.
 
 **Self-hostable application and database.** Run the Customermates application and PostgreSQL database on your infrastructure. Connected AI, workflow, messaging, and business providers still receive data your configuration sends, and keep their own credentials and logs.
 
