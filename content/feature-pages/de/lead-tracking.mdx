@@ -30,7 +30,7 @@ cta:
 
 ## Was ist Lead-Tracking?
 
-Lead-Tracking ist der Prozess, potenzielle Kunden zu erfassen, die Herkunft ihrer Anfrage festzuhalten und ihren Weg durch jede Phase Ihrer Vertriebspipeline zu verfolgen. Es verbindet drei Disziplinen: Lead-Erfassung, Lead-Scoring und Pipeline-Management, und gibt Ihrem Team ein einziges System, um Interessenten zu organisieren, zu priorisieren und zu konvertieren.
+Lead-Tracking ist der Prozess, potenzielle Kunden zu erfassen, die Herkunft ihrer Anfrage festzuhalten und ihren Weg durch jede Phase Ihrer Vertriebspipeline zu verfolgen. Es verbindet drei Disziplinen (Lead-Erfassung, Lead-Scoring und Pipeline-Management) und gibt Ihrem Team ein einziges System, um Interessenten zu organisieren, zu priorisieren und zu konvertieren.
 
 Ohne Lead-Tracking-System arbeiten Vertriebsteams reaktiv. Leads kommen über Formulare, Anzeigen, Empfehlungen und Events, aber niemand weiß, welche Kanäle die besten Ergebnisse liefern. Vielversprechende Interessenten stehen in derselben Warteschlange wie unqualifizierte Kontakte. Follow-up-Timing hängt vom Gedächtnis ab statt von Daten. Und wenn ein Lead konvertiert oder abspringt, gibt es keinen strukturierten Datensatz, aus dem Sie lernen können.
 
@@ -50,7 +50,7 @@ Effektives Lead-Tracking beseitigt diese blinden Flecken. Jeder Lead wird mit Qu
 
 ## So funktioniert Lead-Tracking in Customermates
 
-Customermates verfolgt Leads als Kontakte und Deals mit konfigurierbaren Phasen, eigenen Feldern und unterstütztem Kommunikationskontext. Ein separat konfigurierter externer KI-Client kann zulässige Datensätze per MCP aktualisieren; das gemeinsame Postfach bringt unterstützte Kanäle ab Pro ins CRM. Customermates berechnet keine Lead-Scores, reichert keine Datensätze an, routet keine Leads und führt keine Nurture-Sequenzen aus.
+Customermates verfolgt Leads als Kontakte und Deals mit konfigurierbaren Phasen, eigenen Feldern und unterstütztem Kommunikationskontext. Ein separat konfigurierter externer KI-Client kann zulässige Datensätze per MCP aktualisieren; der einheitliche Posteingang bringt unterstützte Kanäle ab Pro ins CRM. Customermates berechnet keine Lead-Scores, reichert keine Datensätze an, routet keine Leads und führt keine Nurture-Sequenzen aus.
 
 **Lead-Erfassung und -Erstellung.** Erstellen Sie unterstützte Datensätze manuell oder über eine separate n8n-Integration. Ein externer Formular- oder Anzeigenanbieter kann Daten an einen kundeneigenen Workflow senden, der per REST Kontakt und Deal mit Quellen-, UTM- und eigenen Feldwerten anlegt. Customermates besitzt keine native Formular- oder Capture-Engine.
 
@@ -62,7 +62,7 @@ Customermates verfolgt Leads als Kontakte und Deals mit konfigurierbaren Phasen,
 
 **Konversionskontext.** Nutzen Sie konfigurierte Phasen und Dashboard-Widgets für aktuelle gespeicherte Anzahlen, Werte und phasengewichtete Pipeline-Gesamtsummen. Customermates berechnet weder einen festen MQL-zu-SQL-Funnel noch prädiktive Konversions- und Umsatzmodelle; analysieren Sie solche Metriken bei Bedarf extern.
 
-**Aktivitäts-Tracking.** Halten Sie jeden Kontaktpunkt beim Lead fest: Notizen zu Anrufen und Meetings, verknüpfte Aufgaben und Datensatzänderungen. Mit verbundenem gemeinsamem Postfach (Cloud, ab Pro) erscheinen Nachrichten aus E-Mail, LinkedIn, WhatsApp, Instagram und Telegram automatisch beim passenden Kontakt. Die vollständige Aktivitäts-Timeline gibt Ihrem Team Kontext für jedes Gespräch. Jeder kann einen Lead übernehmen und fortsetzen, ohne zu fragen: "Was war das Letzte?"
+**Aktivitäts-Tracking.** Halten Sie jeden Kontaktpunkt beim Lead fest: Notizen zu Anrufen und Meetings, verknüpfte Aufgaben und Datensatzänderungen. Mit verbundenem einheitlichem Posteingang (Cloud, ab Pro) erscheinen Nachrichten aus E-Mail, LinkedIn, WhatsApp, Instagram und Telegram automatisch beim passenden Kontakt. Die vollständige Aktivitäts-Timeline gibt Ihrem Team Kontext für jedes Gespräch. Jeder kann einen Lead übernehmen und fortsetzen, ohne zu fragen: "Was war das Letzte?"
 
 **Externe Lead-Zuweisung und Routing.** Ein separater n8n-Workflow kann Region, extern berechneten Score, Produktinteresse oder Round-Robin-Logik auswerten und unterstützte Zuständigkeitsfelder per REST schreiben. Customermates besitzt keine native Routing-Engine.
 
@@ -100,11 +100,11 @@ Customermates verfolgt Leads als Kontakte und Deals mit konfigurierbaren Phasen,
 
 **Cloud-Datenbank in Frankfurt, Anbieter offengelegt.** In der Cloud-Version liegt die Datenbank in der AWS-Region Frankfurt; Hosting und weitere Unterauftragsverarbeiter, auch aus den USA, stehen in der [Liste der Unterauftragsverarbeiter](/subprocessors), ein [Auftragsverarbeitungsvertrag (AVV)](/dpa) liegt vor.
 
-**Ab [[commercial.price.starter.monthly]] pro Nutzer und Monat.** Pipeline-Phasen, eigene Felder, REST, Webhooks und MCP starten mit Starter. Lead-Scoring, Routing, Anreicherung, n8n und KI-Clients bleiben separat. Das gemeinsame Postfach startet mit Pro bei [[commercial.price.pro.monthly]].
+**Ab [[commercial.price.starter.monthly]] pro Nutzer und Monat.** Pipeline-Phasen, eigene Felder, REST, Webhooks und MCP starten mit Starter. Lead-Scoring, Routing, Anreicherung, n8n und KI-Clients bleiben separat. Der einheitliche Posteingang startet mit Pro bei [[commercial.price.pro.monthly]].
 
 **Separate n8n-Automatisierung.** Verbinden Sie eine eigene n8n-Instanz über REST, Webhooks, MCP oder Community-Node. Visueller Builder, Formulare, Anzeigenplattformen, Scoring, Routing, E-Mail-Zustellung, 400+ Konnektoren, Tarife, Limits, Logs und Kosten bleiben extern.
 
-**Self-Hosting des Kern-CRM.** Betreiben Sie Customermates-Anwendung und PostgreSQL-Datenbank mit Starter-Berechtigungen auf Ihrer Infrastruktur. Verbundene KI-, Workflow-, Messaging- und Datenanbieter erhalten weiterhin, was Ihre Konfiguration sendet.
+**Self-Hosting des Kern-CRM.** Betreiben Sie Customermates-Anwendung und PostgreSQL-Datenbank mit dem Funktionsumfang von Starter auf Ihrer Infrastruktur. Verbundene KI-, Workflow-, Messaging- und Datenanbieter erhalten weiterhin, was Ihre Konfiguration sendet.
 
 **Externe KI-Clients bedienen zulässige CRM-Daten.** Unterstützte Clients wie Claude, ChatGPT oder Gemini können mit [[derived.mcp.tools.total]] MCP-Tools Datensätze aktualisieren, zulässigen Kontext zusammenfassen und ein Follow-up entwerfen. Customermates stellt diesen externen Client oder dessen Modell nicht bereit und ergänzt im MCP-Flow weder Scoring noch Anreicherung; separate Anbieter verantworten die Ergebnisse.
 
@@ -124,7 +124,7 @@ Lead-Tracking konzentriert sich auf die Überwachung, wo sich Leads in Ihrer Pip
 </FaqItem>
 
 <FaqItem question="Kann ich nachverfolgen, woher meine Leads kommen?">
-Ja. Customermates unterstützt Quellenattribution über benutzerdefinierte Felder und n8n-Integrationen. Sie können UTM-Parameter, Kampagnennamen, Empfehlungsquellen und Werbekanäle für jeden Lead erfassen, und dann auswerten, welche Quellen die hochwertigste Pipeline generieren.
+Ja. Customermates unterstützt Quellenattribution über benutzerdefinierte Felder und n8n-Integrationen. Sie können UTM-Parameter, Kampagnennamen, Empfehlungsquellen und Werbekanäle für jeden Lead erfassen und dann auswerten, welche Quellen die hochwertigste Pipeline generieren.
 </FaqItem>
 
 <FaqItem question="Was kostet Lead-Tracking Software?">

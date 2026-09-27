@@ -111,8 +111,8 @@ Customermates ist ein **selbst gehostetes CRM**, das aus zwei Docker-Compose-Die
     versionierten Docker-Compose-Deployment.
   </SummaryItem>
   <SummaryItem label="Enthaltener Umfang">
-    Kern-CRM, eigene Felder und Ansichten, REST, Webhooks und MCP mit
-    Starter-Berechtigungen.
+    Kern-CRM, eigene Felder und Ansichten, REST, Webhooks und MCP im
+    Funktionsumfang von Starter.
   </SummaryItem>
   <SummaryItem label="Ihr Betrieb">
     Netzwerkzugriff, TLS, Updates, Backups, Wiederherstellungstests, Monitoring
@@ -124,12 +124,12 @@ Customermates ist ein **selbst gehostetes CRM**, das aus zwei Docker-Compose-Die
   </SummaryItem>
 </ArticleSummary>
 
-<ProofRail label="Verifizierte Fakten zum Self-Hosted CRM">
+<ProofRail label="Fakten zum Self-Hosted CRM">
   <ProofItem label="Deployment">Docker Compose</ProofItem>
   <ProofItem label="Datenbank">PostgreSQL 16</ProofItem>
   <ProofItem label="CRM-Kern">Fünf Datensatztypen</ProofItem>
   <ProofItem label="Schnittstellen">REST, Webhooks und MCP</ProofItem>
-  <ProofItem label="Berechtigung">Starter-Basis</ProofItem>
+  <ProofItem label="Funktionsumfang">Wie Starter</ProofItem>
 </ProofRail>
 
 ## Was läuft auf Ihrer Infrastruktur?
@@ -138,7 +138,7 @@ Das offizielle Deployment umfasst:
 
 - das Customermates-Anwendungs-Image;
 - eine PostgreSQL-16-Datenbank;
-- die Kerndatensätze für Kontakte, Unternehmen, Deals, Leistungen und Aufgaben; sowie
+- die Kerndatensätze für Kontakte, Unternehmen, Deals, Services und Aufgaben; sowie
 - REST, Webhooks und [MCP für externe KI-Clients](/docs/mcp).
 
 Die Compose-Datei enthält weder n8n noch ein KI-Modell, einen E-Mail-Versanddienst oder einen separaten Worker. Authentifizierungs-E-Mails benötigen weiterhin den konfigurierten externen Versanddienst. Wenn Sie einen Anbieter verbinden, betreiben Sie diese Integration separat und sollten prüfen, welche Daten sie erhält.
@@ -157,10 +157,10 @@ Die Compose-Datei enthält weder n8n noch ein KI-Modell, einen E-Mail-Versanddie
 
 | Funktion                                                    | Self-Hosted Customermates |
 | ----------------------------------------------------------- | ------------------------- |
-| Kontakte, Unternehmen, Deals, Leistungen und Aufgaben       | Enthalten                 |
-| Custom Fields sowie Tabellen-, Karten- und Kanban-Ansichten | Enthalten                 |
+| Kontakte, Unternehmen, Deals, Services und Aufgaben         | Enthalten                 |
+| Eigene Felder sowie Tabellen- und Kanban-Ansichten          | Enthalten                 |
 | REST-API, Webhooks und MCP                                  | Enthalten                 |
-| Berechtigungsbasis                                          | Starter                   |
+| Funktionsumfang                                             | Wie Starter               |
 | Gehosteter Mate-Assistent und gehostete KI-Credits          | Nicht enthalten           |
 | Einheitlicher Posteingang und verbundene Messaging-Konten   | Nicht enthalten           |
 | Schreibgeschützte verbundene Kalenderansicht                | Nicht enthalten           |
@@ -170,9 +170,9 @@ Der [einheitliche CRM-Posteingang](/features/unified-inbox) ist eine Managed-Clo
 
 ## Open-Source- und kommerzielle Code-Grenzen
 
-Das Customermates-eigene Material außerhalb von `ee/` steht ausschließlich unter AGPL-3.0. Innerhalb von `ee/` gilt grundsätzlich die kommerzielle Lizenz; ausgenommen sind die in Abschnitt 6 von `ee/LICENSE.md` beschriebenen clientseitigen Bilder, Schriften, CSS- und JavaScript-Bestandteile, die ebenfalls unter AGPL-3.0 stehen. Prüfen Sie beide Lizenzen, bevor Sie die Software für Ihren Anwendungsfall ändern, weitergeben oder betreiben.
+Der von Customermates selbst entwickelte Code außerhalb von `ee/` steht ausschließlich unter AGPL-3.0. Innerhalb von `ee/` gilt grundsätzlich die kommerzielle Lizenz; ausgenommen sind die in Abschnitt 6 von `ee/LICENSE.md` beschriebenen clientseitigen Bilder, Schriften, CSS- und JavaScript-Bestandteile, die ebenfalls unter AGPL-3.0 stehen. Prüfen Sie beide Lizenzen, bevor Sie die Software für Ihren Anwendungsfall ändern, weitergeben oder betreiben.
 
-Diese Trennung ist beim Vergleich eines [Open Source CRM](/blog/open-source-crm) wichtig: Ein öffentliches Repository sagt allein noch nicht, welcher Code unter welchen Bedingungen genutzt werden darf. Wenn Sie andere selbst hostbare Projekte abwägen, zeigen die Vergleiche mit [EspoCRM](/compare/espocrm-alternative) und [Twenty](/compare/twenty-alternative), wie sich deren Bereitstellung und Lizenzen unterscheiden.
+Diese Trennung ist beim Vergleich eines [Open-Source-CRMs](/blog/open-source-crm) wichtig: Ein öffentliches Repository sagt allein noch nicht, welcher Code unter welchen Bedingungen genutzt werden darf. Wenn Sie andere selbst hostbare Projekte abwägen, zeigen die Vergleiche mit [EspoCRM](/compare/espocrm-alternative) und [Twenty](/compare/twenty-alternative), wie sich deren Bereitstellung und Lizenzen unterscheiden.
 
 ## Welche Kontrolle bietet Self-Hosting?
 
@@ -185,11 +185,11 @@ Jeder angebundene Dienst bildet weiterhin eine eigene Grenze der Datenverarbeitu
 | Self-Hosting passt, wenn …                              | Managed Cloud passt, wenn …                                                     |
 | ------------------------------------------------------- | ------------------------------------------------------------------------------- |
 | Ihr Team Docker und PostgreSQL betreiben kann           | Customermates die Anwendung und Datenbank betreiben soll                        |
-| die Starter-Funktionsgrenze ausreicht                   | Sie den einheitlichen Posteingang oder die verbundene Kalenderansicht benötigen |
+| der Funktionsumfang von Starter ausreicht              | Sie den einheitlichen Posteingang oder die verbundene Kalenderansicht benötigen |
 | externe KI-Clients MCP verwenden sollen                 | Sie Cloud-Tarife und verwaltete verbundene Konten benötigen                     |
 | Sie Updates, Backups und Wiederherstellung verantworten | Sie einen verwalteten Betrieb bevorzugen                                        |
 
-Datensätze wechseln zwischen Installationen oder aus einem anderen CRM als XLSX-Arbeitsmappen, jeweils ein Datensatztyp und innerhalb der Zeilenlimits, oder über die REST-API. Anhänge und eine vollständige Kontoübertragung gehören nicht dazu. Planen Sie einen größeren Umzug daher als Migrationsprojekt, das Sie selbst prüfen.
+Datensätze wechseln zwischen Installationen oder aus einem anderen CRM als XLSX-Arbeitsmappen (jeweils ein Datensatztyp, innerhalb der Zeilenlimits) oder über die REST-API. Anhänge und eine vollständige Kontoübertragung gehören nicht dazu. Planen Sie einen größeren Umzug daher als Migrationsprojekt, das Sie selbst prüfen.
 
 ## So prüfen Sie das Deployment
 
@@ -199,7 +199,7 @@ Datensätze wechseln zwischen Installationen oder aus einem anderen CRM als XLSX
     die aktuelle Compose-Datei im Repository.
   </Step>
   <Step title="Editionsgrenze prüfen">
-    Stellen Sie sicher, dass Starter-Berechtigungen die benötigten Datensätze,
+    Stellen Sie sicher, dass der Funktionsumfang von Starter die benötigten Datensätze,
     Ansichten und Schnittstellen abdecken.
   </Step>
   <Step title="Externe Dienste erfassen">
@@ -220,11 +220,11 @@ Datensätze wechseln zwischen Installationen oder aus einem anderen CRM als XLSX
 
 <Faq>
 <FaqItem question="Ist Customermates vollständig Open Source?">
-Das Customermates-eigene Material außerhalb von `ee/` steht ausschließlich unter AGPL-3.0. Innerhalb von `ee/` gilt AGPL-3.0 auch für das in Abschnitt 6 von `ee/LICENSE.md` definierte Client-Material; das übrige Customermates-eigene Material unterliegt der kommerziellen Lizenz. Die exakte Grenze finden Sie in beiden Lizenzdateien.
+Der von Customermates selbst entwickelte Code außerhalb von `ee/` steht ausschließlich unter AGPL-3.0. Innerhalb von `ee/` gilt AGPL-3.0 auch für die in Abschnitt 6 von `ee/LICENSE.md` definierten clientseitigen Bestandteile; der übrige von Customermates entwickelte Code unterliegt der kommerziellen Lizenz. Die exakte Grenze finden Sie in beiden Lizenzdateien.
 </FaqItem>
 
 <FaqItem question="Enthält Self-Hosting den einheitlichen Posteingang?">
-  Nein. Self-Hosted-Deployments verwenden die Starter-Berechtigungsbasis ohne
+  Nein. Self-Hosting umfasst den Funktionsumfang von Starter ohne
   Messaging-Konten, einheitlichen Posteingang, geteilte Konten oder verbundene
   Kalenderansicht. Diese Funktionen gehören zu Managed-Cloud-Tarifen ab Pro.
 </FaqItem>

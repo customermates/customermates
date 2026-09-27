@@ -11,7 +11,7 @@ relatedHrefs:
 
 hero:
   title: CRM-Integrationen, die Ihren gesamten Tool-Stack verbinden
-  description: Verbinden Sie Ihr CRM auf vier Wegen. Unterstützte externe KI-Clients nutzen [[derived.mcp.tools.total]] MCP-Tools, eine separate n8n-Instanz erreicht 400+ Dienste, die dokumentierte REST API und [[derived.webhooks.events.total]] Webhook-Ereignisse binden andere Systeme an, und das native gemeinsame Postfach bringt E-Mail, LinkedIn, WhatsApp, Instagram und Telegram ins CRM. REST, Webhooks und MCP starten ab [[commercial.price.starter.monthly]] pro Nutzer und Monat; n8n und Anbieter bleiben separat.
+  description: Verbinden Sie Ihr CRM auf vier Wegen. Unterstützte externe KI-Clients nutzen [[derived.mcp.tools.total]] MCP-Tools, eine separate n8n-Instanz erreicht 400+ Dienste, die dokumentierte REST API und [[derived.webhooks.events.total]] Webhook-Ereignisse binden andere Systeme an, und der native einheitliche Posteingang bringt E-Mail, LinkedIn, WhatsApp, Instagram und Telegram ins CRM. REST, Webhooks und MCP starten ab [[commercial.price.starter.monthly]] pro Nutzer und Monat; n8n und Anbieter bleiben separat.
   buttonLeftText: Kostenlos starten
   buttonLeftHref: /auth/signup
   buttonRightText: Live-Demo ansehen
@@ -44,9 +44,9 @@ Customermates bietet mehrere komplementäre Integrationsansätze, damit Sie unte
 
 Customermates bringt einen Model-Context-Protocol-Endpunkt (MCP) mit, über den unterstützte externe Clients wie Claude, ChatGPT und Gemini zulässige CRM-Daten lesen und schreiben können. Der Endpunkt unter `https://customermates.com/api/v1/mcp` stellt [[derived.mcp.tools.grouped]] Tools über [[derived.mcp.toolsets.count]] Toolsets plus [[derived.mcp.tools.alwaysOn]] stets aktive Recherche-Tools bereit, insgesamt [[derived.mcp.tools.total]] Tools. Ein konfigurierter Client kann Kontakte erstellen, Deal-Phasen verschieben, einzelne Follow-ups entwerfen und Notizen aktualisieren. Grenzen Sie die Tools pro Client mit `?toolsets=` ein und authentifizieren Sie sich über einen `x-api-key`-Header. MCP startet mit Starter; Client, Modell, Abonnement und Nutzung bleiben separat.
 
-### Natives gemeinsames Postfach
+### Nativer einheitlicher Posteingang
 
-E-Mail-, LinkedIn-, WhatsApp-, Instagram- und Telegram-Threads landen in einem Postfach im CRM, und ein unterstützter externer KI-Client kann dort zulässige einzelne Nachrichten lesen, entwerfen und senden. Das gemeinsame Postfach ist ab Pro für [[commercial.price.pro.monthly]] pro Nutzer und Monat enthalten; gemeinsam genutzte Team-Konten ab Business.
+E-Mail-, LinkedIn-, WhatsApp-, Instagram- und Telegram-Threads landen in einem Postfach im CRM, und ein unterstützter externer KI-Client kann dort zulässige einzelne Nachrichten lesen, entwerfen und senden. Der einheitliche Posteingang ist ab Pro für [[commercial.price.pro.monthly]] pro Nutzer und Monat enthalten; gemeinsam genutzte Team-Konten ab Business.
 
 ### n8n-Automatisierungs-Engine (selbst mitgebracht)
 
@@ -91,7 +91,7 @@ Erhalten Sie Echtzeit-Push-Benachrichtigungen, wenn sich Datensätze ändern. Cu
 | Merkmal | Customermates + separates n8n | HubSpot | Zapier + beliebiges CRM |
 |---|---|---|---|
 | MCP-Steuerung für externe KI-Clients | Ja ([[derived.mcp.tools.total]] Tools) | Begrenzt | Nein |
-| Natives gemeinsames Postfach (E-Mail, LinkedIn, WhatsApp, Instagram, Telegram) | Ja (Pro-Stufe) | Begrenzt | Nein |
+| Nativer einheitlicher Posteingang (E-Mail, LinkedIn, WhatsApp, Instagram, Telegram) | Ja (Pro-Stufe) | Begrenzt | Nein |
 | Automatisierungs-Engine | Eigenes n8n (Webhooks, REST, Community-Node) | Begrenzt (Operations Hub) | Nein (separates Abo) |
 | Vorgefertigte Konnektoren | n8n-Katalog (separat) | 1.600+ (Marketplace) | 7.000+ |
 | Integrationskosten | CRM ab [[commercial.price.starter.monthly]] + separate n8n-/Anbieterkosten | Operations Hub ab 800 USD/Monat | Ab 20 USD/Monat + CRM-Kosten |
@@ -119,7 +119,7 @@ Während HubSpot mehr Marketplace-Apps bietet und Zapier mehr Dienste verbindet,
 
 ## Warum Customermates für CRM-Integrationen?
 
-**Offene Schnittstellen ab der Einstiegsstufe.** REST, [[derived.webhooks.events.total]] Webhook-Ereigniswerte und MCP-Zugriff sind ab [[commercial.price.starter.monthly]] pro Nutzer und Monat verfügbar. n8n, KI-Clients, Modelle, Konnektoren, Laufzeiten, Zustellanbieter, Limits und Kosten bleiben separat. Das native gemeinsame Postfach startet mit Pro, gemeinsam genutzte Team-Konten mit Business.
+**Offene Schnittstellen ab der Einstiegsstufe.** REST, [[derived.webhooks.events.total]] Webhook-Ereigniswerte und MCP-Zugriff sind ab [[commercial.price.starter.monthly]] pro Nutzer und Monat verfügbar. n8n, KI-Clients, Modelle, Konnektoren, Laufzeiten, Zustellanbieter, Limits und Kosten bleiben separat. Der native einheitliche Posteingang startet mit Pro, gemeinsam genutzte Team-Konten mit Business.
 
 **Open Source und erweiterbar.** Der Customermates-AGPL-Kern ist Open Source, n8n ist ein separates quellverfügbares Produkt. Entwickeln Sie gegen ihre dokumentierten Schnittstellen oder ergänzen Sie Konnektoren im n8n-Dienst, den Sie betreiben, und verwalten Sie Systeme, Anbieter, Zugangsdaten und Updates getrennt.
 
@@ -131,7 +131,7 @@ Während HubSpot mehr Marketplace-Apps bietet und Zapier mehr Dienste verbindet,
 
 <Faq>
 <FaqItem question="Wie viele Integrationen unterstützt Customermates?">
-Customermates liefert REST, [[derived.webhooks.events.total]] Webhook-Ereigniswerte, [[derived.mcp.tools.total]] MCP-Tools für unterstützte externe KI-Clients und einen Community-Node für eine separate n8n-Instanz. Der Katalog mit 400+ Konnektoren gehört n8n; das native gemeinsame Postfach verbindet unterstützte E-Mail- und Social-Kanäle ab Pro.
+Customermates liefert REST, [[derived.webhooks.events.total]] Webhook-Ereigniswerte, [[derived.mcp.tools.total]] MCP-Tools für unterstützte externe KI-Clients und einen Community-Node für eine separate n8n-Instanz. Der Katalog mit 400+ Konnektoren gehört n8n; der native einheitliche Posteingang verbindet unterstützte E-Mail- und Social-Kanäle ab Pro.
 </FaqItem>
 
 <FaqItem question="Muss ich für Integrationen extra bezahlen?">

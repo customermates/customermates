@@ -1,6 +1,6 @@
 ---
 title: "CRM E-Mail-Integration: Gmail & Outlook Sync"
-description: "CRM E-Mail-Integration: Gmail-, Outlook- und IMAP-Threads im gemeinsamen Postfach lesen, beantworten und mit Kontakten verknüpfen. Kampagnen bleiben extern."
+description: "CRM-E-Mail-Integration: Gmail-, Outlook- und IMAP-Threads im einheitlichen Posteingang lesen, beantworten und Kontakten zuordnen. Kampagnen extern."
 featureName: E-Mail-Integration
 
 relatedHrefs:
@@ -11,7 +11,7 @@ relatedHrefs:
 
 hero:
   title: E-Mail-Integration, die jede Konversation mit Ihrem CRM verbindet
-  description: Verbinden Sie unterstützte Gmail- und Outlook-Konten mit Customermates. Passende Konversationen stehen im gemeinsamen Postfach neben LinkedIn, WhatsApp, Instagram und Telegram bereit. Unterstützte externe KI-Clients können über MCP Kontext lesen, entwerfen und senden; Kampagnen und Sequenzen laufen in einem separaten Anbieter oder einer eigenen n8n-Instanz.
+  description: Verbinden Sie unterstützte Gmail- und Outlook-Konten mit Customermates. Passende Konversationen stehen im einheitlichen Posteingang neben LinkedIn, WhatsApp, Instagram und Telegram bereit. Unterstützte externe KI-Clients können über MCP Kontext lesen, entwerfen und senden; Kampagnen und Sequenzen laufen in einem separaten Anbieter oder einer eigenen n8n-Instanz.
   buttonLeftText: Kostenlos starten
   buttonLeftHref: /auth/signup
   buttonRightText: Live-Demo ansehen
@@ -30,7 +30,7 @@ cta:
 
 ## Was E-Mail-Integration hier bedeutet
 
-Customermates importiert E-Mail-Threads aus einem verbundenen Gmail-, Microsoft-Outlook- oder IMAP-Konto in das gemeinsame Postfach. Dasselbe Postfach unterstützt auch LinkedIn-, WhatsApp-, Instagram- und Telegram-Konten. Ein verbundenes Konto gehört einem Nutzer, solange es nicht ausdrücklich mit dem Workspace geteilt wird.
+Customermates importiert E-Mail-Threads aus einem verbundenen Gmail-, Microsoft-Outlook- oder IMAP-Konto in den einheitlichen Posteingang. Derselbe Posteingang unterstützt auch LinkedIn-, WhatsApp-, Instagram- und Telegram-Konten. Ein verbundenes Konto gehört einem Nutzer, solange es nicht ausdrücklich mit dem Workspace geteilt wird.
 
 Das ist ein operatives Postfach, keine E-Mail-Marketing-Suite. Sie können synchronisierte Threads lesen, auf dem ursprünglichen Kanal antworten, einen lokalen Entwurf in einem bestehenden Thread speichern oder ersetzen, den Thread-Status ändern und Teilnehmer mit CRM-Kontakten verknüpfen. Neue E-Mails lassen sich über einen Kontakt oder über API und MCP sofort senden.
 
@@ -72,13 +72,13 @@ Das Produkt nimmt außerdem nicht an, dass jede synchronisierte Nachricht zu ein
 
 ## Tarife und Datenverarbeitung
 
-Das verbundene gemeinsame Postfach ist ab Pro für [[commercial.price.pro.monthly]] pro Nutzer und Monat verfügbar. Starter für [[commercial.price.starter.monthly]] pro Nutzer und Monat deckt das Kern-CRM ohne verbundene Konten ab. Business für [[commercial.price.business.monthly]] pro Nutzer und Monat erhöht die Kapazität verbundener Konten und unterstützt geteilte Konten.
+Der verbundene einheitliche Posteingang ist ab Pro für [[commercial.price.pro.monthly]] pro Nutzer und Monat verfügbar. Starter für [[commercial.price.starter.monthly]] pro Nutzer und Monat deckt das Kern-CRM ohne verbundene Konten ab. Business für [[commercial.price.business.monthly]] pro Nutzer und Monat erhöht die Kapazität verbundener Konten und unterstützt geteilte Konten.
 
 Der Transport verbundener Konten läuft über Unipile, das Daten in Frankreich speichert. In der Cloud-Version liegt die Datenbank in der AWS-Region Frankfurt; Hosting und weitere Unterauftragsverarbeiter, auch aus den USA, stehen mit Verarbeitungsorten und Übermittlungsgarantien auf den rechtlichen Seiten. Siehe [Datenschutz](/privacy), [Unterauftragsverarbeiter](/subprocessors) und [AVV](/dpa).
 
-Der Self-Hosted-Build verwendet immer Starter-Berechtigungen und enthält weder den einheitlichen Posteingang noch verbundene Konten. Der Posteingang ist ausschließlich in Customermates Cloud ab Pro verfügbar; dort bildet jeder aktivierte Anbieter und Unterauftragsverarbeiter eine eigene Grenze der Datenverarbeitung.
+Der Self-Hosted-Build umfasst immer den Funktionsumfang von Starter und enthält weder den einheitlichen Posteingang noch verbundene Konten. Der Posteingang ist ausschließlich in Customermates Cloud ab Pro verfügbar; dort bildet jeder aktivierte Anbieter und Unterauftragsverarbeiter eine eigene Grenze der Datenverarbeitung.
 
-**Dokumentierte Hosting-Grenzen.** In der Cloud-Version liegt die Datenbank in der AWS-Region Frankfurt; Hosting und weitere Unterauftragsverarbeiter, auch aus den USA, stehen in der [Liste der Unterauftragsverarbeiter](/subprocessors), ein [Auftragsverarbeitungsvertrag (AVV)](/dpa) liegt vor. Self-Hosting hat Starter-Berechtigungen und enthält kein Cloud-Postfach.
+**Dokumentierte Hosting-Grenzen.** In der Cloud-Version liegt die Datenbank in der AWS-Region Frankfurt; Hosting und weitere Unterauftragsverarbeiter, auch aus den USA, stehen in der [Liste der Unterauftragsverarbeiter](/subprocessors), ein [Auftragsverarbeitungsvertrag (AVV)](/dpa) liegt vor. Self-Hosting hat Funktionsumfang von Starter und enthält kein Cloud-Postfach.
 
 **n8n-getriebene E-Mail-Automatisierung.** Verbinden Sie eine separate n8n-Instanz und einen externen Versandanbieter über die Customermates-Schnittstellen. Kampagnen und Sequenzen laufen außerhalb des CRM; Tarife, Limits, Logs und Kosten bleiben separat.
 

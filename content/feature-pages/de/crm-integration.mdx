@@ -11,7 +11,7 @@ relatedHrefs:
 
 hero:
   title: CRM-Integration, die Ihren gesamten Tech-Stack verbindet
-  description: Verbinden Sie Customermates über eine dokumentierte REST API, [[derived.webhooks.events.total]] Webhook-Ereignistypen, [[derived.mcp.tools.total]] MCP-Tools für unterstützte externe KI-Clients und einen Community-Node für eine separate n8n-Instanz. Das gemeinsame Postfach bringt unterstützte Messaging-Kanäle ab Pro ins CRM. n8n, KI-Clients, Modelle und verbundene Anbieter bleiben separat.
+  description: Verbinden Sie Customermates über eine dokumentierte REST API, [[derived.webhooks.events.total]] Webhook-Ereignistypen, [[derived.mcp.tools.total]] MCP-Tools für unterstützte externe KI-Clients und einen Community-Node für eine separate n8n-Instanz. Der einheitliche Posteingang bringt unterstützte Messaging-Kanäle ab Pro ins CRM. n8n, KI-Clients, Modelle und verbundene Anbieter bleiben separat.
   buttonLeftText: Kostenlos starten
   buttonLeftHref: /auth/signup
   buttonRightText: Live-Demo ansehen
@@ -38,15 +38,15 @@ Effektive CRM-Integration verwandelt Ihr CRM von einer eigenständigen Kontaktda
 
 ## So funktioniert CRM-Integration in Customermates
 
-Customermates bietet vier Integrationsflächen: MCP für unterstützte externe KI-Clients, eine dokumentierte REST API, [[derived.webhooks.events.total]] Webhook-Ereignistypen und einen Community-Node für eine separate n8n-Instanz. Das gemeinsame Postfach ergänzt unterstützte Kommunikationskanäle ab Pro; externe Laufzeiten, Clients, Modelle und Anbieter bleiben separat.
+Customermates bietet vier Integrationsflächen: MCP für unterstützte externe KI-Clients, eine dokumentierte REST API, [[derived.webhooks.events.total]] Webhook-Ereignistypen und einen Community-Node für eine separate n8n-Instanz. Der einheitliche Posteingang ergänzt unterstützte Kommunikationskanäle ab Pro; externe Laufzeiten, Clients, Modelle und Anbieter bleiben separat.
 
 ### Externe KI-Clients via MCP
 
-Customermates stellt einen nativen Model-Context-Protocol-(MCP-)Endpoint unter `https://customermates.com/api/v1/mcp` bereit, je nach Client-Ablauf authentifiziert per API-Key oder OAuth-Bearer-Token. Unterstützte externe Clients wie Claude, ChatGPT oder Gemini können [[derived.mcp.tools.total]] Tools nutzen ([[derived.mcp.tools.grouped]] in [[derived.mcp.toolsets.count]] Toolsets plus [[derived.mcp.tools.alwaysOn]] stets aktive Recherche-Konnektoren) um erlaubte Datensätze zu lesen und zu schreiben, Deal-Phasen zu verschieben, Follow-ups zu entwerfen und ab einer Messaging-Stufe mit dem gemeinsamen Postfach zu arbeiten. Externer Client und Anbieter erhalten den von Ihnen freigegebenen Kontext und bleiben von Customermates getrennt. MCP startet mit Starter; Messaging-Tools erfordern Pro oder höher. Grenzen Sie Tools pro Client mit `?toolsets=` ein.
+Customermates stellt einen nativen Model-Context-Protocol-(MCP-)Endpoint unter `https://customermates.com/api/v1/mcp` bereit, je nach Client-Ablauf authentifiziert per API-Key oder OAuth-Bearer-Token. Unterstützte externe Clients wie Claude, ChatGPT oder Gemini können [[derived.mcp.tools.total]] Tools nutzen ([[derived.mcp.tools.grouped]] in [[derived.mcp.toolsets.count]] Toolsets plus [[derived.mcp.tools.alwaysOn]] stets aktive Recherche-Konnektoren) um erlaubte Datensätze zu lesen und zu schreiben, Deal-Phasen zu verschieben, Follow-ups zu entwerfen und ab einer Messaging-Stufe mit dem einheitlichen Posteingang zu arbeiten. Externer Client und Anbieter erhalten den von Ihnen freigegebenen Kontext und bleiben von Customermates getrennt. MCP startet mit Starter; Messaging-Tools erfordern Pro oder höher. Grenzen Sie Tools pro Client mit `?toolsets=` ein.
 
-### Natives gemeinsames Postfach
+### Nativer einheitlicher Posteingang
 
-Die meisten CRMs binden E-Mail und Messaging über Zusatzprodukte von Drittanbietern an. Customermates enthält sie nativ. E-Mail, LinkedIn, WhatsApp, Instagram und Telegram liegen in einem gemeinsamen Postfach im CRM, und jede Konversation wird automatisch am richtigen Kontakt protokolliert. Das gemeinsame Postfach ist eine Funktion der Managed Cloud ab der Pro-Stufe ([[commercial.price.pro.monthly]]/Nutzer/Monat, ein verbundenes Konto pro Nutzer); die Business-Stufe ([[commercial.price.business.monthly]]/Nutzer/Monat) erlaubt drei Konten pro Nutzer plus geteilte Konten. Beim Self-Hosting ist es nicht verfügbar.
+Die meisten CRMs binden E-Mail und Messaging über Zusatzprodukte von Drittanbietern an. Customermates enthält sie nativ. E-Mail, LinkedIn, WhatsApp, Instagram und Telegram liegen in einem einheitlichen Posteingang im CRM, und jede Konversation wird automatisch am richtigen Kontakt protokolliert. Der einheitliche Posteingang ist eine Funktion der Managed Cloud ab der Pro-Stufe ([[commercial.price.pro.monthly]]/Nutzer/Monat, ein verbundenes Konto pro Nutzer); die Business-Stufe ([[commercial.price.business.monthly]]/Nutzer/Monat) erlaubt drei Konten pro Nutzer plus geteilte Konten. Beim Self-Hosting ist es nicht verfügbar.
 
 ### n8n-Automatisierung (ersetzt Zapier)
 
@@ -66,7 +66,7 @@ Konfigurieren Sie Webhooks für die [[derived.webhooks.events.total]] im öffent
 
 ## Beliebte CRM-Integrations-Anwendungsfälle
 
-**CRM + [E-Mail](/features/email-integration).** Verbinden Sie unterstützte Gmail-, Outlook- oder IMAP-Konten über das gemeinsame Postfach ab Pro. Customermates unterstützt entwurfsbasiertes Einzel-Messaging; Kampagnen, automatisierte Sequenzen und Massenansprache müssen in einem separaten Versand- oder Workflow-Anbieter laufen.
+**CRM + [E-Mail](/features/email-integration).** Verbinden Sie unterstützte Gmail-, Outlook- oder IMAP-Konten über den einheitlichen Posteingang ab Pro. Customermates unterstützt entwurfsbasiertes Einzel-Messaging; Kampagnen, automatisierte Sequenzen und Massenansprache müssen in einem separaten Versand- oder Workflow-Anbieter laufen.
 
 **CRM + [Slack](/features/slack-integration).** Ein separater n8n-, Make- oder Zapier-Workflow kann auf dokumentierte CRM-Ereignisse reagieren und eine Slack-Nachricht zustellen. Slack ist keine native Customermates-Integration; der externe Workflow verantwortet Zugangsdaten, Zustellung, Limits und Logs.
 
@@ -80,7 +80,7 @@ Konfigurieren Sie Webhooks für die [[derived.webhooks.events.total]] im öffent
 
 **CRM + Projektmanagement.** Ein separater Workflow kann auf ein dokumentiertes Ereignis reagieren und Asana, Monday, Notion oder Linear ein Projekt anlegen lassen. Projektdatensätze, Vorlagen, Status, Zustellung, Logs und Kosten bleiben extern.
 
-**CRM + [LinkedIn](/features/linkedin-integration).** Das gemeinsame Postfach unterstützt einzelne LinkedIn-Konversationen in berechtigten Messaging-Tarifen. Customermates importiert keine LinkedIn-Verbindungen, reichert Kontakte nicht aus Profilen an und überwacht keine Jobwechsel; dafür brauchen Sie einen separaten Anbieter und eine Integration.
+**CRM + [LinkedIn](/features/linkedin-integration).** Der einheitliche Posteingang unterstützt einzelne LinkedIn-Konversationen in berechtigten Messaging-Tarifen. Customermates importiert keine LinkedIn-Verbindungen, reichert Kontakte nicht aus Profilen an und überwacht keine Jobwechsel; dafür brauchen Sie einen separaten Anbieter und eine Integration.
 
 ### Webhook-Ereignisse
 

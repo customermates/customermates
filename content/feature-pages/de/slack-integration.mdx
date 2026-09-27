@@ -30,7 +30,7 @@ cta:
 
 ## Was diese Seite behauptet und was nicht
 
-Customermates liefert keine Slack-Integration aus. Es gibt keine Slack-App zum Installieren, keinen Slack-Einstellungsbildschirm im Produkt und keine Slack-Option in der Liste der verbundenen Konten. Der zentrale Posteingang deckt E-Mail, LinkedIn, WhatsApp, Instagram und Telegram ab; Slack ist keiner seiner Kanäle.
+Customermates liefert keine Slack-Integration aus. Es gibt keine Slack-App zum Installieren, keinen Slack-Einstellungsbildschirm im Produkt und keine Slack-Option in der Liste der verbundenen Konten. Der einheitliche Posteingang deckt E-Mail, LinkedIn, WhatsApp, Instagram und Telegram ab; Slack ist keiner seiner Kanäle.
 
 Was Customermates ausliefert, ist die Maschinerie, die ein externes Automatisierungstool braucht, um in Ihrem Namen mit Slack zu sprechen: ausgehende Webhooks auf [[derived.webhooks.events.total]] Datensatz- und Messaging-Events, eine versionierte REST API und einen MCP-Endpoint. Verbinden Sie diese mit [n8n](/docs/n8n), Make oder Zapier, ergänzen Sie den Slack-Node dieses Tools, und Sie erhalten das unten beschriebene Verhalten. Die Slack-Seite läuft in Ihrem Automatisierungstool, nicht in Customermates.
 
@@ -72,7 +72,7 @@ Die Gegenrichtung läuft über die REST API oder MCP, wieder gesteuert von Ihrem
 
 **Es ist nicht in Ihrem Abonnement enthalten.** Customermates vertreibt, hostet und bündelt kein n8n. Wenn Ihr Automatisierungstool Geld kostet, sind das Ihre Kosten.
 
-**Es ist kein Slack-Posteingang.** Slack-Konversationen erscheinen nicht im zentralen Posteingang und werden nicht als CRM-Nachrichten gespeichert. Sie bekommen Benachrichtigungen hinaus und API-Aufrufe hinein.
+**Es ist kein Slack-Posteingang.** Slack-Konversationen erscheinen nicht im einheitlichen Posteingang und werden nicht als CRM-Nachrichten gespeichert. Sie bekommen Benachrichtigungen hinaus und API-Aufrufe hinein.
 
 **Nichts ist frei von Limits.** Slack, Ihr Automatisierungstool und die Customermates-API haben jeweils eigene Limits. Siehe [Messaging-Rate-Limits](/docs/messaging-rate-limits) für die Teile, die wir kontrollieren.
 
@@ -82,13 +82,13 @@ Die Gegenrichtung läuft über die REST API oder MCP, wieder gesteuert von Ihrem
 
 **Sie steuern das Signal.** Welche Events feuern, welche Kanäle sie empfangen und was in jeder Nachricht steht, sind Entscheidungen in Ihrem Workflow und keine Schalter, die wir für Sie geraten haben.
 
-**Der Kern ist einsehbar.** AGPL-Kern-CRM, Webhook-Payloads, REST-Vertrag und MCP-Tool-Definitionen liegen im Repository. Self-Hosting betreibt Kernanwendung und PostgreSQL unter Starter-Berechtigungen; Slack und n8n bleiben extern.
+**Der Kern ist einsehbar.** AGPL-Kern-CRM, Webhook-Payloads, REST-Vertrag und MCP-Tool-Definitionen liegen im Repository. Self-Hosting betreibt Kernanwendung und PostgreSQL mit dem Funktionsumfang von Starter; Slack und n8n bleiben extern.
 
 ## Häufig gestellte Fragen
 
 <Faq>
 <FaqItem question="Hat Customermates eine native Slack-Integration?">
-Nein. Es gibt keine Slack-App, keinen Slack-Kanal im zentralen Posteingang und keinen Slack-Bildschirm im Produkt. Alles auf dieser Seite wird mit einem externen Automatisierungstool gegen die Webhook- und REST-Oberflächen gebaut.
+Nein. Es gibt keine Slack-App, keinen Slack-Kanal im einheitlichen Posteingang und keinen Slack-Bildschirm im Produkt. Alles auf dieser Seite wird mit einem externen Automatisierungstool gegen die Webhook- und REST-Oberflächen gebaut.
 </FaqItem>
 
 <FaqItem question="Ist n8n bei Customermates enthalten?">
