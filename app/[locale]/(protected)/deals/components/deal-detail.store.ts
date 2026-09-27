@@ -1,6 +1,7 @@
 import type { CreateDealData } from "@/features/deals/upsert/create-deal.interactor";
 import type { RootStore } from "@/core/stores/root.store";
 import type { DealDto } from "@/features/deals/deal.schema";
+import type { $ZodErrorTree } from "zod/v4/core";
 
 import { action, computed, makeObservable, observable } from "mobx";
 import { Action, CustomColumnType, Resource } from "@/generated/prisma";
@@ -101,6 +102,20 @@ export class DealDetailStore extends BaseCustomColumnEntityModalStore<CreateDeal
 
     this.onChange("services", newServices);
   };
+
+  protected validateBeforeSubmit(): $ZodErrorTree<CreateDealData & { id?: string }> | undefined {
+    const services = this.form.services ?? [];
+    if (services.every(({ serviceId }) => serviceId)) return undefined;
+
+    const message = this.t("DealModal.serviceRowRequired");
+    const items = services.map(({ serviceId }) =>
+      serviceId ? { errors: [] } : { errors: [], properties: { serviceId: { errors: [message] } } },
+    );
+
+    return { errors: [], properties: { services: { errors: [], items } } } as unknown as $ZodErrorTree<
+      CreateDealData & { id?: string }
+    >;
+  }
 
   searchServiceOptions = async (params: { searchTerm?: string }) => {
     const result = await getServicesAction(params);

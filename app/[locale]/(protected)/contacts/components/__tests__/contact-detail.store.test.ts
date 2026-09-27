@@ -339,7 +339,9 @@ describe("ContactDetailStore.onSubmit", () => {
     const payload = contactActions.createContactAction.mock.calls[0][0];
     expect(payload.id).toBeUndefined();
     expect(payload.identifiers.map((i: { value: string }) => i.value)).toEqual(["a@example.com", "jane-doe"]);
-    expect(rootStore.contactsStore.upsertItem).toHaveBeenCalledWith(expect.objectContaining({ id: CONTACT_ID }));
+    expect(rootStore.contactsStore.upsertItem).toHaveBeenCalledWith(expect.objectContaining({ id: CONTACT_ID }), {
+      created: true,
+    });
   });
 
   it("sends an empty identifier list when no channel was staged", async () => {

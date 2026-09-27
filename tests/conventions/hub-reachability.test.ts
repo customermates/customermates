@@ -1,6 +1,6 @@
 import type { AnchorHTMLAttributes, ReactNode } from "react";
 
-import { existsSync, readdirSync } from "node:fs";
+import { existsSync, readFileSync, readdirSync } from "node:fs";
 import { createRequire } from "node:module";
 import { extname, join } from "node:path";
 import { createElement } from "react";
@@ -146,8 +146,26 @@ import {
   resolveHubPageSegment,
 } from "@/core/seo/hub-pagination";
 import { LANDING_HUBS } from "@/core/seo/landing-hubs";
-import { CONTENT_LOCALES, DEFAULT_LOCALE, type ContentLocale, buildLocalePath } from "@/i18n/locale-registry";
+import {
+  CONTENT_LOCALES,
+  DEFAULT_LOCALE,
+  ROUTING_LOCALES,
+  type ContentLocale,
+  type RoutingLocale,
+  buildLocalePath,
+} from "@/i18n/locale-registry";
 import { HUB_PAGE_ROUTES, PUBLIC_ROUTES } from "@/i18n/routing";
+
+const NOT_FOUND_DOCUMENT_TITLES = Object.fromEntries(
+  ROUTING_LOCALES.map((locale) => [
+    locale,
+    (
+      JSON.parse(readFileSync(join(REPO_ROOT, "i18n/locales", `${locale}.json`), "utf8")) as {
+        NotFoundPage: { documentTitle: string };
+      }
+    ).NotFoundPage.documentTitle,
+  ]),
+) as Record<RoutingLocale, string>;
 
 const CLICK_BOUND = 4;
 const E2E_BASE_URL = process.env.HUB_E2E_BASE_URL?.replace(/\/+$/u, "");
@@ -557,6 +575,44 @@ describe("hub pagination and rendered reachability", () => {
         const location = response.headers.get("location") ?? "";
         expect(location, path).toContain("/en/auth/signin?callbackURL=");
         expect(decodeURIComponent(location), path).toContain(path);
+      }
+    },
+    60_000,
+  );
+
+  it.skipIf(!E2E_BASE_URL)(
+    "answers every proxy-detected missing page with a server-rendered 404, not a soft 404",
+    async () => {
+      // Production served these with status 200 while `next start` answered 404: the proxy rewrote
+      // them to Next's internal /_not-found route, which Vercel served as an ordinary page. Point
+      // HUB_E2E_BASE_URL at a deployment to check the host rather than the local server.
+      const expectations: [path: string, locale: RoutingLocale][] = [
+        ["/xx", "en"],
+        ["/zz/x", "en"],
+        ["/en/blog/does-not-exist", "en"],
+        ["/de/blog/does-not-exist", "de"],
+        ["/en/compare/does-not-exist", "en"],
+        ["/en/docs/openapi/does-not-exist", "en"],
+        ["/en/blog/page/999", "en"],
+        ["/de/features/all/page/999", "de"],
+        ["/en/this-does-not-exist", "en"],
+        ["/fr/x", "fr"],
+      ];
+
+      for (const [path, locale] of expectations) {
+        const response = await e2eResponse(path);
+        expect(response.status, path).toBe(404);
+        expect(response.headers.get("location"), path).toBeNull();
+        expect(response.headers.get("content-type"), path).toContain("text/html");
+
+        const document = new JSDOM(await response.text()).window.document;
+        expect(document.title, `${path} title`).toBe(NOT_FOUND_DOCUMENT_TITLES[locale]);
+        expect(document.querySelector("h1"), `${path} heading`).not.toBeNull();
+        expect(
+          document.querySelector('meta[name="robots"]')?.getAttribute("content"),
+          `${path} robots metadata`,
+        ).toContain("noindex");
+        expect(document.querySelector('link[rel="canonical"]'), `${path} canonical`).toBeNull();
       }
     },
     60_000,

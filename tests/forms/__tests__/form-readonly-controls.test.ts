@@ -195,6 +195,28 @@ describe("date form read-only semantics", () => {
     expect(testContext.onChange).not.toHaveBeenCalled();
   });
 
+  it("keeps date popovers controlled while a record loads, saves and becomes editable", () => {
+    // Radix warns when `open` flips between a boolean and undefined, which a record dialog did on
+    // every load and save because the pickers passed `false` while busy and `undefined` otherwise.
+    for (const [isLoading, isReadOnly] of [
+      [false, false],
+      [true, false],
+      [false, true],
+    ] as const) {
+      testContext.isLoading = isLoading;
+      testContext.isReadOnly = isReadOnly;
+      testContext.popoverOpen = undefined;
+      testContext.value = "2026-08-27";
+      mount(createElement(FormIsoDatePicker, { id: "startsAt" }));
+      expect(testContext.popoverOpen, `date picker, loading=${isLoading} readOnly=${isReadOnly}`).toBe(false);
+
+      testContext.popoverOpen = undefined;
+      testContext.value = "2026-08-27,2026-08-28";
+      mount(createElement(FormIsoDateRangePicker, { id: "window" }));
+      expect(testContext.popoverOpen, `range picker, loading=${isLoading} readOnly=${isReadOnly}`).toBe(false);
+    }
+  });
+
   it("disables date controls only for loading", () => {
     testContext.isLoading = true;
     testContext.isReadOnly = true;

@@ -1,4 +1,5 @@
 import type { FormEvent } from "react";
+import type { $ZodErrorTree } from "zod/v4/core";
 import type { RootStore } from "@/core/stores/root.store";
 import type { GroupValueSums } from "@/core/base/base-get.schema";
 import type { CustomColumnDto, CustomColumnOption } from "@/features/custom-column/custom-column.schema";
@@ -33,6 +34,9 @@ export type DealStageColumn = {
   label: string;
   options: CustomColumnOption[];
 };
+
+const MIN_STAGE_WEIGHT = 0;
+const MAX_STAGE_WEIGHT = 100;
 
 type DealStageWeightDraft = {
   optionValue: string;
@@ -238,9 +242,16 @@ export class CompanySettingsStore extends BaseFormStore<CompanySettingsFormData>
 
   onSubmit = async (event?: FormEvent<HTMLFormElement>) => {
     event?.preventDefault();
-    this.setIsLoading(true);
 
     const forecastingChanged = this.hasForecastingChanges;
+
+    const weightError = forecastingChanged ? this.stageWeightRangeError() : undefined;
+    if (weightError) {
+      this.setError(weightError);
+      return;
+    }
+
+    this.setIsLoading(true);
 
     try {
       const result = await updateCompanyAction({
@@ -272,6 +283,23 @@ export class CompanySettingsStore extends BaseFormStore<CompanySettingsFormData>
       this.setIsLoading(false);
     }
   };
+
+  private stageWeightRangeError(): $ZodErrorTree<CompanySettingsFormData> | undefined {
+    const weights = this.form.dealStageWeights;
+    const isOutOfRange = ({ weight }: DealStageWeightDraft) =>
+      weight !== undefined && (weight < MIN_STAGE_WEIGHT || weight > MAX_STAGE_WEIGHT);
+    if (!weights.some(isOutOfRange)) return undefined;
+
+    const message = this.t("CompanySettings.forecasting.weightRange");
+    const items = weights.map((draft) =>
+      isOutOfRange(draft) ? { errors: [], properties: { weight: { errors: [message] } } } : { errors: [] },
+    );
+
+    return {
+      errors: [],
+      properties: { dealStageWeights: { errors: [], items } },
+    } as unknown as $ZodErrorTree<CompanySettingsFormData>;
+  }
 
   private stageWeightsFor = (columnId: string | null): DealStageWeightDraft[] => {
     const column = this.dealStageColumns.find((entry) => entry.id === columnId);

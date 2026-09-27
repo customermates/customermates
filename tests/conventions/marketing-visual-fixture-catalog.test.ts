@@ -25,11 +25,14 @@ import {
   getNativeVisualFixtureCatalog,
   listVisualPeople,
   listVisualRecords,
+  visualRecordName,
 } from "@/components/marketing/visuals/native-fixtures";
 import {
   NativeAgentProviderIdentity,
   NativeAutomationProviderIdentity,
+  NativeRecordIdentity,
 } from "@/components/marketing/visuals/native-visual-primitives";
+import { CONTENT_LOCALES } from "@/i18n/locale-registry";
 import { CONNECT_CHANNELS } from "@/ee/messaging/connect/connect-channels";
 import { SYNTHETIC_CONTACT_AVATAR_URLS } from "@/prisma/seeds/avatars";
 import { SYNTHETIC_CONTACT_NAMES } from "@/prisma/seeds/contacts";
@@ -331,6 +334,22 @@ describe("marketing visual fixture catalog", () => {
     expect(
       VISUAL_RECORD_FIXTURES["deal-digital-customer-platform"],
     ).not.toHaveProperty("organization");
+  });
+
+  it("names every demo deal in each content locale, keeping the seeded English name", () => {
+    for (const [id, record] of Object.entries(VISUAL_RECORD_FIXTURES)) {
+      expect(Object.keys(record.localizedName).sort(), id).toEqual([...CONTENT_LOCALES].sort());
+      expect(record.localizedName.en, id).toBe(record.name);
+      expect(record.localizedName.de, id).not.toBe(record.name);
+      expect(visualRecordName(id as keyof typeof VISUAL_RECORD_FIXTURES, "de")).toBe(record.localizedName.de);
+    }
+
+    const german = renderToStaticMarkup(
+      createElement(NativeRecordIdentity, { locale: "de", record: "deal-digital-customer-platform" }),
+    );
+    expect(german).toContain("Digitale Kundenplattform");
+    expect(german).toContain("Offen");
+    expect(german).not.toContain("Digital Customer Platform");
   });
 
   it("keeps the authoring catalog deterministic, local, complete and executable", () => {

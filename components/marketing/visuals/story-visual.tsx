@@ -2,21 +2,22 @@ import type { CSSProperties, ReactNode } from "react";
 import { Send } from "lucide-react";
 
 import { cn } from "@/core/utils/cn";
+import type { ContentLocale } from "@/i18n/locale-registry";
 
 import {
   VISUAL_PERSON_FIXTURES,
   VISUAL_PROVIDER_FIXTURES,
-  VISUAL_RECORD_FIXTURES,
-  VISUAL_STATUS_FIXTURES,
   type VisualAgentProviderFixtureId,
   type VisualPersonFixtureId,
   type VisualProviderFixtureId,
   type VisualRecordFixtureId,
   type VisualStatusFixtureId,
+  visualRecordName,
 } from "./native-fixtures";
 import {
   NativeAgentProviderIdentity,
   NativeStatusBadge,
+  nativeStatusLabel,
   PersonAvatar,
   PersonIdentity,
   ProviderMark,
@@ -441,10 +442,12 @@ function recordFixtures(subject: GoldenVisualBrief["supportingSubjects"][number]
 }
 
 function QuietRecordCard({
+  locale,
   placement,
   showFixture,
   subject,
 }: {
+  locale: ContentLocale;
   placement: VisualPlacement;
   showFixture: boolean;
   subject: GoldenVisualBrief["supportingSubjects"][number];
@@ -465,27 +468,29 @@ function QuietRecordCard({
   }
 
   const { record, status } = recordFixtures(subject);
-  const recordFixture = VISUAL_RECORD_FIXTURES[record];
+  const recordName = visualRecordName(record, locale);
 
   return (
     <div
-      aria-label={`${recordFixture.name}, ${VISUAL_STATUS_FIXTURES[status].label}`}
+      aria-label={`${recordName}, ${nativeStatusLabel(status, locale)}`}
       className="flex flex-col items-start gap-2 rounded-xl border border-border bg-card/75 p-2.5"
       data-detail-density={DETAIL_DENSITY[placement]}
       data-native-record={record}
       data-visual-subject={subject.id}
     >
-      <span className="text-[9px] leading-snug font-medium text-foreground/75">{recordFixture.name}</span>
+      <span className="text-[9px] leading-snug font-medium text-foreground/75">{recordName}</span>
 
-      <NativeStatusBadge className="opacity-80" status={status} />
+      <NativeStatusBadge className="opacity-80" locale={locale} status={status} />
     </div>
   );
 }
 
 function ContextPlane({
+  locale,
   placement,
   subjects,
 }: {
+  locale: ContentLocale;
   placement: VisualPlacement;
   subjects: GoldenVisualBrief["supportingSubjects"];
 }) {
@@ -499,6 +504,7 @@ function ContextPlane({
       {subjects.map((subject, index) => (
         <div key={subject.id} className={cn("absolute", positions[index])}>
           <QuietRecordCard
+            locale={locale}
             placement={placement}
             showFixture={placement === "wide" || (placement === "split" && index === 0)}
             subject={subject}
@@ -511,16 +517,18 @@ function ContextPlane({
 
 function SignalArtifact({
   label,
+  locale,
   placement,
   record,
   status,
 }: {
   label?: string;
+  locale: ContentLocale;
   placement: VisualPlacement;
   record?: VisualRecordFixtureId;
   status?: VisualStatusFixtureId;
 }) {
-  const recordFixture = record ? VISUAL_RECORD_FIXTURES[record] : undefined;
+  const recordName = record ? visualRecordName(record, locale) : undefined;
 
   return (
     <div
@@ -531,11 +539,15 @@ function SignalArtifact({
       <div className="flex items-center justify-between gap-4">
         {label ? <p className="text-meta">{label}</p> : null}
 
-        {status ? <NativeStatusBadge status={status} /> : <span className="size-2 rounded-full bg-primary" />}
+        {status ? (
+          <NativeStatusBadge locale={locale} status={status} />
+        ) : (
+          <span className="size-2 rounded-full bg-primary" />
+        )}
       </div>
 
-      {recordFixture ? (
-        <p className="mt-[9%] break-words text-sm leading-snug font-medium sm:text-base">{recordFixture.name}</p>
+      {recordName ? (
+        <p className="mt-[9%] break-words text-sm leading-snug font-medium sm:text-base">{recordName}</p>
       ) : (
         <div className="mt-[10%] space-y-[7%] py-[4%]">
           <div className="h-2 w-[88%] rounded-full bg-placeholder" />
@@ -584,7 +596,7 @@ function FocusVisual({ brief, placement }: Pick<GoldenStoryVisualProps, "brief" 
     <>
       <AmbientField placement={placement} />
 
-      <ContextPlane placement={placement} subjects={brief.supportingSubjects} />
+      <ContextPlane locale={brief.locale} placement={placement} subjects={brief.supportingSubjects} />
 
       <FocalPlane className={FOCUS_FOCAL_POSITION[placement]}>
         <div className="relative">
@@ -592,7 +604,13 @@ function FocusVisual({ brief, placement }: Pick<GoldenStoryVisualProps, "brief" 
             <InspectorCue label={inspectorLabel} person={person} placement={placement} />
           ) : null}
 
-          <SignalArtifact label={brief.focalLabel?.text} placement={placement} record={record} status={status} />
+          <SignalArtifact
+            label={brief.focalLabel?.text}
+            locale={brief.locale}
+            placement={placement}
+            record={record}
+            status={status}
+          />
         </div>
       </FocalPlane>
     </>

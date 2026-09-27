@@ -1,5 +1,5 @@
 import { AUTHORABLE_AI_CLIENT_IDENTITIES } from "@/components/ai-connection/ai-client-identities";
-import { DEFAULT_LOCALE, formattingTagFor } from "@/i18n/locale-registry";
+import { DEFAULT_LOCALE, formattingTagFor, type ContentLocale } from "@/i18n/locale-registry";
 
 import {
   DEMO_VISUAL_CONVERSATIONS,
@@ -158,6 +158,10 @@ export function listVisualRecords(
     ({ assignee, status }) =>
       (!options.assignee || assignee === options.assignee) && (!options.status || status === options.status),
   );
+}
+
+export function visualRecordName(record: VisualRecordFixtureId, locale: ContentLocale = DEFAULT_LOCALE): string {
+  return VISUAL_RECORD_FIXTURES[record].localizedName[locale] ?? VISUAL_RECORD_FIXTURES[record].name;
 }
 
 export function getNativeVisualFixtureCatalog() {

@@ -1703,6 +1703,7 @@
       "noColumn": "Not configured",
       "totalPipeline": "Total pipeline",
       "totalPipelineHelp": "Sum of all values in {deals}. Changes come from {services} or quantities on those records.",
+      "weightRange": "Enter a probability from 0 to 100%.",
       "withoutStage": "Not weighted · no {column}",
       "withoutStageHelp": "Value of records in {deals} without a selection in {column}. Selecting a stage moves them into the weighted pipeline."
     }
@@ -2120,6 +2121,7 @@
   "DealModal": {
     "noServicesAdded": "No {entity} added yet",
     "quantityLabel": "Quantity",
+    "serviceRowRequired": "Select an entry in every row, or remove empty rows.",
     "title": "Deal",
     "valueLabel": "Value"
   },

@@ -121,3 +121,33 @@ describe("DealDetailStore totals", () => {
     expect(store.weightedValueBreakdown?.weightedValue).toBe(50);
   });
 });
+
+describe("DealDetailStore empty service rows", () => {
+  it("flags an empty service row with a localized error instead of sending it to the server", async () => {
+    const store = new DealDetailStore(rootStore(true));
+    store.hydrate(deal(), [stageColumn]);
+    dealActions.updateDealAction.mockReset();
+
+    store.addService();
+    await store.onSubmit();
+
+    expect(dealActions.updateDealAction).not.toHaveBeenCalled();
+    expect(store.getError("services[1].serviceId")).toEqual(["DealModal.serviceRowRequired"]);
+    expect(store.getError("services[0].serviceId")).toBeUndefined();
+  });
+
+  it("saves once the empty row is removed", async () => {
+    const store = new DealDetailStore(rootStore(true));
+    store.hydrate(deal(), [stageColumn]);
+    dealActions.updateDealAction.mockReset();
+    dealActions.updateDealAction.mockResolvedValue({ ok: true, data: { ...deal(), name: "Renamed" } });
+
+    store.addService();
+    store.onChange("name", "Renamed");
+    store.deleteService(1);
+    await store.onSubmit();
+
+    expect(dealActions.updateDealAction).toHaveBeenCalledTimes(1);
+    expect(dealActions.updateDealAction.mock.calls[0][0].services).toEqual([{ serviceId: SERVICE_ID, quantity: 1 }]);
+  });
+});

@@ -215,6 +215,10 @@ export const DEMO_VISUAL_DEALS = {
     assignee: "max-bergmann",
     currency: "EUR",
     kind: "deal",
+    localizedName: {
+      de: "Programm zur Prozessautomatisierung",
+      en: "Process Automation Program",
+    },
     name: "Process Automation Program",
     status: "deal-lost",
     totalValue: 120_000,
@@ -224,6 +228,10 @@ export const DEMO_VISUAL_DEALS = {
     assignee: "max-bergmann",
     currency: "EUR",
     kind: "deal",
+    localizedName: {
+      de: "Data- & Analytics-Transformation",
+      en: "Data & Analytics Transformation",
+    },
     name: "Data & Analytics Transformation",
     status: "deal-open",
     totalValue: 185_000,
@@ -233,6 +241,10 @@ export const DEMO_VISUAL_DEALS = {
     assignee: "max-bergmann",
     currency: "EUR",
     kind: "deal",
+    localizedName: {
+      de: "CRM-Einführung & Sales Enablement",
+      en: "CRM Rollout & Sales Enablement",
+    },
     name: "CRM Rollout & Sales Enablement",
     status: "deal-won",
     totalValue: 124_000,
@@ -242,6 +254,10 @@ export const DEMO_VISUAL_DEALS = {
     assignee: "max-bergmann",
     currency: "EUR",
     kind: "deal",
+    localizedName: {
+      de: "Programm zur Unternehmensintegration",
+      en: "Enterprise Integration Program",
+    },
     name: "Enterprise Integration Program",
     status: "deal-won",
     totalValue: 212_000,
@@ -251,6 +267,10 @@ export const DEMO_VISUAL_DEALS = {
     assignee: "max-bergmann",
     currency: "EUR",
     kind: "deal",
+    localizedName: {
+      de: "Rollout der Arbeitsplatz-Hardware",
+      en: "Workplace Hardware Rollout",
+    },
     name: "Workplace Hardware Rollout",
     status: "deal-open",
     totalValue: 342_000,
@@ -260,6 +280,10 @@ export const DEMO_VISUAL_DEALS = {
     assignee: "max-bergmann",
     currency: "EUR",
     kind: "deal",
+    localizedName: {
+      de: "Digitale Kundenplattform",
+      en: "Digital Customer Platform",
+    },
     name: "Digital Customer Platform",
     projectPeriod: ["2026-06-01", "2026-08-28"],
     status: "deal-open",
@@ -271,6 +295,10 @@ export const DEMO_VISUAL_DEALS = {
     assignee: "max-bergmann",
     currency: "EUR",
     kind: "deal",
+    localizedName: {
+      de: "Modernisierung des Rechenzentrums",
+      en: "Data Center Refresh",
+    },
     name: "Data Center Refresh",
     status: "deal-lost",
     totalValue: 418_500,
@@ -280,6 +308,10 @@ export const DEMO_VISUAL_DEALS = {
     assignee: "max-bergmann",
     currency: "EUR",
     kind: "deal",
+    localizedName: {
+      de: "Migration der Cloud-Infrastruktur",
+      en: "Cloud Infrastructure Migration",
+    },
     name: "Cloud Infrastructure Migration",
     status: "deal-won",
     totalValue: 142_000,
@@ -289,6 +321,10 @@ export const DEMO_VISUAL_DEALS = {
     assignee: "max-bergmann",
     currency: "EUR",
     kind: "deal",
+    localizedName: {
+      de: "Upgrade der Netzwerkinfrastruktur",
+      en: "Network Infrastructure Upgrade",
+    },
     name: "Network Infrastructure Upgrade",
     status: "deal-abandoned",
     totalValue: 156_400,
@@ -298,6 +334,10 @@ export const DEMO_VISUAL_DEALS = {
     assignee: "max-bergmann",
     currency: "EUR",
     kind: "deal",
+    localizedName: {
+      de: "Optimierung der HR-Systeme",
+      en: "HR Systems Optimization",
+    },
     name: "HR Systems Optimization",
     status: "deal-won",
     totalValue: 67_500,
@@ -309,6 +349,7 @@ export const DEMO_VISUAL_DEALS = {
     assignee: keyof typeof DEMO_VISUAL_PEOPLE;
     currency: "EUR";
     kind: "deal";
+    localizedName: Readonly<Record<string, string>>;
     name: string;
     projectPeriod?: readonly [string, string];
     status: keyof typeof DEMO_VISUAL_DEAL_STATUSES;

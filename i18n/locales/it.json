@@ -1703,6 +1703,7 @@
       "noColumn": "Non configurato",
       "totalPipeline": "Pipeline totale",
       "totalPipelineHelp": "Somma di tutti i valori in «{deals}». Le modifiche derivano da «{services}» o quantità in tali elementi.",
+      "weightRange": "Inserisci una probabilità da 0 a 100%.",
       "withoutStage": "Non ponderato · senza {column}",
       "withoutStageHelp": "Valore degli elementi in «{deals}» senza selezione in «{column}». Selezionando una fase, vengono inclusi nella pipeline ponderata."
     }
@@ -2120,6 +2121,7 @@
   "DealModal": {
     "noServicesAdded": "Ancora nessuna voce «{entity}» aggiunta",
     "quantityLabel": "Quantità",
+    "serviceRowRequired": "Seleziona una voce in ogni riga o rimuovi le righe vuote.",
     "title": "Trattativa",
     "valueLabel": "Valore"
   },
