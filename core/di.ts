@@ -309,7 +309,7 @@ import { GetWebhookByIdInteractor } from "@/features/webhook/get-webhook-by-id.i
 import { ModifyEntityRelationInteractor } from "@/features/relations/modify-entity-relation.interactor";
 import { GetWikiPagesInteractor } from "@/features/wiki/get-wiki-pages.interactor";
 import { GetWikiCatalogInteractor } from "@/features/wiki/get-wiki-catalog.interactor";
-import { SearchWikiPagesInteractor } from "@/features/wiki/search-wiki-pages.interactor";
+import { SearchWikiPagesInteractor, sharedWikiSearchOrders } from "@/features/wiki/search-wiki-pages.interactor";
 import { GetWikiPageInteractor } from "@/features/wiki/get-wiki-page.interactor";
 import { CreateWikiPagesInteractor } from "@/features/wiki/create-wiki-pages.interactor";
 import { UpdateWikiPageInteractor } from "@/features/wiki/update-wiki-page.interactor";
@@ -1185,11 +1185,12 @@ export const getGetWidgetFilterableFieldsInteractor = () =>
 
 export const getGetWikiPagesInteractor = () => new GetWikiPagesInteractor(getWikiPageRepo());
 export const getGetWikiCatalogInteractor = () => new GetWikiCatalogInteractor(getWikiPageRepo());
-export const getSearchWikiPagesInteractor = () => new SearchWikiPagesInteractor(getWikiPageRepo(), "stored");
+export const getSearchWikiPagesInteractor = () =>
+  new SearchWikiPagesInteractor(getWikiPageRepo(), "stored", null, sharedWikiSearchOrders);
 export const getSearchWikiKnowledgeInteractor = () =>
-  new SearchWikiPagesInteractor(getWikiPageRepo(), "stored", getWikiSemanticRetrieval());
+  new SearchWikiPagesInteractor(getWikiPageRepo(), "stored", getWikiSemanticRetrieval(), sharedWikiSearchOrders);
 export const getSearchExternalizedWikiPagesInteractor = () =>
-  new SearchWikiPagesInteractor(getWikiPageRepo(), "externalized", getWikiSemanticRetrieval());
+  new SearchWikiPagesInteractor(getWikiPageRepo(), "externalized", getWikiSemanticRetrieval(), sharedWikiSearchOrders);
 export const getGetWikiPageInteractor = () => new GetWikiPageInteractor(getWikiPageRepo());
 export const getCreateWikiPagesInteractor = () => new CreateWikiPagesInteractor(getWikiPageRepo(), getEventService());
 export const getUpdateWikiPageInteractor = () => new UpdateWikiPageInteractor(getWikiPageRepo(), getEventService());

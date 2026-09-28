@@ -23,6 +23,41 @@ export type WikiSearchHit = WikiSearchResult & { markdown: string };
 
 const WIKI_RERANK_CANDIDATES = 10;
 const WIKI_SEMANTIC_CANDIDATES = 30;
+const WIKI_SEARCH_ORDER_TTL_MS = 5 * 60 * 1000;
+const WIKI_SEARCH_ORDER_LIMIT = 500;
+
+type WikiSearchOrder = {
+  ids: string[];
+  offsets: Map<string, number>;
+  exhaustive: boolean;
+  semantic: boolean;
+  corrected?: string;
+  expiresAt: number;
+};
+
+type LocatedWikiSection = Awaited<ReturnType<SearchWikiPagesInteractor["locateSections"]>>[number];
+
+export class WikiSearchOrders {
+  private orders = new Map<string, WikiSearchOrder>();
+
+  get(key: string, now: number): WikiSearchOrder | undefined {
+    const order = this.orders.get(key);
+    if (!order) return undefined;
+    this.orders.delete(key);
+    if (order.expiresAt <= now) return undefined;
+    this.orders.set(key, order);
+    return order;
+  }
+
+  set(key: string, order: WikiSearchOrder) {
+    this.orders.delete(key);
+    this.orders.set(key, order);
+    const oldest = this.orders.keys().next().value;
+    if (this.orders.size > WIKI_SEARCH_ORDER_LIMIT && oldest !== undefined) this.orders.delete(oldest);
+  }
+}
+
+export const sharedWikiSearchOrders = new WikiSearchOrders();
 
 export type WikiSemanticCandidate = { id: string; offset: number; similarity: number };
 export type WikiFullTextCandidates = { keys: string[]; pinned: string[]; corrected?: string };
@@ -59,6 +94,7 @@ export class SearchWikiPagesInteractor extends AuthenticatedInteractor<WikiPageS
     private repo: SearchWikiPagesRepo,
     private offsets: "stored" | "externalized",
     private semantic: WikiSemanticRetrieval | null = null,
+    private orders: WikiSearchOrders = new WikiSearchOrders(),
   ) {
     super();
   }
@@ -73,50 +109,28 @@ export class SearchWikiPagesInteractor extends AuthenticatedInteractor<WikiPageS
     const stopwatch = new RetrievalStopwatch("wiki");
     try {
       const window = data.page * data.pageSize;
-      const semantic = this.semantic && env.APP_MODE !== "demo" ? this.semantic : null;
-      const offsets = new Map<string, number>();
-      let stalePageIds = new Set<string>();
-      let corrected: string | undefined;
-      const fused = await fuseFullTextAndSemantic({
-        query: data.query,
-        stopwatch,
-        fullText: async () => {
-          const found = await this.repo.fullTextPageCandidates(data.query, Math.max(WIKI_SEMANTIC_CANDIDATES, window));
-          corrected = found.corrected;
-          return found;
-        },
-        embed: semantic ? (query, wait) => semantic.embedder.embedQuery(query, wait) : null,
-        semantic: async ({ vector, model }) => {
-          const found = await this.repo.semanticPageCandidates(vector, model, WIKI_SEMANTIC_CANDIDATES);
-          if (!found) return null;
-          stalePageIds = found.stalePageIds;
-          for (const candidate of found.candidates) offsets.set(candidate.id, candidate.offset);
-          return found.candidates.map(({ id }) => id);
-        },
-      });
-      if (semantic && stalePageIds.size > 0) await semantic.scheduler.schedule();
-
       const pageStart = (data.page - 1) * data.pageSize;
-      const reranks = pageStart < WIKI_RERANK_CANDIDATES && pageStart < fused.ranked.length;
-      const head = fused.ranked.slice(0, Math.max(window, reranks ? WIKI_RERANK_CANDIDATES : 0));
-      const pages = new Map((await this.repo.getPagesByIds(head)).map((page) => [page.id, page]));
-      const matchedText = corrected ?? data.query;
-      const located = await this.locateSections(
+      const semantic = this.semantic && env.APP_MODE !== "demo" ? this.semantic : null;
+      const key = [this.companyId, this.userId, semantic ? "semantic" : "keyword", data.query].join("\u0000");
+      const previous = data.page > 1 ? this.orders.get(key, Date.now()) : undefined;
+      const ranked =
+        previous && (previous.exhaustive || previous.ids.length >= window)
+          ? { order: previous, located: new Map<string, LocatedWikiSection>() }
+          : await this.rankOrder(data, { window, pageStart, semantic, stopwatch, previous });
+      const { order } = ranked;
+      if (order !== previous) this.orders.set(key, order);
+
+      const matchedText = order.corrected ?? data.query;
+      const selectedIds = order.ids.slice(pageStart, window);
+      const unlocated = selectedIds.filter((id) => !ranked.located.has(id));
+      const pages = new Map((await this.repo.getPagesByIds(unlocated)).map((page) => [page.id, page]));
+      const fresh = await this.locateSections(
         matchedText,
-        head.flatMap((id) => pages.get(id) ?? []),
-        offsets,
+        unlocated.flatMap((id) => pages.get(id) ?? []),
+        order.offsets,
       );
-      const ranker = env.APP_MODE === "demo" ? undefined : currentSectionRanker("wiki");
-      const candidates = located.slice(0, WIKI_RERANK_CANDIDATES).map((entry, id) => ({
-        id,
-        section: { pageTitle: entry.page.title, headingPath: entry.headingPath, text: entry.text },
-        titleOnly: false,
-      }));
-      const order = reranks ? await rerankSections({ query: data.query, stopwatch, candidates, ranker }) : null;
-      const reordered = order
-        ? [...order.map((id) => located[id]), ...located.filter((_, index) => !order.includes(index))]
-        : located;
-      const selected = reordered.slice(pageStart, window);
+      const located = new Map([...ranked.located, ...fresh.map((entry) => [entry.page.id, entry] as const)]);
+      const selected = selectedIds.flatMap((id) => located.get(id) ?? []);
       const headlines = await this.repo.sectionHeadlines(
         matchedText,
         selected.map((entry) => entry.plainText()),
@@ -130,15 +144,95 @@ export class SearchWikiPagesInteractor extends AuthenticatedInteractor<WikiPageS
       );
       return {
         items,
-        total: fused.ranked.length,
+        total: order.ids.length,
         page: data.page,
         pageSize: data.pageSize,
-        ...(corrected ? { didYouMean: [corrected] } : {}),
-        ...(this.semantic ? { retrieval: fused.vector ? ("semantic" as const) : ("keyword" as const) } : {}),
+        ...(order.corrected ? { didYouMean: [order.corrected] } : {}),
+        ...(this.semantic ? { retrieval: order.semantic ? ("semantic" as const) : ("keyword" as const) } : {}),
       };
     } finally {
       stopwatch.finish();
     }
+  }
+
+  private async rankOrder(
+    data: WikiPageSearchData,
+    args: {
+      window: number;
+      pageStart: number;
+      semantic: WikiSemanticRetrieval | null;
+      stopwatch: RetrievalStopwatch;
+      previous: WikiSearchOrder | undefined;
+    },
+  ): Promise<{ order: WikiSearchOrder; located: Map<string, LocatedWikiSection> }> {
+    const { window, pageStart, semantic, stopwatch, previous } = args;
+    const offsets = new Map<string, number>();
+    const fullTextLimit = Math.max(WIKI_SEMANTIC_CANDIDATES, window);
+    let fullTextCount = 0;
+    let stalePageIds = new Set<string>();
+    let corrected: string | undefined;
+    const fused = await fuseFullTextAndSemantic({
+      query: data.query,
+      stopwatch,
+      fullText: async () => {
+        const found = await this.repo.fullTextPageCandidates(data.query, fullTextLimit);
+        corrected = found.corrected;
+        fullTextCount = found.keys.length;
+        return found;
+      },
+      embed: semantic ? (query, wait) => semantic.embedder.embedQuery(query, wait) : null,
+      semantic: async ({ vector, model }) => {
+        const found = await this.repo.semanticPageCandidates(vector, model, WIKI_SEMANTIC_CANDIDATES);
+        if (!found) return null;
+        stalePageIds = found.stalePageIds;
+        for (const candidate of found.candidates) offsets.set(candidate.id, candidate.offset);
+        return found.candidates.map(({ id }) => id);
+      },
+    });
+    if (semantic && stalePageIds.size > 0) await semantic.scheduler.schedule();
+
+    const reranks = pageStart < WIKI_RERANK_CANDIDATES && pageStart < fused.ranked.length;
+    const head = fused.ranked.slice(0, Math.max(window, reranks ? WIKI_RERANK_CANDIDATES : 0));
+    const pages = new Map((await this.repo.getPagesByIds(head)).map((page) => [page.id, page]));
+    const matchedText = corrected ?? data.query;
+    const located = await this.locateSections(
+      matchedText,
+      head.flatMap((id) => pages.get(id) ?? []),
+      offsets,
+    );
+    const ranker = env.APP_MODE === "demo" ? undefined : currentSectionRanker("wiki");
+    const candidates = located.slice(0, WIKI_RERANK_CANDIDATES).map((entry, id) => ({
+      id,
+      section: { pageTitle: entry.page.title, headingPath: entry.headingPath, text: entry.text },
+      titleOnly: false,
+    }));
+    const chosen = reranks ? await rerankSections({ query: data.query, stopwatch, candidates, ranker }) : null;
+    const reordered = chosen
+      ? [...chosen.map((id) => located[id]), ...located.filter((_, index) => !chosen.includes(index))]
+      : located;
+    for (const entry of reordered) offsets.set(entry.page.id, entry.offset);
+    const headIds = new Set(head);
+    const order: WikiSearchOrder = {
+      ids: [...reordered.map((entry) => entry.page.id), ...fused.ranked.filter((id) => !headIds.has(id))],
+      offsets,
+      exhaustive: fullTextCount < fullTextLimit,
+      semantic: fused.vector !== null,
+      ...(corrected ? { corrected } : {}),
+      expiresAt: Date.now() + WIKI_SEARCH_ORDER_TTL_MS,
+    };
+    if (!previous) return { order, located: new Map(reordered.map((entry) => [entry.page.id, entry])) };
+
+    const seen = new Set(previous.ids);
+    return {
+      order: {
+        ...previous,
+        ids: [...previous.ids, ...order.ids.filter((id) => !seen.has(id))],
+        offsets: new Map([...order.offsets, ...previous.offsets]),
+        exhaustive: order.exhaustive,
+        expiresAt: order.expiresAt,
+      },
+      located: new Map(),
+    };
   }
 
   private async locateSections(query: string, pages: WikiPageDto[], offsets: Map<string, number>) {
