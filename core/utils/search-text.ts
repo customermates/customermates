@@ -1,26 +1,5 @@
 import type { DocsStemmer } from "@/i18n/locale-registry";
 
-const DIACRITICS: Record<string, string> = {
-  ä: "a",
-  ö: "o",
-  ü: "u",
-  ß: "ss",
-  é: "e",
-  è: "e",
-  ê: "e",
-  à: "a",
-  â: "a",
-  ç: "c",
-  ñ: "n",
-  ì: "i",
-  ò: "o",
-  ù: "u",
-  ó: "o",
-  í: "i",
-  ú: "u",
-  á: "a",
-};
-
 type SuffixRule = { suffix: string; minLength: number; replacement?: string; unless?: string };
 
 const ENGLISH_PLURAL_RULES: SuffixRule[] = [
@@ -84,9 +63,10 @@ export function stem(token: string, stemmer: DocsStemmer = "english"): string {
 export function fold(value: string): string {
   return value
     .toLowerCase()
-    .replace(/[äöüßéèêàâçñìòùóíúá]/g, (char) => DIACRITICS[char] ?? char)
+    .replaceAll("ß", "ss")
     .normalize("NFD")
-    .replace(/[̀-ͯ]/g, "");
+    .replace(/\p{Diacritic}/gu, "")
+    .normalize("NFC");
 }
 
 export function slugifyHeading(heading: string): string {
