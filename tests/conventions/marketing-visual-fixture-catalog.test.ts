@@ -75,6 +75,7 @@ describe("marketing visual fixture catalog", () => {
       "claude",
       "cursor",
       "gemini",
+      "grok",
     ]);
     expect(VISUAL_AGENT_PROVIDER_FIXTURES).toBe(
       AUTHORABLE_AI_CLIENT_IDENTITIES,

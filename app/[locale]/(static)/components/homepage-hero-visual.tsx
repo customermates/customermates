@@ -13,8 +13,8 @@ import { PersonAvatar, ProviderMark } from "@/components/marketing/visuals/nativ
 
 import { useHomepageMotion } from "./homepage-motion";
 
-const CLIENTS = ["claude", "gemini", "cursor"] as const;
-const CLIENT_NAMES = { claude: "Claude", gemini: "Gemini", cursor: "Cursor" };
+const CLIENTS = ["claude", "gemini", "cursor", "grok"] as const;
+const CLIENT_NAMES = { claude: "Claude", gemini: "Gemini", cursor: "Cursor", grok: "Grok Bot" };
 const PROVIDERS = ["linkedin", "whatsapp", "gmail"] as const;
 const PHASE_DELAYS = [800, 1100, 1100, 1100, 1100, 500];
 

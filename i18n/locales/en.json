@@ -2518,7 +2518,7 @@
   "HomepageStatsRow": {
     "automationLabel": "Automations",
     "taglineMcp": "MCP",
-    "taglinePost": ". Automations through REST, webhooks, and your n8n instance.",
+    "taglinePost": " or browser. Automations through REST, webhooks, and your n8n instance.",
     "taglinePre": "External AI through"
   },
   "Inbox": {
@@ -2805,6 +2805,7 @@
       "providerCursor": "Cursor",
       "providerGemini": "Gemini",
       "providerGmail": "Gmail",
+      "providerGrok": "Grok Bot",
       "providerImap": "Email / IMAP",
       "providerInstagram": "Instagram",
       "providerLinkedIn": "LinkedIn",

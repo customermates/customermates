@@ -238,6 +238,12 @@ export function resolvePublicNavGroups(t: ReturnType<typeof useTranslations>): P
           title: t("NavigationBar.public.providerCursor"),
         },
         {
+          activeMatch: false,
+          href: "/docs/connect-custom-connector#grok-bot",
+          mark: { kind: "agent", provider: "grok" },
+          title: t("NavigationBar.public.providerGrok"),
+        },
+        {
           href: "/features/email-integration",
           mark: { kind: "channel", provider: "gmail" },
           title: t("NavigationBar.public.providerGmail"),

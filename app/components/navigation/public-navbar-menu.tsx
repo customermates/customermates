@@ -23,7 +23,10 @@ type PublicNavLinkBase = {
 export type PublicNavLink = PublicNavLinkBase &
   ({ icon: LucideIcon; mark?: never } | { icon?: never; mark: PublicNavMark });
 
-type PublicNavAgentProvider = Extract<AiClientLogoProvider, "chatgpt" | "claude" | "codex" | "cursor" | "gemini">;
+type PublicNavAgentProvider = Extract<
+  AiClientLogoProvider,
+  "chatgpt" | "claude" | "codex" | "cursor" | "gemini" | "grok"
+>;
 
 export type PublicNavMark =
   | { kind: "agent"; provider: PublicNavAgentProvider }

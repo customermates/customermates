@@ -213,6 +213,7 @@ describe("public navigation preferences", () => {
       [{ kind: "agent", provider: "codex" }, "NavigationBar.public.providerCodex"],
       [{ kind: "agent", provider: "gemini" }, "NavigationBar.public.providerGemini"],
       [{ kind: "agent", provider: "cursor" }, "NavigationBar.public.providerCursor"],
+      [{ kind: "agent", provider: "grok" }, "NavigationBar.public.providerGrok"],
       [{ kind: "channel", provider: "gmail" }, "NavigationBar.public.providerGmail"],
       [{ kind: "channel", provider: "outlook" }, "NavigationBar.public.providerOutlook"],
       [{ kind: "channel", provider: "linkedin" }, "NavigationBar.public.providerLinkedIn"],

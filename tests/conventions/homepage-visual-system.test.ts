@@ -182,6 +182,7 @@ describe("homepage visual-system adoption", () => {
       "for Codex.",
       "for Cursor.",
       "for Gemini.",
+      "for Grok Bot.",
       "for Hermes Agent.",
       "for OpenClaw.",
       "for n8n.",
@@ -198,6 +199,7 @@ describe("homepage visual-system adoption", () => {
       "für Codex.",
       "für Cursor.",
       "für Gemini.",
+      "für Grok Bot.",
       "für Hermes Agent.",
       "für OpenClaw.",
       "für n8n.",
@@ -206,8 +208,8 @@ describe("homepage visual-system adoption", () => {
     }
     expect(englishHomepage).not.toContain("useCaseEyebrow");
     expect(germanHomepage).not.toContain("useCaseEyebrow");
-    expect(englishHomepage).toContain("  useCase: Ask ChatGPT");
-    expect(germanHomepage).toContain("  useCase: Lassen Sie ChatGPT");
+    expect(englishHomepage).toContain("  useCase: Your customer relationships need a shared memory.");
+    expect(germanHomepage).toContain("  useCase: Ihre Kundenbeziehungen brauchen ein gemeinsames Gedächtnis.");
     expect(englishHomepage).not.toContain("\u2014");
     expect(germanHomepage).not.toContain("\u2014");
   });
@@ -465,10 +467,10 @@ describe("homepage visual-system adoption", () => {
     expect(walkthrough).not.toMatch(/<h2[\s\S]{0,240}text-primary/u);
   });
 
-  it("shows four authorable AI-client identities and a distinct n8n automation identity", () => {
+  it("shows five authorable AI-client identities and a distinct n8n automation identity", () => {
     const strip = readComponent("homepage-stats-row.tsx");
 
-    for (const provider of ["chatgpt", "claude", "cursor", "gemini"]) {
+    for (const provider of ["chatgpt", "claude", "cursor", "gemini", "grok"]) {
       expect(strip).toContain(`"${provider}"`);
     }
     expect(strip).toContain("NativeAutomationProviderIdentity");
