@@ -244,7 +244,7 @@ export function benchmarkSourceIdentity(options?: { refresh?: boolean }) {
   return cachedSourceIdentity;
 }
 
-function approvalPolicy(
+export function approvalPolicy(
   definition: BenchmarkCase, override?: "approve" | "reject",
 ): "approve" | "reject" | "ignore" {
   return definition.driver?.approval ?? override ?? "reject";

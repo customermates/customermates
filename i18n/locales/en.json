@@ -66,6 +66,10 @@
         "widgets": {
           "configure": "Ready to change dashboard widgets",
           "delete": "Ready to permanently delete a dashboard widget"
+        },
+        "workspace": {
+          "settings": "Ready to change workspace settings, including record type names",
+          "terminology": "Ready to rename record types for the whole workspace"
         }
       },
       "cancelled": "Stopped",

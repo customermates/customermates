@@ -7,7 +7,7 @@ export function isReadOnlyTool(tool: { annotations?: Record<string, boolean> }) 
 }
 
 type AgentApprovalPolicy =
-  | { approvalFree: true }
+  | { approvalFree: true; approvalRequiredFields?: readonly string[] }
   | { approvalFreeActions: readonly string[]; readOnlyActions?: readonly string[] };
 
 const INTERNAL_APPROVAL_POLICY: Record<string, AgentApprovalPolicy> = {
@@ -53,7 +53,7 @@ const INTERNAL_APPROVAL_POLICY: Record<string, AgentApprovalPolicy> = {
   update_record_notes: { approvalFree: true },
   update_services: { approvalFree: true },
   update_tasks: { approvalFree: true },
-  update_workspace_settings: { approvalFree: true },
+  update_workspace_settings: { approvalFree: true, approvalRequiredFields: ["terminology"] },
 };
 
 const AGENT_APPROVAL_POLICY: Record<string, AgentApprovalPolicy> = Object.fromEntries(
@@ -82,6 +82,11 @@ export function readOnlyActionsForTool(identity: AgentToolIdentity): readonly st
   return policy && "readOnlyActions" in policy ? (policy.readOnlyActions ?? null) : null;
 }
 
+export function isApprovalRelevantValue(value: unknown) {
+  if (value === undefined || value === null) return false;
+  return !Array.isArray(value) || value.length > 0;
+}
+
 export function requiresApproval(
   identity: AgentToolIdentity,
   tool: { annotations?: Record<string, boolean> },
@@ -92,9 +97,10 @@ export function requiresApproval(
 
   const policy = policyFor(identity);
   if (!policy) return true;
-  if ("approvalFree" in policy) return false;
+  const fields = input && typeof input === "object" && !Array.isArray(input) ? (input as Record<string, unknown>) : {};
+  if ("approvalFree" in policy)
+    return (policy.approvalRequiredFields ?? []).some((field) => isApprovalRelevantValue(fields[field]));
 
-  const action =
-    input && typeof input === "object" && !Array.isArray(input) ? (input as { action?: unknown }).action : undefined;
+  const action = fields.action;
   return typeof action !== "string" || !policy.approvalFreeActions.includes(action);
 }

@@ -232,6 +232,7 @@ vi.mock("@/features/mcp-tools/tool-registry", () => ({
     { name: "list_users", annotations: { readOnlyHint: true } },
     { name: "manage_widgets", annotations: { readOnlyHint: false } },
     { name: "delete_records", annotations: { readOnlyHint: false } },
+    { name: "update_workspace_settings", annotations: { readOnlyHint: false } },
   ],
 }));
 vi.mock("@/ee/agent-chat/classifier/metered", () => ({
@@ -1183,6 +1184,22 @@ describe("agent-turn authoritative tool inputs", () => {
 
     expect(state.execute).toHaveBeenCalledWith({ action: "list" }, expect.anything());
     expect(state.createApproval).not.toHaveBeenCalled();
+  });
+
+  it("asks for a fresh approval before renaming record types, and not for a currency change", async () => {
+    define("update_workspace_settings");
+    const rename = { target: "company", terminology: [{ entityType: "deal", presetKey: "opportunity" }] };
+    const currency = { target: "company", currency: "EUR" };
+    state.normalize.mockImplementation((_name: string, value: unknown) => Promise.resolve({ ok: true, input: value }));
+    state.runTools = async ({ tools }) => {
+      expect(await tools.update_workspace_settings.needsApproval(rename, { toolCallId: "call-1" })).toBe(true);
+      expect(await tools.update_workspace_settings.needsApproval(currency, { toolCallId: "call-2" })).toBe(false);
+      return finish();
+    };
+
+    await runAgentTurn(payload);
+
+    expect(state.normalize).toHaveBeenCalledTimes(2);
   });
 
   it("does not approve or execute invalid write input", async () => {

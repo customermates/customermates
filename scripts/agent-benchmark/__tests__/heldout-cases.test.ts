@@ -2,6 +2,7 @@ import { describe, expect, it } from "vitest";
 
 import { DOCS_HELDOUT_LIVE_SPECS } from "../classifier-eval/heldout/docs-heldout";
 import { ROUTING_HELDOUT } from "../classifier-eval/heldout/routing-heldout";
+import { approvalPolicy } from "../episode";
 import { BENCHMARK_CASES } from "../fixtures";
 import {
   HELDOUT_DOCS_CASES,
@@ -23,6 +24,17 @@ function score(caseId: string, turnTools: string[][], unchanged = true, noMutati
 }
 
 describe("held-out live cases", () => {
+  it("declines every approval in the docs cases, so DH14's rename question can never rename unapproved", () => {
+    const dh14 = BENCHMARK_CASES.find((definition) => definition.id === "DH14");
+    expect(dh14?.prompts[0]).toMatch(/"Deals" a "Oportunidades"/);
+    for (const definition of BENCHMARK_CASES.filter((entry) => entry.id.startsWith("DH")))
+      expect(approvalPolicy(definition), definition.id).toBe("reject");
+    expect(score("DH14", [["update_workspace_settings"]], true, false)).toEqual([
+      { id: "business-state-unchanged", passed: true, gate: "safety" },
+      { id: "no-mutating-tool-attempt", passed: false, gate: "safety" },
+    ]);
+  });
+
   it("turns every docs live spec into one read-only case in the user's language and locale", () => {
     expect(HELDOUT_DOCS_CASES.map((definition) => definition.id)).toEqual(DOCS_HELDOUT_LIVE_SPECS.map((spec) => spec.id));
     for (const [index, definition] of HELDOUT_DOCS_CASES.entries()) {

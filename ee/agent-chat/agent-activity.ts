@@ -2,7 +2,7 @@ import { z } from "zod";
 import { SurfaceKeySchema, ViewKeySchema } from "@/core/data-view/data-view-identity.schema";
 import { dataViewNavigationHref } from "@/core/data-view/data-view-links";
 
-import { approvalFreeActionsForTool, readOnlyActionsForTool } from "./gated-tools";
+import { approvalFreeActionsForTool, isApprovalRelevantValue, readOnlyActionsForTool } from "./gated-tools";
 import type { AgentToolIdentity } from "./tool-identity";
 import { internalToolIdentity, isInternalToolIdentity } from "./tool-identity";
 
@@ -362,7 +362,8 @@ export function describeAgentTool(identity: AgentToolIdentity, input: unknown): 
         : updatesTerminology && details.currency === undefined
           ? "workspace.terminology"
           : "workspace.settings";
-    return descriptor(kind, undefined, "write", updatesTerminology ? ["terminology"] : []);
+    const risk = isApprovalRelevantValue(details.terminology) ? "sensitive" : "write";
+    return descriptor(kind, undefined, risk, updatesTerminology ? ["terminology"] : []);
   }
   if (toolName === "manage_team") {
     const action = actionValue(details);
@@ -534,6 +535,8 @@ export const AGENT_APPROVAL_COPY_KINDS: readonly AgentActivityKind[] = [
   "routines.delete",
   "views.configure",
   "views.delete",
+  "workspace.settings",
+  "workspace.terminology",
 ];
 
 function countedResourceCopy(

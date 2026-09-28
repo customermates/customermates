@@ -1174,6 +1174,8 @@ describe("agent tools", () => {
     expect(prompt).toContain("require a fresh explicit approval every time; there is no standing permission to offer");
     expect(prompt).toContain("Destructive actions");
     expect(prompt).toContain("team invitations");
+    expect(prompt).toContain("renaming record types (workspace terminology)");
+    expect(prompt).toContain("workspace settings other than record type names");
     expect(prompt).toContain("webhook delivery resends");
     expect(prompt).toContain("If an approval is declined or times out, nothing changed");
     expect(prompt).toContain("A support email is sent only after that approval is granted");

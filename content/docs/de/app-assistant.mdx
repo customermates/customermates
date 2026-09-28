@@ -17,9 +17,9 @@ Während Mate arbeitet, ersetzt **Stopp** die Schaltfläche **Senden**; eine in 
 
 ## Was Mate ohne Rückfrage erledigt und wann Mate erst fragt [#what-runs-immediately-and-what-asks-first]
 
-Gewöhnliche CRM-Arbeit läuft, sobald Sie darum bitten, und der KI-Assistent erledigt sie ohne Rückfrage: Datensätze, Notizen und Verknüpfungen anlegen und ändern; Nachrichtenentwürfe speichern und verwerfen; E-Mails und Chat-Nachrichten senden; Posteingangs-Triage einschließlich des Verschiebens von E-Mail-Threads und des Änderns des Thread-Status auf ungelesen, offen, geschlossen oder Spam; Workspace-Einstellungen; Custom Columns; gespeicherte Ansichten, Widgets und Webhooks anlegen und ändern; Rolle oder Status eines Teammitglieds ändern; Links für Kontoverbindungen erzeugen; Social-Einladungen und Änderungen an Sales-Navigator-Listen eines verbundenen Kontos; sowie Routinen (auflisten, anlegen, ändern, pausieren, sofort ausführen). Mate sagt, was es gleich ändert, und berichtet genau, was sich geändert hat. Eine von Mate angelegte Routine wird als Entwurf gespeichert, außer Sie haben ausdrücklich darum gebeten, dass sie aktiv ist; die Laufzeit lehnt einen Routinen-Aufruf ab, der diese Wahl nicht angibt. Um ein Messaging-Konto zu verbinden, öffnen Sie den erzeugten Link und schließen dessen QR-Code- oder Anmeldeablauf selbst ab; das Erzeugen des Links verbindet das Konto nicht.
+Gewöhnliche CRM-Arbeit läuft, sobald Sie darum bitten, und der KI-Assistent erledigt sie ohne Rückfrage: Datensätze, Notizen und Verknüpfungen anlegen und ändern; Nachrichtenentwürfe speichern und verwerfen; E-Mails und Chat-Nachrichten senden; Posteingangs-Triage einschließlich des Verschiebens von E-Mail-Threads und des Änderns des Thread-Status auf ungelesen, offen, geschlossen oder Spam; Workspace-Einstellungen außer den Namen der Datensatztypen; Custom Columns; gespeicherte Ansichten, Widgets und Webhooks anlegen und ändern; Rolle oder Status eines Teammitglieds ändern; Links für Kontoverbindungen erzeugen; Social-Einladungen und Änderungen an Sales-Navigator-Listen eines verbundenen Kontos; sowie Routinen (auflisten, anlegen, ändern, pausieren, sofort ausführen). Mate sagt, was es gleich ändert, und berichtet genau, was sich geändert hat. Eine von Mate angelegte Routine wird als Entwurf gespeichert, außer Sie haben ausdrücklich darum gebeten, dass sie aktiv ist; die Laufzeit lehnt einen Routinen-Aufruf ab, der diese Wahl nicht angibt. Um ein Messaging-Konto zu verbinden, öffnen Sie den erzeugten Link und schließen dessen QR-Code- oder Anmeldeablauf selbst ab; das Erzeugen des Links verbindet das Konto nicht.
 
-Nur Aktionen, die sich nicht rückgängig machen lassen oder Ihren Workspace verlassen, halten für Ihre Freigabe an, und zwar jedes einzelne Mal:
+Nur Aktionen, die sich nicht rückgängig machen lassen, Ihren Workspace verlassen oder Datensatztypen für alle umbenennen, halten für Ihre Freigabe an, und zwar jedes einzelne Mal:
 
 | Fragt immer | Tool und Aktion | Warum |
 |---|---|---|
@@ -29,6 +29,7 @@ Nur Aktionen, die sich nicht rückgängig machen lassen oder Ihren Workspace ver
 | Widget löschen | `manage_widgets` mit `delete` | Entfernt das Dashboard-Widget |
 | Webhook löschen oder Zustellung erneut senden | `manage_webhooks` mit `delete` oder `resend_delivery` | Zerstört Konfiguration oder sendet eine neue externe Anfrage |
 | Routine löschen | `manage_routines` mit `delete` | Entfernt die Routine und ihren Laufverlauf |
+| Datensatztypen umbenennen | `update_workspace_settings` mit `terminology` | Ändert die Namen, die jedes Mitglied im ganzen Workspace sieht |
 | Teammitglieder einladen | `manage_team` mit `invite` | Sendet echte Einladungs-E-Mails |
 | Support-Anfrage senden | `request_support` | Sendet eine E-Mail mit Ihrem jüngsten Gesprächsverlauf an das Customermates-Team |
 

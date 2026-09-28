@@ -66,6 +66,10 @@
         "widgets": {
           "configure": "Listo para cambiar los widgets del panel",
           "delete": "Listo para eliminar de forma permanente un widget del panel"
+        },
+        "workspace": {
+          "settings": "Listo para cambiar la configuración del espacio de trabajo, incluidos los nombres de los tipos de registro",
+          "terminology": "Listo para renombrar tipos de registro en todo el espacio de trabajo"
         }
       },
       "cancelled": "Detenido",
