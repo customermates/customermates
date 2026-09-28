@@ -232,7 +232,7 @@ export const searchTool = {
   title: "Search workspace knowledge",
   description:
     "Required by ChatGPT company-knowledge and deep-research connectors. Returns relevant Workspace Wiki pages, CRM records, and product documentation in one list, without totals or filters. " +
-    "Wiki results rank pages by meaning, or by matching terms without AI credits, and carry a snippet with the matched terms in **, the matched section, and its offset: fetch with that offset to open at the answer, then follow linked Wiki pages. " +
+    "Wiki results match the query's words in full text and, with AI credits, also by meaning, and carry a snippet with the matched terms in **, the matched section, and its offset: fetch with that offset to open at the answer, then follow linked Wiki pages. " +
     "A misspelled word that matches no Wiki page is corrected from the Wiki's own words, and didYouMean names the corrected query; when no Wiki page fits, search again with other words. " +
     "For focused CRM or product-doc queries prefer search_records or list_records, which carry totals and filters, or search_docs. " +
     "App routes in the docs text that fetch returns, such as `/company/subscription`, are relative: for a full link, put the route after the origin of the result's url; that origin is the instance's configured BASE_URL.",

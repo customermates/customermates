@@ -73,6 +73,7 @@ export const searchDocsTool = {
   title: "Search documentation",
   description:
     "Use this when you need to search the Customermates documentation (product guides and REST API reference). " +
+    "Matches the query's words in full text and, with AI credits, also by meaning. " +
     `Required: query. Optional: locale (one of: ${docsLocaleList}; default ${DEFAULT_LOCALE}), source (one of: docs, api, all; default docs). ` +
     "Returns ranked pages with the best section of each (slug#anchor), then the best page's url and its snippet in text, plus up to 5 full matches as structured content. " +
     "App routes in a snippet, such as `/company/subscription`, are relative: prefix them with the origin of the match's url (best= in text); that origin is the instance's configured BASE_URL. " +
