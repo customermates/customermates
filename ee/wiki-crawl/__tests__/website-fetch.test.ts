@@ -2,7 +2,7 @@ import { EventEmitter } from "node:events";
 import { Readable } from "node:stream";
 import { afterEach, beforeEach, describe, expect, it, vi } from "vitest";
 
-import { fetchPublicResource, isPublicPageAddress } from "../public-page-reader";
+import { fetchWebsiteResource, isPublicWebsiteAddress } from "../website-fetch";
 
 const mocks = vi.hoisted(() => ({
   lookup: vi.fn(),
@@ -61,8 +61,13 @@ beforeEach(() => {
 const PAGE_TYPES = ["text/html", "application/xhtml+xml", "text/plain"] as const;
 
 function fetchPage(input: { url: string; allowedDomain: string }, options: { signal?: AbortSignal } = {}) {
-  return fetchPublicResource(
-    { url: input.url, allows: (target) => target.registrableDomain === input.allowedDomain, accept: PAGE_TYPES },
+  return fetchWebsiteResource(
+    {
+      url: input.url,
+      allows: (target) => target.registrableDomain === input.allowedDomain,
+      accept: PAGE_TYPES,
+      userAgent: "Customermates/1.0 (test)",
+    },
     options,
   );
 }
@@ -72,7 +77,7 @@ afterEach(() => {
   vi.useRealTimers();
 });
 
-describe("isPublicPageAddress", () => {
+describe("isPublicWebsiteAddress", () => {
   it.each([
     "0.0.0.0",
     "10.0.0.1",
@@ -111,16 +116,16 @@ describe("isPublicPageAddress", () => {
     "3fff::1",
     "not-an-address",
   ])("blocks non-public and transition address %s", (address) => {
-    expect(isPublicPageAddress(address)).toBe(false);
+    expect(isPublicWebsiteAddress(address)).toBe(false);
   });
 
   it.each(["8.8.8.8", "93.184.215.14", "172.32.0.1", "2606:4700:4700::1111", "2001:4860:4860::8888"])(
     "accepts global public address %s",
-    (address) => expect(isPublicPageAddress(address)).toBe(true),
+    (address) => expect(isPublicWebsiteAddress(address)).toBe(true),
   );
 });
 
-describe("fetchPublicResource", () => {
+describe("fetchWebsiteResource", () => {
   it("pins DNS while preserving the hostname, disables connection reuse, and returns the decoded body", async () => {
     const result = await fetchPage({ allowedDomain: "example.com", url: "https://example.com/" });
     expect(result).toMatchObject({ ok: true, url: "https://example.com/", contentType: "text/html" });

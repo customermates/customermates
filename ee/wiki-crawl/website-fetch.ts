@@ -46,7 +46,7 @@ for (const [address, prefix] of [
 ] as const)
   IPV6_RESERVED.addSubnet(address, prefix, "ipv6");
 
-export type PublicPageReadFailure =
+export type WebsiteFetchFailure =
   | "invalid_url"
   | "outside_domain"
   | "blocked_address"
@@ -56,13 +56,13 @@ export type PublicPageReadFailure =
   | "too_large"
   | "timeout";
 
-class PublicPageReadError extends Error {
-  constructor(readonly reason: PublicPageReadFailure) {
+class WebsiteFetchError extends Error {
+  constructor(readonly reason: WebsiteFetchFailure) {
     super(reason);
   }
 }
 
-export function isPublicPageAddress(address: string): boolean {
+export function isPublicWebsiteAddress(address: string): boolean {
   const family = isIP(address);
   if (family === 4) return !IPV4_RESERVED.check(address, "ipv4");
   return family === 6 && IPV6_GLOBAL.check(address, "ipv6") && !IPV6_RESERVED.check(address, "ipv6");
@@ -70,7 +70,7 @@ export function isPublicPageAddress(address: string): boolean {
 
 function abortable<T>(operation: Promise<T>, signal: AbortSignal): Promise<T> {
   return new Promise((resolve, reject) => {
-    const onAbort = () => reject(new PublicPageReadError("timeout"));
+    const onAbort = () => reject(new WebsiteFetchError("timeout"));
     if (signal.aborted) onAbort();
     else signal.addEventListener("abort", onAbort, { once: true });
 
@@ -87,10 +87,10 @@ async function requestPage(
   const addresses = await abortable(lookup(url.hostname, { all: true, verbatim: true }), signal);
   if (
     !addresses.length ||
-    addresses.some(({ address, family }) => isIP(address) !== family || !isPublicPageAddress(address))
+    addresses.some(({ address, family }) => isIP(address) !== family || !isPublicWebsiteAddress(address))
   )
-    throw new PublicPageReadError("blocked_address");
-  if (signal.aborted) throw new PublicPageReadError("timeout");
+    throw new WebsiteFetchError("blocked_address");
+  if (signal.aborted) throw new WebsiteFetchError("timeout");
 
   const address = addresses[0];
   return new Promise((resolve, reject) => {
@@ -115,17 +115,17 @@ async function requestPage(
 
 async function readBody(response: IncomingMessage, signal: AbortSignal): Promise<Buffer> {
   const encoding = response.headers["content-encoding"]?.trim().toLowerCase();
-  if (encoding && encoding !== "identity") throw new PublicPageReadError("unsupported_content");
+  if (encoding && encoding !== "identity") throw new WebsiteFetchError("unsupported_content");
   const declaredLength = response.headers["content-length"];
-  if (declaredLength && Number(declaredLength) > MAX_BODY_BYTES) throw new PublicPageReadError("too_large");
+  if (declaredLength && Number(declaredLength) > MAX_BODY_BYTES) throw new WebsiteFetchError("too_large");
 
   let size = 0;
   const chunks: Uint8Array[] = [];
   for await (const chunk of response) {
-    if (signal.aborted) throw new PublicPageReadError("timeout");
+    if (signal.aborted) throw new WebsiteFetchError("timeout");
     const buffer = Buffer.isBuffer(chunk) ? chunk : Buffer.from(chunk);
     size += buffer.byteLength;
-    if (size > MAX_BODY_BYTES) throw new PublicPageReadError("too_large");
+    if (size > MAX_BODY_BYTES) throw new WebsiteFetchError("too_large");
     chunks.push(new Uint8Array(buffer.buffer, buffer.byteOffset, buffer.byteLength));
   }
   return Buffer.concat(chunks);
@@ -156,44 +156,41 @@ function decodeBody(body: Buffer, contentType: string, contentTypeHeader: string
   return (meta.encoding.startsWith("utf-16") ? new TextDecoder() : meta).decode(body);
 }
 
-export const PUBLIC_PAGE_USER_AGENT = "Customermates/1.0 (public website reader)";
+export type WebsiteResourceTarget = { url: string; host: string; registrableDomain: string };
 
-export type PublicResourceTarget = { url: string; host: string; registrableDomain: string };
-
-export type PublicResourceResult =
+export type WebsiteResourceResult =
   | { ok: true; url: string; contentType: string; body: string }
-  | { ok: false; reason: PublicPageReadFailure; status?: number };
+  | { ok: false; reason: WebsiteFetchFailure; status?: number };
 
-function publicResourceTarget(value: string): PublicResourceTarget | null {
+function websiteResourceTarget(value: string): WebsiteResourceTarget | null {
   const page = parsePublicPageUrl(value);
   return page ? { ...page, host: new URL(page.url).hostname } : null;
 }
 
-export async function fetchPublicResource(
+export async function fetchWebsiteResource(
   input: {
     url: string;
-    allows: (target: PublicResourceTarget) => boolean;
+    allows: (target: WebsiteResourceTarget) => boolean;
     accept: readonly string[];
-    userAgent?: string;
+    userAgent: string;
   },
   options: { signal?: AbortSignal } = {},
-): Promise<PublicResourceResult> {
-  const first = publicResourceTarget(input.url);
+): Promise<WebsiteResourceResult> {
+  const first = websiteResourceTarget(input.url);
   if (!first) return { ok: false, reason: "invalid_url" };
   if (!input.allows(first)) return { ok: false, reason: "outside_domain" };
 
   const timeout = AbortSignal.timeout(MAX_READ_MS);
   const signal = options.signal ? AbortSignal.any([timeout, options.signal]) : timeout;
-  const userAgent = input.userAgent ?? PUBLIC_PAGE_USER_AGENT;
   let currentUrl = first.url;
   try {
     for (let redirects = 0; redirects <= MAX_REDIRECTS; redirects++) {
-      const response = await requestPage(new URL(currentUrl), signal, input.accept, userAgent);
+      const response = await requestPage(new URL(currentUrl), signal, input.accept, input.userAgent);
       try {
         if (REDIRECT_STATUSES.has(response.statusCode ?? 0)) {
           if (redirects === MAX_REDIRECTS) return { ok: false, reason: "redirect_limit" };
           if (!response.headers.location) return { ok: false, reason: "unavailable" };
-          const next = publicResourceTarget(new URL(response.headers.location, currentUrl).toString());
+          const next = websiteResourceTarget(new URL(response.headers.location, currentUrl).toString());
           if (!next) return { ok: false, reason: "invalid_url" };
           if (!input.allows(next)) return { ok: false, reason: "outside_domain" };
           currentUrl = next.url;
@@ -214,7 +211,7 @@ export async function fetchPublicResource(
   } catch (error) {
     return {
       ok: false,
-      reason: signal.aborted ? "timeout" : error instanceof PublicPageReadError ? error.reason : "unavailable",
+      reason: signal.aborted ? "timeout" : error instanceof WebsiteFetchError ? error.reason : "unavailable",
     };
   }
 }

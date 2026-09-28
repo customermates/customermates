@@ -9,6 +9,10 @@ import {
   parseRobots,
   parseSitemap,
   rankWikiCrawlTargets,
+  robotsFromFetch,
+  WIKI_CRAWL_MAX_LLMS_LINKS,
+  WIKI_CRAWL_MAX_ROBOTS_RULES,
+  WIKI_CRAWL_MAX_ROBOTS_WILDCARDS,
   wikiCrawlCategory,
 } from "../website-discovery";
 import { extractWikiSourceDocument } from "../website-source-extract";
@@ -81,6 +85,46 @@ describe("robots.txt", () => {
     expect(parseRobots("User-agent: Googlebot\nDisallow: /").blocked).toBe(false);
     expect(parseRobots(null)).toMatchObject({ blocked: false, crawlDelayMs: 0, sitemaps: [] });
   });
+
+  it("matches a pathological wildcard pattern in linear time", () => {
+    const path = `/${"a".repeat(20_000)}b`;
+    const hostile = parseRobots(`User-agent: *\nDisallow: /${"*a".repeat(15)}*c$\nAllow: /${"*a".repeat(500)}`);
+    const started = performance.now();
+    for (let index = 0; index < 200; index++) expect(hostile.allows(path)).toBe(true);
+    expect(performance.now() - started).toBeLessThan(1_000);
+
+    const anchored = parseRobots(`User-agent: *\nDisallow: /${"*a".repeat(15)}*b$`);
+    expect(anchored.allows(path)).toBe(false);
+    expect(anchored.allows(`${path}c`)).toBe(true);
+  });
+
+  it("widens an over-wildcarded Disallow to its literal prefix and ignores an over-wildcarded Allow", () => {
+    const wildcards = "*x".repeat(WIKI_CRAWL_MAX_ROBOTS_WILDCARDS + 1);
+    const rules = parseRobots(
+      `User-agent: *\nDisallow: /docs/${wildcards}\nAllow: /open/${wildcards}\nDisallow: /open/`,
+    );
+    expect(rules.allows("/docs/anything")).toBe(false);
+    expect(rules.allows("/open/xx")).toBe(false);
+    expect(rules.allows("/pricing")).toBe(true);
+  });
+
+  it("stops reading rules after the rule cap", () => {
+    const filler = Array.from({ length: WIKI_CRAWL_MAX_ROBOTS_RULES }, (_, index) => `Disallow: /f${index}`);
+    const rules = parseRobots(["User-agent: *", ...filler, "Disallow: /late"].join("\n"));
+    expect(rules.allows("/f0")).toBe(false);
+    expect(rules.allows("/late")).toBe(true);
+  });
+
+  it("treats an unreachable robots.txt as disallow-all and a missing one as allow-all, per RFC 9309", () => {
+    expect(robotsFromFetch({ ok: false, reason: "unavailable", status: 503 })).toMatchObject({ blocked: true });
+    expect(robotsFromFetch({ ok: false, reason: "unavailable", status: 500 }).allows("/help")).toBe(false);
+    expect(robotsFromFetch({ ok: false, reason: "timeout" }).blocked).toBe(true);
+    expect(robotsFromFetch({ ok: false, reason: "blocked_address" }).blocked).toBe(true);
+    for (const status of [400, 401, 403, 404, 410, 429])
+      expect(robotsFromFetch({ ok: false, reason: "unavailable", status }).blocked).toBe(false);
+    expect(robotsFromFetch({ ok: false, reason: "redirect_limit" }).blocked).toBe(false);
+    expect(robotsFromFetch({ ok: true, body: "User-agent: *\nDisallow: /" }).blocked).toBe(true);
+  });
 });
 
 describe("sitemaps, llms.txt and categories", () => {
@@ -99,6 +143,21 @@ describe("sitemaps, llms.txt and categories", () => {
     expect(parseLlmsTxt("# Acme\n- [Refunds](/help/refunds): how refunds work", "https://example.com")).toEqual([
       { url: "https://example.com/help/refunds", title: "Refunds" },
     ]);
+  });
+
+  it("caps the links it takes from llms.txt", () => {
+    const markdown = Array.from({ length: WIKI_CRAWL_MAX_LLMS_LINKS + 50 }, (_, index) => `- [P${index}](/p${index})`);
+    const links = parseLlmsTxt(markdown.join("\n"), "https://example.com");
+    expect(links).toHaveLength(WIKI_CRAWL_MAX_LLMS_LINKS);
+    expect(links.at(-1)).toEqual({
+      url: `https://example.com/p${WIKI_CRAWL_MAX_LLMS_LINKS - 1}`,
+      title: `P${WIKI_CRAWL_MAX_LLMS_LINKS - 1}`,
+    });
+  });
+
+  it("categorises a path with a stray percent sign instead of throwing", () => {
+    expect(wikiCrawlCategory("https://example.com/help/100%-sure")).toBe("help");
+    expect(wikiCrawlCategory("https://example.com/%E0%A4%A")).toBe("other");
   });
 
   it.each([
@@ -272,5 +331,31 @@ describe("website discovery and fetching", () => {
     });
     expect(source?.contentHash).toMatch(/^[0-9a-f]{64}$/u);
     expect(mocks.requested.filter((line) => line.includes("/private"))).toEqual([]);
+  });
+
+  it("stops when robots.txt is unreachable and imports normally when it is missing", async () => {
+    routes.set("https://example.com/robots.txt", { status: 503, type: "text/plain", body: "busy" });
+    expect(await discoverWikiWebsite({ homepage: "https://example.com", locale: "en", scope })).toEqual({
+      status: "blocked",
+    });
+    expect(mocks.requested).toHaveLength(1);
+
+    routes.set("https://example.com/robots.txt", { status: 404, type: "text/plain", body: "missing" });
+    routes.set("https://example.com/", { body: "<main><h1>Acme</h1></main>" });
+    expect(await discoverWikiWebsite({ homepage: "https://example.com", locale: "en", scope })).toMatchObject({
+      status: "ready",
+    });
+  });
+
+  it("checks the same path and query in discovery as when it fetches", async () => {
+    routes.set("https://example.com/robots.txt", { type: "text/plain", body: "User-agent: *\nDisallow: /*?lang=" });
+    routes.set("https://example.com/", {
+      body: '<main><h1>Acme</h1><a href="/help?lang=de">Hilfe</a><a href="/pricing">Pricing</a></main>',
+    });
+    const discovery = await discoverWikiWebsite({ homepage: "https://example.com", locale: "en", scope });
+    if (discovery.status !== "ready") throw new Error("discovery failed");
+    expect(discovery.targets.map(({ url }) => url)).toEqual(["https://example.com/", "https://example.com/pricing"]);
+    const robots = new WikiCrawlRobots(scope);
+    expect(await robots.allows("https://example.com/help?lang=de")).toBe(false);
   });
 });

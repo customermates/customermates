@@ -38,16 +38,55 @@ export type RobotsRules = {
   blocked: boolean;
 };
 
-type RobotsRule = { allow: boolean; pattern: string };
+export const WIKI_CRAWL_MAX_ROBOTS_RULES = 1_000;
+export const WIKI_CRAWL_MAX_ROBOTS_WILDCARDS = 16;
+export const WIKI_CRAWL_MAX_ROBOTS_PATTERN_LENGTH = 1_024;
+export const WIKI_CRAWL_MAX_LLMS_LINKS = 500;
 
-function robotsPatternMatches(pattern: string, path: string): boolean {
-  if (!pattern) return false;
-  const anchored = pattern.endsWith("$");
-  const body = (anchored ? pattern.slice(0, -1) : pattern)
-    .split("*")
-    .map((part) => part.replace(/[.+?^${}()|[\]\\]/g, "\\$&"))
-    .join(".*");
-  return new RegExp(`^${body}${anchored ? "$" : ""}`, "u").test(path);
+type RobotsRule = { allow: boolean; length: number; segments: string[]; anchored: boolean };
+
+function compileRobotsRule(allow: boolean, rawPattern: string): RobotsRule | null {
+  if (!rawPattern || rawPattern.length > WIKI_CRAWL_MAX_ROBOTS_PATTERN_LENGTH) return null;
+  const anchored = rawPattern.endsWith("$");
+  const pattern = (anchored ? rawPattern.slice(0, -1) : rawPattern).replace(/\*{2,}/gu, "*");
+  const segments = pattern.split("*");
+  if (segments.length - 1 <= WIKI_CRAWL_MAX_ROBOTS_WILDCARDS)
+    return { allow, length: rawPattern.length, segments, anchored };
+  if (allow) return null;
+  return { allow, length: rawPattern.length, segments: [segments[0], ""], anchored: false };
+}
+
+function robotsRuleMatches(rule: RobotsRule, path: string): boolean {
+  const { segments, anchored } = rule;
+  const first = segments[0];
+  if (!path.startsWith(first)) return false;
+  if (segments.length === 1) return anchored ? path.length === first.length : true;
+  let position = first.length;
+  const lastIndex = segments.length - 1;
+  for (let index = 1; index < lastIndex; index++) {
+    const found = path.indexOf(segments[index], position);
+    if (found < 0) return false;
+    position = found + segments[index].length;
+  }
+  const last = segments[lastIndex];
+  if (!anchored) return path.indexOf(last, position) >= 0;
+  return path.length - last.length >= position && path.endsWith(last);
+}
+
+export function robotsPathOf(url: string): string {
+  const parsed = new URL(url);
+  return `${parsed.pathname}${parsed.search}`;
+}
+
+const DISALLOW_ALL: RobotsRules = { allows: () => false, sitemaps: [], crawlDelayMs: 0, blocked: true };
+
+export function robotsFromFetch(
+  result: { ok: true; body: string } | { ok: false; reason: string; status?: number },
+): RobotsRules {
+  if (result.ok) return parseRobots(result.body);
+  if (result.status !== undefined && result.status >= 400 && result.status < 500) return parseRobots(null);
+  if (["redirect_limit", "outside_domain", "unsupported_content"].includes(result.reason)) return parseRobots(null);
+  return DISALLOW_ALL;
 }
 
 export function parseRobots(text: string | null): RobotsRules {
@@ -55,6 +94,7 @@ export function parseRobots(text: string | null): RobotsRules {
   const sitemaps: string[] = [];
   let current: (typeof groups)[number] | null = null;
   let lastWasAgent = false;
+  let ruleCount = 0;
   for (const raw of (text ?? "").split(/\r?\n/u)) {
     const line = raw.replace(/#.*$/u, "").trim();
     const separator = line.indexOf(":");
@@ -76,7 +116,11 @@ export function parseRobots(text: string | null): RobotsRules {
     }
     lastWasAgent = false;
     if (!current) continue;
-    if (field === "allow" || field === "disallow") current.rules.push({ allow: field === "allow", pattern: value });
+    if ((field === "allow" || field === "disallow") && ruleCount < WIKI_CRAWL_MAX_ROBOTS_RULES) {
+      ruleCount += 1;
+      const rule = compileRobotsRule(field === "allow", value);
+      if (rule) current.rules.push(rule);
+    }
     if (field === "crawl-delay") {
       const seconds = Number(value);
       if (Number.isFinite(seconds) && seconds >= 0) current.crawlDelayMs = seconds * 1_000;
@@ -91,13 +135,8 @@ export function parseRobots(text: string | null): RobotsRules {
   const allows = (path: string) => {
     let best: RobotsRule | null = null;
     for (const rule of rules) {
-      if (!robotsPatternMatches(rule.pattern, path)) continue;
-      if (
-        !best ||
-        rule.pattern.length > best.pattern.length ||
-        (rule.pattern.length === best.pattern.length && rule.allow)
-      )
-        best = rule;
+      if (!robotsRuleMatches(rule, path)) continue;
+      if (!best || rule.length > best.length || (rule.length === best.length && rule.allow)) best = rule;
     }
     return best ? best.allow : true;
   };
@@ -126,13 +165,16 @@ export function parseSitemap(xml: string): { urls: string[]; sitemaps: string[] 
 }
 
 export function parseLlmsTxt(markdown: string, baseUrl: string): Array<{ url: string; title: string }> {
-  return [...markdown.matchAll(/\[([^\]\n]{1,200})\]\(([^)\s]+)\)/gu)].flatMap((match) => {
+  const links: Array<{ url: string; title: string }> = [];
+  for (const match of markdown.matchAll(/\[([^\]\n]{1,200})\]\(([^)\s]+)\)/gu)) {
+    if (links.length >= WIKI_CRAWL_MAX_LLMS_LINKS) break;
     try {
-      return [{ url: new URL(match[2], baseUrl).toString(), title: match[1].trim() }];
+      links.push({ url: new URL(match[2], baseUrl).toString(), title: match[1].trim() });
     } catch {
-      return [];
+      continue;
     }
-  });
+  }
+  return links;
 }
 
 export function canonicalCrawlUrl(value: string): string | null {
@@ -147,8 +189,16 @@ export function canonicalCrawlUrl(value: string): string | null {
   return url.toString();
 }
 
+function decodedPath(path: string): string {
+  try {
+    return decodeURIComponent(path);
+  } catch {
+    return path;
+  }
+}
+
 export function wikiCrawlCategory(url: string, title = ""): WikiCrawlCategory {
-  const path = decodeURIComponent(new URL(url).pathname).toLocaleLowerCase();
+  const path = decodedPath(new URL(url).pathname).toLocaleLowerCase();
   const searchable = `${path} ${title.toLocaleLowerCase()}`;
   if (path === "/" || path === "") return "about";
   return crawlPathCategory(path, searchable);

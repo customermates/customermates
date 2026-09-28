@@ -3,15 +3,16 @@ import type { WikiSourceQa } from "./website-source-extract";
 
 import { createHash } from "node:crypto";
 
-import { fetchPublicResource, type PublicResourceTarget } from "@/ee/agent-chat/public-page-reader";
+import { fetchWebsiteResource, type WebsiteResourceTarget } from "./website-fetch";
 import { parsePublicPageUrl } from "@/features/wiki/wiki-homepage";
 
 import {
   isExternalHelpHost,
   parseLlmsTxt,
-  parseRobots,
   parseSitemap,
   rankWikiCrawlTargets,
+  robotsFromFetch,
+  robotsPathOf,
   WIKI_CRAWL_MAX_SITEMAP_URLS,
   WIKI_CRAWL_USER_AGENT,
 } from "./website-discovery";
@@ -39,12 +40,16 @@ export type WikiFetchedSource = {
 };
 
 function inScope(scope: WikiCrawlScope) {
-  return (target: PublicResourceTarget) =>
+  return (target: WebsiteResourceTarget) =>
     target.registrableDomain === scope.registrableDomain || scope.extraHosts.includes(target.host);
 }
 
+function fetchResource(url: string, scope: WikiCrawlScope, accept: readonly string[]) {
+  return fetchWebsiteResource({ url, allows: inScope(scope), accept, userAgent: WIKI_CRAWL_USER_AGENT });
+}
+
 async function fetchText(url: string, scope: WikiCrawlScope, accept: readonly string[]) {
-  const resource = await fetchPublicResource({ url, allows: inScope(scope), accept, userAgent: WIKI_CRAWL_USER_AGENT });
+  const resource = await fetchResource(url, scope, accept);
   return resource.ok ? resource : null;
 }
 
@@ -57,17 +62,14 @@ export class WikiCrawlRobots {
     const origin = new URL(url).origin;
     let rules = this.rules.get(origin);
     if (!rules) {
-      rules = fetchText(`${origin}/robots.txt`, this.scope, TEXT_TYPES).then((resource) =>
-        parseRobots(resource?.body ?? null),
-      );
+      rules = fetchResource(`${origin}/robots.txt`, this.scope, TEXT_TYPES).then(robotsFromFetch);
       this.rules.set(origin, rules);
     }
     return rules;
   }
 
   async allows(url: string): Promise<boolean> {
-    const parsed = new URL(url);
-    return (await this.forUrl(url)).allows(`${parsed.pathname}${parsed.search}`);
+    return (await this.forUrl(url)).allows(robotsPathOf(url));
   }
 }
 
@@ -120,7 +122,7 @@ export async function discoverWikiWebsite(input: {
     if (!target) continue;
     const host = new URL(target.url).hostname;
     if (!inScope(input.scope)({ ...target, host })) continue;
-    if (host === new URL(homepage.url).hostname ? rootRules.allows(new URL(target.url).pathname) : true)
+    if (host === new URL(homepage.url).hostname ? rootRules.allows(robotsPathOf(target.url)) : true)
       allowed.add(target.url);
   }
   const targets = rankWikiCrawlTargets({
