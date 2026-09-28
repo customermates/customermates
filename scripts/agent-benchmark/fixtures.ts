@@ -2045,8 +2045,8 @@ export async function scoreBenchmarkCase(db: BenchmarkDb, fixture: Fixture, obse
       );
       break;
     case "U44": {
-      const commands = tools.filter((tool) =>
-        ["highlight_element", "start_tour"].includes(tool.name),
+      const commands = tools.filter(
+        (tool) => ["highlight_element", "start_tour"].includes(tool.name) && tool.outcome !== "error",
       );
       const targets = commands
         .flatMap((tool) => {

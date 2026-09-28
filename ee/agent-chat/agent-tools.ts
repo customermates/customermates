@@ -37,7 +37,14 @@ import { hostedToolInputGuard } from "./agent-hosted-guards";
 import { APP_LOCALES, isContentLocale } from "@/i18n/locale-registry";
 import { getTranslator } from "@/i18n/get-translator";
 import { type AgentToolCancellation as AgentToolCancellationValue } from "./agent-tool-cancellation";
-import { AGENT_UI_TARGETS, UiTargetIdSchema, agentUiPageLabelKeys, type AgentUiTarget } from "./ui-targets";
+import {
+  AGENT_UI_TARGETS,
+  UiTargetIdSchema,
+  agentUiPageLabelKeys,
+  uiPrerequisiteRefusal,
+  unopenedUiPrerequisite,
+  type AgentUiTarget,
+} from "./ui-targets";
 import { AgentTourSchema } from "./agent-tours";
 import { NavigateInputSchema } from "./ui-operations";
 import type { AgentApprovalContextResolution } from "./agent-external-approval-context";
@@ -411,20 +418,33 @@ function uiTools(deps: AgentToolDeps): ToolSet {
         runSafely(() => runUiCommand(toolCallId, "navigate", panelInput("navigate", input)), deps.resultMaxChars),
     }),
     highlight_element: tool({
-      description: "Spotlight a single interface target by its id (from list_ui_targets) on the current page.",
+      description:
+        "Spotlight a single interface target by its id (from list_ui_targets) on the current page. A target listed with >X, where X is a target id, sits inside X: highlight X first, or run start_tour with X before it; a direct highlight of it is refused.",
       inputSchema: providerSafeSchema(HighlightElementSchema),
-      execute: (input, { toolCallId }) =>
-        runSafely(
+      execute: async (input, { toolCallId }) => {
+        const prerequisite = unopenedUiPrerequisite(input.targetId);
+        if (prerequisite) return { ok: false, result: uiPrerequisiteRefusal(input.targetId, prerequisite) };
+        return runSafely(
           () => runUiCommand(toolCallId, "highlight_element", panelInput("highlight_element", input)),
           deps.resultMaxChars,
-        ),
+        );
+      },
     }),
     start_tour: tool({
       description:
         "Run a guided tour you compose for this user. Call list_ui_targets once, then choose the targets that answer what they asked to see and write your own note for each one. The tour navigates to each step itself, so do not call navigate first. Ask what they want to see when the request is vague; go straight to the tour when it is specific. Be thorough: walk the whole journey rather than naming each screen, and write every note in the user's language.",
       inputSchema: providerSafeSchema(AgentTourSchema),
-      execute: (input, { toolCallId }) =>
-        runSafely(() => runUiCommand(toolCallId, "start_tour", panelInput("start_tour", input)), deps.resultMaxChars),
+      execute: async (input, { toolCallId }) => {
+        const targets = input.steps.map((step) => step.targetId);
+        for (const [index, targetId] of targets.entries()) {
+          const prerequisite = unopenedUiPrerequisite(targetId, targets.slice(0, index));
+          if (prerequisite) return { ok: false, result: uiPrerequisiteRefusal(targetId, prerequisite) };
+        }
+        return runSafely(
+          () => runUiCommand(toolCallId, "start_tour", panelInput("start_tour", input)),
+          deps.resultMaxChars,
+        );
+      },
     }),
   };
 }

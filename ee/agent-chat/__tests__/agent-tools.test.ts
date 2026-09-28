@@ -50,7 +50,7 @@ import { ANALYZE_RECORDS_TOOL_NAME } from "../agent-toolset-routing";
 import { WIKI_REFERENCE_MAX_BYTES, agentWikiReferenceBytes, serializeAgentWikiCatalog } from "../agent-wiki-context";
 import { MODEL_CATALOG, SHIPPED_AGENT_MODEL_KEY } from "../model-catalog";
 import { buildAgentSystemPrompt } from "../system-prompt";
-import { AGENT_UI_TARGETS } from "../ui-targets";
+import { AGENT_UI_TARGETS, unopenedUiPrerequisite } from "../ui-targets";
 import {
   AGENT_UI_TOOL_NAMES,
   describeAgentAiTools,
@@ -910,6 +910,66 @@ describe("agent tools", () => {
 
     await expect(execute(tools[name], input)).resolves.toEqual(outcome);
     expect(runUiCommand).toHaveBeenCalledWith("call-1", name, input);
+  });
+
+  it("refuses a highlight or tour that skips a target's opener, and passes one that goes through it", async () => {
+    const runUiCommand = vi.fn().mockResolvedValue({ ok: true, result: "shown" });
+    const tools = getAgentAiTools(deps({ runUiCommand }));
+    const refusal =
+      "deals-layout-board is inside deals-display-options, which the user must open first, so nothing was shown. Highlight deals-display-options and tell the user to open it, or run start_tour with deals-display-options as the step before deals-layout-board.";
+
+    await expect(execute(tools.highlight_element, { targetId: "deals-layout-board" })).resolves.toEqual({
+      ok: false,
+      result: refusal,
+    });
+    await expect(
+      execute(tools.start_tour, {
+        steps: [
+          { targetId: "nav-deals", note: "Open deals." },
+          { targetId: "deals-layout-board", note: "Switch to the board." },
+        ],
+      }),
+    ).resolves.toEqual({ ok: false, result: refusal });
+    expect(runUiCommand).not.toHaveBeenCalled();
+
+    const throughOpener = {
+      steps: [
+        { targetId: "deals-display-options", note: "Open the display options." },
+        { targetId: "deals-layout-board", note: "Switch to the board." },
+      ],
+    };
+    await expect(execute(tools.highlight_element, { targetId: "deals-display-options" })).resolves.toEqual({
+      ok: true,
+      result: "shown",
+    });
+    await expect(execute(tools.start_tour, throughOpener)).resolves.toEqual({ ok: true, result: "shown" });
+    const namedRow = AGENT_UI_TARGETS.find(
+      (target) =>
+        target.prerequisite !== undefined && !AGENT_UI_TARGETS.some((other) => other.id === target.prerequisite),
+    );
+    if (!namedRow) throw new Error("expected a target whose opener is a named row");
+    await expect(execute(tools.highlight_element, { targetId: namedRow.id })).resolves.toEqual({
+      ok: true,
+      result: "shown",
+    });
+    expect(runUiCommand.mock.calls.map(([, name, input]) => [name, input])).toEqual([
+      ["highlight_element", { targetId: "deals-display-options" }],
+      ["start_tour", throughOpener],
+      ["highlight_element", { targetId: namedRow.id }],
+    ]);
+  });
+
+  it("requires every opener in a chain, in order, before the target inside it", () => {
+    for (const target of AGENT_UI_TARGETS.filter((candidate) => candidate.prerequisite)) {
+      const opener = AGENT_UI_TARGETS.find((candidate) => candidate.id === target.prerequisite);
+      if (!opener) {
+        expect(unopenedUiPrerequisite(target.id)).toBeNull();
+        continue;
+      }
+      expect(unopenedUiPrerequisite(target.id)).toBe(opener.id);
+      expect(unopenedUiPrerequisite(target.id, [opener.id])).toBeNull();
+      expect(unopenedUiPrerequisite(target.id, ["nav-deals"])).toBe(opener.id);
+    }
   });
 
   it("caps browser command results to the admitted per-tool context budget and says it truncated", async () => {
