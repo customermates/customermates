@@ -11,6 +11,9 @@ export const AUTHORABLE_AI_CLIENT_IDENTITIES = {
   gemini: {
     name: "Gemini",
   },
+  grok: {
+    name: "Grok Bot",
+  },
 } as const;
 
 export type AuthorableAiClientIdentityId = keyof typeof AUTHORABLE_AI_CLIENT_IDENTITIES;

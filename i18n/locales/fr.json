@@ -979,9 +979,9 @@
     "userInfoIsMissing": "Le fournisseur n'a pas renvoyé votre profil. Veuillez réessayer."
   },
   "BrowserFrame": {
-    "live": "en direct",
+    "live": "Aperçu en direct",
     "liveDemoTitle": "Démo en direct de Customermates",
-    "open": "Ouvrir"
+    "open": "Ouvrir dans un nouvel onglet"
   },
   "Common": {
     "actions": {
@@ -2518,7 +2518,7 @@
   "HomepageStatsRow": {
     "automationLabel": "Automatisations",
     "taglineMcp": "MCP",
-    "taglinePost": ". Automatisations via REST, webhooks et votre instance n8n.",
+    "taglinePost": " ou le navigateur. Automatisations via REST, webhooks et votre instance n8n.",
     "taglinePre": "IA externe via"
   },
   "Inbox": {
@@ -2805,6 +2805,7 @@
       "providerCursor": "Cursor",
       "providerGemini": "Gemini",
       "providerGmail": "Gmail",
+      "providerGrok": "Grok Bot",
       "providerImap": "E-mail / IMAP",
       "providerInstagram": "Instagram",
       "providerLinkedIn": "LinkedIn",

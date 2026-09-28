@@ -23,6 +23,8 @@ vi.mock("react-dom", async (importOriginal) => ({
 
 import { HeroDemoIframe } from "@/app/[locale]/(static)/components/hero-demo-iframe";
 import { ProductDemo } from "../product-demo";
+import { DocsDemo } from "@/core/fumadocs/docs-demo";
+import { localProductDemoSrc } from "../product-demo-src";
 
 const observer = {
   callback: undefined as IntersectionObserverCallback | undefined,
@@ -76,9 +78,42 @@ afterEach(() => {
   roots.clear();
   document.body.replaceChildren();
   vi.unstubAllGlobals();
+  vi.unstubAllEnvs();
 });
 
 describe("BrowserFrame", () => {
+  it.each([
+    ["homepage", <HeroDemoIframe key="homepage" src="https://demo.customermates.com/en/dashboard" />],
+    ["article", <ProductDemo key="article" path="/contacts" />],
+    ["standalone", <ProductDemo key="standalone" path="/contacts" presentation="standalone" />],
+    ["docs", <DocsDemo key="docs" src="https://demo.customermates.com/en/dashboard" title="Demo" />],
+  ])("discloses an interactive live preview and shares one width cap on %s", (_, component) => {
+    const host = mount(component);
+    const frame = host.querySelector("[data-live-preview]");
+    expect(frame?.classList.contains("max-w-live-preview")).toBe(true);
+    expect(frame?.textContent).toContain("BrowserFrame.live");
+    expect(frame?.textContent).not.toContain("BrowserFrame.interactive");
+    expect(
+      Array.from(frame?.querySelectorAll('a[target="_blank"]') ?? []).some((link) =>
+        link.textContent?.includes("BrowserFrame.open"),
+      ),
+    ).toBe(true);
+    const urlLink = frame?.querySelector<HTMLAnchorElement>("a[title]");
+    expect(urlLink?.getAttribute("href")).toBe(urlLink?.getAttribute("title"));
+    expect(urlLink?.getAttribute("target")).toBe("_blank");
+    expect(urlLink?.textContent).toBe("demo.customermates.com");
+  });
+
+  it("routes product previews locally only during development", () => {
+    const src = "https://demo.customermates.com/de/contacts?agentChat=closed";
+    vi.stubEnv("BASE_URL", "http://localhost:4015/");
+    vi.stubEnv("NODE_ENV", "development");
+    expect(localProductDemoSrc(src)).toBe("http://localhost:4015/de/contacts?agentChat=closed");
+    expect(localProductDemoSrc("https://example.com/preview")).toBe("https://example.com/preview");
+    vi.stubEnv("NODE_ENV", "production");
+    expect(localProductDemoSrc(src)).toBe(src);
+  });
+
   it("keeps shared frames lazy until they intersect", () => {
     const host = mount(<ProductDemo path="/dashboard" />);
 

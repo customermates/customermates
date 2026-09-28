@@ -1,8 +1,6 @@
 import type { HomepageProductProof } from "@/core/fumadocs/schemas/homepage";
 import type { ContentLocale } from "@/i18n/locale-registry";
 
-import { MousePointerClick } from "lucide-react";
-
 import { MarketingSection } from "@/components/marketing/marketing-section";
 
 import { HeroDemoIframe } from "./hero-demo-iframe";
@@ -16,25 +14,13 @@ export function HomepageLiveDemo({ locale, proof }: { locale: ContentLocale; pro
       : `https://demo.customermates.com${demoPath}`;
 
   return (
-    <MarketingSection containerClassName="scroll-mt-6" containerSize="wide" id="live-demo">
-      <div className="marketing-grid mx-auto max-w-[84rem] items-end gap-y-6">
-        <div className="col-span-12 lg:col-span-5">
-          <p className="text-eyebrow flex items-center gap-2">
-            <MousePointerClick aria-hidden className="size-3.5" />
-
-            {proof.demoEyebrow}
-          </p>
-
-          <h2 className="text-display-sm mt-5">{proof.demoTitle}</h2>
-        </div>
-
-        <p className="col-span-12 text-sm leading-relaxed text-muted-foreground lg:col-start-7 lg:col-end-13">
-          {proof.demoDescription}
-        </p>
-
-        <div className="col-span-12 mt-4">
-          <HeroDemoIframe size="full" src={demoSrc} />
-        </div>
+    <MarketingSection
+      containerClassName="scroll-mt-8 !max-w-[86rem] !px-3 sm:!px-4"
+      id="live-demo"
+      title={proof.demoTitle}
+    >
+      <div className="mt-10 sm:mt-12 lg:mt-14">
+        <HeroDemoIframe size="full" src={demoSrc} />
       </div>
     </MarketingSection>
   );

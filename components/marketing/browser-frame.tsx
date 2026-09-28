@@ -17,17 +17,9 @@ type Props = {
 const LOAD_AHEAD_MARGIN = "400px 0px";
 
 const FRAME_HEIGHT_CLASS = {
-  article: "h-[420px] sm:h-[520px] lg:h-[600px]",
-  full: "h-[600px] md:h-[700px] lg:h-[750px]",
+  article: "h-[480px] sm:h-[600px] lg:h-[680px]",
+  full: "h-[680px] md:h-[800px] lg:h-[860px]",
 } as const;
-
-function getHostname(src: string): string {
-  try {
-    return new URL(src).hostname;
-  } catch {
-    return src;
-  }
-}
 
 function getOrigin(src: string): string | null {
   try {
@@ -39,11 +31,12 @@ function getOrigin(src: string): string | null {
 
 export function BrowserFrame({ fallbackMessage, loadAhead = false, size = "full", src, title }: Props) {
   const t = useTranslations();
+  const iframeRef = useRef<HTMLIFrameElement | null>(null);
+  const [currentUrl, setCurrentUrl] = useState(src);
   const [loaded, setLoaded] = useState(false);
   const [shouldMount, setShouldMount] = useState(false);
   const [timedOut, setTimedOut] = useState(false);
   const frameRef = useRef<HTMLDivElement | null>(null);
-  const hostname = getHostname(src);
   const origin = getOrigin(src);
 
   if (loadAhead && origin) {
@@ -78,47 +71,53 @@ export function BrowserFrame({ fallbackMessage, loadAhead = false, size = "full"
     return () => window.clearTimeout(timeout);
   }, [fallbackMessage, loaded, shouldMount]);
 
+  useEffect(() => {
+    setCurrentUrl(src);
+    if (!loaded) return;
+    const updateLocation = () => {
+      try {
+        const href = iframeRef.current?.contentWindow?.location.href;
+        if (href && href !== "about:blank") setCurrentUrl(href);
+      } catch {
+        return;
+      }
+    };
+    updateLocation();
+    const interval = window.setInterval(updateLocation, 1000);
+    return () => window.clearInterval(interval);
+  }, [loaded, src]);
+
   return (
-    <div className="relative mx-auto w-full">
-      <div aria-hidden className="pointer-events-none absolute -inset-12 -z-10">
-        <div className="absolute -left-8 top-0 size-[300px] rounded-full bg-foreground/5 blur-[70px]" />
+    <div data-live-preview className="not-prose relative mx-auto w-full max-w-live-preview">
+      <div ref={frameRef} className="overflow-hidden rounded-xl border border-border bg-card">
+        <div className="grid min-h-10 grid-cols-[1fr_auto] items-center gap-x-3 gap-y-1 border-b border-border px-4 py-2 sm:grid-cols-[1fr_minmax(0,2fr)_1fr]">
+          <div className="flex flex-wrap items-center gap-x-3 gap-y-1">
+            <span className="inline-flex items-center gap-2 font-mono text-[10px] font-medium tracking-[0.14em] uppercase">
+              <span aria-hidden className="size-1.5 animate-pulse rounded-full bg-success motion-reduce:animate-none" />
 
-        <div className="absolute -right-8 bottom-0 size-[280px] rounded-full bg-primary/10 blur-[60px]" />
-      </div>
-
-      <div
-        ref={frameRef}
-        className="relative overflow-hidden rounded-xl border border-border-strong bg-card shadow-xl shadow-black/10"
-      >
-        <div className="flex h-10 items-center gap-1.5 border-b border-border-strong bg-background px-4">
-          <span className="size-2.5 rounded-full bg-destructive" />
-
-          <span className="size-2.5 rounded-full bg-warning" />
-
-          <span className="size-2.5 rounded-full bg-success" />
-
-          <span className="flex flex-1 items-center justify-center gap-1.5 font-terminal text-[11px] text-foreground/70">
-            <span>
-              {/* eslint-disable-next-line react/jsx-newline */}
-              {hostname} · {t("BrowserFrame.live")}
+              {t("BrowserFrame.live")}
             </span>
-
-            <span aria-hidden className="relative inline-flex size-1.5">
-              <span className="absolute inset-0 animate-ping rounded-full bg-success opacity-75 motion-reduce:animate-none" />
-
-              <span className="relative size-1.5 rounded-full bg-success" />
-            </span>
-          </span>
+          </div>
 
           <a
-            className="flex items-center gap-1 text-[11px] font-medium text-foreground/75 hover:text-foreground hover:underline"
-            href={src}
+            className="col-span-2 row-start-2 min-w-0 truncate text-center font-mono text-[11px] text-muted-foreground hover:text-foreground hover:underline focus-visible:outline-2 focus-visible:outline-ring sm:col-span-1 sm:col-start-2 sm:row-start-1"
+            href={currentUrl}
+            rel="noreferrer noopener"
+            target="_blank"
+            title={currentUrl}
+          >
+            {(getOrigin(currentUrl) ?? currentUrl).replace(/^https?:\/\//u, "")}
+          </a>
+
+          <a
+            className="inline-flex justify-self-end shrink-0 items-center gap-1.5 rounded-sm text-xs font-medium text-muted-foreground hover:text-foreground focus-visible:outline-2 focus-visible:outline-ring"
+            href={currentUrl}
             rel="noreferrer noopener"
             target="_blank"
           >
             {t("BrowserFrame.open")}
 
-            <ArrowUpRight aria-hidden className="size-3" />
+            <ArrowUpRight aria-hidden className="size-3.5" />
           </a>
         </div>
 
@@ -149,6 +148,7 @@ export function BrowserFrame({ fallbackMessage, loadAhead = false, size = "full"
 
           {shouldMount ? (
             <iframe
+              ref={iframeRef}
               className={`block size-full border-0 bg-background transition-opacity duration-300 ${loaded ? "opacity-100" : "opacity-0"}`}
               loading={loadAhead ? "eager" : "lazy"}
               referrerPolicy="strict-origin-when-cross-origin"

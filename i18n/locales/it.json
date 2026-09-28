@@ -979,9 +979,9 @@
     "userInfoIsMissing": "Il provider non ha restituito il tuo profilo. Riprova."
   },
   "BrowserFrame": {
-    "live": "in diretta",
+    "live": "Anteprima dal vivo",
     "liveDemoTitle": "Demo live di Customermates",
-    "open": "Apri"
+    "open": "Apri in una nuova scheda"
   },
   "Common": {
     "actions": {
@@ -2518,7 +2518,7 @@
   "HomepageStatsRow": {
     "automationLabel": "Automazioni",
     "taglineMcp": "MCP",
-    "taglinePost": ". Automazioni tramite REST, webhook e la tua istanza n8n.",
+    "taglinePost": " o il browser. Automazioni tramite REST, webhook e la tua istanza n8n.",
     "taglinePre": "IA esterna tramite"
   },
   "Inbox": {
@@ -2805,6 +2805,7 @@
       "providerCursor": "Cursor",
       "providerGemini": "Gemini",
       "providerGmail": "Gmail",
+      "providerGrok": "Grok Bot",
       "providerImap": "E-mail / IMAP",
       "providerInstagram": "Instagram",
       "providerLinkedIn": "LinkedIn",
