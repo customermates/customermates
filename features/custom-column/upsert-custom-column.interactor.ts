@@ -10,6 +10,7 @@ import { Action, CustomColumnType, EntityType, Resource, Currency } from "@/gene
 import { type CustomColumnDto, CustomColumnDtoSchema } from "./custom-column.schema";
 
 import { DomainEvent } from "@/features/event/domain-events";
+import { dealStageWeightSchema } from "@/features/deals/deal-weighting";
 import { TenantInteractor } from "@/core/decorators/tenant-interactor.decorator";
 import { Write } from "@/core/decorators/write.decorator";
 import { BULK_WRITE_TRANSACTION } from "@/core/decorators/transaction.decorator";
@@ -31,10 +32,7 @@ export const OptionSchema = z.object({
   color: z.enum(CHIP_COLORS),
   isDefault: z.boolean(),
   index: z.number().min(0),
-  weight: z
-    .number()
-    .min(0)
-    .max(100)
+  weight: dealStageWeightSchema()
     .optional()
     .describe(
       "Win probability of this stage as a percentage, used only when the column is the company's deal weighting column. Changing it there also requires update permission on the company.",

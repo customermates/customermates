@@ -121,3 +121,33 @@ describe("DealDetailStore totals", () => {
     expect(store.weightedValueBreakdown?.weightedValue).toBe(50);
   });
 });
+
+describe("DealDetailStore empty service rows", () => {
+  it("sends the empty row to the server and shows the returned field error on that row", async () => {
+    const store = new DealDetailStore(rootStore(true));
+    store.hydrate(deal(), [stageColumn]);
+    dealActions.updateDealAction.mockReset();
+    dealActions.updateDealAction.mockResolvedValue({
+      ok: false,
+      error: {
+        errors: [],
+        properties: {
+          services: {
+            errors: [],
+            items: [undefined, { errors: [], properties: { serviceId: { errors: ["blank"] } } }],
+          },
+        },
+      },
+    });
+
+    store.addService();
+    await store.onSubmit();
+
+    expect(dealActions.updateDealAction.mock.calls[0][0].services).toEqual([
+      { serviceId: SERVICE_ID, quantity: 1 },
+      { serviceId: "", quantity: 1 },
+    ]);
+    expect(store.getError("services[1].serviceId")).toEqual(["blank"]);
+    expect(store.getError("services[0].serviceId")).toBeUndefined();
+  });
+});

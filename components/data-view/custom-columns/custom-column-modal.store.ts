@@ -1,16 +1,19 @@
 import type { FormEvent } from "react";
+import type { $ZodErrorTree } from "zod/v4/core";
 import type { UpsertCustomColumnData } from "@/features/custom-column/upsert-custom-column.interactor";
 import type { RootStore } from "@/core/stores/root.store";
 import type { CustomColumnOption, CustomColumnDto } from "@/features/custom-column/custom-column.schema";
 
 import { action, computed, makeObservable, observable, toJS } from "mobx";
 import { cloneDeep } from "lodash";
+import { z } from "zod";
 import { CustomColumnType, EntityType, Currency, Resource, Action } from "@/generated/prisma";
 
 import { type ChipColor } from "@/constants/chip-colors";
 import { type DateDisplayFormat } from "@/constants/date-format";
 import { deleteCustomColumnAction, upsertCustomColumnAction } from "@/app/actions";
 import { BaseModalStore } from "@/core/base/base-modal.store";
+import { dealStageWeightSchema } from "@/features/deals/deal-weighting";
 import { toastZodErrorTree } from "@/core/utils/toast-zod-error-tree";
 
 type OpenForCreateParams = {
@@ -287,6 +290,8 @@ export class CustomColumnModalStore extends BaseModalStore<UpsertCustomColumnDat
 
   onSubmit = async (event?: FormEvent<HTMLFormElement>) => {
     event?.preventDefault();
+    if (!this.validateOptionWeights()) return;
+
     this.setIsLoading(true);
 
     try {
@@ -438,5 +443,38 @@ export class CustomColumnModalStore extends BaseModalStore<UpsertCustomColumnDat
           },
         };
     }
+  }
+
+  protected override afterChange(id: string): void {
+    if (!/^options\.options\[\d+\]\.weight$/u.test(id)) return;
+
+    this.error = this.optionWeightErrors();
+  }
+
+  private optionWeightErrors(): $ZodErrorTree<UpsertCustomColumnData> | undefined {
+    if (this.form.type !== CustomColumnType.singleSelect) return undefined;
+
+    const error = this.t("Common.probabilityRange");
+    const result = z
+      .object({
+        options: z.object({
+          options: z.array(z.object({ weight: dealStageWeightSchema({ error }).optional() })),
+        }),
+      })
+      .safeParse({ options: this.form.options });
+
+    return result.success ? undefined : (z.treeifyError(result.error) as $ZodErrorTree<UpsertCustomColumnData>);
+  }
+
+  private validateOptionWeights(): boolean {
+    const errors = this.optionWeightErrors();
+
+    if (!errors) {
+      if (this.error) this.setError(undefined);
+      return true;
+    }
+
+    this.setError(errors);
+    return false;
   }
 }

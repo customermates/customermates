@@ -70,7 +70,7 @@ describe("shared table-of-contents scroll contract", () => {
     expect(tocSource).toContain("var(--toc-anchor-offset,0px)");
   });
 
-  it("keeps the compact article rail opt-in while preserving the default flex layout", () => {
+  it("keeps the compact article rail opt-in while giving the default layout fixed columns", () => {
     expect(tocSource).toContain('layout?: "article" | "default"');
     expect(tocSource).toContain('layout = "default"');
     expect(tocSource).toContain(
@@ -78,9 +78,16 @@ describe("shared table-of-contents scroll contract", () => {
     );
     expect(tocSource).toContain("lg:grid-cols-[minmax(0,96ch)_15rem]");
     expect(tocSource).toContain("lg:gap-6");
-    expect(tocSource).toContain(
-      'layout === "article" ? "lg:w-60" : "max-w-68"',
-    );
-    expect(tocSource).toContain('layout === "default" && "flex-1"');
+    expect(tocSource).toContain('layout === "article" && "lg:w-60"');
+  });
+
+  it("sizes the article column before the rail is parsed, so the page does not shift when it arrives", () => {
+    // The rail follows the whole article in DOM order. With a content-sized flex rail, a paint
+    // before the parser reached it laid the article out at full width, and the rail's arrival
+    // rewrapped everything: a desktop CLS of about 0.19 on /en/docs/mcp in two of six lab runs.
+    // Fixed grid tracks give the article its final width from the container alone.
+    expect(tocSource).toContain('"lg:grid lg:grid-cols-[minmax(0,1fr)_17rem] lg:gap-6"');
+    expect(tocSource).not.toMatch(/"flex gap-6"/u);
+    expect(tocSource).not.toContain("max-w-68");
   });
 });

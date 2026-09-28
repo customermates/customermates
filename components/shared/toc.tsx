@@ -24,20 +24,16 @@ export function Toc({ items, children, actions, asideFooter, layout = "default" 
         className={
           layout === "article"
             ? "text-sm lg:grid lg:grid-cols-[minmax(0,96ch)_15rem] lg:justify-center lg:gap-6"
-            : "flex gap-6"
+            : "lg:grid lg:grid-cols-[minmax(0,1fr)_17rem] lg:gap-6"
         }
       >
-        <div
-          className={cn("min-w-0 [&_[id]]:scroll-mt-[var(--toc-anchor-offset,0px)]", layout === "default" && "flex-1")}
-        >
-          {children}
-        </div>
+        <div className="min-w-0 [&_[id]]:scroll-mt-[var(--toc-anchor-offset,0px)]">{children}</div>
 
         <aside
           className={cn(
             "top-[var(--toc-sticky-top,0px)] min-h-0 shrink-0 self-start lg:flex lg:max-h-[calc(100svh-var(--toc-viewport-offset,0px)-var(--toc-sticky-top,0px))] lg:flex-col",
             hasMobileFooter ? "static mt-10 flex flex-col lg:sticky lg:mt-0" : "sticky hidden",
-            layout === "article" ? "lg:w-60" : "max-w-68",
+            layout === "article" && "lg:w-60",
           )}
         >
           {actions ? <div className="shrink-0 pt-3 pb-1">{actions}</div> : null}

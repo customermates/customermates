@@ -21,7 +21,7 @@ import { malformedRequestPathResponse } from "./core/api/request-path-error";
 import { SYNTHETIC_SEED_USER } from "./core/config/synthetic-seed-user";
 import { legacyHubPageRedirect } from "./core/seo/hub-pagination";
 import { LANDING_HUBS } from "./core/seo/landing-hubs";
-import { isMissingContentPage, type ContentSlugManifest } from "./core/seo/missing-content-page";
+import { NOT_FOUND_PAGE_PATH, isMissingContentPage, type ContentSlugManifest } from "./core/seo/missing-content-page";
 import contentSlugs from "./generated/content-slugs.json";
 import { SESSION_HINT_COOKIE_NAME, expiredSessionHintCookie, sessionHintCookie } from "./features/auth/session-hint";
 
@@ -113,7 +113,9 @@ function notFoundResponse(req: NextRequest, locale: string): NextResponse {
   const headers = new Headers(req.headers);
   headers.set(NEXT_INTL_LOCALE_HEADER, locale);
 
-  return NextResponse.rewrite(new URL("/_not-found", req.url), { request: { headers } });
+  return NextResponse.rewrite(new URL(buildLocalePath(locale, NOT_FOUND_PAGE_PATH), req.url), {
+    request: { headers },
+  });
 }
 
 function legacyHubPageResponse(req: NextRequest, locale: string, base: string | URL): NextResponse | null {
@@ -204,7 +206,7 @@ async function routePageRequest(
   const currentLocale = routingLocaleFromPathname(pathname);
 
   if (currentLocale === null) {
-    if (isUnsupportedLocalePrefix(pathname)) return NextResponse.rewrite(new URL("/_not-found", req.url));
+    if (isUnsupportedLocalePrefix(pathname)) return notFoundResponse(req, DEFAULT_LOCALE);
     return negotiateLocale(req, base, isAuthenticated && pathname === "/" ? "app" : "auto");
   }
 

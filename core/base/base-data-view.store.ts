@@ -1041,8 +1041,10 @@ export abstract class BaseDataViewStore<Entity extends HasId> extends BaseStore 
     };
   }
 
-  upsertItem = async (target: Entity): Promise<void> => {
+  upsertItem = async (target: Entity, options: { created?: boolean } = {}): Promise<void> => {
+    const isLoaded = this.items.some(({ id }) => id === target.id);
     this.upsertItemLocal(target);
+    if (options.created && !isLoaded) this.adjustPaginationTotal(1);
     this.requestGeneration += 1;
     if (this.requestState.status !== "uninitialized") this.requestState = { status: "ready" };
     if (this.entityType) this.rootStore.activityTimelines.refreshForMany(this.entityType, [target.id]);
@@ -1062,12 +1064,24 @@ export abstract class BaseDataViewStore<Entity extends HasId> extends BaseStore 
   removeItem = async (targetId: string): Promise<void> => {
     const items = this.items.filter(({ id: sourceId }) => sourceId !== targetId);
 
+    if (items.length < this.items.length) this.adjustPaginationTotal(-1);
     this.items = items;
     this.requestGeneration += 1;
     if (this.requestState.status !== "uninitialized") this.requestState = { status: "ready" };
     if (this.entityType) this.rootStore.activityTimelines.refreshForMany(this.entityType, [targetId]);
     await this.executeOnChanges();
   };
+
+  private adjustPaginationTotal(delta: number): void {
+    if (this.pagination?.total === undefined) return;
+
+    const total = Math.max(0, this.pagination.total + delta);
+    this.pagination = {
+      ...this.pagination,
+      total,
+      totalPages: Math.max(1, Math.ceil(total / this.pagination.pageSize)),
+    };
+  }
 
   registerOnChange = (callback: () => void | Promise<void>): (() => void) => {
     this.onChangesCallbacks.push(callback);
