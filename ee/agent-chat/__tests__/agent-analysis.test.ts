@@ -64,7 +64,7 @@ function listTool(name: string, rows: number, text?: string) {
     name,
     title: name,
     description: name,
-    annotations: { readOnlyHint: true },
+    annotations: { readOnlyHint: true, openWorldHint: false },
     inputSchema: z.object({
       page: z.number().default(1),
       pageSize: z.number().default(25),
@@ -79,7 +79,7 @@ const detail: McpTool = {
   name: "get_detail",
   title: "detail",
   description: "detail",
-  annotations: { readOnlyHint: true },
+  annotations: { readOnlyHint: true, openWorldHint: false },
   inputSchema: z.object({ id: z.string() }),
   execute: (({ id }: { id: string }) => ({ text: id, structuredContent: { id, notes: "kept" } })) as never,
 };
@@ -156,7 +156,7 @@ describe("analyze_records", () => {
       name: "list_records",
       title: "list",
       description: "list",
-      annotations: { readOnlyHint: true },
+      annotations: { readOnlyHint: true, openWorldHint: false },
       inputSchema: z.object({
         page: z.number().default(1),
         pageSize: z.number().default(25),
@@ -177,7 +177,7 @@ describe("analyze_records", () => {
       name: "get_messaging_threads",
       title: "threads",
       description: "threads",
-      annotations: { readOnlyHint: true },
+      annotations: { readOnlyHint: true, openWorldHint: false },
       inputSchema: z.object({
         threadId: z.string().optional(),
         page: z.number().default(1),
@@ -220,11 +220,31 @@ describe("analyze_records", () => {
         deps(tool, writer),
       );
       expect(outcome.ok).toBe(false);
-      expect(outcome.result).toContain(`${name} is not a read-only tool`);
+      expect(outcome.result).toContain(`${name} is not a read-only workspace tool`);
       expect(outcome.result).toContain("Readable tools: list_things.");
     }
     expect(execute).not.toHaveBeenCalled();
     expect(writeExecute).not.toHaveBeenCalled();
+  });
+
+  it("refuses a read-only tool that reaches outside the workspace, such as a LinkedIn or social provider search", async () => {
+    const { tool, execute } = listTool("list_things", 3);
+    const outside: McpTool = {
+      ...tool,
+      name: "linkedin_search_sales_leads",
+      annotations: { readOnlyHint: true, openWorldHint: true },
+    };
+    const unannotated: McpTool = { ...tool, name: "get_unmarked", annotations: { readOnlyHint: true } };
+    for (const name of [outside.name, unannotated.name]) {
+      const outcome = await analyzeRecords(
+        { reads: [read("list_things"), read(name)], code: "() => 1" },
+        deps(tool, outside, unannotated),
+      );
+      expect(outcome.ok).toBe(false);
+      expect(outcome.result).toContain(`${name} is not a read-only workspace tool`);
+      expect(outcome.result).toContain("Readable tools: list_things.");
+    }
+    expect(execute).not.toHaveBeenCalled();
   });
 
   it("refuses a set larger than 10,000 rows instead of computing over part of it", async () => {
@@ -280,7 +300,7 @@ describe("analyze_records", () => {
     name,
     title: name,
     description: name,
-    annotations: { readOnlyHint: true },
+    annotations: { readOnlyHint: true, openWorldHint: false },
     inputSchema: z.object({ page: z.number().default(1), pageSize: z.number().default(25) }),
     execute: (({ page, pageSize }: { page: number; pageSize: number }) => {
       const payload = { ...content, page, pageSize };
@@ -423,7 +443,9 @@ describe("analyze_records", () => {
     expect(AnalyzeRecordsSchema.safeParse({ reads: reads(11), code: "() => 1" }).success).toBe(false);
     expect(ANALYSIS_MAX_READS).toBe(10);
     expect(ANALYSIS_MAX_ROWS).toBe(10_000);
-    expect(ANALYZE_RECORDS_DESCRIPTION).toContain("up to 10 read-only tool calls");
+    expect(ANALYZE_RECORDS_DESCRIPTION).toContain(
+      "up to 10 read-only workspace tool calls (never LinkedIn or social provider tools)",
+    );
     expect(ANALYZE_RECORDS_DESCRIPTION).toContain("up to 10,000 rows and 8 MB in total");
     expect(AnalyzeRecordsSchema.shape.reads.description).toMatch(/^One to 10 reads/);
   });
@@ -751,7 +773,7 @@ describe("analyze_records on a read that holds only part of its rows", () => {
       name,
       title: name,
       description: name,
-      annotations: { readOnlyHint: true },
+      annotations: { readOnlyHint: true, openWorldHint: false },
       inputSchema: z.object(shape),
       execute: execute as never,
     };
@@ -903,41 +925,25 @@ describe("analyze_records on a read that holds only part of its rows", () => {
       });
     });
 
-    it("refuses the post reactions a provider caps at 50 a page when it counts none", async () => {
-      const reactors = (from: number, count: number) =>
-        Array.from({ length: count }, (_, index) => ({
-          value: "LIKE",
-          sender: { id: `person-${from + index}`, display_name: `Person ${from + index}` },
-        }));
-      const reactions = (rows: number) => (input: { offset?: number }) => {
-        const offset = input.offset ?? 0;
-        return Promise.resolve({
-          ok: true,
-          data: { data: reactors(offset, Math.max(0, Math.min(50, rows - offset))) },
-        });
-      };
-      const input = {
-        connectedAccountId: "00000000-0000-4000-8000-000000000001",
-        postId: "post-1",
-        kind: "reactions",
-        limit: 100,
-      };
+    it("never calls the real social engagement tool, which reaches a provider outside the workspace", async () => {
       const engagement = {
-        reads: [read(getSocialPostEngagementTool.name, input)],
-        code: "(data) => ({ total: data[0].total, reactors: new Set(data[0].items.map((item) => item.sender.id)).size })",
+        reads: [
+          read(getSocialPostEngagementTool.name, {
+            connectedAccountId: "00000000-0000-4000-8000-000000000001",
+            postId: "post-1",
+            kind: "reactions",
+            limit: 100,
+          }),
+        ],
+        code: "(data) => data[0].items.length",
       };
 
-      listed.reactions.mockImplementation(reactions(180));
-      await expect(analyzeRecords(engagement, deps(getSocialPostEngagementTool))).resolves.toEqual(
-        pageThrough(getSocialPostEngagementTool.name, 50),
-      );
-      expect(listed.reactions).toHaveBeenLastCalledWith(expect.objectContaining({ offset: 50, limit: 100 }));
-
-      listed.reactions.mockImplementation(reactions(50));
+      expect(getSocialPostEngagementTool.annotations.openWorldHint).toBe(true);
       await expect(analyzeRecords(engagement, deps(getSocialPostEngagementTool))).resolves.toEqual({
-        ok: true,
-        result: JSON.stringify({ rowsRead: 0, result: { total: 50, reactors: 50 } }),
+        ok: false,
+        result: `${getSocialPostEngagementTool.name} is not a read-only workspace tool this analysis can call. Nothing was run. Readable tools: .`,
       });
+      expect(listed.reactions).not.toHaveBeenCalled();
     });
 
     it("refuses a read that starts past the first page before it runs", async () => {
@@ -1082,7 +1088,7 @@ describe("analyze_records on a read that holds only part of its rows", () => {
       name: "get_activities",
       title: "activities",
       description: "activities",
-      annotations: { readOnlyHint: true },
+      annotations: { readOnlyHint: true, openWorldHint: false },
       inputSchema: z.object({ page: z.number().default(1), pageSize: z.number().default(25) }),
       execute: execute as never,
     };
@@ -1139,7 +1145,7 @@ describe("analyze_records on a read that holds only part of its rows", () => {
       name: "get_activities",
       title: "activities",
       description: "activities",
-      annotations: { readOnlyHint: true },
+      annotations: { readOnlyHint: true, openWorldHint: false },
       inputSchema: z.object({ page: z.number().default(1), pageSize: z.number().default(25) }),
       execute: execute as never,
     };

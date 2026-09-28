@@ -262,6 +262,9 @@ describe("analysis isolate", () => {
       "var normalize = function (n) { return n; }; (data) => data.length",
       "(data) => { const total = ; return total; }",
       "const run = (data) => data.length; run",
+      "sideEffect(), (data) => data.length",
+      "globalThis.leak = 1, (data) => data.length",
+      "(data) => data.length, 1",
     ]) {
       const outcome = await runAnalysisCode(code, "[1]", RESULT_MAX_CHARS);
       expect(outcome.ok).toBe(false);
@@ -275,6 +278,12 @@ describe("analysis isolate", () => {
     await expect(runAnalysisCode('() => JSON.parse("{")', "[1]", RESULT_MAX_CHARS)).resolves.toMatchObject({
       ok: false,
       error: expect.stringMatching(/^The analysis code failed: /),
+    });
+    await expect(runAnalysisCode("(data) => [data.length, 2]", "[1, 2]", RESULT_MAX_CHARS)).resolves.toMatchObject({
+      ok: true,
+    });
+    await expect(runAnalysisCode("async (data) => data.length", "[1, 2]", RESULT_MAX_CHARS)).resolves.toMatchObject({
+      ok: true,
     });
     await expect(runAnalysisCode("data => data.length", "[1, 2]", RESULT_MAX_CHARS)).resolves.toEqual({
       ok: true,
@@ -436,7 +445,10 @@ describe("analysis isolate", () => {
 
   it("checks that the code parses without running it", async () => {
     await expect(checkAnalysisCode("(data) => data.length;")).resolves.toBeNull();
-    await expect(checkAnalysisCode("(() => { for (;;) {} })(), (data) => 1")).resolves.toBeNull();
+    await expect(checkAnalysisCode("(data) => { for (;;) {} }")).resolves.toBeNull();
+    await expect(checkAnalysisCode("(() => { for (;;) {} })(), (data) => 1")).resolves.toMatch(
+      /^The analysis code does not parse as one function expression \(.+\)\./,
+    );
     await expect(checkAnalysisCode("const run = (data) => data.length; run")).resolves.toMatch(
       /^The analysis code does not parse as one function expression \(.+\)\. Write it as \(data\) => \{ \.\.\.; return result; \} and declare any helper functions inside it\.$/,
     );

@@ -100,6 +100,7 @@ const ANALYSIS_WORKER_SOURCE = `(async () => {
   const compileExpression = (code) => {
     const bytecode = compiler.compile("(\\n" + code + "\\n)", "analysis.js");
     compiler.compile("[\\n" + code + "\\n]", "analysis.js");
+    compiler.compile("(single = \\n" + code + "\\n) => single", "analysis.js");
     return bytecode;
   };
   const tryCompile = (code) => {

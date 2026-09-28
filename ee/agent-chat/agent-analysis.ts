@@ -17,7 +17,10 @@ export const AnalyzeRecordsSchema = z.object({
   reads: z
     .array(
       z.object({
-        tool: z.string().min(1).describe("A read-only tool, for example list_records or get_messaging_threads"),
+        tool: z
+          .string()
+          .min(1)
+          .describe("A read-only workspace tool, for example list_records or get_messaging_threads"),
         input: z
           .union([z.record(z.string(), z.unknown()), z.string()])
           .optional()
@@ -44,7 +47,7 @@ type AnalyzeRecordsInput = z.infer<typeof AnalyzeRecordsSchema>;
 
 export const ANALYZE_RECORDS_DESCRIPTION =
   "Use this when an answer needs arithmetic over many records that no filter or sum expresses: a median, a ranking with a tie-break, a per-record ratio, normalized duplicates, a join across two entity types, or counting rows by a field the list returns. " +
-  `It runs up to ${ANALYSIS_MAX_READS} read-only tool calls, collects every page of each list (up to 10,000 rows and 8 MB in total, never a truncated set), and passes the results to your JavaScript function (data) => result, which runs in an isolated sandbox with no network, clock or tools. ` +
+  `It runs up to ${ANALYSIS_MAX_READS} read-only workspace tool calls (never LinkedIn or social provider tools), collects every page of each list (up to 10,000 rows and 8 MB in total, never a truncated set), and passes the results to your JavaScript function (data) => result, which runs in an isolated sandbox with no network, clock or tools. ` +
   "The function may be async, but there is nothing to await: tools cannot be called from the code, so every read goes in reads. " +
   "data[i] is reads[i]'s structured result; list results carry total and items across all pages. " +
   "In an analysis a list_records item carries id, name, userIds (its owners), the ids of its linked records (such as dealIds and taskIds), customFieldValues [{columnId, value}], createdAt and updatedAt, and for deals totalValue, totalQuantity and weightedValue, which is missing when the stage has no win probability. Pass include: [] on a list read that needs only id, name and the deal totals. " +
@@ -298,7 +301,11 @@ export async function analyzeRecords(
   input: AnalyzeRecordsInput,
   deps: AnalysisDeps,
 ): Promise<{ ok: boolean; result: string }> {
-  const readable = new Map(deps.tools.filter((mcp) => isReadOnlyTool(mcp)).map((mcp) => [mcp.name, mcp]));
+  const readable = new Map(
+    deps.tools
+      .filter((mcp) => isReadOnlyTool(mcp) && mcp.annotations?.openWorldHint === false)
+      .map((mcp) => [mcp.name, mcp]),
+  );
   const readableTools = `Readable tools: ${[...readable.keys()].sort().join(", ")}.`;
   const planned: { read: Read; mcp: McpTool }[] = [];
   for (const read of input.reads) {
@@ -306,7 +313,7 @@ export async function analyzeRecords(
     if (!mcp) {
       return {
         ok: false,
-        result: `${read.tool} is not a read-only tool this analysis can call. Nothing was run. ${readableTools}`,
+        result: `${read.tool} is not a read-only workspace tool this analysis can call. Nothing was run. ${readableTools}`,
       };
     }
     planned.push({ read, mcp });
