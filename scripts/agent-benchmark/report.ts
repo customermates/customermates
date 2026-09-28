@@ -17,14 +17,6 @@ export function benchmarkReportDirectoryName(
   return `${date}-${label}-${campaignId.slice(0, 8)}`;
 }
 
-/**
- * Where an offline analysis of a campaign keeps its caches. It sits beside the campaign's artifact folder, never
- * inside it: every `.json` under `.runs/<campaign>` counts as an episode for `judge` and `report`.
- */
-export function campaignAnalysisDirectory(runsDirectory: string, campaignId: string, analysis: string) {
-  return join(runsDirectory, `${campaignId}.analysis`, analysis);
-}
-
 export type ArmSummary = {
   arm: string;
   label: string;

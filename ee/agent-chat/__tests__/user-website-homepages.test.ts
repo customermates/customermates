@@ -1,6 +1,6 @@
 import { describe, expect, it } from "vitest";
 
-import { userWebsiteHomepage, userWebsiteHomepages } from "../public-page-read-state";
+import { userWebsiteHomepage, userWebsiteHomepages } from "../user-website-homepages";
 
 describe("user-supplied website homepages", () => {
   it("extracts canonical homepages from what the user typed", () => {

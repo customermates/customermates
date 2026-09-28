@@ -52,7 +52,7 @@ import {
   agentWebSourcesFooter,
   collectAgentWebSources,
 } from "@/ee/agent-chat/agent-web-search";
-import { userWebsiteHomepage } from "@/ee/agent-chat/public-page-read-state";
+import { userWebsiteHomepage } from "@/ee/agent-chat/user-website-homepages";
 import { buildAgentUsageSettlement, usageToTokenCounts } from "@/ee/agent-chat/agent-usage-settlement";
 import { computeCostMicrocents } from "@/ee/agent-chat/model-pricing";
 import { agentCreditsForStartedProviderCost } from "@/ee/agent-chat/agent-credit-policy";

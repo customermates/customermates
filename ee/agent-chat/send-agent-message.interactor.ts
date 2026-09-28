@@ -60,7 +60,7 @@ import { AppErrorCode, appErrorDetails } from "@/core/errors/app-errors";
 import { agentWebSearchReserveCredits } from "./agent-budget-policy";
 import { agentWebSearchCallLimit } from "./agent-web-search";
 import { serializeAgentWikiCatalog } from "./agent-wiki-context";
-import { userWebsiteHomepages } from "./public-page-read-state";
+import { userWebsiteHomepages } from "./user-website-homepages";
 
 type AdmittedAgentRun = { disposition: "run"; externalRunId: string } & Omit<AgentRunContext, "appBaseUrl">;
 type AgentInvocationMode = "interactive" | "routine";

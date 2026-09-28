@@ -2193,7 +2193,7 @@ describe("agent-turn authoritative tool inputs", () => {
     expect(state.execute).not.toHaveBeenCalled();
   });
 
-  it("runs an analysis without approval and never refuses it as a write, even beside an ambiguous name", async () => {
+  it("runs an analysis without approval and never refuses it as a write, even while the searched name matches two deals", async () => {
     define("list_records");
     define("analyze_records");
     const nova = "11111111-1111-4111-8111-111111111111";

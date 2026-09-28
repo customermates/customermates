@@ -1,6 +1,6 @@
-import { mkdtemp, mkdir, readdir, writeFile } from "node:fs/promises";
+import { mkdtemp, mkdir, writeFile } from "node:fs/promises";
 import { tmpdir } from "node:os";
-import { join, relative } from "node:path";
+import { join } from "node:path";
 
 import { describe, expect, it } from "vitest";
 
@@ -13,7 +13,6 @@ import { JUDGE_MODELS, type JudgeScore, type JudgeVerdict } from "../judge";
 import {
   benchmarkReportDirectoryName,
   buildReport,
-  campaignAnalysisDirectory,
   isEpisodeArtifactFileName,
   persistMergeCheckSummary,
   renderReport,
@@ -116,22 +115,6 @@ describe("benchmark report", () => {
     expect(isEpisodeArtifactFileName("merge-check.json")).toBe(false);
     expect(isEpisodeArtifactFileName("arms-verified.json")).toBe(false);
     expect(isEpisodeArtifactFileName("notes.md")).toBe(false);
-  });
-
-  it("keeps analysis caches out of the campaign's episode folder", async () => {
-    const runs = await mkdtemp(join(tmpdir(), "agent-benchmark-runs-"));
-    const campaignId = "12345678-1234-4000-8000-000000000001";
-    const cacheDir = campaignAnalysisDirectory(runs, campaignId, "heldout-live");
-    // A verdict cache is named like an episode, so judge and report would read it if it sat in the campaign folder.
-    expect(isEpisodeArtifactFileName("docs-fact-verdicts.json")).toBe(true);
-    expect(relative(join(runs, campaignId), cacheDir).startsWith("..")).toBe(true);
-
-    await mkdir(join(runs, campaignId, "off", "shipped"), { recursive: true });
-    await writeFile(join(runs, campaignId, "off", "shipped", "S1-r1.json"), "{}");
-    await mkdir(cacheDir, { recursive: true });
-    await writeFile(join(cacheDir, "docs-fact-verdicts.json"), "{}");
-    const inCampaign = (await readdir(join(runs, campaignId), { recursive: true })).filter((path) => path.endsWith(".json"));
-    expect(inCampaign).toEqual([join("off", "shipped", "S1-r1.json")]);
   });
 
   it("aggregates artifacts, compares against the shipped arm and applies the selection rule", async () => {
