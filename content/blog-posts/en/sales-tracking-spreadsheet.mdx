@@ -1,10 +1,10 @@
 ---
-title: "Sales Tracking Spreadsheet: Free Template + 5 Move Signals"
-description: "Free sales tracking spreadsheet for Excel and Google Sheets, plus the five honest signals that say it is time to move from a sheet to a real sales CRM in 2026."
+title: "Sales Tracking Spreadsheet: Free Template and Rep Tracker"
+description: "Spreadsheet sales tracking that works: a free Excel and Google Sheets template, a sales rep tracking sheet with formulas, and the signs you have outgrown it."
 
 hero:
-  title: "Sales Tracking Spreadsheet: Free Template + When to Stop Using It"
-  description: A practical sales tracking spreadsheet template with the columns that matter, plus the five signals that say you have outgrown it.
+  title: "Sales Tracking Spreadsheet: Free Template and Rep Tracking Sheet"
+  description: A practical sales tracking spreadsheet with the columns that matter, a per-rep tracking sheet for activity and pipeline, the formulas that make both useful, and the five signals that say you have outgrown them.
 
 blogPost:
   author: Benjamin Wagner
@@ -19,13 +19,13 @@ blogPost:
     - Sales Pipeline
 ---
 
-# Sales Tracking Spreadsheet: Free Template + When to Stop Using It
+# Sales Tracking Spreadsheet: Free Template and Rep Tracking Sheet
 
-A sales tracking spreadsheet is the right answer until it isn't. For solo founders and tiny teams, a well-structured Google Sheet beats every CRM on simplicity, cost, and getting started. The mistake is using one for too long. The [Google Sheets template gallery](https://docs.google.com/spreadsheets/u/0/?ftv=1&tgif=d) and [Microsoft Excel template gallery](https://create.microsoft.com/en-us/templates/excel) both include sales-tracking starters worth knowing about, though they are usually overbuilt for what you actually need.
+Spreadsheet sales tracking is the right answer until it isn't. For solo founders and tiny teams, a well-structured Google Sheet beats every CRM on simplicity, cost, and getting started. The mistake is using one for too long. The [Google Sheets template gallery](https://docs.google.com/spreadsheets/u/0/?ftv=1&tgif=d) and [Microsoft Excel template gallery](https://create.microsoft.com/en-us/templates/excel) both include sales-tracking starters worth knowing about, though they are usually overbuilt for what you actually need.
 
 I run Customermates, a CRM that gets sold to teams who outgrew their spreadsheet six months too late. I have watched the same pattern dozens of times: the founder says "we just track in a sheet," nobody updates it, deals fall through cracks, and the team runs out of memory of what was promised to whom.
 
-This post is the spreadsheet template I would actually use, the columns that matter, and the five signals that say it is time to stop.
+This post is the spreadsheet template I would actually use: the deal columns that matter, a [sales rep tracking sheet](#sales-rep-tracking-sheet-one-row-per-rep-per-week) for managers who need to see each rep's activity and pipeline, the formulas that tie them together, and the five signals that say it is time to stop.
 
 ## What a sales tracking spreadsheet actually needs
 
@@ -55,7 +55,7 @@ A working setup has two sheets in the same workbook:
 
 **Sheet 1: Deals.** The eleven columns above, one row per deal. Sortable by Stage, Owner, Expected close.
 
-**Sheet 2: Activities.** Date, Deal (lookup to Sheet 1), Type (Call/Email/Meeting), Notes (1-2 sentences). One row per activity.
+**Sheet 2: Activities.** Date, Deal (lookup to Sheet 1), Owner (which rep), Type (Call/Email/Meeting), Notes (1-2 sentences). One row per activity.
 
 This separation matters. Without it, your "Deals" sheet becomes a mess of activity history and pipeline state mixed together. With it, you can answer two distinct questions: "what's in the pipeline?" (Deals) and "what did we do this week?" (Activities).
 
@@ -72,7 +72,7 @@ Deal Name | Company | Contact | Email | Stage | Amount (€) | Probability % | E
 **Sheet 2 (Activities):**
 
 ```
-Date | Deal Name | Type | Notes
+Date | Deal Name | Owner | Type | Notes
 ```
 
 Add a dropdown on Stage column with values: Lead, Qualified, Proposal, Negotiation, Closed Won, Closed Lost.
@@ -81,6 +81,25 @@ Add a dropdown on Type column: Call, Email, Meeting, Demo, Note.
 Conditional formatting on Stage (color by stage) and on Last Activity (red if older than 14 days). Pivot table on Deals by Stage for a basic pipeline view.
 
 That setup takes 30 minutes to build and is more useful than 80% of the templates I see floating around.
+
+## Sales rep tracking sheet: one row per rep per week
+
+Once two or more people sell, a manager needs a third tab: a sales rep tracking sheet. It answers "who did what this week, and what did it produce?" without anyone writing a status report.
+
+**Sheet 3 (Reps):** one row per rep per week.
+
+```
+Week Starting | Rep | Calls | Emails | Meetings | New Deals | Pipeline Value (€) | Weighted Pipeline (€) | Won (€) | Stale Deals
+```
+
+Fill it from the other two sheets rather than by hand, so the numbers cannot drift:
+
+- **Calls, Emails, Meetings:** `=COUNTIFS(Activities!Owner, Rep, Activities!Type, "Call", Activities!Date, ">="&WeekStart, Activities!Date, "<"&WeekStart+7)`, and the same with "Email" and "Meeting".
+- **Pipeline Value:** `=SUMIFS(Deals!Amount, Deals!Owner, Rep, Deals!Stage, "<>Closed Won", Deals!Stage, "<>Closed Lost")`.
+- **Weighted Pipeline:** the same `SUMIFS` over the weighted helper column described below.
+- **Stale Deals:** `=COUNTIFS(Deals!Owner, Rep, Deals!DaysSinceActivity, ">14")`.
+
+Review the Reps sheet once a week. Rising activity with a flat pipeline points to a qualification problem; a growing stale-deal count points to a follow-up problem. Keep the per-rep sheet for coaching, not for ranking people publicly, or the activity counts start getting padded.
 
 ## Formulas and structure that make the sheet useful
 
@@ -175,7 +194,7 @@ A composite case from teams I've worked with, drawn to make the transition timin
 
 **Month 10 (the trigger event).** The third missed follow-up costs a real customer relationship. The team commits to a CRM evaluation in week 41.
 
-**Month 11-12 (transition).** Pick a CRM with a clear CSV migration path: Pipedrive and HubSpot import files; for [Customermates](/), prepare the CSV and load supported records through REST or MCP. Migration effort depends on data quality, mapping, and validation. Expect an adoption period while the team learns the new CRM interface.
+**Month 11-12 (transition).** Pick a CRM with a clear spreadsheet migration path: Pipedrive and HubSpot import files; [Customermates](/) imports Excel workbooks (`.xlsx`, not CSV) one record type at a time, and REST or MCP cover scripted loads. Migration effort depends on data quality, mapping, and validation. Expect an adoption period while the team learns the new CRM interface.
 
 The pattern: **most teams transition 2-3 months later than they should.** The spreadsheet feels like it works because failure modes are silent (missed deals don't announce themselves). The CRM is louder, which is part of why it works better.
 
@@ -204,7 +223,7 @@ If you are running a real B2B business with multiple people in sales conversatio
 
 If you are starting today: build the spreadsheet template above (30 minutes), use it for 4-12 weeks. Watch for the five signals.
 
-When two of the five signals fire, move. Pick a CRM with a clear CSV migration path: Pipedrive and HubSpot import files; for [Customermates](/), prepare the CSV and load supported records through REST or MCP. Avoid Salesforce for small teams.
+When two of the five signals fire, move. Pick a CRM that imports your sheet without a consultant: Pipedrive and HubSpot import spreadsheet files, and [Customermates](/) imports XLSX workbooks one record type at a time (organizations, contacts, then deals). Avoid Salesforce for small teams. If you want to keep going in a sheet a little longer, the [Google Sheets CRM guide](/blog/google-sheets-crm) and the [Excel CRM template](/blog/excel-crm-template) show how far a spreadsheet can stretch.
 
 The spreadsheet is a starter. It is supposed to get replaced. Treat it that way and you will move at the right time.
 
@@ -217,6 +236,10 @@ For solo founders and 2-3 person teams with under 50 active deals, yes. Past tha
 
 <FaqItem question="What is the best free sales tracking template?">
 Build your own with the eleven columns listed above. Most public templates over-engineer with columns nobody updates. The minimal one fits one screen and stays useful.
+</FaqItem>
+
+<FaqItem question="What should a sales rep tracking sheet include?">
+One row per rep per week with calls, emails, meetings, new deals, open pipeline value, weighted pipeline, revenue won and the number of deals without activity for 14 days. Calculate the columns from your deals and activities sheets with COUNTIFS and SUMIFS instead of typing them, so reps cannot drift from the real data.
 </FaqItem>
 
 <FaqItem question="Should I use Excel or Google Sheets for sales tracking?">

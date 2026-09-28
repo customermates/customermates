@@ -1883,6 +1883,14 @@
   "ContactPage": {
     "description": "Hai una domanda, vuoi una dimostrazione o stai valutando una collaborazione? Scrivimi e ti rispondo entro un giorno.",
     "form": {
+      "errors": {
+        "checkFields": "Controlla i campi evidenziati.",
+        "company": "Il nome dell’azienda deve avere meno di 200 caratteri.",
+        "email": "Inserisci un indirizzo email valido.",
+        "messageTooLong": "Il messaggio deve avere meno di 5000 caratteri.",
+        "messageTooShort": "Scrivi almeno 10 caratteri.",
+        "name": "Inserisci il tuo nome."
+      },
       "founderName": "Benjamin Wagner",
       "founderNote": "Il tuo messaggio arriva direttamente a me. Dimmi cosa usi oggi e dove il flusso di lavoro si blocca.",
       "founderRole": "Fondatore di Customermates",
@@ -2831,6 +2839,7 @@
   "NotFoundPage": {
     "body": "Siamo stati avvisati automaticamente che questa pagina è andata in vacanza. La rintracceremo e la riporteremo presto qui!",
     "ctaLabel": "Torna alla home",
+    "documentTitle": "Pagina non trovata | Customermates",
     "subtitle": "Questa pagina è andata in vacanza senza avvisarci",
     "title": "Ops! Sei finito nel vuoto"
   },

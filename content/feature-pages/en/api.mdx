@@ -46,17 +46,17 @@ Customermates provides a versioned REST API for documented CRM resources and ope
 
 **OpenAPI specification.** The API is documented with a complete OpenAPI 3.1 specification, available at `/api/v1/openapi`. Import the spec into Postman, Insomnia, or any API client to explore endpoints interactively. Use the spec to auto-generate client libraries in any programming language.
 
-**MCP endpoint for supported external AI clients.** Customermates exposes [[derived.mcp.tools.total]] MCP tools for allowed CRM and messaging operations, authenticated by API key or OAuth bearer token depending on the client flow. Supported clients such as Claude, ChatGPT, or Gemini remain external; Customermates includes neither the client nor an AI model.
+**MCP endpoint for supported external AI clients.** Customermates exposes [[derived.mcp.tools.total]] MCP tools for allowed CRM and messaging operations, authenticated by API key or OAuth bearer token depending on the client flow. Supported clients such as Claude, ChatGPT, or Gemini remain external and run on the model and subscription you choose; the hosted Mate assistant is a separate cloud feature.
 
 **Filtering, sorting, and pagination.** Use the supported filter and sort parameters for each resource. Multiple user-facing filter conditions combine with AND, and generic list endpoints use `page` and `pageSize`; top-level OR and cursor pagination are not supported.
 
-**Authentication via API keys.** Authenticate API requests using secure API keys generated from your account settings. Keys can be created and revoked at any time. Each key inherits the permissions of the user who created it, ensuring that API access respects your existing role-based access control.
+**Authentication via API keys.** Authenticate API requests using secure API keys generated from your account settings. Keys can be created and revoked at any time. Each key inherits the permissions of the user who created it, ensuring that API access respects your existing role-based access control. The [API keys guide](/docs/api-keys) shows how to create, rotate, and delete a key.
 
-**Webhooks for real-time event streaming.** Configure webhooks to receive real-time HTTP POST notifications when events occur in your CRM. Customermates emits [[derived.webhooks.events.total]] webhook events: [[derived.webhooks.events.records]] record events (created, updated, and deleted for each of the five entities: contacts, organizations, deals, services, tasks) plus [[derived.webhooks.events.messaging]] messaging and calendar events. Any of them can trigger a delivery to a URL you specify. Webhooks include retry logic with exponential backoff for failed deliveries.
+**Webhooks for real-time event streaming.** Configure webhooks to receive real-time HTTP POST notifications when events occur in your CRM. Customermates emits [[derived.webhooks.events.total]] webhook events: [[derived.webhooks.events.records]] record events (created, updated, and deleted for each of the five entities: contacts, organizations, deals, services, tasks) plus [[derived.webhooks.events.messaging]] messaging and calendar events. Any of them can trigger a delivery to a URL you specify. Webhooks include retry logic with exponential backoff for failed deliveries. Every event payload is listed in [Webhooks](/docs/webhooks), and the [My Company guide](/docs/app-company) covers where admins create webhooks and inspect deliveries.
 
 **Supported custom-field access.** Read or write custom-field values only where the documented resource and operation expose them. Treat the current OpenAPI document, field types, and validation responses as the integration contract.
 
-**Large data operations through integrations.** Customermates has no built-in CSV importer, exporter, or generic batch endpoint. A customer-run integration can create or update supported records through documented API calls and owns batching, validation, mapping, deduplication, and retries.
+**Large data operations through integrations.** In the app, each record type can be imported and exported as an XLSX workbook, scoped to permissions and the current view and row-capped; there is no CSV and no generic batch endpoint. For larger or recurring loads, a customer-run integration can create or update supported records through documented API calls and owns batching, validation, mapping, deduplication, and retries.
 
 **Endpoint behavior.** Follow the current API documentation and responses when planning throughput and retries. Customermates does not publish a generic application rate-limit quota or rate-limit headers for this API surface.
 
@@ -84,9 +84,9 @@ Customermates provides a versioned REST API for documented CRM resources and ope
 
 **Website and form integration.** When a visitor submits an external form, use the API to create supported CRM records. Map form fields to supported CRM fields; calculate lead scores or routing in the external integration, then write approved values back where the documented API permits.
 
-**Data migration from other CRMs.** Prepare and map source data outside Customermates, then create supported records through a customer-run API integration. There is no built-in import workflow; your integration owns batching, validation, field mapping, deduplication, and transformation.
+**Data migration from other CRMs.** Prepare and map source data outside Customermates, then create supported records through a customer-run API integration. For smaller moves, the in-app XLSX import handles one record type at a time within row limits; for anything larger, your integration owns batching, validation, field mapping, deduplication, and transformation.
 
-**ERP and accounting system sync.** Sync deal data with your ERP or accounting software. When a deal is won, push invoice data to your billing system. When a payment is received, update the deal status in the CRM. Two-way sync keeps both systems accurate.
+**ERP and accounting system sync.** Sync deal data with your ERP or accounting software. When a deal is won, push invoice data to your billing system. When a payment is received, update the deal stage or a custom field in the CRM. A two-way integration you build and operate keeps both systems aligned.
 
 **Webhook-driven workflow orchestration.** Use webhooks to trigger external processes when documented CRM events occur. When a deal is won, trigger provisioning in your product. When a contact is updated, sync supported changes. When a customer-defined task date needs attention, let an external scheduler evaluate that custom field and send a Slack notification through an external provider; Customermates has no native task due or overdue state.
 
@@ -100,7 +100,7 @@ Customermates provides a versioned REST API for documented CRM resources and ope
 
 **Open source and fully transparent.** The API is part of the open-source Customermates codebase. Inspect the implementation, understand the data model, and contribute improvements. No black-box API behavior.
 
-**EU database region with documented providers.** The hosted database runs in an EU region. Application hosting and other providers, including US providers, are documented separately; this is not a GDPR or other compliance certification.
+**Cloud database in Frankfurt, providers disclosed.** In the managed cloud, the application database runs in the AWS Frankfurt region; hosting and other subprocessors, including US providers, are listed on the [subprocessors page](/subprocessors), and a [DPA](/dpa) is available.
 
 **Simple, published pricing.** Documented API access is included in published plans from [[commercial.price.starter.monthly]] per user per month. Follow the current API documentation for supported operations and applicable boundaries; no undocumented unlimited-use or full-parity promise is made.
 

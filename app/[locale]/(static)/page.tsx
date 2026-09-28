@@ -20,6 +20,7 @@ import { homepageSource } from "@/core/fumadocs/source";
 import { buildHomepageMetadata } from "@/core/seo/homepage-metadata";
 import { organizationSchema, softwareApplicationSchema } from "@/core/seo/schemas";
 import { CONTENT_LOCALES, contentLocaleOrDefault, isContentLocale } from "@/i18n/locale-registry";
+import { enableStaticLocale, type StaticLocaleProps } from "@/i18n/static-locale";
 
 type Props = {
   params: Promise<{ locale: string }>;
@@ -45,7 +46,9 @@ export async function generateMetadata({ params }: Props): Promise<Metadata> {
   });
 }
 
-export default async function HomePage() {
+export default async function HomePage({ params }: StaticLocaleProps) {
+  await enableStaticLocale(params);
+
   const locale = await getLocale();
   const homepagePage = homepageSource.getPage(["homepage"], locale);
 

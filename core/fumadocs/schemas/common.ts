@@ -105,7 +105,6 @@ export const ACQUISITION_FACT_SOURCES = {
 const acquisitionExcludedClaimSchema = z.enum([
   "claim:no-delivery-management",
   "claim:no-hosted-ai-self-hosted",
-  "claim:no-import-export",
   "claim:no-invoicing",
   "claim:no-linkedin-bulk-import",
   "claim:no-linkedin-crm-sync",

@@ -27,7 +27,7 @@ Die drei Produkte, die Copilot CRM heißen:
 - **Homeworks (früher Copilot CRM).** Ein Field-Service-CRM für Handwerks- und Hausdienstleistungs-Betriebe (Garten, Reinigung). Anfang 2026 von Copilot CRM umbenannt.
 - **Microsoft 365 Copilot for Sales.** Ein Microsoft-365-Add-in, das CRM-Kontext in Outlook und Teams einblendet, auch bekannt als Sales Copilot.
 
-Das vierte Muster sind **Agent-native CRMs, die über MCP bedient werden**. Customermates ist ein Beispiel: Statt eines KI-Assistenten innerhalb der CRM-Oberfläche sitzt der Agent außen (Claude, Codex, ChatGPT) und bedient das CRM direkt über [[derived.mcp.tools.total]] [MCP](/features/api)-Tools. Dieselben Tools erreichen auch einen nativen vereinheitlichten Posteingang (E-Mail, LinkedIn, WhatsApp, Instagram, Telegram), sodass der Agent die Pipeline aktuell hält und das Follow-up-Gespräch entwirft oder versendet.
+Das vierte Muster sind **Agent-native CRMs, die über MCP bedient werden**. Customermates ist ein Beispiel: Statt eines KI-Assistenten innerhalb der CRM-Oberfläche sitzt der Agent außen (Claude, Codex, ChatGPT) und bedient das CRM direkt über [[derived.mcp.tools.total]] [MCP](/features/api)-Tools. Dieselben Tools erreichen auch einen nativen einheitlichen Posteingang (E-Mail, LinkedIn, WhatsApp, Instagram, Telegram), sodass der Agent die Pipeline aktuell hält und das Follow-up-Gespräch entwirft oder versendet.
 
 ## Microsoft Copilot for Dynamics 365
 
@@ -63,7 +63,7 @@ Wann nicht: Wie oben, die Pro-User-Kosten stapeln sich schnell bei kleinen Teams
 
 Das neueste Muster 2026 dreht das Modell: Statt eines KI-Assistenten innerhalb des CRM bedient der Agent das CRM von außen. Claude, ChatGPT oder Codex zeigen über Model Context Protocol auf das CRM und lesen oder schreiben Datensätze direkt.
 
-Customermates liefert einen eingebauten MCP-Server mit [[[derived.mcp.tools.total]] Tools, die jede CRM-Operation abdecken](/features/api) (Deals erstellen, Notizen aktualisieren, Entitäten verknüpfen, Custom Columns konfigurieren, Filter ausführen sowie Nachrichten im vereinheitlichten Posteingang lesen und senden). Die Konfiguration ist ein JSON-Block in Ihren Agent-Einstellungen:
+Customermates liefert einen eingebauten MCP-Server mit [[[derived.mcp.tools.total]] Tools für die zentralen CRM-Operationen](/features/api) (Deals erstellen, Notizen aktualisieren, Entitäten verknüpfen, Custom Columns konfigurieren, Filter ausführen sowie ab Pro Nachrichten im einheitlichen Posteingang lesen und senden). Die Konfiguration ist ein JSON-Block in Ihren Agent-Einstellungen:
 
 ```json
 {
@@ -89,7 +89,7 @@ Die Rechnung: Customermates Starter ist [[commercial.price.starter.monthly]] pro
 | Reps leben in Outlook, auf Salesforce           | Microsoft 365 Copilot for Sales            | ~$250/Monat + Salesforce-Basis                                                |
 | Hausdienstleistungs-Betrieb (Garten, Reinigung) | Homeworks (früher Copilot CRM)             | Kostenlose Solo-Stufe, kostenpflichtige Stufen darüber                        |
 | Kleines Team nutzt Claude / ChatGPT täglich     | Customermates + MCP                        | [[commercial.price.starter.monthly.seats.5]]/Monat (Starter), Agent enthalten |
-| Eigenen KI-Workflow auf einem CRM bauen         | Customermates oder Open-Source-CRM mit MCP | Kostenlos bei Self-Hosting oder aktuelles Katalog-Abo bei Managed Hosting      |
+| Eigenen KI-Workflow auf einem CRM bauen         | Customermates oder Open-Source-CRM mit MCP | Ohne Lizenzkosten bei Self-Hosting oder aktuelles Katalog-Abo bei Managed Hosting |
 
 ## Was „Copilot CRM" tatsächlich löst
 
@@ -107,7 +107,7 @@ Sechs Fragen vor der Buchung:
 2. **Schreibt die KI ins CRM, oder schlägt sie nur vor?** Vorschläge brauchen weiterhin einen Menschen zum Tippen. Direkte Schreibvorgänge sparen die Arbeit.
 3. **Können meine eigenen KI-Tools das CRM bedienen?** MCP, eine offene API und Webhooks sagen ja.
 4. **Wie hoch sind die Pro-User-Kosten bei meiner Teamgröße?** Stapeln Sie CRM-Basis, Copilot-Add-on und Premium-Stufen. Dann vergleichen Sie pro User.
-5. **Wo werden Daten gehostet?** EU-Residenz zählt, wenn CRM-Daten EU-Kontakte enthalten. Customermates ist EU-gehostet; Dynamics 365 bietet EU-Residenz auf Enterprise-Stufen.
+5. **Wo werden Daten gehostet?** Speicherort und Unterauftragsverarbeiter zählen, wenn CRM-Daten EU-Kontakte enthalten. In der Cloud-Version von Customermates liegt die Datenbank in der AWS-Region Frankfurt; Hosting und weitere Unterauftragsverarbeiter, auch aus den USA, stehen in der [Liste der Unterauftragsverarbeiter](/subprocessors). Prüfen Sie bei Dynamics 365 die Optionen zur Datenresidenz.
 6. **Wie sieht der Exit aus?** Open Source und Self-Hosting (Customermates, [SuiteCRM](https://suitecrm.com)) geben Ihnen einen echten Ausgang. Closed SaaS mit vendor-gelocktem KI-Tarif nicht.
 
 ## Fazit
@@ -134,6 +134,6 @@ Microsoft 365 Copilot ist $20 pro User pro Monat, plus Copilot for Sales bei $50
 </FaqItem>
 
 <FaqItem question="Was ist die günstigste Copilot-CRM-Alternative für kleine Teams?">
-Für Teams, die Claude, ChatGPT oder Codex bereits nutzen, ist das Agent-native Muster über MCP deutlich günstiger als der Microsoft-Stack. [Customermates](/pricing) ist ab [[commercial.price.starter.monthly]] pro User pro Monat ([[commercial.price.starter.monthly.seats.5]] monatlich für ein 5er-Team auf Starter) mit MCP-Server, n8n-Node und [[derived.webhooks.events.total]] Webhook-Events ([[derived.webhooks.events.records]] Datensatz + [[derived.webhooks.events.messaging]] Messaging) inklusive. Verglichen mit ~$675 pro Monat für dasselbe Team auf Dynamics 365 + Copilot for Sales ist die Lücke groß.
+Für Teams, die Claude, ChatGPT oder Codex bereits nutzen, ist das Agent-native Muster über MCP deutlich günstiger als der Microsoft-Stack. [Customermates](/pricing) ist ab [[commercial.price.starter.monthly]] pro User pro Monat ([[commercial.price.starter.monthly.seats.5]] monatlich für ein 5er-Team auf Starter) mit MCP-Server, n8n-Community-Node und [[derived.webhooks.events.total]] Webhook-Events ([[derived.webhooks.events.records]] Datensatz + [[derived.webhooks.events.messaging]] Messaging) inklusive. Verglichen mit ~$675 pro Monat für dasselbe Team auf Dynamics 365 + Copilot for Sales ist die Lücke groß.
 </FaqItem>
 </Faq>

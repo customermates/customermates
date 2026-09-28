@@ -1,23 +1,13 @@
-"use client";
+import { getLocale } from "next-intl/server";
 
-import { Toaster } from "@/components/ui/sonner";
+import { PublicShell } from "./public-shell";
 
-import { LoadingOverlay } from "@/components/shared/loading-overlay";
-import { UnexpectedErrorToaster } from "@/components/shared/unexpected-error-toaster";
-import { TranslationSync } from "@/components/shared/translation-sync";
+import { AppShell } from "@/app/components/navigation/app-shell";
 
-export default function PublicLayout({ children }: { children: React.ReactNode }) {
+export default async function PublicLayout({ children }: { children: React.ReactNode }) {
   return (
-    <>
-      {children}
-
-      <Toaster />
-
-      <LoadingOverlay />
-
-      <UnexpectedErrorToaster />
-
-      <TranslationSync />
-    </>
+    <AppShell displayLanguage={await getLocale()}>
+      <PublicShell>{children}</PublicShell>
+    </AppShell>
   );
 }

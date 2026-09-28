@@ -49,7 +49,7 @@ A **CRM for healthcare** can mean patient engagement, referral processing, pract
   </SummaryItem>
 </ArticleSummary>
 
-<ProofRail label="Verified CRM capabilities for non-clinical healthcare relationships">
+<ProofRail label="CRM capabilities for non-clinical healthcare relationships">
   <ProofItem label="Organizations">Practices and partners</ProofItem>
   <ProofItem label="Contacts">Business stakeholders</ProofItem>
   <ProofItem label="Pipeline">Configurable relationship stages</ProofItem>
@@ -91,12 +91,13 @@ Imagine a clinic developing a relationship with another practice, a professional
     relationship and who participated in prior discussions.
   </Step>
   <Step title="Shape the relationship pipeline">
-    Configure stages such as identified, contacted, meeting planned,
-    cooperation under review, active partner, or closed.
+    Configure stages such as “Identified”, “Contacted”, “Meeting planned”,
+    “Cooperation under review”, “Active partner” or “Closed”.
   </Step>
   <Step title="Record the next action">
-    Attach a task to the relevant CRM record. Date-driven task creation needs a
-    customer-operated scheduler or separate workflow.
+    Attach a task to the relevant CRM record. Tasks have no due dates; on the
+    cloud a routine can create tasks on a schedule, or a separately operated
+    workflow can.
   </Step>
   <Step title="Hand regulated work to the clinical system">
     When the relationship produces a real referral or care process, continue
@@ -104,30 +105,32 @@ Imagine a clinic developing a relationship with another practice, a professional
   </Step>
 </Steps>
 
-## What to store—and what not to store
+## What to store and what not to store
 
 Useful CRM fields are non-clinical: partner type, region, relationship stage, internal owner, source, or an external-system reference. Those values help a business-development or partnership team filter its pipeline and prepare the next conversation.
 
-Patient identity, referral reason, diagnosis, treatment, insurance status, appointment details, and care-team coordination belong in the clinical or practice system. Resource permissions in Customermates are not field- or record-level access controls, and Customermates carries no healthcare or GDPR compliance certification.
+Patient identity, referral reason, diagnosis, treatment, insurance status, appointment details, and care-team coordination belong in the clinical or practice system. Permissions apply per resource and action, not per field; read access can be limited to records a user is assigned to. Customermates carries no healthcare or GDPR compliance certification.
 
 <AcquisitionCallout title="Hosting is not a compliance certification" variant="proof">
-  The managed Customermates database runs in an EU region. Application hosting
-  and connected providers have their own disclosed boundaries. Self-hosting
+  In the managed cloud, the application database runs in the AWS Frankfurt
+  region; hosting and other subprocessors, including US providers, are listed
+  on the [subprocessors page](/subprocessors), and a [DPA](/dpa) is available.
+  Connected providers have their own disclosed boundaries. Self-hosting
   lets the operator choose application and database infrastructure, but it does
   not certify the resulting deployment or the surrounding workflow.
 </AcquisitionCallout>
 
 ## Messaging, automation, and AI boundaries
 
-The managed [unified inbox](/features/unified-inbox) is available from Pro upward for supported email and messaging channels. It can bring individual conversations into the CRM and associate participants with contact context. It is not a patient campaign engine, and a message is not automatically attached to a clinical record or deal. Self-hosted deployments do not include the unified inbox.
+The managed [unified inbox](/features/unified-inbox) is available from Pro upward for supported email and messaging channels. It can bring individual conversations into the CRM and associate participants with contact context. It is not a patient campaign engine. Conversations are linked to contacts, not to deals or clinical records. Self-hosted deployments do not include the unified inbox.
 
-An authorized external AI client can use supported [MCP](/docs/mcp) actions on CRM records. The client, model provider, permissions, and confirmation experience remain separate. Protected health information should not enter that path unless the organization has independently approved the complete data flow and legal basis.
+An authorized external AI client can use supported [MCP](/docs/mcp) actions on CRM records. The client and model provider are separate systems; whether a change is confirmed first is decided by the client, not by the MCP server. Protected health information should not enter that path unless the organization has independently approved the complete data flow and legal basis.
 
 For system-to-system work, Customermates exposes the [REST API and webhooks](/features/api). The separate [n8n integration](/features/workflow-automation) is another option. A customer-built connection owns the external provider, mapping, validation, duplicate handling, retries, and compliance; Customermates does not ship a preconfigured EHR or practice-management connector.
 
 ## Pricing and deployment fit
 
-Starter includes the core CRM. Pro adds the managed unified inbox and one connected account per user. Self-hosted deployments use Starter entitlements and do not include the unified inbox. See the [pricing page](/pricing) for current plan details.
+Starter includes the core CRM. Pro adds the managed unified inbox and one connected account per user. Self-hosted deployments have the Starter feature set and do not include the unified inbox. See the [pricing page](/pricing) for current plan details.
 
 Choose Customermates when the need is a transparent relationship and partnership CRM beside existing clinical systems. Choose a healthcare-specific platform when patient engagement, appointment orchestration, clinical referrals, or care coordination must live in the product itself.
 
@@ -143,10 +146,10 @@ Not as the clinical or operational system of record. A team can use Customermate
 </FaqItem>
 
 <FaqItem question="Can Customermates connect to healthcare software?">
-If the other system exposes a suitable interface, a customer can build a bounded connection through REST, webhooks, or a separately operated n8n workflow. No native EHR or practice-management connector is claimed.
+If the other system exposes a suitable interface, a customer can build a bounded connection through REST, webhooks, or a separately operated n8n workflow. There is no native EHR or practice-management connector.
 </FaqItem>
 
 <FaqItem question="Is Customermates certified for healthcare or GDPR compliance?">
-No compliance certification is claimed. EU-region database hosting and self-hosting are deployment facts, not a legal conclusion. The operator must assess data categories, providers, permissions, retention, and the complete workflow.
+No. Customermates holds no compliance certification. It provides a [DPA](/dpa), discloses its subprocessors, including US providers with standard contractual clauses, on the [subprocessors page](/subprocessors), runs the cloud database in the AWS Frankfurt region, and can be self-hosted. Those are deployment facts, not a legal conclusion. The operator must assess data categories, providers, permissions, retention, and the complete workflow.
 </FaqItem>
 </Faq>

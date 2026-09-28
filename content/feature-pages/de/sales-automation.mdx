@@ -34,7 +34,7 @@ Vertriebsautomatisierung (Sales Automation) ist der Einsatz von Software zur Abw
 
 Der durchschnittliche Vertriebsmitarbeiter verbringt [weniger als 30 % seiner Arbeitszeit mit tatsächlichem Verkaufen](https://www.salesforce.com/resources/research-reports/state-of-sales/). Dateneingabe, Erinnerungsmanagement, Statusupdates und Routinekommunikation fressen die Zeit, die für den Aufbau von Beziehungen und den Abschluss von Deals genutzt werden sollte. Unternehmen mit KI-gestützter Vertriebsautomatisierung verzeichnen [doppelt so häufig Umsatzwachstum](https://www.mckinsey.com/capabilities/growth-marketing-and-sales/our-insights/ai-powered-marketing-and-sales-reach-new-heights-with-generative-ai).
 
-Vertriebsautomatisierung ersetzt kein menschliches Urteilsvermögen, sie eliminiert die mechanischen Aufgaben drumherum:
+Vertriebsautomatisierung ersetzt kein menschliches Urteilsvermögen. Sie eliminiert die mechanischen Aufgaben drumherum:
 
 - Wenn ein Deal in die Verhandlungsphase wechselt, erstellt das System die Aufgabe zur Vertragsvorbereitung.
 - Wenn ein Follow-up fällig ist, erscheint die Erinnerung automatisch.
@@ -45,13 +45,15 @@ Das Ergebnis: Ein Vertriebsteam, das seine Zeit für Gespräche, Demos und Bezie
 
 ## Vertriebsautomatisierung vs. CRM: Was ist der Unterschied?
 
-Sales Force Automation (SFA) konzentriert sich auf die Automatisierung des Verkaufsprozesses, Follow-ups, Aufgabenzuweisung, Deal-Progression und Pipeline-Workflows. Ein CRM (Customer Relationship Management) verwaltet den breiteren Kundenlebenszyklus einschließlich Marketing, Support und Account-Management.
+Sales Force Automation (SFA) konzentriert sich auf die Automatisierung des Verkaufsprozesses: Follow-ups, Aufgabenzuweisung, Deal-Progression und Pipeline-Workflows. Ein CRM (Customer Relationship Management) verwaltet den breiteren Kundenlebenszyklus einschließlich Marketing, Support und Account-Management.
 
 In der Praxis braucht Vertriebsautomatisierung verlässliche CRM-Schnittstellen. Customermates bietet [Kontaktverwaltung](/features/contact-management), [Pipeline-Tracking](/features/pipeline), [Lead Management](/features/lead-management), REST, Webhooks, MCP und einen Community-Node für eine separate n8n-Instanz. Der externe Workflow übernimmt Zeitplanung, Logik, Benachrichtigungen und Zustellung; unterstützte externe KI-Clients bleiben vom CRM getrennt.
 
 ## So funktioniert Vertriebsautomatisierung in Customermates
 
-Customermates lässt sich mit [n8n](https://n8n.io/) verbinden, einem separaten Open-Source-Automatisierungsprodukt, das Sie selbst betreiben oder abonnieren. Customermates liefert offene Schnittstellen und den Community-Node; n8n liefert visuellen Builder, Laufzeit, Konnektoren, Zeitpläne, Logs, Limits und Preise.
+Customermates lässt sich mit [n8n](https://n8n.io/) verbinden, einem separaten quellverfügbaren Automatisierungsprodukt, das Sie selbst betreiben oder abonnieren. Customermates liefert offene Schnittstellen und den Community-Node; n8n liefert visuellen Builder, Laufzeit, Konnektoren, Zeitpläne, Logs, Limits und Preise.
+
+**Cloud-Routinen mit Mate.** In Customermates Cloud führt eine [Routine](/docs/app-routines) einen gespeicherten Prompt über den gehosteten Mate-Assistenten nach Zeitplan oder bei einem CRM-Ereignis aus, etwa um Deals aufzulisten, die sich seit zwei Wochen nicht bewegt haben, und Follow-ups zur Prüfung zu entwerfen. Routinen verbrauchen gehostete KI-Credits; Starter enthält [[commercial.entitlement.starter.includedRoutinesPerUser]] Routine pro Nutzer, Pro enthält [[commercial.entitlement.pro.includedRoutinesPerUser]]. Beim Self-Hosting sind sie nicht verfügbar. Routinen sind weder Erinnerungen noch Sequenzen.
 
 **Externe Deal-Phasen-Trigger.** Ein separat betriebener Workflow kann auf ein dokumentiertes Deal-Ereignis reagieren. Er kann eine unterstützte Aufgabe erstellen, einen Manager über einen externen Anbieter benachrichtigen oder ein Kampagnen-Tool um den Start eines Onboardings bitten. Customermates plant spätere Aktionen nicht und führt selbst keine Sequenzen aus.
 
@@ -63,7 +65,7 @@ Customermates lässt sich mit [n8n](https://n8n.io/) verbinden, einem separaten 
 
 **Externe Datensynchronisierung.** Ein von Ihnen betriebener n8n-Workflow kann unterstützte Deal- oder Kontaktfelder an Buchhaltung, [E-Mail-Marketing](/features/email-integration) oder Projekttools übergeben und freigegebene Ergebnisse per REST zurückschreiben. Jedes externe System verwaltet seine Datensätze, Zugangsdaten, Limits und Datenverarbeitung selbst.
 
-**Externe KI-Clients bedienen zulässige CRM-Daten.** Unterstützte Clients wie Claude, ChatGPT oder Gemini können [[derived.mcp.tools.total]] MCP-Tools nutzen, um Deal-Phasen zu verschieben, eine [Follow-up-E-Mail](/blog/sales-follow-up-email) zu entwerfen, erlaubte Notizen zusammenzufassen oder Felder zu aktualisieren. Customermates enthält weder Client, Modell, Lead-Scoring, Anreicherung noch ein autonomes Ergebnis.
+**Externe KI-Clients bedienen zulässige CRM-Daten.** Unterstützte Clients wie Claude, ChatGPT oder Gemini können [[derived.mcp.tools.total]] MCP-Tools nutzen, um Deal-Phasen zu verschieben, eine [Follow-up-E-Mail](/blog/sales-follow-up-email) zu entwerfen, erlaubte Notizen zusammenzufassen oder Felder zu aktualisieren. Client und Modell stammen von Ihnen; Customermates ergänzt weder Lead-Scoring noch Anreicherung oder ein autonomes Ergebnis.
 
 ## Zentrale Vorteile der Vertriebsautomatisierung
 
@@ -75,7 +77,7 @@ Customermates lässt sich mit [n8n](https://n8n.io/) verbinden, einem separaten 
 
 **Skalierbar ohne Personalaufbau.** Wenn Ihr Deal-Volumen wächst, skaliert die Vertriebsautomatisierung mit. Dieselben Workflows, die zehn Deals pro Monat verarbeiten, verarbeiten auch hundert ohne zusätzliches Personal für administrative Aufgaben.
 
-**Weniger menschliche Fehler.** Manuelle Prozesse sind fehleranfällig, falsche Daten eingegeben, Benachrichtigungen an die falsche Person gesendet, Follow-ups für das falsche Datum geplant. Vertriebsautomatisierung eliminiert diese Fehler, indem sie dieselben Schritte präzise jedes Mal ausführt.
+**Weniger menschliche Fehler.** Manuelle Prozesse sind fehleranfällig: falsche Daten eingegeben, Benachrichtigungen an die falsche Person gesendet, Follow-ups für das falsche Datum geplant. Vertriebsautomatisierung eliminiert diese Fehler, indem sie dieselben Schritte präzise jedes Mal ausführt.
 
 ## Vertriebsautomatisierung Software im Vergleich
 
@@ -88,11 +90,10 @@ Customermates lässt sich mit [n8n](https://n8n.io/) verbinden, einem separaten 
 | Externe Follow-up-Sequenzen | Über separaten Anbieter | <StatusAvailable /> | <StatusAvailable /> | <StatusPartial /> |
 | 400+ Integrationen (n8n) | <StatusAvailable /> | <StatusPartial /> | <StatusPartial /> | <StatusPartial /> |
 | Zugang für externe KI-Clients | Über MCP | <StatusPartial /> | <StatusPartial /> | <StatusUnavailable /> |
-| Verwaltete Datenbank in einer EU-Region | <StatusAvailable /> | <StatusUnavailable /> | <StatusPartial /> | <StatusPartial /> |
 | Open Source | <StatusAvailable /> | <StatusUnavailable /> | <StatusUnavailable /> | <StatusUnavailable /> |
 | Self-Hosting-Option | <StatusAvailable /> | <StatusUnavailable /> | <StatusUnavailable /> | <StatusUnavailable /> |
 
-[**HubSpot**](https://www.hubspot.com/products/crm) sperrt Vertriebsautomatisierung hinter der Professional-Stufe ab 90+ €/Nutzer/Monat. Die kostenlosen und Starter-Stufen bieten nur einfache Aufgabenerinnerungen. Sehen Sie unseren [HubSpot-Alternativvergleich](/compare/hubspot-alternative).
+[**HubSpot**](https://www.hubspot.com/products/crm) sperrt Vertriebsautomatisierung hinter der Professional-Stufe ab 90+ €/Nutzer/Monat. Die kostenlosen und Starter-Stufen bieten nur einfache Automatisierungsfunktionen. Sehen Sie unseren [HubSpot-Alternativvergleich](/compare/hubspot-alternative).
 
 **Salesforce** bietet leistungsfähige Automatisierung über Flow Builder, erfordert aber erhebliches Konfigurationswissen. Vertriebsautomatisierung verteilt sich auf mehrere Clouds mit separater Preisgestaltung.
 
@@ -112,13 +113,13 @@ Customermates lässt sich mit [n8n](https://n8n.io/) verbinden, einem separaten 
 
 ## Warum Customermates für Vertriebsautomatisierung?
 
-**Zwei separate Open-Source-Produkte.** Der Customermates-AGPL-Kern und n8n können beide geprüft und erweitert werden, werden jedoch unabhängig betrieben und verwaltet. Bauen Sie eigene Automatisierung in Ihrer n8n-Instanz gegen dokumentierte CRM-Schnittstellen.
+**Zwei separate Produkte mit öffentlichem Code.** Der Customermates-AGPL-Kern und n8n können beide geprüft und erweitert werden, werden jedoch unabhängig betrieben und verwaltet. Bauen Sie eigene Automatisierung in Ihrer n8n-Instanz gegen dokumentierte CRM-Schnittstellen.
 
-**EU-Datenbankregion mit dokumentierten Anbietern.** Die gehostete Customermates-Datenbank läuft in einer EU-Region. n8n, Anwendungshosting und verbundene Anbieter können Daten andernorts verarbeiten, auch über US-Anbieter; dies ist keine Compliance-Zertifizierung.
+**Cloud-Datenbank in Frankfurt, Anbieter offengelegt.** In der Cloud-Version liegt die Datenbank in der AWS-Region Frankfurt; Hosting und weitere Unterauftragsverarbeiter, auch aus den USA, stehen in der [Liste der Unterauftragsverarbeiter](/subprocessors), ein [Auftragsverarbeitungsvertrag (AVV)](/dpa) liegt vor. Eine separat betriebene n8n-Instanz bildet eine eigene Datengrenze.
 
 **Ab [[commercial.price.starter.monthly]]/Nutzer/Monat.** REST, Webhooks, MCP und der Community-Node beginnen mit Starter, ohne Customermates-Gebühr pro Workflow. n8n und jeder verbundene Anbieter haben separate Tarife, Ausführungen, Limits, Logs und Kosten. [Preise ansehen →](/pricing)
 
-**Self-hostbares Kern-CRM.** [Self-Hosting von Customermates](/features/self-hosted) betreibt Anwendung und PostgreSQL-Datenbank mit Starter-Berechtigungen. n8n ist eine separate Installation; verbundene Anbieter behalten eigene Daten- und Zugangsdaten-Grenzen.
+**Self-hostbares Kern-CRM.** [Self-Hosting von Customermates](/features/self-hosted) betreibt Anwendung und PostgreSQL-Datenbank mit dem Funktionsumfang von Starter. n8n ist eine separate Installation; verbundene Anbieter behalten eigene Daten- und Zugangsdaten-Grenzen.
 
 ## Häufig gestellte Fragen
 

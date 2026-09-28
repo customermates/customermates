@@ -13,7 +13,10 @@ vi.mock("@/core/utils/toast-zod-error-tree", () => ({ toastZodErrorTree: vi.fn((
 vi.mock("../../utils/toast-zod-error-tree", () => ({ toastZodErrorTree: vi.fn(() => true) }));
 
 const captureException = vi.fn();
-vi.mock("@sentry/nextjs", () => ({ captureException: (...args: unknown[]) => captureException(...args) }));
+vi.mock("@sentry/nextjs", () => ({
+  captureException: (...args: unknown[]) => captureException(...args),
+  init: vi.fn(),
+}));
 
 import { BaseDataViewStore, type HasId, type TableColumn } from "../base-data-view.store";
 import { registerApplicationErrorHandler } from "@/core/errors/report-application-error";
@@ -140,7 +143,14 @@ describe("Sentry reporting for handled application errors", () => {
     });
   };
 
-  beforeEach(() => captureException.mockClear());
+  beforeEach(() => {
+    captureException.mockClear();
+    vi.stubEnv("NEXT_PUBLIC_SENTRY_DSN", "https://public@example.invalid/1");
+  });
+
+  afterEach(() => {
+    vi.unstubAllEnvs();
+  });
 
   it("reports a genuine failure to Sentry, because catching it hides it from the global handler", async () => {
     const { reportApplicationError } = await import("@/core/errors/report-application-error");
@@ -149,7 +159,7 @@ describe("Sentry reporting for handled application errors", () => {
     const boom = new Error("network down");
     reportApplicationError(boom);
 
-    expect(captureException).toHaveBeenCalledExactlyOnceWith(boom);
+    await vi.waitFor(() => expect(captureException).toHaveBeenCalledExactlyOnceWith(boom));
   });
 
   it("stays silent on the demo host, where the rejection is the expected demo guard", async () => {

@@ -16,13 +16,16 @@ import { generateMetadataFromMeta } from "@/core/fumadocs/metadata";
 import { automationSource } from "@/core/fumadocs/source";
 import { breadcrumbListSchema } from "@/core/seo/schemas";
 import { contentLocaleOrDefault } from "@/i18n/locale-registry";
+import { enableStaticLocale, type StaticLocaleProps } from "@/i18n/static-locale";
 
 export async function generateMetadata({ params }: { params: Promise<{ locale: string }> }): Promise<Metadata> {
   const { locale } = await params;
   return generateMetadataFromMeta({ locale, route: "/n8n-crm" });
 }
 
-export default async function AutomationPage() {
+export default async function AutomationPage({ params }: StaticLocaleProps) {
+  await enableStaticLocale(params);
+
   const [rawLocale, t] = await Promise.all([getLocale(), getTranslations("StructuredData.breadcrumb")]);
   const locale = contentLocaleOrDefault(rawLocale);
   const automationPage = automationSource.getPage(["automation"], locale);

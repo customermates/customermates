@@ -30,7 +30,7 @@ cta:
 
 ## What Is Lead Tracking?
 
-Lead tracking is the process of capturing potential customers, recording how they found your business, and monitoring their journey through every stage of your sales pipeline. It connects three disciplines: lead capture, lead scoring, and pipeline management, giving your team a single system to organize, prioritize, and convert prospects.
+Lead tracking is the process of capturing potential customers, recording how they found your business, and monitoring their journey through every stage of your sales pipeline. It connects three disciplines (lead capture, lead scoring, and pipeline management), giving your team a single system to organize, prioritize, and convert prospects.
 
 Without a lead tracking system, sales teams work reactively. Leads arrive from forms, ads, referrals, and events, but nobody knows which channels produce the best results. High-potential prospects sit in the same queue as unqualified contacts. Follow-up timing depends on memory rather than data. And when a lead converts or drops off, there is no structured record to learn from.
 
@@ -40,12 +40,11 @@ Effective lead tracking eliminates these blind spots. Every lead is captured wit
 
 | Feature | Customermates | Pipedrive | HubSpot | Salesforce | Freshsales |
 |---------|--------------|-----------|---------|------------|------------|
-| Price/user | From [[commercial.price.starter.monthly]]/month | $14/mo | Free (limited) | $25/mo | $9/mo |
+| Price/user | From [[commercial.price.starter.monthly]]/month | $14/mo (annual) | Free (limited) | $25/mo | $9/mo |
 | Native lead scoring | <StatusUnavailable /> | <StatusPartial /> | <StatusPartial /> | <StatusAvailable /> | <StatusAvailable /> |
 | Source attribution | <StatusAvailable /> | <StatusAvailable /> | <StatusAvailable /> | <StatusAvailable /> | <StatusAvailable /> |
 | Built-in workflow engine | <StatusUnavailable /> | <StatusPartial /> | <StatusPartial /> | <StatusAvailable /> | <StatusPartial /> |
 | Custom fields (10 types) | <StatusAvailable /> | <StatusPartial /> | <StatusPartial /> | <StatusAvailable /> | <StatusPartial /> |
-| Managed database in an EU region | <StatusAvailable /> | <StatusPartial /> | <StatusUnavailable /> | <StatusPartial /> | <StatusUnavailable /> |
 | Open source | <StatusAvailable /> | <StatusUnavailable /> | <StatusUnavailable /> | <StatusUnavailable /> | <StatusUnavailable /> |
 | Self-hosting option | <StatusAvailable /> | <StatusUnavailable /> | <StatusUnavailable /> | <StatusUnavailable /> | <StatusUnavailable /> |
 
@@ -63,7 +62,7 @@ Customermates tracks leads as contacts and deals with configurable stages, custo
 
 **Conversion context.** Use configured stages and dashboard widgets to review current stored counts, values, and stage-weighted pipeline totals. Customermates does not calculate a fixed MQL-to-SQL funnel or predictive conversion and revenue models; analyze those metrics in an external reporting system when needed.
 
-**Activity tracking.** Log every touchpoint on a lead record: emails, calls, meetings, notes, and tasks. With the unified inbox connected (Pro tier), messages from email, LinkedIn, WhatsApp, Instagram, and Telegram are logged on the lead automatically. The full activity timeline gives your team context for every conversation. Anyone can pick up a lead and continue without asking "what happened last time?"
+**Activity tracking.** Keep every touchpoint with the lead: notes on calls and meetings, linked tasks, and record changes. With the unified inbox connected (cloud, Pro and above), messages from email, LinkedIn, WhatsApp, Instagram, and Telegram appear with the matching contact automatically. The full activity timeline gives your team context for every conversation. Anyone can pick up a lead and continue without asking "what happened last time?"
 
 **External lead assignment and routing.** A separate n8n workflow can evaluate territory, an externally calculated score, product interest, or round-robin logic and write supported ownership fields through REST. Customermates has no native routing engine.
 
@@ -75,7 +74,7 @@ Customermates tracks leads as contacts and deals with configurable stages, custo
 
 **Respond with a defined process.** Research consistently shows that fast responses matter. Use team ownership and supported records in Customermates; any automatic routing or delivery timing must run in a separate customer-operated workflow.
 
-**Identify funnel bottlenecks.** Stage-by-stage conversion metrics show exactly where leads drop off. If 80% of qualified leads stall at the proposal stage, you know where to focus your process improvement.
+**Identify funnel bottlenecks.** Stage-by-stage conversion metrics, calculated in an external reporting tool from your stage data, show where leads drop off. If 80% of qualified leads stall at the proposal stage, you know where to focus your process improvement.
 
 **Build institutional knowledge.** Supported messages, notes, tasks, custom values, and stage changes provide recorded context where captured. Externally calculated scores remain ordinary field values rather than a native score history or complete audit trail.
 
@@ -91,21 +90,21 @@ Customermates tracks leads as contacts and deals with configurable stages, custo
 
 **Lead recycling.** Move a lead to a recycling stage and store a next-action date in a custom field. A separately operated scheduler can evaluate it after 90 or 180 days and send a notification through an external provider; Customermates sends no native reminder.
 
-**Source performance reporting.** Track lead volume, conversion rate, average deal value, and revenue by source. Monthly reports show you exactly which channels are worth scaling and which are underperforming.
+**Source performance reporting.** Chart lead volume, deal value, and won revenue by source in dashboard widgets. Conversion rates by source are calculated in an external reporting tool.
 
-**Multi-touch attribution.** For leads that interact with multiple channels before converting, track all touchpoints. Understand the full journey from first click to closed deal and give credit where it is due.
+**Multi-touch attribution.** Store first-touch and latest-touch sources in custom fields. Full multi-touch models across every click need a separate analytics tool; Customermates stores the values you write to it.
 
 ## Why Choose Customermates for Lead Tracking
 
 **Open source and transparent.** Customermates is open source, so you can inspect and adapt its CRM interfaces. Scoring logic, routing rules, enrichment, and sequence delivery remain in separate systems you choose and operate.
 
-**EU database region with documented providers.** The hosted database runs in an EU region. Application hosting and connected providers, including US providers, may process data elsewhere; this is not a GDPR or other compliance certification.
+**Cloud database in Frankfurt, providers disclosed.** In the managed cloud, the application database runs in the AWS Frankfurt region; hosting and other subprocessors, including US providers, are listed on the [subprocessors page](/subprocessors), and a [DPA](/dpa) is available.
 
 **From [[commercial.price.starter.monthly]] per user per month.** Pipeline stages, custom fields, REST, webhooks, and MCP access start with Starter. Lead scoring, routing, enrichment, n8n, and AI clients remain separate. The unified inbox starts with Pro at [[commercial.price.pro.monthly]].
 
 **Separate n8n automation.** Connect an n8n instance you operate through REST, webhooks, MCP, or the community node. Its visual builder, forms, ad platforms, scoring, routing, email delivery, 400+ connectors, plans, limits, logs, and costs remain external.
 
-**Self-hostable core CRM.** Run the Customermates application and PostgreSQL database on your infrastructure with Starter entitlements. Connected AI, workflow, messaging, and data providers still receive what your configuration sends.
+**Self-hostable core CRM.** Run the Customermates application and PostgreSQL database on your infrastructure with the Starter feature set. Connected AI, workflow, messaging, and data providers still receive what your configuration sends.
 
 **External AI clients operate allowed CRM data.** Supported clients such as Claude, ChatGPT, or Gemini can use [[derived.mcp.tools.total]] MCP tools to update records, summarize allowed context, and draft one follow-up. Customermates does not supply that external client or its model and adds no scoring or enrichment service to the MCP flow; separate providers own those results.
 
@@ -129,7 +128,7 @@ Yes. Customermates supports source attribution through custom fields and n8n int
 </FaqItem>
 
 <FaqItem question="How much does lead tracking software cost?">
-Pricing varies widely. Salesforce charges from $25/user/month, Pipedrive starts at $14/user/month, and many tools restrict lead scoring to premium tiers. Customermates starts at [[commercial.price.starter.monthly]]/user/month for core tracking; it has no native lead-scoring add-on.
+Pricing varies widely. Salesforce charges from $25/user/month, Pipedrive starts at $14/user/month billed annually ($24 monthly, as of September 2026), and many tools restrict lead scoring to premium tiers. Customermates starts at [[commercial.price.starter.monthly]]/user/month for core tracking; it has no native lead-scoring add-on.
 </FaqItem>
 </Faq>
 

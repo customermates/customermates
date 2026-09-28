@@ -135,7 +135,7 @@ vi.mock("next-intl/middleware", async () => {
 });
 
 import proxy from "@/proxy";
-import { appRouting, contentRouting, routing } from "@/i18n/routing";
+import { PROTECTED_ROUTES, appRouting, contentRouting, routing } from "@/i18n/routing";
 
 function request(pathname: string, acceptLanguage?: string): NextRequest {
   return new NextRequestValue(`http://localhost:4000${pathname}`, {
@@ -170,6 +170,8 @@ const PATHS = [
   "/EN/blog",
   "/en/auth/signin",
   "/fr/auth/signin",
+  "/en/this-page-does-not-exist",
+  "/de/contacts/40000000-0000-4000-8000-000000000001",
 ];
 
 describe("locale routing configuration", () => {
@@ -205,19 +207,58 @@ describe("proxy locale routing", () => {
     }
   });
 
-  it("never emits a permanently cached redirect", async () => {
+  it("emits a permanent redirect only for an unprefixed content path", async () => {
     for (const path of PATHS) {
       const { status } = await call(path);
-      expect(status, `${path} returned a permanent redirect`).not.toBe(308);
-      expect(status, `${path} returned a permanent redirect`).not.toBe(301);
+      const expectedPermanent = path === "/pricing";
+      expect(status === 308, `${path} permanence`).toBe(expectedPermanent);
+      expect(status, `${path} returned a 301`).not.toBe(301);
     }
+  });
+
+  it("permanently sends an unprefixed content path to its default-locale version, whatever the reader prefers", async () => {
+    for (const path of [
+      "/docs",
+      "/docs/webhooks",
+      "/docs/self-hosting",
+      "/blog/crm-app",
+      "/pricing",
+      "/features/all",
+    ]) {
+      for (const acceptLanguage of [undefined, "de-DE,de;q=0.9", "nl-NL,nl;q=0.9"]) {
+        const { status, location, response } = await call(path, acceptLanguage);
+        expect(status, `${path} ${acceptLanguage ?? ""}`).toBe(308);
+        expect(location, `${path} ${acceptLanguage ?? ""}`).toBe(`http://localhost:4000/en${path}`);
+        expect(response.headers.get("vary"), "a permanent target must not vary by request").toBeNull();
+      }
+    }
+  });
+
+  it("keeps the query string on the permanent redirect", async () => {
+    const { status, location } = await call("/blog?page=2&utm_source=proof");
+    expect(status).toBe(308);
+    expect(location).toBe("http://localhost:4000/en/blog?page=2&utm_source=proof");
+  });
+
+  it("keeps the site root as the language-negotiating x-default entry point", async () => {
+    const german = await call("/", "de-DE,de;q=0.9");
+    expect(german.status).toBe(307);
+    expect(german.location).toMatch(/^http:\/\/localhost:4000\/de\/?$/);
+    expect(german.response.headers.get("vary")).toBe("accept-language, cookie");
+
+    const english = await call("/");
+    expect(english.status).toBe(307);
+    expect(english.location).toMatch(/^http:\/\/localhost:4000\/en\/?$/);
   });
 
   it("404s an unsupported locale prefix instead of redirecting", async () => {
     for (const path of ["/es/pricing", "/zz", "/pt-br/pricing", "/en-US/pricing"]) {
-      const { status, location } = await call(path);
+      const { response, status, location } = await call(path);
       expect(location, `${path} must not redirect into a URL we may later serve`).toBeNull();
       expect(status, `${path} should fall through to the app router`).toBe(200);
+      expect(response.headers.get("x-middleware-rewrite"), `${path} should render the global 404`).toBe(
+        "http://localhost:4000/_not-found",
+      );
     }
   });
 
@@ -229,18 +270,15 @@ describe("proxy locale routing", () => {
     }
   });
 
-  it("negotiates an unprefixed path into a content locale only", async () => {
-    const german = await call("/pricing", "de-DE,de;q=0.9");
-    expect(german.status).toBe(307);
-    expect(german.location).toContain("/de/pricing");
-    expect(german.response.headers.get("vary")).toBe("accept-language, cookie");
-
-    const french = await call("/pricing", "fr-FR,fr;q=0.9");
+  it("negotiates the unprefixed root into a content locale only", async () => {
+    const french = await call("/", "fr-FR,fr;q=0.9");
     expect(french.status).toBe(307);
-    expect(french.location, "an application-only locale must never be an auto-detect target").toContain("/en/pricing");
+    expect(french.location, "an application-only locale must never be an auto-detect target").toMatch(
+      /^http:\/\/localhost:4000\/en\/?$/,
+    );
 
-    const dutch = await call("/pricing", "nl-NL,nl;q=0.9");
-    expect(dutch.location, "a content locale remains negotiable").toContain("/nl/pricing");
+    const dutch = await call("/", "nl-NL,nl;q=0.9");
+    expect(dutch.location, "a content locale remains negotiable").toMatch(/^http:\/\/localhost:4000\/nl\/?$/);
   });
 
   it("negotiates an unprefixed application path into any routing locale", async () => {
@@ -294,6 +332,38 @@ describe("proxy locale routing", () => {
     const germanDeals = await call("/de/deals");
     expect(germanDeals.status).toBe(307);
     expect(germanDeals.location).toContain("/de/auth/signin");
+  });
+
+  it("answers a signed-out request for a path no route serves through the app router instead of sign-in", async () => {
+    for (const path of [
+      "/en/this-page-does-not-exist",
+      "/de/profile/nope",
+      "/en/profile",
+      "/en/operator",
+      "/en/contacts/40000000-0000-4000-8000-000000000001/extra",
+    ]) {
+      const { status, location } = await call(path);
+      expect(location, `${path} must not redirect to sign-in`).toBeNull();
+      expect(status, `${path} should fall through to the app router`).toBe(200);
+    }
+  });
+
+  it("keeps every declared protected route behind sign-in, detail pages and their queries included", async () => {
+    for (const route of PROTECTED_ROUTES) {
+      const path = `/de${route.replace(":id", "40000000-0000-4000-8000-000000000001")}?tab=x`;
+      const { status, location } = await call(path);
+      expect(status, `${path} should redirect an anonymous visitor to sign-in`).toBe(307);
+      expect(location, path).toContain("/de/auth/signin?callbackURL=");
+      expect(decodeURIComponent(location ?? ""), path).toContain(path);
+    }
+  });
+
+  it("matches a percent-encoded protected path on its decoded form and fails closed on broken encoding", async () => {
+    for (const path of ["/en/%64ashboard", "/en/%63ontacts/40000000-0000-4000-8000-000000000001", "/en/dash%E0%A4%A"]) {
+      const { status, location } = await call(path);
+      expect(status, `${path} should redirect to sign-in`).toBe(307);
+      expect(location, path).toContain("/en/auth/signin");
+    }
   });
 
   it("terminates within a bounded number of hops", async () => {

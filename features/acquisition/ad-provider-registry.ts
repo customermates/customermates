@@ -1,9 +1,7 @@
-import { z } from "zod";
-
 const DAY_SECONDS = 60 * 60 * 24;
 
-export const AdProviderSchema = z.enum(["google_ads", "openai_ads", "reddit_ads", "linkedin_ads"]);
-export type AdProvider = z.infer<typeof AdProviderSchema>;
+export const AD_PROVIDER_ORDER = ["google_ads", "openai_ads", "reddit_ads", "linkedin_ads"] as const;
+export type AdProvider = (typeof AD_PROVIDER_ORDER)[number];
 
 export type AdProviderDefinition = {
   displayName: string;
@@ -44,13 +42,9 @@ export const AD_PROVIDERS = {
   },
 } as const satisfies Record<AdProvider, AdProviderDefinition>;
 
-export const AD_PROVIDER_ORDER = AdProviderSchema.options;
-
 export type AdIdentifierKind = (typeof AD_PROVIDERS)[AdProvider]["identifierKinds"][number];
 
 export const AD_IDENTIFIER_KINDS = AD_PROVIDER_ORDER.flatMap((provider) => AD_PROVIDERS[provider].identifierKinds);
-
-export const AdIdentifierKindSchema = z.enum(AD_IDENTIFIER_KINDS as [AdIdentifierKind, ...AdIdentifierKind[]]);
 
 const PROVIDER_BY_KIND = new Map<string, AdProvider>(
   AD_PROVIDER_ORDER.flatMap((provider) =>
@@ -63,7 +57,7 @@ export function adProviderForIdentifierKind(kind: string): AdProvider | null {
 }
 
 export function isAdProvider(value: string): value is AdProvider {
-  return AdProviderSchema.safeParse(value).success;
+  return (AD_PROVIDER_ORDER as readonly string[]).includes(value);
 }
 
 export function adProviderDisplayName(provider: AdProvider): string {

@@ -9,7 +9,7 @@ import { REPO_ROOT, walkFiles } from "./walk";
 const ALLOWED_CALLS = new Map<string, string[]>([
   ["features/email/email.service.ts", ["log"]],
   ["features/event/event.service.ts", ["log"]],
-  ["instrumentation-client.ts", ["error"]],
+  ["core/errors/sentry-client.ts", ["error"]],
   ["instrumentation.ts", ["error", "error"]],
   ["workflows/capture-failure.ts", ["error", "error", "warn", "error"]],
 ]);

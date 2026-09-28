@@ -14,6 +14,7 @@ const testEnvironment = {
 };
 const domTestFiles = [
   "app/[locale]/(public)/auth/reset-password/__tests__/reset-password-form.test.ts",
+  "app/[locale]/(static)/contact/__tests__/contact-form.test.ts",
   "app/**/company/components/company-settings/__tests__/company-settings-form.test.ts",
   "app/**/dashboard/components/__tests__/widget-chart.test.ts",
   "app/[locale]/(protected)/__tests__/protected-layout.test.ts",
@@ -79,6 +80,7 @@ const domTestFiles = [
   "app/[locale]/(protected)/routines/components/__tests__/routine-runs-pane.render.test.tsx",
   "features/messaging/__tests__/email-frame.test.ts",
   "app/[locale]/(protected)/inbox/components/__tests__/thread-reply-composer-navigation.test.ts",
+  "app/components/navigation/__tests__/use-marketing-account-state.test.ts",
 ];
 
 export default defineConfig({

@@ -6,6 +6,7 @@ import { STYLEGUIDE_CHAPTERS } from "./components/styleguide-chapters";
 import { MarketingContainer } from "@/components/marketing/marketing-container";
 import { MarketingSection } from "@/components/marketing/marketing-section";
 import { IntlLink } from "@/i18n/navigation";
+import { enableStaticLocale, type StaticLocaleProps } from "@/i18n/static-locale";
 
 export const metadata: Metadata = {
   title: "Marketing visual system",
@@ -29,7 +30,9 @@ const DECISIONS = [
   },
 ] as const;
 
-export default function StyleguidePage() {
+export default async function StyleguidePage({ params }: StaticLocaleProps) {
+  await enableStaticLocale(params);
+
   return (
     <StyleguideChapter chapter="overview">
       <MarketingSection

@@ -24,7 +24,7 @@ export function HomepageHero({ heroSection }: Props) {
     : heroSection.titleAccent
       ? [heroSection.titleAccent]
       : [];
-  const accessibleHeadline = [heroSection.title, accentRotations[0]].filter(Boolean).join(" ");
+  const headlineAccent = accentRotations[0];
 
   return (
     <section className="relative isolate w-full overflow-hidden" data-homepage-section="hero">
@@ -34,18 +34,16 @@ export function HomepageHero({ heroSection }: Props) {
         <div className="flex flex-col items-center py-12 text-center sm:py-16 lg:py-20">
           <AgplGithubBadge />
 
-          <h1 className="text-hero mt-7 max-w-6xl">
-            <span className="sr-only">{accessibleHeadline}</span>
-
-            <span aria-hidden className="flex flex-col items-center justify-center gap-y-[0.1em] lg:gap-y-[0.06em]">
-              <span
-                className="whitespace-nowrap [font-size:min(1em,8.6vw)] sm:text-[1em]"
-                data-homepage-hero-line="lead"
-              >
+          <div className="text-hero mt-7 max-w-6xl">
+            <div className="flex flex-col items-center justify-center gap-y-[0.1em] lg:gap-y-[0.06em]">
+              <h1 className="whitespace-nowrap [font-size:min(1em,8.6vw)] sm:text-[1em]" data-homepage-hero-line="lead">
                 {heroSection.title}
-              </span>
+
+                {headlineAccent ? <span className="sr-only">{` ${headlineAccent}`}</span> : null}
+              </h1>
 
               <span
+                aria-hidden
                 className="inline-flex whitespace-nowrap [font-size:min(1em,8.6vw)] sm:text-[1em]"
                 data-homepage-hero-line="rotation"
               >
@@ -55,8 +53,8 @@ export function HomepageHero({ heroSection }: Props) {
                   words={accentRotations}
                 />
               </span>
-            </span>
-          </h1>
+            </div>
+          </div>
 
           <div className="order-last mt-8 w-full max-w-[820px] rounded-card border border-border bg-card p-5 text-left shadow-[0_20px_70px_-48px_rgba(0,0,0,0.7)] sm:order-none sm:p-6">
             <p className="max-w-[700px] text-base leading-relaxed font-medium text-foreground sm:text-lg">

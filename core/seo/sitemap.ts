@@ -11,17 +11,20 @@ export type LocalizedRoute = {
   lastModified?: Date;
 };
 
-type SitemapPageData = { blogPost?: { date?: string }; lastModified?: Date };
+type SitemapPageData = { blogPost?: { date?: Date | string }; lastModified?: Date };
 
 export function resolvePageLastModified(data: object): Date | undefined {
-  const generated = (data as SitemapPageData).lastModified;
-  if (generated instanceof Date && !isNaN(generated.getTime())) return generated;
+  const { blogPost, lastModified } = data as SitemapPageData;
+  const date = blogPost ? (blogPost.date ? new Date(blogPost.date) : undefined) : lastModified;
 
-  const published = (data as SitemapPageData).blogPost?.date;
-  if (!published) return undefined;
+  return date instanceof Date && !isNaN(date.getTime()) ? date : undefined;
+}
 
-  const date = new Date(published);
-  return isNaN(date.getTime()) ? undefined : date;
+export function latestDate(dates: readonly (Date | undefined)[]): Date | undefined {
+  return dates.reduce<Date | undefined>(
+    (latest, date) => (date && (!latest || date > latest) ? date : latest),
+    undefined,
+  );
 }
 
 export function assembleSitemap(localizedRoutes: readonly LocalizedRoute[], baseUrl: string): MetadataRoute.Sitemap {

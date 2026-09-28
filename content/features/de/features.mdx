@@ -1,11 +1,11 @@
 ---
 title: "Funktionen: Das Agentic Open-Source CRM"
-description: "CRM-Kern, gehostete Mate-Funktion mit umgebungsabhängiger Verfügbarkeit, zentraler Posteingang, MCP und offene Automatisierung. Aus Deutschland."
+description: "CRM-Kern, gehostete Mate-Funktion mit umgebungsabhängiger Verfügbarkeit, einheitlicher Posteingang, MCP und offene Automatisierung. Aus Deutschland."
 
 hero:
   title: CRM-Funktionen, die zählen
   titleAccent: gebaut, wie Ihr Team wirklich arbeitet.
-  description: "Alle Funktionen von Customermates im Überblick: Kontakte, Deals, Leistungen und Aufgaben; eine Cloud-Berechtigung für Mate, deren Live-Verfügbarkeit von der gehosteten Umgebung abhängt; ein zentraler Posteingang über E-Mail, LinkedIn, WhatsApp, Instagram und Telegram; MCP für externe KI-Clients; und offene Automatisierungsschnittstellen."
+  description: "Alle Funktionen von Customermates im Überblick: Kontakte, Deals, Leistungen und Aufgaben; eine Cloud-Berechtigung für Mate, deren Live-Verfügbarkeit von der gehosteten Umgebung abhängt; ein einheitlicher Posteingang über E-Mail, LinkedIn, WhatsApp, Instagram und Telegram; MCP für externe KI-Clients; und offene Automatisierungsschnittstellen."
   buttonLeftText: Kostenlos starten
   buttonLeftHref: /auth/signup
   buttonRightText: Live-Demo ansehen
@@ -18,7 +18,7 @@ features:
     features:
       - icon: Briefcase
         title: Deals & Pipelines
-        description: Verfolgen Sie jede Verkaufschance vom Erstkontakt bis zum Abschluss. Ziehen Sie Deals zwischen Stages, wechseln Sie zwischen Listen-, Karten- und Kanban-Ansicht ohne Kontextverlust und definieren Sie eigene Stages pro Pipeline.
+        description: Verfolgen Sie jede Verkaufschance vom Erstkontakt bis zum Abschluss. Ziehen Sie Deals zwischen Stages, wechseln Sie zwischen Listen-, Karten- und Kanban-Ansicht ohne Kontextverlust und konfigurieren Sie die Stage-Spalte mit eigenen Phasen und Wahrscheinlichkeiten für gewichtete Deal-Werte.
       - icon: Users
         title: Kontakte
         description: Personen und der Kontext hinter jedem Gespräch.
@@ -44,7 +44,7 @@ features:
         title: Verknüpfte Datensätze
         description: Kontakte, Unternehmen, Deals, Services und Aufgaben verbinden.
 
-  - title: Zentraler Posteingang
+  - title: Einheitlicher Posteingang
     subtitle: Jede Kundenkonversation an einem Ort (ab Pro)
     features:
       - icon: Inbox
@@ -77,11 +77,11 @@ features:
         title: Aufgaben & Follow-ups
         description: Verankern Sie Arbeit am Datensatz und behalten Sie den Überblick. Weisen Sie Follow-ups zu, verknüpfen Sie sie mit dem passenden Kontakt, Unternehmen, Deal oder Service und bleiben Sie bei Kundenzusagen am Ball, ohne Tabellen oder verstreute To-Do-Listen.
       - icon: Clock
-        title: Selbst definierte Fristen
-        description: Datumsspalte an Aufgaben hängen, danach filtern und sortieren.
+        title: Eigene Datumsfelder
+        description: Datumsspalte ergänzen, danach filtern und sortieren. Erinnerungen gibt es nicht.
       - icon: List
-        title: Aktivitätsübersicht
-        description: Offene Arbeit und Fortschritt auf einen Blick.
+        title: Aktivitätsverlauf
+        description: Änderungen und Verlauf jedes Datensatzes auf einen Blick.
       - icon: Search
         title: Universelle Suche
         description: Jeden Kontakt, Deal oder Task sofort finden.
@@ -100,11 +100,11 @@ features:
         title: Reports & Dashboards
         description: Machen Sie gespeicherte CRM-Daten nutzbar. Bauen Sie persönliche Dashboards für unterstützte Anzahlen, Werte und Gruppierungen. Zykluszeit und Team-Performance benötigen externe Berechnungen.
       - icon: Upload
-        title: Anlage über offene Schnittstellen
-        description: Eine von Ihnen betriebene Integration kann unterstützte Datensätze über REST oder einen externen KI-Client per MCP anlegen. Es gibt keinen CSV-Importer.
+        title: XLSX-Import und offene Schnittstellen
+        description: Importieren Sie Datensätze als Excel-Datei (XLSX), jeweils einen Datensatztyp auf einmal, oder legen Sie sie über REST oder einen externen KI-Client per MCP an. CSV wird nicht unterstützt.
       - icon: Download
-        title: REST-API-Zugriff
-        description: Unterstützte CRM-Ressourcen über die REST API für selbst betriebene Integrationen lesen. Es gibt keinen eingebauten CSV-Exporter.
+        title: XLSX-Export & REST-API
+        description: Die aktuelle Ansicht eines Datensatztyps als XLSX exportieren oder CRM-Ressourcen über die REST API für selbst betriebene Integrationen lesen. CSV- und Komplettexporte gibt es nicht.
       - icon: FileText
         title: Verknüpfte CRM-Datensätze
         description: Verknüpfen Sie Kontakte, Organisationen, Deals, Services und Aufgaben über unterstützte Beziehungen.
@@ -141,7 +141,7 @@ features:
         description: Steuern Sie Ihr eigenes n8n über CRM-Webhooks und die REST API. n8n ist ein eigenes Produkt, das Sie selbst betreiben oder abonnieren.
       - icon: Play
         title: Webhooks & Events
-        description: Nachgelagerte Systeme bei jedem Datensatz- und Messaging-Event auslösen.
+        description: Nachgelagerte Systeme über [[derived.webhooks.events.total]] Datensatz- und Messaging-Ereignistypen auslösen.
       - icon: Code2
         title: REST API
         description: Bauen Sie eigene Integrationen auf dem dokumentierten OpenAPI-3.1-Modell.
@@ -152,8 +152,8 @@ features:
     gridCols: grid-cols-1 md:grid-cols-2 lg:grid-cols-3
     features:
       - icon: Rocket
-        title: In Minuten produktiv
-        description: Anmelden, erste Datensätze anlegen, loslegen. Keine wochenlange Einführung, keine Admin-Hürden, keine Schulung fürs Team.
+        title: Schnell startklar
+        description: Anmelden, erste Datensätze anlegen, loslegen. Kein verpflichtendes Einführungsprojekt; der Aufwand für Migration und Integrationen hängt von Ihren Daten ab.
       - icon: Monitor
         title: Klare Oberfläche
         description: Auf fokussierte tägliche Arbeit ausgelegt.
@@ -167,10 +167,10 @@ features:
     features:
       - icon: Server
         title: Datenbank-Region EU
-        description: Die verwaltete Datenbank des gehosteten Dienstes läuft in einer EU-Region. Application-Hosting und weitere Anbieter, darunter US-Anbieter, stehen in unserer [Subdienstleisterliste](/subprocessors).
+        description: Die verwaltete Datenbank des gehosteten Dienstes läuft in der AWS-Region Frankfurt. Das Anwendungs-Hosting und weitere Anbieter, darunter US-Anbieter, nennt unsere Seite zu Unterauftragsverarbeitern.
       - icon: ShieldCheck
         title: Self-Hosting des AGPL-Kerns
-        description: Betreiben Sie Kern-CRM-Anwendung und PostgreSQL mit Starter-Berechtigungen. Postfach und Kalenderansicht bleiben Managed-Cloud-Funktionen; verbundene Anbieter bleiben separat.
+        description: Betreiben Sie Kern-CRM-Anwendung und PostgreSQL mit dem Funktionsumfang von Starter. Postfach und Kalenderansicht bleiben Managed-Cloud-Funktionen; verbundene Anbieter bleiben separat.
 
 why:
   title: Warum Customermates?
@@ -187,7 +187,7 @@ why:
       description: Webhooks und die REST API verbinden Customermates mit Ihrer eigenen n8n-Instanz und von dort mit hunderten Tools. Workflows können komplett individuell aufgebaut werden, vom Lead-Eingang bis zur Service-Abwicklung.
     - icon: ShieldCheck
       title: Offene Infrastruktur
-      description: Die verwaltete Datenbank läuft in einer EU-Region und Anbieter stehen in der Subdienstleisterliste. Kern-CRM-Anwendung und PostgreSQL lassen sich mit Starter-Berechtigungen selbst hosten; verbundene Anbieter bleiben separat.
+      description: Die verwaltete Datenbank läuft in einer EU-Region und Anbieter stehen in der Subdienstleisterliste. Kern-CRM-Anwendung und PostgreSQL lassen sich mit dem Funktionsumfang von Starter selbst hosten; verbundene Anbieter bleiben separat.
     - icon: Sparkles
       title: Einfache Bedienbarkeit
       description: Die Oberfläche ist bewusst reduziert und logisch aufgebaut. Nutzer finden alle wichtigen Funktionen sofort und können ohne Einarbeitung effizient arbeiten.

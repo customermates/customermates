@@ -18,11 +18,12 @@ describe("marketing media contract", () => {
     for (const path of LEGACY_HERO_ROOTS) expect(existsSync(join(REPO_ROOT, path)), path).toBe(false);
   });
 
-  it("keeps shared theme images independent of content locale", () => {
+  it("keeps shared theme images independent of content locale and of a server-read theme", () => {
     const appImage = readFileSync(join(REPO_ROOT, "components", "shared", "app-image.tsx"), "utf8");
 
     expect(appImage).not.toContain("isLocalized");
     expect(appImage).not.toContain("useLocale");
-    expect(appImage).toContain("/images/${themePath}/${src as string}");
+    expect(appImage).toContain("/images/light/${src as string}");
+    expect(appImage).toContain("/images/dark/${src as string}");
   });
 });

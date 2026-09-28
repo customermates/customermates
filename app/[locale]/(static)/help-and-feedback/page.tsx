@@ -8,13 +8,16 @@ import { FAQSection } from "@/components/marketing/faq-section";
 import { PageHero } from "@/components/marketing/page-hero";
 import { generateMetadataFromMeta } from "@/core/fumadocs/metadata";
 import { helpAndFeedbackSource } from "@/core/fumadocs/source";
+import { enableStaticLocale, type StaticLocaleProps } from "@/i18n/static-locale";
 
 export async function generateMetadata({ params }: { params: Promise<{ locale: string }> }): Promise<Metadata> {
   const { locale } = await params;
   return generateMetadataFromMeta({ locale, route: "/help-and-feedback" });
 }
 
-export default async function HelpAndSettingsPage() {
+export default async function HelpAndSettingsPage({ params }: StaticLocaleProps) {
+  await enableStaticLocale(params);
+
   const locale = await getLocale();
   const page = helpAndFeedbackSource.getPage(["help-and-feedback"], locale);
 

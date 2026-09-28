@@ -1,5 +1,3 @@
-"use client";
-
 import { useLocale } from "next-intl";
 
 import { BrowserFrame } from "./browser-frame";
@@ -128,9 +126,9 @@ const COPY = {
       ],
     },
     standardDisclosure:
-      "Öffentliche, vorbefüllte Produktdemo mit synthetischen Beispieldaten. Es werden weder ein Kundenkonto noch Kundendaten angezeigt. Wenn Mate für diese Demo-Umgebung aktiviert ist, startet es geschlossen, damit der CRM-Ablauf frei bleibt.",
+      "Öffentliche, vorbefüllte Produktdemo mit synthetischen Beispieldaten. Es werden weder ein Kundenkonto noch Kundendaten angezeigt. Ist Mate in dieser Demo aktiviert, bleibt das Mate-Fenster anfangs geschlossen, damit das CRM frei sichtbar ist.",
     hostedDisclosure:
-      "Öffentliche, vorbefüllte Demo der gehosteten Customermates-Version mit synthetischen Beispieldaten. Es werden weder ein Kundenkonto noch Kundendaten angezeigt. Wenn Mate für diese Demo-Umgebung aktiviert ist, startet es geschlossen. Die Demo zeigt die Managed-Cloud-Oberfläche, kein Self-Hosted-Deployment.",
+      "Öffentliche, vorbefüllte Demo der gehosteten Customermates-Version mit synthetischen Beispieldaten. Es werden weder ein Kundenkonto noch Kundendaten angezeigt. Ist Mate in dieser Demo aktiviert, bleibt das Mate-Fenster anfangs geschlossen. Die Demo zeigt die Oberfläche der verwalteten Cloud, keine selbst gehostete Installation.",
     titles: {
       "/dashboard": "Customermates-Dashboard mit synthetischen Beispieldaten",
       "/contacts": "Customermates-Kontaktliste mit synthetischen Beispieldaten",

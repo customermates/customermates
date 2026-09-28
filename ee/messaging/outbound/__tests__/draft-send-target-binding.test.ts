@@ -32,7 +32,8 @@ vi.mock("../../inbox/inbox.schema", async (importActual) => ({
 import { CustomErrorCode } from "@/core/validation/validation.types";
 import { MessagingMessageDirection, MessagingProvider, MessagingThreadType } from "@/generated/prisma";
 
-import { draftThreadProviderId, draftThreadRecipientSetsMatch } from "../../draft-thread";
+import { draftThreadRecipientSetsMatch } from "../../draft-thread";
+import { draftThreadProviderId } from "../../draft-thread-id";
 import { SaveDraftInteractor } from "../save-draft.interactor";
 import { SendEmailInteractor } from "../send-email.interactor";
 import { StartChatInteractor } from "../start-chat.interactor";

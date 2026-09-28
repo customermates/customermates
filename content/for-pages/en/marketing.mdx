@@ -1,6 +1,6 @@
 ---
 title: "CRM for Marketing Teams: Sources, Pipeline and Handoff"
-description: "Use CRM records, custom source fields and deal pipelines to improve the marketing-to-sales handoff. Scoring, campaigns and attribution remain separate systems."
+description: "Use CRM records, custom source fields and deal pipelines to improve the marketing-to-sales handoff. Scoring, campaigns and attribution stay separate."
 industryName: "Marketing"
 
 relatedHrefs:
@@ -20,7 +20,7 @@ hero:
 
 cta:
   action: Test the marketing-to-sales handoff
-  description: Create one representative lead, record its source, link a deal and verify which marketing data should enter the CRM—and which system remains authoritative.
+  description: Create one representative lead, record its source, link a deal and verify which marketing data should enter the CRM and which system remains authoritative.
   buttonLeftText: Start a Pro trial
   buttonLeftHref: /auth/signup
   buttonRightText: Review CRM interfaces
@@ -53,7 +53,7 @@ Customermates provides the relationship and pipeline layer. It does not provide 
   </SummaryItem>
 </ArticleSummary>
 
-<ProofRail label="Verified Customermates capabilities for a marketing handoff">
+<ProofRail label="Customermates capabilities for the marketing-to-sales handoff">
   <ProofItem label="Relationships">Contacts and organizations</ProofItem>
   <ProofItem label="Context">Customer-defined source fields</ProofItem>
   <ProofItem label="Revenue path">Deals and configurable stages</ProofItem>
@@ -112,7 +112,7 @@ The same boundary applies to enrichment. A customer-selected provider may return
 
 The managed unified inbox is available from Pro upward for supported connected accounts. It can keep individual email and supported channel conversations close to a contact. It is not an email-marketing system: there is no bulk campaign composer, sequence engine, deliverability infrastructure, subscription center or campaign analytics layer.
 
-An authorized external MCP client can work with supported CRM records. On an entitled cloud account it can also read an existing inbox thread, save a draft inside that thread or explicitly send an individual message. The client supplies its own confirmation experience, model and subscription. Brand-new outbound messages cannot be saved as drafts through that surface, and send tools deliver when called.
+An authorized external MCP client can work with supported CRM records. On an entitled cloud account it can also read an existing inbox thread, save a draft inside that thread or explicitly send an individual message. You choose the client, its model and its subscription, and the client, not Customermates, decides whether to ask before it sends. Brand-new outbound messages cannot be saved as drafts through that surface, and send tools deliver when called.
 
 ## When a dedicated marketing platform should stay in place
 
@@ -128,9 +128,9 @@ Customermates can receive the CRM subset of that work through documented interfa
 
 ## Plans and deployment boundaries
 
-Starter includes core CRM records, custom fields, REST, webhooks and MCP access for external clients from [[commercial.price.starter.monthly]] per user per month. Pro adds the managed unified inbox and its connected-account allowance. Self-hosting runs the AGPL community core with Starter entitlements; it does not include the managed inbox, hosted Mate capability or an n8n runtime.
+Starter includes core CRM records, custom fields, REST, webhooks and MCP access for external clients from [[commercial.price.starter.monthly]] per user per month. Pro adds the managed unified inbox and its connected-account allowance. Self-hosting runs the AGPL community core with the Starter feature set; it does not include the unified inbox, the Mate assistant or an n8n runtime.
 
-The managed application database is configured in an EU region. Disclosed subprocessors and international transfers still apply, and that deployment fact is not a GDPR certification. The organization remains responsible for legal basis, consent, retention, deletion, provider assessment and configuration.
+In the managed cloud, the application database runs in the AWS Frankfurt region; hosting and other subprocessors, including US providers, are listed on the [subprocessors page](/subprocessors), and a [DPA](/dpa) is available. That deployment fact is not a GDPR certification, and Customermates holds none. The organization remains responsible for legal basis, consent, retention, deletion, provider assessment and configuration. If you need full control over where data lives, self-host the open-source core.
 
 ## Frequently asked questions
 
@@ -159,9 +159,12 @@ The managed application database is configured in an EU region. Disclosed subpro
     map fields, handle credentials, deduplicate records and test failure paths.
   </FaqItem>
 
-  <FaqItem question="Is Customermates GDPR-compliant for marketing data?">
-    No software choice establishes compliance by itself. The managed database
-    uses an EU region, while subprocessors and transfers remain documented.
+  <FaqItem question="How does Customermates handle GDPR for marketing data?">
+    No software choice establishes compliance by itself. For the managed cloud,
+    Customermates provides a [DPA](/dpa), lists its subprocessors, including US
+    providers covered by standard contractual clauses, on the
+    [subprocessors page](/subprocessors), and runs the application database in
+    the AWS Frankfurt region. It holds no certification and can be self-hosted.
     Compliance depends on purpose, legal basis, consent, retention, connected
     services and the organization's configuration.
   </FaqItem>

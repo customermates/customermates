@@ -13,11 +13,13 @@ let unregister = () => {};
 
 beforeEach(() => {
   captureException.mockClear();
+  vi.stubEnv("NEXT_PUBLIC_SENTRY_DSN", "https://public@example.invalid/1");
 });
 
 afterEach(() => {
   unregister();
   unregister = () => {};
+  vi.unstubAllEnvs();
 });
 
 describe("isClientTransportError", () => {
@@ -49,7 +51,7 @@ describe("client action reporting", () => {
     expect(captureException).not.toHaveBeenCalled();
   });
 
-  it("continues to capture a genuine application error", () => {
+  it("continues to capture a genuine application error", async () => {
     const seen: unknown[] = [];
     unregister = registerApplicationErrorHandler((error) => seen.push(error));
     const error = new TypeError("Cannot read properties of undefined");
@@ -57,7 +59,7 @@ describe("client action reporting", () => {
     reportApplicationError(error);
 
     expect(seen).toEqual([error]);
-    expect(captureException).toHaveBeenCalledExactlyOnceWith(error);
+    await vi.waitFor(() => expect(captureException).toHaveBeenCalledExactlyOnceWith(error));
   });
 
   it("runs immediately and contains both synchronous throws and asynchronous rejections", async () => {

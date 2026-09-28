@@ -6,6 +6,8 @@ import type { GetTaskByIdData } from "@/features/tasks/get/get-task-by-id.intera
 import type { CreateTaskData } from "@/features/tasks/upsert/create-task.interactor";
 import type { UpdateTaskData } from "@/features/tasks/upsert/update-task.interactor";
 
+import { EntityType } from "@/generated/prisma";
+
 import {
   getGetTasksInteractor,
   getGetTaskByIdInteractor,
@@ -13,6 +15,7 @@ import {
   getCreateTaskInteractor,
   getUpdateTaskInteractor,
   getDeleteTaskInteractor,
+  getGetCustomColumnsByEntityTypeInteractor,
 } from "@/core/di";
 import { serializeResult } from "@/core/utils/action-result";
 import { unwrapValidated } from "@/core/validation/validation.utils";
@@ -53,6 +56,11 @@ export async function deleteTaskAction(data: DeleteTaskData) {
 }
 
 export async function getTaskByIdAction(data: GetTaskByIdData) {
-  const result = await unwrapValidated(getGetTaskByIdInteractor().invoke(data));
-  return { entity: result.task, customColumns: result.customColumns };
+  const result = await getGetTaskByIdInteractor().invoke(data);
+  if (result.ok) return { entity: result.data.task, customColumns: result.data.customColumns };
+
+  const customColumns = await unwrapValidated(
+    getGetCustomColumnsByEntityTypeInteractor().invoke({ entityType: EntityType.task }),
+  );
+  return { entity: null, customColumns };
 }

@@ -1,6 +1,6 @@
 ---
 title: "CRM für Versicherungen: Makler & Partner"
-description: "Makler-, Agentur- und Vertriebspartnerbeziehungen im Open-Source CRM verwalten. Keine Bestands-, Schaden-, Underwriting- oder Aktuarsplattform."
+description: "Makler-, Agentur- und Vertriebspartnerbeziehungen im Open-Source-CRM verwalten. Keine Bestands-, Schaden-, Underwriting- oder Aktuarsplattform."
 industryName: "Versicherungsunternehmen"
 
 relatedHrefs:
@@ -28,7 +28,7 @@ cta:
   hint: "Der Kernbetrieb bleibt in den dafür entwickelten und freigegebenen Versicherungssystemen."
 ---
 
-Ein **CRM für Versicherungen** kann Beziehungen zu Maklern, Agenturen, Vertriebspartnern und Geschäftskontakten unterstützen. Es darf nicht mit den Kernsystemen verwechselt werden, die Policen führen, Risiken zeichnen, Schäden bearbeiten, Beiträge abrechnen oder regulatorische Nachweise halten. Customermates dient ausschließlich der Beziehungsebene.
+Ein **CRM für Versicherungen** kann Beziehungen zu Maklern, Agenturen, Vertriebspartnern und Geschäftskontakten unterstützen. Es ist nicht mit den Kernsystemen zu verwechseln, die Policen führen, Risiken zeichnen, Schäden bearbeiten, Beiträge abrechnen oder regulatorische Nachweise halten. Customermates dient ausschließlich der Beziehungsebene.
 
 <ArticleSummary title="Auf einen Blick">
   <SummaryItem label="Geeignet für">
@@ -39,9 +39,9 @@ Ein **CRM für Versicherungen** kann Beziehungen zu Maklern, Agenturen, Vertrieb
     Partnerorganisationen, Beteiligte, Beziehungsphasen und nächste Aktionen
     miteinander verbinden.
   </SummaryItem>
-  <SummaryItem label="Verifizierter Umfang">
-    Organisationen, Kontakte, anpassbare Deals, eigene Felder, Filter, Kanban,
-    Aktivität und verknüpfte Aufgaben.
+  <SummaryItem label="Funktionsumfang">
+    Organisationen, Kontakte, anpassbare Deals, eigene Felder, Filter,
+    Tabellen- und Kanban-Ansicht, Aktivität und verknüpfte Aufgaben.
   </SummaryItem>
   <SummaryItem label="Systemgrenze">
     Keine Bestandsführung, Schadenbearbeitung, Underwriting, Tarifierung,
@@ -49,7 +49,7 @@ Ein **CRM für Versicherungen** kann Beziehungen zu Maklern, Agenturen, Vertrieb
   </SummaryItem>
 </ArticleSummary>
 
-<ProofRail label="Verifizierte CRM-Funktionen für Beziehungen im Versicherungsvertrieb">
+<ProofRail label="CRM-Funktionen für Beziehungen im Versicherungsvertrieb">
   <ProofItem label="Partner">Agenturen und Maklerorganisationen</ProofItem>
   <ProofItem label="Personen">Geschäftliche Kontakte und Beziehungen</ProofItem>
   <ProofItem label="Pipeline">Anpassbare Chancen</ProofItem>
@@ -65,22 +65,21 @@ Customermates kann einem Partnerschaftsteam eine strukturierte Sicht auf Agentur
 
 | Bedarf | Customermates | Versicherungs-Kernsystem |
 | --- | --- | --- |
-| Agentur- und Maklerkontext | Organisationen, Kontakte, Beziehungen, Notizen und Aktivität | Führender Ernennungs- und Vertriebsdatensatz |
-| Partnerentwicklung | Deals, eigene Phasen, Filter und Kanban | Formelle Due Diligence und Ernennungskontrollen |
+| Agentur- und Maklerkontext | Organisationen, Kontakte, Beziehungen, Notizen und Aktivität | Führender Datensatz zu Vertriebspartneranbindung und -zulassung |
+| Partnerentwicklung | Deals, eigene Phasen, Filter und Kanban | Formelle Due Diligence und Zulassungskontrollen |
 | Nächste Beziehungsaktion | Aufgaben an CRM-Datensätzen | Regulierter Workflow, Service Levels und Eskalationen |
 | Verbundene Gespräche | Verwalteter Posteingang ab Pro | Offizielles Kommunikations- und Dokumentenarchiv |
-| Integrationsoberfläche | REST, Webhooks, MCP und separate n8n-Option | Bestand, Schaden, Underwriting, Abrechnung und Datenplattform |
+| Schnittstellen | REST, Webhooks, MCP und separate n8n-Option | Bestand, Schaden, Underwriting, Abrechnung und Datenplattform |
 
 <AcquisitionCallout title="Kernprozesse sind keine generischen Deals" variant="boundary">
   Eine anpassbare Pipeline eignet sich für eine geschäftliche
-  Partnerbeziehung. Sie ist keine Schaden-Engine, Underwriting-Workbench,
-  Policenlebenszyklus, Reservenführung, Provisionsplattform und kein Nachweis
-  dafür, dass operative Kontrollen bestehen.
+  Partnerbeziehung. Sie ersetzt weder Schadenbearbeitung noch Underwriting-, Policen-,
+  Reserven- oder Provisionssysteme und belegt keine operativen Kontrollen.
 </AcquisitionCallout>
 
 ## Ein praktischer Workflow für Maklerbeziehungen
 
-Legen Sie eine Organisation für Maklerhaus oder Agentur an und verknüpfen Sie die geschäftlichen Ansprechpartner. Ein Deal kann eine kommerzielle Beziehung darstellen, etwa Partnerprüfung, Onboarding oder eine gemeinsame Vertriebschance. Er darf nicht für Police, Schaden, Underwriting-Antrag oder Provisionsabrechnung stehen.
+Legen Sie eine Organisation für Maklerhaus oder Agentur an und verknüpfen Sie die geschäftlichen Ansprechpartner. Ein Deal kann eine kommerzielle Beziehung darstellen, etwa Partnerprüfung, Onboarding oder eine gemeinsame Vertriebschance. Für Police, Schaden, Underwriting-Antrag oder Provisionsabrechnung ist er nicht gedacht.
 
 <Steps>
   <Step title="Partnerorganisation anlegen">
@@ -92,15 +91,15 @@ Legen Sie eine Organisation für Maklerhaus oder Agentur an und verknüpfen Sie 
     ohne Versicherungsnehmer- oder Schadendatensätze zu übernehmen.
   </Step>
   <Step title="Kommerzielle Phasen konfigurieren">
-    Nutzen Sie identifiziert, kontaktiert, Due Diligence extern bearbeitet,
-    kaufmännische Prüfung, aktive Beziehung oder beendet.
+    Nutzen Sie Phasen wie „Identifiziert“, „Kontaktiert“, „Due Diligence extern
+    bearbeitet“, „Kaufmännische Prüfung“, „Aktive Beziehung“ oder „Beendet“.
   </Step>
   <Step title="Begrenzte Partnerfelder ergänzen">
     Speichern Sie nicht-verbindliche Angaben wie Partnertyp, Gebiet, internen
     Verantwortlichen, Beziehungsstatus oder Fachsystemreferenz.
   </Step>
   <Step title="Formelle Kontrollen ans Kernsystem übergeben">
-    Ernennung, Eignung, Verträge, Produktionsdaten, Provisionen und regulatorische
+    Vertriebspartnerzulassung, Eignung, Verträge, Produktionsdaten, Provisionen und regulatorische
     Nachweise bleiben in den führenden Plattformen.
   </Step>
 </Steps>
@@ -109,23 +108,23 @@ Legen Sie eine Organisation für Maklerhaus oder Agentur an und verknüpfen Sie 
 
 Customermates führt keine Policen, nimmt keine Schaden-Erstmeldung an, weist keine Schäden zu, berechnet keine Reserven, entscheidet keine Deckung, führt kein Underwriting aus, tarifiziert kein Risiko, berechnet keine Provisionen, zieht keine Beiträge ein, erstellt keine Policendokumente und pflegt keine aktuariellen Modelle.
 
-Gebuchte Beiträge, Schadenquoten, Risikoklassen, Gesundheits- oder Finanzinformationen von Versicherungsnehmern, Schadennachweise und formeller Ernennungsstatus sollten nicht in allgemeine CRM-Felder kopiert werden, sofern der Versicherer diesen Datenfluss nicht separat entworfen und freigegeben hat. Berechtigungen bieten keine Trennung je Feld oder Datensatz. Eine Versicherungs-Compliance-Zertifizierung besteht nicht.
+Gebuchte Beiträge, Schadenquoten, Risikoklassen, Gesundheits- oder Finanzinformationen von Versicherungsnehmern, Schadennachweise und der formelle Zulassungsstatus von Vertriebspartnern sollten nicht in allgemeine CRM-Felder kopiert werden, sofern der Versicherer diesen Datenfluss nicht separat entworfen und freigegeben hat. Berechtigungen gelten je Ressource und Aktion, nicht je Feld; den Lesezugriff können Sie auf zugewiesene Datensätze beschränken. Eine Compliance-Zertifizierung für die Versicherungsbranche besitzt Customermates nicht.
 
 Für die Analyse von Partnerleistung bleiben die verbindlichen Kennzahlen in der Versicherungs-Datenplattform. Eine begrenzte Referenz oder manuell geprüfte Zusammenfassung kann ein Gespräch unterstützen; eine CRM-Ansicht ist jedoch kein regulatorischer oder finanzieller Bericht.
 
 ## Messaging, KI und Systemverbindungen
 
-Der verwaltete [einheitliche Posteingang](/features/unified-inbox) steht ab Pro für unterstützte Einzelgespräche bereit. Teilnehmer können mit Kontaktkontext verbunden werden. Der Posteingang ist keine Kampagnenplattform für Versicherungsnehmer, und eine Nachricht wird nicht automatisch einer Police, einem Schaden, Underwriting-Vorgang oder Deal zugeordnet. Self-Hosting enthält kein Messaging.
+Der verwaltete [einheitliche Posteingang](/features/unified-inbox) steht ab Pro für unterstützte Einzelgespräche bereit. Teilnehmer können mit Kontaktkontext verbunden werden. Der Posteingang ist keine Kampagnenplattform für Versicherungsnehmer, und Gespräche werden Kontakten zugeordnet, nicht Policen, Schäden, Underwriting-Vorgängen oder Deals. Self-Hosting enthält kein Messaging.
 
-Ein autorisierter externer KI-Client kann unterstützte [MCP](/docs/mcp)-Aktionen auf allgemeinen CRM-Datensätzen ausführen. Er wird dadurch nicht zum Underwriting-, Schaden-, Aktuars- oder Regulierungsagenten. Sensible Versicherungsdaten dürfen erst nach unabhängiger Freigabe des vollständigen Datenflusses in einen externen Client- oder Modellpfad gelangen.
+Ein autorisierter externer KI-Client kann unterstützte [MCP](/docs/mcp)-Aktionen auf allgemeinen CRM-Datensätzen ausführen. Er wird dadurch nicht zum Underwriting-, Schaden-, Aktuars- oder Regulierungsagenten. Sensible Versicherungsdaten sollten erst nach unabhängiger Freigabe des vollständigen Datenflusses in einen externen Client- oder Modellpfad gelangen.
 
-Eine kundenseitig gebaute Verbindung kann [REST API und Webhooks](/features/api), MCP oder die separate [n8n-Integration](/features/workflow-automation) verwenden. Der Versicherer verantwortet Quellautorität, Feldzuordnung, Berechtigungen, Validierung, Wiederholungen, Dubletten und operative Kontrollen. Eine native Bestands-, Schaden-, Underwriting-, Versicherer- oder Aktuarsintegration wird nicht behauptet.
+Eine kundenseitig gebaute Verbindung kann [REST-API und Webhooks](/features/api), MCP oder die separate [n8n-Integration](/features/workflow-automation) verwenden. Der Versicherer verantwortet Quellautorität, Feldzuordnung, Berechtigungen, Validierung, Wiederholungen, Dubletten und operative Kontrollen. Eine native Bestands-, Schaden-, Underwriting-, Versicherer- oder Aktuarsintegration gibt es nicht.
 
 ## Bereitstellung und kommerzielle Eignung
 
-Die verwaltete Customermates-Datenbank läuft in einer EU-Region; das ist keine DSGVO- oder Versicherungszertifizierung. Beim Self-Hosting wählt der Betreiber Anwendung und Datenbank-Infrastruktur, verbundene Dienste und das umgebende Kontrollsystem bleiben separat.
+In der Cloud-Version liegt die Datenbank in der AWS-Region Frankfurt; Hosting und weitere Unterauftragsverarbeiter, auch aus den USA, stehen in der [Liste der Unterauftragsverarbeiter](/subprocessors), ein [Auftragsverarbeitungsvertrag (AVV)](/dpa) liegt vor. Eine DSGVO-, ISO- oder Versicherungszertifizierung besitzt Customermates nicht. Wer den Speicherort vollständig selbst bestimmen will, betreibt den Open-Source-Kern selbst; verbundene Dienste und das umgebende Kontrollsystem bleiben separat.
 
-Starter enthält das Kern-CRM. Pro ergänzt den verwalteten einheitlichen Posteingang und ein verbundenes Konto pro Nutzer. Self-Hosting nutzt die Starter-Berechtigungen und enthält keinen einheitlichen Posteingang. Die aktuellen Tarifdetails stehen auf der [Preisseite](/pricing).
+Starter enthält das Kern-CRM, monatlich abgerechnet. Bestehende Partnerlisten übernehmen Sie per Import aus einer Excel-Arbeitsmappe (XLSX), jeweils einen Datensatztyp. Pro ergänzt den verwalteten einheitlichen Posteingang und ein verbundenes Konto pro Nutzer. Self-Hosting umfasst den Funktionsumfang von Starter und enthält keinen einheitlichen Posteingang. Die aktuellen Tarifdetails stehen auf der [Preisseite](/pricing).
 
 Wählen Sie Customermates, wenn ein Vertriebs- oder Partnerschaftsteam neben etablierten Versicherungssystemen ein anpassbares Beziehungs-CRM braucht. Wählen Sie eine Fachplattform, wenn das Produkt selbst Bestand, Schäden, Underwriting, Tarifierung, Abrechnung, Provisionen oder regulatorische Abläufe ausführen muss.
 
@@ -137,14 +136,14 @@ Nein. Customermates ist ein allgemeines CRM für Beziehungen und kommerzielle Ch
 </FaqItem>
 
 <FaqItem question="Kann ein Versicherungsunternehmen Underwriting in Customermates betreiben?">
-Nein. Eine allgemeine Deal-Pipeline enthält keine Risikoprüfung, Tarifierung, Kompetenzgrenzen, Entscheidungskontrollen, Dokumentation und weitere Funktionen einer Underwriting-Plattform.
+Nein. Eine allgemeine Deal-Pipeline enthält keine Risikoprüfung, Tarifierung, Kompetenzgrenzen, Entscheidungskontrollen, Dokumentation oder andere Funktionen einer Underwriting-Plattform.
 </FaqItem>
 
 <FaqItem question="Wofür kann ein Versicherer Customermates einsetzen?">
-Die stärkste Eignung liegt bei Agentur-, Makler-, Dienstleister- und kommerziellen Partnerbeziehungen: Organisationen, Kontakte, Beziehungschancen, eigener Kontext und manuelle nächste Schritte.
+Am besten eignet sich Customermates für Agentur-, Makler-, Dienstleister- und kommerziellen Partnerbeziehungen: Organisationen, Kontakte, Beziehungschancen, eigener Kontext und manuelle nächste Schritte.
 </FaqItem>
 
 <FaqItem question="Kann Customermates mit Versicherungs-Kernsystemen verbunden werden?">
-Ein Kunde kann eine begrenzte Verbindung bauen, wenn das andere System eine geeignete Schnittstelle anbietet. Eine native Bestands-, Schaden-, Underwriting-, Abrechnungs- oder Versichereranbindung wird nicht behauptet.
+Ein Kunde kann eine begrenzte Verbindung bauen, wenn das andere System eine geeignete Schnittstelle anbietet. Eine native Bestands-, Schaden-, Underwriting-, Abrechnungs- oder Versichereranbindung gibt es nicht.
 </FaqItem>
 </Faq>

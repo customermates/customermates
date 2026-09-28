@@ -1883,6 +1883,14 @@
   "ContactPage": {
     "description": "Have a question, want a walkthrough, or exploring a partnership? Drop me a note and I'll get back within a day.",
     "form": {
+      "errors": {
+        "checkFields": "Please check the highlighted fields.",
+        "company": "Please keep the company name under 200 characters.",
+        "email": "Please enter a valid email address.",
+        "messageTooLong": "Please keep your message under 5000 characters.",
+        "messageTooShort": "Please write at least 10 characters.",
+        "name": "Please enter your name."
+      },
       "founderName": "Benjamin Wagner",
       "founderNote": "Your message comes directly to me. Tell me what you use today and where the workflow gets stuck.",
       "founderRole": "Founder, Customermates",
@@ -2831,6 +2839,7 @@
   "NotFoundPage": {
     "body": "We've been automatically notified that this page went on vacation. We'll track it down and bring it back soon!",
     "ctaLabel": "Back to home",
+    "documentTitle": "Page not found | Customermates",
     "subtitle": "This page went on vacation without telling us",
     "title": "Oops! You've entered the void"
   },
