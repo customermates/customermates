@@ -1,11 +1,11 @@
 import { describe, expect, it } from "vitest";
 
-import { DOCS_HELDOUT_LIVE_SPECS } from "../classifier-eval/heldout/docs-heldout";
 import { ROUTING_HELDOUT } from "../classifier-eval/heldout/routing-heldout";
 import { approvalPolicy } from "../episode";
 import { BENCHMARK_CASES } from "../fixtures";
 import {
   HELDOUT_DOCS_CASES,
+  HELDOUT_DOCS_LIVE_SPECS,
   HELDOUT_ROUTING_CASES,
   scoreHeldoutCase,
   toolsetsCalledInTurn,
@@ -27,7 +27,7 @@ describe("held-out live cases", () => {
   it("declines every approval in the docs cases, so DH14's rename question can never rename unapproved", () => {
     const dh14 = BENCHMARK_CASES.find((definition) => definition.id === "DH14");
     expect(dh14?.prompts[0]).toMatch(/"Deals" a "Oportunidades"/);
-    for (const definition of BENCHMARK_CASES.filter((entry) => entry.id.startsWith("DH")))
+    for (const definition of BENCHMARK_CASES.filter((entry) => /^D[HE]\d/.test(entry.id)))
       expect(approvalPolicy(definition), definition.id).toBe("reject");
     expect(score("DH14", [["update_workspace_settings"]], true, false)).toEqual([
       { id: "business-state-unchanged", passed: true, gate: "safety" },
@@ -36,9 +36,10 @@ describe("held-out live cases", () => {
   });
 
   it("turns every docs live spec into one read-only case in the user's language and locale", () => {
-    expect(HELDOUT_DOCS_CASES.map((definition) => definition.id)).toEqual(DOCS_HELDOUT_LIVE_SPECS.map((spec) => spec.id));
+    expect(HELDOUT_DOCS_CASES.map((definition) => definition.id)).toEqual(HELDOUT_DOCS_LIVE_SPECS.map((spec) => spec.id));
+    expect(HELDOUT_DOCS_CASES.filter((definition) => definition.id.startsWith("DE"))).toHaveLength(30);
     for (const [index, definition] of HELDOUT_DOCS_CASES.entries()) {
-      const spec = DOCS_HELDOUT_LIVE_SPECS[index]!;
+      const spec = HELDOUT_DOCS_LIVE_SPECS[index]!;
       expect(definition.prompts).toEqual([spec.prompt]);
       expect(definition.contexts).toEqual([{ locale: spec.locale, pageRoute: `/${spec.locale}/contacts` }]);
       expect(definition.judgeFacts[0]).toBe(spec.goldFact);
@@ -49,6 +50,10 @@ describe("held-out live cases", () => {
       { id: "no-mutating-tool-attempt", passed: true, gate: "safety" },
     ]);
     expect(score("DH01", [[]], false, false).every((check) => !check.passed)).toBe(true);
+    expect(score("DE01", [["search_docs"]]).map((check) => check.id)).toEqual([
+      "business-state-unchanged",
+      "no-mutating-tool-attempt",
+    ]);
   });
 
   it("turns every routing item into one case with its prompts in order", () => {

@@ -4,7 +4,16 @@ import path from "node:path";
 
 import { describe, expect, it } from "vitest";
 
-import { DOCS_HELDOUT, DOCS_HELDOUT_LIVE_SPECS } from "../classifier-eval/heldout/docs-heldout";
+import {
+  DOCS_EMBEDDING_HELDOUT,
+  DOCS_EMBEDDING_LIVE_SPECS,
+} from "../classifier-eval/heldout/docs-embedding-heldout";
+import {
+  DOCS_HELDOUT,
+  DOCS_HELDOUT_LIVE_SPECS,
+  type DocsHeldoutItem,
+  type DocsHeldoutLiveSpec,
+} from "../classifier-eval/heldout/docs-heldout";
 import { GUARD_HELDOUT, GUARD_HELDOUT_FAMILIES } from "../classifier-eval/heldout/guard-heldout";
 import { ROUTING_HELDOUT } from "../classifier-eval/heldout/routing-heldout";
 
@@ -17,9 +26,11 @@ const FROZEN: Readonly<Record<string, string>> = {
   "guard-heldout.ts": "ce3aa6ca93369aea44509025b64e597db5f1e29a27f05d4415bf70276a727128",
   "routing-heldout.ts": "9a852d245f1680571101feb7123e708edb7d1b3e15b3b1ca11eb2609bc372b7f",
   "docs-heldout.ts": "8f3c2c0681fb5be7c6eb583f6c36297aedcb1ecd0e6c641c8ba66fb8e91631df",
+  "docs-embedding-heldout.ts": "ea992e05ccde209652ab65b60dfbba648861b7f267cd386b539cf5ad27a036f3",
 };
 
 const DOCS_QUESTION_DRAFT_SHA256 = "a3a64875bcfc86505f2357a73f8849202ed2e70630a8e99e6851033e5c50c119";
+const DOCS_EMBEDDING_QUESTION_DRAFT_SHA256 = "8fae1bd795f17ce8d6e3898f2782955c6342055535a300fe9a188bd80e86d24e";
 
 const sha256 = (content: string) => createHash("sha256").update(content).digest("hex");
 
@@ -36,6 +47,12 @@ describe("frozen held-out fixtures", () => {
     const draft = `${DOCS_HELDOUT.map((item) => `${item.lang}|${item.query}`).join("\n")}\n`;
 
     expect(sha256(draft)).toBe(DOCS_QUESTION_DRAFT_SHA256);
+  });
+
+  it("keeps the embedding-study docs questions identical to their blind draft", () => {
+    const draft = `${DOCS_EMBEDDING_HELDOUT.map((item) => `${item.lang}|${item.query}`).join("\n")}\n`;
+
+    expect(sha256(draft)).toBe(DOCS_EMBEDDING_QUESTION_DRAFT_SHA256);
   });
 });
 
@@ -81,37 +98,68 @@ describe("routing held-out set", () => {
   });
 });
 
+function anchorsByLocale() {
+  return new Map(
+    (["en", "de"] as const).map((locale) => [
+      locale,
+      new Set(
+        listDocsSlugs(locale, "docs").flatMap((slug) => {
+          const page = getDocsPageRaw(slug, locale, "docs")!;
+          return splitSections({ slug, source: "docs", pageTitle: page.title, markdown: page.markdown }).map(
+            (section) => `${section.slug}#${section.anchor}`,
+          );
+        }),
+      ),
+    ]),
+  );
+}
+
+function expectLabelledAgainstDocs(items: readonly DocsHeldoutItem[]) {
+  const byLocale = anchorsByLocale();
+  for (const item of items) {
+    const anchors = byLocale.get(item.docsLocale)!;
+
+    expect(item.docsLocale, item.id).toBe(item.lang === "de" ? "de" : "en");
+    expect(item.anchors[0].startsWith(`${item.slug}#`), item.id).toBe(true);
+    expect([...item.anchors, ...item.alternatives].filter((anchor) => !anchors.has(anchor))).toEqual([]);
+    expect(item.fact.length).toBeGreaterThan(0);
+  }
+}
+
+function expectSixLiveSpecsPerLanguage(specs: readonly DocsHeldoutLiveSpec[]) {
+  expect(specs).toHaveLength(30);
+  for (const lang of ["en", "de", "es", "fr", "it"]) {
+    expect(specs.filter((spec) => spec.lang === lang)).toHaveLength(6);
+  }
+}
+
 describe("docs held-out set", () => {
   it("points every question at sections that exist in its docs locale", () => {
-    const anchorsByLocale = new Map(
-      (["en", "de"] as const).map((locale) => [
-        locale,
-        new Set(
-          listDocsSlugs(locale, "docs").flatMap((slug) => {
-            const page = getDocsPageRaw(slug, locale, "docs")!;
-            return splitSections({ slug, source: "docs", pageTitle: page.title, markdown: page.markdown }).map(
-              (section) => `${section.slug}#${section.anchor}`,
-            );
-          }),
-        ),
-      ]),
-    );
-
     expect(DOCS_HELDOUT).toHaveLength(40);
-    for (const item of DOCS_HELDOUT) {
-      const anchors = anchorsByLocale.get(item.docsLocale)!;
-
-      expect(item.docsLocale, item.id).toBe(item.lang === "de" ? "de" : "en");
-      expect(item.anchors[0].startsWith(`${item.slug}#`), item.id).toBe(true);
-      expect([...item.anchors, ...item.alternatives].filter((anchor) => !anchors.has(anchor))).toEqual([]);
-      expect(item.fact.length).toBeGreaterThan(0);
-    }
+    expectLabelledAgainstDocs(DOCS_HELDOUT);
   });
 
   it("derives 30 live case specs, six per language", () => {
-    expect(DOCS_HELDOUT_LIVE_SPECS).toHaveLength(30);
+    expectSixLiveSpecsPerLanguage(DOCS_HELDOUT_LIVE_SPECS);
+  });
+});
+
+describe("docs embedding-study held-out set", () => {
+  it("has twelve questions per language, each pointing at sections that exist in its docs locale", () => {
+    expect(DOCS_EMBEDDING_HELDOUT).toHaveLength(60);
+    expect(new Set(DOCS_EMBEDDING_HELDOUT.map((item) => item.id)).size).toBe(60);
     for (const lang of ["en", "de", "es", "fr", "it"]) {
-      expect(DOCS_HELDOUT_LIVE_SPECS.filter((spec) => spec.lang === lang)).toHaveLength(6);
+      expect(DOCS_EMBEDDING_HELDOUT.filter((item) => item.lang === lang)).toHaveLength(12);
     }
+    expectLabelledAgainstDocs(DOCS_EMBEDDING_HELDOUT);
+  });
+
+  it("derives 30 live case specs DE01 to DE30, six per language, none repeating an earlier question", () => {
+    expectSixLiveSpecsPerLanguage(DOCS_EMBEDDING_LIVE_SPECS);
+    expect(DOCS_EMBEDDING_LIVE_SPECS.map((spec) => spec.id)).toEqual(
+      Array.from({ length: 30 }, (_, index) => `DE${String(index + 1).padStart(2, "0")}`),
+    );
+    const earlier = new Set(DOCS_HELDOUT.map((item) => item.query));
+    expect(DOCS_EMBEDDING_HELDOUT.filter((item) => earlier.has(item.query))).toEqual([]);
   });
 });

@@ -3,6 +3,7 @@ import type { BenchmarkTurnContext } from "./fixtures";
 import { onDemandToolsetOfTool } from "@/ee/agent-chat/agent-toolsets";
 import { LOAD_TOOLSET_TOOL_NAME, type AgentOnDemandToolset } from "@/ee/agent-chat/agent-toolset-routing";
 
+import { DOCS_EMBEDDING_LIVE_SPECS } from "./classifier-eval/heldout/docs-embedding-heldout";
 import { DOCS_HELDOUT_LIVE_SPECS, type DocsHeldoutLiveSpec } from "./classifier-eval/heldout/docs-heldout";
 import { ROUTING_HELDOUT, type RoutingHeldoutItem } from "./classifier-eval/heldout/routing-heldout";
 
@@ -13,6 +14,7 @@ import { ROUTING_HELDOUT, type RoutingHeldoutItem } from "./classifier-eval/held
  *   that language, and read-only safety checks. Their gold fact and page anchor are judged by the stage-4 analysis
  *   (`classifier-eval/heldout-live/analyse.ts`), so the deterministic oracle here holds only the runtime and read-only
  *   safety contract.
+ * - `DE01` to `DE30` are the embedding-candidate study's docs live specs (Amendment 4), built and scored like `DH`.
  * - `RH01` to `RH60` are the routing held-out items in fixture order. Each user turn must call at least one tool of
  *   every on-demand set the item labels for that turn (`perTurn`, or `toolsets` for a single turn); `load_toolset`
  *   alone does not count, so a preloaded set and a loaded set are scored alike. Items that need no set carry only the
@@ -21,7 +23,7 @@ import { ROUTING_HELDOUT, type RoutingHeldoutItem } from "./classifier-eval/held
  * Both families are comparative, not judged by the rubric judges, and excluded from the merge check.
  */
 
-export type HeldoutCaseId = `DH${string}` | `RH${string}`;
+export type HeldoutCaseId = `DH${string}` | `DE${string}` | `RH${string}`;
 
 export type HeldoutCase = {
   id: HeldoutCaseId;
@@ -38,7 +40,12 @@ export type HeldoutCase = {
 export type HeldoutDocsCase = HeldoutCase & { spec: DocsHeldoutLiveSpec };
 export type HeldoutRoutingCase = HeldoutCase & { item: RoutingHeldoutItem; needs: readonly (readonly AgentOnDemandToolset[])[] };
 
-export const HELDOUT_DOCS_CASES: readonly HeldoutDocsCase[] = DOCS_HELDOUT_LIVE_SPECS.map((spec) => ({
+export const HELDOUT_DOCS_LIVE_SPECS: readonly DocsHeldoutLiveSpec[] = [
+  ...DOCS_HELDOUT_LIVE_SPECS,
+  ...DOCS_EMBEDDING_LIVE_SPECS,
+];
+
+export const HELDOUT_DOCS_CASES: readonly HeldoutDocsCase[] = HELDOUT_DOCS_LIVE_SPECS.map((spec) => ({
   id: spec.id as HeldoutCaseId,
   title: `Held-out docs ${spec.itemId} (${spec.lang}): ${spec.page}`,
   actor: "driver",

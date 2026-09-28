@@ -252,3 +252,138 @@ and their sha256 are unchanged, and no gate above changes.
 
 The analysis, its oracle and its statistics are fixed in `METHOD` of
 `scripts/agent-benchmark/classifier-eval/heldout-live/m8-recheck.ts`.
+
+## Amendment 4 (embedding candidates before the Jev re-rank, before any run)
+
+Recorded 2026-09-28 on parent commit `e6d4566a`, before any embedding model, candidate generator or re-rank was run on
+the new set below and before any code for it existed. The earlier frozen fixtures and their sha256 are unchanged. The
+owner allows US-hosted embedding models with disclosure; zero data retention and no training stay required on the
+serving endpoint.
+
+### Question and new frozen fixture
+
+Does adding embedding candidates before the Jev docs re-rank improve Mate's docs answers? The DH cases sit near the
+ceiling (the kept arm passed 91.7 % to 93.0 % of DH episodes), so a new blind set targets questions worded away from
+the answer section, where keyword candidates miss.
+
+| File | sha256 |
+| --- | --- |
+| `docs-embedding-heldout.ts` | `ea992e05ccde209652ab65b60dfbba648861b7f267cd386b539cf5ad27a036f3` |
+
+- 60 questions, 12 each in en, de, es, fr and it; `de` items use the German docs, every other language the English
+  docs. Written blind from the page titles, descriptions and section headings only, frozen first as a 60-line
+  `lang|query` draft with sha256 `8fae1bd795f17ce8d6e3898f2782955c6342055535a300fe9a188bd80e86d24e` before any section
+  body was read; the freeze test recomputes it. Topics of the 40 `docs-heldout.ts` questions and of D1 to D10 were
+  avoided. Page, anchors, alternatives and gold fact were labelled afterwards from the section bodies.
+- The 30 live items were chosen from the draft before labelling, six per language, preferring the questions worded
+  furthest from their heading. They become cases `DE01` to `DE30` (prompt in the user's language, app locale set to
+  it, read-only safety checks, approvals declined), comparative and excluded from the merge check like `DH`.
+- The set belongs to this track only; nothing is tuned on it.
+
+### Arms
+
+Every arm keeps `AGENT_DOCS_RERANK=jev`, the shipped spec (`docsRankSpec`, `docsRankState`, `docsRankOrder`), the
+800 ms re-rank timeout, the keyword `matches` list and the keyword fallback output. Only the candidate list handed to
+Jev changes, and only for `search_docs` with `source=docs` (the path that re-ranks candidates across pages;
+`get_docs_page` is unchanged).
+
+- **(A) keyword, shipped control.** `AGENT_DOCS_CANDIDATES=keyword`: keyword top 20 sections, plus the title-only
+  sections of the top 5 keyword pages, capped at 120.
+- **(B) hybrid.** `AGENT_DOCS_CANDIDATES=hybrid`: keyword top 10 union embedding top 10 (keyword first, duplicates
+  dropped), filled to 20 alternately from keyword ranks 11 onward and embedding ranks 11 onward (keyword first,
+  duplicates skipped), then the same title-only sections of the top 5 keyword pages, capped at 120. The query
+  embedding starts before the keyword search and runs in parallel with it, with a 500 ms deadline from its start.
+  On any embedding failure, timeout, missing key or unready section index, B hands Jev exactly A's candidates.
+- **(C) embedding only, diagnostic.** Embedding top 20, no keyword or title-only candidates. Offline only, never a
+  gate and never shipped.
+
+Embedding details, fixed now: the section text is `page title > heading path`, a newline, then the section body as
+`docsRerankPlainText`, cut at 2,000 characters; the query is the `search_docs` query as the agent wrote it. For
+Qwen3 the query carries the model's documented instruction prefix `Instruct: Given a question about the Customermates
+CRM, retrieve the documentation section that answers it\nQuery: `; the other model gets the plain query. Similarity is
+cosine over the sections of the request's docs locale. Section embeddings are built once per model and locale from
+the docs manifest (at index time, or ahead of time by a script), keyed by sha256 of model and section text, cached in
+memory and in a file under `generated/`, and never computed on the request path. Hosted Mate only: self-hosted and
+`AGENT_DOCS_RERANK=off` never embed. The query embedding is an auxiliary charge on the turn (`docs_embedding`),
+metered like the re-rank.
+
+### Embedding models (pre-selected from the Gateway endpoint listing, 2026-09-28)
+
+Two multilingual models, the cheapest whose endpoint lists `has_zdr` and `has_no_training` both true; each is pinned
+to that provider with `zeroDataRetention` and `disallowPromptTraining`.
+
+| Key | Gateway model | Serving provider | ZDR | No training | Price per M input tokens | Disclosure |
+| --- | --- | --- | --- | --- | ---: | --- |
+| `qwen3-8b` | `alibaba/qwen3-embedding-8b` | `deepinfra` | true | true | $0.01 | US-hosted |
+| `google-multilingual` | `google/text-multilingual-embedding-002` | `vertex` | true | true | $0.025 | Google Cloud region chosen by the Gateway |
+
+`openai/text-embedding-3-small` was not selected: its `openai` endpoint lists `has_zdr` false, and at most two models
+are allowed.
+
+### Offline evaluation (stage E3), cap 5 USD
+
+- Items: the 60 new questions. Agent query: the stage-2 rule (first 6 words of at least 4 letters or digits,
+  lowercased, question order, in the question's language); `latest_user_message` is the question.
+- Arms per item and run: A, B and C for each model (five arms), 3 runs, arm order shuffled per item and run with a
+  fixed seed, concurrency 4. Each call goes through the product `search_docs` path with its product timeouts. The
+  section indexes are built before timing starts.
+- Primary metric, **answer in returned section**: the text the `search_docs` tool returns to the agent (its
+  excerpts, or the keyword snippet on fallback) is judged against the gold fact by the stage-2 fact judge
+  (`google/gemini-3-flash` on Vertex, thinking low, ZDR, no training, temperature 0, the reference-fact prompt);
+  only `yes` passes. Secondary, deterministic: **right section returned** (any returned section is a gold anchor or
+  alternative), right section first (lenient and strict), page first.
+- Per item and arm the outcome is the majority of the 3 runs; B and C are compared with A by the exact two-sided
+  sign test on discordant items, Holm-corrected over the two models; mean differences carry a 95 % item-cluster
+  paired bootstrap over all runs; rates carry 95 % Wilson intervals.
+- **Offline gate, per B model:** (1) pooled majority answer rate of B minus A at least +5 points (3 net items of 60);
+  (2) sign test Holm p < 0.05; (3) in each of the five languages B minus A at least −5 points (with 12 items a
+  language, no net loss); (4) added latency: p95 of B's `search_docs` wall time minus p95 of A's at most 0.3 s (point
+  estimate; the 95 % item-cluster bootstrap interval is reported beside it).
+- If no B model passes, the track stops, no live run happens, and the B code is removed. If both pass, the live run
+  uses the one with the larger pooled answer difference, then the smaller added p95.
+- Secondary evidence, descriptive only: A against both B models, 3 runs, on the 40 `docs-heldout.ts` items (same
+  metrics) and on the 120 English-and-German `DOCS_BLIND_BANK` questions (page first, query as written). The keyword
+  ranker was tuned against those banks, so they favour A.
+
+### Live A/B (stage E4, only after the offline gate passes), cap 20 USD
+
+- Cases `DE01` to `DE30` plus `DH01` to `DH30`, k = 10, one production build of a clean commit, A as
+  `AGENT_DOCS_CANDIDATES=keyword` and B as `hybrid` with the chosen model, `AGENT_DOCS_RERANK=jev` in both.
+- ABAB block design: ten blocks of two repetitions of all 60 cases, A r1–2, B r1–2, A r3–4, … B r9–10, each on a
+  freshly restarted server; three concurrent benchmark processes split the cases by index modulo 3, as in stage 4.
+  Episodes pair by case and repetition (600 pairs).
+- A `DE` or `DH` episode passes when its deterministic oracle passes and the stage-4 gold-fact judge (same model,
+  prompt and inputs: question, gold fact, gold section text, final answer; arm-blind) answers `yes`.
+- **Live gate:** (1) pass rate B > A with the exact two-sided McNemar p < 0.05 on the 600 pairs; (2) credits per turn
+  of B within +3 % of A (mean paired ratio, point estimate); (3) first-output p95 of B minus A at most +0.5 s (point
+  estimate, 95 % case-cluster bootstrap reported); (4) no strict or safety regression on the full suite.
+- Full suite: every non-held-out case once per arm (k = 1), A then B, each on a freshly restarted server, after the
+  docs blocks. A regression is a strict contract or safety check that A passes and B fails. For each such case a
+  recheck at k = 10 per arm in alternating blocks of 5 (A, B, A, B) decides: the failure is noise when the failure
+  rates do not differ (two-sided Fisher exact p ≥ 0.05) and no failing B episode made a `search_docs` call;
+  otherwise it is a regression. Rubric judges are not run.
+- If A passes 95 % or more of the 600 control episodes, the comparison is reported as at the ceiling and the live
+  gate fails; no case is swapped. No repetitions are added after results are seen; a run lost to infrastructure is
+  rerun in full for both arms of that block, and the report says so.
+
+### Verdict
+
+B is kept, and `AGENT_DOCS_CANDIDATES` defaults to `hybrid` with the chosen model, only if the offline gate and every
+live gate pass. Otherwise the B code is removed and the reports and fixtures stay as evidence.
+
+### Power
+
+Connor's formula for the exact McNemar (two-sided α = 0.05, power 0.80), ψ the share of discordant pairs; cluster
+adjustment with intra-case correlation 0.3 gives a design effect of 3.7 at k = 10.
+
+| Comparison | Assumption | Pairs needed | Planned | Detectable at plan |
+| --- | --- | ---: | ---: | --- |
+| Live pass, DE + DH | δ 0.05, ψ 0.10 (keyword misses on about a sixth of DE, a third of those recovered; DH near ceiling) | 312 | 600 | δ ≥ 3.6 pts at ψ 0.10; 4.6 pts at ψ 0.16 |
+| Live pass, DE + DH | δ 0.03, ψ 0.06 | 521 | 600 | δ ≥ 2.8 pts at ψ 0.06 |
+| Live pass, cluster-adjusted | design effect 3.7 | — | 162 effective | δ ≥ 6.9 pts at ψ 0.10 |
+| Offline answer, 60 items, majority of 3 | sign test on discordant items | — | 60 | needs at least 6–0, 8–1, 10–2 or 12–3 wins to losses; 9–2 (p = 0.065) fails |
+| Offline per language, 12 items | no net loss | — | 12 | one net lost item (−8.3 pts) fails the language |
+
+Budget: offline about 900 Jev calls and 900 judge calls on the new set plus about 1,300 of each on the older banks,
+under 2 USD; live about 1,200 docs episodes at 0.009 USD, the full suite twice at k = 1 and the gold-fact judge, about
+14 USD, within the 20 USD cap.
