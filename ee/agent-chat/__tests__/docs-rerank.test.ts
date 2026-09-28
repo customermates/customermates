@@ -38,7 +38,6 @@ import {
   docsRankUserMessage,
   docsRerankChoice,
   docsRerankPlainText,
-  hostedDocsRanking,
   hostedSectionRankers,
 } from "../docs-rerank";
 import { currentSectionRanker } from "@/core/retrieval/retrieval-context";
@@ -177,11 +176,11 @@ describe("docs re-rank classifier spec", () => {
 
 describe("hosted docs re-rank switch", () => {
   it("ranks with Jev on every hosted instance and never self-hosted", () => {
-    expect(hostedDocsRanking()).toBeTypeOf("function");
+    expect(hostedSectionRankers()?.("docs")).toBeTypeOf("function");
     envState.APP_MODE = "demo";
-    expect(hostedDocsRanking()).toBeTypeOf("function");
+    expect(hostedSectionRankers()?.("docs")).toBeTypeOf("function");
     envState.APP_MODE = "self-hosted";
-    expect(hostedDocsRanking()).toBeUndefined();
+    expect(hostedSectionRankers()).toBeUndefined();
   });
 });
 

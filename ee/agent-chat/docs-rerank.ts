@@ -90,10 +90,6 @@ function hostedSectionRanking(userMessage: string | null, corpus: RetrievalCorpu
   };
 }
 
-export function hostedDocsRanking(userMessage: string | null = null): SectionRanker | undefined {
-  return hostedSectionRanking(userMessage, "docs");
-}
-
 export function hostedSectionRankers(userMessage: string | null = null): SectionRankerFactory | undefined {
   if (!hostedDocsRerankModel()) return undefined;
   return (corpus) => hostedSectionRanking(userMessage, corpus);

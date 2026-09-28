@@ -1,6 +1,8 @@
 import { describe, expect, it } from "vitest";
 
-import { WIKI_SEMANTIC_CHUNK_MAX_LENGTH, wikiSemanticChunks } from "../wiki-chunks";
+import { RETRIEVAL_CHUNK_MAX_LENGTH } from "@/core/retrieval/retrieval-chunks";
+
+import { wikiSemanticChunks } from "../wiki-chunks";
 import { wikiCompact, wikiIdentifierPattern, wikiIdentifierTerms } from "../wiki-identifiers";
 
 describe("Wiki identifier terms", () => {
@@ -46,9 +48,9 @@ describe("wikiSemanticChunks", () => {
     const chunks = wikiSemanticChunks("Long", long);
 
     expect(chunks.length).toBeGreaterThan(2);
-    expect(
-      chunks.every((chunk) => chunk.text.length <= WIKI_SEMANTIC_CHUNK_MAX_LENGTH + "Long > Notes\n\n".length),
-    ).toBe(true);
+    expect(chunks.every((chunk) => chunk.text.length <= RETRIEVAL_CHUNK_MAX_LENGTH + "Long > Notes\n\n".length)).toBe(
+      true,
+    );
     expect(chunks.every((chunk) => chunk.offset === 0)).toBe(true);
     expect(wikiSemanticChunks("Empty", "")).toMatchObject([{ text: "Empty", offset: 0, section: null }]);
   });

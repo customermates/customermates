@@ -1,10 +1,9 @@
 import { createHash } from "node:crypto";
 
-import { RETRIEVAL_CHUNK_MAX_LENGTH, retrievalChunkText, retrievalWindows } from "@/core/retrieval/retrieval-chunks";
+import { retrievalChunkText, retrievalWindows } from "@/core/retrieval/retrieval-chunks";
 
 import { wikiMarkdownSections } from "./wiki-markdown-sections";
 
-export const WIKI_SEMANTIC_CHUNK_MAX_LENGTH = RETRIEVAL_CHUNK_MAX_LENGTH;
 const WIKI_SEMANTIC_MAX_CHUNKS = 256;
 
 export type WikiSemanticChunk = {
