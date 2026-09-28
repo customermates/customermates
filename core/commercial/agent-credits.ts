@@ -28,14 +28,18 @@ export type AgentCreditDisplay = {
   amount: string;
 };
 
-export function agentCreditDisplay(exactCredits: number, locale: string): AgentCreditDisplay {
+export function agentCreditDisplay(
+  exactCredits: number,
+  locale: string,
+  belowMinimum: (amount: string) => string = (amount) => `<${amount}`,
+): AgentCreditDisplay {
   const microcents = agentExactCreditsToMicrocents(exactCredits);
   const format = new Intl.NumberFormat(locale, { minimumFractionDigits: 0, maximumFractionDigits: 1 });
   const magnitude = Math.abs(microcents);
   const tenths = Math.floor((magnitude + AGENT_CREDIT_TENTH_MICROCENTS / 2) / AGENT_CREDIT_TENTH_MICROCENTS);
   if (tenths === 0 && magnitude > 0) {
     const sign = microcents < 0 ? "-" : "";
-    return { credits: 0.1, amount: `${sign}<${format.format(0.1)}` };
+    return { credits: 0.1, amount: `${sign}${belowMinimum(format.format(0.1))}` };
   }
 
   const credits = (microcents < 0 && tenths > 0 ? -tenths : tenths) / 10;

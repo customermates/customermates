@@ -1090,6 +1090,7 @@
       "warning": "Gelb"
     },
     "company": "Unternehmen",
+    "creditsBelowMinimum": "<{amount}",
     "customColumnTypes": {
       "currency": "Währung",
       "date": "Datum",

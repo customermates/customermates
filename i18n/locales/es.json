@@ -1090,6 +1090,7 @@
       "warning": "Amarillo"
     },
     "company": "Empresa",
+    "creditsBelowMinimum": "<{amount}",
     "customColumnTypes": {
       "currency": "Moneda",
       "date": "Fecha",

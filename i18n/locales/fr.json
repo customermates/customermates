@@ -1090,6 +1090,7 @@
       "warning": "Jaune"
     },
     "company": "Entreprise",
+    "creditsBelowMinimum": "< {amount}",
     "customColumnTypes": {
       "currency": "Devise",
       "date": "Date",

@@ -1090,6 +1090,7 @@
       "warning": "Giallo"
     },
     "company": "Azienda",
+    "creditsBelowMinimum": "<{amount}",
     "customColumnTypes": {
       "currency": "Valuta",
       "date": "Data",

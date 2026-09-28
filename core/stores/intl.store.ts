@@ -104,8 +104,15 @@ export class IntlStore {
     });
   }
 
-  formatAgentCredits(microcents: number): AgentCreditDisplay {
-    return agentCreditDisplay(microcents, this.formattingLocale);
+  formatAgentCredits(credits: number): AgentCreditDisplay {
+    const localeStore = this.rootStore.localeStore;
+    return agentCreditDisplay(
+      credits,
+      this.formattingLocale,
+      localeStore.translation
+        ? (amount) => localeStore.getTranslation("Common.creditsBelowMinimum", { amount })
+        : undefined,
+    );
   }
 
   formatNumberForEditing(value: number | undefined, locale = this.formattingLocale): string {
