@@ -11,7 +11,7 @@ permissions:
 jobs:
   self-hosted-postgres-16:
     name: self-hosted-postgres-16
-    runs-on: ubuntu-26.04
+    runs-on: ubuntu-latest
     env:
       APP_MODE: self-hosted
       DATABASE_URL: "postgresql://postgres:postgres@localhost:5432/customermates_test"
@@ -44,7 +44,7 @@ jobs:
 
   ci:
     name: ci
-    runs-on: ubuntu-26.04
+    runs-on: ubuntu-latest
     env:
       APP_MODE: self-hosted
       DATABASE_URL: "postgresql://postgres:postgres@localhost:5432/customermates_test"
