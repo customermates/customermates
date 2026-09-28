@@ -7,7 +7,6 @@ import { Client } from "pg";
 import { afterAll, beforeAll, beforeEach, describe, expect, it, vi } from "vitest";
 
 import { runWithTenant } from "@/core/decorators/tenant-context";
-import { PrismaAgentChatRepo } from "@/ee/agent-chat/prisma-agent-chat.repository";
 import { WIKI_EMBEDDING_DIMENSIONS, WIKI_EMBEDDING_MODEL } from "@/ee/wiki-retrieval/wiki-embedding-model";
 import { WikiSemanticQueryEmbedder } from "@/ee/wiki-retrieval/wiki-query-embedder";
 import {
@@ -263,64 +262,5 @@ describeDatabase("Workspace Wiki semantic retrieval on PostgreSQL with pgvector"
     expect(result.data.retrieval).toBe("keyword");
     expect(result.data.items[0]).toMatchObject({ title: "Customer Refund Policy" });
     expect(embed).not.toHaveBeenCalled();
-  });
-
-  it("accrues the exact retrieval cost on one monthly row per payer and credit period", async () => {
-    const repo = new PrismaAgentChatRepo();
-    const now = new Date(Date.UTC(2026, 8, 15));
-    const accrue = (costMicrocents: number, userId: string | null) =>
-      repo.accrueRetrievalUsageUnscoped({
-        grant: {
-          ...GRANT_PERIOD,
-          purpose: userId ? "wikiRetrieval" : "wikiIndexing",
-          companyId,
-          userId,
-        },
-        charge: { model: WIKI_EMBEDDING_MODEL, inputTokens: 10, costMicrocents, costSource: "measured" },
-        now,
-      });
-    await accrue(400_000, user.id);
-    await accrue(700_001, user.id);
-    await accrue(37, null);
-    await accrue(5, null);
-
-    const rows = await client.query(
-      `SELECT "purpose", "userId", "state", "costMicrocents"::int AS cost, "chargedMicrocents"::int AS charged,
-        "reservedMicrocents"::int AS reserved, "chargedCredits", "inputTokens",
-        to_char("accrualMonth", 'YYYY-MM-DD') AS "accrualMonth" FROM "AgentUsageEvent" WHERE "companyId" = $1
-        ORDER BY "purpose"`,
-      [companyId],
-    );
-    expect(rows.rows).toEqual([
-      {
-        purpose: "wikiRetrieval",
-        userId: user.id,
-        state: "settled",
-        cost: 1_100_001,
-        charged: 1_100_001,
-        reserved: 1_100_001,
-        chargedCredits: 2,
-        inputTokens: 20,
-        accrualMonth: "2026-09-01",
-      },
-      {
-        purpose: "wikiIndexing",
-        userId: null,
-        state: "settled",
-        cost: 42,
-        charged: 42,
-        reserved: 42,
-        chargedCredits: 1,
-        inputTokens: 20,
-        accrualMonth: "2026-09-01",
-      },
-    ]);
-    const usage = await repo.getUserCreditUsageUnscoped(
-      companyId,
-      user.id,
-      new Date(Date.UTC(2026, 8, 1)),
-      new Date(Date.UTC(2026, 9, 1)),
-    );
-    expect(usage).toEqual({ usedMicrocents: 1_100_001, recentTurnMicrocents: null });
   });
 });

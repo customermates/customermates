@@ -77,6 +77,8 @@ describe("agent model budget boundary", () => {
     expect(embeddings).toContain("readAgentProviderCharge(metadata, WIKI_EMBEDDING_SERVING_PROVIDER)");
     expect(service).toContain("this.usage.prepareRetrieval(payer.id)");
     expect(service).toContain("this.usage.prepareWorkspaceIndexing(companyId)");
-    expect(service).toContain("await this.usage.accrueRetrieval(");
+    expect(service).toContain("await this.usage.reserveRetrieval(");
+    expect(service).toContain("await this.usage.settleRetrieval({ reservation, charge: embedded.charge })");
+    expect(service).toContain("await this.usage.settleRetrieval({ reservation, charge: null })");
   });
 });

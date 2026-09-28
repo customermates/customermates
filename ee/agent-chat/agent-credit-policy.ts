@@ -16,7 +16,7 @@ export {
 } from "@/core/commercial/agent-credits";
 
 export function legacyCreditsRoundedUp(microcents: number): number {
-  return Math.ceil(microcents / AGENT_CREDIT_MICROCENTS);
+  return Math.ceil(microcents / AGENT_CREDIT_MICROCENTS) || 0;
 }
 
 export function legacyCreditsRoundedDown(microcents: number): number {
@@ -26,6 +26,33 @@ export function legacyCreditsRoundedDown(microcents: number): number {
 export function legacyCreditsAwayFromZero(microcents: number): number {
   const credits = Math.ceil(Math.abs(microcents) / AGENT_CREDIT_MICROCENTS);
   return microcents < 0 ? -credits : credits;
+}
+
+export function workspaceIndexingShareMicrocents(args: {
+  unassignedMicrocents: number;
+  memberLimitMicrocents: number;
+  poolLimitMicrocents: number;
+}): number {
+  const { unassignedMicrocents, memberLimitMicrocents, poolLimitMicrocents } = args;
+  if (unassignedMicrocents <= 0 || memberLimitMicrocents <= 0 || poolLimitMicrocents <= 0) return 0;
+  const numerator = BigInt(unassignedMicrocents) * BigInt(memberLimitMicrocents);
+  const denominator = BigInt(poolLimitMicrocents);
+  return Number((numerator + denominator - 1n) / denominator);
+}
+
+export function memberCreditHeadroomMicrocents(args: {
+  memberLimitMicrocents: number;
+  memberUsedMicrocents: number;
+  poolLimitMicrocents: number;
+  poolUsedMicrocents: number;
+}): number {
+  return Math.max(
+    0,
+    Math.min(
+      args.memberLimitMicrocents - args.memberUsedMicrocents,
+      args.poolLimitMicrocents - args.poolUsedMicrocents,
+    ),
+  );
 }
 
 export function agentMicrocentsFromStorage(value: bigint | number | null | undefined, description: string): number {

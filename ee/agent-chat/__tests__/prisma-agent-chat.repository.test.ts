@@ -57,7 +57,8 @@ const prismaMock = vi.hoisted(() => ({
     create: vi.fn(),
     updateMany: vi.fn(),
   },
-  agentCreditAdjustment: { aggregate: vi.fn() },
+  agentCreditAdjustment: { aggregate: vi.fn(), groupBy: vi.fn() },
+  company: { findUnique: vi.fn() },
 }));
 
 vi.mock("@/prisma/db", () => ({ prisma: prismaMock }));
@@ -112,6 +113,21 @@ describe("PrismaAgentChatRepo tenant boundaries", () => {
     prismaMock.user.count.mockResolvedValue(1);
     prismaMock.agentCreditAdjustment.aggregate.mockResolvedValue({
       _sum: { deltaMicrocents: null },
+    });
+    prismaMock.agentCreditAdjustment.groupBy.mockResolvedValue([]);
+    prismaMock.company.findUnique.mockImplementation(async () => {
+      const seat = (await prismaMock.user.findUnique()) as {
+        id: string;
+        status: string;
+        agentCreditActivatedAt: Date | null;
+        company: { subscription: unknown };
+      } | null;
+      if (!seat) return null;
+      return {
+        subscription: seat.company.subscription,
+        users:
+          seat.status === Status.active ? [{ id: seat.id, agentCreditActivatedAt: seat.agentCreditActivatedAt }] : [],
+      };
     });
   });
 

@@ -28,6 +28,12 @@ function wikiEmbeddingProviderOptions(kind: WikiEmbeddingKind) {
   };
 }
 
+export function wikiEmbeddingWorstCaseMicrocents(texts: readonly string[]): number {
+  return (
+    texts.reduce((total, text) => total + Buffer.byteLength(text, "utf8"), 0) * WIKI_EMBEDDING_MICROCENTS_PER_TOKEN
+  );
+}
+
 function wikiEmbeddingCharge(metadata: unknown, inputTokens: number): AgentRetrievalCharge {
   const estimated = inputTokens * WIKI_EMBEDDING_MICROCENTS_PER_TOKEN;
   const reading = readAgentProviderCharge(metadata, WIKI_EMBEDDING_SERVING_PROVIDER);

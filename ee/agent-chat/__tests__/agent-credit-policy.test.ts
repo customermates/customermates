@@ -6,9 +6,14 @@ import { TRIAL_HOSTED_AI_CREDITS_PER_ACTIVE_USER } from "@/ee/subscription/entit
 import {
   agentCreditPeriodForAnchor,
   agentMicrocentsFromStorage,
+  legacyCreditsAwayFromZero,
+  legacyCreditsRoundedDown,
+  legacyCreditsRoundedUp,
+  memberCreditHeadroomMicrocents,
   prorateAgentAllowanceForSeat,
   resolveAgentCreditEntitlement,
   workspaceAgentCreditRate,
+  workspaceIndexingShareMicrocents,
 } from "../agent-credit-policy";
 
 const CREDIT = 1_000_000;
@@ -269,5 +274,70 @@ describe("agentCreditPeriodForAnchor month-end and leap-year anchors", () => {
     const monthly = period("2026-01-15T10:00:00.000Z", "2026-07-20T00:00:00.000Z");
     expect(monthly.start).toEqual(new Date("2026-07-15T10:00:00.000Z"));
     expect(monthly.resetAt).toEqual(new Date("2026-08-15T10:00:00.000Z"));
+  });
+});
+
+describe("legacy whole-credit columns", () => {
+  it.each([
+    [0, 0, 0, 0],
+    [1, 1, 0, 1],
+    [999_999, 1, 0, 1],
+    [1_000_000, 1, 1, 1],
+    [1_000_001, 2, 1, 2],
+    [-1, 0, -1, -1],
+    [-999_999, 0, -1, -1],
+    [-1_000_000, -1, -1, -1],
+    [-1_000_001, -1, -2, -2],
+  ])("rounds %i microcents up to %i, down to %i, and away from zero to %i", (microcents, up, down, away) => {
+    expect(legacyCreditsRoundedUp(microcents)).toBe(up);
+    expect(legacyCreditsRoundedDown(microcents)).toBe(down);
+    expect(legacyCreditsAwayFromZero(microcents)).toBe(away);
+  });
+});
+
+describe("workspace indexing share", () => {
+  it("splits unassigned indexing usage by allowance, rounding each share up", () => {
+    const pool = 1_000 * CREDIT;
+    expect(
+      workspaceIndexingShareMicrocents({
+        unassignedMicrocents: 100 * CREDIT,
+        memberLimitMicrocents: 500 * CREDIT,
+        poolLimitMicrocents: pool,
+      }),
+    ).toBe(50 * CREDIT);
+    const shares = [333 * CREDIT, 333 * CREDIT, 334 * CREDIT].map((memberLimitMicrocents) =>
+      workspaceIndexingShareMicrocents({ unassignedMicrocents: 7, memberLimitMicrocents, poolLimitMicrocents: pool }),
+    );
+    expect(shares).toEqual([3, 3, 3]);
+    expect(shares.reduce((total, share) => total + share, 0)).toBeGreaterThanOrEqual(7);
+    for (const empty of [
+      { unassignedMicrocents: 0, memberLimitMicrocents: 1, poolLimitMicrocents: 1 },
+      { unassignedMicrocents: 5, memberLimitMicrocents: 0, poolLimitMicrocents: 1 },
+      { unassignedMicrocents: 5, memberLimitMicrocents: 1, poolLimitMicrocents: 0 },
+    ])
+      expect(workspaceIndexingShareMicrocents(empty)).toBe(0);
+  });
+
+  it("stays exact for allowances whose product exceeds a double", () => {
+    expect(
+      workspaceIndexingShareMicrocents({
+        unassignedMicrocents: 9_000_000_000_000,
+        memberLimitMicrocents: 9_000_000_000_001,
+        poolLimitMicrocents: 9_000_000_000_001,
+      }),
+    ).toBe(9_000_000_000_000);
+  });
+
+  it("bounds a member by both their own allowance and what the workspace pool has left", () => {
+    const headroom = (memberUsedMicrocents: number, poolUsedMicrocents: number) =>
+      memberCreditHeadroomMicrocents({
+        memberLimitMicrocents: 500,
+        memberUsedMicrocents,
+        poolLimitMicrocents: 1_000,
+        poolUsedMicrocents,
+      });
+    expect(headroom(100, 100)).toBe(400);
+    expect(headroom(100, 950)).toBe(50);
+    expect(headroom(600, 700)).toBe(0);
   });
 });

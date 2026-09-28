@@ -515,18 +515,26 @@ describeDatabase("agent credit ledger against a real database", { timeout: 120_0
         periodEnd: empty.periodEnd,
       }),
     );
+    const indexingGrant = {
+      purpose: "wikiIndexing" as const,
+      companyId,
+      userId: null,
+      planSnapshot: "starter" as const,
+      subscriptionStatusSnapshot: "active" as const,
+      allowanceMicrocentsSnapshot: empty.limitMicrocents,
+      periodStart: empty.periodStart,
+      periodEnd: empty.periodEnd,
+    };
+    await expect(
+      runWithoutTenant(() =>
+        repo.reserveRetrievalUsageUnscoped({ grant: indexingGrant, reservedMicrocents: 90, model: "embedding", now }),
+      ),
+    ).resolves.toBe(true);
     await runWithoutTenant(() =>
-      repo.accrueRetrievalUsageUnscoped({
-        grant: {
-          purpose: "wikiIndexing",
-          companyId,
-          userId: null,
-          planSnapshot: "starter",
-          subscriptionStatusSnapshot: "active",
-          allowanceMicrocentsSnapshot: empty.limitMicrocents,
-          periodStart: empty.periodStart,
-          periodEnd: empty.periodEnd,
-        },
+      repo.settleRetrievalUsageUnscoped({
+        grant: indexingGrant,
+        reservedMicrocents: 90,
+        reservedAt: now,
         charge: { model: "embedding", inputTokens: 10, costMicrocents: 42, costSource: "measured" },
         now,
       }),
@@ -535,6 +543,8 @@ describeDatabase("agent credit ledger against a real database", { timeout: 120_0
     await expect(runWithoutTenant(() => repo.getWorkspaceCreditPoolUnscoped(companyId, now))).resolves.toMatchObject({
       limitMicrocents: 402_500_000,
       usedMicrocents: 1_234_609,
+      unassignedMicrocents: 42,
+      memberLimitMicrocents: { [userId]: 200 * CREDIT, [colleagueId]: 202_500_000 },
       usable: true,
     });
     await expect(
@@ -545,6 +555,162 @@ describeDatabase("agent credit ledger against a real database", { timeout: 120_0
         repo.getUserCreditUsageUnscoped(companyId, colleagueId, empty.periodStart, empty.periodEnd),
       ),
     ).resolves.toEqual({ usedMicrocents: 0, recentTurnMicrocents: null });
+  });
+
+  it("reserves an embedding's worst case, settles its exact cost, and refunds a failed call on one row per payer", async () => {
+    const anchor = new Date(Date.UTC(2026, 0, 15));
+    const now = new Date();
+    const { companyId, userId } = await seedActiveSeat(anchor);
+    const repo = new PrismaAgentChatRepo();
+    const pool = await runWithoutTenant(() => repo.getWorkspaceCreditPoolUnscoped(companyId, now));
+    if (!pool) throw new Error("Expected a workspace credit pool.");
+    const grant = (payer: string | null) => ({
+      purpose: payer ? ("wikiRetrieval" as const) : ("wikiIndexing" as const),
+      companyId,
+      userId: payer,
+      planSnapshot: "starter" as const,
+      subscriptionStatusSnapshot: "active" as const,
+      allowanceMicrocentsSnapshot: pool.limitMicrocents,
+      periodStart: pool.periodStart,
+      periodEnd: pool.periodEnd,
+    });
+    const call = async (payer: string | null, reservedMicrocents: number, costMicrocents: number | null) => {
+      await expect(
+        runWithoutTenant(() =>
+          repo.reserveRetrievalUsageUnscoped({ grant: grant(payer), reservedMicrocents, model: "embedding", now }),
+        ),
+      ).resolves.toBe(true);
+      await runWithoutTenant(() =>
+        repo.settleRetrievalUsageUnscoped({
+          grant: grant(payer),
+          reservedMicrocents,
+          reservedAt: now,
+          charge:
+            costMicrocents === null
+              ? null
+              : { model: "embedding", inputTokens: 10, costMicrocents, costSource: "measured" },
+          now,
+        }),
+      );
+    };
+    await call(userId, CREDIT, 400_000);
+    await call(userId, CREDIT, 700_001);
+    await call(userId, 500, null);
+    await call(null, 100, 37);
+    await call(null, 10, 5);
+    await call(null, 3, 9);
+
+    const rows = await runWithoutTenant(() =>
+      prisma.agentUsageEvent.findMany({
+        where: { companyId },
+        orderBy: { purpose: "asc" },
+        select: {
+          purpose: true,
+          userId: true,
+          state: true,
+          costMicrocents: true,
+          chargedMicrocents: true,
+          reservedMicrocents: true,
+          chargedCredits: true,
+          inputTokens: true,
+        },
+      }),
+    );
+    expect(rows).toEqual([
+      {
+        purpose: "wikiRetrieval",
+        userId,
+        state: "settled",
+        costMicrocents: 1_100_001n,
+        chargedMicrocents: 1_100_001n,
+        reservedMicrocents: 1_100_001n,
+        chargedCredits: 2,
+        inputTokens: 20,
+      },
+      {
+        purpose: "wikiIndexing",
+        userId: null,
+        state: "settled",
+        costMicrocents: 51n,
+        chargedMicrocents: 45n,
+        reservedMicrocents: 45n,
+        chargedCredits: 1,
+        inputTokens: 30,
+      },
+    ]);
+  });
+
+  it("lets workspace indexing reduce what members can spend and never commits more than the pooled allowance", async () => {
+    const anchor = new Date(Date.UTC(2026, 0, 15));
+    const now = new Date();
+    const { companyId, userId } = await seedActiveSeat(anchor);
+    const colleagueId = randomUUID();
+    await runWithoutTenant(() =>
+      prisma.user.create({
+        data: {
+          id: colleagueId,
+          companyId,
+          email: `credit-${colleagueId}@example.com`,
+          firstName: "Credit",
+          lastName: "Colleague",
+          status: "active",
+          agentCreditActivatedAt: anchor,
+        },
+      }),
+    );
+    const repo = new PrismaAgentChatRepo();
+    const pool = await runWithoutTenant(() => repo.getWorkspaceCreditPoolUnscoped(companyId, now));
+    if (!pool) throw new Error("Expected a workspace credit pool.");
+    expect(pool.limitMicrocents).toBe(400 * CREDIT);
+    const reserve = (payer: string, reservedMicrocents: number) =>
+      runWithoutTenant(() =>
+        repo.reserveUsageEventUnscoped({
+          id: randomUUID(),
+          companyId,
+          userId: payer,
+          sessionId: randomUUID(),
+          reservedMicrocents,
+          planSnapshot: "starter",
+          subscriptionStatusSnapshot: "active",
+          allowanceMicrocentsSnapshot: 200 * CREDIT,
+          periodStart: pool.periodStart,
+          periodEnd: pool.periodEnd,
+        }),
+      );
+    const indexing = (reservedMicrocents: number) =>
+      runWithoutTenant(() =>
+        repo.reserveRetrievalUsageUnscoped({
+          grant: {
+            purpose: "wikiIndexing",
+            companyId,
+            userId: null,
+            planSnapshot: "starter",
+            subscriptionStatusSnapshot: "active",
+            allowanceMicrocentsSnapshot: pool.limitMicrocents,
+            periodStart: pool.periodStart,
+            periodEnd: pool.periodEnd,
+          },
+          reservedMicrocents,
+          model: "embedding",
+          now,
+        }),
+      );
+    const service = new AgentUsageService(repo);
+
+    await reserve(userId, 200 * CREDIT);
+    await expect(indexing(150 * CREDIT)).resolves.toBe(true);
+    await expect(runWithoutTenant(() => service.getUsageSummary(colleagueId, now))).resolves.toMatchObject({
+      creditsUsed: 75,
+      creditsRemaining: 50,
+      creditsLimit: 200,
+    });
+
+    await expect(reserve(colleagueId, 50 * CREDIT + 1)).rejects.toThrow(/exceeds the current allowance/);
+    await expect(reserve(colleagueId, 50 * CREDIT)).resolves.toBe(true);
+    await expect(indexing(1)).resolves.toBe(false);
+
+    const committed = await runWithoutTenant(() => repo.getWorkspaceCreditPoolUnscoped(companyId, now));
+    expect(committed).toMatchObject({ usedMicrocents: 400 * CREDIT, limitMicrocents: 400 * CREDIT });
   });
 
   it("admits a reservation to the exact microcent of the remaining allowance", async () => {

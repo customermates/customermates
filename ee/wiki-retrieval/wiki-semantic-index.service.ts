@@ -60,6 +60,7 @@ export class WikiSemanticIndexService extends UserAccessor {
             batch.map((chunk) => chunk.text),
             "document",
           );
+          if (!vectors) return { indexed, remaining: false };
           batch.forEach((chunk, index) => known.set(chunk.contentHash, vectorLiteral(vectors[index])));
         }
 

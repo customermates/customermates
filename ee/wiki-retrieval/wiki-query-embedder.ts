@@ -43,8 +43,9 @@ export class WikiSemanticQueryEmbedder extends UserAccessor implements WikiQuery
       pendingVectors.get(key) ??
       this.embeddings
         .embedTexts(grant, [text], "query")
-        .then(([vector]) => {
-          remember(key, vector);
+        .then((vectors) => {
+          const vector = vectors?.[0] ?? null;
+          if (vector) remember(key, vector);
           return vector;
         })
         .catch((error: unknown) => {

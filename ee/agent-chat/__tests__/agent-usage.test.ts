@@ -27,6 +27,8 @@ const ANCHOR = new Date("2026-01-15T10:30:00.000Z");
 function makeRepo(
   overrides: {
     usedMicrocents?: number;
+    poolUsedMicrocents?: number;
+    unassignedMicrocents?: number;
     recentTurnMicrocents?: number | null;
     adjustmentMicrocents?: number;
     user?: Partial<NonNullable<Awaited<ReturnType<AgentUsageRepo["findUserForUsageUnscoped"]>>>>;
@@ -74,11 +76,15 @@ function makeRepo(
         periodStart: new Date("2026-07-15T10:30:00.000Z"),
         periodEnd: new Date("2026-08-15T10:30:00.000Z"),
         limitMicrocents: 1_000 * CREDIT,
-        usedMicrocents: overrides.usedMicrocents ?? 0,
+        usedMicrocents:
+          overrides.poolUsedMicrocents ?? (overrides.usedMicrocents ?? 0) + (overrides.unassignedMicrocents ?? 0),
+        unassignedMicrocents: overrides.unassignedMicrocents ?? 0,
+        memberLimitMicrocents: { "user-1": 500 * CREDIT, "user-2": 500 * CREDIT } as Record<string, number>,
         usable: true,
       }),
     ),
-    accrueRetrievalUsageUnscoped: vi.fn(() => Promise.resolve()),
+    reserveRetrievalUsageUnscoped: vi.fn(() => Promise.resolve(true)),
+    settleRetrievalUsageUnscoped: vi.fn(() => Promise.resolve()),
   };
 }
 
@@ -591,6 +597,8 @@ describe("AgentUsageService admission and ledger", () => {
       periodEnd: NOW,
       limitMicrocents: 0,
       usedMicrocents: 0,
+      unassignedMicrocents: 0,
+      memberLimitMicrocents: {},
       usable: false,
     });
     await expect(new AgentUsageService(unusable).prepareWorkspaceIndexing("company-1", NOW)).resolves.toBeNull();
@@ -607,19 +615,57 @@ describe("AgentUsageService admission and ledger", () => {
     });
   });
 
-  it("accrues the exact embedding cost and refuses a grant whose payer does not match its purpose", async () => {
+  it("reserves an embedding's worst case, settles its exact cost, and refuses a grant whose payer does not match its purpose", async () => {
     const repo = makeRepo();
     const service = new AgentUsageService(repo);
     const grant = await service.prepareWorkspaceIndexing("company-1", NOW);
     if (!grant) throw new Error("Expected a workspace indexing grant.");
     const charge = { model: "embedding", inputTokens: 3, costMicrocents: 37, costSource: "measured" as const };
 
-    await service.accrueRetrieval({ grant, charge, now: NOW });
-    expect(repo.accrueRetrievalUsageUnscoped).toHaveBeenCalledWith({ grant, charge, now: NOW });
+    const reservation = await service.reserveRetrieval({
+      grant,
+      worstCaseMicrocents: 90,
+      model: "embedding",
+      now: NOW,
+    });
+    expect(reservation).toEqual({ grant, reservedMicrocents: 90, reservedAt: NOW });
+    expect(repo.reserveRetrievalUsageUnscoped).toHaveBeenCalledWith({
+      grant,
+      reservedMicrocents: 90,
+      model: "embedding",
+      now: NOW,
+    });
+    if (!reservation) throw new Error("Expected a reservation.");
+    await service.settleRetrieval({ reservation, charge, now: NOW });
+    expect(repo.settleRetrievalUsageUnscoped).toHaveBeenCalledWith({
+      grant,
+      reservedMicrocents: 90,
+      reservedAt: NOW,
+      charge,
+      now: NOW,
+    });
 
-    await expect(service.accrueRetrieval({ grant: { ...grant, userId: "user-1" }, charge })).rejects.toThrow(
-      "Retrieval grant payer is invalid.",
-    );
+    repo.reserveRetrievalUsageUnscoped.mockResolvedValueOnce(false);
+    await expect(service.reserveRetrieval({ grant, worstCaseMicrocents: 90, model: "embedding" })).resolves.toBeNull();
+    await expect(
+      service.reserveRetrieval({ grant: { ...grant, userId: "user-1" }, worstCaseMicrocents: 90, model: "embedding" }),
+    ).rejects.toThrow("Retrieval grant payer is invalid.");
+  });
+
+  it("counts a member's allowance-weighted share of workspace indexing as their own usage", async () => {
+    const summary = await new AgentUsageService(
+      makeRepo({ usedMicrocents: 10 * CREDIT, unassignedMicrocents: 100 * CREDIT }),
+    ).getUsageSummary("user-1", NOW);
+
+    expect(summary).toMatchObject({ creditsUsed: 60, creditsRemaining: 440, creditsLimit: 500 });
+  });
+
+  it("never offers a member more than the workspace pool has left", async () => {
+    const summary = await new AgentUsageService(
+      makeRepo({ usedMicrocents: 0, poolUsedMicrocents: 990 * CREDIT }),
+    ).getUsageSummary("user-1", NOW);
+
+    expect(summary).toMatchObject({ creditsUsed: 0, creditsRemaining: 10, creditsLimit: 500 });
   });
 
   it("keeps a zero-credit released ledger row for pre-provider failures", async () => {

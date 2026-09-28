@@ -5,7 +5,12 @@ import { Status, SubscriptionPlan, SubscriptionStatus } from "@/generated/prisma
 import { env } from "@/env";
 import type { Data } from "@/core/validation/validation.utils";
 
-import { agentMicrocentsToCredits, resolveAgentCreditEntitlement } from "./agent-credit-policy";
+import {
+  agentMicrocentsToCredits,
+  memberCreditHeadroomMicrocents,
+  resolveAgentCreditEntitlement,
+  workspaceIndexingShareMicrocents,
+} from "./agent-credit-policy";
 import { agentRoundWorstCaseMicrocents, resolveAgentTurnBudget, type AgentTurnBudget } from "./agent-budget-policy";
 import type { AgentModelEntry } from "./model-catalog";
 
@@ -57,9 +62,17 @@ export abstract class AgentUsageRepo {
   }): Promise<void>;
   abstract admitsHostedAiRetrievalUnscoped(now: Date): Promise<boolean>;
   abstract getWorkspaceCreditPoolUnscoped(companyId: string, now: Date): Promise<AgentWorkspaceCreditPool | null>;
-  abstract accrueRetrievalUsageUnscoped(args: {
+  abstract reserveRetrievalUsageUnscoped(args: {
     grant: AgentRetrievalGrant;
-    charge: AgentRetrievalCharge;
+    reservedMicrocents: number;
+    model: string;
+    now: Date;
+  }): Promise<boolean>;
+  abstract settleRetrievalUsageUnscoped(args: {
+    grant: AgentRetrievalGrant;
+    reservedMicrocents: number;
+    reservedAt: Date;
+    charge: AgentRetrievalCharge | null;
     now: Date;
   }): Promise<void>;
 }
@@ -71,7 +84,15 @@ export type AgentWorkspaceCreditPool = {
   periodEnd: Date;
   limitMicrocents: number;
   usedMicrocents: number;
+  unassignedMicrocents: number;
+  memberLimitMicrocents: Record<string, number>;
   usable: boolean;
+};
+
+export type AgentRetrievalReservation = {
+  grant: AgentRetrievalGrant;
+  reservedMicrocents: number;
+  reservedAt: Date;
 };
 
 export type AgentRetrievalGrant = {
@@ -186,9 +207,10 @@ export class AgentUsageService {
       now,
     } as const;
     const baseEntitlement = resolveAgentCreditEntitlement(entitlementInput);
-    const [usage, adjustmentMicrocents] = await Promise.all([
+    const [usage, adjustmentMicrocents, pool] = await Promise.all([
       this.repo.getUserCreditUsageUnscoped(user.companyId, userId, baseEntitlement.start, baseEntitlement.resetAt),
       this.repo.getUserCreditAdjustmentUnscoped(user.companyId, userId, baseEntitlement.start, baseEntitlement.resetAt),
+      this.repo.getWorkspaceCreditPoolUnscoped(user.companyId, now),
     ]);
     const entitlement = resolveAgentCreditEntitlement({ ...entitlementInput, adjustmentMicrocents });
     assertMicrocentCount(usage.usedMicrocents, "Stored AI credit usage");
@@ -196,7 +218,24 @@ export class AgentUsageService {
 
     const activeSeat = user.status === Status.active;
     const limitMicrocents = activeSeat ? entitlement.limitMicrocents : 0;
-    const remainingMicrocents = Math.max(0, limitMicrocents - usage.usedMicrocents);
+    const samePeriod =
+      pool !== null &&
+      pool.periodStart.getTime() === entitlement.start.getTime() &&
+      pool.periodEnd.getTime() === entitlement.resetAt.getTime();
+    const indexingShareMicrocents = samePeriod
+      ? workspaceIndexingShareMicrocents({
+          unassignedMicrocents: pool.unassignedMicrocents,
+          memberLimitMicrocents: limitMicrocents,
+          poolLimitMicrocents: pool.limitMicrocents,
+        })
+      : 0;
+    const usedMicrocents = usage.usedMicrocents + indexingShareMicrocents;
+    const remainingMicrocents = memberCreditHeadroomMicrocents({
+      memberLimitMicrocents: limitMicrocents,
+      memberUsedMicrocents: usedMicrocents,
+      poolLimitMicrocents: samePeriod ? pool.limitMicrocents : limitMicrocents,
+      poolUsedMicrocents: samePeriod ? pool.usedMicrocents : usedMicrocents,
+    });
     const publicEntitlementBlock =
       entitlement.blockedReason === "enterprise_allowance_missing"
         ? ("configuration_unavailable" as const)
@@ -210,10 +249,10 @@ export class AgentUsageService {
       remainingMicrocents,
       limitMicrocents,
       summary: {
-        creditsUsed: agentMicrocentsToCredits(usage.usedMicrocents),
+        creditsUsed: agentMicrocentsToCredits(usedMicrocents),
         creditsRemaining: agentMicrocentsToCredits(remainingMicrocents),
         creditsLimit: agentMicrocentsToCredits(limitMicrocents),
-        usedPct: usagePct(usage.usedMicrocents, limitMicrocents),
+        usedPct: usagePct(usedMicrocents, limitMicrocents),
         plan: entitlement.plan,
         periodStart: entitlement.start,
         resetAt: entitlement.resetAt,
@@ -330,13 +369,42 @@ export class AgentUsageService {
     return this.repo.admitsHostedAiRetrievalUnscoped(now);
   }
 
-  async accrueRetrieval(args: { grant: AgentRetrievalGrant; charge: AgentRetrievalCharge; now?: Date }) {
-    assertMicrocentCount(args.charge.costMicrocents, "Retrieval cost");
-    assertMicrocentCount(args.charge.inputTokens, "Retrieval input tokens");
+  async reserveRetrieval(args: {
+    grant: AgentRetrievalGrant;
+    worstCaseMicrocents: number;
+    model: string;
+    now?: Date;
+  }): Promise<AgentRetrievalReservation | null> {
+    assertMicrocentCount(args.worstCaseMicrocents, "Retrieval reservation");
     if ((args.grant.purpose === "wikiIndexing") !== (args.grant.userId === null))
       throw new Error("Retrieval grant payer is invalid.");
-    if (args.charge.costMicrocents === 0) return;
-    await this.repo.accrueRetrievalUsageUnscoped({ ...args, now: args.now ?? new Date() });
+    const reservedMicrocents = Math.max(1, args.worstCaseMicrocents);
+    const reservedAt = args.now ?? new Date();
+    const admitted = await this.repo.reserveRetrievalUsageUnscoped({
+      grant: args.grant,
+      reservedMicrocents,
+      model: args.model,
+      now: reservedAt,
+    });
+    return admitted ? { grant: args.grant, reservedMicrocents, reservedAt } : null;
+  }
+
+  async settleRetrieval(args: {
+    reservation: AgentRetrievalReservation;
+    charge: AgentRetrievalCharge | null;
+    now?: Date;
+  }) {
+    if (args.charge) {
+      assertMicrocentCount(args.charge.costMicrocents, "Retrieval cost");
+      assertMicrocentCount(args.charge.inputTokens, "Retrieval input tokens");
+    }
+    await this.repo.settleRetrievalUsageUnscoped({
+      grant: args.reservation.grant,
+      reservedMicrocents: args.reservation.reservedMicrocents,
+      reservedAt: args.reservation.reservedAt,
+      charge: args.charge,
+      now: args.now ?? new Date(),
+    });
   }
 
   async reserveUsage(args: {
