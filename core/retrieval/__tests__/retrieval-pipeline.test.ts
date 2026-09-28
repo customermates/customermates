@@ -162,6 +162,17 @@ describe("section re-rank", () => {
   });
 });
 
+describe("query words", () => {
+  it("finds words with Intl.Segmenter, keeps joined forms and combining marks whole, and drops query syntax", () => {
+    const words = (query: string) => fullTextUnits(query).map((unit) => unit.text);
+
+    expect(words("e-mail don't v4.12.3 OPS-1182 a--b")).toEqual(["e-mail", "don't", "v4.12.3", "ops-1182", "a", "b"]);
+    expect(words("नमस्ते दुनिया")).toEqual(["नमस्ते", "दुनिया"]);
+    expect(words("refund:* & !policy | (a <-> b)")).toEqual(["refund", "policy", "a", "b"]);
+    expect(words("Café naïve foo_bar")).toEqual(["café", "naïve", "foo_bar"]);
+  });
+});
+
 describe("typo candidates", () => {
   it("offers only alphabetic single words of four or more letters that matched no page", () => {
     const units = fullTextUnits('refnud "expense policy" glosary e-mail 2026 abc 退款 policy');

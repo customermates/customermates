@@ -5,12 +5,13 @@ export { textSearchConfigFor } from "@/i18n/locale-registry";
 export const SUBSTRING_SEARCH_SCRIPT =
   /[\p{Script=Han}\p{Script=Hiragana}\p{Script=Katakana}\p{Script=Hangul}\p{Script=Thai}\p{Script=Lao}\p{Script=Khmer}\p{Script=Myanmar}]/u;
 const QUOTED_PHRASE = /["“”„«»]([^"“”„«»]*)["“”„«»]?/gu;
-const QUERY_TOKEN = /[\p{L}\p{N}]+(?:[-_.'’][\p{L}\p{N}]+)*/gu;
-const PREFIX_TOKEN = /^[\p{L}\p{N}]{2,}$/u;
+const TOKEN_JOINER = /^[-_.'’]$/u;
+const PREFIX_TOKEN = /^[\p{L}\p{M}\p{N}]{2,}$/u;
 const FULL_TEXT_MAX_UNITS = 32;
 const FULL_TEXT_MAX_CANDIDATE_UNITS = 256;
 const FULL_TEXT_MAX_TERM_LENGTH = 64;
-const TYPO_TERM = /^\p{L}{4,}$/u;
+const TYPO_TERM = /^\p{L}[\p{L}\p{M}]{3,}$/u;
+const WORD_SEGMENTER = new Intl.Segmenter("und", { granularity: "word" });
 
 export type FullTextUnit = { text: string; phrase: boolean; prefix: boolean; substring: boolean };
 
@@ -18,9 +19,31 @@ function boundedTerm(value: string): string {
   return Array.from(value).slice(0, FULL_TEXT_MAX_TERM_LENGTH).join("");
 }
 
+type TokenSpan = { token: string; start: number; end: number };
+
+function queryTokenSpans(text: string): TokenSpan[] {
+  const spans: TokenSpan[] = [];
+  let joined = false;
+  let joinable = false;
+  for (const { segment, index, isWordLike } of WORD_SEGMENTER.segment(text)) {
+    const word = isWordLike === true;
+    const end = index + segment.length;
+    const last = spans.at(-1);
+    if (word && last && (joined || (joinable && last.end === index)))
+      spans[spans.length - 1] = { token: text.slice(last.start, end), start: last.start, end };
+    else if (word) spans.push({ token: segment, start: index, end });
+    joined = !word && joinable && TOKEN_JOINER.test(segment);
+    joinable = word;
+  }
+  return spans;
+}
+
+function queryTokens(text: string): string[] {
+  return queryTokenSpans(text).map(({ token }) => token);
+}
+
 function substringSegments(term: string): string[] {
-  const segmenter = new Intl.Segmenter("und", { granularity: "word" });
-  const segments = [...segmenter.segment(term)]
+  const segments = [...WORD_SEGMENTER.segment(term)]
     .filter(({ isWordLike }) => isWordLike)
     .map(({ segment }) => segment)
     .filter((segment) => segment !== term && SUBSTRING_SEARCH_SCRIPT.test(segment));
@@ -51,14 +74,14 @@ export function fullTextUnits(query: string): FullTextUnit[] {
   for (const match of lowered.matchAll(QUOTED_PHRASE)) {
     unquoted.push(lowered.slice(cursor, match.index));
     cursor = (match.index ?? 0) + match[0].length;
-    const words = (match[1].match(QUERY_TOKEN) ?? []).map(boundedTerm);
+    const words = queryTokens(match[1]).map(boundedTerm);
     if (words.length > 1 && !words.some((word) => SUBSTRING_SEARCH_SCRIPT.test(word)))
       add({ text: words.join(" "), phrase: true, prefix: false, substring: false });
     else for (const word of words) addToken(word, false);
   }
   unquoted.push(lowered.slice(cursor));
   const rest = unquoted.join(" ");
-  const tokens = [...rest.matchAll(QUERY_TOKEN)].map((match) => boundedTerm(match[0]));
+  const tokens = queryTokens(rest).map(boundedTerm);
   const last = tokens.at(-1);
   const endsWithLast = last !== undefined && lowered.trimEnd().endsWith(last);
   tokens.forEach((token, index) =>
@@ -82,10 +105,14 @@ export function typoCandidates(units: readonly FullTextUnit[], matched: Readonly
 }
 
 export function replaceQueryWords(query: string, replacements: ReadonlyMap<string, string>): string {
-  return query
-    .normalize("NFC")
-    .toLocaleLowerCase()
-    .replace(QUERY_TOKEN, (token) => replacements.get(token) ?? token);
+  const text = query.normalize("NFC").toLocaleLowerCase();
+  let replaced = "";
+  let cursor = 0;
+  for (const { token, start, end } of queryTokenSpans(text)) {
+    replaced += `${text.slice(cursor, start)}${replacements.get(token) ?? token}`;
+    cursor = end;
+  }
+  return `${replaced}${text.slice(cursor)}`;
 }
 
 function unitQuery(unit: FullTextUnit, configs: readonly string[]): Prisma.Sql {

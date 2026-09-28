@@ -2,8 +2,11 @@ import { describe, expect, it } from "vitest";
 
 import { MCP_TOOL_GROUPS } from "@/features/mcp-tools/tool-registry";
 
+import { LOCALE_REGISTRY } from "@/i18n/locale-registry";
+
 import {
   AGENT_CORE_TOOLSETS,
+  AGENT_TOOLSET_LEXICON,
   AGENT_ON_DEMAND_TOOLSETS,
   AGENT_TOOLSET_SUMMARY,
   activeAgentToolNames,
@@ -46,6 +49,19 @@ describe("toolset partition", () => {
   });
 });
 
+describe("toolset lexicon", () => {
+  it("has request words for every toolset in every interface language, lowercase and normalized", () => {
+    for (const toolset of AGENT_ON_DEMAND_TOOLSETS) {
+      const lexicon = AGENT_TOOLSET_LEXICON[toolset];
+      expect(Object.keys(lexicon).toSorted(), toolset).toEqual([...Object.keys(LOCALE_REGISTRY), "any"].toSorted());
+      for (const locale of Object.keys(LOCALE_REGISTRY) as Array<keyof typeof LOCALE_REGISTRY>)
+        expect(lexicon[locale].length, `${toolset} ${locale}`).toBeGreaterThan(0);
+      for (const term of Object.values(lexicon).flat())
+        expect(term, `${toolset} ${term}`).toBe(term.toLocaleLowerCase("en-US").normalize("NFKC"));
+    }
+  });
+});
+
 describe("toolsetsForRequest", () => {
   it("routes by user vocabulary in English and German", () => {
     expect([...toolsetsForRequest({ text: "Reply to the email from ACME", pageRoute: null })]).toEqual(["messaging"]);
@@ -56,6 +72,24 @@ describe("toolsetsForRequest", () => {
     expect([...toolsetsForRequest({ text: "Lade Anna als Teammitglied ein", pageRoute: null })]).toEqual(["admin"]);
     expect([...toolsetsForRequest({ text: "Update my current view", pageRoute: null })]).toEqual(["views"]);
     expect([...toolsetsForRequest({ text: "Passe meine aktuelle Ansicht an", pageRoute: null })]).toEqual(["views"]);
+  });
+
+  it("routes by user vocabulary in Spanish, French and Italian", () => {
+    const route = (text: string) => [...toolsetsForRequest({ text, pageRoute: null })];
+
+    expect(route("Responde al correo de ACME")).toEqual(["messaging"]);
+    expect(route("Réponds au courriel d'ACME")).toEqual(["messaging"]);
+    expect(route("Rispondi all'ultimo messaggio di ACME")).toEqual(["messaging"]);
+    expect(route("Crea una rutina que se ejecute cada mañana")).toEqual(["routines"]);
+    expect(route("Crée une automatisation qui tourne chaque matin")).toEqual(["routines"]);
+    expect(route("Crea un promemoria ricorrente ogni settimana")).toEqual(["routines"]);
+    expect(route("Añade un gráfico al tablero")).toEqual(["widgets"]);
+    expect(route("Ajoute un graphique au tableau de bord")).toEqual(["widgets"]);
+    expect(route("Aggiungi un grafico al cruscotto")).toEqual(["widgets"]);
+    expect(route("Invita a Ana como miembro del equipo")).toEqual(["admin"]);
+    expect(route("Change la devise de l'espace de travail")).toEqual(["admin"]);
+    expect(route("Cambia il ruolo di Marco")).toEqual(["admin"]);
+    expect(route("Muestra el perfil de LinkedIn de Ana")).toEqual(["social"]);
   });
 
   it("routes by the current page and strips the locale prefix", () => {

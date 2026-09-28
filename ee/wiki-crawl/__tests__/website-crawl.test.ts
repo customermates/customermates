@@ -12,6 +12,7 @@ import {
   wikiCrawlCategory,
 } from "../website-discovery";
 import { extractWikiSourceDocument } from "../website-source-extract";
+import { isExternalHelpHost, isSkippedCrawlPath } from "../website-url-vocabulary";
 
 const mocks = vi.hoisted(() => ({ lookup: vi.fn(), httpsRequest: vi.fn(), requested: [] as string[] }));
 
@@ -114,8 +115,25 @@ describe("sitemaps, llms.txt and categories", () => {
     ["https://example.com/blog/launch", "blog"],
     ["https://example.com/en/blog/pipedrive-pricing", "blog"],
     ["https://example.com/partners", "other"],
+    ["https://example.com/es/ayuda/facturas", "help"],
+    ["https://example.com/fr/tarifs", "pricing"],
+    ["https://example.com/it/rimborsi", "policy"],
+    ["https://example.com/fr/produits/agenda", "product"],
+    ["https://example.com/it/chi-siamo", "about"],
+    ["https://example.com/es/clientes/acme", "customers"],
+    ["https://example.com/fr/actualites/lancement", "blog"],
   ] as const)("categorises %s as %s", (url, category) => {
     expect(wikiCrawlCategory(url)).toBe(category);
+  });
+
+  it("skips account, cart and career paths and file downloads, and spots hosted help centres", () => {
+    for (const path of ["/login", "/de/warenkorb", "/es/empleo", "/it/lavora-con-noi", "/wp-json/x", "/guide.pdf"])
+      expect(isSkippedCrawlPath(path), path).toBe(true);
+    expect(isSkippedCrawlPath("/help/login-issues")).toBe(false);
+    expect(isExternalHelpHost("acme.zendesk.com")).toBe(true);
+    expect(isExternalHelpHost("hilfe.acme.de")).toBe(true);
+    expect(isExternalHelpHost("zendeskXcom.acme.de")).toBe(false);
+    expect(isExternalHelpHost("www.acme.com")).toBe(false);
   });
 
   it("ranks the homepage first, fills category quotas, skips junk, dedupes and prefers the workspace language", () => {

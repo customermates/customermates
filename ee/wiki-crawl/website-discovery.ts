@@ -1,5 +1,9 @@
 import { parsePublicPageUrl } from "@/features/wiki/wiki-homepage";
 
+import { crawlPathCategory, isSkippedCrawlPath } from "./website-url-vocabulary";
+
+export { isExternalHelpHost } from "./website-url-vocabulary";
+
 export const WIKI_CRAWL_USER_AGENT_TOKEN = "customermates";
 export const WIKI_CRAWL_USER_AGENT =
   "Customermates/1.0 (+https://customermates.com/docs/app-assistant; website import)";
@@ -26,50 +30,6 @@ const CATEGORY_QUOTAS: Array<{ categories: WikiCrawlCategory[]; pages: number }>
   { categories: ["pricing"], pages: 3 },
   { categories: ["other"], pages: 6 },
 ];
-
-const WORD = (words: string) => new RegExp(`(?:^|[\\s/_.-])(?:${words})(?:$|[\\s/_.-])`, "u");
-const CATEGORY_PATTERNS: Array<[WikiCrawlCategory, RegExp]> = [
-  ["pricing", WORD("pricing|prices?|plans?|preise|tarife?|precios|tarifs|prix|prezzi|piani|abonnement|subscriptions?")],
-  [
-    "policy",
-    WORD(
-      "terms|tos|legal|privacy|refunds?|returns?|cancell?ation|sla|security|gdpr|dpa|agb|datenschutz|widerruf|kuendigung|kündigung|rueckgabe|rückgabe|erstattung|terminos|términos|privacidad|reembolsos?|devoluciones|conditions|confidentialite|confidentialité|remboursements?|retours|termini|rimborsi?|resi|shipping|versand|envios|envíos|livraison|spedizioni|warranty|garantie|garantia|garanzia",
-    ),
-  ],
-  [
-    "help",
-    WORD(
-      "support|help|helpcenter|help-center|hc|docs|documentation|faqs?|knowledge|kb|guides?|tutorials?|how-to|getting-started|troubleshooting|hilfe|anleitungen?|haeufige-fragen|häufige-fragen|ayuda|soporte|preguntas-frecuentes|aide|assistance|questions-frequentes|aiuto|supporto|domande-frequenti|documentazione|manual",
-    ),
-  ],
-  [
-    "product",
-    WORD(
-      "products?|features?|solutions?|services?|platform|integrations?|how-it-works|produkte?|funktionen|loesungen|lösungen|leistungen|productos?|servicios?|soluciones|funciones|produits?|fonctionnalites|fonctionnalités|prodotti|servizi|soluzioni|funzionalita|funzionalità",
-    ),
-  ],
-  [
-    "about",
-    WORD(
-      "about|about-us|company|team|mission|story|unternehmen|ueber-uns|über-uns|nosotros|empresa|equipo|a-propos|entreprise|equipe|équipe|chi-siamo|azienda",
-    ),
-  ],
-  [
-    "customers",
-    WORD(
-      "customers?|case-stud(?:y|ies)|testimonials?|industries|use-cases?|references?|kunden|referenzen|branchen|clientes|casos|clients|temoignages|témoignages|clienti|casi",
-    ),
-  ],
-  ["blog", WORD("blog|news|press|magazin|noticias|actualites|actualités|notizie|articles?|posts?")],
-];
-const BLOG_SECTION =
-  /^\/(?:[a-z]{2}(?:-[a-z]{2})?\/)?(?:blog|news|press|magazin|noticias|actualites|actualités|notizie)(?:\/|$)/u;
-const SKIP_PATH =
-  /(?:^|\/)(?:login|log-in|signin|sign-in|signup|sign-up|register|registrieren|cart|checkout|basket|warenkorb|account|konto|my-account|careers|jobs|karriere|empleo|carrieres|lavora-con-noi|wp-admin|wp-json|cdn-cgi|feed|tag|tags|category|categories|author|search|suche|share|print)(?:\/|$)/u;
-const SKIP_EXTENSION =
-  /\.(?:pdf|jpe?g|png|gif|webp|svg|ico|css|js|json|xml|zip|gz|mp4|mp3|mov|avi|woff2?|ttf|eot|docx?|xlsx?|pptx?|csv|rss|atom)$/iu;
-const EXTERNAL_HELP_HOST =
-  /(?:^|\.)(?:zendesk\.com|intercom\.help|helpscoutdocs\.com|freshdesk\.com|gitbook\.io|notion\.site|document360\.io|readme\.io|helpjuice\.com|hubspot\.com)$|^(?:help|support|docs|kb|hilfe|faq)\./u;
 
 export type RobotsRules = {
   allows: (path: string) => boolean;
@@ -191,14 +151,7 @@ export function wikiCrawlCategory(url: string, title = ""): WikiCrawlCategory {
   const path = decodeURIComponent(new URL(url).pathname).toLocaleLowerCase();
   const searchable = `${path} ${title.toLocaleLowerCase()}`;
   if (path === "/" || path === "") return "about";
-  if (BLOG_SECTION.test(path)) return "blog";
-  for (const [category, pattern] of CATEGORY_PATTERNS) if (pattern.test(path)) return category;
-  for (const [category, pattern] of CATEGORY_PATTERNS) if (pattern.test(searchable)) return category;
-  return "other";
-}
-
-export function isExternalHelpHost(host: string): boolean {
-  return EXTERNAL_HELP_HOST.test(host.toLowerCase());
+  return crawlPathCategory(path, searchable);
 }
 
 export type WikiCrawlCandidate = { url: string; title?: string; source: "homepage" | "llms" | "link" | "sitemap" };
@@ -226,7 +179,7 @@ export function rankWikiCrawlTargets(input: {
     const url = canonicalCrawlUrl(candidate.url);
     if (!url || url === homepage) return;
     const path = new URL(url).pathname.toLowerCase();
-    if (SKIP_PATH.test(path) || SKIP_EXTENSION.test(path) || !input.allows(url)) return;
+    if (isSkippedCrawlPath(path) || !input.allows(url)) return;
     const known = seen.get(url);
     if (!known || SOURCE_RANK[candidate.source] < SOURCE_RANK[known.candidate.source])
       seen.set(url, { candidate: { ...candidate, url, title: candidate.title ?? known?.candidate.title }, order });
