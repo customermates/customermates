@@ -8,12 +8,18 @@ import { Action, Resource } from "@/generated/prisma";
 import { AuthenticatedInteractor } from "@/core/base/authenticated-interactor";
 import { TenantInteractor } from "@/core/decorators/tenant-interactor.decorator";
 import { Write } from "@/core/decorators/write.decorator";
-import { failConflict, failNotFound } from "@/core/validation/interactor-failure-server";
+import { fail, failConflict, failNotFound } from "@/core/validation/interactor-failure-server";
 import { CustomErrorCode } from "@/core/validation/validation.types";
 import { calculateChanges } from "@/core/utils/calculate-changes";
 import { DomainEvent } from "@/features/event/domain-events";
 
-import { WikiMarkdownSchema, WikiPageDtoSchema, WikiTitleSchema } from "./wiki.schema";
+import {
+  WikiMarkdownSchema,
+  WikiPageDtoSchema,
+  WikiPageKindSchema,
+  WikiTitleSchema,
+  WikiWhenToUseSchema,
+} from "./wiki.schema";
 
 export const UpdateWikiPageSchema = z
   .object({
@@ -21,10 +27,14 @@ export const UpdateWikiPageSchema = z
     expectedUpdatedAt: z.coerce.date(),
     title: WikiTitleSchema.optional(),
     markdown: WikiMarkdownSchema.optional(),
+    kind: WikiPageKindSchema.optional(),
+    whenToUse: WikiWhenToUseSchema.optional(),
+    draft: z.boolean().optional(),
   })
-  .refine((data) => data.title !== undefined || data.markdown !== undefined, {
-    message: "At least one field must be provided.",
-  });
+  .refine(
+    (data) => [data.title, data.markdown, data.kind, data.whenToUse, data.draft].some((value) => value !== undefined),
+    { message: "At least one field must be provided." },
+  );
 export type UpdateWikiPageData = Data<typeof UpdateWikiPageSchema>;
 
 export type UpdateWikiPageRepoResult =
@@ -34,7 +44,9 @@ export type UpdateWikiPageRepoResult =
       page: WikiPageDto;
     }
   | { status: "not-found" }
-  | { status: "conflict" };
+  | { status: "conflict" }
+  | { status: "guide-exists" }
+  | { status: "invalid"; error: CustomErrorCode };
 
 export abstract class UpdateWikiPageRepo {
   abstract updatePage(data: UpdateWikiPageData): Promise<UpdateWikiPageRepoResult>;
@@ -54,6 +66,9 @@ export class UpdateWikiPageInteractor extends AuthenticatedInteractor<UpdateWiki
     const result = await this.repo.updatePage(data);
     if (result.status === "not-found") return failNotFound(CustomErrorCode.wikiPageNotFound, ["id"]);
     if (result.status === "conflict") return failConflict(CustomErrorCode.wikiPageConflict, ["expectedUpdatedAt"]);
+    if (result.status === "guide-exists") return failConflict(CustomErrorCode.wikiGuideExists, ["kind"]);
+    if (result.status === "invalid")
+      return fail(result.error, [result.error === CustomErrorCode.wikiWhenToUseRequired ? "whenToUse" : "markdown"]);
     if (result.status === "updated") {
       await this.eventService.publish(DomainEvent.WIKI_PAGE_UPDATED, {
         entityId: result.page.id,

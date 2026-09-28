@@ -17,7 +17,7 @@ import { Prisma } from "@/generated/prisma";
 
 import { BaseRepository } from "@/core/base/base-repository";
 import { Transaction } from "@/core/decorators/transaction.decorator";
-import { WIKI_CATALOG_PAGE_SIZE } from "./wiki.schema";
+import { WIKI_CATALOG_PAGE_SIZE, wikiPageKindFields, wikiPageKindIssue } from "./wiki.schema";
 import { WIKI_SEMANTIC_MIN_SIMILARITY } from "./wiki-hybrid-ranking";
 import {
   parseWikiSearchQuery,
@@ -87,6 +87,9 @@ export class PrismaWikiPageRepo
       id: true,
       title: true,
       markdown: true,
+      kind: true,
+      whenToUse: true,
+      draft: true,
       createdAt: true,
       updatedAt: true,
     } as const;
@@ -96,13 +99,24 @@ export class PrismaWikiPageRepo
     return {
       id: true,
       title: true,
+      kind: true,
+      whenToUse: true,
+      draft: true,
       createdAt: true,
       updatedAt: true,
     } as const;
   }
 
-  async listPages({ page, pageSize }: RepoArgs<GetWikiPagesRepo, "listPages">) {
-    const where = { companyId: this.companyId };
+  private async guideExists(exceptId?: string) {
+    return (
+      (await this.prisma.wikiPage.count({
+        where: { companyId: this.companyId, kind: "guide", ...(exceptId ? { id: { not: exceptId } } : {}) },
+      })) > 0
+    );
+  }
+
+  async listPages({ page, pageSize, kind }: RepoArgs<GetWikiPagesRepo, "listPages">) {
+    const where = { companyId: this.companyId, ...(kind ? { kind } : {}) };
     const [items, total] = await Promise.all([
       this.prisma.wikiPage.findMany({
         where,
@@ -313,6 +327,9 @@ export class PrismaWikiPageRepo
     )
       return { status: "wiki-not-empty" as const };
 
+    const guides = data.pages.filter((page) => page.kind === "guide").length;
+    if (guides > 1 || (guides === 1 && (await this.guideExists()))) return { status: "guide-exists" as const };
+
     const pages: WikiPageDto[] = [];
     const createdAt = Date.now();
     for (const [index, page] of data.pages.entries()) {
@@ -323,6 +340,9 @@ export class PrismaWikiPageRepo
             companyId: this.companyId,
             title: page.title,
             markdown: page.markdown,
+            kind: wikiPageKindFields(page).kind,
+            whenToUse: wikiPageKindFields(page).whenToUse,
+            draft: page.draft ?? false,
             createdAt: new Date(createdAt + index),
           },
           select: this.pageSelect,
@@ -339,8 +359,21 @@ export class PrismaWikiPageRepo
 
     const title = data.title?.trim() ?? previous.title;
     const markdown = data.markdown ?? previous.markdown;
-    if (title === previous.title && markdown === previous.markdown)
+    const kind = data.kind ?? previous.kind;
+    const whenToUse = kind === "procedure" ? (data.whenToUse ?? previous.whenToUse) : null;
+    const draft = data.draft ?? previous.draft;
+    if (
+      title === previous.title &&
+      markdown === previous.markdown &&
+      kind === previous.kind &&
+      whenToUse === previous.whenToUse &&
+      draft === previous.draft
+    )
       return { status: "unchanged" as const, previous, page: previous };
+    const invalid = wikiPageKindIssue({ kind, whenToUse, markdown });
+    if (invalid) return { status: "invalid" as const, error: invalid };
+    if (kind === "guide" && previous.kind !== "guide" && (await this.guideExists(previous.id)))
+      return { status: "guide-exists" as const };
 
     const updated = await this.prisma.wikiPage.updateMany({
       where: {
@@ -351,6 +384,9 @@ export class PrismaWikiPageRepo
       data: {
         title,
         markdown,
+        kind,
+        whenToUse,
+        draft,
         updatedAt: new Date(Math.max(Date.now(), previous.updatedAt.getTime() + 1)),
       },
     });
@@ -622,7 +658,8 @@ export class PrismaWikiPageRepo
           "createdAt" ASC, "id" ASC
         LIMIT ${pageSize} OFFSET ${(page - 1) * pageSize}
       )
-      SELECT p."id", p."title", p."markdown", p."createdAt", p."updatedAt", r."total"::int AS "total",
+      SELECT p."id", p."title", p."markdown", p."kind", p."whenToUse", p."draft", p."createdAt", p."updatedAt",
+        r."total"::int AS "total",
         r."allTerms", r."identifier"
       FROM selected r
       JOIN "WikiPage" p ON p."id" = r."id" AND p."companyId" = ${this.companyId}

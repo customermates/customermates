@@ -25,7 +25,10 @@ export type CreateWikiPagesRepoData = Omit<CreateWikiPagesData, "pages"> & {
   pages: Array<WikiPageInput & { id: string }>;
 };
 
-export type CreateWikiPagesRepoResult = { status: "created"; pages: WikiPageDto[] } | { status: "wiki-not-empty" };
+export type CreateWikiPagesRepoResult =
+  | { status: "created"; pages: WikiPageDto[] }
+  | { status: "wiki-not-empty" }
+  | { status: "guide-exists" };
 
 export abstract class CreateWikiPagesRepo {
   abstract createPages(data: CreateWikiPagesRepoData): Promise<CreateWikiPagesRepoResult>;
@@ -47,6 +50,7 @@ export class CreateWikiPagesInteractor extends AuthenticatedInteractor<CreateWik
       pages: data.pages.map((page) => ({ ...page, id: randomUUID() })),
     });
     if (result.status === "wiki-not-empty") return failConflict(CustomErrorCode.wikiNotEmpty, ["requireEmpty"]);
+    if (result.status === "guide-exists") return failConflict(CustomErrorCode.wikiGuideExists, ["pages"]);
 
     const pages = result.pages;
 

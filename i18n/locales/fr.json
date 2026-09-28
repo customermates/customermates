@@ -1338,10 +1338,13 @@
       "widgetNotFound": "ID de widget introuvable ou inaccessible.",
       "widgetTaskCanOnlyGroupByCustomColumn": "Les tâches ne peuvent être regroupées que par colonnes personnalisées, pas par types d'élément.",
       "widgetWeightedValueNotAllowedForService": "L'agrégation de valeur pondérée n'est pas autorisée pour le type d'élément Service.",
+      "wikiGuideExists": "Ce wiki a déjà un guide opérationnel. Mettez à jour le guide existant.",
       "wikiHomepageSetupStartFailed": "Mate n’a pas pu démarrer la configuration du wiki. Réessayez.",
       "wikiNotEmpty": "Cette action nécessite un wiki vide.",
       "wikiPageConflict": "Cette page du wiki a été modifiée après son ouverture. Rechargez-la et réessayez.",
-      "wikiPageNotFound": "Page du wiki introuvable ou inaccessible."
+      "wikiPageNotFound": "Page du wiki introuvable ou inaccessible.",
+      "wikiProcedureNeedsSteps": "Une procédure doit contenir des étapes numérotées.",
+      "wikiWhenToUseRequired": "Une procédure doit indiquer brièvement quand l'utiliser."
     },
     "events": {
       "company": {

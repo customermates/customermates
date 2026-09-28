@@ -80,6 +80,7 @@ const CONFLICT_FAILURE_CODES = new Set<CustomErrorCode>([
   CustomErrorCode.channelAlreadyLinked,
   CustomErrorCode.operatorConflict,
   CustomErrorCode.roleSystemImmutable,
+  CustomErrorCode.wikiGuideExists,
   CustomErrorCode.wikiNotEmpty,
   CustomErrorCode.wikiPageConflict,
 ]);

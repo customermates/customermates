@@ -1338,10 +1338,13 @@
       "widgetNotFound": "Widget ID not found or not accessible.",
       "widgetTaskCanOnlyGroupByCustomColumn": "Tasks can only be grouped by custom columns, not by element types.",
       "widgetWeightedValueNotAllowedForService": "Weighted value aggregation is not allowed for Service element type.",
+      "wikiGuideExists": "This Wiki already has an Operating Guide. Update the existing guide instead.",
       "wikiHomepageSetupStartFailed": "Mate could not start the Wiki setup. Please try again.",
       "wikiNotEmpty": "This action requires an empty Wiki.",
       "wikiPageConflict": "This Wiki page changed after you opened it. Reload it and try again.",
-      "wikiPageNotFound": "Wiki page not found or not accessible."
+      "wikiPageNotFound": "Wiki page not found or not accessible.",
+      "wikiProcedureNeedsSteps": "A procedure needs numbered steps.",
+      "wikiWhenToUseRequired": "A procedure needs a short description of when to use it."
     },
     "events": {
       "company": {

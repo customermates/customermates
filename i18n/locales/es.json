@@ -1338,10 +1338,13 @@
       "widgetNotFound": "ID de widget no encontrado o no accesible.",
       "widgetTaskCanOnlyGroupByCustomColumn": "Las tareas solo se pueden agrupar por columnas personalizadas, no por tipos de elemento.",
       "widgetWeightedValueNotAllowedForService": "La agregación de valor ponderado no está permitida para el tipo de elemento Servicio.",
+      "wikiGuideExists": "Esta wiki ya tiene una guía operativa. Actualiza la guía existente.",
       "wikiHomepageSetupStartFailed": "Mate no pudo iniciar la configuración de la wiki. Inténtalo de nuevo.",
       "wikiNotEmpty": "Esta acción requiere que la wiki esté vacía.",
       "wikiPageConflict": "Esta página de la wiki cambió después de que la abrieras. Vuelve a cargarla e inténtalo de nuevo.",
-      "wikiPageNotFound": "Página de la wiki no encontrada o no accesible."
+      "wikiPageNotFound": "Página de la wiki no encontrada o no accesible.",
+      "wikiProcedureNeedsSteps": "Un procedimiento necesita pasos numerados.",
+      "wikiWhenToUseRequired": "Un procedimiento necesita una breve descripción de cuándo usarlo."
     },
     "events": {
       "company": {

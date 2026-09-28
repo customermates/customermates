@@ -18,6 +18,9 @@ import type { WikiPageSummary } from "../wiki.schema";
 const PAGE = {
   id: "00000000-0000-4000-8000-000000000001",
   title: "Company Overview",
+  kind: "knowledge" as const,
+  whenToUse: null,
+  draft: false,
   createdAt: new Date("2026-09-22T09:00:00.000Z"),
   updatedAt: new Date("2026-09-22T09:00:00.000Z"),
 };

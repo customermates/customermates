@@ -271,6 +271,12 @@ model Company {
   wikiPageChunks              WikiPageChunk[]
 }
 
+enum WikiPageKind {
+  guide
+  procedure
+  knowledge
+}
+
 model WikiPage {
   id                     String                   @id @default(uuid())
   companyId              String
@@ -280,12 +286,19 @@ model WikiPage {
   searchVector           Unsupported("tsvector")? @default(dbgenerated("wiki_search_vector(title, markdown)"))
   searchCompact          String?                  @default(dbgenerated("wiki_search_compact(title, markdown)"))
   semanticIndexClaimedAt DateTime?
+  kind                   WikiPageKind             @default(knowledge)
+  whenToUse              String?
+  draft                  Boolean                  @default(false)
+  sourceUrl              String?
+  sourceFetchedAt        DateTime?
+  sourceContentHash      String?
   createdAt              DateTime                 @default(now())
   updatedAt              DateTime                 @updatedAt
   company                Company                  @relation(fields: [companyId], references: [id], onDelete: Cascade)
   chunks                 WikiPageChunk[]
 
   @@index([companyId, createdAt, id])
+  @@index([companyId, kind, title])
   @@index([searchVector], type: Gin)
   @@index([searchCompact(ops: raw("gin_trgm_ops"))], type: Gin)
 }

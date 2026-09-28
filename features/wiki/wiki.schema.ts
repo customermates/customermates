@@ -8,6 +8,28 @@ import { CustomErrorCode } from "@/core/validation/validation.types";
 import { zx } from "@/core/validation/validation.utils";
 
 export const WIKI_TITLE_MAX_LENGTH = 120;
+export const WIKI_WHEN_TO_USE_MAX_LENGTH = 300;
+export const WIKI_PAGE_KINDS = ["guide", "procedure", "knowledge"] as const;
+export const WikiPageKindSchema = z.enum(WIKI_PAGE_KINDS);
+export type WikiPageKind = Data<typeof WikiPageKindSchema>;
+
+export function wikiPageKindFields(page: { kind?: WikiPageKind; whenToUse?: string | null; markdown: string }) {
+  const kind = page.kind ?? "knowledge";
+  return { kind, whenToUse: kind === "procedure" ? (page.whenToUse ?? null) : null, markdown: page.markdown };
+}
+
+const WIKI_PROCEDURE_STEP = /^[ \t]*\d+[.)][ \t]/mu;
+
+export function wikiPageKindIssue(page: {
+  kind: WikiPageKind;
+  whenToUse: string | null;
+  markdown: string;
+}): CustomErrorCode | null {
+  if (page.kind !== "procedure") return null;
+  if (!page.whenToUse) return CustomErrorCode.wikiWhenToUseRequired;
+  if (!WIKI_PROCEDURE_STEP.test(page.markdown)) return CustomErrorCode.wikiProcedureNeedsSteps;
+  return null;
+}
 
 export const WikiMarkdownSchema = z.string().transform((markdown, ctx) => {
   if (markdown.length > MAX_NOTES_LENGTH) {
@@ -41,6 +63,9 @@ export const WikiPageDtoSchema = z.object({
   id: z.uuid(),
   title: z.string(),
   markdown: z.string(),
+  kind: WikiPageKindSchema,
+  whenToUse: z.string().nullable(),
+  draft: z.boolean(),
   createdAt: z.date(),
   updatedAt: z.date(),
 });
@@ -54,7 +79,12 @@ export const WikiCatalogInputSchema = z.object({
   page: z.number().int().min(1).default(1),
 });
 export type WikiCatalogInput = Data<typeof WikiCatalogInputSchema>;
-const WikiCatalogItemSchema = WikiPageSummarySchema.extend({
+const WikiCatalogItemSchema = WikiPageSummarySchema.pick({
+  id: true,
+  title: true,
+  createdAt: true,
+  updatedAt: true,
+}).extend({
   excerpt: z.string().max(200),
   url: z.string(),
 });
@@ -77,10 +107,26 @@ export type WikiSearchResult = Data<typeof WikiSearchResultSchema>;
 
 export const WikiTitleSchema = zx.nonBlankText(WIKI_TITLE_MAX_LENGTH).transform((title) => title.trim());
 
-export const WikiPageInputSchema = z.object({
-  title: WikiTitleSchema,
-  markdown: WikiMarkdownSchema,
-});
+export const WikiWhenToUseSchema = zx.nonBlankText(WIKI_WHEN_TO_USE_MAX_LENGTH).transform((value) => value.trim());
+
+export const WikiPageInputSchema = z
+  .object({
+    title: WikiTitleSchema,
+    markdown: WikiMarkdownSchema,
+    kind: WikiPageKindSchema.optional(),
+    whenToUse: WikiWhenToUseSchema.optional(),
+    draft: z.boolean().optional(),
+  })
+  .superRefine((page, ctx) => {
+    const error = wikiPageKindIssue(wikiPageKindFields(page));
+    if (error) {
+      ctx.addIssue({
+        code: "custom",
+        path: [error === CustomErrorCode.wikiWhenToUseRequired ? "whenToUse" : "markdown"],
+        params: { error },
+      });
+    }
+  });
 export type WikiPageInput = Data<typeof WikiPageInputSchema>;
 
 export const WikiPagePaginationSchema = z.object({
@@ -88,7 +134,7 @@ export const WikiPagePaginationSchema = z.object({
   pageSize: z.union([z.literal(5), z.literal(10), z.literal(25), z.literal(100)]).default(25),
 });
 
-export const WikiPageListSchema = WikiPagePaginationSchema;
+export const WikiPageListSchema = WikiPagePaginationSchema.extend({ kind: WikiPageKindSchema.optional() });
 export type WikiPageListData = Data<typeof WikiPageListSchema>;
 
 export const WikiPageSearchSchema = WikiPagePaginationSchema.extend({

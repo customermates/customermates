@@ -21,7 +21,12 @@ import {
 } from "@/features/wiki/wiki-markdown-links";
 import { wikiPageUrl } from "@/features/wiki/wiki-links";
 import { wikiOutline } from "@/features/wiki/wiki-search";
-import { WikiMarkdownSchema, WIKI_TITLE_MAX_LENGTH } from "@/features/wiki/wiki.schema";
+import {
+  WikiMarkdownSchema,
+  WikiPageKindSchema,
+  WIKI_TITLE_MAX_LENGTH,
+  type WikiPageKind,
+} from "@/features/wiki/wiki.schema";
 import { env } from "@/env";
 
 import {
@@ -38,8 +43,9 @@ import {
 const WIKI_MCP_TEXT_TARGET_LENGTH = 5_500;
 const WIKI_MCP_PAGE_SIZE = 5;
 
-const ListSchema = z.object({ page: mcpPage() });
-const SearchSchema = ListSchema.extend({
+const ListSchema = z.object({ page: mcpPage(), kind: WikiPageKindSchema.optional() });
+const SearchSchema = z.object({
+  page: mcpPage(),
   query: z.string().trim().min(1).max(200),
 });
 const GetSchema = z.object({
@@ -53,6 +59,8 @@ const PublicSourceUrlSchema = z
 const PageInputSchema = z.object({
   title: z.string().trim().min(1).max(WIKI_TITLE_MAX_LENGTH),
   markdown: z.string(),
+  kind: WikiPageKindSchema.optional(),
+  whenToUse: z.string().optional(),
 });
 export const WIKI_HOMEPAGE_RESERVED_HEADINGS = new Set(
   [
@@ -189,10 +197,14 @@ const UpdateSchema = z
     expectedUpdatedAt: z.iso.datetime(),
     title: z.string().trim().min(1).max(WIKI_TITLE_MAX_LENGTH).optional(),
     markdown: z.string().optional(),
+    kind: WikiPageKindSchema.optional(),
+    whenToUse: z.string().optional(),
+    draft: z.boolean().optional(),
   })
-  .refine((data) => data.title !== undefined || data.markdown !== undefined, {
-    message: "At least one of title or markdown is required.",
-  });
+  .refine(
+    (data) => [data.title, data.markdown, data.kind, data.whenToUse, data.draft].some((value) => value !== undefined),
+    { message: "Nothing to update." },
+  );
 const DeleteSchema = z.object({
   id: z.uuid(),
   expectedUpdatedAt: z.iso.datetime(),
@@ -202,17 +214,20 @@ const ManageWikiPagesSchema = z.object({
   action: z
     .enum(["list", "search", "get", "create", "update", "delete"])
     .describe(
-      "list = optional page; search = query, optional page; get = id, optional offset; create = pages, optional requireEmpty; update = id, expectedUpdatedAt, title and/or markdown; delete = id, expectedUpdatedAt.",
+      "list: page, kind; search: query, page; get: id, offset; create: pages, requireEmpty; update: id, expectedUpdatedAt, fields; delete: id, expectedUpdatedAt.",
     ),
   id: z.uuid().optional().describe("Page id."),
   query: z.string().optional().describe("Search terms."),
   offset: z.coerce.number().int().min(0).optional().describe("Hit offset or prior nextOffset."),
   page: mcpPage(),
   pages: z.array(PageInputSchema).min(1).max(5).optional().describe("Created atomically."),
-  requireEmpty: z.boolean().optional().describe("Refuses create unless the Wiki is empty."),
+  requireEmpty: z.boolean().optional().describe("Only into an empty Wiki."),
   expectedUpdatedAt: z.string().optional().describe("updatedAt from a prior read."),
   title: z.string().optional().describe("New title."),
   markdown: z.string().optional().describe("New Markdown."),
+  kind: WikiPageKindSchema.optional(),
+  whenToUse: z.string().optional(),
+  draft: z.boolean().optional(),
 });
 
 export const ManageWikiPagesOutputSchema = z.looseObject({
@@ -245,17 +260,30 @@ export const ManageWikiPagesOutputSchema = z.looseObject({
   deleted: z.boolean().optional(),
 });
 
-export function wikiPageSummary(page: {
-  id: string;
-  title: string;
-  markdown: string;
-  createdAt: Date;
-  updatedAt: Date;
-}) {
+type WikiPageKindFields = { kind?: WikiPageKind; whenToUse?: string | null; draft?: boolean };
+
+function wikiPageKindOutput(page: WikiPageKindFields) {
+  return {
+    ...(page.kind && page.kind !== "knowledge" ? { kind: page.kind } : {}),
+    ...(page.whenToUse ? { whenToUse: page.whenToUse } : {}),
+    ...(page.draft ? { draft: true } : {}),
+  };
+}
+
+export function wikiPageSummary(
+  page: {
+    id: string;
+    title: string;
+    markdown: string;
+    createdAt: Date;
+    updatedAt: Date;
+  } & WikiPageKindFields,
+) {
   return {
     id: page.id,
     title: page.title,
     url: wikiPageUrl(env.BASE_URL, page.id),
+    ...wikiPageKindOutput(page),
     createdAt: page.createdAt,
     updatedAt: page.updatedAt,
   };
@@ -268,7 +296,7 @@ function wikiPageChunk(
     markdown: string;
     createdAt: Date;
     updatedAt: Date;
-  },
+  } & WikiPageKindFields,
   requestedOffset: number,
 ) {
   const discoveredLinks = extractWikiPageLinks(page.markdown, env.BASE_URL, 6);
@@ -277,6 +305,7 @@ function wikiPageChunk(
       id: page.id,
       title: page.title,
       url: wikiPageUrl(env.BASE_URL, page.id),
+      ...wikiPageKindOutput(page),
       offset,
       nextOffset: end < page.markdown.length ? end : null,
       totalChars: page.markdown.length,
@@ -309,9 +338,19 @@ function wikiListResult({
   total: number;
   page: number;
   pageSize: number;
-  items: unknown[];
+  items: Array<Record<string, unknown> & WikiPageKindFields>;
 }) {
-  return toonResult({ total, page, pageSize, items: formatDatesInResponse(items) });
+  return toonResult({
+    total,
+    page,
+    pageSize,
+    items: formatDatesInResponse(
+      items.map(({ kind, whenToUse, draft, ...item }) => ({
+        ...item,
+        ...wikiPageKindOutput({ kind, whenToUse, draft }),
+      })),
+    ),
+  });
 }
 
 function wikiSearchResult(result: WikiPageSearchResult) {
@@ -320,9 +359,10 @@ function wikiSearchResult(result: WikiPageSearchResult) {
     page: result.page,
     pageSize: result.pageSize,
     items: formatDatesInResponse(
-      result.items.map(({ id, title, section, offset, snippet, createdAt, updatedAt }) => ({
+      result.items.map(({ id, title, section, offset, snippet, createdAt, updatedAt, ...kind }) => ({
         id,
         title,
+        ...wikiPageKindOutput(kind),
         section: section ?? "",
         offset: offset ?? 0,
         snippet,
@@ -339,11 +379,12 @@ export const manageWikiPagesTool = {
   name: "manage_wiki_pages",
   title: "Manage Workspace Wiki pages",
   description:
-    "Read and manage the shared Workspace Wiki of company facts, processes, voice, and support guidance. " +
-    "list returns 5 pages in creation order; search returns snippets and each hit's section offset, or didYouMean. " +
-    "get returns one Markdown chunk (outline at 0); pass nextOffset back as offset until it is null. If updatedAt differs from the previous chunk, restart at offset 0. " +
-    "action delete is IRREVERSIBLE. " +
-    "Link pages with Markdown links to /wiki?page=<page-id>; ids stay stable when titles change.",
+    "Workspace Wiki of company facts, processes, voice and support guidance. " +
+    "kind: guide = the one Operating Guide; procedure = numbered steps + whenToUse; default knowledge. " +
+    "list: 5 per page by creation; search: snippets and section offsets, or didYouMean. " +
+    "get: one Markdown chunk (outline at 0); repeat with nextOffset until null; restart at 0 if updatedAt changes. " +
+    "delete is IRREVERSIBLE. " +
+    "Link pages as /wiki?page=<id>; ids survive renames.",
   annotations: {
     readOnlyHint: false,
     destructiveHint: true,

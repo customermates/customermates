@@ -25,6 +25,9 @@ const page = {
   id: "10000000-0000-4000-8000-000000000001",
   title: "Our process",
   markdown: "",
+  kind: "knowledge" as const,
+  whenToUse: null,
+  draft: false,
   createdAt: new Date("2026-09-09T00:00:00.000Z"),
   updatedAt: new Date("2026-09-09T00:00:00.000Z"),
 };
