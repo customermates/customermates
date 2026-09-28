@@ -33,8 +33,7 @@ export async function collectClassifierCharges<T>(
 }
 
 export function hostedDocsRerankModel(): ClassifierModel | null {
-  if (env.AGENT_DOCS_RERANK !== "jev" || env.APP_MODE === "self-hosted") return null;
-  return "jev";
+  return env.APP_MODE === "self-hosted" ? null : "jev";
 }
 
 function estimatedTokens(text: string) {

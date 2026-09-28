@@ -4,7 +4,6 @@ import { beforeEach, describe, expect, it, vi } from "vitest";
 
 const envState = vi.hoisted(() => ({
   APP_MODE: "cloud" as "cloud" | "demo" | "self-hosted",
-  AGENT_DOCS_RERANK: "jev" as "off" | "jev",
   AI_GATEWAY_API_KEY: undefined as string | undefined,
 }));
 
@@ -59,19 +58,16 @@ const reply =
 
 beforeEach(() => {
   envState.APP_MODE = "cloud";
-  envState.AGENT_DOCS_RERANK = "jev";
 });
 
 describe("hosted docs re-rank switch", () => {
-  it("runs Jev on a hosted instance unless the switch is off", () => {
+  it("runs Jev on every hosted instance", () => {
     expect(hostedDocsRerankModel()).toBe("jev");
     envState.APP_MODE = "demo";
     expect(hostedDocsRerankModel()).toBe("jev");
-    envState.AGENT_DOCS_RERANK = "off";
-    expect(hostedDocsRerankModel()).toBeNull();
   });
 
-  it("never runs self-hosted, even with the switch on", () => {
+  it("never runs self-hosted", () => {
     envState.APP_MODE = "self-hosted";
     expect(hostedDocsRerankModel()).toBeNull();
   });

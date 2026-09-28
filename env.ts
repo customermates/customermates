@@ -3,7 +3,6 @@ import {
   resolveAppMode,
   resolveAuthAllowedHosts,
   resolveBaseUrl,
-  resolveDocsRerank,
   resolveLocalAgentWebSearchOptIn,
   resolveOptionalBigInt,
   resolveStrictBoolean,
@@ -33,7 +32,6 @@ export const env = {
   AGENT_ANALYSIS_TOOL_ENABLED: process.env.AGENT_ANALYSIS_TOOL_ENABLED?.trim()
     ? resolveStrictBoolean("AGENT_ANALYSIS_TOOL_ENABLED", process.env.AGENT_ANALYSIS_TOOL_ENABLED)
     : true,
-  AGENT_DOCS_RERANK: resolveDocsRerank(process.env.AGENT_DOCS_RERANK),
   AI_GATEWAY_API_KEY: process.env.AI_GATEWAY_API_KEY,
   AGENT_WEB_SEARCH_LOCAL_OPT_IN: resolveLocalAgentWebSearchOptIn(process.env),
   HOSTED_AI_OPERATOR_CONTROLS_ENABLED: resolveStrictBoolean(

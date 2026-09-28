@@ -14,7 +14,6 @@ vi.mock("@/env", () => ({
     APP_MODE: "cloud",
     CLOUD_HOSTED: true,
     AGENT_CHAT_DISABLED: false,
-    AGENT_DOCS_RERANK: "off",
     DATABASE_URL: process.env.DATABASE_URL,
     NODE_ENV: "test",
     BASE_URL: "http://localhost:4000",

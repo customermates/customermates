@@ -52,6 +52,8 @@ Mate uses the same MCP tool catalog as external AI clients, minus the deep-resea
 
 `analyze_records` answers questions that need arithmetic over many records, such as a median, a ranking, or a join across two record types. It runs up to ten reads of read-only tools and collects every page of each list, up to 10,000 rows and 8 MB across all reads together, then passes the results to one JavaScript function that Mate writes. The function runs in an isolated sandbox with no network, clock, or tools, so it can only compute over what the reads returned. A read that would return only part of its rows is refused instead of analyzed. The tool changes nothing and needs no approval.
 
+When Mate searches this documentation with `search_docs` or `get_docs_page`, a small classifier re-ranks the matching sections so the best answer comes first. It is the Jev model, run by TypeSafe AI in the US through the Vercel AI Gateway with zero data retention requested, and it receives your latest message and the documentation excerpts being ranked, never CRM records. If it fails or takes longer than 800 ms, Mate keeps the keyword ranking. External MCP clients always get the keyword ranking.
+
 ## How does Mate operate the interface, and can it click buttons for me? [#how-does-mate-operate-the-interface]
 
 Mate does not click buttons for you; it opens pages and points at controls.

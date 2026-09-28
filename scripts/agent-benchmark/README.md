@@ -22,7 +22,6 @@ export WORKFLOW_LOCAL_DATA_DIR="$PWD/.next/workflow-data"
 export NEXT_PUBLIC_SENTRY_DSN=
 yarn build
 LOCAL_AGENT_BENCHMARK=true \
-AGENT_DOCS_RERANK=jev \
 AGENT_BENCHMARK_ARMS="$(yarn -s agent:benchmark overlay)" \
 yarn next start -p 4107
 ```
@@ -52,7 +51,7 @@ In benchmark mode (`LOCAL_AGENT_BENCHMARK=true`) the server also stores each too
 
 `--variant <label>` groups a run's artifacts and report rows under a label of your choice; the application has one runtime, so the label records what you changed between runs rather than selecting a code path.
 
-Hosted Mate's docs re-rank uses the same mechanism. `AGENT_DOCS_RERANK` (`off`, the default when unset, or `jev`) is a server environment variable, so restart the server with the setting under test and run with a matching label, for example `--variant docs-v2-jev` against `--variant off`. Production turns it on once the TypeSafe AI disclosure is published, so `check` measures that configuration: start its server with `AGENT_DOCS_RERANK=jev`, as above. Each turn that calls the re-rank stores a classifier trace (docs re-rank calls, answers and auxiliary cost; never text). Episodes copy it into `metrics.turns[].classifierTrace` and summarise it as `classifier`. Accounting treats the classifier cost as part of the turn's settled charge and never as a round. The report's Classifier table shows, per arm, the classifier cost per turn, its share of spend, docs tool calls per turn and docs re-rank calls per turn. Cases D1 to D10 are live documentation questions in English and German. Each has a deterministic oracle for its gold fact and passes without a classifier.
+Hosted Mate always re-ranks docs search results with the Jev classifier; only a self-hosted instance, an external MCP client, a missing Gateway key, an error or a reply slower than 800 ms keeps the keyword ranking, so every local benchmark server measures the shipped configuration. Each turn that calls the re-rank stores a classifier trace (docs re-rank calls, answers and auxiliary cost; never text). Episodes copy it into `metrics.turns[].classifierTrace` and summarise it as `classifier`. Accounting treats the classifier cost as part of the turn's settled charge and never as a round. The report's Classifier table shows, per arm, the classifier cost per turn, its share of spend, docs tool calls per turn and docs re-rank calls per turn. Cases D1 to D10 are live documentation questions in English and German. Each has a deterministic oracle for its gold fact and passes without a classifier.
 
 The fair classifier retest left these live cases in the registry; their data lives in `heldout-data/` and `guard-live-cases.ts`:
 
@@ -63,7 +62,7 @@ The fair classifier retest left these live cases in the registry; their data liv
 
 ## Findings
 
-- Jev docs re-rank (`AGENT_DOCS_RERANK=jev`) ships: held-out docs pass rose from 84.3 % to 93.0 % (300 pairs, McNemar p = 6e-6). Evidence: `reports/2026-09-27-classifier-live-heldout-6b5570b2/heldout-live.md`.
+- Jev docs re-rank ships on by default: held-out docs pass rose from 84.3 % to 93.0 % (300 pairs, McNemar p = 6e-6). Evidence: `reports/2026-09-27-classifier-live-heldout-6b5570b2/heldout-live.md`.
 - Docs embedding candidates before the re-rank tied live (93.2 % against 92.5 %, p = 0.52) while `search_docs` p95 rose from 0.76 to 1.92 s. Their code was removed; do not re-add them without a new measurement.
 - The toolset routing classifier and the guard classifier failed their gates and were removed.
 - The runtime same-name guard was removed: 300 live same-name episodes showed no wrong-record write that needed it as the primary defence, and its word lists falsely blocked 10 of 32 paraphrases.

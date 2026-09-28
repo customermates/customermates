@@ -10,7 +10,6 @@ import {
 
 const envState = vi.hoisted(() => ({
   APP_MODE: "cloud" as "cloud" | "demo" | "self-hosted",
-  AGENT_DOCS_RERANK: "off" as "off" | "jev",
   AI_GATEWAY_API_KEY: "test-gateway-key" as string | undefined,
 }));
 
@@ -122,7 +121,6 @@ function jevChoosing(pick: (keys: string[]) => string, probabilities?: (keys: st
 
 beforeEach(() => {
   envState.APP_MODE = "cloud";
-  envState.AGENT_DOCS_RERANK = "off";
   envState.AI_GATEWAY_API_KEY = "test-gateway-key";
 });
 
@@ -152,7 +150,6 @@ describe("docs re-rank classifier spec", () => {
   });
 
   it("gives the classifier its 800 ms deadline on the docs path", async () => {
-    envState.AGENT_DOCS_RERANK = "jev";
     const timeout = vi.spyOn(AbortSignal, "timeout");
     vi.stubGlobal(
       "fetch",
@@ -167,9 +164,7 @@ describe("docs re-rank classifier spec", () => {
 });
 
 describe("hosted docs re-rank switch", () => {
-  it("ranks with Jev on a hosted instance unless the switch is off, and never self-hosted", () => {
-    expect(hostedDocsRanking()).toBeUndefined();
-    envState.AGENT_DOCS_RERANK = "jev";
+  it("ranks with Jev on every hosted instance and never self-hosted", () => {
     expect(hostedDocsRanking()).toBeTypeOf("function");
     envState.APP_MODE = "demo";
     expect(hostedDocsRanking()).toBeTypeOf("function");
@@ -177,7 +172,8 @@ describe("hosted docs re-rank switch", () => {
     expect(hostedDocsRanking()).toBeUndefined();
   });
 
-  it("leaves search_docs untouched and calls no classifier when the switch is off", async () => {
+  it("leaves search_docs untouched and calls no classifier self-hosted", async () => {
+    envState.APP_MODE = "self-hosted";
     const fetchMock = vi.fn();
     vi.stubGlobal("fetch", fetchMock);
 
@@ -188,8 +184,7 @@ describe("hosted docs re-rank switch", () => {
     expect(charges).toEqual([]);
   });
 
-  it("never re-ranks for external MCP clients, even with the switch on", () => {
-    envState.AGENT_DOCS_RERANK = "jev";
+  it("never re-ranks for external MCP clients", () => {
     const fetchMock = vi.fn();
     vi.stubGlobal("fetch", fetchMock);
 
@@ -265,7 +260,6 @@ describe("docs re-rank candidates and spec", () => {
 
 describe("hosted docs re-rank", () => {
   it("returns the three highest-ranked sections, chosen first, and sends the user's message", async () => {
-    envState.AGENT_DOCS_RERANK = "jev";
     const candidates = docsRankCandidates(QUERY, "en");
     const title = candidates.findLast((candidate) => candidate.titleOnly) as (typeof candidates)[number];
     const [second, third] = candidates;
@@ -297,7 +291,6 @@ describe("hosted docs re-rank", () => {
   });
 
   it("chooses the section get_docs_page returns for a query, and leaves a page without a query alone", async () => {
-    envState.AGENT_DOCS_RERANK = "jev";
     const slug = searchDocsRaw(QUERY, "en", "docs").results[0].slug;
     const onPage = docsPageRankCandidates({ source: "docs", locale: "en", slug });
     const chosen = onPage.at(-1) as (typeof onPage)[number];
@@ -321,7 +314,6 @@ describe("hosted docs re-rank", () => {
   });
 
   it("falls back to the keyword outputs when the classifier fails", async () => {
-    envState.AGENT_DOCS_RERANK = "jev";
     vi.stubGlobal(
       "fetch",
       vi.fn(() => Promise.resolve(new Response("{}", { status: 504 }))),

@@ -52,17 +52,6 @@ export function resolveStrictBoolean(name: string, value: string | undefined): b
   throw new Error(`${name} must be configured as "true" or "false"`);
 }
 
-const DOCS_RERANK_SETTINGS = ["off", "jev"] as const;
-type DocsRerankSetting = (typeof DOCS_RERANK_SETTINGS)[number];
-
-export function resolveDocsRerank(value: string | undefined): DocsRerankSetting {
-  const normalized = value?.trim();
-  if (!normalized) return "off";
-  if ((DOCS_RERANK_SETTINGS as readonly string[]).includes(normalized)) return normalized as DocsRerankSetting;
-
-  throw new Error('AGENT_DOCS_RERANK must be configured as "off" or "jev"');
-}
-
 export function resolveLocalAgentWebSearchOptIn(source: Environment): boolean {
   const optedIn = resolveStrictBoolean("AGENT_WEB_SEARCH_LOCAL_OPT_IN", source.AGENT_WEB_SEARCH_LOCAL_OPT_IN);
   return optedIn && source.NODE_ENV === "development" && !source.VERCEL && !source.VERCEL_ENV && !source.CI;
