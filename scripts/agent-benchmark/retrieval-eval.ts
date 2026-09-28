@@ -35,10 +35,6 @@ import {
 } from "@/ee/wiki-retrieval/wiki-embedding-model";
 import { WikiSemanticIndexService } from "@/ee/wiki-retrieval/wiki-semantic-index.service";
 import { docsCorpus } from "@/features/mcp-tools/docs-corpus";
-import {
-  searchDocsRanked,
-  searchDocsRaw,
-} from "@/features/mcp-tools/docs.mcp-tools";
 import { unifiedDocsSearch } from "@/features/mcp-tools/docs-unified-search";
 import { PrismaDocsChunkRepo } from "@/features/mcp-tools/prisma-docs-chunk.repository";
 import { PrismaWikiPageRepo } from "@/features/wiki/prisma-wiki-page.repository";
@@ -47,7 +43,7 @@ import {
   type WikiSemanticRetrieval,
 } from "@/features/wiki/search-wiki-pages.interactor";
 import { WikiMarkdownSchema } from "@/features/wiki/wiki.schema";
-import { wikiMarkdownSections } from "@/features/wiki/wiki-search";
+import { wikiMarkdownSections } from "@/features/wiki/wiki-markdown-sections";
 import { createMockUser } from "@/tests/helpers/mock-user";
 
 import { requireLocalBenchmarkDatabase } from "./env";
@@ -59,7 +55,7 @@ import {
   WIKI_RETRIEVAL_CORPUS,
   WIKI_RETRIEVAL_QUERIES,
 } from "./retrieval-eval-cases";
-import { mcnemarExact, percentile } from "./stats";
+import { percentile } from "./stats";
 
 const MICROCENTS_PER_USD = 100_000_000;
 const WARMUP_QUERIES = [
@@ -68,8 +64,9 @@ const WARMUP_QUERIES = [
   "warm-up: Währung einstellen",
 ];
 
-type Pipeline = "legacy" | "unified";
-type Variant = "legacy-keyword" | "legacy" | "unified-full-text" | "unified";
+type Variant = "unified" | "unified-full-text";
+
+const VARIANTS: readonly Variant[] = ["unified", "unified-full-text"];
 type Ranked = { slug: string; anchor: string };
 type DocsOutcome = {
   id: string;
@@ -121,12 +118,6 @@ function assertBudget() {
     throw new Error(
       `Retrieval eval spend ${spentUsd().toFixed(4)} USD passed the cap of ${capUsd} USD.`,
     );
-}
-
-function selectPipeline(pipeline: Pipeline) {
-  process.env.LOCAL_AGENT_BENCHMARK = "true";
-  if (pipeline === "legacy") process.env.AGENT_BENCHMARK_RETRIEVAL = "legacy";
-  else delete process.env.AGENT_BENCHMARK_RETRIEVAL;
 }
 
 async function embedQuery(query: string): Promise<QueryVector | null> {
@@ -211,25 +202,6 @@ async function docsRun(
     source: "docs" as const,
   };
   const outcome: { rerank: DocsOutcome["rerank"] } = { rerank: "none" };
-  if (variant === "legacy-keyword") {
-    const { value, totalMs } = await timed(
-      async () => searchDocsRaw(item.query, item.docsLocale, "docs").results,
-    );
-    return docsOutcome(item, value, totalMs, "none", null);
-  }
-  if (variant === "legacy") {
-    const ranker = tracked(jevFor(item.query, "docs"), outcome);
-    const { value, totalMs } = await timed(() =>
-      searchDocsRanked(input, ranker!),
-    );
-    return docsOutcome(
-      item,
-      value.structuredContent.results,
-      totalMs,
-      outcome.rerank,
-      null,
-    );
-  }
   const full = variant === "unified";
   const { value, timings, totalMs } = await timed(() =>
     unifiedDocsSearch(input, {
@@ -286,26 +258,11 @@ async function evaluateDocs() {
   await repo.ensureCorpus(docsCorpus());
   for (const query of WARMUP_QUERIES) {
     const item = { ...DOCS_RETRIEVAL_EVAL[0], id: "warm-up", query };
-    for (const variant of ["legacy", "unified", "unified-full-text"] as const)
-      await docsRun(item, variant, repo);
+    for (const variant of VARIANTS) await docsRun(item, variant, repo);
   }
-  const results: Record<Variant, DocsOutcome[]> = {
-    "legacy-keyword": [],
-    legacy: [],
-    "unified-full-text": [],
-    unified: [],
-  };
-  for (const [index, item] of DOCS_RETRIEVAL_EVAL.entries()) {
-    const order: Variant[] =
-      index % 2 === 0 ? ["legacy", "unified"] : ["unified", "legacy"];
-    for (const variant of [
-      ...order,
-      "legacy-keyword",
-      "unified-full-text",
-    ] as Variant[]) {
-      selectPipeline(variant.startsWith("legacy") ? "legacy" : "unified");
-      results[variant].push(await docsRun(item, variant, repo));
-    }
+  const results: Record<Variant, DocsOutcome[]> = { unified: [], "unified-full-text": [] };
+  for (const item of DOCS_RETRIEVAL_EVAL) {
+    for (const variant of VARIANTS) results[variant].push(await docsRun(item, variant, repo));
     assertBudget();
   }
   const metrics = Object.fromEntries(
@@ -322,32 +279,7 @@ async function evaluateDocs() {
       ),
     ]),
   );
-  const paired = (key: "sectionHit" | "pageR1", ids?: Set<string>) =>
-    mcnemarExact(
-      results.legacy
-        .filter((entry) => !ids || ids.has(entry.id))
-        .map((entry) => {
-          const unified = results.unified.find(
-            (candidate) => candidate.id === entry.id,
-          )!;
-          const hit = (outcome: DocsOutcome) =>
-            key === "sectionHit" ? outcome.sectionHit : outcome.pageRank === 1;
-          return { control: hit(entry), candidate: hit(unified) };
-        }),
-    );
-  const mcnemar = Object.fromEntries(
-    DOCS_SETS.map(([name, items]) => {
-      const ids = new Set(items.map((item) => item.id));
-      return [
-        name,
-        {
-          finalSectionHit: paired("sectionHit", ids),
-          pageR1: paired("pageR1", ids),
-        },
-      ];
-    }),
-  );
-  return { metrics, mcnemar, outcomes: results };
+  return { metrics, outcomes: results };
 }
 
 class EvalEmbeddingService extends WikiEmbeddingService {
@@ -471,9 +403,8 @@ async function evaluateWiki(databaseUrl: string) {
       labelled: WikiEvalQuery,
       variant: Variant,
     ): Promise<WikiOutcome> => {
-      selectPipeline(variant.startsWith("legacy") ? "legacy" : "unified");
       const outcome: { rerank: WikiOutcome["rerank"] } = { rerank: "none" };
-      const withSemantic = variant === "legacy" || variant === "unified";
+      const withSemantic = variant === "unified";
       const interactor = new SearchWikiPagesInteractor(
         new PrismaWikiPageRepo(),
         "stored",
@@ -522,30 +453,15 @@ async function evaluateWiki(databaseUrl: string) {
       };
     };
 
-    for (const query of WARMUP_QUERIES)
-      for (const variant of ["legacy", "unified"] as const)
-        await search({ category: "no-match", query, expect: [] }, variant);
+    for (const query of WARMUP_QUERIES) await search({ category: "no-match", query, expect: [] }, "unified");
 
-    const results: Record<Variant, WikiOutcome[]> = {
-      "legacy-keyword": [],
-      legacy: [],
-      "unified-full-text": [],
-      unified: [],
-    };
-    for (const [index, labelled] of WIKI_RETRIEVAL_QUERIES.entries()) {
-      const order: Variant[] =
-        index % 2 === 0 ? ["legacy", "unified"] : ["unified", "legacy"];
-      for (const variant of [
-        ...order,
-        "legacy-keyword",
-        "unified-full-text",
-      ] as Variant[])
-        results[variant].push(await search(labelled, variant));
+    const results: Record<Variant, WikiOutcome[]> = { unified: [], "unified-full-text": [] };
+    for (const labelled of WIKI_RETRIEVAL_QUERIES) {
+      for (const variant of VARIANTS) results[variant].push(await search(labelled, variant));
       assertBudget();
     }
     return results;
   } finally {
-    delete process.env.AGENT_BENCHMARK_RETRIEVAL;
     await client.query('DELETE FROM "WikiPageChunk" WHERE "companyId" = $1', [
       companyId,
     ]);
@@ -613,31 +529,8 @@ function wikiSummary(results: Record<Variant, WikiOutcome[]>) {
       },
     ]),
   );
-  const pairs = (
-    hit: (entry: WikiOutcome) => boolean,
-    filter: (entry: WikiOutcome) => boolean,
-  ) =>
-    mcnemarExact(
-      results.legacy.flatMap((entry, index) =>
-        filter(entry)
-          ? [{ control: hit(entry), candidate: hit(results.unified[index]) }]
-          : [],
-      ),
-    );
-  const positive = (entry: WikiOutcome) => entry.category !== "no-match";
   return {
     metrics,
-    mcnemar: {
-      r1: pairs((entry) => entry.rank === 1, positive),
-      finalSectionHit: pairs(
-        (entry) => entry.sectionHit === true,
-        (entry) => entry.sectionHit !== null,
-      ),
-      pass: pairs(
-        (entry) => entry.pass,
-        () => true,
-      ),
-    },
     misses: Object.fromEntries(
       Object.entries(results).map(([variant, outcomes]) => [
         variant,
@@ -656,8 +549,6 @@ const pct = (value: number | null) =>
   value === null ? "-" : `${(100 * value).toFixed(1)} %`;
 const ms = (value: number | null) =>
   value === null ? "-" : `${(value / 1000).toFixed(2)} s`;
-const pValue = (value: number) =>
-  value >= 0.01 ? value.toFixed(2) : value.toExponential(1);
 
 function renderMarkdown(
   docs: Awaited<ReturnType<typeof evaluateDocs>> | null,
@@ -684,12 +575,7 @@ function renderDocs(
     "| --- | --- | ---: | ---: | ---: | ---: | ---: | ---: | ---: | ---: | ---: |",
   );
   for (const [set] of DOCS_SETS)
-    for (const variant of [
-      "legacy",
-      "unified",
-      "legacy-keyword",
-      "unified-full-text",
-    ] as const) {
+    for (const variant of VARIANTS) {
       const m = (
         docs.metrics as Record<
           string,
@@ -700,25 +586,6 @@ function renderDocs(
         `| ${set} | ${variant} | ${m.items} | ${pct(m.pageR1)} | ${pct(m.pageR5)} | ${m.pageMrr.toFixed(3)} | ${pct(m.finalSectionHit)} | ${pct(m.rerankUsed)} | ${pct(m.embeddingUsed)} | ${ms(m.p50Ms)} | ${ms(m.p95Ms)} |`,
       );
     }
-  lines.push(
-    "",
-    "| Docs set | Final-section hit: unified only / legacy only, p | Page R@1: unified only / legacy only, p |",
-    "| --- | --- | --- |",
-  );
-  for (const [set] of DOCS_SETS) {
-    const m = (
-      docs.mcnemar as Record<
-        string,
-        {
-          finalSectionHit: ReturnType<typeof mcnemarExact>;
-          pageR1: ReturnType<typeof mcnemarExact>;
-        }
-      >
-    )[set];
-    lines.push(
-      `| ${set} | ${m.finalSectionHit.candidateOnly} / ${m.finalSectionHit.controlOnly}, p = ${pValue(m.finalSectionHit.p)} | ${m.pageR1.candidateOnly} / ${m.pageR1.controlOnly}, p = ${pValue(m.pageR1.p)} |`,
-    );
-  }
   lines.push("");
 }
 
@@ -727,12 +594,7 @@ function renderWiki(lines: string[], wiki: ReturnType<typeof wikiSummary>) {
     "| Wiki pipeline | Queries | R@1 | R@5 | MRR | Final-section hit | No-match empty | Pass | Re-rank used | Embedding used | p50 | p95 |",
     "| --- | ---: | ---: | ---: | ---: | ---: | ---: | ---: | ---: | ---: | ---: | ---: |",
   );
-  for (const variant of [
-    "legacy",
-    "unified",
-    "legacy-keyword",
-    "unified-full-text",
-  ] as const) {
+  for (const variant of VARIANTS) {
     const m = (
       wiki.metrics as Record<
         string,
@@ -748,18 +610,13 @@ function renderWiki(lines: string[], wiki: ReturnType<typeof wikiSummary>) {
   ];
   lines.push(
     "",
-    `| Wiki category | ${["legacy", "unified", "legacy-keyword", "unified-full-text"].map((v) => `${v} pass`).join(" | ")} |`,
-    "| --- | ---: | ---: | ---: | ---: |",
+    `| Wiki category | ${VARIANTS.map((v) => `${v} pass`).join(" | ")} |`,
+    "| --- | ---: | ---: |",
   );
   for (const category of categories)
     lines.push(
-      `| ${category} | ${(["legacy", "unified", "legacy-keyword", "unified-full-text"] as const).map((variant) => pct((wiki.metrics as Record<string, { byCategory: Record<string, ReturnType<typeof wikiMetrics>> }>)[variant].byCategory[category].pass)).join(" | ")} |`,
+      `| ${category} | ${VARIANTS.map((variant) => pct((wiki.metrics as Record<string, { byCategory: Record<string, ReturnType<typeof wikiMetrics>> }>)[variant].byCategory[category].pass)).join(" | ")} |`,
     );
-  const w = wiki.mcnemar;
-  lines.push(
-    "",
-    `Wiki McNemar (unified only / legacy only): R@1 ${w.r1.candidateOnly} / ${w.r1.controlOnly}, p = ${pValue(w.r1.p)}; final-section hit ${w.finalSectionHit.candidateOnly} / ${w.finalSectionHit.controlOnly}, p = ${pValue(w.finalSectionHit.p)}; pass ${w.pass.candidateOnly} / ${w.pass.controlOnly}, p = ${pValue(w.pass.p)}.`,
-  );
 }
 
 async function main() {

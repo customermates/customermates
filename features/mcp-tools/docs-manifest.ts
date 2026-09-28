@@ -6,7 +6,7 @@ import { env } from "@/env";
 import { generateOpenApiSpec } from "@/core/openapi/openapi-spec";
 import { DOCS_API_KEY_PLACEHOLDER, getMcpInstallSnippet, type McpTool } from "@/features/docs/mcp-install-snippet";
 
-import { splitSections, unwrapDocsComponents, type DocsSection } from "./docs-retrieval";
+import { splitSections, unwrapDocsComponents, type DocsSection } from "./docs-sections";
 
 type ManifestPage = { title: string; description: string; content: string };
 export type DocsSource = "docs" | "api";

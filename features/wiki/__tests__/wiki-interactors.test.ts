@@ -1,4 +1,4 @@
-import { afterEach, beforeEach, describe, expect, it, vi } from "vitest";
+import { beforeEach, describe, expect, it, vi } from "vitest";
 
 import { Action, Resource } from "@/generated/prisma";
 import { ForbiddenError } from "@/core/errors/app-errors";
@@ -281,29 +281,15 @@ describe("DeleteWikiPageInteractor", () => {
   });
 });
 
-describe.each(["legacy", "unified"] as const)("SearchWikiPagesInteractor (%s)", (pipeline) => {
+describe("SearchWikiPagesInteractor", () => {
   const markdown = WikiMarkdownSchema.parse(
     `Intro with [Support](/wiki?page=${PAGE_ID}).\n\n## Approval\n\nThe finance lead approves refunds.`,
   );
   const hit = { ...page({ markdown }), snippet: "The finance lead **approves** refunds.", section: "Approval" };
-  beforeEach(() => {
-    if (pipeline === "legacy") {
-      vi.stubEnv("LOCAL_AGENT_BENCHMARK", "true");
-      vi.stubEnv("AGENT_BENCHMARK_RETRIEVAL", "legacy");
-    }
-  });
-  afterEach(() => vi.unstubAllEnvs());
   const search = (offsets: "stored" | "externalized") =>
     runWithTenant(mockUser, () =>
       new SearchWikiPagesInteractor(
         {
-          searchPages: vi.fn().mockResolvedValue({
-            items: [{ ...hit, offset: markdown.indexOf("## Approval") }],
-            total: 1,
-            page: 1,
-            pageSize: 5,
-          }),
-          searchPageCandidates: vi.fn(),
           semanticPageCandidates: vi.fn(),
           getPagesByIds: vi.fn().mockResolvedValue([page({ markdown })]),
           fullTextPageCandidates: vi.fn().mockResolvedValue({ keys: [PAGE_ID], pinned: [] }),
@@ -344,8 +330,6 @@ describe("Wiki permission boundary", () => {
   it("requires Wiki Read for list, search, and get", async () => {
     const repo = {
       listPages: vi.fn().mockResolvedValue({ items: [], total: 0, page: 1, pageSize: 25 }),
-      searchPages: vi.fn().mockResolvedValue({ items: [], total: 0, page: 1, pageSize: 25 }),
-      searchPageCandidates: vi.fn(),
       semanticPageCandidates: vi.fn(),
       getPagesByIds: vi.fn().mockResolvedValue([]),
       fullTextPageCandidates: vi.fn().mockResolvedValue({ keys: [], pinned: [] }),

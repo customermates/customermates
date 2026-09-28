@@ -95,56 +95,22 @@ describeDatabase("Workspace Wiki search on PostgreSQL", () => {
     ]);
     const read = () =>
       client.query(
-        `SELECT "searchHeadings", "searchVector" @@ plainto_tsquery('german', 'Rückerstattung') AS "german",
+        `SELECT "searchVector" @@ plainto_tsquery('german', 'Rückerstattung') AS "german",
           "searchVector" @@ plainto_tsquery('english', 'refunded') AS "english"
          FROM "WikiPage" WHERE "id" = $1`,
         [id],
       );
-    expect((await read()).rows).toEqual([{ searchHeadings: "returns\nrückerstattungen", german: true, english: true }]);
+    expect((await read()).rows).toEqual([{ german: true, english: true }]);
 
     await client.query('UPDATE "WikiPage" SET "title" = $1, "markdown" = $2 WHERE "id" = $3', [
       "Shipping",
       "Parcels leave the warehouse daily.",
       id,
     ]);
-    expect((await read()).rows).toEqual([{ searchHeadings: "shipping\n", german: false, english: false }]);
+    expect((await read()).rows).toEqual([{ german: false, english: false }]);
   });
 
-  const legacyPipeline = () => {
-    vi.stubEnv("LOCAL_AGENT_BENCHMARK", "true");
-    vi.stubEnv("AGENT_BENCHMARK_RETRIEVAL", "legacy");
-  };
-
-  it("ranks pages matching every term first, then full titles, and finds inflections and typos (legacy)", async () => {
-    legacyPipeline();
-    const [refund, legacy, travel, approvals] = await insert(user, [
-      {
-        title: "Refund policy",
-        markdown: `${"Customers ask for money back. ".repeat(30)}\n\n## Approval\n\nThe finance lead approves refunds.`,
-      },
-      { title: "Refund policy (legacy)", markdown: "Old refund rules." },
-      { title: "Travel expense policy", markdown: "Book trains early." },
-      { title: "Approvals", markdown: "Managers approve discounts." },
-    ]);
-    await insert(foreignUser, [
-      { title: "Refund policy", markdown: "Foreign refunds are approved by the foreign lead." },
-    ]);
-
-    const ids = async (query: string) => {
-      const result = await search(query);
-      if (!result.ok) throw new Error("Wiki search failed.");
-      return result.data.items.map((item) => item.id);
-    };
-    expect((await ids("refund policy"))[0]).toBe(refund);
-    expect((await ids("refnud policy"))[0]).toBe(refund);
-    expect(await ids("who approves refunds")).toEqual([refund, approvals, legacy]);
-    expect(await ids('"expense policy"')).toEqual([travel]);
-    expect(await ids("policy")).toHaveLength(3);
-    expect(await ids("polic")).toHaveLength(3);
-    expect(await ids("blockchain polic")).toEqual([]);
-  });
-
-  it("ranks by built-in full-text coverage and finds inflections, phrases and prefixes (unified)", async () => {
+  it("ranks by built-in full-text coverage and finds inflections, phrases and prefixes", async () => {
     const [refund, legacy, travel, approvals] = await insert(user, [
       {
         title: "Refund policy",
@@ -224,51 +190,6 @@ describeDatabase("Workspace Wiki search on PostgreSQL", () => {
       { level: 2, heading: "Timelines", offset: expect.any(Number) },
       { level: 2, heading: "Approval matrix", offset: external.offset },
     ]);
-  });
-
-  it("suggests close terms and titles only from the caller's Wiki when nothing matches (legacy)", async () => {
-    legacyPipeline();
-    await insert(user, [
-      { title: "Support escalation process", markdown: "The on-call engineer is paged through PagerDuty." },
-    ]);
-    await insert(foreignUser, [{ title: "Pagerdutty foreign runbook", markdown: "Foreign quokka cluster." }]);
-
-    expect(await search("PagerDutty")).toMatchObject({
-      ok: true,
-      data: { total: 0, items: [], didYouMean: ["pagerduty"] },
-    });
-    expect(await search("escalaton procedure")).toMatchObject({
-      ok: true,
-      data: { total: 1, items: [{ title: "Support escalation process" }] },
-    });
-    expect(await search("Suport escalaton")).toMatchObject({
-      ok: true,
-      data: { items: [{ title: "Support escalation process" }] },
-    });
-    expect(await search("quokka")).toMatchObject({ ok: true, data: { total: 0, items: [] } });
-    const unrelated = await search("xylophone");
-    expect(unrelated).toMatchObject({ ok: true, data: { total: 0, items: [] } });
-    expect(JSON.stringify(unrelated)).not.toContain("didYouMean");
-    expect(JSON.stringify(await search("Pagerdutty runbook"))).not.toContain("foreign");
-  });
-
-  it("suggests only words that occur in the Wiki, never stemmed index lexemes (legacy)", async () => {
-    legacyPipeline();
-    await insert(user, [
-      {
-        title: "Travel",
-        markdown: "Reimbursements follow the statutory guidelines and all company policies.",
-      },
-    ]);
-
-    for (const [query, suggestion] of [
-      ["reimbursemnets", "reimbursements"],
-      ["guidlines", "guidelines"],
-      ["policeis", "policies"],
-    ]) {
-      const result = await search(query);
-      expect(result, query).toMatchObject({ ok: true, data: { total: 0, didYouMean: [suggestion] } });
-    }
   });
 
   it("finds CJK substrings, reports totals beyond the last page, and never interprets query syntax", async () => {

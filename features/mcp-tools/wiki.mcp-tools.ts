@@ -1,4 +1,4 @@
-import type { WikiOutlineEntry } from "@/features/wiki/wiki-search";
+import type { WikiOutlineEntry } from "@/features/wiki/wiki-markdown-sections";
 import type { WikiPageSearchResult } from "@/features/wiki/wiki.schema";
 
 import { z } from "zod";
@@ -15,7 +15,7 @@ import { CustomErrorCode } from "@/core/validation/validation.types";
 import { boundedWikiChunk } from "@/features/wiki/wiki-page-chunk";
 import { extractWikiPageLinks } from "@/features/wiki/wiki-markdown-links";
 import { wikiPageUrl } from "@/features/wiki/wiki-links";
-import { wikiOutline } from "@/features/wiki/wiki-search";
+import { wikiOutline } from "@/features/wiki/wiki-markdown-sections";
 import { WikiPageKindSchema, WIKI_TITLE_MAX_LENGTH, type WikiPageKind } from "@/features/wiki/wiki.schema";
 import { env } from "@/env";
 

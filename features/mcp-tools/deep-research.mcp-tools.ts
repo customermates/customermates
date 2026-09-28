@@ -1,7 +1,7 @@
 import { z } from "zod";
 
 import type { ContentLocale } from "@/i18n/locale-registry";
-import type { WikiOutlineEntry } from "@/features/wiki/wiki-search";
+import type { WikiOutlineEntry } from "@/features/wiki/wiki-markdown-sections";
 
 import { customMcpFailure, formatDatesInResponse, mcpInteractorFailure, mcpMessageFailure } from "./utils";
 import { getDocsPageRaw, listDocsSlugs, searchDocsHits } from "./docs.mcp-tools";
@@ -30,7 +30,7 @@ import {
 import { extractWikiPageLinks, externalizeWikiPageLinks } from "@/features/wiki/wiki-markdown-links";
 import { parseWikiPageReference, wikiPageFetchId, wikiPageUrl } from "@/features/wiki/wiki-links";
 import { boundedWikiChunk, wikiCodePointBoundary } from "@/features/wiki/wiki-page-chunk";
-import { wikiOutline } from "@/features/wiki/wiki-search";
+import { wikiOutline } from "@/features/wiki/wiki-markdown-sections";
 
 type Entity = "contact" | "organization" | "deal" | "service" | "task";
 

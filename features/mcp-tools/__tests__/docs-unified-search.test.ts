@@ -52,9 +52,7 @@ describe("unified documentation search", () => {
     expect(scheduleIndexing).toHaveBeenCalledWith(docsCorpus().buildHash);
     expect(value.structuredContent.results.map(({ slug }) => slug)).toEqual(["webhooks", "app-assistant"]);
     expect(value.text).not.toContain("\nexcerpt=\n");
-    expect(timings).toEqual([
-      expect.objectContaining({ corpus: "docs", pipeline: "unified", embedding: "used", rerank: "unavailable" }),
-    ]);
+    expect(timings).toEqual([expect.objectContaining({ corpus: "docs", embedding: "used", rerank: "unavailable" })]);
   });
 
   it("puts the re-ranked section first with its excerpt, offering title-only sections of the top pages", async () => {

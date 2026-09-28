@@ -284,7 +284,6 @@ model WikiPage {
   companyId              String
   title                  String
   markdown               String
-  searchHeadings         String?                  @default(dbgenerated("wiki_search_headings(title, markdown)"))
   searchVector           Unsupported("tsvector")? @default(dbgenerated("wiki_search_vector(title, markdown)"))
   searchCompact          String?                  @default(dbgenerated("wiki_search_compact(title, markdown)"))
   semanticIndexClaimedAt DateTime?

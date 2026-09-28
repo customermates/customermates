@@ -23,6 +23,10 @@ const AUTHENTICATED_TENANT_ENTRYPOINTS = [
   "features/user/register/register-user.interactor.ts",
 ];
 
+const THROWAWAY_WORKSPACE_ENTRYPOINTS = ["scripts/agent-benchmark/retrieval-eval.ts"];
+
+const TENANT_ENTRYPOINTS = [...AUTHENTICATED_TENANT_ENTRYPOINTS, ...THROWAWAY_WORKSPACE_ENTRYPOINTS];
+
 const BACKGROUND_TENANT_DEFINITION = "core/decorators/background-tenant.ts";
 const BACKGROUND_TENANT_CALLER_PREFIX = "workflows/";
 
@@ -71,7 +75,7 @@ function importersOf(modulePattern: RegExp, symbol: string) {
 describe("background tenant boundary", () => {
   it.skipIf(!ENFORCED && !process.env.AUDIT_REPORT)("only authenticated entrypoints assume a tenant identity", () => {
     const violations = importersOf(TENANT_CONTEXT_MODULE, "runWithTenant")
-      .filter((file) => !AUTHENTICATED_TENANT_ENTRYPOINTS.includes(file))
+      .filter((file) => !TENANT_ENTRYPOINTS.includes(file))
       .map(
         (file) =>
           `${file} value-imports runWithTenant. Assuming a tenant identity is limited to entrypoints that derive the user from an authenticated source; load a user by id only through runAsBackgroundTenant.`,
@@ -91,9 +95,7 @@ describe("background tenant boundary", () => {
 
   it("sees the identity-assuming surface it is meant to guard", () => {
     expect(sourceFiles().length).toBeGreaterThan(100);
-    expect(importersOf(TENANT_CONTEXT_MODULE, "runWithTenant").sort()).toEqual(
-      [...AUTHENTICATED_TENANT_ENTRYPOINTS].sort(),
-    );
+    expect(importersOf(TENANT_CONTEXT_MODULE, "runWithTenant").sort()).toEqual([...TENANT_ENTRYPOINTS].sort());
     expect(valueImportsOf(BACKGROUND_TENANT_DEFINITION).some((entry) => entry.name === "runWithTenant")).toBe(true);
   });
 });

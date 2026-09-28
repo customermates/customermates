@@ -34,7 +34,7 @@ vi.mock("next-intl/server", () => ({
   getLocale: () => Promise.resolve("en"),
 }));
 
-import { searchDocsTool } from "@/features/mcp-tools/docs.mcp-tools";
+import { getDocsPageTool, searchDocsTool } from "@/features/mcp-tools/docs.mcp-tools";
 import { ALL_MCP_TOOLS, MCP_ALWAYS_ON_TOOLS } from "@/features/mcp-tools/tool-registry";
 
 import {
@@ -1023,16 +1023,24 @@ describe("agent tools", () => {
     });
   });
 
-  it("keeps the WhatsApp documentation path usable inside the admitted 512-character tool result", async () => {
-    vi.stubEnv("LOCAL_AGENT_BENCHMARK", "true");
-    vi.stubEnv("AGENT_BENCHMARK_RETRIEVAL", "legacy");
+  it("keeps the head of a documentation result inside the admitted 512-character tool result", async () => {
     const tools = getAgentAiTools(deps({ resultMaxChars: 512 }));
+    const excerpt = `## How do I connect a channel?\nOpen #nav-profile-connected-accounts, then #profile-connected-accounts-connect and choose WhatsApp.\n${"More detail. ".repeat(80)}`;
+    vi.spyOn(searchDocsTool, "execute").mockResolvedValueOnce({
+      text: `matches:\ndocs:app-profile#how-do-i-connect-a-channel\ndocs:app-inbox#do-i-need-a-connected-channel\ntotal=2\nbest=http://localhost:4000/en/docs/app-profile\nexcerpt=\n${excerpt}`,
+      structuredContent: { results: [], total: 2 },
+    });
+    vi.spyOn(getDocsPageTool, "execute").mockResolvedValueOnce({
+      text: `${excerpt}\n\nSource: Profile\nURL: http://localhost:4000/en/docs/app-profile`,
+      structuredContent: {
+        title: "Profile",
+        url: "http://localhost:4000/en/docs/app-profile",
+        markdown: excerpt,
+        excerpt: true,
+      },
+    });
     const query = "Walk me through connecting WhatsApp to the Customermates inbox.";
-    const searchResult = (await execute(tools.search_docs, {
-      query,
-      locale: "en",
-      source: "docs",
-    })) as {
+    const searchResult = (await execute(tools.search_docs, { query, locale: "en", source: "docs" })) as {
       ok: boolean;
       result: string;
     };
@@ -1052,7 +1060,6 @@ describe("agent tools", () => {
     expect(pageResult.result).toContain("nav-profile-connected-accounts");
     expect(pageResult.result).toContain("profile-connected-accounts-connect");
     expect(pageResult.result).toContain("WhatsApp");
-    vi.unstubAllEnvs();
   });
 
   it("keeps runtime validation for sanitized CRM schemas", async () => {

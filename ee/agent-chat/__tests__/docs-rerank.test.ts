@@ -23,16 +23,8 @@ vi.mock("@/core/validation/zod-error-map-server", () => MOCK_ZOD_MODULE);
 vi.mock("@/prisma/db", () => MOCK_PRISMA_DB_MODULE);
 vi.mock("@sentry/nextjs", () => ({ captureException: vi.fn(), setTag: vi.fn(), setUser: vi.fn() }));
 
-import {
-  DOCS_RERANK_CANDIDATES,
-  docsPageRankCandidates,
-  docsRankCandidates,
-  docsPageResult,
-  getDocsPageRaw,
-  keywordDocsSearch,
-  relevantDocsExcerpt,
-  searchDocsRaw,
-} from "@/features/mcp-tools/docs.mcp-tools";
+import type { RankableSection } from "@/core/retrieval/retrieval-context";
+
 import { agentPageContextPrefix } from "../agent-page-context";
 
 import { getAgentAiTools, type AgentToolDeps } from "../agent-tools";
@@ -69,18 +61,33 @@ function deps(latestUserMessage: string | null = null): AgentToolDeps {
   };
 }
 
-function runHostedDocsTool(name: "search_docs" | "get_docs_page", input: unknown, latestUserMessage?: string) {
-  const tool = getAgentAiTools(deps(latestUserMessage ?? null))[name] as unknown as {
-    execute: (
-      value: unknown,
-      options: { toolCallId: string; messages: [] },
-    ) => Promise<{ ok: boolean; result: string }>;
-  };
-  return collectClassifierCharges(() => tool.execute(input, { toolCallId: "call-1", messages: [] }));
-}
+const RANKABLE: RankableSection[] = [
+  {
+    id: 0,
+    section: {
+      pageTitle: "API Keys",
+      headingPath: ["Authentication"],
+      text: "Send the key in the `x-api-key` header.",
+    },
+    titleOnly: false,
+  },
+  {
+    id: 1,
+    section: { pageTitle: "API Keys", headingPath: ["Do keys expire?"], text: "Keys expire after 365 days." },
+    titleOnly: false,
+  },
+  {
+    id: 2,
+    section: { pageTitle: "Webhooks", headingPath: ["Signatures"], text: "Verify the signature header." },
+    titleOnly: false,
+  },
+  { id: 3, section: { pageTitle: "API Keys", headingPath: ["Scopes"], text: "" }, titleOnly: true },
+];
 
-function runSearchDocs(input: unknown, latestUserMessage?: string) {
-  return runHostedDocsTool("search_docs", input, latestUserMessage);
+function docsRanker(latestUserMessage?: string) {
+  const ranker = hostedSectionRankers(latestUserMessage)?.("docs");
+  if (!ranker) throw new Error("expected a hosted docs ranker");
+  return ranker;
 }
 
 function jevChoosing(pick: (keys: string[]) => string, probabilities?: (keys: string[]) => Record<string, number>) {
@@ -126,8 +133,6 @@ function jevChoosing(pick: (keys: string[]) => string, probabilities?: (keys: st
 beforeEach(() => {
   envState.APP_MODE = "cloud";
   envState.AI_GATEWAY_API_KEY = "test-gateway-key";
-  vi.stubEnv("LOCAL_AGENT_BENCHMARK", "true");
-  vi.stubEnv("AGENT_BENCHMARK_RETRIEVAL", "legacy");
 });
 
 afterEach(() => {
@@ -163,7 +168,7 @@ describe("docs re-rank classifier spec", () => {
       jevChoosing((keys) => keys[0]),
     );
 
-    await runSearchDocs(INPUT);
+    await collectClassifierCharges(() => docsRanker()(QUERY, RANKABLE));
 
     expect(JEV_DEADLINE_MS).toBe(800);
     expect(timeout).toHaveBeenCalledWith(JEV_DEADLINE_MS);
@@ -178,56 +183,16 @@ describe("hosted docs re-rank switch", () => {
     envState.APP_MODE = "self-hosted";
     expect(hostedDocsRanking()).toBeUndefined();
   });
-
-  it("leaves search_docs untouched and calls no classifier self-hosted", async () => {
-    envState.APP_MODE = "self-hosted";
-    const fetchMock = vi.fn();
-    vi.stubGlobal("fetch", fetchMock);
-
-    const { value, charges } = await runSearchDocs(INPUT);
-
-    expect(value.result).toBe(keywordDocsSearch(INPUT as never).text);
-    expect(fetchMock).not.toHaveBeenCalled();
-    expect(charges).toEqual([]);
-  });
-
-  it("never re-ranks for external MCP clients", () => {
-    const fetchMock = vi.fn();
-    vi.stubGlobal("fetch", fetchMock);
-
-    expect(keywordDocsSearch(INPUT as never).text).not.toContain("\nexcerpt=\n");
-    expect(fetchMock).not.toHaveBeenCalled();
-  });
 });
 
 const USER_MESSAGE = "Mit welchem Header authentifiziere ich mich bei der REST API?";
 
 describe("docs re-rank candidates and spec", () => {
-  it("offers the keyword top 20 with excerpts plus every other section title of the top 5 pages", () => {
-    const candidates = docsRankCandidates(QUERY, "en");
-    const lexical = candidates.filter((candidate) => !candidate.titleOnly);
-    const topPages = new Set(searchDocsRaw(QUERY, "en", "docs").results.map((hit) => hit.slug));
-    const titles = candidates.filter((candidate) => candidate.titleOnly);
-
-    expect(lexical).toHaveLength(DOCS_RERANK_CANDIDATES);
-    expect(candidates.slice(0, lexical.length).map(({ id, titleOnly }) => ({ id, titleOnly }))).toEqual(
-      lexical.map(({ id }) => ({ id, titleOnly: false })),
-    );
-    expect(titles.length).toBeGreaterThan(0);
-    expect(titles.every(({ section }) => topPages.has(section.slug))).toBe(true);
-    expect(new Set(candidates.map(({ id }) => id)).size).toBe(candidates.length);
-    for (const slug of topPages) {
-      const onPage = docsPageRankCandidates({ source: "docs", locale: "en", slug }).map(({ id }) => id);
-      expect(onPage.every((id) => candidates.some((candidate) => candidate.id === id))).toBe(true);
-    }
-  });
-
   it("shows title-only candidates without an excerpt and asks from the user's message and the agent's query", () => {
-    const candidates = docsRankCandidates(QUERY, "en");
-    const spec = docsRankSpec(candidates);
+    const spec = docsRankSpec(RANKABLE);
     const [question] = spec.questions;
-    const title = candidates.find((candidate) => candidate.titleOnly) as (typeof candidates)[number];
-    const excerpted = candidates[0];
+    const title = RANKABLE[3];
+    const excerpted = RANKABLE[0];
 
     expect(spec.id).toBe("docs-rank");
     expect(question.instruction).toContain("`latest_user_message`");
@@ -267,74 +232,35 @@ describe("docs re-rank candidates and spec", () => {
 
 describe("hosted docs re-rank", () => {
   it("returns the three highest-ranked sections, chosen first, and sends the user's message", async () => {
-    const candidates = docsRankCandidates(QUERY, "en");
-    const title = candidates.findLast((candidate) => candidate.titleOnly) as (typeof candidates)[number];
-    const [second, third] = candidates;
     const fetchMock = jevChoosing(
-      () => `s${title.id}`,
-      (keys) =>
-        Object.fromEntries(
-          keys.map((key) => [key, key === `s${second.id}` ? 0.3 : key === `s${third.id}` ? 0.2 : 0.01]),
-        ),
+      () => "s3",
+      (keys) => Object.fromEntries(keys.map((key) => [key, key === "s1" ? 0.3 : key === "s2" ? 0.2 : 0.01])),
     );
     vi.stubGlobal("fetch", fetchMock);
 
-    const { value, charges } = await runSearchDocs(INPUT, `${agentPageContextPrefix("/en/deals")}${USER_MESSAGE}`);
+    const { value, charges } = await collectClassifierCharges(() =>
+      docsRanker(`${agentPageContextPrefix("/en/deals")}${USER_MESSAGE}`)(QUERY, RANKABLE),
+    );
     const sent = JSON.parse(String(fetchMock.mock.calls[0][1].body)) as { state: unknown };
-    const excerpt = value.result.split("\nexcerpt=\n")[1];
-    const headings = [title, second, third].map(({ section }) => `## ${section.headingPath.join(" > ")}\n`);
 
     expect(fetchMock).toHaveBeenCalledWith(JEV_EVALUATE_URL, expect.objectContaining({ signal: expect.anything() }));
     expect(sent.state).toEqual({ latest_user_message: USER_MESSAGE, agent_query: QUERY });
-    expect(value.result.split("\n")[1]).toBe(`docs:${title.section.slug}#${title.section.anchor}`);
-    expect(excerpt.startsWith(headings[0])).toBe(true);
-    expect(headings.map((heading) => excerpt.indexOf(heading))).toEqual(
-      [...headings.map((heading) => excerpt.indexOf(heading))].sort((a, b) => a - b),
-    );
-    expect(headings.every((heading) => excerpt.includes(heading))).toBe(true);
+    expect(value).toEqual([3, 1, 2]);
     expect(charges).toEqual([
       { use: "docs_rerank", model: "jev", costMicrocents: 2000, measured: true, answered: true },
     ]);
   });
 
-  it("chooses the section get_docs_page returns for a query, and leaves a page without a query alone", async () => {
-    const slug = searchDocsRaw(QUERY, "en", "docs").results[0].slug;
-    const onPage = docsPageRankCandidates({ source: "docs", locale: "en", slug });
-    const chosen = onPage.at(-1) as (typeof onPage)[number];
-    const fetchMock = jevChoosing(() => `s${chosen.id}`);
-    vi.stubGlobal("fetch", fetchMock);
-    const input = { slug, query: QUERY, locale: "en", source: "docs" };
-
-    const ranked = await runHostedDocsTool("get_docs_page", input, USER_MESSAGE);
-    const whole = await runHostedDocsTool("get_docs_page", { slug, locale: "en", source: "docs" }, USER_MESSAGE);
-
-    expect(onPage.length).toBeGreaterThan(1);
-    expect(fetchMock).toHaveBeenCalledTimes(1);
-    expect(ranked.value.result).not.toBe((docsPageResult(input as never) as { text: string }).text);
-    expect(ranked.value.result.startsWith(`## ${chosen.section.headingPath.at(-1)}\n`)).toBe(true);
-    expect(ranked.value.result.startsWith(relevantDocsExcerpt({ source: "docs", locale: "en", slug }, QUERY))).toBe(
-      false,
-    );
-    expect(ranked.charges).toHaveLength(1);
-    expect(whole.value.result.startsWith(`# ${getDocsPageRaw(slug, "en", "docs")?.title}\n`)).toBe(true);
-    expect(whole.charges).toEqual([]);
-  });
-
-  it("falls back to the keyword outputs when the classifier fails", async () => {
+  it("returns no order when the classifier fails, so retrieval keeps its fused order", async () => {
     vi.stubGlobal(
       "fetch",
       vi.fn(() => Promise.resolve(new Response("{}", { status: 504 }))),
     );
-    const slug = searchDocsRaw(QUERY, "en", "docs").results[0].slug;
-    const pageInput = { slug, query: QUERY, locale: "en", source: "docs" };
 
-    const search = await runSearchDocs(INPUT, USER_MESSAGE);
-    const page = await runHostedDocsTool("get_docs_page", pageInput, USER_MESSAGE);
+    const { value, charges } = await collectClassifierCharges(() => docsRanker(USER_MESSAGE)(QUERY, RANKABLE));
 
-    expect(search.value.result).toBe(keywordDocsSearch(INPUT as never).text);
-    expect(page.value.result).toBe((docsPageResult(pageInput as never) as { text: string }).text);
-    expect([...search.charges, ...page.charges]).toEqual([
-      expect.objectContaining({ use: "docs_rerank", model: "jev", measured: false, answered: false }),
+    expect(value).toBeNull();
+    expect(charges).toEqual([
       expect.objectContaining({ use: "docs_rerank", model: "jev", measured: false, answered: false }),
     ]);
   });

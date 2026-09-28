@@ -1,4 +1,4 @@
-import type { DocsSection } from "./docs-retrieval";
+import type { DocsSection } from "./docs-sections";
 
 import { createHash } from "node:crypto";
 

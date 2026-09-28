@@ -2,7 +2,7 @@ import { slugifyHeading } from "@/core/utils/search-text";
 
 import { wikiCodePointBoundary } from "./wiki-page-chunk";
 import { WIKI_EXCERPT_MAX_LENGTH, wikiPlainText } from "./wiki-content";
-import { wikiMarkdownSections } from "./wiki-search";
+import { wikiMarkdownSections } from "./wiki-markdown-sections";
 
 const WIKI_SECTION_LABEL_MAX_LENGTH = 160;
 

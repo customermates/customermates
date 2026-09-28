@@ -34,7 +34,6 @@ vi.mock("@/features/search/entity-list-executors", () => ({
 vi.mock("@/features/mcp-tools/docs.mcp-tools", () => ({
   getDocsPageRaw: vi.fn(),
   listDocsSlugs: () => [],
-  searchDocsRaw: () => ({ results: [] }),
   searchDocsHits: () => Promise.resolve([]),
 }));
 

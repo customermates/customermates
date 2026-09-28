@@ -51,7 +51,7 @@ In benchmark mode (`LOCAL_AGENT_BENCHMARK=true`) the server also stores each too
 
 `--variant <label>` groups a run's artifacts and report rows under a label of your choice; the application has one runtime, so the label records what you changed between runs rather than selecting a code path.
 
-Hosted Mate always re-ranks docs search results with the Jev classifier; only a self-hosted instance, an external MCP client, a missing Gateway key, an error or a reply slower than 800 ms keeps the keyword ranking, so every local benchmark server measures the shipped configuration. Each turn that calls the re-rank stores a classifier trace (docs re-rank calls, answers and auxiliary cost; never text). Episodes copy it into `metrics.turns[].classifierTrace` and summarise it as `classifier`. Accounting treats the classifier cost as part of the turn's settled charge and never as a round. The report's Classifier table shows, per arm, the classifier cost per turn, its share of spend, docs tool calls per turn and docs re-rank calls per turn. Cases D1 to D10 are live documentation questions in English and German. Each has a deterministic oracle for its gold fact and passes without a classifier.
+Hosted Mate always re-ranks docs search results with the Jev classifier; only a self-hosted instance, an external MCP client, a missing Gateway key, an error or a reply slower than 800 ms keeps the fused ranking, so every local benchmark server measures the shipped configuration. Each turn that calls the re-rank stores a classifier trace (docs re-rank calls, answers and auxiliary cost; never text). Episodes copy it into `metrics.turns[].classifierTrace` and summarise it as `classifier`. Accounting treats the classifier cost as part of the turn's settled charge and never as a round. The report's Classifier table shows, per arm, the classifier cost per turn, its share of spend, docs tool calls per turn and docs re-rank calls per turn. Cases D1 to D10 are live documentation questions in English and German. Each has a deterministic oracle for its gold fact and passes without a classifier.
 
 The fair classifier retest left these live cases in the registry; their data lives in `heldout-data/` and `guard-live-cases.ts`:
 
@@ -68,20 +68,17 @@ The fair classifier retest left these live cases in the registry; their data liv
 - The runtime same-name guard was removed: 300 live same-name episodes showed no wrong-record write that needed it as the primary defence, and its word lists falsely blocked 10 of 32 paraphrases.
 - The full evidence (pre-registration, held-out sets, analysis scripts and all reports) is archived at tag `archive/pr-184-evidence`.
 
-## Retrieval A/B: unified pipeline against the current split
+## Unified retrieval
 
-One build contains both retrieval paths. `selectRetrievalPipeline` in `core/retrieval/retrieval-selection.ts` returns
-`unified` everywhere, and `legacy` only when the server runs with `LOCAL_AGENT_BENCHMARK=true`,
-`AGENT_BENCHMARK_RETRIEVAL=legacy` and no Vercel deployment variable, so no customer can reach the switch.
+`search_docs`, `get_docs_page`, `manage_wiki_pages` search and MCP `search` run one pipeline (`core/retrieval/`):
+PostgreSQL full-text search with the built-in `simple` and language configurations, and in parallel one query embedding
+with the Wiki's model (cached per workspace, shared across concurrent calls), then reciprocal-rank fusion with identifier
+pinning, then the Jev re-rank of sections on hosted Mate. Without credits, self-hosted, without a Gateway key or in the
+demo it is full-text only; a query embedding slower than 450 ms (its vector is still cached for the next call) or failing,
+and a failing or slow re-rank, keep the fused or full-text order. It replaced the hand-tuned docs keyword ranker and the
+Wiki's BM25, spelling-suggestion and hybrid ranking after the live A/B in
+`reports/2026-09-28-retrieval-ab-63a7186a/report.md`; that code is gone, so there is no second pipeline to switch to.
 
-- `legacy` is the split this pipeline replaces: the hand-tuned docs keyword ranker plus the Jev re-rank for docs, and
-  the Wiki's BM25, spelling-suggestion and hybrid ranking.
-- `unified` runs one pipeline for `search_docs`, `get_docs_page`, `manage_wiki_pages` search and MCP `search`: PostgreSQL
-  full-text search with the built-in `simple` and language configurations, and in parallel one query embedding with the
-  Wiki's model (cached per workspace, shared across concurrent calls), then reciprocal-rank fusion with identifier pinning,
-  then the Jev re-rank of sections on hosted Mate. Without credits, self-hosted, without a Gateway key or in the demo it is
-  full-text only; a query embedding slower than 450 ms (its vector is still cached for the next call) or failing, and a failing or slow re-rank, keep the fused or
-  full-text order.
 - Documentation is stored as one global chunk set per documentation build (`DocsChunk`, keyed by the build hash of the
   section-chunked English and German docs and REST reference). The first search of a process writes a missing build
   (full-text needs it); embeddings are computed by the `index-docs-chunks` workflow, which the first search dispatches when
@@ -89,40 +86,42 @@ One build contains both retrieval paths. `selectRetrievalPipeline` in `core/retr
   `yarn docs:index` does the same synchronously; `yarn docs:index --full-text-only` only writes the chunks.
 
 Every hosted turn records per-call retrieval timings in its classifier trace, and the report's Retrieval latency table
-shows p50/p95 per arm, corpus and pipeline, with the embedding and re-rank outcomes.
+shows p50/p95 per arm and corpus, with the embedding and re-rank outcomes.
 
-To run the A/B, build once with the environment above and run the same cases against two servers started from that
-build, one per pipeline, as separate variants of one campaign. Start each server exactly as above, adding only
-`AGENT_BENCHMARK_RETRIEVAL=legacy` for the baseline, and stop it before starting the other:
+To compare a retrieval change live, build the baseline commit and the candidate commit, and run the same cases against a
+server from each build as separate variants of one campaign, stopping one server before starting the other:
 
 ```sh
 yarn docs:index                                          # platform cost: embeds the documentation once
-yarn agent:benchmark campaign --label retrieval-ab --cap <usd>
-AGENT_BENCHMARK_RETRIEVAL=legacy LOCAL_AGENT_BENCHMARK=true AGENT_BENCHMARK_ARMS="$(yarn -s agent:benchmark overlay)" yarn next start -p 4107
-yarn agent:benchmark run --campaign <id> --cases <D, DH and DE ids> --reps 3 --variant retrieval-legacy
-LOCAL_AGENT_BENCHMARK=true AGENT_BENCHMARK_ARMS="$(yarn -s agent:benchmark overlay)" yarn next start -p 4107
-yarn agent:benchmark run --campaign <id> --cases <same ids> --reps 3 --variant retrieval-unified
+yarn agent:benchmark campaign --label retrieval-regression --cap <usd>
+LOCAL_AGENT_BENCHMARK=true AGENT_BENCHMARK_ARMS="$(yarn -s agent:benchmark overlay)" yarn next start -p 4107   # baseline build
+yarn agent:benchmark run --campaign <id> --cases <D, DH and DE ids> --reps 3 --variant retrieval-baseline
+LOCAL_AGENT_BENCHMARK=true AGENT_BENCHMARK_ARMS="$(yarn -s agent:benchmark overlay)" yarn next start -p 4107   # candidate build
+yarn agent:benchmark run --campaign <id> --cases <same ids> --reps 3 --variant retrieval-candidate
 yarn agent:benchmark judge --campaign <id>
-yarn agent:benchmark report --campaign <id> --label retrieval-ab
+yarn agent:benchmark report --campaign <id> --label retrieval-regression
 ```
 
 Offline, `features/mcp-tools/__tests__/docs-retrieval-quality.database.test.ts` measures page recall, section hit and
-re-rank candidate recall of both paths on D1 to D10, DH and DE (labels in `retrieval-eval-cases.ts`), and
-`features/wiki/__tests__/wiki-retrieval-quality.database.test.ts` measures the Wiki eval set in the same file. Set
-`DOCS_RETRIEVAL_EVAL_REPORT` or `WIKI_RETRIEVAL_EVAL_REPORT` to a path to write the metrics.
+re-rank candidate recall on D1 to D10, DH and DE (labels in `retrieval-eval-cases.ts`) and the docs audit golden
+questions, and `features/wiki/__tests__/wiki-retrieval-quality.database.test.ts` measures the Wiki eval set in the same
+file, each full-text only against a floor. Set `DOCS_RETRIEVAL_EVAL_REPORT` or `WIKI_RETRIEVAL_EVAL_REPORT` to a path to
+write the metrics.
 
-Those tests use a fake embedder and no re-rank. `retrieval-eval.ts` measures both pipelines with the real query
-embedding and the real Jev re-rank (paid, a few cents): page R@1, R@5 and MRR, the final section after the re-rank,
-exact McNemar on the final-section hit and wall-clock latency per call, for the docs labels and for the Wiki corpus,
-which it seeds into a throwaway workspace, embeds and deletes again. Run `yarn docs:index` first, then
+Those tests use a fake embedder and no re-rank. `retrieval-eval.ts` measures the pipeline with the real query embedding
+and the real Jev re-rank (paid, a few cents) and full-text only: page R@1, R@5 and MRR, the final section after the
+re-rank and wall-clock latency per call, for the docs labels and for the Wiki corpus, which it seeds into a throwaway
+workspace, embeds and deletes again. Run `yarn docs:index` first, then
 `RUN_AGENT_BENCHMARK=true yarn tsx --import ./scripts/lib/register-server-only-shim.mjs scripts/agent-benchmark/retrieval-eval.ts --cap 0.5`
-(`--only docs` or `--only wiki` to run one corpus). It writes JSON and Markdown under `.runs/retrieval-eval/`.
+(`--only docs` or `--only wiki` to run one corpus). It writes JSON and Markdown under `.runs/retrieval-eval/`; compare
+two commits by running it on each.
 
-For the live A/B, `retrieval-ab.ts --campaign <id>` grades each DH and DE episode with the stage-4 gold-fact judge
-(reserved against the campaign cap, verdicts cached in the campaign's `.runs` directory) and prints pass per arm with
-paired McNemar, credits per turn, `search_docs` p50/p95 and first output p50/p95. Pass `--no-judge` to reuse cached
-verdicts only. It counts an episode whose only failed check is `integrity:correctRoute` as passing when every turn used the
-agent model and the only other usage is the unified pipeline's query-embedding charge.
+For a live comparison, `retrieval-ab.ts --campaign <id> --control retrieval-baseline --candidate retrieval-candidate`
+grades each DH and DE episode with the stage-4 gold-fact judge (reserved against the campaign cap, verdicts cached in the
+campaign's `.runs` directory) and prints pass per variant with paired McNemar, credits per turn, `search_docs` p50/p95 and
+first output p50/p95. Pass `--no-judge` to reuse cached verdicts only. It counts an episode whose only failed check is
+`integrity:correctRoute` as passing when every turn used the agent model and the only other usage is the
+query-embedding charge, which keeps artifacts recorded before that check excluded retrieval usage comparable.
 
 Commands (`yarn agent:benchmark <command>`):
 

@@ -9,7 +9,7 @@ import { join, resolve } from "node:path";
 import { Pool } from "pg";
 
 import { getDocsPageRaw } from "@/features/mcp-tools/docs-manifest";
-import { splitSections } from "@/features/mcp-tools/docs-retrieval";
+import { splitSections } from "@/features/mcp-tools/docs-sections";
 import { WIKI_EMBEDDING_MODEL } from "@/ee/wiki-retrieval/wiki-embedding-model";
 
 import {
@@ -60,8 +60,8 @@ function flag(name: string): string | undefined {
 }
 
 const campaignId = flag("campaign");
-const control = flag("control") ?? "retrieval-legacy";
-const candidate = flag("candidate") ?? "retrieval-unified";
+const control = flag("control") ?? "retrieval-baseline";
+const candidate = flag("candidate") ?? "retrieval-candidate";
 const judgeEnabled = !process.argv.includes("--no-judge");
 if (!campaignId) throw new Error("Pass --campaign <id>.");
 

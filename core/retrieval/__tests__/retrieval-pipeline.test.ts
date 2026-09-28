@@ -5,7 +5,6 @@ import { afterEach, describe, expect, it, vi } from "vitest";
 import { fullTextUnits } from "../full-text-query";
 import { collectRetrievalTimings, currentSectionRanker, runWithSectionRanking } from "../retrieval-context";
 import { fuseFullTextAndSemantic, fuseRankings, rerankSections, RetrievalStopwatch } from "../retrieval-pipeline";
-import { selectRetrievalPipeline } from "../retrieval-selection";
 
 afterEach(() => {
   vi.useRealTimers();
@@ -15,27 +14,6 @@ const candidate = (id: number): RankableSection => ({
   id,
   section: { pageTitle: `Page ${id}`, headingPath: [`Section ${id}`], text: `Text ${id}` },
   titleOnly: false,
-});
-
-describe("retrieval pipeline selection", () => {
-  it("runs the unified pipeline everywhere except an explicit local benchmark override", () => {
-    expect(selectRetrievalPipeline({})).toBe("unified");
-    expect(selectRetrievalPipeline({ AGENT_BENCHMARK_RETRIEVAL: "legacy" })).toBe("unified");
-    expect(selectRetrievalPipeline({ LOCAL_AGENT_BENCHMARK: "true" })).toBe("unified");
-    expect(selectRetrievalPipeline({ LOCAL_AGENT_BENCHMARK: "true", AGENT_BENCHMARK_RETRIEVAL: "legacy" })).toBe(
-      "legacy",
-    );
-    expect(
-      selectRetrievalPipeline({ LOCAL_AGENT_BENCHMARK: "true", AGENT_BENCHMARK_RETRIEVAL: "legacy", VERCEL: "1" }),
-    ).toBe("unified");
-    expect(
-      selectRetrievalPipeline({
-        LOCAL_AGENT_BENCHMARK: "true",
-        AGENT_BENCHMARK_RETRIEVAL: "legacy",
-        VERCEL_ENV: "production",
-      }),
-    ).toBe("unified");
-  });
 });
 
 describe("reciprocal-rank fusion", () => {
@@ -89,7 +67,7 @@ describe("full-text and semantic retrieval", () => {
     });
     const semantic = vi.fn(() => Promise.resolve(["b", "c"]));
     const { value, timings } = await collectRetrievalTimings(async () => {
-      const stopwatch = new RetrievalStopwatch("docs", "unified");
+      const stopwatch = new RetrievalStopwatch("docs");
       const pending = fuseFullTextAndSemantic({ query: "q", stopwatch, fullText, embed, semantic });
       await Promise.resolve();
       expect(started.toSorted()).toEqual(["embed", "fullText"]);
@@ -101,14 +79,14 @@ describe("full-text and semantic retrieval", () => {
 
     expect(value.ranked).toEqual(["b", "a", "c"]);
     expect(value.vector).toEqual({ vector: [1, 0], model: "test" });
-    expect(timings).toEqual([expect.objectContaining({ corpus: "docs", pipeline: "unified", embedding: "used" })]);
+    expect(timings).toEqual([expect.objectContaining({ corpus: "docs", embedding: "used" })]);
   });
 
   it("falls back to full-text order when the embedding is slow, fails, or the index is unavailable", async () => {
     vi.useFakeTimers();
     const fullText = () => Promise.resolve({ keys: ["a", "b"] });
     const semantic = vi.fn(() => Promise.resolve(["z"]));
-    const slow = new RetrievalStopwatch("wiki", "unified");
+    const slow = new RetrievalStopwatch("wiki");
     const slowRun = fuseFullTextAndSemantic({
       query: "q",
       stopwatch: slow,
@@ -122,7 +100,7 @@ describe("full-text and semantic retrieval", () => {
     expect(slow.embedding).toBe("timeout");
     vi.useRealTimers();
 
-    const failing = new RetrievalStopwatch("wiki", "unified");
+    const failing = new RetrievalStopwatch("wiki");
     const failed = await fuseFullTextAndSemantic({
       query: "q",
       stopwatch: failing,
@@ -133,7 +111,7 @@ describe("full-text and semantic retrieval", () => {
     expect(failed.ranked).toEqual(["a", "b"]);
     expect(failing.embedding).toBe("unavailable");
 
-    const noIndex = new RetrievalStopwatch("docs", "unified");
+    const noIndex = new RetrievalStopwatch("docs");
     const withoutIndex = await fuseFullTextAndSemantic({
       query: "q",
       stopwatch: noIndex,
@@ -144,7 +122,7 @@ describe("full-text and semantic retrieval", () => {
     expect(withoutIndex).toMatchObject({ ranked: ["a", "b"], vector: null });
     expect(noIndex.embedding).toBe("unavailable");
 
-    const none = new RetrievalStopwatch("docs", "unified");
+    const none = new RetrievalStopwatch("docs");
     expect(
       (await fuseFullTextAndSemantic({ query: "q", stopwatch: none, fullText, embed: null, semantic })).ranked,
     ).toEqual(["a", "b"]);
@@ -156,7 +134,7 @@ describe("full-text and semantic retrieval", () => {
 describe("section re-rank", () => {
   it("returns only offered ids and falls back on a missing ranker, a failure, or an unknown choice", async () => {
     const candidates = [candidate(1), candidate(2), candidate(3)];
-    const stopwatch = new RetrievalStopwatch("wiki", "unified");
+    const stopwatch = new RetrievalStopwatch("wiki");
 
     expect(
       await rerankSections({ query: "q", stopwatch, candidates, ranker: () => Promise.resolve([3, 99, 3, 1]) }),

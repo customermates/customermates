@@ -1,5 +1,3 @@
-import type { RetrievalPipeline } from "./retrieval-selection";
-
 import { AsyncLocalStorage } from "node:async_hooks";
 
 export type RetrievalCorpus = "docs" | "wiki";
@@ -19,7 +17,6 @@ export type RetrievalRerankOutcome = "used" | "unavailable" | "failed" | "none";
 
 export type RetrievalTiming = {
   corpus: RetrievalCorpus;
-  pipeline: RetrievalPipeline;
   totalMs: number;
   fullTextMs: number | null;
   embedding: RetrievalEmbeddingOutcome;

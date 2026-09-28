@@ -30,7 +30,6 @@ describe("agent turn classifier trace", () => {
   it("records Wiki re-rank calls and bounded retrieval timings, and stores a trace for timings alone", () => {
     const timing = {
       corpus: "docs" as const,
-      pipeline: "unified" as const,
       totalMs: 412,
       fullTextMs: 9,
       embedding: "used" as const,

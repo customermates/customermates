@@ -16,9 +16,10 @@ import { DOCS_HELDOUT } from "@/scripts/agent-benchmark/heldout-data/docs";
 import { DOCS_EMBEDDING_HELDOUT } from "@/scripts/agent-benchmark/heldout-data/docs-embedding";
 
 import { docsCorpus } from "../docs-corpus";
-import { docsRankCandidates, searchDocsRaw } from "../docs.mcp-tools";
 import { unifiedDocsSearch, type UnifiedDocsDeps } from "../docs-unified-search";
 import { PrismaDocsChunkRepo } from "../prisma-docs-chunk.repository";
+
+import { GOLDEN_QUESTIONS } from "./fixtures/docs-retrieval-golden";
 
 const databaseUrl = getLocalDatabaseTestUrl();
 const describeDatabase = databaseUrl ? describe : describe.skip;
@@ -149,27 +150,53 @@ describeDatabase("documentation retrieval quality on the benchmark docs question
     );
   }
 
-  it("measures the legacy keyword ranker and unified full-text retrieval on the same questions", async () => {
-    const legacy = new Map<string, Outcome>();
-    for (const item of DOCS_RETRIEVAL_EVAL) {
-      const ranked = searchDocsRaw(item.query, item.docsLocale, "docs").results;
-      const candidates = docsRankCandidates(item.query, item.docsLocale).map(({ section }) => section);
-      legacy.set(item.id, outcome(item, ranked, candidates));
-    }
+  it("meets the unified full-text floor on the benchmark docs questions", async () => {
     const fullText = await unifiedRun({ repo, embed: null, ranker: undefined });
 
-    const legacyMetrics = metricsBySet(legacy);
     const fullTextMetrics = metricsBySet(fullText.outcomes);
-    report.legacy = legacyMetrics;
     report.unifiedFullText = fullTextMetrics;
     report.unifiedFullTextTotalMs = latency(fullText.timings);
 
     expect(DOCS_RETRIEVAL_EVAL).toHaveLength(110);
-    expect(fullText.timings.every((timing) => timing.embedding === "none" && timing.pipeline === "unified")).toBe(true);
+    expect(fullText.timings.every((timing) => timing.embedding === "none")).toBe(true);
     for (const [key, floor] of Object.entries(UNIFIED_FULL_TEXT_FLOOR))
       expect(fullTextMetrics.all[key as keyof Metrics], `unified full-text ${key}`).toBeGreaterThanOrEqual(floor);
-    for (const [key, floor] of Object.entries(LEGACY_FLOOR))
-      expect(legacyMetrics.all[key as keyof Metrics], `legacy ${key}`).toBeGreaterThanOrEqual(floor);
+  }, 120_000);
+
+  it("answers the docs audit golden questions with the right page in the top five, full text only", async () => {
+    const outcomes = await Promise.all(
+      GOLDEN_QUESTIONS.map(async (question) => {
+        const { pages } = await unifiedDocsSearch(
+          { query: question.query, locale: question.locale, source: "docs" },
+          { repo, embed: null, ranker: undefined },
+        );
+        const slugs = pages.map(({ section }) => section.slug);
+        const expected = [question.slug, ...(question.alternatives ?? [])];
+        return {
+          locale: question.locale,
+          top1: expected.includes(slugs[0] ?? ""),
+          top5: slugs.some((slug) => expected.includes(slug)),
+          detail: `${question.locale} "${question.query}" -> ${slugs.slice(0, 3).join(", ") || "nothing"} (expected ${question.slug})`,
+        };
+      }),
+    );
+    const share = (locale: string, key: "top1" | "top5") => {
+      const scoped = outcomes.filter((outcome) => outcome.locale === locale);
+      return round(scoped.filter((outcome) => outcome[key]).length / scoped.length);
+    };
+    report.golden = Object.fromEntries(
+      Object.keys(GOLDEN_FULL_TEXT_FLOOR).map((locale) => [
+        locale,
+        { top1: share(locale, "top1"), top5: share(locale, "top5") },
+      ]),
+    );
+    const misses = outcomes.filter((outcome) => !outcome.top5).map((outcome) => outcome.detail);
+    for (const [locale, floor] of Object.entries(GOLDEN_FULL_TEXT_FLOOR)) {
+      expect(share(locale, "top1"), `${locale} top-1`).toBeGreaterThanOrEqual(floor.top1);
+      expect(share(locale, "top5"), `${locale} top-5; misses:\n${misses.join("\n")}`).toBeGreaterThanOrEqual(
+        floor.top5,
+      );
+    }
   }, 120_000);
 
   it("fuses a semantic candidate list from stored embeddings when a query embedder is available", async () => {
@@ -208,4 +235,4 @@ const UNIFIED_FULL_TEXT_FLOOR = {
   sectionHitAt1: 0.23,
   rerankCandidateRecall: 0.78,
 };
-const LEGACY_FLOOR = { pageRecallAt1: 0.5, pageRecallAt5: 0.76, sectionHitAt1: 0.27, rerankCandidateRecall: 0.77 };
+const GOLDEN_FULL_TEXT_FLOOR = { en: { top1: 0.95, top5: 0.98 }, de: { top1: 0.9, top5: 0.97 } };

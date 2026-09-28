@@ -6,7 +6,6 @@ import type {
   RetrievalTiming,
   SectionRanker,
 } from "./retrieval-context";
-import type { RetrievalPipeline } from "./retrieval-selection";
 
 import { recordRetrievalTiming } from "./retrieval-context";
 
@@ -70,10 +69,7 @@ export class RetrievalStopwatch {
   rerank: RetrievalRerankOutcome = "none";
   rerankMs: number | null = null;
 
-  constructor(
-    private readonly corpus: RetrievalCorpus,
-    private readonly pipeline: RetrievalPipeline,
-  ) {}
+  constructor(private readonly corpus: RetrievalCorpus) {}
 
   async time<T>(stage: "fullTextMs" | "semanticMs" | "embeddingMs" | "rerankMs", run: () => Promise<T>): Promise<T> {
     const started = performance.now();
@@ -87,7 +83,6 @@ export class RetrievalStopwatch {
   finish(): RetrievalTiming {
     const timing: RetrievalTiming = {
       corpus: this.corpus,
-      pipeline: this.pipeline,
       totalMs: elapsed(this.started),
       fullTextMs: this.fullTextMs,
       embedding: this.embedding,

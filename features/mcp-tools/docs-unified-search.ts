@@ -1,6 +1,6 @@
 import type { RankableSection, SectionRanker } from "@/core/retrieval/retrieval-context";
 import type { QueryEmbedding } from "@/core/retrieval/retrieval-pipeline";
-import type { DocsSection } from "./docs-retrieval";
+import type { DocsSection } from "./docs-sections";
 import type { DocsChunkRepo, DocsScope, DocsSectionRow } from "./prisma-docs-chunk.repository";
 
 import { retrievalWindows } from "@/core/retrieval/retrieval-chunks";
@@ -132,7 +132,7 @@ export async function unifiedDocsSearch(
   input: { query: string; locale: DocsLocale; source: DocsSource | "all" },
   deps: UnifiedDocsDeps,
 ): Promise<UnifiedDocsSearch> {
-  const stopwatch = new RetrievalStopwatch("docs", "unified");
+  const stopwatch = new RetrievalStopwatch("docs");
   try {
     const corpus = await prepared(deps);
     const sources: DocsSource[] = input.source === "all" ? ["docs", "api"] : [input.source];
@@ -180,7 +180,7 @@ export async function unifiedDocsExcerpt(
   query: string,
   deps: UnifiedDocsDeps,
 ): Promise<string> {
-  const stopwatch = new RetrievalStopwatch("docs", "unified");
+  const stopwatch = new RetrievalStopwatch("docs");
   try {
     const corpus = await prepared(deps);
     const own = docsCorpusSections(page.source, page.locale).filter((section) => section.slug === page.slug);

@@ -6,11 +6,9 @@ type LocaleCapabilities = {
   flagCode: string;
   validationTag: string;
   lowercaseEntityLabelsInSentences: boolean;
-  docsStemmer: DocsStemmer;
   textSearchConfig: TextSearchConfig;
 };
 
-export type DocsStemmer = "english" | "german";
 export type TextSearchConfig = "english" | "german" | "french" | "italian" | "spanish";
 
 export const LOCALE_REGISTRY = {
@@ -22,7 +20,6 @@ export const LOCALE_REGISTRY = {
     flagCode: "us",
     validationTag: "en",
     lowercaseEntityLabelsInSentences: true,
-    docsStemmer: "english",
     textSearchConfig: "english",
   },
   de: {
@@ -33,7 +30,6 @@ export const LOCALE_REGISTRY = {
     flagCode: "de",
     validationTag: "de",
     lowercaseEntityLabelsInSentences: false,
-    docsStemmer: "german",
     textSearchConfig: "german",
   },
   fr: {
@@ -44,7 +40,6 @@ export const LOCALE_REGISTRY = {
     flagCode: "fr",
     validationTag: "fr",
     lowercaseEntityLabelsInSentences: true,
-    docsStemmer: "english",
     textSearchConfig: "french",
   },
   it: {
@@ -55,7 +50,6 @@ export const LOCALE_REGISTRY = {
     flagCode: "it",
     validationTag: "it",
     lowercaseEntityLabelsInSentences: true,
-    docsStemmer: "english",
     textSearchConfig: "italian",
   },
   es: {
@@ -66,7 +60,6 @@ export const LOCALE_REGISTRY = {
     flagCode: "es",
     validationTag: "es",
     lowercaseEntityLabelsInSentences: true,
-    docsStemmer: "english",
     textSearchConfig: "spanish",
   },
 } as const satisfies Record<string, LocaleCapabilities>;
@@ -141,10 +134,6 @@ export function lowercaseEntityLabelsInSentences(locale: AppLocale): boolean {
 
 export function flagCodeFor(locale: LocaleCode): string {
   return LOCALE_REGISTRY[locale].flagCode;
-}
-
-export function docsStemmerFor(locale: unknown): DocsStemmer {
-  return isLocaleCode(locale) ? LOCALE_REGISTRY[locale].docsStemmer : LOCALE_REGISTRY[DEFAULT_LOCALE].docsStemmer;
 }
 
 export function textSearchConfigFor(locale: unknown): TextSearchConfig {

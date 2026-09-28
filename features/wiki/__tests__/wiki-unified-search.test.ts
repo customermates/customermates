@@ -48,8 +48,6 @@ const pages = [
 
 function repo(fullText: string[], semantic: { id: string; offset: number }[] | null, stale: string[] = []) {
   return {
-    searchPages: vi.fn(),
-    searchPageCandidates: vi.fn(),
     semanticPageCandidates: vi.fn(() =>
       Promise.resolve(
         semantic
@@ -96,7 +94,7 @@ describe("unified Wiki search", () => {
     expect(result.data.items[0]).toMatchObject({ section: "Refunds" });
     expect(result.data).toMatchObject({ total: 3, retrieval: "semantic" });
     expect(semantic.scheduler.schedule).toHaveBeenCalledTimes(1);
-    expect(timings).toEqual([expect.objectContaining({ corpus: "wiki", pipeline: "unified", embedding: "used" })]);
+    expect(timings).toEqual([expect.objectContaining({ corpus: "wiki", embedding: "used" })]);
   });
 
   it("re-ranks the first page of results with the request's Wiki ranker and never a later page", async () => {

@@ -211,22 +211,25 @@ describe("benchmark report", () => {
     expect(renderReport(report)).toContain("| docs-jev/shipped | $0.0050 | 10.0 % | 2.00 | 2.00 |\n");
   });
 
-  it("reports retrieval latency per arm, corpus and pipeline from the turn traces", async () => {
+  it("reports retrieval latency per arm and corpus from the turn traces", async () => {
     const dir = await mkdtemp(join(tmpdir(), "agent-benchmark-"));
-    const timing = (pipeline: "legacy" | "unified", totalMs: number) => ({
+    const timing = (totalMs: number, embedding: "used" | "timeout") => ({
       corpus: "docs" as const,
-      pipeline,
       totalMs,
-      fullTextMs: pipeline === "unified" ? 8 : null,
-      embedding: pipeline === "unified" ? ("used" as const) : ("none" as const),
-      embeddingMs: pipeline === "unified" ? 250 : null,
-      semanticMs: pipeline === "unified" ? 5 : null,
+      fullTextMs: 8,
+      embedding,
+      embeddingMs: 250,
+      semanticMs: embedding === "used" ? 5 : null,
       rerank: "used" as const,
       rerankMs: 300,
     });
-    const withTimings = (entry: EpisodeArtifact, pipeline: "legacy" | "unified", totals: number[]): EpisodeArtifact => ({
+    const withTimings = (
+      entry: EpisodeArtifact,
+      runtimeVariant: string,
+      timings: ReturnType<typeof timing>[],
+    ): EpisodeArtifact => ({
       ...entry,
-      runtimeVariant: pipeline,
+      runtimeVariant,
       metrics: {
         ...entry.metrics,
         turns: entry.metrics.turns.map((turn) => ({
@@ -235,14 +238,20 @@ describe("benchmark report", () => {
             auxiliaryCostMicrocents: 0,
             auxiliaryMeasured: true,
             docsRerank: null,
-            retrieval: totals.map((total) => timing(pipeline, total)),
+            retrieval: timings,
           },
         })),
       },
     });
     const artifacts = [
-      withTimings(artifact("shipped", "D1", 1, true, 0.05, 10_000, 4), "legacy", [300, 500]),
-      withTimings(artifact("shipped", "D1", 1, true, 0.05, 10_000, 4), "unified", [600, 900]),
+      withTimings(artifact("shipped", "D1", 1, true, 0.05, 10_000, 4), "baseline", [
+        timing(300, "timeout"),
+        timing(500, "timeout"),
+      ]),
+      withTimings(artifact("shipped", "D1", 1, true, 0.05, 10_000, 4), "candidate", [
+        timing(600, "used"),
+        timing(900, "used"),
+      ]),
     ];
     for (const entry of artifacts) {
       const path = join(dir, entry.runtimeVariant, entry.arm);
@@ -251,13 +260,13 @@ describe("benchmark report", () => {
     }
 
     const report = await buildReport("c", dir);
-    const unified = report.arms.find((arm) => arm.runtimeVariant === "unified");
+    const candidate = report.arms.find((arm) => arm.runtimeVariant === "candidate");
 
-    expect(unified?.retrievalLatency).toEqual([
-      expect.objectContaining({ corpus: "docs", pipeline: "unified", calls: 2, embeddingUsedShare: 1, rerankUsedShare: 1 }),
+    expect(candidate?.retrievalLatency).toEqual([
+      expect.objectContaining({ corpus: "docs", calls: 2, embeddingUsedShare: 1, rerankUsedShare: 1 }),
     ]);
     expect(renderReport(report)).toContain("## Retrieval latency");
-    expect(renderReport(report)).toMatch(/\| legacy\/shipped \| docs \| legacy \| 2 \|/);
+    expect(renderReport(report)).toMatch(/\| baseline\/shipped \| docs \| 2 \|/);
   });
 
   it("keeps full-suite coverage and the exact merge-check result separate from comparative metrics", async () => {
