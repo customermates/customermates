@@ -155,6 +155,13 @@ describeDatabase("saved-view Assistant persistence round trip", { timeout: 120_0
       entitlements,
       backgroundTasks as never,
       { getCustomColumns: () => Promise.resolve([]) } as never,
+      {
+        invoke: () =>
+          Promise.resolve({
+            ok: true as const,
+            data: { items: [], total: 0, page: 1, nextPage: null, truncated: false },
+          }),
+      },
     ).invoke({
       clientRequestId,
       text: "Show this view as cards",

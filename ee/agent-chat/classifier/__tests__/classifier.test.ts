@@ -35,6 +35,8 @@ function gatewayMetadata(provider: string, cost: string) {
       },
       cost,
       inferenceCost: cost,
+      surchargeCost: "0",
+      gatewayCost: cost,
     },
   };
 }

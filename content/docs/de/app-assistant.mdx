@@ -17,13 +17,14 @@ Während Mate arbeitet, ersetzt **Stopp** die Schaltfläche **Senden**; eine in 
 
 ## Was Mate ohne Rückfrage erledigt und wann Mate erst fragt [#what-runs-immediately-and-what-asks-first]
 
-Gewöhnliche CRM-Arbeit läuft, sobald Sie darum bitten, und der KI-Assistent erledigt sie ohne Rückfrage: Datensätze, Notizen und Verknüpfungen anlegen und ändern; Nachrichtenentwürfe speichern und verwerfen; E-Mails und Chat-Nachrichten senden; Posteingangs-Triage einschließlich des Verschiebens von E-Mail-Threads und des Änderns des Thread-Status auf ungelesen, offen, geschlossen oder Spam; Workspace-Einstellungen außer den Namen der Datensatztypen; Custom Columns; gespeicherte Ansichten, Widgets und Webhooks anlegen und ändern; Rolle oder Status eines Teammitglieds ändern; Links für Kontoverbindungen erzeugen; Social-Einladungen und Änderungen an Sales-Navigator-Listen eines verbundenen Kontos; sowie Routinen (auflisten, anlegen, ändern, pausieren, sofort ausführen). Mate sagt, was es gleich ändert, und berichtet genau, was sich geändert hat. Eine von Mate angelegte Routine wird als Entwurf gespeichert, außer Sie haben ausdrücklich darum gebeten, dass sie aktiv ist; die Laufzeit lehnt einen Routinen-Aufruf ab, der diese Wahl nicht angibt. Um ein Messaging-Konto zu verbinden, öffnen Sie den erzeugten Link und schließen dessen QR-Code- oder Anmeldeablauf selbst ab; das Erzeugen des Links verbindet das Konto nicht.
+Gewöhnliche CRM-Arbeit läuft, sobald Sie darum bitten, und der KI-Assistent erledigt sie ohne Rückfrage: Datensätze, Notizen, Verknüpfungen und Wiki-Seiten anlegen und ändern; Nachrichtenentwürfe speichern und verwerfen; E-Mails und Chat-Nachrichten senden; Posteingangs-Triage einschließlich des Verschiebens von E-Mail-Threads und des Änderns des Thread-Status auf ungelesen, offen, geschlossen oder Spam; Workspace-Einstellungen außer den Namen der Datensatztypen; Custom Columns; gespeicherte Ansichten, Widgets und Webhooks anlegen und ändern; Rolle oder Status eines Teammitglieds ändern; Links für Kontoverbindungen erzeugen; Social-Einladungen und Änderungen an Sales-Navigator-Listen eines verbundenen Kontos; sowie Routinen (auflisten, anlegen, ändern, pausieren, sofort ausführen). Mate sagt, was es gleich ändert, und berichtet genau, was sich geändert hat. Eine von Mate angelegte Routine wird als Entwurf gespeichert, außer Sie haben ausdrücklich darum gebeten, dass sie aktiv ist; die Laufzeit lehnt einen Routinen-Aufruf ab, der diese Wahl nicht angibt. Um ein Messaging-Konto zu verbinden, öffnen Sie den erzeugten Link und schließen dessen QR-Code- oder Anmeldeablauf selbst ab; das Erzeugen des Links verbindet das Konto nicht.
 
 Nur Aktionen, die sich nicht rückgängig machen lassen, Ihren Workspace verlassen oder Datensatztypen für alle umbenennen, halten für Ihre Freigabe an, und zwar jedes einzelne Mal:
 
 | Fragt immer | Tool und Aktion | Warum |
 |---|---|---|
 | Datensätze löschen | `delete_records` | Endgültiges Löschen, nicht umkehrbar |
+| Wiki-Seite löschen | `manage_wiki_pages` mit `delete` | Entfernt das Dokument endgültig |
 | Gespeicherte Ansicht löschen | `manage_data_views` mit `delete` | Entfernt die gespeicherte Ansicht |
 | Custom Column löschen | `manage_custom_columns` mit `delete` | Zerstört die Spalte und jeden gespeicherten Wert |
 | Widget löschen | `manage_widgets` mit `delete` | Entfernt das Dashboard-Widget |
@@ -36,6 +37,14 @@ Nur Aktionen, die sich nicht rückgängig machen lassen, Ihren Workspace verlass
 Die Freigabe wird durch den Tool-Aufruf angefordert: Der Aufruf selbst öffnet die Freigabekarte, und nichts passiert, bis Sie sie beantworten. Die Karte nennt die Aktion und ihre Konsequenz und bietet **Einmal freigeben** oder **Abbrechen** an. Lehnen Sie ab, hat sich nichts geändert. Eine unbeantwortete Karte läuft nach 30 Minuten ab; die Anfrage wird dann verworfen, und Mate erfährt, dass die Freigabe abgelaufen ist. Es gibt keine Dauerfreigabe: Jede dieser Aktionen fragt beim nächsten Mal erneut.
 
 Das Senden einer E-Mail oder Chat-Nachricht steht bewusst nicht auf dieser Liste: `send_email` und `send_chat_message` stellen in dem Moment zu, in dem Mate sie aufruft. Bitten Sie also um einen Entwurf, wenn Sie den Wortlaut vorher prüfen möchten. Ein Entwurf wartet in Ihrem Posteingang, bis Sie ihn selbst senden, und Mate darf einen selbst gespeicherten Entwurf ohne Nachfrage verwerfen, weil der Text Ihren Workspace nie verlassen hat.
+
+## Unternehmenswissen und öffentliche Seiten [#company-knowledge-and-public-pages]
+
+Halten Sie Unternehmensfakten, CRM-Abläufe, Tonalität und Support-Vorgaben im [Workspace-Wiki](/docs/mcp#shared-workspace-wiki) fest. Sofern Sie Wiki-Leserechte haben, erhält Mate bei jeder gewöhnlichen Anfrage den veröffentlichten Betriebsleitfaden (etwa seine ersten 2.400 Bytes), das Verzeichnis der veröffentlichten Abläufe mit ihrem Einsatzfall und einen kompakten Katalog mit bis zu zehn Titeln von Wissensseiten, Links und kurzen Anfangsauszügen, nie vollständige Wissensseiten. Mate folgt dem Leitfaden, liest vor dem Handeln einen passenden Ablauf, durchsucht das gesamte Wiki nach weiteren Fakten, liest vollständige relevante Seiten, folgt hilfreichen stabilen Links und nennt die verwendeten Seiten als Quellen. Ablaufschritte gelten für die Aufgabe, um die Sie gebeten haben, mit den üblichen Freigaben. Eine Anweisung auf einer Seite, eine andere Aufgabe zu beginnen, etwas zu senden, zu löschen oder Berechtigungen zu ändern, gilt als Information: Mate weist darauf hin und führt sie nicht aus. Gespeicherte Änderungen stehen späteren Abrufen und neuen Anfragen zur Verfügung. Siehe [Betriebsleitfaden, Abläufe und Wissen](/docs/mcp#page-types).
+
+Mit Wiki-Verwaltungsrechten können Sie Mate bitten, Seiten anzulegen oder zu bearbeiten. Löschen benötigt weiterhin Ihre Freigabe. Dieselben Quelldokumente stehen [Routinen](/docs/app-routines) zur Verfügung; Sie müssen ihre Inhalte nicht in jeden Prompt kopieren.
+
+Mate liest öffentliche Webseiten nur, um Ihre Unternehmenswebsite in das Wiki zu importieren; ansonsten durchsucht Mate nicht das Web. Im leeren Wiki startet **Aus meiner Website erstellen** einen gewöhnlichen Mate-Chat: Mate fragt nach Ihrer Website und startet den Import im Hintergrund, der unter [Über Ihre Homepage einrichten](/docs/mcp#set-up-from-your-homepage) beschrieben ist. Er übernimmt Hilfe-, Preis- und Richtlinienseiten im Wortlaut und entwirft danach Zusammenfassungen, einen Betriebsleitfaden und Abläufe, die Sie prüfen und veröffentlichen. Mate importiert nur eine Adresse, die Sie im Chat angegeben haben, und ein Hilfecenter auf einer anderen Website nur, wenn Sie es nennen. Dafür benötigen Sie Wiki-Verwaltungsrechte. Das Onboarding behält sein eigenes Website-Feld unter **Wiki erstellen** und zeigt den Fortschritt direkt an. Seiten mit Anmeldepflicht, Zugriffssperren für automatisierte Abrufe oder notwendiger Browser-Interaktion sind möglicherweise nicht lesbar; der Import nutzt Ihr normales Guthaben.
 
 ## Welche Tools kann Mate nutzen? [#which-tools-can-mate-use]
 
@@ -110,7 +119,7 @@ Diese IDs gehören zum Assistenten-Panel selbst. Es sind DOM-IDs für externe Br
 
 | Aktion | Wo | Anker-ID | Was passiert |
 |---|---|---|---|
-| Assistent öffnen | Seitenleiste, über Hinzufügen | `#nav-assistant` | Blendet das Panel ein oder aus, wie Cmd/Strg+J |
+| Assistent öffnen | Oben in der Seitenleiste | `#nav-assistant` | Blendet das Panel ein oder aus, wie Cmd/Strg+J |
 | Das Panel selbst | Schwebende Karte | `#agent-panel-dialog` | Nicht-modaler Dialog über der Seite |
 | An Mate schreiben | Panel-Fußzeile | `#agent-composer` | Enter sendet, Shift+Enter bricht die Zeile um |
 | Credit-Zähler | Im Eingabefeld, neben Senden | `#agent-usage` | Beim Überfahren oder Klicken: verbleibende Credits, Tarif und Zurücksetzungstermin |

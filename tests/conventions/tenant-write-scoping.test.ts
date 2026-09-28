@@ -74,9 +74,7 @@ function enclosingMethod(node: ts.Node): ts.MethodDeclaration | undefined {
 function declaresBypass(method: ts.MethodDeclaration): boolean {
   return (method.modifiers ?? []).some(
     (modifier) =>
-      ts.isDecorator(modifier) &&
-      ts.isIdentifier(modifier.expression) &&
-      modifier.expression.text === BYPASS_DECORATOR,
+      ts.isDecorator(modifier) && ts.isIdentifier(modifier.expression) && modifier.expression.text === BYPASS_DECORATOR,
   );
 }
 

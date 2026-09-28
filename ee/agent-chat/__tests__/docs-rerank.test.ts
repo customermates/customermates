@@ -109,6 +109,8 @@ function jevChoosing(pick: (keys: string[]) => string, probabilities?: (keys: st
               },
               cost: "0.00002",
               inferenceCost: "0.00002",
+              surchargeCost: "0",
+              gatewayCost: "0.00002",
             },
           },
         }),

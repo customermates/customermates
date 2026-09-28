@@ -143,7 +143,12 @@ export class AgentTurnTranscript {
     for (const [id, toolPart] of this.toolParts) {
       if (toolPart.status !== "running") continue;
       this.settleTool(id, status);
-      if (shouldEmit) this.emit({ type: "activity_result", payload: { id, isError: true, status } });
+      if (shouldEmit) {
+        this.emit({
+          type: "activity_result",
+          payload: { id, isError: true, status },
+        });
+      }
     }
   }
 

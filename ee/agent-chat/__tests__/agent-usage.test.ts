@@ -65,6 +65,8 @@ function makeRepo(
     recordUsageEventUnscoped: vi.fn(() => Promise.resolve()),
     reserveUsageEventUnscoped: vi.fn(() => Promise.resolve(true)),
     releaseUsageReservationUnscoped: vi.fn(() => Promise.resolve()),
+    admitsHostedAiRetrievalUnscoped: vi.fn(() => Promise.resolve(true)),
+    accrueRetrievalUsageUnscoped: vi.fn(() => Promise.resolve()),
   };
 }
 
@@ -404,6 +406,61 @@ describe("AgentUsageService admission and ledger", () => {
 
     expect(settlement).toMatchObject({ costMicrocents: 368_173, costSource: "estimated", state: "settled" });
   });
+
+  it.each([null, 2_000_001])(
+    "preserves known charges in a mixed estimate, preferring measured total %s",
+    (measured) => {
+      const settlement = buildAgentUsageSettlement({
+        model: "openai/gpt-5-nano",
+        tokens: {
+          inputTokens: 1,
+          outputTokens: 1,
+          cacheReadTokens: 0,
+          cacheWriteTokens: 0,
+        },
+        reservedCredits: 10,
+        providerCharge: {
+          billed: true,
+          measuredCostMicrocents: measured,
+          estimatedCostMicrocents: 1_080_587,
+          stepTokens: [],
+          unreadableReason: measured === null ? "missing later-round metadata" : null,
+        },
+      });
+
+      expect(settlement).toMatchObject({
+        costMicrocents: measured ?? 1_080_587,
+        costSource: measured === null ? "estimated" : "measured",
+        chargedCredits: measured === null ? 2 : 3,
+        policyBreach: false,
+      });
+    },
+  );
+
+  it.each([-1, NaN, Infinity, 0.5, Number.MAX_SAFE_INTEGER + 1])(
+    "rejects an invalid mixed-round estimate %s",
+    (estimatedCostMicrocents) => {
+      expect(() =>
+        buildAgentUsageSettlement({
+          model: "openai/gpt-5-nano",
+          tokens: {
+            inputTokens: 1,
+            outputTokens: 1,
+            cacheReadTokens: 0,
+            cacheWriteTokens: 0,
+          },
+          reservedCredits: 10,
+          providerCharge: {
+            billed: true,
+            measuredCostMicrocents: null,
+            estimatedCostMicrocents,
+            stepTokens: [],
+            unreadableReason: "missing later-round metadata",
+          },
+        }),
+      ).toThrow("non-negative whole number of microcents");
+    },
+  );
 
   it("prices a multi-step turn per request, as the provider bills it, not on the turn aggregate", () => {
     const steps = [

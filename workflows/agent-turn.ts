@@ -15,7 +15,7 @@ import { createHook, getWritable, sleep } from "workflow";
 import { isStepCount, jsonSchema } from "ai";
 
 import { AgentTurnTranscript } from "@/ee/agent-chat/agent-turn-transcript";
-import { approvalWindowMsForSurface } from "@/ee/agent-chat/agent-surface-policy";
+import { approvalWindowMsForSurface, isUnattendedSurface } from "@/ee/agent-chat/agent-surface-policy";
 import { isAgentTurnTerminalError, type AgentTurnStopReason } from "@/ee/agent-chat/agent-turn-request";
 import {
   agentApprovalHookToken,
@@ -45,6 +45,23 @@ import {
 import { googleThinkingProviderOptions } from "@/ee/agent-chat/agent-thinking-options";
 import { buildAgentProviderContext } from "@/ee/agent-chat/agent-provider-context";
 import { buildAgentSystemPrompt, routineTriggerEventOf } from "@/ee/agent-chat/system-prompt";
+import type { AgentAiToolDefinition, AgentToolOptions } from "@/ee/agent-chat/agent-tools";
+import type { PublicWikiHomepage } from "@/features/wiki/wiki-homepage";
+import { getAgentProviderOptions } from "@/ee/agent-chat/agent-provider-options";
+import {
+  agentBatchContainsWebCall,
+  isAgentWebTool,
+  isSuccessfulAgentWebResult,
+} from "@/ee/agent-chat/agent-web-policy";
+import { agentWebSourcesFooter, collectAgentWebSources } from "@/ee/agent-chat/agent-web-search";
+import {
+  createPublicPageReadState,
+  normalizePublicPageSources,
+  reservePublicPageRead,
+  recordPublicPageLinks,
+  userWebsiteHomepage,
+  type PublicPageReadState,
+} from "@/ee/agent-chat/public-page-read-state";
 import { buildAgentUsageSettlement, usageToTokenCounts } from "@/ee/agent-chat/agent-usage-settlement";
 import { computeCostMicrocents } from "@/ee/agent-chat/model-pricing";
 import { agentCreditsForStartedProviderCost } from "@/ee/agent-chat/agent-credit-policy";
@@ -66,14 +83,15 @@ import { isAgentStepContextWithinBudget } from "@/ee/agent-chat/agent-provider-c
 import { benchmarkToolOutputPart } from "@/ee/agent-chat/benchmark-tool-output";
 import { agentAuxiliaryCharge, buildAgentTurnClassifierTrace } from "@/ee/agent-chat/agent-classifier-trace";
 import { getAgentChatRepo, getBackgroundTaskService } from "@/core/di";
-import { internalToolIdentity } from "@/ee/agent-chat/tool-identity";
-import { readAgentProviderCharge } from "@/ee/agent-chat/gateway-cost";
-import { isReadOnlyTool, requiresApproval } from "@/ee/agent-chat/gated-tools";
+import { internalToolIdentity, WIKI_WEBSITE_IMPORT_TOOL_NAME } from "@/ee/agent-chat/tool-identity";
+import { readAgentProviderCharge, readGatewayCostMicrocents } from "@/ee/agent-chat/gateway-cost";
+import { isReadOnlyAgentToolCall, requiresApproval } from "@/ee/agent-chat/gated-tools";
 import { isAgentToolCancellation } from "@/ee/agent-chat/agent-tool-cancellation";
 import { createAgentToolInputResolver, type AgentToolInputResult } from "@/ee/agent-chat/agent-tool-input";
 import { resolveAgentApprovalContext } from "@/ee/agent-chat/agent-external-approval-context";
 import { isAgentContextWithinBudget, resolveAgentToolResultMaxChars } from "@/ee/agent-chat/agent-budget-policy";
 import { runAsBackgroundTenant } from "@/core/decorators/background-tenant";
+import { getTenantUser } from "@/core/decorators/tenant-context";
 import { runInRoutineContext } from "@/core/decorators/routine-context";
 import { runInTransaction } from "@/core/decorators/transaction-runner";
 
@@ -113,14 +131,16 @@ export type AgentTurnWorkflowPayload = {
   surface?: AgentTurnSurface;
   toolsets?: string[];
   recordToolOutputs?: boolean;
+  wikiHomepageSetup?: PublicWikiHomepage;
+  wikiCrawl?: { id: string; homepage: string; pendingHosts: string[] };
+  wikiWebsiteSetup?: { userHomepages: string[] };
+  wikiCatalog?: string | null;
+  webSearchEnabled?: boolean;
 };
 
 export type AgentTurnSurface = "chat" | "routine";
 
-type AgentToolShell = {
-  name: string;
-  description: string | undefined;
-  inputSchema: unknown;
+type AgentToolShell = AgentAiToolDefinition & {
   annotations: Record<string, boolean> | undefined;
   gated: boolean;
   toolset: string | null;
@@ -195,6 +215,7 @@ function usageSettlementForTurn(payload: AgentTurnWorkflowPayload, outcome: Agen
   if (outcome.providerStarted === false) return null;
 
   const measured = outcome.ledger.every((entry) => entry.measured);
+  const totalCostMicrocents = outcome.ledger.reduce((total, entry) => total + entry.costMicrocents, 0);
   const unreadableReason = outcome.ledger.find((entry) => entry.unreadableReason)?.unreadableReason ?? null;
   if (!measured && outcome.ledger.length > 0) {
     void reportWarning(
@@ -212,10 +233,8 @@ function usageSettlementForTurn(payload: AgentTurnWorkflowPayload, outcome: Agen
     auxiliary: agentAuxiliaryCharge(outcome.auxiliaryCharges ?? []),
     providerCharge: {
       billed: outcome.ledger.length > 0,
-      measuredCostMicrocents:
-        measured && outcome.ledger.length > 0
-          ? outcome.ledger.reduce((total, entry) => total + entry.costMicrocents, 0)
-          : null,
+      measuredCostMicrocents: measured && outcome.ledger.length > 0 ? totalCostMicrocents : null,
+      estimatedCostMicrocents: measured ? undefined : totalCostMicrocents,
       stepTokens: outcome.ledger.map((entry) => entry.tokens),
       unreadableReason,
     },
@@ -245,13 +264,14 @@ function backgroundToolDeps(payload: AgentTurnWorkflowPayload, grant: ToolApprov
 
   return {
     resultMaxChars: resolveAgentToolResultMaxChars(payload.turnBudget.maxToolResultChars),
-    surface: payload.surface ?? "chat",
     pageRoute: payload.pageRoute,
     latestUserMessage: payload.messages.findLast((message) => message.role === "user")?.text ?? null,
     runInCallerContext: (run) =>
-      runAsBackgroundTenant(payload.userId, () =>
-        runInRoutineContext(payload.surface === "routine" ? { causationDepth: 1 } : null, run),
-      ),
+      runAsBackgroundTenant(payload.userId, () => {
+        if (getTenantUser().companyId !== payload.companyId)
+          throw new Error("Agent tenant changed during tool execution.");
+        return runInRoutineContext(payload.surface === "routine" ? { causationDepth: 1 } : null, run);
+      }),
     resolveApprovalContext: resolveAgentApprovalContext,
     requestApproval: () => Promise.resolve(toolApprovalDecisionForGrant(grant)),
     runUiCommand: () =>
@@ -286,15 +306,16 @@ function backgroundToolDeps(payload: AgentTurnWorkflowPayload, grant: ToolApprov
 
 async function openTurn(payload: AgentTurnWorkflowPayload): Promise<boolean> {
   "use step";
-  return runAsBackgroundTenant(payload.userId, () =>
-    getAgentChatRepo().markAgentTurnProviderStartedUnscoped({
+  return runAsBackgroundTenant(payload.userId, () => {
+    if (getTenantUser().companyId !== payload.companyId) return false;
+    return getAgentChatRepo().markAgentTurnProviderStartedUnscoped({
       turnRequestId: payload.turnRequestId,
       conversationId: payload.conversationId,
       companyId: payload.companyId,
       userId: payload.userId,
       runId: payload.runId,
-    }),
-  );
+    });
+  });
 }
 openTurn.maxRetries = 0;
 
@@ -310,19 +331,24 @@ async function canStartNextHostedAiProviderRound(payload: AgentTurnWorkflowPaylo
 }
 canStartNextHostedAiProviderRound.maxRetries = 0;
 
-async function loadAgentToolShells(surface: AgentTurnSurface, servingProvider: string): Promise<AgentToolShell[]> {
+async function loadAgentToolShells(
+  surface: AgentTurnSurface,
+  servingProvider: string,
+  options: AgentToolOptions,
+): Promise<AgentToolShell[]> {
   "use step";
   const { AGENT_HOSTED_TOOL_ANNOTATIONS, agentToolDefinitionsForTurn } = await import("@/ee/agent-chat/agent-tools");
   const { ALL_MCP_TOOLS } = await import("@/features/mcp-tools/tool-registry");
   const gatedByName = new Map(ALL_MCP_TOOLS.map((mcp) => [mcp.name, mcp.annotations]));
 
-  return agentToolDefinitionsForTurn({ surface, servingProvider }).map((definition) => ({
-    name: definition.name,
-    description: definition.description,
-    inputSchema: definition.inputSchema,
+  return agentToolDefinitionsForTurn({
+    surface,
+    servingProvider,
+    ...options,
+  }).map((definition) => ({
+    ...definition,
     annotations: gatedByName.get(definition.name) ?? AGENT_HOSTED_TOOL_ANNOTATIONS[definition.name],
     gated: gatedByName.has(definition.name),
-    toolset: definition.toolset,
   }));
 }
 
@@ -336,7 +362,14 @@ async function executeAgentTool(
   "use step";
   const { getAgentAiTools } = await import("@/ee/agent-chat/agent-tools");
   const { collectClassifierCharges } = await import("@/ee/agent-chat/classifier/metered");
-  const tools = getAgentAiTools(backgroundToolDeps(payload, grant)) as Record<
+  const tools = getAgentAiTools(backgroundToolDeps(payload, grant), {
+    locale: payload.locale,
+    wikiHomepageSetup: Boolean(payload.wikiHomepageSetup),
+    wikiCrawlId: payload.wikiCrawl?.id ?? null,
+    wikiWebsiteSetup: Boolean(payload.wikiWebsiteSetup),
+    webSearchEnabled: payload.webSearchEnabled,
+    surface: payload.surface ?? "chat",
+  }) as Record<
     string,
     {
       execute?: (input: unknown, options: { toolCallId: string; messages: [] }) => Promise<unknown>;
@@ -350,6 +383,77 @@ async function executeAgentTool(
 }
 executeAgentTool.maxRetries = 0;
 
+async function readAgentPublicPage(url: string, allowedDomain: string) {
+  "use step";
+  const { readPublicPage } = await import("@/ee/agent-chat/public-page-reader");
+  return readPublicPage({ url, allowedDomain });
+}
+readAgentPublicPage.maxRetries = 0;
+
+async function authorizedWikiSetup(payload: AgentTurnWorkflowPayload): Promise<boolean> {
+  "use step";
+  if (!(payload.wikiWebsiteSetup || payload.wikiHomepageSetup) || (payload.surface ?? "chat") !== "chat") return false;
+  const { getGetWikiPagesInteractor, getUserService } = await import("@/core/di");
+  const { AppErrorCode, appErrorDetails } = await import("@/core/errors/app-errors");
+  const { getTenantUser } = await import("@/core/decorators/tenant-context");
+  const { Action, Resource } = await import("@/generated/prisma");
+  const { env } = await import("@/env");
+  if (env.APP_MODE === "demo") return false;
+  return runAsBackgroundTenant(payload.userId, async () => {
+    try {
+      if (getTenantUser().companyId !== payload.companyId) return false;
+      if (!(await getUserService().hasPermission(Resource.wiki, Action.create))) return false;
+      const result = await getGetWikiPagesInteractor().invoke({ page: 1, pageSize: 5 });
+      if (result.ok && result.data.total === 0) return true;
+      if (!payload.wikiWebsiteSetup) return false;
+      const { getWikiWebsiteCrawlRepo } = await import("@/core/di");
+      return ((await getWikiWebsiteCrawlRepo().findLatestCrawl())?.pendingHosts.length ?? 0) > 0;
+    } catch (error) {
+      if (appErrorDetails(error)?.code === AppErrorCode.permissionDenied) return false;
+      throw error;
+    }
+  });
+}
+authorizedWikiSetup.maxRetries = 0;
+
+async function authorizedWikiCrawlSynthesis(payload: AgentTurnWorkflowPayload): Promise<boolean> {
+  "use step";
+  if (!payload.wikiCrawl || !payload.wikiHomepageSetup || (payload.surface ?? "chat") !== "chat") return false;
+  const { getUserService, getWikiWebsiteCrawlRepo } = await import("@/core/di");
+  const { getTenantUser } = await import("@/core/decorators/tenant-context");
+  const { Action, Resource } = await import("@/generated/prisma");
+  const { env } = await import("@/env");
+  if (env.APP_MODE === "demo") return false;
+  const crawlId = payload.wikiCrawl.id;
+  return runAsBackgroundTenant(payload.userId, async () => {
+    if (getTenantUser().companyId !== payload.companyId) return false;
+    if (!(await getUserService().hasPermission(Resource.wiki, Action.create))) return false;
+    const crawl = await getWikiWebsiteCrawlRepo().getCrawl(crawlId);
+    return Boolean(crawl && crawl.userId === payload.userId && crawl.homepageUrl === payload.wikiCrawl?.homepage);
+  });
+}
+authorizedWikiCrawlSynthesis.maxRetries = 0;
+
+async function authorizedWikiCatalog(payload: AgentTurnWorkflowPayload): Promise<string | null> {
+  "use step";
+  if (!payload.wikiCatalog) return null;
+  const { getGetWikiPagesInteractor } = await import("@/core/di");
+  const { AppErrorCode, appErrorDetails } = await import("@/core/errors/app-errors");
+  const { getTenantUser } = await import("@/core/decorators/tenant-context");
+  return runAsBackgroundTenant(payload.userId, async () => {
+    try {
+      if (getTenantUser().companyId !== payload.companyId) return null;
+      const result = await getGetWikiPagesInteractor().invoke({ page: 1, pageSize: 5 });
+      if (!result.ok) throw new Error("Workspace Wiki catalog could not be authorized.");
+      return payload.wikiCatalog ?? null;
+    } catch (error) {
+      if (appErrorDetails(error)?.code === AppErrorCode.permissionDenied) return null;
+      throw error;
+    }
+  });
+}
+authorizedWikiCatalog.maxRetries = 0;
+
 async function normalizeAgentToolInput(
   payload: AgentTurnWorkflowPayload,
   toolName: string,
@@ -357,12 +461,24 @@ async function normalizeAgentToolInput(
 ): Promise<AgentToolInputResult> {
   "use step";
   const { normalizeAgentAiToolInput } = await import("@/ee/agent-chat/agent-tools");
-  return runAsBackgroundTenant(payload.userId, () =>
-    normalizeAgentAiToolInput(toolName, input, resolveAgentToolResultMaxChars(payload.turnBudget.maxToolResultChars), {
-      locale: payload.locale,
-      pageRoute: payload.pageRoute,
-    }),
-  );
+  return runAsBackgroundTenant(payload.userId, () => {
+    if (getTenantUser().companyId !== payload.companyId)
+      throw new Error("Agent tenant changed during tool normalization.");
+    return normalizeAgentAiToolInput(
+      toolName,
+      input,
+      resolveAgentToolResultMaxChars(payload.turnBudget.maxToolResultChars),
+      {
+        locale: payload.locale,
+        pageRoute: payload.pageRoute,
+        wikiHomepageSetup: Boolean(payload.wikiHomepageSetup),
+        wikiCrawlId: payload.wikiCrawl?.id ?? null,
+        wikiWebsiteSetup: Boolean(payload.wikiWebsiteSetup),
+        webSearchEnabled: payload.webSearchEnabled,
+        surface: payload.surface ?? "chat",
+      },
+    );
+  });
 }
 normalizeAgentToolInput.maxRetries = 0;
 
@@ -494,7 +610,8 @@ type AgentRunnerMessageKind =
   | "hostedAiUnavailable"
   | "policyBreach"
   | "turnError"
-  | "emptyReply";
+  | "emptyReply"
+  | "sourcesHeading";
 
 async function resolveRunnerMessage(locale: string, kind: AgentRunnerMessageKind): Promise<string> {
   "use step";
@@ -511,6 +628,7 @@ async function resolveRunnerMessage(locale: string, kind: AgentRunnerMessageKind
   if (kind === "policyBreach") return t("AgentChat.runner.policyBreach");
   if (kind === "cancelled") return t("AgentChat.runner.cancelled");
   if (kind === "emptyReply") return t("AgentChat.runner.emptyReply");
+  if (kind === "sourcesHeading") return t("AgentChat.runner.sourcesHeading");
 
   return kind satisfies never;
 }
@@ -718,7 +836,9 @@ async function reconcileFailedTurn(payload: AgentTurnWorkflowPayload): Promise<v
 
 async function settleRoutineRunStep(ownerUserId: string): Promise<void> {
   "use step";
-  await getBackgroundTaskService().dispatch("reconcile-routine-runs", { ownerUserId });
+  await getBackgroundTaskService().dispatch("reconcile-routine-runs", {
+    ownerUserId,
+  });
 }
 settleRoutineRunStep.maxRetries = 0;
 
@@ -793,7 +913,13 @@ export async function runAgentTurn(payload: AgentTurnWorkflowPayload): Promise<v
     }
     const surface: AgentTurnSurface = payload.surface ?? "chat";
     const approvalWindowMs = approvalWindowMsForSurface(surface);
-    const shells = await loadAgentToolShells(surface, payload.turnBudget.servingProvider);
+    const shells = await loadAgentToolShells(surface, payload.turnBudget.servingProvider, {
+      locale: payload.locale,
+      wikiHomepageSetup: Boolean(payload.wikiHomepageSetup),
+      wikiCrawlId: payload.wikiCrawl?.id ?? null,
+      wikiWebsiteSetup: Boolean(payload.wikiWebsiteSetup),
+      webSearchEnabled: payload.webSearchEnabled,
+    });
     const writable = getWritable();
 
     const queued: AgentTranscriptEvent[] = [];
@@ -809,14 +935,27 @@ export async function runAgentTurn(payload: AgentTurnWorkflowPayload): Promise<v
       loadedToolsets: initialToolsets,
       schemaDigest: payload.schemaDigest ?? null,
       triggerEvent: routineTriggerEventOf(payload.messages.findLast((message) => message.role === "user")?.text),
+      wikiHomepageSetup: Boolean(payload.wikiHomepageSetup),
+      wikiCrawlSynthesis: payload.wikiCrawl
+        ? { homepage: payload.wikiCrawl.homepage, pendingHosts: payload.wikiCrawl.pendingHosts }
+        : null,
+      wikiWebsiteSetup: Boolean(payload.wikiWebsiteSetup),
+      webSearchEnabled: payload.webSearchEnabled,
     });
-    const toolDefinitions = shells.map(({ name, description, inputSchema }) => ({ name, description, inputSchema }));
+    const toolDefinitions = shells.map(
+      ({ annotations: _annotations, gated: _gated, toolset: _toolset, ...definition }) => definition,
+    );
     const activeToolNamesFor = (stepMessages: readonly unknown[]) =>
-      activeAgentToolNames({ tools: shells, initialToolsets, messages: stepMessages });
+      activeAgentToolNames({
+        tools: shells,
+        initialToolsets,
+        messages: stepMessages,
+      });
     const providerContext = buildAgentProviderContext(
       systemPrompt,
       payload.messages,
       toolDefinitions.filter((definition) => activeToolNamesFor([])?.includes(definition.name)),
+      await authorizedWikiCatalog(payload),
     );
     const auxiliaryCharges: ClassifierCharge[] = [];
 
@@ -832,6 +971,11 @@ export async function runAgentTurn(payload: AgentTurnWorkflowPayload): Promise<v
     );
     const completedTools: ({ toolCallId: string; toolName: string } & ({ output: unknown } | { threw: true }))[] = [];
     let performedWrite = false;
+    let browsed = false;
+    const webSources = new Set<string>();
+    let publicPageState: PublicPageReadState | null = payload.wikiHomepageSetup
+      ? createPublicPageReadState(payload.wikiHomepageSetup)
+      : null;
 
     const continuationSteps: AgentContinuationStep[] = [];
     let deferredRound: {
@@ -935,30 +1079,155 @@ export async function runAgentTurn(payload: AgentTurnWorkflowPayload): Promise<v
       );
     };
 
-    const runShellTool = async (shell: AgentToolShell, input: unknown, toolCallId: string) => {
+    const runShellTool = async (
+      shell: AgentToolShell,
+      input: unknown,
+      toolCallId: string,
+      stepMessages: readonly unknown[],
+    ) => {
       const prepared = await resolveToolInput(shell.name, toolCallId, input);
       if (!prepared.ok) return prepared;
-      const refused = refusedByTarget(isReadOnlyTool({ annotations: shell.annotations }), prepared.input);
+      const readOnly = isReadOnlyAgentToolCall(shell.name, shell, prepared.input);
+      const refused = refusedByTarget(readOnly, prepared.input);
       if (refused) return { ok: false, result: ambiguousTargetRefusal(refused) };
+      let executionInput = prepared.input;
+      const websiteCreate = Boolean(payload.wikiHomepageSetup) && !readOnly;
+      if (payload.wikiWebsiteSetup && shell.name === WIKI_WEBSITE_IMPORT_TOOL_NAME) {
+        if (!(await authorizedWikiSetup(payload))) {
+          return {
+            ok: false,
+            result:
+              "Website import is not available: it needs Wiki create access and an empty Wiki, or a help centre that an earlier import listed. Nothing was started.",
+          };
+        }
+        const homepage = userWebsiteHomepage(
+          payload.wikiWebsiteSetup.userHomepages,
+          (prepared.input as { url: string }).url,
+        );
+        if (!homepage) {
+          return {
+            ok: false,
+            result:
+              "Import only a website the user wrote in this conversation. Ask the user for the address first. Nothing was started.",
+          };
+        }
+        executionInput = { url: homepage.url };
+      }
+      if (websiteCreate && payload.wikiCrawl) {
+        if (!(await authorizedWikiCrawlSynthesis(payload))) {
+          return {
+            ok: false,
+            result:
+              "Website Wiki setup is no longer available: it needs Wiki create access and this user's recent website import. Nothing was changed.",
+          };
+        }
+      } else if (websiteCreate) {
+        if (!(await authorizedWikiSetup(payload))) {
+          return {
+            ok: false,
+            result:
+              "Website Wiki setup is no longer available: it needs Wiki create access and an empty Wiki. Nothing was changed.",
+          };
+        }
+        if (!publicPageState?.homepageSucceeded) {
+          return {
+            ok: false,
+            result: "Read the submitted homepage successfully before creating Wiki pages. Nothing was changed.",
+          };
+        }
+        if (agentBatchContainsWebCall(stepMessages, toolCallId)) {
+          return {
+            ok: false,
+            result:
+              "Finish the website reads first, then create Wiki pages in a later step so the page content can use those results. Nothing was changed.",
+          };
+        }
+        const normalized = normalizePublicPageSources(publicPageState, prepared.input);
+        if (!normalized.ok) {
+          return {
+            ok: false,
+            result:
+              "Every setup page must cite at least one exact URL that this task read successfully. Nothing was changed.",
+          };
+        }
+        executionInput = normalized.input;
+      }
+      if (
+        isUnattendedSurface(surface) &&
+        !readOnly &&
+        (browsed || agentBatchContainsWebCall(stepMessages, toolCallId))
+      ) {
+        return {
+          ok: false,
+          result:
+            "This routine cannot mutate data after browsing or in a batch containing web access. Nothing was changed.",
+        };
+      }
+      if (shell.name === "read_public_page") {
+        if (!(await authorizedWikiSetup(payload))) {
+          return {
+            ok: false,
+            result: "Website reading is only available while the Wiki is empty and you may create Wiki pages.",
+          };
+        }
+        let requestedUrl = (prepared.input as { url: string }).url;
+        if (!publicPageState && payload.wikiWebsiteSetup) {
+          const homepage = userWebsiteHomepage(payload.wikiWebsiteSetup.userHomepages, requestedUrl);
+          if (!homepage) {
+            return {
+              ok: false,
+              result:
+                "Read only a website the user wrote in this conversation. Ask the user for their company website first. Nothing was read.",
+            };
+          }
+          publicPageState = createPublicPageReadState(homepage);
+          requestedUrl = homepage.url;
+        }
+        if (!publicPageState) {
+          return {
+            ok: false,
+            result: "Website reading is only available during Workspace Wiki homepage setup.",
+          };
+        }
+        const request = reservePublicPageRead(publicPageState, requestedUrl);
+        if (!request.ok) return request;
+        const result = await readAgentPublicPage(request.url, request.allowedDomain);
+        recordPublicPageLinks(publicPageState, request.url, result);
+        if (result.ok) browsed = true;
+        return result;
+      }
       const executed = await executeAgentTool(
         payload,
         shell.name,
         toolCallId,
-        prepared.input,
+        executionInput,
         grants.get(toolCallId) ?? "not-required",
       );
       auxiliaryCharges.push(...executed.classifierCharges);
       const outcome = executed.output;
-      const activity = describeAgentTool(internalToolIdentity(shell.name), prepared.input);
-      if (activity.risk !== "read" && isSuccessfulToolOutcome(outcome)) performedWrite = true;
+      if (!readOnly && isSuccessfulToolOutcome(outcome)) performedWrite = true;
       return outcome;
     };
 
     const applyRound = async (step: AgentRoundResult) => {
       appliedThisCall += 1;
-
       try {
         settleApprovedCalls([], true);
+        for (const source of collectAgentWebSources([{ content: step.content }])) webSources.add(source);
+        for (const raw of step.content) {
+          const part = raw as {
+            type?: string;
+            toolName?: string;
+            output?: unknown;
+          };
+          if (
+            part.type === "tool-result" &&
+            part.toolName &&
+            isAgentWebTool(part.toolName) &&
+            isSuccessfulAgentWebResult(part.output)
+          )
+            browsed = true;
+        }
         for (const raw of step.content) {
           const part = raw as {
             type?: string;
@@ -978,9 +1247,37 @@ export async function runAgentTurn(payload: AgentTurnWorkflowPayload): Promise<v
         }
         transcript.finishTextSegment();
 
-        const outcomes: AgentToolOutcome[] = completedTools.splice(0);
+        const outcomesByCallId = new Map<string, AgentToolOutcome>(
+          completedTools.splice(0).map((outcome) => [outcome.toolCallId, outcome]),
+        );
+        for (const raw of step.content) {
+          const part = raw as {
+            type?: string;
+            toolCallId?: string;
+            toolName?: string;
+            output?: unknown;
+            providerExecuted?: boolean;
+          };
+          if (
+            part.providerExecuted !== true ||
+            !part.toolCallId ||
+            !part.toolName ||
+            (part.type !== "tool-result" && part.type !== "tool-error")
+          )
+            continue;
+          outcomesByCallId.set(part.toolCallId, {
+            toolCallId: part.toolCallId,
+            toolName: part.toolName,
+            ...(part.type === "tool-error" ||
+            (isAgentWebTool(part.toolName) && !isSuccessfulAgentWebResult(part.output))
+              ? { threw: true as const }
+              : { output: part.output }),
+          });
+        }
+        const outcomes = [...outcomesByCallId.values()];
         for (const completed of outcomes) {
           if ("threw" in completed) {
+            if (settledToolCallIds.has(completed.toolCallId)) continue;
             settledToolCallIds.add(completed.toolCallId);
             recordBenchmarkToolOutput(completed);
             transcript.failToolCall(completed.toolCallId);
@@ -995,11 +1292,14 @@ export async function runAgentTurn(payload: AgentTurnWorkflowPayload): Promise<v
         const costMicrocents =
           charge.outcome === "measured"
             ? charge.charge.costMicrocents
-            : computeCostMicrocents(
-                payload.turnBudget.modelSpec,
-                roundTokens,
-                payload.turnBudget.servingProvider,
-                payload.turnBudget.inferenceRegion,
+            : Math.max(
+                readGatewayCostMicrocents(step.providerMetadata) ?? 0,
+                computeCostMicrocents(
+                  payload.turnBudget.modelSpec,
+                  roundTokens,
+                  payload.turnBudget.servingProvider,
+                  payload.turnBudget.inferenceRegion,
+                ),
               );
 
         tokens = addTokens(tokens, roundTokens);
@@ -1118,7 +1418,13 @@ export async function runAgentTurn(payload: AgentTurnWorkflowPayload): Promise<v
           resultDigest: true,
         });
         const candidateMessages = continueOutput
-          ? [...compacted.messages, { role: "user" as const, content: AGENT_OUTPUT_CONTINUATION_PROMPT }]
+          ? [
+              ...compacted.messages,
+              {
+                role: "user" as const,
+                content: AGENT_OUTPUT_CONTINUATION_PROMPT,
+              },
+            ]
           : [...compacted.messages];
         const activeForCandidate = activeToolNamesFor(candidateMessages);
         if (
@@ -1154,51 +1460,62 @@ export async function runAgentTurn(payload: AgentTurnWorkflowPayload): Promise<v
         tools: Object.fromEntries(
           shells.map((shell) => [
             shell.name,
-            {
-              description: shell.description,
-              inputSchema: jsonSchema(shell.inputSchema as never),
-              needsApproval: async (input: unknown, options: { toolCallId: string }) => {
-                const prepared = await resolveToolInput(shell.name, options.toolCallId, input);
-                return (
-                  prepared.ok &&
-                  shell.gated &&
-                  !refusedByTarget(isReadOnlyTool({ annotations: shell.annotations }), prepared.input) &&
-                  requiresApproval(internalToolIdentity(shell.name), { annotations: shell.annotations }, prepared.input)
-                );
-              },
-              ...(isAgentPanelTool(shell.name)
-                ? {}
-                : {
-                    execute: async (input: unknown, options: { toolCallId: string }) => {
-                      const { toolCallId } = options;
-                      try {
-                        const output = await runShellTool(shell, input, toolCallId);
-                        if (approvedCalls.has(toolCallId))
-                          approvedOutcomes.set(toolCallId, { toolCallId, toolName: shell.name, output });
-                        return output;
-                      } catch (error) {
-                        if (approvedCalls.has(toolCallId))
-                          approvedOutcomes.set(toolCallId, { toolCallId, toolName: shell.name, threw: true });
-                        throw error;
-                      }
-                    },
-                  }),
-            },
+            shell.type === "provider"
+              ? ({
+                  type: "provider",
+                  id: shell.id,
+                  args: shell.args,
+                  isProviderExecuted: shell.isProviderExecuted,
+                  supportsDeferredResults: shell.supportsDeferredResults,
+                  inputSchema: jsonSchema(shell.inputSchema as never),
+                } as never)
+              : {
+                  description: shell.description,
+                  inputSchema: jsonSchema(shell.inputSchema as never),
+                  needsApproval: async (input: unknown, options: { toolCallId: string }) => {
+                    const prepared = await resolveToolInput(shell.name, options.toolCallId, input);
+                    return (
+                      prepared.ok &&
+                      shell.gated &&
+                      !refusedByTarget(isReadOnlyAgentToolCall(shell.name, shell, prepared.input), prepared.input) &&
+                      requiresApproval(
+                        internalToolIdentity(shell.name),
+                        { annotations: shell.annotations },
+                        prepared.input,
+                      )
+                    );
+                  },
+                  ...(isAgentPanelTool(shell.name)
+                    ? {}
+                    : {
+                        execute: async (
+                          input: unknown,
+                          options: {
+                            toolCallId: string;
+                            messages: readonly unknown[];
+                          },
+                        ) => {
+                          const { toolCallId } = options;
+                          try {
+                            const output = await runShellTool(shell, input, toolCallId, options.messages);
+                            if (approvedCalls.has(toolCallId))
+                              approvedOutcomes.set(toolCallId, { toolCallId, toolName: shell.name, output });
+                            return output;
+                          } catch (error) {
+                            if (approvedCalls.has(toolCallId))
+                              approvedOutcomes.set(toolCallId, { toolCallId, toolName: shell.name, threw: true });
+                            throw error;
+                          }
+                        },
+                      }),
+                },
           ]),
         ),
         maxOutputTokens: payload.turnBudget.maxOutputTokens,
+        ...(payload.webSearchEnabled ? { maxRetries: 0 } : {}),
         ...(payload.turnBudget.reasoningEffort ? { reasoning: payload.turnBudget.reasoningEffort } : {}),
         providerOptions: {
-          gateway: {
-            only: [payload.turnBudget.servingProvider],
-            ...(payload.turnBudget.inferenceRegion
-              ? { inferenceRegion: { scope: "zone", geoRegion: payload.turnBudget.inferenceRegion } }
-              : {}),
-            zeroDataRetention: true,
-            disallowPromptTraining: true,
-            caching: "auto" as const,
-          },
-          openai: { parallelToolCalls: false },
+          ...getAgentProviderOptions(payload.turnBudget.servingProvider, payload.turnBudget.inferenceRegion),
           ...googleThinkingProviderOptions(payload.turnBudget),
         },
         prepareStep: async ({ messages: stepMessages }) => {
@@ -1215,13 +1532,21 @@ export async function runAgentTurn(payload: AgentTurnWorkflowPayload): Promise<v
             : toolDefinitions;
           if (
             !isAgentContextWithinBudget(
-              { system: instructions, messages: stepMessages, tools: activeDefinitions },
+              {
+                system: instructions,
+                messages: stepMessages,
+                tools: activeDefinitions,
+              },
               payload.turnBudget.maxContextBytes,
             )
           )
             throw AGENT_CONTEXT_COMPACTION_REQUIRED;
           if (!(await canStartNextHostedAiProviderRound(payload))) throw hostedAiPaused;
-          return activeTools ? { activeTools } : {};
+          const permittedTools =
+            isUnattendedSurface(surface) && performedWrite
+              ? activeTools.filter((toolName) => !isAgentWebTool(toolName))
+              : activeTools;
+          return permittedTools ? { activeTools: permittedTools } : {};
         },
         stopWhen: [
           isStepCount(AGENT_SEGMENT_ROUNDS),
@@ -1248,7 +1573,12 @@ export async function runAgentTurn(payload: AgentTurnWorkflowPayload): Promise<v
       appliedThisCall = 0;
       let result;
       try {
-        result = await agent.stream({ messages, writable, preventClose: true, sendFinish: false });
+        result = await agent.stream({
+          messages,
+          writable,
+          preventClose: true,
+          sendFinish: false,
+        });
       } catch (error) {
         settleApprovedCalls([], true);
         if (error === AGENT_LOCAL_TERMINATION_REQUIRED) break;
@@ -1276,6 +1606,7 @@ export async function runAgentTurn(payload: AgentTurnWorkflowPayload): Promise<v
       await publishStreamCheckpoint();
       finishReason = result.finishReason;
       settleApprovedCalls(result.messages, true);
+      for (const source of collectAgentWebSources(result.messages)) webSources.add(source);
 
       for (const step of (result.steps as unknown as AgentRoundResult[]).slice(appliedThisCall)) await applyRound(step);
 
@@ -1290,7 +1621,13 @@ export async function runAgentTurn(payload: AgentTurnWorkflowPayload): Promise<v
       if (finishReason === "content-filter") providerStop = "content_filter";
       else if (!["stop", "length", "tool-calls"].includes(finishReason)) {
         const resolvedError = (result as { error?: unknown }).error;
-        if (resolvedProviderErrorRetries < AGENT_RESOLVED_PROVIDER_ERROR_RETRIES) {
+        const failedStepRanProviderTool = (result.steps as unknown as AgentRoundResult[])
+          .at(-1)
+          ?.content.some((raw) => {
+            const part = raw as { type?: string; providerExecuted?: boolean };
+            return part.type === "tool-call" && part.providerExecuted === true;
+          });
+        if (!failedStepRanProviderTool && resolvedProviderErrorRetries < AGENT_RESOLVED_PROVIDER_ERROR_RETRIES) {
           resolvedProviderErrorRetries += 1;
           await reportResolvedProviderError(payload, finishReason, resolvedError, resolvedProviderErrorRetries);
           providerStop = null;
@@ -1411,7 +1748,9 @@ export async function runAgentTurn(payload: AgentTurnWorkflowPayload): Promise<v
 
       const hook =
         approvalWindowMs > 0
-          ? createHook<AgentApprovalWake>({ token: agentApprovalHookToken(payload.conversationId) })
+          ? createHook<AgentApprovalWake>({
+              token: agentApprovalHookToken(payload.conversationId),
+            })
           : null;
       await openApprovalRequests(payload, requests, approvalWindowMs);
       for (const request of requests) {
@@ -1527,6 +1866,15 @@ export async function runAgentTurn(payload: AgentTurnWorkflowPayload): Promise<v
       const trailing = transcript.replyText.trim() ? `\n\n${message}` : message;
       transcript.appendText(trailing);
       await publishAssistantText(trailing);
+    } else if (!payload.wikiHomepageSetup && webSources.size > 0 && transcript.replyText.trim()) {
+      const sourceFooter = agentWebSourcesFooter(
+        [...webSources],
+        await resolveRunnerMessage(payload.locale, "sourcesHeading"),
+      );
+      if (sourceFooter) {
+        transcript.appendText(sourceFooter);
+        await publishAssistantText(sourceFooter);
+      }
     }
     transcript.failUnfinishedTools(cancelled ? "cancelled" : "error", true);
     if (transcript.replyParts.length === 0) {

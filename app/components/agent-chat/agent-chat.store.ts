@@ -518,7 +518,10 @@ export class AgentChatStore extends BaseStore {
   };
 
   markRouteSyncComplete = () => {
-    if (this.routeSyncStatus === "refreshing") this.routeSyncStatus = "idle";
+    if (this.routeSyncStatus !== "refreshing") return;
+    this.routeSyncStatus = "idle";
+    if (!this.hasPendingRouteReload && !this.isWorking && !this.queuedPrompt && this.streamStatus === "finalizing")
+      this.streamStatus = "idle";
   };
 
   close = () => {
@@ -756,13 +759,14 @@ export class AgentChatStore extends BaseStore {
   }
 
   selectConversation = async (id: string) => {
-    if (this.isWorking || this.historyMutationPending) return;
+    if (this.historyMutationPending) return;
     if (this.conversationId === id && !this.conversationLoadError) {
       runInAction(() => {
         this.isHistoryOpen = false;
       });
       return;
     }
+    if (this.isWorking) return;
     await this.loadConversation(id);
   };
 

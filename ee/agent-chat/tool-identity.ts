@@ -1,3 +1,7 @@
+export const READ_PUBLIC_PAGE_TOOL_NAME = "read_public_page";
+export const WIKI_WEBSITE_CREATE_TOOL_NAME = "create_wiki_from_website";
+export const WIKI_WEBSITE_IMPORT_TOOL_NAME = "import_website";
+
 export const AGENT_TOOL_SOURCES = [
   "internal-mcp",
   "gateway-tool",

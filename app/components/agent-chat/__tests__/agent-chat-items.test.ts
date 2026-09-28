@@ -3,7 +3,8 @@ import { renderToStaticMarkup } from "react-dom/server";
 import { describe, expect, it, vi } from "vitest";
 
 vi.mock("next-intl", () => ({
-  useTranslations: () => (key: string) => key,
+  useTranslations: () => (key: string, values?: Record<string, string | number>) =>
+    values?.target ? `${key}:${values.target}` : key,
 }));
 vi.mock("@/components/entity-terminology/use-entity-terminology", () => ({
   useEntityTerminology: () => ({ plural: () => "Contacts" }),
@@ -80,6 +81,7 @@ describe("AgentActivity", () => {
   it("shows an unrecovered tool failure as an error after the turn ends", () => {
     const html = renderToStaticMarkup(
       createElement(AgentActivity, {
+        activityContext: "wikiHomepageSetup",
         isTrailing: true,
         isWorking: false,
         items: [failedRead],
@@ -89,6 +91,46 @@ describe("AgentActivity", () => {
     expect(html).toContain("AgentChat.activity.state.records.read.error");
     expect(html).toContain("text-destructive");
     expect(html).not.toContain("animate-spin");
+  });
+
+  it("shows thinking instead of past-tense copy while a completed step is still trailing", () => {
+    const html = renderToStaticMarkup(
+      createElement(AgentActivity, {
+        isTrailing: true,
+        isWorking: true,
+        items: [{ ...failedRead, status: "done" }],
+      }),
+    );
+
+    expect(html).toContain("animate-spin");
+    expect(html).toContain("AgentChat.ui.thinking");
+    expect(html).not.toContain("AgentChat.activity.state.records.read.done");
+  });
+
+  it("renders a single failed website read once without an empty disclosure", () => {
+    const label = "AgentChat.activity.state.web.read.error:AgentChat.activity.homepage";
+    const html = renderToStaticMarkup(
+      createElement(AgentActivity, {
+        activityContext: "wikiHomepageSetup",
+        isTrailing: true,
+        isWorking: false,
+        items: [
+          {
+            ...failedRead,
+            activity: {
+              kind: "web.read" as const,
+              affectedResources: [],
+              risk: "read" as const,
+              sourceDomain: "ainovi.de",
+              sourcePage: "ainovi.de/",
+            },
+          },
+        ],
+      }),
+    );
+
+    expect(html.split(label)).toHaveLength(2);
+    expect(html).not.toContain("<details");
   });
 
   it("keeps a historical failure settled while a newer turn is working", () => {
@@ -119,5 +161,167 @@ describe("AgentActivity", () => {
     expect(html).toContain("text-destructive");
     expect(html).not.toContain("animate-spin");
     expect(isWorkingActivityGroup(conversationItems, 2, true)).toBe(true);
+  });
+
+  it("summarizes homepage setup as website research and a completed Wiki", () => {
+    const websiteRead = {
+      ...failedRead,
+      activity: {
+        kind: "web.read" as const,
+        affectedResources: [],
+        risk: "read" as const,
+        sourceDomain: "customermates.com",
+        sourcePage: "customermates.com/",
+      },
+      status: "done" as const,
+    };
+    const websiteReads = ["/", "/about", "/product", "/support"].map((path, index) => ({
+      ...websiteRead,
+      id: `activity-${index + 1}`,
+      providerCallId: `call-${index + 1}`,
+      activity: {
+        ...websiteRead.activity,
+        sourcePage: `customermates.com${path}`,
+      },
+    }));
+    const wikiCreate = {
+      ...websiteRead,
+      id: "activity-5",
+      providerCallId: "call-5",
+      activity: {
+        kind: "records.create" as const,
+        resource: "wiki" as const,
+        affectedResources: ["wiki" as const],
+        risk: "write" as const,
+        count: 5,
+      },
+    };
+    const runningHtml = renderToStaticMarkup(
+      createElement(AgentActivity, {
+        activityContext: "wikiHomepageSetup",
+        isTrailing: true,
+        isWorking: true,
+        items: [{ ...websiteRead, status: "running" as const }],
+      }),
+    );
+    const completedHtml = renderToStaticMarkup(
+      createElement(AgentActivity, {
+        activityContext: "wikiHomepageSetup",
+        isTrailing: true,
+        isWorking: false,
+        items: [...websiteReads, wikiCreate],
+      }),
+    );
+
+    const expandedHtml = renderToStaticMarkup(
+      createElement(AgentActivity, {
+        activityContext: "wikiHomepageSetup",
+        isTrailing: true,
+        isWorking: true,
+        items: [...websiteReads, { ...wikiCreate, status: "running" as const }],
+      }),
+    );
+
+    expect(runningHtml).toContain("AgentChat.activity.state.web.read.running:AgentChat.activity.homepage");
+    expect(runningHtml).not.toContain("AgentChat.ui.websiteSourcesRunning");
+    expect(completedHtml).toContain("AgentChat.ui.websiteWikiComplete");
+    expect(completedHtml).toContain('data-slot="collapsible-trigger"');
+    expect(completedHtml).not.toContain("AgentChat.ui.stepsTook");
+    expect(expandedHtml).toContain('data-slot="collapsible-content"');
+    expect(expandedHtml).toContain("AgentChat.activity.state.web.read.done:AgentChat.activity.homepage");
+    for (const path of ["/about", "/product", "/support"])
+      expect(expandedHtml).toContain(`AgentChat.activity.state.web.read.done:${path}`);
+    expect(expandedHtml).not.toContain("web.read.done:customermates.com");
+
+    const ordinaryChatHtml = renderToStaticMarkup(
+      createElement(AgentActivity, {
+        isTrailing: true,
+        isWorking: false,
+        items: [...websiteReads, wikiCreate],
+      }),
+    );
+    expect(ordinaryChatHtml).toContain("AgentChat.ui.activityComplete");
+    expect(ordinaryChatHtml).not.toContain("AgentChat.ui.websiteWikiComplete");
+  });
+
+  it("keeps the host only for a page on a different subdomain than the setup domain", () => {
+    const html = renderToStaticMarkup(
+      createElement(AgentActivity, {
+        activityContext: "wikiHomepageSetup",
+        isTrailing: true,
+        isWorking: false,
+        items: [
+          {
+            ...failedRead,
+            status: "done" as const,
+            activity: {
+              kind: "web.read" as const,
+              affectedResources: [],
+              risk: "read" as const,
+              sourceDomain: "customermates.com",
+              sourcePage: "docs.customermates.com/en/features",
+            },
+          },
+        ],
+      }),
+    );
+
+    expect(html).toContain("AgentChat.activity.state.web.read.done:docs.customermates.com/en/features");
+  });
+
+  it("treats an optional linked-page failure as settled after the Wiki is created", () => {
+    const websiteRead = {
+      ...failedRead,
+      activity: {
+        kind: "web.read" as const,
+        affectedResources: [],
+        risk: "read" as const,
+        sourceDomain: "customermates.com",
+        sourcePage: "customermates.com/",
+      },
+      status: "done" as const,
+    };
+    const failedLinkedRead = {
+      ...websiteRead,
+      id: "activity-2",
+      providerCallId: "call-2",
+      activity: { ...websiteRead.activity, sourcePage: "customermates.com/missing" },
+      status: "error" as const,
+    };
+    const wikiCreate = {
+      ...websiteRead,
+      id: "activity-3",
+      providerCallId: "call-3",
+      activity: {
+        kind: "records.create" as const,
+        resource: "wiki" as const,
+        affectedResources: ["wiki" as const],
+        risk: "write" as const,
+        count: 5,
+      },
+    };
+
+    const html = renderToStaticMarkup(
+      createElement(AgentActivity, {
+        activityContext: "wikiHomepageSetup",
+        isTrailing: true,
+        isWorking: false,
+        items: [websiteRead, failedLinkedRead, wikiCreate],
+      }),
+    );
+    const expandedHtml = renderToStaticMarkup(
+      createElement(AgentActivity, {
+        activityContext: "wikiHomepageSetup",
+        isTrailing: true,
+        isWorking: true,
+        items: [websiteRead, failedLinkedRead, wikiCreate],
+      }),
+    );
+
+    expect(html).toContain("AgentChat.ui.websiteWikiComplete");
+    expect(html.split('data-slot="collapsible-content"')[0]).not.toContain("text-destructive");
+    expect(html).not.toContain("AgentChat.ui.activityError");
+    expect(expandedHtml).toContain("AgentChat.activity.state.web.read.error");
+    expect(expandedHtml.split('data-slot="collapsible-content"')[0]).not.toContain("text-destructive");
   });
 });

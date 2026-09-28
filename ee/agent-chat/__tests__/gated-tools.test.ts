@@ -9,11 +9,14 @@ vi.mock("next-intl/server", () => ({
 }));
 
 import { ALL_MCP_TOOLS, MCP_TOOL_GROUPS, MCP_ALWAYS_ON_TOOLS } from "@/features/mcp-tools/tool-registry";
+import { createWikiFromWebsiteTool } from "@/features/mcp-tools/wiki-website-setup-tool";
+import { importWebsiteTool } from "@/ee/wiki-crawl/wiki-import-tool";
 import { describeAgentTool } from "../agent-activity";
 import {
   AGENT_APPROVAL_POLICY_TOOL_NAMES,
   approvalFreeActionsForTool,
   readOnlyActionsForTool,
+  isReadOnlyAgentToolCall,
   isReadOnlyTool,
   requiresApproval,
   AGENT_DESTRUCTIVE_APPROVAL_FREE_TOOL_NAMES,
@@ -93,6 +96,12 @@ describe("gated-tools", () => {
     for (const tool of ALL_MCP_TOOLS) expect(isReadOnlyTool(tool)).toBe(tool.annotations?.readOnlyHint === true);
   });
 
+  it("counts toolset loading, web access and UI target listing as reads, and an unknown unannotated tool as a write", () => {
+    for (const name of ["load_toolset", "web_search", "read_public_page", "list_ui_targets"])
+      expect(isReadOnlyAgentToolCall(name, {}, { toolset: "messaging" })).toBe(true);
+    expect(isReadOnlyAgentToolCall("some_future_tool", {}, {})).toBe(false);
+  });
+
   it("fails closed: a tool outside the policy map always requires approval", () => {
     expect(approvalNeeded({ name: "some_future_tool" }, {})).toBe(true);
     expect(approvalNeeded({ name: "some_future_tool" }, { action: "list" })).toBe(true);
@@ -129,6 +138,17 @@ describe("gated-tools", () => {
       ["manage_webhooks", "resend_delivery"],
     ] as const)
       expect(approvalNeeded(toolByName(name), { action })).toBe(true);
+  });
+
+  it("runs the website Wiki setup create without approval under both registrations, with an accurate label", () => {
+    const setup = createWikiFromWebsiteTool("en");
+    const input = { action: "create", requireEmpty: true, pages: [] };
+
+    expect(setup.annotations).toMatchObject({ readOnlyHint: false, destructiveHint: false });
+    expect(approvalNeeded(setup, input)).toBe(false);
+    expect(requiresApproval(internalToolIdentity("manage_wiki_pages"), setup, input)).toBe(false);
+    for (const name of [setup.name, "manage_wiki_pages"])
+      expect(describeInternalTool(name, input)).toMatchObject({ kind: "records.create", risk: "write" });
   });
 
   it("lets ordinary CRM work run without approval", () => {
@@ -168,7 +188,9 @@ describe("gated-tools", () => {
   });
 
   it("keeps every policy key pointing at a real tool", () => {
-    const names = new Set(ALL_MCP_TOOLS.map((tool) => tool.name));
+    const names = new Set(
+      [...ALL_MCP_TOOLS, createWikiFromWebsiteTool("en"), importWebsiteTool("en")].map((tool) => tool.name),
+    );
     for (const name of AGENT_APPROVAL_POLICY_TOOL_NAMES) expect(names.has(name)).toBe(true);
   });
 
@@ -212,6 +234,7 @@ describe("gated-tools", () => {
       records: 17,
       workspace: 2,
       views: 1,
+      wiki: 1,
       messaging: 10,
       social: 8,
       docs: 2,

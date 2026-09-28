@@ -38,8 +38,9 @@ describe("toolset partition", () => {
     for (const toolset of AGENT_ON_DEMAND_TOOLSETS)
       for (const name of toolNamesOfToolset(toolset)) expect(onDemandToolsetOfTool(name)).toBe(toolset);
     for (const name of coreToolNames()) expect(onDemandToolsetOfTool(name)).toBeNull();
-    expect(coreToolNames().size).toBe(24);
+    expect(coreToolNames().size).toBe(25);
     expect(coreToolNames().has("get_activities")).toBe(true);
+    expect(coreToolNames().has("manage_wiki_pages")).toBe(true);
     expect(coreToolNames().has("manage_data_views")).toBe(false);
     expect(onDemandToolsetOfTool("manage_data_views")).toBe("views");
   });

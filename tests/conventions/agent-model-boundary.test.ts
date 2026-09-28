@@ -9,7 +9,7 @@ const MODEL_CALL_PATTERN =
   /\b(?:streamText|generateText|generateObject|streamObject|embed|embedMany)\s*\(|\bnew\s+(?:Agent|WorkflowAgent|ToolLoopAgent)\s*\(/;
 const PROVIDER_FACTORY_PATTERN =
   /\b(?:createOpenAI|createAnthropic|createGoogleGenerativeAI|createGateway|createProviderRegistry|customProvider|wrapProvider)\s*\(/;
-const APPROVED_MODEL_CALL_FILES = ["workflows/agent-turn.ts"];
+const APPROVED_MODEL_CALL_FILES = ["ee/wiki-retrieval/wiki-embedding-model.ts", "workflows/agent-turn.ts"];
 
 function productionTypeScriptFiles() {
   return walkFiles(REPO_ROOT, (path) => {
@@ -54,8 +54,28 @@ describe("agent model budget boundary", () => {
     const workflow = readFileSync(`${REPO_ROOT}/workflows/agent-turn.ts`, "utf8");
 
     expect(workflow).toContain("model: payload.turnBudget.modelSpec");
-    expect(workflow).toMatch(
-      /gateway:\s*\{\s*only: \[payload\.turnBudget\.servingProvider\],\s*\.\.\.\(payload\.turnBudget\.inferenceRegion\s*\? \{ inferenceRegion: \{ scope: "zone", geoRegion: payload\.turnBudget\.inferenceRegion \} \}\s*: \{\}\),\s*zeroDataRetention: true,\s*disallowPromptTraining: true,/,
-    );
+    expect(workflow).toMatch(/getAgentProviderOptions\(\s*payload\.turnBudget\.servingProvider,\s*payload\.turnBudget\.inferenceRegion,?\s*\)/);
+    const options = readFileSync(`${REPO_ROOT}/ee/agent-chat/agent-provider-options.ts`, "utf8");
+    expect(options).toContain("only: [servingProvider]");
+    expect(options).toContain('scope: "zone"');
+    expect(options).toContain("geoRegion: inferenceRegion");
+    expect(options).toContain("zeroDataRetention: true");
+    expect(options).toContain("disallowPromptTraining: true");
+    expect(options).toContain('caching: "auto"');
+    expect(options).toContain("parallelToolCalls: false");
+    expect(options).toContain("store: false");
+    expect(workflow).toContain("...googleThinkingProviderOptions(payload.turnBudget)");
+  });
+
+  it("meters every Wiki embedding call and pins it to one zero-retention serving provider", () => {
+    const embeddings = readFileSync(`${REPO_ROOT}/ee/wiki-retrieval/wiki-embedding-model.ts`, "utf8");
+    const service = readFileSync(`${REPO_ROOT}/ee/wiki-retrieval/wiki-embedding.service.ts`, "utf8");
+
+    expect(embeddings).toContain("only: [WIKI_EMBEDDING_SERVING_PROVIDER]");
+    expect(embeddings).toContain("zeroDataRetention: true");
+    expect(embeddings).toContain("disallowPromptTraining: true");
+    expect(embeddings).toContain("readAgentProviderCharge(metadata, WIKI_EMBEDDING_SERVING_PROVIDER)");
+    expect(service).toContain("this.usage.prepareRetrieval(payer.id)");
+    expect(service).toContain("await this.usage.accrueRetrieval(");
   });
 });

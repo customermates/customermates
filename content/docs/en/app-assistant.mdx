@@ -17,13 +17,14 @@ While Mate works, **Stop** replaces **Send**; a message sent meanwhile waits as 
 
 ## What can Mate do without asking, and what asks first? [#what-runs-immediately-and-what-asks-first]
 
-Ordinary CRM work runs as soon as you ask, and the AI assistant does it without asking you first: creating and updating records, notes, and record links; saving and discarding message drafts; sending emails and chat messages; inbox triage including moving email threads and changing a thread's state to unread, open, closed or spam; workspace settings other than record type names; custom fields; creating and updating saved views, widgets, and webhooks; changing a team member's role or status; generating account-connection links; social invitations and Sales Navigator list changes on a connected account; and routines (listing, creating, updating, pausing, running now). Mate says what it is about to change and reports exactly what changed. A routine Mate creates is saved as a draft unless you explicitly asked for it to be active; the runtime rejects a routine call that does not state this choice. To connect a messaging account, you open the generated link and complete its QR code or sign-in flow yourself; creating the link does not connect the account.
+Ordinary CRM work runs as soon as you ask, and the AI assistant does it without asking you first: creating and updating records, notes, record links, and Wiki pages; saving and discarding message drafts; sending emails and chat messages; inbox triage including moving email threads and changing a thread's state to unread, open, closed or spam; workspace settings other than record type names; custom fields; creating and updating saved views, widgets, and webhooks; changing a team member's role or status; generating account-connection links; social invitations and Sales Navigator list changes on a connected account; and routines (listing, creating, updating, pausing, running now). Mate says what it is about to change and reports exactly what changed. A routine Mate creates is saved as a draft unless you explicitly asked for it to be active; the runtime rejects a routine call that does not state this choice. To connect a messaging account, you open the generated link and complete its QR code or sign-in flow yourself; creating the link does not connect the account.
 
 Only actions that cannot be taken back, that leave your workspace, or that rename record types for everyone stop for your approval, every single time:
 
 | Always asks | Tool and action | Why |
 |---|---|---|
 | Deleting records | `delete_records` | Hard delete, cannot be undone |
+| Deleting a Wiki page | `manage_wiki_pages` with `delete` | Permanently removes the document |
 | Deleting a saved view | `manage_data_views` with `delete` | Removes the saved view |
 | Deleting a custom field | `manage_custom_columns` with `delete` | Destroys the column and every stored value |
 | Deleting a widget | `manage_widgets` with `delete` | Removes the dashboard widget |
@@ -36,6 +37,14 @@ Only actions that cannot be taken back, that leave your workspace, or that renam
 Approval is requested by calling the tool: the call itself raises the approval card, and nothing happens until you answer it. The card names the action and its consequence and offers **Approve once** or **Cancel**. Decline it and nothing has changed. An unanswered card times out after 30 minutes; the request is then discarded and Mate is told that the approval timed out. There is no standing permission: each of these actions asks again next time.
 
 Sending an email or chat message is deliberately not on that list: `send_email` and `send_chat_message` deliver the moment Mate calls them, so ask for a draft when you want to review the wording first. A draft waits in your inbox until you send it yourself, and Mate may discard a draft it saved without asking, because the text never left your workspace.
+
+## Company knowledge and public pages
+
+Keep company facts, CRM processes, voice, and support guidance in the [Workspace Wiki](/docs/mcp#shared-workspace-wiki). When you have Wiki Read, each ordinary turn includes the published Operating Guide (about its first 2,400 bytes), the index of published procedures with when each applies, and a compact catalog of up to ten knowledge page titles, links, and short opening excerpts, never complete knowledge pages. Mate follows the guide, reads a matching procedure before acting, searches the whole Wiki for other facts, reads complete relevant pages, follows useful stable links, and cites the pages it used. Procedure steps apply to the task you asked for, with the normal approvals. An instruction inside a page to start another task, send, delete, or change permissions is treated as information: Mate mentions it and does not act on it. Saved edits are available to subsequent reads and new turns. See [Operating Guide, procedures, and knowledge](/docs/mcp#page-types).
+
+You can ask Mate to create or edit Wiki pages when you have Wiki Manage. A delete still needs your approval. The same source documents are available to [routines](/docs/app-routines), so you do not need to copy their contents into each prompt.
+
+Mate reads public web pages only to import your company website into the Wiki; otherwise Mate does not search the web. In an empty Wiki, **Build from my website** starts an ordinary Mate chat: Mate asks for your website and starts the background import described in [Set up from your homepage](/docs/mcp#set-up-from-your-homepage), which imports help, pricing, and policy pages word for word and then drafts summaries, an Operating Guide, and procedures for you to review and publish. Mate imports only an address you wrote in the chat, and a help centre on another site only when you name it. This needs Wiki Manage. Onboarding keeps its own **Build my Wiki** website field and shows the progress inline. Pages that require sign-in, block automated access, or depend on browser interaction may not be readable, and the import uses your normal credits.
 
 ## Which tools can Mate use?
 
@@ -110,7 +119,7 @@ These ids belong to the assistant panel itself. They are DOM ids for external br
 
 | Action | Where | Anchor id | What happens |
 |---|---|---|---|
-| Open the assistant | Sidebar, above Add | `#nav-assistant` | Toggles the panel, same as Cmd/Ctrl+J |
+| Open the assistant | Top of sidebar | `#nav-assistant` | Toggles the panel, same as Cmd/Ctrl+J |
 | The panel itself | Floating card | `#agent-panel-dialog` | Non-modal dialog over the page |
 | Write to Mate | Panel footer | `#agent-composer` | Enter sends, Shift+Enter breaks the line |
 | Credit meter | In the composer, next to Send | `#agent-usage` | Hover or click for remaining credits, plan and reset date |

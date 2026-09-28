@@ -9,6 +9,7 @@ import {
   resolveAuthAllowedHosts,
   resolveBaseUrl,
   resolveDocsRerank,
+  resolveLocalAgentWebSearchOptIn,
   resolveOptionalBigInt,
   resolveRequestOrigin,
   resolveStrictBoolean,
@@ -309,7 +310,29 @@ describe("hosted-AI control configuration", () => {
 
     expect(template).toMatch(/^AGENT_DOCS_RERANK="off"$/m);
     expect(template).toMatch(/TypeSafe AI in the US/);
-    expect(template).toMatch(/Publish that disclosure in the privacy policy and subprocessor list first,\n# then set "jev"/);
+    expect(template).toMatch(
+      /Publish that disclosure in the privacy policy and subprocessor list first,\n# then set "jev"/,
+    );
+  });
+
+  it("honours the local web-search opt-in only in local development, never in CI, Preview or Production", () => {
+    const local = { NODE_ENV: "development", AGENT_WEB_SEARCH_LOCAL_OPT_IN: "true" };
+    expect(resolveLocalAgentWebSearchOptIn(local)).toBe(true);
+    expect(resolveLocalAgentWebSearchOptIn({ NODE_ENV: "development" })).toBe(false);
+    expect(resolveLocalAgentWebSearchOptIn({ ...local, AGENT_WEB_SEARCH_LOCAL_OPT_IN: "false" })).toBe(false);
+    const preview = { ...previewEnvironment, AGENT_WEB_SEARCH_LOCAL_OPT_IN: "true" };
+    expect(resolveLocalAgentWebSearchOptIn(preview)).toBe(false);
+    for (const override of [
+      { NODE_ENV: "production" },
+      { NODE_ENV: "test" },
+      { VERCEL: "1" },
+      { VERCEL_ENV: "development" },
+      { CI: "true" },
+    ])
+      expect(resolveLocalAgentWebSearchOptIn({ ...local, ...override })).toBe(false);
+    expect(() => resolveLocalAgentWebSearchOptIn({ ...local, AGENT_WEB_SEARCH_LOCAL_OPT_IN: "yes" })).toThrow(
+      /"true" or "false"/,
+    );
   });
 });
 

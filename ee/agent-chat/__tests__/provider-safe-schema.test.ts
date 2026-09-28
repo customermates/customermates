@@ -17,10 +17,16 @@ vi.mock("@/env", () => ({ env: { ...MOCK_ENV_MODULE.env, AGENT_ANALYSIS_TOOL_ENA
 vi.mock("@/core/di", () => createMockDiModule(() => mockUser));
 vi.mock("@/core/validation/zod-error-map-server", () => MOCK_ZOD_MODULE);
 vi.mock("@/prisma/db", () => MOCK_PRISMA_DB_MODULE);
-vi.mock("@sentry/nextjs", () => ({ captureException: vi.fn(), setTag: vi.fn(), setUser: vi.fn() }));
+vi.mock("@sentry/nextjs", () => ({
+  captureException: vi.fn(),
+  setTag: vi.fn(),
+  setUser: vi.fn(),
+}));
 vi.mock("next-intl/server", () => ({
   getTranslations: () => {
-    const translator = Object.assign((key: string) => key, { raw: (key: string) => `localized:${key}` });
+    const translator = Object.assign((key: string) => key, {
+      raw: (key: string) => `localized:${key}`,
+    });
     return Promise.resolve(translator);
   },
   getLocale: () => Promise.resolve("en"),
@@ -110,6 +116,32 @@ describe("provider-safe tool schemas", () => {
     expect(validate("3f7c1a54-9b2e-4c31-8f6a-2b5d7e9c1a04x")).toBe(false);
   });
 
+  it("sends no title that only restates its const value, but keeps the titles that name a union branch", () => {
+    const restating = shippedSchemas.flatMap(({ name, schema }) =>
+      collect(schema, (node) => node.const !== undefined && node.title === String(node.const)).map(
+        ({ path }) => `${name} ${path}`,
+      ),
+    );
+    expect(restating, restating.join("\n")).toEqual([]);
+
+    const constants = collect({ schemas: shippedSchemas }, (node) => node.const === "inLastDays");
+    expect(constants.length).toBeGreaterThan(0);
+    const branches = collect({ schemas: shippedSchemas }, (node) => node.title === "Relative window filter");
+    expect(branches.length).toBeGreaterThan(0);
+  });
+
+  it("leaves enum values out of a field description, because the field's enum already lists them", () => {
+    const restating = shippedSchemas.flatMap(({ name, schema }) =>
+      collect(schema, (node) => {
+        const items = node.items as JsonRecord | undefined;
+        const enumerated = Array.isArray(node.enum) || Array.isArray(items?.enum);
+        return enumerated && typeof node.description === "string" && node.description.includes("one of:");
+      }).map(({ path }) => `${name} ${path}`),
+    );
+
+    expect(restating, restating.join("\n")).toEqual([]);
+  });
+
   it("emits no format keyword anywhere, because that Ajv has no format support", () => {
     const offending = shippedSchemas.flatMap(({ name, schema }) =>
       collect(schema, (node) => typeof node.format === "string").map(({ path }) => `${name} ${path}`),
@@ -123,7 +155,10 @@ describe("provider-safe tool schemas", () => {
     const census = new Map<string, number>();
 
     for (const mcp of ALL_MCP_TOOLS) {
-      const withFormats = z.toJSONSchema(mcp.inputSchema as never, { io: "input", target: "draft-07" });
+      const withFormats = z.toJSONSchema(mcp.inputSchema as never, {
+        io: "input",
+        target: "draft-07",
+      });
       const formatted = collect(withFormats, (node) => typeof node.format === "string");
       if (formatted.length === 0) continue;
 
@@ -147,7 +182,10 @@ describe("provider-safe tool schemas", () => {
           false,
         );
 
-        const validate = new Ajv().compile({ type: "string", pattern: node?.pattern as string });
+        const validate = new Ajv().compile({
+          type: "string",
+          pattern: node?.pattern as string,
+        });
         if (format === "uuid") {
           expect(validate(uuid), `${mcp.name} ${path} rejects a real uuid`).toBe(true);
           expect(validate("not-a-uuid"), `${mcp.name} ${path} accepts garbage`).toBe(false);
@@ -163,7 +201,12 @@ describe("provider-safe tool schemas", () => {
       }
     }
 
-    expect(Object.fromEntries(census)).toEqual({ uuid: 85, "date-time": 3, email: 6, uri: 4 });
+    expect(Object.fromEntries(census)).toEqual({
+      uuid: 86,
+      "date-time": 3,
+      email: 6,
+      uri: 4,
+    });
   });
 
   it("still enforces the real constraint through the tool's own validator", async () => {
@@ -171,9 +214,19 @@ describe("provider-safe tool schemas", () => {
     const validateSendEmail = asSchema(tools.send_email.inputSchema as never).validate;
     expect(validateSendEmail).toBeDefined();
 
-    const base = { connectedAccountId: "3f7c1a54-9b2e-4c31-8f6a-2b5d7e9c1a04", subject: "Hi", body: "There" };
-    const good = await validateSendEmail?.({ ...base, to: [{ identifier: "ada@example.com" }] });
-    const bad = await validateSendEmail?.({ ...base, to: [{ identifier: "definitely not an address" }] });
+    const base = {
+      connectedAccountId: "3f7c1a54-9b2e-4c31-8f6a-2b5d7e9c1a04",
+      subject: "Hi",
+      body: "There",
+    };
+    const good = await validateSendEmail?.({
+      ...base,
+      to: [{ identifier: "ada@example.com" }],
+    });
+    const bad = await validateSendEmail?.({
+      ...base,
+      to: [{ identifier: "definitely not an address" }],
+    });
 
     expect(good?.success).toBe(true);
     expect(bad?.success).toBe(false);

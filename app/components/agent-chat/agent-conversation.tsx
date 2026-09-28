@@ -15,7 +15,7 @@ import { runUserAction } from "@/core/errors/report-application-error";
 
 import { ActionTooltip, chatUiCopy } from "./chat-ui";
 import { AgentActivity, AgentChatItemView, consecutiveActivityItems, isWorkingActivityGroup } from "./agent-chat-items";
-import { AgentInitialProgress } from "./agent-status-announcer";
+import { AgentInitialProgress, AgentProgressStatus } from "./agent-status-announcer";
 import { AgentComposerContexts } from "./agent-composer-contexts";
 import { AgentComposerTextInput } from "./agent-composer-text-input";
 import { AgentContextPicker } from "./agent-context-picker";
@@ -25,16 +25,22 @@ import { UsageRing } from "./usage-ring";
 import { useAgentChatStore, useAgentChatUiTargets } from "./agent-chat-store-context";
 
 export const AgentConversationLog = observer(function AgentConversationLog({
+  activityContext,
   readOnly = false,
+  renderLinksAsText = false,
   scrollContainerRef,
   scrollFooterRef,
   scrollable = true,
+  showProgressStatus = false,
   userLabel,
 }: {
+  activityContext?: "wikiHomepageSetup";
   readOnly?: boolean;
+  renderLinksAsText?: boolean;
   scrollContainerRef?: RefObject<HTMLElement | null>;
   scrollFooterRef?: RefObject<HTMLElement | null>;
   scrollable?: boolean;
+  showProgressStatus?: boolean;
   userLabel?: string;
 }) {
   const store = useAgentChatStore();
@@ -71,16 +77,23 @@ export const AgentConversationLog = observer(function AgentConversationLog({
 
               {item.kind === "activity" ? (
                 prev?.kind === "activity" ? null : (
-                  <ActivityGroup index={index} />
+                  <ActivityGroup activityContext={activityContext} index={index} />
                 )
               ) : (
-                <AgentChatItemView item={item} readOnly={readOnly} userLabel={userLabel} />
+                <AgentChatItemView
+                  item={item}
+                  readOnly={readOnly}
+                  renderLinksAsText={renderLinksAsText}
+                  userLabel={userLabel}
+                />
               )}
             </Fragment>
           );
         })}
 
         <AgentInitialProgress />
+
+        {showProgressStatus ? <AgentProgressStatus inline /> : null}
       </div>
     </MessagesScrollContainer>
   );
@@ -173,12 +186,19 @@ export const AgentComposer = observer(function AgentComposer() {
   );
 });
 
-const ActivityGroup = observer(function ActivityGroup({ index }: { index: number }) {
+const ActivityGroup = observer(function ActivityGroup({
+  activityContext,
+  index,
+}: {
+  activityContext?: "wikiHomepageSetup";
+  index: number;
+}) {
   const store = useAgentChatStore();
   const items = consecutiveActivityItems(store.items, index);
 
   return (
     <AgentActivity
+      activityContext={activityContext}
       isTrailing={index + items.length === store.items.length}
       isWorking={isWorkingActivityGroup(store.items, index, store.isWorking)}
       items={items}

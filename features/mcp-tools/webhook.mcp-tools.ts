@@ -3,7 +3,6 @@ import { z } from "zod";
 import {
   customMcpFailure,
   encodeToToon,
-  enumHint,
   fetchMcpPage,
   filtersDescription,
   formatDatesInResponse,
@@ -48,10 +47,7 @@ const ListWebhooksSchema = z.object({
 const CreateWebhookSchema = z.object({
   url: zx.secureUrl().describe("Endpoint that will receive event POST requests (https recommended)"),
   description: z.string().optional().describe("Human-readable note about what this webhook does"),
-  events: z
-    .array(WebhookEventSchema)
-    .min(1)
-    .describe(`Event types to subscribe to. Each value ${enumHint(WebhookEventSchema.options)}`),
+  events: z.array(WebhookEventSchema).min(1).describe("Event types to subscribe to."),
   secret: z.string().optional().describe("Shared secret used to sign outgoing requests"),
   headers: z
     .record(z.string(), z.string())
@@ -74,11 +70,7 @@ const UpdateWebhookSchema = z.object({
   id: z.uuid(),
   url: zx.secureUrl().optional(),
   description: z.string().optional(),
-  events: z
-    .array(WebhookEventSchema)
-    .min(1)
-    .optional()
-    .describe(`REPLACES the subscribed events. Each value ${enumHint(WebhookEventSchema.options)}`),
+  events: z.array(WebhookEventSchema).min(1).optional().describe("REPLACES the subscribed events."),
   secret: z
     .string()
     .nullable()
@@ -146,9 +138,7 @@ const ManageWebhooksSchema = z.object({
     .array(WebhookEventSchema)
     .min(1)
     .optional()
-    .describe(
-      `Required for create; on update REPLACES the subscribed events. Each value ${enumHint(WebhookEventSchema.options)}`,
-    ),
+    .describe("Required for create; on update REPLACES the subscribed events."),
   secret: z
     .string()
     .nullable()

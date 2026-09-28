@@ -73,12 +73,16 @@ const NOT_FOUND_FAILURE_CODES = new Set<CustomErrorCode>([
   CustomErrorCode.userNotFound,
   CustomErrorCode.webhookDeliveryNotFound,
   CustomErrorCode.webhookNotFound,
+  CustomErrorCode.wikiPageNotFound,
   CustomErrorCode.widgetNotFound,
 ]);
 const CONFLICT_FAILURE_CODES = new Set<CustomErrorCode>([
   CustomErrorCode.channelAlreadyLinked,
   CustomErrorCode.operatorConflict,
   CustomErrorCode.roleSystemImmutable,
+  CustomErrorCode.wikiGuideExists,
+  CustomErrorCode.wikiNotEmpty,
+  CustomErrorCode.wikiPageConflict,
 ]);
 const RATE_LIMIT_FAILURE_CODES = new Set<CustomErrorCode>([CustomErrorCode.unipileRateLimit]);
 const UNAVAILABLE_FAILURE_CODES = new Set<CustomErrorCode>([

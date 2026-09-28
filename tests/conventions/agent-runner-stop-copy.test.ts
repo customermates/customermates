@@ -22,10 +22,7 @@ describe("agent runner stop copy", () => {
   it("sets performedWrite only for a successful action classified as a mutation", () => {
     const workflow = read("workflows/agent-turn.ts");
     expect(workflow).toMatch(
-      /const activity = describeAgentTool\(internalToolIdentity\(shell\.name\), prepared\.input\);/,
-    );
-    expect(workflow).toMatch(
-      /if \(activity\.risk !== "read" && isSuccessfulToolOutcome\(outcome\)\) performedWrite = true;/,
+      /const readOnly = isReadOnlyAgentToolCall\(shell\.name, shell, prepared\.input\);[\s\S]*if \(!readOnly && isSuccessfulToolOutcome\(outcome\)\)\s*performedWrite = true;/,
     );
   });
 

@@ -177,6 +177,7 @@ model User {
   trialInactivationReminderSentAt DateTime?
   trialInactivationNoticeSentAt   DateTime?
   onboardingWizardCompletedAt     DateTime?
+  onboardingWikiStepCompletedAt   DateTime?
   agentCreditActivatedAt          DateTime?
   isPlatformOperator              Boolean                 @default(false)
   createdAt                       DateTime                @default(now())
@@ -266,6 +267,122 @@ model Company {
   agentUiCommandResults       AgentUiCommandResult[]
   routines                    Routine[]
   routineRuns                 RoutineRun[]
+  wikiPages                   WikiPage[]
+  wikiPageChunks              WikiPageChunk[]
+  wikiWebsiteCrawls           WikiWebsiteCrawl[]
+  wikiSourceDocuments         WikiSourceDocument[]
+}
+
+enum WikiPageKind {
+  guide
+  procedure
+  knowledge
+}
+
+model WikiPage {
+  id                     String                   @id @default(uuid())
+  companyId              String
+  title                  String
+  markdown               String
+  searchHeadings         String?                  @default(dbgenerated("wiki_search_headings(title, markdown)"))
+  searchVector           Unsupported("tsvector")? @default(dbgenerated("wiki_search_vector(title, markdown)"))
+  searchCompact          String?                  @default(dbgenerated("wiki_search_compact(title, markdown)"))
+  semanticIndexClaimedAt DateTime?
+  kind                   WikiPageKind             @default(knowledge)
+  whenToUse              String?
+  draft                  Boolean                  @default(false)
+  sourceUrl              String?
+  sourceFetchedAt        DateTime?
+  sourceContentHash      String?
+  createdAt              DateTime                 @default(now())
+  updatedAt              DateTime                 @updatedAt
+  company                Company                  @relation(fields: [companyId], references: [id], onDelete: Cascade)
+  chunks                 WikiPageChunk[]
+
+  @@index([companyId, createdAt, id])
+  @@index([companyId, kind, title])
+  @@index([searchVector], type: Gin)
+  @@index([searchCompact(ops: raw("gin_trgm_ops"))], type: Gin)
+}
+
+enum WikiWebsiteCrawlStatus {
+  queued
+  discovering
+  fetching
+  importing
+  synthesizing
+  completed
+  failed
+  blocked
+}
+
+model WikiWebsiteCrawl {
+  id                String                 @id @default(uuid())
+  companyId         String
+  userId            String
+  clientRequestId   String                 @unique
+  homepageUrl       String
+  registrableDomain String
+  locale            String
+  mode              String                 @default("initial")
+  status            WikiWebsiteCrawlStatus @default(queued)
+  extraHosts        String[]
+  pendingHosts      String[]
+  targets           Json?
+  crawlDelayMs      Int                    @default(0)
+  discovered        Int                    @default(0)
+  fetched           Int                    @default(0)
+  failed            Int                    @default(0)
+  importedPages     Int                    @default(0)
+  conversationId    String?
+  failureReason     String?
+  startedAt         DateTime               @default(now())
+  finishedAt        DateTime?
+  updatedAt         DateTime               @updatedAt
+  company           Company                @relation(fields: [companyId], references: [id], onDelete: Cascade)
+  sources           WikiSourceDocument[]
+
+  @@index([companyId, startedAt])
+}
+
+model WikiSourceDocument {
+  id           String           @id @default(uuid())
+  crawlId      String
+  companyId    String
+  url          String
+  canonicalUrl String
+  category     String
+  title        String
+  text         String
+  qaPairs      Json?
+  contentHash  String
+  fetchedAt    DateTime         @default(now())
+  readAt          DateTime?
+  importClaimedAt DateTime?
+  crawl        WikiWebsiteCrawl @relation(fields: [crawlId], references: [id], onDelete: Cascade)
+  company      Company          @relation(fields: [companyId], references: [id], onDelete: Cascade)
+
+  @@unique([crawlId, canonicalUrl])
+  @@index([companyId, crawlId])
+}
+
+model WikiPageChunk {
+  id            String                      @id @default(uuid())
+  companyId     String
+  pageId        String
+  ordinal       Int
+  offset        Int
+  section       String?
+  contentHash   String
+  model         String
+  pageUpdatedAt DateTime
+  embedding     Unsupported("vector(768)")?
+  createdAt     DateTime                    @default(now())
+  company       Company                     @relation(fields: [companyId], references: [id], onDelete: Cascade)
+  page          WikiPage                    @relation(fields: [pageId], references: [id], onDelete: Cascade)
+
+  @@unique([pageId, ordinal])
+  @@index([companyId, pageId])
 }
 
 model EntityTerminology {
@@ -282,26 +399,26 @@ model EntityTerminology {
 }
 
 model P13n {
-  id                 String   @id @default(uuid())
-  userId             String
-  companyId          String
-  p13nId             String
-  filters            Json?
-  searchTerm         String?
-  sortDescriptor     Json?
-  pagination         Json?
-  columnOrder        String[]
-  columnWidths       Json?
-  hiddenColumns      String[]
-  viewMode           String?  @default("table")
-  groupingColumnId   String?
-  grouping           Json?
-  detailOptions      Json?
-  activeViewKey      String?
-  createdAt          DateTime @default(now())
-  updatedAt          DateTime @updatedAt
-  user               User     @relation(fields: [userId], references: [id], onDelete: Cascade)
-  company            Company  @relation(fields: [companyId], references: [id], onDelete: Cascade)
+  id               String   @id @default(uuid())
+  userId           String
+  companyId        String
+  p13nId           String
+  filters          Json?
+  searchTerm       String?
+  sortDescriptor   Json?
+  pagination       Json?
+  columnOrder      String[]
+  columnWidths     Json?
+  hiddenColumns    String[]
+  viewMode         String?  @default("table")
+  groupingColumnId String?
+  grouping         Json?
+  detailOptions    Json?
+  activeViewKey    String?
+  createdAt        DateTime @default(now())
+  updatedAt        DateTime @updatedAt
+  user             User     @relation(fields: [userId], references: [id], onDelete: Cascade)
+  company          Company  @relation(fields: [companyId], references: [id], onDelete: Cascade)
 
   @@unique([companyId, userId, p13nId])
   @@index([companyId])
@@ -957,6 +1074,7 @@ enum Resource {
   api
   auditLog
   inboxMessages
+  wiki
   routines
 }
 
@@ -1781,13 +1899,21 @@ model AgentUsageEvent {
   periodEnd                  DateTime
   providerStartedAt          DateTime?
   settledAt                  DateTime?
+  purpose                    AgentUsagePurpose    @default(turn)
+  accrualMonth               DateTime?
   createdAt                  DateTime             @default(now())
 
+  @@unique([companyId, userId, periodStart, periodEnd, purpose, accrualMonth], map: "AgentUsageEvent_retrieval_accrual_key")
   @@index([userId, createdAt])
   @@index([companyId, createdAt])
   @@index([companyId, userId, periodStart, periodEnd, state])
   @@index([state, settledAt, createdAt])
   @@index([turnRequestId])
+}
+
+enum AgentUsagePurpose {
+  turn
+  wikiRetrieval
 }
 
 enum AgentUsageCostSource {
@@ -1811,6 +1937,7 @@ model AgentTurnRequest {
   clientRequestId         String
   text                    String
   pageRoute               String?
+  wikiHomepageSetupUrl    String?
   status                  AgentTurnStatus
   runId                   String
   externalRunId           String?
@@ -1993,28 +2120,28 @@ enum RoutineRunStatus {
 }
 
 model Routine {
-  id                   String               @id @default(uuid())
-  companyId            String
-  ownerUserId          String?
-  name                 String
-  prompt               String
-  enabled              Boolean              @default(true)
-  triggerKind          RoutineTriggerKind
-  cronExpression       String?
-  timezone             String?
-  triggerEvents        String[]
-  changedFields        String[]
-  triggerFilters       Json                 @default("[]")
-  debounceSeconds      Int                  @default(300)
-  nextRunAt            DateTime?
-  lastRunAt            DateTime?
-  lastRunStatus        RoutineRunStatus?
-  disabledReason       String?
-  createdAt            DateTime             @default(now())
-  updatedAt            DateTime             @updatedAt
-  company              Company              @relation(fields: [companyId], references: [id], onDelete: Cascade)
-  owner                User?                @relation(fields: [ownerUserId], references: [id], onDelete: SetNull)
-  runs                 RoutineRun[]
+  id              String             @id @default(uuid())
+  companyId       String
+  ownerUserId     String?
+  name            String
+  prompt          String
+  enabled         Boolean            @default(true)
+  triggerKind     RoutineTriggerKind
+  cronExpression  String?
+  timezone        String?
+  triggerEvents   String[]
+  changedFields   String[]
+  triggerFilters  Json               @default("[]")
+  debounceSeconds Int                @default(300)
+  nextRunAt       DateTime?
+  lastRunAt       DateTime?
+  lastRunStatus   RoutineRunStatus?
+  disabledReason  String?
+  createdAt       DateTime           @default(now())
+  updatedAt       DateTime           @updatedAt
+  company         Company            @relation(fields: [companyId], references: [id], onDelete: Cascade)
+  owner           User?              @relation(fields: [ownerUserId], references: [id], onDelete: SetNull)
+  runs            RoutineRun[]
 
   @@index([companyId])
   @@index([companyId, enabled])

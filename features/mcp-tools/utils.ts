@@ -253,10 +253,6 @@ export const filtersDescription = (filterableFields: string) =>
 export const sortDescription = (sortableFields: string) =>
   `Sort by one field: { field, direction: "asc" | "desc" }. Sortable fields: ${sortableFields}.`;
 
-export function enumHint(values: readonly string[]): string {
-  return `(one of: ${values.join(", ")})`;
-}
-
 export function forbidNullFields<T extends z.ZodObject<z.ZodRawShape>>(schema: T, fields: readonly string[]) {
   return schema.superRefine((value, ctx) => {
     if (!value || typeof value !== "object") return;

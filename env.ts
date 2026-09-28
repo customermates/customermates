@@ -4,6 +4,7 @@ import {
   resolveAuthAllowedHosts,
   resolveBaseUrl,
   resolveDocsRerank,
+  resolveLocalAgentWebSearchOptIn,
   resolveOptionalBigInt,
   resolveStrictBoolean,
 } from "@/core/config/environment";
@@ -34,6 +35,7 @@ export const env = {
     : true,
   AGENT_DOCS_RERANK: resolveDocsRerank(process.env.AGENT_DOCS_RERANK),
   AI_GATEWAY_API_KEY: process.env.AI_GATEWAY_API_KEY,
+  AGENT_WEB_SEARCH_LOCAL_OPT_IN: resolveLocalAgentWebSearchOptIn(process.env),
   HOSTED_AI_OPERATOR_CONTROLS_ENABLED: resolveStrictBoolean(
     "HOSTED_AI_OPERATOR_CONTROLS_ENABLED",
     process.env.HOSTED_AI_OPERATOR_CONTROLS_ENABLED,

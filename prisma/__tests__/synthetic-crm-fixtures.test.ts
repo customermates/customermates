@@ -46,7 +46,7 @@ const SYNTHETIC_FIXTURE_COUNTS = {
   p13n: 15,
   services: 43,
   tasks: 15,
-  rolePermissions: 46,
+  rolePermissions: 48,
   roles: 3,
   users: 3,
   webhookDeliveries: 14,
@@ -197,9 +197,9 @@ describe("canonical synthetic CRM fixture contract", () => {
       id: SEED_IDS.role,
       permissions: [],
     });
-    expect(SYNTHETIC_ROLE_DEFINITIONS[1]?.permissions).toHaveLength(29);
-    expect(SYNTHETIC_ROLE_DEFINITIONS[2]?.permissions).toHaveLength(22);
-    expect(SYNTHETIC_ROLE_PERMISSION_COUNT).toBe(51);
+    expect(SYNTHETIC_ROLE_DEFINITIONS[1]?.permissions).toHaveLength(30);
+    expect(SYNTHETIC_ROLE_DEFINITIONS[2]?.permissions).toHaveLength(23);
+    expect(SYNTHETIC_ROLE_PERMISSION_COUNT).toBe(53);
 
     const permissions = SYNTHETIC_ROLE_DEFINITIONS.flatMap(({ permissions }) => permissions);
     expect(new Set(permissions.map(({ id }) => id))).toHaveLength(permissions.length);
@@ -413,7 +413,7 @@ Loop in legal team
       deals: 10,
       organizations: 19,
       p13n: 15,
-      rolePermissions: 46,
+      rolePermissions: 48,
       roles: 3,
       services: 43,
       tasks: 15,

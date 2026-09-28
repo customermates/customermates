@@ -21,6 +21,8 @@ type AgentPageCapabilities = {
   terminology?: AgentPageTerminology;
 };
 
+export const WIKI_WEBSITE_SETUP_ACTION_ID = "first-wiki-page";
+
 const PAGE_ACTION_IDS: Record<SupportedPage, Record<PageState, readonly string[]>> = {
   dashboard: {
     empty: ["setup", "tour", "capabilities"],
@@ -49,6 +51,10 @@ const PAGE_ACTION_IDS: Record<SupportedPage, Record<PageState, readonly string[]
   routines: {
     empty: ["first-routine", "routine-ideas", "routines-tour"],
     data: ["routine-health", "create-routine", "routines-tour-data"],
+  },
+  wiki: {
+    empty: ["first-wiki-page", "wiki-structure", "wiki-tour"],
+    data: ["wiki-summary", "create-wiki-page", "wiki-gaps"],
   },
   inbox: {
     empty: ["inbox-connect-email", "inbox-connect-whatsapp", "inbox-explain"],
@@ -169,7 +175,7 @@ export function agentPageActions(
   capabilities: AgentPageCapabilities = {},
 ): AgentPageAction[] {
   const readOnly = readOnlyAgentPageActions(page, t);
-  const writeGated = isEntityPage(page) || page === "dashboard" || page === "routines";
+  const writeGated = isEntityPage(page) || page === "dashboard" || page === "routines" || page === "wiki";
   let actions: AgentPageAction[];
 
   if (writeGated && capabilities.canCreate === false) actions = readOnly;

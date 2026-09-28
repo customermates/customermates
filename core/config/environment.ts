@@ -63,6 +63,11 @@ export function resolveDocsRerank(value: string | undefined): DocsRerankSetting 
   throw new Error('AGENT_DOCS_RERANK must be configured as "off" or "jev"');
 }
 
+export function resolveLocalAgentWebSearchOptIn(source: Environment): boolean {
+  const optedIn = resolveStrictBoolean("AGENT_WEB_SEARCH_LOCAL_OPT_IN", source.AGENT_WEB_SEARCH_LOCAL_OPT_IN);
+  return optedIn && source.NODE_ENV === "development" && !source.VERCEL && !source.VERCEL_ENV && !source.CI;
+}
+
 export function resolveOptionalBigInt(name: string, value: string | undefined): bigint | null {
   const normalized = value?.trim();
   if (!normalized) return null;

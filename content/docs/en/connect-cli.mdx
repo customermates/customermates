@@ -72,7 +72,7 @@ Then restart: fully quit (⌘Q on macOS, not just close the window) and reopen. 
 
 ## Try your first prompt
 
-The server briefs your agent at connect, so it already knows the tool surface and the safety rules. In clients that support MCP prompts (like Claude Code), you can run the built-in `get-started` prompt for a guided kickoff: it interviews you, then summarizes your workspace.
+The server provides connection instructions describing its tool surface, safety rules, and how to retrieve relevant Workspace Wiki pages. Clients decide whether to pass those instructions to their agent. If yours does not, add the Wiki retrieval rule to that client's persistent instructions. In clients that support MCP prompts (like Claude Code), you can run the built-in `get-started` prompt for a guided kickoff: it interviews you, then summarizes your workspace.
 
 - *"Set the Acme deal's Status column to 'Won' and add a note that the contract was signed today."*
 - *"Pull the last ten contacts I created. Any without an email address?"*

@@ -16,6 +16,7 @@ export type AgentTurnRequestSnapshot = {
   clientRequestId: string;
   text: string;
   pageRoute: string | null;
+  wikiHomepageSetupUrl?: string | null;
   status: AgentTurnRequestStatus;
   runId: string;
   attemptCount: number;
@@ -33,8 +34,16 @@ export type AgentTurnRequestInput = {
   conversationId?: string;
   text: string;
   pageRoute: string | null;
+  wikiHomepageSetupUrl?: string;
   retry: boolean;
 };
+
+export class WikiHomepageSetupAlreadyRunningError extends Error {
+  constructor() {
+    super("A Workspace Wiki homepage setup is already running.");
+    this.name = "WikiHomepageSetupAlreadyRunningError";
+  }
+}
 
 export type AgentTurnAdmissionDecision =
   | { disposition: "new" }
@@ -51,6 +60,7 @@ function sameRequest(turn: AgentTurnRequestSnapshot, input: AgentTurnRequestInpu
     turn.clientRequestId === input.clientRequestId &&
     turn.text === input.text &&
     turn.pageRoute === input.pageRoute &&
+    (input.wikiHomepageSetupUrl === undefined || turn.wikiHomepageSetupUrl === input.wikiHomepageSetupUrl) &&
     (!input.conversationId || turn.conversationId === input.conversationId)
   );
 }

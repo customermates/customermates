@@ -13,12 +13,10 @@ import { MIN_ROUTINE_INTERVAL_MINUTES } from "@/ee/routines/routine-schedule";
 import {
   ROUTINE_NAME_MAX_CHARS,
   ROUTINE_PROMPT_MAX_CHARS,
-  ROUTINE_TRIGGER_EVENTS,
   RoutineTriggerEventSchema,
 } from "@/ee/routines/routine.schema";
 
 import {
-  enumHint,
   fetchMcpPage,
   MCP_PAGE_SIZE_DESCRIPTION,
   mcpPage,
@@ -62,9 +60,7 @@ const ManageRoutinesSchema = z.object({
   triggerEvents: z
     .array(RoutineTriggerEventSchema)
     .optional()
-    .describe(
-      `Events an event routine reacts to ${enumHint([...ROUTINE_TRIGGER_EVENTS])}. Required for triggerKind event.`,
-    ),
+    .describe("Events an event routine reacts to. Required for triggerKind event."),
   changedFields: z
     .array(z.string())
     .optional()

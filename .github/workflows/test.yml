@@ -51,7 +51,7 @@ jobs:
       RUN_DATABASE_TESTS: "true"
     services:
       postgres:
-        image: postgres:17-alpine
+        image: pgvector/pgvector:0.8.1-pg17-bookworm
         env:
           POSTGRES_DB: customermates_test
           POSTGRES_PASSWORD: postgres

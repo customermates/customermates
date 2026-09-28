@@ -2,9 +2,16 @@ import { z } from "zod";
 import { SurfaceKeySchema, ViewKeySchema } from "@/core/data-view/data-view-identity.schema";
 import { dataViewNavigationHref } from "@/core/data-view/data-view-links";
 
+import { parsePublicPageUrl } from "@/features/wiki/wiki-homepage";
+
 import { approvalFreeActionsForTool, isApprovalRelevantValue, readOnlyActionsForTool } from "./gated-tools";
 import type { AgentToolIdentity } from "./tool-identity";
-import { internalToolIdentity, isInternalToolIdentity } from "./tool-identity";
+import {
+  internalToolIdentity,
+  isInternalToolIdentity,
+  WIKI_WEBSITE_CREATE_TOOL_NAME,
+  WIKI_WEBSITE_IMPORT_TOOL_NAME,
+} from "./tool-identity";
 
 import { sanitizeAgentPlainText } from "./agent-output-safety";
 import { ANALYZE_RECORDS_TOOL_NAME, LOAD_TOOLSET_TOOL_NAME } from "./agent-toolset-routing";
@@ -38,6 +45,8 @@ export const AGENT_ACTIVITY_KINDS = [
   "widgets.configure",
   "docs.search",
   "docs.read",
+  "web.search",
+  "web.read",
   "records.read",
   "records.analyze",
   "records.create",
@@ -79,6 +88,7 @@ export const AGENT_ACTIVITY_RESOURCES = [
   "widgets",
   "terminology",
   "messages",
+  "wiki",
 ] as const;
 
 export type AgentActivityResource = (typeof AGENT_ACTIVITY_RESOURCES)[number];
@@ -140,13 +150,31 @@ export const AgentActivityDescriptorSchema = z.preprocess(
       affectedResources: z.array(z.enum(AGENT_ACTIVITY_RESOURCES)).max(8),
       risk: z.enum(["read", "write", "sensitive"]),
       count: z.number().int().min(1).max(100).optional(),
+      sourceDomain: z
+        .string()
+        .max(253)
+        .refine((value) => parsePublicPageUrl(`https://${value}`)?.registrableDomain === value)
+        .optional(),
+      sourcePage: z.string().max(500).optional(),
       consequence: AgentActivityConsequenceSchema.optional(),
       viewSurfaceKey: SurfaceKeySchema.optional(),
       viewAction: ViewMutationActionSchema.optional(),
       viewKey: ViewKeySchema.optional(),
       viewHref: DataViewNavigationHrefSchema.optional(),
     })
-    .refine((descriptor) => !descriptor.viewHref || descriptor.kind === "views.configure"),
+    .refine((descriptor) => !descriptor.viewHref || descriptor.kind === "views.configure")
+    .superRefine((activity, context) => {
+      if (!activity.sourcePage) return;
+      const parsed = parsePublicPageUrl(`https://${activity.sourcePage}`);
+      if (
+        activity.kind !== "web.read" ||
+        !activity.sourceDomain ||
+        !parsed ||
+        parsed.registrableDomain !== activity.sourceDomain ||
+        publicPageLabel(parsed.url) !== activity.sourcePage
+      )
+        context.addIssue({ code: "custom", message: "Use a canonical public page label.", path: ["sourcePage"] });
+    }),
 );
 
 export type AgentActivityDescriptor = z.infer<typeof AgentActivityDescriptorSchema>;
@@ -236,6 +264,13 @@ function actionValue(input: Record<string, unknown>) {
   return typeof input.action === "string" ? input.action : undefined;
 }
 
+function publicPageLabel(url: string) {
+  const parsed = new URL(url);
+  const hostname = parsed.hostname.replace(/^www\./, "");
+  const label = `${hostname}${parsed.pathname}`;
+  return label.length <= 500 ? label : undefined;
+}
+
 function isMultiplexedRead(toolName: string, details: Record<string, unknown>): boolean {
   const action = actionValue(details);
   return Boolean(action && readOnlyActionsForTool(internalToolIdentity(toolName))?.includes(action));
@@ -273,6 +308,44 @@ export function describeAgentTool(identity: AgentToolIdentity, input: unknown): 
     return descriptor("interface.navigate", undefined, "read");
   if (toolName === "configure_view") return descriptor("interface.interact", undefined, "read");
   if (toolName === "start_tour") return descriptor("interface.tour", undefined, "read");
+  if (toolName === "web_search") return descriptor("web.search", undefined, "read");
+  if (toolName === "read_public_page") {
+    const parsed = typeof details.url === "string" ? parsePublicPageUrl(details.url) : null;
+    const sourceDomain = parsed?.registrableDomain;
+    const sourcePage = parsed ? publicPageLabel(parsed.url) : undefined;
+    return {
+      ...descriptor("web.read", undefined, "read"),
+      ...(sourceDomain ? { sourceDomain } : {}),
+      ...(sourcePage ? { sourcePage } : {}),
+    };
+  }
+  if (toolName === WIKI_WEBSITE_IMPORT_TOOL_NAME) return descriptor("records.create", "wiki", "write");
+  if (toolName === WIKI_WEBSITE_CREATE_TOOL_NAME) {
+    const count = boundedCount(details.pages);
+    return { ...descriptor("records.create", "wiki", "write"), ...(count ? { count } : {}) };
+  }
+  if (toolName === "manage_wiki_pages") {
+    const action = actionValue(details);
+    if (isMultiplexedRead(toolName, details)) return descriptor("records.read", "wiki", "read");
+    if (action === "create") {
+      const count = boundedCount(details.pages);
+      return {
+        ...descriptor("records.create", "wiki", "write"),
+        ...(count ? { count } : {}),
+      };
+    }
+    if (action === "update") return { ...descriptor("records.update", "wiki", "write"), count: 1 };
+    if (action === "delete") {
+      return {
+        ...descriptor("records.delete", "wiki", "sensitive", ["wiki"], {
+          action: "records.delete",
+          count: 1,
+        }),
+        count: 1,
+      };
+    }
+    return descriptor("workspace.configure", "wiki", multiplexedRisk(toolName, details));
+  }
   if (toolName === "request_support") {
     return descriptor("support.escalate", undefined, "sensitive", [], {
       action: "support.request",
@@ -537,6 +610,7 @@ export const AGENT_APPROVAL_COPY_KINDS: readonly AgentActivityKind[] = [
   "views.delete",
   "workspace.settings",
   "workspace.terminology",
+  "workspace.configure",
 ];
 
 function countedResourceCopy(
@@ -680,6 +754,13 @@ function agentConsequenceDetail(
   }
 }
 
+function webReadTarget({ sourceDomain, sourcePage }: AgentActivityDescriptor, t: AgentTranslator): string {
+  if (!sourcePage) return sourceDomain ?? t("AgentChat.activity.defaultWebsitePage");
+  if (!sourceDomain || !sourcePage.startsWith(`${sourceDomain}/`)) return sourcePage;
+  const path = sourcePage.slice(sourceDomain.length);
+  return path === "/" ? t("AgentChat.activity.homepage") : path;
+}
+
 export function agentActivityCopy(
   activity: AgentActivityDescriptor,
   t: AgentTranslator,
@@ -690,6 +771,7 @@ export function agentActivityCopy(
     : undefined;
   const hasCustomTerminology = Boolean(activity.resource && terminology[activity.resource]);
   const mutationTarget = countedResourceCopy(activity.count, activity.resource, t, resource, hasCustomTerminology);
+  const target = activity.kind === "web.read" ? webReadTarget(activity, t) : mutationTarget;
   const detail =
     agentConsequenceDetail(activity, t, resource, hasCustomTerminology) ??
     (resource ? resource.charAt(0).toUpperCase() + resource.slice(1) : undefined);
@@ -697,7 +779,7 @@ export function agentActivityCopy(
     t(`AgentChat.activity.state.${activity.kind}.${name}`, {
       count: activity.count ?? 0,
       resource: resource ?? t("AgentChat.activity.yourRecords"),
-      target: mutationTarget,
+      target,
     });
 
   const approval = AGENT_APPROVAL_COPY_KINDS.includes(activity.kind)

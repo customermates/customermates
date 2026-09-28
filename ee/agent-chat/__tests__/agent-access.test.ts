@@ -42,6 +42,7 @@ vi.mock("next/headers", () => ({
 import { GetAgentConversationInteractor } from "../get-agent-conversation.interactor";
 import { RespondToUiCommandInteractor } from "../respond-to-ui-command.interactor";
 import { SendAgentMessageInteractor } from "../send-agent-message.interactor";
+import { WikiHomepageSetupAlreadyRunningError } from "../agent-turn-request";
 import { agentUiCommandHookToken } from "../agent-ui-command";
 
 const CONVERSATION_ID = "00000000-0000-4000-8000-000000000001";
@@ -49,7 +50,7 @@ const MESSAGE_ID = "00000000-0000-4000-8000-000000000002";
 const CLIENT_REQUEST_ID = "00000000-0000-4000-8000-000000000003";
 const messagePage = (messages: unknown[]) => ({ messages, nextCursor: null });
 
-function usageService() {
+function usageService(webSearchEnabled = true) {
   const summary = {
     creditsUsed: 0,
     creditsRemaining: 500,
@@ -76,6 +77,7 @@ function usageService() {
           maxOutputTokens: 2048,
           maxContextBytes: 200_000,
           maxToolResultChars: 6_000,
+          webSearchEnabled,
         },
       },
     }),
@@ -83,6 +85,23 @@ function usageService() {
     releaseReservation: vi.fn().mockResolvedValue(undefined),
   };
 }
+
+const emptyWikiCatalog = () => ({
+  invoke: vi.fn().mockResolvedValue({
+    ok: true,
+    data: {
+      items: [],
+      total: 0,
+      page: 1,
+      nextPage: null,
+      truncated: false,
+    },
+  }),
+});
+
+const emptyCustomColumns = () => ({
+  getCustomColumns: () => Promise.resolve([]),
+});
 
 const backgroundTasks = () => ({
   dispatch: vi.fn().mockResolvedValue(undefined),
@@ -129,7 +148,8 @@ describe("agent access", () => {
       usage as never,
       entitlements as never,
       backgroundTasks() as never,
-      { getCustomColumns: () => Promise.resolve([]) } as never,
+      emptyCustomColumns(),
+      emptyWikiCatalog(),
     ).invoke({
       clientRequestId: CLIENT_REQUEST_ID,
       text: "hello",
@@ -211,7 +231,8 @@ describe("agent access", () => {
       usage as never,
       mockEntitlementService(),
       background as never,
-      { getCustomColumns: () => Promise.resolve([]) } as never,
+      emptyCustomColumns(),
+      emptyWikiCatalog(),
     ).invoke({
       clientRequestId: CLIENT_REQUEST_ID,
       text: currentText,
@@ -252,7 +273,10 @@ describe("agent access", () => {
       }),
     );
     expect(repo.claimAgentRunLease).toHaveBeenCalledWith(
-      expect.objectContaining({ conversationId: expect.any(String), runId: expect.any(String) }),
+      expect.objectContaining({
+        conversationId: expect.any(String),
+        runId: expect.any(String),
+      }),
     );
     expect(repo.claimAgentRunLease).toHaveBeenCalledBefore(usage.reserveUsage);
     expect(usage.reserveUsage).toHaveBeenCalledBefore(repo.admitAgentTurnOrThrow);
@@ -294,7 +318,8 @@ describe("agent access", () => {
       usage as never,
       mockEntitlementService(),
       backgroundTasks() as never,
-      { getCustomColumns: () => Promise.resolve([]) } as never,
+      emptyCustomColumns(),
+      emptyWikiCatalog(),
     ).invoke({
       clientRequestId: CLIENT_REQUEST_ID,
       text: "hello",
@@ -308,6 +333,41 @@ describe("agent access", () => {
 
     expect(repo.findAgentTurnRequestForAdmission).toHaveBeenCalledBefore(usage.prepareTurn);
     expect(repo.claimAgentRunLease).not.toHaveBeenCalled();
+  });
+
+  it("rejects homepage setup before persistence when the canonical URL is missing", async () => {
+    const repo = {
+      normalizeExpiredAgentRunLease: vi.fn().mockResolvedValue(undefined),
+      findAgentTurnRequestForAdmission: vi.fn().mockResolvedValue(null),
+      claimAgentRunLease: vi.fn(),
+      isAtAgentRunLimit: vi.fn().mockResolvedValue(false),
+      createAgentConversationForRun: vi.fn(),
+      deleteUnusedAgentConversation: vi.fn(),
+      recordAgentTurnExternalRun: vi.fn().mockResolvedValue(undefined),
+    };
+    const usage = usageService(false);
+
+    const result = await new SendAgentMessageInteractor(
+      repo as never,
+      usage as never,
+      mockEntitlementService(),
+      backgroundTasks() as never,
+      emptyCustomColumns(),
+      emptyWikiCatalog(),
+    ).invoke({
+      clientRequestId: CLIENT_REQUEST_ID,
+      text: "Set up the Workspace Wiki from localhost.",
+      wikiHomepageSetupUrl: "https://localhost/",
+      retry: false,
+    });
+
+    expect(result).toMatchObject({
+      ok: false,
+      error: { issues: [{ params: { error: "invalidUrl" } }] },
+    });
+    expect(usage.prepareTurn).not.toHaveBeenCalled();
+    expect(repo.claimAgentRunLease).not.toHaveBeenCalled();
+    expect(repo.createAgentConversationForRun).not.toHaveBeenCalled();
   });
 
   it("continues only an explicitly owned conversation and never silently switches chats", async () => {
@@ -341,7 +401,8 @@ describe("agent access", () => {
       usageService() as never,
       mockEntitlementService(),
       backgroundTasks() as never,
-      { getCustomColumns: () => Promise.resolve([]) } as never,
+      emptyCustomColumns(),
+      emptyWikiCatalog(),
     ).invoke({
       clientRequestId: CLIENT_REQUEST_ID,
       conversationId: CONVERSATION_ID,
@@ -394,7 +455,8 @@ describe("agent access", () => {
         usage as never,
         mockEntitlementService(),
         background as never,
-        { getCustomColumns: () => Promise.resolve([]) } as never,
+        emptyCustomColumns(),
+        emptyWikiCatalog(),
       ).invokeRoutine({
         clientRequestId: CLIENT_REQUEST_ID,
         conversationId: CONVERSATION_ID,
@@ -418,7 +480,10 @@ describe("agent access", () => {
     );
     expect(background.dispatchTracked).toHaveBeenCalledWith(
       "agent-turn",
-      expect.objectContaining({ surface: "routine", conversationId: CONVERSATION_ID }),
+      expect.objectContaining({
+        surface: "routine",
+        conversationId: CONVERSATION_ID,
+      }),
     );
   });
 
@@ -463,6 +528,7 @@ describe("agent access", () => {
             mockEntitlementService(),
             background as never,
             { getCustomColumns: () => Promise.resolve([]) } as never,
+            emptyWikiCatalog(),
           ).invokeRoutine({
             clientRequestId: CLIENT_REQUEST_ID,
             conversationId: CONVERSATION_ID,
@@ -486,9 +552,12 @@ describe("agent access", () => {
       findAgentTurnRequestForAdmission: vi.fn().mockResolvedValue(null),
       claimAgentRunLease: vi.fn().mockResolvedValue("atUserLimit"),
       isAtAgentRunLimit: vi.fn().mockResolvedValue(true),
-      findConversation: vi
-        .fn()
-        .mockResolvedValue({ id: CONVERSATION_ID, origin: "routine", modelKey: null, creditCeiling: 10 }),
+      findConversation: vi.fn().mockResolvedValue({
+        id: CONVERSATION_ID,
+        origin: "routine",
+        modelKey: null,
+        creditCeiling: 10,
+      }),
     };
 
     const result = await runWithTenant(mockUser, () =>
@@ -497,7 +566,8 @@ describe("agent access", () => {
         usage as never,
         mockEntitlementService(),
         backgroundTasks() as never,
-        { getCustomColumns: () => Promise.resolve([]) } as never,
+        emptyCustomColumns(),
+        emptyWikiCatalog(),
       ).invokeRoutine({
         clientRequestId: CLIENT_REQUEST_ID,
         conversationId: CONVERSATION_ID,
@@ -508,7 +578,11 @@ describe("agent access", () => {
 
     expect(result).toMatchObject({
       ok: true,
-      data: { disposition: "atCapacity", conversationId: CONVERSATION_ID, retryAllowed: true },
+      data: {
+        disposition: "atCapacity",
+        conversationId: CONVERSATION_ID,
+        retryAllowed: true,
+      },
     });
     expect(usage.reserveUsage).not.toHaveBeenCalled();
   });
@@ -551,7 +625,8 @@ describe("agent access", () => {
       usage as never,
       mockEntitlementService(),
       background as never,
-      { getCustomColumns: () => Promise.resolve([]) } as never,
+      emptyCustomColumns(),
+      emptyWikiCatalog(),
     ).invoke({
       clientRequestId: CLIENT_REQUEST_ID,
       conversationId: CONVERSATION_ID,
@@ -611,7 +686,8 @@ describe("agent access", () => {
       usage as never,
       mockEntitlementService(),
       backgroundTasks() as never,
-      { getCustomColumns: () => Promise.resolve([]) } as never,
+      emptyCustomColumns(),
+      emptyWikiCatalog(),
     ).invoke({
       clientRequestId: CLIENT_REQUEST_ID,
       conversationId: CONVERSATION_ID,
@@ -629,6 +705,7 @@ describe("agent access", () => {
       requiredContextBytes: expect.any(Number),
       creditCeiling: null,
     });
+    expect(usage.prepareTurn).toHaveBeenCalledTimes(1);
   });
 
   it("replays a completed turn before budget, lease, reservation, or provider work", async () => {
@@ -671,7 +748,8 @@ describe("agent access", () => {
       usage as never,
       mockEntitlementService(),
       backgroundTasks() as never,
-      { getCustomColumns: () => Promise.resolve([]) } as never,
+      emptyCustomColumns(),
+      emptyWikiCatalog(),
     ).invoke({
       clientRequestId: CLIENT_REQUEST_ID,
       text: "same",
@@ -727,7 +805,8 @@ describe("agent access", () => {
       usage as never,
       mockEntitlementService(),
       backgroundTasks() as never,
-      { getCustomColumns: () => Promise.resolve([]) } as never,
+      emptyCustomColumns(),
+      emptyWikiCatalog(),
     ).invoke({
       clientRequestId: CLIENT_REQUEST_ID,
       text: "same",
@@ -746,6 +825,7 @@ describe("agent access", () => {
       clientRequestId: CLIENT_REQUEST_ID,
       text: "retry this",
       pageRoute: null,
+      wikiHomepageSetupUrl: "https://example.com/",
       status: "failed",
       runId: "run-1",
       attemptCount: 1,
@@ -784,17 +864,20 @@ describe("agent access", () => {
         ],
       }),
     };
+    const tasks = backgroundTasks();
 
     const result = await new SendAgentMessageInteractor(
       repo as never,
       usageService() as never,
       mockEntitlementService(),
-      backgroundTasks() as never,
-      { getCustomColumns: () => Promise.resolve([]) } as never,
+      tasks as never,
+      emptyCustomColumns(),
+      emptyWikiCatalog(),
     ).invoke({
       clientRequestId: CLIENT_REQUEST_ID,
       text: "retry this",
       retry: true,
+      wikiHomepageSetupUrl: "https://example.com/",
     });
 
     expect(result.ok && result.data.disposition).toBe("run");
@@ -807,11 +890,130 @@ describe("agent access", () => {
           turnRequestId: "turn-1",
           priorRunId: "run-1",
           priorAttemptCount: 1,
+          wikiHomepageSetupUrl: "https://example.com/",
           userMessageId: MESSAGE_ID,
         },
       }),
     );
     expect(result.ok && result.data.disposition === "run" && result.data.userMessageId).toBe(MESSAGE_ID);
+    expect(tasks.dispatchTracked).toHaveBeenCalledWith(
+      "agent-turn",
+      expect.objectContaining({
+        wikiHomepageSetup: {
+          registrableDomain: "example.com",
+          url: "https://example.com/",
+        },
+      }),
+    );
+  });
+
+  it("refuses a homepage-setup retry that did not come through the setup path", async () => {
+    const usage = usageService();
+    const repo = {
+      normalizeExpiredAgentRunLease: vi.fn().mockResolvedValue(undefined),
+      findAgentTurnRequestForAdmission: vi.fn().mockResolvedValue({
+        snapshot: {
+          id: "turn-1",
+          conversationId: CONVERSATION_ID,
+          clientRequestId: CLIENT_REQUEST_ID,
+          text: "retry this",
+          pageRoute: null,
+          wikiHomepageSetupUrl: "https://example.com/",
+          status: "failed",
+          runId: "run-1",
+          attemptCount: 1,
+          providerStartedAt: null,
+          userMessageId: MESSAGE_ID,
+          assistantMessageId: null,
+          terminalCode: null,
+          affectedResources: [],
+          hasLaterMessages: false,
+        },
+        assistantMessage: null,
+      }),
+      claimAgentRunLease: vi.fn(),
+      isAtAgentRunLimit: vi.fn().mockResolvedValue(false),
+      createAgentConversationForRun: vi.fn(),
+      deleteUnusedAgentConversation: vi.fn(),
+      recordAgentTurnExternalRun: vi.fn().mockResolvedValue(undefined),
+      findInteractiveConversation: vi.fn(),
+      admitAgentTurnOrThrow: vi.fn(),
+    };
+    const tasks = backgroundTasks();
+
+    const result = await new SendAgentMessageInteractor(
+      repo as never,
+      usage as never,
+      mockEntitlementService(),
+      tasks as never,
+      emptyCustomColumns(),
+      emptyWikiCatalog(),
+    ).invoke({
+      clientRequestId: CLIENT_REQUEST_ID,
+      text: "retry this",
+      retry: true,
+    });
+
+    expect(result.ok && result.data.disposition).toBe("conflict");
+    expect(usage.prepareTurn).not.toHaveBeenCalled();
+    expect(repo.findInteractiveConversation).not.toHaveBeenCalled();
+    expect(repo.claimAgentRunLease).not.toHaveBeenCalled();
+    expect(repo.admitAgentTurnOrThrow).not.toHaveBeenCalled();
+    expect(tasks.dispatchTracked).not.toHaveBeenCalled();
+  });
+
+  it("rejects attempts to mutate durable retry tool metadata before budget or persistence work", async () => {
+    const usage = usageService();
+    const repo = {
+      normalizeExpiredAgentRunLease: vi.fn().mockResolvedValue(undefined),
+      findAgentTurnRequestForAdmission: vi.fn().mockResolvedValue({
+        snapshot: {
+          id: "turn-1",
+          conversationId: CONVERSATION_ID,
+          clientRequestId: CLIENT_REQUEST_ID,
+          text: "retry this",
+          pageRoute: null,
+          wikiHomepageSetupUrl: "https://example.com/",
+          status: "failed",
+          runId: "run-1",
+          attemptCount: 1,
+          providerStartedAt: null,
+          userMessageId: MESSAGE_ID,
+          assistantMessageId: null,
+          terminalCode: null,
+          affectedResources: [],
+          hasLaterMessages: false,
+        },
+        assistantMessage: null,
+      }),
+      claimAgentRunLease: vi.fn(),
+      isAtAgentRunLimit: vi.fn().mockResolvedValue(false),
+      createAgentConversationForRun: vi.fn(),
+      deleteUnusedAgentConversation: vi.fn(),
+      recordAgentTurnExternalRun: vi.fn().mockResolvedValue(undefined),
+      admitAgentTurnOrThrow: vi.fn(),
+    };
+    const tasks = backgroundTasks();
+
+    const result = await new SendAgentMessageInteractor(
+      repo as never,
+      usage as never,
+      mockEntitlementService(),
+      tasks as never,
+      emptyCustomColumns(),
+      emptyWikiCatalog(),
+    ).invoke({
+      clientRequestId: CLIENT_REQUEST_ID,
+      text: "retry this",
+      retry: true,
+      wikiHomepageSetupUrl: "https://other.com/",
+    });
+
+    expect(result.ok && result.data.disposition).toBe("conflict");
+    expect(usage.prepareTurn).not.toHaveBeenCalled();
+    expect(repo.claimAgentRunLease).not.toHaveBeenCalled();
+    expect(repo.admitAgentTurnOrThrow).not.toHaveBeenCalled();
+    expect(tasks.dispatchTracked).not.toHaveBeenCalled();
   });
 
   it("returns a conflict for reused request data without touching budget or persistence", async () => {
@@ -849,7 +1051,8 @@ describe("agent access", () => {
       usage as never,
       mockEntitlementService(),
       backgroundTasks() as never,
-      { getCustomColumns: () => Promise.resolve([]) } as never,
+      emptyCustomColumns(),
+      emptyWikiCatalog(),
     ).invoke({
       clientRequestId: CLIENT_REQUEST_ID,
       text: "different",
@@ -904,7 +1107,8 @@ describe("agent access", () => {
       usage as never,
       mockEntitlementService(),
       backgroundTasks() as never,
-      { getCustomColumns: () => Promise.resolve([]) } as never,
+      emptyCustomColumns(),
+      emptyWikiCatalog(),
     ).invoke({
       clientRequestId: CLIENT_REQUEST_ID,
       text: "Summarize this",
@@ -941,7 +1145,8 @@ describe("agent access", () => {
       usage as never,
       mockEntitlementService(),
       backgroundTasks() as never,
-      { getCustomColumns: () => Promise.resolve([]) } as never,
+      emptyCustomColumns(),
+      emptyWikiCatalog(),
     ).invoke({
       clientRequestId: CLIENT_REQUEST_ID,
       conversationId: CONVERSATION_ID,
@@ -976,7 +1181,8 @@ describe("agent access", () => {
       usageService() as never,
       mockEntitlementService(),
       backgroundTasks() as never,
-      { getCustomColumns: () => Promise.resolve([]) } as never,
+      emptyCustomColumns(),
+      emptyWikiCatalog(),
     ).invoke({
       clientRequestId: CLIENT_REQUEST_ID,
       text: "hello",
@@ -1011,7 +1217,8 @@ describe("agent access", () => {
         usage as never,
         mockEntitlementService(),
         backgroundTasks() as never,
-        { getCustomColumns: () => Promise.resolve([]) } as never,
+        emptyCustomColumns(),
+        emptyWikiCatalog(),
       ).invoke({
         clientRequestId: CLIENT_REQUEST_ID,
         text: "hello",
@@ -1033,6 +1240,47 @@ describe("agent access", () => {
       runId: expect.any(String),
       reservationId: reservation?.reservationId,
     });
+  });
+
+  it("returns a conflict and dispatches no provider work when another homepage setup wins admission", async () => {
+    const usage = usageService();
+    const tasks = backgroundTasks();
+    const repo = {
+      normalizeExpiredAgentRunLease: vi.fn().mockResolvedValue(undefined),
+      findAgentTurnRequestForAdmission: vi.fn().mockResolvedValue(null),
+      claimAgentRunLease: vi.fn().mockResolvedValue("claimed"),
+      isAtAgentRunLimit: vi.fn().mockResolvedValue(false),
+      createAgentConversationForRun: vi.fn().mockResolvedValue(undefined),
+      deleteUnusedAgentConversation: vi.fn().mockResolvedValue(undefined),
+      recordAgentTurnExternalRun: vi.fn().mockResolvedValue(undefined),
+      admitAgentTurnOrThrow: vi.fn().mockRejectedValue(new WikiHomepageSetupAlreadyRunningError()),
+      releasePreProviderAdmissionOrThrowUnscoped: vi.fn().mockResolvedValue({ disposition: "released" }),
+    };
+
+    const result = await new SendAgentMessageInteractor(
+      repo as never,
+      usage as never,
+      mockEntitlementService(),
+      tasks as never,
+      emptyCustomColumns(),
+      emptyWikiCatalog(),
+    ).invoke({
+      clientRequestId: CLIENT_REQUEST_ID,
+      text: "Set up the Workspace Wiki from https://example.com/",
+      retry: false,
+      wikiHomepageSetupUrl: "https://example.com/",
+    });
+
+    expect(result).toMatchObject({
+      ok: false,
+      error: {
+        issues: [{ path: ["homepage"], params: { error: "agentTurnAlreadyRunning" } }],
+      },
+    });
+    expect(repo.releasePreProviderAdmissionOrThrowUnscoped).toHaveBeenCalledOnce();
+    expect(repo.deleteUnusedAgentConversation).toHaveBeenCalledOnce();
+    expect(tasks.dispatchTracked).not.toHaveBeenCalled();
+    expect(repo.recordAgentTurnExternalRun).not.toHaveBeenCalled();
   });
 
   it("does not admit a chat turn when phase-one credit reservation fails", async () => {
@@ -1057,7 +1305,8 @@ describe("agent access", () => {
         usage as never,
         mockEntitlementService(),
         backgroundTasks() as never,
-        { getCustomColumns: () => Promise.resolve([]) } as never,
+        emptyCustomColumns(),
+        emptyWikiCatalog(),
       ).invoke({
         clientRequestId: CLIENT_REQUEST_ID,
         text: "hello",
@@ -1096,7 +1345,8 @@ describe("agent access", () => {
         usageService() as never,
         mockEntitlementService(),
         backgroundTasks() as never,
-        { getCustomColumns: () => Promise.resolve([]) } as never,
+        emptyCustomColumns(),
+        emptyWikiCatalog(),
       ).invoke({
         clientRequestId: CLIENT_REQUEST_ID,
         text: "hello",

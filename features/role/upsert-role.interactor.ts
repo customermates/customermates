@@ -55,6 +55,10 @@ const Schema = z.object({
       canManage: z.enum(["yes", "no"]),
       readAccess: z.enum(["none", "all"]),
     }),
+    wiki: z.object({
+      canManage: z.enum(["yes", "no"]),
+      readAccess: z.enum(["none", "all"]),
+    }),
     auditLog: z.object({
       readAccess: z.enum(["none", "all"]),
     }),

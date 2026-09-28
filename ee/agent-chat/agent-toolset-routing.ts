@@ -1,7 +1,7 @@
 import { agentViewRequestTarget } from "./agent-page-context";
 import type { AgentContextAttachment } from "./agent-context";
 
-export const AGENT_CORE_TOOLSETS = ["records", "workspace", "docs", "custom-columns", "support"] as const;
+export const AGENT_CORE_TOOLSETS = ["records", "workspace", "wiki", "docs", "custom-columns", "support"] as const;
 export const AGENT_ON_DEMAND_TOOLSETS = [
   "views",
   "messaging",
@@ -274,7 +274,7 @@ export function toolsetIndexSentence(loadedToolsets: readonly string[] = []): st
   const loaded = AGENT_ON_DEMAND_TOOLSETS.filter((toolset) => loadedToolsets.includes(toolset));
   const loadable = AGENT_ON_DEMAND_TOOLSETS.filter((toolset) => !loadedToolsets.includes(toolset));
   const always =
-    "Tool sets: records, workspace, documentation, custom fields, interface and support tools are always in your list.";
+    "Tool sets: records, workspace, Workspace Wiki, documentation, custom fields, interface and support tools are always in your list.";
   const already = loaded.length > 0 ? ` Already loaded for this turn: ${loaded.join(", ")}.` : "";
   if (loadable.length === 0)
     return `${always}${already} Every on-demand set is loaded, so there is nothing left to load.`;

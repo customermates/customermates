@@ -49,7 +49,7 @@ const RELATION_FIELDS = new Set([
 
 function fieldRank(change: AuditChange): number {
   if (change.columnId !== undefined) return 4;
-  if (change.field === "notes") return 3;
+  if (change.field === "notes" || change.field === "markdown") return 3;
   if (RELATION_FIELDS.has(change.field)) return 2;
   if (IDENTITY_FIELDS.has(change.field)) return 0;
   return 1;

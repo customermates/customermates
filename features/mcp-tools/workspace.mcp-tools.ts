@@ -16,12 +16,14 @@ import {
 import { FilterSchema, SortDescriptorSchema } from "@/core/base/base-get.schema";
 import { filterFieldsHint } from "@/core/types/filter-field-value-kind";
 import { FilterFieldKey } from "@/core/types/filter-field-key";
+import { AppErrorCode, ForbiddenError } from "@/core/errors/app-errors";
 import {
   getGetCompanySettingsInteractor,
   getGetMyConnectedAccountsContextInteractor,
   getGetRolesApiInteractor,
   getGetUserDetailsInteractor,
   getGetUsersApiInteractor,
+  getGetWikiCatalogInteractor,
 } from "@/core/di";
 
 const WorkspaceContextOutputSchema = z.looseObject({
@@ -29,6 +31,15 @@ const WorkspaceContextOutputSchema = z.looseObject({
   company: z.looseObject({ id: z.string(), currency: z.string().nullable().optional() }),
   roles: z.array(z.looseObject({ id: z.string() })),
   connectedAccounts: z.array(z.looseObject({ id: z.string() })),
+  wiki: z
+    .looseObject({
+      total: z.number(),
+      page: z.number(),
+      nextPage: z.number().nullable(),
+      truncated: z.boolean(),
+      items: z.array(z.looseObject({ id: z.string(), title: z.string(), url: z.string(), excerpt: z.string() })),
+    })
+    .optional(),
 });
 
 const ListUsersOutputSchema = z.object({
@@ -46,47 +57,91 @@ const ListUsersOutputSchema = z.object({
   ),
 });
 
+const WORKSPACE_CONTEXT_FIELDS_DESCRIPTION =
+  "company.terminology gives the singular and plural label this workspace uses for each record type, keyed by the canonical entity type. " +
+  'Always phrase answers with those labels (for example say "People" when contact.plural is People) and map the words the user types back onto the canonical entity type. ' +
+  "Tool names, filter fields and ids stay canonical regardless of the labels. " +
+  "Each role carries its full permission list; match roleId values from list_users against it. " +
+  "Each connected account includes { id, provider, status, emailAddress, displayName, shared, isOwner, lastSyncedAt, linkedinProducts }; " +
+  "use the id as connectedAccountId for send_email and send_chat_message and check status before sending. " +
+  "For LinkedIn, linkedinProducts lists which products the account can send from (classic, sales_navigator, recruiter); only pass a linkedinProduct that appears there.";
+
+async function workspaceContext(wikiPage: number | null) {
+  const [userResult, companyResult, rolesResult, accountsResult, wikiResult] = await Promise.all([
+    getGetUserDetailsInteractor().invoke(),
+    getGetCompanySettingsInteractor().invoke(),
+    getGetRolesApiInteractor().invoke({ pagination: { page: 1, pageSize: 100 } }),
+    getGetMyConnectedAccountsContextInteractor().invoke(),
+    wikiPage === null
+      ? null
+      : getGetWikiCatalogInteractor()
+          .invoke({ page: wikiPage })
+          .catch((error: unknown) => {
+            if (error instanceof ForbiddenError && error.code === AppErrorCode.permissionDenied) return null;
+            throw error;
+          }),
+  ]);
+  if (!rolesResult.ok) return mcpInteractorFailure(rolesResult.error);
+  if (!accountsResult.ok) return mcpInteractorFailure(accountsResult.error);
+  if (wikiResult && !wikiResult.ok) return mcpInteractorFailure(wikiResult.error);
+  const company = companyResult.data;
+  const wiki = wikiResult?.data;
+  return toonResult(
+    formatDatesInResponse({
+      user: userResult.data,
+      company: {
+        id: company.id,
+        currency: company.currency,
+        createdAt: company.createdAt,
+        updatedAt: company.updatedAt,
+        terminology: company.terminology.labels,
+      },
+      ...(wiki
+        ? {
+            wiki: {
+              ...(wiki.guide ? { guide: wiki.guide } : {}),
+              ...(wiki.procedures?.total ? { procedures: wiki.procedures } : {}),
+              total: wiki.total,
+              page: wiki.page,
+              nextPage: wiki.nextPage,
+              truncated: wiki.truncated,
+              items: wiki.items,
+            },
+          }
+        : {}),
+      roles: rolesResult.data.items,
+      connectedAccounts: accountsResult.data,
+    }),
+  );
+}
+
 export const getWorkspaceContextTool = {
   name: "get_workspace_context",
   title: "Get workspace context",
   description:
-    "Use this when starting a session: returns the current user, company, role catalog with permissions, and connected messaging accounts in one call. " +
-    "company.terminology gives the singular and plural label this workspace uses for each record type, keyed by the canonical entity type. " +
-    'Always phrase answers with those labels (for example say "People" when contact.plural is People) and map the words the user types back onto the canonical entity type. ' +
-    "Tool names, filter fields and ids stay canonical regardless of the labels. " +
-    "Each role carries its full permission list; match roleId values from list_users against it. " +
-    "Each connected account includes { id, provider, status, emailAddress, displayName, shared, isOwner, lastSyncedAt, linkedinProducts }; " +
-    "use the id as connectedAccountId for send_email and send_chat_message and check status before sending. " +
-    "For LinkedIn, linkedinProducts lists which products the account can send from (classic, sales_navigator, recruiter); only pass a linkedinProduct that appears there.",
+    "Use this when starting a session: returns the current user, company, role catalog with permissions, connected messaging accounts, and the Wiki in one call. " +
+    "On the first page wiki.guide is the Operating Guide (follow it; nextOffset marks where the full page continues) and wiki.procedures lists procedures with whenToUse (read the matching one before acting). " +
+    "wiki.items are knowledge pages, ten per page in creation order, each with id, title, url, timestamps and a short opening excerpt, never the complete page. " +
+    "Pass wiki.nextPage as wikiPage to continue. wiki is omitted without Wiki Read. " +
+    WORKSPACE_CONTEXT_FIELDS_DESCRIPTION,
   annotations: { readOnlyHint: true, destructiveHint: false, idempotentHint: true, openWorldHint: false },
-  inputSchema: z.object({}),
+  inputSchema: z.object({
+    wikiPage: mcpPage().describe("Wiki catalog page, ten entries per page (default 1)"),
+  }),
   outputSchema: WorkspaceContextOutputSchema,
-  execute: async () => {
-    const [userResult, companyResult, rolesResult, accountsResult] = await Promise.all([
-      getGetUserDetailsInteractor().invoke(),
-      getGetCompanySettingsInteractor().invoke(),
-      getGetRolesApiInteractor().invoke({ pagination: { page: 1, pageSize: 100 } }),
-      getGetMyConnectedAccountsContextInteractor().invoke(),
-    ]);
-    if (!rolesResult.ok) return mcpInteractorFailure(rolesResult.error);
-    if (!accountsResult.ok) return mcpInteractorFailure(accountsResult.error);
-    const company = companyResult.data;
-    return toonResult(
-      formatDatesInResponse({
-        user: userResult.data,
-        company: {
-          id: company.id,
-          currency: company.currency,
-          createdAt: company.createdAt,
-          updatedAt: company.updatedAt,
-          terminology: company.terminology.labels,
-        },
-        roles: rolesResult.data.items,
-        connectedAccounts: accountsResult.data,
-      }),
-    );
-  },
+  execute: ({ wikiPage = 1 }: { wikiPage?: number } = {}) => workspaceContext(wikiPage),
 };
+
+export function hostedWorkspaceContextTool() {
+  return {
+    ...getWorkspaceContextTool,
+    description:
+      "Use this when starting a session: returns the current user, company, role catalog with permissions, and connected messaging accounts in one call. " +
+      WORKSPACE_CONTEXT_FIELDS_DESCRIPTION,
+    inputSchema: z.object({}),
+    execute: () => workspaceContext(null),
+  };
+}
 
 const ListUsersSchema = z.object({
   searchTerm: z.string().optional().describe("Free-text search against firstName and lastName"),

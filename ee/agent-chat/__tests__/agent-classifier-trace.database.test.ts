@@ -96,6 +96,12 @@ describeDatabase("agent turn classifier trace persistence", { timeout: 120_000 }
         resume: vi.fn().mockResolvedValue(true),
       } as never,
       { getCustomColumns: () => Promise.resolve([]) } as never,
+      {
+        invoke: vi.fn().mockResolvedValue({
+          ok: true,
+          data: { items: [], total: 0, page: 1, nextPage: null, truncated: false },
+        }),
+      },
     ).invoke({
       clientRequestId: randomUUID(),
       text: "Which header does the REST API expect?",

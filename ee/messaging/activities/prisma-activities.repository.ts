@@ -40,6 +40,7 @@ import {
 import { TERMINOLOGY_ENTITY_RESOURCE } from "@/features/entity-terminology/entity-terminology.constants";
 import { FilterOperatorKey } from "@/core/base/base-query-builder";
 import { toMessagingMessageDto } from "../inbox/inbox.schema";
+import { WIKI_PAGE_AUDIT_EVENTS } from "@/features/wiki/wiki-audit-events";
 
 type UnresolvedRecordRef = { entityType: EntityType; id: string };
 
@@ -1068,7 +1069,11 @@ export class PrismaActivitiesRepo
   }
 
   private auditLogWhere(auditWhere: Prisma.AuditLogWhereInput | undefined): Prisma.AuditLogWhereInput {
-    return { companyId: this.companyId, ...(auditWhere ?? {}) };
+    if (this.hasPermission(Resource.wiki, Action.readAll)) return { companyId: this.companyId, ...(auditWhere ?? {}) };
+    return {
+      companyId: this.companyId,
+      AND: [{ event: { notIn: [...WIKI_PAGE_AUDIT_EVENTS] } }, ...(auditWhere ? [auditWhere] : [])],
+    };
   }
 
   private async messageWhere(args: {

@@ -36,7 +36,7 @@ const docsLocaleList = CONTENT_LOCALES.join(", ");
 const docsLocaleSchema = z
   .enum([firstDocsLocale, ...otherDocsLocales])
   .default(DEFAULT_LOCALE)
-  .describe(`Documentation language (one of: ${docsLocaleList})`);
+  .describe("Documentation language");
 
 const manifest = rawManifest as Manifest;
 const indexCache = new Map<string, DocsSectionIndex>();

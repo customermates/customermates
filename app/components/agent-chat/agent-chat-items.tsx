@@ -1,5 +1,8 @@
 "use client";
 
+import type { ComponentProps } from "react";
+import type { Components } from "streamdown";
+
 import { observer } from "mobx-react-lite";
 import { useTranslations } from "next-intl";
 import { Check, ChevronDown, Copy, Loader2, Square, X } from "lucide-react";
@@ -29,6 +32,12 @@ import { dataViewNavigationHref } from "@/core/data-view/data-view-links";
 import { ActionTooltip, ItemTime, TypingDots, chatUiCopy, focusAgentComposer } from "./chat-ui";
 import { AgentComposerContexts } from "./agent-composer-contexts";
 
+function MessageLinkText({ children }: ComponentProps<"a"> & { node?: unknown }) {
+  return <span className="underline decoration-dotted underline-offset-2">{children}</span>;
+}
+
+const nonInteractiveMessageLinks = { a: MessageLinkText } satisfies Components;
+
 export function useAgentActivityTerminology(): Partial<Record<AgentActivityResource, string>> {
   const { plural } = useEntityTerminology();
   return {
@@ -42,10 +51,12 @@ export function useAgentActivityTerminology(): Partial<Record<AgentActivityResou
 
 export const AgentChatItemView = observer(function AgentChatItemView({
   item,
+  renderLinksAsText = false,
   readOnly = false,
   userLabel,
 }: {
   item: Exclude<AgentChatItem, { kind: "activity" }>;
+  renderLinksAsText?: boolean;
   readOnly?: boolean;
   userLabel?: string;
 }) {
@@ -86,7 +97,7 @@ export const AgentChatItemView = observer(function AgentChatItemView({
         <div className="flex min-w-0 flex-col items-start gap-1.5">
           <div className="w-full text-sm leading-relaxed [&_pre]:overflow-x-auto">
             <MessageResponse
-              components={agentMessageComponents}
+              components={renderLinksAsText ? nonInteractiveMessageLinks : agentMessageComponents}
               mode={item.streaming ? "streaming" : "static"}
               rehypePlugins={agentMessageRehypePlugins}
               showTableActions={!item.streaming}
@@ -222,10 +233,12 @@ export function isWorkingActivityGroup(items: AgentChatItem[], start: number, is
 }
 
 export const AgentActivity = observer(function AgentActivity({
+  activityContext,
   isWorking,
   isTrailing,
   items,
 }: {
+  activityContext?: "wikiHomepageSetup";
   isWorking: boolean;
   isTrailing: boolean;
   items: Extract<AgentChatItem, { kind: "activity" }>[];
@@ -236,12 +249,29 @@ export const AgentActivity = observer(function AgentActivity({
   const hasRunning = items.some((item) => item.status === "running");
   const isPending = isWorking && isTrailing;
   const hasError = items.some((item) => item.status === "error");
-  const isRecovering = isWorking && hasError;
-  const isActive = hasRunning || isRecovering || isPending;
   const hasCancelled = items.some((item) => item.status === "cancelled");
   const hasDetails = items.length > 1;
+  const websiteReadCount = items.filter((item) => item.activity.kind === "web.read").length;
+  const websiteSourceCount = items.filter((item) => item.activity.kind === "web.read" && item.status === "done").length;
+  const hasWikiCreate = items.some(
+    (item) => item.activity.kind === "records.create" && item.activity.resource === "wiki",
+  );
+  const hasCompletedWikiCreate = items.some(
+    (item) => item.activity.kind === "records.create" && item.activity.resource === "wiki" && item.status === "done",
+  );
+  const isWebsiteWikiSetup =
+    activityContext === "wikiHomepageSetup" &&
+    websiteReadCount > 0 &&
+    items.every(
+      (item) =>
+        item.activity.kind === "web.read" ||
+        (item.activity.kind === "records.create" && item.activity.resource === "wiki"),
+    );
+  const hasBlockingError = hasError && !(isWebsiteWikiSetup && hasCompletedWikiCreate);
+  const isRecovering = isWorking && hasBlockingError;
+  const isActive = hasRunning || isRecovering || isPending;
   const { open, setOpen, elapsedSeconds } = useActivityGroupState({
-    hasError: hasError && !isRecovering,
+    hasError: hasBlockingError && !isRecovering,
     hasRunning: isActive,
     isWorking,
     startedAt: items[0]?.at,
@@ -250,7 +280,7 @@ export const AgentActivity = observer(function AgentActivity({
   const firstCopy = items[0] ? agentActivityCopy(items[0].activity, t, terminology) : null;
   const settledSummary =
     items.length === 1 && firstCopy
-      ? hasError
+      ? hasBlockingError
         ? firstCopy.error
         : hasCancelled
           ? firstCopy.cancelled
@@ -262,14 +292,35 @@ export const AgentActivity = observer(function AgentActivity({
   const runningItem = items.findLast((item) => item.status === "running" || (isRecovering && item.status === "error"));
   const runningLabel = runningItem ? agentActivityCopy(runningItem.activity, t, terminology).running : uiCopy.thinking;
   const liveSummary =
-    hasDetails && !hasError && !hasCancelled && elapsedSeconds !== null
+    hasDetails && !hasBlockingError && !hasCancelled && elapsedSeconds !== null
       ? uiCopy.stepsTook(items.length, elapsedSeconds)
       : settledSummary;
-  const summary = useSteadyLabel(isActive ? runningLabel : liveSummary);
+  const contextualSummary =
+    items.length === 1
+      ? isActive
+        ? runningLabel
+        : settledSummary
+      : isActive
+        ? isWebsiteWikiSetup && !hasWikiCreate
+          ? uiCopy.websiteSourcesRunning(websiteReadCount)
+          : runningLabel
+        : isWebsiteWikiSetup && hasCompletedWikiCreate && !hasCancelled
+          ? uiCopy.websiteWikiComplete(websiteSourceCount)
+          : liveSummary;
+  const summary = useSteadyLabel(contextualSummary);
   const viewHref = items.findLast((item) => {
     if (item.status !== "done" || item.activity.kind !== "views.configure") return false;
     return dataViewNavigationHref(item.activity.viewHref) !== null;
   })?.activity.viewHref;
+  const statusIcon = isActive ? (
+    <Loader2 aria-hidden="true" className="size-3.5 animate-spin motion-reduce:animate-none" />
+  ) : hasBlockingError ? (
+    <X aria-hidden="true" className="size-3.5 text-destructive" />
+  ) : hasCancelled ? (
+    <Square aria-hidden="true" className="size-3.5" />
+  ) : (
+    <Check aria-hidden="true" className="size-3.5" />
+  );
 
   return (
     <Collapsible aria-live="off" className="group py-1" data-testid="agent-activity" open={open} onOpenChange={setOpen}>
@@ -280,17 +331,9 @@ export const AgentActivity = observer(function AgentActivity({
               className="flex min-w-0 flex-1 cursor-pointer items-center gap-2 rounded-md text-xs text-muted-foreground transition-colors outline-none select-none hover:text-foreground focus-visible:border-ring focus-visible:ring-[3px] focus-visible:ring-inset focus-visible:ring-ring/50"
               type="button"
             >
-              {isActive ? (
-                <Loader2 aria-hidden="true" className="size-3.5 animate-spin" />
-              ) : hasError ? (
-                <X aria-hidden="true" className="size-3.5 text-destructive" />
-              ) : hasCancelled ? (
-                <Square aria-hidden="true" className="size-3.5" />
-              ) : (
-                <Check aria-hidden="true" className="size-3.5" />
-              )}
+              {statusIcon}
 
-              <span className="flex-1 text-left">{summary}</span>
+              <span className="min-w-0 flex-1 text-left [overflow-wrap:anywhere]">{summary}</span>
 
               <ChevronDown
                 aria-hidden="true"
@@ -299,18 +342,15 @@ export const AgentActivity = observer(function AgentActivity({
             </button>
           </CollapsibleTrigger>
         ) : (
-          <div className="flex min-w-0 flex-1 items-center gap-2 text-xs text-muted-foreground">
-            {isActive ? (
-              <Loader2 aria-hidden="true" className="size-3.5 animate-spin" />
-            ) : hasError ? (
-              <X aria-hidden="true" className="size-3.5 text-destructive" />
-            ) : hasCancelled ? (
-              <Square aria-hidden="true" className="size-3.5" />
-            ) : (
-              <Check aria-hidden="true" className="size-3.5" />
+          <div
+            className={cn(
+              "flex min-w-0 flex-1 items-center gap-2 text-xs text-muted-foreground",
+              hasBlockingError && !isRecovering && "text-destructive",
             )}
+          >
+            {statusIcon}
 
-            <span className="flex-1 text-left">{summary}</span>
+            <span className="min-w-0 flex-1 text-left [overflow-wrap:anywhere]">{summary}</span>
           </div>
         )}
 
@@ -349,7 +389,10 @@ export const AgentActivity = observer(function AgentActivity({
                 )}
               >
                 {status === "running" ? (
-                  <Loader2 aria-hidden="true" className="mt-0.5 size-3.5 shrink-0 animate-spin" />
+                  <Loader2
+                    aria-hidden="true"
+                    className="mt-0.5 size-3.5 shrink-0 animate-spin motion-reduce:animate-none"
+                  />
                 ) : status === "error" ? (
                   <X aria-hidden="true" className="mt-0.5 size-3.5 shrink-0" />
                 ) : status === "cancelled" ? (
@@ -358,7 +401,7 @@ export const AgentActivity = observer(function AgentActivity({
                   <Check aria-hidden="true" className="mt-0.5 size-3.5 shrink-0" />
                 )}
 
-                <span className="min-w-0 text-foreground">{label}</span>
+                <span className="min-w-0 text-foreground [overflow-wrap:anywhere]">{label}</span>
               </div>
             );
           })}

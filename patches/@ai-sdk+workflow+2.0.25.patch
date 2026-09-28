@@ -1,0 +1,129 @@
+diff --git a/node_modules/@ai-sdk/workflow/dist/index.js b/node_modules/@ai-sdk/workflow/dist/index.js
+index 954fb39..c229ae6 100644
+--- a/node_modules/@ai-sdk/workflow/dist/index.js
++++ b/node_modules/@ai-sdk/workflow/dist/index.js
+@@ -746,6 +746,29 @@ async function* streamTextIterator({
+         runtimeContext: currentRuntimeContext,
+         toolsContext: currentToolsContext
+       });
++      if (hasTerminalError || ((finish == null ? void 0 : finish.finishReason) !== "stop" && (finish == null ? void 0 : finish.finishReason) !== "tool-calls")) {
++        for (const call of step.toolCalls) {
++          if (!call.providerExecuted) continue;
++          const result = providerExecutedToolResults.get(call.toolCallId);
++          if (!result) continue;
++          const common = {
++            toolCallId: call.toolCallId,
++            toolName: call.toolName,
++            input: call.input,
++            providerExecuted: true,
++            ...call.dynamic === true ? { dynamic: true } : {}
++          };
++          if (result.isError) {
++            step.content.push({ type: "tool-error", ...common, error: result.result });
++          } else {
++            const output = { type: "tool-result", ...common, output: result.result };
++            step.content.push(output);
++            step.toolResults.push(output);
++            if (call.dynamic === true) step.dynamicToolResults.push(output);
++            else step.staticToolResults.push(output);
++          }
++        }
++      }
+       await ((_j = telemetryDispatcher.onLanguageModelCallEnd) == null ? void 0 : _j.call(telemetryDispatcher, {
+         callId: step.callId,
+         provider: (_g = (_f = step.model) == null ? void 0 : _f.provider) != null ? _g : "unknown",
+@@ -762,9 +785,10 @@ async function* streamTextIterator({
+       lastStep = step;
+       lastStepWasToolCalls = false;
+       const finishReason = finish == null ? void 0 : finish.finishReason;
++      const providerToolResultsEndStep = finishReason === "stop" && providerExecutedToolResults.size > 0;
+       if (hasTerminalError) {
+         done = true;
+-      } else if (finishReason === "tool-calls") {
++      } else if (finishReason === "tool-calls" || providerToolResultsEndStep) {
+         lastStepWasToolCalls = true;
+         const assistantContent = getAssistantMessageContent(step);
+         const includedToolCallIds = new Set(
+@@ -792,7 +816,9 @@ async function* streamTextIterator({
+           role: "tool",
+           content: toolResults
+         });
+-        if (stopConditions) {
++        if (providerToolResultsEndStep) {
++          done = true;
++        } else if (stopConditions) {
+           const stopConditionList = Array.isArray(stopConditions) ? stopConditions : [stopConditions];
+           if (stopConditionList.some((test) => test({ steps }))) {
+             done = true;
+diff --git a/node_modules/@ai-sdk/workflow/src/stream-text-iterator.ts b/node_modules/@ai-sdk/workflow/src/stream-text-iterator.ts
+index b311675..60e82c7 100644
+--- a/node_modules/@ai-sdk/workflow/src/stream-text-iterator.ts
++++ b/node_modules/@ai-sdk/workflow/src/stream-text-iterator.ts
+@@ -391,6 +391,36 @@ export async function* streamTextIterator({
+         toolsContext: currentToolsContext,
+       });
+
++      // Terminal responses do not enter local tool execution. Preserve work
++      // already performed by the provider before onStepEnd, including when
++      // output is truncated or the stream ends with an error.
++      if (
++        hasTerminalError ||
++        (finish?.finishReason !== 'stop' && finish?.finishReason !== 'tool-calls')
++      ) {
++        for (const call of step.toolCalls) {
++          if (!call.providerExecuted) continue;
++          const result = providerExecutedToolResults.get(call.toolCallId);
++          if (!result) continue;
++          const common = {
++            toolCallId: call.toolCallId,
++            toolName: call.toolName,
++            input: call.input,
++            providerExecuted: true as const,
++            ...(call.dynamic === true ? { dynamic: true as const } : {}),
++          };
++          if (result.isError) {
++            step.content.push({ type: 'tool-error', ...common, error: result.result });
++          } else {
++            const output = { type: 'tool-result' as const, ...common, output: result.result };
++            step.content.push(output);
++            step.toolResults.push(output);
++            if (call.dynamic === true) step.dynamicToolResults.push(output);
++            else step.staticToolResults.push(output);
++          }
++        }
++      }
++
+       await telemetryDispatcher.onLanguageModelCallEnd?.({
+         callId: step.callId,
+         provider: step.model?.provider ?? 'unknown',
+@@ -411,13 +441,18 @@ export async function* streamTextIterator({
+       lastStepWasToolCalls = false;
+
+       const finishReason = finish?.finishReason;
++      const providerToolResultsEndStep =
++        finishReason === 'stop' && providerExecutedToolResults.size > 0;
+
+       if (hasTerminalError) {
+         // The error crossed the durable step boundary as data. End the loop
+         // without throwing so WorkflowAgent can preserve the existing
+         // resolved-result contract and expose the original value.
+         done = true;
+-      } else if (finishReason === 'tool-calls') {
++      } else if (
++        finishReason === 'tool-calls' ||
++        providerToolResultsEndStep
++      ) {
+         lastStepWasToolCalls = true;
+
+         const assistantContent = getAssistantMessageContent(step);
+@@ -462,7 +497,9 @@ export async function* streamTextIterator({
+           content: toolResults,
+         });
+
+-        if (stopConditions) {
++        if (providerToolResultsEndStep) {
++          done = true;
++        } else if (stopConditions) {
+           const stopConditionList = Array.isArray(stopConditions)
+             ? stopConditions
+             : [stopConditions];

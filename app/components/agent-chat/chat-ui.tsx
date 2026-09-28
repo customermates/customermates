@@ -67,6 +67,8 @@ export function chatUiCopy(t: ChatTranslator) {
     stopping: t("AgentChat.ui.stopping"),
     finalizing: t("AgentChat.ui.finalizing"),
     stepsTook: (steps: number, seconds: number) => t("AgentChat.ui.stepsTook", { steps, seconds }),
+    websiteSourcesRunning: (count: number) => t("AgentChat.ui.websiteSourcesRunning", { count }),
+    websiteWikiComplete: (count: number) => t("AgentChat.ui.websiteWikiComplete", { count }),
   };
 }
 
