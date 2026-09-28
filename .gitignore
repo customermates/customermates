@@ -71,3 +71,6 @@ content/api/**/*.mdx
 AGENTS.md
 CLAUDE.md
 scripts/agent-benchmark/.runs/
+
+# Route-specific Tailwind sources are regenerated when Next loads its config.
+styles/.generated/

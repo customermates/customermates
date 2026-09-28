@@ -91,7 +91,8 @@ export function NativeAutomationProviderIdentity({
       data-native-automation-provider={provider}
     >
       <img
-        alt=""
+        aria-hidden
+        alt={fixture.name}
         className="h-auto w-8 shrink-0"
         decoding="async"
         draggable={false}
@@ -124,7 +125,8 @@ export function ProviderMark({
 
   return (
     <img
-      alt={decorative ? "" : fixture.name}
+      alt={fixture.name}
+      aria-hidden={decorative || undefined}
       className={className}
       data-native-provider={provider}
       decoding="async"
@@ -181,7 +183,8 @@ export function PersonAvatar({
       style={fluid ? undefined : { height: size, width: size }}
     >
       <img
-        alt={decorative ? "" : fixture.name}
+        alt={fixture.name}
+        aria-hidden={decorative || undefined}
         className="size-full object-cover"
         decoding="async"
         draggable={false}

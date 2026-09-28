@@ -79,7 +79,16 @@ export async function renderForHub(rawLocale: string, pageNumber: number) {
         ])}
       />
 
-      <HubGrid hero={page.data.hero} items={items} />
+      <HubGrid
+        hero={{
+          ...page.data.hero,
+          title:
+            pageNumber > 1
+              ? `${page.data.hero.title} - ${t("Common.pageNumber", { page: pageNumber })}`
+              : page.data.hero.title,
+        }}
+        items={items}
+      />
 
       <HubPagination
         basePath="/for"

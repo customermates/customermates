@@ -59,6 +59,7 @@ export async function renderBlogHub(rawLocale: string, pageNumber: number) {
     return dateDifference || referenceCollator.compare(a.slug, b.slug);
   });
   const t = await getTranslations("Common.table");
+  const common = await getTranslations("Common");
   const breadcrumb = await getTranslations("StructuredData.breadcrumb");
 
   return (
@@ -70,7 +71,15 @@ export async function renderBlogHub(rawLocale: string, pageNumber: number) {
         ])}
       />
 
-      <PostGridShell hero={page.data.hero}>
+      <PostGridShell
+        hero={{
+          ...page.data.hero,
+          title:
+            pageNumber > 1
+              ? `${page.data.hero.title} - ${common("pageNumber", { page: pageNumber })}`
+              : page.data.hero.title,
+        }}
+      >
         {paginated.items.map(({ page: post, slug }, index) => {
           const featured = paginated.page === 1 && index === 0;
 
