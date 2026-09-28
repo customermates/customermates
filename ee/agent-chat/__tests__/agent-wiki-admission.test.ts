@@ -46,7 +46,7 @@ import {
   conservativeAgentInitialContextBytes,
   buildAgentProviderContext,
 } from "@/ee/agent-chat/agent-provider-context";
-import { agentWikiContextMessages, serializeAgentWikiCatalog } from "@/ee/agent-chat/agent-wiki-context";
+import { agentWikiSystemPrompt, serializeAgentWikiCatalog } from "@/ee/agent-chat/agent-wiki-context";
 import { resolveAgentModel, type AgentModelEntry } from "@/ee/agent-chat/model-catalog";
 import { buildAgentSystemPrompt } from "@/ee/agent-chat/system-prompt";
 import type { AgentTurnWorkflowPayload } from "@/workflows/agent-turn";
@@ -198,10 +198,8 @@ describe("Workspace Wiki admission bootstrap", () => {
       }),
     );
     const execution = buildAgentProviderContext(systemPrompt, payload.messages, [], payload.wikiCatalog);
-    expect(execution.messages).toEqual([
-      ...agentWikiContextMessages(payload.wikiCatalog),
-      { role: "user", content: input.text },
-    ]);
+    expect(execution.system).toBe(agentWikiSystemPrompt(systemPrompt, payload.wikiCatalog));
+    expect(execution.messages).toEqual([{ role: "user", content: input.text }]);
     expect(definitions).toHaveBeenCalledWith({
       servingProvider: admission.model.servingProvider,
       locale: "en",
@@ -214,7 +212,7 @@ describe("Workspace Wiki admission bootstrap", () => {
   });
 
   it.each(["chat", "routine"] as const)(
-    "carries only the first catalog page as metadata into a %s turn without promoting it to system instructions",
+    "carries only the first catalog page as delimited reference data after the %s system instructions",
     async (surface) => {
       const state = fixture();
       const firstTen = Array.from({ length: 10 }, (_, index) => ({
@@ -273,10 +271,10 @@ describe("Workspace Wiki admission bootstrap", () => {
       expect(systemPrompt).toContain("follow useful Wiki links");
       expect(systemPrompt).toContain("Report gaps or conflicts");
       expect(systemPrompt).not.toContain("General workspace page");
-      expect(buildAgentProviderContext(systemPrompt, payload.messages, [], payload.wikiCatalog).messages).toEqual([
-        ...agentWikiContextMessages(payload.wikiCatalog),
-        { role: "user", content: input.text },
-      ]);
+      const execution = buildAgentProviderContext(systemPrompt, payload.messages, [], payload.wikiCatalog);
+      expect(execution.system.startsWith(`${systemPrompt}\n\n`)).toBe(true);
+      expect(execution.system).toBe(agentWikiSystemPrompt(systemPrompt, payload.wikiCatalog));
+      expect(execution.messages).toEqual([{ role: "user", content: input.text }]);
     },
   );
 

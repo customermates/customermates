@@ -1327,7 +1327,7 @@ export async function runAgentTurn(payload: AgentTurnWorkflowPayload): Promise<v
     };
 
     let messages = providerContext.messages;
-    let instructions = systemPrompt;
+    let instructions = providerContext.system;
     let compactedContinuationCount = -1;
     let compactedRetainedResponseSteps = AGENT_CONTINUATION_RETAINED_RESPONSE_STEPS + 1;
 
@@ -1344,7 +1344,7 @@ export async function runAgentTurn(payload: AgentTurnWorkflowPayload): Promise<v
         retainedResponseSteps -= 1
       ) {
         const compacted = compactAgentContinuationContext({
-          system: systemPrompt,
+          system: providerContext.system,
           initialMessages: providerContext.messages,
           steps: continuationSteps,
           retainedResponseSteps,

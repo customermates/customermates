@@ -4,6 +4,7 @@ import type { AgentToolDeps, AgentToolOptions } from "@/ee/agent-chat/agent-tool
 import type * as Ai from "ai";
 import type * as LocaleRegistry from "@/i18n/locale-registry";
 import type * as BudgetPolicy from "@/ee/agent-chat/agent-budget-policy";
+import type * as WikiContext from "@/ee/agent-chat/agent-wiki-context";
 
 type WorkflowTool = {
   needsApproval: (input: unknown, options: { toolCallId: string }) => Promise<boolean>;
@@ -297,13 +298,16 @@ vi.mock("@/ee/agent-chat/system-prompt", () => ({
   buildAgentSystemPrompt: () => "system",
   routineTriggerEventOf: () => null,
 }));
-vi.mock("@/ee/agent-chat/agent-provider-context", () => ({
-  buildAgentProviderContext: (system: string, messages: unknown[], tools: unknown[], wikiCatalog?: string | null) => {
-    state.providerContexts.push({ system, messages, tools, wikiCatalog });
-    return { messages, system, tools };
-  },
-  isAgentStepContextWithinBudget: (...args: unknown[]) => state.contextFits(...args),
-}));
+vi.mock("@/ee/agent-chat/agent-provider-context", async () => {
+  const { agentWikiSystemPrompt } = await vi.importActual<typeof WikiContext>("@/ee/agent-chat/agent-wiki-context");
+  return {
+    buildAgentProviderContext: (system: string, messages: unknown[], tools: unknown[], wikiCatalog?: string | null) => {
+      state.providerContexts.push({ system, messages, tools, wikiCatalog });
+      return { messages, system: agentWikiSystemPrompt(system, wikiCatalog), tools };
+    },
+    isAgentStepContextWithinBudget: (...args: unknown[]) => state.contextFits(...args),
+  };
+});
 vi.mock("@/ee/agent-chat/agent-budget-policy", async (importOriginal) => {
   const actual = await importOriginal<typeof BudgetPolicy>();
   return {
@@ -328,6 +332,7 @@ vi.mock("../capture-failure", () => ({
 
 import { runAgentTurn, type AgentTurnWorkflowPayload } from "../agent-turn";
 import { approvalDenialReason } from "@/ee/agent-chat/agent-approval-resume";
+import { AGENT_WIKI_REFERENCE_CLOSE, agentWikiSystemPrompt } from "@/ee/agent-chat/agent-wiki-context";
 
 const notEmpty = { ok: true, data: { total: 1 } };
 
@@ -1120,6 +1125,44 @@ describe("agent-turn credit-bounded continuation", () => {
       "3",
     ]);
     expect(state.finalize).toHaveBeenCalledWith(expect.objectContaining({ stopReason: "provider_error" }));
+  });
+
+  it("reuses the turn's Wiki snapshot as the unchanged system prefix of every round and compacted segment", async () => {
+    const wikiCatalog = JSON.stringify({
+      wiki: { total: 1, items: [{ title: "Voice", excerpt: "Use plain language." }] },
+    });
+    state.contextFits.mockReturnValueOnce(false).mockReturnValue(true);
+    state.definitions.push({ name: "list_records", description: "list_records", inputSchema: { type: "object" } });
+    state.normalize.mockResolvedValue({ ok: true, input: { entity: "deal" } });
+    state.execute.mockResolvedValue({ ok: true, result: "total: 42" });
+    let segment = 0;
+    state.runTools = async ({ messages, executeAndCompleteTool }) => {
+      segment += 1;
+      if (segment === 1) {
+        await executeAndCompleteTool("list_records", { entity: "deal" }, "call-snapshot");
+        return {
+          finishReason: "tool-calls",
+          messages,
+          steps: [
+            streamedToolCallStep("list_records", "call-snapshot", { entity: "deal" }),
+            ...Array.from({ length: 31 }, () => streamedStep("", "tool-calls")),
+          ],
+        };
+      }
+      return { finishReason: "stop", messages, steps: [streamedStep("Done.", "stop")] };
+    };
+
+    await runAgentTurn({ ...payload, wikiCatalog });
+
+    const prefix = agentWikiSystemPrompt("system", wikiCatalog);
+    expect(state.wikiCatalogAuthorization).toHaveBeenCalledOnce();
+    expect(state.providerContexts).toHaveLength(1);
+    expect(state.instructions.length).toBeGreaterThan(1);
+    for (const instructions of state.instructions) expect(instructions.startsWith(prefix)).toBe(true);
+    const compacted = state.instructions.at(-1) ?? "";
+    expect(compacted.indexOf(AGENT_WIKI_REFERENCE_CLOSE)).toBeLessThan(
+      compacted.indexOf("<agent_continuation_checkpoint>"),
+    );
   });
 
   it("carries a digest of earlier tool results into the compacted segment", async () => {

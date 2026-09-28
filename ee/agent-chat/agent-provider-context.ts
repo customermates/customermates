@@ -4,7 +4,7 @@ import { toModelMessages, type ReplayMessage } from "./agent-stream-utils";
 import type { AgentAiToolDefinition } from "./agent-tools";
 import { isAgentContextWithinBudget, serializedAgentContextBytes } from "./agent-budget-policy";
 import { AGENT_REPLAY_COUNT, agentReplayWorstCaseMessageChars } from "./agent-replay-budget";
-import { agentWikiContextMessages } from "./agent-wiki-context";
+import { agentWikiSystemPrompt } from "./agent-wiki-context";
 import { agentPageContextPrefix } from "./agent-page-context";
 import { agentContextProviderPrefix, type AgentContextAttachment } from "./agent-context";
 
@@ -20,10 +20,9 @@ export function buildAgentProviderContext(
   toolDefinitions: AgentAiToolDefinition[],
   wikiCatalog?: string | null,
 ): AgentProviderContext {
-  const history = toModelMessages(messages);
   return {
-    system: systemPrompt,
-    messages: [...history.slice(0, -1), ...agentWikiContextMessages(wikiCatalog), ...history.slice(-1)],
+    system: agentWikiSystemPrompt(systemPrompt, wikiCatalog),
+    messages: toModelMessages(messages),
     tools: toolDefinitions,
   };
 }

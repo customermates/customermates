@@ -47,7 +47,7 @@ import { SendAgentMessageSchema } from "../agent-chat.schema";
 import { conservativeAgentInitialContextBytes } from "../agent-provider-context";
 import { AGENT_SCHEMA_DIGEST_MAX_CHARS, renderAgentSchemaDigest } from "../agent-schema-digest";
 import { ANALYZE_RECORDS_TOOL_NAME } from "../agent-toolset-routing";
-import { serializeAgentWikiCatalog } from "../agent-wiki-context";
+import { WIKI_REFERENCE_MAX_BYTES, agentWikiReferenceBytes, serializeAgentWikiCatalog } from "../agent-wiki-context";
 import { MODEL_CATALOG, SHIPPED_AGENT_MODEL_KEY } from "../model-catalog";
 import { buildAgentSystemPrompt } from "../system-prompt";
 import { AGENT_UI_TARGETS } from "../ui-targets";
@@ -304,6 +304,23 @@ describe("agent tools", () => {
     "admits a full Unicode catalog on %s with the supported prompt limit on every catalog model (web search %s)",
     (surface, webSearchEnabled) => {
       const catalog = serializeAgentWikiCatalog({
+        guide: {
+          id: "00000000-0000-4000-8000-000000000099",
+          title: "漢".repeat(120),
+          url: "https://example.com/wiki",
+          markdown: '漢"\\'.repeat(400),
+          nextOffset: 1200,
+        },
+        procedures: {
+          items: Array.from({ length: 20 }, (_, index) => ({
+            id: `00000000-0000-4000-8000-${String(100 + index).padStart(12, "0")}`,
+            title: "漢".repeat(120),
+            url: "https://example.com/wiki",
+            whenToUse: '漢"\\'.repeat(100),
+          })),
+          total: 40,
+          truncated: true,
+        },
         items: Array.from({ length: 10 }, (_, index) => ({
           id: `00000000-0000-4000-8000-${String(index).padStart(12, "0")}`,
           title: "漢".repeat(120),
@@ -320,6 +337,8 @@ describe("agent tools", () => {
         nextPage: 2,
         truncated: true,
       });
+      expect(agentWikiReferenceBytes(catalog)).toBeGreaterThan(WIKI_REFERENCE_MAX_BYTES - 500);
+      expect(agentWikiReferenceBytes(catalog)).toBeLessThanOrEqual(WIKI_REFERENCE_MAX_BYTES);
       const states = [
         { wikiCatalog: catalog, wikiWebsiteSetup: false },
         { wikiCatalog: null, wikiWebsiteSetup: true },
