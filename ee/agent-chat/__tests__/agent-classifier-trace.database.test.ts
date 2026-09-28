@@ -15,7 +15,6 @@ vi.mock("@/env", () => ({
     CLOUD_HOSTED: true,
     AGENT_CHAT_DISABLED: false,
     AGENT_DOCS_RERANK: "off",
-    AGENT_TOOLSET_CLASSIFIER: "off",
     DATABASE_URL: process.env.DATABASE_URL,
     NODE_ENV: "test",
     BASE_URL: "http://localhost:4000",
@@ -116,27 +115,10 @@ describeDatabase("agent turn classifier trace persistence", { timeout: 120_000 }
     await expect(repo.markAgentTurnProviderStartedUnscoped(turn)).resolves.toBe(true);
 
     const charges = [
-      { use: "toolset_preload" as const, model: "jev" as const, costMicrocents: 300, measured: true, answered: true },
       { use: "docs_rerank" as const, model: "jev" as const, costMicrocents: 1_600, measured: true, answered: true },
-      { use: "guard_bulk" as const, model: "jev" as const, costMicrocents: 50, measured: true, answered: true },
+      { use: "docs_rerank" as const, model: "jev" as const, costMicrocents: 350, measured: true, answered: false },
     ];
-    const classifierTrace = buildAgentTurnClassifierTrace(
-      {
-        model: "jev",
-        answered: true,
-        lexicon: [],
-        predicted: ["webhooks"],
-        added: ["webhooks"],
-        costMicrocents: 300,
-        measured: true,
-        mode: "parallel-v2",
-        rejected: ["views"],
-        removed: [],
-        appliedAtRound: 1,
-      },
-      charges,
-      { promptBytesByRound: [14_000, 15_200], guardCovered: 1 },
-    );
+    const classifierTrace = buildAgentTurnClassifierTrace(charges);
     const usageSettlement = buildAgentUsageSettlement({
       model: run.turnBudget.modelSpec,
       provider: run.turnBudget.servingProvider,
@@ -164,16 +146,17 @@ describeDatabase("agent turn classifier trace persistence", { timeout: 120_000 }
       }),
     );
     expect(stored.classifierTrace).toEqual(classifierTrace);
-    expect(stored.classifierTrace).toMatchObject({
-      guardBulk: { calls: 1, covered: 1 },
-      promptBytesByRound: [14_000, 15_200],
+    expect(stored.classifierTrace).toEqual({
+      auxiliaryCostMicrocents: 1_950,
+      auxiliaryMeasured: true,
+      docsRerank: { model: "jev", calls: 2, answered: 1, costMicrocents: 1_950, measured: true },
     });
     expect(stored.rounds).toHaveLength(0);
     expect(stored.usageEvents).toHaveLength(1);
     expect(stored.usageEvents[0]).toMatchObject({ state: "settled", costSource: "measured", costMicrocents: 51_950n });
   });
 
-  it.each([{ auxiliaryCostMicrocents: -5 }, { auxiliaryCostMicrocents: 0, promptBytesByRound: [-1] }])(
+  it.each([{ auxiliaryCostMicrocents: -5 }, { auxiliaryCostMicrocents: 1.5 }])(
     "refuses a malformed classifier trace before touching the turn (%o)",
     async (malformed) => {
       await expect(
@@ -190,7 +173,6 @@ describeDatabase("agent turn classifier trace persistence", { timeout: 120_000 }
           usageSettlement: null,
           classifierTrace: {
             auxiliaryMeasured: true,
-            toolsetPreload: null,
             docsRerank: null,
             ...malformed,
           },

@@ -64,7 +64,6 @@ export type ArmSummary = {
   classifierCostShare: number;
   docsToolCallsPerTurn: number;
   docsRerankCallsPerTurn: number;
-  toolsetPreloadShare: number;
 };
 
 const DOCS_TOOL_NAMES = new Set(["search_docs", "get_docs_page"]);
@@ -85,9 +84,6 @@ function classifierMetrics(scored: readonly EpisodeArtifact[], turnCount: number
     docsToolCallsPerTurn: turnCount ? docsCalls / turnCount : 0,
     docsRerankCallsPerTurn: turnCount
       ? traces.reduce((total, trace) => total + (trace?.docsRerank?.calls ?? 0), 0) / turnCount
-      : 0,
-    toolsetPreloadShare: turnCount
-      ? traces.filter((trace) => (trace?.toolsetPreload?.added.length ?? 0) > 0).length / turnCount
       : 0,
   };
 }
@@ -420,9 +416,9 @@ export function renderReport(report: BenchmarkReport): string {
   lines.push("## Arms", "", "| Arm | Comparable episodes | Strict contracts passed | Pass | Pass^3 | Judge | Judge coverage | Judge split | $/episode | $/turn | Credits/turn | $/success | Measured | Cache read | Cache write | Rounds/turn | First output p50 | First output p95 | TTFT p50 | TTFT p95 | Wall p50 | Wall p95 | Length stops | Incomplete turns | Never solved |", "| --- | ---: | ---: | ---: | ---: | ---: | ---: | ---: | ---: | ---: | ---: | ---: | ---: | ---: | ---: | ---: | ---: | ---: | ---: | ---: | ---: | ---: | ---: | ---: | --- |");
   for (const arm of report.arms)
     lines.push(`| ${arm.runtimeVariant}/${arm.arm} | ${arm.episodes}${arm.skipped ? ` (+${arm.skipped} skipped)` : ""} | ${arm.contractPassed}/${arm.contractEpisodes} | ${pct(arm.passRate)} | ${arm.passAt3 === null ? "n/a" : pct(arm.passAt3)} | ${arm.judgeMean === null ? "n/a" : arm.judgeMean.toFixed(2)} | ${arm.judgeComplete}/${arm.judgeEligible} | ${arm.judgeDisagreementShare === null ? "n/a" : pct(arm.judgeDisagreementShare)} | ${usd(arm.usdPerEpisode)} | ${usd(arm.usdPerTurn)} | ${arm.creditsPerTurn.toFixed(1)} | ${usd(arm.costPerSuccessfulTask)} | ${pct(arm.measuredShare)} | ${pct(arm.cacheReadShare)} | ${pct(arm.cacheWriteShare)} | ${arm.roundsPerTurn.toFixed(1)} | ${ms(arm.firstOutputP50Ms)} | ${ms(arm.firstOutputP95Ms)} | ${ms(arm.ttftP50Ms)} | ${ms(arm.ttftP95Ms)} | ${ms(arm.wallP50Ms)} | ${ms(arm.wallP95Ms)} | ${pct(arm.lengthFinishShare)} | ${pct(arm.incompleteTurnShare)} | ${arm.neverSolvedCases.join(" ") || "-"} |`);
-  lines.push("", "## Classifier", "", "| Arm | Classifier $/turn | Classifier cost share | Docs tool calls/turn | Docs re-rank calls/turn | Turns with toolset preload |", "| --- | ---: | ---: | ---: | ---: | ---: |");
+  lines.push("", "## Classifier", "", "| Arm | Classifier $/turn | Classifier cost share | Docs tool calls/turn | Docs re-rank calls/turn |", "| --- | ---: | ---: | ---: | ---: |");
   for (const arm of report.arms)
-    lines.push(`| ${arm.runtimeVariant}/${arm.arm} | ${usd(arm.classifierUsdPerTurn ?? 0)} | ${pct(arm.classifierCostShare ?? 0)} | ${(arm.docsToolCallsPerTurn ?? 0).toFixed(2)} | ${(arm.docsRerankCallsPerTurn ?? 0).toFixed(2)} | ${pct(arm.toolsetPreloadShare ?? 0)} |`);
+    lines.push(`| ${arm.runtimeVariant}/${arm.arm} | ${usd(arm.classifierUsdPerTurn ?? 0)} | ${pct(arm.classifierCostShare ?? 0)} | ${(arm.docsToolCallsPerTurn ?? 0).toFixed(2)} | ${(arm.docsRerankCallsPerTurn ?? 0).toFixed(2)} |`);
   lines.push("", "## Judges", "", "| Judge | Judged | Mean |", "| --- | ---: | ---: |");
   for (const judge of report.judgeModels)
     lines.push(`| ${judge.model} | ${judge.judged}/${judge.episodes} | ${judge.mean === null ? "n/a" : judge.mean.toFixed(2)} |`);

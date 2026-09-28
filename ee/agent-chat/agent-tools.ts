@@ -18,7 +18,6 @@ import { RequestSupportSchema } from "@/features/mcp-tools/support.mcp-tools";
 import {
   getDocsPageRanked,
   getDocsPageTool,
-  searchDocs,
   searchDocsRanked,
   searchDocsTool,
   type GetDocsPageInput,
@@ -336,15 +335,11 @@ async function listUiTargets(input: z.infer<typeof ListUiTargetsSchema>, resultM
 
 function hostedMcpTool(mcp: (typeof ALL_MCP_TOOLS)[number], deps: AgentToolDeps): (typeof ALL_MCP_TOOLS)[number] {
   if (mcp.name !== searchDocsTool.name && mcp.name !== getDocsPageTool.name) return mcp;
-  const ranking = hostedDocsRanking(deps.latestUserMessage ?? null);
-  if (!ranking) return mcp;
-  if (ranking.version === "v1") {
-    if (mcp.name !== searchDocsTool.name) return mcp;
-    return { ...mcp, execute: (input: SearchDocsInput) => searchDocs(input, ranking.rerank) };
-  }
+  const rank = hostedDocsRanking(deps.latestUserMessage ?? null);
+  if (!rank) return mcp;
   if (mcp.name === searchDocsTool.name)
-    return { ...mcp, execute: (input: SearchDocsInput) => searchDocsRanked(input, ranking.rank) };
-  return { ...mcp, execute: (input: GetDocsPageInput) => getDocsPageRanked(input, ranking.rank) };
+    return { ...mcp, execute: (input: SearchDocsInput) => searchDocsRanked(input, rank) };
+  return { ...mcp, execute: (input: GetDocsPageInput) => getDocsPageRanked(input, rank) };
 }
 
 function crmTool(mcp: (typeof ALL_MCP_TOOLS)[number], deps: AgentToolDeps) {

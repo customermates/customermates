@@ -196,13 +196,12 @@ describe("benchmark report", () => {
     expect(rendered).toContain(`| ${JUDGE_MODELS[0].id} | 12/36 | 3.67 |\n| ${JUDGE_MODELS[1].id} | 8/36 | 4.50 |`);
   });
 
-  it("shows classifier cost share, docs tool calls and preloads per arm", async () => {
+  it("shows classifier cost share, docs tool calls and docs re-rank calls per arm", async () => {
     const dir = await mkdtemp(join(tmpdir(), "agent-benchmark-"));
     const trace = {
       auxiliaryCostMicrocents: 500_000,
       auxiliaryMeasured: true,
-      toolsetPreload: { model: "jev" as const, answered: true, lexicon: [], predicted: ["webhooks"], added: ["webhooks"], costMicrocents: 100_000, measured: true },
-      docsRerank: { model: "jev" as const, calls: 2, answered: 2, costMicrocents: 400_000, measured: true },
+      docsRerank: { model: "jev" as const, calls: 2, answered: 2, costMicrocents: 500_000, measured: true },
     };
     const withClassifier = (entry: EpisodeArtifact, reranked: boolean): EpisodeArtifact => ({
       ...entry,
@@ -223,10 +222,10 @@ describe("benchmark report", () => {
     const off = report.arms.find((arm) => arm.runtimeVariant === "current");
     const jev = report.arms.find((arm) => arm.runtimeVariant === "docs-jev");
 
-    expect(off).toMatchObject({ classifierUsdPerTurn: 0, classifierCostShare: 0, docsToolCallsPerTurn: 2, toolsetPreloadShare: 0 });
-    expect(jev).toMatchObject({ classifierUsdPerTurn: 0.005, docsToolCallsPerTurn: 2, docsRerankCallsPerTurn: 2, toolsetPreloadShare: 1 });
+    expect(off).toMatchObject({ classifierUsdPerTurn: 0, classifierCostShare: 0, docsToolCallsPerTurn: 2, docsRerankCallsPerTurn: 0 });
+    expect(jev).toMatchObject({ classifierUsdPerTurn: 0.005, docsToolCallsPerTurn: 2, docsRerankCallsPerTurn: 2 });
     expect(jev?.classifierCostShare).toBeCloseTo(0.1, 6);
-    expect(renderReport(report)).toContain("| docs-jev/shipped | $0.0050 | 10.0 % | 2.00 | 2.00 | 100.0 % |");
+    expect(renderReport(report)).toContain("| docs-jev/shipped | $0.0050 | 10.0 % | 2.00 | 2.00 |\n");
   });
 
   it("keeps full-suite coverage and the exact merge-check result separate from comparative metrics", async () => {

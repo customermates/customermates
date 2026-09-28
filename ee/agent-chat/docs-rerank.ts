@@ -1,15 +1,8 @@
 import type { ClassifierResult, ClassifierSpec, ClassifierState } from "./classifier";
-import type {
-  DocsRankCandidate,
-  DocsRerankCandidate,
-  DocsSectionRanker,
-  DocsSectionReranker,
-} from "@/features/mcp-tools/docs.mcp-tools";
-
-import { env } from "@/env";
+import type { DocsRankCandidate, DocsSectionRanker } from "@/features/mcp-tools/docs.mcp-tools";
 
 import { agentContextFromProviderText } from "./agent-context";
-import { classifyMetered, hostedClassifierModelFor } from "./classifier/metered";
+import { classifyMetered, hostedDocsRerankModel } from "./classifier/metered";
 
 export const DOCS_RERANK_TIMEOUT_MS = 800;
 export const DOCS_RERANK_USER_MESSAGE_CHARS = 1_000;
@@ -22,27 +15,6 @@ export function docsRerankPlainText(value: string): string {
     .replace(/\[([^\]]*)\]\([^)]*\)/g, "$1")
     .replace(/\s+/g, " ")
     .trim();
-}
-
-export function docsRerankSpec(candidates: readonly DocsRerankCandidate[]): ClassifierSpec {
-  const options = Object.fromEntries(
-    candidates.map(({ id, section }) => [
-      `s${id}`,
-      `${section.pageTitle} > ${section.headingPath.join(" > ")}: ${docsRerankPlainText(section.text).slice(0, DOCS_RERANK_OPTION_CHARS)}`,
-    ]),
-  );
-  return {
-    id: "docs-rerank",
-    questions: [
-      {
-        id: "best",
-        type: "choice",
-        instruction:
-          "Which documentation section best answers `question`? If none answers it fully, pick the closest one.",
-        options,
-      },
-    ],
-  };
 }
 
 export function docsRerankChoice(result: ClassifierResult | null): number | null {
@@ -103,41 +75,18 @@ export function docsRankUserMessage(text: string | null | undefined): string | n
   return body ? body.slice(0, DOCS_RERANK_USER_MESSAGE_CHARS) : null;
 }
 
-export type HostedDocsRanking =
-  | { version: "v1"; rerank: DocsSectionReranker }
-  | { version: "v2"; rank: DocsSectionRanker };
-
-export function hostedDocsRanking(userMessage: string | null = null): HostedDocsRanking | undefined {
-  const model = hostedClassifierModelFor("docs_rerank");
+export function hostedDocsRanking(userMessage: string | null = null): DocsSectionRanker | undefined {
+  const model = hostedDocsRerankModel();
   if (!model) return undefined;
-  const options = { jev: { timeoutMs: DOCS_RERANK_TIMEOUT_MS }, gemini: { timeoutMs: DOCS_RERANK_TIMEOUT_MS } };
-  if (env.AGENT_DOCS_RERANK_VERSION === "v1") {
-    return {
-      version: "v1",
-      rerank: async (query, candidates) => {
-        const { result } = await classifyMetered(
-          "docs_rerank",
-          docsRerankSpec(candidates),
-          { question: query },
-          model,
-          options,
-        );
-        return docsRerankChoice(result);
-      },
-    };
-  }
   const message = docsRankUserMessage(userMessage);
-  return {
-    version: "v2",
-    rank: async (query, candidates) => {
-      const { result } = await classifyMetered(
-        "docs_rerank",
-        docsRankSpec(candidates),
-        docsRankState(query, message),
-        model,
-        options,
-      );
-      return docsRankOrder(result, candidates);
-    },
+  return async (query, candidates) => {
+    const { result } = await classifyMetered(
+      "docs_rerank",
+      docsRankSpec(candidates),
+      docsRankState(query, message),
+      model,
+      { jev: { timeoutMs: DOCS_RERANK_TIMEOUT_MS } },
+    );
+    return docsRankOrder(result, candidates);
   };
 }

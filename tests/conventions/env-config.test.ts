@@ -8,12 +8,8 @@ import {
   resolveAppMode,
   resolveAuthAllowedHosts,
   resolveBaseUrl,
-  AGENT_GUARD_MODES,
-  DOCS_RERANK_VERSIONS,
-  resolveClassifierSwitch,
-  resolveEnumSetting,
+  resolveDocsRerank,
   resolveOptionalBigInt,
-  TOOLSET_CLASSIFIER_MODES,
   resolveRequestOrigin,
   resolveStrictBoolean,
   resolveVercelBranchOrigin,
@@ -294,40 +290,24 @@ describe("hosted-AI control configuration", () => {
       expect(() => resolveStrictBoolean("HOSTED_AI_PROVIDER_WORK_PAUSED", invalid)).toThrow(/"true" or "false"/);
   });
 
-  it("reads an unset classifier switch as off and rejects anything but the three literals", () => {
-    for (const absent of [undefined, "", "   "])
-      expect(resolveClassifierSwitch("AGENT_DOCS_RERANK", absent)).toBe("off");
+  it("reads an unset docs re-rank as jev and rejects anything but off or jev", () => {
+    for (const absent of [undefined, "", "   "]) expect(resolveDocsRerank(absent)).toBe("jev");
 
-    expect(resolveClassifierSwitch("AGENT_DOCS_RERANK", "jev")).toBe("jev");
-    expect(resolveClassifierSwitch("AGENT_TOOLSET_CLASSIFIER", " gemini ")).toBe("gemini");
-    expect(resolveClassifierSwitch("AGENT_TOOLSET_CLASSIFIER", "off")).toBe("off");
+    expect(resolveDocsRerank(" jev ")).toBe("jev");
+    expect(resolveDocsRerank("off")).toBe("off");
 
-    for (const invalid of ["JEV", "true", "on", "gemini-flash"])
-      expect(() => resolveClassifierSwitch("AGENT_DOCS_RERANK", invalid)).toThrow(/"off", "jev" or "gemini"/);
+    for (const invalid of ["JEV", "gemini", "true", "v2"])
+      expect(() => resolveDocsRerank(invalid)).toThrow(/AGENT_DOCS_RERANK must be configured as "off" or "jev"/);
   });
 
-  it("ships both classifier switches off in the cloud template until the A/B decides", () => {
+  it("documents the docs re-rank's data flow and drops the removed classifier switches from the cloud template", () => {
     const template = readFileSync(new URL("../../.env.cloud.template", import.meta.url), "utf8");
 
-    expect(template).toMatch(/^AGENT_DOCS_RERANK="off"$/m);
-    expect(template).toMatch(/^AGENT_TOOLSET_CLASSIFIER="off"$/m);
-    expect(template).toMatch(/^AGENT_DOCS_RERANK_VERSION="v2"$/m);
-    expect(template).toMatch(/^AGENT_TOOLSET_CLASSIFIER_MODE="parallel-v2"$/m);
-    expect(template).toMatch(/^AGENT_GUARD_MODE="wordlists"$/m);
-  });
-
-  it("defaults the v2 designs and the shipped guard, and rejects anything but their literals", () => {
-    expect(resolveEnumSetting("AGENT_DOCS_RERANK_VERSION", undefined, DOCS_RERANK_VERSIONS, "v2")).toBe("v2");
-    expect(resolveEnumSetting("AGENT_DOCS_RERANK_VERSION", " v1 ", DOCS_RERANK_VERSIONS, "v2")).toBe("v1");
-    expect(resolveEnumSetting("AGENT_TOOLSET_CLASSIFIER_MODE", "", TOOLSET_CLASSIFIER_MODES, "parallel-v2")).toBe(
-      "parallel-v2",
-    );
-    expect(resolveEnumSetting("AGENT_GUARD_MODE", "structural-classifier", AGENT_GUARD_MODES, "wordlists")).toBe(
-      "structural-classifier",
-    );
-    expect(() => resolveEnumSetting("AGENT_GUARD_MODE", "classifier", AGENT_GUARD_MODES, "wordlists")).toThrow(
-      /AGENT_GUARD_MODE must be configured as one of: wordlists, structural, structural-classifier/,
-    );
+    expect(template).toMatch(/^AGENT_DOCS_RERANK="jev"$/m);
+    expect(template).toMatch(/TypeSafe AI in the US/);
+    expect(template).toMatch(/before\n# enabling it; until then, and in any production without it, set "off"/);
+    for (const removed of ["AGENT_DOCS_RERANK_VERSION", "AGENT_TOOLSET_CLASSIFIER", "AGENT_GUARD_MODE"])
+      expect(template).not.toContain(removed);
   });
 });
 

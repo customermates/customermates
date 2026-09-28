@@ -3,12 +3,12 @@ import { describe, expect, it, vi } from "vitest";
 import {
   DOCS_RERANK_CANDIDATES,
   DOCS_RERANK_EXCERPT_CHARS,
+  docsRankCandidates,
   docsRerankExcerpt,
-  docsSectionCandidates,
-  searchDocs,
+  searchDocsRanked,
   searchDocsRaw,
   searchDocsTool,
-  type DocsRerankCandidate,
+  type DocsRankCandidate,
 } from "../docs.mcp-tools";
 
 const QUERY = "how do I check that a webhook call really came from you";
@@ -18,32 +18,33 @@ function keywordResult() {
   return searchDocsTool.execute(INPUT);
 }
 
-function pickFrom(predicate: (candidate: DocsRerankCandidate) => boolean) {
-  return vi.fn((_query: string, candidates: readonly DocsRerankCandidate[]) =>
-    Promise.resolve(candidates.find(predicate)?.id ?? null),
-  );
+function pickFrom(predicate: (candidate: DocsRankCandidate) => boolean) {
+  return vi.fn((_query: string, candidates: readonly DocsRankCandidate[]) => {
+    const chosen = candidates.find(predicate);
+    return Promise.resolve(chosen ? [chosen.id] : null);
+  });
 }
 
 describe("docs search re-rank", () => {
-  it("offers the keyword top sections as candidates, several per page", () => {
-    const candidates = docsSectionCandidates(QUERY, "en", "docs");
+  it("offers the keyword top sections with excerpts first, several per page", () => {
+    const lexical = docsRankCandidates(QUERY, "en").filter((candidate) => !candidate.titleOnly);
 
-    expect(candidates.length).toBeGreaterThan(1);
-    expect(candidates.length).toBeLessThanOrEqual(DOCS_RERANK_CANDIDATES);
-    expect(new Set(candidates.map((candidate) => candidate.section.slug)).size).toBeLessThan(candidates.length);
+    expect(lexical.length).toBeGreaterThan(1);
+    expect(lexical.length).toBeLessThanOrEqual(DOCS_RERANK_CANDIDATES);
+    expect(new Set(lexical.map((candidate) => candidate.section.slug)).size).toBeLessThan(lexical.length);
   });
 
   it("returns the chosen section by anchor as the excerpt and puts its page first", async () => {
     const keyword = searchDocsRaw(QUERY, "en", "docs");
-    const target = docsSectionCandidates(QUERY, "en", "docs").find(
-      (candidate) => candidate.section.slug !== keyword.results[0].slug,
+    const target = docsRankCandidates(QUERY, "en").find(
+      (candidate) => !candidate.titleOnly && candidate.section.slug !== keyword.results[0].slug,
     );
     if (!target) throw new Error("expected a candidate on another page");
-    const rerank = pickFrom((candidate) => candidate.id === target.id);
+    const rank = pickFrom((candidate) => candidate.id === target.id);
 
-    const result = await searchDocs(INPUT, rerank);
+    const result = await searchDocsRanked(INPUT, rank);
 
-    expect(rerank).toHaveBeenCalledWith(QUERY, docsSectionCandidates(QUERY, "en", "docs"));
+    expect(rank).toHaveBeenCalledWith(QUERY, docsRankCandidates(QUERY, "en"));
     expect(result.structuredContent.results[0]).toMatchObject({
       slug: target.section.slug,
       anchor: target.section.anchor,
@@ -59,23 +60,23 @@ describe("docs search re-rank", () => {
 
   it.each([
     ["no choice", vi.fn(() => Promise.resolve(null))],
-    ["an unknown candidate", vi.fn(() => Promise.resolve(-1))],
+    ["an unknown candidate", vi.fn(() => Promise.resolve([-1]))],
     ["a failure", vi.fn(() => Promise.reject(new Error("timeout")))],
-  ])("keeps today's keyword output on %s", async (_label, rerank) => {
-    expect(await searchDocs(INPUT, rerank)).toEqual(keywordResult());
-    expect(rerank).toHaveBeenCalledTimes(1);
+  ])("keeps today's keyword output on %s", async (_label, rank) => {
+    expect(await searchDocsRanked(INPUT, rank)).toEqual(keywordResult());
+    expect(rank).toHaveBeenCalledTimes(1);
   });
 
   it("leaves the REST reference and the mixed search to the keyword ranker", async () => {
-    const rerank = vi.fn(() => Promise.resolve(0));
+    const rank = vi.fn(() => Promise.resolve([0]));
 
-    expect(await searchDocs({ ...INPUT, source: "api" }, rerank)).toEqual(
+    expect(await searchDocsRanked({ ...INPUT, source: "api" }, rank)).toEqual(
       searchDocsTool.execute({ ...INPUT, source: "api" }),
     );
-    expect(await searchDocs({ ...INPUT, source: "all" }, rerank)).toEqual(
+    expect(await searchDocsRanked({ ...INPUT, source: "all" }, rank)).toEqual(
       searchDocsTool.execute({ ...INPUT, source: "all" }),
     );
-    expect(rerank).not.toHaveBeenCalled();
+    expect(rank).not.toHaveBeenCalled();
   });
 
   it("keeps the MCP tool synchronous and unranked for external clients", () => {

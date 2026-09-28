@@ -52,38 +52,17 @@ export function resolveStrictBoolean(name: string, value: string | undefined): b
   throw new Error(`${name} must be configured as "true" or "false"`);
 }
 
-export const CLASSIFIER_SWITCH_VALUES = ["off", "jev", "gemini"] as const;
-export type ClassifierSwitch = (typeof CLASSIFIER_SWITCH_VALUES)[number];
+export const DOCS_RERANK_SETTINGS = ["off", "jev"] as const;
+export type DocsRerankSetting = (typeof DOCS_RERANK_SETTINGS)[number];
 
-export function resolveClassifierSwitch(name: string, value: string | undefined): ClassifierSwitch {
+export function resolveDocsRerank(value: string | undefined): DocsRerankSetting {
   const normalized = value?.trim();
-  if (!normalized) return "off";
-  if ((CLASSIFIER_SWITCH_VALUES as readonly string[]).includes(normalized)) return normalized as ClassifierSwitch;
+  if (!normalized) return "jev";
+  if ((DOCS_RERANK_SETTINGS as readonly string[]).includes(normalized)) return normalized as DocsRerankSetting;
 
-  throw new Error(`${name} must be configured as "off", "jev" or "gemini"`);
+  throw new Error('AGENT_DOCS_RERANK must be configured as "off" or "jev"');
 }
 
-export const DOCS_RERANK_VERSIONS = ["v1", "v2"] as const;
-export type DocsRerankVersion = (typeof DOCS_RERANK_VERSIONS)[number];
-
-export const TOOLSET_CLASSIFIER_MODES = ["additive-v1", "parallel-v2"] as const;
-export type ToolsetClassifierMode = (typeof TOOLSET_CLASSIFIER_MODES)[number];
-
-export const AGENT_GUARD_MODES = ["wordlists", "structural", "structural-classifier"] as const;
-export type AgentGuardMode = (typeof AGENT_GUARD_MODES)[number];
-
-export function resolveEnumSetting<const T extends readonly string[]>(
-  name: string,
-  value: string | undefined,
-  allowed: T,
-  fallback: T[number],
-): T[number] {
-  const normalized = value?.trim();
-  if (!normalized) return fallback;
-  if ((allowed as readonly string[]).includes(normalized)) return normalized as T[number];
-
-  throw new Error(`${name} must be configured as one of: ${allowed.join(", ")}`);
-}
 export function resolveOptionalBigInt(name: string, value: string | undefined): bigint | null {
   const normalized = value?.trim();
   if (!normalized) return null;

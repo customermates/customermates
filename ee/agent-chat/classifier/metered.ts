@@ -1,5 +1,4 @@
-import type { ClassifierSwitch } from "@/core/config/environment";
-import type { ClassifierModel, ClassifierResult, ClassifierSpec, ClassifierState } from "./spec";
+import type { ClassifierResult, ClassifierSpec, ClassifierState } from "./spec";
 import type { ClassifyOptions } from "./index";
 
 import { AsyncLocalStorage } from "node:async_hooks";
@@ -8,17 +7,18 @@ import { env } from "@/env";
 
 import { computeCostMicrocents, type TokenCounts } from "../model-pricing";
 
-import { GEMINI_CLASSIFIER_ENTRY, GEMINI_CLASSIFIER_MAX_OUTPUT_TOKENS, geminiSystemPrompt } from "./gemini-runner";
 import { classifyAttempt } from "./index";
 import { JEV_MODEL_ID, JEV_PRICING_PROVIDER, jevRequestBody } from "./jev-runner";
 
-export const CLASSIFIER_USES = ["docs_rerank", "toolset_preload", "guard_bulk"] as const;
+export const CLASSIFIER_USES = ["docs_rerank"] as const;
 
 export type ClassifierUse = (typeof CLASSIFIER_USES)[number];
 
+export type MeteredClassifierModel = "jev";
+
 export type ClassifierCharge = {
   use: ClassifierUse;
-  model: ClassifierModel;
+  model: MeteredClassifierModel;
   costMicrocents: number;
   measured: boolean;
   answered: boolean;
@@ -36,56 +36,30 @@ export async function collectClassifierCharges<T>(
   return { value, charges };
 }
 
-export function hostedClassifierModel(setting: ClassifierSwitch): ClassifierModel | null {
-  if (setting === "off" || env.APP_MODE === "self-hosted") return null;
-  return setting;
-}
-
-export const GUARD_BULK_CLASSIFIER_MODEL: ClassifierModel = "jev";
-
-export function hostedClassifierModelFor(use: ClassifierUse): ClassifierModel | null {
-  if (use === "guard_bulk")
-    return env.AGENT_GUARD_MODE === "structural-classifier" ? hostedClassifierModel(GUARD_BULK_CLASSIFIER_MODEL) : null;
-  return hostedClassifierModel(use === "docs_rerank" ? env.AGENT_DOCS_RERANK : env.AGENT_TOOLSET_CLASSIFIER);
+export function hostedDocsRerankModel(): MeteredClassifierModel | null {
+  if (env.AGENT_DOCS_RERANK === "off" || env.APP_MODE === "self-hosted") return null;
+  return "jev";
 }
 
 function estimatedTokens(text: string) {
   return Math.ceil(Buffer.byteLength(text, "utf8") / ESTIMATE_BYTES_PER_TOKEN);
 }
 
-export function estimateClassifierCostMicrocents(
-  model: ClassifierModel,
-  spec: ClassifierSpec,
-  state: ClassifierState,
-): number {
-  if (model === "jev") {
-    const tokens: TokenCounts = {
-      inputTokens: estimatedTokens(JSON.stringify(jevRequestBody(spec, state))),
-      outputTokens: 0,
-      cacheReadTokens: 0,
-      cacheWriteTokens: 0,
-    };
-    return computeCostMicrocents(JEV_MODEL_ID, tokens, JEV_PRICING_PROVIDER, null);
-  }
+export function estimateClassifierCostMicrocents(spec: ClassifierSpec, state: ClassifierState): number {
   const tokens: TokenCounts = {
-    inputTokens: estimatedTokens(`${geminiSystemPrompt(spec)}${JSON.stringify(state)}`),
-    outputTokens: GEMINI_CLASSIFIER_MAX_OUTPUT_TOKENS,
+    inputTokens: estimatedTokens(JSON.stringify(jevRequestBody(spec, state))),
+    outputTokens: 0,
     cacheReadTokens: 0,
     cacheWriteTokens: 0,
   };
-  return computeCostMicrocents(
-    GEMINI_CLASSIFIER_ENTRY.modelId,
-    tokens,
-    GEMINI_CLASSIFIER_ENTRY.servingProvider,
-    GEMINI_CLASSIFIER_ENTRY.inferenceRegion,
-  );
+  return computeCostMicrocents(JEV_MODEL_ID, tokens, JEV_PRICING_PROVIDER, null);
 }
 
 export async function classifyMetered(
   use: ClassifierUse,
   spec: ClassifierSpec,
   state: ClassifierState,
-  model: ClassifierModel,
+  model: MeteredClassifierModel,
   options: ClassifyOptions = {},
 ): Promise<{ result: ClassifierResult | null; charge: ClassifierCharge | null }> {
   const attempt = await classifyAttempt(spec, state, model, options);
@@ -94,7 +68,7 @@ export async function classifyMetered(
   const charge: ClassifierCharge = {
     use,
     model,
-    costMicrocents: measured ?? estimateClassifierCostMicrocents(model, spec, state),
+    costMicrocents: measured ?? estimateClassifierCostMicrocents(spec, state),
     measured: measured !== null,
     answered: attempt.result !== null,
   };

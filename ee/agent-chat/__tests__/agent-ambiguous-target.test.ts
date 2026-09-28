@@ -1,15 +1,11 @@
 import { decode, encode } from "@toon-format/toon";
-import { describe, expect, it, vi } from "vitest";
+import { describe, expect, it } from "vitest";
 
 import {
   ambiguityRequestOf,
   ambiguousTargetRefusal,
   ambiguousTargetsFromMessages,
   candidateIdsIn,
-  coversEveryCandidate,
-  evaluateAmbiguousTargets,
-  GUARD_BULK_MIN_PROBABILITY,
-  guardRefusesWrite,
   mergeAmbiguousTarget,
   refusingTarget,
   type AmbiguityRequest,
@@ -1126,104 +1122,5 @@ describe("ambiguous write targets", () => {
     const [target] = ambiguousTargetsFromMessages(reads(services), named);
     expect(target).toMatchObject({ entity: "service", phrase: "IT" });
     expect(refusingTarget([target], false, { services: [{ id: IT }] })).toBe(target);
-  });
-});
-
-describe("guard modes for the fair retest", () => {
-  const BULK = [
-    "Set both Nova Expansion deals to Won.",
-    "Set all the Nova Expansion deals to Won.",
-    "Setze jeden Deal, dessen Name mit 'Nova Expansion' beginnt, auf Gewonnen.",
-    "Archive all our Nova Expansion.",
-  ];
-  const novaCandidates = novaRows.map(([id, name]) => ({ id, name }));
-  const evaluate = (
-    mode: "wordlists" | "structural" | "structural-classifier",
-    latestUserText: string,
-    bulkProbability?: () => number | null,
-    previousAssistantText?: string,
-  ) =>
-    evaluateAmbiguousTargets({
-      mode,
-      latestUserText,
-      previousAssistantText,
-      entity: "deal",
-      candidates: novaCandidates,
-      bulkProbability,
-    });
-
-  it("keeps today's guard as the default and as the wordlists mode", () => {
-    for (const text of [...BULK, "Mark the Nova Expansion deal as Won."]) {
-      expect(ambiguousTargetsFromMessages(reads(novaSearch), request(text), "wordlists"), text).toEqual(
-        ambiguousTargetsFromMessages(reads(novaSearch), request(text)),
-      );
-      expect(evaluate("wordlists", text).targets, text).toEqual(
-        ambiguousTargetsFromMessages(reads(novaSearch), request(text)),
-      );
-    }
-    expect(evaluate("wordlists", "Set both Nova Expansion deals to Won.").targets).toEqual([]);
-  });
-
-  it("drops the rule and bulk word lists in the structural mode, so a set word or a rule no longer disarms", () => {
-    for (const text of BULK) {
-      expect(ambiguousTargetsFromMessages(reads(novaSearch), request(text), "structural"), text).toHaveLength(1);
-      expect(evaluate("structural", text).targets, text).toHaveLength(1);
-      expect(evaluate("structural", text).targets[0].bulkEligible, text).toBeUndefined();
-    }
-  });
-
-  it("keeps the structural layer in every mode: a full name, a chosen record and a clarification answer", () => {
-    const asked = "Two deals match: Nova Expansion and Nova Expansion 2025. Which one do you mean?";
-    for (const mode of ["wordlists", "structural", "structural-classifier"] as const) {
-      expect(evaluate(mode, "Mark Nova Expansion 2025 as Won.", () => 1).targets, mode).toEqual([]);
-      expect(evaluate(mode, "I meant just Nova Expansion, the one without a year", () => 1, asked).targets).toEqual([]);
-      expect(evaluate(mode, "Mark the Nova Expansion deal as Won.", () => 0).targets, mode).toHaveLength(1);
-    }
-  });
-
-  it("lets the classifier mark an uncontested mention as covering every candidate, only at or above 0.8", () => {
-    const text = "Set both Nova Expansion deals to Won.";
-
-    expect(GUARD_BULK_MIN_PROBABILITY).toBe(0.8);
-    expect(evaluate("structural-classifier", text, () => 0.8)).toMatchObject({ targets: [], bulkCovered: [{}] });
-    expect(evaluate("structural-classifier", text, () => 0.79).targets).toHaveLength(1);
-    expect(evaluate("structural-classifier", text, () => null).targets).toHaveLength(1);
-    expect(evaluate("structural-classifier", text).targets).toHaveLength(1);
-    expect(evaluate("structural", text, () => 1).targets).toHaveLength(1);
-    expect(ambiguousTargetsFromMessages(reads(novaSearch), request(text), "structural-classifier")).toEqual([
-      expect.objectContaining({ phrase: "Nova Expansion", bulkEligible: true }),
-    ]);
-  });
-
-  it("never lets the classifier clear a contested name the user also chose a record for", () => {
-    const rows = [
-      { id: NOVA, name: "Nova" },
-      { id: NOVA_2025, name: "Nova East" },
-      { id: UNRELATED, name: "Nova West" },
-    ];
-    const probability = vi.fn(() => 1);
-    const { targets, bulkCovered } = evaluateAmbiguousTargets({
-      mode: "structural-classifier",
-      latestUserText: "Set Nova East to Won and close Nova.",
-      entity: "deal",
-      candidates: rows,
-      bulkProbability: probability,
-    });
-
-    expect(bulkCovered).toEqual([]);
-    expect(targets).toHaveLength(1);
-    expect(targets[0].bulkEligible).toBeUndefined();
-    expect(probability).not.toHaveBeenCalled();
-    expect(coversEveryCandidate(targets[0], 1)).toBe(false);
-  });
-
-  it("refuses a single-candidate write to an armed target and allows a write covering every candidate", () => {
-    const { targets } = evaluate("structural", "Set both Nova Expansion deals to Won.");
-
-    expect(guardRefusesWrite(targets, [NOVA])).toBe(true);
-    expect(guardRefusesWrite(targets, [NOVA.toUpperCase()])).toBe(true);
-    expect(guardRefusesWrite(targets, [NOVA, NOVA_2025])).toBe(false);
-    expect(guardRefusesWrite(targets, [UNRELATED])).toBe(false);
-    expect(guardRefusesWrite(targets, [NOVA], [NOVA])).toBe(false);
   });
 });

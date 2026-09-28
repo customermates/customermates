@@ -207,15 +207,6 @@ export function toolsetsForRequest(args: {
   return matched;
 }
 
-export function lexiconOnlyToolsets(args: {
-  texts: readonly string[];
-  pinned: Iterable<AgentOnDemandToolset>;
-}): AgentOnDemandToolset[] {
-  const pinned = new Set(args.pinned);
-  const matched = new Set(args.texts.flatMap((text) => [...toolsetsForRequest({ text, pageRoute: null })]));
-  return AGENT_ON_DEMAND_TOOLSETS.filter((toolset) => matched.has(toolset) && !pinned.has(toolset));
-}
-
 export function toolsetsFromActivities(
   activities: readonly { kind: string; consequence?: { action?: string } | null }[],
 ): Set<AgentOnDemandToolset> {

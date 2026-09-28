@@ -10,8 +10,7 @@ import {
 
 const envState = vi.hoisted(() => ({
   APP_MODE: "cloud" as "cloud" | "demo" | "self-hosted",
-  AGENT_DOCS_RERANK: "off" as "off" | "jev" | "gemini",
-  AGENT_DOCS_RERANK_VERSION: "v2" as "v1" | "v2",
+  AGENT_DOCS_RERANK: "off" as "off" | "jev",
   AI_GATEWAY_API_KEY: "test-gateway-key" as string | undefined,
 }));
 
@@ -29,13 +28,11 @@ import {
   DOCS_RERANK_CANDIDATES,
   docsPageRankCandidates,
   docsRankCandidates,
-  docsSectionCandidates,
   getDocsPageRaw,
   getDocsPageTool,
   relevantDocsExcerpt,
   searchDocsRaw,
   searchDocsTool,
-  type DocsRerankCandidate,
 } from "@/features/mcp-tools/docs.mcp-tools";
 import { agentPageContextPrefix } from "../agent-page-context";
 
@@ -51,7 +48,6 @@ import {
   docsRankUserMessage,
   docsRerankChoice,
   docsRerankPlainText,
-  docsRerankSpec,
   hostedDocsRanking,
 } from "../docs-rerank";
 
@@ -126,7 +122,6 @@ function jevChoosing(pick: (keys: string[]) => string, probabilities?: (keys: st
 beforeEach(() => {
   envState.APP_MODE = "cloud";
   envState.AGENT_DOCS_RERANK = "off";
-  envState.AGENT_DOCS_RERANK_VERSION = "v2";
   envState.AI_GATEWAY_API_KEY = "test-gateway-key";
 });
 
@@ -136,21 +131,6 @@ afterEach(() => {
 });
 
 describe("docs re-rank classifier spec", () => {
-  it("asks one choice over the candidates' page, heading path and a plain 400-character excerpt", () => {
-    const candidates = docsSectionCandidates(QUERY, "en", "docs");
-    const spec = docsRerankSpec(candidates);
-    const [question] = spec.questions;
-    const first = candidates[0];
-
-    expect(spec.id).toBe("docs-rerank");
-    expect(question).toMatchObject({ id: "best", type: "choice" });
-    if (question.type !== "choice") throw new Error("expected a choice question");
-    expect(Object.keys(question.options)).toEqual(candidates.map(({ id }) => `s${id}`));
-    expect(question.options[`s${first.id}`]).toBe(
-      `${first.section.pageTitle} > ${first.section.headingPath.join(" > ")}: ${docsRerankPlainText(first.section.text).slice(0, 400)}`,
-    );
-  });
-
   it("strips link lines, markdown marks and link targets from option text", () => {
     expect(docsRerankPlainText("**Link:** /x\nUse `x-api-key` in [the header](/docs/api-keys) | done")).toBe(
       "Use x-api-key in the header done",
@@ -175,60 +155,15 @@ describe("docs re-rank classifier spec", () => {
   });
 });
 
-describe("hosted docs re-rank v1", () => {
-  beforeEach(() => {
-    envState.AGENT_DOCS_RERANK_VERSION = "v1";
-  });
-
-  it("is off unless its switch names a model on a hosted instance", () => {
+describe("hosted docs re-rank switch", () => {
+  it("ranks with Jev on a hosted instance unless the switch is off, and never self-hosted", () => {
     expect(hostedDocsRanking()).toBeUndefined();
     envState.AGENT_DOCS_RERANK = "jev";
-    expect(hostedDocsRanking()?.version).toBe("v1");
+    expect(hostedDocsRanking()).toBeTypeOf("function");
+    envState.APP_MODE = "demo";
+    expect(hostedDocsRanking()).toBeTypeOf("function");
     envState.APP_MODE = "self-hosted";
     expect(hostedDocsRanking()).toBeUndefined();
-  });
-
-  it("re-ranks hosted Mate's search_docs and meters the classifier call", async () => {
-    envState.AGENT_DOCS_RERANK = "jev";
-    const fetchMock = jevChoosing((keys) => keys.at(-1) as string);
-    vi.stubGlobal("fetch", fetchMock);
-    const chosen = docsSectionCandidates(QUERY, "en", "docs").at(-1) as DocsRerankCandidate;
-
-    const { value, charges } = await runSearchDocs(INPUT);
-
-    expect(fetchMock).toHaveBeenCalledWith(JEV_EVALUATE_URL, expect.objectContaining({ signal: expect.anything() }));
-    expect(value.ok).toBe(true);
-    expect(value.result).toContain(`\nexcerpt=\n## ${chosen.section.headingPath.join(" > ")}\n`);
-    expect(value.result.split("\n")[1]).toBe(`docs:${chosen.section.slug}#${chosen.section.anchor}`);
-    expect(charges).toEqual([
-      { use: "docs_rerank", model: "jev", costMicrocents: 2000, measured: true, answered: true },
-    ]);
-  });
-
-  it("leaves get_docs_page to the keyword ranker", async () => {
-    envState.AGENT_DOCS_RERANK = "jev";
-    const fetchMock = vi.fn();
-    vi.stubGlobal("fetch", fetchMock);
-    const input = { slug: "api-keys", query: QUERY, locale: "en", source: "docs" };
-
-    const { value } = await runHostedDocsTool("get_docs_page", input);
-
-    expect(fetchMock).not.toHaveBeenCalled();
-    expect(value.result).toBe(getDocsPageTool.execute(input as never).text);
-  });
-
-  it("falls back to the keyword output and still meters a failed classifier call", async () => {
-    envState.AGENT_DOCS_RERANK = "jev";
-    vi.stubGlobal(
-      "fetch",
-      vi.fn(() => Promise.resolve(new Response("{}", { status: 504 }))),
-    );
-
-    const { value, charges } = await runSearchDocs(INPUT);
-
-    expect(value.result).toBe(searchDocsTool.execute(INPUT as never).text);
-    expect(charges).toHaveLength(1);
-    expect(charges[0]).toMatchObject({ use: "docs_rerank", measured: false, answered: false });
   });
 
   it("leaves search_docs untouched and calls no classifier when the switch is off", async () => {
@@ -254,10 +189,10 @@ describe("hosted docs re-rank v1", () => {
 
 const USER_MESSAGE = "Mit welchem Header authentifiziere ich mich bei der REST API?";
 
-describe("docs re-rank v2 candidates and spec", () => {
+describe("docs re-rank candidates and spec", () => {
   it("offers the keyword top 20 with excerpts plus every other section title of the top 5 pages", () => {
     const candidates = docsRankCandidates(QUERY, "en");
-    const lexical = docsSectionCandidates(QUERY, "en", "docs");
+    const lexical = candidates.filter((candidate) => !candidate.titleOnly);
     const topPages = new Set(searchDocsRaw(QUERY, "en", "docs").results.map((hit) => hit.slug));
     const titles = candidates.filter((candidate) => candidate.titleOnly);
 
@@ -318,13 +253,7 @@ describe("docs re-rank v2 candidates and spec", () => {
   });
 });
 
-describe("hosted docs re-rank v2", () => {
-  it("is the default design once the switch names a model", () => {
-    envState.AGENT_DOCS_RERANK = "gemini";
-
-    expect(hostedDocsRanking()?.version).toBe("v2");
-  });
-
+describe("hosted docs re-rank", () => {
   it("returns the three highest-ranked sections, chosen first, and sends the user's message", async () => {
     envState.AGENT_DOCS_RERANK = "jev";
     const candidates = docsRankCandidates(QUERY, "en");
@@ -344,6 +273,7 @@ describe("hosted docs re-rank v2", () => {
     const excerpt = value.result.split("\nexcerpt=\n")[1];
     const headings = [title, second, third].map(({ section }) => `## ${section.headingPath.join(" > ")}\n`);
 
+    expect(fetchMock).toHaveBeenCalledWith(JEV_EVALUATE_URL, expect.objectContaining({ signal: expect.anything() }));
     expect(sent.state).toEqual({ latest_user_message: USER_MESSAGE, agent_query: QUERY });
     expect(value.result.split("\n")[1]).toBe(`docs:${title.section.slug}#${title.section.anchor}`);
     expect(excerpt.startsWith(headings[0])).toBe(true);
@@ -394,6 +324,9 @@ describe("hosted docs re-rank v2", () => {
 
     expect(search.value.result).toBe(searchDocsTool.execute(INPUT as never).text);
     expect(page.value.result).toBe(getDocsPageTool.execute(pageInput as never).text);
-    expect([...search.charges, ...page.charges]).toHaveLength(2);
+    expect([...search.charges, ...page.charges]).toEqual([
+      expect.objectContaining({ use: "docs_rerank", model: "jev", measured: false, answered: false }),
+      expect.objectContaining({ use: "docs_rerank", model: "jev", measured: false, answered: false }),
+    ]);
   });
 });

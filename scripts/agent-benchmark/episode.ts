@@ -169,9 +169,6 @@ export type EpisodeClassifierSummary = {
   docsRerankCalls: number;
   docsRerankAnswered: number;
   docsRerankFired: boolean;
-  toolsetPreloadTurns: number;
-  toolsetPreloadFired: boolean;
-  toolsetPreloadAdded: string[];
   costMicrocents: number;
   measured: boolean;
 };
@@ -182,15 +179,10 @@ export function episodeClassifierSummary(
   const present = traces.filter((trace): trace is AgentTurnClassifierTrace => Boolean(trace));
   const docsRerankCalls = present.reduce((total, trace) => total + (trace.docsRerank?.calls ?? 0), 0);
   const docsRerankAnswered = present.reduce((total, trace) => total + (trace.docsRerank?.answered ?? 0), 0);
-  const preloads = present.flatMap((trace) => (trace.toolsetPreload ? [trace.toolsetPreload] : []));
-  const toolsetPreloadAdded = [...new Set(preloads.flatMap((preload) => preload.added))];
   return {
     docsRerankCalls,
     docsRerankAnswered,
     docsRerankFired: docsRerankAnswered > 0,
-    toolsetPreloadTurns: preloads.length,
-    toolsetPreloadFired: toolsetPreloadAdded.length > 0,
-    toolsetPreloadAdded,
     costMicrocents: present.reduce((total, trace) => total + trace.auxiliaryCostMicrocents, 0),
     measured: present.every((trace) => trace.auxiliaryMeasured),
   };

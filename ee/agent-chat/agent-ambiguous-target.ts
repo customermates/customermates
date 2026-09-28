@@ -1,19 +1,8 @@
 import { decode } from "@toon-format/toon";
 
-import type { AgentGuardMode } from "@/core/config/environment";
-
 import { agentContextFromProviderText } from "./agent-context";
 
-export type { AgentGuardMode };
-
-export type AmbiguousTarget = {
-  entity: string;
-  phrase: string;
-  candidates: { id: string; name: string }[];
-  bulkEligible?: boolean;
-};
-
-export const GUARD_BULK_MIN_PROBABILITY = 0.8;
+export type AmbiguousTarget = { entity: string; phrase: string; candidates: { id: string; name: string }[] };
 
 export type AmbiguityRequest = {
   latestUserText: string;
@@ -462,7 +451,7 @@ function governedByRule(text: string, start: number, end: number, entity: string
   return namingPhraseGoverned(words);
 }
 
-function writtenAsRecord(text: string, name: string, entity: string, rules: boolean): boolean {
+function writtenAsRecord(text: string, name: string, entity: string): boolean {
   const [first] = [...name];
   if (!first) return false;
   const openBefore = UNSPACED_CHAR.test(first);
@@ -471,17 +460,17 @@ function writtenAsRecord(text: string, name: string, entity: string, rules: bool
     name,
     (start, end) =>
       (openBefore || !WORD_BEFORE_PHRASE.test(codePointBefore(text, start))) &&
-      !(rules && governedByRule(text, start, end, entity)),
+      !governedByRule(text, start, end, entity),
   );
 }
 
-function writtenInClauses(whole: string, clauses: string[], name: string, entity: string, rules: boolean): boolean {
+function writtenInClauses(whole: string, clauses: string[], name: string, entity: string): boolean {
   const holding = clauses.filter((clause) => clause.includes(name));
-  if (holding.length === 0) return writtenAsRecord(whole, name, entity, rules);
-  return holding.some((clause) => writtenAsRecord(clause, name, entity, rules));
+  if (holding.length === 0) return writtenAsRecord(whole, name, entity);
+  return holding.some((clause) => writtenAsRecord(clause, name, entity));
 }
 
-function writtenInSomeSpelling(text: string, name: string, entity: string, rules: boolean): boolean {
+function writtenInSomeSpelling(text: string, name: string, entity: string): boolean {
   const names = spellings(name);
   const clauses = text.split(CLAUSE_BREAK).map(spellings);
   return spellings(text).some((spelling, index) =>
@@ -490,19 +479,18 @@ function writtenInSomeSpelling(text: string, name: string, entity: string, rules
       clauses.map((clause) => clause[index]),
       names[index],
       entity,
-      rules,
     ),
   );
 }
 
-function writtenOutside(text: string, name: string, chosen: string[], entity: string, rules: boolean): boolean {
+function writtenOutside(text: string, name: string, chosen: string[], entity: string): boolean {
   const names = spellings(name);
   const chosenSpellings = chosen.map((other) => strictSpellings(other));
   return strictSpellings(text, true).some((spelling, index) => {
     if (!chosenSpellings.every((other) => containsName(spelling, other[index]))) return false;
     const rest = chosenSpellings.reduce((remaining, other) => remaining.split(other[index]).join("\n"), spelling);
     const clauses = rest.split(CLAUSE_BREAK).map((clause) => loose(clause).trim());
-    return writtenInClauses(loose(rest).trim(), clauses, names[index], entity, rules);
+    return writtenInClauses(loose(rest).trim(), clauses, names[index], entity);
   });
 }
 
@@ -656,7 +644,7 @@ function mentionedAlone(text: string, name: string, candidates: Row[]): boolean 
   return containsName(remaining, name);
 }
 
-function answersClarification(request: AmbiguityRequest, candidates: Row[], entity: string, rules: boolean): boolean {
+function answersClarification(request: AmbiguityRequest, candidates: Row[], entity: string): boolean {
   const listed = candidates.filter((candidate) =>
     mentionedAlone(request.previousAssistantText, fold(candidate.name), candidates),
   );
@@ -669,7 +657,7 @@ function answersClarification(request: AmbiguityRequest, candidates: Row[], enti
       return (
         otherName === name ||
         !holdsName(otherName, name) ||
-        !writtenInSomeSpelling(request.latestUserText, otherName, entity, rules)
+        !writtenInSomeSpelling(request.latestUserText, otherName, entity)
       );
     });
   });
@@ -688,33 +676,30 @@ export function mergeAmbiguousTarget(armed: AmbiguousTarget | undefined, next: A
   };
 }
 
-function targetsAmong(entity: string, rows: Row[], request: AmbiguityRequest, mode: AgentGuardMode): AmbiguousTarget[] {
+function targetsAmong(entity: string, rows: Row[], request: AmbiguityRequest): AmbiguousTarget[] {
   const latest = request.latestUserText;
-  const rules = mode === "wordlists";
   const named = rows.map((row) => ({ row, name: fold(row.name) }));
   const nested = named.filter(
     ({ name }) => name.length > 0 && named.some((other) => other.name !== name && holdsName(other.name, name)),
   );
   const written = [...new Set(nested.map(({ name }) => name))].filter((name) =>
-    writtenInSomeSpelling(latest, name, entity, rules),
+    writtenInSomeSpelling(latest, name, entity),
   );
   return written.flatMap((name) => {
     const candidates = named.filter((entry) => holdsName(entry.name, name)).map((entry) => entry.row);
-    if (answersClarification(request, candidates, entity, rules)) return [];
+    if (answersClarification(request, candidates, entity)) return [];
     const chosen = chosenAmong(latest, candidates);
     const chosenNames = chosen.map((candidate) => fold(candidate.name));
-    if (chosen.length > 0 && !writtenOutside(latest, name, chosenNames, entity, rules)) return [];
+    if (chosen.length > 0 && !writtenOutside(latest, name, chosenNames, entity)) return [];
     const remaining = candidates.filter((candidate) => !chosen.includes(candidate));
     const phrase = remaining.find((candidate) => fold(candidate.name) === name)?.name ?? name;
-    const bulkEligible = mode === "structural-classifier" && chosen.length === 0;
-    return [{ entity, phrase, candidates: remaining, ...(bulkEligible ? { bulkEligible } : {}) }];
+    return [{ entity, phrase, candidates: remaining }];
   });
 }
 
 export function ambiguousTargetsFromMessages(
   messages: readonly unknown[],
   request: AmbiguityRequest,
-  mode: AgentGuardMode = "wordlists",
 ): AmbiguousTarget[] {
   if (!request.latestUserText) return [];
 
@@ -744,7 +729,7 @@ export function ambiguousTargetsFromMessages(
       const read = reads.get(part.toolCallId);
       if (!read) continue;
       for (const { entity, rows } of rowSets(unwrap(part.output), read))
-        found.push(...targetsAmong(entity, rows, request, mode));
+        found.push(...targetsAmong(entity, rows, request));
     }
   }
   spelled.clear();
@@ -782,48 +767,4 @@ export function refusingTarget(
 export function ambiguousTargetRefusal(target: AmbiguousTarget): string {
   const names = target.candidates.map((candidate) => `${candidate.name} (${candidate.id})`).join(", ");
   return `More than one ${target.entity} matches "${target.phrase}": ${names}. Nothing was changed. Ask the user which one they mean.`;
-}
-
-export function coversEveryCandidate(target: AmbiguousTarget, probability: number | null): boolean {
-  return target.bulkEligible === true && probability !== null && probability >= GUARD_BULK_MIN_PROBABILITY;
-}
-
-export type AmbiguousTargetEvaluation = { targets: AmbiguousTarget[]; bulkCovered: AmbiguousTarget[] };
-
-export function evaluateAmbiguousTargets(args: {
-  mode: AgentGuardMode;
-  latestUserText: string;
-  previousAssistantText?: string;
-  entity: string;
-  candidates: readonly { id: string; name: string }[];
-  bulkProbability?: (target: AmbiguousTarget) => number | null;
-}): AmbiguousTargetEvaluation {
-  const request = ambiguityRequestOf([
-    ...(args.previousAssistantText ? [{ role: "assistant", text: args.previousAssistantText }] : []),
-    { role: "user", text: args.latestUserText },
-  ]);
-  if (!request.latestUserText) return { targets: [], bulkCovered: [] };
-  const rows = args.candidates.map((candidate) => ({ id: candidate.id, name: candidate.name.trim() }));
-  spelled.clear();
-  const found = targetsAmong(args.entity, rows, request, args.mode).filter((target) => target.candidates.length >= 2);
-  spelled.clear();
-  if (args.mode !== "structural-classifier") return { targets: found, bulkCovered: [] };
-  const covered = found.filter((target) =>
-    coversEveryCandidate(target, target.bulkEligible ? (args.bulkProbability?.(target) ?? null) : null),
-  );
-  return { targets: found.filter((target) => !covered.includes(target)), bulkCovered: covered };
-}
-
-export function guardRefusesWrite(
-  targets: Iterable<AmbiguousTarget>,
-  candidateIds: readonly string[],
-  attachedRecordIds: readonly string[] = [],
-): boolean {
-  const written = new Set(candidateIds.map((id) => id.toLowerCase()));
-  const attached = new Set(attachedRecordIds.map((id) => id.toLowerCase()));
-  for (const target of targets) {
-    const named = target.candidates.filter((candidate) => written.has(candidate.id.toLowerCase()));
-    if (named.length === 1 && !attached.has(named[0].id.toLowerCase())) return true;
-  }
-  return false;
 }

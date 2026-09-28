@@ -35,8 +35,7 @@ import type { PrismaAgentChatRepo } from "./prisma-agent-chat.repository";
 import { AGENT_RUN_LEASE_MS, decideAgentTurnAdmission, type AgentTurnRequestSnapshot } from "./agent-turn-request";
 import { buildAgentSystemPrompt, routineTriggerEventOf } from "./system-prompt";
 import { agentToolDefinitionsForTurn } from "./agent-tools";
-import { lexiconOnlyToolsets, toolsetsForRequest, toolsetsFromActivities } from "./agent-toolset-routing";
-import { hostedClassifierModelFor } from "./classifier/metered";
+import { toolsetsForRequest, toolsetsFromActivities } from "./agent-toolset-routing";
 import { AgentActivityDescriptorSchema, type AgentActivityDescriptor } from "./agent-activity";
 import { conservativeAgentInitialContextBytes } from "./agent-provider-context";
 import { renderAgentSchemaDigest } from "./agent-schema-digest";
@@ -386,33 +385,6 @@ export class SendAgentMessageInteractor extends AuthenticatedInteractor<SendAgen
           }),
         ]);
       const toolsets = [...new Set([...requestedToolsets, ...priorToolsets, ...earlierRequestToolsets])];
-      const toolsetPreloadModel = surface === "chat" ? hostedClassifierModelFor("toolset_preload") : null;
-      const parallelToolsetRouting =
-        Boolean(toolsetPreloadModel) && env.AGENT_TOOLSET_CLASSIFIER_MODE === "parallel-v2";
-      const removableToolsets = parallelToolsetRouting
-        ? lexiconOnlyToolsets({
-            texts: [
-              data.text,
-              ...admission.recentMessages
-                .filter((message) => message.role === "user")
-                .map((message) => partsToText(message.parts)),
-            ],
-            pinned: [
-              ...toolsetsForRequest({ text: "", pageRoute, contexts }),
-              ...priorToolsets,
-              ...admission.recentMessages
-                .filter((message) => message.role === "user")
-                .flatMap((message) => [
-                  ...toolsetsForRequest({
-                    text: "",
-                    pageRoute: null,
-                    contexts: agentContextsFromMessageParts(message.parts),
-                  }),
-                ]),
-            ],
-          })
-        : [];
-      const guardBulkModel = surface === "chat" ? hostedClassifierModelFor("guard_bulk") : null;
       const pageContext = agentPageContextPrefix(pageRoute);
       const replayInputs = admission.recentMessages.map((message) => {
         const text = partsToText(message.parts);
@@ -453,10 +425,6 @@ export class SendAgentMessageInteractor extends AuthenticatedInteractor<SendAgen
         tenant: { userId: user.id, companyId: user.companyId },
         surface,
         toolsets,
-        ...(toolsetPreloadModel ? { toolsetPreloadModel } : {}),
-        ...(parallelToolsetRouting ? { toolsetClassifierMode: "parallel-v2" as const, removableToolsets } : {}),
-        ...(env.AGENT_GUARD_MODE === "wordlists" ? {} : { guardMode: env.AGENT_GUARD_MODE }),
-        ...(guardBulkModel ? { guardBulkModel } : {}),
         ...(schemaDigest ? { schemaDigest } : {}),
         ...(recordsBenchmarkToolOutputs(process.env) ? { recordToolOutputs: true } : {}),
       });

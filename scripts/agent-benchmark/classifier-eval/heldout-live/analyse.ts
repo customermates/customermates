@@ -68,6 +68,16 @@ export const METHOD = {
 type Verdict = "yes" | "partial" | "no" | "error";
 type Artifact = EpisodeArtifact & { __path: string };
 
+type StoredClassifierTrace = {
+  auxiliaryCostMicrocents?: number;
+  docsRerank?: { calls: number; answered: number } | null;
+  toolsetPreload?: { added: string[]; removed?: string[] } | null;
+  promptBytesByRound?: number[];
+};
+
+const storedTrace = (turn: { classifierTrace?: unknown } | undefined) =>
+  (turn?.classifierTrace ?? null) as StoredClassifierTrace | null;
+
 function flag(name: string): string | boolean | undefined {
   const index = process.argv.indexOf(`--${name}`);
   if (index < 0) return undefined;
@@ -239,7 +249,7 @@ function turnMeasures(a: Artifact): TurnMeasure[] {
     const metric = a.metrics.turns[index];
     const rounds = metric ? a.metrics.rounds.filter((round) => round.turnRequestId === metric.id) : [];
     const usage = metric ? a.usage.filter((entry) => entry.turnRequestId === metric.id) : [];
-    const bytes = metric?.classifierTrace?.promptBytesByRound;
+    const bytes = storedTrace(metric)?.promptBytesByRound;
     return {
       rounds: rounds.length,
       loadToolset: (a.observed[index]?.tools ?? []).filter((tool) => tool.name === "load_toolset").length,
@@ -412,7 +422,7 @@ function fullSuiteRegression(control: readonly Artifact[], candidate: readonly A
 }
 
 function classifierUse(artifacts: readonly Artifact[]) {
-  const turns = artifacts.flatMap((a) => a.metrics.turns.map((turn) => turn.classifierTrace ?? null));
+  const turns = artifacts.flatMap((a) => a.metrics.turns.map(storedTrace));
   return {
     turns: turns.length,
     docsRerankCallsPerTurn: round(turns.reduce((t, x) => t + (x?.docsRerank?.calls ?? 0), 0) / Math.max(1, turns.length), 3),

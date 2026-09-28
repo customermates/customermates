@@ -43,7 +43,6 @@ describe("agent model budget boundary", () => {
     expect(matchingProductionFiles(unmeteredClassifierCall).filter(outsideClassifier)).toEqual([]);
     expect(matchingProductionFiles(/\bclassifyMetered\s*\(/).filter(outsideClassifier)).toEqual([
       "ee/agent-chat/docs-rerank.ts",
-      "workflows/agent-turn.ts",
     ]);
   });
 

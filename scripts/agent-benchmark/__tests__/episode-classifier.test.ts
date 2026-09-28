@@ -7,16 +7,7 @@ import { episodeClassifierSummary, turnAccountingBalanced } from "../episode";
 const trace = (overrides: Partial<AgentTurnClassifierTrace> = {}): AgentTurnClassifierTrace => ({
   auxiliaryCostMicrocents: 1_900,
   auxiliaryMeasured: true,
-  toolsetPreload: {
-    model: "jev",
-    answered: true,
-    lexicon: ["views"],
-    predicted: ["views", "webhooks"],
-    added: ["webhooks"],
-    costMicrocents: 300,
-    measured: true,
-  },
-  docsRerank: { model: "jev", calls: 1, answered: 1, costMicrocents: 1_600, measured: true },
+  docsRerank: { model: "jev", calls: 1, answered: 1, costMicrocents: 1_900, measured: true },
   ...overrides,
 });
 
@@ -39,26 +30,22 @@ describe("benchmark episode classifier evidence", () => {
     expect(turnAccountingBalanced({ ...balancedTurn("16900", trace()), terminal: { numTurns: 3, terminalCode: "completed" } })).toBe(false);
   });
 
-  it("summarises whether docs re-rank and toolset preload fired and what they cost", () => {
+  it("summarises whether docs re-rank fired and what it cost", () => {
     expect(
       episodeClassifierSummary([
         trace(),
         null,
-        trace({ toolsetPreload: null, docsRerank: { model: "jev", calls: 2, answered: 0, costMicrocents: 800, measured: false }, auxiliaryCostMicrocents: 800, auxiliaryMeasured: false }),
+        trace({ docsRerank: { model: "jev", calls: 2, answered: 0, costMicrocents: 800, measured: false }, auxiliaryCostMicrocents: 800, auxiliaryMeasured: false }),
       ]),
     ).toEqual({
       docsRerankCalls: 3,
       docsRerankAnswered: 1,
       docsRerankFired: true,
-      toolsetPreloadTurns: 1,
-      toolsetPreloadFired: true,
-      toolsetPreloadAdded: ["webhooks"],
       costMicrocents: 2_700,
       measured: false,
     });
     expect(episodeClassifierSummary([null, undefined])).toMatchObject({
       docsRerankFired: false,
-      toolsetPreloadFired: false,
       costMicrocents: 0,
       measured: true,
     });

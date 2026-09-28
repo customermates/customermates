@@ -8,8 +8,6 @@ import type { ReplayMessage } from "@/ee/agent-chat/agent-stream-utils";
 import type { TokenCounts } from "@/ee/agent-chat/model-pricing";
 import type { WorkflowTenant } from "./workflow-tenant";
 import type { ClassifierCharge } from "@/ee/agent-chat/classifier/metered";
-import type { AgentToolsetPreloadTrace } from "@/ee/agent-chat/agent-classifier-trace";
-import type { AgentGuardMode } from "@/core/config/environment";
 import type { ModelMessage } from "ai";
 
 import { WorkflowAgent } from "@ai-sdk/workflow";
@@ -34,17 +32,12 @@ import {
   type ToolApprovalGrant,
 } from "@/ee/agent-chat/agent-approval-resume";
 import { agentUiCommandHookToken, isAgentPanelTool, toAgentUiCommandInput } from "@/ee/agent-chat/agent-ui-command";
-import {
-  activeAgentToolNames,
-  isAgentOnDemandToolset,
-  toolsetsUsedInMessages,
-} from "@/ee/agent-chat/agent-toolset-routing";
+import { activeAgentToolNames } from "@/ee/agent-chat/agent-toolset-routing";
 import {
   ambiguityRequestOf,
   ambiguousTargetKey,
   ambiguousTargetRefusal,
   ambiguousTargetsFromMessages,
-  coversEveryCandidate,
   mergeAmbiguousTarget,
   refusingTarget,
   type AmbiguousTarget,
@@ -72,7 +65,6 @@ import {
 import { isAgentStepContextWithinBudget } from "@/ee/agent-chat/agent-provider-context";
 import { benchmarkToolOutputPart } from "@/ee/agent-chat/benchmark-tool-output";
 import { agentAuxiliaryCharge, buildAgentTurnClassifierTrace } from "@/ee/agent-chat/agent-classifier-trace";
-import { decideParallelToolsetRouting, selectPreloadToolsets } from "@/ee/agent-chat/toolset-preload";
 import { getAgentChatRepo, getBackgroundTaskService } from "@/core/di";
 import { internalToolIdentity } from "@/ee/agent-chat/tool-identity";
 import { readAgentProviderCharge } from "@/ee/agent-chat/gateway-cost";
@@ -80,11 +72,7 @@ import { isReadOnlyTool, requiresApproval } from "@/ee/agent-chat/gated-tools";
 import { isAgentToolCancellation } from "@/ee/agent-chat/agent-tool-cancellation";
 import { createAgentToolInputResolver, type AgentToolInputResult } from "@/ee/agent-chat/agent-tool-input";
 import { resolveAgentApprovalContext } from "@/ee/agent-chat/agent-external-approval-context";
-import {
-  isAgentContextWithinBudget,
-  resolveAgentToolResultMaxChars,
-  serializedAgentContextBytes,
-} from "@/ee/agent-chat/agent-budget-policy";
+import { isAgentContextWithinBudget, resolveAgentToolResultMaxChars } from "@/ee/agent-chat/agent-budget-policy";
 import { runAsBackgroundTenant } from "@/core/decorators/background-tenant";
 import { runInRoutineContext } from "@/core/decorators/routine-context";
 import { runInTransaction } from "@/core/decorators/transaction-runner";
@@ -124,11 +112,6 @@ export type AgentTurnWorkflowPayload = {
   tenant: WorkflowTenant;
   surface?: AgentTurnSurface;
   toolsets?: string[];
-  toolsetPreloadModel?: ClassifierCharge["model"];
-  toolsetClassifierMode?: "parallel-v2";
-  removableToolsets?: string[];
-  guardMode?: AgentGuardMode;
-  guardBulkModel?: ClassifierCharge["model"];
   recordToolOutputs?: boolean;
 };
 
@@ -175,9 +158,6 @@ type AgentTurnUsageOutcome = {
 };
 
 type AgentTurnFinalizationOutcome = AgentTurnUsageOutcome & {
-  toolsetPreload?: AgentToolsetPreloadTrace | null;
-  promptBytesByRound?: number[];
-  guardCovered?: number;
   parts: unknown;
   terminalCode: "completed" | "partial" | "cancelled";
   stopReason: AgentTurnStopReason | null;
@@ -369,69 +349,6 @@ async function executeAgentTool(
   return { output: value, classifierCharges: charges };
 }
 executeAgentTool.maxRetries = 0;
-
-type ToolsetPreloadPrediction = {
-  model: ClassifierCharge["model"];
-  predicted: string[] | null;
-  rejected?: string[];
-  charge: ClassifierCharge | null;
-};
-
-async function classifyTurnToolsets(payload: AgentTurnWorkflowPayload): Promise<ToolsetPreloadPrediction | null> {
-  "use step";
-  const { classifyMetered } = await import("@/ee/agent-chat/classifier/metered");
-  const {
-    latestUserRequestText,
-    predictedToolsets,
-    rejectedToolsets,
-    toolsetPreloadSpec,
-    TOOLSET_ROUTING_TUNED_SUMMARY,
-  } = await import("@/ee/agent-chat/toolset-preload");
-  const model = payload.toolsetPreloadModel;
-  const text = model ? latestUserRequestText(payload.messages) : null;
-  if (!model || !text) return null;
-  const parallel = payload.toolsetClassifierMode === "parallel-v2";
-  const { result, charge } = await classifyMetered(
-    "toolset_preload",
-    parallel ? toolsetPreloadSpec(TOOLSET_ROUTING_TUNED_SUMMARY) : toolsetPreloadSpec(),
-    { latest_user_message: text },
-    model,
-  );
-  return parallel
-    ? { model, predicted: predictedToolsets(result), rejected: rejectedToolsets(result), charge }
-    : { model, predicted: predictedToolsets(result), charge };
-}
-classifyTurnToolsets.maxRetries = 0;
-
-async function classifyGuardBulk(
-  payload: AgentTurnWorkflowPayload,
-  target: AmbiguousTarget,
-): Promise<{ probability: number | null; charge: ClassifierCharge | null }> {
-  "use step";
-  const model = payload.guardBulkModel;
-  if (!model) return { probability: null, charge: null };
-  const { classifyMetered } = await import("@/ee/agent-chat/classifier/metered");
-  const { GUARD_BULK_TIMEOUT_MS, guardBulkProbability, guardBulkSpec, guardBulkState } = await import(
-    "@/ee/agent-chat/guard-bulk"
-  );
-  const latestIndex = payload.messages.findLastIndex((message) => message.role === "user");
-  const previous = payload.messages
-    .slice(0, Math.max(latestIndex, 0))
-    .findLast((message) => message.role === "assistant");
-  const { result, charge } = await classifyMetered(
-    "guard_bulk",
-    guardBulkSpec(),
-    guardBulkState({
-      latestUserMessage: latestIndex >= 0 ? payload.messages[latestIndex].text : "",
-      previousAssistantMessage: previous?.text ?? null,
-      target,
-    }),
-    model,
-    { jev: { timeoutMs: GUARD_BULK_TIMEOUT_MS }, gemini: { timeoutMs: GUARD_BULK_TIMEOUT_MS } },
-  );
-  return { probability: guardBulkProbability(result), charge };
-}
-classifyGuardBulk.maxRetries = 0;
 
 async function normalizeAgentToolInput(
   payload: AgentTurnWorkflowPayload,
@@ -820,10 +737,7 @@ async function finalizeTurn(payload: AgentTurnWorkflowPayload, outcome: AgentTur
       stopReason: outcome.stopReason,
       affectedResources: outcome.affectedResources,
       usageSettlement: usageSettlementForTurn(payload, outcome),
-      classifierTrace: buildAgentTurnClassifierTrace(outcome.toolsetPreload ?? null, outcome.auxiliaryCharges ?? [], {
-        promptBytesByRound: outcome.promptBytesByRound,
-        guardCovered: outcome.guardCovered,
-      }),
+      classifierTrace: buildAgentTurnClassifierTrace(outcome.auxiliaryCharges ?? []),
     }),
   );
 
@@ -887,88 +801,24 @@ export async function runAgentTurn(payload: AgentTurnWorkflowPayload): Promise<v
       if ((AGENT_TRANSCRIPT_FORWARDED_EVENTS as readonly string[]).includes(event.type)) queued.push(event);
     }, payload.appBaseUrl);
 
+    const initialToolsets = payload.toolsets ?? [];
+    const systemPrompt = buildAgentSystemPrompt({
+      userName: payload.userName,
+      locale: payload.locale,
+      surface,
+      loadedToolsets: initialToolsets,
+      schemaDigest: payload.schemaDigest ?? null,
+      triggerEvent: routineTriggerEventOf(payload.messages.findLast((message) => message.role === "user")?.text),
+    });
     const toolDefinitions = shells.map(({ name, description, inputSchema }) => ({ name, description, inputSchema }));
-    const systemPromptFor = (toolsets: readonly string[]) =>
-      buildAgentSystemPrompt({
-        userName: payload.userName,
-        locale: payload.locale,
-        surface,
-        loadedToolsets: [...toolsets],
-        schemaDigest: payload.schemaDigest ?? null,
-        triggerEvent: routineTriggerEventOf(payload.messages.findLast((message) => message.role === "user")?.text),
-      });
-    const initialContextFor = (toolsets: readonly string[]) => {
-      const prompt = systemPromptFor(toolsets);
-      const active = activeAgentToolNames({ tools: shells, initialToolsets: toolsets, messages: [] });
-      return {
-        systemPrompt: prompt,
-        providerContext: buildAgentProviderContext(
-          prompt,
-          payload.messages,
-          toolDefinitions.filter((definition) => active?.includes(definition.name)),
-        ),
-      };
-    };
-
-    const auxiliaryCharges: ClassifierCharge[] = [];
-    const lexiconToolsets = payload.toolsets ?? [];
-    let initialToolsets: readonly string[] = lexiconToolsets;
-    let toolsetPreload: AgentToolsetPreloadTrace | null = null;
-    const parallelRouting =
-      surface !== "routine" && Boolean(payload.toolsetPreloadModel) && payload.toolsetClassifierMode === "parallel-v2";
-    let pendingRouting: Promise<ToolsetPreloadPrediction | null> | null = parallelRouting
-      ? classifyTurnToolsets(payload).catch(() => null)
-      : null;
-    if (surface !== "routine" && payload.toolsetPreloadModel && !parallelRouting) {
-      let prediction: ToolsetPreloadPrediction | null = null;
-      try {
-        prediction = await classifyTurnToolsets(payload);
-      } catch {
-        prediction = null;
-      }
-      if (prediction) {
-        if (prediction.charge) auxiliaryCharges.push(prediction.charge);
-        const added = prediction.predicted
-          ? selectPreloadToolsets({
-              lexicon: lexiconToolsets,
-              predicted: prediction.predicted.filter(isAgentOnDemandToolset),
-              fits: (toolsets) => {
-                const candidate = initialContextFor(toolsets).providerContext;
-                return isAgentStepContextWithinBudget(
-                  candidate,
-                  candidate.messages,
-                  payload.turnBudget.maxContextBytes,
-                );
-              },
-            })
-          : [];
-        initialToolsets = [...lexiconToolsets, ...added];
-        toolsetPreload = {
-          model: prediction.model,
-          answered: prediction.predicted !== null,
-          lexicon: [...lexiconToolsets],
-          predicted: prediction.predicted ?? [],
-          added,
-          costMicrocents: prediction.charge?.costMicrocents ?? 0,
-          measured: prediction.charge?.measured ?? true,
-        };
-      }
-    }
-    const initialContext = initialContextFor(initialToolsets);
-    let systemPrompt = initialContext.systemPrompt;
-    const providerContext = initialContext.providerContext;
     const activeToolNamesFor = (stepMessages: readonly unknown[]) =>
       activeAgentToolNames({ tools: shells, initialToolsets, messages: stepMessages });
-    const toolsetOfShell = (toolName: string) => {
-      const toolset = shells.find((shell) => shell.name === toolName)?.toolset ?? null;
-      return isAgentOnDemandToolset(toolset) ? toolset : null;
-    };
-    const promptBytesByRound: number[] = [];
-    let roundsStarted = 0;
-    let systemOverridden = false;
-    const guardMode: AgentGuardMode = payload.guardMode ?? "wordlists";
-    const guardVerdicts = new Map<string, Set<string>>();
-    let guardCovered = 0;
+    const providerContext = buildAgentProviderContext(
+      systemPrompt,
+      payload.messages,
+      toolDefinitions.filter((definition) => activeToolNamesFor([])?.includes(definition.name)),
+    );
+    const auxiliaryCharges: ClassifierCharge[] = [];
 
     let tokens = emptyTokens();
     let cancelled = await readCancellation(payload);
@@ -1245,88 +1095,6 @@ export async function runAgentTurn(payload: AgentTurnWorkflowPayload): Promise<v
 
     let messages = providerContext.messages;
     let instructions = systemPrompt;
-
-    const applyParallelRouting = (
-      prediction: ToolsetPreloadPrediction | null,
-      stepMessages: readonly unknown[] | null,
-    ) => {
-      if (!prediction) return;
-      if (prediction.charge) auxiliaryCharges.push(prediction.charge);
-      const nonSystem = (stepMessages ?? []).filter((message) => (message as { role?: string }).role !== "system");
-      const used = [...toolsetsUsedInMessages(nonSystem, toolsetOfShell)];
-      const predicted = (prediction.predicted ?? []).filter(isAgentOnDemandToolset);
-      const rejected = (prediction.rejected ?? []).filter(isAgentOnDemandToolset);
-      const decision =
-        prediction.predicted && stepMessages
-          ? decideParallelToolsetRouting({
-              loaded: initialToolsets,
-              removable: payload.removableToolsets ?? [],
-              used,
-              predicted,
-              rejected,
-              fits: (toolsets) => {
-                const active = activeAgentToolNames({ tools: shells, initialToolsets: toolsets, messages: nonSystem });
-                return isAgentContextWithinBudget(
-                  {
-                    system: systemPromptFor(toolsets),
-                    messages: nonSystem,
-                    tools: toolDefinitions.filter((definition) => active.includes(definition.name)),
-                  },
-                  payload.turnBudget.maxContextBytes,
-                );
-              },
-            })
-          : null;
-      const changed = decision !== null && (decision.added.length > 0 || decision.removed.length > 0);
-      if (decision && changed) {
-        const previous = systemPrompt;
-        initialToolsets = decision.toolsets;
-        systemPrompt = systemPromptFor(initialToolsets);
-        instructions = instructions === previous ? systemPrompt : instructions.split(previous).join(systemPrompt);
-        systemOverridden = true;
-      }
-      toolsetPreload = {
-        model: prediction.model,
-        answered: prediction.predicted !== null,
-        lexicon: [...lexiconToolsets],
-        predicted: prediction.predicted ?? [],
-        added: decision?.added ?? [],
-        costMicrocents: prediction.charge?.costMicrocents ?? 0,
-        measured: prediction.charge?.measured ?? true,
-        mode: "parallel-v2",
-        rejected: prediction.rejected ?? [],
-        removed: decision?.removed ?? [],
-        appliedAtRound: stepMessages ? roundsStarted : null,
-      };
-    };
-
-    const armAmbiguousTargets = async (stepMessages: readonly unknown[]) => {
-      for (const target of surface === "chat"
-        ? ambiguousTargetsFromMessages(stepMessages, ambiguityRequest, guardMode)
-        : []) {
-        const key = ambiguousTargetKey(target);
-        if (target.bulkEligible && !armedTargets.has(key)) {
-          const covered = guardVerdicts.get(key);
-          const ids = target.candidates.map((candidate) => candidate.id.toLowerCase());
-          if (covered && ids.every((id) => covered.has(id))) continue;
-          let probability: number | null = null;
-          try {
-            const verdict = await classifyGuardBulk(payload, target);
-            if (verdict.charge) auxiliaryCharges.push(verdict.charge);
-            probability = verdict.probability;
-          } catch {
-            probability = null;
-          }
-          if (coversEveryCandidate(target, probability)) {
-            guardVerdicts.set(key, new Set([...(covered ?? []), ...ids]));
-            guardCovered += 1;
-            continue;
-          }
-        }
-        armedTargets.set(key, mergeAmbiguousTarget(armedTargets.get(key), target));
-      }
-    };
-
     let compactedContinuationCount = -1;
     let compactedRetainedResponseSteps = AGENT_CONTINUATION_RETAINED_RESPONSE_STEPS + 1;
 
@@ -1437,11 +1205,9 @@ export async function runAgentTurn(payload: AgentTurnWorkflowPayload): Promise<v
           settleApprovedCalls(stepMessages, false);
           if (abandoned || cancelled || budgetStop || hostedAiStop || providerStop !== null || roundFailure !== null)
             throw AGENT_LOCAL_TERMINATION_REQUIRED;
-          await armAmbiguousTargets(stepMessages);
-          if (pendingRouting && roundsStarted >= 1) {
-            const prediction = await pendingRouting;
-            pendingRouting = null;
-            applyParallelRouting(prediction, stepMessages);
+          for (const target of surface === "chat" ? ambiguousTargetsFromMessages(stepMessages, ambiguityRequest) : []) {
+            const key = ambiguousTargetKey(target);
+            armedTargets.set(key, mergeAmbiguousTarget(armedTargets.get(key), target));
           }
           const activeTools = activeToolNamesFor(stepMessages);
           const activeDefinitions = activeTools
@@ -1455,18 +1221,7 @@ export async function runAgentTurn(payload: AgentTurnWorkflowPayload): Promise<v
           )
             throw AGENT_CONTEXT_COMPACTION_REQUIRED;
           if (!(await canStartNextHostedAiProviderRound(payload))) throw hostedAiPaused;
-          promptBytesByRound.push(
-            serializedAgentContextBytes({
-              system: instructions,
-              messages: stepMessages.filter((message) => (message as { role?: string }).role !== "system"),
-              tools: activeDefinitions,
-            }) ?? 0,
-          );
-          roundsStarted += 1;
-          return {
-            ...(activeTools ? { activeTools } : {}),
-            ...(systemOverridden ? { system: instructions } : {}),
-          };
+          return activeTools ? { activeTools } : {};
         },
         stopWhen: [
           isStepCount(AGENT_SEGMENT_ROUNDS),
@@ -1728,12 +1483,6 @@ export async function runAgentTurn(payload: AgentTurnWorkflowPayload): Promise<v
       messages = withApprovalResponses(resumableMessages, outcomes, surface);
     }
 
-    if (pendingRouting) {
-      const prediction = await pendingRouting;
-      pendingRouting = null;
-      applyParallelRouting(prediction, null);
-    }
-
     if (abandoned) {
       await closeTurnStream();
       return;
@@ -1797,9 +1546,6 @@ export async function runAgentTurn(payload: AgentTurnWorkflowPayload): Promise<v
       ledger,
       reservedCredits,
       auxiliaryCharges,
-      toolsetPreload,
-      promptBytesByRound,
-      guardCovered,
     });
     await closeTurnStream();
   } catch (error) {

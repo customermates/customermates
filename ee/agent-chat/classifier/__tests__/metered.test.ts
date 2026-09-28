@@ -4,9 +4,7 @@ import { beforeEach, describe, expect, it, vi } from "vitest";
 
 const envState = vi.hoisted(() => ({
   APP_MODE: "cloud" as "cloud" | "demo" | "self-hosted",
-  AGENT_DOCS_RERANK: "off" as "off" | "jev" | "gemini",
-  AGENT_TOOLSET_CLASSIFIER: "off" as "off" | "jev" | "gemini",
-  AGENT_GUARD_MODE: "wordlists" as "wordlists" | "structural" | "structural-classifier",
+  AGENT_DOCS_RERANK: "jev" as "off" | "jev",
   AI_GATEWAY_API_KEY: undefined as string | undefined,
 }));
 
@@ -18,8 +16,7 @@ import {
   classifyMetered,
   collectClassifierCharges,
   estimateClassifierCostMicrocents,
-  hostedClassifierModel,
-  hostedClassifierModelFor,
+  hostedDocsRerankModel,
 } from "../metered";
 
 const SPEC: ClassifierSpec = {
@@ -53,37 +50,21 @@ const reply =
 
 beforeEach(() => {
   envState.APP_MODE = "cloud";
-  envState.AGENT_DOCS_RERANK = "off";
-  envState.AGENT_TOOLSET_CLASSIFIER = "off";
-  envState.AGENT_GUARD_MODE = "wordlists";
+  envState.AGENT_DOCS_RERANK = "jev";
 });
 
-describe("hosted classifier switches", () => {
-  it("runs a classifier only when its switch names a model and the instance is not self-hosted", () => {
-    expect(hostedClassifierModel("off")).toBeNull();
-    expect(hostedClassifierModel("jev")).toBe("jev");
+describe("hosted docs re-rank switch", () => {
+  it("runs Jev on a hosted instance unless the switch is off", () => {
+    expect(hostedDocsRerankModel()).toBe("jev");
     envState.APP_MODE = "demo";
-    expect(hostedClassifierModel("gemini")).toBe("gemini");
-    envState.APP_MODE = "self-hosted";
-    expect(hostedClassifierModel("jev")).toBeNull();
+    expect(hostedDocsRerankModel()).toBe("jev");
+    envState.AGENT_DOCS_RERANK = "off";
+    expect(hostedDocsRerankModel()).toBeNull();
   });
 
-  it("reads each use's own switch", () => {
-    envState.AGENT_DOCS_RERANK = "jev";
-    envState.AGENT_TOOLSET_CLASSIFIER = "gemini";
-
-    expect(hostedClassifierModelFor("docs_rerank")).toBe("jev");
-    expect(hostedClassifierModelFor("toolset_preload")).toBe("gemini");
-  });
-
-  it("runs the guard's bulk classifier on Jev only in the structural-classifier guard mode", () => {
-    expect(hostedClassifierModelFor("guard_bulk")).toBeNull();
-    envState.AGENT_GUARD_MODE = "structural";
-    expect(hostedClassifierModelFor("guard_bulk")).toBeNull();
-    envState.AGENT_GUARD_MODE = "structural-classifier";
-    expect(hostedClassifierModelFor("guard_bulk")).toBe("jev");
+  it("never runs self-hosted, even with the switch on", () => {
     envState.APP_MODE = "self-hosted";
-    expect(hostedClassifierModelFor("guard_bulk")).toBeNull();
+    expect(hostedDocsRerankModel()).toBeNull();
   });
 });
 
@@ -103,14 +84,14 @@ describe("metered classifier calls", () => {
 
   it("charges a pinned-price estimate when the call fails after it was sent", async () => {
     const { value, charges } = await collectClassifierCharges(() =>
-      classifyMetered("toolset_preload", SPEC, STATE, "jev", { jev: { apiKey: "k", fetch: reply({}, 503) } }),
+      classifyMetered("docs_rerank", SPEC, STATE, "jev", { jev: { apiKey: "k", fetch: reply({}, 503) } }),
     );
 
-    const estimate = estimateClassifierCostMicrocents("jev", SPEC, STATE);
+    const estimate = estimateClassifierCostMicrocents(SPEC, STATE);
     expect(estimate).toBeGreaterThan(0);
     expect(value).toEqual({
       result: null,
-      charge: { use: "toolset_preload", model: "jev", costMicrocents: estimate, measured: false, answered: false },
+      charge: { use: "docs_rerank", model: "jev", costMicrocents: estimate, measured: false, answered: false },
     });
     expect(charges).toHaveLength(1);
   });
@@ -127,22 +108,11 @@ describe("metered classifier calls", () => {
     const bytes = Buffer.byteLength(JSON.stringify(jevRequestBody(SPEC, STATE)), "utf8");
     const tokens = { inputTokens: Math.ceil(bytes / 3), outputTokens: 0, cacheReadTokens: 0, cacheWriteTokens: 0 };
 
-    expect(estimateClassifierCostMicrocents("jev", SPEC, STATE)).toBe(
+    expect(estimateClassifierCostMicrocents(SPEC, STATE)).toBe(
       computeCostMicrocents(JEV_MODEL_ID, tokens, JEV_PRICING_PROVIDER, null),
     );
     expect(computeCostMicrocents(JEV_MODEL_ID, { ...tokens, inputTokens: 1_000_000 }, JEV_PRICING_PROVIDER, null)).toBe(
       4_200_000,
-    );
-  });
-
-  it("bounds the Gemini estimate by the classifier's output cap", () => {
-    expect(estimateClassifierCostMicrocents("gemini", SPEC, STATE)).toBeGreaterThan(
-      computeCostMicrocents("google/gemini-3.5-flash-lite", {
-        inputTokens: 0,
-        outputTokens: 1024,
-        cacheReadTokens: 0,
-        cacheWriteTokens: 0,
-      }) - 1,
     );
   });
 });
