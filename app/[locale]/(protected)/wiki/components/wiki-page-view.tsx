@@ -130,8 +130,8 @@ export const WikiPageView = observer(function WikiPageView({
   };
   const reload = useCallback(() => tryNavigate(() => runUserAction(store.reload)), [store, tryNavigate]);
   const cancelCreate = useCallback(() => tryNavigate(() => store.load(initialPage)), [initialPage, store, tryNavigate]);
-  const refreshFromWebsite = useCallback(
-    () =>
+  const [refreshFromWebsite] = useState(
+    () => () =>
       runUserAction(async () => {
         const result = await startWikiHomepageSetupAction({
           homepage: "refresh",
@@ -141,7 +141,6 @@ export const WikiPageView = observer(function WikiPageView({
         if (!result.ok) throw new Error("The website refresh could not start.");
         router.refresh();
       }),
-    [router],
   );
   const savePanelSizes = useCallback(
     (sizes: readonly number[] | null) => {

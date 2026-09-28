@@ -1,4 +1,4 @@
-import type { ReactNode } from "react";
+import type { ReactElement, ReactNode } from "react";
 import type { Root as ReactRoot } from "react-dom/client";
 import type * as TopBarActionsModule from "@/app/components/topbar-actions-context";
 
@@ -26,6 +26,7 @@ const harness = vi.hoisted(() => ({
   openWithDraft: vi.fn(),
   refreshWhileSetupWorks: vi.fn(),
   p13nUpsert: vi.fn(),
+  startSetup: vi.fn(),
   tryNavigate: vi.fn((navigate: () => void) => {
     navigate();
     return true;
@@ -37,6 +38,7 @@ vi.mock("next-intl", () => ({
   useTranslations: () => (key: string) => key,
 }));
 vi.mock("@/app/actions", () => ({ upsertP13nAction: harness.p13nUpsert }));
+vi.mock("../../actions", () => ({ startWikiHomepageSetupAction: harness.startSetup }));
 vi.mock("@/core/stores/root-store.provider", () => ({
   useRootStore: () => harness.rootStore,
 }));
@@ -839,6 +841,39 @@ describe("Wiki empty state", () => {
     expect(chips).toHaveLength(3);
     expect(chips[0]?.textContent).toContain("AgentChat.suggestions.readOnly.explain.label");
     expect(container.querySelector('form, input[type="url"]')).toBeNull();
+  });
+
+  it("offers Refresh from website only for an imported site and starts a refresh import", async () => {
+    configure(true, true, true);
+    await mount(createElement(WikiPageView, { initialPage: null, listPage }));
+    type TopBarProps = { onRefreshFromWebsite?: () => void };
+    expect((harness.topBar as ReactElement<TopBarProps>).props.onRefreshFromWebsite).toBeUndefined();
+
+    harness.startSetup.mockResolvedValue({ ok: true, data: { conversationId: null } });
+    await mount(
+      createElement(WikiPageView, {
+        initialPage: null,
+        initialSetupState: {
+          status: "idle",
+          homepage: null,
+          domain: null,
+          conversationId: null,
+          pages: [],
+          refreshable: true,
+        },
+        listPage,
+      }),
+    );
+    const refresh = (harness.topBar as ReactElement<TopBarProps>).props.onRefreshFromWebsite;
+    await act(async () => {
+      refresh?.();
+      await Promise.resolve();
+    });
+
+    expect(harness.startSetup).toHaveBeenCalledExactlyOnceWith(
+      expect.objectContaining({ homepage: "refresh", mode: "refresh" }),
+    );
+    expect(harness.refresh).toHaveBeenCalled();
   });
 
   it("shows setup progress without a task link to managers who did not start it", async () => {

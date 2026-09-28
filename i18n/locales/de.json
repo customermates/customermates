@@ -1343,8 +1343,8 @@
       "wikiNotEmpty": "Diese Aktion erfordert ein leeres Wiki.",
       "wikiPageConflict": "Diese Wiki-Seite wurde geändert, nachdem du sie geöffnet hast. Lade sie neu und versuche es erneut.",
       "wikiPageNotFound": "Wiki-Seite nicht gefunden oder nicht zugänglich.",
-      "wikiProcedureNeedsSteps": "Ein Ablauf braucht nummerierte Schritte.",
-      "wikiWhenToUseRequired": "Ein Ablauf braucht eine kurze Beschreibung, wann er gilt."
+      "wikiProcedureNeedsSteps": "Ein Verfahren braucht nummerierte Schritte.",
+      "wikiWhenToUseRequired": "Ein Verfahren braucht eine kurze Beschreibung, wann es gilt."
     },
     "events": {
       "company": {
@@ -3742,7 +3742,7 @@
       "knowledge": "Wissen",
       "knowledgeHelp": "Fakten und Antworten, die Mate und verbundene KI-Tools bei Bedarf durchsuchen.",
       "label": "Seitentyp",
-      "procedure": "Ablauf",
+      "procedure": "Verfahren",
       "procedureHelp": "Nummerierte Schritte, denen Mate und verbundene KI-Tools folgen, wenn eine Anfrage zum Einsatzfall passt."
     },
     "linkPage": "Wiki-Seite verlinken…",
