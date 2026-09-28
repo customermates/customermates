@@ -1283,6 +1283,7 @@ describe("marketing visual boundaries", () => {
       "claude",
       "cursor",
       "gemini",
+      "grok",
     ]);
     expect(Object.keys(VISUAL_PROVIDER_FIXTURES)).toEqual([
       "gmail",

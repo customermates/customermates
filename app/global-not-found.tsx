@@ -1,4 +1,4 @@
-import "@/styles/globals.css";
+import "@/styles/site";
 
 import { getLocale, getMessages } from "next-intl/server";
 

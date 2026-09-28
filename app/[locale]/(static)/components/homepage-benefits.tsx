@@ -71,27 +71,31 @@ export function HomepageBenefits({ benefitsSection }: Props) {
           })}
         </div>
       </MarketingSection>
-
-      <section className="relative w-full border-y border-border" id="facts">
-        <MarketingContainer>
-          <div className="grid auto-rows-fr grid-cols-2 lg:grid-cols-5">
-            {benefitsSection.metrics.map((metric, index) => (
-              <div
-                key={metric.figure}
-                className={cn(
-                  "min-w-0 px-4 py-9 sm:px-6 lg:col-span-1 lg:border-r lg:border-b-0 lg:py-12 lg:last:border-r-0",
-                  index === benefitsSection.metrics.length - 1 ? "col-span-2" : "border-b border-border",
-                  index % 2 === 0 && index < benefitsSection.metrics.length - 1 ? "border-r border-border" : null,
-                )}
-              >
-                <p className="text-2xl font-medium tracking-tight sm:text-3xl">{metric.figure}</p>
-
-                <p className="mt-2 text-xs leading-relaxed text-muted-foreground">{metric.label}</p>
-              </div>
-            ))}
-          </div>
-        </MarketingContainer>
-      </section>
     </>
+  );
+}
+
+export function HomepageFacts({ benefitsSection }: Props) {
+  return (
+    <section className="relative w-full border-y border-border" id="facts">
+      <MarketingContainer>
+        <div className="grid auto-rows-fr grid-cols-2 lg:grid-cols-5">
+          {benefitsSection.metrics.map((metric, index) => (
+            <div
+              key={metric.figure}
+              className={cn(
+                "min-w-0 p-4 sm:px-6 lg:col-span-1 lg:border-r lg:border-b-0 lg:py-5 lg:last:border-r-0",
+                index === benefitsSection.metrics.length - 1 ? "col-span-2" : "border-b border-border",
+                index % 2 === 0 && index < benefitsSection.metrics.length - 1 ? "border-r border-border" : null,
+              )}
+            >
+              <p className="text-lg font-medium tracking-tight sm:text-xl">{metric.figure}</p>
+
+              <p className="mt-1 text-xs leading-relaxed text-muted-foreground">{metric.label}</p>
+            </div>
+          ))}
+        </div>
+      </MarketingContainer>
+    </section>
   );
 }

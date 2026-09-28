@@ -1,7 +1,6 @@
-@import "tailwindcss";
+@import "tailwindcss" source(none);
 @import "tw-animate-css";
 @plugin '@tailwindcss/typography';
-@source "../node_modules/streamdown/dist/index.js";
 
 @import "fumadocs-ui/css/preset.css";
 @import "fumadocs-ui/css/neutral.css";
@@ -80,6 +79,7 @@
   --radius-panel: calc(var(--radius) + 16px);
   --breakpoint-nav: 56rem;
   --container-marketing: 80rem;
+  --container-live-preview: 84rem;
   --aspect-hero: 16 / 9;
   --aspect-social: 1200 / 630;
   --ease-marketing: var(--marketing-ease);

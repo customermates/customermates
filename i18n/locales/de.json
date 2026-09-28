@@ -1030,9 +1030,9 @@
     "userInfoIsMissing": "Der Anbieter hat dein Profil nicht übermittelt. Bitte versuche es erneut."
   },
   "BrowserFrame": {
-    "live": "live",
+    "live": "Live-Vorschau",
     "liveDemoTitle": "Customermates-Live-Demo",
-    "open": "Öffnen"
+    "open": "In neuem Tab öffnen"
   },
   "Common": {
     "actions": {
@@ -2582,7 +2582,7 @@
   "HomepageStatsRow": {
     "automationLabel": "Automatisierung",
     "taglineMcp": "MCP",
-    "taglinePost": ". Automatisierung über REST, Webhooks und Ihre n8n-Instanz.",
+    "taglinePost": " oder Browser. Automatisierung über REST, Webhooks und Ihre n8n-Instanz.",
     "taglinePre": "Externe KI über"
   },
   "Inbox": {
@@ -2866,6 +2866,7 @@
       "providerCursor": "Cursor",
       "providerGemini": "Gemini",
       "providerGmail": "Gmail",
+      "providerGrok": "Grok Bot",
       "providerImap": "E-Mail / IMAP",
       "providerInstagram": "Instagram",
       "providerLinkedIn": "LinkedIn",

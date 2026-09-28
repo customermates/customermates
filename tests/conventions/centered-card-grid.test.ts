@@ -40,8 +40,8 @@ describe("centered-card grid background", () => {
     expect(onboardingSkeleton).toContain("<GridPattern />");
   });
 
-  it("shares the same grid primitive with the homepage opening", () => {
-    expect(homepageHero).toContain("GridPattern");
-    expect(homepageHero).toContain('fade="bottom"');
+  it("uses the shared fading grid behind the homepage opening", () => {
+    expect(homepageHero).toContain('<GridPattern className="z-0" fade="bottom" />');
+    expect(homepageHero).not.toContain("DotPattern");
   });
 });

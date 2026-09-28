@@ -88,6 +88,8 @@ describe("homepage visual-system adoption", () => {
     expect(proof.match(/<HomepageViewportVideo\b/gu)).toHaveLength(1);
     expect(viewportVideo.match(/<video\b/gu)).toHaveLength(1);
     expect(proof).not.toMatch(/HeroDemoIframe|<iframe\b/u);
+    expect(page.indexOf("<HomepageHero")).toBeLessThan(page.indexOf("<HomepageFacts"));
+    expect(page.indexOf("<HomepageFacts")).toBeLessThan(page.indexOf("<HomepageLiveDemo"));
     expect(page.indexOf("<HomepageHero")).toBeLessThan(page.indexOf("<HomepageLiveDemo"));
     expect(page.indexOf("<HomepageLiveDemo")).toBeLessThan(page.indexOf("<HomepageProductProof"));
     expect(page.indexOf("<HomepageProductProof")).toBeLessThan(page.indexOf("<HomepageStatsRow"));
@@ -113,20 +115,22 @@ describe("homepage visual-system adoption", () => {
     expect(viewportVideo).not.toMatch(/\bautoPlay\b|\bloop\b/u);
   });
 
-  it("builds the centered opening from every approved inbox provider", () => {
+  it("builds the split opening from representative provider checks", () => {
     const hero = readComponent("homepage-hero.tsx");
 
-    expect(hero).toContain('VISUAL_PROVIDER_SET_FIXTURES["unified-inbox"]');
-    expect(hero).toContain("ProviderMark");
+    const illustration = readComponent("homepage-hero-visual.tsx");
+    expect(illustration).toContain('["linkedin", "whatsapp", "gmail"]');
+    expect(illustration).toContain("ProviderMark");
+    expect(hero).toContain("HomepageHeroVisual");
     expect(hero).toContain("GridPattern");
-    expect(hero).toContain('fade="bottom"');
     expect(hero).not.toMatch(/HomepageAgentRecordVisual|GoogleCalendar|OutlookCalendar|Messenger|XTwitter/u);
-    expect(englishHomepage).toContain("title: The open-source CRM");
+    expect(englishHomepage).toContain("title: The Open-Source CRM");
     expect(englishHomepage).toContain("titleAccent: for AI agents.");
     expect(hero).not.toContain("useCaseEyebrow");
     expect(hero).toContain("heroSection.useCase");
-    expect(hero).toContain("order-last");
-    expect(hero).toContain("sm:order-none");
+    expect(hero).toContain("lg:grid-cols-[1.2fr_1fr]");
+    expect(illustration).toContain("useHomepageMotion");
+    expect(illustration).toContain("shouldReduceMotion");
   });
 
   it("rotates a width-reserved, accessible hero reel only while motion is appropriate", () => {
@@ -152,8 +156,8 @@ describe("homepage visual-system adoption", () => {
     expect(hero.indexOf('data-homepage-hero-line="lead"')).toBeLessThan(
       hero.indexOf('data-homepage-hero-line="rotation"'),
     );
-    expect(hero).toContain("gap-y-[0.1em] lg:gap-y-[0.06em]");
-    expect(leadLine).toContain("whitespace-nowrap");
+    expect(hero).toContain("gap-y-[0.1em]");
+    expect(leadLine).toContain("text-balance");
     expect(rotationLine).toContain("whitespace-nowrap");
     expect(rotatingAccent).toContain("AnimatePresence");
     expect(rotatingAccent).toContain("ROTATION_INTERVAL_MS = 2_600");
@@ -164,8 +168,7 @@ describe("homepage visual-system adoption", () => {
     expect(rotatingAccent).toContain('data-homepage-motion="rotating-accent"');
     expect(rotatingAccent).not.toContain("aria-live");
     expect(rotatingAccent).toContain("useHomepageMotion<HTMLSpanElement>(0.6)");
-    expect(hero).toContain('activeClassName="rounded-xl bg-primary/10 px-[0.12em]"');
-    expect(hero).toContain('className="p-[0.12em] text-primary"');
+    expect(hero).toContain('className="p-[0.12em] text-primary [&>span]:justify-start"');
     expect(motionSource).toContain("HOMEPAGE_MOTION_VISIBILITY_AMOUNT = 0.35");
     expect(motionSource).toContain("useInView");
     expect(motionSource).toContain("useReducedMotion");
@@ -179,6 +182,7 @@ describe("homepage visual-system adoption", () => {
       "for Codex.",
       "for Cursor.",
       "for Gemini.",
+      "for Grok Bot.",
       "for Hermes Agent.",
       "for OpenClaw.",
       "for n8n.",
@@ -195,6 +199,7 @@ describe("homepage visual-system adoption", () => {
       "für Codex.",
       "für Cursor.",
       "für Gemini.",
+      "für Grok Bot.",
       "für Hermes Agent.",
       "für OpenClaw.",
       "für n8n.",
@@ -203,8 +208,8 @@ describe("homepage visual-system adoption", () => {
     }
     expect(englishHomepage).not.toContain("useCaseEyebrow");
     expect(germanHomepage).not.toContain("useCaseEyebrow");
-    expect(englishHomepage).toContain("  useCase: Ask ChatGPT");
-    expect(germanHomepage).toContain("  useCase: Lassen Sie ChatGPT");
+    expect(englishHomepage).toContain("  useCase: Your customer relationships need a shared memory.");
+    expect(germanHomepage).toContain("  useCase: Ihre Kundenbeziehungen brauchen ein gemeinsames Gedächtnis.");
     expect(englishHomepage).not.toContain("\u2014");
     expect(germanHomepage).not.toContain("\u2014");
   });
@@ -216,12 +221,13 @@ describe("homepage visual-system adoption", () => {
 
     expect(liveDemo).not.toContain('tone="inverse"');
     expect(proof).toContain('tone="inverse"');
-    expect(liveDemo).toContain("proof.demoEyebrow");
+    expect(liveDemo).not.toContain("proof.demoEyebrow");
     expect(liveDemo).toContain("proof.demoTitle");
-    expect(liveDemo).toContain("proof.demoDescription");
-    expect(liveDemo).toContain('containerSize="wide"');
-    expect(liveDemo).toContain('className="marketing-grid mx-auto max-w-[84rem] items-end gap-y-6"');
-    expect(liveDemo).toContain('<HeroDemoIframe size="full" src={demoSrc} />');
+    expect(liveDemo).not.toContain("proof.demoDescription");
+    expect(liveDemo).not.toContain('containerSize="wide"');
+    expect(liveDemo).toContain("title={proof.demoTitle}");
+    expect(liveDemo).toContain('size="full"');
+    expect(liveDemo).toContain("src={demoSrc}");
     expect(demoIframe).toContain('size = "full"');
     expect(demoIframe).toContain("<BrowserFrame loadAhead size={size}");
   });
@@ -454,19 +460,17 @@ describe("homepage visual-system adoption", () => {
   it("keeps the base display neutral while accenting the rotating subject", () => {
     const hero = readComponent("homepage-hero.tsx");
     const walkthrough = readComponent("homepage-walkthrough.tsx");
-    const heroHeading = readOpeningElementContaining(hero, 'className="text-hero mt-7 max-w-6xl"');
+    const heroHeading = readOpeningElementContaining(hero, 'data-homepage-hero-line="lead"');
 
     expect(heroHeading).not.toContain("text-primary");
-    expect(hero).toContain('className="text-hero mt-7 max-w-6xl"');
-    expect(hero).toContain('className="p-[0.12em] text-primary"');
-    expect(hero).not.toContain("text-[clamp(");
+    expect(hero).toContain('className="p-[0.12em] text-primary [&>span]:justify-start"');
     expect(walkthrough).not.toMatch(/<h2[\s\S]{0,240}text-primary/u);
   });
 
-  it("shows four authorable AI-client identities and a distinct n8n automation identity", () => {
+  it("shows five authorable AI-client identities and a distinct n8n automation identity", () => {
     const strip = readComponent("homepage-stats-row.tsx");
 
-    for (const provider of ["chatgpt", "claude", "cursor", "gemini"]) {
+    for (const provider of ["chatgpt", "claude", "cursor", "gemini", "grok"]) {
       expect(strip).toContain(`"${provider}"`);
     }
     expect(strip).toContain("NativeAutomationProviderIdentity");

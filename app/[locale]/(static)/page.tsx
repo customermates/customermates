@@ -9,7 +9,7 @@ import { HomepageHero } from "./components/homepage-hero";
 import { HomepageStatsRow } from "./components/homepage-stats-row";
 import { HomepageWalkthrough } from "./components/homepage-walkthrough";
 import { HomepageHowItWorks } from "./components/homepage-how-it-works";
-import { HomepageBenefits } from "./components/homepage-benefits";
+import { HomepageBenefits, HomepageFacts } from "./components/homepage-benefits";
 import { HomepagePricing } from "./components/homepage-pricing";
 import { HomepagePipeline } from "./components/homepage-pipeline";
 import { HomepageClosing, HomepageFaq } from "./components/homepage-closing";
@@ -84,6 +84,8 @@ export default async function HomePage({ params }: StaticLocaleProps) {
       />
 
       <HomepageHero heroSection={hero} />
+
+      <HomepageFacts benefitsSection={benefits} />
 
       <HomepageLiveDemo locale={contentLocale} proof={productProof} />
 
