@@ -836,6 +836,24 @@ export function benchmarkCaseModelSelection(
   return { modelKey, modelConfig };
 }
 
+export const MERGE_CHECK_DEFAULT_CAP_USD = 20;
+
+export function mergeCheckMinimumCapUsd(
+  caseIds: readonly CaseId[],
+  arm: BenchmarkArm,
+): { capUsd: number; caseId: CaseId } {
+  let largest: { capUsd: number; caseId: CaseId } | null = null;
+  for (const caseId of caseIds) {
+    const definition = BENCHMARK_CASES.find((entry) => entry.id === caseId);
+    if (!definition) throw new Error(`Unknown case ${caseId}.`);
+    const { modelConfig } = benchmarkCaseModelSelection(caseId, arm);
+    const capUsd = worstCaseEpisodeUsd({ ...arm, ...modelConfig }, definition.prompts.length);
+    if (!largest || capUsd > largest.capUsd) largest = { capUsd, caseId };
+  }
+  if (!largest) throw new Error("A merge check needs at least one case.");
+  return largest;
+}
+
 function withIntegrityChecks(
   oracle: OracleResult,
   checks: OracleCheck[],

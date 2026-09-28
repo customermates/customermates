@@ -27,6 +27,8 @@ import {
   ARTIFACT_SCHEMA_VERSION,
   benchmarkCaseModelSelection,
   benchmarkSourceIdentity,
+  MERGE_CHECK_DEFAULT_CAP_USD,
+  mergeCheckMinimumCapUsd,
   persist,
   runEpisode,
 } from "./episode";
@@ -402,7 +404,20 @@ async function main() {
         "Agent benchmark merge checks require a clean Git worktree so their evidence is attributable.",
       );
     const label = benchmarkPathSegment(flags.label, "merge-check", "label");
-    const cap = Number(flags.cap ?? 10);
+    const cap = Number(flags.cap ?? MERGE_CHECK_DEFAULT_CAP_USD);
+    const minimum = mergeCheckMinimumCapUsd(
+      suite.map((definition) => definition.id),
+      armById(defaultBenchmarkArmIds()[0]!),
+    );
+    const assertMergeCheckCap = (capUsd: number) => {
+      if (Number.isFinite(capUsd) && capUsd >= minimum.capUsd) return;
+      throw new Error(
+        `The merge check needs a campaign cap of at least $${Math.ceil(minimum.capUsd)}, not $${capUsd}: ` +
+          `${minimum.caseId} reserves $${minimum.capUsd.toFixed(2)} up front and would otherwise be skipped. ` +
+          `Pass --cap ${MERGE_CHECK_DEFAULT_CAP_USD} or more.`,
+      );
+    };
+    if (typeof flags.campaign !== "string") assertMergeCheckCap(cap);
     const runtimeVariant = benchmarkPathSegment(
       flags.variant,
       "merge",
@@ -410,9 +425,9 @@ async function main() {
     );
     const db = await createBenchmarkDb(env.databaseUrl, env.appUrl);
     const result = await withPool(async (pool) => {
-      const campaign = typeof flags.campaign === "string"
-        ? await loadCampaign(pool, flags.campaign)
-        : await createCampaign(pool, label, cap);
+      const resumed = typeof flags.campaign === "string" ? await loadCampaign(pool, flags.campaign) : null;
+      assertMergeCheckCap(resumed?.capUsd ?? cap);
+      const campaign = resumed ?? (await createCampaign(pool, label, cap));
       console.log(`campaign ${campaign.id}`);
       const failures = await runMatrix({
         pool,
@@ -612,7 +627,7 @@ async function main() {
     return;
   }
 
-  console.log("Commands: arms | cases | overlay | verify-arms | check [--label L] [--cap USD] [--campaign ID] [--variant merge] | campaign --label L --cap USD | status --campaign ID | run --campaign ID [--arms a,b (default: shipped)] [--cases S1,S2] [--reps N] [--variant current] | recover --campaign ID --arm A --case C --repetition N --variant V | judge --campaign ID | report --campaign ID [--label L]");
+  console.log("Commands: arms | cases | overlay | verify-arms | check [--label L] [--cap USD, default 20] [--campaign ID] [--variant merge] | campaign --label L --cap USD | status --campaign ID | run --campaign ID [--arms a,b (default: shipped)] [--cases S1,S2] [--reps N] [--variant current] | recover --campaign ID --arm A --case C --repetition N --variant V | judge --campaign ID | report --campaign ID [--label L]");
 }
 
 main()

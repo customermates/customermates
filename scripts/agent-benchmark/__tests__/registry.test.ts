@@ -5,7 +5,8 @@ import { MODEL_CATALOG, SHIPPED_AGENT_MODEL_KEY } from "@/ee/agent-chat/model-ca
 import { ALL_VIEW_KEY, SURFACE } from "@/core/data-view/data-view-keys";
 
 import { armById } from "../arms";
-import { benchmarkCaseModelSelection } from "../episode";
+import { worstCaseEpisodeUsd } from "../campaign";
+import { benchmarkCaseModelSelection, MERGE_CHECK_DEFAULT_CAP_USD, mergeCheckMinimumCapUsd } from "../episode";
 import { BENCHMARK_CASES } from "../fixtures";
 
 describe("unified benchmark registry", () => {
@@ -127,5 +128,26 @@ describe("unified benchmark registry", () => {
         thinkingLevel: "medium",
       },
     });
+  });
+
+  it("sizes the merge check's default cap above the largest single-episode reservation, which R49's pinned model sets", () => {
+    const suite = BENCHMARK_CASES.filter((definition) => definition.heldout !== true);
+    const shipped = armById("shipped");
+    const minimum = mergeCheckMinimumCapUsd(
+      suite.map((definition) => definition.id),
+      shipped,
+    );
+    const r49 = suite.find((definition) => definition.id === "R49");
+    if (!r49) throw new Error("expected R49 in the merge suite");
+
+    expect(minimum.caseId).toBe("R49");
+    expect(minimum.capUsd).toBeCloseTo(
+      worstCaseEpisodeUsd({ ...shipped, ...benchmarkCaseModelSelection("R49", shipped).modelConfig }, r49.prompts.length),
+      9,
+    );
+    expect(minimum.capUsd).toBeGreaterThan(10);
+    expect(minimum.capUsd).toBeLessThanOrEqual(MERGE_CHECK_DEFAULT_CAP_USD);
+    expect(MERGE_CHECK_DEFAULT_CAP_USD).toBe(20);
+    expect(() => mergeCheckMinimumCapUsd([], shipped)).toThrow("A merge check needs at least one case.");
   });
 });
