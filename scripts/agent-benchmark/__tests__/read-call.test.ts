@@ -2,7 +2,12 @@ import { describe, expect, it } from "vitest";
 
 import { ALL_VIEW_KEY, SURFACE } from "@/core/data-view/data-view-keys";
 import { AGENT_UI_TOOL_NAMES } from "@/ee/agent-chat/agent-ui-command";
+import { AGENT_HOSTED_TOOL_ANNOTATIONS } from "@/ee/agent-chat/agent-tools";
+import { LOAD_TOOLSET_TOOL_NAME } from "@/ee/agent-chat/agent-toolset-routing";
+import { isReadOnlyAgentToolCall } from "@/ee/agent-chat/gated-tools";
+import { AGENT_WEB_SEARCH_TOOL_NAME } from "@/ee/agent-chat/agent-web-search";
 import { ManageDataViewsSchema } from "@/features/data-view/manage-data-views.schema";
+import { ALL_MCP_TOOLS } from "@/features/mcp-tools/tool-registry";
 
 import { analysisReads, isPageSizeRefusal, isReadCall, readsCustomFieldValues, withAnalysisReads, type ObservedTool } from "../fixtures";
 
@@ -39,6 +44,26 @@ describe("benchmark read-call predicate", () => {
   it("counts only the read actions of the mixed social tools as reads", () => {
     expect(["list", "invite", "accept", "cancel"].filter((action) => isReadCall({ name: "manage_social_relations", input: { action } }))).toEqual(["list"]);
     expect(["list", "browse", "save"].filter((action) => isReadCall({ name: "linkedin_manage_sales_lists", input: { action } }))).toEqual(["list", "browse"]);
+  });
+
+  it("classifies every tool and action exactly as the runtime does, apart from the interface panel tools it never executes", () => {
+    const actions = ["list", "get", "search", "runs", "surfaces", "config", "browse", "list_deliveries", "create", "update", "delete", "invite", "save", "select", "rename"];
+    const names = [
+      ...ALL_MCP_TOOLS.map((tool) => tool.name),
+      ...Object.keys(AGENT_HOSTED_TOOL_ANNOTATIONS),
+      AGENT_WEB_SEARCH_TOOL_NAME,
+      LOAD_TOOLSET_TOOL_NAME,
+      "list_ui_targets",
+      "a_tool_this_build_does_not_define",
+    ];
+    const annotations = (name: string) => AGENT_HOSTED_TOOL_ANNOTATIONS[name] ?? ALL_MCP_TOOLS.find((tool) => tool.name === name)?.annotations;
+    const mismatches = names.flatMap((name) =>
+      [undefined, {}, ...actions.map((action) => ({ action }))].flatMap((input) =>
+        isReadCall({ name, input }) === isReadOnlyAgentToolCall(name, { annotations: annotations(name) }, input) ? [] : [`${name} ${JSON.stringify(input)}`],
+      ),
+    );
+    expect(mismatches).toEqual([]);
+    expect(isReadCall({ name: AGENT_WEB_SEARCH_TOOL_NAME, input: { query: "news" } })).toBe(true);
   });
 
   it("fails closed on writes, write actions, missing actions and unknown tools", () => {
