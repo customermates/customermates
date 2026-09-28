@@ -60,10 +60,16 @@ it("checks each provider, creates a draft, keeps activity visible, and supports 
     vi.advanceTimersByTime(800);
   });
   expect(visibleSteps(host)).toEqual(["Reading LinkedIn"]);
+  expect(
+    Array.from(host.querySelectorAll<HTMLElement>("[data-step-connector]")).map((line) => line.style.transform),
+  ).toEqual(["scaleY(1)", "scaleY(0)", "scaleY(0)", "scaleY(0)"]);
   act(() => {
     vi.advanceTimersByTime(1100);
   });
   expect(visibleSteps(host)).toEqual(["Checked LinkedIn", "Reading WhatsApp"]);
+  expect(
+    Array.from(host.querySelectorAll<HTMLElement>("[data-step-connector]")).map((line) => line.style.transform),
+  ).toEqual(["scaleY(1)", "scaleY(1)", "scaleY(0)", "scaleY(0)"]);
   act(() => {
     vi.advanceTimersByTime(1100);
   });

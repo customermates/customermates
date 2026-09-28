@@ -137,9 +137,9 @@ export function PublicNavbar({ accountState, hasValidSession, onboardingIntent, 
   function renderPreferenceButtons() {
     return (
       <div className="flex items-center gap-2">
-        <LocaleMenu className="[&_summary]:size-8 [&_summary]:border [&_summary]:border-border" />
+        <LocaleMenu className="[&_summary]:size-8" />
 
-        <ThemeSwitcher className="border border-border" />
+        <ThemeSwitcher />
       </div>
     );
   }
@@ -187,7 +187,7 @@ export function PublicNavbar({ accountState, hasValidSession, onboardingIntent, 
               <SheetBody className="flex flex-col gap-3 pb-6">
                 <div className="w-full">
                   {publicNavGroups.map((group) => (
-                    <details key={group.id} className="group border-b border-sidebar-border" name="public-nav-mobile">
+                    <details key={group.id} className="group" name="public-nav-mobile">
                       <summary
                         className={cn(
                           mobileOverviewRowClassName,
@@ -241,11 +241,7 @@ export function PublicNavbar({ accountState, hasValidSession, onboardingIntent, 
                   <AppLink
                     appearance="unstyled"
                     aria-current={isNavItemActive("/pricing") ? "page" : undefined}
-                    className={cn(
-                      mobileOverviewRowClassName,
-                      "border-t border-border",
-                      isNavItemActive("/pricing") && "bg-accent",
-                    )}
+                    className={cn(mobileOverviewRowClassName, isNavItemActive("/pricing") && "bg-accent")}
                     href="/pricing"
                     onNavigate={closeMenu}
                   >

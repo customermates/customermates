@@ -26,7 +26,7 @@ export function HomepageHero({ heroSection }: Props) {
   return (
     <section className="relative isolate w-full overflow-hidden" data-homepage-section="hero">
       <MarketingContainer className="relative z-10 !max-w-[72rem] !px-6 sm:!px-12 lg:!px-10">
-        <div className="grid items-center gap-12 py-14 sm:py-16 lg:grid-cols-[1.2fr_1fr] lg:gap-12 lg:py-20">
+        <div className="grid items-center gap-12 py-20 sm:py-24 lg:grid-cols-[1.2fr_1fr] lg:gap-12 lg:py-28">
           <div className="min-w-0 [container-type:inline-size]">
             <AgplGithubBadge className="!mb-0" />
 

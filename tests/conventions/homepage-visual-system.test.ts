@@ -88,6 +88,8 @@ describe("homepage visual-system adoption", () => {
     expect(proof.match(/<HomepageViewportVideo\b/gu)).toHaveLength(1);
     expect(viewportVideo.match(/<video\b/gu)).toHaveLength(1);
     expect(proof).not.toMatch(/HeroDemoIframe|<iframe\b/u);
+    expect(page.indexOf("<HomepageHero")).toBeLessThan(page.indexOf("<HomepageFacts"));
+    expect(page.indexOf("<HomepageFacts")).toBeLessThan(page.indexOf("<HomepageLiveDemo"));
     expect(page.indexOf("<HomepageHero")).toBeLessThan(page.indexOf("<HomepageLiveDemo"));
     expect(page.indexOf("<HomepageLiveDemo")).toBeLessThan(page.indexOf("<HomepageProductProof"));
     expect(page.indexOf("<HomepageProductProof")).toBeLessThan(page.indexOf("<HomepageStatsRow"));
@@ -122,7 +124,7 @@ describe("homepage visual-system adoption", () => {
     expect(hero).toContain("HomepageHeroVisual");
     expect(hero).not.toContain("GridPattern");
     expect(hero).not.toMatch(/HomepageAgentRecordVisual|GoogleCalendar|OutlookCalendar|Messenger|XTwitter/u);
-    expect(englishHomepage).toContain("title: The open-source CRM");
+    expect(englishHomepage).toContain("title: The Open-Source CRM");
     expect(englishHomepage).toContain("titleAccent: for AI agents.");
     expect(hero).not.toContain("useCaseEyebrow");
     expect(hero).toContain("heroSection.useCase");

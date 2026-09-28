@@ -17,8 +17,8 @@ type Props = {
 const LOAD_AHEAD_MARGIN = "400px 0px";
 
 const FRAME_HEIGHT_CLASS = {
-  article: "h-[420px] sm:h-[520px] lg:h-[600px]",
-  full: "h-[600px] md:h-[700px] lg:h-[750px]",
+  article: "h-[480px] sm:h-[600px] lg:h-[680px]",
+  full: "h-[680px] md:h-[800px] lg:h-[860px]",
 } as const;
 
 function getOrigin(src: string): string | null {
@@ -106,7 +106,7 @@ export function BrowserFrame({ fallbackMessage, loadAhead = false, size = "full"
             target="_blank"
             title={currentUrl}
           >
-            {currentUrl.replace(/^https?:\/\//u, "")}
+            {(getOrigin(currentUrl) ?? currentUrl).replace(/^https?:\/\//u, "")}
           </a>
 
           <a

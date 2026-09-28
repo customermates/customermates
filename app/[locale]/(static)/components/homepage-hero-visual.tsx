@@ -67,7 +67,7 @@ export function HomepageHeroVisual({ copy }: { copy: NonNullable<Hero["illustrat
           {!shouldReduceMotion && (
             <Button
               aria-label={copy.replay}
-              className="size-7 text-muted-foreground"
+              className="size-7 border border-border text-muted-foreground"
               size="icon"
               variant="ghost"
               onClick={replay}
@@ -114,17 +114,24 @@ export function HomepageHeroVisual({ copy }: { copy: NonNullable<Hero["illustrat
             </span>
           </div>
 
-          <ol className={`mt-3 space-y-3 border-l border-border pl-4 ${currentPhase === 0 ? "invisible" : ""}`}>
+          <ol className={`mt-3 space-y-3 pl-4 ${currentPhase === 0 ? "invisible" : ""}`}>
             {copy.steps.map((step, index) => {
               const revealed = currentPhase >= index + 1;
               const completed = currentPhase > index + 1;
               const provider = PROVIDERS[index];
               return (
                 <li
-                  key={`${step.done}-${revealed}`}
+                  key={step.done}
                   aria-hidden={!revealed}
-                  className={`flex items-center gap-2 text-xs ${revealed ? "animate-in fade-in-0 slide-in-from-top-2 duration-300 motion-reduce:animate-none" : "invisible"}`}
+                  className={`relative flex items-center gap-2 text-xs ${revealed ? "animate-in fade-in-0 slide-in-from-top-2 duration-300 motion-reduce:animate-none" : "invisible"}`}
                 >
+                  <span
+                    aria-hidden
+                    data-step-connector
+                    className={`absolute -left-4 bottom-0 w-px origin-top bg-border transition-transform duration-300 motion-reduce:transition-none ${index === 0 ? "top-0" : "-top-3"}`}
+                    style={{ transform: `scaleY(${revealed ? 1 : 0})` }}
+                  />
+
                   {provider ? (
                     <ProviderMark provider={provider} size={14} />
                   ) : (

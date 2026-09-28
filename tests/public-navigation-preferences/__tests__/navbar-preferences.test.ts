@@ -297,7 +297,7 @@ describe("public navigation preferences", () => {
       const linkStart = mobile.lastIndexOf("<AppLink", hrefIndex);
       expect(mobile.slice(linkStart, hrefIndex)).toContain('appearance="unstyled"');
       expect(mobile.slice(linkStart, hrefIndex)).toContain("mobileOverviewRowClassName");
-      expect(mobile.slice(linkStart, hrefIndex)).toContain("border-t border-border");
+      expect(mobile.slice(linkStart, hrefIndex)).not.toContain("border-t border-border");
     }
     expect(mobile).toContain("icon={CircleDollarSign}");
     expect(mobile).not.toContain('href="/docs"');

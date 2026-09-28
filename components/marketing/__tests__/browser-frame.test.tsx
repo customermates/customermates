@@ -101,6 +101,7 @@ describe("BrowserFrame", () => {
     const urlLink = frame?.querySelector<HTMLAnchorElement>("a[title]");
     expect(urlLink?.getAttribute("href")).toBe(urlLink?.getAttribute("title"));
     expect(urlLink?.getAttribute("target")).toBe("_blank");
+    expect(urlLink?.textContent).toBe("demo.customermates.com");
   });
 
   it("routes product previews locally only during development", () => {
