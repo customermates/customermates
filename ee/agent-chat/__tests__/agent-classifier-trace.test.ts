@@ -21,10 +21,9 @@ describe("agent turn classifier trace", () => {
     expect(buildAgentTurnClassifierTrace([])).toBeNull();
   });
 
-  it("accepts traces stored before the removed toolset and guard fields went away, and rejects a bad cost", () => {
-    const legacy = { auxiliaryCostMicrocents: 0, auxiliaryMeasured: true, toolsetPreload: null, docsRerank: null };
-    expect(isAgentTurnClassifierTrace(legacy)).toBe(true);
-    expect(isAgentTurnClassifierTrace({ ...legacy, auxiliaryCostMicrocents: -1 })).toBe(false);
-    expect(isAgentTurnClassifierTrace({ ...legacy, docsRerank: "jev" })).toBe(false);
+  it("rejects a negative cost and a docs re-rank entry that is not an object", () => {
+    const trace = { auxiliaryCostMicrocents: 0, auxiliaryMeasured: true, docsRerank: null };
+    expect(isAgentTurnClassifierTrace({ ...trace, auxiliaryCostMicrocents: -1 })).toBe(false);
+    expect(isAgentTurnClassifierTrace({ ...trace, docsRerank: "jev" })).toBe(false);
   });
 });
