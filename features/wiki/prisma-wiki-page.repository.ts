@@ -4,7 +4,11 @@ import type { DeleteWikiPageRepo } from "./delete-wiki-page.interactor";
 import type { GetWikiPageRepo } from "./get-wiki-page.interactor";
 import type { GetWikiPagesRepo } from "./get-wiki-pages.interactor";
 import type { GetWikiCatalogRepo } from "./get-wiki-catalog.interactor";
-import type { SearchWikiPagesRepo, WikiSemanticCandidate } from "./search-wiki-pages.interactor";
+import type {
+  SearchWikiPagesRepo,
+  WikiFullTextCandidates,
+  WikiSemanticCandidate,
+} from "./search-wiki-pages.interactor";
 import type { UpdateWikiPageRepo } from "./update-wiki-page.interactor";
 import type { StartWikiHomepageSetupRepo } from "./start-wiki-homepage-setup.interactor";
 import type { WikiPageDto } from "./wiki.schema";
@@ -17,8 +21,10 @@ import {
   fullTextUnits,
   fullTextUnitsCte,
   idfWeight,
+  replaceQueryWords,
   substringUnits,
   textSearchConfigFor,
+  typoCandidates,
   type FullTextUnit,
 } from "@/core/retrieval/full-text-query";
 
@@ -35,6 +41,11 @@ const WIKI_SEMANTIC_CLAIM_SECONDS = 300;
 const WIKI_SEMANTIC_INTRO_MARGIN = 0.03;
 const WIKI_FULL_TEXT_CONFIGS = ["english", "german", "spanish", "french", "italian"] as const;
 const WIKI_TITLE_WEIGHT = 2;
+const WIKI_TYPO_PREFIX = 3;
+const WIKI_TYPO_LENGTH_SLACK = 2;
+const WIKI_TYPO_MIN_SIMILARITY = 0.4;
+const WIKI_TYPO_TRANSPOSITION_MIN_LENGTH = 5;
+const WIKI_TYPO_PAGE_LIMIT = 200;
 const WIKI_HEADLINE_OPTIONS = "StartSel=**, StopSel=**, MaxWords=35, MinWords=15";
 const WIKI_SHORT_HEADLINE_OPTIONS = "StartSel=**, StopSel=**, HighlightAll=true";
 
@@ -145,47 +156,10 @@ export class PrismaWikiPageRepo
     return fullTextUnitsCte({ units, configs: WIKI_FULL_TEXT_CONFIGS, stopConfig: this.fullTextStopConfig });
   }
 
-  async fullTextPageCandidates(text: string, limit: number): Promise<{ keys: string[]; pinned: string[] }> {
-    const units = fullTextUnits(text);
-    const substrings = substringUnits(units);
+  async fullTextPageCandidates(text: string, limit: number): Promise<WikiFullTextCandidates> {
     const identifiers = wikiIdentifierTerms(text);
     const [ranked, pinned] = await Promise.all([
-      units.length === 0
-        ? Promise.resolve([])
-        : this.prisma.$queryRaw<Array<{ id: string }>>(Prisma.sql`
-          WITH ${this.fullTextUnitsCte(units)},
-          "substringUnits" AS (
-            SELECT * FROM unnest(${substrings.map(({ text: term }) => term)}::text[], ${substrings.map(({ ord }) => ord)}::int[])
-              AS sub("term", "ord")
-          ),
-          hits AS MATERIALIZED (
-            SELECT p."id", u."ord", bool_or(ts_filter(p."searchVector", '{a}'::"char"[]) @@ u."query") AS "title"
-            FROM "WikiPage" p JOIN units u ON p."searchVector" @@ u."query"
-            WHERE p."companyId" = ${this.companyId}
-            GROUP BY p."id", u."ord"
-            UNION ALL
-            SELECT p."id", t."ord", bool_or(strpos(lower(p."title"), t."term") > 0)
-            FROM "WikiPage" p
-            JOIN "substringUnits" t ON strpos(lower(p."title"), t."term") > 0 OR strpos(lower(p."markdown"), t."term") > 0
-            WHERE p."companyId" = ${this.companyId}
-            GROUP BY p."id", t."ord"
-          ),
-          frequency AS (SELECT h."ord", count(*)::float8 AS "pages" FROM hits h GROUP BY h."ord"),
-          total AS (SELECT count(*)::float8 AS "pages" FROM "WikiPage" WHERE "companyId" = ${this.companyId}),
-          scored AS (
-            SELECT h."id", sum(${idfWeight(Prisma.sql`t."pages"`, Prisma.sql`f."pages"`)}
-              * CASE WHEN h."title" THEN ${WIKI_TITLE_WEIGHT}::float8 ELSE 1 END) AS "score"
-            FROM hits h JOIN frequency f ON f."ord" = h."ord" CROSS JOIN total t
-            GROUP BY h."id"
-          )
-          SELECT s."id"
-          FROM scored s
-          JOIN "WikiPage" p ON p."id" = s."id" AND p."companyId" = ${this.companyId}
-          CROSS JOIN "anyUnit" a
-          ORDER BY (to_tsvector('simple', p."title") = to_tsvector('simple', ${text})) DESC, s."score" DESC,
-            ts_rank_cd(p."searchVector", coalesce(a."query", ''::tsquery), 1) DESC, p."createdAt" ASC, p."id" ASC
-          LIMIT ${limit}
-        `),
+      this.rankedFullTextPages(text, limit),
       identifiers.length === 0
         ? Promise.resolve([])
         : this.prisma.$queryRaw<Array<{ id: string }>>(Prisma.sql`
@@ -200,7 +174,104 @@ export class PrismaWikiPageRepo
           ORDER BY m."ord", m."id"
         `),
     ]);
-    return { keys: ranked.map(({ id }) => id), pinned: [...new Set(pinned.map(({ id }) => id))] };
+    const pinnedIds = [...new Set(pinned.map(({ id }) => id))];
+    const corrections = await this.typoCorrections(typoCandidates(ranked.units, ranked.matched));
+    if (corrections.size === 0) return { keys: ranked.ids, pinned: pinnedIds };
+    const corrected = replaceQueryWords(text, corrections);
+    const retried = await this.rankedFullTextPages(corrected, limit);
+    return { keys: retried.ids, pinned: pinnedIds, corrected };
+  }
+
+  private async rankedFullTextPages(text: string, limit: number) {
+    const units = fullTextUnits(text);
+    if (units.length === 0) return { units, ids: [], matched: new Set<number>() };
+    const substrings = substringUnits(units);
+    const rows = await this.prisma.$queryRaw<Array<{ id: string; matched: number[] | null }>>(Prisma.sql`
+      WITH ${this.fullTextUnitsCte(units)},
+      "substringUnits" AS (
+        SELECT * FROM unnest(${substrings.map(({ text: term }) => term)}::text[], ${substrings.map(({ ord }) => ord)}::int[])
+          AS sub("term", "ord")
+      ),
+      hits AS MATERIALIZED (
+        SELECT p."id", u."ord", bool_or(ts_filter(p."searchVector", '{a}'::"char"[]) @@ u."query") AS "title"
+        FROM "WikiPage" p JOIN units u ON p."searchVector" @@ u."query"
+        WHERE p."companyId" = ${this.companyId}
+        GROUP BY p."id", u."ord"
+        UNION ALL
+        SELECT p."id", t."ord", bool_or(strpos(lower(p."title"), t."term") > 0)
+        FROM "WikiPage" p
+        JOIN "substringUnits" t ON strpos(lower(p."title"), t."term") > 0 OR strpos(lower(p."markdown"), t."term") > 0
+        WHERE p."companyId" = ${this.companyId}
+        GROUP BY p."id", t."ord"
+      ),
+      frequency AS MATERIALIZED (SELECT h."ord", count(*)::float8 AS "pages" FROM hits h GROUP BY h."ord"),
+      total AS (SELECT count(*)::float8 AS "pages" FROM "WikiPage" WHERE "companyId" = ${this.companyId}),
+      scored AS (
+        SELECT h."id", sum(${idfWeight(Prisma.sql`t."pages"`, Prisma.sql`f."pages"`)}
+          * CASE WHEN h."title" THEN ${WIKI_TITLE_WEIGHT}::float8 ELSE 1 END) AS "score"
+        FROM hits h JOIN frequency f ON f."ord" = h."ord" CROSS JOIN total t
+        GROUP BY h."id"
+      ),
+      ranked AS (
+        SELECT s."id", row_number() OVER (
+          ORDER BY (to_tsvector('simple', p."title") = to_tsvector('simple', ${text})) DESC, s."score" DESC,
+            ts_rank_cd(p."searchVector", coalesce(a."query", ''::tsquery), 1) DESC, p."createdAt" ASC, p."id" ASC
+        ) AS "rank"
+        FROM scored s
+        JOIN "WikiPage" p ON p."id" = s."id" AND p."companyId" = ${this.companyId}
+        CROSS JOIN "anyUnit" a
+      )
+      SELECT r."id", r."rank", NULL::int[] AS "matched" FROM ranked r WHERE r."rank" <= ${limit}
+      UNION ALL
+      SELECT NULL, NULL, array_agg(f."ord")::int[] FROM frequency f
+      ORDER BY "rank" ASC NULLS LAST
+    `);
+    return {
+      units,
+      ids: rows.flatMap(({ id }) => (id === null ? [] : [id])),
+      matched: new Set(rows.find(({ id }) => id === null)?.matched ?? []),
+    };
+  }
+
+  private async typoCorrections(terms: string[]): Promise<Map<string, string>> {
+    if (terms.length === 0) return new Map();
+    const prefixes = [...new Set(terms.map((term) => `%${Array.from(term).slice(0, WIKI_TYPO_PREFIX).join("")}%`))];
+    const rows = await this.prisma.$queryRaw<Array<{ term: string; word: string }>>(Prisma.sql`
+      WITH terms AS MATERIALIZED (
+        SELECT w."term", wiki_search_sorted_letters(w."term") AS "sorted"
+        FROM unnest(${terms}::text[]) AS w("term")
+        WHERE numnode(plainto_tsquery(${this.fullTextStopConfig}::regconfig, w."term")) > 0
+      ),
+      pages AS MATERIALIZED (
+        SELECT p."title", p."markdown"
+        FROM "WikiPage" p
+        WHERE p."companyId" = ${this.companyId} AND p."searchCompact" LIKE ANY (${prefixes}::text[])
+        ORDER BY p."updatedAt" DESC, p."id" ASC
+        LIMIT ${WIKI_TYPO_PAGE_LIMIT}
+      ),
+      words AS MATERIALIZED (
+        SELECT w."word", count(*)::int AS "pages"
+        FROM pages p
+        CROSS JOIN LATERAL unnest(
+          tsvector_to_array(to_tsvector('simple', p."title" || E'\n' || wiki_search_markdown_text(p."markdown")))
+        ) AS w("word")
+        GROUP BY w."word"
+      ),
+      matches AS (
+        SELECT t."term", w."word", w."pages", similarity(t."term", w."word") AS "score",
+          length(w."word") = length(t."term") AND wiki_search_sorted_letters(w."word") = t."sorted" AS "transposed"
+        FROM terms t
+        JOIN words w ON left(w."word", ${WIKI_TYPO_PREFIX}::int) = left(t."term", ${WIKI_TYPO_PREFIX}::int)
+          AND w."word" <> t."term"
+          AND abs(length(w."word") - length(t."term")) <= ${WIKI_TYPO_LENGTH_SLACK}::int
+      )
+      SELECT DISTINCT ON (m."term") m."term", m."word"
+      FROM matches m
+      WHERE m."score" >= ${WIKI_TYPO_MIN_SIMILARITY}::float4
+        OR (m."transposed" AND length(m."term") >= ${WIKI_TYPO_TRANSPOSITION_MIN_LENGTH}::int)
+      ORDER BY m."term", m."score" DESC, m."pages" DESC, m."word" ASC
+    `);
+    return new Map(rows.map(({ term, word }) => [term, word]));
   }
 
   async rankPageSections(

@@ -46,7 +46,12 @@ const pages = [
   page(3, "Intro.\n\n## Annual plans\n\nProrated within 30 days."),
 ];
 
-function repo(fullText: string[], semantic: { id: string; offset: number }[] | null, stale: string[] = []) {
+function repo(
+  fullText: string[],
+  semantic: { id: string; offset: number }[] | null,
+  stale: string[] = [],
+  corrected?: string,
+) {
   return {
     semanticPageCandidates: vi.fn(() =>
       Promise.resolve(
@@ -56,7 +61,9 @@ function repo(fullText: string[], semantic: { id: string; offset: number }[] | n
       ),
     ),
     getPagesByIds: vi.fn((ids: string[]) => Promise.resolve(pages.filter((entry) => ids.includes(entry.id)))),
-    fullTextPageCandidates: vi.fn(() => Promise.resolve({ keys: fullText, pinned: [] })),
+    fullTextPageCandidates: vi.fn(() =>
+      Promise.resolve({ keys: fullText, pinned: [], ...(corrected ? { corrected } : {}) }),
+    ),
     rankPageSections: vi.fn((_query: string, sections: Array<{ key: number; heading: string }>) =>
       Promise.resolve(new Map(sections.filter((section) => section.heading).map((section) => [section.key, 1]))),
     ),
@@ -137,5 +144,26 @@ describe("unified Wiki search", () => {
     expect(result.data.items.map((item) => item.id)).toEqual([id(2), id(1)]);
     expect(semantic.embedder.embedQuery).not.toHaveBeenCalled();
     expect(ranker).not.toHaveBeenCalled();
+  });
+
+  it("locates sections and snippets with the typo-corrected query and returns it as didYouMean", async () => {
+    const chunks = repo([id(1)], null, [], "refund plans");
+
+    const result = await runWithTenant(mockUser, () =>
+      new SearchWikiPagesInteractor(chunks, "stored").invoke({ query: "refnud plans", page: 1, pageSize: 5 }),
+    );
+    if (!result.ok) throw new Error("expected a search result");
+
+    expect(result.data).toMatchObject({ didYouMean: ["refund plans"], items: [{ id: id(1), section: "Refunds" }] });
+    expect(chunks.fullTextPageCandidates).toHaveBeenCalledWith("refnud plans", expect.any(Number));
+    expect(chunks.rankPageSections).toHaveBeenCalledWith("refund plans", expect.any(Array));
+    expect(chunks.sectionHeadlines).toHaveBeenCalledWith("refund plans", expect.any(Array));
+  });
+
+  it("returns no didYouMean when every query word matched", async () => {
+    const result = await search(new SearchWikiPagesInteractor(repo([id(1)], null), "stored"));
+    if (!result.ok) throw new Error("expected a search result");
+
+    expect(result.data).not.toHaveProperty("didYouMean");
   });
 });

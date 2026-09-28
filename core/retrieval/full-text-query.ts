@@ -10,6 +10,7 @@ const PREFIX_TOKEN = /^[\p{L}\p{N}]{2,}$/u;
 const FULL_TEXT_MAX_UNITS = 32;
 const FULL_TEXT_MAX_CANDIDATE_UNITS = 256;
 const FULL_TEXT_MAX_TERM_LENGTH = 64;
+const TYPO_TERM = /^\p{L}{4,}$/u;
 
 export type FullTextUnit = { text: string; phrase: boolean; prefix: boolean; substring: boolean };
 
@@ -72,6 +73,19 @@ export function fullTextUnits(query: string): FullTextUnit[] {
       .map(({ index }) => index),
   );
   return units.filter((_, index) => kept.has(index));
+}
+
+export function typoCandidates(units: readonly FullTextUnit[], matched: ReadonlySet<number>): string[] {
+  return units.flatMap((unit, index) =>
+    !unit.phrase && !unit.substring && !matched.has(index + 1) && TYPO_TERM.test(unit.text) ? [unit.text] : [],
+  );
+}
+
+export function replaceQueryWords(query: string, replacements: ReadonlyMap<string, string>): string {
+  return query
+    .normalize("NFC")
+    .toLocaleLowerCase()
+    .replace(QUERY_TOKEN, (token) => replacements.get(token) ?? token);
 }
 
 function unitQuery(unit: FullTextUnit, configs: readonly string[]): Prisma.Sql {

@@ -242,7 +242,7 @@ export const manageWikiPagesTool = {
   description:
     "Workspace Wiki of company facts, processes, voice and support guidance. " +
     "kind: guide = the one Operating Guide; procedure = numbered steps + whenToUse; default knowledge. " +
-    "list: 5 per page, guide and procedures first; search: snippets and section offsets, or didYouMean. " +
+    "list: 5 per page, guide and procedures first; search: snippets and section offsets, plus didYouMean when a misspelled word was corrected. " +
     "get: one Markdown chunk (outline at 0); repeat with nextOffset until null; restart at 0 if updatedAt changes. " +
     "delete is IRREVERSIBLE. " +
     "Link pages as /wiki?page=<id>; ids survive renames.",

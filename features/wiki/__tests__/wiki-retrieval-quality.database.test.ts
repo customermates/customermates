@@ -42,11 +42,9 @@ const CATEGORY_TARGETS: Record<string, Target> = {
   overall: { recallAt1: 0.985, recallAt5: 0.985, mrr: 0.985, sectionHitAt1: 1 },
 };
 
-const UNIFIED_FULL_TEXT_TARGETS: Record<string, Target> = {
+const FULL_TEXT_TARGETS: Record<string, Target> = {
   ...CATEGORY_TARGETS,
-  typo: { recallAt1: 0.375, recallAt5: 0.5, mrr: 0.375, sectionHitAt1: 0 },
   "no-match": { recallAt1: 0.8, recallAt5: 0.8, mrr: 0.8 },
-  overall: { recallAt1: 0.925, recallAt5: 0.94, mrr: 0.93, sectionHitAt1: 0.96 },
 };
 
 type Metrics = { queries: number; recallAt1: number; recallAt5: number; mrr: number; sectionHitAt1: number | null };
@@ -97,7 +95,7 @@ describeDatabase("Workspace Wiki retrieval quality", () => {
   }
 
   it("meets the labelled full-text retrieval targets per query category", async () => {
-    const targets = UNIFIED_FULL_TEXT_TARGETS;
+    const targets = FULL_TEXT_TARGETS;
     expect(WIKI_RETRIEVAL_CORPUS.length).toBeGreaterThanOrEqual(25);
     expect(WIKI_RETRIEVAL_QUERIES.length).toBeGreaterThanOrEqual(40);
 

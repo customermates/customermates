@@ -192,6 +192,40 @@ describeDatabase("Workspace Wiki search on PostgreSQL", () => {
     ]);
   });
 
+  it("corrects a misspelled word from the caller's own Wiki words with pg_trgm and returns the corrected query", async () => {
+    const [escalation, travel] = await insert(user, [
+      { title: "Support escalation process", markdown: "The on-call engineer is paged through PagerDuty." },
+      {
+        title: "Travel",
+        markdown: "## Mileage\n\nReimbursements follow the statutory guidelines: 0.30 EUR per kilometre.",
+      },
+      { title: "Refund policy", markdown: "Refunds within 30 days." },
+    ]);
+    await insert(foreignUser, [{ title: "Pagerdutty foreign runbook", markdown: "Foreign quokka cluster." }]);
+
+    const pagerDuty = await search("PagerDutty");
+    expect(pagerDuty).toMatchObject({
+      ok: true,
+      data: { didYouMean: ["pagerduty"], items: [{ id: escalation }] },
+    });
+    expect(JSON.stringify(pagerDuty)).not.toContain("foreign");
+    expect(await search("milage reimbursemnets")).toMatchObject({
+      ok: true,
+      data: { didYouMean: ["mileage reimbursements"], items: [{ id: travel, section: "Mileage" }] },
+    });
+    expect(await search("refnud policy")).toMatchObject({
+      ok: true,
+      data: { didYouMean: ["refund policy"], items: [{ title: "Refund policy" }] },
+    });
+    expect(await search("guidlines")).toMatchObject({ ok: true, data: { didYouMean: ["guidelines"] } });
+
+    for (const query of ["quokka", "xylophone", "escalation", "where is the escalation"]) {
+      const result = await search(query);
+      expect(JSON.stringify(result), query).not.toContain("didYouMean");
+    }
+    expect(await search("quokka")).toMatchObject({ ok: true, data: { total: 0, items: [] } });
+  });
+
   it("finds CJK substrings, reports totals beyond the last page, and never interprets query syntax", async () => {
     await insert(user, [
       { title: "客户支持手册", markdown: "## 退款\n\n退款申请需要在30天内提交。" },

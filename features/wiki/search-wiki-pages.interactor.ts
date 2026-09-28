@@ -24,6 +24,7 @@ const WIKI_RERANK_CANDIDATES = 10;
 const WIKI_SEMANTIC_CANDIDATES = 30;
 
 export type WikiSemanticCandidate = { id: string; offset: number; similarity: number };
+export type WikiFullTextCandidates = { keys: string[]; pinned: string[]; corrected?: string };
 
 export abstract class SearchWikiPagesRepo {
   abstract semanticPageCandidates(
@@ -32,7 +33,7 @@ export abstract class SearchWikiPagesRepo {
     limit: number,
   ): Promise<{ candidates: WikiSemanticCandidate[]; stalePageIds: Set<string> } | null>;
   abstract getPagesByIds(ids: string[]): Promise<WikiPageDto[]>;
-  abstract fullTextPageCandidates(query: string, limit: number): Promise<{ keys: string[]; pinned: string[] }>;
+  abstract fullTextPageCandidates(query: string, limit: number): Promise<WikiFullTextCandidates>;
   abstract rankPageSections(
     query: string,
     sections: Array<{ key: number; heading: string; body: string }>,
@@ -74,10 +75,15 @@ export class SearchWikiPagesInteractor extends AuthenticatedInteractor<WikiPageS
       const semantic = this.semantic && env.APP_MODE !== "demo" ? this.semantic : null;
       const offsets = new Map<string, number>();
       let stalePageIds = new Set<string>();
+      let corrected: string | undefined;
       const fused = await fuseFullTextAndSemantic({
         query: data.query,
         stopwatch,
-        fullText: () => this.repo.fullTextPageCandidates(data.query, Math.max(WIKI_SEMANTIC_CANDIDATES, window)),
+        fullText: async () => {
+          const found = await this.repo.fullTextPageCandidates(data.query, Math.max(WIKI_SEMANTIC_CANDIDATES, window));
+          corrected = found.corrected;
+          return found;
+        },
         embed: semantic ? (query) => semantic.embedder.embedQuery(query) : null,
         semantic: async ({ vector, model }) => {
           const found = await this.repo.semanticPageCandidates(vector, model, WIKI_SEMANTIC_CANDIDATES);
@@ -91,8 +97,9 @@ export class SearchWikiPagesInteractor extends AuthenticatedInteractor<WikiPageS
 
       const head = fused.ranked.slice(0, Math.max(window, data.page === 1 ? WIKI_RERANK_CANDIDATES : 0));
       const pages = new Map((await this.repo.getPagesByIds(head)).map((page) => [page.id, page]));
+      const matchedText = corrected ?? data.query;
       const located = await this.locateSections(
-        data.query,
+        matchedText,
         head.flatMap((id) => pages.get(id) ?? []),
         offsets,
       );
@@ -108,7 +115,7 @@ export class SearchWikiPagesInteractor extends AuthenticatedInteractor<WikiPageS
         : located;
       const selected = reordered.slice((data.page - 1) * data.pageSize, window);
       const headlines = await this.repo.sectionHeadlines(
-        data.query,
+        matchedText,
         selected.map((entry) => entry.plainText()),
       );
       const items = selected.map((entry, index) =>
@@ -123,6 +130,7 @@ export class SearchWikiPagesInteractor extends AuthenticatedInteractor<WikiPageS
         total: fused.ranked.length,
         page: data.page,
         pageSize: data.pageSize,
+        ...(corrected ? { didYouMean: [corrected] } : {}),
         ...(this.semantic ? { retrieval: fused.vector ? ("semantic" as const) : ("keyword" as const) } : {}),
       };
     } finally {

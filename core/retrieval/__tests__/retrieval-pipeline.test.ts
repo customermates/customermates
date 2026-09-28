@@ -2,7 +2,7 @@ import type { RankableSection } from "../retrieval-context";
 
 import { afterEach, describe, expect, it, vi } from "vitest";
 
-import { fullTextUnits } from "../full-text-query";
+import { fullTextUnits, replaceQueryWords, typoCandidates } from "../full-text-query";
 import { collectRetrievalTimings, currentSectionRanker, runWithSectionRanking } from "../retrieval-context";
 import { fuseFullTextAndSemantic, fuseRankings, rerankSections, RetrievalStopwatch } from "../retrieval-pipeline";
 
@@ -159,5 +159,24 @@ describe("section re-rank", () => {
     );
     expect(seen).toEqual([ranker, undefined]);
     expect(currentSectionRanker("wiki")).toBeUndefined();
+  });
+});
+
+describe("typo candidates", () => {
+  it("offers only alphabetic single words of four or more letters that matched no page", () => {
+    const units = fullTextUnits('refnud "expense policy" glosary e-mail 2026 abc 退款 policy');
+
+    expect(typoCandidates(units, new Set())).toEqual(["refnud", "glosary", "policy"]);
+    const policy = units.findIndex((unit) => unit.text === "policy") + 1;
+    expect(typoCandidates(units, new Set([policy]))).toEqual(["refnud", "glosary"]);
+  });
+
+  it("replaces whole query words with their corrections and leaves the rest of the query as typed", () => {
+    const corrections = new Map([
+      ["refnud", "refund"],
+      ["pol", "x"],
+    ]);
+
+    expect(replaceQueryWords("Refnud Policy, refnuds", corrections)).toBe("refund policy, refnuds");
   });
 });
