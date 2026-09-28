@@ -205,6 +205,12 @@ export class PrismaWikiWebsiteCrawlRepo
     });
   }
 
+  async deleteEarlierSources(crawlId: string) {
+    await this.prisma.wikiSourceDocument.deleteMany({
+      where: { companyId: this.companyId, crawlId: { not: crawlId } },
+    });
+  }
+
   async findImportedPage(sourceUrl: string) {
     return this.prisma.wikiPage.findFirst({
       where: { companyId: this.companyId, sourceUrl },

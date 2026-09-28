@@ -86,6 +86,7 @@ export abstract class WikiWebsiteCrawlRepo {
   abstract markSourceRead(crawlId: string, id: string): Promise<void>;
   abstract claimSourceImport(crawlId: string, id: string): Promise<boolean>;
   abstract countImportedPages(since: Date): Promise<number>;
+  abstract deleteEarlierSources(crawlId: string): Promise<void>;
   abstract findImportedPage(sourceUrl: string): Promise<WikiImportedPage | null>;
   abstract markImported(pageId: string, source: { url: string; fetchedAt: Date; contentHash: string }): Promise<void>;
   abstract countSynthesizedPages(since: Date): Promise<number>;
@@ -270,6 +271,7 @@ export class WikiWebsiteCrawlService extends UserAccessor {
 
   async finish(crawlId: string): Promise<void> {
     const crawl = await this.load(crawlId);
+    await this.repo.deleteEarlierSources(crawlId);
     if (crawl.mode !== "initial") {
       await this.repo.claimCrawl(crawlId, ["importing"], { status: "completed", finishedAt: new Date() });
       return;

@@ -298,7 +298,12 @@ describeDatabase("Wiki website crawl on PostgreSQL", () => {
     PAGES["https://example.com/pricing"].text = "# Pricing\n\nPro costs 35 EUR per seat.";
     PAGES["https://example.com/new-policy"] = { title: "Terms", text: "# Terms\n\nNew terms.", qaPairs: [] };
 
-    await runCrawl(await startCrawl("refresh"));
+    const refreshId = await startCrawl("refresh");
+    await runCrawl(refreshId);
+    const kept = await client.query('SELECT DISTINCT "crawlId" FROM "WikiSourceDocument" WHERE "companyId" = $1', [
+      companyId,
+    ]);
+    expect(kept.rows).toEqual([{ crawlId: refreshId }]);
 
     const pages = await client.query('SELECT "id", "title", "markdown" FROM "WikiPage" WHERE "companyId" = $1', [
       companyId,
