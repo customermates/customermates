@@ -5,6 +5,7 @@ import { ArrowDownRight, ArrowUpRight } from "lucide-react";
 import { AgplGithubBadge } from "@/components/marketing/agpl-github-badge";
 import { MarketingContainer } from "@/components/marketing/marketing-container";
 import { AppLink } from "@/components/shared/app-link";
+import { GridPattern } from "@/components/shared/grid-pattern";
 import { Button } from "@/components/ui/button";
 
 import { HomepageHeroVisual } from "./homepage-hero-visual";
@@ -25,6 +26,8 @@ export function HomepageHero({ heroSection }: Props) {
 
   return (
     <section className="relative isolate w-full overflow-hidden" data-homepage-section="hero">
+      <GridPattern className="z-0" fade="bottom" />
+
       <MarketingContainer className="relative z-10 !max-w-[72rem] !px-6 sm:!px-12 lg:!px-10">
         <div className="grid items-center gap-12 py-20 sm:py-24 lg:grid-cols-[1.2fr_1fr] lg:gap-12 lg:py-28">
           <div className="min-w-0 [container-type:inline-size]">
@@ -43,7 +46,11 @@ export function HomepageHero({ heroSection }: Props) {
                   className="inline-flex max-w-full whitespace-nowrap text-[0.87em]"
                   data-homepage-hero-line="rotation"
                 >
-                  <RotatingAccent className="text-primary [&>span]:justify-start" words={accentRotations} />
+                  <RotatingAccent
+                    activeClassName="rounded-xl bg-primary/10 px-[0.12em]"
+                    className="p-[0.12em] text-primary [&>span]:justify-start"
+                    words={accentRotations}
+                  />
                 </span>
               </div>
             </div>

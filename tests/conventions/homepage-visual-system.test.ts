@@ -122,7 +122,7 @@ describe("homepage visual-system adoption", () => {
     expect(illustration).toContain('["linkedin", "whatsapp", "gmail"]');
     expect(illustration).toContain("ProviderMark");
     expect(hero).toContain("HomepageHeroVisual");
-    expect(hero).not.toContain("GridPattern");
+    expect(hero).toContain("GridPattern");
     expect(hero).not.toMatch(/HomepageAgentRecordVisual|GoogleCalendar|OutlookCalendar|Messenger|XTwitter/u);
     expect(englishHomepage).toContain("title: The Open-Source CRM");
     expect(englishHomepage).toContain("titleAccent: for AI agents.");
@@ -168,7 +168,7 @@ describe("homepage visual-system adoption", () => {
     expect(rotatingAccent).toContain('data-homepage-motion="rotating-accent"');
     expect(rotatingAccent).not.toContain("aria-live");
     expect(rotatingAccent).toContain("useHomepageMotion<HTMLSpanElement>(0.6)");
-    expect(hero).toContain('className="text-primary [&>span]:justify-start"');
+    expect(hero).toContain('className="p-[0.12em] text-primary [&>span]:justify-start"');
     expect(motionSource).toContain("HOMEPAGE_MOTION_VISIBILITY_AMOUNT = 0.35");
     expect(motionSource).toContain("useInView");
     expect(motionSource).toContain("useReducedMotion");
@@ -223,7 +223,7 @@ describe("homepage visual-system adoption", () => {
     expect(liveDemo).toContain("proof.demoTitle");
     expect(liveDemo).not.toContain("proof.demoDescription");
     expect(liveDemo).not.toContain('containerSize="wide"');
-    expect(liveDemo).toContain('<h2 className="sr-only">');
+    expect(liveDemo).toContain("title={proof.demoTitle}");
     expect(liveDemo).toContain('size="full"');
     expect(liveDemo).toContain("src={demoSrc}");
     expect(demoIframe).toContain('size = "full"');
@@ -461,7 +461,7 @@ describe("homepage visual-system adoption", () => {
     const heroHeading = readOpeningElementContaining(hero, 'data-homepage-hero-line="lead"');
 
     expect(heroHeading).not.toContain("text-primary");
-    expect(hero).toContain('className="text-primary [&>span]:justify-start"');
+    expect(hero).toContain('className="p-[0.12em] text-primary [&>span]:justify-start"');
     expect(walkthrough).not.toMatch(/<h2[\s\S]{0,240}text-primary/u);
   });
 

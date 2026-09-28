@@ -15,13 +15,13 @@ export function HomepageLiveDemo({ locale, proof }: { locale: ContentLocale; pro
 
   return (
     <MarketingSection
-      className="!pt-8 !pb-20 sm:!pt-12"
       containerClassName="scroll-mt-8 !max-w-[86rem] !px-3 sm:!px-4"
       id="live-demo"
+      title={proof.demoTitle}
     >
-      <h2 className="sr-only">{proof.demoTitle}</h2>
-
-      <HeroDemoIframe size="full" src={demoSrc} />
+      <div className="mt-10 sm:mt-12 lg:mt-14">
+        <HeroDemoIframe size="full" src={demoSrc} />
+      </div>
     </MarketingSection>
   );
 }
