@@ -1,3 +1,4 @@
+import type { ContentLocale } from "@/i18n/locale-registry";
 import type { RankableSection, RetrievalTiming } from "@/core/retrieval/retrieval-context";
 import type { QueryVector } from "@/core/retrieval/retrieval-pipeline";
 import type { DocsRetrievalEvalItem } from "@/scripts/agent-benchmark/retrieval-eval-cases";
@@ -17,6 +18,7 @@ import { DOCS_EMBEDDING_HELDOUT } from "@/scripts/agent-benchmark/heldout-data/d
 
 import { docsCorpus } from "../docs-corpus";
 import { unifiedDocsSearch, type UnifiedDocsDeps } from "../docs-unified-search";
+import { unifiedDocsPageResult } from "../docs.mcp-tools";
 import { PrismaDocsChunkRepo } from "../prisma-docs-chunk.repository";
 
 import { GOLDEN_QUESTIONS } from "./fixtures/docs-retrieval-golden";
@@ -199,6 +201,97 @@ describeDatabase("documentation retrieval quality on the benchmark docs question
     }
   }, 120_000);
 
+  it("has no golden question left waiting for a docs rewrite", () => {
+    const pending = GOLDEN_QUESTIONS.filter((question) => question.requiresDocsRewrite).map(
+      (question) => question.query,
+    );
+    expect(pending).toEqual([]);
+  });
+
+  async function goldenSectionOutcome(question: (typeof GOLDEN_QUESTIONS)[number]) {
+    const { pages } = await unifiedDocsSearch(
+      { query: question.query, locale: question.locale, source: "docs" },
+      { repo, embed: null, ranker: undefined },
+    );
+    const best = pages[0]?.section;
+    const heading = best ? best.headingPath.join(" > ") : "";
+    const slugOk =
+      best !== undefined && (best.slug === question.slug || (question.alternatives ?? []).includes(best.slug));
+    const headings = question.heading === undefined ? [] : [question.heading].flat();
+    const headingOk =
+      headings.length === 0 ||
+      best?.slug !== question.slug ||
+      headings.some((expected) => heading.toLocaleLowerCase().includes(expected.toLocaleLowerCase()));
+    return {
+      locale: question.locale,
+      ok: slugOk && headingOk,
+      detail: `${question.locale} "${question.query}" -> ${best ? `${best.slug} > ${heading}` : "nothing"} (expected ${question.slug}${question.heading ? ` > *${[question.heading].flat().join("|")}*` : ""})`,
+    };
+  }
+
+  const ANSWERABLE = GOLDEN_QUESTIONS.filter((question) => !question.requiresDocsRewrite);
+
+  it("returns the right page and section for every probe question from the audit, full text only", async () => {
+    const misses = (await Promise.all(ANSWERABLE.slice(0, GOLDEN_PROBE_COUNT).map(goldenSectionOutcome)))
+      .filter((result) => !result.ok)
+      .map((result) => result.detail);
+    expect(misses, misses.join("\n")).toEqual([]);
+  }, 120_000);
+
+  it("answers the golden questions with the right page and section at top 1, full text only", async () => {
+    const outcomes = await Promise.all(ANSWERABLE.map(goldenSectionOutcome));
+    const measured: Record<string, number> = {};
+    for (const [locale, floor] of Object.entries(GOLDEN_SECTION_FLOOR)) {
+      const scoped = outcomes.filter((result) => result.locale === locale);
+      const accuracy = round(scoped.filter((result) => result.ok).length / scoped.length);
+      measured[locale] = accuracy;
+      expect(scoped.length).toBeGreaterThanOrEqual(locale === "en" ? 60 : 30);
+      const misses = scoped.filter((result) => !result.ok).map((result) => result.detail);
+      expect(accuracy, `${locale} page+section top-1 ${accuracy}\n${misses.join("\n")}`).toBeGreaterThanOrEqual(floor);
+    }
+    report.goldenSection = measured;
+  }, 120_000);
+
+  const fullTextOnly = () => ({ repo, embed: null, ranker: undefined });
+  const bestSection = async (query: string, locale: ContentLocale) => {
+    const { pages } = await unifiedDocsSearch({ query, locale, source: "docs" }, fullTextOnly());
+    return pages[0] ? [pages[0].section.slug, pages[0].section.anchor] : [];
+  };
+  const excerptOf = async (slug: string, query: string, locale: ContentLocale) =>
+    ((await unifiedDocsPageResult({ slug, query, locale, source: "docs" }, fullTextOnly())) as { text: string }).text;
+
+  it.each([
+    ["en", "how long do quick connection keys last", "api-keys", "do-keys-expire", "365"],
+    ["en", "how long is a quick connection API key valid", "api-keys", "do-keys-expire", "365"],
+    ["en", "how long does an API key last", "api-keys", "do-keys-expire", "365"],
+    ["de", "Wie lange gilt ein Schnellverbindungs-Schlüssel?", "api-keys", "do-keys-expire", "365"],
+    ["de", "Wie lange ist ein API-Key gültig", "api-keys", "do-keys-expire", "365"],
+    ["en", "how long can an API key name be", "api-keys", "what-is-the-key-format", "255"],
+    ["de", "Wie lang darf der Name eines API-Keys sein", "api-keys", "what-is-the-key-format", "255"],
+    ["de", "Wie lange ist der Einladungslink gültig?", "app-company", "how-do-invitations-work", "7 Tage"],
+  ] as const)(
+    "answers the %s key or invitation question %j with its section and fact, full text only",
+    async (locale, query, slug, anchor, fact) => {
+      expect(await bestSection(query, locale)).toEqual([slug, anchor]);
+      expect(await excerptOf(slug, query, locale)).toContain(fact);
+    },
+    120_000,
+  );
+
+  it.each([
+    ["en", "how do I connect a channel", "app-profile#how-do-i-connect-a-channel"],
+    ["en", "connect whatsapp", "app-profile#how-do-i-connect-a-channel"],
+    ["en", "connected accounts", "app-company#what-happens-to-connected-accounts-when-the-plan-changes"],
+    ["en", "how long is the OAuth token valid", "connect-custom-connector#it-syncs-and-stays-connected"],
+    ["en", "how long is the refresh token valid", "connect-custom-connector#it-syncs-and-stays-connected"],
+  ] as const)(
+    "keeps the %s question %j on its own section, full text only",
+    async (locale, query, expected) => {
+      expect((await bestSection(query, locale)).join("#")).toBe(expected);
+    },
+    120_000,
+  );
+
   it("fuses a semantic candidate list from stored embeddings when a query embedder is available", async () => {
     const pending = new Map(
       corpus.chunks.map((chunk) => [chunk.contentHash, retrievalChunkText(chunk.label, chunk.body)]),
@@ -235,4 +328,6 @@ const UNIFIED_FULL_TEXT_FLOOR = {
   sectionHitAt1: 0.23,
   rerankCandidateRecall: 0.78,
 };
+const GOLDEN_PROBE_COUNT = 16;
+const GOLDEN_SECTION_FLOOR = { en: 0.9, de: 0.85 };
 const GOLDEN_FULL_TEXT_FLOOR = { en: { top1: 0.95, top5: 0.98 }, de: { top1: 0.9, top5: 0.97 } };
