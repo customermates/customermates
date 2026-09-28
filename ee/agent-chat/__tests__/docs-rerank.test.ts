@@ -283,15 +283,6 @@ describe("hosted docs re-rank", () => {
     expect(headings.every((heading) => excerpt.includes(heading))).toBe(true);
     expect(charges).toEqual([
       { use: "docs_rerank", model: "jev", costMicrocents: 2000, measured: true, answered: true },
-      {
-        use: "docs_search",
-        model: "jev",
-        costMicrocents: 0,
-        measured: true,
-        answered: true,
-        latencyMs: expect.any(Number),
-        hybrid: false,
-      },
     ]);
   });
 
@@ -335,7 +326,6 @@ describe("hosted docs re-rank", () => {
     expect(page.value.result).toBe(getDocsPageTool.execute(pageInput as never).text);
     expect([...search.charges, ...page.charges]).toEqual([
       expect.objectContaining({ use: "docs_rerank", model: "jev", measured: false, answered: false }),
-      expect.objectContaining({ use: "docs_search", costMicrocents: 0, hybrid: false }),
       expect.objectContaining({ use: "docs_rerank", model: "jev", measured: false, answered: false }),
     ]);
   });

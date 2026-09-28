@@ -63,28 +63,6 @@ export function resolveDocsRerank(value: string | undefined): DocsRerankSetting 
   throw new Error('AGENT_DOCS_RERANK must be configured as "off" or "jev"');
 }
 
-export const DOCS_CANDIDATES_SETTINGS = ["keyword", "hybrid"] as const;
-export type DocsCandidatesSetting = (typeof DOCS_CANDIDATES_SETTINGS)[number];
-
-export function resolveDocsCandidates(value: string | undefined): DocsCandidatesSetting {
-  const normalized = value?.trim();
-  if (!normalized) return "keyword";
-  if ((DOCS_CANDIDATES_SETTINGS as readonly string[]).includes(normalized)) return normalized as DocsCandidatesSetting;
-
-  throw new Error('AGENT_DOCS_CANDIDATES must be configured as "keyword" or "hybrid"');
-}
-
-export const DOCS_EMBEDDING_MODEL_KEYS = ["google-multilingual", "qwen3-8b"] as const;
-export type DocsEmbeddingModelKey = (typeof DOCS_EMBEDDING_MODEL_KEYS)[number];
-
-export function resolveDocsEmbeddingModel(value: string | undefined): DocsEmbeddingModelKey {
-  const normalized = value?.trim();
-  if (!normalized) return "google-multilingual";
-  if ((DOCS_EMBEDDING_MODEL_KEYS as readonly string[]).includes(normalized)) return normalized as DocsEmbeddingModelKey;
-
-  throw new Error('AGENT_DOCS_EMBEDDING_MODEL must be configured as "google-multilingual" or "qwen3-8b"');
-}
-
 export function resolveOptionalBigInt(name: string, value: string | undefined): bigint | null {
   const normalized = value?.trim();
   if (!normalized) return null;

@@ -8,8 +8,6 @@ import {
   resolveAppMode,
   resolveAuthAllowedHosts,
   resolveBaseUrl,
-  resolveDocsCandidates,
-  resolveDocsEmbeddingModel,
   resolveDocsRerank,
   resolveOptionalBigInt,
   resolveRequestOrigin,
@@ -312,29 +310,10 @@ describe("hosted-AI control configuration", () => {
       expect(() => resolveDocsRerank(invalid)).toThrow(/AGENT_DOCS_RERANK must be configured as "off" or "jev"/);
   });
 
-  it("reads unset docs candidates as keyword with the Google embedding model and rejects anything else", () => {
-    for (const absent of [undefined, "", "   "]) {
-      expect(resolveDocsCandidates(absent)).toBe("keyword");
-      expect(resolveDocsEmbeddingModel(absent)).toBe("google-multilingual");
-    }
-
-    expect(resolveDocsCandidates(" hybrid ")).toBe("hybrid");
-    expect(resolveDocsEmbeddingModel(" qwen3-8b ")).toBe("qwen3-8b");
-
-    for (const invalid of ["Hybrid", "embedding", "on"])
-      expect(() => resolveDocsCandidates(invalid)).toThrow(/AGENT_DOCS_CANDIDATES must be configured as "keyword" or "hybrid"/);
-    for (const invalid of ["qwen", "openai/text-embedding-3-small"])
-      expect(() => resolveDocsEmbeddingModel(invalid)).toThrow(/AGENT_DOCS_EMBEDDING_MODEL must be configured/);
-  });
-
   it("documents the docs re-rank's data flow and drops the removed classifier switches from the cloud template", () => {
     const template = readFileSync(new URL("../../.env.cloud.template", import.meta.url), "utf8");
 
     expect(template).toMatch(/^AGENT_DOCS_RERANK="jev"$/m);
-    expect(template).toMatch(/^AGENT_DOCS_CANDIDATES="keyword"$/m);
-    expect(template).toMatch(/^AGENT_DOCS_EMBEDDING_MODEL="google-multilingual"$/m);
-    expect(template).toMatch(/Google Vertex text-multilingual-embedding-002 receives the user's docs question/);
-    expect(template).toMatch(/slower than 1,200 ms keeps the keyword candidates/);
     expect(template).toMatch(/TypeSafe AI in the US/);
     expect(template).toMatch(/before\n# enabling it; until then, and in any production without it, set "off"/);
     for (const removed of ["AGENT_DOCS_RERANK_VERSION", "AGENT_TOOLSET_CLASSIFIER", "AGENT_GUARD_MODE"])

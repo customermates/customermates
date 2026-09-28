@@ -139,6 +139,7 @@ function loadArtifacts(campaignId: string): Artifact[] {
 const usable = (a: Artifact | undefined): a is Artifact => Boolean(a && !a.skipped && a.oracle);
 const finalText = (a: Artifact) => a.observed.at(-1)?.text ?? "";
 const DOCS_CASE_IDS = HELDOUT_DOCS_CASES.map((c) => c.id as string);
+const DOCS_EMBEDDING_CASE_IDS = new Set(HELDOUT_DOCS_CASES.filter((c) => DOCS_EMBEDDING_HELDOUT.some((item) => item.id === c.spec.itemId)).map((c) => c.id as string));
 const specOf = (caseId: string) => HELDOUT_DOCS_CASES.find((c) => c.id === caseId)!.spec;
 const ITEMS: readonly DocsHeldoutItem[] = [...DOCS_HELDOUT, ...DOCS_EMBEDDING_HELDOUT];
 const itemOf = (itemId: string) => ITEMS.find((item) => item.id === itemId)!;
@@ -284,7 +285,7 @@ function docsUnit(a: Artifact, verdict: Verdict | null): DocsUnit {
   return {
     caseId: a.caseId,
     repetition: a.repetition,
-    family: a.caseId.startsWith("DE") ? "DE" : "DH",
+    family: DOCS_EMBEDDING_CASE_IDS.has(a.caseId) ? "DE" : "DH",
     lang: spec.lang,
     pass: Boolean(a.oracle?.passed) && verdict === "yes",
     oraclePass: Boolean(a.oracle?.passed),
