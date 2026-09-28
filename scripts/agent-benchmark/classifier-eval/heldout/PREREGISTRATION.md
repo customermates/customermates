@@ -426,8 +426,8 @@ shipped Mate model is already served by Google Vertex. `AGENT_DOCS_EMBEDDING_MOD
 ### Live A/B (replaces the Amendment 4 live stage), cap 25 USD
 
 - Cases `DE01` to `DE30` plus `DH01` to `DH30`, k = 10 per arm, one production build of one clean commit.
-- ABAB block design: ten blocks per arm of two repetitions of all 60 cases, A r1–2, B r1–2, A r3–4, … B r9–10
-  (20 blocks), each on a freshly restarted server; three concurrent benchmark processes split the cases by index
+- ABAB block design: ten blocks, five per arm, of two repetitions of all 60 cases, A r1–2, B r1–2, A r3–4, …
+  B r9–10, each on a freshly restarted server; three concurrent benchmark processes split the cases by index
   modulo 3. Episodes pair by case and repetition (600 pairs).
 - A `DE` or `DH` episode passes when its deterministic oracle passes and the stage-4 gold-fact judge (same model,
   prompt and inputs: question, gold fact, gold section text, final answer; arm-blind) answers `yes`. No rubric judges
