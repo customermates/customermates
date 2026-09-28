@@ -111,6 +111,13 @@ re-rank candidate recall of both paths on D1 to D10, DH and DE (labels in `retri
 `features/wiki/__tests__/wiki-retrieval-quality.database.test.ts` measures the Wiki eval set in the same file. Set
 `DOCS_RETRIEVAL_EVAL_REPORT` or `WIKI_RETRIEVAL_EVAL_REPORT` to a path to write the metrics.
 
+Those tests use a fake embedder and no re-rank. `retrieval-eval.ts` measures both pipelines with the real query
+embedding and the real Jev re-rank (paid, a few cents): page R@1, R@5 and MRR, the final section after the re-rank,
+exact McNemar on the final-section hit and wall-clock latency per call, for the docs labels and for the Wiki corpus,
+which it seeds into a throwaway workspace, embeds and deletes again. Run `yarn docs:index` first, then
+`RUN_AGENT_BENCHMARK=true yarn tsx --import ./scripts/lib/register-server-only-shim.mjs scripts/agent-benchmark/retrieval-eval.ts --cap 0.5`
+(`--only docs` or `--only wiki` to run one corpus). It writes JSON and Markdown under `.runs/retrieval-eval/`.
+
 Commands (`yarn agent:benchmark <command>`):
 
 - `arms`, `cases`: list arms and cases. Counts always come from this live registry rather than a number copied into
