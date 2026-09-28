@@ -14,6 +14,8 @@ import { useSetTopBarActions } from "@/app/components/topbar-actions-context";
 import { AgentStarterActions } from "@/app/components/agent-chat/suggested-questions";
 import { AppForm } from "@/components/forms/form-context";
 import { FormInput } from "@/components/forms/form-input";
+import { FormSelect } from "@/components/forms/form-select";
+import { FormTextarea } from "@/components/forms/form-textarea";
 import { Editor } from "@/components/editor/editor";
 import { EditorLinkPickerContext } from "@/components/editor/editor-link-picker";
 import { PageState } from "@/components/page-state/page-state";
@@ -38,6 +40,11 @@ import { WikiPageRail } from "./wiki-page-rail";
 import { resolveWikiPageState } from "./wiki-page-state";
 import { WIKI_LAYOUT_P13N_ID, WIKI_PANEL_LAYOUT_ID } from "./wiki-personalization";
 import { useWikiPages } from "./use-wiki-pages";
+import {
+  WIKI_GUIDE_CONTEXT_MAX_BYTES,
+  WIKI_PAGE_KINDS,
+  WIKI_WHEN_TO_USE_MAX_LENGTH,
+} from "@/features/wiki/wiki.schema";
 
 const WIKI_PANEL_IDS = ["pages", "document"] as const;
 
@@ -147,6 +154,18 @@ export const WikiPageView = observer(function WikiPageView({
     [canManage, cancelCreate, create, formId, hasDocument, isNavigating, reload, setupActive, store],
   );
   useSetTopBarActions(topBar);
+  const kindLabels = {
+    guide: t("Wiki.kind.guide"),
+    procedure: t("Wiki.kind.procedure"),
+    knowledge: t("Wiki.kind.knowledge"),
+  };
+  const kindHelp = {
+    guide: t("Wiki.kind.guideHelp", { bytes: WIKI_GUIDE_CONTEXT_MAX_BYTES }),
+    procedure: t("Wiki.kind.procedureHelp"),
+    knowledge: t("Wiki.kind.knowledgeHelp"),
+  };
+  const otherGuide =
+    !pages.query && pages.result.items.some(({ id, kind }) => kind === "guide" && id !== store.form.id);
   const pinnedRailPage = pinnedPage && !pages.result.items.some(({ id }) => id === pinnedPage.id) ? pinnedPage : null;
   const railBusy = store.isLoading || isNavigating;
   const pageList = (
@@ -257,6 +276,25 @@ export const WikiPageView = observer(function WikiPageView({
                 </Alert>
               )}
 
+              {store.form.draft && store.form.id && (
+                <Alert color="primary">
+                  <div className="flex flex-wrap items-center justify-between gap-3">
+                    <p>{t("Wiki.draft.body")}</p>
+
+                    {canManage && (
+                      <Button
+                        disabled={store.isLoading}
+                        size="sm"
+                        variant="secondary"
+                        onClick={() => runUserAction(store.publish)}
+                      >
+                        {t("Wiki.draft.publish")}
+                      </Button>
+                    )}
+                  </div>
+                </Alert>
+              )}
+
               <div ref={titleContainer}>
                 {canManage ? (
                   <FormInput
@@ -272,6 +310,40 @@ export const WikiPageView = observer(function WikiPageView({
                   <h1 className="break-words text-3xl font-semibold tracking-tight">{store.form.title}</h1>
                 )}
               </div>
+
+              {canManage ? (
+                <div className="grid gap-3" data-wiki-page-kind="">
+                  <FormSelect
+                    description={kindHelp[store.form.kind]}
+                    id="kind"
+                    items={WIKI_PAGE_KINDS.map((kind) => ({
+                      value: kind,
+                      label: kindLabels[kind],
+                      disabled: kind === "guide" && otherGuide,
+                    }))}
+                    label={t("Wiki.kind.label")}
+                  />
+
+                  {store.form.kind === "procedure" && (
+                    <FormTextarea
+                      required
+                      id="whenToUse"
+                      label={t("Wiki.whenToUse.label")}
+                      maxLength={WIKI_WHEN_TO_USE_MAX_LENGTH}
+                      placeholder={t("Wiki.whenToUse.placeholder")}
+                      rows={2}
+                    />
+                  )}
+                </div>
+              ) : (
+                store.form.kind !== "knowledge" && (
+                  <p className="text-sm text-muted-foreground">
+                    {kindLabels[store.form.kind]}
+
+                    {store.form.kind === "procedure" && store.form.whenToUse ? `: ${store.form.whenToUse}` : ""}
+                  </p>
+                )
+              )}
 
               <EditorLinkPickerContext.Provider value={WikiLinkPicker}>
                 <Editor

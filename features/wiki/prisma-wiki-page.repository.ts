@@ -121,7 +121,7 @@ export class PrismaWikiPageRepo
       this.prisma.wikiPage.findMany({
         where,
         select: this.summarySelect,
-        orderBy: [{ createdAt: "asc" }, { id: "asc" }],
+        orderBy: [{ kind: "asc" }, { createdAt: "asc" }, { id: "asc" }],
         skip: (page - 1) * pageSize,
         take: pageSize,
       }),

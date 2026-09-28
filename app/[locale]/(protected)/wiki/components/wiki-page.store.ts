@@ -1,6 +1,6 @@
 import type { FormEvent } from "react";
 import type { RootStore } from "@/core/stores/root.store";
-import type { WikiPageDto } from "@/features/wiki/wiki.schema";
+import type { WikiPageDto, WikiPageKind } from "@/features/wiki/wiki.schema";
 
 import { action, makeObservable, observable } from "mobx";
 import { Resource } from "@/generated/prisma";
@@ -14,6 +14,9 @@ export type WikiPageForm = {
   id: string | null;
   title: string;
   markdown: string;
+  kind: WikiPageKind;
+  whenToUse: string;
+  draft: boolean;
   updatedAt: Date | null;
 };
 
@@ -23,9 +26,12 @@ function pageForm(page: WikiPageDto | null): WikiPageForm {
         id: page.id,
         title: page.title,
         markdown: page.markdown,
+        kind: page.kind,
+        whenToUse: page.whenToUse ?? "",
+        draft: page.draft,
         updatedAt: page.updatedAt,
       }
-    : { id: null, title: "", markdown: "", updatedAt: null };
+    : { id: null, title: "", markdown: "", kind: "knowledge", whenToUse: "", draft: false, updatedAt: null };
 }
 
 export class WikiPageStore extends BaseFormStore<WikiPageForm> {
@@ -57,6 +63,7 @@ export class WikiPageStore extends BaseFormStore<WikiPageForm> {
       setUnavailable: action,
       reload: action,
       onSubmit: action,
+      publish: action,
       delete: action,
     });
   }
@@ -127,6 +134,7 @@ export class WikiPageStore extends BaseFormStore<WikiPageForm> {
     if (!this.canManage || this.isLoading || !this.hasUnsavedChanges || this.unavailable) return;
 
     this.setIsLoading(true);
+    const whenToUse = this.form.kind === "procedure" && this.form.whenToUse.trim() ? this.form.whenToUse : undefined;
     try {
       const result = this.form.id
         ? await updateWikiPageAction({
@@ -134,9 +142,12 @@ export class WikiPageStore extends BaseFormStore<WikiPageForm> {
             expectedUpdatedAt: this.form.updatedAt as Date,
             title: this.form.title,
             markdown: this.form.markdown,
+            kind: this.form.kind,
+            whenToUse,
+            draft: this.form.draft,
           })
         : await createWikiPagesAction({
-            pages: [{ title: this.form.title, markdown: this.form.markdown }],
+            pages: [{ title: this.form.title, markdown: this.form.markdown, kind: this.form.kind, whenToUse }],
             requireEmpty: false,
           });
 
@@ -153,6 +164,12 @@ export class WikiPageStore extends BaseFormStore<WikiPageForm> {
     } finally {
       this.setIsLoading(false);
     }
+  };
+
+  publish = async (): Promise<void> => {
+    if (!this.canManage || !this.form.draft) return;
+    this.onChange("draft", false);
+    await this.onSubmit();
   };
 
   delete = async (): Promise<boolean> => {

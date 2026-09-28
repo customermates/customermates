@@ -3728,9 +3728,23 @@
     "copyLink": "Copiar enlace de la página",
     "delete": "Eliminar página",
     "document": "Documento",
+    "draft": {
+      "badge": "Borrador",
+      "body": "Esta página es un borrador. Mate y las herramientas de IA conectadas no la siguen hasta que la publiques.",
+      "publish": "Publicar"
+    },
     "emptyBody": "Proporciona a Mate y a las herramientas de IA conectadas el conocimiento, los procesos y las pautas que necesitan.",
     "emptyBodyReadOnly": "Aún no se han creado páginas de la wiki.",
     "emptyTitle": "La wiki de tu espacio de trabajo está vacía",
+    "kind": {
+      "guide": "Guía operativa",
+      "guideHelp": "Pautas permanentes que toda IA lee primero. Mate y las herramientas de IA conectadas siempre cargan unos {bytes, number} bytes iniciales. Una por espacio de trabajo.",
+      "knowledge": "Conocimiento",
+      "knowledgeHelp": "Datos y respuestas que Mate y las herramientas de IA conectadas buscan cuando una pregunta los necesita.",
+      "label": "Tipo de página",
+      "procedure": "Procedimiento",
+      "procedureHelp": "Pasos numerados que Mate y las herramientas de IA conectadas siguen cuando una solicitud coincide con cuándo usarlo."
+    },
     "linkPage": "Enlazar una página de la wiki…",
     "loadFailed": "No se pudieron cargar las páginas.",
     "newPage": "Nueva página",
@@ -3746,7 +3760,11 @@
     "search": "Buscar páginas…",
     "unavailableBody": "Esta página se eliminó o no tienes acceso. Elige otra página.",
     "unavailableTitle": "Página no disponible",
-    "untitled": "Página sin título"
+    "untitled": "Página sin título",
+    "whenToUse": {
+      "label": "Cuándo usarlo",
+      "placeholder": "Usar cuando un cliente pide un reembolso o cancelar un plan de pago."
+    }
   },
   "WikiSetup": {
     "agentPrompt": "Conoce nuestra empresa a partir de {homepage} y crea las páginas de nuestra wiki.",

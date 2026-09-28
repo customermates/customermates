@@ -3728,9 +3728,23 @@
     "copyLink": "Copy page link",
     "delete": "Delete page",
     "document": "Document",
+    "draft": {
+      "badge": "Draft",
+      "body": "This page is a draft. Mate and connected AI tools do not follow it until you publish it.",
+      "publish": "Publish"
+    },
     "emptyBody": "Give Mate and connected AI tools the company knowledge, processes, and guidance they need.",
     "emptyBodyReadOnly": "No Wiki pages have been created yet.",
     "emptyTitle": "Your Workspace Wiki is empty",
+    "kind": {
+      "guide": "Operating Guide",
+      "guideHelp": "Standing guidance every AI reads first. Mate and connected AI tools always load about the first {bytes, number} bytes. One per workspace.",
+      "knowledge": "Knowledge",
+      "knowledgeHelp": "Facts and answers Mate and connected AI tools search when a question needs them.",
+      "label": "Page type",
+      "procedure": "Procedure",
+      "procedureHelp": "Numbered steps Mate and connected AI tools follow when a request matches when to use it."
+    },
     "linkPage": "Link to a Wiki page…",
     "loadFailed": "Pages could not be loaded.",
     "newPage": "New page",
@@ -3746,7 +3760,11 @@
     "search": "Search pages…",
     "unavailableBody": "This page was deleted or you do not have access to it. Choose another page.",
     "unavailableTitle": "Page unavailable",
-    "untitled": "Untitled page"
+    "untitled": "Untitled page",
+    "whenToUse": {
+      "label": "When to use",
+      "placeholder": "Use when a customer asks for a refund or to cancel a paid plan."
+    }
   },
   "WikiSetup": {
     "agentPrompt": "Learn about our company from {homepage} and create our Wiki pages.",

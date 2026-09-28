@@ -3,7 +3,7 @@
 import type { WikiPageSummary } from "@/features/wiki/wiki.schema";
 import type { useWikiPages } from "./use-wiki-pages";
 
-import { FileText, Search } from "lucide-react";
+import { Compass, FileText, ListChecks, Search } from "lucide-react";
 import { useTranslations } from "next-intl";
 
 import { Button } from "@/components/ui/button";
@@ -11,6 +11,8 @@ import { Input } from "@/components/ui/input";
 import { IntlLink } from "@/i18n/navigation";
 import { cn } from "@/core/utils/cn";
 import { wikiPagePath } from "@/features/wiki/wiki-links";
+
+const WIKI_KIND_ICONS = { guide: Compass, procedure: ListChecks, knowledge: FileText } as const;
 
 type Props = {
   busy: boolean;
@@ -24,6 +26,7 @@ export function WikiPageRail({ busy, currentPageId, pages, pinnedPage, onSelect 
   const t = useTranslations();
   const pageLink = (page: WikiPageSummary) => {
     const current = page.id === currentPageId;
+    const PageIcon = WIKI_KIND_ICONS[page.kind];
     return (
       <Button
         key={page.id}
@@ -45,9 +48,15 @@ export function WikiPageRail({ busy, currentPageId, pages, pinnedPage, onSelect 
             if (!busy) onSelect(page.id);
           }}
         >
-          <FileText aria-hidden="true" className="size-4 shrink-0 text-muted-foreground" />
+          <PageIcon aria-hidden="true" className="size-4 shrink-0 text-muted-foreground" />
 
           <span className="truncate">{page.title}</span>
+
+          {page.draft && (
+            <span className="ml-auto shrink-0 rounded border border-border px-1 text-[0.65rem] uppercase text-muted-foreground">
+              {t("Wiki.draft.badge")}
+            </span>
+          )}
         </IntlLink>
       </Button>
     );

@@ -3728,9 +3728,23 @@
     "copyLink": "Seitenlink kopieren",
     "delete": "Seite löschen",
     "document": "Dokument",
+    "draft": {
+      "badge": "Entwurf",
+      "body": "Diese Seite ist ein Entwurf. Mate und verbundene KI-Tools folgen ihr erst, wenn Sie sie veröffentlichen.",
+      "publish": "Veröffentlichen"
+    },
     "emptyBody": "Gib Mate und verbundenen KI-Tools das Unternehmenswissen, die Prozesse und Leitlinien, die sie benötigen.",
     "emptyBodyReadOnly": "Es wurden noch keine Wiki-Seiten erstellt.",
     "emptyTitle": "Dein Workspace-Wiki ist leer",
+    "kind": {
+      "guide": "Betriebsleitfaden",
+      "guideHelp": "Grundregeln, die jede KI zuerst liest. Mate und verbundene KI-Tools laden immer etwa die ersten {bytes, number} Bytes. Einer pro Workspace.",
+      "knowledge": "Wissen",
+      "knowledgeHelp": "Fakten und Antworten, die Mate und verbundene KI-Tools bei Bedarf durchsuchen.",
+      "label": "Seitentyp",
+      "procedure": "Ablauf",
+      "procedureHelp": "Nummerierte Schritte, denen Mate und verbundene KI-Tools folgen, wenn eine Anfrage zum Einsatzfall passt."
+    },
     "linkPage": "Wiki-Seite verlinken…",
     "loadFailed": "Die Seiten konnten nicht geladen werden.",
     "newPage": "Neue Seite",
@@ -3746,7 +3760,11 @@
     "search": "Seiten suchen…",
     "unavailableBody": "Diese Seite wurde gelöscht oder du hast keinen Zugriff. Wähle eine andere Seite.",
     "unavailableTitle": "Seite nicht verfügbar",
-    "untitled": "Unbenannte Seite"
+    "untitled": "Unbenannte Seite",
+    "whenToUse": {
+      "label": "Wann verwenden",
+      "placeholder": "Verwenden, wenn eine Kundin eine Erstattung oder die Kündigung eines bezahlten Plans möchte."
+    }
   },
   "WikiSetup": {
     "agentPrompt": "Informiere dich auf {homepage} über unser Unternehmen und erstelle unsere Wiki-Seiten.",

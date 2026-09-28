@@ -70,7 +70,7 @@ describe("Wiki document editing", () => {
     await store.onSubmit();
 
     expect(actions.create).toHaveBeenCalledExactlyOnceWith({
-      pages: [{ title: "Company Overview", markdown: "Overview" }],
+      pages: [{ title: "Company Overview", markdown: "Overview", kind: "knowledge", whenToUse: undefined }],
       requireEmpty: false,
     });
     expect(store.creating).toBe(false);
@@ -91,7 +91,7 @@ describe("Wiki document editing", () => {
     await store.onSubmit();
 
     expect(actions.create).toHaveBeenCalledExactlyOnceWith({
-      pages: [{ title: "Support", markdown: "" }],
+      pages: [{ title: "Support", markdown: "", kind: "knowledge", whenToUse: undefined }],
       requireEmpty: false,
     });
   });
@@ -107,6 +107,9 @@ describe("Wiki document editing", () => {
       expectedUpdatedAt: page.updatedAt,
       title: "New title",
       markdown: page.markdown,
+      kind: "knowledge",
+      whenToUse: undefined,
+      draft: false,
     });
     expect(store.form.updatedAt).toEqual(latest.updatedAt);
     expect(store.hasUnsavedChanges).toBe(false);

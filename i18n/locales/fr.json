@@ -3728,9 +3728,23 @@
     "copyLink": "Copier le lien de la page",
     "delete": "Supprimer la page",
     "document": "Document",
+    "draft": {
+      "badge": "Brouillon",
+      "body": "Cette page est un brouillon. Mate et les outils d'IA connectés ne la suivent qu'après publication.",
+      "publish": "Publier"
+    },
     "emptyBody": "Donnez à Mate et aux outils d’IA connectés les connaissances, processus et consignes dont ils ont besoin.",
     "emptyBodyReadOnly": "Aucune page wiki n’a encore été créée.",
     "emptyTitle": "Le wiki de votre espace de travail est vide",
+    "kind": {
+      "guide": "Guide opérationnel",
+      "guideHelp": "Consignes permanentes que chaque IA lit en premier. Mate et les outils d'IA connectés chargent toujours environ les {bytes, number} premiers octets. Un par espace de travail.",
+      "knowledge": "Connaissance",
+      "knowledgeHelp": "Faits et réponses que Mate et les outils d'IA connectés consultent quand une question en a besoin.",
+      "label": "Type de page",
+      "procedure": "Procédure",
+      "procedureHelp": "Étapes numérotées que Mate et les outils d'IA connectés suivent quand une demande correspond au cas d'usage."
+    },
     "linkPage": "Lier une page du wiki…",
     "loadFailed": "Impossible de charger les pages.",
     "newPage": "Nouvelle page",
@@ -3746,7 +3760,11 @@
     "search": "Rechercher des pages…",
     "unavailableBody": "Cette page a été supprimée ou vous n’y avez pas accès. Choisissez une autre page.",
     "unavailableTitle": "Page indisponible",
-    "untitled": "Page sans titre"
+    "untitled": "Page sans titre",
+    "whenToUse": {
+      "label": "Quand l'utiliser",
+      "placeholder": "À utiliser quand un client demande un remboursement ou l'annulation d'un forfait payant."
+    }
   },
   "WikiSetup": {
     "agentPrompt": "Découvre notre entreprise à partir de {homepage} et crée les pages de notre wiki.",

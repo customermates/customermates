@@ -104,6 +104,17 @@ vi.mock("@/components/editor/editor.utils", () => ({
 vi.mock("@/components/forms/form-context", () => ({
   AppForm: ({ children, id }: { children?: ReactNode; id?: string }) => createElement("form", { id }, children),
 }));
+vi.mock("@/components/forms/form-select", () => ({
+  FormSelect: (props: { id: string; items?: Array<{ value: string; disabled?: boolean }> }) =>
+    createElement(
+      "select",
+      { "data-form-select": props.id },
+      props.items?.map((item) => createElement("option", { key: item.value, disabled: item.disabled }, item.value)),
+    ),
+}));
+vi.mock("@/components/forms/form-textarea", () => ({
+  FormTextarea: (props: { id: string }) => createElement("textarea", { "data-form-textarea": props.id }),
+}));
 vi.mock("@/components/forms/form-input", () => ({
   FormInput: ({ label: _label, ...props }: { label?: unknown; [key: string]: unknown }) =>
     createElement("input", props),
@@ -160,7 +171,7 @@ function configure(canManage: boolean, agentChatEnabled: boolean, agentEnabled: 
   harness.store = {
     canManage,
     creating: false,
-    form: { id: null, title: "", markdown: "", updatedAt: null },
+    form: { id: null, title: "", markdown: "", kind: "knowledge", whenToUse: "", draft: false, updatedAt: null },
     isLoading: false,
     hasUnsavedChanges: false,
     editorDocument: { type: "doc", content: [{ type: "paragraph" }] },
@@ -171,6 +182,7 @@ function configure(canManage: boolean, agentChatEnabled: boolean, agentEnabled: 
     resetForm: vi.fn(),
     resetDocument: vi.fn(),
     startCreate: vi.fn(),
+    publish: vi.fn(),
   };
   harness.rootStore = {
     agentChatEnabled,
@@ -629,6 +641,50 @@ describe("Wiki document view", () => {
     expect(alert?.getAttribute("role")).toBe("alert");
     expect(alert?.textContent).toContain("Wiki.conflict");
     expect(alert?.querySelector("button")?.textContent).toBe("Wiki.reload");
+  });
+
+  it("lets managers type a page, asks procedures for a trigger, and blocks a second Operating Guide", async () => {
+    configure(true, false);
+    const guide = {
+      ...page,
+      id: "10000000-0000-4000-8000-000000000009",
+      title: "Operating Guide",
+      kind: "guide" as const,
+    };
+    harness.store.form = { ...page, kind: "procedure", whenToUse: "Refund requests", draft: false };
+    const { container } = await mount(
+      createElement(WikiPageView, {
+        initialPage: page,
+        listPage: { ...listPage, items: [guide, page], total: 2 },
+      }),
+    );
+
+    const options = Array.from(container.querySelectorAll('select[data-form-select="kind"] option'));
+    expect(options.map((option) => option.textContent)).toEqual(["guide", "procedure", "knowledge"]);
+    expect(options.find((option) => option.textContent === "guide")?.hasAttribute("disabled")).toBe(true);
+    expect(container.querySelector('textarea[data-form-textarea="whenToUse"]')).not.toBeNull();
+  });
+
+  it("marks drafts until a manager publishes them and shows read-only readers the page type", async () => {
+    configure(true, false);
+    harness.store.form = { ...page, kind: "guide", whenToUse: "", draft: true };
+    const managed = await mount(createElement(WikiPageView, { initialPage: page, listPage: populatedList }));
+    expect(managed.container.textContent).toContain("Wiki.draft.body");
+    const publish = Array.from(managed.container.querySelectorAll("button")).find(
+      (button) => button.textContent === "Wiki.draft.publish",
+    );
+    await act(() => {
+      publish?.click();
+      return Promise.resolve();
+    });
+    expect(harness.store.publish).toHaveBeenCalledOnce();
+    expect(managed.container.querySelector('textarea[data-form-textarea="whenToUse"]')).toBeNull();
+
+    configure(false, false);
+    harness.store.form = { ...page, kind: "procedure", whenToUse: "Refund requests", draft: false };
+    const readOnly = await mount(createElement(WikiPageView, { initialPage: page, listPage: populatedList }));
+    expect(readOnly.container.textContent).toContain("Wiki.kind.procedure: Refund requests");
+    expect(readOnly.container.querySelector('select[data-form-select="kind"]')).toBeNull();
   });
 
   it("focuses the blank title when starting a new document", async () => {
