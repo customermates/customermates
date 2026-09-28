@@ -288,8 +288,26 @@ export class PrismaWikiPageRepo
     `);
   }
 
+  async loadOperatingPages(procedureLimit: number) {
+    const procedureWhere = { companyId: this.companyId, kind: "procedure" as const, draft: false };
+    const [guide, procedures, proceduresTotal] = await Promise.all([
+      this.prisma.wikiPage.findFirst({
+        where: { companyId: this.companyId, kind: "guide", draft: false },
+        select: this.pageSelect,
+      }),
+      this.prisma.wikiPage.findMany({
+        where: procedureWhere,
+        select: this.pageSelect,
+        orderBy: [{ title: "asc" }, { id: "asc" }],
+        take: procedureLimit,
+      }),
+      this.prisma.wikiPage.count({ where: procedureWhere }),
+    ]);
+    return { guide, procedures, proceduresTotal };
+  }
+
   async listCatalogPages({ page }: RepoArgs<GetWikiCatalogRepo, "listCatalogPages">) {
-    const where = { companyId: this.companyId };
+    const where = { companyId: this.companyId, kind: "knowledge" as const, draft: false };
     const [items, total] = await Promise.all([
       this.prisma.wikiPage.findMany({
         where,

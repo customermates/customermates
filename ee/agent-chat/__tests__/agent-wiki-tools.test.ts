@@ -354,9 +354,9 @@ describe("managed Wiki retrieval tools", () => {
     expect(tools.manage_wiki_pages).toBeDefined();
     expect(tools.fetch).toBeUndefined();
     expect(tools.read_public_page).toBeUndefined();
-    expect(description).toContain("get returns one Markdown chunk");
+    expect(description).toContain("get: one Markdown chunk");
     expect(description).toContain("nextOffset");
-    expect(description).toContain("/wiki?page=<page-id>");
+    expect(description).toContain("/wiki?page=<id>");
     expect(getAgentAiToolDefinitions(undefined, options)).toEqual(describeAgentAiTools(tools));
   });
 

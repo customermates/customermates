@@ -3,6 +3,26 @@ import { parseMarkdownToJSON } from "@/components/editor/editor.utils";
 
 export const WIKI_EXCERPT_MAX_LENGTH = 200;
 
+const utf8Bytes = (value: string) => new TextEncoder().encode(value).byteLength;
+
+export function wikiLeadingSlice(markdown: string, maxBytes: number): string {
+  if (utf8Bytes(markdown) <= maxBytes) return markdown;
+  let end = 0;
+  for (const line of markdown.split("\n")) {
+    const next = end + line.length + 1;
+    if (utf8Bytes(markdown.slice(0, next)) > maxBytes) break;
+    end = next;
+  }
+  if (end > 0) return markdown.slice(0, end).trimEnd();
+  const characters = Array.from(markdown);
+  let text = "";
+  for (const character of characters) {
+    if (utf8Bytes(text + character) > maxBytes) break;
+    text += character;
+  }
+  return text;
+}
+
 export function wikiPlainText(markdown: string): string {
   const document = editorSchema.nodeFromJSON(parseMarkdownToJSON(markdown));
   return document.textBetween(0, document.content.size, " ").replaceAll(/\s+/g, " ").trim();

@@ -97,6 +97,8 @@ async function workspaceContext(wikiPage: number | null) {
       ...(wiki
         ? {
             wiki: {
+              ...(wiki.guide ? { guide: wiki.guide } : {}),
+              ...(wiki.procedures?.total ? { procedures: wiki.procedures } : {}),
               total: wiki.total,
               page: wiki.page,
               nextPage: wiki.nextPage,
@@ -115,8 +117,9 @@ export const getWorkspaceContextTool = {
   name: "get_workspace_context",
   title: "Get workspace context",
   description:
-    "Use this when starting a session: returns the current user, company, role catalog with permissions, connected messaging accounts, and the Wiki catalog in one call. " +
-    "wiki carries total, page, nextPage and truncated before items; each item gives a page id, title, url, timestamps and a short opening excerpt, never the complete page, ten per catalog page in creation order. " +
+    "Use this when starting a session: returns the current user, company, role catalog with permissions, connected messaging accounts, and the Wiki in one call. " +
+    "On the first page wiki.guide is the Operating Guide (follow it; nextOffset marks where the full page continues) and wiki.procedures lists procedures with whenToUse (read the matching one before acting). " +
+    "wiki.items are knowledge pages, ten per page in creation order, each with id, title, url, timestamps and a short opening excerpt, never the complete page. " +
     "Pass wiki.nextPage as wikiPage to continue. wiki is omitted without Wiki Read. " +
     WORKSPACE_CONTEXT_FIELDS_DESCRIPTION,
   annotations: { readOnlyHint: true, destructiveHint: false, idempotentHint: true, openWorldHint: false },

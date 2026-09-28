@@ -82,10 +82,8 @@ describe("manage_wiki_pages registry", () => {
   });
 
   it("warns that delete is irreversible and that a changed page restarts chunking", () => {
-    expect(manageWikiPagesTool.description).toContain("action delete is IRREVERSIBLE.");
-    expect(manageWikiPagesTool.description).toContain(
-      "If updatedAt differs from the previous chunk, restart at offset 0.",
-    );
+    expect(manageWikiPagesTool.description).toContain("delete is IRREVERSIBLE.");
+    expect(manageWikiPagesTool.description).toContain("restart at 0 if updatedAt changes.");
   });
 });
 

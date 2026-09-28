@@ -58,7 +58,8 @@ export function registerWikiMcpResources(server: McpServer) {
     "customermates://wiki/catalog?page=1",
     {
       title: "Workspace Wiki catalog",
-      description: "Permission-checked entry point for discovering current Workspace Wiki pages",
+      description:
+        "Permission-checked entry point: the Operating Guide, the procedure index with when-to-use triggers, and the first knowledge catalog page",
       mimeType: "application/json",
     },
     async (uri) => ({

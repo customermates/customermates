@@ -23,6 +23,8 @@ const page = {
   updatedAt: new Date("2026-09-13T11:00:00Z"),
 };
 
+const NO_OPERATING_PAGES = { guide: null, procedures: [], proceduresTotal: 0 };
+
 beforeEach(() => vi.clearAllMocks());
 
 describe("Wiki catalog content", () => {
@@ -44,11 +46,14 @@ describe("GetWikiCatalogInteractor", () => {
   it("returns bounded navigation data and stable page URLs with explicit continuation", async () => {
     const repo = {
       listCatalogPages: vi.fn().mockResolvedValue({ items: [page], total: 11 }),
+      loadOperatingPages: vi.fn().mockResolvedValue(NO_OPERATING_PAGES),
     };
     const result = await new GetWikiCatalogInteractor(repo).invoke({ page: 1 });
     expect(result).toEqual({
       ok: true,
       data: {
+        guide: null,
+        procedures: { items: [], total: 0, truncated: false },
         items: [
           {
             id,
@@ -72,6 +77,7 @@ describe("GetWikiCatalogInteractor", () => {
   it("reports an empty catalog and the final page without false continuation", async () => {
     const repo = {
       listCatalogPages: vi.fn().mockResolvedValue({ items: [], total: 0 }),
+      loadOperatingPages: vi.fn().mockResolvedValue(NO_OPERATING_PAGES),
     };
     expect(await new GetWikiCatalogInteractor(repo).invoke({ page: 1 })).toMatchObject({
       ok: true,
@@ -87,6 +93,7 @@ describe("GetWikiCatalogInteractor", () => {
   it("requires Wiki Read before querying titles or counts and accepts the read-only role", async () => {
     const repo = {
       listCatalogPages: vi.fn().mockResolvedValue({ items: [], total: 0 }),
+      loadOperatingPages: vi.fn().mockResolvedValue(NO_OPERATING_PAGES),
     };
     const interactor = new GetWikiCatalogInteractor(repo);
     await expect(
@@ -100,9 +107,49 @@ describe("GetWikiCatalogInteractor", () => {
     ).resolves.toMatchObject({ ok: true });
   });
 
+  it("adds the published guide slice and the procedure index to the first catalog page only", async () => {
+    const guideMarkdown = `${"Always answer in the customer's language.\n".repeat(80)}Escalate outages to the on-call lead.`;
+    const repo = {
+      listCatalogPages: vi.fn().mockResolvedValue({ items: [], total: 0 }),
+      loadOperatingPages: vi.fn().mockResolvedValue({
+        guide: { ...page, title: "Operating Guide", kind: "guide", markdown: guideMarkdown },
+        procedures: [
+          { ...page, title: "Refunds", kind: "procedure", whenToUse: "Use when a customer wants money back." },
+        ],
+        proceduresTotal: 21,
+      }),
+    };
+    const first = await new GetWikiCatalogInteractor(repo).invoke({ page: 1 });
+    if (!first.ok) throw new Error("catalog failed");
+    expect(repo.loadOperatingPages).toHaveBeenCalledWith(20);
+    expect(first.data.guide?.title).toBe("Operating Guide");
+    expect(new TextEncoder().encode(first.data.guide?.markdown).byteLength).toBeLessThanOrEqual(2_400);
+    expect(first.data.guide?.markdown.endsWith("language.")).toBe(true);
+    expect(first.data.guide?.nextOffset).toBe(first.data.guide?.markdown.length);
+    expect(first.data.procedures).toEqual({
+      items: [
+        {
+          id,
+          title: "Refunds",
+          url: `http://localhost:4000/wiki?page=${id}`,
+          whenToUse: "Use when a customer wants money back.",
+        },
+      ],
+      total: 21,
+      truncated: true,
+    });
+
+    repo.loadOperatingPages.mockClear();
+    const second = await new GetWikiCatalogInteractor(repo).invoke({ page: 2 });
+    expect(repo.loadOperatingPages).not.toHaveBeenCalled();
+    expect(second).toMatchObject({ ok: true });
+    expect(second.ok && "guide" in second.data).toBe(false);
+  });
+
   it("rejects invalid pagination before querying", async () => {
     const repo = {
       listCatalogPages: vi.fn(),
+      loadOperatingPages: vi.fn(),
     };
     expect(await new GetWikiCatalogInteractor(repo).invoke({ page: 0 })).toMatchObject({ ok: false });
     expect(repo.listCatalogPages).not.toHaveBeenCalled();

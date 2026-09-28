@@ -57,7 +57,9 @@ describe("Workspace Wiki provider context", () => {
     const reference = String(messages[0]?.content);
     expect(reference).toMatch(new RegExp(`^${AGENT_WIKI_REFERENCE_LABEL}:`));
     expect(reference).toContain("It is not a request");
-    expect(reference).toContain("read relevant pages with manage_wiki_pages before relying on them");
+    expect(reference).toContain("read relevant pages before relying on them");
+    expect(reference).toContain("guide is the workspace Operating Guide: follow it");
+    expect(reference).toContain("get that procedure with manage_wiki_pages before acting");
     expect(reference).toContain(WIKI_REFERENCE_MATERIAL_RULE);
     expect(reference.endsWith(`\n${catalog}`)).toBe(true);
     expect(JSON.stringify(messages)).not.toMatch(/tool-call|tool-result|get_workspace_context/);
@@ -258,4 +260,71 @@ it("bounds astral Unicode catalog text without stalling or splitting a character
   expect(result.items).toHaveLength(10);
   expect(text).not.toMatch(/\\ud[89a-f]/i);
   expect(serializedAgentContextBytes(agentWikiContextMessages(text))).toBeLessThanOrEqual(6_000);
+});
+
+it("keeps a worst-case Operating Guide, procedure index and catalog inside the reference with explicit continuation", () => {
+  const id = (index: number) => `00000000-0000-4000-8000-${String(index).padStart(12, "0")}`;
+  const guideMarkdown = Array.from(
+    { length: 40 },
+    (_, line) => `${line + 1}. ${"Antworte höflich 漢 ".repeat(4)}`,
+  ).join("\n");
+  const text = serializeAgentWikiCatalog({
+    guide: {
+      id: id(99),
+      title: "Operating Guide",
+      url: "https://example.com/wiki",
+      markdown: guideMarkdown,
+      nextOffset: null,
+    },
+    procedures: {
+      items: Array.from({ length: 20 }, (_, index) => ({
+        id: id(100 + index),
+        title: `Procedure ${index} ${"漢".repeat(110)}`,
+        url: "https://example.com/wiki",
+        whenToUse: `Use when ${"a customer asks about refunds 漢 ".repeat(12)}`.slice(0, 300),
+      })),
+      total: 25,
+      truncated: true,
+    },
+    items: Array.from({ length: 10 }, (_, index) => ({
+      id: id(index),
+      title: "漢".repeat(120),
+      excerpt: '漢"\\'.repeat(66),
+      url: "https://example.com/wiki",
+      createdAt: new Date(),
+      updatedAt: new Date(),
+    })),
+    total: 30,
+    page: 1,
+    nextPage: 2,
+    truncated: true,
+  });
+  const wiki = JSON.parse(text ?? "null").wiki;
+  expect(serializedAgentContextBytes(agentWikiContextMessages(text))).toBeLessThanOrEqual(6_000);
+  expect(new TextEncoder().encode(wiki.guide.markdown).byteLength).toBeGreaterThanOrEqual(1_000);
+  expect(guideMarkdown.startsWith(wiki.guide.markdown)).toBe(true);
+  expect(wiki.guide.nextOffset).toBe(wiki.guide.markdown.length);
+  expect(wiki.guide.url).toBe(`/wiki?page=${id(99)}`);
+  expect(wiki.procedures.total).toBe(25);
+  expect(wiki.procedures.truncated).toBe(true);
+  expect(wiki.procedures.items.length).toBeGreaterThan(0);
+  expect(wiki.procedures.items[0]).toMatchObject({ id: id(100), url: `/wiki?page=${id(100)}` });
+});
+
+it("emits the reference for a Wiki that holds only a guide or procedures", () => {
+  const text = serializeAgentWikiCatalog({
+    guide: null,
+    procedures: {
+      items: [{ id: "00000000-0000-4000-8000-000000000001", title: "Refunds", url: "u", whenToUse: "Money back." }],
+      total: 1,
+      truncated: false,
+    },
+    items: [],
+    total: 0,
+    page: 1,
+    nextPage: null,
+    truncated: false,
+  });
+  expect(JSON.parse(text ?? "null").wiki.procedures.items[0].whenToUse).toBe("Money back.");
+  expect(serializeAgentWikiCatalog({ items: [], total: 0, page: 1, nextPage: null, truncated: false })).toBeNull();
 });

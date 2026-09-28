@@ -169,6 +169,9 @@ async function fetchWiki(id: string, requestedOffset: number) {
     url: wikiPageUrl(env.BASE_URL, page.id),
     metadata: {
       source: "wiki",
+      kind: page.kind,
+      ...(page.whenToUse ? { whenToUse: page.whenToUse } : {}),
+      ...(page.draft ? { draft: "true" } : {}),
       createdAt: page.createdAt.toISOString(),
       updatedAt: page.updatedAt.toISOString(),
       outgoingWikiLinks: JSON.stringify(
@@ -211,6 +214,8 @@ async function searchWiki(query: string) {
       title: page.title,
       url: wikiPageUrl(env.BASE_URL, page.id),
       snippet: page.snippet,
+      ...(page.kind !== "knowledge" ? { kind: page.kind } : {}),
+      ...(page.whenToUse ? { whenToUse: page.whenToUse } : {}),
       ...(page.section ? { section: page.section } : {}),
       offset: page.offset ?? 0,
     }));

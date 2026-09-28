@@ -88,7 +88,30 @@ const WikiCatalogItemSchema = WikiPageSummarySchema.pick({
   excerpt: z.string().max(200),
   url: z.string(),
 });
+export const WIKI_GUIDE_CONTEXT_MAX_BYTES = 2_400;
+export const WIKI_PROCEDURE_INDEX_SIZE = 20;
+const WikiCatalogGuideSchema = z.object({
+  id: z.uuid(),
+  title: z.string(),
+  url: z.string(),
+  markdown: z.string(),
+  nextOffset: z.number().int().min(0).nullable(),
+});
+const WikiCatalogProcedureSchema = z.object({
+  id: z.uuid(),
+  title: z.string(),
+  url: z.string(),
+  whenToUse: z.string(),
+});
 export const WikiCatalogSchema = z.object({
+  guide: WikiCatalogGuideSchema.nullable().optional(),
+  procedures: z
+    .object({
+      items: z.array(WikiCatalogProcedureSchema).max(WIKI_PROCEDURE_INDEX_SIZE),
+      total: z.number().int().min(0),
+      truncated: z.boolean(),
+    })
+    .optional(),
   items: z.array(WikiCatalogItemSchema).max(WIKI_CATALOG_PAGE_SIZE),
   total: z.number().int().min(0),
   page: z.number().int().min(1),
