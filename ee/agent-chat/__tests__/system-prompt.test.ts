@@ -33,6 +33,17 @@ describe("system prompt", () => {
     );
   });
 
+  it("answers a can-I or is-it-possible question from the docs instead of attempting the change (DH14)", () => {
+    const paragraph = buildAgentSystemPrompt({ ...base })
+      .split("\n")
+      .find((line) => line.startsWith("Product and how-to questions:"));
+
+    expect(paragraph).toContain("A question whether or how something can be done");
+    expect(paragraph).toContain('"¿Se puede...?"');
+    expect(paragraph).toContain("is such a question, not a request to do it: answer it from the docs, change nothing");
+    expect(paragraph).toContain("call a write tool only once the user asks you to");
+  });
+
   it("keeps every tool result untrusted and scopes the reference-material rule to Wiki pages", () => {
     const prompt = buildAgentSystemPrompt({ ...base });
     expect(prompt).toContain(
