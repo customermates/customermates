@@ -233,12 +233,10 @@ export function isWorkingActivityGroup(items: AgentChatItem[], start: number, is
 }
 
 export const AgentActivity = observer(function AgentActivity({
-  activityContext,
   isWorking,
   isTrailing,
   items,
 }: {
-  activityContext?: "wikiHomepageSetup";
   isWorking: boolean;
   isTrailing: boolean;
   items: Extract<AgentChatItem, { kind: "activity" }>[];
@@ -251,27 +249,10 @@ export const AgentActivity = observer(function AgentActivity({
   const hasError = items.some((item) => item.status === "error");
   const hasCancelled = items.some((item) => item.status === "cancelled");
   const hasDetails = items.length > 1;
-  const websiteReadCount = items.filter((item) => item.activity.kind === "web.read").length;
-  const websiteSourceCount = items.filter((item) => item.activity.kind === "web.read" && item.status === "done").length;
-  const hasWikiCreate = items.some(
-    (item) => item.activity.kind === "records.create" && item.activity.resource === "wiki",
-  );
-  const hasCompletedWikiCreate = items.some(
-    (item) => item.activity.kind === "records.create" && item.activity.resource === "wiki" && item.status === "done",
-  );
-  const isWebsiteWikiSetup =
-    activityContext === "wikiHomepageSetup" &&
-    websiteReadCount > 0 &&
-    items.every(
-      (item) =>
-        item.activity.kind === "web.read" ||
-        (item.activity.kind === "records.create" && item.activity.resource === "wiki"),
-    );
-  const hasBlockingError = hasError && !(isWebsiteWikiSetup && hasCompletedWikiCreate);
-  const isRecovering = isWorking && hasBlockingError;
+  const isRecovering = isWorking && hasError;
   const isActive = hasRunning || isRecovering || isPending;
   const { open, setOpen, elapsedSeconds } = useActivityGroupState({
-    hasError: hasBlockingError && !isRecovering,
+    hasError: hasError && !isRecovering,
     hasRunning: isActive,
     isWorking,
     startedAt: items[0]?.at,
@@ -280,7 +261,7 @@ export const AgentActivity = observer(function AgentActivity({
   const firstCopy = items[0] ? agentActivityCopy(items[0].activity, t, terminology) : null;
   const settledSummary =
     items.length === 1 && firstCopy
-      ? hasBlockingError
+      ? hasError
         ? firstCopy.error
         : hasCancelled
           ? firstCopy.cancelled
@@ -292,29 +273,17 @@ export const AgentActivity = observer(function AgentActivity({
   const runningItem = items.findLast((item) => item.status === "running" || (isRecovering && item.status === "error"));
   const runningLabel = runningItem ? agentActivityCopy(runningItem.activity, t, terminology).running : uiCopy.thinking;
   const liveSummary =
-    hasDetails && !hasBlockingError && !hasCancelled && elapsedSeconds !== null
+    hasDetails && !hasError && !hasCancelled && elapsedSeconds !== null
       ? uiCopy.stepsTook(items.length, elapsedSeconds)
       : settledSummary;
-  const contextualSummary =
-    items.length === 1
-      ? isActive
-        ? runningLabel
-        : settledSummary
-      : isActive
-        ? isWebsiteWikiSetup && !hasWikiCreate
-          ? uiCopy.websiteSourcesRunning(websiteReadCount)
-          : runningLabel
-        : isWebsiteWikiSetup && hasCompletedWikiCreate && !hasCancelled
-          ? uiCopy.websiteWikiComplete(websiteSourceCount)
-          : liveSummary;
-  const summary = useSteadyLabel(contextualSummary);
+  const summary = useSteadyLabel(isActive ? runningLabel : liveSummary);
   const viewHref = items.findLast((item) => {
     if (item.status !== "done" || item.activity.kind !== "views.configure") return false;
     return dataViewNavigationHref(item.activity.viewHref) !== null;
   })?.activity.viewHref;
   const statusIcon = isActive ? (
     <Loader2 aria-hidden="true" className="size-3.5 animate-spin motion-reduce:animate-none" />
-  ) : hasBlockingError ? (
+  ) : hasError ? (
     <X aria-hidden="true" className="size-3.5 text-destructive" />
   ) : hasCancelled ? (
     <Square aria-hidden="true" className="size-3.5" />
@@ -345,7 +314,7 @@ export const AgentActivity = observer(function AgentActivity({
           <div
             className={cn(
               "flex min-w-0 flex-1 items-center gap-2 text-xs text-muted-foreground",
-              hasBlockingError && !isRecovering && "text-destructive",
+              hasError && !isRecovering && "text-destructive",
             )}
           >
             {statusIcon}

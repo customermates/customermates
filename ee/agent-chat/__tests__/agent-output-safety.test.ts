@@ -745,97 +745,23 @@ describe("agent client-visible output safety", () => {
     );
   });
 
-  it("hydrates only a validated public source page without query data", () => {
+  it("drops an activity of an unknown kind, such as a removed website read", () => {
     const parts = clientSafeAgentMessageParts([
       {
         type: "activity",
-        id: "valid-web-read",
+        id: "removed-web-read",
         activity: {
           kind: "web.read",
           affectedResources: [],
           risk: "read",
           sourceDomain: "customermates.com",
           sourcePage: "customermates.com/public/overview",
-          target: "customermates.com/private?token=never-show",
-        },
-        status: "done",
-      },
-      {
-        type: "activity",
-        id: "invalid-web-read",
-        activity: {
-          kind: "web.read",
-          affectedResources: [],
-          risk: "read",
-          sourceDomain: "127.0.0.1",
-        },
-        status: "done",
-      },
-      {
-        type: "activity",
-        id: "invisible-web-read",
-        activity: {
-          kind: "web.read",
-          affectedResources: [],
-          risk: "read",
-          sourceDomain: "evil\u200B.com",
-        },
-        status: "done",
-      },
-      {
-        type: "activity",
-        id: "bidi-web-read",
-        activity: {
-          kind: "web.read",
-          affectedResources: [],
-          risk: "read",
-          sourceDomain: "evil\u202E.com",
-        },
-        status: "done",
-      },
-      {
-        type: "activity",
-        id: "query-web-read",
-        activity: {
-          kind: "web.read",
-          affectedResources: [],
-          risk: "read",
-          sourceDomain: "customermates.com",
-          sourcePage: "customermates.com/public?token=never-show",
-        },
-        status: "done",
-      },
-      {
-        type: "activity",
-        id: "cross-domain-web-read",
-        activity: {
-          kind: "web.read",
-          affectedResources: [],
-          risk: "read",
-          sourceDomain: "customermates.com",
-          sourcePage: "example.com/public",
         },
         status: "done",
       },
     ]);
 
-    expect(parts).toEqual([
-      {
-        type: "activity",
-        id: "valid-web-read",
-        activity: {
-          kind: "web.read",
-          affectedResources: [],
-          risk: "read",
-          sourceDomain: "customermates.com",
-          sourcePage: "customermates.com/public/overview",
-        },
-        status: "done",
-      },
-    ]);
-    expect(JSON.stringify(parts)).not.toMatch(
-      /private|never-show|127\.0\.0\.1|target|invisible-web-read|bidi-web-read|query-web-read|cross-domain-web-read/,
-    );
+    expect(parts).toEqual([]);
   });
 
   it("sanitizes and bounds titles while removing legacy route envelopes", () => {

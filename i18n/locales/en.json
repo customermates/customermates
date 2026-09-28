@@ -113,8 +113,6 @@
       "countedResource": "{count} {resource}",
       "countedSingular": "1 {resource}",
       "defaultRecords": "records",
-      "defaultWebsitePage": "a website page",
-      "homepage": "the homepage",
       "label": {
         "preview": "Preview",
         "subject": "Subject",
@@ -353,11 +351,6 @@
           }
         },
         "web": {
-          "read": {
-            "done": "Read {target}",
-            "error": "Couldn’t read {target}",
-            "running": "Reading {target}"
-          },
           "search": {
             "done": "Searched the web",
             "error": "Couldn’t search the web",
@@ -925,8 +918,6 @@
       "undo": "Undo",
       "untitled": "New chat",
       "waitElapsed": "{seconds}s elapsed",
-      "websiteSourcesRunning": "{count, plural, one {Reading 1 website page for your Wiki} other {Reading # website pages for your Wiki}}",
-      "websiteWikiComplete": "{count, plural, one {Built your starter Wiki from 1 website page} other {Built your starter Wiki from # website pages}}",
       "workingOnRequest": "Working on your request…"
     }
   },

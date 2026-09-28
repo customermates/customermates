@@ -113,8 +113,6 @@
       "countedResource": "{count} {resource}",
       "countedSingular": "1 {resource}",
       "defaultRecords": "enregistrements",
-      "defaultWebsitePage": "une page web",
-      "homepage": "la page d’accueil",
       "label": {
         "preview": "Aperçu",
         "subject": "Objet",
@@ -353,11 +351,6 @@
           }
         },
         "web": {
-          "read": {
-            "done": "Lecture de {target} terminée",
-            "error": "Impossible de lire {target}",
-            "running": "Lecture de {target}"
-          },
           "search": {
             "done": "Recherche web terminée",
             "error": "Impossible d’effectuer la recherche web",
@@ -925,8 +918,6 @@
       "undo": "Annuler",
       "untitled": "Nouvelle discussion",
       "waitElapsed": "{seconds} s écoulées",
-      "websiteSourcesRunning": "{count, plural, one {Lecture de 1 page du site pour votre wiki} other {Lecture de # pages du site pour votre wiki}}",
-      "websiteWikiComplete": "{count, plural, one {Votre wiki de départ a été créé à partir de 1 page du site} other {Votre wiki de départ a été créé à partir de # pages du site}}",
       "workingOnRequest": "Traitement de votre demande…"
     }
   },

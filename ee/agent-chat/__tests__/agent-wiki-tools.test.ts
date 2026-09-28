@@ -39,7 +39,9 @@ vi.mock("@/core/di", () => ({
       }),
   }),
   getGetRolesApiInteractor: () => ({ invoke: calls.roles }),
-  getGetMyConnectedAccountsContextInteractor: () => ({ invoke: calls.accounts }),
+  getGetMyConnectedAccountsContextInteractor: () => ({
+    invoke: calls.accounts,
+  }),
   getStartWikiHomepageSetupInteractor: () => ({ invoke: calls.startImport }),
   getWikiWebsiteCrawlRepo: () => ({ findLatestCrawl: calls.latestCrawl }),
 }));
@@ -73,7 +75,6 @@ import {
   describeAgentAiTools,
   getAgentAiToolDefinitions,
   getAgentAiTools,
-  normalizeAgentAiToolInput,
   type AgentToolDeps,
 } from "@/ee/agent-chat/agent-tools";
 
@@ -357,7 +358,6 @@ describe("managed Wiki retrieval tools", () => {
     expect(tools.get_workspace_context).toBeDefined();
     expect(tools.manage_wiki_pages).toBeDefined();
     expect(tools.fetch).toBeUndefined();
-    expect(tools.read_public_page).toBeUndefined();
     expect(description).toContain("get: one Markdown chunk");
     expect(description).toContain("nextOffset");
     expect(description).toContain("/wiki?page=<id>");
@@ -378,7 +378,10 @@ describe("managed Wiki retrieval tools", () => {
   });
 
   it("keeps the Wiki catalog out of hosted get_workspace_context because each turn already carries it", async () => {
-    calls.roles.mockResolvedValue({ ok: true, data: { items: [{ id: "role-1", name: "Support" }] } });
+    calls.roles.mockResolvedValue({
+      ok: true,
+      data: { items: [{ id: "role-1", name: "Support" }] },
+    });
     calls.accounts.mockResolvedValue({
       ok: true,
       data: [{ id: "account-1", provider: "email", status: "connected" }],
@@ -406,127 +409,21 @@ describe("managed Wiki retrieval tools", () => {
   });
 });
 
-describe("homepage setup tool boundary", () => {
-  const setupPages = ["Company overview", "Products and value", "Customers and market"].map((title, index) => ({
-    title,
-    sections: [{ heading: "Details", content: `Verified ${title}` }],
-    sources: [`https://example.com/${index}`],
-  }));
-
+describe("website setup tool boundary", () => {
   it.each([false, true])(
-    "exposes only bounded page reads and atomic create when web search is enabled=%s",
+    "exposes only the stored sources and page creation of an import when web search is enabled=%s",
     (webSearchEnabled) => {
       const tools = getAgentAiTools(dependencies(), {
         wikiHomepageSetup: true,
+        wikiCrawlId: "crawl-1",
         webSearchEnabled,
       });
-      expect(Object.keys(tools).toSorted()).toEqual(["manage_wiki_pages", "read_public_page"]);
-      expect(tools.web_search).toBeUndefined();
-      expect(tools.get_workspace_context).toBeUndefined();
-      expect(tools.fetch).toBeUndefined();
+      expect(Object.keys(tools).toSorted()).toEqual(["manage_wiki_pages", "read_website_source"]);
     },
   );
 
-  it("uses the identical provider-normalized definitions for admission and execution", () => {
-    const options = { wikiHomepageSetup: true, webSearchEnabled: true };
-    const actual = getAgentAiTools(dependencies(), options);
-    for (const provider of ["azure", "vertex"])
-      expect(getAgentAiToolDefinitions(provider, options)).toEqual(describeAgentAiTools(actual, provider));
-  });
-
-  it("validates one to five evidence-backed empty-only pages and denies all other actions before execution", async () => {
-    const options = { wikiHomepageSetup: true, webSearchEnabled: true };
-    for (const pages of [setupPages.slice(0, 1), setupPages]) {
-      const input = { action: "create", requireEmpty: true, pages };
-      expect(await normalizeAgentAiToolInput("manage_wiki_pages", input, 6_000, options)).toMatchObject({
-        ok: true,
-        input,
-      });
-    }
-    for (const input of [
-      { action: "get", id: PAGE_ID },
-      {
-        action: "delete",
-        id: PAGE_ID,
-        expectedUpdatedAt: page.updatedAt.toISOString(),
-      },
-      {
-        action: "create",
-        requireEmpty: false,
-        pages: setupPages,
-      },
-      { action: "create", requireEmpty: true, pages: [] },
-      {
-        action: "create",
-        requireEmpty: true,
-        pages: [...setupPages, ...setupPages.map((page, index) => ({ ...page, title: `Extra ${index}` }))],
-      },
-      {
-        action: "create",
-        requireEmpty: true,
-        pages: [...setupPages, setupPages[0]],
-      },
-      {
-        action: "create",
-        requireEmpty: true,
-        pages: setupPages.map((page, index) => (index === 0 ? { ...page, sections: [] } : page)),
-      },
-      {
-        action: "create",
-        requireEmpty: true,
-        pages: setupPages.map((page, index) =>
-          index === 0
-            ? {
-                ...page,
-                sections: [{ heading: "Details", content: "   " }],
-              }
-            : page,
-        ),
-      },
-      {
-        action: "create",
-        requireEmpty: true,
-        pages: setupPages.map((page, index) => (index === 0 ? { ...page, sources: [] } : page)),
-      },
-    ]) {
-      expect(await normalizeAgentAiToolInput("manage_wiki_pages", input, 6_000, options)).toMatchObject({ ok: false });
-      expect(await execute(getAgentAiTools(dependencies(), options).manage_wiki_pages, input)).toMatchObject({
-        ok: false,
-      });
-    }
-    expect(await normalizeAgentAiToolInput("web_search", { query: "example" }, 6_000, options)).toMatchObject({
-      ok: false,
-    });
-    expect(calls.create).not.toHaveBeenCalled();
-  });
-
-  it("passes authorized setup creation through the normal interactor and exactly-once receipt", async () => {
-    calls.create.mockResolvedValue({
-      ok: true,
-      data: [{ ...page, markdown: "Verified" }],
-    });
-    const deps = dependencies();
-    const tools = getAgentAiTools(deps, { wikiHomepageSetup: true });
-    const input = {
-      action: "create",
-      requireEmpty: true,
-      pages: setupPages,
-    };
-    expect(await execute(tools.manage_wiki_pages, input)).toMatchObject({
-      ok: true,
-    });
-    expect(calls.create).toHaveBeenCalledWith({
-      requireEmpty: true,
-      pages: setupPages.map(({ title }) => ({ title, markdown: expect.stringContaining("## Sources") })),
-    });
-    expect(calls.create.mock.calls[0][0].pages[0].markdown).toContain("<https://example.com/0>");
-    expect(deps.runExactlyOnce).toHaveBeenCalledWith(
-      "wiki-test-call",
-      "create_wiki_from_website",
-      expect.any(Function),
-    );
-    expect(deps.requestApproval).not.toHaveBeenCalled();
-    expect(deps.runInCallerContext).toHaveBeenCalledOnce();
+  it("exposes no tools to a setup turn without a website import", () => {
+    expect(getAgentAiTools(dependencies(), { wikiHomepageSetup: true })).toEqual({});
   });
 });
 
@@ -536,8 +433,6 @@ describe("website Wiki setup in ordinary chat", () => {
     const tools = getAgentAiTools(dependencies(), options);
 
     expect(tools.import_website).toBeDefined();
-    expect(tools.read_public_page).toBeUndefined();
-    expect(tools.create_wiki_from_website).toBeUndefined();
     expect(tools.manage_wiki_pages).toBeDefined();
     for (const provider of ["azure", "vertex"])
       expect(getAgentAiToolDefinitions(provider, options)).toEqual(describeAgentAiTools(tools, provider));
@@ -546,7 +441,14 @@ describe("website Wiki setup in ordinary chat", () => {
   it.each([
     ["a routine", { surface: "routine" as const, wikiWebsiteSetup: true }],
     ["a turn without the admitted flag", { surface: "chat" as const }],
-    ["an onboarding setup turn", { surface: "chat" as const, wikiWebsiteSetup: true, wikiHomepageSetup: true }],
+    [
+      "an onboarding setup turn",
+      {
+        surface: "chat" as const,
+        wikiWebsiteSetup: true,
+        wikiHomepageSetup: true,
+      },
+    ],
   ])("keeps the chat website import out of %s", (_case, options) => {
     expect(getAgentAiTools(dependencies(), options).import_website).toBeUndefined();
   });
@@ -554,14 +456,26 @@ describe("website Wiki setup in ordinary chat", () => {
   it("starts a first import, or extends one with a help centre the last import listed, without approval", async () => {
     calls.startImport.mockResolvedValue({
       ok: true,
-      data: { conversationId: null, homepage: "https://example.com/", domain: "example.com" },
+      data: {
+        conversationId: null,
+        homepage: "https://example.com/",
+        domain: "example.com",
+      },
     });
     calls.latestCrawl.mockResolvedValueOnce(null).mockResolvedValueOnce({ pendingHosts: ["acme.zendesk.com"] });
     const deps = dependencies();
-    const tools = getAgentAiTools(deps, { surface: "chat" as const, wikiWebsiteSetup: true, locale: "de" });
+    const tools = getAgentAiTools(deps, {
+      surface: "chat" as const,
+      wikiWebsiteSetup: true,
+      locale: "de",
+    });
 
     expect(await execute(tools.import_website, { url: "https://example.com/" })).toMatchObject({ ok: true });
-    expect(await execute(tools.import_website, { url: "https://acme.zendesk.com/hc/de" })).toMatchObject({ ok: true });
+    expect(
+      await execute(tools.import_website, {
+        url: "https://acme.zendesk.com/hc/de",
+      }),
+    ).toMatchObject({ ok: true });
     expect(calls.startImport.mock.calls.map(([input]) => [input.homepage, input.mode, input.locale])).toEqual([
       ["https://example.com/", "initial", "de"],
       ["https://acme.zendesk.com/hc/de", "extend", "de"],

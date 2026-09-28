@@ -1,8 +1,7 @@
 import { AGENT_WEB_SEARCH_TOOL_NAME, record } from "./agent-web-search";
-import { READ_PUBLIC_PAGE_TOOL_NAME } from "./tool-identity";
 
 export function isAgentWebTool(name: string) {
-  return name === AGENT_WEB_SEARCH_TOOL_NAME || name === READ_PUBLIC_PAGE_TOOL_NAME;
+  return name === AGENT_WEB_SEARCH_TOOL_NAME;
 }
 
 export function agentBatchContainsWebCall(messages: readonly unknown[] = [], toolCallId: string) {

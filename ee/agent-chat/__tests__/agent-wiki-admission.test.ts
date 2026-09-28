@@ -141,6 +141,11 @@ function fixture() {
     { getCustomColumns: () => Promise.resolve([]) },
     catalog,
     userService,
+    {
+      findSetupCrawl: (homepageUrl: string) =>
+        Promise.resolve({ id: "crawl-1", homepageUrl, pendingHosts: [] as string[] }),
+      findLatestCrawl: () => Promise.resolve(null),
+    },
   );
   const payload = () => {
     const call = background.dispatchTracked.mock.calls.at(-1);
@@ -551,7 +556,7 @@ describe("Workspace Wiki admission bootstrap", () => {
       locale: "en",
       surface: "chat",
       wikiHomepageSetup: true,
-      wikiCrawlId: null,
+      wikiCrawlId: "crawl-1",
       wikiWebsiteSetup: false,
       webSearchEnabled: false,
     });

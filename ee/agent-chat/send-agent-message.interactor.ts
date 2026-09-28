@@ -280,6 +280,7 @@ export class SendAgentMessageInteractor extends AuthenticatedInteractor<SendAgen
     if (setupUrl && !wikiHomepageSetup) return fail(CustomErrorCode.invalidUrl, ["wikiHomepageSetupUrl"]);
     const wikiCrawl =
       wikiHomepageSetup && this.wikiCrawls ? await this.wikiCrawls.findSetupCrawl(wikiHomepageSetup.url) : null;
+    if (wikiHomepageSetup && !wikiCrawl) return fail(CustomErrorCode.invalidUrl, ["wikiHomepageSetupUrl"]);
     const turnModel = resolveAgentModel(requestedModelKey);
     const locale = data.locale ?? resolveUserLocale(user);
     let conversationTitle = data.text;

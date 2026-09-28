@@ -81,7 +81,7 @@ describe("AgentStatusAnnouncer", () => {
     expect(renderToStaticMarkup(createElement(AgentInitialProgress))).toBe("");
   });
 
-  it("announces the page path on the setup domain while Mate reads it", () => {
+  it("announces the running step while Mate works", () => {
     const markup = renderStatus({
       isWorking: true,
       streamStatus: "working",
@@ -90,18 +90,16 @@ describe("AgentStatusAnnouncer", () => {
           kind: "activity",
           id: "read-1",
           activity: {
-            kind: "web.read",
+            kind: "web.search",
             affectedResources: [],
             risk: "read",
-            sourceDomain: "customermates.com",
-            sourcePage: "customermates.com/company",
           },
           status: "running",
         },
       ],
     });
 
-    expect(markup).toContain("AgentChat.activity.state.web.read.running:/company");
+    expect(markup).toContain("AgentChat.activity.state.web.search.running");
   });
 
   it("renders reconnecting status without outer padding when it is embedded in a transcript", () => {

@@ -18,7 +18,6 @@ const INTERNAL_APPROVAL_POLICY: Record<string, AgentApprovalPolicy> = {
   create_organizations: { approvalFree: true },
   create_services: { approvalFree: true },
   create_tasks: { approvalFree: true },
-  create_wiki_from_website: { approvalFree: true },
   import_website: { approvalFree: true },
   discard_message_draft: { approvalFree: true },
   manage_custom_columns: { approvalFreeActions: ["list", "upsert"], readOnlyActions: ["list"] },
@@ -95,13 +94,7 @@ export function isApprovalRelevantValue(value: unknown) {
 }
 
 export function isReadOnlyAgentToolCall(name: string, tool: { annotations?: Record<string, boolean> }, input: unknown) {
-  if (
-    isReadOnlyTool(tool) ||
-    name === "read_public_page" ||
-    name === "web_search" ||
-    name === "list_ui_targets" ||
-    name === LOAD_TOOLSET_TOOL_NAME
-  )
+  if (isReadOnlyTool(tool) || name === "web_search" || name === "list_ui_targets" || name === LOAD_TOOLSET_TOOL_NAME)
     return true;
   const action =
     input && typeof input === "object" && !Array.isArray(input) ? (input as { action?: unknown }).action : undefined;

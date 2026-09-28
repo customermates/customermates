@@ -113,8 +113,6 @@
       "countedResource": "{count} {resource}",
       "countedSingular": "1 {resource}",
       "defaultRecords": "registros",
-      "defaultWebsitePage": "una página web",
-      "homepage": "la página de inicio",
       "label": {
         "preview": "Vista previa",
         "subject": "Asunto",
@@ -353,11 +351,6 @@
           }
         },
         "web": {
-          "read": {
-            "done": "Se ha leído {target}",
-            "error": "No se ha podido leer {target}",
-            "running": "Leyendo {target}"
-          },
           "search": {
             "done": "Búsqueda web completada",
             "error": "No se pudo buscar en la web",
@@ -925,8 +918,6 @@
       "undo": "Deshacer",
       "untitled": "Nuevo chat",
       "waitElapsed": "{seconds} s transcurridos",
-      "websiteSourcesRunning": "{count, plural, one {Leyendo 1 página del sitio web para tu wiki} other {Leyendo # páginas del sitio web para tu wiki}}",
-      "websiteWikiComplete": "{count, plural, one {Tu wiki inicial se ha creado a partir de 1 página del sitio web} other {Tu wiki inicial se ha creado a partir de # páginas del sitio web}}",
       "workingOnRequest": "Procesando tu solicitud…"
     }
   },

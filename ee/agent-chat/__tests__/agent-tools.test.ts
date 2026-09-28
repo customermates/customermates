@@ -173,7 +173,6 @@ describe("agent tools", () => {
     expect(names.toSorted()).toEqual([...expected].toSorted());
     expect(names).not.toContain("search");
     expect(names).not.toContain("fetch");
-    expect(names).not.toContain("read_public_page");
     expect(names).toContain("load_toolset");
     expect(names).not.toContain("click_ui_target");
     expect(names.filter((name) => name === "request_support")).toHaveLength(1);

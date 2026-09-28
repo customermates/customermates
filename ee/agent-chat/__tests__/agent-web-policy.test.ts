@@ -3,17 +3,14 @@ import { agentBatchContainsWebCall, isSuccessfulAgentWebResult } from "../agent-
 
 describe("routine web batch policy", () => {
   const mutation = { type: "tool-call", toolName: "manage_wiki_pages", toolCallId: "write-1" };
-  it.each(["web_search", "read_public_page"])(
-    "detects %s in either order of the complete assistant batch",
-    (toolName) => {
-      const web = { type: "tool-call", toolName, toolCallId: "web-1" };
-      for (const content of [
-        [web, mutation],
-        [mutation, web],
-      ])
-        expect(agentBatchContainsWebCall([{ role: "assistant", content }], "write-1")).toBe(true);
-    },
-  );
+  it.each(["web_search"])("detects %s in either order of the complete assistant batch", (toolName) => {
+    const web = { type: "tool-call", toolName, toolCallId: "web-1" };
+    for (const content of [
+      [web, mutation],
+      [mutation, web],
+    ])
+      expect(agentBatchContainsWebCall([{ role: "assistant", content }], "write-1")).toBe(true);
+  });
   it("fails closed when current tool batch is missing", () => {
     expect(agentBatchContainsWebCall([], "write-1")).toBe(true);
     expect(agentBatchContainsWebCall(undefined, "write-1")).toBe(true);

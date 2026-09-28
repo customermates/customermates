@@ -196,10 +196,7 @@ describe("agent experience contract", () => {
     expect(JSON.stringify([created, updated])).not.toMatch(/Ada|Grace|Private project|never-show|00000000/);
   });
 
-  it("explains homepage reading and Wiki creation with task-specific progress", () => {
-    const websiteRead = describeInternalTool("read_public_page", {
-      url: "https://www.customermates.com/company?token=never-show#private",
-    });
+  it("explains Wiki creation with task-specific progress", () => {
     const wikiCreate = describeInternalTool("manage_wiki_pages", {
       action: "create",
       pages: Array.from({ length: 5 }, (_, index) => ({
@@ -207,13 +204,6 @@ describe("agent experience contract", () => {
       })),
     });
 
-    expect(websiteRead).toEqual({
-      kind: "web.read",
-      affectedResources: [],
-      risk: "read",
-      sourceDomain: "customermates.com",
-      sourcePage: "customermates.com/company",
-    });
     expect(wikiCreate).toMatchObject({
       kind: "records.create",
       resource: "wiki",
@@ -221,45 +211,8 @@ describe("agent experience contract", () => {
       risk: "write",
       affectedResources: ["wiki"],
     });
-    expect(agentActivityCopy(websiteRead, enT)).toMatchObject({
-      running: "Reading /company",
-      done: "Read /company",
-      error: "Couldn’t read /company",
-    });
     expect(agentActivityCopy(wikiCreate, enT).running).toBe("Creating 5 Wiki pages");
-    expect(JSON.stringify([websiteRead, wikiCreate])).not.toMatch(/never-show|private|Private page/);
-
-    const homepageRead = describeInternalTool("read_public_page", { url: "https://www.customermates.com" });
-    expect(homepageRead).toMatchObject({
-      sourceDomain: "customermates.com",
-      sourcePage: "customermates.com/",
-    });
-    expect(agentActivityCopy(homepageRead, enT).done).toBe("Read the homepage");
-    expect(agentActivityCopy(homepageRead, deT).done).toBe("Die Startseite wurde gelesen");
-    const subdomainRead = describeInternalTool("read_public_page", {
-      url: "https://docs.customermates.com/guides/getting-started?session=never-show#install",
-    });
-    expect(subdomainRead).toMatchObject({
-      sourceDomain: "customermates.com",
-      sourcePage: "docs.customermates.com/guides/getting-started",
-    });
-    expect(agentActivityCopy(subdomainRead, enT).done).toBe("Read docs.customermates.com/guides/getting-started");
-    expect(
-      describeInternalTool("read_public_page", {
-        url: `https://customermates.com/${"x".repeat(600)}`,
-      }),
-    ).toEqual({
-      kind: "web.read",
-      affectedResources: [],
-      risk: "read",
-      sourceDomain: "customermates.com",
-    });
-
-    const legacyOrInvalidRead = describeInternalTool("read_public_page", {
-      url: "https://127.0.0.1/private?token=never-show",
-    });
-    expect(legacyOrInvalidRead).not.toHaveProperty("sourceDomain");
-    expect(agentActivityCopy(legacyOrInvalidRead, enT).running).toBe("Reading a website page");
+    expect(JSON.stringify(wikiCreate)).not.toMatch(/Private page/);
   });
 
   it("keeps no input-derived data on a navigate or highlight activity", () => {

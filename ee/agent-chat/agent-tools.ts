@@ -53,7 +53,6 @@ import { ANALYZE_RECORDS_DESCRIPTION, AnalyzeRecordsSchema, analyzeRecords } fro
 import { env } from "@/env";
 import type { AgentToolInputResult } from "./agent-tool-input";
 import { getAgentWebSearchTool } from "./agent-web-search";
-import { createWikiFromWebsiteTool } from "@/features/mcp-tools/wiki-website-setup-tool";
 import { hostedWorkspaceContextTool } from "@/features/mcp-tools/workspace.mcp-tools";
 import { localizeWikiPageUrls } from "@/features/wiki/wiki-links";
 import { agentViewToolMismatch } from "./agent-page-context";
@@ -72,7 +71,6 @@ export type AgentToolOptions = {
   wikiWebsiteSetup?: boolean;
   surface?: AgentSurface;
 };
-const ReadPublicPageSchema = z.object({ url: z.url().max(2_000) });
 
 export { isAgentToolCancellation, type AgentToolCancellation } from "./agent-tool-cancellation";
 
@@ -488,14 +486,6 @@ export function hostedMcpTools() {
   );
 }
 
-function readPublicPageTool() {
-  return tool({
-    description:
-      "Read one public HTTP(S) page as text for this homepage setup. Supply its exact URL; follow only useful explicit source links. Network protections and page limits are enforced by the runtime.",
-    inputSchema: providerSafeSchema(ReadPublicPageSchema),
-  });
-}
-
 export function isWikiWebsiteSetupTurn(
   options: Pick<AgentToolOptions, "wikiHomepageSetup" | "wikiWebsiteSetup" | "surface">,
 ) {
@@ -509,20 +499,12 @@ function wikiWebsiteSetupTools(deps: AgentToolDeps, options: AgentToolOptions): 
 }
 
 export function getAgentAiTools(deps: AgentToolDeps, options: AgentToolOptions = {}): ToolSet {
-  if (options.wikiHomepageSetup && options.wikiCrawlId) {
+  if (options.wikiHomepageSetup) {
+    if (!options.wikiCrawlId) return {};
     return withCallerContext(
       {
         [WIKI_READ_SOURCE_TOOL_NAME]: crmTool(readWebsiteSourceTool(options.wikiCrawlId), deps, options.surface),
         manage_wiki_pages: crmTool(createWikiFromCrawlTool(options.locale, options.wikiCrawlId), deps, options.surface),
-      },
-      deps,
-    );
-  }
-  if (options.wikiHomepageSetup) {
-    return withCallerContext(
-      {
-        read_public_page: readPublicPageTool(),
-        manage_wiki_pages: crmTool(createWikiFromWebsiteTool(options.locale), deps, options.surface),
       },
       deps,
     );

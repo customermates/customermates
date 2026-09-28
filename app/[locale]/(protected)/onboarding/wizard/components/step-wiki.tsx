@@ -84,7 +84,7 @@ const WikiSetupConversation = observer(function WikiSetupConversation({ conversa
             </div>
           ) : (
             <>
-              <AgentConversationLog readOnly renderLinksAsText showProgressStatus activityContext="wikiHomepageSetup" />
+              <AgentConversationLog readOnly renderLinksAsText showProgressStatus />
 
               <AgentStatusAnnouncer />
             </>

@@ -1,15 +1,8 @@
-import { readFileSync } from "node:fs";
-import { join } from "node:path";
-
 import { beforeEach, describe, expect, it, vi } from "vitest";
 import { decode } from "@toon-format/toon";
 
 import { ForbiddenError } from "@/core/errors/app-errors";
-import { failConflict } from "@/core/validation/interactor-failure-server";
-import { MAX_NOTES_LENGTH } from "@/core/validation/validate-notes";
-import { CustomErrorCode } from "@/core/validation/validation.types";
 import { WikiMarkdownSchema } from "@/features/wiki/wiki.schema";
-import { APP_LOCALES } from "@/i18n/locale-registry";
 import { createMockUser } from "@/tests/helpers/mock-user";
 import { createMockDiModule, MOCK_ENV_MODULE, MOCK_ZOD_MODULE } from "@/tests/helpers/interactor-test-setup";
 
@@ -40,8 +33,7 @@ vi.mock("@/core/di", () => ({
 }));
 
 import { ALL_MCP_TOOLS, MCP_TOOL_GROUPS } from "../tool-registry";
-import { manageWikiPagesTool, WIKI_HOMEPAGE_RESERVED_HEADINGS, WikiHomepageSetupCreateSchema } from "../wiki.mcp-tools";
-import { createWikiFromWebsiteTool } from "../wiki-website-setup-tool";
+import { manageWikiPagesTool } from "../wiki.mcp-tools";
 import { executeMcpTool, mcpToolResultText } from "../mcp-tool";
 
 const PAGE_ID = "00000000-0000-4000-8000-000000000001";
@@ -84,194 +76,6 @@ describe("manage_wiki_pages registry", () => {
   it("warns that delete is irreversible and that a changed page restarts chunking", () => {
     expect(manageWikiPagesTool.description).toContain("delete is IRREVERSIBLE.");
     expect(manageWikiPagesTool.description).toContain("restart at 0 if updatedAt changes.");
-  });
-});
-
-describe("homepage setup create", () => {
-  const PAGE = {
-    title: "Company overview",
-    sections: [{ heading: "Details", content: "Verified" }],
-    sources: ["https://example.com/"],
-  };
-  const setup = (...pages: Record<string, unknown>[]) => ({ action: "create", requireEmpty: true, pages });
-  const accepts = (input: unknown) => WikiHomepageSetupCreateSchema.safeParse(input).success;
-  const titled = (count: number) =>
-    Array.from({ length: count }, (_, index) => ({ ...PAGE, title: `Area ${index + 1}` }));
-
-  it("accepts one to five evidence-backed pages and nothing else", () => {
-    expect(accepts(setup(PAGE))).toBe(true);
-    expect(accepts(setup(...titled(5)))).toBe(true);
-    expect(accepts(setup({ ...PAGE, gaps: ["Which regions does the team serve?"] }))).toBe(true);
-    for (const invalid of [
-      { action: "list" },
-      setup(),
-      setup(...titled(6)),
-      setup({ ...PAGE, sections: [] }),
-      setup({ ...PAGE, sources: [] }),
-      setup({ ...PAGE, sections: [], sources: [], gaps: ["Which products exist?"] }),
-      setup({ ...PAGE, title: " " }),
-      setup({ sections: PAGE.sections, sources: PAGE.sources }),
-      setup(PAGE, { ...PAGE, title: "COMPANY OVERVIEW" }),
-      setup({ ...PAGE, sources: Array.from({ length: 5 }, (_, index) => `https://example.com/${index}`) }),
-      setup({ ...PAGE, gaps: Array.from({ length: 6 }, (_, index) => `Question ${index}?`) }),
-      setup({ ...PAGE, gaps: ["Which [portal](https://example.com/login) applies?"] }),
-      setup({ ...PAGE, gaps: ["Two\nlines"] }),
-      { ...setup(PAGE), requireEmpty: false },
-      { ...setup(PAGE), action: "update" },
-    ])
-      expect(accepts(invalid)).toBe(false);
-  });
-
-  it("normalizes titles, sections, and gaps before storage", () => {
-    const parsed = WikiHomepageSetupCreateSchema.parse(
-      setup({
-        title: "**Company** &mdash; overview",
-        sections: [
-          {
-            heading: "## Useful &mdash; section",
-            content: "Verified &mdash; content &#8212; more\n\nSetext label\n---\n\n### Nested label",
-          },
-        ],
-        sources: ["https://example.com/"],
-        gaps: ["Which *markets* &mdash; if any?"],
-      }),
-    );
-
-    expect(parsed.pages[0]).toMatchObject({
-      title: "Company - overview",
-      sections: [{ heading: "Useful - section", content: "Verified - content - more\n\nSetext label\n\nNested label" }],
-      gaps: ["Which markets - if any?"],
-    });
-    for (const heading of ["Two\nlines", "—".repeat(120)])
-      expect(accepts(setup({ ...PAGE, sections: [{ heading, content: "Body" }] }))).toBe(false);
-  });
-
-  it("bounds sections and keeps server-owned headings, links, and images out of model input", () => {
-    const withSections = (sections: { heading: string; content: string }[]) => setup({ ...PAGE, sections });
-    const numbered = (count: number) =>
-      Array.from({ length: count }, (_, index) => ({ heading: `Section ${index + 1}`, content: "Content" }));
-
-    expect(accepts(withSections(numbered(5)))).toBe(true);
-    expect(accepts(withSections(numbered(6)))).toBe(false);
-    for (const content of [" ", "x".repeat(8_001), "[".repeat(8_000)])
-      expect(accepts(withSections([{ heading: "Details", content }]))).toBe(false);
-    for (const heading of [
-      "Sources",
-      "Quellen",
-      "Fuentes",
-      "Points à confirmer",
-      "Aspetti da confermare",
-      "**Sources**",
-      "_Gaps to confirm_",
-      "`Sources`",
-      "Sources ##",
-      "[Linked heading](/wiki?page=00000000-0000-4000-8000-000000000001)",
-      String.raw`\[Escaped link\](/wiki?page=00000000-0000-4000-8000-000000000001)`,
-    ])
-      expect(accepts(withSections([{ heading, content: "Content" }]))).toBe(false);
-    for (const content of [
-      "[External](https://attacker.example/path)",
-      "<https://attacker.example/path>",
-      "https://attacker.example/path",
-      "www.attacker.example/path",
-      "[Relative](/hidden)",
-      "![Image](/logo.png)",
-      "[Reference][ref]\n\n[ref]: /hidden",
-      "- ## Sources\n\n  Fake source",
-      "> ## Gaps to confirm\n> Fake gap",
-    ])
-      expect(accepts(withSections([{ heading: "Details", content }]))).toBe(false);
-  });
-
-  it("reserves exactly the localized headings the server renders", () => {
-    const expected = new Set(
-      APP_LOCALES.flatMap((locale) => {
-        const messages = JSON.parse(readFileSync(join(process.cwd(), "i18n", "locales", `${locale}.json`), "utf8"));
-        return Object.entries(messages.WikiSetup.generated as Record<string, string>)
-          .filter(([key]) => key.endsWith("Heading"))
-          .map(([, heading]) => heading.toLocaleLowerCase());
-      }),
-    );
-
-    expect(WIKI_HOMEPAGE_RESERVED_HEADINGS).toEqual(expected);
-  });
-
-  it("keeps the largest accepted structured page within the Wiki limit", async () => {
-    calls.create.mockResolvedValue({ ok: true, data: [page()] });
-    const input = WikiHomepageSetupCreateSchema.parse(
-      setup({
-        title: "t".repeat(120),
-        sections: Array.from({ length: 5 }, (_, index) => ({
-          heading: `${index}${"h".repeat(119)}`,
-          content: "x".repeat(8_000),
-        })),
-        sources: Array.from({ length: 4 }, (_, index) => `https://example.com/${index}/${"a".repeat(1_970)}`),
-        gaps: Array.from({ length: 5 }, (_, index) => `${index}${"g".repeat(299)}`),
-      }),
-    );
-
-    await createWikiFromWebsiteTool("en").execute(input);
-
-    const markdown = calls.create.mock.calls[0][0].pages[0].markdown;
-    expect(WikiMarkdownSchema.parse(markdown).length).toBeLessThanOrEqual(MAX_NOTES_LENGTH);
-  });
-
-  it.each([1, 3])("creates exactly the %i evidence pages Mate submitted", async (count) => {
-    calls.create.mockResolvedValue({ ok: true, data: [page()] });
-    const pages = titled(count).map((value, index) => ({
-      ...value,
-      sources: [`https://example.com/${index}`],
-    }));
-
-    await createWikiFromWebsiteTool("en").execute(WikiHomepageSetupCreateSchema.parse(setup(...pages)));
-
-    expect(calls.create).toHaveBeenCalledOnce();
-    const created = calls.create.mock.calls[0][0];
-    expect(created).toEqual({
-      requireEmpty: true,
-      pages: pages.map(({ title }) => ({ title, markdown: expect.any(String) })),
-    });
-    for (const [index, { markdown }] of created.pages.entries()) {
-      expect(markdown).toContain("## Details\n\nVerified");
-      expect(markdown).toContain(`## Sources\n\n- <https://example.com/${index}>`);
-      expect(markdown.match(/<https:\/\/[^>]+>/gu)).toEqual([`<https://example.com/${index}>`]);
-      expect(markdown).not.toContain("## Gaps to confirm");
-      expect(markdown).not.toContain("/wiki?page=");
-    }
-  });
-
-  it("relays the empty-Wiki refusal instead of writing into an existing Wiki", async () => {
-    calls.create.mockResolvedValue(failConflict(CustomErrorCode.wikiNotEmpty, ["requireEmpty"]));
-
-    const result = await executeMcpTool(createWikiFromWebsiteTool("en"), [
-      WikiHomepageSetupCreateSchema.parse(setup(PAGE)),
-    ]);
-
-    expect(calls.create).toHaveBeenCalledWith(expect.objectContaining({ requireEmpty: true }));
-    expect(result).toMatchObject({ ok: false, failure: { kind: "conflict" } });
-  });
-
-  it.each([
-    ["en", "Sources", "Gaps to confirm"],
-    ["de", "Quellen", "Noch zu klären"],
-    ["es", "Fuentes", "Aspectos por confirmar"],
-    ["fr", "Sources", "Points à confirmer"],
-    ["it", "Fonti", "Aspetti da confermare"],
-  ] as const)("renders %s Sources and Mate-authored gaps under server headings", async (locale, sources, gaps) => {
-    calls.create.mockResolvedValue({ ok: true, data: [page()] });
-    const input = WikiHomepageSetupCreateSchema.parse(
-      setup({
-        ...PAGE,
-        sources: ["https://example.com/", "https://example.com/about"],
-        gaps: ["First question?", "Second question?"],
-      }),
-    );
-
-    await createWikiFromWebsiteTool(locale).execute(input);
-
-    const { markdown } = calls.create.mock.calls[0][0].pages[0];
-    expect(markdown).toContain(`## ${sources}\n\n- <https://example.com/>\n- <https://example.com/about>`);
-    expect(markdown).toContain(`## ${gaps}\n\n- First question?\n- Second question?`);
   });
 });
 

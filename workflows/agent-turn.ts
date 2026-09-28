@@ -45,14 +45,7 @@ import {
   isSuccessfulAgentWebResult,
 } from "@/ee/agent-chat/agent-web-policy";
 import { agentWebSourcesFooter, collectAgentWebSources } from "@/ee/agent-chat/agent-web-search";
-import {
-  createPublicPageReadState,
-  normalizePublicPageSources,
-  reservePublicPageRead,
-  recordPublicPageLinks,
-  userWebsiteHomepage,
-  type PublicPageReadState,
-} from "@/ee/agent-chat/public-page-read-state";
+import { userWebsiteHomepage } from "@/ee/agent-chat/public-page-read-state";
 import { buildAgentUsageSettlement, usageToTokenCounts } from "@/ee/agent-chat/agent-usage-settlement";
 import { computeCostMicrocents } from "@/ee/agent-chat/model-pricing";
 import { agentCreditsForStartedProviderCost } from "@/ee/agent-chat/agent-credit-policy";
@@ -374,16 +367,9 @@ async function executeAgentTool(
 }
 executeAgentTool.maxRetries = 0;
 
-async function readAgentPublicPage(url: string, allowedDomain: string) {
-  "use step";
-  const { readPublicPage } = await import("@/ee/agent-chat/public-page-reader");
-  return readPublicPage({ url, allowedDomain });
-}
-readAgentPublicPage.maxRetries = 0;
-
 async function authorizedWikiSetup(payload: AgentTurnWorkflowPayload): Promise<boolean> {
   "use step";
-  if (!(payload.wikiWebsiteSetup || payload.wikiHomepageSetup) || (payload.surface ?? "chat") !== "chat") return false;
+  if (!payload.wikiWebsiteSetup || (payload.surface ?? "chat") !== "chat") return false;
   const { getGetWikiPagesInteractor, getUserService } = await import("@/core/di");
   const { AppErrorCode, appErrorDetails } = await import("@/core/errors/app-errors");
   const { getTenantUser } = await import("@/core/decorators/tenant-context");
@@ -396,7 +382,6 @@ async function authorizedWikiSetup(payload: AgentTurnWorkflowPayload): Promise<b
       if (!(await getUserService().hasPermission(Resource.wiki, Action.create))) return false;
       const result = await getGetWikiPagesInteractor().invoke({ page: 1, pageSize: 5 });
       if (result.ok && result.data.total === 0) return true;
-      if (!payload.wikiWebsiteSetup) return false;
       const { getWikiWebsiteCrawlRepo } = await import("@/core/di");
       return ((await getWikiWebsiteCrawlRepo().findLatestCrawl())?.pendingHosts.length ?? 0) > 0;
     } catch (error) {
@@ -964,9 +949,6 @@ export async function runAgentTurn(payload: AgentTurnWorkflowPayload): Promise<v
     let performedWrite = false;
     let browsed = false;
     const webSources = new Set<string>();
-    let publicPageState: PublicPageReadState | null = payload.wikiHomepageSetup
-      ? createPublicPageReadState(payload.wikiHomepageSetup)
-      : null;
 
     const continuationSteps: AgentContinuationStep[] = [];
     let deferredRound: {
@@ -1098,44 +1080,12 @@ export async function runAgentTurn(payload: AgentTurnWorkflowPayload): Promise<v
         }
         executionInput = { url: homepage.url };
       }
-      if (websiteCreate && payload.wikiCrawl) {
-        if (!(await authorizedWikiCrawlSynthesis(payload))) {
-          return {
-            ok: false,
-            result:
-              "Website Wiki setup is no longer available: it needs Wiki create access and this user's recent website import. Nothing was changed.",
-          };
-        }
-      } else if (websiteCreate) {
-        if (!(await authorizedWikiSetup(payload))) {
-          return {
-            ok: false,
-            result:
-              "Website Wiki setup is no longer available: it needs Wiki create access and an empty Wiki. Nothing was changed.",
-          };
-        }
-        if (!publicPageState?.homepageSucceeded) {
-          return {
-            ok: false,
-            result: "Read the submitted homepage successfully before creating Wiki pages. Nothing was changed.",
-          };
-        }
-        if (agentBatchContainsWebCall(stepMessages, toolCallId)) {
-          return {
-            ok: false,
-            result:
-              "Finish the website reads first, then create Wiki pages in a later step so the page content can use those results. Nothing was changed.",
-          };
-        }
-        const normalized = normalizePublicPageSources(publicPageState, prepared.input);
-        if (!normalized.ok) {
-          return {
-            ok: false,
-            result:
-              "Every setup page must cite at least one exact URL that this task read successfully. Nothing was changed.",
-          };
-        }
-        executionInput = normalized.input;
+      if (websiteCreate && !(await authorizedWikiCrawlSynthesis(payload))) {
+        return {
+          ok: false,
+          result:
+            "Website Wiki setup is no longer available: it needs Wiki create access and this user's recent website import. Nothing was changed.",
+        };
       }
       if (
         isUnattendedSurface(surface) &&
@@ -1147,39 +1097,6 @@ export async function runAgentTurn(payload: AgentTurnWorkflowPayload): Promise<v
           result:
             "This routine cannot mutate data after browsing or in a batch containing web access. Nothing was changed.",
         };
-      }
-      if (shell.name === "read_public_page") {
-        if (!(await authorizedWikiSetup(payload))) {
-          return {
-            ok: false,
-            result: "Website reading is only available while the Wiki is empty and you may create Wiki pages.",
-          };
-        }
-        let requestedUrl = (prepared.input as { url: string }).url;
-        if (!publicPageState && payload.wikiWebsiteSetup) {
-          const homepage = userWebsiteHomepage(payload.wikiWebsiteSetup.userHomepages, requestedUrl);
-          if (!homepage) {
-            return {
-              ok: false,
-              result:
-                "Read only a website the user wrote in this conversation. Ask the user for their company website first. Nothing was read.",
-            };
-          }
-          publicPageState = createPublicPageReadState(homepage);
-          requestedUrl = homepage.url;
-        }
-        if (!publicPageState) {
-          return {
-            ok: false,
-            result: "Website reading is only available during Workspace Wiki homepage setup.",
-          };
-        }
-        const request = reservePublicPageRead(publicPageState, requestedUrl);
-        if (!request.ok) return request;
-        const result = await readAgentPublicPage(request.url, request.allowedDomain);
-        recordPublicPageLinks(publicPageState, request.url, result);
-        if (result.ok) browsed = true;
-        return result;
       }
       const executed = await executeAgentTool(
         payload,

@@ -109,6 +109,15 @@ const backgroundTasks = () => ({
   resume: vi.fn().mockResolvedValue(true),
 });
 
+const setupCrawls = () => ({
+  findSetupCrawl: vi.fn().mockResolvedValue({
+    id: "crawl-1",
+    homepageUrl: "https://example.com/",
+    pendingHosts: [],
+  }),
+  findLatestCrawl: vi.fn().mockResolvedValue(null),
+});
+
 describe("agent access", () => {
   beforeEach(() => {
     vi.clearAllMocks();
@@ -201,7 +210,11 @@ describe("agent access", () => {
                 {
                   type: "context",
                   context: {
-                    reference: { kind: "record", entityType: "contact", recordId: MESSAGE_ID },
+                    reference: {
+                      kind: "record",
+                      entityType: "contact",
+                      recordId: MESSAGE_ID,
+                    },
                     label: "Ada Lovelace",
                   },
                 },
@@ -335,7 +348,17 @@ describe("agent access", () => {
     expect(repo.claimAgentRunLease).not.toHaveBeenCalled();
   });
 
-  it("rejects homepage setup before persistence when the canonical URL is missing", async () => {
+  it.each([
+    ["the canonical URL is missing", "https://localhost/", undefined],
+    [
+      "no website import exists for it",
+      "https://example.com/",
+      {
+        findSetupCrawl: () => Promise.resolve(null),
+        findLatestCrawl: () => Promise.resolve(null),
+      },
+    ],
+  ])("rejects homepage setup before persistence when %s", async (_case, wikiHomepageSetupUrl, crawls) => {
     const repo = {
       normalizeExpiredAgentRunLease: vi.fn().mockResolvedValue(undefined),
       findAgentTurnRequestForAdmission: vi.fn().mockResolvedValue(null),
@@ -354,10 +377,12 @@ describe("agent access", () => {
       backgroundTasks() as never,
       emptyCustomColumns(),
       emptyWikiCatalog(),
+      undefined,
+      crawls,
     ).invoke({
       clientRequestId: CLIENT_REQUEST_ID,
       text: "Set up the Workspace Wiki from localhost.",
-      wikiHomepageSetupUrl: "https://localhost/",
+      wikiHomepageSetupUrl,
       retry: false,
     });
 
@@ -515,7 +540,11 @@ describe("agent access", () => {
               conversationId: CONVERSATION_ID,
               userMessageId: args.turn.userMessageId,
               recentMessages: [
-                { id: args.turn.userMessageId, role: "user", parts: [{ type: "text", text: "Inspect the deal" }] },
+                {
+                  id: args.turn.userMessageId,
+                  role: "user",
+                  parts: [{ type: "text", text: "Inspect the deal" }],
+                },
               ],
             }),
           ),
@@ -873,6 +902,8 @@ describe("agent access", () => {
       tasks as never,
       emptyCustomColumns(),
       emptyWikiCatalog(),
+      undefined,
+      setupCrawls(),
     ).invoke({
       clientRequestId: CLIENT_REQUEST_ID,
       text: "retry this",
@@ -1067,7 +1098,11 @@ describe("agent access", () => {
   it("returns a conflict when a client request id is reused with different selected context", async () => {
     const usage = usageService();
     const storedContext = {
-      reference: { kind: "record" as const, entityType: "contact" as const, recordId: MESSAGE_ID },
+      reference: {
+        kind: "record" as const,
+        entityType: "contact" as const,
+        recordId: MESSAGE_ID,
+      },
       label: "Ada Lovelace",
     };
     const repo = {
@@ -1115,7 +1150,10 @@ describe("agent access", () => {
       contexts: [
         {
           ...storedContext,
-          reference: { ...storedContext.reference, recordId: "33333333-3333-4333-8333-333333333333" },
+          reference: {
+            ...storedContext.reference,
+            recordId: "33333333-3333-4333-8333-333333333333",
+          },
         },
       ],
       retry: true,
@@ -1264,6 +1302,8 @@ describe("agent access", () => {
       tasks as never,
       emptyCustomColumns(),
       emptyWikiCatalog(),
+      undefined,
+      setupCrawls(),
     ).invoke({
       clientRequestId: CLIENT_REQUEST_ID,
       text: "Set up the Workspace Wiki from https://example.com/",
@@ -1425,7 +1465,11 @@ describe("agent access", () => {
               {
                 type: "context",
                 context: {
-                  reference: { kind: "record", entityType: "contact", recordId: MESSAGE_ID },
+                  reference: {
+                    kind: "record",
+                    entityType: "contact",
+                    recordId: MESSAGE_ID,
+                  },
                   label: "Ada Lovelace",
                 },
               },
@@ -1448,7 +1492,11 @@ describe("agent access", () => {
       {
         type: "context",
         context: {
-          reference: { kind: "record", entityType: "contact", recordId: MESSAGE_ID },
+          reference: {
+            kind: "record",
+            entityType: "contact",
+            recordId: MESSAGE_ID,
+          },
           label: "Ada Lovelace",
         },
       },
