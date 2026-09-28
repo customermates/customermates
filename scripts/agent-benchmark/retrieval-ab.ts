@@ -10,7 +10,6 @@ import { Pool } from "pg";
 
 import { getDocsPageRaw } from "@/features/mcp-tools/docs-manifest";
 import { splitSections } from "@/features/mcp-tools/docs-sections";
-import { WIKI_EMBEDDING_MODEL } from "@/ee/wiki-retrieval/wiki-embedding-model";
 
 import {
   campaignSpendUsd,
@@ -18,6 +17,7 @@ import {
   settleReservedCharge,
 } from "./campaign";
 import { requireLocalBenchmarkDatabase } from "./env";
+import { usageFollowsRoute } from "./usage-route";
 import { HELDOUT_DOCS_CASES } from "./heldout-cases";
 import { DOCS_EMBEDDING_HELDOUT } from "./heldout-data/docs-embedding";
 import { DOCS_HELDOUT } from "./heldout-data/docs";
@@ -113,10 +113,7 @@ function routeHolds(artifact: Artifact) {
       (turn) =>
         turn.modelSpec === modelId && turn.servingProvider === servingProvider,
     ) &&
-    artifact.usage.every(
-      (event) =>
-        event.model === modelId || event.model === WIKI_EMBEDDING_MODEL,
-    )
+    usageFollowsRoute(artifact.usage, modelId)
   );
 }
 

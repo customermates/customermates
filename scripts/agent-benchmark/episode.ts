@@ -57,6 +57,7 @@ import { BENCHMARK_CASES,
 } from "./fixtures";
 import { mintBenchmarkSession } from "./session";
 import { benchmarkServerSourceError, readSseFrames } from "./sse";
+import { usageFollowsRoute } from "./usage-route";
 
 const TURN_TIMEOUT_MS = 15 * 60 * 1000;
 const MICROCENTS_PER_USD = 100_000_000;
@@ -149,6 +150,7 @@ export type EpisodeArtifact = {
   };
   classifier?: EpisodeClassifierSummary;
   usage: { turnRequestId: string | null; costMicrocents: string; costSource: string; chargedCredits: number; state: string; model: string;
+    purpose?: string;
   }[];
   usd: number;
   measuredShare: number;
@@ -702,6 +704,7 @@ async function observeEpisode(db: BenchmarkDb, fixture: Fixture) {
       ),
       state: event.state,
       model: event.model,
+      purpose: event.purpose,
     })),
   };
 }
@@ -1067,9 +1070,7 @@ export async function runEpisode(
               round.servingProvider === effectiveModelConfig.servingProvider,
           ),
       ) &&
-      observation.usage.every(
-        (event) => event.model === effectiveModelConfig.modelId,
-      ),
+      usageFollowsRoute(observation.usage, effectiveModelConfig.modelId),
     allTurnsTerminal:
       observation.turns.length > 0 &&
       observation.turns.every((turn) => turn.terminalAt !== null),
