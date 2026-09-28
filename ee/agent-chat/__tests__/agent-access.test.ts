@@ -685,6 +685,72 @@ describe("agent access", () => {
     );
   });
 
+  it.each([
+    ["fast", true],
+    ["bench:retired-arm", false],
+  ] as const)(
+    "continues a conversation stored with the model key %s on the shipped model only when it is a retired catalog key",
+    async (storedKey, continues) => {
+      const background = backgroundTasks();
+      const usage = usageService();
+      const repo = {
+        normalizeExpiredAgentRunLease: vi.fn().mockResolvedValue(undefined),
+        findAgentTurnRequestForAdmission: vi.fn().mockResolvedValue(null),
+        claimAgentRunLease: vi.fn().mockResolvedValue("claimed"),
+        isAtAgentRunLimit: vi.fn().mockResolvedValue(false),
+        createAgentConversationForRun: vi.fn(),
+        deleteUnusedAgentConversation: vi.fn(),
+        recordAgentTurnExternalRun: vi.fn().mockResolvedValue(undefined),
+        findInteractiveConversation: vi.fn().mockResolvedValue({
+          id: CONVERSATION_ID,
+          origin: "chat",
+          modelKey: storedKey,
+          creditCeilingMicrocents: null,
+        }),
+        admitAgentTurnOrThrow: vi.fn().mockImplementation((args) =>
+          Promise.resolve({
+            conversationId: CONVERSATION_ID,
+            userMessageId: args.turn.userMessageId,
+            recentMessages: [
+              {
+                id: args.turn.userMessageId,
+                role: "user",
+                parts: [{ type: "text", text: "Continue the investigation" }],
+              },
+            ],
+          }),
+        ),
+      };
+
+      const result = await new SendAgentMessageInteractor(
+        repo as never,
+        usage as never,
+        mockEntitlementService(),
+        background as never,
+        emptyCustomColumns(),
+        emptyWikiCatalog(),
+      ).invoke({
+        clientRequestId: CLIENT_REQUEST_ID,
+        conversationId: CONVERSATION_ID,
+        text: "Continue the investigation",
+        retry: false,
+      });
+
+      if (!continues) {
+        expect(result).toMatchObject({ ok: false });
+        expect(usage.prepareTurn).not.toHaveBeenCalled();
+        return;
+      }
+      expect(result.ok && result.data.disposition).toBe("run");
+      expect(usage.prepareTurn).toHaveBeenCalledWith(mockUser.id, expect.any(Date), {
+        model: MODEL_CATALOG.balanced,
+        requiredContextBytes: expect.any(Number),
+        creditCeilingMicrocents: null,
+        webSearchReserveMicrocents: 3_600_000,
+      });
+    },
+  );
+
   it("does not query prior messages to decide which capabilities are available", async () => {
     const repo = {
       normalizeExpiredAgentRunLease: vi.fn().mockResolvedValue(undefined),

@@ -47,7 +47,12 @@ import { conservativeAgentInitialContextBytes } from "./agent-provider-context";
 import { renderAgentSchemaDigest } from "./agent-schema-digest";
 import { agentPageContextPrefix } from "./agent-page-context";
 import { AGENT_REPLAY_COUNT, budgetAgentReplayHistory } from "./agent-replay-budget";
-import { isAgentModelKey, resolveAgentModel } from "./model-catalog";
+import {
+  BENCHMARK_MODEL_KEY_PREFIX,
+  isAgentModelKey,
+  resolveAgentModel,
+  SHIPPED_AGENT_MODEL_KEY,
+} from "./model-catalog";
 import { recordsBenchmarkToolOutputs } from "./benchmark-tool-output";
 import type { BackgroundTaskService } from "@/core/utils/background-task.service";
 import type { GetCustomColumnsRepo } from "@/features/custom-column/get-custom-columns.interactor";
@@ -272,7 +277,12 @@ export class SendAgentMessageInteractor extends AuthenticatedInteractor<SendAgen
 
     const surface: "routine" | "chat" = mode === "routine" ? "routine" : "chat";
 
-    const requestedModelKey = conversation?.modelKey ?? data.modelKey ?? null;
+    const storedModelKey = conversation?.modelKey ?? null;
+    const retiredModelKey =
+      storedModelKey !== null &&
+      !storedModelKey.startsWith(BENCHMARK_MODEL_KEY_PREFIX) &&
+      !isAgentModelKey(storedModelKey);
+    const requestedModelKey = retiredModelKey ? SHIPPED_AGENT_MODEL_KEY : (storedModelKey ?? data.modelKey ?? null);
     if (requestedModelKey !== null && !isAgentModelKey(requestedModelKey))
       return fail(CustomErrorCode.agentModelUnavailable, ["modelKey"]);
     const setupUrl = decision.disposition === "retry" ? decision.turn.wikiHomepageSetupUrl : data.wikiHomepageSetupUrl;
