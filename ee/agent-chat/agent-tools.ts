@@ -52,6 +52,7 @@ import { ANALYZE_RECORDS_DESCRIPTION, AnalyzeRecordsSchema, analyzeRecords } fro
 import { env } from "@/env";
 import type { AgentToolInputResult } from "./agent-tool-input";
 import { agentViewToolMismatch } from "./agent-page-context";
+import { hostedDocsEmbeddingSearch } from "./docs-embedding";
 import { hostedDocsRanking } from "./docs-rerank";
 
 export { isAgentToolCancellation, type AgentToolCancellation } from "./agent-tool-cancellation";
@@ -337,8 +338,10 @@ function hostedMcpTool(mcp: (typeof ALL_MCP_TOOLS)[number], deps: AgentToolDeps)
   if (mcp.name !== searchDocsTool.name && mcp.name !== getDocsPageTool.name) return mcp;
   const rank = hostedDocsRanking(deps.latestUserMessage ?? null);
   if (!rank) return mcp;
-  if (mcp.name === searchDocsTool.name)
-    return { ...mcp, execute: (input: SearchDocsInput) => searchDocsRanked(input, rank) };
+  if (mcp.name === searchDocsTool.name) {
+    const embeddingSearch = hostedDocsEmbeddingSearch();
+    return { ...mcp, execute: (input: SearchDocsInput) => searchDocsRanked(input, rank, embeddingSearch) };
+  }
   return { ...mcp, execute: (input: GetDocsPageInput) => getDocsPageRanked(input, rank) };
 }
 
