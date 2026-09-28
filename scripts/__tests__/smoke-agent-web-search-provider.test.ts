@@ -190,7 +190,10 @@ describe("web-search offline feasibility guard", () => {
         numResults: 3,
         includeDomains: ["customermates.com"],
         contents: {
-          text: { maxCharacters: 1000, verbosity: "compact" },
+          text: { maxCharacters: 1000, verbosity: "compact", includeHtmlTags: false },
+          highlights: false,
+          subpages: 0,
+          extras: { links: 0, imageLinks: 0 },
         },
       },
     });
@@ -202,7 +205,7 @@ describe("web-search offline feasibility guard", () => {
         type: "auto",
         num_results: 4,
         include_domains: includeDomains,
-        contents: { text: { max_characters: 1_100, verbosity: "standard" } },
+        contents: { text: { max_characters: 1_100, verbosity: "standard" }, highlights: true, subpages: 1 },
       },
     });
 

@@ -27,7 +27,7 @@ const MODEL_URL = "https://ai-gateway.vercel.sh/v4/ai/language-model";
 const DOMAIN = "customermates.com";
 const PROMPT = [
   "Call web_search exactly once with exactly this input:",
-  '{"query":"site:customermates.com Customermates homepage title primary heading product","type":"auto","num_results":4,"include_domains":["customermates.com"],"contents":{"text":{"max_characters":1100,"verbosity":"standard"}}}.',
+  '{"query":"site:customermates.com Customermates homepage title primary heading product","type":"auto","num_results":4,"include_domains":["customermates.com"],"contents":{"text":{"max_characters":1100,"verbosity":"standard"},"highlights":true,"subpages":1}}.',
   "Then state the homepage title, primary heading, what the product does, and how AI agents connect to it in at most three sentences, using only the returned evidence.",
 ].join(" ");
 const MAX_OUTPUT_TOKENS = 512;
@@ -339,7 +339,9 @@ export function requestedAdversarialOverrides(value: unknown) {
     input.include_domains.length === 1 &&
     input.include_domains[0] === DOMAIN &&
     text?.max_characters === 1_100 &&
-    text.verbosity === "standard"
+    text.verbosity === "standard" &&
+    contents?.highlights === true &&
+    contents.subpages === 1
   );
 }
 
@@ -390,6 +392,8 @@ function providerToolEvidence(result: {
     texts.some((text) => text.length > AGENT_WEB_SEARCH_DEFAULT_CONTENT_CHARS)
   )
     fail("provider-result", "Exa Search did not honor the text bound.");
+  if (items.some((item) => item.highlights !== undefined || item.subpages !== undefined))
+    fail("provider-result", "Exa Search returned highlights or subpages the configuration disables.");
   const evidenceText = items
     .flatMap((item) => [item.title, item.text])
     .filter((value): value is string => typeof value === "string")

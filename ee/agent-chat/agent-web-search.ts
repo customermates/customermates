@@ -31,8 +31,8 @@ export function agentWebSearchCallsInStep(step: { content: readonly unknown[]; p
   return Math.max(calls, typeof billed === "number" && Number.isSafeInteger(billed) && billed > 0 ? billed : 0);
 }
 
-export function getAgentWebSearchTool(options: AgentWebSearchOptions = {}) {
-  return gateway.tools.exaSearch({
+function agentWebSearchConfig(options: AgentWebSearchOptions = {}) {
+  return {
     type: "auto",
     numResults: AGENT_WEB_SEARCH_DEFAULT_RESULTS,
     ...(options.allowedDomains?.length ? { includeDomains: [...options.allowedDomains] } : {}),
@@ -40,9 +40,17 @@ export function getAgentWebSearchTool(options: AgentWebSearchOptions = {}) {
       text: {
         maxCharacters: AGENT_WEB_SEARCH_DEFAULT_CONTENT_CHARS,
         verbosity: "compact",
+        includeHtmlTags: false,
       },
+      highlights: false,
+      subpages: 0,
+      extras: { links: 0, imageLinks: 0 },
     },
-  });
+  } satisfies Parameters<typeof gateway.tools.exaSearch>[0];
+}
+
+export function getAgentWebSearchTool(options: AgentWebSearchOptions = {}) {
+  return gateway.tools.exaSearch(agentWebSearchConfig(options));
 }
 
 export function record(value: unknown): Record<string, unknown> | null {

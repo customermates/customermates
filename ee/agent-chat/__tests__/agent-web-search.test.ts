@@ -1,6 +1,8 @@
 import { describe, expect, it } from "vitest";
 
 import {
+  AGENT_WEB_SEARCH_DEFAULT_CONTENT_CHARS,
+  AGENT_WEB_SEARCH_DEFAULT_RESULTS,
   AGENT_WEB_SEARCH_MAX_CALLS,
   AGENT_WEB_SEARCH_TOOL_NAME,
   AGENT_WEB_SEARCH_WORST_CASE_MICROCENTS,
@@ -82,7 +84,10 @@ describe("native Agent web search", () => {
         type: "auto",
         numResults: 3,
         contents: {
-          text: { maxCharacters: 1000, verbosity: "compact" },
+          text: { maxCharacters: 1000, verbosity: "compact", includeHtmlTags: false },
+          highlights: false,
+          subpages: 0,
+          extras: { links: 0, imageLinks: 0 },
         },
       },
     });
@@ -95,10 +100,37 @@ describe("native Agent web search", () => {
         numResults: 3,
         includeDomains: ["example.com"],
         contents: {
-          text: { maxCharacters: 1000, verbosity: "compact" },
+          text: { maxCharacters: 1000, verbosity: "compact", includeHtmlTags: false },
+          highlights: false,
+          subpages: 0,
+          extras: { links: 0, imageLinks: 0 },
         },
       },
     });
+  });
+
+  it("pins every billed Exa option in the configuration so the model's input cannot raise it", () => {
+    const { args } = getAgentWebSearchTool();
+    const pinned = args as {
+      numResults: number;
+      contents: {
+        text: { maxCharacters: number; includeHtmlTags: boolean };
+        highlights: boolean;
+        subpages: number;
+        extras: { links: number; imageLinks: number };
+        subpageTarget?: unknown;
+      };
+    };
+
+    expect(pinned.numResults).toBe(AGENT_WEB_SEARCH_DEFAULT_RESULTS);
+    expect(pinned.contents.text.maxCharacters).toBe(AGENT_WEB_SEARCH_DEFAULT_CONTENT_CHARS);
+    expect(pinned.contents.text.includeHtmlTags).toBe(false);
+    expect(pinned.contents.highlights).toBe(false);
+    expect(pinned.contents.subpages).toBe(0);
+    expect(pinned.contents.subpageTarget).toBeUndefined();
+    expect(pinned.contents.extras).toEqual({ links: 0, imageLinks: 0 });
+    expect(Object.keys(args).sort()).toEqual(["contents", "numResults", "type"]);
+    expect(Object.keys(pinned.contents).sort()).toEqual(["extras", "highlights", "subpages", "text"]);
   });
 
   it("collects canonical Exa result URLs", () => {
