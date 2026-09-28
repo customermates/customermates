@@ -1,3 +1,4 @@
+import type { DocsCorpus } from "@/features/mcp-tools/docs-corpus";
 import type { RankableSection } from "@/core/retrieval/retrieval-context";
 import type { DocsChunkRepo, DocsSectionRow } from "../prisma-docs-chunk.repository";
 
@@ -14,16 +15,21 @@ const assistant = docsCorpusSections("docs", "en").filter((section) => section.s
 const signature = webhooks.find((section) => section.anchor === "how-do-i-verify-the-signature");
 if (!signature) throw new Error("The webhooks page lost its signature section.");
 
-const row = (section: { source: string; slug: string; order: number }, chunkOrdinal = 0): DocsSectionRow => ({
+const row = (
+  section: { source: string; slug: string; order: number; anchor: string },
+  chunkOrdinal = 0,
+): DocsSectionRow => ({
   source: section.source,
   slug: section.slug,
   sectionOrder: section.order,
   chunkOrdinal,
+  anchor: section.anchor,
 });
 
 function repo(fullText: DocsSectionRow[], semantic: DocsSectionRow[] | null = null) {
   return {
     ensureCorpus: vi.fn(() => Promise.resolve()),
+    storedBuild: vi.fn((corpus: DocsCorpus) => Promise.resolve({ buildHash: corpus.buildHash, current: true })),
     fullTextSections: vi.fn(() => Promise.resolve(fullText)),
     semanticSections: vi.fn(() => Promise.resolve(semantic)),
     semanticIndexAvailable: vi.fn(() => Promise.resolve(true)),
@@ -48,8 +54,9 @@ describe("unified documentation search", () => {
       }),
     );
 
-    expect(chunks.ensureCorpus).toHaveBeenCalledWith(docsCorpus());
-    expect(scheduleIndexing).toHaveBeenCalledWith(docsCorpus().buildHash);
+    expect(chunks.storedBuild).toHaveBeenCalledWith(docsCorpus());
+    expect(chunks.ensureCorpus).not.toHaveBeenCalled();
+    expect(scheduleIndexing).toHaveBeenCalledWith(docsCorpus().buildHash, true);
     expect(value.structuredContent.results.map(({ slug }) => slug)).toEqual(["webhooks", "app-assistant"]);
     expect(value.text).not.toContain("\nexcerpt=\n");
     expect(timings).toEqual([expect.objectContaining({ corpus: "docs", embedding: "used", rerank: "unavailable" })]);
@@ -112,5 +119,47 @@ describe("unified documentation search", () => {
       { repo: repo([]), embed: null, ranker: undefined },
     );
     expect((empty as { text: string }).text.startsWith(webhooks[0].text.slice(0, 40))).toBe(true);
+  });
+
+  it("searches in memory without seeding, and asks for the build to be indexed, while no documentation build is stored", async () => {
+    const chunks = repo([row(webhooks[0])]);
+    chunks.storedBuild.mockResolvedValue(null as never);
+    const scheduleIndexing = vi.fn(() => Promise.resolve());
+
+    const result = await unifiedDocsSearchResult(
+      { query: "webhook signature", locale: "en", source: "docs" },
+      { repo: chunks, embed: () => Promise.resolve({ vector: [1], model: "m" }), ranker: undefined, scheduleIndexing },
+    );
+
+    expect(result.structuredContent.results[0]).toMatchObject({ slug: "webhooks" });
+    expect(chunks.fullTextSections).not.toHaveBeenCalled();
+    expect(chunks.semanticSections).not.toHaveBeenCalled();
+    expect(chunks.ensureCorpus).not.toHaveBeenCalled();
+    expect(scheduleIndexing).toHaveBeenCalledWith(docsCorpus().buildHash, false);
+  });
+
+  it("reads the previous build's rows by anchor while the current build is being indexed", async () => {
+    const moved = { ...row(signature), sectionOrder: signature.order + 40 };
+    const vanished = { ...row(webhooks[0]), anchor: "a-section-this-build-removed" };
+    const chunks = repo([vanished, moved]);
+    chunks.storedBuild.mockResolvedValue({ buildHash: "previous-build", current: false } as never);
+    const scheduleIndexing = vi.fn(() => Promise.resolve());
+
+    const result = await unifiedDocsSearchResult(INPUT, {
+      repo: chunks,
+      embed: null,
+      ranker: undefined,
+      scheduleIndexing,
+    });
+
+    expect(chunks.fullTextSections).toHaveBeenCalledWith(
+      expect.objectContaining({ buildHash: "previous-build" }),
+      expect.anything(),
+      expect.any(Number),
+    );
+    expect(result.structuredContent.results.map(({ slug, anchor }) => `${slug}#${anchor}`)).toEqual([
+      `webhooks#${signature.anchor}`,
+    ]);
+    expect(scheduleIndexing).toHaveBeenCalledWith(docsCorpus().buildHash, false);
   });
 });

@@ -62,6 +62,11 @@ export abstract class AgentUsageRepo {
   }): Promise<void>;
   abstract admitsHostedAiRetrievalUnscoped(now: Date): Promise<boolean>;
   abstract getWorkspaceCreditPoolUnscoped(companyId: string, now: Date): Promise<AgentWorkspaceCreditPool | null>;
+  abstract accruePlatformUsageUnscoped(args: {
+    purpose: string;
+    charge: AgentRetrievalCharge;
+    now: Date;
+  }): Promise<void>;
   abstract reserveRetrievalUsageUnscoped(args: {
     grant: AgentRetrievalGrant;
     reservedMicrocents: number;
@@ -367,6 +372,17 @@ export class AgentUsageService {
   async admitsPlatformRetrieval(now = new Date()): Promise<boolean> {
     if (env.APP_MODE === "self-hosted") return false;
     return this.repo.admitsHostedAiRetrievalUnscoped(now);
+  }
+
+  async accruePlatformUsage(args: { purpose: "docsIndexing"; charge: AgentRetrievalCharge; now?: Date }) {
+    assertMicrocentCount(args.charge.costMicrocents, "Platform AI cost");
+    assertMicrocentCount(args.charge.inputTokens, "Platform AI input tokens");
+    if (args.charge.costMicrocents === 0 && args.charge.inputTokens === 0) return;
+    await this.repo.accruePlatformUsageUnscoped({
+      purpose: args.purpose,
+      charge: args.charge,
+      now: args.now ?? new Date(),
+    });
   }
 
   async reserveRetrieval(args: {

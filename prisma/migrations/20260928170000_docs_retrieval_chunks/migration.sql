@@ -44,6 +44,22 @@ CREATE UNIQUE INDEX "DocsChunk_build_chunk_key"
 CREATE INDEX "DocsChunk_contentHash_idx" ON "DocsChunk"("contentHash");
 CREATE INDEX "DocsChunk_searchVector_idx" ON "DocsChunk" USING GIN ("searchVector");
 
+CREATE TABLE "HostedAiPlatformUsage" (
+  "id" TEXT NOT NULL,
+  "purpose" TEXT NOT NULL,
+  "accrualMonth" TIMESTAMP(3) NOT NULL,
+  "model" TEXT NOT NULL,
+  "inputTokens" INTEGER NOT NULL DEFAULT 0,
+  "costMicrocents" BIGINT NOT NULL DEFAULT 0,
+  "createdAt" TIMESTAMP(3) NOT NULL DEFAULT CURRENT_TIMESTAMP,
+  "updatedAt" TIMESTAMP(3) NOT NULL DEFAULT CURRENT_TIMESTAMP,
+  CONSTRAINT "HostedAiPlatformUsage_pkey" PRIMARY KEY ("id"),
+  CONSTRAINT "HostedAiPlatformUsage_amounts_nonnegative" CHECK ("inputTokens" >= 0 AND "costMicrocents" >= 0)
+);
+
+CREATE UNIQUE INDEX "HostedAiPlatformUsage_purpose_accrualMonth_key"
+  ON "HostedAiPlatformUsage"("purpose", "accrualMonth");
+
 DO $$
 BEGIN
   CREATE EXTENSION IF NOT EXISTS vector;

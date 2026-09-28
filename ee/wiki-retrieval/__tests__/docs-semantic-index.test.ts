@@ -1,3 +1,4 @@
+import type { DocsCorpus } from "@/features/mcp-tools/docs-corpus";
 import type { AgentUsageService } from "@/ee/agent-chat/agent-usage.service";
 import type { BackgroundTaskService } from "@/core/utils/background-task.service";
 import type { DocsChunkRepo, DocsPendingChunk } from "@/features/mcp-tools/prisma-docs-chunk.repository";
@@ -25,6 +26,7 @@ function repo(pending: DocsPendingChunk[]) {
   const queue = [...pending];
   return {
     ensureCorpus: vi.fn(() => Promise.resolve()),
+    storedBuild: vi.fn((corpus: DocsCorpus) => Promise.resolve({ buildHash: corpus.buildHash, current: true })),
     fullTextSections: vi.fn(),
     semanticSections: vi.fn(),
     semanticIndexAvailable: vi.fn(() => Promise.resolve(true)),
@@ -41,12 +43,20 @@ function repo(pending: DocsPendingChunk[]) {
   } satisfies DocsChunkRepo;
 }
 
+const accrued: unknown[] = [];
 const usage = (admits: boolean) =>
-  ({ admitsPlatformRetrieval: vi.fn(() => Promise.resolve(admits)) }) as unknown as AgentUsageService;
+  ({
+    admitsPlatformRetrieval: vi.fn(() => Promise.resolve(admits)),
+    accruePlatformUsage: vi.fn((args: unknown) => {
+      accrued.push(args);
+      return Promise.resolve();
+    }),
+  }) as unknown as AgentUsageService;
 
 beforeEach(() => {
   state.available = true;
   state.embedded = [];
+  accrued.length = 0;
 });
 
 describe("documentation embedding index", () => {
@@ -66,9 +76,13 @@ describe("documentation embedding index", () => {
       { contentHash: "a", embedding: "[0.5,0.25]" },
       { contentHash: "b", embedding: "[0.5,0.25]" },
     ]);
+    expect(accrued).toEqual([
+      { purpose: "docsIndexing", charge: { costMicrocents: 10 } },
+      { purpose: "docsIndexing", charge: { costMicrocents: 10 } },
+    ]);
   });
 
-  it("does nothing self-hosted, without the vector column, or while hosted AI spend is paused", async () => {
+  it("stores the corpus for full-text search but embeds nothing self-hosted, without the vector column, or while hosted AI spend is paused", async () => {
     const chunks = repo([{ contentHash: "a", label: "A", body: "a" }]);
     state.available = false;
     expect(await new DocsSemanticIndexService(chunks, usage(true)).indexPending()).toEqual({
@@ -86,23 +100,28 @@ describe("documentation embedding index", () => {
       remaining: false,
     });
     expect(state.embedded).toEqual([]);
+    expect(accrued).toEqual([]);
+    expect(chunks.ensureCorpus).toHaveBeenCalledTimes(3);
   });
 
-  it("dispatches the indexing workflow only for pending chunks and at most once a minute per process", async () => {
+  it("dispatches the indexing workflow for an unseeded build or pending chunks, at most once a minute per process", async () => {
     const dispatch = vi.fn(() => Promise.resolve());
     const tasks = { dispatch } as unknown as BackgroundTaskService;
     const pending = repo([{ contentHash: "a", label: "A", body: "a" }]);
     vi.useFakeTimers();
     vi.setSystemTime(new Date("2026-10-01T10:00:00Z"));
     try {
-      await new DocsSemanticIndexDispatcher(pending, tasks).schedule("build");
-      await new DocsSemanticIndexDispatcher(pending, tasks).schedule("build");
+      await new DocsSemanticIndexDispatcher(pending, tasks).schedule("build", true);
+      await new DocsSemanticIndexDispatcher(pending, tasks).schedule("build", true);
       vi.setSystemTime(new Date("2026-10-01T10:02:00Z"));
-      await new DocsSemanticIndexDispatcher(repo([]), tasks).schedule("build");
+      await new DocsSemanticIndexDispatcher(repo([]), tasks).schedule("build", true);
+      vi.setSystemTime(new Date("2026-10-01T10:04:00Z"));
+      state.available = false;
+      await new DocsSemanticIndexDispatcher(repo([]), tasks).schedule("build", false);
     } finally {
       vi.useRealTimers();
     }
-    expect(dispatch).toHaveBeenCalledTimes(1);
+    expect(dispatch).toHaveBeenCalledTimes(2);
     expect(dispatch).toHaveBeenCalledWith("index-docs-chunks", {});
   });
 });

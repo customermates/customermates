@@ -30,9 +30,9 @@ export class DocsSemanticIndexService {
   }
 
   async indexPending(): Promise<{ indexed: number; remaining: boolean }> {
-    if (!(await this.available())) return { indexed: 0, remaining: false };
     const corpus = docsCorpus();
     await this.repo.ensureCorpus(corpus);
+    if (!(await this.available())) return { indexed: 0, remaining: false };
     let indexed = 0;
     for (let batch = 0; batch < DOCS_INDEX_BATCHES_PER_STEP; batch += 1) {
       const pending = await this.repo.pendingEmbeddings(
@@ -41,10 +41,11 @@ export class DocsSemanticIndexService {
         WIKI_EMBEDDING_BATCH_SIZE,
       );
       if (pending.length === 0) return { indexed, remaining: false };
-      const { vectors } = await embedWikiTexts(
+      const { vectors, charge } = await embedWikiTexts(
         pending.map((chunk) => retrievalChunkText(chunk.label, chunk.body)),
         "document",
       );
+      await this.usage.accruePlatformUsage({ purpose: "docsIndexing", charge });
       await this.repo.storeEmbeddings(
         WIKI_EMBEDDING_MODEL,
         pending.map((chunk, index) => ({ contentHash: chunk.contentHash, embedding: vectorLiteral(vectors[index]) })),
@@ -61,13 +62,15 @@ export class DocsSemanticIndexDispatcher {
     private backgroundTaskService: BackgroundTaskService,
   ) {}
 
-  async schedule(buildHash: string): Promise<void> {
+  async schedule(buildHash: string, seeded: boolean): Promise<void> {
     const now = Date.now();
     if (now - lastSchedule < DOCS_INDEX_SCHEDULE_INTERVAL_MS) return;
     lastSchedule = now;
     try {
-      if (!isWikiSemanticSearchAvailable() || !(await this.repo.semanticIndexAvailable())) return;
-      if ((await this.repo.pendingEmbeddings(buildHash, WIKI_EMBEDDING_MODEL, 1)).length === 0) return;
+      if (seeded) {
+        if (!isWikiSemanticSearchAvailable() || !(await this.repo.semanticIndexAvailable())) return;
+        if ((await this.repo.pendingEmbeddings(buildHash, WIKI_EMBEDDING_MODEL, 1)).length === 0) return;
+      }
       await this.backgroundTaskService.dispatch("index-docs-chunks", {});
     } catch (error) {
       Sentry.captureException(error);

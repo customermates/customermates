@@ -168,7 +168,7 @@ async function unifiedDocsDeps(): Promise<UnifiedDocsDeps> {
     repo: getDocsChunkRepo(),
     embed: getRetrievalQueryEmbedder(),
     ranker: env.APP_MODE === "demo" ? undefined : currentSectionRanker("docs"),
-    scheduleIndexing: (buildHash) => dispatcher.schedule(buildHash),
+    scheduleIndexing: (buildHash, seeded) => dispatcher.schedule(buildHash, seeded),
   };
 }
 

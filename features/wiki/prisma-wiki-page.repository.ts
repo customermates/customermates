@@ -207,8 +207,8 @@ export class PrismaWikiPageRepo
       frequency AS MATERIALIZED (SELECT h."ord", count(*)::float8 AS "pages" FROM hits h GROUP BY h."ord"),
       total AS (SELECT count(*)::float8 AS "pages" FROM "WikiPage" WHERE "companyId" = ${this.companyId}),
       scored AS (
-        SELECT h."id", sum(${idfWeight(Prisma.sql`t."pages"`, Prisma.sql`f."pages"`)}
-          * CASE WHEN h."title" THEN ${WIKI_TITLE_WEIGHT}::float8 ELSE 1 END) AS "score"
+        SELECT h."id", round(sum(${idfWeight(Prisma.sql`t."pages"`, Prisma.sql`f."pages"`)}
+          * CASE WHEN h."title" THEN ${WIKI_TITLE_WEIGHT}::float8 ELSE 1 END)::numeric, 9) AS "score"
         FROM hits h JOIN frequency f ON f."ord" = h."ord" CROSS JOIN total t
         GROUP BY h."id"
       ),
@@ -308,8 +308,8 @@ export class PrismaWikiPageRepo
       ),
       frequency AS (SELECT h."ord", count(*)::float8 AS "sections" FROM hits h GROUP BY h."ord"),
       total AS (SELECT count(*)::float8 AS "sections" FROM sections)
-      SELECT h."key", sum(${idfWeight(Prisma.sql`t."sections"`, Prisma.sql`f."sections"`)}
-        * CASE WHEN h."title" THEN ${WIKI_TITLE_WEIGHT}::float8 ELSE 1 END)::float8 AS "score"
+      SELECT h."key", round(sum(${idfWeight(Prisma.sql`t."sections"`, Prisma.sql`f."sections"`)}
+        * CASE WHEN h."title" THEN ${WIKI_TITLE_WEIGHT}::float8 ELSE 1 END)::numeric, 9)::float8 AS "score"
       FROM hits h JOIN frequency f ON f."ord" = h."ord" CROSS JOIN total t
       GROUP BY h."key"
     `);

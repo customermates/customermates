@@ -410,6 +410,19 @@ model DocsChunk {
   @@index([searchVector], type: Gin)
 }
 
+model HostedAiPlatformUsage {
+  id             String   @id @default(uuid())
+  purpose        String
+  accrualMonth   DateTime
+  model          String
+  inputTokens    Int      @default(0)
+  costMicrocents BigInt   @default(0)
+  createdAt      DateTime @default(now())
+  updatedAt      DateTime @default(now()) @updatedAt
+
+  @@unique([purpose, accrualMonth])
+}
+
 model EntityTerminology {
   id         String     @id @default(uuid())
   companyId  String

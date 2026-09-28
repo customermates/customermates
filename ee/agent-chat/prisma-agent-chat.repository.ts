@@ -104,6 +104,7 @@ type AgentUsageUser = {
 type HostedAiGlobalCommitment = {
   settledCostMicrocents: bigint;
   activeReservedMicrocents: bigint;
+  platformCostMicrocents: bigint;
 };
 
 export type AgentTurnReplay = {
@@ -317,7 +318,11 @@ export class PrismaAgentChatRepo extends BaseRepository implements AgentUsageRep
               AND (${excludeReservationId}::text IS NULL OR "id" <> ${excludeReservationId}::text)
           ),
           0
-        )::bigint AS "activeReservedMicrocents"
+        )::bigint AS "activeReservedMicrocents",
+        (
+          SELECT COALESCE(SUM(p."costMicrocents"), 0) FROM "HostedAiPlatformUsage" p
+          WHERE p."accrualMonth" = ${monthStart}
+        )::bigint AS "platformCostMicrocents"
       FROM "AgentUsageEvent"
       WHERE
         (
@@ -331,9 +336,14 @@ export class PrismaAgentChatRepo extends BaseRepository implements AgentUsageRep
     if (!commitment) throw new Error("Hosted AI global commitment could not be read.");
     if (commitment.settledCostMicrocents < 0n) throw new Error("Hosted AI global settled-cost total is invalid.");
     if (commitment.activeReservedMicrocents < 0n) throw new Error("Hosted AI global reserved-credit total is invalid.");
+    const platformCostMicrocents = commitment.platformCostMicrocents ?? 0n;
+    if (platformCostMicrocents < 0n) throw new Error("Hosted AI platform cost total is invalid.");
 
     const committedMicrocents =
-      commitment.settledCostMicrocents + commitment.activeReservedMicrocents + BigInt(additionalReservedMicrocents);
+      commitment.settledCostMicrocents +
+      commitment.activeReservedMicrocents +
+      platformCostMicrocents +
+      BigInt(additionalReservedMicrocents);
     return committedMicrocents <= monthlySpendCapMicrocents;
   }
 
@@ -2489,6 +2499,24 @@ export class PrismaAgentChatRepo extends BaseRepository implements AgentUsageRep
       args.ownCommittedMicrocents + share + args.requiredMicrocents <= args.memberLimitMicrocents &&
       pool.usedMicrocents - args.replacedMicrocents + args.requiredMicrocents <= pool.limitMicrocents
     );
+  }
+
+  @BypassTenantGuard
+  async accruePlatformUsageUnscoped(args: { purpose: string; charge: AgentRetrievalCharge; now: Date }) {
+    const { purpose, charge, now } = args;
+    await this.prisma.$executeRaw`
+      INSERT INTO "HostedAiPlatformUsage" (
+        "id", "purpose", "accrualMonth", "model", "inputTokens", "costMicrocents", "createdAt", "updatedAt"
+      ) VALUES (
+        ${randomUUID()}, ${purpose}, ${this.retrievalAccrualMonth(now)}, ${charge.model}, ${charge.inputTokens},
+        ${charge.costMicrocents}, ${now}, ${now}
+      )
+      ON CONFLICT ("purpose", "accrualMonth") DO UPDATE SET
+        "model" = EXCLUDED."model",
+        "inputTokens" = "HostedAiPlatformUsage"."inputTokens" + EXCLUDED."inputTokens",
+        "costMicrocents" = "HostedAiPlatformUsage"."costMicrocents" + EXCLUDED."costMicrocents",
+        "updatedAt" = EXCLUDED."updatedAt"
+    `;
   }
 
   private retrievalAccrualMonth(reservedAt: Date) {

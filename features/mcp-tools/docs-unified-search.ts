@@ -1,12 +1,12 @@
 import type { RankableSection, SectionRanker } from "@/core/retrieval/retrieval-context";
 import type { QueryEmbedding } from "@/core/retrieval/retrieval-pipeline";
 import type { DocsSection } from "./docs-sections";
-import type { DocsChunkRepo, DocsScope, DocsSectionRow } from "./prisma-docs-chunk.repository";
+import type { DocsChunkRepo, DocsScope, DocsSectionRow, DocsStoredBuild } from "./prisma-docs-chunk.repository";
 
 import { retrievalWindows } from "@/core/retrieval/retrieval-chunks";
-import { fullTextUnits } from "@/core/retrieval/full-text-query";
+import { fullTextUnits, type FullTextUnit } from "@/core/retrieval/full-text-query";
 import { fuseFullTextAndSemantic, rerankSections, RetrievalStopwatch } from "@/core/retrieval/retrieval-pipeline";
-import { slugifyHeading } from "@/core/utils/search-text";
+import { fold, slugifyHeading } from "@/core/utils/search-text";
 
 import { docsCorpus, docsCorpusSection, docsSectionKey } from "./docs-corpus";
 import { docsCorpusSections, type DocsLocale, type DocsSource } from "./docs-manifest";
@@ -25,7 +25,7 @@ export type UnifiedDocsDeps = {
   repo: DocsChunkRepo;
   embed: QueryEmbedding | null;
   ranker: SectionRanker | undefined;
-  scheduleIndexing?: (buildHash: string) => Promise<void>;
+  scheduleIndexing?: (buildHash: string, seeded: boolean) => Promise<void>;
 };
 
 export type UnifiedDocsHit = { section: DocsSection; snippet: string };
@@ -40,6 +40,43 @@ type RankedSection = { section: DocsSection; chunkOrdinal: number };
 
 function rowKey(row: DocsSectionRow): string {
   return docsSectionKey({ source: row.source, slug: row.slug, order: row.sectionOrder });
+}
+
+function rowSection(locale: DocsLocale, row: DocsSectionRow, stored: DocsStoredBuild): DocsSection | undefined {
+  if (stored.current) return docsCorpusSection(locale, { source: row.source, slug: row.slug, order: row.sectionOrder });
+  return docsCorpusSections(row.source as DocsSource, locale).find(
+    (section) => section.slug === row.slug && section.anchor === row.anchor,
+  );
+}
+
+function inMemorySections(scope: DocsScope, units: readonly FullTextUnit[], limit: number): RankedSection[] {
+  const terms = [...new Set(units.map((unit) => fold(unit.text)).filter(Boolean))];
+  if (terms.length === 0) return [];
+  const documents = scope.sources
+    .flatMap((source) => docsCorpusSections(source as DocsSource, scope.locale as DocsLocale))
+    .filter((section) => scope.slug === undefined || section.slug === scope.slug)
+    .map((section) => ({
+      section,
+      title: fold(`${section.pageTitle} ${section.headingPath.join(" ")}`),
+      body: fold(section.text),
+    }));
+  const frequency = terms.map(
+    (term) => documents.filter((document) => document.title.includes(term) || document.body.includes(term)).length,
+  );
+  return documents
+    .map((document, order) => ({
+      document,
+      order,
+      score: terms.reduce((sum, term, index) => {
+        if (frequency[index] === 0) return sum;
+        const weight = document.title.includes(term) ? 2 : document.body.includes(term) ? 1 : 0;
+        return sum + weight * Math.log(1 + documents.length / frequency[index]);
+      }, 0),
+    }))
+    .filter((entry) => entry.score > 0)
+    .sort((left, right) => right.score - left.score || left.order - right.order)
+    .slice(0, limit)
+    .map(({ document }) => ({ section: document.section, chunkOrdinal: 0 }));
 }
 
 function excerptHeading(section: DocsSection): string {
@@ -71,12 +108,15 @@ function sectionSnippet(ranked: RankedSection): string {
 
 async function fusedSections(
   query: string,
-  scope: DocsScope,
+  scope: Omit<DocsScope, "buildHash">,
+  stored: DocsStoredBuild | null,
   deps: UnifiedDocsDeps,
   stopwatch: RetrievalStopwatch,
   limits: { fullText: number; semantic: number },
 ): Promise<RankedSection[]> {
   const units = fullTextUnits(query);
+  if (!stored) return inMemorySections({ ...scope, buildHash: "" }, units, limits.fullText);
+  const storedScope = { ...scope, buildHash: stored.buildHash };
   const rows = new Map<string, DocsSectionRow>();
   const remember = (found: readonly DocsSectionRow[], replace: boolean) => {
     for (const row of found) if (replace || !rows.has(rowKey(row))) rows.set(rowKey(row), row);
@@ -85,27 +125,28 @@ async function fusedSections(
   const fused = await fuseFullTextAndSemantic({
     query,
     stopwatch,
-    fullText: async () => ({ keys: remember(await deps.repo.fullTextSections(scope, units, limits.fullText), false) }),
+    fullText: async () => ({
+      keys: remember(await deps.repo.fullTextSections(storedScope, units, limits.fullText), false),
+    }),
     embed: deps.embed,
     semantic: async ({ vector, model }) => {
-      const found = await deps.repo.semanticSections(scope, vector, model, limits.semantic);
+      const found = await deps.repo.semanticSections(storedScope, vector, model, limits.semantic);
       return found ? remember(found, true) : null;
     },
   });
   return fused.ranked.flatMap((key) => {
     const row = rows.get(key);
-    const section = row
-      ? docsCorpusSection(scope.locale as DocsLocale, { source: row.source, slug: row.slug, order: row.sectionOrder })
-      : undefined;
+    const section = row ? rowSection(scope.locale as DocsLocale, row, stored) : undefined;
     return row && section ? [{ section, chunkOrdinal: row.chunkOrdinal }] : [];
   });
 }
 
-async function prepared(deps: UnifiedDocsDeps) {
+async function storedBuild(deps: UnifiedDocsDeps): Promise<DocsStoredBuild | null> {
   const corpus = docsCorpus();
-  await deps.repo.ensureCorpus(corpus);
-  if (deps.scheduleIndexing) void deps.scheduleIndexing(corpus.buildHash).catch(() => undefined);
-  return corpus;
+  const stored = await deps.repo.storedBuild(corpus);
+  if (deps.scheduleIndexing)
+    void deps.scheduleIndexing(corpus.buildHash, stored?.current === true).catch(() => undefined);
+  return stored;
 }
 
 function rerankCandidates(ranked: readonly RankedSection[], locale: DocsLocale): RankableSection[] {
@@ -134,15 +175,12 @@ export async function unifiedDocsSearch(
 ): Promise<UnifiedDocsSearch> {
   const stopwatch = new RetrievalStopwatch("docs");
   try {
-    const corpus = await prepared(deps);
+    const stored = await storedBuild(deps);
     const sources: DocsSource[] = input.source === "all" ? ["docs", "api"] : [input.source];
-    const ranked = await fusedSections(
-      input.query,
-      { buildHash: corpus.buildHash, locale: input.locale, sources },
-      deps,
-      stopwatch,
-      { fullText: DOCS_FULL_TEXT_CANDIDATES, semantic: DOCS_SEMANTIC_CANDIDATES },
-    );
+    const ranked = await fusedSections(input.query, { locale: input.locale, sources }, stored, deps, stopwatch, {
+      fullText: DOCS_FULL_TEXT_CANDIDATES,
+      semantic: DOCS_SEMANTIC_CANDIDATES,
+    });
     const pageBest = new Map<string, RankedSection>();
     for (const entry of ranked) {
       const page = `${entry.section.source}:${entry.section.slug}`;
@@ -182,11 +220,12 @@ export async function unifiedDocsExcerpt(
 ): Promise<string> {
   const stopwatch = new RetrievalStopwatch("docs");
   try {
-    const corpus = await prepared(deps);
+    const stored = await storedBuild(deps);
     const own = docsCorpusSections(page.source, page.locale).filter((section) => section.slug === page.slug);
     const ranked = await fusedSections(
       query,
-      { buildHash: corpus.buildHash, locale: page.locale, sources: [page.source], slug: page.slug },
+      { locale: page.locale, sources: [page.source], slug: page.slug },
+      stored,
       deps,
       stopwatch,
       { fullText: own.length, semantic: own.length },

@@ -157,6 +157,7 @@ beforeAll(async () => {
 beforeEach(async () => {
   if (!isolatedDatabaseUrl) return;
   await runWithoutTenant(() => prisma.agentUsageEvent.deleteMany());
+  await runWithoutTenant(() => prisma.hostedAiPlatformUsage.deleteMany());
 });
 
 afterAll(async () => {
@@ -235,6 +236,43 @@ describeDatabase(
       ).resolves.toMatchObject({
         _sum: { reservedMicrocents: BigInt(competingReservationCredits) * BigInt(AGENT_CREDIT_MICROCENTS) },
       });
+    });
+
+    it("counts the platform's own documentation embedding spend against the global cap", async () => {
+      const repo = new PrismaAgentChatRepo();
+      configureControl({ paused: false, cap: 5n * BigInt(AGENT_CREDIT_MICROCENTS) });
+      const now = new Date();
+      const accrue = (credits: number) =>
+        runWithoutTenant(() =>
+          repo.accruePlatformUsageUnscoped({
+            purpose: "docsIndexing",
+            charge: {
+              model: "google/gemini-embedding-001",
+              inputTokens: 100,
+              costMicrocents: credits * AGENT_CREDIT_MICROCENTS,
+              costSource: "measured",
+            },
+            now,
+          }),
+        );
+
+      await accrue(1);
+      await accrue(2);
+      await expect(
+        runWithoutTenant(() =>
+          prisma.hostedAiPlatformUsage.findMany({ select: { purpose: true, costMicrocents: true, inputTokens: true } }),
+        ),
+      ).resolves.toEqual([
+        { purpose: "docsIndexing", costMicrocents: 3n * BigInt(AGENT_CREDIT_MICROCENTS), inputTokens: 200 },
+      ]);
+      await expect(reserve(repo, seats[0], 3)).resolves.toBe(false);
+      await expect(reserve(repo, seats[0], 2)).resolves.toBe(true);
+      await expect(runWithoutTenant(() => repo.admitsHostedAiRetrievalUnscoped(now))).resolves.toBe(true);
+      await accrue(1);
+      await expect(runWithoutTenant(() => repo.admitsHostedAiRetrievalUnscoped(now))).resolves.toBe(false);
+      await expect(
+        runWithoutTenant(() => prisma.agentUsageEvent.count({ where: { state: { in: ["settled", "retained"] } } })),
+      ).resolves.toBe(0);
     });
 
     it("reads a reservation transition through one atomic global-commitment snapshot", async () => {

@@ -14,11 +14,19 @@ const DOCS_BUILD_RETENTION_DAYS = 7;
 const DOCS_TITLE_WEIGHT = 2;
 
 export type DocsScope = { buildHash: string; locale: string; sources: readonly string[]; slug?: string };
-export type DocsSectionRow = { source: string; slug: string; sectionOrder: number; chunkOrdinal: number };
+export type DocsSectionRow = {
+  source: string;
+  slug: string;
+  sectionOrder: number;
+  chunkOrdinal: number;
+  anchor: string;
+};
+export type DocsStoredBuild = { buildHash: string; current: boolean };
 export type DocsPendingChunk = { contentHash: string; label: string; body: string };
 
 export abstract class DocsChunkRepo {
   abstract ensureCorpus(corpus: DocsCorpus): Promise<void>;
+  abstract storedBuild(corpus: DocsCorpus): Promise<DocsStoredBuild | null>;
   abstract fullTextSections(scope: DocsScope, units: readonly FullTextUnit[], limit: number): Promise<DocsSectionRow[]>;
   abstract semanticSections(
     scope: DocsScope,
@@ -32,6 +40,7 @@ export abstract class DocsChunkRepo {
 }
 
 const syncedBuilds = new Map<string, Promise<void>>();
+const completeBuilds = new Set<string>();
 let embeddingColumn: Promise<boolean> | undefined;
 
 function scopeFilter(scope: DocsScope) {
@@ -88,6 +97,21 @@ export class PrismaDocsChunkRepo extends DocsChunkRepo {
     return syncing;
   }
 
+  async storedBuild(corpus: DocsCorpus): Promise<DocsStoredBuild | null> {
+    if (completeBuilds.has(corpus.buildHash)) return { buildHash: corpus.buildHash, current: true };
+    const builds = await prisma.$queryRaw<Array<{ buildHash: string; count: number }>>(Prisma.sql`
+      SELECT "buildHash", count(*)::int AS "count" FROM "DocsChunk"
+      GROUP BY "buildHash"
+      ORDER BY max("createdAt") DESC, "buildHash"
+    `);
+    if (builds.find((build) => build.buildHash === corpus.buildHash)?.count === corpus.chunks.length) {
+      completeBuilds.add(corpus.buildHash);
+      return { buildHash: corpus.buildHash, current: true };
+    }
+    const previous = builds.find((build) => build.buildHash !== corpus.buildHash && build.count > 0);
+    return previous ? { buildHash: previous.buildHash, current: false } : null;
+  }
+
   private async storedChunks(buildHash: string, client: Pick<typeof prisma, "$queryRaw"> = prisma) {
     const rows = await client.$queryRaw<Array<{ count: number }>>(Prisma.sql`
       SELECT count(*)::int AS "count" FROM "DocsChunk" WHERE "buildHash" = ${buildHash}
@@ -96,6 +120,11 @@ export class PrismaDocsChunkRepo extends DocsChunkRepo {
   }
 
   private async syncCorpus(corpus: DocsCorpus) {
+    await this.writeCorpus(corpus);
+    completeBuilds.add(corpus.buildHash);
+  }
+
+  private async writeCorpus(corpus: DocsCorpus) {
     if ((await this.storedChunks(corpus.buildHash)) === corpus.chunks.length) return;
     const withEmbedding = await this.semanticIndexAvailable();
     await prisma.$transaction(
@@ -143,7 +172,7 @@ export class PrismaDocsChunkRepo extends DocsChunkRepo {
     return prisma.$queryRaw<DocsSectionRow[]>(Prisma.sql`
       WITH ${fullTextUnitsCte({ units, configs: [config], stopConfig: config })},
       scoped AS MATERIALIZED (
-        SELECT c."source", c."slug", c."sectionOrder", c."chunkOrdinal", c."searchVector"
+        SELECT c."source", c."slug", c."sectionOrder", c."chunkOrdinal", c."anchor", c."searchVector"
         FROM "DocsChunk" c WHERE ${scopeFilter(scope)}
       ),
       hits AS MATERIALIZED (
@@ -159,8 +188,11 @@ export class PrismaDocsChunkRepo extends DocsChunkRepo {
       ),
       scored AS (
         SELECT h."source", h."slug", h."sectionOrder",
-          sum(${idfWeight(Prisma.sql`t."sections"`, Prisma.sql`f."sections"`)}
-            * CASE WHEN h."title" THEN ${DOCS_TITLE_WEIGHT}::float8 ELSE 1 END) AS "score"
+          round(
+            sum(${idfWeight(Prisma.sql`t."sections"`, Prisma.sql`f."sections"`)}
+              * CASE WHEN h."title" THEN ${DOCS_TITLE_WEIGHT}::float8 ELSE 1 END)::numeric,
+            9
+          ) AS "score"
         FROM hits h JOIN frequency f ON f."ord" = h."ord" CROSS JOIN total t
         GROUP BY h."source", h."slug", h."sectionOrder"
         ORDER BY "score" DESC, h."source", h."slug", h."sectionOrder"
@@ -168,7 +200,7 @@ export class PrismaDocsChunkRepo extends DocsChunkRepo {
       ),
       chunks AS (
         SELECT DISTINCT ON (s."source", s."slug", s."sectionOrder")
-          s."source", s."slug", s."sectionOrder", s."chunkOrdinal",
+          s."source", s."slug", s."sectionOrder", s."chunkOrdinal", s."anchor",
           ts_rank_cd(s."searchVector", a."query", 1) AS "rank"
         FROM scoped s
         JOIN scored r ON r."source" = s."source" AND r."slug" = s."slug" AND r."sectionOrder" = s."sectionOrder"
@@ -176,7 +208,7 @@ export class PrismaDocsChunkRepo extends DocsChunkRepo {
         ORDER BY s."source", s."slug", s."sectionOrder", ts_rank_cd(s."searchVector", a."query", 1) DESC,
           s."chunkOrdinal"
       )
-      SELECT r."source", r."slug", r."sectionOrder", c."chunkOrdinal"
+      SELECT r."source", r."slug", r."sectionOrder", c."chunkOrdinal", c."anchor"
       FROM scored r
       JOIN chunks c ON c."source" = r."source" AND c."slug" = r."slug" AND c."sectionOrder" = r."sectionOrder"
       ORDER BY r."score" DESC, c."rank" DESC, r."source", r."slug", r."sectionOrder"
@@ -189,7 +221,7 @@ export class PrismaDocsChunkRepo extends DocsChunkRepo {
     const embedding = `[${vector.join(",")}]`;
     return prisma.$queryRaw<DocsSectionRow[]>(Prisma.sql`
       WITH distances AS MATERIALIZED (
-        SELECT c."source", c."slug", c."sectionOrder", c."chunkOrdinal",
+        SELECT c."source", c."slug", c."sectionOrder", c."chunkOrdinal", c."anchor",
           c."embedding" <=> ${embedding}::vector AS "distance"
         FROM "DocsChunk" c
         WHERE ${scopeFilter(scope)} AND c."model" = ${model} AND c."embedding" IS NOT NULL
@@ -200,7 +232,7 @@ export class PrismaDocsChunkRepo extends DocsChunkRepo {
         WHERE d."distance" <= ${1 - RETRIEVAL_SEMANTIC_MIN_SIMILARITY}
         ORDER BY d."source", d."slug", d."sectionOrder", d."distance", d."chunkOrdinal"
       )
-      SELECT b."source", b."slug", b."sectionOrder", b."chunkOrdinal"
+      SELECT b."source", b."slug", b."sectionOrder", b."chunkOrdinal", b."anchor"
       FROM best b
       ORDER BY b."distance", b."source", b."slug", b."sectionOrder"
       LIMIT ${limit}

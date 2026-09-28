@@ -83,6 +83,7 @@ function makeRepo(
         usable: true,
       }),
     ),
+    accruePlatformUsageUnscoped: vi.fn(() => Promise.resolve()),
     reserveRetrievalUsageUnscoped: vi.fn(() => Promise.resolve(true)),
     settleRetrievalUsageUnscoped: vi.fn(() => Promise.resolve()),
   };
@@ -650,6 +651,16 @@ describe("AgentUsageService admission and ledger", () => {
     await expect(
       service.reserveRetrieval({ grant: { ...grant, userId: "user-1" }, worstCaseMicrocents: 90, model: "embedding" }),
     ).rejects.toThrow("Retrieval grant payer is invalid.");
+  });
+
+  it("accrues platform documentation indexing without charging any member", async () => {
+    const repo = makeRepo();
+    const charge = { model: "embedding", inputTokens: 40, costMicrocents: 600, costSource: "measured" as const };
+    await new AgentUsageService(repo).accruePlatformUsage({ purpose: "docsIndexing", charge, now: NOW });
+
+    expect(repo.accruePlatformUsageUnscoped).toHaveBeenCalledWith({ purpose: "docsIndexing", charge, now: NOW });
+    expect(repo.reserveRetrievalUsageUnscoped).not.toHaveBeenCalled();
+    expect(repo.reserveUsageEventUnscoped).not.toHaveBeenCalled();
   });
 
   it("counts a member's allowance-weighted share of workspace indexing as their own usage", async () => {

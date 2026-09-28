@@ -1,3 +1,4 @@
+import type { DocsCorpus } from "@/features/mcp-tools/docs-corpus";
 import type { RankableSection } from "@/core/retrieval/retrieval-context";
 import type { DocsSection } from "../docs-sections";
 import type { DocsChunkRepo, DocsSectionRow } from "../prisma-docs-chunk.repository";
@@ -14,11 +15,13 @@ const row = (section: DocsSection): DocsSectionRow => ({
   slug: section.slug,
   sectionOrder: section.order,
   chunkOrdinal: 0,
+  anchor: section.anchor,
 });
 
 function repo(fullText: DocsSectionRow[]) {
   return {
     ensureCorpus: vi.fn(() => Promise.resolve()),
+    storedBuild: vi.fn((corpus: DocsCorpus) => Promise.resolve({ buildHash: corpus.buildHash, current: true })),
     fullTextSections: vi.fn(() => Promise.resolve(fullText)),
     semanticSections: vi.fn(() => Promise.resolve(null)),
     semanticIndexAvailable: vi.fn(() => Promise.resolve(false)),

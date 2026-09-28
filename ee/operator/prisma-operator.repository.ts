@@ -295,8 +295,15 @@ export class PrismaOperatorRepo extends BaseRepository implements OperatorRepo {
       }),
     ]);
 
+    const platform = companyId
+      ? null
+      : await this.prisma.hostedAiPlatformUsage.aggregate({
+          where: { accrualMonth: month.start },
+          _sum: { costMicrocents: true },
+        });
+
     return toUsageTotals({
-      settledCostMicrocents: settled._sum.costMicrocents,
+      settledCostMicrocents: (settled._sum.costMicrocents ?? 0n) + (platform?._sum.costMicrocents ?? 0n),
       chargedMicrocents: withLegacyCredits(settled._sum.chargedMicrocents, legacySettled._sum.chargedCredits),
       reservedMicrocents: withLegacyCredits(reserved._sum.reservedMicrocents, legacyReserved._sum.reservedCredits),
     });
