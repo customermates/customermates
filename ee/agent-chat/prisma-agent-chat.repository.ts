@@ -20,7 +20,6 @@ import type {
   GetWikiHomepageSetupTurnRepo,
   WikiHomepageSetupTurn,
 } from "@/features/wiki/get-wiki-homepage-setup-state.interactor";
-import type { StartWikiHomepageSetupTurnRepo } from "@/features/wiki/start-wiki-homepage-setup.interactor";
 import { parsePublicWikiHomepage } from "@/features/wiki/wiki-homepage";
 
 import type { AgentRetrievalCharge, AgentRetrievalGrant, AgentUsageRepo } from "./agent-usage.service";
@@ -210,10 +209,7 @@ function activeWikiHomepageSetupWhere(companyId: string, now: Date): Prisma.Agen
   };
 }
 
-export class PrismaAgentChatRepo
-  extends BaseRepository
-  implements AgentUsageRepo, StartWikiHomepageSetupTurnRepo, GetWikiHomepageSetupTurnRepo
-{
+export class PrismaAgentChatRepo extends BaseRepository implements AgentUsageRepo, GetWikiHomepageSetupTurnRepo {
   private async resolveCurrentAgentCreditEntitlement(user: AgentUsageUser, now: Date) {
     if (!user.subscription) return null;
 
@@ -666,38 +662,6 @@ export class PrismaAgentChatRepo
       conversationId: setup.userId === this.userId ? setup.conversationId : null,
       affectedResources: setup.affectedResources,
     };
-  }
-
-  async findReusableWikiHomepageSetupTurn(data: {
-    clientRequestId: string;
-    homepageUrl: string;
-  }): ReturnType<StartWikiHomepageSetupTurnRepo["findReusableWikiHomepageSetupTurn"]> {
-    const select = {
-      clientRequestId: true,
-      text: true,
-      userId: true,
-      wikiHomepageSetupUrl: true,
-    } as const;
-    const exact = await this.prisma.agentTurnRequest.findFirst({
-      where: {
-        companyId: this.companyId,
-        userId: this.userId,
-        wikiHomepageSetupUrl: { not: null },
-        clientRequestId: data.clientRequestId,
-      },
-      select,
-    });
-    const turn =
-      exact ??
-      (await this.prisma.agentTurnRequest.findFirst({
-        where: activeWikiHomepageSetupWhere(this.companyId, new Date()),
-        orderBy: [{ createdAt: "desc" }, { id: "desc" }],
-        select,
-      }));
-    if (!turn) return null;
-    return turn.userId === this.userId && turn.wikiHomepageSetupUrl === data.homepageUrl
-      ? { disposition: "reuse", clientRequestId: turn.clientRequestId, text: turn.text }
-      : { disposition: "blocked" };
   }
 
   async archiveConversation(id: string) {

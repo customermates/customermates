@@ -202,6 +202,7 @@ describe("Workspace Wiki admission bootstrap", () => {
       locale: "en",
       surface,
       wikiHomepageSetup: false,
+      wikiCrawlId: null,
       wikiWebsiteSetup: false,
       webSearchEnabled: false,
     });
@@ -381,6 +382,7 @@ describe("Workspace Wiki admission bootstrap", () => {
         locale: "en",
         surface: "chat",
         wikiHomepageSetup: false,
+        wikiCrawlId: null,
         wikiWebsiteSetup: true,
         webSearchEnabled: false,
       });
@@ -391,7 +393,7 @@ describe("Workspace Wiki admission bootstrap", () => {
         wikiWebsiteSetup: true,
         webSearchEnabled: false,
       });
-      expect(systemPrompt).toContain("create_wiki_from_website");
+      expect(systemPrompt).toContain("import_website");
       expect(admission.requiredContextBytes).toBe(
         conservativeAgentInitialContextBytes({
           systemPrompt,
@@ -549,6 +551,7 @@ describe("Workspace Wiki admission bootstrap", () => {
       locale: "en",
       surface: "chat",
       wikiHomepageSetup: true,
+      wikiCrawlId: null,
       wikiWebsiteSetup: false,
       webSearchEnabled: false,
     });

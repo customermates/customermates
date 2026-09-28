@@ -70,7 +70,7 @@ import {
 } from "@/ee/agent-chat/agent-continuation";
 import { isAgentStepContextWithinBudget } from "@/ee/agent-chat/agent-provider-context";
 import { getAgentChatRepo, getBackgroundTaskService } from "@/core/di";
-import { internalToolIdentity, WIKI_WEBSITE_CREATE_TOOL_NAME } from "@/ee/agent-chat/tool-identity";
+import { internalToolIdentity, WIKI_WEBSITE_IMPORT_TOOL_NAME } from "@/ee/agent-chat/tool-identity";
 import { readAgentProviderCharge, readGatewayCostMicrocents } from "@/ee/agent-chat/gateway-cost";
 import { isReadOnlyAgentToolCall, requiresApproval } from "@/ee/agent-chat/gated-tools";
 import { isAgentToolCancellation } from "@/ee/agent-chat/agent-tool-cancellation";
@@ -118,6 +118,7 @@ export type AgentTurnWorkflowPayload = {
   surface?: AgentTurnSurface;
   toolsets?: string[];
   wikiHomepageSetup?: PublicWikiHomepage;
+  wikiCrawl?: { id: string; homepage: string; pendingHosts: string[] };
   wikiWebsiteSetup?: { userHomepages: string[] };
   wikiCatalog?: string | null;
   webSearchEnabled?: boolean;
@@ -346,6 +347,7 @@ async function executeAgentTool(
   const tools = getAgentAiTools(backgroundToolDeps(payload, grant), {
     locale: payload.locale,
     wikiHomepageSetup: Boolean(payload.wikiHomepageSetup),
+    wikiCrawlId: payload.wikiCrawl?.id ?? null,
     wikiWebsiteSetup: Boolean(payload.wikiWebsiteSetup),
     webSearchEnabled: payload.webSearchEnabled,
     surface: payload.surface ?? "chat",
@@ -383,7 +385,10 @@ async function authorizedWikiSetup(payload: AgentTurnWorkflowPayload): Promise<b
       if (getTenantUser().companyId !== payload.companyId) return false;
       if (!(await getUserService().hasPermission(Resource.wiki, Action.create))) return false;
       const result = await getGetWikiPagesInteractor().invoke({ page: 1, pageSize: 5 });
-      return result.ok && result.data.total === 0;
+      if (result.ok && result.data.total === 0) return true;
+      if (!payload.wikiWebsiteSetup) return false;
+      const { getWikiWebsiteCrawlRepo } = await import("@/core/di");
+      return ((await getWikiWebsiteCrawlRepo().findLatestCrawl())?.pendingHosts.length ?? 0) > 0;
     } catch (error) {
       if (appErrorDetails(error)?.code === AppErrorCode.permissionDenied) return false;
       throw error;
@@ -391,6 +396,24 @@ async function authorizedWikiSetup(payload: AgentTurnWorkflowPayload): Promise<b
   });
 }
 authorizedWikiSetup.maxRetries = 0;
+
+async function authorizedWikiCrawlSynthesis(payload: AgentTurnWorkflowPayload): Promise<boolean> {
+  "use step";
+  if (!payload.wikiCrawl || !payload.wikiHomepageSetup || (payload.surface ?? "chat") !== "chat") return false;
+  const { getUserService, getWikiWebsiteCrawlRepo } = await import("@/core/di");
+  const { getTenantUser } = await import("@/core/decorators/tenant-context");
+  const { Action, Resource } = await import("@/generated/prisma");
+  const { env } = await import("@/env");
+  if (env.APP_MODE === "demo") return false;
+  const crawlId = payload.wikiCrawl.id;
+  return runAsBackgroundTenant(payload.userId, async () => {
+    if (getTenantUser().companyId !== payload.companyId) return false;
+    if (!(await getUserService().hasPermission(Resource.wiki, Action.create))) return false;
+    const crawl = await getWikiWebsiteCrawlRepo().getCrawl(crawlId);
+    return Boolean(crawl && crawl.userId === payload.userId && crawl.homepageUrl === payload.wikiCrawl?.homepage);
+  });
+}
+authorizedWikiCrawlSynthesis.maxRetries = 0;
 
 async function authorizedWikiCatalog(payload: AgentTurnWorkflowPayload): Promise<string | null> {
   "use step";
@@ -430,6 +453,7 @@ async function normalizeAgentToolInput(
         locale: payload.locale,
         pageRoute: payload.pageRoute,
         wikiHomepageSetup: Boolean(payload.wikiHomepageSetup),
+        wikiCrawlId: payload.wikiCrawl?.id ?? null,
         wikiWebsiteSetup: Boolean(payload.wikiWebsiteSetup),
         webSearchEnabled: payload.webSearchEnabled,
         surface: payload.surface ?? "chat",
@@ -872,6 +896,7 @@ export async function runAgentTurn(payload: AgentTurnWorkflowPayload): Promise<v
     const shells = await loadAgentToolShells(surface, payload.turnBudget.servingProvider, {
       locale: payload.locale,
       wikiHomepageSetup: Boolean(payload.wikiHomepageSetup),
+      wikiCrawlId: payload.wikiCrawl?.id ?? null,
       wikiWebsiteSetup: Boolean(payload.wikiWebsiteSetup),
       webSearchEnabled: payload.webSearchEnabled,
     });
@@ -891,6 +916,9 @@ export async function runAgentTurn(payload: AgentTurnWorkflowPayload): Promise<v
       schemaDigest: payload.schemaDigest ?? null,
       triggerEvent: routineTriggerEventOf(payload.messages.findLast((message) => message.role === "user")?.text),
       wikiHomepageSetup: Boolean(payload.wikiHomepageSetup),
+      wikiCrawlSynthesis: payload.wikiCrawl
+        ? { homepage: payload.wikiCrawl.homepage, pendingHosts: payload.wikiCrawl.pendingHosts }
+        : null,
       wikiWebsiteSetup: Boolean(payload.wikiWebsiteSetup),
       webSearchEnabled: payload.webSearchEnabled,
     });
@@ -1229,10 +1257,37 @@ export async function runAgentTurn(payload: AgentTurnWorkflowPayload): Promise<v
                           if (!prepared.ok) return prepared;
                           const readOnly = isReadOnlyAgentToolCall(shell.name, shell, prepared.input);
                           let executionInput = prepared.input;
-                          const websiteCreate = payload.wikiHomepageSetup
-                            ? !readOnly
-                            : Boolean(payload.wikiWebsiteSetup) && shell.name === WIKI_WEBSITE_CREATE_TOOL_NAME;
-                          if (websiteCreate) {
+                          const websiteCreate = Boolean(payload.wikiHomepageSetup) && !readOnly;
+                          if (payload.wikiWebsiteSetup && shell.name === WIKI_WEBSITE_IMPORT_TOOL_NAME) {
+                            if (!(await authorizedWikiSetup(payload))) {
+                              return {
+                                ok: false,
+                                result:
+                                  "Website import is not available: it needs Wiki create access and an empty Wiki, or a help centre that an earlier import listed. Nothing was started.",
+                              };
+                            }
+                            const homepage = userWebsiteHomepage(
+                              payload.wikiWebsiteSetup.userHomepages,
+                              (prepared.input as { url: string }).url,
+                            );
+                            if (!homepage) {
+                              return {
+                                ok: false,
+                                result:
+                                  "Import only a website the user wrote in this conversation. Ask the user for the address first. Nothing was started.",
+                              };
+                            }
+                            executionInput = { url: homepage.url };
+                          }
+                          if (websiteCreate && payload.wikiCrawl) {
+                            if (!(await authorizedWikiCrawlSynthesis(payload))) {
+                              return {
+                                ok: false,
+                                result:
+                                  "Website Wiki setup is no longer available: it needs Wiki create access and this user's recent website import. Nothing was changed.",
+                              };
+                            }
+                          } else if (websiteCreate) {
                             if (!(await authorizedWikiSetup(payload))) {
                               return {
                                 ok: false,

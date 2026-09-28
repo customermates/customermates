@@ -10,6 +10,7 @@ vi.mock("next-intl/server", () => ({
 
 import { ALL_MCP_TOOLS, MCP_TOOL_GROUPS, MCP_ALWAYS_ON_TOOLS } from "@/features/mcp-tools/tool-registry";
 import { createWikiFromWebsiteTool } from "@/features/mcp-tools/wiki-website-setup-tool";
+import { importWebsiteTool } from "@/ee/wiki-crawl/wiki-import-tool";
 import { describeAgentTool } from "../agent-activity";
 import {
   AGENT_APPROVAL_POLICY_TOOL_NAMES,
@@ -165,7 +166,9 @@ describe("gated-tools", () => {
   });
 
   it("keeps every policy key pointing at a real tool", () => {
-    const names = new Set([...ALL_MCP_TOOLS, createWikiFromWebsiteTool("en")].map((tool) => tool.name));
+    const names = new Set(
+      [...ALL_MCP_TOOLS, createWikiFromWebsiteTool("en"), importWebsiteTool("en")].map((tool) => tool.name),
+    );
     for (const name of AGENT_APPROVAL_POLICY_TOOL_NAMES) expect(names.has(name)).toBe(true);
   });
 

@@ -111,6 +111,10 @@ export class SendAgentMessageInteractor extends AuthenticatedInteractor<SendAgen
     private customColumns: GetCustomColumnsRepo,
     private wikiCatalog: Pick<GetWikiCatalogInteractor, "invoke">,
     private userService?: Pick<UserService, "hasPermission">,
+    private wikiCrawls?: {
+      findSetupCrawl(homepageUrl: string): Promise<{ id: string; homepageUrl: string; pendingHosts: string[] } | null>;
+      findLatestCrawl(): Promise<{ pendingHosts: string[] } | null>;
+    },
   ) {
     super();
   }
@@ -273,6 +277,8 @@ export class SendAgentMessageInteractor extends AuthenticatedInteractor<SendAgen
       ? (parsePublicWikiHomepage(setupUrl) ?? undefined)
       : undefined;
     if (setupUrl && !wikiHomepageSetup) return fail(CustomErrorCode.invalidUrl, ["wikiHomepageSetupUrl"]);
+    const wikiCrawl =
+      wikiHomepageSetup && this.wikiCrawls ? await this.wikiCrawls.findSetupCrawl(wikiHomepageSetup.url) : null;
     const turnModel = resolveAgentModel(requestedModelKey);
     const locale = data.locale ?? resolveUserLocale(user);
     let conversationTitle = data.text;
@@ -288,8 +294,11 @@ export class SendAgentMessageInteractor extends AuthenticatedInteractor<SendAgen
         const result = await this.wikiCatalog.invoke({ page: 1 });
         if (!result.ok) return result;
         wikiCatalog = serializeAgentWikiCatalog(result.data);
+        const wikiEmpty = result.data.total === 0 && !result.data.guide && !result.data.procedures?.total;
         wikiWebsiteSetup =
-          mode === "interactive" && result.data.total === 0 && (await this.wikiWebsiteSetupAvailable());
+          mode === "interactive" &&
+          (wikiEmpty || ((await this.wikiCrawls?.findLatestCrawl())?.pendingHosts.length ?? 0) > 0) &&
+          (await this.wikiWebsiteSetupAvailable());
       } catch (error) {
         if (appErrorDetails(error)?.code !== AppErrorCode.permissionDenied) throw error;
       }
@@ -298,6 +307,7 @@ export class SendAgentMessageInteractor extends AuthenticatedInteractor<SendAgen
       locale,
       surface,
       wikiHomepageSetup: Boolean(wikiHomepageSetup),
+      wikiCrawlId: wikiCrawl?.id ?? null,
       wikiWebsiteSetup,
       webSearchEnabled,
     };
@@ -313,6 +323,9 @@ export class SendAgentMessageInteractor extends AuthenticatedInteractor<SendAgen
         triggerEvent: routineTriggerEventOf(data.text),
         schemaDigest,
         wikiHomepageSetup: Boolean(wikiHomepageSetup),
+        wikiCrawlSynthesis: wikiCrawl
+          ? { homepage: wikiCrawl.homepageUrl, pendingHosts: wikiCrawl.pendingHosts }
+          : null,
         wikiWebsiteSetup,
         webSearchEnabled,
       }),
@@ -494,6 +507,9 @@ export class SendAgentMessageInteractor extends AuthenticatedInteractor<SendAgen
         toolsets,
         ...(schemaDigest ? { schemaDigest } : {}),
         wikiHomepageSetup,
+        ...(wikiCrawl
+          ? { wikiCrawl: { id: wikiCrawl.id, homepage: wikiCrawl.homepageUrl, pendingHosts: wikiCrawl.pendingHosts } }
+          : {}),
         ...(wikiWebsiteSetup
           ? {
               wikiWebsiteSetup: {

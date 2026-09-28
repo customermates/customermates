@@ -20,8 +20,6 @@ vi.mock("@/env", () => ({
 import { PrismaAgentChatRepo } from "../prisma-agent-chat.repository";
 
 const user = createMockUser();
-const clientRequestId = "00000000-0000-4000-8000-000000000001";
-const prompt = "Set up the Workspace Wiki from https://example.com/.";
 const homepageUrl = "https://example.com/";
 const registrableDomain = "example.com";
 const activeSetupWhere = {
@@ -38,12 +36,6 @@ const turnSelect = {
   userId: true,
   affectedResources: true,
 };
-const requestSelect = {
-  clientRequestId: true,
-  text: true,
-  userId: true,
-  wikiHomepageSetupUrl: true,
-};
 const storedSetup = {
   status: "running",
   terminalCode: null,
@@ -56,13 +48,6 @@ const storedSetup = {
 beforeEach(() => vi.clearAllMocks());
 
 const findSetupTurn = () => runWithTenant(user, () => new PrismaAgentChatRepo().findWikiHomepageSetupTurn());
-const findReusable = (homepage = homepageUrl) =>
-  runWithTenant(user, () =>
-    new PrismaAgentChatRepo().findReusableWikiHomepageSetupTurn({
-      clientRequestId,
-      homepageUrl: homepage,
-    }),
-  );
 
 describe("PrismaAgentChatRepo Wiki homepage setup turns", () => {
   it("reports a leased setup as active and hides another user's conversation id", async () => {
@@ -118,77 +103,5 @@ describe("PrismaAgentChatRepo Wiki homepage setup turns", () => {
     prismaMock.agentTurnRequest.findFirst.mockResolvedValue(null);
 
     await expect(findSetupTurn()).resolves.toBeNull();
-  });
-
-  it("reuses only the exact request or another setup that is still leased", async () => {
-    prismaMock.agentTurnRequest.findFirst.mockResolvedValueOnce(null).mockResolvedValueOnce(null);
-
-    await expect(findReusable()).resolves.toBeNull();
-
-    expect(prismaMock.agentTurnRequest.findFirst).toHaveBeenNthCalledWith(1, {
-      where: {
-        companyId: user.companyId,
-        userId: user.id,
-        wikiHomepageSetupUrl: { not: null },
-        clientRequestId,
-      },
-      select: requestSelect,
-    });
-    expect(prismaMock.agentTurnRequest.findFirst).toHaveBeenNthCalledWith(2, {
-      where: activeSetupWhere,
-      orderBy: [{ createdAt: "desc" }, { id: "desc" }],
-      select: requestSelect,
-    });
-  });
-
-  it("preserves exact-request idempotency even after the turn becomes terminal", async () => {
-    prismaMock.agentTurnRequest.findFirst.mockResolvedValueOnce({
-      clientRequestId,
-      text: prompt,
-      userId: user.id,
-      wikiHomepageSetupUrl: homepageUrl,
-    });
-
-    await expect(findReusable()).resolves.toEqual({ disposition: "reuse", clientRequestId, text: prompt });
-    expect(prismaMock.agentTurnRequest.findFirst).toHaveBeenCalledOnce();
-  });
-
-  it("blocks a different active setup for the same company", async () => {
-    prismaMock.agentTurnRequest.findFirst.mockResolvedValueOnce(null).mockResolvedValueOnce({
-      clientRequestId: "00000000-0000-4000-8000-000000000099",
-      text: "Set up the Workspace Wiki from https://other.example/.",
-      userId: "00000000-0000-4000-8000-000000000099",
-      wikiHomepageSetupUrl: "https://other.example/",
-    });
-
-    await expect(findReusable()).resolves.toEqual({ disposition: "blocked" });
-  });
-
-  it("reuses the persisted request text for the same active homepage", async () => {
-    const activeClientRequestId = "00000000-0000-4000-8000-000000000099";
-    const persistedText = "A previously localized setup prompt.";
-    prismaMock.agentTurnRequest.findFirst.mockResolvedValueOnce(null).mockResolvedValueOnce({
-      clientRequestId: activeClientRequestId,
-      text: persistedText,
-      userId: user.id,
-      wikiHomepageSetupUrl: homepageUrl,
-    });
-
-    await expect(findReusable()).resolves.toEqual({
-      disposition: "reuse",
-      clientRequestId: activeClientRequestId,
-      text: persistedText,
-    });
-  });
-
-  it("blocks a reused request id with a different canonical homepage", async () => {
-    prismaMock.agentTurnRequest.findFirst.mockResolvedValueOnce({
-      clientRequestId,
-      text: prompt,
-      userId: user.id,
-      wikiHomepageSetupUrl: homepageUrl,
-    });
-
-    await expect(findReusable("https://example.com/about")).resolves.toEqual({ disposition: "blocked" });
   });
 });

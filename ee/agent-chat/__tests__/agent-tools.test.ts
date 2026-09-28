@@ -325,7 +325,7 @@ describe("agent tools", () => {
           });
           expect(toolDefinitions.some(({ name }) => name === "web_search")).toBe(webSearchEnabled);
           expect(
-            toolDefinitions.some(({ name }) => name === "read_public_page"),
+            toolDefinitions.some(({ name }) => name === "import_website"),
             label,
           ).toBe(wikiWebsiteSetup && surface === "chat");
           const requiredContextBytes = conservativeAgentInitialContextBytes({

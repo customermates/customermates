@@ -36,7 +36,8 @@ import { AGENT_UI_TARGETS, UiTargetIdSchema, agentUiPageLabelKeys, type AgentUiT
 import { AgentTourSchema } from "./agent-tours";
 import { NavigateInputSchema } from "./ui-operations";
 import type { AgentApprovalContextResolution } from "./agent-external-approval-context";
-import { internalToolIdentity, WIKI_WEBSITE_CREATE_TOOL_NAME } from "./tool-identity";
+import { internalToolIdentity, WIKI_WEBSITE_IMPORT_TOOL_NAME } from "./tool-identity";
+import { importWebsiteTool } from "@/ee/wiki-crawl/wiki-import-tool";
 import { providerWireInputSchema } from "./provider-safe-json-schema";
 import type { AgentToolInputResult } from "./agent-tool-input";
 import { getAgentWebSearchTool } from "./agent-web-search";
@@ -45,11 +46,17 @@ import { hostedWorkspaceContextTool } from "@/features/mcp-tools/workspace.mcp-t
 import { localizeWikiPageUrls } from "@/features/wiki/wiki-links";
 import { env } from "@/env";
 import { agentViewToolMismatch } from "./agent-page-context";
+import {
+  createWikiFromCrawlTool,
+  readWebsiteSourceTool,
+  WIKI_READ_SOURCE_TOOL_NAME,
+} from "@/ee/wiki-crawl/wiki-crawl-synthesis-tools";
 
 export type AgentToolOptions = {
   locale?: string;
   webSearchEnabled?: boolean;
   wikiHomepageSetup?: boolean;
+  wikiCrawlId?: string | null;
   wikiWebsiteSetup?: boolean;
   surface?: AgentSurface;
 };
@@ -460,12 +467,20 @@ export function isWikiWebsiteSetupTurn(
 
 function wikiWebsiteSetupTools(deps: AgentToolDeps, locale: string | undefined): ToolSet {
   return {
-    read_public_page: readPublicPageTool(),
-    [WIKI_WEBSITE_CREATE_TOOL_NAME]: crmTool(createWikiFromWebsiteTool(locale), deps),
+    [WIKI_WEBSITE_IMPORT_TOOL_NAME]: crmTool(importWebsiteTool(locale), deps),
   };
 }
 
 export function getAgentAiTools(deps: AgentToolDeps, options: AgentToolOptions = {}): ToolSet {
+  if (options.wikiHomepageSetup && options.wikiCrawlId) {
+    return withCallerContext(
+      {
+        [WIKI_READ_SOURCE_TOOL_NAME]: crmTool(readWebsiteSourceTool(options.wikiCrawlId), deps),
+        manage_wiki_pages: crmTool(createWikiFromCrawlTool(options.locale, options.wikiCrawlId), deps),
+      },
+      deps,
+    );
+  }
   if (options.wikiHomepageSetup) {
     return withCallerContext(
       {
@@ -562,6 +577,7 @@ export function agentToolDefinitionsForTurn(args: {
   locale?: string;
   webSearchEnabled?: boolean;
   wikiHomepageSetup?: boolean;
+  wikiCrawlId?: string | null;
   wikiWebsiteSetup?: boolean;
 }): AgentTurnToolDefinition[] {
   const panelToolNames = new Set<string>(AGENT_UI_TOOL_NAMES);

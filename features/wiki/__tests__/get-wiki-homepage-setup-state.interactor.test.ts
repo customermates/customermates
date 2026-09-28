@@ -12,6 +12,7 @@ vi.mock("@/core/validation/zod-error-map-server", () => MOCK_ZOD_MODULE);
 import {
   GetWikiHomepageSetupStateInteractor,
   type WikiHomepageSetupTurn,
+  type WikiWebsiteCrawlState,
 } from "../get-wiki-homepage-setup-state.interactor";
 import type { WikiPageSummary } from "../wiki.schema";
 
@@ -38,15 +39,57 @@ const INACTIVE: WikiHomepageSetupTurn = { ...SETUP, active: false };
 
 beforeEach(() => vi.clearAllMocks());
 
-function interactor(setup: WikiHomepageSetupTurn | null, pages: WikiPageSummary[] = []) {
+function interactor(
+  setup: WikiHomepageSetupTurn | null,
+  pages: WikiPageSummary[] = [],
+  crawl: WikiWebsiteCrawlState | null = null,
+) {
   const pageRepo = {
     listPages: vi.fn().mockResolvedValue({ items: pages, total: pages.length, page: 1, pageSize: 5 }),
   };
   const setupTurnRepo = { findWikiHomepageSetupTurn: vi.fn().mockResolvedValue(setup) };
-  return { pageRepo, setupTurnRepo, interactor: new GetWikiHomepageSetupStateInteractor(pageRepo, setupTurnRepo) };
+  const crawlRepo = { findLatestCrawl: vi.fn().mockResolvedValue(crawl) };
+  return {
+    pageRepo,
+    setupTurnRepo,
+    interactor: new GetWikiHomepageSetupStateInteractor(pageRepo, setupTurnRepo, crawlRepo),
+  };
 }
 
+const CRAWL: WikiWebsiteCrawlState = {
+  status: "fetching",
+  homepageUrl: "https://example.com/",
+  registrableDomain: "example.com",
+  conversationId: null,
+  discovered: 24,
+  fetched: 7,
+  failureReason: null,
+};
+
 describe("GetWikiHomepageSetupStateInteractor", () => {
+  it("reports a running website import as working with its reading progress", async () => {
+    await expect(interactor(null, [], CRAWL).interactor.invoke()).resolves.toEqual({
+      ok: true,
+      data: {
+        status: "working",
+        homepage: "https://example.com/",
+        domain: "example.com",
+        conversationId: null,
+        pages: [],
+        progress: { fetched: 7, total: 24 },
+      },
+    });
+  });
+
+  it("explains an import that robots.txt blocked or that found nothing readable", async () => {
+    await expect(
+      interactor(null, [], { ...CRAWL, status: "blocked", failureReason: "blocked" }).interactor.invoke(),
+    ).resolves.toMatchObject({ ok: true, data: { status: "failed", failureReason: "blocked" } });
+    await expect(
+      interactor(null, [], { ...CRAWL, status: "failed", failureReason: "unavailable" }).interactor.invoke(),
+    ).resolves.toMatchObject({ ok: true, data: { status: "failed", failureReason: "unavailable" } });
+  });
+
   it("returns idle when neither pages nor a setup turn exist", async () => {
     await expect(interactor(null).interactor.invoke()).resolves.toEqual({
       ok: true,

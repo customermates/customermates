@@ -408,6 +408,9 @@ import { UpdateOperatorUserPlatformAccessInteractor } from "@/ee/operator/update
 import { CorrectOperatorSubscriptionSnapshotInteractor } from "@/ee/operator/correct-operator-subscription-snapshot.interactor";
 import { ResetOperatorUserCreditsInteractor } from "@/ee/operator/reset-operator-user-credits.interactor";
 import { WikiEmbeddingService } from "@/ee/wiki-retrieval/wiki-embedding.service";
+import { PrismaWikiWebsiteCrawlRepo } from "@/ee/wiki-crawl/prisma-wiki-website-crawl.repository";
+import { WikiWebsiteCrawlService } from "@/ee/wiki-crawl/wiki-website-crawl.service";
+import { wikiCrawlSynthesisStarter } from "@/ee/wiki-crawl/wiki-crawl-synthesis";
 import { WikiSemanticQueryEmbedder } from "@/ee/wiki-retrieval/wiki-query-embedder";
 import { WikiSemanticIndexService } from "@/ee/wiki-retrieval/wiki-semantic-index.service";
 import {
@@ -1176,10 +1179,18 @@ export const getGetWikiPageInteractor = () => new GetWikiPageInteractor(getWikiP
 export const getCreateWikiPagesInteractor = () => new CreateWikiPagesInteractor(getWikiPageRepo(), getEventService());
 export const getUpdateWikiPageInteractor = () => new UpdateWikiPageInteractor(getWikiPageRepo(), getEventService());
 export const getDeleteWikiPageInteractor = () => new DeleteWikiPageInteractor(getWikiPageRepo(), getEventService());
+export const getWikiWebsiteCrawlRepo = () => new PrismaWikiWebsiteCrawlRepo();
 export const getStartWikiHomepageSetupInteractor = () =>
-  new StartWikiHomepageSetupInteractor(getWikiPageRepo(), getAgentChatRepo(), getSendAgentMessageInteractor());
+  new StartWikiHomepageSetupInteractor(getWikiPageRepo(), getWikiWebsiteCrawlRepo(), getBackgroundTaskService());
 export const getGetWikiHomepageSetupStateInteractor = () =>
-  new GetWikiHomepageSetupStateInteractor(getWikiPageRepo(), getAgentChatRepo());
+  new GetWikiHomepageSetupStateInteractor(getWikiPageRepo(), getAgentChatRepo(), getWikiWebsiteCrawlRepo());
+export const getWikiWebsiteCrawlService = () =>
+  new WikiWebsiteCrawlService(
+    getWikiWebsiteCrawlRepo(),
+    getCreateWikiPagesInteractor(),
+    getUpdateWikiPageInteractor(),
+    wikiCrawlSynthesisStarter(getSendAgentMessageInteractor()),
+  );
 
 // --- Webhook ---
 
@@ -1788,6 +1799,7 @@ export const getSendAgentMessageInteractor = () =>
     getCustomColumnRepo(),
     getGetWikiCatalogInteractor(),
     getUserService(),
+    getWikiWebsiteCrawlRepo(),
   );
 
 export const getGetRoutinesInteractor = () =>

@@ -1,5 +1,6 @@
 import { runAgentTurn } from "./agent-turn";
 import { backfillConnectedAccount } from "./backfill-connected-account";
+import { crawlWikiWebsite } from "./crawl-wiki-website";
 import { deliverWebhook } from "./deliver-webhook";
 import { indexWikiPages } from "./index-wiki-pages";
 import { reconcileRoutineRuns } from "./reconcile-routine-runs";
@@ -9,6 +10,7 @@ import { triggerTestError } from "./trigger-test-error";
 export const WORKFLOW_REGISTRY = {
   "agent-turn": runAgentTurn,
   "backfill-connected-account": backfillConnectedAccount,
+  "crawl-wiki-website": crawlWikiWebsite,
   "deliver-webhook": deliverWebhook,
   "index-wiki-pages": indexWikiPages,
   "reconcile-routine-runs": reconcileRoutineRuns,

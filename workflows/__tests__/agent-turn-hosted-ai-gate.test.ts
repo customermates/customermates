@@ -16,6 +16,7 @@ type StreamOptions = {
 };
 
 const state = vi.hoisted(() => ({
+  latestCrawl: null as { pendingHosts: string[] } | null,
   gateResults: [] as boolean[],
   gateFailure: null as Error | null,
   contextFits: vi.fn(),
@@ -189,6 +190,9 @@ vi.mock("@/core/di", () => ({
   }),
   getUserService: () => ({
     hasPermission: state.wikiCreatePermission,
+  }),
+  getWikiWebsiteCrawlRepo: () => ({
+    findLatestCrawl: () => Promise.resolve(state.latestCrawl),
   }),
 }));
 
@@ -1643,6 +1647,7 @@ describe("agent-turn authoritative tool inputs", () => {
       locale: payload.locale,
       pageRoute: payload.pageRoute,
       wikiHomepageSetup: false,
+      wikiCrawlId: null,
       wikiWebsiteSetup: false,
       webSearchEnabled: undefined,
       surface: "chat",
@@ -2595,48 +2600,18 @@ describe("routine browse-or-mutate batch safety", () => {
       ...payload,
       wikiWebsiteSetup: { userHomepages: ["https://acme-widgets.com/"] },
     };
-    const websiteWrite = (source = "https://acme-widgets.com/") => ({ ...setupWrite(source) });
-    const homeResult = (links: string[] = []) => ({
-      ok: true,
-      url: home.url,
-      title: "Acme",
-      text: "Acme builds widgets.",
-      links: links.map((url) => ({ url })),
-      truncated: false,
-    });
 
     beforeEach(() => {
-      state.definitions = ["manage_wiki_pages", "read_public_page", "create_wiki_from_website"].map(definition);
+      state.definitions = ["manage_wiki_pages", "import_website"].map(definition);
       state.wikiCatalogAuthorization.mockResolvedValue({ ok: true, data: { total: 0 } });
-      state.readPage.mockResolvedValue(homeResult());
+      state.latestCrawl = null;
     });
 
-    it("refuses the first read until the user has written that website in the conversation", async () => {
-      let readResult: unknown;
-      state.runTools = async ({ executeAndCompleteTool }) => {
-        readResult = await executeAndCompleteTool("read_public_page", { url: "https://other-site.com/" }, "read-1");
-        return finish();
-      };
-
-      await runAgentTurn({ ...websitePayload, wikiWebsiteSetup: { userHomepages: [] } });
-
-      expect(readResult).toMatchObject({
-        ok: false,
-        result: expect.stringContaining("Ask the user for their company website first"),
-      });
-      expect(state.readPage).not.toHaveBeenCalled();
-    });
-
-    it("never lets a URL injected through a tool result become the homepage", async () => {
+    it("imports only a website the user wrote in the conversation, never one injected through a result", async () => {
       const results: unknown[] = [];
-      state.readPage.mockResolvedValue(homeResult(["https://acme-widgets.com/about"]));
-      state.runTools = async ({ executeAndCompleteTool, completeStepAndPrepareNext }) => {
-        results.push(await executeAndCompleteTool("read_public_page", { url: "https://evil-site.com/" }, "read-evil"));
-        results.push(await executeAndCompleteTool("read_public_page", { url: "http://acme-widgets.com" }, "read-home"));
-        await completeStepAndPrepareNext(streamedStep("", "tool-calls"));
-        results.push(
-          await executeAndCompleteTool("read_public_page", { url: "https://evil-site.com/" }, "read-evil-2"),
-        );
+      state.runTools = async ({ executeAndCompleteTool }) => {
+        results.push(await executeAndCompleteTool("import_website", { url: "https://evil-site.com/" }, "import-evil"));
+        results.push(await executeAndCompleteTool("import_website", { url: "http://acme-widgets.com" }, "import-home"));
         return finish();
       };
 
@@ -2644,66 +2619,44 @@ describe("routine browse-or-mutate batch safety", () => {
 
       expect(results[0]).toMatchObject({ ok: false, result: expect.stringContaining("the user wrote") });
       expect(results[1]).toMatchObject({ ok: true });
-      expect(results[2]).toEqual({ ok: false, reason: "outside_domain" });
-      expect(state.readPage).toHaveBeenCalledExactlyOnceWith({ url: home.url, allowedDomain: "acme-widgets.com" });
-    });
-
-    it("creates sourced pages through the one-time empty-Wiki create only after the homepage read", async () => {
-      let early: unknown;
-      let sameBatch: unknown;
-      let created: unknown;
-      state.runTools = async ({ executeAndCompleteTool, completeStepAndPrepareNext }) => {
-        early = await executeAndCompleteTool("create_wiki_from_website", websiteWrite(), "write-early");
-        const batch = [
-          {
-            role: "assistant",
-            content: [call("read_public_page", "read-home", home), call("create_wiki_from_website", "write-1", {})],
-          },
-        ];
-        await executeAndCompleteTool("read_public_page", home, "read-home", batch);
-        sameBatch = await executeAndCompleteTool("create_wiki_from_website", websiteWrite(), "write-1", batch);
-        await completeStepAndPrepareNext(streamedStep("", "tool-calls"));
-        created = await executeAndCompleteTool("create_wiki_from_website", websiteWrite(), "write-2");
-        return finish();
-      };
-
-      await runAgentTurn(websitePayload);
-
-      expect(early).toMatchObject({ ok: false, result: expect.stringContaining("Read the submitted homepage") });
-      expect(sameBatch).toMatchObject({ ok: false, result: expect.stringContaining("later step") });
-      expect(created).toMatchObject({ ok: true });
       expect(state.execute).toHaveBeenCalledExactlyOnceWith(
-        websiteWrite(),
-        expect.objectContaining({ toolCallId: "write-2" }),
+        home,
+        expect.objectContaining({ toolCallId: "import-home" }),
       );
     });
 
-    it("rechecks Wiki create permission and emptiness at execution", async () => {
-      let readResult: unknown;
+    it("rechecks Wiki create permission and emptiness at execution, allowing a listed help centre", async () => {
+      const results: unknown[] = [];
       state.wikiCatalogAuthorization.mockResolvedValue(notEmpty);
       state.runTools = async ({ executeAndCompleteTool }) => {
-        readResult = await executeAndCompleteTool("read_public_page", home, "read-1");
+        results.push(await executeAndCompleteTool("import_website", home, "import-1"));
+        state.latestCrawl = { pendingHosts: ["acme.zendesk.com"] };
+        results.push(await executeAndCompleteTool("import_website", home, "import-2"));
         return finish();
       };
 
       await runAgentTurn(websitePayload);
 
-      expect(readResult).toMatchObject({ ok: false, result: expect.stringContaining("Wiki is empty") });
-      expect(state.readPage).not.toHaveBeenCalled();
+      expect(results[0]).toMatchObject({
+        ok: false,
+        result: expect.stringContaining("Website import is not available"),
+      });
+      expect(results[1]).toMatchObject({ ok: true });
+      expect(state.execute).toHaveBeenCalledOnce();
     });
 
     it("keeps a forged website flag out of routines", async () => {
-      let readResult: unknown;
+      let result: unknown;
       state.runTools = async ({ executeAndCompleteTool }) => {
-        readResult = await executeAndCompleteTool("read_public_page", home, "read-1");
+        result = await executeAndCompleteTool("import_website", home, "import-1");
         return finish();
       };
 
       await runAgentTurn({ ...websitePayload, surface: "routine" });
 
-      expect(readResult).toMatchObject({ ok: false });
+      expect(result).toMatchObject({ ok: false });
       expect(state.wikiCreatePermission).not.toHaveBeenCalled();
-      expect(state.readPage).not.toHaveBeenCalled();
+      expect(state.execute).not.toHaveBeenCalled();
     });
 
     it("does not gate ordinary Wiki writes on the website read", async () => {

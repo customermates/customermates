@@ -13,6 +13,7 @@ import { EventService } from "@/features/event/event.service";
 import { PrismaAuditLogRepo } from "@/features/audit-log/prisma-audit-log.repository";
 import { PrismaRoleRepo } from "@/features/role/prisma-role.repository";
 import { PrismaAgentChatRepo } from "@/ee/agent-chat/prisma-agent-chat.repository";
+import { PrismaWikiWebsiteCrawlRepo } from "@/ee/wiki-crawl/prisma-wiki-website-crawl.repository";
 import { UserService } from "@/features/user/user.service";
 import type { UpsertRoleData } from "@/features/role/upsert-role.interactor";
 import { getLocalDatabaseTestUrl } from "@/tests/helpers/database-test";
@@ -590,33 +591,39 @@ describeDatabase("Workspace Wiki public boundaries on PostgreSQL", () => {
     );
     const setupState = (tenant: TenantUser) =>
       runWithTenant(tenant, () =>
-        new GetWikiHomepageSetupStateInteractor(new PrismaWikiPageRepo(), new PrismaAgentChatRepo()).invoke(),
+        new GetWikiHomepageSetupStateInteractor(
+          new PrismaWikiPageRepo(),
+          new PrismaAgentChatRepo(),
+          new PrismaWikiWebsiteCrawlRepo(),
+        ).invoke(),
       );
-    const agent = {
-      invoke: vi.fn().mockResolvedValue({
-        ok: true,
-        data: {
-          disposition: "run",
-          clientRequestId: randomUUID(),
-          conversationId: randomUUID(),
-        },
-      }),
-    };
+    const background = { dispatch: vi.fn().mockResolvedValue(undefined) };
     const startSetup = (tenant: TenantUser) =>
       runWithTenant(tenant, () =>
         new StartWikiHomepageSetupInteractor(
           new PrismaWikiPageRepo(),
-          new PrismaAgentChatRepo(),
-          agent as never,
+          new PrismaWikiWebsiteCrawlRepo(),
+          background as never,
         ).invoke({ homepage: "example.org", clientRequestId: randomUUID(), locale: "en" }),
       );
+    await client.query(
+      `INSERT INTO "WikiWebsiteCrawl" ("id", "companyId", "userId", "clientRequestId", "homepageUrl", "registrableDomain", "locale", "status", "extraHosts", "pendingHosts", "updatedAt")
+       VALUES ($1, $2, $3, $4, 'https://example.com/', 'example.com', 'en', 'fetching', '{}', '{}', CURRENT_TIMESTAMP)`,
+      [randomUUID(), foreignCompanyId, foreignUserId, randomUUID()],
+    );
 
     try {
       expect(await setupState(foreignUser)).toMatchObject({
         ok: true,
+        data: { status: "working", domain: "example.com", progress: { fetched: 0, total: 0 } },
+      });
+      await client.query('UPDATE "WikiWebsiteCrawl" SET "status" = \'completed\' WHERE "companyId" = $1', [
+        foreignCompanyId,
+      ]);
+      expect(await setupState(foreignUser)).toMatchObject({
+        ok: true,
         data: { status: "working", domain: "example.com", conversationId: foreignConversationId },
       });
-      expect(customCode(await startSetup(foreignUser))).toBe(CustomErrorCode.agentTurnAlreadyRunning);
 
       expect(await setupState(user)).toEqual({
         ok: true,
@@ -624,15 +631,17 @@ describeDatabase("Workspace Wiki public boundaries on PostgreSQL", () => {
       });
       expect(await startSetup(user)).toMatchObject({
         ok: true,
-        data: { homepage: "https://example.org/", domain: "example.org" },
+        data: { conversationId: null, homepage: "https://example.org/", domain: "example.org" },
       });
-      expect(agent.invoke).toHaveBeenCalledExactlyOnceWith(
-        expect.objectContaining({
-          wikiHomepageSetupUrl: "https://example.org/",
-        }),
+      expect(customCode(await startSetup(user))).toBe(CustomErrorCode.agentTurnAlreadyRunning);
+      expect(background.dispatch).toHaveBeenCalledExactlyOnceWith(
+        "crawl-wiki-website",
+        expect.objectContaining({ userId }),
       );
+      expect(await setupState(user)).toMatchObject({ ok: true, data: { status: "working", domain: "example.org" } });
       expect(await create(user, [{ title: "Local page", markdown: "Local body" }], true)).toMatchObject({ ok: true });
     } finally {
+      await client.query('DELETE FROM "WikiWebsiteCrawl" WHERE "companyId" = ANY($1)', [[companyId, foreignCompanyId]]);
       await client.query('DELETE FROM "AgentConversation" WHERE "id" = $1', [foreignConversationId]);
     }
   });

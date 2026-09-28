@@ -269,6 +269,8 @@ model Company {
   routineRuns                 RoutineRun[]
   wikiPages                   WikiPage[]
   wikiPageChunks              WikiPageChunk[]
+  wikiWebsiteCrawls           WikiWebsiteCrawl[]
+  wikiSourceDocuments         WikiSourceDocument[]
 }
 
 enum WikiPageKind {
@@ -301,6 +303,65 @@ model WikiPage {
   @@index([companyId, kind, title])
   @@index([searchVector], type: Gin)
   @@index([searchCompact(ops: raw("gin_trgm_ops"))], type: Gin)
+}
+
+enum WikiWebsiteCrawlStatus {
+  queued
+  discovering
+  fetching
+  importing
+  synthesizing
+  completed
+  failed
+  blocked
+}
+
+model WikiWebsiteCrawl {
+  id                String                 @id @default(uuid())
+  companyId         String
+  userId            String
+  clientRequestId   String                 @unique
+  homepageUrl       String
+  registrableDomain String
+  locale            String
+  mode              String                 @default("initial")
+  status            WikiWebsiteCrawlStatus @default(queued)
+  extraHosts        String[]
+  pendingHosts      String[]
+  targets           Json?
+  crawlDelayMs      Int                    @default(0)
+  discovered        Int                    @default(0)
+  fetched           Int                    @default(0)
+  failed            Int                    @default(0)
+  importedPages     Int                    @default(0)
+  conversationId    String?
+  failureReason     String?
+  startedAt         DateTime               @default(now())
+  finishedAt        DateTime?
+  updatedAt         DateTime               @updatedAt
+  company           Company                @relation(fields: [companyId], references: [id], onDelete: Cascade)
+  sources           WikiSourceDocument[]
+
+  @@index([companyId, startedAt])
+}
+
+model WikiSourceDocument {
+  id           String           @id @default(uuid())
+  crawlId      String
+  companyId    String
+  url          String
+  canonicalUrl String
+  category     String
+  title        String
+  text         String
+  qaPairs      Json?
+  contentHash  String
+  fetchedAt    DateTime         @default(now())
+  crawl        WikiWebsiteCrawl @relation(fields: [crawlId], references: [id], onDelete: Cascade)
+  company      Company          @relation(fields: [companyId], references: [id], onDelete: Cascade)
+
+  @@unique([crawlId, canonicalUrl])
+  @@index([companyId, crawlId])
 }
 
 model WikiPageChunk {

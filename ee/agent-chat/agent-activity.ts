@@ -6,7 +6,12 @@ import { parsePublicPageUrl } from "@/features/wiki/wiki-homepage";
 
 import { approvalFreeActionsForTool, readOnlyActionsForTool } from "./gated-tools";
 import type { AgentToolIdentity } from "./tool-identity";
-import { internalToolIdentity, isInternalToolIdentity, WIKI_WEBSITE_CREATE_TOOL_NAME } from "./tool-identity";
+import {
+  internalToolIdentity,
+  isInternalToolIdentity,
+  WIKI_WEBSITE_CREATE_TOOL_NAME,
+  WIKI_WEBSITE_IMPORT_TOOL_NAME,
+} from "./tool-identity";
 
 import { sanitizeAgentPlainText } from "./agent-output-safety";
 import { LOAD_TOOLSET_TOOL_NAME } from "./agent-toolset-routing";
@@ -301,6 +306,7 @@ export function describeAgentTool(identity: AgentToolIdentity, input: unknown): 
       ...(sourcePage ? { sourcePage } : {}),
     };
   }
+  if (toolName === WIKI_WEBSITE_IMPORT_TOOL_NAME) return descriptor("records.create", "wiki", "write");
   if (toolName === WIKI_WEBSITE_CREATE_TOOL_NAME) {
     const count = boundedCount(details.pages);
     return { ...descriptor("records.create", "wiki", "write"), ...(count ? { count } : {}) };

@@ -26,7 +26,7 @@ export const AgentPageContextSchema = z.object({
 });
 
 const [firstAppLocale, ...otherAppLocales] = APP_LOCALES;
-const AgentAppLocaleSchema = z.enum([firstAppLocale, ...otherAppLocales]);
+export const AgentAppLocaleSchema = z.enum([firstAppLocale, ...otherAppLocales]);
 
 const SendAgentMessageObjectSchema = z.object({
   conversationId: z.uuid().optional(),

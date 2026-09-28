@@ -132,7 +132,15 @@ export const WikiHomepageSetup = observer(function WikiHomepageSetup({
     const domain = state.domain ?? state.homepage ?? "";
     const workingBody = state.conversationId
       ? t("WikiSetup.status.workingBody", { domain })
-      : t("WikiSetup.status.workingBodyNoTask", { domain });
+      : state.progress && state.progress.total > 0
+        ? t("WikiSetup.status.readingBody", { domain, fetched: state.progress.fetched, total: state.progress.total })
+        : t("WikiSetup.status.workingBodyNoTask", { domain });
+    const failedBody =
+      state.failureReason === "blocked"
+        ? t("WikiSetup.status.failedBodyBlocked", { domain })
+        : state.failureReason === "unavailable"
+          ? t("WikiSetup.status.failedBodyUnavailable", { domain })
+          : t("WikiSetup.status.failedBody");
     const completedBody = state.homepage
       ? t("WikiSetup.status.completedBodyOnboarding")
       : t("WikiSetup.status.completedExistingBody");
@@ -167,7 +175,7 @@ export const WikiHomepageSetup = observer(function WikiHomepageSetup({
                   ? completedBody
                   : state.status === "noContent"
                     ? t("WikiSetup.status.noContentBody")
-                    : t("WikiSetup.status.failedBody")}
+                    : failedBody}
             </p>
           </div>
         </div>

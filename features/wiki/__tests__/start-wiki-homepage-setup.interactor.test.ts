@@ -23,322 +23,175 @@ vi.mock("next-intl/server", () => ({
 
 import { CustomErrorCode } from "@/core/validation/validation.types";
 
-import {
-  StartWikiHomepageSetupInteractor,
-  type StartWikiHomepageSetupRepo,
-  type StartWikiHomepageSetupTurnRepo,
-} from "../start-wiki-homepage-setup.interactor";
+import { StartWikiHomepageSetupInteractor } from "../start-wiki-homepage-setup.interactor";
 
 const CLIENT_REQUEST_ID = "00000000-0000-4000-8000-000000000001";
+const CRAWL: {
+  id: string;
+  homepageUrl: string;
+  registrableDomain: string;
+  conversationId: string | null;
+  pendingHosts: string[];
+  extraHosts: string[];
+} = {
+  id: "00000000-0000-4000-8000-000000000009",
+  homepageUrl: "https://example.com/",
+  registrableDomain: "example.com",
+  conversationId: null,
+  pendingHosts: ["acme.zendesk.com"],
+  extraHosts: [],
+};
 
-function setupInteractor(
-  repo: StartWikiHomepageSetupRepo & StartWikiHomepageSetupTurnRepo,
-  agent: { invoke: unknown },
+function harness(
+  options: { empty?: boolean; reusable?: typeof CRAWL | null; latest?: typeof CRAWL | null; active?: boolean } = {},
 ) {
-  return new StartWikiHomepageSetupInteractor(repo, repo, agent as never);
+  const repo = { wikiIsEmpty: vi.fn().mockResolvedValue(options.empty ?? true) };
+  const crawlRepo = {
+    findCrawlByClientRequest: vi.fn().mockResolvedValue(options.reusable ?? null),
+    findLatestCrawl: vi.fn().mockResolvedValue(options.latest ?? null),
+    createCrawl: vi
+      .fn()
+      .mockImplementation((data: { homepageUrl: string; registrableDomain: string; extraHosts: string[] }) =>
+        Promise.resolve(options.active ? { status: "active" } : { status: "created", crawl: { ...CRAWL, ...data } }),
+      ),
+  };
+  const background = { dispatch: vi.fn().mockResolvedValue(undefined) };
+  const interactor = new StartWikiHomepageSetupInteractor(repo, crawlRepo, background as never);
+  return { repo, crawlRepo, background, interactor };
+}
+
+function errorCode(result: unknown) {
+  return (result as { ok: false; error: { issues: Array<{ params?: { error?: unknown } }> } }).error.issues[0]?.params
+    ?.error;
 }
 
 beforeEach(() => vi.clearAllMocks());
 
 describe("StartWikiHomepageSetupInteractor", () => {
-  it("rejects a Wiki Read-only member before checking setup state or dispatching a paid turn", async () => {
-    const repo = { wikiIsEmpty: vi.fn(), findReusableWikiHomepageSetupTurn: vi.fn() };
-    const agent = { invoke: vi.fn() };
+  it("rejects a Wiki Read-only member before touching setup state", async () => {
+    const { repo, crawlRepo, background, interactor } = harness();
     const readOnly = createMockUserWithPermissions([{ resource: Resource.wiki, action: Action.readAll }]);
 
     await expect(
       runWithTenant(readOnly, () =>
-        setupInteractor(repo, agent).invoke({
-          homepage: "example.com",
-          clientRequestId: CLIENT_REQUEST_ID,
-          locale: "en",
-        }),
+        interactor.invoke({ homepage: "example.com", clientRequestId: CLIENT_REQUEST_ID, locale: "en" }),
       ),
     ).rejects.toBeInstanceOf(ForbiddenError);
     expect(repo.wikiIsEmpty).not.toHaveBeenCalled();
-    expect(repo.findReusableWikiHomepageSetupTurn).not.toHaveBeenCalled();
-    expect(agent.invoke).not.toHaveBeenCalled();
+    expect(crawlRepo.createCrawl).not.toHaveBeenCalled();
+    expect(background.dispatch).not.toHaveBeenCalled();
   });
 
-  it("dispatches one visible, localized, domain-restricted durable Mate turn", async () => {
-    const repo = {
-      wikiIsEmpty: vi.fn().mockResolvedValue(true),
-      findReusableWikiHomepageSetupTurn: vi.fn().mockResolvedValue(null),
-    };
-    const outcome = {
-      ok: true as const,
-      data: {
-        disposition: "running" as const,
-        clientRequestId: CLIENT_REQUEST_ID,
-        conversationId: "00000000-0000-4000-8000-000000000002",
-        retryAllowed: false,
-      },
-    };
-    const agent = { invoke: vi.fn().mockResolvedValue(outcome) };
-
-    const result = await setupInteractor(repo, agent).invoke({
-      homepage: "https://www.example.com/about?ref=onboarding#team",
-      clientRequestId: CLIENT_REQUEST_ID,
-      locale: "de",
-    });
+  it("records one crawl for the canonical homepage and dispatches the durable website import", async () => {
+    const { crawlRepo, background, interactor } = harness();
+    const result = await runWithTenant(mockUser, () =>
+      interactor.invoke({ homepage: "Example.com/about?x=1", clientRequestId: CLIENT_REQUEST_ID, locale: "de" }),
+    );
 
     expect(result).toEqual({
       ok: true,
-      data: {
-        conversationId: "00000000-0000-4000-8000-000000000002",
-        homepage: "https://www.example.com/about",
-        domain: "example.com",
-      },
+      data: { conversationId: null, homepage: "https://example.com/about", domain: "example.com" },
     });
-    expect(agent.invoke).toHaveBeenCalledOnce();
-    expect(agent.invoke).toHaveBeenCalledWith({
+    expect(crawlRepo.createCrawl).toHaveBeenCalledExactlyOnceWith({
       clientRequestId: CLIENT_REQUEST_ID,
-      text: "Informiere dich auf https://www.example.com/about über unser Unternehmen und erstelle unsere Wiki-Seiten.",
+      homepageUrl: "https://example.com/about",
+      registrableDomain: "example.com",
       locale: "de",
-      retry: false,
-      wikiHomepageSetupUrl: "https://www.example.com/about",
+      mode: "initial",
+      extraHosts: [],
     });
-    expect(agent.invoke.mock.calls[0][0].text).not.toContain("?ref=");
-    expect(agent.invoke.mock.calls[0][0].text).not.toContain("#team");
-    expect(repo.findReusableWikiHomepageSetupTurn).toHaveBeenCalledWith({
-      clientRequestId: CLIENT_REQUEST_ID,
-      homepageUrl: "https://www.example.com/about",
+    expect(background.dispatch).toHaveBeenCalledExactlyOnceWith("crawl-wiki-website", {
+      crawlId: CRAWL.id,
+      userId: mockUser.id,
     });
   });
 
-  it("rejects an unsafe homepage before checking or dispatching", async () => {
-    const repo = { wikiIsEmpty: vi.fn(), findReusableWikiHomepageSetupTurn: vi.fn() };
-    const agent = { invoke: vi.fn() };
-
-    const result = await setupInteractor(repo, agent).invoke({
-      homepage: "http://localhost/admin",
-      clientRequestId: CLIENT_REQUEST_ID,
-      locale: "en",
+  it("replays an existing request without dispatching again, even after its pages fill the Wiki", async () => {
+    const { repo, crawlRepo, background, interactor } = harness({
+      empty: false,
+      reusable: { ...CRAWL, conversationId: "00000000-0000-4000-8000-000000000002" },
     });
-
-    expect(result.ok).toBe(false);
-    if (!result.ok) {
-      expect(result.error.issues[0]).toMatchObject({
-        params: { error: CustomErrorCode.invalidUrl },
-      });
-    }
+    expect(
+      await runWithTenant(mockUser, () =>
+        interactor.invoke({ homepage: "example.com", clientRequestId: CLIENT_REQUEST_ID, locale: "en" }),
+      ),
+    ).toMatchObject({ ok: true, data: { conversationId: "00000000-0000-4000-8000-000000000002" } });
     expect(repo.wikiIsEmpty).not.toHaveBeenCalled();
-    expect(repo.findReusableWikiHomepageSetupTurn).not.toHaveBeenCalled();
-    expect(agent.invoke).not.toHaveBeenCalled();
+    expect(crawlRepo.createCrawl).not.toHaveBeenCalled();
+    expect(background.dispatch).not.toHaveBeenCalled();
   });
 
-  it("rejects a non-empty Wiki without creating a conversation", async () => {
-    const repo = {
-      wikiIsEmpty: vi.fn().mockResolvedValue(false),
-      findReusableWikiHomepageSetupTurn: vi.fn().mockResolvedValue(null),
-    };
-    const agent = { invoke: vi.fn() };
+  it("refuses unsafe homepages, a non-empty Wiki for a first import, and a second active import", async () => {
+    const unsafe = harness();
+    expect(
+      errorCode(
+        await runWithTenant(mockUser, () =>
+          unsafe.interactor.invoke({ homepage: "http://127.0.0.1", clientRequestId: CLIENT_REQUEST_ID, locale: "en" }),
+        ),
+      ),
+    ).toBe(CustomErrorCode.invalidUrl);
 
-    const result = await setupInteractor(repo, agent).invoke({
-      homepage: "example.com",
-      clientRequestId: CLIENT_REQUEST_ID,
-      locale: "en",
-    });
+    const filled = harness({ empty: false });
+    expect(
+      errorCode(
+        await runWithTenant(mockUser, () =>
+          filled.interactor.invoke({ homepage: "example.com", clientRequestId: CLIENT_REQUEST_ID, locale: "en" }),
+        ),
+      ),
+    ).toBe(CustomErrorCode.wikiNotEmpty);
 
-    expect(result.ok).toBe(false);
-    if (!result.ok) {
-      expect(result.error.issues[0]).toMatchObject({
-        path: ["homepage"],
-        params: { error: CustomErrorCode.wikiNotEmpty },
-      });
-    }
-    expect(agent.invoke).not.toHaveBeenCalled();
+    const busy = harness({ active: true });
+    expect(
+      errorCode(
+        await runWithTenant(mockUser, () =>
+          busy.interactor.invoke({ homepage: "example.com", clientRequestId: CLIENT_REQUEST_ID, locale: "en" }),
+        ),
+      ),
+    ).toBe(CustomErrorCode.agentTurnAlreadyRunning);
+    for (const run of [unsafe, filled, busy]) expect(run.background.dispatch).not.toHaveBeenCalled();
   });
 
-  it("reports the Assistant's exactly-once replay as the started setup", async () => {
-    const repo = {
-      wikiIsEmpty: vi.fn().mockResolvedValue(true),
-      findReusableWikiHomepageSetupTurn: vi.fn().mockResolvedValue({
-        disposition: "reuse",
-        clientRequestId: CLIENT_REQUEST_ID,
-        text: "Persisted setup prompt.",
-      }),
-    };
-    const replay = {
-      ok: true as const,
-      data: {
-        disposition: "running" as const,
-        clientRequestId: CLIENT_REQUEST_ID,
-        conversationId: "00000000-0000-4000-8000-000000000002",
-        retryAllowed: false,
-      },
-    };
-    const agent = { invoke: vi.fn().mockResolvedValue(replay) };
-
-    await expect(
-      setupInteractor(repo, agent).invoke({
-        homepage: "example.com",
-        clientRequestId: CLIENT_REQUEST_ID,
-        locale: "fr",
-      }),
-    ).resolves.toEqual({
-      ok: true,
-      data: { conversationId: replay.data.conversationId, homepage: "https://example.com/", domain: "example.com" },
-    });
-    expect(repo.wikiIsEmpty).not.toHaveBeenCalled();
-    expect(agent.invoke).toHaveBeenCalledWith(expect.objectContaining({ text: "Persisted setup prompt." }));
-  });
-
-  it("recovers an in-flight setup after reload without starting a duplicate turn", async () => {
-    const priorRequestId = "00000000-0000-4000-8000-000000000003";
-    const repo = {
-      wikiIsEmpty: vi.fn().mockResolvedValue(true),
-      findReusableWikiHomepageSetupTurn: vi.fn().mockResolvedValue({
-        disposition: "reuse",
-        clientRequestId: priorRequestId,
-        text: "Persisted active prompt.",
-      }),
-    };
-    const agent = {
-      invoke: vi.fn().mockResolvedValue({
-        ok: true,
-        data: {
-          disposition: "running",
-          clientRequestId: priorRequestId,
-          conversationId: "00000000-0000-4000-8000-000000000002",
-          retryAllowed: false,
-        },
-      }),
-    };
-
-    await setupInteractor(repo, agent).invoke({
-      homepage: "example.com",
-      clientRequestId: CLIENT_REQUEST_ID,
-      locale: "en",
-    });
-
-    expect(repo.wikiIsEmpty).not.toHaveBeenCalled();
-    expect(agent.invoke).toHaveBeenCalledWith(
-      expect.objectContaining({ clientRequestId: priorRequestId, text: "Persisted active prompt." }),
-    );
-  });
-
-  it("replays an exact completed request even when its pages make the Wiki non-empty", async () => {
-    const repo = {
-      wikiIsEmpty: vi.fn().mockResolvedValue(false),
-      findReusableWikiHomepageSetupTurn: vi.fn().mockResolvedValue({
-        disposition: "reuse",
-        clientRequestId: CLIENT_REQUEST_ID,
-        text: "Persisted completed prompt.",
-      }),
-    };
-    const replay = {
-      ok: true as const,
-      data: {
-        disposition: "completedReplay" as const,
-        clientRequestId: CLIENT_REQUEST_ID,
-        conversationId: "00000000-0000-4000-8000-000000000002",
-        assistantMessage: {
-          id: "message-1",
-          parts: [{ type: "text", text: "Done" }],
-          createdAt: new Date(),
-        },
-        terminalCode: "completed" as const,
-        affectedResources: ["wiki" as const],
-      },
-    };
-    const agent = { invoke: vi.fn().mockResolvedValue(replay) };
-
-    await expect(
-      setupInteractor(repo, agent).invoke({
-        homepage: "example.com",
+  it("refreshes the last imported site and extends it with a help centre the user names", async () => {
+    const refresh = harness({ empty: false, latest: { ...CRAWL, extraHosts: ["acme.zendesk.com"] } });
+    await runWithTenant(mockUser, () =>
+      refresh.interactor.invoke({
+        homepage: "ignored",
         clientRequestId: CLIENT_REQUEST_ID,
         locale: "en",
+        mode: "refresh",
       }),
-    ).resolves.toMatchObject({ ok: true, data: { conversationId: replay.data.conversationId } });
-    expect(repo.wikiIsEmpty).not.toHaveBeenCalled();
-  });
+    );
+    expect(refresh.crawlRepo.createCrawl).toHaveBeenCalledWith(
+      expect.objectContaining({ homepageUrl: CRAWL.homepageUrl, mode: "refresh", extraHosts: ["acme.zendesk.com"] }),
+    );
 
-  it("blocks a second setup while another workspace setup is active", async () => {
-    const repo = {
-      wikiIsEmpty: vi.fn(),
-      findReusableWikiHomepageSetupTurn: vi.fn().mockResolvedValue({ disposition: "blocked" }),
-    };
-    const agent = { invoke: vi.fn() };
+    const extend = harness({ empty: false, latest: CRAWL });
+    expect(
+      await runWithTenant(mockUser, () =>
+        extend.interactor.invoke({
+          homepage: "https://acme.zendesk.com/hc/en-us",
+          clientRequestId: CLIENT_REQUEST_ID,
+          locale: "en",
+          mode: "extend",
+        }),
+      ),
+    ).toMatchObject({ ok: true, data: { homepage: "https://acme.zendesk.com/hc/en-us", domain: "example.com" } });
+    expect(extend.crawlRepo.createCrawl).toHaveBeenCalledWith(
+      expect.objectContaining({ registrableDomain: "example.com", mode: "extend", extraHosts: ["acme.zendesk.com"] }),
+    );
 
-    const result = await setupInteractor(repo, agent).invoke({
-      homepage: "different.example.com",
-      clientRequestId: CLIENT_REQUEST_ID,
-      locale: "en",
-    });
-
-    expect(result.ok).toBe(false);
-    if (!result.ok) {
-      expect(result.error.issues[0]).toMatchObject({
-        path: ["homepage"],
-        params: { error: CustomErrorCode.agentTurnAlreadyRunning },
-      });
-    }
-    expect(repo.wikiIsEmpty).not.toHaveBeenCalled();
-    expect(agent.invoke).not.toHaveBeenCalled();
-  });
-
-  it("retries a pre-provider failure once with the same request identity", async () => {
-    const repo = {
-      wikiIsEmpty: vi.fn().mockResolvedValue(true),
-      findReusableWikiHomepageSetupTurn: vi.fn().mockResolvedValue(null),
-    };
-    const turn = (disposition: string, retryAllowed: boolean) => ({
-      ok: true,
-      data: {
-        disposition,
-        clientRequestId: CLIENT_REQUEST_ID,
-        conversationId: "00000000-0000-4000-8000-000000000002",
-        retryAllowed,
-      },
-    });
-    const agent = {
-      invoke: vi.fn().mockResolvedValueOnce(turn("failed", true)).mockResolvedValueOnce(turn("run", false)),
-    };
-
-    const result = await setupInteractor(repo, agent).invoke({
-      homepage: "example.com",
-      clientRequestId: CLIENT_REQUEST_ID,
-      locale: "en",
-    });
-
-    expect(result).toMatchObject({ ok: true, data: { domain: "example.com" } });
-    expect(agent.invoke.mock.calls.map(([input]) => [input.clientRequestId, input.retry])).toEqual([
-      [CLIENT_REQUEST_ID, false],
-      [CLIENT_REQUEST_ID, true],
-    ]);
-  });
-
-  it.each([
-    ["an uncertain", { disposition: "uncertain", conversationId: "00000000-0000-4000-8000-000000000002" }],
-    ["a conflicting", { disposition: "conflict" }],
-    ["an at-capacity", { disposition: "atCapacity", conversationId: "00000000-0000-4000-8000-000000000002" }],
-    ["a non-retryable failed", { disposition: "failed", conversationId: "00000000-0000-4000-8000-000000000002" }],
-  ])("does not present %s turn as started", async (_case, outcome) => {
-    const repo = {
-      wikiIsEmpty: vi.fn().mockResolvedValue(true),
-      findReusableWikiHomepageSetupTurn: vi.fn().mockResolvedValue(null),
-    };
-    const agent = {
-      invoke: vi.fn().mockResolvedValue({
-        ok: true,
-        data: { clientRequestId: CLIENT_REQUEST_ID, retryAllowed: false, ...outcome },
-      }),
-    };
-
-    const result = await setupInteractor(repo, agent).invoke({
-      homepage: "example.com",
-      clientRequestId: CLIENT_REQUEST_ID,
-      locale: "en",
-    });
-
-    expect(result.ok).toBe(false);
-    if (!result.ok) {
-      expect(result.error.issues[0]).toMatchObject({
-        path: ["homepage"],
-        params: { error: CustomErrorCode.wikiHomepageSetupStartFailed },
-      });
-    }
-    expect(agent.invoke).toHaveBeenCalledOnce();
+    const sameSite = harness({ empty: false, latest: CRAWL });
+    expect(
+      errorCode(
+        await runWithTenant(mockUser, () =>
+          sameSite.interactor.invoke({
+            homepage: "https://example.com/help",
+            clientRequestId: CLIENT_REQUEST_ID,
+            locale: "en",
+            mode: "extend",
+          }),
+        ),
+      ),
+    ).toBe(CustomErrorCode.invalidUrl);
   });
 });

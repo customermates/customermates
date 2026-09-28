@@ -17,6 +17,11 @@ export const WikiHomepageSetupStateSchema = z.object({
   domain: z.string().nullable(),
   conversationId: z.string().nullable(),
   pages: z.array(WikiPageSummarySchema).max(5),
+  progress: z
+    .object({ fetched: z.number().int().min(0), total: z.number().int().min(0) })
+    .nullable()
+    .optional(),
+  failureReason: z.enum(["blocked", "unavailable"]).nullable().optional(),
 });
 export type WikiHomepageSetupState = Data<typeof WikiHomepageSetupStateSchema>;
 
@@ -34,22 +39,78 @@ export abstract class GetWikiHomepageSetupTurnRepo {
   abstract findWikiHomepageSetupTurn(): Promise<WikiHomepageSetupTurn | null>;
 }
 
+export type WikiWebsiteCrawlState = {
+  status: "queued" | "discovering" | "fetching" | "importing" | "synthesizing" | "completed" | "failed" | "blocked";
+  homepageUrl: string;
+  registrableDomain: string;
+  conversationId: string | null;
+  discovered: number;
+  fetched: number;
+  failureReason: string | null;
+};
+
+export abstract class GetWikiWebsiteCrawlStateRepo {
+  abstract findLatestCrawl(): Promise<WikiWebsiteCrawlState | null>;
+}
+
+const ACTIVE_CRAWL = new Set<WikiWebsiteCrawlState["status"]>([
+  "queued",
+  "discovering",
+  "fetching",
+  "importing",
+  "synthesizing",
+]);
+
 @AllowInDemoMode
 @TenantInteractor({ resource: Resource.wiki, action: Action.readAll })
 export class GetWikiHomepageSetupStateInteractor extends AuthenticatedInteractor<undefined, WikiHomepageSetupState> {
   constructor(
     private pageRepo: GetWikiPagesRepo,
     private setupTurnRepo: GetWikiHomepageSetupTurnRepo,
+    private crawlRepo: GetWikiWebsiteCrawlStateRepo,
   ) {
     super();
   }
 
   @ValidateOutput(WikiHomepageSetupStateSchema)
   async invoke(): Validated<WikiHomepageSetupState> {
-    const [setup, { items: pages }] = await Promise.all([
+    const [setup, { items: pages }, crawl] = await Promise.all([
       this.setupTurnRepo.findWikiHomepageSetupTurn(),
       this.pageRepo.listPages({ page: 1, pageSize: 5 }),
+      this.crawlRepo.findLatestCrawl(),
     ]);
+    if (crawl && ACTIVE_CRAWL.has(crawl.status)) {
+      return {
+        ok: true as const,
+        data: {
+          status: "working",
+          homepage: crawl.homepageUrl,
+          domain: crawl.registrableDomain,
+          conversationId: crawl.conversationId,
+          pages: [],
+          progress: { fetched: crawl.fetched, total: crawl.discovered },
+        },
+      };
+    }
+    if (
+      crawl &&
+      (crawl.status === "failed" || crawl.status === "blocked") &&
+      !crawl.conversationId &&
+      pages.length === 0
+    ) {
+      return {
+        ok: true as const,
+        data: {
+          status: "failed",
+          homepage: crawl.homepageUrl,
+          domain: crawl.registrableDomain,
+          conversationId: null,
+          pages: [],
+          failureReason:
+            crawl.status === "blocked" ? "blocked" : crawl.failureReason === "unavailable" ? "unavailable" : null,
+        },
+      };
+    }
     if (setup?.active) {
       return {
         ok: true as const,
