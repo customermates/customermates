@@ -31,7 +31,7 @@ import { AGENT_PANEL_TOOL_NAMES, isAgentPanelTool,
 } from "@/ee/agent-chat/agent-ui-command";
 import { AGENT_RUN_LEASE_MS } from "@/ee/agent-chat/agent-turn-request";
 import { agentMicrocentsFromStorage, agentMicrocentsToCredits } from "@/ee/agent-chat/agent-credit-policy";
-import { resolveAgentModel } from "@/ee/agent-chat/model-catalog";
+import { BENCHMARK_MODEL_KEY_PREFIX, resolveAgentModel } from "@/ee/agent-chat/model-catalog";
 import {
   cancelAgentTurnAs,
   expireAgentRunLeaseAs,
@@ -39,7 +39,7 @@ import {
   respondToUiCommandAs,
 } from "@/tests/helpers/agent-benchmark-responder";
 
-import { armModelKey } from "./arms";
+import { armById, armModelKey, benchmarkModelEntries } from "./arms";
 import { resolveBenchmarkRuntimeSource } from "./build-source";
 import {
   completeEpisode,
@@ -801,6 +801,14 @@ function turnModelKey(
   return index === 0 ? campaignModelKey : undefined;
 }
 
+function benchmarkModelConfig(modelKey: string): AgentModelEntry {
+  if (!modelKey.startsWith(BENCHMARK_MODEL_KEY_PREFIX)) return resolveAgentModel(modelKey);
+  const [entry] = benchmarkModelEntries([armById(modelKey.slice(BENCHMARK_MODEL_KEY_PREFIX.length))]);
+  if (!entry) throw new Error(`Benchmark model "${modelKey}" names the shipped arm.`);
+  const { key: _key, ...config } = entry;
+  return config;
+}
+
 export function benchmarkCaseModelSelection(
   caseId: CaseId,
   arm: BenchmarkArm,
@@ -824,7 +832,7 @@ export function benchmarkCaseModelSelection(
             : {}),
           ...(arm.thinkingLevel ? { thinkingLevel: arm.thinkingLevel } : {}),
         }
-      : resolveAgentModel(modelKey);
+      : benchmarkModelConfig(modelKey);
   return { modelKey, modelConfig };
 }
 

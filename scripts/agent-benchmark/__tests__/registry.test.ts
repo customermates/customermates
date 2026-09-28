@@ -1,5 +1,7 @@
 import { describe, expect, it } from "vitest";
 
+import { MODEL_CATALOG, SHIPPED_AGENT_MODEL_KEY } from "@/ee/agent-chat/model-catalog";
+
 import { ALL_VIEW_KEY, SURFACE } from "@/core/data-view/data-view-keys";
 
 import { armById } from "../arms";
@@ -98,11 +100,26 @@ describe("unified benchmark registry", () => {
     });
     expect(byId.get("V40")?.prompts[0]).toContain("set the search text to View");
     expect(byId.get("V40")?.prompts[0]).toContain("group them by creation month");
-    expect(byId.get("R49")?.contexts).toEqual([{ modelKey: "balanced" }, { modelKey: "omit" }]);
-    expect(benchmarkCaseModelSelection("R49", armById("flash-lite-medium"))).toMatchObject({
-      modelKey: "balanced",
-      modelConfig: { modelId: "google/gemini-3.5-flash-lite", servingProvider: "vertex", thinkingLevel: "low" },
-    });
+    expect(byId.get("R49")?.contexts).toEqual([{ modelKey: "bench:flash-low" }, { modelKey: "omit" }]);
+    const shippedModel = MODEL_CATALOG[SHIPPED_AGENT_MODEL_KEY];
+    for (const arm of ["shipped", "flash-lite-medium"]) {
+      const pinned = benchmarkCaseModelSelection("R49", armById(arm));
+      expect(pinned).toEqual({
+        modelKey: "bench:flash-low",
+        modelConfig: {
+          modelId: "google/gemini-3.5-flash",
+          servingProvider: "vertex",
+          inferenceRegion: "eu",
+          maxOutputTokens: 8192,
+          maxContextTokens: 66_000,
+          maxToolResultChars: 6000,
+          thinkingLevel: "low",
+        },
+      });
+      expect(pinned.modelConfig.modelId).not.toBe(shippedModel.modelId);
+      expect(pinned.modelConfig.servingProvider).toBe(shippedModel.servingProvider);
+      expect(pinned.modelConfig.inferenceRegion).toBe(shippedModel.inferenceRegion);
+    }
     expect(benchmarkCaseModelSelection("S1", armById("flash-lite-medium"))).toMatchObject({
       modelKey: "bench:flash-lite-medium",
       modelConfig: {

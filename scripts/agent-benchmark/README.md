@@ -130,8 +130,9 @@ Commands (`yarn agent:benchmark <command>`):
 - `verify-arms`: read the Gateway endpoint listing and record which arms report ZDR and no-training; excluded arms never run.
 - `check --label pr-182-final --cap 10`: create (or, with `--campaign`, resume) a one-repetition merge run over every
   case with the shipped control resolved from `MODEL_CATALOG[SHIPPED_AGENT_MODEL_KEY]`. The model-pinning contract R49
-  intentionally requests the catalog's `fast` key before proving the conversation remains pinned to that selection; all
-  other cases use the shipped control. The check requires a clean Git tree and a production server that reports
+  selects the benchmark-only overlay model `bench:flash-low` (Gemini 3.5 Flash on Vertex EU, a different model from the
+  shipped control) on turn 1, omits the model on turn 2, and passes only when both turns and every round ran on that
+  pinned model; this needs the server to run with the benchmark overlay. All other cases use the shipped control. The check requires a clean Git tree and a production server that reports
   the same source commit. It exits nonzero for failed strict release regressions, shared safety/runtime-integrity failures,
   skipped, missing or errored episodes. Stochastic answer-quality misses remain visible in the same report without
   turning one model-variance sample into a code-regression failure.

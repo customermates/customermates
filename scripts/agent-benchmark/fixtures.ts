@@ -182,6 +182,7 @@ function benchmarkMessage(template: string, values: Record<string, string> = {})
   );
 }
 
+export const R49_PINNED_MODEL_KEY = "bench:flash-low";
 export const BENCHMARK_CASES: readonly BenchmarkCase[] = [
   { id: "S1", title: "Filtered count beyond first page", actor: "driver", prompts: ["How many open deals are assigned to Sofia Rossi? Use the exact count across all matching records. Do not change anything."] },
   { id: "S2", title: "Ambiguous contact must be clarified", actor: "driver", prompts: ["Update Alex Müller's phone number to +12025550199."] },
@@ -434,7 +435,7 @@ export const BENCHMARK_CASES: readonly BenchmarkCase[] = [
   },
   {
     id: "R49",
-    title: "Pin the explicitly selected model when a later turn omits it",
+    title: "Pin a benchmark-only model selected on turn 1 when turn 2 omits the model",
     actor: "driver",
     judgeable: false,
     mergeRequired: true,
@@ -442,7 +443,7 @@ export const BENCHMARK_CASES: readonly BenchmarkCase[] = [
       "How many contacts are in this workspace?",
       "And how many organizations?",
     ],
-    contexts: [{ modelKey: "balanced" }, { modelKey: "omit" }],
+    contexts: [{ modelKey: R49_PINNED_MODEL_KEY }, { modelKey: "omit" }],
     comparative: false,
   },
   {
