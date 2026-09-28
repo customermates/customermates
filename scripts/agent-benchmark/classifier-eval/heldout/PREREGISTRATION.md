@@ -387,3 +387,73 @@ adjustment with intra-case correlation 0.3 gives a design effect of 3.7 at k = 1
 Budget: offline about 900 Jev calls and 900 judge calls on the new set plus about 1,300 of each on the older banks,
 under 2 USD; live about 1,200 docs episodes at 0.009 USD, the full suite twice at k = 1 and the gold-fact judge, about
 14 USD, within the 20 USD cap.
+
+## Amendment 5 (owner waiver of the offline latency limit, before any live run)
+
+Recorded 2026-09-28 on parent commit `05cde0af`, after the offline stage E3 of Amendment 4
+(`reports/2026-09-28-docs-embedding-offline`) and before the hybrid code is restored and before any live episode. The
+frozen fixtures and their sha256 are unchanged. Everything in Amendment 4 not changed below still holds.
+
+### Owner decision
+
+The owner accepts a docs search that is about 0.5 s slower if the answers are better. Offline gate check (4), added
+`search_docs` p95 at most 0.3 s, is waived by the owner. Checks (1) to (3) passed for both models (pooled answer
++25.0 and +21.7 points, Holm p = 0.0005, no language below −5 points), so the offline gate counts as passed. Latency
+is measured and reported, not gated, except the sanity limit below. Quality must still be proven live.
+
+### Chosen model
+
+`google-multilingual` (`google/text-multilingual-embedding-002` on `vertex`, ZDR and no training), chosen by the owner
+over Amendment 4's tie-break rule, which would have picked `qwen3-8b` (+25.0 against +21.7 points): it had no
+offline loss against A (13 wins, 0 losses; `qwen3-8b` 16 wins, 1 loss) and adds no new data recipient, since the
+shipped Mate model is already served by Google Vertex. `AGENT_DOCS_EMBEDDING_MODEL` defaults to it.
+
+### Arms
+
+- **(A) keyword, shipped control.** `AGENT_DOCS_CANDIDATES=keyword`, `AGENT_DOCS_RERANK=jev`: keyword top 20 plus
+  title-only sections, then Jev, as in Amendment 4.
+- **(B) hybrid.** `AGENT_DOCS_CANDIDATES=hybrid`, `AGENT_DOCS_EMBEDDING_MODEL=google-multilingual`,
+  `AGENT_DOCS_RERANK=jev`: keyword top 10 union embedding top 10, filled and capped as in Amendment 4, then Jev.
+  The query-embedding deadline is raised from 500 ms to **1,200 ms** from its start, so the design is measured with
+  embeddings actually present (offline at 500 ms the Google embedding answered in time on only 88 of 180 calls). On
+  any embedding failure, timeout, missing key or unready section index, B hands Jev exactly A's candidates.
+- Section embeddings stay cached per sha256 of model and section text, in memory and under `generated/`, built ahead
+  by `yarn docs:embeddings google-multilingual` before the server starts; the query embedding stays metered as the
+  `docs_embedding` auxiliary charge of the turn.
+- Every `search_docs` call of hosted Mate records in the turn's classifier trace its wall time and whether the
+  hybrid candidates were used, so search latency and the embedding fallback rate are read from the episodes.
+
+### Live A/B (replaces the Amendment 4 live stage), cap 25 USD
+
+- Cases `DE01` to `DE30` plus `DH01` to `DH30`, k = 10 per arm, one production build of one clean commit.
+- ABAB block design: ten blocks per arm of two repetitions of all 60 cases, A r1–2, B r1–2, A r3–4, … B r9–10
+  (20 blocks), each on a freshly restarted server; three concurrent benchmark processes split the cases by index
+  modulo 3. Episodes pair by case and repetition (600 pairs).
+- A `DE` or `DH` episode passes when its deterministic oracle passes and the stage-4 gold-fact judge (same model,
+  prompt and inputs: question, gold fact, gold section text, final answer; arm-blind) answers `yes`. No rubric judges
+  run, except if the full-suite check below cannot be decided without them.
+- **Live gate, every item must pass:**
+  1. pass rate B > A with the exact two-sided McNemar p < 0.05 on the 600 pairs;
+  2. pass^10 of B (share of the 60 cases passed in all 10 repetitions) not below that of A (point estimate);
+  3. no strict or safety regression on the full suite: every non-held-out case once per arm (k = 1), A then B, each
+     on a freshly restarted server, after the docs blocks; a regression is a strict contract or safety check that A
+     passes and B fails, decided for each such case by the Amendment 4 recheck (k = 10 per arm in alternating blocks
+     of 5; noise when the two-sided Fisher exact p ≥ 0.05 and no failing B episode called `search_docs`);
+  4. credits per turn of B within +3 % of A on the 600 pairs (relative difference of means, point estimate);
+  5. sanity limit: first-output p95 of B minus A at most +1.0 s on the 600 pairs (point estimate).
+- The ceiling rule stays: if A passes 95 % or more of the 600 control episodes, the comparison is at the ceiling and
+  the gate fails. No repetitions are added after results are seen; a block lost to infrastructure is rerun in full
+  for both arms of that block pair, and the report says so.
+- Reported beside the gate, not gated: pass rates with Wilson intervals and the difference with a 95 % case-cluster
+  paired bootstrap, per family (`DE`, `DH`) and per language; first-output p50 and p95 with bootstrap intervals of
+  the difference; `search_docs` wall time p50 and p95 per arm; the embedding fallback rate of B (share of B's
+  `search_docs` calls that used A's candidates); credits and USD per turn; auxiliary cost per turn.
+
+### Verdict
+
+If every live gate item passes, `AGENT_DOCS_CANDIDATES` defaults to `hybrid` with `google-multilingual`, and
+`.env.cloud.template` states that Google Vertex `text-multilingual-embedding-002` receives the user's docs question.
+Otherwise the hybrid code is removed again and the reports stay as evidence.
+
+The analysis, its oracle and its statistics are fixed in `METHOD` of
+`scripts/agent-benchmark/classifier-eval/heldout-live/docs-embedding-live.ts`, committed before any live episode.
