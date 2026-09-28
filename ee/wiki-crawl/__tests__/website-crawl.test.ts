@@ -190,6 +190,17 @@ describe("source extraction", () => {
   });
 });
 
+describe("untrusted markup", () => {
+  it("decodes each entity once and turns markup into text", () => {
+    expect(
+      parseSitemap("<urlset><url><loc>https://example.com/a?q=&amp;lt;b&amp;gt;</loc></url></urlset>").urls,
+    ).toEqual(["https://example.com/a?q=&lt;b&gt;"]);
+    const html = `<html><head><script type="application/ld+json">{"@type":"Question","name":"Safe?","acceptedAnswer":{"text":"<p>Use <iframe src=x></iframe><b>bold</b> &amp;lt;script&amp;gt; ok</p>"}}</script></head><body><main><p>Body</p></main></body></html>`;
+    const [pair] = extractWikiSourceDocument(html, "https://example.com/faq", "text/html").qaPairs;
+    expect(pair).toEqual({ question: "Safe?", answer: "Use bold &lt;script&gt; ok" });
+  });
+});
+
 describe("website discovery and fetching", () => {
   const scope = { registrableDomain: "example.com", extraHosts: [] };
 

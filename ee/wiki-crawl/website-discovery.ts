@@ -149,15 +149,13 @@ export function parseRobots(text: string | null): RobotsRules {
   };
 }
 
+const XML_ENTITIES: Record<string, string> = { amp: "&", lt: "<", gt: ">", quot: '"', apos: "'" };
+
 function decodeXmlText(value: string): string {
-  return value
-    .replace(/<!\[CDATA\[([\s\S]*?)\]\]>/gu, "$1")
-    .replace(/&amp;/gu, "&")
-    .replace(/&lt;/gu, "<")
-    .replace(/&gt;/gu, ">")
-    .replace(/&quot;/gu, '"')
-    .replace(/&apos;/gu, "'")
-    .trim();
+  const text = value.trim();
+  const cdata = /^<!\[CDATA\[([\s\S]*?)\]\]>$/u.exec(text);
+  if (cdata) return cdata[1].trim();
+  return text.replace(/&(amp|lt|gt|quot|apos);/gu, (_, name: string) => XML_ENTITIES[name]);
 }
 
 export function parseSitemap(xml: string): { urls: string[]; sitemaps: string[] } {

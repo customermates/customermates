@@ -37,20 +37,17 @@ function cleanText(value: string): string {
     .trim();
 }
 
+const plainText = compile({
+  wordwrap: false,
+  selectors: [
+    { selector: "a", options: { ignoreHref: true } },
+    { selector: "img", format: "skip" },
+    ...["h1", "h2", "h3", "h4", "h5", "h6"].map((selector) => ({ selector, options: { uppercase: false } })),
+  ],
+});
+
 function stripTags(value: string): string {
-  return cleanText(
-    value
-      .replace(/<br\s*\/?>/giu, "\n")
-      .replace(/<\/(?:p|li|div)>/giu, "\n")
-      .replace(/<\/?(?:a|b|strong|i|em|span|code|u|small|mark|sup|sub)\b[^>]*>/giu, "")
-      .replace(/<[^>]+>/gu, " ")
-      .replace(/&nbsp;/gu, " ")
-      .replace(/&amp;/gu, "&")
-      .replace(/&lt;/gu, "<")
-      .replace(/&gt;/gu, ">")
-      .replace(/&quot;/gu, '"')
-      .replace(/&#39;|&apos;/gu, "'"),
-  );
+  return cleanText(plainText(value));
 }
 
 function contentRoot(html: string): string {
