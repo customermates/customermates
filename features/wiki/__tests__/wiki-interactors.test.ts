@@ -293,6 +293,9 @@ describe("SearchWikiPagesInteractor", () => {
             page: 1,
             pageSize: 5,
           }),
+          searchPageCandidates: vi.fn(),
+          semanticPageCandidates: vi.fn(),
+          getPagesByIds: vi.fn(),
         },
         offsets,
       ).invoke({ query: "approves", page: 1, pageSize: 5 }),
@@ -328,6 +331,9 @@ describe("Wiki permission boundary", () => {
     const repo = {
       listPages: vi.fn().mockResolvedValue({ items: [], total: 0, page: 1, pageSize: 25 }),
       searchPages: vi.fn().mockResolvedValue({ items: [], total: 0, page: 1, pageSize: 25 }),
+      searchPageCandidates: vi.fn(),
+      semanticPageCandidates: vi.fn(),
+      getPagesByIds: vi.fn(),
       getPage: vi.fn().mockResolvedValue(page()),
     };
     const calls = [

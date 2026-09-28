@@ -55,7 +55,30 @@ export abstract class AgentUsageRepo {
     userId: string;
     releasedAt: Date;
   }): Promise<void>;
+  abstract admitsHostedAiRetrievalUnscoped(now: Date): Promise<boolean>;
+  abstract accrueRetrievalUsageUnscoped(args: {
+    companyId: string;
+    userId: string;
+    grant: AgentRetrievalGrant;
+    charge: AgentRetrievalCharge;
+    now: Date;
+  }): Promise<void>;
 }
+
+export type AgentRetrievalGrant = {
+  planSnapshot: SubscriptionPlan;
+  subscriptionStatusSnapshot: SubscriptionStatus;
+  allowanceCreditsSnapshot: number;
+  periodStart: Date;
+  periodEnd: Date;
+};
+
+export type AgentRetrievalCharge = {
+  model: string;
+  inputTokens: number;
+  costMicrocents: number;
+  costSource: "measured" | "estimated";
+};
 
 export const AgentUsageBlockedReasonSchema = z.enum([
   "self_hosted",
@@ -239,6 +262,32 @@ export class AgentUsageService {
         budget,
       },
     };
+  }
+
+  async prepareRetrieval(userId: string, now = new Date()): Promise<AgentRetrievalGrant | null> {
+    const state = await this.resolveUsageState(userId, now);
+    if (state.summary.blockedReason || !state.user.subscription || !state.summary.plan) return null;
+    if (!(await this.repo.admitsHostedAiRetrievalUnscoped(now))) return null;
+    return {
+      planSnapshot: state.summary.plan,
+      subscriptionStatusSnapshot: state.user.subscription.status,
+      allowanceCreditsSnapshot: state.summary.creditsLimit,
+      periodStart: state.summary.periodStart,
+      periodEnd: state.summary.resetAt,
+    };
+  }
+
+  async accrueRetrieval(args: {
+    companyId: string;
+    userId: string;
+    grant: AgentRetrievalGrant;
+    charge: AgentRetrievalCharge;
+    now?: Date;
+  }) {
+    assertCreditCount(args.charge.costMicrocents, "Retrieval cost");
+    assertCreditCount(args.charge.inputTokens, "Retrieval input tokens");
+    if (args.charge.costMicrocents === 0) return;
+    await this.repo.accrueRetrievalUsageUnscoped({ ...args, now: args.now ?? new Date() });
   }
 
   async reserveUsage(args: {

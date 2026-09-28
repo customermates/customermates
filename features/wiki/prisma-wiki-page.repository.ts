@@ -9,16 +9,22 @@ import type { UpdateWikiPageRepo } from "./update-wiki-page.interactor";
 import type { StartWikiHomepageSetupRepo } from "./start-wiki-homepage-setup.interactor";
 import type { WikiPageDto } from "./wiki.schema";
 import type { WikiSearchQuery } from "./wiki-search";
+import type { WikiKeywordCandidate, WikiSemanticCandidate } from "./wiki-hybrid-ranking";
+import type { WikiSemanticChunk } from "./wiki-chunks";
+import type { WikiSemanticIndexPage, WikiSemanticIndexRepo } from "@/ee/wiki-retrieval/wiki-semantic-index.service";
 
 import { Prisma } from "@/generated/prisma";
 
 import { BaseRepository } from "@/core/base/base-repository";
+import { Transaction } from "@/core/decorators/transaction.decorator";
 import { WIKI_CATALOG_PAGE_SIZE } from "./wiki.schema";
+import { WIKI_SEMANTIC_MIN_SIMILARITY } from "./wiki-hybrid-ranking";
 import {
   parseWikiSearchQuery,
   WIKI_FUZZY_SIMILARITY,
   WIKI_SEARCH_CONFIGS,
   wikiSearchMatch,
+  wikiIdentifierPattern,
   wikiSortedLetters,
 } from "./wiki-search";
 
@@ -30,8 +36,15 @@ const WIKI_SUBSTRING_ORD_BASE = 1_000;
 const WIKI_SUGGESTION_BODY_PAGES = 200;
 const WIKI_SUGGESTION_BODY_CHARS = 20_000;
 const WIKI_SUGGESTION_VOCABULARY_LIMIT = 5_000;
+const WIKI_IDENTIFIER_ORD_BASE = 2_000;
+const WIKI_IDENTIFIER_MAX_PAGES = 3;
+const WIKI_SEMANTIC_STALE_LIMIT = 1_000;
+const WIKI_SEMANTIC_CLAIM_SECONDS = 300;
+const WIKI_SEMANTIC_INTRO_MARGIN = 0.03;
 
-type WikiSearchRow = WikiPageDto & { total: number };
+let semanticIndexColumn: Promise<boolean> | undefined;
+
+type WikiSearchRow = WikiPageDto & { total: number; allTerms: boolean; identifier: boolean };
 
 function wikiFuzzyTerms(terms: WikiSearchQuery["fuzzyTerms"]) {
   return Prisma.sql`unnest(
@@ -52,6 +65,10 @@ function wikiFuzzySimilarity(word: Prisma.Sql) {
     END`;
 }
 
+function isSearchableWikiQuery(query: WikiSearchQuery) {
+  return query.units.length > 0 || query.substringTerms.length > 0 || query.identifierTerms.length > 0;
+}
+
 export class PrismaWikiPageRepo
   extends BaseRepository<Prisma.WikiPageWhereInput>
   implements
@@ -62,7 +79,8 @@ export class PrismaWikiPageRepo
     CreateWikiPagesRepo,
     UpdateWikiPageRepo,
     DeleteWikiPageRepo,
-    StartWikiHomepageSetupRepo
+    StartWikiHomepageSetupRepo,
+    WikiSemanticIndexRepo
 {
   private get pageSelect() {
     return {
@@ -101,17 +119,159 @@ export class PrismaWikiPageRepo
   async searchPages(data: RepoArgs<SearchWikiPagesRepo, "searchPages">) {
     const { page, pageSize } = data;
     const query = parseWikiSearchQuery(data.query);
-    if (query.units.length === 0 && query.substringTerms.length === 0) return { items: [], total: 0, page, pageSize };
+    if (!isSearchableWikiQuery(query)) return { items: [], total: 0, page, pageSize };
     const rows = await this.prisma.$queryRaw<WikiSearchRow[]>(this.wikiSearchSql(query, data.query, page, pageSize));
     const total = rows[0]?.total ?? (page > 1 ? await this.countWikiSearchMatches(query, data.query) : 0);
     const didYouMean = total === 0 ? await this.wikiSearchSuggestions(query) : [];
     return {
-      items: rows.map(({ total: _total, ...row }) => ({ ...row, ...wikiSearchMatch(row.markdown, query) })),
+      items: rows.map(({ total: _total, allTerms: _allTerms, identifier: _identifier, ...row }) => ({
+        ...row,
+        ...wikiSearchMatch(row.markdown, query),
+      })),
       total,
       page,
       pageSize,
       ...(didYouMean.length > 0 ? { didYouMean } : {}),
     };
+  }
+
+  async searchPageCandidates(text: string, limit: number): Promise<WikiKeywordCandidate[]> {
+    const query = parseWikiSearchQuery(text);
+    if (!isSearchableWikiQuery(query)) return [];
+    return this.prisma.$queryRaw<WikiKeywordCandidate[]>(Prisma.sql`
+      SELECT s."id", s."allTerms", s."identifier" FROM (${this.wikiSearchSql(query, text, 1, limit)}) AS s
+    `);
+  }
+
+  async semanticPageCandidates(vector: number[], model: string, limit: number) {
+    if (!(await this.semanticIndexAvailable())) return null;
+    const embedding = `[${vector.join(",")}]`;
+    const [candidates, stale] = await Promise.all([
+      this.prisma.$queryRaw<WikiSemanticCandidate[]>(Prisma.sql`
+        WITH distances AS MATERIALIZED (
+          SELECT c."pageId", c."offset", c."ordinal", c."embedding" <=> ${embedding}::vector AS "distance"
+          FROM "WikiPageChunk" c
+          JOIN "WikiPage" p ON p."id" = c."pageId" AND p."updatedAt" = c."pageUpdatedAt"
+          WHERE c."companyId" = ${this.companyId} AND c."model" = ${model} AND c."embedding" IS NOT NULL
+        ),
+        pages AS (
+          SELECT "pageId", min("distance") AS "distance" FROM distances GROUP BY "pageId"
+        ),
+        sections AS (
+          SELECT DISTINCT ON ("pageId") "pageId", "offset"
+          FROM distances
+          ORDER BY "pageId", "distance" + CASE WHEN "ordinal" = 0 THEN ${WIKI_SEMANTIC_INTRO_MARGIN}::float8 ELSE 0 END,
+            "ordinal"
+        )
+        SELECT p."pageId" AS "id", s."offset", (1 - p."distance")::float8 AS "similarity"
+        FROM pages p
+        JOIN sections s ON s."pageId" = p."pageId"
+        WHERE p."distance" <= ${1 - WIKI_SEMANTIC_MIN_SIMILARITY}
+        ORDER BY p."distance", p."pageId"
+        LIMIT ${limit}
+      `),
+      this.prisma.$queryRaw<Array<{ id: string }>>(Prisma.sql`
+        SELECT p."id" FROM "WikiPage" p
+        WHERE p."companyId" = ${this.companyId} AND ${this.staleSemanticPage(model)}
+        LIMIT ${WIKI_SEMANTIC_STALE_LIMIT}
+      `),
+    ]);
+    return { candidates, stalePageIds: new Set(stale.map(({ id }) => id)) };
+  }
+
+  async getPagesByIds(ids: string[]) {
+    if (ids.length === 0) return [];
+    return this.prisma.wikiPage.findMany({
+      where: { id: { in: ids }, companyId: this.companyId },
+      select: this.pageSelect,
+    });
+  }
+
+  async semanticIndexAvailable() {
+    semanticIndexColumn ??= this.prisma
+      .$queryRaw<Array<{ available: boolean }>>(
+        Prisma.sql`
+        SELECT EXISTS (
+          SELECT 1 FROM information_schema.columns
+          WHERE table_schema = current_schema() AND table_name = 'WikiPageChunk' AND column_name = 'embedding'
+        ) AS "available"
+      `,
+      )
+      .then((rows) => rows[0]?.available === true)
+      .catch((error: unknown) => {
+        semanticIndexColumn = undefined;
+        throw error;
+      });
+    return semanticIndexColumn;
+  }
+
+  async claimStaleSemanticPages(model: string, limit: number): Promise<WikiSemanticIndexPage[]> {
+    return this.prisma.$queryRaw<WikiSemanticIndexPage[]>(Prisma.sql`
+      UPDATE "WikiPage" SET "semanticIndexClaimedAt" = CURRENT_TIMESTAMP
+      WHERE "id" IN (
+        SELECT p."id" FROM "WikiPage" p
+        WHERE p."companyId" = ${this.companyId}
+          AND (
+            p."semanticIndexClaimedAt" IS NULL
+            OR p."semanticIndexClaimedAt" < CURRENT_TIMESTAMP - make_interval(secs => ${WIKI_SEMANTIC_CLAIM_SECONDS})
+          )
+          AND ${this.staleSemanticPage(model)}
+        ORDER BY p."updatedAt" DESC, p."id" ASC
+        LIMIT ${limit}
+        FOR UPDATE SKIP LOCKED
+      )
+      AND "companyId" = ${this.companyId}
+      RETURNING "id", "title", "markdown", "updatedAt"
+    `);
+  }
+
+  async semanticEmbeddingsByHash(pageId: string, model: string) {
+    const rows = await this.prisma.$queryRaw<Array<{ contentHash: string; embedding: string }>>(Prisma.sql`
+      SELECT "contentHash", "embedding"::text AS "embedding" FROM "WikiPageChunk"
+      WHERE "pageId" = ${pageId} AND "companyId" = ${this.companyId} AND "model" = ${model}
+        AND "embedding" IS NOT NULL
+    `);
+    return new Map(rows.map((row) => [row.contentHash, row.embedding]));
+  }
+
+  @Transaction
+  async replaceSemanticChunks(args: {
+    pageId: string;
+    pageUpdatedAt: Date;
+    model: string;
+    chunks: Array<WikiSemanticChunk & { embedding: string }>;
+  }) {
+    const current = await this.prisma.$queryRaw<Array<{ updatedAt: Date }>>(Prisma.sql`
+      SELECT "updatedAt" FROM "WikiPage" WHERE "id" = ${args.pageId} AND "companyId" = ${this.companyId} FOR UPDATE
+    `);
+    if (current[0]?.updatedAt.getTime() !== args.pageUpdatedAt.getTime()) return false;
+
+    await this.prisma.$executeRaw(Prisma.sql`
+      DELETE FROM "WikiPageChunk" WHERE "pageId" = ${args.pageId} AND "companyId" = ${this.companyId}
+    `);
+    await this.prisma.$executeRaw(Prisma.sql`
+      INSERT INTO "WikiPageChunk" (
+        "id", "companyId", "pageId", "ordinal", "offset", "section", "contentHash", "model", "pageUpdatedAt", "embedding"
+      )
+      SELECT gen_random_uuid()::text, ${this.companyId}, ${args.pageId}, c."ordinal", c."offset", c."section",
+        c."contentHash", ${args.model}, ${args.pageUpdatedAt}, c."embedding"::vector
+      FROM unnest(
+        ${args.chunks.map((chunk) => chunk.ordinal)}::int[],
+        ${args.chunks.map((chunk) => chunk.offset)}::int[],
+        ${args.chunks.map((chunk) => chunk.section)}::text[],
+        ${args.chunks.map((chunk) => chunk.contentHash)}::text[],
+        ${args.chunks.map((chunk) => chunk.embedding)}::text[]
+      ) AS c("ordinal", "offset", "section", "contentHash", "embedding")
+    `);
+    return true;
+  }
+
+  async releaseSemanticClaims(pageIds: string[]) {
+    if (pageIds.length === 0) return;
+    await this.prisma.$executeRaw(Prisma.sql`
+      UPDATE "WikiPage" SET "semanticIndexClaimedAt" = NULL
+      WHERE "id" = ANY(${pageIds}::text[]) AND "companyId" = ${this.companyId}
+    `);
   }
 
   async listCatalogPages({ page }: RepoArgs<GetWikiCatalogRepo, "listCatalogPages">) {
@@ -225,6 +385,14 @@ export class PrismaWikiPageRepo
       };
     }
     return { status: "deleted" as const, page };
+  }
+
+  private staleSemanticPage(model: string) {
+    return Prisma.sql`NOT EXISTS (
+      SELECT 1 FROM "WikiPageChunk" c
+      WHERE c."pageId" = p."id" AND c."model" = ${model} AND c."pageUpdatedAt" = p."updatedAt"
+        AND c."embedding" IS NOT NULL
+    )`;
   }
 
   private async countWikiSearchMatches(query: WikiSearchQuery, text: string) {
@@ -356,11 +524,25 @@ export class PrismaWikiPageRepo
       ? Prisma.sql`EXISTS (SELECT 1 FROM units u WHERE wiki_search_weighted_vector(w."word", 'A') @@ u."query")`
       : Prisma.sql`false`;
     const unitCount = query.units.length;
+    const identifierHits =
+      query.identifierTerms.length > 0
+        ? Prisma.sql`
+          UNION ALL
+          SELECT m."id", ${WIKI_IDENTIFIER_ORD_BASE}::int + m."ord"::int, true, 1::float8
+          FROM (
+            SELECT p."id", terms."ord", count(*) OVER (PARTITION BY terms."ord") AS "pages"
+            FROM "WikiPage" p
+            JOIN unnest(${query.identifierTerms.map(wikiIdentifierPattern)}::text[]) WITH ORDINALITY AS terms("pattern", "ord")
+              ON p."searchCompact" ~ terms."pattern"
+            WHERE p."companyId" = ${this.companyId}
+          ) AS m
+          WHERE m."pages" <= ${WIKI_IDENTIFIER_MAX_PAGES}::int`
+        : Prisma.empty;
 
     return Prisma.sql`
       WITH units AS MATERIALIZED (${units}),
       search AS MATERIALIZED (SELECT ${anyQuery ?? Prisma.sql`NULL::tsquery`} AS "query"),
-      "textHits" AS MATERIALIZED (${textHits} ${substringHits}),
+      "textHits" AS MATERIALIZED (${textHits} ${substringHits} ${identifierHits}),
       "unknownTerms" AS MATERIALIZED (
         SELECT terms.* FROM ${wikiFuzzyTerms(query.fuzzyTerms)}
         WHERE NOT EXISTS (SELECT 1 FROM "textHits" h WHERE h."ord" = terms."ord")
@@ -388,6 +570,7 @@ export class PrismaWikiPageRepo
         SELECT h."id",
           sum(w."weight" * h."strength") AS "covered",
           count(*) FILTER (WHERE h."ord" < ${WIKI_SUBSTRING_ORD_BASE}::int) AS "matched",
+          bool_or(h."ord" >= ${WIKI_IDENTIFIER_ORD_BASE}::int) AS "identifier",
           bool_or(h."exact") AS "exact",
           coalesce(sum(h."strength") FILTER (WHERE h."ord" IN (SELECT "ord" FROM "unknownTerms")), 0) AS "similarity",
           row_number() OVER (ORDER BY sum(w."weight" * h."strength") DESC, h."id") AS "coveredRank"
@@ -396,7 +579,7 @@ export class PrismaWikiPageRepo
         GROUP BY h."id"
       ),
       candidates AS MATERIALIZED (
-        SELECT p."id", p."title", p."createdAt", c."covered", c."matched", c."similarity",
+        SELECT p."id", p."title", p."createdAt", c."covered", c."matched", c."similarity", c."identifier",
           ${textRank} AS "textRank",
           (${titleHit} OR c."similarity" > 0) AS "titleHit",
           (to_tsvector('simple', p."title") = to_tsvector('simple', ${text})) AS "exactTitle"
@@ -420,7 +603,7 @@ export class PrismaWikiPageRepo
         GROUP BY c."id"
       ),
       ranked AS MATERIALIZED (
-        SELECT c."id", c."createdAt",
+        SELECT c."id", c."createdAt", c."identifier",
           (${unitCount}::int > 0 AND c."matched" = ${unitCount}::int) AS "allTerms",
           c."exactTitle",
           coalesce(t."fullTitle", false) AS "fullTitle",
@@ -435,13 +618,16 @@ export class PrismaWikiPageRepo
       ),
       selected AS MATERIALIZED (
         SELECT * FROM ranked
-        ORDER BY "allTerms" DESC, "exactTitle" DESC, "fullTitle" DESC, "fusedRank" DESC, "createdAt" ASC, "id" ASC
+        ORDER BY "identifier" DESC, "allTerms" DESC, "exactTitle" DESC, "fullTitle" DESC, "fusedRank" DESC,
+          "createdAt" ASC, "id" ASC
         LIMIT ${pageSize} OFFSET ${(page - 1) * pageSize}
       )
-      SELECT p."id", p."title", p."markdown", p."createdAt", p."updatedAt", r."total"::int AS "total"
+      SELECT p."id", p."title", p."markdown", p."createdAt", p."updatedAt", r."total"::int AS "total",
+        r."allTerms", r."identifier"
       FROM selected r
       JOIN "WikiPage" p ON p."id" = r."id" AND p."companyId" = ${this.companyId}
-      ORDER BY r."allTerms" DESC, r."exactTitle" DESC, r."fullTitle" DESC, r."fusedRank" DESC, r."createdAt" ASC, r."id" ASC
+      ORDER BY r."identifier" DESC, r."allTerms" DESC, r."exactTitle" DESC, r."fullTitle" DESC, r."fusedRank" DESC,
+        r."createdAt" ASC, r."id" ASC
     `;
   }
 }

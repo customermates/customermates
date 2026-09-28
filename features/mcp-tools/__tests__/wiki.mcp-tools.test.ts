@@ -35,7 +35,7 @@ vi.mock("@/core/di", () => ({
   getDeleteWikiPageInteractor: () => ({ invoke: calls.delete }),
   getGetWikiPageInteractor: () => ({ invoke: calls.get }),
   getGetWikiPagesInteractor: () => ({ invoke: calls.list }),
-  getSearchWikiPagesInteractor: () => ({ invoke: calls.search }),
+  getSearchWikiKnowledgeInteractor: () => ({ invoke: calls.search }),
   getUpdateWikiPageInteractor: () => ({ invoke: calls.update }),
 }));
 

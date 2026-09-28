@@ -14,6 +14,7 @@ import {
 
 import { BaseRepository } from "@/core/base/base-repository";
 import { BypassTenantGuard } from "@/core/decorators/bypass-tenant.decorator";
+import { Transaction } from "@/core/decorators/transaction.decorator";
 import { env } from "@/env";
 import type {
   GetWikiHomepageSetupTurnRepo,
@@ -22,7 +23,7 @@ import type {
 import type { StartWikiHomepageSetupTurnRepo } from "@/features/wiki/start-wiki-homepage-setup.interactor";
 import { parsePublicWikiHomepage } from "@/features/wiki/wiki-homepage";
 
-import type { AgentUsageRepo } from "./agent-usage.service";
+import type { AgentRetrievalCharge, AgentRetrievalGrant, AgentUsageRepo } from "./agent-usage.service";
 import { AGENT_CONVERSATION_PAGE_SIZE, AGENT_MESSAGE_PAGE_SIZE, type AgentConversationPage } from "./agent-history";
 import { AGENT_MAX_CONCURRENT_RUNS_PER_USER } from "./agent-run-limits";
 import { clientSafeAgentMessageParts, hasRenderableAgentMessageParts, partsToText } from "./agent-chat.schema";
@@ -2271,6 +2272,7 @@ export class PrismaAgentChatRepo
           periodStart,
           periodEnd,
           state: { in: ["settled", "retained"] },
+          purpose: "turn",
         },
         orderBy: [{ settledAt: "desc" }, { id: "desc" }],
         select: { chargedCredits: true },
@@ -2331,6 +2333,53 @@ export class PrismaAgentChatRepo
       agentCreditActivatedAt: user.agentCreditActivatedAt,
       subscription: user.company.subscription,
     };
+  }
+
+  @BypassTenantGuard
+  @Transaction
+  async admitsHostedAiRetrievalUnscoped(now: Date) {
+    return this.admitsHostedAiGlobalSpend({ now });
+  }
+
+  @BypassTenantGuard
+  async accrueRetrievalUsageUnscoped(args: {
+    companyId: string;
+    userId: string;
+    grant: AgentRetrievalGrant;
+    charge: AgentRetrievalCharge;
+    now: Date;
+  }) {
+    const accrualMonth = new Date(Date.UTC(args.now.getUTCFullYear(), args.now.getUTCMonth(), 1));
+    const charged = Math.ceil(args.charge.costMicrocents / AGENT_CREDIT_MICROCENTS);
+    await this.prisma.$executeRaw`
+      INSERT INTO "AgentUsageEvent" (
+        "id", "companyId", "userId", "state", "model", "inputTokens", "costMicrocents", "costSource",
+        "reservedCredits", "chargedCredits", "planSnapshot", "subscriptionStatusSnapshot", "allowanceCreditsSnapshot",
+        "periodStart", "periodEnd", "providerStartedAt", "settledAt", "purpose", "accrualMonth", "createdAt"
+      ) VALUES (
+        ${randomUUID()}, ${args.companyId}, ${args.userId}, 'settled', ${args.charge.model}, ${args.charge.inputTokens},
+        ${args.charge.costMicrocents}, ${args.charge.costSource}::"AgentUsageCostSource", ${charged}, ${charged},
+        ${args.grant.planSnapshot}::"SubscriptionPlan", ${args.grant.subscriptionStatusSnapshot}::"SubscriptionStatus",
+        ${args.grant.allowanceCreditsSnapshot}, ${args.grant.periodStart}, ${args.grant.periodEnd}, ${args.now},
+        ${args.now}, 'wikiRetrieval', ${accrualMonth}, ${args.now}
+      )
+      ON CONFLICT ("companyId", "userId", "periodStart", "periodEnd", "purpose", "accrualMonth") DO UPDATE SET
+        "model" = EXCLUDED."model",
+        "inputTokens" = "AgentUsageEvent"."inputTokens" + EXCLUDED."inputTokens",
+        "costMicrocents" = "AgentUsageEvent"."costMicrocents" + EXCLUDED."costMicrocents",
+        "reservedCredits" = ceil(
+          ("AgentUsageEvent"."costMicrocents" + EXCLUDED."costMicrocents")::numeric / ${AGENT_CREDIT_MICROCENTS}
+        )::int,
+        "chargedCredits" = ceil(
+          ("AgentUsageEvent"."costMicrocents" + EXCLUDED."costMicrocents")::numeric / ${AGENT_CREDIT_MICROCENTS}
+        )::int,
+        "costSource" = CASE
+          WHEN "AgentUsageEvent"."costSource" = 'estimated' OR EXCLUDED."costSource" = 'estimated'
+            THEN 'estimated'::"AgentUsageCostSource"
+          ELSE 'measured'::"AgentUsageCostSource"
+        END,
+        "settledAt" = EXCLUDED."settledAt"
+    `;
   }
 
   @BypassTenantGuard

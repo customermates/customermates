@@ -110,5 +110,6 @@ export const WikiPageSearchResultSchema = z.object({
   page: z.number().int().min(1),
   pageSize: z.number().int().min(1),
   didYouMean: z.array(z.string()).optional(),
+  retrieval: z.enum(["semantic", "keyword"]).optional(),
 });
 export type WikiPageSearchResult = Data<typeof WikiPageSearchResultSchema>;

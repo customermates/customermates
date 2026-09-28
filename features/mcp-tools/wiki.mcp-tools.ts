@@ -8,7 +8,7 @@ import {
   getDeleteWikiPageInteractor,
   getGetWikiPageInteractor,
   getGetWikiPagesInteractor,
-  getSearchWikiPagesInteractor,
+  getSearchWikiKnowledgeInteractor,
   getUpdateWikiPageInteractor,
 } from "@/core/di";
 import { CustomErrorCode } from "@/core/validation/validation.types";
@@ -364,7 +364,7 @@ export const manageWikiPagesTool = {
       const parsed = SearchSchema.safeParse(params);
       if (!parsed.success) return mcpValidationFailure(parsed.error);
       return runInteractor(
-        getSearchWikiPagesInteractor().invoke({ ...parsed.data, pageSize: WIKI_MCP_PAGE_SIZE }),
+        getSearchWikiKnowledgeInteractor().invoke({ ...parsed.data, pageSize: WIKI_MCP_PAGE_SIZE }),
         wikiSearchResult,
       );
     }

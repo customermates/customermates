@@ -18,6 +18,9 @@ const HEADING_LINE = /^(#{1,6})[ \t]+(.+?)(?:[ \t]+#+)?[ \t]*$/u;
 const FENCE_LINE = /^[ \t]{0,3}(?:```|~~~)/u;
 const WIKI_SEARCH_MAX_UNITS = 32;
 const FUZZY_MIN_LENGTH = 4;
+const IDENTIFIER_TOKEN = /\S+/gu;
+const IDENTIFIER_MIN_LENGTH = 3;
+const IDENTIFIER_MAX_TERMS = 8;
 const BM25_K1 = 1.2;
 const BM25_B = 0.6;
 
@@ -223,6 +226,7 @@ export type WikiSearchQuery = {
   prefix: string | null;
   substringTerms: string[];
   fuzzyTerms: Array<{ term: string; unit: number }>;
+  identifierTerms: string[];
   title: string;
 };
 
@@ -244,6 +248,39 @@ export type WikiOutlineEntry = { level: number; heading: string; offset: number 
 
 function isSubstringScript(value: string): boolean {
   return WIKI_SUBSTRING_SEARCH_SCRIPT.test(value);
+}
+
+export function wikiIdentifierPattern(term: string): string {
+  return `(^|[^0-9])${term}($|[^0-9])`;
+}
+
+export function wikiCompact(value: string): string {
+  return value
+    .normalize("NFC")
+    .toLocaleLowerCase()
+    .replace(/[^\p{L}\p{N}]+/gu, "");
+}
+
+function wikiIdentifierTerms(query: string): string[] {
+  const tokens = (query.normalize("NFC").match(IDENTIFIER_TOKEN) ?? []).map((token) => ({
+    raw: token,
+    compact: wikiCompact(token),
+    identifier: /\p{N}/u.test(token) || /[@#§]/u.test(token),
+  }));
+  const terms = new Set<string>();
+  tokens.forEach((token, index) => {
+    if (!token.identifier) return;
+    if (/\p{L}/u.test(token.compact) || token.compact.length > IDENTIFIER_MIN_LENGTH) terms.add(token.compact);
+    if (/^\p{N}+$/u.test(token.compact)) {
+      const previous = tokens.slice(Math.max(0, index - 2), index).map((entry) => entry.compact);
+      if (token.compact.length >= 2 && previous.length === 2) terms.add(`${previous.join("")}${token.compact}`);
+      if (token.compact.length >= 2 && previous.length > 0) terms.add(`${previous.at(-1)}${token.compact}`);
+      const next = tokens[index + 1]?.compact;
+      const legal = token.raw.includes("§") || tokens[index - 1]?.raw === "§";
+      if (legal && next && /^\p{L}+$/u.test(next)) terms.add(`${token.compact}${next}`);
+    }
+  });
+  return [...terms].filter((term) => term.length >= IDENTIFIER_MIN_LENGTH).slice(0, IDENTIFIER_MAX_TERMS);
 }
 
 function boundedTerm(value: string): string {
@@ -334,6 +371,7 @@ export function parseWikiSearchQuery(query: string): WikiSearchQuery {
     prefix,
     substringTerms,
     fuzzyTerms,
+    identifierTerms: wikiIdentifierTerms(query),
     title: (lowered.match(QUERY_TOKEN) ?? []).join(" "),
   };
 }
@@ -424,7 +462,13 @@ function isFuzzyMatch(queryWord: string, word: string): boolean {
   );
 }
 
-type ScoredSection = WikiMarkdownSection & { words: string[]; headingWords: string[]; folded: string; lowered: string };
+type ScoredSection = WikiMarkdownSection & {
+  words: string[];
+  headingWords: string[];
+  folded: string;
+  lowered: string;
+  compact: string;
+};
 
 function termVariants(queryWords: string[], vocabulary: Set<string>): Map<string, Set<string>> {
   const entries = [...vocabulary].map((word) => ({
@@ -461,6 +505,7 @@ function termVariants(queryWords: string[], vocabulary: Set<string>): Map<string
 function bestSection(
   markdown: string,
   query: WikiSearchQuery,
+  preferredOffset?: number,
 ): { section: ScoredSection; variants: Map<string, Set<string>> } {
   const sections: ScoredSection[] = wikiMarkdownSections(markdown).map((section) => {
     const text = markdown.slice(section.offset, section.end);
@@ -470,6 +515,7 @@ function bestSection(
       headingWords: foldedWords(section.path.join(" ")),
       folded: fold(text).replace(/\s+/gu, " "),
       lowered: text.normalize("NFC").toLocaleLowerCase().replace(/\s+/gu, " "),
+      compact: wikiCompact(text),
     };
   });
   const queryWords = [...new Set(query.units.flatMap((unit) => unit.words).map((word) => fold(word)))];
@@ -484,6 +530,9 @@ function bestSection(
       return [word, Math.log(1 + (sections.length - frequency + 0.5) / (frequency + 0.5))];
     }),
   );
+
+  const preferred = sections.find((section) => section.offset === preferredOffset);
+  if (preferred) return { section: preferred, variants };
 
   let best = sections[0];
   let bestScore = 0;
@@ -507,6 +556,8 @@ function bestSection(
         score += unit.words.reduce((sum, word) => sum + (idf.get(fold(word)) ?? 0), 0);
     }
     for (const term of query.substringTerms) if (section.lowered.includes(term)) score += 1;
+    for (const term of query.identifierTerms)
+      if (new RegExp(wikiIdentifierPattern(term), "u").test(section.compact)) score += 10;
     score *= 1 + covered / Math.max(1, queryWords.length);
     if (score > bestScore) {
       best = section;
@@ -585,9 +636,9 @@ function highlightedSnippet(text: string, isMatch: (word: string) => boolean, su
   return `${prefix}${snippet}${compact.slice(cursor, end)}${suffix}`;
 }
 
-export function wikiSearchMatch(markdown: string, query: WikiSearchQuery): WikiSearchMatch {
+export function wikiSearchMatch(markdown: string, query: WikiSearchQuery, preferredOffset?: number): WikiSearchMatch {
   if (!markdown.trim()) return { snippet: "", offset: 0 };
-  const { section, variants } = bestSection(markdown, query);
+  const { section, variants } = bestSection(markdown, query, preferredOffset);
   const accepted = new Set([...variants.values()].flatMap((words) => [...words]));
   const body = markdown.slice(section.offset, section.end);
   const bodyWithoutHeading = section.level > 0 ? body.slice(body.indexOf("\n") + 1) : body;

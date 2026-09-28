@@ -407,6 +407,13 @@ import { PrismaOperatorRiskSummaryRepo } from "@/ee/operator/prisma-operator-ris
 import { UpdateOperatorUserPlatformAccessInteractor } from "@/ee/operator/update-operator-user-platform-access.interactor";
 import { CorrectOperatorSubscriptionSnapshotInteractor } from "@/ee/operator/correct-operator-subscription-snapshot.interactor";
 import { ResetOperatorUserCreditsInteractor } from "@/ee/operator/reset-operator-user-credits.interactor";
+import { WikiEmbeddingService } from "@/ee/wiki-retrieval/wiki-embedding.service";
+import { WikiSemanticQueryEmbedder } from "@/ee/wiki-retrieval/wiki-query-embedder";
+import { WikiSemanticIndexService } from "@/ee/wiki-retrieval/wiki-semantic-index.service";
+import {
+  WikiSemanticIndexDispatcher,
+  WikiSemanticIndexListener,
+} from "@/ee/wiki-retrieval/wiki-semantic-index-scheduler";
 // Validators
 
 // ─── Section 2: Repos ───────────────────────────────────────────────────────
@@ -465,11 +472,26 @@ export const getInviteTokenCookieRepo = () => new NextInviteTokenCookieRepo();
 export const getOnboardingIntentService = () =>
   new OnboardingIntentService(getInviteTokenValidationInteractor(), env.BETTER_AUTH_SECRET);
 export const getUserPendingAuthorizationTaskListener = () => new UserPendingAuthorizationTaskListener(getTaskRepo());
+export const getWikiEmbeddingService = () => new WikiEmbeddingService(getAgentUsageService());
+export const getWikiSemanticIndexService = () =>
+  new WikiSemanticIndexService(getWikiPageRepo(), getWikiEmbeddingService());
+const getWikiSemanticIndexDispatcher = (trigger: "write" | "search") =>
+  new WikiSemanticIndexDispatcher(getWikiPageRepo(), getWikiEmbeddingService(), getBackgroundTaskService(), trigger);
+export const getWikiSemanticIndexListener = () =>
+  new WikiSemanticIndexListener(getWikiSemanticIndexDispatcher("write"));
+const getWikiSemanticRetrieval = () => ({
+  embedder: new WikiSemanticQueryEmbedder(getWikiEmbeddingService()),
+  scheduler: getWikiSemanticIndexDispatcher("search"),
+});
 
 const EXPECTED_EVENT_LISTENERS = [
   {
     factory: getUserPendingAuthorizationTaskListener,
     events: [DomainEvent.USER_REGISTERED, DomainEvent.USER_UPDATED],
+  },
+  {
+    factory: getWikiSemanticIndexListener,
+    events: [DomainEvent.WIKI_PAGE_CREATED, DomainEvent.WIKI_PAGE_UPDATED],
   },
 ] as const;
 
@@ -1146,8 +1168,10 @@ export const getGetWidgetFilterableFieldsInteractor = () =>
 export const getGetWikiPagesInteractor = () => new GetWikiPagesInteractor(getWikiPageRepo());
 export const getGetWikiCatalogInteractor = () => new GetWikiCatalogInteractor(getWikiPageRepo());
 export const getSearchWikiPagesInteractor = () => new SearchWikiPagesInteractor(getWikiPageRepo(), "stored");
+export const getSearchWikiKnowledgeInteractor = () =>
+  new SearchWikiPagesInteractor(getWikiPageRepo(), "stored", getWikiSemanticRetrieval());
 export const getSearchExternalizedWikiPagesInteractor = () =>
-  new SearchWikiPagesInteractor(getWikiPageRepo(), "externalized");
+  new SearchWikiPagesInteractor(getWikiPageRepo(), "externalized", getWikiSemanticRetrieval());
 export const getGetWikiPageInteractor = () => new GetWikiPageInteractor(getWikiPageRepo());
 export const getCreateWikiPagesInteractor = () => new CreateWikiPagesInteractor(getWikiPageRepo(), getEventService());
 export const getUpdateWikiPageInteractor = () => new UpdateWikiPageInteractor(getWikiPageRepo(), getEventService());

@@ -268,21 +268,45 @@ model Company {
   routines                    Routine[]
   routineRuns                 RoutineRun[]
   wikiPages                   WikiPage[]
+  wikiPageChunks              WikiPageChunk[]
 }
 
 model WikiPage {
-  id             String                   @id @default(uuid())
-  companyId      String
-  title          String
-  markdown       String
-  searchHeadings String?                  @default(dbgenerated("wiki_search_headings(title, markdown)"))
-  searchVector   Unsupported("tsvector")? @default(dbgenerated("wiki_search_vector(title, markdown)"))
-  createdAt      DateTime                 @default(now())
-  updatedAt      DateTime                 @updatedAt
-  company        Company                  @relation(fields: [companyId], references: [id], onDelete: Cascade)
+  id                     String                   @id @default(uuid())
+  companyId              String
+  title                  String
+  markdown               String
+  searchHeadings         String?                  @default(dbgenerated("wiki_search_headings(title, markdown)"))
+  searchVector           Unsupported("tsvector")? @default(dbgenerated("wiki_search_vector(title, markdown)"))
+  searchCompact          String?                  @default(dbgenerated("wiki_search_compact(title, markdown)"))
+  semanticIndexClaimedAt DateTime?
+  createdAt              DateTime                 @default(now())
+  updatedAt              DateTime                 @updatedAt
+  company                Company                  @relation(fields: [companyId], references: [id], onDelete: Cascade)
+  chunks                 WikiPageChunk[]
 
   @@index([companyId, createdAt, id])
   @@index([searchVector], type: Gin)
+  @@index([searchCompact(ops: raw("gin_trgm_ops"))], type: Gin)
+}
+
+model WikiPageChunk {
+  id            String                      @id @default(uuid())
+  companyId     String
+  pageId        String
+  ordinal       Int
+  offset        Int
+  section       String?
+  contentHash   String
+  model         String
+  pageUpdatedAt DateTime
+  embedding     Unsupported("vector(768)")?
+  createdAt     DateTime                    @default(now())
+  company       Company                     @relation(fields: [companyId], references: [id], onDelete: Cascade)
+  page          WikiPage                    @relation(fields: [pageId], references: [id], onDelete: Cascade)
+
+  @@unique([pageId, ordinal])
+  @@index([companyId, pageId])
 }
 
 model EntityTerminology {
@@ -299,26 +323,26 @@ model EntityTerminology {
 }
 
 model P13n {
-  id                 String   @id @default(uuid())
-  userId             String
-  companyId          String
-  p13nId             String
-  filters            Json?
-  searchTerm         String?
-  sortDescriptor     Json?
-  pagination         Json?
-  columnOrder        String[]
-  columnWidths       Json?
-  hiddenColumns      String[]
-  viewMode           String?  @default("table")
-  groupingColumnId   String?
-  grouping           Json?
-  detailOptions      Json?
-  activeViewKey      String?
-  createdAt          DateTime @default(now())
-  updatedAt          DateTime @updatedAt
-  user               User     @relation(fields: [userId], references: [id], onDelete: Cascade)
-  company            Company  @relation(fields: [companyId], references: [id], onDelete: Cascade)
+  id               String   @id @default(uuid())
+  userId           String
+  companyId        String
+  p13nId           String
+  filters          Json?
+  searchTerm       String?
+  sortDescriptor   Json?
+  pagination       Json?
+  columnOrder      String[]
+  columnWidths     Json?
+  hiddenColumns    String[]
+  viewMode         String?  @default("table")
+  groupingColumnId String?
+  grouping         Json?
+  detailOptions    Json?
+  activeViewKey    String?
+  createdAt        DateTime @default(now())
+  updatedAt        DateTime @updatedAt
+  user             User     @relation(fields: [userId], references: [id], onDelete: Cascade)
+  company          Company  @relation(fields: [companyId], references: [id], onDelete: Cascade)
 
   @@unique([companyId, userId, p13nId])
   @@index([companyId])
@@ -1799,13 +1823,21 @@ model AgentUsageEvent {
   periodEnd                  DateTime
   providerStartedAt          DateTime?
   settledAt                  DateTime?
+  purpose                    AgentUsagePurpose    @default(turn)
+  accrualMonth               DateTime?
   createdAt                  DateTime             @default(now())
 
+  @@unique([companyId, userId, periodStart, periodEnd, purpose, accrualMonth], map: "AgentUsageEvent_retrieval_accrual_key")
   @@index([userId, createdAt])
   @@index([companyId, createdAt])
   @@index([companyId, userId, periodStart, periodEnd, state])
   @@index([state, settledAt, createdAt])
   @@index([turnRequestId])
+}
+
+enum AgentUsagePurpose {
+  turn
+  wikiRetrieval
 }
 
 enum AgentUsageCostSource {
@@ -2011,28 +2043,28 @@ enum RoutineRunStatus {
 }
 
 model Routine {
-  id                   String               @id @default(uuid())
-  companyId            String
-  ownerUserId          String?
-  name                 String
-  prompt               String
-  enabled              Boolean              @default(true)
-  triggerKind          RoutineTriggerKind
-  cronExpression       String?
-  timezone             String?
-  triggerEvents        String[]
-  changedFields        String[]
-  triggerFilters       Json                 @default("[]")
-  debounceSeconds      Int                  @default(300)
-  nextRunAt            DateTime?
-  lastRunAt            DateTime?
-  lastRunStatus        RoutineRunStatus?
-  disabledReason       String?
-  createdAt            DateTime             @default(now())
-  updatedAt            DateTime             @updatedAt
-  company              Company              @relation(fields: [companyId], references: [id], onDelete: Cascade)
-  owner                User?                @relation(fields: [ownerUserId], references: [id], onDelete: SetNull)
-  runs                 RoutineRun[]
+  id              String             @id @default(uuid())
+  companyId       String
+  ownerUserId     String?
+  name            String
+  prompt          String
+  enabled         Boolean            @default(true)
+  triggerKind     RoutineTriggerKind
+  cronExpression  String?
+  timezone        String?
+  triggerEvents   String[]
+  changedFields   String[]
+  triggerFilters  Json               @default("[]")
+  debounceSeconds Int                @default(300)
+  nextRunAt       DateTime?
+  lastRunAt       DateTime?
+  lastRunStatus   RoutineRunStatus?
+  disabledReason  String?
+  createdAt       DateTime           @default(now())
+  updatedAt       DateTime           @updatedAt
+  company         Company            @relation(fields: [companyId], references: [id], onDelete: Cascade)
+  owner           User?              @relation(fields: [ownerUserId], references: [id], onDelete: SetNull)
+  runs            RoutineRun[]
 
   @@index([companyId])
   @@index([companyId, enabled])
