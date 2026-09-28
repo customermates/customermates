@@ -161,9 +161,14 @@ export class ThreadParticipantsStore extends BaseStore {
         };
         return { ok: true as const };
       },
-      () => {
-        if (createdContact)
-          this.rootStore.messagingThreadDetailStore.applyParticipantContact(this.threadId, identifier, createdContact);
+      async () => {
+        if (createdContact) {
+          await this.rootStore.messagingThreadDetailStore.applyParticipantContact(
+            this.threadId,
+            identifier,
+            createdContact,
+          );
+        }
       },
     );
   };
@@ -202,7 +207,10 @@ export class ThreadParticipantsStore extends BaseStore {
     return thread && ownerId ? { contactId: ownerId, provider: thread.provider, identifier } : null;
   }
 
-  private mutate = async (run: () => Promise<ActionOutcome>, applyOptimistic: () => void): Promise<void> => {
+  private mutate = async (
+    run: () => Promise<ActionOutcome>,
+    applyOptimistic: () => void | Promise<void>,
+  ): Promise<void> => {
     runInAction(() => {
       this.pending = true;
     });
@@ -210,7 +218,7 @@ export class ThreadParticipantsStore extends BaseStore {
     try {
       const result = await run();
       succeeded = result.ok;
-      if (succeeded) runInAction(() => applyOptimistic());
+      if (succeeded) await applyOptimistic();
     } catch {
       succeeded = false;
     } finally {

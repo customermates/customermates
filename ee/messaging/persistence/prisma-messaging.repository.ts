@@ -847,10 +847,11 @@ export class PrismaMessagingRepo
   }
 
   async countUnreadThreadsForCurrentUser() {
+    const folderStates = await this.loadAccessibleFolderStates();
     return this.prisma.messagingThread.count({
       where: {
         state: "unread",
-        ...threadAccessWhere(this.companyId, this.userId),
+        ...inboxThreadVisibilityWhere(this.companyId, this.userId, folderStates),
       },
     });
   }

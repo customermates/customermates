@@ -23,6 +23,7 @@ vi.mock("@/core/stores/root-store.provider", () => ({
     intlStore: { collator: new Intl.Collator("en") },
     userStore: { can: () => harness.canUpdate },
     messagingThreadDetailStore: {
+      movingThreadIds: new Set<string>(),
       folderContext: harness.folderContext,
       thread: { provider: harness.provider },
       moveToFolder: vi.fn(),
