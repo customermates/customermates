@@ -3,11 +3,14 @@ import { describe, expect, it } from "vitest";
 import {
   AGENT_WEB_SEARCH_DEFAULT_CONTENT_CHARS,
   AGENT_WEB_SEARCH_DEFAULT_RESULTS,
+  AGENT_WEB_SEARCH_LIVECRAWL_TIMEOUT_MS,
+  AGENT_WEB_SEARCH_MAX_AGE_HOURS,
   AGENT_WEB_SEARCH_MAX_CALLS,
   AGENT_WEB_SEARCH_TOOL_NAME,
   AGENT_WEB_SEARCH_WORST_CASE_MICROCENTS,
   agentWebSearchCallLimit,
   agentWebSearchCallsInStep,
+  agentWebSearchChargeableCallsInStep,
   agentWebSourcesFooter,
   collectAgentWebSources,
   getAgentWebSearchTool,
@@ -75,6 +78,42 @@ describe("native Agent web search", () => {
     }
   });
 
+  it("charges only searches the Gateway billed, or that succeeded when it reports no count", () => {
+    const part = (type: string, toolCallId: string, output?: unknown) => ({
+      type,
+      toolName: AGENT_WEB_SEARCH_TOOL_NAME,
+      toolCallId,
+      providerExecuted: true,
+      ...(output === undefined ? {} : { output }),
+    });
+    const ok = { results: [] };
+    const failed = { error: "timeout", message: "Search timed out" };
+    const succeeded = (output: unknown) => output === ok;
+    const content = [
+      part("tool-call", "a"),
+      part("tool-result", "a", ok),
+      part("tool-call", "b"),
+      part("tool-result", "b", failed),
+      part("tool-call", "c"),
+      part("tool-error", "c", "boom"),
+    ];
+
+    expect(agentWebSearchChargeableCallsInStep({ content }, succeeded)).toBe(1);
+    expect(
+      agentWebSearchChargeableCallsInStep(
+        { content, providerMetadata: { gateway: { gatewayToolCalls: { exa_search: 2 } } } },
+        succeeded,
+      ),
+    ).toBe(2);
+    expect(
+      agentWebSearchChargeableCallsInStep(
+        { content, providerMetadata: { gateway: { gatewayToolCalls: { exa_search: 0 } } } },
+        succeeded,
+      ),
+    ).toBe(0);
+    expect(agentWebSearchChargeableCallsInStep({ content: [part("tool-result", "d", failed)] }, succeeded)).toBe(0);
+  });
+
   it("preserves the provider-native tool and restricts optional setup turns by domain", () => {
     expect(getAgentWebSearchTool()).toMatchObject({
       type: "provider",
@@ -86,6 +125,8 @@ describe("native Agent web search", () => {
         contents: {
           text: { maxCharacters: 1000, verbosity: "compact", includeHtmlTags: false },
           highlights: false,
+          maxAgeHours: 24,
+          livecrawlTimeout: 5_000,
           subpages: 0,
           extras: { links: 0, imageLinks: 0 },
         },
@@ -102,6 +143,8 @@ describe("native Agent web search", () => {
         contents: {
           text: { maxCharacters: 1000, verbosity: "compact", includeHtmlTags: false },
           highlights: false,
+          maxAgeHours: 24,
+          livecrawlTimeout: 5_000,
           subpages: 0,
           extras: { links: 0, imageLinks: 0 },
         },
@@ -117,6 +160,8 @@ describe("native Agent web search", () => {
         text: { maxCharacters: number; includeHtmlTags: boolean };
         highlights: boolean;
         subpages: number;
+        maxAgeHours: number;
+        livecrawlTimeout: number;
         extras: { links: number; imageLinks: number };
         subpageTarget?: unknown;
       };
@@ -127,10 +172,21 @@ describe("native Agent web search", () => {
     expect(pinned.contents.text.includeHtmlTags).toBe(false);
     expect(pinned.contents.highlights).toBe(false);
     expect(pinned.contents.subpages).toBe(0);
+    expect(pinned.contents.maxAgeHours).toBe(AGENT_WEB_SEARCH_MAX_AGE_HOURS);
+    expect(pinned.contents.livecrawlTimeout).toBe(AGENT_WEB_SEARCH_LIVECRAWL_TIMEOUT_MS);
+    expect(AGENT_WEB_SEARCH_MAX_AGE_HOURS).toBe(24);
+    expect(AGENT_WEB_SEARCH_LIVECRAWL_TIMEOUT_MS).toBe(5_000);
     expect(pinned.contents.subpageTarget).toBeUndefined();
     expect(pinned.contents.extras).toEqual({ links: 0, imageLinks: 0 });
     expect(Object.keys(args).sort()).toEqual(["contents", "numResults", "type"]);
-    expect(Object.keys(pinned.contents).sort()).toEqual(["extras", "highlights", "subpages", "text"]);
+    expect(Object.keys(pinned.contents).sort()).toEqual([
+      "extras",
+      "highlights",
+      "livecrawlTimeout",
+      "maxAgeHours",
+      "subpages",
+      "text",
+    ]);
   });
 
   it("collects canonical Exa result URLs", () => {

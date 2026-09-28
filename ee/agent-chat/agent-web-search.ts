@@ -7,6 +7,8 @@ import { isUnattendedSurface } from "./agent-surface-policy";
 export const AGENT_WEB_SEARCH_TOOL_NAME = "web_search";
 export const AGENT_WEB_SEARCH_DEFAULT_RESULTS = 3;
 export const AGENT_WEB_SEARCH_DEFAULT_CONTENT_CHARS = 1_000;
+export const AGENT_WEB_SEARCH_MAX_AGE_HOURS = 24;
+export const AGENT_WEB_SEARCH_LIVECRAWL_TIMEOUT_MS = 5_000;
 const AGENT_WEB_SOURCE_LIMIT = 8;
 export const AGENT_WEB_SOURCE_MAX_LENGTH = 1_000;
 
@@ -22,13 +24,32 @@ export function agentWebSearchCallLimit(surface: AgentSurface): number {
   return isUnattendedSurface(surface) ? AGENT_WEB_SEARCH_MAX_CALLS.routine : AGENT_WEB_SEARCH_MAX_CALLS.chat;
 }
 
-export function agentWebSearchCallsInStep(step: { content: readonly unknown[]; providerMetadata?: unknown }): number {
+type AgentWebSearchStep = { content: readonly unknown[]; providerMetadata?: unknown };
+
+function billedAgentWebSearches(step: AgentWebSearchStep): number | null {
   const billed = record(record(record(step.providerMetadata)?.gateway)?.gatewayToolCalls)?.exa_search;
-  const calls = step.content.filter((raw) => {
-    const part = record(raw);
-    return part?.type === "tool-call" && part.toolName === AGENT_WEB_SEARCH_TOOL_NAME && part.providerExecuted === true;
-  }).length;
-  return Math.max(calls, typeof billed === "number" && Number.isSafeInteger(billed) && billed > 0 ? billed : 0);
+  return typeof billed === "number" && Number.isSafeInteger(billed) && billed >= 0 ? billed : null;
+}
+
+function isProviderWebSearchPart(raw: unknown, type: string) {
+  const part = record(raw);
+  return part?.type === type && part.toolName === AGENT_WEB_SEARCH_TOOL_NAME && part.providerExecuted === true;
+}
+
+export function agentWebSearchCallsInStep(step: AgentWebSearchStep): number {
+  const calls = step.content.filter((raw) => isProviderWebSearchPart(raw, "tool-call")).length;
+  return Math.max(calls, billedAgentWebSearches(step) ?? 0);
+}
+
+export function agentWebSearchChargeableCallsInStep(
+  step: AgentWebSearchStep,
+  isSuccessfulResult: (output: unknown) => boolean,
+): number {
+  const billed = billedAgentWebSearches(step);
+  if (billed !== null) return billed;
+  return step.content.filter(
+    (raw) => isProviderWebSearchPart(raw, "tool-result") && isSuccessfulResult(record(raw)?.output),
+  ).length;
 }
 
 function agentWebSearchConfig(options: AgentWebSearchOptions = {}) {
@@ -43,6 +64,8 @@ function agentWebSearchConfig(options: AgentWebSearchOptions = {}) {
         includeHtmlTags: false,
       },
       highlights: false,
+      maxAgeHours: AGENT_WEB_SEARCH_MAX_AGE_HOURS,
+      livecrawlTimeout: AGENT_WEB_SEARCH_LIVECRAWL_TIMEOUT_MS,
       subpages: 0,
       extras: { links: 0, imageLinks: 0 },
     },

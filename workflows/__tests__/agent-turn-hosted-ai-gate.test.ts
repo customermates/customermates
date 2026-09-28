@@ -684,14 +684,15 @@ describe("agent-turn hosted-AI provider gates", () => {
     expect(state.execute).not.toHaveBeenCalled();
   });
 
-  it.each([false, true])(
-    "disables opaque model retries only for native search (enabled=%s)",
-    async (webSearchEnabled) => {
-      state.gateResults = [true, false];
-      await runAgentTurn({ ...payload, webSearchEnabled });
-      expect(state.maxRetries).toBe(webSearchEnabled ? 0 : undefined);
-    },
-  );
+  it("never disables model retries for a turn that cannot search", async () => {
+    state.runTools = async ({ completeStepAndPrepareNext }) => {
+      await completeStepAndPrepareNext(streamedStep("", "tool-calls"));
+      return { finishReason: "stop", messages: [], steps: [] };
+    };
+    await runAgentTurn({ ...payload, webSearchEnabled: false });
+    expect(state.maxRetries).toBeUndefined();
+    expect(state.prepared).not.toHaveProperty("maxRetries");
+  });
 
   it("makes no provider call when the provider-start admission is rejected", async () => {
     state.markProviderStarted.mockResolvedValueOnce(false);
@@ -2613,6 +2614,7 @@ describe("routine browse-or-mutate batch safety", () => {
     await runAgentTurn({ ...payload, surface: "routine", webSearchEnabled: true });
     expect(preparedAfterLoad).toEqual({
       activeTools: ["web_search", "load_toolset", "manage_wiki_pages", "list_users"],
+      maxRetries: 0,
     });
     expect(mutationAfterSearch).toMatchObject({ ok: false });
     expect(state.execute).toHaveBeenCalledExactlyOnceWith(loadToolset, expect.anything());
@@ -2913,7 +2915,10 @@ describe("routine browse-or-mutate batch safety", () => {
     };
     await runAgentTurn({ ...payload, surface: "routine", webSearchEnabled: true });
     expect(state.execute).toHaveBeenCalledOnce();
-    expect(state.prepared).toEqual({ activeTools: ["load_toolset", "manage_wiki_pages", "list_users"] });
+    expect(state.prepared).toEqual({
+      activeTools: ["load_toolset", "manage_wiki_pages", "list_users"],
+      maxRetries: 2,
+    });
   });
 
   const searchesStep = (count: number, billed = count) => {
@@ -2949,6 +2954,7 @@ describe("routine browse-or-mutate batch safety", () => {
     expect(seen).toEqual([true, false, false]);
     expect(state.prepared).toEqual({
       activeTools: ["load_toolset", "manage_wiki_pages", "list_users"],
+      maxRetries: 2,
     });
   });
 
@@ -3002,6 +3008,75 @@ describe("routine browse-or-mutate batch safety", () => {
     });
     expect(offered()).toBe(false);
     expect(state.finalize).toHaveBeenCalledWith(expect.objectContaining({ stopReason: null }));
+  });
+
+  const preparedRetries = () => (state.prepared as { maxRetries?: number }).maxRetries;
+
+  it("disables opaque model retries only for a round that offers search", async () => {
+    const seen: [boolean, number | undefined][] = [];
+    state.runTools = async ({ completeStepAndPrepareNext }) => {
+      await completeStepAndPrepareNext(searchesStep(1));
+      seen.push([offered(), preparedRetries()]);
+      await completeStepAndPrepareNext(searchesStep(2));
+      seen.push([offered(), preparedRetries()]);
+      return finish();
+    };
+    await runAgentTurn({ ...payload, webSearchEnabled: true });
+    expect(state.maxRetries).toBeUndefined();
+    expect(seen).toEqual([
+      [true, 0],
+      [false, 2],
+    ]);
+  });
+
+  it("hard-stops search and tools after one step runs five parallel searches past the cap", async () => {
+    const step = searchesStep(5, 5);
+    delete (step.providerMetadata.gateway as { gatewayCost?: string }).gatewayCost;
+    step.providerMetadata.gateway.routing.finalProvider = "azure";
+    let afterOvershoot: unknown;
+    state.runTools = async ({ completeStepAndPrepareNext }) => {
+      await completeStepAndPrepareNext(step);
+      afterOvershoot = state.prepared;
+      await completeStepAndPrepareNext(streamedStep("Answer.", "stop"));
+      return finish();
+    };
+    await runAgentTurn({
+      ...payload,
+      turnBudget: { ...payload.turnBudget, reservedMicrocents: 2 * CREDIT },
+      webSearchEnabled: true,
+    });
+
+    expect(afterOvershoot).toEqual({
+      activeTools: ["load_toolset", "manage_wiki_pages", "list_users"],
+      toolChoice: "none",
+      maxRetries: 2,
+    });
+    expect(state.prepared).toMatchObject({ toolChoice: "none" });
+    const [[firstRound]] = state.recordRound.mock.calls;
+    expect(firstRound.costMicrocents).toBeGreaterThanOrEqual(5 * 1_200_000);
+    const required = state.extendReservation.mock.calls.map(([args]) => args.requiredMicrocents as number);
+    expect(Math.max(...required)).toBeGreaterThanOrEqual(firstRound.costMicrocents);
+  });
+
+  it("never charges an errored search at the worst-case fallback price", async () => {
+    const unmeasured = (failed: boolean) => {
+      const step = { ...nativeSearchStep(failed), finishReason: "stop" };
+      step.providerMetadata = {
+        gateway: { routing: step.providerMetadata.gateway.routing },
+      } as typeof step.providerMetadata;
+      step.providerMetadata.gateway.routing.finalProvider = "azure";
+      return step;
+    };
+    const costs: number[] = [];
+    for (const failed of [true, false]) {
+      state.recordRound.mockClear();
+      state.runTools = ({ messages }) =>
+        Promise.resolve({ finishReason: "stop", messages, steps: [unmeasured(failed)] });
+      await runAgentTurn({ ...payload, webSearchEnabled: true });
+      costs.push(state.recordRound.mock.calls[0][0].costMicrocents as number);
+    }
+    expect(costs[0]).toBeLessThan(1_200_000);
+    expect(costs[1] - costs[0]).toBe(1_200_000);
   });
 
   it("does not apply the routine mutation boundary to ordinary chat", async () => {

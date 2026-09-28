@@ -50,6 +50,7 @@ import {
   AGENT_WEB_SEARCH_WORST_CASE_MICROCENTS,
   agentWebSearchCallLimit,
   agentWebSearchCallsInStep,
+  agentWebSearchChargeableCallsInStep,
   agentWebSourcesFooter,
   collectAgentWebSources,
 } from "@/ee/agent-chat/agent-web-search";
@@ -97,6 +98,7 @@ const WORKFLOW_NAME = "agent-turn";
 
 export const AGENT_UI_COMMAND_WINDOW_MS = 30 * 1000;
 export const AGENT_SEGMENT_ROUNDS = 32;
+const AGENT_MODEL_DEFAULT_MAX_RETRIES = 2;
 
 const AGENT_OUTPUT_CONTINUATION_PROMPT =
   "<agent_output_continuation>Continue directly from the partial assistant response above. Do not repeat completed text. Finish the user's request.</agent_output_continuation>";
@@ -967,6 +969,7 @@ export async function runAgentTurn(payload: AgentTurnWorkflowPayload): Promise<v
     let performedWrite = false;
     let browsed = false;
     let webSearchCalls = 0;
+    let webSearchOvershoot = false;
     const webSearchCallLimit = agentWebSearchCallLimit(surface);
     const webSources = new Set<string>();
 
@@ -1229,8 +1232,9 @@ export async function runAgentTurn(payload: AgentTurnWorkflowPayload): Promise<v
         }
 
         const roundTokens = usageToTokenCounts(step.usage);
-        const stepSearches = agentWebSearchCallsInStep(step);
-        webSearchCalls += stepSearches;
+        webSearchCalls += agentWebSearchCallsInStep(step);
+        if (webSearchCalls > webSearchCallLimit) webSearchOvershoot = true;
+        const chargeableSearches = agentWebSearchChargeableCallsInStep(step, isSuccessfulAgentWebResult);
         const charge = readAgentProviderCharge(step.providerMetadata, payload.turnBudget.servingProvider);
         const gatewayDebitMicrocents = readGatewayCostMicrocents(step.providerMetadata);
         const costMicrocents =
@@ -1243,7 +1247,7 @@ export async function runAgentTurn(payload: AgentTurnWorkflowPayload): Promise<v
                   roundTokens,
                   payload.turnBudget.servingProvider,
                   payload.turnBudget.inferenceRegion,
-                ) + (gatewayDebitMicrocents === null ? stepSearches * AGENT_WEB_SEARCH_WORST_CASE_MICROCENTS : 0),
+                ) + (gatewayDebitMicrocents === null ? chargeableSearches * AGENT_WEB_SEARCH_WORST_CASE_MICROCENTS : 0),
               );
 
         tokens = addTokens(tokens, roundTokens);
@@ -1452,7 +1456,6 @@ export async function runAgentTurn(payload: AgentTurnWorkflowPayload): Promise<v
           ]),
         ),
         maxOutputTokens: payload.turnBudget.maxOutputTokens,
-        ...(payload.webSearchEnabled ? { maxRetries: 0 } : {}),
         ...(payload.turnBudget.reasoningEffort ? { reasoning: payload.turnBudget.reasoningEffort } : {}),
         providerOptions: {
           ...getAgentProviderOptions(payload.turnBudget.servingProvider, payload.turnBudget.inferenceRegion),
@@ -1478,12 +1481,22 @@ export async function runAgentTurn(payload: AgentTurnWorkflowPayload): Promise<v
           )
             throw AGENT_CONTEXT_COMPACTION_REQUIRED;
           if (!(await canStartNextHostedAiProviderRound(payload))) throw hostedAiPaused;
+          if (webSearchOvershoot) {
+            return {
+              activeTools: activeTools.filter((toolName) => !isAgentWebTool(toolName)),
+              toolChoice: "none" as const,
+              maxRetries: AGENT_MODEL_DEFAULT_MAX_RETRIES,
+            };
+          }
           const webSearchPermitted =
             activeTools.includes(AGENT_WEB_SEARCH_TOOL_NAME) &&
             !(isUnattendedSurface(surface) && performedWrite) &&
             (await webSearchAffordable());
           return {
             activeTools: webSearchPermitted ? activeTools : activeTools.filter((toolName) => !isAgentWebTool(toolName)),
+            ...(payload.webSearchEnabled
+              ? { maxRetries: webSearchPermitted ? 0 : AGENT_MODEL_DEFAULT_MAX_RETRIES }
+              : {}),
           };
         },
         stopWhen: [
