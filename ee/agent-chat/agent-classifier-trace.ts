@@ -12,7 +12,21 @@ export type AgentTurnClassifierTrace = {
   auxiliaryCostMicrocents: number;
   auxiliaryMeasured: boolean;
   docsRerank: AgentDocsRerankTrace | null;
+  docsEmbedding?: AgentDocsRerankTrace;
+  docsSearch?: AgentDocsSearchTrace;
 };
+
+export type AgentDocsSearchTrace = { calls: number; hybrid: number; latencyMs: number[] };
+
+function docsSearchTrace(charges: readonly ClassifierCharge[]): AgentDocsSearchTrace | null {
+  return charges.length
+    ? {
+        calls: charges.length,
+        hybrid: charges.filter((charge) => charge.hybrid === true).length,
+        latencyMs: charges.map((charge) => charge.latencyMs ?? 0),
+      }
+    : null;
+}
 
 export function agentAuxiliaryCharge(charges: readonly ClassifierCharge[]) {
   return {
@@ -35,10 +49,14 @@ function traceOfUse(charges: readonly ClassifierCharge[]): AgentDocsRerankTrace 
 export function buildAgentTurnClassifierTrace(charges: readonly ClassifierCharge[]): AgentTurnClassifierTrace | null {
   if (charges.length === 0) return null;
   const auxiliary = agentAuxiliaryCharge(charges);
+  const docsEmbedding = traceOfUse(charges.filter((charge) => charge.use === "docs_embedding"));
+  const docsSearch = docsSearchTrace(charges.filter((charge) => charge.use === "docs_search"));
   return {
     auxiliaryCostMicrocents: auxiliary.costMicrocents,
     auxiliaryMeasured: auxiliary.measured,
     docsRerank: traceOfUse(charges.filter((charge) => charge.use === "docs_rerank")),
+    ...(docsEmbedding ? { docsEmbedding } : {}),
+    ...(docsSearch ? { docsSearch } : {}),
   };
 }
 

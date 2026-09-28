@@ -9,7 +9,11 @@ const MODEL_CALL_PATTERN =
   /\b(?:streamText|generateText|generateObject|streamObject|embed|embedMany)\s*\(|\bnew\s+(?:Agent|WorkflowAgent|ToolLoopAgent)\s*\(/;
 const PROVIDER_FACTORY_PATTERN =
   /\b(?:createOpenAI|createAnthropic|createGoogleGenerativeAI|createGateway|createProviderRegistry|customProvider|wrapProvider)\s*\(/;
-const APPROVED_MODEL_CALL_FILES = ["ee/agent-chat/classifier/gemini-runner.ts", "workflows/agent-turn.ts"];
+const APPROVED_MODEL_CALL_FILES = [
+  "ee/agent-chat/classifier/embedding-runner.ts",
+  "ee/agent-chat/classifier/gemini-runner.ts",
+  "workflows/agent-turn.ts",
+];
 
 function productionTypeScriptFiles() {
   return walkFiles(REPO_ROOT, (path) => {
@@ -43,6 +47,17 @@ describe("agent model budget boundary", () => {
     expect(matchingProductionFiles(unmeteredClassifierCall).filter(outsideClassifier)).toEqual([]);
     expect(matchingProductionFiles(/\bclassifyMetered\s*\(/).filter(outsideClassifier)).toEqual([
       "ee/agent-chat/docs-rerank.ts",
+    ]);
+  });
+
+  it("embeds request text only through the metered entry point and runs the unmetered embedding only for the docs index", () => {
+    const outsideClassifier = (path: string) => !path.startsWith("ee/agent-chat/classifier/");
+
+    expect(matchingProductionFiles(/\brunEmbedding\s*\(/).filter(outsideClassifier)).toEqual([
+      "ee/agent-chat/docs-embedding.ts",
+    ]);
+    expect(matchingProductionFiles(/\bembedQueryMetered\s*\(/).filter(outsideClassifier)).toEqual([
+      "ee/agent-chat/docs-embedding.ts",
     ]);
   });
 
