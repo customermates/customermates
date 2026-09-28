@@ -4,11 +4,10 @@ import {
   appendFileSync,
   existsSync,
   mkdirSync,
-  readdirSync,
   readFileSync,
   writeFileSync,
 } from "node:fs";
-import { join, relative } from "node:path";
+import { join } from "node:path";
 
 import type {
   ClassifierModel,
@@ -17,21 +16,17 @@ import type {
   ClassifierState,
 } from "@/ee/agent-chat/classifier";
 
-import { classify } from "@/ee/agent-chat/classifier";
+import { classifyAttempt } from "@/ee/agent-chat/classifier";
 
 export { majority, percentile, signTestP } from "./stats";
 
-export const REPORT_DIR = join(
-  process.cwd(),
-  "scripts/agent-benchmark/reports/2026-09-27-classifier-offline",
-);
-export const RAW_DIR = join(
+const RAW_DIR = join(
   process.cwd(),
   "scripts/agent-benchmark/.runs/classifier-eval",
 );
-export const SPEND_CAP_USD = Number(process.env.CLASSIFIER_EVAL_CAP_USD ?? 5);
+const SPEND_CAP_USD = Number(process.env.CLASSIFIER_EVAL_CAP_USD ?? 5);
 const SPEND_STOP_USD = SPEND_CAP_USD * 0.95;
-export const ZDR_FEE_USD_PER_REQUEST = 0.0001;
+const ZDR_FEE_USD_PER_REQUEST = 0.0001;
 const UNREADABLE_COST_USD = 0.002;
 const MICROCENTS_PER_USD = 100_000_000;
 const LEDGER = join(
@@ -40,7 +35,6 @@ const LEDGER = join(
 );
 
 mkdirSync(RAW_DIR, { recursive: true });
-mkdirSync(REPORT_DIR, { recursive: true });
 
 type LedgerLine = {
   at: string;
@@ -110,7 +104,7 @@ export function assertBudget() {
     );
 }
 
-export type ClassifierCall = { result: ClassifierResult | null; ms: number };
+type ClassifierCall = { result: ClassifierResult | null; ms: number };
 
 export async function runClassifier(
   use: string,
@@ -121,9 +115,9 @@ export async function runClassifier(
 ): Promise<ClassifierCall> {
   assertBudget();
   const started = performance.now();
-  const result = await classify(spec, state, model, {
-    jev: { apiKey: GATEWAY_KEY, ...(timeoutMs ? { timeoutMs } : {}) },
-    gemini: timeoutMs ? { timeoutMs } : {},
+  const { result } = await classifyAttempt(spec, state, {
+    apiKey: GATEWAY_KEY,
+    ...(timeoutMs ? { timeoutMs } : {}),
   });
   const ms = performance.now() - started;
   if (result) chargeCall(use, model, result.costMicrocents);
@@ -148,10 +142,6 @@ export async function pool<T, R>(
   return out;
 }
 
-export function writeReport(name: string, data: unknown) {
-  writeFileSync(join(REPORT_DIR, name), `${JSON.stringify(data, null, 2)}\n`);
-}
-
 export function writeRaw(name: string, data: unknown) {
   writeFileSync(join(RAW_DIR, name), JSON.stringify(data));
 }
@@ -161,53 +151,4 @@ export function readRaw<T>(name: string): T | null {
   return existsSync(file)
     ? (JSON.parse(readFileSync(file, "utf8")) as T)
     : null;
-}
-
-export const RUNS = 3;
-export const OFFLINE_TIMEOUT_MS = 15_000;
-
-export type StoredEpisode = {
-  file: string;
-  episodeId: string;
-  caseId: string;
-  prompts: readonly string[];
-  judgeFacts: readonly string[];
-  turnTexts: string[];
-  oracle: {
-    passed: boolean;
-    checks: { id: string; passed: boolean }[];
-  } | null;
-};
-
-function walkJson(dir: string): string[] {
-  return readdirSync(dir, { withFileTypes: true }).flatMap((entry) => {
-    const path = join(dir, entry.name);
-    if (entry.isDirectory())
-      return entry.name === "classifier-eval" ? [] : walkJson(path);
-    return entry.name.endsWith(".json") ? [path] : [];
-  });
-}
-
-export function loadEpisodes(): StoredEpisode[] {
-  const root = join(process.cwd(), "scripts/agent-benchmark/.runs");
-  const out: StoredEpisode[] = [];
-  for (const file of walkJson(root).sort()) {
-    const raw = JSON.parse(readFileSync(file, "utf8")) as Record<
-      string,
-      unknown
-    >;
-    if (!Array.isArray(raw.observed) || typeof raw.caseId !== "string")
-      continue;
-    const observed = raw.observed as { text: string }[];
-    out.push({
-      file: relative(root, file),
-      episodeId: String(raw.episodeId ?? relative(root, file)),
-      caseId: raw.caseId,
-      prompts: (raw.prompts as string[] | undefined) ?? [],
-      judgeFacts: (raw.judgeFacts as string[] | undefined) ?? [],
-      turnTexts: observed.map((turn) => turn.text ?? ""),
-      oracle: (raw.oracle as StoredEpisode["oracle"]) ?? null,
-    });
-  }
-  return out;
 }

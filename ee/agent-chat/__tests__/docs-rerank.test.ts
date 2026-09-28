@@ -38,9 +38,8 @@ import { agentPageContextPrefix } from "../agent-page-context";
 
 import { getAgentAiTools, type AgentToolDeps } from "../agent-tools";
 import { collectClassifierCharges } from "../classifier/metered";
-import { JEV_EVALUATE_URL } from "../classifier/jev-runner";
+import { JEV_DEADLINE_MS, JEV_EVALUATE_URL } from "../classifier/jev-runner";
 import {
-  DOCS_RERANK_TIMEOUT_MS,
   DOCS_RERANK_USER_MESSAGE_CHARS,
   docsRankOrder,
   docsRankSpec,
@@ -150,8 +149,18 @@ describe("docs re-rank classifier spec", () => {
     expect(docsRerankChoice(null)).toBeNull();
   });
 
-  it("gives the classifier 800 ms", () => {
-    expect(DOCS_RERANK_TIMEOUT_MS).toBe(800);
+  it("gives the classifier its 800 ms deadline on the docs path", async () => {
+    envState.AGENT_DOCS_RERANK = "jev";
+    const timeout = vi.spyOn(AbortSignal, "timeout");
+    vi.stubGlobal(
+      "fetch",
+      jevChoosing((keys) => keys[0]),
+    );
+
+    await runSearchDocs(INPUT);
+
+    expect(JEV_DEADLINE_MS).toBe(800);
+    expect(timeout).toHaveBeenCalledWith(JEV_DEADLINE_MS);
   });
 });
 
@@ -213,7 +222,6 @@ describe("docs re-rank candidates and spec", () => {
     const candidates = docsRankCandidates(QUERY, "en");
     const spec = docsRankSpec(candidates);
     const [question] = spec.questions;
-    if (question.type !== "choice") throw new Error("expected a choice question");
     const title = candidates.find((candidate) => candidate.titleOnly) as (typeof candidates)[number];
     const excerpted = candidates[0];
 

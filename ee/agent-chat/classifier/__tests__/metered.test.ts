@@ -21,13 +21,20 @@ import {
 
 const SPEC: ClassifierSpec = {
   id: "request",
-  questions: [{ id: "needs_admin", type: "boolean", instruction: "Does `message` manage team members?" }],
+  questions: [
+    {
+      id: "scope",
+      type: "choice",
+      instruction: "Whom does `message` concern?",
+      options: { team: "team", records: "records" },
+    },
+  ],
 };
 const STATE = { message: "Invite Anna to the team." };
 
 function measuredBody(cost: string) {
   return {
-    answers: { needs_admin: { type: "boolean", probability: 0.9 } },
+    answers: { scope: { type: "choice", choice: "team" } },
     providerMetadata: {
       gateway: {
         routing: {
@@ -71,20 +78,18 @@ describe("hosted docs re-rank switch", () => {
 describe("metered classifier calls", () => {
   it("charges the measured gateway cost and hands it to the surrounding collector", async () => {
     const { value, charges } = await collectClassifierCharges(() =>
-      classifyMetered("docs_rerank", SPEC, STATE, "jev", {
-        jev: { apiKey: "k", fetch: reply(measuredBody("0.000016002")) },
-      }),
+      classifyMetered("docs_rerank", SPEC, STATE, "jev", { apiKey: "k", fetch: reply(measuredBody("0.000016002")) }),
     );
 
     const expected = { use: "docs_rerank", model: "jev", costMicrocents: 1600, measured: true, answered: true };
     expect(value.charge).toEqual(expected);
-    expect(value.result?.answers.needs_admin).toMatchObject({ value: true });
+    expect(value.result?.answers.scope).toMatchObject({ choice: "team" });
     expect(charges).toEqual([expected]);
   });
 
   it("charges a pinned-price estimate when the call fails after it was sent", async () => {
     const { value, charges } = await collectClassifierCharges(() =>
-      classifyMetered("docs_rerank", SPEC, STATE, "jev", { jev: { apiKey: "k", fetch: reply({}, 503) } }),
+      classifyMetered("docs_rerank", SPEC, STATE, "jev", { apiKey: "k", fetch: reply({}, 503) }),
     );
 
     const estimate = estimateClassifierCostMicrocents(SPEC, STATE);

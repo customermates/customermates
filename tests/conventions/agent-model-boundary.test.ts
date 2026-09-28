@@ -9,7 +9,7 @@ const MODEL_CALL_PATTERN =
   /\b(?:streamText|generateText|generateObject|streamObject|embed|embedMany)\s*\(|\bnew\s+(?:Agent|WorkflowAgent|ToolLoopAgent)\s*\(/;
 const PROVIDER_FACTORY_PATTERN =
   /\b(?:createOpenAI|createAnthropic|createGoogleGenerativeAI|createGateway|createProviderRegistry|customProvider|wrapProvider)\s*\(/;
-const APPROVED_MODEL_CALL_FILES = ["ee/agent-chat/classifier/gemini-runner.ts", "workflows/agent-turn.ts"];
+const APPROVED_MODEL_CALL_FILES = ["workflows/agent-turn.ts"];
 
 function productionTypeScriptFiles() {
   return walkFiles(REPO_ROOT, (path) => {
@@ -37,7 +37,7 @@ describe("agent model budget boundary", () => {
   });
 
   it("reaches the classifier runners only through the metered entry point that charges the turn", () => {
-    const unmeteredClassifierCall = /\b(?:classify|classifyAttempt|runJev|runGemini)\s*\(/;
+    const unmeteredClassifierCall = /\b(?:classifyAttempt|runJev)\s*\(/;
     const outsideClassifier = (path: string) => !path.startsWith("ee/agent-chat/classifier/");
 
     expect(matchingProductionFiles(unmeteredClassifierCall).filter(outsideClassifier)).toEqual([]);

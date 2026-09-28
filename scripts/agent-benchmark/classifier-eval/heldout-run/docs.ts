@@ -24,8 +24,8 @@ import type { DocsHeldoutItem } from "../heldout/docs-heldout";
 
 import { DOCS_HELDOUT } from "../heldout/docs-heldout";
 
+import { JEV_DEADLINE_MS } from "@/ee/agent-chat/classifier/jev-runner";
 import {
-  DOCS_RERANK_TIMEOUT_MS,
   docsRankOrder,
   docsRankSpec,
   docsRankState,
@@ -42,7 +42,7 @@ import {
 } from "@/features/mcp-tools/docs.mcp-tools";
 import { CONTENT_LOCALES } from "@/i18n/locale-registry";
 
-const MODELS: ClassifierModel[] = ["jev", "gemini"];
+const MODELS: ClassifierModel[] = ["jev"];
 const JUDGE_MODEL = "google/gemini-3-flash";
 const RAW_FILE = "heldout-docs-arms.json";
 const JUDGE_CACHE = "heldout-docs-judge-cache.json";
@@ -52,14 +52,14 @@ const AGENT_QUERY_MIN_CHARS = 4;
 const METHOD = {
   agentQuery: `Fixed before any run: the agent query is the first ${AGENT_QUERY_WORDS} words of the question that have at least ${AGENT_QUERY_MIN_CHARS} letters or digits, lowercased, in question order, punctuation dropped; it stays in the question's language. The question itself is latestUserMessage.`,
   keyword: "Control: searchDocsRaw (the keyword ranker behind search_docs without a re-rank) on the agent query in the item's docsLocale.",
-  v2: `Candidate: searchDocsRanked, the product search_docs path with docs re-rank v2 (docsRankSpec, docsRankState with docsRankUserMessage(question), docsRankOrder), product timeout ${DOCS_RERANK_TIMEOUT_MS} ms for both models, 3 runs per model. A failed or timed-out call falls back to the keyword output, as the product does.`,
+  v2: `Candidate: searchDocsRanked, the product search_docs path with docs re-rank v2 (docsRankSpec, docsRankState with docsRankUserMessage(question), docsRankOrder), product timeout ${JEV_DEADLINE_MS} ms, 3 runs. A failed or timed-out call falls back to the keyword output, as the product does.`,
   pageFirst: "The first result's page is the gold slug or the page of an alternative anchor.",
   sectionFirst:
     "The first result's slug#anchor is a gold anchor or an alternative anchor (lenient); strict counts gold anchors only.",
   answer:
     "The first returned section (heading path plus body, first 1,400 characters, docsRerankExcerpt) is judged against the gold fact by the earlier judge: google/gemini-3-flash on Vertex, thinking low, ZDR, the reference-fact prompt; only 'yes' passes.",
   stats:
-    "Per language and pooled: keyword once (deterministic), each model 3 runs with per-run counts and means; exact sign test (McNemar) on per-item majority outcomes against the keyword ranker, Holm-corrected over the two models; mean difference with a 95% item-cluster paired bootstrap over all runs.",
+    "Per language and pooled: keyword once (deterministic), each model 3 runs with per-run counts and means; exact sign test (McNemar) on per-item majority outcomes against the keyword ranker, Holm-corrected over the models run; mean difference with a 95% item-cluster paired bootstrap over all runs.",
   latency: "Added latency is the classifier call's wall time per query; the keyword ranker's own time is reported beside it.",
 };
 
@@ -141,7 +141,7 @@ async function v2Row(item: DocsHeldoutItem, model: ClassifierModel, run: number)
       docsRankSpec(candidates),
       docsRankState(q, message),
       model,
-      DOCS_RERANK_TIMEOUT_MS,
+      JEV_DEADLINE_MS,
     );
     classifierMs = call.ms;
     costMicrocents = call.result?.costMicrocents ?? null;

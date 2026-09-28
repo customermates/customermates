@@ -4,7 +4,6 @@ import type { DocsRankCandidate, DocsSectionRanker } from "@/features/mcp-tools/
 import { agentContextFromProviderText } from "./agent-context";
 import { classifyMetered, hostedDocsRerankModel } from "./classifier/metered";
 
-export const DOCS_RERANK_TIMEOUT_MS = 800;
 export const DOCS_RERANK_USER_MESSAGE_CHARS = 1_000;
 const DOCS_RERANK_OPTION_CHARS = 400;
 
@@ -19,7 +18,7 @@ export function docsRerankPlainText(value: string): string {
 
 export function docsRerankChoice(result: ClassifierResult | null): number | null {
   const answer = result?.answers.best;
-  if (answer?.type !== "choice" || !/^s\d+$/.test(answer.choice)) return null;
+  if (!answer || !/^s\d+$/.test(answer.choice)) return null;
   return Number(answer.choice.slice(1));
 }
 
@@ -58,8 +57,7 @@ export function docsRankOrder(
 ): number[] | null {
   const chosen = docsRerankChoice(result);
   if (chosen === null || !candidates.some((candidate) => candidate.id === chosen)) return null;
-  const answer = result?.answers.best;
-  const probabilities = answer?.type === "choice" ? answer.probabilities : null;
+  const probabilities = result?.answers.best?.probabilities ?? null;
   const rest = candidates.map((candidate) => candidate.id).filter((id) => id !== chosen);
   const ordered = probabilities
     ? rest
@@ -85,7 +83,6 @@ export function hostedDocsRanking(userMessage: string | null = null): DocsSectio
       docsRankSpec(candidates),
       docsRankState(query, message),
       model,
-      { jev: { timeoutMs: DOCS_RERANK_TIMEOUT_MS } },
     );
     return docsRankOrder(result, candidates);
   };

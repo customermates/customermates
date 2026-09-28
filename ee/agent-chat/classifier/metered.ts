@@ -1,4 +1,4 @@
-import type { ClassifierResult, ClassifierSpec, ClassifierState } from "./spec";
+import type { ClassifierModel, ClassifierResult, ClassifierSpec, ClassifierState } from "./spec";
 import type { ClassifyOptions } from "./index";
 
 import { AsyncLocalStorage } from "node:async_hooks";
@@ -10,15 +10,11 @@ import { computeCostMicrocents, type TokenCounts } from "../model-pricing";
 import { classifyAttempt } from "./index";
 import { JEV_MODEL_ID, JEV_PRICING_PROVIDER, jevRequestBody } from "./jev-runner";
 
-export const CLASSIFIER_USES = ["docs_rerank"] as const;
-
-export type ClassifierUse = (typeof CLASSIFIER_USES)[number];
-
-export type MeteredClassifierModel = "jev";
+type ClassifierUse = "docs_rerank";
 
 export type ClassifierCharge = {
   use: ClassifierUse;
-  model: MeteredClassifierModel;
+  model: ClassifierModel;
   costMicrocents: number;
   measured: boolean;
   answered: boolean;
@@ -36,8 +32,8 @@ export async function collectClassifierCharges<T>(
   return { value, charges };
 }
 
-export function hostedDocsRerankModel(): MeteredClassifierModel | null {
-  if (env.AGENT_DOCS_RERANK === "off" || env.APP_MODE === "self-hosted") return null;
+export function hostedDocsRerankModel(): ClassifierModel | null {
+  if (env.AGENT_DOCS_RERANK !== "jev" || env.APP_MODE === "self-hosted") return null;
   return "jev";
 }
 
@@ -59,10 +55,10 @@ export async function classifyMetered(
   use: ClassifierUse,
   spec: ClassifierSpec,
   state: ClassifierState,
-  model: MeteredClassifierModel,
+  model: ClassifierModel,
   options: ClassifyOptions = {},
 ): Promise<{ result: ClassifierResult | null; charge: ClassifierCharge | null }> {
-  const attempt = await classifyAttempt(spec, state, model, options);
+  const attempt = await classifyAttempt(spec, state, options);
   if (!attempt.requested) return { result: null, charge: null };
   const measured = attempt.result?.costMicrocents ?? null;
   const charge: ClassifierCharge = {

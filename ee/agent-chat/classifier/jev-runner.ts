@@ -6,7 +6,7 @@ import { parseClassifierAnswers } from "./spec";
 
 export const JEV_EVALUATE_URL = "https://ai-gateway.vercel.sh/v1/evaluate";
 export const JEV_MODEL_ID = "typesafe-ai/jev";
-export const JEV_SERVING_PROVIDER = "typesafe-ai";
+const JEV_SERVING_PROVIDER = "typesafe-ai";
 export const JEV_PRICING_PROVIDER = "digitalocean";
 export const JEV_DEADLINE_MS = 800;
 
@@ -17,21 +17,16 @@ export type JevRunnerOptions = {
   now?: () => number;
 };
 
-function jevQuestion(question: ClassifierSpec["questions"][number]) {
-  if (question.type === "choice")
-    return { type: "choice", instructions: question.instruction, criteria: question.options };
-  return {
-    type: "boolean",
-    instructions: question.instruction,
-    ...(question.criteria ? { criteria: question.criteria } : {}),
-  };
-}
-
 export function jevRequestBody(spec: ClassifierSpec, state: ClassifierState) {
   return {
     model: JEV_MODEL_ID,
     state,
-    questions: Object.fromEntries(spec.questions.map((question) => [question.id, jevQuestion(question)])),
+    questions: Object.fromEntries(
+      spec.questions.map((question) => [
+        question.id,
+        { type: question.type, instructions: question.instruction, criteria: question.options },
+      ]),
+    ),
     providerOptions: {
       gateway: { only: [JEV_SERVING_PROVIDER], zeroDataRetention: true, disallowPromptTraining: true },
     },

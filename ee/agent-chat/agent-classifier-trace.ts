@@ -1,7 +1,8 @@
-import type { ClassifierCharge, MeteredClassifierModel } from "./classifier/metered";
+import type { ClassifierModel } from "./classifier";
+import type { ClassifierCharge } from "./classifier/metered";
 
-export type AgentDocsRerankTrace = {
-  model: MeteredClassifierModel;
+type AgentDocsRerankTrace = {
+  model: ClassifierModel;
   calls: number;
   answered: number;
   costMicrocents: number;
