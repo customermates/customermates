@@ -158,6 +158,23 @@ describe("CompanySettingsStore pipeline totals", () => {
     expect(store.weightedPipelineTotal).toBe(30000);
   });
 
+  it("flags an out-of-range weight as it is typed and keeps it out of the weighted pipeline", () => {
+    const store = storeWithSums({
+      [OPEN]: { totalValue: 725500, weightedValue: 217650 },
+      [WON]: { totalValue: 545500, weightedValue: 545500 },
+    });
+
+    store.onChange("dealStageWeights[0].weight", 3530);
+
+    expect(store.getError("dealStageWeights[0].weight")).toEqual(["Common.probabilityRange"]);
+    expect(store.weightedPipelineTotal).toBe(545500);
+
+    store.onChange("dealStageWeights[0].weight", 35);
+
+    expect(store.getError("dealStageWeights[0].weight")).toBeUndefined();
+    expect(store.weightedPipelineTotal).toBe(725500 * 0.35 + 545500);
+  });
+
   it("reports nothing rather than zero when no sums have arrived", () => {
     const store = new CompanySettingsStore(makeRootStore());
 

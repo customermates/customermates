@@ -445,8 +445,14 @@ export class CustomColumnModalStore extends BaseModalStore<UpsertCustomColumnDat
     }
   }
 
-  private validateOptionWeights(): boolean {
-    if (this.form.type !== CustomColumnType.singleSelect) return true;
+  protected override afterChange(id: string): void {
+    if (!/^options\.options\[\d+\]\.weight$/u.test(id)) return;
+
+    this.error = this.optionWeightErrors();
+  }
+
+  private optionWeightErrors(): $ZodErrorTree<UpsertCustomColumnData> | undefined {
+    if (this.form.type !== CustomColumnType.singleSelect) return undefined;
 
     const error = this.t("Common.probabilityRange");
     const result = z
@@ -457,12 +463,18 @@ export class CustomColumnModalStore extends BaseModalStore<UpsertCustomColumnDat
       })
       .safeParse({ options: this.form.options });
 
-    if (result.success) {
+    return result.success ? undefined : (z.treeifyError(result.error) as $ZodErrorTree<UpsertCustomColumnData>);
+  }
+
+  private validateOptionWeights(): boolean {
+    const errors = this.optionWeightErrors();
+
+    if (!errors) {
       if (this.error) this.setError(undefined);
       return true;
     }
 
-    this.setError(z.treeifyError(result.error) as $ZodErrorTree<UpsertCustomColumnData>);
+    this.setError(errors);
     return false;
   }
 }

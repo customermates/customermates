@@ -16,7 +16,7 @@ import equal from "fast-deep-equal/es6";
 import { Currency, CustomColumnType, EntityType, Resource } from "@/generated/prisma";
 
 import { NO_VALUE_GROUP_KEY } from "@/core/base/grouping/grouping.schema";
-import { DEAL_GROUP_SUM_FIELDS, dealStageWeightSchema } from "@/features/deals/deal-weighting";
+import { DEAL_GROUP_SUM_FIELDS, dealStageWeightSchema, isDealStageWeight } from "@/features/deals/deal-weighting";
 
 import { getCustomColumnsByEntityTypeAction } from "@/app/actions";
 
@@ -144,7 +144,10 @@ export class CompanySettingsStore extends BaseFormStore<CompanySettingsFormData>
 
     return this.form.dealStageWeights.reduce(
       (total, { optionValue, weight }) =>
-        total + ((stageValueSums[optionValue]?.[DEAL_GROUP_SUM_FIELDS.total] ?? 0) * (weight ?? 0)) / 100,
+        total +
+        ((stageValueSums[optionValue]?.[DEAL_GROUP_SUM_FIELDS.total] ?? 0) *
+          (weight !== undefined && isDealStageWeight(weight) ? weight : 0)) /
+          100,
       0,
     );
   }
@@ -278,18 +281,30 @@ export class CompanySettingsStore extends BaseFormStore<CompanySettingsFormData>
     }
   };
 
-  private validateStageWeights(): boolean {
+  protected override afterChange(id: string): void {
+    if (!id.startsWith("dealStageWeights[")) return;
+
+    this.error = this.stageWeightErrors();
+  }
+
+  private stageWeightErrors(): $ZodErrorTree<CompanySettingsFormData> | undefined {
     const error = this.t("Common.probabilityRange");
     const result = z
       .object({ dealStageWeights: z.array(z.object({ weight: dealStageWeightSchema({ error }).optional() })) })
       .safeParse({ dealStageWeights: this.form.dealStageWeights });
 
-    if (result.success) {
+    return result.success ? undefined : (z.treeifyError(result.error) as $ZodErrorTree<CompanySettingsFormData>);
+  }
+
+  private validateStageWeights(): boolean {
+    const errors = this.stageWeightErrors();
+
+    if (!errors) {
       if (this.error) this.setError(undefined);
       return true;
     }
 
-    this.setError(z.treeifyError(result.error) as $ZodErrorTree<CompanySettingsFormData>);
+    this.setError(errors);
     return false;
   }
 

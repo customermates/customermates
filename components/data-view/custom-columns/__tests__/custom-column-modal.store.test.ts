@@ -357,6 +357,16 @@ describe("CustomColumnModalStore option weights", () => {
     expect(store.getError("options.options[0].weight")).toEqual(["Common.probabilityRange"]);
   });
 
+  it("flags an out-of-range weight as it is typed and clears it once corrected", () => {
+    const store = storeWithWeight(3530);
+
+    expect(store.getError("options.options[0].weight")).toEqual(["Common.probabilityRange"]);
+
+    store.onChange("options.options[0].weight", 30);
+
+    expect(store.getError("options.options[0].weight")).toBeUndefined();
+  });
+
   it.each([0, 100, 42.5])("saves a weight of %s", async (weight) => {
     const store = storeWithWeight(weight);
 
