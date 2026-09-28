@@ -98,7 +98,12 @@ function abortable<T>(operation: Promise<T>, signal: AbortSignal): Promise<T> {
   });
 }
 
-async function requestPage(url: URL, signal: AbortSignal): Promise<IncomingMessage> {
+async function requestPage(
+  url: URL,
+  signal: AbortSignal,
+  accept: readonly string[],
+  userAgent: string,
+): Promise<IncomingMessage> {
   const addresses = await abortable(lookup(url.hostname, { all: true, verbatim: true }), signal);
   if (
     !addresses.length ||
@@ -116,9 +121,9 @@ async function requestPage(url: URL, signal: AbortSignal): Promise<IncomingMessa
       maxHeaderSize: 16_384,
       signal,
       headers: {
-        Accept: "text/html, application/xhtml+xml, text/plain",
+        Accept: accept.join(", "),
         "Accept-Encoding": "identity",
-        "User-Agent": "Customermates/1.0 (public website reader)",
+        "User-Agent": userAgent,
       },
       lookup: (_hostname, options, callback) => lookupAddress(address.address, options, callback),
     };
@@ -363,39 +368,57 @@ function extractPage(body: string, url: string, contentType: string, allowedDoma
   return result;
 }
 
-export async function readPublicPage(
-  input: { url: string; allowedDomain: string },
+export const PUBLIC_PAGE_USER_AGENT = "Customermates/1.0 (public website reader)";
+const PAGE_CONTENT_TYPES = ["text/html", "application/xhtml+xml", "text/plain"] as const;
+
+export type PublicResourceTarget = { url: string; host: string; registrableDomain: string };
+
+export type PublicResourceResult =
+  | { ok: true; url: string; contentType: string; body: string }
+  | { ok: false; reason: PublicPageReadFailure; status?: number };
+
+function publicResourceTarget(value: string): PublicResourceTarget | null {
+  const page = parsePublicPageUrl(value);
+  return page ? { ...page, host: new URL(page.url).hostname } : null;
+}
+
+export async function fetchPublicResource(
+  input: {
+    url: string;
+    allows: (target: PublicResourceTarget) => boolean;
+    accept: readonly string[];
+    userAgent?: string;
+  },
   options: { signal?: AbortSignal } = {},
-): Promise<PublicPageReadResult> {
-  const firstPage = parsePublicPageUrl(input.url);
-  if (!firstPage) return { ok: false, reason: "invalid_url" };
-  const allowedDomain = parsePublicDomainName(input.allowedDomain);
-  if (!allowedDomain || firstPage.registrableDomain !== allowedDomain) return { ok: false, reason: "outside_domain" };
+): Promise<PublicResourceResult> {
+  const first = publicResourceTarget(input.url);
+  if (!first) return { ok: false, reason: "invalid_url" };
+  if (!input.allows(first)) return { ok: false, reason: "outside_domain" };
 
   const timeout = AbortSignal.timeout(MAX_READ_MS);
   const signal = options.signal ? AbortSignal.any([timeout, options.signal]) : timeout;
-  let currentUrl = firstPage.url;
+  const userAgent = input.userAgent ?? PUBLIC_PAGE_USER_AGENT;
+  let currentUrl = first.url;
   try {
     for (let redirects = 0; redirects <= MAX_REDIRECTS; redirects++) {
-      const response = await requestPage(new URL(currentUrl), signal);
+      const response = await requestPage(new URL(currentUrl), signal, input.accept, userAgent);
       try {
         if (REDIRECT_STATUSES.has(response.statusCode ?? 0)) {
           if (redirects === MAX_REDIRECTS) return { ok: false, reason: "redirect_limit" };
           if (!response.headers.location) return { ok: false, reason: "unavailable" };
-          const nextPage = parsePublicPageUrl(new URL(response.headers.location, currentUrl).toString());
-          if (!nextPage) return { ok: false, reason: "invalid_url" };
-          if (nextPage.registrableDomain !== allowedDomain) return { ok: false, reason: "outside_domain" };
-          currentUrl = nextPage.url;
+          const next = publicResourceTarget(new URL(response.headers.location, currentUrl).toString());
+          if (!next) return { ok: false, reason: "invalid_url" };
+          if (!input.allows(next)) return { ok: false, reason: "outside_domain" };
+          currentUrl = next.url;
           continue;
         }
         if (!response.statusCode || response.statusCode < 200 || response.statusCode >= 300)
-          return { ok: false, reason: "unavailable" };
+          return { ok: false, reason: "unavailable", status: response.statusCode };
         const contentTypeHeader = response.headers["content-type"] ?? "";
         const contentType = contentTypeHeader.split(";", 1)[0].trim().toLowerCase();
-        if (!["text/html", "application/xhtml+xml", "text/plain"].includes(contentType))
-          return { ok: false, reason: "unsupported_content" };
+        if (!input.accept.includes(contentType)) return { ok: false, reason: "unsupported_content" };
         const body = decodeBody(await readBody(response, signal), contentType, contentTypeHeader);
-        return extractPage(body, currentUrl, contentType, allowedDomain);
+        return { ok: true, url: currentUrl, contentType, body };
       } finally {
         response.destroy();
       }
@@ -407,4 +430,23 @@ export async function readPublicPage(
       reason: signal.aborted ? "timeout" : error instanceof PublicPageReadError ? error.reason : "unavailable",
     };
   }
+}
+
+export async function readPublicPage(
+  input: { url: string; allowedDomain: string },
+  options: { signal?: AbortSignal } = {},
+): Promise<PublicPageReadResult> {
+  const allowedDomain = parsePublicDomainName(input.allowedDomain);
+  if (!parsePublicPageUrl(input.url)) return { ok: false, reason: "invalid_url" };
+  if (!allowedDomain) return { ok: false, reason: "outside_domain" };
+  const resource = await fetchPublicResource(
+    {
+      url: input.url,
+      allows: (target) => target.registrableDomain === allowedDomain,
+      accept: PAGE_CONTENT_TYPES,
+    },
+    options,
+  );
+  if (!resource.ok) return { ok: false, reason: resource.reason };
+  return extractPage(resource.body, resource.url, resource.contentType, allowedDomain);
 }
