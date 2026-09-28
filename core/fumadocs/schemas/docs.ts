@@ -9,5 +9,6 @@ export const docsSchema = frontmatterSchema.extend({
     })
     .optional(),
   description: z.string(),
+  heading: z.string().optional(),
   title: z.string(),
 });

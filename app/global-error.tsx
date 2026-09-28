@@ -1,6 +1,6 @@
 "use client";
 
-import "@/styles/globals.css";
+import "@/styles/site";
 import { latin } from "./fonts";
 
 import { useEffect, useState } from "react";

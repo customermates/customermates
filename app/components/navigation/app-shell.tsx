@@ -1,3 +1,5 @@
+import "@/styles/application.css";
+
 import { cookies } from "next/headers";
 import { NextIntlClientProvider } from "next-intl";
 import { getMessages } from "next-intl/server";

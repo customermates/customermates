@@ -129,7 +129,7 @@ export function LocaleMenu({ align = "start", className, side = "bottom" }: Prop
               {/* eslint-disable-next-line @next/next/no-img-element -- a lazy flag inside a closed disclosure must not be requested, which next/image cannot express. */}
               <img
                 aria-hidden
-                alt=""
+                alt={label}
                 className="size-5 shrink-0 rounded-full object-cover"
                 height={20}
                 loading="lazy"

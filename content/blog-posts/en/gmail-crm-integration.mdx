@@ -1,5 +1,5 @@
 ---
-title: "Gmail CRM Integration: How It Works and What to Check"
+title: "Gmail CRM Integration: Email Sync and Workflows"
 description: "How a Gmail CRM integration actually works: add-on, mailbox sync or API. Google's scope rules, Workspace limits, and a step-by-step Customermates setup."
 
 hero:
@@ -77,7 +77,7 @@ You connect the Gmail API to the CRM's API or webhooks with a workflow tool such
 
 Two things on Google's side shape what any vendor can offer.
 
-**Gmail scopes.** Google classifies the scopes that read, modify or fully access a mailbox (for example `gmail.readonly`, `gmail.modify` and full `mail.google.com` access) as [restricted scopes](https://developers.google.com/gmail/api/auth/scopes). An app that uses them must pass Google's restricted-scope verification, and one that stores or transmits that data on its servers must also complete a security assessment. Sending only (`gmail.send`) is a sensitive scope with lighter requirements. If you build your own integration, budget for this; if you buy one, the vendor or its provider carries it.
+**Gmail scopes.** Google classifies the scopes that read, modify or fully access a mailbox (for example `gmail.readonly`, `gmail.modify` and full `mail.google.com` access) as [restricted scopes](https://developers.google.com/workspace/gmail/api/auth/scopes). An app that uses them must pass Google's restricted-scope verification, and one that stores or transmits that data on its servers must also complete a security assessment. Sending only (`gmail.send`) is a sensitive scope with lighter requirements. If you build your own integration, budget for this; if you buy one, the vendor or its provider carries it.
 
 **Workspace admin controls.** In Google Workspace, an administrator can restrict which third-party apps may access Google data. If a connection fails for one user but works for another, check the organization's API access controls before debugging the CRM.
 
