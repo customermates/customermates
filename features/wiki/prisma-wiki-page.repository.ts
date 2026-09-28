@@ -360,8 +360,7 @@ export class PrismaWikiPageRepo
 
   async claimStaleSemanticPages(model: string, limit: number): Promise<WikiSemanticIndexPage[]> {
     return this.prisma.$queryRaw<WikiSemanticIndexPage[]>(Prisma.sql`
-      UPDATE "WikiPage" SET "semanticIndexClaimedAt" = CURRENT_TIMESTAMP
-      WHERE "id" IN (
+      WITH claimable AS MATERIALIZED (
         SELECT p."id" FROM "WikiPage" p
         WHERE p."companyId" = ${this.companyId}
           AND (
@@ -373,8 +372,10 @@ export class PrismaWikiPageRepo
         LIMIT ${limit}
         FOR UPDATE SKIP LOCKED
       )
-      AND "companyId" = ${this.companyId}
-      RETURNING "id", "title", "markdown", "updatedAt"
+      UPDATE "WikiPage" w SET "semanticIndexClaimedAt" = CURRENT_TIMESTAMP
+      FROM claimable c
+      WHERE w."id" = c."id" AND w."companyId" = ${this.companyId}
+      RETURNING w."id", w."title", w."markdown", w."updatedAt"
     `);
   }
 

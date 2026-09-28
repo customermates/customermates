@@ -10,7 +10,10 @@ import { runWithTenant } from "@/core/decorators/tenant-context";
 import { PrismaAgentChatRepo } from "@/ee/agent-chat/prisma-agent-chat.repository";
 import { WIKI_EMBEDDING_DIMENSIONS, WIKI_EMBEDDING_MODEL } from "@/ee/wiki-retrieval/wiki-embedding-model";
 import { WikiSemanticQueryEmbedder } from "@/ee/wiki-retrieval/wiki-query-embedder";
-import { WikiSemanticIndexService } from "@/ee/wiki-retrieval/wiki-semantic-index.service";
+import {
+  WIKI_SEMANTIC_INDEX_BATCH_PAGES,
+  WikiSemanticIndexService,
+} from "@/ee/wiki-retrieval/wiki-semantic-index.service";
 import { getLocalDatabaseTestUrl } from "@/tests/helpers/database-test";
 import { createMockUser } from "@/tests/helpers/mock-user";
 
@@ -175,6 +178,30 @@ describeDatabase("Workspace Wiki semantic retrieval on PostgreSQL with pgvector"
     );
     expect(written).toBe(false);
     expect((await client.query('SELECT 1 FROM "WikiPageChunk" WHERE "pageId" = $1', [page.id])).rowCount).toBe(0);
+  });
+
+  it("claims at most the requested number of stale pages, so the backfill reports what remains", async () => {
+    await Promise.all(
+      Array.from({ length: 20 }, (_, index) => insert(user, `Page ${index}`, `Holiday note ${index}`, index)),
+    );
+    const claim = () =>
+      runWithTenant(user, () => new PrismaWikiPageRepo().claimStaleSemanticPages(WIKI_EMBEDDING_MODEL, 8));
+
+    const batches = [await claim(), await claim(), await claim(), await claim()];
+    expect(batches.map((batch) => batch.length)).toEqual([8, 8, 4, 0]);
+    expect(new Set(batches.flat().map(({ id }) => id)).size).toBe(20);
+
+    await client.query('UPDATE "WikiPage" SET "semanticIndexClaimedAt" = NULL WHERE "companyId" = $1', [companyId]);
+    const results = await runWithTenant(user, async () => {
+      const indexer = new WikiSemanticIndexService(new PrismaWikiPageRepo(), fakeEmbeddings().service);
+      return [await indexer.indexStalePages(), await indexer.indexStalePages(), await indexer.indexStalePages()];
+    });
+    expect(results.map(({ indexed }) => indexed)).toEqual([
+      WIKI_SEMANTIC_INDEX_BATCH_PAGES,
+      WIKI_SEMANTIC_INDEX_BATCH_PAGES,
+      20 - 2 * WIKI_SEMANTIC_INDEX_BATCH_PAGES,
+    ]);
+    expect(results.map(({ remaining }) => remaining)).toEqual([true, true, false]);
   });
 
   it("ranks by meaning, returns the matching section, pins identifiers and never crosses tenants", async () => {
