@@ -47,7 +47,14 @@ export function AiClientLogo({ provider, className }: Props) {
   if (provider === "gemini") {
     return (
       // eslint-disable-next-line @next/next/no-img-element -- preserves Google's self-contained published SVG asset verbatim.
-      <img aria-hidden alt="" className={classes} height={24} src="/images/brand/gemini-sparkle.svg" width={24} />
+      <img
+        aria-hidden
+        alt="Google Gemini"
+        className={classes}
+        height={24}
+        src="/images/brand/gemini-sparkle.svg"
+        width={24}
+      />
     );
   }
 

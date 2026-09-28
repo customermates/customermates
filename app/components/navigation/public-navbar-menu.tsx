@@ -109,7 +109,7 @@ export function PublicNavLinkMark({ mark }: { mark: PublicNavMark }) {
   if (mark.kind === "automation") {
     icon = (
       // eslint-disable-next-line @next/next/no-img-element -- the allowlisted n8n mark is a bundled local SVG.
-      <img aria-hidden alt="" className="h-4 w-[22px] shrink-0 object-contain" src="/icons/integrations/n8n.svg" />
+      <img aria-hidden alt="n8n" className="h-4 w-[22px] shrink-0 object-contain" src="/icons/integrations/n8n.svg" />
     );
   }
 

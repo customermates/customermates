@@ -44,7 +44,7 @@ export default async function DocPage({ params }: { params: Promise<{ locale: st
 
   const t = await getTranslations();
   const navKey = docNavI18nKey(slug);
-  const headline = navKey ? t(navKey) : page.data.title;
+  const headline = page.data.heading ?? (navKey ? t(navKey) : page.data.title);
 
   const MDX = page.data.body;
   const components = getDocsMDXComponents();

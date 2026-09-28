@@ -155,7 +155,8 @@ export function ContactForm() {
             <AppCardBody>
               <div className="flex items-center gap-4 pb-1">
                 <AppImage
-                  alt=""
+                  alt={t("ContactPage.form.founderName")}
+                  aria-hidden="true"
                   className="size-12 shrink-0 rounded-full object-cover"
                   height={800}
                   sizes="48px"

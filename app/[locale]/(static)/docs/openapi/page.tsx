@@ -67,7 +67,7 @@ export default async function OpenApiOverviewPage({ params }: StaticLocaleProps)
   if (!page) notFound();
 
   const navKey = docNavI18nKey("openapi");
-  const headline = navKey ? t(navKey) : page.data.title;
+  const headline = page.data.heading ?? (navKey ? t(navKey) : page.data.title);
 
   const docs = apiDocsSource.getPages(locale);
   const groupedDocs = docs.reduce<

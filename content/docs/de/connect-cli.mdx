@@ -84,7 +84,7 @@ Die verfügbaren Record-Typen sind Contact, Organization, Deal, Service und Task
 
 | Client | Symptom | Ursache | Lösung |
 |---|---|---|---|
-| Claude Desktop | `npx: command not found` | Kein Node im `PATH` | Node 18+ von [nodejs.org](https://nodejs.org) installieren |
+| Claude Desktop | `npx: command not found` | Kein Node im `PATH` | Node 18+ von [nodejs.org](https://nodejs.org/en) installieren |
 | Claude Desktop | Tools-Panel nach Config-Änderung leer | Claude Desktop lädt MCP-Configs nicht hot | Vollständig beenden (⌘Q) und neu öffnen |
 | Codex | TOML-Parse-Fehler | Inline-Tabellen nutzen `=`, nicht `:` | Die `env_http_headers = { ... }`-Zeile prüfen |
 | Alle | Die Tools werden gelistet, aber jeder Aufruf, der Workspace-Daten liest oder ändert, scheitert mit „Sign in to use this action.“ (die Meldung kommt auf Englisch) | Der Key ist falsch oder abgeschnitten, oder ein Key, der funktioniert hat, ist abgelaufen (Keys aus den **Schnellverbindungen** laufen nach 365 Tagen ab) oder wurde gelöscht. Der Server listet die Tools bei jedem `x-api-key`-Header und prüft den Key erst, wenn ein Tool Workspace-Daten liest oder ändert; `search_docs`, `get_docs_page` und `fetch` mit einer `doc:`-Id brauchen keinen gültigen Key, eine funktionierende Doku-Abfrage beweist also nicht, dass der Key gültig ist | Unter **Mein Profil → API & Konnektoren** einen neuen Key anlegen, die vollständigen 64 Zeichen einfügen und den Client aktualisieren |
