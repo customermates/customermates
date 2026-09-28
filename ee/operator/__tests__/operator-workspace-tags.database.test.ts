@@ -266,8 +266,8 @@ describeDatabase("operator workspace tags", { timeout: 120_000 }, () => {
     const rows = await runWithoutTenant(() => repo.getItems({ filters: [scoped] }));
 
     expect(rows).toHaveLength(2);
-    expect(rows.find((row) => row.companyId === skewed.companyId)?.creditsLimit).toBeNull();
-    expect(rows.find((row) => row.companyId === sane.companyId)?.creditsLimit).not.toBeNull();
+    expect(rows.find((row) => row.companyId === skewed.companyId)?.limitMicrocents).toBeNull();
+    expect(rows.find((row) => row.companyId === sane.companyId)?.limitMicrocents).not.toBeNull();
   });
 
   it("combines a tag filter with a plan filter instead of dropping one of them", async () => {

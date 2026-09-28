@@ -4,10 +4,10 @@ import {
   AgentApprovalDecision,
   AgentConversationOrigin,
   AgentMessageRole,
+  Prisma,
   Resource,
   RoutineRunStatus,
   Status,
-  type Prisma,
   type SubscriptionPlan,
   type SubscriptionStatus,
 } from "@/generated/prisma";
@@ -22,7 +22,12 @@ import type {
 } from "@/features/wiki/get-wiki-homepage-setup-state.interactor";
 import { parsePublicWikiHomepage } from "@/features/wiki/wiki-homepage";
 
-import type { AgentRetrievalCharge, AgentRetrievalGrant, AgentUsageRepo } from "./agent-usage.service";
+import type {
+  AgentRetrievalCharge,
+  AgentRetrievalGrant,
+  AgentUsageRepo,
+  AgentWorkspaceCreditPool,
+} from "./agent-usage.service";
 import { AGENT_CONVERSATION_PAGE_SIZE, AGENT_MESSAGE_PAGE_SIZE, type AgentConversationPage } from "./agent-history";
 import { AGENT_MAX_CONCURRENT_RUNS_PER_USER } from "./agent-run-limits";
 import { clientSafeAgentMessageParts, hasRenderableAgentMessageParts, partsToText } from "./agent-chat.schema";
@@ -50,7 +55,13 @@ import {
   type AgentTurnTerminalCode,
 } from "./agent-turn-request";
 import type { AgentUsageSettlement } from "./agent-usage-settlement";
-import { AGENT_CREDIT_MICROCENTS, resolveAgentCreditEntitlement } from "./agent-credit-policy";
+import {
+  agentCreditPeriodForAnchor,
+  agentMicrocentsFromStorage,
+  legacyCreditsRoundedDown,
+  legacyCreditsRoundedUp,
+  resolveAgentCreditEntitlement,
+} from "./agent-credit-policy";
 import { isAgentTurnClassifierTrace, type AgentTurnClassifierTrace } from "./agent-classifier-trace";
 
 type StoredAgentTurnRow = {
@@ -90,7 +101,7 @@ type AgentUsageUser = {
 
 type HostedAiGlobalCommitment = {
   settledCostMicrocents: bigint;
-  activeReservedCredits: bigint;
+  activeReservedMicrocents: bigint;
 };
 
 export type AgentTurnReplay = {
@@ -105,7 +116,7 @@ export type FinalizedAgentTurn = {
   stopReason: AgentTurnStopReason | null;
   affectedResources: AgentTurnRequestSnapshot["affectedResources"];
   costMicrocents: number;
-  chargedCredits: number;
+  chargedMicrocents: number;
 };
 
 type AgentTurnAdmissionArgs = {
@@ -176,26 +187,30 @@ function assertTurnDate(value: Date | null, description: string) {
     throw new Error(`${description} is invalid.`);
 }
 
-function sumCommittedAgentCredits(
+const committedUsageSelect = { state: true, reservedMicrocents: true, chargedMicrocents: true } as const;
+
+function sumCommittedAgentMicrocents(
   events: Array<{
     state: string;
-    reservedCredits: number;
-    chargedCredits: number;
+    reservedMicrocents: bigint;
+    chargedMicrocents: bigint;
   }>,
 ): number {
   let total = 0;
   for (const event of events) {
-    const credits =
-      event.state === "reserved" || event.state === "retained" ? event.reservedCredits : event.chargedCredits;
-    if (!Number.isSafeInteger(credits) || credits < 0) throw new Error("Stored AI credit usage is invalid.");
-    total += credits;
+    const microcents = agentMicrocentsFromStorage(
+      event.state === "reserved" || event.state === "retained" ? event.reservedMicrocents : event.chargedMicrocents,
+      "Stored AI credit usage",
+    );
+    if (microcents < 0) throw new Error("Stored AI credit usage is invalid.");
+    total += microcents;
     if (!Number.isSafeInteger(total)) throw new Error("Stored AI credit usage total is invalid.");
   }
   return total;
 }
 
 export type AgentUsageReservationExtension =
-  | { disposition: "extended"; reservedCredits: number }
+  | { disposition: "extended"; reservedMicrocents: number }
   | { disposition: "credit_limit" }
   | { disposition: "hosted_ai_unavailable" }
   | { disposition: "turn_error" };
@@ -225,25 +240,25 @@ export class PrismaAgentChatRepo extends BaseRepository implements AgentUsageRep
       now,
     } as const;
     const base = resolveAgentCreditEntitlement(input);
-    const adjustmentCredits = await this.getUserCreditAdjustmentUnscoped(
+    const adjustmentMicrocents = await this.getUserCreditAdjustmentUnscoped(
       user.companyId,
       user.id,
       base.start,
       base.resetAt,
     );
 
-    return resolveAgentCreditEntitlement({ ...input, adjustmentCredits });
+    return resolveAgentCreditEntitlement({ ...input, adjustmentMicrocents });
   }
 
   private async admitsHostedAiGlobalSpend(args: {
     now: Date;
     excludeReservationId?: string;
-    additionalReservedCredits?: number;
+    additionalReservedMicrocents?: number;
   }): Promise<boolean> {
     if (!env.HOSTED_AI_OPERATOR_CONTROLS_ENABLED) return true;
 
-    const additionalReservedCredits = args.additionalReservedCredits ?? 0;
-    if (!Number.isSafeInteger(additionalReservedCredits) || additionalReservedCredits < 0)
+    const additionalReservedMicrocents = args.additionalReservedMicrocents ?? 0;
+    if (!Number.isSafeInteger(additionalReservedMicrocents) || additionalReservedMicrocents < 0)
       throw new Error("Hosted AI global reservation amount is invalid.");
 
     const monthlySpendCapMicrocents = env.HOSTED_AI_MONTHLY_SPEND_CAP_MICROCENTS;
@@ -267,12 +282,12 @@ export class PrismaAgentChatRepo extends BaseRepository implements AgentUsageRep
           0
         )::bigint AS "settledCostMicrocents",
         COALESCE(
-          SUM("reservedCredits"::bigint) FILTER (
+          SUM("reservedMicrocents") FILTER (
             WHERE "state" IN ('reserved', 'retained')
               AND (${excludeReservationId}::text IS NULL OR "id" <> ${excludeReservationId}::text)
           ),
           0
-        )::bigint AS "activeReservedCredits"
+        )::bigint AS "activeReservedMicrocents"
       FROM "AgentUsageEvent"
       WHERE
         (
@@ -285,11 +300,10 @@ export class PrismaAgentChatRepo extends BaseRepository implements AgentUsageRep
     const commitment = commitments[0];
     if (!commitment) throw new Error("Hosted AI global commitment could not be read.");
     if (commitment.settledCostMicrocents < 0n) throw new Error("Hosted AI global settled-cost total is invalid.");
-    if (commitment.activeReservedCredits < 0n) throw new Error("Hosted AI global reserved-credit total is invalid.");
+    if (commitment.activeReservedMicrocents < 0n) throw new Error("Hosted AI global reserved-credit total is invalid.");
 
     const committedMicrocents =
-      commitment.settledCostMicrocents +
-      (commitment.activeReservedCredits + BigInt(additionalReservedCredits)) * BigInt(AGENT_CREDIT_MICROCENTS);
+      commitment.settledCostMicrocents + commitment.activeReservedMicrocents + BigInt(additionalReservedMicrocents);
     return committedMicrocents <= monthlySpendCapMicrocents;
   }
 
@@ -1107,7 +1121,7 @@ export class PrismaAgentChatRepo extends BaseRepository implements AgentUsageRep
           userId: scope.userId,
           state: "reserved",
         },
-        select: { id: true, reservedCredits: true },
+        select: { id: true, reservedMicrocents: true },
       });
       if (!reservation) throw new Error("Interrupted agent usage reservation is missing.");
       const settled = await this.prisma.agentUsageEvent.updateMany({
@@ -1122,7 +1136,10 @@ export class PrismaAgentChatRepo extends BaseRepository implements AgentUsageRep
           model: row.modelSpec ?? model,
           costMicrocents: 0,
           costSource: "estimated",
-          chargedCredits: reservation.reservedCredits,
+          chargedMicrocents: reservation.reservedMicrocents,
+          chargedCredits: legacyCreditsRoundedUp(
+            agentMicrocentsFromStorage(reservation.reservedMicrocents, "Interrupted agent usage reservation"),
+          ),
           settledAt: now,
         },
       });
@@ -1136,7 +1153,7 @@ export class PrismaAgentChatRepo extends BaseRepository implements AgentUsageRep
           state: "reserved",
           providerStartedAt: null,
         },
-        data: { state: "released", chargedCredits: 0, settledAt: now },
+        data: { state: "released", chargedMicrocents: 0, chargedCredits: 0, settledAt: now },
       });
       if (released.count !== 1) throw new Error("Interrupted agent usage reservation could not be released.");
     }
@@ -1241,7 +1258,7 @@ export class PrismaAgentChatRepo extends BaseRepository implements AgentUsageRep
         state: "reserved",
         turnRequestId: null,
       },
-      data: { state: "released", chargedCredits: 0, settledAt: now },
+      data: { state: "released", chargedMicrocents: 0, chargedCredits: 0, settledAt: now },
     });
     const deleted = await this.prisma.agentRunLease.deleteMany({
       where: {
@@ -1410,7 +1427,7 @@ export class PrismaAgentChatRepo extends BaseRepository implements AgentUsageRep
     modelKey?: string | null;
     now: Date;
     origin?: AgentConversationOrigin;
-    creditCeiling?: number | null;
+    creditCeilingMicrocents?: number | null;
   }) {
     await this.prisma.agentConversation.create({
       data: {
@@ -1420,7 +1437,9 @@ export class PrismaAgentChatRepo extends BaseRepository implements AgentUsageRep
         title: sanitizeAgentConversationTitle(args.title),
         modelKey: args.modelKey ?? null,
         origin: args.origin ?? "user",
-        creditCeiling: args.creditCeiling ?? null,
+        creditCeilingMicrocents: args.creditCeilingMicrocents ?? null,
+        creditCeiling:
+          args.creditCeilingMicrocents == null ? null : legacyCreditsRoundedDown(args.creditCeilingMicrocents),
         selectedAt: args.now,
       },
       select: { id: true },
@@ -1432,7 +1451,7 @@ export class PrismaAgentChatRepo extends BaseRepository implements AgentUsageRep
     conversationId: string;
     title: string | null;
     now: Date;
-    creditCeiling?: number | null;
+    creditCeilingMicrocents?: number | null;
   }) {
     const companyId = this.companyId;
     const userId = this.userId;
@@ -1442,7 +1461,7 @@ export class PrismaAgentChatRepo extends BaseRepository implements AgentUsageRep
         title: args.title,
         now: args.now,
         origin: AgentConversationOrigin.routine,
-        creditCeiling: args.creditCeiling,
+        creditCeilingMicrocents: args.creditCeilingMicrocents,
       });
 
       const linked = await this.prisma.routineRun.updateMany({
@@ -1816,7 +1835,7 @@ export class PrismaAgentChatRepo extends BaseRepository implements AgentUsageRep
           userId: args.userId,
           state: "reserved",
         },
-        select: { id: true, reservedCredits: true },
+        select: { id: true, reservedMicrocents: true },
       });
       if (!reservation) throw new Error("Agent usage reservation is missing at provider start.");
       const currentEvents = await this.prisma.agentUsageEvent.findMany({
@@ -1828,10 +1847,11 @@ export class PrismaAgentChatRepo extends BaseRepository implements AgentUsageRep
           periodEnd: entitlement.resetAt,
           state: { in: ["reserved", "settled", "retained"] },
         },
-        select: { state: true, reservedCredits: true, chargedCredits: true },
+        select: committedUsageSelect,
       });
-      const usedCredits = sumCommittedAgentCredits(currentEvents);
-      if (usedCredits + reservation.reservedCredits > entitlement.limit)
+      const usedMicrocents = sumCommittedAgentMicrocents(currentEvents);
+      const reservedMicrocents = agentMicrocentsFromStorage(reservation.reservedMicrocents, "Agent usage reservation");
+      if (usedMicrocents + reservedMicrocents > entitlement.limitMicrocents)
         throw new Error("Agent credit reservation exceeds the current allowance at provider start.");
 
       if (!(await this.admitsHostedAiGlobalSpend({ now: startedAt }))) return false;
@@ -1862,7 +1882,8 @@ export class PrismaAgentChatRepo extends BaseRepository implements AgentUsageRep
           providerStartedAt: startedAt,
           planSnapshot: entitlement.plan,
           subscriptionStatusSnapshot: user.subscription.status,
-          allowanceCreditsSnapshot: entitlement.limit,
+          allowanceMicrocentsSnapshot: entitlement.limitMicrocents,
+          allowanceCreditsSnapshot: legacyCreditsRoundedDown(entitlement.limitMicrocents),
           periodStart: entitlement.start,
           periodEnd: entitlement.resetAt,
         },
@@ -1898,7 +1919,7 @@ export class PrismaAgentChatRepo extends BaseRepository implements AgentUsageRep
         },
         select: {
           id: true,
-          reservedCredits: true,
+          reservedMicrocents: true,
           periodStart: true,
           periodEnd: true,
         },
@@ -1919,10 +1940,14 @@ export class PrismaAgentChatRepo extends BaseRepository implements AgentUsageRep
           periodEnd: entitlement.resetAt,
           state: { in: ["reserved", "settled", "retained"] },
         },
-        select: { state: true, reservedCredits: true, chargedCredits: true },
+        select: committedUsageSelect,
       });
-      const committedElsewhere = sumCommittedAgentCredits(others);
-      if (committedElsewhere + reservation.reservedCredits > entitlement.limit) return false;
+      const committedElsewhere = sumCommittedAgentMicrocents(others);
+      if (
+        committedElsewhere + agentMicrocentsFromStorage(reservation.reservedMicrocents, "Agent usage reservation") >
+        entitlement.limitMicrocents
+      )
+        return false;
 
       if (!(await this.admitsHostedAiGlobalSpend({ now }))) return false;
 
@@ -1979,11 +2004,11 @@ export class PrismaAgentChatRepo extends BaseRepository implements AgentUsageRep
         settlement.cacheWriteTokens < 0 ||
         !Number.isSafeInteger(settlement.costMicrocents) ||
         settlement.costMicrocents < 0 ||
-        !Number.isSafeInteger(settlement.reservedCredits) ||
-        settlement.reservedCredits < 1 ||
-        !Number.isSafeInteger(settlement.chargedCredits) ||
-        settlement.chargedCredits < 0 ||
-        settlement.chargedCredits > settlement.reservedCredits ||
+        !Number.isSafeInteger(settlement.reservedMicrocents) ||
+        settlement.reservedMicrocents < 1 ||
+        !Number.isSafeInteger(settlement.chargedMicrocents) ||
+        settlement.chargedMicrocents < 0 ||
+        settlement.chargedMicrocents > settlement.reservedMicrocents ||
         settlement.state !== "settled" ||
         !settlement.model ||
         typeof settlement.policyBreach !== "boolean")
@@ -2035,7 +2060,7 @@ export class PrismaAgentChatRepo extends BaseRepository implements AgentUsageRep
             companyId: args.companyId,
             userId: args.userId,
             state: "reserved",
-            reservedCredits: settlement.reservedCredits,
+            reservedMicrocents: settlement.reservedMicrocents,
           },
           data: {
             state: settlement.state,
@@ -2046,7 +2071,8 @@ export class PrismaAgentChatRepo extends BaseRepository implements AgentUsageRep
             cacheWriteTokens: settlement.cacheWriteTokens,
             costMicrocents: settlement.costMicrocents,
             costSource: settlement.costSource,
-            chargedCredits: settlement.chargedCredits,
+            chargedMicrocents: settlement.chargedMicrocents,
+            chargedCredits: legacyCreditsRoundedUp(settlement.chargedMicrocents),
             policyBreach: settlement.policyBreach,
             settledAt: committedAt,
           },
@@ -2062,6 +2088,7 @@ export class PrismaAgentChatRepo extends BaseRepository implements AgentUsageRep
           },
           data: {
             state: "released",
+            chargedMicrocents: 0,
             chargedCredits: 0,
             settledAt: committedAt,
           },
@@ -2130,7 +2157,7 @@ export class PrismaAgentChatRepo extends BaseRepository implements AgentUsageRep
         stopReason,
         affectedResources: args.affectedResources,
         costMicrocents: settlement?.costMicrocents ?? 0,
-        chargedCredits: settlement?.chargedCredits ?? 0,
+        chargedMicrocents: settlement?.chargedMicrocents ?? 0,
       };
     });
   }
@@ -2173,7 +2200,7 @@ export class PrismaAgentChatRepo extends BaseRepository implements AgentUsageRep
             state: "reserved",
             providerStartedAt: null,
           },
-          data: { state: "released", chargedCredits: 0, settledAt: new Date() },
+          data: { state: "released", chargedMicrocents: 0, chargedCredits: 0, settledAt: new Date() },
         });
         if (released.count !== 1) throw new Error("Agent usage reservation could not be released.");
       }
@@ -2232,7 +2259,7 @@ export class PrismaAgentChatRepo extends BaseRepository implements AgentUsageRep
           periodEnd,
           state: { in: ["reserved", "settled", "retained"] },
         },
-        select: { state: true, reservedCredits: true, chargedCredits: true },
+        select: committedUsageSelect,
       }),
       this.prisma.agentUsageEvent.findFirst({
         where: {
@@ -2244,13 +2271,15 @@ export class PrismaAgentChatRepo extends BaseRepository implements AgentUsageRep
           purpose: "turn",
         },
         orderBy: [{ settledAt: "desc" }, { id: "desc" }],
-        select: { chargedCredits: true },
+        select: { chargedMicrocents: true },
       }),
     ]);
 
     return {
-      usedCredits: sumCommittedAgentCredits(events),
-      recentTurnCredits: recent?.chargedCredits ?? null,
+      usedMicrocents: sumCommittedAgentMicrocents(events),
+      recentTurnMicrocents: recent
+        ? agentMicrocentsFromStorage(recent.chargedMicrocents, "Recent AI turn usage")
+        : null,
     };
   }
 
@@ -2258,12 +2287,10 @@ export class PrismaAgentChatRepo extends BaseRepository implements AgentUsageRep
   async getUserCreditAdjustmentUnscoped(companyId: string, userId: string, periodStart: Date, periodEnd: Date) {
     const aggregate = await this.prisma.agentCreditAdjustment.aggregate({
       where: { companyId, userId, periodStart, periodEnd },
-      _sum: { creditDelta: true },
+      _sum: { deltaMicrocents: true },
     });
-    const adjustmentCredits = aggregate._sum.creditDelta ?? 0;
-    if (!Number.isSafeInteger(adjustmentCredits)) throw new Error("Stored AI credit adjustment is invalid.");
 
-    return adjustmentCredits;
+    return agentMicrocentsFromStorage(aggregate._sum.deltaMicrocents, "Stored AI credit adjustment");
   }
 
   @BypassTenantGuard
@@ -2311,37 +2338,119 @@ export class PrismaAgentChatRepo extends BaseRepository implements AgentUsageRep
   }
 
   @BypassTenantGuard
-  async accrueRetrievalUsageUnscoped(args: {
-    companyId: string;
-    userId: string;
-    grant: AgentRetrievalGrant;
-    charge: AgentRetrievalCharge;
-    now: Date;
-  }) {
-    const accrualMonth = new Date(Date.UTC(args.now.getUTCFullYear(), args.now.getUTCMonth(), 1));
-    const charged = Math.ceil(args.charge.costMicrocents / AGENT_CREDIT_MICROCENTS);
-    await this.prisma.$executeRaw`
+  async getWorkspaceCreditPoolUnscoped(companyId: string, now: Date): Promise<AgentWorkspaceCreditPool | null> {
+    const company = await this.prisma.company.findUnique({
+      where: { id: companyId },
+      select: {
+        subscription: {
+          select: {
+            status: true,
+            plan: true,
+            trialEndDate: true,
+            agentCreditAnchorAt: true,
+            enterpriseAgentCreditsPerUser: true,
+            createdAt: true,
+          },
+        },
+        users: {
+          where: { status: Status.active },
+          select: { id: true, agentCreditActivatedAt: true },
+        },
+      },
+    });
+    const subscription = company?.subscription;
+    if (!subscription) return null;
+
+    const anchor = subscription.agentCreditAnchorAt ?? subscription.createdAt;
+    if (anchor.getTime() > now.getTime()) return null;
+    const period = agentCreditPeriodForAnchor(anchor, now);
+    const [adjustments, events] = await Promise.all([
+      this.prisma.agentCreditAdjustment.groupBy({
+        by: ["userId"],
+        where: { companyId, periodStart: period.start, periodEnd: period.resetAt },
+        _sum: { deltaMicrocents: true },
+      }),
+      this.prisma.agentUsageEvent.findMany({
+        where: {
+          companyId,
+          periodStart: period.start,
+          periodEnd: period.resetAt,
+          state: { in: ["reserved", "settled", "retained"] },
+        },
+        select: committedUsageSelect,
+      }),
+    ]);
+    const adjustmentByUser = new Map(
+      adjustments.map((row) => [
+        row.userId,
+        agentMicrocentsFromStorage(row._sum.deltaMicrocents, "Stored AI credit adjustment"),
+      ]),
+    );
+
+    let limitMicrocents = 0;
+    let usable = false;
+    for (const user of company.users) {
+      const entitlement = resolveAgentCreditEntitlement({
+        appMode: env.APP_MODE,
+        plan: subscription.plan,
+        status: subscription.status,
+        trialEndDate: subscription.trialEndDate,
+        creditAnchorAt: anchor,
+        enterpriseCreditsPerUser: subscription.enterpriseAgentCreditsPerUser,
+        adjustmentMicrocents: adjustmentByUser.get(user.id) ?? 0,
+        activeSeatAt: user.agentCreditActivatedAt,
+        now,
+      });
+      if (entitlement.blockedReason) continue;
+      usable = true;
+      limitMicrocents += entitlement.limitMicrocents;
+      if (!Number.isSafeInteger(limitMicrocents)) throw new Error("Workspace AI credit allowance is invalid.");
+    }
+
+    return {
+      plan: subscription.plan,
+      subscriptionStatus: subscription.status,
+      periodStart: period.start,
+      periodEnd: period.resetAt,
+      limitMicrocents,
+      usedMicrocents: sumCommittedAgentMicrocents(events),
+      usable,
+    };
+  }
+
+  @BypassTenantGuard
+  async accrueRetrievalUsageUnscoped(args: { grant: AgentRetrievalGrant; charge: AgentRetrievalCharge; now: Date }) {
+    const { grant, charge, now } = args;
+    const accrualMonth = new Date(Date.UTC(now.getUTCFullYear(), now.getUTCMonth(), 1));
+    const insert = Prisma.sql`
       INSERT INTO "AgentUsageEvent" (
         "id", "companyId", "userId", "state", "model", "inputTokens", "costMicrocents", "costSource",
-        "reservedCredits", "chargedCredits", "planSnapshot", "subscriptionStatusSnapshot", "allowanceCreditsSnapshot",
-        "periodStart", "periodEnd", "providerStartedAt", "settledAt", "purpose", "accrualMonth", "createdAt"
+        "reservedMicrocents", "chargedMicrocents", "reservedCredits", "chargedCredits", "planSnapshot",
+        "subscriptionStatusSnapshot", "allowanceMicrocentsSnapshot", "allowanceCreditsSnapshot", "periodStart",
+        "periodEnd", "providerStartedAt", "settledAt", "purpose", "accrualMonth", "createdAt"
       ) VALUES (
-        ${randomUUID()}, ${args.companyId}, ${args.userId}, 'settled', ${args.charge.model}, ${args.charge.inputTokens},
-        ${args.charge.costMicrocents}, ${args.charge.costSource}::"AgentUsageCostSource", ${charged}, ${charged},
-        ${args.grant.planSnapshot}::"SubscriptionPlan", ${args.grant.subscriptionStatusSnapshot}::"SubscriptionStatus",
-        ${args.grant.allowanceCreditsSnapshot}, ${args.grant.periodStart}, ${args.grant.periodEnd}, ${args.now},
-        ${args.now}, 'wikiRetrieval', ${accrualMonth}, ${args.now}
-      )
-      ON CONFLICT ("companyId", "userId", "periodStart", "periodEnd", "purpose", "accrualMonth") DO UPDATE SET
+        ${randomUUID()}, ${grant.companyId}, ${grant.userId}, 'settled', ${charge.model}, ${charge.inputTokens},
+        ${charge.costMicrocents}, ${charge.costSource}::"AgentUsageCostSource", ${charge.costMicrocents},
+        ${charge.costMicrocents}, ${legacyCreditsRoundedUp(charge.costMicrocents)},
+        ${legacyCreditsRoundedUp(charge.costMicrocents)}, ${grant.planSnapshot}::"SubscriptionPlan",
+        ${grant.subscriptionStatusSnapshot}::"SubscriptionStatus", ${grant.allowanceMicrocentsSnapshot},
+        ${legacyCreditsRoundedDown(grant.allowanceMicrocentsSnapshot)}, ${grant.periodStart}, ${grant.periodEnd},
+        ${now}, ${now}, ${grant.purpose}::"AgentUsagePurpose", ${accrualMonth}, ${now}
+      )`;
+    const conflictTarget =
+      grant.userId === null
+        ? Prisma.sql`("companyId", "periodStart", "periodEnd", "purpose", "accrualMonth") WHERE "userId" IS NULL`
+        : Prisma.sql`("companyId", "userId", "periodStart", "periodEnd", "purpose", "accrualMonth")`;
+    await this.prisma.$executeRaw`
+      ${insert}
+      ON CONFLICT ${conflictTarget} DO UPDATE SET
         "model" = EXCLUDED."model",
         "inputTokens" = "AgentUsageEvent"."inputTokens" + EXCLUDED."inputTokens",
         "costMicrocents" = "AgentUsageEvent"."costMicrocents" + EXCLUDED."costMicrocents",
-        "reservedCredits" = ceil(
-          ("AgentUsageEvent"."costMicrocents" + EXCLUDED."costMicrocents")::numeric / ${AGENT_CREDIT_MICROCENTS}
-        )::int,
-        "chargedCredits" = ceil(
-          ("AgentUsageEvent"."costMicrocents" + EXCLUDED."costMicrocents")::numeric / ${AGENT_CREDIT_MICROCENTS}
-        )::int,
+        "reservedMicrocents" = "AgentUsageEvent"."reservedMicrocents" + EXCLUDED."reservedMicrocents",
+        "chargedMicrocents" = "AgentUsageEvent"."chargedMicrocents" + EXCLUDED."chargedMicrocents",
+        "reservedCredits" = ceil(("AgentUsageEvent"."reservedMicrocents" + EXCLUDED."reservedMicrocents") / 1000000.0),
+        "chargedCredits" = ceil(("AgentUsageEvent"."chargedMicrocents" + EXCLUDED."chargedMicrocents") / 1000000.0),
         "costSource" = CASE
           WHEN "AgentUsageEvent"."costSource" = 'estimated' OR EXCLUDED."costSource" = 'estimated'
             THEN 'estimated'::"AgentUsageCostSource"
@@ -2357,14 +2466,14 @@ export class PrismaAgentChatRepo extends BaseRepository implements AgentUsageRep
     companyId: string;
     userId: string;
     sessionId: string;
-    reservedCredits: number;
+    reservedMicrocents: number;
     planSnapshot: SubscriptionPlan;
     subscriptionStatusSnapshot: SubscriptionStatus;
-    allowanceCreditsSnapshot: number;
+    allowanceMicrocentsSnapshot: number;
     periodStart: Date;
     periodEnd: Date;
   }) {
-    if (!Number.isSafeInteger(event.reservedCredits) || event.reservedCredits < 1)
+    if (!Number.isSafeInteger(event.reservedMicrocents) || event.reservedMicrocents < 1)
       throw new Error("Agent credit reservation is invalid.");
 
     return this.withCompanyTransaction(event.companyId, async () => {
@@ -2385,16 +2494,16 @@ export class PrismaAgentChatRepo extends BaseRepository implements AgentUsageRep
           periodEnd: entitlement.resetAt,
           state: { in: ["reserved", "settled", "retained"] },
         },
-        select: { state: true, reservedCredits: true, chargedCredits: true },
+        select: committedUsageSelect,
       });
-      const used = sumCommittedAgentCredits(existing);
-      if (used + event.reservedCredits > entitlement.limit)
+      const used = sumCommittedAgentMicrocents(existing);
+      if (used + event.reservedMicrocents > entitlement.limitMicrocents)
         throw new Error("Agent credit reservation exceeds the current allowance.");
 
       if (
         !(await this.admitsHostedAiGlobalSpend({
           now: reservedAt,
-          additionalReservedCredits: event.reservedCredits,
+          additionalReservedMicrocents: event.reservedMicrocents,
         }))
       )
         return false;
@@ -2402,12 +2511,15 @@ export class PrismaAgentChatRepo extends BaseRepository implements AgentUsageRep
       await this.prisma.agentUsageEvent.create({
         data: {
           ...event,
+          reservedCredits: legacyCreditsRoundedUp(event.reservedMicrocents),
           planSnapshot: entitlement.plan,
           subscriptionStatusSnapshot: user.subscription.status,
-          allowanceCreditsSnapshot: entitlement.limit,
+          allowanceMicrocentsSnapshot: entitlement.limitMicrocents,
+          allowanceCreditsSnapshot: legacyCreditsRoundedDown(entitlement.limitMicrocents),
           periodStart: entitlement.start,
           periodEnd: entitlement.resetAt,
           state: "reserved",
+          chargedMicrocents: 0,
           chargedCredits: 0,
           policyBreach: false,
         },
@@ -2422,9 +2534,9 @@ export class PrismaAgentChatRepo extends BaseRepository implements AgentUsageRep
     turnRequestId: string;
     companyId: string;
     userId: string;
-    requiredCredits: number;
+    requiredMicrocents: number;
   }): Promise<AgentUsageReservationExtension> {
-    if (!Number.isSafeInteger(args.requiredCredits) || args.requiredCredits < 1)
+    if (!Number.isSafeInteger(args.requiredMicrocents) || args.requiredMicrocents < 1)
       throw new Error("Agent credit reservation extension is invalid.");
 
     return this.withCompanyTransaction(args.companyId, async () => {
@@ -2437,15 +2549,14 @@ export class PrismaAgentChatRepo extends BaseRepository implements AgentUsageRep
         },
         select: {
           id: true,
-          reservedCredits: true,
+          reservedMicrocents: true,
           periodStart: true,
           periodEnd: true,
-          allowanceCreditsSnapshot: true,
           turnRequest: {
             select: {
               conversation: {
                 select: {
-                  creditCeiling: true,
+                  creditCeilingMicrocents: true,
                   routineRuns: {
                     where: { turnRequestId: args.turnRequestId },
                     select: { id: true },
@@ -2460,16 +2571,20 @@ export class PrismaAgentChatRepo extends BaseRepository implements AgentUsageRep
       if (!reservation) return { disposition: "turn_error" };
       if (!reservation.turnRequest) return { disposition: "turn_error" };
       const conversation = reservation.turnRequest.conversation;
-      const creditCeiling = conversation.routineRuns.length > 0 ? conversation.creditCeiling : null;
+      const reservedMicrocents = agentMicrocentsFromStorage(reservation.reservedMicrocents, "Agent usage reservation");
+      const ceilingMicrocents =
+        conversation.routineRuns.length > 0 && conversation.creditCeilingMicrocents !== null
+          ? agentMicrocentsFromStorage(conversation.creditCeilingMicrocents, "Routine run credit ceiling")
+          : null;
       if (
-        creditCeiling !== null &&
-        (reservation.reservedCredits > creditCeiling || args.requiredCredits > creditCeiling)
+        ceilingMicrocents !== null &&
+        (reservedMicrocents > ceilingMicrocents || args.requiredMicrocents > ceilingMicrocents)
       )
         return { disposition: "credit_limit" };
-      if (reservation.reservedCredits >= args.requiredCredits) {
+      if (reservedMicrocents >= args.requiredMicrocents) {
         return {
           disposition: "extended",
-          reservedCredits: reservation.reservedCredits,
+          reservedMicrocents,
         };
       }
 
@@ -2495,16 +2610,17 @@ export class PrismaAgentChatRepo extends BaseRepository implements AgentUsageRep
           state: { in: ["reserved", "settled", "retained"] },
           id: { not: reservation.id },
         },
-        select: { state: true, reservedCredits: true, chargedCredits: true },
+        select: committedUsageSelect,
       });
-      const committedElsewhere = sumCommittedAgentCredits(others);
-      if (committedElsewhere + args.requiredCredits > entitlement.limit) return { disposition: "credit_limit" };
+      const committedElsewhere = sumCommittedAgentMicrocents(others);
+      if (committedElsewhere + args.requiredMicrocents > entitlement.limitMicrocents)
+        return { disposition: "credit_limit" };
 
       if (
         !(await this.admitsHostedAiGlobalSpend({
           now,
           excludeReservationId: reservation.id,
-          additionalReservedCredits: args.requiredCredits,
+          additionalReservedMicrocents: args.requiredMicrocents,
         }))
       )
         return { disposition: "hosted_ai_unavailable" };
@@ -2516,14 +2632,16 @@ export class PrismaAgentChatRepo extends BaseRepository implements AgentUsageRep
           state: "reserved",
         },
         data: {
-          reservedCredits: args.requiredCredits,
-          allowanceCreditsSnapshot: entitlement.limit,
+          reservedMicrocents: args.requiredMicrocents,
+          reservedCredits: legacyCreditsRoundedUp(args.requiredMicrocents),
+          allowanceMicrocentsSnapshot: entitlement.limitMicrocents,
+          allowanceCreditsSnapshot: legacyCreditsRoundedDown(entitlement.limitMicrocents),
           planSnapshot: entitlement.plan,
           subscriptionStatusSnapshot: user.subscription.status,
         },
       });
       return extended.count === 1
-        ? { disposition: "extended", reservedCredits: args.requiredCredits }
+        ? { disposition: "extended", reservedMicrocents: args.requiredMicrocents }
         : { disposition: "turn_error" };
     });
   }
@@ -2533,7 +2651,7 @@ export class PrismaAgentChatRepo extends BaseRepository implements AgentUsageRep
     const { releasedAt, ...where } = args;
     await this.prisma.agentUsageEvent.updateMany({
       where: { ...where, state: "reserved" },
-      data: { state: "released", chargedCredits: 0, settledAt: releasedAt },
+      data: { state: "released", chargedMicrocents: 0, chargedCredits: 0, settledAt: releasedAt },
     });
   }
 }

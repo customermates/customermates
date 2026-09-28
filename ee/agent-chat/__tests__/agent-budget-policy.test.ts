@@ -7,9 +7,9 @@ import {
   agentContextBytesToWorstCaseProviderTokens,
   agentContextTokensToBytes,
   agentToolResultText,
-  agentWebSearchReserveCredits,
-  agentRoundWorstCaseCredits,
-  agentRoundWorstCaseCreditsForContextBytes,
+  agentWebSearchReserveMicrocents,
+  agentRoundWorstCaseMicrocents,
+  agentRoundWorstCaseMicrocentsForContextBytes,
   isAgentContextWithinBudget,
   resolveAgentTurnBudget,
   serializedAgentContextBytes,
@@ -18,6 +18,7 @@ import { buildAgentProviderContext, isAgentStepContextWithinBudget } from "../ag
 import { MODEL_CATALOG, isAgentModelWithinBudgetEnvelope, type AgentModelEntry } from "../model-catalog";
 import { agentWebSearchCallLimit } from "../agent-web-search";
 
+const CREDIT = 1_000_000;
 const BALANCED = MODEL_CATALOG.balanced;
 const NANO: AgentModelEntry = {
   modelId: "openai/gpt-5-nano",
@@ -39,7 +40,7 @@ describe("agent turn credit budget", () => {
 
   it("gives every model its own full envelope, because affordability is no longer a smaller envelope", () => {
     for (const model of [NANO, BALANCED]) {
-      const budget = resolveAgentTurnBudget({ model, availableCredits: 500 });
+      const budget = resolveAgentTurnBudget({ model, availableMicrocents: 500 * CREDIT });
 
       expect(budget).toEqual(
         expect.objectContaining({
@@ -55,92 +56,97 @@ describe("agent turn credit budget", () => {
   });
 
   it("reserves a few rounds ahead rather than a whole worst-case turn", () => {
-    const budget = resolveAgentTurnBudget({ model: BALANCED, availableCredits: 500 });
-    const perRound = agentRoundWorstCaseCredits(BALANCED);
+    const budget = resolveAgentTurnBudget({ model: BALANCED, availableMicrocents: 500 * CREDIT });
+    const perRound = agentRoundWorstCaseMicrocents(BALANCED);
 
-    expect(budget?.roundReserveCredits).toBe(perRound);
-    expect(budget?.reservedCredits).toBe(perRound * AGENT_RESERVATION_ROUNDS_AHEAD);
+    expect(budget?.roundReserveMicrocents).toBe(perRound);
+    expect(budget?.reservedMicrocents).toBe(perRound * AGENT_RESERVATION_ROUNDS_AHEAD);
   });
 
-  it("reserves the worst-case search price of every remaining search in whole credits", () => {
-    expect(agentWebSearchReserveCredits(3)).toBe(4);
-    expect(agentWebSearchReserveCredits(2)).toBe(3);
-    expect(agentWebSearchReserveCredits(1)).toBe(2);
-    for (const none of [0, -1, 1.5, Number.NaN]) expect(agentWebSearchReserveCredits(none)).toBe(0);
+  it("keeps the round worst case in exact microcents, without a whole-credit round-up or minimum", () => {
+    expect(agentRoundWorstCaseMicrocents(BALANCED)).toBe(5_602_300);
+    expect(Number.isSafeInteger(agentRoundWorstCaseMicrocents(NANO))).toBe(true);
+    expect(agentRoundWorstCaseMicrocents(NANO) % CREDIT).not.toBe(0);
+  });
+
+  it("reserves the worst-case search price of every remaining search in exact microcents", () => {
+    expect(agentWebSearchReserveMicrocents(3)).toBe(3_600_000);
+    expect(agentWebSearchReserveMicrocents(2)).toBe(2_400_000);
+    expect(agentWebSearchReserveMicrocents(1)).toBe(1_200_000);
+    for (const none of [0, -1, 1.5, Number.NaN]) expect(agentWebSearchReserveMicrocents(none)).toBe(0);
   });
 
   it("reserves enough up front for the first round plus every search the turn may run", () => {
-    const perRound = agentRoundWorstCaseCredits(BALANCED);
-    const chatSearch = agentWebSearchReserveCredits(agentWebSearchCallLimit("chat"));
-    const routineSearch = agentWebSearchReserveCredits(agentWebSearchCallLimit("routine"));
+    const perRound = agentRoundWorstCaseMicrocents(BALANCED);
+    const chatSearch = agentWebSearchReserveMicrocents(agentWebSearchCallLimit("chat"));
+    const routineSearch = agentWebSearchReserveMicrocents(agentWebSearchCallLimit("routine"));
 
-    expect(perRound).toBe(6);
     expect({ chatSearch, routineSearch }).toEqual({
-      chatSearch: 4,
-      routineSearch: 3,
+      chatSearch: 3_600_000,
+      routineSearch: 2_400_000,
     });
-    for (const webSearchReserveCredits of [chatSearch, routineSearch]) {
+    for (const webSearchReserveMicrocents of [chatSearch, routineSearch]) {
       const budget = resolveAgentTurnBudget({
         model: BALANCED,
-        availableCredits: 500,
-        webSearchReserveCredits,
+        availableMicrocents: 500 * CREDIT,
+        webSearchReserveMicrocents,
       });
-      expect(budget?.reservedCredits).toBe(perRound * AGENT_RESERVATION_ROUNDS_AHEAD);
-      expect(budget?.reservedCredits).toBeGreaterThanOrEqual(1 + perRound + webSearchReserveCredits);
+      expect(budget?.reservedMicrocents).toBe(perRound * AGENT_RESERVATION_ROUNDS_AHEAD);
+      expect(budget?.reservedMicrocents).toBeGreaterThanOrEqual(perRound + webSearchReserveMicrocents);
     }
     expect(
       resolveAgentTurnBudget({
         model: BALANCED,
-        availableCredits: 500,
-        webSearchReserveCredits: 20,
+        availableMicrocents: 500 * CREDIT,
+        webSearchReserveMicrocents: 20 * CREDIT,
       }),
-    ).toMatchObject({ reservedCredits: perRound + 20 });
+    ).toMatchObject({ reservedMicrocents: perRound + 20 * CREDIT });
     expect(
       resolveAgentTurnBudget({
         model: BALANCED,
-        availableCredits: 9,
-        webSearchReserveCredits: 20,
+        availableMicrocents: 9 * CREDIT,
+        webSearchReserveMicrocents: 20 * CREDIT,
       }),
-    ).toMatchObject({ reservedCredits: 9 });
+    ).toMatchObject({ reservedMicrocents: 9 * CREDIT });
   });
 
   it("reserves strictly less for the cheaper model at the same envelope", () => {
-    const fast = resolveAgentTurnBudget({ model: NANO, availableCredits: 500 });
-    const balanced = resolveAgentTurnBudget({ model: BALANCED, availableCredits: 500 });
+    const fast = resolveAgentTurnBudget({ model: NANO, availableMicrocents: 500 * CREDIT });
+    const balanced = resolveAgentTurnBudget({ model: BALANCED, availableMicrocents: 500 * CREDIT });
 
-    expect(fast?.reservedCredits).toBeLessThan(balanced?.reservedCredits ?? 0);
+    expect(fast?.reservedMicrocents).toBeLessThan(balanced?.reservedMicrocents ?? 0);
   });
 
   it("never reserves more than the user actually has left", () => {
-    const perRound = agentRoundWorstCaseCredits(BALANCED);
-    const budget = resolveAgentTurnBudget({ model: BALANCED, availableCredits: perRound });
+    const perRound = agentRoundWorstCaseMicrocents(BALANCED);
+    const budget = resolveAgentTurnBudget({ model: BALANCED, availableMicrocents: perRound });
 
-    expect(budget?.reservedCredits).toBe(perRound);
+    expect(budget?.reservedMicrocents).toBe(perRound);
   });
 
-  it("refuses to start a provider round that cannot be fully reserved", () => {
-    const perRound = agentRoundWorstCaseCredits(BALANCED);
+  it("refuses to start a provider round that cannot be fully reserved, to the microcent", () => {
+    const perRound = agentRoundWorstCaseMicrocents(BALANCED);
 
-    expect(resolveAgentTurnBudget({ model: BALANCED, availableCredits: perRound - 1 })).toBeNull();
-    expect(resolveAgentTurnBudget({ model: BALANCED, availableCredits: perRound })).not.toBeNull();
+    expect(resolveAgentTurnBudget({ model: BALANCED, availableMicrocents: perRound - 1 })).toBeNull();
+    expect(resolveAgentTurnBudget({ model: BALANCED, availableMicrocents: perRound })).not.toBeNull();
   });
 
   it("refuses a user with no credits at all", () => {
-    expect(resolveAgentTurnBudget({ model: BALANCED, availableCredits: 0 })).toBeNull();
+    expect(resolveAgentTurnBudget({ model: BALANCED, availableMicrocents: 0 })).toBeNull();
   });
 
   it("refuses a context the model's envelope cannot hold", () => {
     expect(
       resolveAgentTurnBudget({
         model: BALANCED,
-        availableCredits: 500,
+        availableMicrocents: 500 * CREDIT,
         requiredContextBytes: agentContextTokensToBytes(BALANCED.maxContextTokens) + 1,
       }),
     ).toBeNull();
   });
 
   it("keeps the full tool-result allowance, which the old ladder used to trim away", () => {
-    const budget = resolveAgentTurnBudget({ model: BALANCED, availableCredits: 500 });
+    const budget = resolveAgentTurnBudget({ model: BALANCED, availableMicrocents: 500 * CREDIT });
 
     expect(budget?.maxToolResultChars).toBe(BALANCED.maxToolResultChars);
   });
@@ -156,9 +162,9 @@ describe("agent turn credit budget", () => {
     expect(isAgentModelWithinBudgetEnvelope(NANO)).toBe(true);
     expect(isAgentModelWithinBudgetEnvelope(BALANCED)).toBe(true);
     expect(isAgentModelWithinBudgetEnvelope({ ...tiered, maxContextTokens: 400_000 })).toBe(false);
-    expect(resolveAgentTurnBudget({ model: BALANCED, availableCredits: 0 })).toBeNull();
+    expect(resolveAgentTurnBudget({ model: BALANCED, availableMicrocents: 0 })).toBeNull();
     expect(
-      resolveAgentTurnBudget({ model: { ...tiered, maxContextTokens: 400_000 }, availableCredits: 500 }),
+      resolveAgentTurnBudget({ model: { ...tiered, maxContextTokens: 400_000 }, availableMicrocents: 500 * CREDIT }),
     ).toBeNull();
   });
 
@@ -168,7 +174,7 @@ describe("agent turn credit budget", () => {
   });
 
   it("prices every byte admitted from a dense serialized context within the reserved round", () => {
-    const budget = resolveAgentTurnBudget({ model: BALANCED, availableCredits: 500 });
+    const budget = resolveAgentTurnBudget({ model: BALANCED, availableMicrocents: 500 * CREDIT });
     expect(budget).not.toBeNull();
     if (!budget) return;
 
@@ -182,8 +188,8 @@ describe("agent turn credit budget", () => {
     expect(isAgentContextWithinBudget(denseContext, budget.maxContextBytes)).toBe(true);
     const admittedTokenCeiling = agentContextBytesToWorstCaseProviderTokens(denseBytes);
     expect(admittedTokenCeiling).toBeLessThanOrEqual(BALANCED.maxContextTokens);
-    expect(agentRoundWorstCaseCreditsForContextBytes(BALANCED, denseBytes)).toBeLessThanOrEqual(
-      budget.roundReserveCredits,
+    expect(agentRoundWorstCaseMicrocentsForContextBytes(BALANCED, denseBytes)).toBeLessThanOrEqual(
+      budget.roundReserveMicrocents,
     );
   });
 
@@ -322,14 +328,14 @@ describe("agent turn budget reasoning settings", () => {
   it("carries the entry's reasoning effort and thinking level into the turn budget", () => {
     const budget = resolveAgentTurnBudget({
       model: { ...BALANCED, reasoningEffort: "low", thinkingLevel: "medium" },
-      availableCredits: 500,
+      availableMicrocents: 500 * CREDIT,
     });
 
     expect(budget).toEqual(expect.objectContaining({ reasoningEffort: "low", thinkingLevel: "medium" }));
   });
 
   it("omits the reasoning keys entirely for a model without them", () => {
-    const budget = resolveAgentTurnBudget({ model: NANO, availableCredits: 500 });
+    const budget = resolveAgentTurnBudget({ model: NANO, availableMicrocents: 500 * CREDIT });
 
     expect(budget).not.toHaveProperty("reasoningEffort");
     expect(budget).not.toHaveProperty("thinkingLevel");

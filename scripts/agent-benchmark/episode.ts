@@ -30,6 +30,7 @@ import { isAgentTurnClassifierTrace } from "@/ee/agent-chat/agent-classifier-tra
 import { AGENT_PANEL_TOOL_NAMES, isAgentPanelTool,
 } from "@/ee/agent-chat/agent-ui-command";
 import { AGENT_RUN_LEASE_MS } from "@/ee/agent-chat/agent-turn-request";
+import { agentMicrocentsFromStorage, agentMicrocentsToCredits } from "@/ee/agent-chat/agent-credit-policy";
 import { resolveAgentModel } from "@/ee/agent-chat/model-catalog";
 import {
   cancelAgentTurnAs,
@@ -696,7 +697,9 @@ async function observeEpisode(db: BenchmarkDb, fixture: Fixture) {
       turnRequestId: event.turnRequestId,
       costMicrocents: event.costMicrocents.toString(),
       costSource: event.costSource,
-      chargedCredits: event.chargedCredits,
+      chargedCredits: agentMicrocentsToCredits(
+        agentMicrocentsFromStorage(event.chargedMicrocents, "Benchmark usage charge"),
+      ),
       state: event.state,
       model: event.model,
     })),

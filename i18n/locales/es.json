@@ -468,8 +468,8 @@
       },
       "contact": "Contactar con nosotros",
       "planAndReset": "Plan {plan} · se restablece {resetAt}",
-      "recentTurn": "{credits, plural, one {Última consulta: # crédito} other {Última consulta: # créditos}}",
-      "remaining": "Quedan {remaining, number} de {limit, number} créditos",
+      "recentTurn": "{credits, plural, one {Última consulta: {amount} crédito} other {Última consulta: {amount} créditos}}",
+      "remaining": "{credits, plural, one {Queda {remaining} de {limit} créditos} other {Quedan {remaining} de {limit} créditos}}",
       "resetShort": "Se restablece {resetAt}",
       "usage": "{pct} % de los créditos mensuales de IA alojada consumidos",
       "viewPlans": "Ver planes"
@@ -3155,7 +3155,7 @@
   "OperatorUsers": {
     "adjustment": {
       "deltaLabel": "Corrección de créditos con signo",
-      "deltaPlaceholder": "Por ejemplo, 500 o -100",
+      "deltaPlaceholder": "Por ejemplo, 500, 2,5 o -100",
       "expiresAt": "Esta corrección se aplica solo al periodo actual y caduca el {date}."
     },
     "confirm": {
@@ -3180,7 +3180,7 @@
     "emptyTitle": "Ningún usuario coincide con estos filtros",
     "modal": {
       "access": "Acceso",
-      "adjustmentConfirm": "¿Aplicar una corrección de {value} créditos a {name}?",
+      "adjustmentConfirm": "{credits, plural, one {¿Aplicar una corrección de {amount} crédito a {name}?} other {¿Aplicar una corrección de {amount} créditos a {name}?}}",
       "identity": "{person} · {email}"
     },
     "navigation": "Usuarios",
@@ -3549,7 +3549,7 @@
     "manageWithLemonSqueezy": "Gestionar con Lemon Squeezy",
     "picker": {
       "connectedAccountsPerUser": "{accounts, plural, one {# cuenta conectada por usuario} other {# cuentas conectadas por usuario}}",
-      "creditNote": "Los créditos de IA alojada se renuevan cada mes; los créditos no utilizados no se acumulan. Los clientes MCP externos utilizan tu propio proveedor de IA y no consumen estos créditos.",
+      "creditNote": "Los créditos de IA alojada se renuevan cada mes; los créditos no utilizados no se acumulan. Cada consulta se cobra por su coste exacto del proveedor y se muestra con un decimal. Los clientes MCP externos utilizan tu propio proveedor de IA y no consumen estos créditos.",
       "features": {
         "business": ["Todo lo de Pro", "Cuentas compartidas y soporte prioritario"],
         "pro": ["Todo lo de Starter", "Bandeja de entrada unificada"],

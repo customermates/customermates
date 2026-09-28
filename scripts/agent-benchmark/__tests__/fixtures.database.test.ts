@@ -249,28 +249,28 @@ describeDatabase("agent benchmark fixtures and oracle", () => {
           turnRequestId,
           companyId: fixture.companyId,
           userId: fixture.actorUserId,
-          requiredCredits: 12,
+          requiredMicrocents: 12_000_000,
         }),
       ),
-    ).resolves.toEqual({ disposition: "extended", reservedCredits: 12 });
+    ).resolves.toEqual({ disposition: "extended", reservedMicrocents: 12_000_000 });
     await expect(
       runWithoutTenant(() =>
         repo.extendUsageReservationUnscoped({
           turnRequestId,
           companyId: fixture.companyId,
           userId: fixture.actorUserId,
-          requiredCredits: 13,
+          requiredMicrocents: 12_000_001,
         }),
       ),
     ).resolves.toEqual({ disposition: "credit_limit" });
 
     const reservations = await db.prisma.agentUsageEvent.findMany({
       where: { companyId: fixture.companyId },
-      select: { reservedCredits: true },
+      select: { reservedMicrocents: true },
     });
     expect(reservations).toHaveLength(1);
     expect(
-      reservations.every((row) => row.reservedCredits <= 12),
+      reservations.every((row) => row.reservedMicrocents <= 12_000_000n),
     ).toBe(true);
   }, 60_000);
 

@@ -42,6 +42,10 @@ describe("operator input contracts", () => {
     };
     expect(CreateAgentCreditAdjustmentSchema.safeParse({ ...base, creditDelta: -1 }).success).toBe(true);
     expect(CreateAgentCreditAdjustmentSchema.safeParse({ ...base, creditDelta: 0 }).success).toBe(false);
+    expect(CreateAgentCreditAdjustmentSchema.safeParse({ ...base, creditDelta: 2.5 }).success).toBe(true);
+    expect(CreateAgentCreditAdjustmentSchema.safeParse({ ...base, creditDelta: -0.1 }).success).toBe(true);
+    expect(CreateAgentCreditAdjustmentSchema.safeParse({ ...base, creditDelta: 0.25 }).success).toBe(false);
+    expect(CreateAgentCreditAdjustmentSchema.safeParse({ ...base, creditDelta: 0.04 }).success).toBe(false);
     expect(
       CreateAgentCreditAdjustmentSchema.safeParse({
         ...base,

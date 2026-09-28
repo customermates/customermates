@@ -55,7 +55,7 @@ import {
 import { userWebsiteHomepage } from "@/ee/agent-chat/user-website-homepages";
 import { buildAgentUsageSettlement, usageToTokenCounts } from "@/ee/agent-chat/agent-usage-settlement";
 import { computeCostMicrocents } from "@/ee/agent-chat/model-pricing";
-import { agentCreditsForStartedProviderCost } from "@/ee/agent-chat/agent-credit-policy";
+import { agentMicrocentsToCredits } from "@/core/commercial/agent-credits";
 import { createAgentSupportTicket } from "@/ee/agent-chat/agent-support-ticket";
 import { describeAgentTool } from "@/ee/agent-chat/agent-activity";
 import {
@@ -81,7 +81,7 @@ import { isAgentToolCancellation } from "@/ee/agent-chat/agent-tool-cancellation
 import { createAgentToolInputResolver, type AgentToolInputResult } from "@/ee/agent-chat/agent-tool-input";
 import { resolveAgentApprovalContext } from "@/ee/agent-chat/agent-external-approval-context";
 import {
-  agentWebSearchReserveCredits,
+  agentWebSearchReserveMicrocents,
   isAgentContextWithinBudget,
   resolveAgentToolResultMaxChars,
 } from "@/ee/agent-chat/agent-budget-policy";
@@ -167,7 +167,7 @@ type RoundLedgerEntry = {
 type AgentTurnUsageOutcome = {
   tokens: TokenCounts;
   ledger: RoundLedgerEntry[];
-  reservedCredits: number;
+  reservedMicrocents: number;
   providerStarted?: boolean;
   auxiliaryCharges?: ClassifierCharge[];
 };
@@ -224,7 +224,7 @@ function usageSettlementForTurn(payload: AgentTurnWorkflowPayload, outcome: Agen
     tokens: outcome.tokens,
     provider: payload.turnBudget.servingProvider,
     inferenceRegion: payload.turnBudget.inferenceRegion,
-    reservedCredits: outcome.reservedCredits,
+    reservedMicrocents: outcome.reservedMicrocents,
     auxiliary: agentAuxiliaryCharge(outcome.auxiliaryCharges ?? []),
     providerCharge: {
       billed: outcome.ledger.length > 0,
@@ -569,14 +569,14 @@ async function publishAssistantText(text: string): Promise<void> {
   }
 }
 
-async function ensureTurnReservation(payload: AgentTurnWorkflowPayload, requiredCredits: number) {
+async function ensureTurnReservation(payload: AgentTurnWorkflowPayload, requiredMicrocents: number) {
   "use step";
   return runAsBackgroundTenant(payload.userId, () =>
     getAgentChatRepo().extendUsageReservationUnscoped({
       turnRequestId: payload.turnRequestId,
       companyId: payload.companyId,
       userId: payload.userId,
-      requiredCredits,
+      requiredMicrocents,
     }),
   );
 }
@@ -863,7 +863,7 @@ async function finalizeTurn(payload: AgentTurnWorkflowPayload, outcome: AgentTur
         assistantMessageId: committed.assistantMessage.id,
         affectedResources: committed.affectedResources,
         hasSuccessfulMutation: outcome.hasSuccessfulMutation,
-        creditsUsed: committed.chargedCredits,
+        creditsUsed: agentMicrocentsToCredits(committed.chargedMicrocents),
         numTurns: outcome.ledger.length,
         errorMessage: committed.terminalCode === "policyBreach" ? "policy_breach" : null,
         replayed: false,
@@ -892,7 +892,7 @@ export async function runAgentTurn(payload: AgentTurnWorkflowPayload): Promise<v
         hasSuccessfulMutation: false,
         tokens: emptyTokens(),
         ledger: [],
-        reservedCredits: payload.turnBudget.reservedCredits,
+        reservedMicrocents: payload.turnBudget.reservedMicrocents,
         providerStarted: false,
       });
       await closeTurnStream();
@@ -975,7 +975,7 @@ export async function runAgentTurn(payload: AgentTurnWorkflowPayload): Promise<v
     let hostedAiStop = false;
     const hostedAiPaused = new Error("Hosted AI provider work is paused.");
     let abandoned = false;
-    let reservedCredits = payload.turnBudget.reservedCredits;
+    let reservedMicrocents = payload.turnBudget.reservedMicrocents;
     let roundFailure: WorkflowFailure | null = null;
     const settledToolCallIds = new Set<string>();
 
@@ -1131,14 +1131,14 @@ export async function runAgentTurn(payload: AgentTurnWorkflowPayload): Promise<v
     const webSearchAffordable = async () => {
       const remaining = webSearchCallLimit - webSearchCalls;
       if (remaining < 1) return false;
-      const requiredCredits =
-        agentCreditsForStartedProviderCost(accruedCostMicrocents()) +
-        payload.turnBudget.roundReserveCredits +
-        agentWebSearchReserveCredits(remaining);
-      if (requiredCredits <= reservedCredits) return true;
-      const extension = await ensureTurnReservation(payload, requiredCredits);
+      const requiredMicrocents =
+        accruedCostMicrocents() +
+        payload.turnBudget.roundReserveMicrocents +
+        agentWebSearchReserveMicrocents(remaining);
+      if (requiredMicrocents <= reservedMicrocents) return true;
+      const extension = await ensureTurnReservation(payload, requiredMicrocents);
       if (extension.disposition !== "extended") return false;
-      reservedCredits = extension.reservedCredits;
+      reservedMicrocents = extension.reservedMicrocents;
       return true;
     };
 
@@ -1269,12 +1269,11 @@ export async function runAgentTurn(payload: AgentTurnWorkflowPayload): Promise<v
           providerStop === null &&
           roundFailure === null &&
           (step.finishReason === "length" || step.finishReason === "tool-calls");
-        const requiredCredits =
-          agentCreditsForStartedProviderCost(accruedMicrocents) +
-          (needsAnotherProviderRound ? payload.turnBudget.roundReserveCredits : 0);
-        if (requiredCredits > reservedCredits) {
-          const extension = await ensureTurnReservation(payload, requiredCredits);
-          if (extension.disposition === "extended") reservedCredits = extension.reservedCredits;
+        const requiredMicrocents =
+          accruedMicrocents + (needsAnotherProviderRound ? payload.turnBudget.roundReserveMicrocents : 0);
+        if (requiredMicrocents > reservedMicrocents) {
+          const extension = await ensureTurnReservation(payload, requiredMicrocents);
+          if (extension.disposition === "extended") reservedMicrocents = extension.reservedMicrocents;
           else if (extension.disposition === "credit_limit") budgetStop = true;
           else if (extension.disposition === "hosted_ai_unavailable") hostedAiStop = true;
           else roundFailure ??= toWorkflowFailure(new Error("Agent usage reservation is no longer available."));
@@ -1767,7 +1766,7 @@ export async function runAgentTurn(payload: AgentTurnWorkflowPayload): Promise<v
             ? "turn_error"
             : providerStop;
     const policyBreach =
-      usageSettlementForTurn(payload, { tokens, ledger, reservedCredits, auxiliaryCharges })?.policyBreach === true;
+      usageSettlementForTurn(payload, { tokens, ledger, reservedMicrocents, auxiliaryCharges })?.policyBreach === true;
     const effectiveStopReason: AgentTurnStopReason | null = policyBreach ? "policy_breach" : stopReason;
     const stopKind: AgentRunnerMessageKind | null =
       effectiveStopReason === "cancelled"
@@ -1818,7 +1817,7 @@ export async function runAgentTurn(payload: AgentTurnWorkflowPayload): Promise<v
       hasSuccessfulMutation: transcript.hasSuccessfulMutation,
       tokens,
       ledger,
-      reservedCredits,
+      reservedMicrocents,
       auxiliaryCharges,
     });
     await closeTurnStream();

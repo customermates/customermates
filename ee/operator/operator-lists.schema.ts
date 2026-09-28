@@ -23,8 +23,8 @@ export const OperatorUserRowDtoSchema = z.object({
   subscriptionUpdatedAt: z.date().nullable(),
   adProvider: z.string().nullable(),
   adIdentifierKind: z.string().nullable(),
-  creditsRemaining: z.number().nullable(),
-  creditsLimit: z.number().nullable(),
+  remainingMicrocents: z.number().nullable(),
+  limitMicrocents: z.number().nullable(),
   creditsBlockedReason: z.string().nullable(),
 });
 

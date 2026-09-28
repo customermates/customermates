@@ -35,7 +35,7 @@ function RoutineRunRow({ run, store }: { run: RoutineRunDto; store: RoutineModal
 
           {run.chargedCredits > 0 && (
             <span className="text-subdued shrink-0 text-xs font-normal">
-              {`${t("RoutineDetail.credits")}: ${run.chargedCredits}`}
+              {`${t("RoutineDetail.credits")}: ${intlStore.formatAgentCredits(run.chargedCredits).amount}`}
             </span>
           )}
         </span>

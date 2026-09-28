@@ -13,6 +13,7 @@ import { DomainEvent } from "@/features/event/domain-events";
 import { fixtureId, upsertFixturesById } from "./helpers";
 import { composeRoutinePrompt } from "@/ee/routines/routine-prompt";
 import { nextCronOccurrence, parseCronExpression } from "@/ee/routines/routine-schedule";
+import { agentCreditsToMicrocents } from "@/core/commercial/agent-credits";
 
 const MINUTE = 60_000;
 const HOUR = 60 * MINUTE;
@@ -738,7 +739,8 @@ export async function seedRoutines(context: SeedContext): Promise<void> {
           startedAt,
           finishedAt,
           terminalCode: run.status === RoutineRunStatus.succeeded ? AgentTurnTerminalCode.completed : null,
-          chargedCredits: run.chargedCredits,
+          chargedMicrocents: agentCreditsToMicrocents(run.chargedCredits),
+          chargedCredits: Math.ceil(run.chargedCredits),
           summary: run.summary ?? null,
           error: run.error ?? null,
         };

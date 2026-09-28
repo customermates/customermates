@@ -30,7 +30,7 @@ export abstract class ReconcileRoutineRunsRepo {
     terminalCode: AgentTurnTerminalCode | null;
     stopReason: AgentTurnStopReason | null;
     settled: boolean;
-    chargedCredits: number;
+    chargedMicrocents: number;
     summary: string | null;
   } | null>;
   abstract readRecentRoutineRunOutcomesUnscoped(
@@ -46,7 +46,7 @@ export abstract class ReconcileRoutineRunsRepo {
     status: RoutineRunStatusType;
     error?: string | null;
     summary?: string | null;
-    chargedCredits?: number;
+    chargedMicrocents?: number;
     terminalCode?: AgentTurnTerminalCode | null;
     expectedTurnRequestId?: string | null;
     now: Date;
@@ -74,7 +74,7 @@ export class ReconcileRoutineRunsInteractor {
         expectedStatus: "running",
         status: outcome.status,
         summary: outcome.summary,
-        chargedCredits: outcome.chargedCredits,
+        chargedMicrocents: outcome.chargedMicrocents,
         terminalCode: outcome.terminalCode,
         now,
       });

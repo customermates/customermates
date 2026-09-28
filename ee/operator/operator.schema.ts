@@ -1,6 +1,7 @@
 import { z } from "zod";
 
 import { Status, SubscriptionPlan, SubscriptionStatus } from "@/generated/prisma";
+import { isWholeTenthOfCredit } from "@/core/commercial/agent-credits";
 
 const MAX_CREDITS = 1_000_000;
 const MAX_SIGNED_CREDITS = 1_000_000;
@@ -27,10 +28,10 @@ export const CreateAgentCreditAdjustmentSchema = z
     userId: z.uuid(),
     creditDelta: z
       .number()
-      .int()
       .min(-MAX_SIGNED_CREDITS)
       .max(MAX_SIGNED_CREDITS)
-      .refine((value) => value !== 0),
+      .refine((value) => isWholeTenthOfCredit(value), { message: "Use at most one decimal." })
+      .refine((value) => Math.round(value * 10) !== 0),
     periodStart: z.iso.datetime({ offset: true, precision: 3 }),
     periodEnd: z.iso.datetime({ offset: true, precision: 3 }),
     reason: OptionalReasonSchema,
@@ -168,8 +169,7 @@ export const HostedAiUsageTotalsDtoSchema = z.object({
   settledCostMicrocents: z.string(),
   reservedExposureMicrocents: z.string(),
   totalCommittedMicrocents: z.string(),
-  chargedCredits: z.number(),
-  reservedCredits: z.number(),
+  chargedMicrocents: z.string(),
 });
 
 export type HostedAiUsageTotalsDto = z.infer<typeof HostedAiUsageTotalsDtoSchema>;
@@ -215,14 +215,14 @@ export type HostedAiOperatorCompanyDto = z.infer<typeof HostedAiOperatorCompanyD
 export const OperatorUserCreditPeriodDtoSchema = z.object({
   periodStart: z.date(),
   periodEnd: z.date(),
-  baseAllowanceCredits: z.number(),
-  adjustmentCredits: z.number(),
-  effectiveAllowanceCredits: z.number(),
-  chargedCredits: z.number(),
-  reservedCredits: z.number(),
-  committedCredits: z.number(),
-  remainingCredits: z.number(),
-  overageCredits: z.number(),
+  baseAllowanceMicrocents: z.number(),
+  adjustmentMicrocents: z.number(),
+  effectiveAllowanceMicrocents: z.number(),
+  chargedMicrocents: z.number(),
+  reservedMicrocents: z.number(),
+  committedMicrocents: z.number(),
+  remainingMicrocents: z.number(),
+  overageMicrocents: z.number(),
   blockedReason: z.string().nullable(),
 });
 
@@ -300,7 +300,7 @@ export const AgentCreditAdjustmentDtoSchema = z.object({
   id: z.uuid(),
   companyId: z.uuid(),
   userId: z.uuid(),
-  creditDelta: z.number(),
+  deltaMicrocents: z.number(),
   periodStart: z.date(),
   periodEnd: z.date(),
   reason: z.string().nullable(),

@@ -146,10 +146,11 @@ async function createUsage(args: {
         state: args.state,
         costMicrocents: args.state === "settled" ? BigInt(args.credits) * 1_000_000n : 0n,
         costSource: args.state === "settled" ? "measured" : "estimated",
-        reservedCredits: args.credits,
-        chargedCredits: args.state === "settled" ? args.credits : args.state === "retained" ? args.credits : 0,
+        reservedMicrocents: BigInt(args.credits) * 1_000_000n,
+        chargedMicrocents: args.state === "reserved" ? 0n : BigInt(args.credits) * 1_000_000n,
         planSnapshot: "enterprise",
         subscriptionStatusSnapshot: "active",
+        allowanceMicrocentsSnapshot: 10_000_000n,
         allowanceCreditsSnapshot: 10,
         periodStart,
         periodEnd,
@@ -479,6 +480,7 @@ describeDatabase("operator user administration against a real database", { timeo
         data: {
           companyId,
           userId: target.userId,
+          deltaMicrocents: 4_000_000n,
           creditDelta: 4,
           periodStart,
           periodEnd,
@@ -506,12 +508,12 @@ describeDatabase("operator user administration against a real database", { timeo
     assertAdmitted(base);
     const baseReplay = await runWithOperator(actor, () => repo.resetUserCreditsUnscoped(baseRequest, now));
     assertAdmitted(baseReplay);
-    expect(base.adjustment.creditDelta).toBe(-4);
+    expect(base.adjustment.deltaMicrocents).toBe(-4_000_000);
     expect(base.user.creditPeriod).toMatchObject({
-      baseAllowanceCredits: 10,
-      adjustmentCredits: 0,
-      committedCredits: 6,
-      remainingCredits: 4,
+      baseAllowanceMicrocents: 10_000_000,
+      adjustmentMicrocents: 0,
+      committedMicrocents: 6_000_000,
+      remainingMicrocents: 4_000_000,
     });
     expect(baseReplay.adjustment).toEqual(base.adjustment);
 
@@ -533,12 +535,12 @@ describeDatabase("operator user administration against a real database", { timeo
     expect(results.filter((value) => value === "conflict")).toHaveLength(1);
 
     const winner = admittedResults[0];
-    expect(winner.adjustment.creditDelta).toBe(-4);
+    expect(winner.adjustment.deltaMicrocents).toBe(-4_000_000);
     expect(winner.user.creditPeriod).toMatchObject({
-      effectiveAllowanceCredits: 6,
-      committedCredits: 6,
-      remainingCredits: 0,
-      overageCredits: 0,
+      effectiveAllowanceMicrocents: 6_000_000,
+      committedMicrocents: 6_000_000,
+      remainingMicrocents: 0,
+      overageMicrocents: 0,
     });
 
     const winningOperationId = winner.adjustment.operationId;
@@ -633,6 +635,7 @@ describeDatabase("operator user administration against a real database", { timeo
         data: {
           companyId,
           userId: target.userId,
+          deltaMicrocents: 2_000_000n,
           creditDelta: 2,
           periodStart,
           periodEnd,
@@ -821,6 +824,7 @@ describeDatabase("operator user administration against a real database", { timeo
         data: {
           companyId: companyB,
           userId: targetB.userId,
+          deltaMicrocents: 99_000_000n,
           creditDelta: 99,
           periodStart,
           periodEnd,
@@ -847,6 +851,7 @@ describeDatabase("operator user administration against a real database", { timeo
         where: { operationId: foreignOperationId },
       });
       expect(foreign.companyId).toBe(companyB);
+      expect(foreign.deltaMicrocents).toBe(99_000_000n);
       expect(foreign.creditDelta).toBe(99);
     });
   });

@@ -35,6 +35,11 @@ import { routineRunTriggerContext } from "./routine-run-trigger-context";
 import { dateGroupables, relationGroupables } from "@/core/base/grouping/groupable-field";
 import { FILTER_FIELD_DEFAULT_OPERATORS } from "@/core/types/filter-field-operators";
 import { isAgentTurnStopReason } from "@/ee/agent-chat/agent-turn-request";
+import {
+  agentMicrocentsFromStorage,
+  agentMicrocentsToCredits,
+  legacyCreditsRoundedUp,
+} from "@/ee/agent-chat/agent-credit-policy";
 
 import { DEFAULT_ROUTINE_TIMEZONE, nextCronOccurrence, parseCronExpression } from "./routine-schedule";
 import {
@@ -103,7 +108,7 @@ const ROUTINE_RUN_SELECT = {
   startedAt: true,
   finishedAt: true,
   terminalCode: true,
-  chargedCredits: true,
+  chargedMicrocents: true,
   summary: true,
   error: true,
   createdAt: true,
@@ -121,17 +126,19 @@ function storedRoutineFilters(value: unknown): Filter[] {
   return parsed.data;
 }
 
-type RoutineRunRow = Omit<RoutineRunDto, "triggerContext" | "stopReason"> & {
+type RoutineRunRow = Omit<RoutineRunDto, "triggerContext" | "stopReason" | "chargedCredits"> & {
   triggerPayload: unknown;
+  chargedMicrocents: bigint;
 };
 
 function routineRunDto(row: RoutineRunRow, storedStopReason: string | null): RoutineRunDto {
-  const { triggerPayload, ...run } = row;
+  const { triggerPayload, chargedMicrocents, ...run } = row;
   if (storedStopReason !== null && !isAgentTurnStopReason(storedStopReason))
     throw new Error("Stored agent turn stop reason is invalid.");
 
   return {
     ...run,
+    chargedCredits: agentMicrocentsToCredits(agentMicrocentsFromStorage(chargedMicrocents, "Routine run charge")),
     stopReason: storedStopReason,
     triggerContext: routineRunTriggerContext(run.triggerEvent, triggerPayload),
   };
@@ -829,7 +836,7 @@ export class PrismaRoutineRepo
     status: RoutineRunStatus;
     error?: string | null;
     summary?: string | null;
-    chargedCredits?: number;
+    chargedMicrocents?: number;
     terminalCode?: AgentTurnTerminalCode | null;
     expectedTurnRequestId?: string | null;
     now: Date;
@@ -853,7 +860,8 @@ export class PrismaRoutineRepo
           status: args.status,
           error: args.error ?? null,
           summary: args.summary ?? null,
-          chargedCredits: args.chargedCredits ?? 0,
+          chargedMicrocents: args.chargedMicrocents ?? 0,
+          chargedCredits: legacyCreditsRoundedUp(args.chargedMicrocents ?? 0),
           terminalCode: args.terminalCode ?? null,
           finishedAt: args.now,
         },
@@ -1352,7 +1360,7 @@ export class PrismaRoutineRepo
 
     const usage = await this.prisma.agentUsageEvent.findFirst({
       where: { turnRequestId },
-      select: { chargedCredits: true, state: true },
+      select: { chargedMicrocents: true },
     });
 
     const assistantMessage = await this.prisma.agentMessage.findFirst({
@@ -1369,7 +1377,7 @@ export class PrismaRoutineRepo
       terminalCode: turn.terminalCode,
       stopReason: turn.stopReason,
       settled: turn.status !== "running" && turn.status !== "waitingBudget",
-      chargedCredits: usage?.state === "settled" ? usage.chargedCredits : (usage?.chargedCredits ?? 0),
+      chargedMicrocents: agentMicrocentsFromStorage(usage?.chargedMicrocents, "Routine run usage"),
       summary: summarizeAssistantParts(assistantMessage?.parts),
     };
   }

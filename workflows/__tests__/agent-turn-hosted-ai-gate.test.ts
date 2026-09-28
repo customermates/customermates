@@ -17,6 +17,8 @@ type StreamOptions = {
   executeAndCompleteTool: (toolName: string, input: unknown, toolCallId: string, batch?: unknown[]) => Promise<unknown>;
 };
 
+const CREDIT = 1_000_000;
+
 const state = vi.hoisted(() => ({
   latestCrawl: null as { pendingHosts: string[] } | null,
   crawl: null as { userId: string; homepageUrl: string } | null,
@@ -344,8 +346,8 @@ const payload: AgentTurnWorkflowPayload = {
     modelSpec: "google/gemini-3.5-flash-lite",
     servingProvider: "vertex",
     inferenceRegion: "eu",
-    reservedCredits: 10,
-    roundReserveCredits: 2,
+    reservedMicrocents: 10 * CREDIT,
+    roundReserveMicrocents: 2 * CREDIT,
     maxOutputTokens: 100,
     maxContextTokens: 8_000,
     maxContextBytes: 32_000,
@@ -382,10 +384,10 @@ beforeEach(() => {
   state.dispatch.mockReset().mockResolvedValue(undefined);
   state.heartbeat.mockReset().mockResolvedValue(true);
   state.recordRound.mockReset().mockResolvedValue(undefined);
-  state.extendReservation.mockReset().mockImplementation(({ requiredCredits }) =>
+  state.extendReservation.mockReset().mockImplementation(({ requiredMicrocents }) =>
     Promise.resolve({
       disposition: "extended",
-      reservedCredits: requiredCredits,
+      reservedMicrocents: requiredMicrocents,
     }),
   );
   state.contextFits.mockReset().mockReturnValue(true);
@@ -404,7 +406,7 @@ beforeEach(() => {
       terminalCode: policyBreach ? "policyBreach" : args.terminalCode,
       stopReason: policyBreach ? "policy_breach" : args.stopReason,
       affectedResources: args.affectedResources,
-      chargedCredits: args.usageSettlement?.chargedCredits ?? 0,
+      chargedMicrocents: args.usageSettlement?.chargedMicrocents ?? 0,
     });
   });
 });
@@ -774,20 +776,20 @@ describe("agent-turn credit-bounded continuation", () => {
       ...payload,
       turnBudget: {
         ...payload.turnBudget,
-        reservedCredits: 1,
-        roundReserveCredits: 2,
+        reservedMicrocents: CREDIT,
+        roundReserveMicrocents: 2 * CREDIT,
       },
     });
 
     expect(state.providerCalls).toBe(1);
-    expect(state.extendReservation).toHaveBeenCalledWith(expect.objectContaining({ requiredCredits: 3 }));
+    expect(state.extendReservation).toHaveBeenCalledWith(expect.objectContaining({ requiredMicrocents: 2_000_308 }));
     expect(state.finalize).toHaveBeenCalledWith(
       expect.objectContaining({
         terminalCode: "partial",
         stopReason: "credit_limit",
         usageSettlement: expect.objectContaining({
-          reservedCredits: 1,
-          chargedCredits: 1,
+          reservedMicrocents: CREDIT,
+          chargedMicrocents: 308,
         }),
       }),
     );
@@ -812,7 +814,7 @@ describe("agent-turn credit-bounded continuation", () => {
 
     await runAgentTurn({
       ...payload,
-      turnBudget: { ...payload.turnBudget, reservedCredits: 1, roundReserveCredits: 2 },
+      turnBudget: { ...payload.turnBudget, reservedMicrocents: CREDIT, roundReserveMicrocents: 2 * CREDIT },
     });
 
     expect(JSON.stringify(state.writes)).toContain(`localized:AgentChat.runner.${messageKey}`);
@@ -837,7 +839,7 @@ describe("agent-turn credit-bounded continuation", () => {
 
     await runAgentTurn({
       ...payload,
-      turnBudget: { ...payload.turnBudget, reservedCredits: 1, roundReserveCredits: 2 },
+      turnBudget: { ...payload.turnBudget, reservedMicrocents: CREDIT, roundReserveMicrocents: 2 * CREDIT },
     });
 
     expect(state.execute).toHaveBeenCalledTimes(1);
@@ -858,13 +860,13 @@ describe("agent-turn credit-bounded continuation", () => {
       ...payload,
       turnBudget: {
         ...payload.turnBudget,
-        reservedCredits: 1,
-        roundReserveCredits: 2,
+        reservedMicrocents: CREDIT,
+        roundReserveMicrocents: 2 * CREDIT,
       },
     });
 
     expect(state.providerCalls).toBe(1);
-    expect(state.extendReservation).toHaveBeenCalledWith(expect.objectContaining({ requiredCredits: 3 }));
+    expect(state.extendReservation).toHaveBeenCalledWith(expect.objectContaining({ requiredMicrocents: 2_000_308 }));
     expect(state.finalize).toHaveBeenCalledWith(
       expect.objectContaining({
         terminalCode: "partial",
@@ -905,8 +907,8 @@ describe("agent-turn credit-bounded continuation", () => {
       ...payload,
       turnBudget: {
         ...payload.turnBudget,
-        reservedCredits: 1,
-        roundReserveCredits: 2,
+        reservedMicrocents: CREDIT,
+        roundReserveMicrocents: 2 * CREDIT,
       },
     });
 
@@ -948,8 +950,8 @@ describe("agent-turn credit-bounded continuation", () => {
       ...payload,
       turnBudget: {
         ...payload.turnBudget,
-        reservedCredits: 1,
-        roundReserveCredits: 2,
+        reservedMicrocents: CREDIT,
+        roundReserveMicrocents: 2 * CREDIT,
       },
     });
 
@@ -974,8 +976,8 @@ describe("agent-turn credit-bounded continuation", () => {
       ...payload,
       turnBudget: {
         ...payload.turnBudget,
-        reservedCredits: 1,
-        roundReserveCredits: 2,
+        reservedMicrocents: CREDIT,
+        roundReserveMicrocents: 2 * CREDIT,
       },
     });
 
@@ -1027,8 +1029,8 @@ describe("agent-turn credit-bounded continuation", () => {
       ...payload,
       turnBudget: {
         ...payload.turnBudget,
-        reservedCredits: 1,
-        roundReserveCredits: 2,
+        reservedMicrocents: CREDIT,
+        roundReserveMicrocents: 2 * CREDIT,
       },
     });
 
@@ -1634,16 +1636,16 @@ describe("agent-turn terminal reasons", () => {
       ...payload,
       turnBudget: {
         ...payload.turnBudget,
-        reservedCredits: 1,
-        roundReserveCredits: 2,
+        reservedMicrocents: CREDIT,
+        roundReserveMicrocents: 2 * CREDIT,
       },
     });
 
     expect(state.finalize).toHaveBeenCalledWith(
       expect.objectContaining({
         usageSettlement: expect.objectContaining({
-          reservedCredits: 1,
-          chargedCredits: 1,
+          reservedMicrocents: CREDIT,
+          chargedMicrocents: CREDIT,
           policyBreach: true,
         }),
       }),
@@ -2796,7 +2798,7 @@ describe("routine browse-or-mutate batch safety", () => {
           usageSettlement: expect.objectContaining({
             costMicrocents: persistedCost,
             costSource: "estimated",
-            chargedCredits: 2,
+            chargedMicrocents: persistedCost,
             policyBreach: false,
           }),
         }),
@@ -2924,12 +2926,14 @@ describe("routine browse-or-mutate batch safety", () => {
       ...payload,
       turnBudget: {
         ...payload.turnBudget,
-        reservedCredits: 2,
-        roundReserveCredits: 2,
+        reservedMicrocents: 2 * CREDIT,
+        roundReserveMicrocents: 2 * CREDIT,
       },
       webSearchEnabled: true,
     });
-    expect(state.extendReservation).toHaveBeenCalledExactlyOnceWith(expect.objectContaining({ requiredCredits: 7 }));
+    expect(state.extendReservation).toHaveBeenCalledExactlyOnceWith(
+      expect.objectContaining({ requiredMicrocents: 5_600_000 }),
+    );
     expect(offered()).toBe(true);
   });
 
@@ -2943,8 +2947,8 @@ describe("routine browse-or-mutate batch safety", () => {
       ...payload,
       turnBudget: {
         ...payload.turnBudget,
-        reservedCredits: 3,
-        roundReserveCredits: 2,
+        reservedMicrocents: 3 * CREDIT,
+        roundReserveMicrocents: 2 * CREDIT,
       },
       webSearchEnabled: true,
     });

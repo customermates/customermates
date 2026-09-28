@@ -57,7 +57,8 @@ import type { GetWikiCatalogInteractor } from "@/features/wiki/get-wiki-catalog.
 import type { UserService } from "@/features/user/user.service";
 import { parsePublicWikiHomepage, type PublicWikiHomepage } from "@/features/wiki/wiki-homepage";
 import { AppErrorCode, appErrorDetails } from "@/core/errors/app-errors";
-import { agentWebSearchReserveCredits } from "./agent-budget-policy";
+import { agentWebSearchReserveMicrocents } from "./agent-budget-policy";
+import { agentMicrocentsFromStorage } from "./agent-credit-policy";
 import { agentWebSearchCallLimit } from "./agent-web-search";
 import { serializeAgentWikiCatalog } from "./agent-wiki-context";
 import { userWebsiteHomepages } from "./user-website-homepages";
@@ -345,8 +346,11 @@ export class SendAgentMessageInteractor extends AuthenticatedInteractor<SendAgen
     const creditAdmission = await this.usageService.prepareTurn(user.id, now, {
       model: turnModel,
       requiredContextBytes,
-      creditCeiling: mode === "routine" ? (conversation?.creditCeiling ?? null) : null,
-      webSearchReserveCredits: agentWebSearchReserveCredits(agentWebSearchCallLimit(surface)),
+      creditCeilingMicrocents:
+        mode === "routine" && conversation?.creditCeilingMicrocents != null
+          ? agentMicrocentsFromStorage(conversation.creditCeilingMicrocents, "Routine run credit ceiling")
+          : null,
+      webSearchReserveMicrocents: agentWebSearchReserveMicrocents(agentWebSearchCallLimit(surface)),
     });
     const reservation = creditAdmission.reservation;
     if (!reservation) return failRateLimit(CustomErrorCode.agentLimitReached);

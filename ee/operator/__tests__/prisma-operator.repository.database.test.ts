@@ -266,10 +266,11 @@ describeDatabase("PrismaOperatorRepo against a real database", { timeout: 120_00
           state: "settled",
           costMicrocents: 7_000_000n,
           costSource: "measured",
-          reservedCredits: 7,
-          chargedCredits: 7,
+          reservedMicrocents: 7_000_000n,
+          chargedMicrocents: 7_000_000n,
           planSnapshot: "enterprise",
           subscriptionStatusSnapshot: "active",
+          allowanceMicrocentsSnapshot: 10_000_000n,
           allowanceCreditsSnapshot: 10,
           periodStart,
           periodEnd,
@@ -286,10 +287,11 @@ describeDatabase("PrismaOperatorRepo against a real database", { timeout: 120_00
           state: "retained",
           costMicrocents: 0n,
           costSource: "estimated",
-          reservedCredits: 2,
-          chargedCredits: 2,
+          reservedMicrocents: 2_000_000n,
+          chargedMicrocents: 2_000_000n,
           planSnapshot: "enterprise",
           subscriptionStatusSnapshot: "active",
+          allowanceMicrocentsSnapshot: 10_000_000n,
           allowanceCreditsSnapshot: 10,
           periodStart,
           periodEnd,
@@ -302,9 +304,9 @@ describeDatabase("PrismaOperatorRepo against a real database", { timeout: 120_00
     const detail = await runWithOperator(actor, () => repo.getUserDetailUnscoped(target.userId, now));
     assertAdmitted(detail);
     expect(detail.creditPeriod).toMatchObject({
-      chargedCredits: 7,
-      reservedCredits: 2,
-      remainingCredits: 1,
+      chargedMicrocents: 7_000_000,
+      reservedMicrocents: 2_000_000,
+      remainingMicrocents: 1_000_000,
     });
 
     const rejectedOperationId = randomUUID();

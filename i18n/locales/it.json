@@ -468,8 +468,8 @@
       },
       "contact": "Contattaci",
       "planAndReset": "Piano {plan} · azzeramento {resetAt}",
-      "recentTurn": "{credits, plural, one {Ultima richiesta: # credito} other {Ultima richiesta: # crediti}}",
-      "remaining": "{remaining, number} di {limit, number} crediti rimanenti",
+      "recentTurn": "{credits, plural, one {Ultima richiesta: {amount} credito} other {Ultima richiesta: {amount} crediti}}",
+      "remaining": "{credits, plural, one {{remaining} di {limit} crediti rimanenti} other {{remaining} di {limit} crediti rimanenti}}",
       "resetShort": "Azzeramento {resetAt}",
       "usage": "Utilizzato il {pct}% dei crediti AI mensili in hosting",
       "viewPlans": "Vedi i piani"
@@ -3155,7 +3155,7 @@
   "OperatorUsers": {
     "adjustment": {
       "deltaLabel": "Correzione crediti con segno",
-      "deltaPlaceholder": "Ad esempio, 500 o -100",
+      "deltaPlaceholder": "Ad esempio, 500, 2,5 o -100",
       "expiresAt": "Questa correzione vale solo per il periodo corrente e decade il {date}."
     },
     "confirm": {
@@ -3180,7 +3180,7 @@
     "emptyTitle": "Nessun utente corrisponde a questi filtri",
     "modal": {
       "access": "Accesso",
-      "adjustmentConfirm": "Applicare una correzione di {value} crediti a {name}?",
+      "adjustmentConfirm": "{credits, plural, one {Applicare una correzione di {amount} credito a {name}?} other {Applicare una correzione di {amount} crediti a {name}?}}",
       "identity": "{person} · {email}"
     },
     "navigation": "Utenti",
@@ -3549,7 +3549,7 @@
     "manageWithLemonSqueezy": "Gestisci con Lemon Squeezy",
     "picker": {
       "connectedAccountsPerUser": "{accounts, plural, one {# account collegato per utente} other {# account collegati per utente}}",
-      "creditNote": "I crediti IA in hosting si rinnovano ogni mese; i crediti non utilizzati non vengono trasferiti al mese successivo. I client MCP esterni utilizzano il tuo provider di IA e non consumano questi crediti.",
+      "creditNote": "I crediti IA in hosting si rinnovano ogni mese; i crediti non utilizzati non vengono trasferiti al mese successivo. Ogni richiesta viene addebitata al suo costo esatto presso il provider e mostrata con un decimale. I client MCP esterni utilizzano il tuo provider di IA e non consumano questi crediti.",
       "features": {
         "business": ["Tutto ciò che c'è in Pro", "Account condivisi e assistenza prioritaria"],
         "pro": ["Tutto ciò che c'è in Starter", "Posta in arrivo unificata"],

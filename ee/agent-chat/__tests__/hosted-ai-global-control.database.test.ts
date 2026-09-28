@@ -117,10 +117,10 @@ function reserve(repo: InstanceType<typeof PrismaAgentChatRepo>, seat: Seat, cre
       companyId: seat.companyId,
       userId: seat.userId,
       sessionId: randomUUID(),
-      reservedCredits: credits,
+      reservedMicrocents: credits * AGENT_CREDIT_MICROCENTS,
       planSnapshot: "starter",
       subscriptionStatusSnapshot: "active",
-      allowanceCreditsSnapshot: 200,
+      allowanceMicrocentsSnapshot: 200 * AGENT_CREDIT_MICROCENTS,
       periodStart,
       periodEnd,
     }),
@@ -204,10 +204,11 @@ describeDatabase(
             state: "settled",
             costMicrocents: BigInt(settledCredits) * BigInt(AGENT_CREDIT_MICROCENTS),
             costSource: "measured",
-            reservedCredits: settledCredits,
-            chargedCredits: settledCredits,
+            reservedMicrocents: BigInt(settledCredits) * BigInt(AGENT_CREDIT_MICROCENTS),
+            chargedMicrocents: BigInt(settledCredits) * BigInt(AGENT_CREDIT_MICROCENTS),
             planSnapshot: "starter",
             subscriptionStatusSnapshot: "active",
+            allowanceMicrocentsSnapshot: 200n * BigInt(AGENT_CREDIT_MICROCENTS),
             allowanceCreditsSnapshot: 200,
             periodStart,
             periodEnd,
@@ -228,11 +229,11 @@ describeDatabase(
         runWithoutTenant(() =>
           prisma.agentUsageEvent.aggregate({
             where: { state: "reserved" },
-            _sum: { reservedCredits: true },
+            _sum: { reservedMicrocents: true },
           }),
         ),
       ).resolves.toMatchObject({
-        _sum: { reservedCredits: competingReservationCredits },
+        _sum: { reservedMicrocents: BigInt(competingReservationCredits) * BigInt(AGENT_CREDIT_MICROCENTS) },
       });
     });
 
@@ -251,10 +252,11 @@ describeDatabase(
             companyId: seats[0].companyId,
             userId: seats[0].userId,
             state: "reserved",
-            reservedCredits: committedCredits,
-            chargedCredits: 0,
+            reservedMicrocents: BigInt(committedCredits) * BigInt(AGENT_CREDIT_MICROCENTS),
+            chargedMicrocents: 0,
             planSnapshot: "starter",
             subscriptionStatusSnapshot: "active",
+            allowanceMicrocentsSnapshot: 200n * BigInt(AGENT_CREDIT_MICROCENTS),
             allowanceCreditsSnapshot: 200,
             periodStart,
             periodEnd,
@@ -272,10 +274,15 @@ describeDatabase(
          SET "state" = 'settled',
              "costMicrocents" = $1,
              "costSource" = 'measured',
-             "chargedCredits" = $2,
+             "chargedMicrocents" = $2,
              "settledAt" = $3
          WHERE "id" = $4`,
-        [BigInt(committedCredits) * BigInt(AGENT_CREDIT_MICROCENTS), committedCredits, new Date(), transitioningId],
+        [
+          BigInt(committedCredits) * BigInt(AGENT_CREDIT_MICROCENTS),
+          BigInt(committedCredits) * BigInt(AGENT_CREDIT_MICROCENTS),
+          new Date(),
+          transitioningId,
+        ],
       );
 
       let transitionCommitted = false;
@@ -330,10 +337,11 @@ describeDatabase(
             state: "retained",
             costMicrocents: 0,
             costSource: "estimated",
-            reservedCredits: retainedCredits,
-            chargedCredits: retainedCredits,
+            reservedMicrocents: BigInt(retainedCredits) * BigInt(AGENT_CREDIT_MICROCENTS),
+            chargedMicrocents: BigInt(retainedCredits) * BigInt(AGENT_CREDIT_MICROCENTS),
             planSnapshot: "starter",
             subscriptionStatusSnapshot: "active",
+            allowanceMicrocentsSnapshot: 200n * BigInt(AGENT_CREDIT_MICROCENTS),
             allowanceCreditsSnapshot: 200,
             periodStart,
             periodEnd,

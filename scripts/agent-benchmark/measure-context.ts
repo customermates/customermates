@@ -3,7 +3,12 @@ import { buildAgentSystemPrompt } from "@/ee/agent-chat/system-prompt";
 import { conservativeAgentInitialContextBytes } from "@/ee/agent-chat/agent-provider-context";
 import { toolsetsForRequest } from "@/ee/agent-chat/agent-toolset-routing";
 import { MODEL_CATALOG, resolveAgentModel, SHIPPED_AGENT_MODEL_KEY } from "@/ee/agent-chat/model-catalog";
-import { agentRoundWorstCaseCredits, resolveAgentTurnBudget } from "@/ee/agent-chat/agent-budget-policy";
+import { agentRoundWorstCaseMicrocents, resolveAgentTurnBudget } from "@/ee/agent-chat/agent-budget-policy";
+import {
+  AGENT_CREDIT_TENTH_MICROCENTS,
+  agentCreditsToMicrocents,
+  agentMicrocentsToCredits,
+} from "@/core/commercial/agent-credits";
 
 const bytes = (value: unknown) =>
   new TextEncoder().encode(typeof value === "string" ? value : JSON.stringify(value)).byteLength;
@@ -69,14 +74,16 @@ export function measureAgentContext(question: string, pageRoute: string | null):
   };
 }
 
+// The smallest balance, in credits with one decimal, that admits a first round.
 export function admissionFloorCredits(entry: (typeof MODEL_CATALOG)[keyof typeof MODEL_CATALOG], initialContextBytes: number) {
-  for (let credits = 1; credits <= agentRoundWorstCaseCredits(entry); credits += 1) {
+  const roundReserve = agentRoundWorstCaseMicrocents(entry);
+  for (let microcents = AGENT_CREDIT_TENTH_MICROCENTS; microcents <= roundReserve + AGENT_CREDIT_TENTH_MICROCENTS; microcents += AGENT_CREDIT_TENTH_MICROCENTS) {
     const budget = resolveAgentTurnBudget({
       model: entry,
-      availableCredits: credits,
+      availableMicrocents: microcents,
       requiredContextBytes: initialContextBytes,
     });
-    if (budget) return credits;
+    if (budget) return agentMicrocentsToCredits(microcents);
   }
   return null;
 }
@@ -85,15 +92,15 @@ export function reservationSummary(initialContextBytes?: number) {
   return Object.entries(MODEL_CATALOG).map(([key, entry]) => {
     const budget = resolveAgentTurnBudget({
       model: entry,
-      availableCredits: 500,
+      availableMicrocents: agentCreditsToMicrocents(500),
       ...(initialContextBytes === undefined ? {} : { requiredContextBytes: initialContextBytes }),
     });
     return {
       key,
       modelId: entry.modelId,
-      roundReserveCredits: agentRoundWorstCaseCredits(entry),
+      roundReserveCredits: agentMicrocentsToCredits(agentRoundWorstCaseMicrocents(entry)),
       admissionFloorCredits: initialContextBytes === undefined ? null : admissionFloorCredits(entry, initialContextBytes),
-      reservedCreditsAt500: budget?.reservedCredits ?? null,
+      reservedCreditsAt500: budget ? agentMicrocentsToCredits(budget.reservedMicrocents) : null,
       maxContextBytes: budget?.maxContextBytes ?? null,
     };
   });

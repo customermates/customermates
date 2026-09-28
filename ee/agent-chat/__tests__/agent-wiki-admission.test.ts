@@ -120,9 +120,9 @@ function fixture() {
           reservation: {
             budget: resolveAgentTurnBudget({
               ...args,
-              availableCredits: 500,
+              availableMicrocents: 500_000_000,
             }),
-            reservedCredits: 100,
+            reservedMicrocents: 100_000_000,
             periodStart: new Date("2026-09-01T00:00:00Z"),
             periodEnd: new Date("2026-10-01T00:00:00Z"),
           },

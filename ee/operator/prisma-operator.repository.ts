@@ -6,7 +6,12 @@ import { BypassTenantGuard } from "@/core/decorators/bypass-tenant.decorator";
 import { getOperatorActor } from "@/core/decorators/operator-context";
 import { BULK_WRITE_TRANSACTION } from "@/core/decorators/transaction.decorator";
 import { runInTransaction } from "@/core/decorators/transaction-runner";
-import { AGENT_CREDIT_MICROCENTS, resolveAgentCreditEntitlement } from "@/ee/agent-chat/agent-credit-policy";
+import {
+  agentCreditsToMicrocents,
+  agentMicrocentsFromStorage,
+  legacyCreditsAwayFromZero,
+  resolveAgentCreditEntitlement,
+} from "@/ee/agent-chat/agent-credit-policy";
 import { env } from "@/env";
 
 import { normalizeOperatorEmail } from "./operator-access.service";
@@ -74,7 +79,7 @@ const WORKFLOW_RUN_CHILD_TABLES = [
 ] as const;
 
 type AuditAction = (typeof OPERATOR_AUDIT_ACTION)[keyof typeof OPERATOR_AUDIT_ACTION];
-const MAX_ADJUSTMENT_CREDITS = 1_000_000;
+const MAX_ADJUSTMENT_MICROCENTS = agentCreditsToMicrocents(1_000_000);
 
 const operatorUserDetailSelect = {
   id: true,
@@ -119,22 +124,42 @@ function utcMonth(now: Date): { start: Date; end: Date } {
   return { start, end };
 }
 
-function asSafeCreditCount(value: number | null | undefined, description: string): number {
-  const count = value ?? 0;
-  if (!Number.isSafeInteger(count) || count < 0) throw new Error(`${description} is invalid.`);
-  return count;
+function asSafeMicrocents(value: bigint | null | undefined, description: string): number {
+  const microcents = agentMicrocentsFromStorage(value, description);
+  if (microcents < 0) throw new Error(`${description} is invalid.`);
+  return microcents;
 }
 
-function asSafeSignedCreditCount(value: number | null | undefined, description: string): number {
-  const count = value ?? 0;
-  if (!Number.isSafeInteger(count)) throw new Error(`${description} is invalid.`);
-  return count;
-}
-
-function addSafeCreditCounts(left: number, right: number, description: string): number {
+function addSafeMicrocents(left: number, right: number, description: string): number {
   const total = left + right;
   if (!Number.isSafeInteger(total) || total < 0) throw new Error(`${description} is invalid.`);
   return total;
+}
+
+function adjustmentDto(row: {
+  id: string;
+  companyId: string;
+  userId: string;
+  deltaMicrocents: bigint;
+  periodStart: Date;
+  periodEnd: Date;
+  reason: string | null;
+  operationId: string;
+  createdByOperatorUserId: string | null;
+  createdAt: Date;
+}): AgentCreditAdjustmentDto {
+  return {
+    id: row.id,
+    companyId: row.companyId,
+    userId: row.userId,
+    deltaMicrocents: agentMicrocentsFromStorage(row.deltaMicrocents, "Hosted-AI credit adjustment"),
+    periodStart: row.periodStart,
+    periodEnd: row.periodEnd,
+    reason: row.reason,
+    operationId: row.operationId,
+    createdByOperatorUserId: row.createdByOperatorUserId,
+    createdAt: row.createdAt,
+  };
 }
 
 function asSafeBigIntCount(value: bigint | null | undefined, description: string): number {
@@ -165,21 +190,21 @@ function emptyUserSummary(): OperatorUserSummaryDto {
 
 function toUsageTotals(input: {
   settledCostMicrocents: bigint | null | undefined;
-  chargedCredits: number | null | undefined;
-  reservedCredits: number | null | undefined;
+  chargedMicrocents: bigint | null | undefined;
+  reservedMicrocents: bigint | null | undefined;
 }): HostedAiUsageTotalsDto {
   const settled = input.settledCostMicrocents ?? 0n;
-  const reservedCredits = asSafeCreditCount(input.reservedCredits, "Reserved hosted-AI credits");
-  const chargedCredits = asSafeCreditCount(input.chargedCredits, "Charged hosted-AI credits");
+  const reservedExposure = input.reservedMicrocents ?? 0n;
+  const charged = input.chargedMicrocents ?? 0n;
   if (settled < 0n) throw new Error("Settled hosted-AI cost is invalid.");
+  if (reservedExposure < 0n) throw new Error("Reserved hosted-AI credits are invalid.");
+  if (charged < 0n) throw new Error("Charged hosted-AI credits are invalid.");
 
-  const reservedExposure = BigInt(reservedCredits) * BigInt(AGENT_CREDIT_MICROCENTS);
   return {
     settledCostMicrocents: settled.toString(),
     reservedExposureMicrocents: reservedExposure.toString(),
     totalCommittedMicrocents: (settled + reservedExposure).toString(),
-    chargedCredits,
-    reservedCredits,
+    chargedMicrocents: charged.toString(),
   };
 }
 
@@ -216,18 +241,18 @@ export class PrismaOperatorRepo extends BaseRepository implements OperatorRepo {
           state: "settled",
           settledAt: { gte: month.start, lt: month.end },
         },
-        _sum: { costMicrocents: true, chargedCredits: true },
+        _sum: { costMicrocents: true, chargedMicrocents: true },
       }),
       this.prisma.agentUsageEvent.aggregate({
         where: { ...companyWhere, state: { in: ["reserved", "retained"] } },
-        _sum: { reservedCredits: true },
+        _sum: { reservedMicrocents: true },
       }),
     ]);
 
     return toUsageTotals({
       settledCostMicrocents: settled._sum.costMicrocents,
-      chargedCredits: settled._sum.chargedCredits,
-      reservedCredits: reserved._sum.reservedCredits,
+      chargedMicrocents: settled._sum.chargedMicrocents,
+      reservedMicrocents: reserved._sum.reservedMicrocents,
     });
   }
 
@@ -343,7 +368,7 @@ export class PrismaOperatorRepo extends BaseRepository implements OperatorRepo {
           periodStart: entitlement.start,
           periodEnd: entitlement.resetAt,
         },
-        _sum: { creditDelta: true },
+        _sum: { deltaMicrocents: true },
       }),
       this.prisma.agentUsageEvent.aggregate({
         where: {
@@ -353,7 +378,7 @@ export class PrismaOperatorRepo extends BaseRepository implements OperatorRepo {
           periodEnd: entitlement.resetAt,
           state: "settled",
         },
-        _sum: { chargedCredits: true },
+        _sum: { chargedMicrocents: true },
       }),
       this.prisma.agentUsageEvent.aggregate({
         where: {
@@ -363,32 +388,32 @@ export class PrismaOperatorRepo extends BaseRepository implements OperatorRepo {
           periodEnd: entitlement.resetAt,
           state: { in: ["reserved", "retained"] },
         },
-        _sum: { reservedCredits: true },
+        _sum: { reservedMicrocents: true },
       }),
     ]);
-    const adjustmentCredits = asSafeSignedCreditCount(
-      adjustments._sum.creditDelta,
+    const adjustmentMicrocents = agentMicrocentsFromStorage(
+      adjustments._sum.deltaMicrocents,
       "Hosted-AI credit adjustment total",
     );
-    const rawEffectiveAllowance = entitlement.limit + adjustmentCredits;
+    const rawEffectiveAllowance = entitlement.limitMicrocents + adjustmentMicrocents;
     if (!Number.isSafeInteger(rawEffectiveAllowance)) throw new Error("Effective hosted-AI allowance is invalid.");
 
-    const effectiveAllowanceCredits = Math.max(0, rawEffectiveAllowance);
-    const chargedCredits = asSafeCreditCount(settled._sum.chargedCredits, "Charged hosted-AI credits");
-    const reservedCredits = asSafeCreditCount(reserved._sum.reservedCredits, "Reserved hosted-AI credits");
-    const committedCredits = addSafeCreditCounts(chargedCredits, reservedCredits, "Committed hosted-AI credits");
+    const effectiveAllowanceMicrocents = Math.max(0, rawEffectiveAllowance);
+    const chargedMicrocents = asSafeMicrocents(settled._sum.chargedMicrocents, "Charged hosted-AI credits");
+    const reservedMicrocents = asSafeMicrocents(reserved._sum.reservedMicrocents, "Reserved hosted-AI credits");
+    const committedMicrocents = addSafeMicrocents(chargedMicrocents, reservedMicrocents, "Committed hosted-AI credits");
 
     return {
       periodStart: entitlement.start,
       periodEnd: entitlement.resetAt,
-      baseAllowanceCredits: entitlement.limit,
-      adjustmentCredits,
-      effectiveAllowanceCredits,
-      chargedCredits,
-      reservedCredits,
-      committedCredits,
-      remainingCredits: Math.max(0, effectiveAllowanceCredits - committedCredits),
-      overageCredits: Math.max(0, committedCredits - effectiveAllowanceCredits),
+      baseAllowanceMicrocents: entitlement.limitMicrocents,
+      adjustmentMicrocents,
+      effectiveAllowanceMicrocents,
+      chargedMicrocents,
+      reservedMicrocents,
+      committedMicrocents,
+      remainingMicrocents: Math.max(0, effectiveAllowanceMicrocents - committedMicrocents),
+      overageMicrocents: Math.max(0, committedMicrocents - effectiveAllowanceMicrocents),
       blockedReason: user.status === Status.active ? entitlement.blockedReason : "subscription_unavailable",
     };
   }
@@ -816,6 +841,7 @@ export class PrismaOperatorRepo extends BaseRepository implements OperatorRepo {
         const reason = data.reason ?? null;
         const periodStart = new Date(data.periodStart);
         const periodEnd = new Date(data.periodEnd);
+        const deltaMicrocents = agentCreditsToMicrocents(data.creditDelta);
         const existing = await this.prisma.agentCreditAdjustment.findUnique({
           where: { operationId: data.operationId },
         });
@@ -823,7 +849,7 @@ export class PrismaOperatorRepo extends BaseRepository implements OperatorRepo {
           if (
             existing.companyId !== data.companyId ||
             existing.userId !== data.userId ||
-            existing.creditDelta !== data.creditDelta ||
+            existing.deltaMicrocents !== BigInt(deltaMicrocents) ||
             existing.periodStart.getTime() !== periodStart.getTime() ||
             existing.periodEnd.getTime() !== periodEnd.getTime() ||
             existing.reason !== reason ||
@@ -831,7 +857,7 @@ export class PrismaOperatorRepo extends BaseRepository implements OperatorRepo {
           )
             return "conflict";
 
-          return existing;
+          return adjustmentDto(existing);
         }
 
         const user = await this.prisma.user.findFirst({
@@ -877,7 +903,7 @@ export class PrismaOperatorRepo extends BaseRepository implements OperatorRepo {
               periodStart,
               periodEnd,
             },
-            _sum: { creditDelta: true },
+            _sum: { deltaMicrocents: true },
           }),
           this.prisma.agentUsageEvent.aggregate({
             where: {
@@ -887,7 +913,7 @@ export class PrismaOperatorRepo extends BaseRepository implements OperatorRepo {
               periodEnd,
               state: "settled",
             },
-            _sum: { chargedCredits: true },
+            _sum: { chargedMicrocents: true },
           }),
           this.prisma.agentUsageEvent.aggregate({
             where: {
@@ -897,24 +923,27 @@ export class PrismaOperatorRepo extends BaseRepository implements OperatorRepo {
               periodEnd,
               state: { in: ["reserved", "retained"] },
             },
-            _sum: { reservedCredits: true },
+            _sum: { reservedMicrocents: true },
           }),
         ]);
-        const priorAdjustments = asSafeSignedCreditCount(
-          adjustmentAggregate._sum.creditDelta,
+        const priorAdjustments = agentMicrocentsFromStorage(
+          adjustmentAggregate._sum.deltaMicrocents,
           "Hosted-AI credit adjustment total",
         );
-        const committed =
-          asSafeCreditCount(settledAggregate._sum.chargedCredits, "Charged hosted-AI credits") +
-          asSafeCreditCount(reservedAggregate._sum.reservedCredits, "Reserved hosted-AI credits");
-        const effectiveAllowance = entitlement.limit + priorAdjustments + data.creditDelta;
+        const committed = addSafeMicrocents(
+          asSafeMicrocents(settledAggregate._sum.chargedMicrocents, "Charged hosted-AI credits"),
+          asSafeMicrocents(reservedAggregate._sum.reservedMicrocents, "Reserved hosted-AI credits"),
+          "Committed hosted-AI credits",
+        );
+        const effectiveAllowance = entitlement.limitMicrocents + priorAdjustments + deltaMicrocents;
         if (!Number.isSafeInteger(effectiveAllowance) || effectiveAllowance < committed) return "conflict";
 
         const adjustment = await this.prisma.agentCreditAdjustment.create({
           data: {
             companyId: data.companyId,
             userId: data.userId,
-            creditDelta: data.creditDelta,
+            deltaMicrocents,
+            creditDelta: legacyCreditsAwayFromZero(deltaMicrocents),
             periodStart,
             periodEnd,
             reason,
@@ -929,11 +958,12 @@ export class PrismaOperatorRepo extends BaseRepository implements OperatorRepo {
           reason,
           metadata: {
             creditDelta: data.creditDelta,
+            deltaMicrocents,
             periodStart: data.periodStart,
             periodEnd: data.periodEnd,
           },
         });
-        return adjustment;
+        return adjustmentDto(adjustment);
       },
       { companyId: data.companyId },
     );
@@ -963,7 +993,7 @@ export class PrismaOperatorRepo extends BaseRepository implements OperatorRepo {
             return "conflict";
 
           return {
-            adjustment: existing,
+            adjustment: adjustmentDto(existing),
             user: await this.userDetailOrThrow(data.userId, now),
           };
         }
@@ -979,24 +1009,26 @@ export class PrismaOperatorRepo extends BaseRepository implements OperatorRepo {
         const credit = await this.userCreditPeriod(user, now);
         if (!credit) return "unavailable";
         if (credit.blockedReason === "enterprise_allowance_missing") return "allowanceMissing";
-        const currentAllowance = credit.baseAllowanceCredits + credit.adjustmentCredits;
+        const currentAllowance = credit.baseAllowanceMicrocents + credit.adjustmentMicrocents;
         if (!Number.isSafeInteger(currentAllowance)) throw new Error("Current hosted-AI allowance is invalid.");
 
-        const creditDelta =
-          data.mode === "baseAllowance" ? -credit.adjustmentCredits : credit.committedCredits - currentAllowance;
-        if (!Number.isSafeInteger(creditDelta) || Math.abs(creditDelta) > MAX_ADJUSTMENT_CREDITS) return "conflict";
+        const deltaMicrocents =
+          data.mode === "baseAllowance" ? -credit.adjustmentMicrocents : credit.committedMicrocents - currentAllowance;
+        if (!Number.isSafeInteger(deltaMicrocents) || Math.abs(deltaMicrocents) > MAX_ADJUSTMENT_MICROCENTS)
+          return "conflict";
 
-        if (creditDelta === 0) return "conflict";
+        if (deltaMicrocents === 0) return "conflict";
 
-        const resultingAllowance = currentAllowance + creditDelta;
-        if (!Number.isSafeInteger(resultingAllowance) || resultingAllowance < credit.committedCredits)
+        const resultingAllowance = currentAllowance + deltaMicrocents;
+        if (!Number.isSafeInteger(resultingAllowance) || resultingAllowance < credit.committedMicrocents)
           return "conflict";
 
         const adjustment = await this.prisma.agentCreditAdjustment.create({
           data: {
             companyId,
             userId: data.userId,
-            creditDelta,
+            deltaMicrocents,
+            creditDelta: legacyCreditsAwayFromZero(deltaMicrocents),
             periodStart: credit.periodStart,
             periodEnd: credit.periodEnd,
             reason,
@@ -1013,15 +1045,15 @@ export class PrismaOperatorRepo extends BaseRepository implements OperatorRepo {
             mode: data.mode,
             periodStart: credit.periodStart.toISOString(),
             periodEnd: credit.periodEnd.toISOString(),
-            baseAllowanceCredits: credit.baseAllowanceCredits,
-            previousAdjustmentCredits: credit.adjustmentCredits,
-            committedCredits: credit.committedCredits,
-            creditDelta,
-            resultingAllowanceCredits: resultingAllowance,
+            baseAllowanceMicrocents: credit.baseAllowanceMicrocents,
+            previousAdjustmentMicrocents: credit.adjustmentMicrocents,
+            committedMicrocents: credit.committedMicrocents,
+            deltaMicrocents,
+            resultingAllowanceMicrocents: resultingAllowance,
           },
         });
         return {
-          adjustment: adjustment,
+          adjustment: adjustmentDto(adjustment),
           user: await this.userDetailOrThrow(data.userId, now),
         };
       },

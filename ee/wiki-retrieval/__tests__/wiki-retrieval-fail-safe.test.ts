@@ -15,13 +15,14 @@ import { WikiSemanticIndexDispatcher } from "../wiki-semantic-index-scheduler";
 
 const failingUsage = {
   prepareRetrieval: vi.fn(() => Promise.reject(new Error("Adjusted AI credit allowance is invalid."))),
+  prepareWorkspaceIndexing: vi.fn(() => Promise.reject(new Error("Workspace AI credit allowance is invalid."))),
 } as unknown as AgentUsageService;
 
 describe("Wiki retrieval fails safe", () => {
   it("treats an unreadable credit state as no semantic search", async () => {
-    await expect(
-      new WikiEmbeddingService(failingUsage).authorize({ id: "user", companyId: "company" }),
-    ).resolves.toBeNull();
+    const embeddings = new WikiEmbeddingService(failingUsage);
+    await expect(embeddings.authorizeQuery({ id: "user", companyId: "company" })).resolves.toBeNull();
+    await expect(embeddings.authorizeIndexing("company")).resolves.toBeNull();
   });
 
   it("never lets index scheduling break the page write that triggered it", async () => {

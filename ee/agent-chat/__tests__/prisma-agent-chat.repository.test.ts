@@ -111,7 +111,7 @@ describe("PrismaAgentChatRepo tenant boundaries", () => {
     prismaMock.$executeRaw.mockResolvedValue(undefined);
     prismaMock.user.count.mockResolvedValue(1);
     prismaMock.agentCreditAdjustment.aggregate.mockResolvedValue({
-      _sum: { creditDelta: null },
+      _sum: { deltaMicrocents: null },
     });
   });
 
@@ -197,6 +197,7 @@ describe("PrismaAgentChatRepo tenant boundaries", () => {
         title: "Import failed apiKey=[redacted]",
         modelKey: null,
         origin: "user",
+        creditCeilingMicrocents: null,
         creditCeiling: null,
         selectedAt: new Date("2026-08-06T10:00:00.000Z"),
       },
@@ -217,7 +218,7 @@ describe("PrismaAgentChatRepo tenant boundaries", () => {
         conversationId: "conversation-1",
         title: "CRM hygiene",
         now,
-        creditCeiling: 3,
+        creditCeilingMicrocents: 2_500_000,
       }),
     );
 
@@ -229,7 +230,8 @@ describe("PrismaAgentChatRepo tenant boundaries", () => {
         title: "CRM hygiene",
         modelKey: null,
         origin: "routine",
-        creditCeiling: 3,
+        creditCeilingMicrocents: 2_500_000,
+        creditCeiling: 2,
         selectedAt: now,
       },
       select: { id: true },
@@ -1580,7 +1582,7 @@ describe("PrismaAgentChatRepo tenant boundaries", () => {
     });
     prismaMock.agentUsageEvent.findFirst.mockResolvedValue({
       id: "reservation-1",
-      reservedCredits: 5,
+      reservedMicrocents: 5_000_000n,
     });
     prismaMock.agentUsageEvent.findMany.mockResolvedValue([]);
     prismaMock.agentUsageEvent.updateMany.mockResolvedValue({ count: 1 });
@@ -1630,6 +1632,7 @@ describe("PrismaAgentChatRepo tenant boundaries", () => {
         providerStartedAt: startedAt,
         planSnapshot: "pro",
         subscriptionStatusSnapshot: "active",
+        allowanceMicrocentsSnapshot: 500_000_000,
         allowanceCreditsSnapshot: 500,
         periodStart: new Date("2026-07-15T10:30:00.000Z"),
         periodEnd: new Date("2026-08-15T10:30:00.000Z"),
@@ -1798,8 +1801,8 @@ describe("PrismaAgentChatRepo tenant boundaries", () => {
             cacheWriteTokens: 2,
             costMicrocents: 123,
             costSource: "measured" as const,
-            reservedCredits: 1,
-            chargedCredits: 1,
+            reservedMicrocents: 1_000_000,
+            chargedMicrocents: 1_000_000,
             state: "settled",
             policyBreach: false,
           },
@@ -1822,7 +1825,7 @@ describe("PrismaAgentChatRepo tenant boundaries", () => {
         companyId: user.companyId,
         userId: user.id,
         state: "reserved",
-        reservedCredits: 1,
+        reservedMicrocents: 1_000_000,
       },
       data: {
         state: "settled",
@@ -1833,6 +1836,7 @@ describe("PrismaAgentChatRepo tenant boundaries", () => {
         cacheWriteTokens: 2,
         costMicrocents: 123,
         costSource: "measured",
+        chargedMicrocents: 1_000_000,
         chargedCredits: 1,
         policyBreach: false,
         settledAt: completedAt,
@@ -1909,8 +1913,8 @@ describe("PrismaAgentChatRepo tenant boundaries", () => {
         cacheWriteTokens: 0,
         costMicrocents: 1,
         costSource: "measured",
-        reservedCredits: 1,
-        chargedCredits: 1,
+        reservedMicrocents: 1_000_000,
+        chargedMicrocents: 1_000_000,
         state: "settled",
         policyBreach: true,
       },
@@ -1952,8 +1956,8 @@ describe("PrismaAgentChatRepo tenant boundaries", () => {
           cacheWriteTokens: 0,
           costMicrocents: 1,
           costSource: "measured" as const,
-          reservedCredits: 1,
-          chargedCredits: 1,
+          reservedMicrocents: 1_000_000,
+          chargedMicrocents: 1_000_000,
           state: "settled",
           policyBreach: false,
         },
@@ -1983,8 +1987,8 @@ describe("PrismaAgentChatRepo tenant boundaries", () => {
           cacheWriteTokens: 0,
           costMicrocents: 1,
           costSource: "measured" as const,
-          reservedCredits: 1,
-          chargedCredits: 1,
+          reservedMicrocents: 1_000_000,
+          chargedMicrocents: 1_000_000,
           state: "settled",
           policyBreach: "yes" as never,
         },
@@ -2106,7 +2110,7 @@ describe("PrismaAgentChatRepo tenant boundaries", () => {
         state: "reserved",
         providerStartedAt: null,
       },
-      data: { state: "released", chargedCredits: 0, settledAt: now },
+      data: { state: "released", chargedMicrocents: 0, chargedCredits: 0, settledAt: now },
     });
     expect(prismaMock.agentTurnRequest.updateMany).toHaveBeenCalledWith(
       expect.objectContaining({
@@ -2125,7 +2129,7 @@ describe("PrismaAgentChatRepo tenant boundaries", () => {
     );
     prismaMock.agentUsageEvent.findFirst.mockResolvedValue({
       id: "reservation-1",
-      reservedCredits: 6,
+      reservedMicrocents: 6_000_000n,
     });
     prismaMock.agentUsageEvent.updateMany.mockResolvedValue({ count: 1 });
     prismaMock.agentTurnRequest.updateMany.mockResolvedValue({ count: 1 });
@@ -2145,6 +2149,7 @@ describe("PrismaAgentChatRepo tenant boundaries", () => {
         model: "claude-test",
         costMicrocents: 0,
         costSource: "estimated",
+        chargedMicrocents: 6_000_000n,
         chargedCredits: 6,
         settledAt: now,
       },
@@ -2183,6 +2188,7 @@ describe("PrismaAgentChatRepo tenant boundaries", () => {
       },
       data: {
         state: "released",
+        chargedMicrocents: 0,
         chargedCredits: 0,
         settledAt: expect.any(Date),
       },
@@ -2293,7 +2299,7 @@ describe("PrismaAgentChatRepo tenant boundaries", () => {
       },
     });
     prismaMock.agentUsageEvent.findMany.mockResolvedValue([
-      { state: "settled", reservedCredits: 0, chargedCredits: 495 },
+      { state: "settled", reservedMicrocents: 0n, chargedMicrocents: 495_000_000n },
     ]);
 
     try {
@@ -2303,10 +2309,10 @@ describe("PrismaAgentChatRepo tenant boundaries", () => {
           companyId: user.companyId,
           userId: user.id,
           sessionId: "run-stale-plan",
-          reservedCredits: 6,
+          reservedMicrocents: 6_000_000,
           planSnapshot: "business",
           subscriptionStatusSnapshot: "active",
-          allowanceCreditsSnapshot: 1200,
+          allowanceMicrocentsSnapshot: 1200_000_000,
           periodStart: new Date("2026-08-01T00:00:00.000Z"),
           periodEnd: new Date("2026-09-01T00:00:00.000Z"),
         }),
@@ -2351,7 +2357,7 @@ describe("PrismaAgentChatRepo tenant boundaries", () => {
       },
     });
     prismaMock.agentUsageEvent.findMany.mockResolvedValue([]);
-    prismaMock.$queryRaw.mockResolvedValue([{ settledCostMicrocents: 0n, activeReservedCredits: 1n }]);
+    prismaMock.$queryRaw.mockResolvedValue([{ settledCostMicrocents: 0n, activeReservedMicrocents: 1_000_000n }]);
 
     try {
       await expect(
@@ -2360,10 +2366,10 @@ describe("PrismaAgentChatRepo tenant boundaries", () => {
           companyId: user.companyId,
           userId: user.id,
           sessionId: "session-global-cap",
-          reservedCredits: 2,
+          reservedMicrocents: 2_000_000,
           planSnapshot: "pro",
           subscriptionStatusSnapshot: "active",
-          allowanceCreditsSnapshot: 500,
+          allowanceMicrocentsSnapshot: 500_000_000,
           periodStart: new Date("2026-07-15T10:30:00.000Z"),
           periodEnd: new Date("2026-08-15T10:30:00.000Z"),
         }),
@@ -2379,13 +2385,13 @@ describe("PrismaAgentChatRepo tenant boundaries", () => {
   it("refuses to extend a routine reservation past its persisted conversation ceiling", async () => {
     prismaMock.agentUsageEvent.findFirst.mockResolvedValue({
       id: "reservation-routine",
-      reservedCredits: 2,
+      reservedMicrocents: 2_000_000n,
       periodStart: new Date("2026-07-15T10:30:00.000Z"),
       periodEnd: new Date("2026-08-15T10:30:00.000Z"),
-      allowanceCreditsSnapshot: 500,
+      allowanceMicrocentsSnapshot: 500_000_000n,
       turnRequest: {
         conversation: {
-          creditCeiling: 2,
+          creditCeilingMicrocents: 2_000_000n,
           routineRuns: [{ id: "routine-run-1" }],
         },
       },
@@ -2396,7 +2402,7 @@ describe("PrismaAgentChatRepo tenant boundaries", () => {
         turnRequestId: "turn-routine",
         companyId: user.companyId,
         userId: user.id,
-        requiredCredits: 3,
+        requiredMicrocents: 3_000_000,
       }),
     ).resolves.toEqual({ disposition: "credit_limit" });
 
@@ -2411,13 +2417,13 @@ describe("PrismaAgentChatRepo tenant boundaries", () => {
     vi.setSystemTime(now);
     prismaMock.agentUsageEvent.findFirst.mockResolvedValue({
       id: "reservation-routine",
-      reservedCredits: 1,
+      reservedMicrocents: 1_000_000n,
       periodStart: new Date("2026-07-15T10:30:00.000Z"),
       periodEnd: new Date("2026-08-15T10:30:00.000Z"),
-      allowanceCreditsSnapshot: 500,
+      allowanceMicrocentsSnapshot: 500_000_000n,
       turnRequest: {
         conversation: {
-          creditCeiling: 2,
+          creditCeilingMicrocents: 2_000_000n,
           routineRuns: [{ id: "routine-run-1" }],
         },
       },
@@ -2448,9 +2454,9 @@ describe("PrismaAgentChatRepo tenant boundaries", () => {
           turnRequestId: "turn-routine",
           companyId: user.companyId,
           userId: user.id,
-          requiredCredits: 2,
+          requiredMicrocents: 2_000_000,
         }),
-      ).resolves.toEqual({ disposition: "extended", reservedCredits: 2 });
+      ).resolves.toEqual({ disposition: "extended", reservedMicrocents: 2_000_000 });
     } finally {
       vi.useRealTimers();
     }
@@ -2461,7 +2467,7 @@ describe("PrismaAgentChatRepo tenant boundaries", () => {
         companyId: user.companyId,
         state: "reserved",
       },
-      data: expect.objectContaining({ reservedCredits: 2 }),
+      data: expect.objectContaining({ reservedMicrocents: 2_000_000 }),
     });
   });
 
@@ -2471,11 +2477,11 @@ describe("PrismaAgentChatRepo tenant boundaries", () => {
     vi.setSystemTime(now);
     prismaMock.agentUsageEvent.findFirst.mockResolvedValue({
       id: "reservation-chat",
-      reservedCredits: 1,
+      reservedMicrocents: 1_000_000n,
       periodStart: new Date("2026-07-15T10:30:00.000Z"),
       periodEnd: new Date("2026-08-15T10:30:00.000Z"),
-      allowanceCreditsSnapshot: 500,
-      turnRequest: { conversation: { creditCeiling: 2, routineRuns: [] } },
+      allowanceMicrocentsSnapshot: 500_000_000n,
+      turnRequest: { conversation: { creditCeilingMicrocents: 2_000_000n, routineRuns: [] } },
     });
     prismaMock.user.findUnique.mockResolvedValue({
       id: user.id,
@@ -2503,9 +2509,9 @@ describe("PrismaAgentChatRepo tenant boundaries", () => {
           turnRequestId: "turn-chat",
           companyId: user.companyId,
           userId: user.id,
-          requiredCredits: 3,
+          requiredMicrocents: 3_000_000,
         }),
-      ).resolves.toEqual({ disposition: "extended", reservedCredits: 3 });
+      ).resolves.toEqual({ disposition: "extended", reservedMicrocents: 3_000_000 });
     } finally {
       vi.useRealTimers();
     }
@@ -2516,7 +2522,7 @@ describe("PrismaAgentChatRepo tenant boundaries", () => {
         companyId: user.companyId,
         state: "reserved",
       },
-      data: expect.objectContaining({ reservedCredits: 3 }),
+      data: expect.objectContaining({ reservedMicrocents: 3_000_000 }),
     });
   });
 
@@ -2528,11 +2534,11 @@ describe("PrismaAgentChatRepo tenant boundaries", () => {
     env.HOSTED_AI_MONTHLY_SPEND_CAP_MICROCENTS = 2_000_000n;
     prismaMock.agentUsageEvent.findFirst.mockResolvedValue({
       id: "reservation-chat",
-      reservedCredits: 1,
+      reservedMicrocents: 1_000_000n,
       periodStart: new Date("2026-07-15T10:30:00.000Z"),
       periodEnd: new Date("2026-08-15T10:30:00.000Z"),
-      allowanceCreditsSnapshot: 500,
-      turnRequest: { conversation: { creditCeiling: null, routineRuns: [] } },
+      allowanceMicrocentsSnapshot: 500_000_000n,
+      turnRequest: { conversation: { creditCeilingMicrocents: null, routineRuns: [] } },
     });
     prismaMock.user.findUnique.mockResolvedValue({
       id: user.id,
@@ -2552,7 +2558,7 @@ describe("PrismaAgentChatRepo tenant boundaries", () => {
       },
     });
     prismaMock.agentUsageEvent.findMany.mockResolvedValue([]);
-    prismaMock.$queryRaw.mockResolvedValue([{ settledCostMicrocents: 0n, activeReservedCredits: 0n }]);
+    prismaMock.$queryRaw.mockResolvedValue([{ settledCostMicrocents: 0n, activeReservedMicrocents: 0n }]);
 
     try {
       await expect(
@@ -2560,7 +2566,7 @@ describe("PrismaAgentChatRepo tenant boundaries", () => {
           turnRequestId: "turn-chat",
           companyId: user.companyId,
           userId: user.id,
-          requiredCredits: 3,
+          requiredMicrocents: 3_000_000,
         }),
       ).resolves.toEqual({ disposition: "hosted_ai_unavailable" });
     } finally {
@@ -2573,10 +2579,10 @@ describe("PrismaAgentChatRepo tenant boundaries", () => {
   it("fails closed when a reservation is not bound to a turn conversation", async () => {
     prismaMock.agentUsageEvent.findFirst.mockResolvedValue({
       id: "reservation-unbound",
-      reservedCredits: 2,
+      reservedMicrocents: 2_000_000n,
       periodStart: new Date("2026-07-15T10:30:00.000Z"),
       periodEnd: new Date("2026-08-15T10:30:00.000Z"),
-      allowanceCreditsSnapshot: 500,
+      allowanceMicrocentsSnapshot: 500_000_000n,
       turnRequest: null,
     });
 
@@ -2585,7 +2591,7 @@ describe("PrismaAgentChatRepo tenant boundaries", () => {
         turnRequestId: "turn-missing",
         companyId: user.companyId,
         userId: user.id,
-        requiredCredits: 3,
+        requiredMicrocents: 3_000_000,
       }),
     ).resolves.toEqual({ disposition: "turn_error" });
 
@@ -2619,7 +2625,7 @@ describe("PrismaAgentChatRepo tenant boundaries", () => {
     });
     prismaMock.agentUsageEvent.findFirst.mockResolvedValue({
       id: "reservation-paused",
-      reservedCredits: 4,
+      reservedMicrocents: 4_000_000n,
       periodStart: new Date("2026-07-15T10:30:00.000Z"),
       periodEnd: new Date("2026-08-15T10:30:00.000Z"),
     });
@@ -2656,7 +2662,7 @@ describe("PrismaAgentChatRepo tenant boundaries", () => {
         companyId: user.companyId,
         state: "reserved",
       },
-      data: { state: "released", chargedCredits: 0, settledAt: releasedAt },
+      data: { state: "released", chargedMicrocents: 0, chargedCredits: 0, settledAt: releasedAt },
     });
   });
 

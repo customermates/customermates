@@ -2,8 +2,8 @@ import { describe, expect, it } from "vitest";
 
 import {
   AGENT_RESERVATION_ROUNDS_AHEAD,
-  agentRoundWorstCaseCredits,
-  agentRoundWorstCaseCreditsForContextBytes,
+  agentRoundWorstCaseMicrocents,
+  agentRoundWorstCaseMicrocentsForContextBytes,
   resolveAgentTurnBudget,
 } from "../agent-budget-policy";
 import {
@@ -23,24 +23,28 @@ describe("reservation floor", () => {
 
   it("prices admission for the round it is about to start, never above the envelope round", () => {
     const balanced = MODEL_CATALOG.balanced;
-    const envelope = agentRoundWorstCaseCredits(balanced);
+    const envelope = agentRoundWorstCaseMicrocents(balanced);
     const smallContext = 24_000;
-    const smallRound = agentRoundWorstCaseCreditsForContextBytes(balanced, smallContext);
+    const smallRound = agentRoundWorstCaseMicrocentsForContextBytes(balanced, smallContext);
     expect(smallRound).toBeLessThanOrEqual(envelope);
 
     expect(
-      resolveAgentTurnBudget({ model: balanced, availableCredits: smallRound, requiredContextBytes: smallContext }),
+      resolveAgentTurnBudget({ model: balanced, availableMicrocents: smallRound, requiredContextBytes: smallContext }),
     ).not.toBeNull();
 
     const admitted = resolveAgentTurnBudget({
       model: balanced,
-      availableCredits: 500,
+      availableMicrocents: 500_000_000,
       requiredContextBytes: smallContext,
     });
-    expect(admitted?.roundReserveCredits).toBe(envelope);
-    expect(admitted?.reservedCredits).toBe(smallRound * AGENT_RESERVATION_ROUNDS_AHEAD);
+    expect(admitted?.roundReserveMicrocents).toBe(envelope);
+    expect(admitted?.reservedMicrocents).toBe(smallRound * AGENT_RESERVATION_ROUNDS_AHEAD);
     expect(
-      resolveAgentTurnBudget({ model: balanced, availableCredits: smallRound - 1, requiredContextBytes: smallContext }),
+      resolveAgentTurnBudget({
+        model: balanced,
+        availableMicrocents: smallRound - 1,
+        requiredContextBytes: smallContext,
+      }),
     ).toBeNull();
   });
 
@@ -49,10 +53,10 @@ describe("reservation floor", () => {
   });
 
   it("reserves at most six credits per round for the shipped model and admits a user holding that much", () => {
-    const perRound = agentRoundWorstCaseCredits(MODEL_CATALOG.balanced);
-    expect(perRound).toBeLessThanOrEqual(6);
-    expect(perRound).toBeGreaterThanOrEqual(2);
-    expect(resolveAgentTurnBudget({ model: MODEL_CATALOG.balanced, availableCredits: perRound })).not.toBeNull();
-    expect(resolveAgentTurnBudget({ model: MODEL_CATALOG.balanced, availableCredits: perRound - 1 })).toBeNull();
+    const perRound = agentRoundWorstCaseMicrocents(MODEL_CATALOG.balanced);
+    expect(perRound).toBeLessThanOrEqual(6_000_000);
+    expect(perRound).toBeGreaterThanOrEqual(2_000_000);
+    expect(resolveAgentTurnBudget({ model: MODEL_CATALOG.balanced, availableMicrocents: perRound })).not.toBeNull();
+    expect(resolveAgentTurnBudget({ model: MODEL_CATALOG.balanced, availableMicrocents: perRound - 1 })).toBeNull();
   });
 });

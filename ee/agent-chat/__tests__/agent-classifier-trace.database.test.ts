@@ -129,7 +129,7 @@ describeDatabase("agent turn classifier trace persistence", { timeout: 120_000 }
       provider: run.turnBudget.servingProvider,
       inferenceRegion: run.turnBudget.inferenceRegion,
       tokens: { inputTokens: 100, outputTokens: 10, cacheReadTokens: 0, cacheWriteTokens: 0 },
-      reservedCredits: run.turnBudget.reservedCredits,
+      reservedMicrocents: run.turnBudget.reservedMicrocents,
       providerCharge: { billed: true, measuredCostMicrocents: 50_000, stepTokens: [], unreadableReason: null },
       auxiliary: { costMicrocents: 1_950, measured: true },
     });

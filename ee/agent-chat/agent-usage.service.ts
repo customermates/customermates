@@ -5,8 +5,8 @@ import { Status, SubscriptionPlan, SubscriptionStatus } from "@/generated/prisma
 import { env } from "@/env";
 import type { Data } from "@/core/validation/validation.utils";
 
-import { resolveAgentCreditEntitlement } from "./agent-credit-policy";
-import { agentRoundWorstCaseCredits, resolveAgentTurnBudget, type AgentTurnBudget } from "./agent-budget-policy";
+import { agentMicrocentsToCredits, resolveAgentCreditEntitlement } from "./agent-credit-policy";
+import { agentRoundWorstCaseMicrocents, resolveAgentTurnBudget, type AgentTurnBudget } from "./agent-budget-policy";
 import type { AgentModelEntry } from "./model-catalog";
 
 export abstract class AgentUsageRepo {
@@ -15,7 +15,7 @@ export abstract class AgentUsageRepo {
     userId: string,
     periodStart: Date,
     periodEnd: Date,
-  ): Promise<{ usedCredits: number; recentTurnCredits: number | null }>;
+  ): Promise<{ usedMicrocents: number; recentTurnMicrocents: number | null }>;
   abstract getUserCreditAdjustmentUnscoped(
     companyId: string,
     userId: string,
@@ -42,10 +42,10 @@ export abstract class AgentUsageRepo {
     companyId: string;
     userId: string;
     sessionId: string;
-    reservedCredits: number;
+    reservedMicrocents: number;
     planSnapshot: SubscriptionPlan;
     subscriptionStatusSnapshot: SubscriptionStatus;
-    allowanceCreditsSnapshot: number;
+    allowanceMicrocentsSnapshot: number;
     periodStart: Date;
     periodEnd: Date;
   }): Promise<boolean>;
@@ -56,19 +56,31 @@ export abstract class AgentUsageRepo {
     releasedAt: Date;
   }): Promise<void>;
   abstract admitsHostedAiRetrievalUnscoped(now: Date): Promise<boolean>;
+  abstract getWorkspaceCreditPoolUnscoped(companyId: string, now: Date): Promise<AgentWorkspaceCreditPool | null>;
   abstract accrueRetrievalUsageUnscoped(args: {
-    companyId: string;
-    userId: string;
     grant: AgentRetrievalGrant;
     charge: AgentRetrievalCharge;
     now: Date;
   }): Promise<void>;
 }
 
+export type AgentWorkspaceCreditPool = {
+  plan: SubscriptionPlan;
+  subscriptionStatus: SubscriptionStatus;
+  periodStart: Date;
+  periodEnd: Date;
+  limitMicrocents: number;
+  usedMicrocents: number;
+  usable: boolean;
+};
+
 export type AgentRetrievalGrant = {
+  purpose: "wikiRetrieval" | "wikiIndexing";
+  companyId: string;
+  userId: string | null;
   planSnapshot: SubscriptionPlan;
   subscriptionStatusSnapshot: SubscriptionStatus;
-  allowanceCreditsSnapshot: number;
+  allowanceMicrocentsSnapshot: number;
   periodStart: Date;
   periodEnd: Date;
 };
@@ -102,10 +114,10 @@ export const AgentUsageSummarySchema = z.object({
 export type AgentUsageSummary = Data<typeof AgentUsageSummarySchema>;
 
 export type AgentTurnCreditReservation = {
-  reservedCredits: number;
+  reservedMicrocents: number;
   planSnapshot: SubscriptionPlan;
   subscriptionStatusSnapshot: SubscriptionStatus;
-  allowanceCreditsSnapshot: number;
+  allowanceMicrocentsSnapshot: number;
   periodStart: Date;
   periodEnd: Date;
   budget: AgentTurnBudget;
@@ -114,6 +126,8 @@ export type AgentTurnCreditReservation = {
 type ResolvedUsageState = {
   user: NonNullable<Awaited<ReturnType<AgentUsageRepo["findUserForUsageUnscoped"]>>>;
   summary: AgentUsageSummary;
+  remainingMicrocents: number;
+  limitMicrocents: number;
 };
 
 function usagePct(used: number, limit: number) {
@@ -121,7 +135,7 @@ function usagePct(used: number, limit: number) {
   return Math.min(100, Math.round((used / limit) * 100));
 }
 
-function assertCreditCount(value: number, description: string) {
+function assertMicrocentCount(value: number, description: string) {
   if (!Number.isSafeInteger(value) || value < 0) throw new Error(`${description} is invalid.`);
 }
 
@@ -146,6 +160,8 @@ export class AgentUsageService {
       });
       return {
         user,
+        remainingMicrocents: 0,
+        limitMicrocents: 0,
         summary: {
           creditsUsed: 0,
           creditsRemaining: 0,
@@ -170,36 +186,39 @@ export class AgentUsageService {
       now,
     } as const;
     const baseEntitlement = resolveAgentCreditEntitlement(entitlementInput);
-    const [usage, adjustmentCredits] = await Promise.all([
+    const [usage, adjustmentMicrocents] = await Promise.all([
       this.repo.getUserCreditUsageUnscoped(user.companyId, userId, baseEntitlement.start, baseEntitlement.resetAt),
       this.repo.getUserCreditAdjustmentUnscoped(user.companyId, userId, baseEntitlement.start, baseEntitlement.resetAt),
     ]);
-    const entitlement = resolveAgentCreditEntitlement({ ...entitlementInput, adjustmentCredits });
-    assertCreditCount(usage.usedCredits, "Stored AI credit usage");
-    if (usage.recentTurnCredits !== null) assertCreditCount(usage.recentTurnCredits, "Recent AI turn credits");
+    const entitlement = resolveAgentCreditEntitlement({ ...entitlementInput, adjustmentMicrocents });
+    assertMicrocentCount(usage.usedMicrocents, "Stored AI credit usage");
+    if (usage.recentTurnMicrocents !== null) assertMicrocentCount(usage.recentTurnMicrocents, "Recent AI turn usage");
 
     const activeSeat = user.status === Status.active;
-    const creditsLimit = activeSeat ? entitlement.limit : 0;
-    const creditsRemaining = Math.max(0, creditsLimit - usage.usedCredits);
+    const limitMicrocents = activeSeat ? entitlement.limitMicrocents : 0;
+    const remainingMicrocents = Math.max(0, limitMicrocents - usage.usedMicrocents);
     const publicEntitlementBlock =
       entitlement.blockedReason === "enterprise_allowance_missing"
         ? ("configuration_unavailable" as const)
         : entitlement.blockedReason;
     const blockedReason = activeSeat
-      ? (publicEntitlementBlock ?? (creditsRemaining === 0 ? ("credits_exhausted" as const) : null))
+      ? (publicEntitlementBlock ?? (remainingMicrocents === 0 ? ("credits_exhausted" as const) : null))
       : ("subscription_unavailable" as const);
 
     return {
       user,
+      remainingMicrocents,
+      limitMicrocents,
       summary: {
-        creditsUsed: usage.usedCredits,
-        creditsRemaining,
-        creditsLimit,
-        usedPct: usagePct(usage.usedCredits, creditsLimit),
+        creditsUsed: agentMicrocentsToCredits(usage.usedMicrocents),
+        creditsRemaining: agentMicrocentsToCredits(remainingMicrocents),
+        creditsLimit: agentMicrocentsToCredits(limitMicrocents),
+        usedPct: usagePct(usage.usedMicrocents, limitMicrocents),
         plan: entitlement.plan,
         periodStart: entitlement.start,
         resetAt: entitlement.resetAt,
-        recentTurnCredits: usage.recentTurnCredits,
+        recentTurnCredits:
+          usage.recentTurnMicrocents === null ? null : agentMicrocentsToCredits(usage.recentTurnMicrocents),
         blockedReason,
       },
     };
@@ -215,8 +234,8 @@ export class AgentUsageService {
     options: {
       model: AgentModelEntry;
       requiredContextBytes?: number;
-      creditCeiling?: number | null;
-      webSearchReserveCredits?: number;
+      creditCeilingMicrocents?: number | null;
+      webSearchReserveMicrocents?: number;
     },
   ): Promise<{
     summary: AgentUsageSummary;
@@ -234,21 +253,21 @@ export class AgentUsageService {
       };
     }
 
-    const availableCredits = options.creditCeiling
-      ? Math.min(state.summary.creditsRemaining, options.creditCeiling)
-      : state.summary.creditsRemaining;
+    const availableMicrocents = options.creditCeilingMicrocents
+      ? Math.min(state.remainingMicrocents, options.creditCeilingMicrocents)
+      : state.remainingMicrocents;
     const budget = resolveAgentTurnBudget({
       model: options.model,
-      availableCredits,
+      availableMicrocents,
       requiredContextBytes: options.requiredContextBytes,
-      webSearchReserveCredits: options.webSearchReserveCredits,
+      webSearchReserveMicrocents: options.webSearchReserveMicrocents,
     });
     if (!budget) {
       return {
         summary: {
           ...state.summary,
           blockedReason:
-            availableCredits < agentRoundWorstCaseCredits(options.model)
+            availableMicrocents < agentRoundWorstCaseMicrocents(options.model)
               ? "credits_exhausted"
               : "configuration_unavailable",
         },
@@ -259,10 +278,10 @@ export class AgentUsageService {
     return {
       summary: state.summary,
       reservation: {
-        reservedCredits: budget.reservedCredits,
+        reservedMicrocents: budget.reservedMicrocents,
         planSnapshot: state.summary.plan,
         subscriptionStatusSnapshot: state.user.subscription.status,
-        allowanceCreditsSnapshot: state.summary.creditsLimit,
+        allowanceMicrocentsSnapshot: state.limitMicrocents,
         periodStart: state.summary.periodStart,
         periodEnd: state.summary.resetAt,
         budget,
@@ -275,23 +294,42 @@ export class AgentUsageService {
     if (state.summary.blockedReason || !state.user.subscription || !state.summary.plan) return null;
     if (!(await this.repo.admitsHostedAiRetrievalUnscoped(now))) return null;
     return {
+      purpose: "wikiRetrieval",
+      companyId: state.user.companyId,
+      userId: state.user.id,
       planSnapshot: state.summary.plan,
       subscriptionStatusSnapshot: state.user.subscription.status,
-      allowanceCreditsSnapshot: state.summary.creditsLimit,
+      allowanceMicrocentsSnapshot: state.limitMicrocents,
       periodStart: state.summary.periodStart,
       periodEnd: state.summary.resetAt,
     };
   }
 
-  async accrueRetrieval(args: {
-    companyId: string;
-    userId: string;
-    grant: AgentRetrievalGrant;
-    charge: AgentRetrievalCharge;
-    now?: Date;
-  }) {
-    assertCreditCount(args.charge.costMicrocents, "Retrieval cost");
-    assertCreditCount(args.charge.inputTokens, "Retrieval input tokens");
+  async prepareWorkspaceIndexing(companyId: string, now = new Date()): Promise<AgentRetrievalGrant | null> {
+    if (env.APP_MODE === "self-hosted") return null;
+    const pool = await this.repo.getWorkspaceCreditPoolUnscoped(companyId, now);
+    if (!pool?.usable) return null;
+    assertMicrocentCount(pool.limitMicrocents, "Workspace AI credit allowance");
+    assertMicrocentCount(pool.usedMicrocents, "Workspace AI credit usage");
+    if (pool.usedMicrocents >= pool.limitMicrocents) return null;
+    if (!(await this.repo.admitsHostedAiRetrievalUnscoped(now))) return null;
+    return {
+      purpose: "wikiIndexing",
+      companyId,
+      userId: null,
+      planSnapshot: pool.plan,
+      subscriptionStatusSnapshot: pool.subscriptionStatus,
+      allowanceMicrocentsSnapshot: pool.limitMicrocents,
+      periodStart: pool.periodStart,
+      periodEnd: pool.periodEnd,
+    };
+  }
+
+  async accrueRetrieval(args: { grant: AgentRetrievalGrant; charge: AgentRetrievalCharge; now?: Date }) {
+    assertMicrocentCount(args.charge.costMicrocents, "Retrieval cost");
+    assertMicrocentCount(args.charge.inputTokens, "Retrieval input tokens");
+    if ((args.grant.purpose === "wikiIndexing") !== (args.grant.userId === null))
+      throw new Error("Retrieval grant payer is invalid.");
     if (args.charge.costMicrocents === 0) return;
     await this.repo.accrueRetrievalUsageUnscoped({ ...args, now: args.now ?? new Date() });
   }
@@ -307,10 +345,10 @@ export class AgentUsageService {
       companyId: args.companyId,
       userId: args.userId,
       sessionId: args.reservationId,
-      reservedCredits: args.reservation.reservedCredits,
+      reservedMicrocents: args.reservation.reservedMicrocents,
       planSnapshot: args.reservation.planSnapshot,
       subscriptionStatusSnapshot: args.reservation.subscriptionStatusSnapshot,
-      allowanceCreditsSnapshot: args.reservation.allowanceCreditsSnapshot,
+      allowanceMicrocentsSnapshot: args.reservation.allowanceMicrocentsSnapshot,
       periodStart: args.reservation.periodStart,
       periodEnd: args.reservation.periodEnd,
     });

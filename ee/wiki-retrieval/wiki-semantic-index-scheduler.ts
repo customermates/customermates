@@ -32,7 +32,7 @@ export class WikiSemanticIndexDispatcher extends UserAccessor implements WikiSem
       return;
     try {
       if (!(await this.repo.semanticIndexAvailable())) return;
-      if (!(await this.embeddings.authorize({ id: this.userId, companyId: this.companyId }))) return;
+      if (!(await this.embeddings.authorizeIndexing(this.companyId))) return;
       if (this.trigger === "search") lastSearchSchedule.set(this.companyId, now);
       await this.backgroundTaskService.dispatch("index-wiki-pages", { userId: this.userId });
     } catch (error) {

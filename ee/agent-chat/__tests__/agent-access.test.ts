@@ -457,7 +457,7 @@ describe("agent access", () => {
         id: CONVERSATION_ID,
         origin: "routine",
         modelKey: null,
-        creditCeiling: 2,
+        creditCeilingMicrocents: 2_000_000n,
       }),
       admitAgentTurnOrThrow: vi.fn().mockImplementation((args) =>
         Promise.resolve({
@@ -495,8 +495,8 @@ describe("agent access", () => {
     expect(usage.prepareTurn).toHaveBeenCalledWith(mockUser.id, expect.any(Date), {
       model: MODEL_CATALOG.balanced,
       requiredContextBytes: expect.any(Number),
-      creditCeiling: 2,
-      webSearchReserveCredits: 3,
+      creditCeilingMicrocents: 2_000_000,
+      webSearchReserveMicrocents: 2_400_000,
     });
     expect(repo.admitAgentTurnOrThrow).toHaveBeenCalledWith(
       expect.objectContaining({
@@ -534,7 +534,7 @@ describe("agent access", () => {
             id: CONVERSATION_ID,
             origin: "routine",
             modelKey: null,
-            creditCeiling: 2,
+            creditCeilingMicrocents: 2_000_000n,
           }),
           admitAgentTurnOrThrow: vi.fn().mockImplementation((args) =>
             Promise.resolve({
@@ -586,7 +586,7 @@ describe("agent access", () => {
         id: CONVERSATION_ID,
         origin: "routine",
         modelKey: null,
-        creditCeiling: 10,
+        creditCeilingMicrocents: 10_000_000n,
       }),
     };
 
@@ -633,7 +633,7 @@ describe("agent access", () => {
         id: CONVERSATION_ID,
         origin: "routine",
         modelKey: null,
-        creditCeiling: 2,
+        creditCeilingMicrocents: 2_000_000n,
       }),
       admitAgentTurnOrThrow: vi.fn().mockImplementation((args) =>
         Promise.resolve({
@@ -669,8 +669,8 @@ describe("agent access", () => {
     expect(usage.prepareTurn).toHaveBeenCalledWith(mockUser.id, expect.any(Date), {
       model: MODEL_CATALOG.balanced,
       requiredContextBytes: expect.any(Number),
-      creditCeiling: null,
-      webSearchReserveCredits: 4,
+      creditCeilingMicrocents: null,
+      webSearchReserveMicrocents: 3_600_000,
     });
     expect(repo.admitAgentTurnOrThrow).toHaveBeenCalledWith(
       expect.not.objectContaining({ routineRunId: expect.anything() }),
@@ -734,8 +734,8 @@ describe("agent access", () => {
     expect(usage.prepareTurn).toHaveBeenCalledWith(mockUser.id, expect.any(Date), {
       model: MODEL_CATALOG.balanced,
       requiredContextBytes: expect.any(Number),
-      creditCeiling: null,
-      webSearchReserveCredits: 4,
+      creditCeilingMicrocents: null,
+      webSearchReserveMicrocents: 3_600_000,
     });
     expect(usage.prepareTurn).toHaveBeenCalledTimes(1);
   });

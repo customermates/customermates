@@ -13,7 +13,7 @@ import { BypassTenantGuard } from "@/core/decorators/bypass-tenant.decorator";
 import { FilterFieldKey } from "@/core/types/filter-field-key";
 import { FILTER_FIELD_DEFAULT_OPERATORS } from "@/core/types/filter-field-operators";
 
-import { resolveAgentCreditEntitlement } from "@/ee/agent-chat/agent-credit-policy";
+import { agentMicrocentsFromStorage, resolveAgentCreditEntitlement } from "@/ee/agent-chat/agent-credit-policy";
 import { env } from "@/env";
 import { Status } from "@/generated/prisma";
 
@@ -165,8 +165,8 @@ export class PrismaOperatorUsersRepo extends BaseRepository<Prisma.UserWhereInpu
       subscriptionUpdatedAt: user.company.subscription?.updatedAt ?? null,
       adProvider: user.adAttributions[0]?.provider ?? null,
       adIdentifierKind: user.adAttributions[0]?.identifierKind ?? null,
-      creditsRemaining: credits.get(user.id)?.remaining ?? null,
-      creditsLimit: credits.get(user.id)?.limit ?? null,
+      remainingMicrocents: credits.get(user.id)?.remaining ?? null,
+      limitMicrocents: credits.get(user.id)?.limit ?? null,
       creditsBlockedReason: credits.get(user.id)?.blockedReason ?? null,
     }));
   }
@@ -215,7 +215,7 @@ export class PrismaOperatorUsersRepo extends BaseRepository<Prisma.UserWhereInpu
       entitlements.set(user.id, {
         start: entitlement.start,
         resetAt: entitlement.resetAt,
-        limit: entitlement.limit,
+        limit: entitlement.limitMicrocents,
         blockedReason: entitlement.blockedReason,
       });
     }
@@ -227,33 +227,41 @@ export class PrismaOperatorUsersRepo extends BaseRepository<Prisma.UserWhereInpu
       this.prisma.agentCreditAdjustment.groupBy({
         by: ["userId", "periodStart", "periodEnd"],
         where: { userId: { in: userIds } },
-        _sum: { creditDelta: true },
+        _sum: { deltaMicrocents: true },
       }),
       this.prisma.agentUsageEvent.groupBy({
         by: ["userId", "periodStart", "periodEnd"],
         where: { userId: { in: userIds }, state: "settled" },
-        _sum: { chargedCredits: true },
+        _sum: { chargedMicrocents: true },
       }),
       this.prisma.agentUsageEvent.groupBy({
         by: ["userId", "periodStart", "periodEnd"],
         where: { userId: { in: userIds }, state: { in: ["reserved", "retained"] } },
-        _sum: { reservedCredits: true },
+        _sum: { reservedMicrocents: true },
       }),
     ]);
 
     const periodKey = (userId: string, start: Date, end: Date) => `${userId}:${start.getTime()}:${end.getTime()}`;
     const adjustmentByPeriod = new Map<string, number>();
-    for (const row of adjustments)
-      adjustmentByPeriod.set(periodKey(row.userId, row.periodStart, row.periodEnd), row._sum.creditDelta ?? 0);
+    for (const row of adjustments) {
+      adjustmentByPeriod.set(
+        periodKey(row.userId, row.periodStart, row.periodEnd),
+        agentMicrocentsFromStorage(row._sum.deltaMicrocents, "Hosted-AI credit adjustment total"),
+      );
+    }
 
     const committedByPeriod = new Map<string, number>();
     for (const row of settled) {
+      if (row.userId === null) continue;
       const key = periodKey(row.userId, row.periodStart, row.periodEnd);
-      committedByPeriod.set(key, (committedByPeriod.get(key) ?? 0) + (row._sum.chargedCredits ?? 0));
+      const charged = agentMicrocentsFromStorage(row._sum.chargedMicrocents, "Charged hosted-AI credits");
+      committedByPeriod.set(key, (committedByPeriod.get(key) ?? 0) + charged);
     }
     for (const row of reserved) {
+      if (row.userId === null) continue;
       const key = periodKey(row.userId, row.periodStart, row.periodEnd);
-      committedByPeriod.set(key, (committedByPeriod.get(key) ?? 0) + (row._sum.reservedCredits ?? 0));
+      const reservedMicrocents = agentMicrocentsFromStorage(row._sum.reservedMicrocents, "Reserved hosted-AI credits");
+      committedByPeriod.set(key, (committedByPeriod.get(key) ?? 0) + reservedMicrocents);
     }
 
     for (const user of users) {

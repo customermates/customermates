@@ -468,8 +468,8 @@
       },
       "contact": "Kontakt aufnehmen",
       "planAndReset": "{plan}-Tarif · Zurücksetzung am {resetAt}",
-      "recentTurn": "{credits, plural, one {Letzte Anfrage: # Credit} other {Letzte Anfrage: # Credits}}",
-      "remaining": "{remaining, number} von {limit, number} Credits verbleibend",
+      "recentTurn": "{credits, plural, one {Letzte Anfrage: {amount} Credit} other {Letzte Anfrage: {amount} Credits}}",
+      "remaining": "{credits, plural, one {{remaining} von {limit} Credits verbleibend} other {{remaining} von {limit} Credits verbleibend}}",
       "resetShort": "Zurücksetzung am {resetAt}",
       "usage": "{pct} % der monatlichen gehosteten KI-Credits verbraucht",
       "viewPlans": "Tarife ansehen"
@@ -3155,7 +3155,7 @@
   "OperatorUsers": {
     "adjustment": {
       "deltaLabel": "Vorzeichenbehaftete Credit-Korrektur",
-      "deltaPlaceholder": "Zum Beispiel 500 oder -100",
+      "deltaPlaceholder": "Zum Beispiel 500, 2,5 oder -100",
       "expiresAt": "Diese Korrektur gilt nur für die aktuelle Periode und verfällt am {date}."
     },
     "confirm": {
@@ -3180,7 +3180,7 @@
     "emptyTitle": "Keine Benutzer passen zu diesen Filtern",
     "modal": {
       "access": "Zugriff",
-      "adjustmentConfirm": "Korrektur von {value} Credits für {name} anwenden?",
+      "adjustmentConfirm": "{credits, plural, one {Korrektur von {amount} Credit für {name} anwenden?} other {Korrektur von {amount} Credits für {name} anwenden?}}",
       "identity": "{person} · {email}"
     },
     "navigation": "Benutzer",
@@ -3549,7 +3549,7 @@
     "manageWithLemonSqueezy": "Verwalten mit Lemon Squeezy",
     "picker": {
       "connectedAccountsPerUser": "{accounts, plural, one {# verbundenes Konto pro Nutzer} other {# verbundene Konten pro Nutzer}}",
-      "creditNote": "Credits für den gehosteten KI-Assistenten werden monatlich erneuert; nicht genutzte Credits werden nicht übertragen. Externe MCP-Clients nutzen deinen eigenen KI-Anbieter und verbrauchen diese Credits nicht.",
+      "creditNote": "Credits für den gehosteten KI-Assistenten werden monatlich erneuert; nicht genutzte Credits werden nicht übertragen. Jede Anfrage wird mit ihren genauen Anbieterkosten berechnet und auf eine Nachkommastelle angezeigt. Externe MCP-Clients nutzen deinen eigenen KI-Anbieter und verbrauchen diese Credits nicht.",
       "features": {
         "business": ["Alles aus Pro", "Geteilte Konten und priorisierter Support"],
         "pro": ["Alles aus Starter", "Einheitlicher Posteingang"],

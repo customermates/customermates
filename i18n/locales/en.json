@@ -468,8 +468,8 @@
       },
       "contact": "Contact us",
       "planAndReset": "{plan} plan · resets {resetAt}",
-      "recentTurn": "{credits, plural, one {Last turn used # credit} other {Last turn used # credits}}",
-      "remaining": "{remaining, number} of {limit, number} credits remaining",
+      "recentTurn": "{credits, plural, one {Last turn used {amount} credit} other {Last turn used {amount} credits}}",
+      "remaining": "{credits, plural, one {{remaining} of {limit} credits remaining} other {{remaining} of {limit} credits remaining}}",
       "resetShort": "Resets {resetAt}",
       "usage": "{pct}% of monthly hosted AI credits used",
       "viewPlans": "View plans"
@@ -3155,7 +3155,7 @@
   "OperatorUsers": {
     "adjustment": {
       "deltaLabel": "Signed credit correction",
-      "deltaPlaceholder": "For example, 500 or -100",
+      "deltaPlaceholder": "For example, 500, 2.5 or -100",
       "expiresAt": "This correction applies to the current period only and lapses on {date}."
     },
     "confirm": {
@@ -3180,7 +3180,7 @@
     "emptyTitle": "No users match these filters",
     "modal": {
       "access": "Access",
-      "adjustmentConfirm": "Apply a correction of {value} credits to {name}?",
+      "adjustmentConfirm": "{credits, plural, one {Apply a correction of {amount} credit to {name}?} other {Apply a correction of {amount} credits to {name}?}}",
       "identity": "{person} · {email}"
     },
     "navigation": "Users",
@@ -3549,7 +3549,7 @@
     "manageWithLemonSqueezy": "Manage with Lemon Squeezy",
     "picker": {
       "connectedAccountsPerUser": "{accounts, plural, one {# connected account per user} other {# connected accounts per user}}",
-      "creditNote": "Hosted AI credits refresh monthly; unused credits do not roll over. External MCP clients use your own AI provider and do not consume these credits.",
+      "creditNote": "Hosted AI credits refresh monthly; unused credits do not roll over. Each request is charged its exact provider cost, shown to one decimal. External MCP clients use your own AI provider and do not consume these credits.",
       "features": {
         "business": ["Everything in Pro", "Shared accounts and priority support"],
         "pro": ["Everything in Starter", "Unified inbox"],

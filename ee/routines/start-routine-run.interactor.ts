@@ -18,6 +18,7 @@ import { changedFieldsOf } from "./routine-event-filter";
 import { isCustomField } from "@/core/utils/custom-field";
 import { isRoutineRunErrorCode, type RoutineRunErrorCode, type RoutineRunReason } from "./routine-run-outcome";
 import { DEFAULT_ROUTINE_MAX_CREDITS_PER_RUN, DEFAULT_ROUTINE_MAX_RUNS_PER_HOUR } from "./routine-run-limits";
+import { agentCreditsToMicrocents } from "@/ee/agent-chat/agent-credit-policy";
 
 const Schema = z.object({ routineRunId: z.uuid() });
 
@@ -92,7 +93,7 @@ export abstract class StartRoutineConversationRepo {
     conversationId: string;
     title: string | null;
     now: Date;
-    creditCeiling?: number | null;
+    creditCeilingMicrocents?: number | null;
   }): Promise<void>;
   abstract releaseUnstartedRoutineConversationForRetry(args: {
     routineRunId: string;
@@ -204,7 +205,7 @@ export class StartRoutineRunInteractor extends AuthenticatedInteractor<StartRout
       conversationId,
       title: routine.name,
       now,
-      creditCeiling: DEFAULT_ROUTINE_MAX_CREDITS_PER_RUN,
+      creditCeilingMicrocents: agentCreditsToMicrocents(DEFAULT_ROUTINE_MAX_CREDITS_PER_RUN),
     });
 
     let sent;

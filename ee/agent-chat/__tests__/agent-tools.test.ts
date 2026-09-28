@@ -40,7 +40,7 @@ import { ALL_MCP_TOOLS, MCP_ALWAYS_ON_TOOLS } from "@/features/mcp-tools/tool-re
 import {
   AGENT_TOOL_RESULT_TRUNCATED_MARK,
   agentContextTokensToBytes,
-  agentRoundWorstCaseCredits,
+  agentRoundWorstCaseMicrocents,
   resolveAgentTurnBudget,
 } from "../agent-budget-policy";
 import { SendAgentMessageSchema } from "../agent-chat.schema";
@@ -287,7 +287,7 @@ describe("agent tools", () => {
 
     const funded = resolveAgentTurnBudget({
       model,
-      availableCredits: agentRoundWorstCaseCredits(model),
+      availableMicrocents: agentRoundWorstCaseMicrocents(model),
       requiredContextBytes: requiredContextBytes ?? 0,
     });
     expect(funded).not.toBeNull();
@@ -355,7 +355,7 @@ describe("agent tools", () => {
             (requiredContextBytes ?? Number.POSITIVE_INFINITY) <= agentContextTokensToBytes(model.maxContextTokens) &&
             resolveAgentTurnBudget({
               model,
-              availableCredits: agentRoundWorstCaseCredits(model),
+              availableMicrocents: agentRoundWorstCaseMicrocents(model),
               requiredContextBytes: requiredContextBytes ?? undefined,
             }) !== null;
           expect(fits, label).toBe(true);

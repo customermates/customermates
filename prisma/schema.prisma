@@ -346,21 +346,21 @@ model WikiWebsiteCrawl {
 }
 
 model WikiSourceDocument {
-  id           String           @id @default(uuid())
-  crawlId      String
-  companyId    String
-  url          String
-  canonicalUrl String
-  category     String
-  title        String
-  text         String
-  qaPairs      Json?
-  contentHash  String
-  fetchedAt    DateTime         @default(now())
+  id              String           @id @default(uuid())
+  crawlId         String
+  companyId       String
+  url             String
+  canonicalUrl    String
+  category        String
+  title           String
+  text            String
+  qaPairs         Json?
+  contentHash     String
+  fetchedAt       DateTime         @default(now())
   readAt          DateTime?
   importClaimedAt DateTime?
-  crawl        WikiWebsiteCrawl @relation(fields: [crawlId], references: [id], onDelete: Cascade)
-  company      Company          @relation(fields: [companyId], references: [id], onDelete: Cascade)
+  crawl           WikiWebsiteCrawl @relation(fields: [crawlId], references: [id], onDelete: Cascade)
+  company         Company          @relation(fields: [companyId], references: [id], onDelete: Cascade)
 
   @@unique([crawlId, canonicalUrl])
   @@index([companyId, crawlId])
@@ -1037,7 +1037,10 @@ model AgentCreditAdjustment {
   company                 Company  @relation(fields: [companyId], references: [id], onDelete: Cascade)
   userId                  String
   user                    User     @relation(fields: [userId], references: [id], onDelete: Cascade)
+  /// Legacy whole-credit mirror of deltaMicrocents (rounded away from zero), written only for code
+  /// deployed before exact metering. Never read it; a follow-up migration drops it.
   creditDelta             Int
+  deltaMicrocents         BigInt   @default(0)
   periodStart             DateTime
   periodEnd               DateTime
   reason                  String?
@@ -1830,25 +1833,27 @@ enum UnipileWebhookSource {
 }
 
 model AgentConversation {
-  id               String                  @id @default(uuid())
-  companyId        String
-  userId           String
-  title            String?
-  modelKey         String?
-  origin           AgentConversationOrigin @default(user)
-  creditCeiling    Int?
-  archivedAt       DateTime?
-  selectedAt       DateTime?
-  createdAt        DateTime                @default(now())
-  updatedAt        DateTime                @updatedAt
-  company          Company                 @relation(fields: [companyId], references: [id], onDelete: Cascade)
-  user             User                    @relation(fields: [userId], references: [id], onDelete: Cascade)
-  messages         AgentMessage[]
-  approvals        AgentApproval[]
-  uiCommandResults AgentUiCommandResult[]
-  turnRequests     AgentTurnRequest[]
-  runLease         AgentRunLease?
-  routineRuns      RoutineRun[]
+  id                      String                  @id @default(uuid())
+  companyId               String
+  userId                  String
+  title                   String?
+  modelKey                String?
+  origin                  AgentConversationOrigin @default(user)
+  /// Legacy whole-credit mirror of creditCeilingMicrocents (rounded down). Never read it.
+  creditCeiling           Int?
+  creditCeilingMicrocents BigInt?
+  archivedAt              DateTime?
+  selectedAt              DateTime?
+  createdAt               DateTime                @default(now())
+  updatedAt               DateTime                @updatedAt
+  company                 Company                 @relation(fields: [companyId], references: [id], onDelete: Cascade)
+  user                    User                    @relation(fields: [userId], references: [id], onDelete: Cascade)
+  messages                AgentMessage[]
+  approvals               AgentApproval[]
+  uiCommandResults        AgentUiCommandResult[]
+  turnRequests            AgentTurnRequest[]
+  runLease                AgentRunLease?
+  routineRuns             RoutineRun[]
 
   @@index([companyId, userId, archivedAt, updatedAt])
   @@index([companyId, userId, origin, archivedAt, updatedAt])
@@ -1874,34 +1879,41 @@ model AgentMessage {
 }
 
 model AgentUsageEvent {
-  id                         String               @id @default(uuid())
-  companyId                  String
-  company                    Company              @relation(fields: [companyId], references: [id], onDelete: Cascade)
-  userId                     String
-  sessionId                  String?
-  turnRequestId              String?
-  turnRequest                AgentTurnRequest?    @relation(fields: [turnRequestId], references: [id], onDelete: SetNull)
-  state                      AgentUsageState      @default(reserved)
-  model                      String               @default("")
-  inputTokens                Int                  @default(0)
-  outputTokens               Int                  @default(0)
-  cacheReadTokens            Int                  @default(0)
-  cacheWriteTokens           Int                  @default(0)
-  costMicrocents             BigInt               @default(0)
-  costSource                 AgentUsageCostSource @default(estimated)
-  reservedCredits            Int                  @default(0)
-  chargedCredits             Int                  @default(0)
-  policyBreach               Boolean              @default(false)
-  planSnapshot               SubscriptionPlan
-  subscriptionStatusSnapshot SubscriptionStatus
-  allowanceCreditsSnapshot   Int
-  periodStart                DateTime
-  periodEnd                  DateTime
-  providerStartedAt          DateTime?
-  settledAt                  DateTime?
-  purpose                    AgentUsagePurpose    @default(turn)
-  accrualMonth               DateTime?
-  createdAt                  DateTime             @default(now())
+  id                          String               @id @default(uuid())
+  companyId                   String
+  company                     Company              @relation(fields: [companyId], references: [id], onDelete: Cascade)
+  /// Null only for a workspace-level charge (purpose wikiIndexing) that no single person pays for.
+  userId                      String?
+  sessionId                   String?
+  turnRequestId               String?
+  turnRequest                 AgentTurnRequest?    @relation(fields: [turnRequestId], references: [id], onDelete: SetNull)
+  state                       AgentUsageState      @default(reserved)
+  model                       String               @default("")
+  inputTokens                 Int                  @default(0)
+  outputTokens                Int                  @default(0)
+  cacheReadTokens             Int                  @default(0)
+  cacheWriteTokens            Int                  @default(0)
+  costMicrocents              BigInt               @default(0)
+  costSource                  AgentUsageCostSource @default(estimated)
+  /// reservedCredits, chargedCredits and allowanceCreditsSnapshot are legacy whole-credit mirrors of
+  /// the microcent columns (usage rounded up, allowance rounded down), written only for code deployed
+  /// before exact metering. Never read them; a follow-up migration drops them.
+  reservedCredits             Int                  @default(0)
+  chargedCredits              Int                  @default(0)
+  reservedMicrocents          BigInt               @default(0)
+  chargedMicrocents           BigInt               @default(0)
+  policyBreach                Boolean              @default(false)
+  planSnapshot                SubscriptionPlan
+  subscriptionStatusSnapshot  SubscriptionStatus
+  allowanceCreditsSnapshot    Int
+  allowanceMicrocentsSnapshot BigInt               @default(0)
+  periodStart                 DateTime
+  periodEnd                   DateTime
+  providerStartedAt           DateTime?
+  settledAt                   DateTime?
+  purpose                     AgentUsagePurpose    @default(turn)
+  accrualMonth                DateTime?
+  createdAt                   DateTime             @default(now())
 
   @@unique([companyId, userId, periodStart, periodEnd, purpose, accrualMonth], map: "AgentUsageEvent_retrieval_accrual_key")
   @@index([userId, createdAt])
@@ -1914,6 +1926,7 @@ model AgentUsageEvent {
 enum AgentUsagePurpose {
   turn
   wikiRetrieval
+  wikiIndexing
 }
 
 enum AgentUsageCostSource {
@@ -2150,30 +2163,32 @@ model Routine {
 }
 
 model RoutineRun {
-  id               String                 @id @default(uuid())
-  companyId        String
-  routineId        String
-  executedByUserId String
-  executedByName   String
-  conversationId   String?
-  turnRequestId    String?
-  status           RoutineRunStatus       @default(queued)
-  triggerKind      RoutineTriggerKind
-  triggerEvent     String?
-  triggerEntityId  String?
-  triggerPayload   Json?
-  scheduledFor     DateTime
-  startedAt        DateTime?
-  finishedAt       DateTime?
-  terminalCode     AgentTurnTerminalCode?
-  chargedCredits   Int                    @default(0)
-  summary          String?
-  error            String?
-  createdAt        DateTime               @default(now())
-  updatedAt        DateTime               @updatedAt
-  company          Company                @relation(fields: [companyId], references: [id], onDelete: Cascade)
-  routine          Routine                @relation(fields: [routineId], references: [id], onDelete: Cascade)
-  conversation     AgentConversation?     @relation(fields: [conversationId], references: [id], onDelete: SetNull)
+  id                String                 @id @default(uuid())
+  companyId         String
+  routineId         String
+  executedByUserId  String
+  executedByName    String
+  conversationId    String?
+  turnRequestId     String?
+  status            RoutineRunStatus       @default(queued)
+  triggerKind       RoutineTriggerKind
+  triggerEvent      String?
+  triggerEntityId   String?
+  triggerPayload    Json?
+  scheduledFor      DateTime
+  startedAt         DateTime?
+  finishedAt        DateTime?
+  terminalCode      AgentTurnTerminalCode?
+  /// Legacy whole-credit mirror of chargedMicrocents (rounded up). Never read it.
+  chargedCredits    Int                    @default(0)
+  chargedMicrocents BigInt                 @default(0)
+  summary           String?
+  error             String?
+  createdAt         DateTime               @default(now())
+  updatedAt         DateTime               @updatedAt
+  company           Company                @relation(fields: [companyId], references: [id], onDelete: Cascade)
+  routine           Routine                @relation(fields: [routineId], references: [id], onDelete: Cascade)
+  conversation      AgentConversation?     @relation(fields: [conversationId], references: [id], onDelete: SetNull)
 
   @@index([companyId])
   @@index([companyId, routineId, createdAt])

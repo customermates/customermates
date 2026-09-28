@@ -19,6 +19,7 @@ import {
   getAgentWebSearchTool,
 } from "@/ee/agent-chat/agent-web-search";
 import { buildAgentUsageSettlement, usageToTokenCounts } from "@/ee/agent-chat/agent-usage-settlement";
+import { agentCreditsToMicrocents } from "@/core/commercial/agent-credits";
 import { readAgentProviderCharge } from "@/ee/agent-chat/gateway-cost";
 import { MODEL_CATALOG, SHIPPED_AGENT_MODEL_KEY } from "@/ee/agent-chat/model-catalog";
 
@@ -546,7 +547,7 @@ export async function runLiveProviderSmoke(postRunThresholdUsd = readProviderSmo
     provider: MODEL.servingProvider,
     inferenceRegion: MODEL.inferenceRegion,
     tokens,
-    reservedCredits: APPLICATION_CREDIT_RESERVATION,
+    reservedMicrocents: agentCreditsToMicrocents(APPLICATION_CREDIT_RESERVATION),
     providerCharge: {
       billed: true,
       measuredCostMicrocents: authoritativeMicrocents,
@@ -557,7 +558,7 @@ export async function runLiveProviderSmoke(postRunThresholdUsd = readProviderSmo
   if (
     settlement.costSource !== "measured" ||
     settlement.costMicrocents !== authoritativeMicrocents ||
-    settlement.chargedCredits < 1 ||
+    settlement.chargedMicrocents !== authoritativeMicrocents ||
     settlement.policyBreach
   )
     fail("settlement", "Application credit conversion did not preserve the all-in Gateway debit.");
@@ -576,7 +577,7 @@ export async function runLiveProviderSmoke(postRunThresholdUsd = readProviderSmo
     applicationCredits: {
       costSource: settlement.costSource,
       costMicrocents: settlement.costMicrocents,
-      chargedCredits: settlement.chargedCredits,
+      chargedMicrocents: settlement.chargedMicrocents,
       policyBreach: settlement.policyBreach,
     },
     generations: receipts.map((receipt) => ({

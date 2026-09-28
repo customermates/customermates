@@ -468,8 +468,8 @@
       },
       "contact": "Nous contacter",
       "planAndReset": "Formule {plan} · réinitialisation le {resetAt}",
-      "recentTurn": "{credits, plural, one {Dernière demande : # crédit} other {Dernière demande : # crédits}}",
-      "remaining": "{remaining, number} crédits restants sur {limit, number}",
+      "recentTurn": "{credits, plural, one {Dernière demande : {amount} crédit} other {Dernière demande : {amount} crédits}}",
+      "remaining": "{credits, plural, one {{remaining} crédit restant sur {limit}} other {{remaining} crédits restants sur {limit}}}",
       "resetShort": "Réinitialisation le {resetAt}",
       "usage": "{pct} % des crédits IA hébergés mensuels utilisés",
       "viewPlans": "Voir les formules"
@@ -3155,7 +3155,7 @@
   "OperatorUsers": {
     "adjustment": {
       "deltaLabel": "Correction de crédits signée",
-      "deltaPlaceholder": "Par exemple, 500 ou -100",
+      "deltaPlaceholder": "Par exemple, 500, 2,5 ou -100",
       "expiresAt": "Cette correction ne vaut que pour la période en cours et expire le {date}."
     },
     "confirm": {
@@ -3180,7 +3180,7 @@
     "emptyTitle": "Aucun utilisateur ne correspond à ces filtres",
     "modal": {
       "access": "Accès",
-      "adjustmentConfirm": "Appliquer une correction de {value} crédits à {name} ?",
+      "adjustmentConfirm": "{credits, plural, one {Appliquer une correction de {amount} crédit à {name} ?} other {Appliquer une correction de {amount} crédits à {name} ?}}",
       "identity": "{person} · {email}"
     },
     "navigation": "Utilisateurs",
@@ -3549,7 +3549,7 @@
     "manageWithLemonSqueezy": "Gérer avec Lemon Squeezy",
     "picker": {
       "connectedAccountsPerUser": "{accounts, plural, one {# compte connecté par utilisateur} other {# comptes connectés par utilisateur}}",
-      "creditNote": "Les crédits IA hébergés sont renouvelés chaque mois ; les crédits non utilisés ne sont pas reportés. Les clients MCP externes utilisent votre propre fournisseur d'IA et ne consomment pas ces crédits.",
+      "creditNote": "Les crédits IA hébergés sont renouvelés chaque mois ; les crédits non utilisés ne sont pas reportés. Chaque demande est facturée à son coût exact chez le fournisseur, affiché avec une décimale. Les clients MCP externes utilisent votre propre fournisseur d'IA et ne consomment pas ces crédits.",
       "features": {
         "business": ["Tout ce qui est inclus dans Pro", "Comptes partagés et assistance prioritaire"],
         "pro": ["Tout ce qui est inclus dans Starter", "Boîte de réception unifiée"],

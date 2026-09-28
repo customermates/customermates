@@ -130,20 +130,26 @@ export const SYNTHETIC_HOSTED_AI_ORDINARY_USER = {
 
 export const SYNTHETIC_HOSTED_AI_USAGE = {
   released: {
+    chargedMicrocents: 0n,
     chargedCredits: 0,
     costMicrocents: 0n,
+    reservedMicrocents: 10_000_000n,
     reservedCredits: 10,
     state: "released",
   },
   reserved: {
+    chargedMicrocents: 0n,
     chargedCredits: 0,
     costMicrocents: 0n,
+    reservedMicrocents: 25_000_000n,
     reservedCredits: 25,
     state: "reserved",
   },
   settled: {
+    chargedMicrocents: 17_634_210n,
     chargedCredits: 18,
-    costMicrocents: 18_000_000n,
+    costMicrocents: 17_634_210n,
+    reservedMicrocents: 40_000_000n,
     reservedCredits: 40,
     state: "settled",
   },
@@ -255,6 +261,7 @@ export async function seedHostedAiOperatorFixtures(context: SeedContext, now = n
   });
 
   const commonUsage = {
+    allowanceMicrocentsSnapshot: 500_000_000n,
     allowanceCreditsSnapshot: 500,
     companyId: ids.hostedAiFixtureCompany,
     model: MODEL_CATALOG.balanced.modelId,

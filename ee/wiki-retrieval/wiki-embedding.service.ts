@@ -17,7 +17,7 @@ export function isWikiSemanticSearchAvailable() {
 export class WikiEmbeddingService {
   constructor(private usage: AgentUsageService) {}
 
-  async authorize(payer: WikiEmbeddingPayer): Promise<AgentRetrievalGrant | null> {
+  async authorizeQuery(payer: WikiEmbeddingPayer): Promise<AgentRetrievalGrant | null> {
     if (!isWikiSemanticSearchAvailable()) return null;
     try {
       return await this.usage.prepareRetrieval(payer.id);
@@ -27,14 +27,19 @@ export class WikiEmbeddingService {
     }
   }
 
-  async embedTexts(
-    payer: WikiEmbeddingPayer,
-    grant: AgentRetrievalGrant,
-    texts: string[],
-    kind: WikiEmbeddingKind,
-  ): Promise<number[][]> {
+  async authorizeIndexing(companyId: string): Promise<AgentRetrievalGrant | null> {
+    if (!isWikiSemanticSearchAvailable()) return null;
+    try {
+      return await this.usage.prepareWorkspaceIndexing(companyId);
+    } catch (error) {
+      Sentry.captureException(error);
+      return null;
+    }
+  }
+
+  async embedTexts(grant: AgentRetrievalGrant, texts: string[], kind: WikiEmbeddingKind): Promise<number[][]> {
     const { vectors, charge } = await embedWikiTexts(texts, kind);
-    await this.usage.accrueRetrieval({ companyId: payer.companyId, userId: payer.id, grant, charge });
+    await this.usage.accrueRetrieval({ grant, charge });
     return vectors;
   }
 }

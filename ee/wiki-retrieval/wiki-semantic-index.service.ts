@@ -36,15 +36,14 @@ export class WikiSemanticIndexService extends UserAccessor {
   }
 
   async indexStalePages(): Promise<{ indexed: number; remaining: boolean }> {
-    const payer = { id: this.userId, companyId: this.companyId };
-    if (!(await this.repo.semanticIndexAvailable()) || !(await this.embeddings.authorize(payer)))
+    if (!(await this.repo.semanticIndexAvailable()) || !(await this.embeddings.authorizeIndexing(this.companyId)))
       return { indexed: 0, remaining: false };
 
     const pages = await this.repo.claimStaleSemanticPages(WIKI_EMBEDDING_MODEL, WIKI_SEMANTIC_INDEX_BATCH_PAGES);
     let indexed = 0;
     try {
       for (const page of pages) {
-        const grant = await this.embeddings.authorize(payer);
+        const grant = await this.embeddings.authorizeIndexing(this.companyId);
         if (!grant) return { indexed, remaining: false };
 
         const chunks = wikiSemanticChunks(page.title, page.markdown);
@@ -57,7 +56,6 @@ export class WikiSemanticIndexService extends UserAccessor {
         for (let start = 0; start < missing.length; start += WIKI_EMBEDDING_BATCH_SIZE) {
           const batch = missing.slice(start, start + WIKI_EMBEDDING_BATCH_SIZE);
           const vectors = await this.embeddings.embedTexts(
-            payer,
             grant,
             batch.map((chunk) => chunk.text),
             "document",

@@ -30,17 +30,16 @@ export class WikiSemanticQueryEmbedder extends UserAccessor implements WikiQuery
   }
 
   async embedQuery(query: string): Promise<{ vector: number[]; model: string } | null> {
-    const payer = { id: this.userId, companyId: this.companyId };
-    const grant = await this.embeddings.authorize(payer);
+    const grant = await this.embeddings.authorizeQuery({ id: this.userId, companyId: this.companyId });
     if (!grant) return null;
 
     const text = query.normalize("NFC").replace(/\s+/gu, " ").trim();
-    const key = `${WIKI_EMBEDDING_MODEL}\u0000${text}`;
+    const key = `${this.companyId}\u0000${WIKI_EMBEDDING_MODEL}\u0000${text}`;
     const known = cached(key);
     if (known) return { vector: known, model: WIKI_EMBEDDING_MODEL };
 
     try {
-      const [vector] = await this.embeddings.embedTexts(payer, grant, [text], "query");
+      const [vector] = await this.embeddings.embedTexts(grant, [text], "query");
       remember(key, vector);
       return { vector, model: WIKI_EMBEDDING_MODEL };
     } catch (error) {

@@ -38,20 +38,19 @@ function conceptVector(text: string): number[] {
   return vector;
 }
 
-const GRANT = {
+const GRANT_PERIOD = {
   planSnapshot: "pro",
   subscriptionStatusSnapshot: "active",
-  allowanceCreditsSnapshot: 100,
+  allowanceMicrocentsSnapshot: 100_000_000,
   periodStart: new Date(Date.UTC(2026, 8, 1)),
   periodEnd: new Date(Date.UTC(2026, 9, 1)),
-} as never;
+} as const;
 
 function fakeEmbeddings(authorized = true) {
-  const embedTexts = vi.fn((_payer: unknown, _grant: unknown, texts: string[]) =>
-    Promise.resolve(texts.map(conceptVector)),
-  );
+  const embedTexts = vi.fn((_grant: unknown, texts: string[]) => Promise.resolve(texts.map(conceptVector)));
   const service = {
-    authorize: vi.fn(() => Promise.resolve(authorized ? GRANT : null)),
+    authorizeQuery: vi.fn(() => Promise.resolve(authorized ? GRANT_PERIOD : null)),
+    authorizeIndexing: vi.fn(() => Promise.resolve(authorized ? GRANT_PERIOD : null)),
     embedTexts,
   } as unknown as WikiEmbeddingService;
   return { service, embed: embedTexts };
@@ -126,7 +125,7 @@ describeDatabase("Workspace Wiki semantic retrieval on PostgreSQL with pgvector"
       { ordinal: 1, section: "Annual plans", model: WIKI_EMBEDDING_MODEL, dims: WIKI_EMBEDDING_DIMENSIONS },
       { ordinal: 2, section: "Monthly plans", model: WIKI_EMBEDDING_MODEL, dims: WIKI_EMBEDDING_DIMENSIONS },
     ]);
-    expect(first.embed.mock.calls.flatMap(([, , texts]) => texts)).toHaveLength(3);
+    expect(first.embed.mock.calls.flatMap(([, texts]) => texts)).toHaveLength(3);
 
     await client.query(
       `UPDATE "WikiPage" SET "markdown" = replace("markdown", 'No refund.', 'No refund after renewal.'), "updatedAt" = now() WHERE "id" = $1`,
@@ -134,7 +133,7 @@ describeDatabase("Workspace Wiki semantic retrieval on PostgreSQL with pgvector"
     );
     const second = fakeEmbeddings();
     expect(await indexAll(user, second.service)).toBe(1);
-    expect(second.embed.mock.calls.flatMap(([, , texts]) => texts)).toEqual([
+    expect(second.embed.mock.calls.flatMap(([, texts]) => texts)).toEqual([
       "Customer Refund Policy > Monthly plans\n\nNo refund after renewal.",
     ]);
     expect(await indexAll(user, fakeEmbeddings().service)).toBe(0);
@@ -239,31 +238,52 @@ describeDatabase("Workspace Wiki semantic retrieval on PostgreSQL with pgvector"
     expect(embed).not.toHaveBeenCalled();
   });
 
-  it("accrues retrieval cost on one monthly row per credit period without touching the last turn charge", async () => {
+  it("accrues the exact retrieval cost on one monthly row per payer and credit period", async () => {
     const repo = new PrismaAgentChatRepo();
     const now = new Date(Date.UTC(2026, 8, 15));
-    const accrue = (costMicrocents: number) =>
+    const accrue = (costMicrocents: number, userId: string | null) =>
       repo.accrueRetrievalUsageUnscoped({
-        companyId,
-        userId: user.id,
-        grant: GRANT,
+        grant: {
+          ...GRANT_PERIOD,
+          purpose: userId ? "wikiRetrieval" : "wikiIndexing",
+          companyId,
+          userId,
+        },
         charge: { model: WIKI_EMBEDDING_MODEL, inputTokens: 10, costMicrocents, costSource: "measured" },
         now,
       });
-    await accrue(400_000);
-    await accrue(700_000);
+    await accrue(400_000, user.id);
+    await accrue(700_001, user.id);
+    await accrue(37, null);
+    await accrue(5, null);
 
     const rows = await client.query(
-      `SELECT "purpose", "state", "costMicrocents"::int AS cost, "chargedCredits", "inputTokens",
-        to_char("accrualMonth", 'YYYY-MM-DD') AS "accrualMonth" FROM "AgentUsageEvent" WHERE "companyId" = $1`,
+      `SELECT "purpose", "userId", "state", "costMicrocents"::int AS cost, "chargedMicrocents"::int AS charged,
+        "reservedMicrocents"::int AS reserved, "chargedCredits", "inputTokens",
+        to_char("accrualMonth", 'YYYY-MM-DD') AS "accrualMonth" FROM "AgentUsageEvent" WHERE "companyId" = $1
+        ORDER BY "purpose"`,
       [companyId],
     );
     expect(rows.rows).toEqual([
       {
         purpose: "wikiRetrieval",
+        userId: user.id,
         state: "settled",
-        cost: 1_100_000,
+        cost: 1_100_001,
+        charged: 1_100_001,
+        reserved: 1_100_001,
         chargedCredits: 2,
+        inputTokens: 20,
+        accrualMonth: "2026-09-01",
+      },
+      {
+        purpose: "wikiIndexing",
+        userId: null,
+        state: "settled",
+        cost: 42,
+        charged: 42,
+        reserved: 42,
+        chargedCredits: 1,
         inputTokens: 20,
         accrualMonth: "2026-09-01",
       },
@@ -274,6 +294,6 @@ describeDatabase("Workspace Wiki semantic retrieval on PostgreSQL with pgvector"
       new Date(Date.UTC(2026, 8, 1)),
       new Date(Date.UTC(2026, 9, 1)),
     );
-    expect(usage).toEqual({ usedCredits: 2, recentTurnCredits: null });
+    expect(usage).toEqual({ usedMicrocents: 1_100_001, recentTurnMicrocents: null });
   });
 });
