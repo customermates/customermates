@@ -66,6 +66,10 @@
         "widgets": {
           "configure": "Prêt à modifier les widgets du tableau de bord",
           "delete": "Prêt à supprimer définitivement un widget du tableau de bord"
+        },
+        "workspace": {
+          "settings": "Prêt à modifier les paramètres de l’espace de travail, y compris les noms des types d’enregistrement",
+          "terminology": "Prêt à renommer des types d’enregistrement pour tout l’espace de travail"
         }
       },
       "cancelled": "Arrêté",
@@ -242,6 +246,11 @@
           }
         },
         "records": {
+          "analyze": {
+            "done": "Analyse de {resource} terminée",
+            "error": "Impossible d’analyser {resource}",
+            "running": "Analyse de {resource} en cours"
+          },
           "create": {
             "done": "{count, plural, one {Création de {target} terminée} other {Création de {target} terminée}}",
             "error": "{count, plural, one {Impossible de créer {target}} other {Impossible de créer {target}}}",

@@ -132,7 +132,7 @@ Dragging a card changes the value only when the board (kanban) groups by a `sing
 
 The demo workspace ships example columns to illustrate the pattern, for instance a "Status" column on deals (Open, Won, Lost, Abandoned), "Status" and "Priority" columns on tasks, and a "Sales Pipeline" column on contacts. These are seeded examples, not fixed behavior. Rename them, change their options, add more, or remove them per workspace.
 
-Records link to other records through labeled relation fields inside the form. Pick the records, then save. Over MCP, `manage_record_links` adds or removes single links.
+Records link to other records through labeled relation fields inside the form. Pick the records, then save. Over MCP, `manage_record_links` adds or removes single links, or replaces a relation's links in one call.
 
 **Link:** the **Deals** page, `/deals`, or the **Tasks** page, `/tasks`. **Mate:** `navigate` and `highlight_element` with `deals-display-options` (or `tasks-display-options`) for **Group By**, then `deals-layout-board` once **Appearance** is open; the board columns, the cards and **Edit Field** are not highlight targets, so Mate names them.
 

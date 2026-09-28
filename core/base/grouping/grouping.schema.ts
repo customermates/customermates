@@ -33,6 +33,8 @@ export type GroupPageRequest = Data<typeof GroupPageRequestSchema>;
 
 export type GroupLabelKind = "value" | "noValue" | "unavailable";
 
+export type GroupOverflow = { shown: number; withRecords: boolean };
+
 export type DataViewGroup = {
   key: string;
   count: number;
@@ -59,7 +61,7 @@ export type GroupingResult = {
   groups: DataViewGroup[];
   total: number;
   membershipTotal?: number;
-  overflow?: { shown: number };
+  overflow?: GroupOverflow;
   partial?: boolean;
 };
 

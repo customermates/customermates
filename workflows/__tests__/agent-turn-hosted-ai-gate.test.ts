@@ -1,6 +1,8 @@
 import { beforeEach, describe, expect, it, vi } from "vitest";
+import type { AgentToolDeps } from "@/ee/agent-chat/agent-tools";
 
 import type * as LocaleRegistry from "@/i18n/locale-registry";
+import type * as BudgetPolicy from "@/ee/agent-chat/agent-budget-policy";
 
 type WorkflowTool = {
   needsApproval: (input: unknown, options: { toolCallId: string }) => Promise<boolean>;
@@ -18,6 +20,8 @@ const state = vi.hoisted(() => ({
   gateResults: [] as boolean[],
   gateFailure: null as Error | null,
   contextFits: vi.fn(),
+  budgetFits: vi.fn(),
+  approvedCallsRunFirst: false,
   providerCalls: 0,
   writes: [] as unknown[],
   markProviderStarted: vi.fn<() => Promise<boolean>>(),
@@ -40,63 +44,121 @@ const state = vi.hoisted(() => ({
   recordRound: vi.fn(),
   extendReservation: vi.fn(),
   instructions: [] as string[],
+  toolDeps: [] as AgentToolDeps[],
+  toolCharges: [] as unknown[],
 }));
 
-vi.mock("@ai-sdk/workflow", () => ({
-  WorkflowAgent: class {
-    constructor(
-      private readonly options: {
-        prepareStep: (input: { messages: unknown[] }) => Promise<unknown>;
-        onStepEnd: (step: unknown) => Promise<void>;
-        onToolExecutionEnd: (event: unknown) => void;
-        instructions: string;
-        providerOptions: unknown;
-        tools: Record<string, WorkflowTool>;
-      },
-    ) {
-      state.providerOptions = options.providerOptions;
-      state.instructions.push(options.instructions);
-    }
+vi.mock("@ai-sdk/workflow", () => {
+  type Part = {
+    type?: string;
+    approvalId?: string;
+    toolCallId?: string;
+    toolName?: string;
+    input?: unknown;
+    approved?: boolean;
+    reason?: string;
+  };
+  type Message = { role?: string; content?: unknown };
+  const partsOf = (message: Message) => (Array.isArray(message.content) ? (message.content as Part[]) : []);
 
-    async stream({ messages }: { messages: unknown[] }) {
-      const preparedMessages = (nextMessages: unknown[]) => [
-        { role: "system", content: this.options.instructions },
-        ...nextMessages,
-      ];
-      if (state.runTools) {
+  async function runApprovedCalls(tools: Record<string, WorkflowTool>, messages: unknown[]) {
+    const calls = new Map<string, Part>();
+    const requested = new Map<string, string>();
+    for (const message of messages as Message[]) {
+      if (message.role !== "assistant") continue;
+      for (const part of partsOf(message)) {
+        if (part.type === "tool-call") calls.set(String(part.toolCallId), part);
+        if (part.type === "tool-approval-request") requested.set(String(part.approvalId), String(part.toolCallId));
+      }
+    }
+    const results: unknown[] = [];
+    for (const message of messages as Message[]) {
+      if (message.role !== "tool") continue;
+      for (const part of partsOf(message)) {
+        if (part.type !== "tool-approval-response") continue;
+        const call = calls.get(requested.get(String(part.approvalId)) ?? "");
+        if (!call) continue;
+        const toolCallId = String(call.toolCallId);
+        const toolName = String(call.toolName);
+        const output = part.approved
+          ? { type: "json", value: await tools[toolName].execute?.(call.input, { toolCallId }) }
+          : { type: "execution-denied", reason: part.reason };
+        results.push({ type: "tool-result", toolCallId, toolName, output });
+      }
+    }
+    if (results.length === 0) return messages;
+    const cleaned = (messages as Message[]).flatMap((message) => {
+      if (!Array.isArray(message.content)) return [message];
+      const content = partsOf(message).filter(
+        (part) => part.type !== "tool-approval-request" && part.type !== "tool-approval-response",
+      );
+      return content.length > 0 ? [{ ...message, content }] : [];
+    });
+    return [...cleaned, { role: "tool", content: results }];
+  }
+
+  return {
+    WorkflowAgent: class {
+      constructor(
+        private readonly options: {
+          prepareStep: (input: { messages: unknown[] }) => Promise<unknown>;
+          onStepEnd: (step: unknown) => Promise<void>;
+          onToolExecutionEnd: (event: unknown) => void;
+          instructions: string;
+          providerOptions: unknown;
+          tools: Record<string, WorkflowTool>;
+        },
+      ) {
+        state.providerOptions = options.providerOptions;
+        state.instructions.push(options.instructions);
+      }
+
+      async stream({ messages }: { messages: unknown[] }) {
+        if (messages.some((message) => (message as { role?: string }).role === "system")) {
+          throw new Error(
+            "System messages are not allowed in the prompt or messages fields. Use the instructions option instead.",
+          );
+        }
+        const preparedMessages = (nextMessages: unknown[]) => [
+          { role: "system", content: this.options.instructions },
+          ...nextMessages,
+        ];
+        if (state.runTools) {
+          const prompt = state.approvedCallsRunFirst ? await runApprovedCalls(this.options.tools, messages) : messages;
+          await this.options.prepareStep({ messages: preparedMessages(prompt) });
+          state.providerCalls += 1;
+          return state.runTools({
+            tools: this.options.tools,
+            messages: prompt,
+            completeStepAndPrepareNext: async (step, nextMessages = messages) => {
+              await this.options.onStepEnd(step);
+              await this.options.prepareStep({ messages: preparedMessages(nextMessages) });
+              state.providerCalls += 1;
+            },
+            executeAndCompleteTool: async (toolName, input, toolCallId) => {
+              const tool = this.options.tools[toolName];
+              if (!tool?.execute) throw new Error(`Tool ${toolName} cannot execute.`);
+              const output = await tool.execute(input, { toolCallId });
+              this.options.onToolExecutionEnd({
+                success: true,
+                toolCall: { toolCallId, toolName },
+                output,
+              });
+              return output;
+            },
+          });
+        }
         await this.options.prepareStep({ messages: preparedMessages(messages) });
         state.providerCalls += 1;
-        return state.runTools({
-          tools: this.options.tools,
-          messages,
-          completeStepAndPrepareNext: async (step, nextMessages = messages) => {
-            await this.options.onStepEnd(step);
-            await this.options.prepareStep({ messages: preparedMessages(nextMessages) });
-            state.providerCalls += 1;
-          },
-          executeAndCompleteTool: async (toolName, input, toolCallId) => {
-            const tool = this.options.tools[toolName];
-            if (!tool?.execute) throw new Error(`Tool ${toolName} cannot execute.`);
-            const output = await tool.execute(input, { toolCallId });
-            this.options.onToolExecutionEnd({
-              success: true,
-              toolCall: { toolCallId, toolName },
-              output,
-            });
-            return output;
-          },
-        });
+
+        await this.options.prepareStep({ messages: preparedMessages(messages) });
+        state.providerCalls += 1;
+
+        return { finishReason: "stop", messages: [], steps: [] };
       }
-      await this.options.prepareStep({ messages: preparedMessages(messages) });
-      state.providerCalls += 1;
-
-      await this.options.prepareStep({ messages: preparedMessages(messages) });
-      state.providerCalls += 1;
-
-      return { finishReason: "stop", messages: [], steps: [] };
-    }
-  },
-}));
+    },
+  };
+});
 
 vi.mock("workflow", () => ({
   createHook: () => ({
@@ -158,15 +220,26 @@ vi.mock("@/ee/agent-chat/agent-tools", () => ({
     if (state.toolLoadFailure) throw new Error("tool shell unavailable");
     return state.definitions.map((definition: { name: string }) => ({ ...definition, toolset: null }));
   },
-  getAgentAiTools: () => Object.fromEntries(state.definitions.map(({ name }) => [name, { execute: state.execute }])),
+  getAgentAiTools: (deps: AgentToolDeps) => {
+    state.toolDeps.push(deps);
+    return Object.fromEntries(state.definitions.map(({ name }) => [name, { execute: state.execute }]));
+  },
   normalizeAgentAiToolInput: state.normalize,
+  AGENT_HOSTED_TOOL_ANNOTATIONS: { analyze_records: { readOnlyHint: true } },
 }));
 vi.mock("@/features/mcp-tools/tool-registry", () => ({
   ALL_MCP_TOOLS: [
     { name: "list_users", annotations: { readOnlyHint: true } },
     { name: "manage_widgets", annotations: { readOnlyHint: false } },
     { name: "delete_records", annotations: { readOnlyHint: false } },
+    { name: "update_workspace_settings", annotations: { readOnlyHint: false } },
   ],
+}));
+vi.mock("@/ee/agent-chat/classifier/metered", () => ({
+  collectClassifierCharges: async (run: () => Promise<unknown>) => ({
+    value: await run(),
+    charges: state.toolCharges.splice(0),
+  }),
 }));
 vi.mock("@/ee/agent-chat/system-prompt", () => ({
   buildAgentSystemPrompt: () => "system",
@@ -176,6 +249,14 @@ vi.mock("@/ee/agent-chat/agent-provider-context", () => ({
   buildAgentProviderContext: (system: string, messages: unknown[], tools: unknown[]) => ({ messages, system, tools }),
   isAgentStepContextWithinBudget: (...args: unknown[]) => state.contextFits(...args),
 }));
+vi.mock("@/ee/agent-chat/agent-budget-policy", async (importOriginal) => {
+  const actual = await importOriginal<typeof BudgetPolicy>();
+  return {
+    ...actual,
+    isAgentContextWithinBudget: (...args: Parameters<typeof actual.isAgentContextWithinBudget>) =>
+      (state.budgetFits(...args) as boolean | undefined) ?? actual.isAgentContextWithinBudget(...args),
+  };
+});
 vi.mock("@/i18n/get-translator", () => ({
   getTranslator: () => Promise.resolve((key: string) => `localized:${key}`),
 }));
@@ -190,6 +271,8 @@ vi.mock("../capture-failure", () => ({
 }));
 
 import { runAgentTurn, type AgentTurnWorkflowPayload } from "../agent-turn";
+import { approvalDenialReason } from "@/ee/agent-chat/agent-approval-resume";
+import { agentContextProviderPrefix } from "@/ee/agent-chat/agent-context";
 
 const payload: AgentTurnWorkflowPayload = {
   turnRequestId: "turn-1",
@@ -224,6 +307,7 @@ beforeEach(() => {
   state.toolLoadFailure = false;
   state.providerOptions = null;
   state.definitions = [];
+  state.toolDeps = [];
   state.runTools = null;
   state.normalize.mockReset();
   state.execute.mockReset().mockResolvedValue({ ok: true, result: "done" });
@@ -240,7 +324,10 @@ beforeEach(() => {
       Promise.resolve({ disposition: "extended", reservedCredits: requiredCredits }),
     );
   state.contextFits.mockReset().mockReturnValue(true);
+  state.budgetFits.mockReset();
+  state.approvedCallsRunFirst = false;
   state.instructions.length = 0;
+  state.toolCharges = [];
   state.reconcile.mockReset().mockResolvedValue({ reconciled: true });
   state.close.mockReset().mockResolvedValue(undefined);
   state.reportFailure.mockReset().mockResolvedValue(undefined);
@@ -615,6 +702,11 @@ describe("agent-turn credit-bounded continuation", () => {
     await runAgentTurn(payload);
 
     expect(state.reportFailure).toHaveBeenCalledTimes(3);
+    expect(state.reportFailure.mock.calls.map((call) => /attempt (\d) of 3/.exec(call[1].message)?.[1])).toEqual([
+      "1",
+      "2",
+      "3",
+    ]);
     expect(state.finalize).toHaveBeenCalledWith(expect.objectContaining({ stopReason: "provider_error" }));
   });
 
@@ -653,6 +745,49 @@ describe("agent-turn credit-bounded continuation", () => {
     expect(state.finalize).toHaveBeenCalledWith(
       expect.objectContaining({ terminalCode: "completed", stopReason: null }),
     );
+  });
+
+  describe("benchmark tool output recording", () => {
+    const runOneToolRound = async (recordToolOutputs: boolean | undefined) => {
+      state.definitions.push({ name: "list_records", description: "list_records", inputSchema: { type: "object" } });
+      state.normalize.mockResolvedValue({ ok: true, input: { entity: "deal" } });
+      state.execute.mockResolvedValue({ ok: true, result: "total: 42" });
+      state.runTools = async ({ messages, executeAndCompleteTool }) => {
+        await executeAndCompleteTool("list_records", { entity: "deal" }, "call-recorded");
+        return {
+          finishReason: "stop",
+          messages,
+          steps: [
+            streamedToolCallStep("list_records", "call-recorded", { entity: "deal" }),
+            streamedStep("Done.", "stop"),
+          ],
+        };
+      };
+      await runAgentTurn(recordToolOutputs === undefined ? payload : { ...payload, recordToolOutputs });
+      return state.recordRound.mock.calls.flatMap(([args]) => (args as { parts: unknown[] }).parts);
+    };
+
+    it("stores the output text next to the tool call when the benchmark asks for it", async () => {
+      const parts = await runOneToolRound(true);
+
+      expect(parts).toContainEqual(
+        expect.objectContaining({
+          type: "benchmark-tool-output",
+          toolCallId: "call-recorded",
+          toolName: "list_records",
+          ok: true,
+          text: "total: 42",
+        }),
+      );
+      expect(state.finalize).toHaveBeenCalledWith(expect.objectContaining({ terminalCode: "completed" }));
+    });
+
+    it("stores no output for an ordinary turn", async () => {
+      const parts = await runOneToolRound(undefined);
+
+      expect(parts).toContainEqual(expect.objectContaining({ type: "tool-call", toolCallId: "call-recorded" }));
+      expect(parts).not.toContainEqual(expect.objectContaining({ type: "benchmark-tool-output" }));
+    });
   });
 
   it("adaptively retains only the current partial output when two large length steps do not fit", async () => {
@@ -878,7 +1013,14 @@ describe("agent-turn terminal reasons", () => {
 
     await runAgentTurn(payload);
 
-    expect(state.reportFailure).toHaveBeenCalledWith("agent-turn", failure, payload.tenant);
+    expect(state.reportFailure).toHaveBeenCalledWith(
+      "agent-turn",
+      expect.objectContaining({
+        name: failure.name,
+        message: "Agent round failed while applying its result: round persistence unavailable",
+      }),
+      payload.tenant,
+    );
     expect(state.finalize).toHaveBeenCalledWith(
       expect.objectContaining({ terminalCode: "partial", stopReason: "turn_error" }),
     );
@@ -1044,6 +1186,22 @@ describe("agent-turn authoritative tool inputs", () => {
     expect(state.createApproval).not.toHaveBeenCalled();
   });
 
+  it("asks for a fresh approval before renaming record types, and not for a currency change", async () => {
+    define("update_workspace_settings");
+    const rename = { target: "company", terminology: [{ entityType: "deal", presetKey: "opportunity" }] };
+    const currency = { target: "company", currency: "EUR" };
+    state.normalize.mockImplementation((_name: string, value: unknown) => Promise.resolve({ ok: true, input: value }));
+    state.runTools = async ({ tools }) => {
+      expect(await tools.update_workspace_settings.needsApproval(rename, { toolCallId: "call-1" })).toBe(true);
+      expect(await tools.update_workspace_settings.needsApproval(currency, { toolCallId: "call-2" })).toBe(false);
+      return finish();
+    };
+
+    await runAgentTurn(payload);
+
+    expect(state.normalize).toHaveBeenCalledTimes(2);
+  });
+
   it("does not approve or execute invalid write input", async () => {
     define("delete_records");
     const invalid = { ok: false, result: "Validation error: missing ids" };
@@ -1070,11 +1228,13 @@ describe("agent-turn authoritative tool inputs", () => {
       state.normalize.mockResolvedValue({ ok: true, input: normalized });
       state.readApproval.mockResolvedValue(decision === "timeout" ? null : { toolName: "delete_records", decision });
       let round = 0;
+      let resumed = "";
       state.runTools = async ({ tools, messages }) => {
         if (round++ === 0) {
           expect(await tools.delete_records.needsApproval(raw, { toolCallId: "call-1" })).toBe(true);
           return { finishReason: "tool-calls", messages: [pendingMessage("delete_records", raw)], steps: [] };
         }
+        resumed = JSON.stringify(messages);
         expect(JSON.stringify(messages)).toContain(`"approved":${decision === "approve"}`);
         if (decision === "approve") {
           expect(await tools.delete_records.needsApproval(raw, { toolCallId: "call-1" })).toBe(true);
@@ -1096,8 +1256,700 @@ describe("agent-turn authoritative tool inputs", () => {
       );
       if (decision === "approve") expect(state.execute).toHaveBeenCalledWith(normalized, expect.anything());
       else expect(state.execute).not.toHaveBeenCalled();
+      if (decision === "approve") expect(resumed).not.toContain('"reason"');
+      else expect(resumed).toContain(JSON.stringify(approvalDenialReason(decision as "reject" | "timeout")));
     },
   );
+
+  function approvedDeleteThenError(thirdSegment: () => Promise<unknown>) {
+    define("delete_records");
+    const input = { entity: "contact", ids: ["record-1"] };
+    state.normalize.mockResolvedValue({ ok: true, input });
+    state.readApproval.mockResolvedValue({ toolName: "delete_records", decision: "approve" });
+    const seen: string[] = [];
+    let segment = 0;
+    state.runTools = async ({ tools, messages, completeStepAndPrepareNext }) => {
+      segment += 1;
+      seen.push(JSON.stringify(messages));
+      if (segment === 1) {
+        await tools.delete_records.needsApproval(input, { toolCallId: "call-1" });
+        await completeStepAndPrepareNext(streamedToolCallStep("delete_records", "call-1", input));
+        return { finishReason: "tool-calls", messages: [pendingMessage("delete_records", input)], steps: [] };
+      }
+      if (segment === 2) {
+        const output = await executeTool(tools.delete_records, input);
+        return {
+          finishReason: "error",
+          messages: [
+            { role: "system", content: "instructions" },
+            pendingMessage("delete_records", input),
+            {
+              role: "tool",
+              content: [
+                {
+                  type: "tool-result",
+                  toolName: "delete_records",
+                  toolCallId: "call-1",
+                  output: { type: "json", value: output },
+                },
+              ],
+            },
+          ],
+          steps: [streamedStep("", "error")],
+          error: new Error("Vertex said no"),
+        };
+      }
+      return thirdSegment();
+    };
+    return { seen, segments: () => segment };
+  }
+
+  it("retries after an approved tool ran without resending the approval or running the tool again", async () => {
+    const run = approvedDeleteThenError(() => Promise.resolve(finish()));
+
+    await runAgentTurn(payload);
+
+    expect(run.segments()).toBe(3);
+    expect(run.seen[1]).toContain("tool-approval-response");
+    expect(run.seen[2]).not.toContain("tool-approval-response");
+    expect(run.seen[2]).toContain('"toolCallId":"call-1"');
+    expect(state.execute).toHaveBeenCalledTimes(1);
+    expect(state.finalize).toHaveBeenCalledWith(
+      expect.objectContaining({ terminalCode: "completed", affectedResources: ["contacts"] }),
+    );
+  });
+
+  it("keeps an approved write that ran as successful when the retry after it also fails", async () => {
+    approvedDeleteThenError(() =>
+      Promise.reject(
+        Object.assign(new Error("provider unavailable"), { [Symbol.for("vercel.ai.gateway.error")]: true }),
+      ),
+    );
+
+    await runAgentTurn(payload);
+
+    expect(state.execute).toHaveBeenCalledTimes(1);
+    expect(state.finalize).toHaveBeenCalledWith(
+      expect.objectContaining({ stopReason: "provider_error", affectedResources: ["contacts"] }),
+    );
+  });
+
+  function approvedDeleteRunByTheSdk(output: unknown, later: (segment: number, messages: unknown[]) => unknown) {
+    define("delete_records");
+    const input = { entity: "contact", ids: ["record-1"] };
+    state.approvedCallsRunFirst = true;
+    state.normalize.mockResolvedValue({ ok: true, input });
+    state.readApproval.mockResolvedValue({ toolName: "delete_records", decision: "approve" });
+    state.execute.mockResolvedValue(output);
+    const seen: string[] = [];
+    state.runTools = async ({ tools, messages }) => {
+      seen.push(JSON.stringify(messages));
+      if (seen.length > 1) return later(seen.length, messages);
+      await tools.delete_records.needsApproval(input, { toolCallId: "call-1" });
+      return {
+        finishReason: "tool-calls",
+        messages: [...messages, pendingMessage("delete_records", input)],
+        steps: [streamedToolCallStep("delete_records", "call-1", input)],
+      };
+    };
+    return seen;
+  }
+
+  const lockedDelete = { ok: false, result: "Nothing was deleted: the contact is locked by an open invoice." };
+
+  it("summarizes a failed approved write as failed once compaction drops it from the retained steps", async () => {
+    approvedDeleteRunByTheSdk(lockedDelete, (segment, messages) =>
+      segment === 2
+        ? {
+            finishReason: "tool-calls",
+            messages,
+            steps: Array.from({ length: 32 }, () => streamedStep("", "tool-calls")),
+          }
+        : finish(),
+    );
+    state.contextFits.mockReturnValueOnce(false);
+
+    await runAgentTurn(payload);
+
+    const checkpoint = state.instructions.at(-1) ?? "";
+    expect(checkpoint).toContain('"kind":"records.delete","status":"error"');
+    expect(checkpoint).toContain('"successfulWrites":0');
+    expect(state.execute).toHaveBeenCalledTimes(1);
+  });
+
+  it.each([
+    ["failed", lockedDelete],
+    ["successful", { ok: true, result: "Deleted 1 contact: Ada Lovelace." }],
+  ])("keeps the real result of a %s approved write in the retained steps after compaction", async (_label, output) => {
+    const seen = approvedDeleteRunByTheSdk(output, (segment, messages) =>
+      segment === 2 ? { finishReason: "tool-calls", messages, steps: [streamedStep("", "tool-calls")] } : finish(),
+    );
+    state.contextFits.mockReturnValueOnce(false);
+
+    await runAgentTurn(payload);
+
+    expect(seen).toHaveLength(3);
+    expect(seen[2]).toContain(output.result);
+    expect(seen[2]).not.toContain("Approval approve.");
+  });
+
+  it("reports a failed approved write as failed when the resumed segment must compact before its first round", async () => {
+    const seen = approvedDeleteRunByTheSdk(lockedDelete, (_segment, messages) => ({
+      finishReason: "stop",
+      messages: [...messages, { role: "assistant", content: [{ type: "text", text: "The contact is deleted." }] }],
+      steps: [streamedStep("The contact is deleted.", "stop")],
+    }));
+    state.budgetFits.mockReturnValueOnce(true).mockReturnValueOnce(false);
+
+    await runAgentTurn(payload);
+
+    expect(seen).toHaveLength(2);
+    expect(seen[1]).toContain(lockedDelete.result);
+    expect(seen[1]).not.toContain("Approval approve.");
+    const finalized = state.finalize.mock.calls.at(-1)?.[0] as {
+      affectedResources: string[];
+      parts: { type: string; id: string; status?: string }[];
+    };
+    expect(finalized.affectedResources).toEqual([]);
+    expect(finalized.parts).toContainEqual(
+      expect.objectContaining({ type: "activity", id: "call-1", status: "error" }),
+    );
+  });
+
+  function novaSearched(request: string) {
+    const nova = "11111111-1111-4111-8111-111111111111";
+    const nova2025 = "22222222-2222-4222-8222-222222222222";
+    const messages = [
+      { role: "user", content: request },
+      {
+        role: "assistant",
+        content: [
+          {
+            type: "tool-call",
+            toolName: "list_records",
+            toolCallId: "list-1",
+            input: { entity: "deal", searchTerm: "Nova Expansion" },
+          },
+        ],
+      },
+      {
+        role: "tool",
+        content: [
+          {
+            type: "tool-result",
+            toolCallId: "list-1",
+            toolName: "list_records",
+            output: {
+              type: "json",
+              value: {
+                ok: true,
+                result: `total: 2\nitems[2]{id,name}:\n  ${nova},Nova Expansion\n  ${nova2025},Nova Expansion 2025`,
+              },
+            },
+          },
+        ],
+      },
+    ];
+    return { nova, nova2025, messages };
+  }
+
+  it.each([
+    ["exactly one candidate", false],
+    ["both candidates", true],
+  ])("refuses a gated write to %s of several same-named records only when it names one", async (_label, both) => {
+    define("list_records");
+    define("delete_records");
+    const request = "Delete the Nova Expansion deal.";
+    const { nova, nova2025, messages: searched } = novaSearched(request);
+    const input = { entity: "deal", ids: both ? [nova, nova2025] : [nova] };
+    state.normalize.mockImplementation((_name: string, value: unknown) => Promise.resolve({ ok: true, input: value }));
+    state.readApproval.mockResolvedValue({ toolName: "delete_records", decision: "reject" });
+    let gated: boolean | undefined;
+    let output: unknown;
+    let round = 0;
+    state.runTools = async ({ tools, completeStepAndPrepareNext }) => {
+      if (round++ > 0) return finish();
+      await completeStepAndPrepareNext(
+        streamedToolCallStep("list_records", "list-1", { entity: "deal", searchTerm: "Nova Expansion" }),
+        searched,
+      );
+      gated = await tools.delete_records.needsApproval(input, { toolCallId: "call-1" });
+      if (!gated) {
+        output = await executeTool(tools.delete_records, input);
+        return finish();
+      }
+      return {
+        finishReason: "tool-calls",
+        messages: [...searched.slice(1), pendingMessage("delete_records", input)],
+        steps: [],
+      };
+    };
+
+    await runAgentTurn({ ...payload, messages: [{ role: "user", text: request }] });
+
+    expect(gated).toBe(both);
+    if (both) expect(state.createApproval).toHaveBeenCalledTimes(1);
+    else {
+      expect(output).toEqual({ ok: false, result: expect.stringContaining("More than one deal matches") });
+      expect(state.createApproval).not.toHaveBeenCalled();
+    }
+    expect(state.execute).not.toHaveBeenCalled();
+  });
+
+  it.each([
+    ["chat", true],
+    ["routine", false],
+  ] as const)(
+    "on the %s surface, refuses a write to one of several same-named records: %s",
+    async (surface, refused) => {
+      define("list_records");
+      define("update_deals");
+      const request = "Mark the Nova Expansion deal as Won.";
+      const { nova, messages: searched } = novaSearched(request);
+      const input = { deals: [{ id: nova }] };
+      state.normalize.mockImplementation((_name: string, value: unknown) =>
+        Promise.resolve({ ok: true, input: value }),
+      );
+      let output: unknown;
+      state.runTools = async ({ tools, completeStepAndPrepareNext }) => {
+        await completeStepAndPrepareNext(
+          streamedToolCallStep("list_records", "list-1", { entity: "deal", searchTerm: "Nova Expansion" }),
+          searched,
+        );
+        output = await executeTool(tools.update_deals, input);
+        return finish();
+      };
+
+      await runAgentTurn({ ...payload, surface, messages: [{ role: "user", text: request }] });
+
+      const refusal = { ok: false, result: expect.stringContaining("More than one deal matches") };
+      if (refused) {
+        expect(output).toEqual(refusal);
+        expect(state.execute).not.toHaveBeenCalled();
+      } else {
+        expect(output).not.toEqual(refusal);
+        expect(state.execute).toHaveBeenCalled();
+      }
+    },
+  );
+
+  it("lets a write to the record the user attached through, and still refuses its same-named sibling", async () => {
+    define("list_records");
+    define("update_deals");
+    const request = "Mark the Nova Expansion deal as Won.";
+    const attach = (recordId: string) =>
+      agentContextProviderPrefix([
+        { reference: { kind: "record", entityType: "deal", recordId }, label: "Nova Expansion" },
+      ]);
+    const { nova, nova2025 } = novaSearched(request);
+    const text = `${attach(nova)}${request}`;
+    const { messages: searched } = novaSearched(text);
+    state.normalize.mockImplementation((_name: string, value: unknown) => Promise.resolve({ ok: true, input: value }));
+    const outputs: unknown[] = [];
+    state.runTools = async ({ tools, completeStepAndPrepareNext }) => {
+      await completeStepAndPrepareNext(
+        streamedToolCallStep("list_records", "list-1", { entity: "deal", searchTerm: "Nova Expansion" }),
+        searched,
+      );
+      const update = tools.update_deals.execute;
+      if (!update) throw new Error("Tool cannot execute.");
+      outputs.push(await update({ deals: [{ id: nova2025 }] }, { toolCallId: "call-sibling" }));
+      outputs.push(await update({ deals: [{ id: nova }] }, { toolCallId: "call-attached" }));
+      return finish();
+    };
+
+    await runAgentTurn({ ...payload, messages: [{ role: "user", text }] });
+
+    expect(outputs[0]).toEqual({ ok: false, result: expect.stringContaining("More than one deal matches") });
+    expect(outputs[1]).toEqual({ ok: true, result: "done" });
+    expect(state.execute).toHaveBeenCalledTimes(1);
+    expect(state.execute).toHaveBeenCalledWith({ deals: [{ id: nova }] }, expect.anything());
+  });
+
+  it("keeps a same-named target armed after the read that armed it has left the context", async () => {
+    define("list_records");
+    define("delete_records");
+    const request = "Delete the Nova Expansion deal.";
+    const { nova, messages: searched } = novaSearched(request);
+    const input = { entity: "deal", ids: [nova] };
+    state.normalize.mockImplementation((_name: string, value: unknown) => Promise.resolve({ ok: true, input: value }));
+    let gated: boolean | undefined;
+    let output: unknown;
+    state.runTools = async ({ tools, completeStepAndPrepareNext }) => {
+      await completeStepAndPrepareNext(
+        streamedToolCallStep("list_records", "list-1", { entity: "deal", searchTerm: "Nova Expansion" }),
+        searched,
+      );
+      await completeStepAndPrepareNext(streamedStep("Checking.", "tool-calls"), [
+        { role: "user", content: request },
+        { role: "user", content: "Continue from where the previous output stopped." },
+      ]);
+      gated = await tools.delete_records.needsApproval(input, { toolCallId: "call-1" });
+      output = await executeTool(tools.delete_records, input);
+      return finish();
+    };
+
+    await runAgentTurn({ ...payload, messages: [{ role: "user", text: request }] });
+
+    expect(gated).toBe(false);
+    expect(output).toEqual({ ok: false, result: expect.stringContaining("More than one deal matches") });
+    expect(state.execute).not.toHaveBeenCalled();
+  });
+
+  it("widens an armed target with a later read of the same phrase instead of replacing it", async () => {
+    define("list_records");
+    define("delete_records");
+    const request = "Delete the Nova deal.";
+    const [a, b, c] = [
+      "11111111-1111-4111-8111-111111111111",
+      "22222222-2222-4222-8222-222222222222",
+      "33333333-3333-4333-8333-333333333333",
+    ];
+    const read = (id: string, rows: [string, string][]) => [
+      {
+        role: "assistant",
+        content: [
+          {
+            type: "tool-call",
+            toolName: "list_records",
+            toolCallId: id,
+            input: { entity: "deal", searchTerm: "Nova" },
+          },
+        ],
+      },
+      {
+        role: "tool",
+        content: [
+          {
+            type: "tool-result",
+            toolCallId: id,
+            toolName: "list_records",
+            output: {
+              type: "json",
+              value: {
+                ok: true,
+                result: `total: ${rows.length}\nitems[${rows.length}]{id,name}:\n${rows.map(([rowId, name]) => `  ${rowId},${name}`).join("\n")}`,
+              },
+            },
+          },
+        ],
+      },
+    ];
+    const messages = [
+      { role: "user", content: request },
+      ...read("wide", [
+        [a, "Nova"],
+        [b, "Nova East"],
+        [c, "Nova West"],
+      ]),
+      ...read("narrow", [
+        [a, "Nova"],
+        [b, "Nova East"],
+      ]),
+    ];
+    const input = { entity: "deal", ids: [c] };
+    state.normalize.mockImplementation((_name: string, value: unknown) => Promise.resolve({ ok: true, input: value }));
+    let gated: boolean | undefined;
+    let output: unknown;
+    state.runTools = async ({ tools, completeStepAndPrepareNext }) => {
+      await completeStepAndPrepareNext(streamedStep("Checking.", "tool-calls"), messages);
+      gated = await tools.delete_records.needsApproval(input, { toolCallId: "call-1" });
+      output = await executeTool(tools.delete_records, input);
+      return finish();
+    };
+
+    await runAgentTurn({ ...payload, messages: [{ role: "user", text: request }] });
+
+    expect(gated).toBe(false);
+    expect(output).toEqual({ ok: false, result: expect.stringContaining("More than one deal matches") });
+    expect(state.execute).not.toHaveBeenCalled();
+  });
+
+  it.each(["length", "error"])(
+    "never replays a tool call a %s step did not run, and settles it as not run",
+    async (finishReason) => {
+      define("list_records");
+      const seen: string[] = [];
+      let segment = 0;
+      state.runTools = ({ messages }) => {
+        segment += 1;
+        seen.push(JSON.stringify(messages));
+        if (segment === 1) {
+          return Promise.resolve({
+            finishReason,
+            messages: [{ role: "user", content: "Hello" }],
+            steps: [
+              {
+                ...streamedStep("Partial.", finishReason),
+                content: [
+                  { type: "text", text: "Partial." },
+                  { type: "tool-call", toolName: "list_records", toolCallId: "unrun-1", input: { entity: "deal" } },
+                ],
+              },
+            ],
+            ...(finishReason === "error" ? { error: new Error("Vertex said no") } : {}),
+          });
+        }
+        return Promise.resolve(finish());
+      };
+
+      await runAgentTurn(payload);
+
+      expect(segment).toBe(2);
+      expect(seen[1]).not.toContain("unrun-1");
+      if (finishReason === "length") expect(seen[1]).toContain("Partial.");
+      expect(state.finalize).toHaveBeenCalledWith(expect.objectContaining({ terminalCode: "completed" }));
+      expect(state.finalize.mock.calls[0][0].parts).toContainEqual(
+        expect.objectContaining({ type: "activity", id: "unrun-1", status: "cancelled" }),
+      );
+    },
+  );
+
+  it.each([
+    [undefined, "got no answer in time"],
+    ["chat", "got no answer in time"],
+    ["routine", "Nobody is watching this run"],
+  ] as const)("gives in-tool approval gates the turn surface and page route (%s)", async (surface, wording) => {
+    define("list_users");
+    const input = { searchTerm: "Sofia" };
+    const pageRoute = "/en/deals";
+    state.normalize.mockResolvedValue({ ok: true, input });
+    state.runTools = async ({ tools }) => {
+      await executeTool(tools.list_users, input);
+      return finish();
+    };
+
+    await runAgentTurn({ ...payload, surface, pageRoute });
+
+    expect(state.execute).toHaveBeenCalledTimes(1);
+    expect(state.toolDeps).toHaveLength(1);
+    expect(state.toolDeps[0]).toMatchObject({ surface: surface ?? "chat", pageRoute });
+    expect(approvalDenialReason("timeout", state.toolDeps[0].surface)).toContain(wording);
+  });
+
+  it.each([
+    ["reject", "chat", 32],
+    ["reject", "chat", 1],
+    ["timeout", "routine", 32],
+    ["timeout", "routine", 1],
+  ] as const)(
+    "keeps a %s on %s as a cancellation with its reason after compaction, %i later steps",
+    async (decision, surface, laterSteps) => {
+      define("delete_records");
+      const raw = { entity: "deal", ids: ["11111111-1111-4111-8111-111111111111"] };
+      state.normalize.mockResolvedValue({ ok: true, input: raw });
+      state.readApproval.mockResolvedValue(decision === "timeout" ? null : { toolName: "delete_records", decision });
+      state.contextFits.mockReturnValueOnce(false).mockReturnValue(true);
+      const seen: string[] = [];
+      state.runTools = async ({ tools, messages }) => {
+        seen.push(JSON.stringify(messages));
+        if (seen.length === 1) {
+          await tools.delete_records.needsApproval(raw, { toolCallId: "call-1" });
+          return {
+            finishReason: "tool-calls",
+            messages: [...messages, pendingMessage("delete_records", raw)],
+            steps: [streamedToolCallStep("delete_records", "call-1", raw)],
+          };
+        }
+        if (seen.length === 2) {
+          const denied = { type: "execution-denied", reason: "declined" };
+          return {
+            finishReason: "tool-calls",
+            messages: [
+              ...messages,
+              {
+                role: "tool",
+                content: [{ type: "tool-result", toolCallId: "call-1", toolName: "delete_records", output: denied }],
+              },
+            ],
+            steps: Array.from({ length: laterSteps }, () => streamedStep("", "tool-calls")),
+          };
+        }
+        return { finishReason: "stop", messages, steps: [streamedStep("Done.", "stop")] };
+      };
+
+      await runAgentTurn({ ...payload, surface });
+
+      const reason = JSON.stringify(approvalDenialReason(decision, surface));
+      const compacted = state.instructions.at(-1) ?? "";
+      expect(seen).toHaveLength(3);
+      if (laterSteps === 32) {
+        expect(compacted).toContain('{"toolName":"delete_records","kind":"records.delete","status":"cancelled"');
+        expect(compacted).toContain('"errors":0,"cancelled":1');
+      } else {
+        expect(seen[2]).toContain(reason);
+        expect(seen[2]).not.toContain(`Approval ${decision}.`);
+      }
+      expect(state.execute).not.toHaveBeenCalled();
+    },
+  );
+
+  it("tells the model an unattended run declined the approval automatically", async () => {
+    define("delete_records");
+    const raw = { entity: "contact", ids: ["original"] };
+    state.normalize.mockResolvedValue({ ok: true, input: raw });
+    state.readApproval.mockResolvedValue(null);
+    let round = 0;
+    let resumed = "";
+    state.runTools = async ({ tools, messages }) => {
+      if (round++ === 0) {
+        await tools.delete_records.needsApproval(raw, { toolCallId: "call-1" });
+        return { finishReason: "tool-calls", messages: [pendingMessage("delete_records", raw)], steps: [] };
+      }
+      resumed = JSON.stringify(messages);
+      return finish();
+    };
+
+    await runAgentTurn({ ...payload, surface: "routine" });
+
+    expect(round).toBe(2);
+    expect(resumed).toContain(JSON.stringify(approvalDenialReason("timeout", "routine")));
+    expect(resumed).not.toContain(JSON.stringify(approvalDenialReason("timeout")));
+    expect(state.execute).not.toHaveBeenCalled();
+  });
+
+  it("refuses a navigation to one of several same-named records and still settles the gated call beside it", async () => {
+    define("list_records");
+    define("navigate");
+    define("delete_records");
+    const nova = "11111111-1111-4111-8111-111111111111";
+    const nova2025 = "22222222-2222-4222-8222-222222222222";
+    const guessed = { entity: "deal", recordId: nova };
+    const mutationInput = { entity: "contact", ids: ["record-1"] };
+    const request = "Mark the Nova Expansion deal as Won.";
+    const searched = [
+      { role: "user", content: request },
+      {
+        role: "assistant",
+        content: [
+          {
+            type: "tool-call",
+            toolName: "list_records",
+            toolCallId: "list-1",
+            input: { entity: "deal", searchTerm: "Nova Expansion" },
+          },
+        ],
+      },
+      {
+        role: "tool",
+        content: [
+          {
+            type: "tool-result",
+            toolCallId: "list-1",
+            toolName: "list_records",
+            output: {
+              type: "json",
+              value: {
+                ok: true,
+                result: `total: 2\nitems[2]{id,name}:\n  ${nova},Nova Expansion\n  ${nova2025},Nova Expansion 2025`,
+              },
+            },
+          },
+        ],
+      },
+    ];
+    state.normalize.mockImplementation((_name: string, input: unknown) => Promise.resolve({ ok: true, input }));
+    state.readApproval.mockResolvedValue({ toolName: "delete_records", decision: "reject" });
+    let round = 0;
+    let resumed = "";
+    state.runTools = async ({ tools, messages, completeStepAndPrepareNext }) => {
+      if (round++ === 0) {
+        await completeStepAndPrepareNext(
+          streamedToolCallStep("list_records", "list-1", { entity: "deal", searchTerm: "Nova Expansion" }),
+          searched,
+        );
+        await tools.delete_records.needsApproval(mutationInput, { toolCallId: "call-1" });
+        return {
+          finishReason: "tool-calls",
+          steps: [],
+          messages: [
+            ...searched.slice(1),
+            {
+              role: "assistant",
+              content: [
+                { type: "tool-call", toolName: "navigate", toolCallId: "panel-1", input: guessed },
+                { type: "tool-call", toolName: "delete_records", toolCallId: "call-1", input: mutationInput },
+              ],
+            },
+          ],
+        };
+      }
+      resumed = JSON.stringify(messages);
+      return finish();
+    };
+
+    await runAgentTurn({ ...payload, messages: [{ role: "user", text: request }] });
+
+    expect(round).toBe(2);
+    expect(state.writes.filter((event) => (event as { type: string }).type === "ui_command")).toHaveLength(0);
+    expect(state.takeUiResult).not.toHaveBeenCalled();
+    expect(resumed).toContain("More than one deal matches");
+    expect(resumed).toContain("Nova Expansion 2025");
+    expect(resumed).toContain('"approved":false');
+    expect(state.createApproval).toHaveBeenCalledTimes(1);
+    expect(state.execute).not.toHaveBeenCalled();
+  });
+
+  it("runs an analysis without approval and never refuses it as a write, even beside an ambiguous name", async () => {
+    define("list_records");
+    define("analyze_records");
+    const nova = "11111111-1111-4111-8111-111111111111";
+    const request = "Mark the Nova Expansion deal as Won.";
+    const searched = [
+      { role: "user", content: request },
+      {
+        role: "assistant",
+        content: [
+          {
+            type: "tool-call",
+            toolName: "list_records",
+            toolCallId: "list-1",
+            input: { entity: "deal", searchTerm: "Nova Expansion" },
+          },
+        ],
+      },
+      {
+        role: "tool",
+        content: [
+          {
+            type: "tool-result",
+            toolCallId: "list-1",
+            toolName: "list_records",
+            output: {
+              type: "json",
+              value: {
+                ok: true,
+                result: `total: 2\nitems[2]{id,name}:\n  ${nova},Nova Expansion\n  22222222-2222-4222-8222-222222222222,Nova Expansion 2025`,
+              },
+            },
+          },
+        ],
+      },
+    ];
+    const analysis = {
+      reads: [{ tool: "get_records", input: JSON.stringify({ items: [{ entity: "deal", id: nova }] }) }],
+      code: "(data) => data",
+    };
+    state.normalize.mockImplementation((_name: string, input: unknown) => Promise.resolve({ ok: true, input }));
+    let gated: boolean | undefined;
+    let output: unknown;
+    state.runTools = async ({ tools, completeStepAndPrepareNext }) => {
+      await completeStepAndPrepareNext(
+        streamedToolCallStep("list_records", "list-1", { entity: "deal", searchTerm: "Nova Expansion" }),
+        searched,
+      );
+      gated = await tools.analyze_records.needsApproval(analysis, { toolCallId: "call-1" });
+      output = await executeTool(tools.analyze_records, analysis);
+      return finish();
+    };
+
+    await runAgentTurn({ ...payload, messages: [{ role: "user", text: request }] });
+
+    expect(gated).toBe(false);
+    expect(output).toEqual({ ok: true, result: "done" });
+    expect(state.execute).toHaveBeenCalledTimes(1);
+    expect(state.createApproval).not.toHaveBeenCalled();
+  });
 
   it.each([true, false])("validates panel commands before emission (valid=%s)", async (valid) => {
     define("navigate");
@@ -1229,5 +2081,56 @@ describe("routine run settlement", () => {
     state.dispatch.mockRejectedValue(new Error("dispatch unavailable"));
 
     await expect(runAgentTurn({ ...payload, surface: "routine" })).resolves.toBeUndefined();
+  });
+});
+
+describe("agent-turn classifier uses", () => {
+  const finalizeArgs = () =>
+    state.finalize.mock.calls.at(-1)?.[0] as {
+      classifierTrace: {
+        auxiliaryCostMicrocents: number;
+        docsRerank: { calls: number; answered: number } | null;
+      } | null;
+      usageSettlement: { costMicrocents: number; costSource: string };
+    };
+
+  it("settles a docs re-rank charge from a tool call as auxiliary cost, never as a round", async () => {
+    const runDocsRound = async (charges: unknown[]) => {
+      state.finalize.mockClear();
+      state.recordRound.mockClear();
+      state.definitions = [{ name: "search_docs", description: "search_docs", inputSchema: { type: "object" } }];
+      state.normalize.mockResolvedValue({ ok: true, input: { query: "api key header" } });
+      state.execute.mockResolvedValue({ ok: true, result: "matches: ..." });
+      state.runTools = async ({ messages, executeAndCompleteTool }) => {
+        state.toolCharges = [...charges];
+        await executeAndCompleteTool("search_docs", { query: "api key header" }, "call-docs");
+        return {
+          finishReason: "stop",
+          messages,
+          steps: [
+            streamedToolCallStep("search_docs", "call-docs", { query: "api key header" }),
+            streamedStep("Use x-api-key.", "stop"),
+          ],
+        };
+      };
+      await runAgentTurn(payload);
+      return finalizeArgs();
+    };
+
+    const plain = await runDocsRound([]);
+    const reranked = await runDocsRound([
+      { use: "docs_rerank", model: "jev", costMicrocents: 1_600, measured: true, answered: true },
+    ]);
+
+    expect(state.recordRound).toHaveBeenCalledTimes(2);
+    expect(reranked.usageSettlement.costMicrocents - plain.usageSettlement.costMicrocents).toBe(1_600);
+    expect(plain.classifierTrace).toBeNull();
+    expect(reranked.classifierTrace).toMatchObject({
+      auxiliaryCostMicrocents: 1_600,
+      docsRerank: { calls: 1, answered: 1 },
+    });
+    expect(state.writes).toContainEqual(
+      expect.objectContaining({ type: "turn_done", payload: expect.objectContaining({ numTurns: 2 }) }),
+    );
   });
 });

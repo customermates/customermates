@@ -83,7 +83,7 @@ The MCP surface is built so that models with weaker planning can use it reliably
 - **Merged periphery**: custom columns, widgets, and webhooks each live behind one tool (`manage_custom_columns`, `manage_widgets`, `manage_webhooks`) with an `action` switch, so the model picks an action instead of choosing among many near-identical tools.
 - **Inline enum hints**: every enum field lists its valid values inline in the description, so the model does not have to resolve external types.
 - **Filter examples inline**: every `filters` parameter has a concrete JSON example in its description.
-- **Relationship safety**: relations change through `manage_record_links` (add or remove). The `update_*` tools do not accept relation id fields: an `organizationIds`, `userIds`, `contactIds`, `dealIds`, `serviceIds` or `taskIds` field there is rejected as an unknown field. The one exception is `services` on `update_deals`, which replaces the deal's whole service list with quantities. `null` on `customFieldValues`, or on `services` in `update_deals`, is rejected with a hint to omit the field, pass `[]`, or use `manage_record_links`.
+- **Relationship safety**: relations change through `manage_record_links` (add, remove, or set to replace the whole list in one call, keeping links to records outside the caller's access). The `update_*` tools do not accept relation id fields: an `organizationIds`, `userIds`, `contactIds`, `dealIds`, `serviceIds` or `taskIds` field there is rejected as an unknown field. The one exception is `services` on `update_deals`, which replaces the deal's whole service list with quantities. `null` on `customFieldValues`, or on `services` in `update_deals`, is rejected with a hint to omit the field, pass `[]`, or use `manage_record_links`.
 - **Explicit intent**: `manage_custom_columns` upsert requires `intent` (`create` or `update`); on update the `label`, `type` and `entityType` are immutable and the label must match the existing one, so changing a type or a label means delete and recreate.
 - **Destructive flags**: every destructive tool or action has `destructiveHint: true` and says `IRREVERSIBLE` in its description.
 
@@ -113,7 +113,7 @@ Full JSON Schema for every tool is available live at `POST /api/v1/mcp` with `me
 
 [[derived.mcp.tools.groups.records]] tools work against the five record types (contact, organization, deal, service, task). Records carry custom columns defined per workspace, so `get_record_schema` is the anchor: it returns the custom-column ids and option values that writes need. Fields such as a deal or task status are configurable singleSelect custom columns, not fixed native fields; `get_record_schema` returns whatever columns the workspace actually has.
 
-All create and update tools take custom-column values via customFieldValues; call `get_record_schema` first for the column ids. `list_records` returns `total` and, for entities with numeric columns, `sums` before the items; for deals `sums` carries `totalValue`, `totalQuantity` and `weightedValue`, the pipeline weighted by each stage's win probability, across every record matching the filters. When `searchTerm` matches several records, `writeTargetGuidance.status` is `ambiguous`: ask the user to choose from `items`, inspect more pages when `total` exceeds the current page, and enrich duplicate names with `get_records` before a single-record write. `pageSize` is rounded up to the next supported size: 5, 10, 25 or 100.
+All create and update tools take custom-column values via customFieldValues; call `get_record_schema` first for the column ids. `list_records` returns `total` and, for deals and custom currency columns, `sums` before the items; for deals `sums` carries `totalValue` and `weightedValue`, the pipeline weighted by each stage's win probability, across every record matching the filters. In a list result, not a grouped one, where `searchTerm` or a `name` filter matches several records, `writeTargetGuidance.status` is `ambiguous`: ask the user to choose from `items`, inspect more pages when `total` exceeds the current page, and enrich duplicate names with `get_records` before a single-record write. With `include`, each listed item also carries the fields asked for: `owners` adds `userIds`, `links` the ids of the linked records such as `dealIds` and `taskIds`, `customFields` the `customFieldValues` with single-select values as option ids, and `dates` `createdAt` and `updatedAt`. A relation your role cannot read is left out, so a missing key means you cannot read that relation and an empty array means none you can see is linked. `pageSize` accepts any whole number from 1 to 100 and returns exactly that many records per page, fewer only on the last; `page` counts in that size, so page 2 at `pageSize` 50 holds records 51 to 100, and the result reports both. With `groupBy` (a single-select column, a relation such as `userIds`, or `createdAt` or `updatedAt` by day, week or month), `list_records` returns `groups` with each group's label and count, and for deals the `totalValue` and `weightedValue` sums, instead of items. It lists up to 50 groups, plus a `No value` group for records without one, and gives sums for up to 25 of them; when it leaves out a group that holds records, or some sums, `groupsIncomplete` is `true` and `groupNote` says what is missing. Grouping by `createdAt` or `updatedAt` covers the last 7 days, the last 7 weeks or the last 12 months, month being the default, each up to and including the current one: older records are counted together in one `before` group, records dated after the current period in one `from` group, and `groupNote` points this out whenever either of them holds records.
 
 {/* mcp-catalog:records */}
 #### `get_record_schema`
@@ -124,9 +124,9 @@ Schema and custom-column metadata, never record data. One entity type, or all fi
 
 #### `list_records`
 
-Search, filter, sort, paginate one entity type. Always returns the total. Deals include totalValue and totalQuantity, services include amount.
+Search, filter, sort, paginate one entity type, or count and total it per group with groupBy. Always returns the total. Deals include totalValue and totalQuantity, services include amount.
 
-**Read-only.** Required: `entity`. Optional: `searchTerm`, `filters`, `sortDescriptor`, `page`, `pageSize`.
+**Read-only.** Required: `entity`. Optional: `searchTerm`, `filters`, `sortDescriptor`, `page`, `pageSize`, `groupBy`, `include`.
 
 #### `search_records`
 
@@ -208,7 +208,7 @@ Required: `entity`, `mode`, `items`.
 
 #### `manage_record_links`
 
-Add or remove ids on one relation (`action` add or remove). The way to change relations; only `update_deals` also replaces a deal's whole service list.
+Add, remove or replace the ids on one relation (`action` add, remove or set); set makes the ids the complete list in one call and keeps links to records outside your access. The way to change relations; only `update_deals` also replaces a deal's whole service list.
 
 Required: `action`, `entity`, `sourceId`, `relation`, `ids`.
 

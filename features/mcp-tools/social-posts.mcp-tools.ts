@@ -2,7 +2,14 @@ import type { SocialPost, RelationRequest, SocialProfile } from "@/ee/messaging/
 
 import { z } from "zod";
 
-import { formatDatesInResponse, mcpValidationFailure, runInteractor, toonResult } from "./utils";
+import {
+  formatDatesInResponse,
+  mcpValidationFailure,
+  providerTotal,
+  ProviderTotalSchema,
+  runInteractor,
+  toonResult,
+} from "./utils";
 
 import { ListSocialPostsSchema } from "@/ee/messaging/posts/list-social-posts.interactor";
 import { GetSocialProfileSchema } from "@/ee/messaging/posts/get-social-profile.interactor";
@@ -253,14 +260,14 @@ function formatRelationRequest(request: RelationRequest) {
 
 const socialPageOutput = z.looseObject({
   items: z.array(z.looseObject({})),
-  total: z.number(),
+  total: ProviderTotalSchema,
   next_cursor: z.string().nullable(),
 });
 
 const GetSocialPostsOutputSchema = z.looseObject({
   id: z.string().optional().describe("Present on single-post mode"),
   items: z.array(z.looseObject({})).optional(),
-  total: z.number().optional(),
+  total: ProviderTotalSchema,
   next_cursor: z.string().nullable().optional(),
 });
 const GetSocialPostEngagementOutputSchema = socialPageOutput;
@@ -268,7 +275,7 @@ const GetSocialProfileOutputSchema = z.looseObject({ id: z.string().nullable().o
 const ManageSocialRelationsOutputSchema = z
   .looseObject({
     items: z.array(z.looseObject({})).optional(),
-    total: z.number().optional(),
+    total: ProviderTotalSchema,
     next_cursor: z.string().nullable().optional(),
     invitationId: z.string().nullable().optional(),
     status: z.string().optional(),
@@ -302,7 +309,7 @@ export const getSocialPostsTool = {
     return runInteractor(getListSocialPostsInteractor().invoke(parsed.data), (data) =>
       toonResult(
         formatDatesInResponse({
-          total: data.total_count ?? data.data.length,
+          ...providerTotal(data.total_count),
           next_cursor: data.next_cursor ?? null,
           items: data.data.map(formatPost),
         }),
@@ -336,7 +343,7 @@ export const getSocialPostEngagementTool = {
         (data) =>
           toonResult(
             formatDatesInResponse({
-              total: data.total_count ?? data.data.length,
+              ...providerTotal(data.total_count),
               next_cursor: data.next_cursor ?? null,
               items: data.data.map(formatReaction),
             }),
@@ -355,7 +362,7 @@ export const getSocialPostEngagementTool = {
         (data) =>
           toonResult(
             formatDatesInResponse({
-              total: data.total_count ?? data.data.length,
+              ...providerTotal(data.total_count),
               next_cursor: data.next_cursor ?? null,
               items: data.data.map(formatReaction),
             }),
@@ -374,7 +381,7 @@ export const getSocialPostEngagementTool = {
       (data) =>
         toonResult(
           formatDatesInResponse({
-            total: data.total_count ?? data.data.length,
+            ...providerTotal(data.total_count),
             next_cursor: data.next_cursor ?? null,
             items: data.data.map((comment) => ({
               id: comment.id,
@@ -443,7 +450,7 @@ export const manageSocialRelationsTool = {
         (data) =>
           toonResult(
             formatDatesInResponse({
-              total: data.total_count ?? data.data.length,
+              ...providerTotal(data.total_count),
               next_cursor: data.next_cursor ?? null,
               items: data.data.map(formatRelationRequest),
             }),

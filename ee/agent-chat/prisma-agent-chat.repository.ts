@@ -44,6 +44,7 @@ import {
 } from "./agent-turn-request";
 import type { AgentUsageSettlement } from "./agent-usage-settlement";
 import { AGENT_CREDIT_MICROCENTS, resolveAgentCreditEntitlement } from "./agent-credit-policy";
+import { isAgentTurnClassifierTrace, type AgentTurnClassifierTrace } from "./agent-classifier-trace";
 
 type StoredAgentTurnRow = {
   id: string;
@@ -1852,6 +1853,7 @@ export class PrismaAgentChatRepo extends BaseRepository implements AgentUsageRep
     stopReason: AgentTurnStopReason | null;
     affectedResources: AgentTurnRequestSnapshot["affectedResources"];
     usageSettlement: AgentUsageSettlement | null;
+    classifierTrace?: AgentTurnClassifierTrace | null;
   }): Promise<FinalizedAgentTurn> {
     if (!isAgentTurnTerminalCode(args.terminalCode)) throw new Error("Agent turn terminal code is invalid.");
     if (args.stopReason !== null && !isAgentTurnStopReason(args.stopReason))
@@ -1865,6 +1867,8 @@ export class PrismaAgentChatRepo extends BaseRepository implements AgentUsageRep
     if (args.terminalCode === "policyBreach" && args.stopReason !== "policy_breach")
       throw new Error("A policy-breach agent turn requires the policy-breach stop reason.");
     if (!areAgentTurnAffectedResources(args.affectedResources)) throw new Error("Agent turn resources are invalid.");
+    if (args.classifierTrace && !isAgentTurnClassifierTrace(args.classifierTrace))
+      throw new Error("Agent turn classifier trace is invalid.");
     const safeParts = clientSafeAgentMessageParts(args.parts, {
       sanitizeText: true,
     });
@@ -2014,6 +2018,7 @@ export class PrismaAgentChatRepo extends BaseRepository implements AgentUsageRep
           stopReason,
           affectedResources: args.affectedResources,
           terminalAt: committedAt,
+          ...(args.classifierTrace ? { classifierTrace: args.classifierTrace as Prisma.InputJsonObject } : {}),
         },
       });
       if (completed.count !== 1) throw new Error("Agent turn could not be completed.");

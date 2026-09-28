@@ -66,6 +66,10 @@
         "widgets": {
           "configure": "Pronto a modificare i widget della dashboard",
           "delete": "Pronto a eliminare definitivamente un widget della dashboard"
+        },
+        "workspace": {
+          "settings": "Pronto a modificare le impostazioni dell’area di lavoro, compresi i nomi dei tipi di record",
+          "terminology": "Pronto a rinominare i tipi di record per l’intera area di lavoro"
         }
       },
       "cancelled": "Interrotto",
@@ -242,6 +246,11 @@
           }
         },
         "records": {
+          "analyze": {
+            "done": "Analisi di {resource} completata",
+            "error": "Impossibile analizzare {resource}",
+            "running": "Analisi di {resource} in corso"
+          },
           "create": {
             "done": "{count, plural, one {Creazione di {target} completata} other {Creazione di {target} completata}}",
             "error": "{count, plural, one {Impossibile creare {target}} other {Impossibile creare {target}}}",

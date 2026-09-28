@@ -42,6 +42,7 @@ import { renderAgentSchemaDigest } from "./agent-schema-digest";
 import { agentPageContextPrefix } from "./agent-page-context";
 import { AGENT_REPLAY_COUNT, budgetAgentReplayHistory } from "./agent-replay-budget";
 import { isAgentModelKey, resolveAgentModel } from "./model-catalog";
+import { recordsBenchmarkToolOutputs } from "./benchmark-tool-output";
 import type { BackgroundTaskService } from "@/core/utils/background-task.service";
 import type { GetCustomColumnsRepo } from "@/features/custom-column/get-custom-columns.interactor";
 import { fail, failConflict, failNotFound, failRateLimit } from "@/core/validation/interactor-failure-server";
@@ -425,6 +426,7 @@ export class SendAgentMessageInteractor extends AuthenticatedInteractor<SendAgen
         surface,
         toolsets,
         ...(schemaDigest ? { schemaDigest } : {}),
+        ...(recordsBenchmarkToolOutputs(process.env) ? { recordToolOutputs: true } : {}),
       });
       await this.repo.recordAgentTurnExternalRun(turnRequestId, runId, externalRunId);
 

@@ -361,9 +361,10 @@ async function main() {
     const env = requireLocalBenchmarkEnvironment();
     const campaignId = String(flags.campaign ?? "");
     const armIds = list(flags.arms, defaultBenchmarkArmIds());
+    const suite = BENCHMARK_CASES.filter((definition) => definition.heldout !== true);
     const defaultCases = armIds.length === 1 && armIds[0] === "shipped"
-      ? BENCHMARK_CASES
-      : BENCHMARK_CASES.filter((definition) => definition.comparative !== false);
+      ? suite
+      : suite.filter((definition) => definition.comparative !== false);
     const caseIds = list(flags.cases, defaultCases.map((definition) => definition.id)) as CaseId[];
     const reps = Number(flags.reps ?? 1);
     const runtimeVariant = benchmarkPathSegment(
@@ -393,6 +394,7 @@ async function main() {
   }
 
   if (command === "check") {
+    const suite = BENCHMARK_CASES.filter((definition) => definition.heldout !== true);
     const env = requireLocalBenchmarkEnvironment();
     const sourceAtStart = benchmarkSourceIdentity({ refresh: true });
     if (sourceAtStart.sourceDirty)
@@ -418,7 +420,7 @@ async function main() {
         appUrl: env.appUrl,
         campaign,
         armIds: defaultBenchmarkArmIds(),
-        caseIds: BENCHMARK_CASES.map((definition) => definition.id),
+        caseIds: suite.map((definition) => definition.id),
         reps: 1,
         runtimeVariant,
         excluded: new Set(),
@@ -426,14 +428,14 @@ async function main() {
       const episodes = await campaignEpisodes(pool, campaign.id);
       const matrixIssues = exactMatrixIssues(
         episodes,
-        BENCHMARK_CASES.map((definition) => definition.id),
+        suite.map((definition) => definition.id),
         runtimeVariant,
         "shipped",
       );
       for (const reason of matrixIssues)
         failures.push({
           arm: "shipped",
-          caseId: BENCHMARK_CASES[0]!.id,
+          caseId: suite[0]!.id,
           repetition: 1,
           reason: `matrix incomplete: ${reason}`,
         });
@@ -444,7 +446,7 @@ async function main() {
       )
         failures.push({
           arm: "shipped",
-          caseId: BENCHMARK_CASES[0]!.id,
+          caseId: suite[0]!.id,
           repetition: 1,
           reason:
             "source changed while the merge check was running; rebuild and start a fresh campaign from a clean tree",
@@ -454,8 +456,8 @@ async function main() {
     await db.prisma.$disconnect();
     await persistMergeCheckSummary(resolve(RUNS_DIR, result.campaign.id), {
       status: result.failures.length ? "failed" : "passed",
-      expectedCases: BENCHMARK_CASES.length,
-      expectedTurns: BENCHMARK_CASES.reduce((total, definition) => total + definition.prompts.length, 0),
+      expectedCases: suite.length,
+      expectedTurns: suite.reduce((total, definition) => total + definition.prompts.length, 0),
       runtimeVariant,
       sourceCommit: sourceAtStart.sourceCommit,
       failures: result.failures,
@@ -483,7 +485,7 @@ async function main() {
         console.error(`- ${failure.arm} ${failure.caseId} r${failure.repetition}: ${failure.reason}`);
       throw new Error(`Agent benchmark merge check failed for campaign ${result.campaign.id}.`);
     }
-    console.log(`merge check passed: ${BENCHMARK_CASES.length} cases in campaign ${result.campaign.id}`);
+    console.log(`merge check passed: ${suite.length} cases in campaign ${result.campaign.id}`);
     return;
   }
 

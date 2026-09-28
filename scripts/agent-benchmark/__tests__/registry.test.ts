@@ -7,9 +7,13 @@ import { benchmarkCaseModelSelection } from "../episode";
 import { BENCHMARK_CASES } from "../fixtures";
 
 describe("unified benchmark registry", () => {
-  it("contains the complete 52-case, 58-turn suite without duplicate ids", () => {
-    expect(BENCHMARK_CASES).toHaveLength(52);
-    expect(BENCHMARK_CASES.reduce((total, definition) => total + definition.prompts.length, 0)).toBe(58);
+  it("contains the complete 72-case, 79-turn suite plus 130 held-out cases without duplicate ids", () => {
+    const suite = BENCHMARK_CASES.filter((definition) => definition.heldout !== true);
+    const heldout = BENCHMARK_CASES.filter((definition) => definition.heldout === true);
+    expect(suite).toHaveLength(72);
+    expect(suite.reduce((total, definition) => total + definition.prompts.length, 0)).toBe(79);
+    expect(heldout).toHaveLength(130);
+    expect(heldout.reduce((total, definition) => total + definition.prompts.length, 0)).toBe(150);
     expect(new Set(BENCHMARK_CASES.map((definition) => definition.id)).size).toBe(BENCHMARK_CASES.length);
   });
 
@@ -33,8 +37,9 @@ describe("unified benchmark registry", () => {
       "R50",
       "R51",
       "R52",
+      "R53",
     ]);
-    expect(required.reduce((total, definition) => total + definition.prompts.length, 0)).toBe(19);
+    expect(required.reduce((total, definition) => total + definition.prompts.length, 0)).toBe(20);
   });
 
   it("covers view context and preserves the explicit fast-model pin contract", () => {

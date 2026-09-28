@@ -13,7 +13,7 @@ import {
 
 const mockUser = createMockUser();
 
-vi.mock("@/env", () => MOCK_ENV_MODULE);
+vi.mock("@/env", () => ({ env: { ...MOCK_ENV_MODULE.env, AGENT_ANALYSIS_TOOL_ENABLED: true } }));
 vi.mock("@/core/di", () => createMockDiModule(() => mockUser));
 vi.mock("@/core/validation/zod-error-map-server", () => MOCK_ZOD_MODULE);
 vi.mock("@/prisma/db", () => MOCK_PRISMA_DB_MODULE);

@@ -8,7 +8,7 @@ comparisons against the shipped configuration. The knowledge base owns the proce
 only lists the commands.
 
 This is the only live-model Assistant harness. Its case registry covers answer quality, saved views, UI commands,
-approvals, cancellation, stream recovery, model pinning and usage accounting. `yarn agent:benchmark check` is the
+dashboard widget creation, approvals, cancellation, stream recovery, model pinning and usage accounting. `yarn agent:benchmark check` is the
 shipped-model merge gate; the lower-level campaign commands run resumable model experiments from the same registry,
 driver, fixtures and oracles.
 
@@ -19,11 +19,15 @@ and the application started in production mode with the benchmark model overlay:
 export BASE_URL=http://localhost:4107
 export WORKFLOW_LOCAL_BASE_URL="$BASE_URL"
 export WORKFLOW_LOCAL_DATA_DIR="$PWD/.next/workflow-data"
+export NEXT_PUBLIC_SENTRY_DSN=
 yarn build
 LOCAL_AGENT_BENCHMARK=true \
+AGENT_DOCS_RERANK=jev \
 AGENT_BENCHMARK_ARMS="$(yarn -s agent:benchmark overlay)" \
 yarn next start -p 4107
 ```
+
+`NEXT_PUBLIC_SENTRY_DSN` must be empty for the build and the server. With a DSN set, a production build sends every workflow failure to Sentry and prints nothing, so a turn that fails locally leaves no trace in the server log; the empty value also keeps the build from wrapping the Sentry source-map upload.
 
 The `shipped` control resolves through `MODEL_CATALOG[SHIPPED_AGENT_MODEL_KEY]`, the same production catalog entry used
 by the Assistant. The overlay contains only the experimental arms, so it cannot replace or drift from that control.
@@ -44,7 +48,20 @@ Run nothing else against the same database while a campaign runs. Any other appl
 
 Every command exits the process when it finishes: loading the product graph starts a workflow worker that would otherwise keep the run alive indefinitely after the last episode.
 
+In benchmark mode (`LOCAL_AGENT_BENCHMARK=true`) the server also stores each tool call's result text in its round record, bounded to 8,000 characters per call, plus the structured content when it serializes to at most 2,000 characters. Episodes save it as `toolOutputs`, one list per turn aligned with `observed[turn].tools`; oracles and judges do not read it. A server started without the flag records nothing extra.
+
 `--variant <label>` groups a run's artifacts and report rows under a label of your choice; the application has one runtime, so the label records what you changed between runs rather than selecting a code path.
+
+Hosted Mate's docs re-rank uses the same mechanism. `AGENT_DOCS_RERANK` (`off`, the default when unset, or `jev`) is a server environment variable, so restart the server with the setting under test and run with a matching label, for example `--variant docs-v2-jev` against `--variant off`. Production turns it on once the TypeSafe AI disclosure is published, so `check` measures that configuration: start its server with `AGENT_DOCS_RERANK=jev`, as above. Each turn that calls the re-rank stores a classifier trace (docs re-rank calls, answers and auxiliary cost; never text). Episodes copy it into `metrics.turns[].classifierTrace` and summarise it as `classifier`. Accounting treats the classifier cost as part of the turn's settled charge and never as a round. The report's Classifier table shows, per arm, the classifier cost per turn, its share of spend, docs tool calls per turn and docs re-rank calls per turn. Cases D1 to D10 are live documentation questions in English and German. Each has a deterministic oracle for its gold fact and passes without a classifier.
+
+The fair classifier retest (`classifier-eval/heldout/PREREGISTRATION.md`) kept docs re-rank v2 on Jev and removed the toolset routing classifier and the guard variants after they failed their gates; the reports under `reports/2026-09-27-*`, `reports/2026-09-28-gate-c-latency-3a3c9ac5` and `reports/2026-09-28-m8-recheck-6ef5ab7d` stay as their evidence. Its live cases stay in the registry:
+
+- `DH01` to `DH30` are the held-out docs questions, prompted in the user's language with read-only safety checks. Their driver declines every approval. `DH14` asks whether "Deals" can be renamed to "Oportunidades"; renaming record types asks for approval, so the declined approval keeps the workspace unchanged and `business-state-unchanged` holds, while `no-mutating-tool-attempt` still fails an episode whose model tries the rename instead of answering.
+- `RH01` to `RH60` are the held-out routing items, now scored against the lexicon routing alone.
+- `DE01` to `DE30` are the embedding-candidate study's held-out docs questions (Amendment 4), built, driven and scored like `DH`. That study added query-embedding candidates before the Jev re-rank; both pre-selected models raised the offline answer rate by more than 20 points but added about 480 ms at p95 against a 300 ms limit. The owner waived that limit (Amendment 5), and the live A/B with `google/text-multilingual-embedding-002` showed no better answers (93.2 % against 92.5 % of 600 pairs, McNemar p = 0.52) with `search_docs` p95 up from 0.76 to 1.92 s, so its code and offline scorer were removed. Its evidence stays in `reports/2026-09-28-docs-embedding-offline` and `reports/2026-09-28-docs-embedding-live-c11e6620`; `heldout-live/docs-embedding-live.ts` reproduces the live analysis.
+- `GC01` to `GC10` (`guard-live-cases.ts`) are the pre-registered live Gate C guard items: each seeds its same-named candidate records (and, for a clarification reply, the conversation history it answers), approves every approval and records in `oracle.details` which records the turn wrote.
+
+The analysis scripts that reproduce the kept results run under `tsx` with the server-only shim and need `APP_MODE` in the environment (run them with `APP_MODE=cloud`): `classifier-eval/heldout-run/docs.ts` (the offline held-out docs bank, now Jev only; its committed `docs.json` also holds the removed Gemini runner's figures), `classifier-eval/heldout-live/analyse.ts` (stage 4), `heldout-live/gate-c-latency.ts` (Gate C and the ABAB latency recheck) and `heldout-live/m8-recheck.ts` (the M8 recheck). The offline v1 docs, routing and guard scorers were removed with the code they scored.
 
 Commands (`yarn agent:benchmark <command>`):
 

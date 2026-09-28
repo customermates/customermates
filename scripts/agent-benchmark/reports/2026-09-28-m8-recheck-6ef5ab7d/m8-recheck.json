@@ -1,0 +1,92 @@
+{
+  "campaignId": "6ef5ab7d-c98d-4364-9487-ed6581d60423",
+  "method": {
+    "question": "Stage 4 of the fair retest failed the docs re-rank v2 track only on the full-suite rule: M8 delete-scoped-to-target passed 3 of 3 in off and 2 of 3 in docs-v2-jev, and the failing turn ran no re-rank call. This recheck decides whether that single discordant check is noise.",
+    "campaign": "One campaign, cap 5 USD, one production build of the clean commit that adds this file, shipped control arm only, rubric judges not run. Server environment for both variants: AGENT_TOOLSET_CLASSIFIER=off, AGENT_GUARD_MODE=wordlists; AGENT_DOCS_RERANK=off in off, AGENT_DOCS_RERANK=jev with AGENT_DOCS_RERANK_VERSION=v2 in docs-v2-jev.",
+    "design": "Case M8 only, k = 30 per arm, alternating blocks as in the ABAB docs latency recheck: off r1-r10, docs-v2-jev r1-r10, off r11-r20, docs-v2-jev r11-r20, off r21-r30, docs-v2-jev r21-r30. Each block is one benchmark process on a freshly restarted server; the M8 driver rejects the delete approval as in every earlier run.",
+    "outcome": "An episode fails when the check delete-scoped-to-target is not passed: it failed, or it is absent because the turn never called delete_records. Absent checks are also counted separately. The whole M8 oracle pass is reported beside it, descriptively.",
+    "rerankInvolvement": "A failing episode involves a docs re-rank when any of its turns records a classifier trace with a docs re-rank of at least one call, or calls search_docs or get_docs_page.",
+    "statistic": "Failure counts per arm with 95% Wilson intervals, compared by the two-sided Fisher exact test on the 2 x 2 table (arms x fail/pass), p as the sum of the probabilities of all tables with the same margins no more likely than the observed one.",
+    "decision": "Noise (the stage-4 M8 failure does not block the docs track) when Fisher p >= 0.05 and no failing episode of either arm involves a docs re-rank. Otherwise the result is a regression attributed to the re-rank, and the docs track does not proceed without the owner. No repetitions are added after seeing results; an episode lost to infrastructure is rerun once and otherwise excluded and counted."
+  },
+  "design": {
+    "caseId": "M8",
+    "check": "delete-scoped-to-target",
+    "control": "off",
+    "candidate": "docs-v2-jev",
+    "episodesPerArm": 30,
+    "blocks": [
+      {
+        "variant": "off",
+        "reps": [
+          1,
+          10
+        ]
+      },
+      {
+        "variant": "docs-v2-jev",
+        "reps": [
+          1,
+          10
+        ]
+      },
+      {
+        "variant": "off",
+        "reps": [
+          11,
+          20
+        ]
+      },
+      {
+        "variant": "docs-v2-jev",
+        "reps": [
+          11,
+          20
+        ]
+      },
+      {
+        "variant": "off",
+        "reps": [
+          21,
+          30
+        ]
+      },
+      {
+        "variant": "docs-v2-jev",
+        "reps": [
+          21,
+          30
+        ]
+      }
+    ],
+    "alpha": 0.05,
+    "capUsd": 5
+  },
+  "lost": [],
+  "control": {
+    "episodes": 30,
+    "failures": 0,
+    "failureWilson95": [
+      0,
+      11.4
+    ],
+    "checkAbsent": 0,
+    "oraclePassed": 30,
+    "failingEpisodes": [],
+    "failuresInvolvingRerank": 0
+  },
+  "candidate": {
+    "episodes": 30,
+    "failures": 0,
+    "failureWilson95": [
+      0,
+      11.4
+    ],
+    "checkAbsent": 0,
+    "oraclePassed": 30,
+    "failingEpisodes": [],
+    "failuresInvolvingRerank": 0
+  },
+  "fisherP": 1,
+  "verdict": "noise"
+}

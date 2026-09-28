@@ -19,6 +19,7 @@ import {
 
 import {
   enumHint,
+  fetchMcpPage,
   MCP_PAGE_SIZE_DESCRIPTION,
   mcpPage,
   mcpPageSize,
@@ -83,6 +84,8 @@ const ManageRoutinesOutputSchema = z
   .looseObject({
     items: z.array(z.looseObject({ id: z.string() })).optional(),
     total: z.number().optional(),
+    page: z.number().optional(),
+    pageSize: z.number().optional(),
     id: z.string().optional(),
     name: z.string().optional(),
     enabled: z.boolean().optional(),
@@ -91,7 +94,7 @@ const ManageRoutinesOutputSchema = z
     started: z.boolean().optional(),
   })
   .describe(
-    "list returns items and total; runs returns items and nextCursor; create and update return the routine; pause returns the routine with enabled false; run_now returns started; delete returns deleted and id.",
+    "list returns items, total, page and pageSize; runs returns items and nextCursor; create and update return the routine; pause returns the routine with enabled false; run_now returns started; delete returns deleted and id.",
   );
 
 const IdSchema = z.object({ id: z.uuid() });
@@ -121,12 +124,16 @@ export const manageRoutinesTool = {
   execute: async (params: z.infer<typeof ManageRoutinesSchema>) => {
     if (params.action === "list") {
       return runInteractor(
-        getGetRoutinesApiInteractor().invoke({
-          page: params.page,
-          pageSize: params.pageSize,
-          searchTerm: params.searchTerm,
-        }),
-        (data) => toonResult({ total: data.pagination?.total ?? data.items.length, items: data.items }),
+        fetchMcpPage({ page: params.page, pageSize: params.pageSize }, ({ page, pageSize }) =>
+          getGetRoutinesApiInteractor().invoke({ page, pageSize, searchTerm: params.searchTerm }),
+        ),
+        (data) =>
+          toonResult({
+            total: data.pagination?.total ?? data.items.length,
+            page: params.page,
+            pageSize: params.pageSize,
+            items: data.items,
+          }),
       );
     }
 

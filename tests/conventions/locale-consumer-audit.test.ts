@@ -17,6 +17,10 @@ const ALLOWED = new Set([
   "__tests__/proxy-locales.test.ts",
   "__tests__/proxy.test.ts",
   "tests/helpers/mock-user.ts",
+  "scripts/agent-benchmark/classifier-eval/heldout/docs-heldout.ts",
+  "scripts/agent-benchmark/classifier-eval/heldout/guard-heldout.ts",
+  "scripts/agent-benchmark/classifier-eval/heldout/routing-heldout.ts",
+  "scripts/agent-benchmark/__tests__/heldout-freeze.test.ts",
 ]);
 
 const LOCALE_ALTERNATION = REGISTERED_LOCALES.join("|");

@@ -1,0 +1,274 @@
+{
+  "date": "2026-09-27",
+  "module": "ee/agent-chat/classifier",
+  "spendCapUsd": 5,
+  "spendUsd": 2.6102,
+  "docsRetestSpendUsd": 1.1646,
+  "spendNote": "Model cost is the gateway's measured cost per call; the ZDR fee is estimated at 0.0001 USD per request because the per-request cost omits it.",
+  "spendByUse": {
+    "docs:jev:jev": {
+      "usd": 0.08293335000000002,
+      "zdrUsd": 0.06900000000000095,
+      "calls": 690,
+      "unmeasured": 0
+    },
+    "docs:gemini:gemini": {
+      "usd": 0.6001628600000003,
+      "zdrUsd": 0.06820000000000093,
+      "calls": 682,
+      "unmeasured": 0
+    },
+    "docs:judge:google/gemini-3-flash": {
+      "usd": 0.37202949999999924,
+      "zdrUsd": 0.08710000000000147,
+      "calls": 871,
+      "unmeasured": 0
+    },
+    "routing:jev:jev": {
+      "usd": 0.015516630000000024,
+      "zdrUsd": 0.03840000000000007,
+      "calls": 384,
+      "unmeasured": 0
+    },
+    "routing:gemini:gemini": {
+      "usd": 0.19027722999999983,
+      "zdrUsd": 0.037100000000000036,
+      "calls": 371,
+      "unmeasured": 0
+    },
+    "text-checks:jev:jev": {
+      "usd": 0.024403920000000107,
+      "zdrUsd": 0.13440000000000152,
+      "calls": 1344,
+      "unmeasured": 0
+    },
+    "text-checks:gemini:gemini": {
+      "usd": 0.15167955000000022,
+      "zdrUsd": 0.13440000000000152,
+      "calls": 1344,
+      "unmeasured": 0
+    },
+    "figures:jev:jev": {
+      "usd": 0.019126049999999933,
+      "zdrUsd": 0.08940000000000153,
+      "calls": 894,
+      "unmeasured": 0
+    },
+    "figures:gemini:gemini": {
+      "usd": 0.19126316000000046,
+      "zdrUsd": 0.08940000000000153,
+      "calls": 894,
+      "unmeasured": 0
+    },
+    "judge:jev:jev": {
+      "usd": 0.011602259999999994,
+      "zdrUsd": 0.029999999999999874,
+      "calls": 300,
+      "unmeasured": 0
+    },
+    "judge:gemini:gemini": {
+      "usd": 0.14384898000000007,
+      "zdrUsd": 0.029999999999999874,
+      "calls": 300,
+      "unmeasured": 0
+    }
+  },
+  "uses": {
+    "docsRerank": {
+      "gate": "Per language on the blind bank: page-first +5 points, paired sign test p < 0.05, added p95 <= 1 s.",
+      "pass": {
+        "jev": true,
+        "gemini": false
+      },
+      "detail": {
+        "jev:enNewOnly": {
+          "deltaPts": 7.3,
+          "signTestP": 0.108,
+          "addedMsP95": 422.2,
+          "pass": false
+        },
+        "gemini:enNewOnly": {
+          "deltaPts": 5.6,
+          "signTestP": 0.189,
+          "addedMsP95": 916.6,
+          "pass": false
+        },
+        "jev:en": {
+          "deltaPts": 7.8,
+          "signTestP": 0.0201,
+          "addedMsP95": 446.6,
+          "pass": true
+        },
+        "gemini:en": {
+          "deltaPts": 7.4,
+          "signTestP": 0.0161,
+          "addedMsP95": 902.8,
+          "pass": true
+        },
+        "jev:de": {
+          "deltaPts": 12.8,
+          "signTestP": 0.0386,
+          "addedMsP95": 399.2,
+          "pass": true
+        },
+        "gemini:de": {
+          "deltaPts": 15,
+          "signTestP": 0.0225,
+          "addedMsP95": 1179.5,
+          "pass": false
+        },
+        "jev:pooled": {
+          "deltaPts": 9,
+          "signTestP": 0.00126,
+          "addedMsP95": 422.2,
+          "pass": true
+        },
+        "gemini:pooled": {
+          "deltaPts": 9.3,
+          "signTestP": 0.000606,
+          "addedMsP95": 945.2,
+          "pass": true
+        }
+      },
+      "firstRunDetail": {
+        "jev:en": {
+          "deltaPts": 9.4,
+          "signTestP": 0.0703,
+          "addedMsP95": 501.8,
+          "pass": false
+        },
+        "gemini:en": {
+          "deltaPts": 9.4,
+          "signTestP": 0.0703,
+          "addedMsP95": 992.3,
+          "pass": false
+        },
+        "jev:de": {
+          "deltaPts": 12.8,
+          "signTestP": 0.0386,
+          "addedMsP95": 399.2,
+          "pass": true
+        },
+        "gemini:de": {
+          "deltaPts": 15,
+          "signTestP": 0.0225,
+          "addedMsP95": 1179.5,
+          "pass": false
+        }
+      },
+      "winner": "jev",
+      "note": "Re-tested with the gate unchanged after the English bank grew from 60 to 180 blind questions (docs-rerank-en-extended.json). English now clears it for both models (Jev +7.8 points, 23 wins and 9 losses, p 0.020; Gemini +7.4, p 0.016); German is unchanged from the first run, where Gemini's p95 exceeds 1 s. The 120 new questions alone do not reach significance, and the golden set loses 2 (Jev) or 4 (Gemini) of 67 English questions. Jev is about 7.5x cheaper and 2x faster at equal quality."
+    },
+    "routingShadow": {
+      "gate": "Recall above the lexicon in >= 2 languages at no more false-hit bytes; primary arms use the product toolset summaries.",
+      "pass": {
+        "jev": true,
+        "gemini": true
+      },
+      "detail": {
+        "jev:product": {
+          "betterLanguages": [
+            "de",
+            "es",
+            "fr",
+            "it"
+          ],
+          "falseHitBytesPerRun": 130060,
+          "lexiconFalseHitBytesPerRun": 277713,
+          "pass": true
+        },
+        "gemini:product": {
+          "betterLanguages": [
+            "de",
+            "es",
+            "fr",
+            "it"
+          ],
+          "falseHitBytesPerRun": 38245,
+          "lexiconFalseHitBytesPerRun": 277713,
+          "pass": true
+        },
+        "jev:probeTuned": {
+          "betterLanguages": [
+            "de",
+            "es",
+            "fr",
+            "it"
+          ],
+          "falseHitBytesPerRun": 55778,
+          "lexiconFalseHitBytesPerRun": 277713,
+          "pass": true
+        },
+        "gemini:probeTuned": {
+          "betterLanguages": [
+            "de",
+            "es",
+            "it"
+          ],
+          "falseHitBytesPerRun": 0,
+          "lexiconFalseHitBytesPerRun": 277713,
+          "pass": true
+        }
+      },
+      "winner": "gemini",
+      "note": "Gemini makes 5.7 false hits per run against Jev's 18 (Jev adds views to widget and analysis requests), which is not within noise. The live A/B required by the keep-or-drop rule was not run."
+    },
+    "figureSelfCheck": {
+      "gate": ">= 1 real catch and 0 false alarms on passing episodes.",
+      "pass": {
+        "jev": false,
+        "gemini": false
+      },
+      "detail": {
+        "jev": {
+          "episodes": 320,
+          "episodesWithFigures": 298,
+          "numericFailures": 52,
+          "passing": 267,
+          "catches": 41,
+          "catchRatePct": 78.8,
+          "falseAlarmsOnPassing": 10,
+          "falseAlarmRatePct": 3.7,
+          "flaggedOtherFailures": 0,
+          "failedCalls": 0,
+          "pass": false
+        },
+        "gemini": {
+          "episodes": 320,
+          "episodesWithFigures": 298,
+          "numericFailures": 52,
+          "passing": 267,
+          "catches": 40,
+          "catchRatePct": 76.9,
+          "falseAlarmsOnPassing": 10,
+          "falseAlarmRatePct": 3.7,
+          "flaggedOtherFailures": 0,
+          "failedCalls": 0,
+          "pass": false
+        }
+      },
+      "winner": "tie",
+      "note": "Evidence is the expected facts because stored episodes keep no tool outputs; the false alarms are legitimate intermediate figures missing from those facts."
+    }
+  },
+  "removed": {
+    "textChecks": {
+      "gate": "Per check: >= 98% agreement with gold and at least one regex error fixed.",
+      "pass": {
+        "jev": false,
+        "gemini": false
+      },
+      "evidence": "text-checks.json",
+      "decision": "Removed on 2026-09-27 by owner decision: no check met both conditions, so the regex oracles stay; the evaluation code is deleted and its report kept."
+    },
+    "advisoryJudge": {
+      "gate": "At least one low classifier score on an oracle-failed episode that both judges scored >= 4.",
+      "pass": {
+        "jev": false,
+        "gemini": false
+      },
+      "evidence": "advisory-judge.json",
+      "decision": "Removed on 2026-09-27 by owner decision: both models track the judges but flag none of the 9 oracle failures the judges scored high; the evaluation code is deleted and its report kept."
+    }
+  }
+}

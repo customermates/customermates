@@ -8,6 +8,7 @@ import {
   resolveAppMode,
   resolveAuthAllowedHosts,
   resolveBaseUrl,
+  resolveDocsRerank,
   resolveOptionalBigInt,
   resolveRequestOrigin,
   resolveStrictBoolean,
@@ -291,6 +292,24 @@ describe("hosted-AI control configuration", () => {
 
     for (const invalid of ["TRUE", "1", "yes", "on"])
       expect(() => resolveStrictBoolean("HOSTED_AI_PROVIDER_WORK_PAUSED", invalid)).toThrow(/"true" or "false"/);
+  });
+
+  it("reads an unset docs re-rank as off, so only an explicit jev sends docs text to TypeSafe AI", () => {
+    for (const absent of [undefined, "", "   "]) expect(resolveDocsRerank(absent)).toBe("off");
+
+    expect(resolveDocsRerank(" jev ")).toBe("jev");
+    expect(resolveDocsRerank("off")).toBe("off");
+
+    for (const invalid of ["JEV", "gemini", "true", "v2"])
+      expect(() => resolveDocsRerank(invalid)).toThrow(/AGENT_DOCS_RERANK must be configured as "off" or "jev"/);
+  });
+
+  it("ships the docs re-rank off in the cloud template and names the disclosure it needs first", () => {
+    const template = readFileSync(new URL("../../.env.cloud.template", import.meta.url), "utf8");
+
+    expect(template).toMatch(/^AGENT_DOCS_RERANK="off"$/m);
+    expect(template).toMatch(/TypeSafe AI in the US/);
+    expect(template).toMatch(/Publish that disclosure in the privacy policy and subprocessor list first,\n# then set "jev"/);
   });
 });
 

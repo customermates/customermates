@@ -15,15 +15,25 @@ import {
   type McpToolExecutionResult,
 } from "@/features/mcp-tools/mcp-tool";
 import { RequestSupportSchema } from "@/features/mcp-tools/support.mcp-tools";
+import {
+  getDocsPageRanked,
+  getDocsPageTool,
+  searchDocsRanked,
+  searchDocsTool,
+  type GetDocsPageInput,
+  type SearchDocsInput,
+} from "@/features/mcp-tools/docs.mcp-tools";
 import { redactUnexpectedError } from "@/core/errors/redact-unexpected-error";
 
 import { agentToolResultText } from "./agent-budget-policy";
 import { isReadOnlyTool, requiresApproval } from "./gated-tools";
 import { AGENT_UI_TOOL_NAMES, toAgentUiCommandInput } from "./agent-ui-command";
 import { isUnattendedSurface, type AgentSurface } from "./agent-surface-policy";
+import { approvalDeclineResult } from "./agent-approval-resume";
 import {
   AGENT_ON_DEMAND_TOOLSETS,
   AGENT_TOOLSET_SUMMARY,
+  ANALYZE_RECORDS_TOOL_NAME,
   LOAD_TOOLSET_TOOL_NAME,
   isAgentOnDemandToolset,
 } from "./agent-toolset-routing";
@@ -38,8 +48,11 @@ import { NavigateInputSchema } from "./ui-operations";
 import type { AgentApprovalContextResolution } from "./agent-external-approval-context";
 import { internalToolIdentity } from "./tool-identity";
 import { providerWireInputSchema } from "./provider-safe-json-schema";
+import { ANALYZE_RECORDS_DESCRIPTION, AnalyzeRecordsSchema, analyzeRecords } from "./agent-analysis";
+import { env } from "@/env";
 import type { AgentToolInputResult } from "./agent-tool-input";
 import { agentViewToolMismatch } from "./agent-page-context";
+import { hostedDocsRanking } from "./docs-rerank";
 
 export { isAgentToolCancellation, type AgentToolCancellation } from "./agent-tool-cancellation";
 
@@ -68,7 +81,9 @@ export type AgentToolDeps = {
   runExactlyOnce: <T>(toolCallId: string, toolName: string, run: () => Promise<T>) => Promise<T>;
   runInCallerContext: <T>(run: () => Promise<T>) => Promise<T>;
   resultMaxChars: number;
+  surface?: AgentSurface;
   pageRoute?: string | null;
+  latestUserMessage?: string | null;
 };
 
 function withCallerContext(tools: ToolSet, deps: AgentToolDeps): ToolSet {
@@ -88,17 +103,6 @@ function withCallerContext(tools: ToolSet, deps: AgentToolDeps): ToolSet {
   );
 }
 
-function declineResult(decision: Exclude<ApprovalDecision, "approve">): AgentToolCancellationValue {
-  return {
-    agentToolStatus: "cancelled",
-    reason: decision === "reject" ? "rejected" : "timeout",
-    message:
-      decision === "reject"
-        ? "The user declined this action, so nothing was changed. Ask what they would like to do instead."
-        : "The approval request timed out, so nothing was changed.",
-  };
-}
-
 async function runGated<T>(
   deps: AgentToolDeps,
   toolCallId: string,
@@ -107,7 +111,7 @@ async function runGated<T>(
   run: () => Promise<T>,
 ): Promise<T | AgentToolCancellationValue> {
   const decision = await deps.requestApproval(toolCallId, name, input);
-  if (decision !== "approve") return declineResult(decision);
+  if (decision !== "approve") return approvalDeclineResult(decision, deps.surface);
   return run();
 }
 
@@ -223,7 +227,7 @@ const ListUiTargetsSchema = z.object({
     .max(100)
     .optional()
     .describe(
-      "Optional English page names, routes, target prefixes, or exact target ids; sidebar names, including renamed record types, also match in the app's languages. Any word may match, so one query can cover several pages; an exact id comes first, followed by the ids it prefixes.",
+      "Optional English page names, routes, target prefixes or exact ids; sidebar names, renamed record types included, also match in the app's languages. Any word may match, so one query can cover several pages; an exact id comes first, then the ids it prefixes.",
     ),
   cursor: z.number().int().min(0).max(10_000).optional().describe("Continue a previous result page."),
 });
@@ -329,13 +333,22 @@ async function listUiTargets(input: z.infer<typeof ListUiTargetsSchema>, resultM
   return `${header}${lines.join("\n")}\n${footer}`;
 }
 
+function hostedMcpTool(mcp: (typeof ALL_MCP_TOOLS)[number], deps: AgentToolDeps): (typeof ALL_MCP_TOOLS)[number] {
+  if (mcp.name !== searchDocsTool.name && mcp.name !== getDocsPageTool.name) return mcp;
+  const rank = hostedDocsRanking(deps.latestUserMessage ?? null);
+  if (!rank) return mcp;
+  if (mcp.name === searchDocsTool.name)
+    return { ...mcp, execute: (input: SearchDocsInput) => searchDocsRanked(input, rank) };
+  return { ...mcp, execute: (input: GetDocsPageInput) => getDocsPageRanked(input, rank) };
+}
+
 function crmTool(mcp: (typeof ALL_MCP_TOOLS)[number], deps: AgentToolDeps) {
   return tool({
     description: mcp.description,
     inputSchema: providerSafeSchema(mcp.inputSchema),
     execute: async (input: unknown, { toolCallId }) => {
       const execute = async () => {
-        const outcome = await executeMcpTool(mcp, [input]);
+        const outcome = await executeMcpTool(hostedMcpTool(mcp, deps), [input]);
         return agentToolResult(outcome, deps.resultMaxChars, { toolName: mcp.name, pageRoute: deps.pageRoute });
       };
       const enrollable = !isReadOnlyTool(mcp) && !hasNonTransactionalEffect(mcp.name);
@@ -368,7 +381,7 @@ function uiTools(deps: AgentToolDeps): ToolSet {
   return {
     list_ui_targets: tool({
       description:
-        "List exact stable interface target ids before using an interface tool. Make one focused query with the workflow or page phrase and reuse every relevant id it returns instead of querying ids one by one. Results use action codes n=navigate and h=highlight; >X is what the user must open first: a target id or a named row or card. Continue only when nextCursor is present.",
+        "List exact stable interface target ids before using an interface tool. Make one focused query with the workflow or page phrase and reuse every relevant id it returns. Results use action codes n=navigate and h=highlight; >X is what the user must open first: a target id or a named row or card. Continue only when nextCursor is present.",
       inputSchema: providerSafeSchema(ListUiTargetsSchema),
       execute: (input) => listUiTargets(input, deps.resultMaxChars),
     }),
@@ -403,10 +416,33 @@ function isDeepResearchTool(name: string) {
 }
 
 const LoadToolsetSchema = z.object({
-  toolset: z
-    .enum(AGENT_ON_DEMAND_TOOLSETS)
-    .describe(AGENT_ON_DEMAND_TOOLSETS.map((toolset) => `${toolset} = ${AGENT_TOOLSET_SUMMARY[toolset]}`).join("; ")),
+  toolset: z.enum(AGENT_ON_DEMAND_TOOLSETS).describe("The set to load; the tool description says what each set covers"),
 });
+
+function analyzeRecordsTool(deps: AgentToolDeps) {
+  return tool({
+    description: ANALYZE_RECORDS_DESCRIPTION,
+    inputSchema: providerSafeSchema(AnalyzeRecordsSchema),
+    execute: (input) =>
+      runSafely(
+        () =>
+          analyzeRecords(input, { tools: hostedMcpTools(), resultMaxChars: deps.resultMaxChars }).then((outcome) => ({
+            ok: outcome.ok,
+            result: agentToolResultText(outcome.result, deps.resultMaxChars),
+          })),
+        deps.resultMaxChars,
+      ),
+  });
+}
+
+export const AGENT_HOSTED_TOOL_ANNOTATIONS: Readonly<Record<string, Record<string, boolean>>> = {
+  [ANALYZE_RECORDS_TOOL_NAME]: {
+    readOnlyHint: true,
+    idempotentHint: true,
+    destructiveHint: false,
+    openWorldHint: false,
+  },
+};
 
 function loadToolsetTool() {
   return tool({
@@ -433,6 +469,7 @@ export function getAgentAiTools(deps: AgentToolDeps): ToolSet {
       ...Object.fromEntries(crm),
       ...uiTools(deps),
       [LOAD_TOOLSET_TOOL_NAME]: loadToolsetTool(),
+      ...(env.AGENT_ANALYSIS_TOOL_ENABLED ? { [ANALYZE_RECORDS_TOOL_NAME]: analyzeRecordsTool(deps) } : {}),
       request_support: tool({
         description:
           "Email a support request to the Customermates team. Use when the user asks for a human, reports a bug, or you cannot help after a genuine attempt. The recent Assistant conversation is included, and the team replies to the email address on the user's account.",

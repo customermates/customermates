@@ -1,10 +1,6 @@
 import { describe, expect, it } from "vitest";
 
-import {
-  isOutboundOrSupportAction,
-  isOutboundSupportOrDraftAction,
-  isReadOnlyMixedToolAction,
-} from "../tool-safety";
+import { isOutboundOrSupportAction, isOutboundSupportOrDraftAction } from "../tool-safety";
 
 describe("benchmark outbound-action safety policy", () => {
   it.each([
@@ -20,17 +16,12 @@ describe("benchmark outbound-action safety policy", () => {
     expect(isOutboundOrSupportAction({ name: "linkedin_manage_sales_lists", input: { action: "save" } })).toBe(true);
     expect(isOutboundOrSupportAction({ name: "linkedin_manage_sales_lists", input: { action: "list" } })).toBe(false);
     expect(isOutboundOrSupportAction({ name: "linkedin_manage_sales_lists", input: { action: "browse" } })).toBe(false);
-    expect(isReadOnlyMixedToolAction({ name: "linkedin_manage_sales_lists", input: { action: "list" } })).toBe(true);
-    expect(isReadOnlyMixedToolAction({ name: "linkedin_manage_sales_lists", input: { action: "browse" } })).toBe(true);
-    expect(isReadOnlyMixedToolAction({ name: "linkedin_manage_sales_lists", input: { action: "save" } })).toBe(false);
   });
 
   it("blocks only the mutating actions of the mixed social-relations tool", () => {
     expect(isOutboundOrSupportAction({ name: "manage_social_relations", input: { action: "list" } })).toBe(false);
-    expect(isReadOnlyMixedToolAction({ name: "manage_social_relations", input: { action: "list" } })).toBe(true);
     for (const action of ["invite", "accept", "cancel"]) {
       expect(isOutboundOrSupportAction({ name: "manage_social_relations", input: { action } })).toBe(true);
-      expect(isReadOnlyMixedToolAction({ name: "manage_social_relations", input: { action } })).toBe(false);
     }
   });
 

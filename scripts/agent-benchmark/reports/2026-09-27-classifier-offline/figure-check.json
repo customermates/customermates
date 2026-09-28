@@ -1,0 +1,125 @@
+{
+  "rule": "Keep only if the check flags at least one episode that fails a numeric oracle and flags no passing episode. A figure is unsupported when the majority of 3 runs says the evidence does not state it.",
+  "limitation": "Stored episodes keep no tool outputs, so the evidence is each case's expected facts (judgeFacts), not the tool results the production design would use. N cases carry no facts and are excluded.",
+  "cases": [
+    "A1",
+    "A2",
+    "A3",
+    "A4",
+    "B1",
+    "B2",
+    "B3",
+    "B4"
+  ],
+  "numericChecks": [
+    "count-511",
+    "median-exact",
+    "ranking-exact",
+    "count-exact",
+    "duplicate-names-exact",
+    "surplus-records-exact",
+    "breakdown-exact",
+    "waiting-count-12"
+  ],
+  "figuresPerEpisode": {
+    "mean": 3.5,
+    "max": 17
+  },
+  "results": {
+    "jev": {
+      "episodes": 320,
+      "episodesWithFigures": 298,
+      "numericFailures": 52,
+      "passing": 267,
+      "catches": 41,
+      "catchRatePct": 78.8,
+      "falseAlarmsOnPassing": 10,
+      "falseAlarmRatePct": 3.7,
+      "flaggedOtherFailures": 0,
+      "failedCalls": 0,
+      "pass": false
+    },
+    "gemini": {
+      "episodes": 320,
+      "episodesWithFigures": 298,
+      "numericFailures": 52,
+      "passing": 267,
+      "catches": 40,
+      "catchRatePct": 76.9,
+      "falseAlarmsOnPassing": 10,
+      "falseAlarmRatePct": 3.7,
+      "flaggedOtherFailures": 0,
+      "failedCalls": 0,
+      "pass": false
+    }
+  },
+  "spendSoFarUsd": 2.6102,
+  "spendByUse": {
+    "docs:jev:jev": {
+      "usd": 0.08293335000000002,
+      "zdrUsd": 0.06900000000000095,
+      "calls": 690,
+      "unmeasured": 0
+    },
+    "docs:gemini:gemini": {
+      "usd": 0.6001628600000003,
+      "zdrUsd": 0.06820000000000093,
+      "calls": 682,
+      "unmeasured": 0
+    },
+    "docs:judge:google/gemini-3-flash": {
+      "usd": 0.37202949999999924,
+      "zdrUsd": 0.08710000000000147,
+      "calls": 871,
+      "unmeasured": 0
+    },
+    "routing:jev:jev": {
+      "usd": 0.015516630000000024,
+      "zdrUsd": 0.03840000000000007,
+      "calls": 384,
+      "unmeasured": 0
+    },
+    "routing:gemini:gemini": {
+      "usd": 0.19027722999999983,
+      "zdrUsd": 0.037100000000000036,
+      "calls": 371,
+      "unmeasured": 0
+    },
+    "text-checks:jev:jev": {
+      "usd": 0.024403920000000107,
+      "zdrUsd": 0.13440000000000152,
+      "calls": 1344,
+      "unmeasured": 0
+    },
+    "text-checks:gemini:gemini": {
+      "usd": 0.15167955000000022,
+      "zdrUsd": 0.13440000000000152,
+      "calls": 1344,
+      "unmeasured": 0
+    },
+    "figures:jev:jev": {
+      "usd": 0.019126049999999933,
+      "zdrUsd": 0.08940000000000153,
+      "calls": 894,
+      "unmeasured": 0
+    },
+    "figures:gemini:gemini": {
+      "usd": 0.19126316000000046,
+      "zdrUsd": 0.08940000000000153,
+      "calls": 894,
+      "unmeasured": 0
+    },
+    "judge:jev:jev": {
+      "usd": 0.011602259999999994,
+      "zdrUsd": 0.029999999999999874,
+      "calls": 300,
+      "unmeasured": 0
+    },
+    "judge:gemini:gemini": {
+      "usd": 0.14384898000000007,
+      "zdrUsd": 0.029999999999999874,
+      "calls": 300,
+      "unmeasured": 0
+    }
+  }
+}

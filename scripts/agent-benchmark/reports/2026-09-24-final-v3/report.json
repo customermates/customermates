@@ -1,0 +1,802 @@
+{
+  "report": {
+    "campaignId": "8da8e891-79ca-470e-89c2-9c98c31f838a",
+    "generatedAt": "2026-09-24T21:23:37.736Z",
+    "arms": [
+      {
+        "arm": "flash-lite-low",
+        "label": "Gemini 3.5 Flash-Lite, thinking low",
+        "runtimeVariant": "final-head",
+        "episodes": 10,
+        "skipped": 0,
+        "passRate": 1,
+        "passAt3": 0,
+        "judgeMean": 4.6899999999999995,
+        "judgeCoverage": 1,
+        "judgeDisagreementShare": 0.2,
+        "usdPerEpisode": 0.014192259999999998,
+        "usdPerTurn": 0.014192259999999998,
+        "creditsPerTurn": 1.9,
+        "costPerSuccessfulTask": 0.014192259999999998,
+        "measuredShare": 1,
+        "cacheReadShare": 0.5859485516130378,
+        "cacheWriteShare": 0,
+        "roundsPerTurn": 3.3,
+        "ttftP50Ms": 8029,
+        "ttftP95Ms": 12502,
+        "firstOutputP50Ms": 3303,
+        "firstOutputP95Ms": 5005,
+        "wallP50Ms": 8679,
+        "wallP95Ms": 12782,
+        "lengthFinishShare": 0,
+        "incompleteTurnShare": 0,
+        "neverSolvedCases": []
+      },
+      {
+        "arm": "flash-lite-low",
+        "label": "Gemini 3.5 Flash-Lite, thinking low",
+        "runtimeVariant": "final-v3",
+        "episodes": 204,
+        "skipped": 0,
+        "passRate": 0.9558823529411765,
+        "passAt3": 0.8888888888888888,
+        "judgeMean": 4.5632352941176455,
+        "judgeCoverage": 1,
+        "judgeDisagreementShare": 0.1715686274509804,
+        "usdPerEpisode": 0.015100434068627452,
+        "usdPerTurn": 0.014066157762557078,
+        "creditsPerTurn": 1.9315068493150684,
+        "costPerSuccessfulTask": 0.01579737717948718,
+        "measuredShare": 0.9803921568627451,
+        "cacheReadShare": 0.6265358252990817,
+        "cacheWriteShare": 0,
+        "roundsPerTurn": 3.4292237442922375,
+        "ttftP50Ms": 6483,
+        "ttftP95Ms": 14573,
+        "firstOutputP50Ms": 2149,
+        "firstOutputP95Ms": 5700,
+        "wallP50Ms": 6945,
+        "wallP95Ms": 15442,
+        "lengthFinishShare": 0,
+        "incompleteTurnShare": 0.0045662100456621,
+        "neverSolvedCases": []
+      },
+      {
+        "arm": "flash-lite-low",
+        "label": "Gemini 3.5 Flash-Lite, thinking low",
+        "runtimeVariant": "final-head-2",
+        "episodes": 10,
+        "skipped": 0,
+        "passRate": 0.9,
+        "passAt3": 0,
+        "judgeMean": 4.369999999999999,
+        "judgeCoverage": 1,
+        "judgeDisagreementShare": 0.1,
+        "usdPerEpisode": 0.011620271,
+        "usdPerTurn": 0.011620271,
+        "creditsPerTurn": 1.6,
+        "costPerSuccessfulTask": 0.012911412222222222,
+        "measuredShare": 1,
+        "cacheReadShare": 0.7119245839159294,
+        "cacheWriteShare": 0,
+        "roundsPerTurn": 3.6,
+        "ttftP50Ms": 5785,
+        "ttftP95Ms": 14830,
+        "firstOutputP50Ms": 2765,
+        "firstOutputP95Ms": 4066,
+        "wallP50Ms": 6061,
+        "wallP95Ms": 14951,
+        "lengthFinishShare": 0,
+        "incompleteTurnShare": 0,
+        "neverSolvedCases": []
+      },
+      {
+        "arm": "haiku45",
+        "label": "Claude Haiku 4.5 (Bedrock EU)",
+        "runtimeVariant": "cross-provider",
+        "episodes": 5,
+        "skipped": 0,
+        "passRate": 0.8,
+        "passAt3": 0,
+        "judgeMean": 4.88,
+        "judgeCoverage": 1,
+        "judgeDisagreementShare": 0,
+        "usdPerEpisode": 0.06712396200000001,
+        "usdPerTurn": 0.06712396200000001,
+        "creditsPerTurn": 7.2,
+        "costPerSuccessfulTask": 0.0839049525,
+        "measuredShare": 1,
+        "cacheReadShare": 0.7611358054537563,
+        "cacheWriteShare": 0.2387117245320132,
+        "roundsPerTurn": 4.6,
+        "ttftP50Ms": 1458,
+        "ttftP95Ms": 2780,
+        "firstOutputP50Ms": 1458,
+        "firstOutputP95Ms": 2780,
+        "wallP50Ms": 15028,
+        "wallP95Ms": 21812,
+        "lengthFinishShare": 0,
+        "incompleteTurnShare": 0,
+        "neverSolvedCases": [
+          "N13"
+        ]
+      },
+      {
+        "arm": "nano-low",
+        "label": "GPT-5 Nano, reasoning low (the fast catalog key)",
+        "runtimeVariant": "final-head-2",
+        "episodes": 10,
+        "skipped": 0,
+        "passRate": 0.2,
+        "passAt3": 0,
+        "judgeMean": 2.1500000000000004,
+        "judgeCoverage": 1,
+        "judgeDisagreementShare": 0,
+        "usdPerEpisode": 0.0032128989999999995,
+        "usdPerTurn": 0.0032128989999999995,
+        "creditsPerTurn": 1,
+        "costPerSuccessfulTask": 0.016064494999999998,
+        "measuredShare": 1,
+        "cacheReadShare": 0.8929996957557566,
+        "cacheWriteShare": 0,
+        "roundsPerTurn": 5.6,
+        "ttftP50Ms": 73805,
+        "ttftP95Ms": 179766,
+        "firstOutputP50Ms": 11254,
+        "firstOutputP95Ms": 28924,
+        "wallP50Ms": 74704,
+        "wallP95Ms": 180206,
+        "lengthFinishShare": 0,
+        "incompleteTurnShare": 0,
+        "neverSolvedCases": [
+          "A1",
+          "A3",
+          "A4",
+          "N13"
+        ]
+      },
+      {
+        "arm": "nano-low",
+        "label": "GPT-5 Nano, reasoning low (the fast catalog key)",
+        "runtimeVariant": "cross-provider",
+        "episodes": 5,
+        "skipped": 0,
+        "passRate": 0.2,
+        "passAt3": 0,
+        "judgeMean": 2.12,
+        "judgeCoverage": 1,
+        "judgeDisagreementShare": 0,
+        "usdPerEpisode": 0.0036195999999999997,
+        "usdPerTurn": 0.0036195999999999997,
+        "creditsPerTurn": 1,
+        "costPerSuccessfulTask": 0.018098,
+        "measuredShare": 1,
+        "cacheReadShare": 0.8570274828380722,
+        "cacheWriteShare": 0,
+        "roundsPerTurn": 5.8,
+        "ttftP50Ms": 65593,
+        "ttftP95Ms": 193515,
+        "firstOutputP50Ms": 14602,
+        "firstOutputP95Ms": 25137,
+        "wallP50Ms": 66171,
+        "wallP95Ms": 194095,
+        "lengthFinishShare": 0,
+        "incompleteTurnShare": 0,
+        "neverSolvedCases": [
+          "A1",
+          "A3",
+          "A4",
+          "N13"
+        ]
+      },
+      {
+        "arm": "nano-low",
+        "label": "GPT-5 Nano, reasoning low (the fast catalog key)",
+        "runtimeVariant": "final-head",
+        "episodes": 10,
+        "skipped": 0,
+        "passRate": 0.1,
+        "passAt3": 0,
+        "judgeMean": 2.24,
+        "judgeCoverage": 1,
+        "judgeDisagreementShare": 0,
+        "usdPerEpisode": 0.0031474849999999998,
+        "usdPerTurn": 0.0031474849999999998,
+        "creditsPerTurn": 1,
+        "costPerSuccessfulTask": 0.03147485,
+        "measuredShare": 1,
+        "cacheReadShare": 0.9015359731524331,
+        "cacheWriteShare": 0,
+        "roundsPerTurn": 6.1,
+        "ttftP50Ms": 54950,
+        "ttftP95Ms": 180875,
+        "firstOutputP50Ms": 17448,
+        "firstOutputP95Ms": 52381,
+        "wallP50Ms": 55562,
+        "wallP95Ms": 181461,
+        "lengthFinishShare": 0,
+        "incompleteTurnShare": 0,
+        "neverSolvedCases": [
+          "A1",
+          "A3",
+          "A4",
+          "N13"
+        ]
+      }
+    ],
+    "comparisons": [],
+    "caseMatrix": {
+      "A1": {
+        "cross-provider/haiku45": "1/1",
+        "cross-provider/nano-low": "0/1",
+        "final-head/flash-lite-low": "2/2",
+        "final-head/nano-low": "0/2",
+        "final-head-2/flash-lite-low": "2/2",
+        "final-head-2/nano-low": "0/2",
+        "final-v3/flash-lite-low": "10/10"
+      },
+      "A2": {
+        "cross-provider/haiku45": "1/1",
+        "cross-provider/nano-low": "1/1",
+        "final-head/flash-lite-low": "2/2",
+        "final-head/nano-low": "1/2",
+        "final-head-2/flash-lite-low": "2/2",
+        "final-head-2/nano-low": "2/2",
+        "final-v3/flash-lite-low": "9/10"
+      },
+      "A3": {
+        "cross-provider/haiku45": "1/1",
+        "cross-provider/nano-low": "0/1",
+        "final-head/flash-lite-low": "2/2",
+        "final-head/nano-low": "0/2",
+        "final-head-2/flash-lite-low": "2/2",
+        "final-head-2/nano-low": "0/2",
+        "final-v3/flash-lite-low": "10/10"
+      },
+      "A4": {
+        "cross-provider/haiku45": "1/1",
+        "cross-provider/nano-low": "0/1",
+        "final-head/flash-lite-low": "2/2",
+        "final-head/nano-low": "0/2",
+        "final-head-2/flash-lite-low": "1/2",
+        "final-head-2/nano-low": "0/2",
+        "final-v3/flash-lite-low": "9/10"
+      },
+      "N13": {
+        "cross-provider/haiku45": "0/1",
+        "cross-provider/nano-low": "0/1",
+        "final-head/flash-lite-low": "2/2",
+        "final-head/nano-low": "0/2",
+        "final-head-2/flash-lite-low": "2/2",
+        "final-head-2/nano-low": "0/2",
+        "final-v3/flash-lite-low": "10/10"
+      },
+      "B1": {
+        "final-v3/flash-lite-low": "5/5"
+      },
+      "B2": {
+        "final-v3/flash-lite-low": "4/5"
+      },
+      "B3": {
+        "final-v3/flash-lite-low": "8/10"
+      },
+      "B4": {
+        "final-v3/flash-lite-low": "5/5"
+      },
+      "B5": {
+        "final-v3/flash-lite-low": "3/3"
+      },
+      "C25": {
+        "final-v3/flash-lite-low": "3/3"
+      },
+      "C26": {
+        "final-v3/flash-lite-low": "2/3"
+      },
+      "C27": {
+        "final-v3/flash-lite-low": "3/3"
+      },
+      "C28": {
+        "final-v3/flash-lite-low": "3/3"
+      },
+      "C29": {
+        "final-v3/flash-lite-low": "3/3"
+      },
+      "C30": {
+        "final-v3/flash-lite-low": "3/3"
+      },
+      "C31": {
+        "final-v3/flash-lite-low": "3/3"
+      },
+      "C32": {
+        "final-v3/flash-lite-low": "3/3"
+      },
+      "C33": {
+        "final-v3/flash-lite-low": "3/3"
+      },
+      "C34": {
+        "final-v3/flash-lite-low": "3/3"
+      },
+      "C35": {
+        "final-v3/flash-lite-low": "3/3"
+      },
+      "C36": {
+        "final-v3/flash-lite-low": "3/3"
+      },
+      "H10": {
+        "final-v3/flash-lite-low": "3/3"
+      },
+      "H11": {
+        "final-v3/flash-lite-low": "3/3"
+      },
+      "H12": {
+        "final-v3/flash-lite-low": "2/3"
+      },
+      "H9": {
+        "final-v3/flash-lite-low": "3/3"
+      },
+      "M5": {
+        "final-v3/flash-lite-low": "3/3"
+      },
+      "M6": {
+        "final-v3/flash-lite-low": "3/3"
+      },
+      "M7": {
+        "final-v3/flash-lite-low": "8/10"
+      },
+      "M8": {
+        "final-v3/flash-lite-low": "3/3"
+      },
+      "N14": {
+        "final-v3/flash-lite-low": "10/10"
+      },
+      "N15": {
+        "final-v3/flash-lite-low": "10/10"
+      },
+      "N16": {
+        "final-v3/flash-lite-low": "3/3"
+      },
+      "N17": {
+        "final-v3/flash-lite-low": "3/3"
+      },
+      "N18": {
+        "final-v3/flash-lite-low": "3/3"
+      },
+      "N19": {
+        "final-v3/flash-lite-low": "3/3"
+      },
+      "N20": {
+        "final-v3/flash-lite-low": "3/3"
+      },
+      "N21": {
+        "final-v3/flash-lite-low": "3/3"
+      },
+      "N22": {
+        "final-v3/flash-lite-low": "3/3"
+      },
+      "N23": {
+        "final-v3/flash-lite-low": "3/3"
+      },
+      "N24": {
+        "final-v3/flash-lite-low": "3/3"
+      },
+      "S1": {
+        "final-v3/flash-lite-low": "3/3"
+      },
+      "S2": {
+        "final-v3/flash-lite-low": "3/3"
+      },
+      "S3": {
+        "final-v3/flash-lite-low": "3/3"
+      },
+      "S4": {
+        "final-v3/flash-lite-low": "3/3"
+      }
+    },
+    "uniformlyFailingChecks": [],
+    "judgeModels": [
+      {
+        "model": "anthropic/claude-opus-5",
+        "judged": 254,
+        "episodes": 254,
+        "mean": 4.145669291338587
+      },
+      {
+        "model": "openai/gpt-5.6-sol",
+        "judged": 254,
+        "episodes": 254,
+        "mean": 4.518897637795275
+      }
+    ],
+    "skippedEpisodes": [],
+    "totalUsd": 3.7559355100000014
+  },
+  "selection": {
+    "defaultArm": {
+      "arm": "flash-lite-low",
+      "label": "Gemini 3.5 Flash-Lite, thinking low",
+      "runtimeVariant": "final-v3",
+      "episodes": 204,
+      "skipped": 0,
+      "passRate": 0.9558823529411765,
+      "passAt3": 0.8888888888888888,
+      "judgeMean": 4.5632352941176455,
+      "judgeCoverage": 1,
+      "judgeDisagreementShare": 0.1715686274509804,
+      "usdPerEpisode": 0.015100434068627452,
+      "usdPerTurn": 0.014066157762557078,
+      "creditsPerTurn": 1.9315068493150684,
+      "costPerSuccessfulTask": 0.01579737717948718,
+      "measuredShare": 0.9803921568627451,
+      "cacheReadShare": 0.6265358252990817,
+      "cacheWriteShare": 0,
+      "roundsPerTurn": 3.4292237442922375,
+      "ttftP50Ms": 6483,
+      "ttftP95Ms": 14573,
+      "firstOutputP50Ms": 2149,
+      "firstOutputP95Ms": 5700,
+      "wallP50Ms": 6945,
+      "wallP95Ms": 15442,
+      "lengthFinishShare": 0,
+      "incompleteTurnShare": 0.0045662100456621,
+      "neverSolvedCases": []
+    },
+    "deepArm": null,
+    "reasoning": [
+      "final-head/flash-lite-low: ineligible (zdr/no-training true, measured 100 %, episodes 10 for 45 cases)",
+      "final-head-2/flash-lite-low: ineligible (zdr/no-training true, measured 100 %, episodes 10 for 45 cases)",
+      "cross-provider/haiku45: ineligible (zdr/no-training true, measured 100 %, episodes 5 for 45 cases)",
+      "final-head-2/nano-low: ineligible (zdr/no-training true, measured 100 %, episodes 10 for 45 cases)",
+      "cross-provider/nano-low: ineligible (zdr/no-training true, measured 100 %, episodes 5 for 45 cases)",
+      "final-head/nano-low: ineligible (zdr/no-training true, measured 100 %, episodes 10 for 45 cases)",
+      "final-v3/flash-lite-low: below the speed floor (wall p50 6.9 s, TTFT p50 6.5 s)",
+      "no other arm passes the quality floor; the best arm ships because it costs 1.9 credits per turn",
+      "deep mode omitted: it would be the default arm"
+    ]
+  },
+  "armsVerified": {
+    "verifiedAt": "2026-09-20T15:44:18.973Z",
+    "results": [
+      {
+        "arm": "shipped",
+        "modelId": "google/gemini-3.5-flash-lite",
+        "provider": "vertex",
+        "eligible": true,
+        "hasZdr": true,
+        "hasNoTraining": true,
+        "reason": null,
+        "promptUsd": "0.0000003",
+        "completionUsd": "0.0000025"
+      },
+      {
+        "arm": "flash-lite-minimal",
+        "modelId": "google/gemini-3.5-flash-lite",
+        "provider": "vertex",
+        "eligible": true,
+        "hasZdr": true,
+        "hasNoTraining": true,
+        "reason": null,
+        "promptUsd": "0.0000003",
+        "completionUsd": "0.0000025"
+      },
+      {
+        "arm": "flash-lite-low",
+        "modelId": "google/gemini-3.5-flash-lite",
+        "provider": "vertex",
+        "eligible": true,
+        "hasZdr": true,
+        "hasNoTraining": true,
+        "reason": null,
+        "promptUsd": "0.0000003",
+        "completionUsd": "0.0000025"
+      },
+      {
+        "arm": "flash-lite-medium",
+        "modelId": "google/gemini-3.5-flash-lite",
+        "provider": "vertex",
+        "eligible": true,
+        "hasZdr": true,
+        "hasNoTraining": true,
+        "reason": null,
+        "promptUsd": "0.0000003",
+        "completionUsd": "0.0000025"
+      },
+      {
+        "arm": "flash-lite-high",
+        "modelId": "google/gemini-3.5-flash-lite",
+        "provider": "vertex",
+        "eligible": true,
+        "hasZdr": true,
+        "hasNoTraining": true,
+        "reason": null,
+        "promptUsd": "0.0000003",
+        "completionUsd": "0.0000025"
+      },
+      {
+        "arm": "flash-low",
+        "modelId": "google/gemini-3.5-flash",
+        "provider": "vertex",
+        "eligible": true,
+        "hasZdr": true,
+        "hasNoTraining": true,
+        "reason": null,
+        "promptUsd": "0.0000015",
+        "completionUsd": "0.000009"
+      },
+      {
+        "arm": "flash-medium",
+        "modelId": "google/gemini-3.5-flash",
+        "provider": "vertex",
+        "eligible": true,
+        "hasZdr": true,
+        "hasNoTraining": true,
+        "reason": null,
+        "promptUsd": "0.0000015",
+        "completionUsd": "0.000009"
+      },
+      {
+        "arm": "flash36-low",
+        "modelId": "google/gemini-3.6-flash",
+        "provider": "vertex",
+        "eligible": true,
+        "hasZdr": true,
+        "hasNoTraining": true,
+        "reason": null,
+        "promptUsd": "0.00000075",
+        "completionUsd": "0.00000375"
+      },
+      {
+        "arm": "flash38-low",
+        "modelId": "google/gemini-3.8-flash",
+        "provider": "vertex",
+        "eligible": true,
+        "hasZdr": true,
+        "hasNoTraining": true,
+        "reason": null,
+        "promptUsd": "0.00000075",
+        "completionUsd": "0.00000375"
+      },
+      {
+        "arm": "flash-lite31-low",
+        "modelId": "google/gemini-3.1-flash-lite",
+        "provider": "vertex",
+        "eligible": true,
+        "hasZdr": true,
+        "hasNoTraining": true,
+        "reason": null,
+        "promptUsd": "0.00000025",
+        "completionUsd": "0.0000015"
+      },
+      {
+        "arm": "luna-none",
+        "modelId": "openai/gpt-5.6-luna",
+        "provider": "azure",
+        "eligible": true,
+        "hasZdr": true,
+        "hasNoTraining": true,
+        "reason": null,
+        "promptUsd": "0.0000002",
+        "completionUsd": "0.0000012"
+      },
+      {
+        "arm": "luna-low",
+        "modelId": "openai/gpt-5.6-luna",
+        "provider": "azure",
+        "eligible": true,
+        "hasZdr": true,
+        "hasNoTraining": true,
+        "reason": null,
+        "promptUsd": "0.0000002",
+        "completionUsd": "0.0000012"
+      },
+      {
+        "arm": "luna-medium",
+        "modelId": "openai/gpt-5.6-luna",
+        "provider": "azure",
+        "eligible": true,
+        "hasZdr": true,
+        "hasNoTraining": true,
+        "reason": null,
+        "promptUsd": "0.0000002",
+        "completionUsd": "0.0000012"
+      },
+      {
+        "arm": "terra-low",
+        "modelId": "openai/gpt-5.6-terra",
+        "provider": "azure",
+        "eligible": true,
+        "hasZdr": true,
+        "hasNoTraining": true,
+        "reason": null,
+        "promptUsd": "0.000002",
+        "completionUsd": "0.000012"
+      },
+      {
+        "arm": "sol-low",
+        "modelId": "openai/gpt-5.6-sol",
+        "provider": "azure",
+        "eligible": true,
+        "hasZdr": true,
+        "hasNoTraining": true,
+        "reason": null,
+        "promptUsd": "0.000005",
+        "completionUsd": "0.00003"
+      },
+      {
+        "arm": "nano-low",
+        "modelId": "openai/gpt-5-nano",
+        "provider": "azure",
+        "eligible": true,
+        "hasZdr": true,
+        "hasNoTraining": true,
+        "reason": null,
+        "promptUsd": "0.00000005",
+        "completionUsd": "0.0000004"
+      },
+      {
+        "arm": "gpt5-mini-low",
+        "modelId": "openai/gpt-5-mini",
+        "provider": "azure",
+        "eligible": true,
+        "hasZdr": true,
+        "hasNoTraining": true,
+        "reason": null,
+        "promptUsd": "0.00000025",
+        "completionUsd": "0.000002"
+      },
+      {
+        "arm": "gpt54-mini-low",
+        "modelId": "openai/gpt-5.4-mini",
+        "provider": "azure",
+        "eligible": true,
+        "hasZdr": true,
+        "hasNoTraining": true,
+        "reason": null,
+        "promptUsd": "0.00000075",
+        "completionUsd": "0.0000045"
+      },
+      {
+        "arm": "gpt54-nano-low",
+        "modelId": "openai/gpt-5.4-nano",
+        "provider": "azure",
+        "eligible": true,
+        "hasZdr": true,
+        "hasNoTraining": true,
+        "reason": null,
+        "promptUsd": "0.0000002",
+        "completionUsd": "0.00000125"
+      },
+      {
+        "arm": "haiku45",
+        "modelId": "anthropic/claude-haiku-4.5",
+        "provider": "bedrock",
+        "eligible": true,
+        "hasZdr": true,
+        "hasNoTraining": true,
+        "reason": null,
+        "promptUsd": "0.000001",
+        "completionUsd": "0.000005"
+      },
+      {
+        "arm": "sonnet5-low",
+        "modelId": "anthropic/claude-sonnet-5",
+        "provider": "bedrock",
+        "eligible": true,
+        "hasZdr": true,
+        "hasNoTraining": true,
+        "reason": null,
+        "promptUsd": "0.000002",
+        "completionUsd": "0.00001"
+      },
+      {
+        "arm": "sonnet5-medium",
+        "modelId": "anthropic/claude-sonnet-5",
+        "provider": "bedrock",
+        "eligible": true,
+        "hasZdr": true,
+        "hasNoTraining": true,
+        "reason": null,
+        "promptUsd": "0.000002",
+        "completionUsd": "0.00001"
+      },
+      {
+        "arm": "opus5-low",
+        "modelId": "anthropic/claude-opus-5",
+        "provider": "bedrock",
+        "eligible": true,
+        "hasZdr": true,
+        "hasNoTraining": true,
+        "reason": null,
+        "promptUsd": "0.000005",
+        "completionUsd": "0.000025"
+      },
+      {
+        "arm": "deepseek-flash-high",
+        "modelId": "deepseek/deepseek-v4-flash",
+        "provider": "azure",
+        "eligible": true,
+        "hasZdr": true,
+        "hasNoTraining": true,
+        "reason": null,
+        "promptUsd": "0.00000019",
+        "completionUsd": "0.00000051"
+      },
+      {
+        "arm": "deepseek-pro-high",
+        "modelId": "deepseek/deepseek-v4-pro",
+        "provider": "azure",
+        "eligible": true,
+        "hasZdr": true,
+        "hasNoTraining": true,
+        "reason": null,
+        "promptUsd": "0.00000174",
+        "completionUsd": "0.00000348"
+      },
+      {
+        "arm": "glm53-flash-low",
+        "modelId": "zai/glm-5.3-flash",
+        "provider": "baseten",
+        "eligible": true,
+        "hasZdr": true,
+        "hasNoTraining": true,
+        "reason": null,
+        "promptUsd": "0.00000015",
+        "completionUsd": "0.0000005"
+      },
+      {
+        "arm": "glm53-flash-high",
+        "modelId": "zai/glm-5.3-flash",
+        "provider": "baseten",
+        "eligible": true,
+        "hasZdr": true,
+        "hasNoTraining": true,
+        "reason": null,
+        "promptUsd": "0.00000015",
+        "completionUsd": "0.0000005"
+      },
+      {
+        "arm": "glm53-low",
+        "modelId": "zai/glm-5.3",
+        "provider": "baseten",
+        "eligible": true,
+        "hasZdr": true,
+        "hasNoTraining": true,
+        "reason": null,
+        "promptUsd": "0.0000014",
+        "completionUsd": "0.0000044"
+      },
+      {
+        "arm": "kimi-k27-code",
+        "modelId": "moonshotai/kimi-k2.7-code",
+        "provider": "baseten",
+        "eligible": true,
+        "hasZdr": true,
+        "hasNoTraining": true,
+        "reason": null,
+        "promptUsd": "0.00000095",
+        "completionUsd": "0.000004"
+      },
+      {
+        "arm": "mistral-large-3",
+        "modelId": "mistral/mistral-large-3",
+        "provider": "mistral",
+        "eligible": true,
+        "hasZdr": true,
+        "hasNoTraining": true,
+        "reason": null,
+        "promptUsd": "0.0000005",
+        "completionUsd": "0.0000015"
+      },
+      {
+        "arm": "qwen3-coder-next",
+        "modelId": "alibaba/qwen3-coder-next",
+        "provider": "bedrock",
+        "eligible": true,
+        "hasZdr": true,
+        "hasNoTraining": true,
+        "reason": null,
+        "promptUsd": "0.0000005",
+        "completionUsd": "0.0000012"
+      }
+    ]
+  }
+}

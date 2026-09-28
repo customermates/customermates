@@ -66,6 +66,10 @@
         "widgets": {
           "configure": "Listo para cambiar los widgets del panel",
           "delete": "Listo para eliminar de forma permanente un widget del panel"
+        },
+        "workspace": {
+          "settings": "Listo para cambiar la configuración del espacio de trabajo, incluidos los nombres de los tipos de registro",
+          "terminology": "Listo para renombrar tipos de registro en todo el espacio de trabajo"
         }
       },
       "cancelled": "Detenido",
@@ -242,6 +246,11 @@
           }
         },
         "records": {
+          "analyze": {
+            "done": "Análisis de {resource} completado",
+            "error": "Error al analizar {resource}",
+            "running": "Analizando {resource}"
+          },
           "create": {
             "done": "{count, plural, one {Creación de {target} completada} other {Creación de {target} completada}}",
             "error": "{count, plural, one {Error al crear {target}} other {Error al crear {target}}}",

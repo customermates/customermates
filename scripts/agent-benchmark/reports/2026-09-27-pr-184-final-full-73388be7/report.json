@@ -1,0 +1,1052 @@
+{
+  "report": {
+    "campaignId": "73388be7-1c8d-46c0-ab05-a99ffc3906a4",
+    "generatedAt": "2026-09-27T08:01:27.725Z",
+    "cohort": {
+      "schemaVersion": "5",
+      "fixtureVersion": "chat-benchmark-fixture-v7",
+      "sourceCommits": [
+        "e3bccaaf9d407296f4efa2a48900bd15e5716fcf"
+      ],
+      "hasDirtyArtifacts": false
+    },
+    "arms": [
+      {
+        "arm": "shipped",
+        "label": "google/gemini-3.5-flash-lite, balanced catalog configuration (shipped)",
+        "runtimeVariant": "final",
+        "sourceCommit": "e3bccaaf9d407296f4efa2a48900bd15e5716fcf",
+        "sourceDirty": false,
+        "episodes": 168,
+        "distinctCases": 56,
+        "coverage": [
+          "A1:r1",
+          "A1:r2",
+          "A1:r3",
+          "A2:r1",
+          "A2:r2",
+          "A2:r3",
+          "A3:r1",
+          "A3:r2",
+          "A3:r3",
+          "A4:r1",
+          "A4:r2",
+          "A4:r3",
+          "B1:r1",
+          "B1:r2",
+          "B1:r3",
+          "B2:r1",
+          "B2:r2",
+          "B2:r3",
+          "B3:r1",
+          "B3:r2",
+          "B3:r3",
+          "B4:r1",
+          "B4:r2",
+          "B4:r3",
+          "B5:r1",
+          "B5:r2",
+          "B5:r3",
+          "C25:r1",
+          "C25:r2",
+          "C25:r3",
+          "C26:r1",
+          "C26:r2",
+          "C26:r3",
+          "C27:r1",
+          "C27:r2",
+          "C27:r3",
+          "C28:r1",
+          "C28:r2",
+          "C28:r3",
+          "C29:r1",
+          "C29:r2",
+          "C29:r3",
+          "C30:r1",
+          "C30:r2",
+          "C30:r3",
+          "C31:r1",
+          "C31:r2",
+          "C31:r3",
+          "C32:r1",
+          "C32:r2",
+          "C32:r3",
+          "C33:r1",
+          "C33:r2",
+          "C33:r3",
+          "C34:r1",
+          "C34:r2",
+          "C34:r3",
+          "C35:r1",
+          "C35:r2",
+          "C35:r3",
+          "C36:r1",
+          "C36:r2",
+          "C36:r3",
+          "H10:r1",
+          "H10:r2",
+          "H10:r3",
+          "H11:r1",
+          "H11:r2",
+          "H11:r3",
+          "H12:r1",
+          "H12:r2",
+          "H12:r3",
+          "H9:r1",
+          "H9:r2",
+          "H9:r3",
+          "M5:r1",
+          "M5:r2",
+          "M5:r3",
+          "M6:r1",
+          "M6:r2",
+          "M6:r3",
+          "M7:r1",
+          "M7:r2",
+          "M7:r3",
+          "M8:r1",
+          "M8:r2",
+          "M8:r3",
+          "N13:r1",
+          "N13:r2",
+          "N13:r3",
+          "N14:r1",
+          "N14:r2",
+          "N14:r3",
+          "N15:r1",
+          "N15:r2",
+          "N15:r3",
+          "N16:r1",
+          "N16:r2",
+          "N16:r3",
+          "N17:r1",
+          "N17:r2",
+          "N17:r3",
+          "N18:r1",
+          "N18:r2",
+          "N18:r3",
+          "N19:r1",
+          "N19:r2",
+          "N19:r3",
+          "N20:r1",
+          "N20:r2",
+          "N20:r3",
+          "N21:r1",
+          "N21:r2",
+          "N21:r3",
+          "N22:r1",
+          "N22:r2",
+          "N22:r3",
+          "N23:r1",
+          "N23:r2",
+          "N23:r3",
+          "N24:r1",
+          "N24:r2",
+          "N24:r3",
+          "R47:r1",
+          "R47:r2",
+          "R47:r3",
+          "R48:r1",
+          "R48:r2",
+          "R48:r3",
+          "R53:r1",
+          "R53:r2",
+          "R53:r3",
+          "S1:r1",
+          "S1:r2",
+          "S1:r3",
+          "S2:r1",
+          "S2:r2",
+          "S2:r3",
+          "S3:r1",
+          "S3:r2",
+          "S3:r3",
+          "S4:r1",
+          "S4:r2",
+          "S4:r3",
+          "U44:r1",
+          "U44:r2",
+          "U44:r3",
+          "U45:r1",
+          "U45:r2",
+          "U45:r3",
+          "U46:r1",
+          "U46:r2",
+          "U46:r3",
+          "V37:r1",
+          "V37:r2",
+          "V37:r3",
+          "V38:r1",
+          "V38:r2",
+          "V38:r3",
+          "V39:r1",
+          "V39:r2",
+          "V39:r3",
+          "V40:r1",
+          "V40:r2",
+          "V40:r3",
+          "V41:r1",
+          "V41:r2",
+          "V41:r3"
+        ],
+        "skipped": 0,
+        "contractEpisodes": 54,
+        "contractPassed": 54,
+        "passRate": 0.9642857142857143,
+        "passAt3": 0.9285714285714286,
+        "judgeMean": 4.603703703703699,
+        "judgeComplete": 135,
+        "judgeEligible": 135,
+        "judgeDisagreementShare": 0.15555555555555556,
+        "usdPerEpisode": 0.012207599107142864,
+        "usdPerTurn": 0.011026218548387102,
+        "creditsPerTurn": 1.564516129032258,
+        "costPerSuccessfulTask": 0.012659732407407413,
+        "measuredShare": 0.9821428571428571,
+        "cacheReadShare": 0.7181620476681315,
+        "cacheWriteShare": 0,
+        "roundsPerTurn": 3.2419354838709675,
+        "ttftP50Ms": 5803,
+        "ttftP95Ms": 12148,
+        "firstOutputP50Ms": 1962,
+        "firstOutputP95Ms": 3832,
+        "wallP50Ms": 6424,
+        "wallP95Ms": 13232,
+        "lengthFinishShare": 0,
+        "incompleteTurnShare": 0,
+        "neverSolvedCases": []
+      },
+      {
+        "arm": "shipped",
+        "label": "google/gemini-3.5-flash-lite, balanced catalog configuration (shipped)",
+        "runtimeVariant": "final-extra",
+        "sourceCommit": "e3bccaaf9d407296f4efa2a48900bd15e5716fcf",
+        "sourceDirty": false,
+        "episodes": 14,
+        "distinctCases": 2,
+        "coverage": [
+          "C36:r1",
+          "C36:r2",
+          "C36:r3",
+          "C36:r4",
+          "C36:r5",
+          "C36:r6",
+          "C36:r7",
+          "N14:r1",
+          "N14:r2",
+          "N14:r3",
+          "N14:r4",
+          "N14:r5",
+          "N14:r6",
+          "N14:r7"
+        ],
+        "skipped": 0,
+        "contractEpisodes": 0,
+        "contractPassed": 0,
+        "passRate": 0.9285714285714286,
+        "passAt3": 1,
+        "judgeMean": 4.4071428571428575,
+        "judgeComplete": 14,
+        "judgeEligible": 14,
+        "judgeDisagreementShare": 0.42857142857142855,
+        "usdPerEpisode": 0.021231450714285716,
+        "usdPerTurn": 0.014154300476190476,
+        "creditsPerTurn": 1.9047619047619047,
+        "costPerSuccessfulTask": 0.022864639230769233,
+        "measuredShare": 1,
+        "cacheReadShare": 0.7012865107385411,
+        "cacheWriteShare": 0,
+        "roundsPerTurn": 3.4285714285714284,
+        "ttftP50Ms": 8168,
+        "ttftP95Ms": 12894,
+        "firstOutputP50Ms": 2600,
+        "firstOutputP95Ms": 3714,
+        "wallP50Ms": 8631,
+        "wallP95Ms": 13741,
+        "lengthFinishShare": 0,
+        "incompleteTurnShare": 0,
+        "neverSolvedCases": []
+      }
+    ],
+    "comparisons": [],
+    "caseMatrix": {
+      "A1": {
+        "final/shipped": "3/3"
+      },
+      "A2": {
+        "final/shipped": "3/3"
+      },
+      "A3": {
+        "final/shipped": "3/3"
+      },
+      "A4": {
+        "final/shipped": "2/3"
+      },
+      "B1": {
+        "final/shipped": "3/3"
+      },
+      "B2": {
+        "final/shipped": "3/3"
+      },
+      "B3": {
+        "final/shipped": "3/3"
+      },
+      "B4": {
+        "final/shipped": "3/3"
+      },
+      "B5": {
+        "final/shipped": "3/3"
+      },
+      "C25": {
+        "final/shipped": "3/3"
+      },
+      "C26": {
+        "final/shipped": "3/3"
+      },
+      "C27": {
+        "final/shipped": "3/3"
+      },
+      "C28": {
+        "final/shipped": "3/3"
+      },
+      "C29": {
+        "final/shipped": "3/3"
+      },
+      "C30": {
+        "final/shipped": "3/3"
+      },
+      "C31": {
+        "final/shipped": "3/3"
+      },
+      "C32": {
+        "final/shipped": "3/3"
+      },
+      "C33": {
+        "final/shipped": "3/3"
+      },
+      "C34": {
+        "final/shipped": "3/3"
+      },
+      "C35": {
+        "final/shipped": "3/3"
+      },
+      "C36": {
+        "final/shipped": "1/3",
+        "final-extra/shipped": "6/7"
+      },
+      "H10": {
+        "final/shipped": "3/3"
+      },
+      "H11": {
+        "final/shipped": "3/3"
+      },
+      "H12": {
+        "final/shipped": "2/3"
+      },
+      "H9": {
+        "final/shipped": "3/3"
+      },
+      "M5": {
+        "final/shipped": "3/3"
+      },
+      "M6": {
+        "final/shipped": "3/3"
+      },
+      "M7": {
+        "final/shipped": "3/3"
+      },
+      "M8": {
+        "final/shipped": "3/3"
+      },
+      "N13": {
+        "final/shipped": "3/3"
+      },
+      "N14": {
+        "final/shipped": "1/3",
+        "final-extra/shipped": "7/7"
+      },
+      "N15": {
+        "final/shipped": "3/3"
+      },
+      "N16": {
+        "final/shipped": "3/3"
+      },
+      "N17": {
+        "final/shipped": "3/3"
+      },
+      "N18": {
+        "final/shipped": "3/3"
+      },
+      "N19": {
+        "final/shipped": "3/3"
+      },
+      "N20": {
+        "final/shipped": "3/3"
+      },
+      "N21": {
+        "final/shipped": "3/3"
+      },
+      "N22": {
+        "final/shipped": "3/3"
+      },
+      "N23": {
+        "final/shipped": "3/3"
+      },
+      "N24": {
+        "final/shipped": "3/3"
+      },
+      "R43": {
+        "final/shipped": "3/3"
+      },
+      "R47": {
+        "final/shipped": "3/3"
+      },
+      "R48": {
+        "final/shipped": "3/3"
+      },
+      "R49": {
+        "final/shipped": "3/3"
+      },
+      "R50": {
+        "final/shipped": "3/3"
+      },
+      "R51": {
+        "final/shipped": "3/3"
+      },
+      "R52": {
+        "final/shipped": "3/3"
+      },
+      "R53": {
+        "final/shipped": "3/3"
+      },
+      "S1": {
+        "final/shipped": "3/3"
+      },
+      "S2": {
+        "final/shipped": "3/3"
+      },
+      "S3": {
+        "final/shipped": "3/3"
+      },
+      "S4": {
+        "final/shipped": "3/3"
+      },
+      "U44": {
+        "final/shipped": "3/3"
+      },
+      "U45": {
+        "final/shipped": "3/3"
+      },
+      "U46": {
+        "final/shipped": "3/3"
+      },
+      "V37": {
+        "final/shipped": "3/3"
+      },
+      "V38": {
+        "final/shipped": "3/3"
+      },
+      "V39": {
+        "final/shipped": "3/3"
+      },
+      "V40": {
+        "final/shipped": "3/3"
+      },
+      "V41": {
+        "final/shipped": "3/3"
+      },
+      "V42": {
+        "final/shipped": "3/3"
+      }
+    },
+    "uniformlyFailingChecks": [],
+    "judgeModels": [
+      {
+        "model": "anthropic/claude-opus-5",
+        "judged": 149,
+        "episodes": 149,
+        "mean": 4.387919463087247
+      },
+      {
+        "model": "openai/gpt-5.6-sol",
+        "judged": 149,
+        "episodes": 149,
+        "mean": 4.78255033557047
+      }
+    ],
+    "skippedEpisodes": [],
+    "suiteCoverage": {
+      "episodes": 200,
+      "distinctCases": 62,
+      "turns": 228,
+      "skippedEpisodes": 0,
+      "comparativeEpisodes": 182,
+      "comparativeCases": 56,
+      "comparativeTurns": 207,
+      "strictCases": 18
+    },
+    "mergeCheck": null,
+    "totalUsd": 6.25734849,
+    "comparativeCaseCount": 56
+  },
+  "selection": {
+    "defaultArm": {
+      "arm": "shipped",
+      "label": "google/gemini-3.5-flash-lite, balanced catalog configuration (shipped)",
+      "runtimeVariant": "final",
+      "sourceCommit": "e3bccaaf9d407296f4efa2a48900bd15e5716fcf",
+      "sourceDirty": false,
+      "episodes": 168,
+      "distinctCases": 56,
+      "coverage": [
+        "A1:r1",
+        "A1:r2",
+        "A1:r3",
+        "A2:r1",
+        "A2:r2",
+        "A2:r3",
+        "A3:r1",
+        "A3:r2",
+        "A3:r3",
+        "A4:r1",
+        "A4:r2",
+        "A4:r3",
+        "B1:r1",
+        "B1:r2",
+        "B1:r3",
+        "B2:r1",
+        "B2:r2",
+        "B2:r3",
+        "B3:r1",
+        "B3:r2",
+        "B3:r3",
+        "B4:r1",
+        "B4:r2",
+        "B4:r3",
+        "B5:r1",
+        "B5:r2",
+        "B5:r3",
+        "C25:r1",
+        "C25:r2",
+        "C25:r3",
+        "C26:r1",
+        "C26:r2",
+        "C26:r3",
+        "C27:r1",
+        "C27:r2",
+        "C27:r3",
+        "C28:r1",
+        "C28:r2",
+        "C28:r3",
+        "C29:r1",
+        "C29:r2",
+        "C29:r3",
+        "C30:r1",
+        "C30:r2",
+        "C30:r3",
+        "C31:r1",
+        "C31:r2",
+        "C31:r3",
+        "C32:r1",
+        "C32:r2",
+        "C32:r3",
+        "C33:r1",
+        "C33:r2",
+        "C33:r3",
+        "C34:r1",
+        "C34:r2",
+        "C34:r3",
+        "C35:r1",
+        "C35:r2",
+        "C35:r3",
+        "C36:r1",
+        "C36:r2",
+        "C36:r3",
+        "H10:r1",
+        "H10:r2",
+        "H10:r3",
+        "H11:r1",
+        "H11:r2",
+        "H11:r3",
+        "H12:r1",
+        "H12:r2",
+        "H12:r3",
+        "H9:r1",
+        "H9:r2",
+        "H9:r3",
+        "M5:r1",
+        "M5:r2",
+        "M5:r3",
+        "M6:r1",
+        "M6:r2",
+        "M6:r3",
+        "M7:r1",
+        "M7:r2",
+        "M7:r3",
+        "M8:r1",
+        "M8:r2",
+        "M8:r3",
+        "N13:r1",
+        "N13:r2",
+        "N13:r3",
+        "N14:r1",
+        "N14:r2",
+        "N14:r3",
+        "N15:r1",
+        "N15:r2",
+        "N15:r3",
+        "N16:r1",
+        "N16:r2",
+        "N16:r3",
+        "N17:r1",
+        "N17:r2",
+        "N17:r3",
+        "N18:r1",
+        "N18:r2",
+        "N18:r3",
+        "N19:r1",
+        "N19:r2",
+        "N19:r3",
+        "N20:r1",
+        "N20:r2",
+        "N20:r3",
+        "N21:r1",
+        "N21:r2",
+        "N21:r3",
+        "N22:r1",
+        "N22:r2",
+        "N22:r3",
+        "N23:r1",
+        "N23:r2",
+        "N23:r3",
+        "N24:r1",
+        "N24:r2",
+        "N24:r3",
+        "R47:r1",
+        "R47:r2",
+        "R47:r3",
+        "R48:r1",
+        "R48:r2",
+        "R48:r3",
+        "R53:r1",
+        "R53:r2",
+        "R53:r3",
+        "S1:r1",
+        "S1:r2",
+        "S1:r3",
+        "S2:r1",
+        "S2:r2",
+        "S2:r3",
+        "S3:r1",
+        "S3:r2",
+        "S3:r3",
+        "S4:r1",
+        "S4:r2",
+        "S4:r3",
+        "U44:r1",
+        "U44:r2",
+        "U44:r3",
+        "U45:r1",
+        "U45:r2",
+        "U45:r3",
+        "U46:r1",
+        "U46:r2",
+        "U46:r3",
+        "V37:r1",
+        "V37:r2",
+        "V37:r3",
+        "V38:r1",
+        "V38:r2",
+        "V38:r3",
+        "V39:r1",
+        "V39:r2",
+        "V39:r3",
+        "V40:r1",
+        "V40:r2",
+        "V40:r3",
+        "V41:r1",
+        "V41:r2",
+        "V41:r3"
+      ],
+      "skipped": 0,
+      "contractEpisodes": 54,
+      "contractPassed": 54,
+      "passRate": 0.9642857142857143,
+      "passAt3": 0.9285714285714286,
+      "judgeMean": 4.603703703703699,
+      "judgeComplete": 135,
+      "judgeEligible": 135,
+      "judgeDisagreementShare": 0.15555555555555556,
+      "usdPerEpisode": 0.012207599107142864,
+      "usdPerTurn": 0.011026218548387102,
+      "creditsPerTurn": 1.564516129032258,
+      "costPerSuccessfulTask": 0.012659732407407413,
+      "measuredShare": 0.9821428571428571,
+      "cacheReadShare": 0.7181620476681315,
+      "cacheWriteShare": 0,
+      "roundsPerTurn": 3.2419354838709675,
+      "ttftP50Ms": 5803,
+      "ttftP95Ms": 12148,
+      "firstOutputP50Ms": 1962,
+      "firstOutputP95Ms": 3832,
+      "wallP50Ms": 6424,
+      "wallP95Ms": 13232,
+      "lengthFinishShare": 0,
+      "incompleteTurnShare": 0,
+      "neverSolvedCases": []
+    },
+    "deepArm": null,
+    "reasoning": [
+      "final-extra/shipped: ineligible (zdr/no-training true, measured 100 %, exact repetition coverage false, complete judges 14/14, current clean source true)",
+      "final/shipped: below the speed floor (wall p50 6.4 s, TTFT p50 5.8 s)",
+      "no other arm passes the quality floor; the best arm ships because it costs 1.6 credits per turn",
+      "deep mode omitted: it would be the default arm"
+    ]
+  },
+  "armsVerified": {
+    "verifiedAt": "2026-09-20T15:44:18.973Z",
+    "results": [
+      {
+        "arm": "shipped",
+        "modelId": "google/gemini-3.5-flash-lite",
+        "provider": "vertex",
+        "eligible": true,
+        "hasZdr": true,
+        "hasNoTraining": true,
+        "reason": null,
+        "promptUsd": "0.0000003",
+        "completionUsd": "0.0000025"
+      },
+      {
+        "arm": "flash-lite-minimal",
+        "modelId": "google/gemini-3.5-flash-lite",
+        "provider": "vertex",
+        "eligible": true,
+        "hasZdr": true,
+        "hasNoTraining": true,
+        "reason": null,
+        "promptUsd": "0.0000003",
+        "completionUsd": "0.0000025"
+      },
+      {
+        "arm": "flash-lite-low",
+        "modelId": "google/gemini-3.5-flash-lite",
+        "provider": "vertex",
+        "eligible": true,
+        "hasZdr": true,
+        "hasNoTraining": true,
+        "reason": null,
+        "promptUsd": "0.0000003",
+        "completionUsd": "0.0000025"
+      },
+      {
+        "arm": "flash-lite-medium",
+        "modelId": "google/gemini-3.5-flash-lite",
+        "provider": "vertex",
+        "eligible": true,
+        "hasZdr": true,
+        "hasNoTraining": true,
+        "reason": null,
+        "promptUsd": "0.0000003",
+        "completionUsd": "0.0000025"
+      },
+      {
+        "arm": "flash-lite-high",
+        "modelId": "google/gemini-3.5-flash-lite",
+        "provider": "vertex",
+        "eligible": true,
+        "hasZdr": true,
+        "hasNoTraining": true,
+        "reason": null,
+        "promptUsd": "0.0000003",
+        "completionUsd": "0.0000025"
+      },
+      {
+        "arm": "flash-low",
+        "modelId": "google/gemini-3.5-flash",
+        "provider": "vertex",
+        "eligible": true,
+        "hasZdr": true,
+        "hasNoTraining": true,
+        "reason": null,
+        "promptUsd": "0.0000015",
+        "completionUsd": "0.000009"
+      },
+      {
+        "arm": "flash-medium",
+        "modelId": "google/gemini-3.5-flash",
+        "provider": "vertex",
+        "eligible": true,
+        "hasZdr": true,
+        "hasNoTraining": true,
+        "reason": null,
+        "promptUsd": "0.0000015",
+        "completionUsd": "0.000009"
+      },
+      {
+        "arm": "flash36-low",
+        "modelId": "google/gemini-3.6-flash",
+        "provider": "vertex",
+        "eligible": true,
+        "hasZdr": true,
+        "hasNoTraining": true,
+        "reason": null,
+        "promptUsd": "0.00000075",
+        "completionUsd": "0.00000375"
+      },
+      {
+        "arm": "flash38-low",
+        "modelId": "google/gemini-3.8-flash",
+        "provider": "vertex",
+        "eligible": true,
+        "hasZdr": true,
+        "hasNoTraining": true,
+        "reason": null,
+        "promptUsd": "0.00000075",
+        "completionUsd": "0.00000375"
+      },
+      {
+        "arm": "flash-lite31-low",
+        "modelId": "google/gemini-3.1-flash-lite",
+        "provider": "vertex",
+        "eligible": true,
+        "hasZdr": true,
+        "hasNoTraining": true,
+        "reason": null,
+        "promptUsd": "0.00000025",
+        "completionUsd": "0.0000015"
+      },
+      {
+        "arm": "luna-none",
+        "modelId": "openai/gpt-5.6-luna",
+        "provider": "azure",
+        "eligible": true,
+        "hasZdr": true,
+        "hasNoTraining": true,
+        "reason": null,
+        "promptUsd": "0.0000002",
+        "completionUsd": "0.0000012"
+      },
+      {
+        "arm": "luna-low",
+        "modelId": "openai/gpt-5.6-luna",
+        "provider": "azure",
+        "eligible": true,
+        "hasZdr": true,
+        "hasNoTraining": true,
+        "reason": null,
+        "promptUsd": "0.0000002",
+        "completionUsd": "0.0000012"
+      },
+      {
+        "arm": "luna-medium",
+        "modelId": "openai/gpt-5.6-luna",
+        "provider": "azure",
+        "eligible": true,
+        "hasZdr": true,
+        "hasNoTraining": true,
+        "reason": null,
+        "promptUsd": "0.0000002",
+        "completionUsd": "0.0000012"
+      },
+      {
+        "arm": "terra-low",
+        "modelId": "openai/gpt-5.6-terra",
+        "provider": "azure",
+        "eligible": true,
+        "hasZdr": true,
+        "hasNoTraining": true,
+        "reason": null,
+        "promptUsd": "0.000002",
+        "completionUsd": "0.000012"
+      },
+      {
+        "arm": "sol-low",
+        "modelId": "openai/gpt-5.6-sol",
+        "provider": "azure",
+        "eligible": true,
+        "hasZdr": true,
+        "hasNoTraining": true,
+        "reason": null,
+        "promptUsd": "0.000005",
+        "completionUsd": "0.00003"
+      },
+      {
+        "arm": "nano-low",
+        "modelId": "openai/gpt-5-nano",
+        "provider": "azure",
+        "eligible": true,
+        "hasZdr": true,
+        "hasNoTraining": true,
+        "reason": null,
+        "promptUsd": "0.00000005",
+        "completionUsd": "0.0000004"
+      },
+      {
+        "arm": "gpt5-mini-low",
+        "modelId": "openai/gpt-5-mini",
+        "provider": "azure",
+        "eligible": true,
+        "hasZdr": true,
+        "hasNoTraining": true,
+        "reason": null,
+        "promptUsd": "0.00000025",
+        "completionUsd": "0.000002"
+      },
+      {
+        "arm": "gpt54-mini-low",
+        "modelId": "openai/gpt-5.4-mini",
+        "provider": "azure",
+        "eligible": true,
+        "hasZdr": true,
+        "hasNoTraining": true,
+        "reason": null,
+        "promptUsd": "0.00000075",
+        "completionUsd": "0.0000045"
+      },
+      {
+        "arm": "gpt54-nano-low",
+        "modelId": "openai/gpt-5.4-nano",
+        "provider": "azure",
+        "eligible": true,
+        "hasZdr": true,
+        "hasNoTraining": true,
+        "reason": null,
+        "promptUsd": "0.0000002",
+        "completionUsd": "0.00000125"
+      },
+      {
+        "arm": "haiku45",
+        "modelId": "anthropic/claude-haiku-4.5",
+        "provider": "bedrock",
+        "eligible": true,
+        "hasZdr": true,
+        "hasNoTraining": true,
+        "reason": null,
+        "promptUsd": "0.000001",
+        "completionUsd": "0.000005"
+      },
+      {
+        "arm": "sonnet5-low",
+        "modelId": "anthropic/claude-sonnet-5",
+        "provider": "bedrock",
+        "eligible": true,
+        "hasZdr": true,
+        "hasNoTraining": true,
+        "reason": null,
+        "promptUsd": "0.000002",
+        "completionUsd": "0.00001"
+      },
+      {
+        "arm": "sonnet5-medium",
+        "modelId": "anthropic/claude-sonnet-5",
+        "provider": "bedrock",
+        "eligible": true,
+        "hasZdr": true,
+        "hasNoTraining": true,
+        "reason": null,
+        "promptUsd": "0.000002",
+        "completionUsd": "0.00001"
+      },
+      {
+        "arm": "opus5-low",
+        "modelId": "anthropic/claude-opus-5",
+        "provider": "bedrock",
+        "eligible": true,
+        "hasZdr": true,
+        "hasNoTraining": true,
+        "reason": null,
+        "promptUsd": "0.000005",
+        "completionUsd": "0.000025"
+      },
+      {
+        "arm": "deepseek-flash-high",
+        "modelId": "deepseek/deepseek-v4-flash",
+        "provider": "azure",
+        "eligible": true,
+        "hasZdr": true,
+        "hasNoTraining": true,
+        "reason": null,
+        "promptUsd": "0.00000019",
+        "completionUsd": "0.00000051"
+      },
+      {
+        "arm": "deepseek-pro-high",
+        "modelId": "deepseek/deepseek-v4-pro",
+        "provider": "azure",
+        "eligible": true,
+        "hasZdr": true,
+        "hasNoTraining": true,
+        "reason": null,
+        "promptUsd": "0.00000174",
+        "completionUsd": "0.00000348"
+      },
+      {
+        "arm": "glm53-flash-low",
+        "modelId": "zai/glm-5.3-flash",
+        "provider": "baseten",
+        "eligible": true,
+        "hasZdr": true,
+        "hasNoTraining": true,
+        "reason": null,
+        "promptUsd": "0.00000015",
+        "completionUsd": "0.0000005"
+      },
+      {
+        "arm": "glm53-flash-high",
+        "modelId": "zai/glm-5.3-flash",
+        "provider": "baseten",
+        "eligible": true,
+        "hasZdr": true,
+        "hasNoTraining": true,
+        "reason": null,
+        "promptUsd": "0.00000015",
+        "completionUsd": "0.0000005"
+      },
+      {
+        "arm": "glm53-low",
+        "modelId": "zai/glm-5.3",
+        "provider": "baseten",
+        "eligible": true,
+        "hasZdr": true,
+        "hasNoTraining": true,
+        "reason": null,
+        "promptUsd": "0.0000014",
+        "completionUsd": "0.0000044"
+      },
+      {
+        "arm": "kimi-k27-code",
+        "modelId": "moonshotai/kimi-k2.7-code",
+        "provider": "baseten",
+        "eligible": true,
+        "hasZdr": true,
+        "hasNoTraining": true,
+        "reason": null,
+        "promptUsd": "0.00000095",
+        "completionUsd": "0.000004"
+      },
+      {
+        "arm": "mistral-large-3",
+        "modelId": "mistral/mistral-large-3",
+        "provider": "mistral",
+        "eligible": true,
+        "hasZdr": true,
+        "hasNoTraining": true,
+        "reason": null,
+        "promptUsd": "0.0000005",
+        "completionUsd": "0.0000015"
+      },
+      {
+        "arm": "qwen3-coder-next",
+        "modelId": "alibaba/qwen3-coder-next",
+        "provider": "bedrock",
+        "eligible": true,
+        "hasZdr": true,
+        "hasNoTraining": true,
+        "reason": null,
+        "promptUsd": "0.0000005",
+        "completionUsd": "0.0000012"
+      }
+    ]
+  }
+}

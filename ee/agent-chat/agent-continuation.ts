@@ -60,7 +60,7 @@ export function digestAgentToolResult(output: unknown): string | null {
   const sumsIndex = lines.indexOf("sums:");
   if (sumsIndex >= 0) {
     for (let index = sumsIndex + 1; index < lines.length; index += 1) {
-      const sum = /^ {2}([A-Za-z0-9_]+): (-?\d+(?:\.\d+)?)$/.exec(lines[index]);
+      const sum = /^ {2}"?([A-Za-z0-9_-]+)"?: (-?\d+(?:\.\d+)?)$/.exec(lines[index]);
       if (!sum) break;
       facts.push(`sums.${sum[1]}=${sum[2]}`);
     }

@@ -66,6 +66,10 @@
         "widgets": {
           "configure": "Bereit, Dashboard-Widgets zu ändern",
           "delete": "Bereit, ein Dashboard-Widget endgültig zu löschen"
+        },
+        "workspace": {
+          "settings": "Bereit, Workspace-Einstellungen einschließlich der Datensatztyp-Namen zu ändern",
+          "terminology": "Bereit, Datensatztypen für den gesamten Workspace umzubenennen"
         }
       },
       "cancelled": "Gestoppt",
@@ -242,6 +246,11 @@
           }
         },
         "records": {
+          "analyze": {
+            "done": "{resource} wurden ausgewertet",
+            "error": "{resource} konnten nicht ausgewertet werden",
+            "running": "{resource} werden ausgewertet"
+          },
           "create": {
             "done": "{count, plural, one {{target} wurde erstellt} other {{target} wurden erstellt}}",
             "error": "{count, plural, one {{target} konnte nicht erstellt werden} other {{target} konnten nicht erstellt werden}}",

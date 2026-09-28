@@ -12,6 +12,11 @@ export type AgentProviderChargeEvidence = {
   unreadableReason: string | null;
 };
 
+type AgentAuxiliaryCharge = {
+  costMicrocents: number;
+  measured: boolean;
+};
+
 export type AgentUsageSettlement = TokenCounts & {
   model: string;
   costMicrocents: number;
@@ -45,13 +50,17 @@ export function buildAgentUsageSettlement(args: {
   tokens: TokenCounts;
   reservedCredits: number;
   providerCharge: AgentProviderChargeEvidence;
+  auxiliary?: AgentAuxiliaryCharge;
 }): AgentUsageSettlement {
   if (!Number.isSafeInteger(args.reservedCredits) || args.reservedCredits < 1)
     throw new Error("Agent usage reservation credits are invalid.");
+  const auxiliary = args.auxiliary ?? { costMicrocents: 0, measured: true };
+  if (!Number.isSafeInteger(auxiliary.costMicrocents) || auxiliary.costMicrocents < 0)
+    throw new Error("Agent auxiliary usage cost is invalid.");
 
   const base = { ...args.tokens, model: args.model, reservedCredits: args.reservedCredits };
 
-  if (!args.providerCharge.billed) {
+  if (!args.providerCharge.billed && auxiliary.costMicrocents === 0) {
     return {
       ...base,
       costMicrocents: 0,
@@ -62,9 +71,9 @@ export function buildAgentUsageSettlement(args: {
     };
   }
 
-  const measured = args.providerCharge.measuredCostMicrocents;
-  const costSource: AgentUsageCostSource = measured === null ? "estimated" : "measured";
-  const costMicrocents = measured ?? estimateCostMicrocents(args);
+  const measured = args.providerCharge.billed ? args.providerCharge.measuredCostMicrocents : 0;
+  const costSource: AgentUsageCostSource = measured !== null && auxiliary.measured ? "measured" : "estimated";
+  const costMicrocents = (measured ?? estimateCostMicrocents(args)) + auxiliary.costMicrocents;
   const meteredCredits = agentCreditsForStartedProviderCost(costMicrocents);
 
   return {

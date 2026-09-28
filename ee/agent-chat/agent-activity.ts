@@ -2,12 +2,12 @@ import { z } from "zod";
 import { SurfaceKeySchema, ViewKeySchema } from "@/core/data-view/data-view-identity.schema";
 import { dataViewNavigationHref } from "@/core/data-view/data-view-links";
 
-import { approvalFreeActionsForTool, readOnlyActionsForTool } from "./gated-tools";
+import { approvalFreeActionsForTool, isApprovalRelevantValue, readOnlyActionsForTool } from "./gated-tools";
 import type { AgentToolIdentity } from "./tool-identity";
 import { internalToolIdentity, isInternalToolIdentity } from "./tool-identity";
 
 import { sanitizeAgentPlainText } from "./agent-output-safety";
-import { LOAD_TOOLSET_TOOL_NAME } from "./agent-toolset-routing";
+import { ANALYZE_RECORDS_TOOL_NAME, LOAD_TOOLSET_TOOL_NAME } from "./agent-toolset-routing";
 
 const ViewMutationActionSchema = z.enum(["create", "update", "select", "delete"]);
 const DataViewNavigationHrefSchema = z
@@ -39,6 +39,7 @@ export const AGENT_ACTIVITY_KINDS = [
   "docs.search",
   "docs.read",
   "records.read",
+  "records.analyze",
   "records.create",
   "records.update",
   "records.delete",
@@ -240,6 +241,17 @@ function isMultiplexedRead(toolName: string, details: Record<string, unknown>): 
   return Boolean(action && readOnlyActionsForTool(internalToolIdentity(toolName))?.includes(action));
 }
 
+function analysisResource(details: Record<string, unknown>): AgentActivityResource | undefined {
+  const reads = Array.isArray(details.reads) ? details.reads : [];
+  const first = reads[0] as { input?: unknown } | undefined;
+  if (typeof first?.input !== "string") return entityResource(first?.input);
+  try {
+    return entityResource(JSON.parse(first.input));
+  } catch {
+    return undefined;
+  }
+}
+
 function multiplexedRisk(toolName: string, details: Record<string, unknown>): "write" | "sensitive" {
   const approvalFree = approvalFreeActionsForTool(internalToolIdentity(toolName));
   const action = actionValue(details);
@@ -255,6 +267,7 @@ export function describeAgentTool(identity: AgentToolIdentity, input: unknown): 
 
   if (toolName === "list_ui_targets") return descriptor("interface.inspect", undefined, "read");
   if (toolName === LOAD_TOOLSET_TOOL_NAME) return descriptor("tools.load", undefined, "read");
+  if (toolName === ANALYZE_RECORDS_TOOL_NAME) return descriptor("records.analyze", analysisResource(details), "read");
   if (toolName === "get_workspace_context") return descriptor("workspace.inspect", undefined, "read");
   if (toolName === "navigate" || toolName === "highlight_element")
     return descriptor("interface.navigate", undefined, "read");
@@ -349,7 +362,8 @@ export function describeAgentTool(identity: AgentToolIdentity, input: unknown): 
         : updatesTerminology && details.currency === undefined
           ? "workspace.terminology"
           : "workspace.settings";
-    return descriptor(kind, undefined, "write", updatesTerminology ? ["terminology"] : []);
+    const risk = isApprovalRelevantValue(details.terminology) ? "sensitive" : "write";
+    return descriptor(kind, undefined, risk, updatesTerminology ? ["terminology"] : []);
   }
   if (toolName === "manage_team") {
     const action = actionValue(details);
@@ -521,6 +535,8 @@ export const AGENT_APPROVAL_COPY_KINDS: readonly AgentActivityKind[] = [
   "routines.delete",
   "views.configure",
   "views.delete",
+  "workspace.settings",
+  "workspace.terminology",
 ];
 
 function countedResourceCopy(

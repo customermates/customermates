@@ -19,7 +19,7 @@ const sentryMock = vi.hoisted(() => ({
   setUser: vi.fn(),
 }));
 
-vi.mock("@/env", () => MOCK_ENV_MODULE);
+vi.mock("@/env", () => ({ env: { ...MOCK_ENV_MODULE.env, AGENT_ANALYSIS_TOOL_ENABLED: true } }));
 vi.mock("@/core/di", () => createMockDiModule(() => mockUser));
 vi.mock("@/core/validation/zod-error-map-server", () => MOCK_ZOD_MODULE);
 vi.mock("@/prisma/db", () => MOCK_PRISMA_DB_MODULE);
@@ -38,17 +38,20 @@ import { ALL_MCP_TOOLS, MCP_ALWAYS_ON_TOOLS } from "@/features/mcp-tools/tool-re
 import {
   AGENT_TOOL_RESULT_TRUNCATED_MARK,
   agentRoundWorstCaseCredits,
-  agentContextTokensToBytes,
   resolveAgentTurnBudget,
 } from "../agent-budget-policy";
+import { SendAgentMessageSchema } from "../agent-chat.schema";
 import { conservativeAgentInitialContextBytes } from "../agent-provider-context";
-import { MODEL_CATALOG } from "../model-catalog";
+import { AGENT_SCHEMA_DIGEST_MAX_CHARS, renderAgentSchemaDigest } from "../agent-schema-digest";
+import { ANALYZE_RECORDS_TOOL_NAME } from "../agent-toolset-routing";
+import { MODEL_CATALOG, SHIPPED_AGENT_MODEL_KEY } from "../model-catalog";
 import { buildAgentSystemPrompt } from "../system-prompt";
 import { AGENT_UI_TARGETS } from "../ui-targets";
 import {
   AGENT_UI_TOOL_NAMES,
   describeAgentAiTools,
   hasNonTransactionalEffect,
+  agentToolDefinitionsForTurn,
   getAgentAiToolDefinitions,
   getAgentAiTools,
   normalizeAgentAiToolInput,
@@ -148,13 +151,14 @@ describe("agent tools", () => {
       expect(hasNonTransactionalEffect(name), name).toBe(false);
   });
 
-  it("exposes the MCP registry without the deep-research pair, plus the interface tools and load_toolset", () => {
+  it("exposes the MCP registry without the deep-research pair, plus the interface tools, load_toolset and analyze_records", () => {
     const names = Object.keys(getAgentAiTools(deps()));
     const deepResearch = new Set(MCP_ALWAYS_ON_TOOLS.map((agentTool) => agentTool.name));
     const expected = new Set([
       ...ALL_MCP_TOOLS.filter((agentTool) => !deepResearch.has(agentTool.name)).map((agentTool) => agentTool.name),
       ...AGENT_UI_TOOL_NAMES,
       "load_toolset",
+      ANALYZE_RECORDS_TOOL_NAME,
     ]);
 
     expect(names.toSorted()).toEqual([...expected].toSorted());
@@ -236,33 +240,40 @@ describe("agent tools", () => {
     expect(result.finishReason).toBe("stop");
   });
 
-  it("keeps the stable full catalog inside the conservative provider envelope", () => {
-    const systemPrompt = buildAgentSystemPrompt({
-      userName: "Ada Lovelace",
-      locale: "en",
-      surface: "chat",
-    });
-    const definitions = getAgentAiToolDefinitions();
-    expect(definitions).toEqual(describeAgentAiTools(getAgentAiTools(deps())));
+  it("admits the longest accepted message with a full schema digest and the whole shipped catalog", () => {
+    expect(getAgentAiToolDefinitions()).toEqual(describeAgentAiTools(getAgentAiTools(deps())));
 
+    const model = MODEL_CATALOG[SHIPPED_AGENT_MODEL_KEY];
+    const definitions = agentToolDefinitionsForTurn({ servingProvider: model.servingProvider, surface: "chat" });
+    expect(definitions.map(({ name }) => name)).toContain(ANALYZE_RECORDS_TOOL_NAME);
+    expect(definitions.map(({ name }) => name)).toEqual(getAgentAiToolDefinitions().map(({ name }) => name));
+
+    const schemaDigest = renderAgentSchemaDigest(
+      Array.from({ length: 200 }, (_, index) => ({
+        id: `3f7c1a54-9b2e-4c31-8f6a-${String(index).padStart(12, "0")}`,
+        label: `Custom column ${index} `.padEnd(60, "x"),
+        entityType: "organization",
+        type: "plain",
+      })),
+    );
+    expect(schemaDigest?.length).toBeGreaterThan(AGENT_SCHEMA_DIGEST_MAX_CHARS);
+
+    const maxMessageChars = SendAgentMessageSchema.shape.text.maxLength;
+    expect(maxMessageChars).toBe(20_000);
     const requiredContextBytes = conservativeAgentInitialContextBytes({
-      systemPrompt,
-      currentText: "Decide yourself and create the complete dataset.",
+      systemPrompt: buildAgentSystemPrompt({ userName: "Ada Lovelace", locale: "en", surface: "chat", schemaDigest }),
+      currentText: "x".repeat(maxMessageChars ?? 0),
       pageRoute: "/en/organizations",
       toolDefinitions: definitions,
     });
-
-    const model = MODEL_CATALOG.balanced;
-    const contextLimitBytes = agentContextTokensToBytes(model.maxContextTokens);
     expect(requiredContextBytes).not.toBeNull();
-    expect(requiredContextBytes).toBeLessThan(contextLimitBytes);
-    const contextHeadroomFloorBytes = 20_000;
-    expect(contextLimitBytes - (requiredContextBytes ?? 0)).toBeGreaterThan(contextHeadroomFloorBytes);
+
     const funded = resolveAgentTurnBudget({
       model,
       availableCredits: agentRoundWorstCaseCredits(model),
       requiredContextBytes: requiredContextBytes ?? 0,
     });
+    expect(funded).not.toBeNull();
     expect(funded?.maxContextBytes).toBeGreaterThanOrEqual(requiredContextBytes ?? Number.POSITIVE_INFINITY);
     expect(funded?.maxOutputTokens).toBe(model.maxOutputTokens);
   });
@@ -804,14 +815,14 @@ describe("agent tools", () => {
 
   it.each([
     ["list_users", { searchTerm: "Sofia" }, { searchTerm: "Sofia", page: 1, pageSize: 25 }],
-    ["list_users", { searchTerm: "Sofia", pageSize: " 12 " }, { searchTerm: "Sofia", page: 1, pageSize: 25 }],
+    ["list_users", { searchTerm: "Sofia", pageSize: " 12 " }, { searchTerm: "Sofia", page: 1, pageSize: 12 }],
     [
       "list_users",
       { searchTerm: "Sofia", page: "2", pageSize: " 10 " },
       { searchTerm: "Sofia", page: 2, pageSize: 10 },
     ],
     ["list_records", { entity: "contact" }, { entity: "contact", page: 1, pageSize: 25 }],
-    ["list_records", { entity: "contact", pageSize: 50 }, { entity: "contact", page: 1, pageSize: 100 }],
+    ["list_records", { entity: "contact", pageSize: 50 }, { entity: "contact", page: 1, pageSize: 50 }],
     [
       "get_records",
       { items: [{ entity: "contact", id: "record-1" }] },
@@ -1131,6 +1142,18 @@ describe("agent tools", () => {
     expect(createSupportTicket).not.toHaveBeenCalled();
   });
 
+  it.each([
+    ["chat", "got no answer in time"],
+    ["routine", "Nobody is watching this run"],
+  ] as const)("words an unanswered approval for the %s surface", async (surface, wording) => {
+    const requestApproval = vi.fn().mockResolvedValue("timeout");
+    const tools = getAgentAiTools(deps({ requestApproval, surface }));
+
+    const result = await execute(tools.request_support, { subject: "Need help", body: "Human please" }, "support-3");
+
+    expect(result).toMatchObject({ agentToolStatus: "cancelled", message: expect.stringContaining(wording) });
+  });
+
   it("gives the model truthful, neutral capability and approval instructions", () => {
     const prompt = buildAgentSystemPrompt({
       userName: "Ada",
@@ -1151,6 +1174,8 @@ describe("agent tools", () => {
     expect(prompt).toContain("require a fresh explicit approval every time; there is no standing permission to offer");
     expect(prompt).toContain("Destructive actions");
     expect(prompt).toContain("team invitations");
+    expect(prompt).toContain("renaming record types (workspace terminology)");
+    expect(prompt).toContain("workspace settings other than record type names");
     expect(prompt).toContain("webhook delivery resends");
     expect(prompt).toContain("If an approval is declined or times out, nothing changed");
     expect(prompt).toContain("A support email is sent only after that approval is granted");

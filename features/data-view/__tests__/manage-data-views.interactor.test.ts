@@ -238,12 +238,22 @@ describe("agent saved-view management", () => {
     expect(secondPage.ok && secondPage.data.items).toHaveLength(5);
     if (secondPage.ok) for (const item of secondPage.data.items ?? []) expect(item).not.toHaveProperty("state");
 
-    const roundedPageSize = await subject.run({
+    const exactPageSize = await subject.run({
       action: "list",
       surfaceKey: SURFACE.contacts,
       pageSize: 6,
     } as never);
-    expect(roundedPageSize.ok && roundedPageSize.data).toMatchObject({ pageSize: 10, totalPages: 2 });
+    expect(exactPageSize.ok && exactPageSize.data).toMatchObject({ pageSize: 6, totalPages: 2 });
+    expect(exactPageSize.ok && exactPageSize.data.items).toHaveLength(6);
+
+    const lastPage = await subject.run({
+      action: "list",
+      surfaceKey: SURFACE.contacts,
+      page: 2,
+      pageSize: 7,
+    } as never);
+    expect(lastPage.ok && lastPage.data).toMatchObject({ page: 2, pageSize: 7, totalPages: 2 });
+    expect(lastPage.ok && lastPage.data.items).toHaveLength(5);
 
     const narrowed = await subject.run({
       action: "list",

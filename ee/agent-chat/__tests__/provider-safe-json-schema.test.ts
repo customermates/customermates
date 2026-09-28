@@ -14,7 +14,7 @@ import {
 
 const mockUser = createMockUser();
 
-vi.mock("@/env", () => MOCK_ENV_MODULE);
+vi.mock("@/env", () => ({ env: { ...MOCK_ENV_MODULE.env, AGENT_ANALYSIS_TOOL_ENABLED: true } }));
 vi.mock("@/core/di", () => createMockDiModule(() => mockUser));
 vi.mock("@/core/validation/zod-error-map-server", () => MOCK_ZOD_MODULE);
 vi.mock("@/prisma/db", () => MOCK_PRISMA_DB_MODULE);
@@ -74,6 +74,8 @@ const ACCEPTED_TODAY: [string, unknown][] = [
   ["list_records", { entity: "contact", filters: [{ field: "createdAt", operator: "inLastDays", value: 7 }] }],
   ["list_records", { entity: "contact", filters: [{ field: "owner", operator: "isNull" }] }],
   ["list_records", { entity: "contact", filters: [{ field: "tags", operator: "in", value: ["a"] }] }],
+  ["list_records", { entity: "deal", include: ["owners", "links", "customFields", "dates"] }],
+  ["list_records", { entity: "task", include: [] }],
   ["get_activities", {}],
   ["get_activities", { pageSize: 5 }],
   ["create_contacts", { contacts: [{ firstName: "Ada", lastName: "L", notes: "# hi" }] }],
@@ -111,17 +113,23 @@ const ACCEPTED_TODAY: [string, unknown][] = [
   ["manage_data_views", { action: "surfaces" }],
   ["manage_data_views", { action: "create", surfaceKey: "contacts-card-store", name: "Leads", state: {} }],
   ["send_email", { connectedAccountId: UUID, subject: "s", body: "b", to: [{ identifier: "ada@example.com" }] }],
+  ["analyze_records", { reads: [{ tool: "list_records", input: { entity: "deal" } }], code: "(data) => data" }],
+  ["analyze_records", { reads: [{ tool: "list_records", input: '{"entity":"deal"}' }], code: "(data) => data" }],
+  ["analyze_records", { reads: [{ tool: "get_activities" }], code: "(data) => data" }],
 ];
 
 const REJECTED_TODAY: [string, unknown][] = [
   ["list_records", {}],
   ["list_records", { entity: "spaceship" }],
+  ["list_records", { entity: "deal", include: ["notes"] }],
+  ["list_records", { entity: "deal", include: "customFields" }],
   ["navigate", { entity: "contact", recordId: "new" }],
   ["navigate", { entity: "spaceship", recordId: UUID }],
   ["create_contacts", { contacts: [] }],
   ["manage_webhooks", { action: "detonate" }],
   ["update_contacts", { contacts: [{ id: UUID, customFieldValues: [{ columnId: UUID, value: 5 }] }] }],
   ["send_email", { connectedAccountId: "nope", subject: "s", body: "b", to: [{ identifier: "a@b.com" }] }],
+  ["analyze_records", { reads: [{ tool: "list_records", input: [{ entity: "deal" }] }], code: "(data) => data" }],
 ];
 
 const declaredTools = getAgentAiToolDefinitions();
@@ -194,6 +202,58 @@ describe("the Google function-declaration dialect", () => {
       type: "string",
       title: "Mode",
       enum: ["new"],
+    });
+  });
+
+  it("merges a union of string literals into one enum that admits exactly the same values", () => {
+    const declared = {
+      description: "Operator",
+      anyOf: [
+        { type: "string", const: "in", title: "in" },
+        { type: "string", const: "notIn", title: "notIn" },
+        { type: "string", enum: ["in", "between"] },
+      ],
+    };
+    const result = googleSafeJsonSchema(declared);
+
+    expect(result.schema).toEqual({ type: "string", description: "Operator", enum: ["in", "notIn", "between"] });
+    expect(result.changes.filter(({ loosened }) => loosened)).toEqual([]);
+    const before = new Ajv().compile(declared);
+    const after = new Ajv().compile(result.schema as never);
+    for (const value of ["in", "notIn", "between", "equals", "", 1, null])
+      expect(after(value), String(value)).toBe(before(value));
+  });
+
+  it("keeps a union of literals whose branches carry more than their value, or that admits null", () => {
+    expect(
+      googleSafeJsonSchema({
+        anyOf: [
+          { type: "string", const: "a", title: "Alpha" },
+          { type: "string", const: "b" },
+        ],
+      }).schema,
+    ).toEqual({
+      anyOf: [
+        { type: "string", title: "Alpha", enum: ["a"] },
+        { type: "string", enum: ["b"] },
+      ],
+    });
+    expect(
+      googleSafeJsonSchema({
+        anyOf: [{ type: "string", const: "a" }, { type: "string", const: "b" }, { type: "null" }],
+      }).schema,
+    ).toEqual({
+      anyOf: [
+        { type: "string", nullable: true, description: 'Allowed values: "a".' },
+        { type: "string", enum: ["b"] },
+      ],
+    });
+  });
+
+  it("drops a title that only repeats the single value it names", () => {
+    expect(googleSafeJsonSchema({ type: "string", title: "inLastDays", const: "inLastDays" }).schema).toEqual({
+      type: "string",
+      enum: ["inLastDays"],
     });
   });
 
@@ -452,24 +512,26 @@ describe("the shipped tool catalog on the Google wire", () => {
     const changes = changesForShippedCatalog();
 
     expect(summarizeGoogleSchemaChanges(changes)).toEqual({
-      "$schema:removed": 52,
-      "additionalProperties:removed": 59,
+      "$schema:removed": 53,
+      "additionalProperties:removed": 60,
       "anyOf:collapsed": 47,
+      "anyOf:merged": 62,
       "const:removed": 5,
       "const:rewritten": 236,
       "enum:removed": 18,
       "exclusiveMinimum:rewritten": 12,
       "nullable:collapsed": 10,
       "nullable:rewritten": 27,
-      "propertyNames:removed": 1,
+      "propertyNames:removed": 2,
       "oneOf:rewritten": 19,
+      "title:removed": 207,
     });
     expect(summarizeGoogleSchemaChanges(changes.filter((change) => change.loosened))).toEqual({
-      "additionalProperties:removed": 59,
+      "additionalProperties:removed": 60,
       "const:removed": 5,
       "enum:removed": 18,
       "exclusiveMinimum:rewritten": 2,
-      "propertyNames:removed": 1,
+      "propertyNames:removed": 2,
       "oneOf:rewritten": 19,
     });
   });
@@ -512,11 +574,17 @@ describe("the authoritative input gate", () => {
     );
 
     const coerced = await normalizeAgentAiToolInput("list_records", { entity: "contact", pageSize: "25" }, 400);
-    const rounded = await normalizeAgentAiToolInput("list_records", { entity: "contact", pageSize: 7 }, 400);
+    const exact = await normalizeAgentAiToolInput("list_records", { entity: "contact", pageSize: 7 }, 400);
     const rejected = await normalizeAgentAiToolInput("list_records", { entity: "contact", pageSize: 0 }, 400);
 
-    expect(coerced).toEqual({ ok: true, input: { entity: "contact", page: 1, pageSize: 25 } });
-    expect(rounded).toEqual({ ok: true, input: { entity: "contact", page: 1, pageSize: 10 } });
+    expect(coerced).toEqual({
+      ok: true,
+      input: { entity: "contact", page: 1, pageSize: 25 },
+    });
+    expect(exact).toEqual({
+      ok: true,
+      input: { entity: "contact", page: 1, pageSize: 7 },
+    });
     expect(rejected.ok).toBe(false);
   });
 

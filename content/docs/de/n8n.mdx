@@ -87,7 +87,7 @@ Legen Sie den Key in Customermates unter **Mein Profil → API & Konnektoren** m
 
 ## Was sind typische Fallstricke? [#what-are-the-common-gotchas]
 
-- **Relationship-Arrays über REST**: `null` oder `[]` für ein Relationship-Array wie `organizationIds` löscht jede Verknüpfung dieser Art; lassen Sie das Feld weg, um Verknüpfungen unangetastet zu lassen. Über MCP nutzen Sie `manage_record_links`, um einzelne Verknüpfungen hinzuzufügen oder zu entfernen.
+- **Relationship-Arrays über REST**: `null` oder `[]` für ein Relationship-Array wie `organizationIds` löscht jede Verknüpfung dieser Art; lassen Sie das Feld weg, um Verknüpfungen unangetastet zu lassen. Über MCP nutzen Sie `manage_record_links`, um einzelne Verknüpfungen hinzuzufügen oder zu entfernen, oder `set`, um die Verknüpfungen einer Beziehung in einem Aufruf zu ersetzen.
 - **Batch-Größe**: Customermates setzt kein Request-Rate-Limit für API-Keys, aber die `/many`-Endpunkte nehmen höchstens 100 Datensätze pro Anfrage, also teilen Sie größere Jobs auf. Verbundene Messaging-Kanäle haben Lese- und Sendelimits pro Anbieter; siehe [Messaging-Rate-Limits](/docs/messaging-rate-limits).
 - **Webhook-Reihenfolge**: Deliveries sind nicht strikt geordnet. Behandeln Sie sie als idempotente Nachrichten mit Schlüssel `entityId` und nutzen Sie den `timestamp` der Payload, um sie zu ordnen.
 
