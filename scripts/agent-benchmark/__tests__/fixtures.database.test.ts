@@ -171,6 +171,21 @@ describeDatabase("agent benchmark fixtures and oracle", () => {
     expect(correct.passed).toBe(true);
     expect(correct.checks.find((check) => check.id === "both-counts-reported")?.passed).toBe(true);
 
+    for (const [contactText, organizationText] of [
+      ["There is **1** contact in this workspace.", "There is __one__ organization."],
+      ["There is *1* contact.", "`1` organization is in this workspace."],
+      ["**Contacts:** 1", "_Organization count_: **one**"],
+    ]) {
+      const emphasized = await scoreBenchmarkCase(db, fixture, observed(contactText, organizationText));
+      expect(emphasized.checks.find((check) => check.id === "both-counts-reported")?.passed).toBe(true);
+    }
+    const emphasizedWrong = await scoreBenchmarkCase(
+      db,
+      fixture,
+      observed("There are **2** contacts and **1** organization.", "**One** contact is here."),
+    );
+    expect(emphasizedWrong.checks.find((check) => check.id === "both-counts-reported")?.passed).toBe(false);
+
     const wrong = await scoreBenchmarkCase(
       db,
       fixture,

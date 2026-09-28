@@ -1097,6 +1097,13 @@ export function isPageSizeRefusal(tool: ObservedTool): boolean {
   return typeof size === "number" && !(Number.isInteger(size) && size >= 1 && size <= 100) && tool.outcome !== "ok" && tool.status !== "completed";
 }
 const normalizeText = (text: string) => text.normalize("NFKC").toLowerCase();
+const plainAnswerText = (text: string) =>
+  text
+    .replace(/`+([^`\n]*?)`+/g, "$1")
+    .replace(/\*\*(?=\S)(.+?)(?<=\S)\*\*/g, "$1")
+    .replace(/(?<!\w)__(?=\S)(.+?)(?<=\S)__(?!\w)/g, "$1")
+    .replace(/(?<![\w*])\*(?=[^\s*])(.+?)(?<=[^\s*])\*(?![\w*])/g, "$1")
+    .replace(/(?<!\w)_(?=[^\s_])(.+?)(?<=[^\s_])_(?!\w)/g, "$1");
 const words = (text: string) => text.trim() ? text.trim().split(/\s+/).length : 0;
 function hasAmount(text: string, amount: number) {
   const escaped = String(amount).split("").join("[,.\\s]?");
@@ -1169,7 +1176,8 @@ const withoutKeys = (record: Record<string, unknown> | undefined, keys: string[]
     : null;
 
 /** No judge model: each check is a published deterministic fact/behavior requirement. */
-export async function scoreBenchmarkCase(db: BenchmarkDb, fixture: Fixture, observed: ObservedCase): Promise<OracleResult> {
+export async function scoreBenchmarkCase(db: BenchmarkDb, fixture: Fixture, recorded: ObservedCase): Promise<OracleResult> {
+  const observed = { ...recorded, turns: recorded.turns.map((turn) => ({ ...turn, text: plainAnswerText(turn.text) })) };
   const after = await snapshotBenchmarkCompany(db, fixture.companyId);
   const sentinelAfter = await snapshotBenchmarkCompany(db, fixture.sentinelCompanyId);
   const definition = BENCHMARK_CASES.find((entry) => entry.id === fixture.caseId)!;
