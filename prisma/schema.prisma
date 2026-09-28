@@ -357,6 +357,8 @@ model WikiSourceDocument {
   qaPairs      Json?
   contentHash  String
   fetchedAt    DateTime         @default(now())
+  readAt          DateTime?
+  importClaimedAt DateTime?
   crawl        WikiWebsiteCrawl @relation(fields: [crawlId], references: [id], onDelete: Cascade)
   company      Company          @relation(fields: [companyId], references: [id], onDelete: Cascade)
 

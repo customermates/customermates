@@ -112,6 +112,7 @@ describe("sitemaps, llms.txt and categories", () => {
     ["https://example.com/about-us", "about"],
     ["https://example.com/customers/acme", "customers"],
     ["https://example.com/blog/launch", "blog"],
+    ["https://example.com/en/blog/pipedrive-pricing", "blog"],
     ["https://example.com/partners", "other"],
   ] as const)("categorises %s as %s", (url, category) => {
     expect(wikiCrawlCategory(url)).toBe(category);

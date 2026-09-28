@@ -10,6 +10,7 @@ import { getTranslator } from "@/i18n/get-translator";
 import { DEFAULT_LOCALE, isAppLocale } from "@/i18n/locale-registry";
 
 import { WIKI_IMPORTED_CATEGORIES } from "./wiki-website-crawl.service";
+import { wikiSynthesisSectionMarkdown } from "./wiki-synthesis-markdown";
 
 export const WIKI_READ_SOURCE_TOOL_NAME = "read_website_source";
 export const WIKI_SYNTHESIS_MAX_PAGES = 16;
@@ -26,7 +27,7 @@ export function readWebsiteSourceTool(crawlId: string) {
     name: WIKI_READ_SOURCE_TOOL_NAME,
     title: "Read stored website pages",
     description:
-      "Read the website pages this import already fetched. list returns each page's id, url, category, title, length and whether it was imported word for word; get returns one page's text from offset with nextOffset.",
+      "Read the website pages this import already fetched. list returns each page's id, url, category, title, length, whether it was imported word for word and whether you read it; get returns one page's text from offset with nextOffset. manage_wiki_pages accepts only sourceIds you read with get.",
     annotations: { readOnlyHint: true, destructiveHint: false, idempotentHint: true, openWorldHint: false },
     inputSchema: ReadWebsiteSourceSchema,
     outputSchema: z.looseObject({}),
@@ -37,18 +38,20 @@ export function readWebsiteSourceTool(crawlId: string) {
       if (parsed.data.action === "list") {
         const sources = await repo.listSources(crawlId);
         return toonResult({
-          items: sources.map(({ id, url, category, title, text }) => ({
+          items: sources.map(({ id, url, category, title, text, readAt }) => ({
             id,
             url,
             category,
             title,
             chars: text.length,
             imported: WIKI_IMPORTED_CATEGORIES.has(category),
+            read: readAt !== null,
           })),
         });
       }
       const source = parsed.data.id ? await repo.getSource(crawlId, parsed.data.id) : null;
       if (!source) return toonResult({ error: "Unknown source id. Call list first." });
+      await repo.markSourceRead(crawlId, source.id);
       const offset = Math.min(parsed.data.offset ?? 0, source.text.length);
       const end = Math.min(source.text.length, offset + SOURCE_CHUNK_CHARACTERS);
       return toonResult({
@@ -112,6 +115,16 @@ export function createWikiFromCrawlTool(locale: string | undefined, crawlId: str
       const unknown = parsed.data.pages.flatMap(({ sourceIds }) => sourceIds).filter((id) => !sources.has(id));
       if (unknown.length > 0)
         return toonResult({ error: "Cite only ids returned by read_website_source. Nothing was changed." });
+      const unread = [
+        ...new Set(
+          parsed.data.pages.flatMap(({ sourceIds }) => sourceIds).filter((id) => sources.get(id)?.readAt === null),
+        ),
+      ];
+      if (unread.length > 0) {
+        return toonResult({
+          error: `Read each cited source with read_website_source action=get before citing it; unread: ${unread.join(", ")}. Nothing was changed.`,
+        });
+      }
       const t = await getTranslator(appLocale, "WikiSetup.generated");
       const pages = parsed.data.pages.map((page) => ({
         title: page.title,
@@ -119,7 +132,7 @@ export function createWikiFromCrawlTool(locale: string | undefined, crawlId: str
         whenToUse: page.kind === "procedure" ? page.whenToUse : undefined,
         draft: page.kind !== "knowledge",
         markdown: [
-          ...page.sections.map(({ heading, content }) => `## ${heading}\n\n${content}`),
+          ...page.sections.map(({ heading, content }) => `## ${heading}\n\n${wikiSynthesisSectionMarkdown(content)}`),
           `## ${t("sourcesHeading")}\n\n${[...new Set(page.sourceIds)]
             .map((id) => {
               const source = sources.get(id);

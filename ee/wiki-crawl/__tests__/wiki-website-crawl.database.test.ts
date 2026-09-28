@@ -16,10 +16,15 @@ import { createMockUser } from "@/tests/helpers/mock-user";
 import messages from "@/i18n/locales/en.json";
 
 const crawler = vi.hoisted(() => ({ discover: vi.fn(), fetch: vi.fn() }));
+const di = vi.hoisted(() => ({ createPages: null as unknown, crawlRepo: null as unknown }));
 
 vi.mock("next-intl/server", () => ({
   getLocale: () => Promise.resolve("en"),
   getTranslations: () => Promise.resolve(createTranslator({ locale: "en", messages })),
+}));
+vi.mock("@/core/di", () => ({
+  getCreateWikiPagesInteractor: () => di.createPages,
+  getWikiWebsiteCrawlRepo: () => di.crawlRepo,
 }));
 vi.mock("../website-crawler", () => ({
   discoverWikiWebsite: crawler.discover,
@@ -28,6 +33,11 @@ vi.mock("../website-crawler", () => ({
 }));
 
 import { PrismaWikiWebsiteCrawlRepo } from "../prisma-wiki-website-crawl.repository";
+import {
+  createWikiFromCrawlTool,
+  readWebsiteSourceTool,
+  WIKI_SYNTHESIS_MAX_PAGES,
+} from "../wiki-crawl-synthesis-tools";
 import { WikiWebsiteCrawlService } from "../wiki-website-crawl.service";
 
 const databaseUrl = getLocalDatabaseTestUrl();
@@ -66,6 +76,8 @@ describeDatabase("Wiki website crawl on PostgreSQL", () => {
         canUserAccessUnscoped: () => Promise.resolve(true),
       },
     );
+  di.createPages = new CreateWikiPagesInteractor(new PrismaWikiPageRepo(), eventService());
+  di.crawlRepo = new PrismaWikiWebsiteCrawlRepo();
   const service = () =>
     new WikiWebsiteCrawlService(
       new PrismaWikiWebsiteCrawlRepo(),
@@ -167,6 +179,112 @@ describeDatabase("Wiki website crawl on PostgreSQL", () => {
     expect(refund).toContain("Refunds within 30 days.");
     expect(refund).toContain("Can I pause instead?");
     expect(refund).toMatch(/Source: https:\/\/example\.com\/help\/refunds · fetched \d{4}-\d{2}-\d{2}$/u);
+  }, 30_000);
+
+  it("writes each page once when a redelivered step runs alongside the first delivery", async () => {
+    PAGES["https://example.com/help/refunds-copy"] = { ...PAGES["https://example.com/help/refunds"] };
+    crawler.discover.mockResolvedValueOnce({
+      status: "ready",
+      crawlDelayMs: 0,
+      pendingHosts: [],
+      targets: [
+        { url: "https://example.com/help/refunds", category: "help" },
+        { url: "https://example.com/help/refunds-copy", category: "help" },
+        { url: "https://example.com/pricing", category: "pricing" },
+      ],
+    });
+    const crawlId = await startCrawl();
+    await runWithTenant(user, async () => {
+      const batches = await service().discover(crawlId);
+      for (let batch = 0; batch < batches; batch += 1)
+        await Promise.all([service().fetchBatch(crawlId, batch), service().fetchBatch(crawlId, batch)]);
+      await client.query(`UPDATE "WikiWebsiteCrawl" SET "status" = 'importing' WHERE "id" = $1`, [crawlId]);
+      await Promise.all([service().importSources(crawlId), service().importSources(crawlId)]);
+      await Promise.all([service().finish(crawlId), service().finish(crawlId)]);
+      expect(await service().discover(crawlId)).toBe(1);
+      await service().fetchBatch(crawlId, 0);
+      await service().importSources(crawlId);
+      await service().fail(crawlId);
+    });
+
+    const crawl = await client.query('SELECT * FROM "WikiWebsiteCrawl" WHERE "id" = $1', [crawlId]);
+    expect(crawl.rows[0]).toMatchObject({
+      status: "completed",
+      fetched: 3,
+      failed: 0,
+      importedPages: 2,
+      conversationId: "00000000-0000-4000-8000-00000000c0de",
+    });
+    const titles = await client.query('SELECT "title" FROM "WikiPage" WHERE "companyId" = $1 ORDER BY "title"', [
+      companyId,
+    ]);
+    expect(titles.rows).toEqual([{ title: "Pricing" }, { title: "Refund policy" }]);
+    expect(synthesis).toHaveBeenCalledTimes(1);
+    delete PAGES["https://example.com/help/refunds-copy"];
+  }, 30_000);
+
+  it("creates draft guides and procedures that cite only stored sources it read, within the page cap", async () => {
+    const crawlId = await startCrawl();
+    await runCrawl(crawlId);
+    const [refund] = (
+      await client.query('SELECT "id", "url" FROM "WikiSourceDocument" WHERE "crawlId" = $1 AND "category" = $2', [
+        crawlId,
+        "help",
+      ])
+    ).rows as Array<{ id: string; url: string }>;
+    const tool = createWikiFromCrawlTool("en", crawlId);
+    const create = (pages: unknown[]) => runWithTenant(user, () => tool.execute({ action: "create", pages } as never));
+
+    const unknown = await create([
+      { title: "Refunds", kind: "knowledge", sections: [{ heading: "A", content: "B" }], sourceIds: [randomUUID()] },
+    ]);
+    expect(JSON.stringify(unknown)).toContain("Cite only ids returned by read_website_source");
+    const unread = await create([
+      { title: "Refunds", kind: "knowledge", sections: [{ heading: "A", content: "B" }], sourceIds: [refund.id] },
+    ]);
+    expect(JSON.stringify(unread)).toContain(`unread: ${refund.id}`);
+    await runWithTenant(user, () => readWebsiteSourceTool(crawlId).execute({ action: "get", id: refund.id }));
+
+    await create([
+      {
+        title: "Operating Guide",
+        kind: "guide",
+        sections: [{ heading: "Routing", content: "- Refunds -> Refund procedure\\n- Other -> Support" }],
+        sourceIds: [refund.id],
+        gaps: ["Who approves refunds over 500 EUR?"],
+      },
+      {
+        title: "Refund procedure",
+        kind: "procedure",
+        whenToUse: "When a customer asks for money back.",
+        sections: [{ heading: "Steps", content: "1. Check the plan.\n2. Refund within 30 days." }],
+        sourceIds: [refund.id],
+      },
+    ]);
+    const drafts = await client.query(
+      'SELECT "title", "kind", "draft", "whenToUse", "markdown" FROM "WikiPage" WHERE "companyId" = $1 AND "sourceUrl" IS NULL ORDER BY "title"',
+      [companyId],
+    );
+    expect(drafts.rows.map(({ title, kind, draft }) => ({ title, kind, draft }))).toEqual([
+      { title: "Operating Guide", kind: "guide", draft: true },
+      { title: "Refund procedure", kind: "procedure", draft: true },
+    ]);
+    const guide = drafts.rows[0].markdown as string;
+    expect(guide).toMatch(/^- Refunds -> Refund procedure$/mu);
+    expect(guide).toMatch(/^- Other -> Support$/mu);
+    expect(guide).not.toContain("\\n");
+    expect(guide).toContain(refund.url);
+    expect(guide).toContain("Who approves refunds over 500 EUR?");
+
+    const tooMany = Array.from({ length: 5 }, (_, index) => ({
+      title: `Summary ${index}`,
+      kind: "knowledge",
+      sections: [{ heading: "A", content: "B" }],
+      sourceIds: [refund.id],
+    }));
+    for (let round = 0; round < 3; round += 1)
+      await create(tooMany.map((page) => ({ ...page, title: `${page.title}.${round}` })));
+    expect(JSON.stringify(await create(tooMany))).toContain(`at most ${WIKI_SYNTHESIS_MAX_PAGES}`);
   }, 30_000);
 
   it("refreshes untouched imported pages, keeps pages people edited, and adds no new pages", async () => {

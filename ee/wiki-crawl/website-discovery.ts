@@ -62,6 +62,8 @@ const CATEGORY_PATTERNS: Array<[WikiCrawlCategory, RegExp]> = [
   ],
   ["blog", WORD("blog|news|press|magazin|noticias|actualites|actualités|notizie|articles?|posts?")],
 ];
+const BLOG_SECTION =
+  /^\/(?:[a-z]{2}(?:-[a-z]{2})?\/)?(?:blog|news|press|magazin|noticias|actualites|actualités|notizie)(?:\/|$)/u;
 const SKIP_PATH =
   /(?:^|\/)(?:login|log-in|signin|sign-in|signup|sign-up|register|registrieren|cart|checkout|basket|warenkorb|account|konto|my-account|careers|jobs|karriere|empleo|carrieres|lavora-con-noi|wp-admin|wp-json|cdn-cgi|feed|tag|tags|category|categories|author|search|suche|share|print)(?:\/|$)/u;
 const SKIP_EXTENSION =
@@ -191,6 +193,7 @@ export function wikiCrawlCategory(url: string, title = ""): WikiCrawlCategory {
   const path = decodeURIComponent(new URL(url).pathname).toLocaleLowerCase();
   const searchable = `${path} ${title.toLocaleLowerCase()}`;
   if (path === "/" || path === "") return "about";
+  if (BLOG_SECTION.test(path)) return "blog";
   for (const [category, pattern] of CATEGORY_PATTERNS) if (pattern.test(path)) return category;
   for (const [category, pattern] of CATEGORY_PATTERNS) if (pattern.test(searchable)) return category;
   return "other";

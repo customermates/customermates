@@ -1,6 +1,11 @@
 import type { WikiCrawlTarget, WikiCrawlCategory } from "./website-discovery";
 import type { WikiSourceQa } from "./website-source-extract";
-import type { WikiCrawlRecord, WikiSourceRecord, WikiWebsiteCrawlRepo } from "./wiki-website-crawl.service";
+import type {
+  WikiCrawlRecord,
+  WikiCrawlStatus,
+  WikiSourceRecord,
+  WikiWebsiteCrawlRepo,
+} from "./wiki-website-crawl.service";
 import type { StartWikiWebsiteCrawlRepo } from "@/features/wiki/start-wiki-homepage-setup.interactor";
 import type { GetWikiWebsiteCrawlStateRepo } from "@/features/wiki/get-wiki-homepage-setup-state.interactor";
 
@@ -40,6 +45,7 @@ const SOURCE_SELECT = {
   qaPairs: true,
   contentHash: true,
   fetchedAt: true,
+  readAt: true,
 } as const;
 
 type CrawlRow = Prisma.WikiWebsiteCrawlGetPayload<{ select: typeof CRAWL_SELECT }>;
@@ -58,6 +64,15 @@ function sourceRecord(row: SourceRow): WikiSourceRecord {
     ...row,
     category: row.category as WikiCrawlCategory,
     qaPairs: Array.isArray(row.qaPairs) ? (row.qaPairs as unknown as WikiSourceQa[]) : [],
+  };
+}
+
+function crawlPatch({ targets, ...rest }: Partial<Omit<WikiCrawlRecord, "id" | "userId">>) {
+  return {
+    ...rest,
+    ...(targets !== undefined
+      ? { targets: targets === null ? Prisma.DbNull : (targets as Prisma.InputJsonValue) }
+      : {}),
   };
 }
 
@@ -110,19 +125,32 @@ export class PrismaWikiWebsiteCrawlRepo
   }
 
   async updateCrawl(id: string, patch: Partial<Omit<WikiCrawlRecord, "id" | "userId">>) {
-    const { targets, ...rest } = patch;
     await this.prisma.wikiWebsiteCrawl.updateMany({
       where: { id, companyId: this.companyId },
-      data: {
-        ...rest,
-        ...(targets !== undefined
-          ? { targets: targets === null ? Prisma.DbNull : (targets as Prisma.InputJsonValue) }
-          : {}),
-      },
+      data: crawlPatch(patch),
     });
   }
 
-  async saveSource(crawlId: string, source: Omit<WikiSourceRecord, "id" | "fetchedAt"> & { canonicalUrl: string }) {
+  async claimCrawl(
+    id: string,
+    from: readonly WikiCrawlStatus[],
+    patch: Partial<Omit<WikiCrawlRecord, "id" | "userId">> & { status: WikiCrawlStatus },
+  ) {
+    const { count } = await this.prisma.wikiWebsiteCrawl.updateMany({
+      where: { id, companyId: this.companyId, status: { in: [...from] } },
+      data: crawlPatch(patch),
+    });
+    return count === 1;
+  }
+
+  async countSources(crawlId: string) {
+    return this.prisma.wikiSourceDocument.count({ where: { crawlId, companyId: this.companyId } });
+  }
+
+  async saveSource(
+    crawlId: string,
+    source: Omit<WikiSourceRecord, "id" | "fetchedAt" | "readAt"> & { canonicalUrl: string },
+  ) {
     const data = {
       url: source.url,
       category: source.category,
@@ -154,6 +182,27 @@ export class PrismaWikiWebsiteCrawlRepo
       select: SOURCE_SELECT,
     });
     return row ? sourceRecord(row) : null;
+  }
+
+  async markSourceRead(crawlId: string, id: string) {
+    await this.prisma.wikiSourceDocument.updateMany({
+      where: { id, crawlId, companyId: this.companyId, readAt: null },
+      data: { readAt: new Date() },
+    });
+  }
+
+  async claimSourceImport(crawlId: string, id: string) {
+    const { count } = await this.prisma.wikiSourceDocument.updateMany({
+      where: { id, crawlId, companyId: this.companyId, importClaimedAt: null },
+      data: { importClaimedAt: new Date() },
+    });
+    return count === 1;
+  }
+
+  async countImportedPages(since: Date) {
+    return this.prisma.wikiPage.count({
+      where: { companyId: this.companyId, sourceUrl: { not: null }, sourceFetchedAt: { gte: since } },
+    });
   }
 
   async findImportedPage(sourceUrl: string) {
