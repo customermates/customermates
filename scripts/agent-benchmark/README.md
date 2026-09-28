@@ -118,6 +118,12 @@ which it seeds into a throwaway workspace, embeds and deletes again. Run `yarn d
 `RUN_AGENT_BENCHMARK=true yarn tsx --import ./scripts/lib/register-server-only-shim.mjs scripts/agent-benchmark/retrieval-eval.ts --cap 0.5`
 (`--only docs` or `--only wiki` to run one corpus). It writes JSON and Markdown under `.runs/retrieval-eval/`.
 
+For the live A/B, `retrieval-ab.ts --campaign <id>` grades each DH and DE episode with the stage-4 gold-fact judge
+(reserved against the campaign cap, verdicts cached in the campaign's `.runs` directory) and prints pass per arm with
+paired McNemar, credits per turn, `search_docs` p50/p95 and first output p50/p95. Pass `--no-judge` to reuse cached
+verdicts only. It counts an episode whose only failed check is `integrity:correctRoute` as passing when every turn used the
+agent model and the only other usage is the unified pipeline's query-embedding charge.
+
 Commands (`yarn agent:benchmark <command>`):
 
 - `arms`, `cases`: list arms and cases. Counts always come from this live registry rather than a number copied into
