@@ -1,11 +1,9 @@
 import { z } from "zod";
 
 import {
-  CUSTOM_COLUMN_PREREQ,
   CUSTOM_FIELDS_MERGE_NOTE,
   CreatedRecordsOutputSchema,
   toonResult,
-  IDEMPOTENT_NOTE,
   UpdatedRecordsOutputSchema,
   forbidNullFields,
   relationsViaLinkNote,
@@ -41,8 +39,7 @@ export const createContactsTool = {
     "Optional per item: identifiers, notes, organizationIds, userIds, dealIds, taskIds, customFieldValues. " +
     "`identifiers` is the canonical place for messaging channels; displayName and profileUrl are optional enrichment for the contact card. A channel can belong to only one contact: if a value is already linked elsewhere the call is rejected. Omit the field (or pass []) if the contact has no channels. " +
     "You can pass organizationIds/userIds/dealIds/taskIds directly in create so linked contacts are created in one call. " +
-    CUSTOM_COLUMN_PREREQ +
-    " Returns the list of created contact ids and names.",
+    "Returns the list of created contact ids and names.",
   annotations: {
     readOnlyHint: false,
     destructiveHint: false,
@@ -71,9 +68,7 @@ export const updateContactsTool = {
     "Optional per item: firstName, lastName, identifiers, notes, customFieldValues. " +
     relationsViaLinkNote("organizations, deals, users, tasks") +
     " `identifiers` REPLACES the contact's channel set: when provided, channels not listed are unlinked and their message history detached, so omit the field to leave channels untouched, or first read the current identifiers then write the full list plus the new channel. This is also how you assign an inbox conversation to a contact: adding a participant's channel here links that thread to the contact (and dropping it unlinks). For linkedin, telegram and instagram, value is the handle. A channel can belong to only one contact: if a value is already linked to a different contact the call is rejected. " +
-    CUSTOM_FIELDS_MERGE_NOTE +
-    " " +
-    IDEMPOTENT_NOTE,
+    CUSTOM_FIELDS_MERGE_NOTE,
   annotations: {
     readOnlyHint: false,
     destructiveHint: false,

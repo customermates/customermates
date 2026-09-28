@@ -327,13 +327,9 @@ export const CreatedRecordsOutputSchema = z.object({
 
 export const UpdatedRecordsOutputSchema = z.object({ updated: z.number() });
 
-export const CUSTOM_COLUMN_PREREQ = "Prereq: call get_record_schema for custom-column ids.";
-
 export const CUSTOM_FIELDS_MERGE_NOTE =
   "customFieldValues is a per-column merge: only columns you include change; to clear one pass { columnId, value: null }. " +
   "A date or dateTime value is an instant: send ISO 8601 carrying the offset of the time the user named, for example 2026-09-14T09:00:00+02:00 for 09:00 Europe/Berlin; a trailing Z means UTC, so never append it to a local time.";
-
-export const IDEMPOTENT_NOTE = "Idempotent: same payload produces the same state.";
 
 export const relationsViaLinkNote = (relations: string) =>
   `Relations (${relations}) are NOT changed here - add or remove them with manage_record_links so existing links are preserved.`;
