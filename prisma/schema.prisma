@@ -385,6 +385,31 @@ model WikiPageChunk {
   @@index([companyId, pageId])
 }
 
+model DocsChunk {
+  id           String                      @id @default(uuid())
+  buildHash    String
+  locale       String
+  source       String
+  slug         String
+  sectionOrder Int
+  chunkOrdinal Int
+  charOffset   Int
+  anchor       String
+  pageTitle    String
+  headingPath  String[]
+  label        String
+  body         String
+  contentHash  String
+  searchVector Unsupported("tsvector")?    @default(dbgenerated("docs_search_vector(locale, label, body)"))
+  model        String?
+  embedding    Unsupported("vector(768)")?
+  createdAt    DateTime                    @default(now())
+
+  @@unique([buildHash, locale, source, slug, sectionOrder, chunkOrdinal], map: "DocsChunk_build_chunk_key")
+  @@index([contentHash])
+  @@index([searchVector], type: Gin)
+}
+
 model EntityTerminology {
   id         String     @id @default(uuid())
   companyId  String

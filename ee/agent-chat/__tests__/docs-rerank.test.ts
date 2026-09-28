@@ -27,11 +27,11 @@ import {
   DOCS_RERANK_CANDIDATES,
   docsPageRankCandidates,
   docsRankCandidates,
+  docsPageResult,
   getDocsPageRaw,
-  getDocsPageTool,
+  keywordDocsSearch,
   relevantDocsExcerpt,
   searchDocsRaw,
-  searchDocsTool,
 } from "@/features/mcp-tools/docs.mcp-tools";
 import { agentPageContextPrefix } from "../agent-page-context";
 
@@ -47,7 +47,11 @@ import {
   docsRerankChoice,
   docsRerankPlainText,
   hostedDocsRanking,
+  hostedSectionRankers,
 } from "../docs-rerank";
+import { currentSectionRanker } from "@/core/retrieval/retrieval-context";
+import { searchDocsTool } from "@/features/mcp-tools/docs.mcp-tools";
+import { manageWikiPagesTool } from "@/features/mcp-tools/wiki.mcp-tools";
 
 const QUERY = "which header does the REST API expect for auth";
 const INPUT = { query: QUERY, locale: "en", source: "docs" };
@@ -122,9 +126,12 @@ function jevChoosing(pick: (keys: string[]) => string, probabilities?: (keys: st
 beforeEach(() => {
   envState.APP_MODE = "cloud";
   envState.AI_GATEWAY_API_KEY = "test-gateway-key";
+  vi.stubEnv("LOCAL_AGENT_BENCHMARK", "true");
+  vi.stubEnv("AGENT_BENCHMARK_RETRIEVAL", "legacy");
 });
 
 afterEach(() => {
+  vi.unstubAllEnvs();
   vi.unstubAllGlobals();
   vi.restoreAllMocks();
 });
@@ -179,7 +186,7 @@ describe("hosted docs re-rank switch", () => {
 
     const { value, charges } = await runSearchDocs(INPUT);
 
-    expect(value.result).toBe(searchDocsTool.execute(INPUT as never).text);
+    expect(value.result).toBe(keywordDocsSearch(INPUT as never).text);
     expect(fetchMock).not.toHaveBeenCalled();
     expect(charges).toEqual([]);
   });
@@ -188,7 +195,7 @@ describe("hosted docs re-rank switch", () => {
     const fetchMock = vi.fn();
     vi.stubGlobal("fetch", fetchMock);
 
-    expect(searchDocsTool.execute(INPUT as never).text).not.toContain("\nexcerpt=\n");
+    expect(keywordDocsSearch(INPUT as never).text).not.toContain("\nexcerpt=\n");
     expect(fetchMock).not.toHaveBeenCalled();
   });
 });
@@ -303,7 +310,7 @@ describe("hosted docs re-rank", () => {
 
     expect(onPage.length).toBeGreaterThan(1);
     expect(fetchMock).toHaveBeenCalledTimes(1);
-    expect(ranked.value.result).not.toBe(getDocsPageTool.execute(input as never).text);
+    expect(ranked.value.result).not.toBe((docsPageResult(input as never) as { text: string }).text);
     expect(ranked.value.result.startsWith(`## ${chosen.section.headingPath.at(-1)}\n`)).toBe(true);
     expect(ranked.value.result.startsWith(relevantDocsExcerpt({ source: "docs", locale: "en", slug }, QUERY))).toBe(
       false,
@@ -324,11 +331,75 @@ describe("hosted docs re-rank", () => {
     const search = await runSearchDocs(INPUT, USER_MESSAGE);
     const page = await runHostedDocsTool("get_docs_page", pageInput, USER_MESSAGE);
 
-    expect(search.value.result).toBe(searchDocsTool.execute(INPUT as never).text);
-    expect(page.value.result).toBe(getDocsPageTool.execute(pageInput as never).text);
+    expect(search.value.result).toBe(keywordDocsSearch(INPUT as never).text);
+    expect(page.value.result).toBe((docsPageResult(pageInput as never) as { text: string }).text);
     expect([...search.charges, ...page.charges]).toEqual([
       expect.objectContaining({ use: "docs_rerank", model: "jev", measured: false, answered: false }),
       expect.objectContaining({ use: "docs_rerank", model: "jev", measured: false, answered: false }),
     ]);
+  });
+});
+
+describe("section re-rank for documentation and the Workspace Wiki", () => {
+  const candidates = [
+    {
+      id: 0,
+      section: { pageTitle: "Refund policy", headingPath: ["Approval"], text: "The finance lead approves." },
+      titleOnly: false,
+    },
+    {
+      id: 1,
+      section: { pageTitle: "Travel", headingPath: ["Mileage"], text: "0.30 EUR per kilometre." },
+      titleOnly: false,
+    },
+  ];
+
+  it("asks Jev about Wiki sections under its own use and spec", async () => {
+    const fetchMock = jevChoosing(() => "s1");
+    vi.stubGlobal("fetch", fetchMock);
+    const rankers = hostedSectionRankers(USER_MESSAGE);
+    if (!rankers) throw new Error("expected hosted rankers");
+
+    const { value, charges } = await collectClassifierCharges(async () => rankers("wiki")?.("mileage", candidates));
+    const sent = JSON.parse(String(fetchMock.mock.calls[0][1].body)) as {
+      questions: { best: { instructions: string } };
+    };
+
+    expect(value).toEqual([1, 0]);
+    expect(sent.questions.best.instructions).toContain("searched the Workspace Wiki");
+    expect(docsRankSpec(candidates, "wiki").id).toBe("wiki-rank");
+    expect(docsRankSpec(candidates).id).toBe("docs-rank");
+    expect(charges).toEqual([expect.objectContaining({ use: "wiki_rerank", model: "jev", answered: true })]);
+  });
+
+  it("offers no rankers self-hosted", () => {
+    envState.APP_MODE = "self-hosted";
+    expect(hostedSectionRankers()).toBeUndefined();
+  });
+
+  it("hands the hosted docs and Wiki tools their rankers for the call and no one else", async () => {
+    vi.unstubAllEnvs();
+    const seen: Record<string, boolean> = {};
+    vi.spyOn(searchDocsTool, "execute").mockImplementation(() => {
+      seen.docs = currentSectionRanker("docs") !== undefined;
+      return Promise.resolve({ text: "matches: none", structuredContent: { results: [], total: 0 } });
+    });
+    vi.spyOn(manageWikiPagesTool, "execute").mockImplementation(() => {
+      seen.wiki = currentSectionRanker("wiki") !== undefined;
+      return Promise.resolve("ok");
+    });
+    const tools = getAgentAiTools(deps(USER_MESSAGE)) as unknown as Record<
+      string,
+      { execute: (value: unknown, options: { toolCallId: string; messages: [] }) => Promise<unknown> }
+    >;
+
+    await tools.search_docs.execute(INPUT, { toolCallId: "call-docs", messages: [] });
+    await tools.manage_wiki_pages.execute(
+      { action: "search", query: "refunds" },
+      { toolCallId: "call-wiki", messages: [] },
+    );
+
+    expect(seen).toEqual({ docs: true, wiki: true });
+    expect(currentSectionRanker("docs")).toBeUndefined();
   });
 });

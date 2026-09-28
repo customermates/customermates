@@ -57,6 +57,7 @@ vi.mock("@/features/search/entity-list-executors", () => ({
 }));
 vi.mock("../docs.mcp-tools", () => ({
   searchDocsRaw: calls.docs,
+  searchDocsHits: async (...args: unknown[]) => ((await calls.docs(...args)) as { results: unknown[] }).results,
   getDocsPageRaw: calls.fetchDoc,
   listDocsSlugs: () => [],
 }));

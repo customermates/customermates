@@ -37,4 +37,20 @@ describe("Wiki query embedding cache", () => {
       other.companyId,
     ]);
   });
+
+  it("embeds one query once when several searches in the same request ask for it together", async () => {
+    const { service, embedTexts } = embeddings();
+    const user = createMockUser({ id: crypto.randomUUID(), companyId: crypto.randomUUID() });
+    const query = `webhook signature ${crypto.randomUUID()}`;
+
+    const vectors = await runWithTenant(user, () =>
+      Promise.all([
+        new WikiSemanticQueryEmbedder(service).embedQuery(query),
+        new WikiSemanticQueryEmbedder(service).embedQuery(` ${query} `),
+      ]),
+    );
+
+    expect(embedTexts).toHaveBeenCalledTimes(1);
+    expect(vectors[0]).toEqual(vectors[1]);
+  });
 });

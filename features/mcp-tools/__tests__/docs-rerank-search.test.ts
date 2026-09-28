@@ -1,3 +1,5 @@
+import type { RankableSection } from "@/core/retrieval/retrieval-context";
+
 import { describe, expect, it, vi } from "vitest";
 
 import {
@@ -7,7 +9,7 @@ import {
   docsRerankExcerpt,
   searchDocsRanked,
   searchDocsRaw,
-  searchDocsTool,
+  keywordDocsSearch,
   type DocsRankCandidate,
 } from "../docs.mcp-tools";
 
@@ -15,12 +17,12 @@ const QUERY = "how do I check that a webhook call really came from you";
 const INPUT = { query: QUERY, locale: "en" as const, source: "docs" as const };
 
 function keywordResult() {
-  return searchDocsTool.execute(INPUT);
+  return keywordDocsSearch(INPUT);
 }
 
 function pickFrom(predicate: (candidate: DocsRankCandidate) => boolean) {
-  return vi.fn((_query: string, candidates: readonly DocsRankCandidate[]) => {
-    const chosen = candidates.find(predicate);
+  return vi.fn((_query: string, candidates: readonly RankableSection[]) => {
+    const chosen = (candidates as readonly DocsRankCandidate[]).find(predicate);
     return Promise.resolve(chosen ? [chosen.id] : null);
   });
 }
@@ -71,16 +73,16 @@ describe("docs search re-rank", () => {
     const rank = vi.fn(() => Promise.resolve([0]));
 
     expect(await searchDocsRanked({ ...INPUT, source: "api" }, rank)).toEqual(
-      searchDocsTool.execute({ ...INPUT, source: "api" }),
+      keywordDocsSearch({ ...INPUT, source: "api" }),
     );
     expect(await searchDocsRanked({ ...INPUT, source: "all" }, rank)).toEqual(
-      searchDocsTool.execute({ ...INPUT, source: "all" }),
+      keywordDocsSearch({ ...INPUT, source: "all" }),
     );
     expect(rank).not.toHaveBeenCalled();
   });
 
-  it("keeps the MCP tool synchronous and unranked for external clients", () => {
-    const result = searchDocsTool.execute(INPUT);
+  it("keeps the legacy keyword search synchronous and unranked", () => {
+    const result = keywordDocsSearch(INPUT);
 
     expect(result).not.toBeInstanceOf(Promise);
     expect(result.text).not.toContain("\nexcerpt=\n");

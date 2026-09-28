@@ -15,14 +15,9 @@ import {
   type McpToolExecutionResult,
 } from "@/features/mcp-tools/mcp-tool";
 import { RequestSupportSchema } from "@/features/mcp-tools/support.mcp-tools";
-import {
-  getDocsPageRanked,
-  getDocsPageTool,
-  searchDocsRanked,
-  searchDocsTool,
-  type GetDocsPageInput,
-  type SearchDocsInput,
-} from "@/features/mcp-tools/docs.mcp-tools";
+import { getDocsPageTool, searchDocsTool } from "@/features/mcp-tools/docs.mcp-tools";
+import { manageWikiPagesTool } from "@/features/mcp-tools/wiki.mcp-tools";
+import { runWithSectionRanking } from "@/core/retrieval/retrieval-context";
 import { redactUnexpectedError } from "@/core/errors/redact-unexpected-error";
 
 import { agentToolResultText } from "./agent-budget-policy";
@@ -56,7 +51,7 @@ import { getAgentWebSearchTool } from "./agent-web-search";
 import { hostedWorkspaceContextTool } from "@/features/mcp-tools/workspace.mcp-tools";
 import { localizeWikiPageUrls } from "@/features/wiki/wiki-links";
 import { agentViewToolMismatch } from "./agent-page-context";
-import { hostedDocsRanking } from "./docs-rerank";
+import { hostedSectionRankers } from "./docs-rerank";
 import {
   createWikiFromCrawlTool,
   readWebsiteSourceTool,
@@ -355,13 +350,14 @@ async function listUiTargets(input: z.infer<typeof ListUiTargetsSchema>, resultM
   return `${header}${lines.join("\n")}\n${footer}`;
 }
 
+const SECTION_RANKED_TOOLS = new Set([searchDocsTool.name, getDocsPageTool.name, manageWikiPagesTool.name]);
+
 function hostedMcpTool(mcp: (typeof ALL_MCP_TOOLS)[number], deps: AgentToolDeps): (typeof ALL_MCP_TOOLS)[number] {
-  if (mcp.name !== searchDocsTool.name && mcp.name !== getDocsPageTool.name) return mcp;
-  const rank = hostedDocsRanking(deps.latestUserMessage ?? null);
-  if (!rank) return mcp;
-  if (mcp.name === searchDocsTool.name)
-    return { ...mcp, execute: (input: SearchDocsInput) => searchDocsRanked(input, rank) };
-  return { ...mcp, execute: (input: GetDocsPageInput) => getDocsPageRanked(input, rank) };
+  if (!SECTION_RANKED_TOOLS.has(mcp.name)) return mcp;
+  const rankers = hostedSectionRankers(deps.latestUserMessage ?? null);
+  if (!rankers) return mcp;
+  const execute = mcp.execute as (...args: unknown[]) => ReturnType<typeof mcp.execute>;
+  return { ...mcp, execute: (...args: never[]) => runWithSectionRanking(rankers, () => execute(...args)) };
 }
 
 function crmTool(mcp: (typeof ALL_MCP_TOOLS)[number], deps: AgentToolDeps, surface: AgentSurface | undefined) {

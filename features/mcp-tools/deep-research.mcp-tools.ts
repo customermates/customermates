@@ -4,7 +4,7 @@ import type { ContentLocale } from "@/i18n/locale-registry";
 import type { WikiOutlineEntry } from "@/features/wiki/wiki-search";
 
 import { customMcpFailure, formatDatesInResponse, mcpInteractorFailure, mcpMessageFailure } from "./utils";
-import { getDocsPageRaw, listDocsSlugs, searchDocsRaw } from "./docs.mcp-tools";
+import { getDocsPageRaw, listDocsSlugs, searchDocsHits } from "./docs.mcp-tools";
 import {
   UNTRUSTED_NOTES_CLOSE,
   UNTRUSTED_NOTES_HANDLING,
@@ -246,7 +246,7 @@ export const searchTool = {
   }),
   outputSchema: SearchOutputSchema,
   execute: async ({ query }: { query: string }) => {
-    const [recordGroups, wiki] = await Promise.all([
+    const [recordGroups, wiki, docHits] = await Promise.all([
       Promise.all(
         ENTITIES.map(async (entity) => {
           try {
@@ -267,10 +267,11 @@ export const searchTool = {
         }),
       ),
       searchWiki(query),
+      searchDocsHits(query, DEFAULT_LOCALE, "docs"),
     ]);
 
-    const docResults = searchDocsRaw(query, DEFAULT_LOCALE, "docs")
-      .results.slice(0, 3)
+    const docResults = docHits
+      .slice(0, 3)
       .map((hit) => ({ id: `doc:${DEFAULT_LOCALE}:${hit.slug}`, title: hit.title, url: hit.url }));
 
     const output = {

@@ -1,14 +1,7 @@
 import { z } from "zod";
 
-import type { ContentLocale } from "@/i18n/locale-registry";
-
-import rawManifest from "@/generated/raw-docs-manifest.json";
-
 import { mcpMessageFailure } from "./utils";
 
-import { env } from "@/env";
-import { generateOpenApiSpec } from "@/core/openapi/openapi-spec";
-import { DOCS_API_KEY_PLACEHOLDER, getMcpInstallSnippet, type McpTool } from "@/features/docs/mcp-install-snippet";
 import { CONTENT_LOCALES, DEFAULT_LOCALE } from "@/i18n/locale-registry";
 
 import {
@@ -20,16 +13,26 @@ import {
   searchSections,
   sectionExcerpt,
   slugifyHeading,
-  splitSections,
-  unwrapDocsComponents,
   type DocsSection,
   type DocsSectionIndex,
 } from "./docs-retrieval";
+import {
+  docsCorpusSections,
+  getDocsPageRaw,
+  listDocsSlugs,
+  pageUrl,
+  type DocsLocale,
+  type DocsSource,
+} from "./docs-manifest";
 
-type ManifestPage = { title: string; description: string; content: string };
-type Manifest = Record<DocsSource, Record<DocsLocale, Record<string, ManifestPage>>>;
-type DocsSource = "docs" | "api";
-type DocsLocale = ContentLocale;
+import { unifiedDocsExcerpt, unifiedDocsSearch, type UnifiedDocsDeps } from "./docs-unified-search";
+
+import { env } from "@/env";
+import { currentSectionRanker, type SectionRanker } from "@/core/retrieval/retrieval-context";
+import { RetrievalStopwatch } from "@/core/retrieval/retrieval-pipeline";
+import { selectRetrievalPipeline } from "@/core/retrieval/retrieval-selection";
+
+export { getDocsPageRaw, listDocsSlugs } from "./docs-manifest";
 
 const [firstDocsLocale, ...otherDocsLocales] = CONTENT_LOCALES;
 const docsLocaleList = CONTENT_LOCALES.join(", ");
@@ -38,79 +41,16 @@ const docsLocaleSchema = z
   .default(DEFAULT_LOCALE)
   .describe("Documentation language");
 
-const manifest = rawManifest as Manifest;
 const indexCache = new Map<string, DocsSectionIndex>();
-const pageCache = new Map<string, string>();
-
-function stripFrontmatter(content: string): string {
-  return content.replace(/^---\n[\s\S]*?\n---\n?/, "");
-}
-
-function expandSnippet(tool: string): string {
-  return getMcpInstallSnippet(tool as McpTool, DOCS_API_KEY_PLACEHOLDER, env.BASE_URL);
-}
-
-const API_PAGE_LINE =
-  /^<APIPage\s[^>]*\b(operations|webhooks)=\{\[\{"(?:path|name)":"([^"]+)","method":"([a-z]+)"\}\]\}\s*\/>[ \t]*$/gm;
-
-type SpecSchema = { $ref?: string; const?: string; enum?: string[]; properties?: Record<string, SpecSchema> };
-type RawDocsSpec = {
-  servers?: { url: string }[];
-  webhooks?: Record<string, { post?: { requestBody?: { content?: Record<string, { schema?: SpecSchema }> } } }>;
-  components?: { schemas?: Record<string, SpecSchema> };
-};
-
-let rawDocsSpec: RawDocsSpec | undefined;
-
-function webhookEventName(spec: RawDocsSpec, name: string): string {
-  const schema = spec.webhooks?.[name]?.post?.requestBody?.content?.["application/json"]?.schema;
-  const resolved = schema?.$ref ? spec.components?.schemas?.[schema.$ref.replace("#/components/schemas/", "")] : schema;
-  const event = resolved?.properties?.event;
-  return event?.const ?? event?.enum?.[0] ?? name;
-}
-
-function expandApiPage(slug: string, markdown: string): string {
-  return markdown.replace(API_PAGE_LINE, (_, kind: string, target: string, method: string) => {
-    rawDocsSpec ??= generateOpenApiSpec() as RawDocsSpec;
-    const restServerPath = rawDocsSpec.servers?.[0]?.url ?? "";
-    const spec = `\`${restServerPath}/v1/openapi\``;
-    const verb = method.toUpperCase();
-    return kind === "webhooks"
-      ? `**Webhook:** \`${webhookEventName(rawDocsSpec, target)}\`, sent as \`${verb}\` to your webhook URL, operationId \`${slug}\`. Payload schema: ${spec}.`
-      : `**Endpoint:** \`${verb} ${restServerPath}${target}\`, operationId \`${slug}\`. Parameters and schemas: ${spec}.`;
-  });
-}
-
-function pageMarkdown(source: DocsSource, locale: DocsLocale, slug: string, page: ManifestPage): string {
-  const cacheKey = `${source}:${locale}:${slug}`;
-  const cached = pageCache.get(cacheKey);
-  if (cached !== undefined) return cached;
-  const content = stripFrontmatter(page.content);
-  const markdown = unwrapDocsComponents(source === "api" ? expandApiPage(slug, content) : content, expandSnippet);
-  pageCache.set(cacheKey, markdown);
-  return markdown;
-}
-
-function pageSections(source: DocsSource, locale: DocsLocale, slug: string, page: ManifestPage): DocsSection[] {
-  return splitSections({ slug, source, pageTitle: page.title, markdown: pageMarkdown(source, locale, slug, page) });
-}
 
 function buildIndex(source: DocsSource, locale: DocsLocale): DocsSectionIndex {
   const cacheKey = `${source}:${locale}`;
   const cached = indexCache.get(cacheKey);
   if (cached) return cached;
 
-  const sections = Object.entries(manifest[source]?.[locale] ?? {}).flatMap(([slug, page]) =>
-    pageSections(source, locale, slug, page),
-  );
-  const index = buildSectionIndex(sections, docsStemmerForLocale(locale));
+  const index = buildSectionIndex(docsCorpusSections(source, locale), docsStemmerForLocale(locale));
   indexCache.set(cacheKey, index);
   return index;
-}
-
-function pageUrl(source: DocsSource, locale: DocsLocale, slug: string): string {
-  if (source === "api") return `${env.BASE_URL}/${locale}/docs/openapi/${slug}`;
-  return slug === "intro-page" ? `${env.BASE_URL}/${locale}/docs` : `${env.BASE_URL}/${locale}/docs/${slug}`;
 }
 
 const SEARCH_SNIPPET_CHARS = 240;
@@ -126,13 +66,6 @@ function sectionSnippet(section: DocsSection, query: string, locale: DocsLocale)
     .replace(/\s+/g, " ")
     .trim();
   return heading ? `${heading}: ${text}` : text;
-}
-
-function normalizeSlug(slug: string): string {
-  return slug
-    .replace(/^\/?(docs\/)?/, "")
-    .replace(/(\.mdx?)+$/, "")
-    .trim();
 }
 
 const DocsSearchHitSchema = z.object({
@@ -233,10 +166,6 @@ export function relevantDocsExcerpt(
   );
 }
 
-export function listDocsSlugs(locale: DocsLocale, source: DocsSource): string[] {
-  return Object.keys(manifest[source]?.[locale] ?? {}).sort();
-}
-
 function compactDocsSearchText(results: DocsSearchHit[], total: number): string {
   if (results.length === 0) return "matches: none\ntotal=0\nhint: Try broader terms or source=all.";
 
@@ -245,27 +174,6 @@ function compactDocsSearchText(results: DocsSearchHit[], total: number): string 
   const prefix = `matches:\n${matches}\ntotal=${total}\nbest=${best.url}\nsnippet=`;
   const available = Math.max(0, 500 - prefix.length);
   return `${prefix}${best.snippet.slice(0, available)}`;
-}
-
-export function getDocsPageRaw(
-  slug: string,
-  locale: DocsLocale,
-  source: DocsSource,
-): { slug: string; title: string; description: string; url: string; markdown: string } | null {
-  const normalized = normalizeSlug(slug);
-  const pages = manifest[source]?.[locale];
-  const page = pages && Object.hasOwn(pages, normalized) ? pages[normalized] : undefined;
-  if (!page) return null;
-
-  const markdown = pageMarkdown(source, locale, normalized, page);
-
-  return {
-    slug: normalized,
-    title: page.title,
-    description: page.description,
-    url: pageUrl(source, locale, normalized),
-    markdown,
-  };
 }
 
 export const DOCS_RERANK_CANDIDATES = 20;
@@ -292,7 +200,7 @@ export function docsRerankExcerpt(section: DocsSection, chars = DOCS_RERANK_EXCE
   return `## ${section.headingPath.join(" > ")}\n${section.text}`.slice(0, chars);
 }
 
-function keywordDocsSearch(input: SearchDocsInput) {
+export function keywordDocsSearch(input: SearchDocsInput) {
   const { results, total } = searchDocsRaw(input.query, input.locale, input.source);
   return { text: compactDocsSearchText(results, total), structuredContent: { results, total } };
 }
@@ -304,7 +212,7 @@ const DOCS_RANK_SECONDARY_EXCERPT_CHARS = 400;
 
 export type DocsRankCandidate = DocsRerankCandidate & { titleOnly: boolean };
 
-export type DocsSectionRanker = (query: string, candidates: readonly DocsRankCandidate[]) => Promise<number[] | null>;
+export type DocsSectionRanker = SectionRanker;
 
 export function docsRankCandidates(query: string, locale: DocsLocale): DocsRankCandidate[] {
   const index = buildIndex("docs", locale);
@@ -398,7 +306,7 @@ export const searchDocsTool = {
       .describe("docs = product guides, api = REST endpoint reference, all = both"),
   }),
   outputSchema: DocsSearchOutputSchema,
-  execute: (input: SearchDocsInput) => keywordDocsSearch(input),
+  execute: (input: SearchDocsInput) => searchDocs(input),
 };
 
 const GetDocsPageOutputSchema = z.object({
@@ -431,12 +339,16 @@ export const getDocsPageTool = {
     locale: docsLocaleSchema,
     source: z.enum(["docs", "api"]).default("docs").describe("docs = product guides, api = REST endpoint reference"),
   }),
-  execute: (input: GetDocsPageInput) => docsPageResult(input),
+  execute: (input: GetDocsPageInput) => getDocsPage(input),
 };
 
 export type GetDocsPageInput = { slug: string; query?: string; locale: DocsLocale; source: DocsSource };
 
-function docsPageResult({ slug, query, locale, source }: GetDocsPageInput, preferredAnchor?: string) {
+export function docsPageResult(
+  { slug, query, locale, source }: GetDocsPageInput,
+  preferredAnchor?: string,
+  focused?: (page: { source: DocsSource; locale: DocsLocale; slug: string }, query: string) => string,
+) {
   const page = getDocsPageRaw(slug, locale, source);
 
   if (!page) {
@@ -445,7 +357,9 @@ function docsPageResult({ slug, query, locale, source }: GetDocsPageInput, prefe
   }
 
   if (query) {
-    const excerpt = relevantDocsExcerpt({ source, locale, slug: page.slug }, query, preferredAnchor);
+    const excerpt = focused
+      ? focused({ source, locale, slug: page.slug }, query)
+      : relevantDocsExcerpt({ source, locale, slug: page.slug }, query, preferredAnchor);
     return {
       text: [excerpt, "", `Source: ${page.title}`, `URL: ${page.url}`].join("\n"),
       structuredContent: { title: page.title, url: page.url, markdown: excerpt, excerpt: true },
@@ -466,4 +380,75 @@ export async function getDocsPageRanked(input: GetDocsPageInput, rank: DocsSecti
   const candidates = docsPageRankCandidates({ source: input.source, locale: input.locale, slug: page.slug });
   const chosen = await rankedSections(input.query, candidates, rank);
   return docsPageResult(input, chosen?.[0]?.anchor);
+}
+
+function docsSearchHit(section: DocsSection, locale: DocsLocale, snippet: string): DocsSearchHit {
+  return {
+    slug: section.slug,
+    source: section.source as DocsSource,
+    title: section.pageTitle,
+    url: pageUrl(section.source as DocsSource, locale, section.slug),
+    section: section.headingPath.join(" > "),
+    anchor: section.anchor,
+    snippet,
+  };
+}
+
+async function unifiedDocsDeps(): Promise<UnifiedDocsDeps> {
+  const { getDocsChunkRepo, getDocsSemanticIndexDispatcher, getRetrievalQueryEmbedder } = await import("@/core/di");
+  const dispatcher = getDocsSemanticIndexDispatcher();
+  return {
+    repo: getDocsChunkRepo(),
+    embed: getRetrievalQueryEmbedder(),
+    ranker: env.APP_MODE === "demo" ? undefined : currentSectionRanker("docs"),
+    scheduleIndexing: (buildHash) => dispatcher.schedule(buildHash),
+  };
+}
+
+async function legacyDocsRetrieval<T>(run: (rank: DocsSectionRanker | undefined) => T | Promise<T>): Promise<T> {
+  const stopwatch = new RetrievalStopwatch("docs", "legacy");
+  const rank = currentSectionRanker("docs");
+  stopwatch.rerank = rank ? "used" : "unavailable";
+  try {
+    return await run(rank);
+  } finally {
+    stopwatch.finish();
+  }
+}
+
+export async function unifiedDocsSearchResult(input: SearchDocsInput, deps: UnifiedDocsDeps) {
+  const { pages, total, chosen } = await unifiedDocsSearch(input, deps);
+  const results = pages.map(({ section, snippet }) => docsSearchHit(section, input.locale, snippet));
+  const text =
+    chosen && results.length > 0 ? rankedDocsSearchText(results, total, chosen) : compactDocsSearchText(results, total);
+  return { text, structuredContent: { results, total } };
+}
+
+export async function searchDocs(input: SearchDocsInput) {
+  if (selectRetrievalPipeline() === "legacy")
+    return legacyDocsRetrieval((rank) => (rank ? searchDocsRanked(input, rank) : keywordDocsSearch(input)));
+  return unifiedDocsSearchResult(input, await unifiedDocsDeps());
+}
+
+export async function searchDocsHits(query: string, locale: DocsLocale, source: DocsSource) {
+  if (selectRetrievalPipeline() === "legacy") return searchDocsRaw(query, locale, source).results;
+  return (await unifiedDocsSearchResult({ query, locale, source }, await unifiedDocsDeps())).structuredContent.results;
+}
+
+export async function unifiedDocsPageResult(input: GetDocsPageInput, deps: UnifiedDocsDeps) {
+  const page = input.query ? getDocsPageRaw(input.slug, input.locale, input.source) : null;
+  if (!page || !input.query) return docsPageResult(input);
+  const excerpt = await unifiedDocsExcerpt(
+    { source: input.source, locale: input.locale, slug: page.slug },
+    input.query,
+    deps,
+  );
+  return docsPageResult(input, undefined, () => excerpt);
+}
+
+export async function getDocsPage(input: GetDocsPageInput) {
+  if (!input.query) return docsPageResult(input);
+  if (selectRetrievalPipeline() === "legacy")
+    return legacyDocsRetrieval((rank) => (rank ? getDocsPageRanked(input, rank) : docsPageResult(input)));
+  return unifiedDocsPageResult(input, await unifiedDocsDeps());
 }

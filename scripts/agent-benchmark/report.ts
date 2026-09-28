@@ -56,6 +56,22 @@ export type ArmSummary = {
   classifierCostShare: number;
   docsToolCallsPerTurn: number;
   docsRerankCallsPerTurn: number;
+  wikiRerankCallsPerTurn?: number;
+  retrievalLatency?: RetrievalLatency[];
+};
+
+export type RetrievalLatency = {
+  corpus: string;
+  pipeline: string;
+  calls: number;
+  totalP50Ms: number | null;
+  totalP95Ms: number | null;
+  fullTextP95Ms: number | null;
+  embeddingP95Ms: number | null;
+  rerankP95Ms: number | null;
+  embeddingUsedShare: number;
+  embeddingTimeoutShare: number;
+  rerankUsedShare: number;
 };
 
 const DOCS_TOOL_NAMES = new Set(["search_docs", "get_docs_page"]);
@@ -70,7 +86,37 @@ function classifierMetrics(scored: readonly EpisodeArtifact[], turnCount: number
       total + artifact.observed.flatMap((turn) => turn.tools).filter((tool) => DOCS_TOOL_NAMES.has(tool.name)).length,
     0,
   );
+  const timings = traces.flatMap((trace) => trace?.retrieval ?? []);
+  const groups = new Map<string, typeof timings>();
+  for (const timing of timings) {
+    const key = `${timing.corpus}/${timing.pipeline}`;
+    groups.set(key, [...(groups.get(key) ?? []), timing]);
+  }
+  const p95 = (values: readonly (number | null)[]) =>
+    percentile(values.filter((value): value is number => value !== null), 95);
+  const retrievalLatency: RetrievalLatency[] = [...groups.entries()].map(([key, group]) => {
+    const [corpus, pipeline] = key.split("/");
+    const share = (predicate: (timing: (typeof group)[number]) => boolean) =>
+      group.filter(predicate).length / group.length;
+    return {
+      corpus,
+      pipeline,
+      calls: group.length,
+      totalP50Ms: percentile(group.map((timing) => timing.totalMs), 50),
+      totalP95Ms: percentile(group.map((timing) => timing.totalMs), 95),
+      fullTextP95Ms: p95(group.map((timing) => timing.fullTextMs)),
+      embeddingP95Ms: p95(group.map((timing) => timing.embeddingMs)),
+      rerankP95Ms: p95(group.map((timing) => timing.rerankMs)),
+      embeddingUsedShare: share((timing) => timing.embedding === "used"),
+      embeddingTimeoutShare: share((timing) => timing.embedding === "timeout"),
+      rerankUsedShare: share((timing) => timing.rerank === "used"),
+    };
+  });
   return {
+    retrievalLatency,
+    wikiRerankCallsPerTurn: turnCount
+      ? traces.reduce((total, trace) => total + (trace?.wikiRerank?.calls ?? 0), 0) / turnCount
+      : 0,
     classifierUsdPerTurn: turnCount ? classifierUsd / turnCount : 0,
     classifierCostShare: totalUsd > 0 ? classifierUsd / totalUsd : 0,
     docsToolCallsPerTurn: turnCount ? docsCalls / turnCount : 0,
@@ -411,6 +457,10 @@ export function renderReport(report: BenchmarkReport): string {
   lines.push("", "## Classifier", "", "| Arm | Classifier $/turn | Classifier cost share | Docs tool calls/turn | Docs re-rank calls/turn |", "| --- | ---: | ---: | ---: | ---: |");
   for (const arm of report.arms)
     lines.push(`| ${arm.runtimeVariant}/${arm.arm} | ${usd(arm.classifierUsdPerTurn ?? 0)} | ${pct(arm.classifierCostShare ?? 0)} | ${(arm.docsToolCallsPerTurn ?? 0).toFixed(2)} | ${(arm.docsRerankCallsPerTurn ?? 0).toFixed(2)} |`);
+  lines.push("", "## Retrieval latency", "", "| Arm | Corpus | Pipeline | Calls | Total p50 | Total p95 | Full-text p95 | Embedding p95 | Re-rank p95 | Embedding used | Embedding timeout | Re-rank used | Wiki re-rank calls/turn |", "| --- | --- | --- | ---: | ---: | ---: | ---: | ---: | ---: | ---: | ---: | ---: | ---: |");
+  for (const arm of report.arms)
+    for (const latency of arm.retrievalLatency ?? [])
+      lines.push(`| ${arm.runtimeVariant}/${arm.arm} | ${latency.corpus} | ${latency.pipeline} | ${latency.calls} | ${ms(latency.totalP50Ms)} | ${ms(latency.totalP95Ms)} | ${ms(latency.fullTextP95Ms)} | ${ms(latency.embeddingP95Ms)} | ${ms(latency.rerankP95Ms)} | ${pct(latency.embeddingUsedShare)} | ${pct(latency.embeddingTimeoutShare)} | ${pct(latency.rerankUsedShare)} | ${(arm.wikiRerankCallsPerTurn ?? 0).toFixed(2)} |`);
   lines.push("", "## Judges", "", "| Judge | Judged | Mean |", "| --- | ---: | ---: |");
   for (const judge of report.judgeModels)
     lines.push(`| ${judge.model} | ${judge.judged}/${judge.episodes} | ${judge.mean === null ? "n/a" : judge.mean.toFixed(2)} |`);

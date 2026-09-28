@@ -5,28 +5,35 @@ import { join } from "node:path";
 
 import { CONTENT_LOCALES, type ContentLocale } from "@/i18n/locale-registry";
 
-import { getDocsPageTool, listDocsSlugs, searchDocsTool, type DocsSearchHit } from "../docs.mcp-tools";
+import {
+  getDocsPageTool,
+  listDocsSlugs,
+  searchDocsTool,
+  type DocsSearchHit,
+  keywordDocsSearch,
+  docsPageResult,
+} from "../docs.mcp-tools";
 import { mcpToolResultText, type McpToolResult } from "../mcp-tool";
 import { GET_STARTED_PROMPT } from "../server-instructions";
 import { MCP_ALWAYS_ON_TOOLS } from "../tool-registry";
 
 function search(args: { query: string; locale?: ContentLocale; source?: "docs" | "api" | "all" }) {
-  return mcpToolResultText(searchDocsTool.execute({ locale: "en", source: "docs", ...args }) as McpToolResult);
+  return mcpToolResultText(keywordDocsSearch({ locale: "en", source: "docs", ...args }) as McpToolResult);
 }
 
 function getPage(args: { slug: string; query?: string; locale?: ContentLocale; source?: "docs" | "api" }) {
-  return mcpToolResultText(getDocsPageTool.execute({ locale: "en", source: "docs", ...args }) as McpToolResult);
+  return mcpToolResultText(docsPageResult({ locale: "en", source: "docs", ...args }) as McpToolResult);
 }
 
 function searchHits(query: string, locale: ContentLocale = "en") {
-  const result = searchDocsTool.execute({ query, locale, source: "docs" }) as {
+  const result = keywordDocsSearch({ query, locale, source: "docs" }) as {
     structuredContent: { results: DocsSearchHit[] };
   };
   return result.structuredContent.results;
 }
 
 function excerptOf(slug: string, query: string, locale: ContentLocale = "en") {
-  const result = getDocsPageTool.execute({ slug, query, locale, source: "docs" }) as {
+  const result = docsPageResult({ slug, query, locale, source: "docs" }) as {
     structuredContent: { markdown: string };
   };
   return result.structuredContent.markdown;
@@ -325,7 +332,7 @@ const SECTION_QUESTIONS: [ContentLocale, string, string, string | null][] = [
 describe("search_docs", () => {
   it("ranks the webhooks page first for a webhook signature query", () => {
     const result = search({ query: "webhook signature" });
-    const raw = searchDocsTool.execute({ query: "webhook signature", locale: "en", source: "docs" });
+    const raw = keywordDocsSearch({ query: "webhook signature", locale: "en", source: "docs" });
     expect(result).toContain("webhooks");
     expect(result.indexOf("webhooks")).toBeLessThan(result.indexOf("total"));
     expect(raw).toMatchObject({
@@ -338,7 +345,7 @@ describe("search_docs", () => {
   });
 
   it("searches the German corpus when locale is de", () => {
-    const result = searchDocsTool.execute({ query: "Webhook", locale: "de", source: "docs" });
+    const result = keywordDocsSearch({ query: "Webhook", locale: "de", source: "docs" });
     expect(result).toMatchObject({
       structuredContent: {
         results: expect.arrayContaining([expect.objectContaining({ url: expect.stringContaining("/de/docs/") })]),
@@ -347,7 +354,7 @@ describe("search_docs", () => {
   });
 
   it("finds REST operations when source is api", () => {
-    const result = searchDocsTool.execute({ query: "contact", locale: "en", source: "api" });
+    const result = keywordDocsSearch({ query: "contact", locale: "en", source: "api" });
     expect(result).toMatchObject({
       structuredContent: {
         results: expect.arrayContaining([
@@ -656,7 +663,7 @@ describe("search_docs", () => {
       ["how do I change my language or theme", "en"],
       ["Wie kündige ich mein Abonnement", "de"],
     ] as const) {
-      const result = searchDocsTool.execute({ query, locale, source: "docs" });
+      const result = keywordDocsSearch({ query, locale, source: "docs" });
       const text = mcpToolResultText(result);
       const [best] = (result as { structuredContent: { results: DocsSearchHit[] } }).structuredContent.results;
       const heading = best.section.split(" > ").at(-1) ?? "";
@@ -670,7 +677,7 @@ describe("search_docs", () => {
   });
 
   it("keeps full ranked hits in structured content while bounding model-facing text", () => {
-    const result = searchDocsTool.execute({ query: "webhook", locale: "en", source: "docs" });
+    const result = keywordDocsSearch({ query: "webhook", locale: "en", source: "docs" });
 
     expect(mcpToolResultText(result).length).toBeLessThanOrEqual(500);
     expect(result).toMatchObject({ structuredContent: { total: expect.any(Number) } });
@@ -702,7 +709,7 @@ describe("get_docs_page", () => {
   });
 
   it("lists valid slugs for an unknown slug", () => {
-    const raw = getDocsPageTool.execute({ locale: "en", source: "docs", slug: "does-not-exist" });
+    const raw = docsPageResult({ locale: "en", source: "docs", slug: "does-not-exist" });
     const result = mcpToolResultText(raw);
     expect(result.startsWith("Validation error:")).toBe(true);
     expect(result).toContain("quickstart");
@@ -873,7 +880,7 @@ describe("get_docs_page", () => {
   it("names every widget editor target of the Dashboard page in its tips for agents", () => {
     for (const locale of CONTENT_LOCALES) {
       const { markdown } = (
-        getDocsPageTool.execute({ slug: "app-dashboard", locale, source: "docs" }) as {
+        docsPageResult({ slug: "app-dashboard", locale, source: "docs" }) as {
           structuredContent: { markdown: string };
         }
       ).structuredContent;
@@ -893,7 +900,7 @@ describe("get_docs_page", () => {
       ["de", "`#nav-company` klappt die Sidebar-Gruppe nur auf oder zu"],
     ] as const) {
       const { markdown } = (
-        getDocsPageTool.execute({ slug: "app-company", locale, source: "docs" }) as {
+        docsPageResult({ slug: "app-company", locale, source: "docs" }) as {
           structuredContent: { markdown: string };
         }
       ).structuredContent;

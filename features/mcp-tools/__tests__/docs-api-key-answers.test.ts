@@ -2,25 +2,25 @@ import { describe, expect, it } from "vitest";
 
 import type { ContentLocale } from "@/i18n/locale-registry";
 
-import { getDocsPageTool, searchDocsTool, type DocsSearchHit } from "../docs.mcp-tools";
+import { type DocsSearchHit, keywordDocsSearch, docsPageResult } from "../docs.mcp-tools";
 import { mcpToolResultText, type McpToolResult } from "../mcp-tool";
 
 function bestHit(query: string, locale: ContentLocale): DocsSearchHit | undefined {
-  const result = searchDocsTool.execute({ query, locale, source: "docs" }) as {
+  const result = keywordDocsSearch({ query, locale, source: "docs" }) as {
     structuredContent: { results: DocsSearchHit[] };
   };
   return result.structuredContent.results[0];
 }
 
 function hits(query: string, locale: ContentLocale): string[] {
-  const result = searchDocsTool.execute({ query, locale, source: "docs" }) as {
+  const result = keywordDocsSearch({ query, locale, source: "docs" }) as {
     structuredContent: { results: DocsSearchHit[] };
   };
   return result.structuredContent.results.map((hit) => `${hit.slug}#${hit.anchor}`);
 }
 
 function excerpt(slug: string, query: string, locale: ContentLocale) {
-  return mcpToolResultText(getDocsPageTool.execute({ slug, query, locale, source: "docs" }) as McpToolResult);
+  return mcpToolResultText(docsPageResult({ slug, query, locale, source: "docs" }) as McpToolResult);
 }
 
 describe("docs answers about API keys and invitation links", () => {

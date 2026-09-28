@@ -7,9 +7,11 @@ type LocaleCapabilities = {
   validationTag: string;
   lowercaseEntityLabelsInSentences: boolean;
   docsStemmer: DocsStemmer;
+  textSearchConfig: TextSearchConfig;
 };
 
 export type DocsStemmer = "english" | "german";
+export type TextSearchConfig = "english" | "german" | "french" | "italian" | "spanish";
 
 export const LOCALE_REGISTRY = {
   en: {
@@ -21,6 +23,7 @@ export const LOCALE_REGISTRY = {
     validationTag: "en",
     lowercaseEntityLabelsInSentences: true,
     docsStemmer: "english",
+    textSearchConfig: "english",
   },
   de: {
     offeredAsDisplayLanguage: true,
@@ -31,6 +34,7 @@ export const LOCALE_REGISTRY = {
     validationTag: "de",
     lowercaseEntityLabelsInSentences: false,
     docsStemmer: "german",
+    textSearchConfig: "german",
   },
   fr: {
     offeredAsDisplayLanguage: true,
@@ -41,6 +45,7 @@ export const LOCALE_REGISTRY = {
     validationTag: "fr",
     lowercaseEntityLabelsInSentences: true,
     docsStemmer: "english",
+    textSearchConfig: "french",
   },
   it: {
     offeredAsDisplayLanguage: true,
@@ -51,6 +56,7 @@ export const LOCALE_REGISTRY = {
     validationTag: "it",
     lowercaseEntityLabelsInSentences: true,
     docsStemmer: "english",
+    textSearchConfig: "italian",
   },
   es: {
     offeredAsDisplayLanguage: true,
@@ -61,6 +67,7 @@ export const LOCALE_REGISTRY = {
     validationTag: "es",
     lowercaseEntityLabelsInSentences: true,
     docsStemmer: "english",
+    textSearchConfig: "spanish",
   },
 } as const satisfies Record<string, LocaleCapabilities>;
 
@@ -138,6 +145,12 @@ export function flagCodeFor(locale: LocaleCode): string {
 
 export function docsStemmerFor(locale: unknown): DocsStemmer {
   return isLocaleCode(locale) ? LOCALE_REGISTRY[locale].docsStemmer : LOCALE_REGISTRY[DEFAULT_LOCALE].docsStemmer;
+}
+
+export function textSearchConfigFor(locale: unknown): TextSearchConfig {
+  return isLocaleCode(locale)
+    ? LOCALE_REGISTRY[locale].textSearchConfig
+    : LOCALE_REGISTRY[DEFAULT_LOCALE].textSearchConfig;
 }
 
 function localeFromLanguageTag<Locale extends LocaleCode>(value: string, locales: readonly Locale[]): Locale | null {

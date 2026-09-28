@@ -1,10 +1,10 @@
 import { createHash } from "node:crypto";
 
-import { wikiCodePointBoundary } from "./wiki-page-chunk";
+import { RETRIEVAL_CHUNK_MAX_LENGTH, retrievalChunkText, retrievalWindows } from "@/core/retrieval/retrieval-chunks";
+
 import { wikiMarkdownSections } from "./wiki-search";
 
-export const WIKI_SEMANTIC_CHUNK_MAX_LENGTH = 1_800;
-const WIKI_SEMANTIC_CHUNK_OVERLAP = 200;
+export const WIKI_SEMANTIC_CHUNK_MAX_LENGTH = RETRIEVAL_CHUNK_MAX_LENGTH;
 const WIKI_SEMANTIC_MAX_CHUNKS = 256;
 
 export type WikiSemanticChunk = {
@@ -14,19 +14,6 @@ export type WikiSemanticChunk = {
   text: string;
   contentHash: string;
 };
-
-function windows(text: string): string[] {
-  if (text.length <= WIKI_SEMANTIC_CHUNK_MAX_LENGTH) return [text];
-  const parts: string[] = [];
-  let start = 0;
-  while (start < text.length) {
-    const end = wikiCodePointBoundary(text, Math.min(text.length, start + WIKI_SEMANTIC_CHUNK_MAX_LENGTH));
-    parts.push(text.slice(start, end));
-    if (end >= text.length) break;
-    start = wikiCodePointBoundary(text, end - WIKI_SEMANTIC_CHUNK_OVERLAP);
-  }
-  return parts;
-}
 
 export function wikiSemanticChunks(title: string, markdown: string): WikiSemanticChunk[] {
   const chunks: WikiSemanticChunk[] = [];
@@ -39,8 +26,8 @@ export function wikiSemanticChunks(title: string, markdown: string): WikiSemanti
     const heading = section.path.at(-1) ?? "";
     if (!content && !heading) continue;
     const label = heading && heading !== title ? `${title} > ${heading}` : title;
-    for (const part of windows(content)) {
-      const text = part ? `${label}\n\n${part}` : label;
+    for (const { text: part } of retrievalWindows(content)) {
+      const text = retrievalChunkText(label, part);
       chunks.push({
         ordinal: chunks.length,
         offset: section.offset,

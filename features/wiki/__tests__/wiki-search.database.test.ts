@@ -74,10 +74,12 @@ describeDatabase("Workspace Wiki search on PostgreSQL", () => {
   });
 
   beforeEach(async () => {
+    vi.unstubAllEnvs();
     await client.query('DELETE FROM "WikiPage" WHERE "companyId" = ANY($1)', [[companyId, foreignCompanyId]]);
   });
 
   afterAll(async () => {
+    vi.unstubAllEnvs();
     await client.query('DELETE FROM "WikiPage" WHERE "companyId" = ANY($1)', [[companyId, foreignCompanyId]]);
     await client.query('DELETE FROM "Company" WHERE "id" = ANY($1)', [[companyId, foreignCompanyId]]);
     await client.end();
@@ -108,7 +110,13 @@ describeDatabase("Workspace Wiki search on PostgreSQL", () => {
     expect((await read()).rows).toEqual([{ searchHeadings: "shipping\n", german: false, english: false }]);
   });
 
-  it("ranks pages matching every term first, then full titles, and finds inflections and typos", async () => {
+  const legacyPipeline = () => {
+    vi.stubEnv("LOCAL_AGENT_BENCHMARK", "true");
+    vi.stubEnv("AGENT_BENCHMARK_RETRIEVAL", "legacy");
+  };
+
+  it("ranks pages matching every term first, then full titles, and finds inflections and typos (legacy)", async () => {
+    legacyPipeline();
     const [refund, legacy, travel, approvals] = await insert(user, [
       {
         title: "Refund policy",
@@ -134,6 +142,38 @@ describeDatabase("Workspace Wiki search on PostgreSQL", () => {
     expect(await ids("policy")).toHaveLength(3);
     expect(await ids("polic")).toHaveLength(3);
     expect(await ids("blockchain polic")).toEqual([]);
+  });
+
+  it("ranks by built-in full-text coverage and finds inflections, phrases and prefixes (unified)", async () => {
+    const [refund, legacy, travel, approvals] = await insert(user, [
+      {
+        title: "Refund policy",
+        markdown: `${"Customers ask for money back. ".repeat(30)}\n\n## Approval\n\nThe finance lead approves refunds.`,
+      },
+      { title: "Refund policy (legacy)", markdown: "Old refund rules." },
+      { title: "Travel expense policy", markdown: "Book trains early." },
+      { title: "Approvals", markdown: "Managers approve discounts." },
+    ]);
+    await insert(foreignUser, [
+      { title: "Refund policy", markdown: "Foreign refunds are approved by the foreign lead." },
+    ]);
+
+    const hits = async (query: string) => {
+      const result = await search(query);
+      if (!result.ok) throw new Error("Wiki search failed.");
+      return result.data.items;
+    };
+    const ids = async (query: string) => (await hits(query)).map((item) => item.id);
+    expect((await ids("refund policy"))[0]).toBe(refund);
+    const approvesRefunds = await ids("who approves refunds");
+    expect(approvesRefunds[0]).toBe(refund);
+    expect(new Set(approvesRefunds.slice(1))).toEqual(new Set([approvals, legacy]));
+    expect((await hits("who approves refunds"))[0]).toMatchObject({ section: "Approval" });
+    expect(await ids('"expense policy"')).toEqual([travel]);
+    expect(await ids("policy")).toHaveLength(3);
+    expect(await ids("polic")).toHaveLength(3);
+    expect(await ids("blockchain")).toEqual([]);
+    expect(JSON.stringify(await search("refund policy"))).not.toContain("Foreign");
   });
 
   it("returns the matched section offset valid for manage_wiki_pages get and for MCP fetch", async () => {
@@ -186,7 +226,8 @@ describeDatabase("Workspace Wiki search on PostgreSQL", () => {
     ]);
   });
 
-  it("suggests close terms and titles only from the caller's Wiki when nothing matches", async () => {
+  it("suggests close terms and titles only from the caller's Wiki when nothing matches (legacy)", async () => {
+    legacyPipeline();
     await insert(user, [
       { title: "Support escalation process", markdown: "The on-call engineer is paged through PagerDuty." },
     ]);
@@ -211,7 +252,8 @@ describeDatabase("Workspace Wiki search on PostgreSQL", () => {
     expect(JSON.stringify(await search("Pagerdutty runbook"))).not.toContain("foreign");
   });
 
-  it("suggests only words that occur in the Wiki, never stemmed index lexemes", async () => {
+  it("suggests only words that occur in the Wiki, never stemmed index lexemes (legacy)", async () => {
+    legacyPipeline();
     await insert(user, [
       {
         title: "Travel",

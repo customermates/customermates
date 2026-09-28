@@ -408,6 +408,10 @@ import { UpdateOperatorUserPlatformAccessInteractor } from "@/ee/operator/update
 import { CorrectOperatorSubscriptionSnapshotInteractor } from "@/ee/operator/correct-operator-subscription-snapshot.interactor";
 import { ResetOperatorUserCreditsInteractor } from "@/ee/operator/reset-operator-user-credits.interactor";
 import { WikiEmbeddingService } from "@/ee/wiki-retrieval/wiki-embedding.service";
+import { DocsSemanticIndexDispatcher, DocsSemanticIndexService } from "@/ee/wiki-retrieval/docs-semantic-index.service";
+import { PrismaDocsChunkRepo } from "@/features/mcp-tools/prisma-docs-chunk.repository";
+import { tenantStorage } from "@/core/decorators/tenant-context";
+import type { QueryEmbedding } from "@/core/retrieval/retrieval-pipeline";
 import { PrismaWikiWebsiteCrawlRepo } from "@/ee/wiki-crawl/prisma-wiki-website-crawl.repository";
 import { WikiWebsiteCrawlService } from "@/ee/wiki-crawl/wiki-website-crawl.service";
 import { wikiCrawlSynthesisStarter } from "@/ee/wiki-crawl/wiki-crawl-synthesis";
@@ -482,6 +486,17 @@ const getWikiSemanticIndexDispatcher = (trigger: "write" | "search") =>
   new WikiSemanticIndexDispatcher(getWikiPageRepo(), getWikiEmbeddingService(), getBackgroundTaskService(), trigger);
 export const getWikiSemanticIndexListener = () =>
   new WikiSemanticIndexListener(getWikiSemanticIndexDispatcher("write"));
+export const getDocsChunkRepo = () => new PrismaDocsChunkRepo();
+export const getDocsSemanticIndexService = () =>
+  new DocsSemanticIndexService(getDocsChunkRepo(), getAgentUsageService());
+export const getDocsSemanticIndexDispatcher = () =>
+  new DocsSemanticIndexDispatcher(getDocsChunkRepo(), getBackgroundTaskService());
+export const getRetrievalQueryEmbedder = (): QueryEmbedding | null => {
+  const tenant = tenantStorage.getStore();
+  if (!tenant?.user || tenant.bypass) return null;
+  const embedder = new WikiSemanticQueryEmbedder(getWikiEmbeddingService());
+  return (query) => embedder.embedQuery(query);
+};
 const getWikiSemanticRetrieval = () => ({
   embedder: new WikiSemanticQueryEmbedder(getWikiEmbeddingService()),
   scheduler: getWikiSemanticIndexDispatcher("search"),

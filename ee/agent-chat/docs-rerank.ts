@@ -1,5 +1,10 @@
 import type { ClassifierResult, ClassifierSpec, ClassifierState } from "./classifier";
-import type { DocsRankCandidate, DocsSectionRanker } from "@/features/mcp-tools/docs.mcp-tools";
+import type {
+  RankableSection,
+  RetrievalCorpus,
+  SectionRanker,
+  SectionRankerFactory,
+} from "@/core/retrieval/retrieval-context";
 
 import { agentContextFromProviderText } from "./agent-context";
 import { classifyMetered, hostedDocsRerankModel } from "./classifier/metered";
@@ -22,7 +27,12 @@ export function docsRerankChoice(result: ClassifierResult | null): number | null
   return Number(answer.choice.slice(1));
 }
 
-export function docsRankSpec(candidates: readonly DocsRankCandidate[]): ClassifierSpec {
+const RANK_INSTRUCTIONS: Record<RetrievalCorpus, string> = {
+  docs: "The user wrote `latest_user_message` (in any language) and the assistant searched the documentation with `agent_query`. Which documentation section best answers what the user needs? Some options show only a page and heading. If none answers it fully, pick the closest one.",
+  wiki: "The user wrote `latest_user_message` (in any language) and the assistant searched the Workspace Wiki with `agent_query`. Which Wiki section best answers what the user needs? If none answers it fully, pick the closest one.",
+};
+
+export function docsRankSpec(candidates: readonly RankableSection[], corpus: RetrievalCorpus = "docs"): ClassifierSpec {
   const options = Object.fromEntries(
     candidates.map(({ id, section, titleOnly }) => {
       const title = `${section.pageTitle} > ${section.headingPath.join(" > ")}`;
@@ -33,16 +43,8 @@ export function docsRankSpec(candidates: readonly DocsRankCandidate[]): Classifi
     }),
   );
   return {
-    id: "docs-rank",
-    questions: [
-      {
-        id: "best",
-        type: "choice",
-        instruction:
-          "The user wrote `latest_user_message` (in any language) and the assistant searched the documentation with `agent_query`. Which documentation section best answers what the user needs? Some options show only a page and heading. If none answers it fully, pick the closest one.",
-        options,
-      },
-    ],
+    id: `${corpus}-rank`,
+    questions: [{ id: "best", type: "choice", instruction: RANK_INSTRUCTIONS[corpus], options }],
   };
 }
 
@@ -73,17 +75,26 @@ export function docsRankUserMessage(text: string | null | undefined): string | n
   return body ? body.slice(0, DOCS_RERANK_USER_MESSAGE_CHARS) : null;
 }
 
-export function hostedDocsRanking(userMessage: string | null = null): DocsSectionRanker | undefined {
+function hostedSectionRanking(userMessage: string | null, corpus: RetrievalCorpus): SectionRanker | undefined {
   const model = hostedDocsRerankModel();
   if (!model) return undefined;
   const message = docsRankUserMessage(userMessage);
   return async (query, candidates) => {
     const { result } = await classifyMetered(
-      "docs_rerank",
-      docsRankSpec(candidates),
+      corpus === "docs" ? "docs_rerank" : "wiki_rerank",
+      docsRankSpec(candidates, corpus),
       docsRankState(query, message),
       model,
     );
     return docsRankOrder(result, candidates);
   };
+}
+
+export function hostedDocsRanking(userMessage: string | null = null): SectionRanker | undefined {
+  return hostedSectionRanking(userMessage, "docs");
+}
+
+export function hostedSectionRankers(userMessage: string | null = null): SectionRankerFactory | undefined {
+  if (!hostedDocsRerankModel()) return undefined;
+  return (corpus) => hostedSectionRanking(userMessage, corpus);
 }

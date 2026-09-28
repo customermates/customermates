@@ -325,6 +325,11 @@ export class AgentUsageService {
     };
   }
 
+  async admitsPlatformRetrieval(now = new Date()): Promise<boolean> {
+    if (env.APP_MODE === "self-hosted") return false;
+    return this.repo.admitsHostedAiRetrievalUnscoped(now);
+  }
+
   async accrueRetrieval(args: { grant: AgentRetrievalGrant; charge: AgentRetrievalCharge; now?: Date }) {
     assertMicrocentCount(args.charge.costMicrocents, "Retrieval cost");
     assertMicrocentCount(args.charge.inputTokens, "Retrieval input tokens");

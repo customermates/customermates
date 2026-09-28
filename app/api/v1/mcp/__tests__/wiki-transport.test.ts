@@ -35,6 +35,7 @@ vi.mock("@/features/mcp-tools/docs.mcp-tools", () => ({
   getDocsPageRaw: vi.fn(),
   listDocsSlugs: () => [],
   searchDocsRaw: () => ({ results: [] }),
+  searchDocsHits: () => Promise.resolve([]),
 }));
 
 import { createMcpRoute } from "../mcp-route-utils";

@@ -26,4 +26,37 @@ describe("agent turn classifier trace", () => {
     expect(isAgentTurnClassifierTrace({ ...trace, auxiliaryCostMicrocents: -1 })).toBe(false);
     expect(isAgentTurnClassifierTrace({ ...trace, docsRerank: "jev" })).toBe(false);
   });
+
+  it("records Wiki re-rank calls and bounded retrieval timings, and stores a trace for timings alone", () => {
+    const timing = {
+      corpus: "docs" as const,
+      pipeline: "unified" as const,
+      totalMs: 412,
+      fullTextMs: 9,
+      embedding: "used" as const,
+      embeddingMs: 230,
+      semanticMs: 6,
+      rerank: "used" as const,
+      rerankMs: 160,
+    };
+    const trace = buildAgentTurnClassifierTrace(
+      [{ use: "wiki_rerank", model: "jev", costMicrocents: 700, measured: true, answered: true }],
+      Array.from({ length: 40 }, () => timing),
+    );
+
+    expect(trace).toMatchObject({
+      auxiliaryCostMicrocents: 700,
+      docsRerank: null,
+      wikiRerank: { model: "jev", calls: 1, answered: 1, costMicrocents: 700, measured: true },
+    });
+    expect(trace?.retrieval).toHaveLength(32);
+    expect(isAgentTurnClassifierTrace(trace)).toBe(true);
+    expect(buildAgentTurnClassifierTrace([], [timing])).toEqual({
+      auxiliaryCostMicrocents: 0,
+      auxiliaryMeasured: true,
+      docsRerank: null,
+      retrieval: [timing],
+    });
+    expect(isAgentTurnClassifierTrace({ ...trace, retrieval: "fast" })).toBe(false);
+  });
 });

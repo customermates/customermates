@@ -8,6 +8,7 @@ import type { ReplayMessage } from "@/ee/agent-chat/agent-stream-utils";
 import type { TokenCounts } from "@/ee/agent-chat/model-pricing";
 import type { WorkflowTenant } from "./workflow-tenant";
 import type { ClassifierCharge } from "@/ee/agent-chat/classifier/metered";
+import type { RetrievalTiming } from "@/core/retrieval/retrieval-context";
 import type { ModelMessage } from "ai";
 
 import { WorkflowAgent } from "@ai-sdk/workflow";
@@ -170,6 +171,7 @@ type AgentTurnUsageOutcome = {
   reservedMicrocents: number;
   providerStarted?: boolean;
   auxiliaryCharges?: ClassifierCharge[];
+  retrievalTimings?: RetrievalTiming[];
 };
 
 type AgentTurnFinalizationOutcome = AgentTurnUsageOutcome & {
@@ -353,10 +355,11 @@ async function executeAgentTool(
   toolCallId: string,
   input: unknown,
   grant: ToolApprovalGrant,
-): Promise<{ output: unknown; classifierCharges: ClassifierCharge[] }> {
+): Promise<{ output: unknown; classifierCharges: ClassifierCharge[]; retrievalTimings: RetrievalTiming[] }> {
   "use step";
   const { getAgentAiTools } = await import("@/ee/agent-chat/agent-tools");
   const { collectClassifierCharges } = await import("@/ee/agent-chat/classifier/metered");
+  const { collectRetrievalTimings } = await import("@/core/retrieval/retrieval-context");
   const tools = getAgentAiTools(backgroundToolDeps(payload, grant), {
     locale: payload.locale,
     wikiHomepageSetup: Boolean(payload.wikiHomepageSetup),
@@ -373,8 +376,11 @@ async function executeAgentTool(
   const execute = tools[toolName]?.execute;
   if (!execute) throw new Error(`Agent tool ${toolName} has no executable implementation.`);
 
-  const { value, charges } = await collectClassifierCharges(() => execute(input, { toolCallId, messages: [] }));
-  return { output: value, classifierCharges: charges };
+  const {
+    value: { value, charges },
+    timings,
+  } = await collectRetrievalTimings(() => collectClassifierCharges(() => execute(input, { toolCallId, messages: [] })));
+  return { output: value, classifierCharges: charges, retrievalTimings: timings };
 }
 executeAgentTool.maxRetries = 0;
 
@@ -844,7 +850,7 @@ async function finalizeTurn(payload: AgentTurnWorkflowPayload, outcome: AgentTur
       stopReason: outcome.stopReason,
       affectedResources: outcome.affectedResources,
       usageSettlement: usageSettlementForTurn(payload, outcome),
-      classifierTrace: buildAgentTurnClassifierTrace(outcome.auxiliaryCharges ?? []),
+      classifierTrace: buildAgentTurnClassifierTrace(outcome.auxiliaryCharges ?? [], outcome.retrievalTimings ?? []),
     }),
   );
 
@@ -945,6 +951,7 @@ export async function runAgentTurn(payload: AgentTurnWorkflowPayload): Promise<v
       await authorizedWikiCatalog(payload),
     );
     const auxiliaryCharges: ClassifierCharge[] = [];
+    const retrievalTimings: RetrievalTiming[] = [];
 
     let tokens = emptyTokens();
     let cancelled = await readCancellation(payload);
@@ -1119,6 +1126,7 @@ export async function runAgentTurn(payload: AgentTurnWorkflowPayload): Promise<v
         grants.get(toolCallId) ?? "not-required",
       );
       auxiliaryCharges.push(...executed.classifierCharges);
+      retrievalTimings.push(...(executed.retrievalTimings ?? []));
       const outcome = executed.output;
       if (!readOnly && isSuccessfulToolOutcome(outcome)) performedWrite = true;
       return outcome;
@@ -1819,6 +1827,7 @@ export async function runAgentTurn(payload: AgentTurnWorkflowPayload): Promise<v
       ledger,
       reservedMicrocents,
       auxiliaryCharges,
+      retrievalTimings,
     });
     await closeTurnStream();
   } catch (error) {

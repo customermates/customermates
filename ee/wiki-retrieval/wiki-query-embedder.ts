@@ -9,6 +9,7 @@ import { WIKI_EMBEDDING_MODEL } from "./wiki-embedding-model";
 
 const WIKI_QUERY_CACHE_SIZE = 500;
 const queryVectors = new Map<string, number[]>();
+const pendingVectors = new Map<string, Promise<number[] | null>>();
 
 function cached(key: string): number[] | undefined {
   const vector = queryVectors.get(key);
@@ -38,13 +39,21 @@ export class WikiSemanticQueryEmbedder extends UserAccessor implements WikiQuery
     const known = cached(key);
     if (known) return { vector: known, model: WIKI_EMBEDDING_MODEL };
 
-    try {
-      const [vector] = await this.embeddings.embedTexts(grant, [text], "query");
-      remember(key, vector);
-      return { vector, model: WIKI_EMBEDDING_MODEL };
-    } catch (error) {
-      Sentry.captureException(error);
-      return null;
-    }
+    const pending =
+      pendingVectors.get(key) ??
+      this.embeddings
+        .embedTexts(grant, [text], "query")
+        .then(([vector]) => {
+          remember(key, vector);
+          return vector;
+        })
+        .catch((error: unknown) => {
+          Sentry.captureException(error);
+          return null;
+        })
+        .finally(() => pendingVectors.delete(key));
+    pendingVectors.set(key, pending);
+    const vector = await pending;
+    return vector ? { vector, model: WIKI_EMBEDDING_MODEL } : null;
   }
 }

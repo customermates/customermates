@@ -1024,6 +1024,8 @@ describe("agent tools", () => {
   });
 
   it("keeps the WhatsApp documentation path usable inside the admitted 512-character tool result", async () => {
+    vi.stubEnv("LOCAL_AGENT_BENCHMARK", "true");
+    vi.stubEnv("AGENT_BENCHMARK_RETRIEVAL", "legacy");
     const tools = getAgentAiTools(deps({ resultMaxChars: 512 }));
     const query = "Walk me through connecting WhatsApp to the Customermates inbox.";
     const searchResult = (await execute(tools.search_docs, {
@@ -1050,6 +1052,7 @@ describe("agent tools", () => {
     expect(pageResult.result).toContain("nav-profile-connected-accounts");
     expect(pageResult.result).toContain("profile-connected-accounts-connect");
     expect(pageResult.result).toContain("WhatsApp");
+    vi.unstubAllEnvs();
   });
 
   it("keeps runtime validation for sanitized CRM schemas", async () => {

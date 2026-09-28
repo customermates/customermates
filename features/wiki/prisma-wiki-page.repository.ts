@@ -15,10 +15,21 @@ import type { WikiSemanticIndexPage, WikiSemanticIndexRepo } from "@/ee/wiki-ret
 
 import { Prisma } from "@/generated/prisma";
 
+import {
+  fullTextUnits,
+  fullTextUnitsCte,
+  idfWeight,
+  substringUnits,
+  textSearchConfigFor,
+  type FullTextUnit,
+} from "@/core/retrieval/full-text-query";
+
 import { BaseRepository } from "@/core/base/base-repository";
 import { Transaction } from "@/core/decorators/transaction.decorator";
 import { WIKI_CATALOG_PAGE_SIZE, wikiPageKindFields, wikiPageKindIssue } from "./wiki.schema";
+import { WIKI_EXCERPT_MAX_LENGTH } from "./wiki-content";
 import { WIKI_SEMANTIC_MIN_SIMILARITY } from "./wiki-hybrid-ranking";
+import { wikiIdentifierTerms } from "./wiki-identifiers";
 import {
   parseWikiSearchQuery,
   WIKI_FUZZY_SIMILARITY,
@@ -41,6 +52,10 @@ const WIKI_IDENTIFIER_MAX_PAGES = 3;
 const WIKI_SEMANTIC_STALE_LIMIT = 1_000;
 const WIKI_SEMANTIC_CLAIM_SECONDS = 300;
 const WIKI_SEMANTIC_INTRO_MARGIN = 0.03;
+const WIKI_FULL_TEXT_CONFIGS = WIKI_SEARCH_CONFIGS.filter((config) => config !== "simple");
+const WIKI_TITLE_WEIGHT = 2;
+const WIKI_HEADLINE_OPTIONS = "StartSel=**, StopSel=**, MaxWords=35, MinWords=15";
+const WIKI_SHORT_HEADLINE_OPTIONS = "StartSel=**, StopSel=**, HighlightAll=true";
 
 let semanticIndexColumn: Promise<boolean> | undefined;
 
@@ -191,6 +206,130 @@ export class PrismaWikiPageRepo
       `),
     ]);
     return { candidates, stalePageIds: new Set(stale.map(({ id }) => id)) };
+  }
+
+  private get fullTextStopConfig() {
+    return textSearchConfigFor(this.user.displayLanguage);
+  }
+
+  private fullTextUnitsCte(units: readonly FullTextUnit[]) {
+    return fullTextUnitsCte({ units, configs: WIKI_FULL_TEXT_CONFIGS, stopConfig: this.fullTextStopConfig });
+  }
+
+  async fullTextPageCandidates(text: string, limit: number): Promise<{ keys: string[]; pinned: string[] }> {
+    const units = fullTextUnits(text);
+    const substrings = substringUnits(units);
+    const identifiers = wikiIdentifierTerms(text);
+    const [ranked, pinned] = await Promise.all([
+      units.length === 0
+        ? Promise.resolve([])
+        : this.prisma.$queryRaw<Array<{ id: string }>>(Prisma.sql`
+          WITH ${this.fullTextUnitsCte(units)},
+          "substringUnits" AS (
+            SELECT * FROM unnest(${substrings.map(({ text: term }) => term)}::text[], ${substrings.map(({ ord }) => ord)}::int[])
+              AS sub("term", "ord")
+          ),
+          hits AS MATERIALIZED (
+            SELECT p."id", u."ord", bool_or(ts_filter(p."searchVector", '{a}'::"char"[]) @@ u."query") AS "title"
+            FROM "WikiPage" p JOIN units u ON p."searchVector" @@ u."query"
+            WHERE p."companyId" = ${this.companyId}
+            GROUP BY p."id", u."ord"
+            UNION ALL
+            SELECT p."id", t."ord", bool_or(strpos(lower(p."title"), t."term") > 0)
+            FROM "WikiPage" p
+            JOIN "substringUnits" t ON strpos(lower(p."title"), t."term") > 0 OR strpos(lower(p."markdown"), t."term") > 0
+            WHERE p."companyId" = ${this.companyId}
+            GROUP BY p."id", t."ord"
+          ),
+          frequency AS (SELECT h."ord", count(*)::float8 AS "pages" FROM hits h GROUP BY h."ord"),
+          total AS (SELECT count(*)::float8 AS "pages" FROM "WikiPage" WHERE "companyId" = ${this.companyId}),
+          scored AS (
+            SELECT h."id", sum(${idfWeight(Prisma.sql`t."pages"`, Prisma.sql`f."pages"`)}
+              * CASE WHEN h."title" THEN ${WIKI_TITLE_WEIGHT}::float8 ELSE 1 END) AS "score"
+            FROM hits h JOIN frequency f ON f."ord" = h."ord" CROSS JOIN total t
+            GROUP BY h."id"
+          )
+          SELECT s."id"
+          FROM scored s
+          JOIN "WikiPage" p ON p."id" = s."id" AND p."companyId" = ${this.companyId}
+          CROSS JOIN "anyUnit" a
+          ORDER BY (to_tsvector('simple', p."title") = to_tsvector('simple', ${text})) DESC, s."score" DESC,
+            ts_rank_cd(p."searchVector", coalesce(a."query", ''::tsquery), 1) DESC, p."createdAt" ASC, p."id" ASC
+          LIMIT ${limit}
+        `),
+      identifiers.length === 0
+        ? Promise.resolve([])
+        : this.prisma.$queryRaw<Array<{ id: string }>>(Prisma.sql`
+          SELECT m."id" FROM (
+            SELECT p."id", terms."ord", count(*) OVER (PARTITION BY terms."ord") AS "pages"
+            FROM "WikiPage" p
+            JOIN unnest(${identifiers.map(wikiIdentifierPattern)}::text[]) WITH ORDINALITY AS terms("pattern", "ord")
+              ON p."searchCompact" ~ terms."pattern"
+            WHERE p."companyId" = ${this.companyId}
+          ) AS m
+          WHERE m."pages" <= ${WIKI_IDENTIFIER_MAX_PAGES}::int
+          ORDER BY m."ord", m."id"
+        `),
+    ]);
+    return { keys: ranked.map(({ id }) => id), pinned: [...new Set(pinned.map(({ id }) => id))] };
+  }
+
+  async rankPageSections(
+    text: string,
+    sections: Array<{ key: number; heading: string; body: string }>,
+  ): Promise<Map<number, number>> {
+    const units = fullTextUnits(text);
+    if (units.length === 0 || sections.length === 0) return new Map();
+    const substrings = substringUnits(units);
+    const rows = await this.prisma.$queryRaw<Array<{ key: number; score: number }>>(Prisma.sql`
+      WITH ${this.fullTextUnitsCte(units)},
+      "substringUnits" AS (
+        SELECT * FROM unnest(${substrings.map(({ text: term }) => term)}::text[], ${substrings.map(({ ord }) => ord)}::int[])
+          AS sub("term", "ord")
+      ),
+      sections AS MATERIALIZED (
+        SELECT * FROM unnest(
+          ${sections.map(({ key }) => key)}::int[],
+          ${sections.map(({ heading }) => heading)}::text[],
+          ${sections.map(({ body }) => body)}::text[]
+        ) AS s("key", "heading", "body")
+      ),
+      vectors AS MATERIALIZED (
+        SELECT s."key", wiki_search_weighted_vector(s."heading", 'A') || wiki_search_weighted_vector(s."body", 'C')
+          AS "vector"
+        FROM sections s
+      ),
+      hits AS MATERIALIZED (
+        SELECT v."key", u."ord", ts_filter(v."vector", '{a}'::"char"[]) @@ u."query" AS "title"
+        FROM vectors v JOIN units u ON v."vector" @@ u."query"
+        UNION ALL
+        SELECT s."key", t."ord", strpos(lower(s."heading"), t."term") > 0
+        FROM sections s JOIN "substringUnits" t ON strpos(lower(s."heading" || ' ' || s."body"), t."term") > 0
+      ),
+      frequency AS (SELECT h."ord", count(*)::float8 AS "sections" FROM hits h GROUP BY h."ord"),
+      total AS (SELECT count(*)::float8 AS "sections" FROM sections)
+      SELECT h."key", sum(${idfWeight(Prisma.sql`t."sections"`, Prisma.sql`f."sections"`)}
+        * CASE WHEN h."title" THEN ${WIKI_TITLE_WEIGHT}::float8 ELSE 1 END)::float8 AS "score"
+      FROM hits h JOIN frequency f ON f."ord" = h."ord" CROSS JOIN total t
+      GROUP BY h."key"
+    `);
+    return new Map(rows.map(({ key, score }) => [key, score]));
+  }
+
+  async sectionHeadlines(text: string, bodies: string[]): Promise<string[]> {
+    if (bodies.length === 0) return [];
+    const units = fullTextUnits(text);
+    const rows = await this.prisma.$queryRaw<Array<{ ord: number; headline: string }>>(Prisma.sql`
+      WITH ${this.fullTextUnitsCte(units)}
+      SELECT b."ord"::int AS "ord",
+        ts_headline(${this.fullTextStopConfig}::regconfig, b."body", coalesce(a."query", ''::tsquery),
+          CASE WHEN length(b."body") <= ${WIKI_EXCERPT_MAX_LENGTH} THEN ${WIKI_SHORT_HEADLINE_OPTIONS}
+            ELSE ${WIKI_HEADLINE_OPTIONS} END) AS "headline"
+      FROM unnest(${bodies}::text[]) WITH ORDINALITY AS b("body", "ord")
+      CROSS JOIN "anyUnit" a
+      ORDER BY b."ord"
+    `);
+    return rows.map(({ headline }) => headline);
   }
 
   async getPagesByIds(ids: string[]) {
