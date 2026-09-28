@@ -1,4 +1,13 @@
+import { z } from "zod";
+
 export const DEAL_GROUP_SUM_FIELDS = { total: "totalValue", weighted: "weightedValue" } as const;
+
+const MIN_DEAL_STAGE_WEIGHT = 0;
+const MAX_DEAL_STAGE_WEIGHT = 100;
+
+export function dealStageWeightSchema(params?: { error?: string }) {
+  return z.number().min(MIN_DEAL_STAGE_WEIGHT, params).max(MAX_DEAL_STAGE_WEIGHT, params);
+}
 
 type StoredOption = { value?: unknown; weight?: unknown };
 

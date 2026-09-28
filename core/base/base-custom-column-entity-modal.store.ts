@@ -1,5 +1,4 @@
 import type { FormEvent } from "react";
-import type { $ZodErrorTree } from "zod/v4/core";
 import type { RootStore } from "@/core/stores/root.store";
 import type { CustomColumnDto } from "@/features/custom-column/custom-column.schema";
 import type { BaseDataViewStore } from "./base-data-view.store";
@@ -223,20 +222,10 @@ export abstract class BaseCustomColumnEntityModalStore<
     return null;
   }
 
-  protected validateBeforeSubmit(): $ZodErrorTree<TForm> | undefined {
-    return undefined;
-  }
-
   onSubmit = async (event?: FormEvent<HTMLFormElement>) => {
     event?.preventDefault();
 
     if (this.form.id && !this.hasUnsavedChanges) return;
-
-    const clientError = this.validateBeforeSubmit();
-    if (clientError) {
-      this.setError(clientError);
-      return;
-    }
 
     this.setIsLoading(true);
 

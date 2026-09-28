@@ -25,7 +25,6 @@ import {
   getNativeVisualFixtureCatalog,
   listVisualPeople,
   listVisualRecords,
-  visualRecordName,
 } from "@/components/marketing/visuals/native-fixtures";
 import {
   NativeAgentProviderIdentity,
@@ -341,7 +340,6 @@ describe("marketing visual fixture catalog", () => {
       expect(Object.keys(record.localizedName).sort(), id).toEqual([...CONTENT_LOCALES].sort());
       expect(record.localizedName.en, id).toBe(record.name);
       expect(record.localizedName.de, id).not.toBe(record.name);
-      expect(visualRecordName(id as keyof typeof VISUAL_RECORD_FIXTURES, "de")).toBe(record.localizedName.de);
     }
 
     const german = renderToStaticMarkup(

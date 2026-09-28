@@ -1547,6 +1547,7 @@
     },
     "pageNumber": "Seite {page}",
     "probability": "Wahrscheinlichkeit",
+    "probabilityRange": "Gib eine Wahrscheinlichkeit von 0 bis 100 % ein.",
     "providers": {
       "google": "Gmail",
       "instagram": "Instagram",
@@ -1703,7 +1704,6 @@
       "noColumn": "Nicht konfiguriert",
       "totalPipeline": "Gesamtpipeline",
       "totalPipelineHelp": "Summe aller Werte in „{deals}“. Änderungen ergeben sich aus „{services}“ oder Mengen in diesen Einträgen.",
-      "weightRange": "Gib eine Wahrscheinlichkeit von 0 bis 100 % ein.",
       "withoutStage": "Nicht gewichtet · kein {column}",
       "withoutStageHelp": "Wert der Einträge in „{deals}“ ohne Auswahl in „{column}“. Mit einer Phase fließen sie in die gewichtete Pipeline ein."
     }
@@ -2121,7 +2121,6 @@
   "DealModal": {
     "noServicesAdded": "Noch keine {entity} hinzugefügt",
     "quantityLabel": "Anzahl",
-    "serviceRowRequired": "Wähle in jeder Zeile einen Eintrag aus oder entferne leere Zeilen.",
     "title": "Deal",
     "valueLabel": "Wert"
   },

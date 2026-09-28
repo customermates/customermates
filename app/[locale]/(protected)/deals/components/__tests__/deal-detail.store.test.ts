@@ -123,31 +123,31 @@ describe("DealDetailStore totals", () => {
 });
 
 describe("DealDetailStore empty service rows", () => {
-  it("flags an empty service row with a localized error instead of sending it to the server", async () => {
+  it("sends the empty row to the server and shows the returned field error on that row", async () => {
     const store = new DealDetailStore(rootStore(true));
     store.hydrate(deal(), [stageColumn]);
     dealActions.updateDealAction.mockReset();
+    dealActions.updateDealAction.mockResolvedValue({
+      ok: false,
+      error: {
+        errors: [],
+        properties: {
+          services: {
+            errors: [],
+            items: [undefined, { errors: [], properties: { serviceId: { errors: ["blank"] } } }],
+          },
+        },
+      },
+    });
 
     store.addService();
     await store.onSubmit();
 
-    expect(dealActions.updateDealAction).not.toHaveBeenCalled();
-    expect(store.getError("services[1].serviceId")).toEqual(["DealModal.serviceRowRequired"]);
+    expect(dealActions.updateDealAction.mock.calls[0][0].services).toEqual([
+      { serviceId: SERVICE_ID, quantity: 1 },
+      { serviceId: "", quantity: 1 },
+    ]);
+    expect(store.getError("services[1].serviceId")).toEqual(["blank"]);
     expect(store.getError("services[0].serviceId")).toBeUndefined();
-  });
-
-  it("saves once the empty row is removed", async () => {
-    const store = new DealDetailStore(rootStore(true));
-    store.hydrate(deal(), [stageColumn]);
-    dealActions.updateDealAction.mockReset();
-    dealActions.updateDealAction.mockResolvedValue({ ok: true, data: { ...deal(), name: "Renamed" } });
-
-    store.addService();
-    store.onChange("name", "Renamed");
-    store.deleteService(1);
-    await store.onSubmit();
-
-    expect(dealActions.updateDealAction).toHaveBeenCalledTimes(1);
-    expect(dealActions.updateDealAction.mock.calls[0][0].services).toEqual([{ serviceId: SERVICE_ID, quantity: 1 }]);
   });
 });

@@ -52,12 +52,16 @@ describe("font critical path", () => {
     // and Android painted the default serif until Inter loaded; the swap shifted the /de hero card.
     const latin = declaredFamilies.find(({ name }) => name === "latin")?.body ?? "";
     expect(latin).toContain("adjustFontFallback: false");
-    expect(latin).toContain('fallback: ["Inter Fallback", "sans-serif"]');
+    expect(latin).toContain('fallback: ["Inter Fallback", "Inter Fallback Roboto", "sans-serif"]');
 
     const face = /@font-face\s*\{[^}]*font-family:\s*"Inter Fallback";[^}]*\}/u.exec(GLOBALS)?.[0] ?? "";
     for (const source of ['local("Arial")', 'local("Liberation Sans")', 'local("Arimo")'])
       expect(face, source).toContain(source);
     expect(face).toContain("size-adjust: 107.89%");
+
+    const roboto = /@font-face\s*\{[^}]*font-family:\s*"Inter Fallback Roboto";[^}]*\}/u.exec(GLOBALS)?.[0] ?? "";
+    expect(roboto).toContain('local("Roboto")');
+    expect(roboto).toContain("size-adjust: 108.13%");
   });
 
   it("applies every declared family to the document", () => {

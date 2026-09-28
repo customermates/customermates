@@ -18,7 +18,6 @@ import {
   type VisualPersonFixtureId,
   type VisualProviderFixtureId,
   type VisualRecordFixtureId,
-  visualRecordName,
   type VisualStatusFixtureId,
 } from "./native-fixtures";
 
@@ -258,7 +257,7 @@ export function NativeRecordIdentity({
 
   return (
     <span className="flex min-w-0 flex-col items-start gap-2" data-native-record={record}>
-      <span className="text-xs leading-snug font-medium">{visualRecordName(record, locale)}</span>
+      <span className="text-xs leading-snug font-medium">{fixture.localizedName[locale]}</span>
 
       <span className="flex flex-wrap items-center gap-2">
         {statusLabel ? <span className="text-[10px] text-muted-foreground">{statusLabel}</span> : null}

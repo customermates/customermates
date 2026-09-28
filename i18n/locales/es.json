@@ -1547,6 +1547,7 @@
     },
     "pageNumber": "Página {page}",
     "probability": "Probabilidad",
+    "probabilityRange": "Introduce una probabilidad entre 0 y 100 %.",
     "providers": {
       "google": "Gmail",
       "instagram": "Instagram",
@@ -1703,7 +1704,6 @@
       "noColumn": "Sin configurar",
       "totalPipeline": "Pipeline total",
       "totalPipelineHelp": "Suma de todos los valores en «{deals}». Los cambios proceden de «{services}» o cantidades en esos registros.",
-      "weightRange": "Introduce una probabilidad entre 0 y 100 %.",
       "withoutStage": "Sin ponderar · sin {column}",
       "withoutStageHelp": "Valor de los registros en «{deals}» sin selección en «{column}». Al seleccionar una etapa, pasan a la cartera ponderada."
     }
@@ -2121,7 +2121,6 @@
   "DealModal": {
     "noServicesAdded": "Aún no se ha añadido ningún elemento «{entity}»",
     "quantityLabel": "Cantidad",
-    "serviceRowRequired": "Selecciona una entrada en cada fila o elimina las filas vacías.",
     "title": "Oportunidad",
     "valueLabel": "Valor"
   },

@@ -362,7 +362,7 @@ describe("CompanySettingsStore stage weight range", () => {
     await store.onSubmit();
 
     expect(actions.updateCompanyAction).not.toHaveBeenCalled();
-    expect(store.getError("dealStageWeights[0].weight")).toEqual(["CompanySettings.forecasting.weightRange"]);
+    expect(store.getError("dealStageWeights[0].weight")).toEqual(["Common.probabilityRange"]);
     expect(store.getError("dealStageWeights[1].weight")).toBeUndefined();
   });
 

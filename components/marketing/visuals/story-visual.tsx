@@ -7,12 +7,12 @@ import type { ContentLocale } from "@/i18n/locale-registry";
 import {
   VISUAL_PERSON_FIXTURES,
   VISUAL_PROVIDER_FIXTURES,
+  VISUAL_RECORD_FIXTURES,
   type VisualAgentProviderFixtureId,
   type VisualPersonFixtureId,
   type VisualProviderFixtureId,
   type VisualRecordFixtureId,
   type VisualStatusFixtureId,
-  visualRecordName,
 } from "./native-fixtures";
 import {
   NativeAgentProviderIdentity,
@@ -468,7 +468,7 @@ function QuietRecordCard({
   }
 
   const { record, status } = recordFixtures(subject);
-  const recordName = visualRecordName(record, locale);
+  const recordName = VISUAL_RECORD_FIXTURES[record].localizedName[locale];
 
   return (
     <div
@@ -528,7 +528,7 @@ function SignalArtifact({
   record?: VisualRecordFixtureId;
   status?: VisualStatusFixtureId;
 }) {
-  const recordName = record ? visualRecordName(record, locale) : undefined;
+  const recordName = record ? VISUAL_RECORD_FIXTURES[record].localizedName[locale] : undefined;
 
   return (
     <div

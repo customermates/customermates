@@ -11,11 +11,12 @@ import type {
 
 import { action, computed, makeObservable, observable, toJS } from "mobx";
 import { cloneDeep } from "lodash";
+import { z } from "zod";
 import equal from "fast-deep-equal/es6";
 import { Currency, CustomColumnType, EntityType, Resource } from "@/generated/prisma";
 
 import { NO_VALUE_GROUP_KEY } from "@/core/base/grouping/grouping.schema";
-import { DEAL_GROUP_SUM_FIELDS } from "@/features/deals/deal-weighting";
+import { DEAL_GROUP_SUM_FIELDS, dealStageWeightSchema } from "@/features/deals/deal-weighting";
 
 import { getCustomColumnsByEntityTypeAction } from "@/app/actions";
 
@@ -34,9 +35,6 @@ export type DealStageColumn = {
   label: string;
   options: CustomColumnOption[];
 };
-
-const MIN_STAGE_WEIGHT = 0;
-const MAX_STAGE_WEIGHT = 100;
 
 type DealStageWeightDraft = {
   optionValue: string;
@@ -245,11 +243,7 @@ export class CompanySettingsStore extends BaseFormStore<CompanySettingsFormData>
 
     const forecastingChanged = this.hasForecastingChanges;
 
-    const weightError = forecastingChanged ? this.stageWeightRangeError() : undefined;
-    if (weightError) {
-      this.setError(weightError);
-      return;
-    }
+    if (forecastingChanged && !this.validateStageWeights()) return;
 
     this.setIsLoading(true);
 
@@ -284,21 +278,19 @@ export class CompanySettingsStore extends BaseFormStore<CompanySettingsFormData>
     }
   };
 
-  private stageWeightRangeError(): $ZodErrorTree<CompanySettingsFormData> | undefined {
-    const weights = this.form.dealStageWeights;
-    const isOutOfRange = ({ weight }: DealStageWeightDraft) =>
-      weight !== undefined && (weight < MIN_STAGE_WEIGHT || weight > MAX_STAGE_WEIGHT);
-    if (!weights.some(isOutOfRange)) return undefined;
+  private validateStageWeights(): boolean {
+    const error = this.t("Common.probabilityRange");
+    const result = z
+      .object({ dealStageWeights: z.array(z.object({ weight: dealStageWeightSchema({ error }).optional() })) })
+      .safeParse({ dealStageWeights: this.form.dealStageWeights });
 
-    const message = this.t("CompanySettings.forecasting.weightRange");
-    const items = weights.map((draft) =>
-      isOutOfRange(draft) ? { errors: [], properties: { weight: { errors: [message] } } } : { errors: [] },
-    );
+    if (result.success) {
+      if (this.error) this.setError(undefined);
+      return true;
+    }
 
-    return {
-      errors: [],
-      properties: { dealStageWeights: { errors: [], items } },
-    } as unknown as $ZodErrorTree<CompanySettingsFormData>;
+    this.setError(z.treeifyError(result.error) as $ZodErrorTree<CompanySettingsFormData>);
+    return false;
   }
 
   private stageWeightsFor = (columnId: string | null): DealStageWeightDraft[] => {

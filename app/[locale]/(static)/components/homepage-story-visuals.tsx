@@ -24,7 +24,6 @@ import {
   type VisualAgentProviderFixtureId,
   type VisualProviderFixtureId,
   type VisualRecordFixtureId,
-  visualRecordName,
 } from "@/components/marketing/visuals/native-fixtures";
 import { COMPOUND_CONNECTOR_STROKE } from "@/components/marketing/visuals/story-visual-layout";
 import { VisualArtboard as MarketingVisualArtboard } from "@/components/marketing/visuals/visual-artboard";
@@ -1037,9 +1036,7 @@ function PipelineCard({
       data-native-record={record}
     >
       <div className="flex flex-col items-start gap-2 sm:flex-row sm:justify-between">
-        <p className="line-clamp-2 text-[11px] leading-snug font-medium sm:text-xs">
-          {visualRecordName(record, locale)}
-        </p>
+        <p className="line-clamp-2 text-[11px] leading-snug font-medium sm:text-xs">{fixture.localizedName[locale]}</p>
 
         <NativeStatusBadge className="inline-flex" locale={locale} status={fixture.status} />
       </div>
@@ -1090,7 +1087,7 @@ export function HomepagePipelineVisual({ className, labels, locale }: VisualProp
   return (
     <HomepageVisualArtboard
       className={cn("aspect-[4/5] min-h-[35rem] sm:aspect-[8/5] sm:min-h-0", className)}
-      label={`${labels.pipeline}: ${visualRecordName(PIPELINE_RECORDS.active, locale)}`}
+      label={`${labels.pipeline}: ${VISUAL_RECORD_FIXTURES[PIPELINE_RECORDS.active].localizedName[locale]}`}
       motionActive={shouldAnimate}
       motionRef={ref}
       name="pipeline"

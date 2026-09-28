@@ -1,16 +1,19 @@
 import type { FormEvent } from "react";
+import type { $ZodErrorTree } from "zod/v4/core";
 import type { UpsertCustomColumnData } from "@/features/custom-column/upsert-custom-column.interactor";
 import type { RootStore } from "@/core/stores/root.store";
 import type { CustomColumnOption, CustomColumnDto } from "@/features/custom-column/custom-column.schema";
 
 import { action, computed, makeObservable, observable, toJS } from "mobx";
 import { cloneDeep } from "lodash";
+import { z } from "zod";
 import { CustomColumnType, EntityType, Currency, Resource, Action } from "@/generated/prisma";
 
 import { type ChipColor } from "@/constants/chip-colors";
 import { type DateDisplayFormat } from "@/constants/date-format";
 import { deleteCustomColumnAction, upsertCustomColumnAction } from "@/app/actions";
 import { BaseModalStore } from "@/core/base/base-modal.store";
+import { dealStageWeightSchema } from "@/features/deals/deal-weighting";
 import { toastZodErrorTree } from "@/core/utils/toast-zod-error-tree";
 
 type OpenForCreateParams = {
@@ -287,6 +290,8 @@ export class CustomColumnModalStore extends BaseModalStore<UpsertCustomColumnDat
 
   onSubmit = async (event?: FormEvent<HTMLFormElement>) => {
     event?.preventDefault();
+    if (!this.validateOptionWeights()) return;
+
     this.setIsLoading(true);
 
     try {
@@ -438,5 +443,26 @@ export class CustomColumnModalStore extends BaseModalStore<UpsertCustomColumnDat
           },
         };
     }
+  }
+
+  private validateOptionWeights(): boolean {
+    if (this.form.type !== CustomColumnType.singleSelect) return true;
+
+    const error = this.t("Common.probabilityRange");
+    const result = z
+      .object({
+        options: z.object({
+          options: z.array(z.object({ weight: dealStageWeightSchema({ error }).optional() })),
+        }),
+      })
+      .safeParse({ options: this.form.options });
+
+    if (result.success) {
+      if (this.error) this.setError(undefined);
+      return true;
+    }
+
+    this.setError(z.treeifyError(result.error) as $ZodErrorTree<UpsertCustomColumnData>);
+    return false;
   }
 }
