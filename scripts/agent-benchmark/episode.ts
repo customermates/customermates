@@ -163,9 +163,9 @@ export type EpisodeArtifact = {
   judge?: JudgeVerdict;
 };
 
-export type RecordedToolOutput = Omit<BenchmarkToolOutputPart, "type">;
+type RecordedToolOutput = Omit<BenchmarkToolOutputPart, "type">;
 
-export type EpisodeClassifierSummary = {
+type EpisodeClassifierSummary = {
   docsRerankCalls: number;
   docsRerankAnswered: number;
   docsRerankFired: boolean;

@@ -22,7 +22,7 @@ import { HELDOUT_DOCS_CASES } from "../../heldout-cases";
 import { campaignAnalysisDirectory, isEpisodeArtifactFileName } from "../../report";
 import { mcnemar, round, wilson } from "../heldout-run/common";
 
-export const GATE_C = { variant: "guard-wordlists", episodes: 30 } as const;
+const GATE_C = { variant: "guard-wordlists", episodes: 30 } as const;
 export const LATENCY = {
   control: "off",
   candidate: "docs-v2-jev",

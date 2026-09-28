@@ -63,7 +63,7 @@ export const mcpPageSize = (
 export const mcpOptionalPageSize = (describe: string) =>
   z.coerce.number().int().min(1).max(100).optional().describe(describe);
 
-export type McpPageFetchPlan = { page: number; pageSize: McpPageSize; offset: number; spans: 1 | 2 };
+type McpPageFetchPlan = { page: number; pageSize: McpPageSize; offset: number; spans: 1 | 2 };
 
 export function planMcpPageFetch(page: number, pageSize: number): McpPageFetchPlan {
   const start = (page - 1) * pageSize;

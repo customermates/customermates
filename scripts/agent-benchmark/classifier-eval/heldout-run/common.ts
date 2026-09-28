@@ -3,7 +3,7 @@ import { join } from "node:path";
 
 import { signTestP } from "../stats";
 
-export const HELDOUT_REPORT_DIR = join(
+const HELDOUT_REPORT_DIR = join(
   process.cwd(),
   "scripts/agent-benchmark/reports/2026-09-27-classifier-heldout",
 );
@@ -53,7 +53,7 @@ function prng(seed: number) {
   };
 }
 
-export type PairedUnit = { cluster: string; control: number; candidate: number };
+type PairedUnit = { cluster: string; control: number; candidate: number };
 
 export function clusterBootstrap(units: readonly PairedUnit[], scale = 1) {
   const clusters = [...new Set(units.map((unit) => unit.cluster))];

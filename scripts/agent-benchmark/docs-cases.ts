@@ -3,7 +3,7 @@ import type { BenchmarkTurnContext } from "./fixtures";
 export const DOCS_CASE_IDS = ["D1", "D2", "D3", "D4", "D5", "D6", "D7", "D8", "D9", "D10"] as const;
 export type DocsCaseId = (typeof DOCS_CASE_IDS)[number];
 
-export type DocsCase = {
+type DocsCase = {
   id: DocsCaseId;
   title: string;
   actor: "driver";

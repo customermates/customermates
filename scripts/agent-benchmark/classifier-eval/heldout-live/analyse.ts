@@ -30,8 +30,8 @@ import { campaignAnalysisDirectory, isEpisodeArtifactFileName } from "../../repo
 import { DOCS_HELDOUT } from "../heldout/docs-heldout";
 import { holm, mcnemar, round, wilson } from "../heldout-run/common";
 
-export const LIVE_VARIANTS = { control: "off", docs: "docs-v2-jev", routing: "routing-v2-jev" } as const;
-export const LIVE_REPS = { docs: 10, routing: 5, fullSuite: 3 } as const;
+const LIVE_VARIANTS = { control: "off", docs: "docs-v2-jev", routing: "routing-v2-jev" } as const;
+const LIVE_REPS = { docs: 10, routing: 5, fullSuite: 3 } as const;
 
 const FACT_JUDGE_MODEL = "google/gemini-3-flash";
 const FACT_JUDGE_RESERVE_USD = 0.01;

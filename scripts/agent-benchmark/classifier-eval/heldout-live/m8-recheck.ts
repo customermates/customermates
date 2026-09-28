@@ -74,7 +74,7 @@ function wilson(successes: number, n: number): [number, number] | null {
   return [round(Math.max(0, centre - half)), round(Math.min(1, centre + half))];
 }
 
-export type M8Episode = {
+type M8Episode = {
   variant: string;
   repetition: number;
   checkPassed: boolean | null;
@@ -83,7 +83,7 @@ export type M8Episode = {
   docsToolCalls: number;
 };
 
-export function m8Episode(artifact: EpisodeArtifact): M8Episode {
+function m8Episode(artifact: EpisodeArtifact): M8Episode {
   const check = artifact.oracle?.checks.find((entry) => entry.id === M8_RECHECK.check);
   return {
     variant: artifact.runtimeVariant,

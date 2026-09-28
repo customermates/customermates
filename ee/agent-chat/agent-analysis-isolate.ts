@@ -16,7 +16,7 @@ export const ANALYSIS_LIMITS: AnalysisLimits = {
 
 export const ANALYSIS_MAX_WORKERS = 2;
 
-export type AnalysisOutcome =
+type AnalysisOutcome =
   | { ok: true; serialized: string | null }
   | { ok: false; resultChars: number }
   | { ok: false; error: string };

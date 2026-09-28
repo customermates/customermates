@@ -271,11 +271,11 @@ export function getDocsPageRaw(
 export const DOCS_RERANK_CANDIDATES = 20;
 export const DOCS_RERANK_EXCERPT_CHARS = 1_400;
 
-export type DocsRerankCandidate = { id: number; section: DocsSection };
+type DocsRerankCandidate = { id: number; section: DocsSection };
 
 export type SearchDocsInput = { query: string; locale: DocsLocale; source: "docs" | "api" | "all" };
 
-export function topSectionCandidates(
+function topSectionCandidates(
   index: DocsSectionIndex,
   query: string,
   limit = DOCS_RERANK_CANDIDATES,
@@ -297,10 +297,10 @@ function keywordDocsSearch(input: SearchDocsInput) {
   return { text: compactDocsSearchText(results, total), structuredContent: { results, total } };
 }
 
-export const DOCS_RANK_TOP_PAGES = 5;
-export const DOCS_RANK_RETURNED = 3;
-export const DOCS_RANK_MAX_CANDIDATES = 120;
-export const DOCS_RANK_SECONDARY_EXCERPT_CHARS = 400;
+const DOCS_RANK_TOP_PAGES = 5;
+const DOCS_RANK_RETURNED = 3;
+const DOCS_RANK_MAX_CANDIDATES = 120;
+const DOCS_RANK_SECONDARY_EXCERPT_CHARS = 400;
 
 export type DocsRankCandidate = DocsRerankCandidate & { titleOnly: boolean };
 

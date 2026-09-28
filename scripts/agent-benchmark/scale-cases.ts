@@ -2,10 +2,10 @@ import type { ObservedToolLike, SeedHelpers } from "./complex-cases";
 
 import { mailThread } from "./complex-cases";
 
-export const SCALE_CASE_IDS = ["B1", "B2", "B3", "B4", "B5", "A1", "A2", "A3", "A4"] as const;
+const SCALE_CASE_IDS = ["B1", "B2", "B3", "B4", "B5", "A1", "A2", "A3", "A4"] as const;
 export type ScaleCaseId = (typeof SCALE_CASE_IDS)[number];
 
-export type ScaleCase = {
+type ScaleCase = {
   id: ScaleCaseId;
   title: string;
   actor: "driver";
@@ -23,7 +23,7 @@ type PlannedDeal = { key: string; name: string; value: number; status: Status; o
 const pad = (value: number, width = 3) => String(value).padStart(width, "0");
 const sum = (values: readonly number[]) => values.reduce((total, value) => total + value, 0);
 
-export const EXTRA_OWNERS = [
+const EXTRA_OWNERS = [
   ["nina", "Nina", "Weiss"],
   ["omar", "Omar", "Haddad"],
   ["paula", "Paula", "Ruiz"],
@@ -35,7 +35,7 @@ const OWNER_NAMES: Record<string, string> = {
   ...Object.fromEntries(EXTRA_OWNERS.map(([key, first, last]) => [key, `${first} ${last}`])),
 };
 
-export function orbitDeals(): PlannedDeal[] {
+function orbitDeals(): PlannedDeal[] {
   return Array.from({ length: 320 }, (_, index) => {
     const i = index + 1;
     const status: Status = i % 7 === 0 ? "Lost" : i % 3 === 0 ? "Won" : "Open";
@@ -44,7 +44,7 @@ export function orbitDeals(): PlannedDeal[] {
 }
 
 const SUMMIT_OWNERS = ["sofia", "max", "nina", "omar"] as const;
-export function summitDeals(): PlannedDeal[] {
+function summitDeals(): PlannedDeal[] {
   return Array.from({ length: 300 }, (_, index) => {
     const i = index + 1;
     return {
@@ -58,7 +58,7 @@ export function summitDeals(): PlannedDeal[] {
 }
 
 const COMET_MONTHS = ["2026-06", "2026-07", "2026-08", "2026-09"] as const;
-export function cometDeals(): (PlannedDeal & { closeDate: string })[] {
+function cometDeals(): (PlannedDeal & { closeDate: string })[] {
   return Array.from({ length: 300 }, (_, index) => {
     const i = index + 1;
     const month = COMET_MONTHS[(i * 5) % 4];
@@ -75,14 +75,14 @@ export function cometDeals(): (PlannedDeal & { closeDate: string })[] {
 }
 
 const WAITING_THREADS = [7, 19, 33, 46, 58, 71, 89, 104, 126, 150, 177, 203] as const;
-export function inboxThreads() {
+function inboxThreads() {
   return Array.from({ length: 212 }, (_, index) => {
     const i = index + 1;
     return { key: `inbox-${i}`, subject: `Request ${pad(i)}: ${["pricing", "invoice", "onboarding", "renewal"][i % 4]} question`, waiting: (WAITING_THREADS as readonly number[]).includes(i) };
   });
 }
 
-export function atlasDeals(): PlannedDeal[] {
+function atlasDeals(): PlannedDeal[] {
   const open = Array.from({ length: 511 }, (_, index) => {
     const i = index + 1;
     return { key: `atlas-${i}`, name: `Atlas-${pad(i)}`, value: 100 * (((i * 7919) % 997) + 11), status: "Open" as Status, owner: "sofia" };
@@ -95,7 +95,7 @@ export function atlasDeals(): PlannedDeal[] {
 }
 
 const HARBOR_OWNERS = ["sofia", "max", "nina", "omar", "paula", "quinn"] as const;
-export function harborDeals(): PlannedDeal[] {
+function harborDeals(): PlannedDeal[] {
   const base: PlannedDeal[] = Array.from({ length: 330 }, (_, index) => {
     const i = index + 1;
     return {
@@ -118,7 +118,7 @@ export function harborDeals(): PlannedDeal[] {
 }
 
 const LUMEN_PRICES = [80, 120, 150, 180, 250] as const;
-export function lumenDeals() {
+function lumenDeals() {
   return Array.from({ length: 440 }, (_, index) => {
     const i = index + 1;
     const exact = i % 37 === 0;
@@ -170,7 +170,7 @@ function variantName(firstName: string, lastName: string, variant: NameVariant):
       return [firstName, lastName.toLowerCase()];
   }
 }
-export function importedContacts() {
+function importedContacts() {
   const originals = Array.from({ length: 400 }, (_, index) => {
     const i = index + 1;
     return { key: `imported-${i}`, firstName: FIRST_NAMES[i % FIRST_NAMES.length], lastName: LAST_NAMES[Math.floor(i / FIRST_NAMES.length) % LAST_NAMES.length] };
@@ -352,7 +352,7 @@ export async function seedScaleCase(caseId: ScaleCaseId, h: ScaleSeedHelpers): P
   }
 }
 
-export type ScaleScoreContext = {
+type ScaleScoreContext = {
   text: string;
   turnTexts: readonly string[];
   turnTools: readonly (readonly ObservedToolLike[])[];

@@ -25,7 +25,7 @@ import { ROUTING_HELDOUT, type RoutingHeldoutItem } from "./classifier-eval/held
 
 export type HeldoutCaseId = `DH${string}` | `DE${string}` | `RH${string}`;
 
-export type HeldoutCase = {
+type HeldoutCase = {
   id: HeldoutCaseId;
   title: string;
   actor: "driver";
@@ -37,8 +37,8 @@ export type HeldoutCase = {
   heldout: true;
 };
 
-export type HeldoutDocsCase = HeldoutCase & { spec: DocsHeldoutLiveSpec };
-export type HeldoutRoutingCase = HeldoutCase & { item: RoutingHeldoutItem; needs: readonly (readonly AgentOnDemandToolset[])[] };
+type HeldoutDocsCase = HeldoutCase & { spec: DocsHeldoutLiveSpec };
+type HeldoutRoutingCase = HeldoutCase & { item: RoutingHeldoutItem; needs: readonly (readonly AgentOnDemandToolset[])[] };
 
 export const HELDOUT_DOCS_LIVE_SPECS: readonly DocsHeldoutLiveSpec[] = [
   ...DOCS_HELDOUT_LIVE_SPECS,
@@ -91,10 +91,7 @@ export function isHeldoutCaseId(value: string): value is HeldoutCaseId {
   return HELDOUT_IDS.has(value);
 }
 
-export const isHeldoutDocsCaseId = (value: string) => HELDOUT_DOCS_CASES.some((definition) => definition.id === value);
-export const isHeldoutRoutingCaseId = (value: string) =>
-  HELDOUT_ROUTING_CASES.some((definition) => definition.id === value);
-
+const isHeldoutDocsCaseId = (value: string) => HELDOUT_DOCS_CASES.some((definition) => definition.id === value);
 /** The on-demand sets a turn's tool calls used; `load_toolset` itself is not a use. */
 export function toolsetsCalledInTurn(tools: readonly { name: string }[]): Set<AgentOnDemandToolset> {
   const used = new Set<AgentOnDemandToolset>();

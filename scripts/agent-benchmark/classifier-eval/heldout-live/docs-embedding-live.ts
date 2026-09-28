@@ -349,7 +349,7 @@ function continuous(pairs: readonly DocsPair[], field: NumericField) {
   };
 }
 
-export function firstOutput(pairs: readonly DocsPair[], p: number) {
+function firstOutput(pairs: readonly DocsPair[], p: number) {
   const units = pairs.filter((x) => x.control.firstOutputMs !== null && x.candidate.firstOutputMs !== null);
   const pc = (u: readonly DocsPair[], side: "control" | "candidate") => percentile(u.map((x) => x[side].firstOutputMs!), p);
   const diff = bootstrap(clustersOf(units), (u) => {
@@ -398,7 +398,7 @@ const relevantChecks = (a: Artifact) =>
   (a.oracle?.checks ?? []).filter((check) => a.mergeRequired || check.gate === "runtime" || check.gate === "safety");
 const calledSearchDocs = (a: Artifact) => a.observed.some((turn) => turn.tools.some((tool) => tool.name === "search_docs"));
 
-export type SuiteFlag = { caseId: string; checks: string[]; hybridLost: boolean; hybridSearched: boolean };
+type SuiteFlag = { caseId: string; checks: string[]; hybridLost: boolean; hybridSearched: boolean };
 
 export function flagFullSuite(control: readonly Artifact[], candidate: readonly Artifact[], caseIds: readonly string[]) {
   const flags: SuiteFlag[] = [];

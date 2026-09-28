@@ -12,7 +12,7 @@ export type AgentProviderChargeEvidence = {
   unreadableReason: string | null;
 };
 
-export type AgentAuxiliaryCharge = {
+type AgentAuxiliaryCharge = {
   costMicrocents: number;
   measured: boolean;
 };

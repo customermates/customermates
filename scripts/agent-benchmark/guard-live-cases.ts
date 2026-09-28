@@ -154,7 +154,7 @@ const GUARD_LIVE_SPECS: readonly GuardLiveSpec[] = [
   },
 ];
 
-export type GuardLiveCase = {
+type GuardLiveCase = {
   id: GuardLiveCaseId;
   title: string;
   actor: "driver";

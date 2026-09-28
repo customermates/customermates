@@ -40,7 +40,7 @@ export const AnalyzeRecordsSchema = z.object({
     ),
 });
 
-export type AnalyzeRecordsInput = z.infer<typeof AnalyzeRecordsSchema>;
+type AnalyzeRecordsInput = z.infer<typeof AnalyzeRecordsSchema>;
 
 export const ANALYZE_RECORDS_DESCRIPTION =
   "Use this when an answer needs arithmetic over many records that no filter or sum expresses: a median, a ranking with a tie-break, a per-record ratio, normalized duplicates, a join across two entity types, or counting rows by a field the list returns. " +
