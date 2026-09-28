@@ -81,8 +81,9 @@ export function robotsPathOf(url: string): string {
 const DISALLOW_ALL: RobotsRules = { allows: () => false, sitemaps: [], crawlDelayMs: 0, blocked: true };
 
 export function robotsFromFetch(
-  result: { ok: true; body: string } | { ok: false; reason: string; status?: number },
+  result: { ok: true; body: string; truncated?: boolean } | { ok: false; reason: string; status?: number },
 ): RobotsRules {
+  if (result.ok && result.truncated) return parseRobots(result.body.slice(0, result.body.lastIndexOf("\n") + 1));
   if (result.ok) return parseRobots(result.body);
   if (result.status !== undefined && result.status >= 400 && result.status < 500) return parseRobots(null);
   if (["redirect_limit", "outside_domain", "unsupported_content"].includes(result.reason)) return parseRobots(null);

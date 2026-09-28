@@ -113,22 +113,31 @@ async function requestPage(
   });
 }
 
-async function readBody(response: IncomingMessage, signal: AbortSignal): Promise<Buffer> {
+async function readBody(
+  response: IncomingMessage,
+  signal: AbortSignal,
+  truncate: boolean,
+): Promise<{ body: Buffer; truncated: boolean }> {
   const encoding = response.headers["content-encoding"]?.trim().toLowerCase();
   if (encoding && encoding !== "identity") throw new WebsiteFetchError("unsupported_content");
   const declaredLength = response.headers["content-length"];
-  if (declaredLength && Number(declaredLength) > MAX_BODY_BYTES) throw new WebsiteFetchError("too_large");
+  if (!truncate && declaredLength && Number(declaredLength) > MAX_BODY_BYTES) throw new WebsiteFetchError("too_large");
 
   let size = 0;
   const chunks: Uint8Array[] = [];
   for await (const chunk of response) {
     if (signal.aborted) throw new WebsiteFetchError("timeout");
     const buffer = Buffer.isBuffer(chunk) ? chunk : Buffer.from(chunk);
+    if (size + buffer.byteLength > MAX_BODY_BYTES) {
+      if (!truncate) throw new WebsiteFetchError("too_large");
+      const kept = buffer.subarray(0, MAX_BODY_BYTES - size);
+      chunks.push(new Uint8Array(kept.buffer, kept.byteOffset, kept.byteLength));
+      return { body: Buffer.concat(chunks), truncated: true };
+    }
     size += buffer.byteLength;
-    if (size > MAX_BODY_BYTES) throw new WebsiteFetchError("too_large");
     chunks.push(new Uint8Array(buffer.buffer, buffer.byteOffset, buffer.byteLength));
   }
-  return Buffer.concat(chunks);
+  return { body: Buffer.concat(chunks), truncated: false };
 }
 
 function textDecoder(label: string | undefined): TextDecoder {
@@ -159,7 +168,7 @@ function decodeBody(body: Buffer, contentType: string, contentTypeHeader: string
 export type WebsiteResourceTarget = { url: string; host: string; registrableDomain: string };
 
 export type WebsiteResourceResult =
-  | { ok: true; url: string; contentType: string; body: string }
+  | { ok: true; url: string; contentType: string; body: string; truncated: boolean }
   | { ok: false; reason: WebsiteFetchFailure; status?: number };
 
 function websiteResourceTarget(value: string): WebsiteResourceTarget | null {
@@ -173,6 +182,7 @@ export async function fetchWebsiteResource(
     allows: (target: WebsiteResourceTarget) => boolean;
     accept: readonly string[];
     userAgent: string;
+    truncateOversized?: boolean;
   },
   options: { signal?: AbortSignal } = {},
 ): Promise<WebsiteResourceResult> {
@@ -201,8 +211,9 @@ export async function fetchWebsiteResource(
         const contentTypeHeader = response.headers["content-type"] ?? "";
         const contentType = contentTypeHeader.split(";", 1)[0].trim().toLowerCase();
         if (!input.accept.includes(contentType)) return { ok: false, reason: "unsupported_content" };
-        const body = decodeBody(await readBody(response, signal), contentType, contentTypeHeader);
-        return { ok: true, url: currentUrl, contentType, body };
+        const read = await readBody(response, signal, input.truncateOversized === true);
+        const body = decodeBody(read.body, contentType, contentTypeHeader);
+        return { ok: true, url: currentUrl, contentType, body, truncated: read.truncated };
       } finally {
         response.destroy();
       }

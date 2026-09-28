@@ -125,6 +125,20 @@ describe("robots.txt", () => {
     expect(robotsFromFetch({ ok: false, reason: "redirect_limit" }).blocked).toBe(false);
     expect(robotsFromFetch({ ok: true, body: "User-agent: *\nDisallow: /" }).blocked).toBe(true);
   });
+
+  it("parses a robots.txt cut at 500 KiB up to its last complete line instead of disallowing everything", () => {
+    const truncated = robotsFromFetch({
+      ok: true,
+      body: "User-agent: *\nDisallow: /private\nDisallow: /par",
+      truncated: true,
+    });
+    expect(truncated.blocked).toBe(false);
+    expect(truncated.allows("/private/page")).toBe(false);
+    expect(truncated.allows("/partners")).toBe(true);
+    expect(
+      robotsFromFetch({ ok: true, body: "User-agent: *\nDisallow: /par", truncated: false }).allows("/partners"),
+    ).toBe(false);
+  });
 });
 
 describe("sitemaps, llms.txt and categories", () => {

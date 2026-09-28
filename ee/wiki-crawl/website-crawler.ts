@@ -44,8 +44,14 @@ function inScope(scope: WikiCrawlScope) {
     target.registrableDomain === scope.registrableDomain || scope.extraHosts.includes(target.host);
 }
 
-function fetchResource(url: string, scope: WikiCrawlScope, accept: readonly string[]) {
-  return fetchWebsiteResource({ url, allows: inScope(scope), accept, userAgent: WIKI_CRAWL_USER_AGENT });
+function fetchResource(url: string, scope: WikiCrawlScope, accept: readonly string[], truncateOversized = false) {
+  return fetchWebsiteResource({
+    url,
+    allows: inScope(scope),
+    accept,
+    userAgent: WIKI_CRAWL_USER_AGENT,
+    truncateOversized,
+  });
 }
 
 async function fetchText(url: string, scope: WikiCrawlScope, accept: readonly string[]) {
@@ -62,7 +68,7 @@ export class WikiCrawlRobots {
     const origin = new URL(url).origin;
     let rules = this.rules.get(origin);
     if (!rules) {
-      rules = fetchResource(`${origin}/robots.txt`, this.scope, TEXT_TYPES).then(robotsFromFetch);
+      rules = fetchResource(`${origin}/robots.txt`, this.scope, TEXT_TYPES, true).then(robotsFromFetch);
       this.rules.set(origin, rules);
     }
     return rules;

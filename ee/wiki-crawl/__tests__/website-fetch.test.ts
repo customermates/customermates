@@ -336,6 +336,38 @@ describe("fetchWebsiteResource", () => {
     expect(responses.every((response) => response.destroyed)).toBe(true);
   });
 
+  it("reads only the first 500 KiB of an oversized resource when the caller asks to truncate it", async () => {
+    const rules = Buffer.from("User-agent: *\nDisallow: /private\n");
+    fixtures.push({
+      headers: { "content-type": "text/plain", "content-length": "700000" },
+      body: [rules, Buffer.alloc(400_000, 0x23), Buffer.alloc(300_000, 0x23)],
+    });
+    const result = await fetchWebsiteResource({
+      url: "https://example.com/robots.txt",
+      allows: (target) => target.registrableDomain === "example.com",
+      accept: ["text/plain"],
+      userAgent: "Customermates/1.0 (test)",
+      truncateOversized: true,
+    });
+
+    expect(result).toMatchObject({ ok: true, truncated: true });
+    if (!result.ok) throw new Error("expected a truncated resource");
+    expect(Buffer.byteLength(result.body)).toBe(512_000);
+    expect(result.body.startsWith("User-agent: *\nDisallow: /private\n")).toBe(true);
+    expect(responses.every((response) => response.destroyed)).toBe(true);
+
+    fixtures.push({ headers: { "content-type": "text/plain" }, body: "User-agent: *\nAllow: /\n" });
+    await expect(
+      fetchWebsiteResource({
+        url: "https://example.com/robots.txt",
+        allows: () => true,
+        accept: ["text/plain"],
+        userAgent: "Customermates/1.0 (test)",
+        truncateOversized: true,
+      }),
+    ).resolves.toMatchObject({ ok: true, truncated: false });
+  });
+
   it("accepts bounded plain text", async () => {
     fixtures.push({
       headers: { "content-type": "text/plain" },
