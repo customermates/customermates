@@ -241,6 +241,7 @@ export const ManageWikiPagesOutputSchema = z.looseObject({
   linksTruncated: z.boolean().optional(),
   outline: z.array(z.looseObject({ level: z.number(), heading: z.string(), offset: z.number() })).optional(),
   didYouMean: z.array(z.string()).optional(),
+  retrieval: z.enum(["semantic", "keyword"]).optional(),
   deleted: z.boolean().optional(),
 });
 
@@ -330,6 +331,7 @@ function wikiSearchResult(result: WikiPageSearchResult) {
       })),
     ),
     ...(result.didYouMean ? { didYouMean: result.didYouMean } : {}),
+    ...(result.retrieval ? { retrieval: result.retrieval } : {}),
   });
 }
 

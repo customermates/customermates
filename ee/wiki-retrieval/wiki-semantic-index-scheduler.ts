@@ -4,6 +4,8 @@ import type { WikiSemanticIndexScheduler } from "@/features/wiki/search-wiki-pag
 import type { WikiEmbeddingService } from "./wiki-embedding.service";
 import type { WikiSemanticIndexRepo } from "./wiki-semantic-index.service";
 
+import * as Sentry from "@sentry/node";
+
 import { UserAccessor } from "@/core/base/user-accessor";
 import { DomainEvent } from "@/features/event/domain-events";
 import { DomainEventListener } from "@/features/event/domain-event.listener";
@@ -28,10 +30,14 @@ export class WikiSemanticIndexDispatcher extends UserAccessor implements WikiSem
       now - (lastSearchSchedule.get(this.companyId) ?? 0) < WIKI_SEARCH_SCHEDULE_INTERVAL_MS
     )
       return;
-    if (!(await this.repo.semanticIndexAvailable())) return;
-    if (!(await this.embeddings.authorize({ id: this.userId, companyId: this.companyId }))) return;
-    if (this.trigger === "search") lastSearchSchedule.set(this.companyId, now);
-    await this.backgroundTaskService.dispatch("index-wiki-pages", { userId: this.userId });
+    try {
+      if (!(await this.repo.semanticIndexAvailable())) return;
+      if (!(await this.embeddings.authorize({ id: this.userId, companyId: this.companyId }))) return;
+      if (this.trigger === "search") lastSearchSchedule.set(this.companyId, now);
+      await this.backgroundTaskService.dispatch("index-wiki-pages", { userId: this.userId });
+    } catch (error) {
+      Sentry.captureException(error);
+    }
   }
 }
 

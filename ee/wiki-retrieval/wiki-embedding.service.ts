@@ -1,6 +1,8 @@
 import type { AgentRetrievalGrant, AgentUsageService } from "@/ee/agent-chat/agent-usage.service";
 import type { WikiEmbeddingKind } from "./wiki-embedding-model";
 
+import * as Sentry from "@sentry/node";
+
 import { isAgentChatAvailable } from "@/ee/agent-chat/agent-availability";
 import { env } from "@/env";
 
@@ -17,7 +19,12 @@ export class WikiEmbeddingService {
 
   async authorize(payer: WikiEmbeddingPayer): Promise<AgentRetrievalGrant | null> {
     if (!isWikiSemanticSearchAvailable()) return null;
-    return this.usage.prepareRetrieval(payer.id);
+    try {
+      return await this.usage.prepareRetrieval(payer.id);
+    } catch (error) {
+      Sentry.captureException(error);
+      return null;
+    }
   }
 
   async embedTexts(
