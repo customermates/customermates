@@ -200,6 +200,7 @@ describeDatabase("agent assistant migration", { timeout: 120_000 }, () => {
       expect(costColumns.rows).toEqual([
         { table_name: "AgentRunRound", data_type: "bigint" },
         { table_name: "AgentUsageEvent", data_type: "bigint" },
+        { table_name: "HostedAiPlatformUsage", data_type: "bigint" },
       ]);
     });
   });
