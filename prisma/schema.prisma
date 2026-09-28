@@ -319,7 +319,7 @@ model WikiWebsiteCrawl {
   id                String                 @id @default(uuid())
   companyId         String
   userId            String
-  clientRequestId   String                 @unique
+  clientRequestId   String
   homepageUrl       String
   registrableDomain String
   locale            String
@@ -341,6 +341,7 @@ model WikiWebsiteCrawl {
   company           Company                @relation(fields: [companyId], references: [id], onDelete: Cascade)
   sources           WikiSourceDocument[]
 
+  @@unique([companyId, clientRequestId])
   @@index([companyId, startedAt])
 }
 

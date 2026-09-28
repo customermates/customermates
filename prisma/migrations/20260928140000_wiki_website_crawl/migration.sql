@@ -47,7 +47,7 @@ CREATE TABLE "WikiSourceDocument" (
 );
 
 -- CreateIndex
-CREATE UNIQUE INDEX "WikiWebsiteCrawl_clientRequestId_key" ON "WikiWebsiteCrawl"("clientRequestId");
+CREATE UNIQUE INDEX "WikiWebsiteCrawl_companyId_clientRequestId_key" ON "WikiWebsiteCrawl"("companyId", "clientRequestId");
 
 -- CreateIndex
 CREATE INDEX "WikiWebsiteCrawl_companyId_startedAt_idx" ON "WikiWebsiteCrawl"("companyId", "startedAt");
