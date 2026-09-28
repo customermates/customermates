@@ -20,6 +20,8 @@ const agentBenchmarkBuildSource = resolveBenchmarkBuildSource();
 if (process.env.LOCAL_AGENT_BENCHMARK === "true") configureBenchmarkWorkflowWorld();
 
 const nextConfig: NextConfig = {
+  serverExternalPackages: ["@prisma/client-runtime-utils"],
+
   env: {
     NEXT_INTL_CONFIG_PATH: "i18n/request.ts",
     AGENT_BENCHMARK_BUILD_SOURCE: agentBenchmarkBuildSource,

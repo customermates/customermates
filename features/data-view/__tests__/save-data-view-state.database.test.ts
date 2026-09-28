@@ -175,4 +175,42 @@ describeDatabase("data view state round trip on PostgreSQL", () => {
     expect(surface.allState.filters).toEqual([]);
     expect(resolveDataViewState({ base: surface.allState, defaults: surfaceDefaults }).filters).toEqual([]);
   });
+
+  it("saves an unsorted All search through the validated transaction and retains it on reload", async () => {
+    await client.query('DELETE FROM "P13n" WHERE "companyId" = $1 AND "userId" = $2 AND "p13nId" = $3', [
+      companyId,
+      userId,
+      SURFACE,
+    ]);
+    const result = await save(ALL_VIEW_KEY, { searchTerm: "Roche", sortDescriptor: null, grouping: null });
+
+    expect(result).toMatchObject({ ok: true, data: { viewKey: ALL_VIEW_KEY, state: { searchTerm: "Roche" } } });
+    const surface = await asTenant(() => views().loadSurfaceState(SURFACE));
+    expect(surface.allState.searchTerm).toBe("Roche");
+    expect(resolveDataViewState({ base: surface.allState }).sortDescriptor).toBeUndefined();
+    expect(resolveDataViewState({ base: surface.allState }).grouping).toBeUndefined();
+  });
+
+  it("clears existing All sorting and grouping without losing search or layout preferences", async () => {
+    await save(ALL_VIEW_KEY, {
+      searchTerm: "renewal",
+      sortDescriptor: { field: "name", direction: "desc" },
+      grouping: { field: "createdAt", bucket: "month" },
+      viewMode: ViewMode.card,
+      hiddenColumns: ["updatedAt"],
+    });
+
+    const result = await save(ALL_VIEW_KEY, { sortDescriptor: null, grouping: null });
+    expect(result.ok).toBe(true);
+
+    const surface = await asTenant(() => views().loadSurfaceState(SURFACE));
+    expect(surface.allState).toMatchObject({
+      searchTerm: "renewal",
+      viewMode: ViewMode.card,
+      hiddenColumns: ["updatedAt"],
+    });
+    const resolved = resolveDataViewState({ base: surface.allState });
+    expect(resolved.sortDescriptor).toBeUndefined();
+    expect(resolved.grouping).toBeUndefined();
+  });
 });

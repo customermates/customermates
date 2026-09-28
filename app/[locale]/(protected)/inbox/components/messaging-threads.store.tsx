@@ -5,7 +5,7 @@ import type { RootStore } from "@/core/stores/root.store";
 
 import { makeObservable, observable, runInAction } from "mobx";
 
-import { getMessagingThreadsAction, refreshInboxAction } from "../actions";
+import { getMessagingThreadsAction, getUnreadThreadCountAction, refreshInboxAction } from "../actions";
 import { MESSAGING_RATE_LIMITS_DOCS_PATH } from "./lazy-media";
 
 import { BaseDataViewStore } from "@/core/base/base-data-view.store";
@@ -13,12 +13,15 @@ import { toastZodErrorTree } from "@/core/utils/toast-zod-error-tree";
 
 export class MessagingThreadsStore extends BaseDataViewStore<MessagingThread> {
   isRefreshingInbox = false;
+  unreadThreadCount: number | null = null;
+  private unreadCountGeneration = 0;
 
   constructor(rootStore: RootStore) {
     super(rootStore);
 
     makeObservable(this, {
       isRefreshingInbox: observable,
+      unreadThreadCount: observable,
     });
   }
 
@@ -27,8 +30,16 @@ export class MessagingThreadsStore extends BaseDataViewStore<MessagingThread> {
   }
 
   protected async refreshAction(params?: GetQueryParams) {
-    return getMessagingThreadsAction(params);
+    const [threads] = await Promise.all([getMessagingThreadsAction(params), this.refreshUnreadCount()]);
+    return threads;
   }
+
+  refreshUnreadCount = async (): Promise<void> => {
+    const generation = ++this.unreadCountGeneration;
+    const count = await getUnreadThreadCountAction();
+    if (generation !== this.unreadCountGeneration) return;
+    runInAction(() => (this.unreadThreadCount = count));
+  };
 
   refreshInbox = async (): Promise<void> => {
     runInAction(() => (this.isRefreshingInbox = true));

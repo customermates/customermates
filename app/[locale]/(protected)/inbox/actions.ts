@@ -29,12 +29,17 @@ import {
   getStartChatInteractor,
   getResolveProviderProfileInteractor,
   getRefreshInboxInteractor,
+  getGetUnreadThreadCountInteractor,
 } from "@/core/di";
 import { serializeResult } from "@/core/utils/action-result";
 import { unwrapValidated } from "@/core/validation/validation.utils";
 
 export async function getMessagingThreadsAction(params?: GetQueryParams) {
   return unwrapValidated(getGetMessagingThreadsInteractor().invoke(params));
+}
+
+export async function getUnreadThreadCountAction() {
+  return unwrapValidated(getGetUnreadThreadCountInteractor().invoke());
 }
 
 export async function getMessagingThreadAction(threadId: string) {
