@@ -35,6 +35,7 @@ function setup() {
       items: [],
       refresh,
       upsertItem: vi.fn().mockResolvedValue(undefined),
+      refreshUnreadCount: vi.fn().mockResolvedValue(undefined),
     },
     threadComposeStore: { form: { threadId: "" }, hasComposedContent: false },
     loadingOverlayStore: { withLoading },
@@ -277,4 +278,14 @@ describe("inbox reconciliation", () => {
       expect.objectContaining({ state: "open" }),
     );
   });
+});
+
+it("refreshes the global unread badge after marking a thread read, even outside the current list", async () => {
+  const { store } = setup();
+  if (!store.thread) throw new Error("Missing fixture thread");
+  store.thread.state = "unread";
+  actions.updateThreadAction.mockResolvedValue({ ok: true, data: null });
+  await store.markRead();
+  expect(store.thread?.state).toBe("open");
+  expect(store.rootStore.messagingThreadsStore.refreshUnreadCount).toHaveBeenCalledOnce();
 });

@@ -341,5 +341,6 @@ export class MessagingThreadDetailStore extends BaseStore {
     const list = this.rootStore.messagingThreadsStore;
     const existing = list.items.find((thread) => thread.id === threadId);
     if (existing) await list.upsertItem({ ...existing, state });
+    await list.refreshUnreadCount();
   };
 }
