@@ -120,10 +120,7 @@ describe("usageToTokenCounts", () => {
 
 describe("model catalog + pricing coverage", () => {
   it("addresses every catalog model by its gateway-namespaced id", () => {
-    expect(Object.values(MODEL_CATALOG).map((entry) => entry.modelId)).toEqual([
-      "openai/gpt-5-nano",
-      "google/gemini-3.5-flash-lite",
-    ]);
+    expect(Object.values(MODEL_CATALOG).map((entry) => entry.modelId)).toEqual(["google/gemini-3.5-flash-lite"]);
   });
 
   it("refuses to price an unpinned model instead of falling back to a spend cap", () => {

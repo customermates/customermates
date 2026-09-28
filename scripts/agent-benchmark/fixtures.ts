@@ -443,7 +443,7 @@ export const BENCHMARK_CASES: readonly BenchmarkCase[] = [
       "How many contacts are in this workspace?",
       "And how many organizations?",
     ],
-    contexts: [{ modelKey: "fast" }, { modelKey: "omit" }],
+    contexts: [{ modelKey: "balanced" }, { modelKey: "omit" }],
     comparative: false,
   },
   {

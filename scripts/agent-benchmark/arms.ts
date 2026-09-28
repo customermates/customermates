@@ -130,7 +130,7 @@ export const BENCHMARK_ARMS: readonly BenchmarkArm[] = [
   openai("luna-medium", "openai/gpt-5.6-luna", "medium", "GPT-5.6 Luna, reasoning medium"),
   openai("terra-low", "openai/gpt-5.6-terra", "low", "GPT-5.6 Terra, reasoning low"),
   openai("sol-low", "openai/gpt-5.6-sol", "low", "GPT-5.6 Sol, reasoning low"),
-  openai("nano-low", "openai/gpt-5-nano", "low", "GPT-5 Nano, reasoning low (the fast catalog key)"),
+  openai("nano-low", "openai/gpt-5-nano", "low", "GPT-5 Nano, reasoning low"),
   openai("gpt5-mini-low", "openai/gpt-5-mini", "low", "GPT-5 Mini, reasoning low"),
   openai("gpt54-mini-low", "openai/gpt-5.4-mini", "low", "GPT-5.4 Mini, reasoning low"),
   openai("gpt54-nano-low", "openai/gpt-5.4-nano", "low", "GPT-5.4 Nano, reasoning low"),

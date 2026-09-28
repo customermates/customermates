@@ -66,7 +66,8 @@ describe("benchmark model overlay", () => {
     expect(isAgentModelKey("balanced")).toBe(true);
     expect(isAgentModelKey("bench:not-loaded")).toBe(false);
     expect(resolveAgentModel()).toBe(MODEL_CATALOG.balanced);
-    expect(resolveAgentModel("fast")).toBe(MODEL_CATALOG.fast);
+    expect(isAgentModelKey("fast")).toBe(false);
+    expect(() => resolveAgentModel("fast")).toThrow(/Unknown agent model/);
     expect(() => resolveAgentModel("bench:not-loaded")).toThrow(/Unknown agent model/);
   });
 });

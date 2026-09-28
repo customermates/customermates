@@ -14,24 +14,29 @@ import {
   serializedAgentContextBytes,
 } from "../agent-budget-policy";
 import { buildAgentProviderContext, isAgentStepContextWithinBudget } from "../agent-provider-context";
-import { MODEL_CATALOG, isAgentModelWithinBudgetEnvelope } from "../model-catalog";
+import { MODEL_CATALOG, isAgentModelWithinBudgetEnvelope, type AgentModelEntry } from "../model-catalog";
 
 const BALANCED = MODEL_CATALOG.balanced;
-const FAST = MODEL_CATALOG.fast;
+const NANO: AgentModelEntry = {
+  modelId: "openai/gpt-5-nano",
+  servingProvider: "azure",
+  inferenceRegion: null,
+  maxOutputTokens: 8192,
+  maxContextTokens: 66_000,
+  maxToolResultChars: 6000,
+};
 
 describe("agent turn credit budget", () => {
-  it("pins every shipped model to its ZDR-compatible provider and configured inference region", () => {
-    expect([
-      { provider: FAST.servingProvider, region: FAST.inferenceRegion },
-      { provider: BALANCED.servingProvider, region: BALANCED.inferenceRegion },
-    ]).toEqual([
-      { provider: "azure", region: null },
-      { provider: "vertex", region: "eu" },
-    ]);
+  it("pins the shipped model to its ZDR-compatible provider and configured inference region", () => {
+    expect(Object.keys(MODEL_CATALOG)).toEqual(["balanced"]);
+    expect({ provider: BALANCED.servingProvider, region: BALANCED.inferenceRegion }).toEqual({
+      provider: "vertex",
+      region: "eu",
+    });
   });
 
   it("gives every model its own full envelope, because affordability is no longer a smaller envelope", () => {
-    for (const model of [FAST, BALANCED]) {
+    for (const model of [NANO, BALANCED]) {
       const budget = resolveAgentTurnBudget({ model, availableCredits: 500 });
 
       expect(budget).toEqual(
@@ -56,7 +61,7 @@ describe("agent turn credit budget", () => {
   });
 
   it("reserves strictly less for the cheaper model at the same envelope", () => {
-    const fast = resolveAgentTurnBudget({ model: FAST, availableCredits: 500 });
+    const fast = resolveAgentTurnBudget({ model: NANO, availableCredits: 500 });
     const balanced = resolveAgentTurnBudget({ model: BALANCED, availableCredits: 500 });
 
     expect(fast?.reservedCredits).toBeLessThan(balanced?.reservedCredits ?? 0);
@@ -104,7 +109,7 @@ describe("agent turn credit budget", () => {
       inferenceRegion: null,
     };
 
-    expect(isAgentModelWithinBudgetEnvelope(FAST)).toBe(true);
+    expect(isAgentModelWithinBudgetEnvelope(NANO)).toBe(true);
     expect(isAgentModelWithinBudgetEnvelope(BALANCED)).toBe(true);
     expect(isAgentModelWithinBudgetEnvelope({ ...tiered, maxContextTokens: 400_000 })).toBe(false);
     expect(resolveAgentTurnBudget({ model: BALANCED, availableCredits: 0 })).toBeNull();
@@ -280,7 +285,7 @@ describe("agent turn budget reasoning settings", () => {
   });
 
   it("omits the reasoning keys entirely for a model without them", () => {
-    const budget = resolveAgentTurnBudget({ model: MODEL_CATALOG.fast, availableCredits: 500 });
+    const budget = resolveAgentTurnBudget({ model: NANO, availableCredits: 500 });
 
     expect(budget).not.toHaveProperty("reasoningEffort");
     expect(budget).not.toHaveProperty("thinkingLevel");

@@ -24,14 +24,6 @@ export type AgentModelEntry = {
 };
 
 export const MODEL_CATALOG = {
-  fast: {
-    modelId: "openai/gpt-5-nano",
-    servingProvider: "azure",
-    inferenceRegion: null,
-    maxOutputTokens: 8192,
-    maxContextTokens: 66_000,
-    maxToolResultChars: 6000,
-  },
   balanced: {
     modelId: "google/gemini-3.5-flash-lite",
     servingProvider: "vertex",

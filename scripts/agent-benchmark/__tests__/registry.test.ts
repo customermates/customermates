@@ -98,10 +98,10 @@ describe("unified benchmark registry", () => {
     });
     expect(byId.get("V40")?.prompts[0]).toContain("set the search text to View");
     expect(byId.get("V40")?.prompts[0]).toContain("group them by creation month");
-    expect(byId.get("R49")?.contexts).toEqual([{ modelKey: "fast" }, { modelKey: "omit" }]);
-    expect(benchmarkCaseModelSelection("R49", armById("shipped"))).toMatchObject({
-      modelKey: "fast",
-      modelConfig: { modelId: "openai/gpt-5-nano", servingProvider: "azure" },
+    expect(byId.get("R49")?.contexts).toEqual([{ modelKey: "balanced" }, { modelKey: "omit" }]);
+    expect(benchmarkCaseModelSelection("R49", armById("flash-lite-medium"))).toMatchObject({
+      modelKey: "balanced",
+      modelConfig: { modelId: "google/gemini-3.5-flash-lite", servingProvider: "vertex", thinkingLevel: "low" },
     });
     expect(benchmarkCaseModelSelection("S1", armById("flash-lite-medium"))).toMatchObject({
       modelKey: "bench:flash-lite-medium",
