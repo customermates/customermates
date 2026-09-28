@@ -63,7 +63,7 @@ import type { UserService } from "@/features/user/user.service";
 import { parsePublicWikiHomepage, type PublicWikiHomepage } from "@/features/wiki/wiki-homepage";
 import { AppErrorCode, appErrorDetails } from "@/core/errors/app-errors";
 import { agentWebSearchReserveMicrocents } from "./agent-budget-policy";
-import { agentMicrocentsFromStorage } from "./agent-credit-policy";
+import { ceilingMicrocentsWithLegacyCredits } from "./agent-credit-policy";
 import { agentWebSearchCallLimit } from "./agent-web-search";
 import { serializeAgentWikiCatalog } from "./agent-wiki-context";
 import { userWebsiteHomepages } from "./user-website-homepages";
@@ -357,8 +357,12 @@ export class SendAgentMessageInteractor extends AuthenticatedInteractor<SendAgen
       model: turnModel,
       requiredContextBytes,
       creditCeilingMicrocents:
-        mode === "routine" && conversation?.creditCeilingMicrocents != null
-          ? agentMicrocentsFromStorage(conversation.creditCeilingMicrocents, "Routine run credit ceiling")
+        mode === "routine" && conversation
+          ? ceilingMicrocentsWithLegacyCredits(
+              conversation.creditCeilingMicrocents,
+              conversation.creditCeiling,
+              "Routine run credit ceiling",
+            )
           : null,
       webSearchReserveMicrocents: agentWebSearchReserveMicrocents(agentWebSearchCallLimit(surface)),
     });

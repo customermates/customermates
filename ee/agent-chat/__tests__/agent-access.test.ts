@@ -442,76 +442,86 @@ describe("agent access", () => {
     );
   });
 
-  it("admits the initial routine message only through the internal routine path", async () => {
-    const background = backgroundTasks();
-    const usage = usageService();
-    const repo = {
-      normalizeExpiredAgentRunLease: vi.fn().mockResolvedValue(undefined),
-      findAgentTurnRequestForAdmission: vi.fn().mockResolvedValue(null),
-      claimAgentRunLease: vi.fn().mockResolvedValue("claimed"),
-      isAtAgentRunLimit: vi.fn().mockResolvedValue(false),
-      createAgentConversationForRun: vi.fn(),
-      deleteUnusedAgentConversation: vi.fn(),
-      recordAgentTurnExternalRun: vi.fn().mockResolvedValue(undefined),
-      findConversation: vi.fn().mockResolvedValue({
-        id: CONVERSATION_ID,
-        origin: "routine",
-        modelKey: null,
-        creditCeilingMicrocents: 2_000_000n,
-      }),
-      admitAgentTurnOrThrow: vi.fn().mockImplementation((args) =>
-        Promise.resolve({
-          conversationId: CONVERSATION_ID,
-          userMessageId: args.turn.userMessageId,
-          recentMessages: [
-            {
-              id: args.turn.userMessageId,
-              role: "user",
-              parts: [{ type: "text", text: "Inspect the changed deal" }],
-            },
-          ],
+  it.each([
+    { label: "microcent", stored: { creditCeilingMicrocents: 2_000_000n, creditCeiling: 2 }, expected: 2_000_000 },
+    {
+      label: "previous-release whole-credit",
+      stored: { creditCeilingMicrocents: null, creditCeiling: 3 },
+      expected: 3_000_000,
+    },
+  ])(
+    "admits the initial routine message only through the internal routine path with a $label ceiling",
+    async ({ stored, expected }) => {
+      const background = backgroundTasks();
+      const usage = usageService();
+      const repo = {
+        normalizeExpiredAgentRunLease: vi.fn().mockResolvedValue(undefined),
+        findAgentTurnRequestForAdmission: vi.fn().mockResolvedValue(null),
+        claimAgentRunLease: vi.fn().mockResolvedValue("claimed"),
+        isAtAgentRunLimit: vi.fn().mockResolvedValue(false),
+        createAgentConversationForRun: vi.fn(),
+        deleteUnusedAgentConversation: vi.fn(),
+        recordAgentTurnExternalRun: vi.fn().mockResolvedValue(undefined),
+        findConversation: vi.fn().mockResolvedValue({
+          id: CONVERSATION_ID,
+          origin: "routine",
+          modelKey: null,
+          ...stored,
         }),
-      ),
-    };
+        admitAgentTurnOrThrow: vi.fn().mockImplementation((args) =>
+          Promise.resolve({
+            conversationId: CONVERSATION_ID,
+            userMessageId: args.turn.userMessageId,
+            recentMessages: [
+              {
+                id: args.turn.userMessageId,
+                role: "user",
+                parts: [{ type: "text", text: "Inspect the changed deal" }],
+              },
+            ],
+          }),
+        ),
+      };
 
-    const result = await runWithTenant(mockUser, () =>
-      new SendAgentMessageInteractor(
-        repo as never,
-        usage as never,
-        mockEntitlementService(),
-        background as never,
-        emptyCustomColumns(),
-        emptyWikiCatalog(),
-      ).invokeRoutine({
-        clientRequestId: CLIENT_REQUEST_ID,
-        conversationId: CONVERSATION_ID,
-        text: "Inspect the changed deal",
-        retry: false,
-      }),
-    );
+      const result = await runWithTenant(mockUser, () =>
+        new SendAgentMessageInteractor(
+          repo as never,
+          usage as never,
+          mockEntitlementService(),
+          background as never,
+          emptyCustomColumns(),
+          emptyWikiCatalog(),
+        ).invokeRoutine({
+          clientRequestId: CLIENT_REQUEST_ID,
+          conversationId: CONVERSATION_ID,
+          text: "Inspect the changed deal",
+          retry: false,
+        }),
+      );
 
-    expect(result.ok && result.data.disposition).toBe("run");
-    expect(repo.findConversation).toHaveBeenCalledWith(CONVERSATION_ID);
-    expect(usage.prepareTurn).toHaveBeenCalledWith(mockUser.id, expect.any(Date), {
-      model: MODEL_CATALOG.balanced,
-      requiredContextBytes: expect.any(Number),
-      creditCeilingMicrocents: 2_000_000,
-      webSearchReserveMicrocents: 2_400_000,
-    });
-    expect(repo.admitAgentTurnOrThrow).toHaveBeenCalledWith(
-      expect.objectContaining({
-        conversationId: CONVERSATION_ID,
-        routineRunId: CLIENT_REQUEST_ID,
-      }),
-    );
-    expect(background.dispatchTracked).toHaveBeenCalledWith(
-      "agent-turn",
-      expect.objectContaining({
-        surface: "routine",
-        conversationId: CONVERSATION_ID,
-      }),
-    );
-  });
+      expect(result.ok && result.data.disposition).toBe("run");
+      expect(repo.findConversation).toHaveBeenCalledWith(CONVERSATION_ID);
+      expect(usage.prepareTurn).toHaveBeenCalledWith(mockUser.id, expect.any(Date), {
+        model: MODEL_CATALOG.balanced,
+        requiredContextBytes: expect.any(Number),
+        creditCeilingMicrocents: expected,
+        webSearchReserveMicrocents: 2_400_000,
+      });
+      expect(repo.admitAgentTurnOrThrow).toHaveBeenCalledWith(
+        expect.objectContaining({
+          conversationId: CONVERSATION_ID,
+          routineRunId: CLIENT_REQUEST_ID,
+        }),
+      );
+      expect(background.dispatchTracked).toHaveBeenCalledWith(
+        "agent-turn",
+        expect.objectContaining({
+          surface: "routine",
+          conversationId: CONVERSATION_ID,
+        }),
+      );
+    },
+  );
 
   it.each([
     { benchmark: "true", recorded: true },
