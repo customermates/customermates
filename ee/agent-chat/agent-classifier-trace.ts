@@ -12,7 +12,6 @@ export type AgentTurnClassifierTrace = {
   auxiliaryCostMicrocents: number;
   auxiliaryMeasured: boolean;
   docsRerank: AgentDocsRerankTrace | null;
-  docsEmbedding?: AgentDocsRerankTrace;
 };
 
 export function agentAuxiliaryCharge(charges: readonly ClassifierCharge[]) {
@@ -36,12 +35,10 @@ function traceOfUse(charges: readonly ClassifierCharge[]): AgentDocsRerankTrace 
 export function buildAgentTurnClassifierTrace(charges: readonly ClassifierCharge[]): AgentTurnClassifierTrace | null {
   if (charges.length === 0) return null;
   const auxiliary = agentAuxiliaryCharge(charges);
-  const docsEmbedding = traceOfUse(charges.filter((charge) => charge.use === "docs_embedding"));
   return {
     auxiliaryCostMicrocents: auxiliary.costMicrocents,
     auxiliaryMeasured: auxiliary.measured,
     docsRerank: traceOfUse(charges.filter((charge) => charge.use === "docs_rerank")),
-    ...(docsEmbedding ? { docsEmbedding } : {}),
   };
 }
 

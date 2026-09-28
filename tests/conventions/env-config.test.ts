@@ -8,8 +8,6 @@ import {
   resolveAppMode,
   resolveAuthAllowedHosts,
   resolveBaseUrl,
-  resolveDocsCandidates,
-  resolveDocsEmbeddingModel,
   resolveDocsRerank,
   resolveOptionalBigInt,
   resolveRequestOrigin,
@@ -312,28 +310,10 @@ describe("hosted-AI control configuration", () => {
       expect(() => resolveDocsRerank(invalid)).toThrow(/AGENT_DOCS_RERANK must be configured as "off" or "jev"/);
   });
 
-  it("reads unset docs candidates as keyword with the Qwen embedding model and rejects anything else", () => {
-    for (const absent of [undefined, "", "   "]) {
-      expect(resolveDocsCandidates(absent)).toBe("keyword");
-      expect(resolveDocsEmbeddingModel(absent)).toBe("qwen3-8b");
-    }
-
-    expect(resolveDocsCandidates(" hybrid ")).toBe("hybrid");
-    expect(resolveDocsEmbeddingModel("google-multilingual")).toBe("google-multilingual");
-
-    for (const invalid of ["Hybrid", "embedding", "on"])
-      expect(() => resolveDocsCandidates(invalid)).toThrow(/AGENT_DOCS_CANDIDATES must be configured as "keyword" or "hybrid"/);
-    for (const invalid of ["qwen", "openai/text-embedding-3-small"])
-      expect(() => resolveDocsEmbeddingModel(invalid)).toThrow(/AGENT_DOCS_EMBEDDING_MODEL must be configured/);
-  });
-
   it("documents the docs re-rank's data flow and drops the removed classifier switches from the cloud template", () => {
     const template = readFileSync(new URL("../../.env.cloud.template", import.meta.url), "utf8");
 
     expect(template).toMatch(/^AGENT_DOCS_RERANK="jev"$/m);
-    expect(template).toMatch(/^AGENT_DOCS_CANDIDATES="keyword"$/m);
-    expect(template).toMatch(/^AGENT_DOCS_EMBEDDING_MODEL="qwen3-8b"$/m);
-    expect(template).toMatch(/DeepInfra in the US/);
     expect(template).toMatch(/TypeSafe AI in the US/);
     expect(template).toMatch(/before\n# enabling it; until then, and in any production without it, set "off"/);
     for (const removed of ["AGENT_DOCS_RERANK_VERSION", "AGENT_TOOLSET_CLASSIFIER", "AGENT_GUARD_MODE"])

@@ -1,0 +1,5286 @@
+{
+  "bank": "heldout40",
+  "method": {
+    "preRegistration": "classifier-eval/heldout/PREREGISTRATION.md, Amendment 4 (committed in 43855e6c before any run).",
+    "agentQuery": "The agent query is the first 6 words of the question with at least 4 letters or digits, lowercased, in question order, punctuation dropped, in the question's language (the stage-2 rule); latest_user_message is the question. The blind bank uses its query as written.",
+    "arms": "A: searchDocsRanked with the shipped keyword candidates. B:<model>: searchDocsRanked with docsEmbeddingSearch(<model>) (hybrid candidates, 500 ms query-embedding deadline, fallback to A's candidates). C:<model>: embedding top 20 only, re-ranked by the same Jev spec, returned in the product's excerpt format, keyword output on a Jev failure (diagnostic). Jev deadline 800 ms everywhere.",
+    "design": "3 runs; per item and run every arm runs back to back in an order shuffled with seed 20260928; items and runs in 4 concurrent workers. Section indexes are built before timing starts.",
+    "answer": "Primary: the tool's text output (excerpts, or the keyword snippet on fallback) is judged against the gold fact by google/gemini-3-flash on Vertex (thinking low, ZDR, no training, temperature 0, reference-fact prompt); only yes passes.",
+    "rightSection": "Secondary: a returned section (the up to 3 re-ranked sections, or the keyword best section on fallback) is a gold anchor or an alternative; rightFirst checks only the first, lenient and strict; pageFirst checks the first section's page.",
+    "stats": "Per item and arm, the majority of 3 runs; exact two-sided sign test on discordant items against A, Holm over the two models per arm family; mean difference with a 95% item-cluster paired bootstrap (10000 resamples) over all runs, paired by item and run; Wilson 95% intervals.",
+    "latency": "search_docs wall time per call; added p95 is p95(B) minus p95(A) over all calls, with a 95% item-cluster bootstrap interval of that difference.",
+    "gate": "Per B model: pooled majority answer difference >= +5 pts, Holm sign-test p < 0.05, each language >= -5 pts, added p95 <= 300 ms."
+  },
+  "models": {
+    "qwen3-8b": {
+      "modelId": "alibaba/qwen3-embedding-8b",
+      "servingProvider": "deepinfra",
+      "microcentsPerToken": 1,
+      "queryPrefix": "Instruct: Given a question about the Customermates CRM, retrieve the documentation section that answers it\nQuery: "
+    },
+    "google-multilingual": {
+      "modelId": "google/text-multilingual-embedding-002",
+      "servingProvider": "vertex",
+      "microcentsPerToken": 2.5,
+      "queryPrefix": ""
+    }
+  },
+  "judge": {
+    "model": "google/gemini-3-flash",
+    "errors": 0
+  },
+  "table": {
+    "pooled": {
+      "n": 40,
+      "A": {
+        "answer": {
+          "majorityHits": 30,
+          "majorityPct": 75,
+          "wilson95": [
+            59.8,
+            85.8
+          ],
+          "perRun": [
+            30,
+            30,
+            30
+          ]
+        },
+        "rightSection": {
+          "majorityHits": 31,
+          "majorityPct": 77.5,
+          "wilson95": [
+            62.5,
+            87.7
+          ],
+          "perRun": [
+            31,
+            31,
+            31
+          ]
+        },
+        "rightFirst": {
+          "majorityHits": 31,
+          "majorityPct": 77.5,
+          "wilson95": [
+            62.5,
+            87.7
+          ],
+          "perRun": [
+            31,
+            31,
+            31
+          ]
+        },
+        "rightFirstStrict": {
+          "majorityHits": 30,
+          "majorityPct": 75,
+          "wilson95": [
+            59.8,
+            85.8
+          ],
+          "perRun": [
+            30,
+            31,
+            30
+          ]
+        },
+        "pageFirst": {
+          "majorityHits": 32,
+          "majorityPct": 80,
+          "wilson95": [
+            65.2,
+            89.5
+          ],
+          "perRun": [
+            32,
+            32,
+            32
+          ]
+        },
+        "calls": 120,
+        "reranked": 105,
+        "embeddingAnswered": null,
+        "toolMsP50": 380,
+        "toolMsP95": 465
+      },
+      "B:qwen3-8b": {
+        "answer": {
+          "majorityHits": 32,
+          "majorityPct": 80,
+          "wilson95": [
+            65.2,
+            89.5
+          ],
+          "perRun": [
+            33,
+            30,
+            32
+          ],
+          "wins": 2,
+          "losses": 0,
+          "signTestP": 0.5,
+          "majorityDiffPts": 5,
+          "runDiffPts": {
+            "clusters": 40,
+            "units": 120,
+            "meanDiff": 4.17,
+            "ci95": [
+              -0.83,
+              10
+            ]
+          }
+        },
+        "rightSection": {
+          "majorityHits": 34,
+          "majorityPct": 85,
+          "wilson95": [
+            70.9,
+            92.9
+          ],
+          "perRun": [
+            35,
+            31,
+            34
+          ],
+          "wins": 3,
+          "losses": 0,
+          "signTestP": 0.25,
+          "majorityDiffPts": 7.5,
+          "runDiffPts": {
+            "clusters": 40,
+            "units": 120,
+            "meanDiff": 5.83,
+            "ci95": [
+              0,
+              12.5
+            ]
+          }
+        },
+        "rightFirst": {
+          "majorityHits": 34,
+          "majorityPct": 85,
+          "wilson95": [
+            70.9,
+            92.9
+          ],
+          "perRun": [
+            35,
+            31,
+            34
+          ],
+          "wins": 3,
+          "losses": 0,
+          "signTestP": 0.25,
+          "majorityDiffPts": 7.5,
+          "runDiffPts": {
+            "clusters": 40,
+            "units": 120,
+            "meanDiff": 5.83,
+            "ci95": [
+              0,
+              12.5
+            ]
+          }
+        },
+        "rightFirstStrict": {
+          "majorityHits": 33,
+          "majorityPct": 82.5,
+          "wilson95": [
+            68.1,
+            91.3
+          ],
+          "perRun": [
+            34,
+            30,
+            33
+          ],
+          "wins": 4,
+          "losses": 1,
+          "signTestP": 0.375,
+          "majorityDiffPts": 7.5,
+          "runDiffPts": {
+            "clusters": 40,
+            "units": 120,
+            "meanDiff": 5,
+            "ci95": [
+              -1.67,
+              12.5
+            ]
+          }
+        },
+        "pageFirst": {
+          "majorityHits": 34,
+          "majorityPct": 85,
+          "wilson95": [
+            70.9,
+            92.9
+          ],
+          "perRun": [
+            38,
+            31,
+            34
+          ],
+          "wins": 3,
+          "losses": 1,
+          "signTestP": 0.625,
+          "majorityDiffPts": 5,
+          "runDiffPts": {
+            "clusters": 40,
+            "units": 120,
+            "meanDiff": 5.83,
+            "ci95": [
+              -0.83,
+              12.5
+            ]
+          }
+        },
+        "calls": 120,
+        "reranked": 112,
+        "embeddingAnswered": 61,
+        "toolMsP50": 847,
+        "toolMsP95": 982,
+        "addedP95": {
+          "ms": 517,
+          "ci95": [
+            345,
+            584
+          ]
+        }
+      },
+      "B:google-multilingual": {
+        "answer": {
+          "majorityHits": 32,
+          "majorityPct": 80,
+          "wilson95": [
+            65.2,
+            89.5
+          ],
+          "perRun": [
+            31,
+            34,
+            34
+          ],
+          "wins": 2,
+          "losses": 0,
+          "signTestP": 0.5,
+          "majorityDiffPts": 5,
+          "runDiffPts": {
+            "clusters": 40,
+            "units": 120,
+            "meanDiff": 7.5,
+            "ci95": [
+              1.67,
+              14.17
+            ]
+          }
+        },
+        "rightSection": {
+          "majorityHits": 34,
+          "majorityPct": 85,
+          "wilson95": [
+            70.9,
+            92.9
+          ],
+          "perRun": [
+            32,
+            36,
+            36
+          ],
+          "wins": 3,
+          "losses": 0,
+          "signTestP": 0.25,
+          "majorityDiffPts": 7.5,
+          "runDiffPts": {
+            "clusters": 40,
+            "units": 120,
+            "meanDiff": 9.17,
+            "ci95": [
+              3.33,
+              16.67
+            ]
+          }
+        },
+        "rightFirst": {
+          "majorityHits": 34,
+          "majorityPct": 85,
+          "wilson95": [
+            70.9,
+            92.9
+          ],
+          "perRun": [
+            32,
+            36,
+            36
+          ],
+          "wins": 3,
+          "losses": 0,
+          "signTestP": 0.25,
+          "majorityDiffPts": 7.5,
+          "runDiffPts": {
+            "clusters": 40,
+            "units": 120,
+            "meanDiff": 9.17,
+            "ci95": [
+              3.33,
+              16.67
+            ]
+          }
+        },
+        "rightFirstStrict": {
+          "majorityHits": 34,
+          "majorityPct": 85,
+          "wilson95": [
+            70.9,
+            92.9
+          ],
+          "perRun": [
+            32,
+            35,
+            34
+          ],
+          "wins": 4,
+          "losses": 0,
+          "signTestP": 0.125,
+          "majorityDiffPts": 10,
+          "runDiffPts": {
+            "clusters": 40,
+            "units": 120,
+            "meanDiff": 8.33,
+            "ci95": [
+              1.67,
+              15.83
+            ]
+          }
+        },
+        "pageFirst": {
+          "majorityHits": 35,
+          "majorityPct": 87.5,
+          "wilson95": [
+            73.9,
+            94.5
+          ],
+          "perRun": [
+            33,
+            37,
+            37
+          ],
+          "wins": 3,
+          "losses": 0,
+          "signTestP": 0.25,
+          "majorityDiffPts": 7.5,
+          "runDiffPts": {
+            "clusters": 40,
+            "units": 120,
+            "meanDiff": 9.17,
+            "ci95": [
+              3.33,
+              16.67
+            ]
+          }
+        },
+        "calls": 120,
+        "reranked": 113,
+        "embeddingAnswered": 50,
+        "toolMsP50": 829,
+        "toolMsP95": 965,
+        "addedP95": {
+          "ms": 500,
+          "ci95": [
+            379,
+            593
+          ]
+        }
+      }
+    },
+    "en": {
+      "n": 8,
+      "A": {
+        "answer": {
+          "majorityHits": 7,
+          "majorityPct": 87.5,
+          "wilson95": [
+            52.9,
+            97.8
+          ],
+          "perRun": [
+            7,
+            7,
+            7
+          ]
+        },
+        "rightSection": {
+          "majorityHits": 7,
+          "majorityPct": 87.5,
+          "wilson95": [
+            52.9,
+            97.8
+          ],
+          "perRun": [
+            7,
+            7,
+            7
+          ]
+        },
+        "rightFirst": {
+          "majorityHits": 7,
+          "majorityPct": 87.5,
+          "wilson95": [
+            52.9,
+            97.8
+          ],
+          "perRun": [
+            7,
+            7,
+            7
+          ]
+        },
+        "rightFirstStrict": {
+          "majorityHits": 7,
+          "majorityPct": 87.5,
+          "wilson95": [
+            52.9,
+            97.8
+          ],
+          "perRun": [
+            7,
+            7,
+            7
+          ]
+        },
+        "pageFirst": {
+          "majorityHits": 8,
+          "majorityPct": 100,
+          "wilson95": [
+            67.6,
+            100
+          ],
+          "perRun": [
+            8,
+            8,
+            8
+          ]
+        },
+        "calls": 24,
+        "reranked": 24,
+        "embeddingAnswered": null,
+        "toolMsP50": 381,
+        "toolMsP95": 430
+      },
+      "B:qwen3-8b": {
+        "answer": {
+          "majorityHits": 7,
+          "majorityPct": 87.5,
+          "wilson95": [
+            52.9,
+            97.8
+          ],
+          "perRun": [
+            7,
+            7,
+            7
+          ],
+          "wins": 0,
+          "losses": 0,
+          "signTestP": 1,
+          "majorityDiffPts": 0,
+          "runDiffPts": {
+            "clusters": 8,
+            "units": 24,
+            "meanDiff": 0,
+            "ci95": [
+              0,
+              0
+            ]
+          }
+        },
+        "rightSection": {
+          "majorityHits": 7,
+          "majorityPct": 87.5,
+          "wilson95": [
+            52.9,
+            97.8
+          ],
+          "perRun": [
+            7,
+            7,
+            7
+          ],
+          "wins": 0,
+          "losses": 0,
+          "signTestP": 1,
+          "majorityDiffPts": 0,
+          "runDiffPts": {
+            "clusters": 8,
+            "units": 24,
+            "meanDiff": 0,
+            "ci95": [
+              0,
+              0
+            ]
+          }
+        },
+        "rightFirst": {
+          "majorityHits": 7,
+          "majorityPct": 87.5,
+          "wilson95": [
+            52.9,
+            97.8
+          ],
+          "perRun": [
+            7,
+            7,
+            7
+          ],
+          "wins": 0,
+          "losses": 0,
+          "signTestP": 1,
+          "majorityDiffPts": 0,
+          "runDiffPts": {
+            "clusters": 8,
+            "units": 24,
+            "meanDiff": 0,
+            "ci95": [
+              0,
+              0
+            ]
+          }
+        },
+        "rightFirstStrict": {
+          "majorityHits": 7,
+          "majorityPct": 87.5,
+          "wilson95": [
+            52.9,
+            97.8
+          ],
+          "perRun": [
+            7,
+            7,
+            7
+          ],
+          "wins": 0,
+          "losses": 0,
+          "signTestP": 1,
+          "majorityDiffPts": 0,
+          "runDiffPts": {
+            "clusters": 8,
+            "units": 24,
+            "meanDiff": 0,
+            "ci95": [
+              0,
+              0
+            ]
+          }
+        },
+        "pageFirst": {
+          "majorityHits": 7,
+          "majorityPct": 87.5,
+          "wilson95": [
+            52.9,
+            97.8
+          ],
+          "perRun": [
+            8,
+            7,
+            7
+          ],
+          "wins": 0,
+          "losses": 1,
+          "signTestP": 1,
+          "majorityDiffPts": -12.5,
+          "runDiffPts": {
+            "clusters": 8,
+            "units": 24,
+            "meanDiff": -8.33,
+            "ci95": [
+              -25,
+              0
+            ]
+          }
+        },
+        "calls": 24,
+        "reranked": 24,
+        "embeddingAnswered": 14,
+        "toolMsP50": 841,
+        "toolMsP95": 982
+      },
+      "B:google-multilingual": {
+        "answer": {
+          "majorityHits": 7,
+          "majorityPct": 87.5,
+          "wilson95": [
+            52.9,
+            97.8
+          ],
+          "perRun": [
+            7,
+            7,
+            7
+          ],
+          "wins": 0,
+          "losses": 0,
+          "signTestP": 1,
+          "majorityDiffPts": 0,
+          "runDiffPts": {
+            "clusters": 8,
+            "units": 24,
+            "meanDiff": 0,
+            "ci95": [
+              0,
+              0
+            ]
+          }
+        },
+        "rightSection": {
+          "majorityHits": 7,
+          "majorityPct": 87.5,
+          "wilson95": [
+            52.9,
+            97.8
+          ],
+          "perRun": [
+            7,
+            7,
+            7
+          ],
+          "wins": 0,
+          "losses": 0,
+          "signTestP": 1,
+          "majorityDiffPts": 0,
+          "runDiffPts": {
+            "clusters": 8,
+            "units": 24,
+            "meanDiff": 0,
+            "ci95": [
+              0,
+              0
+            ]
+          }
+        },
+        "rightFirst": {
+          "majorityHits": 7,
+          "majorityPct": 87.5,
+          "wilson95": [
+            52.9,
+            97.8
+          ],
+          "perRun": [
+            7,
+            7,
+            7
+          ],
+          "wins": 0,
+          "losses": 0,
+          "signTestP": 1,
+          "majorityDiffPts": 0,
+          "runDiffPts": {
+            "clusters": 8,
+            "units": 24,
+            "meanDiff": 0,
+            "ci95": [
+              0,
+              0
+            ]
+          }
+        },
+        "rightFirstStrict": {
+          "majorityHits": 7,
+          "majorityPct": 87.5,
+          "wilson95": [
+            52.9,
+            97.8
+          ],
+          "perRun": [
+            7,
+            7,
+            7
+          ],
+          "wins": 0,
+          "losses": 0,
+          "signTestP": 1,
+          "majorityDiffPts": 0,
+          "runDiffPts": {
+            "clusters": 8,
+            "units": 24,
+            "meanDiff": 0,
+            "ci95": [
+              0,
+              0
+            ]
+          }
+        },
+        "pageFirst": {
+          "majorityHits": 8,
+          "majorityPct": 100,
+          "wilson95": [
+            67.6,
+            100
+          ],
+          "perRun": [
+            8,
+            8,
+            8
+          ],
+          "wins": 0,
+          "losses": 0,
+          "signTestP": 1,
+          "majorityDiffPts": 0,
+          "runDiffPts": {
+            "clusters": 8,
+            "units": 24,
+            "meanDiff": 0,
+            "ci95": [
+              0,
+              0
+            ]
+          }
+        },
+        "calls": 24,
+        "reranked": 24,
+        "embeddingAnswered": 8,
+        "toolMsP50": 865,
+        "toolMsP95": 1084
+      }
+    },
+    "de": {
+      "n": 8,
+      "A": {
+        "answer": {
+          "majorityHits": 8,
+          "majorityPct": 100,
+          "wilson95": [
+            67.6,
+            100
+          ],
+          "perRun": [
+            8,
+            8,
+            8
+          ]
+        },
+        "rightSection": {
+          "majorityHits": 8,
+          "majorityPct": 100,
+          "wilson95": [
+            67.6,
+            100
+          ],
+          "perRun": [
+            8,
+            8,
+            8
+          ]
+        },
+        "rightFirst": {
+          "majorityHits": 8,
+          "majorityPct": 100,
+          "wilson95": [
+            67.6,
+            100
+          ],
+          "perRun": [
+            8,
+            8,
+            8
+          ]
+        },
+        "rightFirstStrict": {
+          "majorityHits": 8,
+          "majorityPct": 100,
+          "wilson95": [
+            67.6,
+            100
+          ],
+          "perRun": [
+            8,
+            8,
+            8
+          ]
+        },
+        "pageFirst": {
+          "majorityHits": 8,
+          "majorityPct": 100,
+          "wilson95": [
+            67.6,
+            100
+          ],
+          "perRun": [
+            8,
+            8,
+            8
+          ]
+        },
+        "calls": 24,
+        "reranked": 24,
+        "embeddingAnswered": null,
+        "toolMsP50": 391,
+        "toolMsP95": 462
+      },
+      "B:qwen3-8b": {
+        "answer": {
+          "majorityHits": 8,
+          "majorityPct": 100,
+          "wilson95": [
+            67.6,
+            100
+          ],
+          "perRun": [
+            6,
+            8,
+            8
+          ],
+          "wins": 0,
+          "losses": 0,
+          "signTestP": 1,
+          "majorityDiffPts": 0,
+          "runDiffPts": {
+            "clusters": 8,
+            "units": 24,
+            "meanDiff": -8.33,
+            "ci95": [
+              -20.83,
+              0
+            ]
+          }
+        },
+        "rightSection": {
+          "majorityHits": 8,
+          "majorityPct": 100,
+          "wilson95": [
+            67.6,
+            100
+          ],
+          "perRun": [
+            7,
+            8,
+            8
+          ],
+          "wins": 0,
+          "losses": 0,
+          "signTestP": 1,
+          "majorityDiffPts": 0,
+          "runDiffPts": {
+            "clusters": 8,
+            "units": 24,
+            "meanDiff": -4.17,
+            "ci95": [
+              -12.5,
+              0
+            ]
+          }
+        },
+        "rightFirst": {
+          "majorityHits": 8,
+          "majorityPct": 100,
+          "wilson95": [
+            67.6,
+            100
+          ],
+          "perRun": [
+            7,
+            8,
+            8
+          ],
+          "wins": 0,
+          "losses": 0,
+          "signTestP": 1,
+          "majorityDiffPts": 0,
+          "runDiffPts": {
+            "clusters": 8,
+            "units": 24,
+            "meanDiff": -4.17,
+            "ci95": [
+              -12.5,
+              0
+            ]
+          }
+        },
+        "rightFirstStrict": {
+          "majorityHits": 8,
+          "majorityPct": 100,
+          "wilson95": [
+            67.6,
+            100
+          ],
+          "perRun": [
+            7,
+            8,
+            8
+          ],
+          "wins": 0,
+          "losses": 0,
+          "signTestP": 1,
+          "majorityDiffPts": 0,
+          "runDiffPts": {
+            "clusters": 8,
+            "units": 24,
+            "meanDiff": -4.17,
+            "ci95": [
+              -12.5,
+              0
+            ]
+          }
+        },
+        "pageFirst": {
+          "majorityHits": 8,
+          "majorityPct": 100,
+          "wilson95": [
+            67.6,
+            100
+          ],
+          "perRun": [
+            8,
+            8,
+            8
+          ],
+          "wins": 0,
+          "losses": 0,
+          "signTestP": 1,
+          "majorityDiffPts": 0,
+          "runDiffPts": {
+            "clusters": 8,
+            "units": 24,
+            "meanDiff": 0,
+            "ci95": [
+              0,
+              0
+            ]
+          }
+        },
+        "calls": 24,
+        "reranked": 22,
+        "embeddingAnswered": 16,
+        "toolMsP50": 866,
+        "toolMsP95": 1333
+      },
+      "B:google-multilingual": {
+        "answer": {
+          "majorityHits": 8,
+          "majorityPct": 100,
+          "wilson95": [
+            67.6,
+            100
+          ],
+          "perRun": [
+            8,
+            8,
+            8
+          ],
+          "wins": 0,
+          "losses": 0,
+          "signTestP": 1,
+          "majorityDiffPts": 0,
+          "runDiffPts": {
+            "clusters": 8,
+            "units": 24,
+            "meanDiff": 0,
+            "ci95": [
+              0,
+              0
+            ]
+          }
+        },
+        "rightSection": {
+          "majorityHits": 8,
+          "majorityPct": 100,
+          "wilson95": [
+            67.6,
+            100
+          ],
+          "perRun": [
+            8,
+            8,
+            8
+          ],
+          "wins": 0,
+          "losses": 0,
+          "signTestP": 1,
+          "majorityDiffPts": 0,
+          "runDiffPts": {
+            "clusters": 8,
+            "units": 24,
+            "meanDiff": 0,
+            "ci95": [
+              0,
+              0
+            ]
+          }
+        },
+        "rightFirst": {
+          "majorityHits": 8,
+          "majorityPct": 100,
+          "wilson95": [
+            67.6,
+            100
+          ],
+          "perRun": [
+            8,
+            8,
+            8
+          ],
+          "wins": 0,
+          "losses": 0,
+          "signTestP": 1,
+          "majorityDiffPts": 0,
+          "runDiffPts": {
+            "clusters": 8,
+            "units": 24,
+            "meanDiff": 0,
+            "ci95": [
+              0,
+              0
+            ]
+          }
+        },
+        "rightFirstStrict": {
+          "majorityHits": 8,
+          "majorityPct": 100,
+          "wilson95": [
+            67.6,
+            100
+          ],
+          "perRun": [
+            8,
+            8,
+            8
+          ],
+          "wins": 0,
+          "losses": 0,
+          "signTestP": 1,
+          "majorityDiffPts": 0,
+          "runDiffPts": {
+            "clusters": 8,
+            "units": 24,
+            "meanDiff": 0,
+            "ci95": [
+              0,
+              0
+            ]
+          }
+        },
+        "pageFirst": {
+          "majorityHits": 8,
+          "majorityPct": 100,
+          "wilson95": [
+            67.6,
+            100
+          ],
+          "perRun": [
+            8,
+            8,
+            8
+          ],
+          "wins": 0,
+          "losses": 0,
+          "signTestP": 1,
+          "majorityDiffPts": 0,
+          "runDiffPts": {
+            "clusters": 8,
+            "units": 24,
+            "meanDiff": 0,
+            "ci95": [
+              0,
+              0
+            ]
+          }
+        },
+        "calls": 24,
+        "reranked": 24,
+        "embeddingAnswered": 8,
+        "toolMsP50": 853,
+        "toolMsP95": 932
+      }
+    },
+    "es": {
+      "n": 8,
+      "A": {
+        "answer": {
+          "majorityHits": 5,
+          "majorityPct": 62.5,
+          "wilson95": [
+            30.6,
+            86.3
+          ],
+          "perRun": [
+            5,
+            5,
+            5
+          ]
+        },
+        "rightSection": {
+          "majorityHits": 5,
+          "majorityPct": 62.5,
+          "wilson95": [
+            30.6,
+            86.3
+          ],
+          "perRun": [
+            5,
+            5,
+            5
+          ]
+        },
+        "rightFirst": {
+          "majorityHits": 5,
+          "majorityPct": 62.5,
+          "wilson95": [
+            30.6,
+            86.3
+          ],
+          "perRun": [
+            5,
+            5,
+            5
+          ]
+        },
+        "rightFirstStrict": {
+          "majorityHits": 5,
+          "majorityPct": 62.5,
+          "wilson95": [
+            30.6,
+            86.3
+          ],
+          "perRun": [
+            5,
+            5,
+            5
+          ]
+        },
+        "pageFirst": {
+          "majorityHits": 5,
+          "majorityPct": 62.5,
+          "wilson95": [
+            30.6,
+            86.3
+          ],
+          "perRun": [
+            5,
+            5,
+            5
+          ]
+        },
+        "calls": 24,
+        "reranked": 18,
+        "embeddingAnswered": null,
+        "toolMsP50": 365,
+        "toolMsP95": 424
+      },
+      "B:qwen3-8b": {
+        "answer": {
+          "majorityHits": 6,
+          "majorityPct": 75,
+          "wilson95": [
+            40.9,
+            92.9
+          ],
+          "perRun": [
+            7,
+            5,
+            6
+          ],
+          "wins": 1,
+          "losses": 0,
+          "signTestP": 1,
+          "majorityDiffPts": 12.5,
+          "runDiffPts": {
+            "clusters": 8,
+            "units": 24,
+            "meanDiff": 12.5,
+            "ci95": [
+              0,
+              29.17
+            ]
+          }
+        },
+        "rightSection": {
+          "majorityHits": 6,
+          "majorityPct": 75,
+          "wilson95": [
+            40.9,
+            92.9
+          ],
+          "perRun": [
+            6,
+            5,
+            6
+          ],
+          "wins": 1,
+          "losses": 0,
+          "signTestP": 1,
+          "majorityDiffPts": 12.5,
+          "runDiffPts": {
+            "clusters": 8,
+            "units": 24,
+            "meanDiff": 8.33,
+            "ci95": [
+              0,
+              25
+            ]
+          }
+        },
+        "rightFirst": {
+          "majorityHits": 6,
+          "majorityPct": 75,
+          "wilson95": [
+            40.9,
+            92.9
+          ],
+          "perRun": [
+            6,
+            5,
+            6
+          ],
+          "wins": 1,
+          "losses": 0,
+          "signTestP": 1,
+          "majorityDiffPts": 12.5,
+          "runDiffPts": {
+            "clusters": 8,
+            "units": 24,
+            "meanDiff": 8.33,
+            "ci95": [
+              0,
+              25
+            ]
+          }
+        },
+        "rightFirstStrict": {
+          "majorityHits": 6,
+          "majorityPct": 75,
+          "wilson95": [
+            40.9,
+            92.9
+          ],
+          "perRun": [
+            6,
+            5,
+            6
+          ],
+          "wins": 1,
+          "losses": 0,
+          "signTestP": 1,
+          "majorityDiffPts": 12.5,
+          "runDiffPts": {
+            "clusters": 8,
+            "units": 24,
+            "meanDiff": 8.33,
+            "ci95": [
+              0,
+              25
+            ]
+          }
+        },
+        "pageFirst": {
+          "majorityHits": 6,
+          "majorityPct": 75,
+          "wilson95": [
+            40.9,
+            92.9
+          ],
+          "perRun": [
+            7,
+            5,
+            6
+          ],
+          "wins": 1,
+          "losses": 0,
+          "signTestP": 1,
+          "majorityDiffPts": 12.5,
+          "runDiffPts": {
+            "clusters": 8,
+            "units": 24,
+            "meanDiff": 12.5,
+            "ci95": [
+              0,
+              29.17
+            ]
+          }
+        },
+        "calls": 24,
+        "reranked": 22,
+        "embeddingAnswered": 14,
+        "toolMsP50": 835,
+        "toolMsP95": 916
+      },
+      "B:google-multilingual": {
+        "answer": {
+          "majorityHits": 5,
+          "majorityPct": 62.5,
+          "wilson95": [
+            30.6,
+            86.3
+          ],
+          "perRun": [
+            5,
+            5,
+            7
+          ],
+          "wins": 0,
+          "losses": 0,
+          "signTestP": 1,
+          "majorityDiffPts": 0,
+          "runDiffPts": {
+            "clusters": 8,
+            "units": 24,
+            "meanDiff": 8.33,
+            "ci95": [
+              0,
+              16.67
+            ]
+          }
+        },
+        "rightSection": {
+          "majorityHits": 6,
+          "majorityPct": 75,
+          "wilson95": [
+            40.9,
+            92.9
+          ],
+          "perRun": [
+            5,
+            6,
+            8
+          ],
+          "wins": 1,
+          "losses": 0,
+          "signTestP": 1,
+          "majorityDiffPts": 12.5,
+          "runDiffPts": {
+            "clusters": 8,
+            "units": 24,
+            "meanDiff": 16.67,
+            "ci95": [
+              4.17,
+              33.33
+            ]
+          }
+        },
+        "rightFirst": {
+          "majorityHits": 6,
+          "majorityPct": 75,
+          "wilson95": [
+            40.9,
+            92.9
+          ],
+          "perRun": [
+            5,
+            6,
+            8
+          ],
+          "wins": 1,
+          "losses": 0,
+          "signTestP": 1,
+          "majorityDiffPts": 12.5,
+          "runDiffPts": {
+            "clusters": 8,
+            "units": 24,
+            "meanDiff": 16.67,
+            "ci95": [
+              4.17,
+              33.33
+            ]
+          }
+        },
+        "rightFirstStrict": {
+          "majorityHits": 6,
+          "majorityPct": 75,
+          "wilson95": [
+            40.9,
+            92.9
+          ],
+          "perRun": [
+            5,
+            6,
+            8
+          ],
+          "wins": 1,
+          "losses": 0,
+          "signTestP": 1,
+          "majorityDiffPts": 12.5,
+          "runDiffPts": {
+            "clusters": 8,
+            "units": 24,
+            "meanDiff": 16.67,
+            "ci95": [
+              4.17,
+              33.33
+            ]
+          }
+        },
+        "pageFirst": {
+          "majorityHits": 6,
+          "majorityPct": 75,
+          "wilson95": [
+            40.9,
+            92.9
+          ],
+          "perRun": [
+            5,
+            6,
+            8
+          ],
+          "wins": 1,
+          "losses": 0,
+          "signTestP": 1,
+          "majorityDiffPts": 12.5,
+          "runDiffPts": {
+            "clusters": 8,
+            "units": 24,
+            "meanDiff": 16.67,
+            "ci95": [
+              4.17,
+              33.33
+            ]
+          }
+        },
+        "calls": 24,
+        "reranked": 21,
+        "embeddingAnswered": 10,
+        "toolMsP50": 804,
+        "toolMsP95": 965
+      }
+    },
+    "fr": {
+      "n": 8,
+      "A": {
+        "answer": {
+          "majorityHits": 6,
+          "majorityPct": 75,
+          "wilson95": [
+            40.9,
+            92.9
+          ],
+          "perRun": [
+            6,
+            6,
+            6
+          ]
+        },
+        "rightSection": {
+          "majorityHits": 7,
+          "majorityPct": 87.5,
+          "wilson95": [
+            52.9,
+            97.8
+          ],
+          "perRun": [
+            7,
+            7,
+            7
+          ]
+        },
+        "rightFirst": {
+          "majorityHits": 7,
+          "majorityPct": 87.5,
+          "wilson95": [
+            52.9,
+            97.8
+          ],
+          "perRun": [
+            7,
+            7,
+            7
+          ]
+        },
+        "rightFirstStrict": {
+          "majorityHits": 7,
+          "majorityPct": 87.5,
+          "wilson95": [
+            52.9,
+            97.8
+          ],
+          "perRun": [
+            7,
+            7,
+            7
+          ]
+        },
+        "pageFirst": {
+          "majorityHits": 7,
+          "majorityPct": 87.5,
+          "wilson95": [
+            52.9,
+            97.8
+          ],
+          "perRun": [
+            7,
+            7,
+            7
+          ]
+        },
+        "calls": 24,
+        "reranked": 24,
+        "embeddingAnswered": null,
+        "toolMsP50": 387,
+        "toolMsP95": 421
+      },
+      "B:qwen3-8b": {
+        "answer": {
+          "majorityHits": 6,
+          "majorityPct": 75,
+          "wilson95": [
+            40.9,
+            92.9
+          ],
+          "perRun": [
+            7,
+            6,
+            6
+          ],
+          "wins": 0,
+          "losses": 0,
+          "signTestP": 1,
+          "majorityDiffPts": 0,
+          "runDiffPts": {
+            "clusters": 8,
+            "units": 24,
+            "meanDiff": 4.17,
+            "ci95": [
+              0,
+              12.5
+            ]
+          }
+        },
+        "rightSection": {
+          "majorityHits": 7,
+          "majorityPct": 87.5,
+          "wilson95": [
+            52.9,
+            97.8
+          ],
+          "perRun": [
+            8,
+            7,
+            7
+          ],
+          "wins": 0,
+          "losses": 0,
+          "signTestP": 1,
+          "majorityDiffPts": 0,
+          "runDiffPts": {
+            "clusters": 8,
+            "units": 24,
+            "meanDiff": 4.17,
+            "ci95": [
+              0,
+              12.5
+            ]
+          }
+        },
+        "rightFirst": {
+          "majorityHits": 7,
+          "majorityPct": 87.5,
+          "wilson95": [
+            52.9,
+            97.8
+          ],
+          "perRun": [
+            8,
+            7,
+            7
+          ],
+          "wins": 0,
+          "losses": 0,
+          "signTestP": 1,
+          "majorityDiffPts": 0,
+          "runDiffPts": {
+            "clusters": 8,
+            "units": 24,
+            "meanDiff": 4.17,
+            "ci95": [
+              0,
+              12.5
+            ]
+          }
+        },
+        "rightFirstStrict": {
+          "majorityHits": 7,
+          "majorityPct": 87.5,
+          "wilson95": [
+            52.9,
+            97.8
+          ],
+          "perRun": [
+            8,
+            7,
+            7
+          ],
+          "wins": 0,
+          "losses": 0,
+          "signTestP": 1,
+          "majorityDiffPts": 0,
+          "runDiffPts": {
+            "clusters": 8,
+            "units": 24,
+            "meanDiff": 4.17,
+            "ci95": [
+              0,
+              12.5
+            ]
+          }
+        },
+        "pageFirst": {
+          "majorityHits": 7,
+          "majorityPct": 87.5,
+          "wilson95": [
+            52.9,
+            97.8
+          ],
+          "perRun": [
+            8,
+            7,
+            7
+          ],
+          "wins": 0,
+          "losses": 0,
+          "signTestP": 1,
+          "majorityDiffPts": 0,
+          "runDiffPts": {
+            "clusters": 8,
+            "units": 24,
+            "meanDiff": 4.17,
+            "ci95": [
+              0,
+              12.5
+            ]
+          }
+        },
+        "calls": 24,
+        "reranked": 24,
+        "embeddingAnswered": 5,
+        "toolMsP50": 866,
+        "toolMsP95": 922
+      },
+      "B:google-multilingual": {
+        "answer": {
+          "majorityHits": 6,
+          "majorityPct": 75,
+          "wilson95": [
+            40.9,
+            92.9
+          ],
+          "perRun": [
+            6,
+            7,
+            6
+          ],
+          "wins": 0,
+          "losses": 0,
+          "signTestP": 1,
+          "majorityDiffPts": 0,
+          "runDiffPts": {
+            "clusters": 8,
+            "units": 24,
+            "meanDiff": 4.17,
+            "ci95": [
+              0,
+              12.5
+            ]
+          }
+        },
+        "rightSection": {
+          "majorityHits": 7,
+          "majorityPct": 87.5,
+          "wilson95": [
+            52.9,
+            97.8
+          ],
+          "perRun": [
+            7,
+            8,
+            7
+          ],
+          "wins": 0,
+          "losses": 0,
+          "signTestP": 1,
+          "majorityDiffPts": 0,
+          "runDiffPts": {
+            "clusters": 8,
+            "units": 24,
+            "meanDiff": 4.17,
+            "ci95": [
+              0,
+              12.5
+            ]
+          }
+        },
+        "rightFirst": {
+          "majorityHits": 7,
+          "majorityPct": 87.5,
+          "wilson95": [
+            52.9,
+            97.8
+          ],
+          "perRun": [
+            7,
+            8,
+            7
+          ],
+          "wins": 0,
+          "losses": 0,
+          "signTestP": 1,
+          "majorityDiffPts": 0,
+          "runDiffPts": {
+            "clusters": 8,
+            "units": 24,
+            "meanDiff": 4.17,
+            "ci95": [
+              0,
+              12.5
+            ]
+          }
+        },
+        "rightFirstStrict": {
+          "majorityHits": 7,
+          "majorityPct": 87.5,
+          "wilson95": [
+            52.9,
+            97.8
+          ],
+          "perRun": [
+            7,
+            8,
+            7
+          ],
+          "wins": 0,
+          "losses": 0,
+          "signTestP": 1,
+          "majorityDiffPts": 0,
+          "runDiffPts": {
+            "clusters": 8,
+            "units": 24,
+            "meanDiff": 4.17,
+            "ci95": [
+              0,
+              12.5
+            ]
+          }
+        },
+        "pageFirst": {
+          "majorityHits": 7,
+          "majorityPct": 87.5,
+          "wilson95": [
+            52.9,
+            97.8
+          ],
+          "perRun": [
+            7,
+            8,
+            7
+          ],
+          "wins": 0,
+          "losses": 0,
+          "signTestP": 1,
+          "majorityDiffPts": 0,
+          "runDiffPts": {
+            "clusters": 8,
+            "units": 24,
+            "meanDiff": 4.17,
+            "ci95": [
+              0,
+              12.5
+            ]
+          }
+        },
+        "calls": 24,
+        "reranked": 24,
+        "embeddingAnswered": 12,
+        "toolMsP50": 802,
+        "toolMsP95": 883
+      }
+    },
+    "it": {
+      "n": 8,
+      "A": {
+        "answer": {
+          "majorityHits": 4,
+          "majorityPct": 50,
+          "wilson95": [
+            21.5,
+            78.5
+          ],
+          "perRun": [
+            4,
+            4,
+            4
+          ]
+        },
+        "rightSection": {
+          "majorityHits": 4,
+          "majorityPct": 50,
+          "wilson95": [
+            21.5,
+            78.5
+          ],
+          "perRun": [
+            4,
+            4,
+            4
+          ]
+        },
+        "rightFirst": {
+          "majorityHits": 4,
+          "majorityPct": 50,
+          "wilson95": [
+            21.5,
+            78.5
+          ],
+          "perRun": [
+            4,
+            4,
+            4
+          ]
+        },
+        "rightFirstStrict": {
+          "majorityHits": 3,
+          "majorityPct": 37.5,
+          "wilson95": [
+            13.7,
+            69.4
+          ],
+          "perRun": [
+            3,
+            4,
+            3
+          ]
+        },
+        "pageFirst": {
+          "majorityHits": 4,
+          "majorityPct": 50,
+          "wilson95": [
+            21.5,
+            78.5
+          ],
+          "perRun": [
+            4,
+            4,
+            4
+          ]
+        },
+        "calls": 24,
+        "reranked": 15,
+        "embeddingAnswered": null,
+        "toolMsP50": 357,
+        "toolMsP95": 468
+      },
+      "B:qwen3-8b": {
+        "answer": {
+          "majorityHits": 5,
+          "majorityPct": 62.5,
+          "wilson95": [
+            30.6,
+            86.3
+          ],
+          "perRun": [
+            6,
+            4,
+            5
+          ],
+          "wins": 1,
+          "losses": 0,
+          "signTestP": 1,
+          "majorityDiffPts": 12.5,
+          "runDiffPts": {
+            "clusters": 8,
+            "units": 24,
+            "meanDiff": 12.5,
+            "ci95": [
+              0,
+              29.17
+            ]
+          }
+        },
+        "rightSection": {
+          "majorityHits": 6,
+          "majorityPct": 75,
+          "wilson95": [
+            40.9,
+            92.9
+          ],
+          "perRun": [
+            7,
+            4,
+            6
+          ],
+          "wins": 2,
+          "losses": 0,
+          "signTestP": 0.5,
+          "majorityDiffPts": 25,
+          "runDiffPts": {
+            "clusters": 8,
+            "units": 24,
+            "meanDiff": 20.83,
+            "ci95": [
+              4.17,
+              41.67
+            ]
+          }
+        },
+        "rightFirst": {
+          "majorityHits": 6,
+          "majorityPct": 75,
+          "wilson95": [
+            40.9,
+            92.9
+          ],
+          "perRun": [
+            7,
+            4,
+            6
+          ],
+          "wins": 2,
+          "losses": 0,
+          "signTestP": 0.5,
+          "majorityDiffPts": 25,
+          "runDiffPts": {
+            "clusters": 8,
+            "units": 24,
+            "meanDiff": 20.83,
+            "ci95": [
+              4.17,
+              41.67
+            ]
+          }
+        },
+        "rightFirstStrict": {
+          "majorityHits": 5,
+          "majorityPct": 62.5,
+          "wilson95": [
+            30.6,
+            86.3
+          ],
+          "perRun": [
+            6,
+            3,
+            5
+          ],
+          "wins": 3,
+          "losses": 1,
+          "signTestP": 0.625,
+          "majorityDiffPts": 25,
+          "runDiffPts": {
+            "clusters": 8,
+            "units": 24,
+            "meanDiff": 16.67,
+            "ci95": [
+              -12.5,
+              41.67
+            ]
+          }
+        },
+        "pageFirst": {
+          "majorityHits": 6,
+          "majorityPct": 75,
+          "wilson95": [
+            40.9,
+            92.9
+          ],
+          "perRun": [
+            7,
+            4,
+            6
+          ],
+          "wins": 2,
+          "losses": 0,
+          "signTestP": 0.5,
+          "majorityDiffPts": 25,
+          "runDiffPts": {
+            "clusters": 8,
+            "units": 24,
+            "meanDiff": 20.83,
+            "ci95": [
+              4.17,
+              41.67
+            ]
+          }
+        },
+        "calls": 24,
+        "reranked": 20,
+        "embeddingAnswered": 12,
+        "toolMsP50": 809,
+        "toolMsP95": 1004
+      },
+      "B:google-multilingual": {
+        "answer": {
+          "majorityHits": 6,
+          "majorityPct": 75,
+          "wilson95": [
+            40.9,
+            92.9
+          ],
+          "perRun": [
+            5,
+            7,
+            6
+          ],
+          "wins": 2,
+          "losses": 0,
+          "signTestP": 0.5,
+          "majorityDiffPts": 25,
+          "runDiffPts": {
+            "clusters": 8,
+            "units": 24,
+            "meanDiff": 25,
+            "ci95": [
+              4.17,
+              54.17
+            ]
+          }
+        },
+        "rightSection": {
+          "majorityHits": 6,
+          "majorityPct": 75,
+          "wilson95": [
+            40.9,
+            92.9
+          ],
+          "perRun": [
+            5,
+            7,
+            6
+          ],
+          "wins": 2,
+          "losses": 0,
+          "signTestP": 0.5,
+          "majorityDiffPts": 25,
+          "runDiffPts": {
+            "clusters": 8,
+            "units": 24,
+            "meanDiff": 25,
+            "ci95": [
+              4.17,
+              54.17
+            ]
+          }
+        },
+        "rightFirst": {
+          "majorityHits": 6,
+          "majorityPct": 75,
+          "wilson95": [
+            40.9,
+            92.9
+          ],
+          "perRun": [
+            5,
+            7,
+            6
+          ],
+          "wins": 2,
+          "losses": 0,
+          "signTestP": 0.5,
+          "majorityDiffPts": 25,
+          "runDiffPts": {
+            "clusters": 8,
+            "units": 24,
+            "meanDiff": 25,
+            "ci95": [
+              4.17,
+              54.17
+            ]
+          }
+        },
+        "rightFirstStrict": {
+          "majorityHits": 6,
+          "majorityPct": 75,
+          "wilson95": [
+            40.9,
+            92.9
+          ],
+          "perRun": [
+            5,
+            6,
+            4
+          ],
+          "wins": 3,
+          "losses": 0,
+          "signTestP": 0.25,
+          "majorityDiffPts": 37.5,
+          "runDiffPts": {
+            "clusters": 8,
+            "units": 24,
+            "meanDiff": 20.83,
+            "ci95": [
+              -4.17,
+              50
+            ]
+          }
+        },
+        "pageFirst": {
+          "majorityHits": 6,
+          "majorityPct": 75,
+          "wilson95": [
+            40.9,
+            92.9
+          ],
+          "perRun": [
+            5,
+            7,
+            6
+          ],
+          "wins": 2,
+          "losses": 0,
+          "signTestP": 0.5,
+          "majorityDiffPts": 25,
+          "runDiffPts": {
+            "clusters": 8,
+            "units": 24,
+            "meanDiff": 25,
+            "ci95": [
+              4.17,
+              54.17
+            ]
+          }
+        },
+        "calls": 24,
+        "reranked": 20,
+        "embeddingAnswered": 12,
+        "toolMsP50": 747,
+        "toolMsP95": 907
+      }
+    }
+  },
+  "holm": {
+    "answer": {
+      "B:qwen3-8b": 1,
+      "B:google-multilingual": 1
+    },
+    "rightSection": {
+      "B:qwen3-8b": 0.5,
+      "B:google-multilingual": 0.5
+    },
+    "rightFirst": {
+      "B:qwen3-8b": 0.5,
+      "B:google-multilingual": 0.5
+    },
+    "rightFirstStrict": {
+      "B:google-multilingual": 0.25,
+      "B:qwen3-8b": 0.375
+    },
+    "pageFirst": {
+      "B:google-multilingual": 0.5,
+      "B:qwen3-8b": 0.625
+    }
+  },
+  "gate": null,
+  "perItem": [
+    {
+      "id": "dh-en-01",
+      "lang": "en",
+      "query": "automation that fires every time deal",
+      "gold": [
+        "app-routines#what-are-the-limits"
+      ],
+      "A": [
+        {
+          "first": "app-routines#what-are-the-limits",
+          "right": true,
+          "answer": "yes",
+          "ms": 381,
+          "embedded": null
+        },
+        {
+          "first": "app-routines#what-are-the-limits",
+          "right": true,
+          "answer": "yes",
+          "ms": 390,
+          "embedded": null
+        },
+        {
+          "first": "app-routines#what-are-the-limits",
+          "right": true,
+          "answer": "yes",
+          "ms": 593,
+          "embedded": null
+        }
+      ],
+      "B:qwen3-8b": [
+        {
+          "first": "app-routines#what-are-the-limits",
+          "right": true,
+          "answer": "yes",
+          "ms": 898,
+          "embedded": false
+        },
+        {
+          "first": "app-routines#what-are-the-limits",
+          "right": true,
+          "answer": "yes",
+          "ms": 824,
+          "embedded": true
+        },
+        {
+          "first": "app-routines#what-are-the-limits",
+          "right": true,
+          "answer": "yes",
+          "ms": 888,
+          "embedded": false
+        }
+      ],
+      "B:google-multilingual": [
+        {
+          "first": "app-routines#what-are-the-limits",
+          "right": true,
+          "answer": "yes",
+          "ms": 1096,
+          "embedded": false
+        },
+        {
+          "first": "app-routines#what-are-the-limits",
+          "right": true,
+          "answer": "yes",
+          "ms": 1018,
+          "embedded": false
+        },
+        {
+          "first": "app-routines#what-are-the-limits",
+          "right": true,
+          "answer": "yes",
+          "ms": 865,
+          "embedded": true
+        }
+      ]
+    },
+    {
+      "id": "dh-en-02",
+      "lang": "en",
+      "query": "deactivated people left still paying their",
+      "gold": [
+        "app-company#how-are-seats-counted-and-billed"
+      ],
+      "A": [
+        {
+          "first": "app-company#how-are-seats-counted-and-billed",
+          "right": true,
+          "answer": "yes",
+          "ms": 376,
+          "embedded": null
+        },
+        {
+          "first": "app-company#how-are-seats-counted-and-billed",
+          "right": true,
+          "answer": "yes",
+          "ms": 361,
+          "embedded": null
+        },
+        {
+          "first": "app-company#how-are-seats-counted-and-billed",
+          "right": true,
+          "answer": "yes",
+          "ms": 402,
+          "embedded": null
+        }
+      ],
+      "B:qwen3-8b": [
+        {
+          "first": "app-company#how-are-seats-counted-and-billed",
+          "right": true,
+          "answer": "yes",
+          "ms": 928,
+          "embedded": false
+        },
+        {
+          "first": "app-company#how-are-seats-counted-and-billed",
+          "right": true,
+          "answer": "yes",
+          "ms": 868,
+          "embedded": true
+        },
+        {
+          "first": "app-company#how-are-seats-counted-and-billed",
+          "right": true,
+          "answer": "yes",
+          "ms": 828,
+          "embedded": false
+        }
+      ],
+      "B:google-multilingual": [
+        {
+          "first": "app-company#how-are-seats-counted-and-billed",
+          "right": true,
+          "answer": "yes",
+          "ms": 1084,
+          "embedded": false
+        },
+        {
+          "first": "app-company#how-are-seats-counted-and-billed",
+          "right": true,
+          "answer": "yes",
+          "ms": 792,
+          "embedded": true
+        },
+        {
+          "first": "app-company#how-are-seats-counted-and-billed",
+          "right": true,
+          "answer": "yes",
+          "ms": 766,
+          "embedded": true
+        }
+      ]
+    },
+    {
+      "id": "dh-en-03",
+      "lang": "en",
+      "query": "somebody wiped contact yesterday where find",
+      "gold": [
+        "app-company#audit-logs-tab"
+      ],
+      "A": [
+        {
+          "first": "app-company#what-happens-when-the-trial-ends-or-a-payment-fails",
+          "right": false,
+          "answer": "no",
+          "ms": 380,
+          "embedded": null
+        },
+        {
+          "first": "app-company#what-happens-when-the-trial-ends-or-a-payment-fails",
+          "right": false,
+          "answer": "no",
+          "ms": 345,
+          "embedded": null
+        },
+        {
+          "first": "app-company#what-is-the-admin-role",
+          "right": false,
+          "answer": "no",
+          "ms": 363,
+          "embedded": null
+        }
+      ],
+      "B:qwen3-8b": [
+        {
+          "first": "app-company#what-happens-when-the-trial-ends-or-a-payment-fails",
+          "right": false,
+          "answer": "no",
+          "ms": 944,
+          "embedded": false
+        },
+        {
+          "first": "mcp#tool-catalog",
+          "right": false,
+          "answer": "no",
+          "ms": 785,
+          "embedded": true
+        },
+        {
+          "first": "mcp#tool-catalog",
+          "right": false,
+          "answer": "no",
+          "ms": 841,
+          "embedded": true
+        }
+      ],
+      "B:google-multilingual": [
+        {
+          "first": "app-company#what-happens-when-the-trial-ends-or-a-payment-fails",
+          "right": false,
+          "answer": "no",
+          "ms": 855,
+          "embedded": false
+        },
+        {
+          "first": "app-company#what-happens-when-the-trial-ends-or-a-payment-fails",
+          "right": false,
+          "answer": "no",
+          "ms": 823,
+          "embedded": false
+        },
+        {
+          "first": "app-company#what-happens-when-the-trial-ends-or-a-payment-fails",
+          "right": false,
+          "answer": "no",
+          "ms": 872,
+          "embedded": false
+        }
+      ]
+    },
+    {
+      "id": "dh-en-04",
+      "lang": "en",
+      "query": "there maximum number mailboxes linkedin accounts",
+      "gold": [
+        "app-profile#how-many-channels-can-i-connect"
+      ],
+      "A": [
+        {
+          "first": "app-profile#how-many-channels-can-i-connect",
+          "right": true,
+          "answer": "yes",
+          "ms": 400,
+          "embedded": null
+        },
+        {
+          "first": "app-profile#how-many-channels-can-i-connect",
+          "right": true,
+          "answer": "yes",
+          "ms": 417,
+          "embedded": null
+        },
+        {
+          "first": "app-profile#how-many-channels-can-i-connect",
+          "right": true,
+          "answer": "yes",
+          "ms": 391,
+          "embedded": null
+        }
+      ],
+      "B:qwen3-8b": [
+        {
+          "first": "app-profile#how-many-channels-can-i-connect",
+          "right": true,
+          "answer": "yes",
+          "ms": 982,
+          "embedded": false
+        },
+        {
+          "first": "app-profile#how-many-channels-can-i-connect",
+          "right": true,
+          "answer": "yes",
+          "ms": 821,
+          "embedded": true
+        },
+        {
+          "first": "app-profile#how-many-channels-can-i-connect",
+          "right": true,
+          "answer": "yes",
+          "ms": 745,
+          "embedded": true
+        }
+      ],
+      "B:google-multilingual": [
+        {
+          "first": "app-profile#how-many-channels-can-i-connect",
+          "right": true,
+          "answer": "yes",
+          "ms": 879,
+          "embedded": false
+        },
+        {
+          "first": "app-profile#how-many-channels-can-i-connect",
+          "right": true,
+          "answer": "yes",
+          "ms": 921,
+          "embedded": false
+        },
+        {
+          "first": "app-profile#how-many-channels-can-i-connect",
+          "right": true,
+          "answer": "yes",
+          "ms": 712,
+          "embedded": true
+        }
+      ]
+    },
+    {
+      "id": "dh-en-05",
+      "lang": "en",
+      "query": "have customer mobile number store person",
+      "gold": [
+        "app-records#what-is-special-about-each-record-type"
+      ],
+      "A": [
+        {
+          "first": "app-records#what-is-special-about-each-record-type",
+          "right": true,
+          "answer": "yes",
+          "ms": 397,
+          "embedded": null
+        },
+        {
+          "first": "app-records#what-is-special-about-each-record-type",
+          "right": true,
+          "answer": "yes",
+          "ms": 393,
+          "embedded": null
+        },
+        {
+          "first": "app-records#what-is-special-about-each-record-type",
+          "right": true,
+          "answer": "yes",
+          "ms": 381,
+          "embedded": null
+        }
+      ],
+      "B:qwen3-8b": [
+        {
+          "first": "app-records#what-is-special-about-each-record-type",
+          "right": true,
+          "answer": "yes",
+          "ms": 860,
+          "embedded": true
+        },
+        {
+          "first": "app-records#what-is-special-about-each-record-type",
+          "right": true,
+          "answer": "yes",
+          "ms": 828,
+          "embedded": true
+        },
+        {
+          "first": "app-records#what-is-special-about-each-record-type",
+          "right": true,
+          "answer": "yes",
+          "ms": 750,
+          "embedded": true
+        }
+      ],
+      "B:google-multilingual": [
+        {
+          "first": "app-records#what-is-special-about-each-record-type",
+          "right": true,
+          "answer": "yes",
+          "ms": 848,
+          "embedded": false
+        },
+        {
+          "first": "app-records#what-is-special-about-each-record-type",
+          "right": true,
+          "answer": "yes",
+          "ms": 866,
+          "embedded": false
+        },
+        {
+          "first": "app-records#what-is-special-about-each-record-type",
+          "right": true,
+          "answer": "yes",
+          "ms": 705,
+          "embedded": true
+        }
+      ]
+    },
+    {
+      "id": "dh-en-06",
+      "lang": "en",
+      "query": "webhook consumer received updated event before",
+      "gold": [
+        "webhooks#are-deliveries-ordered"
+      ],
+      "A": [
+        {
+          "first": "webhooks#are-deliveries-ordered",
+          "right": true,
+          "answer": "yes",
+          "ms": 349,
+          "embedded": null
+        },
+        {
+          "first": "webhooks#are-deliveries-ordered",
+          "right": true,
+          "answer": "yes",
+          "ms": 381,
+          "embedded": null
+        },
+        {
+          "first": "webhooks#are-deliveries-ordered",
+          "right": true,
+          "answer": "yes",
+          "ms": 375,
+          "embedded": null
+        }
+      ],
+      "B:qwen3-8b": [
+        {
+          "first": "webhooks#are-deliveries-ordered",
+          "right": true,
+          "answer": "yes",
+          "ms": 829,
+          "embedded": true
+        },
+        {
+          "first": "webhooks#are-deliveries-ordered",
+          "right": true,
+          "answer": "yes",
+          "ms": 871,
+          "embedded": false
+        },
+        {
+          "first": "webhooks#are-deliveries-ordered",
+          "right": true,
+          "answer": "yes",
+          "ms": 1016,
+          "embedded": false
+        }
+      ],
+      "B:google-multilingual": [
+        {
+          "first": "webhooks#are-deliveries-ordered",
+          "right": true,
+          "answer": "yes",
+          "ms": 879,
+          "embedded": false
+        },
+        {
+          "first": "webhooks#are-deliveries-ordered",
+          "right": true,
+          "answer": "yes",
+          "ms": 914,
+          "embedded": false
+        },
+        {
+          "first": "webhooks#are-deliveries-ordered",
+          "right": true,
+          "answer": "yes",
+          "ms": 860,
+          "embedded": false
+        }
+      ]
+    },
+    {
+      "id": "dh-en-07",
+      "lang": "en",
+      "query": "server what lose compared hosted version",
+      "gold": [
+        "self-hosting#which-features-are-not-available-when-self-hosting"
+      ],
+      "A": [
+        {
+          "first": "self-hosting#which-features-are-not-available-when-self-hosting",
+          "right": true,
+          "answer": "yes",
+          "ms": 361,
+          "embedded": null
+        },
+        {
+          "first": "self-hosting#which-features-are-not-available-when-self-hosting",
+          "right": true,
+          "answer": "yes",
+          "ms": 371,
+          "embedded": null
+        },
+        {
+          "first": "self-hosting#which-features-are-not-available-when-self-hosting",
+          "right": true,
+          "answer": "yes",
+          "ms": 411,
+          "embedded": null
+        }
+      ],
+      "B:qwen3-8b": [
+        {
+          "first": "self-hosting#which-features-are-not-available-when-self-hosting",
+          "right": true,
+          "answer": "yes",
+          "ms": 769,
+          "embedded": true
+        },
+        {
+          "first": "self-hosting#which-features-are-not-available-when-self-hosting",
+          "right": true,
+          "answer": "yes",
+          "ms": 814,
+          "embedded": true
+        },
+        {
+          "first": "self-hosting#which-features-are-not-available-when-self-hosting",
+          "right": true,
+          "answer": "yes",
+          "ms": 658,
+          "embedded": true
+        }
+      ],
+      "B:google-multilingual": [
+        {
+          "first": "self-hosting#which-features-are-not-available-when-self-hosting",
+          "right": true,
+          "answer": "yes",
+          "ms": 922,
+          "embedded": false
+        },
+        {
+          "first": "self-hosting#which-features-are-not-available-when-self-hosting",
+          "right": true,
+          "answer": "yes",
+          "ms": 771,
+          "embedded": true
+        },
+        {
+          "first": "self-hosting#which-features-are-not-available-when-self-hosting",
+          "right": true,
+          "answer": "yes",
+          "ms": 890,
+          "embedded": false
+        }
+      ]
+    },
+    {
+      "id": "dh-en-08",
+      "lang": "en",
+      "query": "does search look inside people email",
+      "gold": [
+        "app-search#what-does-global-search-find"
+      ],
+      "A": [
+        {
+          "first": "app-search#what-does-global-search-find",
+          "right": true,
+          "answer": "yes",
+          "ms": 430,
+          "embedded": null
+        },
+        {
+          "first": "app-search#what-does-global-search-find",
+          "right": true,
+          "answer": "yes",
+          "ms": 409,
+          "embedded": null
+        },
+        {
+          "first": "app-search#what-does-global-search-find",
+          "right": true,
+          "answer": "yes",
+          "ms": 346,
+          "embedded": null
+        }
+      ],
+      "B:qwen3-8b": [
+        {
+          "first": "app-search#what-does-global-search-find",
+          "right": true,
+          "answer": "yes",
+          "ms": 832,
+          "embedded": false
+        },
+        {
+          "first": "app-search#what-does-global-search-find",
+          "right": true,
+          "answer": "yes",
+          "ms": 877,
+          "embedded": true
+        },
+        {
+          "first": "app-search#what-does-global-search-find",
+          "right": true,
+          "answer": "yes",
+          "ms": 860,
+          "embedded": false
+        }
+      ],
+      "B:google-multilingual": [
+        {
+          "first": "app-search#what-does-global-search-find",
+          "right": true,
+          "answer": "yes",
+          "ms": 829,
+          "embedded": false
+        },
+        {
+          "first": "app-search#what-does-global-search-find",
+          "right": true,
+          "answer": "yes",
+          "ms": 806,
+          "embedded": true
+        },
+        {
+          "first": "app-search#what-does-global-search-find",
+          "right": true,
+          "answer": "yes",
+          "ms": 730,
+          "embedded": true
+        }
+      ]
+    },
+    {
+      "id": "dh-de-01",
+      "lang": "de",
+      "query": "kann eine automatisierung loslaufen sobald jemand",
+      "gold": [
+        "app-routines#how-do-event-triggers-work"
+      ],
+      "A": [
+        {
+          "first": "app-routines#how-do-event-triggers-work",
+          "right": true,
+          "answer": "yes",
+          "ms": 382,
+          "embedded": null
+        },
+        {
+          "first": "app-routines#how-do-event-triggers-work",
+          "right": true,
+          "answer": "yes",
+          "ms": 408,
+          "embedded": null
+        },
+        {
+          "first": "app-routines#how-do-event-triggers-work",
+          "right": true,
+          "answer": "yes",
+          "ms": 376,
+          "embedded": null
+        }
+      ],
+      "B:qwen3-8b": [
+        {
+          "first": "app-routines#how-do-event-triggers-work",
+          "right": true,
+          "answer": "yes",
+          "ms": 921,
+          "embedded": false
+        },
+        {
+          "first": "app-routines#how-do-event-triggers-work",
+          "right": true,
+          "answer": "yes",
+          "ms": 795,
+          "embedded": true
+        },
+        {
+          "first": "app-routines#how-do-event-triggers-work",
+          "right": true,
+          "answer": "yes",
+          "ms": 865,
+          "embedded": false
+        }
+      ],
+      "B:google-multilingual": [
+        {
+          "first": "app-routines#how-do-event-triggers-work",
+          "right": true,
+          "answer": "yes",
+          "ms": 765,
+          "embedded": true
+        },
+        {
+          "first": "app-routines#how-do-event-triggers-work",
+          "right": true,
+          "answer": "yes",
+          "ms": 817,
+          "embedded": true
+        },
+        {
+          "first": "app-routines#how-do-event-triggers-work",
+          "right": true,
+          "answer": "yes",
+          "ms": 780,
+          "embedded": true
+        }
+      ]
+    },
+    {
+      "id": "dh-de-02",
+      "lang": "de",
+      "query": "darf rechte admin rolle einschränken",
+      "gold": [
+        "app-company#what-is-the-admin-role"
+      ],
+      "A": [
+        {
+          "first": "app-company#what-is-the-admin-role",
+          "right": true,
+          "answer": "yes",
+          "ms": 432,
+          "embedded": null
+        },
+        {
+          "first": "app-company#what-is-the-admin-role",
+          "right": true,
+          "answer": "yes",
+          "ms": 383,
+          "embedded": null
+        },
+        {
+          "first": "app-company#what-is-the-admin-role",
+          "right": true,
+          "answer": "yes",
+          "ms": 391,
+          "embedded": null
+        }
+      ],
+      "B:qwen3-8b": [
+        {
+          "first": "app-company#what-is-the-admin-role",
+          "right": true,
+          "answer": "yes",
+          "ms": 691,
+          "embedded": true
+        },
+        {
+          "first": "app-company#what-is-the-admin-role",
+          "right": true,
+          "answer": "yes",
+          "ms": 902,
+          "embedded": true
+        },
+        {
+          "first": "app-company#what-is-the-admin-role",
+          "right": true,
+          "answer": "yes",
+          "ms": 648,
+          "embedded": true
+        }
+      ],
+      "B:google-multilingual": [
+        {
+          "first": "app-company#what-is-the-admin-role",
+          "right": true,
+          "answer": "yes",
+          "ms": 873,
+          "embedded": false
+        },
+        {
+          "first": "app-company#what-is-the-admin-role",
+          "right": true,
+          "answer": "yes",
+          "ms": 809,
+          "embedded": true
+        },
+        {
+          "first": "app-company#what-is-the-admin-role",
+          "right": true,
+          "answer": "yes",
+          "ms": 899,
+          "embedded": false
+        }
+      ]
+    },
+    {
+      "id": "dh-de-03",
+      "lang": "de",
+      "query": "wechseln starter passiert dann unseren verbundenen",
+      "gold": [
+        "app-company#what-happens-to-connected-accounts-when-the-plan-changes"
+      ],
+      "A": [
+        {
+          "first": "app-company#what-happens-to-connected-accounts-when-the-plan-changes",
+          "right": true,
+          "answer": "yes",
+          "ms": 354,
+          "embedded": null
+        },
+        {
+          "first": "app-company#what-happens-to-connected-accounts-when-the-plan-changes",
+          "right": true,
+          "answer": "yes",
+          "ms": 381,
+          "embedded": null
+        },
+        {
+          "first": "app-company#what-happens-to-connected-accounts-when-the-plan-changes",
+          "right": true,
+          "answer": "yes",
+          "ms": 367,
+          "embedded": null
+        }
+      ],
+      "B:qwen3-8b": [
+        {
+          "first": "app-company#what-happens-to-connected-accounts-when-the-plan-changes",
+          "right": true,
+          "answer": "yes",
+          "ms": 867,
+          "embedded": false
+        },
+        {
+          "first": "app-company#what-happens-to-connected-accounts-when-the-plan-changes",
+          "right": true,
+          "answer": "yes",
+          "ms": 875,
+          "embedded": true
+        },
+        {
+          "first": "app-company#what-happens-to-connected-accounts-when-the-plan-changes",
+          "right": true,
+          "answer": "yes",
+          "ms": 866,
+          "embedded": true
+        }
+      ],
+      "B:google-multilingual": [
+        {
+          "first": "app-company#what-happens-to-connected-accounts-when-the-plan-changes",
+          "right": true,
+          "answer": "yes",
+          "ms": 929,
+          "embedded": false
+        },
+        {
+          "first": "app-company#what-happens-to-connected-accounts-when-the-plan-changes",
+          "right": true,
+          "answer": "yes",
+          "ms": 866,
+          "embedded": false
+        },
+        {
+          "first": "app-company#what-happens-to-connected-accounts-when-the-plan-changes",
+          "right": true,
+          "answer": "yes",
+          "ms": 925,
+          "embedded": false
+        }
+      ]
+    },
+    {
+      "id": "dh-de-04",
+      "lang": "de",
+      "query": "ändere mein passwort",
+      "gold": [
+        "app-profile#what-can-i-not-change-here"
+      ],
+      "A": [
+        {
+          "first": "app-profile#what-can-i-not-change-here",
+          "right": true,
+          "answer": "yes",
+          "ms": 343,
+          "embedded": null
+        },
+        {
+          "first": "app-profile#what-can-i-not-change-here",
+          "right": true,
+          "answer": "yes",
+          "ms": 396,
+          "embedded": null
+        },
+        {
+          "first": "app-profile#what-can-i-not-change-here",
+          "right": true,
+          "answer": "yes",
+          "ms": 491,
+          "embedded": null
+        }
+      ],
+      "B:qwen3-8b": [
+        {
+          "first": "app-profile#what-can-i-not-change-here",
+          "right": true,
+          "answer": "yes",
+          "ms": 818,
+          "embedded": true
+        },
+        {
+          "first": "app-profile#what-can-i-not-change-here",
+          "right": true,
+          "answer": "yes",
+          "ms": 847,
+          "embedded": false
+        },
+        {
+          "first": "app-profile#what-can-i-not-change-here",
+          "right": true,
+          "answer": "yes",
+          "ms": 896,
+          "embedded": true
+        }
+      ],
+      "B:google-multilingual": [
+        {
+          "first": "app-profile#what-can-i-not-change-here",
+          "right": true,
+          "answer": "yes",
+          "ms": 853,
+          "embedded": false
+        },
+        {
+          "first": "app-profile#what-can-i-not-change-here",
+          "right": true,
+          "answer": "yes",
+          "ms": 736,
+          "embedded": true
+        },
+        {
+          "first": "app-profile#what-can-i-not-change-here",
+          "right": true,
+          "answer": "yes",
+          "ms": 858,
+          "embedded": false
+        }
+      ]
+    },
+    {
+      "id": "dh-de-05",
+      "lang": "de",
+      "query": "kann eine kundenliste excel hochladen",
+      "gold": [
+        "app-records#how-do-i-import-or-export-records"
+      ],
+      "A": [
+        {
+          "first": "app-records#how-do-i-import-or-export-records",
+          "right": true,
+          "answer": "yes",
+          "ms": 399,
+          "embedded": null
+        },
+        {
+          "first": "app-records#how-do-i-import-or-export-records",
+          "right": true,
+          "answer": "yes",
+          "ms": 346,
+          "embedded": null
+        },
+        {
+          "first": "app-records#how-do-i-import-or-export-records",
+          "right": true,
+          "answer": "yes",
+          "ms": 406,
+          "embedded": null
+        }
+      ],
+      "B:qwen3-8b": [
+        {
+          "first": "app-records#how-do-i-import-or-export-records",
+          "right": true,
+          "answer": "yes",
+          "ms": 885,
+          "embedded": false
+        },
+        {
+          "first": "app-records#how-do-i-import-or-export-records",
+          "right": true,
+          "answer": "yes",
+          "ms": 858,
+          "embedded": true
+        },
+        {
+          "first": "app-records#how-do-i-import-or-export-records",
+          "right": true,
+          "answer": "yes",
+          "ms": 776,
+          "embedded": true
+        }
+      ],
+      "B:google-multilingual": [
+        {
+          "first": "app-records#how-do-i-import-or-export-records",
+          "right": true,
+          "answer": "yes",
+          "ms": 847,
+          "embedded": false
+        },
+        {
+          "first": "app-records#how-do-i-import-or-export-records",
+          "right": true,
+          "answer": "yes",
+          "ms": 839,
+          "embedded": false
+        },
+        {
+          "first": "app-records#how-do-i-import-or-export-records",
+          "right": true,
+          "answer": "yes",
+          "ms": 807,
+          "embedded": false
+        }
+      ]
+    },
+    {
+      "id": "dh-de-06",
+      "lang": "de",
+      "query": "kann notizen fett schreiben oder aufzählungen",
+      "gold": [
+        "concepts#what-are-notes"
+      ],
+      "A": [
+        {
+          "first": "concepts#what-are-notes",
+          "right": true,
+          "answer": "yes",
+          "ms": 430,
+          "embedded": null
+        },
+        {
+          "first": "concepts#what-are-notes",
+          "right": true,
+          "answer": "yes",
+          "ms": 382,
+          "embedded": null
+        },
+        {
+          "first": "concepts#what-are-notes",
+          "right": true,
+          "answer": "yes",
+          "ms": 408,
+          "embedded": null
+        }
+      ],
+      "B:qwen3-8b": [
+        {
+          "first": "concepts#what-are-notes",
+          "right": true,
+          "answer": "yes",
+          "ms": 892,
+          "embedded": true
+        },
+        {
+          "first": "concepts#what-are-notes",
+          "right": true,
+          "answer": "yes",
+          "ms": 812,
+          "embedded": true
+        },
+        {
+          "first": "concepts#what-are-notes",
+          "right": true,
+          "answer": "yes",
+          "ms": 750,
+          "embedded": true
+        }
+      ],
+      "B:google-multilingual": [
+        {
+          "first": "concepts#what-are-notes",
+          "right": true,
+          "answer": "yes",
+          "ms": 910,
+          "embedded": false
+        },
+        {
+          "first": "concepts#what-are-notes",
+          "right": true,
+          "answer": "yes",
+          "ms": 849,
+          "embedded": true
+        },
+        {
+          "first": "concepts#what-are-notes",
+          "right": true,
+          "answer": "yes",
+          "ms": 972,
+          "embedded": false
+        }
+      ]
+    },
+    {
+      "id": "dh-de-07",
+      "lang": "de",
+      "query": "finde filter firmen entweder berlin oder",
+      "gold": [
+        "filter-syntax#what-does-a-filter-rule-look-like"
+      ],
+      "A": [
+        {
+          "first": "filter-syntax#what-does-a-filter-rule-look-like",
+          "right": true,
+          "answer": "yes",
+          "ms": 462,
+          "embedded": null
+        },
+        {
+          "first": "filter-syntax#what-does-a-filter-rule-look-like",
+          "right": true,
+          "answer": "yes",
+          "ms": 402,
+          "embedded": null
+        },
+        {
+          "first": "filter-syntax#what-does-a-filter-rule-look-like",
+          "right": true,
+          "answer": "yes",
+          "ms": 383,
+          "embedded": null
+        }
+      ],
+      "B:qwen3-8b": [
+        {
+          "first": "filter-syntax#which-relationship-operators-exist",
+          "right": false,
+          "answer": "no",
+          "ms": 1333,
+          "embedded": false
+        },
+        {
+          "first": "filter-syntax#what-does-a-filter-rule-look-like",
+          "right": true,
+          "answer": "yes",
+          "ms": 914,
+          "embedded": true
+        },
+        {
+          "first": "filter-syntax#what-does-a-filter-rule-look-like",
+          "right": true,
+          "answer": "yes",
+          "ms": 691,
+          "embedded": true
+        }
+      ],
+      "B:google-multilingual": [
+        {
+          "first": "filter-syntax#what-does-a-filter-rule-look-like",
+          "right": true,
+          "answer": "yes",
+          "ms": 862,
+          "embedded": false
+        },
+        {
+          "first": "filter-syntax#what-does-a-filter-rule-look-like",
+          "right": true,
+          "answer": "yes",
+          "ms": 852,
+          "embedded": false
+        },
+        {
+          "first": "filter-syntax#what-does-a-filter-rule-look-like",
+          "right": true,
+          "answer": "yes",
+          "ms": 852,
+          "embedded": true
+        }
+      ]
+    },
+    {
+      "id": "dh-de-08",
+      "lang": "de",
+      "query": "sichere datenbank meiner eigenen installation spiele",
+      "gold": [
+        "self-hosting#backups"
+      ],
+      "A": [
+        {
+          "first": "self-hosting#backups",
+          "right": true,
+          "answer": "yes",
+          "ms": 350,
+          "embedded": null
+        },
+        {
+          "first": "self-hosting#backups",
+          "right": true,
+          "answer": "yes",
+          "ms": 372,
+          "embedded": null
+        },
+        {
+          "first": "self-hosting#backups",
+          "right": true,
+          "answer": "yes",
+          "ms": 418,
+          "embedded": null
+        }
+      ],
+      "B:qwen3-8b": [
+        {
+          "first": "self-hosting#backups",
+          "right": true,
+          "answer": "partial",
+          "ms": 1335,
+          "embedded": false
+        },
+        {
+          "first": "self-hosting#backups",
+          "right": true,
+          "answer": "yes",
+          "ms": 932,
+          "embedded": false
+        },
+        {
+          "first": "self-hosting#backups",
+          "right": true,
+          "answer": "yes",
+          "ms": 803,
+          "embedded": true
+        }
+      ],
+      "B:google-multilingual": [
+        {
+          "first": "self-hosting#backups",
+          "right": true,
+          "answer": "yes",
+          "ms": 932,
+          "embedded": false
+        },
+        {
+          "first": "self-hosting#backups",
+          "right": true,
+          "answer": "yes",
+          "ms": 766,
+          "embedded": true
+        },
+        {
+          "first": "self-hosting#backups",
+          "right": true,
+          "answer": "yes",
+          "ms": 869,
+          "embedded": false
+        }
+      ]
+    },
+    {
+      "id": "dh-es-01",
+      "lang": "es",
+      "query": "puedo programar rutina para ejecute todos",
+      "gold": [
+        "app-routines#how-do-schedules-work"
+      ],
+      "A": [
+        {
+          "first": "n8n#how-do-i-run-scheduled-jobs",
+          "right": false,
+          "answer": "no",
+          "ms": 415,
+          "embedded": null
+        },
+        {
+          "first": "n8n#how-do-i-run-scheduled-jobs",
+          "right": false,
+          "answer": "no",
+          "ms": 376,
+          "embedded": null
+        },
+        {
+          "first": "n8n#how-do-i-run-scheduled-jobs",
+          "right": false,
+          "answer": "no",
+          "ms": 348,
+          "embedded": null
+        }
+      ],
+      "B:qwen3-8b": [
+        {
+          "first": "app-routines#how-does-mate-manage-routines",
+          "right": false,
+          "answer": "yes",
+          "ms": 803,
+          "embedded": true
+        },
+        {
+          "first": "n8n#how-do-i-run-scheduled-jobs",
+          "right": false,
+          "answer": "no",
+          "ms": 889,
+          "embedded": false
+        },
+        {
+          "first": "n8n#how-do-i-run-scheduled-jobs",
+          "right": false,
+          "answer": "no",
+          "ms": 860,
+          "embedded": false
+        }
+      ],
+      "B:google-multilingual": [
+        {
+          "first": "n8n#how-do-i-run-scheduled-jobs",
+          "right": false,
+          "answer": "no",
+          "ms": 875,
+          "embedded": false
+        },
+        {
+          "first": "n8n#how-do-i-run-scheduled-jobs",
+          "right": false,
+          "answer": "no",
+          "ms": 965,
+          "embedded": false
+        },
+        {
+          "first": "app-routines#how-do-schedules-work",
+          "right": true,
+          "answer": "yes",
+          "ms": 804,
+          "embedded": true
+        }
+      ]
+    },
+    {
+      "id": "dh-es-02",
+      "lang": "es",
+      "query": "puede cambiar nombre deals oportunidades espacio",
+      "gold": [
+        "app-company#how-do-i-rename-record-types-in-the-data-model"
+      ],
+      "A": [
+        {
+          "first": "app-company#how-do-i-rename-record-types-in-the-data-model",
+          "right": true,
+          "answer": "yes",
+          "ms": 440,
+          "embedded": null
+        },
+        {
+          "first": "app-company#how-do-i-rename-record-types-in-the-data-model",
+          "right": true,
+          "answer": "yes",
+          "ms": 379,
+          "embedded": null
+        },
+        {
+          "first": "app-company#how-do-i-rename-record-types-in-the-data-model",
+          "right": true,
+          "answer": "yes",
+          "ms": 364,
+          "embedded": null
+        }
+      ],
+      "B:qwen3-8b": [
+        {
+          "first": "app-company#how-do-i-rename-record-types-in-the-data-model",
+          "right": true,
+          "answer": "yes",
+          "ms": 916,
+          "embedded": true
+        },
+        {
+          "first": "app-company#how-do-i-rename-record-types-in-the-data-model",
+          "right": true,
+          "answer": "yes",
+          "ms": 932,
+          "embedded": true
+        },
+        {
+          "first": "app-company#how-do-i-rename-record-types-in-the-data-model",
+          "right": true,
+          "answer": "yes",
+          "ms": 815,
+          "embedded": true
+        }
+      ],
+      "B:google-multilingual": [
+        {
+          "first": "app-company#how-do-i-rename-record-types-in-the-data-model",
+          "right": true,
+          "answer": "yes",
+          "ms": 826,
+          "embedded": false
+        },
+        {
+          "first": "app-company#how-do-i-rename-record-types-in-the-data-model",
+          "right": true,
+          "answer": "yes",
+          "ms": 716,
+          "embedded": true
+        },
+        {
+          "first": "app-company#how-do-i-rename-record-types-in-the-data-model",
+          "right": true,
+          "answer": "yes",
+          "ms": 721,
+          "embedded": true
+        }
+      ]
+    },
+    {
+      "id": "dh-es-03",
+      "lang": "es",
+      "query": "administrador puede leer conversaciones privadas",
+      "gold": [
+        "app-inbox#which-conversations-do-i-see"
+      ],
+      "A": [
+        {
+          "first": null,
+          "right": false,
+          "answer": "no",
+          "ms": 24,
+          "embedded": null
+        },
+        {
+          "first": null,
+          "right": false,
+          "answer": "no",
+          "ms": 22,
+          "embedded": null
+        },
+        {
+          "first": null,
+          "right": false,
+          "answer": "no",
+          "ms": 17,
+          "embedded": null
+        }
+      ],
+      "B:qwen3-8b": [
+        {
+          "first": "app-inbox#which-conversations-do-i-see",
+          "right": true,
+          "answer": "yes",
+          "ms": 750,
+          "embedded": true
+        },
+        {
+          "first": null,
+          "right": false,
+          "answer": "no",
+          "ms": 523,
+          "embedded": false
+        },
+        {
+          "first": "app-inbox#which-conversations-do-i-see",
+          "right": true,
+          "answer": "yes",
+          "ms": 763,
+          "embedded": true
+        }
+      ],
+      "B:google-multilingual": [
+        {
+          "first": null,
+          "right": false,
+          "answer": "no",
+          "ms": 513,
+          "embedded": false
+        },
+        {
+          "first": null,
+          "right": false,
+          "answer": "no",
+          "ms": 515,
+          "embedded": false
+        },
+        {
+          "first": "app-inbox#which-conversations-do-i-see",
+          "right": true,
+          "answer": "yes",
+          "ms": 876,
+          "embedded": true
+        }
+      ]
+    },
+    {
+      "id": "dh-es-04",
+      "lang": "es",
+      "query": "cómo oculto carpeta spam bandeja entrada",
+      "gold": [
+        "app-profile#what-does-the-folders-tab-control"
+      ],
+      "A": [
+        {
+          "first": "app-profile#what-does-the-folders-tab-control",
+          "right": true,
+          "answer": "yes",
+          "ms": 337,
+          "embedded": null
+        },
+        {
+          "first": "app-profile#what-does-the-folders-tab-control",
+          "right": true,
+          "answer": "yes",
+          "ms": 370,
+          "embedded": null
+        },
+        {
+          "first": "app-profile#what-does-the-folders-tab-control",
+          "right": true,
+          "answer": "yes",
+          "ms": 402,
+          "embedded": null
+        }
+      ],
+      "B:qwen3-8b": [
+        {
+          "first": "app-profile#what-does-the-folders-tab-control",
+          "right": true,
+          "answer": "yes",
+          "ms": 735,
+          "embedded": true
+        },
+        {
+          "first": "app-profile#what-does-the-folders-tab-control",
+          "right": true,
+          "answer": "yes",
+          "ms": 826,
+          "embedded": false
+        },
+        {
+          "first": "app-profile#what-does-the-folders-tab-control",
+          "right": true,
+          "answer": "yes",
+          "ms": 778,
+          "embedded": true
+        }
+      ],
+      "B:google-multilingual": [
+        {
+          "first": "app-profile#what-does-the-folders-tab-control",
+          "right": true,
+          "answer": "yes",
+          "ms": 825,
+          "embedded": false
+        },
+        {
+          "first": "app-profile#what-does-the-folders-tab-control",
+          "right": true,
+          "answer": "yes",
+          "ms": 918,
+          "embedded": false
+        },
+        {
+          "first": "app-profile#what-does-the-folders-tab-control",
+          "right": true,
+          "answer": "yes",
+          "ms": 803,
+          "embedded": false
+        }
+      ]
+    },
+    {
+      "id": "dh-es-05",
+      "lang": "es",
+      "query": "cómo calcula importe total oportunidad",
+      "gold": [
+        "concepts#how-is-a-deals-total-value-calculated"
+      ],
+      "A": [
+        {
+          "first": "concepts#how-is-a-deals-total-value-calculated",
+          "right": true,
+          "answer": "yes",
+          "ms": 365,
+          "embedded": null
+        },
+        {
+          "first": "concepts#how-is-a-deals-total-value-calculated",
+          "right": true,
+          "answer": "yes",
+          "ms": 382,
+          "embedded": null
+        },
+        {
+          "first": "concepts#how-is-a-deals-total-value-calculated",
+          "right": true,
+          "answer": "yes",
+          "ms": 424,
+          "embedded": null
+        }
+      ],
+      "B:qwen3-8b": [
+        {
+          "first": "concepts#how-is-a-deals-total-value-calculated",
+          "right": true,
+          "answer": "yes",
+          "ms": 848,
+          "embedded": false
+        },
+        {
+          "first": "concepts#how-is-a-deals-total-value-calculated",
+          "right": true,
+          "answer": "yes",
+          "ms": 839,
+          "embedded": true
+        },
+        {
+          "first": "concepts#how-is-a-deals-total-value-calculated",
+          "right": true,
+          "answer": "yes",
+          "ms": 835,
+          "embedded": true
+        }
+      ],
+      "B:google-multilingual": [
+        {
+          "first": "concepts#how-is-a-deals-total-value-calculated",
+          "right": true,
+          "answer": "yes",
+          "ms": 1045,
+          "embedded": false
+        },
+        {
+          "first": "concepts#how-is-a-deals-total-value-calculated",
+          "right": true,
+          "answer": "yes",
+          "ms": 764,
+          "embedded": true
+        },
+        {
+          "first": "concepts#how-is-a-deals-total-value-calculated",
+          "right": true,
+          "answer": "yes",
+          "ms": 760,
+          "embedded": true
+        }
+      ]
+    },
+    {
+      "id": "dh-es-06",
+      "lang": "es",
+      "query": "servidor estuvo caído hora customermates vuelve",
+      "gold": [
+        "webhooks#how-do-retries-and-failed-deliveries-work"
+      ],
+      "A": [
+        {
+          "first": null,
+          "right": false,
+          "answer": "no",
+          "ms": 25,
+          "embedded": null
+        },
+        {
+          "first": null,
+          "right": false,
+          "answer": "no",
+          "ms": 20,
+          "embedded": null
+        },
+        {
+          "first": null,
+          "right": false,
+          "answer": "no",
+          "ms": 32,
+          "embedded": null
+        }
+      ],
+      "B:qwen3-8b": [
+        {
+          "first": "n8n#",
+          "right": false,
+          "answer": "no",
+          "ms": 857,
+          "embedded": true
+        },
+        {
+          "first": null,
+          "right": false,
+          "answer": "no",
+          "ms": 518,
+          "embedded": false
+        },
+        {
+          "first": "n8n#",
+          "right": false,
+          "answer": "no",
+          "ms": 818,
+          "embedded": true
+        }
+      ],
+      "B:google-multilingual": [
+        {
+          "first": null,
+          "right": false,
+          "answer": "no",
+          "ms": 516,
+          "embedded": false
+        },
+        {
+          "first": "webhooks#how-do-retries-and-failed-deliveries-work",
+          "right": true,
+          "answer": "partial",
+          "ms": 674,
+          "embedded": true
+        },
+        {
+          "first": "webhooks#how-do-retries-and-failed-deliveries-work",
+          "right": true,
+          "answer": "partial",
+          "ms": 769,
+          "embedded": true
+        }
+      ]
+    },
+    {
+      "id": "dh-es-07",
+      "lang": "es",
+      "query": "tienen inicio sesión único saml para",
+      "gold": [
+        "architecture-security#does-customermates-support-sso-or-saml"
+      ],
+      "A": [
+        {
+          "first": "architecture-security#does-customermates-support-sso-or-saml",
+          "right": true,
+          "answer": "yes",
+          "ms": 379,
+          "embedded": null
+        },
+        {
+          "first": "architecture-security#does-customermates-support-sso-or-saml",
+          "right": true,
+          "answer": "yes",
+          "ms": 306,
+          "embedded": null
+        },
+        {
+          "first": "architecture-security#does-customermates-support-sso-or-saml",
+          "right": true,
+          "answer": "yes",
+          "ms": 295,
+          "embedded": null
+        }
+      ],
+      "B:qwen3-8b": [
+        {
+          "first": "architecture-security#does-customermates-support-sso-or-saml",
+          "right": true,
+          "answer": "yes",
+          "ms": 747,
+          "embedded": true
+        },
+        {
+          "first": "architecture-security#does-customermates-support-sso-or-saml",
+          "right": true,
+          "answer": "yes",
+          "ms": 881,
+          "embedded": false
+        },
+        {
+          "first": "architecture-security#does-customermates-support-sso-or-saml",
+          "right": true,
+          "answer": "yes",
+          "ms": 860,
+          "embedded": false
+        }
+      ],
+      "B:google-multilingual": [
+        {
+          "first": "architecture-security#does-customermates-support-sso-or-saml",
+          "right": true,
+          "answer": "yes",
+          "ms": 868,
+          "embedded": false
+        },
+        {
+          "first": "architecture-security#does-customermates-support-sso-or-saml",
+          "right": true,
+          "answer": "yes",
+          "ms": 840,
+          "embedded": false
+        },
+        {
+          "first": "architecture-security#does-customermates-support-sso-or-saml",
+          "right": true,
+          "answer": "yes",
+          "ms": 673,
+          "embedded": true
+        }
+      ]
+    },
+    {
+      "id": "dh-es-08",
+      "lang": "es",
+      "query": "cuánto tiempo sigue conectado claude antes",
+      "gold": [
+        "connect-custom-connector#it-syncs-and-stays-connected"
+      ],
+      "A": [
+        {
+          "first": "connect-custom-connector#it-syncs-and-stays-connected",
+          "right": true,
+          "answer": "yes",
+          "ms": 370,
+          "embedded": null
+        },
+        {
+          "first": "connect-custom-connector#it-syncs-and-stays-connected",
+          "right": true,
+          "answer": "yes",
+          "ms": 352,
+          "embedded": null
+        },
+        {
+          "first": "connect-custom-connector#it-syncs-and-stays-connected",
+          "right": true,
+          "answer": "yes",
+          "ms": 392,
+          "embedded": null
+        }
+      ],
+      "B:qwen3-8b": [
+        {
+          "first": "connect-custom-connector#it-syncs-and-stays-connected",
+          "right": true,
+          "answer": "yes",
+          "ms": 871,
+          "embedded": true
+        },
+        {
+          "first": "connect-custom-connector#it-syncs-and-stays-connected",
+          "right": true,
+          "answer": "yes",
+          "ms": 885,
+          "embedded": false
+        },
+        {
+          "first": "connect-custom-connector#it-syncs-and-stays-connected",
+          "right": true,
+          "answer": "yes",
+          "ms": 815,
+          "embedded": false
+        }
+      ],
+      "B:google-multilingual": [
+        {
+          "first": "connect-custom-connector#it-syncs-and-stays-connected",
+          "right": true,
+          "answer": "yes",
+          "ms": 837,
+          "embedded": false
+        },
+        {
+          "first": "connect-custom-connector#it-syncs-and-stays-connected",
+          "right": true,
+          "answer": "yes",
+          "ms": 759,
+          "embedded": true
+        },
+        {
+          "first": "connect-custom-connector#it-syncs-and-stays-connected",
+          "right": true,
+          "answer": "yes",
+          "ms": 829,
+          "embedded": false
+        }
+      ]
+    },
+    {
+      "id": "dh-fr-01",
+      "lang": "fr",
+      "query": "signifient différents statuts exécution routine",
+      "gold": [
+        "app-routines#what-do-the-runs-and-their-statuses-mean"
+      ],
+      "A": [
+        {
+          "first": "app-routines#what-do-the-runs-and-their-statuses-mean",
+          "right": true,
+          "answer": "partial",
+          "ms": 364,
+          "embedded": null
+        },
+        {
+          "first": "app-routines#what-do-the-runs-and-their-statuses-mean",
+          "right": true,
+          "answer": "partial",
+          "ms": 421,
+          "embedded": null
+        },
+        {
+          "first": "app-routines#what-do-the-runs-and-their-statuses-mean",
+          "right": true,
+          "answer": "partial",
+          "ms": 405,
+          "embedded": null
+        }
+      ],
+      "B:qwen3-8b": [
+        {
+          "first": "app-routines#what-do-the-runs-and-their-statuses-mean",
+          "right": true,
+          "answer": "partial",
+          "ms": 865,
+          "embedded": false
+        },
+        {
+          "first": "app-routines#what-do-the-runs-and-their-statuses-mean",
+          "right": true,
+          "answer": "partial",
+          "ms": 892,
+          "embedded": false
+        },
+        {
+          "first": "app-routines#what-do-the-runs-and-their-statuses-mean",
+          "right": true,
+          "answer": "partial",
+          "ms": 905,
+          "embedded": false
+        }
+      ],
+      "B:google-multilingual": [
+        {
+          "first": "app-routines#what-do-the-runs-and-their-statuses-mean",
+          "right": true,
+          "answer": "partial",
+          "ms": 874,
+          "embedded": false
+        },
+        {
+          "first": "app-routines#what-do-the-runs-and-their-statuses-mean",
+          "right": true,
+          "answer": "partial",
+          "ms": 864,
+          "embedded": false
+        },
+        {
+          "first": "app-routines#what-do-the-runs-and-their-statuses-mean",
+          "right": true,
+          "answer": "partial",
+          "ms": 746,
+          "embedded": true
+        }
+      ]
+    },
+    {
+      "id": "dh-fr-02",
+      "lang": "fr",
+      "query": "pourquoi arrive modifier propre rôle",
+      "gold": [
+        "app-company#what-are-the-rules-for-editing-roles"
+      ],
+      "A": [
+        {
+          "first": "app-company#what-are-the-rules-for-editing-roles",
+          "right": true,
+          "answer": "yes",
+          "ms": 384,
+          "embedded": null
+        },
+        {
+          "first": "app-company#what-are-the-rules-for-editing-roles",
+          "right": true,
+          "answer": "yes",
+          "ms": 380,
+          "embedded": null
+        },
+        {
+          "first": "app-company#what-are-the-rules-for-editing-roles",
+          "right": true,
+          "answer": "yes",
+          "ms": 363,
+          "embedded": null
+        }
+      ],
+      "B:qwen3-8b": [
+        {
+          "first": "app-company#what-are-the-rules-for-editing-roles",
+          "right": true,
+          "answer": "yes",
+          "ms": 837,
+          "embedded": false
+        },
+        {
+          "first": "app-company#what-are-the-rules-for-editing-roles",
+          "right": true,
+          "answer": "yes",
+          "ms": 830,
+          "embedded": true
+        },
+        {
+          "first": "app-company#what-are-the-rules-for-editing-roles",
+          "right": true,
+          "answer": "yes",
+          "ms": 853,
+          "embedded": false
+        }
+      ],
+      "B:google-multilingual": [
+        {
+          "first": "app-company#what-are-the-rules-for-editing-roles",
+          "right": true,
+          "answer": "yes",
+          "ms": 718,
+          "embedded": true
+        },
+        {
+          "first": "app-company#what-are-the-rules-for-editing-roles",
+          "right": true,
+          "answer": "yes",
+          "ms": 791,
+          "embedded": true
+        },
+        {
+          "first": "app-company#what-are-the-rules-for-editing-roles",
+          "right": true,
+          "answer": "yes",
+          "ms": 786,
+          "embedded": true
+        }
+      ]
+    },
+    {
+      "id": "dh-fr-03",
+      "lang": "fr",
+      "query": "boîte réception verrouillée avec offre starter",
+      "gold": [
+        "app-inbox#who-can-use-the-inbox"
+      ],
+      "A": [
+        {
+          "first": "app-inbox#who-can-use-the-inbox",
+          "right": true,
+          "answer": "yes",
+          "ms": 379,
+          "embedded": null
+        },
+        {
+          "first": "app-inbox#who-can-use-the-inbox",
+          "right": true,
+          "answer": "yes",
+          "ms": 407,
+          "embedded": null
+        },
+        {
+          "first": "app-inbox#who-can-use-the-inbox",
+          "right": true,
+          "answer": "yes",
+          "ms": 378,
+          "embedded": null
+        }
+      ],
+      "B:qwen3-8b": [
+        {
+          "first": "app-inbox#who-can-use-the-inbox",
+          "right": true,
+          "answer": "yes",
+          "ms": 783,
+          "embedded": true
+        },
+        {
+          "first": "app-inbox#who-can-use-the-inbox",
+          "right": true,
+          "answer": "yes",
+          "ms": 938,
+          "embedded": false
+        },
+        {
+          "first": "app-inbox#who-can-use-the-inbox",
+          "right": true,
+          "answer": "yes",
+          "ms": 855,
+          "embedded": false
+        }
+      ],
+      "B:google-multilingual": [
+        {
+          "first": "app-inbox#who-can-use-the-inbox",
+          "right": true,
+          "answer": "yes",
+          "ms": 752,
+          "embedded": true
+        },
+        {
+          "first": "app-inbox#who-can-use-the-inbox",
+          "right": true,
+          "answer": "yes",
+          "ms": 827,
+          "embedded": false
+        },
+        {
+          "first": "app-inbox#who-can-use-the-inbox",
+          "right": true,
+          "answer": "yes",
+          "ms": 870,
+          "embedded": false
+        }
+      ]
+    },
+    {
+      "id": "dh-fr-04",
+      "lang": "fr",
+      "query": "comment rendre boîte mail connectée visible",
+      "gold": [
+        "app-profile#private-or-shared"
+      ],
+      "A": [
+        {
+          "first": "app-profile#private-or-shared",
+          "right": true,
+          "answer": "yes",
+          "ms": 360,
+          "embedded": null
+        },
+        {
+          "first": "app-profile#private-or-shared",
+          "right": true,
+          "answer": "yes",
+          "ms": 405,
+          "embedded": null
+        },
+        {
+          "first": "app-profile#private-or-shared",
+          "right": true,
+          "answer": "yes",
+          "ms": 411,
+          "embedded": null
+        }
+      ],
+      "B:qwen3-8b": [
+        {
+          "first": "app-profile#private-or-shared",
+          "right": true,
+          "answer": "yes",
+          "ms": 845,
+          "embedded": true
+        },
+        {
+          "first": "app-profile#private-or-shared",
+          "right": true,
+          "answer": "yes",
+          "ms": 904,
+          "embedded": false
+        },
+        {
+          "first": "app-profile#private-or-shared",
+          "right": true,
+          "answer": "yes",
+          "ms": 836,
+          "embedded": false
+        }
+      ],
+      "B:google-multilingual": [
+        {
+          "first": "app-profile#private-or-shared",
+          "right": true,
+          "answer": "yes",
+          "ms": 839,
+          "embedded": false
+        },
+        {
+          "first": "app-profile#private-or-shared",
+          "right": true,
+          "answer": "yes",
+          "ms": 661,
+          "embedded": true
+        },
+        {
+          "first": "app-profile#private-or-shared",
+          "right": true,
+          "answer": "yes",
+          "ms": 875,
+          "embedded": false
+        }
+      ]
+    },
+    {
+      "id": "dh-fr-05",
+      "lang": "fr",
+      "query": "comment modifier supprimer plusieurs contacts coup",
+      "gold": [
+        "app-records#how-do-i-bulk-update-or-delete-many-records-at-once"
+      ],
+      "A": [
+        {
+          "first": "app-records#how-do-i-bulk-update-or-delete-many-records-at-once",
+          "right": true,
+          "answer": "yes",
+          "ms": 594,
+          "embedded": null
+        },
+        {
+          "first": "app-records#how-do-i-bulk-update-or-delete-many-records-at-once",
+          "right": true,
+          "answer": "yes",
+          "ms": 399,
+          "embedded": null
+        },
+        {
+          "first": "app-records#how-do-i-bulk-update-or-delete-many-records-at-once",
+          "right": true,
+          "answer": "yes",
+          "ms": 390,
+          "embedded": null
+        }
+      ],
+      "B:qwen3-8b": [
+        {
+          "first": "app-records#how-do-i-bulk-update-or-delete-many-records-at-once",
+          "right": true,
+          "answer": "yes",
+          "ms": 792,
+          "embedded": true
+        },
+        {
+          "first": "app-records#how-do-i-bulk-update-or-delete-many-records-at-once",
+          "right": true,
+          "answer": "yes",
+          "ms": 895,
+          "embedded": false
+        },
+        {
+          "first": "app-records#how-do-i-bulk-update-or-delete-many-records-at-once",
+          "right": true,
+          "answer": "yes",
+          "ms": 922,
+          "embedded": false
+        }
+      ],
+      "B:google-multilingual": [
+        {
+          "first": "app-records#how-do-i-bulk-update-or-delete-many-records-at-once",
+          "right": true,
+          "answer": "yes",
+          "ms": 719,
+          "embedded": true
+        },
+        {
+          "first": "app-records#how-do-i-bulk-update-or-delete-many-records-at-once",
+          "right": true,
+          "answer": "yes",
+          "ms": 744,
+          "embedded": true
+        },
+        {
+          "first": "app-records#how-do-i-bulk-update-or-delete-many-records-at-once",
+          "right": true,
+          "answer": "yes",
+          "ms": 778,
+          "embedded": true
+        }
+      ]
+    },
+    {
+      "id": "dh-fr-06",
+      "lang": "fr",
+      "query": "comment trouver contacts sont rattachés aucune",
+      "gold": [
+        "filter-syntax#which-relationship-operators-exist"
+      ],
+      "A": [
+        {
+          "first": "app-records#what-is-the-shared-layout-of-a-record-type",
+          "right": false,
+          "answer": "no",
+          "ms": 389,
+          "embedded": null
+        },
+        {
+          "first": "app-records#what-is-the-shared-layout-of-a-record-type",
+          "right": false,
+          "answer": "no",
+          "ms": 361,
+          "embedded": null
+        },
+        {
+          "first": "app-records#what-is-the-shared-layout-of-a-record-type",
+          "right": false,
+          "answer": "no",
+          "ms": 387,
+          "embedded": null
+        }
+      ],
+      "B:qwen3-8b": [
+        {
+          "first": "filter-syntax#which-relationship-operators-exist",
+          "right": true,
+          "answer": "yes",
+          "ms": 847,
+          "embedded": true
+        },
+        {
+          "first": "app-records#what-is-the-shared-layout-of-a-record-type",
+          "right": false,
+          "answer": "no",
+          "ms": 855,
+          "embedded": false
+        },
+        {
+          "first": "app-records#what-is-the-shared-layout-of-a-record-type",
+          "right": false,
+          "answer": "no",
+          "ms": 842,
+          "embedded": false
+        }
+      ],
+      "B:google-multilingual": [
+        {
+          "first": "app-records#what-is-the-shared-layout-of-a-record-type",
+          "right": false,
+          "answer": "no",
+          "ms": 883,
+          "embedded": false
+        },
+        {
+          "first": "filter-syntax#which-relationship-operators-exist",
+          "right": true,
+          "answer": "yes",
+          "ms": 668,
+          "embedded": true
+        },
+        {
+          "first": "app-records#what-is-the-shared-layout-of-a-record-type",
+          "right": false,
+          "answer": "no",
+          "ms": 885,
+          "embedded": false
+        }
+      ]
+    },
+    {
+      "id": "dh-fr-07",
+      "lang": "fr",
+      "query": "deux webhooks pointent vers même passe",
+      "gold": [
+        "webhooks#one-url-one-configuration"
+      ],
+      "A": [
+        {
+          "first": "webhooks#one-url-one-configuration",
+          "right": true,
+          "answer": "yes",
+          "ms": 379,
+          "embedded": null
+        },
+        {
+          "first": "webhooks#one-url-one-configuration",
+          "right": true,
+          "answer": "yes",
+          "ms": 363,
+          "embedded": null
+        },
+        {
+          "first": "webhooks#one-url-one-configuration",
+          "right": true,
+          "answer": "yes",
+          "ms": 335,
+          "embedded": null
+        }
+      ],
+      "B:qwen3-8b": [
+        {
+          "first": "webhooks#one-url-one-configuration",
+          "right": true,
+          "answer": "yes",
+          "ms": 921,
+          "embedded": false
+        },
+        {
+          "first": "webhooks#one-url-one-configuration",
+          "right": true,
+          "answer": "yes",
+          "ms": 889,
+          "embedded": false
+        },
+        {
+          "first": "webhooks#one-url-one-configuration",
+          "right": true,
+          "answer": "yes",
+          "ms": 917,
+          "embedded": false
+        }
+      ],
+      "B:google-multilingual": [
+        {
+          "first": "webhooks#one-url-one-configuration",
+          "right": true,
+          "answer": "yes",
+          "ms": 802,
+          "embedded": false
+        },
+        {
+          "first": "webhooks#one-url-one-configuration",
+          "right": true,
+          "answer": "yes",
+          "ms": 715,
+          "embedded": true
+        },
+        {
+          "first": "webhooks#one-url-one-configuration",
+          "right": true,
+          "answer": "yes",
+          "ms": 862,
+          "embedded": false
+        }
+      ]
+    },
+    {
+      "id": "dh-fr-08",
+      "lang": "fr",
+      "query": "passe quand atteins limite envoi messages",
+      "gold": [
+        "messaging-rate-limits#what-happens-when-a-limit-is-reached"
+      ],
+      "A": [
+        {
+          "first": "messaging-rate-limits#what-happens-when-a-limit-is-reached",
+          "right": true,
+          "answer": "yes",
+          "ms": 387,
+          "embedded": null
+        },
+        {
+          "first": "messaging-rate-limits#what-happens-when-a-limit-is-reached",
+          "right": true,
+          "answer": "yes",
+          "ms": 417,
+          "embedded": null
+        },
+        {
+          "first": "messaging-rate-limits#what-happens-when-a-limit-is-reached",
+          "right": true,
+          "answer": "yes",
+          "ms": 411,
+          "embedded": null
+        }
+      ],
+      "B:qwen3-8b": [
+        {
+          "first": "messaging-rate-limits#what-happens-when-a-limit-is-reached",
+          "right": true,
+          "answer": "yes",
+          "ms": 882,
+          "embedded": false
+        },
+        {
+          "first": "messaging-rate-limits#what-happens-when-a-limit-is-reached",
+          "right": true,
+          "answer": "yes",
+          "ms": 881,
+          "embedded": false
+        },
+        {
+          "first": "messaging-rate-limits#what-happens-when-a-limit-is-reached",
+          "right": true,
+          "answer": "yes",
+          "ms": 866,
+          "embedded": false
+        }
+      ],
+      "B:google-multilingual": [
+        {
+          "first": "messaging-rate-limits#what-happens-when-a-limit-is-reached",
+          "right": true,
+          "answer": "yes",
+          "ms": 882,
+          "embedded": false
+        },
+        {
+          "first": "messaging-rate-limits#what-happens-when-a-limit-is-reached",
+          "right": true,
+          "answer": "yes",
+          "ms": 847,
+          "embedded": false
+        },
+        {
+          "first": "messaging-rate-limits#what-happens-when-a-limit-is-reached",
+          "right": true,
+          "answer": "yes",
+          "ms": 784,
+          "embedded": true
+        }
+      ]
+    },
+    {
+      "id": "dh-it-01",
+      "lang": "it",
+      "query": "cosa succede quando finisce periodo prova",
+      "gold": [
+        "app-company#what-happens-when-the-trial-ends-or-a-payment-fails"
+      ],
+      "A": [
+        {
+          "first": null,
+          "right": false,
+          "answer": "no",
+          "ms": 22,
+          "embedded": null
+        },
+        {
+          "first": null,
+          "right": false,
+          "answer": "no",
+          "ms": 18,
+          "embedded": null
+        },
+        {
+          "first": null,
+          "right": false,
+          "answer": "no",
+          "ms": 21,
+          "embedded": null
+        }
+      ],
+      "B:qwen3-8b": [
+        {
+          "first": "app-company#what-happens-when-the-trial-ends-or-a-payment-fails",
+          "right": true,
+          "answer": "partial",
+          "ms": 902,
+          "embedded": true
+        },
+        {
+          "first": null,
+          "right": false,
+          "answer": "no",
+          "ms": 531,
+          "embedded": false
+        },
+        {
+          "first": "app-company#what-happens-when-the-trial-ends-or-a-payment-fails",
+          "right": true,
+          "answer": "partial",
+          "ms": 750,
+          "embedded": true
+        }
+      ],
+      "B:google-multilingual": [
+        {
+          "first": null,
+          "right": false,
+          "answer": "no",
+          "ms": 521,
+          "embedded": false
+        },
+        {
+          "first": null,
+          "right": false,
+          "answer": "no",
+          "ms": 514,
+          "embedded": false
+        },
+        {
+          "first": null,
+          "right": false,
+          "answer": "no",
+          "ms": 540,
+          "embedded": false
+        }
+      ]
+    },
+    {
+      "id": "dh-it-02",
+      "lang": "it",
+      "query": "come funzionano probabilità fase valore ponderato",
+      "gold": [
+        "app-company#how-do-stage-probabilities-and-totals-work"
+      ],
+      "A": [
+        {
+          "first": "app-company#how-do-stage-probabilities-and-totals-work",
+          "right": true,
+          "answer": "yes",
+          "ms": 322,
+          "embedded": null
+        },
+        {
+          "first": "app-company#how-do-stage-probabilities-and-totals-work",
+          "right": true,
+          "answer": "yes",
+          "ms": 376,
+          "embedded": null
+        },
+        {
+          "first": "app-company#how-do-stage-probabilities-and-totals-work",
+          "right": true,
+          "answer": "yes",
+          "ms": 403,
+          "embedded": null
+        }
+      ],
+      "B:qwen3-8b": [
+        {
+          "first": "concepts#how-does-a-weighted-pipeline-work",
+          "right": true,
+          "answer": "yes",
+          "ms": 823,
+          "embedded": true
+        },
+        {
+          "first": "app-company#how-do-stage-probabilities-and-totals-work",
+          "right": true,
+          "answer": "yes",
+          "ms": 847,
+          "embedded": false
+        },
+        {
+          "first": "concepts#how-does-a-weighted-pipeline-work",
+          "right": true,
+          "answer": "yes",
+          "ms": 759,
+          "embedded": true
+        }
+      ],
+      "B:google-multilingual": [
+        {
+          "first": "app-company#how-do-stage-probabilities-and-totals-work",
+          "right": true,
+          "answer": "yes",
+          "ms": 841,
+          "embedded": false
+        },
+        {
+          "first": "app-company#how-do-stage-probabilities-and-totals-work",
+          "right": true,
+          "answer": "yes",
+          "ms": 824,
+          "embedded": false
+        },
+        {
+          "first": "concepts#how-does-a-weighted-pipeline-work",
+          "right": true,
+          "answer": "yes",
+          "ms": 839,
+          "embedded": true
+        }
+      ]
+    },
+    {
+      "id": "dh-it-03",
+      "lang": "it",
+      "query": "cosa significano stati conversazione nella posta",
+      "gold": [
+        "app-inbox#what-do-the-thread-states-mean"
+      ],
+      "A": [
+        {
+          "first": null,
+          "right": false,
+          "answer": "no",
+          "ms": 23,
+          "embedded": null
+        },
+        {
+          "first": null,
+          "right": false,
+          "answer": "no",
+          "ms": 23,
+          "embedded": null
+        },
+        {
+          "first": null,
+          "right": false,
+          "answer": "no",
+          "ms": 25,
+          "embedded": null
+        }
+      ],
+      "B:qwen3-8b": [
+        {
+          "first": "app-inbox#what-do-the-thread-states-mean",
+          "right": true,
+          "answer": "yes",
+          "ms": 793,
+          "embedded": true
+        },
+        {
+          "first": null,
+          "right": false,
+          "answer": "no",
+          "ms": 514,
+          "embedded": false
+        },
+        {
+          "first": "app-inbox#what-do-the-thread-states-mean",
+          "right": true,
+          "answer": "yes",
+          "ms": 770,
+          "embedded": true
+        }
+      ],
+      "B:google-multilingual": [
+        {
+          "first": "app-inbox#what-do-the-thread-states-mean",
+          "right": true,
+          "answer": "yes",
+          "ms": 662,
+          "embedded": true
+        },
+        {
+          "first": "app-inbox#what-do-the-thread-states-mean",
+          "right": true,
+          "answer": "yes",
+          "ms": 678,
+          "embedded": true
+        },
+        {
+          "first": "app-inbox#what-do-the-thread-states-mean",
+          "right": true,
+          "answer": "yes",
+          "ms": 747,
+          "embedded": true
+        }
+      ]
+    },
+    {
+      "id": "dh-it-04",
+      "lang": "it",
+      "query": "posso cambiare carattere firma delle email",
+      "gold": [
+        "app-profile#email-appearance-and-signature"
+      ],
+      "A": [
+        {
+          "first": "app-inbox#how-do-i-set-an-email-signature",
+          "right": true,
+          "answer": "yes",
+          "ms": 657,
+          "embedded": null
+        },
+        {
+          "first": "app-profile#email-appearance-and-signature",
+          "right": true,
+          "answer": "yes",
+          "ms": 395,
+          "embedded": null
+        },
+        {
+          "first": "app-inbox#how-do-i-set-an-email-signature",
+          "right": true,
+          "answer": "yes",
+          "ms": 374,
+          "embedded": null
+        }
+      ],
+      "B:qwen3-8b": [
+        {
+          "first": "app-profile#email-appearance-and-signature",
+          "right": true,
+          "answer": "yes",
+          "ms": 823,
+          "embedded": true
+        },
+        {
+          "first": "app-inbox#how-do-i-set-an-email-signature",
+          "right": true,
+          "answer": "yes",
+          "ms": 873,
+          "embedded": false
+        },
+        {
+          "first": "app-profile#email-appearance-and-signature",
+          "right": true,
+          "answer": "yes",
+          "ms": 790,
+          "embedded": true
+        }
+      ],
+      "B:google-multilingual": [
+        {
+          "first": "app-profile#email-appearance-and-signature",
+          "right": true,
+          "answer": "yes",
+          "ms": 648,
+          "embedded": true
+        },
+        {
+          "first": "app-profile#email-appearance-and-signature",
+          "right": true,
+          "answer": "yes",
+          "ms": 697,
+          "embedded": true
+        },
+        {
+          "first": "app-inbox#how-do-i-set-an-email-signature",
+          "right": true,
+          "answer": "yes",
+          "ms": 881,
+          "embedded": false
+        }
+      ]
+    },
+    {
+      "id": "dh-it-05",
+      "lang": "it",
+      "query": "posso condividere vista salvata colleghi",
+      "gold": [
+        "app-records#how-do-saved-views-work"
+      ],
+      "A": [
+        {
+          "first": null,
+          "right": false,
+          "answer": "no",
+          "ms": 16,
+          "embedded": null
+        },
+        {
+          "first": null,
+          "right": false,
+          "answer": "no",
+          "ms": 15,
+          "embedded": null
+        },
+        {
+          "first": null,
+          "right": false,
+          "answer": "no",
+          "ms": 19,
+          "embedded": null
+        }
+      ],
+      "B:qwen3-8b": [
+        {
+          "first": "app-records#how-do-saved-views-work",
+          "right": true,
+          "answer": "yes",
+          "ms": 719,
+          "embedded": true
+        },
+        {
+          "first": null,
+          "right": false,
+          "answer": "no",
+          "ms": 526,
+          "embedded": false
+        },
+        {
+          "first": null,
+          "right": false,
+          "answer": "no",
+          "ms": 514,
+          "embedded": false
+        }
+      ],
+      "B:google-multilingual": [
+        {
+          "first": null,
+          "right": false,
+          "answer": "no",
+          "ms": 521,
+          "embedded": false
+        },
+        {
+          "first": "app-records#how-do-saved-views-work",
+          "right": true,
+          "answer": "yes",
+          "ms": 657,
+          "embedded": true
+        },
+        {
+          "first": "app-records#how-do-saved-views-work",
+          "right": true,
+          "answer": "yes",
+          "ms": 668,
+          "embedded": true
+        }
+      ]
+    },
+    {
+      "id": "dh-it-06",
+      "lang": "it",
+      "query": "come filtro trattative create negli ultimi",
+      "gold": [
+        "filter-syntax#which-date-operators-exist"
+      ],
+      "A": [
+        {
+          "first": "n8n#how-do-i-write-to-customermates-from-n8n",
+          "right": false,
+          "answer": "no",
+          "ms": 465,
+          "embedded": null
+        },
+        {
+          "first": "n8n#how-do-i-write-to-customermates-from-n8n",
+          "right": false,
+          "answer": "no",
+          "ms": 400,
+          "embedded": null
+        },
+        {
+          "first": "n8n#how-do-i-write-to-customermates-from-n8n",
+          "right": false,
+          "answer": "no",
+          "ms": 373,
+          "embedded": null
+        }
+      ],
+      "B:qwen3-8b": [
+        {
+          "first": "n8n#how-do-i-write-to-customermates-from-n8n",
+          "right": false,
+          "answer": "no",
+          "ms": 863,
+          "embedded": false
+        },
+        {
+          "first": "n8n#how-do-i-write-to-customermates-from-n8n",
+          "right": false,
+          "answer": "no",
+          "ms": 829,
+          "embedded": false
+        },
+        {
+          "first": "n8n#how-do-i-write-to-customermates-from-n8n",
+          "right": false,
+          "answer": "no",
+          "ms": 1014,
+          "embedded": false
+        }
+      ],
+      "B:google-multilingual": [
+        {
+          "first": "n8n#how-do-i-write-to-customermates-from-n8n",
+          "right": false,
+          "answer": "no",
+          "ms": 907,
+          "embedded": false
+        },
+        {
+          "first": "filter-syntax#examples",
+          "right": true,
+          "answer": "yes",
+          "ms": 714,
+          "embedded": true
+        },
+        {
+          "first": "n8n#how-do-i-write-to-customermates-from-n8n",
+          "right": false,
+          "answer": "no",
+          "ms": 868,
+          "embedded": false
+        }
+      ]
+    },
+    {
+      "id": "dh-it-07",
+      "lang": "it",
+      "query": "cosa devo impostare base dominio",
+      "gold": [
+        "self-hosting#base-url"
+      ],
+      "A": [
+        {
+          "first": "self-hosting#base-url",
+          "right": true,
+          "answer": "yes",
+          "ms": 384,
+          "embedded": null
+        },
+        {
+          "first": "self-hosting#base-url",
+          "right": true,
+          "answer": "yes",
+          "ms": 468,
+          "embedded": null
+        },
+        {
+          "first": "self-hosting#base-url",
+          "right": true,
+          "answer": "yes",
+          "ms": 357,
+          "embedded": null
+        }
+      ],
+      "B:qwen3-8b": [
+        {
+          "first": "self-hosting#base-url",
+          "right": true,
+          "answer": "yes",
+          "ms": 799,
+          "embedded": true
+        },
+        {
+          "first": "self-hosting#base-url",
+          "right": true,
+          "answer": "yes",
+          "ms": 750,
+          "embedded": true
+        },
+        {
+          "first": "self-hosting#base-url",
+          "right": true,
+          "answer": "yes",
+          "ms": 1004,
+          "embedded": false
+        }
+      ],
+      "B:google-multilingual": [
+        {
+          "first": "self-hosting#base-url",
+          "right": true,
+          "answer": "yes",
+          "ms": 805,
+          "embedded": true
+        },
+        {
+          "first": "self-hosting#base-url",
+          "right": true,
+          "answer": "yes",
+          "ms": 718,
+          "embedded": true
+        },
+        {
+          "first": "self-hosting#base-url",
+          "right": true,
+          "answer": "yes",
+          "ms": 875,
+          "embedded": false
+        }
+      ]
+    },
+    {
+      "id": "dh-it-08",
+      "lang": "it",
+      "query": "timeline delle attività mostrare anche eventi",
+      "gold": [
+        "app-dashboard#what-can-an-activity-timeline-show"
+      ],
+      "A": [
+        {
+          "first": "app-dashboard#what-can-an-activity-timeline-show",
+          "right": true,
+          "answer": "yes",
+          "ms": 388,
+          "embedded": null
+        },
+        {
+          "first": "app-dashboard#what-can-an-activity-timeline-show",
+          "right": true,
+          "answer": "yes",
+          "ms": 313,
+          "embedded": null
+        },
+        {
+          "first": "app-dashboard#what-can-an-activity-timeline-show",
+          "right": true,
+          "answer": "yes",
+          "ms": 343,
+          "embedded": null
+        }
+      ],
+      "B:qwen3-8b": [
+        {
+          "first": "app-dashboard#what-can-an-activity-timeline-show",
+          "right": true,
+          "answer": "yes",
+          "ms": 856,
+          "embedded": false
+        },
+        {
+          "first": "app-dashboard#what-can-an-activity-timeline-show",
+          "right": true,
+          "answer": "yes",
+          "ms": 809,
+          "embedded": true
+        },
+        {
+          "first": "app-dashboard#what-can-an-activity-timeline-show",
+          "right": true,
+          "answer": "yes",
+          "ms": 829,
+          "embedded": false
+        }
+      ],
+      "B:google-multilingual": [
+        {
+          "first": "app-dashboard#what-can-an-activity-timeline-show",
+          "right": true,
+          "answer": "yes",
+          "ms": 877,
+          "embedded": false
+        },
+        {
+          "first": "app-dashboard#what-can-an-activity-timeline-show",
+          "right": true,
+          "answer": "yes",
+          "ms": 927,
+          "embedded": false
+        },
+        {
+          "first": "app-dashboard#what-can-an-activity-timeline-show",
+          "right": true,
+          "answer": "yes",
+          "ms": 813,
+          "embedded": true
+        }
+      ]
+    }
+  ],
+  "spendUsd": 0.6286,
+  "spendByUse": {
+    "emb-offline:index-estimate:qwen3-8b": {
+      "usd": 0.00204268,
+      "zdrUsd": 0.0002,
+      "calls": 2,
+      "unmeasured": 0
+    },
+    "emb-offline:index-estimate:google-multilingual": {
+      "usd": 0.0051067000000000005,
+      "zdrUsd": 0.0002,
+      "calls": 2,
+      "unmeasured": 0
+    },
+    "emb-offline:query-embedding:qwen3-8b": {
+      "usd": 0.0001906900000000001,
+      "zdrUsd": 0.04800000000000035,
+      "calls": 480,
+      "unmeasured": 0
+    },
+    "emb-offline:jev:jev": {
+      "usd": 0.19526330999999972,
+      "zdrUsd": 0.10080000000000186,
+      "calls": 1008,
+      "unmeasured": 0
+    },
+    "emb-offline:query-embedding:google-multilingual": {
+      "usd": 0.00014850999999999995,
+      "zdrUsd": 0.04800000000000035,
+      "calls": 480,
+      "unmeasured": 0
+    },
+    "emb-offline:judge:google/gemini-3-flash": {
+      "usd": 0.17886749999999982,
+      "zdrUsd": 0.0498000000000004,
+      "calls": 498,
+      "unmeasured": 0
+    }
+  }
+}

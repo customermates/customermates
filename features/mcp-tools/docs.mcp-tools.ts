@@ -306,64 +306,20 @@ export type DocsRankCandidate = DocsRerankCandidate & { titleOnly: boolean };
 
 export type DocsSectionRanker = (query: string, candidates: readonly DocsRankCandidate[]) => Promise<number[] | null>;
 
-function withTopPageTitles(index: DocsSectionIndex, query: string, ranked: readonly DocsRerankCandidate[]) {
-  const rankedIds = new Set(ranked.map(({ id }) => id));
+export function docsRankCandidates(query: string, locale: DocsLocale): DocsRankCandidate[] {
+  const index = buildIndex("docs", locale);
+  const lexical = topSectionCandidates(index, query);
+  const lexicalIds = new Set(lexical.map(({ id }) => id));
   const topPages = new Set(
     rankPages(searchSections(index, query, 40))
       .slice(0, DOCS_RANK_TOP_PAGES)
       .map((page) => `${page.source}:${page.slug}`),
   );
   const titles = index.sections.flatMap((section, id) =>
-    !rankedIds.has(id) && topPages.has(`${section.source}:${section.slug}`) ? [{ id, section, titleOnly: true }] : [],
+    !lexicalIds.has(id) && topPages.has(`${section.source}:${section.slug}`) ? [{ id, section, titleOnly: true }] : [],
   );
-  const candidates = [...ranked.map((candidate) => ({ ...candidate, titleOnly: false })), ...titles];
+  const candidates = [...lexical.map((candidate) => ({ ...candidate, titleOnly: false })), ...titles];
   return candidates.slice(0, DOCS_RANK_MAX_CANDIDATES);
-}
-
-export function docsRankCandidates(query: string, locale: DocsLocale): DocsRankCandidate[] {
-  const index = buildIndex("docs", locale);
-  return withTopPageTitles(index, query, topSectionCandidates(index, query));
-}
-
-export const DOCS_HYBRID_KEYWORD_CANDIDATES = 10;
-export const DOCS_HYBRID_EMBEDDING_CANDIDATES = 10;
-
-export type DocsEmbeddingSearch = (query: string, locale: DocsLocale) => Promise<readonly number[] | null>;
-
-export function docsEmbeddingSections(locale: DocsLocale): readonly DocsSection[] {
-  return buildIndex("docs", locale).sections;
-}
-
-export function hybridSectionIds(keywordIds: readonly number[], embeddingIds: readonly number[]): number[] {
-  const chosen: number[] = [];
-  const add = (id: number | undefined) => {
-    if (id !== undefined && !chosen.includes(id) && chosen.length < DOCS_RERANK_CANDIDATES) chosen.push(id);
-  };
-  keywordIds.slice(0, DOCS_HYBRID_KEYWORD_CANDIDATES).forEach(add);
-  embeddingIds.slice(0, DOCS_HYBRID_EMBEDDING_CANDIDATES).forEach(add);
-  const keywordRest = keywordIds.slice(DOCS_HYBRID_KEYWORD_CANDIDATES);
-  const embeddingRest = embeddingIds.slice(DOCS_HYBRID_EMBEDDING_CANDIDATES);
-  for (let rank = 0; rank < Math.max(keywordRest.length, embeddingRest.length); rank += 1) {
-    add(keywordRest[rank]);
-    add(embeddingRest[rank]);
-  }
-  return chosen;
-}
-
-export function hybridDocsRankCandidates(
-  query: string,
-  locale: DocsLocale,
-  embeddingIds: readonly number[],
-): DocsRankCandidate[] {
-  const index = buildIndex("docs", locale);
-  const keywordIds = topSectionCandidates(index, query).map(({ id }) => id);
-  const known = embeddingIds.filter((id) => Number.isInteger(id) && id >= 0 && id < index.sections.length);
-  const ids = hybridSectionIds(keywordIds, known);
-  return withTopPageTitles(
-    index,
-    query,
-    ids.map((id) => ({ id, section: index.sections[id] })),
-  );
 }
 
 export function docsPageRankCandidates(page: { source: DocsSource; locale: DocsLocale; slug: string }) {
@@ -402,22 +358,10 @@ function rankedDocsSearchText(results: DocsSearchHit[], total: number, chosen: r
   return `matches:\n${matches}\ntotal=${total}\nbest=${results[0].url}\nexcerpt=\n${excerpts}`;
 }
 
-export async function searchDocsRanked(
-  input: SearchDocsInput,
-  rank: DocsSectionRanker,
-  embeddingSearch?: DocsEmbeddingSearch,
-) {
-  const embedded =
-    input.source === "docs" && embeddingSearch
-      ? embeddingSearch(input.query, input.locale).catch(() => null)
-      : Promise.resolve(null);
+export async function searchDocsRanked(input: SearchDocsInput, rank: DocsSectionRanker) {
   const keyword = keywordDocsSearch(input);
   if (input.source !== "docs") return keyword;
-  const embeddingIds = await embedded;
-  const candidates = embeddingIds
-    ? hybridDocsRankCandidates(input.query, input.locale, embeddingIds)
-    : docsRankCandidates(input.query, input.locale);
-  const chosen = await rankedSections(input.query, candidates, rank);
+  const chosen = await rankedSections(input.query, docsRankCandidates(input.query, input.locale), rank);
   if (!chosen) return keyword;
   const chosenHits: DocsSearchHit[] = chosen.map((section) => ({
     slug: section.slug,
