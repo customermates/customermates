@@ -1219,6 +1219,7 @@
       "customFieldInvalidSingleSelect": "Der Single-Select-Wert ist ungültig. Muss eine der erlaubten Optionen sein: {validValues}.",
       "customFieldInvalidUrl": "Der URL-Wert ist ungültig. Muss ein gültiges URL-Format haben (z.B. https://example.com). Bei mehreren URLs durch Komma trennen (z.B. https://example.com, https://example.org).",
       "dataViewAllNameImmutable": "Die Ansicht Alle kann nicht umbenannt werden. Lasse name weg und ändere nur die angeforderten Einstellungen in state. Lies vor einem erneuten Versuch config für unterstützte Einstellungen und list für den aktuellen Zustand.",
+      "dataViewLayoutReadOnly": "Spaltenreihenfolge, Spaltenbreiten und ausgeblendete Spalten lassen sich nur in der App ändern. Lasse columnOrder, columnWidths und hiddenColumns weg oder sende sie genau so, wie list sie zurückgegeben hat.",
       "dataViewNotFound": "Diese gespeicherte Ansicht wurde nicht gefunden.",
       "dataViewUpdateEmpty": "Gib einen Namen oder mindestens eine Ansichtseinstellung an, die aktualisiert werden soll.",
       "dealNotFound": "Deal-ID nicht gefunden oder nicht zugänglich.",

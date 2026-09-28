@@ -21,6 +21,7 @@ import { ManageDataViewsInteractor } from "../manage-data-views.interactor";
 import {
   ManageDataViewsResultSchema,
   type AgentDataViewState,
+  type AgentDataViewUpdateState,
   type ManageDataViewsData,
 } from "../manage-data-views.schema";
 import de from "@/i18n/locales/de.json";
@@ -543,6 +544,87 @@ describe("agent saved-view management", () => {
       },
       link: `/contacts?view=${VIEW_ID}`,
     });
+  });
+
+  it("accepts the full listed state echoed back and applies only the keys that changed", async () => {
+    const subject = setup();
+    subject.surfaceState.views[0].state = {
+      ...subject.surfaceState.views[0].state,
+      columnOrder: ["name", "createdAt"],
+      hiddenColumns: ["updatedAt"],
+    } as never;
+    const listed = await subject.run({ action: "list", surfaceKey: SURFACE.contacts, viewKey: VIEW_ID });
+    const item = (listed.ok && listed.data.items?.[0]) as { name: string; state: Record<string, unknown> };
+    expect(item.state).toMatchObject({ columnOrder: ["name", "createdAt"], hiddenColumns: ["updatedAt"] });
+
+    const result = await subject.run({
+      action: "update",
+      surfaceKey: SURFACE.contacts,
+      viewKey: VIEW_ID,
+      name: item.name,
+      state: { ...item.state, searchTerm: "new", viewMode: ViewMode.card } as AgentDataViewUpdateState,
+    });
+
+    expect(result.ok).toBe(true);
+    expect(subject.upsert.invoke).toHaveBeenCalledWith({
+      id: VIEW_ID,
+      surfaceKey: SURFACE.contacts,
+      state: { searchTerm: "new", viewMode: ViewMode.card },
+    });
+  });
+
+  it("treats an unchanged echo of the listed state as a no-op without writing or reading configuration", async () => {
+    const subject = setup();
+    subject.sources[SURFACE.contacts].getCustomColumns.mockRejectedValue(new Error("configuration unavailable"));
+    const [view] = subject.surfaceState.views;
+
+    const named = await subject.run({
+      action: "update",
+      surfaceKey: SURFACE.contacts,
+      viewKey: VIEW_ID,
+      name: view.name,
+      state: view.state as AgentDataViewUpdateState,
+    });
+    expect(named.ok && named.data).toMatchObject({
+      action: "update",
+      viewKey: VIEW_ID,
+      name: view.name,
+      state: view.state,
+      link: `/contacts?view=${VIEW_ID}`,
+    });
+
+    const all = await subject.run({
+      action: "update",
+      surfaceKey: SURFACE.contacts,
+      viewKey: ALL_VIEW_KEY,
+      state: { pageSize: 25 },
+    });
+    expect(all.ok && all.data).toMatchObject({ viewKey: ALL_VIEW_KEY, state: { pageSize: 25 } });
+    expect(subject.upsert.invoke).not.toHaveBeenCalled();
+    expect(subject.save.invoke).not.toHaveBeenCalled();
+  });
+
+  it("rejects a changed column layout with an explanation and writes nothing", async () => {
+    const subject = setup();
+    const cases: Array<[string, AgentDataViewUpdateState]> = [
+      [VIEW_ID, { searchTerm: "new", columnWidths: { name: 300 } }],
+      [VIEW_ID, { hiddenColumns: ["createdAt"] }],
+      [ALL_VIEW_KEY, { columnOrder: ["createdAt", "name"] }],
+    ];
+    for (const [viewKey, state] of cases) {
+      const result = await subject.run({ action: "update", surfaceKey: SURFACE.contacts, viewKey, state });
+      expect(result.ok).toBe(false);
+      if (!result.ok) {
+        expect(result.error.issues).toEqual([
+          expect.objectContaining({
+            path: ["state", Object.keys(state).at(-1)],
+            params: { error: CustomErrorCode.dataViewLayoutReadOnly },
+          }),
+        ]);
+      }
+    }
+    expect(subject.upsert.invoke).not.toHaveBeenCalled();
+    expect(subject.save.invoke).not.toHaveBeenCalled();
   });
 
   it("renames without loading or validating unrelated view configuration", async () => {

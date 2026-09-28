@@ -17,6 +17,8 @@ import type {
 } from "./manage-data-views.schema";
 import type { Validated } from "@/core/validation/validation.utils";
 
+import equal from "fast-deep-equal/es6";
+
 import { Action, Resource } from "@/generated/prisma";
 import { AuthenticatedInteractor } from "@/core/base/authenticated-interactor";
 import { ViewMode } from "@/core/base/base-query-builder";
@@ -41,7 +43,11 @@ import { DomainEvent } from "@/features/event/domain-events";
 import { DATA_VIEW_SURFACES } from "./data-view-surfaces";
 import { ActivityFiltersSchema } from "@/ee/messaging/activities/activities.schema";
 import { getZodParseContext } from "@/core/validation/zod-error-map-server";
-import { ManageDataViewsResultSchema, ManageDataViewsSchema } from "./manage-data-views.schema";
+import {
+  DATA_VIEW_LAYOUT_FIELDS,
+  ManageDataViewsResultSchema,
+  ManageDataViewsSchema,
+} from "./manage-data-views.schema";
 
 export abstract class DataViewConfigurationRepo {
   abstract getSearchableFields(): SearchableField[];
@@ -295,17 +301,39 @@ export class ManageDataViewsInteractor extends AuthenticatedInteractor<ManageDat
 
     if (data.viewKey === ALL_VIEW_KEY && data.name !== undefined)
       return fail(CustomErrorCode.dataViewAllNameImmutable, ["name"]);
+    const currentState = owned?.state ?? surfaceState.allState;
+    const name = data.name !== undefined && data.name !== owned?.name ? data.name : undefined;
 
-    if (data.state !== undefined) {
-      const checked = await this.validateState(data.surfaceKey, data.state);
+    const changed = Object.entries(data.state ?? {}).filter(
+      ([field, value]) => !equal(value, currentState[field as keyof typeof currentState]),
+    );
+    const layoutField = changed.find(([field]) => (DATA_VIEW_LAYOUT_FIELDS as readonly string[]).includes(field));
+    if (layoutField) return fail(CustomErrorCode.dataViewLayoutReadOnly, ["state", layoutField[0]]);
+    const state = changed.length > 0 ? (Object.fromEntries(changed) as AgentDataViewState) : undefined;
+
+    if (name === undefined && state === undefined) {
+      return {
+        ok: true,
+        data: {
+          action: data.action,
+          ...(owned ?? { state: currentState }),
+          ...location,
+          viewKey: data.viewKey,
+          link: this.link(descriptor.path, data.viewKey),
+        },
+      };
+    }
+
+    if (state !== undefined) {
+      const checked = await this.validateState(data.surfaceKey, state);
       if (!checked.ok) return checked;
     }
     if (owned) {
       const result = await this.upsert.invoke({
         id: owned.id,
         surfaceKey: data.surfaceKey,
-        ...(data.name !== undefined ? { name: data.name } : {}),
-        ...(data.state !== undefined ? { state: data.state } : {}),
+        ...(name !== undefined ? { name } : {}),
+        ...(state !== undefined ? { state } : {}),
       });
       if (!result.ok) return result;
       return {
@@ -322,7 +350,7 @@ export class ManageDataViewsInteractor extends AuthenticatedInteractor<ManageDat
     const result = await this.saveState.invoke({
       surfaceKey: data.surfaceKey,
       viewKey: ALL_VIEW_KEY,
-      state: data.state ?? {},
+      state: state ?? {},
     });
     if (!result.ok) return result;
     const savedAllState = result.data;

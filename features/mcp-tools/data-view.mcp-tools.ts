@@ -9,7 +9,7 @@ import { DATA_VIEW_NAME_MAX_LENGTH } from "@/core/data-view/data-view-limits";
 import { ViewKeySchema } from "@/core/data-view/data-view-state.schema";
 import { getZodParseContext } from "@/core/validation/zod-error-map-server";
 import {
-  AgentDataViewStateSchema,
+  AgentDataViewUpdateStateSchema,
   DataViewConfigSectionSchema,
   ManageDataViewPageSchema,
   ManageDataViewPageSizeSchema,
@@ -53,8 +53,8 @@ export const ManageDataViewsToolSchema = z
       "Config and summary-list only. Narrow by an exact or partial field id, label, view id or view name after a truncated or broad result. Ignored for an exact viewKey.",
     ),
     name: z.string().trim().min(1).max(DATA_VIEW_NAME_MAX_LENGTH).optional().describe("Required on create."),
-    state: AgentDataViewStateSchema.optional().describe(
-      "Call config first. Create: initial state. Update: call list immediately before every update with the exact viewKey; include only keys the user asked to change. Arrays replace. Never copy old conversation/full state.",
+    state: AgentDataViewUpdateStateSchema.optional().describe(
+      "Call config first. Create: initial state without columnOrder, columnWidths or hiddenColumns. Update: call list immediately before every update with the exact viewKey; include only keys the user asked to change. Keys equal to the listed value are no-ops; columnOrder, columnWidths and hiddenColumns change only in the app. Arrays replace. Never copy old conversation/full state.",
     ),
   })
   .strict()

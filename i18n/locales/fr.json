@@ -1219,6 +1219,7 @@
       "customFieldInvalidSingleSelect": "La valeur du choix unique est invalide. Elle doit faire partie des options autorisées : {validValues}.",
       "customFieldInvalidUrl": "L'URL est invalide. Elle doit respecter le format d'une URL (par exemple https://example.com). Pour plusieurs URL, séparez-les par une virgule (par exemple https://example.com, https://example.org).",
       "dataViewAllNameImmutable": "La vue Toutes ne peut pas être renommée. Omettez name et modifiez uniquement les paramètres demandés dans state. Consultez config pour les paramètres pris en charge et list pour l’état actuel avant de réessayer.",
+      "dataViewLayoutReadOnly": "L’ordre, la largeur et le masquage des colonnes ne peuvent être modifiés que dans l’application. Omettez columnOrder, columnWidths et hiddenColumns, ou envoyez-les exactement tels que list les a renvoyés.",
       "dataViewNotFound": "Cette vue enregistrée est introuvable.",
       "dataViewUpdateEmpty": "Indiquez un nom ou au moins un paramètre de vue à mettre à jour.",
       "dealNotFound": "ID d'affaire introuvable ou inaccessible.",
