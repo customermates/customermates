@@ -63,10 +63,53 @@ The fair classifier retest left these live cases in the registry; their data liv
 ## Findings
 
 - Jev docs re-rank ships on by default: held-out docs pass rose from 84.3 % to 93.0 % (300 pairs, McNemar p = 6e-6). Evidence: `reports/2026-09-27-classifier-live-heldout-6b5570b2/heldout-live.md`.
-- Docs embedding candidates before the re-rank tied live (93.2 % against 92.5 %, p = 0.52) while `search_docs` p95 rose from 0.76 to 1.92 s. Their code was removed; do not re-add them without a new measurement.
+- Docs embedding candidates before the re-rank tied live (93.2 % against 92.5 %, p = 0.52) while `search_docs` p95 rose from 0.76 to 1.92 s. That code was removed. The unified retrieval pipeline below brings embeddings back for docs as part of one pipeline shared with the Workspace Wiki, and ships only if the live A/B below passes.
 - The toolset routing classifier and the guard classifier failed their gates and were removed.
 - The runtime same-name guard was removed: 300 live same-name episodes showed no wrong-record write that needed it as the primary defence, and its word lists falsely blocked 10 of 32 paraphrases.
 - The full evidence (pre-registration, held-out sets, analysis scripts and all reports) is archived at tag `archive/pr-184-evidence`.
+
+## Retrieval A/B: unified pipeline against the current split
+
+One build contains both retrieval paths. `selectRetrievalPipeline` in `core/retrieval/retrieval-selection.ts` returns
+`unified` everywhere, and `legacy` only when the server runs with `LOCAL_AGENT_BENCHMARK=true`,
+`AGENT_BENCHMARK_RETRIEVAL=legacy` and no Vercel deployment variable, so no customer can reach the switch.
+
+- `legacy` is the split this pipeline replaces: the hand-tuned docs keyword ranker plus the Jev re-rank for docs, and
+  the Wiki's BM25, spelling-suggestion and hybrid ranking.
+- `unified` runs one pipeline for `search_docs`, `get_docs_page`, `manage_wiki_pages` search and MCP `search`: PostgreSQL
+  full-text search with the built-in `simple` and language configurations, and in parallel one query embedding with the
+  Wiki's model (cached per workspace, shared across concurrent calls), then reciprocal-rank fusion with identifier pinning,
+  then the Jev re-rank of sections on hosted Mate. Without credits, self-hosted, without a Gateway key or in the demo it is
+  full-text only; a query embedding slower than 450 ms (its vector is still cached for the next call) or failing, and a failing or slow re-rank, keep the fused or
+  full-text order.
+- Documentation is stored as one global chunk set per documentation build (`DocsChunk`, keyed by the build hash of the
+  section-chunked English and German docs and REST reference). The first search of a process writes a missing build
+  (full-text needs it); embeddings are computed by the `index-docs-chunks` workflow, which the first search dispatches when
+  chunks lack an embedding, reuses the vector of any chunk with the same content hash, and bills nothing to customers.
+  `yarn docs:index` does the same synchronously; `yarn docs:index --full-text-only` only writes the chunks.
+
+Every hosted turn records per-call retrieval timings in its classifier trace, and the report's Retrieval latency table
+shows p50/p95 per arm, corpus and pipeline, with the embedding and re-rank outcomes.
+
+To run the A/B, build once with the environment above and run the same cases against two servers started from that
+build, one per pipeline, as separate variants of one campaign. Start each server exactly as above, adding only
+`AGENT_BENCHMARK_RETRIEVAL=legacy` for the baseline, and stop it before starting the other:
+
+```sh
+yarn docs:index                                          # platform cost: embeds the documentation once
+yarn agent:benchmark campaign --label retrieval-ab --cap <usd>
+AGENT_BENCHMARK_RETRIEVAL=legacy LOCAL_AGENT_BENCHMARK=true AGENT_BENCHMARK_ARMS="$(yarn -s agent:benchmark overlay)" yarn next start -p 4107
+yarn agent:benchmark run --campaign <id> --cases <D, DH and DE ids> --reps 3 --variant retrieval-legacy
+LOCAL_AGENT_BENCHMARK=true AGENT_BENCHMARK_ARMS="$(yarn -s agent:benchmark overlay)" yarn next start -p 4107
+yarn agent:benchmark run --campaign <id> --cases <same ids> --reps 3 --variant retrieval-unified
+yarn agent:benchmark judge --campaign <id>
+yarn agent:benchmark report --campaign <id> --label retrieval-ab
+```
+
+Offline, `features/mcp-tools/__tests__/docs-retrieval-quality.database.test.ts` measures page recall, section hit and
+re-rank candidate recall of both paths on D1 to D10, DH and DE (labels in `retrieval-eval-cases.ts`), and
+`features/wiki/__tests__/wiki-retrieval-quality.database.test.ts` measures the Wiki eval set in the same file. Set
+`DOCS_RETRIEVAL_EVAL_REPORT` or `WIKI_RETRIEVAL_EVAL_REPORT` to a path to write the metrics.
 
 Commands (`yarn agent:benchmark <command>`):
 
