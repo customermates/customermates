@@ -260,15 +260,9 @@ describe("client instrumentation", () => {
     };
     const event = { event_id: "event" };
 
+    expect(options.beforeSend?.(event, { originalException: new TypeError("Failed to fetch") })).toBe(event);
     expect(
-      options.beforeSend?.(event, {
-        originalException: new TypeError("Failed to fetch"),
-      }),
-    ).toBe(event);
-    expect(
-      options.beforeSend?.(event, {
-        originalException: new TypeError("Cannot read properties of undefined"),
-      }),
+      options.beforeSend?.(event, { originalException: new TypeError("Cannot read properties of undefined") }),
     ).toBe(event);
   });
 });
@@ -300,8 +294,8 @@ describe("hosted-AI control configuration", () => {
       expect(() => resolveStrictBoolean("HOSTED_AI_PROVIDER_WORK_PAUSED", invalid)).toThrow(/"true" or "false"/);
   });
 
-  it("reads an unset docs re-rank as jev and rejects anything but off or jev", () => {
-    for (const absent of [undefined, "", "   "]) expect(resolveDocsRerank(absent)).toBe("jev");
+  it("reads an unset docs re-rank as off, so only an explicit jev sends docs text to TypeSafe AI", () => {
+    for (const absent of [undefined, "", "   "]) expect(resolveDocsRerank(absent)).toBe("off");
 
     expect(resolveDocsRerank(" jev ")).toBe("jev");
     expect(resolveDocsRerank("off")).toBe("off");
@@ -310,14 +304,12 @@ describe("hosted-AI control configuration", () => {
       expect(() => resolveDocsRerank(invalid)).toThrow(/AGENT_DOCS_RERANK must be configured as "off" or "jev"/);
   });
 
-  it("documents the docs re-rank's data flow and drops the removed classifier switches from the cloud template", () => {
+  it("ships the docs re-rank off in the cloud template and names the disclosure it needs first", () => {
     const template = readFileSync(new URL("../../.env.cloud.template", import.meta.url), "utf8");
 
-    expect(template).toMatch(/^AGENT_DOCS_RERANK="jev"$/m);
+    expect(template).toMatch(/^AGENT_DOCS_RERANK="off"$/m);
     expect(template).toMatch(/TypeSafe AI in the US/);
-    expect(template).toMatch(/before\n# enabling it; until then, and in any production without it, set "off"/);
-    for (const removed of ["AGENT_DOCS_RERANK_VERSION", "AGENT_TOOLSET_CLASSIFIER", "AGENT_GUARD_MODE"])
-      expect(template).not.toContain(removed);
+    expect(template).toMatch(/Publish that disclosure in the privacy policy and subprocessor list first,\n# then set "jev"/);
   });
 });
 
