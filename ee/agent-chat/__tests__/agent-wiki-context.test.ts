@@ -22,6 +22,7 @@ import {
   serializeAgentWikiCatalog,
 } from "@/ee/agent-chat/agent-wiki-context";
 import { WIKI_REFERENCE_MATERIAL_RULE } from "@/features/mcp-tools/server-instructions";
+import { agentSystemPromptParts } from "@/ee/agent-chat/system-prompt";
 
 const OVERSIZED_PATH_ID = "00000000-0000-4000-8000-0000000000ff";
 vi.mock("@/features/wiki/wiki-links", async (importOriginal) => {
@@ -170,6 +171,82 @@ describe("Workspace Wiki provider context", () => {
     expect(afterGuideEdit.system).not.toBe(firstTurn.system);
     expect(afterGuideEdit.system.startsWith("System\n\n")).toBe(true);
     expect(afterGuideEdit.system).toContain("3. Offer a call.");
+  });
+
+  it("orders the system prompt stable instructions, Wiki, schema digest, loaded tool sets, then the date line", () => {
+    const wikiCatalog = serializeAgentWikiCatalog({
+      items: [
+        {
+          id: "00000000-0000-4000-8000-000000000001",
+          title: "Voice",
+          url: "/wiki?page=00000000-0000-4000-8000-000000000001",
+          excerpt: "Use a clear voice.",
+          createdAt: new Date(0),
+          updatedAt: new Date(0),
+        },
+      ],
+      total: 1,
+      page: 1,
+      nextPage: null,
+      truncated: false,
+    });
+    const schemaDigest = "Custom columns of this workspace:\ndeal | Stage | singleSelect";
+    const systemFor = (day: string, loadedToolsets: string[]) => {
+      vi.useFakeTimers();
+      vi.setSystemTime(new Date(`${day}T09:00:00Z`));
+      try {
+        const parts = agentSystemPromptParts({
+          userName: "Ada",
+          locale: "en",
+          surface: "chat",
+          schemaDigest,
+          loadedToolsets,
+        });
+        return { parts, system: buildAgentProviderContext(parts, [], [], wikiCatalog).system };
+      } finally {
+        vi.useRealTimers();
+      }
+    };
+    const monday = systemFor("2026-09-28", []);
+    const tuesdayWithInbox = systemFor("2026-09-29", ["messaging"]);
+    const block = agentWikiReferenceBlock(wikiCatalog);
+    const cacheablePrefix = `${monday.parts.stable}\n\n${block}\n\n`;
+
+    expect(monday.parts.stable).toBe(tuesdayWithInbox.parts.stable);
+    expect(monday.system.startsWith(cacheablePrefix)).toBe(true);
+    expect(tuesdayWithInbox.system.startsWith(cacheablePrefix)).toBe(true);
+    expect(tuesdayWithInbox.system).not.toBe(monday.system);
+    expect(monday.parts.stable).not.toMatch(/Today is|Capabilities:|Custom columns of this workspace/);
+
+    const positions = [
+      AGENT_WIKI_REFERENCE_OPEN,
+      "Custom columns of this workspace",
+      "Capabilities:",
+      "Today is 2026-09-28",
+    ].map((marker) => monday.system.indexOf(marker));
+    expect(positions.every((position) => position > 0)).toBe(true);
+    expect(positions).toEqual(positions.toSorted((left, right) => left - right));
+    expect(monday.system.endsWith("Use proper German umlauts when writing German.")).toBe(true);
+    expect(tuesdayWithInbox.system).toContain("Today is 2026-09-29");
+  });
+
+  it("measures the same envelope whether the Wiki block ends the prompt or sits before its volatile tail", () => {
+    const parts = agentSystemPromptParts({ userName: "Ada", locale: "en", surface: "chat" });
+    const joined = `${parts.stable}\n\n${parts.volatile}`;
+    const measure = (systemPrompt: typeof parts | string) =>
+      conservativeAgentInitialContextBytes({
+        systemPrompt,
+        currentText: "Hello",
+        pageRoute: null,
+        toolDefinitions: [],
+        wikiCatalog: catalog,
+      });
+    expect(measure(parts)).toBe(measure(joined));
+    const withWiki = serializedAgentContextBytes(buildAgentProviderContext(parts, [], [], catalog));
+    const withoutWiki = serializedAgentContextBytes(buildAgentProviderContext(parts, [], [], null));
+    expect(withWiki).not.toBeNull();
+    expect(withoutWiki).not.toBeNull();
+    expect(withWiki).toBe((withoutWiki ?? 0) + agentWikiReferenceBytes(catalog));
   });
 
   it.each(Object.values(MODEL_CATALOG))(

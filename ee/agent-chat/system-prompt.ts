@@ -7,6 +7,7 @@ import {
 } from "@/features/mcp-tools/server-instructions";
 import { routineTriggerGuide } from "@/ee/routines/routine-trigger-doc";
 import { isUnattendedSurface } from "./agent-surface-policy";
+import { joinAgentSystemPrompt, type AgentSystemPromptParts } from "./agent-wiki-context";
 import { toolsetIndexSentence } from "./agent-toolset-routing";
 import { agentWebSearchCallLimit } from "./agent-web-search";
 import { WIKI_WEBSITE_IMPORT_TOOL_NAME } from "./tool-identity";
@@ -120,11 +121,11 @@ function wikiCrawlSynthesisPrompt(context: SystemPromptContext, crawl: { homepag
   ].join("\n\n");
 }
 
-export function buildAgentSystemPrompt(context: SystemPromptContext) {
+export function agentSystemPromptParts(context: SystemPromptContext): AgentSystemPromptParts {
   if (context.wikiHomepageSetup && context.wikiCrawlSynthesis)
-    return wikiCrawlSynthesisPrompt(context, context.wikiCrawlSynthesis);
+    return { stable: wikiCrawlSynthesisPrompt(context, context.wikiCrawlSynthesis), volatile: "" };
   const [identity, ...rest] = STATIC_PARAGRAPHS;
-  return [
+  const stable = [
     identity,
     ...rest.map((paragraph) =>
       paragraph === CRM_INVARIANTS_PLACEHOLDER ? invariantsParagraph(Boolean(context.schemaDigest)) : paragraph,
@@ -134,9 +135,6 @@ export function buildAgentSystemPrompt(context: SystemPromptContext) {
     ...(context.wikiWebsiteSetup && context.surface === "chat" ? [wikiWebsiteSetupParagraph(context.locale)] : []),
     "",
     `${context.webSearchEnabled ? webSearchSentence(context.surface) : "General web search is not available; do not claim to have searched."} Keep replies concise and grounded in tool results, and never invent CRM data.`,
-    "",
-    capabilitiesParagraph(context.loadedToolsets ?? []),
-    ...(context.schemaDigest ? ["", context.schemaDigest] : []),
     ...(context.surface === "routine"
       ? [
           "",
@@ -150,7 +148,16 @@ export function buildAgentSystemPrompt(context: SystemPromptContext) {
           routineTriggerGuide(context.triggerEvent),
         ]
       : ["", INTERFACE_PARAGRAPH]),
+  ].join("\n");
+  const volatile = [
+    ...(context.schemaDigest ? [context.schemaDigest, ""] : []),
+    capabilitiesParagraph(context.loadedToolsets ?? []),
     "",
     `You are helping ${context.userName}. Today is ${new Date().toISOString().slice(0, 10)}. Write every reply in ${languageName(context.locale)}, whatever language the workspace data happens to be in, unless the user writes to you in a different language and clearly wants that one instead. Use proper German umlauts when writing German.`,
   ].join("\n");
+  return { stable, volatile };
+}
+
+export function buildAgentSystemPrompt(context: SystemPromptContext): string {
+  return joinAgentSystemPrompt(agentSystemPromptParts(context));
 }

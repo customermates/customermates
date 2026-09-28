@@ -46,9 +46,14 @@ import {
   conservativeAgentInitialContextBytes,
   buildAgentProviderContext,
 } from "@/ee/agent-chat/agent-provider-context";
-import { agentWikiSystemPrompt, serializeAgentWikiCatalog } from "@/ee/agent-chat/agent-wiki-context";
+import {
+  AGENT_WIKI_REFERENCE_CLOSE,
+  AGENT_WIKI_REFERENCE_OPEN,
+  agentWikiSystemPrompt,
+  serializeAgentWikiCatalog,
+} from "@/ee/agent-chat/agent-wiki-context";
 import { resolveAgentModel, type AgentModelEntry } from "@/ee/agent-chat/model-catalog";
-import { buildAgentSystemPrompt } from "@/ee/agent-chat/system-prompt";
+import { agentSystemPromptParts, buildAgentSystemPrompt } from "@/ee/agent-chat/system-prompt";
 import type { AgentTurnWorkflowPayload } from "@/workflows/agent-turn";
 
 const CLIENT_REQUEST_ID = "00000000-0000-4000-8000-000000000001";
@@ -261,18 +266,19 @@ describe("Workspace Wiki admission bootstrap", () => {
       expect(serialized.wiki).toMatchObject({ total: 11, nextPage: 2, truncated: true });
       expect(serialized.wiki).not.toHaveProperty("relevantPages");
 
-      const systemPrompt = buildAgentSystemPrompt({
+      const systemPrompt = agentSystemPromptParts({
         userName: payload.userName,
         locale: payload.locale,
         surface,
         wikiHomepageSetup: false,
         webSearchEnabled: true,
       });
-      expect(systemPrompt).toContain("follow useful Wiki links");
-      expect(systemPrompt).toContain("Report gaps or conflicts");
-      expect(systemPrompt).not.toContain("General workspace page");
+      expect(systemPrompt.stable).toContain("follow useful Wiki links");
+      expect(systemPrompt.stable).toContain("Report gaps or conflicts");
+      expect(systemPrompt.stable).not.toContain("General workspace page");
       const execution = buildAgentProviderContext(systemPrompt, payload.messages, [], payload.wikiCatalog);
-      expect(execution.system.startsWith(`${systemPrompt}\n\n`)).toBe(true);
+      expect(execution.system.startsWith(`${systemPrompt.stable}\n\n${AGENT_WIKI_REFERENCE_OPEN}`)).toBe(true);
+      expect(execution.system.endsWith(`${AGENT_WIKI_REFERENCE_CLOSE}\n\n${systemPrompt.volatile}`)).toBe(true);
       expect(execution.system).toBe(agentWikiSystemPrompt(systemPrompt, payload.wikiCatalog));
       expect(execution.messages).toEqual([{ role: "user", content: input.text }]);
     },

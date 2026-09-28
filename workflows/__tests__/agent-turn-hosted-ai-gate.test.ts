@@ -40,7 +40,7 @@ const state = vi.hoisted(() => ({
   maxRetries: undefined as number | undefined,
   instructions: [] as string[],
   providerContexts: [] as Array<{
-    system: string;
+    system: WikiContext.AgentSystemPromptParts;
     messages: unknown[];
     tools: unknown[];
     wikiCatalog?: string | null;
@@ -295,13 +295,18 @@ vi.mock("@/ee/agent-chat/classifier/metered", () => ({
   }),
 }));
 vi.mock("@/ee/agent-chat/system-prompt", () => ({
-  buildAgentSystemPrompt: () => "system",
+  agentSystemPromptParts: () => ({ stable: "system", volatile: "volatile" }),
   routineTriggerEventOf: () => null,
 }));
 vi.mock("@/ee/agent-chat/agent-provider-context", async () => {
   const { agentWikiSystemPrompt } = await vi.importActual<typeof WikiContext>("@/ee/agent-chat/agent-wiki-context");
   return {
-    buildAgentProviderContext: (system: string, messages: unknown[], tools: unknown[], wikiCatalog?: string | null) => {
+    buildAgentProviderContext: (
+      system: WikiContext.AgentSystemPromptParts,
+      messages: unknown[],
+      tools: unknown[],
+      wikiCatalog?: string | null,
+    ) => {
       state.providerContexts.push({ system, messages, tools, wikiCatalog });
       return { messages, system: agentWikiSystemPrompt(system, wikiCatalog), tools };
     },
@@ -460,7 +465,7 @@ describe("agent-turn hosted-AI provider gates", () => {
 
       expect(state.wikiCatalogAuthorization).toHaveBeenCalledExactlyOnceWith({ page: 1, pageSize: 5 });
       expect(state.providerContexts[0]?.wikiCatalog).toBe(wikiCatalog);
-      expect(state.providerContexts[0]?.system).toBe("system");
+      expect(state.providerContexts[0]?.system).toEqual({ stable: "system", volatile: "volatile" });
     },
   );
 
@@ -1154,7 +1159,7 @@ describe("agent-turn credit-bounded continuation", () => {
 
     await runAgentTurn({ ...payload, wikiCatalog });
 
-    const prefix = agentWikiSystemPrompt("system", wikiCatalog);
+    const prefix = agentWikiSystemPrompt({ stable: "system", volatile: "volatile" }, wikiCatalog);
     expect(state.wikiCatalogAuthorization).toHaveBeenCalledOnce();
     expect(state.providerContexts).toHaveLength(1);
     expect(state.instructions.length).toBeGreaterThan(1);

@@ -39,7 +39,7 @@ import {
   WikiHomepageSetupAlreadyRunningError,
   type AgentTurnRequestSnapshot,
 } from "./agent-turn-request";
-import { buildAgentSystemPrompt, routineTriggerEventOf } from "./system-prompt";
+import { agentSystemPromptParts, routineTriggerEventOf } from "./system-prompt";
 import { agentToolDefinitionsForTurn } from "./agent-tools";
 import { toolsetsForRequest, toolsetsFromActivities } from "./agent-toolset-routing";
 import { AgentActivityDescriptorSchema, type AgentActivityDescriptor } from "./agent-activity";
@@ -319,7 +319,7 @@ export class SendAgentMessageInteractor extends AuthenticatedInteractor<SendAgen
     const requestedToolsets = toolsetsForRequest({ text: data.text, pageRoute, contexts });
     const schemaDigest = await this.schemaDigest();
     const requiredContextBytes = conservativeAgentInitialContextBytes({
-      systemPrompt: buildAgentSystemPrompt({
+      systemPrompt: agentSystemPromptParts({
         userName,
         locale,
         surface,

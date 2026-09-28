@@ -35,7 +35,7 @@ import { agentUiCommandHookToken, isAgentPanelTool, toAgentUiCommandInput } from
 import { activeAgentToolNames } from "@/ee/agent-chat/agent-toolset-routing";
 import { googleThinkingProviderOptions } from "@/ee/agent-chat/agent-thinking-options";
 import { buildAgentProviderContext } from "@/ee/agent-chat/agent-provider-context";
-import { buildAgentSystemPrompt, routineTriggerEventOf } from "@/ee/agent-chat/system-prompt";
+import { agentSystemPromptParts, routineTriggerEventOf } from "@/ee/agent-chat/system-prompt";
 import type { AgentAiToolDefinition, AgentToolOptions } from "@/ee/agent-chat/agent-tools";
 import type { PublicWikiHomepage } from "@/features/wiki/wiki-homepage";
 import { getAgentProviderOptions } from "@/ee/agent-chat/agent-provider-options";
@@ -915,7 +915,7 @@ export async function runAgentTurn(payload: AgentTurnWorkflowPayload): Promise<v
     }, payload.appBaseUrl);
 
     const initialToolsets = payload.toolsets ?? [];
-    const systemPrompt = buildAgentSystemPrompt({
+    const systemPrompt = agentSystemPromptParts({
       userName: payload.userName,
       locale: payload.locale,
       surface,

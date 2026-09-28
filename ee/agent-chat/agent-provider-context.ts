@@ -4,7 +4,7 @@ import { toModelMessages, type ReplayMessage } from "./agent-stream-utils";
 import type { AgentAiToolDefinition } from "./agent-tools";
 import { isAgentContextWithinBudget, serializedAgentContextBytes } from "./agent-budget-policy";
 import { AGENT_REPLAY_COUNT, agentReplayWorstCaseMessageChars } from "./agent-replay-budget";
-import { agentWikiSystemPrompt } from "./agent-wiki-context";
+import { agentWikiSystemPrompt, type AgentSystemPromptParts } from "./agent-wiki-context";
 import { agentPageContextPrefix } from "./agent-page-context";
 import { agentContextProviderPrefix, type AgentContextAttachment } from "./agent-context";
 
@@ -15,7 +15,7 @@ export type AgentProviderContext = {
 };
 
 export function buildAgentProviderContext(
-  systemPrompt: string,
+  systemPrompt: string | AgentSystemPromptParts,
   messages: ReplayMessage[],
   toolDefinitions: AgentAiToolDefinition[],
   wikiCatalog?: string | null,
@@ -36,7 +36,7 @@ export function isAgentStepContextWithinBudget(
 }
 
 export function conservativeAgentInitialContextBytes(args: {
-  systemPrompt: string;
+  systemPrompt: string | AgentSystemPromptParts;
   currentText: string;
   contexts?: readonly AgentContextAttachment[];
   pageRoute: string | null;

@@ -4,6 +4,15 @@ import { WIKI_REFERENCE_MATERIAL_RULE } from "@/features/mcp-tools/server-instru
 import { wikiLeadingSlice } from "@/features/wiki/wiki-content";
 import { wikiPagePath } from "@/features/wiki/wiki-links";
 
+export type AgentSystemPromptParts = {
+  stable: string;
+  volatile: string;
+};
+
+export function joinAgentSystemPrompt(parts: AgentSystemPromptParts, middle?: string): string {
+  return [parts.stable, middle, parts.volatile].filter(Boolean).join("\n\n");
+}
+
 export const WIKI_REFERENCE_MAX_BYTES = 6000;
 const WIKI_GUIDE_MIN_BYTES = 1_600;
 const WIKI_WHEN_TO_USE_MIN_CHARACTERS = 120;
@@ -146,9 +155,9 @@ export function agentWikiReferenceBlock(catalog?: string | null): string {
   return `${AGENT_WIKI_REFERENCE_OPEN}\n${AGENT_WIKI_REFERENCE_HEADER}${encodeAgentWikiReference(catalog)}\n${AGENT_WIKI_REFERENCE_CLOSE}`;
 }
 
-export function agentWikiSystemPrompt(systemPrompt: string, catalog?: string | null): string {
-  const block = agentWikiReferenceBlock(catalog);
-  return block ? `${systemPrompt}\n\n${block}` : systemPrompt;
+export function agentWikiSystemPrompt(systemPrompt: string | AgentSystemPromptParts, catalog?: string | null): string {
+  const parts = typeof systemPrompt === "string" ? { stable: systemPrompt, volatile: "" } : systemPrompt;
+  return joinAgentSystemPrompt(parts, agentWikiReferenceBlock(catalog));
 }
 
 export function agentWikiReferenceBytes(catalog?: string | null): number {
