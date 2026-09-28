@@ -4,8 +4,9 @@
 --
 -- Expand phase of an expand/contract change. Each whole-credit ledger column gains a BIGINT
 -- microcent twin, backfilled as credits x 1,000,000, which is exact, and guarded by the same
--- invariants as its whole-credit column. The application reads only the microcent columns from
--- this release on.
+-- invariants as its whole-credit column. From this release on the application reads the microcent
+-- columns, and reads credits x 1,000,000 instead wherever a microcent value is 0 (or a ceiling is
+-- null) while its whole-credit twin is not, which is exactly a row the previous release wrote.
 --
 -- Production safety for a squash-merge deploy: `prisma migrate deploy` runs during the Vercel build
 -- while the previous release still serves traffic, and workflow runs started before the promotion
@@ -14,7 +15,8 @@
 -- release as a conservative whole-credit mirror of every microcent write: usage and reservations
 -- round up, allowance snapshots and ceilings round down, and an adjustment rounds away from zero,
 -- so the previous release never under-counts a row written by this one. A row the previous release
--- writes after this migration has run carries no microcent value; the follow-up contract migration
+-- writes after this migration has run carries no microcent value, which the fallback read above
+-- counts at its whole-credit amount; the follow-up contract migration
 -- first sets the microcent column to credits x 1,000,000 wherever it is 0 and the whole-credit
 -- column is not, then drops the whole-credit columns once no run of the previous release can still
 -- be executing.

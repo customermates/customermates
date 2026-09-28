@@ -62,6 +62,27 @@ export function agentMicrocentsFromStorage(value: bigint | number | null | undef
   return microcents;
 }
 
+export function microcentsWithLegacyCredits(
+  microcents: bigint | number | null | undefined,
+  credits: number | null | undefined,
+  description: string,
+): number {
+  const exact = agentMicrocentsFromStorage(microcents, description);
+  if (exact !== 0 || !credits) return exact;
+  return agentMicrocentsFromStorage(BigInt(credits) * BigInt(AGENT_CREDIT_MICROCENTS), description);
+}
+
+export function ceilingMicrocentsWithLegacyCredits(
+  microcents: bigint | null,
+  credits: number | null,
+  description: string,
+): number | null {
+  if (microcents !== null) return agentMicrocentsFromStorage(microcents, description);
+  return credits === null
+    ? null
+    : agentMicrocentsFromStorage(BigInt(credits) * BigInt(AGENT_CREDIT_MICROCENTS), description);
+}
+
 export const AgentCreditEntitlementBlockedReasonSchema = z.enum([
   "self_hosted",
   "subscription_unavailable",

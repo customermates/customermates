@@ -57,7 +57,7 @@ const prismaMock = vi.hoisted(() => ({
     create: vi.fn(),
     updateMany: vi.fn(),
   },
-  agentCreditAdjustment: { aggregate: vi.fn(), groupBy: vi.fn() },
+  agentCreditAdjustment: { aggregate: vi.fn(), findMany: vi.fn() },
   company: { findUnique: vi.fn() },
 }));
 
@@ -114,7 +114,7 @@ describe("PrismaAgentChatRepo tenant boundaries", () => {
     prismaMock.agentCreditAdjustment.aggregate.mockResolvedValue({
       _sum: { deltaMicrocents: null },
     });
-    prismaMock.agentCreditAdjustment.groupBy.mockResolvedValue([]);
+    prismaMock.agentCreditAdjustment.findMany.mockResolvedValue([]);
     prismaMock.company.findUnique.mockImplementation(async () => {
       const seat = (await prismaMock.user.findUnique()) as {
         id: string;
@@ -2165,7 +2165,8 @@ describe("PrismaAgentChatRepo tenant boundaries", () => {
         model: "claude-test",
         costMicrocents: 0,
         costSource: "estimated",
-        chargedMicrocents: 6_000_000n,
+        reservedMicrocents: 6_000_000,
+        chargedMicrocents: 6_000_000,
         chargedCredits: 6,
         settledAt: now,
       },
@@ -2173,6 +2174,37 @@ describe("PrismaAgentChatRepo tenant boundaries", () => {
     expect(prismaMock.agentTurnRequest.updateMany).toHaveBeenCalledWith(
       expect.objectContaining({
         data: expect.objectContaining({ status: "uncertain", terminalAt: now }),
+      }),
+    );
+  });
+
+  it("retains an interrupted previous-release reservation at its whole-credit amount", async () => {
+    const now = new Date("2026-08-06T10:10:00.000Z");
+    prismaMock.agentRunLease.findMany.mockResolvedValue([
+      { runId: "run-1", expiresAt: new Date("2026-08-06T10:00:00.000Z") },
+    ]);
+    prismaMock.agentTurnRequest.findFirst.mockResolvedValue(
+      storedTurn({ providerStartedAt: new Date("2026-08-06T09:59:00.000Z") }),
+    );
+    prismaMock.agentUsageEvent.findFirst.mockResolvedValue({
+      id: "reservation-1",
+      reservedMicrocents: 0n,
+      reservedCredits: 7,
+    });
+    prismaMock.agentUsageEvent.updateMany.mockResolvedValue({ count: 1 });
+    prismaMock.agentTurnRequest.updateMany.mockResolvedValue({ count: 1 });
+    prismaMock.agentRunLease.deleteMany.mockResolvedValue({ count: 1 });
+
+    await runWithTenant(user, () => new PrismaAgentChatRepo().normalizeExpiredAgentRunLease(now, "claude-test"));
+
+    expect(prismaMock.agentUsageEvent.updateMany).toHaveBeenCalledWith(
+      expect.objectContaining({
+        data: expect.objectContaining({
+          state: "retained",
+          reservedMicrocents: 7_000_000,
+          chargedMicrocents: 7_000_000,
+          chargedCredits: 7,
+        }),
       }),
     );
   });

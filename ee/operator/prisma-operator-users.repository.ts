@@ -13,7 +13,7 @@ import { BypassTenantGuard } from "@/core/decorators/bypass-tenant.decorator";
 import { FilterFieldKey } from "@/core/types/filter-field-key";
 import { FILTER_FIELD_DEFAULT_OPERATORS } from "@/core/types/filter-field-operators";
 
-import { agentMicrocentsFromStorage, resolveAgentCreditEntitlement } from "@/ee/agent-chat/agent-credit-policy";
+import { microcentsWithLegacyCredits, resolveAgentCreditEntitlement } from "@/ee/agent-chat/agent-credit-policy";
 import { env } from "@/env";
 import { Status } from "@/generated/prisma";
 
@@ -224,44 +224,54 @@ export class PrismaOperatorUsersRepo extends BaseRepository<Prisma.UserWhereInpu
     if (userIds.length === 0) return positions;
 
     const [adjustments, settled, reserved] = await Promise.all([
-      this.prisma.agentCreditAdjustment.groupBy({
-        by: ["userId", "periodStart", "periodEnd"],
+      this.prisma.agentCreditAdjustment.findMany({
         where: { userId: { in: userIds } },
-        _sum: { deltaMicrocents: true },
+        select: { userId: true, periodStart: true, periodEnd: true, deltaMicrocents: true, creditDelta: true },
       }),
-      this.prisma.agentUsageEvent.groupBy({
-        by: ["userId", "periodStart", "periodEnd"],
+      this.prisma.agentUsageEvent.findMany({
         where: { userId: { in: userIds }, state: "settled" },
-        _sum: { chargedMicrocents: true },
+        select: { userId: true, periodStart: true, periodEnd: true, chargedMicrocents: true, chargedCredits: true },
       }),
-      this.prisma.agentUsageEvent.groupBy({
-        by: ["userId", "periodStart", "periodEnd"],
+      this.prisma.agentUsageEvent.findMany({
         where: { userId: { in: userIds }, state: { in: ["reserved", "retained"] } },
-        _sum: { reservedMicrocents: true },
+        select: { userId: true, periodStart: true, periodEnd: true, reservedMicrocents: true, reservedCredits: true },
       }),
     ]);
 
     const periodKey = (userId: string, start: Date, end: Date) => `${userId}:${start.getTime()}:${end.getTime()}`;
+    const add = (totals: Map<string, number>, key: string, microcents: number, description: string) => {
+      const total = (totals.get(key) ?? 0) + microcents;
+      if (!Number.isSafeInteger(total)) throw new Error(`${description} is invalid.`);
+      totals.set(key, total);
+    };
     const adjustmentByPeriod = new Map<string, number>();
     for (const row of adjustments) {
-      adjustmentByPeriod.set(
+      add(
+        adjustmentByPeriod,
         periodKey(row.userId, row.periodStart, row.periodEnd),
-        agentMicrocentsFromStorage(row._sum.deltaMicrocents, "Hosted-AI credit adjustment total"),
+        microcentsWithLegacyCredits(row.deltaMicrocents, row.creditDelta, "Hosted-AI credit adjustment total"),
+        "Hosted-AI credit adjustment total",
       );
     }
 
     const committedByPeriod = new Map<string, number>();
     for (const row of settled) {
       if (row.userId === null) continue;
-      const key = periodKey(row.userId, row.periodStart, row.periodEnd);
-      const charged = agentMicrocentsFromStorage(row._sum.chargedMicrocents, "Charged hosted-AI credits");
-      committedByPeriod.set(key, (committedByPeriod.get(key) ?? 0) + charged);
+      add(
+        committedByPeriod,
+        periodKey(row.userId, row.periodStart, row.periodEnd),
+        microcentsWithLegacyCredits(row.chargedMicrocents, row.chargedCredits, "Charged hosted-AI credits"),
+        "Committed hosted-AI credits",
+      );
     }
     for (const row of reserved) {
       if (row.userId === null) continue;
-      const key = periodKey(row.userId, row.periodStart, row.periodEnd);
-      const reservedMicrocents = agentMicrocentsFromStorage(row._sum.reservedMicrocents, "Reserved hosted-AI credits");
-      committedByPeriod.set(key, (committedByPeriod.get(key) ?? 0) + reservedMicrocents);
+      add(
+        committedByPeriod,
+        periodKey(row.userId, row.periodStart, row.periodEnd),
+        microcentsWithLegacyCredits(row.reservedMicrocents, row.reservedCredits, "Reserved hosted-AI credits"),
+        "Committed hosted-AI credits",
+      );
     }
 
     for (const user of users) {

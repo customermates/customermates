@@ -188,6 +188,10 @@ function emptyUserSummary(): OperatorUserSummaryDto {
   };
 }
 
+function withLegacyCredits(microcents: bigint | null | undefined, legacyCredits: number | null | undefined): bigint {
+  return (microcents ?? 0n) + BigInt(legacyCredits ?? 0) * 1_000_000n;
+}
+
 function toUsageTotals(input: {
   settledCostMicrocents: bigint | null | undefined;
   chargedMicrocents: bigint | null | undefined;
@@ -231,28 +235,70 @@ export class PrismaOperatorRepo extends BaseRepository implements OperatorRepo {
     });
   }
 
+  private async seatLedger(seat: { companyId: string; userId: string; periodStart: Date; periodEnd: Date }) {
+    const settledWhere = { ...seat, state: "settled" as const };
+    const reservedWhere = { ...seat, state: { in: ["reserved" as const, "retained" as const] } };
+    const [adjustments, legacyAdjustments, settled, legacySettled, reserved, legacyReserved] = await Promise.all([
+      this.prisma.agentCreditAdjustment.aggregate({ where: seat, _sum: { deltaMicrocents: true } }),
+      this.prisma.agentCreditAdjustment.aggregate({
+        where: { ...seat, deltaMicrocents: 0 },
+        _sum: { creditDelta: true },
+      }),
+      this.prisma.agentUsageEvent.aggregate({ where: settledWhere, _sum: { chargedMicrocents: true } }),
+      this.prisma.agentUsageEvent.aggregate({
+        where: { ...settledWhere, chargedMicrocents: 0 },
+        _sum: { chargedCredits: true },
+      }),
+      this.prisma.agentUsageEvent.aggregate({ where: reservedWhere, _sum: { reservedMicrocents: true } }),
+      this.prisma.agentUsageEvent.aggregate({
+        where: { ...reservedWhere, reservedMicrocents: 0 },
+        _sum: { reservedCredits: true },
+      }),
+    ]);
+    return {
+      adjustmentMicrocents: agentMicrocentsFromStorage(
+        withLegacyCredits(adjustments._sum.deltaMicrocents, legacyAdjustments._sum.creditDelta),
+        "Hosted-AI credit adjustment total",
+      ),
+      chargedMicrocents: asSafeMicrocents(
+        withLegacyCredits(settled._sum.chargedMicrocents, legacySettled._sum.chargedCredits),
+        "Charged hosted-AI credits",
+      ),
+      reservedMicrocents: asSafeMicrocents(
+        withLegacyCredits(reserved._sum.reservedMicrocents, legacyReserved._sum.reservedCredits),
+        "Reserved hosted-AI credits",
+      ),
+    };
+  }
+
   private async usageTotals(companyId: string | null, now: Date): Promise<HostedAiUsageTotalsDto> {
     const month = utcMonth(now);
     const companyWhere = companyId ? { companyId } : {};
-    const [settled, reserved] = await Promise.all([
+    const settledWhere = { ...companyWhere, state: "settled" as const, settledAt: { gte: month.start, lt: month.end } };
+    const reservedWhere = { ...companyWhere, state: { in: ["reserved" as const, "retained" as const] } };
+    const [settled, legacySettled, reserved, legacyReserved] = await Promise.all([
       this.prisma.agentUsageEvent.aggregate({
-        where: {
-          ...companyWhere,
-          state: "settled",
-          settledAt: { gte: month.start, lt: month.end },
-        },
+        where: settledWhere,
         _sum: { costMicrocents: true, chargedMicrocents: true },
       }),
       this.prisma.agentUsageEvent.aggregate({
-        where: { ...companyWhere, state: { in: ["reserved", "retained"] } },
+        where: { ...settledWhere, chargedMicrocents: 0 },
+        _sum: { chargedCredits: true },
+      }),
+      this.prisma.agentUsageEvent.aggregate({
+        where: reservedWhere,
         _sum: { reservedMicrocents: true },
+      }),
+      this.prisma.agentUsageEvent.aggregate({
+        where: { ...reservedWhere, reservedMicrocents: 0 },
+        _sum: { reservedCredits: true },
       }),
     ]);
 
     return toUsageTotals({
       settledCostMicrocents: settled._sum.costMicrocents,
-      chargedMicrocents: settled._sum.chargedMicrocents,
-      reservedMicrocents: reserved._sum.reservedMicrocents,
+      chargedMicrocents: withLegacyCredits(settled._sum.chargedMicrocents, legacySettled._sum.chargedCredits),
+      reservedMicrocents: withLegacyCredits(reserved._sum.reservedMicrocents, legacyReserved._sum.reservedCredits),
     });
   }
 
@@ -360,47 +406,16 @@ export class PrismaOperatorRepo extends BaseRepository implements OperatorRepo {
       activeSeatAt: user.agentCreditActivatedAt,
       now,
     });
-    const [adjustments, settled, reserved] = await Promise.all([
-      this.prisma.agentCreditAdjustment.aggregate({
-        where: {
-          companyId: user.companyId,
-          userId: user.id,
-          periodStart: entitlement.start,
-          periodEnd: entitlement.resetAt,
-        },
-        _sum: { deltaMicrocents: true },
-      }),
-      this.prisma.agentUsageEvent.aggregate({
-        where: {
-          companyId: user.companyId,
-          userId: user.id,
-          periodStart: entitlement.start,
-          periodEnd: entitlement.resetAt,
-          state: "settled",
-        },
-        _sum: { chargedMicrocents: true },
-      }),
-      this.prisma.agentUsageEvent.aggregate({
-        where: {
-          companyId: user.companyId,
-          userId: user.id,
-          periodStart: entitlement.start,
-          periodEnd: entitlement.resetAt,
-          state: { in: ["reserved", "retained"] },
-        },
-        _sum: { reservedMicrocents: true },
-      }),
-    ]);
-    const adjustmentMicrocents = agentMicrocentsFromStorage(
-      adjustments._sum.deltaMicrocents,
-      "Hosted-AI credit adjustment total",
-    );
+    const { adjustmentMicrocents, chargedMicrocents, reservedMicrocents } = await this.seatLedger({
+      companyId: user.companyId,
+      userId: user.id,
+      periodStart: entitlement.start,
+      periodEnd: entitlement.resetAt,
+    });
     const rawEffectiveAllowance = entitlement.limitMicrocents + adjustmentMicrocents;
     if (!Number.isSafeInteger(rawEffectiveAllowance)) throw new Error("Effective hosted-AI allowance is invalid.");
 
     const effectiveAllowanceMicrocents = Math.max(0, rawEffectiveAllowance);
-    const chargedMicrocents = asSafeMicrocents(settled._sum.chargedMicrocents, "Charged hosted-AI credits");
-    const reservedMicrocents = asSafeMicrocents(reserved._sum.reservedMicrocents, "Reserved hosted-AI credits");
     const committedMicrocents = addSafeMicrocents(chargedMicrocents, reservedMicrocents, "Committed hosted-AI credits");
 
     return {
@@ -895,44 +910,16 @@ export class PrismaOperatorRepo extends BaseRepository implements OperatorRepo {
         )
           return "conflict";
 
-        const [adjustmentAggregate, settledAggregate, reservedAggregate] = await Promise.all([
-          this.prisma.agentCreditAdjustment.aggregate({
-            where: {
-              companyId: data.companyId,
-              userId: data.userId,
-              periodStart,
-              periodEnd,
-            },
-            _sum: { deltaMicrocents: true },
-          }),
-          this.prisma.agentUsageEvent.aggregate({
-            where: {
-              companyId: data.companyId,
-              userId: data.userId,
-              periodStart,
-              periodEnd,
-              state: "settled",
-            },
-            _sum: { chargedMicrocents: true },
-          }),
-          this.prisma.agentUsageEvent.aggregate({
-            where: {
-              companyId: data.companyId,
-              userId: data.userId,
-              periodStart,
-              periodEnd,
-              state: { in: ["reserved", "retained"] },
-            },
-            _sum: { reservedMicrocents: true },
-          }),
-        ]);
-        const priorAdjustments = agentMicrocentsFromStorage(
-          adjustmentAggregate._sum.deltaMicrocents,
-          "Hosted-AI credit adjustment total",
-        );
+        const ledger = await this.seatLedger({
+          companyId: data.companyId,
+          userId: data.userId,
+          periodStart,
+          periodEnd,
+        });
+        const priorAdjustments = ledger.adjustmentMicrocents;
         const committed = addSafeMicrocents(
-          asSafeMicrocents(settledAggregate._sum.chargedMicrocents, "Charged hosted-AI credits"),
-          asSafeMicrocents(reservedAggregate._sum.reservedMicrocents, "Reserved hosted-AI credits"),
+          ledger.chargedMicrocents,
+          ledger.reservedMicrocents,
           "Committed hosted-AI credits",
         );
         const effectiveAllowance = entitlement.limitMicrocents + priorAdjustments + deltaMicrocents;

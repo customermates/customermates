@@ -713,6 +713,77 @@ describeDatabase("agent credit ledger against a real database", { timeout: 120_0
     expect(committed).toMatchObject({ usedMicrocents: 400 * CREDIT, limitMicrocents: 400 * CREDIT });
   });
 
+  it("counts rows and adjustments the previous release wrote in whole credits only", async () => {
+    const anchor = new Date(Date.UTC(2026, 0, 15));
+    const now = new Date();
+    const { companyId, userId } = await seedActiveSeat(anchor);
+    const repo = new PrismaAgentChatRepo();
+    const pool = await runWithoutTenant(() => repo.getWorkspaceCreditPoolUnscoped(companyId, now));
+    if (!pool) throw new Error("Expected a workspace credit pool.");
+    const legacyRow = (state: "reserved" | "settled", credits: number) =>
+      runWithoutTenant(() =>
+        prisma.agentUsageEvent.create({
+          data: {
+            id: randomUUID(),
+            companyId,
+            userId,
+            sessionId: randomUUID(),
+            state,
+            reservedCredits: credits,
+            chargedCredits: state === "settled" ? credits : 0,
+            settledAt: state === "settled" ? now : null,
+            planSnapshot: "starter",
+            subscriptionStatusSnapshot: "active",
+            allowanceCreditsSnapshot: 200,
+            periodStart: pool.periodStart,
+            periodEnd: pool.periodEnd,
+          },
+        }),
+      );
+    await legacyRow("reserved", 5);
+    await legacyRow("settled", 3);
+    await runWithoutTenant(() =>
+      prisma.agentCreditAdjustment.create({
+        data: {
+          companyId,
+          userId,
+          creditDelta: 10,
+          periodStart: pool.periodStart,
+          periodEnd: pool.periodEnd,
+          operationId: randomUUID(),
+          createdByOperatorUserId: "fixture",
+        },
+      }),
+    );
+
+    await expect(
+      runWithoutTenant(() => repo.getUserCreditUsageUnscoped(companyId, userId, pool.periodStart, pool.periodEnd)),
+    ).resolves.toMatchObject({ usedMicrocents: 8 * CREDIT, recentTurnMicrocents: 3 * CREDIT });
+    await expect(
+      runWithoutTenant(() => repo.getUserCreditAdjustmentUnscoped(companyId, userId, pool.periodStart, pool.periodEnd)),
+    ).resolves.toBe(10 * CREDIT);
+    await expect(runWithoutTenant(() => repo.getWorkspaceCreditPoolUnscoped(companyId, now))).resolves.toMatchObject({
+      limitMicrocents: 210 * CREDIT,
+      usedMicrocents: 8 * CREDIT,
+    });
+    await expect(
+      runWithoutTenant(() =>
+        repo.reserveUsageEventUnscoped({
+          id: randomUUID(),
+          companyId,
+          userId,
+          sessionId: randomUUID(),
+          reservedMicrocents: 202 * CREDIT + 1,
+          planSnapshot: "starter",
+          subscriptionStatusSnapshot: "active",
+          allowanceMicrocentsSnapshot: 210 * CREDIT,
+          periodStart: pool.periodStart,
+          periodEnd: pool.periodEnd,
+        }),
+      ),
+    ).rejects.toThrow(/exceeds the current allowance/);
+  });
+
   it("admits a reservation to the exact microcent of the remaining allowance", async () => {
     const anchor = new Date(Date.UTC(2026, 0, 15));
     const { companyId, userId } = await seedActiveSeat(anchor);
