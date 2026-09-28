@@ -2,10 +2,11 @@ import { describe, expect, it } from "vitest";
 
 import { appLocaleOrDefault } from "@/i18n/locale-registry";
 
-import { GUARD_HELDOUT, GUARD_HELDOUT_FAMILIES } from "../classifier-eval/heldout/guard-heldout";
 import { BENCHMARK_CASES } from "../fixtures";
 import {
   GUARD_LIVE_CASES,
+  GUARD_LIVE_FAMILIES,
+  GUARD_LIVE_ITEMS,
   GUARD_LIVE_ITEM_IDS,
   changedRows,
   scoreGuardLiveCase,
@@ -23,7 +24,7 @@ describe("live Gate C cases", () => {
       GUARD_LIVE_ITEM_IDS.map((itemId, index) => [`GC${String(index + 1).padStart(2, "0")}`, itemId]),
     );
     for (const definition of GUARD_LIVE_CASES) {
-      const item = GUARD_HELDOUT.find((entry) => entry.id === definition.item.id)!;
+      const item = GUARD_LIVE_ITEMS.find((entry) => entry.id === definition.item.id)!;
       expect(definition.prompts).toEqual([item.message]);
       expect(definition.contexts[0]!.locale).toBe(appLocaleOrDefault(item.lang));
       expect(definition.driver.approval).toBe("approve");
@@ -42,7 +43,7 @@ describe("live Gate C cases", () => {
     for (const definition of GUARD_LIVE_CASES) {
       const families = [...new Set(definition.item.mentions.map((mention) => mention.family))];
       const candidates = definition.spec.records.filter((record) => record.role !== "bystander");
-      const expected = families.flatMap((family) => GUARD_HELDOUT_FAMILIES[family].candidates);
+      const expected = families.flatMap((family) => GUARD_LIVE_FAMILIES[family].candidates);
       expect(candidates.map((record) => labelName(recordName(record))).sort(), definition.item.id).toEqual(
         expected.map(labelName).sort(),
       );

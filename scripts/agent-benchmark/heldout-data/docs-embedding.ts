@@ -1,4 +1,4 @@
-import type { DocsHeldoutItem, DocsHeldoutLiveSpec } from "./docs-heldout";
+import type { DocsHeldoutItem, DocsHeldoutLiveSpec } from "./docs";
 
 export const DOCS_EMBEDDING_HELDOUT_PROVENANCE =
   "Questions written blind on 2026-09-28 from the docs page titles, descriptions and section headings only, in the user's language, most of them worded away from the heading and the product's terms (the case keyword retrieval misses), avoiding the 40 questions of docs-heldout.ts and the live docs cases D1 to D10, and frozen as a 60-line draft (sha256 8fae1bd795f17ce8d6e3898f2782955c6342055535a300fe9a188bd80e86d24e over lang|query lines) before any section body was read. The 30 live items were chosen from that draft before labelling. slug, anchors (slug#anchor), alternatives and fact were labelled afterwards from the section bodies (German items from the German docs). No embedding model, ranker or re-rank was run on these questions before the freeze. Frozen by sha256 in PREREGISTRATION.md (Amendment 4); never tune on this set.";

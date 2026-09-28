@@ -1,6 +1,6 @@
 import { describe, expect, it } from "vitest";
 
-import { ROUTING_HELDOUT } from "../classifier-eval/heldout/routing-heldout";
+import { ROUTING_HELDOUT } from "../heldout-data/routing";
 import { approvalPolicy } from "../episode";
 import { BENCHMARK_CASES } from "../fixtures";
 import {

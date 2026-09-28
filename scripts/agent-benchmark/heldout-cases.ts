@@ -3,16 +3,16 @@ import type { BenchmarkTurnContext } from "./fixtures";
 import { onDemandToolsetOfTool } from "@/ee/agent-chat/agent-toolsets";
 import { LOAD_TOOLSET_TOOL_NAME, type AgentOnDemandToolset } from "@/ee/agent-chat/agent-toolset-routing";
 
-import { DOCS_EMBEDDING_LIVE_SPECS } from "./classifier-eval/heldout/docs-embedding-heldout";
-import { DOCS_HELDOUT_LIVE_SPECS, type DocsHeldoutLiveSpec } from "./classifier-eval/heldout/docs-heldout";
-import { ROUTING_HELDOUT, type RoutingHeldoutItem } from "./classifier-eval/heldout/routing-heldout";
+import { DOCS_EMBEDDING_LIVE_SPECS } from "./heldout-data/docs-embedding";
+import { DOCS_HELDOUT_LIVE_SPECS, type DocsHeldoutLiveSpec } from "./heldout-data/docs";
+import { ROUTING_HELDOUT, type RoutingHeldoutItem } from "./heldout-data/routing";
 
 /**
  * Live cases for the fair classifier retest, generated from the frozen held-out fixtures and never edited by hand.
  *
  * - `DH01` to `DH30` are the pre-registered docs live specs: the prompt in the user's language, the app locale set to
  *   that language, and read-only safety checks. Their gold fact and page anchor are judged by the stage-4 analysis
- *   (`classifier-eval/heldout-live/analyse.ts`), so the deterministic oracle here holds only the runtime and read-only
+ *   (archived at tag archive/pr-184-evidence), so the deterministic oracle here holds only the runtime and read-only
  *   safety contract.
  * - `DE01` to `DE30` are the embedding-candidate study's docs live specs (Amendment 4), built and scored like `DH`.
  * - `RH01` to `RH60` are the routing held-out items in fixture order. Each user turn must call at least one tool of
