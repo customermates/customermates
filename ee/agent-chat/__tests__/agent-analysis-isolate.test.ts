@@ -255,6 +255,46 @@ describe("analysis isolate", () => {
     });
   });
 
+  it("refuses, before anything runs, code whose outermost expression is not the function itself", async () => {
+    const notOneFunction = "The analysis code must be one function expression (data) => result; it may be async.";
+    for (const code of [
+      "sideEffect() || ((data) => 1)",
+      "(() => { for (;;) {} })() || ((data) => 1)",
+      "globalThis.leak = (data) => 1",
+      "leak = (data) => 1",
+      "(leak) = (data) => 1",
+      "1 ** 1 || ((data) => 1)",
+      "true ? (data) => 1 : (data) => 2",
+      "((data) => 1)(2)",
+      "((data) => 1).call(null, 2)",
+      "function (data) { return data; }(0)",
+      "async function (data) { return data; } || 1",
+      "(function (data) { return data; }).bind(null)",
+      "`${(() => { for (;;) {} })()}` || ((data) => 1)",
+    ]) {
+      await expect(checkAnalysisCode(code)).resolves.toBe(notOneFunction);
+      await expect(
+        runAnalysisCode(code, "[1]", RESULT_MAX_CHARS, { ...ANALYSIS_LIMITS, wallMs: 2_000 }),
+      ).resolves.toEqual({ ok: false, error: notOneFunction });
+    }
+    for (const [code, value] of [
+      ["((data) => data.length)", 2],
+      ["(async function (data) { return data.length; })", 2],
+      ["function count(data) { return data.length; }", 2],
+      ["(data = []) => data.length", 2],
+      ["(data, count = (rows) => rows.length) => count(data)", 2],
+      ["async data => data.length", 2],
+      ["/* count the rows */ (data) => data.length", 2],
+      ["(data) => data.length > 1 ? data.length : 0", 2],
+    ] as const) {
+      await expect(checkAnalysisCode(code)).resolves.toBeNull();
+      await expect(runAnalysisCode(code, "[1, 2]", RESULT_MAX_CHARS)).resolves.toEqual({
+        ok: true,
+        serialized: JSON.stringify(value),
+      });
+    }
+  });
+
   it("tells code that does not parse as one function expression how to write it, before anything runs", async () => {
     const guidance = "Write it as (data) => { ...; return result; } and declare any helper functions inside it.";
     for (const code of [

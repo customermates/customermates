@@ -26,6 +26,7 @@ const ANALYSIS_INTRINSICS =
 const COMPILER_INTRINSICS = ANALYSIS_INTRINSICS | Intrinsics.EVAL;
 const TERMINATE_MARGIN_MS = 250;
 const NOT_A_FUNCTION = "AnalysisCodeIsNotAFunction";
+const NOT_A_FUNCTION_ERROR = "The analysis code must be one function expression (data) => result; it may be async.";
 const NEVER_SETTLED = "AnalysisPromiseNeverSettled";
 const HOLDS_PROMISE = "AnalysisResultHoldsAPromise";
 const HOLDS_ITERATOR = "AnalysisResultHoldsAMapSetOrIterator";
@@ -97,10 +98,51 @@ const ANALYSIS_WORKER_SOURCE = `(async () => {
     }
   };
   const errorText = (error) => (error instanceof Error ? error.message : String(error));
-  const compileExpression = (code) => {
+  const compileSingleExpression = (code) => {
     const bytecode = compiler.compile("(\\n" + code + "\\n)", "analysis.js");
     compiler.compile("[\\n" + code + "\\n]", "analysis.js");
     compiler.compile("(single = \\n" + code + "\\n) => single", "analysis.js");
+    return bytecode;
+  };
+  const compiles = (source) => {
+    try {
+      compiler.compile(source, "analysis-shape.js");
+      return true;
+    } catch {
+      return false;
+    }
+  };
+  const FUNCTION_HEAD = /^\\s*(async\\s+)?function\\b\\s*(\\*?)\\s*(?:[A-Za-z_$][\\w$]*)?\\s*(?=\\()/;
+  const ASYNC_PREFIX = /^\\s*async\\b/;
+  const IDENTIFIER = /^\\s*[A-Za-z_$][\\w$]*\\s*$/;
+  const LEADING_TRIVIA = /^(?:\\s+|\\/\\*[\\s\\S]*?\\*\\/|\\/\\/[^\\n\\r\\u2028\\u2029]*)*/;
+  const isArrowHead = (head) => {
+    const async = ASYNC_PREFIX.exec(head);
+    const params = async ? head.slice(async[0].length) : head;
+    if (IDENTIFIER.test(params)) return !async || /^\\s/.test(params);
+    return (
+      params.slice(LEADING_TRIVIA.exec(params)[0].length).startsWith("(") &&
+      compiles("(" + (async ? "async " : "") + "function" + params + " {}\\n)")
+    );
+  };
+  const isOneFunction = (code, depth) => {
+    const head = FUNCTION_HEAD.exec(code);
+    if (head) return compiles("({ " + (head[1] ? "async " : "") + head[2] + "run" + code.slice(head[0].length) + "\\n})");
+    for (let at = code.indexOf("=>"), tries = 0; at >= 0 && tries < 32; at = code.indexOf("=>", at + 2), tries += 1)
+      if (isArrowHead(code.slice(0, at))) return true;
+    const trimmed = code.trim();
+    if (depth >= 4 || !trimmed.startsWith("(") || !trimmed.endsWith(")")) return false;
+    const inner = trimmed.slice(1, -1);
+    try {
+      compileSingleExpression(inner);
+    } catch {
+      return false;
+    }
+    return isOneFunction(inner, depth + 1);
+  };
+  const compileExpression = (code) => {
+    const bytecode = compileSingleExpression(code);
+    if (!isOneFunction(code, 0)) throw new Error("${NOT_A_FUNCTION}");
     return bytecode;
   };
   const tryCompile = (code) => {
@@ -236,8 +278,7 @@ function stoppedError(stop: Stop, reported: string): string {
     return "The analysis code ran out of memory and was stopped.";
   if (message === NO_MESSAGE)
     return "The analysis code stopped without an error message: it ran out of memory, or it threw or rejected with null or undefined.";
-  if (message === NOT_A_FUNCTION)
-    return "The analysis code must be one function expression (data) => result; it may be async.";
+  if (message === NOT_A_FUNCTION) return NOT_A_FUNCTION_ERROR;
   if (message === NEVER_SETTLED)
     return "The analysis code returned a promise that never settled; the code has no timers, network or tools to wait for.";
   if (message === HOLDS_PROMISE) return "The analysis result holds a promise; await it, for example with Promise.all.";
@@ -288,6 +329,7 @@ async function runInWorker(
 function unparsedError(reported: string): string {
   const message = reported.replace(/^Compilation error: /, "");
   if (/out of memory/i.test(message)) return "The analysis code ran out of memory and was stopped.";
+  if (message === NOT_A_FUNCTION) return NOT_A_FUNCTION_ERROR;
   return `The analysis code does not parse as one function expression (${message.slice(0, MESSAGE_MAX_CHARS)}). Write it as (data) => { ...; return result; } and declare any helper functions inside it.`;
 }
 
