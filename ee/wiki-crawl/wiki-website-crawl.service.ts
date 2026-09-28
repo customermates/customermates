@@ -5,6 +5,8 @@ import type { WikiSourceQa } from "./website-source-extract";
 
 import { UserAccessor } from "@/core/base/user-accessor";
 import { MAX_NOTES_LENGTH } from "@/core/validation/validate-notes";
+import { getTranslator } from "@/i18n/get-translator";
+import { appLocaleOrDefault } from "@/i18n/locale-registry";
 
 import { discoverWikiWebsite, fetchWikiSource, WikiCrawlRobots } from "./website-crawler";
 import { canonicalCrawlUrl } from "./website-discovery";
@@ -100,12 +102,23 @@ function fetchDate(date: Date) {
   return date.toISOString().slice(0, 10);
 }
 
-export function wikiImportedMarkdown(source: WikiSourceRecord): string[] {
-  const footer = `\n\nSource: ${source.url} · fetched ${fetchDate(source.fetchedAt)}`;
+export type WikiImportCopy = {
+  source: (values: { url: string; date: string }) => string;
+  faqHeading: string;
+};
+
+export async function wikiImportCopy(locale: string): Promise<WikiImportCopy> {
+  const appLocale = appLocaleOrDefault(locale);
+  const t = await getTranslator(appLocale, "Wiki.websiteImport");
+  return { source: (values) => t("source", values), faqHeading: t("faqHeading") };
+}
+
+export function wikiImportedMarkdown(source: WikiSourceRecord, copy: WikiImportCopy): string[] {
+  const footer = `\n\n${copy.source({ url: source.url, date: fetchDate(source.fetchedAt) })}`;
   const faqMissing = source.qaPairs.filter(({ question }) => !source.text.includes(question));
   const faq =
     faqMissing.length > 0
-      ? `\n\n## Frequently asked questions\n\n${faqMissing.map(({ question, answer }) => `### ${question}\n\n${answer}`).join("\n\n")}`
+      ? `\n\n## ${copy.faqHeading}\n\n${faqMissing.map(({ question, answer }) => `### ${question}\n\n${answer}`).join("\n\n")}`
       : "";
   const body = `${source.text.replace(/^# .+\n+/u, "")}${faq}`.trim();
   const parts: string[] = [];
@@ -211,6 +224,7 @@ export class WikiWebsiteCrawlService extends UserAccessor {
       WIKI_IMPORTED_CATEGORIES.has(category),
     );
     const seen = new Set<string>();
+    const copy = await wikiImportCopy(crawl.locale);
     let imported = await this.repo.countImportedPages(crawl.startedAt);
     for (const source of sources) {
       if (imported >= WIKI_IMPORT_MAX_PAGES) break;
@@ -219,7 +233,7 @@ export class WikiWebsiteCrawlService extends UserAccessor {
       for (const key of duplicateKeys) seen.add(key);
       if (!(await this.repo.claimSourceImport(crawlId, source.id))) continue;
       const existing = await this.repo.findImportedPage(source.url);
-      const parts = wikiImportedMarkdown(source);
+      const parts = wikiImportedMarkdown(source, copy);
       if (existing) {
         const untouched =
           existing.sourceFetchedAt !== null &&

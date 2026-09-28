@@ -3762,6 +3762,10 @@
     "unavailableBody": "Cette page a été supprimée ou vous n’y avez pas accès. Choisissez une autre page.",
     "unavailableTitle": "Page indisponible",
     "untitled": "Page sans titre",
+    "websiteImport": {
+      "faqHeading": "Questions fréquentes",
+      "source": "Source : {url} · consultée le {date}"
+    },
     "whenToUse": {
       "label": "Quand l'utiliser",
       "placeholder": "À utiliser quand un client demande un remboursement ou l'annulation d'un forfait payant."

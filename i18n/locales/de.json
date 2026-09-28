@@ -3762,6 +3762,10 @@
     "unavailableBody": "Diese Seite wurde gelöscht oder du hast keinen Zugriff. Wähle eine andere Seite.",
     "unavailableTitle": "Seite nicht verfügbar",
     "untitled": "Unbenannte Seite",
+    "websiteImport": {
+      "faqHeading": "Häufig gestellte Fragen",
+      "source": "Quelle: {url} · abgerufen am {date}"
+    },
     "whenToUse": {
       "label": "Wann verwenden",
       "placeholder": "Verwenden, wenn eine Kundin eine Erstattung oder die Kündigung eines bezahlten Plans möchte."

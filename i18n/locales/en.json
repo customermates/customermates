@@ -3762,6 +3762,10 @@
     "unavailableBody": "This page was deleted or you do not have access to it. Choose another page.",
     "unavailableTitle": "Page unavailable",
     "untitled": "Untitled page",
+    "websiteImport": {
+      "faqHeading": "Frequently asked questions",
+      "source": "Source: {url} · fetched {date}"
+    },
     "whenToUse": {
       "label": "When to use",
       "placeholder": "Use when a customer asks for a refund or to cancel a paid plan."

@@ -3762,6 +3762,10 @@
     "unavailableBody": "Esta página se eliminó o no tienes acceso. Elige otra página.",
     "unavailableTitle": "Página no disponible",
     "untitled": "Página sin título",
+    "websiteImport": {
+      "faqHeading": "Preguntas frecuentes",
+      "source": "Fuente: {url} · consultada el {date}"
+    },
     "whenToUse": {
       "label": "Cuándo usarlo",
       "placeholder": "Usar cuando un cliente pide un reembolso o cancelar un plan de pago."
