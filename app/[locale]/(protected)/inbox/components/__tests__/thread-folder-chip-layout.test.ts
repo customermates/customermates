@@ -16,6 +16,7 @@ vi.mock("@/core/stores/root-store.provider", () => ({
     intlStore: { collator: new Intl.Collator("en") },
     userStore: { can: () => harness.canUpdate },
     messagingThreadDetailStore: {
+      movingThreadIds: new Set<string>(),
       thread: { provider: "mail" },
       folderContext: {
         currentFolderIds: ["inbox"],

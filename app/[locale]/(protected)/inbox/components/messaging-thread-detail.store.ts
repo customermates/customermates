@@ -8,6 +8,7 @@ import { action, makeObservable, observable, runInAction } from "mobx";
 import { Action, Resource } from "@/generated/prisma";
 
 import { getMessagingThreadAction, updateThreadAction, resyncThreadAction, moveEmailThreadAction } from "../actions";
+import { isEmailProvider } from "@/ee/messaging/provider";
 import { MESSAGING_RATE_LIMITS_DOCS_PATH } from "./lazy-media";
 import { toastZodErrorTree } from "@/core/utils/toast-zod-error-tree";
 
@@ -25,6 +26,9 @@ export class MessagingThreadDetailStore extends BaseStore {
   folderContext: ThreadFolderContext | null = null;
   messageStatus: Record<string, "sending" | "failed"> = {};
   loadingOlder = false;
+  movingThreadIds = new Set<string>();
+  unavailableThreadId: string | null = null;
+  private refreshGeneration = 0;
   private olderSyncAttempted = new Set<string>();
 
   constructor(rootStore: RootStore) {
@@ -36,6 +40,8 @@ export class MessagingThreadDetailStore extends BaseStore {
       folderContext: observable,
       messageStatus: observable,
       loadingOlder: observable,
+      movingThreadIds: observable,
+      unavailableThreadId: observable,
       hydrate: action,
       refresh: action,
       setState: action,
@@ -54,19 +60,23 @@ export class MessagingThreadDetailStore extends BaseStore {
   }
 
   appendMessage = (message: MessagingMessageDto) => {
+    this.refreshGeneration += 1;
     this.messages = [...this.messages, message];
   };
 
   replaceMessageById = (id: string, next: MessagingMessageDto) => {
+    this.refreshGeneration += 1;
     this.messages = this.messages.map((message) => (message.id === id ? next : message));
   };
 
   removeMessageById = (id: string) => {
+    this.refreshGeneration += 1;
     this.messages = this.messages.filter((message) => message.id !== id);
     this.clearMessageStatus(id);
   };
 
   setMessageStatus = (id: string, status: "sending" | "failed") => {
+    this.refreshGeneration += 1;
     this.messageStatus = { ...this.messageStatus, [id]: status };
   };
 
@@ -75,6 +85,8 @@ export class MessagingThreadDetailStore extends BaseStore {
   };
 
   hydrate = (detail: ThreadDetail | null) => {
+    this.refreshGeneration += 1;
+    this.unavailableThreadId = null;
     this.thread = detail?.thread ?? null;
     this.messages = detail?.messages ?? [];
     this.accountOwners = detail?.accountOwners ?? {};
@@ -89,11 +101,25 @@ export class MessagingThreadDetailStore extends BaseStore {
     }
   };
 
-  refresh = async (): Promise<void> => {
-    if (!this.thread) return;
-
-    const detail = await getMessagingThreadAction(this.thread.id);
-    runInAction(() => this.hydrate(detail));
+  refresh = async (background = false): Promise<void> => {
+    const thread = this.thread;
+    if (!thread || (background && (this.loadingOlder || Object.keys(this.messageStatus).length > 0))) return;
+    const composer = this.rootStore.threadComposeStore;
+    if (composer.form.threadId === thread.id && composer.hasComposedContent) return;
+    const generation = ++this.refreshGeneration;
+    const detail = await getMessagingThreadAction(thread.id);
+    if (
+      this.thread?.id !== thread.id ||
+      generation !== this.refreshGeneration ||
+      Object.keys(this.messageStatus).length > 0 ||
+      (composer.form.threadId === thread.id && composer.hasComposedContent)
+    )
+      return;
+    runInAction(() => {
+      const unavailable = !detail || (isEmailProvider(detail.thread.provider) && detail.messages.length === 0);
+      this.hydrate(unavailable ? null : detail);
+      if (unavailable) this.unavailableThreadId = thread.id;
+    });
   };
 
   setState = async (next: MessagingThreadState): Promise<void> => {
@@ -117,9 +143,11 @@ export class MessagingThreadDetailStore extends BaseStore {
   moveToFolder = async (folderId: string): Promise<void> => {
     const thread = this.thread;
     const context = this.folderContext;
-    if (!thread || !context || context.currentFolderIds.includes(folderId)) return;
+    if (!thread || !context || this.movingThreadIds.has(thread.id) || context.currentFolderIds.includes(folderId))
+      return;
 
-    await this.rootStore.loadingOverlayStore.withLoading(async () => {
+    this.movingThreadIds.add(thread.id);
+    try {
       const result = await moveEmailThreadAction({ threadId: thread.id, folderId });
       if (!result.ok) {
         toastZodErrorTree(result.error);
@@ -130,31 +158,28 @@ export class MessagingThreadDetailStore extends BaseStore {
         this.toastError("Inbox.folders.moveRateLimited", {
           values: { folder: result.data.folderName, retryAfter: result.data.retryAfter ?? "" },
         });
-        await this.refresh();
-        return;
-      }
-
-      if (result.data.failedCount > 0) {
+      } else if (result.data.failedCount > 0) {
         this.toastError("Inbox.folders.movePartial", {
           values: { folder: result.data.folderName, failed: String(result.data.failedCount) },
         });
-        await this.refresh();
-        return;
-      }
-
-      if (result.data.movedCount === 0) {
+      } else if (result.data.movedCount === 0)
         this.toastError("Inbox.folders.moveNothing", { values: { folder: result.data.folderName } });
-        return;
+
+      await Promise.all([
+        this.rootStore.messagingThreadsStore.refresh(),
+        this.thread?.id === thread.id ? this.refresh() : Promise.resolve(),
+      ]);
+      if (result.data.movedCount > 0 && !result.data.rateLimited && result.data.failedCount === 0) {
+        this.toastSuccess(
+          this.unavailableThreadId === thread.id ? "Inbox.folders.movedHidden" : "Inbox.folders.moved",
+          {
+            values: { folder: result.data.folderName },
+          },
+        );
       }
-
-      runInAction(() => {
-        this.folderContext = { ...context, currentFolderIds: [result.data.folderId] };
-      });
-
-      this.toastSuccess(result.data.hiddenFromInbox ? "Inbox.folders.movedHidden" : "Inbox.folders.moved", {
-        values: { folder: result.data.folderName },
-      });
-    });
+    } finally {
+      runInAction(() => this.movingThreadIds.delete(thread.id));
+    }
   };
 
   markRead = async (): Promise<void> => {
