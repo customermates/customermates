@@ -2282,7 +2282,6 @@ export async function scoreBenchmarkCase(db: BenchmarkDb, fixture: Fixture, obse
         after,
         ids: fixture.ids,
         text,
-        tools,
         approvals: observed.turns.reduce((total, turn) => total + (turn.approvalDecisions?.length ?? 0), 0),
         check,
       })

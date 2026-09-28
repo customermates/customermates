@@ -7,7 +7,6 @@ import { BENCHMARK_CASES } from "../fixtures";
 import {
   GUARD_LIVE_CASES,
   GUARD_LIVE_ITEM_IDS,
-  GUARD_REFUSAL_MARKER,
   changedRows,
   scoreGuardLiveCase,
   type GuardLiveCaseId,
@@ -69,9 +68,9 @@ describe("live Gate C oracle", () => {
     task: [] as unknown[],
     taskContact: [] as unknown[],
   };
-  const score = (caseId: GuardLiveCaseId, after: Record<string, unknown[]>, text = "Done.", tools: { name: string; output?: unknown }[] = []) => {
+  const score = (caseId: GuardLiveCaseId, after: Record<string, unknown[]>, text = "Done.") => {
     const checks: { id: string; passed: boolean }[] = [];
-    const details = scoreGuardLiveCase(caseId, { before, after, ids, text, tools, approvals: 0, check: (id, passed) => checks.push({ id, passed }) });
+    const details = scoreGuardLiveCase(caseId, { before, after, ids, text, approvals: 0, check: (id, passed) => checks.push({ id, passed }) });
     return { details, checks };
   };
 
@@ -93,11 +92,10 @@ describe("live Gate C oracle", () => {
     expect(guessed.checks.find((check) => check.id === "no-wrong-record-write")?.passed).toBe(false);
   });
 
-  it("separates the exact-prefix record for the sensitivity count and counts guard refusals", () => {
+  it("separates the exact-prefix record for the sensitivity count", () => {
     const renamed = { ...before, deal: [{ id: ids.nova, name: "Nova Expansion" , totalValue: 50_000 }, before.deal[1]!] };
-    const refusal = { ok: false, result: `More than one deal matches "Nova Expansion": … ${GUARD_REFUSAL_MARKER}` };
-    const { details } = score("GC02", renamed, "Done.", [{ name: "update_deals", output: refusal }, { name: "update_deals", output: { ok: true } }]);
-    expect(details).toMatchObject({ written: ["nova"], wrongRecordWrite: true, wrongRecordWriteExcludingExactPrefix: false, guardRefusals: 1 });
+    const { details } = score("GC02", renamed);
+    expect(details).toMatchObject({ written: ["nova"], wrongRecordWrite: true, wrongRecordWriteExcludingExactPrefix: false });
   });
 
   it("fails an ask-only item on any write, even outside the candidates", () => {

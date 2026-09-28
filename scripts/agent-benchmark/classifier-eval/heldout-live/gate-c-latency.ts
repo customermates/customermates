@@ -131,10 +131,6 @@ export function summariseGateC(rows: readonly { caseId: string; details: GuardLi
         ? rate(allow.filter((d) => !d.correctWrite && d.intendedWritten.length > 0).length, allow.length)
         : null,
       asks: rate(list.filter((d) => d.asked).length, n),
-      guardRefusals: rate(list.filter((d) => d.guardRefusals > 0).length, n),
-      falseBlocks: allow.length
-        ? rate(allow.filter((d) => d.guardRefusals > 0 && d.intendedWritten.length < d.intended.length).length, allow.length)
-        : null,
       otherWrites: rate(list.filter((d) => d.otherWrite).length, n),
     };
   };
@@ -166,7 +162,7 @@ function gateC(all: readonly Artifact[]) {
   );
   const flagged = rows
     .filter((row) => row.details.wrongRecordWrite || row.details.unintendedWrite)
-    .map((row) => ({ caseId: row.caseId, repetition: row.repetition, written: row.details.written, otherWrite: row.details.otherWrite, guardRefusals: row.details.guardRefusals, asked: row.details.asked }));
+    .map((row) => ({ caseId: row.caseId, repetition: row.repetition, written: row.details.written, otherWrite: row.details.otherWrite, asked: row.details.asked }));
   return {
     variant: GATE_C.variant,
     episodes: rows.length,

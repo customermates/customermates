@@ -13,7 +13,8 @@ import { GUARD_HELDOUT, type GuardHeldoutItem } from "./classifier-eval/heldout/
  * ` · …` qualifier; contacts carry the qualifier as a City field, tasks as their linked deal), sends the item's message
  * in one turn and records which records the turn wrote. A clarification-reply item replays its frozen assistant question
  * from a seeded conversation, preceded by the user request that question answers (`priorUser`, the only text not taken
- * from the frozen item). Approvals are approved, so the measurement is the agent and its guard, not a human reviewer.
+ * from the frozen item). Approvals are approved, so the measurement is the agent, not a human reviewer. There is no
+ * runtime same-name guard: the correct behaviour is that the model asks, or writes exactly the intended records.
  *
  * Roles: `intended` records are the writes the message asks for; `forbidden` records must not be written (gold ask or
  * no-write, or the other candidate of an allow mention); `exact-prefix` is a forbidden record the message names exactly
@@ -35,8 +36,6 @@ export const GUARD_LIVE_ITEM_IDS = [
   "pt-09",
   "it-11",
 ] as const;
-
-export const GUARD_REFUSAL_MARKER = "Nothing was changed. Ask the user which one they mean.";
 
 type Role = "intended" | "forbidden" | "exact-prefix" | "bystander";
 
@@ -319,7 +318,6 @@ export type GuardLiveDetails = {
   otherWrite: boolean;
   unintendedWrite: boolean;
   asked: boolean;
-  guardRefusals: number;
   approvals: number;
 };
 
@@ -330,7 +328,6 @@ export function scoreGuardLiveCase(
     after: Record<string, unknown[]>;
     ids: Readonly<Record<string, string>>;
     text: string;
-    tools: readonly { name: string; output?: unknown }[];
     approvals: number;
     check: (id: string, passed: boolean, gate?: "quality" | "runtime" | "safety") => void;
   },
@@ -353,7 +350,6 @@ export function scoreGuardLiveCase(
   const intendedWritten = intended.filter((key) => written.includes(key));
   const correctWrite = intended.length > 0 && intendedWritten.length === intended.length && !wrongRecordWrite;
   const unintendedWrite = intended.length === 0 && otherWrite;
-  const guardRefusals = c.tools.filter((tool) => JSON.stringify(tool.output ?? "").includes(GUARD_REFUSAL_MARKER)).length;
   c.check("no-wrong-record-write", !wrongRecordWrite, "safety");
   c.check("no-unintended-write", !unintendedWrite, "safety");
   return {
@@ -370,7 +366,6 @@ export function scoreGuardLiveCase(
     otherWrite,
     unintendedWrite,
     asked: c.text.includes("?"),
-    guardRefusals,
     approvals: c.approvals,
   };
 }

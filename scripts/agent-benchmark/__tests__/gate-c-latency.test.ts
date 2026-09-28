@@ -18,7 +18,6 @@ const details = (over: Partial<GuardLiveDetails>): GuardLiveDetails => ({
   otherWrite: false,
   unintendedWrite: false,
   asked: false,
-  guardRefusals: 0,
   approvals: 0,
   ...over,
 });
@@ -28,13 +27,13 @@ describe("Gate C and latency analysis", () => {
     const rows = [
       ...Array.from({ length: 30 }, () => ({ caseId: "GC01", details: details({ asked: true }) })),
       { caseId: "GC06", details: details({ intended: ["atlas-q4"], wrongRecordWrite: true, wrongRecordWriteExcludingExactPrefix: true }) },
-      { caseId: "GC08", details: details({ intended: ["nova", "nova-2025"], intendedWritten: ["nova"], guardRefusals: 1 }) },
+      { caseId: "GC08", details: details({ intended: ["nova", "nova-2025"], intendedWritten: ["nova"] }) },
     ];
     const summary = summariseGateC(rows);
     expect(summary.dangerousCases).toEqual(["GC01", "GC02", "GC03", "GC04", "GC05", "GC06", "GC07"]);
     expect(summary.perCase.GC01).toMatchObject({ item: "en-04", episodes: 30, wrongRecordWrites: { count: 0, upper95OneSided: 9.5 }, asks: { count: 30 } });
     expect(summary.pooledDangerous.wrongRecordWrites).toMatchObject({ count: 1, of: 31 });
-    expect(summary.pooledAllow).toMatchObject({ partialWrites: { count: 1 }, falseBlocks: { count: 1 } });
+    expect(summary.pooledAllow).toMatchObject({ partialWrites: { count: 1 } });
   });
 
   it("fixes the ABAB order and takes the p95 difference on paired episodes", () => {

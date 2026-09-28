@@ -33,15 +33,6 @@ import {
 } from "@/ee/agent-chat/agent-approval-resume";
 import { agentUiCommandHookToken, isAgentPanelTool, toAgentUiCommandInput } from "@/ee/agent-chat/agent-ui-command";
 import { activeAgentToolNames } from "@/ee/agent-chat/agent-toolset-routing";
-import {
-  ambiguityRequestOf,
-  ambiguousTargetKey,
-  ambiguousTargetRefusal,
-  ambiguousTargetsFromMessages,
-  mergeAmbiguousTarget,
-  refusingTarget,
-  type AmbiguousTarget,
-} from "@/ee/agent-chat/agent-ambiguous-target";
 import { googleThinkingProviderOptions } from "@/ee/agent-chat/agent-thinking-options";
 import { buildAgentProviderContext } from "@/ee/agent-chat/agent-provider-context";
 import { buildAgentSystemPrompt, routineTriggerEventOf } from "@/ee/agent-chat/system-prompt";
@@ -984,10 +975,6 @@ export async function runAgentTurn(payload: AgentTurnWorkflowPayload): Promise<v
     } | null = null;
     let providerStop: Extract<AgentTurnStopReason, "provider_error" | "content_filter"> | null = null;
     let resolvedProviderErrorRetries = 0;
-    const armedTargets = new Map<string, AmbiguousTarget>();
-    const ambiguityRequest = ambiguityRequestOf(payload.messages);
-    const refusedByTarget = (readOnly: boolean, input: unknown) =>
-      refusingTarget(armedTargets.values(), readOnly, input, ambiguityRequest.attachedRecordIds);
     let providerFailure: WorkflowFailure | null = null;
     let budgetStop = false;
     let hostedAiStop = false;
@@ -1088,8 +1075,6 @@ export async function runAgentTurn(payload: AgentTurnWorkflowPayload): Promise<v
       const prepared = await resolveToolInput(shell.name, toolCallId, input);
       if (!prepared.ok) return prepared;
       const readOnly = isReadOnlyAgentToolCall(shell.name, shell, prepared.input);
-      const refused = refusedByTarget(readOnly, prepared.input);
-      if (refused) return { ok: false, result: ambiguousTargetRefusal(refused) };
       let executionInput = prepared.input;
       const websiteCreate = Boolean(payload.wikiHomepageSetup) && !readOnly;
       if (payload.wikiWebsiteSetup && shell.name === WIKI_WEBSITE_IMPORT_TOOL_NAME) {
@@ -1477,7 +1462,6 @@ export async function runAgentTurn(payload: AgentTurnWorkflowPayload): Promise<v
                     return (
                       prepared.ok &&
                       shell.gated &&
-                      !refusedByTarget(isReadOnlyAgentToolCall(shell.name, shell, prepared.input), prepared.input) &&
                       requiresApproval(
                         internalToolIdentity(shell.name),
                         { annotations: shell.annotations },
@@ -1522,10 +1506,6 @@ export async function runAgentTurn(payload: AgentTurnWorkflowPayload): Promise<v
           settleApprovedCalls(stepMessages, false);
           if (abandoned || cancelled || budgetStop || hostedAiStop || providerStop !== null || roundFailure !== null)
             throw AGENT_LOCAL_TERMINATION_REQUIRED;
-          for (const target of surface === "chat" ? ambiguousTargetsFromMessages(stepMessages, ambiguityRequest) : []) {
-            const key = ambiguousTargetKey(target);
-            armedTargets.set(key, mergeAmbiguousTarget(armedTargets.get(key), target));
-          }
           const activeTools = activeToolNamesFor(stepMessages);
           const activeDefinitions = activeTools
             ? toolDefinitions.filter((definition) => activeTools.includes(definition.name))
@@ -1680,19 +1660,14 @@ export async function runAgentTurn(payload: AgentTurnWorkflowPayload): Promise<v
           prepared: await resolveToolInput(call.toolName, call.toolCallId, call.input),
         })),
       );
-      const refusedOutput = (call: (typeof pending)[number], input: unknown) => {
-        const refused = call.toolName === "navigate" ? refusedByTarget(false, input) : null;
-        return refused ? { ok: false, result: ambiguousTargetRefusal(refused) } : null;
-      };
-      const invalidResults = preparedPending.flatMap(({ call, prepared }) => {
-        const output = prepared.ok ? refusedOutput(call, prepared.input) : prepared;
-        return output ? [{ toolCallId: call.toolCallId, toolName: call.toolName, output }] : [];
-      });
+      const invalidResults = preparedPending.flatMap(({ call, prepared }) =>
+        prepared.ok ? [] : [{ toolCallId: call.toolCallId, toolName: call.toolName, output: prepared }],
+      );
       let resumableMessages = withToolResults(result.messages, invalidResults);
       for (const outcome of invalidResults) settleToolOutcome(outcome.toolCallId, outcome.toolName, outcome.output);
       appendDeferredOutcomes(invalidResults);
       pending = preparedPending.flatMap(({ call, prepared }) =>
-        prepared.ok && !refusedOutput(call, prepared.input) ? [{ ...call, input: prepared.input }] : [],
+        prepared.ok ? [{ ...call, input: prepared.input }] : [],
       );
       if (pending.length === 0) {
         resolveDeferredRound([]);
