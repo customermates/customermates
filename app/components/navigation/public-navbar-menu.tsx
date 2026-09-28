@@ -42,7 +42,7 @@ export type PublicNavGroup = {
 
 type Props = {
   ariaLabel: string;
-  docsLabel: string;
+  docsLabel?: string;
   groups: PublicNavGroup[];
   onNavigate: () => void;
   pathname: string;
@@ -325,20 +325,22 @@ export function PublicNavbarMenu({ ariaLabel, docsLabel, groups, onNavigate, pat
               </AppLink>
             </li>
 
-            <li>
-              <AppLink
-                appearance="unstyled"
-                aria-current={isCurrentPage(pathname, "/docs") ? "page" : undefined}
-                className={cn(
-                  "flex h-8 items-center rounded-md px-2.5 text-[13px] font-medium transition-colors hover:bg-accent hover:text-foreground focus-visible:bg-accent motion-reduce:transition-none",
-                  isCurrentPage(pathname, "/docs") ? "bg-accent text-foreground" : "text-subdued",
-                )}
-                href="/docs"
-                onNavigate={navigate}
-              >
-                {docsLabel}
-              </AppLink>
-            </li>
+            {docsLabel ? (
+              <li>
+                <AppLink
+                  appearance="unstyled"
+                  aria-current={isCurrentPage(pathname, "/docs") ? "page" : undefined}
+                  className={cn(
+                    "flex h-8 items-center rounded-md px-2.5 text-[13px] font-medium transition-colors hover:bg-accent hover:text-foreground focus-visible:bg-accent motion-reduce:transition-none",
+                    isCurrentPage(pathname, "/docs") ? "bg-accent text-foreground" : "text-subdued",
+                  )}
+                  href="/docs"
+                  onNavigate={navigate}
+                >
+                  {docsLabel}
+                </AppLink>
+              </li>
+            ) : null}
           </ul>
         </PopoverAnchor>
 
@@ -390,11 +392,23 @@ export function PublicNavbarMenu({ ariaLabel, docsLabel, groups, onNavigate, pat
                   data-state={expanded ? "open" : "closed"}
                 >
                   <ul className={cn("grid gap-px bg-border", group.columns === 3 ? "grid-cols-3" : "grid-cols-2")}>
-                    {group.links.map((link) => {
+                    {group.links.map((link, index) => {
                       const linkActive = isCurrentPage(pathname, link.href) && isPrimaryPublicNavLink(groups, link);
 
                       return (
-                        <li key={`${link.href}-${link.title}`} className="min-w-0">
+                        <li
+                          key={`${link.href}-${link.title}`}
+                          className={cn(
+                            "min-w-0",
+                            index === group.links.length - 1 &&
+                              group.links.length % (group.columns === 3 ? 3 : 2) === 1 &&
+                              "col-span-full",
+                            index === group.links.length - 1 &&
+                              group.columns === 3 &&
+                              group.links.length % 3 === 2 &&
+                              "col-span-2",
+                          )}
+                        >
                           <AppLink
                             appearance="unstyled"
                             aria-current={linkActive ? "page" : undefined}

@@ -979,9 +979,9 @@
     "userInfoIsMissing": "The provider did not return your profile. Please try again."
   },
   "BrowserFrame": {
-    "live": "live",
+    "live": "Live preview",
     "liveDemoTitle": "Customermates live demo",
-    "open": "Open"
+    "open": "Open in new tab"
   },
   "Common": {
     "actions": {

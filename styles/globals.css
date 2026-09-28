@@ -80,6 +80,7 @@
   --radius-panel: calc(var(--radius) + 16px);
   --breakpoint-nav: 56rem;
   --container-marketing: 80rem;
+  --container-live-preview: 80rem;
   --aspect-hero: 16 / 9;
   --aspect-social: 1200 / 630;
   --ease-marketing: var(--marketing-ease);

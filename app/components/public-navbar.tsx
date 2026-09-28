@@ -2,7 +2,7 @@
 
 import type { AccountState } from "@/features/auth/account-state";
 
-import { ChevronDown, CircleDollarSign, FileText, Menu, X } from "lucide-react";
+import { ChevronDown, CircleDollarSign, Menu, X } from "lucide-react";
 import { useState } from "react";
 import { useTranslations } from "next-intl";
 
@@ -111,17 +111,22 @@ export function PublicNavbar({ accountState, hasValidSession, onboardingIntent, 
       <PublicNavbarSignOutButton
         className={className}
         onboardingIntent={onboardingIntent}
-        variant={actions.signOut === "setupEscape" ? "destructiveOutline" : "ghost"}
+        variant="destructiveOutline"
         onSignedOut={onSignedOut}
       />
     );
   }
 
-  function renderContactButton(className?: string, subtle = false) {
+  function renderContactButton(className?: string) {
     if (!actions.showContact) return null;
 
     return (
-      <Button asChild className={className} size="sm" variant={subtle ? "ghost" : "secondary"}>
+      <Button
+        asChild
+        className={cn("border border-border text-subdued hover:text-foreground", className)}
+        size="sm"
+        variant="ghost"
+      >
         <IntlLink href="/contact" prefetch={false} onNavigate={closeMenu}>
           {t("Common.actions.contact")}
         </IntlLink>
@@ -131,10 +136,10 @@ export function PublicNavbar({ accountState, hasValidSession, onboardingIntent, 
 
   function renderPreferenceButtons() {
     return (
-      <div className="flex items-center gap-0.5">
-        <LocaleMenu className="[&_summary]:size-8" />
+      <div className="flex items-center gap-2">
+        <LocaleMenu className="[&_summary]:size-8 [&_summary]:border [&_summary]:border-border" />
 
-        <ThemeSwitcher />
+        <ThemeSwitcher className="border border-border" />
       </div>
     );
   }
@@ -146,17 +151,16 @@ export function PublicNavbar({ accountState, hasValidSession, onboardingIntent, 
 
         <PublicNavbarMenu
           ariaLabel={t("NavigationBar.public.primaryNavigation")}
-          docsLabel={t("NavigationBar.docs")}
           groups={publicNavGroups}
           pathname={pathname}
           pricingLabel={t("NavigationBar.pricing")}
           onNavigate={closeMenu}
         />
 
-        <div className="hidden items-center gap-1 justify-self-end xl:flex">
+        <div className="hidden items-center gap-2 justify-self-end xl:flex">
           {renderPreferenceButtons()}
 
-          {renderContactButton(undefined, true)}
+          {renderContactButton()}
 
           {renderCtaButton(undefined, true)}
 
@@ -249,24 +253,6 @@ export function PublicNavbar({ accountState, hasValidSession, onboardingIntent, 
                       <Icon aria-hidden icon={CircleDollarSign} size="md" />
 
                       {t("NavigationBar.pricing")}
-                    </span>
-                  </AppLink>
-
-                  <AppLink
-                    appearance="unstyled"
-                    aria-current={isNavItemActive("/docs") ? "page" : undefined}
-                    className={cn(
-                      mobileOverviewRowClassName,
-                      "border-t border-border",
-                      isNavItemActive("/docs") && "bg-accent",
-                    )}
-                    href="/docs"
-                    onNavigate={closeMenu}
-                  >
-                    <span className="flex items-center gap-2.5">
-                      <Icon aria-hidden icon={FileText} size="md" />
-
-                      {t("NavigationBar.docs")}
                     </span>
                   </AppLink>
                 </div>

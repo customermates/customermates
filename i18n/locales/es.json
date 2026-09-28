@@ -979,9 +979,9 @@
     "userInfoIsMissing": "El proveedor no devolvió tu perfil. Inténtalo de nuevo."
   },
   "BrowserFrame": {
-    "live": "en directo",
+    "live": "Vista previa en vivo",
     "liveDemoTitle": "Demo en directo de Customermates",
-    "open": "Abrir"
+    "open": "Abrir en una nueva pestaña"
   },
   "Common": {
     "actions": {

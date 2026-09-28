@@ -979,9 +979,9 @@
     "userInfoIsMissing": "Der Anbieter hat dein Profil nicht übermittelt. Bitte versuche es erneut."
   },
   "BrowserFrame": {
-    "live": "live",
+    "live": "Live-Vorschau",
     "liveDemoTitle": "Customermates-Live-Demo",
-    "open": "Öffnen"
+    "open": "In neuem Tab öffnen"
   },
   "Common": {
     "actions": {

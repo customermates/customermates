@@ -296,6 +296,11 @@ export function resolvePublicNavGroups(t: ReturnType<typeof useTranslations>): P
       links: [
         {
           icon: BookOpen,
+          href: "/docs",
+          title: t("NavigationBar.docs"),
+        },
+        {
+          icon: BookOpen,
           href: "/blog",
           title: t("NavigationBar.public.blog"),
         },
