@@ -22,6 +22,7 @@ export const WikiHomepageSetupStateSchema = z.object({
     .nullable()
     .optional(),
   failureReason: z.enum(["blocked", "unavailable"]).nullable().optional(),
+  refreshable: z.boolean().optional(),
 });
 export type WikiHomepageSetupState = Data<typeof WikiHomepageSetupStateSchema>;
 
@@ -135,6 +136,7 @@ export class GetWikiHomepageSetupStateInteractor extends AuthenticatedInteractor
           domain: createdBySetup ? setup.domain : null,
           conversationId: createdBySetup ? setup.conversationId : null,
           pages,
+          refreshable: crawl?.status === "completed",
         },
       };
     }

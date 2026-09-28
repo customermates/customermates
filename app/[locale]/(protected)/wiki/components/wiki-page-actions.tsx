@@ -3,7 +3,7 @@
 import type { WikiPageStore } from "./wiki-page.store";
 
 import { observer } from "mobx-react-lite";
-import { Link, MoreHorizontal, Plus, RotateCcw, Save, Trash2, X } from "lucide-react";
+import { Globe, Link, MoreHorizontal, Plus, RotateCcw, Save, Trash2, X } from "lucide-react";
 import { useTranslations } from "next-intl";
 
 import { Button } from "@/components/ui/button";
@@ -27,10 +27,12 @@ type Props = {
   onCancelCreate: () => void;
   onCreate: () => void;
   onReload: () => void;
+  onRefreshFromWebsite?: () => void;
 };
 
 export const WikiPageActions = observer((props: Props) => {
-  const { canManage, canCreate, store, formId, hasDocument, onCancelCreate, onCreate, onReload } = props;
+  const { canManage, canCreate, store, formId, hasDocument, onCancelCreate, onCreate, onReload, onRefreshFromWebsite } =
+    props;
   const t = useTranslations();
   const copyToClipboard = useCopyToClipboard();
   const { showDeleteConfirmation } = useDeleteConfirmation();
@@ -117,6 +119,14 @@ export const WikiPageActions = observer((props: Props) => {
 
               {t("Wiki.reload")}
             </DropdownMenuItem>
+
+            {canManage && onRefreshFromWebsite && (
+              <DropdownMenuItem onSelect={onRefreshFromWebsite}>
+                <Globe aria-hidden="true" />
+
+                {t("Wiki.refreshFromWebsite")}
+              </DropdownMenuItem>
+            )}
 
             {canManage && (
               <DropdownMenuItem

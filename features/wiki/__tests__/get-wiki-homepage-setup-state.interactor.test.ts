@@ -132,6 +132,7 @@ describe("GetWikiHomepageSetupStateInteractor", () => {
         domain: null,
         conversationId: null,
         pages: [PAGE],
+        refreshable: false,
       },
     });
   });
@@ -146,6 +147,7 @@ describe("GetWikiHomepageSetupStateInteractor", () => {
         domain: null,
         conversationId: null,
         pages: [PAGE],
+        refreshable: false,
       },
     });
   });
