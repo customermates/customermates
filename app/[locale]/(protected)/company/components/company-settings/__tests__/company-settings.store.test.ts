@@ -17,6 +17,7 @@ function makeRootStore() {
       setCompany: vi.fn(),
     },
     terminologyStore: { refresh: vi.fn().mockResolvedValue(undefined) },
+    localeStore: { getTranslation: (key: string) => key },
   } as unknown as RootStore;
 }
 
@@ -155,6 +156,23 @@ describe("CompanySettingsStore pipeline totals", () => {
     expect(store.unweightedPipelineTotal).toBe(418500);
     expect(store.pipelineTotal).toBe(518500);
     expect(store.weightedPipelineTotal).toBe(30000);
+  });
+
+  it("flags an out-of-range weight as it is typed and keeps it out of the weighted pipeline", () => {
+    const store = storeWithSums({
+      [OPEN]: { totalValue: 725500, weightedValue: 217650 },
+      [WON]: { totalValue: 545500, weightedValue: 545500 },
+    });
+
+    store.onChange("dealStageWeights[0].weight", 3530);
+
+    expect(store.getError("dealStageWeights[0].weight")).toEqual(["Common.probabilityRange"]);
+    expect(store.weightedPipelineTotal).toBe(545500);
+
+    store.onChange("dealStageWeights[0].weight", 35);
+
+    expect(store.getError("dealStageWeights[0].weight")).toBeUndefined();
+    expect(store.weightedPipelineTotal).toBe(725500 * 0.35 + 545500);
   });
 
   it("reports nothing rather than zero when no sums have arrived", () => {
@@ -328,5 +346,52 @@ describe("CompanySettingsStore stages without a weight", () => {
         ],
       }),
     );
+  });
+});
+
+describe("CompanySettingsStore stage weight range", () => {
+  const COLUMN_ID = "column-stage";
+
+  function storeWithStageColumn() {
+    const store = new CompanySettingsStore(makeRootStore());
+    store.applyDealStageColumns(
+      [
+        {
+          id: COLUMN_ID,
+          label: "Status",
+          options: [
+            { value: "option-open", label: "Open", color: "warning", isDefault: true, index: 0, weight: 30 },
+            { value: "option-won", label: "Won", color: "success", isDefault: false, index: 1, weight: 100 },
+          ],
+        },
+      ] as never,
+      COLUMN_ID,
+    );
+    store.applyStageValueSums(COLUMN_ID, {});
+    return store;
+  }
+
+  it.each([3530, 100.5, -1])("rejects a weight of %s on the field before saving", async (weight) => {
+    const store = storeWithStageColumn();
+    actions.updateCompanyAction.mockReset();
+
+    store.onChange("dealStageWeights[0].weight", weight);
+    await store.onSubmit();
+
+    expect(actions.updateCompanyAction).not.toHaveBeenCalled();
+    expect(store.getError("dealStageWeights[0].weight")).toEqual(["Common.probabilityRange"]);
+    expect(store.getError("dealStageWeights[1].weight")).toBeUndefined();
+  });
+
+  it.each([0, 100, 42.5])("saves a weight of %s", async (weight) => {
+    const store = storeWithStageColumn();
+    actions.updateCompanyAction.mockReset();
+    actions.updateCompanyAction.mockResolvedValue({ ok: true, data: { currency: Currency.eur } });
+
+    store.onChange("dealStageWeights[0].weight", weight);
+    await store.onSubmit();
+
+    expect(actions.updateCompanyAction).toHaveBeenCalledTimes(1);
+    expect(store.error).toBeUndefined();
   });
 });

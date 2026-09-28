@@ -9,6 +9,8 @@ export const latin = localFont({
     },
   ],
   display: "swap",
+  adjustFontFallback: false,
+  fallback: ["Inter Fallback", "Inter Fallback Roboto", "sans-serif"],
   variable: "--font-sans",
 });
 

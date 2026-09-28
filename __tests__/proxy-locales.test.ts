@@ -256,8 +256,8 @@ describe("proxy locale routing", () => {
       const { response, status, location } = await call(path);
       expect(location, `${path} must not redirect into a URL we may later serve`).toBeNull();
       expect(status, `${path} should fall through to the app router`).toBe(200);
-      expect(response.headers.get("x-middleware-rewrite"), `${path} should render the global 404`).toBe(
-        "http://localhost:4000/_not-found",
+      expect(response.headers.get("x-middleware-rewrite"), `${path} should render the localized 404`).toBe(
+        "http://localhost:4000/en/_missing-page",
       );
     }
   });

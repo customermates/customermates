@@ -328,3 +328,50 @@ describe("CustomColumnModalStore stale errors", () => {
     expect(store.error).toBeDefined();
   });
 });
+
+describe("CustomColumnModalStore option weights", () => {
+  beforeEach(() => {
+    vi.mocked(upsertCustomColumnAction).mockReset();
+    vi.mocked(upsertCustomColumnAction).mockResolvedValue({ ok: true, data: SAVED_COLUMN });
+  });
+
+  function storeWithWeight(weight: number) {
+    const { dealDetailStore, dealsStore } = creationHarness();
+    const store = new CustomColumnModalStore({
+      ...rootStore((key) => key),
+      dealDetailStore,
+      dealsStore,
+    } as unknown as RootStore);
+    store.initialize(CustomColumnType.singleSelect, EntityType.deal);
+    if (store.form.type !== CustomColumnType.singleSelect) throw new Error("expected a single-select form");
+    store.onChange("options.options[0].weight", weight);
+    return store;
+  }
+
+  it.each([3530, 100.5, -1])("rejects a weight of %s on the option before saving", async (weight) => {
+    const store = storeWithWeight(weight);
+
+    await store.onSubmit();
+
+    expect(upsertCustomColumnAction).not.toHaveBeenCalled();
+    expect(store.getError("options.options[0].weight")).toEqual(["Common.probabilityRange"]);
+  });
+
+  it("flags an out-of-range weight as it is typed and clears it once corrected", () => {
+    const store = storeWithWeight(3530);
+
+    expect(store.getError("options.options[0].weight")).toEqual(["Common.probabilityRange"]);
+
+    store.onChange("options.options[0].weight", 30);
+
+    expect(store.getError("options.options[0].weight")).toBeUndefined();
+  });
+
+  it.each([0, 100, 42.5])("saves a weight of %s", async (weight) => {
+    const store = storeWithWeight(weight);
+
+    await store.onSubmit();
+
+    expect(upsertCustomColumnAction).toHaveBeenCalledOnce();
+  });
+});
