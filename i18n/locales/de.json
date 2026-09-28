@@ -1547,6 +1547,7 @@
     },
     "pageNumber": "Seite {page}",
     "probability": "Wahrscheinlichkeit",
+    "probabilityRange": "Gib eine Wahrscheinlichkeit von 0 bis 100 % ein.",
     "providers": {
       "google": "Gmail",
       "instagram": "Instagram",

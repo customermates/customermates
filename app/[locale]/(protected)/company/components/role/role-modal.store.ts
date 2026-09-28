@@ -180,10 +180,10 @@ export class RoleModalStore extends BaseModalStore<UpsertRoleData> {
 
       if (res.ok) {
         const currentRole = this.rootStore.rolesStore.items.find((role) => role.id === res.data.id);
-        await this.rootStore.rolesStore.upsertItem({
-          ...res.data,
-          hasUsersAssigned: currentRole?.hasUsersAssigned ?? false,
-        });
+        await this.rootStore.rolesStore.upsertItem(
+          { ...res.data, hasUsersAssigned: currentRole?.hasUsersAssigned ?? false },
+          { created: !this.form.id },
+        );
         this.close();
       } else this.setError(res.error);
     } finally {

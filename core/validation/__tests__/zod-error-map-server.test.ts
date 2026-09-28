@@ -25,6 +25,7 @@ vi.mock("@/i18n/locale-registry", async (importOriginal) => {
 import { getZodParseContext } from "../zod-error-map-server";
 import { APP_LOCALES } from "@/i18n/locale-registry";
 import { ConnectedAccountEmailSchema, defaultEmailSettings } from "@/ee/messaging/email-settings";
+import { BaseCreateDealSchema } from "@/features/deals/upsert/create-deal-base.schema";
 
 afterEach(() => {
   registry.locale = "en";
@@ -60,6 +61,26 @@ describe("getZodParseContext", () => {
     expect(url.success).toBe(false);
     if (!email.success) expect(email.error.issues[0].message).toBe(`${locale}:Common.errors.invalidEmail`);
     if (!url.success) expect(url.error.issues[0].message).toBe(`${locale}:Common.errors.invalidUrl`);
+  });
+
+  it.each(APP_LOCALES)("reports an empty %s id as blank instead of an invalid UUID", async (locale) => {
+    registry.locale = locale;
+    const context = await getZodParseContext();
+
+    const blank = BaseCreateDealSchema.safeParse({ name: "Deal", services: [{ serviceId: "", quantity: 1 }] }, context);
+    const malformed = z.uuid().safeParse("not-a-uuid", context);
+
+    expect(blank.success).toBe(false);
+    if (!blank.success) {
+      expect(blank.error.issues).toEqual([
+        expect.objectContaining({
+          path: ["services", 0, "serviceId"],
+          message: `${locale}:Common.errors.mustNotBeBlank`,
+        }),
+      ]);
+    }
+    expect(malformed.success).toBe(false);
+    if (!malformed.success) expect(malformed.error.issues[0].message).not.toContain("Common.errors");
   });
 
   it("loads the registry-selected Zod locale without mutating global configuration", async () => {

@@ -1,5 +1,8 @@
 import type { NextRequest } from "next/server";
 
+import { readFileSync, readdirSync } from "node:fs";
+import { join } from "node:path";
+
 import { beforeEach, describe, expect, it, vi } from "vitest";
 import { NextRequest as NextRequestValue } from "next/server";
 
@@ -17,6 +20,7 @@ vi.mock("@/core/auth/better-auth", () => ({
 }));
 
 import proxy from "@/proxy";
+import { NOT_FOUND_PAGE_PATH } from "@/core/seo/missing-content-page";
 import { SESSION_HINT_COOKIE_NAME } from "@/features/auth/session-hint";
 
 function request(pathname: string, cookie?: string): NextRequest {
@@ -99,7 +103,7 @@ describe("proxy legacy hub page queries", () => {
     for (const query of ["page=2junk", "page=2&page=3", "page=0"]) {
       const result = await call(`/en/compare?${query}`);
       expect(result.location, query).toBeNull();
-      expect(result.rewrite, query).toBe("http://localhost:4000/_not-found");
+      expect(result.rewrite, query).toBe("http://localhost:4000/en/_missing-page");
     }
   });
 
@@ -119,7 +123,7 @@ describe("proxy missing content pages", () => {
     authMocks.getSession.mockResolvedValue(null);
   });
 
-  it("renders the global not-found for a missing slug or hub page instead of a client-only 404 shell", async () => {
+  it("renders the localized not-found route for a missing slug or hub page instead of a client-only 404 shell", async () => {
     for (const path of [
       "/en/blog/unknown-slug",
       "/de/compare/unknown",
@@ -133,7 +137,35 @@ describe("proxy missing content pages", () => {
     ]) {
       const result = await call(path);
       expect(result.location, path).toBeNull();
-      expect(result.rewrite, path).toBe("http://localhost:4000/_not-found");
+      expect(result.rewrite, path).toBe(`http://localhost:4000/${path.split("/")[1]}/_missing-page`);
+    }
+  });
+
+  it("rewrites to a localized path no route matches, never to Next's internal /_not-found", async () => {
+    // Vercel served a proxy rewrite to /_not-found as an ordinary page with status 200, while
+    // `next start` answered 404, so every missing slug was a soft 404 in production only. An
+    // unmatched path gets Next's own 404 handling on every host, the same as /en/this-does-not-exist.
+    expect(readFileSync(join(process.cwd(), "proxy.ts"), "utf8")).not.toContain('"/_not-found"');
+    expect(NOT_FOUND_PAGE_PATH).toMatch(/^\/_[a-z-]+$/u);
+
+    // A dynamic or catch-all segment directly under the locale would match the target and turn every
+    // missing page back into a 200, so none may exist there, including inside route groups.
+    const localeRoot = join(process.cwd(), "app/[locale]");
+    const topLevelSegments = readdirSync(localeRoot, { withFileTypes: true })
+      .filter((entry) => entry.isDirectory())
+      .flatMap(({ name }) =>
+        name.startsWith("(")
+          ? readdirSync(join(localeRoot, name), { withFileTypes: true })
+              .filter((entry) => entry.isDirectory())
+              .map((entry) => entry.name)
+          : [name],
+      );
+    expect(topLevelSegments.filter((name) => name.startsWith("["))).toEqual([]);
+
+    for (const path of ["/xx", "/zz/x", "/en/blog/does-not-exist", "/en/blog/page/999", "/de/for/unknown"]) {
+      const result = await call(path);
+      expect(result.location, path).toBeNull();
+      expect(new URL(result.rewrite ?? "").pathname, path).toMatch(/^\/(en|de)\/_missing-page$/u);
     }
   });
 

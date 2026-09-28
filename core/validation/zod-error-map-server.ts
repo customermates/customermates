@@ -25,6 +25,7 @@ function invalidFormatError(issue: $ZodRawIssue, errors: Record<string, string>)
   if (issue.code !== "invalid_format") return undefined;
   if (issue.format === "email") return errors[CustomErrorCode.invalidEmail];
   if (issue.format === "url") return errors[CustomErrorCode.invalidUrl];
+  if (issue.format === "uuid" && issue.input === "") return errors[CustomErrorCode.mustNotBeBlank];
   return undefined;
 }
 
