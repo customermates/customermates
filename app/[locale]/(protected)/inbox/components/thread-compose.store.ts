@@ -680,7 +680,8 @@ export class ThreadComposeStore extends BaseFormStore<ThreadComposeForm> {
 
     try {
       const result = await discardDraftAction({ messageId, draftRevision });
-      if (!result.ok && generation === this.composeGeneration) {
+      if (result.ok) this.rootStore.messagingThreadsStore.refreshInBackground();
+      else if (generation === this.composeGeneration) {
         runInAction(() => {
           if (removed) detail.appendMessage(removed);
         });

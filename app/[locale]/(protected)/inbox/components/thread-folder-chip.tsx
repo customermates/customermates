@@ -2,7 +2,7 @@
 
 import { useTranslations } from "next-intl";
 import { observer } from "mobx-react-lite";
-import { Folder } from "lucide-react";
+import { Folder, Loader2 } from "lucide-react";
 import { Action, Resource } from "@/generated/prisma";
 
 import { AppChip } from "@/components/chip/app-chip";
@@ -32,6 +32,7 @@ export const ThreadFolderChip = observer(() => {
     !context.currentFolderIds.some((id) => context.selectedFolderIds.includes(id));
   const label = hidden ? t("Inbox.folders.hiddenTooltip", { folder }) : t("Inbox.folders.current", { folder });
 
+  const moving = messagingThreadDetailStore.movingThreadIds.has(messagingThreadDetailStore.thread?.id ?? "");
   const provider = messagingThreadDetailStore.thread?.provider;
   const targets = (provider ? emailMoveTargets(context.folders, provider) : [])
     .map((entry) => ({ id: entry.id, name: entry.name?.trim() || t("Common.unnamed") }))
@@ -54,6 +55,7 @@ export const ThreadFolderChip = observer(() => {
 
   return (
     <Select
+      disabled={moving}
       value={context.currentFolderIds.find((id) => byId.has(id)) ?? ""}
       onValueChange={(next) => runUserAction(() => messagingThreadDetailStore.moveToFolder(next))}
     >
@@ -67,7 +69,11 @@ export const ThreadFolderChip = observer(() => {
         id="inbox-thread-folder"
         title={label}
       >
-        <Folder className="size-3.5" />
+        {moving ? (
+          <Loader2 aria-label={t("PageState.loading")} className="size-3.5 animate-spin" />
+        ) : (
+          <Folder className="size-3.5" />
+        )}
 
         <span className="hidden truncate sm:inline">{folder}</span>
       </SelectTrigger>

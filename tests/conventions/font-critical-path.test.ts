@@ -47,6 +47,23 @@ describe("font critical path", () => {
     }
   });
 
+  it("gives body text a metric-matched sans-serif fallback where Arial is missing", () => {
+    // The generated fallback face read only local("Arial") and named no generic family, so Linux
+    // and Android painted the default serif until Inter loaded; the swap shifted the /de hero card.
+    const latin = declaredFamilies.find(({ name }) => name === "latin")?.body ?? "";
+    expect(latin).toContain("adjustFontFallback: false");
+    expect(latin).toContain('fallback: ["Inter Fallback", "Inter Fallback Roboto", "sans-serif"]');
+
+    const face = /@font-face\s*\{[^}]*font-family:\s*"Inter Fallback";[^}]*\}/u.exec(GLOBALS)?.[0] ?? "";
+    for (const source of ['local("Arial")', 'local("Liberation Sans")', 'local("Arimo")'])
+      expect(face, source).toContain(source);
+    expect(face).toContain("size-adjust: 107.89%");
+
+    const roboto = /@font-face\s*\{[^}]*font-family:\s*"Inter Fallback Roboto";[^}]*\}/u.exec(GLOBALS)?.[0] ?? "";
+    expect(roboto).toContain('local("Roboto")');
+    expect(roboto).toContain("size-adjust: 108.13%");
+  });
+
   it("applies every declared family to the document", () => {
     for (const { name } of declaredFamilies) {
       expect(ROOT_LAYOUT, `${name} is declared in app/fonts.ts but never reaches <html>`).toContain(`${name}.variable`);

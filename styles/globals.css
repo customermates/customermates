@@ -7,6 +7,27 @@
 @import "fumadocs-ui/css/neutral.css";
 @import "fumadocs-openapi/css/preset.css";
 
+/* Inter's fallback, sized so a font swap does not reflow text. Liberation Sans and Arimo share
+   Arial's glyph widths, so the same overrides fit all three. See app/fonts.ts. */
+@font-face {
+  font-family: "Inter Fallback";
+  src: local("Arial"), local("ArialMT"), local("Liberation Sans"), local("LiberationSans"), local("Arimo");
+  ascent-override: 89.79%;
+  descent-override: 22.36%;
+  line-gap-override: 0%;
+  size-adjust: 107.89%;
+}
+
+/* Android ships none of those faces; Roboto needs its own overrides. */
+@font-face {
+  font-family: "Inter Fallback Roboto";
+  src: local("Roboto"), local("Roboto-Regular");
+  ascent-override: 89.59%;
+  descent-override: 22.31%;
+  line-gap-override: 0%;
+  size-adjust: 108.13%;
+}
+
 /* The noindex guide can invert one local specimen without changing the public page theme. */
 @custom-variant dark (
   &:is(.dark *):not(:is([data-marketing-tone="inverse"], [data-marketing-tone="inverse"] *)),

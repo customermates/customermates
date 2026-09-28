@@ -61,6 +61,8 @@ export const FormIsoDatePicker = observer(
     const { hasError } = useFormFieldErrors(id);
     const isLoading = store?.isLoading ?? false;
     const isReadOnly = !isLoading && (store?.isReadOnly ?? false);
+    const canEdit = !isReadOnly && !isLoading;
+    const [open, setOpen] = useState(false);
 
     const resolvedLabel = label ?? undefined;
 
@@ -128,7 +130,7 @@ export const FormIsoDatePicker = observer(
           </FormLabel>
         )}
 
-        <Popover open={isReadOnly || isLoading ? false : undefined}>
+        <Popover open={canEdit && open} onOpenChange={canEdit ? setOpen : undefined}>
           <PopoverTrigger asChild>
             <Button
               aria-disabled={isReadOnly || undefined}

@@ -238,7 +238,7 @@ export abstract class BaseCustomColumnEntityModalStore<
 
       if (res.ok) {
         this.setError(undefined);
-        await this.entityStore.upsertItem(res.data);
+        await this.entityStore.upsertItem(res.data, { created: isCreate });
         if (this.fetchedEntity) this.fetchedEntity = res.data;
         this.onInitOrRefresh(this.initFormWithCustomFieldValues(res.data));
         if (isCreate) this.lastCreatedId = res.data.id;
