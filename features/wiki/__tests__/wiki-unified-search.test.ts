@@ -104,7 +104,7 @@ describe("unified Wiki search", () => {
     expect(timings).toEqual([expect.objectContaining({ corpus: "wiki", embedding: "used" })]);
   });
 
-  it("re-ranks the first page of results with the request's Wiki ranker and never a later page", async () => {
+  it("re-ranks results with the request's Wiki ranker and skips a page past the last result", async () => {
     const ranker = vi.fn((_query: string, candidates: readonly RankableSection[]) =>
       Promise.resolve([candidates.findIndex((candidate) => candidate.section.pageTitle === "Page 3")]),
     );
@@ -128,6 +128,39 @@ describe("unified Wiki search", () => {
     expect(first.data.retrieval).toBe("keyword");
     expect(ranker).toHaveBeenCalledTimes(1);
     expect(later.data).toMatchObject({ items: [], total: 3, page: 2 });
+  });
+
+  it("pages through one consistent re-ranked order without overlap or gaps", async () => {
+    const manyId = (n: number) => `00000000-0000-4000-8000-${String(n).padStart(12, "0")}`;
+    const many = Array.from({ length: 13 }, (_, index) => ({
+      ...page(1, `Intro.\n\n## Refunds ${index}\n\nRefund plan ${index}.`),
+      id: manyId(index + 1),
+      title: `Page ${index + 1}`,
+    }));
+    const chunks = {
+      ...repo([], null),
+      getPagesByIds: vi.fn((ids: string[]) => Promise.resolve(many.filter((entry) => ids.includes(entry.id)))),
+      fullTextPageCandidates: vi.fn(() => Promise.resolve({ keys: many.map((entry) => entry.id), pinned: [] })),
+    } satisfies SearchWikiPagesRepo;
+    const ranker = vi.fn((_query: string, candidates: readonly RankableSection[]) =>
+      Promise.resolve(candidates.map((_, index) => candidates.length - 1 - index)),
+    );
+    const interactor = new SearchWikiPagesInteractor(chunks, "stored", semanticRetrieval(null));
+    const pageIds = async (pageNumber: number) => {
+      const result = await runWithSectionRanking(
+        () => ranker,
+        () => search(interactor, pageNumber),
+      );
+      if (!result.ok) throw new Error("expected search results");
+      return result.data.items.map((item) => item.id);
+    };
+
+    const pagesSeen = [await pageIds(1), await pageIds(2), await pageIds(3), await pageIds(4)];
+
+    const reranked = [...many.slice(0, 10).reverse(), ...many.slice(10)].map((entry) => entry.id);
+    expect(pagesSeen).toEqual([reranked.slice(0, 5), reranked.slice(5, 10), reranked.slice(10, 13), []]);
+    expect(new Set(pagesSeen.flat()).size).toBe(13);
+    expect(ranker).toHaveBeenCalledTimes(2);
   });
 
   it("stays full-text only in demo mode, without an embedding or a re-rank", async () => {

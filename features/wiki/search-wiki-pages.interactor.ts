@@ -95,7 +95,9 @@ export class SearchWikiPagesInteractor extends AuthenticatedInteractor<WikiPageS
       });
       if (semantic && stalePageIds.size > 0) await semantic.scheduler.schedule();
 
-      const head = fused.ranked.slice(0, Math.max(window, data.page === 1 ? WIKI_RERANK_CANDIDATES : 0));
+      const pageStart = (data.page - 1) * data.pageSize;
+      const reranks = pageStart < WIKI_RERANK_CANDIDATES && pageStart < fused.ranked.length;
+      const head = fused.ranked.slice(0, Math.max(window, reranks ? WIKI_RERANK_CANDIDATES : 0));
       const pages = new Map((await this.repo.getPagesByIds(head)).map((page) => [page.id, page]));
       const matchedText = corrected ?? data.query;
       const located = await this.locateSections(
@@ -109,11 +111,11 @@ export class SearchWikiPagesInteractor extends AuthenticatedInteractor<WikiPageS
         section: { pageTitle: entry.page.title, headingPath: entry.headingPath, text: entry.text },
         titleOnly: false,
       }));
-      const order = data.page === 1 ? await rerankSections({ query: data.query, stopwatch, candidates, ranker }) : null;
+      const order = reranks ? await rerankSections({ query: data.query, stopwatch, candidates, ranker }) : null;
       const reordered = order
         ? [...order.map((id) => located[id]), ...located.filter((_, index) => !order.includes(index))]
         : located;
-      const selected = reordered.slice((data.page - 1) * data.pageSize, window);
+      const selected = reordered.slice(pageStart, window);
       const headlines = await this.repo.sectionHeadlines(
         matchedText,
         selected.map((entry) => entry.plainText()),
