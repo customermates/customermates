@@ -25,6 +25,7 @@ import { estimateEmbeddingCostMicrocents } from "../classifier/embedding-runner"
 import { collectClassifierCharges, embedQueryMetered, hostedDocsEmbeddingModel } from "../classifier/metered";
 import {
   buildDocsEmbeddingIndex,
+  docsEmbeddingBatches,
   docsEmbeddingKey,
   docsEmbeddingQueryText,
   docsEmbeddingSearch,
@@ -188,6 +189,16 @@ describe("docs section embedding index", () => {
     expect(docsEmbeddingSectionText({ ...section, text: "x".repeat(5_000) }).length).toBe(2_000);
     expect(docsEmbeddingQueryText("qwen3-8b", "q")).toMatch(/^Instruct: .*\nQuery: q$/s);
     expect(docsEmbeddingQueryText("google-multilingual", "q")).toBe("q");
+  });
+
+  it("splits the index requests at 64 sections or 30,000 characters, whichever comes first", () => {
+    const entry = (index: number, chars: number) => [`k${index}`, "x".repeat(chars)] as const;
+    const small = Array.from({ length: 130 }, (_, index) => entry(index, 10));
+    const large = Array.from({ length: 40 }, (_, index) => entry(index, 2_000));
+
+    expect(docsEmbeddingBatches(small).map((batch) => batch.length)).toEqual([64, 64, 2]);
+    expect(docsEmbeddingBatches(large).map((batch) => batch.length)).toEqual([15, 15, 10]);
+    expect(docsEmbeddingBatches([])).toEqual([]);
   });
 
   it("ranks sections by cosine similarity and skips vectors of another size", () => {

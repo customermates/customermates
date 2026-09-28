@@ -18,6 +18,7 @@ export const DOCS_EMBEDDING_TIMEOUT_MS = 500;
 export const DOCS_EMBEDDING_SECTION_CHARS = 2_000;
 export const DOCS_EMBEDDING_RANKED = 40;
 const DOCS_EMBEDDING_BATCH = 64;
+export const DOCS_EMBEDDING_BATCH_CHARS = 30_000;
 const DOCS_EMBEDDING_RETRY_MS = 60_000;
 
 type CacheFile = { model: string; vectors: Record<string, string> };
@@ -56,6 +57,22 @@ function decodeVector(encoded: string): Float32Array {
   return new Float32Array(bytes.buffer.slice(bytes.byteOffset, bytes.byteOffset + bytes.byteLength));
 }
 
+export function docsEmbeddingBatches<T extends readonly [string, string]>(entries: readonly T[]): T[][] {
+  const batches: T[][] = [];
+  let chars = 0;
+  for (const entry of entries) {
+    const last = batches.at(-1);
+    if (!last || last.length >= DOCS_EMBEDDING_BATCH || chars + entry[1].length > DOCS_EMBEDDING_BATCH_CHARS) {
+      batches.push([entry]);
+      chars = entry[1].length;
+    } else {
+      last.push(entry);
+      chars += entry[1].length;
+    }
+  }
+  return batches;
+}
+
 async function writeCache(path: string, model: DocsEmbeddingModelKey, vectors: Record<string, string>) {
   await mkdir(dirname(path), { recursive: true });
   await writeFile(path, JSON.stringify({ model: DOCS_EMBEDDING_MODELS[model].modelId, vectors }));
@@ -79,8 +96,7 @@ export async function buildDocsEmbeddingIndex(
   const keys = texts.map((text) => docsEmbeddingKey(model, text));
   const cached = await readCache(cachePath, model);
   const missing = [...new Map(keys.flatMap((key, index) => (cached[key] ? [] : [[key, texts[index]] as const])))];
-  for (let start = 0; start < missing.length; start += DOCS_EMBEDDING_BATCH) {
-    const batch = missing.slice(start, start + DOCS_EMBEDDING_BATCH);
+  for (const batch of docsEmbeddingBatches(missing)) {
     const { embeddings } = await runEmbedding(
       model,
       batch.map(([, text]) => text),
