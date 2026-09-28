@@ -163,7 +163,7 @@ export class PrismaDocsChunkRepo extends DocsChunkRepo {
             * CASE WHEN h."title" THEN ${DOCS_TITLE_WEIGHT}::float8 ELSE 1 END) AS "score"
         FROM hits h JOIN frequency f ON f."ord" = h."ord" CROSS JOIN total t
         GROUP BY h."source", h."slug", h."sectionOrder"
-        ORDER BY "score" DESC
+        ORDER BY "score" DESC, h."source", h."slug", h."sectionOrder"
         LIMIT ${limit * 2}
       ),
       chunks AS (

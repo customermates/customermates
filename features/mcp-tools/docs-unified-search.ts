@@ -52,7 +52,7 @@ function bounded(text: string, maxChars: number): string {
   if (text.length <= maxChars) return text;
   const cut = text.slice(0, Math.max(0, maxChars - 1));
   const boundary = Math.max(cut.lastIndexOf("\n"), cut.lastIndexOf(" "));
-  return `${(boundary > maxChars / 2 ? cut.slice(0, boundary) : cut).trimEnd()}…`;
+  return `${(boundary > maxChars / 2 ? cut.slice(0, boundary) : cut).trimEnd().replace(/(?:\s*(?:…|\.\.\.))+$/u, "")}…`;
 }
 
 function sectionWindow(section: DocsSection, chunkOrdinal: number): string {
