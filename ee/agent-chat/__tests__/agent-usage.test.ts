@@ -84,8 +84,9 @@ function makeRepo(
       }),
     ),
     accruePlatformUsageUnscoped: vi.fn(() => Promise.resolve()),
-    reserveRetrievalUsageUnscoped: vi.fn(() => Promise.resolve(true)),
+    reserveRetrievalUsageUnscoped: vi.fn((): Promise<string | null> => Promise.resolve("hold-1")),
     settleRetrievalUsageUnscoped: vi.fn(() => Promise.resolve()),
+    releaseStaleRetrievalReservationsUnscoped: vi.fn(() => Promise.resolve(0)),
   };
 }
 
@@ -629,7 +630,7 @@ describe("AgentUsageService admission and ledger", () => {
       model: "embedding",
       now: NOW,
     });
-    expect(reservation).toEqual({ grant, reservedMicrocents: 90, reservedAt: NOW });
+    expect(reservation).toEqual({ id: "hold-1", grant, reservedMicrocents: 90, reservedAt: NOW });
     expect(repo.reserveRetrievalUsageUnscoped).toHaveBeenCalledWith({
       grant,
       reservedMicrocents: 90,
@@ -640,17 +641,34 @@ describe("AgentUsageService admission and ledger", () => {
     await service.settleRetrieval({ reservation, charge, now: NOW });
     expect(repo.settleRetrievalUsageUnscoped).toHaveBeenCalledWith({
       grant,
+      reservationId: "hold-1",
       reservedMicrocents: 90,
       reservedAt: NOW,
       charge,
+      payer: "grant",
       now: NOW,
     });
+    await service.settleRetrieval({ reservation, charge, payer: "platform", now: NOW });
+    expect(repo.settleRetrievalUsageUnscoped).toHaveBeenLastCalledWith(
+      expect.objectContaining({ reservationId: "hold-1", charge, payer: "platform" }),
+    );
 
-    repo.reserveRetrievalUsageUnscoped.mockResolvedValueOnce(false);
+    repo.reserveRetrievalUsageUnscoped.mockResolvedValueOnce(null);
     await expect(service.reserveRetrieval({ grant, worstCaseMicrocents: 90, model: "embedding" })).resolves.toBeNull();
     await expect(
       service.reserveRetrieval({ grant: { ...grant, userId: "user-1" }, worstCaseMicrocents: 90, model: "embedding" }),
     ).rejects.toThrow("Retrieval grant payer is invalid.");
+  });
+
+  it("releases retrieval reservations older than their time to live", async () => {
+    const repo = makeRepo();
+    repo.releaseStaleRetrievalReservationsUnscoped.mockResolvedValueOnce(2);
+
+    await expect(new AgentUsageService(repo).releaseStaleRetrievalReservations(NOW)).resolves.toBe(2);
+    expect(repo.releaseStaleRetrievalReservationsUnscoped).toHaveBeenCalledWith({
+      reservedBefore: new Date(NOW.getTime() - 15 * 60 * 1000),
+      now: NOW,
+    });
   });
 
   it("accrues platform documentation indexing without charging any member", async () => {

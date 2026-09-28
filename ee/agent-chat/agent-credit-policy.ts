@@ -28,6 +28,9 @@ export function legacyCreditsAwayFromZero(microcents: number): number {
   return microcents < 0 ? -credits : credits;
 }
 
+export const AGENT_RETRIEVAL_RESERVATION_TTL_MS = 15 * 60 * 1000;
+export const AGENT_RETRIEVAL_PLATFORM_PURPOSE = "wikiQueryEmbeddingUnused";
+
 export function workspaceIndexingShareMicrocents(args: {
   unassignedMicrocents: number;
   memberLimitMicrocents: number;

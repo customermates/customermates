@@ -102,9 +102,22 @@ function storedTurn(overrides: Record<string, unknown> = {}) {
   };
 }
 
+const rawSql = (call: readonly unknown[]) => (call[0] as TemplateStringsArray).join("?");
+
+function mockRawQueries(globalCommitment: { settledCostMicrocents: bigint; activeReservedMicrocents: bigint } | null) {
+  prismaMock.$queryRaw.mockImplementation((strings: TemplateStringsArray) => {
+    const sql = strings.join("?");
+    if (sql.includes('FROM "AgentCreditAdjustment"')) return Promise.resolve([]);
+    if (sql.includes('AS "memberMicrocents"'))
+      return Promise.resolve([{ memberMicrocents: 0n, workspaceMicrocents: 0n }]);
+    return Promise.resolve(globalCommitment ? [globalCommitment] : []);
+  });
+}
+
 describe("PrismaAgentChatRepo tenant boundaries", () => {
   beforeEach(() => {
     vi.clearAllMocks();
+    mockRawQueries(null);
     env.HOSTED_AI_OPERATOR_CONTROLS_ENABLED = false;
     env.HOSTED_AI_PROVIDER_WORK_PAUSED = false;
     env.HOSTED_AI_MONTHLY_SPEND_CAP_MICROCENTS = null;
@@ -2405,7 +2418,7 @@ describe("PrismaAgentChatRepo tenant boundaries", () => {
       },
     });
     prismaMock.agentUsageEvent.findMany.mockResolvedValue([]);
-    prismaMock.$queryRaw.mockResolvedValue([{ settledCostMicrocents: 0n, activeReservedMicrocents: 1_000_000n }]);
+    mockRawQueries({ settledCostMicrocents: 0n, activeReservedMicrocents: 1_000_000n });
 
     try {
       await expect(
@@ -2426,7 +2439,9 @@ describe("PrismaAgentChatRepo tenant boundaries", () => {
       vi.useRealTimers();
     }
 
-    expect(prismaMock.$queryRaw).toHaveBeenCalledOnce();
+    expect(
+      prismaMock.$queryRaw.mock.calls.filter((call) => rawSql(call).includes('"activeReservedMicrocents"')),
+    ).toHaveLength(1);
     expect(prismaMock.agentUsageEvent.create).not.toHaveBeenCalled();
   });
 
@@ -2606,7 +2621,7 @@ describe("PrismaAgentChatRepo tenant boundaries", () => {
       },
     });
     prismaMock.agentUsageEvent.findMany.mockResolvedValue([]);
-    prismaMock.$queryRaw.mockResolvedValue([{ settledCostMicrocents: 0n, activeReservedMicrocents: 0n }]);
+    mockRawQueries({ settledCostMicrocents: 0n, activeReservedMicrocents: 0n });
 
     try {
       await expect(

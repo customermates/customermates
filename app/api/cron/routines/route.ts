@@ -1,4 +1,4 @@
-import { getReconcileRoutineRunsInteractor, getSweepDueRoutinesInteractor } from "@/core/di";
+import { getAgentUsageService, getReconcileRoutineRunsInteractor, getSweepDueRoutinesInteractor } from "@/core/di";
 import { env } from "@/env";
 
 export const runtime = "nodejs";
@@ -15,6 +15,7 @@ export async function GET(req: Request) {
 
   const reconciled = await getReconcileRoutineRunsInteractor().invoke();
   const swept = await getSweepDueRoutinesInteractor().invoke();
+  const releasedRetrievalReservations = await getAgentUsageService().releaseStaleRetrievalReservations();
 
-  return Response.json({ ok: true, ...reconciled, ...swept });
+  return Response.json({ ok: true, ...reconciled, ...swept, releasedRetrievalReservations });
 }

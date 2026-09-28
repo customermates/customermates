@@ -6,6 +6,7 @@ import { env } from "@/env";
 import type { Data } from "@/core/validation/validation.utils";
 
 import {
+  AGENT_RETRIEVAL_RESERVATION_TTL_MS,
   agentMicrocentsToCredits,
   memberCreditHeadroomMicrocents,
   resolveAgentCreditEntitlement,
@@ -72,15 +73,24 @@ export abstract class AgentUsageRepo {
     reservedMicrocents: number;
     model: string;
     now: Date;
-  }): Promise<boolean>;
+  }): Promise<string | null>;
   abstract settleRetrievalUsageUnscoped(args: {
     grant: AgentRetrievalGrant;
+    reservationId: string;
     reservedMicrocents: number;
     reservedAt: Date;
     charge: AgentRetrievalCharge | null;
+    payer: AgentRetrievalPayer;
     now: Date;
   }): Promise<void>;
+  abstract releaseStaleRetrievalReservationsUnscoped(args: {
+    companyId?: string;
+    reservedBefore: Date;
+    now: Date;
+  }): Promise<number>;
 }
+
+export type AgentRetrievalPayer = "grant" | "platform";
 
 export type AgentWorkspaceCreditPool = {
   plan: SubscriptionPlan;
@@ -95,6 +105,7 @@ export type AgentWorkspaceCreditPool = {
 };
 
 export type AgentRetrievalReservation = {
+  id: string;
   grant: AgentRetrievalGrant;
   reservedMicrocents: number;
   reservedAt: Date;
@@ -396,18 +407,19 @@ export class AgentUsageService {
       throw new Error("Retrieval grant payer is invalid.");
     const reservedMicrocents = Math.max(1, args.worstCaseMicrocents);
     const reservedAt = args.now ?? new Date();
-    const admitted = await this.repo.reserveRetrievalUsageUnscoped({
+    const id = await this.repo.reserveRetrievalUsageUnscoped({
       grant: args.grant,
       reservedMicrocents,
       model: args.model,
       now: reservedAt,
     });
-    return admitted ? { grant: args.grant, reservedMicrocents, reservedAt } : null;
+    return id ? { id, grant: args.grant, reservedMicrocents, reservedAt } : null;
   }
 
   async settleRetrieval(args: {
     reservation: AgentRetrievalReservation;
     charge: AgentRetrievalCharge | null;
+    payer?: AgentRetrievalPayer;
     now?: Date;
   }) {
     if (args.charge) {
@@ -416,10 +428,19 @@ export class AgentUsageService {
     }
     await this.repo.settleRetrievalUsageUnscoped({
       grant: args.reservation.grant,
+      reservationId: args.reservation.id,
       reservedMicrocents: args.reservation.reservedMicrocents,
       reservedAt: args.reservation.reservedAt,
       charge: args.charge,
+      payer: args.payer ?? "grant",
       now: args.now ?? new Date(),
+    });
+  }
+
+  async releaseStaleRetrievalReservations(now = new Date()): Promise<number> {
+    return this.repo.releaseStaleRetrievalReservationsUnscoped({
+      reservedBefore: new Date(now.getTime() - AGENT_RETRIEVAL_RESERVATION_TTL_MS),
+      now,
     });
   }
 

@@ -25,6 +25,7 @@ import { parsePublicWikiHomepage } from "@/features/wiki/wiki-homepage";
 import type {
   AgentRetrievalCharge,
   AgentRetrievalGrant,
+  AgentRetrievalPayer,
   AgentUsageRepo,
   AgentWorkspaceCreditPool,
 } from "./agent-usage.service";
@@ -56,7 +57,10 @@ import {
 } from "./agent-turn-request";
 import type { AgentUsageSettlement } from "./agent-usage-settlement";
 import {
+  AGENT_RETRIEVAL_PLATFORM_PURPOSE,
+  AGENT_RETRIEVAL_RESERVATION_TTL_MS,
   agentCreditPeriodForAnchor,
+  agentMicrocentsFromStorage,
   legacyCreditsRoundedDown,
   legacyCreditsRoundedUp,
   ceilingMicrocentsWithLegacyCredits,
@@ -1300,6 +1304,7 @@ export class PrismaAgentChatRepo extends BaseRepository implements AgentUsageRep
         companyId: this.companyId,
         userId: this.userId,
         state: "reserved",
+        purpose: "turn",
         turnRequestId: null,
       },
       data: { state: "released", chargedMicrocents: 0, chargedCredits: 0, settledAt: now },
@@ -2418,24 +2423,21 @@ export class PrismaAgentChatRepo extends BaseRepository implements AgentUsageRep
     const anchor = subscription.agentCreditAnchorAt ?? subscription.createdAt;
     if (anchor.getTime() > now.getTime()) return null;
     const period = agentCreditPeriodForAnchor(anchor, now);
-    const [adjustments, events] = await Promise.all([
-      this.prisma.agentCreditAdjustment.findMany({
-        where: { companyId, periodStart: period.start, periodEnd: period.resetAt },
-        select: { userId: true, deltaMicrocents: true, creditDelta: true },
-      }),
-      this.prisma.agentUsageEvent.findMany({
-        where: {
-          companyId,
-          periodStart: period.start,
-          periodEnd: period.resetAt,
-          state: { in: ["reserved", "settled", "retained"] },
-        },
-        select: { ...committedUsageSelect, userId: true },
-      }),
-    ]);
+    const adjustments = await this.prisma.$queryRaw<Array<{ userId: string; deltaMicrocents: bigint }>>`
+      SELECT "userId", COALESCE(SUM(
+        CASE WHEN "deltaMicrocents" = 0 THEN "creditDelta"::bigint * 1000000 ELSE "deltaMicrocents" END
+      ), 0)::bigint AS "deltaMicrocents"
+      FROM "AgentCreditAdjustment"
+      WHERE "companyId" = ${companyId} AND "periodStart" = ${period.start} AND "periodEnd" = ${period.resetAt}
+      GROUP BY "userId"
+    `;
     const adjustmentByUser = new Map<string, number>();
-    for (const row of adjustments)
-      adjustmentByUser.set(row.userId, (adjustmentByUser.get(row.userId) ?? 0) + sumAdjustmentMicrocents([row]));
+    for (const row of adjustments) {
+      const microcents = Number(row.deltaMicrocents);
+      if (!Number.isSafeInteger(microcents) || BigInt(microcents) !== row.deltaMicrocents)
+        throw new Error("Stored AI credit adjustment total is invalid.");
+      adjustmentByUser.set(row.userId, microcents);
+    }
 
     let limitMicrocents = 0;
     let usable = false;
@@ -2458,6 +2460,12 @@ export class PrismaAgentChatRepo extends BaseRepository implements AgentUsageRep
       limitMicrocents += entitlement.limitMicrocents;
       if (!Number.isSafeInteger(limitMicrocents)) throw new Error("Workspace AI credit allowance is invalid.");
     }
+    const usage = await this.workspacePoolUsage(
+      companyId,
+      period.start,
+      period.resetAt,
+      Object.keys(memberLimitMicrocents),
+    );
 
     return {
       plan: subscription.plan,
@@ -2465,11 +2473,36 @@ export class PrismaAgentChatRepo extends BaseRepository implements AgentUsageRep
       periodStart: period.start,
       periodEnd: period.resetAt,
       limitMicrocents,
-      usedMicrocents: sumCommittedAgentMicrocents(events),
-      unassignedMicrocents: sumCommittedAgentMicrocents(events.filter((event) => event.userId === null)),
+      usedMicrocents: usage.usedMicrocents,
+      unassignedMicrocents: usage.unassignedMicrocents,
       memberLimitMicrocents,
       usable,
     };
+  }
+
+  private async workspacePoolUsage(companyId: string, periodStart: Date, periodEnd: Date, memberIds: string[]) {
+    const committed = Prisma.sql`CASE WHEN "state" IN ('reserved', 'retained')
+      THEN ${legacyAware("reservedMicrocents", "reservedCredits")}
+      ELSE ${legacyAware("chargedMicrocents", "chargedCredits")} END`;
+    const rows = await this.prisma.$queryRaw<Array<{ memberMicrocents: bigint; workspaceMicrocents: bigint }>>`
+      SELECT
+        COALESCE(SUM(${committed}) FILTER (WHERE "userId" IS NOT NULL), 0)::bigint AS "memberMicrocents",
+        COALESCE(SUM(${committed}) FILTER (WHERE "userId" IS NULL), 0)::bigint AS "workspaceMicrocents"
+      FROM "AgentUsageEvent"
+      WHERE "companyId" = ${companyId}
+        AND "periodStart" = ${periodStart}
+        AND "periodEnd" = ${periodEnd}
+        AND "state" IN ('reserved', 'settled', 'retained')
+        AND ("userId" IS NULL OR "userId" = ANY(${memberIds}::text[]))
+    `;
+    const row = rows[0];
+    if (!row) throw new Error("Workspace AI credit usage could not be read.");
+    const memberMicrocents = agentMicrocentsFromStorage(row.memberMicrocents, "Workspace AI credit usage");
+    const unassignedMicrocents = agentMicrocentsFromStorage(row.workspaceMicrocents, "Workspace AI credit usage");
+    const usedMicrocents = memberMicrocents + unassignedMicrocents;
+    if (memberMicrocents < 0 || unassignedMicrocents < 0 || !Number.isSafeInteger(usedMicrocents))
+      throw new Error("Workspace AI credit usage is invalid.");
+    return { usedMicrocents, unassignedMicrocents };
   }
 
   private async admitsMemberCreditCommitment(args: {
@@ -2535,12 +2568,17 @@ export class PrismaAgentChatRepo extends BaseRepository implements AgentUsageRep
     reservedMicrocents: number;
     model: string;
     now: Date;
-  }): Promise<boolean> {
+  }): Promise<string | null> {
     const { grant, reservedMicrocents, now } = args;
     if (!Number.isSafeInteger(reservedMicrocents) || reservedMicrocents < 1)
       throw new Error("Retrieval credit reservation is invalid.");
 
     return this.withCompanyTransaction(grant.companyId, async () => {
+      await this.releaseStaleRetrievalReservations({
+        companyId: grant.companyId,
+        reservedBefore: new Date(now.getTime() - AGENT_RETRIEVAL_RESERVATION_TTL_MS),
+        now,
+      });
       const pool = await this.getWorkspaceCreditPoolUnscoped(grant.companyId, now);
       if (
         !pool?.usable ||
@@ -2548,7 +2586,7 @@ export class PrismaAgentChatRepo extends BaseRepository implements AgentUsageRep
         pool.periodEnd.getTime() !== grant.periodEnd.getTime() ||
         pool.usedMicrocents + reservedMicrocents > pool.limitMicrocents
       )
-        return false;
+        return null;
 
       if (grant.userId !== null) {
         const memberLimitMicrocents = pool.memberLimitMicrocents[grant.userId] ?? 0;
@@ -2567,12 +2605,69 @@ export class PrismaAgentChatRepo extends BaseRepository implements AgentUsageRep
           memberLimitMicrocents,
           poolLimitMicrocents: pool.limitMicrocents,
         });
-        if (sumCommittedAgentMicrocents(own) + share + reservedMicrocents > memberLimitMicrocents) return false;
+        if (sumCommittedAgentMicrocents(own) + share + reservedMicrocents > memberLimitMicrocents) return null;
       }
 
       if (!(await this.admitsHostedAiGlobalSpend({ now, additionalReservedMicrocents: reservedMicrocents })))
-        return false;
+        return null;
 
+      const reservation = await this.prisma.agentUsageEvent.create({
+        data: {
+          companyId: grant.companyId,
+          userId: grant.userId,
+          state: "reserved",
+          model: args.model,
+          costSource: "estimated",
+          reservedMicrocents,
+          chargedMicrocents: 0,
+          reservedCredits: legacyCreditsRoundedUp(reservedMicrocents),
+          chargedCredits: 0,
+          planSnapshot: grant.planSnapshot,
+          subscriptionStatusSnapshot: grant.subscriptionStatusSnapshot,
+          allowanceMicrocentsSnapshot: grant.allowanceMicrocentsSnapshot,
+          allowanceCreditsSnapshot: legacyCreditsRoundedDown(grant.allowanceMicrocentsSnapshot),
+          periodStart: grant.periodStart,
+          periodEnd: grant.periodEnd,
+          providerStartedAt: now,
+          purpose: grant.purpose,
+          createdAt: now,
+        },
+        select: { id: true },
+      });
+      return reservation.id;
+    });
+  }
+
+  @BypassTenantGuard
+  async settleRetrievalUsageUnscoped(args: {
+    grant: AgentRetrievalGrant;
+    reservationId: string;
+    reservedMicrocents: number;
+    reservedAt: Date;
+    charge: AgentRetrievalCharge | null;
+    payer: AgentRetrievalPayer;
+    now: Date;
+  }): Promise<void> {
+    const { grant, charge, now } = args;
+    await this.withCompanyTransaction(grant.companyId, async () => {
+      const held = await this.prisma.agentUsageEvent.deleteMany({
+        where: {
+          id: args.reservationId,
+          companyId: grant.companyId,
+          userId: grant.userId,
+          purpose: grant.purpose,
+          state: "reserved",
+          reservedMicrocents: args.reservedMicrocents,
+        },
+      });
+      if (held.count !== 1) throw new Error("Retrieval credit reservation could not be settled.");
+      if (!charge) return;
+      if (args.payer === "platform") {
+        await this.accruePlatformUsageUnscoped({ purpose: AGENT_RETRIEVAL_PLATFORM_PURPOSE, charge, now });
+        return;
+      }
+
+      const chargedMicrocents = Math.min(charge.costMicrocents, args.reservedMicrocents);
       await this.prisma.$executeRaw`
         INSERT INTO "AgentUsageEvent" (
           "id", "companyId", "userId", "state", "model", "inputTokens", "costMicrocents", "costSource",
@@ -2580,15 +2675,18 @@ export class PrismaAgentChatRepo extends BaseRepository implements AgentUsageRep
           "subscriptionStatusSnapshot", "allowanceMicrocentsSnapshot", "allowanceCreditsSnapshot", "periodStart",
           "periodEnd", "providerStartedAt", "settledAt", "purpose", "accrualMonth", "createdAt"
         ) VALUES (
-          ${randomUUID()}, ${grant.companyId}, ${grant.userId}, 'settled', ${args.model}, 0, 0,
-          'measured'::"AgentUsageCostSource", ${reservedMicrocents}, ${reservedMicrocents},
-          ${legacyCreditsRoundedUp(reservedMicrocents)}, ${legacyCreditsRoundedUp(reservedMicrocents)},
+          ${randomUUID()}, ${grant.companyId}, ${grant.userId}, 'settled', ${charge.model}, ${charge.inputTokens},
+          ${charge.costMicrocents}, ${charge.costSource}::"AgentUsageCostSource", ${chargedMicrocents},
+          ${chargedMicrocents}, ${legacyCreditsRoundedUp(chargedMicrocents)}, ${legacyCreditsRoundedUp(chargedMicrocents)},
           ${grant.planSnapshot}::"SubscriptionPlan", ${grant.subscriptionStatusSnapshot}::"SubscriptionStatus",
           ${grant.allowanceMicrocentsSnapshot}, ${legacyCreditsRoundedDown(grant.allowanceMicrocentsSnapshot)},
-          ${grant.periodStart}, ${grant.periodEnd}, ${now}, ${now}, ${grant.purpose}::"AgentUsagePurpose",
-          ${this.retrievalAccrualMonth(now)}, ${now}
+          ${grant.periodStart}, ${grant.periodEnd}, ${args.reservedAt}, ${now}, ${grant.purpose}::"AgentUsagePurpose",
+          ${this.retrievalAccrualMonth(args.reservedAt)}, ${now}
         )
         ON CONFLICT ${this.retrievalConflictTarget(grant)} DO UPDATE SET
+          "model" = EXCLUDED."model",
+          "inputTokens" = "AgentUsageEvent"."inputTokens" + EXCLUDED."inputTokens",
+          "costMicrocents" = "AgentUsageEvent"."costMicrocents" + EXCLUDED."costMicrocents",
           "reservedMicrocents" = ${legacyAware("reservedMicrocents", "reservedCredits")} + EXCLUDED."reservedMicrocents",
           "chargedMicrocents" = ${legacyAware("chargedMicrocents", "chargedCredits")} + EXCLUDED."chargedMicrocents",
           "reservedCredits" = ceil(
@@ -2597,48 +2695,32 @@ export class PrismaAgentChatRepo extends BaseRepository implements AgentUsageRep
           "chargedCredits" = ceil(
             (${legacyAware("chargedMicrocents", "chargedCredits")} + EXCLUDED."chargedMicrocents") / 1000000.0
           ),
+          "costSource" = CASE
+            WHEN "AgentUsageEvent"."costSource" = 'estimated' OR EXCLUDED."costSource" = 'estimated'
+              THEN 'estimated'::"AgentUsageCostSource"
+            ELSE 'measured'::"AgentUsageCostSource"
+          END,
           "settledAt" = EXCLUDED."settledAt"
       `;
-      return true;
     });
   }
 
   @BypassTenantGuard
-  async settleRetrievalUsageUnscoped(args: {
-    grant: AgentRetrievalGrant;
-    reservedMicrocents: number;
-    reservedAt: Date;
-    charge: AgentRetrievalCharge | null;
-    now: Date;
-  }): Promise<void> {
-    const { grant, reservedMicrocents, charge, now } = args;
-    const chargedMicrocents = charge ? Math.min(charge.costMicrocents, reservedMicrocents) : 0;
-    const refund = reservedMicrocents - chargedMicrocents;
-    const payer = grant.userId === null ? Prisma.sql`"userId" IS NULL` : Prisma.sql`"userId" = ${grant.userId}`;
-    const updated = await this.prisma.$executeRaw`
-      UPDATE "AgentUsageEvent" SET
-        "model" = COALESCE(${charge?.model ?? null}::text, "model"),
-        "inputTokens" = "inputTokens" + ${charge?.inputTokens ?? 0},
-        "costMicrocents" = "costMicrocents" + ${charge?.costMicrocents ?? 0},
-        "reservedMicrocents" = "reservedMicrocents" - ${refund},
-        "chargedMicrocents" = "chargedMicrocents" - ${refund},
-        "reservedCredits" = ceil(("reservedMicrocents" - ${refund}) / 1000000.0),
-        "chargedCredits" = ceil(("chargedMicrocents" - ${refund}) / 1000000.0),
-        "costSource" = CASE
-          WHEN "costSource" = 'estimated' OR ${charge?.costSource ?? "measured"}::text = 'estimated'
-            THEN 'estimated'::"AgentUsageCostSource"
-          ELSE 'measured'::"AgentUsageCostSource"
-        END,
-        "settledAt" = ${now}
-      WHERE "companyId" = ${grant.companyId}
-        AND ${payer}
-        AND "periodStart" = ${grant.periodStart}
-        AND "periodEnd" = ${grant.periodEnd}
-        AND "purpose" = ${grant.purpose}::"AgentUsagePurpose"
-        AND "accrualMonth" = ${this.retrievalAccrualMonth(args.reservedAt)}
-        AND "reservedMicrocents" >= ${refund}
-    `;
-    if (updated !== 1) throw new Error("Retrieval credit reservation could not be settled.");
+  async releaseStaleRetrievalReservationsUnscoped(args: { companyId?: string; reservedBefore: Date; now: Date }) {
+    return this.releaseStaleRetrievalReservations(args);
+  }
+
+  private async releaseStaleRetrievalReservations(args: { companyId?: string; reservedBefore: Date; now: Date }) {
+    const released = await this.prisma.agentUsageEvent.updateMany({
+      where: {
+        ...(args.companyId ? { companyId: args.companyId } : {}),
+        purpose: { in: ["wikiRetrieval", "wikiIndexing"] },
+        state: "reserved",
+        createdAt: { lt: args.reservedBefore },
+      },
+      data: { state: "released", chargedMicrocents: 0, chargedCredits: 0, settledAt: args.now },
+    });
+    return released.count;
   }
 
   @BypassTenantGuard

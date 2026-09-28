@@ -525,17 +525,18 @@ describeDatabase("agent credit ledger against a real database", { timeout: 120_0
       periodStart: empty.periodStart,
       periodEnd: empty.periodEnd,
     };
-    await expect(
-      runWithoutTenant(() =>
-        repo.reserveRetrievalUsageUnscoped({ grant: indexingGrant, reservedMicrocents: 90, model: "embedding", now }),
-      ),
-    ).resolves.toBe(true);
+    const indexingHold = await runWithoutTenant(() =>
+      repo.reserveRetrievalUsageUnscoped({ grant: indexingGrant, reservedMicrocents: 90, model: "embedding", now }),
+    );
+    if (!indexingHold) throw new Error("Expected an indexing reservation.");
     await runWithoutTenant(() =>
       repo.settleRetrievalUsageUnscoped({
         grant: indexingGrant,
+        reservationId: indexingHold,
         reservedMicrocents: 90,
         reservedAt: now,
         charge: { model: "embedding", inputTokens: 10, costMicrocents: 42, costSource: "measured" },
+        payer: "grant",
         now,
       }),
     );
@@ -575,14 +576,15 @@ describeDatabase("agent credit ledger against a real database", { timeout: 120_0
       periodEnd: pool.periodEnd,
     });
     const call = async (payer: string | null, reservedMicrocents: number, costMicrocents: number | null) => {
-      await expect(
-        runWithoutTenant(() =>
-          repo.reserveRetrievalUsageUnscoped({ grant: grant(payer), reservedMicrocents, model: "embedding", now }),
-        ),
-      ).resolves.toBe(true);
+      const hold = await runWithoutTenant(() =>
+        repo.reserveRetrievalUsageUnscoped({ grant: grant(payer), reservedMicrocents, model: "embedding", now }),
+      );
+      if (!hold) throw new Error("Expected a retrieval reservation.");
       await runWithoutTenant(() =>
         repo.settleRetrievalUsageUnscoped({
           grant: grant(payer),
+          reservationId: hold,
+          payer: "grant",
           reservedMicrocents,
           reservedAt: now,
           charge:
@@ -698,7 +700,7 @@ describeDatabase("agent credit ledger against a real database", { timeout: 120_0
     const service = new AgentUsageService(repo);
 
     await reserve(userId, 200 * CREDIT);
-    await expect(indexing(150 * CREDIT)).resolves.toBe(true);
+    await expect(indexing(150 * CREDIT)).resolves.toEqual(expect.any(String));
     await expect(runWithoutTenant(() => service.getUsageSummary(colleagueId, now))).resolves.toMatchObject({
       creditsUsed: 75,
       creditsRemaining: 50,
@@ -707,10 +709,211 @@ describeDatabase("agent credit ledger against a real database", { timeout: 120_0
 
     await expect(reserve(colleagueId, 50 * CREDIT + 1)).rejects.toThrow(/exceeds the current allowance/);
     await expect(reserve(colleagueId, 50 * CREDIT)).resolves.toBe(true);
-    await expect(indexing(1)).resolves.toBe(false);
+    await expect(indexing(1)).resolves.toBeNull();
 
     const committed = await runWithoutTenant(() => repo.getWorkspaceCreditPoolUnscoped(companyId, now));
     expect(committed).toMatchObject({ usedMicrocents: 400 * CREDIT, limitMicrocents: 400 * CREDIT });
+  });
+
+  it.each([
+    ["deactivated", { status: "inactive" as const }],
+    ["blocked", { agentCreditActivatedAt: null }],
+  ])(
+    "stops counting a %s member's spend against the colleagues whose allowances remain in the pool",
+    async (_label, change) => {
+      const anchor = new Date(Date.UTC(2026, 0, 15));
+      const now = new Date();
+      const { companyId, userId } = await seedActiveSeat(anchor);
+      const colleagueId = randomUUID();
+      await runWithoutTenant(() =>
+        prisma.user.create({
+          data: {
+            id: colleagueId,
+            companyId,
+            email: `credit-${colleagueId}@example.com`,
+            firstName: "Credit",
+            lastName: "Colleague",
+            status: "active",
+            agentCreditActivatedAt: anchor,
+          },
+        }),
+      );
+      const repo = new PrismaAgentChatRepo();
+      const pool = await runWithoutTenant(() => repo.getWorkspaceCreditPoolUnscoped(companyId, now));
+      if (!pool) throw new Error("Expected a workspace credit pool.");
+      const reserve = (payer: string, reservedMicrocents: number) =>
+        runWithoutTenant(() =>
+          repo.reserveUsageEventUnscoped({
+            id: randomUUID(),
+            companyId,
+            userId: payer,
+            sessionId: randomUUID(),
+            reservedMicrocents,
+            planSnapshot: "starter",
+            subscriptionStatusSnapshot: "active",
+            allowanceMicrocentsSnapshot: 200 * CREDIT,
+            periodStart: pool.periodStart,
+            periodEnd: pool.periodEnd,
+          }),
+        );
+
+      await expect(reserve(userId, 200 * CREDIT)).resolves.toBe(true);
+      await runWithoutTenant(() => prisma.user.update({ where: { id: userId }, data: change }));
+
+      await expect(runWithoutTenant(() => repo.getWorkspaceCreditPoolUnscoped(companyId, now))).resolves.toMatchObject({
+        limitMicrocents: 200 * CREDIT,
+        usedMicrocents: 0,
+        memberLimitMicrocents: { [colleagueId]: 200 * CREDIT },
+      });
+      const indexingHold = await runWithoutTenant(() =>
+        repo.reserveRetrievalUsageUnscoped({
+          grant: {
+            purpose: "wikiIndexing",
+            companyId,
+            userId: null,
+            planSnapshot: "starter",
+            subscriptionStatusSnapshot: "active",
+            allowanceMicrocentsSnapshot: 200 * CREDIT,
+            periodStart: pool.periodStart,
+            periodEnd: pool.periodEnd,
+          },
+          reservedMicrocents: 10 * CREDIT,
+          model: "embedding",
+          now,
+        }),
+      );
+      expect(indexingHold).toEqual(expect.any(String));
+      await expect(reserve(colleagueId, 190 * CREDIT + 1)).rejects.toThrow(/exceeds the current allowance/);
+      await expect(reserve(colleagueId, 190 * CREDIT)).resolves.toBe(true);
+      await expect(runWithoutTenant(() => repo.getWorkspaceCreditPoolUnscoped(companyId, now))).resolves.toMatchObject({
+        limitMicrocents: 200 * CREDIT,
+        usedMicrocents: 200 * CREDIT,
+        unassignedMicrocents: 10 * CREDIT,
+      });
+    },
+  );
+
+  it("holds an embedding reservation until it settles and releases one its process abandoned", async () => {
+    const anchor = new Date(Date.UTC(2026, 0, 15));
+    const now = new Date();
+    const staleAt = new Date(now.getTime() - 20 * 60 * 1000);
+    const { companyId, userId } = await seedActiveSeat(anchor);
+    const repo = new PrismaAgentChatRepo();
+    const pool = await runWithoutTenant(() => repo.getWorkspaceCreditPoolUnscoped(companyId, now));
+    if (!pool) throw new Error("Expected a workspace credit pool.");
+    const grant = {
+      purpose: "wikiRetrieval" as const,
+      companyId,
+      userId,
+      planSnapshot: "starter" as const,
+      subscriptionStatusSnapshot: "active" as const,
+      allowanceMicrocentsSnapshot: pool.limitMicrocents,
+      periodStart: pool.periodStart,
+      periodEnd: pool.periodEnd,
+    };
+    const reserve = (at: Date) =>
+      runWithoutTenant(() =>
+        repo.reserveRetrievalUsageUnscoped({ grant, reservedMicrocents: 5 * CREDIT, model: "embedding", now: at }),
+      );
+
+    const abandoned = await reserve(staleAt);
+    if (!abandoned) throw new Error("Expected a retrieval reservation.");
+    await expect(
+      runWithoutTenant(() => prisma.agentUsageEvent.findUniqueOrThrow({ where: { id: abandoned } })),
+    ).resolves.toMatchObject({ state: "reserved", reservedMicrocents: 5_000_000n, chargedMicrocents: 0n });
+    await expect(runWithoutTenant(() => repo.getWorkspaceCreditPoolUnscoped(companyId, now))).resolves.toMatchObject({
+      usedMicrocents: 5 * CREDIT,
+    });
+
+    await expect(
+      runWithoutTenant(() =>
+        repo.releaseStaleRetrievalReservationsUnscoped({
+          companyId,
+          reservedBefore: new Date(now.getTime() - 15 * 60 * 1000),
+          now,
+        }),
+      ),
+    ).resolves.toBe(1);
+    await expect(
+      runWithoutTenant(() => prisma.agentUsageEvent.findUniqueOrThrow({ where: { id: abandoned } })),
+    ).resolves.toMatchObject({ state: "released", chargedMicrocents: 0n });
+    await expect(runWithoutTenant(() => repo.getWorkspaceCreditPoolUnscoped(companyId, now))).resolves.toMatchObject({
+      usedMicrocents: 0,
+    });
+    await expect(
+      runWithoutTenant(() =>
+        repo.settleRetrievalUsageUnscoped({
+          grant,
+          reservationId: abandoned,
+          reservedMicrocents: 5 * CREDIT,
+          reservedAt: staleAt,
+          charge: null,
+          payer: "grant",
+          now,
+        }),
+      ),
+    ).rejects.toThrow("Retrieval credit reservation could not be settled.");
+
+    const lazilySwept = await reserve(staleAt);
+    const fresh = await reserve(now);
+    if (!lazilySwept || !fresh) throw new Error("Expected retrieval reservations.");
+    await expect(
+      runWithoutTenant(() => prisma.agentUsageEvent.findUniqueOrThrow({ where: { id: lazilySwept } })),
+    ).resolves.toMatchObject({ state: "released" });
+    await expect(runWithoutTenant(() => repo.getWorkspaceCreditPoolUnscoped(companyId, now))).resolves.toMatchObject({
+      usedMicrocents: 5 * CREDIT,
+    });
+  });
+
+  it("charges the platform, not the searcher, for a query embedding no search used", async () => {
+    const anchor = new Date(Date.UTC(2026, 0, 15));
+    const now = new Date();
+    const { companyId, userId } = await seedActiveSeat(anchor);
+    const repo = new PrismaAgentChatRepo();
+    const pool = await runWithoutTenant(() => repo.getWorkspaceCreditPoolUnscoped(companyId, now));
+    if (!pool) throw new Error("Expected a workspace credit pool.");
+    const grant = {
+      purpose: "wikiRetrieval" as const,
+      companyId,
+      userId,
+      planSnapshot: "starter" as const,
+      subscriptionStatusSnapshot: "active" as const,
+      allowanceMicrocentsSnapshot: pool.limitMicrocents,
+      periodStart: pool.periodStart,
+      periodEnd: pool.periodEnd,
+    };
+    const accrualMonth = new Date(Date.UTC(now.getUTCFullYear(), now.getUTCMonth(), 1));
+    const platformCost = async () =>
+      (
+        await runWithoutTenant(() =>
+          prisma.hostedAiPlatformUsage.findUnique({
+            where: { purpose_accrualMonth: { purpose: "wikiQueryEmbeddingUnused", accrualMonth } },
+          }),
+        )
+      )?.costMicrocents ?? 0n;
+    const before = await platformCost();
+
+    const hold = await runWithoutTenant(() =>
+      repo.reserveRetrievalUsageUnscoped({ grant, reservedMicrocents: 900, model: "embedding", now }),
+    );
+    if (!hold) throw new Error("Expected a retrieval reservation.");
+    await runWithoutTenant(() =>
+      repo.settleRetrievalUsageUnscoped({
+        grant,
+        reservationId: hold,
+        reservedMicrocents: 900,
+        reservedAt: now,
+        charge: { model: "embedding", inputTokens: 12, costMicrocents: 180, costSource: "measured" },
+        payer: "platform",
+        now,
+      }),
+    );
+
+    await expect(runWithoutTenant(() => prisma.agentUsageEvent.count({ where: { companyId } }))).resolves.toBe(0);
+    await expect(runWithoutTenant(() => repo.getWorkspaceCreditPoolUnscoped(companyId, now))).resolves.toMatchObject({
+      usedMicrocents: 0,
+    });
+    expect((await platformCost()) - before).toBe(180n);
   });
 
   it("counts rows and adjustments the previous release wrote in whole credits only", async () => {
