@@ -1,3 +1,4 @@
+import type { QueryEmbeddingWait } from "@/core/retrieval/retrieval-pipeline";
 import type { Validated } from "@/core/validation/validation.utils";
 import type { WikiPageDto, WikiPageSearchData, WikiPageSearchResult, WikiSearchResult } from "./wiki.schema";
 
@@ -42,7 +43,7 @@ export abstract class SearchWikiPagesRepo {
 }
 
 export abstract class WikiQueryEmbedder {
-  abstract embedQuery(query: string): Promise<{ vector: number[]; model: string } | null>;
+  abstract embedQuery(query: string, wait?: QueryEmbeddingWait): Promise<{ vector: number[]; model: string } | null>;
 }
 
 export abstract class WikiSemanticIndexScheduler {
@@ -84,7 +85,7 @@ export class SearchWikiPagesInteractor extends AuthenticatedInteractor<WikiPageS
           corrected = found.corrected;
           return found;
         },
-        embed: semantic ? (query) => semantic.embedder.embedQuery(query) : null,
+        embed: semantic ? (query, wait) => semantic.embedder.embedQuery(query, wait) : null,
         semantic: async ({ vector, model }) => {
           const found = await this.repo.semanticPageCandidates(vector, model, WIKI_SEMANTIC_CANDIDATES);
           if (!found) return null;

@@ -495,7 +495,7 @@ export const getRetrievalQueryEmbedder = (): QueryEmbedding | null => {
   const tenant = tenantStorage.getStore();
   if (!tenant?.user || tenant.bypass) return null;
   const embedder = new WikiSemanticQueryEmbedder(getWikiEmbeddingService());
-  return (query) => embedder.embedQuery(query);
+  return (query, wait) => embedder.embedQuery(query, wait);
 };
 const getWikiSemanticRetrieval = () => ({
   embedder: new WikiSemanticQueryEmbedder(getWikiEmbeddingService()),

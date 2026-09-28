@@ -4,7 +4,13 @@ import { afterEach, describe, expect, it, vi } from "vitest";
 
 import { fullTextUnits, replaceQueryWords, typoCandidates } from "../full-text-query";
 import { collectRetrievalTimings, currentSectionRanker, runWithSectionRanking } from "../retrieval-context";
-import { fuseFullTextAndSemantic, fuseRankings, rerankSections, RetrievalStopwatch } from "../retrieval-pipeline";
+import {
+  fuseFullTextAndSemantic,
+  fuseRankings,
+  QueryEmbeddingWait,
+  rerankSections,
+  RetrievalStopwatch,
+} from "../retrieval-pipeline";
 
 afterEach(() => {
   vi.useRealTimers();
@@ -128,6 +134,59 @@ describe("full-text and semantic retrieval", () => {
     ).toEqual(["a", "b"]);
     expect(none.embedding).toBe("none");
     expect(semantic).not.toHaveBeenCalled();
+  });
+});
+
+describe("query embedding wait", () => {
+  it("abandons an embedding still in flight at the deadline and waits for one the embedder already claimed", async () => {
+    vi.useFakeTimers();
+    const fullText = () => Promise.resolve({ keys: ["a", "b"] });
+    const semantic = vi.fn(() => Promise.resolve(["z"]));
+    const claims: boolean[] = [];
+    const embedAfter = (claimAt: number, resolveAt: number) => (_query: string, wait?: QueryEmbeddingWait) =>
+      new Promise<{ vector: number[]; model: string }>((resolve) => {
+        setTimeout(() => claims.push(wait?.claim() ?? true), claimAt);
+        setTimeout(() => resolve({ vector: [1], model: "m" }), resolveAt);
+      });
+
+    const late = new RetrievalStopwatch("wiki");
+    const lateRun = fuseFullTextAndSemantic({
+      query: "q",
+      stopwatch: late,
+      fullText,
+      embed: embedAfter(100, 100),
+      semantic,
+      embeddingWaitMs: 50,
+    });
+    await vi.advanceTimersByTimeAsync(120);
+    await expect(lateRun).resolves.toMatchObject({ ranked: ["a", "b"], vector: null });
+    expect(late.embedding).toBe("timeout");
+
+    const claimed = new RetrievalStopwatch("wiki");
+    const claimedRun = fuseFullTextAndSemantic({
+      query: "q",
+      stopwatch: claimed,
+      fullText,
+      embed: embedAfter(40, 90),
+      semantic,
+      embeddingWaitMs: 50,
+    });
+    await vi.advanceTimersByTimeAsync(100);
+    await expect(claimedRun).resolves.toMatchObject({ ranked: ["a", "z", "b"], vector: { vector: [1], model: "m" } });
+    expect(claimed.embedding).toBe("used");
+    expect(claims).toEqual([false, true]);
+  });
+
+  it("lets exactly one of claim and abandon win", () => {
+    const claimedFirst = new QueryEmbeddingWait();
+    expect(claimedFirst.claim()).toBe(true);
+    expect(claimedFirst.abandon()).toBe(false);
+    expect(claimedFirst.claim()).toBe(true);
+
+    const abandonedFirst = new QueryEmbeddingWait();
+    expect(abandonedFirst.abandon()).toBe(true);
+    expect(abandonedFirst.claim()).toBe(false);
+    expect(abandonedFirst.abandon()).toBe(true);
   });
 });
 

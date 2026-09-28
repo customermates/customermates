@@ -14,7 +14,21 @@ export const RETRIEVAL_EMBEDDING_WAIT_MS = 450;
 export const RETRIEVAL_SEMANTIC_MIN_SIMILARITY = 0.5;
 
 export type QueryVector = { vector: number[]; model: string };
-export type QueryEmbedding = (query: string) => Promise<QueryVector | null>;
+export type QueryEmbedding = (query: string, wait?: QueryEmbeddingWait) => Promise<QueryVector | null>;
+
+export class QueryEmbeddingWait {
+  private state: "waiting" | "claimed" | "abandoned" = "waiting";
+
+  claim(): boolean {
+    if (this.state === "waiting") this.state = "claimed";
+    return this.state === "claimed";
+  }
+
+  abandon(): boolean {
+    if (this.state === "waiting") this.state = "abandoned";
+    return this.state === "abandoned";
+  }
+}
 
 export type FusedRetrieval<Key extends string> = {
   ranked: Key[];
@@ -48,10 +62,16 @@ export function fuseRankings<Key extends string>(args: {
   return [...pinned, ...fused];
 }
 
-async function withinDeadline<T>(promise: Promise<T>, deadlineMs: number): Promise<{ value: T } | null> {
+async function withinDeadline<T>(
+  promise: Promise<T>,
+  deadlineMs: number,
+  gives: () => boolean,
+): Promise<{ value: T } | null> {
   let timer: ReturnType<typeof setTimeout> | undefined;
   const deadline = new Promise<null>((resolve) => {
-    timer = setTimeout(() => resolve(null), deadlineMs);
+    timer = setTimeout(() => {
+      if (gives()) resolve(null);
+    }, deadlineMs);
   });
   try {
     return await Promise.race([promise.then((value) => ({ value })), deadline]);
@@ -105,12 +125,15 @@ export async function fuseFullTextAndSemantic<Key extends string>(args: {
   embeddingWaitMs?: number;
 }): Promise<FusedRetrieval<Key>> {
   const { stopwatch, embed: vectorFor } = args;
+  const wait = new QueryEmbeddingWait();
   const embedding = vectorFor
-    ? stopwatch.time("embeddingMs", () => vectorFor(args.query).catch(() => null))
+    ? stopwatch.time("embeddingMs", () => vectorFor(args.query, wait).catch(() => null))
     : Promise.resolve(null);
   const [fullText, embedded] = await Promise.all([
     stopwatch.time("fullTextMs", args.fullText),
-    vectorFor ? withinDeadline(embedding, args.embeddingWaitMs ?? RETRIEVAL_EMBEDDING_WAIT_MS) : null,
+    vectorFor
+      ? withinDeadline(embedding, args.embeddingWaitMs ?? RETRIEVAL_EMBEDDING_WAIT_MS, () => wait.abandon())
+      : null,
   ]);
   const vector = embedded?.value ?? null;
   if (!vectorFor) stopwatch.embedding = "none";

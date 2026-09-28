@@ -1,3 +1,4 @@
+import type { QueryEmbeddingWait } from "@/core/retrieval/retrieval-pipeline";
 import type { WikiQueryEmbedder } from "@/features/wiki/search-wiki-pages.interactor";
 import type { WikiEmbeddingService } from "./wiki-embedding.service";
 
@@ -9,7 +10,10 @@ import { WIKI_EMBEDDING_MODEL } from "./wiki-embedding-model";
 
 const WIKI_QUERY_CACHE_SIZE = 500;
 const queryVectors = new Map<string, number[]>();
-const pendingVectors = new Map<string, Promise<number[] | null>>();
+const pendingVectors = new Map<
+  string,
+  { vector: Promise<number[] | null>; waits: (QueryEmbeddingWait | undefined)[] }
+>();
 
 function cached(key: string): number[] | undefined {
   const vector = queryVectors.get(key);
@@ -25,12 +29,16 @@ function remember(key: string, vector: number[]) {
   if (queryVectors.size > WIKI_QUERY_CACHE_SIZE && oldest !== undefined) queryVectors.delete(oldest);
 }
 
+function claimsAny(waits: readonly (QueryEmbeddingWait | undefined)[]) {
+  return waits.map((wait) => wait?.claim() ?? true).includes(true);
+}
+
 export class WikiSemanticQueryEmbedder extends UserAccessor implements WikiQueryEmbedder {
   constructor(private embeddings: WikiEmbeddingService) {
     super();
   }
 
-  async embedQuery(query: string): Promise<{ vector: number[]; model: string } | null> {
+  async embedQuery(query: string, wait?: QueryEmbeddingWait): Promise<{ vector: number[]; model: string } | null> {
     const grant = await this.embeddings.authorizeQuery({ id: this.userId, companyId: this.companyId });
     if (!grant) return null;
 
@@ -39,10 +47,12 @@ export class WikiSemanticQueryEmbedder extends UserAccessor implements WikiQuery
     const known = cached(key);
     if (known) return { vector: known, model: WIKI_EMBEDDING_MODEL };
 
-    const pending =
-      pendingVectors.get(key) ??
-      this.embeddings
-        .embedTexts(grant, [text], "query")
+    const joined = pendingVectors.get(key);
+    if (joined) joined.waits.push(wait);
+    const pending = joined ?? { waits: [wait], vector: Promise.resolve<number[] | null>(null) };
+    if (!joined) {
+      pending.vector = this.embeddings
+        .embedTexts(grant, [text], "query", () => claimsAny(pending.waits))
         .then((vectors) => {
           const vector = vectors?.[0] ?? null;
           if (vector) remember(key, vector);
@@ -53,8 +63,9 @@ export class WikiSemanticQueryEmbedder extends UserAccessor implements WikiQuery
           return null;
         })
         .finally(() => pendingVectors.delete(key));
-    pendingVectors.set(key, pending);
-    const vector = await pending;
+      pendingVectors.set(key, pending);
+    }
+    const vector = await pending.vector;
     return vector ? { vector, model: WIKI_EMBEDDING_MODEL } : null;
   }
 }

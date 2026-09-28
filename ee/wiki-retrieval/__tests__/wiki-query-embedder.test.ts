@@ -7,6 +7,8 @@ import { createMockUser } from "@/tests/helpers/mock-user";
 
 vi.mock("@sentry/node", () => ({ captureException: vi.fn() }));
 
+import { QueryEmbeddingWait } from "@/core/retrieval/retrieval-pipeline";
+
 import { WikiSemanticQueryEmbedder } from "../wiki-query-embedder";
 
 function embeddings() {
@@ -52,5 +54,52 @@ describe("Wiki query embedding cache", () => {
 
     expect(embedTexts).toHaveBeenCalledTimes(1);
     expect(vectors[0]).toEqual(vectors[1]);
+  });
+
+  it("charges the searcher only when a waiting search takes the vector, and never for a later cache hit", async () => {
+    let finish: (vectors: number[][]) => void = () => undefined;
+    const usedFlags: boolean[] = [];
+    const embedTexts = vi.fn(
+      (_grant: unknown, _texts: string[], _kind: string, used: () => boolean) =>
+        new Promise<number[][]>((resolve) => {
+          finish = (vectors) => {
+            usedFlags.push(used());
+            resolve(vectors);
+          };
+        }),
+    );
+    const authorizeQuery = vi.fn((payer: { id: string; companyId: string }) =>
+      Promise.resolve({ purpose: "wikiRetrieval", companyId: payer.companyId, userId: payer.id }),
+    );
+    const service = { authorizeQuery, embedTexts } as unknown as WikiEmbeddingService;
+    const user = createMockUser({ id: crypto.randomUUID(), companyId: crypto.randomUUID() });
+    const embed = (query: string, wait?: QueryEmbeddingWait) =>
+      runWithTenant(user, () => new WikiSemanticQueryEmbedder(service).embedQuery(query, wait));
+    const settle = async () => {
+      await vi.waitFor(() => expect(embedTexts).toHaveBeenCalledTimes(usedFlags.length + 1));
+      finish([[0.5, 0.5]]);
+    };
+
+    const abandoned = new QueryEmbeddingWait();
+    const late = embed(`late ${crypto.randomUUID()}`, abandoned);
+    abandoned.abandon();
+    await settle();
+    await late;
+
+    const waiting = new QueryEmbeddingWait();
+    const lateQuery = `joined ${crypto.randomUUID()}`;
+    const gaveUp = new QueryEmbeddingWait();
+    const first = embed(lateQuery, gaveUp);
+    gaveUp.abandon();
+    const joined = embed(lateQuery, waiting);
+    await settle();
+    await Promise.all([first, joined]);
+
+    expect(usedFlags).toEqual([false, true]);
+    expect(waiting.abandon()).toBe(false);
+
+    const hit = new QueryEmbeddingWait();
+    await expect(embed(lateQuery, hit)).resolves.toEqual({ vector: [0.5, 0.5], model: expect.any(String) });
+    expect(embedTexts).toHaveBeenCalledTimes(2);
   });
 });

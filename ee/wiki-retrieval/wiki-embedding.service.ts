@@ -37,7 +37,12 @@ export class WikiEmbeddingService {
     }
   }
 
-  async embedTexts(grant: AgentRetrievalGrant, texts: string[], kind: WikiEmbeddingKind): Promise<number[][] | null> {
+  async embedTexts(
+    grant: AgentRetrievalGrant,
+    texts: string[],
+    kind: WikiEmbeddingKind,
+    used: () => boolean = () => true,
+  ): Promise<number[][] | null> {
     const reservation = await this.usage.reserveRetrieval({
       grant,
       worstCaseMicrocents: wikiEmbeddingWorstCaseMicrocents(texts),
@@ -51,7 +56,7 @@ export class WikiEmbeddingService {
       await this.usage.settleRetrieval({ reservation, charge: null });
       throw error;
     }
-    await this.usage.settleRetrieval({ reservation, charge: embedded.charge });
+    await this.usage.settleRetrieval({ reservation, charge: embedded.charge, payer: used() ? "grant" : "platform" });
     return embedded.vectors;
   }
 }
