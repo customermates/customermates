@@ -496,6 +496,7 @@ describe("agent access", () => {
       model: MODEL_CATALOG.balanced,
       requiredContextBytes: expect.any(Number),
       creditCeiling: 2,
+      webSearchReserveCredits: 3,
     });
     expect(repo.admitAgentTurnOrThrow).toHaveBeenCalledWith(
       expect.objectContaining({
@@ -669,6 +670,7 @@ describe("agent access", () => {
       model: MODEL_CATALOG.balanced,
       requiredContextBytes: expect.any(Number),
       creditCeiling: null,
+      webSearchReserveCredits: 4,
     });
     expect(repo.admitAgentTurnOrThrow).toHaveBeenCalledWith(
       expect.not.objectContaining({ routineRunId: expect.anything() }),
@@ -733,6 +735,7 @@ describe("agent access", () => {
       model: MODEL_CATALOG.balanced,
       requiredContextBytes: expect.any(Number),
       creditCeiling: null,
+      webSearchReserveCredits: 4,
     });
     expect(usage.prepareTurn).toHaveBeenCalledTimes(1);
   });

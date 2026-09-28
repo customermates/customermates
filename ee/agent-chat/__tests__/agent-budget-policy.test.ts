@@ -7,6 +7,7 @@ import {
   agentContextBytesToWorstCaseProviderTokens,
   agentContextTokensToBytes,
   agentToolResultText,
+  agentWebSearchReserveCredits,
   agentRoundWorstCaseCredits,
   agentRoundWorstCaseCreditsForContextBytes,
   isAgentContextWithinBudget,
@@ -15,6 +16,7 @@ import {
 } from "../agent-budget-policy";
 import { buildAgentProviderContext, isAgentStepContextWithinBudget } from "../agent-provider-context";
 import { MODEL_CATALOG, isAgentModelWithinBudgetEnvelope, type AgentModelEntry } from "../model-catalog";
+import { agentWebSearchCallLimit } from "../agent-web-search";
 
 const BALANCED = MODEL_CATALOG.balanced;
 const NANO: AgentModelEntry = {
@@ -58,6 +60,48 @@ describe("agent turn credit budget", () => {
 
     expect(budget?.roundReserveCredits).toBe(perRound);
     expect(budget?.reservedCredits).toBe(perRound * AGENT_RESERVATION_ROUNDS_AHEAD);
+  });
+
+  it("reserves the worst-case search price of every remaining search in whole credits", () => {
+    expect(agentWebSearchReserveCredits(3)).toBe(4);
+    expect(agentWebSearchReserveCredits(2)).toBe(3);
+    expect(agentWebSearchReserveCredits(1)).toBe(2);
+    for (const none of [0, -1, 1.5, Number.NaN]) expect(agentWebSearchReserveCredits(none)).toBe(0);
+  });
+
+  it("reserves enough up front for the first round plus every search the turn may run", () => {
+    const perRound = agentRoundWorstCaseCredits(BALANCED);
+    const chatSearch = agentWebSearchReserveCredits(agentWebSearchCallLimit("chat"));
+    const routineSearch = agentWebSearchReserveCredits(agentWebSearchCallLimit("routine"));
+
+    expect(perRound).toBe(6);
+    expect({ chatSearch, routineSearch }).toEqual({
+      chatSearch: 4,
+      routineSearch: 3,
+    });
+    for (const webSearchReserveCredits of [chatSearch, routineSearch]) {
+      const budget = resolveAgentTurnBudget({
+        model: BALANCED,
+        availableCredits: 500,
+        webSearchReserveCredits,
+      });
+      expect(budget?.reservedCredits).toBe(perRound * AGENT_RESERVATION_ROUNDS_AHEAD);
+      expect(budget?.reservedCredits).toBeGreaterThanOrEqual(1 + perRound + webSearchReserveCredits);
+    }
+    expect(
+      resolveAgentTurnBudget({
+        model: BALANCED,
+        availableCredits: 500,
+        webSearchReserveCredits: 20,
+      }),
+    ).toMatchObject({ reservedCredits: perRound + 20 });
+    expect(
+      resolveAgentTurnBudget({
+        model: BALANCED,
+        availableCredits: 9,
+        webSearchReserveCredits: 20,
+      }),
+    ).toMatchObject({ reservedCredits: 9 });
   });
 
   it("reserves strictly less for the cheaper model at the same envelope", () => {

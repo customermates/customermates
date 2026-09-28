@@ -5,24 +5,30 @@ import { gateway } from "ai";
 import { isUnattendedSurface } from "./agent-surface-policy";
 
 export const AGENT_WEB_SEARCH_TOOL_NAME = "web_search";
-export const AGENT_WEB_SEARCH_RELEASED = false;
-export const AGENT_WEB_SEARCH_ROUTINES_RELEASED = false;
 export const AGENT_WEB_SEARCH_DEFAULT_RESULTS = 3;
 export const AGENT_WEB_SEARCH_DEFAULT_CONTENT_CHARS = 1_000;
 const AGENT_WEB_SOURCE_LIMIT = 8;
 export const AGENT_WEB_SOURCE_MAX_LENGTH = 1_000;
 
+export const AGENT_WEB_SEARCH_MAX_CALLS = { chat: 3, routine: 2 } as const;
+
+export const AGENT_WEB_SEARCH_WORST_CASE_MICROCENTS = 1_200_000;
+
 export type AgentWebSearchOptions = {
   allowedDomains?: readonly string[];
 };
 
-export function agentWebSearchEnabled(
-  surface: AgentSurface,
-  localOptIn: boolean,
-  released = { chat: AGENT_WEB_SEARCH_RELEASED, routine: AGENT_WEB_SEARCH_ROUTINES_RELEASED },
-): boolean {
-  if (localOptIn) return true;
-  return isUnattendedSurface(surface) ? released.routine : released.chat;
+export function agentWebSearchCallLimit(surface: AgentSurface): number {
+  return isUnattendedSurface(surface) ? AGENT_WEB_SEARCH_MAX_CALLS.routine : AGENT_WEB_SEARCH_MAX_CALLS.chat;
+}
+
+export function agentWebSearchCallsInStep(step: { content: readonly unknown[]; providerMetadata?: unknown }): number {
+  const billed = record(record(record(step.providerMetadata)?.gateway)?.gatewayToolCalls)?.exa_search;
+  const calls = step.content.filter((raw) => {
+    const part = record(raw);
+    return part?.type === "tool-call" && part.toolName === AGENT_WEB_SEARCH_TOOL_NAME && part.providerExecuted === true;
+  }).length;
+  return Math.max(calls, typeof billed === "number" && Number.isSafeInteger(billed) && billed > 0 ? billed : 0);
 }
 
 export function getAgentWebSearchTool(options: AgentWebSearchOptions = {}) {

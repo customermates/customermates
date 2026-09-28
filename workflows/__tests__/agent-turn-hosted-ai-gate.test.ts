@@ -2866,6 +2866,92 @@ describe("routine browse-or-mutate batch safety", () => {
     expect(state.prepared).toEqual({ activeTools: ["load_toolset", "manage_wiki_pages", "list_users"] });
   });
 
+  const searchesStep = (count: number, billed = count) => {
+    const step = nativeSearchStep();
+    const calls = Array.from({ length: count }, (_, index) => ({
+      type: "tool-call",
+      toolName: "web_search",
+      toolCallId: `web-${index + 1}`,
+      input: { query: `q${index + 1}` },
+      providerExecuted: true,
+    }));
+    step.providerMetadata.gateway.gatewayToolCalls.exa_search = billed;
+    return {
+      ...step,
+      finishReason: "tool-calls",
+      content: [...calls, { type: "text", text: "Evidence." }],
+    };
+  };
+  const offered = () => (state.prepared as { activeTools: string[] }).activeTools.includes("web_search");
+
+  it("counts two paid searches from one provider step against the chat cap and withdraws search at three", async () => {
+    const seen: boolean[] = [];
+    state.runTools = async ({ completeStepAndPrepareNext }) => {
+      await completeStepAndPrepareNext(searchesStep(2));
+      seen.push(offered());
+      await completeStepAndPrepareNext(searchesStep(1));
+      seen.push(offered());
+      await completeStepAndPrepareNext(streamedStep("", "tool-calls"));
+      seen.push(offered());
+      return finish();
+    };
+    await runAgentTurn({ ...payload, webSearchEnabled: true });
+    expect(seen).toEqual([true, false, false]);
+    expect(state.prepared).toEqual({
+      activeTools: ["load_toolset", "manage_wiki_pages", "list_users"],
+    });
+  });
+
+  it("uses the Gateway's billed search count when a step reports more searches than it shows", async () => {
+    state.runTools = async ({ completeStepAndPrepareNext }) => {
+      await completeStepAndPrepareNext(searchesStep(1, 2));
+      return finish();
+    };
+    await runAgentTurn({
+      ...payload,
+      surface: "routine",
+      webSearchEnabled: true,
+    });
+    expect(offered()).toBe(false);
+  });
+
+  it("reserves the round plus the worst-case price of every remaining search before offering search", async () => {
+    state.runTools = async ({ completeStepAndPrepareNext }) => {
+      await completeStepAndPrepareNext(searchesStep(1));
+      return finish();
+    };
+    await runAgentTurn({
+      ...payload,
+      turnBudget: {
+        ...payload.turnBudget,
+        reservedCredits: 2,
+        roundReserveCredits: 2,
+      },
+      webSearchEnabled: true,
+    });
+    expect(state.extendReservation).toHaveBeenCalledExactlyOnceWith(expect.objectContaining({ requiredCredits: 7 }));
+    expect(offered()).toBe(true);
+  });
+
+  it("runs the round without web search when the reservation cannot cover the searches", async () => {
+    state.extendReservation.mockResolvedValue({ disposition: "credit_limit" });
+    state.runTools = async ({ completeStepAndPrepareNext }) => {
+      await completeStepAndPrepareNext(streamedStep("", "tool-calls"));
+      return finish();
+    };
+    await runAgentTurn({
+      ...payload,
+      turnBudget: {
+        ...payload.turnBudget,
+        reservedCredits: 3,
+        roundReserveCredits: 2,
+      },
+      webSearchEnabled: true,
+    });
+    expect(offered()).toBe(false);
+    expect(state.finalize).toHaveBeenCalledWith(expect.objectContaining({ stopReason: null }));
+  });
+
   it("does not apply the routine mutation boundary to ordinary chat", async () => {
     state.runTools = async ({ executeAndCompleteTool, completeStepAndPrepareNext }) => {
       await completeStepAndPrepareNext(nativeSearchStep());

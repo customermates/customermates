@@ -47,7 +47,6 @@ import { SendAgentMessageSchema } from "../agent-chat.schema";
 import { conservativeAgentInitialContextBytes } from "../agent-provider-context";
 import { AGENT_SCHEMA_DIGEST_MAX_CHARS, renderAgentSchemaDigest } from "../agent-schema-digest";
 import { ANALYZE_RECORDS_TOOL_NAME } from "../agent-toolset-routing";
-import { AGENT_WEB_SEARCH_RELEASED, AGENT_WEB_SEARCH_ROUTINES_RELEASED } from "../agent-web-search";
 import { serializeAgentWikiCatalog } from "../agent-wiki-context";
 import { MODEL_CATALOG, SHIPPED_AGENT_MODEL_KEY } from "../model-catalog";
 import { buildAgentSystemPrompt } from "../system-prompt";
@@ -321,7 +320,6 @@ describe("agent tools", () => {
         nextPage: 2,
         truncated: true,
       });
-      const released = surface === "routine" ? AGENT_WEB_SEARCH_ROUTINES_RELEASED : AGENT_WEB_SEARCH_RELEASED;
       const states = [
         { wikiCatalog: catalog, wikiWebsiteSetup: false },
         { wikiCatalog: null, wikiWebsiteSetup: true },
@@ -360,8 +358,7 @@ describe("agent tools", () => {
               availableCredits: agentRoundWorstCaseCredits(model),
               requiredContextBytes: requiredContextBytes ?? undefined,
             }) !== null;
-          if (webSearchEnabled && !fits) expect(released, label).toBe(false);
-          else expect(fits, label).toBe(true);
+          expect(fits, label).toBe(true);
         }
       }
     },

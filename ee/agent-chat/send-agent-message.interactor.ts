@@ -57,7 +57,8 @@ import type { GetWikiCatalogInteractor } from "@/features/wiki/get-wiki-catalog.
 import type { UserService } from "@/features/user/user.service";
 import { parsePublicWikiHomepage, type PublicWikiHomepage } from "@/features/wiki/wiki-homepage";
 import { AppErrorCode, appErrorDetails } from "@/core/errors/app-errors";
-import { agentWebSearchEnabled } from "./agent-web-search";
+import { agentWebSearchReserveCredits } from "./agent-budget-policy";
+import { agentWebSearchCallLimit } from "./agent-web-search";
 import { serializeAgentWikiCatalog } from "./agent-wiki-context";
 import { userWebsiteHomepages } from "./public-page-read-state";
 
@@ -288,7 +289,6 @@ export class SendAgentMessageInteractor extends AuthenticatedInteractor<SendAgen
       const t = await getTranslator(locale, "WikiSetup");
       conversationTitle = t("conversationTitle");
     }
-    const webSearchEnabled = agentWebSearchEnabled(surface, env.AGENT_WEB_SEARCH_LOCAL_OPT_IN);
     let wikiCatalog: string | null = null;
     let wikiWebsiteSetup = false;
     if (!wikiHomepageSetup) {
@@ -311,7 +311,7 @@ export class SendAgentMessageInteractor extends AuthenticatedInteractor<SendAgen
       wikiHomepageSetup: Boolean(wikiHomepageSetup),
       wikiCrawlId: wikiCrawl?.id ?? null,
       wikiWebsiteSetup,
-      webSearchEnabled,
+      webSearchEnabled: true,
     };
 
     const userName = `${user.firstName} ${user.lastName}`.trim();
@@ -329,7 +329,7 @@ export class SendAgentMessageInteractor extends AuthenticatedInteractor<SendAgen
           ? { homepage: wikiCrawl.homepageUrl, pendingHosts: wikiCrawl.pendingHosts }
           : null,
         wikiWebsiteSetup,
-        webSearchEnabled,
+        webSearchEnabled: true,
       }),
       currentText: data.text,
       contexts,
@@ -346,6 +346,7 @@ export class SendAgentMessageInteractor extends AuthenticatedInteractor<SendAgen
       model: turnModel,
       requiredContextBytes,
       creditCeiling: mode === "routine" ? (conversation?.creditCeiling ?? null) : null,
+      webSearchReserveCredits: agentWebSearchReserveCredits(agentWebSearchCallLimit(surface)),
     });
     const reservation = creditAdmission.reservation;
     if (!reservation) return failRateLimit(CustomErrorCode.agentLimitReached);
@@ -525,7 +526,7 @@ export class SendAgentMessageInteractor extends AuthenticatedInteractor<SendAgen
             }
           : {}),
         wikiCatalog,
-        webSearchEnabled,
+        webSearchEnabled: true,
       });
       await this.repo.recordAgentTurnExternalRun(turnRequestId, runId, externalRunId);
 

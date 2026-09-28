@@ -13,6 +13,7 @@ import {
   AGENT_WEB_SEARCH_DEFAULT_CONTENT_CHARS,
   AGENT_WEB_SEARCH_DEFAULT_RESULTS,
   AGENT_WEB_SEARCH_TOOL_NAME,
+  AGENT_WEB_SEARCH_WORST_CASE_MICROCENTS,
   agentWebSourcesFooter,
   collectAgentWebSources,
   getAgentWebSearchTool,
@@ -269,6 +270,7 @@ export function inspectProviderSmokeBilling(metadata: unknown, generation: Gener
     Number.isSafeInteger(generation.billableWebSearchCalls) && generation.billableWebSearchCalls >= 0,
     Number.isFinite(inferenceCost) && inferenceCost >= 0,
     Number.isFinite(searchCost) && searchCost > 0,
+    Math.round(searchCost * 100_000_000) <= AGENT_WEB_SEARCH_WORST_CASE_MICROCENTS,
     Math.abs(gatewayCost - marketCost - surchargeCost) <= COST_EPSILON_USD,
     Math.abs(generation.totalCost - gatewayCost) <= COST_EPSILON_USD,
     regionAndPolicyMatch(metadata),
@@ -276,7 +278,7 @@ export function inspectProviderSmokeBilling(metadata: unknown, generation: Gener
   if (!valid.every(Boolean))
     fail(
       "settlement",
-      "Receipt did not reconcile authoritative all-in cost, the Exa charge, and the model's provider, EU inference region, ZDR, and no-training policy.",
+      "Receipt did not reconcile authoritative all-in cost, an Exa charge within the reserved worst case, and the model's provider, EU inference region, ZDR, and no-training policy.",
     );
 
   return {
@@ -285,6 +287,7 @@ export function inspectProviderSmokeBilling(metadata: unknown, generation: Gener
     generationBillableWebSearchCalls: generation.billableWebSearchCalls,
     measuredSearchCostUsd: searchCost,
     searchCostInclusionVerified: true,
+    searchCostWithinReservation: true,
     modelInferenceZeroDataRetention: true,
   };
 }

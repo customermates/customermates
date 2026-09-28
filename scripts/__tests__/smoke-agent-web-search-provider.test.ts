@@ -252,8 +252,16 @@ describe("read-only all-in billing receipt inspection", () => {
       generationBillableWebSearchCalls: 0,
       measuredSearchCostUsd: 0.007,
       searchCostInclusionVerified: true,
+      searchCostWithinReservation: true,
       modelInferenceZeroDataRetention: true,
     });
+  });
+
+  it("refuses an Exa charge above the worst case the Assistant reserves per search", () => {
+    const expensive = metadata({ cost: "0.01300000", gatewayCost: "0.01310000" });
+    expect(() => inspectProviderSmokeBilling(expensive, generation({ totalCost: 0.0131, usage: 0.0131 }))).toThrow(
+      "within the reserved worst case",
+    );
   });
 
   it.each([

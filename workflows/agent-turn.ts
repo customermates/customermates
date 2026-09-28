@@ -44,7 +44,14 @@ import {
   isAgentWebTool,
   isSuccessfulAgentWebResult,
 } from "@/ee/agent-chat/agent-web-policy";
-import { agentWebSourcesFooter, collectAgentWebSources } from "@/ee/agent-chat/agent-web-search";
+import {
+  AGENT_WEB_SEARCH_TOOL_NAME,
+  AGENT_WEB_SEARCH_WORST_CASE_MICROCENTS,
+  agentWebSearchCallLimit,
+  agentWebSearchCallsInStep,
+  agentWebSourcesFooter,
+  collectAgentWebSources,
+} from "@/ee/agent-chat/agent-web-search";
 import { userWebsiteHomepage } from "@/ee/agent-chat/public-page-read-state";
 import { buildAgentUsageSettlement, usageToTokenCounts } from "@/ee/agent-chat/agent-usage-settlement";
 import { computeCostMicrocents } from "@/ee/agent-chat/model-pricing";
@@ -73,7 +80,11 @@ import { isReadOnlyAgentToolCall, requiresApproval } from "@/ee/agent-chat/gated
 import { isAgentToolCancellation } from "@/ee/agent-chat/agent-tool-cancellation";
 import { createAgentToolInputResolver, type AgentToolInputResult } from "@/ee/agent-chat/agent-tool-input";
 import { resolveAgentApprovalContext } from "@/ee/agent-chat/agent-external-approval-context";
-import { isAgentContextWithinBudget, resolveAgentToolResultMaxChars } from "@/ee/agent-chat/agent-budget-policy";
+import {
+  agentWebSearchReserveCredits,
+  isAgentContextWithinBudget,
+  resolveAgentToolResultMaxChars,
+} from "@/ee/agent-chat/agent-budget-policy";
 import { runAsBackgroundTenant } from "@/core/decorators/background-tenant";
 import { getTenantUser } from "@/core/decorators/tenant-context";
 import { runInRoutineContext } from "@/core/decorators/routine-context";
@@ -948,6 +959,8 @@ export async function runAgentTurn(payload: AgentTurnWorkflowPayload): Promise<v
     const completedTools: ({ toolCallId: string; toolName: string } & ({ output: unknown } | { threw: true }))[] = [];
     let performedWrite = false;
     let browsed = false;
+    let webSearchCalls = 0;
+    const webSearchCallLimit = agentWebSearchCallLimit(surface);
     const webSources = new Set<string>();
 
     const continuationSteps: AgentContinuationStep[] = [];
@@ -1111,6 +1124,24 @@ export async function runAgentTurn(payload: AgentTurnWorkflowPayload): Promise<v
       return outcome;
     };
 
+    const accruedCostMicrocents = () =>
+      ledger.reduce((total, entry) => total + entry.costMicrocents, 0) +
+      agentAuxiliaryCharge(auxiliaryCharges).costMicrocents;
+
+    const webSearchAffordable = async () => {
+      const remaining = webSearchCallLimit - webSearchCalls;
+      if (remaining < 1) return false;
+      const requiredCredits =
+        agentCreditsForStartedProviderCost(accruedCostMicrocents()) +
+        payload.turnBudget.roundReserveCredits +
+        agentWebSearchReserveCredits(remaining);
+      if (requiredCredits <= reservedCredits) return true;
+      const extension = await ensureTurnReservation(payload, requiredCredits);
+      if (extension.disposition !== "extended") return false;
+      reservedCredits = extension.reservedCredits;
+      return true;
+    };
+
     const applyRound = async (step: AgentRoundResult) => {
       appliedThisCall += 1;
       try {
@@ -1190,18 +1221,21 @@ export async function runAgentTurn(payload: AgentTurnWorkflowPayload): Promise<v
         }
 
         const roundTokens = usageToTokenCounts(step.usage);
+        const stepSearches = agentWebSearchCallsInStep(step);
+        webSearchCalls += stepSearches;
         const charge = readAgentProviderCharge(step.providerMetadata, payload.turnBudget.servingProvider);
+        const gatewayDebitMicrocents = readGatewayCostMicrocents(step.providerMetadata);
         const costMicrocents =
           charge.outcome === "measured"
             ? charge.charge.costMicrocents
             : Math.max(
-                readGatewayCostMicrocents(step.providerMetadata) ?? 0,
+                gatewayDebitMicrocents ?? 0,
                 computeCostMicrocents(
                   payload.turnBudget.modelSpec,
                   roundTokens,
                   payload.turnBudget.servingProvider,
                   payload.turnBudget.inferenceRegion,
-                ),
+                ) + (gatewayDebitMicrocents === null ? stepSearches * AGENT_WEB_SEARCH_WORST_CASE_MICROCENTS : 0),
               );
 
         tokens = addTokens(tokens, roundTokens);
@@ -1226,9 +1260,7 @@ export async function runAgentTurn(payload: AgentTurnWorkflowPayload): Promise<v
         abandoned ||= roundOutcome.leaseLost;
         await publishTranscriptEvents(queued.splice(0));
 
-        const accruedMicrocents =
-          ledger.reduce((total, entry) => total + entry.costMicrocents, 0) +
-          agentAuxiliaryCharge(auxiliaryCharges).costMicrocents;
+        const accruedMicrocents = accruedCostMicrocents();
         const needsAnotherProviderRound =
           !cancelled &&
           !abandoned &&
@@ -1439,11 +1471,13 @@ export async function runAgentTurn(payload: AgentTurnWorkflowPayload): Promise<v
           )
             throw AGENT_CONTEXT_COMPACTION_REQUIRED;
           if (!(await canStartNextHostedAiProviderRound(payload))) throw hostedAiPaused;
-          const permittedTools =
-            isUnattendedSurface(surface) && performedWrite
-              ? activeTools.filter((toolName) => !isAgentWebTool(toolName))
-              : activeTools;
-          return permittedTools ? { activeTools: permittedTools } : {};
+          const webSearchPermitted =
+            activeTools.includes(AGENT_WEB_SEARCH_TOOL_NAME) &&
+            !(isUnattendedSurface(surface) && performedWrite) &&
+            (await webSearchAffordable());
+          return {
+            activeTools: webSearchPermitted ? activeTools : activeTools.filter((toolName) => !isAgentWebTool(toolName)),
+          };
         },
         stopWhen: [
           isStepCount(AGENT_SEGMENT_ROUNDS),

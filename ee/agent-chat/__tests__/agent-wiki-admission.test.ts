@@ -184,7 +184,7 @@ describe("Workspace Wiki admission bootstrap", () => {
       locale: payload.locale,
       surface,
       wikiHomepageSetup: false,
-      webSearchEnabled: false,
+      webSearchEnabled: true,
     });
     expect(systemPrompt).not.toContain("Current workspace guidance");
     const admission = state.usage.prepareTurn.mock.calls[0][2];
@@ -209,7 +209,7 @@ describe("Workspace Wiki admission bootstrap", () => {
       wikiHomepageSetup: false,
       wikiCrawlId: null,
       wikiWebsiteSetup: false,
-      webSearchEnabled: false,
+      webSearchEnabled: true,
     });
   });
 
@@ -268,7 +268,7 @@ describe("Workspace Wiki admission bootstrap", () => {
         locale: payload.locale,
         surface,
         wikiHomepageSetup: false,
-        webSearchEnabled: false,
+        webSearchEnabled: true,
       });
       expect(systemPrompt).toContain("follow useful Wiki links");
       expect(systemPrompt).toContain("Report gaps or conflicts");
@@ -389,14 +389,14 @@ describe("Workspace Wiki admission bootstrap", () => {
         wikiHomepageSetup: false,
         wikiCrawlId: null,
         wikiWebsiteSetup: true,
-        webSearchEnabled: false,
+        webSearchEnabled: true,
       });
       const systemPrompt = buildAgentSystemPrompt({
         userName: payload.userName,
         locale: payload.locale,
         surface: "chat",
         wikiWebsiteSetup: true,
-        webSearchEnabled: false,
+        webSearchEnabled: true,
       });
       expect(systemPrompt).toContain("import_website");
       expect(admission.requiredContextBytes).toBe(
@@ -558,7 +558,7 @@ describe("Workspace Wiki admission bootstrap", () => {
       wikiHomepageSetup: true,
       wikiCrawlId: "crawl-1",
       wikiWebsiteSetup: false,
-      webSearchEnabled: false,
+      webSearchEnabled: true,
     });
     expect(state.repo.createAgentConversationForRun).toHaveBeenCalledWith(
       expect.objectContaining({ title: "Set up Workspace Wiki" }),

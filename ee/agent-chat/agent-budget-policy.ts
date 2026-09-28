@@ -7,12 +7,14 @@ import {
   isAgentModelWithinBudgetEnvelope,
 } from "./model-catalog";
 import { resolveModelPricing } from "./model-pricing";
+import { AGENT_WEB_SEARCH_WORST_CASE_MICROCENTS } from "./agent-web-search";
 
 export const AGENT_RESERVATION_ROUNDS_AHEAD = 2;
 export const AGENT_MAX_TOOL_RESULT_CHARS = 6000;
 export const AGENT_MIN_CONTEXT_TOKENS_PER_STEP = 8_000;
 
 const USD_PER_AGENT_CREDIT = 0.01;
+const MICROCENTS_PER_AGENT_CREDIT = 1_000_000;
 
 export type AgentTurnBudget = {
   modelSpec: string;
@@ -61,10 +63,16 @@ export function agentRoundWorstCaseCredits(entry: AgentModelEntry) {
   return agentRoundWorstCaseCreditsForContextBytes(entry, agentContextTokensToBytes(entry.maxContextTokens));
 }
 
+export function agentWebSearchReserveCredits(remainingSearches: number): number {
+  if (!Number.isSafeInteger(remainingSearches) || remainingSearches < 1) return 0;
+  return Math.ceil((remainingSearches * AGENT_WEB_SEARCH_WORST_CASE_MICROCENTS) / MICROCENTS_PER_AGENT_CREDIT);
+}
+
 export function resolveAgentTurnBudget(args: {
   model: AgentModelEntry;
   availableCredits: number;
   requiredContextBytes?: number;
+  webSearchReserveCredits?: number;
 }): AgentTurnBudget | null {
   const entry = args.model;
   if (!Number.isSafeInteger(args.availableCredits) || args.availableCredits < 1) return null;
@@ -86,7 +94,13 @@ export function resolveAgentTurnBudget(args: {
     modelSpec: entry.modelId,
     servingProvider: entry.servingProvider,
     inferenceRegion: entry.inferenceRegion,
-    reservedCredits: Math.min(args.availableCredits, firstRoundReserveCredits * AGENT_RESERVATION_ROUNDS_AHEAD),
+    reservedCredits: Math.min(
+      args.availableCredits,
+      Math.max(
+        firstRoundReserveCredits * AGENT_RESERVATION_ROUNDS_AHEAD,
+        firstRoundReserveCredits + (args.webSearchReserveCredits ?? 0),
+      ),
+    ),
     roundReserveCredits,
     maxOutputTokens: entry.maxOutputTokens,
     maxContextTokens: entry.maxContextTokens,

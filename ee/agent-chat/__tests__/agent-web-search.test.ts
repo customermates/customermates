@@ -1,30 +1,76 @@
 import { describe, expect, it } from "vitest";
 
 import {
-  AGENT_WEB_SEARCH_RELEASED,
-  AGENT_WEB_SEARCH_ROUTINES_RELEASED,
+  AGENT_WEB_SEARCH_MAX_CALLS,
   AGENT_WEB_SEARCH_TOOL_NAME,
-  agentWebSearchEnabled,
+  AGENT_WEB_SEARCH_WORST_CASE_MICROCENTS,
+  agentWebSearchCallLimit,
+  agentWebSearchCallsInStep,
   agentWebSourcesFooter,
   collectAgentWebSources,
   getAgentWebSearchTool,
 } from "../agent-web-search";
 
 describe("native Agent web search", () => {
-  it("keeps chat and routines unreleased and lets only the local opt-in enable either surface", () => {
-    expect(AGENT_WEB_SEARCH_RELEASED).toBe(false);
-    expect(AGENT_WEB_SEARCH_ROUTINES_RELEASED).toBe(false);
-    for (const surface of ["chat", "routine"] as const) {
-      expect(agentWebSearchEnabled(surface, false)).toBe(false);
-      expect(agentWebSearchEnabled(surface, true)).toBe(true);
-    }
+  it("caps paid searches per turn, lower for an unattended routine run", () => {
+    expect(AGENT_WEB_SEARCH_MAX_CALLS).toEqual({ chat: 3, routine: 2 });
+    expect(agentWebSearchCallLimit("chat")).toBe(3);
+    expect(agentWebSearchCallLimit("routine")).toBe(2);
   });
 
-  it("releases routines only through the routine flag, never through the chat flag", () => {
-    expect(agentWebSearchEnabled("routine", false, { chat: true, routine: false })).toBe(false);
-    expect(agentWebSearchEnabled("chat", false, { chat: true, routine: false })).toBe(true);
-    expect(agentWebSearchEnabled("routine", false, { chat: false, routine: true })).toBe(true);
-    expect(agentWebSearchEnabled("chat", false, { chat: false, routine: true })).toBe(false);
+  it("prices one search at its documented worst case", () => {
+    expect(AGENT_WEB_SEARCH_WORST_CASE_MICROCENTS).toBe(1_200_000);
+  });
+
+  it("counts every provider-executed search inside one step, as billed or as called", () => {
+    const search = (toolCallId: string) => ({
+      type: "tool-call",
+      toolName: AGENT_WEB_SEARCH_TOOL_NAME,
+      toolCallId,
+      input: { query: toolCallId },
+      providerExecuted: true,
+    });
+    const text = { type: "text", text: "Answer." };
+    const billed = (count: unknown) => ({
+      gateway: { gatewayToolCalls: { exa_search: count } },
+    });
+
+    expect(
+      agentWebSearchCallsInStep({
+        content: [search("web-1"), text, search("web-2"), text, text],
+      }),
+    ).toBe(2);
+    expect(
+      agentWebSearchCallsInStep({
+        content: [search("web-1")],
+        providerMetadata: billed(2),
+      }),
+    ).toBe(2);
+    expect(
+      agentWebSearchCallsInStep({
+        content: [search("web-1"), search("web-2")],
+        providerMetadata: billed(1),
+      }),
+    ).toBe(2);
+    expect(
+      agentWebSearchCallsInStep({
+        content: [{ ...search("web-1"), providerExecuted: false }],
+      }),
+    ).toBe(0);
+    expect(
+      agentWebSearchCallsInStep({
+        content: [{ ...search("x"), toolName: "list_users" }],
+        providerMetadata: billed(0),
+      }),
+    ).toBe(0);
+    for (const invalid of [-1, 1.5, "2", null]) {
+      expect(
+        agentWebSearchCallsInStep({
+          content: [],
+          providerMetadata: billed(invalid),
+        }),
+      ).toBe(0);
+    }
   });
 
   it("preserves the provider-native tool and restricts optional setup turns by domain", () => {
