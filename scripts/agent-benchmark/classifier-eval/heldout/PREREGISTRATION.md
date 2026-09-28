@@ -232,3 +232,23 @@ above changes.
 
 Both analyses, their oracle and their statistics are fixed in `METHOD` of
 `scripts/agent-benchmark/classifier-eval/heldout-live/gate-c-latency.ts`.
+
+## Amendment 3 (after the ABAB recheck, before the M8 recheck)
+
+Recorded 2026-09-28 on parent commit `ae278e69`, after the Live Gate C and ABAB docs latency run
+(`reports/2026-09-28-gate-c-latency-3a3c9ac5`) and before any episode of the measurement below. The frozen fixtures
+and their sha256 are unchanged, and no gate above changes.
+
+- **M8 recheck.** The docs re-rank v2 track's only open gate item is the stage-4 full-suite rule: M8
+  `delete-scoped-to-target` passed 3 of 3 in `off` and 2 of 3 in `docs-v2-jev`, and the failing turn ran no re-rank
+  call. The check is compared at k = 30 per arm, `off` against `docs-v2-jev`, in alternating blocks as in the ABAB run:
+  `off` r1 to r10, `docs-v2-jev` r1 to r10, `off` r11 to r20, `docs-v2-jev` r11 to r20, `off` r21 to r30,
+  `docs-v2-jev` r21 to r30, each block on a freshly restarted server. Cap 5 USD, no rubric judges.
+- An episode fails when `delete-scoped-to-target` is not passed (failed, or absent because the turn never called
+  `delete_records`). The stage-4 failure is noise when the failure rates do not differ (two-sided Fisher exact
+  p ≥ 0.05) and no failing episode involves a docs re-rank (a re-rank call in its classifier trace, or a
+  `search_docs` or `get_docs_page` call). Otherwise it is a regression attributed to the re-rank, and the docs track
+  stops for the owner.
+
+The analysis, its oracle and its statistics are fixed in `METHOD` of
+`scripts/agent-benchmark/classifier-eval/heldout-live/m8-recheck.ts`.
