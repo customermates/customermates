@@ -3,7 +3,7 @@ import { join } from "node:path";
 import { pathToFileURL } from "node:url";
 import { MessageChannel, Worker, receiveMessageOnPort, type MessagePort } from "node:worker_threads";
 
-import { EvalFlags, Intrinsics } from "quickjs-wasi";
+import { Intrinsics } from "quickjs-wasi";
 
 export type AnalysisLimits = { memoryBytes: number; wallMs: number; maxSteps: number; workerHeapMb: number };
 
@@ -22,12 +22,8 @@ type AnalysisOutcome =
   | { ok: false; error: string };
 
 const ANALYSIS_INTRINSICS =
-  Intrinsics.EVAL |
-  Intrinsics.JSON |
-  Intrinsics.MAP_SET |
-  Intrinsics.PROMISE |
-  Intrinsics.REGEXP |
-  Intrinsics.TYPED_ARRAYS;
+  Intrinsics.JSON | Intrinsics.MAP_SET | Intrinsics.PROMISE | Intrinsics.REGEXP | Intrinsics.TYPED_ARRAYS;
+const COMPILER_INTRINSICS = ANALYSIS_INTRINSICS | Intrinsics.EVAL;
 const TERMINATE_MARGIN_MS = 250;
 const NOT_A_FUNCTION = "AnalysisCodeIsNotAFunction";
 const NEVER_SETTLED = "AnalysisPromiseNeverSettled";
@@ -50,21 +46,24 @@ type AnalysisWorkerData = {
   report?: MessagePort;
   quickjsUrl: string;
   wasm: WebAssembly.Module;
-  source: string;
-  fallbackSource: string | null;
+  code: string;
+  fallbackCode: string | null;
+  wrapper: string;
   input: string;
   deadline: number;
   maxSteps: number;
   memoryBytes: number;
   intrinsics: number;
+  compilerIntrinsics: number;
   resultMaxChars: number;
   messageMaxChars: number;
-  compileOnly: number;
   checkOnly: boolean;
 };
 
 const TIMED_OUT: WorkerReport = { ok: false, stop: "time", message: "" };
 const WORKER_OUT_OF_MEMORY: WorkerReport = { ok: false, stop: "memory", message: "" };
+
+const ANALYSIS_WRAPPER = `(run, input) => { if (typeof run !== "function") throw new TypeError("${NOT_A_FUNCTION}"); const data = JSON.parse(input); const iterates = (item) => item instanceof Map || item instanceof Set || item instanceof WeakMap || item instanceof WeakSet || (!Array.isArray(item) && (typeof item.next === "function" || typeof item[Symbol.asyncIterator] === "function")); const serialize = (value) => JSON.stringify(value, (key, item) => { if (item instanceof Promise) throw new TypeError("${HOLDS_PROMISE}"); if (typeof item === "object" && item !== null && iterates(item)) throw new TypeError("${HOLDS_ITERATOR}"); return item; }); const result = run(data); return result instanceof Promise ? result.then(serialize) : serialize(result); }`;
 
 const ANALYSIS_WORKER_SOURCE = `(async () => {
   const { workerData } = await import("node:worker_threads");
@@ -72,17 +71,19 @@ const ANALYSIS_WORKER_SOURCE = `(async () => {
   const { QuickJS } = await import(workerData.quickjsUrl);
   let steps = 0;
   let stop = null;
-  const vm = await QuickJS.create({
+  const interruptHandler = () => {
+    steps += 1;
+    if (steps > workerData.maxSteps) stop = "steps";
+    else if (Date.now() > workerData.deadline) stop = "time";
+    return stop !== null;
+  };
+  const compiler = await QuickJS.create({
     wasm: workerData.wasm,
     memoryLimit: workerData.memoryBytes,
-    intrinsics: workerData.intrinsics,
-    interruptHandler: () => {
-      steps += 1;
-      if (steps > workerData.maxSteps) stop = "steps";
-      else if (Date.now() > workerData.deadline) stop = "time";
-      return stop !== null;
-    },
+    intrinsics: workerData.compilerIntrinsics,
+    interruptHandler,
   });
+  let vm = null;
   const messageOf = (thrown) =>
     thrown.consume((value) =>
       value.getProp("message").consume((message) => (message.isUndefined ? value.toString() : message.toString())),
@@ -95,32 +96,50 @@ const ANALYSIS_WORKER_SOURCE = `(async () => {
       return false;
     }
   };
-  const parseError = (source) => {
+  const errorText = (error) => (error instanceof Error ? error.message : String(error));
+  const compileExpression = (code) => {
+    const bytecode = compiler.compile("(\\n" + code + "\\n)", "analysis.js");
+    compiler.compile("[\\n" + code + "\\n]", "analysis.js");
+    return bytecode;
+  };
+  const tryCompile = (code) => {
     try {
-      vm.evalCode(source, "analysis.js", workerData.compileOnly).dispose();
-      return null;
+      return { bytecode: compileExpression(code) };
     } catch (error) {
-      return error instanceof Error ? error.message : String(error);
+      return { error: errorText(error) };
     }
   };
   try {
-    const unparsed = parseError(workerData.source);
-    const source =
-      unparsed !== null && workerData.fallbackSource !== null && parseError(workerData.fallbackSource) === null
-        ? workerData.fallbackSource
-        : workerData.source;
-    if (unparsed !== null && source === workerData.source) {
-      report.postMessage({ ok: false, stop, message: unparsed.slice(0, workerData.messageMaxChars), unparsed: true });
+    const primary = tryCompile(workerData.code);
+    const fallback = "error" in primary && workerData.fallbackCode !== null ? tryCompile(workerData.fallbackCode) : null;
+    const compiled = fallback && "bytecode" in fallback ? fallback : primary;
+    if ("error" in compiled) {
+      report.postMessage({ ok: false, stop, message: compiled.error.slice(0, workerData.messageMaxChars), unparsed: true });
       return;
     }
     if (workerData.checkOnly) {
       report.postMessage({ ok: true, serialized: null });
       return;
     }
+    const wrapperBytecode = compiler.compile(workerData.wrapper, "analysis-wrapper.js");
+    compiler.dispose();
+    vm = await QuickJS.create({
+      wasm: workerData.wasm,
+      memoryLimit: workerData.memoryBytes,
+      intrinsics: workerData.intrinsics,
+      interruptHandler,
+    });
+    const wrapper = vm.evalBytecode(wrapperBytecode);
+    const run = vm.evalBytecode(compiled.bytecode);
     const input = vm.newString(workerData.input);
-    vm.setProp(vm.global, "__analysisInput", input);
-    input.dispose();
-    let result = vm.evalCode(source, "analysis.js");
+    let result;
+    try {
+      result = vm.callFunction(wrapper, vm.undefined, run, input);
+    } finally {
+      input.dispose();
+      run.dispose();
+      wrapper.dispose();
+    }
     if (result.isPromise) {
       const promise = result;
       try {
@@ -151,10 +170,10 @@ const ANALYSIS_WORKER_SOURCE = `(async () => {
       result.dispose();
     }
   } catch (error) {
-    const message = error instanceof Error ? error.message : String(error);
-    report.postMessage({ ok: false, stop, message: message.slice(0, workerData.messageMaxChars) });
+    report.postMessage({ ok: false, stop, message: errorText(error).slice(0, workerData.messageMaxChars) });
   } finally {
-    vm.dispose();
+    if (vm) vm.dispose();
+    else compiler.dispose();
   }
 })();`;
 
@@ -200,10 +219,6 @@ function withoutSemicolonBeforeTrailingComment(code: string): string | null {
     if (TRAILING_COMMENTS.test(comments)) return `${withoutTrailingSemicolons(code.slice(0, end))}\n${comments}`;
   }
   return null;
-}
-
-function analysisSource(code: string): string {
-  return `(() => { const run = (\n${withoutTrailingSemicolons(code)}\n); if (typeof run !== "function") throw new TypeError("${NOT_A_FUNCTION}"); const data = JSON.parse(__analysisInput); __analysisInput = undefined; const iterates = (item) => item instanceof Map || item instanceof Set || item instanceof WeakMap || item instanceof WeakSet || (!Array.isArray(item) && (typeof item.next === "function" || typeof item[Symbol.asyncIterator] === "function")); const serialize = (value) => JSON.stringify(value, (key, item) => { if (item instanceof Promise) throw new TypeError("${HOLDS_PROMISE}"); if (typeof item === "object" && item !== null && iterates(item)) throw new TypeError("${HOLDS_ITERATOR}"); return item; }); const result = run(data); return result instanceof Promise ? result.then(serialize) : serialize(result); })()`;
 }
 
 function reportedMessage(message: string): string {
@@ -269,7 +284,8 @@ async function runInWorker(
   }
 }
 
-function unparsedError(message: string): string {
+function unparsedError(reported: string): string {
+  const message = reported.replace(/^Compilation error: /, "");
   if (/out of memory/i.test(message)) return "The analysis code ran out of memory and was stopped.";
   return `The analysis code does not parse as one function expression (${message.slice(0, MESSAGE_MAX_CHARS)}). Write it as (data) => { ...; return result; } and declare any helper functions inside it.`;
 }
@@ -289,16 +305,17 @@ async function runAnalysisWorker(
       {
         quickjsUrl: pathToFileURL(join(process.cwd(), "node_modules", "quickjs-wasi", "dist", "index.js")).href,
         wasm,
-        source: analysisSource(code),
-        fallbackSource: fallback === null ? null : analysisSource(fallback),
+        code: withoutTrailingSemicolons(code),
+        fallbackCode: fallback,
+        wrapper: ANALYSIS_WRAPPER,
         input,
         deadline,
         maxSteps: limits.maxSteps,
         memoryBytes: limits.memoryBytes,
         intrinsics: ANALYSIS_INTRINSICS,
+        compilerIntrinsics: COMPILER_INTRINSICS,
         resultMaxChars,
         messageMaxChars: MESSAGE_MAX_CHARS,
-        compileOnly: EvalFlags.COMPILE_ONLY,
         checkOnly,
       },
       deadline + TERMINATE_MARGIN_MS - Date.now(),

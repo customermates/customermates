@@ -724,16 +724,16 @@ describe("analysis isolate", () => {
     15_000,
   );
 
-  it("writes nothing into the generated source but the code and letters-only literals", async () => {
-    const sources: string[] = [];
+  it("passes the code and the input to the worker as data, beside one fixed wrapper with letters-only literals", async () => {
+    const received: { code: string; fallbackCode: string | null; wrapper: string; input: string }[] = [];
     vi.resetModules();
     vi.doMock("node:worker_threads", async (importOriginal) => {
       const actual = await importOriginal<typeof WorkerThreads>();
-      class SourceRecordingWorker extends EventEmitter {
+      class DataRecordingWorker extends EventEmitter {
         constructor(_source: string, options: WorkerThreads.WorkerOptions) {
           super();
-          const workerData = options.workerData as { source: string; report: WorkerThreads.MessagePort };
-          sources.push(workerData.source);
+          const workerData = options.workerData as (typeof received)[number] & { report: WorkerThreads.MessagePort };
+          received.push(workerData);
           workerData.report.postMessage({ ok: true, serialized: "1" });
         }
 
@@ -741,7 +741,7 @@ describe("analysis isolate", () => {
           return Promise.resolve(0);
         }
       }
-      return { ...actual, Worker: SourceRecordingWorker };
+      return { ...actual, Worker: DataRecordingWorker };
     });
     try {
       const fresh = await import("../agent-analysis-isolate");
@@ -752,9 +752,11 @@ describe("analysis isolate", () => {
           serialized: "1",
         });
       }
-      const [prefix, suffix] = sources[0].split(codes[0]);
-      expect(sources).toEqual(codes.map((code) => `${prefix}${code}${suffix}`));
-      const wrapper = `${prefix}${suffix}`;
+      expect(received.map(({ code, fallbackCode, input }) => ({ code, fallbackCode, input }))).toEqual(
+        codes.map((code) => ({ code, fallbackCode: null, input: "[]" })),
+      );
+      const [wrapper] = new Set(received.map((data) => data.wrapper));
+      expect(received.every((data) => data.wrapper === wrapper)).toBe(true);
       expect(wrapper).not.toMatch(/['`]/);
       expect(wrapper).not.toContain("[object");
       const literals = wrapper.match(/"[^"]*"/g) ?? [];
@@ -763,6 +765,31 @@ describe("analysis isolate", () => {
     } finally {
       vi.doUnmock("node:worker_threads");
       vi.resetModules();
+    }
+  });
+
+  it("runs the code where eval and every function constructor are unavailable", async () => {
+    const outcome = await runAnalysisCode(
+      "() => [() => eval('1'), () => Function('return 1')(), () => new Function('return 1')(), () => (() => 1).constructor('return 1')(), () => (async () => 1).constructor('return 1'), () => (function* () {}).constructor('yield 1'), () => (async function* () {}).constructor('yield 1')].map((attempt) => { try { attempt(); return 'ran'; } catch (error) { return 'blocked'; } })",
+      "null",
+      RESULT_MAX_CHARS,
+    );
+    expect(outcome).toEqual({ ok: true, serialized: JSON.stringify(Array.from({ length: 7 }, () => "blocked")) });
+  });
+
+  it("never runs code that closes the expression early, even behind a semicolon or a trailing comment", async () => {
+    const unparsed = /^The analysis code does not parse as one function expression \(.+\)\./;
+    for (const code of [
+      "(data) => data); for (;;) {} (0",
+      "(data) => data); for (;;) {} (0; // note",
+      "(data) => data)\n; for (;;) {}\n/* note */ (0",
+      "(data) => data] ; for (;;) {} ; [0",
+    ]) {
+      await expect(checkAnalysisCode(code)).resolves.toMatch(unparsed);
+      await expect(runAnalysisCode(code, "[1]", RESULT_MAX_CHARS)).resolves.toEqual({
+        ok: false,
+        error: expect.stringMatching(unparsed),
+      });
     }
   });
 
