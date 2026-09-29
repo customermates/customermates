@@ -4,7 +4,11 @@ import { describe, expect, it, vi } from "vitest";
 
 vi.mock("next-intl", () => ({
   useTranslations: () => (key: string, values?: Record<string, string | number>) =>
-    values?.target ? `${key}:${values.target}` : key,
+    key === "AgentChat.activity.contextual"
+      ? `${values?.action} · ${values?.context}`
+      : values?.target
+        ? `${key}:${values.target}`
+        : key,
 }));
 vi.mock("@/components/entity-terminology/use-entity-terminology", () => ({
   useEntityTerminology: () => ({ plural: () => "Contacts" }),
@@ -167,6 +171,20 @@ describe("website activity compaction", () => {
     expect(items).toHaveLength(31);
     const html = renderToStaticMarkup(createElement(AgentActivity, { items, isWorking: true, isTrailing: true }));
     expect(html).toContain("AgentChat.activity.state.web.review.running");
+    expect(html).not.toContain("collapsible-trigger");
+  });
+
+  it("keeps different source batches distinguishable and compacts only repeated chunks of the same source", () => {
+    const first = { ...read("first"), activity: { ...read("first").activity, context: { labels: ["About us"] } } };
+    const second = { ...read("second"), activity: { ...read("second").activity, context: { labels: ["Services"] } } };
+    expect(compactActivityItems([first, { ...first, id: "next-chunk" }, second])).toMatchObject([
+      { id: "first", repetitions: 2, activity: { context: { labels: ["About us"] } } },
+      { id: "second", repetitions: 1, activity: { context: { labels: ["Services"] } } },
+    ]);
+    const html = renderToStaticMarkup(
+      createElement(AgentActivity, { items: [{ ...second, status: "running" }], isWorking: true, isTrailing: true }),
+    );
+    expect(html).toContain("AgentChat.activity.state.web.review.running:AgentChat.activity.defaultRecords · Services");
     expect(html).not.toContain("collapsible-trigger");
   });
 

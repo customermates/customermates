@@ -1,3 +1,4 @@
+import { agentToolOutputContext } from "./agent-activity-context";
 import { WIKI_SOURCE_RESULT_MAX_CHARS } from "@/ee/wiki-crawl/wiki-source-coverage";
 import { z } from "zod";
 import { asSchema, tool, jsonSchema, type ToolSet } from "ai";
@@ -177,6 +178,7 @@ function agentToolResult(
   context: { toolName?: string; pageRoute?: string | null } = {},
 ) {
   const navigation = contextualAgentToolNavigation(context.toolName, outcome, context.pageRoute);
+  const activityContext = outcome.ok ? agentToolOutputContext(context.toolName, outcome.structuredContent) : undefined;
   return {
     ok: outcome.ok,
     result: agentToolResultText(
@@ -189,6 +191,7 @@ function agentToolResult(
       maxChars,
     ),
     ...(navigation ? { navigation } : {}),
+    ...(activityContext ? { activityContext } : {}),
   };
 }
 
@@ -223,7 +226,12 @@ function providerSafeSchema<TSchema extends z.ZodType>(inputSchema: TSchema) {
       io: "input",
       target: "draft-07",
       override: (ctx) => {
-        const schema = ctx.jsonSchema as { pattern?: string; format?: string; const?: unknown; title?: unknown };
+        const schema = ctx.jsonSchema as {
+          pattern?: string;
+          format?: string;
+          const?: unknown;
+          title?: unknown;
+        };
         if (schema.const !== undefined && schema.title === String(schema.const)) delete schema.title;
         if (typeof schema.pattern === "string" && UNSUPPORTED_PATTERN.test(schema.pattern)) delete schema.pattern;
         if (typeof schema.pattern === "string" && schema.pattern.includes(CANONICAL_UUID_PATTERN_MARK))
@@ -370,7 +378,10 @@ function hostedMcpTool(mcp: (typeof ALL_MCP_TOOLS)[number], deps: AgentToolDeps)
   const rankers = hostedSectionRankers(deps.latestUserMessage ?? null);
   if (!rankers) return mcp;
   const execute = mcp.execute as (...args: unknown[]) => ReturnType<typeof mcp.execute>;
-  return { ...mcp, execute: (...args: never[]) => runWithSectionRanking(rankers, () => execute(...args)) };
+  return {
+    ...mcp,
+    execute: (...args: never[]) => runWithSectionRanking(rankers, () => execute(...args)),
+  };
 }
 
 function crmTool(mcp: (typeof ALL_MCP_TOOLS)[number], deps: AgentToolDeps, surface: AgentSurface | undefined) {
@@ -381,7 +392,10 @@ function crmTool(mcp: (typeof ALL_MCP_TOOLS)[number], deps: AgentToolDeps, surfa
     execute: async (input: unknown, { toolCallId }) => {
       const execute = async () => {
         const outcome = await executeMcpTool(hostedMcpTool(mcp, deps), [input]);
-        return agentToolResult(outcome, resultMaxChars, { toolName: mcp.name, pageRoute: deps.pageRoute });
+        return agentToolResult(outcome, resultMaxChars, {
+          toolName: mcp.name,
+          pageRoute: deps.pageRoute,
+        });
       };
       const enrollable =
         mcp.name === WIKI_READ_SOURCE_TOOL_NAME || (!isReadOnlyTool(mcp) && !hasNonTransactionalEffect(mcp.name));
@@ -431,7 +445,12 @@ function uiTools(deps: AgentToolDeps): ToolSet {
       inputSchema: providerSafeSchema(HighlightElementSchema),
       execute: async (input, { toolCallId }) => {
         const prerequisite = unopenedUiPrerequisite(input.targetId);
-        if (prerequisite) return { ok: false, result: uiPrerequisiteRefusal(input.targetId, prerequisite) };
+        if (prerequisite) {
+          return {
+            ok: false,
+            result: uiPrerequisiteRefusal(input.targetId, prerequisite),
+          };
+        }
         return runSafely(
           () => runUiCommand(toolCallId, "highlight_element", panelInput("highlight_element", input)),
           deps.resultMaxChars,
@@ -446,7 +465,12 @@ function uiTools(deps: AgentToolDeps): ToolSet {
         const targets = input.steps.map((step) => step.targetId);
         for (const [index, targetId] of targets.entries()) {
           const prerequisite = unopenedUiPrerequisite(targetId, targets.slice(0, index));
-          if (prerequisite) return { ok: false, result: uiPrerequisiteRefusal(targetId, prerequisite) };
+          if (prerequisite) {
+            return {
+              ok: false,
+              result: uiPrerequisiteRefusal(targetId, prerequisite),
+            };
+          }
         }
         return runSafely(
           () => runUiCommand(toolCallId, "start_tour", panelInput("start_tour", input)),
@@ -472,7 +496,10 @@ function analyzeRecordsTool(deps: AgentToolDeps) {
     execute: (input) =>
       runSafely(
         () =>
-          analyzeRecords(input, { tools: hostedMcpTools(), resultMaxChars: deps.resultMaxChars }).then((outcome) => ({
+          analyzeRecords(input, {
+            tools: hostedMcpTools(),
+            resultMaxChars: deps.resultMaxChars,
+          }).then((outcome) => ({
             ok: outcome.ok,
             result: agentToolResultText(outcome.result, deps.resultMaxChars),
           })),
@@ -656,7 +683,10 @@ export async function normalizeAgentAiToolInput(
   toolName: string,
   input: unknown,
   maxChars: number,
-  options: AgentToolOptions & { locale?: string; pageRoute?: string | null } = {},
+  options: AgentToolOptions & {
+    locale?: string;
+    pageRoute?: string | null;
+  } = {},
 ): Promise<AgentToolInputResult> {
   const tools = getAgentAiTools(TOOL_DEFINITION_DEPS, options);
   if (!Object.hasOwn(tools, toolName)) return { ok: false, result: "The requested tool is not available." };

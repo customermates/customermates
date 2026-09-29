@@ -1,3 +1,4 @@
+import { readAgentToolResultContext } from "./agent-activity-context";
 import { describeAgentTool, type AgentActivityResource } from "./agent-activity";
 import type { AgentTurnStopReason, AgentTurnTerminalCode } from "./agent-turn-request";
 import type { AgentActivityStatus } from "./agent-turn-transcript";
@@ -94,9 +95,16 @@ export class AgentDurableStreamReader {
     if (part.type === "tool-result" && part.toolCallId) {
       const { status, failed } = agentToolOutcomeStatus(part.output);
       const viewHref = status === "done" ? agentToolSavedViewHref(part.toolName, part.output) : null;
+      const context = status === "done" ? readAgentToolResultContext(part.toolName, part.output) : undefined;
       return {
         type: "activity_result",
-        payload: { id: part.toolCallId, isError: failed, status, ...(viewHref ? { viewHref } : {}) },
+        payload: {
+          id: part.toolCallId,
+          isError: failed,
+          status,
+          ...(viewHref ? { viewHref } : {}),
+          ...(context ? { context } : {}),
+        },
       };
     }
 

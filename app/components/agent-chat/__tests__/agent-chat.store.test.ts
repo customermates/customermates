@@ -3941,6 +3941,32 @@ describe("AgentChatStore", () => {
     expect(invalid?.activity.viewHref).toBeUndefined();
   });
 
+  it("keeps bounded result context in the live transcript without replacing an input target", () => {
+    const store = new AgentChatStore(root() as never);
+    const { handleEvent } = store as unknown as { handleEvent: (event: Record<string, unknown>) => void };
+    let seq = 0;
+    for (const [id, context, resultContext, isError] of [
+      ["source", undefined, { labels: ["About us"] }, false],
+      ["query", { labels: ["Voice"] }, { labels: ["Voice and tone"] }, false],
+      ["invalid", undefined, { labels: ["a", "b", "c", "d"] }, false],
+      ["failed", undefined, { labels: ["False success"] }, true],
+    ] as const) {
+      handleEvent({
+        seq: seq++,
+        type: "activity",
+        id,
+        activity: { kind: "web.review", risk: "read", affectedResources: [], ...(context ? { context } : {}) },
+      });
+      handleEvent({ seq: seq++, type: "activity_result", id, isError, context: resultContext });
+    }
+    expect(store.items.filter((item) => item.kind === "activity").map((item) => item.activity.context)).toEqual([
+      { labels: ["About us"] },
+      { labels: ["Voice"] },
+      undefined,
+      undefined,
+    ]);
+  });
+
   it("requests one route refresh after successful mutations even without mapped resources", () => {
     const store = new AgentChatStore(root() as never);
     const handleEvent = (

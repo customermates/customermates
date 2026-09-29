@@ -1,3 +1,4 @@
+import { AgentActivityContextSchema } from "@/ee/agent-chat/agent-activity-context";
 import { makeObservable, observable, action, computed, reaction, runInAction } from "mobx";
 
 import type { RootStore } from "@/core/stores/root.store";
@@ -441,7 +442,9 @@ export class AgentChatStore extends BaseStore {
     pageRoute?: string;
   }) => {
     this.isHistoryOpen = false;
-    this.addComposerContext(context, pageRoute, draft, { replaceOldestAtLimit: true });
+    this.addComposerContext(context, pageRoute, draft, {
+      replaceOldestAtLimit: true,
+    });
     this.open();
   };
 
@@ -1767,7 +1770,12 @@ export class AgentChatStore extends BaseStore {
 
   private rejoinBusyConversation = async (
     conversationId: string,
-    resend: { text: string; messageId: string; pageRoute: string; contexts: AgentContextAttachment[] },
+    resend: {
+      text: string;
+      messageId: string;
+      pageRoute: string;
+      contexts: AgentContextAttachment[];
+    },
     resendAfterReattach = true,
   ) => {
     const loadVersion = this.conversationLoadVersion;
@@ -2464,6 +2472,13 @@ export class AgentChatStore extends BaseStore {
           );
           if (activity) {
             activity.status = event.status === "cancelled" ? "cancelled" : event.isError ? "error" : "done";
+            const context = AgentActivityContextSchema.safeParse(event.context);
+            if (activity.status === "done" && context.success && !activity.activity.context) {
+              activity.activity = {
+                ...activity.activity,
+                context: context.data,
+              };
+            }
             const viewHref = activity.status === "done" ? dataViewNavigationHref(event.viewHref) : null;
             if (viewHref) activity.activity = { ...activity.activity, viewHref };
             if (activity.status === "done" && activity.activity.risk !== "read") {

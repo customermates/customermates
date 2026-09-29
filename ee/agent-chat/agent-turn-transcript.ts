@@ -1,3 +1,4 @@
+import { readAgentToolResultContext, type AgentActivityContext } from "./agent-activity-context";
 import type { AgentActivityDescriptor, AgentActivityResource } from "./agent-activity";
 import type { AgentMessagePart } from "./agent-chat.schema";
 
@@ -16,7 +17,13 @@ export type AgentTranscriptEvent =
   | { type: "activity_superseded"; payload: { id: string } }
   | {
       type: "activity_result";
-      payload: { id: string; isError: boolean; status?: AgentActivityStatus; viewHref?: string };
+      payload: {
+        id: string;
+        isError: boolean;
+        status?: AgentActivityStatus;
+        viewHref?: string;
+        context?: AgentActivityContext;
+      };
     }
   | {
       type: "approval_request";
@@ -118,6 +125,8 @@ export class AgentTurnTranscript {
     if (result.failed && result.toolName) this.retryableFailureByTool.set(result.toolName, result.toolCallId);
     const viewHref = result.status === "done" ? agentToolSavedViewHref(result.toolName, result.output) : null;
     const toolPart = this.toolParts.get(result.toolCallId);
+    const context = result.status === "done" ? readAgentToolResultContext(result.toolName, result.output) : undefined;
+    if (context && toolPart && !toolPart.activity.context) toolPart.activity = { ...toolPart.activity, context };
     if (viewHref && toolPart) toolPart.activity = { ...toolPart.activity, viewHref };
     this.settleTool(result.toolCallId, result.status);
     this.emit({
@@ -127,6 +136,7 @@ export class AgentTurnTranscript {
         isError: result.failed,
         status: result.status,
         ...(viewHref ? { viewHref } : {}),
+        ...(context ? { context } : {}),
       },
     });
   }

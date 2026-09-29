@@ -109,6 +109,8 @@
         "webhookResend": "Resend the selected webhook delivery",
         "webhookUpdate": "Change the selected webhook"
       },
+      "contextMore": "{labels} (+{count})",
+      "contextual": "{action} · {context}",
       "countedRecordInResource": "1 record in {resource}",
       "countedResource": "{count} {resource}",
       "countedSingular": "1 {resource}",
@@ -360,6 +362,11 @@
             "done": "Searched the web",
             "error": "Couldn’t search the web",
             "running": "Searching the web"
+          },
+          "sources": {
+            "done": "Listed website pages",
+            "error": "Couldn’t list the website pages",
+            "running": "Listing website pages"
           }
         },
         "webhooks": {

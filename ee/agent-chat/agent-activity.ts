@@ -1,4 +1,5 @@
 import { z } from "zod";
+import { AgentActivityContextSchema, agentToolInputContext } from "./agent-activity-context";
 import { SurfaceKeySchema, ViewKeySchema } from "@/core/data-view/data-view-identity.schema";
 import { dataViewNavigationHref } from "@/core/data-view/data-view-links";
 
@@ -45,6 +46,7 @@ export const AGENT_ACTIVITY_KINDS = [
   "docs.read",
   "web.search",
   "web.review",
+  "web.sources",
   "records.read",
   "records.analyze",
   "records.create",
@@ -149,6 +151,7 @@ export const AgentActivityDescriptorSchema = z.preprocess(
       risk: z.enum(["read", "write", "sensitive"]),
       count: z.number().int().min(1).max(100).optional(),
       consequence: AgentActivityConsequenceSchema.optional(),
+      context: AgentActivityContextSchema.optional(),
       viewSurfaceKey: SurfaceKeySchema.optional(),
       viewAction: ViewMutationActionSchema.optional(),
       viewKey: ViewKeySchema.optional(),
@@ -267,6 +270,12 @@ function multiplexedRisk(toolName: string, details: Record<string, unknown>): "w
 }
 
 export function describeAgentTool(identity: AgentToolIdentity, input: unknown): AgentActivityDescriptor {
+  const activity = describeAgentToolAction(identity, input);
+  const context = isInternalToolIdentity(identity) ? agentToolInputContext(identity.name, input) : undefined;
+  return context ? { ...activity, context } : activity;
+}
+
+function describeAgentToolAction(identity: AgentToolIdentity, input: unknown): AgentActivityDescriptor {
   if (!isInternalToolIdentity(identity)) return descriptor("generic", undefined, "sensitive");
 
   const toolName = identity.name;
@@ -281,7 +290,8 @@ export function describeAgentTool(identity: AgentToolIdentity, input: unknown): 
     return descriptor("interface.navigate", undefined, "read");
   if (toolName === "configure_view") return descriptor("interface.interact", undefined, "read");
   if (toolName === "start_tour") return descriptor("interface.tour", undefined, "read");
-  if (toolName === WIKI_READ_SOURCE_TOOL_NAME) return descriptor("web.review", undefined, "read");
+  if (toolName === WIKI_READ_SOURCE_TOOL_NAME)
+    return descriptor(details.action === "list" ? "web.sources" : "web.review", undefined, "read");
   if (toolName === "web_search") return descriptor("web.search", undefined, "read");
   if (toolName === WIKI_WEBSITE_IMPORT_TOOL_NAME) return descriptor("records.create", "wiki", "write");
   if (toolName === "manage_wiki_pages") {
@@ -496,8 +506,11 @@ export function describeAgentTool(identity: AgentToolIdentity, input: unknown): 
       state: safeText(details.state, 80),
     });
   }
-  if (toolName === "move_email_thread")
-    return descriptor("messages.triage", "messages", "write", ["messages"], { action: "thread.move" });
+  if (toolName === "move_email_thread") {
+    return descriptor("messages.triage", "messages", "write", ["messages"], {
+      action: "thread.move",
+    });
+  }
 
   if (
     toolName === "get_record_schema" ||
@@ -727,6 +740,15 @@ export function agentActivityCopy(
   const detail =
     agentConsequenceDetail(activity, t, resource, hasCustomTerminology) ??
     (resource ? resource.charAt(0).toUpperCase() + resource.slice(1) : undefined);
+  const context = activity.context
+    ? activity.context.additionalCount
+      ? t("AgentChat.activity.contextMore", {
+          labels: activity.context.labels.join(", "),
+          count: activity.context.additionalCount,
+        })
+      : activity.context.labels.join(", ")
+    : undefined;
+  const contextual = (action: string) => (context ? t("AgentChat.activity.contextual", { action, context }) : action);
   const state = (name: "running" | "done" | "error") =>
     t(`AgentChat.activity.state.${activity.kind}.${name}`, {
       count: activity.count ?? 0,
@@ -743,11 +765,11 @@ export function agentActivityCopy(
     : state("running");
 
   return {
-    running: state("running"),
-    approval,
-    done: state("done"),
-    error: state("error"),
-    cancelled: t("AgentChat.activity.cancelled"),
+    running: contextual(state("running")),
+    approval: contextual(approval),
+    done: contextual(state("done")),
+    error: contextual(state("error")),
+    cancelled: contextual(t("AgentChat.activity.cancelled")),
     ...(detail ? { detail } : {}),
   };
 }

@@ -109,6 +109,8 @@
         "webhookResend": "Die ausgewählte Webhook-Zustellung erneut senden",
         "webhookUpdate": "Ausgewählten Webhook ändern"
       },
+      "contextMore": "{labels} (+{count})",
+      "contextual": "{action} · {context}",
       "countedRecordInResource": "1 Datensatz für {resource}",
       "countedResource": "{count} {resource}",
       "countedSingular": "1 {resource}",
@@ -360,6 +362,11 @@
             "done": "Web wurde durchsucht",
             "error": "Web konnte nicht durchsucht werden",
             "running": "Web wird durchsucht"
+          },
+          "sources": {
+            "done": "Webseiten wurden aufgelistet",
+            "error": "Webseiten konnten nicht aufgelistet werden",
+            "running": "Webseiten werden aufgelistet"
           }
         },
         "webhooks": {

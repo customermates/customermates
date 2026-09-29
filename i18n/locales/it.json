@@ -109,6 +109,8 @@
         "webhookResend": "Inviare di nuovo la consegna webhook selezionata",
         "webhookUpdate": "Modificare il webhook selezionato"
       },
+      "contextMore": "{labels} (+{count})",
+      "contextual": "{action} · {context}",
       "countedRecordInResource": "1 record in {resource}",
       "countedResource": "{count} {resource}",
       "countedSingular": "1 {resource}",
@@ -360,6 +362,11 @@
             "done": "Ricerca sul web completata",
             "error": "Impossibile effettuare la ricerca sul web",
             "running": "Ricerca sul web"
+          },
+          "sources": {
+            "done": "Pagine web elencate",
+            "error": "Impossibile elencare le pagine web",
+            "running": "Elenco delle pagine web in corso"
           }
         },
         "webhooks": {

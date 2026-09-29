@@ -113,7 +113,7 @@ function dependencies(): AgentToolDeps {
   };
 }
 
-type ToolOutcome = { ok: boolean; result: string };
+type ToolOutcome = { ok: boolean; result: string; activityContext?: { labels: string[] } };
 type WikiChunk = {
   url: string;
   markdownChunk: string;
@@ -241,6 +241,7 @@ describe("managed Wiki retrieval tools", () => {
         id: sourceId,
         offset: 0,
       });
+      expect(sourceResult.activityContext).toEqual({ labels: ["Refund escalation"] });
       const source = decode(sourceResult.result) as WikiChunk & {
         links: Array<{
           id: string;
