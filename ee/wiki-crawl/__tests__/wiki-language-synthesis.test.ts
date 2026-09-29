@@ -1,4 +1,6 @@
 import type { McpToolResult } from "@/features/mcp-tools/mcp-tool";
+import { executeMcpTool } from "@/features/mcp-tools/mcp-tool";
+import { agentToolOutcomeStatus } from "@/ee/agent-chat/agent-durable-stream";
 import { encodeToToon } from "@/features/mcp-tools/utils";
 import { beforeEach, describe, expect, it, vi } from "vitest";
 
@@ -7,6 +9,7 @@ const harness = vi.hoisted(() => ({
   crawl: vi.fn(),
   sources: vi.fn(),
   count: vi.fn(),
+  createdTitles: vi.fn(),
   imported: vi.fn(),
   advance: vi.fn(),
 }));
@@ -16,6 +19,7 @@ vi.mock("@/core/di", () => ({
     getCrawl: harness.crawl,
     listSources: harness.sources,
     countSynthesizedPages: harness.count,
+    listSynthesizedPageTitles: harness.createdTitles,
     findImportedPage: harness.imported,
     advanceSourceReads: harness.advance,
   }),
@@ -52,6 +56,7 @@ beforeEach(() => {
     startedAt: new Date(),
   });
   harness.count.mockResolvedValue(0);
+  harness.createdTitles.mockResolvedValue([]);
   harness.imported.mockResolvedValue(null);
   harness.sources.mockResolvedValue([
     {
@@ -70,6 +75,46 @@ beforeEach(() => {
 });
 
 describe("single language Wiki synthesis", () => {
+  it("carries previously saved topics into every create result after conversation compaction", async () => {
+    harness.count.mockResolvedValue(1);
+    harness.createdTitles.mockResolvedValue(["Product A"]);
+    harness.create.mockResolvedValue({
+      ok: true,
+      data: [
+        {
+          id: "00000000-0000-4000-8000-000000000002",
+          title: "Company",
+          kind: "knowledge",
+          createdAt: new Date(),
+          updatedAt: new Date(),
+        },
+      ],
+    });
+    const result = await createWikiFromCrawlTool("en", "crawl-1").execute({ action: "create", pages: [page(ENGLISH)] });
+    expect(structured(result)).toMatchObject({ createdPageTitles: ["Product A", "Company"], remainingPageSlots: 14 });
+    expect(harness.createdTitles).toHaveBeenCalledWith(expect.any(Date), 16);
+  });
+
+  it("keeps the source topic inventory and actual import count available after reading completes", async () => {
+    harness.sources.mockResolvedValue([
+      {
+        id: SOURCE_ID,
+        title: "Company",
+        url: "https://example.com/products",
+        category: "product",
+        text: "# Product A\n\n## Integrations\n\nVerified facts.\n\n# Product B",
+        contentHash: "hash-1",
+        readOffset: 1000,
+      },
+    ]);
+    const result = await readWebsiteSourceTool("crawl-1").execute({ action: "list" });
+    expect(structured(result)).toMatchObject({
+      remainingSources: 0,
+      importedSources: 0,
+      items: [{ headings: ["Product A", "Integrations", "Product B"], imported: false, read: true }],
+    });
+  });
+
   it("reports actual persisted imports, including quota and failed-create omissions", async () => {
     const tool = readWebsiteSourceTool("crawl-1");
     harness.sources.mockResolvedValue([
@@ -225,6 +270,11 @@ describe("complete stored source coverage", () => {
       pages: [page(ENGLISH)],
     });
     expect(structured(premature)).toMatchObject({ remainingSources: 1 });
+    const outcome = await executeMcpTool(createWikiFromCrawlTool("en", "crawl-1"), [
+      { action: "create", pages: [page(ENGLISH)] },
+    ]);
+    expect(outcome).toMatchObject({ ok: false, failure: { kind: "validation" } });
+    expect(agentToolOutcomeStatus(outcome)).toMatchObject({ failed: true, status: "error" });
     expect(harness.create).not.toHaveBeenCalled();
     await tool.execute({ action: "next" });
     await createWikiFromCrawlTool("en", "crawl-1").execute({ action: "create", pages: [page(ENGLISH)] });

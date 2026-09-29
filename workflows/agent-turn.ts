@@ -1505,7 +1505,8 @@ export async function runAgentTurn(payload: AgentTurnWorkflowPayload): Promise<v
           settleApprovedCalls(stepMessages, false);
           if (abandoned || cancelled || budgetStop || hostedAiStop || providerStop !== null || roundFailure !== null)
             throw AGENT_LOCAL_TERMINATION_REQUIRED;
-          const activeTools = activeToolNamesFor(stepMessages);
+          const readingWebsite = Boolean(payload.wikiCrawl && (await pendingWikiSynthesisSources(payload)) > 0);
+          const activeTools = readingWebsite ? ["read_website_source"] : activeToolNamesFor(stepMessages);
           const activeDefinitions = activeTools
             ? toolDefinitions.filter((definition) => activeTools.includes(definition.name))
             : toolDefinitions;
@@ -1521,6 +1522,7 @@ export async function runAgentTurn(payload: AgentTurnWorkflowPayload): Promise<v
           )
             throw AGENT_CONTEXT_COMPACTION_REQUIRED;
           if (!(await canStartNextHostedAiProviderRound(payload))) throw hostedAiPaused;
+          if (readingWebsite) return { activeTools, toolChoice: "required" as const };
           if (webSearchOvershoot) {
             return {
               activeTools: activeTools.filter((toolName) => !isAgentWebTool(toolName)),
@@ -1534,6 +1536,7 @@ export async function runAgentTurn(payload: AgentTurnWorkflowPayload): Promise<v
             (await webSearchAffordable());
           return {
             activeTools: webSearchPermitted ? activeTools : activeTools.filter((toolName) => !isAgentWebTool(toolName)),
+            ...(payload.wikiCrawl ? { toolChoice: "auto" as const } : {}),
             ...(payload.webSearchEnabled
               ? { maxRetries: webSearchPermitted ? 0 : AGENT_MODEL_DEFAULT_MAX_RETRIES }
               : {}),
@@ -1649,7 +1652,11 @@ export async function runAgentTurn(payload: AgentTurnWorkflowPayload): Promise<v
           }
           wikiCoverageReminders += 1;
           messages = [
-            ...result.messages,
+            ...nextAgentSegmentMessages({
+              messages: result.messages,
+              finishReason,
+              lastStep: continuationSteps.at(-1),
+            }),
             {
               role: "user" as const,
               content: `The website import is incomplete: ${remaining} stored source groups still have unread text. Continue read_website_source action=next until remainingSources is zero, then create evidence-based pages for all supported distinct topics. Do not claim completion or pad the page count.`,

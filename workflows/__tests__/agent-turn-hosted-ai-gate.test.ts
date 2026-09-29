@@ -13,6 +13,7 @@ type WorkflowTool = {
 
 type StreamOptions = {
   tools: Record<string, WorkflowTool>;
+  prepared: unknown;
   messages: unknown[];
   completeStepAndPrepareNext: (step: unknown, messages?: unknown[]) => Promise<void>;
   executeAndCompleteTool: (toolName: string, input: unknown, toolCallId: string, batch?: unknown[]) => Promise<unknown>;
@@ -153,10 +154,11 @@ vi.mock("@ai-sdk/workflow", () => {
         ];
         if (state.runTools) {
           const prompt = state.approvedCallsRunFirst ? await runApprovedCalls(this.options.tools, messages) : messages;
-          await this.options.prepareStep({ messages: preparedMessages(prompt) });
+          const prepared = await this.options.prepareStep({ messages: preparedMessages(prompt) });
           state.providerCalls += 1;
           return state.runTools({
             tools: this.options.tools,
+            prepared,
             messages: prompt,
             completeStepAndPrepareNext: async (step, nextMessages = messages) => {
               await this.options.onStepEnd(step);
@@ -3114,10 +3116,24 @@ describe("routine browse-or-mutate batch safety", () => {
           expect(JSON.stringify(messages)).toContain("website import is incomplete");
           state.synthesisSources[0].readOffset = state.synthesisSources[0].text.length;
         }
-        return Promise.resolve({ ...finish(), messages });
+        return Promise.resolve({ ...finish(), messages: [{ role: "system", content: "system" }, ...messages] });
       };
       await runAgentTurn(setupPayload);
       expect(runs).toBe(2);
+      expect(state.finalize).toHaveBeenCalledWith(expect.objectContaining({ terminalCode: "completed" }));
+    });
+
+    it("requires source reading before offering page creation and releases the choice after coverage completes", async () => {
+      state.synthesisSources = [{ id: "source", text: "unread evidence", contentHash: "hash", readOffset: 0 }];
+      state.runTools = async ({ prepared, completeStepAndPrepareNext }) => {
+        expect(prepared).toMatchObject({ activeTools: ["read_website_source"], toolChoice: "required" });
+        state.synthesisSources[0].readOffset = state.synthesisSources[0].text.length;
+        await completeStepAndPrepareNext(streamedStep("", "tool-calls"));
+        expect(state.prepared).toMatchObject({ activeTools: ["read_website_source", "manage_wiki_pages"] });
+        expect(state.prepared).toMatchObject({ toolChoice: "auto" });
+        return finish();
+      };
+      await runAgentTurn(setupPayload);
       expect(state.finalize).toHaveBeenCalledWith(expect.objectContaining({ terminalCode: "completed" }));
     });
 

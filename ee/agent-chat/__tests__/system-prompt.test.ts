@@ -110,7 +110,13 @@ describe("system prompt", () => {
     expect(prompt).not.toContain("drafts");
     expect(prompt).toContain("remainingSources is zero");
     expect(prompt).toContain("topic inventory");
+    expect(prompt).toContain("zero means no sources became knowledge pages");
+    expect(prompt).toContain("Create substantive knowledge pages FIRST");
+    expect(prompt).toContain("compacted out of the conversation");
+    expect(prompt).toContain("cumulative createdPageTitles and remainingPageSlots");
     expect(prompt).toContain("Up to six procedures (kind procedure)");
+    expect(prompt).toContain("zero is valid");
+    expect(prompt).toContain("Never turn generic contact details into internal policy");
     expect(prompt).toContain("acme.zendesk.com");
   });
 

@@ -120,6 +120,7 @@ export abstract class WikiWebsiteCrawlRepo {
     },
   ): Promise<void>;
   abstract countSynthesizedPages(since: Date): Promise<number>;
+  abstract listSynthesizedPageTitles(since: Date, limit: number): Promise<string[]>;
 }
 
 export type WikiCrawlSynthesisStarter = (crawl: WikiCrawlRecord) => Promise<WikiCrawlSynthesisResult>;

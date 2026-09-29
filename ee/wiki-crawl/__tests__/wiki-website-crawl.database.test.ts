@@ -748,6 +748,19 @@ describeDatabase("Wiki website crawl on PostgreSQL", () => {
       { title: "Operating Guide", kind: "guide" },
       { title: "Refund procedure", kind: "procedure" },
     ]);
+    const since = await runWithTenant(user, async () => {
+      const crawl = await new PrismaWikiWebsiteCrawlRepo().getCrawl(crawlId);
+      if (!crawl) throw new Error("Missing test crawl");
+      return crawl.startedAt;
+    });
+    expect(
+      await runWithTenant(user, () => new PrismaWikiWebsiteCrawlRepo().listSynthesizedPageTitles(since, 16)),
+    ).toEqual(expect.arrayContaining(["Operating Guide", "Refund procedure"]));
+    expect(
+      await runWithTenant({ ...user, companyId: randomUUID() }, () =>
+        new PrismaWikiWebsiteCrawlRepo().listSynthesizedPageTitles(since, 16),
+      ),
+    ).toEqual([]);
     const guide = saved.rows[0].markdown as string;
     expect(guide).toMatch(/^- Refunds -> Refund procedure$/mu);
     expect(guide).toMatch(/^- Other -> Support$/mu);
@@ -761,8 +774,22 @@ describeDatabase("Wiki website crawl on PostgreSQL", () => {
       sections: [{ heading: "A", content: "B" }],
       sourceIds: [refund.id],
     }));
-    for (let round = 0; round < 3; round += 1)
-      await create(tooMany.map((page) => ({ ...page, title: `${page.title}.${round}` })));
+    for (let round = 0; round < 3; round += 1) {
+      const result = await create(tooMany.map((page) => ({ ...page, title: `${page.title}.${round}` })));
+      if (round === 1) {
+        expect(result).toMatchObject({
+          structuredContent: {
+            createdPageTitles: expect.arrayContaining([
+              "Operating Guide",
+              "Refund procedure",
+              "Summary 0.0",
+              "Summary 0.1",
+            ]),
+            remainingPageSlots: 4,
+          },
+        });
+      }
+    }
 
     expect(JSON.stringify(await create(tooMany))).toContain(`at most ${WIKI_SYNTHESIS_MAX_PAGES}`);
   }, 30_000);

@@ -6,6 +6,7 @@ import { WIKI_TITLE_MAX_LENGTH, WIKI_WHEN_TO_USE_MAX_LENGTH } from "@/features/w
 import {
   encodeToToon,
   formatDatesInResponse,
+  mcpMessageFailure,
   mcpValidationFailure,
   runInteractor,
   toonResult,
@@ -21,6 +22,14 @@ export const WIKI_SYNTHESIS_MAX_PAGES = 16;
 import { sourceFullyRead, wikiSourceCoverage, WIKI_SOURCE_RESULT_MAX_CHARS } from "./wiki-source-coverage";
 
 const SOURCE_CHUNK_CHARACTERS = 5_500;
+
+function sourceFailure(payload: { error: string } & Record<string, unknown>) {
+  return {
+    text: encodeToToon(payload),
+    structuredContent: payload,
+    failure: mcpMessageFailure(payload.error).failure,
+  };
+}
 
 const ReadWebsiteSourceSchema = z.object({
   action: z
@@ -58,6 +67,7 @@ export function readWebsiteSourceTool(crawlId: string) {
           url: source.url,
           category: source.category,
           title: source.title,
+          headings: [...source.text.matchAll(/^#{1,4}\s+(.+)$/gm)].slice(0, 12).map((match) => match[1].slice(0, 120)),
           chars: source.text.length,
           imported: coverage.imported.has(source.id),
           read: coverage.readHashes.has(source.contentHash),
@@ -68,6 +78,7 @@ export function readWebsiteSourceTool(crawlId: string) {
           items,
           nextOffset: start + items.length < coverage.sources.length ? start + items.length : null,
           remainingSources: coverage.pending.length,
+          importedSources: coverage.imported.size,
         });
       }
       const selected =
@@ -75,7 +86,7 @@ export function readWebsiteSourceTool(crawlId: string) {
           ? coverage.pending.slice(0, 4)
           : coverage.sources.filter(({ id }) => id === parsed.data.id);
       if (parsed.data.action === "get" && selected.length === 0)
-        return toonResult({ error: "Unknown source id. Call list first." });
+        return sourceFailure({ error: "Unknown source id. Call list first." });
       const items = selected.map((source) => {
         const offset = parsed.data.action === "get" ? (parsed.data.offset ?? source.readOffset) : source.readOffset;
         if (offset > source.readOffset || offset > source.text.length) return null;
@@ -91,7 +102,7 @@ export function readWebsiteSourceTool(crawlId: string) {
         };
       });
       if (items.some((item) => item === null)) {
-        return toonResult({
+        return sourceFailure({
           error: "Read sequentially without skipping text. Use next or the stored nextOffset from list.",
         });
       }
@@ -102,7 +113,7 @@ export function readWebsiteSourceTool(crawlId: string) {
           undefined,
         );
         if (!last || last.text.length < 2)
-          return toonResult({ error: "Source chunk cannot fit safely. Nothing was marked read." });
+          return sourceFailure({ error: "Source chunk cannot fit safely. Nothing was marked read." });
         last.text = last.text.slice(0, Math.floor(last.text.length / 2));
         last.nextOffset = last.offset + last.text.length;
       }
@@ -113,7 +124,11 @@ export function readWebsiteSourceTool(crawlId: string) {
           .map(({ id, offset, text }) => ({ id, offset, end: offset + text.length })),
       );
       const after = await wikiSourceCoverage(repo, crawlId);
-      return toonResult({ items: chunks, remainingSources: after.pending.length });
+      return toonResult({
+        items: chunks,
+        remainingSources: after.pending.length,
+        importedSources: after.imported.size,
+      });
     },
   };
 }
@@ -160,13 +175,13 @@ export function createWikiFromCrawlTool(_locale: string | undefined, crawlId: st
       const repo = getWikiWebsiteCrawlRepo();
       const crawl = await repo.getCrawl(crawlId);
       if (!crawl) {
-        return toonResult({
+        return sourceFailure({
           error: "This website import is no longer available. Nothing was changed.",
         });
       }
       const targetLocale = appLocaleOrDefault(crawl.locale);
       if (crawl.mode === "extend" && parsed.data.pages.some((page) => page.kind !== "knowledge")) {
-        return toonResult({
+        return sourceFailure({
           error: "A help-centre extension creates knowledge pages only; existing guides and procedures stay unchanged.",
         });
       }
@@ -181,26 +196,28 @@ export function createWikiFromCrawlTool(_locale: string | undefined, crawlId: st
         ].some((body) => wikiLanguageConflicts(body, targetLocale));
       });
       if (wrongLanguage) {
-        return toonResult({
+        return sourceFailure({
           error: `Write every page in ${targetLocale}. Translate the source content into that language. Nothing was changed.`,
         });
       }
       const created = await repo.countSynthesizedPages(crawl.startedAt);
+      const createdPageTitles = await repo.listSynthesizedPageTitles(crawl.startedAt, WIKI_SYNTHESIS_MAX_PAGES);
       if (created + parsed.data.pages.length > WIKI_SYNTHESIS_MAX_PAGES) {
-        return toonResult({
+        return sourceFailure({
           error: `This import may create at most ${WIKI_SYNTHESIS_MAX_PAGES} summary pages; ${created} exist. Nothing was changed.`,
+          createdPageTitles,
         });
       }
       const coverage = await wikiSourceCoverage(repo, crawlId);
       const sources = new Map(coverage.sources.map((source) => [source.id, source]));
       const unknown = parsed.data.pages.flatMap(({ sourceIds }) => sourceIds).filter((id) => !sources.has(id));
       if (unknown.length > 0) {
-        return toonResult({
+        return sourceFailure({
           error: "Cite only ids returned by read_website_source. Nothing was changed.",
         });
       }
       if (coverage.pending.length > 0) {
-        return toonResult({
+        return sourceFailure({
           error:
             "Read all remaining stored evidence with read_website_source action=next before creating pages. Nothing was changed.",
           remainingSources: coverage.pending.length,
@@ -215,7 +232,7 @@ export function createWikiFromCrawlTool(_locale: string | undefined, crawlId: st
         ),
       ];
       if (unread.length > 0) {
-        return toonResult({
+        return sourceFailure({
           error: `Read each cited source completely with read_website_source before citing it; unread: ${unread.join(", ")}. Nothing was changed.`,
         });
       }
@@ -238,6 +255,8 @@ export function createWikiFromCrawlTool(_locale: string | undefined, crawlId: st
       return runInteractor(getCreateWikiPagesInteractor().invoke({ requireEmpty: false, pages }), (createdPages) =>
         toonResult({
           items: formatDatesInResponse(createdPages.map(wikiPageSummary)),
+          createdPageTitles: [...createdPageTitles, ...createdPages.map(({ title }) => title)],
+          remainingPageSlots: Math.max(0, WIKI_SYNTHESIS_MAX_PAGES - created - createdPages.length),
         }),
       );
     },

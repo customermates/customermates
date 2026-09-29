@@ -479,6 +479,16 @@ export class PrismaWikiWebsiteCrawlRepo
     });
   }
 
+  async listSynthesizedPageTitles(since: Date, limit: number) {
+    const pages = await this.prisma.wikiPage.findMany({
+      where: { companyId: this.companyId, createdAt: { gte: since }, sourceUrl: null },
+      orderBy: [{ createdAt: "asc" }, { id: "asc" }],
+      take: limit,
+      select: { title: true },
+    });
+    return pages.map(({ title }) => title);
+  }
+
   async markImported(
     pageId: string,
     source: {
