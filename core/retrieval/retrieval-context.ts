@@ -8,7 +8,9 @@ export type RankableSection = {
   titleOnly: boolean;
 };
 
-export type SectionRanker = (query: string, candidates: readonly RankableSection[]) => Promise<number[] | null>;
+export type SectionRanking = { order: number[]; abstained: boolean };
+
+export type SectionRanker = (query: string, candidates: readonly RankableSection[]) => Promise<SectionRanking | null>;
 
 export type SectionRankerFactory = (corpus: RetrievalCorpus) => SectionRanker | undefined;
 

@@ -5,6 +5,7 @@ import type {
   RetrievalRerankOutcome,
   RetrievalTiming,
   SectionRanker,
+  SectionRanking,
 } from "./retrieval-context";
 
 import { recordRetrievalTiming } from "./retrieval-context";
@@ -12,6 +13,9 @@ import { recordRetrievalTiming } from "./retrieval-context";
 export const RETRIEVAL_RRF_K = 60;
 export const RETRIEVAL_EMBEDDING_WAIT_MS = 1_100;
 export const RETRIEVAL_SEMANTIC_MIN_SIMILARITY = 0.5;
+
+export type RelevanceFloor = { coverage: number; similarity: number };
+export const RETRIEVAL_RELEVANCE_FLOOR: RelevanceFloor = { coverage: 0.9, similarity: 0.6 };
 
 export type QueryVector = { vector: number[]; model: string };
 export type QueryEmbedding = (query: string, wait?: QueryEmbeddingWait) => Promise<QueryVector | null>;
@@ -35,7 +39,26 @@ export type FusedRetrieval<Key extends string> = {
   fullText: Key[];
   semantic: Key[] | null;
   vector: QueryVector | null;
+  relevance: RelevanceVerdict;
 };
+
+export type RelevanceVerdict = "kept" | "dropped" | "rerank";
+
+export type RetrievalEvidence = { pinned: number; coverage: number; similarity: number | null };
+
+export function relevanceVerdict(
+  evidence: RetrievalEvidence,
+  floor: RelevanceFloor | null = RETRIEVAL_RELEVANCE_FLOOR,
+): RelevanceVerdict {
+  if (!floor || evidence.similarity === null || evidence.pinned > 0 || evidence.coverage >= floor.coverage)
+    return "kept";
+  return evidence.similarity < floor.similarity ? "dropped" : "rerank";
+}
+
+export function keepsResults(relevance: RelevanceVerdict, ranking: SectionRanking | null): boolean {
+  if (relevance === "dropped") return false;
+  return relevance === "kept" || ranking?.abstained !== true;
+}
 
 const elapsed = (started: number) => Math.max(0, Math.round(performance.now() - started));
 
@@ -119,10 +142,11 @@ export class RetrievalStopwatch {
 export async function fuseFullTextAndSemantic<Key extends string>(args: {
   query: string;
   stopwatch: RetrievalStopwatch;
-  fullText: () => Promise<{ keys: Key[]; pinned?: Key[] }>;
+  fullText: () => Promise<{ keys: Key[]; pinned?: Key[]; coverage: number }>;
   embed: QueryEmbedding | null;
-  semantic: (vector: QueryVector) => Promise<Key[] | null>;
+  semantic: (vector: QueryVector) => Promise<{ keys: Key[]; similarity: number } | null>;
   embeddingWaitMs?: number;
+  relevanceFloor?: RelevanceFloor | null;
 }): Promise<FusedRetrieval<Key>> {
   const { stopwatch, embed: vectorFor } = args;
   const wait = new QueryEmbeddingWait();
@@ -144,9 +168,23 @@ export async function fuseFullTextAndSemantic<Key extends string>(args: {
   if (vector && !semantic) stopwatch.embedding = "unavailable";
   const ranked = fuseRankings({
     pinned: fullText.pinned,
-    lists: semantic ? [fullText.keys, semantic] : [fullText.keys],
+    lists: semantic ? [fullText.keys, semantic.keys] : [fullText.keys],
   });
-  return { ranked, fullText: fullText.keys, semantic, vector: semantic ? vector : null };
+  const relevance = relevanceVerdict(
+    {
+      pinned: fullText.pinned?.length ?? 0,
+      coverage: fullText.coverage,
+      similarity: semantic ? semantic.similarity : null,
+    },
+    args.relevanceFloor,
+  );
+  return {
+    ranked: relevance === "dropped" ? [] : ranked,
+    fullText: fullText.keys,
+    semantic: semantic?.keys ?? null,
+    vector: semantic ? vector : null,
+    relevance,
+  };
 }
 
 export async function rerankSections(args: {
@@ -154,7 +192,7 @@ export async function rerankSections(args: {
   stopwatch: RetrievalStopwatch;
   candidates: readonly RankableSection[];
   ranker: SectionRanker | undefined;
-}): Promise<number[] | null> {
+}): Promise<SectionRanking | null> {
   const { stopwatch } = args;
   if (!args.ranker) {
     stopwatch.rerank = "unavailable";
@@ -163,11 +201,11 @@ export async function rerankSections(args: {
   if (args.candidates.length < 2) return null;
   const ranker = args.ranker;
   try {
-    const order = await stopwatch.time("rerankMs", () => ranker(args.query, args.candidates));
+    const ranking = await stopwatch.time("rerankMs", () => ranker(args.query, args.candidates));
     const known = new Set(args.candidates.map(({ id }) => id));
-    const chosen = [...new Set(order ?? [])].filter((id) => known.has(id));
+    const chosen = [...new Set(ranking?.order ?? [])].filter((id) => known.has(id));
     stopwatch.rerank = chosen.length > 0 ? "used" : "failed";
-    return chosen.length > 0 ? chosen : null;
+    return chosen.length > 0 ? { order: chosen, abstained: ranking?.abstained === true } : null;
   } catch {
     stopwatch.rerank = "failed";
     return null;

@@ -31,6 +31,7 @@ import { getAgentAiTools, type AgentToolDeps } from "../agent-tools";
 import { collectClassifierCharges } from "../classifier/metered";
 import { JEV_DEADLINE_MS, JEV_EVALUATE_URL } from "../classifier/jev-runner";
 import {
+  DOCS_RERANK_NONE,
   DOCS_RERANK_USER_MESSAGE_CHARS,
   docsRankOrder,
   docsRankSpec,
@@ -222,10 +223,32 @@ describe("docs re-rank candidates and spec", () => {
       latencyMs: 1,
     });
 
-    expect(docsRankOrder(result("s9", { s4: 0.1, s7: 0.2, s9: 0.3, s12: 0.25 }), candidates)).toEqual([9, 12, 7]);
-    expect(docsRankOrder(result("s12", null), candidates)).toEqual([12, 4, 7]);
+    expect(docsRankOrder(result("s9", { s4: 0.1, s7: 0.2, s9: 0.3, s12: 0.25 }), candidates)).toEqual({
+      order: [9, 12, 7],
+      abstained: false,
+    });
+    expect(docsRankOrder(result("s12", null), candidates)).toEqual({ order: [12, 4, 7], abstained: false });
     expect(docsRankOrder(result("s99", null), candidates)).toBeNull();
     expect(docsRankOrder(null, candidates)).toBeNull();
+  });
+
+  it("offers a none option and reports an abstention with the most probable sections still ordered", () => {
+    const candidates = [{ id: 4 }, { id: 7 }, { id: 9 }];
+    const result = (probabilities: Record<string, number> | null) => ({
+      model: "jev" as const,
+      answers: { best: { type: "choice" as const, choice: DOCS_RERANK_NONE, probabilities, confidence: null } },
+      costMicrocents: 1,
+      latencyMs: 1,
+    });
+    const [question] = docsRankSpec(RANKABLE).questions;
+
+    expect(Object.keys(question.options).at(-1)).toBe(DOCS_RERANK_NONE);
+    expect(question.instruction).toContain("choose none only if no section answers it at all");
+    expect(docsRankOrder(result({ s4: 0.05, s7: 0.15, s9: 0.1, none: 0.7 }), candidates)).toEqual({
+      order: [7, 9, 4],
+      abstained: true,
+    });
+    expect(docsRankOrder(result(null), candidates)).toEqual({ order: [4, 7, 9], abstained: true });
   });
 });
 
@@ -244,7 +267,7 @@ describe("hosted docs re-rank", () => {
 
     expect(fetchMock).toHaveBeenCalledWith(JEV_EVALUATE_URL, expect.objectContaining({ signal: expect.anything() }));
     expect(sent.state).toEqual({ latest_user_message: USER_MESSAGE, agent_query: QUERY });
-    expect(value).toEqual([3, 1, 2]);
+    expect(value).toEqual({ order: [3, 1, 2], abstained: false });
     expect(charges).toEqual([
       { use: "docs_rerank", model: "jev", costMicrocents: 2000, measured: true, answered: true },
     ]);
@@ -290,7 +313,7 @@ describe("section re-rank for documentation and the Workspace Wiki", () => {
       questions: { best: { instructions: string } };
     };
 
-    expect(value).toEqual([1, 0]);
+    expect(value).toEqual({ order: [1, 0], abstained: false });
     expect(sent.questions.best.instructions).toContain("searched the Workspace Wiki");
     expect(docsRankSpec(candidates, "wiki").id).toBe("wiki-rank");
     expect(docsRankSpec(candidates).id).toBe("docs-rank");

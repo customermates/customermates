@@ -7,9 +7,12 @@ import { collectRetrievalTimings, currentSectionRanker, runWithSectionRanking } 
 import {
   fuseFullTextAndSemantic,
   fuseRankings,
+  keepsResults,
   QueryEmbeddingWait,
+  relevanceVerdict,
   rerankSections,
   RETRIEVAL_EMBEDDING_WAIT_MS,
+  RETRIEVAL_RELEVANCE_FLOOR,
   RetrievalStopwatch,
 } from "../retrieval-pipeline";
 
@@ -61,10 +64,10 @@ describe("full-text query units", () => {
 describe("full-text and semantic retrieval", () => {
   it("starts the full-text search and the query embedding together and fuses both", async () => {
     const started: string[] = [];
-    let releaseFullText: (value: { keys: string[] }) => void = () => undefined;
+    let releaseFullText: (value: { keys: string[]; coverage: number }) => void = () => undefined;
     const fullText = vi.fn(() => {
       started.push("fullText");
-      return new Promise<{ keys: string[] }>((resolve) => {
+      return new Promise<{ keys: string[]; coverage: number }>((resolve) => {
         releaseFullText = resolve;
       });
     });
@@ -72,13 +75,13 @@ describe("full-text and semantic retrieval", () => {
       started.push("embed");
       return Promise.resolve({ vector: [1, 0], model: "test" });
     });
-    const semantic = vi.fn(() => Promise.resolve(["b", "c"]));
+    const semantic = vi.fn(() => Promise.resolve({ keys: ["b", "c"], similarity: 0.8 }));
     const { value, timings } = await collectRetrievalTimings(async () => {
       const stopwatch = new RetrievalStopwatch("docs");
       const pending = fuseFullTextAndSemantic({ query: "q", stopwatch, fullText, embed, semantic });
       await Promise.resolve();
       expect(started.toSorted()).toEqual(["embed", "fullText"]);
-      releaseFullText({ keys: ["a", "b"] });
+      releaseFullText({ keys: ["a", "b"], coverage: 1 });
       const fused = await pending;
       stopwatch.finish();
       return fused;
@@ -91,8 +94,8 @@ describe("full-text and semantic retrieval", () => {
 
   it("falls back to full-text order when the embedding is slow, fails, or the index is unavailable", async () => {
     vi.useFakeTimers();
-    const fullText = () => Promise.resolve({ keys: ["a", "b"] });
-    const semantic = vi.fn(() => Promise.resolve(["z"]));
+    const fullText = () => Promise.resolve({ keys: ["a", "b"], coverage: 1 });
+    const semantic = vi.fn(() => Promise.resolve({ keys: ["z"], similarity: 0.8 }));
     const slow = new RetrievalStopwatch("wiki");
     const slowRun = fuseFullTextAndSemantic({
       query: "q",
@@ -141,8 +144,8 @@ describe("full-text and semantic retrieval", () => {
 describe("query embedding wait", () => {
   it("abandons an embedding still in flight at the deadline and waits for one the embedder already claimed", async () => {
     vi.useFakeTimers();
-    const fullText = () => Promise.resolve({ keys: ["a", "b"] });
-    const semantic = vi.fn(() => Promise.resolve(["z"]));
+    const fullText = () => Promise.resolve({ keys: ["a", "b"], coverage: 1 });
+    const semantic = vi.fn(() => Promise.resolve({ keys: ["z"], similarity: 0.8 }));
     const claims: boolean[] = [];
     const embedAfter = (claimAt: number, resolveAt: number) => (_query: string, wait?: QueryEmbeddingWait) =>
       new Promise<{ vector: number[]; model: string }>((resolve) => {
@@ -180,8 +183,8 @@ describe("query embedding wait", () => {
 
   it("waits 1,100 ms for the query embedding by default", async () => {
     vi.useFakeTimers();
-    const fullText = () => Promise.resolve({ keys: ["a", "b"] });
-    const semantic = () => Promise.resolve(["z"]);
+    const fullText = () => Promise.resolve({ keys: ["a", "b"], coverage: 1 });
+    const semantic = () => Promise.resolve({ keys: ["z"], similarity: 0.8 });
     const arriving = (ms: number) => () =>
       new Promise<{ vector: number[]; model: string }>((resolve) => {
         setTimeout(() => resolve({ vector: [1], model: "m" }), ms);
@@ -226,22 +229,80 @@ describe("query embedding wait", () => {
   });
 });
 
+describe("relevance floor", () => {
+  const evidence = (coverage: number, similarity: number | null, pinned = 0) => ({ pinned, coverage, similarity });
+
+  it("judges relevance only when the query embedding arrived", () => {
+    expect(RETRIEVAL_RELEVANCE_FLOOR).toEqual({ coverage: 0.9, similarity: 0.6 });
+    expect(relevanceVerdict(evidence(0.1, null))).toBe("kept");
+    expect(relevanceVerdict(evidence(0.1, 0.55))).toBe("dropped");
+    expect(relevanceVerdict(evidence(0.1, 0.55), null)).toBe("kept");
+  });
+
+  it("keeps a query whose words all match, an identifier match, or a close meaning, and lets the re-rank decide the last", () => {
+    expect(relevanceVerdict(evidence(0.95, 0.4))).toBe("kept");
+    expect(relevanceVerdict(evidence(0.1, 0.4, 1))).toBe("kept");
+    expect(relevanceVerdict(evidence(0.5, 0.65))).toBe("rerank");
+
+    expect(keepsResults("kept", { order: [1], abstained: true })).toBe(true);
+    expect(keepsResults("dropped", null)).toBe(false);
+    expect(keepsResults("rerank", { order: [1], abstained: true })).toBe(false);
+    expect(keepsResults("rerank", { order: [1], abstained: false })).toBe(true);
+    expect(keepsResults("rerank", null)).toBe(true);
+  });
+
+  it("returns no ranked keys below the floor", async () => {
+    const run = (coverage: number, similarity: number, pinned: string[] = []) =>
+      fuseFullTextAndSemantic({
+        query: "q",
+        stopwatch: new RetrievalStopwatch("wiki"),
+        fullText: () => Promise.resolve({ keys: ["a"], pinned, coverage }),
+        embed: () => Promise.resolve({ vector: [1], model: "m" }),
+        semantic: () => Promise.resolve({ keys: ["b"], similarity }),
+      });
+
+    await expect(run(0.2, 0.55)).resolves.toMatchObject({ ranked: [], relevance: "dropped" });
+    await expect(run(0.2, 0.55, ["p"])).resolves.toMatchObject({ ranked: ["p", "a", "b"], relevance: "kept" });
+    await expect(run(0.2, 0.7)).resolves.toMatchObject({ ranked: ["a", "b"], relevance: "rerank" });
+  });
+});
+
 describe("section re-rank", () => {
   it("returns only offered ids and falls back on a missing ranker, a failure, or an unknown choice", async () => {
     const candidates = [candidate(1), candidate(2), candidate(3)];
     const stopwatch = new RetrievalStopwatch("wiki");
 
     expect(
-      await rerankSections({ query: "q", stopwatch, candidates, ranker: () => Promise.resolve([3, 99, 3, 1]) }),
-    ).toEqual([3, 1]);
+      await rerankSections({
+        query: "q",
+        stopwatch,
+        candidates,
+        ranker: () => Promise.resolve({ order: [3, 99, 3, 1], abstained: false }),
+      }),
+    ).toEqual({ order: [3, 1], abstained: false });
     expect(stopwatch.rerank).toBe("used");
+    expect(
+      await rerankSections({
+        query: "q",
+        stopwatch,
+        candidates,
+        ranker: () => Promise.resolve({ order: [2], abstained: true }),
+      }),
+    ).toEqual({ order: [2], abstained: true });
     expect(await rerankSections({ query: "q", stopwatch, candidates, ranker: undefined })).toBeNull();
     expect(stopwatch.rerank).toBe("unavailable");
     expect(
       await rerankSections({ query: "q", stopwatch, candidates, ranker: () => Promise.reject(new Error("504")) }),
     ).toBeNull();
     expect(stopwatch.rerank).toBe("failed");
-    expect(await rerankSections({ query: "q", stopwatch, candidates, ranker: () => Promise.resolve([42]) })).toBeNull();
+    expect(
+      await rerankSections({
+        query: "q",
+        stopwatch,
+        candidates,
+        ranker: () => Promise.resolve({ order: [42], abstained: false }),
+      }),
+    ).toBeNull();
     expect(stopwatch.rerank).toBe("failed");
   });
 

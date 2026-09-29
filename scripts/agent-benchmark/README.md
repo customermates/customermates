@@ -80,7 +80,17 @@ Pre-registered before any paid call. The question is which retrieval stages each
 - **Secondary metrics:** page R@1, R@5 and MRR; per-category (Wiki: lexical, paraphrase, cross-language, typo, multi-hop, no-match; docs: D, DH, DE) and per-language breakdowns; latency p50 and p95.
 - **Embedding measured twice:** each query is embedded once and the vector reused. E-unbounded waits for the vector. E-450 uses the shipped 450 ms wait: a vector whose measured call latency exceeded 450 ms counts as unavailable, and that query runs as if the embedding timed out.
 - **Decision rule:** per corpus, separately for E-450 (shipped latency) and for E-unbounded, choose the cheapest combination, in the cost order FTS < FTS+E < FTS+J < FTS+E+J, whose primary metric is not significantly worse than the best combination's, by an exact two-sided McNemar test on paired queries at p < 0.05. If the E-unbounded decision differs from the E-450 decision, both are reported; the shipped decision uses E-450 unless the owner changes the embedding wait.
-- **Amendment (2026-09-29, after the result):** `reports/2026-09-29-retrieval-stage-selection-5655ec06/report.md` showed that the embedding helps only when its vector arrives: at 450 ms only 29 % of query vectors arrived from the measuring machine (p95 about 1,028 ms), and with the vector docs final-section hit rose from 75.5 % to 98.2 % and the Wiki's from 41.3 % to 85.0 %. The owner therefore raised the shared query-embedding wait (`RETRIEVAL_EMBEDDING_WAIT_MS`) from 450 ms to 1,100 ms for both corpora, and both corpora ship FTS+E+J. The E-450 figures above stay as recorded.
+- **Amendment (2026-09-29, after the result):** `reports/2026-09-29-retrieval-stage-selection-5655ec06/report.md` showed that the embedding helps only when its vector arrives: at 450 ms only 29 % of query vectors arrived from the measuring machine (p95 about 1,028 ms), and with the vector docs final-section hit rose from 75.5 % to 98.2 % and the Wiki's from 41.3 % to 85.0 %. The owner therefore raised the shared query-embedding wait (`RETRIEVAL_EMBEDDING_WAIT_MS`) from 450 ms to 1,100 ms for both corpora, and both corpora ship FTS+E+J. `retrieval-eval.ts` now names the shipped-wait mode `E-wait` and reads the wait from that constant, so a rerun measures the current wait; the E-450 figures above stay as recorded.
+
+## Relevance floor
+
+A query with no real answer should return no results. The floor applies only when the query vector arrived, so full-text-only search (self-hosted, no credits, the demo, a late or failed embedding) is unchanged:
+
+- **Kept:** an identifier match, or a full-text match covering at least 90 % of the query's IDF weight (`coverage`, computed over every query unit, including units no page contains).
+- **Dropped:** otherwise, when the closest section's cosine similarity is below 0.60. The re-rank is not called.
+- **Re-rank decides:** otherwise the Jev spec offers a `none` option ("choose none only if no section answers it at all"); choosing it empties the result. When Jev fails or times out, the results stay.
+
+Thresholds (`RETRIEVAL_RELEVANCE_FLOOR`) were tuned with `retrieval-floor-tuning.ts` on non-blind data only: the live docs cases D1 to D10 and DH, ten docs no-match questions (`DOCS_NO_MATCH_EVAL`), the Wiki quality corpus and queries in `retrieval-eval-cases.ts`, and ten more Wiki no-match questions (`WIKI_NO_MATCH_TUNING`). DE is excluded because its provenance forbids tuning on it. The blind Wiki benchmark and DE were run once afterwards, with the floor and without it, as validation (`retrieval-eval.ts --shipped`). A floor that costs more than 2 points of answerable final-section hit on either corpus is to be loosened on non-blind data, not on the validation sets.
 
 ## Findings
 
@@ -131,16 +141,20 @@ file, each full-text only against a floor. Set `DOCS_RETRIEVAL_EVAL_REPORT` or `
 write the metrics.
 
 Those tests use a fake embedder and no re-rank. `retrieval-eval.ts` runs the retrieval stage selection above: every
-stage combination (FTS, FTS+E, FTS+J, FTS+E+J) under E-450 and E-unbounded, with the real query embedding and the real
-Jev re-rank, for the 110 docs labels and for the blind Wiki benchmark, which it seeds into a throwaway workspace, embeds
-and deletes again. Each query is embedded once and the vector reused; its measured call latency decides E-450, and a Jev
-call is cached per query and candidate set. It reports final-section hit@1, page R@1, R@5 and MRR, per-set, per-category
-and per-language breakdowns, paired exact McNemar against the best combination with the pre-registered decision, and a
-modelled latency per call (local pipeline time, plus the embedding wait beyond full-text, plus the measured Jev call).
-Run `yarn docs:index` first, then
+stage combination (FTS, FTS+E, FTS+J, FTS+E+J) under E-wait (the shipped `RETRIEVAL_EMBEDDING_WAIT_MS`) and E-unbounded,
+with the relevance floor, the real query embedding and the real Jev re-rank, for the 110 docs labels plus the 10 docs
+no-match questions and for the blind Wiki benchmark, which it seeds into a throwaway workspace, embeds and deletes again.
+Each query is embedded once and the vector reused; its measured call latency decides E-wait, and a Jev call is cached per
+query and candidate set. It reports final-section hit@1, page R@1, R@5 and MRR, per-set, per-category and per-language
+breakdowns, paired exact McNemar against the best combination with the pre-registered decision, and a modelled latency
+per call (local pipeline time, plus the embedding wait beyond full-text, plus the measured Jev call). `--shipped` runs
+only the shipped FTS+E+J under E-wait, with and without the relevance floor, and reports answerable final-section hit,
+no-match empty rate and the paired floor cost. Run `yarn docs:index` first, then
 `RUN_AGENT_BENCHMARK=true yarn tsx --import ./scripts/lib/register-server-only-shim.mjs scripts/agent-benchmark/retrieval-eval.ts --cap 0.5`
 (`--only docs` or `--only wiki` to run one corpus). It writes JSON and Markdown under `.runs/retrieval-eval/`; compare
-two commits by running it on each.
+two commits by running it on each. `retrieval-floor-tuning.ts` (same command, `--cap 0.3`) records the floor's signals on
+the non-blind tuning sets with the floor off and prints the threshold grid; `--analyse <signals.json>` reprints the grid
+without paid calls.
 
 For a live comparison, `retrieval-ab.ts --campaign <id> --control retrieval-baseline --candidate retrieval-candidate`
 grades each DH and DE episode with the stage-4 gold-fact judge (reserved against the campaign cap, verdicts cached in the

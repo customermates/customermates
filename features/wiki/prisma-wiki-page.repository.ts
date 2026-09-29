@@ -176,17 +176,19 @@ export class PrismaWikiPageRepo
     ]);
     const pinnedIds = [...new Set(pinned.map(({ id }) => id))];
     const corrections = await this.typoCorrections(typoCandidates(ranked.units, ranked.matched));
-    if (corrections.size === 0) return { keys: ranked.ids, pinned: pinnedIds };
+    if (corrections.size === 0) return { keys: ranked.ids, pinned: pinnedIds, coverage: ranked.coverage };
     const corrected = replaceQueryWords(text, corrections);
     const retried = await this.rankedFullTextPages(corrected, limit);
-    return { keys: retried.ids, pinned: pinnedIds, corrected };
+    return { keys: retried.ids, pinned: pinnedIds, coverage: retried.coverage, corrected };
   }
 
   private async rankedFullTextPages(text: string, limit: number) {
     const units = fullTextUnits(text);
-    if (units.length === 0) return { units, ids: [], matched: new Set<number>() };
+    if (units.length === 0) return { units, ids: [], coverage: 0, matched: new Set<number>() };
     const substrings = substringUnits(units);
-    const rows = await this.prisma.$queryRaw<Array<{ id: string; matched: number[] | null }>>(Prisma.sql`
+    const rows = await this.prisma.$queryRaw<
+      Array<{ id: string | null; coverage: number | null; matched: number[] | null }>
+    >(Prisma.sql`
       WITH ${this.fullTextUnitsCte(units)},
       "substringUnits" AS (
         SELECT * FROM unnest(${substrings.map(({ text: term }) => term)}::text[], ${substrings.map(({ ord }) => ord)}::int[])
@@ -206,14 +208,22 @@ export class PrismaWikiPageRepo
       ),
       frequency AS MATERIALIZED (SELECT h."ord", count(*)::float8 AS "pages" FROM hits h GROUP BY h."ord"),
       total AS (SELECT count(*)::float8 AS "pages" FROM "WikiPage" WHERE "companyId" = ${this.companyId}),
+      weights AS (
+        SELECT q."ord", ${idfWeight(Prisma.sql`t."pages"`, Prisma.sql`coalesce(f."pages", 0)`)} AS "weight"
+        FROM (SELECT u."ord" FROM units u UNION SELECT sub."ord" FROM "substringUnits" sub) AS q
+        CROSS JOIN total t LEFT JOIN frequency f ON f."ord" = q."ord"
+      ),
+      "queryWeight" AS (SELECT sum(w."weight") AS "weight" FROM weights w),
       scored AS (
         SELECT h."id", round(sum(${idfWeight(Prisma.sql`t."pages"`, Prisma.sql`f."pages"`)}
-          * CASE WHEN h."title" THEN ${WIKI_TITLE_WEIGHT}::float8 ELSE 1 END)::numeric, 9) AS "score"
-        FROM hits h JOIN frequency f ON f."ord" = h."ord" CROSS JOIN total t
+          * CASE WHEN h."title" THEN ${WIKI_TITLE_WEIGHT}::float8 ELSE 1 END)::numeric, 9) AS "score",
+          (sum(w."weight") / nullif(max(q."weight"), 0))::float8 AS "coverage"
+        FROM hits h JOIN frequency f ON f."ord" = h."ord" JOIN weights w ON w."ord" = h."ord"
+          CROSS JOIN total t CROSS JOIN "queryWeight" q
         GROUP BY h."id"
       ),
       ranked AS (
-        SELECT s."id", row_number() OVER (
+        SELECT s."id", s."coverage", row_number() OVER (
           ORDER BY (to_tsvector('simple', p."title") = to_tsvector('simple', ${text})) DESC, s."score" DESC,
             ts_rank_cd(p."searchVector", coalesce(a."query", ''::tsquery), 1) DESC, p."createdAt" ASC, p."id" ASC
         ) AS "rank"
@@ -221,14 +231,16 @@ export class PrismaWikiPageRepo
         JOIN "WikiPage" p ON p."id" = s."id" AND p."companyId" = ${this.companyId}
         CROSS JOIN "anyUnit" a
       )
-      SELECT r."id", r."rank", NULL::int[] AS "matched" FROM ranked r WHERE r."rank" <= ${limit}
+      SELECT r."id", r."rank", coalesce(r."coverage", 0) AS "coverage", NULL::int[] AS "matched"
+      FROM ranked r WHERE r."rank" <= ${limit}
       UNION ALL
-      SELECT NULL, NULL, array_agg(f."ord")::int[] FROM frequency f
+      SELECT NULL, NULL, NULL, array_agg(f."ord")::int[] FROM frequency f
       ORDER BY "rank" ASC NULLS LAST
     `);
     return {
       units,
       ids: rows.flatMap(({ id }) => (id === null ? [] : [id])),
+      coverage: Math.max(0, ...rows.map(({ coverage }) => coverage ?? 0)),
       matched: new Set(rows.find(({ id }) => id === null)?.matched ?? []),
     };
   }

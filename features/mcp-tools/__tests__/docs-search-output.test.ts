@@ -1,7 +1,7 @@
 import type { DocsCorpus } from "@/features/mcp-tools/docs-corpus";
-import type { RankableSection } from "@/core/retrieval/retrieval-context";
+import type { RankableSection, SectionRanker } from "@/core/retrieval/retrieval-context";
 import type { DocsSection } from "../docs-sections";
-import type { DocsChunkRepo, DocsSectionRow } from "../prisma-docs-chunk.repository";
+import type { DocsChunkRepo, DocsFullTextRow } from "../prisma-docs-chunk.repository";
 
 import { describe, expect, it, vi } from "vitest";
 
@@ -10,15 +10,16 @@ import { CONTENT_LOCALES } from "@/i18n/locale-registry";
 import { docsCorpusSections } from "../docs-manifest";
 import { DOCS_RERANK_EXCERPT_CHARS, unifiedDocsPageResult, unifiedDocsSearchResult } from "../docs.mcp-tools";
 
-const row = (section: DocsSection): DocsSectionRow => ({
+const row = (section: DocsSection): DocsFullTextRow => ({
   source: section.source,
   slug: section.slug,
   sectionOrder: section.order,
   chunkOrdinal: 0,
   anchor: section.anchor,
+  coverage: 1,
 });
 
-function repo(fullText: DocsSectionRow[]) {
+function repo(fullText: DocsFullTextRow[]) {
   return {
     ensureCorpus: vi.fn(() => Promise.resolve()),
     storedBuild: vi.fn((corpus: DocsCorpus) => Promise.resolve({ buildHash: corpus.buildHash, current: true })),
@@ -30,10 +31,7 @@ function repo(fullText: DocsSectionRow[]) {
   } satisfies DocsChunkRepo;
 }
 
-const deps = (
-  rows: DocsSectionRow[],
-  ranker?: (query: string, candidates: readonly RankableSection[]) => Promise<number[] | null>,
-) => ({
+const deps = (rows: DocsFullTextRow[], ranker?: SectionRanker) => ({
   repo: repo(rows),
   embed: null,
   ranker,
@@ -74,7 +72,10 @@ describe("search_docs model-visible output", () => {
   it("bounds the re-ranked excerpt to the full first section and short secondary sections", async () => {
     const chosen = firstPerPage(longest(docsCorpusSections("docs", "en"), 40)).slice(0, 3);
     const ranker = vi.fn((_query: string, candidates: readonly RankableSection[]) =>
-      Promise.resolve(chosen.map((section) => candidates.findIndex((candidate) => candidate.section === section))),
+      Promise.resolve({
+        order: chosen.map((section) => candidates.findIndex((candidate) => candidate.section === section)),
+        abstained: false,
+      }),
     );
     const result = await unifiedDocsSearchResult(
       { query: "long sections", locale: "en", source: "docs" },
@@ -142,7 +143,7 @@ describe("search_docs model-visible output", () => {
   it("finds REST operations with source=api, links the OpenAPI reference, and scopes the search to it", async () => {
     const operations = firstPerPage(docsCorpusSections("api", "en")).slice(0, 3);
     const chunks = repo(operations.map(row));
-    const ranker = vi.fn(() => Promise.resolve([0]));
+    const ranker = vi.fn(() => Promise.resolve({ order: [0], abstained: false }));
     const result = await unifiedDocsSearchResult(
       { query: "contact", locale: "en", source: "api" },
       { repo: chunks, embed: null, ranker },

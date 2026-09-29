@@ -21,19 +21,25 @@ export type DocsSectionRow = {
   chunkOrdinal: number;
   anchor: string;
 };
+export type DocsFullTextRow = DocsSectionRow & { coverage: number };
+export type DocsSemanticRow = DocsSectionRow & { similarity: number };
 export type DocsStoredBuild = { buildHash: string; current: boolean };
 export type DocsPendingChunk = { contentHash: string; label: string; body: string };
 
 export abstract class DocsChunkRepo {
   abstract ensureCorpus(corpus: DocsCorpus): Promise<void>;
   abstract storedBuild(corpus: DocsCorpus): Promise<DocsStoredBuild | null>;
-  abstract fullTextSections(scope: DocsScope, units: readonly FullTextUnit[], limit: number): Promise<DocsSectionRow[]>;
+  abstract fullTextSections(
+    scope: DocsScope,
+    units: readonly FullTextUnit[],
+    limit: number,
+  ): Promise<DocsFullTextRow[]>;
   abstract semanticSections(
     scope: DocsScope,
     vector: number[],
     model: string,
     limit: number,
-  ): Promise<DocsSectionRow[] | null>;
+  ): Promise<DocsSemanticRow[] | null>;
   abstract semanticIndexAvailable(): Promise<boolean>;
   abstract pendingEmbeddings(buildHash: string, model: string, limit: number): Promise<DocsPendingChunk[]>;
   abstract storeEmbeddings(model: string, rows: Array<{ contentHash: string; embedding: string }>): Promise<void>;
@@ -166,10 +172,10 @@ export class PrismaDocsChunkRepo extends DocsChunkRepo {
     );
   }
 
-  async fullTextSections(scope: DocsScope, units: readonly FullTextUnit[], limit: number): Promise<DocsSectionRow[]> {
+  async fullTextSections(scope: DocsScope, units: readonly FullTextUnit[], limit: number): Promise<DocsFullTextRow[]> {
     if (!units.some((unit) => !unit.substring)) return [];
     const config = textSearchConfigFor(scope.locale);
-    return prisma.$queryRaw<DocsSectionRow[]>(Prisma.sql`
+    return prisma.$queryRaw<DocsFullTextRow[]>(Prisma.sql`
       WITH ${fullTextUnitsCte({ units, configs: [config], stopConfig: config })},
       scoped AS MATERIALIZED (
         SELECT c."source", c."slug", c."sectionOrder", c."chunkOrdinal", c."anchor", c."searchVector"
@@ -186,14 +192,21 @@ export class PrismaDocsChunkRepo extends DocsChunkRepo {
         SELECT count(*)::float8 AS "sections"
         FROM (SELECT DISTINCT s."source", s."slug", s."sectionOrder" FROM scoped s) AS d
       ),
+      weights AS (
+        SELECT u."ord", ${idfWeight(Prisma.sql`t."sections"`, Prisma.sql`coalesce(f."sections", 0)`)} AS "weight"
+        FROM units u CROSS JOIN total t LEFT JOIN frequency f ON f."ord" = u."ord"
+      ),
+      "queryWeight" AS (SELECT sum(w."weight") AS "weight" FROM weights w),
       scored AS (
         SELECT h."source", h."slug", h."sectionOrder",
           round(
             sum(${idfWeight(Prisma.sql`t."sections"`, Prisma.sql`f."sections"`)}
               * CASE WHEN h."title" THEN ${DOCS_TITLE_WEIGHT}::float8 ELSE 1 END)::numeric,
             9
-          ) AS "score"
-        FROM hits h JOIN frequency f ON f."ord" = h."ord" CROSS JOIN total t
+          ) AS "score",
+          (sum(w."weight") / nullif(max(q."weight"), 0))::float8 AS "coverage"
+        FROM hits h JOIN frequency f ON f."ord" = h."ord" JOIN weights w ON w."ord" = h."ord"
+          CROSS JOIN total t CROSS JOIN "queryWeight" q
         GROUP BY h."source", h."slug", h."sectionOrder"
         ORDER BY "score" DESC, h."source", h."slug", h."sectionOrder"
         LIMIT ${limit * 2}
@@ -208,7 +221,7 @@ export class PrismaDocsChunkRepo extends DocsChunkRepo {
         ORDER BY s."source", s."slug", s."sectionOrder", ts_rank_cd(s."searchVector", a."query", 1) DESC,
           s."chunkOrdinal"
       )
-      SELECT r."source", r."slug", r."sectionOrder", c."chunkOrdinal", c."anchor"
+      SELECT r."source", r."slug", r."sectionOrder", c."chunkOrdinal", c."anchor", coalesce(r."coverage", 0) AS "coverage"
       FROM scored r
       JOIN chunks c ON c."source" = r."source" AND c."slug" = r."slug" AND c."sectionOrder" = r."sectionOrder"
       ORDER BY r."score" DESC, c."rank" DESC, r."source", r."slug", r."sectionOrder"
@@ -219,7 +232,7 @@ export class PrismaDocsChunkRepo extends DocsChunkRepo {
   async semanticSections(scope: DocsScope, vector: number[], model: string, limit: number) {
     if (!(await this.semanticIndexAvailable())) return null;
     const embedding = `[${vector.join(",")}]`;
-    return prisma.$queryRaw<DocsSectionRow[]>(Prisma.sql`
+    return prisma.$queryRaw<DocsSemanticRow[]>(Prisma.sql`
       WITH distances AS MATERIALIZED (
         SELECT c."source", c."slug", c."sectionOrder", c."chunkOrdinal", c."anchor",
           c."embedding" <=> ${embedding}::vector AS "distance"
@@ -232,7 +245,7 @@ export class PrismaDocsChunkRepo extends DocsChunkRepo {
         WHERE d."distance" <= ${1 - RETRIEVAL_SEMANTIC_MIN_SIMILARITY}
         ORDER BY d."source", d."slug", d."sectionOrder", d."distance", d."chunkOrdinal"
       )
-      SELECT b."source", b."slug", b."sectionOrder", b."chunkOrdinal", b."anchor"
+      SELECT b."source", b."slug", b."sectionOrder", b."chunkOrdinal", b."anchor", (1 - b."distance")::float8 AS "similarity"
       FROM best b
       ORDER BY b."distance", b."source", b."slug", b."sectionOrder"
       LIMIT ${limit}

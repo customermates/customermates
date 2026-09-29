@@ -1,11 +1,16 @@
 import type { RankableSection, SectionRanker } from "@/core/retrieval/retrieval-context";
-import type { QueryEmbedding } from "@/core/retrieval/retrieval-pipeline";
+import type { QueryEmbedding, RelevanceFloor, RelevanceVerdict } from "@/core/retrieval/retrieval-pipeline";
 import type { DocsSection } from "./docs-sections";
 import type { DocsChunkRepo, DocsScope, DocsSectionRow, DocsStoredBuild } from "./prisma-docs-chunk.repository";
 
 import { retrievalWindows } from "@/core/retrieval/retrieval-chunks";
 import { fullTextUnits, type FullTextUnit } from "@/core/retrieval/full-text-query";
-import { fuseFullTextAndSemantic, rerankSections, RetrievalStopwatch } from "@/core/retrieval/retrieval-pipeline";
+import {
+  fuseFullTextAndSemantic,
+  keepsResults,
+  rerankSections,
+  RetrievalStopwatch,
+} from "@/core/retrieval/retrieval-pipeline";
 import { fold, slugifyHeading } from "@/core/utils/search-text";
 
 import { docsCorpus, docsCorpusSection, docsSectionKey } from "./docs-corpus";
@@ -26,6 +31,7 @@ export type UnifiedDocsDeps = {
   embed: QueryEmbedding | null;
   ranker: SectionRanker | undefined;
   scheduleIndexing?: (buildHash: string, seeded: boolean) => Promise<void>;
+  relevanceFloor?: RelevanceFloor | null;
 };
 
 export type UnifiedDocsHit = { section: DocsSection; snippet: string };
@@ -113,9 +119,10 @@ async function fusedSections(
   deps: UnifiedDocsDeps,
   stopwatch: RetrievalStopwatch,
   limits: { fullText: number; semantic: number },
-): Promise<RankedSection[]> {
+): Promise<{ sections: RankedSection[]; relevance: RelevanceVerdict }> {
   const units = fullTextUnits(query);
-  if (!stored) return inMemorySections({ ...scope, buildHash: "" }, units, limits.fullText);
+  if (!stored)
+    return { sections: inMemorySections({ ...scope, buildHash: "" }, units, limits.fullText), relevance: "kept" };
   const storedScope = { ...scope, buildHash: stored.buildHash };
   const rows = new Map<string, DocsSectionRow>();
   const remember = (found: readonly DocsSectionRow[], replace: boolean) => {
@@ -125,20 +132,25 @@ async function fusedSections(
   const fused = await fuseFullTextAndSemantic({
     query,
     stopwatch,
-    fullText: async () => ({
-      keys: remember(await deps.repo.fullTextSections(storedScope, units, limits.fullText), false),
-    }),
+    fullText: async () => {
+      const found = await deps.repo.fullTextSections(storedScope, units, limits.fullText);
+      return { keys: remember(found, false), coverage: Math.max(0, ...found.map(({ coverage }) => coverage)) };
+    },
     embed: deps.embed,
     semantic: async ({ vector, model }) => {
       const found = await deps.repo.semanticSections(storedScope, vector, model, limits.semantic);
-      return found ? remember(found, true) : null;
+      return found
+        ? { keys: remember(found, true), similarity: Math.max(0, ...found.map(({ similarity }) => similarity)) }
+        : null;
     },
+    relevanceFloor: deps.relevanceFloor,
   });
-  return fused.ranked.flatMap((key) => {
+  const sections = fused.ranked.flatMap((key) => {
     const row = rows.get(key);
     const section = row ? rowSection(scope.locale as DocsLocale, row, stored) : undefined;
     return row && section ? [{ section, chunkOrdinal: row.chunkOrdinal }] : [];
   });
+  return { sections, relevance: fused.relevance };
 }
 
 async function storedBuild(deps: UnifiedDocsDeps): Promise<DocsStoredBuild | null> {
@@ -177,10 +189,15 @@ export async function unifiedDocsSearch(
   try {
     const stored = await storedBuild(deps);
     const sources: DocsSource[] = input.source === "all" ? ["docs", "api"] : [input.source];
-    const ranked = await fusedSections(input.query, { locale: input.locale, sources }, stored, deps, stopwatch, {
-      fullText: DOCS_FULL_TEXT_CANDIDATES,
-      semantic: DOCS_SEMANTIC_CANDIDATES,
-    });
+    const { sections: ranked, relevance } = await fusedSections(
+      input.query,
+      { locale: input.locale, sources },
+      stored,
+      deps,
+      stopwatch,
+      { fullText: DOCS_FULL_TEXT_CANDIDATES, semantic: DOCS_SEMANTIC_CANDIDATES },
+    );
+    if (relevance === "dropped") return { pages: [], total: 0, chosen: null };
     const pageBest = new Map<string, RankedSection>();
     for (const entry of ranked) {
       const page = `${entry.section.source}:${entry.section.slug}`;
@@ -190,8 +207,9 @@ export async function unifiedDocsSearch(
     let chosen: DocsSection[] | null = null;
     if (input.source === "docs") {
       const candidates = rerankCandidates(ranked, input.locale);
-      const order = await rerankSections({ query: input.query, stopwatch, candidates, ranker: deps.ranker });
-      const picked = (order ?? [])
+      const ranking = await rerankSections({ query: input.query, stopwatch, candidates, ranker: deps.ranker });
+      if (!keepsResults(relevance, ranking)) return { pages: [], total: 0, chosen: null };
+      const picked = (ranking?.order ?? [])
         .flatMap((id) => candidates.find((candidate) => candidate.id === id)?.section ?? [])
         .slice(0, DOCS_RERANK_RETURNED) as DocsSection[];
       chosen = picked.length > 0 ? picked : null;
@@ -222,7 +240,7 @@ export async function unifiedDocsExcerpt(
   try {
     const stored = await storedBuild(deps);
     const own = docsCorpusSections(page.source, page.locale).filter((section) => section.slug === page.slug);
-    const ranked = await fusedSections(
+    const { sections: ranked } = await fusedSections(
       query,
       { locale: page.locale, sources: [page.source], slug: page.slug },
       stored,
@@ -233,8 +251,9 @@ export async function unifiedDocsExcerpt(
     const candidates: RankableSection[] = own
       .slice(0, DOCS_RERANK_MAX_CANDIDATES)
       .map((section, id) => ({ id, section, titleOnly: false }));
-    const order = await rerankSections({ query, stopwatch, candidates, ranker: deps.ranker });
-    const preferred = order?.[0] === undefined ? undefined : own[order[0]];
+    const ranking = await rerankSections({ query, stopwatch, candidates, ranker: deps.ranker });
+    const top = ranking?.order[0];
+    const preferred = top === undefined ? undefined : own[top];
     const target = slugifyHeading(query);
     const named = own.find(
       (section) =>

@@ -1,6 +1,6 @@
 import type { DocsCorpus } from "@/features/mcp-tools/docs-corpus";
 import type { RankableSection } from "@/core/retrieval/retrieval-context";
-import type { DocsChunkRepo, DocsSectionRow } from "../prisma-docs-chunk.repository";
+import type { DocsChunkRepo, DocsFullTextRow, DocsSemanticRow } from "../prisma-docs-chunk.repository";
 
 import { describe, expect, it, vi } from "vitest";
 
@@ -18,15 +18,17 @@ if (!signature) throw new Error("The webhooks page lost its signature section.")
 const row = (
   section: { source: string; slug: string; order: number; anchor: string },
   chunkOrdinal = 0,
-): DocsSectionRow => ({
+): DocsFullTextRow & DocsSemanticRow => ({
   source: section.source,
   slug: section.slug,
   sectionOrder: section.order,
   chunkOrdinal,
   anchor: section.anchor,
+  coverage: 1,
+  similarity: 0.8,
 });
 
-function repo(fullText: DocsSectionRow[], semantic: DocsSectionRow[] | null = null) {
+function repo(fullText: DocsFullTextRow[], semantic: DocsSemanticRow[] | null = null) {
   return {
     ensureCorpus: vi.fn(() => Promise.resolve()),
     storedBuild: vi.fn((corpus: DocsCorpus) => Promise.resolve({ buildHash: corpus.buildHash, current: true })),
@@ -67,7 +69,7 @@ describe("unified documentation search", () => {
     const ranker = vi.fn((_query: string, candidates: readonly RankableSection[]) => {
       offered = candidates;
       const choice = candidates.find((candidate) => candidate.section === signature);
-      return Promise.resolve(choice ? [choice.id] : null);
+      return Promise.resolve(choice ? { order: [choice.id], abstained: false } : null);
     });
 
     const result = await unifiedDocsSearchResult(INPUT, {
@@ -82,6 +84,28 @@ describe("unified documentation search", () => {
     expect(result.text).toContain(`\nexcerpt=\n## ${signature.headingPath.join(" > ")}\n`);
   });
 
+  it("returns no pages below the relevance floor, and lets the re-rank reject a loose match", async () => {
+    const embed = () => Promise.resolve({ vector: [1], model: "m" });
+    const loose = (coverage: number, similarity: number) =>
+      repo([{ ...row(webhooks[0]), coverage }], [{ ...row(signature), similarity }]);
+    const abstaining = vi.fn(() => Promise.resolve({ order: [0], abstained: true }));
+
+    const unrelated = await unifiedDocsSearchResult(INPUT, { repo: loose(0.2, 0.55), embed, ranker: abstaining });
+    expect(unrelated.structuredContent).toEqual({ results: [], total: 0 });
+    expect(unrelated.text).toContain("hint: ");
+    expect(abstaining).not.toHaveBeenCalled();
+
+    const rejected = await unifiedDocsSearchResult(INPUT, { repo: loose(0.2, 0.7), embed, ranker: abstaining });
+    expect(rejected.structuredContent).toEqual({ results: [], total: 0 });
+    expect(abstaining).toHaveBeenCalledTimes(1);
+
+    const lexical = await unifiedDocsSearchResult(INPUT, { repo: loose(1, 0.55), embed, ranker: abstaining });
+    expect(lexical.structuredContent.results.length).toBeGreaterThan(0);
+
+    const unjudged = await unifiedDocsSearchResult(INPUT, { repo: loose(0.2, 0.55), embed: null, ranker: undefined });
+    expect(unjudged.structuredContent.results.length).toBeGreaterThan(0);
+  });
+
   it("keeps the fused order when the re-rank fails and never re-ranks the REST reference", async () => {
     const failing = vi.fn(() => Promise.reject(new Error("timeout")));
     const failed = await unifiedDocsSearchResult(INPUT, {
@@ -92,7 +116,7 @@ describe("unified documentation search", () => {
     expect(failed.structuredContent.results.map(({ slug }) => slug)).toEqual(["app-assistant", "webhooks"]);
     expect(failed.text).not.toContain("\nexcerpt=\n");
 
-    const api = vi.fn(() => Promise.resolve([0]));
+    const api = vi.fn(() => Promise.resolve({ order: [0], abstained: false }));
     await unifiedDocsSearchResult({ ...INPUT, source: "api" }, { repo: repo([]), embed: null, ranker: api });
     expect(api).not.toHaveBeenCalled();
   });
@@ -101,7 +125,7 @@ describe("unified documentation search", () => {
     const last = webhooks.at(-1);
     if (!last) throw new Error("expected webhook sections");
     const ranker = vi.fn((_query: string, candidates: readonly RankableSection[]) =>
-      Promise.resolve([candidates.findIndex((candidate) => candidate.section === last)]),
+      Promise.resolve({ order: [candidates.findIndex((candidate) => candidate.section === last)], abstained: true }),
     );
     const page = { slug: "webhooks", query: "which events exist", locale: "en" as const, source: "docs" as const };
 

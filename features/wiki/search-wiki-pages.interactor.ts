@@ -1,4 +1,4 @@
-import type { QueryEmbeddingWait } from "@/core/retrieval/retrieval-pipeline";
+import type { QueryEmbeddingWait, RelevanceFloor } from "@/core/retrieval/retrieval-pipeline";
 import type { Validated } from "@/core/validation/validation.utils";
 import type { WikiPageDto, WikiPageSearchData, WikiPageSearchResult, WikiSearchResult } from "./wiki.schema";
 
@@ -12,7 +12,12 @@ import { ValidateOutput } from "@/core/decorators/validate-output.decorator";
 import { env } from "@/env";
 
 import { currentSectionRanker } from "@/core/retrieval/retrieval-context";
-import { fuseFullTextAndSemantic, rerankSections, RetrievalStopwatch } from "@/core/retrieval/retrieval-pipeline";
+import {
+  fuseFullTextAndSemantic,
+  keepsResults,
+  rerankSections,
+  RetrievalStopwatch,
+} from "@/core/retrieval/retrieval-pipeline";
 
 import { externalizeWikiPageLinks } from "./wiki-markdown-links";
 import { wikiSectionLocation, wikiSectionPlainText, wikiSectionTexts, wikiSnippet } from "./wiki-section-location";
@@ -60,7 +65,7 @@ export class WikiSearchOrders {
 export const sharedWikiSearchOrders = new WikiSearchOrders();
 
 export type WikiSemanticCandidate = { id: string; offset: number; similarity: number };
-export type WikiFullTextCandidates = { keys: string[]; pinned: string[]; corrected?: string };
+export type WikiFullTextCandidates = { keys: string[]; pinned: string[]; coverage: number; corrected?: string };
 
 export abstract class SearchWikiPagesRepo {
   abstract semanticPageCandidates(
@@ -85,7 +90,11 @@ export abstract class WikiSemanticIndexScheduler {
   abstract schedule(): Promise<void>;
 }
 
-export type WikiSemanticRetrieval = { embedder: WikiQueryEmbedder; scheduler: WikiSemanticIndexScheduler };
+export type WikiSemanticRetrieval = {
+  embedder: WikiQueryEmbedder;
+  scheduler: WikiSemanticIndexScheduler;
+  relevanceFloor?: RelevanceFloor | null;
+};
 
 @AllowInDemoMode
 @TenantInteractor({ resource: Resource.wiki, action: Action.readAll })
@@ -186,8 +195,12 @@ export class SearchWikiPagesInteractor extends AuthenticatedInteractor<WikiPageS
         if (!found) return null;
         stalePageIds = found.stalePageIds;
         for (const candidate of found.candidates) offsets.set(candidate.id, candidate.offset);
-        return found.candidates.map(({ id }) => id);
+        return {
+          keys: found.candidates.map(({ id }) => id),
+          similarity: Math.max(0, ...found.candidates.map(({ similarity }) => similarity)),
+        };
       },
+      relevanceFloor: semantic?.relevanceFloor,
     });
     if (semantic && stalePageIds.size > 0) await semantic.scheduler.schedule();
 
@@ -206,16 +219,20 @@ export class SearchWikiPagesInteractor extends AuthenticatedInteractor<WikiPageS
       section: { pageTitle: entry.page.title, headingPath: entry.headingPath, text: entry.text },
       titleOnly: false,
     }));
-    const chosen = reranks ? await rerankSections({ query: data.query, stopwatch, candidates, ranker }) : null;
-    const reordered = chosen
-      ? [...chosen.map((id) => located[id]), ...located.filter((_, index) => !chosen.includes(index))]
-      : located;
+    const ranking = reranks ? await rerankSections({ query: data.query, stopwatch, candidates, ranker }) : null;
+    const chosen = ranking?.order ?? null;
+    const kept = keepsResults(fused.relevance, ranking);
+    const reordered = !kept
+      ? []
+      : chosen
+        ? [...chosen.map((id) => located[id]), ...located.filter((_, index) => !chosen.includes(index))]
+        : located;
     for (const entry of reordered) offsets.set(entry.page.id, entry.offset);
     const headIds = new Set(head);
     const order: WikiSearchOrder = {
-      ids: [...reordered.map((entry) => entry.page.id), ...fused.ranked.filter((id) => !headIds.has(id))],
+      ids: kept ? [...reordered.map((entry) => entry.page.id), ...fused.ranked.filter((id) => !headIds.has(id))] : [],
       offsets,
-      exhaustive: fullTextCount < fullTextLimit,
+      exhaustive: !kept || fullTextCount < fullTextLimit,
       semantic: fused.vector !== null,
       ...(corrected ? { corrected } : {}),
       expiresAt: Date.now() + WIKI_SEARCH_ORDER_TTL_MS,

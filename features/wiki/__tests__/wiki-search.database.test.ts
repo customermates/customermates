@@ -142,6 +142,21 @@ describeDatabase("Workspace Wiki search on PostgreSQL", () => {
     expect(JSON.stringify(await search("refund policy"))).not.toContain("Foreign");
   });
 
+  it("reports how much of the query's weight the best full-text match covers", async () => {
+    await insert(user, [
+      { title: "Refund policy", markdown: "The finance lead approves refunds." },
+      { title: "Travel expense policy", markdown: "Book trains early." },
+    ]);
+    const coverage = async (query: string) =>
+      (await runWithTenant(user, () => new PrismaWikiPageRepo().fullTextPageCandidates(query, 10))).coverage;
+
+    expect(await coverage("finance lead refunds")).toBeCloseTo(1, 6);
+    const partial = await coverage("finance lead parking garage");
+    expect(partial).toBeGreaterThan(0);
+    expect(partial).toBeLessThan(0.6);
+    expect(await coverage("blockchain")).toBe(0);
+  });
+
   it("returns the matched section offset valid for manage_wiki_pages get and for MCP fetch", async () => {
     const linkedId = randomUUID();
     const [pageId] = await insert(user, [

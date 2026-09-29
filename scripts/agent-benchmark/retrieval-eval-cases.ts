@@ -589,3 +589,31 @@ export const WIKI_RETRIEVAL_QUERIES: WikiEvalQuery[] = [
   { category: "no-match", query: "zzqxv", expect: [] },
 ];
 
+
+export type RetrievalNoMatchItem = { id: string; lang: "en" | "de" | "es" | "fr" | "it"; query: string };
+
+export const DOCS_NO_MATCH_EVAL: readonly (RetrievalNoMatchItem & { docsLocale: "en" | "de" })[] = [
+  { id: "DN1", lang: "en", docsLocale: "en", query: "how do I run payroll for my employees" },
+  { id: "DN2", lang: "en", docsLocale: "en", query: "can I send bulk SMS campaigns to my contacts" },
+  { id: "DN3", lang: "en", docsLocale: "en", query: "track employee working hours with a timesheet" },
+  { id: "DN4", lang: "en", docsLocale: "en", query: "print shipping labels for customer orders" },
+  { id: "DN5", lang: "de", docsLocale: "de", query: "Wie verwalte ich den Lagerbestand meiner Produkte?" },
+  { id: "DN6", lang: "de", docsLocale: "de", query: "Lohnabrechnung für Mitarbeiter erstellen" },
+  { id: "DN7", lang: "es", docsLocale: "en", query: "cómo hago llamadas telefónicas desde un marcador integrado" },
+  { id: "DN8", lang: "es", docsLocale: "en", query: "¿puedo reservar vuelos para viajes de negocios?" },
+  { id: "DN9", lang: "fr", docsLocale: "en", query: "comment créer une boutique en ligne avec paiement par carte" },
+  { id: "DN10", lang: "it", docsLocale: "en", query: "come gestire le buste paga dei dipendenti" },
+];
+
+export const WIKI_NO_MATCH_TUNING: readonly RetrievalNoMatchItem[] = [
+  { id: "WN1", lang: "en", query: "where can I park my car at the office" },
+  { id: "WN2", lang: "en", query: "how do I order new business cards" },
+  { id: "WN3", lang: "en", query: "what is the dress code for client visits" },
+  { id: "WN4", lang: "de", query: "Wie beantrage ich Elternzeit?" },
+  { id: "WN5", lang: "es", query: "¿dónde está la cafetería de la empresa?" },
+  { id: "WN6", lang: "fr", query: "comment commander des fournitures de bureau" },
+  { id: "WN7", lang: "it", query: "qual è la password del wifi degli ospiti" },
+  { id: "WN8", lang: "en", query: "company softball team schedule" },
+  { id: "WN9", lang: "de", query: "Gibt es einen Zuschuss für das Fitnessstudio?" },
+  { id: "WN10", lang: "en", query: "how do I request a new laptop" },
+];

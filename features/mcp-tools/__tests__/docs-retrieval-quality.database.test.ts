@@ -8,6 +8,7 @@ import { writeFileSync } from "node:fs";
 import { Client } from "pg";
 import { afterAll, beforeAll, describe, expect, it } from "vitest";
 
+import { fullTextUnits } from "@/core/retrieval/full-text-query";
 import { retrievalChunkText } from "@/core/retrieval/retrieval-chunks";
 import { collectRetrievalTimings } from "@/core/retrieval/retrieval-context";
 import { fold } from "@/core/utils/search-text";
@@ -292,6 +293,16 @@ describeDatabase("documentation retrieval quality on the benchmark docs question
     120_000,
   );
 
+  it("reports how much of the query's weight each full-text section covers", async () => {
+    const scope = { buildHash: corpus.buildHash, locale: "en", sources: ["docs"] };
+    const [full] = await repo.fullTextSections(scope, fullTextUnits("webhook signature"), 5);
+    const [partial] = await repo.fullTextSections(scope, fullTextUnits("webhook signature xylophonequartet"), 5);
+
+    expect(full.coverage).toBeCloseTo(1, 6);
+    expect(partial.coverage).toBeGreaterThan(0);
+    expect(partial.coverage).toBeLessThan(0.9);
+  });
+
   it("fuses a semantic candidate list from stored embeddings when a query embedder is available", async () => {
     const pending = new Map(
       corpus.chunks.map((chunk) => [chunk.contentHash, retrievalChunkText(chunk.label, chunk.body)]),
@@ -308,7 +319,7 @@ describeDatabase("documentation retrieval quality on the benchmark docs question
       embedded.push(query);
       return Promise.resolve({ vector: hashedBagOfWords(query), model: FAKE_MODEL });
     };
-    const hybrid = await unifiedRun({ repo, embed, ranker: undefined });
+    const hybrid = await unifiedRun({ repo, embed, ranker: undefined, relevanceFloor: null });
 
     const hybridMetrics = metricsBySet(hybrid.outcomes);
     report.unifiedFakeEmbedding = hybridMetrics;

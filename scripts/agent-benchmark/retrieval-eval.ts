@@ -4,6 +4,7 @@ import type {
   RankableSection,
   RetrievalTiming,
   SectionRanker,
+  SectionRanking,
 } from "@/core/retrieval/retrieval-context";
 import type { QueryVector } from "@/core/retrieval/retrieval-pipeline";
 import type { AgentRetrievalGrant } from "@/ee/agent-chat/agent-usage.service";
@@ -52,6 +53,7 @@ import { DOCS_EMBEDDING_HELDOUT } from "./heldout-data/docs-embedding";
 import { DOCS_HELDOUT } from "./heldout-data/docs";
 import {
   DOCS_LIVE_CASE_LABELS,
+  DOCS_NO_MATCH_EVAL,
   DOCS_RETRIEVAL_EVAL,
 } from "./retrieval-eval-cases";
 import { mcnemarExact, percentile } from "./stats";
@@ -66,14 +68,14 @@ const WARMUP_QUERIES = [
 ];
 
 const RETRIEVAL_COMBOS = ["FTS", "FTS+E", "FTS+J", "FTS+E+J"] as const;
-const EMBEDDING_MODES = ["E-450", "E-unbounded"] as const;
+const EMBEDDING_MODES = ["E-wait", "E-unbounded"] as const;
 
 type Combo = (typeof RETRIEVAL_COMBOS)[number];
 type EmbeddingMode = (typeof EMBEDDING_MODES)[number];
 type Corpus = "docs" | "wiki";
 
 type CachedEmbedding = { vector: QueryVector | null; ms: number };
-type CachedRank = { order: number[] | null; ms: number };
+type CachedRank = { order: SectionRanking | null; ms: number };
 
 type Outcome = {
   id: string;
@@ -98,6 +100,8 @@ type Metrics = {
   hits: number;
   hit: number;
   positives: number;
+  answerableHits: number;
+  answerableHit: number | null;
   pageR1: number | null;
   pageR5: number | null;
   mrr: number | null;
@@ -108,8 +112,8 @@ type Metrics = {
   p95Ms: number | null;
 };
 
-type Arm = { combo: Combo; mode: EmbeddingMode };
-type ArmKey = `${Combo}|${EmbeddingMode}`;
+type Arm = { combo: Combo; mode: EmbeddingMode; floor: boolean };
+type ArmKey = `${Combo}|${EmbeddingMode}|${"floor" | "no-floor"}`;
 
 const spend = {
   embeddingMicrocents: 0,
@@ -173,7 +177,7 @@ function embeddingFor(
   entry: CachedEmbedding,
   mode: EmbeddingMode,
 ): QueryVector | null {
-  if (mode === "E-450" && entry.ms > RETRIEVAL_EMBEDDING_WAIT_MS) return null;
+  if (mode === "E-wait" && entry.ms > RETRIEVAL_EMBEDDING_WAIT_MS) return null;
   return entry.vector;
 }
 
@@ -221,7 +225,7 @@ function modelledLatency(args: {
   const uses = arm.combo.includes("E");
   const wait = !uses
     ? 0
-    : arm.mode === "E-450"
+    : arm.mode === "E-wait"
       ? Math.min(embedding.ms, RETRIEVAL_EMBEDDING_WAIT_MS)
       : embedding.ms;
   return localMs + Math.max(0, wait - fullTextMs) + (jevMs ?? 0);
@@ -250,16 +254,32 @@ async function measured<T>(
   return { value, timing, jevMs, localMs, fullTextMs: timing?.fullTextMs ?? 0 };
 }
 
+const shipped = process.argv.includes("--shipped");
+
 function arms(): Arm[] {
+  if (shipped)
+    return [true, false].map((floor) => ({
+      combo: "FTS+E+J" as const,
+      mode: "E-wait" as const,
+      floor,
+    }));
   return EMBEDDING_MODES.flatMap((mode) =>
-    RETRIEVAL_COMBOS.map((combo) => ({ combo, mode })),
+    RETRIEVAL_COMBOS.map((combo) => ({ combo, mode, floor: true })),
   );
 }
 
-const armKey = (arm: Arm): ArmKey => `${arm.combo}|${arm.mode}`;
+const armKey = (arm: Arm): ArmKey =>
+  `${arm.combo}|${arm.mode}|${arm.floor ? "floor" : "no-floor"}`;
+const modeLabel = (mode: EmbeddingMode) =>
+  mode === "E-wait" ? `E-${RETRIEVAL_EMBEDDING_WAIT_MS}` : mode;
+
+type DocsEvalItem = DocsRetrievalEvalItem & {
+  noMatch?: boolean;
+  lang?: string;
+};
 
 async function docsRun(
-  item: DocsRetrievalEvalItem,
+  item: DocsEvalItem,
   arm: Arm,
   repo: PrismaDocsChunkRepo,
   group: string,
@@ -277,6 +297,7 @@ async function docsRun(
           repo,
           embed: arm.combo.includes("E") ? () => Promise.resolve(vector) : null,
           ranker,
+          relevanceFloor: arm.floor ? undefined : null,
         },
       ),
   );
@@ -291,13 +312,11 @@ async function docsRun(
   return {
     id: item.id,
     group,
-    language:
-      ("lang" in item && typeof item.lang === "string" ? item.lang : null) ??
-      item.docsLocale,
-    noMatch: false,
+    language: item.lang ?? item.docsLocale,
+    noMatch: item.noMatch === true,
     pageRank: ranked.findIndex((hit) => pages.has(hit.slug)) + 1,
     empty: ranked.length === 0,
-    hit: top !== null && sections.has(top),
+    hit: item.noMatch ? ranked.length === 0 : top !== null && sections.has(top),
     top,
     fullTextMs,
     localMs,
@@ -309,10 +328,20 @@ async function docsRun(
   };
 }
 
-const DOCS_GROUPS: Array<[string, readonly DocsRetrievalEvalItem[]]> = [
+const DOCS_GROUPS: Array<[string, readonly DocsEvalItem[]]> = [
   ["D", DOCS_LIVE_CASE_LABELS],
   ["DH", DOCS_HELDOUT],
   ["DE", DOCS_EMBEDDING_HELDOUT],
+  [
+    "DN",
+    DOCS_NO_MATCH_EVAL.map((item) => ({
+      ...item,
+      slug: "",
+      anchors: [],
+      alternatives: [],
+      noMatch: true,
+    })),
+  ],
 ];
 
 async function evaluateDocs(): Promise<Record<ArmKey, Outcome[]>> {
@@ -322,7 +351,7 @@ async function evaluateDocs(): Promise<Record<ArmKey, Outcome[]>> {
     const item = { ...DOCS_RETRIEVAL_EVAL[0], id: "warm-up", query };
     await docsRun(
       item,
-      { combo: "FTS+E", mode: "E-unbounded" },
+      { combo: "FTS+E", mode: "E-unbounded", floor: true },
       repo,
       "warm-up",
     );
@@ -445,6 +474,7 @@ async function evaluateWiki(
         ? {
             embedder: { embedQuery: () => Promise.resolve(vector) },
             scheduler: { schedule: () => Promise.resolve() },
+            relevanceFloor: arm.floor ? undefined : null,
           }
         : null;
       const interactor = new SearchWikiPagesInteractor(
@@ -519,7 +549,7 @@ async function evaluateWiki(
           query,
           targets: [],
         },
-        { combo: "FTS+E", mode: "E-unbounded" },
+        { combo: "FTS+E", mode: "E-unbounded", floor: true },
       );
     const results = Object.fromEntries(
       arms().map((arm) => [armKey(arm), [] as Outcome[]]),
@@ -551,11 +581,14 @@ function metrics(outcomes: readonly Outcome[]): Metrics {
   const share = <T>(list: readonly T[], predicate: (entry: T) => boolean) =>
     list.length ? list.filter(predicate).length / list.length : null;
   const hits = outcomes.filter((entry) => entry.hit).length;
+  const answerableHits = positives.filter((entry) => entry.hit).length;
   return {
     items: outcomes.length,
     hits,
     hit: outcomes.length ? hits / outcomes.length : 0,
     positives: positives.length,
+    answerableHits,
+    answerableHit: positives.length ? answerableHits / positives.length : null,
     pageR1: share(positives, (entry) => entry.pageRank === 1),
     pageR5: share(
       positives,
@@ -639,16 +672,19 @@ function render(
 ) {
   const title =
     corpus === "docs"
-      ? "Docs (110 labelled questions)"
+      ? "Docs (110 labelled questions and 10 no-match questions)"
       : "Wiki (blind benchmark, 160 queries)";
   lines.push(`## ${title}`, "");
   for (const mode of EMBEDDING_MODES) {
     const byCombo = Object.fromEntries(
-      RETRIEVAL_COMBOS.map((combo) => [combo, results[`${combo}|${mode}`]]),
+      RETRIEVAL_COMBOS.map((combo) => [
+        combo,
+        results[`${combo}|${mode}|floor`],
+      ]),
     ) as Record<Combo, Outcome[]>;
     const decision = selectStages(byCombo);
     lines.push(
-      `### ${mode}`,
+      `### ${modeLabel(mode)}`,
       "",
       "| Combo | Items | Final-section hit@1 | Page R@1 | Page R@5 | Page MRR | No-match empty | Embedding used | Re-rank used | p50 | p95 | vs best (only combo / only best) | McNemar p |",
       "| --- | ---: | ---: | ---: | ---: | ---: | ---: | ---: | ---: | ---: | ---: | ---: | ---: |",
@@ -666,7 +702,7 @@ function render(
     }
     lines.push(
       "",
-      `Decision (${mode}): best ${decision.best}; chosen **${decision.chosen}**.`,
+      `Decision (${modeLabel(mode)}): best ${decision.best}; chosen **${decision.chosen}**.`,
       "",
     );
     for (const [label, key] of [
@@ -687,6 +723,70 @@ function render(
       }
       lines.push("");
     }
+  }
+}
+
+function renderShipped(
+  corpus: Corpus,
+  results: Record<ArmKey, Outcome[]>,
+  lines: string[],
+) {
+  const floorKey: ArmKey = "FTS+E+J|E-wait|floor";
+  const noFloorKey: ArmKey = "FTS+E+J|E-wait|no-floor";
+  const withFloor = results[floorKey];
+  const withoutFloor = results[noFloorKey];
+  lines.push(
+    `## ${corpus === "docs" ? "Docs" : "Wiki (blind benchmark)"}: FTS+E+J, ${modeLabel("E-wait")} ms wait`,
+    "",
+    "| Arm | Items | Answerable | Answerable final-section hit@1 | Page R@1 | Page R@5 | Page MRR | No-match | No-match empty | Embedding used | Re-rank used | p50 | p95 |",
+    "| --- | ---: | ---: | ---: | ---: | ---: | ---: | ---: | ---: | ---: | ---: | ---: | ---: |",
+  );
+  for (const [label, outcomes] of [
+    ["Floor (shipped)", withFloor],
+    ["No floor", withoutFloor],
+  ] as const) {
+    const m = metrics(outcomes);
+    lines.push(
+      `| ${label} | ${m.items} | ${m.positives} | ${m.answerableHits} (${pct(m.answerableHit)}) | ${pct(m.pageR1)} | ${pct(m.pageR5)} | ${m.mrr === null ? "-" : m.mrr.toFixed(3)} | ${m.items - m.positives} | ${pct(m.noMatchEmpty)} | ${pct(m.embeddingUsed)} | ${pct(m.rerankUsed)} | ${sec(m.p50Ms)} | ${sec(m.p95Ms)} |`,
+    );
+  }
+  const noFloorById = new Map(
+    withoutFloor.map((entry) => [entry.id, entry.hit]),
+  );
+  const answerable = withFloor.filter((entry) => !entry.noMatch);
+  const paired = mcnemarExact(
+    answerable.map((entry) => ({
+      control: noFloorById.get(entry.id) ?? false,
+      candidate: entry.hit,
+    })),
+  );
+  const emptied = answerable
+    .filter((entry) => entry.empty)
+    .map((entry) => entry.id);
+  lines.push(
+    "",
+    `Floor against no floor on answerable items: only the floor hit ${paired.candidateOnly}, only no floor hit ${paired.controlOnly} (exact McNemar p = ${pValue(paired.p)}). Answerable items the floor emptied: ${emptied.length ? emptied.join(", ") : "none"}.`,
+    "",
+  );
+  for (const [label, key] of [
+    [corpus === "docs" ? "Set" : "Category", "group"],
+    ["Language", "language"],
+  ] as const) {
+    const values = [...new Set(withFloor.map((entry) => entry[key]))];
+    lines.push(
+      `| ${label} | Items | Floor hit@1 | No floor hit@1 | Floor page R@1 | No floor page R@1 |`,
+      "| --- | ---: | ---: | ---: | ---: | ---: |",
+    );
+    for (const value of values) {
+      const slice = (outcomes: readonly Outcome[]) =>
+        metrics(outcomes.filter((entry) => entry[key] === value));
+      const floor = slice(withFloor);
+      const open = slice(withoutFloor);
+      lines.push(
+        `| ${value} | ${floor.items} | ${pct(floor.hit)} | ${pct(open.hit)} | ${pct(floor.pageR1)} | ${pct(open.pageR1)} |`,
+      );
+    }
+    lines.push("");
   }
 }
 
@@ -729,8 +829,9 @@ async function main() {
   const docs = only === "wiki" ? null : await evaluateDocs();
   const wiki = only === "docs" ? null : await evaluateWiki(databaseUrl);
   const lines: string[] = [];
-  if (docs) render("docs", docs, lines);
-  if (wiki) render("wiki", wiki, lines);
+  const draw = shipped ? renderShipped : render;
+  if (docs) draw("docs", docs, lines);
+  if (wiki) draw("wiki", wiki, lines);
   embeddingLatencyLines(lines);
   lines.push(
     `Harness-metered spend: query embeddings ${(spend.embeddingMicrocents / MICROCENTS_PER_USD).toFixed(4)} USD over ${spend.embeddingCalls} calls, Wiki indexing ${(spend.indexingMicrocents / MICROCENTS_PER_USD).toFixed(4)} USD, Jev ${(spend.jevMicrocents / MICROCENTS_PER_USD).toFixed(4)} USD over ${spend.jevCalls} calls (${spend.jevAnswered} answered).`,

@@ -4,6 +4,7 @@ import type {
   RetrievalCorpus,
   SectionRanker,
   SectionRankerFactory,
+  SectionRanking,
 } from "@/core/retrieval/retrieval-context";
 
 import { agentContextFromProviderText } from "./agent-context";
@@ -11,6 +12,7 @@ import { classifyMetered, hostedDocsRerankModel } from "./classifier/metered";
 
 export const DOCS_RERANK_USER_MESSAGE_CHARS = 1_000;
 const DOCS_RERANK_OPTION_CHARS = 400;
+export const DOCS_RERANK_NONE = "none";
 
 export function docsRerankPlainText(value: string): string {
   return value
@@ -28,8 +30,8 @@ export function docsRerankChoice(result: ClassifierResult | null): number | null
 }
 
 const RANK_INSTRUCTIONS: Record<RetrievalCorpus, string> = {
-  docs: "The user wrote `latest_user_message` (in any language) and the assistant searched the documentation with `agent_query`. Which documentation section best answers what the user needs? Some options show only a page and heading. If none answers it fully, pick the closest one.",
-  wiki: "The user wrote `latest_user_message` (in any language) and the assistant searched the Workspace Wiki with `agent_query`. Which Wiki section best answers what the user needs? If none answers it fully, pick the closest one.",
+  docs: "The user wrote `latest_user_message` (in any language) and the assistant searched the documentation with `agent_query`. Which documentation section best answers what the user needs? Some options show only a page and heading. If none answers it fully, pick the closest one; choose none only if no section answers it at all.",
+  wiki: "The user wrote `latest_user_message` (in any language) and the assistant searched the Workspace Wiki with `agent_query`. Which Wiki section best answers what the user needs? If none answers it fully, pick the closest one; choose none only if no section answers it at all.",
 };
 
 export function docsRankSpec(candidates: readonly RankableSection[], corpus: RetrievalCorpus = "docs"): ClassifierSpec {
@@ -44,7 +46,14 @@ export function docsRankSpec(candidates: readonly RankableSection[], corpus: Ret
   );
   return {
     id: `${corpus}-rank`,
-    questions: [{ id: "best", type: "choice", instruction: RANK_INSTRUCTIONS[corpus], options }],
+    questions: [
+      {
+        id: "best",
+        type: "choice",
+        instruction: RANK_INSTRUCTIONS[corpus],
+        options: { ...options, [DOCS_RERANK_NONE]: "None of these sections answers what the user needs." },
+      },
+    ],
   };
 }
 
@@ -56,9 +65,10 @@ export function docsRankOrder(
   result: ClassifierResult | null,
   candidates: readonly { id: number }[],
   limit = 3,
-): number[] | null {
+): SectionRanking | null {
+  const abstained = result?.answers.best?.choice === DOCS_RERANK_NONE;
   const chosen = docsRerankChoice(result);
-  if (chosen === null || !candidates.some((candidate) => candidate.id === chosen)) return null;
+  if (!abstained && (chosen === null || !candidates.some((candidate) => candidate.id === chosen))) return null;
   const probabilities = result?.answers.best?.probabilities ?? null;
   const rest = candidates.map((candidate) => candidate.id).filter((id) => id !== chosen);
   const ordered = probabilities
@@ -67,7 +77,7 @@ export function docsRankOrder(
         .sort((left, right) => right.probability - left.probability || left.index - right.index)
         .map(({ id }) => id)
     : rest;
-  return [chosen, ...ordered].slice(0, limit);
+  return { order: (chosen === null ? ordered : [chosen, ...ordered]).slice(0, limit), abstained };
 }
 
 export function docsRankUserMessage(text: string | null | undefined): string | null {

@@ -51,18 +51,22 @@ function repo(
   semantic: { id: string; offset: number }[] | null,
   stale: string[] = [],
   corrected?: string,
+  evidence: { coverage: number; similarity: number } = { coverage: 1, similarity: 0.8 },
 ) {
   return {
     semanticPageCandidates: vi.fn(() =>
       Promise.resolve(
         semantic
-          ? { candidates: semantic.map((entry) => ({ ...entry, similarity: 0.8 })), stalePageIds: new Set(stale) }
+          ? {
+              candidates: semantic.map((entry) => ({ ...entry, similarity: evidence.similarity })),
+              stalePageIds: new Set(stale),
+            }
           : null,
       ),
     ),
     getPagesByIds: vi.fn((ids: string[]) => Promise.resolve(pages.filter((entry) => ids.includes(entry.id)))),
     fullTextPageCandidates: vi.fn(() =>
-      Promise.resolve({ keys: fullText, pinned: [], ...(corrected ? { corrected } : {}) }),
+      Promise.resolve({ keys: fullText, pinned: [], coverage: evidence.coverage, ...(corrected ? { corrected } : {}) }),
     ),
     rankPageSections: vi.fn((_query: string, sections: Array<{ key: number; heading: string }>) =>
       Promise.resolve(new Map(sections.filter((section) => section.heading).map((section) => [section.key, 1]))),
@@ -106,7 +110,10 @@ describe("unified Wiki search", () => {
 
   it("re-ranks results with the request's Wiki ranker and skips a page past the last result", async () => {
     const ranker = vi.fn((_query: string, candidates: readonly RankableSection[]) =>
-      Promise.resolve([candidates.findIndex((candidate) => candidate.section.pageTitle === "Page 3")]),
+      Promise.resolve({
+        order: [candidates.findIndex((candidate) => candidate.section.pageTitle === "Page 3")],
+        abstained: false,
+      }),
     );
     const interactor = new SearchWikiPagesInteractor(
       repo([id(1), id(2), id(3)], null),
@@ -140,10 +147,12 @@ describe("unified Wiki search", () => {
     const chunks = {
       ...repo([], null),
       getPagesByIds: vi.fn((ids: string[]) => Promise.resolve(many.filter((entry) => ids.includes(entry.id)))),
-      fullTextPageCandidates: vi.fn(() => Promise.resolve({ keys: many.map((entry) => entry.id), pinned: [] })),
+      fullTextPageCandidates: vi.fn(() =>
+        Promise.resolve({ keys: many.map((entry) => entry.id), pinned: [], coverage: 1 }),
+      ),
     } satisfies SearchWikiPagesRepo;
     const ranker = vi.fn((_query: string, candidates: readonly RankableSection[]) =>
-      Promise.resolve(candidates.map((_, index) => candidates.length - 1 - index)),
+      Promise.resolve({ order: candidates.map((_, index) => candidates.length - 1 - index), abstained: false }),
     );
     const interactor = new SearchWikiPagesInteractor(chunks, "stored", semanticRetrieval(null));
     const pageIds = async (pageNumber: number) => {
@@ -174,12 +183,14 @@ describe("unified Wiki search", () => {
     const chunks = {
       ...repo([], null),
       getPagesByIds: vi.fn((ids: string[]) => Promise.resolve(many.filter((entry) => ids.includes(entry.id)))),
-      fullTextPageCandidates: vi.fn(() => Promise.resolve({ keys: many.map((entry) => entry.id), pinned: [] })),
+      fullTextPageCandidates: vi.fn(() =>
+        Promise.resolve({ keys: many.map((entry) => entry.id), pinned: [], coverage: 1 }),
+      ),
     } satisfies SearchWikiPagesRepo;
     let rerankerAvailable = true;
     const ranker = vi.fn((_query: string, candidates: readonly RankableSection[]) =>
       rerankerAvailable
-        ? Promise.resolve(candidates.map((_, index) => candidates.length - 1 - index))
+        ? Promise.resolve({ order: candidates.map((_, index) => candidates.length - 1 - index), abstained: false })
         : Promise.reject(new Error("classifier timed out")),
     );
     const semantic = semanticRetrieval(null);
@@ -226,11 +237,11 @@ describe("unified Wiki search", () => {
       ...repo([], null),
       getPagesByIds: vi.fn((ids: string[]) => Promise.resolve(many.filter((entry) => ids.includes(entry.id)))),
       fullTextPageCandidates: vi.fn((_query: string, limit: number) =>
-        Promise.resolve({ keys: many.slice(0, limit).map((entry) => entry.id), pinned: [] }),
+        Promise.resolve({ keys: many.slice(0, limit).map((entry) => entry.id), pinned: [], coverage: 1 }),
       ),
     } satisfies SearchWikiPagesRepo;
     const ranker = vi.fn((_query: string, candidates: readonly RankableSection[]) =>
-      Promise.resolve(candidates.map((_, index) => candidates.length - 1 - index)),
+      Promise.resolve({ order: candidates.map((_, index) => candidates.length - 1 - index), abstained: false }),
     );
     const interactor = new SearchWikiPagesInteractor(chunks, "stored", semanticRetrieval(null), new WikiSearchOrders());
     const pageOf = async (pageNumber: number) => {
@@ -262,10 +273,32 @@ describe("unified Wiki search", () => {
     expect(ranker).toHaveBeenCalledTimes(1);
   });
 
+  it("returns nothing below the relevance floor or when the re-rank rejects a loose match", async () => {
+    const annual = pages[2].markdown.indexOf("## Annual plans");
+    const loose = (similarity: number) =>
+      repo([id(1), id(2)], [{ id: id(3), offset: annual }], [], undefined, { coverage: 0.3, similarity });
+    const abstaining = vi.fn(() => Promise.resolve({ order: [0], abstained: true }));
+    const run = (chunks: ReturnType<typeof repo>, vector: number[] | null) =>
+      runWithSectionRanking(
+        () => abstaining,
+        () => search(new SearchWikiPagesInteractor(chunks, "stored", semanticRetrieval(vector))),
+      );
+
+    const unrelated = await run(loose(0.55), [0.1]);
+    const rejected = await run(loose(0.7), [0.1]);
+    const unjudged = await run(loose(0.55), null);
+    if (!unrelated.ok || !rejected.ok || !unjudged.ok) throw new Error("expected search results");
+
+    expect(unrelated.data).toMatchObject({ items: [], total: 0 });
+    expect(rejected.data).toMatchObject({ items: [], total: 0 });
+    expect(abstaining).toHaveBeenCalledTimes(2);
+    expect(unjudged.data.items.map((item) => item.id)).toEqual([id(1), id(2)]);
+  });
+
   it("stays full-text only in demo mode, without an embedding or a re-rank", async () => {
     envState.APP_MODE = "demo";
     const semantic = semanticRetrieval([0.1]);
-    const ranker = vi.fn(() => Promise.resolve([1]));
+    const ranker = vi.fn(() => Promise.resolve({ order: [1], abstained: false }));
 
     const result = await runWithSectionRanking(
       () => ranker,
