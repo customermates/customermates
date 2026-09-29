@@ -129,10 +129,14 @@ questions, and `features/wiki/__tests__/wiki-retrieval-quality.database.test.ts`
 file, each full-text only against a floor. Set `DOCS_RETRIEVAL_EVAL_REPORT` or `WIKI_RETRIEVAL_EVAL_REPORT` to a path to
 write the metrics.
 
-Those tests use a fake embedder and no re-rank. `retrieval-eval.ts` measures the pipeline with the real query embedding
-and the real Jev re-rank (paid, a few cents) and full-text only: page R@1, R@5 and MRR, the final section after the
-re-rank and wall-clock latency per call, for the docs labels and for the Wiki corpus, which it seeds into a throwaway
-workspace, embeds and deletes again. Run `yarn docs:index` first, then
+Those tests use a fake embedder and no re-rank. `retrieval-eval.ts` runs the retrieval stage selection above: every
+stage combination (FTS, FTS+E, FTS+J, FTS+E+J) under E-450 and E-unbounded, with the real query embedding and the real
+Jev re-rank, for the 110 docs labels and for the blind Wiki benchmark, which it seeds into a throwaway workspace, embeds
+and deletes again. Each query is embedded once and the vector reused; its measured call latency decides E-450, and a Jev
+call is cached per query and candidate set. It reports final-section hit@1, page R@1, R@5 and MRR, per-set, per-category
+and per-language breakdowns, paired exact McNemar against the best combination with the pre-registered decision, and a
+modelled latency per call (local pipeline time, plus the embedding wait beyond full-text, plus the measured Jev call).
+Run `yarn docs:index` first, then
 `RUN_AGENT_BENCHMARK=true yarn tsx --import ./scripts/lib/register-server-only-shim.mjs scripts/agent-benchmark/retrieval-eval.ts --cap 0.5`
 (`--only docs` or `--only wiki` to run one corpus). It writes JSON and Markdown under `.runs/retrieval-eval/`; compare
 two commits by running it on each.

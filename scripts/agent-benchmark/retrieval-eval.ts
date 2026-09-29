@@ -1,17 +1,18 @@
 import "dotenv/config";
 
 import type {
+  RankableSection,
   RetrievalTiming,
   SectionRanker,
 } from "@/core/retrieval/retrieval-context";
 import type { QueryVector } from "@/core/retrieval/retrieval-pipeline";
 import type { AgentRetrievalGrant } from "@/ee/agent-chat/agent-usage.service";
 import type { TenantUser } from "@/features/user/user.schema";
-import type { WikiSearchResult } from "@/features/wiki/wiki.schema";
+import type { DocsRetrievalEvalItem } from "./retrieval-eval-cases";
 import type {
-  DocsRetrievalEvalItem,
-  WikiEvalQuery,
-} from "./retrieval-eval-cases";
+  WikiBenchmarkCategory,
+  WikiBenchmarkQuery,
+} from "./wiki-retrieval-benchmark";
 
 import { randomUUID } from "node:crypto";
 import { mkdirSync, writeFileSync } from "node:fs";
@@ -26,6 +27,7 @@ import {
   collectRetrievalTimings,
   runWithSectionRanking,
 } from "@/core/retrieval/retrieval-context";
+import { RETRIEVAL_EMBEDDING_WAIT_MS } from "@/core/retrieval/retrieval-pipeline";
 import { collectClassifierCharges } from "@/ee/agent-chat/classifier/metered";
 import { hostedSectionRankers } from "@/ee/agent-chat/docs-rerank";
 import { WikiEmbeddingService } from "@/ee/wiki-retrieval/wiki-embedding.service";
@@ -43,7 +45,6 @@ import {
   type WikiSemanticRetrieval,
 } from "@/features/wiki/search-wiki-pages.interactor";
 import { WikiMarkdownSchema } from "@/features/wiki/wiki.schema";
-import { wikiMarkdownSections } from "@/features/wiki/wiki-markdown-sections";
 import { createMockUser } from "@/tests/helpers/mock-user";
 
 import { requireLocalBenchmarkDatabase } from "./env";
@@ -52,46 +53,67 @@ import { DOCS_HELDOUT } from "./heldout-data/docs";
 import {
   DOCS_LIVE_CASE_LABELS,
   DOCS_RETRIEVAL_EVAL,
-  WIKI_RETRIEVAL_CORPUS,
-  WIKI_RETRIEVAL_QUERIES,
 } from "./retrieval-eval-cases";
-import { percentile } from "./stats";
+import { mcnemarExact, percentile } from "./stats";
+import { loadWikiRetrievalBenchmark } from "./wiki-retrieval-benchmark";
 
 const MICROCENTS_PER_USD = 100_000_000;
+const SIGNIFICANCE = 0.05;
 const WARMUP_QUERIES = [
   "warm-up: api keys",
   "warm-up: webhooks signature",
   "warm-up: Währung einstellen",
 ];
 
-type Variant = "unified" | "unified-full-text";
+const RETRIEVAL_COMBOS = ["FTS", "FTS+E", "FTS+J", "FTS+E+J"] as const;
+const EMBEDDING_MODES = ["E-450", "E-unbounded"] as const;
 
-const VARIANTS: readonly Variant[] = ["unified", "unified-full-text"];
-type Ranked = { slug: string; anchor: string };
-type DocsOutcome = {
+type Combo = (typeof RETRIEVAL_COMBOS)[number];
+type EmbeddingMode = (typeof EMBEDDING_MODES)[number];
+type Corpus = "docs" | "wiki";
+
+type CachedEmbedding = { vector: QueryVector | null; ms: number };
+type CachedRank = { order: number[] | null; ms: number };
+
+type Outcome = {
   id: string;
+  group: string;
+  language: string;
+  noMatch: boolean;
   pageRank: number;
-  finalSection: string | null;
-  sectionHit: boolean;
-  totalMs: number;
-  rerank: "used" | "failed" | "none";
-  embedding: RetrievalTiming["embedding"] | null;
-};
-type WikiOutcome = {
-  query: string;
-  category: WikiEvalQuery["category"];
-  rank: number;
-  sectionHit: boolean | null;
   empty: boolean;
-  pass: boolean;
-  totalMs: number;
-  rerank: "used" | "failed" | "none";
+  hit: boolean;
+  top: string | null;
+  fullTextMs: number;
+  localMs: number;
+  embeddingMs: number | null;
   embedding: RetrievalTiming["embedding"] | null;
-  top: string[];
+  rerank: RetrievalTiming["rerank"] | null;
+  jevMs: number | null;
+  modelledMs: number;
 };
+
+type Metrics = {
+  items: number;
+  hits: number;
+  hit: number;
+  positives: number;
+  pageR1: number | null;
+  pageR5: number | null;
+  mrr: number | null;
+  noMatchEmpty: number | null;
+  embeddingUsed: number;
+  rerankUsed: number;
+  p50Ms: number | null;
+  p95Ms: number | null;
+};
+
+type Arm = { combo: Combo; mode: EmbeddingMode };
+type ArmKey = `${Combo}|${EmbeddingMode}`;
 
 const spend = {
   embeddingMicrocents: 0,
+  indexingMicrocents: 0,
   jevMicrocents: 0,
   jevCalls: 0,
   jevAnswered: 0,
@@ -110,7 +132,12 @@ const outPath = resolve(
 );
 
 function spentUsd() {
-  return (spend.embeddingMicrocents + spend.jevMicrocents) / MICROCENTS_PER_USD;
+  return (
+    (spend.embeddingMicrocents +
+      spend.indexingMicrocents +
+      spend.jevMicrocents) /
+    MICROCENTS_PER_USD
+  );
 }
 
 function assertBudget() {
@@ -120,166 +147,196 @@ function assertBudget() {
     );
 }
 
-async function embedQuery(query: string): Promise<QueryVector | null> {
+const embeddings = new Map<string, CachedEmbedding>();
+const ranks = new Map<string, CachedRank>();
+
+async function embedOnce(query: string): Promise<CachedEmbedding> {
   const text = query.normalize("NFC").replace(/\s+/gu, " ").trim();
+  const cached = embeddings.get(text);
+  if (cached) return cached;
   spend.embeddingCalls += 1;
+  const started = performance.now();
+  let vector: QueryVector | null = null;
   try {
     const { vectors, charge } = await embedWikiTexts([text], "query");
     spend.embeddingMicrocents += charge.costMicrocents;
-    return { vector: vectors[0], model: WIKI_EMBEDDING_MODEL };
+    vector = { vector: vectors[0], model: WIKI_EMBEDDING_MODEL };
   } catch {
-    return null;
+    vector = null;
   }
+  const entry = { vector, ms: Math.round(performance.now() - started) };
+  embeddings.set(text, entry);
+  return entry;
 }
 
-function tracked(
-  ranker: SectionRanker | undefined,
-  outcome: { rerank: "used" | "failed" | "none" },
-): SectionRanker | undefined {
-  if (!ranker) return undefined;
-  return async (query, candidates) => {
+function embeddingFor(
+  entry: CachedEmbedding,
+  mode: EmbeddingMode,
+): QueryVector | null {
+  if (mode === "E-450" && entry.ms > RETRIEVAL_EMBEDDING_WAIT_MS) return null;
+  return entry.vector;
+}
+
+function cachedRanker(
+  query: string,
+  corpus: Corpus,
+  used: { key: string | null },
+): SectionRanker {
+  const factory = hostedSectionRankers(query);
+  const ranker = factory?.(corpus);
+  if (!ranker)
+    throw new Error(
+      "The hosted re-rank is unavailable: set APP_MODE to cloud and provide AI_GATEWAY_API_KEY.",
+    );
+  return async (rankQuery: string, candidates: readonly RankableSection[]) => {
+    const key = JSON.stringify([corpus, query, rankQuery, candidates]);
+    used.key = key;
+    const cached = ranks.get(key);
+    if (cached) return cached.order;
+    const started = performance.now();
     const { value, charges } = await collectClassifierCharges(() =>
-      ranker(query, candidates),
+      ranker(rankQuery, candidates),
     );
     for (const charge of charges) {
       spend.jevMicrocents += charge.costMicrocents;
       spend.jevCalls += 1;
       if (charge.answered) spend.jevAnswered += 1;
     }
-    outcome.rerank = value && value.length > 0 ? "used" : "failed";
+    ranks.set(key, {
+      order: value,
+      ms: Math.round(performance.now() - started),
+    });
     return value;
   };
 }
 
-function jevFor(query: string, corpus: "docs" | "wiki") {
-  const factory = hostedSectionRankers(query);
-  if (!factory)
-    throw new Error(
-      "The hosted re-rank is unavailable: set APP_MODE to cloud and provide AI_GATEWAY_API_KEY.",
-    );
-  return factory(corpus);
+function modelledLatency(args: {
+  arm: Arm;
+  localMs: number;
+  fullTextMs: number;
+  embedding: CachedEmbedding;
+  jevMs: number | null;
+}): number {
+  const { arm, localMs, fullTextMs, embedding, jevMs } = args;
+  const uses = arm.combo.includes("E");
+  const wait = !uses
+    ? 0
+    : arm.mode === "E-450"
+      ? Math.min(embedding.ms, RETRIEVAL_EMBEDDING_WAIT_MS)
+      : embedding.ms;
+  return localMs + Math.max(0, wait - fullTextMs) + (jevMs ?? 0);
 }
 
-function docsOutcome(
+async function measured<T>(
+  arm: Arm,
+  query: string,
+  corpus: Corpus,
+  run: (ranker: SectionRanker | undefined) => Promise<T>,
+) {
+  const used: { key: string | null } = { key: null };
+  const ranker = arm.combo.includes("J")
+    ? cachedRanker(query, corpus, used)
+    : undefined;
+  const started = performance.now();
+  const { value, timings } = await collectRetrievalTimings(() => run(ranker));
+  const elapsed = performance.now() - started;
+  const timing = timings[0] ?? null;
+  const jevMs = used.key ? (ranks.get(used.key)?.ms ?? null) : null;
+  const rerankMs = timing?.rerankMs ?? 0;
+  const localMs = Math.max(
+    0,
+    Math.round(elapsed - (jevMs !== null ? rerankMs : 0)),
+  );
+  return { value, timing, jevMs, localMs, fullTextMs: timing?.fullTextMs ?? 0 };
+}
+
+function arms(): Arm[] {
+  return EMBEDDING_MODES.flatMap((mode) =>
+    RETRIEVAL_COMBOS.map((combo) => ({ combo, mode })),
+  );
+}
+
+const armKey = (arm: Arm): ArmKey => `${arm.combo}|${arm.mode}`;
+
+async function docsRun(
   item: DocsRetrievalEvalItem,
-  ranked: readonly Ranked[],
-  totalMs: number,
-  rerank: DocsOutcome["rerank"],
-  embedding: DocsOutcome["embedding"],
-): DocsOutcome {
+  arm: Arm,
+  repo: PrismaDocsChunkRepo,
+  group: string,
+): Promise<Outcome> {
+  const embedding = await embedOnce(item.query);
+  const vector = embeddingFor(embedding, arm.mode);
+  const { value, timing, jevMs, localMs, fullTextMs } = await measured(
+    arm,
+    item.query,
+    "docs",
+    (ranker) =>
+      unifiedDocsSearch(
+        { query: item.query, locale: item.docsLocale, source: "docs" },
+        {
+          repo,
+          embed: arm.combo.includes("E") ? () => Promise.resolve(vector) : null,
+          ranker,
+        },
+      ),
+  );
   const pages = new Set([
     item.slug,
     ...item.alternatives.map((target) => target.split("#")[0]),
   ]);
   const sections = new Set([...item.anchors, ...item.alternatives]);
+  const ranked = value.pages.map(({ section }) => section);
   const [best] = ranked;
-  const finalSection = best ? `${best.slug}#${best.anchor}` : null;
+  const top = best ? `${best.slug}#${best.anchor}` : null;
   return {
     id: item.id,
+    group,
+    language:
+      ("lang" in item && typeof item.lang === "string" ? item.lang : null) ??
+      item.docsLocale,
+    noMatch: false,
     pageRank: ranked.findIndex((hit) => pages.has(hit.slug)) + 1,
-    finalSection,
-    sectionHit: finalSection !== null && sections.has(finalSection),
-    totalMs,
-    rerank,
-    embedding,
+    empty: ranked.length === 0,
+    hit: top !== null && sections.has(top),
+    top,
+    fullTextMs,
+    localMs,
+    embeddingMs: arm.combo.includes("E") ? embedding.ms : null,
+    embedding: timing?.embedding ?? null,
+    rerank: timing?.rerank ?? null,
+    jevMs,
+    modelledMs: modelledLatency({ arm, localMs, fullTextMs, embedding, jevMs }),
   };
 }
 
-async function timed<T>(run: () => Promise<T>) {
-  const started = performance.now();
-  const { value, timings } = await collectRetrievalTimings(run);
-  return { value, timings, totalMs: Math.round(performance.now() - started) };
-}
-
-async function docsRun(
-  item: DocsRetrievalEvalItem,
-  variant: Variant,
-  repo: PrismaDocsChunkRepo,
-): Promise<DocsOutcome> {
-  const input = {
-    query: item.query,
-    locale: item.docsLocale,
-    source: "docs" as const,
-  };
-  const outcome: { rerank: DocsOutcome["rerank"] } = { rerank: "none" };
-  const full = variant === "unified";
-  const { value, timings, totalMs } = await timed(() =>
-    unifiedDocsSearch(input, {
-      repo,
-      embed: full ? embedQuery : null,
-      ranker: full ? tracked(jevFor(item.query, "docs"), outcome) : undefined,
-    }),
-  );
-  return docsOutcome(
-    item,
-    value.pages.map(({ section }) => section),
-    totalMs,
-    outcome.rerank,
-    timings[0]?.embedding ?? null,
-  );
-}
-
-function docsMetrics(outcomes: readonly DocsOutcome[]) {
-  const n = outcomes.length;
-  const share = (predicate: (entry: DocsOutcome) => boolean) =>
-    outcomes.filter(predicate).length / n;
-  return {
-    items: n,
-    pageR1: share((entry) => entry.pageRank === 1),
-    pageR5: share((entry) => entry.pageRank >= 1 && entry.pageRank <= 5),
-    pageMrr:
-      outcomes.reduce(
-        (sum, entry) => sum + (entry.pageRank > 0 ? 1 / entry.pageRank : 0),
-        0,
-      ) / n,
-    finalSectionHit: share((entry) => entry.sectionHit),
-    rerankUsed: share((entry) => entry.rerank === "used"),
-    embeddingUsed: share((entry) => entry.embedding === "used"),
-    p50Ms: percentile(
-      outcomes.map((entry) => entry.totalMs),
-      50,
-    ),
-    p95Ms: percentile(
-      outcomes.map((entry) => entry.totalMs),
-      95,
-    ),
-  };
-}
-
-const DOCS_SETS: Array<[string, readonly DocsRetrievalEvalItem[]]> = [
+const DOCS_GROUPS: Array<[string, readonly DocsRetrievalEvalItem[]]> = [
   ["D", DOCS_LIVE_CASE_LABELS],
   ["DH", DOCS_HELDOUT],
   ["DE", DOCS_EMBEDDING_HELDOUT],
-  ["all", DOCS_RETRIEVAL_EVAL],
 ];
 
-async function evaluateDocs() {
+async function evaluateDocs(): Promise<Record<ArmKey, Outcome[]>> {
   const repo = new PrismaDocsChunkRepo();
   await repo.ensureCorpus(docsCorpus());
   for (const query of WARMUP_QUERIES) {
     const item = { ...DOCS_RETRIEVAL_EVAL[0], id: "warm-up", query };
-    for (const variant of VARIANTS) await docsRun(item, variant, repo);
+    await docsRun(
+      item,
+      { combo: "FTS+E", mode: "E-unbounded" },
+      repo,
+      "warm-up",
+    );
   }
-  const results: Record<Variant, DocsOutcome[]> = { unified: [], "unified-full-text": [] };
-  for (const item of DOCS_RETRIEVAL_EVAL) {
-    for (const variant of VARIANTS) results[variant].push(await docsRun(item, variant, repo));
-    assertBudget();
-  }
-  const metrics = Object.fromEntries(
-    Object.entries(results).map(([variant, outcomes]) => [
-      variant,
-      Object.fromEntries(
-        DOCS_SETS.map(([name, items]) => {
-          const ids = new Set(items.map((item) => item.id));
-          return [
-            name,
-            docsMetrics(outcomes.filter((entry) => ids.has(entry.id))),
-          ];
-        }),
-      ),
-    ]),
-  );
-  return { metrics, outcomes: results };
+  const results = Object.fromEntries(
+    arms().map((arm) => [armKey(arm), [] as Outcome[]]),
+  ) as Record<ArmKey, Outcome[]>;
+  for (const [group, items] of DOCS_GROUPS)
+    for (const item of items) {
+      for (const arm of arms())
+        results[armKey(arm)].push(await docsRun(item, arm, repo, group));
+      assertBudget();
+    }
+  return results;
 }
 
 class EvalEmbeddingService extends WikiEmbeddingService {
@@ -301,8 +358,7 @@ class EvalEmbeddingService extends WikiEmbeddingService {
     kind: "query" | "document",
   ) {
     const { vectors, charge } = await embedWikiTexts(texts, kind);
-    spend.embeddingMicrocents += charge.costMicrocents;
-    spend.embeddingCalls += 1;
+    spend.indexingMicrocents += charge.costMicrocents;
     return vectors;
   }
 
@@ -320,37 +376,18 @@ class EvalEmbeddingService extends WikiEmbeddingService {
   }
 }
 
-function wikiSectionHit(
-  item: WikiSearchResult,
-  answer: string,
-  markdownByTitle: Map<string, string>,
-) {
-  const expected = answer.toLocaleLowerCase();
-  if (item.snippet.replaceAll("**", "").toLocaleLowerCase().includes(expected))
-    return true;
-  const markdown = markdownByTitle.get(item.title) ?? "";
-  const section = wikiMarkdownSections(markdown).find(
-    ({ offset }) => offset === (item.offset ?? 0),
-  );
-  if (!section) return false;
-  return markdown
-    .slice(section.offset, section.end)
-    .replaceAll("**", "")
-    .toLocaleLowerCase()
-    .includes(expected);
-}
-
-async function evaluateWiki(databaseUrl: string) {
+async function evaluateWiki(
+  databaseUrl: string,
+): Promise<Record<ArmKey, Outcome[]>> {
+  const benchmark = loadWikiRetrievalBenchmark();
   const client = new Client({ connectionString: databaseUrl });
   await client.connect();
   const companyId = randomUUID();
   const userId = randomUUID();
   const user: TenantUser = createMockUser({ id: userId, companyId });
-  const markdownByTitle = new Map<string, string>();
-  const semantic: WikiSemanticRetrieval = {
-    embedder: { embedQuery },
-    scheduler: { schedule: () => Promise.resolve() },
-  };
+  const slugByTitle = new Map(
+    benchmark.pages.map((page) => [page.title, page.slug]),
+  );
   try {
     await client.query(
       'INSERT INTO "Company" ("id", "updatedAt") VALUES ($1, CURRENT_TIMESTAMP)',
@@ -366,16 +403,16 @@ async function evaluateWiki(databaseUrl: string) {
         companyId,
       ],
     );
-    for (const [index, page] of WIKI_RETRIEVAL_CORPUS.entries()) {
-      const markdown = WikiMarkdownSchema.parse(page.markdown);
-      markdownByTitle.set(page.title, markdown);
+    for (const [index, page] of benchmark.pages.entries()) {
       await client.query(
-        'INSERT INTO "WikiPage" ("id", "companyId", "title", "markdown", "createdAt", "updatedAt") VALUES ($1, $2, $3, $4, $5, $5)',
+        'INSERT INTO "WikiPage" ("id", "companyId", "title", "markdown", "kind", "whenToUse", "createdAt", "updatedAt") VALUES ($1, $2, $3, $4, $5::"WikiPageKind", $6, $7, $7)',
         [
           randomUUID(),
           companyId,
           page.title,
-          markdown,
+          WikiMarkdownSchema.parse(page.markdown),
+          page.kind,
+          page.whenToUse,
           new Date(Date.UTC(2026, 0, 1, 0, 0, index)),
         ],
       );
@@ -391,73 +428,105 @@ async function evaluateWiki(databaseUrl: string) {
         `Wiki index step ${step + 1}: ${result.indexed} pages, remaining ${String(result.remaining)}\n`,
       );
       indexed += result.indexed;
-      if (result.indexed === 0 || indexed >= WIKI_RETRIEVAL_CORPUS.length)
-        break;
+      if (result.indexed === 0 || indexed >= benchmark.pages.length) break;
     }
-    if (indexed !== WIKI_RETRIEVAL_CORPUS.length)
+    if (indexed !== benchmark.pages.length)
       throw new Error(
-        `Indexed ${indexed} of ${WIKI_RETRIEVAL_CORPUS.length} Wiki pages.`,
+        `Indexed ${indexed} of ${benchmark.pages.length} Wiki pages.`,
       );
 
     const search = async (
-      labelled: WikiEvalQuery,
-      variant: Variant,
-    ): Promise<WikiOutcome> => {
-      const outcome: { rerank: WikiOutcome["rerank"] } = { rerank: "none" };
-      const withSemantic = variant === "unified";
+      labelled: WikiBenchmarkQuery,
+      arm: Arm,
+    ): Promise<Outcome> => {
+      const embedding = await embedOnce(labelled.query);
+      const vector = embeddingFor(embedding, arm.mode);
+      const semantic: WikiSemanticRetrieval | null = arm.combo.includes("E")
+        ? {
+            embedder: { embedQuery: () => Promise.resolve(vector) },
+            scheduler: { schedule: () => Promise.resolve() },
+          }
+        : null;
       const interactor = new SearchWikiPagesInteractor(
         new PrismaWikiPageRepo(),
         "stored",
-        withSemantic ? semantic : null,
+        semantic,
       );
-      const ranker =
-        variant === "unified"
-          ? tracked(jevFor(labelled.query, "wiki"), outcome)
-          : undefined;
-      const invoke = () =>
-        runWithTenant(user, () =>
-          interactor.invoke({ query: labelled.query, page: 1, pageSize: 5 }),
-        );
-      const {
-        value: result,
-        timings,
-        totalMs,
-      } = await timed(() =>
-        ranker ? runWithSectionRanking(() => ranker, invoke) : invoke(),
+      const { value, timing, jevMs, localMs, fullTextMs } = await measured(
+        arm,
+        labelled.query,
+        "wiki",
+        async (ranker) => {
+          const invoke = () =>
+            runWithTenant(user, () =>
+              interactor.invoke({
+                query: labelled.query,
+                page: 1,
+                pageSize: 5,
+              }),
+            );
+          return ranker
+            ? runWithSectionRanking(() => ranker, invoke)
+            : invoke();
+        },
       );
-      if (!result.ok)
-        throw new Error(`Wiki search failed for ${labelled.query}`);
-      const titles = result.data.items.map((item) => item.title);
-      const rank =
-        titles.findIndex((title) => labelled.expect.includes(title)) + 1;
-      const [top] = result.data.items;
-      const sectionHit =
-        labelled.answer === undefined
-          ? null
-          : rank === 1 && wikiSectionHit(top, labelled.answer, markdownByTitle);
-      const empty = titles.length === 0;
+      if (!value.ok) throw new Error(`Wiki search failed for ${labelled.id}`);
+      const items = value.data.items.map((item) => ({
+        slug: slugByTitle.get(item.title) ?? item.title,
+        heading: item.section?.split(" > ").at(-1) ?? "",
+      }));
+      const golds = new Set(labelled.targets.map((target) => target.slug));
+      const [best] = items;
+      const noMatch = labelled.category === "no-match";
+      const hit = noMatch
+        ? items.length === 0
+        : best !== undefined &&
+          labelled.targets.some(
+            (target) =>
+              target.slug === best.slug && target.section === best.heading,
+          );
       return {
-        query: labelled.query,
-        category: labelled.category,
-        rank,
-        sectionHit,
-        empty,
-        pass:
-          labelled.expect.length === 0
-            ? empty
-            : rank === 1 && sectionHit !== false,
-        totalMs,
-        rerank: outcome.rerank,
-        embedding: timings[0]?.embedding ?? null,
-        top: titles.slice(0, 3),
+        id: labelled.id,
+        group: labelled.category,
+        language: labelled.language,
+        noMatch,
+        pageRank: items.findIndex((item) => golds.has(item.slug)) + 1,
+        empty: items.length === 0,
+        hit,
+        top: best ? `${best.slug}#${best.heading}` : null,
+        fullTextMs,
+        localMs,
+        embeddingMs: arm.combo.includes("E") ? embedding.ms : null,
+        embedding: timing?.embedding ?? null,
+        rerank: timing?.rerank ?? null,
+        jevMs,
+        modelledMs: modelledLatency({
+          arm,
+          localMs,
+          fullTextMs,
+          embedding,
+          jevMs,
+        }),
       };
     };
 
-    for (const query of WARMUP_QUERIES) await search({ category: "no-match", query, expect: [] }, "unified");
-
-    const results: Record<Variant, WikiOutcome[]> = { unified: [], "unified-full-text": [] };
-    for (const labelled of WIKI_RETRIEVAL_QUERIES) {
-      for (const variant of VARIANTS) results[variant].push(await search(labelled, variant));
+    for (const query of WARMUP_QUERIES)
+      await search(
+        {
+          id: "warm-up",
+          language: "en",
+          category: "no-match",
+          query,
+          targets: [],
+        },
+        { combo: "FTS+E", mode: "E-unbounded" },
+      );
+    const results = Object.fromEntries(
+      arms().map((arm) => [armKey(arm), [] as Outcome[]]),
+    ) as Record<ArmKey, Outcome[]>;
+    for (const labelled of benchmark.queries) {
+      for (const arm of arms())
+        results[armKey(arm)].push(await search(labelled, arm));
       assertBudget();
     }
     return results;
@@ -476,147 +545,167 @@ async function evaluateWiki(databaseUrl: string) {
   }
 }
 
-function wikiMetrics(outcomes: readonly WikiOutcome[]) {
-  const positives = outcomes.filter((entry) => entry.category !== "no-match");
-  const negatives = outcomes.filter((entry) => entry.category === "no-match");
-  const sections = positives.filter((entry) => entry.sectionHit !== null);
+function metrics(outcomes: readonly Outcome[]): Metrics {
+  const positives = outcomes.filter((entry) => !entry.noMatch);
+  const negatives = outcomes.filter((entry) => entry.noMatch);
   const share = <T>(list: readonly T[], predicate: (entry: T) => boolean) =>
     list.length ? list.filter(predicate).length / list.length : null;
+  const hits = outcomes.filter((entry) => entry.hit).length;
   return {
-    queries: outcomes.length,
+    items: outcomes.length,
+    hits,
+    hit: outcomes.length ? hits / outcomes.length : 0,
     positives: positives.length,
-    r1: share(positives, (entry) => entry.rank === 1),
-    r5: share(positives, (entry) => entry.rank >= 1),
-    mrr:
-      positives.reduce(
-        (sum, entry) => sum + (entry.rank > 0 ? 1 / entry.rank : 0),
-        0,
-      ) / positives.length,
-    finalSectionHit: share(sections, (entry) => entry.sectionHit === true),
-    sectionItems: sections.length,
+    pageR1: share(positives, (entry) => entry.pageRank === 1),
+    pageR5: share(
+      positives,
+      (entry) => entry.pageRank >= 1 && entry.pageRank <= 5,
+    ),
+    mrr: positives.length
+      ? positives.reduce(
+          (sum, entry) => sum + (entry.pageRank > 0 ? 1 / entry.pageRank : 0),
+          0,
+        ) / positives.length
+      : null,
     noMatchEmpty: share(negatives, (entry) => entry.empty),
-    pass: share(outcomes, (entry) => entry.pass),
-    rerankUsed: share(outcomes, (entry) => entry.rerank === "used"),
-    embeddingUsed: share(outcomes, (entry) => entry.embedding === "used"),
+    embeddingUsed: share(outcomes, (entry) => entry.embedding === "used") ?? 0,
+    rerankUsed: share(outcomes, (entry) => entry.rerank === "used") ?? 0,
     p50Ms: percentile(
-      outcomes.map((entry) => entry.totalMs),
+      outcomes.map((entry) => entry.modelledMs),
       50,
     ),
     p95Ms: percentile(
-      outcomes.map((entry) => entry.totalMs),
+      outcomes.map((entry) => entry.modelledMs),
       95,
     ),
   };
 }
 
-function wikiSummary(results: Record<Variant, WikiOutcome[]>) {
-  const categories = [
-    ...new Set(WIKI_RETRIEVAL_QUERIES.map((entry) => entry.category)),
-  ];
-  const metrics = Object.fromEntries(
-    Object.entries(results).map(([variant, outcomes]) => [
-      variant,
-      {
-        overall: wikiMetrics(outcomes),
-        byCategory: Object.fromEntries(
-          categories.map((category) => [
-            category,
-            wikiMetrics(
-              outcomes.filter((entry) => entry.category === category),
-            ),
-          ]),
-        ),
-      },
-    ]),
+function selectStages(
+  outcomes: Readonly<Record<Combo, readonly { id: string; hit: boolean }[]>>,
+): {
+  best: Combo;
+  chosen: Combo;
+  comparisons: Record<
+    Combo,
+    { p: number; onlyCombo: number; onlyBest: number }
+  >;
+} {
+  const hits = (combo: Combo) =>
+    outcomes[combo].filter((entry) => entry.hit).length;
+  const best = RETRIEVAL_COMBOS.reduce((leader, combo) =>
+    hits(combo) > hits(leader) ? combo : leader,
   );
-  return {
-    metrics,
-    misses: Object.fromEntries(
-      Object.entries(results).map(([variant, outcomes]) => [
-        variant,
-        outcomes
-          .filter((entry) => !entry.pass)
-          .map(
-            (entry) =>
-              `${entry.category} | ${entry.query} -> ${JSON.stringify(entry.top)}`,
-          ),
-      ]),
-    ),
-  };
+  const bestById = new Map(
+    outcomes[best].map((entry) => [entry.id, entry.hit]),
+  );
+  const comparisons = Object.fromEntries(
+    RETRIEVAL_COMBOS.map((combo) => {
+      const result = mcnemarExact(
+        outcomes[combo].map((entry) => ({
+          control: bestById.get(entry.id) ?? false,
+          candidate: entry.hit,
+        })),
+      );
+      return [
+        combo,
+        {
+          p: result.p,
+          onlyCombo: result.candidateOnly,
+          onlyBest: result.controlOnly,
+        },
+      ];
+    }),
+  ) as Record<Combo, { p: number; onlyCombo: number; onlyBest: number }>;
+  const chosen =
+    RETRIEVAL_COMBOS.find(
+      (combo) =>
+        hits(combo) >= hits(best) || comparisons[combo].p >= SIGNIFICANCE,
+    ) ?? best;
+  return { best, chosen, comparisons };
 }
 
 const pct = (value: number | null) =>
   value === null ? "-" : `${(100 * value).toFixed(1)} %`;
-const ms = (value: number | null) =>
+const sec = (value: number | null) =>
   value === null ? "-" : `${(value / 1000).toFixed(2)} s`;
+const pValue = (value: number) =>
+  value >= 0.001 ? value.toFixed(3) : value.toExponential(1);
 
-function renderMarkdown(
-  docs: Awaited<ReturnType<typeof evaluateDocs>> | null,
-  wiki: ReturnType<typeof wikiSummary> | null,
-) {
-  const lines: string[] = [];
-  if (docs) renderDocs(lines, docs);
-  if (wiki) renderWiki(lines, wiki);
-  lines.push(
-    "",
-    `Spend: embeddings ${(spend.embeddingMicrocents / MICROCENTS_PER_USD).toFixed(4)} USD over ${spend.embeddingCalls} calls, Jev ${(spend.jevMicrocents / MICROCENTS_PER_USD).toFixed(4)} USD over ${spend.jevCalls} calls (${spend.jevAnswered} answered).`,
-  );
-  return lines.join("\n");
-}
-
-function renderDocs(
+function render(
+  corpus: Corpus,
+  results: Record<ArmKey, Outcome[]>,
   lines: string[],
-  docs: Awaited<ReturnType<typeof evaluateDocs>>,
 ) {
-  lines.push(
-    "| Docs set | Pipeline | Items | Page R@1 | Page R@5 | Page MRR | Final-section hit | Re-rank used | Embedding used | p50 | p95 |",
-  );
-  lines.push(
-    "| --- | --- | ---: | ---: | ---: | ---: | ---: | ---: | ---: | ---: | ---: |",
-  );
-  for (const [set] of DOCS_SETS)
-    for (const variant of VARIANTS) {
-      const m = (
-        docs.metrics as Record<
-          string,
-          Record<string, ReturnType<typeof docsMetrics>>
-        >
-      )[variant][set];
+  const title =
+    corpus === "docs"
+      ? "Docs (110 labelled questions)"
+      : "Wiki (blind benchmark, 160 queries)";
+  lines.push(`## ${title}`, "");
+  for (const mode of EMBEDDING_MODES) {
+    const byCombo = Object.fromEntries(
+      RETRIEVAL_COMBOS.map((combo) => [combo, results[`${combo}|${mode}`]]),
+    ) as Record<Combo, Outcome[]>;
+    const decision = selectStages(byCombo);
+    lines.push(
+      `### ${mode}`,
+      "",
+      "| Combo | Items | Final-section hit@1 | Page R@1 | Page R@5 | Page MRR | No-match empty | Embedding used | Re-rank used | p50 | p95 | vs best (only combo / only best) | McNemar p |",
+      "| --- | ---: | ---: | ---: | ---: | ---: | ---: | ---: | ---: | ---: | ---: | ---: | ---: |",
+    );
+    for (const combo of RETRIEVAL_COMBOS) {
+      const m = metrics(byCombo[combo]);
+      const comparison = decision.comparisons[combo];
+      const vs =
+        combo === decision.best
+          ? "best"
+          : `${comparison.onlyCombo} / ${comparison.onlyBest}`;
       lines.push(
-        `| ${set} | ${variant} | ${m.items} | ${pct(m.pageR1)} | ${pct(m.pageR5)} | ${m.pageMrr.toFixed(3)} | ${pct(m.finalSectionHit)} | ${pct(m.rerankUsed)} | ${pct(m.embeddingUsed)} | ${ms(m.p50Ms)} | ${ms(m.p95Ms)} |`,
+        `| ${combo} | ${m.items} | ${m.hits} (${pct(m.hit)}) | ${pct(m.pageR1)} | ${pct(m.pageR5)} | ${m.mrr === null ? "-" : m.mrr.toFixed(3)} | ${pct(m.noMatchEmpty)} | ${pct(m.embeddingUsed)} | ${pct(m.rerankUsed)} | ${sec(m.p50Ms)} | ${sec(m.p95Ms)} | ${vs} | ${combo === decision.best ? "-" : pValue(comparison.p)} |`,
       );
     }
-  lines.push("");
+    lines.push(
+      "",
+      `Decision (${mode}): best ${decision.best}; chosen **${decision.chosen}**.`,
+      "",
+    );
+    for (const [label, key] of [
+      [corpus === "docs" ? "Set" : "Category", "group"],
+      ["Language", "language"],
+    ] as const) {
+      const values = [...new Set(byCombo.FTS.map((entry) => entry[key]))];
+      lines.push(
+        `| ${label} | Items | ${RETRIEVAL_COMBOS.map((combo) => `${combo} hit@1`).join(" | ")} | ${RETRIEVAL_COMBOS.map((combo) => `${combo} page R@1`).join(" | ")} |`,
+        `| --- | ---: | ${RETRIEVAL_COMBOS.map(() => "---:").join(" | ")} | ${RETRIEVAL_COMBOS.map(() => "---:").join(" | ")} |`,
+      );
+      for (const value of values) {
+        const slice = (combo: Combo) =>
+          metrics(byCombo[combo].filter((entry) => entry[key] === value));
+        lines.push(
+          `| ${value} | ${slice("FTS").items} | ${RETRIEVAL_COMBOS.map((combo) => pct(slice(combo).hit)).join(" | ")} | ${RETRIEVAL_COMBOS.map((combo) => pct(slice(combo).pageR1)).join(" | ")} |`,
+        );
+      }
+      lines.push("");
+    }
+  }
 }
 
-function renderWiki(lines: string[], wiki: ReturnType<typeof wikiSummary>) {
+function embeddingLatencyLines(lines: string[]) {
+  const warmUps = new Set(WARMUP_QUERIES);
+  const values = [...embeddings.entries()]
+    .filter(([text]) => !warmUps.has(text))
+    .map(([, entry]) => entry);
+  const ms = values.map((entry) => entry.ms);
+  const within = values.filter(
+    (entry) => entry.vector && entry.ms <= RETRIEVAL_EMBEDDING_WAIT_MS,
+  ).length;
+  const failed = values.filter((entry) => !entry.vector).length;
   lines.push(
-    "| Wiki pipeline | Queries | R@1 | R@5 | MRR | Final-section hit | No-match empty | Pass | Re-rank used | Embedding used | p50 | p95 |",
-    "| --- | ---: | ---: | ---: | ---: | ---: | ---: | ---: | ---: | ---: | ---: | ---: |",
-  );
-  for (const variant of VARIANTS) {
-    const m = (
-      wiki.metrics as Record<
-        string,
-        { overall: ReturnType<typeof wikiMetrics> }
-      >
-    )[variant].overall;
-    lines.push(
-      `| ${variant} | ${m.queries} | ${pct(m.r1)} | ${pct(m.r5)} | ${m.mrr.toFixed(3)} | ${pct(m.finalSectionHit)} (${m.sectionItems}) | ${pct(m.noMatchEmpty)} | ${pct(m.pass)} | ${pct(m.rerankUsed)} | ${pct(m.embeddingUsed)} | ${ms(m.p50Ms)} | ${ms(m.p95Ms)} |`,
-    );
-  }
-  const categories = [
-    ...new Set(WIKI_RETRIEVAL_QUERIES.map((entry) => entry.category)),
-  ];
-  lines.push(
+    "## Query embedding latency",
     "",
-    `| Wiki category | ${VARIANTS.map((v) => `${v} pass`).join(" | ")} |`,
-    "| --- | ---: | ---: |",
+    `${values.length} query embeddings (one per distinct query): p50 ${percentile(ms, 50)} ms, p95 ${percentile(ms, 95)} ms, max ${Math.max(...ms)} ms; ${within} (${pct(values.length ? within / values.length : null)}) returned a vector within ${RETRIEVAL_EMBEDDING_WAIT_MS} ms; ${failed} failed.`,
+    "",
   );
-  for (const category of categories)
-    lines.push(
-      `| ${category} | ${VARIANTS.map((variant) => pct((wiki.metrics as Record<string, { byCategory: Record<string, ReturnType<typeof wikiMetrics>> }>)[variant].byCategory[category].pass)).join(" | ")} |`,
-    );
 }
 
 async function main() {
@@ -638,13 +727,19 @@ async function main() {
       );
   const only = flag("only");
   const docs = only === "wiki" ? null : await evaluateDocs();
-  const wikiResults = only === "docs" ? null : await evaluateWiki(databaseUrl);
-  const wiki = wikiResults ? wikiSummary(wikiResults) : null;
-  const markdown = renderMarkdown(docs, wiki);
+  const wiki = only === "docs" ? null : await evaluateWiki(databaseUrl);
+  const lines: string[] = [];
+  if (docs) render("docs", docs, lines);
+  if (wiki) render("wiki", wiki, lines);
+  embeddingLatencyLines(lines);
+  lines.push(
+    `Harness-metered spend: query embeddings ${(spend.embeddingMicrocents / MICROCENTS_PER_USD).toFixed(4)} USD over ${spend.embeddingCalls} calls, Wiki indexing ${(spend.indexingMicrocents / MICROCENTS_PER_USD).toFixed(4)} USD, Jev ${(spend.jevMicrocents / MICROCENTS_PER_USD).toFixed(4)} USD over ${spend.jevCalls} calls (${spend.jevAnswered} answered).`,
+  );
+  const markdown = lines.join("\n");
   mkdirSync(dirname(outPath), { recursive: true });
   writeFileSync(
     outPath,
-    `${JSON.stringify({ spend: { ...spend, usd: spentUsd() }, docs, wiki: { ...wiki, outcomes: wikiResults } }, null, 2)}\n`,
+    `${JSON.stringify({ spend: { ...spend, usd: spentUsd() }, embeddings: Object.fromEntries(embeddings), docs, wiki }, null, 2)}\n`,
   );
   writeFileSync(outPath.replace(/\.json$/, ".md"), `${markdown}\n`);
   process.stdout.write(`${markdown}\n\nWrote ${outPath}\n`);
