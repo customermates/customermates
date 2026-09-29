@@ -36,6 +36,7 @@ vi.mock("@/core/validation/zod-error-map-server", () => ({
   getZodParseContext: vi.fn().mockResolvedValue(undefined),
 }));
 
+const { PrismaWikiWebsiteCrawlRepo } = await import("@/ee/wiki-crawl/prisma-wiki-website-crawl.repository");
 const { PrismaAgentChatRepo } = await import("@/ee/agent-chat/prisma-agent-chat.repository");
 const { AGENT_MAX_CONCURRENT_RUNS_PER_USER } = await import("@/ee/agent-chat/agent-run-limits");
 const { AGENT_RUN_LEASE_MS, WikiHomepageSetupAlreadyRunningError } = await import("@/ee/agent-chat/agent-turn-request");
@@ -154,6 +155,7 @@ describeDatabase("agent credit ledger against a real database", { timeout: 120_0
 
     const prepare = async (tenant: TenantUser) => {
       const repo = new PrismaAgentChatRepo();
+      const clientRequestId = randomUUID();
       const conversationId = randomUUID();
       const runId = randomUUID();
       const reservationId = randomUUID();
@@ -186,7 +188,21 @@ describeDatabase("agent credit ledger against a real database", { timeout: 120_0
           periodEnd,
         }),
       );
-      return { repo, conversationId, runId, reservationId };
+      await runWithoutTenant(() =>
+        prisma.wikiWebsiteCrawl.create({
+          data: {
+            companyId,
+            userId: tenant.id,
+            clientRequestId,
+            homepageUrl: "https://example.com/",
+            registrableDomain: "example.com",
+            locale: "en",
+            mode: "initial",
+            status: "completed",
+          },
+        }),
+      );
+      return { repo, conversationId, runId, reservationId, clientRequestId };
     };
 
     const first = await prepare(firstUser);
@@ -204,7 +220,7 @@ describeDatabase("agent credit ledger against a real database", { timeout: 120_0
           turn: {
             kind: "create",
             turnRequestId: randomUUID(),
-            clientRequestId: randomUUID(),
+            clientRequestId: prepared.clientRequestId,
             text: "Set up the Wiki from https://example.com/",
             pageRoute: "/wiki",
             wikiHomepageSetupUrl: "https://example.com/",
@@ -232,6 +248,115 @@ describeDatabase("agent credit ledger against a real database", { timeout: 120_0
     );
     expect(activeSetups).toBe(1);
   });
+
+  it.each(["failure-first", "admission-first"] as const)(
+    "serializes crawl settlement and turn admission with %s",
+    async (order) => {
+      const anchor = new Date(Date.UTC(2026, 0, 15));
+      const { companyId, userId } = await seedActiveSeat(anchor);
+      const user = createMockUser({ id: userId, companyId });
+      const repo = new PrismaAgentChatRepo();
+      const crawls = new PrismaWikiWebsiteCrawlRepo();
+      const conversationId = randomUUID();
+      const runId = randomUUID();
+      const reservationId = randomUUID();
+      const clientRequestId = randomUUID();
+      let crawlId = "";
+      await runWithTenant(user, async () => {
+        const created = await crawls.createCrawl({
+          clientRequestId,
+          homepageUrl: "https://example.com/",
+          registrableDomain: "example.com",
+          locale: "en",
+          mode: "initial",
+          extraHosts: [],
+        });
+        if (created.status !== "created") throw new Error("Missing crawl");
+        crawlId = created.crawl.id;
+        await crawls.claimCrawl(crawlId, ["queued"], { status: "synthesizing" });
+        await repo.createAgentConversationForRun({ conversationId, title: "Setup", now: new Date() });
+        expect(
+          await repo.claimAgentRunLease({
+            conversationId,
+            runId,
+            expiresAt: new Date(Date.now() + AGENT_RUN_LEASE_MS),
+            now: new Date(),
+          }),
+        ).toBe("claimed");
+      });
+      await runWithoutTenant(() =>
+        repo.reserveUsageEventUnscoped({
+          id: reservationId,
+          companyId,
+          userId,
+          sessionId: runId,
+          reservedMicrocents: CREDIT,
+          planSnapshot: "starter",
+          subscriptionStatusSnapshot: "active",
+          allowanceMicrocentsSnapshot: 200 * CREDIT,
+          periodStart: anchor,
+          periodEnd: new Date(anchor.getTime() + 31 * 24 * 60 * 60 * 1000),
+        }),
+      );
+      const admit = () =>
+        repo.admitAgentTurnOrThrow({
+          conversationId,
+          title: "Setup",
+          runId,
+          reservationId,
+          modelSpec: "openai/gpt-5.6-luna",
+          servingProvider: "azure",
+          recentMessageLimit: 8,
+          turn: {
+            kind: "create",
+            turnRequestId: randomUUID(),
+            clientRequestId,
+            text: "Setup",
+            pageRoute: null,
+            wikiHomepageSetupUrl: "https://example.com/",
+            userMessageId: randomUUID(),
+          },
+        });
+      const fail = () => crawls.settleCrawl(crawlId, { conversationId: null, failureReason: "error" });
+      const locked = Promise.withResolvers<undefined>();
+      const release = Promise.withResolvers<undefined>();
+      const first = runWithTenant(user, () =>
+        runInTransaction(async () => {
+          await (order === "failure-first" ? fail() : admit());
+          locked.resolve(undefined);
+          await release.promise;
+        }),
+      );
+      void first.catch(locked.reject);
+      await locked.promise;
+      const second = runWithTenant(user, async () => {
+        await (order === "failure-first" ? admit() : fail());
+      });
+      const outcomesPromise = Promise.allSettled([first, second]);
+      release.resolve(undefined);
+      const outcomes = await outcomesPromise;
+      expect(outcomes[0].status).toBe("fulfilled");
+      if (order === "failure-first") {
+        expect(outcomes[1]).toMatchObject({
+          status: "rejected",
+          reason: expect.any(WikiHomepageSetupAlreadyRunningError),
+        });
+      } else expect(outcomes[1].status).toBe("fulfilled");
+      await runWithTenant(user, async () => {
+        expect(await crawls.getCrawl(crawlId)).toMatchObject(
+          order === "failure-first"
+            ? { status: "failed", conversationId: null }
+            : { status: "completed", conversationId, failureReason: null },
+        );
+        expect(await prisma.agentTurnRequest.count({ where: { companyId, clientRequestId } })).toBe(
+          order === "failure-first" ? 0 : 1,
+        );
+        expect(await prisma.agentMessage.count({ where: { companyId, conversationId } })).toBe(
+          order === "failure-first" ? 0 : 1,
+        );
+      });
+    },
+  );
 
   it("does not retry a failed homepage setup while another setup is active", async () => {
     const anchor = new Date(Date.UTC(2026, 0, 15));

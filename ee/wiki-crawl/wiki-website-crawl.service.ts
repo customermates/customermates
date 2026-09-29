@@ -78,6 +78,7 @@ export abstract class WikiWebsiteCrawlRepo {
   abstract claimWorkflow(id: string, workflowRunId: string): Promise<boolean>;
   abstract listRefreshTargets(): Promise<WikiCrawlTarget[]>;
   abstract updateCrawl(id: string, patch: Partial<Omit<WikiCrawlRecord, "id" | "userId">>): Promise<void>;
+  abstract settleCrawl(id: string, result: WikiCrawlSynthesisResult): Promise<void>;
   abstract claimCrawl(
     id: string,
     from: readonly WikiCrawlStatus[],
@@ -254,9 +255,9 @@ export class WikiWebsiteCrawlService extends UserAccessor {
       let source;
       try {
         source = await fetchWikiSource(target.url, this.scope(crawl), robots);
-      } catch (error) {
+      } catch {
         if (!legacy) await this.repo.updateTargetStatus(crawlId, target.url, "failed");
-        throw error;
+        continue;
       }
       const canonicalUrl = source ? canonicalCrawlUrl(source.url) : null;
       if (source && canonicalUrl) {
@@ -340,11 +341,7 @@ export class WikiWebsiteCrawlService extends UserAccessor {
   }
 
   async fail(crawlId: string): Promise<void> {
-    await this.repo.claimCrawl(crawlId, WIKI_CRAWL_ACTIVE_STATUSES, {
-      status: "failed",
-      failureReason: "error",
-      finishedAt: new Date(),
-    });
+    await this.repo.settleCrawl(crawlId, { conversationId: null, failureReason: "error" });
   }
 
   async finish(crawlId: string): Promise<void> {
@@ -359,18 +356,28 @@ export class WikiWebsiteCrawlService extends UserAccessor {
       });
       return;
     }
+    if ((await this.repo.countSources(crawlId)) === 0) {
+      await this.repo.claimCrawl(crawlId, ["importing"], {
+        status: "failed",
+        failureReason: "unavailable",
+        finishedAt: new Date(),
+      });
+      return;
+    }
     if (
+      crawl.status !== "synthesizing" &&
       !(await this.repo.claimCrawl(crawlId, ["importing"], {
         status: "synthesizing",
       }))
     )
       return;
-    const { conversationId, failureReason } = await this.startSynthesis(crawl);
-    await this.repo.updateCrawl(crawlId, {
-      status: conversationId ? "completed" : "failed",
-      conversationId,
-      failureReason,
-      finishedAt: new Date(),
-    });
+    const result = await this.startSynthesis(crawl);
+    const { failureReason } = result;
+    if (
+      failureReason === "synthesisAdmission:agentTurnAlreadyRunning" ||
+      failureReason === "synthesisDisposition:atCapacity"
+    )
+      throw new Error("Wiki synthesis admission is still busy.");
+    await this.repo.settleCrawl(crawlId, result);
   }
 }

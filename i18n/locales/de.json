@@ -3786,7 +3786,7 @@
     "conversationTitle": "Wissensdatenbank einrichten",
     "crawlProgress": {
       "discovering": "Website-Seiten werden gesucht",
-      "failed": "Konnte nicht gelesen werden",
+      "failed": "Übersprungen",
       "found": "{count} Seiten gefunden",
       "pending": "Wartet",
       "read": "Gelesen",

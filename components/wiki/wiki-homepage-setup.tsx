@@ -15,6 +15,7 @@ import { APP_LOCALES, isAppLocale } from "@/i18n/locale-registry";
 import { browserAppLocale } from "@/i18n/locale-preference";
 import { FormSelect } from "@/components/forms/form-select";
 import { FormInput } from "@/components/forms/form-input";
+import { Alert } from "@/components/shared/alert";
 import { Button } from "@/components/ui/button";
 import { runUserAction } from "@/core/errors/report-application-error";
 import { useRootStore } from "@/core/stores/root-store.provider";
@@ -76,7 +77,7 @@ export const WikiHomepageSetup = observer(function WikiHomepageSetup({
   const [retrying, setRetrying] = useState(false);
   const submitting = useRef(false);
   const homepageInput = useRef<HTMLInputElement>(null);
-  const statusHeading = useRef<HTMLHeadingElement>(null);
+  const statusContainer = useRef<HTMLDivElement>(null);
   const focusStatusAfterSubmit = useRef(false);
 
   useEffect(() => {
@@ -105,7 +106,7 @@ export const WikiHomepageSetup = observer(function WikiHomepageSetup({
   useEffect(() => {
     if (!focusStatusAfterSubmit.current || state.status === "idle" || retrying) return;
     focusStatusAfterSubmit.current = false;
-    statusHeading.current?.focus();
+    statusContainer.current?.focus();
   }, [retrying, state.status]);
 
   const submit = async () => {
@@ -177,49 +178,67 @@ export const WikiHomepageSetup = observer(function WikiHomepageSetup({
       : t("WikiSetup.status.completedExistingBody");
     return (
       <section aria-busy={controlsDisabled} className="w-full space-y-4 text-left">
-        <div
-          aria-live={failed ? undefined : "polite"}
-          className={
-            working || (completed && state.conversationId)
-              ? "sr-only"
-              : failed
-                ? "flex items-center justify-between gap-3 rounded-lg border border-destructive/40 bg-destructive/10 px-3 py-2 text-xs"
-                : "flex items-start gap-2"
-          }
-          role={failed ? "alert" : undefined}
-        >
-          <div className={failed ? "hidden" : "mt-0.5 shrink-0 text-muted-foreground"}>
-            {working ? (
-              <Loader2 aria-hidden="true" className="size-4 animate-spin motion-reduce:animate-none" />
-            ) : completed ? (
-              <CheckCircle2 aria-hidden="true" className="size-3.5 text-success" />
-            ) : (
-              <TriangleAlert aria-hidden="true" className="size-3.5 text-warning" />
-            )}
-          </div>
+        {!failed ? (
+          <div
+            ref={statusContainer}
+            aria-live="polite"
+            className={
+              working || (completed && state.conversationId) ? "sr-only" : "flex items-start gap-2 outline-none"
+            }
+            tabIndex={-1}
+          >
+            <div className="mt-0.5 shrink-0 text-muted-foreground">
+              {working ? (
+                <Loader2 aria-hidden="true" className="size-4 animate-spin motion-reduce:animate-none" />
+              ) : completed ? (
+                <CheckCircle2 aria-hidden="true" className="size-3.5 text-success" />
+              ) : (
+                <TriangleAlert aria-hidden="true" className="size-3.5 text-warning" />
+              )}
+            </div>
 
-          <div className={failed ? "min-w-0" : "min-w-0 space-y-1"}>
-            <h2 ref={statusHeading} className={failed ? "sr-only" : "text-sm font-medium outline-none"} tabIndex={-1}>
-              {working
-                ? t("WikiSetup.status.workingTitle")
-                : completed
-                  ? t("WikiSetup.status.completedTitle")
-                  : state.status === "noContent"
-                    ? t("WikiSetup.status.noContentTitle")
-                    : t("WikiSetup.status.failedTitle")}
-            </h2>
+            <div className="min-w-0 space-y-1">
+              <h2 className="text-sm font-medium">
+                {working
+                  ? t("WikiSetup.status.workingTitle")
+                  : completed
+                    ? t("WikiSetup.status.completedTitle")
+                    : state.status === "noContent"
+                      ? t("WikiSetup.status.noContentTitle")
+                      : t("WikiSetup.status.failedTitle")}
+              </h2>
 
-            <p className={failed ? undefined : "text-sm text-muted-foreground"}>
-              {working
-                ? workingBody
-                : completed
-                  ? completedBody
-                  : state.status === "noContent"
-                    ? t("WikiSetup.status.noContentBody")
-                    : failedBody}
-            </p>
+              <p className="text-sm text-muted-foreground">
+                {working
+                  ? workingBody
+                  : completed
+                    ? completedBody
+                    : state.status === "noContent"
+                      ? t("WikiSetup.status.noContentBody")
+                      : failedBody}
+              </p>
+            </div>
           </div>
-        </div>
+        ) : null}
+
+        {failed ? (
+          <Alert ref={statusContainer} className="outline-none" color="danger" description={failedBody} tabIndex={-1}>
+            {canStart && state.pages.length === 0 ? (
+              <Button
+                className="mt-2"
+                disabled={controlsDisabled}
+                size="sm"
+                type="button"
+                variant="secondary"
+                onClick={() => setRetrying(true)}
+              >
+                <RotateCcw />
+
+                {t("WikiSetup.tryAnother")}
+              </Button>
+            ) : null}
+          </Alert>
+        ) : null}
 
         {state.progress || state.crawlPhase ? <WikiSetupProgress state={state} /> : null}
 
@@ -248,7 +267,7 @@ export const WikiHomepageSetup = observer(function WikiHomepageSetup({
         {state.conversationId ? renderConversation(state.conversationId) : null}
 
         <div className="flex flex-wrap justify-end gap-2">
-          {canStart && !working && !completed && state.pages.length === 0 ? (
+          {canStart && !working && !completed && !failed && state.pages.length === 0 ? (
             <Button disabled={controlsDisabled} type="button" variant="secondary" onClick={() => setRetrying(true)}>
               <RotateCcw />
 

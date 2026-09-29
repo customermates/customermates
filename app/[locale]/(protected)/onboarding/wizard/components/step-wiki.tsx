@@ -12,6 +12,7 @@ import { AgentRouteReloadBridge } from "@/app/components/agent-chat/agent-route-
 import { AgentChatStoreProvider } from "@/app/components/agent-chat/agent-chat-store-context";
 import { AgentStatusAnnouncer } from "@/app/components/agent-chat/agent-status-announcer";
 import { WikiHomepageSetup } from "@/components/wiki/wiki-homepage-setup";
+import { Alert } from "@/components/shared/alert";
 import { Button } from "@/components/ui/button";
 import { TooltipProvider } from "@/components/ui/tooltip";
 import { useRootStore } from "@/core/stores/root-store.provider";
@@ -72,13 +73,17 @@ const WikiSetupConversation = observer(function WikiSetupConversation({ conversa
               <span>{t("WikiSetup.progressLoading")}</span>
             </div>
           ) : failed ? (
-            <div className="flex flex-1 flex-col items-center justify-center gap-3 p-6 text-center" role="alert">
-              <p className="max-w-sm text-sm text-muted-foreground">{t("WikiSetup.progressLoadFailed")}</p>
-
-              <Button size="sm" type="button" variant="secondary" onClick={() => runUserAction(loadConversation)}>
+            <Alert color="danger" description={t("WikiSetup.progressLoadFailed")}>
+              <Button
+                className="mt-2"
+                size="sm"
+                type="button"
+                variant="secondary"
+                onClick={() => runUserAction(loadConversation)}
+              >
                 {t("ErrorCard.retry")}
               </Button>
-            </div>
+            </Alert>
           ) : (
             <>
               <AgentConversationLog readOnly renderLinksAsText showProgressStatus className="px-0" scrollable={false} />

@@ -43,6 +43,7 @@ function harness(offset: number, knownRevision = true) {
       sourceContentHash: "old",
     }),
     markImported: vi.fn().mockResolvedValue(undefined),
+    settleCrawl: vi.fn().mockResolvedValue(undefined),
     updateCrawl: vi.fn().mockResolvedValue(undefined),
   };
   const update = vi.fn().mockResolvedValue({
@@ -97,6 +98,7 @@ describe("Wiki imported revision protection", () => {
       ...repo,
       getCrawl: vi.fn().mockResolvedValue(crawl),
       deleteEarlierSources: vi.fn(),
+      countSources: vi.fn().mockResolvedValue(1),
     };
     const start = vi.fn().mockResolvedValue({ conversationId: "conversation-1", failureReason: null });
     const service = new WikiWebsiteCrawlService(extensionRepo as never, {} as never, {} as never, start);

@@ -87,13 +87,17 @@ export const RoutineRunDetail = observer(({ run, scrollContainerRef, store }: Pr
           <Spinner aria-label={t("PageState.loading")} />
         </div>
       ) : transcriptFailed ? (
-        <div className="flex min-h-48 flex-1 flex-col items-center justify-center gap-3 p-6 text-center" role="alert">
-          <p className="text-subdued text-sm">{t("AgentChat.errors.turnFailed")}</p>
-
-          <Button size="sm" type="button" variant="secondary" onClick={() => runUserAction(() => store.openRun(run))}>
+        <Alert color="danger" description={t("AgentChat.errors.turnFailed")}>
+          <Button
+            className="mt-2"
+            size="sm"
+            type="button"
+            variant="secondary"
+            onClick={() => runUserAction(() => store.openRun(run))}
+          >
             {t("ErrorCard.retry")}
           </Button>
-        </div>
+        </Alert>
       ) : transcriptSelected ? (
         <div className="flex flex-1 flex-col">
           <AgentConversationLog

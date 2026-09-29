@@ -21,6 +21,7 @@ import { useSteadyLabel } from "./use-steady-label";
 import { useAgentChatStore, useAgentChatUiTargets } from "./agent-chat-store-context";
 import { useCopyToClipboard } from "@/core/utils/use-copy-to-clipboard";
 import { runUserAction } from "@/core/errors/report-application-error";
+import { Alert } from "@/components/shared/alert";
 import { Button } from "@/components/ui/button";
 import { AppLink } from "@/components/shared/app-link";
 import { Collapsible, CollapsibleContent, CollapsibleTrigger } from "@/components/ui/collapsible";
@@ -128,28 +129,17 @@ export const AgentChatItemView = observer(function AgentChatItemView({
 
   if (item.kind === "turn_interrupted") {
     return (
-      <div
-        className="rounded-lg border border-destructive/40 bg-destructive/10 px-3 py-2 text-xs"
-        data-testid="agent-turn-interrupted"
-        role="alert"
-      >
-        {t("AgentChat.ui.turnInterrupted")}
-      </div>
+      <Alert color="warning" data-testid="agent-turn-interrupted" description={t("AgentChat.ui.turnInterrupted")} />
     );
   }
 
   if (item.kind === "turn_error") {
     const copy = chatUiCopy(t);
     return (
-      <div
-        className="flex items-center justify-between gap-3 rounded-lg border border-destructive/40 bg-destructive/10 px-3 py-2 text-xs"
-        role="alert"
-      >
-        <span>{copy.turnFailed}</span>
-
+      <Alert color="danger" description={copy.turnFailed}>
         {!readOnly && (
           <Button
-            className="shrink-0"
+            className="mt-2"
             disabled={store.isWorking || Boolean(store.usage?.blockedReason) || !store.canRetryFailedTurn(item)}
             size="sm"
             variant="secondary"
@@ -161,7 +151,7 @@ export const AgentChatItemView = observer(function AgentChatItemView({
             {copy.retryTurn}
           </Button>
         )}
-      </div>
+      </Alert>
     );
   }
 

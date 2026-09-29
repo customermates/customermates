@@ -438,11 +438,7 @@ export const WikiPageView = observer(function WikiPageView({
           </Sheet>
 
           {initialSetupState.status === "failed" && (
-            <Alert color="warning">
-              <p>{t("WikiSetup.status.failedTitle")}</p>
-
-              <p>{t("WikiSetup.status.failedBody")}</p>
-            </Alert>
+            <Alert color="danger" description={t("WikiSetup.status.failedBody")} />
           )}
 
           {setupActive && hasDocument && (

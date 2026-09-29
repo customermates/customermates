@@ -334,7 +334,7 @@ describe("PrismaAgentChatRepo tenant boundaries", () => {
   });
 
   it("atomically admits a fenced turn into the conversation that already holds its lease", async () => {
-    prismaMock.wikiWebsiteCrawl.findFirst.mockResolvedValueOnce({
+    prismaMock.wikiWebsiteCrawl.findFirst.mockResolvedValue({
       status: "synthesizing",
       clientRequestId: "request-1",
       homepageUrl: "https://example.com/",
@@ -463,6 +463,57 @@ describe("PrismaAgentChatRepo tenant boundaries", () => {
       userMessageId: "user-message-1",
     });
     expect(prismaMock.$transaction).toHaveBeenCalledOnce();
+  });
+
+  it("rejects admission when crawl failure won the company lock before turn creation", async () => {
+    prismaMock.agentRunLease.updateMany.mockResolvedValue({ count: 1 });
+    prismaMock.agentUsageEvent.findFirst.mockResolvedValue({
+      id: "reservation-2",
+    });
+    prismaMock.agentConversation.findFirst.mockResolvedValue({
+      id: "conversation-2",
+      origin: "user",
+    });
+    prismaMock.agentTurnRequest.findFirst.mockResolvedValue(null);
+    prismaMock.wikiWebsiteCrawl.findFirst.mockResolvedValue(null);
+
+    await expect(
+      runWithTenant(user, () =>
+        new PrismaAgentChatRepo().admitAgentTurnOrThrow({
+          conversationId: "conversation-2",
+          title: "Set up Workspace Wiki",
+          runId: "run-2",
+          reservationId: "reservation-2",
+          modelSpec: "openai/gpt-5.6-luna",
+          servingProvider: "azure",
+          recentMessageLimit: 8,
+          turn: {
+            kind: "create",
+            turnRequestId: "turn-2",
+            clientRequestId: "request-2",
+            text: "Set up the Wiki from https://example.com/",
+            pageRoute: "/en/wiki",
+            wikiHomepageSetupUrl: "https://example.com/",
+            userMessageId: "user-message-2",
+          },
+        }),
+      ),
+    ).rejects.toBeInstanceOf(WikiHomepageSetupAlreadyRunningError);
+
+    expect(prismaMock.$transaction).toHaveBeenCalledOnce();
+    expect(prismaMock.$executeRaw).toHaveBeenCalledOnce();
+    expect(prismaMock.agentTurnRequest.findFirst).toHaveBeenCalledWith({
+      where: {
+        id: { not: "turn-2" },
+        companyId: user.companyId,
+        wikiHomepageSetupUrl: { not: null },
+        status: { in: ["running", "waitingBudget"] },
+        OR: [{ heartbeatAt: { gt: expect.any(Date) } }, { heartbeatAt: null, updatedAt: { gt: expect.any(Date) } }],
+      },
+      select: { id: true },
+    });
+    expect(prismaMock.agentTurnRequest.create).not.toHaveBeenCalled();
+    expect(prismaMock.agentMessage.create).not.toHaveBeenCalled();
   });
 
   it("rejects a concurrent homepage setup under the company admission lock", async () => {
@@ -712,6 +763,125 @@ describe("PrismaAgentChatRepo tenant boundaries", () => {
     expect(prismaMock.agentConversation.create).not.toHaveBeenCalled();
     expect(prismaMock.agentTurnRequest.create).not.toHaveBeenCalled();
     expect(prismaMock.agentMessage.create).not.toHaveBeenCalled();
+  });
+
+  it("does not substitute a newer same-site crawl when the original retry crawl is unavailable", async () => {
+    prismaMock.agentRunLease.updateMany.mockResolvedValue({ count: 1 });
+    prismaMock.agentUsageEvent.findFirst.mockResolvedValue({ id: "reservation-1" });
+    prismaMock.agentConversation.findFirst.mockResolvedValue({ id: "conversation-1", origin: "user" });
+    prismaMock.agentTurnRequest.findFirst
+      .mockResolvedValueOnce(null)
+      .mockResolvedValueOnce({ clientRequestId: "original-request" });
+    prismaMock.wikiWebsiteCrawl.findFirst.mockImplementation((args) =>
+      Promise.resolve(args.where.clientRequestId === "newer-request" ? { id: "newer-crawl" } : null),
+    );
+    await expect(
+      runWithTenant(user, () =>
+        new PrismaAgentChatRepo().admitAgentTurnOrThrow({
+          conversationId: "conversation-1",
+          title: null,
+          runId: "run-2",
+          reservationId: "reservation-1",
+          modelSpec: "openai/gpt-5.6-luna",
+          servingProvider: "azure",
+          recentMessageLimit: 8,
+          turn: {
+            kind: "retry",
+            turnRequestId: "turn-1",
+            priorRunId: "run-1",
+            priorAttemptCount: 1,
+            userMessageId: "user-message-1",
+            wikiHomepageSetupUrl: "https://example.com/",
+          },
+        }),
+      ),
+    ).rejects.toBeInstanceOf(WikiHomepageSetupAlreadyRunningError);
+    expect(prismaMock.agentTurnRequest.updateMany).not.toHaveBeenCalled();
+    expect(prismaMock.agentMessage.create).not.toHaveBeenCalled();
+  });
+
+  it("uses the persisted retry request identity when binding its Wiki crawl", async () => {
+    prismaMock.agentTurnRequest.findFirst
+      .mockResolvedValueOnce(null)
+      .mockResolvedValueOnce({ clientRequestId: "original-request" });
+    prismaMock.wikiWebsiteCrawl.findFirst.mockResolvedValueOnce(null).mockResolvedValueOnce({ id: "original-crawl" });
+    prismaMock.agentRunLease.updateMany.mockResolvedValue({ count: 1 });
+    prismaMock.agentUsageEvent.findFirst.mockResolvedValue({
+      id: "reservation-1",
+    });
+    prismaMock.agentUsageEvent.updateMany.mockResolvedValue({ count: 1 });
+    prismaMock.agentConversation.findFirst.mockResolvedValue({
+      id: "conversation-1",
+      origin: "user",
+    });
+    prismaMock.agentTurnRequest.updateMany.mockResolvedValue({ count: 1 });
+    prismaMock.agentConversation.updateMany.mockResolvedValue({ count: 1 });
+    prismaMock.agentMessage.findMany.mockResolvedValue([]);
+
+    await runWithTenant(user, () =>
+      new PrismaAgentChatRepo().admitAgentTurnOrThrow({
+        conversationId: "conversation-1",
+        title: null,
+        runId: "run-2",
+        reservationId: "reservation-1",
+        modelSpec: "openai/gpt-5.6-luna",
+        servingProvider: "azure",
+        recentMessageLimit: 8,
+        turn: {
+          kind: "retry",
+          wikiHomepageSetupUrl: "https://example.com/",
+          turnRequestId: "turn-1",
+          priorRunId: "run-1",
+          priorAttemptCount: 1,
+          userMessageId: "user-message-1",
+        },
+      }),
+    );
+
+    expect(prismaMock.agentTurnRequest.findFirst).toHaveBeenCalledWith({
+      where: { id: "turn-1", companyId: user.companyId, userId: user.id, conversationId: "conversation-1" },
+      select: { clientRequestId: true },
+    });
+    expect(prismaMock.wikiWebsiteCrawl.findFirst).toHaveBeenCalledWith({
+      where: {
+        companyId: user.companyId,
+        userId: user.id,
+        clientRequestId: "original-request",
+        homepageUrl: "https://example.com/",
+        status: { in: ["synthesizing", "completed"] },
+      },
+      select: { id: true },
+    });
+    expect(prismaMock.agentTurnRequest.updateMany).toHaveBeenCalledWith({
+      where: {
+        id: "turn-1",
+        companyId: user.companyId,
+        userId: user.id,
+        conversationId: "conversation-1",
+        runId: "run-1",
+        attemptCount: 1,
+        status: "failed",
+        providerStartedAt: null,
+        assistantMessageId: null,
+      },
+      data: {
+        status: "running",
+        runId: "run-2",
+        attemptCount: { increment: 1 },
+        externalRunId: null,
+        cancellationRequestedAt: null,
+        heartbeatAt: null,
+        terminalAt: null,
+        terminalCode: null,
+        stopReason: null,
+        modelSpec: "openai/gpt-5.6-luna",
+        servingProvider: "azure",
+        affectedResources: [],
+      },
+    });
+    expect(prismaMock.agentTurnRequest.create).not.toHaveBeenCalled();
+    expect(prismaMock.agentMessage.create).not.toHaveBeenCalled();
+    expect(prismaMock.agentTurnRequest.updateMany.mock.calls[0]?.[0]?.data).not.toHaveProperty("wikiHomepageSetupUrl");
   });
 
   it("retries a failed turn inside the fenced admission transaction", async () => {

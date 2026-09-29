@@ -601,6 +601,27 @@ export class PrismaAgentChatRepo extends BaseRepository implements AgentUsageRep
             activeCrawl.homepageUrl !== args.turn.wikiHomepageSetupUrl)
         )
           throw new WikiHomepageSetupAlreadyRunningError();
+        const originalRequest =
+          args.turn.kind === "retry"
+            ? await this.prisma.agentTurnRequest.findFirst({
+                where: { id: args.turn.turnRequestId, companyId, userId, conversationId },
+                select: { clientRequestId: true },
+              })
+            : null;
+        const crawlClientRequestId =
+          args.turn.kind === "create" ? args.turn.clientRequestId : originalRequest?.clientRequestId;
+        if (!crawlClientRequestId) throw new WikiHomepageSetupAlreadyRunningError();
+        const boundCrawl = await this.prisma.wikiWebsiteCrawl.findFirst({
+          where: {
+            companyId,
+            userId,
+            clientRequestId: crawlClientRequestId,
+            homepageUrl: args.turn.wikiHomepageSetupUrl,
+            status: { in: ["synthesizing", "completed"] },
+          },
+          select: { id: true },
+        });
+        if (!boundCrawl) throw new WikiHomepageSetupAlreadyRunningError();
       }
 
       if (args.turn.kind === "retry") {

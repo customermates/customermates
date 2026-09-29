@@ -1101,8 +1101,7 @@ describe("Wiki empty state", () => {
         },
       }),
     );
-    expect(container.textContent).toContain("WikiSetup.status.failedTitle");
-    expect(container.textContent).toContain("WikiSetup.status.failedBody");
+    expect(container.querySelector('[role="alert"]')?.textContent).toContain("WikiSetup.status.failedBody");
     expect(container.querySelector("[data-editor-readonly]")).not.toBeNull();
     expect(harness.refreshWhileSetupWorks).toHaveBeenLastCalledWith(false);
     const actions = (harness.topBar as ReactElement<{ onRefreshFromWebsite?: () => void }>).props;

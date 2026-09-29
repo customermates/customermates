@@ -31,6 +31,7 @@ function fixture(status: "pending" | "reading" | "read" | "failed" = "pending") 
     saveSource: vi.fn().mockImplementation(() => {
       events.push("saved");
     }),
+    settleCrawl: vi.fn().mockResolvedValue(undefined),
     updateCrawl: vi.fn(),
     countSources: vi.fn(),
     claimCrawl: vi.fn().mockResolvedValue(true),
@@ -130,12 +131,83 @@ describe("persisted per-page crawl progress", () => {
     expect(repo.saveSource).not.toHaveBeenCalled();
   });
 
-  it("records a failed fetch before surfacing an unexpected error", async () => {
+  it("settles a throwing fetch as failed without aborting the batch", async () => {
     const { service, events } = fixture();
     const error = new Error("fetch failed");
     calls.fetch.mockRejectedValue(error);
-    await expect(service.fetchBatch("crawl", 0)).rejects.toBe(error);
+    await expect(service.fetchBatch("crawl", 0)).resolves.toBeUndefined();
     expect(events).toEqual(["reading", "failed"]);
+  });
+
+  it.each([false, true])(
+    "continues after thrown and empty pages to save a later source (legacy=%s)",
+    async (legacy) => {
+      vi.useFakeTimers();
+      const { service, repo } = fixture();
+      const targets = Array.from({ length: 3 }, (_, i) => ({
+        url: `https://example.com/${i}`,
+        category: "help",
+        ...(legacy ? {} : { status: "pending" }),
+      }));
+      repo.getCrawl.mockResolvedValue({ status: "fetching", targets, discovered: 3, extraHosts: [], crawlDelayMs: 0 });
+      repo.updateTargetStatus.mockImplementation((_id, url, status) => {
+        const target = targets.find((item) => item.url === url);
+        if (!target) throw new Error("Missing fixture target");
+        target.status = status;
+        return true;
+      });
+      repo.countSources.mockResolvedValue(1);
+      calls.fetch
+        .mockRejectedValueOnce(new Error("network failure"))
+        .mockResolvedValueOnce(null)
+        .mockResolvedValueOnce({
+          url: targets[2].url,
+          text: "Source",
+          title: "Help",
+          qaPairs: [],
+          contentHash: "hash",
+        });
+      const run = service.fetchBatch("crawl", 0);
+      await vi.runAllTimersAsync();
+      await run;
+      expect(calls.fetch.mock.calls.map(([url]) => url)).toEqual(targets.map(({ url }) => url));
+      expect(repo.saveSource).toHaveBeenCalledExactlyOnceWith(
+        "crawl",
+        expect.objectContaining({ url: targets[2].url }),
+      );
+      if (legacy) {
+        expect(repo.updateTargetStatus).not.toHaveBeenCalled();
+        expect(repo.updateCrawl).toHaveBeenCalledWith("crawl", { fetched: 1, failed: 2 });
+      } else expect(targets.map(({ status }) => status)).toEqual(["failed", "failed", "read"]);
+    },
+  );
+
+  it("propagates persistence failure when recording a failed page", async () => {
+    const { service, repo } = fixture();
+    calls.fetch.mockRejectedValue(new Error("network failure"));
+    repo.updateTargetStatus.mockResolvedValueOnce(true).mockRejectedValueOnce(new Error("database failed"));
+    await expect(service.fetchBatch("crawl", 0)).rejects.toThrow("database failed");
+    expect(repo.saveSource).not.toHaveBeenCalled();
+  });
+
+  it.each(["initial", "extend"])("does not start paid synthesis when %s has no stored sources", async (mode) => {
+    const { repo } = fixture();
+    repo.getCrawl.mockResolvedValue({ status: "importing", mode, discovered: 3, fetched: 0 });
+    repo.countSources.mockResolvedValue(0);
+    const start = vi.fn();
+    const service = new WikiWebsiteCrawlService(
+      { ...repo, deleteEarlierSources: vi.fn() } as never,
+      {} as never,
+      {} as never,
+      start,
+    );
+    await service.finish("crawl");
+    expect(start).not.toHaveBeenCalled();
+    expect(repo.claimCrawl).toHaveBeenCalledExactlyOnceWith(
+      "crawl",
+      ["importing"],
+      expect.objectContaining({ status: "failed", failureReason: "unavailable" }),
+    );
   });
 
   it("keeps reading retryable when source persistence fails", async () => {

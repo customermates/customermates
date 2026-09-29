@@ -1,3 +1,4 @@
+import type { WikiCrawlSynthesisResult } from "./wiki-crawl-synthesis";
 import { activeWikiHomepageSetupWhere } from "@/ee/agent-chat/wiki-setup-admission";
 import type { WikiCrawlTarget, WikiCrawlCategory, WikiCrawlTargetStatus } from "./website-discovery";
 import type { WikiSourceQa } from "./website-source-extract";
@@ -220,6 +221,39 @@ export class PrismaWikiWebsiteCrawlRepo
       data: crawlPatch(patch),
     });
     return count === 1;
+  }
+
+  async settleCrawl(id: string, result: WikiCrawlSynthesisResult): Promise<void> {
+    await this.withCompanyTransaction(this.companyId, async () => {
+      const crawl = await this.prisma.wikiWebsiteCrawl.findFirst({
+        where: { id, companyId: this.companyId },
+        select: { userId: true, clientRequestId: true, homepageUrl: true },
+      });
+      if (!crawl) return;
+      const turn = await this.prisma.agentTurnRequest.findFirst({
+        where: {
+          companyId: this.companyId,
+          userId: crawl.userId,
+          clientRequestId: crawl.clientRequestId,
+          wikiHomepageSetupUrl: crawl.homepageUrl,
+        },
+        select: { conversationId: true },
+      });
+      const conversationId = turn?.conversationId ?? result.conversationId;
+      await this.prisma.wikiWebsiteCrawl.updateMany({
+        where: {
+          id,
+          companyId: this.companyId,
+          status: { in: ["queued", "discovering", "fetching", "importing", "synthesizing"] },
+        },
+        data: {
+          status: conversationId ? "completed" : "failed",
+          conversationId,
+          failureReason: conversationId ? null : result.failureReason,
+          finishedAt: new Date(),
+        },
+      });
+    });
   }
 
   async updateTargetStatus(crawlId: string, url: string, status: Exclude<WikiCrawlTargetStatus, "pending">) {

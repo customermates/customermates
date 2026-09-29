@@ -2,7 +2,7 @@
 
 import type { WikiHomepageSetupState } from "@/features/wiki/get-wiki-homepage-setup-state.interactor";
 
-import { Check, ChevronDown, Circle, Loader2, X } from "lucide-react";
+import { Check, ChevronDown, Circle, Loader2, Minus, X } from "lucide-react";
 import { useTranslations } from "next-intl";
 
 import { useActivityGroupState } from "@/app/components/agent-chat/use-activity-group-state";
@@ -11,12 +11,13 @@ import { Collapsible, CollapsibleContent, CollapsibleTrigger } from "@/component
 const activityRowClassName =
   "relative space-y-2 text-xs before:absolute before:top-0 before:-left-4 before:h-[calc(100%+0.75rem)] before:w-px before:origin-top before:animate-timeline-grow before:bg-border last:before:h-full before:motion-reduce:animate-none";
 
-type ProgressStatus = "pending" | "reading" | "read" | "failed" | "unknown";
+type ProgressStatus = "pending" | "reading" | "read" | "failed" | "skipped" | "unknown";
 
 function StatusIcon({ status }: { status: ProgressStatus }) {
   if (status === "reading")
     return <Loader2 aria-hidden="true" className="size-3.5 shrink-0 animate-spin motion-reduce:animate-none" />;
   if (status === "read") return <Check aria-hidden="true" className="size-3.5 shrink-0" />;
+  if (status === "skipped") return <Minus aria-hidden="true" className="size-3.5 shrink-0" />;
   if (status === "failed") return <X aria-hidden="true" className="size-3.5 shrink-0 text-destructive" />;
   return <Circle aria-hidden="true" className="size-3.5 shrink-0" />;
 }
@@ -30,9 +31,10 @@ export function WikiSetupProgress({ state }: { state: WikiHomepageSetupState }) 
   const active = state.status === "working" && (discovering || reading);
   const readingComplete =
     (progress?.total ?? 0) > 0 &&
-    progress?.fetched === progress?.total &&
-    pages.every((page) => page.status === "read");
-  const hasError = (progress?.failed ?? 0) > 0 || (state.status === "failed" && !readingComplete);
+    (progress?.fetched ?? 0) > 0 &&
+    (progress?.fetched ?? 0) + (progress?.failed ?? 0) === progress?.total &&
+    pages.every((page) => page.status === "read" || page.status === "failed");
+  const hasError = state.status === "failed" && !readingComplete;
   const { open, setOpen } = useActivityGroupState({ hasRunning: active, hasError, isWorking: active });
   const discoveryStatus: ProgressStatus = discovering
     ? "reading"
@@ -45,13 +47,11 @@ export function WikiSetupProgress({ state }: { state: WikiHomepageSetupState }) 
     ? "reading"
     : discovering
       ? "pending"
-      : (progress?.failed ?? 0) > 0
-        ? "failed"
-        : readingComplete
-          ? "read"
-          : hasError
-            ? "failed"
-            : "unknown";
+      : readingComplete
+        ? "read"
+        : hasError
+          ? "failed"
+          : "unknown";
   const summary = discovering
     ? t("WikiSetup.crawlProgress.discovering")
     : reading
@@ -62,6 +62,7 @@ export function WikiSetupProgress({ state }: { state: WikiHomepageSetupState }) 
     reading: t("WikiSetup.crawlProgress.reading"),
     read: t("WikiSetup.crawlProgress.read"),
     failed: t("WikiSetup.crawlProgress.failed"),
+    skipped: t("WikiSetup.crawlProgress.failed"),
     unknown: "",
   };
 
@@ -110,7 +111,9 @@ export function WikiSetupProgress({ state }: { state: WikiHomepageSetupState }) 
 
           <li
             aria-current={reading ? "step" : undefined}
-            aria-label={pageStatusLabels[readingStatus]}
+            aria-label={
+              readingStatus === "failed" ? t("WikiSetup.status.failedTitle") : pageStatusLabels[readingStatus]
+            }
             className={activityRowClassName}
           >
             <div className="flex items-start gap-2 text-foreground [&>svg]:mt-0.5">
@@ -141,7 +144,7 @@ export function WikiSetupProgress({ state }: { state: WikiHomepageSetupState }) 
                     className="flex items-start gap-2 [&>svg]:mt-0.5"
                   >
                     {page.status !== "unknown" && (page.status !== "reading" || reading) ? (
-                      <StatusIcon status={page.status} />
+                      <StatusIcon status={page.status === "failed" ? "skipped" : page.status} />
                     ) : null}
 
                     <span className="min-w-0 [overflow-wrap:anywhere]">{page.url}</span>

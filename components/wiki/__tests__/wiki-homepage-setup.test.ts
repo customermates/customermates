@@ -221,8 +221,35 @@ describe("WikiHomepageSetup", () => {
       },
     });
     const progress = container.querySelector('[data-testid="wiki-setup-crawl-progress"]');
-    expect(progress?.querySelector('ol > li[aria-label="WikiSetup.crawlProgress.failed"]')).not.toBeNull();
+    expect(progress?.querySelector('ol > li[aria-label="WikiSetup.status.failedTitle"]')).not.toBeNull();
     expect(progress?.querySelector("svg.animate-spin")).toBeNull();
+  });
+
+  it("finishes reading with usable pages while showing a failed page as skipped", () => {
+    render({
+      status: "completed",
+      homepage: "https://example.com/",
+      domain: "example.com",
+      conversationId: "conversation-1",
+      pages: [],
+      progress: {
+        fetched: 1,
+        total: 2,
+        failed: 1,
+        pages: [
+          { url: "https://example.com/", status: "read" },
+          { url: "https://example.com/unavailable", status: "failed" },
+        ],
+      },
+    });
+    act(() => button("WikiSetup.crawlProgress.steps").click());
+    const progress = container.querySelector('[data-testid="wiki-setup-crawl-progress"]');
+    expect(progress?.querySelector('ol > li[aria-label="WikiSetup.crawlProgress.read"]')).not.toBeNull();
+    expect(progress?.querySelector(".text-destructive")).toBeNull();
+    expect(
+      progress?.querySelector('[aria-label="WikiSetup.crawlProgress.failed: https://example.com/unavailable"]'),
+    ).not.toBeNull();
+    expect(container.querySelector('[data-inline-conversation="conversation-1"]')).not.toBeNull();
   });
 
   it("keeps the onboarding decision focused on the website, one language and two actions", () => {
@@ -437,7 +464,7 @@ describe("WikiHomepageSetup", () => {
     expect(document.activeElement).toBe(input());
 
     render(failed, { canStart: false });
-    expect(container.textContent).toContain("WikiSetup.status.failedTitle");
+    expect(container.querySelector('[role="alert"]')?.textContent).toContain("WikiSetup.status.failedBody");
     expect(container.textContent).not.toContain("WikiSetup.tryAnother");
     expect(container.textContent).toContain("WikiSetup.continue");
   });

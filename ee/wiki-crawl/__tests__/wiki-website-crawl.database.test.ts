@@ -240,6 +240,48 @@ describeDatabase("Wiki website crawl on PostgreSQL", () => {
     }
   });
 
+  it("preserves the admitted conversation when workflow failure races synthesis settlement", async () => {
+    const crawlId = await startCrawl();
+    const conversationId = randomUUID();
+    const turnId = randomUUID();
+    const crawl = await runWithTenant(user, () => new PrismaWikiWebsiteCrawlRepo().getCrawl(crawlId));
+    if (!crawl) throw new Error("Missing crawl");
+    await client.query(`UPDATE "WikiWebsiteCrawl" SET status='synthesizing' WHERE id=$1`, [crawlId]);
+    await client.query(
+      'INSERT INTO "AgentConversation" (id,"companyId","userId","updatedAt") VALUES ($1,$2,$3,now())',
+      [conversationId, companyId, user.id],
+    );
+    try {
+      await client.query(
+        `INSERT INTO "AgentTurnRequest" (id,"companyId","userId","conversationId","clientRequestId",text,status,"runId","userMessageId","wikiHomepageSetupUrl","updatedAt") VALUES ($1,$2,$3,$4,$5,'setup','running',$6,$7,$8,now())`,
+        [
+          turnId,
+          companyId,
+          user.id,
+          conversationId,
+          crawl.clientRequestId,
+          randomUUID(),
+          randomUUID(),
+          crawl.homepageUrl,
+        ],
+      );
+      await runWithTenant(user, async () => {
+        const repo = new PrismaWikiWebsiteCrawlRepo();
+        await Promise.all([
+          service().fail(crawlId),
+          repo.settleCrawl(crawlId, { conversationId: null, failureReason: "synthesisAdmission:invalidUrl" }),
+        ]);
+        expect(await repo.getCrawl(crawlId)).toMatchObject({
+          status: "completed",
+          conversationId,
+          failureReason: null,
+        });
+      });
+    } finally {
+      await client.query('DELETE FROM "AgentConversation" WHERE id=$1', [conversationId]);
+    }
+  });
+
   it("binds setup retries to the original crawl when a newer import uses the same URL", async () => {
     const first = await startCrawl();
     await client.query(`UPDATE "WikiWebsiteCrawl" SET "status"='completed' WHERE "id"=$1`, [first]);
@@ -388,6 +430,36 @@ describeDatabase("Wiki website crawl on PostgreSQL", () => {
     expect(refund).toContain("Refunds within 30 days.");
     expect(refund).toContain("Can I pause instead?");
     expect(refund).toMatch(/Source: https:\/\/example\.com\/help\/refunds · fetched \d{4}-\d{2}-\d{2}$/u);
+  }, 30_000);
+
+  it("imports surviving pages and starts synthesis after another page throws", async () => {
+    crawler.fetch.mockRejectedValueOnce(new Error("connection reset"));
+    const crawlId = await startCrawl();
+    await runCrawl(crawlId);
+    const result = await client.query('SELECT * FROM "WikiWebsiteCrawl" WHERE "id" = $1', [crawlId]);
+    expect(result.rows[0]).toMatchObject({ status: "completed", fetched: 3, failed: 1, importedPages: 2 });
+    expect(result.rows[0].targets.map((target: { status: string }) => target.status)).toEqual([
+      "failed",
+      "read",
+      "read",
+      "read",
+    ]);
+    expect(synthesis).toHaveBeenCalledOnce();
+  }, 30_000);
+
+  it("finishes an entirely unreadable crawl without synthesis", async () => {
+    crawler.fetch.mockRejectedValue(new Error("website unavailable"));
+    const crawlId = await startCrawl();
+    await runCrawl(crawlId);
+    const result = await client.query('SELECT * FROM "WikiWebsiteCrawl" WHERE "id" = $1', [crawlId]);
+    expect(result.rows[0]).toMatchObject({
+      status: "failed",
+      failureReason: "unavailable",
+      fetched: 0,
+      failed: 4,
+      importedPages: 0,
+    });
+    expect(synthesis).not.toHaveBeenCalled();
   }, 30_000);
 
   it("writes each page once when a redelivered step runs alongside the first delivery", async () => {

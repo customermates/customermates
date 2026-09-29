@@ -41,7 +41,6 @@ async function finishWikiWebsiteStep(payload: CrawlWikiWebsiteWorkflowPayload): 
   "use step";
   await runAsBackgroundTenant(payload.userId, () => getWikiWebsiteCrawlService().finish(payload.crawlId));
 }
-finishWikiWebsiteStep.maxRetries = 0;
 
 async function failWikiWebsiteStep(payload: CrawlWikiWebsiteWorkflowPayload): Promise<void> {
   "use step";

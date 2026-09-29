@@ -3786,7 +3786,7 @@
     "conversationTitle": "Configura la base di conoscenza dello spazio di lavoro",
     "crawlProgress": {
       "discovering": "Ricerca delle pagine del sito",
-      "failed": "Lettura non riuscita",
+      "failed": "Ignorata",
       "found": "{count} pagine trovate",
       "pending": "In attesa",
       "read": "Letta",
