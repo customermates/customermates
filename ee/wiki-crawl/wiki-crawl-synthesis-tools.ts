@@ -1,5 +1,4 @@
-import type { AppLocale } from "@/i18n/locale-registry";
-
+import { wikiLanguageConflicts } from "@/features/wiki/wiki-language";
 import { z } from "zod";
 
 import { getCreateWikiPagesInteractor, getWikiWebsiteCrawlRepo } from "@/core/di";
@@ -7,9 +6,8 @@ import { WIKI_TITLE_MAX_LENGTH, WIKI_WHEN_TO_USE_MAX_LENGTH } from "@/features/w
 import { formatDatesInResponse, mcpValidationFailure, runInteractor, toonResult } from "@/features/mcp-tools/utils";
 import { ManageWikiPagesOutputSchema, wikiPageSummary } from "@/features/mcp-tools/wiki.mcp-tools";
 import { getTranslator } from "@/i18n/get-translator";
-import { DEFAULT_LOCALE, isAppLocale } from "@/i18n/locale-registry";
+import { appLocaleOrDefault } from "@/i18n/locale-registry";
 
-import { WIKI_IMPORTED_CATEGORIES } from "./wiki-website-crawl.service";
 import { wikiSynthesisSectionMarkdown } from "./wiki-synthesis-markdown";
 
 export const WIKI_READ_SOURCE_TOOL_NAME = "read_website_source";
@@ -28,7 +26,12 @@ export function readWebsiteSourceTool(crawlId: string) {
     title: "Read stored website pages",
     description:
       "Read the website pages this import already fetched. list returns each page's id, url, category, title, length, whether it was imported word for word and whether you read it; get returns one page's text from offset with nextOffset. manage_wiki_pages accepts only sourceIds you read with get.",
-    annotations: { readOnlyHint: true, destructiveHint: false, idempotentHint: true, openWorldHint: false },
+    annotations: {
+      readOnlyHint: true,
+      destructiveHint: false,
+      idempotentHint: true,
+      openWorldHint: false,
+    },
     inputSchema: ReadWebsiteSourceSchema,
     outputSchema: z.looseObject({}),
     execute: async (params: z.infer<typeof ReadWebsiteSourceSchema>) => {
@@ -37,6 +40,13 @@ export function readWebsiteSourceTool(crawlId: string) {
       const repo = getWikiWebsiteCrawlRepo();
       if (parsed.data.action === "list") {
         const sources = await repo.listSources(crawlId);
+        const imported = new Set<string>();
+        await Promise.all(
+          sources.map(async (source) => {
+            const page = await repo.findImportedPage(source.url);
+            if (page?.sourceContentHash === source.contentHash) imported.add(source.id);
+          }),
+        );
         return toonResult({
           items: sources.map(({ id, url, category, title, text, readAt }) => ({
             id,
@@ -44,7 +54,7 @@ export function readWebsiteSourceTool(crawlId: string) {
             category,
             title,
             chars: text.length,
-            imported: WIKI_IMPORTED_CATEGORIES.has(category),
+            imported: imported.has(id),
             read: readAt !== null,
           })),
         });
@@ -89,14 +99,18 @@ export const WikiCrawlSynthesisCreateSchema = z.object({
   pages: z.array(SynthesisPageSchema).min(1).max(5),
 });
 
-export function createWikiFromCrawlTool(locale: string | undefined, crawlId: string) {
-  const appLocale: AppLocale = isAppLocale(locale) ? locale : DEFAULT_LOCALE;
+export function createWikiFromCrawlTool(_locale: string | undefined, crawlId: string) {
   return {
     name: "manage_wiki_pages",
     title: "Create Workspace Wiki pages from the website",
     description:
       "Create one to five Wiki pages per call from stored website pages. kind knowledge summarises facts; guide is the one Operating Guide draft; procedure is a draft with whenToUse and numbered steps. Cite sourceIds; the server adds the Sources list with fetch dates and the gaps list. Guides and procedures stay drafts until a person publishes them.",
-    annotations: { readOnlyHint: false, destructiveHint: false, idempotentHint: false, openWorldHint: false },
+    annotations: {
+      readOnlyHint: false,
+      destructiveHint: false,
+      idempotentHint: false,
+      openWorldHint: false,
+    },
     inputSchema: WikiCrawlSynthesisCreateSchema,
     outputSchema: ManageWikiPagesOutputSchema,
     execute: async (params: z.infer<typeof WikiCrawlSynthesisCreateSchema>) => {
@@ -104,7 +118,32 @@ export function createWikiFromCrawlTool(locale: string | undefined, crawlId: str
       if (!parsed.success) return mcpValidationFailure(parsed.error);
       const repo = getWikiWebsiteCrawlRepo();
       const crawl = await repo.getCrawl(crawlId);
-      if (!crawl) return toonResult({ error: "This website import is no longer available. Nothing was changed." });
+      if (!crawl) {
+        return toonResult({
+          error: "This website import is no longer available. Nothing was changed.",
+        });
+      }
+      const targetLocale = appLocaleOrDefault(crawl.locale);
+      if (crawl.mode === "extend" && parsed.data.pages.some((page) => page.kind !== "knowledge")) {
+        return toonResult({
+          error: "A help-centre extension creates knowledge pages only; existing guides and procedures stay unchanged.",
+        });
+      }
+      const wrongLanguage = parsed.data.pages.some((page) => {
+        const bodies = page.sections.map(({ content }) => content);
+        return [
+          ...bodies,
+          page.whenToUse ?? "",
+          page.sections.map(({ heading }) => heading).join("\n"),
+          [page.title, page.whenToUse, ...bodies].join("\n"),
+          (page.gaps ?? []).join("\n"),
+        ].some((body) => wikiLanguageConflicts(body, targetLocale));
+      });
+      if (wrongLanguage) {
+        return toonResult({
+          error: `Write every page in ${targetLocale}. Translate the source content into that language. Nothing was changed.`,
+        });
+      }
       const created = await repo.countSynthesizedPages(crawl.startedAt);
       if (created + parsed.data.pages.length > WIKI_SYNTHESIS_MAX_PAGES) {
         return toonResult({
@@ -113,8 +152,11 @@ export function createWikiFromCrawlTool(locale: string | undefined, crawlId: str
       }
       const sources = new Map((await repo.listSources(crawlId)).map((source) => [source.id, source]));
       const unknown = parsed.data.pages.flatMap(({ sourceIds }) => sourceIds).filter((id) => !sources.has(id));
-      if (unknown.length > 0)
-        return toonResult({ error: "Cite only ids returned by read_website_source. Nothing was changed." });
+      if (unknown.length > 0) {
+        return toonResult({
+          error: "Cite only ids returned by read_website_source. Nothing was changed.",
+        });
+      }
       const unread = [
         ...new Set(
           parsed.data.pages.flatMap(({ sourceIds }) => sourceIds).filter((id) => sources.get(id)?.readAt === null),
@@ -125,7 +167,7 @@ export function createWikiFromCrawlTool(locale: string | undefined, crawlId: str
           error: `Read each cited source with read_website_source action=get before citing it; unread: ${unread.join(", ")}. Nothing was changed.`,
         });
       }
-      const t = await getTranslator(appLocale, "WikiSetup.generated");
+      const t = await getTranslator(targetLocale, "WikiSetup.generated");
       const pages = parsed.data.pages.map((page) => ({
         title: page.title,
         kind: page.kind,
@@ -143,7 +185,9 @@ export function createWikiFromCrawlTool(locale: string | undefined, crawlId: str
         ].join("\n\n"),
       }));
       return runInteractor(getCreateWikiPagesInteractor().invoke({ requireEmpty: false, pages }), (createdPages) =>
-        toonResult({ items: formatDatesInResponse(createdPages.map(wikiPageSummary)) }),
+        toonResult({
+          items: formatDatesInResponse(createdPages.map(wikiPageSummary)),
+        }),
       );
     },
   };

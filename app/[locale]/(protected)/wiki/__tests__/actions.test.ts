@@ -36,6 +36,16 @@ describe("startWikiHomepageSetupAction", () => {
     });
   });
 
+  it("preserves the browser or selected Wiki language instead of replacing it with the route locale", async () => {
+    mocks.start.mockResolvedValue({ ok: true, data: { conversationId: null } });
+    await startWikiHomepageSetupAction({ homepage: "example.com", clientRequestId: CLIENT_REQUEST_ID, locale: "de" });
+    expect(mocks.start).toHaveBeenCalledExactlyOnceWith({
+      homepage: "example.com",
+      clientRequestId: CLIENT_REQUEST_ID,
+      locale: "de",
+    });
+  });
+
   it("serializes an interactor failure as a field error tree", async () => {
     mocks.start.mockResolvedValue({
       ok: false,

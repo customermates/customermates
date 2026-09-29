@@ -97,6 +97,9 @@ function fixture() {
       origin: "routine",
       creditCeiling: 500,
     }),
+    findInteractiveConversation: vi
+      .fn()
+      .mockResolvedValue({ id: CONVERSATION_ID, origin: "interactive", modelKey: "balanced" }),
     claimAgentRunLease: vi.fn().mockResolvedValue("claimed"),
     isAtAgentRunLimit: vi.fn().mockResolvedValue(false),
     createAgentConversationForRun: vi.fn().mockResolvedValue(undefined),
@@ -138,6 +141,15 @@ function fixture() {
   const background = {
     dispatchTracked: vi.fn().mockResolvedValue("wrun_wiki_test"),
   };
+  const findSetupCrawl = vi.fn((homepageUrl: string, _clientRequestId: string) =>
+    Promise.resolve({
+      id: "crawl-1",
+      homepageUrl,
+      pendingHosts: [] as string[],
+      mode: homepageUrl.includes("zendesk") ? "extend" : "initial",
+      locale: "en",
+    }),
+  );
   const interactor = new SendAgentMessageInteractor(
     repo as never,
     usage as never,
@@ -147,8 +159,7 @@ function fixture() {
     catalog,
     userService,
     {
-      findSetupCrawl: (homepageUrl: string) =>
-        Promise.resolve({ id: "crawl-1", homepageUrl, pendingHosts: [] as string[] }),
+      findSetupCrawl,
       findLatestCrawl: () => Promise.resolve(null),
     },
   );
@@ -157,11 +168,74 @@ function fixture() {
     if (!call) throw new Error("Expected an admitted turn.");
     return call[1] as AgentTurnWorkflowPayload;
   };
-  return { catalog, userService, repo, usage, background, interactor, payload };
+  return { catalog, userService, repo, usage, background, interactor, payload, findSetupCrawl };
 }
 
 describe("Workspace Wiki admission bootstrap", () => {
   beforeEach(() => vi.clearAllMocks());
+
+  it("binds synthesis to its request identity and persisted Wiki language", async () => {
+    const state = fixture();
+    state.findSetupCrawl.mockResolvedValue({
+      id: "original-crawl",
+      homepageUrl: "https://example.com/",
+      pendingHosts: [],
+      mode: "initial",
+      locale: "de",
+    });
+    const result = await state.interactor.invoke({
+      clientRequestId: CLIENT_REQUEST_ID,
+      text: "Build the Wiki",
+      wikiHomepageSetupUrl: "https://example.com/",
+      locale: "en",
+      retry: false,
+    });
+    expect(result).toMatchObject({ ok: true, data: { disposition: "run" } });
+    expect(state.findSetupCrawl).toHaveBeenCalledExactlyOnceWith("https://example.com/", CLIENT_REQUEST_ID);
+    expect(state.payload()).toMatchObject({ locale: "de", wikiCrawl: { id: "original-crawl" } });
+  });
+
+  it("keeps the original crawl language when a failed setup is retried from another interface language", async () => {
+    const state = fixture();
+    state.repo.findAgentTurnRequestForAdmission.mockResolvedValue({
+      snapshot: {
+        id: "original-turn",
+        conversationId: CONVERSATION_ID,
+        clientRequestId: CLIENT_REQUEST_ID,
+        text: "Build the Wiki",
+        pageRoute: null,
+        wikiHomepageSetupUrl: "https://example.com/",
+        status: "failed",
+        runId: "original-run",
+        attemptCount: 1,
+        providerStartedAt: null,
+        userMessageId: PAGE_ID,
+        assistantMessageId: null,
+        terminalCode: null,
+        affectedResources: [],
+        hasLaterMessages: false,
+      },
+      assistantMessage: null,
+    });
+    state.findSetupCrawl.mockResolvedValue({
+      id: "original-crawl",
+      homepageUrl: "https://example.com/",
+      pendingHosts: [],
+      mode: "initial",
+      locale: "de",
+    });
+    const result = await state.interactor.invoke({
+      clientRequestId: CLIENT_REQUEST_ID,
+      conversationId: CONVERSATION_ID,
+      text: "Build the Wiki",
+      wikiHomepageSetupUrl: "https://example.com/",
+      locale: "en",
+      retry: true,
+    });
+    expect(result).toMatchObject({ ok: true, data: { disposition: "run" } });
+    expect(state.findSetupCrawl).toHaveBeenCalledExactlyOnceWith("https://example.com/", CLIENT_REQUEST_ID);
+    expect(state.payload()).toMatchObject({ locale: "de", wikiCrawl: { id: "original-crawl" } });
+  });
 
   it.each(["chat", "routine"] as const)("loads and measures the current catalog for a %s turn", async (surface) => {
     const state = fixture();
@@ -532,6 +606,20 @@ describe("Workspace Wiki admission bootstrap", () => {
     ).toBe(failure);
     expect(state.usage.prepareTurn).not.toHaveBeenCalled();
     expect(state.background.dispatchTracked).not.toHaveBeenCalled();
+  });
+
+  it("preserves an extension source query when matching and dispatching its stored crawl", async () => {
+    const state = fixture();
+    const url = "https://acme.zendesk.com/hc/en-us?section=refunds";
+    const result = await state.interactor.invoke({
+      clientRequestId: CLIENT_REQUEST_ID,
+      text: "Import the help centre",
+      retry: false,
+      wikiHomepageSetupUrl: url,
+    });
+    expect(result).toMatchObject({ ok: true, data: { disposition: "run" } });
+    expect(state.payload().wikiHomepageSetup).toMatchObject({ url });
+    expect(state.payload().wikiCrawl).toMatchObject({ homepage: url, mode: "extend" });
   });
 
   it("reserves and dispatches setup with the unchanged catalog model without loading the private catalog", async () => {

@@ -22,6 +22,7 @@ const prismaMock = vi.hoisted(() => ({
   task: { findFirst: vi.fn() },
   routine: { findFirst: vi.fn() },
   wikiPage: { findFirst: vi.fn() },
+  wikiWebsiteCrawl: { findFirst: vi.fn() },
   widget: { findFirst: vi.fn() },
   connectedAccount: { findFirst: vi.fn() },
   user: { count: vi.fn(), findUnique: vi.fn() },
@@ -117,6 +118,7 @@ function mockRawQueries(globalCommitment: { settledCostMicrocents: bigint; activ
 describe("PrismaAgentChatRepo tenant boundaries", () => {
   beforeEach(() => {
     vi.clearAllMocks();
+    prismaMock.wikiWebsiteCrawl.findFirst.mockResolvedValue(null);
     mockRawQueries(null);
     env.HOSTED_AI_OPERATOR_CONTROLS_ENABLED = false;
     env.HOSTED_AI_PROVIDER_WORK_PAUSED = false;
@@ -332,6 +334,11 @@ describe("PrismaAgentChatRepo tenant boundaries", () => {
   });
 
   it("atomically admits a fenced turn into the conversation that already holds its lease", async () => {
+    prismaMock.wikiWebsiteCrawl.findFirst.mockResolvedValueOnce({
+      status: "synthesizing",
+      clientRequestId: "request-1",
+      homepageUrl: "https://example.com/",
+    });
     prismaMock.agentRunLease.updateMany.mockResolvedValue({ count: 1 });
     prismaMock.agentUsageEvent.findFirst.mockResolvedValue({
       id: "reservation-1",
@@ -469,6 +476,61 @@ describe("PrismaAgentChatRepo tenant boundaries", () => {
     });
     prismaMock.agentTurnRequest.findFirst.mockResolvedValueOnce({
       id: "active-setup",
+    });
+
+    await expect(
+      runWithTenant(user, () =>
+        new PrismaAgentChatRepo().admitAgentTurnOrThrow({
+          conversationId: "conversation-2",
+          title: "Set up Workspace Wiki",
+          runId: "run-2",
+          reservationId: "reservation-2",
+          modelSpec: "openai/gpt-5.6-luna",
+          servingProvider: "azure",
+          recentMessageLimit: 8,
+          turn: {
+            kind: "create",
+            turnRequestId: "turn-2",
+            clientRequestId: "request-2",
+            text: "Set up the Wiki from https://example.com/",
+            pageRoute: "/en/wiki",
+            wikiHomepageSetupUrl: "https://example.com/",
+            userMessageId: "user-message-2",
+          },
+        }),
+      ),
+    ).rejects.toBeInstanceOf(WikiHomepageSetupAlreadyRunningError);
+
+    expect(prismaMock.$transaction).toHaveBeenCalledOnce();
+    expect(prismaMock.$executeRaw).toHaveBeenCalledOnce();
+    expect(prismaMock.agentTurnRequest.findFirst).toHaveBeenCalledWith({
+      where: {
+        id: { not: "turn-2" },
+        companyId: user.companyId,
+        wikiHomepageSetupUrl: { not: null },
+        status: { in: ["running", "waitingBudget"] },
+        OR: [{ heartbeatAt: { gt: expect.any(Date) } }, { heartbeatAt: null, updatedAt: { gt: expect.any(Date) } }],
+      },
+      select: { id: true },
+    });
+    expect(prismaMock.agentTurnRequest.create).not.toHaveBeenCalled();
+    expect(prismaMock.agentMessage.create).not.toHaveBeenCalled();
+  });
+
+  it("rejects an old setup admission while a different website crawl owns the company slot", async () => {
+    prismaMock.agentRunLease.updateMany.mockResolvedValue({ count: 1 });
+    prismaMock.agentUsageEvent.findFirst.mockResolvedValue({
+      id: "reservation-2",
+    });
+    prismaMock.agentConversation.findFirst.mockResolvedValue({
+      id: "conversation-2",
+      origin: "user",
+    });
+    prismaMock.agentTurnRequest.findFirst.mockResolvedValueOnce(null);
+    prismaMock.wikiWebsiteCrawl.findFirst.mockResolvedValueOnce({
+      status: "fetching",
+      clientRequestId: "new-crawl",
+      homepageUrl: "https://other.example.com/",
     });
 
     await expect(

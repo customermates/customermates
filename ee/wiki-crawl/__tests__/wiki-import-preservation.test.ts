@@ -17,7 +17,7 @@ function harness(offset: number, knownRevision = true) {
     url: "https://example.com/pricing",
     category: "pricing",
     title: "Pricing",
-    text: "New remote price",
+    text: "New remote price. Customers can contact our support team whenever they have questions about their subscription. We explain the available options and provide clear information about the next steps. The customer can request a refund within thirty days after purchasing the annual subscription.",
     qaPairs: [],
     contentHash: "new",
     fetchedAt: new Date(),
@@ -59,6 +59,54 @@ function harness(offset: number, knownRevision = true) {
 }
 
 describe("Wiki imported revision protection", () => {
+  it.each([
+    "Short unknown text",
+    "Kunden können sich bei Fragen zu ihrem Vertrag an unseren Kundendienst wenden. Wir erklären die verfügbaren Möglichkeiten und informieren über die nächsten Schritte. Eine Rückerstattung kann innerhalb von dreißig Tagen nach dem Kauf des jährlichen Abonnements beantragt werden.",
+  ])("does not import a foreign or uncertain source: %s", async (text) => {
+    const { service, repo, update, source } = harness(0);
+    source.text = text;
+    await service.importSources("crawl-1");
+    expect(update).not.toHaveBeenCalled();
+    expect(repo.claimSourceImport).not.toHaveBeenCalled();
+    expect(repo.markImported).not.toHaveBeenCalled();
+  });
+
+  it("excludes structured foreign FAQs before claiming an otherwise matching body", async () => {
+    const { service, repo, source } = harness(0);
+    source.qaPairs = [
+      {
+        question: "Refunds?",
+        answer:
+          "Kunden können sich bei Fragen zu ihrem Vertrag an unseren Kundendienst wenden. Wir erklären die verfügbaren Möglichkeiten und informieren über die nächsten Schritte. Eine Rückerstattung kann innerhalb von dreißig Tagen nach dem Kauf des jährlichen Abonnements beantragt werden.",
+      },
+    ] as never;
+    await service.importSources("crawl-1");
+    expect(repo.claimSourceImport).not.toHaveBeenCalled();
+  });
+
+  it("starts synthesis for an extension while leaving refresh synthesis disabled", async () => {
+    const { repo } = harness(0);
+    const crawl = {
+      mode: "extend",
+      locale: "de",
+      discovered: 1,
+      fetched: 1,
+      status: "importing",
+    };
+    const extensionRepo = {
+      ...repo,
+      getCrawl: vi.fn().mockResolvedValue(crawl),
+      deleteEarlierSources: vi.fn(),
+    };
+    const start = vi.fn().mockResolvedValue("conversation-1");
+    const service = new WikiWebsiteCrawlService(extensionRepo as never, {} as never, {} as never, start);
+    await service.finish("crawl-1");
+    expect(start).toHaveBeenCalledExactlyOnceWith(crawl);
+    expect(repo.claimCrawl).toHaveBeenCalledWith("crawl-1", ["importing"], {
+      status: "synthesizing",
+    });
+  });
+
   it.each([1, 500, 1_000])("preserves an edit %s milliseconds after import", async (offset) => {
     const { service, update, repo } = harness(offset);
     await service.importSources("crawl-1");
@@ -108,7 +156,10 @@ describe("Wiki imported revision protection", () => {
     expect(unavailableRepo.claimCrawl).toHaveBeenCalledWith(
       "crawl-1",
       ["importing"],
-      expect.objectContaining({ status: "failed", failureReason: "unavailable" }),
+      expect.objectContaining({
+        status: "failed",
+        failureReason: "unavailable",
+      }),
     );
   });
 });

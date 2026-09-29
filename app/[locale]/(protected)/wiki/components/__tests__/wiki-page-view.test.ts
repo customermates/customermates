@@ -8,7 +8,6 @@ import { act, cloneElement, createElement, isValidElement, startTransition, Susp
 import { createRoot, hydrateRoot } from "react-dom/client";
 import { renderToStaticMarkup } from "react-dom/server";
 import { observable, runInAction } from "mobx";
-import { NavigationGuardController } from "@/core/stores/navigation-guard.controller";
 import { afterEach, beforeEach, describe, expect, it, vi } from "vitest";
 
 const harness = vi.hoisted(() => ({
@@ -134,9 +133,10 @@ vi.mock("@/components/shared/icon", () => ({
 }));
 vi.mock("@/components/ui/button", () => ({
   Button: ({ children, asChild, ...props }: { children?: ReactNode; asChild?: boolean; [key: string]: unknown }) => {
-    const buttonProps = Object.fromEntries(
-      Object.entries(props).filter(([name]) => !["size", "variant"].includes(name)),
-    );
+    const buttonProps = {
+      ...Object.fromEntries(Object.entries(props).filter(([name]) => !["size", "variant"].includes(name))),
+      "data-variant": props.variant ?? "default",
+    };
     return asChild && isValidElement(children)
       ? cloneElement(children, buttonProps)
       : createElement("button", buttonProps, children);
@@ -474,7 +474,8 @@ describe("Wiki document view", () => {
       ]),
     );
     const save = () => container.querySelector<HTMLButtonElement>('header [aria-label="Common.actions.save"]');
-    expect(save()?.disabled).toBe(true);
+    expect(save()).toBeNull();
+    expect(container.querySelector('header [aria-label="Wiki.newPage"]')?.getAttribute("data-variant")).toBe("default");
     expect(harness.toolbarRenders).toBeLessThan(10);
     const settledRenders = harness.toolbarRenders;
 
@@ -484,6 +485,9 @@ describe("Wiki document view", () => {
       }),
     );
     expect(save()?.disabled).toBe(false);
+    expect(container.querySelector('header [aria-label="Wiki.newPage"]')?.getAttribute("data-variant")).toBe(
+      "secondary",
+    );
     expect(container.querySelector('header [aria-label="Common.actions.reset"]')).not.toBeNull();
     expect(harness.toolbarRenders).toBe(settledRenders);
 
@@ -1033,13 +1037,9 @@ describe("Wiki empty state", () => {
     expect(container.querySelector('form, input[type="url"]')).toBeNull();
   });
 
-  it("starts a requested website refresh without discarding existing unsaved edits", async () => {
+  it("does not offer a website refresh for imported pages", async () => {
     configure(true, true, true);
-    harness.realStore = true;
-    harness.rootStore.userStore = { canManage: () => true, user: { id: "user-1" } };
-    const navigationGuard = new NavigationGuardController();
-    harness.rootStore.navigationGuard = navigationGuard;
-    harness.startSetup.mockResolvedValue({ ok: true, data: { conversationId: null } });
+    harness.store.form = { ...page };
     await mount(
       createElement(WikiPageView, {
         initialPage: page,
@@ -1054,61 +1054,10 @@ describe("Wiki empty state", () => {
         },
       }),
     );
-    const store = harness.store as unknown as RealWikiPageStore;
-    navigationGuard.register(store);
-    try {
-      act(() => store.onChange("title", "Unsaved manual title"));
-      const refresh = (harness.topBar as ReactElement<{ onRefreshFromWebsite?: () => void }>).props
-        .onRefreshFromWebsite;
-      await act(async () => {
-        refresh?.();
-        await Promise.resolve();
-      });
-      expect(harness.startSetup).toHaveBeenCalledExactlyOnceWith(expect.objectContaining({ mode: "refresh" }));
-      expect(harness.refresh).not.toHaveBeenCalled();
-      expect(store.form.title).toBe("Unsaved manual title");
-      expect(store.hasUnsavedChanges).toBe(true);
-      act(() => store.resetDocument());
-      expect(harness.refresh).toHaveBeenCalledTimes(1);
-    } finally {
-      navigationGuard.unregister(store);
-    }
-  });
-
-  it("offers Refresh from website only for an imported site and starts a refresh import", async () => {
-    configure(true, true, true);
-    await mount(createElement(WikiPageView, { initialPage: null, listPage }));
-    type TopBarProps = { onRefreshFromWebsite?: () => void };
-    expect((harness.topBar as ReactElement<TopBarProps>).props.onRefreshFromWebsite).toBeUndefined();
-
-    harness.startSetup.mockResolvedValue({
-      ok: true,
-      data: { conversationId: null },
-    });
-    await mount(
-      createElement(WikiPageView, {
-        initialPage: null,
-        initialSetupState: {
-          status: "idle",
-          homepage: null,
-          domain: null,
-          conversationId: null,
-          pages: [],
-          refreshable: true,
-        },
-        listPage,
-      }),
-    );
-    const refresh = (harness.topBar as ReactElement<TopBarProps>).props.onRefreshFromWebsite;
-    await act(async () => {
-      refresh?.();
-      await Promise.resolve();
-    });
-
-    expect(harness.startSetup).toHaveBeenCalledExactlyOnceWith(
-      expect.objectContaining({ homepage: "refresh", mode: "refresh" }),
-    );
-    expect(harness.refresh).toHaveBeenCalled();
+    expect((harness.topBar as ReactElement<Record<string, unknown>>).props).not.toHaveProperty("onRefreshFromWebsite");
+    const { container } = await mount(harness.topBar);
+    expect(container.textContent).not.toContain("Wiki.refreshFromWebsite");
+    expect(harness.startSetup).not.toHaveBeenCalled();
   });
 
   it("polls a refresh while retaining the selected document and displays reading progress", async () => {
@@ -1135,7 +1084,7 @@ describe("Wiki empty state", () => {
     expect(harness.store.resetForm).not.toHaveBeenCalled();
   });
 
-  it("shows a failed refresh alongside the document and offers retry", async () => {
+  it("shows an import failure alongside the preserved document without a refresh action", async () => {
     configure(true, true, true);
     harness.store.form = { ...page };
     const { container } = await mount(
@@ -1152,12 +1101,12 @@ describe("Wiki empty state", () => {
         },
       }),
     );
-    expect(container.textContent).toContain("WikiSetup.status.refreshFailedTitle");
-    expect(container.textContent).toContain("WikiSetup.status.refreshFailedBody");
+    expect(container.textContent).toContain("WikiSetup.status.failedTitle");
+    expect(container.textContent).toContain("WikiSetup.status.failedBody");
     expect(container.querySelector("[data-editor-readonly]")).not.toBeNull();
     expect(harness.refreshWhileSetupWorks).toHaveBeenLastCalledWith(false);
     const actions = (harness.topBar as ReactElement<{ onRefreshFromWebsite?: () => void }>).props;
-    expect(actions.onRefreshFromWebsite).toBeTypeOf("function");
+    expect(actions.onRefreshFromWebsite).toBeUndefined();
   });
 
   it("shows setup progress without a task link to managers who did not start it", async () => {

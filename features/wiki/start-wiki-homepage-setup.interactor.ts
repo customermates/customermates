@@ -4,7 +4,7 @@ import type { BackgroundTaskService } from "@/core/utils/background-task.service
 import { z } from "zod";
 import { Action, Resource } from "@/generated/prisma";
 
-import { APP_LOCALES } from "@/i18n/locale-registry";
+import { APP_LOCALES, type AppLocale } from "@/i18n/locale-registry";
 import { AuthenticatedInteractor } from "@/core/base/authenticated-interactor";
 import { TenantInteractor } from "@/core/decorators/tenant-interactor.decorator";
 import { Write } from "@/core/decorators/write.decorator";
@@ -44,6 +44,7 @@ type WikiWebsiteCrawlStart = {
 
 export abstract class StartWikiHomepageSetupRepo {
   abstract wikiIsEmpty(): Promise<boolean>;
+  abstract dominantWikiLanguage(): Promise<AppLocale | null>;
 }
 
 export abstract class StartWikiWebsiteCrawlRepo {
@@ -90,7 +91,7 @@ export class StartWikiHomepageSetupInteractor extends AuthenticatedInteractor<
       clientRequestId: data.clientRequestId,
       homepageUrl: target.homepageUrl,
       registrableDomain: target.registrableDomain,
-      locale: data.locale,
+      locale: (await this.repo.dominantWikiLanguage()) ?? data.locale,
       mode,
       extraHosts: target.extraHosts,
     });

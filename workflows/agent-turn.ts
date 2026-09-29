@@ -130,7 +130,7 @@ export type AgentTurnWorkflowPayload = {
   toolsets?: string[];
   recordToolOutputs?: boolean;
   wikiHomepageSetup?: PublicWikiHomepage;
-  wikiCrawl?: { id: string; homepage: string; pendingHosts: string[] };
+  wikiCrawl?: { id: string; homepage: string; pendingHosts: string[]; mode?: string };
   wikiWebsiteSetup?: { userHomepages: string[] };
   wikiCatalog?: string | null;
   webSearchEnabled?: boolean;
@@ -932,7 +932,11 @@ export async function runAgentTurn(payload: AgentTurnWorkflowPayload): Promise<v
       triggerEvent: routineTriggerEventOf(payload.messages.findLast((message) => message.role === "user")?.text),
       wikiHomepageSetup: Boolean(payload.wikiHomepageSetup),
       wikiCrawlSynthesis: payload.wikiCrawl
-        ? { homepage: payload.wikiCrawl.homepage, pendingHosts: payload.wikiCrawl.pendingHosts }
+        ? {
+            homepage: payload.wikiCrawl.homepage,
+            pendingHosts: payload.wikiCrawl.pendingHosts,
+            mode: payload.wikiCrawl.mode,
+          }
         : null,
       wikiWebsiteSetup: Boolean(payload.wikiWebsiteSetup),
       webSearchEnabled: payload.webSearchEnabled,

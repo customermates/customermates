@@ -1,3 +1,4 @@
+import { activeWikiHomepageSetupWhere } from "@/ee/agent-chat/wiki-setup-admission";
 import type { WikiCrawlTarget, WikiCrawlCategory } from "./website-discovery";
 import type { WikiSourceQa } from "./website-source-extract";
 import type {
@@ -93,11 +94,18 @@ export class PrismaWikiWebsiteCrawlRepo
     >,
   ) {
     try {
-      const row = await this.prisma.wikiWebsiteCrawl.create({
-        data: { ...data, companyId: this.companyId, userId: this.user.id },
-        select: CRAWL_SELECT,
+      return await this.withCompanyTransaction(this.companyId, async () => {
+        const activeSetup = await this.prisma.agentTurnRequest.findFirst({
+          where: activeWikiHomepageSetupWhere(this.companyId, new Date()),
+          select: { id: true },
+        });
+        if (activeSetup) return { status: "active" as const };
+        const row = await this.prisma.wikiWebsiteCrawl.create({
+          data: { ...data, companyId: this.companyId, userId: this.user.id },
+          select: CRAWL_SELECT,
+        });
+        return { status: "created" as const, crawl: crawlRecord(row) };
       });
-      return { status: "created" as const, crawl: crawlRecord(row) };
     } catch (error) {
       if (error instanceof Prisma.PrismaClientKnownRequestError && error.code === "P2002")
         return { status: "active" as const };
@@ -133,16 +141,23 @@ export class PrismaWikiWebsiteCrawlRepo
 
   async retryFailedDispatch(id: string) {
     try {
-      await this.prisma.wikiWebsiteCrawl.updateMany({
-        where: {
-          id,
-          companyId: this.companyId,
-          status: "failed",
-          failureReason: "dispatch",
-        },
-        data: { status: "queued", failureReason: null, finishedAt: null },
+      return await this.withCompanyTransaction(this.companyId, async () => {
+        const activeSetup = await this.prisma.agentTurnRequest.findFirst({
+          where: activeWikiHomepageSetupWhere(this.companyId, new Date()),
+          select: { id: true },
+        });
+        if (activeSetup) return null;
+        await this.prisma.wikiWebsiteCrawl.updateMany({
+          where: {
+            id,
+            companyId: this.companyId,
+            status: "failed",
+            failureReason: "dispatch",
+          },
+          data: { status: "queued", failureReason: null, finishedAt: null },
+        });
+        return this.getCrawl(id);
       });
-      return this.getCrawl(id);
     } catch (error) {
       if (error instanceof Prisma.PrismaClientKnownRequestError && error.code === "P2002") return null;
       throw error;
@@ -286,8 +301,27 @@ export class PrismaWikiWebsiteCrawlRepo
   }
 
   async deleteEarlierSources(crawlId: string) {
-    await this.prisma.wikiSourceDocument.deleteMany({
-      where: { companyId: this.companyId, crawlId: { not: crawlId } },
+    await this.withCompanyTransaction(this.companyId, async () => {
+      const now = new Date();
+      const activeSetups = await this.prisma.agentTurnRequest.findMany({
+        where: activeWikiHomepageSetupWhere(this.companyId, now),
+        select: { wikiHomepageSetupUrl: true },
+      });
+      const protectedHomepages = activeSetups.flatMap(({ wikiHomepageSetupUrl }) =>
+        wikiHomepageSetupUrl ? [wikiHomepageSetupUrl] : [],
+      );
+      await this.prisma.wikiSourceDocument.deleteMany({
+        where: {
+          companyId: this.companyId,
+          crawlId: { not: crawlId },
+          crawl: {
+            companyId: this.companyId,
+            startedAt: { lt: new Date(now.getTime() - 24 * 60 * 60 * 1_000) },
+            status: { in: ["completed", "failed", "blocked"] },
+            homepageUrl: { notIn: protectedHomepages },
+          },
+        },
+      });
     });
   }
 
@@ -305,18 +339,19 @@ export class PrismaWikiWebsiteCrawlRepo
     });
   }
 
-  async findSetupCrawl(homepageUrl: string) {
+  async findSetupCrawl(homepageUrl: string, clientRequestId: string) {
     return this.prisma.wikiWebsiteCrawl.findFirst({
       where: {
         companyId: this.companyId,
         userId: this.user.id,
         homepageUrl,
-        mode: "initial",
+        clientRequestId,
+        mode: { in: ["initial", "extend"] },
         status: { in: ["synthesizing", "completed"] },
         startedAt: { gte: new Date(Date.now() - 24 * 60 * 60 * 1_000) },
       },
       orderBy: [{ startedAt: "desc" }, { id: "desc" }],
-      select: { id: true, homepageUrl: true, pendingHosts: true },
+      select: { id: true, homepageUrl: true, pendingHosts: true, mode: true, locale: true },
     });
   }
 

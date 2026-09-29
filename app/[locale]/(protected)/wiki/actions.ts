@@ -53,7 +53,9 @@ export async function searchWikiPagesAction(data: WikiPageSearchData) {
   return serializeResult(getSearchWikiPagesInteractor().invoke(data));
 }
 
-export async function startWikiHomepageSetupAction(data: Omit<StartWikiHomepageSetupData, "locale">) {
-  const locale = (await getLocale()) as AppLocale;
+export async function startWikiHomepageSetupAction(
+  data: Omit<StartWikiHomepageSetupData, "locale"> & Partial<Pick<StartWikiHomepageSetupData, "locale">>,
+) {
+  const locale = data.locale ?? ((await getLocale()) as AppLocale);
   return serializeResult(getStartWikiHomepageSetupInteractor().invoke({ ...data, locale }));
 }

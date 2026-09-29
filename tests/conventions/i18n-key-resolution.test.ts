@@ -713,6 +713,7 @@ export const DYNAMIC_KEY_SITES = [
   "components/forms/use-form-field.ts :: t :: Common.inputs.${id}",
   "components/shared/locale-menu.tsx :: t :: Common.locales.${currentLocale}",
   "components/shared/locale-menu.tsx :: t :: Common.locales.${locale}",
+  "components/wiki/wiki-homepage-setup.tsx :: t :: Common.locales.${locale}",
   "core/validation/zod-error-map-server.ts :: t.raw :: Common.errors.${code}",
   "ee/lifecycle/send-legal-document-notices.interactor.ts :: t :: documents.${document}",
   "features/auth/sign-in-with-email.interactor.ts :: t :: Common.errors.${res.error}",

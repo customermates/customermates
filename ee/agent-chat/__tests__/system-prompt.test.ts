@@ -85,6 +85,19 @@ describe("system prompt", () => {
     );
   });
 
+  it("gives an extension a consistent knowledge-only system instruction", () => {
+    const prompt = buildAgentSystemPrompt({
+      ...base,
+      wikiHomepageSetup: true,
+      wikiCrawlSynthesis: { homepage: "https://help.example.com/", pendingHosts: [], mode: "extend" },
+    });
+    expect(prompt).toContain("Create knowledge pages only");
+    expect(prompt).toContain("Leave existing guides and procedures unchanged");
+    expect(prompt).not.toContain("One Operating Guide draft");
+    expect(prompt).not.toContain("Up to six procedure drafts");
+    expect(prompt).not.toContain("and say that the Operating Guide and procedures are drafts");
+  });
+
   it("gives a crawl synthesis setup turn the stored-source workflow with draft guide and procedures", () => {
     const prompt = buildAgentSystemPrompt({
       ...base,

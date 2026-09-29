@@ -7,6 +7,7 @@ type LocaleCapabilities = {
   validationTag: string;
   lowercaseEntityLabelsInSentences: boolean;
   textSearchConfig: TextSearchConfig;
+  iso6393: string;
 };
 
 export type TextSearchConfig = "english" | "german" | "french" | "italian" | "spanish";
@@ -21,6 +22,7 @@ export const LOCALE_REGISTRY = {
     validationTag: "en",
     lowercaseEntityLabelsInSentences: true,
     textSearchConfig: "english",
+    iso6393: "eng",
   },
   de: {
     offeredAsDisplayLanguage: true,
@@ -31,6 +33,7 @@ export const LOCALE_REGISTRY = {
     validationTag: "de",
     lowercaseEntityLabelsInSentences: false,
     textSearchConfig: "german",
+    iso6393: "deu",
   },
   fr: {
     offeredAsDisplayLanguage: true,
@@ -41,6 +44,7 @@ export const LOCALE_REGISTRY = {
     validationTag: "fr",
     lowercaseEntityLabelsInSentences: true,
     textSearchConfig: "french",
+    iso6393: "fra",
   },
   it: {
     offeredAsDisplayLanguage: true,
@@ -51,6 +55,7 @@ export const LOCALE_REGISTRY = {
     validationTag: "it",
     lowercaseEntityLabelsInSentences: true,
     textSearchConfig: "italian",
+    iso6393: "ita",
   },
   es: {
     offeredAsDisplayLanguage: true,
@@ -61,6 +66,7 @@ export const LOCALE_REGISTRY = {
     validationTag: "es",
     lowercaseEntityLabelsInSentences: true,
     textSearchConfig: "spanish",
+    iso6393: "spa",
   },
 } as const satisfies Record<string, LocaleCapabilities>;
 

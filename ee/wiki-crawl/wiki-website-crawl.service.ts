@@ -1,3 +1,4 @@
+import { wikiSourceLanguageMatches } from "@/features/wiki/wiki-language";
 import type { CreateWikiPagesInteractor } from "@/features/wiki/create-wiki-pages.interactor";
 import type { UpdateWikiPageInteractor } from "@/features/wiki/update-wiki-page.interactor";
 import type { WikiCrawlCategory, WikiCrawlTarget } from "./website-discovery";
@@ -270,6 +271,7 @@ export class WikiWebsiteCrawlService extends UserAccessor {
     const copy = await wikiImportCopy(crawl.locale);
     let imported = await this.repo.countImportedPages(crawl.startedAt);
     for (const source of sources) {
+      if (!wikiSourceLanguageMatches(source, appLocaleOrDefault(crawl.locale))) continue;
       if (crawl.mode !== "refresh" && imported >= WIKI_IMPORT_MAX_PAGES) break;
       const duplicateKeys = [`hash:${source.contentHash}`, `title:${source.title.trim().toLocaleLowerCase()}`];
       if (crawl.mode !== "refresh" && duplicateKeys.some((key) => seen.has(key))) continue;
@@ -333,7 +335,7 @@ export class WikiWebsiteCrawlService extends UserAccessor {
   async finish(crawlId: string): Promise<void> {
     const crawl = await this.load(crawlId);
     await this.repo.deleteEarlierSources(crawlId);
-    if (crawl.mode !== "initial") {
+    if (crawl.mode === "refresh") {
       const unavailable = crawl.discovered > 0 && crawl.fetched === 0;
       await this.repo.claimCrawl(crawlId, ["importing"], {
         status: unavailable ? "failed" : "completed",

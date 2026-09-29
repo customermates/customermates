@@ -106,16 +106,89 @@ beforeEach(() => {
 afterEach(() => {
   act(() => root.unmount());
   container.remove();
+  vi.restoreAllMocks();
 });
 
 describe("WikiHomepageSetup", () => {
-  it("keeps the onboarding decision focused on the website and two actions", () => {
+  it.each(["queued", "discovering", "fetching", "importing", "synthesizing"] as const)(
+    "shows honest inline %s crawl progress before the real transcript exists",
+    (crawlPhase) => {
+      render({
+        status: "working",
+        homepage: "https://example.com/",
+        domain: "example.com",
+        conversationId: null,
+        pages: [],
+        crawlPhase,
+        progress: { fetched: 7, total: 24 },
+      });
+      const progress = container.querySelector('[data-testid="wiki-setup-crawl-progress"]');
+      expect(progress?.getAttribute("role")).toBe("status");
+      expect(progress?.querySelectorAll("li")).toHaveLength(5);
+      expect(progress?.querySelector('[aria-current="step"]')?.textContent).toBe(
+        `WikiSetup.crawlProgress.${crawlPhase}`,
+      );
+      expect(progress?.textContent).toContain("WikiSetup.status.readingBody example.com 7 24");
+      expect(container.querySelector("[data-inline-conversation]")).toBeNull();
+      expect(container.querySelector('textarea, input, [role="log"]')).toBeNull();
+    },
+  );
+
+  it("replaces restored crawl progress with the real conversation and preserves it after completion", () => {
+    const working = {
+      status: "working" as const,
+      homepage: "https://example.com/",
+      domain: "example.com",
+      conversationId: null,
+      pages: [],
+      crawlPhase: "queued" as const,
+      progress: { fetched: 0, total: 0 },
+    };
+    render(working);
+    expect(container.querySelector('[data-testid="wiki-setup-crawl-progress"]')).not.toBeNull();
+    expect(container.textContent).not.toContain("WikiSetup.status.readingBody");
+    render({ ...working, crawlPhase: "synthesizing", conversationId: "conversation-1" });
+    expect(container.querySelector('[data-testid="wiki-setup-crawl-progress"]')).toBeNull();
+    expect(container.querySelector('[data-inline-conversation="conversation-1"]')).not.toBeNull();
+    render({ ...working, status: "completed", conversationId: "conversation-1" });
+    expect(container.querySelector('[data-inline-conversation="conversation-1"]')).not.toBeNull();
+    expect(container.querySelector('[data-testid="wiki-setup-crawl-progress"]')).toBeNull();
+  });
+
+  it("keeps the onboarding decision focused on the website, one language and two actions", () => {
     expect(input().getAttribute("aria-describedby")).toBeNull();
     expect(container.querySelector('label[for="wiki-homepage"]')?.textContent).toContain("WikiSetup.homepageLabel");
     expect(input().parentElement?.querySelector("svg")).toBeNull();
-    expect(container.querySelectorAll("button")).toHaveLength(2);
+    expect(container.querySelectorAll("button")).toHaveLength(3);
+    expect(container.querySelector('[role="combobox"]')?.textContent).toContain("Common.locales.en");
     expect(container.textContent).toContain("OnboardingWizard.wiki.skip");
     expect(container.textContent).toContain("WikiSetup.start");
+  });
+
+  it("defaults a new Wiki to the browser language even when the interface uses another language", async () => {
+    vi.spyOn(navigator, "languages", "get").mockReturnValue(["de-AT", "en"]);
+    act(() => root.unmount());
+    root = createRoot(container);
+    await act(async () => {
+      render();
+      await Promise.resolve();
+    });
+    expect(container.querySelector('[role="combobox"]')?.textContent).toContain("Common.locales.de");
+    harness.action.mockResolvedValue({
+      ok: true,
+      data: { conversationId: null, homepage: "https://example.com/", domain: "example.com" },
+    });
+    typeHomepage("example.com");
+    await act(async () => {
+      submit();
+      await Promise.resolve();
+    });
+    expect(harness.action).toHaveBeenCalledWith({
+      homepage: "example.com",
+      locale: "de",
+      clientRequestId: expect.any(String),
+    });
+    expect(container.querySelector('[data-testid="wiki-setup-crawl-progress"]')).not.toBeNull();
   });
 
   it("deduplicates submission and transitions to a durable visible-task state", async () => {
@@ -132,6 +205,7 @@ describe("WikiHomepageSetup", () => {
     expect(harness.action).toHaveBeenCalledOnce();
     expect(harness.action).toHaveBeenCalledWith({
       homepage: "example.com",
+      locale: "en",
       clientRequestId: expect.any(String),
     });
     expect(form().getAttribute("aria-busy")).toBe("true");
@@ -255,6 +329,29 @@ describe("WikiHomepageSetup", () => {
     expect(container.querySelector("a")).toBeNull();
     expect(container.querySelector("[data-inline-conversation]")).toBeNull();
     expect(container.textContent).not.toContain("WikiSetup.tryAnother");
+  });
+
+  it("keeps a partial import visible without offering an empty-Wiki retry that cannot run", () => {
+    render({
+      status: "failed",
+      homepage: "https://example.com/",
+      domain: "example.com",
+      conversationId: "conversation-1",
+      pages: [
+        {
+          id: "00000000-0000-4000-8000-000000000001",
+          title: "Imported knowledge",
+          kind: "knowledge",
+          whenToUse: null,
+          draft: false,
+          createdAt: new Date("2026-09-29"),
+          updatedAt: new Date("2026-09-29"),
+        },
+      ],
+    });
+    expect(container.querySelector('[data-inline-conversation="conversation-1"]')).not.toBeNull();
+    expect(container.textContent).not.toContain("WikiSetup.tryAnother");
+    expect(button("WikiSetup.continue").disabled).toBe(false);
   });
 
   it("focuses the homepage field when retry opens and hides retry when setup is unavailable", () => {

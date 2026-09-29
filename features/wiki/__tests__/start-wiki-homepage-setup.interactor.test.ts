@@ -59,6 +59,7 @@ function harness(
   } = {},
 ) {
   const repo = {
+    dominantWikiLanguage: vi.fn().mockResolvedValue(null),
     wikiIsEmpty: vi.fn().mockResolvedValue(options.empty ?? true),
   };
   const crawlRepo = {
@@ -90,6 +91,36 @@ function errorCode(result: unknown) {
 beforeEach(() => vi.clearAllMocks());
 
 describe("StartWikiHomepageSetupInteractor", () => {
+  it("freezes the dominant existing Wiki language over the caller fallback", async () => {
+    const { interactor, repo, crawlRepo } = harness({
+      latest: CRAWL,
+      empty: false,
+    });
+    repo.dominantWikiLanguage.mockResolvedValue("de");
+    const result = await runWithTenant(mockUser, () =>
+      interactor.invoke({
+        homepage: "example.com",
+        clientRequestId: CLIENT_REQUEST_ID,
+        locale: "fr",
+        mode: "refresh",
+      }),
+    );
+    expect(result.ok).toBe(true);
+    expect(crawlRepo.createCrawl).toHaveBeenCalledWith(expect.objectContaining({ locale: "de" }));
+  });
+
+  it("uses the validated browser or selector fallback when there is no Wiki majority", async () => {
+    const { interactor, crawlRepo } = harness();
+    await runWithTenant(mockUser, () =>
+      interactor.invoke({
+        homepage: "example.com",
+        clientRequestId: CLIENT_REQUEST_ID,
+        locale: "it",
+      }),
+    );
+    expect(crawlRepo.createCrawl).toHaveBeenCalledWith(expect.objectContaining({ locale: "it" }));
+  });
+
   it("rejects a Wiki Read-only member before touching setup state", async () => {
     const { repo, crawlRepo, background, interactor } = harness();
     const readOnly = createMockUserWithPermissions([{ resource: Resource.wiki, action: Action.readAll }]);

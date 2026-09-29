@@ -3,7 +3,7 @@
 import type { WikiPageStore } from "./wiki-page.store";
 
 import { observer } from "mobx-react-lite";
-import { Globe, Link, MoreHorizontal, Plus, RotateCcw, Save, Trash2, X } from "lucide-react";
+import { Link, MoreHorizontal, Plus, RotateCcw, Save, Trash2, X } from "lucide-react";
 import { useTranslations } from "next-intl";
 
 import { Button } from "@/components/ui/button";
@@ -27,24 +27,22 @@ type Props = {
   onCancelCreate: () => void;
   onCreate: () => void;
   onReload: () => void;
-  onRefreshFromWebsite?: () => void;
 };
 
 export const WikiPageActions = observer((props: Props) => {
-  const { canManage, canCreate, store, formId, hasDocument, onCancelCreate, onCreate, onReload, onRefreshFromWebsite } =
-    props;
+  const { canManage, canCreate, store, formId, hasDocument, onCancelCreate, onCreate, onReload } = props;
   const t = useTranslations();
   const copyToClipboard = useCopyToClipboard();
   const { showDeleteConfirmation } = useDeleteConfirmation();
 
   return (
     <div className="flex items-center gap-1">
-      {canManage && canCreate && (
+      {canManage && canCreate && !store.creating && (
         <Button
           aria-label={t("Wiki.newPage")}
           disabled={store.isLoading}
           size="sm"
-          variant="secondary"
+          variant={store.hasUnsavedChanges ? "secondary" : "default"}
           onClick={onCreate}
         >
           <Plus aria-hidden="true" className="size-4" />
@@ -81,14 +79,8 @@ export const WikiPageActions = observer((props: Props) => {
         </Button>
       )}
 
-      {hasDocument && canManage && (
-        <Button
-          aria-label={t("Common.actions.save")}
-          disabled={store.isLoading || !store.hasUnsavedChanges}
-          form={formId}
-          size="sm"
-          type="submit"
-        >
+      {hasDocument && canManage && store.hasUnsavedChanges && (
+        <Button aria-label={t("Common.actions.save")} disabled={store.isLoading} form={formId} size="sm" type="submit">
           <Save aria-hidden="true" className="size-4 sm:hidden" />
 
           <span className="hidden sm:inline">{t("Common.actions.save")}</span>
@@ -119,14 +111,6 @@ export const WikiPageActions = observer((props: Props) => {
 
               {t("Wiki.reload")}
             </DropdownMenuItem>
-
-            {canManage && onRefreshFromWebsite && (
-              <DropdownMenuItem onSelect={onRefreshFromWebsite}>
-                <Globe aria-hidden="true" />
-
-                {t("Wiki.refreshFromWebsite")}
-              </DropdownMenuItem>
-            )}
 
             {canManage && (
               <DropdownMenuItem

@@ -11,6 +11,9 @@ import { CheckCircle2, FileText, Loader2, RotateCcw, Sparkles, TriangleAlert } f
 
 import { startWikiHomepageSetupAction } from "@/app/[locale]/(protected)/wiki/actions";
 import { AppForm } from "@/components/forms/form-context";
+import { APP_LOCALES, isAppLocale } from "@/i18n/locale-registry";
+import { browserAppLocale } from "@/i18n/locale-preference";
+import { FormSelect } from "@/components/forms/form-select";
 import { FormInput } from "@/components/forms/form-input";
 import { Button } from "@/components/ui/button";
 import { runUserAction } from "@/core/errors/report-application-error";
@@ -75,8 +78,15 @@ export const WikiHomepageSetup = observer(function WikiHomepageSetup({
   const focusStatusAfterSubmit = useRef(false);
 
   useEffect(() => {
+    store.onChange(
+      "locale",
+      browserAppLocale(navigator.languages?.length ? navigator.languages : [navigator.language]),
+    );
+  }, [store]);
+
+  useEffect(() => {
     setState(initialState);
-    if (initialState.homepage) store.onInitOrRefresh({ homepage: initialState.homepage });
+    if (initialState.homepage) store.onInitOrRefresh({ ...store.form, homepage: initialState.homepage });
     if (initialState.status === "completed") setRetrying(false);
   }, [initialState, store]);
 
@@ -103,6 +113,7 @@ export const WikiHomepageSetup = observer(function WikiHomepageSetup({
     try {
       const result = await startWikiHomepageSetupAction({
         homepage: toJS(store.form).homepage,
+        locale: store.form.locale,
         clientRequestId: store.clientRequestId,
       });
       if (!result.ok) {
@@ -119,9 +130,11 @@ export const WikiHomepageSetup = observer(function WikiHomepageSetup({
         domain,
         conversationId,
         pages: [],
+        crawlPhase: "queued",
+        progress: { fetched: 0, total: 0 },
       };
       setState(workingState);
-      store.onInitOrRefresh({ homepage: canonicalHomepage });
+      store.onInitOrRefresh({ ...store.form, homepage: canonicalHomepage });
       setRetrying(false);
       router.refresh();
       store.renewClientRequestId();
@@ -141,9 +154,7 @@ export const WikiHomepageSetup = observer(function WikiHomepageSetup({
     const domain = state.domain ?? state.homepage ?? "";
     const workingBody = state.conversationId
       ? t("WikiSetup.status.workingBody", { domain })
-      : state.progress && state.progress.total > 0
-        ? t("WikiSetup.status.readingBody", { domain, fetched: state.progress.fetched, total: state.progress.total })
-        : t("WikiSetup.status.workingBodyNoTask", { domain });
+      : t("WikiSetup.status.workingBodyNoTask", { domain });
     const failedBody =
       state.failureReason === "blocked"
         ? t("WikiSetup.status.failedBodyBlocked", { domain })
@@ -189,6 +200,49 @@ export const WikiHomepageSetup = observer(function WikiHomepageSetup({
           </div>
         </div>
 
+        {working && !state.conversationId && state.crawlPhase ? (
+          <div
+            aria-label={t("WikiSetup.crawlProgress.title")}
+            className="min-w-0 rounded-lg border border-border bg-background p-4 sm:p-5"
+            data-testid="wiki-setup-crawl-progress"
+            role="status"
+          >
+            <ol className="grid gap-3">
+              {[
+                { phase: "queued", label: t("WikiSetup.crawlProgress.queued") },
+                { phase: "discovering", label: t("WikiSetup.crawlProgress.discovering") },
+                { phase: "fetching", label: t("WikiSetup.crawlProgress.fetching") },
+                { phase: "importing", label: t("WikiSetup.crawlProgress.importing") },
+                { phase: "synthesizing", label: t("WikiSetup.crawlProgress.synthesizing") },
+              ].map(({ phase, label }) => (
+                <li
+                  key={phase}
+                  aria-current={state.crawlPhase === phase ? "step" : undefined}
+                  className="flex items-center gap-2 text-sm text-muted-foreground aria-[current=step]:font-medium aria-[current=step]:text-foreground"
+                >
+                  {state.crawlPhase === phase ? (
+                    <Loader2 aria-hidden="true" className="size-4 animate-spin motion-reduce:animate-none" />
+                  ) : (
+                    <span aria-hidden="true" className="size-4 shrink-0" />
+                  )}
+
+                  {label}
+                </li>
+              ))}
+            </ol>
+
+            {state.progress && state.progress.total > 0 ? (
+              <p className="mt-4 text-sm text-muted-foreground">
+                {t("WikiSetup.status.readingBody", {
+                  domain,
+                  fetched: state.progress.fetched,
+                  total: state.progress.total,
+                })}
+              </p>
+            ) : null}
+          </div>
+        ) : null}
+
         {completed && !state.conversationId ? (
           <div className="grid gap-1.5">
             {state.pages.map((page) => (
@@ -204,7 +258,7 @@ export const WikiHomepageSetup = observer(function WikiHomepageSetup({
         {state.conversationId ? renderConversation(state.conversationId) : null}
 
         <div className="flex flex-wrap justify-end gap-2">
-          {canStart && !working && !completed ? (
+          {canStart && !working && !completed && state.pages.length === 0 ? (
             <Button disabled={controlsDisabled} type="button" variant="secondary" onClick={() => setRetrying(true)}>
               <RotateCcw />
 
@@ -237,6 +291,18 @@ export const WikiHomepageSetup = observer(function WikiHomepageSetup({
           label={t("WikiSetup.homepageLabel")}
           placeholder={t("WikiSetup.homepagePlaceholder")}
           type="text"
+        />
+
+        <FormSelect
+          description={t("WikiSetup.languageDescription")}
+          disabled={disabled}
+          id="locale"
+          inputId="wiki-language"
+          items={APP_LOCALES.map((locale) => ({ value: locale, label: t(`Common.locales.${locale}`) }))}
+          label={t("WikiSetup.languageLabel")}
+          onValueChange={(locale) => {
+            if (isAppLocale(locale)) store.onChange("locale", locale);
+          }}
         />
 
         <span aria-live="polite" className="sr-only">

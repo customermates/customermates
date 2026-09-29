@@ -1,3 +1,4 @@
+import { activeWikiHomepageSetupWhere } from "./wiki-setup-admission";
 import { randomUUID } from "node:crypto";
 
 import {
@@ -248,16 +249,6 @@ export type AgentUsageReservationExtension =
   | { disposition: "credit_limit" }
   | { disposition: "hosted_ai_unavailable" }
   | { disposition: "turn_error" };
-
-function activeWikiHomepageSetupWhere(companyId: string, now: Date): Prisma.AgentTurnRequestWhereInput {
-  const freshnessCutoff = new Date(now.getTime() - AGENT_RUN_LEASE_MS);
-  return {
-    companyId,
-    wikiHomepageSetupUrl: { not: null },
-    status: { in: ["running", "waitingBudget"] },
-    OR: [{ heartbeatAt: { gt: freshnessCutoff } }, { heartbeatAt: null, updatedAt: { gt: freshnessCutoff } }],
-  };
-}
 
 export class PrismaAgentChatRepo extends BaseRepository implements AgentUsageRepo, GetWikiHomepageSetupTurnRepo {
   private async resolveCurrentAgentCreditEntitlement(user: AgentUsageUser, now: Date) {
@@ -595,6 +586,21 @@ export class PrismaAgentChatRepo extends BaseRepository implements AgentUsageRep
           select: { id: true },
         });
         if (activeSetup) throw new WikiHomepageSetupAlreadyRunningError();
+        const activeCrawl = await this.prisma.wikiWebsiteCrawl.findFirst({
+          where: {
+            companyId,
+            status: { in: ["queued", "discovering", "fetching", "importing", "synthesizing"] },
+          },
+          select: { clientRequestId: true, homepageUrl: true, status: true },
+        });
+        if (
+          activeCrawl &&
+          (args.turn.kind !== "create" ||
+            activeCrawl.status !== "synthesizing" ||
+            activeCrawl.clientRequestId !== args.turn.clientRequestId ||
+            activeCrawl.homepageUrl !== args.turn.wikiHomepageSetupUrl)
+        )
+          throw new WikiHomepageSetupAlreadyRunningError();
       }
 
       if (args.turn.kind === "retry") {

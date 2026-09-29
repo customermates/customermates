@@ -46,6 +46,9 @@ import { WikiWebsiteCrawlService } from "../wiki-website-crawl.service";
 const databaseUrl = getLocalDatabaseTestUrl();
 const describeDatabase = databaseUrl ? describe : describe.skip;
 
+const sourceText = (text: string) =>
+  `${text}\n\nCustomers can contact our support team whenever they have questions about their subscription. We explain the available options and provide clear information about the next steps. Our team helps customers understand the information on this page.`;
+
 const PAGES: Record<
   string,
   {
@@ -56,17 +59,17 @@ const PAGES: Record<
 > = {
   "https://example.com/help/refunds": {
     title: "Refund policy",
-    text: "# Refund policy\n\n## Annual plans\n\nRefunds within 30 days.",
+    text: sourceText("# Refund policy\n\n## Annual plans\n\nRefunds within 30 days."),
     qaPairs: [{ question: "Can I pause instead?", answer: "Yes, for up to 3 months." }],
   },
   "https://example.com/pricing": {
     title: "Pricing",
-    text: "# Pricing\n\nPro costs 29 EUR per seat.",
+    text: sourceText("# Pricing\n\nPro costs 29 EUR per seat."),
     qaPairs: [],
   },
   "https://example.com/features": {
     title: "Features",
-    text: "# Features\n\nScheduling for field teams.",
+    text: sourceText("# Features\n\nScheduling for field teams."),
     qaPairs: [],
   },
 };
@@ -133,6 +136,10 @@ describeDatabase("Wiki website crawl on PostgreSQL", () => {
   beforeAll(async () => {
     await client.connect();
     await client.query('INSERT INTO "Company" ("id", "updatedAt") VALUES ($1, CURRENT_TIMESTAMP)', [companyId]);
+    await client.query(
+      `INSERT INTO "User" ("id","email","firstName","lastName","companyId","updatedAt") VALUES ($1,$2,'Wiki','Tester',$3,now())`,
+      [user.id, `wiki-${user.id}@example.test`, companyId],
+    );
   });
 
   beforeEach(async () => {
@@ -163,6 +170,91 @@ describeDatabase("Wiki website crawl on PostgreSQL", () => {
       );
     });
     synthesis.mockResolvedValue("00000000-0000-4000-8000-00000000c0de");
+  });
+
+  it("counts language by tenant Wiki pages across repository batches", async () => {
+    const german =
+      "Kunden können sich bei Fragen zu ihrem Vertrag an unseren Kundendienst wenden. Wir erklären die verfügbaren Möglichkeiten und informieren über die nächsten Schritte. Eine Rückerstattung kann innerhalb von dreißig Tagen nach dem Kauf des jährlichen Abonnements beantragt werden.";
+    await client.query(
+      `INSERT INTO "WikiPage" ("id", "companyId", "title", "markdown", "updatedAt") SELECT 'language-' || lpad(i::text, 4, '0'), $1, 'Sample', CASE WHEN i <= 100 THEN $2 ELSE $3 END, now() FROM generate_series(1, 201) AS i`,
+      [companyId, sourceText("Support"), german],
+    );
+    await runWithTenant(user, async () => {
+      expect(await new PrismaWikiPageRepo().dominantWikiLanguage()).toBe("de");
+    });
+  });
+
+  it("serializes crawl admission with synthesis and retains active or retryable source evidence", async () => {
+    const initialId = await startCrawl();
+    await runCrawl(initialId);
+    const failedDispatchId = await startCrawl("extend", "https://acme.zendesk.com/help");
+    await client.query(`UPDATE "WikiWebsiteCrawl" SET "status"='failed', "failureReason"='dispatch' WHERE "id"=$1`, [
+      failedDispatchId,
+    ]);
+    await client.query(`UPDATE "WikiWebsiteCrawl" SET "startedAt"=now()-interval '2 days' WHERE "id"=$1`, [initialId]);
+    const conversationId = randomUUID();
+    const turnId = randomUUID();
+    await client.query(
+      `INSERT INTO "AgentConversation" ("id","companyId","userId","updatedAt") VALUES ($1,$2,$3,now())`,
+      [conversationId, companyId, user.id],
+    );
+    try {
+      await client.query(
+        `INSERT INTO "AgentTurnRequest" ("id","companyId","userId","conversationId","clientRequestId","text","status","runId","userMessageId","wikiHomepageSetupUrl","heartbeatAt","updatedAt") VALUES ($1,$2,$3,$4,$5,'setup','running',$6,$7,'https://example.com/',now(),now())`,
+        [turnId, companyId, user.id, conversationId, randomUUID(), randomUUID(), randomUUID()],
+      );
+      await runWithTenant(user, async () => {
+        const repo = new PrismaWikiWebsiteCrawlRepo();
+        expect(
+          await repo.createCrawl({
+            clientRequestId: randomUUID(),
+            homepageUrl: "https://acme.zendesk.com/help",
+            registrableDomain: "example.com",
+            locale: "en",
+            mode: "extend",
+            extraHosts: [],
+          }),
+        ).toEqual({ status: "active" });
+        expect(await repo.retryFailedDispatch(failedDispatchId)).toBeNull();
+        await repo.deleteEarlierSources(failedDispatchId);
+        expect(await repo.countSources(initialId)).toBeGreaterThan(0);
+      });
+      await client.query(`UPDATE "AgentTurnRequest" SET "status"='failed' WHERE "id"=$1`, [turnId]);
+      await client.query(`UPDATE "WikiWebsiteCrawl" SET "startedAt"=now() WHERE "id"=$1`, [initialId]);
+      await runWithTenant(user, async () => {
+        const repo = new PrismaWikiWebsiteCrawlRepo();
+        await repo.deleteEarlierSources(failedDispatchId);
+        expect(await repo.countSources(initialId)).toBeGreaterThan(0);
+      });
+      await client.query(`UPDATE "WikiWebsiteCrawl" SET "startedAt"=now()-interval '2 days' WHERE "id"=$1`, [
+        initialId,
+      ]);
+      await runWithTenant(user, async () => {
+        const repo = new PrismaWikiWebsiteCrawlRepo();
+        await repo.deleteEarlierSources(failedDispatchId);
+        expect(await repo.countSources(initialId)).toBe(0);
+        expect(await repo.retryFailedDispatch(failedDispatchId)).toMatchObject({ status: "queued" });
+      });
+    } finally {
+      await client.query('DELETE FROM "AgentConversation" WHERE "id"=$1', [conversationId]);
+    }
+  });
+
+  it("binds setup retries to the original crawl when a newer import uses the same URL", async () => {
+    const first = await startCrawl();
+    await client.query(`UPDATE "WikiWebsiteCrawl" SET "status"='completed' WHERE "id"=$1`, [first]);
+    const second = await startCrawl();
+    await client.query(`UPDATE "WikiWebsiteCrawl" SET "status"='completed' WHERE "id"=$1`, [second]);
+    await runWithTenant(user, async () => {
+      const repo = new PrismaWikiWebsiteCrawlRepo();
+      const original = await repo.getCrawl(first);
+      if (!original) throw new Error("Missing original crawl");
+      expect(await repo.findSetupCrawl(original.homepageUrl, original.clientRequestId)).toMatchObject({
+        id: first,
+        locale: "en",
+      });
+      expect(await repo.findSetupCrawl(original.homepageUrl, randomUUID())).toBeNull();
+    });
   });
 
   afterAll(async () => {
@@ -247,6 +339,7 @@ describeDatabase("Wiki website crawl on PostgreSQL", () => {
       const batches = await service().discover(crawlId);
       for (let batch = 0; batch < batches; batch += 1)
         await Promise.all([service().fetchBatch(crawlId, batch), service().fetchBatch(crawlId, batch)]);
+
       await client.query(`UPDATE "WikiWebsiteCrawl" SET "status" = 'importing' WHERE "id" = $1`, [crawlId]);
       await Promise.all([service().importSources(crawlId), service().importSources(crawlId)]);
       await Promise.all([service().finish(crawlId), service().finish(crawlId)]);
@@ -353,21 +446,25 @@ describeDatabase("Wiki website crawl on PostgreSQL", () => {
     }));
     for (let round = 0; round < 3; round += 1)
       await create(tooMany.map((page) => ({ ...page, title: `${page.title}.${round}` })));
+
     expect(JSON.stringify(await create(tooMany))).toContain(`at most ${WIKI_SYNTHESIS_MAX_PAGES}`);
   }, 30_000);
 
   it("refreshes untouched imported pages, keeps pages people edited, and adds no new pages", async () => {
-    await runCrawl(await startCrawl());
+    const initialId = await startCrawl();
+    await runCrawl(initialId);
     const edited = await client.query(
       `UPDATE "WikiPage" SET "markdown" = 'Our own pricing notes', "updatedAt" = "updatedAt" + interval '500 milliseconds'
        WHERE "companyId" = $1 AND "title" = 'Pricing' RETURNING "id"`,
       [companyId],
     );
-    PAGES["https://example.com/help/refunds"].text = "# Refund policy\n\n## Annual plans\n\nRefunds within 45 days.";
-    PAGES["https://example.com/pricing"].text = "# Pricing\n\nPro costs 35 EUR per seat.";
+    PAGES["https://example.com/help/refunds"].text = sourceText(
+      "# Refund policy\n\n## Annual plans\n\nRefunds within 45 days.",
+    );
+    PAGES["https://example.com/pricing"].text = sourceText("# Pricing\n\nPro costs 35 EUR per seat.");
     PAGES["https://example.com/new-policy"] = {
       title: "Terms",
-      text: "# Terms\n\nNew terms.",
+      text: sourceText("# Terms\n\nNew terms."),
       qaPairs: [],
     };
 
@@ -376,7 +473,7 @@ describeDatabase("Wiki website crawl on PostgreSQL", () => {
     const kept = await client.query('SELECT DISTINCT "crawlId" FROM "WikiSourceDocument" WHERE "companyId" = $1', [
       companyId,
     ]);
-    expect(kept.rows).toEqual([{ crawlId: refreshId }]);
+    expect(kept.rows.map(({ crawlId }) => crawlId).sort()).toEqual([initialId, refreshId].sort());
 
     const pages = await client.query('SELECT "id", "title", "markdown" FROM "WikiPage" WHERE "companyId" = $1', [
       companyId,
@@ -457,7 +554,7 @@ describeDatabase("Wiki website crawl on PostgreSQL", () => {
     const externalUrl = "https://acme.zendesk.com/hc/en-us/articles/reset";
     PAGES[externalUrl] = {
       title: "Password reset",
-      text: "Original external instructions",
+      text: sourceText("Original external instructions"),
       qaPairs: [],
     };
     crawler.discover.mockResolvedValueOnce({
@@ -467,8 +564,8 @@ describeDatabase("Wiki website crawl on PostgreSQL", () => {
       targets: [{ url: externalUrl, category: "help" }],
     });
     await runCrawl(await startCrawl("extend", "https://acme.zendesk.com/hc/en-us"));
-    PAGES[externalUrl].text = "Updated external instructions";
-    PAGES["https://example.com/pricing"].text = "Updated original pricing";
+    PAGES[externalUrl].text = sourceText("Updated external instructions");
+    PAGES["https://example.com/pricing"].text = sourceText("Updated original pricing");
     crawler.discover.mockClear();
     crawler.fetch.mockClear();
     const refreshId = await startCrawl("refresh");
@@ -501,7 +598,7 @@ describeDatabase("Wiki website crawl on PostgreSQL", () => {
     });
     PAGES["https://acme.zendesk.com/hc/en-us/articles/1"] = {
       title: "Reset password",
-      text: "# Reset password\n\nUse the link.",
+      text: sourceText("# Reset password\n\nUse the link."),
       qaPairs: [],
     };
     const extendId = await startCrawl("extend", "https://acme.zendesk.com/hc/en-us");
@@ -515,7 +612,7 @@ describeDatabase("Wiki website crawl on PostgreSQL", () => {
       expect.objectContaining({ extraHosts: ["acme.zendesk.com"] }),
       expect.anything(),
     );
-    expect(synthesis).not.toHaveBeenCalled();
+    expect(synthesis).toHaveBeenCalledOnce();
 
     crawler.discover.mockResolvedValueOnce({ status: "blocked" });
     const blockedId = await startCrawl();

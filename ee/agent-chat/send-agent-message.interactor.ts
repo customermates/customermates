@@ -1,3 +1,4 @@
+import { appLocaleOrDefault } from "@/i18n/locale-registry";
 import { randomUUID } from "node:crypto";
 import type { z } from "zod";
 import * as Sentry from "@sentry/nextjs";
@@ -60,7 +61,7 @@ import { fail, failConflict, failNotFound, failRateLimit } from "@/core/validati
 import { CustomErrorCode } from "@/core/validation/validation.types";
 import type { GetWikiCatalogInteractor } from "@/features/wiki/get-wiki-catalog.interactor";
 import type { UserService } from "@/features/user/user.service";
-import { parsePublicWikiHomepage, type PublicWikiHomepage } from "@/features/wiki/wiki-homepage";
+import { parsePublicPageUrl, type PublicWikiHomepage } from "@/features/wiki/wiki-homepage";
 import { AppErrorCode, appErrorDetails } from "@/core/errors/app-errors";
 import { agentWebSearchReserveMicrocents } from "./agent-budget-policy";
 import { ceilingMicrocentsWithLegacyCredits } from "./agent-credit-policy";
@@ -120,7 +121,10 @@ export class SendAgentMessageInteractor extends AuthenticatedInteractor<SendAgen
     private wikiCatalog: Pick<GetWikiCatalogInteractor, "invoke">,
     private userService?: Pick<UserService, "hasPermission">,
     private wikiCrawls?: {
-      findSetupCrawl(homepageUrl: string): Promise<{ id: string; homepageUrl: string; pendingHosts: string[] } | null>;
+      findSetupCrawl(
+        homepageUrl: string,
+        clientRequestId: string,
+      ): Promise<{ id: string; homepageUrl: string; pendingHosts: string[]; mode?: string; locale: string } | null>;
       findLatestCrawl(): Promise<{ pendingHosts: string[] } | null>;
     },
   ) {
@@ -287,14 +291,18 @@ export class SendAgentMessageInteractor extends AuthenticatedInteractor<SendAgen
       return fail(CustomErrorCode.agentModelUnavailable, ["modelKey"]);
     const setupUrl = decision.disposition === "retry" ? decision.turn.wikiHomepageSetupUrl : data.wikiHomepageSetupUrl;
     const wikiHomepageSetup: PublicWikiHomepage | undefined = setupUrl
-      ? (parsePublicWikiHomepage(setupUrl) ?? undefined)
+      ? (parsePublicPageUrl(setupUrl) ?? undefined)
       : undefined;
     if (setupUrl && !wikiHomepageSetup) return fail(CustomErrorCode.invalidUrl, ["wikiHomepageSetupUrl"]);
+    const setupClientRequestId =
+      decision.disposition === "retry" ? decision.turn.clientRequestId : data.clientRequestId;
     const wikiCrawl =
-      wikiHomepageSetup && this.wikiCrawls ? await this.wikiCrawls.findSetupCrawl(wikiHomepageSetup.url) : null;
+      wikiHomepageSetup && this.wikiCrawls
+        ? await this.wikiCrawls.findSetupCrawl(wikiHomepageSetup.url, setupClientRequestId)
+        : null;
     if (wikiHomepageSetup && !wikiCrawl) return fail(CustomErrorCode.invalidUrl, ["wikiHomepageSetupUrl"]);
     const turnModel = resolveAgentModel(requestedModelKey);
-    const locale = data.locale ?? resolveUserLocale(user);
+    const locale = wikiCrawl ? appLocaleOrDefault(wikiCrawl.locale) : (data.locale ?? resolveUserLocale(user));
     let conversationTitle = data.text;
     if (wikiHomepageSetup) {
       const t = await getTranslator(locale, "WikiSetup");
@@ -337,7 +345,7 @@ export class SendAgentMessageInteractor extends AuthenticatedInteractor<SendAgen
         schemaDigest,
         wikiHomepageSetup: Boolean(wikiHomepageSetup),
         wikiCrawlSynthesis: wikiCrawl
-          ? { homepage: wikiCrawl.homepageUrl, pendingHosts: wikiCrawl.pendingHosts }
+          ? { homepage: wikiCrawl.homepageUrl, pendingHosts: wikiCrawl.pendingHosts, mode: wikiCrawl.mode }
           : null,
         wikiWebsiteSetup,
         webSearchEnabled: true,
@@ -530,7 +538,14 @@ export class SendAgentMessageInteractor extends AuthenticatedInteractor<SendAgen
         ...(recordsBenchmarkToolOutputs(process.env) ? { recordToolOutputs: true } : {}),
         wikiHomepageSetup,
         ...(wikiCrawl
-          ? { wikiCrawl: { id: wikiCrawl.id, homepage: wikiCrawl.homepageUrl, pendingHosts: wikiCrawl.pendingHosts } }
+          ? {
+              wikiCrawl: {
+                id: wikiCrawl.id,
+                homepage: wikiCrawl.homepageUrl,
+                pendingHosts: wikiCrawl.pendingHosts,
+                mode: wikiCrawl.mode,
+              },
+            }
           : {}),
         ...(wikiWebsiteSetup
           ? {

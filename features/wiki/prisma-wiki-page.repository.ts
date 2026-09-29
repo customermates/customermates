@@ -1,3 +1,4 @@
+import { detectedWikiLanguage, dominantWikiLanguageFromCounts, WIKI_LANGUAGE_SAMPLE_CHARACTERS } from "./wiki-language";
 import type { RepoArgs } from "@/core/utils/types";
 import type { CreateWikiPagesRepo } from "./create-wiki-pages.interactor";
 import type { DeleteWikiPageRepo } from "./delete-wiki-page.interactor";
@@ -478,6 +479,26 @@ export class PrismaWikiPageRepo
       where: { id, companyId: this.companyId },
       select: this.pageSelect,
     });
+  }
+
+  async dominantWikiLanguage() {
+    const counts = new Map<string, number>();
+    let after = "";
+    while (true) {
+      const pages = await this.prisma.$queryRaw<Array<{ id: string; sample: string }>>(Prisma.sql`
+        SELECT "id", left("markdown", ${WIKI_LANGUAGE_SAMPLE_CHARACTERS}) AS "sample"
+        FROM "WikiPage"
+        WHERE "companyId" = ${this.companyId} AND "id" > ${after}
+        ORDER BY "id" ASC LIMIT 100
+      `);
+      for (const page of pages) {
+        const language = detectedWikiLanguage(page.sample);
+        if (language) counts.set(language, (counts.get(language) ?? 0) + 1);
+      }
+      if (pages.length < 100) break;
+      after = pages[pages.length - 1].id;
+    }
+    return dominantWikiLanguageFromCounts(counts);
   }
 
   async wikiIsEmpty() {

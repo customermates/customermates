@@ -41,7 +41,6 @@ import { WikiPageRail } from "./wiki-page-rail";
 import { resolveWikiPageState } from "./wiki-page-state";
 import { WIKI_LAYOUT_P13N_ID, WIKI_PANEL_LAYOUT_ID } from "./wiki-personalization";
 import { useWikiPages } from "./use-wiki-pages";
-import { startWikiHomepageSetupAction } from "../actions";
 import {
   WIKI_GUIDE_CONTEXT_MAX_BYTES,
   WIKI_PAGE_KINDS,
@@ -152,18 +151,6 @@ export const WikiPageView = observer(function WikiPageView({
   };
   const reload = useCallback(() => tryNavigate(() => runUserAction(store.reload)), [store, tryNavigate]);
   const cancelCreate = useCallback(() => tryNavigate(() => store.load(initialPage)), [initialPage, store, tryNavigate]);
-  const [refreshFromWebsite] = useState(
-    () => () =>
-      runUserAction(async () => {
-        const result = await startWikiHomepageSetupAction({
-          homepage: "refresh",
-          clientRequestId: crypto.randomUUID(),
-          mode: "refresh",
-        });
-        if (!result.ok) throw new Error("The website refresh could not start.");
-        rootStore.navigationGuard.requestRouteRefreshWhenSafe(() => router.refresh());
-      }),
-  );
   const savePanelSizes = useCallback(
     (sizes: readonly number[] | null) => {
       commitColumnWidths((current) =>
@@ -183,23 +170,10 @@ export const WikiPageView = observer(function WikiPageView({
           store={store}
           onCancelCreate={cancelCreate}
           onCreate={create}
-          onRefreshFromWebsite={initialSetupState.refreshable ? refreshFromWebsite : undefined}
           onReload={reload}
         />
       ),
-    [
-      canManage,
-      cancelCreate,
-      create,
-      formId,
-      hasDocument,
-      initialSetupState.refreshable,
-      isNavigating,
-      refreshFromWebsite,
-      reload,
-      setupActive,
-      store,
-    ],
+    [canManage, cancelCreate, create, formId, hasDocument, isNavigating, reload, setupActive, store],
   );
   useSetTopBarActions(topBar);
   const kindLabels = {
@@ -465,17 +439,9 @@ export const WikiPageView = observer(function WikiPageView({
 
           {initialSetupState.status === "failed" && (
             <Alert color="warning">
-              <p>
-                {initialSetupState.refreshable
-                  ? t("WikiSetup.status.refreshFailedTitle")
-                  : t("WikiSetup.status.failedTitle")}
-              </p>
+              <p>{t("WikiSetup.status.failedTitle")}</p>
 
-              <p>
-                {initialSetupState.refreshable
-                  ? t("WikiSetup.status.refreshFailedBody")
-                  : t("WikiSetup.status.failedBody")}
-              </p>
+              <p>{t("WikiSetup.status.failedBody")}</p>
             </Alert>
           )}
 

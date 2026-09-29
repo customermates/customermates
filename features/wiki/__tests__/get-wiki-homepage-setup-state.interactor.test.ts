@@ -59,6 +59,7 @@ function interactor(
   return {
     pageRepo,
     setupTurnRepo,
+    crawlRepo,
     interactor: new GetWikiHomepageSetupStateInteractor(pageRepo, setupTurnRepo, crawlRepo),
   };
 }
@@ -74,6 +75,81 @@ const CRAWL: WikiWebsiteCrawlState = {
 };
 
 describe("GetWikiHomepageSetupStateInteractor", () => {
+  it.each(["queued", "discovering", "fetching", "importing", "synthesizing", "failed"] as const)(
+    "does not restore an older same-site conversation into a new %s crawl",
+    async (status) => {
+      const older = { ...INACTIVE, status: "completed" as const, terminalCode: "completed" as const };
+      await expect(
+        interactor(older, [], { ...CRAWL, status, conversationId: null }).interactor.invoke(),
+      ).resolves.toMatchObject({
+        data: { conversationId: null },
+      });
+      const current = { ...SETUP, conversationId: "current-conversation" };
+      await expect(
+        interactor(current, [], {
+          ...CRAWL,
+          status: "synthesizing",
+          conversationId: "current-conversation",
+        }).interactor.invoke(),
+      ).resolves.toMatchObject({
+        data: { status: "working", conversationId: "current-conversation" },
+      });
+    },
+  );
+
+  it("keeps an authorized completed synthesis transcript even when no extra pages were created", async () => {
+    const setup = { ...INACTIVE, status: "completed" as const, terminalCode: "completed" as const };
+    await expect(
+      interactor(setup, [PAGE], {
+        ...CRAWL,
+        status: "completed",
+        conversationId: SETUP.conversationId,
+      }).interactor.invoke(),
+    ).resolves.toMatchObject({
+      data: { status: "completed", conversationId: SETUP.conversationId, pages: [PAGE] },
+    });
+  });
+
+  it.each(["partial", "error", "cancelled"] as const)(
+    "reports %s synthesis while retaining imported pages and transcript",
+    async (terminalCode) => {
+      await expect(
+        interactor({ ...INACTIVE, status: "completed", terminalCode }, [PAGE], {
+          ...CRAWL,
+          status: "completed",
+          conversationId: SETUP.conversationId,
+        }).interactor.invoke(),
+      ).resolves.toMatchObject({
+        data: { status: "failed", conversationId: SETUP.conversationId, pages: [PAGE] },
+      });
+    },
+  );
+
+  it.each(["fetching", "failed", "completed"] as const)(
+    "never reveals another user's %s crawl conversation",
+    async (status) => {
+      await expect(
+        interactor({ ...INACTIVE, conversationId: null }, [PAGE], {
+          ...CRAWL,
+          status,
+          conversationId: "private-conversation",
+        }).interactor.invoke(),
+      ).resolves.toMatchObject({
+        data: { conversationId: null },
+      });
+    },
+  );
+
+  it("does not attach an unrelated older setup transcript to a new crawl", async () => {
+    await expect(
+      interactor({ ...INACTIVE, homepage: "https://other.example.com/" }, [PAGE], {
+        ...CRAWL,
+        status: "failed",
+        conversationId: "new-conversation",
+      }).interactor.invoke(),
+    ).resolves.toMatchObject({ data: { conversationId: null } });
+  });
+
   it("reports a running website import as working with its reading progress", async () => {
     await expect(interactor(null, [], CRAWL).interactor.invoke()).resolves.toEqual({
       ok: true,
@@ -83,8 +159,30 @@ describe("GetWikiHomepageSetupStateInteractor", () => {
         domain: "example.com",
         conversationId: null,
         pages: [],
+        crawlPhase: "fetching",
         progress: { fetched: 7, total: 24 },
       },
+    });
+  });
+
+  it.each(["queued", "discovering", "fetching", "importing", "synthesizing"] as const)(
+    "exposes the %s crawl phase before a conversation exists",
+    async (status) => {
+      await expect(interactor(null, [], { ...CRAWL, status }).interactor.invoke()).resolves.toMatchObject({
+        data: { status: "working", crawlPhase: status, conversationId: null },
+      });
+    },
+  );
+
+  it("reads synthesis state after the crawl snapshot so completion cannot hide a newly started conversation", async () => {
+    const subject = interactor(null, [PAGE]);
+    subject.crawlRepo.findLatestCrawl.mockImplementation(async () => {
+      await Promise.resolve();
+      subject.setupTurnRepo.findWikiHomepageSetupTurn.mockResolvedValue(SETUP);
+      return { ...CRAWL, status: "completed", conversationId: SETUP.conversationId };
+    });
+    await expect(subject.interactor.invoke()).resolves.toMatchObject({
+      data: { status: "working", conversationId: SETUP.conversationId, pages: [] },
     });
   });
 

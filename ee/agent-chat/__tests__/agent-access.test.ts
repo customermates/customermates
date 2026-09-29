@@ -114,6 +114,7 @@ const setupCrawls = () => ({
     id: "crawl-1",
     homepageUrl: "https://example.com/",
     pendingHosts: [],
+    locale: "en",
   }),
   findLatestCrawl: vi.fn().mockResolvedValue(null),
 });
