@@ -21,9 +21,9 @@ import { WIKI_READ_SOURCE_TOOL_NAME } from "@/ee/agent-chat/tool-identity";
 
 export { WIKI_READ_SOURCE_TOOL_NAME };
 export const WIKI_SYNTHESIS_MAX_PAGES = 16;
-import { sourceFullyRead, wikiSourceCoverage, WIKI_SOURCE_RESULT_MAX_CHARS } from "./wiki-source-coverage";
+import { sourceFullyRead, wikiSourceCoverage, wikiSourceResultFits } from "./wiki-source-coverage";
 
-const SOURCE_CHUNK_CHARACTERS = 5_500;
+const SOURCE_CHUNK_CHARACTERS = 12_000;
 
 function sourceFailure(payload: { error: string } & Record<string, unknown>) {
   return {
@@ -37,7 +37,7 @@ const ReadWebsiteSourceSchema = z.object({
   action: z
     .enum(["list", "get", "next"])
     .describe(
-      "list = source inventory; next = next unread chunks of up to four sources; get = one source from its sequential offset.",
+      "list = source inventory; next = unread chunks of up to eight sources; get = reread one source only after remainingSources is zero.",
     ),
   id: z.uuid().optional().describe("Source id from list."),
   offset: z.coerce.number().int().min(0).optional().describe("Prior nextOffset; get must not skip unread text."),
@@ -48,7 +48,7 @@ export function readWebsiteSourceTool(crawlId: string) {
     name: WIKI_READ_SOURCE_TOOL_NAME,
     title: "Read stored website pages",
     description:
-      "Read all stored evidence before creating pages. list inventories sources; next returns bounded sequential chunks from up to four unread sources. Repeat next until remainingSources is zero. get reads one source, including imported sources you cite; follow nextOffset. Cursors persist across retries. Exact duplicate content needs reading only once.",
+      "Read all stored evidence before creating pages. list inventories sources; next returns bounded sequential chunks from up to eight unread sources. Repeat next until remainingSources is zero without re-listing between reads. get reads one source, including imported sources you cite; follow nextOffset. Cursors persist across retries. Exact duplicate content needs reading only once.",
     annotations: {
       readOnlyHint: true,
       destructiveHint: false,
@@ -64,7 +64,7 @@ export function readWebsiteSourceTool(crawlId: string) {
       const coverage = await wikiSourceCoverage(repo, crawlId);
       if (parsed.data.action === "list") {
         const start = Math.min(parsed.data.offset ?? 0, coverage.sources.length);
-        const items = coverage.sources.slice(start, start + 10).map((source) => ({
+        const items = coverage.sources.slice(start, start + 40).map((source) => ({
           id: source.id,
           url: source.url,
           category: source.category,
@@ -75,17 +75,18 @@ export function readWebsiteSourceTool(crawlId: string) {
           read: coverage.readHashes.has(source.contentHash),
           nextOffset: sourceFullyRead(source) ? null : source.readOffset,
         }));
-        while (items.length > 1 && encodeToToon({ items }).length > WIKI_SOURCE_RESULT_MAX_CHARS - 200) items.pop();
+        while (items.length > 1 && !wikiSourceResultFits(encodeToToon({ items }))) items.pop();
         return toonResult({
-          items,
-          nextOffset: start + items.length < coverage.sources.length ? start + items.length : null,
           remainingSources: coverage.pending.length,
           importedSources: coverage.imported.size,
+          nextAction: coverage.pending.length ? "next" : "get cited sources, then create",
+          items,
+          nextOffset: start + items.length < coverage.sources.length ? start + items.length : null,
         });
       }
       const selected =
         parsed.data.action === "next"
-          ? coverage.pending.slice(0, 4)
+          ? coverage.pending.slice(0, 8)
           : coverage.sources.filter(({ id }) => id === parsed.data.id);
       if (parsed.data.action === "get" && selected.length === 0)
         return sourceFailure({ error: "Unknown source id. Call list first." });
@@ -108,8 +109,16 @@ export function readWebsiteSourceTool(crawlId: string) {
           error: "Read sequentially without skipping text. Use next or the stored nextOffset from list.",
         });
       }
+      if (parsed.data.action === "get" && coverage.pending.length > 0) {
+        return sourceFailure({
+          error:
+            "Finish initial coverage first: call action=next until remainingSources is zero. Then use get to reread cited evidence before creating pages.",
+          remainingSources: coverage.pending.length,
+          nextAction: "next",
+        });
+      }
       const chunks = items.filter((item) => item !== null);
-      while (encodeToToon({ items: chunks }).length > WIKI_SOURCE_RESULT_MAX_CHARS - 200) {
+      while (!wikiSourceResultFits(encodeToToon({ items: chunks }))) {
         const last = chunks.reduce<(typeof chunks)[number] | undefined>(
           (largest, chunk) => (!largest || chunk.text.length > largest.text.length ? chunk : largest),
           undefined,
@@ -127,9 +136,10 @@ export function readWebsiteSourceTool(crawlId: string) {
       );
       const after = await wikiSourceCoverage(repo, crawlId);
       return toonResult({
-        items: chunks,
         remainingSources: after.pending.length,
         importedSources: after.imported.size,
+        nextAction: after.pending.length ? "next" : "get cited sources, then create",
+        items: chunks,
       });
     },
   };
@@ -140,7 +150,14 @@ const SynthesisSectionSchema = z.object({
   content: z.string().trim().min(1).max(8_000),
 });
 const SynthesisPageSchema = z.object({
-  title: z.string().trim().min(1).max(WIKI_TITLE_MAX_LENGTH),
+  title: z
+    .string()
+    .trim()
+    .min(1)
+    .max(WIKI_TITLE_MAX_LENGTH)
+    .refine((title) => !/[}\]]\s*,\s*[{[]?\s*"?[a-zA-Z]\w*"?\s*:/.test(title), {
+      message: "Use a plain page title without serialized tool fields.",
+    }),
   kind: z.enum(["knowledge", "guide", "procedure"]),
   whenToUse: z
     .string()

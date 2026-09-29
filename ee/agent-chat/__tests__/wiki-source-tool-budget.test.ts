@@ -19,7 +19,7 @@ vi.mock("@/ee/wiki-crawl/wiki-crawl-synthesis-tools", () => ({
     description: "Read stored sources",
     annotations: { readOnlyHint: true },
     inputSchema: z.object({}),
-    execute: () => Promise.resolve({ text: "x".repeat(22_000) }),
+    execute: () => Promise.resolve({ text: "x".repeat(44_000) }),
   }),
   createWikiFromCrawlTool: () => ({
     name: "manage_wiki_pages",
@@ -49,7 +49,7 @@ describe("stored website evidence tool budget", () => {
     });
     const options = { toolCallId: "read-1", messages: [], context: undefined };
     const read = (await tools.read_website_source.execute?.({}, options)) as { result: string };
-    expect(read.result).toBe("x".repeat(22_000));
+    expect(read.result).toBe("x".repeat(44_000));
     expect(deps.runExactlyOnce).toHaveBeenCalledWith("read-1", "read_website_source", expect.any(Function));
     const create = (await tools.manage_wiki_pages.execute?.({}, { ...options, toolCallId: "create-1" })) as {
       result: string;

@@ -3771,10 +3771,6 @@
     "pageTitle": "Titre de la page",
     "previous": "Précédent",
     "reload": "Recharger la page",
-    "salesSetup": {
-      "label": "Expliquez à Mate comment vous vendez",
-      "prompt": "Aide-moi à documenter notre processus de vente dans notre base de connaissances. Consulte les pages existantes, puis pose ensemble jusqu’à trois questions concises sur les règles manquantes de qualification des prospects, de responsabilité et de fréquence des relances, d’offres et de validation, de transfert des ventes conclues et de communication. Attends mes réponses avant de créer ou modifier une page. Utilise uniquement les preuves du site web et les règles que je te donne ; n’invente aucun processus de vente. Crée ou actualise ensuite les procédures pertinentes avec des critères d’utilisation clairs et des étapes numérotées, puis mets à jour le guide de fonctionnement existant sans dupliquer de pages. Enregistre uniquement les informations étayées et laisse les détails sans réponse sous forme de questions. Utilise la langue dominante de la base de connaissances. Ne modifie ni la configuration ni les données du CRM, ne crée aucune automatisation et n’envoie aucun message."
-    },
     "search": "Rechercher des pages…",
     "unavailableBody": "Cette page a été supprimée ou vous n’y avez pas accès. Choisissez une autre page.",
     "unavailableTitle": "Page indisponible",

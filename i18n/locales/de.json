@@ -3771,10 +3771,6 @@
     "pageTitle": "Seitentitel",
     "previous": "Zurück",
     "reload": "Seite neu laden",
-    "salesSetup": {
-      "label": "Zeige Mate, wie ihr verkauft",
-      "prompt": "Hilf mir, unseren Vertrieb in der Wissensdatenbank zu dokumentieren. Prüfe die vorhandenen Seiten und stelle dann bis zu drei kurze Fragen zusammen zu fehlenden Regeln für Lead-Qualifizierung, Zuständigkeit und Rhythmus beim Nachfassen, Angebote und Freigaben, Übergabe gewonnener Aufträge und Kommunikation. Warte auf meine Antworten, bevor du Seiten erstellst oder änderst. Verwende nur Website-Belege und Regeln, die ich dir gebe; erfinde keinen Vertriebsprozess. Erstelle oder aktualisiere danach passende Ablaufseiten mit klaren Auslösern für ihre Verwendung und nummerierten Schritten. Aktualisiere die vorhandenen Arbeitsrichtlinien, ohne Seiten zu duplizieren. Speichere nur belegte Inhalte und lasse unbeantwortete Details als Fragen offen. Nutze die vorherrschende Sprache der Wissensdatenbank. Ändere keine CRM-Konfiguration oder Datensätze, erstelle keine Automatisierungen und versende keine Nachrichten."
-    },
     "search": "Seiten suchen…",
     "unavailableBody": "Diese Seite wurde gelöscht oder du hast keinen Zugriff. Wähle eine andere Seite.",
     "unavailableTitle": "Seite nicht verfügbar",

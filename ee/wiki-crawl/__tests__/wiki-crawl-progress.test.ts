@@ -1,10 +1,12 @@
 import { afterEach, beforeEach, describe, expect, it, vi } from "vitest";
 
-const calls = vi.hoisted(() => ({ fetch: vi.fn(), discover: vi.fn() }));
+const calls = vi.hoisted(() => ({ fetch: vi.fn(), discover: vi.fn(), robots: vi.fn() }));
 vi.mock("../website-crawler", () => ({
   fetchWikiSource: calls.fetch,
   discoverWikiWebsite: calls.discover,
-  WikiCrawlRobots: vi.fn(),
+  WikiCrawlRobots: vi.fn(function () {
+    return { forUrl: calls.robots };
+  }),
 }));
 vi.mock("@/env", () => ({ env: { APP_MODE: "self-hosted", BASE_URL: "http://localhost:4000" } }));
 
@@ -43,10 +45,87 @@ function fixture(status: "pending" | "reading" | "read" | "failed" = "pending") 
   return { target, repo, service, events };
 }
 
-beforeEach(() => vi.clearAllMocks());
+beforeEach(() => {
+  vi.clearAllMocks();
+  calls.robots.mockResolvedValue({ crawlDelayMs: 0 });
+});
 afterEach(() => vi.useRealTimers());
 
 describe("persisted per-page crawl progress", () => {
+  it.each([1_000, 2_000])("spaces actual fetch starts after delayed claims by %i ms", async (delay) => {
+    vi.useFakeTimers();
+    const { service, repo } = fixture();
+    const targets = [0, 1, 2].map((i) => ({ url: `https://example.com/${i}`, category: "help", status: "pending" }));
+    repo.getCrawl.mockResolvedValue({ status: "fetching", targets, extraHosts: [], crawlDelayMs: 0 });
+    calls.robots.mockResolvedValue({ crawlDelayMs: delay });
+    repo.updateTargetStatus.mockImplementation(async (_id, url, status) => {
+      if (url === targets[0].url && status === "reading")
+        await new Promise((resolve) => setTimeout(resolve, delay + 500));
+
+      return true;
+    });
+    const starts: number[] = [];
+    calls.fetch.mockImplementation(async (url: string) => {
+      starts.push(Date.now());
+      await new Promise((resolve) => setTimeout(resolve, 10_000));
+      return { url, text: "Source", title: "Help", qaPairs: [], contentHash: url };
+    });
+    const run = service.fetchBatch("crawl", 0);
+    await vi.advanceTimersByTimeAsync(delay + 500);
+    expect(starts).toHaveLength(1);
+    await vi.advanceTimersByTimeAsync(delay * 2);
+    expect(starts).toHaveLength(3);
+    expect(starts[1] - starts[0]).toBeGreaterThanOrEqual(delay);
+    expect(starts[2] - starts[1]).toBeGreaterThanOrEqual(delay);
+    expect(repo.saveSource).not.toHaveBeenCalled();
+    await vi.runAllTimersAsync();
+    await run;
+    expect(repo.saveSource).toHaveBeenCalledTimes(3);
+  });
+
+  it("overlaps slow page reads while preserving robots delays and tolerating a failed page", async () => {
+    vi.useFakeTimers();
+    const { service, repo } = fixture();
+    const targets = Array.from({ length: 3 }, (_, i) => ({
+      url: `https://example.com/${i}`,
+      category: "help",
+      status: "pending",
+    }));
+    repo.getCrawl.mockResolvedValue({ status: "fetching", targets, extraHosts: [], crawlDelayMs: 0 });
+    repo.updateTargetStatus.mockImplementation((_id, url, status) => {
+      const target = targets.find((item) => item.url === url);
+      if (!target) throw new Error("Missing fixture target");
+      target.status = status;
+      return true;
+    });
+    calls.robots.mockResolvedValue({ crawlDelayMs: 2_000 });
+    let finishFirst!: () => void;
+    calls.fetch.mockImplementation(async (url: string) => {
+      if (url === targets[0].url) {
+        await new Promise<void>((resolve) => {
+          finishFirst = resolve;
+        });
+      }
+      if (url === targets[1].url) throw new Error("Unavailable page");
+      return { url, text: "Source", title: "Help", qaPairs: [], contentHash: url };
+    });
+    const run = service.fetchBatch("crawl", 0);
+    await vi.advanceTimersByTimeAsync(0);
+    expect(calls.fetch).toHaveBeenCalledTimes(1);
+    await vi.advanceTimersByTimeAsync(1_999);
+    expect(calls.fetch).toHaveBeenCalledTimes(1);
+    await vi.advanceTimersByTimeAsync(1);
+    expect(calls.fetch).toHaveBeenCalledTimes(2);
+    expect(targets[0].status).toBe("reading");
+    await vi.advanceTimersByTimeAsync(2_000);
+    expect(calls.fetch).toHaveBeenCalledTimes(3);
+    expect(targets.map(({ status }) => status)).toEqual(["reading", "failed", "read"]);
+    finishFirst();
+    await run;
+    expect(targets.map(({ status }) => status)).toEqual(["read", "failed", "read"]);
+    expect(repo.saveSource).toHaveBeenCalledTimes(2);
+  });
+
   it.each(["initial", "refresh"])("initializes explicit pending targets during %s discovery", async (mode) => {
     const { service, repo } = fixture();
     const target = { url: "https://example.com/help", category: "help" };

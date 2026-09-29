@@ -29,6 +29,7 @@ vi.mock("@/i18n/get-translator", () => ({
 }));
 
 import { createWikiFromCrawlTool, readWebsiteSourceTool } from "../wiki-crawl-synthesis-tools";
+import { WIKI_SOURCE_RESULT_MAX_CHARS } from "../wiki-source-coverage";
 
 function structured(result: McpToolResult) {
   if (typeof result === "string" || !("structuredContent" in result))
@@ -75,6 +76,15 @@ beforeEach(() => {
 });
 
 describe("single language Wiki synthesis", () => {
+  it("rejects serialized tool fields accidentally included in a generated title", async () => {
+    const result = await createWikiFromCrawlTool("en", "crawl-1").execute({
+      action: "create",
+      pages: [{ ...page(ENGLISH), title: "Sales Messaging and FAQs},{gaps:[" }],
+    });
+    expect(result).toMatchObject({ failure: { kind: "validation" } });
+    expect(harness.create).not.toHaveBeenCalled();
+  });
+
   it("carries previously saved topics into every create result after conversation compaction", async () => {
     harness.count.mockResolvedValue(1);
     harness.createdTitles.mockResolvedValue(["Product A"]);
@@ -232,31 +242,76 @@ describe("complete stored source coverage", () => {
     });
   }
 
-  it("reads forty rich sources completely in twenty bounded batches and resumes persisted cursors", async () => {
+  it("reads forty rich sources completely in at most twelve bounded batches and resumes persisted cursors", async () => {
     const sources = Array.from({ length: 40 }, (_, i) => source(i + 1, ENGLISH.repeat(30)));
     stored(sources);
     let calls = 0;
+    const delivered = new Map<string, string>();
     while (sources.some(({ readOffset, text }) => readOffset < text.length)) {
       const result = await readWebsiteSourceTool("crawl-1").execute({ action: "next" });
-      const value = structured(result) as { items: Array<{ text: string }>; remainingSources: number };
-      expect(value.items.length).toBeLessThanOrEqual(4);
+      const value = structured(result) as { items: Array<{ id: string; text: string }>; remainingSources: number };
+      expect(value.items.length).toBeLessThanOrEqual(8);
       expect(value.items[0]).toMatchObject({
         title: expect.stringContaining("Topic"),
         url: expect.stringContaining("https://example.com/page-"),
         category: "other",
       });
-      expect(encodeToToon(structured(result)).length).toBeLessThanOrEqual(24_000);
+      const encoded = encodeToToon(structured(result));
+      expect(encoded.length).toBeLessThanOrEqual(WIKI_SOURCE_RESULT_MAX_CHARS);
+      expect(new TextEncoder().encode(JSON.stringify(encoded)).byteLength).toBeLessThanOrEqual(
+        WIKI_SOURCE_RESULT_MAX_CHARS,
+      );
       expect(value.items.reduce((sum, item) => sum + item.text.length, 0)).toBeGreaterThan(6_000);
+      for (const item of value.items) delivered.set(item.id, (delivered.get(item.id) ?? "") + item.text);
       calls += 1;
-      expect(calls).toBeLessThanOrEqual(20);
+      expect(calls).toBeLessThanOrEqual(12);
     }
-    expect(calls).toBe(20);
     expect(sources.every(({ readAt }) => readAt !== null)).toBe(true);
-    expect(harness.advance).toHaveBeenCalledTimes(20);
+    expect(harness.advance).toHaveBeenCalledTimes(calls);
+    for (const source of sources) expect(delivered.get(source.id)).toBe(source.text);
+  });
+
+  it("finishes initial coverage before allowing citation rereads and preserves completed cursors", async () => {
+    const sources = [source(1, ENGLISH, ENGLISH.length), source(2, GERMAN)];
+    stored(sources);
+    const tool = readWebsiteSourceTool("crawl-1");
+    for (const id of sources.map((item) => item.id)) {
+      const denied = await executeMcpTool(tool, [{ action: "get", id, offset: 0 }]);
+      expect(denied).toMatchObject({ ok: false, failure: { kind: "validation" } });
+      expect(JSON.stringify(denied)).toContain("action=next");
+    }
+    expect(harness.advance).not.toHaveBeenCalled();
+    expect(structured(await tool.execute({ action: "next" }))).toMatchObject({ remainingSources: 0 });
+    const reread = await tool.execute({ action: "get", id: sources[0].id, offset: 0 });
+    expect(structured(reread)).toMatchObject({ remainingSources: 0, items: [{ text: ENGLISH, offset: 0 }] });
+    expect(sources.map(({ readOffset, text }) => readOffset === text.length)).toEqual([true, true]);
+  });
+
+  it("returns a forty-page topic inventory without extra pagination calls", async () => {
+    stored(Array.from({ length: 40 }, (_, i) => source(i + 1, `# Topic ${i}\n\n${ENGLISH}`)));
+    const result = structured(await readWebsiteSourceTool("crawl-1").execute({ action: "list" })) as {
+      items: unknown[];
+      nextOffset: number | null;
+    };
+    expect(result.items).toHaveLength(40);
+    expect(result.nextOffset).toBeNull();
+  });
+
+  it("keeps multibyte evidence within the provider byte bound and advances only delivered text", async () => {
+    const sources = Array.from({ length: 8 }, (_, i) => source(i + 1, "🌍知識".repeat(4000)));
+    stored(sources);
+    const result = structured(await readWebsiteSourceTool("crawl-1").execute({ action: "next" })) as {
+      items: Array<{ id: string; offset: number; text: string }>;
+    };
+    expect(new TextEncoder().encode(JSON.stringify(encodeToToon(result))).byteLength).toBeLessThanOrEqual(
+      WIKI_SOURCE_RESULT_MAX_CHARS,
+    );
+    for (const chunk of result.items)
+      expect(sources.find(({ id }) => id === chunk.id)?.readOffset).toBe(chunk.offset + chunk.text.length);
   });
 
   it("rejects skipped text and premature creation even after the first chunk was read", async () => {
-    const sources = [source(1, ENGLISH.repeat(30))];
+    const sources = [source(1, ENGLISH.repeat(80))];
     stored(sources);
     const tool = readWebsiteSourceTool("crawl-1");
     expect(JSON.stringify(await tool.execute({ action: "get", id: SOURCE_ID, offset: 100 }))).toContain(
@@ -335,7 +390,11 @@ describe("complete stored source coverage", () => {
     stored(sources);
     const result = await readWebsiteSourceTool("crawl-1").execute({ action: "next" });
     const value = structured(result) as { items: Array<{ id: string; offset: number; text: string }> };
-    expect(encodeToToon(structured(result)).length).toBeLessThanOrEqual(24_000);
+    const encoded = encodeToToon(structured(result));
+    expect(encoded.length).toBeLessThanOrEqual(WIKI_SOURCE_RESULT_MAX_CHARS);
+    expect(new TextEncoder().encode(JSON.stringify(encoded)).byteLength).toBeLessThanOrEqual(
+      WIKI_SOURCE_RESULT_MAX_CHARS,
+    );
     for (const chunk of value.items)
       expect(sources.find(({ id }) => id === chunk.id)?.readOffset).toBe(chunk.offset + chunk.text.length);
   });

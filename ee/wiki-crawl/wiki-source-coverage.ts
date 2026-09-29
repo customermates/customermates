@@ -1,6 +1,10 @@
 import type { WikiSourceRecord, WikiImportedPage } from "./wiki-website-crawl.service";
 
-export const WIKI_SOURCE_RESULT_MAX_CHARS = 24_000;
+export const WIKI_SOURCE_RESULT_MAX_CHARS = 48_000;
+
+export function wikiSourceResultFits(result: string): boolean {
+  return new TextEncoder().encode(JSON.stringify(result)).byteLength <= WIKI_SOURCE_RESULT_MAX_CHARS - 1_000;
+}
 
 export function sourceFullyRead(source: Pick<WikiSourceRecord, "text" | "readOffset">): boolean {
   return Number.isSafeInteger(source.readOffset) && source.readOffset >= source.text.length;

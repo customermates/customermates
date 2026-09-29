@@ -560,6 +560,7 @@ describeDatabase("PrismaOperatorRepo against a real database", { timeout: 120_00
           runInTransaction(async () => {
             const tx = getTransactionClient<AppPrismaClient>();
             if (!tx) throw new Error("Expected platform-access test transaction.");
+            await tx.$executeRaw`LOCK TABLE "User" IN SHARE ROW EXCLUSIVE MODE`;
             await tx.user.updateMany({ where: { isPlatformOperator: true }, data: { isPlatformOperator: false } });
 
             const target = await createPlatformAccessUser(tx, {});
@@ -634,6 +635,7 @@ describeDatabase("PrismaOperatorRepo against a real database", { timeout: 120_00
         runInTransaction(async () => {
           const tx = getTransactionClient<AppPrismaClient>();
           if (!tx) throw new Error("Expected platform-access guard test transaction.");
+          await tx.$executeRaw`LOCK TABLE "User" IN SHARE ROW EXCLUSIVE MODE`;
           await tx.user.updateMany({ where: { isPlatformOperator: true }, data: { isPlatformOperator: false } });
 
           const repo = new PrismaOperatorRepo(new PrismaAgentChatRepo());
@@ -681,6 +683,7 @@ describeDatabase("PrismaOperatorRepo against a real database", { timeout: 120_00
           runInTransaction(async () => {
             const tx = getTransactionClient<AppPrismaClient>();
             if (!tx) throw new Error("Expected status-path test transaction.");
+            await tx.$executeRaw`LOCK TABLE "User" IN SHARE ROW EXCLUSIVE MODE`;
             await tx.user.updateMany({ where: { isPlatformOperator: true }, data: { isPlatformOperator: false } });
 
             const solo = await createPlatformAccessUser(tx, { isPlatformOperator: true });

@@ -254,27 +254,49 @@ export class WikiWebsiteCrawlService extends UserAccessor {
     const targets = (crawl.targets ?? []).slice(batch * WIKI_CRAWL_FETCH_BATCH, (batch + 1) * WIKI_CRAWL_FETCH_BATCH);
     const legacy = (crawl.targets ?? []).every((target) => target.status === undefined);
     const robots = new WikiCrawlRobots(this.scope(crawl));
-    for (const [index, target] of targets.entries()) {
-      if (target.status === "read" || target.status === "failed") continue;
-      if (index > 0) await sleep(Math.max(WIKI_CRAWL_MIN_DELAY_MS, crawl.crawlDelayMs));
-      if (!legacy && !(await this.repo.updateTargetStatus(crawlId, target.url, "reading"))) continue;
-      let source;
-      try {
-        source = await fetchWikiSource(target.url, this.scope(crawl), robots);
-      } catch {
-        if (!legacy) await this.repo.updateTargetStatus(crawlId, target.url, "failed");
-        continue;
+    const rules = await Promise.allSettled(targets.map((target) => robots.forUrl(target.url)));
+    const delay = Math.max(
+      WIKI_CRAWL_MIN_DELAY_MS,
+      crawl.crawlDelayMs,
+      ...rules.flatMap((rule) => (rule.status === "fulfilled" ? [rule.value.crawlDelayMs] : [])),
+    );
+    const failures: unknown[] = [];
+    const fetching: Promise<void>[] = [];
+    let lastStartedAt = batch > 0 ? Date.now() : null;
+    try {
+      for (const target of targets) {
+        if (target.status === "read" || target.status === "failed") continue;
+        if (!legacy && !(await this.repo.updateTargetStatus(crawlId, target.url, "reading"))) continue;
+        if (lastStartedAt !== null) await sleep(Math.max(0, delay - (Date.now() - lastStartedAt)));
+        lastStartedAt = Date.now();
+        fetching.push(
+          (async () => {
+            let source;
+            try {
+              source = await fetchWikiSource(target.url, this.scope(crawl), robots);
+            } catch {
+              if (!legacy) await this.repo.updateTargetStatus(crawlId, target.url, "failed");
+              return;
+            }
+            const canonicalUrl = source ? canonicalCrawlUrl(source.url) : null;
+            if (source && canonicalUrl) {
+              await this.repo.saveSource(crawlId, {
+                ...source,
+                canonicalUrl,
+                category: target.category,
+              });
+              if (!legacy) await this.repo.updateTargetStatus(crawlId, target.url, "read");
+            } else if (!legacy) await this.repo.updateTargetStatus(crawlId, target.url, "failed");
+          })().catch((error) => {
+            failures.push(error);
+          }),
+        );
       }
-      const canonicalUrl = source ? canonicalCrawlUrl(source.url) : null;
-      if (source && canonicalUrl) {
-        await this.repo.saveSource(crawlId, {
-          ...source,
-          canonicalUrl,
-          category: target.category,
-        });
-        if (!legacy) await this.repo.updateTargetStatus(crawlId, target.url, "read");
-      } else if (!legacy) await this.repo.updateTargetStatus(crawlId, target.url, "failed");
+    } catch (error) {
+      failures.push(error);
     }
+    await Promise.all(fetching);
+    if (failures.length) throw failures[0];
     if (legacy) {
       const stored = await this.repo.countSources(crawlId);
       const attempted = Math.min(crawl.discovered, (batch + 1) * WIKI_CRAWL_FETCH_BATCH);

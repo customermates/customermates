@@ -451,6 +451,28 @@ async function authorizedWikiCrawlSynthesis(payload: AgentTurnWorkflowPayload): 
 }
 authorizedWikiCrawlSynthesis.maxRetries = 0;
 
+async function loadWikiSourceInventory(payload: AgentTurnWorkflowPayload): Promise<string | null> {
+  "use step";
+  if (!payload.wikiCrawl || !payload.wikiHomepageSetup || (payload.surface ?? "chat") !== "chat") return null;
+  const { getUserService, getWikiWebsiteCrawlRepo } = await import("@/core/di");
+  const { Action, Resource } = await import("@/generated/prisma");
+  const { env } = await import("@/env");
+  const { wikiSourceCoverage } = await import("@/ee/wiki-crawl/wiki-source-coverage");
+  const { wikiSourceInventory } = await import("@/ee/wiki-crawl/wiki-source-inventory");
+  if (env.APP_MODE === "demo") return null;
+  const { id, homepage } = payload.wikiCrawl;
+  return runAsBackgroundTenant(payload.userId, async () => {
+    if (getTenantUser().companyId !== payload.companyId) throw new Error("Wiki synthesis tenant changed.");
+    if (!(await getUserService().hasPermission(Resource.wiki, Action.create))) return null;
+    const repo = getWikiWebsiteCrawlRepo();
+    const crawl = await repo.getCrawl(id);
+    if (!crawl || crawl.userId !== payload.userId || crawl.homepageUrl !== homepage) return null;
+    const coverage = await wikiSourceCoverage(repo, id);
+    return wikiSourceInventory(coverage.sources, coverage.imported);
+  });
+}
+loadWikiSourceInventory.maxRetries = 0;
+
 async function pendingWikiSynthesisSources(payload: AgentTurnWorkflowPayload): Promise<number> {
   "use step";
   const crawlId = payload.wikiCrawl?.id;
@@ -971,6 +993,7 @@ export async function runAgentTurn(payload: AgentTurnWorkflowPayload): Promise<v
             homepage: payload.wikiCrawl.homepage,
             pendingHosts: payload.wikiCrawl.pendingHosts,
             mode: payload.wikiCrawl.mode,
+            sourceInventory: await loadWikiSourceInventory(payload),
           }
         : null,
       wikiWebsiteSetup: Boolean(payload.wikiWebsiteSetup),

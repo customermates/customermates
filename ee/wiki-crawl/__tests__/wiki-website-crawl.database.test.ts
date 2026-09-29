@@ -34,7 +34,9 @@ vi.mock("@/core/di", () => ({
 vi.mock("../website-crawler", () => ({
   discoverWikiWebsite: crawler.discover,
   fetchWikiSource: crawler.fetch,
-  WikiCrawlRobots: vi.fn(),
+  WikiCrawlRobots: vi.fn(function () {
+    return { forUrl: () => Promise.resolve({ crawlDelayMs: 0 }) };
+  }),
 }));
 
 import { PrismaWikiWebsiteCrawlRepo } from "../prisma-wiki-website-crawl.repository";
@@ -608,7 +610,8 @@ describeDatabase("Wiki website crawl on PostgreSQL", () => {
       await runWithTenant(user, async () => {
         const agentRepo = new PrismaAgentChatRepo();
         const crawlRepo = new PrismaWikiWebsiteCrawlRepo();
-        const [source] = await crawlRepo.listSources(crawlId);
+        const source = (await crawlRepo.listSources(crawlId)).find((item) => item.category === "product");
+        if (!source) throw new Error("Missing unread source fixture");
         const read = (interrupt = false) =>
           runInTransaction(
             async () => {
@@ -619,7 +622,7 @@ describeDatabase("Wiki website crawl on PostgreSQL", () => {
                 toolName: "read_website_source",
               });
               if (receipt.state === "settled") return receipt.resultJson;
-              const result = await readWebsiteSourceTool(crawlId).execute({ action: "get", id: source.id });
+              const result = await readWebsiteSourceTool(crawlId).execute({ action: "next" });
               if (interrupt) throw new Error("Interrupted before result receipt");
               await agentRepo.settleAgentToolReceiptUnscoped({
                 turnRequestId,

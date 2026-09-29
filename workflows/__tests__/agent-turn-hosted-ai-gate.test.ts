@@ -23,6 +23,7 @@ const CREDIT = 1_000_000;
 
 const state = vi.hoisted(() => ({
   synthesisSources: [] as Array<{ id: string; text: string; contentHash: string; readOffset: number }>,
+  synthesisInventories: [] as Array<string | null | undefined>,
   latestCrawl: null as { pendingHosts: string[] } | null,
   crawl: null as { userId: string; homepageUrl: string } | null,
   gateResults: [] as boolean[],
@@ -300,7 +301,10 @@ vi.mock("@/ee/agent-chat/classifier/metered", () => ({
   }),
 }));
 vi.mock("@/ee/agent-chat/system-prompt", () => ({
-  agentSystemPromptParts: () => ({ stable: "system", volatile: "volatile" }),
+  agentSystemPromptParts: (context: { wikiCrawlSynthesis?: { sourceInventory?: string | null } | null }) => {
+    state.synthesisInventories.push(context.wikiCrawlSynthesis?.sourceInventory);
+    return { stable: "system", volatile: "volatile" };
+  },
   routineTriggerEventOf: () => null,
 }));
 vi.mock("@/ee/agent-chat/agent-provider-context", async () => {
@@ -3105,6 +3109,23 @@ describe("routine browse-or-mutate batch safety", () => {
       state.definitions = ["read_website_source", "manage_wiki_pages"].map(definition);
       state.crawl = { userId: payload.userId, homepageUrl: read.url };
       state.synthesisSources = [];
+      state.synthesisInventories = [];
+    });
+
+    it("loads only the admitted crawl's source inventory into the synthesis prompt", async () => {
+      state.synthesisSources = [
+        {
+          id: "source",
+          text: "# Product A\nVerified details",
+          contentHash: "hash",
+          readOffset: 100,
+        },
+      ];
+      state.runTools = () => Promise.resolve(finish());
+      await runAgentTurn(setupPayload);
+      expect(JSON.parse(state.synthesisInventories[0] ?? "null")).toMatchObject({
+        items: [{ id: "source", headings: "Product A", imported: false }],
+      });
     });
 
     it("continues a premature stop until complete evidence is read", async () => {
@@ -3184,6 +3205,7 @@ describe("routine browse-or-mutate batch safety", () => {
 
       expect(createResult).toMatchObject({ ok: false, result: expect.stringContaining("no longer available") });
       expect(state.execute).not.toHaveBeenCalled();
+      expect(state.synthesisInventories.every((inventory) => inventory == null)).toBe(true);
     });
   });
 

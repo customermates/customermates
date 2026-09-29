@@ -76,7 +76,6 @@ const domTestFiles = [
   "components/editor/__tests__/email-markdown-editor.test.ts",
   "components/editor/__tests__/editor-link-picker.test.ts",
   "components/wiki/__tests__/wiki-homepage-setup.test.ts",
-  "components/wiki/__tests__/wiki-sales-setup-action.test.ts",
   "components/wiki/__tests__/wiki-refresh-safety.test.ts",
   "components/modal/__tests__/delete-confirmation-modal.test.ts",
   "components/modal/__tests__/navigation-history-guard.test.ts",
