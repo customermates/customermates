@@ -60,6 +60,17 @@ The fair classifier retest left these live cases in the registry; their data liv
 - `RH01` to `RH60` are held-out routing items, scored against the lexicon routing.
 - `GC01` to `GC10` (`guard-live-cases.ts`) are same-name regression cases: each seeds same-named candidate records (and, for a clarification reply, the history it answers), approves every approval and records in `oracle.details` which records the turn wrote. The correct behaviour is to ask, or to write exactly the intended records.
 
+## Blind Wiki retrieval benchmark
+
+`wiki-retrieval-benchmark.ts` is a committed, offline dataset for Workspace Wiki retrieval; `loadWikiRetrievalBenchmark()` returns it and `wikiBenchmarkSections()` splits a page into its `##` sections. It needs no database and no model.
+
+- **Corpus:** 40 Wiki pages of a fictional industrial-parts distributor, Hallberg Industrietechnik GmbH: 25 German and 15 English, one Operating Guide, nine procedures with `whenToUse` and thirty knowledge pages, each 150 to 900 words. It covers onboarding, discount rules, returns, warranty, shipping and customs, CRM data hygiene, lead qualification, deal stages, key accounts, escalation, leave and on-call rules, tool access, security, GDPR, invoice disputes, partners and product lines, with deliberate confusers: returns against warranty against invoice disputes, EU against non-EU shipping, three discount pages for different segments, and two onboarding pages.
+- **Queries:** 160 short, informal staff questions in English, German, Spanish, French and Italian: 40 lexical, 45 paraphrase, 40 cross-language, 15 typo, 10 multi-hop or ambiguous and 10 no-match.
+- **Labels:** each query names its gold targets as a page slug plus the exact text of a `##` heading. The first target is the primary answer; further targets are sections that answer equally well and count as correct. A no-match query has no targets, and the correct result is empty.
+- **Blind authoring:** queries and labels were written without reading or running the retrieval implementation or any earlier retrieval result. Do not tune ranking against individual items; change a label only when the corpus text proves it wrong.
+
+`__tests__/wiki-retrieval-benchmark.test.ts` validates the dataset: every gold slug and heading exists, the category and language counts hold, no query is duplicated, cross-language queries differ from the target page's language, lexical queries share a content word with their target, typo queries contain a token absent from the corpus, and paraphrase queries share no content word (four or more letters, case- and accent-folded, outside a small function-word list) with the gold section or its page title. A failing paraphrase check means the query must be rewritten; the function-word list is not a whitelist for content words.
+
 ## Findings
 
 - Jev docs re-rank ships on by default: held-out docs pass rose from 84.3 % to 93.0 % (300 pairs, McNemar p = 6e-6). Evidence: `reports/2026-09-27-classifier-live-heldout-6b5570b2/heldout-live.md`.
