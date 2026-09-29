@@ -3794,8 +3794,7 @@
       "readingCount": "Leyendo páginas · {fetched}/{total}",
       "steps": "2 pasos",
       "synthesizing": "Iniciando Mate para redactar las páginas de la base de conocimientos",
-      "title": "Progreso de importación del sitio",
-      "unknown": "No se registró el estado de la página"
+      "title": "Progreso de importación del sitio"
     },
     "generated": {
       "gapsHeading": "Aspectos por confirmar",

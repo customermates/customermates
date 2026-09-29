@@ -62,7 +62,7 @@ export function WikiSetupProgress({ state }: { state: WikiHomepageSetupState }) 
     reading: t("WikiSetup.crawlProgress.reading"),
     read: t("WikiSetup.crawlProgress.read"),
     failed: t("WikiSetup.crawlProgress.failed"),
-    unknown: t("WikiSetup.crawlProgress.unknown"),
+    unknown: "",
   };
 
   return (
@@ -128,19 +128,21 @@ export function WikiSetupProgress({ state }: { state: WikiHomepageSetupState }) 
               <p className="pl-[1.375rem] text-foreground [overflow-wrap:anywhere]">{progress.currentUrl}</p>
             ) : null}
 
-            {pages.some((page) => page.status === "unknown") ? (
-              <p className="pl-[1.375rem]">{t("WikiSetup.crawlProgress.unknown")}</p>
-            ) : null}
-
             {pages.length > 0 ? (
               <ul className="max-h-32 space-y-1.5 overflow-y-auto pl-[1.375rem]">
                 {pages.map((page) => (
                   <li
                     key={page.url}
-                    aria-label={`${pageStatusLabels[page.status === "reading" && !reading ? "unknown" : page.status]}: ${page.url}`}
+                    aria-label={
+                      page.status === "unknown" || (page.status === "reading" && !reading)
+                        ? page.url
+                        : `${pageStatusLabels[page.status]}: ${page.url}`
+                    }
                     className="flex items-start gap-2 [&>svg]:mt-0.5"
                   >
-                    <StatusIcon status={page.status === "reading" && !reading ? "unknown" : page.status} />
+                    {page.status !== "unknown" && (page.status !== "reading" || reading) ? (
+                      <StatusIcon status={page.status} />
+                    ) : null}
 
                     <span className="min-w-0 [overflow-wrap:anywhere]">{page.url}</span>
                   </li>

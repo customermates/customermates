@@ -153,6 +153,7 @@ export const WikiHomepageSetup = observer(function WikiHomepageSetup({
   if (!showForm) {
     const completed = state.status === "completed";
     const working = state.status === "working";
+    const failed = state.status === "failed";
     const domain = state.domain ?? state.homepage ?? "";
     const workingBody = state.conversationId
       ? t("WikiSetup.status.workingBody", { domain })
@@ -177,10 +178,17 @@ export const WikiHomepageSetup = observer(function WikiHomepageSetup({
     return (
       <section aria-busy={controlsDisabled} className="w-full space-y-4 text-left">
         <div
-          aria-live="polite"
-          className={working || (completed && state.conversationId) ? "sr-only" : "flex items-start gap-2"}
+          aria-live={failed ? undefined : "polite"}
+          className={
+            working || (completed && state.conversationId)
+              ? "sr-only"
+              : failed
+                ? "flex items-center justify-between gap-3 rounded-lg border border-destructive/40 bg-destructive/10 px-3 py-2 text-xs"
+                : "flex items-start gap-2"
+          }
+          role={failed ? "alert" : undefined}
         >
-          <div className="mt-0.5 shrink-0 text-muted-foreground">
+          <div className={failed ? "hidden" : "mt-0.5 shrink-0 text-muted-foreground"}>
             {working ? (
               <Loader2 aria-hidden="true" className="size-4 animate-spin motion-reduce:animate-none" />
             ) : completed ? (
@@ -190,8 +198,8 @@ export const WikiHomepageSetup = observer(function WikiHomepageSetup({
             )}
           </div>
 
-          <div className="min-w-0 space-y-1">
-            <h2 ref={statusHeading} className="text-sm font-medium outline-none" tabIndex={-1}>
+          <div className={failed ? "min-w-0" : "min-w-0 space-y-1"}>
+            <h2 ref={statusHeading} className={failed ? "sr-only" : "text-sm font-medium outline-none"} tabIndex={-1}>
               {working
                 ? t("WikiSetup.status.workingTitle")
                 : completed
@@ -201,7 +209,7 @@ export const WikiHomepageSetup = observer(function WikiHomepageSetup({
                     : t("WikiSetup.status.failedTitle")}
             </h2>
 
-            <p className="text-sm text-muted-foreground">
+            <p className={failed ? undefined : "text-sm text-muted-foreground"}>
               {working
                 ? workingBody
                 : completed

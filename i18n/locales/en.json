@@ -3794,8 +3794,7 @@
       "readingCount": "Reading pages · {fetched}/{total}",
       "steps": "2 steps",
       "synthesizing": "Starting Mate to write Knowledge Base pages",
-      "title": "Website import progress",
-      "unknown": "Page status was not recorded"
+      "title": "Website import progress"
     },
     "generated": {
       "gapsHeading": "Gaps to confirm",

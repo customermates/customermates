@@ -3794,8 +3794,7 @@
       "readingCount": "Seiten lesen · {fetched}/{total}",
       "steps": "2 Schritte",
       "synthesizing": "Mate beginnt mit dem Schreiben der Wissensdatenbank-Seiten",
-      "title": "Fortschritt des Website-Imports",
-      "unknown": "Seitenstatus wurde nicht aufgezeichnet"
+      "title": "Fortschritt des Website-Imports"
     },
     "generated": {
       "gapsHeading": "Noch zu klären",
