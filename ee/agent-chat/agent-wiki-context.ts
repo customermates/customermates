@@ -166,5 +166,5 @@ export function agentWikiReferenceBytes(catalog?: string | null): number {
 }
 
 function isAgentWikiReferenceWithinBound(catalog: string) {
-  return agentWikiReferenceBytes(catalog) <= WIKI_REFERENCE_MAX_BYTES;
+  return catalog.length <= WIKI_REFERENCE_MAX_BYTES && agentWikiReferenceBytes(catalog) <= WIKI_REFERENCE_MAX_BYTES;
 }
