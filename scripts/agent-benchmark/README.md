@@ -71,6 +71,16 @@ The fair classifier retest left these live cases in the registry; their data liv
 
 `__tests__/wiki-retrieval-benchmark.test.ts` validates the dataset: every gold slug and heading exists, the category and language counts hold, no query is duplicated, cross-language queries differ from the target page's language, lexical queries share a content word with their target, typo queries contain a token absent from the corpus, and paraphrase queries share no content word (four or more letters, case- and accent-folded, outside a small function-word list) with the gold section or its page title. A failing paraphrase check means the query must be rewritten; the function-word list is not a whitelist for content words.
 
+## Retrieval stage selection
+
+Pre-registered before any paid call. The question is which retrieval stages each corpus should run. Full-text search (FTS) always runs; E is the query embedding with reciprocal-rank fusion, J is the Jev re-rank of sections. The four combinations are FTS, FTS+E, FTS+J and FTS+E+J.
+
+- **Corpora:** docs are the 110 labelled documentation questions in `retrieval-eval-cases.ts` (D, DH and DE). The Wiki is the blind benchmark in `wiki-retrieval-benchmark.ts` (160 queries), seeded into a fresh workspace in a temporary database and indexed with real embeddings.
+- **Primary metric:** final-section hit@1, whether the first returned section is a gold section. For a no-match query a hit means no result above the pipeline's relevance floor, that is an empty result list.
+- **Secondary metrics:** page R@1, R@5 and MRR; per-category (Wiki: lexical, paraphrase, cross-language, typo, multi-hop, no-match; docs: D, DH, DE) and per-language breakdowns; latency p50 and p95.
+- **Embedding measured twice:** each query is embedded once and the vector reused. E-unbounded waits for the vector. E-450 uses the shipped 450 ms wait: a vector whose measured call latency exceeded 450 ms counts as unavailable, and that query runs as if the embedding timed out.
+- **Decision rule:** per corpus, separately for E-450 (shipped latency) and for E-unbounded, choose the cheapest combination, in the cost order FTS < FTS+E < FTS+J < FTS+E+J, whose primary metric is not significantly worse than the best combination's, by an exact two-sided McNemar test on paired queries at p < 0.05. If the E-unbounded decision differs from the E-450 decision, both are reported; the shipped decision uses E-450 unless the owner changes the embedding wait.
+
 ## Findings
 
 - Jev docs re-rank ships on by default: held-out docs pass rose from 84.3 % to 93.0 % (300 pairs, McNemar p = 6e-6). Evidence: `reports/2026-09-27-classifier-live-heldout-6b5570b2/heldout-live.md`.
