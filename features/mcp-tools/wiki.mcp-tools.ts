@@ -34,6 +34,21 @@ import {
 const WIKI_MCP_TEXT_TARGET_LENGTH = 5_500;
 const WIKI_MCP_PAGE_SIZE = 5;
 
+const MarkdownInputSchema = z
+  .string()
+  .refine(
+    (value) =>
+      value.includes("\n") ||
+      value.includes("`") ||
+      !/^(?:#{1,6} |\d+\. |- )/u.test(value) ||
+      !/\\+n(?:\\+n)*(?:#{1,6} |\d+\. |- )/u.test(value),
+    {
+      message:
+        "Markdown contains escaped line breaks. Retry with actual newline characters between headings and steps.",
+    },
+  )
+  .describe("Markdown with actual newline characters, never literal backslash-n separators.");
+
 const ListSchema = z.object({
   page: mcpPage(),
   kind: WikiPageKindSchema.optional(),
@@ -48,7 +63,7 @@ const GetSchema = z.object({
 });
 const PageInputSchema = z.object({
   title: z.string().trim().min(1).max(WIKI_TITLE_MAX_LENGTH),
-  markdown: z.string(),
+  markdown: MarkdownInputSchema,
   kind: WikiPageKindSchema.optional(),
   whenToUse: z.string().optional(),
 });
@@ -61,7 +76,7 @@ const UpdateSchema = z
     id: z.uuid(),
     expectedUpdatedAt: z.iso.datetime(),
     title: z.string().trim().min(1).max(WIKI_TITLE_MAX_LENGTH).optional(),
-    markdown: z.string().optional(),
+    markdown: MarkdownInputSchema.optional(),
     kind: WikiPageKindSchema.optional(),
     whenToUse: z.string().optional(),
   })
@@ -87,7 +102,7 @@ const ManageWikiPagesSchema = z.object({
   requireEmpty: z.boolean().optional().describe("Only into an empty Knowledge Base."),
   expectedUpdatedAt: z.string().optional().describe("updatedAt from a prior read."),
   title: z.string().optional().describe("New title."),
-  markdown: z.string().optional().describe("New Markdown."),
+  markdown: MarkdownInputSchema.optional(),
   kind: WikiPageKindSchema.optional(),
   whenToUse: z.string().optional(),
 });

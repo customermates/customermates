@@ -454,6 +454,39 @@ describe("manage_wiki_pages reads", () => {
 });
 
 describe("manage_wiki_pages writes", () => {
+  it.each(["## Guide\\n\\nRules.\\n\\n## Steps\\n\\n1. Confirm.", "1. Qualify.\\\\n2. Follow up."])(
+    "rejects escaped Markdown layouts before create or update: %s",
+    async (markdown) => {
+      const inputs = [
+        {
+          action: "create",
+          pages: [
+            { title: "Valid", markdown: "A real page." },
+            { title: "Bad", markdown },
+          ],
+        },
+        { action: "update", id: PAGE_ID, expectedUpdatedAt: UPDATED_AT.toISOString(), markdown },
+      ];
+      for (const input of inputs) {
+        expect(manageWikiPagesTool.inputSchema.safeParse(input).success).toBe(false);
+        const result = await executeMcpTool(manageWikiPagesTool, [input]);
+        expect(result).toMatchObject({ ok: false, failure: { kind: "validation" } });
+        expect(JSON.stringify(result)).toContain("actual newline characters");
+      }
+      expect(calls.create).not.toHaveBeenCalled();
+      expect(calls.update).not.toHaveBeenCalled();
+    },
+  );
+
+  it.each(["## Guide\n\nRules.\n\n## Steps\n\n1. Confirm.", "1. Use `\\n2. ` as literal text."])(
+    "preserves real Markdown and intentional code escapes: %s",
+    async (markdown) => {
+      calls.update.mockResolvedValue({ ok: true, data: page(markdown) });
+      await run({ action: "update", id: PAGE_ID, expectedUpdatedAt: UPDATED_AT.toISOString(), markdown });
+      expect(calls.update).toHaveBeenCalledExactlyOnceWith({ id: PAGE_ID, expectedUpdatedAt: UPDATED_AT, markdown });
+    },
+  );
+
   it("delegates one atomic empty-only five-page create", async () => {
     const pages = Array.from({ length: 5 }, (_, index) => ({
       title: `Page ${index + 1}`,

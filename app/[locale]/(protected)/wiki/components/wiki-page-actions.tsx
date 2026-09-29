@@ -18,6 +18,7 @@ import { useDeleteConfirmation } from "@/components/modal/hooks/use-delete-confi
 import { runUserAction } from "@/core/errors/report-application-error";
 import { wikiPageUrl } from "@/features/wiki/wiki-links";
 import { useCopyToClipboard } from "@/core/utils/use-copy-to-clipboard";
+import { WikiSalesSetupAction } from "@/components/wiki/wiki-sales-setup-action";
 
 type Props = {
   canManage: boolean;
@@ -95,6 +96,10 @@ export const WikiPageActions = observer((props: Props) => {
 
               {t("Wiki.reload")}
             </DropdownMenuItem>
+
+            {canManage && canCreate ? (
+              <WikiSalesSetupAction disabled={store.isLoading || store.hasUnsavedChanges} surface="menu" />
+            ) : null}
 
             {canManage && (
               <DropdownMenuItem

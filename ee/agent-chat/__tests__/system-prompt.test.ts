@@ -117,6 +117,11 @@ describe("system prompt", () => {
     expect(prompt).toContain("Up to six procedures (kind procedure)");
     expect(prompt).toContain("zero is valid");
     expect(prompt).toContain("Never turn generic contact details into internal policy");
+    expect(prompt).toContain("adaptive CRM and go-to-market coverage checklist");
+    expect(prompt).toContain("coverage areas, not mandatory page titles or empty templates");
+    expect(prompt).toContain("Do not invent ideal customers, competitors, objections, answers or positioning");
+    expect(prompt).toContain("Missing internal sales rules");
+    expect(prompt).toContain("Never configure CRM stages or records, create automations or send messages");
     expect(prompt).toContain("acme.zendesk.com");
   });
 

@@ -1,3 +1,6 @@
+import { Children, isValidElement, type ComponentProps } from "react";
+import { WikiPageView } from "../components/wiki-page-view";
+
 import { beforeEach, describe, expect, it, vi } from "vitest";
 
 const mocks = vi.hoisted(() => ({
@@ -29,6 +32,14 @@ vi.mock("../components/wiki-page-view", () => ({
 }));
 
 import WikiPage from "../page";
+
+function viewProps(result: Awaited<ReturnType<typeof WikiPage>>) {
+  const view = Children.toArray(result.props.children).find(
+    (child) => isValidElement(child) && child.type === WikiPageView,
+  );
+  if (!isValidElement<ComponentProps<typeof WikiPageView>>(view)) throw new Error("Wiki page view did not render");
+  return view.props;
+}
 
 const PAGE_ID = "00000000-0000-4000-8000-000000000001";
 const page = {
@@ -77,10 +88,10 @@ describe("WikiPage", () => {
     expect(mocks.getPage).toHaveBeenCalledExactlyOnceWith({
       id: firstPage[0]?.id,
     });
-    expect(result.props.children.props.initialPage.id).toBe(firstPage[0]?.id);
-    expect(result.props.children.props.listPage.items).toEqual(firstPage);
-    expect(result.props.children.props.listPage.items).toHaveLength(25);
-    expect(result.props.children.props.pinnedPage).toBeNull();
+    expect(viewProps(result).initialPage?.id).toBe(firstPage[0]?.id);
+    expect(viewProps(result).listPage.items).toEqual(firstPage);
+    expect(viewProps(result).listPage.items).toHaveLength(25);
+    expect(viewProps(result).pinnedPage).toBeNull();
     expect(mocks.getP13n).toHaveBeenCalledExactlyOnceWith("wiki-layout");
   });
 
@@ -98,7 +109,7 @@ describe("WikiPage", () => {
 
     const result = await WikiPage({ searchParams: Promise.resolve({}) });
 
-    expect(result.props.children.props.layoutInitial).toEqual(columnWidths);
+    expect(viewProps(result).layoutInitial).toEqual(columnWidths);
   });
 
   it("shows an unavailable page rather than substituting another document for a missing link", async () => {
@@ -113,8 +124,8 @@ describe("WikiPage", () => {
     });
 
     expect(mocks.getPage.mock.calls).toEqual([[{ id: "missing" }]]);
-    expect(result.props.children.props.initialPage).toBeNull();
-    expect(result.props.children.props.unavailable).toBe(true);
+    expect(viewProps(result).initialPage).toBeNull();
+    expect(viewProps(result).unavailable).toBe(true);
   });
 
   it("falls back to the first list page when the requested list page is out of range", async () => {
@@ -134,7 +145,7 @@ describe("WikiPage", () => {
     });
 
     expect(mocks.listPages.mock.calls).toEqual([[{ page: 9, pageSize: 25 }], [{ page: 1, pageSize: 25 }]]);
-    expect(result.props.children.props).toMatchObject({
+    expect(viewProps(result)).toMatchObject({
       initialPage: page,
       listPage: { items: [summary], total: 1, page: 1, pageSize: 25 },
     });
@@ -147,7 +158,7 @@ describe("WikiPage", () => {
     const result = await WikiPage({ searchParams: Promise.resolve({}) });
 
     expect(mocks.getPage).not.toHaveBeenCalled();
-    expect(result.props.children.props).toMatchObject({
+    expect(viewProps(result)).toMatchObject({
       initialPage: null,
       listPage: empty,
     });

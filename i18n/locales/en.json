@@ -3771,6 +3771,10 @@
     "pageTitle": "Page title",
     "previous": "Previous",
     "reload": "Reload page",
+    "salesSetup": {
+      "label": "Teach Mate how you sell",
+      "prompt": "Help me document how we sell in our Knowledge Base. Review the existing pages, then ask up to three concise questions together about the missing lead qualification, follow-up ownership and cadence, offers and approvals, won-deal handover, and communication rules. Wait for my answers before creating or changing any page. Use only website evidence and rules I give you; do not invent a sales process. Then create or update relevant procedure pages with clear when-to-use triggers and numbered steps, and update the existing Operating Guide without duplicating pages. Save only supported content and leave unanswered details as questions. Use the dominant Knowledge Base language. Do not change CRM configuration or records, create automations, or send messages."
+    },
     "search": "Search pages…",
     "unavailableBody": "This page was deleted or you do not have access to it. Choose another page.",
     "unavailableTitle": "Page unavailable",

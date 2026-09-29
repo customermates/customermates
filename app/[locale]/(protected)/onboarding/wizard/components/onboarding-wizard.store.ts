@@ -48,7 +48,7 @@ export class OnboardingWizardStore {
     if (this.currentStepIndex > this.minStepIndex) this.currentStepIndex -= 1;
   };
 
-  complete = async (): Promise<void> => {
+  complete = async (teachSales = false): Promise<void> => {
     this.setIsSubmitting(true);
     try {
       const res = await completeOnboardingWizardAction();
@@ -57,7 +57,7 @@ export class OnboardingWizardStore {
         return;
       }
 
-      this.leaveWizard(res.data.redirectTo);
+      this.leaveWizard(teachSales ? "/wiki?setup=sales" : res.data.redirectTo);
     } finally {
       this.setIsSubmitting(false);
     }

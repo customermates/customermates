@@ -8,6 +8,7 @@ import { getOptionalP13n } from "@/features/p13n/next/get-optional-p13n";
 import { WIKI_LAYOUT_P13N_ID } from "./components/wiki-personalization";
 
 import { WikiPageView } from "./components/wiki-page-view";
+import { WikiSalesSetupStarter } from "@/components/wiki/wiki-sales-setup-action";
 
 type Props = {
   searchParams: Promise<Record<string, string | string[] | undefined>>;
@@ -43,6 +44,8 @@ export default async function WikiPage({ searchParams }: Props) {
 
   return (
     <PageContainer padded={false}>
+      {raw.setup === "sales" && pages.total > 0 ? <WikiSalesSetupStarter /> : null}
+
       <WikiPageView
         initialPage={selectedPage}
         initialSetupState={setupState}

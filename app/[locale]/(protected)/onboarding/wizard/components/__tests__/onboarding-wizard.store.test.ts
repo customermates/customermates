@@ -92,4 +92,21 @@ describe("OnboardingWizardStore", () => {
     expect(assign).not.toHaveBeenCalled();
     expect(store.isSubmitting).toBe(false);
   });
+
+  it("finishes the wizard before opening the optional sales knowledge chat", async () => {
+    const store = new OnboardingWizardStore(rootStore);
+    await store.complete(true);
+    expect(actions.completeOnboardingWizardAction).toHaveBeenCalledOnce();
+    expect(assign).toHaveBeenCalledExactlyOnceWith("/wiki?setup=sales");
+    expect(actions.completeOnboardingWizardAction.mock.invocationCallOrder[0]).toBeLessThan(
+      assign.mock.invocationCallOrder[0],
+    );
+  });
+
+  it("does not enter the sales chat when wizard completion fails", async () => {
+    actions.completeOnboardingWizardAction.mockResolvedValue({ ok: false, error: { issues: [] } });
+    const store = new OnboardingWizardStore(rootStore);
+    await store.complete(true);
+    expect(assign).not.toHaveBeenCalled();
+  });
 });

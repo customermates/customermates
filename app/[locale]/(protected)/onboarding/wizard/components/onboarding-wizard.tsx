@@ -175,7 +175,9 @@ export const OnboardingWizard = observer(
           </AppCardFooter>
         )}
 
-        {currentStep === "ai" ? <StepAiFooter /> : null}
+        {currentStep === "ai" ? (
+          <StepAiFooter canTeachSales={canSetupWithMate && wikiSetupState.pages.length > 0} />
+        ) : null}
       </AppCard>
     );
   },

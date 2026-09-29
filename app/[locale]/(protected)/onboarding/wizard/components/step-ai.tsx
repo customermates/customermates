@@ -15,7 +15,7 @@ export const StepAi = observer(() => {
   return <AiConnectionFlow disabled={onboardingWizardStore.isSubmitting} showInlineBack={false} store={stepAiStore} />;
 });
 
-export const StepAiFooter = observer(() => {
+export const StepAiFooter = observer(({ canTeachSales = false }: { canTeachSales?: boolean }) => {
   const t = useTranslations();
   const { onboardingWizardStore, stepAiStore } = useRootStore();
   const interactionDisabled = stepAiStore.isCreating || onboardingWizardStore.isSubmitting;
@@ -31,6 +31,17 @@ export const StepAiFooter = observer(() => {
       >
         {t("OnboardingWizard.back")}
       </Button>
+
+      {canTeachSales && (isProviderChooser || stepAiStore.canFinish) ? (
+        <Button
+          disabled={interactionDisabled}
+          type="button"
+          variant="secondary"
+          onClick={() => runUserAction(() => onboardingWizardStore.complete(true))}
+        >
+          {t("Wiki.salesSetup.label")}
+        </Button>
+      ) : null}
 
       {isProviderChooser ? (
         <Button disabled={interactionDisabled} type="button" onClick={stepAiStore.selectSkip}>

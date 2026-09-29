@@ -239,6 +239,8 @@ function configure(canManage: boolean, agentChatEnabled: boolean, agentEnabled: 
       loadConfig: harness.loadConfig,
       selectConversation: harness.selectConversation,
       openWithDraft: harness.openWithDraft,
+      composerDraft: "",
+      composerContexts: [],
     },
     navigationGuard: {
       tryNavigate: harness.tryNavigate,

@@ -3771,6 +3771,10 @@
     "pageTitle": "Título de la página",
     "previous": "Anterior",
     "reload": "Recargar página",
+    "salesSetup": {
+      "label": "Enséñale a Mate cómo vendéis",
+      "prompt": "Ayúdame a documentar nuestro proceso de ventas en la base de conocimientos. Revisa las páginas existentes y después plantea juntas hasta tres preguntas breves sobre las reglas que faltan para cualificar leads, los responsables y la frecuencia del seguimiento, las ofertas y aprobaciones, el traspaso de ventas cerradas y la comunicación. Espera mis respuestas antes de crear o modificar cualquier página. Usa solo la información de la web y las reglas que te doy; no inventes un proceso de ventas. Después crea o actualiza los procedimientos pertinentes con criterios de uso claros y pasos numerados, y actualiza la guía operativa existente sin duplicar páginas. Guarda solo contenido respaldado y deja los detalles sin respuesta como preguntas. Usa el idioma predominante de la base de conocimientos. No cambies la configuración ni los registros del CRM, no crees automatizaciones ni envíes mensajes."
+    },
     "search": "Buscar páginas…",
     "unavailableBody": "Esta página se eliminó o no tienes acceso. Elige otra página.",
     "unavailableTitle": "Página no disponible",
