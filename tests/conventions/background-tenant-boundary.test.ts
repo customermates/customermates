@@ -23,7 +23,10 @@ const AUTHENTICATED_TENANT_ENTRYPOINTS = [
   "features/user/register/register-user.interactor.ts",
 ];
 
-const THROWAWAY_WORKSPACE_ENTRYPOINTS = ["scripts/agent-benchmark/retrieval-eval.ts"];
+const THROWAWAY_WORKSPACE_ENTRYPOINTS = [
+  "scripts/agent-benchmark/retrieval-eval.ts",
+  "scripts/agent-benchmark/retrieval-floor-tuning.ts",
+];
 
 const TENANT_ENTRYPOINTS = [...AUTHENTICATED_TENANT_ENTRYPOINTS, ...THROWAWAY_WORKSPACE_ENTRYPOINTS];
 

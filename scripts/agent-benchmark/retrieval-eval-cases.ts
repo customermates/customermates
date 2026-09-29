@@ -590,9 +590,9 @@ export const WIKI_RETRIEVAL_QUERIES: WikiEvalQuery[] = [
 ];
 
 
-export type RetrievalNoMatchItem = { id: string; lang: "en" | "de" | "es" | "fr" | "it"; query: string };
+export type RetrievalNoMatchItem = { id: string; lang: DocsHeldoutItem["lang"]; query: string };
 
-export const DOCS_NO_MATCH_EVAL: readonly (RetrievalNoMatchItem & { docsLocale: "en" | "de" })[] = [
+export const DOCS_NO_MATCH_EVAL: readonly (RetrievalNoMatchItem & Pick<DocsHeldoutItem, "docsLocale">)[] = [
   { id: "DN1", lang: "en", docsLocale: "en", query: "how do I run payroll for my employees" },
   { id: "DN2", lang: "en", docsLocale: "en", query: "can I send bulk SMS campaigns to my contacts" },
   { id: "DN3", lang: "en", docsLocale: "en", query: "track employee working hours with a timesheet" },
