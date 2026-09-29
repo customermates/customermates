@@ -84,7 +84,7 @@ Pre-registered before any paid call. The question is which retrieval stages each
 
 ## Relevance floor
 
-A query with no real answer should return no results. The floor applies only when the query vector arrived, so full-text-only search (self-hosted, no credits, the demo, a late or failed embedding) is unchanged:
+A query with no real answer should return no results. The floor applies only when the query vector arrived and the semantic index covers the whole corpus (every documentation chunk in scope embedded with the query's model, no stale Wiki page), so full-text-only search (self-hosted, no credits, the demo, a late or failed embedding) and search during indexing are unchanged:
 
 - **Kept:** an identifier match, or a full-text match covering at least 90 % of the query's IDF weight (`coverage`, computed over every query unit, including units no page contains).
 - **Dropped:** otherwise, when the closest section's cosine similarity is below 0.60. The re-rank is not called.

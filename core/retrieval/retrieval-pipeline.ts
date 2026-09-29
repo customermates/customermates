@@ -144,7 +144,7 @@ export async function fuseFullTextAndSemantic<Key extends string>(args: {
   stopwatch: RetrievalStopwatch;
   fullText: () => Promise<{ keys: Key[]; pinned?: Key[]; coverage: number }>;
   embed: QueryEmbedding | null;
-  semantic: (vector: QueryVector) => Promise<{ keys: Key[]; similarity: number } | null>;
+  semantic: (vector: QueryVector) => Promise<{ keys: Key[]; similarity: number | null } | null>;
   embeddingWaitMs?: number;
   relevanceFloor?: RelevanceFloor | null;
 }): Promise<FusedRetrieval<Key>> {

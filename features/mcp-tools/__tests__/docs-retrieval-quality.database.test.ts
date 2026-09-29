@@ -313,6 +313,9 @@ describeDatabase("documentation retrieval quality on the benchmark docs question
     }));
     for (let start = 0; start < rows.length; start += 500)
       await repo.storeEmbeddings(FAKE_MODEL, rows.slice(start, start + 500));
+    const scope = { buildHash: corpus.buildHash, locale: "en", sources: ["docs"] };
+    expect(await repo.semanticIndexComplete(scope, FAKE_MODEL)).toBe(true);
+    expect(await repo.semanticIndexComplete(scope, "a-model-without-embeddings")).toBe(false);
 
     const embedded: string[] = [];
     const embed = (query: string): Promise<QueryVector> => {

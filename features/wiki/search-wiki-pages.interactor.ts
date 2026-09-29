@@ -197,7 +197,8 @@ export class SearchWikiPagesInteractor extends AuthenticatedInteractor<WikiPageS
         for (const candidate of found.candidates) offsets.set(candidate.id, candidate.offset);
         return {
           keys: found.candidates.map(({ id }) => id),
-          similarity: Math.max(0, ...found.candidates.map(({ similarity }) => similarity)),
+          similarity:
+            found.stalePageIds.size > 0 ? null : Math.max(0, ...found.candidates.map(({ similarity }) => similarity)),
         };
       },
       relevanceFloor: semantic?.relevanceFloor,

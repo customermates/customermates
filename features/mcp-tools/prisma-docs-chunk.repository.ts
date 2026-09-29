@@ -41,12 +41,14 @@ export abstract class DocsChunkRepo {
     limit: number,
   ): Promise<DocsSemanticRow[] | null>;
   abstract semanticIndexAvailable(): Promise<boolean>;
+  abstract semanticIndexComplete(scope: DocsScope, model: string): Promise<boolean>;
   abstract pendingEmbeddings(buildHash: string, model: string, limit: number): Promise<DocsPendingChunk[]>;
   abstract storeEmbeddings(model: string, rows: Array<{ contentHash: string; embedding: string }>): Promise<void>;
 }
 
 const syncedBuilds = new Map<string, Promise<void>>();
 const completeBuilds = new Set<string>();
+const completeSemanticIndexes = new Set<string>();
 let embeddingColumn: Promise<boolean> | undefined;
 
 function scopeFilter(scope: DocsScope) {
@@ -90,6 +92,20 @@ export class PrismaDocsChunkRepo extends DocsChunkRepo {
         throw error;
       });
     return embeddingColumn;
+  }
+
+  async semanticIndexComplete(scope: DocsScope, model: string) {
+    const key = [scope.buildHash, scope.locale, scope.slug ?? "", model, ...scope.sources].join("\u0000");
+    if (completeSemanticIndexes.has(key)) return true;
+    const rows = await prisma.$queryRaw<Array<{ missing: boolean }>>(Prisma.sql`
+      SELECT EXISTS (
+        SELECT 1 FROM "DocsChunk" c
+        WHERE ${scopeFilter(scope)} AND (c."embedding" IS NULL OR c."model" IS DISTINCT FROM ${model})
+      ) AS "missing"
+    `);
+    const complete = rows[0]?.missing === false;
+    if (complete) completeSemanticIndexes.add(key);
+    return complete;
   }
 
   ensureCorpus(corpus: DocsCorpus): Promise<void> {

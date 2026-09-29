@@ -138,10 +138,13 @@ async function fusedSections(
     },
     embed: deps.embed,
     semantic: async ({ vector, model }) => {
-      const found = await deps.repo.semanticSections(storedScope, vector, model, limits.semantic);
-      return found
-        ? { keys: remember(found, true), similarity: Math.max(0, ...found.map(({ similarity }) => similarity)) }
-        : null;
+      const [found, complete] = await Promise.all([
+        deps.repo.semanticSections(storedScope, vector, model, limits.semantic),
+        deps.repo.semanticIndexComplete(storedScope, model),
+      ]);
+      if (!found) return null;
+      const similarity = complete ? Math.max(0, ...found.map((row) => row.similarity)) : null;
+      return { keys: remember(found, true), similarity };
     },
     relevanceFloor: deps.relevanceFloor,
   });

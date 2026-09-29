@@ -30,6 +30,7 @@ function repo(pending: DocsPendingChunk[]) {
     fullTextSections: vi.fn(),
     semanticSections: vi.fn(),
     semanticIndexAvailable: vi.fn(() => Promise.resolve(true)),
+    semanticIndexComplete: vi.fn(() => Promise.resolve(true)),
     pendingEmbeddings: vi.fn((_build: string, _model: string, limit: number) => Promise.resolve(queue.slice(0, limit))),
     storeEmbeddings: vi.fn((_model: string, rows: Array<{ contentHash: string }>) => {
       for (const row of rows) {

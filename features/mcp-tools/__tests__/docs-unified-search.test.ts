@@ -35,6 +35,7 @@ function repo(fullText: DocsFullTextRow[], semantic: DocsSemanticRow[] | null = 
     fullTextSections: vi.fn(() => Promise.resolve(fullText)),
     semanticSections: vi.fn(() => Promise.resolve(semantic)),
     semanticIndexAvailable: vi.fn(() => Promise.resolve(true)),
+    semanticIndexComplete: vi.fn(() => Promise.resolve(true)),
     pendingEmbeddings: vi.fn(() => Promise.resolve([])),
     storeEmbeddings: vi.fn(() => Promise.resolve()),
   } satisfies DocsChunkRepo;
@@ -104,6 +105,11 @@ describe("unified documentation search", () => {
 
     const unjudged = await unifiedDocsSearchResult(INPUT, { repo: loose(0.2, 0.55), embed: null, ranker: undefined });
     expect(unjudged.structuredContent.results.length).toBeGreaterThan(0);
+
+    const indexing = loose(0.2, 0.55);
+    indexing.semanticIndexComplete.mockResolvedValue(false);
+    const partial = await unifiedDocsSearchResult(INPUT, { repo: indexing, embed, ranker: undefined });
+    expect(partial.structuredContent.results.length).toBeGreaterThan(0);
   });
 
   it("keeps the fused order when the re-rank fails and never re-ranks the REST reference", async () => {

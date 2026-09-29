@@ -275,8 +275,8 @@ describe("unified Wiki search", () => {
 
   it("returns nothing below the relevance floor or when the re-rank rejects a loose match", async () => {
     const annual = pages[2].markdown.indexOf("## Annual plans");
-    const loose = (similarity: number) =>
-      repo([id(1), id(2)], [{ id: id(3), offset: annual }], [], undefined, { coverage: 0.3, similarity });
+    const loose = (similarity: number, stale: string[] = []) =>
+      repo([id(1), id(2)], [{ id: id(3), offset: annual }], stale, undefined, { coverage: 0.3, similarity });
     const abstaining = vi.fn(() => Promise.resolve({ order: [0], abstained: true }));
     const run = (chunks: ReturnType<typeof repo>, vector: number[] | null) =>
       runWithSectionRanking(
@@ -287,12 +287,14 @@ describe("unified Wiki search", () => {
     const unrelated = await run(loose(0.55), [0.1]);
     const rejected = await run(loose(0.7), [0.1]);
     const unjudged = await run(loose(0.55), null);
-    if (!unrelated.ok || !rejected.ok || !unjudged.ok) throw new Error("expected search results");
+    const indexing = await run(loose(0.55, [id(2)]), [0.1]);
+    if (!unrelated.ok || !rejected.ok || !unjudged.ok || !indexing.ok) throw new Error("expected search results");
 
     expect(unrelated.data).toMatchObject({ items: [], total: 0 });
     expect(rejected.data).toMatchObject({ items: [], total: 0 });
-    expect(abstaining).toHaveBeenCalledTimes(2);
+    expect(abstaining).toHaveBeenCalledTimes(3);
     expect(unjudged.data.items.map((item) => item.id)).toEqual([id(1), id(2)]);
+    expect(indexing.data.items.length).toBeGreaterThan(0);
   });
 
   it("stays full-text only in demo mode, without an embedding or a re-rank", async () => {

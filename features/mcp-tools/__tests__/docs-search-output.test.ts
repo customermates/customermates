@@ -26,6 +26,7 @@ function repo(fullText: DocsFullTextRow[]) {
     fullTextSections: vi.fn(() => Promise.resolve(fullText)),
     semanticSections: vi.fn(() => Promise.resolve(null)),
     semanticIndexAvailable: vi.fn(() => Promise.resolve(false)),
+    semanticIndexComplete: vi.fn(() => Promise.resolve(false)),
     pendingEmbeddings: vi.fn(() => Promise.resolve([])),
     storeEmbeddings: vi.fn(() => Promise.resolve()),
   } satisfies DocsChunkRepo;
