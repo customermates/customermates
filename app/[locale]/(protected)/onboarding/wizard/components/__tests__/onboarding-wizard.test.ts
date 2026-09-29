@@ -45,16 +45,19 @@ vi.mock("@/app/components/agent-chat/agent-conversation", () => ({
     readOnly,
     renderLinksAsText,
     showProgressStatus,
-    scrollable,
+    scrollable = true,
+    className,
   }: {
     readOnly?: boolean;
     renderLinksAsText?: boolean;
     showProgressStatus?: boolean;
     scrollable?: boolean;
+    className?: string;
   }) =>
     createElement(
       "div",
       {
+        className,
         "data-agent-conversation": true,
         "data-links-as-text": renderLinksAsText,
         "data-read-only": readOnly,
@@ -197,7 +200,8 @@ describe("OnboardingWizard", () => {
 
     expect(html).toContain('data-testid="wiki-setup-conversation"');
     expect(html).not.toMatch(/class="[^"]*(?:border-border|h-64|h-72)[^"]*" data-testid="wiki-setup-conversation"/);
-    expect(html).toContain('data-scrollable="false"');
+    expect(html).toContain('data-scrollable="true"');
+    expect(html).toContain("max-h-[min(24rem,50dvh)]");
     expect(html).toContain('data-agent-conversation="true"');
     expect(html).toContain('data-read-only="true"');
     expect(html).toContain('data-links-as-text="true"');

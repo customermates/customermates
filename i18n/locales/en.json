@@ -351,6 +351,11 @@
           }
         },
         "web": {
+          "review": {
+            "done": "Reviewed website content",
+            "error": "Couldn’t review the website content",
+            "running": "Reviewing website content"
+          },
           "search": {
             "done": "Searched the web",
             "error": "Couldn’t search the web",

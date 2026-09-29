@@ -222,6 +222,30 @@ export function isWorkingActivityGroup(items: AgentChatItem[], start: number, is
   return start > items.findLastIndex((item) => item.kind === "user");
 }
 
+type ActivityItem = Extract<AgentChatItem, { kind: "activity" }>;
+
+export function compactActivityItems(items: ActivityItem[]) {
+  const rows: Array<ActivityItem & { repetitions: number }> = [];
+  for (const item of items) {
+    const previous = rows.at(-1);
+    const canGroup =
+      item.activity.risk === "read" &&
+      (item.activity.kind === "web.review" || item.activity.kind === "generic") &&
+      (item.status === "done" || item.status === "running");
+    if (
+      canGroup &&
+      previous &&
+      (previous.status === "done" || previous.status === "running") &&
+      previous.turnKey === item.turnKey &&
+      JSON.stringify(previous.activity) === JSON.stringify(item.activity)
+    ) {
+      previous.repetitions += 1;
+      if (item.status === "running") previous.status = "running";
+    } else rows.push({ ...item, repetitions: 1 });
+  }
+  return rows;
+}
+
 export const AgentActivity = observer(function AgentActivity({
   isWorking,
   isTrailing,
@@ -232,13 +256,26 @@ export const AgentActivity = observer(function AgentActivity({
   items: Extract<AgentChatItem, { kind: "activity" }>[];
 }) {
   const t = useTranslations();
+  const rows = compactActivityItems(items);
+  const activityCopy = (item: (typeof rows)[number]) => {
+    const copy = agentActivityCopy(item.activity, t, terminology);
+    return item.activity.kind === "generic" && item.repetitions > 1
+      ? {
+          ...copy,
+          done: agentActivityGroupSummary(
+            Array.from({ length: item.repetitions }, () => "done" as const),
+            t,
+          ),
+        }
+      : copy;
+  };
   const uiCopy = chatUiCopy(t);
   const terminology = useAgentActivityTerminology();
   const hasRunning = items.some((item) => item.status === "running");
   const isPending = isWorking && isTrailing;
   const hasError = items.some((item) => item.status === "error");
   const hasCancelled = items.some((item) => item.status === "cancelled");
-  const hasDetails = items.length > 1;
+  const hasDetails = rows.length > 1;
   const isRecovering = isWorking && hasError;
   const isActive = hasRunning || isRecovering || isPending;
   const { open, setOpen, elapsedSeconds } = useActivityGroupState({
@@ -248,23 +285,23 @@ export const AgentActivity = observer(function AgentActivity({
     startedAt: items[0]?.at,
   });
 
-  const firstCopy = items[0] ? agentActivityCopy(items[0].activity, t, terminology) : null;
+  const firstCopy = rows[0] ? activityCopy(rows[0]) : null;
   const settledSummary =
-    items.length === 1 && firstCopy
+    rows.length === 1 && firstCopy
       ? hasError
         ? firstCopy.error
         : hasCancelled
           ? firstCopy.cancelled
           : firstCopy.done
       : agentActivityGroupSummary(
-          items.map((item) => item.status),
+          rows.map((item) => item.status),
           t,
         );
   const runningItem = items.findLast((item) => item.status === "running" || (isRecovering && item.status === "error"));
   const runningLabel = runningItem ? agentActivityCopy(runningItem.activity, t, terminology).running : uiCopy.thinking;
   const liveSummary =
     hasDetails && !hasError && !hasCancelled && elapsedSeconds !== null
-      ? uiCopy.stepsTook(items.length, elapsedSeconds)
+      ? uiCopy.stepsTook(rows.length, elapsedSeconds)
       : settledSummary;
   const summary = useSteadyLabel(isActive ? runningLabel : liveSummary);
   const viewHref = items.findLast((item) => {
@@ -324,8 +361,8 @@ export const AgentActivity = observer(function AgentActivity({
 
       {hasDetails && (
         <CollapsibleContent className="mt-3 space-y-3 pl-4 [&>*]:fade-in-0 [&>*]:slide-in-from-top-2 [&>*]:animate-in [&>*]:duration-300 [&>*]:motion-reduce:animate-none">
-          {items.map((item) => {
-            const copy = agentActivityCopy(item.activity, t, terminology);
+          {rows.map((item) => {
+            const copy = activityCopy(item);
             const status = isRecovering && item.status === "error" ? "running" : item.status;
             const label =
               status === "running"
@@ -360,7 +397,7 @@ export const AgentActivity = observer(function AgentActivity({
                   <Check aria-hidden="true" className="mt-0.5 size-3.5 shrink-0" />
                 )}
 
-                <span className="min-w-0 text-foreground [overflow-wrap:anywhere]">{label}</span>
+                <span className="min-w-0 [overflow-wrap:anywhere]">{label}</span>
               </div>
             );
           })}

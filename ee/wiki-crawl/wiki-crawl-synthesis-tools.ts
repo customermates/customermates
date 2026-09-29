@@ -17,7 +17,9 @@ import { appLocaleOrDefault } from "@/i18n/locale-registry";
 
 import { wikiSynthesisSectionMarkdown } from "./wiki-synthesis-markdown";
 
-export const WIKI_READ_SOURCE_TOOL_NAME = "read_website_source";
+import { WIKI_READ_SOURCE_TOOL_NAME } from "@/ee/agent-chat/tool-identity";
+
+export { WIKI_READ_SOURCE_TOOL_NAME };
 export const WIKI_SYNTHESIS_MAX_PAGES = 16;
 import { sourceFullyRead, wikiSourceCoverage, WIKI_SOURCE_RESULT_MAX_CHARS } from "./wiki-source-coverage";
 

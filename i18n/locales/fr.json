@@ -351,6 +351,11 @@
           }
         },
         "web": {
+          "review": {
+            "done": "Contenu du site examiné",
+            "error": "Impossible d’examiner le contenu du site",
+            "running": "Examen du contenu du site"
+          },
           "search": {
             "done": "Recherche web terminée",
             "error": "Impossible d’effectuer la recherche web",

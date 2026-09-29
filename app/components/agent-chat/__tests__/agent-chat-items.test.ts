@@ -18,7 +18,7 @@ vi.mock("@/components/shared/app-link", async () => {
 
 import type { AgentChatItem } from "../agent-chat.store";
 
-import { AgentActivity, isWorkingActivityGroup } from "../agent-chat-items";
+import { AgentActivity, compactActivityItems, isWorkingActivityGroup } from "../agent-chat-items";
 
 const failedRead = {
   kind: "activity" as const,
@@ -143,5 +143,80 @@ describe("AgentActivity", () => {
     expect(html).toContain("text-destructive");
     expect(html).not.toContain("animate-spin");
     expect(isWorkingActivityGroup(conversationItems, 2, true)).toBe(true);
+  });
+});
+
+describe("website activity compaction", () => {
+  const read = (
+    id: string,
+    status: "done" | "running" | "error" | "cancelled" = "done",
+  ): Extract<AgentChatItem, { kind: "activity" }> => ({
+    kind: "activity",
+    id,
+    activity: { kind: "web.review", risk: "read", affectedResources: [] },
+    status,
+    turnKey: "turn-1",
+  });
+
+  it("keeps many source chunks in one updating row without mutating the transcript", () => {
+    const items = [...Array.from({ length: 30 }, (_, index) => read(String(index))), read("active", "running")];
+    const rows = compactActivityItems(items);
+    expect(rows).toHaveLength(1);
+    expect(rows[0]).toMatchObject({ id: "0", repetitions: 31, status: "running" });
+    expect(items[0].status).toBe("done");
+    expect(items).toHaveLength(31);
+    const html = renderToStaticMarkup(createElement(AgentActivity, { items, isWorking: true, isTrailing: true }));
+    expect(html).toContain("AgentChat.activity.state.web.review.running");
+    expect(html).not.toContain("collapsible-trigger");
+  });
+
+  it("retains failures, cancellation, page creations and turn boundaries", () => {
+    const create = {
+      ...read("create"),
+      activity: {
+        kind: "records.create" as const,
+        resource: "wiki" as const,
+        affectedResources: ["wiki" as const],
+        risk: "write" as const,
+      },
+    };
+    const items = [
+      read("1"),
+      read("2"),
+      read("failed", "error"),
+      read("3"),
+      read("cancelled", "cancelled"),
+      create,
+      { ...create, id: "create2" },
+      read("4"),
+      { ...read("5"), turnKey: "turn-2" },
+    ];
+    expect(compactActivityItems(items).map(({ id }) => id)).toEqual([
+      "1",
+      "failed",
+      "3",
+      "cancelled",
+      "create",
+      "create2",
+      "4",
+      "5",
+    ]);
+  });
+
+  it("compacts identical legacy read-only rows without guessing what an unknown tool did", () => {
+    const items = Array.from({ length: 30 }, (_, index) => ({
+      ...read(String(index)),
+      activity: { kind: "generic" as const, risk: "read" as const, affectedResources: [] },
+    }));
+    const html = renderToStaticMarkup(createElement(AgentActivity, { items, isWorking: false, isTrailing: true }));
+    expect(compactActivityItems(items)).toHaveLength(1);
+    expect(html).toContain("AgentChat.ui.activityComplete");
+    expect(html).not.toContain("AgentChat.activity.state.generic.done");
+    expect(html).not.toContain("AgentChat.activity.state.web.review");
+    expect(
+      compactActivityItems(
+        items.map((item) => ({ ...item, activity: { ...item.activity, risk: "sensitive" as const } })),
+      ),
+    ).toHaveLength(30);
   });
 });

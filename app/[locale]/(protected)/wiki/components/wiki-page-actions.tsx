@@ -74,7 +74,7 @@ export const WikiPageActions = observer((props: Props) => {
       {hasDocument && store.form.id && (
         <DropdownMenu>
           <DropdownMenuTrigger asChild>
-            <Button aria-label={t("Wiki.pageActions")} disabled={store.isLoading} size="icon-sm" variant="ghost">
+            <Button aria-label={t("Wiki.pageActions")} disabled={store.isLoading} size="icon-sm" variant="secondary">
               <MoreHorizontal aria-hidden="true" />
             </Button>
           </DropdownMenuTrigger>

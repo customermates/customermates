@@ -86,7 +86,12 @@ const WikiSetupConversation = observer(function WikiSetupConversation({ conversa
             </Alert>
           ) : (
             <>
-              <AgentConversationLog readOnly renderLinksAsText showProgressStatus className="px-0" scrollable={false} />
+              <AgentConversationLog
+                readOnly
+                renderLinksAsText
+                showProgressStatus
+                className="max-h-[min(24rem,50dvh)] px-0"
+              />
 
               <AgentStatusAnnouncer />
             </>

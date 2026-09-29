@@ -351,6 +351,11 @@
           }
         },
         "web": {
+          "review": {
+            "done": "Website-Inhalte geprüft",
+            "error": "Website-Inhalte konnten nicht geprüft werden",
+            "running": "Website-Inhalte werden geprüft"
+          },
           "search": {
             "done": "Web wurde durchsucht",
             "error": "Web konnte nicht durchsucht werden",

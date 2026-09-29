@@ -118,3 +118,21 @@ describe("manage_routines activity", () => {
     expect(AGENT_APPROVAL_COPY_KINDS).not.toContain("records.read");
   });
 });
+
+describe("website source activity", () => {
+  it("names internal evidence reads and keeps external tools with the same name sensitive", () => {
+    const activity = describeInternalTool("read_website_source", { action: "next" });
+    expect(activity).toMatchObject({ kind: "web.review", risk: "read" });
+    for (const locale of ROUTING_LOCALES) {
+      const copy = agentActivityCopy(activity, translatorFor(locale));
+      expect(copy.running).not.toEqual(
+        agentActivityCopy(describeInternalTool("unknown", {}), translatorFor(locale)).running,
+      );
+      expect(copy.done.length).toBeGreaterThan(0);
+      expect(copy.error.length).toBeGreaterThan(0);
+    }
+    expect(
+      describeAgentTool({ source: "external-mcp", serverId: "external", name: "read_website_source" }, {}),
+    ).toMatchObject({ kind: "generic", risk: "sensitive" });
+  });
+});
