@@ -68,7 +68,7 @@
           "delete": "Bereit, ein Dashboard-Widget endgültig zu löschen"
         },
         "workspace": {
-          "configure": "Bereit, diese Wiki-Seite endgültig zu löschen",
+          "configure": "Bereit, diese Wissensdatenbank-Seite endgültig zu löschen",
           "settings": "Bereit, Workspace-Einstellungen einschließlich der Datensatztyp-Namen zu ändern",
           "terminology": "Bereit, Datensatztypen für den gesamten Workspace umzubenennen"
         }
@@ -127,7 +127,7 @@
         "tasks": "Aufgaben",
         "terminology": "Workspace-Begriffe",
         "widgets": "Dashboard-Widgets",
-        "wiki": "Wiki-Seiten"
+        "wiki": "Wissensdatenbank-Seiten"
       },
       "resourceSingular": {
         "contacts": "Kontakt",
@@ -138,7 +138,7 @@
         "tasks": "Aufgabe",
         "terminology": "Workspace-Begriff",
         "widgets": "Dashboard-Widget",
-        "wiki": "Wiki-Seite"
+        "wiki": "Wissensdatenbank-Seite"
       },
       "state": {
         "accounts": {
@@ -807,30 +807,30 @@
         "wiki": {
           "data": {
             "create-wiki-page": {
-              "label": "Wiki-Seite erstellen",
-              "prompt": "Hilf mir, eine neue Seite im Workspace-Wiki zu erstellen. Frage, welches Unternehmenswissen, welcher Prozess, welche Produkt- oder Supportinformation oder welche Sprachrichtlinie Mate und verbundene KI-Tools benötigen, und erstelle sie nach meiner Bestätigung."
+              "label": "Wissensdatenbank-Seite erstellen",
+              "prompt": "Hilf mir, eine neue Seite in der Wissensdatenbank zu erstellen. Frage, welches Unternehmenswissen, welcher Prozess, welche Produkt- oder Supportinformation oder welche Sprachrichtlinie Mate und verbundene KI-Tools benötigen, und erstelle sie nach meiner Bestätigung."
             },
             "wiki-gaps": {
               "label": "Wissenslücken finden",
-              "prompt": "Prüfe unser Workspace-Wiki und nenne die wichtigsten fehlenden, veralteten oder widersprüchlichen Informationen. Nimm keine Änderungen vor."
+              "prompt": "Prüfe unsere Wissensdatenbank und nenne die wichtigsten fehlenden, veralteten oder widersprüchlichen Informationen. Nimm keine Änderungen vor."
             },
             "wiki-summary": {
-              "label": "Wiki zusammenfassen",
-              "prompt": "Fasse unser Workspace-Wiki zusammen, einschließlich der enthaltenen Unternehmensprozesse, Produktinformationen, Supportleitlinien und Sprachrichtlinien."
+              "label": "Wissensdatenbank zusammenfassen",
+              "prompt": "Fasse unsere Wissensdatenbank zusammen, einschließlich der enthaltenen Unternehmensprozesse, Produktinformationen, Supportleitlinien und Sprachrichtlinien."
             }
           },
           "empty": {
             "first-wiki-page": {
               "label": "Aus meiner Website erstellen",
-              "prompt": "Erstelle mein Wiki aus meiner Unternehmenswebsite."
+              "prompt": "Erstelle meine Wissensdatenbank aus meiner Unternehmenswebsite."
             },
             "wiki-structure": {
-              "label": "Wiki-Struktur vorschlagen",
-              "prompt": "Prüfe meinen Arbeitsbereich und schlage drei bis fünf nützliche Seiten für das Workspace-Wiki vor. Erstelle noch nichts."
+              "label": "Wissensdatenbank-Struktur vorschlagen",
+              "prompt": "Prüfe meinen Arbeitsbereich und schlage drei bis fünf nützliche Seiten für die Wissensdatenbank vor. Erstelle noch nichts."
             },
             "wiki-tour": {
-              "label": "Wiki kennenlernen",
-              "prompt": "Erkläre, wie Mate, Routinen und verbundene KI-Tools das Workspace-Wiki verwenden, einschließlich Links und Berechtigungen. Nimm keine Änderungen vor."
+              "label": "Wissensdatenbank kennenlernen",
+              "prompt": "Erkläre, wie Mate, Routinen und verbundene KI-Tools die Wissensdatenbank verwenden, einschließlich Links und Berechtigungen. Nimm keine Änderungen vor."
             }
           }
         }
@@ -1338,11 +1338,11 @@
       "widgetNotFound": "Widget-ID nicht gefunden oder nicht zugänglich.",
       "widgetTaskCanOnlyGroupByCustomColumn": "Aufgaben können nur nach benutzerdefinierten Spalten gruppiert werden, nicht nach Elementtypen.",
       "widgetWeightedValueNotAllowedForService": "Gewichtete Wert-Aggregation ist für den Elementtyp Service nicht erlaubt.",
-      "wikiGuideExists": "Dieses Wiki hat bereits einen Betriebsleitfaden. Aktualisieren Sie stattdessen den vorhandenen Leitfaden.",
-      "wikiHomepageSetupStartFailed": "Mate konnte die Wiki-Einrichtung nicht starten. Bitte versuche es erneut.",
-      "wikiNotEmpty": "Diese Aktion erfordert ein leeres Wiki.",
-      "wikiPageConflict": "Diese Wiki-Seite wurde geändert, nachdem du sie geöffnet hast. Lade sie neu und versuche es erneut.",
-      "wikiPageNotFound": "Wiki-Seite nicht gefunden oder nicht zugänglich.",
+      "wikiGuideExists": "Diese Wissensdatenbank hat bereits einen Betriebsleitfaden. Aktualisieren Sie stattdessen den vorhandenen Leitfaden.",
+      "wikiHomepageSetupStartFailed": "Mate konnte die Wissensdatenbank-Einrichtung nicht starten. Bitte versuche es erneut.",
+      "wikiNotEmpty": "Diese Aktion erfordert eine leere Wissensdatenbank.",
+      "wikiPageConflict": "Diese Wissensdatenbank-Seite wurde geändert, nachdem du sie geöffnet hast. Lade sie neu und versuche es erneut.",
+      "wikiPageNotFound": "Wissensdatenbank-Seite nicht gefunden oder nicht zugänglich.",
       "wikiProcedureNeedsSteps": "Ein Verfahren braucht nummerierte Schritte.",
       "wikiWhenToUseRequired": "Ein Verfahren braucht eine kurze Beschreibung, wann es gilt."
     },
@@ -1439,9 +1439,9 @@
         "updated": "Webhook aktualisiert"
       },
       "wiki_page": {
-        "created": "Wiki-Seite erstellt",
-        "deleted": "Wiki-Seite gelöscht",
-        "updated": "Wiki-Seite aktualisiert"
+        "created": "Wissensdatenbank-Seite erstellt",
+        "deleted": "Wissensdatenbank-Seite gelöscht",
+        "updated": "Wissensdatenbank-Seite aktualisiert"
       }
     },
     "filters": {
@@ -2890,7 +2890,7 @@
     "search": "Suchen",
     "settings": "Einstellungen",
     "subscription": "Abonnement",
-    "wiki": "Wiki",
+    "wiki": "Wissensdatenbank",
     "workspace": "Workspace"
   },
   "NotFoundPage": {
@@ -3050,21 +3050,21 @@
     "progressLabel": "Fortschritt der Einrichtung",
     "steps": {
       "ai": {
-        "subtitle": "Wähle eine KI aus, die du jetzt verbinden möchtest. Weitere kannst du später hinzufügen.",
-        "title": "KI verbinden"
+        "subtitle": "Wähle ein KI-Tool und verbinde es mit deinem Arbeitsbereich und eurem Unternehmenswissen. Verbinde jetzt eines, ergänze später weitere oder überspringe diesen Schritt.",
+        "title": "Verbinde die KI, die du schon nutzt"
       },
       "invite": {
-        "subtitle": "Teile einen Link oder verschicke E-Mail-Einladungen.",
-        "title": "Team einladen"
+        "subtitle": "Lade andere über einen gemeinsamen Link oder einzelne E-Mails ein. Du kannst auch allein weitermachen und dein Team später einladen.",
+        "title": "Hol dein Team dazu"
       },
       "profile": {
-        "invitedSubtitle": "Vervollständige dein Profil, um Zugang zum eingeladenen Workspace anzufordern.",
-        "subtitle": "Erzähle uns, wer du bist, damit wir deinen Workspace einrichten können.",
-        "title": "Dein Profil"
+        "invitedSubtitle": "Vervollständige dein Profil, um Zugang zum Arbeitsbereich anzufragen, zu dem du eingeladen wurdest.",
+        "subtitle": "Ergänze deinen Namen und dein Land, damit dein Team dich erkennt. Diese Angaben gehören zu deinem Profil und lassen sich später ändern.",
+        "title": "Mach diesen Arbeitsbereich zu deinem"
       },
       "wiki": {
-        "subtitle": "Füge deine Unternehmenswebsite hinzu. Mate macht aus verifizierbaren Informationen bearbeitbare Wiki-Seiten für Mate und verbundene KI-Tools.",
-        "title": "Geben wir Mate etwas Kontext"
+        "subtitle": "Starte mit eurer Unternehmenswebsite. Mate erstellt aus überprüfbaren Informationen gemeinsame, bearbeitbare Seiten in der Wissensdatenbank – mit Quellen und offenen Fragen zur Prüfung.",
+        "title": "Gib Mate dein Unternehmenswissen"
       }
     },
     "wiki": {
@@ -3331,7 +3331,7 @@
       "services": "Services",
       "tasks": "Aufgaben",
       "users": "Benutzer & Rollen",
-      "wiki": "Workspace-Wiki"
+      "wiki": "Wissensdatenbank"
     },
     "systemAlert": "Dies ist eine System-Rolle und kann nicht bearbeitet oder gelöscht werden.",
     "systemDescription": "Voller Zugriff auf alle Funktionen und Einstellungen. Kann nicht geändert oder gelöscht werden.",
@@ -3742,8 +3742,8 @@
       "publish": "Veröffentlichen"
     },
     "emptyBody": "Gib Mate und verbundenen KI-Tools das Unternehmenswissen, die Prozesse und Leitlinien, die sie benötigen.",
-    "emptyBodyReadOnly": "Es wurden noch keine Wiki-Seiten erstellt.",
-    "emptyTitle": "Dein Workspace-Wiki ist leer",
+    "emptyBodyReadOnly": "Es wurden noch keine Wissensdatenbank-Seiten erstellt.",
+    "emptyTitle": "Deine Wissensdatenbank ist leer",
     "kind": {
       "guide": "Betriebsleitfaden",
       "guideHelp": "Grundregeln, die jede KI zuerst liest. Mate und verbundene KI-Tools laden immer etwa die ersten {bytes, number} Bytes. Einer pro Workspace.",
@@ -3753,7 +3753,7 @@
       "procedure": "Verfahren",
       "procedureHelp": "Nummerierte Schritte, denen Mate und verbundene KI-Tools folgen, wenn eine Anfrage zum Einsatzfall passt."
     },
-    "linkPage": "Wiki-Seite verlinken…",
+    "linkPage": "Wissensdatenbank-Seite verlinken…",
     "loadFailed": "Die Seiten konnten nicht geladen werden.",
     "newPage": "Neue Seite",
     "next": "Weiter",
@@ -3761,7 +3761,7 @@
     "onThisPage": "Auf dieser Seite",
     "page": "Seite {current} von {total}",
     "pageActions": "Seitenaktionen",
-    "pagesLabel": "Wiki-Seiten",
+    "pagesLabel": "Wissensdatenbank-Seiten",
     "pageTitle": "Seitentitel",
     "previous": "Zurück",
     "reload": "Seite neu laden",
@@ -3779,16 +3779,16 @@
     }
   },
   "WikiSetup": {
-    "agentPrompt": "Informiere dich auf {homepage} über unser Unternehmen und erstelle unsere Wiki-Seiten.",
+    "agentPrompt": "Informiere dich auf {homepage} über unser Unternehmen und erstelle unsere Wissensdatenbank-Seiten.",
     "continue": "Weiter",
     "continueBackground": "Weiter, während Mate arbeitet",
-    "conversationTitle": "Workspace-Wiki einrichten",
+    "conversationTitle": "Wissensdatenbank einrichten",
     "crawlProgress": {
       "discovering": "Website-Seiten werden gesucht",
       "fetching": "Website-Seiten werden gelesen",
-      "importing": "Quellseiten werden zum Wiki hinzugefügt",
+      "importing": "Quellseiten werden zur Wissensdatenbank hinzugefügt",
       "queued": "Import wird vorbereitet",
-      "synthesizing": "Mate beginnt mit dem Schreiben der Wiki-Seiten",
+      "synthesizing": "Mate beginnt mit dem Schreiben der Wissensdatenbank-Seiten",
       "title": "Fortschritt des Website-Imports"
     },
     "generated": {
@@ -3797,30 +3797,30 @@
     },
     "homepageLabel": "Unternehmenswebsite",
     "homepagePlaceholder": "https://beispiel.de",
-    "languageDescription": "Standardmäßig wird die Browsersprache verwendet. Wenn Wiki-Seiten vorhanden sind, bestimmt deren Sprache die Auswahl.",
-    "languageLabel": "Wiki-Sprache",
+    "languageDescription": "Standardmäßig wird die Browsersprache verwendet. Wenn Wissensdatenbank-Seiten vorhanden sind, bestimmt deren Sprache die Auswahl.",
+    "languageLabel": "Wissensdatenbank-Sprache",
     "openTask": "Mate-Aufgabe öffnen",
     "progressLoadFailed": "Mates Fortschritt konnte hier nicht geladen werden. Versuche es erneut.",
     "progressLoading": "Mates Fortschritt wird geladen",
-    "start": "Wiki erstellen",
+    "start": "Wissensdatenbank erstellen",
     "status": {
-      "completedBodyOnboarding": "Mate hat deine Startseiten mit belegten Website-Fakten erstellt. Du kannst sie später im Wiki prüfen und alles bestätigen, was als noch zu klären markiert ist.",
-      "completedExistingBody": "Dein Wiki enthält bereits Seiten. Fahre mit dem Onboarding fort oder prüfe die vorhandenen Inhalte.",
-      "completedTitle": "Dein erstes Wiki ist bereit",
-      "failedBody": "Die Einrichtung wurde beendet, bevor alle Seiten fertig waren. Bereits erstellte Seiten bleiben erhalten. Sie können fortfahren und sie im Wiki prüfen.",
+      "completedBodyOnboarding": "Mate hat deine Startseiten mit belegten Website-Fakten erstellt. Du kannst sie später in der Wissensdatenbank prüfen und alles bestätigen, was als noch zu klären markiert ist.",
+      "completedExistingBody": "Deine Wissensdatenbank enthält bereits Seiten. Fahre mit dem Onboarding fort oder prüfe die vorhandenen Inhalte.",
+      "completedTitle": "Deine erste Wissensdatenbank ist bereit",
+      "failedBody": "Die Einrichtung wurde beendet, bevor alle Seiten fertig waren. Bereits erstellte Seiten bleiben erhalten. Sie können fortfahren und sie in der Wissensdatenbank prüfen.",
       "failedBodyBlocked": "{domain} erlaubt in der robots.txt kein automatisches Lesen, daher wurde nichts importiert. Sie können Seiten stattdessen selbst anlegen.",
       "failedBodyUnavailable": "Mate konnte {domain} nicht lesen. Prüfen Sie die Adresse oder fahren Sie fort und legen Sie Seiten später an.",
       "failedTitle": "Einrichtung nicht abgeschlossen",
       "noContentBody": "Prüfe die Mate-Aufgabe für weitere Details. Du kannst eine andere Website versuchen oder fortfahren und später Seiten hinzufügen.",
-      "noContentTitle": "Es wurden keine Wiki-Seiten erstellt",
+      "noContentTitle": "Es wurden keine Wissensdatenbank-Seiten erstellt",
       "readingBody": "Mate hat {fetched} von {total} Seiten auf {domain} gelesen.",
-      "workingBody": "Mate liest {domain}, prüft hilfreiche Seiten und überträgt Informationen aus diesen Quellen in dein Wiki. Du kannst den Fortschritt hier verfolgen oder mit dem nächsten Schritt fortfahren.",
-      "workingBodyNoTask": "Mate liest {domain} und überträgt Informationen aus diesen Quellen in dein Wiki. Du kannst mit dem nächsten Schritt fortfahren, während Mate arbeitet.",
-      "workingBodyNoTaskWiki": "Mate liest {domain} und erstellt das Wiki. Du kannst später zurückkehren, um die fertigen Seiten zu sehen.",
-      "workingBodyWiki": "Mate liest {domain}, prüft hilfreiche Seiten und überträgt Informationen aus diesen Quellen in dein Wiki. Du kannst diese Aufgabe geöffnet lassen oder später zurückkehren.",
+      "workingBody": "Mate liest {domain}, prüft hilfreiche Seiten und überträgt Informationen aus diesen Quellen in deine Wissensdatenbank. Du kannst den Fortschritt hier verfolgen oder mit dem nächsten Schritt fortfahren.",
+      "workingBodyNoTask": "Mate liest {domain} und überträgt Informationen aus diesen Quellen in deine Wissensdatenbank. Du kannst mit dem nächsten Schritt fortfahren, während Mate arbeitet.",
+      "workingBodyNoTaskWiki": "Mate liest {domain} und erstellt die Wissensdatenbank. Du kannst später zurückkehren, um die fertigen Seiten zu sehen.",
+      "workingBodyWiki": "Mate liest {domain}, prüft hilfreiche Seiten und überträgt Informationen aus diesen Quellen in deine Wissensdatenbank. Du kannst diese Aufgabe geöffnet lassen oder später zurückkehren.",
       "workingTitle": "Mate lernt dein Unternehmen kennen"
     },
     "tryAnother": "Andere Website versuchen",
-    "unavailable": "Die Einrichtung mit Mate ist derzeit nicht verfügbar. Du kannst später im Wiki Seiten erstellen."
+    "unavailable": "Die Einrichtung mit Mate ist derzeit nicht verfügbar. Du kannst später in der Wissensdatenbank Seiten erstellen."
   }
 }

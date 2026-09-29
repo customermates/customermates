@@ -29,18 +29,18 @@ function exactWikiPathId(value: string): string | null {
 }
 
 export function wikiPagePath(id: string): string {
-  if (!UUID_PATTERN.test(id)) throw new Error("Wiki page id must be a UUID.");
+  if (!UUID_PATTERN.test(id)) throw new Error("Knowledge Base page id must be a UUID.");
   return `/wiki?page=${id.toLowerCase()}`;
 }
 
 export function wikiPageUrl(baseUrl: string, id: string): string {
   const base = normalizedBaseUrl(baseUrl);
-  if (!base) throw new Error("Wiki base URL must be HTTP(S).");
+  if (!base) throw new Error("Knowledge Base base URL must be HTTP(S).");
   return new URL(wikiPagePath(id), base.origin).toString();
 }
 
 export function wikiPageFetchId(id: string): string {
-  if (!UUID_PATTERN.test(id)) throw new Error("Wiki page id must be a UUID.");
+  if (!UUID_PATTERN.test(id)) throw new Error("Knowledge Base page id must be a UUID.");
   return `wiki:${id.toLowerCase()}`;
 }
 

@@ -68,7 +68,7 @@
           "delete": "Listo para eliminar de forma permanente un widget del panel"
         },
         "workspace": {
-          "configure": "Listo para eliminar de forma permanente esta página de la wiki",
+          "configure": "Listo para eliminar de forma permanente esta página de la base de conocimientos",
           "settings": "Listo para cambiar la configuración del espacio de trabajo, incluidos los nombres de los tipos de registro",
           "terminology": "Listo para renombrar tipos de registro en todo el espacio de trabajo"
         }
@@ -127,7 +127,7 @@
         "tasks": "tareas",
         "terminology": "terminología del espacio de trabajo",
         "widgets": "widgets del Dashboard",
-        "wiki": "páginas wiki"
+        "wiki": "páginas de la base de conocimientos"
       },
       "resourceSingular": {
         "contacts": "contacto",
@@ -138,7 +138,7 @@
         "tasks": "tarea",
         "terminology": "término del espacio de trabajo",
         "widgets": "widget del dashboard",
-        "wiki": "página wiki"
+        "wiki": "página de la base de conocimientos"
       },
       "state": {
         "accounts": {
@@ -807,30 +807,30 @@
         "wiki": {
           "data": {
             "create-wiki-page": {
-              "label": "Crear una página de la wiki",
-              "prompt": "Ayúdame a crear una nueva página de la wiki del espacio de trabajo. Pregunta qué proceso, conocimiento de producto, guía de soporte o guía de voz necesitan Mate y las herramientas de IA conectadas, y créala después de mi confirmación."
+              "label": "Crear una página de la base de conocimientos",
+              "prompt": "Ayúdame a crear una nueva página de la base de conocimientos del espacio de trabajo. Pregunta qué proceso, conocimiento de producto, guía de soporte o guía de voz necesitan Mate y las herramientas de IA conectadas, y créala después de mi confirmación."
             },
             "wiki-gaps": {
               "label": "Encontrar vacíos de conocimiento",
-              "prompt": "Revisa nuestra wiki del espacio de trabajo e identifica la información más importante que falte, esté desactualizada o sea contradictoria. No hagas cambios."
+              "prompt": "Revisa nuestra base de conocimientos del espacio de trabajo e identifica la información más importante que falte, esté desactualizada o sea contradictoria. No hagas cambios."
             },
             "wiki-summary": {
-              "label": "Resumir la wiki",
-              "prompt": "Resume nuestra wiki del espacio de trabajo, incluidos los procesos, el conocimiento de producto, las guías de soporte y las guías de voz que contiene."
+              "label": "Resumir la base de conocimientos",
+              "prompt": "Resume nuestra base de conocimientos del espacio de trabajo, incluidos los procesos, el conocimiento de producto, las guías de soporte y las guías de voz que contiene."
             }
           },
           "empty": {
             "first-wiki-page": {
               "label": "Crear desde mi sitio web",
-              "prompt": "Crea mi wiki a partir del sitio web de mi empresa."
+              "prompt": "Crea mi base de conocimientos a partir del sitio web de mi empresa."
             },
             "wiki-structure": {
-              "label": "Sugerir una estructura para la wiki",
-              "prompt": "Revisa mi espacio de trabajo y sugiere entre tres y cinco páginas útiles para la wiki. No crees nada todavía."
+              "label": "Sugerir una estructura para la base de conocimientos",
+              "prompt": "Revisa mi espacio de trabajo y sugiere entre tres y cinco páginas útiles para la base de conocimientos. No crees nada todavía."
             },
             "wiki-tour": {
-              "label": "Aprender cómo funciona la wiki",
-              "prompt": "Explica cómo Mate, las rutinas y las herramientas de IA conectadas utilizan la wiki del espacio de trabajo, incluidos los enlaces y permisos. No hagas cambios."
+              "label": "Aprender cómo funciona la base de conocimientos",
+              "prompt": "Explica cómo Mate, las rutinas y las herramientas de IA conectadas utilizan la base de conocimientos del espacio de trabajo, incluidos los enlaces y permisos. No hagas cambios."
             }
           }
         }
@@ -1338,11 +1338,11 @@
       "widgetNotFound": "ID de widget no encontrado o no accesible.",
       "widgetTaskCanOnlyGroupByCustomColumn": "Las tareas solo se pueden agrupar por columnas personalizadas, no por tipos de elemento.",
       "widgetWeightedValueNotAllowedForService": "La agregación de valor ponderado no está permitida para el tipo de elemento Servicio.",
-      "wikiGuideExists": "Esta wiki ya tiene una guía operativa. Actualiza la guía existente.",
-      "wikiHomepageSetupStartFailed": "Mate no pudo iniciar la configuración de la wiki. Inténtalo de nuevo.",
-      "wikiNotEmpty": "Esta acción requiere que la wiki esté vacía.",
-      "wikiPageConflict": "Esta página de la wiki cambió después de que la abrieras. Vuelve a cargarla e inténtalo de nuevo.",
-      "wikiPageNotFound": "Página de la wiki no encontrada o no accesible.",
+      "wikiGuideExists": "Esta base de conocimientos ya tiene una guía operativa. Actualiza la guía existente.",
+      "wikiHomepageSetupStartFailed": "Mate no pudo iniciar la configuración de la base de conocimientos. Inténtalo de nuevo.",
+      "wikiNotEmpty": "Esta acción requiere que la base de conocimientos esté vacía.",
+      "wikiPageConflict": "Esta página de la base de conocimientos cambió después de que la abrieras. Vuelve a cargarla e inténtalo de nuevo.",
+      "wikiPageNotFound": "Página de la base de conocimientos no encontrada o no accesible.",
       "wikiProcedureNeedsSteps": "Un procedimiento necesita pasos numerados.",
       "wikiWhenToUseRequired": "Un procedimiento necesita una breve descripción de cuándo usarlo."
     },
@@ -1439,9 +1439,9 @@
         "updated": "Webhook actualizado"
       },
       "wiki_page": {
-        "created": "Página wiki creada",
-        "deleted": "Página wiki eliminada",
-        "updated": "Página wiki actualizada"
+        "created": "Página de la base de conocimientos creada",
+        "deleted": "Página de la base de conocimientos eliminada",
+        "updated": "Página de la base de conocimientos actualizada"
       }
     },
     "filters": {
@@ -2890,7 +2890,7 @@
     "search": "Buscar",
     "settings": "Ajustes",
     "subscription": "Suscripción",
-    "wiki": "Wiki",
+    "wiki": "Base de conocimientos",
     "workspace": "Espacio de trabajo"
   },
   "NotFoundPage": {
@@ -3050,21 +3050,21 @@
     "progressLabel": "Progreso de la configuración inicial",
     "steps": {
       "ai": {
-        "subtitle": "Elige cuál conectar ahora. Podrás añadir las demás más adelante.",
-        "title": "Conecta tu IA"
+        "subtitle": "Elige una herramienta de IA para conectarla a tu espacio de trabajo y al conocimiento de tu empresa. Conecta una ahora, añade otras más adelante o salta este paso.",
+        "title": "Conecta la IA que ya utilizas"
       },
       "invite": {
-        "subtitle": "Comparte un enlace o envía invitaciones por correo.",
-        "title": "Invita a tu equipo"
+        "subtitle": "Invita a tus compañeros con un enlace compartido o invitaciones individuales por correo. También puedes continuar por tu cuenta e invitarlos más adelante.",
+        "title": "Incorpora a tu equipo"
       },
       "profile": {
-        "invitedSubtitle": "Completa tu perfil para solicitar acceso al espacio de trabajo de la invitación.",
-        "subtitle": "Cuéntanos quién eres para que podamos configurar tu espacio de trabajo.",
-        "title": "Tu perfil"
+        "invitedSubtitle": "Completa tu perfil para solicitar acceso al espacio de trabajo al que te han invitado.",
+        "subtitle": "Añade tu nombre y país para que tu equipo te reconozca. Estos datos formarán parte de tu perfil y podrás modificarlos más adelante.",
+        "title": "Haz tuyo este espacio de trabajo"
       },
       "wiki": {
-        "subtitle": "Añade el sitio web de tu empresa. Mate convierte la información que puede verificar en páginas wiki editables para Mate y las herramientas de IA que conectes.",
-        "title": "Demos un poco de contexto a Mate"
+        "subtitle": "Empieza por el sitio web de tu empresa. Mate convierte la información verificable en páginas compartidas y editables de la base de conocimientos, con fuentes y aspectos por aclarar.",
+        "title": "Comparte con Mate el conocimiento de tu empresa"
       }
     },
     "wiki": {
@@ -3331,7 +3331,7 @@
       "services": "Servicios",
       "tasks": "Tareas",
       "users": "Usuarios y roles",
-      "wiki": "Wiki del espacio de trabajo"
+      "wiki": "Base de conocimientos del espacio de trabajo"
     },
     "systemAlert": "Este es un rol del sistema y no se puede editar ni eliminar.",
     "systemDescription": "Acceso completo a todas las funciones y ajustes. No se puede modificar ni eliminar.",
@@ -3742,8 +3742,8 @@
       "publish": "Publicar"
     },
     "emptyBody": "Proporciona a Mate y a las herramientas de IA conectadas el conocimiento, los procesos y las pautas que necesitan.",
-    "emptyBodyReadOnly": "Aún no se han creado páginas de la wiki.",
-    "emptyTitle": "La wiki de tu espacio de trabajo está vacía",
+    "emptyBodyReadOnly": "Aún no se han creado páginas de la base de conocimientos.",
+    "emptyTitle": "La base de conocimientos de tu espacio de trabajo está vacía",
     "kind": {
       "guide": "Guía operativa",
       "guideHelp": "Pautas permanentes que toda IA lee primero. Mate y las herramientas de IA conectadas siempre cargan unos {bytes, number} bytes iniciales. Una por espacio de trabajo.",
@@ -3753,7 +3753,7 @@
       "procedure": "Procedimiento",
       "procedureHelp": "Pasos numerados que Mate y las herramientas de IA conectadas siguen cuando una solicitud coincide con cuándo usarlo."
     },
-    "linkPage": "Enlazar una página de la wiki…",
+    "linkPage": "Enlazar una página de la base de conocimientos…",
     "loadFailed": "No se pudieron cargar las páginas.",
     "newPage": "Nueva página",
     "next": "Siguiente",
@@ -3761,7 +3761,7 @@
     "onThisPage": "En esta página",
     "page": "Página {current} de {total}",
     "pageActions": "Acciones de la página",
-    "pagesLabel": "Páginas de la wiki",
+    "pagesLabel": "Páginas de la base de conocimientos",
     "pageTitle": "Título de la página",
     "previous": "Anterior",
     "reload": "Recargar página",
@@ -3779,16 +3779,16 @@
     }
   },
   "WikiSetup": {
-    "agentPrompt": "Conoce nuestra empresa a partir de {homepage} y crea las páginas de nuestra wiki.",
+    "agentPrompt": "Conoce nuestra empresa a partir de {homepage} y crea las páginas de nuestra base de conocimientos.",
     "continue": "Continuar",
     "continueBackground": "Continuar mientras Mate trabaja",
-    "conversationTitle": "Configurar la wiki del espacio de trabajo",
+    "conversationTitle": "Configurar la base de conocimientos del espacio de trabajo",
     "crawlProgress": {
       "discovering": "Buscando páginas del sitio",
       "fetching": "Leyendo páginas del sitio",
-      "importing": "Añadiendo páginas de origen al Wiki",
+      "importing": "Añadiendo páginas de origen a la base de conocimientos",
       "queued": "Preparando la importación",
-      "synthesizing": "Iniciando Mate para redactar las páginas de la Wiki",
+      "synthesizing": "Iniciando Mate para redactar las páginas de la base de conocimientos",
       "title": "Progreso de importación del sitio"
     },
     "generated": {
@@ -3797,30 +3797,30 @@
     },
     "homepageLabel": "Sitio web de la empresa",
     "homepagePlaceholder": "https://ejemplo.com",
-    "languageDescription": "Se usa el idioma del navegador de forma predeterminada. Si la Wiki ya contiene páginas, su idioma determina la selección.",
-    "languageLabel": "Idioma de la Wiki",
+    "languageDescription": "Se usa el idioma del navegador de forma predeterminada. Si la base de conocimientos ya contiene páginas, su idioma determina la selección.",
+    "languageLabel": "Idioma de la base de conocimientos",
     "openTask": "Abrir tarea de Mate",
     "progressLoadFailed": "No se pudo cargar aquí el progreso de Mate. Inténtalo de nuevo.",
     "progressLoading": "Cargando el progreso de Mate",
-    "start": "Crear mi wiki",
+    "start": "Crear mi base de conocimientos",
     "status": {
-      "completedBodyOnboarding": "Mate ha creado tus páginas iniciales con datos respaldados por el sitio web. Podrás revisarlas más tarde en la wiki y confirmar lo que esté marcado como pendiente de confirmar.",
-      "completedExistingBody": "Tu wiki ya contiene páginas. Continúa la incorporación o revisa el contenido existente.",
-      "completedTitle": "Tu wiki inicial está lista",
-      "failedBody": "La configuración se detuvo antes de que todas las páginas estuvieran listas. Las páginas ya creadas siguen disponibles. Puedes continuar y revisarlas en la Wiki.",
+      "completedBodyOnboarding": "Mate ha creado tus páginas iniciales con datos respaldados por el sitio web. Podrás revisarlas más tarde en la base de conocimientos y confirmar lo que esté marcado como pendiente de confirmar.",
+      "completedExistingBody": "Tu base de conocimientos ya contiene páginas. Continúa la incorporación o revisa el contenido existente.",
+      "completedTitle": "Tu base de conocimientos inicial está lista",
+      "failedBody": "La configuración se detuvo antes de que todas las páginas estuvieran listas. Las páginas ya creadas siguen disponibles. Puedes continuar y revisarlas en la base de conocimientos.",
       "failedBodyBlocked": "{domain} no permite la lectura automática en su robots.txt, así que no se importó nada. Puedes crear las páginas tú mismo.",
       "failedBodyUnavailable": "Mate no pudo leer {domain}. Revisa la dirección o continúa y añade páginas más tarde.",
       "failedTitle": "La configuración no terminó",
       "noContentBody": "Revisa la tarea de Mate para ver los detalles. Puedes probar con otro sitio web o continuar y añadir páginas más tarde.",
-      "noContentTitle": "No se crearon páginas de la wiki",
+      "noContentTitle": "No se crearon páginas de la base de conocimientos",
       "readingBody": "Mate ha leído {fetched} de {total} páginas de {domain}.",
-      "workingBody": "Mate está leyendo {domain}, comprobando páginas útiles e incorporando información con fuentes a tu wiki. Puedes seguir el progreso aquí o continuar con el siguiente paso.",
-      "workingBodyNoTask": "Mate está leyendo {domain} e incorporando información con fuentes a tu wiki. Puedes continuar con el siguiente paso mientras trabaja.",
-      "workingBodyNoTaskWiki": "Mate está leyendo {domain} y creando la wiki. Puedes volver más tarde para ver las páginas terminadas.",
-      "workingBodyWiki": "Mate está leyendo {domain}, comprobando páginas útiles e incorporando información con fuentes a tu wiki. Puedes dejar esta tarea abierta o volver más tarde.",
+      "workingBody": "Mate está leyendo {domain}, comprobando páginas útiles e incorporando información con fuentes a tu base de conocimientos. Puedes seguir el progreso aquí o continuar con el siguiente paso.",
+      "workingBodyNoTask": "Mate está leyendo {domain} e incorporando información con fuentes a tu base de conocimientos. Puedes continuar con el siguiente paso mientras trabaja.",
+      "workingBodyNoTaskWiki": "Mate está leyendo {domain} y creando la base de conocimientos. Puedes volver más tarde para ver las páginas terminadas.",
+      "workingBodyWiki": "Mate está leyendo {domain}, comprobando páginas útiles e incorporando información con fuentes a tu base de conocimientos. Puedes dejar esta tarea abierta o volver más tarde.",
       "workingTitle": "Mate está conociendo tu empresa"
     },
     "tryAnother": "Probar otro sitio",
-    "unavailable": "La configuración con Mate no está disponible ahora. Puedes crear páginas más adelante desde la wiki."
+    "unavailable": "La configuración con Mate no está disponible ahora. Puedes crear páginas más adelante desde la base de conocimientos."
   }
 }

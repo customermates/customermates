@@ -10,7 +10,7 @@ import { appErrorDetailsInCauseChain } from "@/core/errors/app-errors";
 import { redactUnexpectedError } from "@/core/errors/redact-unexpected-error";
 import { externalizeWikiPageLinks } from "@/features/wiki/wiki-markdown-links";
 
-const RESOURCE_UNAVAILABLE = "Workspace Wiki resource is unavailable.";
+const RESOURCE_UNAVAILABLE = "Knowledge Base resource is unavailable.";
 class WikiResourceUnavailableError extends Error {}
 
 async function wikiResourceBoundary<T>(read: () => Promise<T>): Promise<T> {
@@ -18,7 +18,7 @@ async function wikiResourceBoundary<T>(read: () => Promise<T>): Promise<T> {
     return await read();
   } catch (error) {
     if (!(error instanceof WikiResourceUnavailableError) && !appErrorDetailsInCauseChain(error))
-      Sentry.captureException(redactUnexpectedError(error, "The Workspace Wiki MCP resource could not be read."));
+      Sentry.captureException(redactUnexpectedError(error, "The Knowledge Base MCP resource could not be read."));
 
     throw new Error(RESOURCE_UNAVAILABLE);
   }
@@ -57,7 +57,7 @@ export function registerWikiMcpResources(server: McpServer) {
     "workspace-wiki-catalog",
     "customermates://wiki/catalog?page=1",
     {
-      title: "Workspace Wiki catalog",
+      title: "Knowledge Base catalog",
       description:
         "Permission-checked entry point: the Operating Guide, the procedure index with when-to-use triggers, and the first knowledge catalog page",
       mimeType: "application/json",
@@ -79,8 +79,8 @@ export function registerWikiMcpResources(server: McpServer) {
       list: undefined,
     }),
     {
-      title: "Workspace Wiki catalog page",
-      description: "A paginated Workspace Wiki catalog page",
+      title: "Knowledge Base catalog page",
+      description: "A paginated Knowledge Base catalog page",
       mimeType: "application/json",
     },
     async (uri, variables) => ({
@@ -98,8 +98,8 @@ export function registerWikiMcpResources(server: McpServer) {
     "workspace-wiki-page",
     new ResourceTemplate("customermates://wiki/page/{id}", { list: undefined }),
     {
-      title: "Workspace Wiki page",
-      description: "A permission-checked Wiki page addressed by its stable UUID",
+      title: "Knowledge Base page",
+      description: "A permission-checked Knowledge Base page addressed by its stable UUID",
       mimeType: "text/markdown",
     },
     async (uri, variables) => ({

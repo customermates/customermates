@@ -68,7 +68,7 @@
           "delete": "Ready to permanently delete a dashboard widget"
         },
         "workspace": {
-          "configure": "Ready to permanently delete this Wiki page",
+          "configure": "Ready to permanently delete this Knowledge Base page",
           "settings": "Ready to change workspace settings, including record type names",
           "terminology": "Ready to rename record types for the whole workspace"
         }
@@ -127,7 +127,7 @@
         "tasks": "tasks",
         "terminology": "workspace terminology",
         "widgets": "dashboard widgets",
-        "wiki": "Wiki pages"
+        "wiki": "Knowledge Base pages"
       },
       "resourceSingular": {
         "contacts": "contact",
@@ -138,7 +138,7 @@
         "tasks": "task",
         "terminology": "workspace term",
         "widgets": "dashboard widget",
-        "wiki": "Wiki page"
+        "wiki": "Knowledge Base page"
       },
       "state": {
         "accounts": {
@@ -807,30 +807,30 @@
         "wiki": {
           "data": {
             "create-wiki-page": {
-              "label": "Create a Wiki page",
-              "prompt": "Help me create a new Workspace Wiki page. Ask what company process, product knowledge, support guidance, or voice guidance Mate and connected AI tools need, then create it after I confirm."
+              "label": "Create a Knowledge Base page",
+              "prompt": "Help me create a new Knowledge Base page. Ask what company process, product knowledge, support guidance, or voice guidance Mate and connected AI tools need, then create it after I confirm."
             },
             "wiki-gaps": {
               "label": "Find knowledge gaps",
-              "prompt": "Review our Workspace Wiki and identify the most important missing, outdated, or conflicting knowledge. Do not make changes."
+              "prompt": "Review our Knowledge Base and identify the most important missing, outdated, or conflicting knowledge. Do not make changes."
             },
             "wiki-summary": {
-              "label": "Summarize the Wiki",
-              "prompt": "Summarize our Workspace Wiki, including the key company processes, product knowledge, support guidance, and voice guidance it contains."
+              "label": "Summarize the Knowledge Base",
+              "prompt": "Summarize our Knowledge Base, including the key company processes, product knowledge, support guidance, and voice guidance it contains."
             }
           },
           "empty": {
             "first-wiki-page": {
               "label": "Build from my website",
-              "prompt": "Build my Wiki from my company website."
+              "prompt": "Build my Knowledge Base from my company website."
             },
             "wiki-structure": {
-              "label": "Suggest a Wiki structure",
-              "prompt": "Review my workspace and suggest three to five useful Workspace Wiki pages. Do not create anything yet."
+              "label": "Suggest a Knowledge Base structure",
+              "prompt": "Review my workspace and suggest three to five useful Knowledge Base pages. Do not create anything yet."
             },
             "wiki-tour": {
-              "label": "Learn how the Wiki works",
-              "prompt": "Explain how the Workspace Wiki is used by Mate, routines, and connected AI tools, including links and permissions. Do not make changes."
+              "label": "Learn how the Knowledge Base works",
+              "prompt": "Explain how the Knowledge Base is used by Mate, routines, and connected AI tools, including links and permissions. Do not make changes."
             }
           }
         }
@@ -1338,11 +1338,11 @@
       "widgetNotFound": "Widget ID not found or not accessible.",
       "widgetTaskCanOnlyGroupByCustomColumn": "Tasks can only be grouped by custom columns, not by element types.",
       "widgetWeightedValueNotAllowedForService": "Weighted value aggregation is not allowed for Service element type.",
-      "wikiGuideExists": "This Wiki already has an Operating Guide. Update the existing guide instead.",
-      "wikiHomepageSetupStartFailed": "Mate could not start the Wiki setup. Please try again.",
-      "wikiNotEmpty": "This action requires an empty Wiki.",
-      "wikiPageConflict": "This Wiki page changed after you opened it. Reload it and try again.",
-      "wikiPageNotFound": "Wiki page not found or not accessible.",
+      "wikiGuideExists": "This Knowledge Base already has an Operating Guide. Update the existing guide instead.",
+      "wikiHomepageSetupStartFailed": "Mate could not start the Knowledge Base setup. Please try again.",
+      "wikiNotEmpty": "This action requires an empty Knowledge Base.",
+      "wikiPageConflict": "This Knowledge Base page changed after you opened it. Reload it and try again.",
+      "wikiPageNotFound": "Knowledge Base page not found or not accessible.",
       "wikiProcedureNeedsSteps": "A procedure needs numbered steps.",
       "wikiWhenToUseRequired": "A procedure needs a short description of when to use it."
     },
@@ -1439,9 +1439,9 @@
         "updated": "Webhook Updated"
       },
       "wiki_page": {
-        "created": "Wiki Page Created",
-        "deleted": "Wiki Page Deleted",
-        "updated": "Wiki Page Updated"
+        "created": "Knowledge Base Page Created",
+        "deleted": "Knowledge Base Page Deleted",
+        "updated": "Knowledge Base Page Updated"
       }
     },
     "filters": {
@@ -2890,7 +2890,7 @@
     "search": "Search",
     "settings": "Settings",
     "subscription": "Subscription",
-    "wiki": "Wiki",
+    "wiki": "Knowledge Base",
     "workspace": "Workspace"
   },
   "NotFoundPage": {
@@ -3050,21 +3050,21 @@
     "progressLabel": "Onboarding progress",
     "steps": {
       "ai": {
-        "subtitle": "Choose one to connect now. You can add the others later.",
-        "title": "Connect your AI"
+        "subtitle": "Choose an AI tool to connect with your workspace and its company knowledge. Connect one now, add others later, or skip this step.",
+        "title": "Connect the AI you already use"
       },
       "invite": {
-        "subtitle": "Share a link or send email invitations.",
-        "title": "Invite your team"
+        "subtitle": "Invite colleagues with a shared link or individual email invitations. You can also continue on your own and invite people later.",
+        "title": "Bring your team into the picture"
       },
       "profile": {
-        "invitedSubtitle": "Complete your profile to request access to the invited workspace.",
-        "subtitle": "Tell us who you are so we can set up your workspace.",
-        "title": "Your profile"
+        "invitedSubtitle": "Complete your profile to request access to the workspace you were invited to.",
+        "subtitle": "Add your name and country so your teammates can recognize you. These details become your profile and can be updated later.",
+        "title": "Make this workspace yours"
       },
       "wiki": {
-        "subtitle": "Add your company website. Mate turns what it can verify into editable Wiki pages for Mate and the AI tools you connect.",
-        "title": "Let’s give Mate some context"
+        "subtitle": "Start with your company website. Mate turns what it can verify into shared, editable Knowledge Base pages, with sources and gaps for you to review.",
+        "title": "Give Mate your company knowledge"
       }
     },
     "wiki": {
@@ -3331,7 +3331,7 @@
       "services": "Services",
       "tasks": "Tasks",
       "users": "Users & Roles",
-      "wiki": "Workspace Wiki"
+      "wiki": "Knowledge Base"
     },
     "systemAlert": "This is a system role and cannot be edited or deleted.",
     "systemDescription": "Full access to all features and settings. Cannot be modified or deleted.",
@@ -3742,8 +3742,8 @@
       "publish": "Publish"
     },
     "emptyBody": "Give Mate and connected AI tools the company knowledge, processes, and guidance they need.",
-    "emptyBodyReadOnly": "No Wiki pages have been created yet.",
-    "emptyTitle": "Your Workspace Wiki is empty",
+    "emptyBodyReadOnly": "No Knowledge Base pages have been created yet.",
+    "emptyTitle": "Your Knowledge Base is empty",
     "kind": {
       "guide": "Operating Guide",
       "guideHelp": "Standing guidance every AI reads first. Mate and connected AI tools always load about the first {bytes, number} bytes. One per workspace.",
@@ -3753,7 +3753,7 @@
       "procedure": "Procedure",
       "procedureHelp": "Numbered steps Mate and connected AI tools follow when a request matches when to use it."
     },
-    "linkPage": "Link to a Wiki page…",
+    "linkPage": "Link to a Knowledge Base page…",
     "loadFailed": "Pages could not be loaded.",
     "newPage": "New page",
     "next": "Next",
@@ -3761,7 +3761,7 @@
     "onThisPage": "On this page",
     "page": "Page {current} of {total}",
     "pageActions": "Page actions",
-    "pagesLabel": "Wiki pages",
+    "pagesLabel": "Knowledge Base pages",
     "pageTitle": "Page title",
     "previous": "Previous",
     "reload": "Reload page",
@@ -3779,16 +3779,16 @@
     }
   },
   "WikiSetup": {
-    "agentPrompt": "Learn about our company from {homepage} and create our Wiki pages.",
+    "agentPrompt": "Learn about our company from {homepage} and create our Knowledge Base pages.",
     "continue": "Continue",
     "continueBackground": "Continue while Mate works",
-    "conversationTitle": "Set up Workspace Wiki",
+    "conversationTitle": "Set up Knowledge Base",
     "crawlProgress": {
       "discovering": "Finding website pages",
       "fetching": "Reading website pages",
-      "importing": "Adding source pages to the Wiki",
+      "importing": "Adding source pages to the Knowledge Base",
       "queued": "Preparing the import",
-      "synthesizing": "Starting Mate to write Wiki pages",
+      "synthesizing": "Starting Mate to write Knowledge Base pages",
       "title": "Website import progress"
     },
     "generated": {
@@ -3797,30 +3797,30 @@
     },
     "homepageLabel": "Company website",
     "homepagePlaceholder": "https://example.com",
-    "languageDescription": "Defaults to your browser language. Existing Wiki pages determine the language when available.",
-    "languageLabel": "Wiki language",
+    "languageDescription": "Defaults to your browser language. Existing Knowledge Base pages determine the language when available.",
+    "languageLabel": "Knowledge Base language",
     "openTask": "Open Mate task",
     "progressLoadFailed": "Mate’s progress could not be loaded here. Try again.",
     "progressLoading": "Loading Mate’s progress",
-    "start": "Build my Wiki",
+    "start": "Build my Knowledge Base",
     "status": {
-      "completedBodyOnboarding": "Mate created your starter pages with cited website facts. You can review them later in the Wiki and confirm anything marked as a gap.",
-      "completedExistingBody": "Your Wiki already contains pages. Continue onboarding or review the existing content.",
-      "completedTitle": "Your starter Wiki is ready",
-      "failedBody": "Setup stopped before all pages were ready. Any pages already created are still available. You can continue and review them in the Wiki.",
+      "completedBodyOnboarding": "Mate created your starter pages with cited website facts. You can review them later in the Knowledge Base and confirm anything marked as a gap.",
+      "completedExistingBody": "Your Knowledge Base already contains pages. Continue onboarding or review the existing content.",
+      "completedTitle": "Your starter Knowledge Base is ready",
+      "failedBody": "Setup stopped before all pages were ready. Any pages already created are still available. You can continue and review them in the Knowledge Base.",
       "failedBodyBlocked": "{domain} does not allow automated reading in its robots.txt, so nothing was imported. You can add pages yourself instead.",
       "failedBodyUnavailable": "Mate could not read {domain}. Check the address, or continue and add pages later.",
       "failedTitle": "Setup did not finish",
       "noContentBody": "Review the Mate task for details. You can try another website or continue and add pages later.",
-      "noContentTitle": "No Wiki pages were created",
+      "noContentTitle": "No Knowledge Base pages were created",
       "readingBody": "Mate has read {fetched} of {total} pages from {domain}.",
-      "workingBody": "Mate is reading {domain}, checking useful pages, and turning sourced information into your Wiki. You can follow the progress here or continue to the next step.",
-      "workingBodyNoTask": "Mate is reading {domain} and turning sourced information into your Wiki. You can continue to the next step while it works.",
-      "workingBodyNoTaskWiki": "Mate is reading {domain} and building the Wiki. You can return later to see the finished pages.",
-      "workingBodyWiki": "Mate is reading {domain}, checking useful pages, and turning sourced information into your Wiki. You can keep this task open or return later.",
+      "workingBody": "Mate is reading {domain}, checking useful pages, and turning sourced information into your Knowledge Base. You can follow the progress here or continue to the next step.",
+      "workingBodyNoTask": "Mate is reading {domain} and turning sourced information into your Knowledge Base. You can continue to the next step while it works.",
+      "workingBodyNoTaskWiki": "Mate is reading {domain} and building the Knowledge Base. You can return later to see the finished pages.",
+      "workingBodyWiki": "Mate is reading {domain}, checking useful pages, and turning sourced information into your Knowledge Base. You can keep this task open or return later.",
       "workingTitle": "Mate is learning about your company"
     },
     "tryAnother": "Try another website",
-    "unavailable": "Mate setup is not available right now. You can create Wiki pages later in the Wiki."
+    "unavailable": "Mate setup is not available right now. You can create Knowledge Base pages later in the Knowledge Base."
   }
 }

@@ -347,7 +347,7 @@ describe("Workspace Wiki admission bootstrap", () => {
         wikiHomepageSetup: false,
         webSearchEnabled: true,
       });
-      expect(systemPrompt.stable).toContain("follow useful Wiki links");
+      expect(systemPrompt.stable).toContain("follow useful Knowledge Base links");
       expect(systemPrompt.stable).toContain("Report gaps or conflicts");
       expect(systemPrompt.stable).not.toContain("General workspace page");
       const execution = buildAgentProviderContext(systemPrompt, payload.messages, [], payload.wikiCatalog);
@@ -653,7 +653,7 @@ describe("Workspace Wiki admission bootstrap", () => {
       webSearchEnabled: true,
     });
     expect(state.repo.createAgentConversationForRun).toHaveBeenCalledWith(
-      expect.objectContaining({ title: "Set up Workspace Wiki" }),
+      expect.objectContaining({ title: "Set up Knowledge Base" }),
     );
   });
 

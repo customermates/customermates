@@ -182,7 +182,7 @@ export class WikiWebsiteCrawlService extends UserAccessor {
 
   private async load(crawlId: string) {
     const crawl = await this.repo.getCrawl(crawlId);
-    if (!crawl) throw new Error("Wiki website crawl not found.");
+    if (!crawl) throw new Error("Knowledge Base website crawl not found.");
     return crawl;
   }
 

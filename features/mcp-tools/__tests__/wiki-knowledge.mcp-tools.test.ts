@@ -412,7 +412,7 @@ describe("read-only Wiki search and fetch compatibility", () => {
 
     calls.fetchRecord.mockClear();
     const withOffset = await fetchTool.execute({ id: `record:contact:${id}`, offset: 5 });
-    expect(mcpToolResultText(withOffset)).toContain("offset is supported only for Workspace Wiki results.");
+    expect(mcpToolResultText(withOffset)).toContain("offset is supported only for Knowledge Base results.");
     expect(calls.fetchRecord).not.toHaveBeenCalled();
     expect(calls.get).not.toHaveBeenCalled();
   });

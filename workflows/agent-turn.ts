@@ -439,7 +439,7 @@ async function authorizedWikiCatalog(payload: AgentTurnWorkflowPayload): Promise
     try {
       if (getTenantUser().companyId !== payload.companyId) return null;
       const result = await getGetWikiPagesInteractor().invoke({ page: 1, pageSize: 5 });
-      if (!result.ok) throw new Error("Workspace Wiki catalog could not be authorized.");
+      if (!result.ok) throw new Error("Knowledge Base catalog could not be authorized.");
       return payload.wikiCatalog ?? null;
     } catch (error) {
       if (appErrorDetails(error)?.code === AppErrorCode.permissionDenied) return null;
@@ -1091,7 +1091,7 @@ export async function runAgentTurn(payload: AgentTurnWorkflowPayload): Promise<v
           return {
             ok: false,
             result:
-              "Website import is not available: it needs Wiki create access and an empty Wiki, or a help centre that an earlier import listed. Nothing was started.",
+              "Website import is not available: it needs Knowledge Base create access and an empty Knowledge Base, or a help centre that an earlier import listed. Nothing was started.",
           };
         }
         const homepage = userWebsiteHomepage(
@@ -1111,7 +1111,7 @@ export async function runAgentTurn(payload: AgentTurnWorkflowPayload): Promise<v
         return {
           ok: false,
           result:
-            "Website Wiki setup is no longer available: it needs Wiki create access and this user's recent website import. Nothing was changed.",
+            "Website Knowledge Base setup is no longer available: it needs Knowledge Base create access and this user's recent website import. Nothing was changed.",
         };
       }
       if (

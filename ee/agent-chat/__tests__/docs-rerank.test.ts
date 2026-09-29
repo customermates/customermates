@@ -314,7 +314,7 @@ describe("section re-rank for documentation and the Workspace Wiki", () => {
     };
 
     expect(value).toEqual({ order: [1, 0], abstained: false });
-    expect(sent.questions.best.instructions).toContain("searched the Workspace Wiki");
+    expect(sent.questions.best.instructions).toContain("searched the Knowledge Base");
     expect(docsRankSpec(candidates, "wiki").id).toBe("wiki-rank");
     expect(docsRankSpec(candidates).id).toBe("docs-rank");
     expect(charges).toEqual([expect.objectContaining({ use: "wiki_rerank", model: "jev", answered: true })]);

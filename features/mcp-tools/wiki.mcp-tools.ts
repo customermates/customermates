@@ -86,7 +86,7 @@ const ManageWikiPagesSchema = z.object({
   offset: z.coerce.number().int().min(0).optional().describe("Hit offset or prior nextOffset."),
   page: mcpPage(),
   pages: z.array(PageInputSchema).min(1).max(5).optional().describe("Created atomically."),
-  requireEmpty: z.boolean().optional().describe("Only into an empty Wiki."),
+  requireEmpty: z.boolean().optional().describe("Only into an empty Knowledge Base."),
   expectedUpdatedAt: z.string().optional().describe("updatedAt from a prior read."),
   title: z.string().optional().describe("New title."),
   markdown: z.string().optional().describe("New Markdown."),
@@ -277,9 +277,9 @@ function wikiSearchResult(result: WikiPageSearchResult) {
 
 export const manageWikiPagesTool = {
   name: "manage_wiki_pages",
-  title: "Manage Workspace Wiki pages",
+  title: "Manage Knowledge Base pages",
   description:
-    "Workspace Wiki of company facts, processes, voice and support guidance. " +
+    "Knowledge Base of company facts, processes, voice and support guidance. " +
     "kind: guide = the one Operating Guide; procedure = numbered steps + whenToUse; default knowledge. " +
     "list: 5 per page, guide and procedures first; search: follow hasMore to continue; total is a lower bound unless totalIsExact. Returns snippets and section offsets, plus didYouMean when a misspelled word was corrected. " +
     "get: one Markdown chunk (outline at 0); repeat with nextOffset until null; restart at 0 if updatedAt changes. " +

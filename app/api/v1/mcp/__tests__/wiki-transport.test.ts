@@ -171,7 +171,7 @@ describe("Wiki MCP transport", () => {
     expect(initialization.capabilities).toHaveProperty("resources");
     expect(initialization.instructions).toContain("call search");
     expect(initialization.instructions).not.toContain("get_record_schema");
-    expect(initialization.instructions).not.toContain("manage_wiki_pages lists and searches Wiki pages");
+    expect(initialization.instructions).not.toContain("manage_wiki_pages lists and searches Knowledge Base pages");
 
     const listed = await rpc(handler, requestBody("resources/list", 2), sessionId);
     expect(listed.data?.result).toMatchObject({
@@ -346,11 +346,11 @@ describe("Wiki MCP transport", () => {
     );
 
     expect(result.data?.error).toBeDefined();
-    expect(result.text).toContain("Workspace Wiki resource is unavailable");
+    expect(result.text).toContain("Knowledge Base resource is unavailable");
     expect(result.text).not.toContain("database-password");
     expect(sentry.captureException).toHaveBeenCalledOnce();
     const captured = sentry.captureException.mock.calls[0]?.[0] as Error;
-    expect(captured.message).toBe("The Workspace Wiki MCP resource could not be read.");
+    expect(captured.message).toBe("The Knowledge Base MCP resource could not be read.");
     expect(captured.stack).not.toContain("must-not-leak");
   });
 
@@ -367,7 +367,7 @@ describe("Wiki MCP transport", () => {
     );
 
     expect(result.data?.error).toBeDefined();
-    expect(result.text).toContain("Workspace Wiki resource is unavailable");
+    expect(result.text).toContain("Knowledge Base resource is unavailable");
     expect(sentry.captureException).not.toHaveBeenCalled();
   });
 
@@ -383,7 +383,7 @@ describe("Wiki MCP transport", () => {
     );
 
     expect(result.data?.error).toBeDefined();
-    expect(result.text).toContain("Workspace Wiki resource is unavailable");
+    expect(result.text).toContain("Knowledge Base resource is unavailable");
     expect(calls.catalog).not.toHaveBeenCalled();
     expect(sentry.captureException).not.toHaveBeenCalled();
   });

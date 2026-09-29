@@ -30,7 +30,7 @@ function completeWikiLinkBoundary(markdown: string, requestedOffset: number, max
 
 export class WikiChunkSizeError extends Error {
   constructor() {
-    super("Wiki content cannot fit in one response without splitting a link or Unicode character.");
+    super("Knowledge Base content cannot fit in one response without splitting a link or Unicode character.");
     this.name = "WikiChunkSizeError";
   }
 }

@@ -135,7 +135,9 @@ describe("system prompt", () => {
     expect(prompt).toContain("inbox triage including moving email threads");
     expect(prompt).toContain("routines (listing, creating, updating, pausing, running now)");
     expect(prompt).toContain("pass enabled false unless the user explicitly asked to activate it");
-    expect(prompt).toContain("deleting records, a Wiki page, a saved view, custom field, widget, webhook, or routine");
+    expect(prompt).toContain(
+      "deleting records, a Knowledge Base page, a saved view, custom field, widget, webhook, or routine",
+    );
   });
 
   it("keeps Ask AI view targeting and navigation policy on the chat surface", () => {

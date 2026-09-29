@@ -211,7 +211,7 @@ describe("agent experience contract", () => {
       risk: "write",
       affectedResources: ["wiki"],
     });
-    expect(agentActivityCopy(wikiCreate, enT).running).toBe("Creating 5 Wiki pages");
+    expect(agentActivityCopy(wikiCreate, enT).running).toBe("Creating 5 Knowledge Base pages");
     expect(JSON.stringify(wikiCreate)).not.toMatch(/Private page/);
   });
 

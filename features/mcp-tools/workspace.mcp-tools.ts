@@ -119,14 +119,14 @@ export const getWorkspaceContextTool = {
   name: "get_workspace_context",
   title: "Get workspace context",
   description:
-    "Use this when starting a session: returns the current user, company, role catalog with permissions, connected messaging accounts, and the Wiki in one call. " +
+    "Use this when starting a session: returns the current user, company, role catalog with permissions, connected messaging accounts, and the Knowledge Base in one call. " +
     "On the first page wiki.guide is the Operating Guide (follow it; nextOffset marks where the full page continues) and wiki.procedures lists procedures with whenToUse (read the matching one before acting). " +
     "wiki.items are knowledge pages, ten per page in creation order, each with id, title, url, timestamps and a short opening excerpt, never the complete page. " +
-    "Pass wiki.nextPage as wikiPage to continue. wiki is omitted without Wiki Read. " +
+    "Pass wiki.nextPage as wikiPage to continue. wiki is omitted without Knowledge Base Read. " +
     WORKSPACE_CONTEXT_FIELDS_DESCRIPTION,
   annotations: { readOnlyHint: true, destructiveHint: false, idempotentHint: true, openWorldHint: false },
   inputSchema: z.object({
-    wikiPage: mcpPage().describe("Wiki catalog page, ten entries per page (default 1)"),
+    wikiPage: mcpPage().describe("Knowledge Base catalog page, ten entries per page (default 1)"),
   }),
   outputSchema: WorkspaceContextOutputSchema,
   execute: ({ wikiPage = 1 }: { wikiPage?: number } = {}) => workspaceContext(wikiPage),

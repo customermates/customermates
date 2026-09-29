@@ -16,9 +16,9 @@ export function importWebsiteTool(locale: string | undefined) {
   const appLocale = isAppLocale(locale) ? locale : DEFAULT_LOCALE;
   return {
     name: WIKI_WEBSITE_IMPORT_TOOL_NAME,
-    title: "Import a website into the Workspace Wiki",
+    title: "Import a website into the Knowledge Base",
     description:
-      "Start importing the company website the user named into the Wiki, or a help centre on another site that an earlier import listed. The import runs in the background: it reads the site politely, uses the existing Wiki’s dominant language or the conversation language for an empty Wiki, imports matching help, pricing and policy pages word for word, and translates or summarizes other sources into that same language. Initial setup drafts an Operating Guide and procedures for review; help-centre additions create knowledge pages only.",
+      "Start importing the company website the user named into the Knowledge Base, or a help centre on another site that an earlier import listed. The import runs in the background: it reads the site politely, uses the existing Knowledge Base’s dominant language or the conversation language for an empty Knowledge Base, imports matching help, pricing and policy pages word for word, and translates or summarizes other sources into that same language. Initial setup drafts an Operating Guide and procedures for review; help-centre additions create knowledge pages only.",
     annotations: { readOnlyHint: false, destructiveHint: false, idempotentHint: false, openWorldHint: true },
     inputSchema: ImportWebsiteSchema,
     outputSchema: z.looseObject({}),
@@ -42,7 +42,7 @@ export function importWebsiteTool(locale: string | undefined) {
             homepage: started.homepage,
             domain: started.domain,
             next: extend
-              ? "The help centre is being imported into the Wiki’s language. Matching source pages appear first; Mate then writes any translated knowledge pages."
+              ? "The help centre is being imported into the Knowledge Base’s language. Matching source pages appear first; Mate then writes any translated knowledge pages."
               : "The website is being read in the background. Matching-language help, pricing and policy pages appear first; Mate then writes translated or summarized knowledge, an Operating Guide and procedures in a separate setup task.",
           }),
       );

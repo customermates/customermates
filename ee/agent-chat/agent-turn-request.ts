@@ -40,7 +40,7 @@ export type AgentTurnRequestInput = {
 
 export class WikiHomepageSetupAlreadyRunningError extends Error {
   constructor() {
-    super("A Workspace Wiki homepage setup is already running.");
+    super("A Knowledge Base homepage setup is already running.");
     this.name = "WikiHomepageSetupAlreadyRunningError";
   }
 }

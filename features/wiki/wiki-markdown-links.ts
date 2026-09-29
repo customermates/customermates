@@ -27,7 +27,7 @@ function visit(node: MarkdownNode, callback: (node: MarkdownNode) => void) {
 }
 
 function boundedLinkLabel(value: string | undefined): string {
-  const label = value?.trim() || "Wiki page";
+  const label = value?.trim() || "Knowledge Base page";
   if (label.length <= WIKI_LINK_LABEL_MAX_LENGTH) return label;
   return `${label
     .slice(0, WIKI_LINK_LABEL_MAX_LENGTH - 1)

@@ -31,7 +31,7 @@ export function docsRerankChoice(result: ClassifierResult | null): number | null
 
 const RANK_INSTRUCTIONS: Record<RetrievalCorpus, string> = {
   docs: "The user wrote `latest_user_message` (in any language) and the assistant searched the documentation with `agent_query`. Which documentation section best answers what the user needs? Some options show only a page and heading. If none answers it fully, pick the closest one; choose none only if no section answers it at all.",
-  wiki: "The user wrote `latest_user_message` (in any language) and the assistant searched the Workspace Wiki with `agent_query`. Which Wiki section best answers what the user needs? If none answers it fully, pick the closest one; choose none only if no section answers it at all.",
+  wiki: "The user wrote `latest_user_message` (in any language) and the assistant searched the Knowledge Base with `agent_query`. Which Knowledge Base section best answers what the user needs? If none answers it fully, pick the closest one; choose none only if no section answers it at all.",
 };
 
 export function docsRankSpec(candidates: readonly RankableSection[], corpus: RetrievalCorpus = "docs"): ClassifierSpec {

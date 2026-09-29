@@ -102,9 +102,9 @@ export const WikiCrawlSynthesisCreateSchema = z.object({
 export function createWikiFromCrawlTool(_locale: string | undefined, crawlId: string) {
   return {
     name: "manage_wiki_pages",
-    title: "Create Workspace Wiki pages from the website",
+    title: "Create Knowledge Base pages from the website",
     description:
-      "Create one to five Wiki pages per call from stored website pages. kind knowledge summarises facts; guide is the one Operating Guide draft; procedure is a draft with whenToUse and numbered steps. Cite sourceIds; the server adds the Sources list with fetch dates and the gaps list. Guides and procedures stay drafts until a person publishes them.",
+      "Create one to five Knowledge Base pages per call from stored website pages. kind knowledge summarises facts; guide is the one Operating Guide draft; procedure is a draft with whenToUse and numbered steps. Cite sourceIds; the server adds the Sources list with fetch dates and the gaps list. Guides and procedures stay drafts until a person publishes them.",
     annotations: {
       readOnlyHint: false,
       destructiveHint: false,

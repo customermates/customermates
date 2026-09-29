@@ -72,41 +72,53 @@ const SearchOutputSchema = z.object({
       id: z
         .string()
         .describe("Result id, pass to fetch: 'wiki:<uuid>', 'record:<entity>:<uuid>', or 'doc:<locale>:<slug>'"),
-      title: z.string().describe("Display name of the Wiki page, record, or product docs page"),
+      title: z.string().describe("Display name of the Knowledge Base page, record, or product docs page"),
       url: z.string().describe("Canonical app or docs URL"),
-      snippet: z.string().optional().describe("Wiki excerpt around the matched terms, which are wrapped in **"),
-      section: z.string().optional().describe("Heading path of the matched Wiki section"),
+      snippet: z
+        .string()
+        .optional()
+        .describe("Knowledge Base excerpt around the matched terms, which are wrapped in **"),
+      section: z.string().optional().describe("Heading path of the matched Knowledge Base section"),
       offset: z
         .number()
         .int()
         .nonnegative()
         .optional()
-        .describe("Pass to fetch as offset to open the Wiki page at the matched section"),
+        .describe("Pass to fetch as offset to open the Knowledge Base page at the matched section"),
     }),
   ),
   didYouMean: z
     .array(z.string())
     .optional()
-    .describe("The corrected query the Wiki results were found with, when a misspelled word matched no Wiki page"),
+    .describe(
+      "The corrected query the Knowledge Base results were found with, when a misspelled word matched no Knowledge Base page",
+    ),
 });
 
 const FetchOutputSchema = z.object({
   id: z.string().describe("The canonical result id"),
-  title: z.string().describe("Display name of the Wiki page, record, or docs page"),
+  title: z.string().describe("Display name of the Knowledge Base page, record, or docs page"),
   text: z
     .string()
-    .describe("Content. Wiki results return one bounded Markdown chunk; records and product docs return full content"),
+    .describe(
+      "Content. Knowledge Base results return one bounded Markdown chunk; records and product docs return full content",
+    ),
   url: z.string().describe("Canonical app or docs URL; its origin completes the relative app routes in text"),
   metadata: z.record(z.string(), z.string()).optional().describe("Extra context such as entity type or locale"),
-  offset: z.number().int().nonnegative().optional().describe("Wiki chunk start offset"),
+  offset: z.number().int().nonnegative().optional().describe("Knowledge Base chunk start offset"),
   nextOffset: z
     .number()
     .int()
     .nonnegative()
     .nullable()
     .optional()
-    .describe("Next Wiki chunk offset, or null at the end"),
-  totalChars: z.number().int().nonnegative().optional().describe("Total characters in the externalized Wiki Markdown"),
+    .describe("Next Knowledge Base chunk offset, or null at the end"),
+  totalChars: z
+    .number()
+    .int()
+    .nonnegative()
+    .optional()
+    .describe("Total characters in the externalized Knowledge Base Markdown"),
   outlineTruncated: z.boolean().optional().describe("Some headings were omitted to keep the response bounded."),
   outline: z
     .array(
@@ -117,7 +129,7 @@ const FetchOutputSchema = z.object({
       }),
     )
     .optional()
-    .describe("At offset 0 of a multi-chunk Wiki page: its H1-H3 headings with the offset each starts at"),
+    .describe("At offset 0 of a multi-chunk Knowledge Base page: its H1-H3 headings with the offset each starts at"),
 });
 
 async function fetchRecord(entity: Entity, key: string) {
@@ -262,9 +274,9 @@ export const searchTool = {
   name: "search",
   title: "Search workspace knowledge",
   description:
-    "Required by ChatGPT company-knowledge and deep-research connectors. Returns relevant Workspace Wiki pages, CRM records, and product documentation in one list, without totals or filters. " +
-    "Wiki results match the query's words in full text and, with AI credits, also by meaning, and carry a snippet with the matched terms in **, the matched section, and its offset: fetch with that offset to open at the answer, then follow linked Wiki pages. " +
-    "A misspelled word that matches no Wiki page is corrected from the Wiki's own words, and didYouMean names the corrected query; when no Wiki page fits, search again with other words. " +
+    "Required by ChatGPT company-knowledge and deep-research connectors. Returns relevant Knowledge Base pages, CRM records, and product documentation in one list, without totals or filters. " +
+    "Knowledge Base results match the query's words in full text and, with AI credits, also by meaning, and carry a snippet with the matched terms in **, the matched section, and its offset: fetch with that offset to open at the answer, then follow linked Knowledge Base pages. " +
+    "A misspelled word that matches no Knowledge Base page is corrected from the Knowledge Base's own words, and didYouMean names the corrected query; when no Knowledge Base page fits, search again with other words. " +
     "For focused CRM or product-doc queries prefer search_records or list_records, which carry totals and filters, or search_docs. " +
     "App routes in the docs text that fetch returns, such as `/company/subscription`, are relative: for a full link, put the route after the origin of the result's url; that origin is the instance's configured BASE_URL.",
   annotations: {
@@ -278,7 +290,7 @@ export const searchTool = {
       .string()
       .trim()
       .min(1)
-      .describe("Search terms for workspace Wiki content, CRM record names, and product documentation"),
+      .describe("Search terms for workspace Knowledge Base content, CRM record names, and product documentation"),
   }),
   outputSchema: SearchOutputSchema,
   execute: async ({ query }: { query: string }) => {
@@ -325,9 +337,9 @@ export const fetchTool = {
   name: "fetch",
   title: "Read workspace knowledge",
   description:
-    "Read a result from search, including Workspace Wiki Markdown by wiki:<uuid>. " +
-    "Wiki pages may also be fetched by their exact relative, localized, or same-origin absolute Wiki URL. " +
-    "Wiki content is returned in bounded chunks with absolute internal links and a source URL for citations; pass nextOffset back as offset until it is null. If updatedAt differs from the previous chunk, restart at offset 0. Wiki Read is required for Wiki pages. " +
+    "Read a result from search, including Knowledge Base Markdown by wiki:<uuid>. " +
+    "Knowledge Base pages may also be fetched by their exact relative, localized, or same-origin absolute Knowledge Base URL. " +
+    "Knowledge Base content is returned in bounded chunks with absolute internal links and a source URL for citations; pass nextOffset back as offset until it is null. If updatedAt differs from the previous chunk, restart at offset 0. Knowledge Base Read is required for Knowledge Base pages. " +
     "Start at a search result's offset to land on the matched section; at offset 0 a multi-chunk page also returns an outline of its headings with their offsets. " +
     "Compatible with ChatGPT company knowledge and deep research. For focused CRM or product-documentation retrieval, prefer get_records or get_docs_page. " +
     "For a docs result, app routes in text, such as `/company/subscription`, are relative: for a full link, put the route after the origin of url; that origin is the instance's configured BASE_URL.",
@@ -347,7 +359,9 @@ export const fetchTool = {
       .int()
       .min(0)
       .default(0)
-      .describe("For Wiki results, the offset from search or the nextOffset from the previous fetch; start at 0"),
+      .describe(
+        "For Knowledge Base results, the offset from search or the nextOffset from the previous fetch; start at 0",
+      ),
   }),
   outputSchema: FetchOutputSchema,
   execute: async ({ id, offset = 0 }: { id: string; offset?: number }) => {
@@ -363,13 +377,13 @@ export const fetchTool = {
 
     const [kind, qualifier, ...rest] = id.split(":");
     const key = rest.join(":");
-    if (offset !== 0) return mcpMessageFailure("offset is supported only for Workspace Wiki results.");
+    if (offset !== 0) return mcpMessageFailure("offset is supported only for Knowledge Base results.");
 
     if (kind === "record" && qualifier && isEntity(qualifier) && key.length > 0) return fetchRecord(qualifier, key);
     if (kind === "doc" && isContentLocale(qualifier) && key.length > 0) return fetchDoc(qualifier, key);
     return mcpMessageFailure(
       `Unknown id "${id}". Expected "record:<entity>:<id>" with entity one of contact, organization, deal, service, task, ` +
-        `"wiki:<uuid>" or an exact Customermates Wiki URL, or "doc:<locale>:<slug>" with locale ${CONTENT_LOCALES.join(" or ")}.`,
+        `"wiki:<uuid>" or an exact Customermates Knowledge Base URL, or "doc:<locale>:<slug>" with locale ${CONTENT_LOCALES.join(" or ")}.`,
     );
   },
 };

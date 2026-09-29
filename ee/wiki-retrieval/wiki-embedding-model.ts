@@ -59,7 +59,7 @@ export async function embedWikiTexts(
   options: { maxRetries?: number } = {},
 ): Promise<{ vectors: number[][]; charge: AgentRetrievalCharge }> {
   if (texts.length === 0 || texts.length > WIKI_EMBEDDING_BATCH_SIZE)
-    throw new Error("Wiki embedding batch size is invalid.");
+    throw new Error("Knowledge Base embedding batch size is invalid.");
   const result = await embedMany({
     model: WIKI_EMBEDDING_MODEL,
     values: texts,
@@ -68,7 +68,7 @@ export async function embedWikiTexts(
     providerOptions: wikiEmbeddingProviderOptions(kind),
   });
   if (result.embeddings.some((vector) => vector.length !== WIKI_EMBEDDING_DIMENSIONS))
-    throw new Error("Wiki embedding dimensions are invalid.");
+    throw new Error("Knowledge Base embedding dimensions are invalid.");
   return {
     vectors: result.embeddings,
     charge: wikiEmbeddingCharge(
