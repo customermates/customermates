@@ -3552,7 +3552,7 @@
     "manageWithLemonSqueezy": "Gestionar con Lemon Squeezy",
     "picker": {
       "connectedAccountsPerUser": "{accounts, plural, one {# cuenta conectada por usuario} other {# cuentas conectadas por usuario}}",
-      "creditNote": "Los créditos de IA alojada se renuevan cada mes; los créditos no utilizados no se acumulan. Cada consulta se cobra por su coste exacto del proveedor y se muestra con un decimal. Los clientes MCP externos utilizan tu propio proveedor de IA y no consumen estos créditos.",
+      "creditNote": "Los créditos de IA alojada se renuevan cada mes; los créditos no utilizados no se acumulan. Cada consulta se cobra por su coste exacto del proveedor y se muestra con un decimal. Los clientes MCP externos facturan el uso del modelo a través de tu propio proveedor de IA. Las búsquedas semánticas del servidor pueden consumir créditos de IA alojada.",
       "features": {
         "business": ["Todo lo de Pro", "Cuentas compartidas y soporte prioritario"],
         "pro": ["Todo lo de Starter", "Bandeja de entrada unificada"],
@@ -3799,6 +3799,8 @@
       "noContentBody": "Revisa la tarea de Mate para ver los detalles. Puedes probar con otro sitio web o continuar y añadir páginas más tarde.",
       "noContentTitle": "No se crearon páginas de la wiki",
       "readingBody": "Mate está leyendo {fetched} de {total} páginas de {domain}. Las páginas de ayuda, precios y políticas se importan tal como están escritas.",
+      "refreshFailedBody": "Tus páginas existentes siguen disponibles. Abre las acciones de la página y selecciona « Actualizar desde el sitio web » para volver a intentarlo.",
+      "refreshFailedTitle": "La actualización del sitio no terminó",
       "workingBody": "Mate está leyendo {domain}, comprobando páginas útiles e incorporando información con fuentes a tu wiki. Puedes seguir el progreso aquí o continuar con el siguiente paso.",
       "workingBodyNoTask": "Mate está leyendo {domain} e incorporando información con fuentes a tu wiki. Puedes continuar con el siguiente paso mientras trabaja.",
       "workingBodyNoTaskWiki": "Mate está leyendo {domain} y creando la wiki. Puedes volver más tarde para ver las páginas terminadas.",

@@ -45,7 +45,10 @@ if (sourceDatabaseUrl) {
   delete (globalThis as { prisma?: unknown }).prisma;
 }
 
-const hostedAiConfig = vi.hoisted(() => ({ paused: false, cap: null as bigint | null }));
+const hostedAiConfig = vi.hoisted(() => ({
+  paused: false,
+  cap: null as bigint | null,
+}));
 
 vi.mock("@/env", () => ({
   env: {
@@ -158,6 +161,7 @@ beforeEach(async () => {
   if (!isolatedDatabaseUrl) return;
   await runWithoutTenant(() => prisma.agentUsageEvent.deleteMany());
   await runWithoutTenant(() => prisma.hostedAiPlatformUsage.deleteMany());
+  await prisma.$executeRaw`DELETE FROM "HostedAiPlatformReservation"`;
 });
 
 afterAll(async () => {
@@ -234,13 +238,77 @@ describeDatabase(
           }),
         ),
       ).resolves.toMatchObject({
-        _sum: { reservedMicrocents: BigInt(competingReservationCredits) * BigInt(AGENT_CREDIT_MICROCENTS) },
+        _sum: {
+          reservedMicrocents: BigInt(competingReservationCredits) * BigInt(AGENT_CREDIT_MICROCENTS),
+        },
       });
+    });
+
+    it("atomically reserves platform batches, counts in-flight work, and settles once across a month boundary", async () => {
+      const repo = new PrismaAgentChatRepo();
+      const now = new Date();
+      configureControl({ paused: false, cap: 10n });
+      const reservePlatform = (amount: number) =>
+        repo.reservePlatformUsageUnscoped({
+          purpose: "docsIndexing",
+          model: "embedding",
+          reservedMicrocents: amount,
+          now,
+        });
+      const competing = await Promise.all([reservePlatform(6), reservePlatform(6)]);
+      expect(competing.filter(Boolean)).toHaveLength(1);
+      const id = competing.find((value) => value !== null);
+      if (!id) throw new Error("Expected an admitted reservation");
+      expect(await reservePlatform(5)).toBeNull();
+      const exact = await reservePlatform(4);
+      expect(exact).not.toBeNull();
+      if (!exact) throw new Error("Expected exact-cap admission");
+      expect(await reservePlatform(1)).toBeNull();
+      expect(await reserve(repo, seats[0], 1)).toBe(false);
+      await repo.settlePlatformUsageUnscoped({
+        reservationId: exact,
+        charge: null,
+        now,
+      });
+      const later = new Date(Date.UTC(now.getUTCFullYear(), now.getUTCMonth() + 1, 2));
+      const settlement = {
+        reservationId: id,
+        charge: {
+          model: "embedding",
+          inputTokens: 1,
+          costMicrocents: 3,
+          costSource: "measured" as const,
+        },
+        now: later,
+      };
+      await Promise.all([repo.settlePlatformUsageUnscoped(settlement), repo.settlePlatformUsageUnscoped(settlement)]);
+      expect(await prisma.$queryRaw`SELECT "costMicrocents" FROM "HostedAiPlatformUsage"`).toEqual([
+        { costMicrocents: 3n },
+      ]);
+      expect(await prisma.$queryRaw`SELECT "id" FROM "HostedAiPlatformReservation"`).toEqual([]);
+      const exhausted = await repo.reservePlatformUsageUnscoped({
+        purpose: "docsIndexing",
+        model: "embedding",
+        reservedMicrocents: 8,
+        now: later,
+      });
+      expect(exhausted).toBeNull();
+      expect(
+        await repo.reservePlatformUsageUnscoped({
+          purpose: "docsIndexing",
+          model: "embedding",
+          reservedMicrocents: 7,
+          now: later,
+        }),
+      ).not.toBeNull();
     });
 
     it("counts the platform's own documentation embedding spend against the global cap", async () => {
       const repo = new PrismaAgentChatRepo();
-      configureControl({ paused: false, cap: 5n * BigInt(AGENT_CREDIT_MICROCENTS) });
+      configureControl({
+        paused: false,
+        cap: 5n * BigInt(AGENT_CREDIT_MICROCENTS),
+      });
       const now = new Date();
       const accrue = (credits: number) =>
         runWithoutTenant(() =>
@@ -260,10 +328,16 @@ describeDatabase(
       await accrue(2);
       await expect(
         runWithoutTenant(() =>
-          prisma.hostedAiPlatformUsage.findMany({ select: { purpose: true, costMicrocents: true, inputTokens: true } }),
+          prisma.hostedAiPlatformUsage.findMany({
+            select: { purpose: true, costMicrocents: true, inputTokens: true },
+          }),
         ),
       ).resolves.toEqual([
-        { purpose: "docsIndexing", costMicrocents: 3n * BigInt(AGENT_CREDIT_MICROCENTS), inputTokens: 200 },
+        {
+          purpose: "docsIndexing",
+          costMicrocents: 3n * BigInt(AGENT_CREDIT_MICROCENTS),
+          inputTokens: 200,
+        },
       ]);
       await expect(reserve(repo, seats[0], 3)).resolves.toBe(false);
       await expect(reserve(repo, seats[0], 2)).resolves.toBe(true);
@@ -271,7 +345,11 @@ describeDatabase(
       await accrue(1);
       await expect(runWithoutTenant(() => repo.admitsHostedAiRetrievalUnscoped(now))).resolves.toBe(false);
       await expect(
-        runWithoutTenant(() => prisma.agentUsageEvent.count({ where: { state: { in: ["settled", "retained"] } } })),
+        runWithoutTenant(() =>
+          prisma.agentUsageEvent.count({
+            where: { state: { in: ["settled", "retained"] } },
+          }),
+        ),
       ).resolves.toBe(0);
     });
 

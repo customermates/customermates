@@ -7,7 +7,7 @@ import { describe, expect, it } from "vitest";
 
 import { getLocalDatabaseTestUrl } from "@/tests/helpers/database-test";
 
-const MIGRATION = "20260908120100_workspace_wiki_default_read";
+const MIGRATION = "20260908120100_mate_bundle";
 const migrationsRoot = join(process.cwd(), "prisma/migrations");
 
 function migrationNames() {
@@ -66,7 +66,12 @@ describeDatabase("workspace Wiki default Read migration", { timeout: 120_000 }, 
         [regularRoleId, `Wiki reader ${regularRoleId}`, companyId, systemRoleId, `Wiki admin ${systemRoleId}`],
       );
 
-      await applyMigrations(client, [MIGRATION, MIGRATION]);
+      await applyMigrations(client, [MIGRATION]);
+      const sql = readFileSync(join(migrationsRoot, MIGRATION, "migration.sql"), "utf8");
+      const backfill = sql.match(/INSERT INTO "RolePermission"[\s\S]*?;/)?.[0];
+      expect(backfill).toBeDefined();
+      if (!backfill) throw new Error("Permission backfill is missing");
+      await client.query(backfill);
 
       const permissions = await client.query(
         'SELECT "roleId", "resource", "action" FROM "RolePermission" WHERE "roleId" = ANY($1) ORDER BY "roleId"',

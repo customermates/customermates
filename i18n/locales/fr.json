@@ -3552,7 +3552,7 @@
     "manageWithLemonSqueezy": "Gérer avec Lemon Squeezy",
     "picker": {
       "connectedAccountsPerUser": "{accounts, plural, one {# compte connecté par utilisateur} other {# comptes connectés par utilisateur}}",
-      "creditNote": "Les crédits IA hébergés sont renouvelés chaque mois ; les crédits non utilisés ne sont pas reportés. Chaque demande est facturée à son coût exact chez le fournisseur, affiché avec une décimale. Les clients MCP externes utilisent votre propre fournisseur d'IA et ne consomment pas ces crédits.",
+      "creditNote": "Les crédits IA hébergés sont renouvelés chaque mois ; les crédits non utilisés ne sont pas reportés. Chaque demande est facturée à son coût exact chez le fournisseur, affiché avec une décimale. Les clients MCP externes facturent les modèles via votre propre fournisseur d'IA. Les recherches sémantiques côté serveur peuvent consommer des crédits IA hébergés.",
       "features": {
         "business": ["Tout ce qui est inclus dans Pro", "Comptes partagés et assistance prioritaire"],
         "pro": ["Tout ce qui est inclus dans Starter", "Boîte de réception unifiée"],
@@ -3799,6 +3799,8 @@
       "noContentBody": "Consultez la tâche Mate pour plus de détails. Vous pouvez essayer un autre site ou continuer et ajouter des pages plus tard.",
       "noContentTitle": "Aucune page wiki n’a été créée",
       "readingBody": "Mate lit {fetched} pages sur {total} de {domain}. Les pages d'aide, de tarifs et de politiques sont importées telles quelles.",
+      "refreshFailedBody": "Vos pages existantes restent disponibles. Ouvrez les actions de la page et choisissez « Actualiser depuis le site web » pour réessayer.",
+      "refreshFailedTitle": "L’actualisation du site n’a pas abouti",
       "workingBody": "Mate lit {domain}, consulte les pages utiles et transforme les informations issues de ces sources en contenu pour votre wiki. Vous pouvez suivre sa progression ici ou passer à l’étape suivante.",
       "workingBodyNoTask": "Mate lit {domain} et transforme les informations issues de ces sources en contenu pour votre wiki. Vous pouvez passer à l’étape suivante pendant son travail.",
       "workingBodyNoTaskWiki": "Mate lit {domain} et crée le wiki. Vous pourrez revenir plus tard pour consulter les pages terminées.",

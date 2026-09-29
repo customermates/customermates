@@ -22,6 +22,7 @@ const operatorEnv = vi.hoisted(() => ({
 
 vi.mock("@/env", () => ({ env: operatorEnv }));
 
+import { PrismaAgentChatRepo } from "@/ee/agent-chat/prisma-agent-chat.repository";
 import { PrismaOperatorAuditRepo } from "../prisma-operator-audit.repository";
 import { PrismaOperatorUsersRepo } from "../prisma-operator-users.repository";
 import { PrismaOperatorRiskSummaryRepo } from "../prisma-operator-risk-summary.repository";
@@ -166,7 +167,7 @@ describeDatabase("operator user list against a real database", { timeout: 120_00
       members: [{ status: "inactive" }],
     });
 
-    const repo = new PrismaOperatorUsersRepo();
+    const repo = new PrismaOperatorUsersRepo(new PrismaAgentChatRepo());
     const scoped = inFilter(FilterFieldKey.workspaceId, [alpha.companyId, beta.companyId]);
 
     const all = await runWithoutTenant(() => repo.getItems({ filters: [scoped] }));
@@ -241,7 +242,7 @@ describeDatabase("operator user list against a real database", { timeout: 120_00
     });
     const orphan = await seedWorkspaceWithoutSubscription(`grp-orphan-${marker}.invalid`);
 
-    const repo = new PrismaOperatorUsersRepo();
+    const repo = new PrismaOperatorUsersRepo(new PrismaAgentChatRepo());
     const scoped = inFilter(FilterFieldKey.workspaceId, [alpha.companyId, beta.companyId, orphan.companyId]);
     const params = { filters: [scoped] };
 
@@ -355,7 +356,7 @@ describeDatabase("operator user list against a real database", { timeout: 120_00
       members: [...clicks, {}, {}],
     });
 
-    const repo = new PrismaOperatorUsersRepo();
+    const repo = new PrismaOperatorUsersRepo(new PrismaAgentChatRepo());
     const scoped = inFilter(FilterFieldKey.workspaceId, [workspace.companyId]);
 
     const google = await runWithoutTenant(() =>

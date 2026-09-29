@@ -174,6 +174,8 @@ export const WikiPageListResultSchema = z.object({
 export type WikiPageListResult = Data<typeof WikiPageListResultSchema>;
 
 export const WikiPageSearchResultSchema = z.object({
+  hasMore: z.boolean().optional(),
+  totalIsExact: z.boolean().optional(),
   items: z.array(WikiSearchResultSchema),
   total: z.number().int().min(0),
   page: z.number().int().min(1),

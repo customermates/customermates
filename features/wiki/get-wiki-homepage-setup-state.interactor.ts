@@ -18,7 +18,10 @@ export const WikiHomepageSetupStateSchema = z.object({
   conversationId: z.string().nullable(),
   pages: z.array(WikiPageSummarySchema).max(5),
   progress: z
-    .object({ fetched: z.number().int().min(0), total: z.number().int().min(0) })
+    .object({
+      fetched: z.number().int().min(0),
+      total: z.number().int().min(0),
+    })
     .nullable()
     .optional(),
   failureReason: z.enum(["blocked", "unavailable"]).nullable().optional(),
@@ -93,20 +96,16 @@ export class GetWikiHomepageSetupStateInteractor extends AuthenticatedInteractor
         },
       };
     }
-    if (
-      crawl &&
-      (crawl.status === "failed" || crawl.status === "blocked") &&
-      !crawl.conversationId &&
-      pages.length === 0
-    ) {
+    if (crawl && (crawl.status === "failed" || crawl.status === "blocked")) {
       return {
         ok: true as const,
         data: {
           status: "failed",
           homepage: crawl.homepageUrl,
           domain: crawl.registrableDomain,
-          conversationId: null,
-          pages: [],
+          conversationId: crawl.conversationId,
+          pages,
+          refreshable: pages.length > 0,
           failureReason:
             crawl.status === "blocked" ? "blocked" : crawl.failureReason === "unavailable" ? "unavailable" : null,
         },
@@ -143,7 +142,13 @@ export class GetWikiHomepageSetupStateInteractor extends AuthenticatedInteractor
     if (!setup) {
       return {
         ok: true as const,
-        data: { status: "idle", homepage: null, domain: null, conversationId: null, pages: [] },
+        data: {
+          status: "idle",
+          homepage: null,
+          domain: null,
+          conversationId: null,
+          pages: [],
+        },
       };
     }
 
@@ -153,7 +158,13 @@ export class GetWikiHomepageSetupStateInteractor extends AuthenticatedInteractor
     if (successfulButDeleted) {
       return {
         ok: true as const,
-        data: { status: "idle", homepage: null, domain: null, conversationId: null, pages: [] },
+        data: {
+          status: "idle",
+          homepage: null,
+          domain: null,
+          conversationId: null,
+          pages: [],
+        },
       };
     }
     const status = setup.status === "completed" && setup.terminalCode === "completed" ? "noContent" : "failed";

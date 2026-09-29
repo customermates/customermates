@@ -28,6 +28,7 @@ vi.mock("@/prisma/db", () => ({ prisma: prismaMock.prisma }));
 
 import { runWithOperator } from "@/core/decorators/operator-context";
 
+import { PrismaAgentChatRepo } from "@/ee/agent-chat/prisma-agent-chat.repository";
 import { PrismaOperatorRepo } from "../prisma-operator.repository";
 
 describe("PrismaOperatorRepo workspace deletion transaction", () => {
@@ -48,7 +49,7 @@ describe("PrismaOperatorRepo workspace deletion transaction", () => {
           email: "operator@example.invalid",
         },
         () =>
-          new PrismaOperatorRepo().deleteWorkspaceUnscoped({
+          new PrismaOperatorRepo(new PrismaAgentChatRepo()).deleteWorkspaceUnscoped({
             companyId,
             confirmWorkspaceLabel: "workspace.invalid",
             reason: "Local transaction contract test",

@@ -59,8 +59,18 @@ describeDatabase("a routine whose owner becomes unavailable", { timeout: 120_000
       .map((name) => readFileSync(join(migrationsRoot, name, "migration.sql"), "utf8"))
       .join("\n");
 
-    expect(sql).not.toMatch(/CREATE\s+TRIGGER/i);
-    expect(sql).not.toMatch(/LANGUAGE\s+plpgsql/i);
+    expect([...sql.matchAll(/CREATE\s+TRIGGER\s+"([^"\n]+)"/gi)].map((match) => match[1]).sort()).toEqual([
+      "AgentConversation_sync_credit_pairs",
+      "AgentCreditAdjustment_sync_credit_pairs",
+      "AgentUsageEvent_sync_credit_pairs",
+      "RoutineRun_sync_credit_pairs",
+    ]);
+    expect(
+      [...sql.matchAll(/CREATE(?: OR REPLACE)? FUNCTION ([\w]+)\(\) RETURNS trigger LANGUAGE plpgsql/gi)].map(
+        (match) => match[1],
+      ),
+    ).toEqual(["sync_agent_credit_pair"]);
+    expect(sql.match(/LANGUAGE\s+plpgsql/gi)).toHaveLength(1);
   });
 
   it("refuses to leave an enabled routine without an owner", async () => {

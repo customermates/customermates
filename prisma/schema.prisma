@@ -280,23 +280,24 @@ enum WikiPageKind {
 }
 
 model WikiPage {
-  id                     String                   @id @default(uuid())
-  companyId              String
-  title                  String
-  markdown               String
-  searchVector           Unsupported("tsvector")? @default(dbgenerated("wiki_search_vector(title, markdown)"))
-  searchCompact          String?                  @default(dbgenerated("wiki_search_compact(title, markdown)"))
-  semanticIndexClaimedAt DateTime?
-  kind                   WikiPageKind             @default(knowledge)
-  whenToUse              String?
-  draft                  Boolean                  @default(false)
-  sourceUrl              String?
-  sourceFetchedAt        DateTime?
-  sourceContentHash      String?
-  createdAt              DateTime                 @default(now())
-  updatedAt              DateTime                 @updatedAt
-  company                Company                  @relation(fields: [companyId], references: [id], onDelete: Cascade)
-  chunks                 WikiPageChunk[]
+  id                      String                   @id @default(uuid())
+  companyId               String
+  title                   String
+  markdown                String
+  searchVector            Unsupported("tsvector")? @default(dbgenerated("wiki_search_vector(title, markdown)"))
+  searchCompact           String?                  @default(dbgenerated("wiki_search_compact(title, markdown)"))
+  semanticIndexClaimedAt  DateTime?
+  kind                    WikiPageKind             @default(knowledge)
+  whenToUse               String?
+  draft                   Boolean                  @default(false)
+  sourceUrl               String?
+  sourceFetchedAt         DateTime?
+  sourceContentHash       String?
+  sourceImportedUpdatedAt DateTime?
+  createdAt               DateTime                 @default(now())
+  updatedAt               DateTime                 @updatedAt
+  company                 Company                  @relation(fields: [companyId], references: [id], onDelete: Cascade)
+  chunks                  WikiPageChunk[]
 
   @@index([companyId, createdAt, id])
   @@index([companyId, kind, title])
@@ -320,6 +321,7 @@ model WikiWebsiteCrawl {
   companyId         String
   userId            String
   clientRequestId   String
+  workflowRunId     String?
   homepageUrl       String
   registrableDomain String
   locale            String
@@ -2274,4 +2276,12 @@ model ConversionEvent {
 enum ConversionEventType {
   signup
   paid
+}
+
+model HostedAiPlatformReservation {
+  id                 String   @id @default(uuid())
+  purpose            String
+  model              String
+  reservedMicrocents BigInt
+  createdAt          DateTime @default(now())
 }

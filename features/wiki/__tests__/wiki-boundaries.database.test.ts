@@ -633,11 +633,16 @@ describeDatabase("Workspace Wiki public boundaries on PostgreSQL", () => {
         ok: true,
         data: { conversationId: null, homepage: "https://example.org/", domain: "example.org" },
       });
-      expect(customCode(await startSetup(user))).toBe(CustomErrorCode.agentTurnAlreadyRunning);
-      expect(background.dispatch).toHaveBeenCalledExactlyOnceWith(
-        "crawl-wiki-website",
-        expect.objectContaining({ userId }),
-      );
+      expect(await startSetup(user)).toMatchObject({ ok: true });
+      expect(background.dispatch).toHaveBeenCalledTimes(2);
+      expect(
+        (
+          await client.query('SELECT count(*)::int AS count FROM "WikiWebsiteCrawl" WHERE "companyId" = $1', [
+            companyId,
+          ])
+        ).rows[0].count,
+      ).toBe(1);
+      expect(background.dispatch).toHaveBeenLastCalledWith("crawl-wiki-website", expect.objectContaining({ userId }));
       expect(await setupState(user)).toMatchObject({ ok: true, data: { status: "working", domain: "example.org" } });
       expect(await create(user, [{ title: "Local page", markdown: "Local body" }], true)).toMatchObject({ ok: true });
     } finally {

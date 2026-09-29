@@ -29,7 +29,7 @@ import {
 } from "@/core/di";
 import { extractWikiPageLinks, externalizeWikiPageLinks } from "@/features/wiki/wiki-markdown-links";
 import { parseWikiPageReference, wikiPageFetchId, wikiPageUrl } from "@/features/wiki/wiki-links";
-import { boundedWikiChunk, wikiCodePointBoundary } from "@/features/wiki/wiki-page-chunk";
+import { boundedWikiChunk, WikiChunkSizeError, wikiCodePointBoundary } from "@/features/wiki/wiki-page-chunk";
 import { wikiOutline } from "@/features/wiki/wiki-markdown-sections";
 
 type Entity = "contact" | "organization" | "deal" | "service" | "task";
@@ -107,8 +107,15 @@ const FetchOutputSchema = z.object({
     .optional()
     .describe("Next Wiki chunk offset, or null at the end"),
   totalChars: z.number().int().nonnegative().optional().describe("Total characters in the externalized Wiki Markdown"),
+  outlineTruncated: z.boolean().optional().describe("Some headings were omitted to keep the response bounded."),
   outline: z
-    .array(z.object({ level: z.number().int(), heading: z.string(), offset: z.number().int().nonnegative() }))
+    .array(
+      z.object({
+        level: z.number().int(),
+        heading: z.string(),
+        offset: z.number().int().nonnegative(),
+      }),
+    )
     .optional()
     .describe("At offset 0 of a multi-chunk Wiki page: its H1-H3 headings with the offset each starts at"),
 });
@@ -120,7 +127,9 @@ async function fetchRecord(entity: Entity, key: string) {
   const row = result.data?.[entity];
   if (!row) return customMcpFailure(entityNotFoundCode[entity]);
 
-  const { notes, ...masterData } = row as Record<string, unknown> & { notes?: unknown };
+  const { notes, ...masterData } = row as Record<string, unknown> & {
+    notes?: unknown;
+  };
   const noteMarkdown = notes ? serializeJSONToMarkdown(notes as object) : null;
   const masterText = JSON.stringify(formatDatesInResponse(masterData), null, 2);
   const text = noteMarkdown
@@ -163,6 +172,8 @@ async function fetchWiki(id: string, requestedOffset: number) {
   const page = result.data;
   const links = extractWikiPageLinks(page.markdown, env.BASE_URL, 6);
   const markdown = externalizeWikiPageLinks(page.markdown, env.BASE_URL);
+  let selectedLinks = links.slice(0, 5);
+  let outlineTruncated = false;
   const outputAt = (offset: number, end: number, outline: WikiOutlineEntry[]) => ({
     id: wikiPageFetchId(page.id),
     title: page.title,
@@ -175,19 +186,20 @@ async function fetchWiki(id: string, requestedOffset: number) {
       createdAt: page.createdAt.toISOString(),
       updatedAt: page.updatedAt.toISOString(),
       outgoingWikiLinks: JSON.stringify(
-        links.slice(0, 5).map(({ id: linkedId, label, url, fetchId }) => ({
+        selectedLinks.map(({ id: linkedId, label, url, fetchId }) => ({
           id: linkedId,
           label,
           url,
           fetchId,
         })),
       ),
-      outgoingWikiLinksTruncated: String(links.length > 5),
+      outgoingWikiLinksTruncated: String(links.length > selectedLinks.length),
     },
     offset,
     nextOffset: end < markdown.length ? end : null,
     totalChars: markdown.length,
     ...(outline.length > 0 ? { outline } : {}),
+    ...(outlineTruncated ? { outlineTruncated: true } : {}),
     text: markdown.slice(offset, end),
   });
   const chunk = (outline: WikiOutlineEntry[]) =>
@@ -197,17 +209,36 @@ async function fetchWiki(id: string, requestedOffset: number) {
       (start, stop) => JSON.stringify(outputAt(start, stop, outline)).length <= WIKI_FETCH_TEXT_TARGET_LENGTH,
       env.BASE_URL,
     );
+  while (
+    selectedLinks.length &&
+    JSON.stringify(outputAt(requestedOffset, requestedOffset, [])).length > WIKI_FETCH_TEXT_TARGET_LENGTH - 2_000
+  )
+    selectedLinks = selectedLinks.slice(0, -1);
   const plain = chunk([]);
-  const outline = plain.offset === 0 && plain.end < markdown.length ? wikiOutline(markdown) : [];
-  const { offset, end } = outline.length > 1 ? chunk(outline) : plain;
-  const output = outputAt(offset, end, outline.length > 1 ? outline : []);
+  const headings = plain.offset === 0 && plain.end < markdown.length ? wikiOutline(markdown) : [];
+  const outline: WikiOutlineEntry[] = [];
+  for (const heading of headings) {
+    if (
+      JSON.stringify(outputAt(plain.offset, plain.offset, [...outline, heading])).length >
+      WIKI_FETCH_TEXT_TARGET_LENGTH - 2_000
+    )
+      break;
+    outline.push(heading);
+  }
+  outlineTruncated = outline.length < headings.length;
+  const { offset, end } = outline.length > 0 ? chunk(outline) : plain;
+  const output = outputAt(offset, end, outline);
   return { text: JSON.stringify(output), structuredContent: output };
 }
 
 async function searchWiki(query: string) {
   const wikiQuery = query.slice(0, wikiCodePointBoundary(query, WIKI_SEARCH_QUERY_MAX_LENGTH));
   try {
-    const result = await getSearchExternalizedWikiPagesInteractor().invoke({ query: wikiQuery, page: 1, pageSize: 5 });
+    const result = await getSearchExternalizedWikiPagesInteractor().invoke({
+      query: wikiQuery,
+      page: 1,
+      pageSize: 5,
+    });
     if (!result.ok) return { results: [], didYouMean: [] };
     const results = result.data.items.map((page) => ({
       id: wikiPageFetchId(page.id),
@@ -236,7 +267,12 @@ export const searchTool = {
     "A misspelled word that matches no Wiki page is corrected from the Wiki's own words, and didYouMean names the corrected query; when no Wiki page fits, search again with other words. " +
     "For focused CRM or product-doc queries prefer search_records or list_records, which carry totals and filters, or search_docs. " +
     "App routes in the docs text that fetch returns, such as `/company/subscription`, are relative: for a full link, put the route after the origin of the result's url; that origin is the instance's configured BASE_URL.",
-  annotations: { readOnlyHint: true, idempotentHint: true, destructiveHint: false, openWorldHint: false },
+  annotations: {
+    readOnlyHint: true,
+    idempotentHint: true,
+    destructiveHint: false,
+    openWorldHint: false,
+  },
   inputSchema: z.object({
     query: z
       .string()
@@ -270,9 +306,11 @@ export const searchTool = {
       searchDocsHits(query, DEFAULT_LOCALE, "docs"),
     ]);
 
-    const docResults = docHits
-      .slice(0, 3)
-      .map((hit) => ({ id: `doc:${DEFAULT_LOCALE}:${hit.slug}`, title: hit.title, url: hit.url }));
+    const docResults = docHits.slice(0, 3).map((hit) => ({
+      id: `doc:${DEFAULT_LOCALE}:${hit.slug}`,
+      title: hit.title,
+      url: hit.url,
+    }));
 
     const output = {
       results: [...wiki.results, ...recordGroups.flat(), ...docResults],
@@ -293,7 +331,12 @@ export const fetchTool = {
     "Start at a search result's offset to land on the matched section; at offset 0 a multi-chunk page also returns an outline of its headings with their offsets. " +
     "Compatible with ChatGPT company knowledge and deep research. For focused CRM or product-documentation retrieval, prefer get_records or get_docs_page. " +
     "For a docs result, app routes in text, such as `/company/subscription`, are relative: for a full link, put the route after the origin of url; that origin is the instance's configured BASE_URL.",
-  annotations: { readOnlyHint: true, idempotentHint: true, destructiveHint: false, openWorldHint: false },
+  annotations: {
+    readOnlyHint: true,
+    idempotentHint: true,
+    destructiveHint: false,
+    openWorldHint: false,
+  },
   inputSchema: z.object({
     id: z
       .string()
@@ -309,7 +352,14 @@ export const fetchTool = {
   outputSchema: FetchOutputSchema,
   execute: async ({ id, offset = 0 }: { id: string; offset?: number }) => {
     const wikiReference = parseWikiPageReference(id, env.BASE_URL);
-    if (wikiReference) return fetchWiki(wikiReference.id, offset);
+    if (wikiReference) {
+      try {
+        return await fetchWiki(wikiReference.id, offset);
+      } catch (error) {
+        if (error instanceof WikiChunkSizeError) return mcpMessageFailure(error.message);
+        throw error;
+      }
+    }
 
     const [kind, qualifier, ...rest] = id.split(":");
     const key = rest.join(":");

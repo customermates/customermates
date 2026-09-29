@@ -21,6 +21,7 @@ const operatorEnv = vi.hoisted(() => ({
 
 vi.mock("@/env", () => ({ env: operatorEnv }));
 
+import { PrismaAgentChatRepo } from "@/ee/agent-chat/prisma-agent-chat.repository";
 import { PrismaOperatorAccessRepo } from "../prisma-operator-access.repository";
 import { OPERATOR_AUDIT_ACTION } from "../operator.schema";
 import type { OperatorRefusal } from "../operator.repo";
@@ -256,7 +257,7 @@ describeDatabase("PrismaOperatorRepo against a real database", { timeout: 120_00
   it("rejects a negative adjustment below committed usage and replays a valid operation once", async () => {
     const target = await seedEnterpriseUser(`adjust-${randomUUID()}@example.invalid`, 10);
     const actor = operatorActor();
-    const repo = new PrismaOperatorRepo();
+    const repo = new PrismaOperatorRepo(new PrismaAgentChatRepo());
 
     await runWithoutTenant(() =>
       prisma.agentUsageEvent.create({
@@ -360,7 +361,7 @@ describeDatabase("PrismaOperatorRepo against a real database", { timeout: 120_00
   it("rolls an Enterprise update back when audit persistence fails", async () => {
     const target = await seedEnterpriseUser(`rollback-${randomUUID()}@example.invalid`, 10);
     const invalidActor = operatorActor("x".repeat(201));
-    const repo = new PrismaOperatorRepo();
+    const repo = new PrismaOperatorRepo(new PrismaAgentChatRepo());
 
     await expect(
       runWithOperator(invalidActor, () =>
@@ -393,7 +394,7 @@ describeDatabase("PrismaOperatorRepo against a real database", { timeout: 120_00
             if (!tx) throw new Error("Expected platform-access test transaction.");
 
             const target = await createPlatformAccessUser(tx, { authCompanyId: null });
-            const repo = new PrismaOperatorRepo();
+            const repo = new PrismaOperatorRepo(new PrismaAgentChatRepo());
 
             const granted = await repo.updateUserPlatformAccessUnscoped({
               userId: target.userId,
@@ -430,7 +431,7 @@ describeDatabase("PrismaOperatorRepo against a real database", { timeout: 120_00
             if (!tx) throw new Error("Expected platform-access test transaction.");
 
             const target = await createPlatformAccessUser(tx, { authCompanyId: null });
-            const granted = await new PrismaOperatorRepo().updateUserPlatformAccessUnscoped({
+            const granted = await new PrismaOperatorRepo(new PrismaAgentChatRepo()).updateUserPlatformAccessUnscoped({
               userId: target.userId,
               isPlatformOperator: true,
             });
@@ -476,7 +477,7 @@ describeDatabase("PrismaOperatorRepo against a real database", { timeout: 120_00
             const foreignCompanyId = randomUUID();
             await tx.company.create({ data: { id: foreignCompanyId } });
             const target = await createPlatformAccessUser(tx, { authCompanyId: foreignCompanyId });
-            const repo = new PrismaOperatorRepo();
+            const repo = new PrismaOperatorRepo(new PrismaAgentChatRepo());
 
             outcome = await repo.updateUserPlatformAccessUnscoped({
               userId: target.userId,
@@ -508,7 +509,7 @@ describeDatabase("PrismaOperatorRepo against a real database", { timeout: 120_00
             const operator = await createPlatformAccessUser(tx, { email: `a_c${marker}@example.invalid` });
             await createPlatformAccessUser(tx, { email: `abc${marker}@example.invalid` });
 
-            const granted = await new PrismaOperatorRepo().updateUserPlatformAccessUnscoped({
+            const granted = await new PrismaOperatorRepo(new PrismaAgentChatRepo()).updateUserPlatformAccessUnscoped({
               userId: operator.userId,
               isPlatformOperator: true,
             });
@@ -563,7 +564,7 @@ describeDatabase("PrismaOperatorRepo against a real database", { timeout: 120_00
 
             const target = await createPlatformAccessUser(tx, {});
             const elsewhere = await createPlatformAccessUser(tx, { isPlatformOperator: true });
-            const repo = new PrismaOperatorRepo();
+            const repo = new PrismaOperatorRepo(new PrismaAgentChatRepo());
 
             const granted = await repo.updateUserPlatformAccessUnscoped(
               {
@@ -635,7 +636,7 @@ describeDatabase("PrismaOperatorRepo against a real database", { timeout: 120_00
           if (!tx) throw new Error("Expected platform-access guard test transaction.");
           await tx.user.updateMany({ where: { isPlatformOperator: true }, data: { isPlatformOperator: false } });
 
-          const repo = new PrismaOperatorRepo();
+          const repo = new PrismaOperatorRepo(new PrismaAgentChatRepo());
           const rejects = async (actor: OperatorActor, userId: string) => {
             const outcome = await runWithOperator(actor, () =>
               repo.updateUserPlatformAccessUnscoped(
@@ -684,7 +685,7 @@ describeDatabase("PrismaOperatorRepo against a real database", { timeout: 120_00
 
             const solo = await createPlatformAccessUser(tx, { isPlatformOperator: true });
             const peer = await createPlatformAccessUser(tx, { isPlatformOperator: true });
-            const repo = new PrismaOperatorRepo();
+            const repo = new PrismaOperatorRepo(new PrismaAgentChatRepo());
 
             const peerDeactivated = await repo.updateUserStatusUnscoped(
               { userId: peer.userId, status: "inactive", reason: "Deactivate the peer operator" },

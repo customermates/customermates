@@ -463,7 +463,7 @@ export const getUnipileWebhookRepo = () => new PrismaUnipileWebhookRepo();
 export const getCalendarRepo = () => new PrismaCalendarRepo();
 export const getCalendarEventsRepo = () => new PrismaCalendarEventsRepo();
 export const getAgentChatRepo = () => new PrismaAgentChatRepo();
-export const getOperatorRepo = () => new PrismaOperatorRepo();
+export const getOperatorRepo = () => new PrismaOperatorRepo(getAgentChatRepo());
 export const getOperatorAccessRepo = () => new PrismaOperatorAccessRepo();
 
 // ─── Section 3: Services ────────────────────────────────────────────────────
@@ -1923,7 +1923,7 @@ export const getGetOperatorUserDetailInteractor = () => new GetOperatorUserDetai
 export const getUpdateOperatorUserStatusInteractor = () =>
   new UpdateOperatorUserStatusInteractor(getOperatorRepo(), getReleaseOwnerRoutinesInteractor());
 
-export const getOperatorUsersRepo = () => new PrismaOperatorUsersRepo();
+export const getOperatorUsersRepo = () => new PrismaOperatorUsersRepo(getAgentChatRepo());
 
 export const getGetOperatorUsersInteractor = () =>
   new GetOperatorUsersInteractor(getOperatorUsersRepo(), getDataViewStateRepo());

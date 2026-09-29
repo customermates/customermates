@@ -83,6 +83,46 @@ describe("Wiki navigation search", () => {
     expect(state.result).toBe(initial);
   });
 
+  it("uses continuation rather than a partial total to enable the next page", async () => {
+    actions.search.mockResolvedValueOnce({
+      ok: true,
+      data: { ...initial, total: 30, totalIsExact: false, hasMore: true },
+    });
+    await search("policy");
+    actions.search.mockResolvedValueOnce({
+      ok: true,
+      data: {
+        ...initial,
+        page: 2,
+        total: 51,
+        totalIsExact: false,
+        hasMore: true,
+      },
+    });
+    await act(async () => {
+      state.setPage(2);
+      await Promise.resolve();
+    });
+    expect(state.hasMore).toBe(true);
+    expect(state.totalIsExact).toBe(false);
+    actions.search.mockResolvedValueOnce({
+      ok: true,
+      data: {
+        ...initial,
+        page: 3,
+        total: 60,
+        totalIsExact: true,
+        hasMore: false,
+      },
+    });
+    await act(async () => {
+      state.setPage(3);
+      await Promise.resolve();
+    });
+    expect(state.hasMore).toBe(false);
+    expect(state.totalIsExact).toBe(true);
+  });
+
   it("shows failures and retries without losing the query", async () => {
     actions.search.mockResolvedValueOnce({ ok: false, error: { errors: ["Unavailable"] } });
     await search("voice");

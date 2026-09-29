@@ -129,6 +129,26 @@ describe("Wiki document editing", () => {
     expect(store.form.title).toBe("A new document");
   });
 
+  it.each([null, { ...latest, id: "10000000-0000-4000-8000-000000000002" }])(
+    "ignores unsolicited replacement snapshots while dirty, creating or saving: %s",
+    (replacement) => {
+      const store = new WikiPageStore(rootStore(), page, vi.fn());
+      store.onChange("title", "Unsaved title");
+      store.receivePage(replacement);
+      expect(store.form.title).toBe("Unsaved title");
+      expect(store.form.id).toBe(page.id);
+      store.startCreate("New page");
+      store.receivePage(replacement);
+      expect(store.creating).toBe(true);
+      expect(store.form.title).toBe("New page");
+      store.load(page);
+      store.setIsLoading(true);
+      store.receivePage(replacement);
+      expect(store.form.id).toBe(page.id);
+      expect(store.isLoading).toBe(true);
+    },
+  );
+
   it("accepts clean refreshes and navigation to a different document", () => {
     const store = new WikiPageStore(rootStore(), page, vi.fn());
     store.receivePage(latest);

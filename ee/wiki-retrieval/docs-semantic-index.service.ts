@@ -8,7 +8,12 @@ import { retrievalChunkText } from "@/core/retrieval/retrieval-chunks";
 import { docsCorpus } from "@/features/mcp-tools/docs-corpus";
 
 import { isWikiSemanticSearchAvailable } from "./wiki-embedding.service";
-import { embedWikiTexts, WIKI_EMBEDDING_BATCH_SIZE, WIKI_EMBEDDING_MODEL } from "./wiki-embedding-model";
+import {
+  embedWikiTexts,
+  WIKI_EMBEDDING_BATCH_SIZE,
+  WIKI_EMBEDDING_MODEL,
+  wikiEmbeddingWorstCaseMicrocents,
+} from "./wiki-embedding-model";
 
 const DOCS_INDEX_BATCHES_PER_STEP = 8;
 const DOCS_INDEX_SCHEDULE_INTERVAL_MS = 60_000;
@@ -41,14 +46,23 @@ export class DocsSemanticIndexService {
         WIKI_EMBEDDING_BATCH_SIZE,
       );
       if (pending.length === 0) return { indexed, remaining: false };
-      const { vectors, charge } = await embedWikiTexts(
-        pending.map((chunk) => retrievalChunkText(chunk.label, chunk.body)),
-        "document",
-      );
-      await this.usage.accruePlatformUsage({ purpose: "docsIndexing", charge });
+      const texts = pending.map((chunk) => retrievalChunkText(chunk.label, chunk.body));
+      const reservationId = await this.usage.reservePlatformRetrieval({
+        purpose: "docsIndexing",
+        model: WIKI_EMBEDDING_MODEL,
+        worstCaseMicrocents: wikiEmbeddingWorstCaseMicrocents(texts),
+      });
+      if (!reservationId) return { indexed, remaining: false };
+      const { vectors, charge } = await embedWikiTexts(texts, "document", {
+        maxRetries: 0,
+      });
+      await this.usage.settlePlatformRetrieval({ reservationId, charge });
       await this.repo.storeEmbeddings(
         WIKI_EMBEDDING_MODEL,
-        pending.map((chunk, index) => ({ contentHash: chunk.contentHash, embedding: vectorLiteral(vectors[index]) })),
+        pending.map((chunk, index) => ({
+          contentHash: chunk.contentHash,
+          embedding: vectorLiteral(vectors[index]),
+        })),
       );
       indexed += pending.length;
     }

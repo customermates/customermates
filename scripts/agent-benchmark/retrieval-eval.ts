@@ -30,11 +30,17 @@ import {
 } from "@/core/retrieval/retrieval-context";
 import { RETRIEVAL_EMBEDDING_WAIT_MS } from "@/core/retrieval/retrieval-pipeline";
 import { collectClassifierCharges } from "@/ee/agent-chat/classifier/metered";
-import { hostedSectionRankers } from "@/ee/agent-chat/docs-rerank";
+import {
+  docsRankSpec,
+  docsRankState,
+  docsRankUserMessage,
+  hostedSectionRankers,
+} from "@/ee/agent-chat/docs-rerank";
 import { WikiEmbeddingService } from "@/ee/wiki-retrieval/wiki-embedding.service";
 import {
   embedWikiTexts,
   WIKI_EMBEDDING_MODEL,
+  wikiEmbeddingWorstCaseMicrocents,
 } from "@/ee/wiki-retrieval/wiki-embedding-model";
 import { WikiSemanticIndexService } from "@/ee/wiki-retrieval/wiki-semantic-index.service";
 import { docsCorpus } from "@/features/mcp-tools/docs-corpus";
@@ -47,6 +53,9 @@ import {
 } from "@/features/wiki/search-wiki-pages.interactor";
 import { WikiMarkdownSchema } from "@/features/wiki/wiki.schema";
 import { createMockUser } from "@/tests/helpers/mock-user";
+
+import { RetrievalBudget } from "./retrieval-budget";
+import { estimateClassifierCostMicrocents } from "@/ee/agent-chat/classifier/metered";
 
 import { requireLocalBenchmarkDatabase } from "./env";
 import { DOCS_EMBEDDING_HELDOUT } from "./heldout-data/docs-embedding";
@@ -129,7 +138,9 @@ function flag(name: string): string | undefined {
   return index < 0 ? undefined : process.argv[index + 1];
 }
 
-const capUsd = Number(flag("cap") ?? "1.5");
+const budget = new RetrievalBudget(
+  flag("cap") ?? (process.argv.includes("--cap") ? "" : "1.5"),
+);
 const outPath = resolve(
   flag("out") ??
     `scripts/agent-benchmark/.runs/retrieval-eval/${new Date().toISOString().replace(/[:.]/g, "-")}.json`,
@@ -145,10 +156,17 @@ function spentUsd() {
 }
 
 function assertBudget() {
-  if (spentUsd() > capUsd)
-    throw new Error(
-      `Retrieval eval spend ${spentUsd().toFixed(4)} USD passed the cap of ${capUsd} USD.`,
-    );
+  budget.assertAvailable();
+}
+
+async function budgetedEmbedding(texts: string[], kind: "query" | "document") {
+  const maximum = Math.max(1, wikiEmbeddingWorstCaseMicrocents(texts));
+  const attempts = kind === "document" ? 3 : 1;
+  return budget.run(
+    maximum * attempts,
+    () => embedWikiTexts(texts, kind),
+    (result) => result.charge.costMicrocents + maximum * (attempts - 1),
+  );
 }
 
 const embeddings = new Map<string, CachedEmbedding>();
@@ -162,12 +180,13 @@ async function embedOnce(query: string): Promise<CachedEmbedding> {
   const started = performance.now();
   let vector: QueryVector | null = null;
   try {
-    const { vectors, charge } = await embedWikiTexts([text], "query");
+    const { vectors, charge } = await budgetedEmbedding([text], "query");
     spend.embeddingMicrocents += charge.costMicrocents;
     vector = { vector: vectors[0], model: WIKI_EMBEDDING_MODEL };
   } catch {
     vector = null;
   }
+  assertBudget();
   const entry = { vector, ms: Math.round(performance.now() - started) };
   embeddings.set(text, entry);
   return entry;
@@ -197,9 +216,22 @@ function cachedRanker(
     used.key = key;
     const cached = ranks.get(key);
     if (cached) return cached.order;
+    const maximum = Math.max(
+      1,
+      3 *
+        estimateClassifierCostMicrocents(
+          docsRankSpec(candidates, corpus),
+          docsRankState(rankQuery, docsRankUserMessage(query)),
+        ),
+    );
     const started = performance.now();
-    const { value, charges } = await collectClassifierCharges(() =>
-      ranker(rankQuery, candidates),
+    const { value, charges } = await budget.run(
+      maximum,
+      () => collectClassifierCharges(() => ranker(rankQuery, candidates)),
+      ({ charges }) =>
+        charges.length > 0 && charges.every((charge) => charge.measured)
+          ? charges.reduce((total, charge) => total + charge.costMicrocents, 0)
+          : undefined,
     );
     for (const charge of charges) {
       spend.jevMicrocents += charge.costMicrocents;
@@ -243,6 +275,7 @@ async function measured<T>(
     : undefined;
   const started = performance.now();
   const { value, timings } = await collectRetrievalTimings(() => run(ranker));
+  assertBudget();
   const elapsed = performance.now() - started;
   const timing = timings[0] ?? null;
   const jevMs = used.key ? (ranks.get(used.key)?.ms ?? null) : null;
@@ -386,7 +419,7 @@ class EvalEmbeddingService extends WikiEmbeddingService {
     texts: string[],
     kind: "query" | "document",
   ) {
-    const { vectors, charge } = await embedWikiTexts(texts, kind);
+    const { vectors, charge } = await budgetedEmbedding(texts, kind);
     spend.indexingMicrocents += charge.costMicrocents;
     return vectors;
   }
@@ -453,6 +486,7 @@ async function evaluateWiki(
     let indexed = 0;
     for (let step = 0; step < 50; step += 1) {
       const result = await runWithTenant(user, () => indexer.indexStalePages());
+      assertBudget();
       process.stderr.write(
         `Wiki index step ${step + 1}: ${result.indexed} pages, remaining ${String(result.remaining)}\n`,
       );
@@ -836,11 +870,12 @@ async function main() {
   lines.push(
     `Harness-metered spend: query embeddings ${(spend.embeddingMicrocents / MICROCENTS_PER_USD).toFixed(4)} USD over ${spend.embeddingCalls} calls, Wiki indexing ${(spend.indexingMicrocents / MICROCENTS_PER_USD).toFixed(4)} USD, Jev ${(spend.jevMicrocents / MICROCENTS_PER_USD).toFixed(4)} USD over ${spend.jevCalls} calls (${spend.jevAnswered} answered).`,
   );
+  lines.push(`Conservative budget accounting (including uncertain failed requests and possible retries): ${(budget.accountedMicrocents / MICROCENTS_PER_USD).toFixed(4)} USD.`);
   const markdown = lines.join("\n");
   mkdirSync(dirname(outPath), { recursive: true });
   writeFileSync(
     outPath,
-    `${JSON.stringify({ spend: { ...spend, usd: spentUsd() }, embeddings: Object.fromEntries(embeddings), docs, wiki }, null, 2)}\n`,
+    `${JSON.stringify({ spend: { ...spend, usd: spentUsd(), reservedOrConservativelyAccountedUsd: budget.accountedMicrocents / MICROCENTS_PER_USD }, embeddings: Object.fromEntries(embeddings), docs, wiki }, null, 2)}\n`,
   );
   writeFileSync(outPath.replace(/\.json$/, ".md"), `${markdown}\n`);
   process.stdout.write(`${markdown}\n\nWrote ${outPath}\n`);
@@ -852,7 +887,7 @@ main().then(
     process.stderr.write(
       `${error instanceof Error ? (error.stack ?? error.message) : String(error)}\n`,
     );
-    process.stderr.write(`Spend so far: ${spentUsd().toFixed(4)} USD\n`);
+    process.stderr.write(`Spend so far: ${spentUsd().toFixed(4)} USD; conservatively accounted: ${(budget.accountedMicrocents / MICROCENTS_PER_USD).toFixed(4)} USD\n`);
     process.exit(1);
   },
 );

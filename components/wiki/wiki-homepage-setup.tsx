@@ -37,13 +37,22 @@ export const EMPTY_WIKI_HOMEPAGE_SETUP_STATE: WikiHomepageSetupState = {
 };
 export function useRefreshWhileWikiSetupWorks(working: boolean) {
   const router = useRouter();
+  const { navigationGuard } = useRootStore();
   useEffect(() => {
     if (!working) return;
+    let active = true;
     const poll = globalThis.setInterval(() => {
-      if (document.visibilityState === "visible") router.refresh();
+      if (document.visibilityState === "visible") {
+        navigationGuard.requestRouteRefreshWhenSafe(() => {
+          if (active) router.refresh();
+        });
+      }
     }, 2_500);
-    return () => globalThis.clearInterval(poll);
-  }, [router, working]);
+    return () => {
+      active = false;
+      globalThis.clearInterval(poll);
+    };
+  }, [navigationGuard, router, working]);
 }
 
 export const WikiHomepageSetup = observer(function WikiHomepageSetup({

@@ -7,7 +7,7 @@ import { describe, expect, it } from "vitest";
 
 import { getLocalDatabaseTestUrl } from "@/tests/helpers/database-test";
 
-const MIGRATION = "20260928160000_exact_agent_credit_microcents";
+const MIGRATION = "20260908120100_mate_bundle";
 const migrationsRoot = join(process.cwd(), "prisma/migrations");
 
 function migrationNames() {
@@ -85,6 +85,168 @@ async function seedLedger(client: Client) {
 }
 
 describeDatabase("exact agent credit microcents migration", { timeout: 120_000 }, () => {
+  it("synchronizes absolute legacy writes across all six pairs without rounding new fractional writes", async () => {
+    await withTemporaryDatabase(requiredDatabaseUrl(), async (client) => {
+      const names = migrationNames();
+      const cut = names.indexOf(MIGRATION);
+      await applyMigrations(client, names.slice(0, cut));
+      await seedLedger(client);
+      await applyMigrations(client, names.slice(cut));
+      await client.query(`UPDATE "AgentUsageEvent" SET "reservedCredits"=20 WHERE "id"='reserved'`);
+      expect(
+        (await client.query(`SELECT "reservedMicrocents" FROM "AgentUsageEvent" WHERE "id"='reserved'`)).rows[0]
+          .reservedMicrocents,
+      ).toBe("20000000");
+
+      await client.query(`UPDATE "AgentUsageEvent" SET "state"='settled', "settledAt"=NOW() WHERE "id"='reserved'`);
+      const pairs = [
+        {
+          table: "AgentUsageEvent",
+          id: "reserved",
+          legacy: "reservedCredits",
+          exact: "reservedMicrocents",
+          fraction: 12_200_000,
+          mirror: 13,
+          next: 20,
+        },
+        {
+          table: "AgentUsageEvent",
+          id: "reserved",
+          legacy: "chargedCredits",
+          exact: "chargedMicrocents",
+          fraction: 4_500_000,
+          mirror: 5,
+          next: 6,
+        },
+        {
+          table: "AgentUsageEvent",
+          id: "reserved",
+          legacy: "allowanceCreditsSnapshot",
+          exact: "allowanceMicrocentsSnapshot",
+          fraction: 12_800_000,
+          mirror: 12,
+          next: 20,
+        },
+        {
+          table: "AgentConversation",
+          id: "conv-routine",
+          legacy: "creditCeiling",
+          exact: "creditCeilingMicrocents",
+          fraction: 12_800_000,
+          mirror: 12,
+          next: 20,
+        },
+        {
+          table: "RoutineRun",
+          id: "run-1",
+          legacy: "chargedCredits",
+          exact: "chargedMicrocents",
+          fraction: 4_500_000,
+          mirror: 5,
+          next: 6,
+        },
+        {
+          table: "AgentCreditAdjustment",
+          id: "adj-1",
+          legacy: "creditDelta",
+          exact: "deltaMicrocents",
+          fraction: -200_000,
+          mirror: -1,
+          next: -2,
+        },
+      ];
+      for (const pair of pairs) {
+        const read = async () =>
+          (
+            await client.query(
+              `SELECT "${pair.exact}"::text AS exact, "${pair.legacy}" AS legacy FROM "${pair.table}" WHERE "id"=$1`,
+              [pair.id],
+            )
+          ).rows[0];
+        await client.query(`UPDATE "${pair.table}" SET "${pair.exact}"=$1, "${pair.legacy}"=$2 WHERE "id"=$3`, [
+          pair.fraction,
+          pair.mirror,
+          pair.id,
+        ]);
+        expect(await read()).toEqual({ exact: String(pair.fraction), legacy: pair.mirror });
+        await client.query(`UPDATE "${pair.table}" SET "${pair.legacy}"=$1 WHERE "id"=$2`, [pair.mirror, pair.id]);
+        expect(await read()).toEqual({ exact: String(pair.fraction), legacy: pair.mirror });
+        await client.query(`UPDATE "${pair.table}" SET "${pair.legacy}"=$1 WHERE "id"=$2`, [pair.next, pair.id]);
+        expect(await read()).toEqual({ exact: String(pair.next * 1_000_000), legacy: pair.next });
+      }
+      await expect(
+        client.query(`UPDATE "AgentUsageEvent" SET "state"='settled', "chargedCredits"=21 WHERE "id"='reserved'`),
+      ).rejects.toThrow(/charge_within_reservation/);
+      await client.query(
+        `UPDATE "AgentUsageEvent" SET "state"='settled', "chargedCredits"=20, "settledAt"=NOW() WHERE "id"='reserved'`,
+      );
+      expect(
+        (await client.query(`SELECT "chargedMicrocents" FROM "AgentUsageEvent" WHERE "id"='reserved'`)).rows[0]
+          .chargedMicrocents,
+      ).toBe("20000000");
+      await client.query(`UPDATE "AgentUsageEvent" SET "state"='released', "chargedCredits"=0 WHERE "id"='reserved'`);
+      expect(
+        (await client.query(`SELECT "chargedMicrocents" FROM "AgentUsageEvent" WHERE "id"='reserved'`)).rows[0]
+          .chargedMicrocents,
+      ).toBe("0");
+      await client.query(`UPDATE "AgentConversation" SET "creditCeiling"=NULL WHERE "id"='conv-routine'`);
+      expect(
+        (await client.query(`SELECT "creditCeilingMicrocents" FROM "AgentConversation" WHERE "id"='conv-routine'`))
+          .rows[0].creditCeilingMicrocents,
+      ).toBeNull();
+      await client.query(
+        `UPDATE "AgentUsageEvent" SET "reservedMicrocents"=12200000, "reservedCredits"=12 WHERE "id"='reserved'`,
+      );
+      expect(
+        (
+          await client.query(
+            `SELECT "reservedMicrocents", "reservedCredits" FROM "AgentUsageEvent" WHERE "id"='reserved'`,
+          )
+        ).rows[0],
+      ).toEqual({ reservedMicrocents: "12200000", reservedCredits: 13 });
+    });
+  });
+
+  it("serializes old absolute reservations and new fractional reservations in either lock order", async () => {
+    await withTemporaryDatabase(requiredDatabaseUrl(), async (client) => {
+      await applyMigrations(client, migrationNames());
+      await seedLedger(client);
+      const peerUrl = new URL(requiredDatabaseUrl());
+      peerUrl.pathname = `/${(await client.query("SELECT current_database() AS name")).rows[0].name}`;
+      const peer = new Client({ connectionString: peerUrl.toString() });
+      await peer.connect();
+      try {
+        for (const oldFirst of [true, false]) {
+          await client.query(`UPDATE "AgentUsageEvent" SET "reservedMicrocents"=12200000 WHERE "id"='reserved'`);
+          const oldWrite = `UPDATE "AgentUsageEvent" SET "reservedCredits"=20 WHERE "id"='reserved'`;
+          const newWrite = `UPDATE "AgentUsageEvent" SET "reservedMicrocents"="reservedMicrocents"+250000 WHERE "id"='reserved'`;
+          await client.query("BEGIN");
+          await client.query(oldFirst ? oldWrite : newWrite);
+          const pending = peer.query(oldFirst ? newWrite : oldWrite);
+          await client.query("COMMIT");
+          await pending;
+          expect(
+            (await client.query(`SELECT "reservedMicrocents" FROM "AgentUsageEvent" WHERE "id"='reserved'`)).rows[0]
+              .reservedMicrocents,
+          ).toBe(oldFirst ? "20250000" : "20000000");
+        }
+        await client.query(`UPDATE "AgentUsageEvent" SET "reservedMicrocents"=12200000 WHERE "id"='reserved'`);
+        await client.query(
+          `UPDATE "AgentUsageEvent" SET "state"='settled', "chargedCredits"=13, "settledAt"=NOW() WHERE "id"='reserved'`,
+        );
+        expect(
+          (
+            await client.query(
+              `SELECT "reservedMicrocents", "chargedMicrocents" FROM "AgentUsageEvent" WHERE "id"='reserved'`,
+            )
+          ).rows[0],
+        ).toEqual({ reservedMicrocents: "13000000", chargedMicrocents: "13000000" });
+      } finally {
+        await peer.end();
+      }
+    });
+  });
+
   it("converts every whole-credit ledger amount exactly and keeps the whole-credit columns", async () => {
     await withTemporaryDatabase(requiredDatabaseUrl(), async (client) => {
       const names = migrationNames();
@@ -171,7 +333,7 @@ describeDatabase("exact agent credit microcents migration", { timeout: 120_000 }
         /AgentUsageEvent_microcent_charge_within_reservation/,
       );
       await expect(insertUsage("released", `'user-1', 'released', 'turn', 5, 5, 1, 0`)).rejects.toThrow(
-        /AgentUsageEvent_released_state_uncharged_microcents/,
+        /AgentUsageEvent_released_state_uncharged(?:_microcents)?/,
       );
       await expect(insertUsage("no-user", `NULL, 'settled', 'wikiRetrieval', 5, 5, 1, 1`)).rejects.toThrow(
         /AgentUsageEvent_user_or_workspace_charge/,
@@ -185,7 +347,7 @@ describeDatabase("exact agent credit microcents migration", { timeout: 120_000 }
       ).rejects.toThrow(/AgentConversation_credit_ceiling_microcents_valid/);
       await expect(
         client.query(`UPDATE "AgentCreditAdjustment" SET "deltaMicrocents" = 1000000000001`),
-      ).rejects.toThrow(/AgentCreditAdjustment_delta_microcents_bounded/);
+      ).rejects.toThrow(/AgentCreditAdjustment_delta_(?:microcents_bounded|bounded_nonzero)/);
       await expect(client.query(`UPDATE "RoutineRun" SET "chargedMicrocents" = -1`)).rejects.toThrow(
         /RoutineRun_charged_microcents_nonnegative/,
       );

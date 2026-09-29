@@ -2,6 +2,7 @@ import { beforeEach, describe, expect, it, vi } from "vitest";
 import { decode } from "@toon-format/toon";
 
 import { ForbiddenError } from "@/core/errors/app-errors";
+import { boundedWikiChunk } from "@/features/wiki/wiki-page-chunk";
 import { WikiMarkdownSchema } from "@/features/wiki/wiki.schema";
 import { createMockUser } from "@/tests/helpers/mock-user";
 import { createMockDiModule, MOCK_ENV_MODULE, MOCK_ZOD_MODULE } from "@/tests/helpers/interactor-test-setup";
@@ -250,6 +251,70 @@ describe("manage_wiki_pages reads", () => {
     }
 
     expect(reconstructed).toBe(markdown);
+  });
+
+  it("bounds a legal document's long outline and links while making complete progress", async () => {
+    const links = Array.from(
+      { length: 5 },
+      (_, index) =>
+        `[${"Legal reference 😀 ".repeat(20)}](/wiki?page=00000000-0000-4000-8000-${String(index + 2).padStart(12, "0")})`,
+    ).join("\n");
+    const markdown = WikiMarkdownSchema.parse(
+      `${links}\n\n${Array.from(
+        { length: 60 },
+        (_, index) => `## ${index} ${"Legal heading 😀 ".repeat(15)}\n\n${"Terms and conditions. ".repeat(20)}`,
+      ).join("\n\n")}`,
+    );
+    calls.get.mockResolvedValue({ ok: true, data: page(markdown) });
+    let offset = 0;
+    let reconstructed = "";
+    for (let reads = 0; reads < 100; reads += 1) {
+      const text = mcpToolResultText(await run({ action: "get", id: PAGE_ID, offset }));
+      const output = decode(text) as {
+        markdownChunk: string;
+        offset: number;
+        nextOffset: number | null;
+        outlineTruncated?: boolean;
+      };
+      expect(text.length).toBeLessThanOrEqual(5_500);
+      expect(output.offset).toBe(offset);
+      expect(output.markdownChunk.length).toBeGreaterThan(0);
+      if (reads === 0) expect(output.outlineTruncated).toBe(true);
+      reconstructed += output.markdownChunk;
+      if (output.nextOffset === null) break;
+      expect(output.nextOffset).toBeGreaterThan(offset);
+      offset = output.nextOffset;
+    }
+    expect(reconstructed).toBe(markdown);
+  });
+
+  it("fails explicitly when the remaining budget cannot hold an indivisible link or code point", () => {
+    expect(() =>
+      boundedWikiChunk(`[Link](/wiki?page=${PAGE_ID})`, 0, (start, end) => end - start <= 20, "http://localhost:4000"),
+    ).toThrow("cannot fit");
+    expect(() => boundedWikiChunk("😀", 0, (start, end) => end - start <= 1, "http://localhost:4000")).toThrow(
+      "cannot fit",
+    );
+  });
+
+  it("exposes truthful search continuation to MCP callers", async () => {
+    calls.search.mockResolvedValue({
+      ok: true,
+      data: {
+        items: [],
+        total: 31,
+        totalIsExact: false,
+        hasMore: true,
+        page: 6,
+        pageSize: 5,
+      },
+    });
+    expect(decode(mcpToolResultText(await run({ action: "search", query: "policy", page: 6 })))).toMatchObject({
+      total: 31,
+      totalIsExact: false,
+      hasMore: true,
+      page: 6,
+    });
   });
 
   it("opens a long page with its heading outline so an agent can jump to a section", async () => {

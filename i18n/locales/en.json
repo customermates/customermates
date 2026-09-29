@@ -3552,7 +3552,7 @@
     "manageWithLemonSqueezy": "Manage with Lemon Squeezy",
     "picker": {
       "connectedAccountsPerUser": "{accounts, plural, one {# connected account per user} other {# connected accounts per user}}",
-      "creditNote": "Hosted AI credits refresh monthly; unused credits do not roll over. Each request is charged its exact provider cost, shown to one decimal. External MCP clients use your own AI provider and do not consume these credits.",
+      "creditNote": "Hosted AI credits refresh monthly; unused credits do not roll over. Each request is charged its exact provider cost, shown to one decimal. External MCP clients bill model use through your own AI provider. Server-side semantic searches can consume hosted AI credits.",
       "features": {
         "business": ["Everything in Pro", "Shared accounts and priority support"],
         "pro": ["Everything in Starter", "Unified inbox"],
@@ -3799,6 +3799,8 @@
       "noContentBody": "Review the Mate task for details. You can try another website or continue and add pages later.",
       "noContentTitle": "No Wiki pages were created",
       "readingBody": "Mate is reading {fetched} of {total} pages from {domain}. Help, pricing and policy pages are imported as written.",
+      "refreshFailedBody": "Your existing pages are still available. Open Page actions and choose Refresh from website to try again.",
+      "refreshFailedTitle": "Website refresh did not finish",
       "workingBody": "Mate is reading {domain}, checking useful pages, and turning sourced information into your Wiki. You can follow the progress here or continue to the next step.",
       "workingBodyNoTask": "Mate is reading {domain} and turning sourced information into your Wiki. You can continue to the next step while it works.",
       "workingBodyNoTaskWiki": "Mate is reading {domain} and building the Wiki. You can return later to see the finished pages.",

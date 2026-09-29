@@ -206,6 +206,30 @@ describe("read-only Wiki search and fetch compatibility", () => {
     });
   });
 
+  it("bounds large outline metadata and completes external fetch continuation", async () => {
+    const markdown = Array.from(
+      { length: 70 },
+      (_, index) => `## ${index} ${"Legal terms 😀 ".repeat(18)}\n\n${"Policy detail. ".repeat(20)}`,
+    ).join("\n\n");
+    calls.get.mockResolvedValue({ ok: true, data: { ...page, markdown } });
+    let offset = 0;
+    let complete = "";
+    for (let reads = 0; reads < 100; reads += 1) {
+      const result = await fetchTool.execute({ id: `wiki:${id}`, offset });
+      if (!("structuredContent" in result) || !("nextOffset" in result.structuredContent))
+        throw new Error("Expected chunked Wiki content");
+      expect(result.text.length).toBeLessThanOrEqual(5_500);
+      expect(result.structuredContent.offset).toBe(offset);
+      expect(result.structuredContent.text.length).toBeGreaterThan(0);
+      if (reads === 0) expect(result.structuredContent).toMatchObject({ outlineTruncated: true });
+      complete += result.structuredContent.text;
+      if (result.structuredContent.nextOffset === null) break;
+      expect(result.structuredContent.nextOffset).toBeGreaterThan(offset);
+      offset = result.structuredContent.nextOffset;
+    }
+    expect(complete).toBe(externalizeWikiPageLinks(markdown, "http://localhost:4000"));
+  });
+
   it("returns every character of long Markdown through bounded external fetch chunks", async () => {
     const markdown = "Wiki content\n\n".repeat(1_000).trim();
     calls.get.mockResolvedValue({ ok: true, data: { ...page, markdown } });

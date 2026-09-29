@@ -268,6 +268,20 @@ describe("relevance floor", () => {
 });
 
 describe("section re-rank", () => {
+  it("judges one candidate only when the relevance floor needs a decision and never calls with none", async () => {
+    const ranker = vi.fn(() => Promise.resolve({ order: [1], abstained: true }));
+    const args = { query: "q", stopwatch: new RetrievalStopwatch("wiki"), ranker };
+
+    expect(await rerankSections({ ...args, candidates: [], relevance: "rerank" })).toBeNull();
+    expect(await rerankSections({ ...args, candidates: [candidate(1)], relevance: "kept" })).toBeNull();
+    expect(ranker).not.toHaveBeenCalled();
+    expect(await rerankSections({ ...args, candidates: [candidate(1)], relevance: "rerank" })).toEqual({
+      order: [1],
+      abstained: true,
+    });
+    expect(ranker).toHaveBeenCalledOnce();
+  });
+
   it("returns only offered ids and falls back on a missing ranker, a failure, or an unknown choice", async () => {
     const candidates = [candidate(1), candidate(2), candidate(3)];
     const stopwatch = new RetrievalStopwatch("wiki");

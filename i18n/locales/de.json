@@ -3552,7 +3552,7 @@
     "manageWithLemonSqueezy": "Verwalten mit Lemon Squeezy",
     "picker": {
       "connectedAccountsPerUser": "{accounts, plural, one {# verbundenes Konto pro Nutzer} other {# verbundene Konten pro Nutzer}}",
-      "creditNote": "Credits für den gehosteten KI-Assistenten werden monatlich erneuert; nicht genutzte Credits werden nicht übertragen. Jede Anfrage wird mit ihren genauen Anbieterkosten berechnet und auf eine Nachkommastelle angezeigt. Externe MCP-Clients nutzen deinen eigenen KI-Anbieter und verbrauchen diese Credits nicht.",
+      "creditNote": "Credits für den gehosteten KI-Assistenten werden monatlich erneuert; nicht genutzte Credits werden nicht übertragen. Jede Anfrage wird mit ihren genauen Anbieterkosten berechnet und auf eine Nachkommastelle angezeigt. Externe MCP-Clients rechnen die Modellnutzung über deinen eigenen KI-Anbieter ab. Serverseitige semantische Suchen können gehostete KI-Credits verbrauchen.",
       "features": {
         "business": ["Alles aus Pro", "Geteilte Konten und priorisierter Support"],
         "pro": ["Alles aus Starter", "Einheitlicher Posteingang"],
@@ -3799,6 +3799,8 @@
       "noContentBody": "Prüfe die Mate-Aufgabe für weitere Details. Du kannst eine andere Website versuchen oder fortfahren und später Seiten hinzufügen.",
       "noContentTitle": "Es wurden keine Wiki-Seiten erstellt",
       "readingBody": "Mate liest {fetched} von {total} Seiten von {domain}. Hilfe-, Preis- und Richtlinienseiten werden im Wortlaut übernommen.",
+      "refreshFailedBody": "Deine vorhandenen Seiten sind weiterhin verfügbar. Öffne die Seitenaktionen und wähle „Von der Website aktualisieren“, um es erneut zu versuchen.",
+      "refreshFailedTitle": "Website-Aktualisierung nicht abgeschlossen",
       "workingBody": "Mate liest {domain}, prüft hilfreiche Seiten und überträgt Informationen aus diesen Quellen in dein Wiki. Du kannst den Fortschritt hier verfolgen oder mit dem nächsten Schritt fortfahren.",
       "workingBodyNoTask": "Mate liest {domain} und überträgt Informationen aus diesen Quellen in dein Wiki. Du kannst mit dem nächsten Schritt fortfahren, während Mate arbeitet.",
       "workingBodyNoTaskWiki": "Mate liest {domain} und erstellt das Wiki. Du kannst später zurückkehren, um die fertigen Seiten zu sehen.",

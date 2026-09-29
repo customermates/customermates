@@ -63,6 +63,7 @@ const { prisma } = await import("@/prisma/db");
 const { runWithTenant, runWithoutTenant } = await import("@/core/decorators/tenant-context");
 const { runInTransaction } = await import("@/core/decorators/transaction-runner");
 const { runWithOperator } = await import("@/core/decorators/operator-context");
+const { PrismaAgentChatRepo } = await import("@/ee/agent-chat/prisma-agent-chat.repository");
 const { PrismaOperatorRepo } = await import("@/ee/operator/prisma-operator.repository");
 
 const email = `real-db-check-${Date.now()}@example.com`;
@@ -1042,7 +1043,7 @@ describeDatabase("registration against a real database", () => {
     };
     operatorActorIds.push(actor.userId);
     const deletion = runWithOperator(actor, () =>
-      new PrismaOperatorRepo().deleteWorkspaceUnscoped({
+      new PrismaOperatorRepo(new PrismaAgentChatRepo()).deleteWorkspaceUnscoped({
         companyId: deletedWorkspaceAdmin.companyId,
         confirmWorkspaceLabel: "race-source.invalid",
         reason: "Concurrency regression",

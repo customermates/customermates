@@ -45,9 +45,16 @@ function interactor(
   crawl: WikiWebsiteCrawlState | null = null,
 ) {
   const pageRepo = {
-    listPages: vi.fn().mockResolvedValue({ items: pages, total: pages.length, page: 1, pageSize: 5 }),
+    listPages: vi.fn().mockResolvedValue({
+      items: pages,
+      total: pages.length,
+      page: 1,
+      pageSize: 5,
+    }),
   };
-  const setupTurnRepo = { findWikiHomepageSetupTurn: vi.fn().mockResolvedValue(setup) };
+  const setupTurnRepo = {
+    findWikiHomepageSetupTurn: vi.fn().mockResolvedValue(setup),
+  };
   const crawlRepo = { findLatestCrawl: vi.fn().mockResolvedValue(crawl) };
   return {
     pageRepo,
@@ -83,11 +90,25 @@ describe("GetWikiHomepageSetupStateInteractor", () => {
 
   it("explains an import that robots.txt blocked or that found nothing readable", async () => {
     await expect(
-      interactor(null, [], { ...CRAWL, status: "blocked", failureReason: "blocked" }).interactor.invoke(),
-    ).resolves.toMatchObject({ ok: true, data: { status: "failed", failureReason: "blocked" } });
+      interactor(null, [], {
+        ...CRAWL,
+        status: "blocked",
+        failureReason: "blocked",
+      }).interactor.invoke(),
+    ).resolves.toMatchObject({
+      ok: true,
+      data: { status: "failed", failureReason: "blocked" },
+    });
     await expect(
-      interactor(null, [], { ...CRAWL, status: "failed", failureReason: "unavailable" }).interactor.invoke(),
-    ).resolves.toMatchObject({ ok: true, data: { status: "failed", failureReason: "unavailable" } });
+      interactor(null, [], {
+        ...CRAWL,
+        status: "failed",
+        failureReason: "unavailable",
+      }).interactor.invoke(),
+    ).resolves.toMatchObject({
+      ok: true,
+      data: { status: "failed", failureReason: "unavailable" },
+    });
   });
 
   it("returns idle when neither pages nor a setup turn exist", async () => {
@@ -138,7 +159,11 @@ describe("GetWikiHomepageSetupStateInteractor", () => {
   });
 
   it("does not attribute manually created pages to an earlier failed setup", async () => {
-    const failed = { ...INACTIVE, status: "failed" as const, terminalCode: "error" as const };
+    const failed = {
+      ...INACTIVE,
+      status: "failed" as const,
+      terminalCode: "error" as const,
+    };
     await expect(interactor(failed, [PAGE]).interactor.invoke()).resolves.toEqual({
       ok: true,
       data: {
@@ -153,8 +178,16 @@ describe("GetWikiHomepageSetupStateInteractor", () => {
   });
 
   it("keeps a completed zero-page turn distinct without claiming why no pages were created", async () => {
-    const noContent = { ...INACTIVE, status: "completed" as const, terminalCode: "completed" as const };
-    const failed = { ...INACTIVE, status: "failed" as const, terminalCode: "error" as const };
+    const noContent = {
+      ...INACTIVE,
+      status: "completed" as const,
+      terminalCode: "completed" as const,
+    };
+    const failed = {
+      ...INACTIVE,
+      status: "failed" as const,
+      terminalCode: "error" as const,
+    };
 
     await expect(interactor(noContent).interactor.invoke()).resolves.toMatchObject({
       data: { status: "noContent" },
@@ -187,4 +220,18 @@ describe("GetWikiHomepageSetupStateInteractor", () => {
       data: { status: "idle", homepage: null, conversationId: null },
     });
   });
+  it.each(["failed", "blocked"] as const)(
+    "keeps documents and recovery available after a %s refresh",
+    async (status) => {
+      await expect(interactor(null, [PAGE], { ...CRAWL, status }).interactor.invoke()).resolves.toMatchObject({
+        ok: true,
+        data: {
+          status: "failed",
+          pages: [PAGE],
+          refreshable: true,
+          homepage: CRAWL.homepageUrl,
+        },
+      });
+    },
+  );
 });

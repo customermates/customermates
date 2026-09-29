@@ -16,7 +16,10 @@ import { createMockUser } from "@/tests/helpers/mock-user";
 import messages from "@/i18n/locales/en.json";
 
 const crawler = vi.hoisted(() => ({ discover: vi.fn(), fetch: vi.fn() }));
-const di = vi.hoisted(() => ({ createPages: null as unknown, crawlRepo: null as unknown }));
+const di = vi.hoisted(() => ({
+  createPages: null as unknown,
+  crawlRepo: null as unknown,
+}));
 
 vi.mock("next-intl/server", () => ({
   getLocale: () => Promise.resolve("en"),
@@ -43,14 +46,29 @@ import { WikiWebsiteCrawlService } from "../wiki-website-crawl.service";
 const databaseUrl = getLocalDatabaseTestUrl();
 const describeDatabase = databaseUrl ? describe : describe.skip;
 
-const PAGES: Record<string, { title: string; text: string; qaPairs: Array<{ question: string; answer: string }> }> = {
+const PAGES: Record<
+  string,
+  {
+    title: string;
+    text: string;
+    qaPairs: Array<{ question: string; answer: string }>;
+  }
+> = {
   "https://example.com/help/refunds": {
     title: "Refund policy",
     text: "# Refund policy\n\n## Annual plans\n\nRefunds within 30 days.",
     qaPairs: [{ question: "Can I pause instead?", answer: "Yes, for up to 3 months." }],
   },
-  "https://example.com/pricing": { title: "Pricing", text: "# Pricing\n\nPro costs 29 EUR per seat.", qaPairs: [] },
-  "https://example.com/features": { title: "Features", text: "# Features\n\nScheduling for field teams.", qaPairs: [] },
+  "https://example.com/pricing": {
+    title: "Pricing",
+    text: "# Pricing\n\nPro costs 29 EUR per seat.",
+    qaPairs: [],
+  },
+  "https://example.com/features": {
+    title: "Features",
+    text: "# Features\n\nScheduling for field teams.",
+    qaPairs: [],
+  },
 };
 
 describeDatabase("Wiki website crawl on PostgreSQL", () => {
@@ -62,8 +80,14 @@ describeDatabase("Wiki website crawl on PostgreSQL", () => {
   const eventService = () =>
     new EventService(
       [],
-      { getWebhooksForEvent: () => Promise.resolve([]), getWebhooksForEventUnscoped: () => Promise.resolve([]) },
-      { create: () => Promise.resolve([]), createUnscoped: () => Promise.resolve([]) },
+      {
+        getWebhooksForEvent: () => Promise.resolve([]),
+        getWebhooksForEventUnscoped: () => Promise.resolve([]),
+      },
+      {
+        create: () => Promise.resolve([]),
+        createUnscoped: () => Promise.resolve([]),
+      },
       { log: () => Promise.resolve(), logUnscoped: () => Promise.resolve() },
       { dispatch: () => Promise.resolve() } as never,
       {
@@ -129,7 +153,13 @@ describeDatabase("Wiki website crawl on PostgreSQL", () => {
     crawler.fetch.mockImplementation((url: string) => {
       const page = PAGES[url];
       return Promise.resolve(
-        page ? { url, ...page, contentHash: createHash("sha256").update(page.text).digest("hex") } : null,
+        page
+          ? {
+              url,
+              ...page,
+              contentHash: createHash("sha256").update(page.text).digest("hex"),
+            }
+          : null,
       );
     });
     synthesis.mockResolvedValue("00000000-0000-4000-8000-00000000c0de");
@@ -155,7 +185,10 @@ describeDatabase("Wiki website crawl on PostgreSQL", () => {
       conversationId: "00000000-0000-4000-8000-00000000c0de",
     });
     expect(synthesis).toHaveBeenCalledExactlyOnceWith(
-      expect.objectContaining({ id: crawlId, homepageUrl: "https://example.com/" }),
+      expect.objectContaining({
+        id: crawlId,
+        homepageUrl: "https://example.com/",
+      }),
     );
     const sources = await client.query(
       'SELECT "category", "title" FROM "WikiSourceDocument" WHERE "crawlId" = $1 ORDER BY "title"',
@@ -171,9 +204,23 @@ describeDatabase("Wiki website crawl on PostgreSQL", () => {
       'SELECT "title", "markdown", "kind", "sourceUrl", "sourceContentHash" FROM "WikiPage" WHERE "companyId" = $1 ORDER BY "title"',
       [companyId],
     );
-    expect(pages.rows.map(({ title, kind, sourceUrl }) => ({ title, kind, sourceUrl }))).toEqual([
-      { title: "Pricing", kind: "knowledge", sourceUrl: "https://example.com/pricing" },
-      { title: "Refund policy", kind: "knowledge", sourceUrl: "https://example.com/help/refunds" },
+    expect(
+      pages.rows.map(({ title, kind, sourceUrl }) => ({
+        title,
+        kind,
+        sourceUrl,
+      })),
+    ).toEqual([
+      {
+        title: "Pricing",
+        kind: "knowledge",
+        sourceUrl: "https://example.com/pricing",
+      },
+      {
+        title: "Refund policy",
+        kind: "knowledge",
+        sourceUrl: "https://example.com/help/refunds",
+      },
     ]);
     const refund = pages.rows[1].markdown as string;
     expect(refund).toContain("Refunds within 30 days.");
@@ -182,7 +229,9 @@ describeDatabase("Wiki website crawl on PostgreSQL", () => {
   }, 30_000);
 
   it("writes each page once when a redelivered step runs alongside the first delivery", async () => {
-    PAGES["https://example.com/help/refunds-copy"] = { ...PAGES["https://example.com/help/refunds"] };
+    PAGES["https://example.com/help/refunds-copy"] = {
+      ...PAGES["https://example.com/help/refunds"],
+    };
     crawler.discover.mockResolvedValueOnce({
       status: "ready",
       crawlDelayMs: 0,
@@ -236,11 +285,21 @@ describeDatabase("Wiki website crawl on PostgreSQL", () => {
     const create = (pages: unknown[]) => runWithTenant(user, () => tool.execute({ action: "create", pages } as never));
 
     const unknown = await create([
-      { title: "Refunds", kind: "knowledge", sections: [{ heading: "A", content: "B" }], sourceIds: [randomUUID()] },
+      {
+        title: "Refunds",
+        kind: "knowledge",
+        sections: [{ heading: "A", content: "B" }],
+        sourceIds: [randomUUID()],
+      },
     ]);
     expect(JSON.stringify(unknown)).toContain("Cite only ids returned by read_website_source");
     const unread = await create([
-      { title: "Refunds", kind: "knowledge", sections: [{ heading: "A", content: "B" }], sourceIds: [refund.id] },
+      {
+        title: "Refunds",
+        kind: "knowledge",
+        sections: [{ heading: "A", content: "B" }],
+        sourceIds: [refund.id],
+      },
     ]);
     expect(JSON.stringify(unread)).toContain(`unread: ${refund.id}`);
     await runWithTenant(user, () => readWebsiteSourceTool(crawlId).execute({ action: "get", id: refund.id }));
@@ -249,7 +308,12 @@ describeDatabase("Wiki website crawl on PostgreSQL", () => {
       {
         title: "Operating Guide",
         kind: "guide",
-        sections: [{ heading: "Routing", content: "- Refunds -> Refund procedure\\n- Other -> Support" }],
+        sections: [
+          {
+            heading: "Routing",
+            content: "- Refunds -> Refund procedure\\n- Other -> Support",
+          },
+        ],
         sourceIds: [refund.id],
         gaps: ["Who approves refunds over 500 EUR?"],
       },
@@ -257,7 +321,12 @@ describeDatabase("Wiki website crawl on PostgreSQL", () => {
         title: "Refund procedure",
         kind: "procedure",
         whenToUse: "When a customer asks for money back.",
-        sections: [{ heading: "Steps", content: "1. Check the plan.\n2. Refund within 30 days." }],
+        sections: [
+          {
+            heading: "Steps",
+            content: "1. Check the plan.\n2. Refund within 30 days.",
+          },
+        ],
         sourceIds: [refund.id],
       },
     ]);
@@ -290,13 +359,17 @@ describeDatabase("Wiki website crawl on PostgreSQL", () => {
   it("refreshes untouched imported pages, keeps pages people edited, and adds no new pages", async () => {
     await runCrawl(await startCrawl());
     const edited = await client.query(
-      `UPDATE "WikiPage" SET "markdown" = 'Our own pricing notes', "updatedAt" = now() + interval '1 minute'
+      `UPDATE "WikiPage" SET "markdown" = 'Our own pricing notes', "updatedAt" = "updatedAt" + interval '500 milliseconds'
        WHERE "companyId" = $1 AND "title" = 'Pricing' RETURNING "id"`,
       [companyId],
     );
     PAGES["https://example.com/help/refunds"].text = "# Refund policy\n\n## Annual plans\n\nRefunds within 45 days.";
     PAGES["https://example.com/pricing"].text = "# Pricing\n\nPro costs 35 EUR per seat.";
-    PAGES["https://example.com/new-policy"] = { title: "Terms", text: "# Terms\n\nNew terms.", qaPairs: [] };
+    PAGES["https://example.com/new-policy"] = {
+      title: "Terms",
+      text: "# Terms\n\nNew terms.",
+      qaPairs: [],
+    };
 
     const refreshId = await startCrawl("refresh");
     await runCrawl(refreshId);
@@ -314,13 +387,115 @@ describeDatabase("Wiki website crawl on PostgreSQL", () => {
     expect(synthesis).toHaveBeenCalledTimes(1);
   }, 30_000);
 
+  it("allows only one workflow to own a crawl, including replay of the winning claim", async () => {
+    const crawlId = await startCrawl();
+    await runWithTenant(user, async () => {
+      const repo = new PrismaWikiWebsiteCrawlRepo();
+      const claims = await Promise.all([repo.claimWorkflow(crawlId, "run-a"), repo.claimWorkflow(crawlId, "run-b")]);
+      expect(claims.filter(Boolean)).toHaveLength(1);
+      expect(await repo.claimWorkflow(crawlId, claims[0] ? "run-a" : "run-b")).toBe(true);
+      await repo.failDispatch(crawlId);
+      expect((await repo.getCrawl(crawlId))?.status).toBe("queued");
+    });
+  });
+
+  it("recovers a failed dispatch without allowing its ambiguous delayed workflow to duplicate work", async () => {
+    const crawlId = await startCrawl();
+    await runWithTenant(user, async () => {
+      const repo = new PrismaWikiWebsiteCrawlRepo();
+      await repo.failDispatch(crawlId);
+      expect((await repo.getCrawl(crawlId))?.status).toBe("failed");
+      expect(await repo.claimWorkflow(crawlId, "late-run")).toBe(false);
+      expect((await repo.retryFailedDispatch(crawlId))?.status).toBe("queued");
+      const claims = await Promise.all([
+        repo.claimWorkflow(crawlId, "late-run"),
+        repo.claimWorkflow(crawlId, "retry-run"),
+      ]);
+      expect(claims.filter(Boolean)).toHaveLength(1);
+    });
+  });
+
+  it("does not requeue a failed dispatch over another active crawl", async () => {
+    const crawlId = await startCrawl();
+    await runWithTenant(user, () => new PrismaWikiWebsiteCrawlRepo().failDispatch(crawlId));
+    await startCrawl();
+    await runWithTenant(user, async () => {
+      const repo = new PrismaWikiWebsiteCrawlRepo();
+      expect(await repo.retryFailedDispatch(crawlId)).toBeNull();
+      expect((await repo.getCrawl(crawlId))?.status).toBe("failed");
+    });
+  });
+
+  it("does not mark a concurrent edit as an imported revision", async () => {
+    await runCrawl(await startCrawl());
+    await runWithTenant(user, async () => {
+      const repo = new PrismaWikiWebsiteCrawlRepo();
+      const before = await repo.findImportedPage("https://example.com/pricing");
+      if (!before) throw new Error("Missing imported fixture");
+      const edited = await new UpdateWikiPageInteractor(new PrismaWikiPageRepo(), eventService()).invoke({
+        id: before.id,
+        expectedUpdatedAt: before.updatedAt,
+        markdown: "Manual racing edit",
+      });
+      expect(edited.ok).toBe(true);
+      await repo.markImported(before.id, {
+        url: "https://example.com/pricing",
+        fetchedAt: new Date(),
+        contentHash: "must-not-be-written",
+        importedUpdatedAt: before.updatedAt,
+      });
+      const after = await repo.findImportedPage("https://example.com/pricing");
+      if (!after?.sourceImportedUpdatedAt) throw new Error("Missing imported revision");
+      expect(after.sourceContentHash).toBe(before.sourceContentHash);
+      expect(after?.sourceImportedUpdatedAt).toEqual(before.sourceImportedUpdatedAt);
+      expect(after.updatedAt.getTime()).toBeGreaterThan(after.sourceImportedUpdatedAt.getTime());
+    });
+  });
+
+  it("refreshes original and extended imports even when the external site has no backlink", async () => {
+    await runCrawl(await startCrawl());
+    const externalUrl = "https://acme.zendesk.com/hc/en-us/articles/reset";
+    PAGES[externalUrl] = {
+      title: "Password reset",
+      text: "Original external instructions",
+      qaPairs: [],
+    };
+    crawler.discover.mockResolvedValueOnce({
+      status: "ready",
+      crawlDelayMs: 0,
+      pendingHosts: [],
+      targets: [{ url: externalUrl, category: "help" }],
+    });
+    await runCrawl(await startCrawl("extend", "https://acme.zendesk.com/hc/en-us"));
+    PAGES[externalUrl].text = "Updated external instructions";
+    PAGES["https://example.com/pricing"].text = "Updated original pricing";
+    crawler.discover.mockClear();
+    crawler.fetch.mockClear();
+    const refreshId = await startCrawl("refresh");
+    await client.query('UPDATE "WikiWebsiteCrawl" SET "extraHosts" = $2 WHERE "id" = $1', [
+      refreshId,
+      ["acme.zendesk.com"],
+    ]);
+    await runCrawl(refreshId);
+    expect(crawler.discover).not.toHaveBeenCalled();
+    expect(crawler.fetch.mock.calls.map(([url]) => url)).toEqual(
+      expect.arrayContaining([externalUrl, "https://example.com/pricing"]),
+    );
+    const pages = await client.query('SELECT "markdown" FROM "WikiPage" WHERE "companyId" = $1', [companyId]);
+    expect(pages.rows.some(({ markdown }) => markdown.includes("Updated external instructions"))).toBe(true);
+    expect(pages.rows.some(({ markdown }) => markdown.includes("Updated original pricing"))).toBe(true);
+  }, 30_000);
+
   it("limits an extension crawl to the confirmed help-centre host and marks a blocked site", async () => {
     crawler.discover.mockResolvedValueOnce({
       status: "ready",
       crawlDelayMs: 0,
       pendingHosts: [],
       targets: [
-        { url: "https://acme.zendesk.com/hc/en-us/articles/1", category: "help" },
+        {
+          url: "https://acme.zendesk.com/hc/en-us/articles/1",
+          category: "help",
+        },
         { url: "https://example.com/pricing", category: "pricing" },
       ],
     });
@@ -348,7 +523,10 @@ describeDatabase("Wiki website crawl on PostgreSQL", () => {
     const blocked = await client.query('SELECT "status", "failureReason" FROM "WikiWebsiteCrawl" WHERE "id" = $1', [
       blockedId,
     ]);
-    expect(blocked.rows[0]).toEqual({ status: "blocked", failureReason: "blocked" });
+    expect(blocked.rows[0]).toEqual({
+      status: "blocked",
+      failureReason: "blocked",
+    });
   });
 
   it("allows only one active crawl per workspace", async () => {

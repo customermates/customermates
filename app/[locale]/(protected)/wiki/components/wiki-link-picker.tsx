@@ -59,18 +59,13 @@ export function WikiLinkPicker({ onSelect }: EditorLinkPickerProps) {
         )}
       </CommandList>
 
-      {!pages.loading && pages.result.total > pages.result.pageSize && (
+      {!pages.loading && (pages.page > 1 || pages.hasMore) && (
         <div className="flex justify-between border-t border-border pt-1">
           <Button disabled={pages.page === 1} size="xs" variant="ghost" onClick={() => pages.setPage(pages.page - 1)}>
             {t("Wiki.previous")}
           </Button>
 
-          <Button
-            disabled={pages.page * pages.result.pageSize >= pages.result.total}
-            size="xs"
-            variant="ghost"
-            onClick={() => pages.setPage(pages.page + 1)}
-          >
+          <Button disabled={!pages.hasMore} size="xs" variant="ghost" onClick={() => pages.setPage(pages.page + 1)}>
             {t("Wiki.next")}
           </Button>
         </div>

@@ -31,6 +31,10 @@ export type StartedWikiHomepageSetup = {
 
 type WikiWebsiteCrawlStart = {
   id: string;
+  userId: string;
+  status: string;
+  failureReason: string | null;
+  mode: string;
   homepageUrl: string;
   registrableDomain: string;
   conversationId: string | null;
@@ -45,6 +49,9 @@ export abstract class StartWikiHomepageSetupRepo {
 export abstract class StartWikiWebsiteCrawlRepo {
   abstract findCrawlByClientRequest(clientRequestId: string): Promise<WikiWebsiteCrawlStart | null>;
   abstract findLatestCrawl(): Promise<WikiWebsiteCrawlStart | null>;
+  abstract findRefreshHomepage(registrableDomain: string): Promise<string | null>;
+  abstract failDispatch(id: string): Promise<void>;
+  abstract retryFailedDispatch(id: string): Promise<WikiWebsiteCrawlStart | null>;
   abstract createCrawl(data: {
     clientRequestId: string;
     homepageUrl: string;
@@ -71,7 +78,7 @@ export class StartWikiHomepageSetupInteractor extends AuthenticatedInteractor<
   @Write({ input: StartWikiHomepageSetupSchema, tx: false })
   async invoke(data: StartWikiHomepageSetupData): Validated<StartedWikiHomepageSetup> {
     const reusable = await this.crawlRepo.findCrawlByClientRequest(data.clientRequestId);
-    if (reusable) return this.started(reusable);
+    if (reusable) return this.dispatchQueued(reusable);
 
     const target = await this.target(data);
     if (!target) return fail(CustomErrorCode.invalidUrl, ["homepage"]);
@@ -87,26 +94,60 @@ export class StartWikiHomepageSetupInteractor extends AuthenticatedInteractor<
       mode,
       extraHosts: target.extraHosts,
     });
-    if (created.status === "active") return failConflict(CustomErrorCode.agentTurnAlreadyRunning, ["homepage"]);
-    await this.backgroundTaskService.dispatch("crawl-wiki-website", {
-      crawlId: created.crawl.id,
-      userId: this.userId,
-    });
-    return this.started(created.crawl);
+    if (created.status === "active") {
+      const replay = await this.crawlRepo.findCrawlByClientRequest(data.clientRequestId);
+      if (replay) return this.dispatchQueued(replay);
+      const active = await this.crawlRepo.findLatestCrawl();
+      if (
+        active?.status === "queued" &&
+        active.mode === mode &&
+        active.homepageUrl === target.homepageUrl &&
+        active.registrableDomain === target.registrableDomain &&
+        active.extraHosts.length === target.extraHosts.length &&
+        active.extraHosts.every((host) => target.extraHosts.includes(host))
+      )
+        return this.dispatchQueued(active);
+      return failConflict(CustomErrorCode.agentTurnAlreadyRunning, ["homepage"]);
+    }
+    return this.dispatchQueued(created.crawl);
+  }
+
+  private async dispatchQueued(crawl: WikiWebsiteCrawlStart) {
+    if (crawl.status === "failed" && crawl.failureReason === "dispatch") {
+      const retried = await this.crawlRepo.retryFailedDispatch(crawl.id);
+      if (!retried) return failConflict(CustomErrorCode.agentTurnAlreadyRunning, ["homepage"]);
+      crawl = retried;
+    }
+    if (crawl.status === "queued") {
+      try {
+        await this.backgroundTaskService.dispatch("crawl-wiki-website", {
+          crawlId: crawl.id,
+          userId: crawl.userId,
+        });
+      } catch (error) {
+        await this.crawlRepo.failDispatch(crawl.id);
+        throw error;
+      }
+    }
+    return this.started(crawl);
   }
 
   private async target(data: StartWikiHomepageSetupData) {
     if ((data.mode ?? "initial") === "initial") {
       const homepage = parsePublicWikiHomepage(data.homepage);
       return homepage
-        ? { homepageUrl: homepage.url, registrableDomain: homepage.registrableDomain, extraHosts: [] }
+        ? {
+            homepageUrl: homepage.url,
+            registrableDomain: homepage.registrableDomain,
+            extraHosts: [],
+          }
         : null;
     }
     const latest = await this.crawlRepo.findLatestCrawl();
     if (!latest) return null;
     if (data.mode === "refresh") {
       return {
-        homepageUrl: latest.homepageUrl,
+        homepageUrl: (await this.crawlRepo.findRefreshHomepage(latest.registrableDomain)) ?? latest.homepageUrl,
         registrableDomain: latest.registrableDomain,
         extraHosts: latest.extraHosts,
       };
@@ -124,7 +165,11 @@ export class StartWikiHomepageSetupInteractor extends AuthenticatedInteractor<
   private started(crawl: WikiWebsiteCrawlStart) {
     return {
       ok: true as const,
-      data: { conversationId: crawl.conversationId, homepage: crawl.homepageUrl, domain: crawl.registrableDomain },
+      data: {
+        conversationId: crawl.conversationId,
+        homepage: crawl.homepageUrl,
+        domain: crawl.registrableDomain,
+      },
     };
   }
 }

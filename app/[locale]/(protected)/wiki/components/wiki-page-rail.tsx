@@ -12,7 +12,11 @@ import { IntlLink } from "@/i18n/navigation";
 import { cn } from "@/core/utils/cn";
 import { wikiPagePath } from "@/features/wiki/wiki-links";
 
-const WIKI_KIND_ICONS = { guide: Compass, procedure: ListChecks, knowledge: FileText } as const;
+const WIKI_KIND_ICONS = {
+  guide: Compass,
+  procedure: ListChecks,
+  knowledge: FileText,
+} as const;
 
 type Props = {
   busy: boolean;
@@ -113,7 +117,7 @@ export function WikiPageRail({ busy, currentPageId, pages, pinnedPage, onSelect 
         )}
       </nav>
 
-      {pages.result.total > pages.result.pageSize && (
+      {(pages.page > 1 || pages.hasMore) && (
         <div className="flex items-center justify-between gap-1 border-t border-border p-2 text-xs text-muted-foreground">
           <Button
             disabled={pages.loading || pages.page <= 1}
@@ -125,14 +129,16 @@ export function WikiPageRail({ busy, currentPageId, pages, pinnedPage, onSelect 
           </Button>
 
           <span>
-            {t("Wiki.page", {
-              current: pages.page,
-              total: Math.ceil(pages.result.total / pages.result.pageSize),
-            })}
+            {pages.totalIsExact
+              ? t("Wiki.page", {
+                  current: pages.page,
+                  total: Math.ceil(pages.result.total / pages.result.pageSize),
+                })
+              : pages.page}
           </span>
 
           <Button
-            disabled={pages.loading || pages.page * pages.result.pageSize >= pages.result.total}
+            disabled={pages.loading || !pages.hasMore}
             size="xs"
             variant="ghost"
             onClick={() => pages.setPage(pages.page + 1)}

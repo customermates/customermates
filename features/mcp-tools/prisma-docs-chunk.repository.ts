@@ -95,6 +95,7 @@ export class PrismaDocsChunkRepo extends DocsChunkRepo {
   }
 
   async semanticIndexComplete(scope: DocsScope, model: string) {
+    if (!(await this.semanticIndexAvailable())) return false;
     const key = [scope.buildHash, scope.locale, scope.slug ?? "", model, ...scope.sources].join("\u0000");
     if (completeSemanticIndexes.has(key)) return true;
     const rows = await prisma.$queryRaw<Array<{ missing: boolean }>>(Prisma.sql`

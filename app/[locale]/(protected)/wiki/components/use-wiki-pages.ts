@@ -1,6 +1,6 @@
 "use client";
 
-import type { WikiPageListResult } from "@/features/wiki/wiki.schema";
+import type { WikiPageListResult, WikiPageSearchResult } from "@/features/wiki/wiki.schema";
 
 import { useEffect, useState } from "react";
 
@@ -12,7 +12,7 @@ import { getWikiPagesAction, searchWikiPagesAction } from "../actions";
 export function useWikiPages(initial: WikiPageListResult, loadInitial = false) {
   const [query, setQuery] = useState("");
   const [page, setPage] = useState(initial.page);
-  const [result, setResult] = useState(initial);
+  const [result, setResult] = useState<WikiPageListResult | WikiPageSearchResult>(initial);
   const [loading, setLoading] = useState(false);
   const [failed, setFailed] = useState(false);
   const [retry, setRetry] = useState(0);
@@ -56,6 +56,9 @@ export function useWikiPages(initial: WikiPageListResult, loadInitial = false) {
 
   return {
     result,
+    hasMore:
+      "hasMore" in result && result.hasMore !== undefined ? result.hasMore : page * result.pageSize < result.total,
+    totalIsExact: !("totalIsExact" in result) || result.totalIsExact !== false,
     query,
     loading: loading || query.trim() !== debouncedQuery,
     failed,

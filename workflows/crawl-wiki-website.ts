@@ -1,5 +1,7 @@
 import type { WorkflowTenant } from "./workflow-tenant";
 
+import { getWorkflowMetadata } from "workflow";
+
 import { getWikiWebsiteCrawlService } from "@/core/di";
 import { runAsBackgroundTenant } from "@/core/decorators/background-tenant";
 
@@ -12,6 +14,13 @@ export type CrawlWikiWebsiteWorkflowPayload = {
   userId: string;
   tenant?: WorkflowTenant;
 };
+
+async function claimWikiWebsiteStep(payload: CrawlWikiWebsiteWorkflowPayload, workflowRunId: string): Promise<boolean> {
+  "use step";
+  return runAsBackgroundTenant(payload.userId, () =>
+    getWikiWebsiteCrawlService().claimWorkflow(payload.crawlId, workflowRunId),
+  );
+}
 
 async function discoverWikiWebsiteStep(payload: CrawlWikiWebsiteWorkflowPayload): Promise<number> {
   "use step";
@@ -41,6 +50,8 @@ async function failWikiWebsiteStep(payload: CrawlWikiWebsiteWorkflowPayload): Pr
 
 export async function crawlWikiWebsite(payload: CrawlWikiWebsiteWorkflowPayload): Promise<void> {
   "use workflow";
+  const { workflowRunId } = getWorkflowMetadata();
+  if (!(await claimWikiWebsiteStep(payload, workflowRunId))) return;
   try {
     const batches = await discoverWikiWebsiteStep(payload);
     if (batches === 0) return;

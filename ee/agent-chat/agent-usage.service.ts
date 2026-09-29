@@ -68,6 +68,17 @@ export abstract class AgentUsageRepo {
     charge: AgentRetrievalCharge;
     now: Date;
   }): Promise<void>;
+  abstract reservePlatformUsageUnscoped(args: {
+    purpose: string;
+    model: string;
+    reservedMicrocents: number;
+    now: Date;
+  }): Promise<string | null>;
+  abstract settlePlatformUsageUnscoped(args: {
+    reservationId: string;
+    charge: AgentRetrievalCharge | null;
+    now: Date;
+  }): Promise<void>;
   abstract reserveRetrievalUsageUnscoped(args: {
     grant: AgentRetrievalGrant;
     reservedMicrocents: number;
@@ -228,7 +239,10 @@ export class AgentUsageService {
       this.repo.getUserCreditAdjustmentUnscoped(user.companyId, userId, baseEntitlement.start, baseEntitlement.resetAt),
       this.repo.getWorkspaceCreditPoolUnscoped(user.companyId, now),
     ]);
-    const entitlement = resolveAgentCreditEntitlement({ ...entitlementInput, adjustmentMicrocents });
+    const entitlement = resolveAgentCreditEntitlement({
+      ...entitlementInput,
+      adjustmentMicrocents,
+    });
     assertMicrocentCount(usage.usedMicrocents, "Stored AI credit usage");
     if (usage.recentTurnMicrocents !== null) assertMicrocentCount(usage.recentTurnMicrocents, "Recent AI turn usage");
 
@@ -392,6 +406,37 @@ export class AgentUsageService {
     await this.repo.accruePlatformUsageUnscoped({
       purpose: args.purpose,
       charge: args.charge,
+      now: args.now ?? new Date(),
+    });
+  }
+
+  async reservePlatformRetrieval(args: {
+    purpose: "docsIndexing";
+    model: string;
+    worstCaseMicrocents: number;
+    now?: Date;
+  }): Promise<string | null> {
+    assertMicrocentCount(args.worstCaseMicrocents, "Platform AI reservation");
+    if (env.APP_MODE === "self-hosted" || env.APP_MODE === "demo") return null;
+    return this.repo.reservePlatformUsageUnscoped({
+      purpose: args.purpose,
+      model: args.model,
+      reservedMicrocents: Math.max(1, args.worstCaseMicrocents),
+      now: args.now ?? new Date(),
+    });
+  }
+
+  async settlePlatformRetrieval(args: {
+    reservationId: string;
+    charge: AgentRetrievalCharge | null;
+    now?: Date;
+  }): Promise<void> {
+    if (args.charge) {
+      assertMicrocentCount(args.charge.costMicrocents, "Platform AI cost");
+      assertMicrocentCount(args.charge.inputTokens, "Platform AI input tokens");
+    }
+    await this.repo.settlePlatformUsageUnscoped({
+      ...args,
       now: args.now ?? new Date(),
     });
   }

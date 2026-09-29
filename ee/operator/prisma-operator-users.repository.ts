@@ -13,8 +13,14 @@ import { BypassTenantGuard } from "@/core/decorators/bypass-tenant.decorator";
 import { FilterFieldKey } from "@/core/types/filter-field-key";
 import { FILTER_FIELD_DEFAULT_OPERATORS } from "@/core/types/filter-field-operators";
 
-import { microcentsWithLegacyCredits, resolveAgentCreditEntitlement } from "@/ee/agent-chat/agent-credit-policy";
+import {
+  memberCreditHeadroomMicrocents,
+  workspaceIndexingShareMicrocents,
+  microcentsWithLegacyCredits,
+  resolveAgentCreditEntitlement,
+} from "@/ee/agent-chat/agent-credit-policy";
 import { env } from "@/env";
+import type { AgentUsageRepo } from "@/ee/agent-chat/agent-usage.service";
 import { Status } from "@/generated/prisma";
 
 import {
@@ -63,6 +69,10 @@ const OPERATOR_USER_SELECT = {
 } as const;
 
 export class PrismaOperatorUsersRepo extends BaseRepository<Prisma.UserWhereInput> implements GetOperatorUsersRepo {
+  constructor(private readonly agentRepo: AgentUsageRepo) {
+    super();
+  }
+
   getSearchableFields() {
     return [{ field: "email" }, { field: "firstName" }, { field: "lastName" }];
   }
@@ -70,7 +80,11 @@ export class PrismaOperatorUsersRepo extends BaseRepository<Prisma.UserWhereInpu
   getSortableFields() {
     return [
       { field: "createdAt", resolvedFields: ["createdAt"] },
-      { field: "lastActiveAt", resolvedFields: ["lastActiveAt"], nullable: true },
+      {
+        field: "lastActiveAt",
+        resolvedFields: ["lastActiveAt"],
+        nullable: true,
+      },
       { field: "email", resolvedFields: ["email"], collate: true },
       { field: "status", resolvedFields: ["status"] },
     ];
@@ -89,13 +103,20 @@ export class PrismaOperatorUsersRepo extends BaseRepository<Prisma.UserWhereInpu
         FilterFieldKey.workspaceId,
         FilterFieldKey.adProvider,
         FilterFieldKey.workspaceTags,
-      ].map((field) => ({ field, operators: FILTER_FIELD_DEFAULT_OPERATORS[field] })),
+      ].map((field) => ({
+        field,
+        operators: FILTER_FIELD_DEFAULT_OPERATORS[field],
+      })),
     );
   }
 
   getGroupableFields(): Promise<GroupableFieldSpec[]> {
     return Promise.resolve([
-      ...enumGroupables("user", { status: true, plan: true, subscriptionStatus: true }),
+      ...enumGroupables("user", {
+        status: true,
+        plan: true,
+        subscriptionStatus: true,
+      }),
       ...dateGroupables("user", { createdAt: true, updatedAt: true }),
     ]);
   }
@@ -194,7 +215,15 @@ export class PrismaOperatorUsersRepo extends BaseRepository<Prisma.UserWhereInpu
     const positions = new Map<string, { remaining: number; limit: number; blockedReason: string | null }>();
     if (users.length === 0) return positions;
 
-    const entitlements = new Map<string, { start: Date; resetAt: Date; limit: number; blockedReason: string | null }>();
+    const entitlements = new Map<
+      string,
+      {
+        start: Date;
+        resetAt: Date;
+        limit: number;
+        blockedReason: string | null;
+      }
+    >();
     for (const user of users) {
       const subscription = user.company.subscription;
       if (!subscription) continue;
@@ -226,15 +255,36 @@ export class PrismaOperatorUsersRepo extends BaseRepository<Prisma.UserWhereInpu
     const [adjustments, settled, reserved] = await Promise.all([
       this.prisma.agentCreditAdjustment.findMany({
         where: { userId: { in: userIds } },
-        select: { userId: true, periodStart: true, periodEnd: true, deltaMicrocents: true, creditDelta: true },
+        select: {
+          userId: true,
+          periodStart: true,
+          periodEnd: true,
+          deltaMicrocents: true,
+          creditDelta: true,
+        },
       }),
       this.prisma.agentUsageEvent.findMany({
         where: { userId: { in: userIds }, state: "settled" },
-        select: { userId: true, periodStart: true, periodEnd: true, chargedMicrocents: true, chargedCredits: true },
+        select: {
+          userId: true,
+          periodStart: true,
+          periodEnd: true,
+          chargedMicrocents: true,
+          chargedCredits: true,
+        },
       }),
       this.prisma.agentUsageEvent.findMany({
-        where: { userId: { in: userIds }, state: { in: ["reserved", "retained"] } },
-        select: { userId: true, periodStart: true, periodEnd: true, reservedMicrocents: true, reservedCredits: true },
+        where: {
+          userId: { in: userIds },
+          state: { in: ["reserved", "retained"] },
+        },
+        select: {
+          userId: true,
+          periodStart: true,
+          periodEnd: true,
+          reservedMicrocents: true,
+          reservedCredits: true,
+        },
       }),
     ]);
 
@@ -274,14 +324,41 @@ export class PrismaOperatorUsersRepo extends BaseRepository<Prisma.UserWhereInpu
       );
     }
 
+    const pools = new Map(
+      await Promise.all(
+        [...new Set(users.map((user) => user.companyId))].map(
+          async (companyId) =>
+            [companyId, await this.agentRepo.getWorkspaceCreditPoolUnscoped(companyId, now)] as const,
+        ),
+      ),
+    );
+
     for (const user of users) {
       const entitlement = entitlements.get(user.id);
       if (!entitlement) continue;
 
       const key = periodKey(user.id, entitlement.start, entitlement.resetAt);
       const activeSeat = user.status === Status.active;
-      const limit = activeSeat ? entitlement.limit + (adjustmentByPeriod.get(key) ?? 0) : 0;
-      const remaining = Math.max(0, limit - (committedByPeriod.get(key) ?? 0));
+      const limit = activeSeat ? Math.max(0, entitlement.limit + (adjustmentByPeriod.get(key) ?? 0)) : 0;
+      const pool = pools.get(user.companyId);
+      const samePeriod =
+        pool != null &&
+        pool.periodStart.getTime() === entitlement.start.getTime() &&
+        pool.periodEnd.getTime() === entitlement.resetAt.getTime();
+      const share = samePeriod
+        ? workspaceIndexingShareMicrocents({
+            unassignedMicrocents: pool.unassignedMicrocents,
+            memberLimitMicrocents: limit,
+            poolLimitMicrocents: pool.limitMicrocents,
+          })
+        : 0;
+      const used = (committedByPeriod.get(key) ?? 0) + share;
+      const remaining = memberCreditHeadroomMicrocents({
+        memberLimitMicrocents: limit,
+        memberUsedMicrocents: used,
+        poolLimitMicrocents: samePeriod ? pool.limitMicrocents : limit,
+        poolUsedMicrocents: samePeriod ? pool.usedMicrocents : used,
+      });
       positions.set(user.id, {
         remaining,
         limit: Math.max(0, limit),

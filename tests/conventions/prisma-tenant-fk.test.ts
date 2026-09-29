@@ -19,6 +19,7 @@ const TENANT_FK_ALLOWLIST = new Set([
   "OperatorAuditEvent",
   "DocsChunk",
   "HostedAiPlatformUsage",
+  "HostedAiPlatformReservation",
 ]);
 
 type PrismaModel = {

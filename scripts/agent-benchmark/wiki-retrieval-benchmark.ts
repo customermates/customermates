@@ -18,9 +18,10 @@
  * only when the corpus text shows it is wrong.
  */
 import type { WikiPageKind } from "@/features/wiki/wiki.schema";
+import type { AppLocale, ContentLocale } from "@/i18n/locale-registry";
 
-export type WikiBenchmarkPageLanguage = "de" | "en";
-export type WikiBenchmarkQueryLanguage = "de" | "en" | "es" | "fr" | "it";
+export type WikiBenchmarkPageLanguage = ContentLocale;
+export type WikiBenchmarkQueryLanguage = AppLocale;
 export type WikiBenchmarkCategory = "lexical" | "paraphrase" | "cross-language" | "typo" | "multi-hop" | "no-match";
 
 export type WikiBenchmarkPage = {

@@ -1,4 +1,4 @@
-import type { QueryEmbeddingWait, RelevanceFloor } from "@/core/retrieval/retrieval-pipeline";
+import type { QueryEmbeddingWait, QueryVector, RelevanceFloor } from "@/core/retrieval/retrieval-pipeline";
 import type { Validated } from "@/core/validation/validation.utils";
 import type { WikiPageDto, WikiPageSearchData, WikiPageSearchResult, WikiSearchResult } from "./wiki.schema";
 
@@ -36,6 +36,7 @@ type WikiSearchOrder = {
   offsets: Map<string, number>;
   exhaustive: boolean;
   semantic: boolean;
+  vector: QueryVector | null;
   corrected?: string;
   expiresAt: number;
 };
@@ -123,7 +124,7 @@ export class SearchWikiPagesInteractor extends AuthenticatedInteractor<WikiPageS
       const key = [this.companyId, this.userId, semantic ? "semantic" : "keyword", data.query].join("\u0000");
       const previous = data.page > 1 ? this.orders.get(key, Date.now()) : undefined;
       const ranked =
-        previous && (previous.exhaustive || previous.ids.length >= window)
+        previous && (previous.exhaustive || previous.ids.length > window)
           ? { order: previous, located: new Map<string, LocatedWikiSection>() }
           : await this.rankOrder(data, { window, pageStart, semantic, stopwatch, previous });
       const { order } = ranked;
@@ -154,6 +155,8 @@ export class SearchWikiPagesInteractor extends AuthenticatedInteractor<WikiPageS
       return {
         items,
         total: order.ids.length,
+        totalIsExact: order.exhaustive,
+        hasMore: order.ids.length > window || !order.exhaustive,
         page: data.page,
         pageSize: data.pageSize,
         ...(order.corrected ? { didYouMean: [order.corrected] } : {}),
@@ -176,8 +179,9 @@ export class SearchWikiPagesInteractor extends AuthenticatedInteractor<WikiPageS
   ): Promise<{ order: WikiSearchOrder; located: Map<string, LocatedWikiSection> }> {
     const { window, pageStart, semantic, stopwatch, previous } = args;
     const offsets = new Map<string, number>();
-    const fullTextLimit = Math.max(WIKI_SEMANTIC_CANDIDATES, window);
+    const fullTextLimit = Math.max(WIKI_SEMANTIC_CANDIDATES, window + 1);
     let fullTextCount = 0;
+    let semanticCount = 0;
     let stalePageIds = new Set<string>();
     let corrected: string | undefined;
     const fused = await fuseFullTextAndSemantic({
@@ -189,10 +193,15 @@ export class SearchWikiPagesInteractor extends AuthenticatedInteractor<WikiPageS
         fullTextCount = found.keys.length;
         return found;
       },
-      embed: semantic ? (query, wait) => semantic.embedder.embedQuery(query, wait) : null,
+      embed: semantic
+        ? previous
+          ? () => Promise.resolve(previous.vector)
+          : (query, wait) => semantic.embedder.embedQuery(query, wait)
+        : null,
       semantic: async ({ vector, model }) => {
-        const found = await this.repo.semanticPageCandidates(vector, model, WIKI_SEMANTIC_CANDIDATES);
+        const found = await this.repo.semanticPageCandidates(vector, model, fullTextLimit);
         if (!found) return null;
+        semanticCount = found.candidates.length;
         stalePageIds = found.stalePageIds;
         for (const candidate of found.candidates) offsets.set(candidate.id, candidate.offset);
         return {
@@ -220,7 +229,9 @@ export class SearchWikiPagesInteractor extends AuthenticatedInteractor<WikiPageS
       section: { pageTitle: entry.page.title, headingPath: entry.headingPath, text: entry.text },
       titleOnly: false,
     }));
-    const ranking = reranks ? await rerankSections({ query: data.query, stopwatch, candidates, ranker }) : null;
+    const ranking = reranks
+      ? await rerankSections({ query: data.query, stopwatch, candidates, ranker, relevance: fused.relevance })
+      : null;
     const chosen = ranking?.order ?? null;
     const kept = keepsResults(fused.relevance, ranking);
     const reordered = !kept
@@ -233,8 +244,9 @@ export class SearchWikiPagesInteractor extends AuthenticatedInteractor<WikiPageS
     const order: WikiSearchOrder = {
       ids: kept ? [...reordered.map((entry) => entry.page.id), ...fused.ranked.filter((id) => !headIds.has(id))] : [],
       offsets,
-      exhaustive: !kept || fullTextCount < fullTextLimit,
+      exhaustive: !kept || (fullTextCount < fullTextLimit && semanticCount < fullTextLimit),
       semantic: fused.vector !== null,
+      vector: fused.vector,
       ...(corrected ? { corrected } : {}),
       expiresAt: Date.now() + WIKI_SEARCH_ORDER_TTL_MS,
     };

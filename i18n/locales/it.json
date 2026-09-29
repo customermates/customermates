@@ -3552,7 +3552,7 @@
     "manageWithLemonSqueezy": "Gestisci con Lemon Squeezy",
     "picker": {
       "connectedAccountsPerUser": "{accounts, plural, one {# account collegato per utente} other {# account collegati per utente}}",
-      "creditNote": "I crediti IA in hosting si rinnovano ogni mese; i crediti non utilizzati non vengono trasferiti al mese successivo. Ogni richiesta viene addebitata al suo costo esatto presso il provider e mostrata con un decimale. I client MCP esterni utilizzano il tuo provider di IA e non consumano questi crediti.",
+      "creditNote": "I crediti IA in hosting si rinnovano ogni mese; i crediti non utilizzati non vengono trasferiti al mese successivo. Ogni richiesta viene addebitata al suo costo esatto presso il provider e mostrata con un decimale. I client MCP esterni fatturano i modelli tramite il tuo provider di IA. Le ricerche semantiche lato server possono consumare crediti IA in hosting.",
       "features": {
         "business": ["Tutto ciò che c'è in Pro", "Account condivisi e assistenza prioritaria"],
         "pro": ["Tutto ciò che c'è in Starter", "Posta in arrivo unificata"],
@@ -3799,6 +3799,8 @@
       "noContentBody": "Controlla l’attività di Mate per i dettagli. Puoi provare un altro sito oppure continuare e aggiungere pagine in seguito.",
       "noContentTitle": "Non è stata creata alcuna pagina wiki",
       "readingBody": "Mate sta leggendo {fetched} pagine su {total} da {domain}. Le pagine di assistenza, prezzi e policy vengono importate così come sono scritte.",
+      "refreshFailedBody": "Le pagine esistenti restano disponibili. Apri le azioni della pagina e scegli « Aggiorna dal sito web » per riprovare.",
+      "refreshFailedTitle": "L’aggiornamento dal sito non è terminato",
       "workingBody": "Mate sta leggendo {domain}, controllando le pagine utili e trasferendo nella tua wiki le informazioni raccolte dalle fonti. Puoi seguire qui i progressi o procedere al passaggio successivo.",
       "workingBodyNoTask": "Mate sta leggendo {domain} e trasferendo nella tua wiki le informazioni raccolte dalle fonti. Puoi passare al passaggio successivo mentre lavora.",
       "workingBodyNoTaskWiki": "Mate sta leggendo {domain} e creando la wiki. Puoi tornare più tardi per vedere le pagine completate.",

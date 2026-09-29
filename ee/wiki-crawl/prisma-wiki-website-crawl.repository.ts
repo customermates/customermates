@@ -48,8 +48,12 @@ const SOURCE_SELECT = {
   readAt: true,
 } as const;
 
-type CrawlRow = Prisma.WikiWebsiteCrawlGetPayload<{ select: typeof CRAWL_SELECT }>;
-type SourceRow = Prisma.WikiSourceDocumentGetPayload<{ select: typeof SOURCE_SELECT }>;
+type CrawlRow = Prisma.WikiWebsiteCrawlGetPayload<{
+  select: typeof CRAWL_SELECT;
+}>;
+type SourceRow = Prisma.WikiSourceDocumentGetPayload<{
+  select: typeof SOURCE_SELECT;
+}>;
 
 function crawlRecord(row: CrawlRow): WikiCrawlRecord {
   return {
@@ -71,7 +75,9 @@ function crawlPatch({ targets, ...rest }: Partial<Omit<WikiCrawlRecord, "id" | "
   return {
     ...rest,
     ...(targets !== undefined
-      ? { targets: targets === null ? Prisma.DbNull : (targets as Prisma.InputJsonValue) }
+      ? {
+          targets: targets === null ? Prisma.DbNull : (targets as Prisma.InputJsonValue),
+        }
       : {}),
   };
 }
@@ -116,6 +122,62 @@ export class PrismaWikiWebsiteCrawlRepo
     return row ? crawlRecord(row) : null;
   }
 
+  async failDispatch(id: string) {
+    await this.prisma.$executeRaw(Prisma.sql`
+      UPDATE "WikiWebsiteCrawl"
+      SET "status" = 'failed', "failureReason" = 'dispatch', "finishedAt" = CURRENT_TIMESTAMP
+      WHERE "id" = ${id} AND "companyId" = ${this.companyId}
+        AND "status" = 'queued' AND "workflowRunId" IS NULL
+    `);
+  }
+
+  async retryFailedDispatch(id: string) {
+    try {
+      await this.prisma.wikiWebsiteCrawl.updateMany({
+        where: {
+          id,
+          companyId: this.companyId,
+          status: "failed",
+          failureReason: "dispatch",
+        },
+        data: { status: "queued", failureReason: null, finishedAt: null },
+      });
+      return this.getCrawl(id);
+    } catch (error) {
+      if (error instanceof Prisma.PrismaClientKnownRequestError && error.code === "P2002") return null;
+      throw error;
+    }
+  }
+
+  async findRefreshHomepage(registrableDomain: string) {
+    const row = await this.prisma.wikiWebsiteCrawl.findFirst({
+      where: { companyId: this.companyId, registrableDomain, mode: "initial" },
+      orderBy: [{ startedAt: "desc" }, { id: "desc" }],
+      select: { homepageUrl: true },
+    });
+    return row?.homepageUrl ?? null;
+  }
+
+  async listRefreshTargets(): Promise<WikiCrawlTarget[]> {
+    const rows = await this.prisma.wikiPage.findMany({
+      where: { companyId: this.companyId, sourceUrl: { not: null } },
+      distinct: ["sourceUrl"],
+      orderBy: [{ sourceUrl: "asc" }],
+      select: { sourceUrl: true },
+    });
+    return rows.flatMap(({ sourceUrl }) => (sourceUrl ? [{ url: sourceUrl, category: "help" as const }] : []));
+  }
+
+  async claimWorkflow(id: string, workflowRunId: string) {
+    const count = await this.prisma.$executeRaw(Prisma.sql`
+      UPDATE "WikiWebsiteCrawl" SET "workflowRunId" = ${workflowRunId}
+      WHERE "id" = ${id} AND "companyId" = ${this.companyId}
+        AND ("workflowRunId" IS NULL OR "workflowRunId" = ${workflowRunId})
+        AND "status" IN ('queued', 'discovering', 'fetching', 'importing', 'synthesizing')
+    `);
+    return count === 1;
+  }
+
   async getCrawl(id: string) {
     const row = await this.prisma.wikiWebsiteCrawl.findFirst({
       where: { id, companyId: this.companyId },
@@ -134,7 +196,9 @@ export class PrismaWikiWebsiteCrawlRepo
   async claimCrawl(
     id: string,
     from: readonly WikiCrawlStatus[],
-    patch: Partial<Omit<WikiCrawlRecord, "id" | "userId">> & { status: WikiCrawlStatus },
+    patch: Partial<Omit<WikiCrawlRecord, "id" | "userId">> & {
+      status: WikiCrawlStatus;
+    },
   ) {
     const { count } = await this.prisma.wikiWebsiteCrawl.updateMany({
       where: { id, companyId: this.companyId, status: { in: [...from] } },
@@ -144,12 +208,16 @@ export class PrismaWikiWebsiteCrawlRepo
   }
 
   async countSources(crawlId: string) {
-    return this.prisma.wikiSourceDocument.count({ where: { crawlId, companyId: this.companyId } });
+    return this.prisma.wikiSourceDocument.count({
+      where: { crawlId, companyId: this.companyId },
+    });
   }
 
   async saveSource(
     crawlId: string,
-    source: Omit<WikiSourceRecord, "id" | "fetchedAt" | "readAt"> & { canonicalUrl: string },
+    source: Omit<WikiSourceRecord, "id" | "fetchedAt" | "readAt"> & {
+      canonicalUrl: string;
+    },
   ) {
     const data = {
       url: source.url,
@@ -161,8 +229,16 @@ export class PrismaWikiWebsiteCrawlRepo
       fetchedAt: new Date(),
     };
     await this.prisma.wikiSourceDocument.upsert({
-      where: { crawlId_canonicalUrl: { crawlId, canonicalUrl: source.canonicalUrl }, companyId: this.companyId },
-      create: { ...data, crawlId, companyId: this.companyId, canonicalUrl: source.canonicalUrl },
+      where: {
+        crawlId_canonicalUrl: { crawlId, canonicalUrl: source.canonicalUrl },
+        companyId: this.companyId,
+      },
+      create: {
+        ...data,
+        crawlId,
+        companyId: this.companyId,
+        canonicalUrl: source.canonicalUrl,
+      },
       update: { ...data, companyId: this.companyId },
     });
   }
@@ -201,7 +277,11 @@ export class PrismaWikiWebsiteCrawlRepo
 
   async countImportedPages(since: Date) {
     return this.prisma.wikiPage.count({
-      where: { companyId: this.companyId, sourceUrl: { not: null }, sourceFetchedAt: { gte: since } },
+      where: {
+        companyId: this.companyId,
+        sourceUrl: { not: null },
+        sourceFetchedAt: { gte: since },
+      },
     });
   }
 
@@ -215,7 +295,13 @@ export class PrismaWikiWebsiteCrawlRepo
     return this.prisma.wikiPage.findFirst({
       where: { companyId: this.companyId, sourceUrl },
       orderBy: [{ createdAt: "asc" }, { id: "asc" }],
-      select: { id: true, updatedAt: true, sourceFetchedAt: true, sourceContentHash: true },
+      select: {
+        id: true,
+        updatedAt: true,
+        sourceFetchedAt: true,
+        sourceContentHash: true,
+        sourceImportedUpdatedAt: true,
+      },
     });
   }
 
@@ -236,15 +322,28 @@ export class PrismaWikiWebsiteCrawlRepo
 
   async countSynthesizedPages(since: Date) {
     return this.prisma.wikiPage.count({
-      where: { companyId: this.companyId, createdAt: { gte: since }, sourceUrl: null },
+      where: {
+        companyId: this.companyId,
+        createdAt: { gte: since },
+        sourceUrl: null,
+      },
     });
   }
 
-  async markImported(pageId: string, source: { url: string; fetchedAt: Date; contentHash: string }) {
+  async markImported(
+    pageId: string,
+    source: {
+      url: string;
+      fetchedAt: Date;
+      contentHash: string;
+      importedUpdatedAt: Date;
+    },
+  ) {
     await this.prisma.$executeRaw(Prisma.sql`
       UPDATE "WikiPage"
-      SET "sourceUrl" = ${source.url}, "sourceFetchedAt" = ${source.fetchedAt}, "sourceContentHash" = ${source.contentHash}
-      WHERE "id" = ${pageId} AND "companyId" = ${this.companyId}
+      SET "sourceUrl" = ${source.url}, "sourceFetchedAt" = ${source.fetchedAt}, "sourceContentHash" = ${source.contentHash},
+        "sourceImportedUpdatedAt" = ${source.importedUpdatedAt}
+      WHERE "id" = ${pageId} AND "companyId" = ${this.companyId} AND "updatedAt" = ${source.importedUpdatedAt}
     `);
   }
 }

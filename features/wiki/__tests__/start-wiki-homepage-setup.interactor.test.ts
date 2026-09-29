@@ -28,6 +28,10 @@ import { StartWikiHomepageSetupInteractor } from "../start-wiki-homepage-setup.i
 const CLIENT_REQUEST_ID = "00000000-0000-4000-8000-000000000001";
 const CRAWL: {
   id: string;
+  userId: string;
+  status: string;
+  failureReason: string | null;
+  mode: string;
   homepageUrl: string;
   registrableDomain: string;
   conversationId: string | null;
@@ -35,6 +39,10 @@ const CRAWL: {
   extraHosts: string[];
 } = {
   id: "00000000-0000-4000-8000-000000000009",
+  userId: mockUser.id,
+  status: "queued",
+  failureReason: null,
+  mode: "initial",
   homepageUrl: "https://example.com/",
   registrableDomain: "example.com",
   conversationId: null,
@@ -43,12 +51,22 @@ const CRAWL: {
 };
 
 function harness(
-  options: { empty?: boolean; reusable?: typeof CRAWL | null; latest?: typeof CRAWL | null; active?: boolean } = {},
+  options: {
+    empty?: boolean;
+    reusable?: typeof CRAWL | null;
+    latest?: typeof CRAWL | null;
+    active?: boolean;
+  } = {},
 ) {
-  const repo = { wikiIsEmpty: vi.fn().mockResolvedValue(options.empty ?? true) };
+  const repo = {
+    wikiIsEmpty: vi.fn().mockResolvedValue(options.empty ?? true),
+  };
   const crawlRepo = {
     findCrawlByClientRequest: vi.fn().mockResolvedValue(options.reusable ?? null),
     findLatestCrawl: vi.fn().mockResolvedValue(options.latest ?? null),
+    findRefreshHomepage: vi.fn().mockResolvedValue(CRAWL.homepageUrl),
+    failDispatch: vi.fn().mockResolvedValue(undefined),
+    retryFailedDispatch: vi.fn().mockResolvedValue(CRAWL),
     createCrawl: vi
       .fn()
       .mockImplementation((data: { homepageUrl: string; registrableDomain: string; extraHosts: string[] }) =>
@@ -61,8 +79,12 @@ function harness(
 }
 
 function errorCode(result: unknown) {
-  return (result as { ok: false; error: { issues: Array<{ params?: { error?: unknown } }> } }).error.issues[0]?.params
-    ?.error;
+  return (
+    result as {
+      ok: false;
+      error: { issues: Array<{ params?: { error?: unknown } }> };
+    }
+  ).error.issues[0]?.params?.error;
 }
 
 beforeEach(() => vi.clearAllMocks());
@@ -74,7 +96,11 @@ describe("StartWikiHomepageSetupInteractor", () => {
 
     await expect(
       runWithTenant(readOnly, () =>
-        interactor.invoke({ homepage: "example.com", clientRequestId: CLIENT_REQUEST_ID, locale: "en" }),
+        interactor.invoke({
+          homepage: "example.com",
+          clientRequestId: CLIENT_REQUEST_ID,
+          locale: "en",
+        }),
       ),
     ).rejects.toBeInstanceOf(ForbiddenError);
     expect(repo.wikiIsEmpty).not.toHaveBeenCalled();
@@ -85,12 +111,20 @@ describe("StartWikiHomepageSetupInteractor", () => {
   it("records one crawl for the canonical homepage and dispatches the durable website import", async () => {
     const { crawlRepo, background, interactor } = harness();
     const result = await runWithTenant(mockUser, () =>
-      interactor.invoke({ homepage: "Example.com/about?x=1", clientRequestId: CLIENT_REQUEST_ID, locale: "de" }),
+      interactor.invoke({
+        homepage: "Example.com/about?x=1",
+        clientRequestId: CLIENT_REQUEST_ID,
+        locale: "de",
+      }),
     );
 
     expect(result).toEqual({
       ok: true,
-      data: { conversationId: null, homepage: "https://example.com/about", domain: "example.com" },
+      data: {
+        conversationId: null,
+        homepage: "https://example.com/about",
+        domain: "example.com",
+      },
     });
     expect(crawlRepo.createCrawl).toHaveBeenCalledExactlyOnceWith({
       clientRequestId: CLIENT_REQUEST_ID,
@@ -109,13 +143,24 @@ describe("StartWikiHomepageSetupInteractor", () => {
   it("replays an existing request without dispatching again, even after its pages fill the Wiki", async () => {
     const { repo, crawlRepo, background, interactor } = harness({
       empty: false,
-      reusable: { ...CRAWL, conversationId: "00000000-0000-4000-8000-000000000002" },
+      reusable: {
+        ...CRAWL,
+        status: "completed",
+        conversationId: "00000000-0000-4000-8000-000000000002",
+      },
     });
     expect(
       await runWithTenant(mockUser, () =>
-        interactor.invoke({ homepage: "example.com", clientRequestId: CLIENT_REQUEST_ID, locale: "en" }),
+        interactor.invoke({
+          homepage: "example.com",
+          clientRequestId: CLIENT_REQUEST_ID,
+          locale: "en",
+        }),
       ),
-    ).toMatchObject({ ok: true, data: { conversationId: "00000000-0000-4000-8000-000000000002" } });
+    ).toMatchObject({
+      ok: true,
+      data: { conversationId: "00000000-0000-4000-8000-000000000002" },
+    });
     expect(repo.wikiIsEmpty).not.toHaveBeenCalled();
     expect(crawlRepo.createCrawl).not.toHaveBeenCalled();
     expect(background.dispatch).not.toHaveBeenCalled();
@@ -126,7 +171,11 @@ describe("StartWikiHomepageSetupInteractor", () => {
     expect(
       errorCode(
         await runWithTenant(mockUser, () =>
-          unsafe.interactor.invoke({ homepage: "http://127.0.0.1", clientRequestId: CLIENT_REQUEST_ID, locale: "en" }),
+          unsafe.interactor.invoke({
+            homepage: "http://127.0.0.1",
+            clientRequestId: CLIENT_REQUEST_ID,
+            locale: "en",
+          }),
         ),
       ),
     ).toBe(CustomErrorCode.invalidUrl);
@@ -135,7 +184,11 @@ describe("StartWikiHomepageSetupInteractor", () => {
     expect(
       errorCode(
         await runWithTenant(mockUser, () =>
-          filled.interactor.invoke({ homepage: "example.com", clientRequestId: CLIENT_REQUEST_ID, locale: "en" }),
+          filled.interactor.invoke({
+            homepage: "example.com",
+            clientRequestId: CLIENT_REQUEST_ID,
+            locale: "en",
+          }),
         ),
       ),
     ).toBe(CustomErrorCode.wikiNotEmpty);
@@ -144,7 +197,11 @@ describe("StartWikiHomepageSetupInteractor", () => {
     expect(
       errorCode(
         await runWithTenant(mockUser, () =>
-          busy.interactor.invoke({ homepage: "example.com", clientRequestId: CLIENT_REQUEST_ID, locale: "en" }),
+          busy.interactor.invoke({
+            homepage: "example.com",
+            clientRequestId: CLIENT_REQUEST_ID,
+            locale: "en",
+          }),
         ),
       ),
     ).toBe(CustomErrorCode.agentTurnAlreadyRunning);
@@ -152,7 +209,10 @@ describe("StartWikiHomepageSetupInteractor", () => {
   });
 
   it("refreshes the last imported site and extends it with a help centre the user names", async () => {
-    const refresh = harness({ empty: false, latest: { ...CRAWL, extraHosts: ["acme.zendesk.com"] } });
+    const refresh = harness({
+      empty: false,
+      latest: { ...CRAWL, extraHosts: ["acme.zendesk.com"] },
+    });
     await runWithTenant(mockUser, () =>
       refresh.interactor.invoke({
         homepage: "ignored",
@@ -162,7 +222,11 @@ describe("StartWikiHomepageSetupInteractor", () => {
       }),
     );
     expect(refresh.crawlRepo.createCrawl).toHaveBeenCalledWith(
-      expect.objectContaining({ homepageUrl: CRAWL.homepageUrl, mode: "refresh", extraHosts: ["acme.zendesk.com"] }),
+      expect.objectContaining({
+        homepageUrl: CRAWL.homepageUrl,
+        mode: "refresh",
+        extraHosts: ["acme.zendesk.com"],
+      }),
     );
 
     const extend = harness({ empty: false, latest: CRAWL });
@@ -175,9 +239,19 @@ describe("StartWikiHomepageSetupInteractor", () => {
           mode: "extend",
         }),
       ),
-    ).toMatchObject({ ok: true, data: { homepage: "https://acme.zendesk.com/hc/en-us", domain: "example.com" } });
+    ).toMatchObject({
+      ok: true,
+      data: {
+        homepage: "https://acme.zendesk.com/hc/en-us",
+        domain: "example.com",
+      },
+    });
     expect(extend.crawlRepo.createCrawl).toHaveBeenCalledWith(
-      expect.objectContaining({ registrableDomain: "example.com", mode: "extend", extraHosts: ["acme.zendesk.com"] }),
+      expect.objectContaining({
+        registrableDomain: "example.com",
+        mode: "extend",
+        extraHosts: ["acme.zendesk.com"],
+      }),
     );
 
     const sameSite = harness({ empty: false, latest: CRAWL });
@@ -193,5 +267,91 @@ describe("StartWikiHomepageSetupInteractor", () => {
         ),
       ),
     ).toBe(CustomErrorCode.invalidUrl);
+  });
+  it("redispatches a queued request after a transient or ambiguous dispatch failure", async () => {
+    const { crawlRepo, background, interactor } = harness();
+    const data = {
+      homepage: "example.com",
+      clientRequestId: CLIENT_REQUEST_ID,
+      locale: "en" as const,
+    };
+    background.dispatch.mockRejectedValueOnce(new Error("queue unavailable"));
+    await expect(runWithTenant(mockUser, () => interactor.invoke(data))).rejects.toThrow("queue unavailable");
+    expect(crawlRepo.failDispatch).toHaveBeenCalledWith(CRAWL.id);
+    crawlRepo.findCrawlByClientRequest.mockResolvedValue({
+      ...CRAWL,
+      status: "failed",
+      failureReason: "dispatch",
+    });
+    await expect(runWithTenant(mockUser, () => interactor.invoke(data))).resolves.toMatchObject({ ok: true });
+    expect(crawlRepo.createCrawl).toHaveBeenCalledTimes(1);
+    expect(background.dispatch).toHaveBeenCalledTimes(2);
+    expect(background.dispatch).toHaveBeenLastCalledWith("crawl-wiki-website", {
+      crawlId: CRAWL.id,
+      userId: mockUser.id,
+    });
+  });
+
+  it("recovers the same queued target under a new request ID without creating another crawl", async () => {
+    const { background, interactor } = harness({ active: true, latest: CRAWL });
+    await expect(
+      runWithTenant(mockUser, () =>
+        interactor.invoke({
+          homepage: "example.com",
+          clientRequestId: CLIENT_REQUEST_ID,
+          locale: "en",
+        }),
+      ),
+    ).resolves.toMatchObject({ ok: true });
+    expect(background.dispatch).toHaveBeenCalledExactlyOnceWith("crawl-wiki-website", {
+      crawlId: CRAWL.id,
+      userId: mockUser.id,
+    });
+  });
+
+  it("does not hijack an unrelated queued target or redispatch a working crawl", async () => {
+    for (const latest of [
+      { ...CRAWL, homepageUrl: "https://other.example.com/" },
+      { ...CRAWL, status: "fetching" },
+    ]) {
+      const { background, interactor } = harness({ active: true, latest });
+      const result = await runWithTenant(mockUser, () =>
+        interactor.invoke({
+          homepage: "example.com",
+          clientRequestId: CLIENT_REQUEST_ID,
+          locale: "en",
+        }),
+      );
+      expect(errorCode(result)).toBe(CustomErrorCode.agentTurnAlreadyRunning);
+      expect(background.dispatch).not.toHaveBeenCalled();
+    }
+  });
+
+  it("preserves the original homepage and approved hosts after an external extension", async () => {
+    const { crawlRepo, interactor } = harness({
+      empty: false,
+      latest: {
+        ...CRAWL,
+        mode: "extend",
+        status: "completed",
+        homepageUrl: "https://acme.zendesk.com/hc/en-us",
+        extraHosts: ["acme.zendesk.com"],
+      },
+    });
+    await runWithTenant(mockUser, () =>
+      interactor.invoke({
+        homepage: "refresh",
+        clientRequestId: CLIENT_REQUEST_ID,
+        locale: "en",
+        mode: "refresh",
+      }),
+    );
+    expect(crawlRepo.createCrawl).toHaveBeenCalledWith(
+      expect.objectContaining({
+        homepageUrl: CRAWL.homepageUrl,
+        registrableDomain: "example.com",
+        extraHosts: ["acme.zendesk.com"],
+      }),
+    );
   });
 });

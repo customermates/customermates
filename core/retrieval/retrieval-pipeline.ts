@@ -192,13 +192,14 @@ export async function rerankSections(args: {
   stopwatch: RetrievalStopwatch;
   candidates: readonly RankableSection[];
   ranker: SectionRanker | undefined;
+  relevance?: RelevanceVerdict;
 }): Promise<SectionRanking | null> {
   const { stopwatch } = args;
   if (!args.ranker) {
     stopwatch.rerank = "unavailable";
     return null;
   }
-  if (args.candidates.length < 2) return null;
+  if (args.candidates.length === 0 || (args.candidates.length === 1 && args.relevance !== "rerank")) return null;
   const ranker = args.ranker;
   try {
     const ranking = await stopwatch.time("rerankMs", () => ranker(args.query, args.candidates));

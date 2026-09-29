@@ -7,6 +7,7 @@ import type { WikiHomepageSetupState } from "@/features/wiki/get-wiki-homepage-s
 
 import { useCallback, useEffect, useId, useMemo, useRef, useState, useTransition } from "react";
 import { observer } from "mobx-react-lite";
+import { reaction } from "mobx";
 import { BookOpen, ChevronDown, Plus, Sparkles } from "lucide-react";
 import { useTranslations } from "next-intl";
 
@@ -55,6 +56,7 @@ type Props = {
   layoutInitial?: Record<string, number>;
   listPage: WikiPageListResult;
   pinnedPage?: WikiPageSummary | null;
+  requestedPageId?: string;
   unavailable?: boolean;
 };
 
@@ -64,6 +66,7 @@ export const WikiPageView = observer(function WikiPageView({
   layoutInitial,
   listPage,
   pinnedPage = null,
+  requestedPageId,
   unavailable = false,
 }: Props) {
   const t = useTranslations();
@@ -80,6 +83,7 @@ export const WikiPageView = observer(function WikiPageView({
         });
       }),
   );
+  const receivedRequestedPageId = useRef(requestedPageId);
   const formId = useId();
   const titleContainer = useRef<HTMLDivElement>(null);
   const documentContainer = useRef<HTMLDivElement>(null);
@@ -96,15 +100,33 @@ export const WikiPageView = observer(function WikiPageView({
   const setupConversationId = setupActive ? initialSetupState.conversationId : null;
   const setupDomain = setupActive ? initialSetupState.domain : null;
 
-  useEffect(() => store.receivePage(initialPage), [initialPage, store]);
+  useEffect(() => {
+    const selectionChanged = receivedRequestedPageId.current !== requestedPageId;
+    receivedRequestedPageId.current = requestedPageId;
+    if (selectionChanged) store.load(initialPage);
+    else store.receivePage(initialPage);
+    const savedState = store.savedState;
+    return reaction(
+      () => store.creating || store.hasUnsavedChanges || store.isLoading,
+      (blocked) => {
+        if (!blocked && store.savedState === savedState) store.receivePage(initialPage);
+      },
+    );
+  }, [initialPage, requestedPageId, store]);
   useEffect(() => {
     if (store.creating) titleContainer.current?.querySelector("input")?.focus();
   }, [store.creating]);
 
-  const missing = !store.creating && (unavailable || store.unavailable);
+  const missing =
+    !store.creating && (store.unavailable || (unavailable && !store.hasUnsavedChanges && !store.isLoading));
   const hasDocument = !missing && (store.creating || Boolean(store.form.id));
-  const pageState = resolveWikiPageState({ isNavigating, missing, hasDocument, setupActive });
-  useRefreshWhileWikiSetupWorks(setupActive && !initialPage);
+  const pageState = resolveWikiPageState({
+    isNavigating,
+    missing,
+    hasDocument,
+    setupActive,
+  });
+  useRefreshWhileWikiSetupWorks(setupActive);
   const canOpenSetupTask =
     Boolean(setupConversationId) && rootStore.agentChatEnabled && agentChatStore.enabled !== false;
   const tryNavigate = useCallback(
@@ -139,7 +161,7 @@ export const WikiPageView = observer(function WikiPageView({
           mode: "refresh",
         });
         if (!result.ok) throw new Error("The website refresh could not start.");
-        router.refresh();
+        rootStore.navigationGuard.requestRouteRefreshWhenSafe(() => router.refresh());
       }),
   );
   const savePanelSizes = useCallback(
@@ -247,7 +269,9 @@ export const WikiPageView = observer(function WikiPageView({
               ? undefined
               : setupConversationId
                 ? t("WikiSetup.status.workingBodyWiki", { domain: setupDomain })
-                : t("WikiSetup.status.workingBodyNoTaskWiki", { domain: setupDomain })
+                : t("WikiSetup.status.workingBodyNoTaskWiki", {
+                    domain: setupDomain,
+                  })
           }
           icon={Sparkles}
           state="empty"
@@ -438,6 +462,34 @@ export const WikiPageView = observer(function WikiPageView({
               <SheetBody className="flex min-h-0 flex-1 flex-col p-0">{pageList}</SheetBody>
             </SheetContent>
           </Sheet>
+
+          {initialSetupState.status === "failed" && (
+            <Alert color="warning">
+              <p>
+                {initialSetupState.refreshable
+                  ? t("WikiSetup.status.refreshFailedTitle")
+                  : t("WikiSetup.status.failedTitle")}
+              </p>
+
+              <p>
+                {initialSetupState.refreshable
+                  ? t("WikiSetup.status.refreshFailedBody")
+                  : t("WikiSetup.status.failedBody")}
+              </p>
+            </Alert>
+          )}
+
+          {setupActive && hasDocument && (
+            <div aria-live="polite" className="px-6 py-3 text-sm text-muted-foreground">
+              {initialSetupState.progress && initialSetupState.progress.total > 0
+                ? t("WikiSetup.status.readingBody", {
+                    domain: initialSetupState.domain ?? "",
+                    fetched: initialSetupState.progress.fetched,
+                    total: initialSetupState.progress.total,
+                  })
+                : t("WikiSetup.status.workingTitle")}
+            </div>
+          )}
 
           {documentBody}
         </section>

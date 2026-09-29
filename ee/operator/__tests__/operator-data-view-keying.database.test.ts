@@ -24,6 +24,7 @@ import { FilterFieldKey } from "@/core/types/filter-field-key";
 import { PrismaDataViewRepo } from "@/features/data-view/prisma-data-view.repository";
 import { PrismaP13nRepo } from "@/features/p13n/prisma-p13n.repository";
 import { SaveDataViewStateInteractor } from "@/features/data-view/save-data-view-state.interactor";
+import { PrismaAgentChatRepo } from "@/ee/agent-chat/prisma-agent-chat.repository";
 import { PrismaOperatorUsersRepo } from "../prisma-operator-users.repository";
 
 const databaseUrl = getLocalDatabaseTestUrl();
@@ -61,7 +62,7 @@ describeDatabase("operator data view keying on PostgreSQL", () => {
 
   class GroupedOperatorUsers extends BaseGetInteractor<OperatorUserRowDto> {
     constructor() {
-      super(new PrismaOperatorUsersRepo(), views(), "interactive", undefined, {
+      super(new PrismaOperatorUsersRepo(new PrismaAgentChatRepo()), views(), "interactive", undefined, {
         sortDescriptor: { field: "createdAt", direction: "desc" },
         pagination: { pageSize: 25, page: 1 },
       });

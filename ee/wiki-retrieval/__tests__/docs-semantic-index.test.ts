@@ -5,16 +5,25 @@ import type { DocsChunkRepo, DocsPendingChunk } from "@/features/mcp-tools/prism
 
 import { beforeEach, describe, expect, it, vi } from "vitest";
 
-const state = vi.hoisted(() => ({ available: true, embedded: [] as string[][] }));
+const state = vi.hoisted(() => ({
+  available: true,
+  embedded: [] as string[][],
+}));
 
 vi.mock("@sentry/node", () => ({ captureException: vi.fn() }));
-vi.mock("../wiki-embedding.service", () => ({ isWikiSemanticSearchAvailable: () => state.available }));
+vi.mock("../wiki-embedding.service", () => ({
+  isWikiSemanticSearchAvailable: () => state.available,
+}));
 vi.mock("../wiki-embedding-model", () => ({
   WIKI_EMBEDDING_MODEL: "google/gemini-embedding-001",
   WIKI_EMBEDDING_BATCH_SIZE: 2,
+  wikiEmbeddingWorstCaseMicrocents: (texts: string[]) => texts.reduce((total, text) => total + text.length, 0) * 15,
   embedWikiTexts: vi.fn((texts: string[]) => {
     state.embedded.push(texts);
-    return Promise.resolve({ vectors: texts.map(() => [0.5, 0.25]), charge: { costMicrocents: 10 } });
+    return Promise.resolve({
+      vectors: texts.map(() => [0.5, 0.25]),
+      charge: { costMicrocents: 10 },
+    });
   }),
 }));
 
@@ -45,14 +54,14 @@ function repo(pending: DocsPendingChunk[]) {
 }
 
 const accrued: unknown[] = [];
-const usage = (admits: boolean) =>
-  ({
-    admitsPlatformRetrieval: vi.fn(() => Promise.resolve(admits)),
-    accruePlatformUsage: vi.fn((args: unknown) => {
-      accrued.push(args);
-      return Promise.resolve();
-    }),
-  }) as unknown as AgentUsageService;
+const usage = (admits: boolean) => ({
+  admitsPlatformRetrieval: vi.fn(() => Promise.resolve(admits)),
+  reservePlatformRetrieval: vi.fn(() => Promise.resolve(admits ? "platform-hold" : null)),
+  settlePlatformRetrieval: vi.fn((args: unknown) => {
+    accrued.push(args);
+    return Promise.resolve();
+  }),
+});
 
 beforeEach(() => {
   state.available = true;
@@ -68,7 +77,10 @@ describe("documentation embedding index", () => {
       { contentHash: "c", label: "API keys", body: "x-api-key" },
     ]);
 
-    const result = await new DocsSemanticIndexService(chunks, usage(true)).indexPending();
+    const result = await new DocsSemanticIndexService(
+      chunks,
+      usage(true) as unknown as AgentUsageService,
+    ).indexPending();
 
     expect(chunks.ensureCorpus).toHaveBeenCalledWith(docsCorpus());
     expect(result).toEqual({ indexed: 3, remaining: false });
@@ -78,31 +90,80 @@ describe("documentation embedding index", () => {
       { contentHash: "b", embedding: "[0.5,0.25]" },
     ]);
     expect(accrued).toEqual([
-      { purpose: "docsIndexing", charge: { costMicrocents: 10 } },
-      { purpose: "docsIndexing", charge: { costMicrocents: 10 } },
+      { reservationId: "platform-hold", charge: { costMicrocents: 10 } },
+      { reservationId: "platform-hold", charge: { costMicrocents: 10 } },
     ]);
   });
 
   it("stores the corpus for full-text search but embeds nothing self-hosted, without the vector column, or while hosted AI spend is paused", async () => {
     const chunks = repo([{ contentHash: "a", label: "A", body: "a" }]);
     state.available = false;
-    expect(await new DocsSemanticIndexService(chunks, usage(true)).indexPending()).toEqual({
+    expect(
+      await new DocsSemanticIndexService(chunks, usage(true) as unknown as AgentUsageService).indexPending(),
+    ).toEqual({
       indexed: 0,
       remaining: false,
     });
     state.available = true;
-    expect(await new DocsSemanticIndexService(chunks, usage(false)).indexPending()).toEqual({
+    expect(
+      await new DocsSemanticIndexService(chunks, usage(false) as unknown as AgentUsageService).indexPending(),
+    ).toEqual({
       indexed: 0,
       remaining: false,
     });
     chunks.semanticIndexAvailable.mockResolvedValueOnce(false);
-    expect(await new DocsSemanticIndexService(chunks, usage(true)).indexPending()).toEqual({
+    expect(
+      await new DocsSemanticIndexService(chunks, usage(true) as unknown as AgentUsageService).indexPending(),
+    ).toEqual({
       indexed: 0,
       remaining: false,
     });
     expect(state.embedded).toEqual([]);
     expect(accrued).toEqual([]);
     expect(chunks.ensureCorpus).toHaveBeenCalledTimes(3);
+  });
+
+  it("reserves every batch before provider work and stops when the next reservation is refused", async () => {
+    const chunks = repo(
+      Array.from({ length: 5 }, (_, i) => ({
+        contentHash: String(i),
+        label: "A",
+        body: "body",
+      })),
+    );
+    const budget = usage(true);
+    vi.mocked(budget.reservePlatformRetrieval).mockResolvedValueOnce("first").mockResolvedValueOnce(null);
+    expect(await new DocsSemanticIndexService(chunks, budget as unknown as AgentUsageService).indexPending()).toEqual({
+      indexed: 2,
+      remaining: false,
+    });
+    expect(state.embedded).toHaveLength(1);
+    expect(budget.reservePlatformRetrieval).toHaveBeenCalledTimes(2);
+    expect(budget.reservePlatformRetrieval).toHaveBeenCalledWith({
+      purpose: "docsIndexing",
+      model: "google/gemini-embedding-001",
+      worstCaseMicrocents: 210,
+    });
+  });
+
+  it("retains admission for an ambiguous provider failure and settles before storing vectors", async () => {
+    const { embedWikiTexts } = await import("../wiki-embedding-model");
+    const chunks = repo([{ contentHash: "a", label: "A", body: "a" }]);
+    const budget = usage(true);
+    vi.mocked(embedWikiTexts).mockRejectedValueOnce(new Error("provider timeout"));
+    await expect(
+      new DocsSemanticIndexService(chunks, budget as unknown as AgentUsageService).indexPending(),
+    ).rejects.toThrow("provider timeout");
+    expect(budget.settlePlatformRetrieval).not.toHaveBeenCalled();
+    expect(chunks.storeEmbeddings).not.toHaveBeenCalled();
+    chunks.storeEmbeddings.mockRejectedValueOnce(new Error("storage unavailable"));
+    await expect(
+      new DocsSemanticIndexService(chunks, budget as unknown as AgentUsageService).indexPending(),
+    ).rejects.toThrow("storage unavailable");
+    expect(budget.settlePlatformRetrieval).toHaveBeenCalledOnce();
+    expect(vi.mocked(embedWikiTexts).mock.calls.at(-1)?.[2]).toEqual({
+      maxRetries: 0,
+    });
   });
 
   it("dispatches the indexing workflow for an unseeded build or pending chunks, at most once a minute per process", async () => {

@@ -7,7 +7,7 @@ import { describe, expect, it } from "vitest";
 
 import { getLocalDatabaseTestUrl } from "@/tests/helpers/database-test";
 
-const MIGRATION = "20260908120000_workspace_wiki";
+const MIGRATION = "20260908120100_mate_bundle";
 const migrationsRoot = join(process.cwd(), "prisma/migrations");
 
 function migrationNames() {

@@ -79,11 +79,16 @@ function makeRepo(
         usedMicrocents:
           overrides.poolUsedMicrocents ?? (overrides.usedMicrocents ?? 0) + (overrides.unassignedMicrocents ?? 0),
         unassignedMicrocents: overrides.unassignedMicrocents ?? 0,
-        memberLimitMicrocents: { "user-1": 500 * CREDIT, "user-2": 500 * CREDIT } as Record<string, number>,
+        memberLimitMicrocents: {
+          "user-1": 500 * CREDIT,
+          "user-2": 500 * CREDIT,
+        } as Record<string, number>,
         usable: true,
       }),
     ),
     accruePlatformUsageUnscoped: vi.fn(() => Promise.resolve()),
+    reservePlatformUsageUnscoped: vi.fn(() => Promise.resolve("platform-hold")),
+    settlePlatformUsageUnscoped: vi.fn(() => Promise.resolve()),
     reserveRetrievalUsageUnscoped: vi.fn((): Promise<string | null> => Promise.resolve("hold-1")),
     settleRetrievalUsageUnscoped: vi.fn(() => Promise.resolve()),
     releaseStaleRetrievalReservationsUnscoped: vi.fn(() => Promise.resolve(0)),
@@ -194,12 +199,19 @@ describe("AgentUsageService summary", () => {
 
   it("includes current-period manual adjustments without exposing their reasons", async () => {
     const service = new AgentUsageService(
-      makeRepo({ usedMicrocents: 100 * CREDIT, adjustmentMicrocents: 75 * CREDIT }),
+      makeRepo({
+        usedMicrocents: 100 * CREDIT,
+        adjustmentMicrocents: 75 * CREDIT,
+      }),
     );
 
     const summary = await service.getUsageSummary("user-1", NOW);
 
-    expect(summary).toMatchObject({ creditsUsed: 100, creditsLimit: 575, creditsRemaining: 475 });
+    expect(summary).toMatchObject({
+      creditsUsed: 100,
+      creditsLimit: 575,
+      creditsRemaining: 475,
+    });
     expect(summary).not.toHaveProperty("adjustments");
     expect(summary).not.toHaveProperty("reason");
   });
@@ -263,7 +275,9 @@ describe("AgentUsageService admission and ledger", () => {
     const required = agentRoundWorstCaseMicrocents(MODEL);
     const service = new AgentUsageService(makeRepo({ usedMicrocents: 500 * CREDIT - required }));
 
-    const admission = await service.prepareTurn("user-1", NOW, { model: MODEL });
+    const admission = await service.prepareTurn("user-1", NOW, {
+      model: MODEL,
+    });
 
     expect(admission.summary.creditsRemaining).toBe(required / CREDIT);
     expect(admission.reservation?.reservedMicrocents).toBe(required);
@@ -273,7 +287,9 @@ describe("AgentUsageService admission and ledger", () => {
     const required = agentRoundWorstCaseMicrocents(MODEL);
     const service = new AgentUsageService(makeRepo({ usedMicrocents: 500 * CREDIT - required + 1 }));
 
-    const admission = await service.prepareTurn("user-1", NOW, { model: MODEL });
+    const admission = await service.prepareTurn("user-1", NOW, {
+      model: MODEL,
+    });
 
     expect(admission.summary.creditsRemaining).toBe((required - 1) / CREDIT);
     expect(admission.summary.blockedReason).toBe("credits_exhausted");
@@ -283,7 +299,9 @@ describe("AgentUsageService admission and ledger", () => {
   it("does not reserve when the allowance is exhausted", async () => {
     const service = new AgentUsageService(makeRepo({ usedMicrocents: 500 * CREDIT }));
 
-    const admission = await service.prepareTurn("user-1", NOW, { model: MODEL });
+    const admission = await service.prepareTurn("user-1", NOW, {
+      model: MODEL,
+    });
 
     expect(admission.summary.blockedReason).toBe("credits_exhausted");
     expect(admission.reservation).toBeNull();
@@ -292,7 +310,9 @@ describe("AgentUsageService admission and ledger", () => {
   it("persists reservation units and entitlement snapshots", async () => {
     const repo = makeRepo({ usedMicrocents: 100 * CREDIT });
     const service = new AgentUsageService(repo);
-    const admission = await service.prepareTurn("user-1", NOW, { model: MODEL });
+    const admission = await service.prepareTurn("user-1", NOW, {
+      model: MODEL,
+    });
     expect(admission.reservation).not.toBeNull();
     if (!admission.reservation) throw new Error("Expected an AI credit reservation.");
 
@@ -327,7 +347,12 @@ describe("AgentUsageService admission and ledger", () => {
         cacheWriteTokens: 0,
       },
       reservedMicrocents: 2 * CREDIT,
-      providerCharge: { billed: true, measuredCostMicrocents: null, stepTokens: [], unreadableReason: "test" },
+      providerCharge: {
+        billed: true,
+        measuredCostMicrocents: null,
+        stepTokens: [],
+        unreadableReason: "test",
+      },
     });
 
     expect(settlement.policyBreach).toBe(true);
@@ -338,9 +363,19 @@ describe("AgentUsageService admission and ledger", () => {
   it("releases the reservation when the gateway proves the provider never billed", () => {
     const settlement = buildAgentUsageSettlement({
       model: "openai/gpt-5-nano",
-      tokens: { inputTokens: 0, outputTokens: 0, cacheReadTokens: 0, cacheWriteTokens: 0 },
+      tokens: {
+        inputTokens: 0,
+        outputTokens: 0,
+        cacheReadTokens: 0,
+        cacheWriteTokens: 0,
+      },
       reservedMicrocents: 14 * CREDIT,
-      providerCharge: { billed: false, measuredCostMicrocents: null, stepTokens: [], unreadableReason: null },
+      providerCharge: {
+        billed: false,
+        measuredCostMicrocents: null,
+        stepTokens: [],
+        unreadableReason: null,
+      },
     });
 
     expect(settlement).toMatchObject({
@@ -356,9 +391,19 @@ describe("AgentUsageService admission and ledger", () => {
     const settlement = buildAgentUsageSettlement({
       model: "openai/gpt-5-nano",
       provider: "azure",
-      tokens: { inputTokens: 35_329, outputTokens: 2_945, cacheReadTokens: 73_728, cacheWriteTokens: 0 },
+      tokens: {
+        inputTokens: 35_329,
+        outputTokens: 2_945,
+        cacheReadTokens: 73_728,
+        cacheWriteTokens: 0,
+      },
       reservedMicrocents: 14 * CREDIT,
-      providerCharge: { billed: true, measuredCostMicrocents: 2_000_001, stepTokens: [], unreadableReason: null },
+      providerCharge: {
+        billed: true,
+        measuredCostMicrocents: 2_000_001,
+        stepTokens: [],
+        unreadableReason: null,
+      },
     });
 
     expect(settlement).toMatchObject({
@@ -373,9 +418,19 @@ describe("AgentUsageService admission and ledger", () => {
     const settlement = buildAgentUsageSettlement({
       model: "openai/gpt-5-nano",
       provider: "azure",
-      tokens: { inputTokens: 10, outputTokens: 10, cacheReadTokens: 0, cacheWriteTokens: 0 },
+      tokens: {
+        inputTokens: 10,
+        outputTokens: 10,
+        cacheReadTokens: 0,
+        cacheWriteTokens: 0,
+      },
       reservedMicrocents: 14 * CREDIT,
-      providerCharge: { billed: true, measuredCostMicrocents: 999_000, stepTokens: [], unreadableReason: null },
+      providerCharge: {
+        billed: true,
+        measuredCostMicrocents: 999_000,
+        stepTokens: [],
+        unreadableReason: null,
+      },
       auxiliary: { costMicrocents: 2_000, measured: true },
     });
 
@@ -390,25 +445,52 @@ describe("AgentUsageService admission and ledger", () => {
     const settlement = buildAgentUsageSettlement({
       model: "openai/gpt-5-nano",
       provider: "azure",
-      tokens: { inputTokens: 10, outputTokens: 10, cacheReadTokens: 0, cacheWriteTokens: 0 },
+      tokens: {
+        inputTokens: 10,
+        outputTokens: 10,
+        cacheReadTokens: 0,
+        cacheWriteTokens: 0,
+      },
       reservedMicrocents: 14 * CREDIT,
-      providerCharge: { billed: true, measuredCostMicrocents: 1_000, stepTokens: [], unreadableReason: null },
+      providerCharge: {
+        billed: true,
+        measuredCostMicrocents: 1_000,
+        stepTokens: [],
+        unreadableReason: null,
+      },
       auxiliary: { costMicrocents: 500, measured: false },
     });
 
-    expect(settlement).toMatchObject({ costMicrocents: 1_500, costSource: "estimated" });
+    expect(settlement).toMatchObject({
+      costMicrocents: 1_500,
+      costSource: "estimated",
+    });
   });
 
   it("charges a classifier call even when no provider round was billed", () => {
     const settlement = buildAgentUsageSettlement({
       model: "openai/gpt-5-nano",
-      tokens: { inputTokens: 0, outputTokens: 0, cacheReadTokens: 0, cacheWriteTokens: 0 },
+      tokens: {
+        inputTokens: 0,
+        outputTokens: 0,
+        cacheReadTokens: 0,
+        cacheWriteTokens: 0,
+      },
       reservedMicrocents: 14 * CREDIT,
-      providerCharge: { billed: false, measuredCostMicrocents: null, stepTokens: [], unreadableReason: null },
+      providerCharge: {
+        billed: false,
+        measuredCostMicrocents: null,
+        stepTokens: [],
+        unreadableReason: null,
+      },
       auxiliary: { costMicrocents: 1_600, measured: true },
     });
 
-    expect(settlement).toMatchObject({ costMicrocents: 1_600, costSource: "measured", chargedMicrocents: 1_600 });
+    expect(settlement).toMatchObject({
+      costMicrocents: 1_600,
+      costSource: "measured",
+      chargedMicrocents: 1_600,
+    });
   });
 
   it("rejects a negative or fractional auxiliary cost", () => {
@@ -416,9 +498,19 @@ describe("AgentUsageService admission and ledger", () => {
       expect(() =>
         buildAgentUsageSettlement({
           model: "openai/gpt-5-nano",
-          tokens: { inputTokens: 0, outputTokens: 0, cacheReadTokens: 0, cacheWriteTokens: 0 },
+          tokens: {
+            inputTokens: 0,
+            outputTokens: 0,
+            cacheReadTokens: 0,
+            cacheWriteTokens: 0,
+          },
           reservedMicrocents: 14 * CREDIT,
-          providerCharge: { billed: false, measuredCostMicrocents: null, stepTokens: [], unreadableReason: null },
+          providerCharge: {
+            billed: false,
+            measuredCostMicrocents: null,
+            stepTokens: [],
+            unreadableReason: null,
+          },
           auxiliary: { costMicrocents, measured: true },
         }),
       ).toThrow(/auxiliary usage cost/);
@@ -429,7 +521,12 @@ describe("AgentUsageService admission and ledger", () => {
     const settlement = buildAgentUsageSettlement({
       model: "openai/gpt-5-nano",
       provider: "azure",
-      tokens: { inputTokens: 35_329, outputTokens: 2_945, cacheReadTokens: 73_728, cacheWriteTokens: 0 },
+      tokens: {
+        inputTokens: 35_329,
+        outputTokens: 2_945,
+        cacheReadTokens: 73_728,
+        cacheWriteTokens: 0,
+      },
       reservedMicrocents: 14 * CREDIT,
       providerCharge: {
         billed: true,
@@ -439,7 +536,11 @@ describe("AgentUsageService admission and ledger", () => {
       },
     });
 
-    expect(settlement).toMatchObject({ costMicrocents: 368_173, costSource: "estimated", state: "settled" });
+    expect(settlement).toMatchObject({
+      costMicrocents: 368_173,
+      costSource: "estimated",
+      state: "settled",
+    });
   });
 
   it.each([null, 2_000_001])(
@@ -499,10 +600,25 @@ describe("AgentUsageService admission and ledger", () => {
 
   it("prices a multi-step turn per request, as the provider bills it, not on the turn aggregate", () => {
     const steps = [
-      { inputTokens: 27, outputTokens: 251, cacheReadTokens: 143_000, cacheWriteTokens: 37_210 },
-      { inputTokens: 0, outputTokens: 276, cacheReadTokens: 144_247, cacheWriteTokens: 0 },
+      {
+        inputTokens: 27,
+        outputTokens: 251,
+        cacheReadTokens: 143_000,
+        cacheWriteTokens: 37_210,
+      },
+      {
+        inputTokens: 0,
+        outputTokens: 276,
+        cacheReadTokens: 144_247,
+        cacheWriteTokens: 0,
+      },
     ];
-    const aggregate = { inputTokens: 27, outputTokens: 527, cacheReadTokens: 287_247, cacheWriteTokens: 37_210 };
+    const aggregate = {
+      inputTokens: 27,
+      outputTokens: 527,
+      cacheReadTokens: 287_247,
+      cacheWriteTokens: 37_210,
+    };
 
     expect(promptTokensOf(aggregate)).toBeGreaterThan(272_000);
     for (const step of steps) expect(promptTokensOf(step)).toBeLessThan(272_000);
@@ -512,7 +628,12 @@ describe("AgentUsageService admission and ledger", () => {
       provider: "azure",
       tokens: aggregate,
       reservedMicrocents: 40 * CREDIT,
-      providerCharge: { billed: true, measuredCostMicrocents: null, stepTokens: steps, unreadableReason: "test" },
+      providerCharge: {
+        billed: true,
+        measuredCostMicrocents: null,
+        stepTokens: steps,
+        unreadableReason: "test",
+      },
     });
 
     expect(settlement.costMicrocents).toBe(1_568_524);
@@ -530,7 +651,12 @@ describe("AgentUsageService admission and ledger", () => {
         cacheWriteTokens: 40_001,
       },
       reservedMicrocents: 44 * CREDIT,
-      providerCharge: { billed: true, measuredCostMicrocents: null, stepTokens: [], unreadableReason: "test" },
+      providerCharge: {
+        billed: true,
+        measuredCostMicrocents: null,
+        stepTokens: [],
+        unreadableReason: "test",
+      },
     });
 
     expect(settlement.costMicrocents).toBe(1_000_025);
@@ -542,31 +668,68 @@ describe("AgentUsageService admission and ledger", () => {
     const settlement = buildAgentUsageSettlement({
       model: MODEL.modelId,
       provider: MODEL.servingProvider,
-      tokens: { inputTokens: 10, outputTokens: 10, cacheReadTokens: 0, cacheWriteTokens: 0 },
+      tokens: {
+        inputTokens: 10,
+        outputTokens: 10,
+        cacheReadTokens: 0,
+        cacheWriteTokens: 0,
+      },
       reservedMicrocents: 11 * CREDIT,
-      providerCharge: { billed: true, measuredCostMicrocents: 750_000, stepTokens: [], unreadableReason: null },
+      providerCharge: {
+        billed: true,
+        measuredCostMicrocents: 750_000,
+        stepTokens: [],
+        unreadableReason: null,
+      },
     });
     const tiny = buildAgentUsageSettlement({
       model: MODEL.modelId,
       provider: MODEL.servingProvider,
-      tokens: { inputTokens: 1, outputTokens: 0, cacheReadTokens: 0, cacheWriteTokens: 0 },
+      tokens: {
+        inputTokens: 1,
+        outputTokens: 0,
+        cacheReadTokens: 0,
+        cacheWriteTokens: 0,
+      },
       reservedMicrocents: 11 * CREDIT,
-      providerCharge: { billed: true, measuredCostMicrocents: 37, stepTokens: [], unreadableReason: null },
+      providerCharge: {
+        billed: true,
+        measuredCostMicrocents: 37,
+        stepTokens: [],
+        unreadableReason: null,
+      },
     });
 
-    expect(settlement).toMatchObject({ costMicrocents: 750_000, chargedMicrocents: 750_000, policyBreach: false });
+    expect(settlement).toMatchObject({
+      costMicrocents: 750_000,
+      chargedMicrocents: 750_000,
+      policyBreach: false,
+    });
     expect(tiny).toMatchObject({ costMicrocents: 37, chargedMicrocents: 37 });
   });
 
   it("flags a policy breach on the exact cost, a microcent above the reservation", () => {
     const settlement = buildAgentUsageSettlement({
       model: MODEL.modelId,
-      tokens: { inputTokens: 1, outputTokens: 1, cacheReadTokens: 0, cacheWriteTokens: 0 },
+      tokens: {
+        inputTokens: 1,
+        outputTokens: 1,
+        cacheReadTokens: 0,
+        cacheWriteTokens: 0,
+      },
       reservedMicrocents: 5_602_300,
-      providerCharge: { billed: true, measuredCostMicrocents: 5_602_301, stepTokens: [], unreadableReason: null },
+      providerCharge: {
+        billed: true,
+        measuredCostMicrocents: 5_602_301,
+        stepTokens: [],
+        unreadableReason: null,
+      },
     });
 
-    expect(settlement).toMatchObject({ chargedMicrocents: 5_602_300, policyBreach: true });
+    expect(settlement).toMatchObject({
+      chargedMicrocents: 5_602_300,
+      policyBreach: true,
+    });
   });
 
   it("grants Wiki indexing to the workspace while its pooled allowance has headroom", async () => {
@@ -622,7 +785,12 @@ describe("AgentUsageService admission and ledger", () => {
     const service = new AgentUsageService(repo);
     const grant = await service.prepareWorkspaceIndexing("company-1", NOW);
     if (!grant) throw new Error("Expected a workspace indexing grant.");
-    const charge = { model: "embedding", inputTokens: 3, costMicrocents: 37, costSource: "measured" as const };
+    const charge = {
+      model: "embedding",
+      inputTokens: 3,
+      costMicrocents: 37,
+      costSource: "measured" as const,
+    };
 
     const reservation = await service.reserveRetrieval({
       grant,
@@ -630,7 +798,12 @@ describe("AgentUsageService admission and ledger", () => {
       model: "embedding",
       now: NOW,
     });
-    expect(reservation).toEqual({ id: "hold-1", grant, reservedMicrocents: 90, reservedAt: NOW });
+    expect(reservation).toEqual({
+      id: "hold-1",
+      grant,
+      reservedMicrocents: 90,
+      reservedAt: NOW,
+    });
     expect(repo.reserveRetrievalUsageUnscoped).toHaveBeenCalledWith({
       grant,
       reservedMicrocents: 90,
@@ -648,15 +821,34 @@ describe("AgentUsageService admission and ledger", () => {
       payer: "grant",
       now: NOW,
     });
-    await service.settleRetrieval({ reservation, charge, payer: "platform", now: NOW });
+    await service.settleRetrieval({
+      reservation,
+      charge,
+      payer: "platform",
+      now: NOW,
+    });
     expect(repo.settleRetrievalUsageUnscoped).toHaveBeenLastCalledWith(
-      expect.objectContaining({ reservationId: "hold-1", charge, payer: "platform" }),
+      expect.objectContaining({
+        reservationId: "hold-1",
+        charge,
+        payer: "platform",
+      }),
     );
 
     repo.reserveRetrievalUsageUnscoped.mockResolvedValueOnce(null);
-    await expect(service.reserveRetrieval({ grant, worstCaseMicrocents: 90, model: "embedding" })).resolves.toBeNull();
     await expect(
-      service.reserveRetrieval({ grant: { ...grant, userId: "user-1" }, worstCaseMicrocents: 90, model: "embedding" }),
+      service.reserveRetrieval({
+        grant,
+        worstCaseMicrocents: 90,
+        model: "embedding",
+      }),
+    ).resolves.toBeNull();
+    await expect(
+      service.reserveRetrieval({
+        grant: { ...grant, userId: "user-1" },
+        worstCaseMicrocents: 90,
+        model: "embedding",
+      }),
     ).rejects.toThrow("Retrieval grant payer is invalid.");
   });
 
@@ -673,20 +865,40 @@ describe("AgentUsageService admission and ledger", () => {
 
   it("accrues platform documentation indexing without charging any member", async () => {
     const repo = makeRepo();
-    const charge = { model: "embedding", inputTokens: 40, costMicrocents: 600, costSource: "measured" as const };
-    await new AgentUsageService(repo).accruePlatformUsage({ purpose: "docsIndexing", charge, now: NOW });
+    const charge = {
+      model: "embedding",
+      inputTokens: 40,
+      costMicrocents: 600,
+      costSource: "measured" as const,
+    };
+    await new AgentUsageService(repo).accruePlatformUsage({
+      purpose: "docsIndexing",
+      charge,
+      now: NOW,
+    });
 
-    expect(repo.accruePlatformUsageUnscoped).toHaveBeenCalledWith({ purpose: "docsIndexing", charge, now: NOW });
+    expect(repo.accruePlatformUsageUnscoped).toHaveBeenCalledWith({
+      purpose: "docsIndexing",
+      charge,
+      now: NOW,
+    });
     expect(repo.reserveRetrievalUsageUnscoped).not.toHaveBeenCalled();
     expect(repo.reserveUsageEventUnscoped).not.toHaveBeenCalled();
   });
 
   it("counts a member's allowance-weighted share of workspace indexing as their own usage", async () => {
     const summary = await new AgentUsageService(
-      makeRepo({ usedMicrocents: 10 * CREDIT, unassignedMicrocents: 100 * CREDIT }),
+      makeRepo({
+        usedMicrocents: 10 * CREDIT,
+        unassignedMicrocents: 100 * CREDIT,
+      }),
     ).getUsageSummary("user-1", NOW);
 
-    expect(summary).toMatchObject({ creditsUsed: 60, creditsRemaining: 440, creditsLimit: 500 });
+    expect(summary).toMatchObject({
+      creditsUsed: 60,
+      creditsRemaining: 440,
+      creditsLimit: 500,
+    });
   });
 
   it("never offers a member more than the workspace pool has left", async () => {
@@ -694,7 +906,11 @@ describe("AgentUsageService admission and ledger", () => {
       makeRepo({ usedMicrocents: 0, poolUsedMicrocents: 990 * CREDIT }),
     ).getUsageSummary("user-1", NOW);
 
-    expect(summary).toMatchObject({ creditsUsed: 0, creditsRemaining: 10, creditsLimit: 500 });
+    expect(summary).toMatchObject({
+      creditsUsed: 0,
+      creditsRemaining: 10,
+      creditsLimit: 500,
+    });
   });
 
   it("keeps a zero-credit released ledger row for pre-provider failures", async () => {

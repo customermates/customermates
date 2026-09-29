@@ -210,7 +210,13 @@ export async function unifiedDocsSearch(
     let chosen: DocsSection[] | null = null;
     if (input.source === "docs") {
       const candidates = rerankCandidates(ranked, input.locale);
-      const ranking = await rerankSections({ query: input.query, stopwatch, candidates, ranker: deps.ranker });
+      const ranking = await rerankSections({
+        query: input.query,
+        stopwatch,
+        candidates,
+        ranker: deps.ranker,
+        relevance,
+      });
       if (!keepsResults(relevance, ranking)) return { pages: [], total: 0, chosen: null };
       const picked = (ranking?.order ?? [])
         .flatMap((id) => candidates.find((candidate) => candidate.id === id)?.section ?? [])

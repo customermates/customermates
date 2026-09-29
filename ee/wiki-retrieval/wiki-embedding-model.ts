@@ -45,19 +45,25 @@ function wikiEmbeddingCharge(metadata: unknown, inputTokens: number): AgentRetri
       costSource: "measured",
     };
   }
-  return { model: WIKI_EMBEDDING_MODEL, inputTokens, costMicrocents: estimated, costSource: "estimated" };
+  return {
+    model: WIKI_EMBEDDING_MODEL,
+    inputTokens,
+    costMicrocents: estimated,
+    costSource: "estimated",
+  };
 }
 
 export async function embedWikiTexts(
   texts: string[],
   kind: WikiEmbeddingKind,
+  options: { maxRetries?: number } = {},
 ): Promise<{ vectors: number[][]; charge: AgentRetrievalCharge }> {
   if (texts.length === 0 || texts.length > WIKI_EMBEDDING_BATCH_SIZE)
     throw new Error("Wiki embedding batch size is invalid.");
   const result = await embedMany({
     model: WIKI_EMBEDDING_MODEL,
     values: texts,
-    maxRetries: kind === "query" ? 0 : 2,
+    maxRetries: options.maxRetries ?? (kind === "query" ? 0 : 2),
     abortSignal: AbortSignal.timeout(kind === "query" ? WIKI_QUERY_TIMEOUT_MS : WIKI_DOCUMENT_TIMEOUT_MS),
     providerOptions: wikiEmbeddingProviderOptions(kind),
   });

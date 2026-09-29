@@ -109,6 +109,7 @@ type HostedAiGlobalCommitment = {
   settledCostMicrocents: bigint;
   activeReservedMicrocents: bigint;
   platformCostMicrocents: bigint;
+  platformReservedMicrocents: bigint;
 };
 
 export type AgentTurnReplay = {
@@ -326,7 +327,9 @@ export class PrismaAgentChatRepo extends BaseRepository implements AgentUsageRep
         (
           SELECT COALESCE(SUM(p."costMicrocents"), 0) FROM "HostedAiPlatformUsage" p
           WHERE p."accrualMonth" = ${monthStart}
-        )::bigint AS "platformCostMicrocents"
+        )::bigint AS "platformCostMicrocents",
+        (SELECT COALESCE(SUM(p."reservedMicrocents"), 0) FROM "HostedAiPlatformReservation" p
+        )::bigint AS "platformReservedMicrocents"
       FROM "AgentUsageEvent"
       WHERE
         (
@@ -347,6 +350,7 @@ export class PrismaAgentChatRepo extends BaseRepository implements AgentUsageRep
       commitment.settledCostMicrocents +
       commitment.activeReservedMicrocents +
       platformCostMicrocents +
+      (commitment.platformReservedMicrocents ?? 0n) +
       BigInt(additionalReservedMicrocents);
     return committedMicrocents <= monthlySpendCapMicrocents;
   }
@@ -584,7 +588,10 @@ export class PrismaAgentChatRepo extends BaseRepository implements AgentUsageRep
 
       if (args.turn.wikiHomepageSetupUrl) {
         const activeSetup = await this.prisma.agentTurnRequest.findFirst({
-          where: { ...activeWikiHomepageSetupWhere(companyId, admittedAt), id: { not: args.turn.turnRequestId } },
+          where: {
+            ...activeWikiHomepageSetupWhere(companyId, admittedAt),
+            id: { not: args.turn.turnRequestId },
+          },
           select: { id: true },
         });
         if (activeSetup) throw new WikiHomepageSetupAlreadyRunningError();
@@ -647,7 +654,10 @@ export class PrismaAgentChatRepo extends BaseRepository implements AgentUsageRep
             turnRequestId: args.turn.turnRequestId,
             role: AgentMessageRole.user,
             parts: [
-              ...(args.turn.contexts ?? []).map((context) => ({ type: "context" as const, context })),
+              ...(args.turn.contexts ?? []).map((context) => ({
+                type: "context" as const,
+                context,
+              })),
               { type: "text" as const, text: args.turn.text },
             ],
           },
@@ -1201,7 +1211,12 @@ export class PrismaAgentChatRepo extends BaseRepository implements AgentUsageRep
           state: "reserved",
           providerStartedAt: null,
         },
-        data: { state: "released", chargedMicrocents: 0, chargedCredits: 0, settledAt: now },
+        data: {
+          state: "released",
+          chargedMicrocents: 0,
+          chargedCredits: 0,
+          settledAt: now,
+        },
       });
       if (released.count !== 1) throw new Error("Interrupted agent usage reservation could not be released.");
     }
@@ -1307,7 +1322,12 @@ export class PrismaAgentChatRepo extends BaseRepository implements AgentUsageRep
         purpose: "turn",
         turnRequestId: null,
       },
-      data: { state: "released", chargedMicrocents: 0, chargedCredits: 0, settledAt: now },
+      data: {
+        state: "released",
+        chargedMicrocents: 0,
+        chargedCredits: 0,
+        settledAt: now,
+      },
     });
     const deleted = await this.prisma.agentRunLease.deleteMany({
       where: {
@@ -2196,7 +2216,11 @@ export class PrismaAgentChatRepo extends BaseRepository implements AgentUsageRep
           stopReason,
           affectedResources: args.affectedResources,
           terminalAt: committedAt,
-          ...(args.classifierTrace ? { classifierTrace: args.classifierTrace as Prisma.InputJsonObject } : {}),
+          ...(args.classifierTrace
+            ? {
+                classifierTrace: args.classifierTrace as Prisma.InputJsonObject,
+              }
+            : {}),
         },
       });
       if (completed.count !== 1) throw new Error("Agent turn could not be completed.");
@@ -2259,7 +2283,12 @@ export class PrismaAgentChatRepo extends BaseRepository implements AgentUsageRep
             state: "reserved",
             providerStartedAt: null,
           },
-          data: { state: "released", chargedMicrocents: 0, chargedCredits: 0, settledAt: new Date() },
+          data: {
+            state: "released",
+            chargedMicrocents: 0,
+            chargedCredits: 0,
+            settledAt: new Date(),
+          },
         });
         if (released.count !== 1) throw new Error("Agent usage reservation could not be released.");
       }
@@ -2535,6 +2564,54 @@ export class PrismaAgentChatRepo extends BaseRepository implements AgentUsageRep
   }
 
   @BypassTenantGuard
+  @Transaction
+  async reservePlatformUsageUnscoped(args: {
+    purpose: string;
+    model: string;
+    reservedMicrocents: number;
+    now: Date;
+  }): Promise<string | null> {
+    if (!Number.isSafeInteger(args.reservedMicrocents) || args.reservedMicrocents < 1)
+      throw new Error("Platform AI reservation is invalid.");
+    if (
+      !(await this.admitsHostedAiGlobalSpend({
+        now: args.now,
+        additionalReservedMicrocents: args.reservedMicrocents,
+      }))
+    )
+      return null;
+    const id = randomUUID();
+    await this.prisma.$executeRaw`
+      INSERT INTO "HostedAiPlatformReservation" ("id", "purpose", "model", "reservedMicrocents", "createdAt")
+      VALUES (${id}, ${args.purpose}, ${args.model}, ${args.reservedMicrocents}, ${args.now})
+    `;
+    return id;
+  }
+
+  @BypassTenantGuard
+  @Transaction
+  async settlePlatformUsageUnscoped(args: {
+    reservationId: string;
+    charge: AgentRetrievalCharge | null;
+    now: Date;
+  }): Promise<void> {
+    await this.prisma
+      .$executeRaw`SELECT pg_advisory_xact_lock(hashtextextended('customermates:hosted-ai-global-admission', 0))`;
+    const reservations = await this.prisma.$queryRaw<Array<{ purpose: string; model: string }>>`
+      DELETE FROM "HostedAiPlatformReservation" WHERE "id" = ${args.reservationId}
+      RETURNING "purpose", "model"
+    `;
+    const reservation = reservations[0];
+    if (!reservation || !args.charge) return;
+    if (reservation.model !== args.charge.model) throw new Error("Platform AI settlement model does not match.");
+    await this.accruePlatformUsageUnscoped({
+      purpose: reservation.purpose,
+      charge: args.charge,
+      now: args.now,
+    });
+  }
+
+  @BypassTenantGuard
   async accruePlatformUsageUnscoped(args: { purpose: string; charge: AgentRetrievalCharge; now: Date }) {
     const { purpose, charge, now } = args;
     await this.prisma.$executeRaw`
@@ -2608,7 +2685,12 @@ export class PrismaAgentChatRepo extends BaseRepository implements AgentUsageRep
         if (sumCommittedAgentMicrocents(own) + share + reservedMicrocents > memberLimitMicrocents) return null;
       }
 
-      if (!(await this.admitsHostedAiGlobalSpend({ now, additionalReservedMicrocents: reservedMicrocents })))
+      if (
+        !(await this.admitsHostedAiGlobalSpend({
+          now,
+          additionalReservedMicrocents: reservedMicrocents,
+        }))
+      )
         return null;
 
       const reservation = await this.prisma.agentUsageEvent.create({
@@ -2663,7 +2745,11 @@ export class PrismaAgentChatRepo extends BaseRepository implements AgentUsageRep
       if (held.count !== 1) throw new Error("Retrieval credit reservation could not be settled.");
       if (!charge) return;
       if (args.payer === "platform") {
-        await this.accruePlatformUsageUnscoped({ purpose: AGENT_RETRIEVAL_PLATFORM_PURPOSE, charge, now });
+        await this.accruePlatformUsageUnscoped({
+          purpose: AGENT_RETRIEVAL_PLATFORM_PURPOSE,
+          charge,
+          now,
+        });
         return;
       }
 
@@ -2718,7 +2804,12 @@ export class PrismaAgentChatRepo extends BaseRepository implements AgentUsageRep
         state: "reserved",
         createdAt: { lt: args.reservedBefore },
       },
-      data: { state: "released", chargedMicrocents: 0, chargedCredits: 0, settledAt: args.now },
+      data: {
+        state: "released",
+        chargedMicrocents: 0,
+        chargedCredits: 0,
+        settledAt: args.now,
+      },
     });
     return released.count;
   }
@@ -2940,7 +3031,10 @@ export class PrismaAgentChatRepo extends BaseRepository implements AgentUsageRep
         },
       });
       return extended.count === 1
-        ? { disposition: "extended", reservedMicrocents: args.requiredMicrocents }
+        ? {
+            disposition: "extended",
+            reservedMicrocents: args.requiredMicrocents,
+          }
         : { disposition: "turn_error" };
     });
   }
@@ -2950,7 +3044,12 @@ export class PrismaAgentChatRepo extends BaseRepository implements AgentUsageRep
     const { releasedAt, ...where } = args;
     await this.prisma.agentUsageEvent.updateMany({
       where: { ...where, state: "reserved" },
-      data: { state: "released", chargedMicrocents: 0, chargedCredits: 0, settledAt: releasedAt },
+      data: {
+        state: "released",
+        chargedMicrocents: 0,
+        chargedCredits: 0,
+        settledAt: releasedAt,
+      },
     });
   }
 }

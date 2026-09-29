@@ -70,7 +70,7 @@ export class WikiPageStore extends BaseFormStore<WikiPageForm> {
 
   receivePage = (page: WikiPageDto | null) => {
     const samePage = this.receivedPageId === (page?.id ?? null);
-    if (samePage && (this.creating || this.hasUnsavedChanges || this.isLoading)) return;
+    if (this.creating || this.hasUnsavedChanges || this.isLoading) return;
     if (samePage && page && this.form.updatedAt && page.updatedAt.getTime() < this.form.updatedAt.getTime()) return;
     this.load(page);
   };
