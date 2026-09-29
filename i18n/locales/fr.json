@@ -1344,6 +1344,7 @@
       "wikiNotEmpty": "Cette action nécessite une base de connaissances vide.",
       "wikiPageConflict": "Cette page de la base de connaissances a été modifiée après son ouverture. Rechargez-la et réessayez.",
       "wikiPageNotFound": "Page de la base de connaissances introuvable ou inaccessible.",
+      "wikiPagePinned": "Le guide opérationnel reste en première position. Déplacez une autre page.",
       "wikiProcedureNeedsSteps": "Une procédure doit contenir des étapes numérotées.",
       "wikiWhenToUseRequired": "Une procédure doit indiquer brièvement quand l'utiliser."
     },
@@ -3737,11 +3738,6 @@
     "copyLink": "Copier le lien de la page",
     "delete": "Supprimer la page",
     "document": "Document",
-    "draft": {
-      "badge": "Brouillon",
-      "body": "Cette page est un brouillon. Mate et les outils d'IA connectés ne la suivent qu'après publication.",
-      "publish": "Publier"
-    },
     "emptyBody": "Donnez à Mate et aux outils d’IA connectés les connaissances, processus et consignes dont ils ont besoin.",
     "emptyBodyReadOnly": "Aucune page de la base de connaissances n’a encore été créée.",
     "emptyTitle": "La base de connaissances de votre espace de travail est vide",

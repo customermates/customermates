@@ -1344,6 +1344,7 @@
       "wikiNotEmpty": "This action requires an empty Knowledge Base.",
       "wikiPageConflict": "This Knowledge Base page changed after you opened it. Reload it and try again.",
       "wikiPageNotFound": "Knowledge Base page not found or not accessible.",
+      "wikiPagePinned": "The Operating Guide stays first. Move another page instead.",
       "wikiProcedureNeedsSteps": "A procedure needs numbered steps.",
       "wikiWhenToUseRequired": "A procedure needs a short description of when to use it."
     },
@@ -3737,11 +3738,6 @@
     "copyLink": "Copy page link",
     "delete": "Delete page",
     "document": "Document",
-    "draft": {
-      "badge": "Draft",
-      "body": "This page is a draft. Mate and connected AI tools do not follow it until you publish it.",
-      "publish": "Publish"
-    },
     "emptyBody": "Give Mate and connected AI tools the company knowledge, processes, and guidance they need.",
     "emptyBodyReadOnly": "No Knowledge Base pages have been created yet.",
     "emptyTitle": "Your Knowledge Base is empty",

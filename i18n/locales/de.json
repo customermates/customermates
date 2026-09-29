@@ -1344,6 +1344,7 @@
       "wikiNotEmpty": "Diese Aktion erfordert eine leere Wissensdatenbank.",
       "wikiPageConflict": "Diese Wissensdatenbank-Seite wurde geändert, nachdem du sie geöffnet hast. Lade sie neu und versuche es erneut.",
       "wikiPageNotFound": "Wissensdatenbank-Seite nicht gefunden oder nicht zugänglich.",
+      "wikiPagePinned": "Der Betriebsleitfaden bleibt an erster Stelle. Verschieben Sie eine andere Seite.",
       "wikiProcedureNeedsSteps": "Ein Verfahren braucht nummerierte Schritte.",
       "wikiWhenToUseRequired": "Ein Verfahren braucht eine kurze Beschreibung, wann es gilt."
     },
@@ -3737,11 +3738,6 @@
     "copyLink": "Seitenlink kopieren",
     "delete": "Seite löschen",
     "document": "Dokument",
-    "draft": {
-      "badge": "Entwurf",
-      "body": "Diese Seite ist ein Entwurf. Mate und verbundene KI-Tools folgen ihr erst, wenn Sie sie veröffentlichen.",
-      "publish": "Veröffentlichen"
-    },
     "emptyBody": "Gib Mate und verbundenen KI-Tools das Unternehmenswissen, die Prozesse und Leitlinien, die sie benötigen.",
     "emptyBodyReadOnly": "Es wurden noch keine Wissensdatenbank-Seiten erstellt.",
     "emptyTitle": "Deine Wissensdatenbank ist leer",

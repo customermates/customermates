@@ -51,7 +51,7 @@ const page = {
   markdown: `Use plain language. Read [Support](/wiki?page=${LINKED_ID}).`,
   kind: "knowledge" as const,
   whenToUse: null,
-  draft: false,
+
   createdAt: CREATED_AT,
   updatedAt: UPDATED_AT,
 };

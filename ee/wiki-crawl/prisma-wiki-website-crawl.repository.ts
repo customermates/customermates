@@ -48,6 +48,7 @@ const SOURCE_SELECT = {
   contentHash: true,
   fetchedAt: true,
   readAt: true,
+  readOffset: true,
 } as const;
 
 type CrawlRow = Prisma.WikiWebsiteCrawlGetPayload<{
@@ -300,31 +301,49 @@ export class PrismaWikiWebsiteCrawlRepo
 
   async saveSource(
     crawlId: string,
-    source: Omit<WikiSourceRecord, "id" | "fetchedAt" | "readAt"> & {
+    source: Omit<WikiSourceRecord, "id" | "fetchedAt" | "readAt" | "readOffset"> & {
       canonicalUrl: string;
     },
   ) {
-    const data = {
-      url: source.url,
-      category: source.category,
-      title: source.title,
-      text: source.text,
-      qaPairs: source.qaPairs as unknown as Prisma.InputJsonValue,
-      contentHash: source.contentHash,
-      fetchedAt: new Date(),
-    };
-    await this.prisma.wikiSourceDocument.upsert({
-      where: {
-        crawlId_canonicalUrl: { crawlId, canonicalUrl: source.canonicalUrl },
-        companyId: this.companyId,
-      },
-      create: {
-        ...data,
-        crawlId,
-        companyId: this.companyId,
-        canonicalUrl: source.canonicalUrl,
-      },
-      update: { ...data, companyId: this.companyId },
+    await this.withCompanyTransaction(this.companyId, async () => {
+      const rows = await this.prisma.$queryRaw<Array<{ id: string }>>(Prisma.sql`
+        SELECT "id" FROM "WikiWebsiteCrawl"
+        WHERE "id" = ${crawlId} AND "companyId" = ${this.companyId} AND "status" = 'fetching'
+        FOR UPDATE
+      `);
+      if (rows.length === 0) return;
+      const existing = await this.prisma.wikiSourceDocument.findUnique({
+        where: { crawlId_canonicalUrl: { crawlId, canonicalUrl: source.canonicalUrl }, companyId: this.companyId },
+        select: { contentHash: true, text: true },
+      });
+      const changed =
+        existing !== null && (existing.contentHash !== source.contentHash || existing.text !== source.text);
+      const data = {
+        url: source.url,
+        category: source.category,
+        title: source.title,
+        text: source.text,
+        qaPairs: source.qaPairs as unknown as Prisma.InputJsonValue,
+        contentHash: source.contentHash,
+        fetchedAt: new Date(),
+      };
+      await this.prisma.wikiSourceDocument.upsert({
+        where: {
+          crawlId_canonicalUrl: { crawlId, canonicalUrl: source.canonicalUrl },
+          companyId: this.companyId,
+        },
+        create: {
+          ...data,
+          crawlId,
+          companyId: this.companyId,
+          canonicalUrl: source.canonicalUrl,
+        },
+        update: {
+          ...data,
+          companyId: this.companyId,
+          ...(changed ? { readOffset: 0, readAt: null, importClaimedAt: null } : {}),
+        },
+      });
     });
   }
 
@@ -345,10 +364,35 @@ export class PrismaWikiWebsiteCrawlRepo
     return row ? sourceRecord(row) : null;
   }
 
-  async markSourceRead(crawlId: string, id: string) {
-    await this.prisma.wikiSourceDocument.updateMany({
-      where: { id, crawlId, companyId: this.companyId, readAt: null },
-      data: { readAt: new Date() },
+  async advanceSourceRead(crawlId: string, id: string, offset: number, end: number) {
+    const source = await this.getSource(crawlId, id);
+    if (
+      !source ||
+      !Number.isSafeInteger(offset) ||
+      !Number.isSafeInteger(end) ||
+      offset < 0 ||
+      end <= offset ||
+      end > source.text.length ||
+      offset > source.readOffset
+    )
+      return false;
+    if (end <= source.readOffset) return true;
+    if (offset !== source.readOffset) return false;
+    const { count } = await this.prisma.wikiSourceDocument.updateMany({
+      where: { id, crawlId, companyId: this.companyId, readOffset: offset },
+      data: { readOffset: end, readAt: end === source.text.length ? new Date() : null },
+    });
+    if (count === 1) return true;
+    const current = await this.getSource(crawlId, id);
+    return current !== null && current.readOffset >= end;
+  }
+
+  async advanceSourceReads(crawlId: string, chunks: Array<{ id: string; offset: number; end: number }>) {
+    await this.withCompanyTransaction(this.companyId, async () => {
+      for (const chunk of chunks) {
+        if (!(await this.advanceSourceRead(crawlId, chunk.id, chunk.offset, chunk.end)))
+          throw new Error("Website source cursor changed; retry the read.");
+      }
     });
   }
 

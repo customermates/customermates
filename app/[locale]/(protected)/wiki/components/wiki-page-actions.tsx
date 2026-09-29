@@ -7,6 +7,7 @@ import { Link, MoreHorizontal, Plus, RotateCcw, Save, Trash2, X } from "lucide-r
 import { useTranslations } from "next-intl";
 
 import { Button } from "@/components/ui/button";
+import { Tooltip, TooltipContent, TooltipTrigger } from "@/components/ui/tooltip";
 import {
   DropdownMenu,
   DropdownMenuContent,
@@ -37,20 +38,6 @@ export const WikiPageActions = observer((props: Props) => {
 
   return (
     <div className="flex items-center gap-1">
-      {canManage && canCreate && !store.creating && (
-        <Button
-          aria-label={t("Wiki.newPage")}
-          disabled={store.isLoading}
-          size="sm"
-          variant={store.hasUnsavedChanges ? "secondary" : "default"}
-          onClick={onCreate}
-        >
-          <Plus aria-hidden="true" className="size-4" />
-
-          <span className="hidden sm:inline">{t("Wiki.newPage")}</span>
-        </Button>
-      )}
-
       {store.creating && (
         <Button
           aria-label={t("Common.actions.cancel")}
@@ -66,25 +53,22 @@ export const WikiPageActions = observer((props: Props) => {
       )}
 
       {hasDocument && store.hasUnsavedChanges && (
-        <Button
-          aria-label={t("Common.actions.reset")}
-          disabled={store.isLoading}
-          size="sm"
-          variant="secondary"
-          onClick={store.resetDocument}
-        >
-          <RotateCcw aria-hidden="true" className="size-4 sm:hidden" />
+        <Tooltip>
+          <TooltipTrigger asChild>
+            <Button
+              aria-label={t("Common.actions.reset")}
+              disabled={store.isLoading}
+              size="icon-sm"
+              type="button"
+              variant="ghost"
+              onClick={store.resetDocument}
+            >
+              <RotateCcw aria-hidden="true" />
+            </Button>
+          </TooltipTrigger>
 
-          <span className="hidden sm:inline">{t("Common.actions.reset")}</span>
-        </Button>
-      )}
-
-      {hasDocument && canManage && store.hasUnsavedChanges && (
-        <Button aria-label={t("Common.actions.save")} disabled={store.isLoading} form={formId} size="sm" type="submit">
-          <Save aria-hidden="true" className="size-4 sm:hidden" />
-
-          <span className="hidden sm:inline">{t("Common.actions.save")}</span>
-        </Button>
+          <TooltipContent>{t("Common.actions.reset")}</TooltipContent>
+        </Tooltip>
       )}
 
       {hasDocument && store.form.id && (
@@ -124,6 +108,28 @@ export const WikiPageActions = observer((props: Props) => {
             )}
           </DropdownMenuContent>
         </DropdownMenu>
+      )}
+
+      {canManage && canCreate && !store.creating && (
+        <Button
+          aria-label={t("Wiki.newPage")}
+          disabled={store.isLoading}
+          size="sm"
+          variant={store.hasUnsavedChanges ? "secondary" : "default"}
+          onClick={onCreate}
+        >
+          <Plus aria-hidden="true" className="size-4" />
+
+          <span className="hidden sm:inline">{t("Wiki.newPage")}</span>
+        </Button>
+      )}
+
+      {hasDocument && canManage && store.hasUnsavedChanges && (
+        <Button aria-label={t("Common.actions.save")} disabled={store.isLoading} form={formId} size="sm" type="submit">
+          <Save aria-hidden="true" className="size-4 sm:hidden" />
+
+          <span className="hidden sm:inline">{t("Common.actions.save")}</span>
+        </Button>
       )}
     </div>
   );

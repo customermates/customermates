@@ -8,13 +8,12 @@ import type { WikiHomepageSetupState } from "@/features/wiki/get-wiki-homepage-s
 import { useCallback, useEffect, useId, useMemo, useRef, useState, useTransition } from "react";
 import { observer } from "mobx-react-lite";
 import { reaction } from "mobx";
-import { BookOpen, ChevronDown, Plus, Sparkles } from "lucide-react";
+import { BookOpen, ChevronDown, Info, Plus, Sparkles } from "lucide-react";
 import { useTranslations } from "next-intl";
 
 import { useSetTopBarActions } from "@/app/components/topbar-actions-context";
 import { AgentStarterActions } from "@/app/components/agent-chat/suggested-questions";
 import { AppForm } from "@/components/forms/form-context";
-import { FormInput } from "@/components/forms/form-input";
 import { FormSelect } from "@/components/forms/form-select";
 import { FormTextarea } from "@/components/forms/form-textarea";
 import { Editor } from "@/components/editor/editor";
@@ -22,6 +21,7 @@ import { EditorLinkPickerContext } from "@/components/editor/editor-link-picker"
 import { PageState } from "@/components/page-state/page-state";
 import { Alert } from "@/components/shared/alert";
 import { Button } from "@/components/ui/button";
+import { Tooltip, TooltipContent, TooltipTrigger } from "@/components/ui/tooltip";
 import { Sheet, SheetBody, SheetContent, SheetHeader, SheetTitle, SheetTrigger } from "@/components/ui/sheet";
 import { useRootStore } from "@/core/stores/root-store.provider";
 import { runUserAction } from "@/core/errors/report-application-error";
@@ -113,7 +113,7 @@ export const WikiPageView = observer(function WikiPageView({
     );
   }, [initialPage, requestedPageId, store]);
   useEffect(() => {
-    if (store.creating) titleContainer.current?.querySelector("input")?.focus();
+    if (store.creating) titleContainer.current?.querySelector("textarea")?.focus();
   }, [store.creating]);
 
   const missing =
@@ -187,12 +187,14 @@ export const WikiPageView = observer(function WikiPageView({
     knowledge: t("Wiki.kind.knowledgeHelp"),
   };
   const otherGuide =
-    !pages.query && pages.result.items.some(({ id, kind }) => kind === "guide" && id !== store.form.id);
+    (pinnedPage?.kind === "guide" && pinnedPage.id !== store.form.id) ||
+    pages.result.items.some(({ id, kind }) => kind === "guide" && id !== store.form.id);
   const pinnedRailPage = pinnedPage && !pages.result.items.some(({ id }) => id === pinnedPage.id) ? pinnedPage : null;
   const railBusy = store.isLoading || isNavigating;
   const pageList = (
     <WikiPageRail
       busy={railBusy}
+      canManage={canManage}
       currentPageId={store.creating ? null : store.form.id}
       pages={pages}
       pinnedPage={pinnedRailPage}
@@ -300,35 +302,17 @@ export const WikiPageView = observer(function WikiPageView({
                 </Alert>
               )}
 
-              {store.form.draft && store.form.id && (
-                <Alert color="primary">
-                  <div className="flex flex-wrap items-center justify-between gap-3">
-                    <p>{t("Wiki.draft.body")}</p>
-
-                    {canManage && (
-                      <Button
-                        disabled={store.isLoading}
-                        size="sm"
-                        variant="secondary"
-                        onClick={() => runUserAction(store.publish)}
-                      >
-                        {t("Wiki.draft.publish")}
-                      </Button>
-                    )}
-                  </div>
-                </Alert>
-              )}
-
               <div ref={titleContainer}>
                 {canManage ? (
-                  <FormInput
+                  <FormTextarea
                     required
                     aria-label={t("Wiki.pageTitle")}
-                    className="h-auto rounded-none border-0 bg-transparent px-0 py-1 text-3xl font-semibold tracking-tight shadow-none placeholder:text-muted-foreground/60 focus-visible:ring-2 md:text-3xl"
+                    className="min-h-0 resize-none rounded-none border-0 bg-transparent px-0 py-1 text-3xl font-semibold tracking-tight shadow-none placeholder:text-muted-foreground/60 focus-visible:ring-2 md:text-3xl"
                     id="title"
                     label={null}
                     maxLength={120}
                     placeholder={t("Wiki.untitled")}
+                    rows={1}
                   />
                 ) : (
                   <h1 className="break-words text-3xl font-semibold tracking-tight">{store.form.title}</h1>
@@ -337,25 +321,40 @@ export const WikiPageView = observer(function WikiPageView({
 
               {canManage ? (
                 <div className="grid gap-3" data-wiki-page-kind="">
-                  <FormSelect
-                    description={kindHelp[store.form.kind]}
-                    id="kind"
-                    items={WIKI_PAGE_KINDS.map((kind) => ({
-                      value: kind,
-                      label: kindLabels[kind],
-                      disabled: kind === "guide" && otherGuide,
-                    }))}
-                    label={t("Wiki.kind.label")}
-                  />
+                  <div className="flex items-center gap-1">
+                    <FormSelect
+                      ariaLabel={t("Wiki.kind.label")}
+                      className="h-8 w-auto min-w-32 text-sm"
+                      containerClassName="w-fit"
+                      id="kind"
+                      items={WIKI_PAGE_KINDS.map((kind) => ({
+                        value: kind,
+                        label: kindLabels[kind],
+                        disabled: kind === "guide" && otherGuide,
+                      }))}
+                      label={null}
+                    />
+
+                    <Tooltip>
+                      <TooltipTrigger asChild>
+                        <Button aria-label={t("Wiki.kind.label")} size="icon-sm" type="button" variant="ghost">
+                          <Info className="size-3.5 text-muted-foreground" />
+                        </Button>
+                      </TooltipTrigger>
+
+                      <TooltipContent className="max-w-xs">{kindHelp[store.form.kind]}</TooltipContent>
+                    </Tooltip>
+                  </div>
 
                   {store.form.kind === "procedure" && (
                     <FormTextarea
                       required
+                      className="min-h-0 resize-none"
                       id="whenToUse"
                       label={t("Wiki.whenToUse.label")}
                       maxLength={WIKI_WHEN_TO_USE_MAX_LENGTH}
                       placeholder={t("Wiki.whenToUse.placeholder")}
-                      rows={2}
+                      rows={1}
                     />
                   )}
                 </div>

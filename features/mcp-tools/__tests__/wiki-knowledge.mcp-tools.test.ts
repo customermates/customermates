@@ -222,6 +222,7 @@ describe("read-only Wiki search and fetch compatibility", () => {
       expect(result.structuredContent.offset).toBe(offset);
       expect(result.structuredContent.text.length).toBeGreaterThan(0);
       if (reads === 0) expect(result.structuredContent).toMatchObject({ outlineTruncated: true });
+      expect(result.structuredContent.metadata).not.toHaveProperty("draft");
       complete += result.structuredContent.text;
       if (result.structuredContent.nextOffset === null) break;
       expect(result.structuredContent.nextOffset).toBeGreaterThan(offset);
@@ -256,6 +257,7 @@ describe("read-only Wiki search and fetch compatibility", () => {
           outgoingWikiLinksTruncated: "false",
         },
       });
+      expect(result.structuredContent.metadata).not.toHaveProperty("draft");
       complete += result.structuredContent.text;
       reads += 1;
       if (result.structuredContent.nextOffset === null) break;

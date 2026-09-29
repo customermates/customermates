@@ -483,7 +483,7 @@ describe("website Wiki setup in ordinary chat", () => {
     expect(deps.requestApproval).not.toHaveBeenCalled();
   });
 
-  it("gives an onboarding setup turn for a finished crawl the stored-source reader and a draft-only create", () => {
+  it("gives an onboarding setup turn for a finished crawl the stored-source reader and an evidence-backed create", () => {
     const tools = getAgentAiTools(dependencies(), {
       surface: "chat" as const,
       wikiHomepageSetup: true,

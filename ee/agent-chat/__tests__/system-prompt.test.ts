@@ -98,15 +98,19 @@ describe("system prompt", () => {
     expect(prompt).not.toContain("and say that the Operating Guide and procedures are drafts");
   });
 
-  it("gives a crawl synthesis setup turn the stored-source workflow with draft guide and procedures", () => {
+  it("gives a crawl synthesis setup turn the stored-source workflow with immediately available pages", () => {
     const prompt = buildAgentSystemPrompt({
       ...base,
       wikiHomepageSetup: true,
       wikiCrawlSynthesis: { homepage: "https://example.com/", pendingHosts: ["acme.zendesk.com"] },
     });
     expect(prompt).toContain("Call read_website_source list");
-    expect(prompt).toContain("One Operating Guide draft (kind guide)");
-    expect(prompt).toContain("Up to six procedure drafts (kind procedure)");
+    expect(prompt).toContain("One Operating Guide (kind guide)");
+    expect(prompt).toContain("immediately available to Mate");
+    expect(prompt).not.toContain("drafts");
+    expect(prompt).toContain("remainingSources is zero");
+    expect(prompt).toContain("topic inventory");
+    expect(prompt).toContain("Up to six procedures (kind procedure)");
     expect(prompt).toContain("acme.zendesk.com");
   });
 

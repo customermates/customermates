@@ -1,3 +1,4 @@
+import { WIKI_SOURCE_RESULT_MAX_CHARS } from "@/ee/wiki-crawl/wiki-source-coverage";
 import { z } from "zod";
 import { asSchema, tool, jsonSchema, type ToolSet } from "ai";
 
@@ -179,7 +180,12 @@ function agentToolResult(
   return {
     ok: outcome.ok,
     result: agentToolResultText(
-      localizeWikiPageUrls(contextualAgentToolResultText(context.toolName, outcome, context.pageRoute), env.BASE_URL),
+      context.toolName === WIKI_READ_SOURCE_TOOL_NAME
+        ? contextualAgentToolResultText(context.toolName, outcome, context.pageRoute)
+        : localizeWikiPageUrls(
+            contextualAgentToolResultText(context.toolName, outcome, context.pageRoute),
+            env.BASE_URL,
+          ),
       maxChars,
     ),
     ...(navigation ? { navigation } : {}),
@@ -368,15 +374,17 @@ function hostedMcpTool(mcp: (typeof ALL_MCP_TOOLS)[number], deps: AgentToolDeps)
 }
 
 function crmTool(mcp: (typeof ALL_MCP_TOOLS)[number], deps: AgentToolDeps, surface: AgentSurface | undefined) {
+  const resultMaxChars = mcp.name === WIKI_READ_SOURCE_TOOL_NAME ? WIKI_SOURCE_RESULT_MAX_CHARS : deps.resultMaxChars;
   return tool({
     description: mcp.description,
     inputSchema: providerSafeSchema(mcp.inputSchema),
     execute: async (input: unknown, { toolCallId }) => {
       const execute = async () => {
         const outcome = await executeMcpTool(hostedMcpTool(mcp, deps), [input]);
-        return agentToolResult(outcome, deps.resultMaxChars, { toolName: mcp.name, pageRoute: deps.pageRoute });
+        return agentToolResult(outcome, resultMaxChars, { toolName: mcp.name, pageRoute: deps.pageRoute });
       };
-      const enrollable = !isReadOnlyTool(mcp) && !hasNonTransactionalEffect(mcp.name);
+      const enrollable =
+        mcp.name === WIKI_READ_SOURCE_TOOL_NAME || (!isReadOnlyTool(mcp) && !hasNonTransactionalEffect(mcp.name));
       const run = enrollable ? () => deps.runExactlyOnce(toolCallId, mcp.name, execute) : execute;
       return runSafely(async () => {
         const mismatch = agentViewToolMismatch(deps.pageRoute, mcp.name, input);
@@ -385,7 +393,7 @@ function crmTool(mcp: (typeof ALL_MCP_TOOLS)[number], deps: AgentToolDeps, surfa
         if (!approvalContext.ok) return { ok: false, result: approvalContext.result };
         if (!requiresApproval(internalToolIdentity(mcp.name), mcp, approvalContext.input)) return run();
         return runGated(deps, surface, toolCallId, mcp.name, approvalContext.input, run);
-      }, deps.resultMaxChars);
+      }, resultMaxChars);
     },
   });
 }

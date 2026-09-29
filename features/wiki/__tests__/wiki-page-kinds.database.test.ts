@@ -22,12 +22,13 @@ vi.mock("next-intl/server", () => ({
 import { CreateWikiPagesInteractor } from "../create-wiki-pages.interactor";
 import { GetWikiPagesInteractor } from "../get-wiki-pages.interactor";
 import { PrismaWikiPageRepo } from "../prisma-wiki-page.repository";
+import { MoveWikiPageInteractor } from "../move-wiki-page.interactor";
 import { UpdateWikiPageInteractor } from "../update-wiki-page.interactor";
 
 const databaseUrl = getLocalDatabaseTestUrl();
 const describeDatabase = databaseUrl ? describe : describe.skip;
 
-type PageInput = { title: string; markdown: string; kind?: WikiPageKind; whenToUse?: string; draft?: boolean };
+type PageInput = { title: string; markdown: string; kind?: WikiPageKind; whenToUse?: string };
 
 const STEPS = "1. Confirm the order.\n2. Refund within five days.";
 
@@ -86,15 +87,15 @@ describeDatabase("Workspace Wiki page kinds on PostgreSQL", () => {
     await client.end();
   });
 
-  it("stores ordinary pages as published knowledge and keeps when-to-use only on procedures", async () => {
+  it("stores ordinary pages as usable knowledge and keeps when-to-use only on procedures", async () => {
     const result = await create([
       { title: "Pricing", markdown: "Plans start at 29 EUR." },
       { title: "Refunds", markdown: STEPS, kind: "procedure", whenToUse: "Use when a customer asks for money back." },
     ]);
     if (!result.ok) throw new Error("create failed");
-    expect(result.data.map(({ title, kind, whenToUse, draft }) => ({ title, kind, whenToUse, draft }))).toEqual([
-      { title: "Pricing", kind: "knowledge", whenToUse: null, draft: false },
-      { title: "Refunds", kind: "procedure", whenToUse: "Use when a customer asks for money back.", draft: false },
+    expect(result.data.map(({ title, kind, whenToUse }) => ({ title, kind, whenToUse }))).toEqual([
+      { title: "Pricing", kind: "knowledge", whenToUse: null },
+      { title: "Refunds", kind: "procedure", whenToUse: "Use when a customer asks for money back." },
     ]);
 
     const [pricing] = result.data;
@@ -102,9 +103,34 @@ describeDatabase("Workspace Wiki page kinds on PostgreSQL", () => {
       id: pricing.id,
       expectedUpdatedAt: pricing.updatedAt,
       whenToUse: "Ignored because this is knowledge.",
-      draft: true,
     });
-    expect(changed).toMatchObject({ ok: true, data: { kind: "knowledge", whenToUse: null, draft: true } });
+    expect(changed).toMatchObject({ ok: true, data: { kind: "knowledge", whenToUse: null } });
+  });
+
+  it("makes every saved kind immediately available to tenant-scoped assistant context", async () => {
+    const created = await create([
+      { title: "Operating Guide", markdown: "Be concise.", kind: "guide" },
+      { title: "Refunds", markdown: STEPS, kind: "procedure", whenToUse: "Refund requests." },
+      { title: "Pricing", markdown: "Plans start at 29 EUR." },
+    ]);
+    expect(created.ok).toBe(true);
+    await create([{ title: "Foreign guide", markdown: "Foreign rules.", kind: "guide" }], foreignUser);
+    await runWithTenant(user, async () => {
+      const repo = new PrismaWikiPageRepo();
+      const context = await repo.loadOperatingPages(20);
+      expect(context.guide).toMatchObject({ title: "Operating Guide" });
+      expect(context.procedures.map(({ title }) => title)).toEqual(["Refunds"]);
+      expect(context.proceduresTotal).toBe(1);
+      const catalog = await repo.listCatalogPages({ page: 1 });
+      expect(catalog.items.map(({ title }) => title)).toEqual(["Pricing"]);
+      expect(catalog.total).toBe(1);
+      expect(context.guide).not.toHaveProperty("draft");
+      expect(catalog.items[0]).not.toHaveProperty("draft");
+    });
+    const columns = await client.query(
+      "SELECT column_name FROM information_schema.columns WHERE table_schema = 'public' AND table_name = 'WikiPage' AND column_name = 'draft'",
+    );
+    expect(columns.rowCount).toBe(0);
   });
 
   it("requires a trigger and numbered steps for procedures", async () => {
@@ -183,5 +209,71 @@ describeDatabase("Workspace Wiki page kinds on PostgreSQL", () => {
         [randomUUID(), companyId, "Raw procedure", STEPS, "procedure"],
       ),
     ).rejects.toThrow(/WikiPage_when_to_use_matches_kind/);
+  });
+  it("persists shared ordering across pagination without changing content revisions", async () => {
+    const inputs: PageInput[] = [
+      { title: "Guide", markdown: "Be clear.", kind: "guide" },
+      ...Array.from({ length: 7 }, (_, index) => ({ title: `Page ${index}`, markdown: `Content ${index}` })),
+    ];
+    const firstBatch = await create(inputs.slice(0, 5));
+    const secondBatch = await create(inputs.slice(5));
+    if (!firstBatch.ok || !secondBatch.ok) throw new Error("create failed");
+    const created = { ok: true, data: [...firstBatch.data, ...secondBatch.data] };
+    if (!created.ok) throw new Error("create failed");
+    const [guide, first, second, ...rest] = created.data;
+    const last = rest.at(-1);
+    if (!last || !user.role) throw new Error("Missing test fixture");
+    const move = (id: string, targetId: string, placement: "before" | "after") =>
+      runWithTenant(user, () =>
+        new MoveWikiPageInteractor(new PrismaWikiPageRepo()).invoke({ id, targetId, placement }),
+      );
+    expect(await move(last.id, first.id, "before")).toMatchObject({ ok: true });
+    const listed = await runWithTenant(user, () =>
+      new GetWikiPagesInteractor(new PrismaWikiPageRepo()).invoke({ page: 1, pageSize: 5 }),
+    );
+    expect(listed.ok && listed.data.items.map(({ id }) => id)).toEqual([
+      guide.id,
+      last.id,
+      first.id,
+      second.id,
+      rest[0].id,
+    ]);
+    const unchanged = await runWithTenant(user, () => new PrismaWikiPageRepo().getPage(last.id));
+    expect(unchanged).toEqual(last);
+    expect(await update({ id: last.id, expectedUpdatedAt: last.updatedAt, title: "Still editable" })).toMatchObject({
+      ok: true,
+    });
+    expect(await move(first.id, second.id, "after")).toMatchObject({ ok: true });
+    expect(await move(first.id, first.id, "before")).toMatchObject({ ok: true });
+    expect(await create([{ title: "Appended", markdown: "New content" }])).toMatchObject({ ok: true });
+    const all = await runWithTenant(user, () => new PrismaWikiPageRepo().listPages({ page: 1, pageSize: 25 }));
+    expect(all.items.map(({ title }) => title)).toEqual([
+      "Guide",
+      "Still editable",
+      "Page 1",
+      "Page 0",
+      "Page 2",
+      "Page 3",
+      "Page 4",
+      "Page 5",
+      "Appended",
+    ]);
+    expect(errorCode(await move(guide.id, first.id, "after"))).toBe(CustomErrorCode.wikiPagePinned);
+    expect(errorCode(await move(first.id, guide.id, "before"))).toBe(CustomErrorCode.wikiPagePinned);
+    const foreign = await create([{ title: "Foreign", markdown: "Private" }], foreignUser);
+    if (!foreign.ok) throw new Error("create failed");
+    expect(errorCode(await move(first.id, foreign.data[0].id, "before"))).toBe(CustomErrorCode.wikiPageNotFound);
+    expect(errorCode(await move(foreign.data[0].id, first.id, "before"))).toBe(CustomErrorCode.wikiPageNotFound);
+    const reader = createMockUser({ ...user, role: { ...user.role, isSystemRole: false, permissions: [] } });
+    await expect(
+      runWithTenant(reader, () =>
+        new MoveWikiPageInteractor(new PrismaWikiPageRepo()).invoke({
+          id: first.id,
+          targetId: second.id,
+          placement: "after",
+        }),
+      ),
+    ).rejects.toThrow("Access denied");
+    expect(await runWithTenant(user, () => new PrismaWikiPageRepo().listPages({ page: 1, pageSize: 25 }))).toEqual(all);
   });
 });

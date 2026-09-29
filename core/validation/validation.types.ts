@@ -82,6 +82,7 @@ export enum CustomErrorCode {
   wikiPageNotFound = "wikiPageNotFound",
   wikiPageConflict = "wikiPageConflict",
   wikiNotEmpty = "wikiNotEmpty",
+  wikiPagePinned = "wikiPagePinned",
   wikiGuideExists = "wikiGuideExists",
   wikiWhenToUseRequired = "wikiWhenToUseRequired",
   wikiProcedureNeedsSteps = "wikiProcedureNeedsSteps",

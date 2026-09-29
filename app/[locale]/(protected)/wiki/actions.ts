@@ -3,6 +3,7 @@
 import type { StartWikiHomepageSetupData } from "@/features/wiki/start-wiki-homepage-setup.interactor";
 import type { CreateWikiPagesData } from "@/features/wiki/create-wiki-pages.interactor";
 import type { DeleteWikiPageData } from "@/features/wiki/delete-wiki-page.interactor";
+import type { MoveWikiPageData } from "@/features/wiki/move-wiki-page.interactor";
 import type { UpdateWikiPageData } from "@/features/wiki/update-wiki-page.interactor";
 import type { WikiPageListData, WikiPageSearchData } from "@/features/wiki/wiki.schema";
 import type { AppLocale } from "@/i18n/locale-registry";
@@ -17,12 +18,17 @@ import {
   getSearchWikiPagesInteractor,
   getStartWikiHomepageSetupInteractor,
   getUpdateWikiPageInteractor,
+  getMoveWikiPageInteractor,
 } from "@/core/di";
 import { serializeResult } from "@/core/utils/action-result";
 import { interactorFailureKind } from "@/core/validation/validation.utils";
 
 export async function createWikiPagesAction(data: CreateWikiPagesData) {
   return serializeResult(getCreateWikiPagesInteractor().invoke(data));
+}
+
+export async function moveWikiPageAction(data: MoveWikiPageData) {
+  return serializeResult(getMoveWikiPageInteractor().invoke(data));
 }
 
 export async function updateWikiPageAction(data: UpdateWikiPageData) {

@@ -65,7 +65,6 @@ export const WikiPageDtoSchema = z.object({
   markdown: z.string(),
   kind: WikiPageKindSchema,
   whenToUse: z.string().nullable(),
-  draft: z.boolean(),
   createdAt: z.date(),
   updatedAt: z.date(),
 });
@@ -138,7 +137,6 @@ export const WikiPageInputSchema = z
     markdown: WikiMarkdownSchema,
     kind: WikiPageKindSchema.optional(),
     whenToUse: WikiWhenToUseSchema.optional(),
-    draft: z.boolean().optional(),
   })
   .superRefine((page, ctx) => {
     const error = wikiPageKindIssue(wikiPageKindFields(page));

@@ -281,6 +281,28 @@ function backgroundToolDeps(payload: AgentTurnWorkflowPayload, grant: ToolApprov
     createSupportTicket: (_toolCallId, subject, body) =>
       createAgentSupportTicket(payload.conversationId, subject, body),
     runExactlyOnce: async (toolCallId, toolName, run) => {
+      if (toolName === "read_website_source") {
+        return runInTransaction(
+          async () => {
+            const receipt = await repo.claimAgentToolReceiptUnscoped({
+              turnRequestId: payload.turnRequestId,
+              companyId: payload.companyId,
+              toolCallId,
+              toolName,
+            });
+            if (receipt.state === "settled") return receipt.resultJson as Awaited<ReturnType<typeof run>>;
+            const result = await run();
+            await repo.settleAgentToolReceiptUnscoped({
+              turnRequestId: payload.turnRequestId,
+              companyId: payload.companyId,
+              toolCallId,
+              resultJson: result as Prisma.InputJsonValue,
+            });
+            return result;
+          },
+          { companyId: payload.companyId },
+        );
+      }
       const receipt = await repo.claimAgentToolReceiptUnscoped({
         turnRequestId: payload.turnRequestId,
         companyId: payload.companyId,
@@ -428,6 +450,19 @@ async function authorizedWikiCrawlSynthesis(payload: AgentTurnWorkflowPayload): 
   });
 }
 authorizedWikiCrawlSynthesis.maxRetries = 0;
+
+async function pendingWikiSynthesisSources(payload: AgentTurnWorkflowPayload): Promise<number> {
+  "use step";
+  const crawlId = payload.wikiCrawl?.id;
+  if (!crawlId) return 0;
+  const { getWikiWebsiteCrawlRepo } = await import("@/core/di");
+  const { wikiSourceCoverage } = await import("@/ee/wiki-crawl/wiki-source-coverage");
+  return runAsBackgroundTenant(payload.userId, async () => {
+    if (getTenantUser().companyId !== payload.companyId) throw new Error("Wiki synthesis tenant changed.");
+    const coverage = await wikiSourceCoverage(getWikiWebsiteCrawlRepo(), crawlId);
+    return coverage.pending.length;
+  });
+}
 
 async function authorizedWikiCatalog(payload: AgentTurnWorkflowPayload): Promise<string | null> {
   "use step";
@@ -984,6 +1019,7 @@ export async function runAgentTurn(payload: AgentTurnWorkflowPayload): Promise<v
     } | null = null;
     let providerStop: Extract<AgentTurnStopReason, "provider_error" | "content_filter"> | null = null;
     let resolvedProviderErrorRetries = 0;
+    let wikiCoverageReminders = 0;
     let providerFailure: WorkflowFailure | null = null;
     let budgetStop = false;
     let hostedAiStop = false;
@@ -1602,7 +1638,25 @@ export async function runAgentTurn(payload: AgentTurnWorkflowPayload): Promise<v
 
       let pending = pendingApprovalCalls(result.messages);
       if (pending.length === 0) {
-        if (finishReason === "stop") break;
+        if (finishReason === "stop") {
+          const remaining = payload.wikiCrawl ? await pendingWikiSynthesisSources(payload) : 0;
+          if (remaining === 0) break;
+          if (wikiCoverageReminders >= 2) {
+            roundFailure = toWorkflowFailure(
+              new Error("Website synthesis stopped before stored evidence was fully read."),
+            );
+            break;
+          }
+          wikiCoverageReminders += 1;
+          messages = [
+            ...result.messages,
+            {
+              role: "user" as const,
+              content: `The website import is incomplete: ${remaining} stored source groups still have unread text. Continue read_website_source action=next until remainingSources is zero, then create evidence-based pages for all supported distinct topics. Do not claim completion or pad the page count.`,
+            },
+          ];
+          continue;
+        }
         if (cancelled || budgetStop || providerStop !== null || roundFailure !== null) break;
 
         const carried = nextAgentSegmentMessages({

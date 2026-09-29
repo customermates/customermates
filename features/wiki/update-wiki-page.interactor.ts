@@ -29,12 +29,10 @@ export const UpdateWikiPageSchema = z
     markdown: WikiMarkdownSchema.optional(),
     kind: WikiPageKindSchema.optional(),
     whenToUse: WikiWhenToUseSchema.optional(),
-    draft: z.boolean().optional(),
   })
-  .refine(
-    (data) => [data.title, data.markdown, data.kind, data.whenToUse, data.draft].some((value) => value !== undefined),
-    { message: "At least one field must be provided." },
-  );
+  .refine((data) => [data.title, data.markdown, data.kind, data.whenToUse].some((value) => value !== undefined), {
+    message: "At least one field must be provided.",
+  });
 export type UpdateWikiPageData = Data<typeof UpdateWikiPageSchema>;
 
 export type UpdateWikiPageRepoResult =

@@ -31,7 +31,7 @@ import { GetWikiPageInteractor } from "../get-wiki-page.interactor";
 import { GetWikiPagesInteractor } from "../get-wiki-pages.interactor";
 import { SearchWikiPagesInteractor } from "../search-wiki-pages.interactor";
 import { UpdateWikiPageInteractor } from "../update-wiki-page.interactor";
-import { WikiMarkdownSchema, type WikiPageDto } from "../wiki.schema";
+import { WikiMarkdownSchema, WikiPageDtoSchema, WikiPageInputSchema, type WikiPageDto } from "../wiki.schema";
 
 const PAGE_ID = "00000000-0000-4000-8000-000000000001";
 const UPDATED_AT = new Date("2026-09-08T10:00:00.000Z");
@@ -43,7 +43,7 @@ function page(overrides: Partial<WikiPageDto> = {}): WikiPageDto {
     markdown: "Original body",
     kind: "knowledge" as const,
     whenToUse: null,
-    draft: false,
+
     createdAt: new Date("2026-09-08T09:00:00.000Z"),
     updatedAt: UPDATED_AT,
     ...overrides,
@@ -53,6 +53,17 @@ function page(overrides: Partial<WikiPageDto> = {}): WikiPageDto {
 const eventService = () => ({ publish: vi.fn().mockResolvedValue(undefined) });
 
 beforeEach(() => vi.clearAllMocks());
+
+describe("saved Knowledge Base page contracts", () => {
+  it("has no draft state in saved page or creation contracts", () => {
+    expect(WikiPageDtoSchema.shape).not.toHaveProperty("draft");
+    expect(WikiPageInputSchema.shape).not.toHaveProperty("draft");
+    expect(WikiPageDtoSchema.parse({ ...page(), draft: true })).not.toHaveProperty("draft");
+    expect(WikiPageInputSchema.parse({ title: "Ready", markdown: "Saved content", draft: true })).not.toHaveProperty(
+      "draft",
+    );
+  });
+});
 
 describe("CreateWikiPagesInteractor", () => {
   it("publishes one complete snapshot for every atomically created page", async () => {

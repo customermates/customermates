@@ -1,3 +1,5 @@
+import type { McpToolResult } from "@/features/mcp-tools/mcp-tool";
+import { encodeToToon } from "@/features/mcp-tools/utils";
 import { beforeEach, describe, expect, it, vi } from "vitest";
 
 const harness = vi.hoisted(() => ({
@@ -6,6 +8,7 @@ const harness = vi.hoisted(() => ({
   sources: vi.fn(),
   count: vi.fn(),
   imported: vi.fn(),
+  advance: vi.fn(),
 }));
 vi.mock("@/core/di", () => ({
   getCreateWikiPagesInteractor: () => ({ invoke: harness.create }),
@@ -14,6 +17,7 @@ vi.mock("@/core/di", () => ({
     listSources: harness.sources,
     countSynthesizedPages: harness.count,
     findImportedPage: harness.imported,
+    advanceSourceReads: harness.advance,
   }),
 }));
 vi.mock("@/i18n/get-translator", () => ({
@@ -21,6 +25,12 @@ vi.mock("@/i18n/get-translator", () => ({
 }));
 
 import { createWikiFromCrawlTool, readWebsiteSourceTool } from "../wiki-crawl-synthesis-tools";
+
+function structured(result: McpToolResult) {
+  if (typeof result === "string" || !("structuredContent" in result))
+    throw new Error("Expected structured tool result");
+  return result.structuredContent;
+}
 
 const ENGLISH =
   "Customers can contact our support team whenever they have questions about their subscription. We explain the available options and provide clear information about the next steps. The customer can request a refund within thirty days after purchasing the annual subscription.";
@@ -53,6 +63,7 @@ beforeEach(() => {
       contentHash: "hash-1",
       fetchedAt: new Date(),
       readAt: new Date(),
+      readOffset: GERMAN.length,
     },
   ]);
   harness.create.mockResolvedValue({ ok: true, data: [] });
@@ -69,6 +80,7 @@ describe("single language Wiki synthesis", () => {
         text: ENGLISH,
         contentHash: "hash-1",
         readAt: null,
+        readOffset: 0,
       },
     ]);
     for (const existing of [null, { sourceContentHash: "older-version" }]) {
@@ -77,7 +89,11 @@ describe("single language Wiki synthesis", () => {
         structuredContent: { items: [{ imported: false }] },
       });
     }
-    harness.imported.mockResolvedValue({ sourceContentHash: "hash-1" });
+    harness.imported.mockResolvedValue({
+      sourceContentHash: "hash-1",
+      updatedAt: new Date(1000),
+      sourceImportedUpdatedAt: new Date(1000),
+    });
     expect(await tool.execute({ action: "list" })).toMatchObject({
       structuredContent: { items: [{ imported: true }] },
     });
@@ -141,5 +157,136 @@ describe("single language Wiki synthesis", () => {
     expect(harness.create).not.toHaveBeenCalled();
     await tool.execute({ action: "create", pages: [page(ENGLISH)] });
     expect(harness.create).toHaveBeenCalledOnce();
+  });
+});
+
+describe("complete stored source coverage", () => {
+  const source = (index: number, text: string, readOffset = 0) => ({
+    id: `00000000-0000-4000-8000-${String(index).padStart(12, "0")}`,
+    url: `https://example.com/page-${index}`,
+    category: "other",
+    title: `Topic ${index}`,
+    text,
+    contentHash: `hash-${index}`,
+    fetchedAt: new Date(),
+    readAt: null as Date | null,
+    readOffset,
+  });
+
+  function stored(sources: ReturnType<typeof source>[]) {
+    harness.sources.mockImplementation(() => Promise.resolve(sources));
+    harness.advance.mockImplementation((_crawlId, chunks: Array<{ id: string; offset: number; end: number }>) => {
+      for (const chunk of chunks) {
+        const entry = sources.find(({ id }) => id === chunk.id);
+        if (!entry) throw new Error("Missing fixture");
+        expect(chunk.offset).toBeLessThanOrEqual(entry.readOffset);
+        entry.readOffset = Math.max(entry.readOffset, chunk.end);
+        entry.readAt = entry.readOffset === entry.text.length ? new Date() : null;
+      }
+      return Promise.resolve();
+    });
+  }
+
+  it("reads forty rich sources completely in twenty bounded batches and resumes persisted cursors", async () => {
+    const sources = Array.from({ length: 40 }, (_, i) => source(i + 1, ENGLISH.repeat(30)));
+    stored(sources);
+    let calls = 0;
+    while (sources.some(({ readOffset, text }) => readOffset < text.length)) {
+      const result = await readWebsiteSourceTool("crawl-1").execute({ action: "next" });
+      const value = structured(result) as { items: Array<{ text: string }>; remainingSources: number };
+      expect(value.items.length).toBeLessThanOrEqual(4);
+      expect(value.items[0]).toMatchObject({
+        title: expect.stringContaining("Topic"),
+        url: expect.stringContaining("https://example.com/page-"),
+        category: "other",
+      });
+      expect(encodeToToon(structured(result)).length).toBeLessThanOrEqual(24_000);
+      expect(value.items.reduce((sum, item) => sum + item.text.length, 0)).toBeGreaterThan(6_000);
+      calls += 1;
+      expect(calls).toBeLessThanOrEqual(20);
+    }
+    expect(calls).toBe(20);
+    expect(sources.every(({ readAt }) => readAt !== null)).toBe(true);
+    expect(harness.advance).toHaveBeenCalledTimes(20);
+  });
+
+  it("rejects skipped text and premature creation even after the first chunk was read", async () => {
+    const sources = [source(1, ENGLISH.repeat(30))];
+    stored(sources);
+    const tool = readWebsiteSourceTool("crawl-1");
+    expect(JSON.stringify(await tool.execute({ action: "get", id: SOURCE_ID, offset: 100 }))).toContain(
+      "without skipping",
+    );
+    expect(harness.advance).not.toHaveBeenCalled();
+    await tool.execute({ action: "next" });
+    expect(sources[0].readAt).toBeNull();
+    const premature = await createWikiFromCrawlTool("en", "crawl-1").execute({
+      action: "create",
+      pages: [page(ENGLISH)],
+    });
+    expect(structured(premature)).toMatchObject({ remainingSources: 1 });
+    expect(harness.create).not.toHaveBeenCalled();
+    await tool.execute({ action: "next" });
+    await createWikiFromCrawlTool("en", "crawl-1").execute({ action: "create", pages: [page(ENGLISH)] });
+    expect(harness.create).toHaveBeenCalledOnce();
+  });
+
+  it("shares complete exact-content coverage and excludes only actual imported revisions", async () => {
+    const original = source(1, ENGLISH, ENGLISH.length);
+    const duplicate = { ...source(2, ENGLISH), contentHash: original.contentHash };
+    const imported = source(3, GERMAN);
+    const stale = source(4, GERMAN);
+    stored([original, duplicate, imported, stale]);
+    harness.imported.mockImplementation((url) =>
+      Promise.resolve(
+        url === imported.url
+          ? {
+              sourceContentHash: imported.contentHash,
+              updatedAt: new Date(1000),
+              sourceImportedUpdatedAt: new Date(1000),
+            }
+          : { sourceContentHash: "stale" },
+      ),
+    );
+    const result = await readWebsiteSourceTool("crawl-1").execute({ action: "list" });
+    expect(structured(result)).toMatchObject({
+      remainingSources: 1,
+      items: [{ read: true }, { read: true }, { imported: true }, { imported: false }],
+    });
+  });
+
+  it("requires reading manually edited imported pages even when their source hash still matches", async () => {
+    stored([source(1, ENGLISH)]);
+    for (const baseline of [null, new Date(1000)]) {
+      harness.imported.mockResolvedValue({
+        sourceContentHash: "hash-1",
+        updatedAt: new Date(2000),
+        sourceImportedUpdatedAt: baseline,
+      });
+      expect(structured(await readWebsiteSourceTool("crawl-1").execute({ action: "list" }))).toMatchObject({
+        remainingSources: 1,
+        items: [{ imported: false }],
+      });
+      await createWikiFromCrawlTool("en", "crawl-1").execute({ action: "create", pages: [page(ENGLISH)] });
+      expect(harness.create).not.toHaveBeenCalled();
+    }
+  });
+
+  it("does not treat legacy readAt as complete coverage", async () => {
+    stored([{ ...source(1, ENGLISH), readAt: new Date() }]);
+    expect(structured(await readWebsiteSourceTool("crawl-1").execute({ action: "list" }))).toMatchObject({
+      remainingSources: 1,
+      items: [{ read: false, nextOffset: 0 }],
+    });
+  });
+
+  it("bounds escaped source output without advancing beyond returned text", async () => {
+    const sources = Array.from({ length: 4 }, (_, i) => source(i + 1, '\n\t"'.repeat(4000)));
+    stored(sources);
+    const result = await readWebsiteSourceTool("crawl-1").execute({ action: "next" });
+    const value = structured(result) as { items: Array<{ id: string; offset: number; text: string }> };
+    expect(encodeToToon(structured(result)).length).toBeLessThanOrEqual(24_000);
+    for (const chunk of value.items)
+      expect(sources.find(({ id }) => id === chunk.id)?.readOffset).toBe(chunk.offset + chunk.text.length);
   });
 });

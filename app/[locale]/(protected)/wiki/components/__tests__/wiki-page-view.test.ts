@@ -1,3 +1,4 @@
+import type * as TooltipModule from "@/components/ui/tooltip";
 import type { ReactElement, ReactNode } from "react";
 import type * as WikiPageStoreModule from "../wiki-page.store";
 import type { WikiPageStore as RealWikiPageStore } from "../wiki-page.store";
@@ -87,6 +88,14 @@ vi.mock("../use-wiki-pages", () => ({
   }),
 }));
 vi.mock("../wiki-link-picker", () => ({ WikiLinkPicker: () => null }));
+vi.mock("@/components/ui/tooltip", async (importOriginal) => {
+  const actual = await importOriginal<typeof TooltipModule>();
+  return {
+    ...actual,
+    Tooltip: (props: React.ComponentProps<typeof actual.Tooltip>) =>
+      createElement(actual.TooltipProvider, null, createElement(actual.Tooltip, props)),
+  };
+});
 vi.mock("@/components/ui/sheet", () => ({
   Sheet: ({ children }: { children?: ReactNode }) => children,
   SheetTrigger: ({ children }: { children?: ReactNode }) => children,
@@ -122,7 +131,15 @@ vi.mock("@/components/forms/form-select", () => ({
     ),
 }));
 vi.mock("@/components/forms/form-textarea", () => ({
-  FormTextarea: (props: { id: string }) => createElement("textarea", { "data-form-textarea": props.id }),
+  FormTextarea: ({
+    label: _label,
+    containerClassName: _containerClassName,
+    ...props
+  }: {
+    id: string;
+    label?: unknown;
+    containerClassName?: unknown;
+  }) => createElement("textarea", { ...props, "data-form-textarea": props.id }),
 }));
 vi.mock("@/components/forms/form-input", () => ({
   FormInput: ({ label: _label, ...props }: { label?: unknown; [key: string]: unknown }) =>
@@ -173,7 +190,7 @@ const page = {
   markdown: "Our documented process.",
   kind: "knowledge" as const,
   whenToUse: null,
-  draft: false,
+
   createdAt: new Date("2026-09-09T00:00:00.000Z"),
   updatedAt: new Date("2026-09-09T00:00:00.000Z"),
 };
@@ -191,7 +208,7 @@ function configure(canManage: boolean, agentChatEnabled: boolean, agentEnabled: 
       markdown: "",
       kind: "knowledge",
       whenToUse: "",
-      draft: false,
+
       updatedAt: null,
     },
     isLoading: false,
@@ -204,7 +221,6 @@ function configure(canManage: boolean, agentChatEnabled: boolean, agentEnabled: 
     resetForm: vi.fn(),
     resetDocument: vi.fn(),
     startCreate: vi.fn(),
-    publish: vi.fn(),
   };
   harness.rootStore = {
     agentChatEnabled,
@@ -316,7 +332,7 @@ describe("Wiki document view", () => {
     const store = harness.store as unknown as RealWikiPageStore;
     act(() => store.onChange("title", "Unsaved manual title"));
     expect(store.hasUnsavedChanges).toBe(true);
-    const input = container.querySelector("input#title");
+    const input = container.querySelector("textarea#title");
     const remote = {
       ...page,
       title: "Remote refreshed title",
@@ -333,7 +349,7 @@ describe("Wiki document view", () => {
       ),
     );
     expect(harness.store).toBe(store);
-    expect(container.querySelector("input#title")).toBe(input);
+    expect(container.querySelector("textarea#title")).toBe(input);
     expect(store.form.title).toBe("Unsaved manual title");
     expect(store.form.markdown).toBe(page.markdown);
     expect(store.hasUnsavedChanges).toBe(true);
@@ -350,7 +366,7 @@ describe("Wiki document view", () => {
       );
       expect(store.form.title).toBe("Unsaved manual title");
       expect(store.form.id).toBe(page.id);
-      expect(container.querySelector("input#title")).toBe(input);
+      expect(container.querySelector("textarea#title")).toBe(input);
     }
     act(() =>
       root.render(
@@ -475,6 +491,13 @@ describe("Wiki document view", () => {
     );
     const save = () => container.querySelector<HTMLButtonElement>('header [aria-label="Common.actions.save"]');
     expect(save()).toBeNull();
+    expect(
+      container
+        .querySelector("header")
+        ?.querySelectorAll("button")
+        .item((container.querySelector("header")?.querySelectorAll("button").length ?? 0) - 1)
+        ?.getAttribute("aria-label"),
+    ).toBe("Wiki.newPage");
     expect(container.querySelector('header [aria-label="Wiki.newPage"]')?.getAttribute("data-variant")).toBe("default");
     expect(harness.toolbarRenders).toBeLessThan(10);
     const settledRenders = harness.toolbarRenders;
@@ -485,6 +508,12 @@ describe("Wiki document view", () => {
       }),
     );
     expect(save()?.disabled).toBe(false);
+    expect(
+      container
+        .querySelector("header")
+        ?.querySelectorAll("button")
+        .item((container.querySelector("header")?.querySelectorAll("button").length ?? 0) - 1),
+    ).toBe(save());
     expect(container.querySelector('header [aria-label="Wiki.newPage"]')?.getAttribute("data-variant")).toBe(
       "secondary",
     );
@@ -517,7 +546,7 @@ describe("Wiki document view", () => {
     expect(container.querySelector('[data-editor-readonly="false"]')).not.toBeNull();
     expect(harness.editorProps?.data).toBe(harness.store.editorDocument);
     expect(harness.editorProps?.onChange).toBe(harness.store.onEditorChange);
-    expect(container.querySelector('input[aria-label="Wiki.pageTitle"]')).not.toBeNull();
+    expect(container.querySelector('textarea[aria-label="Wiki.pageTitle"]')).not.toBeNull();
     expect(container.textContent).not.toContain("Wiki.edit");
     expect(save?.disabled).toBe(false);
     expect(save?.getAttribute("type")).toBe("submit");
@@ -696,7 +725,7 @@ describe("Wiki document view", () => {
       });
       if (mode === "confirmed dirty") {
         expect(harness.push).not.toHaveBeenCalled();
-        expect(container.querySelector('input[aria-label="Wiki.pageTitle"]')).not.toBeNull();
+        expect(container.querySelector('textarea[aria-label="Wiki.pageTitle"]')).not.toBeNull();
         expect(container.querySelector('[aria-label="Wiki.newPage"]')).not.toBeNull();
         await act(async () => {
           confirmNavigation?.();
@@ -707,7 +736,7 @@ describe("Wiki document view", () => {
       expect(harness.push).toHaveBeenCalledExactlyOnceWith(`/wiki?page=${nextPage.id}`);
       expect(container.querySelector('#wiki-document-panel [data-page-state="loading"]')).not.toBeNull();
       expect(container.querySelector('#wiki-document-panel [role="status"]')?.textContent).toBe("PageState.loading");
-      expect(container.querySelector('input[aria-label="Wiki.pageTitle"]')).toBeNull();
+      expect(container.querySelector('textarea[aria-label="Wiki.pageTitle"]')).toBeNull();
       expect(container.querySelector("[data-editor-readonly]")).toBeNull();
       expect(container.querySelector('[aria-label="Wiki.newPage"]')).toBeNull();
       expect(container.querySelector('[aria-label="Common.actions.save"]')).toBeNull();
@@ -726,7 +755,7 @@ describe("Wiki document view", () => {
 
       expect(container.querySelector('#wiki-document-panel [data-page-state="loading"]')).toBeNull();
       expect(container.querySelector('nav [aria-current="page"]')?.textContent).toBe(nextPage.title);
-      expect(container.querySelector('input[aria-label="Wiki.pageTitle"]')).not.toBeNull();
+      expect(container.querySelector('textarea[aria-label="Wiki.pageTitle"]')).not.toBeNull();
       expect(container.querySelector('[data-editor-readonly="false"]')).not.toBeNull();
       expect(container.querySelector('[aria-label="Wiki.newPage"]')).not.toBeNull();
     },
@@ -831,7 +860,6 @@ describe("Wiki document view", () => {
       ...page,
       kind: "procedure",
       whenToUse: "Refund requests",
-      draft: false,
     };
     const { container } = await mount(
       createElement(WikiPageView, {
@@ -846,24 +874,12 @@ describe("Wiki document view", () => {
     expect(container.querySelector('textarea[data-form-textarea="whenToUse"]')).not.toBeNull();
   });
 
-  it("marks drafts until a manager publishes them and shows read-only readers the page type", async () => {
+  it("shows saved pages without publication controls and shows readers the page type", async () => {
     configure(true, false);
-    harness.store.form = { ...page, kind: "guide", whenToUse: "", draft: true };
-    const managed = await mount(
-      createElement(WikiPageView, {
-        initialPage: page,
-        listPage: populatedList,
-      }),
-    );
-    expect(managed.container.textContent).toContain("Wiki.draft.body");
-    const publish = Array.from(managed.container.querySelectorAll("button")).find(
-      (button) => button.textContent === "Wiki.draft.publish",
-    );
-    await act(() => {
-      publish?.click();
-      return Promise.resolve();
-    });
-    expect(harness.store.publish).toHaveBeenCalledOnce();
+    harness.store.form = { ...page, kind: "guide", whenToUse: "" };
+    const managed = await mount(createElement(WikiPageView, { initialPage: page, listPage: populatedList }));
+    expect(managed.container.textContent).not.toContain("Wiki.draft");
+    expect(managed.container.querySelector('[data-slot="alert"]')).toBeNull();
     expect(managed.container.querySelector('textarea[data-form-textarea="whenToUse"]')).toBeNull();
 
     configure(false, false);
@@ -871,7 +887,6 @@ describe("Wiki document view", () => {
       ...page,
       kind: "procedure",
       whenToUse: "Refund requests",
-      draft: false,
     };
     const readOnly = await mount(
       createElement(WikiPageView, {
@@ -888,7 +903,7 @@ describe("Wiki document view", () => {
     harness.store.creating = true;
     const { container } = await mount(createElement(WikiPageView, { initialPage: null, listPage }));
 
-    expect(document.activeElement).toBe(container.querySelector('input[aria-label="Wiki.pageTitle"]'));
+    expect(document.activeElement).toBe(container.querySelector('textarea[aria-label="Wiki.pageTitle"]'));
   });
 });
 

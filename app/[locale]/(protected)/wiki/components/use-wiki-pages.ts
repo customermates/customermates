@@ -2,14 +2,16 @@
 
 import type { WikiPageListResult, WikiPageSearchResult } from "@/features/wiki/wiki.schema";
 
-import { useEffect, useState } from "react";
+import { useEffect, useRef, useState } from "react";
 
 import { reportApplicationError } from "@/core/errors/report-application-error";
 import { useDebouncedValue } from "@/core/utils/use-debounced-value";
 
-import { getWikiPagesAction, searchWikiPagesAction } from "../actions";
+import { getWikiPagesAction, moveWikiPageAction, searchWikiPagesAction } from "../actions";
 
 export function useWikiPages(initial: WikiPageListResult, loadInitial = false) {
+  const movePending = useRef(false);
+  const [reordering, setReordering] = useState(false);
   const [query, setQuery] = useState("");
   const [page, setPage] = useState(initial.page);
   const [result, setResult] = useState<WikiPageListResult | WikiPageSearchResult>(initial);
@@ -54,7 +56,27 @@ export function useWikiPages(initial: WikiPageListResult, loadInitial = false) {
     };
   }, [debouncedQuery, initial, loadInitial, page, query, retry]);
 
+  async function move(id: string, targetId: string, placement: "before" | "after") {
+    if (movePending.current || loading || query.trim() || failed) return null;
+    movePending.current = true;
+    setReordering(true);
+    try {
+      const response = await moveWikiPageAction({ id, targetId, placement });
+      if (!response.ok) return response;
+      setRetry((value) => value + 1);
+      return response;
+    } catch (error: unknown) {
+      reportApplicationError(error);
+      return null;
+    } finally {
+      movePending.current = false;
+      setReordering(false);
+    }
+  }
+
   return {
+    move,
+    reordering,
     result,
     hasMore:
       "hasMore" in result && result.hasMore !== undefined ? result.hasMore : page * result.pageSize < result.total,

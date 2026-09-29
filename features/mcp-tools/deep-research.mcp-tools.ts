@@ -194,7 +194,6 @@ async function fetchWiki(id: string, requestedOffset: number) {
       source: "wiki",
       kind: page.kind,
       ...(page.whenToUse ? { whenToUse: page.whenToUse } : {}),
-      ...(page.draft ? { draft: "true" } : {}),
       createdAt: page.createdAt.toISOString(),
       updatedAt: page.updatedAt.toISOString(),
       outgoingWikiLinks: JSON.stringify(

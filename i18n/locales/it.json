@@ -1344,6 +1344,7 @@
       "wikiNotEmpty": "Questa azione richiede una base di conoscenza vuota.",
       "wikiPageConflict": "Questa pagina della base di conoscenza è cambiata dopo che l’hai aperta. Ricaricala e riprova.",
       "wikiPageNotFound": "Pagina della base di conoscenza non trovata o non accessibile.",
+      "wikiPagePinned": "La guida operativa resta al primo posto. Sposta un’altra pagina.",
       "wikiProcedureNeedsSteps": "Una procedura richiede passaggi numerati.",
       "wikiWhenToUseRequired": "Una procedura richiede una breve descrizione di quando usarla."
     },
@@ -3737,11 +3738,6 @@
     "copyLink": "Copia link della pagina",
     "delete": "Elimina pagina",
     "document": "Documento",
-    "draft": {
-      "badge": "Bozza",
-      "body": "Questa pagina è una bozza. Mate e gli strumenti di IA collegati non la seguono finché non la pubblichi.",
-      "publish": "Pubblica"
-    },
     "emptyBody": "Fornisci a Mate e agli strumenti di IA connessi le conoscenze, i processi e le indicazioni di cui hanno bisogno.",
     "emptyBodyReadOnly": "Non è stata ancora creata alcuna pagina della base di conoscenza.",
     "emptyTitle": "La base di conoscenza del tuo spazio di lavoro è vuota",

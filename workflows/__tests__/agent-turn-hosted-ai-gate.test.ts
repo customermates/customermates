@@ -21,6 +21,7 @@ type StreamOptions = {
 const CREDIT = 1_000_000;
 
 const state = vi.hoisted(() => ({
+  synthesisSources: [] as Array<{ id: string; text: string; contentHash: string; readOffset: number }>,
   latestCrawl: null as { pendingHosts: string[] } | null,
   crawl: null as { userId: string; homepageUrl: string } | null,
   gateResults: [] as boolean[],
@@ -251,6 +252,8 @@ vi.mock("@/core/di", () => ({
     hasPermission: state.wikiCreatePermission,
   }),
   getWikiWebsiteCrawlRepo: () => ({
+    listSources: () => Promise.resolve(state.synthesisSources),
+    findImportedPage: () => Promise.resolve(null),
     findLatestCrawl: () => Promise.resolve(state.latestCrawl),
     getCrawl: () => Promise.resolve(state.crawl),
   }),
@@ -3099,6 +3102,37 @@ describe("routine browse-or-mutate batch safety", () => {
     beforeEach(() => {
       state.definitions = ["read_website_source", "manage_wiki_pages"].map(definition);
       state.crawl = { userId: payload.userId, homepageUrl: read.url };
+      state.synthesisSources = [];
+    });
+
+    it("continues a premature stop until complete evidence is read", async () => {
+      state.synthesisSources = [{ id: "source", text: "unread evidence", contentHash: "hash", readOffset: 0 }];
+      let runs = 0;
+      state.runTools = ({ messages }) => {
+        runs += 1;
+        if (runs === 2) {
+          expect(JSON.stringify(messages)).toContain("website import is incomplete");
+          state.synthesisSources[0].readOffset = state.synthesisSources[0].text.length;
+        }
+        return Promise.resolve({ ...finish(), messages });
+      };
+      await runAgentTurn(setupPayload);
+      expect(runs).toBe(2);
+      expect(state.finalize).toHaveBeenCalledWith(expect.objectContaining({ terminalCode: "completed" }));
+    });
+
+    it("stops honestly as partial when the model repeatedly skips stored evidence", async () => {
+      state.synthesisSources = [{ id: "source", text: "unread evidence", contentHash: "hash", readOffset: 0 }];
+      let runs = 0;
+      state.runTools = ({ messages }) => {
+        runs += 1;
+        return Promise.resolve({ ...finish(), messages });
+      };
+      await runAgentTurn(setupPayload);
+      expect(runs).toBe(3);
+      expect(state.finalize).toHaveBeenCalledWith(
+        expect.objectContaining({ terminalCode: "partial", stopReason: "turn_error" }),
+      );
     });
 
     it("creates setup pages from this user's import", async () => {

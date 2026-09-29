@@ -70,7 +70,7 @@ function catalogData(excerpt = "Current workspace guidance") {
         url: `http://localhost:4000/wiki?page=${PAGE_ID}`,
         kind: "knowledge" as const,
         whenToUse: null,
-        draft: false,
+
         createdAt: new Date("2026-09-01T12:00:00Z"),
         updatedAt: new Date("2026-09-13T12:00:00Z"),
       },
@@ -301,7 +301,7 @@ describe("Workspace Wiki admission bootstrap", () => {
         url: `http://localhost:4000/wiki?page=00000000-0000-4000-8000-${String(index + 1).padStart(12, "0")}`,
         kind: "knowledge" as const,
         whenToUse: null,
-        draft: false,
+
         createdAt: new Date(`2026-09-${String(index + 1).padStart(2, "0")}T12:00:00Z`),
         updatedAt: new Date("2026-09-13T12:00:00Z"),
       }));
@@ -370,7 +370,7 @@ describe("Workspace Wiki admission bootstrap", () => {
           url: `http://localhost:4000/wiki?page=${index + 1}`,
           kind: "knowledge" as const,
           whenToUse: null,
-          draft: false,
+
           createdAt: new Date("2026-09-01T12:00:00Z"),
           updatedAt: new Date("2026-09-13T12:00:00Z"),
         })),

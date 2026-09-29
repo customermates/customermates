@@ -38,7 +38,7 @@ const page = {
   markdown: "Overview",
   kind: "knowledge" as const,
   whenToUse: null,
-  draft: false,
+
   createdAt: new Date("2026-09-09T00:00:00.000Z"),
   updatedAt: new Date("2026-09-09T00:00:00.000Z"),
 };
@@ -109,7 +109,6 @@ describe("Wiki document editing", () => {
       markdown: page.markdown,
       kind: "knowledge",
       whenToUse: undefined,
-      draft: false,
     });
     expect(store.form.updatedAt).toEqual(latest.updatedAt);
     expect(store.hasUnsavedChanges).toBe(false);

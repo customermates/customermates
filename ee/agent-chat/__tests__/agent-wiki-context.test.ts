@@ -371,7 +371,7 @@ it("bounds ten worst-case escaped Unicode entries without dropping IDs or pagina
     url: "https://example.com/wiki",
     kind: "knowledge" as const,
     whenToUse: null,
-    draft: false,
+
     createdAt: new Date(),
     updatedAt: new Date(),
   }));
@@ -405,7 +405,7 @@ it("bounds astral Unicode catalog text without stalling or splitting a character
       url: "https://example.com/wiki",
       kind: "knowledge" as const,
       whenToUse: null,
-      draft: false,
+
       createdAt: new Date(),
       updatedAt: new Date(),
     })),

@@ -289,7 +289,7 @@ model WikiPage {
   semanticIndexClaimedAt  DateTime?
   kind                    WikiPageKind             @default(knowledge)
   whenToUse               String?
-  draft                   Boolean                  @default(false)
+  sortOrder               Int                      @default(2147483647)
   sourceUrl               String?
   sourceFetchedAt         DateTime?
   sourceContentHash       String?
@@ -300,6 +300,7 @@ model WikiPage {
   chunks                  WikiPageChunk[]
 
   @@index([companyId, createdAt, id])
+  @@index([companyId, sortOrder, createdAt, id])
   @@index([companyId, kind, title])
   @@index([searchVector], type: Gin)
   @@index([searchCompact(ops: raw("gin_trgm_ops"))], type: Gin)
@@ -359,6 +360,7 @@ model WikiSourceDocument {
   qaPairs         Json?
   contentHash     String
   fetchedAt       DateTime         @default(now())
+  readOffset       Int @default(0)
   readAt          DateTime?
   importClaimedAt DateTime?
   crawl           WikiWebsiteCrawl @relation(fields: [crawlId], references: [id], onDelete: Cascade)

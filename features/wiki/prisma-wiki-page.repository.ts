@@ -10,6 +10,7 @@ import type {
   WikiFullTextCandidates,
   WikiSemanticCandidate,
 } from "./search-wiki-pages.interactor";
+import type { MoveWikiPageRepo } from "./move-wiki-page.interactor";
 import type { UpdateWikiPageRepo } from "./update-wiki-page.interactor";
 import type { StartWikiHomepageSetupRepo } from "./start-wiki-homepage-setup.interactor";
 import type { WikiPageDto } from "./wiki.schema";
@@ -61,6 +62,7 @@ export class PrismaWikiPageRepo
     GetWikiPageRepo,
     CreateWikiPagesRepo,
     UpdateWikiPageRepo,
+    MoveWikiPageRepo,
     DeleteWikiPageRepo,
     StartWikiHomepageSetupRepo,
     WikiSemanticIndexRepo
@@ -72,7 +74,6 @@ export class PrismaWikiPageRepo
       markdown: true,
       kind: true,
       whenToUse: true,
-      draft: true,
       createdAt: true,
       updatedAt: true,
     } as const;
@@ -84,7 +85,6 @@ export class PrismaWikiPageRepo
       title: true,
       kind: true,
       whenToUse: true,
-      draft: true,
       createdAt: true,
       updatedAt: true,
     } as const;
@@ -104,13 +104,36 @@ export class PrismaWikiPageRepo
       this.prisma.wikiPage.findMany({
         where,
         select: this.summarySelect,
-        orderBy: [{ kind: "asc" }, { createdAt: "asc" }, { id: "asc" }],
+        orderBy: [{ sortOrder: "asc" }, { createdAt: "asc" }, { id: "asc" }],
         skip: (page - 1) * pageSize,
         take: pageSize,
       }),
       this.prisma.wikiPage.count({ where }),
     ]);
     return { items, total, page, pageSize };
+  }
+
+  async movePage({ id, targetId, placement }: RepoArgs<MoveWikiPageRepo, "movePage">) {
+    return this.withCompanyTransaction(this.companyId, async () => {
+      const pages = await this.prisma.wikiPage.findMany({
+        where: { companyId: this.companyId },
+        select: { id: true, kind: true },
+        orderBy: [{ sortOrder: "asc" }, { createdAt: "asc" }, { id: "asc" }],
+      });
+      const source = pages.find((page) => page.id === id);
+      const target = pages.find((page) => page.id === targetId);
+      if (!source || !target) return "not-found" as const;
+      if (source.kind === "guide" || target.kind === "guide") return "pinned" as const;
+      if (id === targetId) return "moved" as const;
+      const ids = pages.filter((page) => page.kind !== "guide" && page.id !== id).map((page) => page.id);
+      ids.splice(ids.indexOf(targetId) + (placement === "after" ? 1 : 0), 0, id);
+      await this.prisma.$executeRaw(Prisma.sql`
+        UPDATE "WikiPage" p SET "sortOrder" = ordered.position::integer
+        FROM unnest(ARRAY[${Prisma.join(ids)}]::text[]) WITH ORDINALITY AS ordered(id, position)
+        WHERE p."id" = ordered.id AND p."companyId" = ${this.companyId} AND p."kind" <> 'guide'
+      `);
+      return "moved" as const;
+    });
   }
 
   async semanticPageCandidates(vector: number[], model: string, limit: number) {
@@ -442,10 +465,10 @@ export class PrismaWikiPageRepo
   }
 
   async loadOperatingPages(procedureLimit: number) {
-    const procedureWhere = { companyId: this.companyId, kind: "procedure" as const, draft: false };
+    const procedureWhere = { companyId: this.companyId, kind: "procedure" as const };
     const [guide, procedures, proceduresTotal] = await Promise.all([
       this.prisma.wikiPage.findFirst({
-        where: { companyId: this.companyId, kind: "guide", draft: false },
+        where: { companyId: this.companyId, kind: "guide" },
         select: this.pageSelect,
       }),
       this.prisma.wikiPage.findMany({
@@ -460,7 +483,7 @@ export class PrismaWikiPageRepo
   }
 
   async listCatalogPages({ page }: RepoArgs<GetWikiCatalogRepo, "listCatalogPages">) {
-    const where = { companyId: this.companyId, kind: "knowledge" as const, draft: false };
+    const where = { companyId: this.companyId, kind: "knowledge" as const };
     const [items, total] = await Promise.all([
       this.prisma.wikiPage.findMany({
         where,
@@ -533,7 +556,7 @@ export class PrismaWikiPageRepo
             markdown: page.markdown,
             kind: wikiPageKindFields(page).kind,
             whenToUse: wikiPageKindFields(page).whenToUse,
-            draft: page.draft ?? false,
+            sortOrder: page.kind === "guide" ? -1 : undefined,
             createdAt: new Date(createdAt + index),
           },
           select: this.pageSelect,
@@ -552,13 +575,11 @@ export class PrismaWikiPageRepo
     const markdown = data.markdown ?? previous.markdown;
     const kind = data.kind ?? previous.kind;
     const whenToUse = kind === "procedure" ? (data.whenToUse ?? previous.whenToUse) : null;
-    const draft = data.draft ?? previous.draft;
     if (
       title === previous.title &&
       markdown === previous.markdown &&
       kind === previous.kind &&
-      whenToUse === previous.whenToUse &&
-      draft === previous.draft
+      whenToUse === previous.whenToUse
     )
       return { status: "unchanged" as const, previous, page: previous };
     const invalid = wikiPageKindIssue({ kind, whenToUse, markdown });
@@ -577,7 +598,7 @@ export class PrismaWikiPageRepo
         markdown,
         kind,
         whenToUse,
-        draft,
+        ...(kind !== previous.kind ? { sortOrder: kind === "guide" ? -1 : 2147483647 } : {}),
         updatedAt: new Date(Math.max(Date.now(), previous.updatedAt.getTime() + 1)),
       },
     });

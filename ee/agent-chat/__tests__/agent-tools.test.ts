@@ -328,7 +328,7 @@ describe("agent tools", () => {
           url: `https://example.com/wiki?page=00000000-0000-4000-8000-${String(index).padStart(12, "0")}`,
           kind: "knowledge" as const,
           whenToUse: null,
-          draft: false,
+
           createdAt: new Date("2026-09-13T00:00:00.000Z"),
           updatedAt: new Date("2026-09-13T00:00:00.000Z"),
         })),

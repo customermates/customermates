@@ -68,6 +68,25 @@ beforeEach(() => {
   vi.clearAllMocks();
 });
 
+describe("Knowledge Base saved-page contract", () => {
+  it("does not carry a draft switch into creation or update", () => {
+    const created = manageWikiPagesTool.inputSchema.parse({
+      action: "create",
+      pages: [{ title: "Ready", markdown: "Saved content", draft: true }],
+    });
+    expect(created).toMatchObject({ action: "create", pages: [{ title: "Ready", markdown: "Saved content" }] });
+    if (created.action === "create") expect(created.pages?.[0]).not.toHaveProperty("draft");
+    expect(
+      manageWikiPagesTool.inputSchema.parse({
+        action: "update",
+        id: "00000000-0000-4000-8000-000000000001",
+        expectedUpdatedAt: "2026-09-29T00:00:00.000Z",
+        draft: false,
+      }),
+    ).not.toHaveProperty("draft");
+  });
+});
+
 describe("manage_wiki_pages registry", () => {
   it("is one shared public MCP tool", () => {
     expect(MCP_TOOL_GROUPS.wiki).toEqual([manageWikiPagesTool]);

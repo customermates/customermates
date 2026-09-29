@@ -5,8 +5,12 @@ import { act, createElement } from "react";
 import { createRoot } from "react-dom/client";
 import { afterEach, beforeEach, describe, expect, it, vi } from "vitest";
 
-const actions = vi.hoisted(() => ({ list: vi.fn(), search: vi.fn() }));
-vi.mock("../../actions", () => ({ getWikiPagesAction: actions.list, searchWikiPagesAction: actions.search }));
+const actions = vi.hoisted(() => ({ list: vi.fn(), search: vi.fn(), move: vi.fn() }));
+vi.mock("../../actions", () => ({
+  getWikiPagesAction: actions.list,
+  searchWikiPagesAction: actions.search,
+  moveWikiPageAction: actions.move,
+}));
 vi.mock("@/core/errors/report-application-error", () => ({ reportApplicationError: vi.fn() }));
 
 import { useWikiPages } from "../use-wiki-pages";
@@ -25,6 +29,7 @@ beforeEach(() => {
   vi.useFakeTimers();
   actions.list.mockReset().mockResolvedValue({ ok: true, data: { ...initial, page: 2 } });
   actions.search.mockReset();
+  actions.move.mockReset();
   container = document.createElement("div");
   document.body.append(container);
   root = createRoot(container);
@@ -134,5 +139,40 @@ describe("Wiki navigation search", () => {
     });
     expect(state.failed).toBe(false);
     expect(state.query).toBe("voice");
+  });
+  it("reloads persisted ordering and blocks duplicate moves", async () => {
+    let finish!: (value: unknown) => void;
+    actions.move.mockImplementation(
+      () =>
+        new Promise((resolve) => {
+          finish = resolve;
+        }),
+    );
+    let pending: ReturnType<typeof state.move> | undefined;
+    act(() => {
+      pending = state.move("a", "b", "after");
+    });
+    expect(state.reordering).toBe(true);
+    expect(await state.move("b", "a", "before")).toBeNull();
+    expect(actions.move).toHaveBeenCalledExactlyOnceWith({ id: "a", targetId: "b", placement: "after" });
+    await act(async () => {
+      finish({ ok: true, data: true });
+      expect(await pending).toMatchObject({ ok: true });
+    });
+    expect(actions.list).toHaveBeenCalledWith({ page: 1, pageSize: 25 });
+    expect(state.reordering).toBe(false);
+  });
+
+  it("preserves visible ordering on a rejected move and disables moves during search", async () => {
+    actions.move.mockResolvedValue({ ok: false, error: { errors: ["Denied"] } });
+    await act(async () => {
+      expect(await state.move("a", "b", "before")).toMatchObject({ ok: false });
+    });
+    expect(state.result).toBe(initial);
+    expect(actions.list).not.toHaveBeenCalled();
+    actions.search.mockResolvedValue({ ok: true, data: initial });
+    await search("pricing");
+    expect(await state.move("a", "b", "after")).toBeNull();
+    expect(actions.move).toHaveBeenCalledTimes(1);
   });
 });

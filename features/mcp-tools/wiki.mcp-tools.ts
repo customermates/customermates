@@ -64,12 +64,10 @@ const UpdateSchema = z
     markdown: z.string().optional(),
     kind: WikiPageKindSchema.optional(),
     whenToUse: z.string().optional(),
-    draft: z.boolean().optional(),
   })
-  .refine(
-    (data) => [data.title, data.markdown, data.kind, data.whenToUse, data.draft].some((value) => value !== undefined),
-    { message: "Nothing to update." },
-  );
+  .refine((data) => [data.title, data.markdown, data.kind, data.whenToUse].some((value) => value !== undefined), {
+    message: "Nothing to update.",
+  });
 const DeleteSchema = z.object({
   id: z.uuid(),
   expectedUpdatedAt: z.iso.datetime(),
@@ -92,7 +90,6 @@ const ManageWikiPagesSchema = z.object({
   markdown: z.string().optional().describe("New Markdown."),
   kind: WikiPageKindSchema.optional(),
   whenToUse: z.string().optional(),
-  draft: z.boolean().optional(),
 });
 
 export const ManageWikiPagesOutputSchema = z.looseObject({
@@ -139,14 +136,12 @@ export const ManageWikiPagesOutputSchema = z.looseObject({
 type WikiPageKindFields = {
   kind?: WikiPageKind;
   whenToUse?: string | null;
-  draft?: boolean;
 };
 
 function wikiPageKindOutput(page: WikiPageKindFields) {
   return {
     ...(page.kind && page.kind !== "knowledge" ? { kind: page.kind } : {}),
     ...(page.whenToUse ? { whenToUse: page.whenToUse } : {}),
-    ...(page.draft ? { draft: true } : {}),
   };
 }
 
@@ -243,9 +238,9 @@ function wikiListResult({
     page,
     pageSize,
     items: formatDatesInResponse(
-      items.map(({ kind, whenToUse, draft, ...item }) => ({
+      items.map(({ kind, whenToUse, ...item }) => ({
         ...item,
-        ...wikiPageKindOutput({ kind, whenToUse, draft }),
+        ...wikiPageKindOutput({ kind, whenToUse }),
       })),
     ),
   });

@@ -389,7 +389,7 @@ describe("WikiHomepageSetup", () => {
           title: "Company Overview",
           kind: "knowledge" as const,
           whenToUse: null,
-          draft: false,
+
           createdAt: new Date("2026-09-22T00:00:00.000Z"),
           updatedAt: new Date("2026-09-22T00:00:00.000Z"),
         },
@@ -414,7 +414,7 @@ describe("WikiHomepageSetup", () => {
           title: "Company Overview",
           kind: "knowledge" as const,
           whenToUse: null,
-          draft: false,
+
           createdAt: new Date("2026-09-22T00:00:00.000Z"),
           updatedAt: new Date("2026-09-22T00:00:00.000Z"),
         },
@@ -440,7 +440,7 @@ describe("WikiHomepageSetup", () => {
           title: "Imported knowledge",
           kind: "knowledge",
           whenToUse: null,
-          draft: false,
+
           createdAt: new Date("2026-09-29"),
           updatedAt: new Date("2026-09-29"),
         },

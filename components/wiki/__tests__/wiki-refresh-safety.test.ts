@@ -51,7 +51,7 @@ describe("Wiki polling safety", () => {
         markdown: "Body",
         kind: "knowledge",
         whenToUse: null,
-        draft: false,
+
         createdAt: new Date("2026-09-29"),
         updatedAt: new Date("2026-09-29"),
       },
@@ -87,7 +87,7 @@ describe("Wiki polling safety", () => {
         markdown: "Body",
         kind: "knowledge",
         whenToUse: null,
-        draft: false,
+
         createdAt: new Date("2026-09-29"),
         updatedAt: new Date("2026-09-29"),
       },

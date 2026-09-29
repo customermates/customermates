@@ -27,7 +27,7 @@ const page = {
   markdown: "",
   kind: "knowledge" as const,
   whenToUse: null,
-  draft: false,
+
   createdAt: new Date("2026-09-09T00:00:00.000Z"),
   updatedAt: new Date("2026-09-09T00:00:00.000Z"),
 };

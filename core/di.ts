@@ -312,6 +312,7 @@ import { GetWikiCatalogInteractor } from "@/features/wiki/get-wiki-catalog.inter
 import { SearchWikiPagesInteractor, sharedWikiSearchOrders } from "@/features/wiki/search-wiki-pages.interactor";
 import { GetWikiPageInteractor } from "@/features/wiki/get-wiki-page.interactor";
 import { CreateWikiPagesInteractor } from "@/features/wiki/create-wiki-pages.interactor";
+import { MoveWikiPageInteractor } from "@/features/wiki/move-wiki-page.interactor";
 import { UpdateWikiPageInteractor } from "@/features/wiki/update-wiki-page.interactor";
 import { DeleteWikiPageInteractor } from "@/features/wiki/delete-wiki-page.interactor";
 import { StartWikiHomepageSetupInteractor } from "@/features/wiki/start-wiki-homepage-setup.interactor";
@@ -1193,6 +1194,7 @@ export const getSearchExternalizedWikiPagesInteractor = () =>
   new SearchWikiPagesInteractor(getWikiPageRepo(), "externalized", getWikiSemanticRetrieval(), sharedWikiSearchOrders);
 export const getGetWikiPageInteractor = () => new GetWikiPageInteractor(getWikiPageRepo());
 export const getCreateWikiPagesInteractor = () => new CreateWikiPagesInteractor(getWikiPageRepo(), getEventService());
+export const getMoveWikiPageInteractor = () => new MoveWikiPageInteractor(getWikiPageRepo());
 export const getUpdateWikiPageInteractor = () => new UpdateWikiPageInteractor(getWikiPageRepo(), getEventService());
 export const getDeleteWikiPageInteractor = () => new DeleteWikiPageInteractor(getWikiPageRepo(), getEventService());
 export const getWikiWebsiteCrawlRepo = () => new PrismaWikiWebsiteCrawlRepo();

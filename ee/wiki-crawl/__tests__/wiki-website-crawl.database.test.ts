@@ -6,6 +6,8 @@ import { Client } from "pg";
 import { createTranslator } from "next-intl";
 import { afterAll, beforeAll, beforeEach, describe, expect, it, vi } from "vitest";
 
+import { PrismaAgentChatRepo } from "@/ee/agent-chat/prisma-agent-chat.repository";
+import { runInTransaction } from "@/core/decorators/transaction-runner";
 import { runWithTenant } from "@/core/decorators/tenant-context";
 import { EventService } from "@/features/event/event.service";
 import { CreateWikiPagesInteractor } from "@/features/wiki/create-wiki-pages.interactor";
@@ -507,7 +509,173 @@ describeDatabase("Wiki website crawl on PostgreSQL", () => {
     delete PAGES["https://example.com/help/refunds-copy"];
   }, 30_000);
 
-  it("creates draft guides and procedures that cite only stored sources it read, within the page cap", async () => {
+  it("ignores changed source redelivery after synthesis starts", async () => {
+    const crawlId = await startCrawl();
+    await runWithTenant(user, () => service().discover(crawlId));
+    const started = Promise.withResolvers<undefined>();
+    const fetched = Promise.withResolvers<Awaited<ReturnType<typeof crawler.fetch>>>();
+    crawler.fetch.mockImplementationOnce(() => {
+      started.resolve(undefined);
+      return fetched.promise;
+    });
+    const delayed = runWithTenant(user, () => service().fetchBatch(crawlId, 0));
+    await started.promise;
+    const original = {
+      url: "https://example.com/",
+      canonicalUrl: "https://example.com/",
+      title: "Original",
+      text: "Original complete website evidence",
+      qaPairs: [],
+      category: "about" as const,
+      contentHash: "original-hash",
+    };
+    try {
+      await runWithTenant(user, async () => {
+        const repo = new PrismaWikiWebsiteCrawlRepo();
+        await repo.saveSource(crawlId, original);
+        const [source] = await repo.listSources(crawlId);
+        await repo.advanceSourceReads(crawlId, [{ id: source.id, offset: 0, end: source.text.length }]);
+        expect(await repo.claimCrawl(crawlId, ["fetching"], { status: "synthesizing" })).toBe(true);
+      });
+    } finally {
+      fetched.resolve({ ...original, title: "Late replacement", text: "Changed", contentHash: "changed-hash" });
+    }
+    await delayed;
+    await runWithTenant(user, async () => {
+      const repo = new PrismaWikiWebsiteCrawlRepo();
+      const [source] = await repo.listSources(crawlId);
+      expect(source).toMatchObject({
+        title: original.title,
+        text: original.text,
+        contentHash: original.contentHash,
+        readOffset: original.text.length,
+        readAt: expect.any(Date),
+      });
+      expect(await repo.countSources(crawlId)).toBe(1);
+    });
+  });
+
+  it("resets coverage and import claims only when stored evidence changes during fetching", async () => {
+    const crawlId = await startCrawl();
+    await runWithTenant(user, async () => {
+      const repo = new PrismaWikiWebsiteCrawlRepo();
+      await service().discover(crawlId);
+      const evidence = {
+        url: "https://example.com/",
+        canonicalUrl: "https://example.com/",
+        title: "Source",
+        text: "Original complete text",
+        contentHash: "first-hash",
+        qaPairs: [],
+        category: "about" as const,
+      };
+      await repo.saveSource(crawlId, evidence);
+      const [source] = await repo.listSources(crawlId);
+      await repo.advanceSourceReads(crawlId, [{ id: source.id, offset: 0, end: source.text.length }]);
+      await repo.claimSourceImport(crawlId, source.id);
+      await repo.saveSource(crawlId, evidence);
+      expect(await repo.getSource(crawlId, source.id)).toMatchObject({
+        readOffset: source.text.length,
+        readAt: expect.any(Date),
+      });
+      expect(await repo.claimSourceImport(crawlId, source.id)).toBe(false);
+      await repo.saveSource(crawlId, { ...evidence, text: "Changed", contentHash: "second-hash" });
+      expect(await repo.getSource(crawlId, source.id)).toMatchObject({
+        text: "Changed",
+        contentHash: "second-hash",
+        readOffset: 0,
+        readAt: null,
+      });
+      expect(await repo.claimSourceImport(crawlId, source.id)).toBe(true);
+    });
+  });
+
+  it("commits source delivery receipts with cursors and replays a lost response without skipping", async () => {
+    const crawlId = await startCrawl();
+    await runCrawl(crawlId);
+    const conversationId = randomUUID();
+    const turnRequestId = randomUUID();
+    const toolCallId = randomUUID();
+    await client.query(
+      `INSERT INTO "AgentConversation" ("id","companyId","userId","updatedAt") VALUES ($1,$2,$3,now())`,
+      [conversationId, companyId, user.id],
+    );
+    try {
+      await client.query(
+        `INSERT INTO "AgentTurnRequest" ("id","companyId","userId","conversationId","clientRequestId","text","status","runId","userMessageId","updatedAt") VALUES ($1,$2,$3,$4,$5,'setup','running',$6,$7,now())`,
+        [turnRequestId, companyId, user.id, conversationId, randomUUID(), randomUUID(), randomUUID()],
+      );
+      await runWithTenant(user, async () => {
+        const agentRepo = new PrismaAgentChatRepo();
+        const crawlRepo = new PrismaWikiWebsiteCrawlRepo();
+        const [source] = await crawlRepo.listSources(crawlId);
+        const read = (interrupt = false) =>
+          runInTransaction(
+            async () => {
+              const receipt = await agentRepo.claimAgentToolReceiptUnscoped({
+                turnRequestId,
+                companyId,
+                toolCallId,
+                toolName: "read_website_source",
+              });
+              if (receipt.state === "settled") return receipt.resultJson;
+              const result = await readWebsiteSourceTool(crawlId).execute({ action: "get", id: source.id });
+              if (interrupt) throw new Error("Interrupted before result receipt");
+              await agentRepo.settleAgentToolReceiptUnscoped({
+                turnRequestId,
+                companyId,
+                toolCallId,
+                resultJson: result as never,
+              });
+              return result;
+            },
+            { companyId },
+          );
+        await expect(read(true)).rejects.toThrow("Interrupted before result receipt");
+        expect(await crawlRepo.getSource(crawlId, source.id)).toMatchObject({ readOffset: 0, readAt: null });
+        const [first, replay] = await Promise.all([read(), read()]);
+        expect(replay).toEqual(first);
+        expect(await read()).toEqual(first);
+        expect(first).toMatchObject({
+          structuredContent: { items: [{ id: source.id, offset: 0, text: source.text }] },
+        });
+        expect(await crawlRepo.getSource(crawlId, source.id)).toMatchObject({ readOffset: source.text.length });
+      });
+    } finally {
+      await client.query('DELETE FROM "AgentConversation" WHERE "id"=$1', [conversationId]);
+    }
+  });
+
+  it("persists sequential source cursors, replays reads and rolls back stale batches", async () => {
+    const crawlId = await startCrawl();
+    await runCrawl(crawlId);
+    await runWithTenant(user, async () => {
+      const repo = new PrismaWikiWebsiteCrawlRepo();
+      const [first, second] = await repo.listSources(crawlId);
+      expect(first.text.length).toBeGreaterThan(20);
+      expect(await repo.advanceSourceRead(crawlId, first.id, 5, 10)).toBe(false);
+      expect(await repo.advanceSourceRead(crawlId, first.id, 0, 10)).toBe(true);
+      expect(await repo.advanceSourceRead(crawlId, first.id, 0, 10)).toBe(true);
+      expect(await repo.getSource(crawlId, first.id)).toMatchObject({ readOffset: 10, readAt: null });
+      await expect(
+        repo.advanceSourceReads(crawlId, [
+          { id: second.id, offset: 0, end: 10 },
+          { id: first.id, offset: 0, end: 20 },
+        ]),
+      ).rejects.toThrow("cursor changed");
+      expect(await repo.getSource(crawlId, second.id)).toMatchObject({ readOffset: 0, readAt: null });
+      await Promise.all([
+        repo.advanceSourceReads(crawlId, [{ id: first.id, offset: 10, end: first.text.length }]),
+        repo.advanceSourceReads(crawlId, [{ id: first.id, offset: 10, end: first.text.length }]),
+      ]);
+      expect(await repo.getSource(crawlId, first.id)).toMatchObject({
+        readOffset: first.text.length,
+        readAt: expect.any(Date),
+      });
+    });
+  });
+
+  it("creates immediately usable guides and procedures that cite only stored sources it read, within the page cap", async () => {
     const crawlId = await startCrawl();
     await runCrawl(crawlId);
     const [refund] = (
@@ -536,7 +704,14 @@ describeDatabase("Wiki website crawl on PostgreSQL", () => {
         sourceIds: [refund.id],
       },
     ]);
-    expect(JSON.stringify(unread)).toContain(`unread: ${refund.id}`);
+    expect(JSON.stringify(unread)).toContain("Read all remaining stored evidence");
+    let remaining = 1;
+    while (remaining > 0) {
+      const result = await runWithTenant(user, () => readWebsiteSourceTool(crawlId).execute({ action: "next" }));
+      if (typeof result === "string" || !("structuredContent" in result))
+        throw new Error("Expected source coverage result");
+      remaining = (result.structuredContent as { remainingSources: number }).remainingSources;
+    }
     await runWithTenant(user, () => readWebsiteSourceTool(crawlId).execute({ action: "get", id: refund.id }));
 
     await create([
@@ -565,15 +740,15 @@ describeDatabase("Wiki website crawl on PostgreSQL", () => {
         sourceIds: [refund.id],
       },
     ]);
-    const drafts = await client.query(
-      'SELECT "title", "kind", "draft", "whenToUse", "markdown" FROM "WikiPage" WHERE "companyId" = $1 AND "sourceUrl" IS NULL ORDER BY "title"',
+    const saved = await client.query(
+      'SELECT "title", "kind", "whenToUse", "markdown" FROM "WikiPage" WHERE "companyId" = $1 AND "sourceUrl" IS NULL ORDER BY "title"',
       [companyId],
     );
-    expect(drafts.rows.map(({ title, kind, draft }) => ({ title, kind, draft }))).toEqual([
-      { title: "Operating Guide", kind: "guide", draft: true },
-      { title: "Refund procedure", kind: "procedure", draft: true },
+    expect(saved.rows.map(({ title, kind }) => ({ title, kind }))).toEqual([
+      { title: "Operating Guide", kind: "guide" },
+      { title: "Refund procedure", kind: "procedure" },
     ]);
-    const guide = drafts.rows[0].markdown as string;
+    const guide = saved.rows[0].markdown as string;
     expect(guide).toMatch(/^- Refunds -> Refund procedure$/mu);
     expect(guide).toMatch(/^- Other -> Support$/mu);
     expect(guide).not.toContain("\\n");

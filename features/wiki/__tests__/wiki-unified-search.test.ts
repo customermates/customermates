@@ -36,7 +36,7 @@ const page = (n: number, markdown: string) => ({
   markdown: WikiMarkdownSchema.parse(markdown),
   kind: "knowledge" as const,
   whenToUse: null,
-  draft: false,
+
   createdAt: created,
   updatedAt: created,
 });

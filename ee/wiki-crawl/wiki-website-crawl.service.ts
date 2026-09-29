@@ -55,6 +55,7 @@ export type WikiSourceRecord = {
   contentHash: string;
   fetchedAt: Date;
   readAt: Date | null;
+  readOffset: number;
 };
 
 export type WikiImportedPage = {
@@ -94,13 +95,17 @@ export abstract class WikiWebsiteCrawlRepo {
   abstract countSources(crawlId: string): Promise<number>;
   abstract saveSource(
     crawlId: string,
-    source: Omit<WikiSourceRecord, "id" | "fetchedAt" | "readAt"> & {
+    source: Omit<WikiSourceRecord, "id" | "fetchedAt" | "readAt" | "readOffset"> & {
       canonicalUrl: string;
     },
   ): Promise<void>;
   abstract listSources(crawlId: string): Promise<WikiSourceRecord[]>;
   abstract getSource(crawlId: string, id: string): Promise<WikiSourceRecord | null>;
-  abstract markSourceRead(crawlId: string, id: string): Promise<void>;
+  abstract advanceSourceRead(crawlId: string, id: string, offset: number, end: number): Promise<boolean>;
+  abstract advanceSourceReads(
+    crawlId: string,
+    chunks: Array<{ id: string; offset: number; end: number }>,
+  ): Promise<void>;
   abstract claimSourceImport(crawlId: string, id: string): Promise<boolean>;
   abstract countImportedPages(since: Date): Promise<number>;
   abstract deleteEarlierSources(crawlId: string): Promise<void>;
