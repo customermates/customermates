@@ -405,7 +405,9 @@ const FullAppSidebar = observer(
           assistantBusy={assistantBusy}
           assistantBusyLabel={assistantBusyLabel}
           assistantLabel={
-            rootStore.agentChatEnabled && rootStore.agentChatStore.enabled === true ? t("AgentChat.askAi") : undefined
+            rootStore.agentChatEnabled && (restricted || rootStore.agentChatStore.enabled === true)
+              ? t("AgentChat.askAi")
+              : undefined
           }
           assistantShortcut="⌘J"
           brandName="Customermates"

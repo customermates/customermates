@@ -432,7 +432,7 @@
       "timeout": "Timed out without a response",
       "title": "Mate wants to run:"
     },
-    "askAi": "Ask AI",
+    "askAi": "Ask Mate",
     "askAiWorking": "Mate is working",
     "context": {
       "addAria": "Add context",

@@ -432,7 +432,7 @@
       "timeout": "Tiempo agotado sin respuesta",
       "title": "Mate quiere ejecutar:"
     },
-    "askAi": "Preguntar a la IA",
+    "askAi": "Preguntar a Mate",
     "askAiWorking": "Mate está trabajando",
     "context": {
       "addAria": "Añadir contexto",
