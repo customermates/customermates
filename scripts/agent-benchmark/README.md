@@ -80,6 +80,7 @@ Pre-registered before any paid call. The question is which retrieval stages each
 - **Secondary metrics:** page R@1, R@5 and MRR; per-category (Wiki: lexical, paraphrase, cross-language, typo, multi-hop, no-match; docs: D, DH, DE) and per-language breakdowns; latency p50 and p95.
 - **Embedding measured twice:** each query is embedded once and the vector reused. E-unbounded waits for the vector. E-450 uses the shipped 450 ms wait: a vector whose measured call latency exceeded 450 ms counts as unavailable, and that query runs as if the embedding timed out.
 - **Decision rule:** per corpus, separately for E-450 (shipped latency) and for E-unbounded, choose the cheapest combination, in the cost order FTS < FTS+E < FTS+J < FTS+E+J, whose primary metric is not significantly worse than the best combination's, by an exact two-sided McNemar test on paired queries at p < 0.05. If the E-unbounded decision differs from the E-450 decision, both are reported; the shipped decision uses E-450 unless the owner changes the embedding wait.
+- **Amendment (2026-09-29, after the result):** `reports/2026-09-29-retrieval-stage-selection-5655ec06/report.md` showed that the embedding helps only when its vector arrives: at 450 ms only 29 % of query vectors arrived from the measuring machine (p95 about 1,028 ms), and with the vector docs final-section hit rose from 75.5 % to 98.2 % and the Wiki's from 41.3 % to 85.0 %. The owner therefore raised the shared query-embedding wait (`RETRIEVAL_EMBEDDING_WAIT_MS`) from 450 ms to 1,100 ms for both corpora, and both corpora ship FTS+E+J. The E-450 figures above stay as recorded.
 
 ## Findings
 
@@ -95,7 +96,7 @@ Pre-registered before any paid call. The question is which retrieval stages each
 PostgreSQL full-text search with the built-in `simple` and language configurations, and in parallel one query embedding
 with the Wiki's model (cached per workspace, shared across concurrent calls), then reciprocal-rank fusion with identifier
 pinning, then the Jev re-rank of sections on hosted Mate. Without credits, self-hosted, without a Gateway key or in the
-demo it is full-text only; a query embedding slower than 450 ms (its vector is still cached for the next call) or failing,
+demo it is full-text only; a query embedding slower than 1,100 ms (its vector is still cached for the next call) or failing,
 and a failing or slow re-rank, keep the fused or full-text order. It replaced the hand-tuned docs keyword ranker and the
 Wiki's BM25, spelling-suggestion and hybrid ranking after the live A/B in
 `reports/2026-09-28-retrieval-ab-63a7186a/report.md`; that code is gone, so there is no second pipeline to switch to.

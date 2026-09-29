@@ -9,6 +9,7 @@ import {
   fuseRankings,
   QueryEmbeddingWait,
   rerankSections,
+  RETRIEVAL_EMBEDDING_WAIT_MS,
   RetrievalStopwatch,
 } from "../retrieval-pipeline";
 
@@ -175,6 +176,41 @@ describe("query embedding wait", () => {
     await expect(claimedRun).resolves.toMatchObject({ ranked: ["a", "z", "b"], vector: { vector: [1], model: "m" } });
     expect(claimed.embedding).toBe("used");
     expect(claims).toEqual([false, true]);
+  });
+
+  it("waits 1,100 ms for the query embedding by default", async () => {
+    vi.useFakeTimers();
+    const fullText = () => Promise.resolve({ keys: ["a", "b"] });
+    const semantic = () => Promise.resolve(["z"]);
+    const arriving = (ms: number) => () =>
+      new Promise<{ vector: number[]; model: string }>((resolve) => {
+        setTimeout(() => resolve({ vector: [1], model: "m" }), ms);
+      });
+
+    expect(RETRIEVAL_EMBEDDING_WAIT_MS).toBe(1_100);
+    const inTime = new RetrievalStopwatch("docs");
+    const inTimeRun = fuseFullTextAndSemantic({
+      query: "q",
+      stopwatch: inTime,
+      fullText,
+      embed: arriving(1_000),
+      semantic,
+    });
+    await vi.advanceTimersByTimeAsync(1_050);
+    await expect(inTimeRun).resolves.toMatchObject({ ranked: ["a", "z", "b"] });
+    expect(inTime.embedding).toBe("used");
+
+    const late = new RetrievalStopwatch("wiki");
+    const lateRun = fuseFullTextAndSemantic({
+      query: "q",
+      stopwatch: late,
+      fullText,
+      embed: arriving(1_200),
+      semantic,
+    });
+    await vi.advanceTimersByTimeAsync(1_250);
+    await expect(lateRun).resolves.toMatchObject({ ranked: ["a", "b"], vector: null });
+    expect(late.embedding).toBe("timeout");
   });
 
   it("lets exactly one of claim and abandon win", () => {

@@ -10,7 +10,7 @@ import type {
 import { recordRetrievalTiming } from "./retrieval-context";
 
 export const RETRIEVAL_RRF_K = 60;
-export const RETRIEVAL_EMBEDDING_WAIT_MS = 450;
+export const RETRIEVAL_EMBEDDING_WAIT_MS = 1_100;
 export const RETRIEVAL_SEMANTIC_MIN_SIMILARITY = 0.5;
 
 export type QueryVector = { vector: number[]; model: string };
