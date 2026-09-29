@@ -3743,12 +3743,16 @@
     "emptyTitle": "La base de connaissances de votre espace de travail est vide",
     "kind": {
       "guide": "Guide opérationnel",
-      "guideHelp": "Consignes permanentes que chaque IA lit en premier. Mate et les outils d'IA connectés chargent toujours environ les {bytes, number} premiers octets. Un par espace de travail.",
+      "guideDescription": "Règles et ton communs à chaque demande. Un par espace de travail.",
+      "guideExists": "Un guide opérationnel existe déjà. Modifiez cette page pour changer les règles communes.",
+      "guideHelp": "Le guide opérationnel définit comment Mate et les outils d’IA connectés doivent travailler : ton, règles et limites. Placez les règles essentielles au début ; Mate lit cette partie pour chaque demande. Un par espace de travail.",
       "knowledge": "Connaissance",
-      "knowledgeHelp": "Faits et réponses que Mate et les outils d'IA connectés consultent quand une question en a besoin.",
+      "knowledgeDescription": "Faits sur l’entreprise et informations à consulter au besoin.",
+      "knowledgeHelp": "Pour les faits sur l’entreprise, les produits, les services ou les questions fréquentes. Mate et les outils d’IA connectés trouvent ces pages lorsqu’une question en a besoin.",
       "label": "Type de page",
       "procedure": "Procédure",
-      "procedureHelp": "Étapes numérotées que Mate et les outils d'IA connectés suivent quand une demande correspond au cas d'usage."
+      "procedureDescription": "Étapes d’une tâche récurrente, utilisées pour les demandes correspondantes.",
+      "procedureHelp": "Pour une tâche récurrente, comme l’accueil d’un client. Rédigez des étapes numérotées et décrivez la demande correspondante dans « Quand l’utiliser ». Mate et les outils d’IA connectés les suivent lorsque cette demande se présente."
     },
     "linkPage": "Lier une page de la base de connaissances…",
     "loadFailed": "Impossible de charger les pages.",

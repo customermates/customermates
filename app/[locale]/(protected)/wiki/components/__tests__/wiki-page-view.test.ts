@@ -123,11 +123,17 @@ vi.mock("@/components/forms/form-context", () => ({
   AppForm: ({ children, id }: { children?: ReactNode; id?: string }) => createElement("form", { id }, children),
 }));
 vi.mock("@/components/forms/form-select", () => ({
-  FormSelect: (props: { id: string; items?: Array<{ value: string; disabled?: boolean }> }) =>
+  FormSelect: (props: { id: string; items?: Array<{ value: string; disabled?: boolean; description?: string }> }) =>
     createElement(
       "select",
       { "data-form-select": props.id },
-      props.items?.map((item) => createElement("option", { key: item.value, disabled: item.disabled }, item.value)),
+      props.items?.map((item) =>
+        createElement(
+          "option",
+          { key: item.value, disabled: item.disabled, "data-description": item.description },
+          item.value,
+        ),
+      ),
     ),
 }));
 vi.mock("@/components/forms/form-textarea", () => ({
@@ -871,6 +877,11 @@ describe("Wiki document view", () => {
     const options = Array.from(container.querySelectorAll('select[data-form-select="kind"] option'));
     expect(options.map((option) => option.textContent)).toEqual(["guide", "procedure", "knowledge"]);
     expect(options.find((option) => option.textContent === "guide")?.hasAttribute("disabled")).toBe(true);
+    expect(options.map((option) => option.getAttribute("data-description"))).toEqual([
+      "Wiki.kind.guideExists",
+      "Wiki.kind.procedureDescription",
+      "Wiki.kind.knowledgeDescription",
+    ]);
     expect(container.querySelector('textarea[data-form-textarea="whenToUse"]')).not.toBeNull();
   });
 

@@ -3743,12 +3743,16 @@
     "emptyTitle": "Your Knowledge Base is empty",
     "kind": {
       "guide": "Operating Guide",
-      "guideHelp": "Standing guidance every AI reads first. Mate and connected AI tools always load about the first {bytes, number} bytes. One per workspace.",
+      "guideDescription": "Shared rules and tone for every request. One per workspace.",
+      "guideExists": "An Operating Guide already exists. Edit that page to change the shared rules.",
+      "guideHelp": "The Operating Guide sets how Mate and connected AI tools should work: tone, rules and boundaries. Put the key rules first; Mate reads the opening guidance for every request. One per workspace.",
       "knowledge": "Knowledge",
-      "knowledgeHelp": "Facts and answers Mate and connected AI tools search when a question needs them.",
+      "knowledgeDescription": "Company facts and reference information to look up when needed.",
+      "knowledgeHelp": "Use for company facts, products, services or answers to common questions. Mate and connected AI tools find these pages when a question needs them.",
       "label": "Page type",
       "procedure": "Procedure",
-      "procedureHelp": "Numbered steps Mate and connected AI tools follow when a request matches when to use it."
+      "procedureDescription": "Steps for a repeatable task, used when a request matches.",
+      "procedureHelp": "Use for a repeatable task, such as customer onboarding. Write numbered steps and describe the matching request in “When to use.” Mate and connected AI tools follow them when that request comes up."
     },
     "linkPage": "Link to a Knowledge Base page…",
     "loadFailed": "Pages could not be loaded.",

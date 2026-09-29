@@ -3743,12 +3743,16 @@
     "emptyTitle": "La base de conocimientos de tu espacio de trabajo está vacía",
     "kind": {
       "guide": "Guía operativa",
-      "guideHelp": "Pautas permanentes que toda IA lee primero. Mate y las herramientas de IA conectadas siempre cargan unos {bytes, number} bytes iniciales. Una por espacio de trabajo.",
+      "guideDescription": "Reglas y tono comunes para cada solicitud. Una por espacio de trabajo.",
+      "guideExists": "Ya existe una guía operativa. Edita esa página para cambiar las reglas comunes.",
+      "guideHelp": "La guía operativa define cómo deben trabajar Mate y las herramientas de IA conectadas: tono, reglas y límites. Pon las reglas clave al principio; Mate lee esa parte en cada solicitud. Una por espacio de trabajo.",
       "knowledge": "Conocimiento",
-      "knowledgeHelp": "Datos y respuestas que Mate y las herramientas de IA conectadas buscan cuando una pregunta los necesita.",
+      "knowledgeDescription": "Datos de la empresa e información para consultar cuando haga falta.",
+      "knowledgeHelp": "Para datos de la empresa, productos, servicios o preguntas frecuentes. Mate y las herramientas de IA conectadas encuentran estas páginas cuando una pregunta las necesita.",
       "label": "Tipo de página",
       "procedure": "Procedimiento",
-      "procedureHelp": "Pasos numerados que Mate y las herramientas de IA conectadas siguen cuando una solicitud coincide con cuándo usarlo."
+      "procedureDescription": "Pasos para una tarea recurrente, aplicados a solicitudes coincidentes.",
+      "procedureHelp": "Para tareas recurrentes, como la incorporación de clientes. Escribe pasos numerados y describe la solicitud correspondiente en «Cuándo usarlo». Mate y las herramientas de IA conectadas los siguen cuando surge esa solicitud."
     },
     "linkPage": "Enlazar una página de la base de conocimientos…",
     "loadFailed": "No se pudieron cargar las páginas.",

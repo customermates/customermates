@@ -8,7 +8,7 @@ import type { WikiHomepageSetupState } from "@/features/wiki/get-wiki-homepage-s
 import { useCallback, useEffect, useId, useMemo, useRef, useState, useTransition } from "react";
 import { observer } from "mobx-react-lite";
 import { reaction } from "mobx";
-import { BookOpen, ChevronDown, Info, Plus, Sparkles } from "lucide-react";
+import { BookOpen, ChevronDown, Plus, Sparkles } from "lucide-react";
 import { useTranslations } from "next-intl";
 
 import { useSetTopBarActions } from "@/app/components/topbar-actions-context";
@@ -21,7 +21,7 @@ import { EditorLinkPickerContext } from "@/components/editor/editor-link-picker"
 import { PageState } from "@/components/page-state/page-state";
 import { Alert } from "@/components/shared/alert";
 import { Button } from "@/components/ui/button";
-import { Tooltip, TooltipContent, TooltipTrigger } from "@/components/ui/tooltip";
+import { FormFieldHelp } from "@/components/forms/form-field-help";
 import { Sheet, SheetBody, SheetContent, SheetHeader, SheetTitle, SheetTrigger } from "@/components/ui/sheet";
 import { useRootStore } from "@/core/stores/root-store.provider";
 import { runUserAction } from "@/core/errors/report-application-error";
@@ -41,11 +41,7 @@ import { WikiPageRail } from "./wiki-page-rail";
 import { resolveWikiPageState } from "./wiki-page-state";
 import { WIKI_LAYOUT_P13N_ID, WIKI_PANEL_LAYOUT_ID } from "./wiki-personalization";
 import { useWikiPages } from "./use-wiki-pages";
-import {
-  WIKI_GUIDE_CONTEXT_MAX_BYTES,
-  WIKI_PAGE_KINDS,
-  WIKI_WHEN_TO_USE_MAX_LENGTH,
-} from "@/features/wiki/wiki.schema";
+import { WIKI_PAGE_KINDS, WIKI_WHEN_TO_USE_MAX_LENGTH } from "@/features/wiki/wiki.schema";
 
 const WIKI_PANEL_IDS = ["pages", "document"] as const;
 
@@ -182,9 +178,14 @@ export const WikiPageView = observer(function WikiPageView({
     knowledge: t("Wiki.kind.knowledge"),
   };
   const kindHelp = {
-    guide: t("Wiki.kind.guideHelp", { bytes: WIKI_GUIDE_CONTEXT_MAX_BYTES }),
+    guide: t("Wiki.kind.guideHelp"),
     procedure: t("Wiki.kind.procedureHelp"),
     knowledge: t("Wiki.kind.knowledgeHelp"),
+  };
+  const kindDescriptions = {
+    guide: t("Wiki.kind.guideDescription"),
+    procedure: t("Wiki.kind.procedureDescription"),
+    knowledge: t("Wiki.kind.knowledgeDescription"),
   };
   const otherGuide =
     (pinnedPage?.kind === "guide" && pinnedPage.id !== store.form.id) ||
@@ -321,30 +322,24 @@ export const WikiPageView = observer(function WikiPageView({
 
               {canManage ? (
                 <div className="grid gap-3" data-wiki-page-kind="">
-                  <div className="flex items-center gap-1">
-                    <FormSelect
-                      ariaLabel={t("Wiki.kind.label")}
-                      className="h-8 w-auto min-w-32 text-sm"
-                      containerClassName="w-fit"
-                      id="kind"
-                      items={WIKI_PAGE_KINDS.map((kind) => ({
-                        value: kind,
-                        label: kindLabels[kind],
-                        disabled: kind === "guide" && otherGuide,
-                      }))}
-                      label={null}
-                    />
-
-                    <Tooltip>
-                      <TooltipTrigger asChild>
-                        <Button aria-label={t("Wiki.kind.label")} size="icon-sm" type="button" variant="ghost">
-                          <Info className="size-3.5 text-muted-foreground" />
-                        </Button>
-                      </TooltipTrigger>
-
-                      <TooltipContent className="max-w-xs">{kindHelp[store.form.kind]}</TooltipContent>
-                    </Tooltip>
-                  </div>
+                  <FormSelect
+                    ariaLabel={t("Wiki.kind.label")}
+                    className="h-8 w-auto min-w-32 text-sm"
+                    containerClassName="w-fit"
+                    endContent={
+                      <FormFieldHelp label={t("Common.ariaLabels.explainField", { field: t("Wiki.kind.label") })}>
+                        {kindHelp[store.form.kind]}
+                      </FormFieldHelp>
+                    }
+                    id="kind"
+                    items={WIKI_PAGE_KINDS.map((kind) => ({
+                      value: kind,
+                      label: kindLabels[kind],
+                      description: kind === "guide" && otherGuide ? t("Wiki.kind.guideExists") : kindDescriptions[kind],
+                      disabled: kind === "guide" && otherGuide,
+                    }))}
+                    label={null}
+                  />
 
                   {store.form.kind === "procedure" && (
                     <FormTextarea

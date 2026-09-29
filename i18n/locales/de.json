@@ -3743,12 +3743,16 @@
     "emptyTitle": "Deine Wissensdatenbank ist leer",
     "kind": {
       "guide": "Betriebsleitfaden",
-      "guideHelp": "Grundregeln, die jede KI zuerst liest. Mate und verbundene KI-Tools laden immer etwa die ersten {bytes, number} Bytes. Einer pro Workspace.",
+      "guideDescription": "Gemeinsame Regeln und Tonalität für jede Anfrage. Einer pro Workspace.",
+      "guideExists": "Ein Betriebsleitfaden ist bereits vorhanden. Bearbeite ihn, um die gemeinsamen Regeln zu ändern.",
+      "guideHelp": "Der Betriebsleitfaden legt fest, wie Mate und verbundene KI-Tools arbeiten sollen: Tonalität, Regeln und Grenzen. Setze die wichtigsten Regeln an den Anfang; Mate liest diesen Teil bei jeder Anfrage. Einer pro Workspace.",
       "knowledge": "Wissen",
-      "knowledgeHelp": "Fakten und Antworten, die Mate und verbundene KI-Tools bei Bedarf durchsuchen.",
+      "knowledgeDescription": "Unternehmensfakten und Informationen zum Nachschlagen.",
+      "knowledgeHelp": "Für Unternehmensfakten, Produkte, Dienstleistungen oder häufige Fragen. Mate und verbundene KI-Tools finden diese Seiten, wenn sie für eine Frage relevant sind.",
       "label": "Seitentyp",
       "procedure": "Verfahren",
-      "procedureHelp": "Nummerierte Schritte, denen Mate und verbundene KI-Tools folgen, wenn eine Anfrage zum Einsatzfall passt."
+      "procedureDescription": "Schritte für wiederkehrende Aufgaben bei passenden Anfragen.",
+      "procedureHelp": "Für wiederkehrende Aufgaben wie das Onboarding eines Kunden. Schreibe nummerierte Schritte und beschreibe unter „Wann verwenden“ die passende Anfrage. Mate und verbundene KI-Tools folgen den Schritten, wenn diese Anfrage auftritt."
     },
     "linkPage": "Wissensdatenbank-Seite verlinken…",
     "loadFailed": "Die Seiten konnten nicht geladen werden.",

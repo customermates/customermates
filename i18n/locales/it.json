@@ -3743,12 +3743,16 @@
     "emptyTitle": "La base di conoscenza del tuo spazio di lavoro è vuota",
     "kind": {
       "guide": "Guida operativa",
-      "guideHelp": "Indicazioni permanenti che ogni IA legge per prima. Mate e gli strumenti di IA collegati caricano sempre circa i primi {bytes, number} byte. Una per spazio di lavoro.",
+      "guideDescription": "Regole e tono condivisi per ogni richiesta. Una per spazio di lavoro.",
+      "guideExists": "Esiste già una guida operativa. Modifica quella pagina per cambiare le regole condivise.",
+      "guideHelp": "La guida operativa definisce come devono lavorare Mate e gli strumenti di IA collegati: tono, regole e limiti. Metti le regole principali all’inizio; Mate legge quella parte per ogni richiesta. Una per spazio di lavoro.",
       "knowledge": "Conoscenza",
-      "knowledgeHelp": "Fatti e risposte che Mate e gli strumenti di IA collegati cercano quando una domanda li richiede.",
+      "knowledgeDescription": "Fatti aziendali e informazioni da consultare quando servono.",
+      "knowledgeHelp": "Per fatti aziendali, prodotti, servizi o domande frequenti. Mate e gli strumenti di IA collegati trovano queste pagine quando servono per rispondere a una domanda.",
       "label": "Tipo di pagina",
       "procedure": "Procedura",
-      "procedureHelp": "Passaggi numerati che Mate e gli strumenti di IA collegati seguono quando una richiesta corrisponde a quando usarla."
+      "procedureDescription": "Passaggi per un’attività ricorrente, usati per richieste corrispondenti.",
+      "procedureHelp": "Per attività ricorrenti, come l’onboarding dei clienti. Scrivi passaggi numerati e descrivi la richiesta corrispondente in «Quando usarla». Mate e gli strumenti di IA collegati li seguono quando si presenta quella richiesta."
     },
     "linkPage": "Collega una pagina della base di conoscenza…",
     "loadFailed": "Impossibile caricare le pagine.",
