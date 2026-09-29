@@ -1,5 +1,5 @@
 import { activeWikiHomepageSetupWhere } from "@/ee/agent-chat/wiki-setup-admission";
-import type { WikiCrawlTarget, WikiCrawlCategory } from "./website-discovery";
+import type { WikiCrawlTarget, WikiCrawlCategory, WikiCrawlTargetStatus } from "./website-discovery";
 import type { WikiSourceQa } from "./website-source-extract";
 import type {
   WikiCrawlRecord,
@@ -219,6 +219,42 @@ export class PrismaWikiWebsiteCrawlRepo
       where: { id, companyId: this.companyId, status: { in: [...from] } },
       data: crawlPatch(patch),
     });
+    return count === 1;
+  }
+
+  async updateTargetStatus(crawlId: string, url: string, status: Exclude<WikiCrawlTargetStatus, "pending">) {
+    const count = await this.prisma.$executeRaw(Prisma.sql`
+      WITH locked AS MATERIALIZED (
+        SELECT "id", "targets"
+        FROM "WikiWebsiteCrawl"
+        WHERE "id" = ${crawlId} AND "companyId" = ${this.companyId} AND "status" = 'fetching'
+        FOR UPDATE
+      ), changed AS (
+        SELECT "id", (
+          SELECT jsonb_agg(
+            CASE WHEN target->>'url' = ${url}
+              AND target->>'status' IN ('pending', 'reading')
+              AND (${status}::text = 'reading' OR target->>'status' = 'reading')
+              THEN jsonb_set(target, '{status}', to_jsonb(${status}::text))
+              ELSE target END ORDER BY ordinal
+          ) FROM jsonb_array_elements(locked."targets") WITH ORDINALITY AS items(target, ordinal)
+        ) AS targets
+        FROM locked
+        WHERE jsonb_typeof("targets") = 'array' AND EXISTS (
+          SELECT 1 FROM jsonb_array_elements(locked."targets") AS target
+          WHERE target->>'url' = ${url}
+            AND target->>'status' IN ('pending', 'reading')
+            AND (${status}::text = 'reading' OR target->>'status' = 'reading')
+        )
+      )
+      UPDATE "WikiWebsiteCrawl" AS crawl
+      SET "targets" = changed.targets,
+          "fetched" = (SELECT count(*)::int FROM jsonb_array_elements(changed.targets) AS target WHERE target->>'status' = 'read'),
+          "failed" = (SELECT count(*)::int FROM jsonb_array_elements(changed.targets) AS target WHERE target->>'status' = 'failed'),
+          "updatedAt" = now()
+      FROM changed
+      WHERE crawl."id" = changed."id" AND crawl."companyId" = ${this.companyId} AND crawl."status" = 'fetching'
+    `);
     return count === 1;
   }
 

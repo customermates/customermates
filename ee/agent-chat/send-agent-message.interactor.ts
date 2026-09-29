@@ -57,7 +57,13 @@ import {
 import { recordsBenchmarkToolOutputs } from "./benchmark-tool-output";
 import type { BackgroundTaskService } from "@/core/utils/background-task.service";
 import type { GetCustomColumnsRepo } from "@/features/custom-column/get-custom-columns.interactor";
-import { fail, failConflict, failNotFound, failRateLimit } from "@/core/validation/interactor-failure-server";
+import {
+  fail,
+  failConflict,
+  failNotFound,
+  failRateLimit,
+  failUnavailable,
+} from "@/core/validation/interactor-failure-server";
 import { CustomErrorCode } from "@/core/validation/validation.types";
 import type { GetWikiCatalogInteractor } from "@/features/wiki/get-wiki-catalog.interactor";
 import type { UserService } from "@/features/user/user.service";
@@ -375,7 +381,11 @@ export class SendAgentMessageInteractor extends AuthenticatedInteractor<SendAgen
       webSearchReserveMicrocents: agentWebSearchReserveMicrocents(agentWebSearchCallLimit(surface)),
     });
     const reservation = creditAdmission.reservation;
-    if (!reservation) return failRateLimit(CustomErrorCode.agentLimitReached);
+    if (!reservation) {
+      return creditAdmission.summary.blockedReason === "credits_exhausted"
+        ? failRateLimit(CustomErrorCode.agentLimitReached)
+        : failUnavailable(CustomErrorCode.agentServiceUnavailable);
+    }
 
     const runId = randomUUID();
     const reservationId = randomUUID();
@@ -413,7 +423,16 @@ export class SendAgentMessageInteractor extends AuthenticatedInteractor<SendAgen
 
         return "claimed" as const;
       });
-      if (claimed === "not-admitted") return failRateLimit(CustomErrorCode.agentLimitReached);
+      if (claimed === "not-admitted") {
+        await this.repo.releasePreProviderAdmissionOrThrowUnscoped({
+          companyId: user.companyId,
+          userId: user.id,
+          runId,
+          reservationId,
+        });
+        if (conversationIsNew) await this.repo.deleteUnusedAgentConversation(conversationId);
+        return failUnavailable(CustomErrorCode.agentServiceUnavailable);
+      }
       if (claimed === "at-user-limit") {
         if (mode === "routine") {
           return {

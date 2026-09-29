@@ -20,6 +20,8 @@ import { runUserAction } from "@/core/errors/report-application-error";
 import { useRootStore } from "@/core/stores/root-store.provider";
 import { useRouter } from "@/i18n/navigation";
 
+import { WikiSetupProgress } from "./wiki-setup-progress";
+
 import { WikiHomepageSetupStore } from "./wiki-homepage-setup.store";
 
 type Props = {
@@ -160,25 +162,36 @@ export const WikiHomepageSetup = observer(function WikiHomepageSetup({
         ? t("WikiSetup.status.failedBodyBlocked", { domain })
         : state.failureReason === "unavailable"
           ? t("WikiSetup.status.failedBodyUnavailable", { domain })
-          : t("WikiSetup.status.failedBody");
+          : state.failureReason === "assistantUnavailable"
+            ? t("Common.errors.agentServiceUnavailable")
+            : state.failureReason === "credits"
+              ? t("Common.errors.agentLimitReached")
+              : state.failureReason === "busy"
+                ? t("Common.errors.agentTurnAlreadyRunning")
+                : state.failureReason === "synthesis"
+                  ? t("WikiSetup.status.failedBodySynthesis")
+                  : t("WikiSetup.status.failedBody");
     const completedBody = state.homepage
       ? t("WikiSetup.status.completedBodyOnboarding")
       : t("WikiSetup.status.completedExistingBody");
     return (
       <section aria-busy={controlsDisabled} className="w-full space-y-4 text-left">
-        <div aria-live="polite" className="flex items-start gap-3">
-          <div className="mt-0.5 rounded-full bg-muted p-2 text-muted-foreground">
+        <div
+          aria-live="polite"
+          className={working || (completed && state.conversationId) ? "sr-only" : "flex items-start gap-2"}
+        >
+          <div className="mt-0.5 shrink-0 text-muted-foreground">
             {working ? (
               <Loader2 aria-hidden="true" className="size-4 animate-spin motion-reduce:animate-none" />
             ) : completed ? (
-              <CheckCircle2 aria-hidden="true" className="size-4 text-success" />
+              <CheckCircle2 aria-hidden="true" className="size-3.5 text-success" />
             ) : (
-              <TriangleAlert aria-hidden="true" className="size-4 text-warning" />
+              <TriangleAlert aria-hidden="true" className="size-3.5 text-warning" />
             )}
           </div>
 
           <div className="min-w-0 space-y-1">
-            <h2 ref={statusHeading} className="font-medium outline-none" tabIndex={-1}>
+            <h2 ref={statusHeading} className="text-sm font-medium outline-none" tabIndex={-1}>
               {working
                 ? t("WikiSetup.status.workingTitle")
                 : completed
@@ -200,46 +213,15 @@ export const WikiHomepageSetup = observer(function WikiHomepageSetup({
           </div>
         </div>
 
-        {working && !state.conversationId && state.crawlPhase ? (
-          <div
-            aria-label={t("WikiSetup.crawlProgress.title")}
-            className="min-w-0 rounded-lg border border-border bg-background p-4 sm:p-5"
-            data-testid="wiki-setup-crawl-progress"
-            role="status"
-          >
-            <ol className="grid gap-3">
-              {[
-                { phase: "queued", label: t("WikiSetup.crawlProgress.queued") },
-                { phase: "discovering", label: t("WikiSetup.crawlProgress.discovering") },
-                { phase: "fetching", label: t("WikiSetup.crawlProgress.fetching") },
-                { phase: "importing", label: t("WikiSetup.crawlProgress.importing") },
-                { phase: "synthesizing", label: t("WikiSetup.crawlProgress.synthesizing") },
-              ].map(({ phase, label }) => (
-                <li
-                  key={phase}
-                  aria-current={state.crawlPhase === phase ? "step" : undefined}
-                  className="flex items-center gap-2 text-sm text-muted-foreground aria-[current=step]:font-medium aria-[current=step]:text-foreground"
-                >
-                  {state.crawlPhase === phase ? (
-                    <Loader2 aria-hidden="true" className="size-4 animate-spin motion-reduce:animate-none" />
-                  ) : (
-                    <span aria-hidden="true" className="size-4 shrink-0" />
-                  )}
+        {state.progress || state.crawlPhase ? <WikiSetupProgress state={state} /> : null}
 
-                  {label}
-                </li>
-              ))}
-            </ol>
+        {working &&
+        !state.conversationId &&
+        (!state.crawlPhase || state.crawlPhase === "importing" || state.crawlPhase === "synthesizing") ? (
+          <div className="flex items-center gap-2 text-xs text-muted-foreground" role="status">
+            <Loader2 aria-hidden="true" className="size-3.5 animate-spin motion-reduce:animate-none" />
 
-            {state.progress && state.progress.total > 0 ? (
-              <p className="mt-4 text-sm text-muted-foreground">
-                {t("WikiSetup.status.readingBody", {
-                  domain,
-                  fetched: state.progress.fetched,
-                  total: state.progress.total,
-                })}
-              </p>
-            ) : null}
+            <span>{t("WikiSetup.crawlProgress.synthesizing")}</span>
           </div>
         ) : null}
 

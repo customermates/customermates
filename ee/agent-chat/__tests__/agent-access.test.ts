@@ -301,6 +301,79 @@ describe("agent access", () => {
     );
   });
 
+  it.each([
+    { blockedReason: "credits_exhausted", code: "agentLimitReached", kind: "rate_limit" },
+    { blockedReason: "configuration_unavailable", code: "agentServiceUnavailable", kind: "unavailable" },
+    { blockedReason: "subscription_unavailable", code: "agentServiceUnavailable", kind: "unavailable" },
+    { blockedReason: "self_hosted", code: "agentServiceUnavailable", kind: "unavailable" },
+    { blockedReason: null, code: "agentServiceUnavailable", kind: "unavailable" },
+  ])("reports $blockedReason admission without dispatching", async ({ blockedReason, code, kind }) => {
+    const repo = {
+      normalizeExpiredAgentRunLease: vi.fn().mockResolvedValue(undefined),
+      findAgentTurnRequestForAdmission: vi.fn().mockResolvedValue(null),
+      claimAgentRunLease: vi.fn(),
+      admitAgentTurnOrThrow: vi.fn(),
+    };
+    const usage = usageService();
+    usage.prepareTurn.mockResolvedValue({ summary: { blockedReason }, reservation: null });
+    const background = backgroundTasks();
+    const result = await new SendAgentMessageInteractor(
+      repo as never,
+      usage as never,
+      mockEntitlementService(),
+      background as never,
+      emptyCustomColumns(),
+      emptyWikiCatalog(),
+    ).invoke({ clientRequestId: CLIENT_REQUEST_ID, text: "hello", retry: false });
+    expect(result).toMatchObject({ ok: false, error: { issues: [{ params: { error: code, kind } }] } });
+    expect(repo.claimAgentRunLease).not.toHaveBeenCalled();
+    expect(repo.admitAgentTurnOrThrow).not.toHaveBeenCalled();
+    expect(usage.reserveUsage).not.toHaveBeenCalled();
+    expect(background.dispatchTracked).not.toHaveBeenCalled();
+  });
+
+  it("reports a global spend pause or cap denial as unavailable without dispatching", async () => {
+    const repo = {
+      normalizeExpiredAgentRunLease: vi.fn().mockResolvedValue(undefined),
+      findAgentTurnRequestForAdmission: vi.fn().mockResolvedValue(null),
+      claimAgentRunLease: vi.fn().mockResolvedValue("claimed"),
+      isAtAgentRunLimit: vi.fn().mockResolvedValue(false),
+      createAgentConversationForRun: vi.fn().mockResolvedValue(undefined),
+      admitAgentTurnOrThrow: vi.fn(),
+      releasePreProviderAdmissionOrThrowUnscoped: vi.fn().mockResolvedValue({ disposition: "released" }),
+      deleteUnusedAgentConversation: vi.fn().mockResolvedValue(undefined),
+    };
+    const usage = usageService();
+    usage.reserveUsage.mockResolvedValue(false);
+    const background = backgroundTasks();
+    const result = await new SendAgentMessageInteractor(
+      repo as never,
+      usage as never,
+      mockEntitlementService(),
+      background as never,
+      emptyCustomColumns(),
+      emptyWikiCatalog(),
+    ).invoke({ clientRequestId: CLIENT_REQUEST_ID, text: "hello", retry: false });
+    expect(result).toMatchObject({
+      ok: false,
+      error: {
+        issues: [
+          {
+            params: {
+              error: "agentServiceUnavailable",
+              kind: "unavailable",
+            },
+          },
+        ],
+      },
+    });
+    expect(usage.reserveUsage).toHaveBeenCalledOnce();
+    expect(repo.releasePreProviderAdmissionOrThrowUnscoped).toHaveBeenCalledOnce();
+    expect(repo.deleteUnusedAgentConversation).toHaveBeenCalledOnce();
+    expect(repo.admitAgentTurnOrThrow).not.toHaveBeenCalled();
+    expect(background.dispatchTracked).not.toHaveBeenCalled();
+  });
+
   it("checks reservation headroom only after replay admission", async () => {
     const repo = {
       normalizeExpiredAgentRunLease: vi.fn().mockResolvedValue(undefined),

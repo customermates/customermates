@@ -53,7 +53,7 @@ function harness(offset: number, knownRevision = true) {
     repo as never,
     { invoke: vi.fn() } as never,
     { invoke: update } as never,
-    () => Promise.resolve(null),
+    () => Promise.resolve({ conversationId: null, failureReason: "synthesisNotStarted" }),
   );
   return { service, repo, update, importedAt, source };
 }
@@ -98,7 +98,7 @@ describe("Wiki imported revision protection", () => {
       getCrawl: vi.fn().mockResolvedValue(crawl),
       deleteEarlierSources: vi.fn(),
     };
-    const start = vi.fn().mockResolvedValue("conversation-1");
+    const start = vi.fn().mockResolvedValue({ conversationId: "conversation-1", failureReason: null });
     const service = new WikiWebsiteCrawlService(extensionRepo as never, {} as never, {} as never, start);
     await service.finish("crawl-1");
     expect(start).toHaveBeenCalledExactlyOnceWith(crawl);
@@ -150,7 +150,7 @@ describe("Wiki imported revision protection", () => {
       deleteEarlierSources: vi.fn().mockResolvedValue(undefined),
     };
     const unavailable = new WikiWebsiteCrawlService(unavailableRepo as never, {} as never, {} as never, () =>
-      Promise.resolve(null),
+      Promise.resolve({ conversationId: null, failureReason: "synthesisNotStarted" }),
     );
     await unavailable.finish("crawl-1");
     expect(unavailableRepo.claimCrawl).toHaveBeenCalledWith(

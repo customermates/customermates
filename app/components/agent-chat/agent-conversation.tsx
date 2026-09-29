@@ -25,6 +25,7 @@ import { UsageRing } from "./usage-ring";
 import { useAgentChatStore, useAgentChatUiTargets } from "./agent-chat-store-context";
 
 export const AgentConversationLog = observer(function AgentConversationLog({
+  className = "px-3",
   readOnly = false,
   renderLinksAsText = false,
   scrollContainerRef,
@@ -33,6 +34,7 @@ export const AgentConversationLog = observer(function AgentConversationLog({
   showProgressStatus = false,
   userLabel,
 }: {
+  className?: string;
   readOnly?: boolean;
   renderLinksAsText?: boolean;
   scrollContainerRef?: RefObject<HTMLElement | null>;
@@ -47,7 +49,7 @@ export const AgentConversationLog = observer(function AgentConversationLog({
 
   return (
     <MessagesScrollContainer
-      className="px-3"
+      className={className}
       jumpToLatestLabel={copy.jumpToLatest}
       latestItemKey={store.items.at(-1)?.id}
       loadOlderLabel={copy.loadOlderMessages}

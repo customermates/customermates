@@ -64,10 +64,7 @@ const WikiSetupConversation = observer(function WikiSetupConversation({ conversa
       <AgentRouteReloadBridge reload={refreshPage} />
 
       <TooltipProvider>
-        <div
-          className="flex h-64 min-w-0 flex-col overflow-hidden rounded-lg border border-border bg-background sm:h-72"
-          data-testid="wiki-setup-conversation"
-        >
+        <div className="flex min-w-0 flex-col" data-testid="wiki-setup-conversation">
           {loading ? (
             <div className="flex flex-1 items-center justify-center gap-2 text-sm text-muted-foreground" role="status">
               <Loader2 aria-hidden="true" className="size-4 animate-spin motion-reduce:animate-none" />
@@ -84,7 +81,7 @@ const WikiSetupConversation = observer(function WikiSetupConversation({ conversa
             </div>
           ) : (
             <>
-              <AgentConversationLog readOnly renderLinksAsText showProgressStatus />
+              <AgentConversationLog readOnly renderLinksAsText showProgressStatus className="px-0" scrollable={false} />
 
               <AgentStatusAnnouncer />
             </>

@@ -1194,6 +1194,7 @@
       "agentConversationNotFound": "This conversation was not found or is no longer accessible.",
       "agentLimitReached": "Not enough AI credits remain to start another request.",
       "agentModelUnavailable": "That Assistant model is not available.",
+      "agentServiceUnavailable": "Hosted AI is temporarily unavailable. Please try again later.",
       "agentTurnAlreadyRunning": "Another Assistant turn is already running.",
       "apiKeyMaxExpiration": "API key expiration cannot exceed 365 days.",
       "apiKeyMinExpiration": "API key expiration must be at least 1 day.",
@@ -3785,11 +3786,16 @@
     "conversationTitle": "Set up Knowledge Base",
     "crawlProgress": {
       "discovering": "Finding website pages",
-      "fetching": "Reading website pages",
-      "importing": "Adding source pages to the Knowledge Base",
-      "queued": "Preparing the import",
+      "failed": "Could not read",
+      "found": "{count} pages found",
+      "pending": "Waiting",
+      "read": "Read",
+      "reading": "Reading",
+      "readingCount": "Reading pages · {fetched}/{total}",
+      "steps": "2 steps",
       "synthesizing": "Starting Mate to write Knowledge Base pages",
-      "title": "Website import progress"
+      "title": "Website import progress",
+      "unknown": "Page status was not recorded"
     },
     "generated": {
       "gapsHeading": "Gaps to confirm",
@@ -3809,6 +3815,7 @@
       "completedTitle": "Your starter Knowledge Base is ready",
       "failedBody": "Setup stopped before all pages were ready. Any pages already created are still available. You can continue and review them in the Knowledge Base.",
       "failedBodyBlocked": "{domain} does not allow automated reading in its robots.txt, so nothing was imported. You can add pages yourself instead.",
+      "failedBodySynthesis": "The website was read, but Mate could not start creating the pages. Try again. Any pages already created are still available.",
       "failedBodyUnavailable": "Mate could not read {domain}. Check the address, or continue and add pages later.",
       "failedTitle": "Setup did not finish",
       "noContentBody": "Review the Mate task for details. You can try another website or continue and add pages later.",

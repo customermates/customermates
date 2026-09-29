@@ -124,17 +124,26 @@ describe("WikiHomepageSetup", () => {
       });
       const progress = container.querySelector('[data-testid="wiki-setup-crawl-progress"]');
       expect(progress?.getAttribute("role")).toBe("status");
-      expect(progress?.querySelectorAll("li")).toHaveLength(5);
-      expect(progress?.querySelector('[aria-current="step"]')?.textContent).toBe(
-        `WikiSetup.crawlProgress.${crawlPhase}`,
-      );
-      expect(progress?.textContent).toContain("WikiSetup.status.readingBody example.com 7 24");
+      if (["queued", "discovering", "fetching"].includes(crawlPhase))
+        expect(progress?.querySelectorAll("ol > li")).toHaveLength(2);
+      if (crawlPhase === "queued" || crawlPhase === "discovering") {
+        expect(progress?.querySelector('[aria-current="step"]')?.textContent).toContain(
+          "WikiSetup.crawlProgress.discovering",
+        );
+      }
+      if (crawlPhase === "fetching") {
+        expect(progress?.querySelector('[aria-current="step"]')?.textContent).toContain(
+          "WikiSetup.crawlProgress.readingCount 7 24",
+        );
+      }
+      if (crawlPhase === "importing" || crawlPhase === "synthesizing")
+        expect(container.textContent).toContain("WikiSetup.crawlProgress.synthesizing");
       expect(container.querySelector("[data-inline-conversation]")).toBeNull();
       expect(container.querySelector('textarea, input, [role="log"]')).toBeNull();
     },
   );
 
-  it("replaces restored crawl progress with the real conversation and preserves it after completion", () => {
+  it("keeps the real crawl history alongside the conversation after completion", () => {
     const working = {
       status: "working" as const,
       homepage: "https://example.com/",
@@ -148,11 +157,72 @@ describe("WikiHomepageSetup", () => {
     expect(container.querySelector('[data-testid="wiki-setup-crawl-progress"]')).not.toBeNull();
     expect(container.textContent).not.toContain("WikiSetup.status.readingBody");
     render({ ...working, crawlPhase: "synthesizing", conversationId: "conversation-1" });
-    expect(container.querySelector('[data-testid="wiki-setup-crawl-progress"]')).toBeNull();
+    expect(container.querySelector('[data-testid="wiki-setup-crawl-progress"]')).not.toBeNull();
     expect(container.querySelector('[data-inline-conversation="conversation-1"]')).not.toBeNull();
     render({ ...working, status: "completed", conversationId: "conversation-1" });
     expect(container.querySelector('[data-inline-conversation="conversation-1"]')).not.toBeNull();
-    expect(container.querySelector('[data-testid="wiki-setup-crawl-progress"]')).toBeNull();
+    expect(container.querySelector('[data-testid="wiki-setup-crawl-progress"]')).not.toBeNull();
+  });
+
+  it("shows the actual discovered URLs and distinguishes the current read from failed and pending pages", () => {
+    render({
+      status: "working",
+      homepage: "https://example.com/",
+      domain: "example.com",
+      conversationId: null,
+      pages: [],
+      crawlPhase: "fetching",
+      progress: {
+        fetched: 1,
+        total: 4,
+        pages: [
+          { url: "https://example.com/", status: "read" },
+          { url: "https://example.com/about", status: "reading" },
+          { url: "https://example.com/missing", status: "failed" },
+          { url: "https://example.com/help", status: "pending" },
+        ],
+      },
+    });
+    const progress = container.querySelector('[data-testid="wiki-setup-crawl-progress"]');
+    expect(progress?.querySelectorAll("ol > li")).toHaveLength(2);
+    expect(progress?.querySelectorAll("ul > li")).toHaveLength(4);
+    expect(
+      progress?.querySelector(
+        '[aria-label="WikiSetup.crawlProgress.reading: https://example.com/about"] svg.animate-spin',
+      ),
+    ).not.toBeNull();
+    expect(
+      progress?.querySelector('[aria-label="WikiSetup.crawlProgress.failed: https://example.com/missing"]'),
+    ).not.toBeNull();
+    expect(
+      progress?.querySelector(
+        '[aria-label="WikiSetup.crawlProgress.pending: https://example.com/help"] svg.animate-spin',
+      ),
+    ).toBeNull();
+    expect(progress?.textContent).toContain("WikiSetup.crawlProgress.found 4");
+    expect(container.querySelector("[data-inline-conversation]")).toBeNull();
+  });
+
+  it.each(["pending", "unknown"] as const)("does not mark a partial terminal crawl complete (%s)", (status) => {
+    render({
+      status: "failed",
+      homepage: "https://example.com/",
+      domain: "example.com",
+      conversationId: null,
+      pages: [],
+      progress: {
+        fetched: 1,
+        total: 2,
+        failed: 0,
+        pages: [
+          { url: "https://example.com/", status: "read" },
+          { url: "https://example.com/about", status },
+        ],
+      },
+    });
+    const progress = container.querySelector('[data-testid="wiki-setup-crawl-progress"]');
+    expect(progress?.querySelector('ol > li[aria-label="WikiSetup.crawlProgress.failed"]')).not.toBeNull();
+    expect(progress?.querySelector("svg.animate-spin")).toBeNull();
   });
 
   it("keeps the onboarding decision focused on the website, one language and two actions", () => {

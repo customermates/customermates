@@ -206,7 +206,8 @@ export function wikiCrawlCategory(url: string, title = ""): WikiCrawlCategory {
 }
 
 export type WikiCrawlCandidate = { url: string; title?: string; source: "homepage" | "llms" | "link" | "sitemap" };
-export type WikiCrawlTarget = { url: string; category: WikiCrawlCategory };
+export type WikiCrawlTargetStatus = "pending" | "reading" | "read" | "failed";
+export type WikiCrawlTarget = { url: string; category: WikiCrawlCategory; status?: WikiCrawlTargetStatus };
 
 const SOURCE_RANK = { homepage: 0, llms: 1, link: 2, sitemap: 3 } as const;
 

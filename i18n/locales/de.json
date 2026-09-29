@@ -1194,6 +1194,7 @@
       "agentConversationNotFound": "Diese Unterhaltung wurde nicht gefunden oder ist nicht mehr zugänglich.",
       "agentLimitReached": "Es sind nicht genügend KI-Credits übrig, um eine weitere Anfrage zu starten.",
       "agentModelUnavailable": "Dieses Assistant-Modell ist nicht verfügbar.",
+      "agentServiceUnavailable": "Die gehostete KI ist vorübergehend nicht verfügbar. Bitte versuche es später erneut.",
       "agentTurnAlreadyRunning": "Eine andere Assistenten-Anfrage wird bereits ausgeführt.",
       "apiKeyMaxExpiration": "Die Ablaufzeit des API-Schlüssels darf 365 Tage nicht überschreiten.",
       "apiKeyMinExpiration": "Die Ablaufzeit des API-Schlüssels muss mindestens 1 Tag betragen.",
@@ -3785,11 +3786,16 @@
     "conversationTitle": "Wissensdatenbank einrichten",
     "crawlProgress": {
       "discovering": "Website-Seiten werden gesucht",
-      "fetching": "Website-Seiten werden gelesen",
-      "importing": "Quellseiten werden zur Wissensdatenbank hinzugefügt",
-      "queued": "Import wird vorbereitet",
+      "failed": "Konnte nicht gelesen werden",
+      "found": "{count} Seiten gefunden",
+      "pending": "Wartet",
+      "read": "Gelesen",
+      "reading": "Wird gelesen",
+      "readingCount": "Seiten lesen · {fetched}/{total}",
+      "steps": "2 Schritte",
       "synthesizing": "Mate beginnt mit dem Schreiben der Wissensdatenbank-Seiten",
-      "title": "Fortschritt des Website-Imports"
+      "title": "Fortschritt des Website-Imports",
+      "unknown": "Seitenstatus wurde nicht aufgezeichnet"
     },
     "generated": {
       "gapsHeading": "Noch zu klären",
@@ -3809,6 +3815,7 @@
       "completedTitle": "Deine erste Wissensdatenbank ist bereit",
       "failedBody": "Die Einrichtung wurde beendet, bevor alle Seiten fertig waren. Bereits erstellte Seiten bleiben erhalten. Sie können fortfahren und sie in der Wissensdatenbank prüfen.",
       "failedBodyBlocked": "{domain} erlaubt in der robots.txt kein automatisches Lesen, daher wurde nichts importiert. Sie können Seiten stattdessen selbst anlegen.",
+      "failedBodySynthesis": "Die Website wurde gelesen, aber Mate konnte die Seitenerstellung nicht starten. Versuche es erneut. Bereits erstellte Seiten bleiben erhalten.",
       "failedBodyUnavailable": "Mate konnte {domain} nicht lesen. Prüfen Sie die Adresse oder fahren Sie fort und legen Sie Seiten später an.",
       "failedTitle": "Einrichtung nicht abgeschlossen",
       "noContentBody": "Prüfe die Mate-Aufgabe für weitere Details. Du kannst eine andere Website versuchen oder fortfahren und später Seiten hinzufügen.",

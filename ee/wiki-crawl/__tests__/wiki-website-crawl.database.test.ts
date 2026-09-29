@@ -169,7 +169,7 @@ describeDatabase("Wiki website crawl on PostgreSQL", () => {
           : null,
       );
     });
-    synthesis.mockResolvedValue("00000000-0000-4000-8000-00000000c0de");
+    synthesis.mockResolvedValue({ conversationId: "00000000-0000-4000-8000-00000000c0de", failureReason: null });
   });
 
   it("counts language by tenant Wiki pages across repository batches", async () => {
@@ -254,6 +254,76 @@ describeDatabase("Wiki website crawl on PostgreSQL", () => {
         locale: "en",
       });
       expect(await repo.findSetupCrawl(original.homepageUrl, randomUUID())).toBeNull();
+    });
+  });
+
+  it("does not replace legacy aggregate totals with incomplete per-page statuses", async () => {
+    const crawlId = await startCrawl();
+    await runWithTenant(user, async () => {
+      const repo = new PrismaWikiWebsiteCrawlRepo();
+      const targets = [{ url: "https://example.com/legacy", category: "help" as const }];
+      await repo.updateCrawl(crawlId, { status: "fetching", targets, discovered: 10, fetched: 7, failed: 2 });
+      expect(await repo.updateTargetStatus(crawlId, targets[0].url, "reading")).toBe(false);
+      expect(await repo.getCrawl(crawlId)).toMatchObject({ targets, fetched: 7, failed: 2 });
+    });
+  });
+
+  it("atomically preserves unrelated targets and settled outcomes under redelivery", async () => {
+    const crawlId = await startCrawl();
+    const targets: Array<{ url: string; category: "help"; status: "pending" }> = [
+      { url: "https://example.com/a", category: "help", status: "pending" },
+      { url: "https://example.com/b", category: "help", status: "pending" },
+    ];
+    await runWithTenant(user, async () => {
+      const repo = new PrismaWikiWebsiteCrawlRepo();
+      await repo.updateCrawl(crawlId, { status: "fetching", targets, discovered: 2 });
+      expect(await repo.updateTargetStatus(crawlId, targets[0].url, "read")).toBe(false);
+      expect(await Promise.all(targets.map(({ url }) => repo.updateTargetStatus(crawlId, url, "reading")))).toEqual([
+        true,
+        true,
+      ]);
+      expect(
+        await Promise.all([
+          repo.updateTargetStatus(crawlId, targets[0].url, "read"),
+          repo.updateTargetStatus(crawlId, targets[1].url, "failed"),
+        ]),
+      ).toEqual([true, true]);
+      expect(await repo.getCrawl(crawlId)).toMatchObject({
+        fetched: 1,
+        failed: 1,
+        targets: [
+          { ...targets[0], status: "read" },
+          { ...targets[1], status: "failed" },
+        ],
+      });
+      for (const target of targets) {
+        expect(await repo.updateTargetStatus(crawlId, target.url, "reading")).toBe(false);
+        expect(await repo.updateTargetStatus(crawlId, target.url, "read")).toBe(false);
+        expect(await repo.updateTargetStatus(crawlId, target.url, "failed")).toBe(false);
+      }
+      expect(await repo.updateTargetStatus(crawlId, "https://example.com/unknown", "reading")).toBe(false);
+    });
+  });
+
+  it("refuses progress writes from another tenant or after fetching ends", async () => {
+    const crawlId = await startCrawl();
+    const url = "https://example.com/a";
+    await runWithTenant(user, () =>
+      new PrismaWikiWebsiteCrawlRepo().updateCrawl(crawlId, {
+        status: "fetching",
+        targets: [{ url, category: "help", status: "pending" }],
+        discovered: 1,
+      }),
+    );
+    await runWithTenant(createMockUser({ companyId: randomUUID() }), async () => {
+      expect(await new PrismaWikiWebsiteCrawlRepo().updateTargetStatus(crawlId, url, "reading")).toBe(false);
+    });
+    await runWithTenant(user, async () => {
+      const repo = new PrismaWikiWebsiteCrawlRepo();
+      expect((await repo.getCrawl(crawlId))?.targets).toEqual([{ url, category: "help", status: "pending" }]);
+      await repo.updateCrawl(crawlId, { status: "completed" });
+      expect(await repo.updateTargetStatus(crawlId, url, "reading")).toBe(false);
+      expect((await repo.getCrawl(crawlId))?.targets).toEqual([{ url, category: "help", status: "pending" }]);
     });
   });
 

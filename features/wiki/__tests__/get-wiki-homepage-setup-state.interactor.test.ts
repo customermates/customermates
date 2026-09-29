@@ -75,6 +75,85 @@ const CRAWL: WikiWebsiteCrawlState = {
 };
 
 describe("GetWikiHomepageSetupStateInteractor", () => {
+  it("exposes persisted per-page statuses and only a real current reading URL", async () => {
+    const targets = [
+      { url: "https://example.com/a", status: "read" as const },
+      { url: "https://example.com/b", status: "reading" as const },
+      { url: "https://example.com/c" },
+      { url: "https://example.com/d", status: "failed" as const },
+    ];
+    await expect(
+      interactor(null, [], { ...CRAWL, targets, fetched: 1, failed: 1, discovered: 4 }).interactor.invoke(),
+    ).resolves.toMatchObject({
+      data: {
+        progress: {
+          fetched: 1,
+          total: 4,
+          failed: 1,
+          currentUrl: targets[1].url,
+          pages: [targets[0], targets[1], { ...targets[2], status: "unknown" }, targets[3]],
+        },
+      },
+    });
+    await expect(
+      interactor(null, [], { ...CRAWL, targets: [{ url: targets[0].url }] }).interactor.invoke(),
+    ).resolves.toMatchObject({
+      data: {
+        progress: { fetched: 7, total: 24, currentUrl: null, pages: [{ url: targets[0].url, status: "unknown" }] },
+      },
+    });
+  });
+
+  it("does not invent per-page outcomes for a legacy terminal crawl", async () => {
+    await expect(
+      interactor(null, [], {
+        ...CRAWL,
+        status: "failed",
+        targets: [{ url: "https://example.com/" }],
+        failureReason: "synthesisNotStarted",
+      }).interactor.invoke(),
+    ).resolves.toMatchObject({
+      data: {
+        failureReason: "synthesis",
+        progress: { currentUrl: null, pages: [{ url: "https://example.com/", status: "unknown" }] },
+      },
+    });
+  });
+
+  it.each([
+    ["synthesisAdmission:agentLimitReached", "credits"],
+    ["synthesisAdmission:agentServiceUnavailable", "assistantUnavailable"],
+    ["synthesisAdmission:agentTurnAlreadyRunning", "busy"],
+    ["synthesisDisposition:atCapacity", "busy"],
+    ["synthesisAdmission:validation", "synthesis"],
+  ] as const)("maps %s to safe actionable setup feedback", async (failureReason, expected) => {
+    await expect(
+      interactor(null, [], { ...CRAWL, status: "failed", failureReason }).interactor.invoke(),
+    ).resolves.toMatchObject({ data: { failureReason: expected } });
+  });
+
+  it.each(["failed", "completed"] as const)(
+    "retains real target progress after %s without claiming an active URL",
+    async (status) => {
+      const targets = [
+        { url: "https://example.com/a", status: "read" as const },
+        { url: "https://example.com/b", status: "failed" as const },
+      ];
+      await expect(
+        interactor(null, [PAGE], {
+          ...CRAWL,
+          status,
+          targets,
+          fetched: 1,
+          failed: 1,
+          discovered: 2,
+        }).interactor.invoke(),
+      ).resolves.toMatchObject({
+        data: { status, progress: { fetched: 1, total: 2, failed: 1, currentUrl: null, pages: targets } },
+      });
+    },
+  );
+
   it.each(["queued", "discovering", "fetching", "importing", "synthesizing", "failed"] as const)(
     "does not restore an older same-site conversation into a new %s crawl",
     async (status) => {

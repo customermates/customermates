@@ -11,6 +11,10 @@ import { ValidateOutput } from "@/core/decorators/validate-output.decorator";
 import { WikiPageSummarySchema } from "./wiki.schema";
 
 const WikiHomepageSetupStatusSchema = z.enum(["idle", "working", "completed", "noContent", "failed"]);
+const WikiCrawlTargetProgressSchema = z.object({
+  url: z.string(),
+  status: z.enum(["pending", "reading", "read", "failed", "unknown"]),
+});
 const WikiCrawlPhaseSchema = z.enum(["queued", "discovering", "fetching", "importing", "synthesizing"]);
 export const WikiHomepageSetupStateSchema = z.object({
   status: WikiHomepageSetupStatusSchema,
@@ -23,10 +27,16 @@ export const WikiHomepageSetupStateSchema = z.object({
     .object({
       fetched: z.number().int().min(0),
       total: z.number().int().min(0),
+      failed: z.number().int().min(0).optional(),
+      currentUrl: z.string().nullable().optional(),
+      pages: z.array(WikiCrawlTargetProgressSchema).optional(),
     })
     .nullable()
     .optional(),
-  failureReason: z.enum(["blocked", "unavailable"]).nullable().optional(),
+  failureReason: z
+    .enum(["blocked", "unavailable", "credits", "busy", "synthesis", "assistantUnavailable"])
+    .nullable()
+    .optional(),
   refreshable: z.boolean().optional(),
 });
 export type WikiHomepageSetupState = Data<typeof WikiHomepageSetupStateSchema>;
@@ -52,6 +62,8 @@ export type WikiWebsiteCrawlState = {
   conversationId: string | null;
   discovered: number;
   fetched: number;
+  failed?: number;
+  targets?: Array<{ url: string; status?: "pending" | "reading" | "read" | "failed" }> | null;
   failureReason: string | null;
 };
 
@@ -85,6 +97,26 @@ export class GetWikiHomepageSetupStateInteractor extends AuthenticatedInteractor
       (!setup.conversationId || setup.conversationId === crawl.conversationId)
         ? setup
         : null;
+    const targets = crawl?.targets?.map((target) => ({
+      url: target.url,
+      status: target.status ?? ("unknown" as const),
+    }));
+    const progress = crawl
+      ? {
+          fetched: crawl.fetched,
+          total: crawl.discovered,
+          ...(crawl.failed !== undefined ? { failed: crawl.failed } : {}),
+          ...(targets
+            ? {
+                pages: targets,
+                currentUrl:
+                  crawl.status === "fetching"
+                    ? (targets.find((target) => target.status === "reading")?.url ?? null)
+                    : null,
+              }
+            : {}),
+        }
+      : undefined;
     const phase = WikiCrawlPhaseSchema.safeParse(crawl?.status);
     if (crawl && phase.success) {
       return {
@@ -96,7 +128,7 @@ export class GetWikiHomepageSetupStateInteractor extends AuthenticatedInteractor
           conversationId: matchingSetup?.conversationId ?? null,
           pages: [],
           crawlPhase: phase.data,
-          progress: { fetched: crawl.fetched, total: crawl.discovered },
+          progress,
         },
       };
     }
@@ -110,8 +142,22 @@ export class GetWikiHomepageSetupStateInteractor extends AuthenticatedInteractor
           conversationId: matchingSetup?.conversationId ?? null,
           pages,
           refreshable: pages.length > 0,
+          progress,
           failureReason:
-            crawl.status === "blocked" ? "blocked" : crawl.failureReason === "unavailable" ? "unavailable" : null,
+            crawl.status === "blocked"
+              ? "blocked"
+              : crawl.failureReason === "unavailable"
+                ? "unavailable"
+                : crawl.failureReason === "synthesisAdmission:agentServiceUnavailable"
+                  ? "assistantUnavailable"
+                  : crawl.failureReason === "synthesisAdmission:agentLimitReached"
+                    ? "credits"
+                    : crawl.failureReason === "synthesisAdmission:agentTurnAlreadyRunning" ||
+                        crawl.failureReason === "synthesisDisposition:atCapacity"
+                      ? "busy"
+                      : crawl.failureReason?.startsWith("synthesis")
+                        ? "synthesis"
+                        : null,
         },
       };
     }
@@ -124,6 +170,7 @@ export class GetWikiHomepageSetupStateInteractor extends AuthenticatedInteractor
           domain: setup.domain,
           conversationId: setup.conversationId,
           pages: [],
+          ...(matchingSetup ? { progress } : {}),
         },
       };
     }
@@ -145,6 +192,7 @@ export class GetWikiHomepageSetupStateInteractor extends AuthenticatedInteractor
           conversationId: visibleSetup?.conversationId ?? null,
           pages,
           refreshable: crawl?.status === "completed",
+          ...(crawl ? { progress } : {}),
         },
       };
     }
@@ -157,6 +205,7 @@ export class GetWikiHomepageSetupStateInteractor extends AuthenticatedInteractor
           domain: null,
           conversationId: null,
           pages: [],
+          ...(crawl ? { progress } : {}),
         },
       };
     }
@@ -185,6 +234,7 @@ export class GetWikiHomepageSetupStateInteractor extends AuthenticatedInteractor
         domain: setup.domain,
         conversationId: setup.conversationId,
         pages: [],
+        ...(matchingSetup ? { progress } : {}),
       },
     };
   }

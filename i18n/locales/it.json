@@ -1194,6 +1194,7 @@
       "agentConversationNotFound": "Questa conversazione non è stata trovata o non è più accessibile.",
       "agentLimitReached": "Non restano abbastanza crediti IA per avviare un'altra richiesta.",
       "agentModelUnavailable": "Questo modello dell'Assistant non è disponibile.",
+      "agentServiceUnavailable": "L’IA ospitata è temporaneamente non disponibile. Riprova più tardi.",
       "agentTurnAlreadyRunning": "È già in corso un’altra richiesta dell’assistente.",
       "apiKeyMaxExpiration": "La scadenza di una chiave API non può superare i 365 giorni.",
       "apiKeyMinExpiration": "La scadenza di una chiave API deve essere di almeno 1 giorno.",
@@ -3785,11 +3786,16 @@
     "conversationTitle": "Configura la base di conoscenza dello spazio di lavoro",
     "crawlProgress": {
       "discovering": "Ricerca delle pagine del sito",
-      "fetching": "Lettura delle pagine del sito",
-      "importing": "Aggiunta delle pagine di origine alla base di conoscenza",
-      "queued": "Preparazione dell’importazione",
+      "failed": "Lettura non riuscita",
+      "found": "{count} pagine trovate",
+      "pending": "In attesa",
+      "read": "Letta",
+      "reading": "Lettura in corso",
+      "readingCount": "Lettura delle pagine · {fetched}/{total}",
+      "steps": "2 passaggi",
       "synthesizing": "Avvio di Mate per scrivere le pagine della base di conoscenza",
-      "title": "Avanzamento dell’importazione del sito"
+      "title": "Avanzamento dell’importazione del sito",
+      "unknown": "Stato della pagina non registrato"
     },
     "generated": {
       "gapsHeading": "Aspetti da confermare",
@@ -3809,6 +3815,7 @@
       "completedTitle": "La tua base di conoscenza iniziale è pronta",
       "failedBody": "La configurazione si è interrotta prima che tutte le pagine fossero pronte. Le pagine già create restano disponibili. Puoi continuare e rivederle nella base di conoscenza.",
       "failedBodyBlocked": "{domain} non consente la lettura automatica nel suo robots.txt, quindi non è stato importato nulla. Puoi creare le pagine tu stesso.",
+      "failedBodySynthesis": "Il sito è stato letto, ma Mate non ha potuto avviare la creazione delle pagine. Riprova. Le pagine già create restano disponibili.",
       "failedBodyUnavailable": "Mate non è riuscito a leggere {domain}. Controlla l'indirizzo oppure continua e aggiungi le pagine più tardi.",
       "failedTitle": "Configurazione non completata",
       "noContentBody": "Controlla l’attività di Mate per i dettagli. Puoi provare un altro sito oppure continuare e aggiungere pagine in seguito.",

@@ -45,10 +45,12 @@ vi.mock("@/app/components/agent-chat/agent-conversation", () => ({
     readOnly,
     renderLinksAsText,
     showProgressStatus,
+    scrollable,
   }: {
     readOnly?: boolean;
     renderLinksAsText?: boolean;
     showProgressStatus?: boolean;
+    scrollable?: boolean;
   }) =>
     createElement(
       "div",
@@ -56,6 +58,7 @@ vi.mock("@/app/components/agent-chat/agent-conversation", () => ({
         "data-agent-conversation": true,
         "data-links-as-text": renderLinksAsText,
         "data-read-only": readOnly,
+        "data-scrollable": scrollable,
       },
       showProgressStatus ? createElement("div", { "data-agent-progress": true }) : null,
     ),
@@ -193,7 +196,8 @@ describe("OnboardingWizard", () => {
     const html = renderToStaticMarkup(props.renderConversation("conversation-1"));
 
     expect(html).toContain('data-testid="wiki-setup-conversation"');
-    expect(html).toMatch(/class="[^"]*bg-background[^"]*" data-testid="wiki-setup-conversation"/);
+    expect(html).not.toMatch(/class="[^"]*(?:border-border|h-64|h-72)[^"]*" data-testid="wiki-setup-conversation"/);
+    expect(html).toContain('data-scrollable="false"');
     expect(html).toContain('data-agent-conversation="true"');
     expect(html).toContain('data-read-only="true"');
     expect(html).toContain('data-links-as-text="true"');
