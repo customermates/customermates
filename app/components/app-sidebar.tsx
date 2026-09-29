@@ -215,6 +215,13 @@ const FullAppSidebar = observer(
               visible: true,
             },
             {
+              key: "wiki",
+              title: t("NavigationBar.wiki"),
+              href: "/wiki",
+              icon: BookOpen,
+              visible: canAccess(Resource.wiki),
+            },
+            {
               key: "inbox",
               title: t("NavigationBar.inbox"),
               href: "/inbox",
@@ -228,13 +235,6 @@ const FullAppSidebar = observer(
               href: "/routines",
               icon: Repeat,
               visible: rootStore.appMode !== "self-hosted" && canAccess(Resource.routines),
-            },
-            {
-              key: "wiki",
-              title: t("NavigationBar.wiki"),
-              href: "/wiki",
-              icon: BookOpen,
-              visible: canAccess(Resource.wiki),
             },
           ].filter((i) => i.visible),
         },

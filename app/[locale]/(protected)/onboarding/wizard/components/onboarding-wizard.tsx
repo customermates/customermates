@@ -13,6 +13,8 @@ import { useRootStore } from "@/core/stores/root-store.provider";
 import type { WikiHomepageSetupState } from "@/features/wiki/get-wiki-homepage-setup-state.interactor";
 import { EMPTY_WIKI_HOMEPAGE_SETUP_STATE } from "@/components/wiki/wiki-homepage-setup";
 
+import { OnboardingArtwork, OnboardingMilestones } from "./onboarding-artwork";
+
 import { StepProfile } from "./step-profile";
 import { StepAi, StepAiFooter } from "./step-ai";
 import { StepInvite } from "./step-invite";
@@ -100,7 +102,13 @@ export const OnboardingWizard = observer(
     const showFooterNav = currentStep === "invite";
 
     return (
-      <AppCard className="max-w-2xl">
+      <AppCard className="relative max-w-2xl shadow-xl shadow-primary/5">
+        <OnboardingArtwork
+          complete={currentStep === "wiki" && wikiSetupState.status === "completed"}
+          pageTitles={wikiSetupState.pages.map((page) => page.title)}
+          step={currentStep}
+        />
+
         <AppCardBody>
           <div className="flex flex-col gap-1">
             {!isInvited && (
@@ -124,15 +132,26 @@ export const OnboardingWizard = observer(
           </div>
 
           {!isInvited && (
-            <WizardProgress
-              current={currentStepIndex + 1}
-              label={t("OnboardingWizard.progressLabel")}
-              total={totalSteps}
-              valueText={t("OnboardingWizard.progress", {
-                current: currentStepIndex + 1,
-                total: totalSteps,
-              })}
-            />
+            <>
+              <OnboardingMilestones
+                current={currentStepIndex}
+                labels={{
+                  profile: t("OnboardingWizard.milestones.profile"),
+                  wiki: t("OnboardingWizard.milestones.wiki"),
+                  invite: t("OnboardingWizard.milestones.invite"),
+                  ai: t("OnboardingWizard.milestones.ai"),
+                }}
+              />
+
+              <div className="sr-only">
+                <WizardProgress
+                  current={currentStepIndex + 1}
+                  label={t("OnboardingWizard.progressLabel")}
+                  total={totalSteps}
+                  valueText={t("OnboardingWizard.progress", { current: currentStepIndex + 1, total: totalSteps })}
+                />
+              </div>
+            </>
           )}
 
           {renderStep()}

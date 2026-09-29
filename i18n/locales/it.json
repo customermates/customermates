@@ -3039,6 +3039,12 @@
         "link": "Condividi il link"
       }
     },
+    "milestones": {
+      "ai": "Strumenti IA",
+      "invite": "Team",
+      "profile": "Tu",
+      "wiki": "Conoscenza"
+    },
     "next": "Avanti",
     "progress": "Passaggio {current} di {total}",
     "progressLabel": "Avanzamento della configurazione iniziale",
@@ -3058,7 +3064,7 @@
       },
       "wiki": {
         "subtitle": "Aggiungi il sito web della tua azienda. Mate trasforma le informazioni verificabili in pagine wiki modificabili per Mate e gli strumenti di IA che colleghi.",
-        "title": "Dai a Mate il contesto della tua azienda"
+        "title": "Diamo un po’ di contesto a Mate"
       }
     },
     "wiki": {

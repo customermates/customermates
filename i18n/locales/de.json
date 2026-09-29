@@ -3039,6 +3039,12 @@
         "link": "Link teilen"
       }
     },
+    "milestones": {
+      "ai": "KI-Tools",
+      "invite": "Team",
+      "profile": "Du",
+      "wiki": "Wissen"
+    },
     "next": "Weiter",
     "progress": "Schritt {current} von {total}",
     "progressLabel": "Fortschritt der Einrichtung",
@@ -3058,7 +3064,7 @@
       },
       "wiki": {
         "subtitle": "Füge deine Unternehmenswebsite hinzu. Mate macht aus verifizierbaren Informationen bearbeitbare Wiki-Seiten für Mate und verbundene KI-Tools.",
-        "title": "Gib Mate Kontext zu deinem Unternehmen"
+        "title": "Geben wir Mate etwas Kontext"
       }
     },
     "wiki": {

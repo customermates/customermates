@@ -3039,6 +3039,12 @@
         "link": "Share link"
       }
     },
+    "milestones": {
+      "ai": "AI tools",
+      "invite": "Team",
+      "profile": "You",
+      "wiki": "Knowledge"
+    },
     "next": "Next",
     "progress": "Step {current} of {total}",
     "progressLabel": "Onboarding progress",
@@ -3058,7 +3064,7 @@
       },
       "wiki": {
         "subtitle": "Add your company website. Mate turns what it can verify into editable Wiki pages for Mate and the AI tools you connect.",
-        "title": "Give Mate your company context"
+        "title": "Let’s give Mate some context"
       }
     },
     "wiki": {
