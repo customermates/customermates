@@ -223,15 +223,18 @@ export class SearchWikiPagesInteractor extends AuthenticatedInteractor<WikiPageS
     if (!previous) return { order, located: new Map(reordered.map((entry) => [entry.page.id, entry])) };
 
     const seen = new Set(previous.ids);
+    const merged = new Map([...order.offsets, ...previous.offsets]);
     return {
       order: {
         ...previous,
         ids: [...previous.ids, ...order.ids.filter((id) => !seen.has(id))],
-        offsets: new Map([...order.offsets, ...previous.offsets]),
+        offsets: merged,
         exhaustive: order.exhaustive,
         expiresAt: order.expiresAt,
       },
-      located: new Map(),
+      located: new Map(
+        reordered.filter((entry) => merged.get(entry.page.id) === entry.offset).map((entry) => [entry.page.id, entry]),
+      ),
     };
   }
 

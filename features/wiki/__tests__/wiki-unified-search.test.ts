@@ -244,9 +244,16 @@ describe("unified Wiki search", () => {
 
     const first = await pageOf(1);
     const sixth = await pageOf(6);
+    chunks.getPagesByIds.mockClear();
+    chunks.rankPageSections.mockClear();
     const seventh = await pageOf(7);
 
     const ids = many.map((entry) => entry.id);
+    const fetched = chunks.getPagesByIds.mock.calls.flatMap(([requested]) => requested);
+    expect(ids.slice(30, 35).map((pageId) => fetched.filter((entry) => entry === pageId).length)).toEqual([
+      1, 1, 1, 1, 1,
+    ]);
+    expect(chunks.rankPageSections.mock.calls.filter(([, sections]) => sections.length > 0)).toHaveLength(1);
     expect(first.items.map((item) => item.id)).toEqual(ids.slice(0, 10).reverse().slice(0, 5));
     expect(sixth.items.map((item) => item.id)).toEqual(ids.slice(25, 30));
     expect(seventh.items.map((item) => item.id)).toEqual(ids.slice(30, 35));
