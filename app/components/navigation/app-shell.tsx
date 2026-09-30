@@ -1,3 +1,5 @@
+import "@/styles/application.css";
+
 import { cookies } from "next/headers";
 import { NextIntlClientProvider } from "next-intl";
 import { getMessages } from "next-intl/server";
@@ -21,6 +23,7 @@ import { isAgentChatAvailable } from "@/ee/agent-chat/agent-availability";
 import { RootStoreProvider } from "@/core/stores/root-store.provider";
 import { DEFAULT_LOCALE, isRoutingLocale } from "@/i18n/locale-registry";
 import { unwrapValidated } from "@/core/validation/validation.utils";
+import { ForbiddenError } from "@/core/errors/app-errors";
 
 type Props = {
   children: React.ReactNode;
@@ -45,7 +48,15 @@ export async function AppShell({ children, displayLanguage }: Props) {
     },
     subscription: async () => (await getGetSubscriptionInteractor().invoke()).data,
     systemTaskCount: async () => (await getCountSystemTasksInteractor().invoke()).data,
-    unreadThreadCount: async () => (await getGetUnreadThreadCountInteractor().invoke()).data,
+    unreadThreadCount: async () => {
+      try {
+        const result = await getGetUnreadThreadCountInteractor().invoke();
+        return result.ok ? result.data : 0;
+      } catch (error) {
+        if (error instanceof ForbiddenError) return 0;
+        throw error;
+      }
+    },
     channelsNeedingActionCount: async () => (await getCountChannelsNeedingActionInteractor().invoke()).data,
   });
 

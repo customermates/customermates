@@ -994,9 +994,9 @@
     "userInfoIsMissing": "El proveedor no devolvió tu perfil. Inténtalo de nuevo."
   },
   "BrowserFrame": {
-    "live": "en directo",
+    "live": "Vista previa en vivo",
     "liveDemoTitle": "Demo en directo de Customermates",
-    "open": "Abrir"
+    "open": "Abrir en una nueva pestaña"
   },
   "Common": {
     "actions": {
@@ -1581,6 +1581,7 @@
     },
     "pageNumber": "Página {page}",
     "probability": "Probabilidad",
+    "probabilityRange": "Introduce una probabilidad entre 0 y 100 %.",
     "providers": {
       "google": "Gmail",
       "instagram": "Instagram",
@@ -2562,7 +2563,7 @@
   "HomepageStatsRow": {
     "automationLabel": "Automatizaciones",
     "taglineMcp": "MCP",
-    "taglinePost": ". Automatizaciones mediante REST, webhooks y tu instancia de n8n.",
+    "taglinePost": " o el navegador. Automatizaciones mediante REST, webhooks y tu instancia de n8n.",
     "taglinePre": "IA externa mediante"
   },
   "Inbox": {
@@ -2849,6 +2850,7 @@
       "providerCursor": "Cursor",
       "providerGemini": "Gemini",
       "providerGmail": "Gmail",
+      "providerGrok": "Grok Bot",
       "providerImap": "Correo / IMAP",
       "providerInstagram": "Instagram",
       "providerLinkedIn": "LinkedIn",

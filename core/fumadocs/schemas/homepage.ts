@@ -33,6 +33,21 @@ export const benefitsSchema = z.object({
 export type Benefits = z.infer<typeof benefitsSchema>;
 
 export const heroSchema = z.object({
+  illustration: z
+    .object({
+      label: z.string(),
+      prompt: z.string(),
+      context: z.string(),
+      draft: z.string(),
+      ready: z.string(),
+      channels: z.string(),
+      working: z.string(),
+      replay: z.string(),
+      response: z.string(),
+      draftLabel: z.string(),
+      steps: z.array(z.object({ running: z.string(), done: z.string() })).length(4),
+    })
+    .optional(),
   buttonLeftHref: z.string(),
   buttonLeftText: z.string(),
   buttonRightHref: z.string(),

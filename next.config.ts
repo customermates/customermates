@@ -1,5 +1,6 @@
 import type { NextConfig } from "next";
 
+import { PHASE_DEVELOPMENT_SERVER, PHASE_PRODUCTION_BUILD } from "next/constants";
 import createNextIntlPlugin from "next-intl/plugin";
 import { createMDX } from "fumadocs-mdx/next";
 import { withSentryConfig } from "@sentry/nextjs";
@@ -20,6 +21,8 @@ const agentBenchmarkBuildSource = resolveBenchmarkBuildSource();
 if (process.env.LOCAL_AGENT_BENCHMARK === "true") configureBenchmarkWorkflowWorld();
 
 const nextConfig: NextConfig = {
+  serverExternalPackages: ["@prisma/client-runtime-utils"],
+
   env: {
     NEXT_INTL_CONFIG_PATH: "i18n/request.ts",
     AGENT_BENCHMARK_BUILD_SOURCE: agentBenchmarkBuildSource,
@@ -30,8 +33,6 @@ const nextConfig: NextConfig = {
   devIndicators: process.env.CRM_LOCAL_TEST_TRANSPORT === "true" ? false : { position: "top-left" },
 
   compress: true,
-
-  serverExternalPackages: ["@prisma/client-runtime-utils"],
 
   images: {
     formats: ["image/avif", "image/webp"],
@@ -92,4 +93,13 @@ const sentryOptions = {
 
 const composed = withWorkflow(withMDX(withNextIntl(nextConfig)));
 
-export default env.NEXT_PUBLIC_SENTRY_DSN ? withSentryConfig(composed, sentryOptions) : composed;
+export default async function configure(phase: string, context: { defaultConfig: NextConfig }) {
+  // The production runner serves built CSS and does not ship the source graph.
+  if (phase === PHASE_DEVELOPMENT_SERVER || phase === PHASE_PRODUCTION_BUILD) {
+    const { generateStyleSources, generatePublicStyles } = await import("@/scripts/generate-style-sources.mjs");
+    generateStyleSources(process.cwd(), phase === PHASE_DEVELOPMENT_SERVER);
+    await generatePublicStyles(process.cwd(), phase === PHASE_DEVELOPMENT_SERVER);
+  }
+  const configured = env.NEXT_PUBLIC_SENTRY_DSN ? withSentryConfig(composed, sentryOptions) : composed;
+  return configured(phase, context);
+}

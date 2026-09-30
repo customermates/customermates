@@ -213,7 +213,7 @@ describe("seeded public product demo", () => {
     );
 
     expect(frame).toContain('size?: "article" | "full"');
-    expect(frame).toContain('article: "h-[420px] sm:h-[520px] lg:h-[600px]"');
+    expect(frame).toContain('article: "h-[480px] sm:h-[600px] lg:h-[680px]"');
     expect(frame).toContain("IntersectionObserver");
     expect(frame).toContain('loadAhead?: boolean');
     expect(frame).toContain('const LOAD_AHEAD_MARGIN = "400px 0px"');

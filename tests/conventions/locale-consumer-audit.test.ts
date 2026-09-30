@@ -76,6 +76,10 @@ const reviewedVisibleCopy = (reason: string, sites: readonly string[]) =>
 
 const ALLOWED_VISIBLE_COPY_SITES = new Map<string, VisibleCopyException>([
   ...reviewedVisibleCopy("Proper names and product brands are locale-invariant.", [
+    'app/[locale]/(static)/components/homepage-hero-visual.tsx :: jsx-text :: "ChatGPT"',
+    'components/ai-connection/ai-client-logo.tsx :: jsx-alt :: "Google Gemini"',
+    'app/components/navigation/public-navbar-menu.tsx :: jsx-alt :: "n8n"',
+    'components/marketing/founder-contact-card.tsx :: jsx-alt :: "Benjamin Wagner"',
     'app/[locale]/(protected)/company/components/subscription/subscribe-manage-button.tsx :: jsx-alt :: "Lemon Squeezy"',
     'app/[locale]/(static)/blog/[slug]/page.tsx :: jsx-alt :: "Benjamin Wagner"',
     'app/[locale]/(static)/docs/components/docs-sidebar.tsx :: jsx-text :: "Customermates"',

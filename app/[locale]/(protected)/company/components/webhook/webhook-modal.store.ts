@@ -196,7 +196,7 @@ export class WebhookModalStore extends BaseModalStore<WebhookFormData> {
       });
 
       if (res.ok) {
-        await this.rootStore.webhooksStore.upsertItem(res.data);
+        await this.rootStore.webhooksStore.upsertItem(res.data, { created: !form.id });
         this.close();
       } else this.setError(res.error);
     } finally {

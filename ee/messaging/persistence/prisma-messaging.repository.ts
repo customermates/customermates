@@ -47,7 +47,12 @@ import type { PreviewKind } from "../attachment-kind";
 
 import { classifyAttachment } from "../attachment-kind";
 import { htmlToPlainText } from "../email-body-text";
-import { messageVisibilityWhere, threadAccessWhere } from "../messaging-access";
+import {
+  accessibleFolderStatesWhere,
+  inboxThreadVisibilityWhere,
+  messageVisibilityWhere,
+  threadAccessWhere,
+} from "../messaging-access";
 import { channelClass, classWhere, isDraftThreadId, isEmailProvider, isHandleProvider } from "../provider";
 import { identityLookupValue } from "../identity-lookup";
 import { draftRevisionMatches, normalizeDraftThreadRecipients, type DraftDeleteResult } from "../draft-thread";
@@ -759,10 +764,18 @@ export class PrismaMessagingRepo
   }
 
   async countUnreadThreadsForCurrentUser() {
+    const folderStates = await this.prisma.connectedAccount.findMany({
+      where: accessibleFolderStatesWhere(this.companyId, this.userId),
+      select: { id: true, selectedFolderIds: true },
+    });
     return this.prisma.messagingThread.count({
       where: {
         state: "unread",
-        ...threadAccessWhere(this.companyId, this.userId),
+        ...inboxThreadVisibilityWhere(
+          this.companyId,
+          this.userId,
+          folderStates.map((row) => ({ id: row.id, visibleSet: row.selectedFolderIds })),
+        ),
       },
     });
   }

@@ -48,7 +48,7 @@ import { NavUser } from "./navigation/nav-user";
 import { LegalUpdateAlert } from "./navigation/legal-update-alert";
 import { toastZodErrorTree } from "@/core/utils/toast-zod-error-tree";
 import { sidebarUserCanAccess } from "./navigation/sidebar-user";
-import { runUserAction } from "@/core/errors/report-application-error";
+import { reportApplicationError, runUserAction } from "@/core/errors/report-application-error";
 
 type FullProps = {
   systemTaskCount: number;
@@ -121,12 +121,20 @@ const FullAppSidebar = observer(
     const router = useRouter();
     const rootStore = useRootStore();
     const { feedbackModalStore, globalSearchModalStore, recordWorkspaceStore, userStore } = rootStore;
+    const { messagingThreadsStore } = rootStore;
+    const isDocsRoute = pathname.split("/")[2] === "docs";
+    const inboxVisible =
+      !restricted &&
+      !isDocsRoute &&
+      rootStore.appMode !== "self-hosted" &&
+      sidebarUserCanAccess(user, Resource.inboxMessages);
+    const currentUnreadThreadCount = inboxVisible ? (messagingThreadsStore.unreadThreadCount ?? unreadThreadCount) : 0;
+    const onInbox = intlPathname === "/inbox";
 
     const { isMobile, setOpenMobile } = useSidebar();
     const { resolvedTheme, setTheme } = useTheme();
     const subscriptionStatus = subscription?.status ?? null;
     const subscriptionPlan = subscription?.plan ?? null;
-    const isDocsRoute = pathname.split("/")[2] === "docs";
     const [selectedKey, setSelectedKey] = useState<string | null>(recordNavigationKey(intlPathname));
     const [isAddPickerOpen, setIsAddPickerOpen] = useState(false);
     const addPickerInvokerRef = useRef<HTMLElement | null>(null);
@@ -148,6 +156,41 @@ const FullAppSidebar = observer(
     }
 
     useEffect(() => setSelectedKey(recordNavigationKey(intlPathname)), [intlPathname]);
+
+    useEffect(() => {
+      if (!inboxVisible) return;
+      let stopped = false;
+      let pending = false;
+      const refresh = async () => {
+        if (stopped || pending || document.visibilityState !== "visible") return;
+        pending = true;
+        try {
+          await messagingThreadsStore.refreshUnreadCount();
+        } finally {
+          pending = false;
+        }
+      };
+      const scheduleRefresh = () => {
+        void refresh().catch((error) => {
+          if (!stopped) reportApplicationError(error);
+        });
+      };
+      scheduleRefresh();
+      if (onInbox) {
+        return () => {
+          stopped = true;
+        };
+      }
+      const timer = window.setInterval(scheduleRefresh, 10000);
+      document.addEventListener("visibilitychange", scheduleRefresh);
+      window.addEventListener("focus", scheduleRefresh);
+      return () => {
+        stopped = true;
+        window.clearInterval(timer);
+        document.removeEventListener("visibilitychange", scheduleRefresh);
+        window.removeEventListener("focus", scheduleRefresh);
+      };
+    }, [inboxVisible, onInbox, messagingThreadsStore]);
 
     function closeMobileSidebar(cb?: () => void) {
       if (isMobile) setOpenMobile(false);
@@ -177,7 +220,7 @@ const FullAppSidebar = observer(
               href: "/inbox",
               icon: Inbox,
               visible: canAccess(Resource.inboxMessages) && rootStore.appMode !== "self-hosted",
-              badge: unreadThreadCount,
+              badge: currentUnreadThreadCount,
             },
             {
               key: "routines",
@@ -264,7 +307,7 @@ const FullAppSidebar = observer(
       subscriptionStatus,
       user,
       systemTaskCount,
-      unreadThreadCount,
+      currentUnreadThreadCount,
       channelsNeedingActionCount,
     ]);
 

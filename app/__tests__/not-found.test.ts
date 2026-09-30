@@ -12,6 +12,7 @@ vi.mock("@/features/auth/next/resolve-account-state", () => ({
   resolveRequestAccountState: mocks.resolveRequestAccountState,
 }));
 vi.mock("next-intl/server", () => ({ getLocale: mocks.getLocale, getMessages: mocks.getMessages }));
+vi.mock("@/styles/site", () => ({}));
 vi.mock("../root-document", () => ({ RootDocument: () => null }));
 vi.mock("../components/navigation/marketing-shell", () => ({ MarketingShell: () => null }));
 vi.mock("@/components/shared/not-found-page-view", () => ({ NotFoundPageView: () => null }));

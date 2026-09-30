@@ -21,6 +21,8 @@ const CONTEXT = { folders: [], selectedFolderIds: ["inbox"], currentFolderIds: [
 
 function store() {
   const instance = new MessagingThreadDetailStore({
+    messagingThreadsStore: { items: [], refresh: vi.fn().mockResolvedValue(undefined) },
+    threadComposeStore: { form: { threadId: "" }, hasComposedContent: false },
     loadingOverlayStore: { withLoading: async (fn: () => Promise<void>) => fn() },
     localeStore: { getTranslation: (key: string) => key },
   } as never);
@@ -46,7 +48,12 @@ const result = (over: Record<string, unknown>) => ({
 
 beforeEach(() => {
   vi.clearAllMocks();
-  harness.getThread.mockResolvedValue(null);
+  harness.getThread.mockResolvedValue({
+    thread: { id: "t1", provider: "mail" },
+    messages: [{ id: "message" }],
+    accountOwners: {},
+    folderContext: { ...CONTEXT },
+  });
 });
 
 describe("moveToFolder reports what actually happened", () => {
@@ -82,6 +89,12 @@ describe("moveToFolder reports what actually happened", () => {
 
   it("confirms a clean move and files the thread locally", async () => {
     harness.move.mockResolvedValue(result({ movedCount: 2 }));
+    harness.getThread.mockResolvedValue({
+      thread: { id: "t1", provider: "mail" },
+      messages: [{ id: "message" }],
+      accountOwners: {},
+      folderContext: { ...CONTEXT, currentFolderIds: ["archive"] },
+    });
     const s = store();
 
     await s.moveToFolder("archive");
@@ -92,6 +105,7 @@ describe("moveToFolder reports what actually happened", () => {
 
   it("says where the conversation went when it leaves the inbox", async () => {
     harness.move.mockResolvedValue(result({ movedCount: 1, hiddenFromInbox: true }));
+    harness.getThread.mockResolvedValue(null);
 
     await store().moveToFolder("archive");
 

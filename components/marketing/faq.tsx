@@ -65,7 +65,12 @@ export function Faq({ children }: { children: ReactNode }) {
       />
 
       <div className="not-prose flex flex-col gap-3">
-        {items.map((item, index) => cloneElement(item, { defaultOpen: index === 0, key: item.props.question }))}
+        {items.map((item, index) =>
+          cloneElement(item, {
+            defaultOpen: index === 0,
+            key: item.props.question,
+          }),
+        )}
       </div>
     </>
   );

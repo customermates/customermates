@@ -91,7 +91,8 @@ export function NativeAutomationProviderIdentity({
       data-native-automation-provider={provider}
     >
       <img
-        alt=""
+        aria-hidden
+        alt={fixture.name}
         className="h-auto w-8 shrink-0"
         decoding="async"
         draggable={false}
@@ -124,7 +125,8 @@ export function ProviderMark({
 
   return (
     <img
-      alt={decorative ? "" : fixture.name}
+      alt={fixture.name}
+      aria-hidden={decorative || undefined}
       className={className}
       data-native-provider={provider}
       decoding="async"
@@ -181,7 +183,8 @@ export function PersonAvatar({
       style={fluid ? undefined : { height: size, width: size }}
     >
       <img
-        alt={decorative ? "" : fixture.name}
+        alt={fixture.name}
+        aria-hidden={decorative || undefined}
         className="size-full object-cover"
         decoding="async"
         draggable={false}
@@ -212,6 +215,10 @@ export function PersonIdentity({
       <span className="min-w-0 text-xs leading-tight font-medium">{fixture.name}</span>
     </span>
   );
+}
+
+export function nativeStatusLabel(status: VisualStatusFixtureId, locale: ContentLocale = "en"): string {
+  return STATUS_LABELS[locale][status];
 }
 
 export function NativeStatusBadge({
@@ -253,7 +260,7 @@ export function NativeRecordIdentity({
 
   return (
     <span className="flex min-w-0 flex-col items-start gap-2" data-native-record={record}>
-      <span className="text-xs leading-snug font-medium">{fixture.name}</span>
+      <span className="text-xs leading-snug font-medium">{fixture.localizedName[locale]}</span>
 
       <span className="flex flex-wrap items-center gap-2">
         {statusLabel ? <span className="text-[10px] text-muted-foreground">{statusLabel}</span> : null}

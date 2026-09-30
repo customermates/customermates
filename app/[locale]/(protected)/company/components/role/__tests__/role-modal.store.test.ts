@@ -114,6 +114,27 @@ describe("RoleModalStore delete availability", () => {
     expect(store.rootStore.rolesStore.items[0]?.hasUsersAssigned).toBe(true);
     expect(store.canDeleteRole).toBe(false);
   });
+
+  it("counts a created role into the table total and an edited one not", async () => {
+    const role = makeRole();
+    companyActions.upsertRoleAction.mockResolvedValue({
+      ok: true,
+      data: { role: RoleDtoSchema.parse(role), schemaRevision: 2 },
+    });
+
+    const edited = makeStore(role);
+    await edited.onSubmit();
+    expect(edited.rootStore.rolesStore.upsertItem).toHaveBeenCalledWith(expect.objectContaining({ id: role.id }), {
+      created: false,
+    });
+
+    const created = makeStore(role);
+    created.onChange("id", undefined);
+    await created.onSubmit();
+    expect(created.rootStore.rolesStore.upsertItem).toHaveBeenCalledWith(expect.objectContaining({ id: role.id }), {
+      created: true,
+    });
+  });
 });
 
 const UNHELD_ROLE_ID = "20000000-0000-4000-8000-000000000009";

@@ -383,7 +383,7 @@ describe("public acquisition UI contract", () => {
     );
     expect(whyFeatures).toContain("<Icon aria-hidden icon={IconComponent} />");
 
-    const hero = source("app/[locale]/(static)/components/homepage-hero.tsx");
+    const hero = source("app/[locale]/(static)/components/homepage-hero-visual.tsx");
     expect(hero).toContain("<ProviderMark");
     expect(hero).not.toMatch(
       /<ProviderMark[^>]*className=.*(?:grayscale|text-primary)/u,

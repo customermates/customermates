@@ -4,19 +4,17 @@ import { ArrowDownRight, ArrowUpRight } from "lucide-react";
 
 import { AgplGithubBadge } from "@/components/marketing/agpl-github-badge";
 import { MarketingContainer } from "@/components/marketing/marketing-container";
-import { ProviderMark } from "@/components/marketing/visuals/native-visual-primitives";
-import { VISUAL_PROVIDER_SET_FIXTURES } from "@/components/marketing/visuals/native-fixtures";
 import { AppLink } from "@/components/shared/app-link";
 import { GridPattern } from "@/components/shared/grid-pattern";
 import { Button } from "@/components/ui/button";
+
+import { HomepageHeroVisual } from "./homepage-hero-visual";
 
 import { RotatingAccent } from "./rotating-accent";
 
 type Props = {
   heroSection: Hero;
 };
-
-const SUPPORTED_INBOX_PROVIDERS = VISUAL_PROVIDER_SET_FIXTURES["unified-inbox"].providers;
 
 export function HomepageHero({ heroSection }: Props) {
   const accentRotations = heroSection.titleAccentRotations?.length
@@ -30,80 +28,65 @@ export function HomepageHero({ heroSection }: Props) {
     <section className="relative isolate w-full overflow-hidden" data-homepage-section="hero">
       <GridPattern className="z-0" fade="bottom" />
 
-      <MarketingContainer className="relative z-10">
-        <div className="flex flex-col items-center py-12 text-center sm:py-16 lg:py-20">
-          <AgplGithubBadge />
+      <MarketingContainer className="relative z-10 !max-w-[72rem] !px-6 sm:!px-12 lg:!px-10">
+        <div className="grid items-center gap-12 py-20 sm:py-24 lg:grid-cols-[1.2fr_1fr] lg:gap-12 lg:py-28">
+          <div className="min-w-0 [container-type:inline-size]">
+            <AgplGithubBadge className="!mb-0" />
 
-          <div className="text-hero mt-7 max-w-6xl">
-            <div className="flex flex-col items-center justify-center gap-y-[0.1em] lg:gap-y-[0.06em]">
-              <h1 className="whitespace-nowrap [font-size:min(1em,8.6vw)] sm:text-[1em]" data-homepage-hero-line="lead">
-                {heroSection.title}
+            <div className="mt-4 text-[clamp(1.5rem,8.8cqw,4rem)] leading-[1.07] font-medium tracking-[-0.045em]">
+              <div className="flex flex-col items-start gap-y-[0.1em]">
+                <h1 className="text-balance whitespace-nowrap" data-homepage-hero-line="lead">
+                  {heroSection.title}
 
-                {headlineAccent ? <span className="sr-only">{` ${headlineAccent}`}</span> : null}
-              </h1>
+                  {headlineAccent ? <span className="sr-only">{` ${headlineAccent}`}</span> : null}
+                </h1>
 
-              <span
-                aria-hidden
-                className="inline-flex whitespace-nowrap [font-size:min(1em,8.6vw)] sm:text-[1em]"
-                data-homepage-hero-line="rotation"
-              >
-                <RotatingAccent
-                  activeClassName="rounded-xl bg-primary/10 px-[0.12em]"
-                  className="p-[0.12em] text-primary"
-                  words={accentRotations}
-                />
-              </span>
+                <span
+                  aria-hidden
+                  className="inline-flex max-w-full whitespace-nowrap text-[0.87em]"
+                  data-homepage-hero-line="rotation"
+                >
+                  <RotatingAccent
+                    activeClassName="rounded-xl bg-primary/10 px-[0.12em]"
+                    className="p-[0.12em] text-primary [&>span]:justify-start"
+                    words={accentRotations}
+                  />
+                </span>
+              </div>
             </div>
-          </div>
 
-          <div className="order-last mt-8 w-full max-w-[820px] rounded-card border border-border bg-card p-5 text-left shadow-[0_20px_70px_-48px_rgba(0,0,0,0.7)] sm:order-none sm:p-6">
-            <p className="max-w-[700px] text-base leading-relaxed font-medium text-foreground sm:text-lg">
-              {heroSection.useCase}
-            </p>
-
-            <p className="mt-3 max-w-[700px] text-[15px] leading-relaxed text-muted-foreground sm:text-base">
-              {heroSection.subtitle}
-            </p>
-
-            <div className="mt-6">
-              <ul className="flex min-w-0 flex-wrap items-center gap-2 sm:gap-2.5">
-                {SUPPORTED_INBOX_PROVIDERS.map((provider) => (
-                  <li
-                    key={provider}
-                    className="grid size-9 place-items-center rounded-full border border-border bg-background sm:size-10"
-                  >
-                    <ProviderMark provider={provider} size={21} />
-                  </li>
-                ))}
-              </ul>
+            <div className="mt-7 max-w-[30rem]">
+              <p className="text-base leading-7 text-muted-foreground">{heroSection.useCase}</p>
             </div>
-          </div>
 
-          <div className="mt-6 flex w-full max-w-[820px] flex-col items-stretch justify-center gap-3 sm:flex-row sm:items-center">
-            <Button asChild size="lg">
-              <AppLink href={heroSection.buttonLeftHref}>
-                {heroSection.buttonLeftText}
+            <div className="mt-8 flex flex-col items-stretch gap-3 sm:flex-row sm:flex-wrap sm:items-center">
+              <Button asChild size="lg">
+                <AppLink href={heroSection.buttonLeftHref}>
+                  {heroSection.buttonLeftText}
 
-                <ArrowUpRight aria-hidden className="size-4" />
-              </AppLink>
-            </Button>
-
-            <Button asChild size="lg" variant="secondary">
-              {heroSection.buttonRightHref.startsWith("#") ? (
-                <a href={heroSection.buttonRightHref}>
-                  {heroSection.buttonRightText}
-
-                  <ArrowDownRight aria-hidden className="size-4" />
-                </a>
-              ) : (
-                <AppLink external href={heroSection.buttonRightHref}>
-                  {heroSection.buttonRightText}
+                  <ArrowUpRight aria-hidden className="size-4" />
                 </AppLink>
-              )}
-            </Button>
+              </Button>
+
+              <Button asChild className="border border-border" size="lg" variant="ghost">
+                {heroSection.buttonRightHref.startsWith("#") ? (
+                  <a href={heroSection.buttonRightHref}>
+                    {heroSection.buttonRightText}
+
+                    <ArrowDownRight aria-hidden className="size-4" />
+                  </a>
+                ) : (
+                  <AppLink external href={heroSection.buttonRightHref}>
+                    {heroSection.buttonRightText}
+                  </AppLink>
+                )}
+              </Button>
+            </div>
+
+            <p className="text-meta mt-5 text-xs">{heroSection.startFree}</p>
           </div>
 
-          <p className="text-meta mt-4">{heroSection.startFree}</p>
+          {heroSection.illustration ? <HomepageHeroVisual copy={heroSection.illustration} /> : null}
         </div>
       </MarketingContainer>
     </section>

@@ -5,6 +5,7 @@ import { CustomColumnType, EntityType, Currency } from "@/generated/prisma";
 
 import { CHIP_COLORS } from "@/constants/chip-colors";
 import { DATE_DISPLAY_FORMATS } from "@/constants/date-format";
+import { dealStageWeightSchema } from "@/features/deals/deal-weighting";
 
 const OptionSchema = z.object({
   value: z.string(),
@@ -12,7 +13,7 @@ const OptionSchema = z.object({
   color: z.enum(CHIP_COLORS),
   isDefault: z.boolean(),
   index: z.number(),
-  weight: z.number().min(0).max(100).optional(),
+  weight: dealStageWeightSchema().optional(),
 });
 export type CustomColumnOption = Data<typeof OptionSchema>;
 

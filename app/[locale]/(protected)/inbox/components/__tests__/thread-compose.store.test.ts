@@ -104,13 +104,15 @@ function makeHarness(initialMessages: MessagingMessageDto[] = []) {
       detail.messageStatus = Object.fromEntries(Object.entries(detail.messageStatus).filter(([key]) => key !== id));
     }),
   };
+  const threads = { refreshInBackground: vi.fn() };
   const rootStore = {
     connectedAccountsStore: { items: [] },
     localeStore: { getTranslation: (key: string) => key },
     messagingThreadDetailStore: detail,
+    messagingThreadsStore: threads,
   } as unknown as RootStore;
 
-  return { detail, store: new ThreadComposeStore(rootStore) };
+  return { detail, threads, store: new ThreadComposeStore(rootStore) };
 }
 
 const failure = {
@@ -647,6 +649,27 @@ describe("ThreadComposeStore draft lifecycle", () => {
       threadId: OTHER_THREAD_ID,
       body: "Second draft",
     });
+  });
+
+  it("refreshes the thread list once a discard succeeds, so the row drops its draft preview", async () => {
+    const draft = message({ provider: MessagingProvider.google });
+    actions.discardDraftAction.mockResolvedValue({ ok: true, data: { threadId: DRAFT_THREAD_ID } });
+    const { detail, threads, store } = makeHarness([draft]);
+
+    await store.discardDraft(DRAFT_ID, DRAFT_REVISION);
+
+    expect(detail.messages).toEqual([]);
+    expect(threads.refreshInBackground).toHaveBeenCalledOnce();
+  });
+
+  it("leaves the thread list alone when a discard fails", async () => {
+    const draft = message({ provider: MessagingProvider.google });
+    actions.discardDraftAction.mockResolvedValue(failure);
+    const { threads, store } = makeHarness([draft]);
+
+    await store.discardDraft(DRAFT_ID, DRAFT_REVISION);
+
+    expect(threads.refreshInBackground).not.toHaveBeenCalled();
   });
 
   it("restores an optimistically removed draft when exact-revision discard fails", async () => {

@@ -1,6 +1,6 @@
 import type { AnchorHTMLAttributes, ReactNode } from "react";
 
-import { existsSync, readdirSync } from "node:fs";
+import { existsSync, readFileSync, readdirSync } from "node:fs";
 import { createRequire } from "node:module";
 import { extname, join } from "node:path";
 import { createElement } from "react";
@@ -67,7 +67,7 @@ vi.mock("@/core/fumadocs/source", () => {
           description: "CTA description",
           hint: "CTA hint",
         },
-        hero: {},
+        hero: { title },
         title,
       },
     }),
@@ -90,7 +90,8 @@ vi.mock("@/core/fumadocs/metadata", () => ({
 }));
 vi.mock("next-intl/server", () => ({
   getLocale: async () => "en",
-  getTranslations: async () => (key: string) => key,
+  getTranslations: async () => (key: string, values?: { page?: number }) =>
+    key.endsWith("pageNumber") ? `Page ${values?.page}` : key,
   setRequestLocale: () => undefined,
 }));
 vi.mock("next/navigation", () => ({
@@ -108,15 +109,18 @@ vi.mock("@/app/components/footer", () => ({ Footer: () => null }));
 vi.mock("@/components/marketing/cta-section", () => ({
   CTASection: () => null,
 }));
-vi.mock("@/components/marketing/page-hero", () => ({ PageHero: () => null }));
+vi.mock("@/components/marketing/page-hero", () => ({
+  PageHero: ({ title }: { title: string }) => createElement("h1", null, title),
+}));
 vi.mock("@/components/seo/json-ld", () => ({ JsonLd: () => null }));
 vi.mock("@/components/marketing/hub-grid", async () => {
   const { createElement } = await import("react");
   return {
-    HubGrid: ({ items }: { items: { href: string }[] }) =>
+    HubGrid: ({ hero, items }: { hero: { title: string }; items: { href: string }[] }) =>
       createElement(
         "div",
         { "data-hub-results": "" },
+        createElement("h1", null, hero.title),
         items.map((item) => createElement("a", { href: item.href, key: item.href }, item.href)),
       ),
   };
@@ -129,10 +133,7 @@ vi.mock("@/app/[locale]/(static)/blog/blog-post-card", async () => {
 });
 
 import { HubPagination } from "@/components/marketing/hub-pagination";
-import {
-  FOOTER_RENDERED_COLLECTION_SIZE,
-  selectFooterSlugs,
-} from "@/app/components/footer-selection";
+import { FOOTER_RENDERED_COLLECTION_SIZE, selectFooterSlugs } from "@/app/components/footer-selection";
 import {
   HUB_PAGE_SEGMENT,
   hubPageCount,
@@ -146,8 +147,26 @@ import {
   resolveHubPageSegment,
 } from "@/core/seo/hub-pagination";
 import { LANDING_HUBS } from "@/core/seo/landing-hubs";
-import { CONTENT_LOCALES, DEFAULT_LOCALE, type ContentLocale, buildLocalePath } from "@/i18n/locale-registry";
+import {
+  CONTENT_LOCALES,
+  DEFAULT_LOCALE,
+  ROUTING_LOCALES,
+  type ContentLocale,
+  type RoutingLocale,
+  buildLocalePath,
+} from "@/i18n/locale-registry";
 import { HUB_PAGE_ROUTES, PUBLIC_ROUTES } from "@/i18n/routing";
+
+const NOT_FOUND_DOCUMENT_TITLES = Object.fromEntries(
+  ROUTING_LOCALES.map((locale) => [
+    locale,
+    (
+      JSON.parse(readFileSync(join(REPO_ROOT, "i18n/locales", `${locale}.json`), "utf8")) as {
+        NotFoundPage: { documentTitle: string };
+      }
+    ).NotFoundPage.documentTitle,
+  ]),
+) as Record<RoutingLocale, string>;
 
 const CLICK_BOUND = 4;
 const E2E_BASE_URL = process.env.HUB_E2E_BASE_URL?.replace(/\/+$/u, "");
@@ -224,7 +243,9 @@ async function renderProductionHub(hubPath: LandingHubPath, page: number): Promi
   const node =
     page === 1
       ? await (await HUB_PAGE_LOADERS[hubPath]()).default({ params: Promise.resolve({ locale: "en" }) })
-      : await (await PAGINATED_HUB_PAGE_LOADERS[hubPath]()).default({
+      : await (
+          await PAGINATED_HUB_PAGE_LOADERS[hubPath]()
+        ).default({
           params: Promise.resolve({ locale: "en", page: String(page) }),
         });
   return renderToStaticMarkup(node);
@@ -350,6 +371,17 @@ async function expectCanonicalResponse(response: Response, expectedPath: string,
 }
 
 describe("hub pagination and rendered reachability", () => {
+  it.each(["/blog", "/compare", "/for"] as const)("gives %s pages distinct visible headings", async (hubPath) => {
+    const first = await (await HUB_PAGE_LOADERS[hubPath]()).default({ params: Promise.resolve({ locale: "en" }) });
+    const second = await (
+      await PAGINATED_HUB_PAGE_LOADERS[hubPath]()
+    ).default({ params: Promise.resolve({ locale: "en", page: "2" }) });
+    const heading = (element: ReactNode) =>
+      new JSDOM(renderToStaticMarkup(element)).window.document.querySelector("h1")?.textContent;
+    expect(heading(first)).toBeTruthy();
+    expect(heading(second)).toBe(`${heading(first)} - Page 2`);
+  });
+
   it("strictly resolves the page path segment", () => {
     expect(resolveHubPageSegment("2", 3)).toEqual({ kind: "page", page: 2 });
     expect(resolveHubPageSegment("3", 3)).toEqual({ kind: "page", page: 3 });
@@ -384,7 +416,9 @@ describe("hub pagination and rendered reachability", () => {
         "unexpected notFound",
       );
       await expect(hubModule.default(props("1")), `${hubPath} page one`).rejects.toThrow("unexpected notFound");
-      await expect(hubModule.default(props("2junk")), `${hubPath} malformed page`).rejects.toThrow("unexpected notFound");
+      await expect(hubModule.default(props("2junk")), `${hubPath} malformed page`).rejects.toThrow(
+        "unexpected notFound",
+      );
     }
   });
 
@@ -557,6 +591,44 @@ describe("hub pagination and rendered reachability", () => {
         const location = response.headers.get("location") ?? "";
         expect(location, path).toContain("/en/auth/signin?callbackURL=");
         expect(decodeURIComponent(location), path).toContain(path);
+      }
+    },
+    60_000,
+  );
+
+  it.skipIf(!E2E_BASE_URL)(
+    "answers every proxy-detected missing page with a server-rendered 404, not a soft 404",
+    async () => {
+      // Production served these with status 200 while `next start` answered 404: the proxy rewrote
+      // them to Next's internal /_not-found route, which Vercel served as an ordinary page. Point
+      // HUB_E2E_BASE_URL at a deployment to check the host rather than the local server.
+      const expectations: [path: string, locale: RoutingLocale][] = [
+        ["/xx", "en"],
+        ["/zz/x", "en"],
+        ["/en/blog/does-not-exist", "en"],
+        ["/de/blog/does-not-exist", "de"],
+        ["/en/compare/does-not-exist", "en"],
+        ["/en/docs/openapi/does-not-exist", "en"],
+        ["/en/blog/page/999", "en"],
+        ["/de/features/all/page/999", "de"],
+        ["/en/this-does-not-exist", "en"],
+        ["/fr/x", "fr"],
+      ];
+
+      for (const [path, locale] of expectations) {
+        const response = await e2eResponse(path);
+        expect(response.status, path).toBe(404);
+        expect(response.headers.get("location"), path).toBeNull();
+        expect(response.headers.get("content-type"), path).toContain("text/html");
+
+        const document = new JSDOM(await response.text()).window.document;
+        expect(document.title, `${path} title`).toBe(NOT_FOUND_DOCUMENT_TITLES[locale]);
+        expect(document.querySelector("h1"), `${path} heading`).not.toBeNull();
+        expect(
+          document.querySelector('meta[name="robots"]')?.getAttribute("content"),
+          `${path} robots metadata`,
+        ).toContain("noindex");
+        expect(document.querySelector('link[rel="canonical"]'), `${path} canonical`).toBeNull();
       }
     },
     60_000,
@@ -796,11 +868,9 @@ describe("hub pagination and rendered reachability", () => {
 
       expect(actualPaginatedPaths.sort()).toEqual(expectedPaginatedPaths);
       expect(new Set(actualPaginatedPaths).size).toBe(actualPaginatedPaths.length);
-      expect(
-        actualPaginatedPaths.some(
-          (path) => path.endsWith(`/${HUB_PAGE_SEGMENT}/1`) || path.includes("?"),
-        ),
-      ).toBe(false);
+      expect(actualPaginatedPaths.some((path) => path.endsWith(`/${HUB_PAGE_SEGMENT}/1`) || path.includes("?"))).toBe(
+        false,
+      );
 
       const robotsResponse = await e2eResponse("/robots.txt");
       expect(robotsResponse.status).toBe(200);

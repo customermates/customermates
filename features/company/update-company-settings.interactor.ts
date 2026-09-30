@@ -5,6 +5,7 @@ import { z } from "zod";
 import { Currency, Resource, Action } from "@/generated/prisma";
 
 import { DomainEvent } from "../event/domain-events";
+import { dealStageWeightSchema } from "../deals/deal-weighting";
 
 import type { EntityTerminologyEntry } from "@/features/entity-terminology/entity-terminology.schema";
 
@@ -17,7 +18,7 @@ import { AuthenticatedInteractor } from "@/core/base/authenticated-interactor";
 
 export const DealStageWeightSchema = z.object({
   optionValue: z.string(),
-  weight: z.number().min(0).max(100).optional(),
+  weight: dealStageWeightSchema().optional(),
 });
 
 export const UpdateCompanySettingsSchema = z.strictObject({ currency: z.enum(Currency) });

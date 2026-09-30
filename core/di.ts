@@ -1675,7 +1675,8 @@ export const getGetMessagingThreadInteractor = () =>
 export const getGetMessageAttachmentInteractor = () =>
   new GetMessageAttachmentInteractor(getMessagingRepo(), getMessagingService(), getEntitlementService());
 
-export const getGetUnreadThreadCountInteractor = () => new GetUnreadThreadCountInteractor(getMessagingRepo());
+export const getGetUnreadThreadCountInteractor = () =>
+  new GetUnreadThreadCountInteractor(getMessagingRepo(), getEntitlementService());
 
 export const getGetActivitiesInteractor = () =>
   new GetActivitiesInteractor(

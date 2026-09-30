@@ -94,7 +94,8 @@ export const ThreadPanel = observer(({ threadDetail, locked = false }: Props) =>
     if (store.thread?.id !== threadDetail?.thread.id) store.hydrate(threadDetail);
   }, [threadDetail, store]);
 
-  const requestedThreadId = threadDetail?.thread.id ?? null;
+  const requestedThreadId =
+    store.unavailableThreadId === threadDetail?.thread.id ? null : (threadDetail?.thread.id ?? null);
   const pageState = resolveThreadPanelPageState({ locked, requestedThreadId, thread: store.thread });
 
   let body: ReactNode;

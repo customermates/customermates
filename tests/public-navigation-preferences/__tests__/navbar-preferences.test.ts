@@ -81,7 +81,7 @@ describe("public navigation preferences", () => {
     expect(navbar.match(/<ThemeSwitcher/g)).toHaveLength(1);
     expect(navbar.match(/\{renderPreferenceButtons\(\)\}/g)).toHaveLength(2);
     expect(navbar).toContain(
-      'className="hidden items-center gap-1 justify-self-end xl:flex"',
+      'className="hidden items-center gap-2 justify-self-end xl:flex"',
     );
     expect(navbar).toContain(
       'className="col-span-3 flex w-full items-center justify-between xl:hidden"',
@@ -198,6 +198,7 @@ describe("public navigation preferences", () => {
       ["/for", UsersRound],
     ]);
     expect(iconLinks("resources")).toEqual([
+      ["/docs", BookOpen],
       ["/blog", BookOpen],
       ["/compare", GitCompareArrows],
       ["/blog/agentic-crm", Bot],
@@ -212,6 +213,7 @@ describe("public navigation preferences", () => {
       [{ kind: "agent", provider: "codex" }, "NavigationBar.public.providerCodex"],
       [{ kind: "agent", provider: "gemini" }, "NavigationBar.public.providerGemini"],
       [{ kind: "agent", provider: "cursor" }, "NavigationBar.public.providerCursor"],
+      [{ kind: "agent", provider: "grok" }, "NavigationBar.public.providerGrok"],
       [{ kind: "channel", provider: "gmail" }, "NavigationBar.public.providerGmail"],
       [{ kind: "channel", provider: "outlook" }, "NavigationBar.public.providerOutlook"],
       [{ kind: "channel", provider: "linkedin" }, "NavigationBar.public.providerLinkedIn"],
@@ -257,9 +259,8 @@ describe("public navigation preferences", () => {
       /bg-(?:red|orange|amber|yellow|green|blue|violet|purple)-/u,
     );
 
-    expect(navbar.match(/t\("NavigationBar\.docs"\)/gu)).toHaveLength(2);
-    expect(navbar.match(/href="\/docs"/gu)).toHaveLength(1);
-    expect(navbar).toContain('isNavItemActive("/docs")');
+    expect(navbar).not.toContain('href="/docs"');
+    expect(publicNavGroup("resources").links.filter((link) => link.href === "/docs")).toHaveLength(1);
     expect(navbar).toContain("group.links.map");
     expect(navbar).not.toContain("group.sections");
     expect(navbar).not.toContain("group.description");
@@ -287,31 +288,29 @@ describe("public navigation preferences", () => {
     expect(menu).toContain('"flex h-full min-h-11 items-center gap-2.5 bg-popover');
     expect(menu).toContain('href="/docs"');
 
-    expect(mobile.match(/mobileOverviewRowClassName/gu)).toHaveLength(3);
+    expect(mobile.match(/mobileOverviewRowClassName/gu)).toHaveLength(2);
     expect(
       mobile,
       "a group row has to look like the flat mobile links beside it",
     ).toMatch(/<summary\s+className=\{cn\(\s*mobileOverviewRowClassName/u);
-    for (const href of ["/pricing", "/docs"]) {
+    for (const href of ["/pricing"]) {
       const hrefIndex = mobile.indexOf(`href="${href}"`);
       const linkStart = mobile.lastIndexOf("<AppLink", hrefIndex);
       expect(mobile.slice(linkStart, hrefIndex)).toContain('appearance="unstyled"');
       expect(mobile.slice(linkStart, hrefIndex)).toContain("mobileOverviewRowClassName");
-      expect(mobile.slice(linkStart, hrefIndex)).toContain("border-t border-border");
+      expect(mobile.slice(linkStart, hrefIndex)).not.toContain("border-t border-border");
     }
     expect(mobile).toContain("icon={CircleDollarSign}");
-    expect(mobile).toContain("icon={FileText}");
+    expect(mobile).not.toContain('href="/docs"');
     expect(mobile).toContain("<PublicNavLinkIcon icon={link.icon} />");
     expect(mobile).not.toContain('cn("py-3 text-base"');
 
     const groupsEnd = mobile.lastIndexOf("</details>");
     const pricingIndex = mobile.indexOf('href="/pricing"');
-    const docsIndex = mobile.indexOf('href="/docs"');
     const preferencesIndex = mobile.indexOf("{renderPreferenceButtons()}");
     expect(groupsEnd).toBeGreaterThan(-1);
     expect(pricingIndex).toBeGreaterThan(groupsEnd);
-    expect(docsIndex).toBeGreaterThan(pricingIndex);
-    expect(preferencesIndex).toBeGreaterThan(docsIndex);
+    expect(preferencesIndex).toBeGreaterThan(pricingIndex);
   });
 
   it("keeps the six official theme-aware Featured On badges and outbound destinations", () => {

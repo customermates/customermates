@@ -1,6 +1,7 @@
 import { useLocale } from "next-intl";
 
 import { BrowserFrame } from "./browser-frame";
+import { localProductDemoSrc } from "./product-demo-src";
 import { cn } from "@/core/utils/cn";
 import { type ContentLocale, contentLocaleOrDefault } from "@/i18n/locale-registry";
 
@@ -166,7 +167,7 @@ export function ProductDemo({ hostedBoundary = false, path, presentation = "arti
 
   return (
     <figure
-      className={cn("not-prose", presentation === "article" ? "my-12" : "my-0")}
+      className={cn("not-prose mx-auto w-full max-w-live-preview", presentation === "article" ? "my-12" : "my-0")}
       data-product-demo={path}
       data-product-demo-presentation={presentation}
     >
@@ -202,7 +203,7 @@ export function ProductDemo({ hostedBoundary = false, path, presentation = "arti
       <BrowserFrame
         fallbackMessage={copy.fallback}
         size={presentation === "standalone" ? "full" : "article"}
-        src={buildProductDemoUrl(locale, path)}
+        src={localProductDemoSrc(buildProductDemoUrl(locale, path))}
         title={copy.titles[path]}
       />
     </figure>

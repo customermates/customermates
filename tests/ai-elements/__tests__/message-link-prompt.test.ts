@@ -59,6 +59,7 @@ function button(name: string) {
 }
 
 beforeEach(() => {
+  vi.useFakeTimers();
   (globalThis as { IS_REACT_ACT_ENVIRONMENT?: boolean }).IS_REACT_ACT_ENVIRONMENT = true;
   copyToClipboard.mockReset().mockResolvedValue(true);
   toastSuccess.mockReset();
@@ -68,8 +69,12 @@ beforeEach(() => {
   reactRoot = createRoot(container);
 });
 
-afterEach(() => {
-  act(() => reactRoot.unmount());
+afterEach(async () => {
+  await act(async () => {
+    reactRoot.unmount();
+    await vi.runAllTimersAsync();
+  });
+  vi.useRealTimers();
   container.remove();
   openWindow.mockRestore();
   document.body.style.pointerEvents = "";
