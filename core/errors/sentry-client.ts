@@ -3,14 +3,19 @@ import type * as SentrySdk from "./sentry-sdk";
 import { isExpectedError } from "./app-errors";
 import { errorDigest } from "./error-digest";
 import { scrubAdIdentifiersFromEvent } from "./scrub-ad-identifiers";
+import { errorReportingDsn, errorReportingEnabled, usesVercelErrorReporting } from "./reporting-provider";
 
 let browserSdk: Promise<typeof SentrySdk> | null = null;
 
 export function loadSentry(): Promise<typeof SentrySdk> {
   browserSdk ??= import("./sentry-sdk")
-    .then((Sentry) => {
+    .then(async (Sentry) => {
+      const transport = usesVercelErrorReporting() ? await import("@/core/observability/vercel-transport") : undefined;
       Sentry.init({
-        dsn: process.env.NEXT_PUBLIC_SENTRY_DSN,
+        dsn: errorReportingDsn(),
+        ...(transport
+          ? { transport: () => transport.createVercelErrorTransport("browser", transport.publishBrowserError) }
+          : {}),
         integrations: (defaults) => defaults.filter((integration) => integration.name !== "BrowserTracing"),
         tracesSampleRate: 0,
         replaysSessionSampleRate: 0,
@@ -41,7 +46,7 @@ export function loadSentry(): Promise<typeof SentrySdk> {
 }
 
 export function captureError(error: unknown): void {
-  if (!process.env.NEXT_PUBLIC_SENTRY_DSN) return;
+  if (!errorReportingEnabled()) return;
 
   const sdk = typeof window === "undefined" ? import("./sentry-sdk") : loadSentry();
 

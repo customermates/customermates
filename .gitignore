@@ -8,6 +8,8 @@
 # testing
 /coverage
 /.review/
+/.runs/
+/.error-source-maps/
 
 # next.js
 /.next/

@@ -1,9 +1,10 @@
 import type * as SentrySdk from "@/core/errors/sentry-sdk";
 
 import { loadSentry } from "@/core/errors/sentry-client";
+import { errorReportingEnabled } from "@/core/errors/reporting-provider";
 import { isContentPathname } from "@/i18n/routing";
 
-const sentryEnabled = Boolean(process.env.NEXT_PUBLIC_SENTRY_DSN);
+const sentryEnabled = errorReportingEnabled();
 
 // A static import here makes @sentry/nextjs the first script in every document, including a blog
 // post: ~176 KB that parses, installs fetch/XHR/history/console wrappers and constructs

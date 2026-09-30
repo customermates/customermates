@@ -1,5 +1,8 @@
 import type { NextConfig } from "next";
 
+import { randomUUID } from "node:crypto";
+import { readFileSync } from "node:fs";
+
 import { PHASE_DEVELOPMENT_SERVER, PHASE_PRODUCTION_BUILD } from "next/constants";
 import createNextIntlPlugin from "next-intl/plugin";
 import { createMDX } from "fumadocs-mdx/next";
@@ -92,8 +95,6 @@ const sentryOptions = {
   tunnelRoute: "/monitoring",
 };
 
-const composed = withWorkflow(withMDX(withNextIntl(nextConfig)));
-
 export default async function configure(phase: string, context: { defaultConfig: NextConfig }) {
   // The production runner serves built CSS and does not ship the source graph.
   if (phase === PHASE_DEVELOPMENT_SERVER || phase === PHASE_PRODUCTION_BUILD) {
@@ -101,6 +102,40 @@ export default async function configure(phase: string, context: { defaultConfig:
     generateStyleSources(process.cwd(), phase === PHASE_DEVELOPMENT_SERVER);
     await generatePublicStyles(process.cwd(), phase === PHASE_DEVELOPMENT_SERVER);
   }
-  const configured = env.NEXT_PUBLIC_SENTRY_DSN ? withSentryConfig(composed, sentryOptions) : composed;
+  const provider = process.env.NEXT_PUBLIC_ERROR_REPORTING_PROVIDER ?? "sentry";
+  if (provider !== "sentry" && provider !== "vercel")
+    throw new Error("NEXT_PUBLIC_ERROR_REPORTING_PROVIDER must be sentry or vercel");
+  let config = nextConfig;
+  if (provider === "vercel") {
+    const buildId =
+      phase === PHASE_PRODUCTION_BUILD
+        ? (process.env.ERROR_REPORTING_BUILD_ID ??= randomUUID())
+        : phase === PHASE_DEVELOPMENT_SERVER
+          ? "local-development"
+          : readFileSync(".next/BUILD_ID", "utf8").trim();
+    if (!/^[a-zA-Z0-9_-]{1,128}$/.test(buildId)) throw new Error("Invalid error reporting build ID");
+    if (
+      process.env.VERCEL &&
+      (!process.env.BLOB_READ_WRITE_TOKEN ||
+        !process.env.ERROR_REPORTING_NOTIFICATION_EMAIL ||
+        !env.RESEND_API_KEY ||
+        !env.RESEND_OPERATOR_EMAIL)
+    )
+      throw new Error("Vercel error reporting requires private Blob storage and notification email configuration");
+    config = {
+      ...nextConfig,
+      experimental: { ...nextConfig.experimental, serverSourceMaps: true },
+      productionBrowserSourceMaps: true,
+      generateBuildId: () => Promise.resolve(buildId),
+      env: {
+        ...nextConfig.env,
+        NEXT_PUBLIC_ERROR_REPORTING_PROVIDER: provider,
+        NEXT_PUBLIC_ERROR_REPORTING_BUILD_ID: buildId,
+      },
+    };
+  }
+  const composed = withWorkflow(withMDX(withNextIntl(config)));
+  const configured =
+    provider === "sentry" && env.NEXT_PUBLIC_SENTRY_DSN ? withSentryConfig(composed, sentryOptions) : composed;
   return configured(phase, context);
 }

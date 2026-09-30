@@ -1,13 +1,24 @@
 import * as Sentry from "@sentry/nextjs";
 
 import { isExpectedError } from "@/core/errors/app-errors";
+import { errorDigest } from "@/core/errors/error-digest";
 import { env } from "@/env";
 import { scrubAdIdentifiersFromEvent } from "@/core/errors/scrub-ad-identifiers";
+import { errorReportingDsn, errorReportingEnabled, usesVercelErrorReporting } from "@/core/errors/reporting-provider";
 
 export async function register() {
-  if (env.NEXT_PUBLIC_SENTRY_DSN && (env.NEXT_RUNTIME === "nodejs" || env.NEXT_RUNTIME === "edge")) {
+  if (errorReportingEnabled() && (env.NEXT_RUNTIME === "nodejs" || env.NEXT_RUNTIME === "edge")) {
+    const transport = usesVercelErrorReporting() ? await import("@/core/observability/vercel-transport") : undefined;
+    const publisher =
+      transport && process.env.NEXT_RUNTIME === "nodejs"
+        ? await import("@/core/observability/publish-error")
+        : undefined;
+    if (transport && !publisher) throw new Error("Vercel error reporting requires the Node.js runtime");
     Sentry.init({
-      dsn: env.NEXT_PUBLIC_SENTRY_DSN,
+      dsn: errorReportingDsn(),
+      ...(transport && publisher
+        ? { transport: () => transport.createVercelErrorTransport("server", publisher.publishServerError) }
+        : {}),
       tracesSampleRate: 0,
       integrations: [Sentry.requestDataIntegration({ include: { cookies: false, data: false, headers: false } })],
       beforeSend(event: Sentry.ErrorEvent, hint: Sentry.EventHint) {
@@ -38,4 +49,14 @@ export async function register() {
   }
 }
 
-export const onRequestError = Sentry.captureRequestError;
+export const onRequestError: typeof Sentry.captureRequestError = (...args) => {
+  if (usesVercelErrorReporting() && args[1].path.startsWith("/api/observability/errors")) return;
+  if (usesVercelErrorReporting()) {
+    return Sentry.withScope((scope) => {
+      const digest = errorDigest(args[0]);
+      if (digest) scope.setTag("digest", digest);
+      return Sentry.captureRequestError(...args);
+    });
+  }
+  return Sentry.captureRequestError(...args);
+};

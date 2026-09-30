@@ -4,6 +4,7 @@ import type { WorkflowTenant } from "./workflow-tenant";
 
 import { env } from "@/env";
 import { isExpectedError } from "@/core/errors/app-errors";
+import { errorReportingEnabled } from "@/core/errors/reporting-provider";
 
 export type WorkflowFailure = { name?: string; message?: string; stack?: string; expected?: boolean };
 
@@ -24,7 +25,7 @@ export async function reportFailure(
   if (failure.name) error.name = failure.name;
   if (failure.stack) error.stack = failure.stack;
 
-  if (env.NODE_ENV !== "production" || !env.NEXT_PUBLIC_SENTRY_DSN) {
+  if (env.NODE_ENV !== "production" || !errorReportingEnabled()) {
     console.error(`[workflow:${workflowName}]`, error);
     return;
   }
@@ -47,7 +48,7 @@ reportFailure.maxRetries = 0;
 
 export async function reportWarning(workflowName: string, message: string, tenant?: WorkflowTenant): Promise<void> {
   "use step";
-  if (env.NODE_ENV !== "production" || !env.NEXT_PUBLIC_SENTRY_DSN) {
+  if (env.NODE_ENV !== "production" || !errorReportingEnabled()) {
     console.warn(`[workflow:${workflowName}] ${message}`);
     return;
   }
