@@ -81,7 +81,7 @@ const UpdateSchema = z
     whenToUse: z.string().optional(),
   })
   .refine((data) => [data.title, data.markdown, data.kind, data.whenToUse].some((value) => value !== undefined), {
-    message: "Nothing to update.",
+    params: { error: CustomErrorCode.wikiPageUpdateEmpty },
   });
 const DeleteSchema = z.object({
   id: z.uuid(),
@@ -291,7 +291,7 @@ export const manageWikiPagesTool = {
   description:
     "Knowledge Base of company facts, processes, voice and support guidance. " +
     "kind: guide = the one Operating Guide; procedure = numbered steps + whenToUse; default knowledge. " +
-    "list: 5 per page, guide and procedures first; search: follow hasMore to continue; total is a lower bound unless totalIsExact. Returns snippets and section offsets, plus didYouMean when a misspelled word was corrected. " +
+    "list: 5 per page, guide pinned first, remaining pages in saved order; search: follow hasMore to continue; total is a lower bound unless totalIsExact. Returns snippets and section offsets, plus didYouMean when a misspelled word was corrected. " +
     "get: one Markdown chunk (outline at 0); repeat with nextOffset until null; restart at 0 if updatedAt changes. " +
     "delete is IRREVERSIBLE. " +
     "Link pages as /wiki?page=<id>; ids survive renames.",

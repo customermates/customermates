@@ -45,7 +45,7 @@ describe("contextual activity labels", () => {
     [
       "import_website",
       {
-        homepage: "https://user:secret@example.com/help?token=private#section",
+        url: "https://user:secret@example.com/help?token=private#section",
       },
       "example.com/help",
     ],

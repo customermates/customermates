@@ -25,12 +25,18 @@ const di = vi.hoisted(() => ({
 
 vi.mock("next-intl/server", () => ({
   getLocale: () => Promise.resolve("en"),
-  getTranslations: () => Promise.resolve(createTranslator({ locale: "en", messages })),
+  getTranslations: (namespace?: string) =>
+    Promise.resolve(createTranslator({ locale: "en", messages, namespace: namespace as never })),
 }));
-vi.mock("@/core/di", () => ({
-  getCreateWikiPagesInteractor: () => di.createPages,
-  getWikiWebsiteCrawlRepo: () => di.crawlRepo,
-}));
+vi.mock("@/core/di", async () => {
+  const { CreateWikiPagesFromCrawlInteractor } = await import("../create-wiki-pages-from-crawl.interactor");
+  const { ReadWikiWebsiteSourcesInteractor } = await import("../read-wiki-website-sources.interactor");
+  return {
+    getCreateWikiPagesFromCrawlInteractor: () =>
+      new CreateWikiPagesFromCrawlInteractor(di.crawlRepo as never, di.createPages as never),
+    getReadWikiWebsiteSourcesInteractor: () => new ReadWikiWebsiteSourcesInteractor(di.crawlRepo as never),
+  };
+});
 vi.mock("../website-crawler", () => ({
   discoverWikiWebsite: crawler.discover,
   fetchWikiSource: crawler.fetch,
@@ -464,6 +470,74 @@ describeDatabase("Wiki website crawl on PostgreSQL", () => {
       importedPages: 0,
     });
     expect(synthesis).not.toHaveBeenCalled();
+  }, 30_000);
+
+  it.each(["create", "provenance"])(
+    "rolls back the source claim and page when %s persistence fails, then retries once",
+    async (failure) => {
+      const crawlId = await startCrawl();
+      await runWithTenant(user, async () => {
+        await client.query(`UPDATE "WikiWebsiteCrawl" SET "status" = 'fetching' WHERE "id" = $1`, [crawlId]);
+        const repo = new PrismaWikiWebsiteCrawlRepo();
+        const create = new CreateWikiPagesInteractor(new PrismaWikiPageRepo(), eventService());
+        const update = new UpdateWikiPageInteractor(new PrismaWikiPageRepo(), eventService());
+        const importer = new WikiWebsiteCrawlService(repo, create, update, synthesis);
+        const url = "https://example.com/help/refunds";
+        await repo.saveSource(crawlId, {
+          ...PAGES[url],
+          category: "help",
+          url,
+          canonicalUrl: url,
+          contentHash: "rollback-hash",
+        });
+        const failed = failure === "create" ? vi.spyOn(create, "invoke") : vi.spyOn(repo, "markImported");
+        failed.mockRejectedValueOnce(new Error("storage failed"));
+        await expect(importer.importSources(crawlId)).rejects.toThrow("storage failed");
+        const claims = await client.query(`SELECT "importClaimedAt" FROM "WikiSourceDocument" WHERE "crawlId" = $1`, [
+          crawlId,
+        ]);
+        expect(claims.rows).toEqual([{ importClaimedAt: null }]);
+        expect(
+          (await client.query(`SELECT count(*)::int AS count FROM "WikiPage" WHERE "companyId" = $1`, [companyId]))
+            .rows[0].count,
+        ).toBe(0);
+        await importer.importSources(crawlId);
+        await importer.importSources(crawlId);
+        const pages = await client.query(
+          `SELECT "sourceUrl", "sourceContentHash" FROM "WikiPage" WHERE "companyId" = $1`,
+          [companyId],
+        );
+        expect(pages.rows).toEqual([{ sourceUrl: url, sourceContentHash: "rollback-hash" }]);
+        failed.mockRestore();
+      });
+    },
+  );
+
+  it("keeps the 30-page import limit when deliveries overlap over a full source inventory", async () => {
+    const crawlId = await startCrawl();
+    await runWithTenant(user, async () => {
+      await client.query(`UPDATE "WikiWebsiteCrawl" SET "status" = 'fetching' WHERE "id" = $1`, [crawlId]);
+      const repo = new PrismaWikiWebsiteCrawlRepo();
+      for (let index = 0; index < 40; index += 1) {
+        const url = `https://example.com/help/topic-${index}`;
+        await repo.saveSource(crawlId, {
+          category: "help",
+          url,
+          canonicalUrl: url,
+          title: `Support topic ${index}`,
+          text: `${PAGES["https://example.com/help/refunds"].text}\n\nSupport topic ${index}`,
+          qaPairs: [],
+          contentHash: `topic-hash-${index}`,
+        });
+      }
+      await Promise.all([service().importSources(crawlId), service().importSources(crawlId)]);
+      const pages = await client.query(
+        `SELECT count(*)::int AS count, count("sourceUrl")::int AS sources FROM "WikiPage" WHERE "companyId" = $1`,
+        [companyId],
+      );
+      expect(pages.rows).toEqual([{ count: 30, sources: 30 }]);
+      expect((await repo.getCrawl(crawlId))?.importedPages).toBe(30);
+    });
   }, 30_000);
 
   it("writes each page once when a redelivered step runs alongside the first delivery", async () => {

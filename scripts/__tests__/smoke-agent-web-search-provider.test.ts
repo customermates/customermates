@@ -13,6 +13,7 @@ import {
   readProviderSmokePostRunThreshold,
   requestedAdversarialOverrides,
   runProviderSmoke,
+  runLiveProviderSmoke,
 } from "../smoke-agent-web-search-provider";
 
 const MODEL = MODEL_CATALOG[SHIPPED_AGENT_MODEL_KEY];
@@ -112,6 +113,19 @@ describe("web-search offline feasibility guard", () => {
     vi.stubEnv("AGENT_WEB_SEARCH_SMOKE_MAX_USD", "15");
     vi.stubEnv("AI_GATEWAY_API_KEY", "");
     await expect(runProviderSmoke()).rejects.toThrow("AI_GATEWAY_API_KEY");
+    expect(fetch).not.toHaveBeenCalled();
+  });
+
+  it("cannot bypass paid opt-in or raise the approved threshold through an explicit argument", async () => {
+    const fetch = vi.fn(() => { throw new Error("Network must not run."); });
+    vi.stubGlobal("fetch", fetch);
+    vi.stubEnv("RUN_AGENT_WEB_SEARCH_SMOKE", "false");
+    await expect(runLiveProviderSmoke(1)).rejects.toThrow("request a paid smoke");
+    vi.stubEnv("RUN_AGENT_WEB_SEARCH_SMOKE", "true");
+    vi.stubEnv("AGENT_WEB_SEARCH_SMOKE_MAX_USD", "1");
+    vi.stubEnv("AI_GATEWAY_API_KEY", "synthetic-key");
+    for (const threshold of [Number.NaN, Number.POSITIVE_INFINITY, -1, 0, 2])
+      await expect(runLiveProviderSmoke(threshold)).rejects.toThrow("within the approved");
     expect(fetch).not.toHaveBeenCalled();
   });
 

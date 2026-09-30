@@ -12,6 +12,7 @@ import {
   embedWikiTexts,
   WIKI_EMBEDDING_BATCH_SIZE,
   WIKI_EMBEDDING_MODEL,
+  wikiEmbeddingAttemptCharge,
   wikiEmbeddingWorstCaseMicrocents,
 } from "./wiki-embedding-model";
 
@@ -53,9 +54,20 @@ export class DocsSemanticIndexService {
         worstCaseMicrocents: wikiEmbeddingWorstCaseMicrocents(texts),
       });
       if (!reservationId) return { indexed, remaining: false };
-      const { vectors, charge } = await embedWikiTexts(texts, "document", {
-        maxRetries: 0,
-      });
+      let attemptedCharge = wikiEmbeddingAttemptCharge(texts);
+      let embedded: Awaited<ReturnType<typeof embedWikiTexts>>;
+      try {
+        embedded = await embedWikiTexts(texts, "document", {
+          maxRetries: 0,
+          onCharge: (charge) => {
+            attemptedCharge = charge;
+          },
+        });
+      } catch (error) {
+        await this.usage.settlePlatformRetrieval({ reservationId, charge: attemptedCharge });
+        throw error;
+      }
+      const { vectors, charge } = embedded;
       await this.usage.settlePlatformRetrieval({ reservationId, charge });
       await this.repo.storeEmbeddings(
         WIKI_EMBEDDING_MODEL,

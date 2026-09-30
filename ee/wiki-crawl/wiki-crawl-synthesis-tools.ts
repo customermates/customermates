@@ -1,47 +1,15 @@
-import { wikiLanguageConflicts } from "@/features/wiki/wiki-language";
 import { z } from "zod";
 
-import { getCreateWikiPagesInteractor, getWikiWebsiteCrawlRepo } from "@/core/di";
-import { WIKI_TITLE_MAX_LENGTH, WIKI_WHEN_TO_USE_MAX_LENGTH } from "@/features/wiki/wiki.schema";
-import {
-  encodeToToon,
-  formatDatesInResponse,
-  mcpMessageFailure,
-  mcpValidationFailure,
-  runInteractor,
-  toonResult,
-} from "@/features/mcp-tools/utils";
+import { getCreateWikiPagesFromCrawlInteractor, getReadWikiWebsiteSourcesInteractor } from "@/core/di";
+import { formatDatesInResponse, mcpValidationFailure, runInteractor, toonResult } from "@/features/mcp-tools/utils";
 import { ManageWikiPagesOutputSchema, wikiPageSummary } from "@/features/mcp-tools/wiki.mcp-tools";
-import { getTranslator } from "@/i18n/get-translator";
-import { appLocaleOrDefault } from "@/i18n/locale-registry";
-
-import { wikiSynthesisSectionMarkdown } from "./wiki-synthesis-markdown";
-
 import { WIKI_READ_SOURCE_TOOL_NAME } from "@/ee/agent-chat/tool-identity";
+import { getZodParseContext } from "@/core/validation/zod-error-map-server";
+
+import { ReadWebsiteSourceSchema, WikiCrawlSynthesisCreateSchema } from "./wiki-crawl-synthesis.schema";
 
 export { WIKI_READ_SOURCE_TOOL_NAME };
-export const WIKI_SYNTHESIS_MAX_PAGES = 16;
-import { sourceFullyRead, wikiSourceCoverage, wikiSourceResultFits } from "./wiki-source-coverage";
-
-const SOURCE_CHUNK_CHARACTERS = 12_000;
-
-function sourceFailure(payload: { error: string } & Record<string, unknown>) {
-  return {
-    text: encodeToToon(payload),
-    structuredContent: payload,
-    failure: mcpMessageFailure(payload.error).failure,
-  };
-}
-
-const ReadWebsiteSourceSchema = z.object({
-  action: z
-    .enum(["list", "get", "next"])
-    .describe(
-      "list = source inventory; next = unread chunks of up to eight sources; get = reread one source only after remainingSources is zero.",
-    ),
-  id: z.uuid().optional().describe("Source id from list."),
-  offset: z.coerce.number().int().min(0).optional().describe("Prior nextOffset; get must not skip unread text."),
-});
+export { WIKI_SYNTHESIS_MAX_PAGES, WikiCrawlSynthesisCreateSchema } from "./wiki-crawl-synthesis.schema";
 
 export function readWebsiteSourceTool(crawlId: string) {
   return {
@@ -58,121 +26,12 @@ export function readWebsiteSourceTool(crawlId: string) {
     inputSchema: ReadWebsiteSourceSchema,
     outputSchema: z.looseObject({}),
     execute: async (params: z.infer<typeof ReadWebsiteSourceSchema>) => {
-      const parsed = ReadWebsiteSourceSchema.safeParse(params);
+      const parsed = ReadWebsiteSourceSchema.safeParse(params, await getZodParseContext());
       if (!parsed.success) return mcpValidationFailure(parsed.error);
-      const repo = getWikiWebsiteCrawlRepo();
-      const coverage = await wikiSourceCoverage(repo, crawlId);
-      if (parsed.data.action === "list") {
-        const start = Math.min(parsed.data.offset ?? 0, coverage.sources.length);
-        const items = coverage.sources.slice(start, start + 40).map((source) => ({
-          id: source.id,
-          url: source.url,
-          category: source.category,
-          title: source.title,
-          headings: [...source.text.matchAll(/^#{1,4}\s+(.+)$/gm)].slice(0, 12).map((match) => match[1].slice(0, 120)),
-          chars: source.text.length,
-          imported: coverage.imported.has(source.id),
-          read: coverage.readHashes.has(source.contentHash),
-          nextOffset: sourceFullyRead(source) ? null : source.readOffset,
-        }));
-        while (items.length > 1 && !wikiSourceResultFits(encodeToToon({ items }))) items.pop();
-        return toonResult({
-          remainingSources: coverage.pending.length,
-          importedSources: coverage.imported.size,
-          nextAction: coverage.pending.length ? "next" : "get cited sources, then create",
-          items,
-          nextOffset: start + items.length < coverage.sources.length ? start + items.length : null,
-        });
-      }
-      const selected =
-        parsed.data.action === "next"
-          ? coverage.pending.slice(0, 8)
-          : coverage.sources.filter(({ id }) => id === parsed.data.id);
-      if (parsed.data.action === "get" && selected.length === 0)
-        return sourceFailure({ error: "Unknown source id. Call list first." });
-      const items = selected.map((source) => {
-        const offset = parsed.data.action === "get" ? (parsed.data.offset ?? source.readOffset) : source.readOffset;
-        if (offset > source.readOffset || offset > source.text.length) return null;
-        const end = Math.min(source.text.length, offset + SOURCE_CHUNK_CHARACTERS);
-        return {
-          id: source.id,
-          title: source.title,
-          url: source.url,
-          category: source.category,
-          offset,
-          nextOffset: end < source.text.length ? end : null,
-          text: source.text.slice(offset, end),
-        };
-      });
-      if (items.some((item) => item === null)) {
-        return sourceFailure({
-          error: "Read sequentially without skipping text. Use next or the stored nextOffset from list.",
-        });
-      }
-      if (parsed.data.action === "get" && coverage.pending.length > 0) {
-        return sourceFailure({
-          error:
-            "Finish initial coverage first: call action=next until remainingSources is zero. Then use get to reread cited evidence before creating pages.",
-          remainingSources: coverage.pending.length,
-          nextAction: "next",
-        });
-      }
-      const chunks = items.filter((item) => item !== null);
-      while (!wikiSourceResultFits(encodeToToon({ items: chunks }))) {
-        const last = chunks.reduce<(typeof chunks)[number] | undefined>(
-          (largest, chunk) => (!largest || chunk.text.length > largest.text.length ? chunk : largest),
-          undefined,
-        );
-        if (!last || last.text.length < 2)
-          return sourceFailure({ error: "Source chunk cannot fit safely. Nothing was marked read." });
-        last.text = last.text.slice(0, Math.floor(last.text.length / 2));
-        last.nextOffset = last.offset + last.text.length;
-      }
-      await repo.advanceSourceReads(
-        crawlId,
-        chunks
-          .filter(({ text }) => text.length > 0)
-          .map(({ id, offset, text }) => ({ id, offset, end: offset + text.length })),
-      );
-      const after = await wikiSourceCoverage(repo, crawlId);
-      return toonResult({
-        remainingSources: after.pending.length,
-        importedSources: after.imported.size,
-        nextAction: after.pending.length ? "next" : "get cited sources, then create",
-        items: chunks,
-      });
+      return runInteractor(getReadWikiWebsiteSourcesInteractor().invoke({ ...parsed.data, crawlId }), toonResult);
     },
   };
 }
-
-const SynthesisSectionSchema = z.object({
-  heading: z.string().trim().min(1).max(120),
-  content: z.string().trim().min(1).max(8_000),
-});
-const SynthesisPageSchema = z.object({
-  title: z
-    .string()
-    .trim()
-    .min(1)
-    .max(WIKI_TITLE_MAX_LENGTH)
-    .refine((title) => !/[}\]]\s*,\s*[{[]?\s*"?[a-zA-Z]\w*"?\s*:/.test(title), {
-      message: "Use a plain page title without serialized tool fields.",
-    }),
-  kind: z.enum(["knowledge", "guide", "procedure"]),
-  whenToUse: z
-    .string()
-    .trim()
-    .max(WIKI_WHEN_TO_USE_MAX_LENGTH)
-    .optional()
-    .describe("Procedures only: third-person trigger with the words customers use."),
-  sections: z.array(SynthesisSectionSchema).min(1).max(8),
-  sourceIds: z.array(z.uuid()).min(1).max(4).describe("Ids from read_website_source that support this page."),
-  gaps: z.array(z.string().trim().min(1).max(300)).max(8).optional(),
-});
-export const WikiCrawlSynthesisCreateSchema = z.object({
-  action: z.literal("create"),
-  pages: z.array(SynthesisPageSchema).min(1).max(5),
-});
 
 export function createWikiFromCrawlTool(_locale: string | undefined, crawlId: string) {
   return {
@@ -189,94 +48,15 @@ export function createWikiFromCrawlTool(_locale: string | undefined, crawlId: st
     inputSchema: WikiCrawlSynthesisCreateSchema,
     outputSchema: ManageWikiPagesOutputSchema,
     execute: async (params: z.infer<typeof WikiCrawlSynthesisCreateSchema>) => {
-      const parsed = WikiCrawlSynthesisCreateSchema.safeParse(params);
+      const parsed = WikiCrawlSynthesisCreateSchema.safeParse(params, await getZodParseContext());
       if (!parsed.success) return mcpValidationFailure(parsed.error);
-      const repo = getWikiWebsiteCrawlRepo();
-      const crawl = await repo.getCrawl(crawlId);
-      if (!crawl) {
-        return sourceFailure({
-          error: "This website import is no longer available. Nothing was changed.",
-        });
-      }
-      const targetLocale = appLocaleOrDefault(crawl.locale);
-      if (crawl.mode === "extend" && parsed.data.pages.some((page) => page.kind !== "knowledge")) {
-        return sourceFailure({
-          error: "A help-centre extension creates knowledge pages only; existing guides and procedures stay unchanged.",
-        });
-      }
-      const wrongLanguage = parsed.data.pages.some((page) => {
-        const bodies = page.sections.map(({ content }) => content);
-        return [
-          ...bodies,
-          page.whenToUse ?? "",
-          page.sections.map(({ heading }) => heading).join("\n"),
-          [page.title, page.whenToUse, ...bodies].join("\n"),
-          (page.gaps ?? []).join("\n"),
-        ].some((body) => wikiLanguageConflicts(body, targetLocale));
-      });
-      if (wrongLanguage) {
-        return sourceFailure({
-          error: `Write every page in ${targetLocale}. Translate the source content into that language. Nothing was changed.`,
-        });
-      }
-      const created = await repo.countSynthesizedPages(crawl.startedAt);
-      const createdPageTitles = await repo.listSynthesizedPageTitles(crawl.startedAt, WIKI_SYNTHESIS_MAX_PAGES);
-      if (created + parsed.data.pages.length > WIKI_SYNTHESIS_MAX_PAGES) {
-        return sourceFailure({
-          error: `This import may create at most ${WIKI_SYNTHESIS_MAX_PAGES} summary pages; ${created} exist. Nothing was changed.`,
-          createdPageTitles,
-        });
-      }
-      const coverage = await wikiSourceCoverage(repo, crawlId);
-      const sources = new Map(coverage.sources.map((source) => [source.id, source]));
-      const unknown = parsed.data.pages.flatMap(({ sourceIds }) => sourceIds).filter((id) => !sources.has(id));
-      if (unknown.length > 0) {
-        return sourceFailure({
-          error: "Cite only ids returned by read_website_source. Nothing was changed.",
-        });
-      }
-      if (coverage.pending.length > 0) {
-        return sourceFailure({
-          error:
-            "Read all remaining stored evidence with read_website_source action=next before creating pages. Nothing was changed.",
-          remainingSources: coverage.pending.length,
-          next: coverage.pending.slice(0, 4).map(({ id, readOffset }) => ({ id, offset: readOffset })),
-        });
-      }
-      const unread = [
-        ...new Set(
-          parsed.data.pages
-            .flatMap(({ sourceIds }) => sourceIds)
-            .filter((id) => !coverage.readHashes.has(sources.get(id)?.contentHash ?? "")),
-        ),
-      ];
-      if (unread.length > 0) {
-        return sourceFailure({
-          error: `Read each cited source completely with read_website_source before citing it; unread: ${unread.join(", ")}. Nothing was changed.`,
-        });
-      }
-      const t = await getTranslator(targetLocale, "WikiSetup.generated");
-      const pages = parsed.data.pages.map((page) => ({
-        title: page.title,
-        kind: page.kind,
-        whenToUse: page.kind === "procedure" ? page.whenToUse : undefined,
-        markdown: [
-          ...page.sections.map(({ heading, content }) => `## ${heading}\n\n${wikiSynthesisSectionMarkdown(content)}`),
-          `## ${t("sourcesHeading")}\n\n${[...new Set(page.sourceIds)]
-            .map((id) => {
-              const source = sources.get(id);
-              return source ? `- <${source.url}> (${source.fetchedAt.toISOString().slice(0, 10)})` : "";
-            })
-            .join("\n")}`,
-          ...(page.gaps?.length ? [`## ${t("gapsHeading")}\n\n${page.gaps.map((gap) => `- ${gap}`).join("\n")}`] : []),
-        ].join("\n\n"),
-      }));
-      return runInteractor(getCreateWikiPagesInteractor().invoke({ requireEmpty: false, pages }), (createdPages) =>
-        toonResult({
-          items: formatDatesInResponse(createdPages.map(wikiPageSummary)),
-          createdPageTitles: [...createdPageTitles, ...createdPages.map(({ title }) => title)],
-          remainingPageSlots: Math.max(0, WIKI_SYNTHESIS_MAX_PAGES - created - createdPages.length),
-        }),
+      return runInteractor(
+        getCreateWikiPagesFromCrawlInteractor().invoke({ pages: parsed.data.pages, crawlId }),
+        (result) =>
+          toonResult({
+            ...result,
+            items: formatDatesInResponse(result.items.map(wikiPageSummary)),
+          }),
       );
     },
   };

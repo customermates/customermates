@@ -7,6 +7,12 @@ const provider = vi.hoisted(() => ({ embed: vi.fn() }));
 vi.mock("../wiki-embedding-model", () => ({
   WIKI_EMBEDDING_MODEL: "embedding",
   wikiEmbeddingWorstCaseMicrocents: () => 90,
+  wikiEmbeddingAttemptCharge: () => ({
+    model: "embedding",
+    inputTokens: 6,
+    costMicrocents: 90,
+    costSource: "estimated",
+  }),
   embedWikiTexts: provider.embed,
 }));
 
@@ -43,7 +49,7 @@ describe("Wiki embedding charging", () => {
     expect(unused.settleRetrieval).toHaveBeenCalledWith({ reservation: unused.reservation, charge, payer: "platform" });
   });
 
-  it("refunds the whole reservation when the provider call fails, without asking whether it was used", async () => {
+  it("refunds the user and records attempted provider cost on the platform when the call fails", async () => {
     provider.embed.mockRejectedValue(new Error("gateway"));
     const failed = usage();
     const claim = vi.fn(() => true);
@@ -52,6 +58,26 @@ describe("Wiki embedding charging", () => {
       "gateway",
     );
     expect(claim).not.toHaveBeenCalled();
-    expect(failed.settleRetrieval).toHaveBeenCalledWith({ reservation: failed.reservation, charge: null });
+    expect(failed.settleRetrieval).toHaveBeenCalledWith({
+      reservation: failed.reservation,
+      charge: { model: "embedding", inputTokens: 6, costMicrocents: 90, costSource: "estimated" },
+      payer: "platform",
+    });
+  });
+  it("settles the measured receipt to the platform when provider vectors are invalid", async () => {
+    provider.embed.mockImplementationOnce((_texts, _kind, options) => {
+      options.onCharge(charge);
+      return Promise.reject(new Error("invalid vectors"));
+    });
+    const failed = usage();
+    await expect(new WikiEmbeddingService(failed.service).embedTexts(grant, ["q"], "query")).rejects.toThrow(
+      "invalid vectors",
+    );
+    expect(failed.settleRetrieval).toHaveBeenCalledExactlyOnceWith({
+      reservation: failed.reservation,
+      charge,
+      payer: "platform",
+    });
+    expect(provider.embed.mock.calls.at(-1)?.[2]).toEqual({ maxRetries: 0, onCharge: expect.any(Function) });
   });
 });

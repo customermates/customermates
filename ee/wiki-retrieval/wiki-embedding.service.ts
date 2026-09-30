@@ -6,7 +6,12 @@ import * as Sentry from "@sentry/node";
 import { isAgentChatAvailable } from "@/ee/agent-chat/agent-availability";
 import { env } from "@/env";
 
-import { embedWikiTexts, WIKI_EMBEDDING_MODEL, wikiEmbeddingWorstCaseMicrocents } from "./wiki-embedding-model";
+import {
+  embedWikiTexts,
+  WIKI_EMBEDDING_MODEL,
+  wikiEmbeddingAttemptCharge,
+  wikiEmbeddingWorstCaseMicrocents,
+} from "./wiki-embedding-model";
 
 export type WikiEmbeddingPayer = { id: string; companyId: string };
 
@@ -49,11 +54,17 @@ export class WikiEmbeddingService {
       model: WIKI_EMBEDDING_MODEL,
     });
     if (!reservation) return null;
+    let attemptedCharge = wikiEmbeddingAttemptCharge(texts);
     let embedded: Awaited<ReturnType<typeof embedWikiTexts>>;
     try {
-      embedded = await embedWikiTexts(texts, kind);
+      embedded = await embedWikiTexts(texts, kind, {
+        maxRetries: 0,
+        onCharge: (charge) => {
+          attemptedCharge = charge;
+        },
+      });
     } catch (error) {
-      await this.usage.settleRetrieval({ reservation, charge: null });
+      await this.usage.settleRetrieval({ reservation, charge: attemptedCharge, payer: "platform" });
       throw error;
     }
     await this.usage.settleRetrieval({ reservation, charge: embedded.charge, payer: used() ? "grant" : "platform" });

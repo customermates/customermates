@@ -18,6 +18,12 @@ vi.mock("../wiki-embedding-model", () => ({
   WIKI_EMBEDDING_MODEL: "google/gemini-embedding-001",
   WIKI_EMBEDDING_BATCH_SIZE: 2,
   wikiEmbeddingWorstCaseMicrocents: (texts: string[]) => texts.reduce((total, text) => total + text.length, 0) * 15,
+  wikiEmbeddingAttemptCharge: (texts: string[]) => ({
+    model: "google/gemini-embedding-001",
+    inputTokens: texts.reduce((total, text) => total + text.length, 0),
+    costMicrocents: texts.reduce((total, text) => total + text.length, 0) * 15,
+    costSource: "estimated",
+  }),
   embedWikiTexts: vi.fn((texts: string[]) => {
     state.embedded.push(texts);
     return Promise.resolve({
@@ -146,7 +152,7 @@ describe("documentation embedding index", () => {
     });
   });
 
-  it("retains admission for an ambiguous provider failure and settles before storing vectors", async () => {
+  it("settles an ambiguous provider failure as platform cost before retrying, and settles before storing vectors", async () => {
     const { embedWikiTexts } = await import("../wiki-embedding-model");
     const chunks = repo([{ contentHash: "a", label: "A", body: "a" }]);
     const budget = usage(true);
@@ -154,16 +160,41 @@ describe("documentation embedding index", () => {
     await expect(
       new DocsSemanticIndexService(chunks, budget as unknown as AgentUsageService).indexPending(),
     ).rejects.toThrow("provider timeout");
-    expect(budget.settlePlatformRetrieval).not.toHaveBeenCalled();
+    expect(budget.settlePlatformRetrieval).toHaveBeenCalledExactlyOnceWith({
+      reservationId: "platform-hold",
+      charge: { model: "google/gemini-embedding-001", inputTokens: 4, costMicrocents: 60, costSource: "estimated" },
+    });
     expect(chunks.storeEmbeddings).not.toHaveBeenCalled();
     chunks.storeEmbeddings.mockRejectedValueOnce(new Error("storage unavailable"));
     await expect(
       new DocsSemanticIndexService(chunks, budget as unknown as AgentUsageService).indexPending(),
     ).rejects.toThrow("storage unavailable");
-    expect(budget.settlePlatformRetrieval).toHaveBeenCalledOnce();
+    expect(budget.settlePlatformRetrieval).toHaveBeenCalledTimes(2);
     expect(vi.mocked(embedWikiTexts).mock.calls.at(-1)?.[2]).toEqual({
       maxRetries: 0,
+      onCharge: expect.any(Function),
     });
+  });
+
+  it("keeps the measured charge when a provider receipt arrives with unusable vectors", async () => {
+    const { embedWikiTexts } = await import("../wiki-embedding-model");
+    const chunks = repo([{ contentHash: "a", label: "A", body: "a" }]);
+    const budget = usage(true);
+    const charge = {
+      model: "google/gemini-embedding-001",
+      inputTokens: 1,
+      costMicrocents: 15,
+      costSource: "measured" as const,
+    };
+    vi.mocked(embedWikiTexts).mockImplementationOnce((_texts, _kind, options) => {
+      options?.onCharge?.(charge);
+      return Promise.reject(new Error("invalid vectors"));
+    });
+    await expect(
+      new DocsSemanticIndexService(chunks, budget as unknown as AgentUsageService).indexPending(),
+    ).rejects.toThrow("invalid vectors");
+    expect(budget.settlePlatformRetrieval).toHaveBeenCalledExactlyOnceWith({ reservationId: "platform-hold", charge });
+    expect(chunks.storeEmbeddings).not.toHaveBeenCalled();
   });
 
   it("dispatches the indexing workflow for an unseeded build or pending chunks, at most once a minute per process", async () => {

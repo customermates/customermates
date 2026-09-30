@@ -1,4 +1,10 @@
 import { describe, expect, it } from "vitest";
+import { readFileSync } from "node:fs";
+import { join } from "node:path";
+
+import { APP_LOCALES } from "@/i18n/locale-registry";
+import { CustomErrorCode } from "@/core/validation/validation.types";
+import { createErrorHandler, serializeInteractorFailure } from "@/core/validation/validation.utils";
 
 import {
   CreateAgentCreditAdjustmentSchema,
@@ -77,6 +83,37 @@ describe("operator input contracts", () => {
         quantity: 0,
       }).success,
     ).toBe(false);
+  });
+
+  it.each(APP_LOCALES)("returns localized credit adjustment failures in %s", (locale) => {
+    const messages = JSON.parse(readFileSync(join(process.cwd(), "i18n/locales", `${locale}.json`), "utf8"));
+    const errors = messages.Common.errors;
+    const base = {
+      companyId: operationId,
+      userId: operationId,
+      operationId,
+      creditDelta: 1,
+      periodStart: "2026-08-01T08:00:00.000Z",
+      periodEnd: "2026-09-01T08:00:00.000Z",
+    };
+    const cases = [
+      [{ creditDelta: 1.25 }, "creditDelta", CustomErrorCode.operatorCreditPrecision],
+      [{ creditDelta: 0 }, "creditDelta", CustomErrorCode.operatorCreditNonzero],
+      [{ periodEnd: base.periodStart }, "periodEnd", CustomErrorCode.operatorCreditPeriodInvalid],
+    ] as const;
+
+    for (const [input, field, code] of cases) {
+      const result = CreateAgentCreditAdjustmentSchema.safeParse(
+        { ...base, ...input },
+        { error: createErrorHandler(errors) },
+      );
+      expect(result.success).toBe(false);
+      if (result.success) throw new Error("Expected invalid adjustment.");
+      expect(serializeInteractorFailure(result.error)).toEqual({
+        kind: "validation",
+        issues: [{ code: "custom", path: [field], customCode: code, message: errors[code] }],
+      });
+    }
   });
 
   it("accepts only the two append-only credit reset modes", () => {

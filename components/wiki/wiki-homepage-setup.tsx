@@ -17,7 +17,8 @@ import { FormSelect } from "@/components/forms/form-select";
 import { FormInput } from "@/components/forms/form-input";
 import { Alert } from "@/components/shared/alert";
 import { Button } from "@/components/ui/button";
-import { runUserAction } from "@/core/errors/report-application-error";
+import { reportApplicationError, runUserAction } from "@/core/errors/report-application-error";
+import { isClientTransportError } from "@/core/errors/client-transport-error";
 import { useRootStore } from "@/core/stores/root-store.provider";
 import { useRouter } from "@/i18n/navigation";
 
@@ -53,11 +54,13 @@ export function useRefreshWhileWikiSetupWorks(state: WikiHomepageSetupState) {
     if (state.status !== "working") return;
     let active = true;
     let pending = false;
+    let reportedFailure = false;
     const poll = async () => {
       if (document.visibilityState !== "visible" || pending) return;
       pending = true;
       try {
         const result = await getWikiHomepageSetupStateAction();
+        reportedFailure = false;
         if (!active || !result.ok) return;
         const nextSignature = JSON.stringify(result.data);
         if (nextSignature === lastSignature.current) return;
@@ -70,7 +73,11 @@ export function useRefreshWhileWikiSetupWorks(state: WikiHomepageSetupState) {
       }
     };
     const interval = globalThis.setInterval(() => {
-      void poll().catch(() => undefined);
+      void poll().catch((error: unknown) => {
+        if (!active || isClientTransportError(error) || reportedFailure) return;
+        reportedFailure = true;
+        reportApplicationError(error);
+      });
     }, 2_500);
     return () => {
       active = false;

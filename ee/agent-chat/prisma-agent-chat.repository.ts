@@ -293,6 +293,11 @@ export class PrismaAgentChatRepo extends BaseRepository implements AgentUsageRep
     await this.prisma
       .$executeRaw`SELECT pg_advisory_xact_lock(hashtextextended('customermates:hosted-ai-global-admission', 0))`;
 
+    await this.settleStalePlatformReservations({
+      reservedBefore: new Date(args.now.getTime() - AGENT_RETRIEVAL_RESERVATION_TTL_MS),
+      now: args.now,
+    });
+
     const monthStart = new Date(Date.UTC(args.now.getUTCFullYear(), args.now.getUTCMonth(), 1));
     const monthEnd = new Date(Date.UTC(args.now.getUTCFullYear(), args.now.getUTCMonth() + 1, 1));
     const excludeReservationId = args.excludeReservationId ?? null;
@@ -2639,6 +2644,36 @@ export class PrismaAgentChatRepo extends BaseRepository implements AgentUsageRep
   }
 
   @BypassTenantGuard
+  @Transaction
+  async settleStalePlatformReservationsUnscoped(args: { reservedBefore: Date; now: Date }): Promise<number> {
+    await this.prisma
+      .$executeRaw`SELECT pg_advisory_xact_lock(hashtextextended('customermates:hosted-ai-global-admission', 0))`;
+    return this.settleStalePlatformReservations(args);
+  }
+
+  private async settleStalePlatformReservations(args: { reservedBefore: Date; now: Date }): Promise<number> {
+    const reservations = await this.prisma.$queryRaw<
+      Array<{ purpose: string; model: string; reservedMicrocents: bigint; createdAt: Date }>
+    >`
+      DELETE FROM "HostedAiPlatformReservation" WHERE "createdAt" < ${args.reservedBefore}
+      RETURNING "purpose", "model", "reservedMicrocents", "createdAt"
+    `;
+    for (const reservation of reservations) {
+      await this.accruePlatformUsageUnscoped({
+        purpose: reservation.purpose,
+        charge: {
+          model: reservation.model,
+          inputTokens: 0,
+          costMicrocents: agentMicrocentsFromStorage(reservation.reservedMicrocents, "Platform AI reservation"),
+          costSource: "estimated",
+        },
+        now: reservation.createdAt,
+      });
+    }
+    return reservations.length;
+  }
+
+  @BypassTenantGuard
   async accruePlatformUsageUnscoped(args: { purpose: string; charge: AgentRetrievalCharge; now: Date }) {
     const { purpose, charge, now } = args;
     await this.prisma.$executeRaw`
@@ -2819,26 +2854,40 @@ export class PrismaAgentChatRepo extends BaseRepository implements AgentUsageRep
   }
 
   @BypassTenantGuard
+  @Transaction
   async releaseStaleRetrievalReservationsUnscoped(args: { companyId?: string; reservedBefore: Date; now: Date }) {
     return this.releaseStaleRetrievalReservations(args);
   }
 
   private async releaseStaleRetrievalReservations(args: { companyId?: string; reservedBefore: Date; now: Date }) {
-    const released = await this.prisma.agentUsageEvent.updateMany({
-      where: {
-        ...(args.companyId ? { companyId: args.companyId } : {}),
-        purpose: { in: ["wikiRetrieval", "wikiIndexing"] },
-        state: "reserved",
-        createdAt: { lt: args.reservedBefore },
-      },
-      data: {
-        state: "released",
-        chargedMicrocents: 0,
-        chargedCredits: 0,
-        settledAt: args.now,
-      },
-    });
-    return released.count;
+    await this.prisma
+      .$executeRaw`SELECT pg_advisory_xact_lock(hashtextextended('customermates:hosted-ai-global-admission', 0))`;
+    const released = await this.prisma.$queryRaw<
+      Array<{ model: string | null; reservedMicrocents: bigint; providerStartedAt: Date | null; createdAt: Date }>
+    >`
+      UPDATE "AgentUsageEvent" SET "state" = 'released', "chargedMicrocents" = 0, "chargedCredits" = 0,
+        "settledAt" = ${args.now}
+      WHERE "purpose" IN ('wikiRetrieval', 'wikiIndexing') AND "state" = 'reserved'
+        AND "createdAt" < ${args.reservedBefore}
+        AND (${args.companyId ?? null}::text IS NULL OR "companyId" = ${args.companyId ?? null}::text)
+      RETURNING "model", CASE WHEN "reservedMicrocents" = 0
+        THEN "reservedCredits"::bigint * 1000000 ELSE "reservedMicrocents" END AS "reservedMicrocents",
+        "providerStartedAt", "createdAt"
+    `;
+    for (const reservation of released) {
+      if (!reservation.providerStartedAt) continue;
+      await this.accruePlatformUsageUnscoped({
+        purpose: AGENT_RETRIEVAL_PLATFORM_PURPOSE,
+        charge: {
+          model: reservation.model ?? "unknown",
+          inputTokens: 0,
+          costMicrocents: agentMicrocentsFromStorage(reservation.reservedMicrocents, "Retrieval AI reservation"),
+          costSource: "estimated",
+        },
+        now: reservation.createdAt,
+      });
+    }
+    return released.length;
   }
 
   @BypassTenantGuard

@@ -6,6 +6,7 @@ import type { WikiCrawlSynthesisResult } from "./wiki-crawl-synthesis";
 import type { WikiSourceQa } from "./website-source-extract";
 
 import { UserAccessor } from "@/core/base/user-accessor";
+import { runInTransaction } from "@/core/decorators/transaction-runner";
 import { MAX_NOTES_LENGTH } from "@/core/validation/validate-notes";
 import { getTranslator } from "@/i18n/get-translator";
 import { appLocaleOrDefault } from "@/i18n/locale-registry";
@@ -313,55 +314,55 @@ export class WikiWebsiteCrawlService extends UserAccessor {
     );
     const seen = new Set<string>();
     const copy = await wikiImportCopy(crawl.locale);
-    let imported = await this.repo.countImportedPages(crawl.startedAt);
     for (const source of sources) {
       if (!wikiSourceLanguageMatches(source, appLocaleOrDefault(crawl.locale))) continue;
-      if (crawl.mode !== "refresh" && imported >= WIKI_IMPORT_MAX_PAGES) break;
       const duplicateKeys = [`hash:${source.contentHash}`, `title:${source.title.trim().toLocaleLowerCase()}`];
       if (crawl.mode !== "refresh" && duplicateKeys.some((key) => seen.has(key))) continue;
       for (const key of duplicateKeys) seen.add(key);
-      if (!(await this.repo.claimSourceImport(crawlId, source.id))) continue;
-      const existing = await this.repo.findImportedPage(source.url);
       const parts = wikiImportedMarkdown(source, copy);
-      if (existing) {
-        const untouched =
-          existing.sourceImportedUpdatedAt !== null &&
-          existing.updatedAt.getTime() === existing.sourceImportedUpdatedAt.getTime();
-        if (!untouched || existing.sourceContentHash === source.contentHash || parts.length !== 1) continue;
-        const updated = await this.updatePage.invoke({
-          id: existing.id,
-          expectedUpdatedAt: existing.updatedAt,
-          markdown: parts[0],
-        });
-        if (updated.ok) {
+      const result = await runInTransaction(async () => {
+        const imported = await this.repo.countImportedPages(crawl.startedAt);
+        if (crawl.mode !== "refresh" && imported >= WIKI_IMPORT_MAX_PAGES) return "full";
+        if (!(await this.repo.claimSourceImport(crawlId, source.id))) return;
+        const existing = await this.repo.findImportedPage(source.url);
+        if (existing) {
+          const untouched =
+            existing.sourceImportedUpdatedAt !== null &&
+            existing.updatedAt.getTime() === existing.sourceImportedUpdatedAt.getTime();
+          if (!untouched || existing.sourceContentHash === source.contentHash || parts.length !== 1) return;
+          const updated = await this.updatePage.invoke({
+            id: existing.id,
+            expectedUpdatedAt: existing.updatedAt,
+            markdown: parts[0],
+          });
+          if (!updated.ok) return updated;
           await this.repo.markImported(updated.data.id, {
             url: source.url,
             fetchedAt: source.fetchedAt,
             importedUpdatedAt: updated.data.updatedAt,
             contentHash: source.contentHash,
           });
-          imported += 1;
+          return;
         }
-        continue;
-      }
-      if (crawl.mode === "refresh") continue;
-      const created = await this.createPages.invoke({
-        pages: parts.slice(0, WIKI_IMPORT_MAX_PAGES - imported).map((markdown, part) => ({
-          title: wikiImportedTitle(source, part, parts.length),
-          markdown,
-        })),
-        requireEmpty: false,
-      });
-      if (!created.ok) continue;
-      for (const page of created.data) {
-        await this.repo.markImported(page.id, {
-          url: source.url,
-          fetchedAt: source.fetchedAt,
-          importedUpdatedAt: page.updatedAt,
-          contentHash: source.contentHash,
+        if (crawl.mode === "refresh") return;
+        const created = await this.createPages.invoke({
+          pages: parts.slice(0, WIKI_IMPORT_MAX_PAGES - imported).map((markdown, part) => ({
+            title: wikiImportedTitle(source, part, parts.length),
+            markdown,
+          })),
+          requireEmpty: false,
         });
-      }
-      imported += created.data.length;
+        if (!created.ok) return created;
+        for (const page of created.data) {
+          await this.repo.markImported(page.id, {
+            url: source.url,
+            fetchedAt: source.fetchedAt,
+            importedUpdatedAt: page.updatedAt,
+            contentHash: source.contentHash,
+          });
+        }
+      });
+      if (result === "full") break;
     }
     await this.repo.updateCrawl(crawlId, {
       importedPages: await this.repo.countImportedPages(crawl.startedAt),

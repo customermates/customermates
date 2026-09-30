@@ -18,6 +18,7 @@ import {
 import { CSS } from "@dnd-kit/utilities";
 import { Compass, FileText, GripVertical, ListChecks, Search } from "lucide-react";
 import { useTranslations } from "next-intl";
+import { observer } from "mobx-react-lite";
 
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
@@ -83,7 +84,14 @@ function SortablePage({
   );
 }
 
-export function WikiPageRail({ busy, canManage, currentPageId, pages, pinnedPage, onSelect }: Props) {
+export const WikiPageRail = observer(function WikiPageRail({
+  busy,
+  canManage,
+  currentPageId,
+  pages,
+  pinnedPage,
+  onSelect,
+}: Props) {
   const t = useTranslations();
   const contextId = useId();
   const sensors = useSensors(
@@ -239,4 +247,4 @@ export function WikiPageRail({ busy, canManage, currentPageId, pages, pinnedPage
       )}
     </div>
   );
-}
+});

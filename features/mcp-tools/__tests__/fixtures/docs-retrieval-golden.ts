@@ -78,7 +78,7 @@ export const GOLDEN_QUESTIONS: GoldenQuestion[] = [
   { locale: "en", query: "email signature", slug: "app-inbox", heading: "signature", alternatives: ["app-profile"] },
   { locale: "en", query: "thread states open snoozed done", slug: "app-inbox", heading: "Thread states" },
   { locale: "en", query: "drafts and attachments", slug: "app-inbox", heading: "Drafts" },
-  { locale: "en", query: "onboarding wizard steps", slug: "app-onboarding", heading: "three steps" },
+  { locale: "en", query: "onboarding wizard steps", slug: "app-onboarding", heading: "four steps" },
   { locale: "en", query: "change my avatar", slug: "app-profile" },
   { locale: "en", query: "detail page pin a field to the overview", slug: "app-records", heading: "shared layout" },
   {
@@ -178,7 +178,7 @@ export const GOLDEN_QUESTIONS: GoldenQuestion[] = [
   { locale: "de", query: "Globale Suche Tastenkürzel", slug: "app-search" },
   { locale: "de", query: "E-Mail-Signatur", slug: "app-inbox", heading: "Signatur", alternatives: ["app-profile"] },
   { locale: "de", query: "Thread-Status", slug: "app-inbox", heading: "Thread-Status" },
-  { locale: "de", query: "Onboarding-Schritte", slug: "app-onboarding", heading: "drei Schritte" },
+  { locale: "de", query: "Onboarding-Schritte", slug: "app-onboarding", heading: "vier Schritte" },
   { locale: "de", query: "Routine jeden Montag planen", slug: "app-routines", heading: "Zeitpl" },
   { locale: "de", query: "Ereignis-Auslöser einer Routine", slug: "app-routines", heading: "Ereignis" },
   { locale: "de", query: "Mandantentrennung", slug: "architecture-security", heading: "Tenancy" },

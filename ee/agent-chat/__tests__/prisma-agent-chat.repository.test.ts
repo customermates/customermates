@@ -108,6 +108,7 @@ const rawSql = (call: readonly unknown[]) => (call[0] as TemplateStringsArray).j
 function mockRawQueries(globalCommitment: { settledCostMicrocents: bigint; activeReservedMicrocents: bigint } | null) {
   prismaMock.$queryRaw.mockImplementation((strings: TemplateStringsArray) => {
     const sql = strings.join("?");
+    if (sql.includes('DELETE FROM "HostedAiPlatformReservation"')) return Promise.resolve([]);
     if (sql.includes('FROM "AgentCreditAdjustment"')) return Promise.resolve([]);
     if (sql.includes('AS "memberMicrocents"'))
       return Promise.resolve([{ memberMicrocents: 0n, workspaceMicrocents: 0n }]);

@@ -15,6 +15,7 @@ const harness = vi.hoisted(() => ({
   realStore: false,
   rootStore: {} as Record<string, unknown>,
   store: {} as Record<string, unknown>,
+  pageChanged: null as null | ((pageId: string | null) => void),
   replace: vi.fn(),
   push: vi.fn(),
   topBar: null as ReactNode,
@@ -179,6 +180,7 @@ vi.mock("../wiki-page.store", async (importOriginal) => {
   const actual = await importOriginal<typeof WikiPageStoreModule>();
   return {
     WikiPageStore: function WikiPageStore(...args: ConstructorParameters<typeof actual.WikiPageStore>) {
+      harness.pageChanged = args[2];
       if (harness.realStore) harness.store = new actual.WikiPageStore(...args) as unknown as Record<string, unknown>;
       return harness.store;
     },
@@ -303,6 +305,7 @@ beforeEach(() => {
   (globalThis as { IS_REACT_ACT_ENVIRONMENT?: boolean }).IS_REACT_ACT_ENVIRONMENT = true;
   vi.clearAllMocks();
   harness.realStore = false;
+  harness.pageChanged = null;
   harness.tryNavigate.mockImplementation((navigate: () => void) => {
     navigate();
     return true;
@@ -318,6 +321,74 @@ beforeEach(() => {
 });
 
 describe("Wiki document view", () => {
+  it("retains the editor while a saved page refresh is suspended", async () => {
+    configure(true, false);
+    harness.store.form = page;
+    let ready = false;
+    let complete = () => {};
+    const response = new Promise<void>((resolve) => {
+      complete = resolve;
+    });
+    function Toolbar() {
+      return createElement("header", null, useTopBarActions().actions);
+    }
+    function Route() {
+      const [refreshing, setRefreshing] = useState(false);
+      harness.refresh.mockImplementation(() => startTransition(() => setRefreshing(true)));
+      if (refreshing && !ready) use(response);
+      return createElement(WikiPageView, { initialPage: page, listPage: populatedList });
+    }
+    const { container } = await mount(
+      createElement(TopBarActionsProvider, null, [
+        createElement(Toolbar, { key: "toolbar" }),
+        createElement(Suspense, { key: "route", fallback: "Incoming route" }, createElement(Route)),
+      ]),
+    );
+    const editor = container.querySelector("[data-editor-readonly]");
+    await act(async () => {
+      harness.pageChanged?.(page.id);
+      await Promise.resolve();
+    });
+    expect(harness.replace).toHaveBeenCalledExactlyOnceWith(`/wiki?page=${page.id}`);
+    expect(harness.refresh).toHaveBeenCalledOnce();
+    expect(container.querySelector("[data-editor-readonly]")).toBe(editor);
+    expect(container.querySelector('#wiki-document-panel [data-page-state="loading"]')).toBeNull();
+    expect(container.querySelector('[aria-label="Wiki.newPage"]')).not.toBeNull();
+    await act(async () => {
+      ready = true;
+      complete();
+      await response;
+    });
+    expect(container.querySelector("[data-editor-readonly]")).toBe(editor);
+  });
+
+  it("preserves edits made after creating a page while its route response is delayed", async () => {
+    configure(true, false);
+    harness.realStore = true;
+    harness.rootStore.userStore = { canManage: () => true, user: { id: "user-1" } };
+    const { root } = await mount(
+      createElement(WikiPageView, { initialPage: page, requestedPageId: page.id, listPage: populatedList }),
+    );
+    const store = harness.store as unknown as RealWikiPageStore;
+    const created = { ...page, id: "10000000-0000-4000-8000-000000000002", title: "Saved new page" };
+    act(() => store.load(created));
+    act(() => store.onChange("title", "Additional edit"));
+    const document = store.editorDocument;
+    act(() =>
+      root.render(
+        createElement(WikiPageView, {
+          initialPage: created,
+          requestedPageId: created.id,
+          listPage: populatedList,
+        }),
+      ),
+    );
+    expect(store.form.id).toBe(created.id);
+    expect(store.form.title).toBe("Additional edit");
+    expect(store.hasUnsavedChanges).toBe(true);
+    expect(store.editorDocument).toBe(document);
+  });
+
   it("preserves the real dirty store and document instance when refreshed props finish a crawl", async () => {
     configure(true, true, true);
     harness.realStore = true;

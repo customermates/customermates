@@ -81,6 +81,6 @@ describe("agent model budget boundary", () => {
     expect(service).toContain(
       'await this.usage.settleRetrieval({ reservation, charge: embedded.charge, payer: used() ? "grant" : "platform" })',
     );
-    expect(service).toContain("await this.usage.settleRetrieval({ reservation, charge: null })");
+    expect(service).toContain('await this.usage.settleRetrieval({ reservation, charge: attemptedCharge, payer: "platform" })');
   });
 });

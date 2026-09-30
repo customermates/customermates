@@ -3,6 +3,10 @@ import { executeMcpTool } from "@/features/mcp-tools/mcp-tool";
 import { agentToolOutcomeStatus } from "@/ee/agent-chat/agent-durable-stream";
 import { encodeToToon } from "@/features/mcp-tools/utils";
 import { beforeEach, describe, expect, it, vi } from "vitest";
+import { createTranslator } from "next-intl";
+import messages from "@/i18n/locales/en.json";
+import { createMockUser } from "@/tests/helpers/mock-user";
+import { createMockDiModule, MOCK_PRISMA_DB_MODULE, MOCK_ZOD_MODULE } from "@/tests/helpers/interactor-test-setup";
 
 const harness = vi.hoisted(() => ({
   create: vi.fn(),
@@ -13,17 +17,30 @@ const harness = vi.hoisted(() => ({
   imported: vi.fn(),
   advance: vi.fn(),
 }));
-vi.mock("@/core/di", () => ({
-  getCreateWikiPagesInteractor: () => ({ invoke: harness.create }),
-  getWikiWebsiteCrawlRepo: () => ({
+vi.mock("@/prisma/db", () => MOCK_PRISMA_DB_MODULE);
+vi.mock("@/core/validation/zod-error-map-server", () => MOCK_ZOD_MODULE);
+vi.mock("next-intl/server", () => ({
+  getTranslations: (namespace?: string) =>
+    Promise.resolve(createTranslator({ locale: "en", messages, namespace: namespace as never })),
+}));
+vi.mock("@/core/di", async () => {
+  const { CreateWikiPagesFromCrawlInteractor } = await import("../create-wiki-pages-from-crawl.interactor");
+  const { ReadWikiWebsiteSourcesInteractor } = await import("../read-wiki-website-sources.interactor");
+  const repo = {
     getCrawl: harness.crawl,
     listSources: harness.sources,
     countSynthesizedPages: harness.count,
     listSynthesizedPageTitles: harness.createdTitles,
     findImportedPage: harness.imported,
     advanceSourceReads: harness.advance,
-  }),
-}));
+  };
+  return {
+    ...createMockDiModule(() => createMockUser()),
+    getCreateWikiPagesFromCrawlInteractor: () =>
+      new CreateWikiPagesFromCrawlInteractor(repo as never, { invoke: harness.create } as never),
+    getReadWikiWebsiteSourcesInteractor: () => new ReadWikiWebsiteSourcesInteractor(repo as never),
+  };
+});
 vi.mock("@/i18n/get-translator", () => ({
   getTranslator: () => Promise.resolve((key: string) => key),
 }));
@@ -77,7 +94,7 @@ beforeEach(() => {
 
 describe("single language Wiki synthesis", () => {
   it("rejects serialized tool fields accidentally included in a generated title", async () => {
-    const result = await createWikiFromCrawlTool("en", "crawl-1").execute({
+    const result = await createWikiFromCrawlTool("en", "00000000-0000-4000-8000-00000000c001").execute({
       action: "create",
       pages: [{ ...page(ENGLISH), title: "Sales Messaging and FAQs},{gaps:[" }],
     });
@@ -95,12 +112,17 @@ describe("single language Wiki synthesis", () => {
           id: "00000000-0000-4000-8000-000000000002",
           title: "Company",
           kind: "knowledge",
+          markdown: ENGLISH,
+          whenToUse: null,
           createdAt: new Date(),
           updatedAt: new Date(),
         },
       ],
     });
-    const result = await createWikiFromCrawlTool("en", "crawl-1").execute({ action: "create", pages: [page(ENGLISH)] });
+    const result = await createWikiFromCrawlTool("en", "00000000-0000-4000-8000-00000000c001").execute({
+      action: "create",
+      pages: [page(ENGLISH)],
+    });
     expect(structured(result)).toMatchObject({ createdPageTitles: ["Product A", "Company"], remainingPageSlots: 14 });
     expect(harness.createdTitles).toHaveBeenCalledWith(expect.any(Date), 16);
   });
@@ -117,7 +139,7 @@ describe("single language Wiki synthesis", () => {
         readOffset: 1000,
       },
     ]);
-    const result = await readWebsiteSourceTool("crawl-1").execute({ action: "list" });
+    const result = await readWebsiteSourceTool("00000000-0000-4000-8000-00000000c001").execute({ action: "list" });
     expect(structured(result)).toMatchObject({
       remainingSources: 0,
       importedSources: 0,
@@ -126,11 +148,12 @@ describe("single language Wiki synthesis", () => {
   });
 
   it("reports actual persisted imports, including quota and failed-create omissions", async () => {
-    const tool = readWebsiteSourceTool("crawl-1");
+    const tool = readWebsiteSourceTool("00000000-0000-4000-8000-00000000c001");
     harness.sources.mockResolvedValue([
       {
         id: SOURCE_ID,
         url: "https://example.com/help",
+        title: "Help",
         category: "help",
         text: ENGLISH,
         contentHash: "hash-1",
@@ -157,13 +180,16 @@ describe("single language Wiki synthesis", () => {
 
   it("rejects a substantive foreign trigger even when section bodies match", async () => {
     const value = { ...page(ENGLISH), kind: "procedure" as const, whenToUse: GERMAN };
-    const result = await createWikiFromCrawlTool("en", "crawl-1").execute({ action: "create", pages: [value] });
+    const result = await createWikiFromCrawlTool("en", "00000000-0000-4000-8000-00000000c001").execute({
+      action: "create",
+      pages: [value],
+    });
     expect(JSON.stringify(result)).toContain("Write every page in en");
     expect(harness.create).not.toHaveBeenCalled();
   });
 
   it("rejects confidently foreign output using the persisted target even when tool locale differs", async () => {
-    const result = await createWikiFromCrawlTool("de", "crawl-1").execute({
+    const result = await createWikiFromCrawlTool("de", "00000000-0000-4000-8000-00000000c001").execute({
       action: "create",
       pages: [page(GERMAN)],
     });
@@ -174,7 +200,7 @@ describe("single language Wiki synthesis", () => {
   it("rejects a foreign section hidden inside otherwise target-language content", async () => {
     const value = page(ENGLISH);
     value.sections.push({ heading: "Details", content: GERMAN });
-    await createWikiFromCrawlTool("en", "crawl-1").execute({
+    await createWikiFromCrawlTool("en", "00000000-0000-4000-8000-00000000c001").execute({
       action: "create",
       pages: [value],
     });
@@ -182,7 +208,7 @@ describe("single language Wiki synthesis", () => {
   });
 
   it("accepts target-language synthesis grounded in foreign sources", async () => {
-    await createWikiFromCrawlTool("de", "crawl-1").execute({
+    await createWikiFromCrawlTool("de", "00000000-0000-4000-8000-00000000c001").execute({
       action: "create",
       pages: [page(ENGLISH)],
     });
@@ -203,7 +229,7 @@ describe("single language Wiki synthesis", () => {
       mode: "extend",
       startedAt: new Date(),
     });
-    const tool = createWikiFromCrawlTool("en", "crawl-1");
+    const tool = createWikiFromCrawlTool("en", "00000000-0000-4000-8000-00000000c001");
     const result = await tool.execute({
       action: "create",
       pages: [page(ENGLISH, "guide")],
@@ -248,7 +274,7 @@ describe("complete stored source coverage", () => {
     let calls = 0;
     const delivered = new Map<string, string>();
     while (sources.some(({ readOffset, text }) => readOffset < text.length)) {
-      const result = await readWebsiteSourceTool("crawl-1").execute({ action: "next" });
+      const result = await readWebsiteSourceTool("00000000-0000-4000-8000-00000000c001").execute({ action: "next" });
       const value = structured(result) as { items: Array<{ id: string; text: string }>; remainingSources: number };
       expect(value.items.length).toBeLessThanOrEqual(8);
       expect(value.items[0]).toMatchObject({
@@ -274,7 +300,7 @@ describe("complete stored source coverage", () => {
   it("finishes initial coverage before allowing citation rereads and preserves completed cursors", async () => {
     const sources = [source(1, ENGLISH, ENGLISH.length), source(2, GERMAN)];
     stored(sources);
-    const tool = readWebsiteSourceTool("crawl-1");
+    const tool = readWebsiteSourceTool("00000000-0000-4000-8000-00000000c001");
     for (const id of sources.map((item) => item.id)) {
       const denied = await executeMcpTool(tool, [{ action: "get", id, offset: 0 }]);
       expect(denied).toMatchObject({ ok: false, failure: { kind: "validation" } });
@@ -289,7 +315,9 @@ describe("complete stored source coverage", () => {
 
   it("returns a forty-page topic inventory without extra pagination calls", async () => {
     stored(Array.from({ length: 40 }, (_, i) => source(i + 1, `# Topic ${i}\n\n${ENGLISH}`)));
-    const result = structured(await readWebsiteSourceTool("crawl-1").execute({ action: "list" })) as {
+    const result = structured(
+      await readWebsiteSourceTool("00000000-0000-4000-8000-00000000c001").execute({ action: "list" }),
+    ) as {
       items: unknown[];
       nextOffset: number | null;
     };
@@ -300,7 +328,9 @@ describe("complete stored source coverage", () => {
   it("keeps multibyte evidence within the provider byte bound and advances only delivered text", async () => {
     const sources = Array.from({ length: 8 }, (_, i) => source(i + 1, "🌍知識".repeat(4000)));
     stored(sources);
-    const result = structured(await readWebsiteSourceTool("crawl-1").execute({ action: "next" })) as {
+    const result = structured(
+      await readWebsiteSourceTool("00000000-0000-4000-8000-00000000c001").execute({ action: "next" }),
+    ) as {
       items: Array<{ id: string; offset: number; text: string }>;
     };
     expect(new TextEncoder().encode(JSON.stringify(encodeToToon(result))).byteLength).toBeLessThanOrEqual(
@@ -313,26 +343,32 @@ describe("complete stored source coverage", () => {
   it("rejects skipped text and premature creation even after the first chunk was read", async () => {
     const sources = [source(1, ENGLISH.repeat(80))];
     stored(sources);
-    const tool = readWebsiteSourceTool("crawl-1");
+    const tool = readWebsiteSourceTool("00000000-0000-4000-8000-00000000c001");
     expect(JSON.stringify(await tool.execute({ action: "get", id: SOURCE_ID, offset: 100 }))).toContain(
       "without skipping",
     );
     expect(harness.advance).not.toHaveBeenCalled();
     await tool.execute({ action: "next" });
     expect(sources[0].readAt).toBeNull();
-    const premature = await createWikiFromCrawlTool("en", "crawl-1").execute({
+    const premature = await createWikiFromCrawlTool("en", "00000000-0000-4000-8000-00000000c001").execute({
       action: "create",
       pages: [page(ENGLISH)],
     });
-    expect(structured(premature)).toMatchObject({ remainingSources: 1 });
-    const outcome = await executeMcpTool(createWikiFromCrawlTool("en", "crawl-1"), [
+    expect(premature).toMatchObject({
+      failure: { issues: [expect.objectContaining({ customCode: "wikiSourceCoverageRequired" })] },
+    });
+    expect(JSON.stringify(premature)).toContain("1 sources remain");
+    const outcome = await executeMcpTool(createWikiFromCrawlTool("en", "00000000-0000-4000-8000-00000000c001"), [
       { action: "create", pages: [page(ENGLISH)] },
     ]);
     expect(outcome).toMatchObject({ ok: false, failure: { kind: "validation" } });
     expect(agentToolOutcomeStatus(outcome)).toMatchObject({ failed: true, status: "error" });
     expect(harness.create).not.toHaveBeenCalled();
     await tool.execute({ action: "next" });
-    await createWikiFromCrawlTool("en", "crawl-1").execute({ action: "create", pages: [page(ENGLISH)] });
+    await createWikiFromCrawlTool("en", "00000000-0000-4000-8000-00000000c001").execute({
+      action: "create",
+      pages: [page(ENGLISH)],
+    });
     expect(harness.create).toHaveBeenCalledOnce();
   });
 
@@ -353,7 +389,7 @@ describe("complete stored source coverage", () => {
           : { sourceContentHash: "stale" },
       ),
     );
-    const result = await readWebsiteSourceTool("crawl-1").execute({ action: "list" });
+    const result = await readWebsiteSourceTool("00000000-0000-4000-8000-00000000c001").execute({ action: "list" });
     expect(structured(result)).toMatchObject({
       remainingSources: 1,
       items: [{ read: true }, { read: true }, { imported: true }, { imported: false }],
@@ -368,18 +404,25 @@ describe("complete stored source coverage", () => {
         updatedAt: new Date(2000),
         sourceImportedUpdatedAt: baseline,
       });
-      expect(structured(await readWebsiteSourceTool("crawl-1").execute({ action: "list" }))).toMatchObject({
+      expect(
+        structured(await readWebsiteSourceTool("00000000-0000-4000-8000-00000000c001").execute({ action: "list" })),
+      ).toMatchObject({
         remainingSources: 1,
         items: [{ imported: false }],
       });
-      await createWikiFromCrawlTool("en", "crawl-1").execute({ action: "create", pages: [page(ENGLISH)] });
+      await createWikiFromCrawlTool("en", "00000000-0000-4000-8000-00000000c001").execute({
+        action: "create",
+        pages: [page(ENGLISH)],
+      });
       expect(harness.create).not.toHaveBeenCalled();
     }
   });
 
   it("does not treat legacy readAt as complete coverage", async () => {
     stored([{ ...source(1, ENGLISH), readAt: new Date() }]);
-    expect(structured(await readWebsiteSourceTool("crawl-1").execute({ action: "list" }))).toMatchObject({
+    expect(
+      structured(await readWebsiteSourceTool("00000000-0000-4000-8000-00000000c001").execute({ action: "list" })),
+    ).toMatchObject({
       remainingSources: 1,
       items: [{ read: false, nextOffset: 0 }],
     });
@@ -388,7 +431,7 @@ describe("complete stored source coverage", () => {
   it("bounds escaped source output without advancing beyond returned text", async () => {
     const sources = Array.from({ length: 4 }, (_, i) => source(i + 1, '\n\t"'.repeat(4000)));
     stored(sources);
-    const result = await readWebsiteSourceTool("crawl-1").execute({ action: "next" });
+    const result = await readWebsiteSourceTool("00000000-0000-4000-8000-00000000c001").execute({ action: "next" });
     const value = structured(result) as { items: Array<{ id: string; offset: number; text: string }> };
     const encoded = encodeToToon(structured(result));
     expect(encoded.length).toBeLessThanOrEqual(WIKI_SOURCE_RESULT_MAX_CHARS);

@@ -34,6 +34,15 @@ export function wikiEmbeddingWorstCaseMicrocents(texts: readonly string[]): numb
   );
 }
 
+export function wikiEmbeddingAttemptCharge(texts: readonly string[]): AgentRetrievalCharge {
+  return {
+    model: WIKI_EMBEDDING_MODEL,
+    inputTokens: texts.reduce((total, text) => total + Buffer.byteLength(text, "utf8"), 0),
+    costMicrocents: wikiEmbeddingWorstCaseMicrocents(texts),
+    costSource: "estimated",
+  };
+}
+
 function wikiEmbeddingCharge(metadata: unknown, inputTokens: number): AgentRetrievalCharge {
   const estimated = inputTokens * WIKI_EMBEDDING_MICROCENTS_PER_TOKEN;
   const reading = readAgentProviderCharge(metadata, WIKI_EMBEDDING_SERVING_PROVIDER);
@@ -56,7 +65,7 @@ function wikiEmbeddingCharge(metadata: unknown, inputTokens: number): AgentRetri
 export async function embedWikiTexts(
   texts: string[],
   kind: WikiEmbeddingKind,
-  options: { maxRetries?: number } = {},
+  options: { maxRetries?: number; onCharge?: (charge: AgentRetrievalCharge) => void } = {},
 ): Promise<{ vectors: number[][]; charge: AgentRetrievalCharge }> {
   if (texts.length === 0 || texts.length > WIKI_EMBEDDING_BATCH_SIZE)
     throw new Error("Knowledge Base embedding batch size is invalid.");
@@ -67,13 +76,20 @@ export async function embedWikiTexts(
     abortSignal: AbortSignal.timeout(kind === "query" ? WIKI_QUERY_TIMEOUT_MS : WIKI_DOCUMENT_TIMEOUT_MS),
     providerOptions: wikiEmbeddingProviderOptions(kind),
   });
-  if (result.embeddings.some((vector) => vector.length !== WIKI_EMBEDDING_DIMENSIONS))
+  const charge = wikiEmbeddingCharge(
+    (result.responses?.length ?? 1) === 1 ? result.providerMetadata : undefined,
+    result.usage.tokens,
+  );
+  options.onCharge?.(charge);
+  if (
+    result.embeddings.length !== texts.length ||
+    result.embeddings.some(
+      (vector) => vector.length !== WIKI_EMBEDDING_DIMENSIONS || vector.some((value) => !Number.isFinite(value)),
+    )
+  )
     throw new Error("Knowledge Base embedding dimensions are invalid.");
   return {
     vectors: result.embeddings,
-    charge: wikiEmbeddingCharge(
-      (result.responses?.length ?? 1) === 1 ? result.providerMetadata : undefined,
-      result.usage.tokens,
-    ),
+    charge,
   };
 }

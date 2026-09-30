@@ -60,7 +60,7 @@ export type AnalysisDeps = { tools: readonly McpTool[]; resultMaxChars: number; 
 type Read = AnalyzeRecordsInput["reads"][number];
 type TooMuchData = { ok: false; tooMuchData: true };
 type ReadResult = { ok: true; data: unknown; rows: number } | { ok: false; error: string } | TooMuchData;
-type DataUsage = { chars: number };
+type DataUsage = { bytes: number };
 
 const TOO_MUCH_DATA: TooMuchData = { ok: false, tooMuchData: true };
 const TOO_MUCH_DATA_ERROR =
@@ -78,8 +78,8 @@ function resultTooLarge(chars: number, resultMaxChars: number): { ok: false; res
 }
 
 function withinDataCap(usage: DataUsage, value: unknown): boolean {
-  usage.chars += JSON.stringify(value).length;
-  return usage.chars <= ANALYSIS_MAX_BYTES;
+  usage.bytes += Buffer.byteLength(JSON.stringify(value), "utf8");
+  return usage.bytes <= ANALYSIS_MAX_BYTES;
 }
 
 function counted(usage: DataUsage, result: ReadResult): ReadResult {
@@ -279,7 +279,7 @@ async function readAll(
   planned: readonly { read: Read; mcp: McpTool }[],
 ): Promise<{ ok: true; input: string; rows: number } | { ok: false; result: string }> {
   const data: unknown[] = [];
-  const usage: DataUsage = { chars: 0 };
+  const usage: DataUsage = { bytes: 0 };
   let rows = 0;
   for (const { read, mcp } of planned) {
     const outcome = await runRead(mcp, read, ANALYSIS_MAX_ROWS - rows, usage);
@@ -293,7 +293,7 @@ async function readAll(
     data.push(outcome.data);
   }
   const input = JSON.stringify(data);
-  if (input.length > ANALYSIS_MAX_BYTES) return { ok: false, result: TOO_MUCH_DATA_ERROR };
+  if (Buffer.byteLength(input, "utf8") > ANALYSIS_MAX_BYTES) return { ok: false, result: TOO_MUCH_DATA_ERROR };
   return { ok: true, input, rows };
 }
 

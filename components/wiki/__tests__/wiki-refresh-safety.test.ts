@@ -6,7 +6,16 @@ import { NavigationGuardController } from "@/core/stores/navigation-guard.contro
 import type { RootStore } from "@/core/stores/root.store";
 import { WikiPageStore } from "@/app/[locale]/(protected)/wiki/components/wiki-page.store";
 
-const harness = vi.hoisted(() => ({ refresh: vi.fn(), getState: vi.fn(), rootStore: {} as Record<string, unknown> }));
+const harness = vi.hoisted(() => ({
+  refresh: vi.fn(),
+  getState: vi.fn(),
+  report: vi.fn(),
+  rootStore: {} as Record<string, unknown>,
+}));
+vi.mock("@/core/errors/report-application-error", () => ({
+  reportApplicationError: harness.report,
+  runUserAction: vi.fn(),
+}));
 vi.mock("@/i18n/navigation", () => ({ useRouter: () => ({ refresh: harness.refresh }) }));
 vi.mock("@/core/stores/root-store.provider", () => ({ useRootStore: () => harness.rootStore }));
 vi.mock("@/app/[locale]/(protected)/wiki/actions", () => ({
@@ -66,16 +75,56 @@ describe("Wiki polling safety", () => {
 
   it("survives a transient state-read failure and retries on the next tick", async () => {
     harness.rootStore = { navigationGuard: new NavigationGuardController() };
-    harness.getState.mockRejectedValueOnce(new Error("temporary network failure"));
+    harness.getState.mockRejectedValueOnce(new TypeError("Failed to fetch"));
     const root = createRoot(document.createElement("div"));
     try {
       act(() => root.render(createElement(Poller, { working: true })));
       await act(() => vi.advanceTimersByTimeAsync(5000));
       expect(harness.getState).toHaveBeenCalledTimes(2);
       expect(harness.refresh).toHaveBeenCalledOnce();
+      expect(harness.report).not.toHaveBeenCalled();
     } finally {
       act(() => root.unmount());
     }
+  });
+
+  it("reports unexpected failures once per outage and retries without clearing the state", async () => {
+    harness.rootStore = { navigationGuard: new NavigationGuardController() };
+    const error = new Error("state reader failed");
+    harness.getState.mockRejectedValue(error);
+    const root = createRoot(document.createElement("div"));
+    try {
+      act(() => root.render(createElement(Poller, { working: true })));
+      await act(() => vi.advanceTimersByTimeAsync(7500));
+      expect(harness.getState).toHaveBeenCalledTimes(3);
+      expect(harness.report).toHaveBeenCalledExactlyOnceWith(error);
+      harness.getState.mockResolvedValueOnce({ ok: true, data: workingState });
+      await act(() => vi.advanceTimersByTimeAsync(5000));
+      expect(harness.report).toHaveBeenCalledTimes(2);
+      expect(harness.refresh).not.toHaveBeenCalled();
+    } finally {
+      act(() => root.unmount());
+    }
+  });
+
+  it("ignores an unexpected rejection after the poller unmounts", async () => {
+    harness.rootStore = { navigationGuard: new NavigationGuardController() };
+    let reject!: (error: Error) => void;
+    harness.getState.mockImplementationOnce(
+      () =>
+        new Promise((_resolve, rejectPromise) => {
+          reject = rejectPromise;
+        }),
+    );
+    const root = createRoot(document.createElement("div"));
+    act(() => root.render(createElement(Poller, { working: true })));
+    await act(() => vi.advanceTimersByTimeAsync(2500));
+    act(() => root.unmount());
+    await act(async () => {
+      reject(new Error("late error"));
+      await Promise.resolve();
+    });
+    expect(harness.report).not.toHaveBeenCalled();
   });
 
   it.each(["unmount", "completed"] as const)("discards a queued refresh after %s", async (stop) => {

@@ -368,6 +368,7 @@ import { CreateSupportTicketInteractor } from "@/features/support/create-support
 import { FeedbackCreator } from "@/features/feedback/feedback.creator";
 import { PrismaAgentChatRepo } from "@/ee/agent-chat/prisma-agent-chat.repository";
 import { AgentUsageService } from "@/ee/agent-chat/agent-usage.service";
+import { ReconcileRetrievalReservationsInteractor } from "@/ee/agent-chat/reconcile-retrieval-reservations.interactor";
 import { SendAgentMessageInteractor } from "@/ee/agent-chat/send-agent-message.interactor";
 import { GetAgentConfigInteractor } from "@/ee/agent-chat/get-agent-config.interactor";
 import { RespondToApprovalInteractor } from "@/ee/agent-chat/respond-to-approval.interactor";
@@ -415,6 +416,8 @@ import { tenantStorage } from "@/core/decorators/tenant-context";
 import type { QueryEmbedding } from "@/core/retrieval/retrieval-pipeline";
 import { PrismaWikiWebsiteCrawlRepo } from "@/ee/wiki-crawl/prisma-wiki-website-crawl.repository";
 import { WikiWebsiteCrawlService } from "@/ee/wiki-crawl/wiki-website-crawl.service";
+import { CreateWikiPagesFromCrawlInteractor } from "@/ee/wiki-crawl/create-wiki-pages-from-crawl.interactor";
+import { ReadWikiWebsiteSourcesInteractor } from "@/ee/wiki-crawl/read-wiki-website-sources.interactor";
 import { wikiCrawlSynthesisStarter } from "@/ee/wiki-crawl/wiki-crawl-synthesis";
 import { WikiSemanticQueryEmbedder } from "@/ee/wiki-retrieval/wiki-query-embedder";
 import { WikiSemanticIndexService } from "@/ee/wiki-retrieval/wiki-semantic-index.service";
@@ -1198,6 +1201,10 @@ export const getMoveWikiPageInteractor = () => new MoveWikiPageInteractor(getWik
 export const getUpdateWikiPageInteractor = () => new UpdateWikiPageInteractor(getWikiPageRepo(), getEventService());
 export const getDeleteWikiPageInteractor = () => new DeleteWikiPageInteractor(getWikiPageRepo(), getEventService());
 export const getWikiWebsiteCrawlRepo = () => new PrismaWikiWebsiteCrawlRepo();
+export const getCreateWikiPagesFromCrawlInteractor = () =>
+  new CreateWikiPagesFromCrawlInteractor(getWikiWebsiteCrawlRepo(), getCreateWikiPagesInteractor());
+export const getReadWikiWebsiteSourcesInteractor = () =>
+  new ReadWikiWebsiteSourcesInteractor(getWikiWebsiteCrawlRepo());
 export const getStartWikiHomepageSetupInteractor = () =>
   new StartWikiHomepageSetupInteractor(getWikiPageRepo(), getWikiWebsiteCrawlRepo(), getBackgroundTaskService());
 export const getGetWikiHomepageSetupStateInteractor = () =>
@@ -1808,6 +1815,8 @@ export const getDeliverWebhookInteractor = () =>
 export const getCreateSupportTicketInteractor = () => new CreateSupportTicketInteractor(getFeedbackCreator());
 
 export const getAgentUsageService = () => new AgentUsageService(getAgentChatRepo());
+export const getReconcileRetrievalReservationsInteractor = () =>
+  new ReconcileRetrievalReservationsInteractor(getAgentUsageService());
 
 export const getSendAgentMessageInteractor = () =>
   new SendAgentMessageInteractor(

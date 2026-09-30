@@ -153,6 +153,55 @@ afterAll(async () => {
 });
 
 describeDatabase("PrismaOperatorRepo against a real database", { timeout: 120_000 }, () => {
+  it("includes every pending platform hold in fleet exposure while leaving company totals unchanged", async () => {
+    const target = await seedEnterpriseUser(`platform-holds-${randomUUID()}@example.invalid`, 10);
+    const actor = operatorActor();
+    const repo = new PrismaOperatorRepo(new PrismaAgentChatRepo());
+    const holdIds = [randomUUID(), randomUUID()];
+    await runWithOperator(actor, async () => {
+      const before = await repo.getOverviewUnscoped(now);
+      const companyBefore = await repo.updateEnterpriseAllowanceUnscoped(
+        { companyId: target.companyId, creditsPerUser: 10 },
+        now,
+      );
+      assertAdmitted(before);
+      assertAdmitted(companyBefore);
+      try {
+        await runWithoutTenant(() =>
+          prisma.hostedAiPlatformReservation.createMany({
+            data: [
+              {
+                id: holdIds[0],
+                purpose: "docsIndexing",
+                model: "embedding",
+                reservedMicrocents: 5n,
+                createdAt: new Date("2026-07-31T12:00:00.000Z"),
+              },
+              { id: holdIds[1], purpose: "docsIndexing", model: "embedding", reservedMicrocents: 7n, createdAt: now },
+            ],
+          }),
+        );
+        const after = await repo.getOverviewUnscoped(now);
+        const companyAfter = await repo.updateEnterpriseAllowanceUnscoped(
+          { companyId: target.companyId, creditsPerUser: 10 },
+          now,
+        );
+        assertAdmitted(after);
+        assertAdmitted(companyAfter);
+        expect(after.currentUtcMonth.reservedExposureMicrocents).toBe(
+          (BigInt(before.currentUtcMonth.reservedExposureMicrocents) + 12n).toString(),
+        );
+        expect(after.currentUtcMonth.totalCommittedMicrocents).toBe(
+          (BigInt(before.currentUtcMonth.totalCommittedMicrocents) + 12n).toString(),
+        );
+        expect(after.currentUtcMonth.settledCostMicrocents).toBe(before.currentUtcMonth.settledCostMicrocents);
+        expect(companyAfter.currentUtcMonth).toEqual(companyBefore.currentUtcMonth);
+      } finally {
+        await runWithoutTenant(() => prisma.hostedAiPlatformReservation.deleteMany({ where: { id: { in: holdIds } } }));
+      }
+    });
+  });
+
   it("rechecks the session, verified auth user, active domain user, company, and persisted operator flag", async () => {
     const target = await seedEnterpriseUser(`operator-auth-${randomUUID()}@example.invalid`);
     const sessionId = randomUUID();

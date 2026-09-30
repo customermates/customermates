@@ -437,6 +437,17 @@ describe("analyze_records", () => {
     ).resolves.toEqual({ ok: false, result: TOO_MUCH_DATA });
   });
 
+  it("applies the 8 MB data cap to UTF-8 bytes before running analysis", async () => {
+    const response = { total: 1, items: [{ id: "row-1", notes: "😀".repeat(ANALYSIS_MAX_BYTES / 4) }] };
+    const serialized = JSON.stringify(response);
+    expect(serialized.length).toBeLessThan(ANALYSIS_MAX_BYTES);
+    expect(Buffer.byteLength(serialized, "utf8")).toBeGreaterThan(ANALYSIS_MAX_BYTES);
+    const tool = pagedRead("list_things", response);
+    await expect(
+      analyzeRecords({ reads: [read("list_things")], code: "(data) => data[0].items.length" }, deps(tool)),
+    ).resolves.toEqual({ ok: false, result: TOO_MUCH_DATA });
+  });
+
   it("accepts up to ten reads and states the limits it enforces", () => {
     const reads = (count: number) => Array.from({ length: count }, () => read("list_things"));
     expect(AnalyzeRecordsSchema.safeParse({ reads: reads(10), code: "() => 1" }).success).toBe(true);

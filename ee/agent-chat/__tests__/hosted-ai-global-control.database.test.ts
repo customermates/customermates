@@ -303,6 +303,146 @@ describeDatabase(
       ).not.toBeNull();
     });
 
+    it("settles stale platform holds once, preserves fresh holds, and attributes interrupted spend to its creation month", async () => {
+      const repo = new PrismaAgentChatRepo();
+      const now = new Date();
+      const oldMonth = new Date(Date.UTC(now.getUTCFullYear(), now.getUTCMonth() - 1, 2));
+      configureControl({ paused: false, cap: 100n });
+      const reserved = await Promise.all(
+        [6, 7, 4].map((reservedMicrocents) =>
+          repo.reservePlatformUsageUnscoped({
+            purpose: "docsIndexing",
+            model: "embedding",
+            reservedMicrocents,
+            now,
+          }),
+        ),
+      );
+      const holds = reserved.map((hold) => {
+        if (!hold) throw new Error("The platform hold was not admitted.");
+        return hold;
+      });
+      await prisma.$executeRaw`UPDATE "HostedAiPlatformReservation" SET "createdAt" = ${new Date(now.getTime() - 20 * 60_000)} WHERE "id" = ${holds[0]}`;
+      await prisma.$executeRaw`UPDATE "HostedAiPlatformReservation" SET "createdAt" = ${oldMonth} WHERE "id" = ${holds[1]}`;
+      const args = { reservedBefore: new Date(now.getTime() - 15 * 60_000), now };
+      expect(await repo.settleStalePlatformReservationsUnscoped(args)).toBe(2);
+      expect(await repo.settleStalePlatformReservationsUnscoped(args)).toBe(0);
+      const accrued = await runWithoutTenant(() =>
+        prisma.hostedAiPlatformUsage.findMany({ orderBy: { accrualMonth: "asc" } }),
+      );
+      expect(
+        accrued.map(({ accrualMonth, costMicrocents }) => ({
+          month: accrualMonth.getUTCMonth(),
+          cost: costMicrocents,
+        })),
+      ).toEqual([
+        { month: oldMonth.getUTCMonth(), cost: 7n },
+        { month: now.getUTCMonth(), cost: 6n },
+      ]);
+      const remaining = await prisma.$queryRaw<Array<{ id: string }>>`SELECT "id" FROM "HostedAiPlatformReservation"`;
+      expect(remaining).toEqual([{ id: holds[2] }]);
+      configureControl({ paused: false, cap: 10n });
+      expect(
+        await repo.reservePlatformUsageUnscoped({
+          purpose: "docsIndexing",
+          model: "embedding",
+          reservedMicrocents: 1,
+          now,
+        }),
+      ).toBeNull();
+      await repo.settlePlatformUsageUnscoped({ reservationId: holds[2], charge: null, now });
+      expect(
+        await repo.reservePlatformUsageUnscoped({
+          purpose: "docsIndexing",
+          model: "embedding",
+          reservedMicrocents: 4,
+          now,
+        }),
+      ).not.toBeNull();
+    });
+
+    it("recovers a previous-month platform hold before the next admission", async () => {
+      const repo = new PrismaAgentChatRepo();
+      const now = new Date();
+      configureControl({ paused: false, cap: 10n });
+      const hold = await repo.reservePlatformUsageUnscoped({
+        purpose: "docsIndexing",
+        model: "embedding",
+        reservedMicrocents: 10,
+        now,
+      });
+      expect(hold).not.toBeNull();
+      const oldMonth = new Date(Date.UTC(now.getUTCFullYear(), now.getUTCMonth() - 1, 2));
+      await prisma.$executeRaw`UPDATE "HostedAiPlatformReservation" SET "createdAt" = ${oldMonth} WHERE "id" = ${hold}`;
+      expect(
+        await repo.reservePlatformUsageUnscoped({
+          purpose: "docsIndexing",
+          model: "embedding",
+          reservedMicrocents: 10,
+          now,
+        }),
+      ).not.toBeNull();
+      expect(await runWithoutTenant(() => prisma.hostedAiPlatformUsage.findFirst())).toMatchObject({
+        costMicrocents: 10n,
+        accrualMonth: new Date(Date.UTC(oldMonth.getUTCFullYear(), oldMonth.getUTCMonth(), 1)),
+      });
+    });
+
+    it("refunds stale customer retrieval holds without losing attempted provider spend or charging a never-started hold", async () => {
+      const repo = new PrismaAgentChatRepo();
+      const now = new Date();
+      const oldMonth = new Date(Date.UTC(now.getUTCFullYear(), now.getUTCMonth() - 1, 2));
+      configureControl({ paused: false, cap: 100n });
+      const grant = {
+        purpose: "wikiRetrieval" as const,
+        companyId: seats[0].companyId,
+        userId: seats[0].userId,
+        periodStart,
+        periodEnd,
+        planSnapshot: "starter" as const,
+        subscriptionStatusSnapshot: "active" as const,
+        allowanceMicrocentsSnapshot: 500 * AGENT_CREDIT_MICROCENTS,
+      };
+      const holds: string[] = [];
+      for (const reservedMicrocents of [6, 7, 8, 4]) {
+        const hold = await repo.reserveRetrievalUsageUnscoped({ grant, reservedMicrocents, model: "embedding", now });
+        if (!hold) throw new Error("The retrieval hold was not admitted.");
+        holds.push(hold);
+      }
+      const stale = new Date(now.getTime() - 20 * 60_000);
+      await runWithoutTenant(() =>
+        prisma.agentUsageEvent.updateMany({
+          where: { id: { in: [holds[0], holds[2]] } },
+          data: { createdAt: stale },
+        }),
+      );
+      await runWithoutTenant(() =>
+        prisma.agentUsageEvent.updateMany({
+          where: { id: holds[1] },
+          data: { createdAt: oldMonth, providerStartedAt: oldMonth },
+        }),
+      );
+      await runWithoutTenant(() =>
+        prisma.agentUsageEvent.updateMany({ where: { id: holds[2] }, data: { providerStartedAt: null } }),
+      );
+      const args = { reservedBefore: new Date(now.getTime() - 15 * 60_000), now };
+      expect(await repo.releaseStaleRetrievalReservationsUnscoped(args)).toBe(3);
+      expect(await repo.releaseStaleRetrievalReservationsUnscoped(args)).toBe(0);
+      const events = await runWithoutTenant(() =>
+        prisma.agentUsageEvent.findMany({ orderBy: { reservedMicrocents: "asc" } }),
+      );
+      expect(events.map(({ state, chargedMicrocents }) => ({ state, chargedMicrocents }))).toEqual([
+        { state: "reserved", chargedMicrocents: 0n },
+        { state: "released", chargedMicrocents: 0n },
+        { state: "released", chargedMicrocents: 0n },
+        { state: "released", chargedMicrocents: 0n },
+      ]);
+      const accrued = await runWithoutTenant(() =>
+        prisma.hostedAiPlatformUsage.findMany({ orderBy: { accrualMonth: "asc" } }),
+      );
+      expect(accrued.map(({ costMicrocents }) => costMicrocents)).toEqual([7n, 6n]);
+    });
+
     it("counts the platform's own documentation embedding spend against the global cap", async () => {
       const repo = new PrismaAgentChatRepo();
       configureControl({

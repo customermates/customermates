@@ -10,6 +10,7 @@ import { Pool } from "pg";
 
 import { getDocsPageRaw } from "@/features/mcp-tools/docs-manifest";
 import { splitSections } from "@/features/mcp-tools/docs-sections";
+import { getAgentProviderOptions } from "@/ee/agent-chat/agent-provider-options";
 
 import {
   campaignSpendUsd,
@@ -17,6 +18,7 @@ import {
   settleReservedCharge,
 } from "./campaign";
 import { requireLocalBenchmarkDatabase } from "./env";
+import { FACT_JUDGE_MAX_OUTPUT_TOKENS, FACT_JUDGE_MODEL, factJudgeMaximumMicrocents } from "./fact-judge-budget";
 import { usageFollowsRoute } from "./usage-route";
 import { HELDOUT_DOCS_CASES } from "./heldout-cases";
 import { DOCS_EMBEDDING_HELDOUT } from "./heldout-data/docs-embedding";
@@ -24,8 +26,6 @@ import { DOCS_HELDOUT } from "./heldout-data/docs";
 import { isEpisodeArtifactFileName } from "./report";
 import { mcnemarExact, percentile } from "./stats";
 
-const FACT_JUDGE_MODEL = "google/gemini-3-flash";
-const FACT_JUDGE_RESERVE_USD = 0.01;
 const FACT_JUDGE_CONCURRENCY = 6;
 const SECTION_CHARS = 6_000;
 const MICROCENTS_PER_USD = 100_000_000;
@@ -128,7 +128,7 @@ function oraclePasses(artifact: Artifact) {
   );
 }
 const verdictKey = (artifact: Artifact) =>
-  `${artifact.runtimeVariant}/${artifact.caseId}/r${artifact.repetition}/${artifact.episodeId}`;
+  `${FACT_JUDGE_MODEL}/${artifact.runtimeVariant}/${artifact.caseId}/r${artifact.repetition}/${artifact.episodeId}`;
 
 function goldSection(itemId: string): string {
   const item = items.find((entry) => entry.id === itemId);
@@ -178,12 +178,14 @@ async function judgeAll(
     });
     const judgeOne = async (artifact: Artifact): Promise<Verdict> => {
       const spec = specOf(artifact.caseId)!;
+      const prompt = `QUESTION: ${spec.prompt}\n\nREFERENCE ANSWER: ${spec.goldFact}\n\nDOCUMENTATION SECTION:\n${goldSection(spec.itemId)}\n\nASSISTANT ANSWER:\n${artifact.observed.at(-1)?.text.trim() || "(empty)"}`;
+      const worstCaseUsd = factJudgeMaximumMicrocents(FACT_JUDGE_MODEL, FACT_JUDGE_SYSTEM, prompt) / MICROCENTS_PER_USD;
       const reservation = await reserveCharge(
         pool,
         artifact.campaignId,
         artifact.episodeId,
         "judge",
-        FACT_JUDGE_RESERVE_USD,
+        worstCaseUsd,
         {
           model: FACT_JUDGE_MODEL,
           use: "heldout-gold-fact",
@@ -197,7 +199,7 @@ async function judgeAll(
         const result = await generateText({
           model: FACT_JUDGE_MODEL,
           system: FACT_JUDGE_SYSTEM,
-          prompt: `QUESTION: ${spec.prompt}\n\nREFERENCE ANSWER: ${spec.goldFact}\n\nDOCUMENTATION SECTION:\n${goldSection(spec.itemId)}\n\nASSISTANT ANSWER:\n${artifact.observed.at(-1)?.text.trim() || "(empty)"}`,
+          prompt,
           output: Output.object({
             schema: jsonSchema<{ verdict: "yes" | "partial" | "no" }>({
               type: "object",
@@ -209,13 +211,10 @@ async function judgeAll(
             }),
           }),
           temperature: 0,
-          maxRetries: 2,
+          maxRetries: 0,
+          maxOutputTokens: FACT_JUDGE_MAX_OUTPUT_TOKENS,
           providerOptions: {
-            gateway: {
-              only: ["vertex"],
-              zeroDataRetention: true,
-              disallowPromptTraining: true,
-            },
+            ...getAgentProviderOptions("vertex", "eu"),
             vertex: { thinkingConfig: { thinkingLevel: "low" } },
           },
         });
@@ -223,18 +222,12 @@ async function judgeAll(
           result.providerMetadata,
           "vertex",
         );
-        await settleReservedCharge(
-          pool,
-          reservation,
-          charge.outcome === "measured"
-            ? charge.charge.costMicrocents / MICROCENTS_PER_USD
-            : FACT_JUDGE_RESERVE_USD,
-          {
+        if (charge.outcome === "measured")
+          await settleReservedCharge(pool, reservation, charge.charge.costMicrocents / MICROCENTS_PER_USD, {
             model: FACT_JUDGE_MODEL,
             use: "heldout-gold-fact",
-            measured: charge.outcome === "measured",
-          },
-        );
+            measured: true,
+          });
         return result.output.verdict;
       } catch (error) {
         process.stderr.write(

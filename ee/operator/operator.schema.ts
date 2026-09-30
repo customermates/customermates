@@ -2,6 +2,7 @@ import { z } from "zod";
 
 import { Status, SubscriptionPlan, SubscriptionStatus } from "@/generated/prisma";
 import { isWholeTenthOfCredit } from "@/core/commercial/agent-credits";
+import { CustomErrorCode } from "@/core/validation/validation.types";
 
 const MAX_CREDITS = 1_000_000;
 const MAX_SIGNED_CREDITS = 1_000_000;
@@ -30,8 +31,12 @@ export const CreateAgentCreditAdjustmentSchema = z
       .number()
       .min(-MAX_SIGNED_CREDITS)
       .max(MAX_SIGNED_CREDITS)
-      .refine((value) => isWholeTenthOfCredit(value), { message: "Use at most one decimal." })
-      .refine((value) => Math.round(value * 10) !== 0),
+      .refine((value) => isWholeTenthOfCredit(value), {
+        params: { error: CustomErrorCode.operatorCreditPrecision },
+      })
+      .refine((value) => Math.round(value * 10) !== 0, {
+        params: { error: CustomErrorCode.operatorCreditNonzero },
+      }),
     periodStart: z.iso.datetime({ offset: true, precision: 3 }),
     periodEnd: z.iso.datetime({ offset: true, precision: 3 }),
     reason: OptionalReasonSchema,
@@ -40,7 +45,7 @@ export const CreateAgentCreditAdjustmentSchema = z
   .strict()
   .refine((value) => new Date(value.periodStart).getTime() < new Date(value.periodEnd).getTime(), {
     path: ["periodEnd"],
-    message: "The adjustment period must end after it starts.",
+    params: { error: CustomErrorCode.operatorCreditPeriodInvalid },
   });
 
 export const GetOperatorUserDetailSchema = z.object({ userId: z.uuid() }).strict();

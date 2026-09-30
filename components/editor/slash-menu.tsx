@@ -24,6 +24,7 @@ import { useContext, useMemo, useState } from "react";
 import { Button } from "@/components/ui/button";
 import { Command, CommandEmpty, CommandGroup, CommandInput, CommandItem, CommandList } from "@/components/ui/command";
 import { Input } from "@/components/ui/input";
+import { cn } from "@/core/utils/cn";
 
 import { EditorFloatingMenu } from "./editor-floating-menu";
 import { EditorLinkPickerContext, insertEditorLink } from "./editor-link-picker";
@@ -152,7 +153,7 @@ export function SlashMenu({ editor, anchorRect, onClose }: Props) {
   return (
     <EditorFloatingMenu
       anchorRect={anchorRect}
-      className="w-72 overflow-hidden p-0"
+      className={cn("w-72 p-0", urlCommand ? "overflow-y-auto" : "overflow-hidden")}
       editorDom={editor.view.dom}
       side="bottom"
       onClose={onClose}

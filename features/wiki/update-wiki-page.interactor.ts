@@ -31,7 +31,7 @@ export const UpdateWikiPageSchema = z
     whenToUse: WikiWhenToUseSchema.optional(),
   })
   .refine((data) => [data.title, data.markdown, data.kind, data.whenToUse].some((value) => value !== undefined), {
-    message: "At least one field must be provided.",
+    params: { error: CustomErrorCode.wikiPageUpdateEmpty },
   });
 export type UpdateWikiPageData = Data<typeof UpdateWikiPageSchema>;
 

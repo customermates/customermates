@@ -446,7 +446,11 @@ function generationIdFromMetadata(metadata: unknown) {
   return typeof value === "string" ? value : null;
 }
 
-export async function runLiveProviderSmoke(postRunThresholdUsd = readProviderSmokePostRunThreshold()) {
+export async function runLiveProviderSmoke(requestedPostRunThresholdUsd?: number) {
+  const approvedThresholdUsd = readProviderSmokePostRunThreshold();
+  const postRunThresholdUsd = requestedPostRunThresholdUsd ?? approvedThresholdUsd;
+  if (!Number.isFinite(postRunThresholdUsd) || postRunThresholdUsd <= 0 || postRunThresholdUsd > approvedThresholdUsd)
+    fail("configuration", "The requested threshold must be positive and within the approved per-run threshold.");
   const nativeFetch = globalThis.fetch.bind(globalThis);
   const serializations: Awaited<ReturnType<typeof assertProviderSmokeRequest>>[] = [];
   const gateway = createGateway({

@@ -72,10 +72,12 @@ export const WikiPageView = observer(function WikiPageView({
   const [store] = useState(
     () =>
       new WikiPageStore(rootStore, initialPage, (pageId) => {
-        startNavigation(() => {
+        const refresh = () => {
           router.replace(pageId ? wikiPagePath(pageId) : "/wiki");
           router.refresh();
-        });
+        };
+        if (pageId) refresh();
+        else startNavigation(refresh);
       }),
   );
   const receivedRequestedPageId = useRef(requestedPageId);
@@ -98,7 +100,7 @@ export const WikiPageView = observer(function WikiPageView({
   useEffect(() => {
     const selectionChanged = receivedRequestedPageId.current !== requestedPageId;
     receivedRequestedPageId.current = requestedPageId;
-    if (selectionChanged) store.load(initialPage);
+    if (selectionChanged && requestedPageId !== store.form.id) store.load(initialPage);
     else store.receivePage(initialPage);
     const savedState = store.savedState;
     return reaction(
@@ -426,7 +428,7 @@ export const WikiPageView = observer(function WikiPageView({
                 <SheetTitle>{t("Wiki.pagesLabel")}</SheetTitle>
               </SheetHeader>
 
-              <SheetBody className="flex min-h-0 flex-1 flex-col p-0">{pageList}</SheetBody>
+              <SheetBody className="flex min-h-0 flex-1 flex-col overflow-hidden p-0">{pageList}</SheetBody>
             </SheetContent>
           </Sheet>
 

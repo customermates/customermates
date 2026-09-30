@@ -18,9 +18,10 @@ import { runWithSectionRanking } from "@/core/retrieval/retrieval-context";
 import { fullTextUnits } from "@/core/retrieval/full-text-query";
 import { RETRIEVAL_EMBEDDING_WAIT_MS } from "@/core/retrieval/retrieval-pipeline";
 import { collectClassifierCharges } from "@/ee/agent-chat/classifier/metered";
-import { hostedSectionRankers } from "@/ee/agent-chat/docs-rerank";
+import { docsRankSpec, docsRankState, docsRankUserMessage, hostedSectionRankers } from "@/ee/agent-chat/docs-rerank";
+import { estimateClassifierCostMicrocents } from "@/ee/agent-chat/classifier/metered";
 import { WikiEmbeddingService } from "@/ee/wiki-retrieval/wiki-embedding.service";
-import { embedWikiTexts, WIKI_EMBEDDING_MODEL } from "@/ee/wiki-retrieval/wiki-embedding-model";
+import { embedWikiTexts, wikiEmbeddingWorstCaseMicrocents, WIKI_EMBEDDING_MODEL } from "@/ee/wiki-retrieval/wiki-embedding-model";
 import { WikiSemanticIndexService } from "@/ee/wiki-retrieval/wiki-semantic-index.service";
 import { docsCorpus } from "@/features/mcp-tools/docs-corpus";
 import { unifiedDocsSearch } from "@/features/mcp-tools/docs-unified-search";
@@ -32,6 +33,7 @@ import { WikiMarkdownSchema } from "@/features/wiki/wiki.schema";
 import { createMockUser } from "@/tests/helpers/mock-user";
 
 import { requireLocalBenchmarkDatabase } from "./env";
+import { RetrievalBudget } from "./retrieval-budget";
 import { DOCS_HELDOUT } from "./heldout-data/docs";
 import {
   DOCS_LIVE_CASE_LABELS,
@@ -60,28 +62,40 @@ type Signal = {
 
 function flag(name: string): string | undefined {
   const index = process.argv.indexOf(`--${name}`);
-  return index < 0 ? undefined : process.argv[index + 1];
+  if (index < 0) return undefined;
+  const value = process.argv[index + 1];
+  if (value === undefined || value.startsWith("--")) throw new Error(`--${name} requires a value.`);
+  return value;
 }
 
-const capUsd = Number(flag("cap") ?? "0.3");
+const capValue = flag("cap");
+if (process.argv.includes("--cap") && (capValue === undefined || capValue.startsWith("--")))
+  throw new Error("Floor tuning --cap requires a USD amount.");
+const budget = new RetrievalBudget(capValue ?? "0.3");
 const outPath = resolve(flag("out") ?? "scripts/agent-benchmark/.runs/retrieval-floor-tuning/signals.json");
-let spentMicrocents = 0;
 
 function assertBudget() {
-  if (spentMicrocents / MICROCENTS_PER_USD > capUsd)
-    throw new Error(`Floor tuning spend passed the cap of ${capUsd} USD.`);
+  budget.assertAvailable();
+}
+
+async function budgetedEmbedding(texts: string[], kind: "query" | "document") {
+  return budget.run(
+    Math.max(1, wikiEmbeddingWorstCaseMicrocents(texts)),
+    () => embedWikiTexts(texts, kind, { maxRetries: 0 }),
+    ({ charge }) => charge.costSource === "measured" ? charge.costMicrocents : undefined,
+  );
 }
 
 async function embed(query: string): Promise<{ vector: QueryVector | null; ms: number }> {
   const started = performance.now();
   try {
-    const { vectors, charge } = await embedWikiTexts([query.normalize("NFC").replace(/\s+/gu, " ").trim()], "query");
-    spentMicrocents += charge.costMicrocents;
+    const { vectors } = await budgetedEmbedding([query.normalize("NFC").replace(/\s+/gu, " ").trim()], "query");
     return {
       vector: { vector: vectors[0], model: WIKI_EMBEDDING_MODEL },
       ms: Math.round(performance.now() - started),
     };
   } catch {
+    assertBudget();
     return { vector: null, ms: Math.round(performance.now() - started) };
   }
 }
@@ -90,8 +104,14 @@ function abstainingRanker(query: string, corpus: RetrievalCorpus, seen: { none: 
   const ranker = hostedSectionRankers(query)?.(corpus);
   if (!ranker) throw new Error("The hosted re-rank is unavailable: set APP_MODE to cloud and AI_GATEWAY_API_KEY.");
   const wrapped: SectionRanker = async (rankQuery: string, candidates: readonly RankableSection[]) => {
-    const { value, charges } = await collectClassifierCharges(() => ranker(rankQuery, candidates));
-    for (const charge of charges) spentMicrocents += charge.costMicrocents;
+    const maximum = Math.max(1, 3 * estimateClassifierCostMicrocents(docsRankSpec(candidates, corpus), docsRankState(rankQuery, docsRankUserMessage(query))));
+    const { value } = await budget.run(
+      maximum,
+      () => collectClassifierCharges(() => ranker(rankQuery, candidates)),
+      ({ charges }) => charges.length > 0 && charges.every((charge) => charge.measured)
+        ? charges.reduce((total, charge) => total + charge.costMicrocents, 0)
+        : undefined,
+    );
     seen.none = value ? value.abstained : null;
     return value;
   };
@@ -173,8 +193,7 @@ class TuningEmbeddingService extends WikiEmbeddingService {
   }
 
   override async embedTexts(_grant: AgentRetrievalGrant, texts: string[], kind: "query" | "document") {
-    const { vectors, charge } = await embedWikiTexts(texts, kind);
-    spentMicrocents += charge.costMicrocents;
+    const { vectors } = await budgetedEmbedding(texts, kind);
     return vectors;
   }
 
@@ -367,6 +386,7 @@ async function main() {
   else {
     const databaseUrl = requireLocalBenchmarkDatabase();
     const only = flag("only");
+  if (only !== undefined && only !== "docs" && only !== "wiki") throw new Error("--only must be docs or wiki.");
     signals = [
       ...(only === "wiki" ? [] : await docsSignals()),
       ...(only === "docs" ? [] : await wikiSignals(databaseUrl)),
@@ -377,7 +397,7 @@ async function main() {
   const markdown = analyse(signals).join("\n");
   writeFileSync(outPath.replace(/\.json$/, ".md"), `${markdown}\n`);
   process.stdout.write(
-    `Harness-metered spend ${(spentMicrocents / MICROCENTS_PER_USD).toFixed(4)} USD\nWrote ${outPath}\n`,
+    `Harness-metered spend ${(budget.accountedMicrocents / MICROCENTS_PER_USD).toFixed(4)} USD\nWrote ${outPath}\n`,
   );
 }
 

@@ -6,6 +6,7 @@ import type { WikiPageListResult } from "@/features/wiki/wiki.schema";
 import { wikiPagePath } from "@/features/wiki/wiki-links";
 
 import { useTranslations } from "next-intl";
+import { observer } from "mobx-react-lite";
 import { FileText } from "lucide-react";
 
 import { Button } from "@/components/ui/button";
@@ -19,12 +20,12 @@ const EMPTY_WIKI_PAGE_LIST: WikiPageListResult = {
   pageSize: 25,
 };
 
-export function WikiLinkPicker({ onSelect }: EditorLinkPickerProps) {
+export const WikiLinkPicker = observer(function WikiLinkPicker({ onSelect }: EditorLinkPickerProps) {
   const t = useTranslations();
   const pages = useWikiPages(EMPTY_WIKI_PAGE_LIST, true);
 
   return (
-    <Command shouldFilter={false}>
+    <Command className="h-auto min-h-0 overflow-visible" shouldFilter={false}>
       <CommandInput
         aria-label={t("Wiki.linkPage")}
         maxLength={200}
@@ -33,7 +34,7 @@ export function WikiLinkPicker({ onSelect }: EditorLinkPickerProps) {
         onValueChange={pages.search}
       />
 
-      <CommandList aria-busy={pages.loading}>
+      <CommandList aria-busy={pages.loading} className="max-h-none overflow-visible">
         {pages.failed ? (
           <p className="p-3 text-sm text-muted-foreground">{t("Wiki.loadFailed")}</p>
         ) : pages.loading ? (
@@ -72,4 +73,4 @@ export function WikiLinkPicker({ onSelect }: EditorLinkPickerProps) {
       )}
     </Command>
   );
-}
+});

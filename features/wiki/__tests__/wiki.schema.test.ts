@@ -1,4 +1,10 @@
 import { describe, expect, it } from "vitest";
+import { readFileSync } from "node:fs";
+import { join } from "node:path";
+
+import { APP_LOCALES } from "@/i18n/locale-registry";
+import { createErrorHandler, serializeInteractorFailure } from "@/core/validation/validation.utils";
+import { UpdateWikiPageSchema } from "../update-wiki-page.interactor";
 
 import { MAX_NOTES_LENGTH } from "@/core/validation/validate-notes";
 import { CustomErrorCode } from "@/core/validation/validation.types";
@@ -6,6 +12,21 @@ import { CustomErrorCode } from "@/core/validation/validation.types";
 import { WIKI_TITLE_MAX_LENGTH, WikiPageInputSchema } from "../wiki.schema";
 
 describe("WikiPageInputSchema", () => {
+  it.each(APP_LOCALES)("localizes an empty page update with the real error map in %s", (locale) => {
+    const errors = JSON.parse(readFileSync(join(process.cwd(), "i18n/locales", `${locale}.json`), "utf8")).Common
+      .errors;
+    const result = UpdateWikiPageSchema.safeParse(
+      { id: "00000000-0000-4000-8000-000000000001", expectedUpdatedAt: new Date() },
+      { error: createErrorHandler(errors) },
+    );
+    expect(result.success).toBe(false);
+    if (result.success) throw new Error("Expected empty update validation.");
+    expect(serializeInteractorFailure(result.error)).toEqual({
+      kind: "validation",
+      issues: [{ code: "custom", path: [], customCode: "wikiPageUpdateEmpty", message: errors.wikiPageUpdateEmpty }],
+    });
+  });
+
   it("canonicalizes Markdown with the existing Notes parser and serializer", () => {
     const once = WikiPageInputSchema.parse({
       title: "  Sales playbook  ",

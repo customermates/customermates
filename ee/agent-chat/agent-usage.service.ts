@@ -79,6 +79,7 @@ export abstract class AgentUsageRepo {
     charge: AgentRetrievalCharge | null;
     now: Date;
   }): Promise<void>;
+  abstract settleStalePlatformReservationsUnscoped(args: { reservedBefore: Date; now: Date }): Promise<number>;
   abstract reserveRetrievalUsageUnscoped(args: {
     grant: AgentRetrievalGrant;
     reservedMicrocents: number;
@@ -484,6 +485,13 @@ export class AgentUsageService {
 
   async releaseStaleRetrievalReservations(now = new Date()): Promise<number> {
     return this.repo.releaseStaleRetrievalReservationsUnscoped({
+      reservedBefore: new Date(now.getTime() - AGENT_RETRIEVAL_RESERVATION_TTL_MS),
+      now,
+    });
+  }
+
+  async settleStalePlatformReservations(now = new Date()): Promise<number> {
+    return this.repo.settleStalePlatformReservationsUnscoped({
       reservedBefore: new Date(now.getTime() - AGENT_RETRIEVAL_RESERVATION_TTL_MS),
       now,
     });

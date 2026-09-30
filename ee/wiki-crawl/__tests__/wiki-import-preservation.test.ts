@@ -1,5 +1,9 @@
 import { describe, expect, it, vi } from "vitest";
 
+vi.mock("@/core/decorators/transaction-runner", () => ({
+  runInTransaction: (fn: () => Promise<unknown>) => fn(),
+}));
+
 vi.mock("@/env", () => ({
   env: { APP_MODE: "self-hosted", BASE_URL: "http://localhost:4000" },
 }));

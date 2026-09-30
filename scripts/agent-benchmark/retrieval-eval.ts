@@ -135,7 +135,10 @@ const spend = {
 
 function flag(name: string): string | undefined {
   const index = process.argv.indexOf(`--${name}`);
-  return index < 0 ? undefined : process.argv[index + 1];
+  if (index < 0) return undefined;
+  const value = process.argv[index + 1];
+  if (value === undefined || value.startsWith("--")) throw new Error(`--${name} requires a value.`);
+  return value;
 }
 
 const budget = new RetrievalBudget(
@@ -165,7 +168,7 @@ async function budgetedEmbedding(texts: string[], kind: "query" | "document") {
   return budget.run(
     maximum * attempts,
     () => embedWikiTexts(texts, kind),
-    (result) => result.charge.costMicrocents + maximum * (attempts - 1),
+    (result) => result.charge.costSource === "measured" ? result.charge.costMicrocents + maximum * (attempts - 1) : undefined,
   );
 }
 
@@ -860,6 +863,7 @@ async function main() {
         "The retrieval eval never runs in a deployment environment.",
       );
   const only = flag("only");
+  if (only !== undefined && only !== "docs" && only !== "wiki") throw new Error("--only must be docs or wiki.");
   const docs = only === "wiki" ? null : await evaluateDocs();
   const wiki = only === "docs" ? null : await evaluateWiki(databaseUrl);
   const lines: string[] = [];

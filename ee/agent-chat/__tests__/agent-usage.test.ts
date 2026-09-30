@@ -89,6 +89,7 @@ function makeRepo(
     accruePlatformUsageUnscoped: vi.fn(() => Promise.resolve()),
     reservePlatformUsageUnscoped: vi.fn(() => Promise.resolve("platform-hold")),
     settlePlatformUsageUnscoped: vi.fn(() => Promise.resolve()),
+    settleStalePlatformReservationsUnscoped: vi.fn(() => Promise.resolve(0)),
     reserveRetrievalUsageUnscoped: vi.fn((): Promise<string | null> => Promise.resolve("hold-1")),
     settleRetrievalUsageUnscoped: vi.fn(() => Promise.resolve()),
     releaseStaleRetrievalReservationsUnscoped: vi.fn(() => Promise.resolve(0)),
@@ -858,6 +859,16 @@ describe("AgentUsageService admission and ledger", () => {
 
     await expect(new AgentUsageService(repo).releaseStaleRetrievalReservations(NOW)).resolves.toBe(2);
     expect(repo.releaseStaleRetrievalReservationsUnscoped).toHaveBeenCalledWith({
+      reservedBefore: new Date(NOW.getTime() - 15 * 60 * 1000),
+      now: NOW,
+    });
+  });
+
+  it("settles interrupted platform reservations after the retrieval time to live", async () => {
+    const repo = makeRepo();
+    repo.settleStalePlatformReservationsUnscoped.mockResolvedValueOnce(2);
+    await expect(new AgentUsageService(repo).settleStalePlatformReservations(NOW)).resolves.toBe(2);
+    expect(repo.settleStalePlatformReservationsUnscoped).toHaveBeenCalledWith({
       reservedBefore: new Date(NOW.getTime() - 15 * 60 * 1000),
       now: NOW,
     });
