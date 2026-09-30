@@ -572,7 +572,7 @@
             },
             "setup-contacts": {
               "label": "Kontakte einrichten",
-              "prompt": "Hilf mir, eine minimale Kontaktstruktur für mein Unternehmen zu planen und anzulegen. Frage zuerst nach meinem Anwendungsfall."
+              "prompt": "Richte Kontakte anhand meiner Wissensdatenbank und meines Arbeitsbereichs ein. Erstelle eine einfache, nützliche Struktur und frage nur nach fehlenden Entscheidungen."
             }
           }
         },
@@ -598,7 +598,7 @@
             },
             "setup": {
               "label": "Workspace einrichten",
-              "prompt": "Hilf mir, Customermates für mein Unternehmen einzurichten. Stelle zuerst wenige gezielte Fragen, bevor du Änderungen vorschlägst."
+              "prompt": "Richte meinen Arbeitsbereich mit dem Wissen aus der Wissensdatenbank und dem CRM ein. Schließe klare Lücken und frage nur nach Informationen oder Entscheidungen, die du nicht finden kannst."
             },
             "tour": {
               "label": "Plattform kennenlernen",
@@ -632,7 +632,7 @@
             },
             "setup-pipeline": {
               "label": "Pipeline einrichten",
-              "prompt": "Hilf mir, eine minimale Vertriebspipeline zu planen, und schlage danach passende Felder und Beispiel-Deals vor."
+              "prompt": "Nutze meine Wissensdatenbank und vorhandene Datensätze, um eine einfache Vertriebspipeline einzurichten. Frage vor dem Anlegen nur nach fehlenden Entscheidungen."
             }
           }
         },
@@ -662,7 +662,7 @@
             },
             "default-setup": {
               "label": "Hilf mir bei der Einrichtung",
-              "prompt": "Hilf mir, Customermates für mein Unternehmen einzurichten. Stelle mir zuerst ein paar gezielte Fragen, bevor du Änderungen vorschlägst."
+              "prompt": "Richte mein CRM mit dem Wissen aus der Wissensdatenbank und dem Arbeitsbereich ein. Schließe klare Lücken und frage nur nach fehlenden Informationen oder Entscheidungen."
             }
           }
         },
@@ -722,7 +722,7 @@
             },
             "setup-organizations": {
               "label": "Organisationen einrichten",
-              "prompt": "Hilf mir, eine minimale Organisationsstruktur für mein Unternehmen zu planen und anzulegen. Frage zuerst nach meinem Anwendungsfall."
+              "prompt": "Richte Organisationen anhand meiner Wissensdatenbank und meines Arbeitsbereichs ein. Erstelle eine einfache, nützliche Struktur und frage nur nach fehlenden Entscheidungen."
             }
           }
         },
@@ -730,7 +730,7 @@
           "data": {
             "create-routine": {
               "label": "Routine erstellen",
-              "prompt": "Hilf mir, eine Routine zu erstellen. Frage, was ich automatisieren möchte, und empfiehl dann, ob sie nach Zeitplan oder durch ein Ereignis ausgelöst werden soll."
+              "prompt": "Nutze meine Wissensdatenbank und vorhandene Routinen, um eine sinnvolle Automatisierung zu finden. Frage nur bei unklarem Auslöser oder Ablauf nach und erstelle sie dann."
             },
             "routine-health": {
               "label": "Meine Routinen prüfen",
@@ -744,7 +744,7 @@
           "empty": {
             "first-routine": {
               "label": "Meine erste Routine erstellen",
-              "prompt": "Hilf mir, meine erste Routine zu erstellen. Frage, was ich automatisieren möchte, und empfiehl dann, ob sie nach Zeitplan oder durch ein Ereignis ausgelöst werden soll."
+              "prompt": "Nutze meine Wissensdatenbank und meinen Arbeitsbereich, um eine nützliche erste Routine vorzuschlagen. Frage nur bei unklarem Auslöser oder Ablauf nach und erstelle sie dann."
             },
             "routine-ideas": {
               "label": "Nützliche Routinen vorschlagen",
@@ -782,7 +782,7 @@
             },
             "setup-services": {
               "label": "Angebot einrichten",
-              "prompt": "Hilf mir, eine minimale Auswahl an Leistungen oder Produkten für mein Unternehmen zu definieren und nach meiner Prüfung anzulegen."
+              "prompt": "Richte die Leistungen oder Produkte ein, die meine Wissensdatenbank beschreibt. Vermeide Duplikate und frage nur nach fehlenden kaufmännischen Angaben."
             }
           }
         },
@@ -820,7 +820,7 @@
           "data": {
             "create-wiki-page": {
               "label": "Wissensdatenbank-Seite erstellen",
-              "prompt": "Hilf mir, eine neue Seite in der Wissensdatenbank zu erstellen. Frage, welches Unternehmenswissen, welcher Prozess, welche Produkt- oder Supportinformation oder welche Sprachrichtlinie Mate und verbundene KI-Tools benötigen, und erstelle sie nach meiner Bestätigung."
+              "prompt": "Erstelle eine nützliche Seite aus überprüftem Wissen im Arbeitsbereich oder zu einer klaren Lücke. Vermeide Duplikate und frage nur nach fehlenden Fakten."
             },
             "wiki-gaps": {
               "label": "Wissenslücken finden",
@@ -838,7 +838,7 @@
             },
             "wiki-structure": {
               "label": "Wissensdatenbank-Struktur vorschlagen",
-              "prompt": "Prüfe meinen Arbeitsbereich und schlage drei bis fünf nützliche Seiten für die Wissensdatenbank vor. Erstelle noch nichts."
+              "prompt": "Prüfe meine Wissensdatenbank und meinen Arbeitsbereich, erkenne fehlendes Unternehmenswissen und erstelle nützliche Seiten ohne Duplikate. Frage nur bei Bedarf nach einer Website."
             },
             "wiki-tour": {
               "label": "Wissensdatenbank kennenlernen",
@@ -2946,8 +2946,7 @@
         "codex": "Codex",
         "cursor": "Cursor",
         "gemini": "Gemini",
-        "openai": "ChatGPT & Codex",
-        "skip": "Später einrichten"
+        "openai": "ChatGPT & Codex"
       },
       "connector": {
         "chatgptDescription": "Füge Customermates in der ChatGPT-Desktop-App als Streamable-HTTP-MCP-Server hinzu. Die Anmeldung erfolgt über OAuth.",
@@ -3030,10 +3029,6 @@
         "setup": {
           "apiKeySubtitle": "Erstelle einen API-Key und folge dann der Anleitung für {provider}.",
           "title": "{provider} verbinden"
-        },
-        "skip": {
-          "subtitle": "Du kannst das Onboarding jetzt abschließen und später in deinem Profil eine KI verbinden.",
-          "title": "KI später einrichten"
         }
       }
     },

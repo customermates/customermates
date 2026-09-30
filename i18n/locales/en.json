@@ -572,7 +572,7 @@
             },
             "setup-contacts": {
               "label": "Set up contacts",
-              "prompt": "Help me design and create a minimal contact setup for my business. Ask about my use case first."
+              "prompt": "Set up contacts from my Knowledge Base and existing workspace. Create a useful minimal structure, and ask only for missing decisions."
             }
           }
         },
@@ -598,7 +598,7 @@
             },
             "setup": {
               "label": "Set up my workspace",
-              "prompt": "Help me set up Customermates for my business. Ask me a few focused questions before proposing any changes."
+              "prompt": "Set up my workspace using what is already in the Knowledge Base and CRM. Fill clear gaps, and ask me only for information or decisions you cannot find."
             },
             "tour": {
               "label": "Show me around",
@@ -632,7 +632,7 @@
             },
             "setup-pipeline": {
               "label": "Set up my pipeline",
-              "prompt": "Help me design a minimal sales pipeline for my business, then propose the fields and example deals to create."
+              "prompt": "Use my Knowledge Base and existing records to set up a simple sales pipeline. Ask only for missing decisions before creating records."
             }
           }
         },
@@ -662,7 +662,7 @@
             },
             "default-setup": {
               "label": "Help me set up my CRM",
-              "prompt": "Help me set up Customermates for my business. Ask me a few focused questions before proposing any changes."
+              "prompt": "Set up my CRM using what is already in the Knowledge Base and workspace. Fill clear gaps, and ask me only for information or decisions you cannot find."
             }
           }
         },
@@ -722,7 +722,7 @@
             },
             "setup-organizations": {
               "label": "Set up organizations",
-              "prompt": "Help me design and create a minimal organization setup for my business. Ask about my use case first."
+              "prompt": "Set up organizations from my Knowledge Base and existing workspace. Create a useful minimal structure, and ask only for missing decisions."
             }
           }
         },
@@ -730,7 +730,7 @@
           "data": {
             "create-routine": {
               "label": "Create a routine",
-              "prompt": "Help me create a routine. Ask what I want to automate, then recommend whether it should run on a schedule or an event."
+              "prompt": "Use my Knowledge Base and existing routines to identify what to automate. Ask only if its trigger or action is unclear, then create it."
             },
             "routine-health": {
               "label": "Review my routines",
@@ -744,7 +744,7 @@
           "empty": {
             "first-routine": {
               "label": "Create my first routine",
-              "prompt": "Help me create my first routine. Ask what I want to automate, then recommend whether it should run on a schedule or an event."
+              "prompt": "Use my Knowledge Base and workspace to suggest a useful first routine. Ask only if its trigger or action is unclear, then create it."
             },
             "routine-ideas": {
               "label": "Suggest useful routines",
@@ -782,7 +782,7 @@
             },
             "setup-services": {
               "label": "Set up my offerings",
-              "prompt": "Help me define a minimal set of services or products for my business and create them after review."
+              "prompt": "Use my Knowledge Base to set up the services or products it describes. Avoid duplicates and ask only for missing commercial details."
             }
           }
         },
@@ -820,7 +820,7 @@
           "data": {
             "create-wiki-page": {
               "label": "Create a Knowledge Base page",
-              "prompt": "Help me create a new Knowledge Base page. Ask what company process, product knowledge, support guidance, or voice guidance Mate and connected AI tools need, then create it after I confirm."
+              "prompt": "Create a useful Knowledge Base page from verified workspace knowledge or a clear gap. Avoid duplicates and ask only for missing facts."
             },
             "wiki-gaps": {
               "label": "Find knowledge gaps",
@@ -838,7 +838,7 @@
             },
             "wiki-structure": {
               "label": "Suggest a Knowledge Base structure",
-              "prompt": "Review my workspace and suggest three to five useful Knowledge Base pages. Do not create anything yet."
+              "prompt": "Review my Knowledge Base and workspace, identify missing company knowledge, and create useful pages without duplicating existing ones. Ask for a website only if you need one."
             },
             "wiki-tour": {
               "label": "Learn how the Knowledge Base works",
@@ -2946,8 +2946,7 @@
         "codex": "Codex",
         "cursor": "Cursor",
         "gemini": "Gemini",
-        "openai": "ChatGPT & Codex",
-        "skip": "Skip for now"
+        "openai": "ChatGPT & Codex"
       },
       "connector": {
         "chatgptDescription": "In the ChatGPT desktop app, add Customermates as a Streamable HTTP MCP server. Authentication uses OAuth.",
@@ -3030,10 +3029,6 @@
         "setup": {
           "apiKeySubtitle": "Create an API key, then follow the setup made for {provider}.",
           "title": "Connect {provider}"
-        },
-        "skip": {
-          "subtitle": "You can finish onboarding now and connect one from your profile whenever you're ready.",
-          "title": "Set up an AI later"
         }
       }
     },

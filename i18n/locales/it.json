@@ -572,7 +572,7 @@
             },
             "setup-contacts": {
               "label": "Configura i contatti",
-              "prompt": "Aiutami a progettare e creare una configurazione minima dei contatti per la mia attività. Chiedimi prima qual è il mio caso d'uso."
+              "prompt": "Configura i contatti usando la mia base di conoscenza e lo spazio di lavoro. Crea una struttura minima utile e chiedimi solo le decisioni mancanti."
             }
           }
         },
@@ -598,7 +598,7 @@
             },
             "setup": {
               "label": "Configura il mio spazio di lavoro",
-              "prompt": "Aiutami a configurare Customermates per la mia attività. Fammi qualche domanda mirata prima di proporre modifiche."
+              "prompt": "Configura il mio spazio di lavoro usando la base di conoscenza e il CRM. Colma le lacune evidenti e chiedimi solo informazioni o decisioni che non riesci a trovare."
             },
             "tour": {
               "label": "Fammi fare un giro",
@@ -632,7 +632,7 @@
             },
             "setup-pipeline": {
               "label": "Configura la mia pipeline",
-              "prompt": "Aiutami a progettare una pipeline di vendita minima per la mia attività, poi proponi i campi e le trattative di esempio da creare."
+              "prompt": "Usa la mia base di conoscenza e i dati esistenti per configurare una semplice pipeline di vendita. Chiedimi solo le decisioni mancanti prima di creare i record."
             }
           }
         },
@@ -662,7 +662,7 @@
             },
             "default-setup": {
               "label": "Aiutami a configurare il mio CRM",
-              "prompt": "Aiutami a configurare Customermates per la mia attività. Fammi qualche domanda mirata prima di proporre modifiche."
+              "prompt": "Configura il mio CRM usando la base di conoscenza e lo spazio di lavoro. Colma le lacune evidenti e chiedimi solo informazioni o decisioni mancanti."
             }
           }
         },
@@ -722,7 +722,7 @@
             },
             "setup-organizations": {
               "label": "Configura le organizzazioni",
-              "prompt": "Aiutami a progettare e creare una configurazione minima delle organizzazioni per la mia attività. Chiedimi prima qual è il mio caso d'uso."
+              "prompt": "Configura le organizzazioni usando la mia base di conoscenza e lo spazio di lavoro. Crea una struttura minima utile e chiedimi solo le decisioni mancanti."
             }
           }
         },
@@ -730,7 +730,7 @@
           "data": {
             "create-routine": {
               "label": "Crea una routine",
-              "prompt": "Aiutami a creare una routine. Chiedimi che cosa voglio automatizzare, poi consiglia se deve essere eseguita secondo una pianificazione o attivata da un evento."
+              "prompt": "Usa la mia base di conoscenza e le routine esistenti per capire cosa automatizzare. Chiedimi chiarimenti solo se attivazione o azione non sono chiare, poi creala."
             },
             "routine-health": {
               "label": "Controlla le mie routine",
@@ -744,7 +744,7 @@
           "empty": {
             "first-routine": {
               "label": "Crea la mia prima routine",
-              "prompt": "Aiutami a creare la mia prima routine. Chiedimi che cosa voglio automatizzare, poi consiglia se deve essere eseguita secondo una pianificazione o attivata da un evento."
+              "prompt": "Usa la mia base di conoscenza e lo spazio di lavoro per proporre una prima routine utile. Chiedimi chiarimenti solo se attivazione o azione non sono chiare, poi creala."
             },
             "routine-ideas": {
               "label": "Suggerisci routine utili",
@@ -782,7 +782,7 @@
             },
             "setup-services": {
               "label": "Configura le mie offerte",
-              "prompt": "Aiutami a definire un insieme minimo di servizi o prodotti per la mia attività e creali dopo la revisione."
+              "prompt": "Configura i servizi o prodotti descritti nella mia base di conoscenza. Evita i duplicati e chiedimi solo i dettagli commerciali mancanti."
             }
           }
         },
@@ -820,7 +820,7 @@
           "data": {
             "create-wiki-page": {
               "label": "Crea una pagina della base di conoscenza",
-              "prompt": "Aiutami a creare una nuova pagina nella base di conoscenza dello spazio di lavoro. Chiedi quali processi, informazioni sui prodotti, indicazioni per l’assistenza o indicazioni sul tono servono a Mate e agli strumenti di IA connessi, poi creala dopo la mia conferma."
+              "prompt": "Crea una pagina utile da informazioni verificate nello spazio di lavoro o da una lacuna evidente. Evita i duplicati e chiedi solo i fatti mancanti."
             },
             "wiki-gaps": {
               "label": "Trova lacune nelle conoscenze",
@@ -838,7 +838,7 @@
             },
             "wiki-structure": {
               "label": "Suggerisci una struttura per la base di conoscenza",
-              "prompt": "Esamina il mio spazio di lavoro e suggerisci da tre a cinque pagine utili per la base di conoscenza. Non creare ancora nulla."
+              "prompt": "Esamina la mia base di conoscenza e lo spazio di lavoro, individua le informazioni mancanti e crea pagine utili senza duplicati. Chiedi un sito web solo se necessario."
             },
             "wiki-tour": {
               "label": "Scopri come funziona la base di conoscenza",
@@ -2946,8 +2946,7 @@
         "codex": "Codex",
         "cursor": "Cursor",
         "gemini": "Gemini",
-        "openai": "ChatGPT & Codex",
-        "skip": "Salta per ora"
+        "openai": "ChatGPT & Codex"
       },
       "connector": {
         "chatgptDescription": "Nell’app desktop ChatGPT, aggiungi Customermates come server MCP Streamable HTTP. L’autenticazione usa OAuth.",
@@ -3030,10 +3029,6 @@
         "setup": {
           "apiKeySubtitle": "Crea una chiave API, quindi segui la configurazione preparata per {provider}.",
           "title": "Collega {provider}"
-        },
-        "skip": {
-          "subtitle": "Puoi terminare ora l’onboarding e collegare un’IA dal tuo profilo quando vuoi.",
-          "title": "Configura un’IA più tardi"
         }
       }
     },

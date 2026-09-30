@@ -19,8 +19,7 @@ export type AiConnectionRoute =
   | { screen: "providers" }
   | { screen: "claude" }
   | { screen: "openai" }
-  | { screen: "setup"; provider: AiConnectionDirectProvider }
-  | { screen: "skip" };
+  | { screen: "setup"; provider: AiConnectionDirectProvider };
 
 export type AiConnectionCredential = {
   id: string;
@@ -100,7 +99,6 @@ export class AiConnectionStore {
 
   get canFinish(): boolean {
     if (this.isCreating) return false;
-    if (this.route.screen === "skip") return true;
     if (this.connectorProvider) return true;
     return this.selectedTool !== null && this.credential !== null;
   }
@@ -149,13 +147,6 @@ export class AiConnectionStore {
 
     this.openAiMethod = method;
     this.errorTool = null;
-  };
-
-  selectSkip = () => {
-    if (this.isCreating) return;
-
-    this.errorTool = null;
-    this.route = { screen: "skip" };
   };
 
   backToProviders = () => {

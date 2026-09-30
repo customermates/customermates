@@ -572,7 +572,7 @@
             },
             "setup-contacts": {
               "label": "Configurer les contacts",
-              "prompt": "Aidez-moi à concevoir et créer une configuration minimale des contacts pour mon activité. Interrogez-moi d'abord sur mon cas d'usage."
+              "prompt": "Configure les contacts à partir de ma base de connaissances et de mon espace de travail. Crée une structure minimale utile et demande uniquement les décisions manquantes."
             }
           }
         },
@@ -598,7 +598,7 @@
             },
             "setup": {
               "label": "Configurer mon espace de travail",
-              "prompt": "Aidez-moi à configurer Customermates pour mon activité. Posez-moi quelques questions ciblées avant de proposer des changements."
+              "prompt": "Configure mon espace de travail à partir de la base de connaissances et du CRM. Comble les lacunes évidentes et demande uniquement les informations ou décisions introuvables."
             },
             "tour": {
               "label": "Faites-moi visiter",
@@ -632,7 +632,7 @@
             },
             "setup-pipeline": {
               "label": "Configurer mon pipeline",
-              "prompt": "Aidez-moi à concevoir un pipeline commercial minimal pour mon activité, puis proposez les champs et les opportunités d'exemple à créer."
+              "prompt": "Utilise ma base de connaissances et les données existantes pour configurer un pipeline commercial simple. Demande uniquement les décisions manquantes avant de créer des fiches."
             }
           }
         },
@@ -662,7 +662,7 @@
             },
             "default-setup": {
               "label": "Aidez-moi à configurer mon CRM",
-              "prompt": "Aidez-moi à configurer Customermates pour mon activité. Posez-moi quelques questions ciblées avant de proposer des changements."
+              "prompt": "Configure mon CRM à partir de la base de connaissances et de l’espace de travail. Comble les lacunes évidentes et demande uniquement les informations ou décisions manquantes."
             }
           }
         },
@@ -722,7 +722,7 @@
             },
             "setup-organizations": {
               "label": "Configurer les organisations",
-              "prompt": "Aidez-moi à concevoir et créer une configuration minimale des organisations pour mon activité. Interrogez-moi d'abord sur mon cas d'usage."
+              "prompt": "Configure les organisations à partir de ma base de connaissances et de mon espace de travail. Crée une structure minimale utile et demande uniquement les décisions manquantes."
             }
           }
         },
@@ -730,7 +730,7 @@
           "data": {
             "create-routine": {
               "label": "Créer une routine",
-              "prompt": "Aide-moi à créer une routine. Demande-moi ce que je souhaite automatiser, puis recommande un déclenchement planifié ou par événement."
+              "prompt": "Utilise ma base de connaissances et les routines existantes pour trouver quoi automatiser. Demande des précisions uniquement si le déclencheur ou l’action reste flou, puis crée-la."
             },
             "routine-health": {
               "label": "Examiner mes routines",
@@ -744,7 +744,7 @@
           "empty": {
             "first-routine": {
               "label": "Créer ma première routine",
-              "prompt": "Aide-moi à créer ma première routine. Demande-moi ce que je souhaite automatiser, puis recommande un déclenchement planifié ou par événement."
+              "prompt": "Utilise ma base de connaissances et mon espace de travail pour proposer une première routine utile. Demande des précisions uniquement si le déclencheur ou l’action reste flou, puis crée-la."
             },
             "routine-ideas": {
               "label": "Suggérer des routines utiles",
@@ -782,7 +782,7 @@
             },
             "setup-services": {
               "label": "Configurer mes offres",
-              "prompt": "Aidez-moi à définir un ensemble minimal de services ou produits pour mon activité, puis créez-les après validation."
+              "prompt": "Configure les services ou produits décrits dans ma base de connaissances. Évite les doublons et demande uniquement les détails commerciaux manquants."
             }
           }
         },
@@ -820,7 +820,7 @@
           "data": {
             "create-wiki-page": {
               "label": "Créer une page de la base de connaissances",
-              "prompt": "Aide-moi à créer une nouvelle page dans la base de connaissances de l’espace de travail. Demande quelles informations sur l’entreprise, les produits, le support, les processus ou le ton sont nécessaires à Mate et aux outils d’IA connectés, puis crée-la après ma confirmation."
+              "prompt": "Crée une page utile à partir de connaissances vérifiées dans l’espace de travail ou d’une lacune claire. Évite les doublons et demande uniquement les faits manquants."
             },
             "wiki-gaps": {
               "label": "Trouver les connaissances manquantes",
@@ -838,7 +838,7 @@
             },
             "wiki-structure": {
               "label": "Suggérer une structure de base de connaissances",
-              "prompt": "Examine mon espace de travail et suggère trois à cinq pages utiles pour la base de connaissances. Ne crée encore rien."
+              "prompt": "Examine ma base de connaissances et mon espace de travail, repère les connaissances manquantes et crée des pages utiles sans doublons. Demande un site web seulement si nécessaire."
             },
             "wiki-tour": {
               "label": "Découvrir le fonctionnement de la base de connaissances",
@@ -2946,8 +2946,7 @@
         "codex": "Codex",
         "cursor": "Cursor",
         "gemini": "Gemini",
-        "openai": "ChatGPT & Codex",
-        "skip": "Passer pour l'instant"
+        "openai": "ChatGPT & Codex"
       },
       "connector": {
         "chatgptDescription": "Dans l’application de bureau ChatGPT, ajoutez Customermates comme serveur MCP Streamable HTTP. L’authentification utilise OAuth.",
@@ -3030,10 +3029,6 @@
         "setup": {
           "apiKeySubtitle": "Créez une clé API, puis suivez la configuration prévue pour {provider}.",
           "title": "Connecter {provider}"
-        },
-        "skip": {
-          "subtitle": "Vous pouvez terminer l’intégration maintenant et connecter une IA depuis votre profil lorsque vous serez prêt.",
-          "title": "Configurer une IA plus tard"
         }
       }
     },

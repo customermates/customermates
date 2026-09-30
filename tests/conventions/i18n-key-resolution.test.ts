@@ -354,7 +354,6 @@ const ONBOARDING_CHOICE_KEYS = [
   "cursor",
   "gemini",
   "openai",
-  "skip",
 ].map((choice) => `OnboardingWizard.ai.choices.${choice}`);
 const MCP_TOOL_KEYS = ["claudeCode", "claudeDesktop", "codex", "cursor", "gemini"] as const;
 const ONBOARDING_INSTALL_KEYS = MCP_TOOL_KEYS.map((tool) => `OnboardingWizard.ai.install.instruction.${tool}`);

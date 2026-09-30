@@ -76,7 +76,7 @@ export default async function OnboardingWizardPage({ searchParams }: Props) {
   const sessionAvatarUrl = sessionUser.image?.startsWith("https:") ? sessionUser.image : "";
 
   return (
-    <CenteredCardPage className="animate-page-result-in motion-reduce:animate-none">
+    <CenteredCardPage>
       <OnboardingWizard
         canSetupWithMate={canSetupWithMate}
         inviterName={invitation?.inviterName}

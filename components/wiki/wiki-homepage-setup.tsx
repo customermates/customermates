@@ -9,7 +9,7 @@ import { toJS } from "mobx";
 import { useTranslations } from "next-intl";
 import { CheckCircle2, FileText, Loader2, RotateCcw, Sparkles, TriangleAlert } from "lucide-react";
 
-import { startWikiHomepageSetupAction } from "@/app/[locale]/(protected)/wiki/actions";
+import { getWikiHomepageSetupStateAction, startWikiHomepageSetupAction } from "@/app/[locale]/(protected)/wiki/actions";
 import { AppForm } from "@/components/forms/form-context";
 import { APP_LOCALES, isAppLocale } from "@/i18n/locale-registry";
 import { browserAppLocale } from "@/i18n/locale-preference";
@@ -41,24 +41,42 @@ export const EMPTY_WIKI_HOMEPAGE_SETUP_STATE: WikiHomepageSetupState = {
   conversationId: null,
   pages: [],
 };
-export function useRefreshWhileWikiSetupWorks(working: boolean) {
+export function useRefreshWhileWikiSetupWorks(state: WikiHomepageSetupState) {
   const router = useRouter();
   const { navigationGuard } = useRootStore();
+  const signature = JSON.stringify(state);
+  const lastSignature = useRef(signature);
   useEffect(() => {
-    if (!working) return;
+    lastSignature.current = signature;
+  }, [signature]);
+  useEffect(() => {
+    if (state.status !== "working") return;
     let active = true;
-    const poll = globalThis.setInterval(() => {
-      if (document.visibilityState === "visible") {
+    let pending = false;
+    const poll = async () => {
+      if (document.visibilityState !== "visible" || pending) return;
+      pending = true;
+      try {
+        const result = await getWikiHomepageSetupStateAction();
+        if (!active || !result.ok) return;
+        const nextSignature = JSON.stringify(result.data);
+        if (nextSignature === lastSignature.current) return;
+        lastSignature.current = nextSignature;
         navigationGuard.requestRouteRefreshWhenSafe(() => {
           if (active) router.refresh();
         });
+      } finally {
+        pending = false;
       }
+    };
+    const interval = globalThis.setInterval(() => {
+      void poll().catch(() => undefined);
     }, 2_500);
     return () => {
       active = false;
-      globalThis.clearInterval(poll);
+      globalThis.clearInterval(interval);
     };
-  }, [navigationGuard, router, working]);
+  }, [navigationGuard, router, state.status]);
 }
 
 export const WikiHomepageSetup = observer(function WikiHomepageSetup({
@@ -93,7 +111,7 @@ export const WikiHomepageSetup = observer(function WikiHomepageSetup({
     if (initialState.status === "completed") setRetrying(false);
   }, [initialState, store]);
 
-  useRefreshWhileWikiSetupWorks(state.status === "working");
+  useRefreshWhileWikiSetupWorks(state);
 
   useEffect(() => {
     if (retrying) homepageInput.current?.focus();

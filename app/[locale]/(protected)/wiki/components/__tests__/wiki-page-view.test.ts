@@ -429,7 +429,7 @@ describe("Wiki document view", () => {
       ),
     );
     expect(store.form.title).toBe("Unsaved manual title");
-    expect(harness.refreshWhileSetupWorks).toHaveBeenLastCalledWith(false);
+    expect(harness.refreshWhileSetupWorks).toHaveBeenLastCalledWith(expect.objectContaining({ status: "completed" }));
     act(() => store.resetDocument());
     expect(store.form.title).toBe(remote.title);
     expect(store.form.markdown).toBe(remote.markdown);
@@ -522,10 +522,12 @@ describe("Wiki document view", () => {
         ?.querySelectorAll("button")
         .item((container.querySelector("header")?.querySelectorAll("button").length ?? 0) - 1),
     ).toBe(save());
-    expect(container.querySelector('header [aria-label="Wiki.newPage"]')?.getAttribute("data-variant")).toBe(
+    expect(container.querySelector('header [aria-label="Wiki.newPage"]')).toBeNull();
+    expect(container.querySelector('header [aria-label="Wiki.pageActions"]')).toBeNull();
+    expect(container.querySelector('header [aria-label="Common.actions.reset"]')).not.toBeNull();
+    expect(container.querySelector('header [aria-label="Common.actions.reset"]')?.getAttribute("data-variant")).toBe(
       "secondary",
     );
-    expect(container.querySelector('header [aria-label="Common.actions.reset"]')).not.toBeNull();
     expect(harness.toolbarRenders).toBe(settledRenders);
 
     act(() =>
@@ -769,7 +771,7 @@ describe("Wiki document view", () => {
     },
   );
 
-  it("guards New and conflict reload with the same unsaved-changes boundary", async () => {
+  it("hides New while dirty and guards conflict reload with the unsaved-changes boundary", async () => {
     configure(true, false);
     harness.store.form = page;
     harness.store.conflict = true;
@@ -787,10 +789,9 @@ describe("Wiki document view", () => {
     );
     const { container: topBar } = await mount(harness.topBar);
 
-    act(() => topBar.querySelector<HTMLButtonElement>('[aria-label="Wiki.newPage"]')?.click());
+    expect(topBar.querySelector('[aria-label="Wiki.newPage"]')).toBeNull();
+    expect(topBar.querySelector('[aria-label="Wiki.pageActions"]')).toBeNull();
     expect(harness.store.startCreate).not.toHaveBeenCalled();
-    act(() => pending?.());
-    expect(harness.store.startCreate).toHaveBeenCalledOnce();
 
     act(() => container.querySelector<HTMLButtonElement>('[role="alert"] button')?.click());
     expect(harness.store.reload).not.toHaveBeenCalled();
@@ -1106,7 +1107,7 @@ describe("Wiki empty state", () => {
         },
       }),
     );
-    expect(harness.refreshWhileSetupWorks).toHaveBeenLastCalledWith(true);
+    expect(harness.refreshWhileSetupWorks).toHaveBeenLastCalledWith(expect.objectContaining({ status: "working" }));
     expect(container.querySelector("[data-editor-readonly]")).not.toBeNull();
     expect(container.textContent).toContain("WikiSetup.status.readingBody");
     expect(harness.store.resetForm).not.toHaveBeenCalled();
@@ -1131,7 +1132,7 @@ describe("Wiki empty state", () => {
     );
     expect(container.querySelector('[role="alert"]')?.textContent).toContain("WikiSetup.status.failedBody");
     expect(container.querySelector("[data-editor-readonly]")).not.toBeNull();
-    expect(harness.refreshWhileSetupWorks).toHaveBeenLastCalledWith(false);
+    expect(harness.refreshWhileSetupWorks).toHaveBeenLastCalledWith(expect.objectContaining({ status: "failed" }));
     const actions = (harness.topBar as ReactElement<{ onRefreshFromWebsite?: () => void }>).props;
     expect(actions.onRefreshFromWebsite).toBeUndefined();
   });
@@ -1160,7 +1161,7 @@ describe("Wiki empty state", () => {
     expect(container.textContent).not.toContain("Wiki.newPage");
     expect(container.querySelector('[data-testid="empty-page-agent-suggestions"]')).toBeNull();
     expect(topBar.querySelector('[aria-label="Wiki.newPage"]')).toBeNull();
-    expect(harness.refreshWhileSetupWorks).toHaveBeenLastCalledWith(true);
+    expect(harness.refreshWhileSetupWorks).toHaveBeenLastCalledWith(expect.objectContaining({ status: "working" }));
   });
 });
 

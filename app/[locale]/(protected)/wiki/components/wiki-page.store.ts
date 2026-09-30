@@ -69,6 +69,16 @@ export class WikiPageStore extends BaseFormStore<WikiPageForm> {
     const samePage = this.receivedPageId === (page?.id ?? null);
     if (this.creating || this.hasUnsavedChanges || this.isLoading) return;
     if (samePage && page && this.form.updatedAt && page.updatedAt.getTime() < this.form.updatedAt.getTime()) return;
+    if (
+      samePage &&
+      page &&
+      this.form.updatedAt?.getTime() === page.updatedAt.getTime() &&
+      this.form.title === page.title &&
+      this.form.markdown === page.markdown &&
+      this.form.kind === page.kind &&
+      this.form.whenToUse === (page.whenToUse ?? "")
+    )
+      return;
     this.load(page);
   };
 

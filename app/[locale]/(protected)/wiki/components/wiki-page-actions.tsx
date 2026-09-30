@@ -7,7 +7,6 @@ import { Link, MoreHorizontal, Plus, RotateCcw, Save, Trash2, X } from "lucide-r
 import { useTranslations } from "next-intl";
 
 import { Button } from "@/components/ui/button";
-import { Tooltip, TooltipContent, TooltipTrigger } from "@/components/ui/tooltip";
 import {
   DropdownMenu,
   DropdownMenuContent,
@@ -52,26 +51,22 @@ export const WikiPageActions = observer((props: Props) => {
         </Button>
       )}
 
-      {hasDocument && store.hasUnsavedChanges && (
-        <Tooltip>
-          <TooltipTrigger asChild>
-            <Button
-              aria-label={t("Common.actions.reset")}
-              disabled={store.isLoading}
-              size="icon-sm"
-              type="button"
-              variant="ghost"
-              onClick={store.resetDocument}
-            >
-              <RotateCcw aria-hidden="true" />
-            </Button>
-          </TooltipTrigger>
+      {hasDocument && store.form.id && store.hasUnsavedChanges && (
+        <Button
+          aria-label={t("Common.actions.reset")}
+          disabled={store.isLoading}
+          size="sm"
+          type="button"
+          variant="secondary"
+          onClick={store.resetDocument}
+        >
+          <RotateCcw aria-hidden="true" className="size-4 sm:hidden" />
 
-          <TooltipContent>{t("Common.actions.reset")}</TooltipContent>
-        </Tooltip>
+          <span className="hidden sm:inline">{t("Common.actions.reset")}</span>
+        </Button>
       )}
 
-      {hasDocument && store.form.id && (
+      {hasDocument && store.form.id && !store.hasUnsavedChanges && (
         <DropdownMenu>
           <DropdownMenuTrigger asChild>
             <Button aria-label={t("Wiki.pageActions")} disabled={store.isLoading} size="icon-sm" variant="secondary">
@@ -98,7 +93,7 @@ export const WikiPageActions = observer((props: Props) => {
 
             {canManage && (
               <DropdownMenuItem
-                className="text-destructive focus:text-destructive"
+                variant="destructive"
                 onSelect={() => showDeleteConfirmation(() => store.delete(), store.form.title)}
               >
                 <Trash2 aria-hidden="true" />
@@ -110,12 +105,12 @@ export const WikiPageActions = observer((props: Props) => {
         </DropdownMenu>
       )}
 
-      {canManage && canCreate && !store.creating && (
+      {canManage && canCreate && !store.creating && !store.hasUnsavedChanges && (
         <Button
           aria-label={t("Wiki.newPage")}
           disabled={store.isLoading}
           size="sm"
-          variant={store.hasUnsavedChanges ? "secondary" : "default"}
+          variant="default"
           onClick={onCreate}
         >
           <Plus aria-hidden="true" className="size-4" />

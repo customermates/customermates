@@ -15,6 +15,7 @@ import {
   getDeleteWikiPageInteractor,
   getGetWikiPageInteractor,
   getGetWikiPagesInteractor,
+  getGetWikiHomepageSetupStateInteractor,
   getSearchWikiPagesInteractor,
   getStartWikiHomepageSetupInteractor,
   getUpdateWikiPageInteractor,
@@ -53,6 +54,10 @@ export async function getWikiPageAction(id: string) {
 
 export async function getWikiPagesAction(data: WikiPageListData) {
   return serializeResult(getGetWikiPagesInteractor().invoke(data));
+}
+
+export async function getWikiHomepageSetupStateAction() {
+  return serializeResult(getGetWikiHomepageSetupStateInteractor().invoke());
 }
 
 export async function searchWikiPagesAction(data: WikiPageSearchData) {

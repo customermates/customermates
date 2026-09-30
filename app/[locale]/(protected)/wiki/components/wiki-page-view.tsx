@@ -121,7 +121,7 @@ export const WikiPageView = observer(function WikiPageView({
     hasDocument,
     setupActive,
   });
-  useRefreshWhileWikiSetupWorks(setupActive);
+  useRefreshWhileWikiSetupWorks(initialSetupState);
   const canOpenSetupTask =
     Boolean(setupConversationId) && rootStore.agentChatEnabled && agentChatStore.enabled !== false;
   const tryNavigate = useCallback(
@@ -323,14 +323,8 @@ export const WikiPageView = observer(function WikiPageView({
               {canManage ? (
                 <div className="grid gap-3" data-wiki-page-kind="">
                   <FormSelect
-                    ariaLabel={t("Wiki.kind.label")}
                     className="h-8 w-auto min-w-32 text-sm"
                     containerClassName="w-fit"
-                    endContent={
-                      <FormFieldHelp label={t("Common.ariaLabels.explainField", { field: t("Wiki.kind.label") })}>
-                        {kindHelp[store.form.kind]}
-                      </FormFieldHelp>
-                    }
                     id="kind"
                     items={WIKI_PAGE_KINDS.map((kind) => ({
                       value: kind,
@@ -338,7 +332,12 @@ export const WikiPageView = observer(function WikiPageView({
                       description: kind === "guide" && otherGuide ? t("Wiki.kind.guideExists") : kindDescriptions[kind],
                       disabled: kind === "guide" && otherGuide,
                     }))}
-                    label={null}
+                    label={t("Wiki.kind.label")}
+                    labelEndAddon={
+                      <FormFieldHelp label={t("Common.ariaLabels.explainField", { field: t("Wiki.kind.label") })}>
+                        {kindHelp[store.form.kind]}
+                      </FormFieldHelp>
+                    }
                   />
 
                   {store.form.kind === "procedure" && (

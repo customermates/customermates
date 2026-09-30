@@ -48,6 +48,23 @@ describe("suggestionPageId", () => {
 });
 
 describe("suggestion catalogs", () => {
+  it("uses existing knowledge before asking for workspace setup details", () => {
+    const t = translatorFor("en");
+    for (const [pageId, actionId] of [
+      ["dashboard", "setup"],
+      ["contacts", "setup-contacts"],
+      ["organizations", "setup-organizations"],
+      ["deals", "setup-pipeline"],
+      ["services", "setup-services"],
+      ["routines", "first-routine"],
+      ["wiki", "wiki-structure"],
+    ] as const) {
+      const action = agentPageActions(pageId, "empty", t, "en").find(({ id }) => id === actionId);
+      expect(action?.prompt).toMatch(/Knowledge Base/);
+      expect(action?.prompt).not.toMatch(/Ask me a few focused questions|Ask about my use case first/);
+    }
+  });
+
   it.each(APP_LOCALES)("%s catalog returns exactly three usable actions for every page and state", (locale) => {
     for (const pageId of SUGGESTION_PAGE_IDS) {
       for (const state of ["data", "empty"] as const) {

@@ -156,6 +156,15 @@ describe("Wiki document editing", () => {
     expect(store.form.id).toBe("10000000-0000-4000-8000-000000000002");
   });
 
+  it("keeps the editor document stable when the same page arrives again", () => {
+    const store = new WikiPageStore(rootStore(), page, vi.fn());
+    const document = store.editorDocument;
+    store.receivePage({ ...page, updatedAt: new Date(page.updatedAt) });
+    expect(store.editorDocument).toBe(document);
+    store.receivePage(latest);
+    expect(store.editorDocument).not.toBe(document);
+  });
+
   it("ignores an older same-page snapshot after a successful Save", async () => {
     const store = new WikiPageStore(rootStore(), page, vi.fn());
     store.onChange("title", "My update");
