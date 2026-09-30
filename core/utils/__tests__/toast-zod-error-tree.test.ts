@@ -73,4 +73,10 @@ describe("toastZodErrorTree", () => {
     expect(toastZodErrorTree({})).toBe(false);
     expect(toast.error).not.toHaveBeenCalled();
   });
+  it("keeps a recovery action on a provider rate-limit toast", () => {
+    const retry = vi.fn();
+    const options = { action: { label: "Retry", onClick: retry } };
+    expect(toastZodErrorTree({ errors: ["Rate limit reached. Try again shortly."] }, options)).toBe(true);
+    expect(toast.error).toHaveBeenCalledExactlyOnceWith("Rate limit reached. Try again shortly.", options);
+  });
 });

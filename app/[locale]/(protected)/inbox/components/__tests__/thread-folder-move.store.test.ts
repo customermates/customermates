@@ -22,7 +22,12 @@ const CONTEXT = { folders: [], selectedFolderIds: ["inbox"], currentFolderIds: [
 function store() {
   const instance = new MessagingThreadDetailStore({
     messagingThreadsStore: { items: [], refresh: vi.fn().mockResolvedValue(undefined) },
-    threadComposeStore: { form: { threadId: "" }, hasComposedContent: false },
+    threadComposeStore: {
+      form: { threadId: "" },
+      hasComposedContent: false,
+      getPendingMessages: () => [],
+      getDeliveryStatus: () => undefined,
+    },
     loadingOverlayStore: { withLoading: async (fn: () => Promise<void>) => fn() },
     localeStore: { getTranslation: (key: string) => key },
   } as never);

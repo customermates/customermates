@@ -17,7 +17,7 @@ import { MessagingThreadDetailStore } from "../messaging-thread-detail.store";
 
 function detail(id = "thread", messages = [{ id: "message" }]): ThreadDetail {
   return {
-    thread: { id, provider: MessagingProvider.mail },
+    thread: { id, provider: MessagingProvider.mail, unipileThreadId: "provider-thread" },
     messages,
     accountOwners: {},
     folderContext: {
@@ -31,13 +31,22 @@ function setup() {
   const refresh = vi.fn().mockResolvedValue(undefined);
   const withLoading = vi.fn(async (run: () => Promise<unknown>) => run());
   const store = new MessagingThreadDetailStore({
+    appMode: "cloud",
+    userStore: { can: vi.fn(() => true) },
     messagingThreadsStore: {
       items: [],
       refresh,
       upsertItem: vi.fn().mockResolvedValue(undefined),
       refreshUnreadCount: vi.fn().mockResolvedValue(undefined),
     },
-    threadComposeStore: { form: { threadId: "" }, hasComposedContent: false },
+    threadComposeStore: {
+      form: { threadId: "" },
+      hasComposedContent: false,
+      hasUnsavedChanges: false,
+      newThreadTarget: null,
+      getPendingMessages: vi.fn(() => []),
+      getDeliveryStatus: vi.fn(),
+    },
     loadingOverlayStore: { withLoading },
     localeStore: { getTranslation: (key: string) => key },
   } as unknown as RootStore);
@@ -64,6 +73,60 @@ const moved = {
 beforeEach(() => vi.resetAllMocks());
 
 describe("inbox reconciliation", () => {
+  it.each(["loadOlderMessages", "resyncThread"] as const)(
+    "does not request provider history through %s for a consumed cold draft with newer work",
+    async (method) => {
+      const { store, withLoading } = setup();
+      const cached = detail("cold-draft", []);
+      cached.thread.unipileThreadId = "draft_synthetic";
+      store.hydrate(cached);
+      Object.assign(store.rootStore.threadComposeStore, {
+        newThreadTarget: { connectedAccountId: "account", recipients: [] },
+        hasUnsavedChanges: true,
+        hasComposedContent: true,
+      });
+
+      await store[method]();
+
+      expect(actions.resyncThreadAction).not.toHaveBeenCalled();
+      expect(actions.getMessagingThreadAction).not.toHaveBeenCalled();
+      expect(withLoading).not.toHaveBeenCalled();
+      expect(store.loadingOlder).toBe(false);
+      expect(store.thread?.id).toBe("cold-draft");
+      expect(store.rootStore.threadComposeStore.hasUnsavedChanges).toBe(true);
+    },
+  );
+  it.each(["loadOlderMessages", "resyncThread"] as const)(
+    "still loads provider history through %s for an existing conversation",
+    async (method) => {
+      const { store, withLoading } = setup();
+      actions.resyncThreadAction.mockResolvedValue({ ok: true, data: { fetched: true } });
+      actions.getMessagingThreadAction.mockResolvedValue(detail("thread", [{ id: "older-message" }]));
+
+      await store[method]();
+
+      expect(actions.resyncThreadAction).toHaveBeenCalledExactlyOnceWith("thread");
+      expect(actions.getMessagingThreadAction).toHaveBeenCalledExactlyOnceWith("thread");
+      expect(withLoading).toHaveBeenCalledTimes(method === "resyncThread" ? 1 : 0);
+      expect(store.loadingOlder).toBe(false);
+      expect(store.messages.map((message) => message.id)).toEqual(["older-message"]);
+    },
+  );
+  it.each(["sending", "failed"] as const)("restores a %s delivery when returning to its conversation", (status) => {
+    const { store } = setup();
+    const outgoing = { id: "draft", messagingThreadId: "thread", isDraft: false, bodyText: "Pending reply" };
+    Object.assign(store.rootStore.threadComposeStore, {
+      getPendingMessages: (id: string) => (id === "thread" ? [outgoing] : []),
+      getDeliveryStatus: () => status,
+    });
+    store.hydrate(detail("other"));
+    expect(store.messages).toEqual([{ id: "message" }]);
+    expect(store.messageStatus).toEqual({});
+    store.hydrate(detail("thread", [{ id: "draft" }, { id: "message" }]));
+    expect(store.messages).toEqual([{ id: "message" }, outgoing]);
+    expect(store.messageStatus).toEqual({ draft: status });
+  });
+
   it("closes an email conversation when no visible messages remain", async () => {
     const { store } = setup();
     actions.getMessagingThreadAction.mockResolvedValue(detail("thread", []));
@@ -172,6 +235,64 @@ describe("inbox reconciliation", () => {
     await refresh;
     expect(store.thread?.id).toBe("thread");
     expect(store.unavailableThreadId).toBeNull();
+  });
+  it.each(
+    [false, true].flatMap((cold) =>
+      [false, true].flatMap((duringRefresh) =>
+        ["body", "metadata", "attachments"].map((edit) => ({ cold, duringRefresh, edit })),
+      ),
+    ),
+  )(
+    "keeps newer $edit work visible when a thread disappears (cold: $cold, during refresh: $duringRefresh)",
+    async ({ cold, duringRefresh, edit }) => {
+      const { store } = setup();
+      const cached = detail();
+      cached.thread.unipileThreadId = cold ? "draft_synthetic" : "provider-thread";
+      store.hydrate(cached);
+      Object.assign(store.rootStore.threadComposeStore, {
+        form: { threadId: cold ? "" : "thread" },
+        newThreadTarget: cold ? { connectedAccountId: "account", draftThreadId: undefined, recipients: [] } : null,
+      });
+      const pending = deferred<ThreadDetail | null>();
+      actions.getMessagingThreadAction.mockReturnValue(pending.promise);
+      const refreshing = duringRefresh ? store.refresh(true) : undefined;
+      Object.assign(store.rootStore.threadComposeStore, {
+        hasUnsavedChanges: edit !== "attachments",
+        hasComposedContent: edit !== "metadata",
+      });
+      pending.resolve(null);
+      await (refreshing ?? store.refresh(true));
+
+      expect(actions.getMessagingThreadAction).toHaveBeenCalledTimes(duringRefresh ? 1 : 0);
+      expect(store.thread?.id).toBe("thread");
+      expect(store.messages).toEqual(cached.messages);
+      expect(store.unavailableThreadId).toBeNull();
+    },
+  );
+  it.each([
+    { threadId: "other", draftThreadId: null, cold: false },
+    { threadId: "", draftThreadId: "other-cold", cold: true },
+    { threadId: "", draftThreadId: "other-cold", cold: false },
+  ])("does not keep an unavailable thread for an unrelated composer ($cold, $threadId)", async (context) => {
+    const { store } = setup();
+    const cached = detail();
+    cached.thread.unipileThreadId = context.cold ? "draft_synthetic" : "provider-thread";
+    store.hydrate(cached);
+    Object.assign(store.rootStore.threadComposeStore, {
+      form: { threadId: context.threadId },
+      hasUnsavedChanges: true,
+      hasComposedContent: true,
+      newThreadTarget: context.draftThreadId
+        ? { connectedAccountId: "account", recipients: [], draftThreadId: context.draftThreadId }
+        : null,
+    });
+    actions.getMessagingThreadAction.mockResolvedValue(null);
+
+    await store.refresh(true);
+
+    expect(actions.getMessagingThreadAction).toHaveBeenCalledOnce();
+    expect(store.thread).toBeNull();
+    expect(store.unavailableThreadId).toBe("thread");
   });
   it("does not overwrite a completed mark-read with an older background read", async () => {
     const { store } = setup();

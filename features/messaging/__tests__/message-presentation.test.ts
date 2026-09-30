@@ -13,6 +13,8 @@ const harness = vi.hoisted(() => ({
   loadDraft: vi.fn(),
   discardDraft: vi.fn(),
   send: vi.fn(),
+  sendDraft: vi.fn(),
+  getDeliveryStatus: () => undefined,
   retrySend: vi.fn(),
   messageStatus: {} as Record<string, string>,
   timelineEntry: null as ActivityEntryDto | null,
@@ -406,7 +408,9 @@ describe("Inbox and activity consumers", () => {
     act(() => button("Inbox.compose.draftEdit").click());
     expect(harness.loadDraft).toHaveBeenCalledWith(message);
     act(() => button("Inbox.compose.draftSendNow").click());
-    expect(harness.send).toHaveBeenCalledOnce();
+    expect(harness.sendDraft).toHaveBeenCalledExactlyOnceWith(message);
+    expect(harness.loadDraft).toHaveBeenCalledOnce();
+    expect(harness.send).not.toHaveBeenCalled();
     act(() => button("Inbox.compose.draftDiscard").click());
     expect(harness.discardDraft).toHaveBeenCalledWith(message.id, message.draftRevision);
   });

@@ -122,7 +122,7 @@ export const ThreadReplyComposer = observer(
 
     useEffect(() => {
       setExpanded(false);
-    }, [threadId]);
+    }, [threadId, threadComposeStore.submissionVersion]);
 
     function insertEmoji(emoji: string) {
       if (threadComposeStore.isEmail) {
@@ -226,7 +226,7 @@ export const ThreadReplyComposer = observer(
       Boolean(threadComposeStore.form.body?.trim()) ||
       attachments.length > 0 ||
       Boolean(editingDraftId) ||
-      isNewThread ||
+      (isNewThread && !threadId) ||
       isLoading;
     const isOpen = expanded || hasWorkInProgress;
 
