@@ -12,7 +12,7 @@ const mocks = vi.hoisted(() => ({
   toast: { success: vi.fn(), warning: vi.fn(), error: vi.fn() },
 }));
 
-vi.mock("@sentry/nextjs", () => ({ captureException: mocks.captureException }));
+vi.mock("@/core/observability/browser", () => ({ captureException: mocks.captureException }));
 vi.mock("@/components/entity-terminology/use-column-label", () => ({
   useColumnLabel: () => (columnId: string) => `label:${columnId}`,
 }));

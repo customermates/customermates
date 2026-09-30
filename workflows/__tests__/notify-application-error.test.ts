@@ -34,7 +34,7 @@ afterEach(() => vi.unstubAllEnvs());
 describe("application error notification", () => {
   it("sends actionable context with a bounded stable idempotency key", async () => {
     const { sendErrorNotification } = await import("../notify-application-error");
-    await sendErrorNotification(report);
+    await expect(sendErrorNotification(report)).resolves.toEqual({ emailId: "local-email" });
     await sendErrorNotification(report);
     expect(state.send.mock.calls[0]).toEqual(state.send.mock.calls[1]);
     expect(state.send.mock.calls[0][1].idempotencyKey.length).toBeLessThan(256);

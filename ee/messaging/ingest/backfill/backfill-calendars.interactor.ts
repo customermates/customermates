@@ -5,7 +5,7 @@ import type { BackfillConnectedAccountRepo } from "./backfill.repo";
 
 import { z } from "zod";
 
-import * as Sentry from "@sentry/node";
+import * as ErrorReporter from "@/core/observability/server";
 
 import { ConnectedAccountStatus } from "@/generated/prisma";
 
@@ -43,7 +43,7 @@ export class BackfillCalendarsInteractor {
     } catch (err) {
       if (isUnipileRateLimit(err) || isUnipileTimeout(err)) throw err;
 
-      Sentry.captureException(err, {
+      ErrorReporter.captureException(err, {
         tags: {
           unipileAccountId: account.unipileAccountId,
           companyId: account.companyId,
@@ -94,7 +94,7 @@ export class BackfillCalendarsInteractor {
       } catch (fallbackErr) {
         if (isUnipileRateLimit(fallbackErr) || isUnipileTimeout(fallbackErr)) throw fallbackErr;
 
-        Sentry.captureException(fallbackErr, {
+        ErrorReporter.captureException(fallbackErr, {
           tags: {
             unipileAccountId: account.unipileAccountId,
             companyId: account.companyId,
@@ -129,7 +129,7 @@ export class BackfillCalendarsInteractor {
     });
 
     if (!result.complete) {
-      Sentry.captureMessage("Calendar event backfill stopped before the end of the calendar", {
+      ErrorReporter.captureMessage("Calendar event backfill stopped before the end of the calendar", {
         level: "warning",
         tags: {
           unipileAccountId: account.unipileAccountId,
@@ -167,7 +167,7 @@ export class BackfillCalendarsInteractor {
 
       return { unipileCalendarId: parsed.data.id, calendarId: stored.id };
     } catch (err) {
-      Sentry.captureException(err, {
+      ErrorReporter.captureException(err, {
         tags: {
           unipileAccountId: account.unipileAccountId,
           companyId: account.companyId,
@@ -221,7 +221,7 @@ export class BackfillCalendarsInteractor {
         attendeeEmails: collectAttendeeEmails(normalized),
       });
     } catch (err) {
-      Sentry.captureException(err, {
+      ErrorReporter.captureException(err, {
         tags: {
           unipileAccountId: account.unipileAccountId,
           companyId: account.companyId,

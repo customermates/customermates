@@ -1,10 +1,17 @@
 import { afterEach, beforeEach, describe, expect, it, vi } from "vitest";
 
 const state = vi.hoisted(() => ({ session: vi.fn(), publish: vi.fn() }));
-vi.mock("@/core/di", () => ({ getAuthService: () => ({ getInteractiveSession: state.session }) }));
-vi.mock("@/core/observability/publish-error", () => ({ publishServerError: state.publish }));
+vi.mock("@/core/observability/request-context", () => ({
+  requestErrorContext: state.session,
+}));
+vi.mock("@/core/observability/publish-error", () => ({
+  publishServerError: state.publish,
+}));
 vi.mock("@/env", () => ({
-  env: { BASE_URL: "https://preview.example.com", AUTH_ALLOWED_HOSTS: ["preview.example.com"] },
+  env: {
+    BASE_URL: "https://preview.example.com",
+    AUTH_ALLOWED_HOSTS: ["preview.example.com"],
+  },
 }));
 
 const report = {
@@ -22,34 +29,48 @@ let requests = 0;
 function request(body: unknown = report, origin = "https://preview.example.com") {
   return new Request("https://preview.example.com/api/observability/errors", {
     method: "POST",
-    headers: { origin, "content-type": "application/json", "x-real-ip": String(++requests) },
+    headers: {
+      origin,
+      "content-type": "application/json",
+      "x-real-ip": String(++requests),
+    },
     body: JSON.stringify(body),
   });
 }
 
 beforeEach(() => {
   vi.stubEnv("NEXT_PUBLIC_ERROR_REPORTING_PROVIDER", "vercel");
-  state.session.mockReset().mockResolvedValue({ user: { id: "trusted-user", companyId: "trusted-company" } });
+  state.session.mockReset().mockResolvedValue({
+    authenticated: true,
+    context: {
+      user: { id: "trusted-user" },
+      tags: { companyId: "trusted-company" },
+    },
+  });
   state.publish.mockReset().mockResolvedValue(undefined);
 });
 afterEach(() => vi.unstubAllEnvs());
 
 describe("browser error intake", () => {
-  it("is disabled for existing deployments", async () => {
-    vi.stubEnv("NEXT_PUBLIC_ERROR_REPORTING_PROVIDER", "sentry");
+  it("is disabled when reporting is explicitly off", async () => {
+    vi.stubEnv("NEXT_PUBLIC_ERROR_REPORTING_PROVIDER", "off");
     const { POST } = await import("../route");
     expect((await POST(request())).status).toBe(404);
     expect(state.session).not.toHaveBeenCalled();
     expect(state.publish).not.toHaveBeenCalled();
   });
 
-  it("rejects cross-origin and anonymous submissions before notification", async () => {
+  it("rejects cross-origin submissions and logs anonymous errors without notifications", async () => {
     const { POST } = await import("../route");
     expect((await POST(request(report, "https://attacker.example.com"))).status).toBe(403);
-    state.session.mockResolvedValue(null);
+    state.session.mockResolvedValue({ authenticated: false, context: {} });
     for (let index = 0; index < 20; index++)
-      expect((await POST(request({ ...report, id: `forged-${index}` }))).status).toBe(401);
-    expect(state.publish).not.toHaveBeenCalled();
+      expect((await POST(request({ ...report, id: `forged-${index}` }))).status).toBe(202);
+    expect(state.publish).toHaveBeenCalledTimes(20);
+    for (const [report, notify] of state.publish.mock.calls) {
+      expect(report.tenant).toBeUndefined();
+      expect(notify).toBe(false);
+    }
   });
 
   it("accepts the verified public host when Next uses an internal request URL", async () => {
@@ -70,7 +91,15 @@ describe("browser error intake", () => {
   it("uses authenticated context, scrubs input and preserves the reported event time", async () => {
     const { POST } = await import("../route");
     expect(
-      (await POST(request({ ...report, tenant: { userId: "forged" }, extra: { secret: "private" } }))).status,
+      (
+        await POST(
+          request({
+            ...report,
+            tenant: { userId: "forged" },
+            extra: { secret: "private" },
+          }),
+        )
+      ).status,
     ).toBe(202);
     expect(state.publish).toHaveBeenCalledWith(
       expect.objectContaining({
@@ -78,6 +107,7 @@ describe("browser error intake", () => {
         message: "failed token=[redacted]",
         timestamp: expect.any(Number),
       }),
+      true,
     );
     expect(state.publish.mock.calls[0][0].timestamp).toBe(report.timestamp);
     expect(state.publish.mock.calls[0][0]).not.toHaveProperty("extra");
@@ -91,6 +121,25 @@ describe("browser error intake", () => {
     expect(state.publish).not.toHaveBeenCalled();
   });
 
+  it("preserves bounded browser causes and redacts them before publication", async () => {
+    const { POST } = await import("../route");
+    const cause = {
+      name: "Error",
+      message: "underlying token=private for person@example.com",
+      frames: [{ file: "https://preview.example.com/code.js?token=private", line: 5 }],
+      extra: { secret: "private" },
+    };
+    expect((await POST(request({ ...report, causes: [cause] }))).status).toBe(202);
+    const captured = state.publish.mock.lastCall?.[0];
+    expect(captured.causes).toHaveLength(1);
+    expect(captured.causes[0].message).toContain("underlying");
+    expect(JSON.stringify(captured.causes)).not.toMatch(/private|person@|extra/);
+    expect((await POST(request({ ...report, causes: Array(4).fill(cause) }))).status).toBe(400);
+    expect(
+      (await POST(request({ ...report, causes: [{ ...cause, frames: Array(4).fill(cause.frames[0]) }] }))).status,
+    ).toBe(400);
+  });
+
   it("normalizes browser paths and removes invitation secrets and encoded email", async () => {
     const { POST } = await import("../route");
     for (const path of [
@@ -100,7 +149,16 @@ describe("browser error intake", () => {
       expect((await POST(request({ ...report, path }))).status).toBe(202);
       expect(state.publish.mock.lastCall?.[0].path).toBe("/en/invitation/[redacted]");
     }
-    expect((await POST(request({ ...report, path: "/en/person%40example.com?token=query-secret" }))).status).toBe(202);
+    expect(
+      (
+        await POST(
+          request({
+            ...report,
+            path: "/en/person%40example.com?token=query-secret",
+          }),
+        )
+      ).status,
+    ).toBe(202);
     expect(state.publish.mock.lastCall?.[0].path).toBe("/en/[redacted email]");
     expect(JSON.stringify(state.publish.mock.calls)).not.toMatch(/synthetic-secret|credential|query-secret|person/);
   });

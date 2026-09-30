@@ -38,7 +38,7 @@ vi.mock("@/core/di", () => ({
 vi.mock("@/core/validation/zod-error-map-server", () => ({
   getZodParseContext: vi.fn().mockResolvedValue(undefined),
 }));
-vi.mock("@sentry/nextjs", () => ({
+vi.mock("@/core/observability/server", () => ({
   captureException: vi.fn(),
   setTag: vi.fn(),
   setUser: vi.fn(),

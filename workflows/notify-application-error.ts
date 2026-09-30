@@ -14,7 +14,7 @@ function permanentFailure(): Error {
   return new FatalError(`${ERROR_NOTIFICATION_FAILURE_PREFIX} configuration rejected`);
 }
 
-export async function sendErrorNotification(report: ErrorReport): Promise<void> {
+export async function sendErrorNotification(report: ErrorReport): Promise<{ emailId: string }> {
   "use step";
   const to = process.env.ERROR_REPORTING_NOTIFICATION_EMAIL;
   const from = process.env.RESEND_OPERATOR_EMAIL;
@@ -33,7 +33,7 @@ export async function sendErrorNotification(report: ErrorReport): Promise<void> 
     new TextEncoder().encode(JSON.stringify([report.buildId, report.id])),
   );
   const idempotencyKey = `application-error/${Array.from(new Uint8Array(hash), (byte) => byte.toString(16).padStart(2, "0")).join("")}`;
-  const { error } = await new Resend(key).emails.send(
+  const { error, data } = await new Resend(key).emails.send(
     {
       from,
       to,
@@ -49,6 +49,7 @@ export async function sendErrorNotification(report: ErrorReport): Promise<void> 
         report.workflowName ? `Workflow: ${report.workflowName}` : "",
         report.tenant ? `Tenant: ${JSON.stringify(report.tenant)}` : "",
         stack,
+        ...(report.causes?.map((cause) => `Caused by ${cause.name}: ${cause.message}`) ?? []),
         "Use the event ID to locate the structured Vercel log and the exact build ID for private source-map lookup.",
       ]
         .filter(Boolean)
@@ -69,10 +70,12 @@ export async function sendErrorNotification(report: ErrorReport): Promise<void> 
       throw permanentFailure();
     throw new ErrorNotificationDeliveryFailure();
   }
+  if (!data?.id) throw new ErrorNotificationDeliveryFailure();
+  return { emailId: data.id };
 }
 sendErrorNotification.maxRetries = 5;
 
-export async function notifyApplicationError(report: ErrorReport): Promise<void> {
+export async function notifyApplicationError(report: ErrorReport): Promise<{ emailId: string }> {
   "use workflow";
-  await sendErrorNotification(report);
+  return sendErrorNotification(report);
 }

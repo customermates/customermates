@@ -1,5 +1,5 @@
 import { isClientTransportError } from "./client-transport-error";
-import { captureError } from "./sentry-client";
+import { captureError } from "./client-reporter";
 
 type ApplicationErrorHandler = (error: unknown) => void;
 

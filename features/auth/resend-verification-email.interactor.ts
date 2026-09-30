@@ -1,7 +1,7 @@
 import type { AuthService } from "./auth.service";
 import type { OnboardingIntentService } from "@/features/company/onboarding-intent.service";
 
-import * as Sentry from "@sentry/nextjs";
+import * as ErrorReporter from "@/core/observability/server";
 
 import { SystemInteractor } from "@/core/decorators/system-interactor.decorator";
 import { pathWithOnboardingIntent } from "@/features/company/onboarding-intent-url";
@@ -27,7 +27,7 @@ export class ResendVerificationEmailInteractor {
     try {
       await this.authService.resendVerificationEmail(email, { callbackURL, keepSession: true });
     } catch (error) {
-      Sentry.captureException(error);
+      ErrorReporter.captureException(error);
       return { ok: false };
     }
 

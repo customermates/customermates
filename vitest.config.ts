@@ -3,6 +3,9 @@ import path from "path";
 import { defineConfig } from "vitest/config";
 
 const aliases = {
+  // Existing PR mocks must intercept the native implementation forwarded by the legacy facade.
+  "@sentry/nextjs": path.resolve(__dirname, "./core/observability/server.ts"),
+  "@sentry/node": path.resolve(__dirname, "./core/observability/server.ts"),
   "@": path.resolve(__dirname, "."),
   "@api": path.resolve(__dirname, "./app/api"),
   "server-only": path.resolve(__dirname, "./tests/helpers/server-only.ts"),

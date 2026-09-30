@@ -8,7 +8,7 @@ import { mcpInteractorFailure, type McpTool } from "@/features/mcp-tools/mcp-too
 
 const sentry = vi.hoisted(() => ({ captureException: vi.fn() }));
 
-vi.mock("@sentry/nextjs", () => sentry);
+vi.mock("@/core/observability/server", () => sentry);
 vi.mock("@/env", () => ({ env: { BASE_URL: "http://localhost:4105" } }));
 vi.mock("@/core/di", () => ({
   getUpsertCustomColumnInteractor: vi.fn(),

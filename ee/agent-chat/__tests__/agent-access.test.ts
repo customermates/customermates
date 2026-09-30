@@ -1,5 +1,5 @@
 import { beforeEach, describe, expect, it, vi } from "vitest";
-import * as Sentry from "@sentry/nextjs";
+import * as ErrorReporter from "@/core/observability/server";
 import { z } from "zod";
 
 import { createMockUserWithPermissions } from "@/tests/helpers/mock-user";
@@ -30,7 +30,7 @@ vi.mock("next-intl/server", () => ({
   getTranslations: () => Promise.resolve({ raw: (key: string) => key }),
 }));
 vi.mock("@/prisma/db", () => MOCK_PRISMA_DB_MODULE);
-vi.mock("@sentry/nextjs", () => ({
+vi.mock("@/core/observability/server", () => ({
   captureException: vi.fn(),
   setTag: vi.fn(),
   setUser: vi.fn(),
@@ -1047,7 +1047,7 @@ describe("agent access", () => {
       }),
     ).rejects.toBe(admissionFailure);
 
-    expect(Sentry.captureException).toHaveBeenCalledWith(cleanupFailure, {
+    expect(ErrorReporter.captureException).toHaveBeenCalledWith(cleanupFailure, {
       tags: { kind: "agent-admission-cleanup-failure" },
     });
   });

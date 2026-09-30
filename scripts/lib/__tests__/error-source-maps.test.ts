@@ -4,7 +4,12 @@ import { join } from "node:path";
 
 import { afterEach, describe, expect, it, vi } from "vitest";
 
-import { exportErrorSourceMaps, loadErrorSourceMaps, resolveErrorFrames } from "../error-source-maps";
+import {
+  exportErrorSourceMaps,
+  loadErrorSourceMaps,
+  resolveErrorFrames,
+  resolveErrorReport,
+} from "../error-source-maps";
 
 afterEach(() => vi.unstubAllEnvs());
 
@@ -57,6 +62,23 @@ describe("private error source maps", () => {
       expect(
         resolveErrorFrames(archive, "build-1", [{ file: "https://attacker.example.com/file.js", line: 1 }])[0].mapped,
       ).toBe(false);
+      const wrapped = await resolveErrorReport(root, {
+        buildId: "build-1",
+        frames: [{ file: "unknown-wrapper.js", line: 1 }],
+        causes: [
+          {
+            name: "Error",
+            message: "underlying failure",
+            frames: [{ file: "/var/task/.next/server/chunk.js", line: 1, column: 1 }],
+          },
+        ],
+      });
+      expect(wrapped.frames[0].mapped).toBe(false);
+      expect(wrapped.causes[0]).toMatchObject({
+        name: "Error",
+        message: "underlying failure",
+        frames: [{ mapped: true, file: "features/example.ts", line: 1, column: 1 }],
+      });
     } finally {
       await rm(root, { recursive: true, force: true });
     }

@@ -1,5 +1,5 @@
 import { z } from "zod";
-import * as Sentry from "@sentry/node";
+import * as ErrorReporter from "@/core/observability/server";
 
 import { ConnectedAccountStatus } from "@/generated/prisma";
 
@@ -38,7 +38,7 @@ export class ProcessAccountReconnectWebhookInteractor {
     } catch (err) {
       if (!(err instanceof z.ZodError)) throw err;
 
-      Sentry.captureException(err, { tags: { unipileAccountId: account.unipileAccountId } });
+      ErrorReporter.captureException(err, { tags: { unipileAccountId: account.unipileAccountId } });
     }
 
     await this.accountRepo.updateAccountUnscoped({

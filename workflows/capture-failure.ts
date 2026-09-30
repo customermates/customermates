@@ -1,4 +1,4 @@
-import * as Sentry from "@sentry/nextjs";
+import * as ErrorReporter from "@/core/observability/server";
 
 import type { WorkflowTenant } from "./workflow-tenant";
 
@@ -31,17 +31,17 @@ export async function reportFailure(
   }
 
   try {
-    Sentry.withScope((scope) => {
+    ErrorReporter.withScope((scope) => {
       scope.setContext("workflow", { workflowName });
       if (tenant) {
         scope.setUser({ id: tenant.userId });
         scope.setTag("companyId", tenant.companyId);
       }
-      Sentry.captureException(error);
+      ErrorReporter.captureException(error);
     });
-    await Sentry.flush(2000);
+    await ErrorReporter.flush(2000);
   } catch (reportingError) {
-    console.error(`[workflow:${workflowName}] failed to report failure to Sentry`, reportingError);
+    console.error(`[workflow:${workflowName}] failed to report failure to the error reporter`, reportingError);
   }
 }
 reportFailure.maxRetries = 0;
@@ -54,18 +54,18 @@ export async function reportWarning(workflowName: string, message: string, tenan
   }
 
   try {
-    Sentry.withScope((scope) => {
+    ErrorReporter.withScope((scope) => {
       scope.setContext("workflow", { workflowName });
       scope.setLevel("warning");
       if (tenant) {
         scope.setUser({ id: tenant.userId });
         scope.setTag("companyId", tenant.companyId);
       }
-      Sentry.captureMessage(message);
+      ErrorReporter.captureMessage(message);
     });
-    await Sentry.flush(2000);
+    await ErrorReporter.flush(2000);
   } catch (reportingError) {
-    console.error(`[workflow:${workflowName}] failed to report warning to Sentry`, reportingError);
+    console.error(`[workflow:${workflowName}] failed to report warning to the error reporter`, reportingError);
   }
 }
 reportWarning.maxRetries = 0;

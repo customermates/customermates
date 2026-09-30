@@ -9,7 +9,7 @@ import type { EntitlementService } from "@/ee/subscription/entitlement.service";
 import { z } from "zod";
 import { randomUUID } from "node:crypto";
 import { getLocale } from "next-intl/server";
-import * as Sentry from "@sentry/node";
+import * as ErrorReporter from "@/core/observability/server";
 
 import {
   Resource,
@@ -231,7 +231,7 @@ export class StartChatInteractor extends AuthenticatedInteractor<StartChatData, 
         });
         threadId = persisted.messagingThreadId;
       } catch (err) {
-        Sentry.captureException(err);
+        ErrorReporter.captureException(err);
       }
     }
 
@@ -242,7 +242,7 @@ export class StartChatInteractor extends AuthenticatedInteractor<StartChatData, 
           expectedUpdatedAt: draftUpdatedAtFromRevision(data.draftRevision),
         });
       } catch (err) {
-        Sentry.captureException(err, { tags: { kind: "draft-discard-failure" } });
+        ErrorReporter.captureException(err, { tags: { kind: "draft-discard-failure" } });
       }
     }
 

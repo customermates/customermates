@@ -6,7 +6,6 @@ import { readFileSync } from "node:fs";
 import { PHASE_DEVELOPMENT_SERVER, PHASE_PRODUCTION_BUILD } from "next/constants";
 import createNextIntlPlugin from "next-intl/plugin";
 import { createMDX } from "fumadocs-mdx/next";
-import { withSentryConfig } from "@sentry/nextjs";
 import { withWorkflow } from "workflow/next";
 
 import { env } from "@/env";
@@ -86,15 +85,6 @@ const nextConfig: NextConfig = {
   },
 };
 
-const sentryOptions = {
-  org: env.SENTRY_ORG,
-  project: env.SENTRY_PROJECT,
-  authToken: env.SENTRY_AUTH_TOKEN,
-  silent: !env.CI,
-  widenClientFileUpload: true,
-  tunnelRoute: "/monitoring",
-};
-
 export default async function configure(phase: string, context: { defaultConfig: NextConfig }) {
   // The production runner serves built CSS and does not ship the source graph.
   if (phase === PHASE_DEVELOPMENT_SERVER || phase === PHASE_PRODUCTION_BUILD) {
@@ -102,9 +92,9 @@ export default async function configure(phase: string, context: { defaultConfig:
     generateStyleSources(process.cwd(), phase === PHASE_DEVELOPMENT_SERVER);
     await generatePublicStyles(process.cwd(), phase === PHASE_DEVELOPMENT_SERVER);
   }
-  const provider = process.env.NEXT_PUBLIC_ERROR_REPORTING_PROVIDER ?? "sentry";
-  if (provider !== "sentry" && provider !== "vercel")
-    throw new Error("NEXT_PUBLIC_ERROR_REPORTING_PROVIDER must be sentry or vercel");
+  const provider = process.env.NEXT_PUBLIC_ERROR_REPORTING_PROVIDER || "vercel";
+  if (provider !== "off" && provider !== "vercel")
+    throw new Error("NEXT_PUBLIC_ERROR_REPORTING_PROVIDER must be off or vercel");
   let config = nextConfig;
   if (provider === "vercel") {
     const buildId =
@@ -135,7 +125,5 @@ export default async function configure(phase: string, context: { defaultConfig:
     };
   }
   const composed = withWorkflow(withMDX(withNextIntl(config)));
-  const configured =
-    provider === "sentry" && env.NEXT_PUBLIC_SENTRY_DSN ? withSentryConfig(composed, sentryOptions) : composed;
-  return configured(phase, context);
+  return composed(phase, context);
 }

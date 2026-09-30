@@ -3,7 +3,7 @@ import { oAuthProxy, mcp } from "better-auth/plugins";
 import { apiKey } from "@better-auth/api-key";
 import { nextCookies } from "better-auth/next-js";
 import { betterAuth } from "better-auth/minimal";
-import * as Sentry from "@sentry/nextjs";
+import * as ErrorReporter from "@/core/observability/server";
 
 import { prisma } from "@/prisma/db";
 import { runWithoutTenant } from "@/core/decorators/tenant-context";
@@ -89,7 +89,7 @@ export const auth = betterAuth({
               );
             }
           } catch (error) {
-            Sentry.captureException(error);
+            ErrorReporter.captureException(error);
           }
         },
       },
@@ -112,7 +112,7 @@ export const auth = betterAuth({
             const { getAuthService } = await import("@/core/di");
             await getAuthService().sendAccountAccessRevokedEmail({ to: authUser.email });
           } catch (error) {
-            Sentry.captureException(error);
+            ErrorReporter.captureException(error);
           }
         },
       },

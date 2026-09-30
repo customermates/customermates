@@ -13,6 +13,11 @@ import { get, put } from "@vercel/blob";
 
 type Archive = { version: number; buildId: string; maps: Record<string, string>; bundles: Record<string, string> };
 type Frame = { file: string; function?: string; line?: number; column?: number };
+export type ErrorSourceMapReport = {
+  buildId: string;
+  frames: Frame[];
+  causes?: { name: string; message: string; frames: Frame[] }[];
+};
 
 function checkedBuildId(value: string): string {
   if (!/^[a-zA-Z0-9_-]{1,128}$/.test(value)) throw new Error("Invalid error reporting build ID");
@@ -89,6 +94,7 @@ export async function exportErrorSourceMaps(root: string): Promise<{ buildId: st
     if (process.env.VERCEL) {
       await put(`error-source-maps/${buildId}.json.gz`, createReadStream(file), {
         access: "private",
+        token: process.env.BLOB_READ_WRITE_TOKEN,
         addRandomSuffix: false,
         allowOverwrite: false,
         contentType: "application/gzip",
@@ -158,7 +164,11 @@ export async function loadErrorSourceMaps(root: string, buildId: string, frames:
   if (process.env.ERROR_REPORTING_SOURCE_MAP_DIR || !process.env.BLOB_READ_WRITE_TOKEN)
     compressed = createReadStream(join(localDirectory(root), `${buildId}.json.gz`));
   else {
-    const blob = await get(`error-source-maps/${buildId}.json.gz`, { access: "private", useCache: false });
+    const blob = await get(`error-source-maps/${buildId}.json.gz`, {
+      access: "private",
+      useCache: false,
+      token: process.env.BLOB_READ_WRITE_TOKEN,
+    });
     if (!blob || blob.statusCode !== 200 || !blob.stream)
       throw new Error("Exact build's private source maps are unavailable");
     compressed = Readable.fromWeb(blob.stream as NodeReadableStream<Uint8Array>);
@@ -203,4 +213,21 @@ export async function loadErrorSourceMaps(root: string, buildId: string, frames:
     unzip.destroy();
     await complete.catch(() => undefined);
   }
+}
+
+export async function resolveErrorReport(root: string, report: ErrorSourceMapReport) {
+  const causes = report.causes ?? [];
+  const archive = await loadErrorSourceMaps(root, report.buildId, [
+    ...report.frames,
+    ...causes.flatMap((cause) => cause.frames),
+  ]);
+  return {
+    buildId: report.buildId,
+    frames: resolveErrorFrames(archive, report.buildId, report.frames),
+    causes: causes.map((cause) => ({
+      name: cause.name,
+      message: cause.message,
+      frames: resolveErrorFrames(archive, report.buildId, cause.frames),
+    })),
+  };
 }

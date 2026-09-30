@@ -15,7 +15,7 @@ vi.mock("@/env", () => ({ env: { ...MOCK_ENV_MODULE.env, APP_MODE: "cloud" as co
 vi.mock("@/core/di", () => createMockDiModule(() => mockUser));
 vi.mock("@/core/validation/zod-error-map-server", () => MOCK_ZOD_MODULE);
 vi.mock("@/prisma/db", () => MOCK_PRISMA_DB_MODULE);
-vi.mock("@sentry/nextjs", () => ({ captureException: vi.fn(), setTag: vi.fn(), setUser: vi.fn() }));
+vi.mock("@/core/observability/server", () => ({ captureException: vi.fn(), setTag: vi.fn(), setUser: vi.fn() }));
 
 import { ArchiveAgentConversationInteractor } from "../archive-agent-conversation.interactor";
 

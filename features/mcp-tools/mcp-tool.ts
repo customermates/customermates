@@ -1,5 +1,5 @@
 import { z } from "zod";
-import * as Sentry from "@sentry/nextjs";
+import * as ErrorReporter from "@/core/observability/server";
 import { getTranslations } from "next-intl/server";
 
 import { AppErrorCode, appErrorDetailsInCauseChain } from "@/core/errors/app-errors";
@@ -136,7 +136,7 @@ function conformingStructuredContent(
   if (!structuredContent || !tool.outputSchema) return structuredContent;
   const parsed = tool.outputSchema.safeParse(structuredContent);
   if (!parsed.success) {
-    Sentry.captureException(
+    ErrorReporter.captureException(
       new Error(`The ${tool.name} structured content does not match its declared output schema.`, {
         cause: parsed.error,
       }),

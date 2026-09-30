@@ -1,4 +1,4 @@
-import type { ErrorEvent } from "@sentry/nextjs";
+import type { CaptureContext } from "./capture-context";
 
 export const ERROR_NOTIFICATION_FAILURE_PREFIX = "[application-error-notification]";
 
@@ -15,6 +15,8 @@ export type ErrorReport = {
   digest?: string;
   workflowName?: string;
   tenant?: { userId?: string; companyId?: string };
+  tags?: Record<string, string>;
+  causes?: { name: string; message: string; frames: ErrorReport["frames"] }[];
   frames: { file: string; function?: string; line?: number; column?: number }[];
 };
 
@@ -61,46 +63,93 @@ export function safeErrorPath(value: unknown): string | undefined {
   }
 }
 
-export function errorReport(event: ErrorEvent, source: ErrorReport["source"]): ErrorReport | null {
-  const exceptions = event.exception?.values ?? [];
-  if (exceptions.some((exception) => exception.value?.startsWith(ERROR_NOTIFICATION_FAILURE_PREFIX))) return null;
-  const exception = exceptions.at(-1);
-  const id = safeIdentifier(event.event_id);
-  const buildId = safeIdentifier(process.env.NEXT_PUBLIC_ERROR_REPORTING_BUILD_ID);
-  if (!id || !buildId) return null;
+export function errorFrames(stack: unknown): ErrorReport["frames"] {
+  if (typeof stack !== "string") return [];
+  return stack
+    .slice(0, 40_000)
+    .split("\n")
+    .flatMap((line) => {
+      const frame = line.match(/^\s*(?:at\s+(?:(.*?)\s+\()?|(.*?)@)(.+?):(\d+):(\d+)\)?\s*$/);
+      if (!frame) return [];
+      return [
+        {
+          file: scrubErrorText(frame[3], 1000),
+          function: frame[1] || frame[2] ? scrubErrorText(frame[1] || frame[2], 200) : undefined,
+          line: Number(frame[4]),
+          column: Number(frame[5]),
+        },
+      ];
+    })
+    .slice(0, 30)
+    .reverse();
+}
 
-  const frames = (exception?.stacktrace?.frames ?? []).slice(-30).flatMap((frame) => {
-    const file = frame.filename ?? frame.abs_path;
-    if (!file) return [];
-    return [
-      {
-        file: scrubErrorText(file, 1000),
-        function: frame.function ? scrubErrorText(frame.function, 200) : undefined,
-        line: frame.lineno,
-        column: frame.colno,
-      },
-    ];
-  });
-  const workflow = event.contexts?.workflow;
-  const userId = safeIdentifier(event.user?.id);
-  const companyId = safeIdentifier(event.tags?.companyId);
+function exceptionDetails(error: unknown) {
+  const value =
+    error && typeof error === "object" ? (error as { name?: unknown; message?: unknown; stack?: unknown }) : {};
+  return {
+    name: scrubErrorText(typeof value.name === "string" ? value.name : "Error", 100),
+    message: scrubErrorText(
+      typeof value.message === "string"
+        ? value.message
+        : typeof error === "object"
+          ? "Unexpected application error"
+          : error,
+    ),
+    frames: errorFrames(value.stack),
+  };
+}
+
+export function errorReport(
+  error: unknown,
+  source: ErrorReport["source"],
+  context: CaptureContext = {},
+): ErrorReport | null {
+  const exception = exceptionDetails(error);
+  if (exception.message.startsWith(ERROR_NOTIFICATION_FAILURE_PREFIX)) return null;
+  const buildId = safeIdentifier(process.env.NEXT_PUBLIC_ERROR_REPORTING_BUILD_ID);
+  if (!buildId) return null;
+  const workflow = context.contexts?.workflow;
+  const userId = safeIdentifier(context.user?.id);
+  const companyId = safeIdentifier(context.tags?.companyId);
+  const tags: Record<string, string> = {};
+  for (const [key, value] of Object.entries(context.tags ?? {}).slice(0, 20))
+    if (value !== undefined && /^[a-zA-Z][a-zA-Z0-9_]{0,39}$/.test(key)) tags[key] = scrubErrorText(value, 200);
+
+  const causes: NonNullable<ErrorReport["causes"]> = [];
+  const seen = new Set([error]);
+  let cause = error;
+  for (let index = 0; index < 3; index++) {
+    cause = cause && typeof cause === "object" ? (cause as { cause?: unknown }).cause : undefined;
+    if (!cause || seen.has(cause)) break;
+    seen.add(cause);
+    const detail = exceptionDetails(cause);
+    if (detail.message.startsWith(ERROR_NOTIFICATION_FAILURE_PREFIX)) return null;
+    causes.push({ ...detail, frames: detail.frames.slice(-3) });
+  }
 
   return {
     kind: "application-error",
-    id,
+    id:
+      typeof crypto.randomUUID === "function"
+        ? crypto.randomUUID()
+        : Array.from(crypto.getRandomValues(new Uint8Array(16)), (byte) => byte.toString(16).padStart(2, "0")).join(""),
     buildId,
-    timestamp:
-      event.timestamp && Number.isFinite(event.timestamp) && event.timestamp > 0 && event.timestamp < 8.64e12
-        ? event.timestamp
-        : Date.now() / 1000,
-    level: event.level === "warning" ? "warning" : event.level === "info" ? "info" : "error",
+    timestamp: Date.now() / 1000,
+    level: context.level ?? "error",
     source,
-    name: scrubErrorText(exception?.type ?? "Error", 100),
-    message: scrubErrorText(exception?.value ?? event.message ?? "Unexpected application error"),
-    path: safeErrorPath(event.request?.url ?? event.contexts?.nextjs?.request_path),
-    digest: safeIdentifier(event.tags?.digest),
+    name: exception.name,
+    message: exception.message,
+    path: safeErrorPath(context.path),
+    digest: safeIdentifier(context.digest ?? context.tags?.digest),
     workflowName: typeof workflow?.workflowName === "string" ? scrubErrorText(workflow.workflowName, 100) : undefined,
     tenant: source === "server" && (userId || companyId) ? { userId, companyId } : undefined,
-    frames,
+    frames: (context.frames ?? exception.frames).slice(-20).map((frame) => ({
+      ...frame,
+      file: scrubErrorText(frame.file, 800),
+      function: frame.function ? scrubErrorText(frame.function, 100) : undefined,
+    })),
+    tags: Object.keys(tags).length ? tags : undefined,
+    causes: causes.length ? causes : undefined,
   };
 }

@@ -6,7 +6,7 @@ import { latin } from "./fonts";
 import { useEffect, useState } from "react";
 
 import { ErrorPageView } from "@/components/shared/error-page-view";
-import { captureError } from "@/core/errors/sentry-client";
+import { captureError } from "@/core/errors/client-reporter";
 import { defaultGlobalErrorFallback, globalErrorFallback } from "@/i18n/global-error-copy";
 
 type Props = {

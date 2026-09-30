@@ -13,7 +13,7 @@ vi.mock("@/core/utils/toast-zod-error-tree", () => ({ toastZodErrorTree: vi.fn((
 vi.mock("../../utils/toast-zod-error-tree", () => ({ toastZodErrorTree: vi.fn(() => true) }));
 
 const captureException = vi.fn();
-vi.mock("@sentry/nextjs", () => ({
+vi.mock("@/core/observability/browser", () => ({
   captureException: (...args: unknown[]) => captureException(...args),
   init: vi.fn(),
 }));

@@ -13,10 +13,10 @@ vi.mock("@/env", () => MOCK_ENV_MODULE);
 vi.mock("@/core/di", () => ({ ...createMockDiModule(() => mockUser) }));
 vi.mock("@/core/validation/zod-error-map-server", () => MOCK_ZOD_MODULE);
 vi.mock("@/prisma/db", () => MOCK_PRISMA_DB_MODULE);
-vi.mock("@sentry/node", () => ({ captureException: vi.fn(), captureMessage: vi.fn() }));
+vi.mock("@/core/observability/server", () => ({ captureException: vi.fn(), captureMessage: vi.fn() }));
 
 import { z } from "zod";
-import * as Sentry from "@sentry/node";
+import * as ErrorReporter from "@/core/observability/server";
 
 import { ProcessUnipileWebhookInteractor } from "../process-unipile-webhook.interactor";
 import { UnmappableWebhookPayloadError } from "@/core/errors/app-errors";
@@ -56,7 +56,7 @@ describe("ProcessUnipileWebhookInteractor classification", () => {
     expect(handler.invoke).toHaveBeenCalledOnce();
     expect(events.markWebhookEventProcessedUnscoped).toHaveBeenCalledWith(EVENT_ID);
     expect(events.markWebhookEventFailedUnscoped).not.toHaveBeenCalled();
-    expect(Sentry.captureException).not.toHaveBeenCalled();
+    expect(ErrorReporter.captureException).not.toHaveBeenCalled();
   });
 
   it("retires a disconnected-account rejection without reporting it", async () => {
@@ -72,7 +72,7 @@ describe("ProcessUnipileWebhookInteractor classification", () => {
 
     await invoke(interactor);
 
-    expect(Sentry.captureException).not.toHaveBeenCalled();
+    expect(ErrorReporter.captureException).not.toHaveBeenCalled();
     expect(events.markWebhookEventFailedUnscoped).toHaveBeenCalledWith(
       expect.objectContaining({ id: EVENT_ID, terminal: true }),
     );
@@ -92,7 +92,7 @@ describe("ProcessUnipileWebhookInteractor classification", () => {
 
     await invoke(interactor);
 
-    expect(Sentry.captureException).not.toHaveBeenCalled();
+    expect(ErrorReporter.captureException).not.toHaveBeenCalled();
     expect(events.markWebhookEventFailedUnscoped).toHaveBeenCalledWith(
       expect.objectContaining({ id: EVENT_ID, terminal: false }),
     );
@@ -108,7 +108,7 @@ describe("ProcessUnipileWebhookInteractor classification", () => {
 
     await invoke(interactor);
 
-    expect(Sentry.captureException).not.toHaveBeenCalled();
+    expect(ErrorReporter.captureException).not.toHaveBeenCalled();
     expect(events.markWebhookEventFailedUnscoped).toHaveBeenCalledWith(
       expect.objectContaining({ id: EVENT_ID, terminal: false }),
     );
@@ -122,7 +122,7 @@ describe("ProcessUnipileWebhookInteractor classification", () => {
 
     await invoke(interactor);
 
-    expect(Sentry.captureException).not.toHaveBeenCalled();
+    expect(ErrorReporter.captureException).not.toHaveBeenCalled();
     expect(events.markWebhookEventProcessedUnscoped).not.toHaveBeenCalled();
     expect(events.markWebhookEventFailedUnscoped).toHaveBeenCalledWith(
       expect.objectContaining({ id: EVENT_ID, terminal: false }),
@@ -141,7 +141,7 @@ describe("ProcessUnipileWebhookInteractor classification", () => {
 
     await invoke(interactor);
 
-    expect(Sentry.captureException).not.toHaveBeenCalled();
+    expect(ErrorReporter.captureException).not.toHaveBeenCalled();
     expect(events.markWebhookEventFailedUnscoped).toHaveBeenCalledWith({
       id: EVENT_ID,
       error: providerError.message,
@@ -163,7 +163,7 @@ describe("ProcessUnipileWebhookInteractor classification", () => {
 
     await invoke(interactor);
 
-    expect(Sentry.captureException).toHaveBeenCalledExactlyOnceWith(providerError, {
+    expect(ErrorReporter.captureException).toHaveBeenCalledExactlyOnceWith(providerError, {
       tags: {
         eventType: "email.folder.update",
         webhookEventId: EVENT_ID,
@@ -191,7 +191,7 @@ describe("ProcessUnipileWebhookInteractor classification", () => {
     await Promise.all([invoke(interactor), invoke(interactor)]);
 
     expect(events.markWebhookEventFailedUnscoped).toHaveBeenCalledTimes(2);
-    expect(Sentry.captureException).toHaveBeenCalledExactlyOnceWith(providerError, {
+    expect(ErrorReporter.captureException).toHaveBeenCalledExactlyOnceWith(providerError, {
       tags: {
         eventType: "email.folder.update",
         webhookEventId: EVENT_ID,
@@ -210,7 +210,7 @@ describe("ProcessUnipileWebhookInteractor classification", () => {
 
     await invoke(interactor);
 
-    expect(Sentry.captureException).toHaveBeenCalledExactlyOnceWith(deferred, {
+    expect(ErrorReporter.captureException).toHaveBeenCalledExactlyOnceWith(deferred, {
       tags: {
         eventType: "email.delete",
         webhookEventId: EVENT_ID,
@@ -228,7 +228,7 @@ describe("ProcessUnipileWebhookInteractor classification", () => {
 
     await invoke(interactor);
 
-    expect(Sentry.captureException).toHaveBeenCalledOnce();
+    expect(ErrorReporter.captureException).toHaveBeenCalledOnce();
   });
 
   it("still reports an unrelated error with a 429-shaped status", async () => {
@@ -240,7 +240,7 @@ describe("ProcessUnipileWebhookInteractor classification", () => {
 
     await invoke(interactor);
 
-    expect(Sentry.captureException).toHaveBeenCalledExactlyOnceWith(unrelated, {
+    expect(ErrorReporter.captureException).toHaveBeenCalledExactlyOnceWith(unrelated, {
       tags: { webhookEventId: EVENT_ID, eventType: "email.folder.update" },
     });
     expect(events.markWebhookEventFailedUnscoped).toHaveBeenCalledWith({
@@ -261,7 +261,7 @@ describe("ProcessUnipileWebhookInteractor classification", () => {
     expect(events.markWebhookEventFailedUnscoped).toHaveBeenCalledWith(
       expect.objectContaining({ id: EVENT_ID, error: "db down", terminal: false }),
     );
-    expect(Sentry.captureException).toHaveBeenCalledWith(expect.any(Error), {
+    expect(ErrorReporter.captureException).toHaveBeenCalledWith(expect.any(Error), {
       tags: { webhookEventId: EVENT_ID, eventType: "message.new" },
     });
   });
@@ -277,7 +277,7 @@ describe("ProcessUnipileWebhookInteractor classification", () => {
     expect(events.markWebhookEventFailedUnscoped).toHaveBeenCalledWith(
       expect.objectContaining({ id: EVENT_ID, terminal: true }),
     );
-    expect(Sentry.captureException).toHaveBeenCalledWith(expect.any(z.ZodError), {
+    expect(ErrorReporter.captureException).toHaveBeenCalledWith(expect.any(z.ZodError), {
       tags: { webhookEventId: EVENT_ID, eventType: "message.new" },
     });
   });
@@ -293,7 +293,7 @@ describe("ProcessUnipileWebhookInteractor classification", () => {
     expect(events.markWebhookEventFailedUnscoped).toHaveBeenCalledWith(
       expect.objectContaining({ id: EVENT_ID, terminal: true, unipileMessageId: "m-1" }),
     );
-    expect(Sentry.captureException).not.toHaveBeenCalled();
+    expect(ErrorReporter.captureException).not.toHaveBeenCalled();
   });
 
   it("classifies a foreign-copy unmappable brand the same way", async () => {
@@ -309,7 +309,7 @@ describe("ProcessUnipileWebhookInteractor classification", () => {
     expect(events.markWebhookEventFailedUnscoped).toHaveBeenCalledWith(
       expect.objectContaining({ id: EVENT_ID, terminal: true, unipileMessageId: "m-2" }),
     );
-    expect(Sentry.captureException).not.toHaveBeenCalled();
+    expect(ErrorReporter.captureException).not.toHaveBeenCalled();
   });
 
   it("marks an ignored event type processed via its noop handler", async () => {
@@ -321,8 +321,8 @@ describe("ProcessUnipileWebhookInteractor classification", () => {
 
     expect(events.markWebhookEventProcessedUnscoped).toHaveBeenCalledWith(EVENT_ID);
     expect(events.markWebhookEventFailedUnscoped).not.toHaveBeenCalled();
-    expect(Sentry.captureException).not.toHaveBeenCalled();
-    expect(Sentry.captureMessage).not.toHaveBeenCalled();
+    expect(ErrorReporter.captureException).not.toHaveBeenCalled();
+    expect(ErrorReporter.captureMessage).not.toHaveBeenCalled();
   });
 
   it("captures an unknown event type and marks it terminal", async () => {
@@ -330,7 +330,7 @@ describe("ProcessUnipileWebhookInteractor classification", () => {
 
     await invoke(interactor);
 
-    expect(Sentry.captureMessage).toHaveBeenCalledOnce();
+    expect(ErrorReporter.captureMessage).toHaveBeenCalledOnce();
     expect(events.markWebhookEventFailedUnscoped).toHaveBeenCalledWith(
       expect.objectContaining({ id: EVENT_ID, error: "Unhandled event type: something.else", terminal: true }),
     );
@@ -341,7 +341,7 @@ describe("ProcessUnipileWebhookInteractor classification", () => {
 
     await invoke(interactor);
 
-    expect(Sentry.captureException).toHaveBeenCalledOnce();
+    expect(ErrorReporter.captureException).toHaveBeenCalledOnce();
     expect(events.markWebhookEventFailedUnscoped).toHaveBeenCalledWith(
       expect.objectContaining({ id: EVENT_ID, terminal: true }),
     );

@@ -6,7 +6,7 @@ import type { PageResult } from "./paginate";
 
 import { z } from "zod";
 
-import * as Sentry from "@sentry/node";
+import * as ErrorReporter from "@/core/observability/server";
 
 import { ConnectedAccountStatus } from "@/generated/prisma";
 
@@ -123,7 +123,7 @@ export class BackfillEmailsInteractor {
         backfill: true,
       });
     } catch (err) {
-      Sentry.captureException(err, {
+      ErrorReporter.captureException(err, {
         tags: {
           unipileAccountId: account.unipileAccountId,
           companyId: account.companyId,

@@ -1,7 +1,7 @@
 import { describe, it, expect, vi, beforeEach } from "vitest";
 
 vi.mock("@/env", () => ({ env: { UNIPILE_WEBHOOK_SECRET: "test-secret" } }));
-vi.mock("@sentry/node", () => ({ captureException: vi.fn(), captureMessage: vi.fn() }));
+vi.mock("@/core/observability/server", () => ({ captureException: vi.fn(), captureMessage: vi.fn() }));
 
 import { ProcessAccountAddWebhookInteractor } from "../process-account-add-webhook.interactor";
 import { signHostedAuthState } from "../../../webhook-signature";
