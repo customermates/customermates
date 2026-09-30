@@ -41,11 +41,11 @@ Legen Sie zuerst einen API-Key an: Öffnen Sie **Mein Profil → API & Konnektor
 - *"Hol die letzten zehn Contacts, die ich angelegt habe. Welche haben keine E-Mail-Adresse?"*
 - *"Leg einen Contact für Jane Doe bei Initech an, verknüpf ihn mit der Organisation Initech und starte einen Deal über 12 Stunden Beratung."*
 
-Der Agent meldet, welche Tools er aufgerufen hat und was sich geändert hat. Feldnamen wie der Status eines Deals sind pro Workspace konfigurierbare Custom Columns, keine festen Produktfelder. Rufen Sie `get_record_schema` auf, um die Columns zu sehen, die in Ihrem Workspace existieren.
+Der Agent meldet, welche Tools er aufgerufen hat und was sich geändert hat. Deal-Phasen und andere Felder werden pro Workspace konfiguriert. Rufen Sie `discover_record_types` und `get_record_model` auf, um die vorhandenen Typen und Felder zu sehen.
 
 ## Wie teste ich einen Webhook? [#how-do-i-test-a-webhook]
 
-Optional: Um andere Tools zu benachrichtigen, wenn sich im CRM etwas ändert, öffnen Sie **Mein Unternehmen → Webhooks** und klicken auf **Hinzufügen**. Tragen Sie unter **URL** einen Einweg-Endpoint von [webhook.site](https://webhook.site) ein. Wählen Sie unter **Ereignisse** **Kontakt erstellt** (`contact.created`) und **Deal aktualisiert** (`deal.updated`) und klicken Sie auf **Speichern**. Zum Anlegen eines Webhooks braucht Ihre Rolle **Verwalten** **Ja** in der Zeile **API & Webhooks**, und die Seite selbst braucht **Lesen** **Alle** in dieser Zeile, wie bei API-Keys; die Rolle **Admin** hat beides.
+Optional: Um andere Tools zu benachrichtigen, wenn sich im CRM etwas ändert, öffnen Sie **Mein Unternehmen → Webhooks** und klicken auf **Hinzufügen**. Tragen Sie unter **URL** einen Einweg-Endpoint von [webhook.site](https://webhook.site) ein. Wählen Sie unter **Ereignisse** **Record erstellt** (`record.created`) und **Record aktualisiert** (`record.updated`), wählen Sie die zu beobachtenden Datensatztypen und klicken Sie auf **Speichern**. Zum Anlegen eines Webhooks braucht Ihre Rolle **Verwalten** **Ja** in der Zeile **API & Webhooks**, und die Seite selbst braucht **Lesen** **Alle** in dieser Zeile, wie bei API-Keys; die Rolle **Admin** hat beides.
 
 Legen Sie einen Contact an oder ändern Sie einen Deal. Innerhalb weniger Sekunden erscheint die Delivery auf webhook.site mit voller Payload, und **Mein Unternehmen → Letzte Zustellungen** listet sie ebenfalls. Volle Webhook-Docs: [Webhooks](/docs/webhooks).
 

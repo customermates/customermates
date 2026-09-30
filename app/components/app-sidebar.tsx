@@ -7,7 +7,7 @@ import type { NavGroup } from "./navigation/nav-main";
 import type { NavSecondaryItem } from "./navigation/nav-secondary";
 import type { SidebarUser } from "./navigation/sidebar-user";
 
-import { startTransition, useEffect, useMemo, useRef, useState } from "react";
+import { useEffect, useMemo, useRef, useState } from "react";
 import { usePathname } from "next/navigation";
 import { usePathname as useIntlPathname, useRouter } from "@/i18n/navigation";
 import { useTranslations } from "next-intl";
@@ -15,26 +15,19 @@ import { observer } from "mobx-react-lite";
 import { useTheme } from "next-themes";
 import {
   Building,
-  Building2,
-  CheckCircle2,
   MessageCircle,
   FileText,
   Inbox,
   Mail,
-  Package,
   Plus,
   LayoutGrid,
   Repeat,
   ShieldCheck,
-  TrendingUp,
   UserCircle,
-  Users,
 } from "lucide-react";
 import { Resource, Theme as ThemeEnum } from "@/generated/prisma";
 
 import { useRootStore } from "@/core/stores/root-store.provider";
-import { useEntityTerminology } from "@/components/entity-terminology/use-entity-terminology";
-import { useOpenEntity } from "@/components/entity-detail/hooks/use-entity-drawer-stack";
 import { AppChip } from "@/components/chip/app-chip";
 import { Sidebar, SidebarContent, SidebarFooter, useSidebar } from "@/components/ui/sidebar";
 import { Sheet, SheetBody, SheetContent, SheetDescription, SheetHeader, SheetTitle } from "@/components/ui/sheet";
@@ -42,7 +35,8 @@ import { useOverlayFocusReturn } from "@/components/ui/use-overlay-focus-return"
 import { Icon } from "@/components/shared/icon";
 import { signOutAction } from "@/app/[locale]/actions";
 import { FeedbackType } from "@/features/feedback/send-feedback.schema";
-import { EntityType } from "@/generated/prisma";
+import { recordNavigationKey } from "@/features/records/record-navigation.schema";
+import { recordTypeIcon } from "@/components/records/record-type-icon";
 
 import { NavHeader } from "./navigation/nav-header";
 import { resolvePlanChip } from "./navigation/plan-subtitle";
@@ -53,7 +47,7 @@ import { NavSecondary } from "./navigation/nav-secondary";
 import { NavUser } from "./navigation/nav-user";
 import { LegalUpdateAlert } from "./navigation/legal-update-alert";
 import { toastZodErrorTree } from "@/core/utils/toast-zod-error-tree";
-import { sidebarUserCanAccess, sidebarUserCanManage } from "./navigation/sidebar-user";
+import { sidebarUserCanAccess } from "./navigation/sidebar-user";
 import { runUserAction } from "@/core/errors/report-application-error";
 
 type FullProps = {
@@ -126,16 +120,14 @@ const FullAppSidebar = observer(
     const intlPathname = useIntlPathname();
     const router = useRouter();
     const rootStore = useRootStore();
-    const { feedbackModalStore, globalSearchModalStore, terminologyStore, userStore } = rootStore;
-    const { singular, plural } = useEntityTerminology();
+    const { feedbackModalStore, globalSearchModalStore, recordWorkspaceStore, userStore } = rootStore;
 
     const { isMobile, setOpenMobile } = useSidebar();
     const { resolvedTheme, setTheme } = useTheme();
-    const openEntity = useOpenEntity();
     const subscriptionStatus = subscription?.status ?? null;
     const subscriptionPlan = subscription?.plan ?? null;
     const isDocsRoute = pathname.split("/")[2] === "docs";
-    const [selectedKey, setSelectedKey] = useState<string | null>(pathname.split("/")[2]);
+    const [selectedKey, setSelectedKey] = useState<string | null>(recordNavigationKey(intlPathname));
     const [isAddPickerOpen, setIsAddPickerOpen] = useState(false);
     const addPickerInvokerRef = useRef<HTMLElement | null>(null);
     const addPickerFallbackRef = useRef<HTMLElement | null>(null);
@@ -155,7 +147,7 @@ const FullAppSidebar = observer(
       router.push("/dashboard");
     }
 
-    useEffect(() => setSelectedKey(pathname.split("/")[2] ?? null), [pathname]);
+    useEffect(() => setSelectedKey(recordNavigationKey(intlPathname)), [intlPathname]);
 
     function closeMobileSidebar(cb?: () => void) {
       if (isMobile) setOpenMobile(false);
@@ -199,44 +191,14 @@ const FullAppSidebar = observer(
         {
           key: "crm",
           label: t("NavigationBar.crm"),
-          items: [
-            {
-              key: "contacts",
-              title: plural(EntityType.contact),
-              href: "/contacts",
-              icon: Users,
-              visible: canAccess(Resource.contacts),
-            },
-            {
-              key: "organizations",
-              title: plural(EntityType.organization),
-              href: "/organizations",
-              icon: Building2,
-              visible: canAccess(Resource.organizations),
-            },
-            {
-              key: "deals",
-              title: plural(EntityType.deal),
-              href: "/deals",
-              icon: TrendingUp,
-              visible: canAccess(Resource.deals),
-            },
-            {
-              key: "services",
-              title: plural(EntityType.service),
-              href: "/services",
-              icon: Package,
-              visible: canAccess(Resource.services),
-            },
-            {
-              key: "tasks",
-              title: plural(EntityType.task),
-              href: "/tasks",
-              icon: CheckCircle2,
-              visible: canAccess(Resource.tasks),
-              badge: systemTaskCount,
-            },
-          ].filter((i) => i.visible),
+          items: (recordWorkspaceStore.navigation?.types ?? []).map((type) => ({
+            key: `records:${type.id}`,
+            title: type.pluralLabel,
+            href: `/records/${type.id}`,
+            icon: recordTypeIcon(type.icon),
+            visible: true,
+            badge: type.hasAuthorizationTasks ? systemTaskCount : undefined,
+          })),
         },
         {
           key: "workspace",
@@ -297,8 +259,7 @@ const FullAppSidebar = observer(
     }, [
       operatorConsoleVisible,
       t,
-      plural,
-      terminologyStore.overrides,
+      recordWorkspaceStore.navigation,
       rootStore.appMode,
       subscriptionStatus,
       user,
@@ -336,48 +297,15 @@ const FullAppSidebar = observer(
       },
     ];
 
-    const addItems = [
-      {
-        resource: Resource.contacts,
-        key: "add_contact",
-        label: t("NavigationBar.addEntity", {
-          entity: singular(EntityType.contact),
-        }),
-        entity: EntityType.contact,
-      },
-      {
-        resource: Resource.organizations,
-        key: "add_organization",
-        label: t("NavigationBar.addEntity", {
-          entity: singular(EntityType.organization),
-        }),
-        entity: EntityType.organization,
-      },
-      {
-        resource: Resource.deals,
-        key: "add_deal",
-        label: t("NavigationBar.addEntity", {
-          entity: singular(EntityType.deal),
-        }),
-        entity: EntityType.deal,
-      },
-      {
-        resource: Resource.services,
-        key: "add_service",
-        label: t("NavigationBar.addEntity", {
-          entity: singular(EntityType.service),
-        }),
-        entity: EntityType.service,
-      },
-      {
-        resource: Resource.tasks,
-        key: "add_task",
-        label: t("NavigationBar.addEntity", {
-          entity: singular(EntityType.task),
-        }),
-        entity: EntityType.task,
-      },
-    ];
+    const addItems: AddPickerItem[] = (recordWorkspaceStore.navigation?.types ?? [])
+      .filter((type) => type.canCreate)
+      .map((type) => ({
+        key: `add:${type.id}`,
+        label: t("NavigationBar.addEntity", { entity: type.label }),
+        typeId: type.id,
+      }));
+    if (recordWorkspaceStore.navigation?.canManageSchema)
+      addItems.push({ key: "create-list", label: t("RecordModel.createList"), typeId: null });
 
     if (isDocsRoute && !restricted) return null;
 
@@ -417,6 +345,7 @@ const FullAppSidebar = observer(
               restricted ? "/dashboard" : rootStore.appMode === "demo" ? "https://customermates.com" : "/dashboard"
             }
             logoAlt={t("Common.imageAlt.logo")}
+            overlaysDisabled={!restricted && !recordWorkspaceStore.routeReady(intlPathname)}
             searchLabel={t("NavigationBar.search")}
             onAdd={(invoker) => {
               if (restricted) {
@@ -484,16 +413,20 @@ const FullAppSidebar = observer(
 
         {!restricted ? (
           <AddPickerDrawer
-            items={addItems.filter((item) => sidebarUserCanManage(user, item.resource))}
+            items={addItems}
             open={isAddPickerOpen}
             returnFocusFallback={addPickerFallbackRef.current}
             returnFocusTarget={addPickerInvokerRef.current}
             onOpenChange={setIsAddPickerOpen}
-            onPick={(entity) => {
-              startTransition(() => {
-                setIsAddPickerOpen(false);
-                openEntity(entity, "new", addPickerInvokerRef.current, addPickerFallbackRef.current);
-              });
+            onPick={(item) => {
+              setIsAddPickerOpen(false);
+              if (item.typeId) {
+                recordWorkspaceStore.open(
+                  { typeId: item.typeId },
+                  addPickerInvokerRef.current,
+                  addPickerFallbackRef.current,
+                );
+              } else router.push("/company/data-model?create=true");
             }}
           />
         ) : null}
@@ -505,7 +438,7 @@ const FullAppSidebar = observer(
 type AddPickerItem = {
   key: string;
   label: string;
-  entity: EntityType;
+  typeId: string | null;
 };
 
 function AddPickerDrawer({
@@ -521,7 +454,7 @@ function AddPickerDrawer({
   returnFocusFallback: HTMLElement | null;
   returnFocusTarget: HTMLElement | null;
   onOpenChange: (o: boolean) => void;
-  onPick: (entity: EntityType) => void;
+  onPick: (item: AddPickerItem) => void;
 }) {
   const t = useTranslations();
   const isHandingOffRef = useRef(false);
@@ -559,7 +492,7 @@ function AddPickerDrawer({
               type="button"
               onClick={() => {
                 isHandingOffRef.current = true;
-                onPick(item.entity);
+                onPick(item);
               }}
             >
               <span>{item.label}</span>

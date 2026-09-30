@@ -3,7 +3,8 @@ import { z } from "zod";
 
 import { createZodError } from "@/core/validation/validation.utils";
 import { CustomErrorCode } from "@/core/validation/validation.types";
-import { manageCustomColumnsTool } from "@/features/mcp-tools/custom-column.mcp-tools";
+import { mutateRecordV2Tool } from "@/features/mcp-tools/record-model.mcp-tools";
+import { RETIRED_RECORD_TOOLS } from "@/features/mcp-tools/retired-record-tools";
 import { mcpInteractorFailure, type McpTool } from "@/features/mcp-tools/mcp-tool";
 
 const sentry = vi.hoisted(() => ({ captureException: vi.fn() }));
@@ -79,18 +80,20 @@ async function rpc(
     }),
   );
   const text = await response.text();
-  const data = text
-    .split("\n")
-    .filter((line) => line.startsWith("data: "))
-    .map((line) => JSON.parse(line.slice(6)) as Record<string, unknown>)
-    .at(-1);
+  const data = response.headers.get("content-type")?.includes("application/json")
+    ? JSON.parse(text)
+    : text
+        .split("\n")
+        .filter((line) => line.startsWith("data: "))
+        .map((line) => JSON.parse(line.slice(6)) as Record<string, unknown>)
+        .at(-1);
   return { response, data, text };
 }
 
 describe("public MCP execution boundary", () => {
   it("round-trips structured expected failures and redacts unexpected failures", async () => {
     const handler = createMcpRoute({
-      test: [expectedFailureTool, unexpectedFailureTool, manageCustomColumnsTool],
+      test: [expectedFailureTool, unexpectedFailureTool, mutateRecordV2Tool],
     });
     const initialized = await rpc(handler, requestBody("initialize", 1));
     const sessionId = initialized.response.headers.get("mcp-session-id") ?? undefined;
@@ -106,12 +109,13 @@ describe("public MCP execution boundary", () => {
       properties: { value: { type: "string" } },
       required: ["value"],
     });
-    const customColumnsDefinition = tools.find((tool) => tool.name === "manage_custom_columns");
-    const customColumnsInput = customColumnsDefinition?.inputSchema as
-      | { properties?: Record<string, unknown> }
-      | undefined;
-    expect(customColumnsInput?.properties?.selectOptions).toMatchObject({ type: "array", minItems: 1 });
-    expect(JSON.stringify(customColumnsInput?.properties?.id)).toContain('"null"');
+    const recordDefinition = tools.find((tool) => tool.name === "mutate_crm_record");
+    expect(recordDefinition?.inputSchema).toMatchObject({
+      type: "object",
+      required: ["expectedRevision", "idempotencyKey", "mutation"],
+    });
+    expect(JSON.stringify(recordDefinition?.inputSchema)).toContain("recordId");
+    expect(JSON.stringify(recordDefinition?.inputSchema)).toContain("typeId");
 
     const expected = await rpc(
       handler,
@@ -160,5 +164,53 @@ describe("public MCP execution boundary", () => {
     expect((captured as Error).cause).toBeUndefined();
     expect(captured).not.toBe(unexpectedFailure);
     expect((captured as Error).stack).not.toContain("must-not-leak");
+  });
+  it("returns migration guidance for retired calls without registering or executing them", async () => {
+    const execute = vi.fn();
+    const handler = createMcpRoute({ test: [{ ...expectedFailureTool, execute }] });
+    const initialized = await rpc(handler, requestBody("initialize", 1));
+    const sessionId = initialized.response.headers.get("mcp-session-id") ?? undefined;
+    if (sessionId) await rpc(handler, requestBody("notifications/initialized"), sessionId);
+    const listed = await rpc(handler, requestBody("tools/list", 2), sessionId);
+    expect(JSON.stringify(listed.data)).not.toContain("create_contacts");
+    for (const name of Object.keys(RETIRED_RECORD_TOOLS)) {
+      const result = await rpc(
+        handler,
+        {
+          jsonrpc: "2.0",
+          id: 3,
+          method: "tools/call",
+          params: { name, arguments: { contacts: [{ firstName: "Do not create" }] } },
+        },
+        sessionId,
+      );
+      expect(result.data).toMatchObject({
+        jsonrpc: "2.0",
+        id: 3,
+        result: { isError: true, _meta: { contractVersion: 2, code: "retired_tool" } },
+      });
+      expect(result.text).toContain("No operation was performed");
+      expect(result.text).toContain("authentication are unchanged");
+    }
+    expect(execute).not.toHaveBeenCalled();
+  });
+
+  it("retains the authentication challenge before handling a retired tool", async () => {
+    const handler = createMcpRoute({});
+    const response = await handler(
+      new Request("http://localhost:4105/api/v1/mcp", {
+        method: "POST",
+        headers: { "content-type": "application/json" },
+        body: JSON.stringify({
+          jsonrpc: "2.0",
+          id: 1,
+          method: "tools/call",
+          params: { name: "delete_records", arguments: {} },
+        }),
+      }),
+    );
+    expect(response.status).toBe(401);
+    expect(response.headers.get("www-authenticate")).toContain("oauth-protected-resource");
+    expect(await response.text()).not.toContain("retired_tool");
   });
 });

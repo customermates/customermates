@@ -1,6 +1,12 @@
+import { getRecordChoicesAction } from "@/app/[locale]/(protected)/records/actions";
+import { resolveSearchReferencesAction } from "@/app/[locale]/(protected)/search/actions";
+import { recordSearchLabel } from "@/features/records/record-search.schema";
+import type { RecordRef } from "@/features/records/record-model.schema";
+import { getIdentityRecordChoicesAction } from "@/app/[locale]/(protected)/inbox/actions";
+import { recordReferenceKey, parseRecordReferenceKey } from "@/features/records/record-reference-key";
 import type { GetResult } from "@/core/base/base-get.interactor";
 import type { GetQueryParams, Filter } from "@/core/base/base-get.schema";
-import type { CustomColumnDto } from "@/features/custom-column/custom-column.schema";
+import type { ColumnPresentation } from "@/features/custom-column/custom-column.schema";
 import type { ActivityThreadOptionsData } from "@/ee/messaging/activities/get-activity-thread-options.interactor";
 
 import { useCallback, useEffect, useMemo, useRef, useState } from "react";
@@ -29,7 +35,7 @@ import { type ChipColor } from "@/constants/chip-colors";
 import { USER_STATUS_COLORS_MAP } from "@/constants/user-statuses";
 import { SUBSCRIPTION_STATUS_COLOR_MAP } from "@/app/[locale]/(protected)/company/components/subscription/subscription-panel";
 import { OPERATOR_AUDIT_SOURCE } from "@/ee/operator/operator-lists.schema";
-import { getUsersAction } from "@/app/[locale]/(protected)/company/actions";
+import { getUsersAction, resolveUserOptionsAction } from "@/app/[locale]/(protected)/company/actions";
 import { getContactsAction } from "@/app/[locale]/(protected)/contacts/actions";
 import { getOrganizationsAction } from "@/app/[locale]/(protected)/organizations/actions";
 import { getDealsAction } from "@/app/[locale]/(protected)/deals/actions";
@@ -179,7 +185,19 @@ export function filterOptionSources(
         })),
     },
     [FilterFieldKey.contactIds]: { getItems: contactItems },
-    [FilterFieldKey.participantContactId]: { getItems: contactItems },
+    [FilterFieldKey.participantContactId]: {
+      getItems: async (params) => {
+        const result = await getIdentityRecordChoicesAction(params.searchTerm ?? "");
+        return {
+          items: result.records.map((record) => ({
+            key: recordReferenceKey(record.ref),
+            value: recordReferenceKey(record.ref),
+            textValue: record.title,
+            startContent: renderAvatar(record.title, record.avatarUrl),
+          })),
+        };
+      },
+    },
     [FilterFieldKey.draft]: NO_FILTER_OPTIONS,
     [FilterFieldKey.participants]: NO_FILTER_OPTIONS,
     [FilterFieldKey.timelineKind]: {
@@ -364,7 +382,7 @@ export function filterOptionSources(
 
 export function useFilterSelectItems(
   filter: Filter,
-  customColumns?: CustomColumnDto[],
+  customColumns?: ColumnPresentation[],
 ): {
   items: FilterSelectItem[];
   getItems?: GetItemsFunction;
@@ -384,19 +402,116 @@ export function useFilterSelectItems(
   const fieldKey = field as FilterFieldKey;
   const value = "value" in filter ? filter.value : undefined;
   const isCustom = isCustomField(field);
+  const presentation = customColumns?.find((column) => column.id === field);
+  const referenceTypeId = presentation?.type === "recordReference" ? presentation.typeId : undefined;
+  const presentationType = presentation?.type;
   const timelineScopeKey = JSON.stringify([activityQuery?.scope ?? null, validActivityFilters(activityQuery?.filters)]);
   const scopeKey = fieldKey === FilterFieldKey.timelineThreadId ? timelineScopeKey : String(field);
 
   const source = useMemo<FilterOptionSource>(() => {
+    if (referenceTypeId) {
+      return {
+        getItems: async (params) => {
+          const result = await getRecordChoicesAction({
+            typeId: referenceTypeId,
+            search: params.searchTerm,
+            page: params.page ?? params.pagination?.page ?? 1,
+            pageSize: params.pageSize ?? params.pagination?.pageSize ?? 25,
+          });
+          if (!result.ok) throw new Error("Record choices unavailable");
+          const data = result.data;
+          return {
+            items: data.records.map((record) => ({
+              key: record.ref.recordId,
+              value: record.ref.recordId,
+              textValue:
+                record.title.state === "value" && record.title.value.kind === "text"
+                  ? record.title.value.value
+                  : t(
+                      record.title.state === "restricted"
+                        ? "RecordModel.restricted"
+                        : "Common.filters.unavailableValue",
+                    ),
+            })),
+            pagination: {
+              page: data.page,
+              pageSize: data.pageSize as 5 | 10 | 25 | 100,
+              total: data.total,
+              totalPages: Math.max(1, Math.ceil(data.total / data.pageSize)),
+            },
+          };
+        },
+      };
+    }
+    if (presentationType === "member") return filterOptionSources(t, activityQueryRef)[FilterFieldKey.userIds];
+    if (presentationType === "boolean") {
+      return {
+        items: () => [
+          { key: "true", value: "true", textValue: t("RecordModel.yes") },
+          { key: "false", value: "false", textValue: t("RecordModel.no") },
+        ],
+      };
+    }
     if (isCustom) return NO_FILTER_OPTIONS;
 
     const enumValue = filterFieldKeyOf(field);
     return enumValue ? filterOptionSources(t, activityQueryRef)[enumValue] : NO_FILTER_OPTIONS;
-  }, [field, isCustom, t, timelineScopeKey]);
+  }, [field, isCustom, t, timelineScopeKey, referenceTypeId, presentationType]);
 
   const getItems = source && "getItems" in source ? source.getItems : undefined;
 
   const getSelectedItems = useMemo<ResolveItemsFunction | undefined>(() => {
+    if (referenceTypeId) {
+      return async (ids) => {
+        const unique = [...new Set(ids.filter((id) => RecordOptionIdSchema.safeParse(id).success))];
+        if (unique.length > 100) throw new Error("Too many selected records");
+        const items: FilterSelectItem[] = [];
+        for (let offset = 0; offset < unique.length; offset += 50) {
+          const result = await resolveSearchReferencesAction({
+            refs: unique.slice(offset, offset + 50).map((recordId) => ({ typeId: referenceTypeId, recordId })),
+          });
+          if (!result.ok) throw new Error("Selected records unavailable");
+          items.push(
+            ...result.data.results.map((record) => ({
+              key: record.ref.recordId,
+              value: record.ref.recordId,
+              textValue: recordSearchLabel(record, t),
+              startContent: renderAvatar(recordSearchLabel(record, t), record.pictureUrl),
+            })),
+          );
+        }
+        return items;
+      };
+    }
+    if (presentationType === "member") {
+      return async (ids) => {
+        const result = await resolveUserOptionsAction({ ids: [...new Set(ids)] });
+        return result.users.map((user) => ({
+          key: user.id,
+          value: user.id,
+          textValue: `${user.firstName} ${user.lastName}`.trim(),
+          startContent: renderAvatar(`${user.firstName} ${user.lastName}`.trim(), user.avatarUrl),
+        }));
+      };
+    }
+    if (fieldKey === FilterFieldKey.participantContactId) {
+      return async (ids) => {
+        const refs = ids.flatMap<RecordRef | string>((id) => {
+          const ref = parseRecordReferenceKey(id);
+          return ref ? [ref] : z.uuid().safeParse(id).success ? [id] : [];
+        });
+        const result = await getIdentityRecordChoicesAction("", refs);
+        return result.records.map((record) => {
+          const key = ids.includes(record.ref.recordId) ? record.ref.recordId : recordReferenceKey(record.ref);
+          return {
+            key,
+            value: key,
+            textValue: record.title,
+            startContent: renderAvatar(record.title, record.avatarUrl),
+          };
+        });
+      };
+    }
     if (!hasActivityQuery) return undefined;
     const entityType = activityEntityTypeForFilterField(field);
     if (!entityType) return undefined;
@@ -409,15 +524,17 @@ export function useFilterSelectItems(
       );
       if (requestIds.length === 0) return Promise.resolve([]);
       return getActivityRecordOptionsAction({ records: [{ entityType, ids: requestIds }] }).then((options) =>
-        options.map((option) => ({
-          key: option.id,
-          value: option.id,
-          textValue: option.label,
-          startContent: withAvatar ? renderAvatar(option.label, option.avatarUrl ?? undefined) : undefined,
-        })),
+        options
+          .filter((option) => "id" in option)
+          .map((option) => ({
+            key: option.id,
+            value: option.id,
+            textValue: option.label,
+            startContent: withAvatar ? renderAvatar(option.label, option.avatarUrl ?? undefined) : undefined,
+          })),
       );
     };
-  }, [hasActivityQuery, field]);
+  }, [hasActivityQuery, field, referenceTypeId, presentationType, t]);
 
   const resolveItems = useMemo<ResolveItemsFunction | undefined>(() => {
     if (getSelectedItems) return getSelectedItems;
@@ -495,6 +612,8 @@ export function useFilterSelectItems(
   }, [resolveItems, selectionRequestKey]);
 
   const items = useMemo<FilterSelectItem[]>(() => {
+    if (referenceTypeId || presentationType === "member") return fetchedItems;
+    if (presentationType === "boolean" && source && "items" in source) return source.items();
     if (isCustom) {
       const customColumn = customColumns?.find((col) => col.id === field);
 
@@ -514,13 +633,17 @@ export function useFilterSelectItems(
     if (!source) return [];
 
     return "items" in source ? source.items() : fetchedItems;
-  }, [field, isCustom, fetchedItems, customColumns, source]);
+  }, [field, isCustom, fetchedItems, customColumns, source, referenceTypeId, presentationType]);
 
   return {
     items,
     getItems,
     isLoading,
-    maxSelectedValues: hasActivityQuery ? ACTIVITY_FILTER_VALUE_MAX : undefined,
+    maxSelectedValues: hasActivityQuery
+      ? ACTIVITY_FILTER_VALUE_MAX
+      : referenceTypeId || presentationType === "member"
+        ? 100
+        : undefined,
     selectionError,
     retrySelection,
     scopeKey,

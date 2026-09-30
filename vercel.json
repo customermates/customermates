@@ -12,6 +12,10 @@
     {
       "path": "/api/cron/routines",
       "schedule": "*/5 * * * *"
+    },
+    {
+      "path": "/api/cron/record-deliveries",
+      "schedule": "*/5 * * * *"
     }
   ],
   "git": {

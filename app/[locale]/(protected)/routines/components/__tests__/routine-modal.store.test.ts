@@ -5,6 +5,7 @@ import { afterEach, beforeEach, describe, expect, it, vi } from "vitest";
 import { autorun, runInAction } from "mobx";
 
 import { RoutineRunStatus, RoutineTriggerKind } from "@/generated/prisma";
+import { createCrmPreset } from "@/features/records/crm-preset";
 import { FilterOperatorKey } from "@/core/base/base-query-builder";
 import { registerApplicationErrorHandler } from "@/core/errors/report-application-error";
 
@@ -154,6 +155,48 @@ function makeStore(
 }
 
 describe("RoutineModalStore", () => {
+  it("keeps a dynamic trigger and draft through reloads and clears incompatible fields on a type change", async () => {
+    const store = makeStore();
+    await store.openForCreate();
+    const model = createCrmPreset("30000000-0000-4000-8000-000000000040", "EUR");
+    runInAction(() => {
+      store.recordModel = model;
+    });
+    store.onChange("name", "Project follow-up");
+    store.onChange("prompt", "Keep the original customer instructions.");
+    store.onChange("triggerKind", "event");
+    store.onChange("triggerEvents", ["record.updated"]);
+    const first = model.types[0];
+    const second = model.types[1];
+    const field = model.fields.find((field) => field.typeId === first.id);
+    if (!field) throw new Error("Preset primary field missing");
+    store.onChange("recordTrigger.changedFieldIds", [field.id]);
+    expect(store.payload.recordTrigger?.query.typeId).toBe(first.id);
+    expect(store.payload.recordTrigger?.changedFieldIds).toEqual([field.id]);
+    expect(store.payload.expectedSchemaRevision).toBe(model.revision);
+    const trigger = structuredClone(store.payload.recordTrigger);
+    await store.openForEdit(
+      makeRoutine({
+        triggerKind: "event",
+        triggerEvents: ["record.updated"],
+        recordTrigger: trigger,
+        prompt: "Keep the original customer instructions.",
+      }),
+    );
+    runInAction(() => {
+      store.recordModel = model;
+    });
+    expect(store.payload.recordTrigger).toEqual(trigger);
+    store.onChange("recordTrigger.query.typeId", second.id);
+    expect(store.payload.recordTrigger).toEqual({
+      query: { typeId: second.id, filters: [], relationships: [] },
+      changedFieldIds: [],
+    });
+    expect(store.payload.prompt).toBe("Keep the original customer instructions.");
+    store.onChange("triggerEvents", ["messaging.message.received"]);
+    expect(store.payload.recordTrigger).toBeNull();
+    expect(store.payload.expectedSchemaRevision).toBeUndefined();
+  });
   beforeEach(() => {
     vi.useRealTimers();
     vi.resetAllMocks();

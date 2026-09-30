@@ -1,5 +1,7 @@
 "use client";
 
+import { RecordActivityWidgetEditor } from "./record-activity-widget-editor";
+
 import type { CustomColumnDto } from "@/features/custom-column/custom-column.schema";
 import type { FilterableField } from "@/core/base/base-get.schema";
 
@@ -41,6 +43,8 @@ import { getChartColors } from "@/constants/chart-colors";
 import { useEntityTerminology } from "@/components/entity-terminology/use-entity-terminology";
 import { ActivityQueryProvider } from "@/features/messaging/activities/activity-query-context";
 
+import { isRecordWidgetForm, isRecordActivityWidgetForm } from "./record-widget-form";
+import { RecordWidgetEditor } from "./record-widget-editor";
 import { ActivityFilterFields } from "./activity-filter-fields";
 import { useAggregationTypeLabel } from "./use-aggregation-type-label";
 import { WidgetDisplayTypePicker } from "./widget-display-type-picker";
@@ -101,7 +105,15 @@ export const WidgetModal = observer(({ customColumns, filterableFields, activity
   const activeTab = tabForSection(widgetModalStore.expandedSection, form.kind);
   const activeFilterCount =
     form.kind === WidgetKind.chart
-      ? widgetModalStore.activeFiltersCount + widgetModalStore.activeDealFiltersCount
+      ? isRecordWidgetForm(form)
+        ? form.measure.source.filters.length +
+          form.measure.source.relationships.length +
+          (form.measure.source.relatedFilters?.length ?? 0) +
+          (form.measure.groupBy?.filter?.filters?.length ?? 0) +
+          (form.measure.groupBy?.filter?.relationships?.length ?? 0) +
+          (form.measure.groupBy?.filter?.relatedFilters?.length ?? 0) +
+          Number(Boolean(form.measure.groupBy?.filter?.search))
+        : widgetModalStore.activeFiltersCount + widgetModalStore.activeDealFiltersCount
       : widgetModalStore.activeTimelineFiltersCount;
   const isChooseStep = isCreate && widgetModalStore.creationStep === "choose";
   const creationStepNumber = isChooseStep ? 1 : 2;
@@ -138,6 +150,7 @@ export const WidgetModal = observer(({ customColumns, filterableFields, activity
 
   function renderChartData() {
     if (form.kind !== WidgetKind.chart) return null;
+    if (isRecordWidgetForm(form)) return <RecordWidgetEditor section="data" store={widgetModalStore} />;
 
     return (
       <div className="grid gap-4 sm:grid-cols-2">
@@ -201,6 +214,8 @@ export const WidgetModal = observer(({ customColumns, filterableFields, activity
 
         {form.kind === WidgetKind.chart ? (
           renderChartData()
+        ) : isRecordActivityWidgetForm(form) ? (
+          <RecordActivityWidgetEditor section="data" store={widgetModalStore} />
         ) : (
           <ActivityQueryProvider filters={form.timelineFilters}>
             <ActivityFilterFields
@@ -225,6 +240,7 @@ export const WidgetModal = observer(({ customColumns, filterableFields, activity
 
   function renderChartFilters() {
     if (form.kind !== WidgetKind.chart) return null;
+    if (isRecordWidgetForm(form)) return <RecordWidgetEditor section="filters" store={widgetModalStore} />;
 
     return (
       <div className="flex min-w-0 flex-col gap-6">
@@ -287,7 +303,12 @@ export const WidgetModal = observer(({ customColumns, filterableFields, activity
 
   function renderColorPicker() {
     if (form.kind !== WidgetKind.chart) return null;
-    if (form.groupByType === WidgetGroupByType.customColumn && form.displayOptions?.useGroupColors !== false)
+    if (
+      (isRecordWidgetForm(form)
+        ? Boolean(form.measure.groupBy?.fieldId)
+        : form.groupByType === WidgetGroupByType.customColumn) &&
+      form.displayOptions?.useGroupColors !== false
+    )
       return null;
 
     return (
@@ -368,7 +389,9 @@ export const WidgetModal = observer(({ customColumns, filterableFields, activity
           onValueChange={(next) => widgetModalStore.onChange("displayOptions.displayType", next)}
         />
 
-        {form.groupByType === WidgetGroupByType.customColumn && (
+        {(isRecordWidgetForm(form)
+          ? Boolean(form.measure.groupBy?.fieldId)
+          : form.groupByType === WidgetGroupByType.customColumn) && (
           <FormSwitch id="displayOptions.useGroupColors" label={t("Common.inputs.displayOptions.useGroupColors")} />
         )}
 
@@ -512,12 +535,18 @@ export const WidgetModal = observer(({ customColumns, filterableFields, activity
                   </TabsContent>
                 </Tabs>
 
-                <WidgetPreview
-                  activeFilterCount={activeFilterCount}
-                  activityFilters={widgetModalStore.previewTimelineFilters}
-                  customColumns={widgetModalStore.customColumns}
-                  form={form}
-                />
+                {isRecordActivityWidgetForm(form) ? (
+                  <RecordActivityWidgetEditor section="preview" store={widgetModalStore} />
+                ) : isRecordWidgetForm(form) ? (
+                  <RecordWidgetEditor section="preview" store={widgetModalStore} />
+                ) : (
+                  <WidgetPreview
+                    activeFilterCount={activeFilterCount}
+                    activityFilters={widgetModalStore.previewTimelineFilters}
+                    customColumns={widgetModalStore.customColumns}
+                    form={form}
+                  />
+                )}
               </div>
             )}
           </AppCardBody>

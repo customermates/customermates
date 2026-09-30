@@ -1,5 +1,12 @@
 "use client";
 
+import { useEffect } from "react";
+import { runUserAction } from "@/core/errors/report-application-error";
+import { RecordTriggerFields } from "@/components/records/record-trigger-fields";
+import { FormAutocompleteAvatar } from "@/components/forms/form-autocomplete-avatar";
+import { Button } from "@/components/ui/button";
+import { getUsersAction } from "../../actions";
+
 import { observer } from "mobx-react-lite";
 import { useTranslations } from "next-intl";
 import { Trash2 } from "lucide-react";
@@ -15,23 +22,26 @@ import { FormCheckbox } from "@/components/forms/form-checkbox";
 import { FormAutocomplete } from "@/components/forms/form-autocomplete";
 import { FormActions } from "@/components/card/form-actions";
 import { useRootStore } from "@/core/stores/root-store.provider";
-import { WebhookEventSchema } from "@/features/webhook/webhook.schema";
+import { WebhookCurrentEventSchema } from "@/features/webhook/webhook.schema";
 import { AppChip } from "@/components/chip/app-chip";
 import { useDeleteConfirmation } from "@/components/modal/hooks/use-delete-confirmation";
 import { AppCardHeader } from "@/components/card/app-card-header";
 
-const WEBHOOK_EVENTS = WebhookEventSchema.options.map((event) => ({
-  key: event,
-}));
+const WEBHOOK_EVENTS = WebhookCurrentEventSchema.options.map((event) => ({ key: event }));
 
 const HEADERS_PLACEHOLDER = "Authorization: Bearer your-token";
 const BODY_TEMPLATE_PLACEHOLDER = '{"text": "{{event}} for {{data.entityId}}"}';
 
 export const WebhookModal = observer(() => {
   const t = useTranslations();
-  const { webhookModalStore } = useRootStore();
+  const { webhookModalStore, userStore } = useRootStore();
   const { form, canManage, isDisabled } = webhookModalStore;
   const { showDeleteConfirmation } = useDeleteConfirmation();
+  useEffect(() => {
+    if (!webhookModalStore.isOpen) return;
+    void webhookModalStore.loadRecordModel().catch(() => undefined);
+    return webhookModalStore.cancelModelLoad;
+  }, [webhookModalStore, webhookModalStore.isOpen]);
 
   return (
     <AppModal
@@ -80,6 +90,64 @@ export const WebhookModal = observer(() => {
             >
               {(item) => <span>{t(`Common.events.${item.key}`)}</span>}
             </FormAutocomplete>
+
+            {webhookModalStore.usesRecordTrigger && (
+              <div className="space-y-4">
+                {webhookModalStore.modelLoading && <p role="status">{t("Loading.text")}</p>}
+
+                {webhookModalStore.modelLoadFailed && (
+                  <div className="space-y-2" role="alert">
+                    <p>{t("ErrorCard.title")}</p>
+
+                    <Button
+                      variant="secondary"
+                      onClick={() => runUserAction(() => webhookModalStore.loadRecordModel())}
+                    >
+                      {t("ErrorCard.retry")}
+                    </Button>
+                  </div>
+                )}
+
+                {webhookModalStore.recordModel && (
+                  <Button
+                    disabled={webhookModalStore.modelLoading}
+                    size="sm"
+                    variant="ghost"
+                    onClick={() => runUserAction(() => webhookModalStore.loadRecordModel())}
+                  >
+                    {t("Common.actions.refresh")}
+                  </Button>
+                )}
+
+                {form.recordSources?.length ? (
+                  <div className="flex flex-wrap gap-1.5">
+                    {form.recordSources.map((source, index) => (
+                      <AppChip key={`${source.query.typeId}:${index}`}>
+                        {webhookModalStore.recordModel?.types.find((type) => type.id === source.query.typeId)
+                          ?.pluralLabel ?? t("RecordModel.records")}
+
+                        {" · "}
+
+                        {source.events.map((event) => t(`Common.events.${event}`)).join(", ")}
+                      </AppChip>
+                    ))}
+                  </div>
+                ) : (
+                  <RecordTriggerFields allowAllTypes store={webhookModalStore} />
+                )}
+
+                <FormAutocompleteAvatar
+                  getItems={getUsersAction}
+                  id="recordOwnerUserId"
+                  items={userStore.user ? [userStore.user] : []}
+                  label={t("WebhookModal.recordOwner")}
+                  placeholder={t("WebhookModal.currentUser")}
+                  readOnly={!userStore.user?.role?.isSystemRole}
+                />
+
+                <p className="text-subdued text-xs">{t("WebhookModal.recordOwnerHelp")}</p>
+              </div>
+            )}
 
             <div className="space-y-1.5">
               <PasswordInput

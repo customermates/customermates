@@ -17,6 +17,7 @@ import {
   getGetCustomColumnsByEntityTypeInteractor,
 } from "@/core/di";
 import { serializeResult } from "@/core/utils/action-result";
+import { retireLegacyRecordWrite } from "@/features/records/retire-legacy-write";
 import { unwrapValidated } from "@/core/validation/validation.utils";
 
 export async function getDealsAction(params?: GetQueryParams) {
@@ -24,14 +25,17 @@ export async function getDealsAction(params?: GetQueryParams) {
 }
 
 export async function createDealAction(data: CreateDealData) {
+  retireLegacyRecordWrite();
   return serializeResult(getCreateDealInteractor().invoke(data));
 }
 
 export async function updateDealAction(data: UpdateDealData) {
+  retireLegacyRecordWrite();
   return serializeResult(getUpdateDealInteractor().invoke(data));
 }
 
 export async function deleteDealAction(data: DeleteDealData) {
+  retireLegacyRecordWrite();
   return serializeResult(getDeleteDealInteractor().invoke(data));
 }
 
@@ -46,6 +50,7 @@ export async function getDealByIdAction(data: GetDealByIdData) {
 }
 
 export async function createDealByNameAction(name: string, userId: string | null | undefined) {
+  retireLegacyRecordWrite();
   const result = await createDealAction({
     name,
     notes: null,

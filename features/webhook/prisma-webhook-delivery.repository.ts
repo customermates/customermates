@@ -1,9 +1,8 @@
 import type { GetWebhookDeliveriesRepo } from "./get-webhook-deliveries.interactor";
 import type { GetWebhookDeliveryByIdRepo } from "./resend-webhook-delivery.interactor";
-import type { DeliverWebhookRepo } from "./deliver-webhook.interactor";
 import type { FindWebhookDeliveriesByIdsRepo } from "./find-webhook-deliveries-by-ids.repo";
 import type { CreateWebhookDeliveryRepo } from "@/features/webhook/create-webhook-delivery.repo";
-import type { DomainEvent } from "@/features/event/domain-events";
+import type { RecordRecipientReader } from "@/features/records/record-recipient-reader";
 import type { RepoArgs } from "@/core/utils/types";
 
 import { WebhookDeliveryStatus } from "@/generated/prisma";
@@ -25,15 +24,20 @@ export class PrismaWebhookDeliveryRepo
     GetWebhookDeliveriesRepo,
     GetWebhookDeliveryByIdRepo,
     CreateWebhookDeliveryRepo,
-    DeliverWebhookRepo,
     FindWebhookDeliveriesByIdsRepo
 {
+  constructor(private readonly recordReader: RecordRecipientReader) {
+    super();
+  }
+
   private get baseSelect() {
     return {
       id: true,
       url: true,
       event: true,
       requestBody: true,
+      recordEventId: true,
+      nextAttemptAt: true,
       statusCode: true,
       responseMessage: true,
       success: true,
@@ -67,11 +71,56 @@ export class PrismaWebhookDeliveryRepo
       select: this.baseSelect,
     });
 
-    return deliveries.map((delivery) => ({
-      ...delivery,
-      event: delivery.event as DomainEvent,
-      requestBody: delivery.requestBody as WebhookDeliveryDto["requestBody"],
-    }));
+    return Promise.all(deliveries.map((delivery) => this.toVisibleDelivery(delivery)));
+  }
+
+  private async toVisibleDelivery(delivery: {
+    id: string;
+    url: string;
+    event: string;
+    recordEventId: string | null;
+    requestBody: Prisma.JsonValue;
+    nextAttemptAt: Date | null;
+    statusCode: number | null;
+    responseMessage: string | null;
+    success: boolean;
+    status: WebhookDeliveryStatus;
+    deliveredAt: Date | null;
+    createdAt: Date;
+  }): Promise<WebhookDeliveryDto> {
+    let requestBody: Record<string, unknown> | null = null;
+    if (delivery.recordEventId) {
+      const envelope = await this.recordReader.readEvent({
+        companyId: this.companyId,
+        userId: this.userId,
+        eventId: delivery.recordEventId,
+      });
+      if (envelope) {
+        requestBody = {
+          event: envelope.event,
+          data: {
+            userId: envelope.actorId,
+            companyId: envelope.companyId,
+            entityId: envelope.record.ref.recordId,
+            payload: envelope,
+          },
+          timestamp: envelope.timestamp,
+        };
+      }
+    }
+    return {
+      id: delivery.id,
+      url: delivery.url,
+      event: delivery.event,
+      requestBody,
+      nextAttemptAt: delivery.nextAttemptAt,
+      statusCode: delivery.statusCode,
+      responseMessage: delivery.responseMessage,
+      success: delivery.success,
+      status: delivery.status,
+      deliveredAt: delivery.deliveredAt,
+      createdAt: delivery.createdAt,
+    };
   }
 
   async getCount(params: GetQueryParams) {
@@ -80,19 +129,38 @@ export class PrismaWebhookDeliveryRepo
     return this.prisma.webhookDelivery.count({ where });
   }
 
-  async getDeliveryByIdOrThrow(id: string) {
+  async createRetryById(id: string): ReturnType<GetWebhookDeliveryByIdRepo["createRetryById"]> {
     const { companyId } = this.user;
-
-    const delivery = await this.prisma.webhookDelivery.findFirstOrThrow({
-      where: { id, companyId },
-      select: this.baseSelect,
+    const original = await this.prisma.webhookDelivery.findFirst({ where: { id, companyId } });
+    if (!original) return { status: "missing" };
+    if (!original.recordEventId) return { status: "unavailable" };
+    if (
+      (original.status !== WebhookDeliveryStatus.success && original.status !== WebhookDeliveryStatus.failed) ||
+      original.nextAttemptAt
+    )
+      return { status: "unavailable" };
+    if (!original.webhookId || !original.subscriptionRevision) return { status: "unavailable" };
+    const webhook = await this.prisma.webhook.findFirst({ where: { companyId, id: original.webhookId } });
+    if (!webhook?.enabled || !webhook.events.includes(original.event)) return { status: "unavailable" };
+    const subscription = await this.prisma.recordEventSubscription.findFirst({
+      where: { companyId, id: webhook.id, kind: "webhook", enabled: true },
     });
+    if (!subscription || subscription.revision !== original.subscriptionRevision) return { status: "stale" };
+    if (subscription.ownerUserId !== this.userId && !this.user.role?.isSystemRole) return { status: "forbidden" };
 
-    return {
-      ...delivery,
-      event: delivery.event as DomainEvent,
-      requestBody: delivery.requestBody as WebhookDeliveryDto["requestBody"],
-    };
+    const retry = await this.prisma.webhookDelivery.create({
+      data: {
+        companyId,
+        webhookId: webhook.id,
+        recordEventId: original.recordEventId,
+        subscriptionRevision: original.subscriptionRevision,
+        url: webhook.url,
+        event: original.event,
+        requestBody: { version: 2, eventId: original.recordEventId },
+      },
+      select: { id: true },
+    });
+    return { status: "created", id: retry.id };
   }
 
   async findIds(ids: Set<string>) {
@@ -136,7 +204,7 @@ export class PrismaWebhookDeliveryRepo
   @BypassTenantGuard
   async createUnscoped(
     companyId: string,
-    args: { url: string; event: string; requestBody: Record<string, unknown> }[],
+    args: { webhookId?: string; url: string; event: string; requestBody: Record<string, unknown> }[],
   ) {
     if (args.length === 0) return [];
 
@@ -151,34 +219,5 @@ export class PrismaWebhookDeliveryRepo
 
     await this.prisma.webhookDelivery.createMany({ data });
     return data.map((d) => d.id);
-  }
-
-  @BypassTenantGuard
-  async markSuccessUnscoped(args: RepoArgs<DeliverWebhookRepo, "markSuccessUnscoped">) {
-    const { id, companyId, ...rest } = args;
-
-    await this.prisma.webhookDelivery.update({
-      where: { id, companyId },
-      data: {
-        ...rest,
-        status: WebhookDeliveryStatus.success,
-        success: true,
-        deliveredAt: new Date(),
-      },
-    });
-  }
-
-  @BypassTenantGuard
-  async markFailedUnscoped(args: RepoArgs<DeliverWebhookRepo, "markFailedUnscoped">) {
-    const { id, companyId, ...rest } = args;
-
-    await this.prisma.webhookDelivery.update({
-      where: { id, companyId },
-      data: {
-        ...rest,
-        status: WebhookDeliveryStatus.failed,
-        success: false,
-      },
-    });
   }
 }

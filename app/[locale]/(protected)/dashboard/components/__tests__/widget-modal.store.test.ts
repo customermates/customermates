@@ -11,6 +11,9 @@ import { FilterFieldKey } from "@/core/types/filter-field-key";
 import { ChartColor, DisplayType } from "@/features/widget/widget.schema";
 
 import { WidgetModalStore } from "../widget-modal.store";
+import { randomUUID } from "node:crypto";
+import { RecordWidgetDtoSchema } from "@/features/widget/record-widget.schema";
+import { isRecordWidgetForm } from "../record-widget-form";
 
 const actionMocks = vi.hoisted(() => ({
   deleteWidgetAction: vi.fn(),
@@ -211,7 +214,7 @@ function setChartFilterableFields(store: WidgetModalStore) {
 }
 
 function currentChartForm(store: WidgetModalStore) {
-  if (store.form.kind !== WidgetKind.chart) throw new Error("Expected a chart form");
+  if (store.form.kind !== WidgetKind.chart || "contractVersion" in store.form) throw new Error("Expected a chart form");
   return store.form;
 }
 
@@ -219,7 +222,8 @@ function activityFilterIndex(
   store: WidgetModalStore,
   field: NonNullable<ActivityWidgetDto["timelineFilters"]>[number]["field"],
 ): number {
-  if (store.form.kind !== WidgetKind.activityTimeline) throw new Error("Expected an activity form");
+  if (store.form.kind !== WidgetKind.activityTimeline || "contractVersion" in store.form)
+    throw new Error("Expected an activity form");
   const index = store.form.timelineFilters?.findIndex((filter) => String(filter.field) === String(field)) ?? -1;
   if (index < 0) throw new Error(`Missing activity filter ${field}`);
   return index;
@@ -434,6 +438,45 @@ describe("WidgetModalStore chart combinations", () => {
 });
 
 describe("WidgetModalStore loads", () => {
+  it("initializes group filter drafts for existing widgets and newly selected grouping", async () => {
+    const { store } = createStoreWithMocks();
+    const widget = RecordWidgetDtoSchema.parse({
+      id: randomUUID(),
+      kind: "chart",
+      contractVersion: 2,
+      version: 1,
+      userId: "user-1",
+      companyId: "company-1",
+      name: "Grouped prices",
+      measure: {
+        source: { typeId: randomUUID() },
+        aggregation: "count",
+        valueFieldId: null,
+        groupBy: { path: [], fieldId: null },
+      },
+      displayOptions: { displayType: DisplayType.verticalBarChart },
+      layout: null,
+      isTemplate: false,
+      createdAt: new Date("2026-09-29T00:00:00Z"),
+      updatedAt: new Date("2026-09-29T00:00:00Z"),
+      data: null,
+      status: "unavailable",
+      groupOptions: [],
+    });
+    actionMocks.getWidgetByIdAction.mockResolvedValue(widget);
+    await store.loadById(widget.id);
+    expect(store.hasUnsavedChanges).toBe(false);
+    if (!isRecordWidgetForm(store.form)) throw new Error("Expected generic widget");
+    expect(toJS(store.form.measure.groupBy?.filter)).toEqual({ filters: [], relationships: [] });
+    store.onChange("measure.groupBy.filter.search", "Selected");
+    expect(store.form.measure.groupBy?.filter?.search).toBe("Selected");
+    expect(store.hasUnsavedChanges).toBe(true);
+    store.onChange("measure.groupBy", null);
+    store.onChange("measure.groupBy", { path: [], fieldId: null });
+    store.onChange("measure.groupBy.filter.filters", [{ fieldId: randomUUID(), operator: "empty", value: null }]);
+    expect(store.form.measure.groupBy?.filter?.filters).toHaveLength(1);
+    expect(store.form.measure.groupBy?.filter?.search).toBeUndefined();
+  });
   beforeEach(() => {
     vi.clearAllMocks();
     actionMocks.getCompanyWidgetsAction.mockResolvedValue({

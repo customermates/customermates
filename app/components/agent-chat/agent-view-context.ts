@@ -1,15 +1,19 @@
 import { z } from "zod";
 import { stripLocalePrefix } from "@/i18n/locale-registry";
-import { DATA_VIEW_PATHS, ENTITY_TIMELINE_PARENT_PATHS } from "@/core/data-view/data-view-paths";
+import { dataViewPath, ENTITY_TIMELINE_PARENT_PATHS } from "@/core/data-view/data-view-paths";
 import { SURFACE, type DataViewSurfaceKey } from "@/core/data-view/data-view-keys";
 import { SurfaceKeySchema, ViewKeySchema } from "@/core/data-view/data-view-state.schema";
 import { GET_PARAM_KEYS } from "@/core/utils/get-params";
 
 type ViewContext = { surfaceKey: string; viewKey: string };
-type Registration = { pathname: string; read: () => ViewContext | null; prepare?: () => Promise<void> };
+type Registration = {
+  pathname: string;
+  read: () => ViewContext | null;
+  prepare?: () => Promise<void>;
+};
 export type AgentViewChange = {
   surfaceKey: DataViewSurfaceKey;
-  action?: "create" | "update" | "select" | "delete";
+  action?: "create" | "update" | "reset" | "select" | "delete";
   viewKey?: string;
 };
 
@@ -76,7 +80,7 @@ export class AgentViewContext {
     if (!view) return null;
     const matching = changes.filter((change) => change.surfaceKey === view.surfaceKey);
     if (!matching.length) return null;
-    const ownedPath = DATA_VIEW_PATHS[view.surfaceKey];
+    const ownedPath = dataViewPath(view.surfaceKey);
     const timelineDetail = view.surfaceKey === SURFACE.entityTimeline && isTimelineRecordPath(url.pathname);
     if ((!ownedPath || stripLocalePrefix(url.pathname) !== ownedPath) && !timelineDetail) return null;
     const selectionChanged = matching.some(
@@ -85,7 +89,9 @@ export class AgentViewContext {
         change.action === "select" ||
         (change.action === "delete" && change.viewKey === view.viewKey),
     );
-    const currentViewUpdated = matching.some((change) => change.action === "update" && change.viewKey === view.viewKey);
+    const currentViewUpdated = matching.some(
+      (change) => (change.action === "update" || change.action === "reset") && change.viewKey === view.viewKey,
+    );
     if (!selectionChanged && !currentViewUpdated) return null;
     for (const key of GET_PARAM_KEYS) url.searchParams.delete(key);
     url.searchParams.delete("viewSurface");

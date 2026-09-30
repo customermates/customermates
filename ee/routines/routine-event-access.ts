@@ -17,11 +17,16 @@ import {
 import { DomainEvent } from "@/features/event/domain-events";
 
 import { entityTypeForEvent, isRecordRemovalEvent } from "./routine-event-filter";
+import type { RecordRecipientReader } from "@/features/records/record-recipient-reader";
+import { RecordDeliveryEnvelopeSchema } from "@/features/records/record-delivery.schema";
+import type { RecordQuery } from "@/features/records/record-query.schema";
 
 type RoutineEventAccessArgs = {
   event: string;
   entityId: string | null;
   triggerPayload: unknown;
+  recordQuery?: RecordQuery;
+  subscriptionId?: string;
 };
 
 type RoutineEventUser = {
@@ -124,11 +129,15 @@ export abstract class RoutineEventAccess {
 }
 
 export class PrismaRoutineEventAccess extends BaseRepository implements RoutineEventAccess {
-  constructor(private readonly filterMatcher?: RoutineFilterMatcher) {
+  constructor(
+    private readonly records: RecordRecipientReader,
+    private readonly filterMatcher?: RoutineFilterMatcher,
+  ) {
     super();
   }
 
   async matchesCurrentUser(args: RoutineEventAccessArgs & { filters: Filter[] }): Promise<boolean> {
+    if (args.event.startsWith("record.")) return this.matchesRecordEvent(args, this.companyId, this.userId);
     if (!(await this.canUserAccess(this.user, args))) return false;
     if (args.filters.length === 0 || isRecordRemovalEvent(args.event)) return true;
 
@@ -146,6 +155,7 @@ export class PrismaRoutineEventAccess extends BaseRepository implements RoutineE
       filters: Filter[];
     },
   ): Promise<boolean> {
+    if (args.event.startsWith("record.")) return this.matchesRecordEvent(args, args.companyId, args.userId);
     const user = await this.findActiveEventUser(args.companyId, args.userId);
     if (!user) return false;
     if (!(await this.canUserAccess(user, args))) return false;
@@ -160,9 +170,31 @@ export class PrismaRoutineEventAccess extends BaseRepository implements RoutineE
 
   @BypassTenantGuard
   async canUserAccessUnscoped(args: RoutineEventAccessArgs & { companyId: string; userId: string }): Promise<boolean> {
+    if (args.event.startsWith("record.")) return this.matchesRecordEvent(args, args.companyId, args.userId);
     const user = await this.findActiveEventUser(args.companyId, args.userId);
 
     return user ? this.canUserAccess(user, args) : false;
+  }
+
+  private async matchesRecordEvent(args: RoutineEventAccessArgs, companyId: string, userId: string) {
+    const parsed = RecordDeliveryEnvelopeSchema.safeParse(args.triggerPayload);
+    if (
+      !parsed.success ||
+      parsed.data.companyId !== companyId ||
+      parsed.data.event !== args.event ||
+      parsed.data.record.ref.recordId !== args.entityId
+    )
+      return false;
+    return (
+      (await this.records.readEvent({
+        companyId,
+        userId,
+        eventId: parsed.data.id,
+        query: args.recordQuery,
+        subscriptionId: args.subscriptionId,
+        recheckSubscriptionSources: true,
+      })) !== null
+    );
   }
 
   private async filterScope(user: RoutineEventUser, entityType: EntityType) {

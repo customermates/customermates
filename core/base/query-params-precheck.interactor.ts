@@ -1,7 +1,8 @@
 import type { Filter, FilterableField, SortDescriptor } from "./base-get.schema";
 import type { SortableField } from "./base-query-builder";
 
-import type { z } from "zod";
+import { z } from "zod";
+import { parseRecordReferenceKey } from "@/features/records/record-reference-key";
 import type { EntityType } from "@/generated/prisma";
 import type { ValidateContactIdsInteractor } from "@/core/validation/validators/validate-contact-ids.interactor";
 import type { ValidateDealIdsInteractor } from "@/core/validation/validators/validate-deal-ids.interactor";
@@ -156,6 +157,15 @@ export class QueryParamsPrecheckInteractor {
     if (!valueKind || valueKind.kind === "linkStatus" || valueKind.kind === "draftStatus") return;
 
     switch (valueKind.kind) {
+      case "recordRef": {
+        const refs = Array.isArray(filter.value) ? filter.value : [String(filter.value)];
+        if (
+          refs.length > 100 ||
+          refs.some((value) => !parseRecordReferenceKey(value) && !z.uuid().safeParse(value).success)
+        )
+          ctx.addIssue({ code: "custom", params: { error: CustomErrorCode.invalidFilterField }, path });
+        break;
+      }
       case "entityId": {
         const ids = Array.isArray(filter.value) ? filter.value : [filter.value];
         if (ids.length > 0) await this.idValidatorFor(valueKind.entity).invoke([{ ids: filter.value, path }], ctx);

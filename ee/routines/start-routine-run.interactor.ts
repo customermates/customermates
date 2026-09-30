@@ -18,6 +18,7 @@ import { changedFieldsOf } from "./routine-event-filter";
 import { isCustomField } from "@/core/utils/custom-field";
 import { isRoutineRunErrorCode, type RoutineRunErrorCode, type RoutineRunReason } from "./routine-run-outcome";
 import { DEFAULT_ROUTINE_MAX_CREDITS_PER_RUN, DEFAULT_ROUTINE_MAX_RUNS_PER_HOUR } from "./routine-run-limits";
+import { RecordQuerySchema } from "@/features/records/record-query.schema";
 
 const Schema = z.object({ routineRunId: z.uuid() });
 
@@ -282,6 +283,8 @@ export class StartRoutineRunInteractor extends AuthenticatedInteractor<StartRout
       entityId: triggerEntityId,
       triggerPayload,
       filters,
+      recordQuery: routine.recordTrigger ? RecordQuerySchema.parse(routine.recordTrigger.query) : undefined,
+      subscriptionId: triggerEvent.startsWith("record.") ? routine.id : undefined,
     });
   }
 

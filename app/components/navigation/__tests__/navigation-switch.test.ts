@@ -16,6 +16,7 @@ const state = vi.hoisted(() => ({
   setOverrides: vi.fn(),
   setSubscription: vi.fn(),
   setUser: vi.fn(),
+  setRecordNavigation: vi.fn(),
 }));
 
 state.setUser.mockImplementation((user: { id: string } | null) => {
@@ -37,6 +38,7 @@ vi.mock("@/core/stores/root-store.provider", () => ({
     companyStore: { setCompany: state.setCompany },
     subscriptionStore: { setSubscription: state.setSubscription },
     terminologyStore: { setOverrides: state.setOverrides },
+    recordWorkspaceStore: { setNavigation: state.setRecordNavigation },
     userStore: {
       get user() {
         return state.currentUser;

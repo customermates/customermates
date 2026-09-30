@@ -63,6 +63,7 @@ vi.mock("@dnd-kit/core", () => ({
     return createElement("div", null, children);
   },
   PointerSensor: function PointerSensor() {},
+  KeyboardSensor: function KeyboardSensor() {},
   useSensor: (sensor: unknown) => ({ sensor }),
   useSensors: (...sensors: unknown[]) => {
     const live = sensors.filter(Boolean);
@@ -216,9 +217,19 @@ describe("board drag gating", () => {
   it("registers the pointer sensor and live targets when the server allows the write back", () => {
     render(store({}));
 
-    expect(dndSpy.sensorCounts).toEqual([1]);
+    expect(dndSpy.sensorCounts).toEqual([2]);
     expect(dndSpy.droppables.some((droppable) => droppable.disabled)).toBe(false);
     expect(dndSpy.draggables.some((draggable) => draggable.disabled)).toBe(false);
+  });
+
+  it("keeps protected records fixed even when ordinary records can move", async () => {
+    const moveItemBetweenGroups = vi.fn();
+    const value = store({}, moveItemBetweenGroups);
+    value.canMoveItemBetweenGroups = () => false;
+    render(value);
+    expect(dndSpy.draggables.every((draggable) => draggable.disabled)).toBe(true);
+    await drop("e-1", "won", "new");
+    expect(moveItemBetweenGroups).not.toHaveBeenCalled();
   });
 
   it("moves with the group key the card was rendered in, never a re-derived value", async () => {

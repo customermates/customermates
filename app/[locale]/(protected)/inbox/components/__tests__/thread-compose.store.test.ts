@@ -50,7 +50,7 @@ function attendee(identifier: string) {
     headline: null,
     occupation: null,
     isSelf: false,
-    contact: null,
+    record: null,
   };
 }
 

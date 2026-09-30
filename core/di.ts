@@ -1,3 +1,32 @@
+import { RecordWebhookAdmission } from "@/features/webhook/record-webhook-admission";
+import { RecordEventAdmissionGroup } from "@/features/records/record-event-admission-group";
+import { PrismaWebhookDeliveryQueueRepo } from "@/features/webhook/prisma-webhook-delivery-queue.repository";
+import { WebhookTransport } from "@/features/webhook/webhook-transport.service";
+import { PrismaRecordEventSubscriptionRepo } from "@/features/records/prisma-record-event-subscription.repository";
+import { RecordRecipientReader } from "@/features/records/record-recipient-reader";
+import { RecordRoutineAdmission } from "@/ee/routines/record-routine-admission";
+import { PrismaRecordEventOutboxRepo } from "@/features/records/prisma-record-event-outbox.repository";
+import { ProcessRecordEventInteractor } from "@/features/records/process-record-event.interactor";
+import { ProcessDueRecordEventsInteractor } from "@/features/records/process-due-record-events.interactor";
+import { SweepRecordDeliveriesInteractor } from "@/features/records/sweep-record-deliveries.interactor";
+import type { RecordEventAdmission } from "@/features/records/record-event-outbox.repo";
+import { PrismaRecordActivityWidgetRepo } from "@/features/widget/prisma-record-activity-widget.repository";
+import {
+  RecordActivityWidgetReader,
+  UpsertRecordActivityWidgetInteractor,
+} from "@/features/widget/record-activity-widget.interactor";
+import { GetIdentityRecordChoicesInteractor } from "@/features/records/get-identity-record-choices.interactor";
+import { RecordIdentityReader } from "@/features/records/record-identity-reader";
+import { RecordHistoryReader } from "@/features/records/record-history-reader";
+import { GetRecordActivitiesInteractor } from "@/ee/messaging/activities/get-record-activities.interactor";
+import { PrismaRecordActivitiesRepo } from "@/ee/messaging/activities/prisma-record-activities.repository";
+import { GetRecordWidgetInteractor, GetRecordWidgetsInteractor } from "@/features/widget/get-record-widgets.interactor";
+import { PrismaRecordWidgetRepo } from "@/features/widget/prisma-record-widget.repository";
+import { RecordWidgetReader, UpsertRecordWidgetInteractor } from "@/features/widget/record-widget.interactor";
+import { ResetDataViewStateInteractor } from "@/features/data-view/reset-data-view-state.interactor";
+import { RecordViewPolicy } from "@/features/records/record-view-policy";
+import { GetRecordPresentationInteractor } from "@/features/records/get-record-presentation.interactor";
+import { GetRecordNavigationInteractor } from "@/features/records/get-record-navigation.interactor";
 /**
  * Application dependency injection - single source of truth for everything wired
  * into the Next.js app, including the in-process workflow steps.
@@ -21,6 +50,40 @@
 
 // Repos
 import { PrismaContactRepo } from "@/features/contacts/prisma-contact.repository";
+import { PrismaRecordRepo } from "@/features/records/prisma-record.repository";
+import { PrismaMembershipTaskRepo } from "@/features/records/prisma-membership-task.repository";
+import { MembershipTaskService } from "@/features/records/membership-task.service";
+import { ResolveRecordIdentitiesInteractor } from "@/features/records/resolve-record-identities.interactor";
+import { RecordAccessPolicy } from "@/features/records/record-access";
+import { InitializeRecordModelService } from "@/features/records/initialize-record-model.service";
+import { PreviewRecordDeletionInteractor } from "@/features/records/preview-record-deletion.interactor";
+import { RecordCalculationService } from "@/features/records/record-calculation.service";
+import { RecordWriteService } from "@/features/records/record-write.service";
+import { RecordConfigurationService } from "@/features/records/configuration.service";
+import { RecordOperationService } from "@/features/records/record-operation.service";
+import { QueryRecordMeasureInteractor } from "@/features/records/query-record-measure.interactor";
+import { ConfigureRecordsProviderInteractor } from "@/features/records/configure-records-provider.interactor";
+import { DiscoverRecordTypesInteractor } from "@/features/records/discover-record-types.interactor";
+import {
+  GetRecordOperationInteractor,
+  CancelRecordOperationInteractor,
+  ResumeRecordOperationInteractor,
+} from "@/features/records/record-operation.interactor";
+import {
+  ApplyRecordConfigurationInteractor,
+  PreviewRecordConfigurationInteractor,
+  GetRecordModelInteractor,
+  RecordConfigurationWriter,
+} from "@/features/records/configure-records.interactor";
+import { MutateRecordInteractor } from "@/features/records/mutate-record.interactor";
+import { QueryRecordsInteractor, GetRecordInteractor } from "@/features/records/query-records.interactor";
+import { GetRecordEditorInteractor } from "@/features/records/get-record-editor.interactor";
+import {
+  RecordDetailLayoutReader,
+  ReadRecordDetailLayoutInteractor,
+  SaveRecordDetailLayoutInteractor,
+} from "@/features/records/record-detail-layout.interactor";
+import { GetRecordChoicesInteractor } from "@/features/records/get-record-choices.interactor";
 import { PrismaOrganizationRepo } from "@/features/organizations/prisma-organization.repository";
 import { PrismaDealRepo } from "@/features/deals/prisma-deal.repository";
 import { PrismaServiceRepo } from "@/features/services/prisma-service.repository";
@@ -96,6 +159,8 @@ import { ExportDealsPageInteractor } from "@/features/data-transfer/export/expor
 import { ExportOrganizationsPageInteractor } from "@/features/data-transfer/export/export-organizations-page.interactor";
 import { ExportServicesPageInteractor } from "@/features/data-transfer/export/export-services-page.interactor";
 import { ExportTasksPageInteractor } from "@/features/data-transfer/export/export-tasks-page.interactor";
+import { ExportRecordsInteractor } from "@/features/data-transfer/export/export-records.interactor";
+import { ImportRecordsInteractor } from "@/features/data-transfer/import/import-records.interactor";
 import { GetImportRelationIndexInteractor } from "@/features/data-transfer/import/get-import-relation-index.interactor";
 import { DryRunImportChunkInteractor } from "@/features/data-transfer/import/dry-run-import-chunk.interactor";
 import { CommitImportChunkInteractor } from "@/features/data-transfer/import/commit-import-chunk.interactor";
@@ -186,6 +251,7 @@ import { CompleteOnboardingWizardInteractor } from "@/features/onboarding-wizard
 import { GetUserDetailsInteractor } from "@/features/user/get/get-user-details.interactor";
 import { GetUserByIdInteractor } from "@/features/user/get/get-user-by-id.interactor";
 import { GetTeamMemberInteractor } from "@/features/user/get/get-team-member.interactor";
+import { ResolveUserOptionsInteractor } from "@/features/user/get/resolve-user-options.interactor";
 import { AdminUpdateUserDetailsInteractor } from "@/features/user/upsert/admin-update-user-details.interactor";
 import { GetUsersInteractor } from "@/features/user/get/get-users.interactor";
 // Auth interactors
@@ -210,8 +276,11 @@ import { env } from "@/env";
 import { UpsertRoleInteractor } from "@/features/role/upsert-role.interactor";
 import { GetRolesInteractor } from "@/features/role/get-roles.interactor";
 import { DeleteRoleInteractor } from "@/features/role/delete-role.interactor";
+import { GetRoleEditorInteractor } from "@/features/role/get-role-editor.interactor";
+import { RoleManagementService } from "@/features/role/role-management.service";
 // Widget interactors
 import { GetWidgetsInteractor } from "@/features/widget/get-widgets.interactor";
+import { GetWidgetCompatibilityInteractor } from "@/features/widget/get-widget-compatibility.interactor";
 import { UpsertWidgetInteractor } from "@/features/widget/upsert-widget.interactor";
 import { DeleteWidgetInteractor } from "@/features/widget/delete-widget.interactor";
 import { UpdateWidgetLayoutsInteractor } from "@/features/widget/update-widget-layouts.interactor";
@@ -312,7 +381,8 @@ import { UpsertCustomColumnInteractor } from "@/features/custom-column/upsert-cu
 import { DeleteCustomColumnInteractor } from "@/features/custom-column/delete-custom-column.interactor";
 // Entity Terminology
 // Search interactor
-import { GlobalSearchInteractor } from "@/features/search/global-search.interactor";
+import { SearchRecordsInteractor } from "@/features/records/search-records.interactor";
+import { ResolveRecordSearchInteractor } from "@/features/records/resolve-record-search.interactor";
 // P13n interactors
 import { UpsertP13nInteractor } from "@/features/p13n/upsert-p13n.interactor";
 import { ManageDataViewsInteractor } from "@/features/data-view/manage-data-views.interactor";
@@ -358,6 +428,7 @@ import { PrismaAgentChatRepo } from "@/ee/agent-chat/prisma-agent-chat.repositor
 import { AgentUsageService } from "@/ee/agent-chat/agent-usage.service";
 import { SendAgentMessageInteractor } from "@/ee/agent-chat/send-agent-message.interactor";
 import { GetAgentConfigInteractor } from "@/ee/agent-chat/get-agent-config.interactor";
+import { RecordSuggestionSignals } from "@/ee/agent-chat/record-suggestion-signals";
 import { RespondToApprovalInteractor } from "@/ee/agent-chat/respond-to-approval.interactor";
 import { RespondToUiCommandInteractor } from "@/ee/agent-chat/respond-to-ui-command.interactor";
 import { CancelAgentTurnInteractor } from "@/ee/agent-chat/cancel-agent-turn.interactor";
@@ -401,6 +472,93 @@ import { ResetOperatorUserCreditsInteractor } from "@/ee/operator/reset-operator
 // ─── Section 2: Repos ───────────────────────────────────────────────────────
 
 export const getContactRepo = () => new PrismaContactRepo();
+export const getRecordRepo = () => new PrismaRecordRepo(undefined, getBackgroundTaskService());
+export const getRecordActivitiesRepo = () => new PrismaRecordActivitiesRepo();
+export const getRecordHistoryReader = () => new RecordHistoryReader(getRecordRepo());
+export const getGetRecordActivitiesInteractor = () =>
+  new GetRecordActivitiesInteractor(
+    getRecordActivitiesRepo(),
+    getRecordRepo(),
+    getRecordAccessPolicy(),
+    getRecordIdentityReader(),
+    getRecordHistoryReader(),
+    getEntitlementService(),
+  );
+export const getGetIdentityRecordChoicesInteractor = () =>
+  new GetIdentityRecordChoicesInteractor(getRecordRepo(), getRecordAccessPolicy());
+export const getRecordIdentityReader = () => new RecordIdentityReader(getRecordRepo(), getRecordAccessPolicy());
+export const getResolveRecordIdentitiesInteractor = () =>
+  new ResolveRecordIdentitiesInteractor(getRecordRepo(), getRecordAccessPolicy());
+export const getGetRecordNavigationInteractor = () =>
+  new GetRecordNavigationInteractor(getRecordRepo(), getRecordAccessPolicy());
+export const getDiscoverRecordTypesInteractor = () =>
+  new DiscoverRecordTypesInteractor(getRecordRepo(), getRecordAccessPolicy());
+export const getConfigureRecordsProviderInteractor = () =>
+  new ConfigureRecordsProviderInteractor(
+    getPreviewRecordConfigurationInteractor(),
+    getApplyRecordConfigurationInteractor(),
+  );
+export const getQueryRecordMeasureInteractor = () =>
+  new QueryRecordMeasureInteractor(getRecordRepo(), getRecordAccessPolicy(), getCompanyRepo());
+export const getRecordAccessPolicy = () => new RecordAccessPolicy(getUserRepo(), getRecordRepo());
+export const getPreviewRecordDeletionInteractor = () =>
+  new PreviewRecordDeletionInteractor(getRecordRepo(), getRecordAccessPolicy(), getRecordWriteService());
+export const getRecordCalculationService = () => new RecordCalculationService(getRecordRepo());
+export const getRecordWriteService = () =>
+  new RecordWriteService(getRecordRepo(), getRecordAccessPolicy(), getRecordCalculationService());
+export const getRecordConfigurationService = () => new RecordConfigurationService(getRecordRepo());
+export const getGetRecordModelInteractor = () => new GetRecordModelInteractor(getRecordRepo(), getRecordAccessPolicy());
+export const getQueryRecordsInteractor = () => new QueryRecordsInteractor(getRecordRepo(), getRecordAccessPolicy());
+export const getExportRecordsInteractor = () => new ExportRecordsInteractor(getRecordRepo(), getRecordAccessPolicy());
+export const getImportRecordsInteractor = () =>
+  new ImportRecordsInteractor(getRecordRepo(), getRecordAccessPolicy(), getRecordWriteService(), getCompanyRepo());
+export const getGetRecordInteractor = () => new GetRecordInteractor(getRecordRepo(), getRecordAccessPolicy());
+export const getGetRecordEditorInteractor = () =>
+  new GetRecordEditorInteractor(getRecordRepo(), getRecordAccessPolicy(), getRecordDetailLayoutReader());
+export const getRecordDetailLayoutReader = () => new RecordDetailLayoutReader(getP13nRepo());
+export const getReadRecordDetailLayoutInteractor = () =>
+  new ReadRecordDetailLayoutInteractor(getRecordRepo(), getRecordAccessPolicy(), getRecordDetailLayoutReader());
+export const getSaveRecordDetailLayoutInteractor = () =>
+  new SaveRecordDetailLayoutInteractor(
+    getRecordRepo(),
+    getRecordAccessPolicy(),
+    getP13nRepo(),
+    getRecordDetailLayoutReader(),
+  );
+export const getGetRecordChoicesInteractor = () =>
+  new GetRecordChoicesInteractor(getRecordRepo(), getRecordAccessPolicy(), getQueryRecordsInteractor());
+export const getMutateRecordInteractor = () =>
+  new MutateRecordInteractor(
+    getRecordRepo(),
+    getRecordAccessPolicy(),
+    getRecordWriteService(),
+    getCompanyRepo(),
+    getBackgroundTaskService(),
+  );
+export const getPreviewRecordConfigurationInteractor = () =>
+  new PreviewRecordConfigurationInteractor(getRecordRepo(), getRecordAccessPolicy(), getRecordConfigurationService());
+export const getApplyRecordConfigurationInteractor = () =>
+  new ApplyRecordConfigurationInteractor(
+    getRecordRepo(),
+    getRecordAccessPolicy(),
+    getRecordConfigurationService(),
+    new RecordConfigurationWriter(getRecordRepo(), getRecordCalculationService()),
+    getCompanyRepo(),
+    getBackgroundTaskService(),
+  );
+export const getRecordOperationService = () =>
+  new RecordOperationService(
+    getRecordRepo(),
+    getRecordAccessPolicy(),
+    getRecordConfigurationService(),
+    getCompanyRepo(),
+  );
+export const getGetRecordOperationInteractor = () =>
+  new GetRecordOperationInteractor(getRecordRepo(), getRecordAccessPolicy());
+export const getCancelRecordOperationInteractor = () =>
+  new CancelRecordOperationInteractor(getRecordRepo(), getRecordAccessPolicy());
+export const getResumeRecordOperationInteractor = () =>
+  new ResumeRecordOperationInteractor(getRecordRepo(), getRecordAccessPolicy(), getBackgroundTaskService());
 export const getOrganizationRepo = () => new PrismaOrganizationRepo();
 export const getDealRepo = () => new PrismaDealRepo(getCompanyRepo());
 export const getServiceRepo = () => new PrismaServiceRepo();
@@ -416,9 +574,29 @@ export const getWidgetRepo = () => new PrismaWidgetRepo();
 
 export const getActivitiesRepo = () => new PrismaActivitiesRepo();
 export const getWidgetCalculatorRepo = () => new PrismaWidgetCalculatorRepo();
-export const getWebhookRepo = () => new PrismaWebhookRepo();
+export const getWebhookRepo = () => new PrismaWebhookRepo(getRecordEventSubscriptionRepo());
 
-export const getRoutineRepo = () => new PrismaRoutineRepo(getRoutineEventAccess());
+export const getRecordRecipientReader = () => new RecordRecipientReader((companyId) => new PrismaRecordRepo(companyId));
+export const getRecordEventSubscriptionRepo = () => new PrismaRecordEventSubscriptionRepo(getRecordRepo());
+export const getRecordRoutineAdmission = () =>
+  new RecordRoutineAdmission(getRoutineRepo(), getBackgroundTaskService(), getRecordRecipientReader());
+export const getRecordWebhookAdmission = () =>
+  new RecordWebhookAdmission(getRecordRecipientReader(), getBackgroundTaskService());
+export const getProcessRecordEventInteractor = (
+  admission: RecordEventAdmission = new RecordEventAdmissionGroup([
+    getRecordWebhookAdmission(),
+    getRecordRoutineAdmission(),
+  ]),
+) => new ProcessRecordEventInteractor(new PrismaRecordEventOutboxRepo(), admission);
+export const getProcessDueRecordEventsInteractor = () =>
+  new ProcessDueRecordEventsInteractor(new PrismaRecordEventOutboxRepo(), getProcessRecordEventInteractor());
+export const getSweepRecordDeliveriesInteractor = () =>
+  new SweepRecordDeliveriesInteractor(
+    new PrismaRecordEventOutboxRepo(),
+    new PrismaWebhookDeliveryQueueRepo(),
+    getBackgroundTaskService(),
+  );
+export const getRoutineRepo = () => new PrismaRoutineRepo(getRoutineEventAccess(), getRecordEventSubscriptionRepo());
 
 export const getRoutineFilterMatcher = () =>
   new PrismaRoutineFilterMatcher(
@@ -428,8 +606,9 @@ export const getRoutineFilterMatcher = () =>
     getServiceRepo(),
     getTaskRepo(),
   );
-export const getRoutineEventAccess = () => new PrismaRoutineEventAccess(getRoutineFilterMatcher());
-export const getWebhookDeliveryRepo = () => new PrismaWebhookDeliveryRepo();
+export const getRoutineEventAccess = () =>
+  new PrismaRoutineEventAccess(getRecordRecipientReader(), getRoutineFilterMatcher());
+export const getWebhookDeliveryRepo = () => new PrismaWebhookDeliveryRepo(getRecordRecipientReader());
 export const getAuditLogRepo = () => new PrismaAuditLogRepo();
 export const getMessagingRepo = () => new PrismaMessagingRepo();
 export const getConnectedAccountRepo = () => new PrismaConnectedAccountRepo();
@@ -452,7 +631,10 @@ export const getBackgroundTaskService = () => new BackgroundTaskService();
 export const getInviteTokenCookieRepo = () => new NextInviteTokenCookieRepo();
 export const getOnboardingIntentService = () =>
   new OnboardingIntentService(getInviteTokenValidationInteractor(), env.BETTER_AUTH_SECRET);
-export const getUserPendingAuthorizationTaskListener = () => new UserPendingAuthorizationTaskListener(getTaskRepo());
+export const getMembershipTaskService = () =>
+  new MembershipTaskService(getRecordRepo(), new PrismaMembershipTaskRepo(), getRecordAccessPolicy(), getTaskRepo());
+export const getUserPendingAuthorizationTaskListener = () =>
+  new UserPendingAuthorizationTaskListener(getMembershipTaskService());
 
 const EXPECTED_EVENT_LISTENERS = [
   {
@@ -908,7 +1090,7 @@ export const getGetTaskByIdInteractor = () => new GetTaskByIdInteractor(getTaskR
 
 export const getCountUserTasksInteractor = () => new CountUserTasksInteractor(getTaskRepo());
 
-export const getCountSystemTasksInteractor = () => new CountSystemTasksInteractor(getTaskRepo());
+export const getCountSystemTasksInteractor = () => new CountSystemTasksInteractor(getMembershipTaskService());
 
 export const getCreateTaskInteractor = () =>
   new CreateTaskInteractor(
@@ -985,6 +1167,7 @@ export const getRegisterUserInteractor = () =>
     getEventService(),
     getRouteGuardService(),
     getCompanyRepo(),
+    new InitializeRecordModelService(getRecordRepo()),
   );
 
 export const getRegisterOnboardingProfileInteractor = () =>
@@ -1016,6 +1199,7 @@ export const getCompleteOnboardingWizardInteractor = () =>
 export const getGetUserDetailsInteractor = () => new GetUserDetailsInteractor();
 
 export const getGetUserByIdInteractor = () => new GetUserByIdInteractor(getUserRepo());
+export const getResolveUserOptionsInteractor = () => new ResolveUserOptionsInteractor(getUserRepo());
 
 export const getGetTeamMemberInteractor = () => new GetTeamMemberInteractor(getUserRepo());
 
@@ -1087,19 +1271,32 @@ export const getChooseWorkspaceOnboardingInteractor = () =>
 
 // --- Role ---
 
-export const getUpsertRoleInteractor = () =>
-  new UpsertRoleInteractor(getRoleRepo(), getEventService(), getRoleIdsValidator());
+export const getRoleManagementService = () => {
+  const records = getRecordRepo();
+  return new RoleManagementService(
+    getRoleRepo(),
+    records,
+    getRecordAccessPolicy(),
+    new RecordConfigurationService(records),
+    new RecordConfigurationWriter(records, new RecordCalculationService(records)),
+    getEventService(),
+  );
+};
+export const getGetRoleEditorInteractor = () => new GetRoleEditorInteractor(getRoleManagementService());
+
+export const getUpsertRoleInteractor = () => new UpsertRoleInteractor(getRoleManagementService());
 
 export const getGetRolesInteractor = () =>
   new GetRolesInteractor(getRoleRepo(), getDataViewStateRepo(), "interactive", getQueryParamsPrecheck());
 export const getGetRolesApiInteractor = () =>
   new GetRolesInteractor(getRoleRepo(), getDataViewStateRepo(), "api", getQueryParamsPrecheck());
 
-export const getDeleteRoleInteractor = () => new DeleteRoleInteractor(getRoleRepo(), getEventService());
+export const getDeleteRoleInteractor = () => new DeleteRoleInteractor(getRoleManagementService());
 
 // --- Widget ---
 
 export const getGetWidgetsInteractor = () => new GetWidgetsInteractor(getWidgetRepo());
+export const getGetWidgetCompatibilityInteractor = () => new GetWidgetCompatibilityInteractor(getWidgetRepo());
 
 export const getUpsertWidgetInteractor = () =>
   new UpsertWidgetInteractor(
@@ -1175,7 +1372,6 @@ export const getGetWebhookDeliveriesApiInteractor = () =>
 
 export const getResendWebhookDeliveryInteractor = () =>
   new ResendWebhookDeliveryInteractor(
-    getWebhookDeliveryRepo(),
     getWebhookDeliveryRepo(),
     getBackgroundTaskService(),
     getWebhookDeliveryIdsValidator(),
@@ -1589,7 +1785,9 @@ export const getDeleteCustomColumnInteractor = () =>
 
 // --- Search ---
 
-export const getGlobalSearchInteractor = () => new GlobalSearchInteractor();
+export const getSearchRecordsInteractor = () => new SearchRecordsInteractor(getRecordRepo(), getRecordAccessPolicy());
+export const getResolveRecordSearchInteractor = () =>
+  new ResolveRecordSearchInteractor(getRecordRepo(), getRecordAccessPolicy());
 
 // --- P13n ---
 
@@ -1599,16 +1797,25 @@ export const getGetP13nInteractor = () => new GetP13nInteractor(getP13nRepo());
 
 // --- Data views ---
 
-export const getGetDataViewsInteractor = () => new GetDataViewsInteractor(getDataViewRepo());
+export const getRecordViewPolicy = () =>
+  new RecordViewPolicy(getRecordRepo(), getRecordAccessPolicy(), getCompanyRepo());
 
-export const getUpsertDataViewInteractor = () => new UpsertDataViewInteractor(getDataViewRepo(), getP13nRepo());
+export const getGetDataViewsInteractor = () => new GetDataViewsInteractor(getDataViewRepo(), getRecordViewPolicy());
 
-export const getDeleteDataViewInteractor = () => new DeleteDataViewInteractor(getDataViewRepo(), getP13nRepo());
+export const getUpsertDataViewInteractor = () =>
+  new UpsertDataViewInteractor(getDataViewRepo(), getP13nRepo(), getRecordViewPolicy());
 
-export const getSaveDataViewStateInteractor = () => new SaveDataViewStateInteractor(getDataViewRepo(), getP13nRepo());
+export const getDeleteDataViewInteractor = () =>
+  new DeleteDataViewInteractor(getDataViewRepo(), getP13nRepo(), getRecordViewPolicy());
 
-export const getSelectDataViewInteractor = () => new SelectDataViewInteractor(getDataViewRepo(), getP13nRepo());
+export const getSaveDataViewStateInteractor = () =>
+  new SaveDataViewStateInteractor(getDataViewRepo(), getP13nRepo(), getRecordViewPolicy());
 
+export const getSelectDataViewInteractor = () =>
+  new SelectDataViewInteractor(getDataViewRepo(), getP13nRepo(), getRecordViewPolicy());
+
+export const getResetDataViewStateInteractor = () =>
+  new ResetDataViewStateInteractor(getDataViewRepo(), getRecordViewPolicy());
 export const getManageDataViewsInteractor = () =>
   new ManageDataViewsInteractor(
     {
@@ -1633,6 +1840,8 @@ export const getManageDataViewsInteractor = () =>
     getDeleteDataViewInteractor(),
     getQueryParamsPrecheck(),
     getEntitlementService(),
+    getRecordViewPolicy(),
+    getResetDataViewStateInteractor(),
   );
 
 // --- Feedback ---
@@ -1721,7 +1930,11 @@ export const getAcceptLegalDocumentsInteractor = () =>
 // --- Webhook delivery (workflow task) ---
 
 export const getDeliverWebhookInteractor = () =>
-  new DeliverWebhookInteractor(getWebhookDeliveryRepo(), getWebhookRepo());
+  new DeliverWebhookInteractor(
+    new PrismaWebhookDeliveryQueueRepo(),
+    getRecordRecipientReader(),
+    new WebhookTransport(),
+  );
 
 export const getCreateSupportTicketInteractor = () => new CreateSupportTicketInteractor(getFeedbackCreator());
 
@@ -1733,7 +1946,7 @@ export const getSendAgentMessageInteractor = () =>
     getAgentUsageService(),
     getEntitlementService(),
     getBackgroundTaskService(),
-    getCustomColumnRepo(),
+    getDiscoverRecordTypesInteractor(),
   );
 
 export const getGetRoutinesInteractor = () =>
@@ -1775,7 +1988,12 @@ export const getReleaseOwnerRoutinesInteractor = () =>
 export const getPruneRoutineRunsInteractor = () => new PruneRoutineRunsInteractor(getRoutineRepo());
 
 export const getGetAgentConfigInteractor = () =>
-  new GetAgentConfigInteractor(getAgentChatRepo(), getAgentUsageService(), getEntitlementService());
+  new GetAgentConfigInteractor(
+    getAgentChatRepo(),
+    getAgentUsageService(),
+    getEntitlementService(),
+    new RecordSuggestionSignals(getRecordRepo(), getRecordAccessPolicy()),
+  );
 
 export const getRespondToApprovalInteractor = () =>
   new RespondToApprovalInteractor(getAgentChatRepo(), getEntitlementService(), getBackgroundTaskService());
@@ -1926,3 +2144,52 @@ export const getDryRunImportDealsInteractor = () => new DryRunImportDealsInterac
 export const getDryRunImportServicesInteractor = () => new DryRunImportServicesInteractor(getServiceWritePrecheck());
 
 export const getDryRunImportTasksInteractor = () => new DryRunImportTasksInteractor(getTaskWritePrecheck());
+
+export const getGetRecordPresentationInteractor = () =>
+  new GetRecordPresentationInteractor(
+    getRecordRepo(),
+    getRecordAccessPolicy(),
+    getDataViewRepo(),
+    getQueryRecordsInteractor(),
+    getCompanyRepo(),
+  );
+
+export const getRecordWidgetRepo = () => new PrismaRecordWidgetRepo();
+export const getRecordWidgetReader = () => new RecordWidgetReader(getRecordRepo(), getQueryRecordMeasureInteractor());
+export const getUpsertRecordWidgetInteractor = () =>
+  new UpsertRecordWidgetInteractor(
+    getRecordWidgetRepo(),
+    getRecordRepo(),
+    getRecordAccessPolicy(),
+    getQueryRecordMeasureInteractor(),
+    getRecordWidgetReader(),
+  );
+
+export const getGetRecordWidgetInteractor = () =>
+  new GetRecordWidgetInteractor(
+    getRecordWidgetRepo(),
+    getRecordWidgetReader(),
+    getRecordAccessPolicy(),
+    getRecordActivityWidgetRepo(),
+    getRecordActivityWidgetReader(),
+  );
+export const getGetRecordWidgetsInteractor = () =>
+  new GetRecordWidgetsInteractor(
+    getRecordWidgetRepo(),
+    getRecordWidgetReader(),
+    getRecordAccessPolicy(),
+    getRecordActivityWidgetRepo(),
+    getRecordActivityWidgetReader(),
+  );
+
+export const getRecordActivityWidgetRepo = () => new PrismaRecordActivityWidgetRepo();
+export const getRecordActivityWidgetReader = () =>
+  new RecordActivityWidgetReader(getRecordRepo(), getGetRecordActivitiesInteractor());
+export const getUpsertRecordActivityWidgetInteractor = () =>
+  new UpsertRecordActivityWidgetInteractor(
+    getRecordActivityWidgetRepo(),
+    getRecordRepo(),
+    getRecordAccessPolicy(),
+    getGetRecordActivitiesInteractor(),
+    getRecordActivityWidgetReader(),
+  );

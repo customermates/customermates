@@ -16,8 +16,7 @@ const harness = vi.hoisted(() => ({
   layoutProps: vi.fn(),
   openEntity: vi.fn(),
   roleAdd: vi.fn(),
-  roleOpen: vi.fn(),
-  roleSet: vi.fn(),
+  roleEdit: vi.fn(),
   routineCreate: vi.fn(),
   routineEdit: vi.fn(),
   setTopBarActions: vi.fn(),
@@ -193,7 +192,7 @@ function setRoot(key: string, value: Store, extras: Record<string, unknown> = {}
   const root = {
     auditLogModalStore: { onInitOrRefresh: harness.auditInit, open: harness.auditOpen },
     companyInviteModalStore: { generateInviteLink: harness.generateInvite, open: harness.inviteOpen },
-    roleModalStore: { add: harness.roleAdd, open: harness.roleOpen, setRole: harness.roleSet },
+    roleModalStore: { add: harness.roleAdd, editRole: harness.roleEdit },
     userModalStore: { loadById: harness.userLoad },
     webhookDeliveryModalStore: {
       onInitOrRefresh: harness.webhookDeliveryInit,
@@ -285,8 +284,7 @@ const fixtures: Fixture[] = [
     verifyRow: (props) => {
       const role = { id: "row" };
       (props.onRowClick as (item: typeof role) => void)(role);
-      expect(harness.roleSet).toHaveBeenCalledWith(role);
-      expect(harness.roleOpen).toHaveBeenCalledTimes(1);
+      expect(harness.roleEdit).toHaveBeenCalledExactlyOnceWith(role);
     },
     verifySync: () => expect(harness.sync).not.toHaveBeenCalled(),
   },
@@ -314,6 +312,9 @@ const fixtures: Fixture[] = [
     },
     verifyAdd: () =>
       expect(harness.webhookOpen).toHaveBeenCalledWith({
+        id: undefined,
+        recordTrigger: null,
+        recordOwnerUserId: undefined,
         url: "",
         description: undefined,
         events: [],
@@ -334,6 +335,9 @@ const fixtures: Fixture[] = [
       (props.onRowClick as (value: typeof item) => void)(item);
       expect(harness.webhookOpen).toHaveBeenCalledWith({
         id: "row",
+        recordTrigger: null,
+        recordSources: null,
+        recordOwnerUserId: undefined,
         url: "https://example.com",
         description: undefined,
         events: [],

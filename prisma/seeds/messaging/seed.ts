@@ -3,6 +3,7 @@ import type { MessagingProvider, Prisma, PrismaClient } from "@/generated/prisma
 import type { EmailSettings } from "@/ee/messaging/email-settings";
 
 import { SYNTHETIC_COMPANY_USERS } from "@/core/config/synthetic-seed-user";
+import { identityLookupValue } from "@/ee/messaging/identity-lookup";
 import {
   DEFAULT_LINK_HEX,
   EmailFontFamily,
@@ -664,6 +665,7 @@ export async function seedDemoMessagingFixtures(prisma: PrismaClient, context: S
         provider,
         providerUserId: attendee.attendeeId,
         identifier: attendee.identifier,
+        identityLookupValue: identityLookupValue(provider, attendee.identifier),
         displayName: attendee.displayName,
         pictureUrl: attendee.pictureUrl,
         profileUrl: attendee.profileUrl ?? null,

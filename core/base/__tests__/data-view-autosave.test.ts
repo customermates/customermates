@@ -129,6 +129,27 @@ describe("data view autosave", () => {
     expect(selectDataViewAction).not.toHaveBeenCalled();
   });
 
+  it("awaits a saved-view reload without rewriting its selection or resubmitting local overrides", async () => {
+    const store = hydrated();
+    const response = deferred<GetResult<Item>>();
+    store.nextRefresh = () => response.promise;
+    let completed = false;
+    const reload = store.reloadSavedView().then(() => {
+      completed = true;
+    });
+
+    expect(completed).toBe(false);
+    expect(store.requestedParams).toEqual([{ p13nId: SURFACE.tasks, viewId: ALL_VIEW_KEY }]);
+    expect(selectDataViewAction).not.toHaveBeenCalled();
+    response.resolve({ ...serverEcho(), items: [{ id: "updated" }] });
+    await reload;
+
+    expect(completed).toBe(true);
+    expect(store.items).toEqual([{ id: "updated" }]);
+    await vi.advanceTimersByTimeAsync(1500);
+    expect(saveDataViewStateAction).not.toHaveBeenCalled();
+  });
+
   it("settles both an in-flight save and a debounced edit before the assistant reads saved state", async () => {
     const store = hydrated();
     const first = deferred<{ ok: true; data: { viewKey: string } }>();

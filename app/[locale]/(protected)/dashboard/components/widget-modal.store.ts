@@ -1,3 +1,13 @@
+import { recordActivityFilterCount } from "@/ee/messaging/activities/record-activity-sources";
+import { RecordActivityWidgetInputSchema } from "@/features/widget/record-activity-widget.schema";
+import { ACTIVITY_KINDS } from "@/ee/messaging/activities/activities.schema";
+import { z } from "zod";
+import type { RecordWidgetForm, RecordActivityWidgetForm } from "./record-widget-form";
+import type { DiscoveredRecordTypes } from "@/features/records/discover-record-types.interactor";
+import { isRecordWidgetForm, isRecordActivityWidgetForm } from "./record-widget-form";
+import { isRecordWidget, isRecordActivityWidget } from "@/features/widget/widget.schema";
+import { RecordWidgetInputSchema } from "@/features/widget/record-widget.schema";
+import { upsertRecordWidgetAction, upsertRecordActivityWidgetAction } from "../actions";
 import type { FormEvent } from "react";
 import type {
   UpsertActivityWidgetData,
@@ -10,7 +20,7 @@ import type { Filter, FilterableField } from "@/core/base/base-get.schema";
 import type { CustomColumnDto } from "@/features/custom-column/custom-column.schema";
 
 import { action, computed, makeObservable, observable, toJS, reaction, runInAction } from "mobx";
-import { cloneDeep } from "lodash";
+import { cloneDeep, omit } from "lodash";
 import equal from "fast-deep-equal/es6";
 import { EntityType, WidgetGroupByType, AggregationType, Resource, WidgetKind } from "@/generated/prisma";
 
@@ -28,7 +38,11 @@ import { FilterOperatorKey } from "@/core/base/base-query-builder";
 type WidgetModalSection = "config" | "filters" | "dealFilters" | "activityFilters" | "display";
 type WidgetCreationStep = "choose" | "configure";
 type ActivityWidgetModalForm = Omit<UpsertActivityWidgetData, "timelineFilters"> & { timelineFilters?: Filter[] };
-export type WidgetModalForm = UpsertChartWidgetData | ActivityWidgetModalForm;
+export type WidgetModalForm =
+  | UpsertChartWidgetData
+  | ActivityWidgetModalForm
+  | RecordWidgetForm
+  | RecordActivityWidgetForm;
 
 type WidgetFormCommon = { id?: string; name: string; isTemplate: boolean };
 
@@ -98,6 +112,8 @@ function mergeDisplayOptions<T extends Record<string, unknown>>(defaults: T, sav
 }
 
 export class WidgetModalStore extends BaseModalStore<WidgetModalForm> {
+  public recordTypes: DiscoveredRecordTypes | null = null;
+  private recordSubmission: { payload: string; key: string } | null = null;
   public companyWideWidgets: CompanyWidget[] = [];
   public groupByValue: string = WidgetGroupByType.none;
   public expandedSection: WidgetModalSection = "config";
@@ -153,6 +169,8 @@ export class WidgetModalStore extends BaseModalStore<WidgetModalForm> {
     super(rootStore, chartFormDefaults(EntityType.deal));
 
     makeObservable(this, {
+      recordTypes: observable.ref,
+      setRecordTypes: action,
       companyWideWidgets: observable,
       groupByValue: observable,
       expandedSection: observable,
@@ -196,6 +214,22 @@ export class WidgetModalStore extends BaseModalStore<WidgetModalForm> {
       availableKinds: computed,
     });
 
+    reaction(
+      () => (isRecordWidgetForm(this.form) ? this.form.measure.source.typeId : undefined),
+      (typeId, previous) => {
+        if (this.skipReactions || !previous || !typeId || typeId === previous || !isRecordWidgetForm(this.form)) return;
+        runInAction(() => {
+          if (!isRecordWidgetForm(this.form)) return;
+          this.form.measure = {
+            ...this.form.measure,
+            source: { typeId, filters: [], relationships: [] },
+            aggregation: "count",
+            valueFieldId: null,
+            groupBy: null,
+          };
+        });
+      },
+    );
     this.resetFormDefaultsOnEntityTypeChange();
     this.preventEntityTypeGroupingWhenCounting();
     this.updateFormStateWhenGroupByValueChanges();
@@ -209,7 +243,7 @@ export class WidgetModalStore extends BaseModalStore<WidgetModalForm> {
   }
 
   private get chartForm(): UpsertChartWidgetData | undefined {
-    return this.form.kind === WidgetKind.chart ? this.form : undefined;
+    return this.form.kind === WidgetKind.chart && !isRecordWidgetForm(this.form) ? this.form : undefined;
   }
 
   get customColumns() {
@@ -236,16 +270,21 @@ export class WidgetModalStore extends BaseModalStore<WidgetModalForm> {
   }
 
   get activeTimelineFiltersCount() {
-    return this.activeTimelineFilters.length;
+    return isRecordActivityWidgetForm(this.form)
+      ? recordActivityFilterCount(this.form.activityQuery)
+      : this.activeTimelineFilters.length;
   }
 
   get activeTimelineFilters() {
-    const filters = this.form.kind === WidgetKind.activityTimeline ? this.form.timelineFilters : undefined;
+    const filters =
+      this.form.kind === WidgetKind.activityTimeline && !isRecordActivityWidgetForm(this.form)
+        ? this.form.timelineFilters
+        : undefined;
     return getActiveActivityFilters(this.activityFilterableFields, filters);
   }
 
   get previewTimelineFilters() {
-    if (this.form.kind !== WidgetKind.activityTimeline) return [];
+    if (this.form.kind !== WidgetKind.activityTimeline || isRecordActivityWidgetForm(this.form)) return [];
     return activityFiltersForSave(this.form.timelineFilters) ?? [];
   }
 
@@ -267,9 +306,22 @@ export class WidgetModalStore extends BaseModalStore<WidgetModalForm> {
   get availableKinds() {
     const kinds: WidgetKind[] = [];
 
-    if (this.availableEntityTypes.length) kinds.push(WidgetKind.chart);
+    if (
+      this.recordTypes
+        ? this.recordTypes.types.some((type) =>
+            type.permittedActions.some((action) => action === "readAll" || action === "readOwn"),
+          )
+        : this.availableEntityTypes.length
+    )
+      kinds.push(WidgetKind.chart);
 
-    if (this.activityFilterableFields.length) kinds.push(WidgetKind.activityTimeline);
+    if (
+      this.activityFilterableFields.length ||
+      (this.recordTypes &&
+        (this.rootStore.userStore.canAccess(Resource.auditLog) ||
+          this.rootStore.userStore.canAccess(Resource.inboxMessages)))
+    )
+      kinds.push(WidgetKind.activityTimeline);
 
     return kinds;
   }
@@ -494,6 +546,10 @@ export class WidgetModalStore extends BaseModalStore<WidgetModalForm> {
     }
   };
 
+  setRecordTypes = (types: DiscoveredRecordTypes) => {
+    this.recordTypes = types;
+  };
+
   setFilterableFields = (filterableFields: Record<EntityType, FilterableField[]>) => {
     this.filterableFieldsByEntityType = filterableFields;
   };
@@ -503,7 +559,7 @@ export class WidgetModalStore extends BaseModalStore<WidgetModalForm> {
   };
 
   clearActivityThreadFilter = () => {
-    if (this.form.kind !== WidgetKind.activityTimeline) return;
+    if (this.form.kind !== WidgetKind.activityTimeline || isRecordActivityWidgetForm(this.form)) return;
     const threadIndex = this.form.timelineFilters?.findIndex(
       (filter) => filter.field === FilterFieldKey.timelineThreadId.toString(),
     );
@@ -534,6 +590,57 @@ export class WidgetModalStore extends BaseModalStore<WidgetModalForm> {
     this.setIsLoading(true);
 
     const form = toJS(this.form);
+    if (isRecordActivityWidgetForm(form)) {
+      try {
+        const input = omit(form, ["kind", "contractVersion", "idempotencyKey"]);
+        const payload = JSON.stringify(input);
+        if (this.recordSubmission?.payload !== payload) this.recordSubmission = { payload, key: crypto.randomUUID() };
+        const parsed = RecordActivityWidgetInputSchema.safeParse({
+          ...input,
+          idempotencyKey: this.recordSubmission.key,
+        });
+        if (!parsed.success) {
+          this.setError(z.treeifyError(parsed.error));
+          return;
+        }
+        const result = await upsertRecordActivityWidgetAction(parsed.data);
+        if (session !== this.sessionGeneration || !this.isOpen) return;
+        if (!result.ok) {
+          this.setError(result.error);
+          return;
+        }
+        this.hydrateWidget(result.data, false);
+        await this.rootStore.widgetsStore.refresh();
+        if (session === this.sessionGeneration && this.isOpen) this.close();
+      } finally {
+        if (session === this.sessionGeneration) this.setIsLoading(false);
+      }
+      return;
+    }
+    if (isRecordWidgetForm(form)) {
+      try {
+        const input = omit(form, ["kind", "contractVersion", "idempotencyKey"]);
+        const payload = JSON.stringify(input);
+        if (this.recordSubmission?.payload !== payload) this.recordSubmission = { payload, key: crypto.randomUUID() };
+        const parsed = RecordWidgetInputSchema.safeParse({ ...input, idempotencyKey: this.recordSubmission.key });
+        if (!parsed.success) {
+          this.setError(z.treeifyError(parsed.error));
+          return;
+        }
+        const result = await upsertRecordWidgetAction(parsed.data);
+        if (session !== this.sessionGeneration || !this.isOpen) return;
+        if (!result.ok) {
+          this.setError(result.error);
+          return;
+        }
+        this.hydrateWidget(result.data, false);
+        await this.rootStore.widgetsStore.refresh();
+        if (session === this.sessionGeneration && this.isOpen) this.close();
+      } finally {
+        if (session === this.sessionGeneration) this.setIsLoading(false);
+      }
+      return;
+    }
     const savedForm = toJS(this.savedState);
     const payload: UpsertWidgetData =
       form.kind === WidgetKind.chart
@@ -556,6 +663,7 @@ export class WidgetModalStore extends BaseModalStore<WidgetModalForm> {
             name: form.name,
             ...(!form.id ||
             savedForm.kind !== WidgetKind.activityTimeline ||
+            isRecordActivityWidgetForm(savedForm) ||
             !equal(activityFiltersForSave(form.timelineFilters), activityFiltersForSave(savedForm.timelineFilters))
               ? {
                   timelineFilters: activityFiltersForSave(form.timelineFilters),
@@ -585,12 +693,45 @@ export class WidgetModalStore extends BaseModalStore<WidgetModalForm> {
 
   private buildNewForm = (kind: WidgetKind, defaultActivityName?: string): WidgetModalForm => {
     if (kind === WidgetKind.activityTimeline) {
+      if (this.recordTypes) {
+        return {
+          kind,
+          contractVersion: 2,
+          name: defaultActivityName ?? "",
+          isTemplate: false,
+          expectedRevision: this.recordTypes.schemaRevision,
+          idempotencyKey: crypto.randomUUID(),
+          displayOptions: { showFilters: true },
+          activityQuery: { scope: { typeIds: [], records: [] }, kinds: [...ACTIVITY_KINDS], filters: [] },
+        };
+      }
       return {
         ...activityFormDefaults({ name: defaultActivityName ?? "" }),
         timelineFilters: this.mergeActivityFilters(),
       };
     }
 
+    if (this.recordTypes) {
+      const type = this.recordTypes.types.find((type) =>
+        type.permittedActions.some((action) => action === "readAll" || action === "readOwn"),
+      );
+      return {
+        kind: "chart",
+        contractVersion: 2,
+        name: "",
+        isTemplate: false,
+        expectedRevision: this.recordTypes.schemaRevision,
+        idempotencyKey: crypto.randomUUID(),
+        displayOptions: chartDisplayDefaults(),
+        measure: {
+          source: { typeId: type?.id ?? "", filters: [], relationships: [] },
+          aggregation: "count",
+          valueFieldId: null,
+          groupBy: null,
+          groupLimit: 100,
+        },
+      };
+    }
     const entityType = this.availableEntityTypes[0] ?? EntityType.deal;
     return {
       ...chartFormDefaults(entityType),
@@ -609,6 +750,23 @@ export class WidgetModalStore extends BaseModalStore<WidgetModalForm> {
       isTemplate: asTemplate ? false : widget.isTemplate,
     };
 
+    if (isRecordActivityWidget(widget)) {
+      return {
+        form: {
+          kind: "activityTimeline",
+          contractVersion: 2,
+          ...common,
+          name: widget.name,
+          isTemplate: common.isTemplate ?? false,
+          expectedVersion: asTemplate ? undefined : widget.version,
+          expectedRevision: widget.schemaRevision,
+          idempotencyKey: crypto.randomUUID(),
+          activityQuery: cloneDeep(widget.activityQuery),
+          displayOptions: cloneDeep(widget.displayOptions),
+        },
+        groupByValue: WidgetGroupByType.none,
+      };
+    }
     if (widget.kind === WidgetKind.activityTimeline) {
       return {
         form: {
@@ -620,6 +778,23 @@ export class WidgetModalStore extends BaseModalStore<WidgetModalForm> {
       };
     }
 
+    if (isRecordWidget(widget)) {
+      return {
+        form: {
+          kind: "chart",
+          contractVersion: 2,
+          ...common,
+          name: widget.name,
+          isTemplate: common.isTemplate ?? false,
+          expectedVersion: asTemplate ? undefined : widget.version,
+          expectedRevision: widget.data?.schemaRevision ?? 0,
+          idempotencyKey: crypto.randomUUID(),
+          measure: cloneDeep(widget.measure),
+          displayOptions: cloneDeep(widget.displayOptions),
+        },
+        groupByValue: WidgetGroupByType.none,
+      };
+    }
     const groupByType = widget.groupByType ?? WidgetGroupByType.none;
     const groupByCustomColumnId = widget.groupByCustomColumnId ?? undefined;
     return {
@@ -679,10 +854,20 @@ export class WidgetModalStore extends BaseModalStore<WidgetModalForm> {
   };
 
   private replaceForm = (form: WidgetModalForm) => {
+    this.initializeGroupFilter(form);
     this.error = undefined;
     this.form = form;
     this.savedState = cloneDeep(form);
   };
+
+  protected override afterChange(id: string): void {
+    if (id === "measure.groupBy") this.initializeGroupFilter(this.form);
+  }
+
+  private initializeGroupFilter(form: WidgetModalForm): void {
+    if (isRecordWidgetForm(form) && form.measure.groupBy)
+      form.measure.groupBy.filter ??= { filters: [], relationships: [] };
+  }
 
   private withSuppressedReactions = <T>(callback: () => T): T => {
     const wasSuppressed = this.skipReactions;

@@ -187,7 +187,7 @@ export const ActivitiesList = observer(({ customColumns, hasMore, items, loading
                   <IdentityAvatar
                     badge={messageBadge}
                     name={senderLabel || title}
-                    src={message.sender.contact?.avatarUrl || message.sender.pictureUrl}
+                    src={message.sender.record?.avatarUrl || message.sender.pictureUrl}
                   />
                 }
                 isFirst={index === 0}
@@ -198,6 +198,49 @@ export const ActivitiesList = observer(({ customColumns, hasMore, items, loading
                 titleIcon={
                   <MessageProviderIcon aria-label={providerLabel} className="text-muted-foreground size-3 shrink-0" />
                 }
+                onClick={() => timelineDetailModalStore.openWith({ entry })}
+              />
+            );
+          }
+
+          if (entry.kind === "record" || entry.recordChanges) {
+            const changes = entry.kind === "record" ? entry.changes : entry.recordChanges;
+            const category = auditCategory(entry.event);
+            const actorName =
+              resolveActorName(entry.actor.firstName, entry.actor.lastName, entry.actor.email) ||
+              t("RecordModel.systemActor");
+            const fields = formatFieldList(
+              (changes?.fields ?? []).map((field) => field.after?.label ?? field.before?.label ?? "").filter(Boolean),
+            );
+            return (
+              <TimelineRow
+                key={activityEntryKey(entry)}
+                avatar={
+                  <IdentityAvatar
+                    badge={
+                      <TypeBadge icon={category.icon} label={t(`Common.events.${entry.event}`)} tone={category.tone} />
+                    }
+                    name={[entry.actor.firstName, entry.actor.lastName]}
+                    src={entry.actor.avatarUrl}
+                  />
+                }
+                isFirst={index === 0}
+                isLast={isLast}
+                subtitle={
+                  <>
+                    {entry.records.primary && (
+                      <>
+                        <span className="font-medium">{entry.records.primary.label}</span>
+
+                        <span aria-hidden> · </span>
+                      </>
+                    )}
+
+                    {fields || t(`Common.events.${entry.event}`)}
+                  </>
+                }
+                time={time}
+                title={actorName}
                 onClick={() => timelineDetailModalStore.openWith({ entry })}
               />
             );

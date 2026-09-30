@@ -12,6 +12,7 @@ export function ViewAiAction({ id, className, onClick }: { id?: string; classNam
 
   return (
     <button
+      aria-label={t("DataView.views.askAi")}
       className={cn(
         OVERLAY_ICON_CONTROL_CLASS,
         OVERLAY_ICON_CONTROL_NEUTRAL_CLASS,

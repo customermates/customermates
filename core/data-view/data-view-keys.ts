@@ -38,4 +38,7 @@ export const DATA_VIEW_SURFACE_KEYS = [
   SURFACE.routines,
 ] as const;
 
-export type DataViewSurfaceKey = (typeof DATA_VIEW_SURFACE_KEYS)[number];
+export type BuiltinDataViewSurfaceKey = (typeof DATA_VIEW_SURFACE_KEYS)[number];
+export type RecordSurfaceKey = `records:${string}`;
+export type DataViewSurfaceKey = BuiltinDataViewSurfaceKey | RecordSurfaceKey;
+export const recordSurfaceKey = (typeId: string): RecordSurfaceKey => `records:${typeId}`;

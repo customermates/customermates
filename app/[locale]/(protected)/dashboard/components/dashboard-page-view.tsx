@@ -6,6 +6,7 @@ import type { FilterableField } from "@/core/base/base-get.schema";
 import type { CustomColumnDto } from "@/features/custom-column/custom-column.schema";
 import type { WidgetDto } from "@/features/widget/widget.schema";
 import type { EntityType } from "@/generated/prisma";
+import type { DiscoveredRecordTypes } from "@/features/records/discover-record-types.interactor";
 
 import dynamic from "next/dynamic";
 import { BarChart3, Plus } from "lucide-react";
@@ -45,6 +46,7 @@ const ResponsiveGridLayout = dynamic(
 );
 
 type Props = {
+  recordTypes?: DiscoveredRecordTypes;
   customColumns: CustomColumnDto[];
   filterableFields: Record<EntityType, FilterableField[]>;
   widgets: WidgetDto[];
@@ -53,13 +55,17 @@ type Props = {
 
 export const DashboardPageView = observer(function DashboardPageView({
   activityFilterableFields,
+  recordTypes,
   customColumns,
   filterableFields,
   widgets,
 }: Props) {
   const { widgetModalStore, widgetsStore } = useRootStore();
   const { items, layouts } = widgetsStore;
-  const canAddWidget = widgetModalStore.availableEntityTypes.length > 0;
+  const canAddWidget = widgetModalStore.availableKinds.length > 0;
+  useEffect(() => {
+    if (recordTypes) widgetModalStore.setRecordTypes(recordTypes);
+  }, [recordTypes, widgetModalStore]);
   const isTouchDevice = useIsTouchDevice();
   const pointerStart = useRef<{
     id: string;

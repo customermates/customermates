@@ -1,6 +1,6 @@
-import { SURFACE, type DataViewSurfaceKey } from "./data-view-keys";
+import { SURFACE, type DataViewSurfaceKey, type BuiltinDataViewSurfaceKey } from "./data-view-keys";
 
-export const DATA_VIEW_PATHS: Readonly<Record<DataViewSurfaceKey, string | null>> = Object.freeze({
+export const DATA_VIEW_PATHS: Readonly<Record<BuiltinDataViewSurfaceKey, string | null>> = Object.freeze({
   [SURFACE.contacts]: "/contacts",
   [SURFACE.organizations]: "/organizations",
   [SURFACE.deals]: "/deals",
@@ -24,3 +24,8 @@ export const ENTITY_TIMELINE_PARENT_PATHS = Object.freeze(
     (surfaceKey) => DATA_VIEW_PATHS[surfaceKey] as string,
   ),
 );
+
+export function dataViewPath(surface: DataViewSurfaceKey): string | null {
+  if (surface.startsWith("records:")) return `/records/${surface.slice(8)}`;
+  return DATA_VIEW_PATHS[surface as BuiltinDataViewSurfaceKey];
+}

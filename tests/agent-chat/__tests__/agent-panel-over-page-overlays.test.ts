@@ -244,7 +244,16 @@ beforeEach(() => {
     { end: false, nextStep: false, previousStep: false, registerNavigate: false, reportTourTarget: false },
     { deep: false },
   );
-  testContext.rootStore = { agentChatStore, agentUiControlStore };
+  testContext.rootStore = {
+    agentChatStore,
+    agentUiControlStore,
+    userStore: {
+      user: {
+        id: "10000000-0000-4000-8000-000000000001",
+        companyId: "10000000-0000-4000-8000-000000000002",
+      },
+    },
+  };
   container = document.createElement("div");
   document.body.append(container);
   reactRoot = createRoot(container);

@@ -8,6 +8,7 @@ import {
   ChartWidgetDtoSchema,
   DiagramDataPointSchema,
   DisplayType,
+  LegacyWidgetDtoSchema,
   WidgetDtoSchema,
 } from "../widget.schema";
 import { FilterOperatorKey } from "@/core/base/base-query-builder";
@@ -100,8 +101,9 @@ describe("WidgetDtoSchema", () => {
     const row = widgetRow();
     delete (row as Record<string, unknown>).data;
 
-    const result = WidgetDtoSchema.safeParse(row);
+    const result = LegacyWidgetDtoSchema.safeParse(row);
 
+    expect(WidgetDtoSchema.safeParse(row).success).toBe(false);
     expect(result.success).toBe(false);
     expect(result.error?.issues.some((issue) => issue.path[0] === "data")).toBe(true);
   });
@@ -214,9 +216,11 @@ describe("WidgetDtoSchema discrimination", () => {
     expect(WidgetDtoSchema.safeParse(widgetRow({ kind: "sparkline" })).success).toBe(false);
   });
 
-  it("reports issues at their real path instead of aggregating every arm", () => {
-    const result = WidgetDtoSchema.safeParse(widgetRow({ aggregationType: "median" }));
+  it("reports legacy contract issues at their field path", () => {
+    const row = widgetRow({ aggregationType: "median" });
+    const result = LegacyWidgetDtoSchema.safeParse(row);
 
+    expect(WidgetDtoSchema.safeParse(row).success).toBe(false);
     expect(result.success).toBe(false);
     expect(result.error?.issues.every((issue) => issue.path[0] === "aggregationType")).toBe(true);
   });

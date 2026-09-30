@@ -13,6 +13,7 @@ const testEnvironment = {
   BETTER_AUTH_SECRET: "vitest-secret",
 };
 const domTestFiles = [
+  "features/messaging/activities/__tests__/record-activities-panel.test.ts",
   "app/[locale]/(public)/auth/reset-password/__tests__/reset-password-form.test.ts",
   "app/[locale]/(static)/contact/__tests__/contact-form.test.ts",
   "app/**/company/components/company-settings/__tests__/company-settings-form.test.ts",
@@ -44,6 +45,7 @@ const domTestFiles = [
   "components/data-view/__tests__/data-table-grouping.test.tsx",
   "components/data-view/__tests__/data-kanban-order.test.tsx",
   "components/data-view/__tests__/board-drag-gating.test.tsx",
+  "components/data-view/__tests__/group-summaries.test.tsx",
   "components/data-view/__tests__/board-grouping-prompt.test.tsx",
   "components/data-view/__tests__/data-view-url-sync.test.ts",
   "components/data-view/__tests__/data-view-views-rail-interaction.test.ts",

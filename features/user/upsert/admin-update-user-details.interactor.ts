@@ -4,6 +4,7 @@ import type { TenantUser } from "@/features/user/user.schema";
 import type { Data } from "@/core/validation/validation.utils";
 import type { SubscriptionService } from "@/ee/subscription/subscription.service";
 import type { CountActiveUsersRepo } from "@/features/user/count-active-users.repo";
+import { recordWriteFailure } from "@/features/records/mutate-record.interactor";
 
 import { z } from "zod";
 import { getTranslations } from "next-intl/server";
@@ -116,17 +117,21 @@ export class AdminUpdateUserDetailsInteractor extends AuthenticatedInteractor<
     if (leavingActive)
       await this.releaseOwnerRoutines.invoke({ companyId: this.user.companyId, ownerUserId: targetUserId });
 
-    await this.eventService.publish(DomainEvent.USER_UPDATED, {
-      entityId: targetUserId,
-      payload: {
-        firstName: data.firstName,
-        lastName: data.lastName,
-        country: data.country,
-        status: data.status,
-        avatarUrl: data.avatarUrl,
-        roleId: data.roleId,
-      },
-    });
+    try {
+      await this.eventService.publish(DomainEvent.USER_UPDATED, {
+        entityId: targetUserId,
+        payload: {
+          firstName: data.firstName,
+          lastName: data.lastName,
+          country: data.country,
+          status: data.status,
+          avatarUrl: data.avatarUrl,
+          roleId: data.roleId,
+        },
+      });
+    } catch (error) {
+      return recordWriteFailure(error);
+    }
 
     return { ok: true as const, data };
   }

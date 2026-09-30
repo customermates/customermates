@@ -1,3 +1,4 @@
+import { presetId } from "@/features/records/crm-preset";
 import { describe, expect, it } from "vitest";
 
 import { composeRoutinePrompt, stripRoutineTriggerBlock } from "@/ee/routines/routine-prompt";
@@ -155,5 +156,21 @@ describe("routine trigger block stripping", () => {
     const prompt = "<b>Bold</b> start\nthen more";
 
     expect(stripRoutineTriggerBlock(prompt)).toBe(prompt);
+  });
+});
+
+describe("migrated record trigger references", () => {
+  it("resolves a historical typed identity without guessing from its label", () => {
+    const companyId = "30000000-0000-4000-8000-000000000040";
+    const recordId = "30000000-0000-4000-8000-000000000041";
+    const text = composeRoutinePrompt("Keep these instructions unchanged.", {
+      routineName: "Historical",
+      triggerEvent: "deal.updated",
+      triggerEntityId: recordId,
+      triggerPayload: { companyId, entityId: recordId, payload: { changes: { name: {} } } },
+    });
+    expect(text).toContain(`typeId="${presetId(companyId, "deal")}"`);
+    expect(text).toContain(`recordId="${recordId}"`);
+    expect(text).toContain("Keep these instructions unchanged.");
   });
 });

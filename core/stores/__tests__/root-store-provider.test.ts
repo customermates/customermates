@@ -42,6 +42,12 @@ vi.mock("../root.store", () => ({
         this.companyStore.company = company;
       },
     };
+    readonly recordWorkspaceStore = {
+      navigation: null as RootStoreInitialState["recordNavigation"],
+      setNavigation: (navigation: RootStoreInitialState["recordNavigation"]) => {
+        this.recordWorkspaceStore.navigation = navigation;
+      },
+    };
     readonly terminologyStore = {
       overrides: [] as RootStoreInitialState["terminology"],
       setOverrides: (overrides: RootStoreInitialState["terminology"]) => {

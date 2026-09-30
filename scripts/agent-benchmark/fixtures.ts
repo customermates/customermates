@@ -1,3 +1,4 @@
+import { identityLookupValue } from "@/ee/messaging/identity-lookup";
 import { createHash } from "node:crypto";
 import type { Prisma, PrismaClient, Action, Resource } from "@/generated/prisma";
 import type { AgentContextAttachment } from "@/ee/agent-chat/agent-context";
@@ -763,8 +764,8 @@ export async function seedBenchmarkCase(
       const opsAttendee = { attendeeId: "ops@benchmark.invalid", displayName: "Benchmark Operations", identifier: "ops@benchmark.invalid" };
       const mayaAttendee = { attendeeId: "maya.chen@nova.invalid", displayName: "Maya Chen", identifier: "maya.chen@nova.invalid" };
       await tx.messagingThreadParticipant.createMany({ data: [
-        { id: id("thread-self"), companyId, messagingThreadId: id("nova-thread"), provider: "mail", providerUserId: opsAttendee.attendeeId, identifier: opsAttendee.identifier, displayName: opsAttendee.displayName, isSelf: true },
-        { id: id("thread-maya"), companyId, messagingThreadId: id("nova-thread"), provider: "mail", providerUserId: mayaAttendee.attendeeId, identifier: mayaAttendee.identifier, displayName: mayaAttendee.displayName, isSelf: false },
+        { id: id("thread-self"), companyId, messagingThreadId: id("nova-thread"), provider: "mail", providerUserId: opsAttendee.attendeeId, identifier: opsAttendee.identifier, identityLookupValue: identityLookupValue("mail", opsAttendee.identifier), displayName: opsAttendee.displayName, isSelf: true },
+        { id: id("thread-maya"), companyId, messagingThreadId: id("nova-thread"), provider: "mail", providerUserId: mayaAttendee.attendeeId, identifier: mayaAttendee.identifier, identityLookupValue: identityLookupValue("mail", mayaAttendee.identifier), displayName: mayaAttendee.displayName, isSelf: false },
       ] });
       for (const [key, direction, sentAt, bodyText] of [
         ["nova-message-1", "inbound", "2026-09-02T09:15:00.000Z", "Hallo, thanks for sending the pilot quote. The team reviewed it this morning and the scope looks right to us. I will come back to you with anything outstanding before Friday."],

@@ -74,7 +74,8 @@ describe("technical-id loading contract", () => {
     expect(options).not.toContain("resolveFilterOptionsAction");
     expect(options).not.toContain("filters: [{ field, operator: FilterOperatorKey.in, value: ids }]");
     expect(options).not.toMatch(/field: fieldKey, operator: FilterOperatorKey\.in/);
-    expect(options).not.toMatch(/pagination|pageSize/);
+    const selectedResolver = options.slice(options.indexOf("const getSelectedItems ="), options.indexOf("const resolveItems ="));
+    expect(selectedResolver).not.toMatch(/pagination|pageSize/);
     expect(paletteSelect).not.toMatch(/pagination|pageSize/);
     expect(options).toContain('status: "error"');
     expect(filterSelect).toContain("optionError");

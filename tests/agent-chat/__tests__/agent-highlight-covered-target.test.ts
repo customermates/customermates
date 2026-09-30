@@ -5,6 +5,11 @@ import type { RootStore } from "@/core/stores/root.store";
 import { reaction } from "mobx";
 import { afterEach, beforeEach, describe, expect, it, vi } from "vitest";
 
+vi.mock("@/app/[locale]/(protected)/records/actions", () => ({
+  getRecordAction: vi.fn(),
+  getRecordNavigationAction: vi.fn(),
+}));
+
 import { AgentUiControlStore } from "@/app/components/agent-chat/ui-control.store";
 
 const DESKTOP_PANEL_RECT = new DOMRect(1024, 324, 400, 560);

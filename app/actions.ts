@@ -44,8 +44,10 @@ import {
   getGetCompanySettingsInteractor,
 } from "@/core/di";
 import { serializeResult } from "@/core/utils/action-result";
+import { retireLegacyRecordWrite } from "@/features/records/retire-legacy-write";
 
 export async function deleteCustomColumnAction(id: string) {
+  retireLegacyRecordWrite();
   return serializeResult(getDeleteCustomColumnInteractor().invoke({ id }));
 }
 
@@ -54,6 +56,7 @@ export async function getCompanySettingsAction() {
 }
 
 export async function upsertCustomColumnAction(data: UpsertCustomColumnData) {
+  retireLegacyRecordWrite();
   return serializeResult(getUpsertCustomColumnInteractor().invoke(data));
 }
 
@@ -95,6 +98,7 @@ export async function updateEntityCustomFieldValueAction(data: {
   entityId: string;
   customFieldValues: CustomFieldValueDto[];
 }) {
+  retireLegacyRecordWrite();
   const { entityType, entityId, customFieldValues } = data;
 
   switch (entityType) {
@@ -112,6 +116,7 @@ export async function updateEntityCustomFieldValueAction(data: {
 }
 
 export async function bulkDeleteEntitiesAction(data: { entityType: EntityType; ids: string[] }) {
+  retireLegacyRecordWrite();
   const { entityType, ids } = data;
   switch (entityType) {
     case EntityType.contact:
@@ -132,6 +137,7 @@ export async function bulkUpdateCustomFieldValuesAction(data: {
   entityIds: string[];
   customFieldValues: CustomFieldValueDto[];
 }) {
+  retireLegacyRecordWrite();
   const { entityType, entityIds, customFieldValues } = data;
   const items = entityIds.map((id) => ({ id, customFieldValues }));
   switch (entityType) {

@@ -16,6 +16,7 @@ import {
   getPauseRoutineInteractor,
   getRunRoutineNowInteractor,
   getUpsertRoutineInteractor,
+  getGetRecordModelInteractor,
 } from "@/core/di";
 import { serializeResult } from "@/core/utils/action-result";
 import { unwrapValidated } from "@/core/validation/validation.utils";
@@ -45,10 +46,11 @@ export async function getRoutineRunsAction(data: GetRoutineRunsData) {
 }
 
 export async function getRoutineFilterFieldsAction() {
-  const [filterableFields, customColumns] = await Promise.all([
+  const [filterableFields, customColumns, recordModel] = await Promise.all([
     unwrapValidated(getGetWidgetFilterableFieldsInteractor().invoke()),
     unwrapValidated(getGetCustomColumnsInteractor().invoke()),
+    unwrapValidated(getGetRecordModelInteractor().invoke({})),
   ]);
 
-  return { filterableFields: filterableFields.chart, customColumns };
+  return { filterableFields: filterableFields.chart, customColumns, recordModel };
 }

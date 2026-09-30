@@ -1,132 +1,100 @@
 ---
-title: "Filter-Syntax: Operatoren für MCP- und REST-Abfragen"
-description: "Die Form einer Filterregel, alle siebzehn Operatoren und was jeder erwartet, welche auf Daten, Relationen und Textfelder wirken, plus Beispiele."
+title: "Filtersyntax für CRM-Datensatzabfragen"
+description: "Typisierte Feld- und Beziehungsfilter für das konfigurierbare Datensatzmodell, mit Beispielen für MCP und REST."
 ---
 
-Customermates-Filter (genutzt von den Model-Context-Protocol-Tools (MCP), der REST-API und der App-UI) sind Arrays aus Feld-Operator-Wert-Regeln. Siebzehn Operatoren decken Gleichheit, Textabgleich, Vergleich, Mengenzugehörigkeit, Bereich, Aktualität, Null-Prüfungen und Relationship-Zugehörigkeit ab.
+CRM-Listen, gespeicherte Ansichten, Widgets, REST-Abfragen und das MCP-Tool `query_crm_records` nutzen dasselbe Abfragemodell. Ermitteln Sie den Typ mit `discover_record_types` und lesen Sie stabile Feld- und Beziehungs-IDs mit `get_record_model`. Die fünf Starttypen und selbst angelegte Typen haben dieselbe Abfragestruktur. Messaging-Tools besitzen eigene Filter.
 
 ## Wo greifen Filter? [#where-do-filters-apply]
 
-- Das MCP-Tool `list_records` und die Messaging-Filter auf `get_messaging_threads` und `get_activities`.
-- `entityFilters` und `dealFilters` auf Widgets.
-- `timelineFilters` auf Aktivitäts-Widgets. Aktivitätsfilter erlauben höchstens eine Regel pro Feld; ODER-Alternativen gehören in das Werte-Array einer einzigen `in`-Regel.
-- Die Palette **Filter** auf jeder Liste in der App und die gespeicherten Ansichten, die sie sich merken (intern in dieselbe Form umgewandelt).
+Eine Datensatzabfrage nennt einen `typeId`. `filters` prüfen Felder dieses Typs, `relationships` prüfen verknüpfte Datensätze und `relatedFilters` folgen einem definierten Beziehungspfad. Regeln innerhalb der Arrays werden mit UND verknüpft. `search` durchsucht lesbare Textfelder. Das Backend prüft Workspace- und Datensatzrechte auch entlang verknüpfter Pfade.
 
 ## Wie filtere ich eine Liste in der App? [#how-do-i-filter-a-list-in-the-app]
 
-Jede Datensatzliste hat in ihrer Toolbar einen Button **Filter**. Klicken Sie darauf, tippen Sie in **Filter hinzufügen…**, um die Felder unter **Filtern nach** einzugrenzen, wählen Sie eines und setzen Sie seinen Wert; die Liste aktualisiert sich sofort, ohne Übernehmen-Schritt. Gesetzte Filter stehen unter **Aktive Filter**: Ein Klick darauf ändert Wert oder Bedingung (**Bedingung ändern**), **Filter entfernen** nimmt einen heraus, und **Leeren** entfernt alle. Ein Punkt am Button **Filter** zeigt, dass Filter wirken.
+Öffnen Sie einen Datensatztyp und wählen Sie **Filter** in der Listenleiste. Wählen Sie Feld, Bedingung und Wert. Die Liste aktualisiert sich; die aktuelle Ansicht merkt sich die Auswahl. **Alle entfernen** löscht die Filter. Dieselben Bedienelemente funktionieren für selbst angelegte Typen. Eine gespeicherte Ansicht kopiert keine Datensätze.
 
-Datumsfelder bieten **Vor…**, **Bis…**, **Nach…**, **Ab…** und **Zwischen…**; Erstellungs- und Änderungsdatum ergänzen 7, 30, 90 oder 365 Tage und **Eigener Zeitraum…** für eine andere Zahl von Tagen. Bis zu 50 Filter wirken gleichzeitig. Sie werden in der aktiven Ansicht gespeichert und in der Seitenadresse mitgeführt, eine kopierte Adresse zeigt einem Teammitglied also dieselbe Liste. Mehr zu Listen, Ansichten und dem Board steht in [CRM-Datensätze](/docs/app-records).
-
-**Link:** die Listenseiten, zum Beispiel die Seite **Deals**, `/deals`. **Mate:** `navigate` und `highlight_element` mit `deals-filter` (oder `contacts-filter`, `organizations-filter`, `services-filter`, `tasks-filter`); die Palette darin ist kein Highlight-Ziel, deshalb nennt Mate **Filter hinzufügen…**, die Felder und **Leeren** beim Namen.
+**Link:** eine Liste wie `/deals` oder ein selbst angelegter Typ unter `/records/<type-id>`. **Mate:** zur Liste navigieren und **Filter** öffnen.
 
 ## Wie sieht eine Filterregel aus, und kann ich Filter mit ODER verknüpfen? [#what-does-a-filter-rule-look-like]
 
+Ein Feldfilter enthält `fieldId`, `operator`, einen typisierten Skalar `value` (oder `null`) und bei Mengen oder Bereichen optional `values`. Beispiel:
+
 ```json
-[
-  { "field": "firstName", "operator": "startsWith", "value": "An" },
-  { "field": "createdAt", "operator": "gte",        "value": "2024-01-01" }
-]
+{
+  "typeId": "00000000-0000-4000-8000-000000000001",
+  "filters": [
+    {
+      "fieldId": "00000000-0000-4000-8000-000000000002",
+      "operator": "contains",
+      "value": { "kind": "text", "value": "Acme" }
+    }
+  ]
+}
 ```
 
-Regeln sind UND-verknüpft. Für ODER-Logik lassen Sie zwei Abfragen laufen und mergen client-seitig, oder Sie nutzen den `in`-Operator, wenn Sie gegen eine Liste vergleichen. Eine Anfrage nimmt bis zu 50 Regeln und einen `searchTerm` mit bis zu 200 Zeichen.
+`in` trifft einen von mehreren Werten desselben Felds. Für ODER über verschiedene Felder führen Sie getrennte Abfragen aus oder nutzen eine geeignete Abfrage verknüpfter Datensätze; normale Feldregeln werden mit UND verknüpft. Eine Abfrage erlaubt bis zu 50 Feldregeln und 500 Zeichen in `search`.
 
 ## Welche Operatoren gibt es? [#which-operators-exist]
 
-Es gibt siebzehn Filter-Operatoren; jeder erwartet einen Wert, ein Array oder keinen Wert:
+Der Datensatzvertrag unterstützt 14 Feldoperatoren. Feldtyp und Verhalten bestimmen, welche davon gültig sind; inkompatible Kombinationen weist das Backend zurück.
 
-| Operator | Erwartet | Wirkt auf | Beispielwert |
-|---|---|---|---|
-| `equals` | einen Wert | Textfelder (`name`, `firstName`, `lastName`, `url`) sowie Spalten der Typen Währung, E-Mail, Telefon, Text und Link; exakt und mit Beachtung der Groß- und Kleinschreibung | `"Acme"` |
-| `contains` | einen Wert | Textfelder (`name`, `firstName`, `lastName`, `url`) sowie Spalten der Typen E-Mail, Telefon, Text und Link, ohne Beachtung der Groß- und Kleinschreibung; Datumsbereich-Spalten (der Bereich enthält das Datum) | `"acme"` |
-| `startsWith` | einen Wert | `name`, `firstName`, `lastName`; ohne Beachtung der Groß- und Kleinschreibung | `"An"` |
-| `gt`, `gte`, `lt`, `lte` | einen Wert | Daten (eingebaute und Datums-Custom-Columns) und Währungsspalten | `"2024-01-01"`, `100` |
-| `in`, `notIn` | Array | Relationship-Felder, ID-, Enum- und Auswahlfelder sowie Einzelauswahl-Spalten | `["id1", "id2"]` |
-| `between` | Array aus 2 | nur Daten (eingebaute und Datums-Custom-Columns) | `["2024-01-01", "2024-12-31"]` |
-| `inLastDays` | einen Wert (positive Ganzzahl) | eingebaute Datumsfelder wie `createdAt` und `updatedAt` | `30` |
-| `isNull`, `isNotNull` | keinen Wert | nur Custom Columns | (keiner) |
-| `hasNone`, `hasSome` | keinen Wert | Relationship-Felder, `draft` von Messaging-Threads | (keiner) |
-| `hasUnset`, `allSet` | keinen Wert | `participants` von Messaging-Threads | (keiner) |
+| Operatoren | Bedeutung |
+|---|---|
+| `eq`, `ne` | Gleich oder ungleich einem typisierten Wert |
+| `contains`, `startsWith` | Textsuche ohne Beachtung der Großschreibung; `contains` prüft auch, ob ein Datum in einem Bereich liegt |
+| `gt`, `gte`, `lt`, `lte` | Vergleich unterstützter Zahlen und Daten |
+| `in`, `notIn` | Mitgliedschaft in `values` mit höchstens 100 typisierten Werten |
+| `between` | Einschließlich beider Datumsgrenzen aus zwei Werten |
+| `inLastDays` | Relatives Fenster mit positiver ganzer Tageszahl |
+| `empty`, `notEmpty` | Fehlender oder vorhandener Wert; `value` ist `null` |
+
+`eq` vergleicht Text exakt; `contains` und `startsWith` ignorieren Großschreibung. Währungsvergleiche verlangen eine passende Währung. Fehlend, null, eingeschränkt und Berechnungsfehler sind verschiedene Zustände; ein eingeschränktes Ergebnis darf über Filtern oder Sortieren keine verborgenen Eingaben preisgeben.
 
 ### Welche Datums-Operatoren gibt es, etwa für die letzten 7 Tage? [#which-date-operators-exist]
 
-Eingebaute Datumsfelder wie `createdAt` und `updatedAt` akzeptieren `gt`, `gte`, `lt`, `lte`, `between` und `inLastDays`. Nutzen Sie `inLastDays` mit einer positiven ganzzahligen Anzahl von Tagen für ein rollierendes Fenster vom Beginn des Tages vor N Tagen bis jetzt, zum Beispiel `{ "field": "createdAt", "operator": "inLastDays", "value": 7 }` für Datensätze, die in der letzten Woche erstellt wurden. In der App setzen die Auswahlen 7, 30, 90 und 365 Tage sowie **Eigener Zeitraum…** den Operator `inLastDays`.
-
-Custom Columns der Typen Datum und Datum & Uhrzeit akzeptieren `gt`, `gte`, `lt`, `lte`, `between`, `isNull` und `isNotNull`, aber nicht `inLastDays`; Spalten der Typen Datumsbereich sowie Datums- und Uhrzeitbereich akzeptieren zusätzlich `contains` für ein Datum innerhalb des Bereichs.
+Datums- und Zeitfelder unterstützen passende Vergleiche und `between`. Systemdaten verwenden `system:createdAt` und `system:updatedAt` als Feld-IDs. `inLastDays` erwartet einen Dezimal-Skalar ohne Währung, etwa `{"kind":"decimal","value":"7","currency":null}`. Relative Fenster nutzen die Uhr der Abfrage; gespeicherte Berechnungen ändern sich nicht unbemerkt mit der Zeit.
 
 ### Welche Operatoren wirken auf Textfelder? [#which-operators-work-on-text-fields]
 
-Textfelder wie `firstName` und `lastName` eines Kontakts oder `name` einer Organisation akzeptieren `equals`, `startsWith` und `contains`. `contains` und `startsWith` vergleichen ohne Beachtung der Groß- und Kleinschreibung; `equals` ist ein exakter Abgleich mit Beachtung der Groß- und Kleinschreibung. `url` nimmt nur `equals` und `contains`.
+Text-, E-Mail-, Telefon- und URL-Felder unterstützen die zu ihrem Werttyp passenden Textoperatoren. Felder mit mehreren Werten werden elementweise durchsucht. Prozentzeichen und Unterstriche in Suchbegriffen sind Zeichen, keine SQL-Platzhalter.
 
 ### Welche Operatoren gibt es für Beziehungen, etwa um Kontakte ohne Organisation zu finden? [#which-relationship-operators-exist]
 
-Relationship-Arrays (`organizationIds`, `dealIds`, `userIds`, `contactIds`, `serviceIds`, `taskIds`) akzeptieren `in`, `notIn`, `hasNone` und `hasSome`. `hasNone` trifft Datensätze ohne jede Verknüpfung dieser Art, `hasSome` Datensätze mit mindestens einer. Das Feld für den Verknüpfungsstatus der Teilnehmer auf `get_messaging_threads` nutzt `hasUnset` und `allSet`, um Threads danach zu filtern, ob ihre Teilnehmer mit Datensätzen verknüpft sind. Das Feld `draft` desselben Tools akzeptiert die wertlosen Operatoren `hasSome` (der Thread enthält einen ungesendeten Entwurf) und `hasNone` (er enthält keinen), womit Sie Entwürfe auflisten oder ausschließen.
+Beziehungsfilter stehen getrennt von Feldfiltern. Geben Sie `relationId`, `direction` (`outgoing` oder `incoming`), `operator` (`any` oder `none`) und `recordIds` an. `recordIds: null` prüft beliebige zugängliche verknüpfte Datensätze; explizite IDs prüfen bestimmte Datensätze. `none` mit `recordIds: null` findet Datensätze ohne zugängliche Verknüpfung dieser Beziehung. Die Beziehungsdefinition legt Endpunkttypen und Kardinalität fest.
+
+Kontakte ohne Organisation finden Sie mit der Kontakt-Organisations-Beziehung, `operator: none` und `recordIds: null`; die Beziehungs-ID stammt aus `get_record_model`.
 
 ### Wie filtere ich nach einem benutzerdefinierten Feld (Custom Column), und welche Operatoren wirken darauf? [#which-operators-work-on-custom-columns]
 
-Nutzen Sie die UUID der Spalte als `field`. Die Operatoren hängen vom Spaltentyp ab:
-
-| Spaltentyp | Operatoren |
-|---|---|
-| Einzelauswahl | `in`, `notIn`, `isNull`, `isNotNull`, auf Optionswerte |
-| Währung | `equals`, `gt`, `gte`, `lt`, `lte`, `isNull`, `isNotNull` |
-| Datum, Datum & Uhrzeit | `gt`, `gte`, `lt`, `lte`, `between`, `isNull`, `isNotNull` |
-| Datumsbereich, Datums- und Uhrzeitbereich | die Datums-Operatoren plus `contains` |
-| Text, E-Mail, Telefon, Link | `equals`, `contains`, `isNull`, `isNotNull` |
+Verwenden Sie die Feld-ID aus `get_record_model` und niemals die veränderbare Beschriftung. Ein Eingabe-, Formel-, Lookup- oder Rollup-Feld ist filterbar, wenn sein Werttyp den Operator unterstützt und die lesende Person den Wert sehen darf. Auswahlfilter nutzen stabile Options-IDs. Das gilt für Startfelder und selbst angelegte Typen gleichermaßen.
 
 ## Welche Feldnamen kann ich nutzen? [#which-field-names-can-i-use]
 
-Der Wert von `field` ist, was `get_record_schema` unter `filterableFields` für diese Entity zurückgibt, samt der Operatoren, die jedes Feld erlaubt. Dazu gehören:
-
-- Eingebaute Felder: `createdAt` und `updatedAt` bei jedem Typ, `firstName` und `lastName` bei Kontakten sowie `name` bei Organisationen, Deals, Services und Aufgaben.
-- Relationship-Arrays, die vom Typ abhängen: Kontakte haben `organizationIds`, `dealIds`, `taskIds` und `userIds`; Organisationen `contactIds`, `dealIds`, `taskIds` und `userIds`; Deals `contactIds`, `organizationIds`, `serviceIds`, `taskIds` und `userIds`; Services `dealIds`, `taskIds` und `userIds`; Aufgaben `contactIds`, `organizationIds`, `dealIds`, `serviceIds` und `userIds`. Kombinieren Sie sie mit `in`, `notIn`, `hasNone`, `hasSome`. Ein Relationsfeld außer `userIds` erscheint nur, wenn Ihre Rolle den verknüpften Datensatztyp lesen darf.
-- Custom-Column-IDs. Nutzen Sie die UUID der Spalte als Feld; eine singleSelect-Spalte akzeptiert nur `in`, `notIn`, `isNull` und `isNotNull` und filtert auf ihre Optionswerte.
-
-Manche Felder lassen sich nicht filtern: Wert, Menge und gewichteter Wert eines Deals sowie der Preis eines Services lassen sich nur sortieren, und die Kanal-Identifikatoren eines Kontakts, etwa die E-Mail-Adresse, finden Sie mit `searchTerm`. Rufen Sie immer zuerst `get_record_schema` auf, wenn Sie unsicher sind, was filterbar ist. Die Fehlermeldung bei einem unbekannten Feld listet jedes verfügbare Feld mit seinen erlaubten Operatoren.
+Verwenden Sie stabile Feld-IDs aus `get_record_model`. Die Systemschlüssel `system:createdAt`, `system:updatedAt` und `system:assignedTo` stehen zur Verfügung, sofern unterstützt. Beziehungen verwenden ihre Definitions-IDs in `relationships` statt Namen wie `organizationIds`. Umbenannte Felder, Typen und Beziehungen behalten ihre IDs; gespeicherte Ansichten und KI-Abfragen bleiben gültig.
 
 ## Beispiele [#examples]
 
-Kontakte in einer von drei Organisationen:
+Kontakte mit einer bestimmten Organisation:
 
 ```json
-{ "field": "organizationIds", "operator": "in", "value": ["org_1","org_2","org_3"] }
+{
+  "relationships": [{
+    "relationId": "00000000-0000-4000-8000-000000000003",
+    "direction": "outgoing",
+    "operator": "any",
+    "recordIds": ["00000000-0000-4000-8000-000000000004"]
+  }]
+}
 ```
 
-Deals aus 2024, deren Custom-singleSelect-Spalte (identifiziert über ihre UUID) auf einen gewählten Optionswert gesetzt ist:
+Für Datensätze ohne zugängliche Verknüpfung dieser Beziehung nutzen Sie `"operator":"none"` und `"recordIds":null`. Für ein Datumsfeld vor Juli 2024 nutzen Sie einen typisierten `date`-Wert mit `lt`. Für ein Auswahlfeld verwenden Sie `in` und die Options-IDs in `values`. In einer Abfrage lassen sich diese Bedingungen mit UND verbinden.
 
-```json
-[
-  { "field": "createdAt", "operator": "between", "value": ["2024-01-01","2024-12-31"] },
-  { "field": "col_uuid",  "operator": "in",      "value": ["option_value"] }
-]
-```
+## Soll ich search (Freitextsuche) oder einen Filter nutzen? [#free-text-search-or-a-filter]
 
-Kontakte ohne verknüpfte Organisation:
-
-```json
-{ "field": "organizationIds", "operator": "hasNone" }
-```
-
-Datensätze der letzten 30 Tage:
-
-```json
-{ "field": "createdAt", "operator": "inLastDays", "value": 30 }
-```
-
-Datensätze, deren Datums-Custom-Column (identifiziert über ihre UUID) vor Juli 2024 liegt:
-
-```json
-{ "field": "date_col_uuid", "operator": "lt", "value": "2024-07-01" }
-```
-
-## Soll ich searchTerm (Freitextsuche) oder einen Filter nutzen? [#free-text-search-or-a-filter]
-
-`list_records` akzeptiert auch `searchTerm`, eine Freitextsuche über die Namensfelder der Entity plus verwandte Felder: bei Kontakten `firstName`, `lastName`, Werte der Kanal-Identifikatoren und Namen verknüpfter Organisationen; bei Organisationen `name` plus Vor- und Nachnamen verknüpfter Kontakte; bei Deals, Services und Aufgaben `name`. Jedes Wort muss eines dieser Felder treffen, ohne Beachtung der Groß- und Kleinschreibung, `"acme berlin"` braucht also beide Wörter. Kanalwerte sind keine Filterfelder; um einen Kontakt über seine E-Mail-Adresse zu finden, setzen Sie die Adresse in `searchTerm`.
-
-Nutzen Sie `searchTerm` für "Kontakte, deren Name acme enthält", wenn es Ihnen egal ist, welches Namensfeld getroffen hat; nutzen Sie eine Filterregel auf `firstName` oder `lastName` mit `contains`, `startsWith` oder `equals`, wenn das Feld eine Rolle spielt oder wenn Sie sie mit anderen Regeln kombinieren.
+`search` ist geeignet, wenn die Phrase in irgendeinem lesbaren durchsuchbaren Textfeld stehen kann. `filters` ist geeignet, wenn es auf das genaue Feld oder den Vergleich ankommt. Suche und Filter werden mit UND verbunden. Identitätskanäle können nur bei einem Typ mit geschützter Personenidentitäts-Fähigkeit und mit entsprechenden Leserechten an der Suche teilnehmen; sie sind keine gewöhnlichen E-Mail-Felder.
 
 ## Weiter [#next]
 
-- [Kernkonzepte](/docs/concepts): Feldtypen und Beziehungen.
-- [MCP-Tool-Katalog](/docs/mcp#tool-catalog): wo Filter auftauchen.
-- [CRM-Datensätze](/docs/app-records): Listen, die Filterpalette, gespeicherte Ansichten und das Board in der App.
+- [Grundkonzepte](/docs/concepts): konfigurierte Felder und Beziehungen.
+- [MCP-Tool-Katalog](/docs/mcp#tool-catalog): `query_crm_records` und Schema-Ermittlung.
+- [CRM-Datensätze](/docs/app-records): Listenfilter und gespeicherte Ansichten.

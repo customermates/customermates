@@ -94,17 +94,7 @@ export const RolesPageView = observer(function RolesPageView({ initialRoles }: P
       );
       break;
     case "content":
-      body = (
-        <DataViewContent
-          columns={columns}
-          store={rolesStore}
-          view={view}
-          onRowClick={(role) => {
-            roleModalStore.setRole(role);
-            roleModalStore.open();
-          }}
-        />
-      );
+      body = <DataViewContent columns={columns} store={rolesStore} view={view} onRowClick={roleModalStore.editRole} />;
       break;
     default: {
       const exhaustive: never = pageState;

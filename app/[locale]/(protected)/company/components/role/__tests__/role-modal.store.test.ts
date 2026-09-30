@@ -7,6 +7,7 @@ import { RoleDtoSchema } from "@/features/role/role.schema";
 
 const companyActions = vi.hoisted(() => ({
   deleteRoleAction: vi.fn(),
+  getRoleEditorAction: vi.fn(),
   upsertRoleAction: vi.fn(),
 }));
 
@@ -49,12 +50,23 @@ function makeStore(role: RoleDto, signedInRoleId: string | null = null): RoleMod
   } as unknown as RootStore;
   const store = new RoleModalStore(rootStore);
   store.setRole(role);
+  store.context = {
+    role,
+    schemaRevision: 1,
+    types: [],
+    canEdit: !role.isSystemRole && role.id !== signedInRoleId,
+    canDelete: !role.isSystemRole && !role.hasUsersAssigned && role.id !== signedInRoleId,
+  };
 
   return store;
 }
 
 beforeEach(() => {
   vi.clearAllMocks();
+  companyActions.getRoleEditorAction.mockResolvedValue({
+    ok: true,
+    data: { role: null, schemaRevision: 1, types: [], canEdit: true, canDelete: false },
+  });
 });
 
 describe("RoleModalStore delete availability", () => {
@@ -93,7 +105,7 @@ describe("RoleModalStore delete availability", () => {
     const savedRole = RoleDtoSchema.parse(role);
     companyActions.upsertRoleAction.mockResolvedValue({
       ok: true,
-      data: savedRole,
+      data: { role: savedRole, schemaRevision: 2 },
     });
     const store = makeStore(role);
 
@@ -138,7 +150,7 @@ describe("RoleModalStore own-role guard", () => {
     const role = makeRole();
     companyActions.upsertRoleAction.mockResolvedValue({
       ok: true,
-      data: RoleDtoSchema.parse(role),
+      data: { role: RoleDtoSchema.parse(role), schemaRevision: 2 },
     });
     const store = makeStore(role, UNHELD_ROLE_ID);
 
@@ -147,11 +159,81 @@ describe("RoleModalStore own-role guard", () => {
     expect(companyActions.upsertRoleAction).toHaveBeenCalledOnce();
   });
 
-  it("does not treat a new role as the signed-in user's own", () => {
+  it("does not treat a new role as the signed-in user's own", async () => {
     const store = makeStore(makeRole(), UNHELD_ROLE_ID);
     store.add();
+    await vi.waitFor(() => expect(store.isLoading).toBe(false));
 
     expect(store.isOwnRole).toBe(false);
     expect(store.isReadOnly).toBe(false);
   });
+});
+
+describe("dynamic role permissions", () => {
+  it("loads renamed types and preserves granular rights without granting update or delete", async () => {
+    const role = makeRole({
+      recordGrants: [{ typeId: "20000000-0000-4000-8000-000000000010", actions: ["create", "readOwn"] }],
+    });
+    const store = makeStore(role);
+    companyActions.getRoleEditorAction.mockResolvedValue({
+      ok: true,
+      data: {
+        role,
+        schemaRevision: 3,
+        types: [{ id: role.recordGrants?.[0]?.typeId, label: "Customer projects", archived: false }],
+        canEdit: true,
+        canDelete: true,
+      },
+    });
+    store.editRole(role);
+    await vi.waitFor(() => expect(store.isLoading).toBe(false));
+    expect(store.form.recordGrants).toEqual([
+      { typeId: role.recordGrants?.[0]?.typeId, create: true, update: false, delete: false, readAccess: "own" },
+    ]);
+    companyActions.upsertRoleAction.mockResolvedValue({ ok: true, data: { role, schemaRevision: 4 } });
+    await store.onSubmit();
+    expect(companyActions.upsertRoleAction).toHaveBeenCalledWith(
+      expect.objectContaining({ expectedRevision: 3, recordGrants: role.recordGrants }),
+    );
+  });
+
+  it("retains a failed draft and reuses its retry key, then changes the key when the draft changes", async () => {
+    const store = makeStore(makeRole());
+    companyActions.upsertRoleAction.mockRejectedValue(new Error("Connection lost"));
+    await expect(store.onSubmit()).rejects.toThrow("Connection lost");
+    await expect(store.onSubmit()).rejects.toThrow("Connection lost");
+    const first = companyActions.upsertRoleAction.mock.calls[0]?.[0];
+    expect(companyActions.upsertRoleAction.mock.calls[1]?.[0]).toEqual(first);
+    store.onChange("name", "Updated draft");
+    await expect(store.onSubmit()).rejects.toThrow("Connection lost");
+    expect(companyActions.upsertRoleAction.mock.calls[2]?.[0].idempotencyKey).not.toBe(first.idempotencyKey);
+    expect(store.form.name).toBe("Updated draft");
+  });
+
+  it("does not let a late role response replace a newly opened role", async () => {
+    const store = makeStore(makeRole());
+    let complete: (value: unknown) => void = () => undefined;
+    companyActions.getRoleEditorAction.mockImplementationOnce(
+      () =>
+        new Promise((resolve) => {
+          complete = resolve;
+        }),
+    );
+    store.editRole(makeRole());
+    store.add();
+    await vi.waitFor(() => expect(store.isLoading).toBe(false));
+    complete({ ok: true, data: { role: makeRole(), schemaRevision: 2, types: [], canEdit: true, canDelete: true } });
+    await Promise.resolve();
+    expect(store.form.id).toBeUndefined();
+    expect(store.form.name).toBe("");
+  });
+});
+
+it("does not expand partial system permissions when only the role name changes", async () => {
+  const role = makeRole({ permissions: [{ id: "partial-user-write", resource: "users", action: "update" }] });
+  const store = makeStore(role);
+  store.onChange("name", "Renamed role");
+  companyActions.upsertRoleAction.mockResolvedValue({ ok: true, data: { role, schemaRevision: 2 } });
+  await store.onSubmit();
+  expect(companyActions.upsertRoleAction).toHaveBeenCalledWith(expect.objectContaining({ permissions: {} }));
 });

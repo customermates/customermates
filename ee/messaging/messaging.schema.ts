@@ -15,7 +15,7 @@ import {
 } from "@/generated/prisma";
 
 import { PreviewKindSchema } from "./attachment-kind";
-import { ContactReferenceSchema } from "@/core/base/base-entity.schema";
+import { RecordIdentityReferenceSchema } from "@/features/records/record-identity-reference.schema";
 
 export const MessagingProviderSchema = z.enum(MessagingProvider);
 
@@ -66,7 +66,7 @@ export const MessagingAttendeeSchema = z.object({
   headline: z.string().nullish(),
   occupation: z.string().nullish(),
   isSelf: z.boolean().optional(),
-  contact: ContactReferenceSchema.nullish(),
+  record: RecordIdentityReferenceSchema.nullish(),
 });
 export type MessagingAttendee = z.infer<typeof MessagingAttendeeSchema>;
 

@@ -1,3 +1,5 @@
+import { InitializeRecordModelService } from "@/features/records/initialize-record-model.service";
+import { PrismaRecordRepo } from "@/features/records/prisma-record.repository";
 import { randomUUID } from "node:crypto";
 
 import { describe, it, expect, afterAll, vi } from "vitest";
@@ -352,6 +354,7 @@ describeDatabase("registration against a real database", () => {
       eventService,
       unregisteredRouteGuardService(authUserId, registrationEmail) as never,
       new PrismaCompanyRepo(),
+      new InitializeRecordModelService(new PrismaRecordRepo()),
     );
 
     const result = await interactor.invoke(
@@ -372,6 +375,22 @@ describeDatabase("registration against a real database", () => {
 
     const user = await runWithoutTenant(() => prisma.user.findUniqueOrThrow({ where: { email: registrationEmail } }));
     companyIds.push(user.companyId);
+    const tenantUser = await new PrismaUserRepo().findCurrentUserUnscoped(registrationEmail);
+    if (!tenantUser) throw new Error("The newly registered workspace owner is missing.");
+    await runWithTenant(tenantUser, async () => {
+      const records = new PrismaRecordRepo();
+      const seeded = await records.getModel();
+      expect(seeded.revision).toBe(1);
+      expect(seeded.types.filter((type) => !type.embedded)).toHaveLength(5);
+      expect(seeded.types.filter((type) => type.embedded)).toHaveLength(1);
+      expect(await records.countRecordsCompanyWide(seeded.types.map((type) => type.id))).toBe(0);
+      const edited = { ...seeded, revision: 2 };
+      edited.types[0].label = "Person";
+      edited.types[0].pluralLabel = "People";
+      await runInTransaction(() => records.saveModel(edited, user.id));
+      await new InitializeRecordModelService(records).initialize();
+      expect(await records.getModel()).toEqual(edited);
+    });
     expect(
       await runWithoutTenant(() =>
         prisma.authUser.findUniqueOrThrow({ where: { id: authUserId }, select: { companyId: true } }),
@@ -511,6 +530,7 @@ describeDatabase("registration against a real database", () => {
       eventService,
       unregisteredRouteGuardService(authUserId, invitedEmail) as never,
       new PrismaCompanyRepo(),
+      new InitializeRecordModelService(new PrismaRecordRepo()),
     );
 
     const result = await interactor.invoke(
@@ -579,6 +599,7 @@ describeDatabase("registration against a real database", () => {
       newEventService(),
       unregisteredRouteGuardService(authUserId, invitedEmail) as never,
       new PrismaCompanyRepo(),
+      new InitializeRecordModelService(new PrismaRecordRepo()),
     );
 
     const result = await interactor.invoke(
@@ -650,6 +671,7 @@ describeDatabase("registration against a real database", () => {
       newEventService(),
       unregisteredRouteGuardService(authUserId, invitedEmail) as never,
       new PrismaCompanyRepo(),
+      new InitializeRecordModelService(new PrismaRecordRepo()),
     );
 
     const result = await interactor.invoke(
@@ -695,6 +717,7 @@ describeDatabase("registration against a real database", () => {
       newEventService(),
       unregisteredRouteGuardService(authUserId, registrationEmail) as never,
       new PrismaCompanyRepo(),
+      new InitializeRecordModelService(new PrismaRecordRepo()),
     );
 
     await expect(
@@ -735,6 +758,7 @@ describeDatabase("registration against a real database", () => {
       newEventService(),
       unregisteredRouteGuardService(authUserId, registrationEmail) as never,
       new PrismaCompanyRepo(),
+      new InitializeRecordModelService(new PrismaRecordRepo()),
     );
 
     const result = await interactor.invoke(
@@ -776,6 +800,7 @@ describeDatabase("registration against a real database", () => {
       newEventService(),
       unregisteredRouteGuardService(missingAuthUserId, registrationEmail) as never,
       new PrismaCompanyRepo(),
+      new InitializeRecordModelService(new PrismaRecordRepo()),
     );
 
     const result = await interactor.invoke(
@@ -839,6 +864,7 @@ describeDatabase("registration against a real database", () => {
       newEventService(),
       unregisteredRouteGuardService(authUserId, invitedEmail) as never,
       new PrismaCompanyRepo(),
+      new InitializeRecordModelService(new PrismaRecordRepo()),
     );
 
     const result = await interactor.invoke(
@@ -920,6 +946,7 @@ describeDatabase("registration against a real database", () => {
       newEventService(),
       unregisteredRouteGuardService(authUserId, invitedEmail) as never,
       new PrismaCompanyRepo(),
+      new InitializeRecordModelService(new PrismaRecordRepo()),
     ).invoke(registrationData, registrationTarget);
 
     const blockerPid = await authUserLocked;
@@ -929,6 +956,7 @@ describeDatabase("registration against a real database", () => {
       newEventService(),
       unregisteredRouteGuardService(authUserId, invitedEmail) as never,
       new PrismaCompanyRepo(),
+      new InitializeRecordModelService(new PrismaRecordRepo()),
     ).invoke(registrationData, registrationTarget);
 
     const secondRegistrationBlocked = await waitForBlockedDatabaseSession(blockerPid);
@@ -1021,6 +1049,7 @@ describeDatabase("registration against a real database", () => {
       newEventService(),
       unregisteredRouteGuardService(authUserId, invitedEmail) as never,
       new PrismaCompanyRepo(),
+      new InitializeRecordModelService(new PrismaRecordRepo()),
     ).invoke(
       {
         email: invitedEmail,
@@ -1229,6 +1258,7 @@ describeDatabase("registration against a real database", () => {
       eventService,
       unregisteredRouteGuardService(authUserId, rollbackEmail) as never,
       new PrismaCompanyRepo(),
+      new InitializeRecordModelService(new PrismaRecordRepo()),
     );
 
     await expect(

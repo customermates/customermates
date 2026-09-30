@@ -18,7 +18,7 @@ import { channelDisplayLabel } from "@/ee/messaging/thread-display";
 import { runUserAction } from "@/core/errors/report-application-error";
 
 import { getSystemTaskNameTranslationKey } from "../../tasks/components/system-task.config";
-import { ChannelIconStack } from "./channel-icon-stack";
+import { ChannelIconStack } from "@/components/shared/channel-icon-stack";
 
 export function useContactColumns(): ColumnDef<ContactDto>[] {
   const { contactsStore, userModalStore } = useRootStore();

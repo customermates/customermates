@@ -8,6 +8,7 @@ import { toSidebarUser } from "./sidebar-user";
 
 import {
   getGetCompanySettingsInteractor,
+  getGetRecordNavigationInteractor,
   getCountSystemTasksInteractor,
   getGetSubscriptionInteractor,
   getGetUnreadThreadCountInteractor,
@@ -19,6 +20,7 @@ import { resolveRequestAccountState } from "@/features/auth/next/resolve-account
 import { isAgentChatAvailable } from "@/ee/agent-chat/agent-availability";
 import { RootStoreProvider } from "@/core/stores/root-store.provider";
 import { DEFAULT_LOCALE, isRoutingLocale } from "@/i18n/locale-registry";
+import { unwrapValidated } from "@/core/validation/validation.utils";
 
 type Props = {
   children: React.ReactNode;
@@ -33,6 +35,7 @@ export async function AppShell({ children, displayLanguage }: Props) {
     getMessages(),
   ]);
   const navigation = await loadNavigationData(account.state, {
+    records: () => unwrapValidated(getGetRecordNavigationInteractor().invoke()),
     company: async () => {
       const result = await getGetCompanySettingsInteractor().invoke();
       return {
@@ -62,6 +65,7 @@ export async function AppShell({ children, displayLanguage }: Props) {
           company: accountAllowed ? navigation.company : null,
           terminology: accountAllowed ? navigation.terminology : [],
           subscription: accountAllowed ? navigation.subscription : null,
+          recordNavigation: accountAllowed ? navigation.records : null,
         }}
       >
         <NavigationSwitch
@@ -73,6 +77,7 @@ export async function AppShell({ children, displayLanguage }: Props) {
           emailVerified={accountAllowed ? account.emailVerified : null}
           legalStatus={accountAllowed ? account.legalStatus : null}
           operatorConsoleVisible={operatorConsoleVisible}
+          recordNavigation={navigation.records}
           sidebarUser={toSidebarUser(account.user)}
           subscription={navigation.subscription}
           systemTaskCount={navigation.systemTaskCount}

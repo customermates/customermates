@@ -7,6 +7,7 @@ import type { SubscriptionDto } from "@/ee/subscription/get-subscription.interac
 import type { LegalUpdateStatus } from "@/features/legal/get-legal-status.interactor";
 import type { AccountState } from "@/features/auth/account-state";
 import type { SidebarUser } from "./sidebar-user";
+import type { RecordNavigation } from "@/features/records/record-navigation.schema";
 
 import dynamic from "next/dynamic";
 import { useSearchParams } from "next/navigation";
@@ -32,6 +33,7 @@ const AppTopBar = dynamic(() => import("../app-topbar").then((mod) => ({ default
 const ShellHeader = dynamic(() => import("../shell-header").then((mod) => ({ default: mod.ShellHeader })));
 
 type NavigationSwitchProps = {
+  recordNavigation?: RecordNavigation | null;
   accountState: AccountState;
   sidebarUser: SidebarUser | null;
   appUser: TenantUser | null;
@@ -51,6 +53,7 @@ type NavigationSwitchProps = {
 };
 
 export function NavigationSwitch({
+  recordNavigation = null,
   accountState,
   sidebarUser,
   appUser,
@@ -111,12 +114,22 @@ export function NavigationSwitch({
     Sentry.setTag("companyId", identifiedUser?.companyId);
 
     userStore.setUser(identifiedUser);
+    rootStore.recordWorkspaceStore.setNavigation(accountAllowed ? recordNavigation : null);
     companyStore.setCompany(accountAllowed ? company : null);
     terminologyStore.setOverrides(accountAllowed ? terminology : []);
     subscriptionStore.setSubscription(accountAllowed ? subscription : null);
 
     if (!protectedEnhancementsAllowed) rootStore.closeAllModals();
-  }, [accountAllowed, company, identifiedUser, protectedEnhancementsAllowed, rootStore, subscription, terminology]);
+  }, [
+    accountAllowed,
+    company,
+    identifiedUser,
+    protectedEnhancementsAllowed,
+    rootStore,
+    subscription,
+    terminology,
+    recordNavigation,
+  ]);
 
   let shell: React.ReactNode;
   if (shellMode === "public") {

@@ -14,6 +14,29 @@ const canAccess = () => true;
 const OPAQUE_ID = "bcad5c22-5549-4847-93e4-c17296828b76";
 
 describe("app topbar crumbs", () => {
+  it("uses stable generic type and record identities through loading, renaming and navigation", () => {
+    const read = (path: string, identity: Parameters<typeof buildAppTopbarCrumbs>[3]) =>
+      buildAppTopbarCrumbs(path, translate, ENTITY_LABELS, identity, "cloud", canAccess);
+    expect(read("/en/records/type-id", null).crumbs).toEqual([{ label: "RecordModel.records", isLoading: true }]);
+    const identity = {
+      scope: "entity" as const,
+      key: "records:type-id",
+      title: "Projects",
+      pictureUrl: null,
+      avatarKind: null,
+      record: { id: OPAQUE_ID, title: "Customer launch", pictureUrl: null, showAvatar: false },
+    };
+    expect(read(`/en/records/type-id/${OPAQUE_ID}`, identity).crumbs).toEqual([
+      { label: "Projects", isLoading: false, href: "/records/type-id" },
+      { label: "Customer launch", isLoading: false, isEntity: false, pictureUrl: null },
+    ]);
+    expect(read(`/en/records/type-id/another-record`, identity).crumbs.at(-1)).toMatchObject({
+      label: "PageState.loading",
+      isLoading: true,
+    });
+    expect(JSON.stringify(read(`/en/records/another-type/${OPAQUE_ID}`, identity))).not.toContain("Customer launch");
+  });
+
   it.each([
     ["overview", "OperatorOverview.navigation"],
     ["users", "OperatorUsers.navigation"],

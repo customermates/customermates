@@ -4,6 +4,8 @@ import type { AuthService } from "@/features/auth/auth.service";
 import type { EventService } from "@/features/event/event.service";
 import type { RouteGuardService } from "@/features/auth/route-guard.service";
 import type { Redirect } from "@/features/auth/auth-outcome";
+import type { InitializeRecordModelService } from "@/features/records/initialize-record-model.service";
+import { recordWriteFailure } from "@/features/records/mutate-record.interactor";
 
 import { z } from "zod";
 import { CountryCode, Status } from "@/generated/prisma";
@@ -96,6 +98,7 @@ export class RegisterUserInteractor {
     private eventService: EventService,
     private routeGuardService: RouteGuardService,
     private companyRepo: RegisterUserCompanyRepo,
+    private recordModel: Pick<InitializeRecordModelService, "initialize">,
   ) {}
 
   async invoke(
@@ -124,10 +127,14 @@ export class RegisterUserInteractor {
           ? await this.repo.findAuthUserCompanyIdUnscoped(data.sessionUserId)
           : null;
 
-    return runInTransaction(
-      () => this.registerLocked(data, plannedCompanyId),
-      plannedCompanyId ? { companyId: plannedCompanyId } : undefined,
-    );
+    try {
+      return await runInTransaction(
+        () => this.registerLocked(data, plannedCompanyId),
+        plannedCompanyId ? { companyId: plannedCompanyId } : undefined,
+      );
+    } catch (error) {
+      return recordWriteFailure(error);
+    }
   }
 
   @ValidateOutput(OutputSchema)
@@ -184,6 +191,7 @@ export class RegisterUserInteractor {
     });
 
     await runWithTenant(tenantUser, async () => {
+      if (target.type === "createCompany") await this.recordModel.initialize();
       if (isNewCloudCompany) {
         await this.eventService.publish(DomainEvent.LEGAL_DOCUMENTS_ACCEPTED, {
           entityId: tenantUser.companyId,

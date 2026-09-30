@@ -1,3 +1,4 @@
+import { runInTransaction } from "@/core/decorators/transaction-runner";
 import { failNotFound } from "@/core/validation/interactor-failure-server";
 import type { MessagingMessage, MessagingThread } from "../messaging.schema";
 import type { EmailFolder } from "../email-folders";
@@ -93,22 +94,27 @@ export class GetMessagingThreadInteractor extends AuthenticatedInteractor<
     const denied = await this.entitlements.require("messaging");
     if (denied) return denied;
 
-    const thread = await this.repo.findThreadById(data.threadId);
-    if (!thread) return failNotFound(CustomErrorCode.threadNotFound, ["threadId"]);
+    return runInTransaction(
+      async () => {
+        const thread = await this.repo.findThreadById(data.threadId);
+        if (!thread) return failNotFound(CustomErrorCode.threadNotFound, ["threadId"]);
 
-    const { messages: rawMessages, total } = await this.repo.listMessagesForThread(thread.id, {
-      page: data.page,
-      pageSize: data.pageSize,
-    });
+        const { messages: rawMessages, total } = await this.repo.listMessagesForThread(thread.id, {
+          page: data.page,
+          pageSize: data.pageSize,
+        });
 
-    const messages = rawMessages.map(toMessagingMessageDto);
-    const accountOwners = await this.accountRepo.listAccountOwnersByIds([thread.connectedAccountId]);
-    const folderContext = await this.resolveFolderContext(thread);
+        const messages = rawMessages.map(toMessagingMessageDto);
+        const accountOwners = await this.accountRepo.listAccountOwnersByIds([thread.connectedAccountId]);
+        const folderContext = await this.resolveFolderContext(thread);
 
-    return {
-      ok: true as const,
-      data: { thread, messages, total, accountOwners, folderContext },
-    };
+        return {
+          ok: true as const,
+          data: { thread, messages, total, accountOwners, folderContext },
+        };
+      },
+      { readOnly: true },
+    );
   }
 
   private async resolveFolderContext(thread: MessagingThread): Promise<ThreadFolderContext | null> {

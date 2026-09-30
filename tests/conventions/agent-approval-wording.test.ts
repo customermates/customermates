@@ -21,15 +21,15 @@ const chatPrompt = buildAgentSystemPrompt({
 
 const toolByName = (name: string) => ALL_MCP_TOOLS.find((tool) => tool.name === name);
 
-const gatedAtRuntime = (name: string) => {
+const gatedAtRuntime = (name: string, input: unknown = {}) => {
   const tool = toolByName(name);
   if (!tool) throw new Error(`unknown tool in approval wording test: ${name}`);
-  return requiresApproval(internalToolIdentity(name), { annotations: tool.annotations }, {});
+  return requiresApproval(internalToolIdentity(name), { annotations: tool.annotations }, input);
 };
 
 describe("agent approval wording matches runtime behaviour", () => {
   it("never claims a tool asks for approval when it does not", () => {
-    const claimed = ["send_email", "send_chat_message", "delete_records"];
+    const claimed = ["send_email", "send_chat_message", "mutate_crm_record"];
     const promised = claimed.filter((name) => chatPrompt.includes(name) && /approval/i.test(chatPrompt));
     for (const name of promised) {
       const namedInApprovalParagraph = chatPrompt
@@ -39,8 +39,8 @@ describe("agent approval wording matches runtime behaviour", () => {
     }
   });
 
-  it("keeps delete_records gated and both send tools immediate", () => {
-    expect(gatedAtRuntime("delete_records")).toBe(true);
+  it("keeps record deletion gated and both send tools immediate", () => {
+    expect(gatedAtRuntime("mutate_crm_record", { mutation: { action: "delete" } })).toBe(true);
     expect(gatedAtRuntime("send_email")).toBe(false);
     expect(gatedAtRuntime("send_chat_message")).toBe(false);
   });

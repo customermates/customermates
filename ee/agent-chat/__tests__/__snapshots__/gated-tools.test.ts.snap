@@ -2,13 +2,13 @@
 
 exports[`gated-tools > snapshots the surface so new tools and actions force a conscious approval decision 1`] = `
 [
+  "discover_record_types",
   "fetch",
   "get_activities",
   "get_calendars",
   "get_docs_page",
   "get_messaging_threads",
-  "get_record_schema",
-  "get_records",
+  "get_record_model",
   "get_social_post_engagement",
   "get_social_posts",
   "get_social_profile",
@@ -16,50 +16,46 @@ exports[`gated-tools > snapshots the surface so new tools and actions force a co
   "linkedin_get_sales_search_parameters",
   "linkedin_search_sales_companies",
   "linkedin_search_sales_leads",
-  "list_records",
   "list_users",
+  "preview_crm_deletion",
+  "query_crm_measure",
+  "query_crm_records",
+  "read_crm_operation",
+  "read_crm_record",
   "search",
+  "search_crm_records",
   "search_docs",
-  "search_records",
 ]
 `;
 
 exports[`gated-tools > snapshots the surface so new tools and actions force a conscious approval decision 2`] = `
 [
+  "cancel_crm_operation",
   "connect_messaging_account",
-  "create_contacts",
-  "create_deals",
-  "create_organizations",
-  "create_services",
-  "create_tasks",
   "discard_message_draft",
   "linkedin_manage_sales_lists",
-  "manage_custom_columns",
   "manage_data_views",
-  "manage_record_links",
   "manage_routines",
   "manage_social_relations",
   "manage_webhooks",
   "manage_widgets",
   "move_email_thread",
+  "resume_crm_operation",
   "save_message_draft",
   "send_chat_message",
   "send_email",
-  "update_contacts",
-  "update_deals",
   "update_messaging_thread",
-  "update_organizations",
-  "update_record_notes",
-  "update_services",
-  "update_tasks",
   "update_workspace_settings",
 ]
 `;
 
 exports[`gated-tools > snapshots the surface so new tools and actions force a conscious approval decision 3`] = `
 [
-  "delete_records",
+  "configure_record_model",
+  "manage_record_detail_layout",
+  "manage_roles",
   "manage_team",
+  "mutate_crm_record",
   "request_support",
 ]
 `;
@@ -71,10 +67,6 @@ exports[`gated-tools > snapshots the surface so new tools and actions force a co
     "browse",
     "save",
   ],
-  "manage_custom_columns": [
-    "list",
-    "upsert",
-  ],
   "manage_data_views": [
     "surfaces",
     "list",
@@ -82,6 +74,16 @@ exports[`gated-tools > snapshots the surface so new tools and actions force a co
     "create",
     "update",
     "select",
+    "reset",
+  ],
+  "manage_record_detail_layout": [
+    "read",
+    "save",
+    "reset",
+  ],
+  "manage_roles": [
+    "read",
+    "save",
   ],
   "manage_routines": [
     "list",

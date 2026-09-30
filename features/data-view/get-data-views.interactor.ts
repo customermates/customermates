@@ -1,3 +1,7 @@
+import type { DataViewPolicy } from "./data-view-policy";
+import { validateDataViewAccess } from "./data-view-policy";
+import { fail } from "@/core/validation/interactor-failure-server";
+import { runInTransaction } from "@/core/decorators/transaction-runner";
 import type { DataViewDto } from "@/core/data-view/data-view-state.schema";
 import type { GetDataViewsData } from "./data-view.schema";
 import type { Validated } from "@/core/validation/validation.utils";
@@ -17,13 +21,26 @@ export abstract class GetDataViewsRepo {
 @AllowInDemoMode
 @TenantInteractor()
 export class GetDataViewsInteractor extends AuthenticatedInteractor<GetDataViewsData, DataViewDto[]> {
-  constructor(private repo: GetDataViewsRepo) {
+  constructor(
+    private repo: GetDataViewsRepo,
+    private policy?: DataViewPolicy,
+  ) {
     super();
   }
 
   @Enforce(GetDataViewsSchema)
   @ValidateOutput(DataViewDtoSchema)
   async invoke({ surfaceKey }: GetDataViewsData): Validated<DataViewDto[]> {
-    return { ok: true as const, data: await this.repo.listDataViews(surfaceKey) };
+    return runInTransaction(
+      async () => {
+        const invalid = await validateDataViewAccess(this.policy, surfaceKey);
+        if (invalid) return fail(invalid);
+        return {
+          ok: true as const,
+          data: await this.repo.listDataViews(surfaceKey),
+        };
+      },
+      { readOnly: true },
+    );
   }
 }

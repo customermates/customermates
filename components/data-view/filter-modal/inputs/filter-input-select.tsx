@@ -1,7 +1,7 @@
 "use client";
 
 import type { Filter } from "@/core/base/base-get.schema";
-import type { CustomColumnDto } from "@/features/custom-column/custom-column.schema";
+import type { ColumnPresentation } from "@/features/custom-column/custom-column.schema";
 
 import { useEffect, useMemo, useRef, useState } from "react";
 import { observer } from "mobx-react-lite";
@@ -21,7 +21,7 @@ import { cn } from "@/core/utils/cn";
 import { SelectionOptionsSkeleton, SelectionValueSkeleton } from "@/components/forms/selection-loading";
 
 type Props = {
-  customColumns?: CustomColumnDto[];
+  customColumns?: ColumnPresentation[];
   filter: Filter;
   id: string;
   isValidFilter: boolean;

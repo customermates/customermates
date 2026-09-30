@@ -1,10 +1,7 @@
 "use server";
 
+import type { RecordRef } from "@/features/records/record-model.schema";
 import type { GetQueryParams } from "@/core/base/base-get.schema";
-import type {
-  LinkContactIdentifierData,
-  UnlinkContactIdentifierData,
-} from "@/features/contacts/upsert/contact-identifier";
 import type { UpdateThreadData } from "@/ee/messaging/thread-state/update-thread.interactor";
 import type { SendChatMessageData } from "@/ee/messaging/outbound/send-chat-message.interactor";
 import type { SendEmailData } from "@/ee/messaging/outbound/send-email.interactor";
@@ -17,8 +14,7 @@ import type { MoveEmailThreadData } from "@/ee/messaging/inbox/move-email-thread
 import {
   getGetMessagingThreadsInteractor,
   getGetMessagingThreadInteractor,
-  getLinkContactIdentifierInteractor,
-  getUnlinkContactIdentifierInteractor,
+  getGetIdentityRecordChoicesInteractor,
   getUpdateThreadInteractor,
   getResyncThreadInteractor,
   getMoveEmailThreadInteractor,
@@ -46,12 +42,8 @@ export async function refreshInboxAction() {
   return serializeResult(getRefreshInboxInteractor().invoke());
 }
 
-export async function linkContactToThreadAction(data: LinkContactIdentifierData) {
-  return serializeResult(getLinkContactIdentifierInteractor().invoke(data));
-}
-
-export async function unlinkContactFromThreadAction(data: UnlinkContactIdentifierData) {
-  return serializeResult(getUnlinkContactIdentifierInteractor().invoke(data));
+export async function getIdentityRecordChoicesAction(search: string, refs?: Array<RecordRef | string>) {
+  return unwrapValidated(getGetIdentityRecordChoicesInteractor().invoke({ search, ...(refs ? { refs } : {}) }));
 }
 
 export async function updateThreadAction(data: UpdateThreadData) {

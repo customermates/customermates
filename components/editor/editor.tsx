@@ -25,6 +25,7 @@ type Props = {
   data?: object;
   onChange?: (data: object) => void;
   readOnly?: boolean;
+  label?: string;
 };
 
 function findEnclosingTableStart($pos: ResolvedPos): number | null {
@@ -34,7 +35,7 @@ function findEnclosingTableStart($pos: ResolvedPos): number | null {
   return null;
 }
 
-export function Editor({ data, onChange, readOnly = false }: Props) {
+export function Editor({ data, onChange, readOnly = false, label }: Props) {
   const t = useTranslations();
   const [showSlashMenu, setShowSlashMenu] = useState(false);
   const [slashAnchorRect, setSlashAnchorRect] = useState<EditorAnchorRect | null>(null);
@@ -84,6 +85,7 @@ export function Editor({ data, onChange, readOnly = false }: Props) {
     },
     editorProps: {
       attributes: {
+        ...(label ? { role: "textbox", "aria-label": label, "aria-multiline": "true" } : {}),
         class:
           "tiptap prose prose-base md:prose-sm max-w-none focus:outline-none prose-headings:text-foreground prose-p:text-foreground prose-li:text-foreground prose-strong:text-foreground prose-em:text-foreground prose-code:text-foreground prose-code:bg-muted prose-code:px-1 prose-code:rounded prose-code:before:content-none prose-code:after:content-none prose-blockquote:text-foreground prose-blockquote:border-border prose-ul:text-foreground prose-ol:text-foreground",
       },

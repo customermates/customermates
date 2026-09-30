@@ -17,6 +17,7 @@ import {
   getGetCustomColumnsByEntityTypeInteractor,
 } from "@/core/di";
 import { serializeResult } from "@/core/utils/action-result";
+import { retireLegacyRecordWrite } from "@/features/records/retire-legacy-write";
 import { unwrapValidated } from "@/core/validation/validation.utils";
 
 export async function getOrganizationsAction(params?: GetQueryParams) {
@@ -24,14 +25,17 @@ export async function getOrganizationsAction(params?: GetQueryParams) {
 }
 
 export async function createOrganizationAction(data: CreateOrganizationData) {
+  retireLegacyRecordWrite();
   return serializeResult(getCreateOrganizationInteractor().invoke(data));
 }
 
 export async function updateOrganizationAction(data: UpdateOrganizationData) {
+  retireLegacyRecordWrite();
   return serializeResult(getUpdateOrganizationInteractor().invoke(data));
 }
 
 export async function deleteOrganizationAction(data: DeleteOrganizationData) {
+  retireLegacyRecordWrite();
   return serializeResult(getDeleteOrganizationInteractor().invoke(data));
 }
 
@@ -46,6 +50,7 @@ export async function getOrganizationByIdAction(data: GetOrganizationByIdData) {
 }
 
 export async function createOrganizationByNameAction(name: string, userId: string | null | undefined) {
+  retireLegacyRecordWrite();
   const result = await createOrganizationAction({
     name,
     notes: null,

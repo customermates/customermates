@@ -2,6 +2,7 @@
 
 import type { IdentifierInput } from "@/features/contacts/contact.schema";
 import type { ReactNode } from "react";
+import type { RecordIdentityInput } from "@/features/records/record-identity.schema";
 
 import { useEffect, useState } from "react";
 import { observer } from "mobx-react-lite";
@@ -33,25 +34,36 @@ type Props = {
   headingEndAddon?: ReactNode;
   controlStartAddon?: ReactNode;
   hideHeading?: boolean;
+  recordChannels?: {
+    channels: RecordIdentityInput[];
+    canEdit: boolean;
+    remove: (index: number) => void;
+    addControl: ReactNode;
+    inboxHref?: string;
+  };
 };
 
 export const ContactChannels = observer(
-  ({ contactId, emptyHint, headingEndAddon, controlStartAddon, hideHeading = false }: Props) => {
+  ({ contactId, emptyHint, headingEndAddon, controlStartAddon, hideHeading = false, recordChannels }: Props) => {
     const t = useTranslations();
     const rootStore = useRootStore();
     const { userStore, contactDetailStore, threadComposeStore, connectedAccountsStore } = rootStore;
     const copy = useCopyToClipboard();
     const [composeKey, setComposeKey] = useState<string | null>(null);
-    const canEditChannels = userStore.can(Resource.contacts, contactId ? Action.update : Action.create);
+    const canEditChannels =
+      recordChannels?.canEdit ?? userStore.can(Resource.contacts, contactId ? Action.update : Action.create);
     const canStartThread = userStore.can(Resource.inboxMessages, Action.create) && rootStore.appMode !== "self-hosted";
-    const identifiers = contactDetailStore.channels;
-    const canOpenInbox = Boolean(contactId && identifiers.length > 0 && rootStore.appMode !== "self-hosted");
+    const identifiers = recordChannels?.channels ?? contactDetailStore.channels;
+    const inboxHref =
+      recordChannels?.inboxHref ??
+      (contactId ? `/inbox?filters=${encodeURIComponent(`participantContactId:in:${contactId}`)}` : undefined);
+    const canOpenInbox = Boolean(inboxHref && identifiers.length > 0 && rootStore.appMode !== "self-hosted");
 
     useEffect(() => {
       if (canStartThread) void connectedAccountsStore.ensureLoaded().catch(reportApplicationError);
     }, [canStartThread, connectedAccountsStore]);
 
-    async function openCompose(identifier: IdentifierInput, key: string) {
+    async function openCompose(identifier: IdentifierInput | RecordIdentityInput, key: string) {
       await connectedAccountsStore.ensureLoaded();
       const [first] = connectedAccountsStore.usableSendersFor(identifier.provider);
       threadComposeStore.initializeNewThread({
@@ -78,18 +90,14 @@ export const ContactChannels = observer(
 
             {headingEndAddon}
 
-            {canOpenInbox && contactId && (
-              <IconButton
-                href={`/inbox?filters=${encodeURIComponent(`participantContactId:in:${contactId}`)}`}
-                icon={ExternalLink}
-                label={t("EntityChannels.tooltipOpenInbox")}
-              />
+            {canOpenInbox && inboxHref && (
+              <IconButton href={inboxHref} icon={ExternalLink} label={t("EntityChannels.tooltipOpenInbox")} />
             )}
           </div>
         )}
 
         <FormControlRow startAddon={controlStartAddon}>
-          {contactId && identifiers.length === 0 && !canEditChannels && (
+          {(contactId || recordChannels) && identifiers.length === 0 && !canEditChannels && (
             <p className="text-muted-foreground text-xs italic">{emptyHint ?? t("EntityChannels.emptyHint")}</p>
           )}
 
@@ -193,8 +201,13 @@ export const ContactChannels = observer(
                                 })}
                                 className="text-muted-foreground hover:text-destructive"
                                 size="icon-sm"
+                                type="button"
                                 variant="ghost"
-                                onClick={() => contactDetailStore.removeChannel(index)}
+                                onClick={() =>
+                                  recordChannels
+                                    ? recordChannels.remove(index)
+                                    : contactDetailStore.removeChannel(index)
+                                }
                               >
                                 <X className="size-4" />
                               </Button>
@@ -220,7 +233,8 @@ export const ContactChannels = observer(
               );
             })}
 
-            {canEditChannels && <AddChannelPopover contactId={contactId} />}
+            {canEditChannels &&
+              (recordChannels ? recordChannels.addControl : <AddChannelPopover contactId={contactId} />)}
           </div>
         </FormControlRow>
       </div>

@@ -1,7 +1,7 @@
 import { readdirSync } from "node:fs";
 import { join, relative, sep } from "node:path";
 
-const SKIPPED_DIRECTORIES = new Set(["node_modules", ".next", "generated", ".git", "coverage"]);
+const SKIPPED_DIRECTORIES = new Set(["node_modules", ".next", "generated", ".git", ".runs", "coverage"]);
 
 const GENERATED_DIRECTORIES = [join("app", ".well-known", "workflow")];
 

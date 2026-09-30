@@ -7,6 +7,10 @@ import { useTranslations } from "next-intl";
 import { Trash2 } from "lucide-react";
 import { Resource } from "@/generated/prisma";
 
+import { FormCheckbox } from "@/components/forms/form-checkbox";
+import { Button } from "@/components/ui/button";
+import { runUserAction } from "@/core/errors/report-application-error";
+
 import { Alert } from "@/components/shared/alert";
 import { Input } from "@/components/ui/input";
 import { Textarea } from "@/components/ui/textarea";
@@ -31,7 +35,7 @@ export const RoleModal = observer(({ store }: Props) => {
   const { form, isDisabledOrSystemRole, isLoading, canDeleteRole, isSystemRole, isOwnRole, canManage } = store;
   const { showDeleteConfirmation } = useDeleteConfirmation();
 
-  function renderResourcePermissions(resource: Resource) {
+  function renderResourcePermissions(resource: keyof typeof form.permissions) {
     const permission = form.permissions[resource];
     if (!permission) return null;
 
@@ -56,7 +60,7 @@ export const RoleModal = observer(({ store }: Props) => {
             },
           ]
         : []),
-      ...(resource !== Resource.users && resource !== Resource.company
+      ...(resource !== Resource.company
         ? [
             {
               value: "none",
@@ -125,6 +129,14 @@ export const RoleModal = observer(({ store }: Props) => {
           </AppCardHeader>
 
           <AppCardBody>
+            {store.loadFailed && (
+              <Alert color="danger" description={t("ErrorCard.title")}>
+                <Button size="sm" variant="secondary" onClick={() => runUserAction(store.loadContext)}>
+                  {t("ErrorCard.retry")}
+                </Button>
+              </Alert>
+            )}
+
             {isSystemRole && <Alert color="primary" description={t("RoleModal.systemAlert")} />}
 
             {!isSystemRole && isOwnRole && canManage && (
@@ -166,21 +178,49 @@ export const RoleModal = observer(({ store }: Props) => {
 
               {renderResourcePermissions(Resource.company)}
 
+              {renderResourcePermissions(Resource.dataModel)}
+
               {renderResourcePermissions(Resource.auditLog)}
-
-              {renderResourcePermissions(Resource.tasks)}
-
-              {renderResourcePermissions(Resource.contacts)}
-
-              {renderResourcePermissions(Resource.organizations)}
-
-              {renderResourcePermissions(Resource.deals)}
-
-              {renderResourcePermissions(Resource.services)}
 
               {store.rootStore.appMode !== "self-hosted" && renderResourcePermissions(Resource.inboxMessages)}
 
               {store.rootStore.appMode !== "self-hosted" && renderResourcePermissions(Resource.routines)}
+            </div>
+
+            <div className="space-y-3">
+              <h3 className="text-sm font-medium">{t("RoleModal.recordTypes")}</h3>
+
+              <p className="text-xs text-muted-foreground">{t("RoleModal.recordTypesHint")}</p>
+
+              {store.context?.types.map((type, index) => (
+                <div key={type.id} className="space-y-3 border-t border-border py-3" data-record-permission={type.id}>
+                  <div className="flex items-center gap-2 text-sm font-medium">
+                    <span className="min-w-0 break-words">{type.label}</span>
+
+                    {type.archived && <span className="text-xs text-muted-foreground">{t("RoleModal.archived")}</span>}
+                  </div>
+
+                  <div className="flex flex-wrap gap-x-6 gap-y-3">
+                    <FormRadioGroup
+                      ariaLabel={`${type.label} — ${t("RoleModal.readAccess")}`}
+                      id={`recordGrants.${index}.readAccess`}
+                      options={[
+                        { value: "all", label: t("RoleModal.readAll") },
+                        { value: "own", label: t("RoleModal.readOwn") },
+                        { value: "none", label: t("RoleModal.readNone") },
+                      ]}
+                    />
+
+                    <div className="flex flex-wrap gap-4">
+                      <FormCheckbox id={`recordGrants.${index}.create`} label={t("RoleModal.create")} />
+
+                      <FormCheckbox id={`recordGrants.${index}.update`} label={t("RoleModal.edit")} />
+
+                      <FormCheckbox id={`recordGrants.${index}.delete`} label={t("RoleModal.delete")} />
+                    </div>
+                  </div>
+                </div>
+              ))}
             </div>
           </AppCardBody>
 

@@ -49,6 +49,9 @@ function recordGuidance(
 }
 
 export const ROUTINE_TRIGGER_GUIDANCE = {
+  "record.created": { action: "recordCreated", entityType: null },
+  "record.updated": { action: "recordUpdated", entityType: null },
+  "record.deleted": { action: "recordDeleted", entityType: null },
   "contact.created": recordGuidance(RECORD_GUIDANCE.contact, "recordCreated"),
   "contact.updated": recordGuidance(RECORD_GUIDANCE.contact, "recordUpdated"),
   "contact.deleted": recordGuidance(RECORD_GUIDANCE.contact, "recordDeleted"),

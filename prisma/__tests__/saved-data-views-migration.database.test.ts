@@ -31,6 +31,7 @@ const P13N_COLUMNS_AFTER_MIGRATION = [
   "updatedAt",
   "userId",
   "viewMode",
+  "viewStateKeys",
 ];
 const DATA_VIEW_COLUMNS = [
   "columnOrder",

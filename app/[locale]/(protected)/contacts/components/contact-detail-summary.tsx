@@ -21,7 +21,7 @@ import { useCopyToClipboard } from "@/core/utils/use-copy-to-clipboard";
 import { runUserAction } from "@/core/errors/report-application-error";
 import { channelDisplayLabel } from "@/ee/messaging/thread-display";
 
-import { ChannelIconStack } from "./channel-icon-stack";
+import { ChannelIconStack } from "@/components/shared/channel-icon-stack";
 import { CONTACT_DETAIL_FIELD } from "./contact-detail-personalization";
 
 export const ContactDetailSummary = observer(function ContactDetailSummary() {

@@ -3,7 +3,7 @@ import type { RootStore } from "../stores/root.store";
 import type { Filter, FilterableField, GroupValueSums, PaginationRequest, SortDescriptor } from "./base-get.schema";
 import type { GetResult } from "./base-get.interactor";
 import type { GetQueryParams } from "@/core/base/base-get.schema";
-import type { CustomColumnDto } from "@/features/custom-column/custom-column.schema";
+import type { CustomColumnDto, ColumnPresentation } from "@/features/custom-column/custom-column.schema";
 import type { DataViewChipDto, DataViewState } from "@/core/data-view/data-view-state.schema";
 import type { DataViewSurfaceKey } from "@/core/data-view/data-view-keys";
 import type { GroupPageRequest, Grouping, GroupingResult } from "@/core/base/grouping/grouping.schema";
@@ -83,6 +83,7 @@ export abstract class BaseDataViewStore<Entity extends HasId> extends BaseStore 
   filterableFields: FilterableField[] = [];
 
   p13nId?: string;
+  resetToSharedDefaults?: () => Promise<void>;
   columnOrder: string[] = [];
   columnWidths: Record<string, number> = {};
   hiddenColumns: string[] = [];
@@ -117,6 +118,10 @@ export abstract class BaseDataViewStore<Entity extends HasId> extends BaseStore 
   private onChangesCallbacks: (() => void | Promise<void>)[] = [];
 
   abstract get columnsDefinition(): TableColumn[];
+
+  get primaryColumnId(): string {
+    return "name";
+  }
 
   constructor(rootStore: RootStore, resource?: Resource, entityType?: EntityType) {
     super(rootStore);
@@ -159,6 +164,7 @@ export abstract class BaseDataViewStore<Entity extends HasId> extends BaseStore 
       groupedTakeOverrides: observable,
       isBulkMutating: observable,
 
+      filterColumns: computed,
       orderedColumns: computed,
       visibleColumns: computed,
       sortableColumnIds: computed,
@@ -213,7 +219,7 @@ export abstract class BaseDataViewStore<Entity extends HasId> extends BaseStore 
       bulkDelete: action,
       bulkUpdateCustomField: action,
       updateCustomFieldValue: action,
-      moveItemBetweenGroups: action,
+      moveItemBetweenGroups: action.bound,
     });
   }
 
@@ -237,13 +243,18 @@ export abstract class BaseDataViewStore<Entity extends HasId> extends BaseStore 
     const ids = Array.from(this.selectedIds);
     if (ids.length === 0 || !this.entityType) return false;
     if (ids.length > MAX_SELECTION_SIZE) {
-      this.toastError("MassActions.limitReached", { values: { limit: MAX_SELECTION_SIZE } });
+      this.toastError("MassActions.limitReached", {
+        values: { limit: MAX_SELECTION_SIZE },
+      });
       return false;
     }
 
     this.setBulkMutating(true);
     try {
-      const res = await bulkDeleteEntitiesAction({ entityType: this.entityType, ids });
+      const res = await bulkDeleteEntitiesAction({
+        entityType: this.entityType,
+        ids,
+      });
       if (res && !res.ok) {
         toastZodErrorTree(res.error);
         await this.refresh();
@@ -262,7 +273,9 @@ export abstract class BaseDataViewStore<Entity extends HasId> extends BaseStore 
     const entityIds = Array.from(this.selectedIds);
     if (entityIds.length === 0 || !this.entityType) return false;
     if (entityIds.length > MAX_SELECTION_SIZE) {
-      this.toastError("MassActions.limitReached", { values: { limit: MAX_SELECTION_SIZE } });
+      this.toastError("MassActions.limitReached", {
+        values: { limit: MAX_SELECTION_SIZE },
+      });
       return false;
     }
 
@@ -305,14 +318,18 @@ export abstract class BaseDataViewStore<Entity extends HasId> extends BaseStore 
     return false;
   };
 
-  moveItemBetweenGroups = async (params: {
+  canMoveItemBetweenGroups(item: Entity): boolean {
+    return Boolean(item.id);
+  }
+
+  async moveItemBetweenGroups(params: {
     item: Entity;
     optimisticItem: Entity;
     fromGroupKey: string;
     toGroupKey: string;
     value: string | null;
     destinationValueSums?: GroupValueSums;
-  }): Promise<void> => {
+  }): Promise<void> {
     const entityType = this.entityType;
     if (!entityType) return;
 
@@ -368,7 +385,11 @@ export abstract class BaseDataViewStore<Entity extends HasId> extends BaseStore 
       revert();
       throw err;
     }
-  };
+  }
+
+  get filterColumns(): ColumnPresentation[] {
+    return this.customColumns;
+  }
 
   get canBoard(): boolean {
     return this.groupableFields.length > 0 || Boolean(this.entityType);
@@ -450,7 +471,10 @@ export abstract class BaseDataViewStore<Entity extends HasId> extends BaseStore 
   }
 
   get currentSelectionScope(): SelectionScope {
-    return { filters: toJS(this.filters) ?? [], searchTerm: this.searchTerm || null };
+    return {
+      filters: toJS(this.filters) ?? [],
+      searchTerm: this.searchTerm || null,
+    };
   }
 
   get isSelectionScopeStale(): boolean {
@@ -484,7 +508,9 @@ export abstract class BaseDataViewStore<Entity extends HasId> extends BaseStore 
     }
 
     if (this.isSelectionAtLimit) {
-      this.toastError("MassActions.limitReached", { values: { limit: MAX_SELECTION_SIZE } });
+      this.toastError("MassActions.limitReached", {
+        values: { limit: MAX_SELECTION_SIZE },
+      });
       return;
     }
 
@@ -506,7 +532,11 @@ export abstract class BaseDataViewStore<Entity extends HasId> extends BaseStore 
     missing.slice(0, room).forEach((id) => this.selectedIds.add(id));
     this.rememberSelectionScope();
 
-    if (missing.length > room) this.toastError("MassActions.limitReached", { values: { limit: MAX_SELECTION_SIZE } });
+    if (missing.length > room) {
+      this.toastError("MassActions.limitReached", {
+        values: { limit: MAX_SELECTION_SIZE },
+      });
+    }
   };
 
   keepSelectionInView = (): void => {
@@ -532,14 +562,16 @@ export abstract class BaseDataViewStore<Entity extends HasId> extends BaseStore 
   get orderedColumns() {
     const columnMap = new Map(this.columnsDefinition.map((col) => [col.uid, col]));
     const orderedUids = new Set(this.columnOrder);
-    const nameColumn = this.columnsDefinition.find((col) => col.uid === "name");
+    const nameColumn = this.columnsDefinition.find((col) => col.uid === this.primaryColumnId);
 
     if (this.columnOrder.length > 0) {
       const columnsFromOrder = this.columnOrder
         .map((uid) => columnMap.get(uid))
-        .filter((column): column is TableColumn => column !== undefined && column.uid !== "name");
+        .filter((column): column is TableColumn => column !== undefined && column.uid !== this.primaryColumnId);
 
-      const columnsNotInOrder = this.columnsDefinition.filter((col) => !orderedUids.has(col.uid) && col.uid !== "name");
+      const columnsNotInOrder = this.columnsDefinition.filter(
+        (col) => !orderedUids.has(col.uid) && col.uid !== this.primaryColumnId,
+      );
 
       const res: TableColumn[] = [];
       if (nameColumn) res.push(nameColumn);
@@ -548,7 +580,7 @@ export abstract class BaseDataViewStore<Entity extends HasId> extends BaseStore 
       return res;
     }
 
-    const remainingColumns = this.columnsDefinition.filter((col) => col.uid !== "name");
+    const remainingColumns = this.columnsDefinition.filter((col) => col.uid !== this.primaryColumnId);
 
     const res: TableColumn[] = [];
     if (nameColumn) res.push(nameColumn);
@@ -578,8 +610,8 @@ export abstract class BaseDataViewStore<Entity extends HasId> extends BaseStore 
     this.pagination = args.pagination;
     this.filters = this.withKnownFields(args.filters);
     this.columnWidths = args.columnWidths || {};
-    this.hiddenColumns = (args.hiddenColumns ?? []).filter((uid) => uid !== "name");
-    this.columnOrder = (args.columnOrder ?? []).filter((uid) => uid !== "name");
+    this.hiddenColumns = (args.hiddenColumns ?? []).filter((uid) => uid !== this.primaryColumnId);
+    this.columnOrder = (args.columnOrder ?? []).filter((uid) => uid !== this.primaryColumnId);
     this.viewMode = args.viewMode ?? ViewMode.table;
     this.grouping = args.grouping?.grouping ?? null;
     this.groupingResult = args.grouping;
@@ -607,7 +639,14 @@ export abstract class BaseDataViewStore<Entity extends HasId> extends BaseStore 
     this.groupingResult = {
       ...current,
       groups: current.groups.map((group) =>
-        group.key === page.key ? { ...group, itemIds: page.itemIds, hasMore: page.hasMore, materialised: true } : group,
+        group.key === page.key
+          ? {
+              ...group,
+              itemIds: page.itemIds,
+              hasMore: page.hasMore,
+              materialised: true,
+            }
+          : group,
       ),
     };
     this.requestState = { status: "ready" };
@@ -657,7 +696,11 @@ export abstract class BaseDataViewStore<Entity extends HasId> extends BaseStore 
     missing.slice(0, room).forEach((id) => this.selectedIds.add(id));
     this.rememberSelectionScope();
 
-    if (missing.length > room) this.toastError("MassActions.limitReached", { values: { limit: MAX_SELECTION_SIZE } });
+    if (missing.length > room) {
+      this.toastError("MassActions.limitReached", {
+        values: { limit: MAX_SELECTION_SIZE },
+      });
+    }
   };
 
   resetGroupedTakeOverrides = (): void => {
@@ -712,7 +755,9 @@ export abstract class BaseDataViewStore<Entity extends HasId> extends BaseStore 
             count: Math.max(0, group.count - 1),
             itemIds: group.itemIds.filter((id) => id !== args.itemId),
             ...(group.valueSums && args.itemValueSums
-              ? { valueSums: shiftValueSums(group.valueSums, args.itemValueSums, -1) }
+              ? {
+                  valueSums: shiftValueSums(group.valueSums, args.itemValueSums, -1),
+                }
               : {}),
           };
         }
@@ -756,7 +801,7 @@ export abstract class BaseDataViewStore<Entity extends HasId> extends BaseStore 
     const groupingBefore = this.groupingKey;
 
     if (updates.columnOrder) {
-      const newColumnOrder = updates.columnOrder.filter((uid) => uid !== "name");
+      const newColumnOrder = updates.columnOrder.filter((uid) => uid !== this.primaryColumnId);
 
       const orderChanged =
         this.columnOrder.length !== newColumnOrder.length ||
@@ -786,7 +831,7 @@ export abstract class BaseDataViewStore<Entity extends HasId> extends BaseStore 
     }
 
     if (updates.hiddenColumns) {
-      const filteredHiddenColumns = updates.hiddenColumns.filter((uid) => uid !== "name");
+      const filteredHiddenColumns = updates.hiddenColumns.filter((uid) => uid !== this.primaryColumnId);
       if (!deepEqual(this.hiddenColumns, filteredHiddenColumns)) {
         this.hiddenColumns = filteredHiddenColumns;
         hasChanges = true;
@@ -886,14 +931,18 @@ export abstract class BaseDataViewStore<Entity extends HasId> extends BaseStore 
     const current = this.filters ?? [];
     if (index < 0 || index >= current.length) return;
 
-    this.setQueryOptions({ filters: current.map((entry, position) => (position === index ? filter : entry)) });
+    this.setQueryOptions({
+      filters: current.map((entry, position) => (position === index ? filter : entry)),
+    });
   };
 
   removeFilterAt = (index: number) => {
     const current = this.filters ?? [];
     if (index < 0 || index >= current.length) return;
 
-    this.setQueryOptions({ filters: current.filter((_, position) => position !== index) });
+    this.setQueryOptions({
+      filters: current.filter((_, position) => position !== index),
+    });
   };
 
   applyView = (viewKey: string): void => {
@@ -912,20 +961,25 @@ export abstract class BaseDataViewStore<Entity extends HasId> extends BaseStore 
       this.sortDescriptor = state.sortDescriptor ?? undefined;
       this.viewMode = state.viewMode ?? ViewMode.table;
       this.grouping = state.grouping ?? null;
-      this.columnOrder = (state.columnOrder ?? []).filter((uid) => uid !== "name");
+      this.columnOrder = (state.columnOrder ?? []).filter((uid) => uid !== this.primaryColumnId);
       this.columnWidths = state.columnWidths ?? {};
-      this.hiddenColumns = (state.hiddenColumns ?? []).filter((uid) => uid !== "name");
+      this.hiddenColumns = (state.hiddenColumns ?? []).filter((uid) => uid !== this.primaryColumnId);
       this.pagination = this.pagination
-        ? { ...this.pagination, page: 1, pageSize: state.pageSize ?? this.pagination.pageSize }
+        ? {
+            ...this.pagination,
+            page: 1,
+            pageSize: state.pageSize ?? this.pagination.pageSize,
+          }
         : this.pagination;
       this.groupedTakeOverrides = {};
       this.collapsedGroupKeys.clear();
     });
 
     if (this.p13nId && this.viewPersistable) {
-      void selectDataViewAction({ surfaceKey: this.p13nId as DataViewSurfaceKey, viewKey: key }).catch(
-        reportApplicationError,
-      );
+      void selectDataViewAction({
+        surfaceKey: this.p13nId as DataViewSurfaceKey,
+        viewKey: key,
+      }).catch(reportApplicationError);
     }
 
     if (flushed && key === previousKey) void flushed.then(this.refreshResolvedInBackground);
@@ -978,7 +1032,10 @@ export abstract class BaseDataViewStore<Entity extends HasId> extends BaseStore 
             ? { groupPage, pageSize: this.pagination?.pageSize }
             : {
                 pagination: this.pagination
-                  ? { page: this.pagination.page, pageSize: this.pagination.pageSize }
+                  ? {
+                      page: this.pagination.page,
+                      pageSize: this.pagination.pageSize,
+                    }
                   : undefined,
               }),
           viewMode: this.viewMode,
@@ -1021,6 +1078,7 @@ export abstract class BaseDataViewStore<Entity extends HasId> extends BaseStore 
       const localAllState = this.allViewState;
       const localViews = this.views;
 
+      this.onRefreshAccepted(result);
       this.setItems(result);
       this.restoreViewStateWrittenDuringRequest(writeSeqBeforeRequest, localAllState, localViews);
     });
@@ -1103,6 +1161,8 @@ export abstract class BaseDataViewStore<Entity extends HasId> extends BaseStore 
     void this.refreshQuery().catch(() => undefined);
   };
 
+  reloadSavedView = (): Promise<void> => this.executeRefresh(this.isReady ? "visible" : "background", undefined, true);
+
   private refreshResolvedInBackground = (): void => {
     void this.executeRefresh(this.isReady ? "visible" : "background", undefined, true).catch(() => undefined);
   };
@@ -1135,6 +1195,8 @@ export abstract class BaseDataViewStore<Entity extends HasId> extends BaseStore 
     }
   };
 
+  protected onRefreshAccepted(_result: GetResult<Entity>): void {}
+
   protected refreshAction(_params?: GetQueryParams): Promise<GetResult<Entity>> {
     return Promise.reject(new Error("refreshAction must be implemented by entity stores"));
   }
@@ -1162,7 +1224,7 @@ export abstract class BaseDataViewStore<Entity extends HasId> extends BaseStore 
     return true;
   };
 
-  private flushPendingViewState = (): Promise<void> | undefined => {
+  protected flushPendingViewState = (): Promise<void> | undefined => {
     if (!this.cancelPendingPersist()) return undefined;
 
     return this.writeViewState();

@@ -937,7 +937,7 @@ const CHANNEL_NOUN = /\b(?:channels?|kanal|kanale|kanals)\b/;
 const ASSISTANT_WORD = /\b(?:mate|assistant|assistent\w*)\b/;
 
 const TOOL_LIST_QUESTION =
-  /\b(?:which|what|welche) (?:\w+ )?tools\b.*\b(?:mcp|server|provides?|provided|offers?|offered|exposes?|exposed|available|exist|bietet|gibt|verfugbar)\b|\b(?:list|all|alle|liste) (?:of |der )?(?:the )?(?:mcp )?tools\b|\bwhat can (?:the )?(?:mcp|server) do\b|\bwas kann (?:der )?(?:mcp|server)\b/;
+  /\b(?:which|what|welche) (?:\w+ )?tools\b.*\b(?:mcp|server|provides?|provided|offers?|offered|exposes?|exposed|available|exist|bietet|gibt|verfugbar)\b|\b(?:list|all|alle|liste) (?:of |der )?(?:the )?(?:mcp )?tools\b|\bwhat can (?:the )?(?:mcp(?: server)?|server) do\b|\bwas kann (?:der )?(?:mcp(?: server)?|server)\b/;
 
 const SORT_WORD = /\bsort(?:s|ed|ing)?\b|\bsortier\w*/;
 
@@ -988,7 +988,7 @@ const QUERY_CONCEPTS: readonly QueryConcept[] = [
   },
   {
     when: (folded) => TOOL_LIST_QUESTION.test(folded) && !ASSISTANT_WORD.test(folded),
-    add: { english: "catalog", german: "katalog" },
+    add: { english: "tool catalog", german: "tool katalog" },
   },
   {
     when: (folded) => SORT_WORD.test(folded) && SORT_CRITERION.test(folded) && !NOT_A_LIST_SORT.test(folded),
@@ -1242,9 +1242,18 @@ export function scorePage(
   const scores = own.map((section) => scoreSection(index, section, query, weights)).sort((left, right) => right - left);
   const best = scores[0] ?? 0;
   if (best <= 0) return 0;
+  const exactTool = query.match(/\b[a-z][a-z0-9]*(?:_[a-z0-9]+){2,}\b/)?.[0];
+  const toolHeadingBonus =
+    exactTool &&
+    own.some(
+      (section) => section.headingPath.at(-1)?.includes(exactTool) || section.text.includes(`#### \`${exactTool}\``),
+    )
+      ? 100
+      : 0;
   const title = terms.pageNames.length > 0 ? 0 : weights.title;
   return (
     best +
+    toolHeadingBonus +
     weights.secondSection * (scores[1] ?? 0) +
     title * terms.queryIdf * coverage(own[0].titleTokens, terms, weights, [], true)
   );

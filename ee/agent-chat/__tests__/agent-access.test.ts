@@ -1,3 +1,5 @@
+import { presetId } from "@/features/records/crm-preset";
+import { mockRecordDiscovery } from "@/tests/helpers/record-tools";
 import { beforeEach, describe, expect, it, vi } from "vitest";
 import * as Sentry from "@sentry/nextjs";
 import { z } from "zod";
@@ -129,7 +131,7 @@ describe("agent access", () => {
       usage as never,
       entitlements as never,
       backgroundTasks() as never,
-      { getCustomColumns: () => Promise.resolve([]) } as never,
+      mockRecordDiscovery(),
     ).invoke({
       clientRequestId: CLIENT_REQUEST_ID,
       text: "hello",
@@ -211,7 +213,7 @@ describe("agent access", () => {
       usage as never,
       mockEntitlementService(),
       background as never,
-      { getCustomColumns: () => Promise.resolve([]) } as never,
+      mockRecordDiscovery(),
     ).invoke({
       clientRequestId: CLIENT_REQUEST_ID,
       text: currentText,
@@ -227,7 +229,7 @@ describe("agent access", () => {
     expect(result.ok).toBe(true);
     if (!result.ok || result.data.disposition !== "run") return;
     expect(result.data.messages[0]?.text).toBe(
-      `<selected_context kind="record" entityType="contact" recordId="${MESSAGE_ID}"/>\nEarlier question`,
+      `<selected_context kind="record" typeId="${presetId(mockUser.companyId, "contact")}" recordId="${MESSAGE_ID}"/>\nEarlier question`,
     );
     expect(result.data.messages[1]?.text).toHaveLength(2000);
     expect(result.data.messages[2]?.text).toBe(
@@ -294,7 +296,7 @@ describe("agent access", () => {
       usage as never,
       mockEntitlementService(),
       backgroundTasks() as never,
-      { getCustomColumns: () => Promise.resolve([]) } as never,
+      mockRecordDiscovery(),
     ).invoke({
       clientRequestId: CLIENT_REQUEST_ID,
       text: "hello",
@@ -341,7 +343,7 @@ describe("agent access", () => {
       usageService() as never,
       mockEntitlementService(),
       backgroundTasks() as never,
-      { getCustomColumns: () => Promise.resolve([]) } as never,
+      mockRecordDiscovery(),
     ).invoke({
       clientRequestId: CLIENT_REQUEST_ID,
       conversationId: CONVERSATION_ID,
@@ -394,7 +396,7 @@ describe("agent access", () => {
         usage as never,
         mockEntitlementService(),
         background as never,
-        { getCustomColumns: () => Promise.resolve([]) } as never,
+        mockRecordDiscovery(),
       ).invokeRoutine({
         clientRequestId: CLIENT_REQUEST_ID,
         conversationId: CONVERSATION_ID,
@@ -440,7 +442,7 @@ describe("agent access", () => {
         usage as never,
         mockEntitlementService(),
         backgroundTasks() as never,
-        { getCustomColumns: () => Promise.resolve([]) } as never,
+        mockRecordDiscovery(),
       ).invokeRoutine({
         clientRequestId: CLIENT_REQUEST_ID,
         conversationId: CONVERSATION_ID,
@@ -494,7 +496,7 @@ describe("agent access", () => {
       usage as never,
       mockEntitlementService(),
       background as never,
-      { getCustomColumns: () => Promise.resolve([]) } as never,
+      mockRecordDiscovery(),
     ).invoke({
       clientRequestId: CLIENT_REQUEST_ID,
       conversationId: CONVERSATION_ID,
@@ -554,7 +556,7 @@ describe("agent access", () => {
       usage as never,
       mockEntitlementService(),
       backgroundTasks() as never,
-      { getCustomColumns: () => Promise.resolve([]) } as never,
+      mockRecordDiscovery(),
     ).invoke({
       clientRequestId: CLIENT_REQUEST_ID,
       conversationId: CONVERSATION_ID,
@@ -614,7 +616,7 @@ describe("agent access", () => {
       usage as never,
       mockEntitlementService(),
       backgroundTasks() as never,
-      { getCustomColumns: () => Promise.resolve([]) } as never,
+      mockRecordDiscovery(),
     ).invoke({
       clientRequestId: CLIENT_REQUEST_ID,
       text: "same",
@@ -670,7 +672,7 @@ describe("agent access", () => {
       usage as never,
       mockEntitlementService(),
       backgroundTasks() as never,
-      { getCustomColumns: () => Promise.resolve([]) } as never,
+      mockRecordDiscovery(),
     ).invoke({
       clientRequestId: CLIENT_REQUEST_ID,
       text: "same",
@@ -733,7 +735,7 @@ describe("agent access", () => {
       usageService() as never,
       mockEntitlementService(),
       backgroundTasks() as never,
-      { getCustomColumns: () => Promise.resolve([]) } as never,
+      mockRecordDiscovery(),
     ).invoke({
       clientRequestId: CLIENT_REQUEST_ID,
       text: "retry this",
@@ -792,7 +794,7 @@ describe("agent access", () => {
       usage as never,
       mockEntitlementService(),
       backgroundTasks() as never,
-      { getCustomColumns: () => Promise.resolve([]) } as never,
+      mockRecordDiscovery(),
     ).invoke({
       clientRequestId: CLIENT_REQUEST_ID,
       text: "different",
@@ -847,7 +849,7 @@ describe("agent access", () => {
       usage as never,
       mockEntitlementService(),
       backgroundTasks() as never,
-      { getCustomColumns: () => Promise.resolve([]) } as never,
+      mockRecordDiscovery(),
     ).invoke({
       clientRequestId: CLIENT_REQUEST_ID,
       text: "Summarize this",
@@ -884,7 +886,7 @@ describe("agent access", () => {
       usage as never,
       mockEntitlementService(),
       backgroundTasks() as never,
-      { getCustomColumns: () => Promise.resolve([]) } as never,
+      mockRecordDiscovery(),
     ).invoke({
       clientRequestId: CLIENT_REQUEST_ID,
       conversationId: CONVERSATION_ID,
@@ -919,7 +921,7 @@ describe("agent access", () => {
       usageService() as never,
       mockEntitlementService(),
       backgroundTasks() as never,
-      { getCustomColumns: () => Promise.resolve([]) } as never,
+      mockRecordDiscovery(),
     ).invoke({
       clientRequestId: CLIENT_REQUEST_ID,
       text: "hello",
@@ -954,7 +956,7 @@ describe("agent access", () => {
         usage as never,
         mockEntitlementService(),
         backgroundTasks() as never,
-        { getCustomColumns: () => Promise.resolve([]) } as never,
+        mockRecordDiscovery(),
       ).invoke({
         clientRequestId: CLIENT_REQUEST_ID,
         text: "hello",
@@ -1000,7 +1002,7 @@ describe("agent access", () => {
         usage as never,
         mockEntitlementService(),
         backgroundTasks() as never,
-        { getCustomColumns: () => Promise.resolve([]) } as never,
+        mockRecordDiscovery(),
       ).invoke({
         clientRequestId: CLIENT_REQUEST_ID,
         text: "hello",
@@ -1039,7 +1041,7 @@ describe("agent access", () => {
         usageService() as never,
         mockEntitlementService(),
         backgroundTasks() as never,
-        { getCustomColumns: () => Promise.resolve([]) } as never,
+        mockRecordDiscovery(),
       ).invoke({
         clientRequestId: CLIENT_REQUEST_ID,
         text: "hello",

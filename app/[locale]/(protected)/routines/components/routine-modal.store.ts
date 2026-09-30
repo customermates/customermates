@@ -7,6 +7,7 @@ import type { Filter, FilterableField } from "@/core/base/base-get.schema";
 import type { CustomColumnDto } from "@/features/custom-column/custom-column.schema";
 import type { RoutineRunDto } from "@/ee/routines/routine.schema";
 import type { RoutineRunPage } from "@/ee/routines/routine-history";
+import type { RecordModel } from "@/features/records/record-model.schema";
 
 import { action, computed, makeObservable, observable, runInAction, toJS } from "mobx";
 import type { EntityType } from "@/generated/prisma";
@@ -114,6 +115,8 @@ export function routineFormFor(routine: RoutineDto): RoutineModalForm {
     triggerEvents: routine.triggerEvents,
     changedFields: routine.changedFields,
     triggerFilters: routine.triggerFilters,
+    recordTrigger: routine.recordTrigger ?? null,
+    recordSources: routine.recordSources ?? null,
     schedulePreset: schedule.preset,
     scheduleHour: String(schedule.hour),
     scheduleMinute: String(schedule.minute),
@@ -134,6 +137,7 @@ export class RoutineModalStore extends BaseModalStore<RoutineModalForm> {
   isStartingRun = false;
   filterableFieldsByEntityType: Partial<Record<EntityType, FilterableField[]>> = {};
   customColumnsByEntityType: Partial<Record<EntityType, CustomColumnDto[]>> = {};
+  recordModel: RecordModel | null = null;
   private filterFieldsLoadPromise: Promise<void> | null = null;
   private runsSessionGeneration = 0;
   private runsRoutineId: string | null = null;
@@ -163,9 +167,11 @@ export class RoutineModalStore extends BaseModalStore<RoutineModalForm> {
       isStartingRun: observable,
       filterableFieldsByEntityType: observable,
       customColumnsByEntityType: observable,
+      recordModel: observable.ref,
 
       openRun_: computed,
       triggerEntityType: computed,
+      usesRecordTrigger: computed,
       watchesRecordChanges: computed,
       changeFields: computed,
       filterableFields: computed,
@@ -194,7 +200,23 @@ export class RoutineModalStore extends BaseModalStore<RoutineModalForm> {
   }
 
   protected override afterChange(id: string, _value: unknown, previousValue: unknown): void {
+    if (id === "recordTrigger.query.typeId" && this.form.recordTrigger && _value !== previousValue) {
+      this.form.recordTrigger = {
+        query: { typeId: String(_value), filters: [], relationships: [] },
+        changedFieldIds: [],
+      };
+      return;
+    }
     if (id !== "triggerEvents") return;
+
+    if (this.usesRecordTrigger && !this.form.recordTrigger && !this.form.recordSources?.length) {
+      const type = this.recordModel?.types.find((type) => !type.archived);
+      if (type)
+        this.form.recordTrigger = { query: { typeId: type.id, filters: [], relationships: [] }, changedFieldIds: [] };
+    } else if (!this.usesRecordTrigger) {
+      this.form.recordTrigger = null;
+      this.form.recordSources = null;
+    }
 
     const previousEvents = Array.isArray(previousValue) ? previousValue : [];
     const entityChanged = entityTypeForEvents(previousEvents) !== this.triggerEntityType;
@@ -208,6 +230,10 @@ export class RoutineModalStore extends BaseModalStore<RoutineModalForm> {
 
   get triggerEntityType(): EntityType | null {
     return entityTypeForEvents(this.form?.triggerEvents ?? []);
+  }
+
+  get usesRecordTrigger(): boolean {
+    return (this.form?.triggerEvents ?? []).some((event) => event.startsWith("record."));
   }
 
   get watchesRecordChanges(): boolean {
@@ -698,13 +724,14 @@ export class RoutineModalStore extends BaseModalStore<RoutineModalForm> {
   loadFilterFields = async () => {
     if (this.filterFieldsLoadPromise) return this.filterFieldsLoadPromise;
 
-    const promise = getRoutineFilterFieldsAction().then(({ filterableFields, customColumns }) => {
+    const promise = getRoutineFilterFieldsAction().then(({ filterableFields, customColumns, recordModel }) => {
       const byEntityType: Partial<Record<EntityType, CustomColumnDto[]>> = {};
       for (const column of customColumns) (byEntityType[column.entityType] ??= []).push(column);
 
       runInAction(() => {
         this.filterableFieldsByEntityType = filterableFields;
         this.customColumnsByEntityType = byEntityType;
+        this.recordModel = recordModel ?? null;
       });
     });
     this.filterFieldsLoadPromise = promise;
@@ -747,6 +774,10 @@ export class RoutineModalStore extends BaseModalStore<RoutineModalForm> {
       triggerKind: form.triggerKind,
       timezone: form.timezone,
       triggerEvents: scheduled ? [] : form.triggerEvents,
+      recordTrigger:
+        scheduled || !this.usesRecordTrigger ? null : form.recordSources?.length ? undefined : form.recordTrigger,
+      recordSources: scheduled || !this.usesRecordTrigger ? null : form.recordSources,
+      expectedSchemaRevision: !scheduled && this.usesRecordTrigger ? this.recordModel?.revision : undefined,
       changedFields:
         scheduled || !this.triggerEntityType || !this.watchesRecordChanges ? [] : (form.changedFields ?? []),
       triggerFilters:

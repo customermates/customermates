@@ -19,10 +19,10 @@ export function groupThreadName(
   return thread.name?.trim() || thread.subject?.trim() || t("Inbox.groupThread", { count: thread.participants.length });
 }
 
-type LinkableAttendee = { isSelf?: boolean; identifier?: string | null; contact?: { id: string } | null };
+type LinkableAttendee = Pick<MessagingAttendee, "isSelf" | "identifier" | "record">;
 
 export function isAttendeeUnlinked(attendee: LinkableAttendee): boolean {
-  return !attendee.isSelf && Boolean(attendee.identifier?.trim()) && !attendee.contact;
+  return !attendee.isSelf && Boolean(attendee.identifier?.trim()) && !attendee.record;
 }
 
 export function threadHasUnlinkedAttendee(attendees: LinkableAttendee[]): boolean {
@@ -74,11 +74,11 @@ export function messageSenderName(message: {
   sender: {
     displayName?: string | null;
     identifier: string | null | undefined;
-    contact?: { firstName: string; lastName: string } | null;
+    record?: { title: string } | null;
   };
 }): string | null {
   return (
-    contactFullName(message.sender.contact) ||
+    message.sender.record?.title ||
     message.sender.displayName?.trim() ||
     identifierLabel(message.provider, message.sender.identifier) ||
     null
@@ -127,7 +127,7 @@ export function participantLabel(
   provider: MessagingProvider,
   fallback: string,
 ): string {
-  const contactName = contactFullName(participant.contact);
+  const contactName = participant.record?.title;
   if (contactName) return contactName;
 
   const displayName = participant.displayName?.trim();
@@ -176,7 +176,7 @@ export function deriveThreadDisplay(
   const displayName = isGroup ? groupThreadName(thread, t) : (emailSubject ?? counterpartLabel);
   const counterpartDisplayName = counterpart?.displayName?.trim();
   const hasName = Boolean(
-    contactFullName(counterpart?.contact) ||
+    counterpart?.record?.title ||
       (counterpartDisplayName && !isPhoneLikeLabel(counterpartDisplayName, counterpart?.identifier)),
   );
   const displayNameSecondary = emailSubject
@@ -188,7 +188,7 @@ export function deriveThreadDisplay(
       : hasName
         ? displayableIdentifier(thread.provider, counterpart.identifier)
         : counterpart.occupation?.trim() || counterpart.headline?.trim() || null;
-  const avatarUrl = isGroup ? undefined : (counterpart?.contact?.avatarUrl ?? counterpart?.pictureUrl ?? undefined);
+  const avatarUrl = isGroup ? undefined : (counterpart?.record?.avatarUrl ?? counterpart?.pictureUrl ?? undefined);
   const isUnlinked = !isSelfChat && threadHasUnlinkedAttendee(thread.participants);
 
   return { isGroup, isSelfChat, counterpart, displayName, displayNameSecondary, avatarUrl, isUnlinked };
@@ -216,7 +216,7 @@ export function deriveMessageSender(
       : accountName
     : senderLabel || t("Inbox.senderUnknown");
   const avatarName = isOutbound ? accountName : senderLabel || t("Inbox.senderUnknown");
-  const avatarUrl = message.sender.contact?.avatarUrl ?? senderAvatarUrl ?? message.sender.pictureUrl ?? undefined;
+  const avatarUrl = message.sender.record?.avatarUrl ?? senderAvatarUrl ?? message.sender.pictureUrl ?? undefined;
   const isUnlinked = !isOutbound && isAttendeeUnlinked(message.sender);
 
   return { resolvedName, avatarName, avatarUrl: avatarUrl ?? undefined, isUnlinked, isOutbound };

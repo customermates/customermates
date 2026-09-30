@@ -22,7 +22,7 @@ export type EntityDetailPreviewItem = {
   data?: unknown;
 };
 
-type EntityDetailPersonalizationValue = {
+export type EntityDetailPersonalizationValue = {
   enabled: boolean;
   applyFieldVisibility: boolean;
   isPersonalizing: boolean;
@@ -57,7 +57,7 @@ const EMPTY_VALUE: EntityDetailPersonalizationValue = {
   setPreviewFieldValue: () => undefined,
 };
 
-const EntityDetailPersonalizationContext = createContext<EntityDetailPersonalizationValue>(EMPTY_VALUE);
+export const EntityDetailPersonalizationContext = createContext<EntityDetailPersonalizationValue>(EMPTY_VALUE);
 
 type ProviderProps = {
   children: ReactNode;

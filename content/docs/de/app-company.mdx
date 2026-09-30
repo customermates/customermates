@@ -13,12 +13,13 @@ In der Sidebar steht **Mein Unternehmen** (`#nav-company`) in der Gruppe **Works
 
 Routen sind relativ und ohne Sprachpräfix: Sie gelten auf der Adresse, unter der der Workspace läuft, und die App ergänzt die Sprache des Nutzers, sodass `/company/subscription` auf Deutsch `/de/company/subscription` öffnet. Für einen vollständigen Link setzen Sie die Route hinter den Ursprung der `url`, die `search_docs`, `get_docs_page` und `fetch` zurückgeben; dieser Ursprung ist die konfigurierte `BASE_URL` der Instanz. `highlight_element` von Mate nimmt außerdem jedes Navigationsziel an: `nav-company` zeigt auf den Umschalter **Mein Unternehmen**, jedes andere auf den Sidebar-Eintrag seiner Seite. Ein Sidebar-Eintrag lässt sich nur hervorheben, solange **Mein Unternehmen** aufgeklappt ist, standardmäßig auf jeder seiner Seiten, sofern das Mitglied es nicht zugeklappt hat. **Hinzufügen**-Ziele gibt es nur für Rollen, die die Seite verwalten dürfen, und die Layout-Ziele nur, solange die Anzeigeoptionen geöffnet sind. Abrechnungsziele erscheinen nur für Rollen mit **Verwalten** auf **Unternehmen**, und ein Dialogziel nur, solange sein Dialog geöffnet ist: Öffnet ein Control den Dialog, ist es die Voraussetzung des Ziels, und Mate bittet darum, es zuerst zu öffnen. Öffnet eine Zeile den Dialog, nennt `list_ui_targets` diese Zeile als Voraussetzung (zum Beispiel `a member row`); Zeilen haben kein Ziel, deshalb bittet Mate darum, die Zeile anzuklicken.
 
-Abonnement gibt es nur in der Cloud. Audit-Logs erfordert Leserecht **Alle** auf **Audit-Log**, Webhooks und Letzte Zustellungen erfordern Leserecht **Alle** auf **API & Webhooks**. Jede Rolle darf **Unternehmen** lesen und bei **Benutzer & Rollen** mindestens die eigene Zeile, deshalb sind Abonnement, Einstellungen, Mitglieder und Rollen immer aufgeführt; die Rolle entscheidet, ob ihre Bearbeitungselemente erscheinen und welche Zeilen unter Mitglieder stehen. Die eingebaute Rolle **Admin** sieht und ändert alles.
+Abonnement gibt es nur in der Cloud. Audit-Logs erfordert Leserecht **Alle** auf **Audit-Log**, Webhooks und Letzte Zustellungen erfordern Leserecht **Alle** auf **API & Webhooks**. Das Leserecht für **Benutzer & Rollen** bestimmt, ob Mitglieder und Rollen erscheinen: **Zugewiesen** beschränkt die Mitgliederliste auf die eigene Zeile, **Keine** blendet beide Seiten aus. Das Leserecht für Unternehmen steuert Einstellungen und Abonnement. Änderungen erfordern das passende Verwalten-Recht. Die eingebaute Rolle **Admin** sieht und ändert alles.
 
 | Seite | Route | Navigationsziel | Highlight-Ziele auf der Seite | Erklärt in |
 |---|---|---|---|---|
 | **Abonnement** | `/company/subscription` | `nav-company-subscription` | `company-subscription-manage`, `company-subscription-refresh`, `company-subscription-plan-picker` | [Abonnement](#subscription-tab) |
-| **Einstellungen** | `/company/settings` | `nav-company-settings`, auch `nav-company` | `company-settings-currency`, `company-settings-deal-stage-field`, `company-settings-stage-weights`, `company-settings-total-pipeline`, `company-settings-weighted-pipeline`, `company-settings-data-model`, `terminology-contact`, `terminology-organization`, `terminology-deal`, `terminology-service`, `terminology-task`, `company-settings-save`, `company-settings-reset` | [Einstellungen](#settings-tab) |
+| **Einstellungen** | `/company/settings` | `nav-company-settings`, auch `nav-company` | `company-settings-currency`, `company-settings-data-model`, `company-settings-save`, `company-settings-reset` | [Einstellungen](#settings-tab) |
+| **Datenmodell** | `/company/data-model` | `#nav-company-data-model` | Datensatztypen, Felder, Beziehungen und Berechnungen konfigurieren | [CRM-Datensätze](/docs/app-records) |
 | **Mitglieder** | `/company/members` | `nav-company-members` | `company-members-add`, `company-members-search`, `company-members-filter`, `company-members-display-options`, `company-members-layout-table`, `company-members-layout-board`; in **Benutzer einladen** `invite-modal-tab-link`, `invite-modal-link`, `invite-modal-copy-link`, `invite-modal-tab-email`, `invite-modal-emails`, `invite-modal-send`; in **Benutzer** `member-modal-email`, `member-modal-first-name`, `member-modal-last-name`, `member-modal-country`, `member-modal-role`, `member-modal-avatar-url`, `member-modal-status`, `member-modal-save`, `member-modal-reset` | [Mitglieder](#members-tab) |
 | **Rollen** | `/company/roles` | `nav-company-roles` | `company-roles-add`, `company-roles-display-options`, `company-roles-layout-table`, `company-roles-layout-board`; im Editor `role-modal-save`, `role-modal-reset`, `role-modal-delete` | [Rollen](#roles-tab) |
 | **Audit-Logs** | `/company/audit-logs` | `nav-company-audit-logs` | `company-audit-logs-search`, `company-audit-logs-filter`, `company-audit-logs-display-options`, `company-audit-logs-layout-table`, `company-audit-logs-layout-board` | [Audit-Logs](#audit-logs-tab) |
@@ -167,61 +168,33 @@ Bei Starter zeigen der Posteingang und **Mein Profil** › **Kanäle** den Hinwe
 
 ## Seite Einstellungen (Unternehmenseinstellungen) [#settings-tab]
 
-Der Link zu den Unternehmenseinstellungen öffnet die Seite **Einstellungen** mit der Workspace-Währung, der gewichteten Pipeline und dem Datenmodell; dort ändern Sie sie. Route `/company/settings`, Sidebar-Id `#nav-company-settings` (**Einstellungen**), in der Cloud und selbstgehostet, ohne Tarifgrenzen.
+Die URL der Unternehmenseinstellungen-Seite und der Link zur Unternehmenseinstellungen-Seite lauten `/company/settings`. Dort finden Sie die Workspace-Währung und einen Link zum **Datenmodell**. Die Währung dient der Anzeige: Eine Änderung rechnet gespeicherte Beträge nicht um. Währungsfelder mit eigener Währung behalten ihre Einstellung.
 
-Ein Formular enthält drei Teile, und ein **Speichern** (`#company-settings-save`) in der oberen Leiste übernimmt alle gemeinsam.
+Das Währungsfeld hat die Id `#company-settings-currency`. Mitglieder mit **Unternehmen → Verwalten** speichern eine Änderung über `#company-settings-save` oder verwerfen sie über `#company-settings-reset`; andere sehen das Feld schreibgeschützt. Der Link **Datenmodell** (`#company-settings-data-model`) öffnet `/company/data-model`. Dort werden Datensatztypen, Felder, Beziehungen, Phasenwahrscheinlichkeiten und Berechnungen verwaltet.
 
-**Speichern** und **Zurücksetzen** erscheinen nur für Rollen mit **Verwalten** **Ja** auf **Unternehmen** sowie für **Admin**; alle anderen sehen das Formular schreibgeschützt. **Speichern** bleibt deaktiviert, bis sich etwas ändert; **Zurücksetzen** (`#company-settings-reset`) erscheint bei ungespeicherten Änderungen und verwirft sie. Jedes Speichern wird im Audit-Log protokolliert.
+**Link:** `/company/settings`. **Mate:** `nav-company-settings` öffnet die Seite; `company-settings-currency`, `company-settings-data-model`, `company-settings-save` und `company-settings-reset` bezeichnen die verfügbaren Controls.
 
-| Feld | Was es bewirkt |
-|---|---|
-| **Währung** (`#company-settings-currency`) | Die Workspace-Währung aus der Liste der ISO-Währungen, standardmäßig EUR. Sie formatiert Deal-Werte, Service-Beträge und Pipeline-Summen im ganzen CRM. Sie dient nur der Anzeige: Ein Wechsel rechnet keine Beträge um, dieselben Zahlen erscheinen in der neuen Währung. Benutzerdefinierte Felder vom Typ Währung behalten die am Feld eingestellte Währung. |
-| **Deal-Phasenfeld** (`#company-settings-deal-stage-field`) | Welches Einzelauswahl-Feld der Deals die gewichtete Pipeline steuert; der erste Wortteil folgt Ihrer Bezeichnung für Deals, zum Beispiel **Chance-Phasenfeld**. **Nicht konfiguriert** schaltet die Gewichtung ab. Ein neuer Workspace beginnt mit seinem Feld **Phase** als Auswahl. |
-| Wahrscheinlichkeit pro Phase (`#company-settings-stage-weights`, die ganze Liste) | Ein Prozentfeld von 0 bis 100 neben jeder Option des gewählten Felds. Das Feld **Phase** eines neuen Workspace beginnt mit Akquise 10, Qualifizierung 20, Demo 40, Angebot 60, Verhandlung 80, Gewonnen 100 und Verloren 0. |
-| **Gesamtpipeline** (`#company-settings-total-pipeline`), **Gewichtete Pipeline** (`#company-settings-weighted-pipeline`), **Nicht gewichtet · kein** mit dem Feldnamen (ohne Id) | Schreibgeschützte Summen; siehe [Wo wähle oder ändere ich das Deal-Phasenfeld für die Gewichtung, und wie funktionieren die Wahrscheinlichkeiten der Phasen und die Summen?](#how-do-stage-probabilities-and-totals-work). |
-| **Datenmodell** (`#company-settings-data-model`, der ganze Abschnitt; ein Auswahlfeld pro Datensatztyp, `#terminology-contact`, `#terminology-organization`, `#terminology-deal`, `#terminology-service`, `#terminology-task`) | Die Bezeichnung, die jeder Datensatztyp im Workspace trägt; siehe [Wie benenne ich Datensatztypen um?](#how-do-i-rename-record-types-in-the-data-model). |
+### Wer darf die Währung und die übrigen Einstellungen ändern? [#who-can-change-the-currency-and-the-other-settings]
 
-**Link:** der Link zu den Unternehmenseinstellungen, der Seite **Einstellungen**, `/company/settings`. **Mate:** `navigate` und `highlight_element` mit `nav-company-settings`, das auch `nav-company` öffnet; `highlight_element` nimmt außerdem die Ids dieser Tabelle ohne `#` an: `company-settings-stage-weights` und die Summen, sobald ein Phasenfeld gewählt ist, für Mitglieder mit Leserecht auf Deals, sowie die `terminology-*`-Auswahlfelder, `company-settings-save` und `company-settings-reset` für Rollen mit **Verwalten** auf **Unternehmen**; die Summe **Nicht gewichtet** hat kein Ziel.
+**Unternehmen → Verwalten** berechtigt zur Änderung der Währung auf der Seite Einstellungen. **Datenmodell → Verwalten** berechtigt zur Konfiguration von Typen und Feldern; dieses Recht lässt sich separat vergeben und gewährt weder Zugriff auf Datensätze noch die Berechtigung, Rollenzugriffe auszuweiten. Für die Ausweitung von Zugriffen ist Rollenverwaltung nötig. Der Assistent nutzt `update_workspace_settings` für die Währung und `configure_record_model` für das Datenmodell; im Backend gelten dieselben Prüfungen wie in der Oberfläche.
 
-### Wer darf die Währung, die Phasenwahrscheinlichkeiten und die übrigen Einstellungen ändern? [#who-can-change-the-currency-and-the-other-settings]
+**Link:** `/company/settings` für die Währung; `/company/data-model` für die CRM-Konfiguration.
 
-Jedes Mitglied kann **Mein Unternehmen › Einstellungen** öffnen; ändern dürfen die Inhalte nur Rollen mit **Verwalten** **Ja** auf **Unternehmen** sowie **Admin**. Für alle anderen sind die Felder schreibgeschützt, und **Speichern** und **Zurücksetzen** fehlen. Das gilt für die Währung, das Phasenfeld, die Wahrscheinlichkeiten und das Datenmodell. Das Löschen des Phasenfelds im Dialog **Feld bearbeiten** schaltet die Gewichtung ab und braucht deshalb diese Berechtigung und zusätzlich **Verwalten** auf **Deals**. Wer eine Änderung braucht, bittet ein Mitglied mit dieser Rolle darum. Der gehostete Assistent kann die Währung und die Bezeichnungen im Datenmodell mit `update_workspace_settings` ändern, mit derselben Berechtigung.
+### Wo ändere ich das Deal-Phasenfeld für die Gewichtung, und wie funktionieren Phasenwahrscheinlichkeiten und Summen? [#how-do-stage-probabilities-and-totals-work]
 
-**Link:** `/company/settings`. **Mate:** `navigate` und `highlight_element` mit `nav-company-settings`, danach `highlight_element` mit `company-settings-currency` für **Währung** und `company-settings-save` für **Speichern**; Mitglieder ohne **Verwalten** auf **Unternehmen** sehen die Währung schreibgeschützt und haben weder **Speichern** noch **Zurücksetzen** auf dem Bildschirm.
+Öffnen Sie **Mein Unternehmen → Datenmodell**, wählen Sie **Deals** und bearbeiten Sie das Auswahlfeld für die Phase. Jede Option kann eine Wahrscheinlichkeit enthalten. Die mitgelieferte Berechnung **Gewichteter Wert** multipliziert den berechneten Deal-Wert mit der Wahrscheinlichkeit der gewählten Phase und teilt durch 100. Null Prozent ergeben null; ohne Wahrscheinlichkeit bleibt der gewichtete Wert leer. Änderungen an Wahrscheinlichkeiten oder Berechnungen erhalten eine Vorschau ihrer Abhängigkeiten und berechnen betroffene Datensätze neu. Die Formel kann geändert und der Deal-Wert stattdessen manuell eingegeben werden. Für Pipeline-Summen legen Sie auf dem Dashboard ein Diagramm-Widget an, das **Wert** oder **Gewichteter Wert** summiert, optional nach Phase gruppiert. Auf der Seite Unternehmenseinstellungen gibt es dafür kein separates Formular.
 
-### Wo wähle oder ändere ich das Deal-Phasenfeld für die Gewichtung, und wie funktionieren die Wahrscheinlichkeiten der Phasen und die Summen? [#how-do-stage-probabilities-and-totals-work]
+**Link:** `/company/data-model` für Phasen und Berechnungen; `/dashboard` für Summen. Siehe [gewichtete Pipeline](/docs/concepts#how-does-a-weighted-pipeline-work).
 
-Das für die Gewichtung verwendete Feld wählen oder ändern Sie im **Deal-Phasenfeld**, die Wahrscheinlichkeiten der Phasen für die gewichtete Pipeline stellen Sie neben seinen Optionen ein. Das Speichern eines neuen Phasenfelds oder neuer Wahrscheinlichkeiten berechnet den gewichteten Wert jedes Deals neu: Deal-Wert mal Wahrscheinlichkeit seiner aktuellen Phase. Die Summen unter den Wahrscheinlichkeiten zeigen ungespeicherte Änderungen bereits in der gewählten Währung:
+### Wo benenne ich den Datensatztyp Deals um, zum Beispiel Deals in Opportunities? [#how-do-i-rename-record-types-in-the-data-model]
 
-- **Gesamtpipeline**: der Wert aller Deals.
-- **Gewichtete Pipeline**: die Summe jeder Phase mal ihrer Wahrscheinlichkeit.
-- **Nicht gewichtet · kein Phase** (benannt nach Ihrem Phasenfeld): der Wert der Deals ohne gewählte Phase, nur sichtbar, wenn er über null liegt.
+Öffnen Sie **Mein Unternehmen → Datenmodell**, wählen Sie einen Typ und öffnen Sie **Typeinstellungen**. Sie können jeden der fünf mitgelieferten oder einen selbst erstellten Typ umbenennen. Die Namen sind frei bearbeitbar; stabile Typ-Ids halten Datensätze, Verknüpfungen, Ansichten, Widgets und API-Verweise verbunden. Der Assistent kann dieselbe geprüfte Konfiguration mit `get_record_model` und `configure_record_model` ändern. Dafür ist **Datenmodell → Verwalten** nötig; die Währung muss nicht geändert werden.
 
-Die Prozentfelder und die Summen laden nur für Mitglieder, die Deals lesen dürfen, und die Summen zählen nur die Deals, die dieses Mitglied lesen darf; ohne Leserecht auf Deals zeigt der Abschnitt stattdessen einen Fehler. Wahrscheinlichkeiten lassen sich auch in der Spalte **Wahrscheinlichkeit** bearbeiten, wenn Sie das Phasenfeld selbst bearbeiten: Das Bearbeiten des Felds erfordert **Verwalten** **Ja** auf **Deals**, und die Spalte **Wahrscheinlichkeit** bleibt ohne **Verwalten** **Ja** auf **Unternehmen** (oder die Rolle **Admin**) schreibgeschützt. Das Konzept erklärt [gewichtete Pipeline](/docs/concepts#how-does-a-weighted-pipeline-work).
-
-**Link:** `/company/settings`. **Mate:** `navigate` und `highlight_element` mit `nav-company-settings`, danach `highlight_element` mit `company-settings-deal-stage-field` für **Deal-Phasenfeld** und `company-settings-stage-weights` für die Liste der Wahrscheinlichkeiten, `company-settings-total-pipeline` für **Gesamtpipeline** und `company-settings-weighted-pipeline` für **Gewichtete Pipeline** (jeweils sichtbar, sobald ein Phasenfeld gewählt ist, für Mitglieder mit Leserecht auf Deals); einzelne Prozentfelder und die Summe **Nicht gewichtet** sind keine Highlight-Ziele, deshalb nennt Mate sie beim Namen.
-
-### Wie benenne ich Datensatztypen wie Kontakte oder Deals im Datenmodell um, etwa Deals in Chancen (Opportunities)? [#how-do-i-rename-record-types-in-the-data-model]
-
-Zum Umbenennen wählen Sie für jeden der fünf Datensatztypen eine vorgegebene Bezeichnung, etwa Chancen statt Deals; freier Text ist nicht möglich.
-
-| Datensatztyp | Auswahlfeld | Verfügbare Bezeichnungen |
-|---|---|---|
-| Kontakte | `#terminology-contact` | Kontakte, Personen, Kunden, Leads |
-| Organisationen | `#terminology-organization` | Organisationen, Unternehmen, Accounts |
-| Deals | `#terminology-deal` | Deals, Chancen, Projekte, Aufträge |
-| Services | `#terminology-service` | Services, Produkte, Leistungen, Pakete |
-| Aufgaben | `#terminology-task` | Aufgaben, To-dos, Action Items, Follow-ups |
-
-Die Wahl gilt für den ganzen Workspace und erscheint in der Anzeigesprache jedes Mitglieds: in der Sidebar, in Listen, Formularen und Feldbezeichnungen sowie in dem, was der Assistent über `get_workspace_context` liest. Routen, Entitätsnamen in API und MCP, bestehende Datensätze und ihre Verknüpfungen bleiben gleich, und der Rollen-Editor behält die Standardnamen. Unter der Auswahl fasst **So sind Datensätze verknüpft** die Beziehungen in den gewählten Bezeichnungen zusammen.
-
-`update_workspace_settings` mit `target: "company"` ändert **Währung** und die Bezeichnungen im Datenmodell; das Tool braucht **Verwalten** **Ja** auf **Unternehmen** oder die Rolle **Admin** und läuft im gehosteten Assistenten ohne Freigabeabfrage. Kein Tool wählt das Phasenfeld. `manage_custom_columns` kann die Wahrscheinlichkeiten als `weight` jeder Option des Phasenfelds setzen; das Ändern eines Gewichts erfordert **Verwalten** **Ja** auf **Deals** und auf **Unternehmen** oder **Admin**, andere Änderungen am Feld nur **Deals**. Geben Sie bei jedem Update das aktuelle Gewicht jeder Option mit, weil ein Update die Optionsliste ersetzt und ein weggelassenes Gewicht als Änderung zählt. Das Löschen des Phasenfelds mit `manage_custom_columns` schaltet die Gewichtung ab und erfordert ebenfalls **Verwalten** **Ja** auf **Deals** und auf **Unternehmen** oder **Admin**.
-
-**Link:** `/company/settings`. **Mate:** `navigate` und `highlight_element` mit `nav-company-settings`, danach `highlight_element` mit `company-settings-data-model` für den Abschnitt **Datenmodell** oder mit der Auswahlfeld-Id dieser Tabelle ohne `#` für einen Datensatztyp. Die Auswahlfelder gibt es nur für Rollen mit **Verwalten** auf **Unternehmen**; alle anderen sehen die Bezeichnungen als reinen Text ohne Ziel, deshalb nennt Mate den Datensatztyp beim Namen.
+**Link:** `/company/data-model`. **Mate:** `nav-company-data-model` öffnet die Seite; `company-settings-data-model` ist der Link aus den Einstellungen.
 
 ## Seite Mitglieder [#members-tab]
 
-Die Seite **Mitglieder** listet die Personen im Workspace. Route `/company/members`, Sidebar-Id `#nav-company-members` (**Mitglieder**). Jedes Mitglied kann die Seite öffnen: Mit Leserecht **Alle** auf **Benutzer & Rollen** zeigt die Liste alle Mitglieder, mit **Zugewiesen** nur die eigene Zeile. Einladen erfordert **Verwalten** **Ja** auf **Benutzer & Rollen**; Genehmigen und Bearbeiten anderer Mitglieder erfordern zusätzlich Leserecht **Alle** auf **Benutzer & Rollen**, weil **Zugewiesen** nur die eigene Zeile zeigt. Die Rolle **Admin** darf beides. Die Spalten sind **Name**, **E-Mail**, **Rolle**, **Status**, **Aktualisiert am** und **Erstellt am**.
+Die Seite **Mitglieder** listet die Personen im Workspace. Route `/company/members`, Sidebar-Id `#nav-company-members` (**Mitglieder**). Mit Leserecht **Alle** auf **Benutzer & Rollen** zeigt die Liste alle Mitglieder, mit **Zugewiesen** nur die eigene Zeile; **Keine** blendet die Seite aus. Einladen erfordert **Verwalten** **Ja** auf **Benutzer & Rollen**; Genehmigen und Bearbeiten anderer Mitglieder erfordern zusätzlich Leserecht **Alle** auf **Benutzer & Rollen**, weil **Zugewiesen** nur die eigene Zeile zeigt. Die Rolle **Admin** darf beides. Die Spalten sind **Name**, **E-Mail**, **Rolle**, **Status**, **Aktualisiert am** und **Erstellt am**.
 
 | Aktion | Wo | Anchor-Id | Was passiert |
 |---|---|---|---|
@@ -273,7 +246,7 @@ Die Aktion `update_member` von `manage_team` ändert Rolle und Status eines Mitg
 
 ## Seite Rollen [#roles-tab]
 
-Die Seite **Rollen** listet die Rollen des Workspace. Route `/company/roles`, Sidebar-Id `#nav-company-roles` (**Rollen**). Eine Rolle ist ein Satz von Berechtigungen, den jedes Mitglied mit dieser Rolle erhält. Jedes Mitglied kann die Liste öffnen, mit den Spalten **Name**, **Typ** und **Beschreibung**; **Typ** lautet **System** für die eingebaute Rolle **Admin** und **Benutzerdefiniert** für alle anderen. Anlegen, Bearbeiten und Löschen von Rollen erfordern **Verwalten** **Ja** auf **Benutzer & Rollen** oder **Admin**.
+Die Seite **Rollen** listet die Rollen des Workspace. Route `/company/roles`, Sidebar-Id `#nav-company-roles` (**Rollen**). Eine Rolle ist ein Satz von Berechtigungen, den jedes Mitglied mit dieser Rolle erhält. Mitglieder mit Leserecht auf **Benutzer & Rollen** können die Liste öffnen, mit den Spalten **Name**, **Typ** und **Beschreibung**; **Typ** lautet **System** für die eingebaute Rolle **Admin** und **Benutzerdefiniert** für alle anderen. Anlegen, Bearbeiten und Löschen von Rollen erfordern **Verwalten** **Ja** auf **Benutzer & Rollen** oder **Admin**.
 
 | Aktion | Wo | Anchor-Id | Was passiert |
 |---|---|---|---|
@@ -288,22 +261,29 @@ Die Seite **Rollen** listet die Rollen des Workspace. Route `/company/roles`, Si
 
 ### Wie kann ich eine eigene Rolle im Rollen-Editor anlegen, etwa um ein Mitglied auf zugewiesene Datensätze zu beschränken? [#how-does-the-role-editor-work]
 
-Eine eigene Rolle beschränkt, was ihre Mitglieder sehen und ändern dürfen, zum Beispiel auf nur die ihnen zugewiesenen Datensätze. Zum Anlegen einer eigenen Rolle hat der Editor **Rolle** die Felder **Name** (Pflichtfeld, bis 255 Zeichen) und **Beschreibung** (Pflichtfeld, bis 500 Zeichen) sowie eine Zeile pro Ressource mit zwei Spalten:
+Der Editor **Rolle** enthält **Name** (Pflichtfeld, bis 255 Zeichen) und **Beschreibung** (Pflichtfeld, bis 500 Zeichen), gefolgt von Workspace-Berechtigungen und **Datensatztypen**.
 
-- **Verwalten**: **Ja** erlaubt der Rolle, die Ressource anzulegen, zu bearbeiten und zu löschen; **Nein** erlaubt nichts davon. Es gibt keinen getrennten Schalter für Anlegen, Bearbeiten oder Löschen.
-- **Lesen**: **Alle** zeigt jeden Datensatz im Workspace, **Zugewiesen** nur die Datensätze, denen das Mitglied zugewiesen ist, und **Keine** blendet die Seite und ihre Datensätze aus. Eine Zeile ohne diese Wahl zeigt einen Strich.
+Jeder Datensatztyp hat getrennte Schalter für **Erstellen**, **Bearbeiten** und **Löschen** sowie das Leserecht:
 
-| Zeile | Verwalten | Lesen | Neue Rolle | Was sie steuert |
-|---|---|---|---|---|
-| **API & Webhooks** | Ja, Nein | Alle, Keine | Nein, Keine | Lesen öffnet **Mein Profil** › **API & Konnektoren**, **Webhooks** und **Letzte Zustellungen**. Verwalten legt API-Keys an und löscht sie, legt Webhooks an, bearbeitet und löscht sie und sendet Zustellungen erneut. Das Entziehen deaktiviert keine API-Keys, die das Mitglied schon hat; setzen Sie das Mitglied auf **Inaktiv**, um sie zu stoppen. |
-| **Benutzer & Rollen** | Ja, Nein | Alle, Zugewiesen | Nein, Zugewiesen | Lesen öffnet **Mitglieder** (Zugewiesen: nur die eigene Zeile) und **Rollen**. Verwalten lädt Mitglieder ein, genehmigt und bearbeitet sie und legt Rollen an, bearbeitet und löscht sie. |
-| **Unternehmen** | Ja, Nein | Keine Wahl, immer erlaubt | Nein | Jede Rolle kann **Einstellungen** und **Abonnement** öffnen. Verwalten bearbeitet die Einstellungen, wählt einen Tarif, nutzt **Verwalten mit Lemon Squeezy** und **Aktualisieren** und stellt ein abgelaufenes Abonnement wieder her. |
-| **Audit-Log** | Keine Wahl | Alle, Keine | Keine | Alle öffnet **Audit-Logs** und zeigt den Änderungsverlauf auf Datensatzseiten und in Aktivitätsverläufen. |
-| **Aufgaben**, **Kontakte**, **Organisationen**, **Deals**, **Services** | Ja, Nein | Alle, Zugewiesen, Keine | Nein, Zugewiesen | Lesen entscheidet, ob der Sidebar-Eintrag erscheint und welche Datensätze das Mitglied sieht. Verwalten legt sie an, bearbeitet und löscht sie. |
-| **Inbox-Nachrichten** (nur Cloud) | Ja, Nein | Alle, Keine | Nein, Keine | Lesen öffnet **Posteingang** und **Mein Profil** › **Kanäle**, dazu Social Posts und Sales Navigator; Threads bleiben auf die eigenen und geteilte Konten beschränkt. Verwalten verbindet Kanäle, sendet und erstellt Entwürfe. Zusätzlich muss der Tarif Messaging enthalten. |
-| **Routinen** (nur Cloud) | Ja, Nein | Alle, Zugewiesen, Keine | Nein, Zugewiesen | Alle zeigt jede Routine, Zugewiesen nur die eigenen. Verwalten legt Routinen an und bearbeitet sie; eine Routine zu löschen oder die eines anderen zu pausieren erfordert die Rolle **Admin**. |
+- **Alle** erlaubt das Lesen aller Datensätze dieses Typs im Workspace.
+- **Zugewiesen** erlaubt das Lesen der dem Mitglied zugewiesenen Datensätze.
+- **Keine** gewährt kein Leserecht. Bearbeiten und Löschen erfordern zusätzlich Zugriff auf den jeweiligen Datensatz.
 
-Die Zeilennamen bleiben gleich, wenn das Datenmodell Datensatztypen umbenennt. Auf einer Self-Hosted-Installation sind die Zeilen **Inbox-Nachrichten** und **Routinen** ausgeblendet.
+Die Liste enthält eigene Typen und verwendet deren aktuelle Namen. Eine Umbenennung von Projekte zu Initiativen erhält die Rechte. Archivierte Typen bleiben gekennzeichnet. Neue Rollen haben zunächst keinen Datensatzzugriff. Eingebettete Einträge wie Deal-Positionen übernehmen den Zugriff ihres übergeordneten Datensatzes und haben keine eigene Zeile.
+
+Workspace-Berechtigungen behalten die bekannten Optionen **Verwalten** und **Lesen**:
+
+| Zeile | Verwalten | Lesen | Was sie steuert |
+|---|---|---|---|
+| **API & Webhooks** | Ja, Nein | Alle, Keine | Keys, Webhooks und Zustellungen. Bestehende Keys nutzen die aktuellen Datensatzrechte ihres Besitzers. |
+| **Benutzer & Rollen** | Ja, Nein | Alle, Zugewiesen, Keine | Mitglieder und Rollen. Verwalten erlaubt die Rollenverwaltung; Zugewiesen beschränkt die Mitgliederliste auf die eigene Zeile. |
+| **Unternehmen** | Ja, Nein | Keine Auswahl | Workspace-Einstellungen und Abrechnung. |
+| **Datenmodell** | Ja, Nein | Keine Auswahl | Typen, Felder, Beziehungen und Berechnungen. Dies gewährt weder Datensatzzugriff noch Rollenverwaltung. |
+| **Audit-Log** | Keine Auswahl | Alle, Keine | Audit-Seiten und erlaubter Datensatzverlauf. |
+| **Inbox-Nachrichten** (nur Cloud) | Ja, Nein | Alle, Keine | Messaging-Funktionen, abhängig von Tarif und Kontozugriff. |
+| **Routinen** (nur Cloud) | Ja, Nein | Alle, Zugewiesen, Keine | Alle Routinen oder eigene Routinen. Löschen oder Pausieren fremder Routinen erfordert Admin. |
+
+Delegierte Datenmodell-Verwalter können beim Anlegen eines Typs genehmigte Zugriffsvorlagen verwenden. Zusätzliche Rechte zu vergeben erfordert Rollenverwaltung. Auf Self-Hosted-Installationen sind Inbox-Nachrichten und Routinen ausgeblendet. Das Ändern von Rollennamen oder Datensatzrechten erhält unveränderte Systemberechtigungen.
 
 **Link:** `/company/roles`. **Mate:** `navigate` und `highlight_element` mit `nav-company-roles`, danach `highlight_element` mit `company-roles-add` für eine neue Rolle; bei geöffnetem Editor zeigen `role-modal-save` und `role-modal-reset` auf **Speichern** und **Zurücksetzen** und `role-modal-delete` auf **Löschen**, wo es angeboten wird. Die Felder und die Berechtigungszeilen sind keine Highlight-Ziele, deshalb nennt Mate sie beim Namen.
 
@@ -316,9 +296,9 @@ Jeder Workspace beginnt mit einer eingebauten Rolle, **Admin**, die die Person e
 ### Welche Regeln gelten beim Bearbeiten von Rollen, und warum kann ich meine eigene nicht bearbeiten? [#what-are-the-rules-for-editing-roles]
 
 - Ihre eigene Rolle können Sie nicht bearbeiten. Ihr Editor öffnet sich schreibgeschützt mit „Diese Rolle ist dir zugewiesen und kann nicht bearbeitet werden. Bitte einen anderen Administrator, sie zu ändern.“
-- **Löschen** erscheint nur für eine benutzerdefinierte Rolle, die kein Mitglied hat, inaktive Mitglieder eingeschlossen; weisen Sie vorher allen eine andere Rolle zu.
+- **Löschen** erscheint nur für eine benutzerdefinierte Rolle ohne Mitglieder, inaktive Mitglieder eingeschlossen. Weisen Sie vorher allen eine andere Rolle zu und entfernen Sie Verweise aus Zugriffsvorlagen.
 - Änderungen gelten für jedes Mitglied mit der Rolle beim nächsten Seitenaufruf oder API-Aufruf und werden im Audit-Log protokolliert.
-- Kein Assistenten- oder MCP-Tool legt Rollen an, bearbeitet oder löscht sie. `get_workspace_context` listet sie mit ihren Berechtigungen, und `manage_team` weist einem Mitglied eine bestehende Rolle zu.
+- `manage_roles` liest, erstellt, bearbeitet und löscht Rollen über dieselben geprüften Operationen. Lesen Sie zuerst die Rolle und die aktuelle Konfigurationsrevision; speichern Sie mit dieser Revision und einem Idempotenzschlüssel. Nur angegebene Berechtigungseigenschaften und Typrechte ändern sich; eine leere Aktionsliste entzieht das Typrecht. Löschen erfordert im Assistenten eine Bestätigung. `manage_team` weist Mitgliedern bestehende Rollen zu.
 
 **Link:** `/company/roles`. **Mate:** `navigate` und `highlight_element` mit `nav-company-roles`; Zeilen haben kein Ziel, deshalb nennt Mate sie beim Namen. Bei geöffnetem Editor zeigt `role-modal-save` auf **Speichern**, bei Ihrer eigenen Rolle deaktiviert, und `role-modal-delete` auf **Löschen**, wo es angeboten wird.
 
@@ -366,11 +346,11 @@ Zum Lesen braucht Ihre Rolle Leserecht **Alle** auf **Audit-Log** oder die Rolle
 ## Tipps für Agents [#tips-for-agents]
 
 - Jeder Abschnitt oben schließt mit seiner Route und den Ids, die Mate verwenden kann; für einen vollständigen Link setzen Sie die Route hinter den Ursprung der `url`, die `search_docs`, `get_docs_page` und `fetch` zurückgeben. **Abonnement erforderlich** und **Rechtsdokumente aktualisiert** haben kein Ziel, und Mate ist dort nicht verfügbar; geben Sie deshalb ihren Link weiter.
-- `#nav-company` klappt die Sidebar-Gruppe nur auf oder zu und öffnet selbst keine Seite. `navigate` im gehosteten Assistenten Mate öffnet jede Seite hier, die die Rolle öffnen darf, über ihre Sidebar-Id, und `nav-company` selbst öffnet **Einstellungen**; auch eine Toolbar-Id funktioniert und öffnet ihre Seite. Eine Seite, die die Rolle nicht öffnen darf, lehnt `navigate` ab, statt auf dem Dashboard zu landen. Mate kann die Sidebar-Einträge, die Toolbar-Controls, die Buttons und Tarifkarten des Abonnements, die Felder, Summen, Datenmodell-Auswahlfelder und Formular-Buttons der Einstellungen sowie die oben genannten Dialogfelder und Dialog-Buttons hervorheben. `list_ui_targets` listet die Ziele unabhängig von Rolle und Tarif, deshalb kann ein **Hinzufügen**- oder Abrechnungsziel auf dem Bildschirm fehlen.
+- `#nav-company` klappt die Sidebar-Gruppe nur auf oder zu und öffnet selbst keine Seite. `navigate` im gehosteten Assistenten Mate öffnet jede Seite hier, die die Rolle öffnen darf, über ihre Sidebar-Id, und `nav-company` selbst öffnet **Einstellungen**; auch eine Toolbar-Id funktioniert und öffnet ihre Seite. Eine Seite, die die Rolle nicht öffnen darf, lehnt `navigate` ab, statt auf dem Dashboard zu landen. Mate kann die Sidebar-Einträge, Toolbar-Controls, Buttons und Tarifkarten des Abonnements, das Währungsfeld und den Datenmodell-Link der Einstellungen, Formular-Buttons sowie die oben genannten Dialogfelder und Dialog-Buttons hervorheben. `list_ui_targets` listet die Ziele unabhängig von Rolle und Tarif, deshalb kann ein **Hinzufügen**- oder Abrechnungsziel auf dem Bildschirm fehlen.
 - Dialogziele (jede Id `invite-modal-*`, `member-modal-*`, `role-modal-*` und `webhook-modal-*` sowie `webhook-delivery-modal-resend`) gibt es nur, solange ihr Dialog geöffnet ist. `list_ui_targets` nennt die Voraussetzung: `company-members-add` für **Benutzer einladen**, `invite-modal-tab-email` für `invite-modal-emails` und `invite-modal-send`, `company-roles-add` für `role-modal-save` und `role-modal-reset` und `company-webhooks-add` für die Webhook-Felder, `webhook-modal-save` und `webhook-modal-reset`. Der Dialog **Benutzer**, **Ereignis-Details**, `role-modal-delete` und `webhook-modal-delete` brauchen eine Zeile, die die Person öffnet, und `list_ui_targets` nennt diese Zeile als Voraussetzung (`a member row`, `a delivery row`, `a role row`, `a webhook row`); Zeilen haben kein Ziel, lassen Sie die Person also zuerst die Zeile anklicken. Mate kann keine Zeile anklicken, kein Feld ausfüllen und keinen Dialog absenden.
 - Zeilen tragen nie Ids. Navigieren Sie zu einer Seite über ihre URL (zum Beispiel `/company/webhooks`) und öffnen Sie eine Zeile per Klick. Bearbeitet wird in Dialogen, nicht in einem Drawer.
-- Bevorzugen Sie [MCP](/docs/mcp)-Tools statt Klicken, wenn ein Tool existiert: `update_workspace_settings` ändert Währung und Bezeichnungen im Datenmodell, `manage_team` lädt Mitglieder ein und aktualisiert sie, `manage_webhooks` verwaltet Webhooks und Zustellungen, und `get_workspace_context` listet die Unternehmenseinstellungen sowie die Rollen mit ihren Berechtigungen.
-- Kein Tool liest oder ändert das Abonnement, das Phasenfeld oder den Einladungslink, und kein Tool ändert die Berechtigungen einer Rolle (`get_workspace_context` liest sie nur). Bei Fragen wie „Welchen Tarif haben wir?“ oder „Wie kündige ich?“ verweisen Sie auf **Mein Unternehmen** › **Abonnement**.
+- Bevorzugen Sie [MCP](/docs/mcp)-Tools statt Klicken, wenn ein Tool existiert: `update_workspace_settings` ändert die Währung, `configure_record_model` ändert CRM-Typen und Berechnungen, `manage_roles` ändert berechtigte Rollenzugriffe, `manage_team` lädt Mitglieder ein und aktualisiert sie, und `manage_webhooks` verwaltet Webhooks und Zustellungen.
+- Kein Tool liest oder ändert das Abonnement oder den Einladungslink. Bei Fragen wie „Welchen Tarif haben wir?“ oder „Wie kündige ich?“ verweisen Sie auf **Mein Unternehmen** › **Abonnement**.
 
 ## Verwandt [#related]
 

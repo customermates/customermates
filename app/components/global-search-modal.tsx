@@ -1,6 +1,7 @@
 "use client";
 
-import type { GlobalSearchResultItem } from "@/features/search/global-search.interactor";
+import { recordSearchKey, recordSearchLabel, type RecordSearchHit } from "@/features/records/record-search.schema";
+import { recordTypeIcon } from "@/components/records/record-type-icon";
 import type { LucideIcon } from "lucide-react";
 import type { ReactNode } from "react";
 
@@ -8,11 +9,8 @@ import { CornerDownLeft, Loader2, Search } from "lucide-react";
 import { observer } from "mobx-react-lite";
 import { useTranslations } from "next-intl";
 import { useEffect, useMemo, useState } from "react";
-import { EntityType } from "@/generated/prisma";
 
 import { useRootStore } from "@/core/stores/root-store.provider";
-import { useOpenEntity } from "@/components/entity-detail/hooks/use-entity-drawer-stack";
-import { useEntityTerminology } from "@/components/entity-terminology/use-entity-terminology";
 import { Avatar, AvatarFallback, AvatarImage } from "@/components/ui/avatar";
 import {
   CommandDialog,
@@ -24,16 +22,12 @@ import {
 } from "@/components/ui/command";
 import { initialsFor } from "@/core/utils/initials";
 import { runUserAction } from "@/core/errors/report-application-error";
-import { ENTITY_ICON } from "@/components/entity-detail/entity-relations";
-import { entitySearchResultLabel } from "@/components/entity-detail/entity-search-result-label";
 
-type SelectableItem = GlobalSearchResultItem & { onSelect: () => void };
+type SelectableItem = RecordSearchHit & { onSelect: () => void };
 
 export const GlobalSearchModal = observer(() => {
   const t = useTranslations();
-  const { plural, singular } = useEntityTerminology();
-  const { globalSearchModalStore } = useRootStore();
-  const openEntity = useOpenEntity();
+  const { globalSearchModalStore, recordWorkspaceStore } = useRootStore();
   const { isOpen, debouncedSearchTerm, isLoading, results, recentItems } = globalSearchModalStore;
   const [selectedValue, setSelectedValue] = useState("");
 
@@ -43,15 +37,15 @@ export const GlobalSearchModal = observer(() => {
   const hasQuery = debouncedSearchTerm.trim().length > 0;
   const showNoResults = hasQuery && !isLoading && results?.results.length === 0;
 
-  const openItem = (item: GlobalSearchResultItem) => {
+  const openItem = (item: RecordSearchHit) => {
     const focusReturnTarget = globalSearchModalStore.focusReturnTarget;
     const focusReturnFallback = globalSearchModalStore.focusReturnFallback;
     globalSearchModalStore.pushRecentItem(item);
     globalSearchModalStore.close();
-    openEntity(item.type, item.id, focusReturnTarget, focusReturnFallback);
+    recordWorkspaceStore.open(item.ref, focusReturnTarget, focusReturnFallback);
   };
 
-  const openRecentItem = (item: GlobalSearchResultItem) => {
+  const openRecentItem = (item: RecordSearchHit) => {
     runUserAction(() =>
       globalSearchModalStore.verifyRecentItem(item).then((exists) => {
         if (exists) openItem(item);
@@ -59,41 +53,30 @@ export const GlobalSearchModal = observer(() => {
     );
   };
 
-  const groupedResults = useMemo((): {
-    type: GlobalSearchResultItem["type"];
-    items: SelectableItem[];
-  }[] => {
+  const groupedResults = useMemo((): { typeId: string; label: string; items: SelectableItem[] }[] => {
     const source = hasQuery ? (results?.results ?? []) : recentItems;
-    if (source.length === 0) return [];
-
+    if (!source.length) return [];
     if (!hasQuery) {
       return [
         {
-          type: "contact",
-          items: source.map((item) => ({
-            ...item,
-            onSelect: () => openRecentItem(item),
-          })),
+          typeId: "recent",
+          label: t("GlobalSearch.groupRecent"),
+          items: source.map((item) => ({ ...item, onSelect: () => openRecentItem(item) })),
         },
       ];
     }
-
-    const buckets: Record<GlobalSearchResultItem["type"], SelectableItem[]> = {
-      contact: [],
-      organization: [],
-      deal: [],
-      service: [],
-      task: [],
-    };
-    for (const item of source) buckets[item.type].push({ ...item, onSelect: () => openItem(item) });
-    return (Object.keys(buckets) as GlobalSearchResultItem["type"][])
-      .map((type) => ({ type, items: buckets[type] }))
-      .filter((g) => g.items.length > 0);
-  }, [results, recentItems, hasQuery, globalSearchModalStore, openEntity, t]);
+    const groups = new Map<string, { typeId: string; label: string; items: SelectableItem[] }>();
+    for (const item of source) {
+      const group = groups.get(item.ref.typeId) ?? { typeId: item.ref.typeId, label: item.typePluralLabel, items: [] };
+      group.items.push({ ...item, onSelect: () => openItem(item) });
+      groups.set(item.ref.typeId, group);
+    }
+    return [...groups.values()];
+  }, [results, recentItems, hasQuery, globalSearchModalStore, recordWorkspaceStore, t]);
 
   const hasItems = groupedResults.some((group) => group.items.length > 0);
   const firstItem = groupedResults[0]?.items[0];
-  const firstValue = firstItem ? `${firstItem.type}-${firstItem.id}` : "";
+  const firstValue = firstItem ? recordSearchKey(firstItem) : "";
 
   useEffect(
     () => setSelectedValue((current) => (isOpen && current ? firstValue : "")),
@@ -141,33 +124,22 @@ export const GlobalSearchModal = observer(() => {
               <div className="flex flex-col gap-1.5">
                 <p className="text-sm font-medium text-foreground">{t("GlobalSearch.emptyTitle")}</p>
 
-                <p className="text-sm leading-6 text-muted-foreground">
-                  {t("GlobalSearch.emptyDescription", {
-                    contacts: plural(EntityType.contact),
-                    deals: plural(EntityType.deal),
-                    organizations: plural(EntityType.organization),
-                    services: plural(EntityType.service),
-                    tasks: plural(EntityType.task),
-                  })}
-                </p>
+                <p className="text-sm leading-6 text-muted-foreground">{t("GlobalSearch.emptyDescription")}</p>
               </div>
             </div>
           </CommandEmpty>
         )}
 
         {groupedResults.map((group, groupIdx) => (
-          <CommandGroup
-            key={hasQuery ? group.type : "recent"}
-            heading={!hasQuery ? t("GlobalSearch.groupRecent") : plural(group.type)}
-          >
+          <CommandGroup key={group.typeId} heading={group.label}>
             {group.items.map((item) => (
               <ResultRow
-                key={`${item.type}-${item.id}`}
-                fallbackIcon={ENTITY_ICON[item.type]}
-                label={entitySearchResultLabel(item, t)}
+                key={recordSearchKey(item)}
+                fallbackIcon={recordTypeIcon(item.icon)}
+                label={recordSearchLabel(item, t)}
                 pictureUrl={item.pictureUrl}
-                typeLabel={singular(item.type)}
-                value={`${item.type}-${item.id}`}
+                typeLabel={item.typeLabel}
+                value={recordSearchKey(item)}
                 onSelect={item.onSelect}
               />
             ))}
@@ -183,6 +155,18 @@ export const GlobalSearchModal = observer(() => {
             )}
           </CommandGroup>
         ))}
+
+        {hasQuery && results?.nextCursor && (
+          <CommandGroup>
+            <CommandItem
+              disabled={globalSearchModalStore.isLoadingMore}
+              value="global-search-more"
+              onSelect={() => runUserAction(globalSearchModalStore.loadMore)}
+            >
+              {globalSearchModalStore.isLoadingMore ? t("GlobalSearch.loading") : t("GlobalSearch.loadMore")}
+            </CommandItem>
+          </CommandGroup>
+        )}
       </CommandList>
 
       {hasItems && (

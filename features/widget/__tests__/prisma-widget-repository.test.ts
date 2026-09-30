@@ -62,6 +62,8 @@ function legacyRow(overrides: Record<string, unknown> = {}) {
     companyId: mockUser.companyId,
     name: "Legacy",
     kind: WidgetKind.chart,
+    measure: null,
+    version: 1,
     entityType: EntityType.deal,
     entityFilters: null,
     dealFilters: null,
@@ -91,13 +93,15 @@ function activityRow(overrides: Record<string, unknown> = {}) {
 }
 
 function asChart(widget: WidgetDto | null | undefined): ChartWidgetDto {
-  if (!widget || widget.kind !== WidgetKind.chart) throw new Error("expected a chart widget");
+  if (!widget || widget.kind !== WidgetKind.chart || "contractVersion" in widget)
+    throw new Error("expected a chart widget");
 
   return widget;
 }
 
 function asActivity(widget: WidgetDto | null | undefined): ActivityWidgetDto {
-  if (!widget || widget.kind !== WidgetKind.activityTimeline) throw new Error("expected an activity widget");
+  if (!widget || widget.kind !== WidgetKind.activityTimeline || "contractVersion" in widget)
+    throw new Error("expected an activity widget");
 
   return widget;
 }

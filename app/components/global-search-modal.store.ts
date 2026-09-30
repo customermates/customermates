@@ -1,196 +1,233 @@
 import type { RootStore } from "@/core/stores/root.store";
-import type { GlobalSearchResult, GlobalSearchResultItem } from "@/features/search/global-search.interactor";
+import type { RecordRef } from "@/features/records/record-model.schema";
+import type {
+  RecordSearchHit,
+  RecordSearchResult,
+  StoredSearchReference,
+} from "@/features/records/record-search.schema";
+import type { LegacySearchResultItem } from "@/features/search/legacy-search-reference";
 
 import { action, makeObservable, observable, reaction } from "mobx";
-import { z } from "zod";
-
 import { BaseModalStore } from "@/core/base/base-modal.store";
 import { Debouncer } from "@/core/utils/debounce";
 import { reportApplicationError } from "@/core/errors/report-application-error";
 import { toastZodErrorTree } from "@/core/utils/toast-zod-error-tree";
-import { checkSearchResultExistsAction, globalSearchAction } from "@/app/[locale]/(protected)/search/actions";
-import { EntityType, TaskType } from "@/generated/prisma";
+import { globalSearchAction, resolveSearchReferencesAction } from "@/app/[locale]/(protected)/search/actions";
+import { recordSearchKey, StoredSearchReferenceSchema } from "@/features/records/record-search.schema";
 
-type GlobalSearchFormData = {
-  searchTerm: string;
-};
-
-const RecentSearchItemSchema = z.object({
-  type: z.enum(EntityType),
-  id: z.uuid(),
-  name: z.string(),
-  pictureUrl: z.string().nullable(),
-  taskType: z.enum(TaskType).optional(),
-  openedAt: z.number().finite().nonnegative(),
-});
-
-type RecentSearchItem = GlobalSearchResultItem & z.infer<typeof RecentSearchItemSchema>;
-
-const RECENT_STORAGE_PREFIX = "customermates:globalSearch:recent:v2";
+const PREFIX = "customermates:globalSearch:recent:v3";
+const LEGACY_PREFIX = "customermates:globalSearch:recent:v2";
 const RECENT_MAX = 8;
 
-function recentStorageKey(rootStore: RootStore): string | null {
-  const user = rootStore.userStore.user;
-  return user ? `${RECENT_STORAGE_PREFIX}:${user.companyId}:${user.id}` : null;
+function actorScope(root: RootStore) {
+  const user = root.userStore.user;
+  return user ? `${user.companyId}:${user.id}` : null;
 }
 
-function readRecentFromStorage(storageKey: string | null): RecentSearchItem[] {
-  if (!storageKey || typeof window === "undefined") return [];
+function storedReferences(scope: string | null): StoredSearchReference[] {
+  if (!scope || typeof window === "undefined") return [];
   try {
-    const parsed = JSON.parse(window.localStorage.getItem(storageKey) ?? "[]");
+    const current = window.localStorage.getItem(`${PREFIX}:${scope}`);
+    const parsed: unknown = JSON.parse(current ?? window.localStorage.getItem(`${LEGACY_PREFIX}:${scope}`) ?? "[]");
     if (!Array.isArray(parsed)) return [];
-    return parsed.flatMap((item) => {
-      const recent = RecentSearchItemSchema.safeParse(item);
-      return recent.success ? [recent.data] : [];
+    return parsed.slice(0, RECENT_MAX).flatMap((raw: unknown) => {
+      if (!raw || typeof raw !== "object") return [];
+      const candidate = "typeId" in raw ? raw : "type" in raw && "id" in raw ? { type: raw.type, id: raw.id } : null;
+      const result = StoredSearchReferenceSchema.safeParse(candidate);
+      return result.success ? [result.data] : [];
     });
   } catch {
     return [];
   }
 }
 
-function writeRecentToStorage(storageKey: string | null, items: RecentSearchItem[]) {
-  if (!storageKey || typeof window === "undefined") return;
+function persist(scope: string | null, refs: RecordRef[]) {
+  if (!scope || typeof window === "undefined") return;
   try {
-    window.localStorage.setItem(storageKey, JSON.stringify(items));
+    window.localStorage.setItem(`${PREFIX}:${scope}`, JSON.stringify(refs));
+    window.localStorage.removeItem(`${LEGACY_PREFIX}:${scope}`);
   } catch {}
 }
 
-export class GlobalSearchModalStore extends BaseModalStore<GlobalSearchFormData> {
-  public results: GlobalSearchResult | null = null;
-  public debouncedSearchTerm = "";
-  public recentItems: RecentSearchItem[] = [];
-
-  private debouncer = new Debouncer();
-  private recentStorageKey: string | null = null;
+export class GlobalSearchModalStore extends BaseModalStore<{ searchTerm: string }> {
+  results: RecordSearchResult | null = null;
+  debouncedSearchTerm = "";
+  recentItems: RecordSearchHit[] = [];
+  isLoadingMore = false;
+  private scope: string | null;
+  private request = 0;
+  private recentRequest = 0;
+  private debouncer = new Debouncer(250);
 
   constructor(rootStore: RootStore) {
-    super(rootStore, {
-      searchTerm: "",
-    });
-
-    this.recentStorageKey = recentStorageKey(rootStore);
-    this.recentItems = readRecentFromStorage(this.recentStorageKey);
-
-    makeObservable<this, "syncRecentScope">(this, {
-      results: observable,
+    super(rootStore, { searchTerm: "" });
+    this.scope = actorScope(rootStore);
+    makeObservable(this, {
+      results: observable.ref,
       debouncedSearchTerm: observable,
-      recentItems: observable,
+      recentItems: observable.ref,
+      isLoadingMore: observable,
       setResults: action,
       setDebouncedSearchTerm: action,
-      pushRecentItem: action,
-      removeRecentItem: action,
-      clearRecentItems: action,
-      syncRecentScope: action,
+      setRecentItems: action,
+      setIsLoadingMore: action,
     });
-
-    this.setupSearchReaction();
     reaction(
-      () => recentStorageKey(rootStore),
-      () => this.syncRecentScope(),
+      () => actorScope(rootStore),
+      (scope) => {
+        this.scope = scope;
+        this.resetSearch();
+        this.recentRequest += 1;
+        this.setRecentItems([]);
+        if (this.isOpen) void this.refreshRecentItems();
+      },
+    );
+    reaction(
+      () => this.form.searchTerm,
+      (term) => {
+        this.request += 1;
+        this.setIsLoading(false);
+        this.setIsLoadingMore(false);
+        this.setResults(null);
+        this.debouncer.run(() => {
+          this.setDebouncedSearchTerm(term.trim());
+          if (this.isOpen && term.trim()) void this.search(false);
+        });
+      },
+    );
+    reaction(
+      () => this.isOpen,
+      (open) => {
+        this.resetSearch();
+        if (open) {
+          this.recentRequest += 1;
+          this.setRecentItems([]);
+          this.resetForm();
+          void this.refreshRecentItems();
+        }
+      },
     );
   }
 
+  setResults = (results: RecordSearchResult | null) => {
+    this.results = results;
+  };
   setDebouncedSearchTerm = (term: string) => {
     this.debouncedSearchTerm = term;
   };
-
-  setResults = (results: GlobalSearchResult | null) => {
-    this.results = results;
+  setRecentItems = (items: RecordSearchHit[]) => {
+    this.recentItems = items;
+  };
+  setIsLoadingMore = (value: boolean) => {
+    this.isLoadingMore = value;
   };
 
-  pushRecentItem = (item: GlobalSearchResultItem) => {
-    this.syncRecentScope();
-    const next: RecentSearchItem = { ...item, openedAt: Date.now() };
-    const filtered = this.recentItems.filter((it) => !(it.type === item.type && it.id === item.id));
-    this.recentItems = [next, ...filtered].slice(0, RECENT_MAX);
-    writeRecentToStorage(this.recentStorageKey, this.recentItems);
+  private resetSearch = () => {
+    this.request += 1;
+    this.debouncer.cancel();
+    this.setResults(null);
+    this.setDebouncedSearchTerm("");
+    this.setIsLoading(false);
+    this.setIsLoadingMore(false);
   };
 
-  removeRecentItem = (id: string, type: EntityType) => {
-    this.syncRecentScope();
-    this.recentItems = this.recentItems.filter((item) => item.id !== id || item.type !== type);
-    writeRecentToStorage(this.recentStorageKey, this.recentItems);
-  };
-
-  verifyRecentItem = async (item: GlobalSearchResultItem): Promise<boolean> => {
-    this.syncRecentScope();
-    const storageKey = this.recentStorageKey;
-    const exists = await checkSearchResultExistsAction({
-      type: item.type,
-      id: item.id,
-    });
-    this.syncRecentScope();
-    if (storageKey !== this.recentStorageKey) return false;
-    if (!exists) {
-      this.removeRecentItem(item.id, item.type);
-      this.toastError("GlobalSearch.staleItem");
+  private resolveRecent = async (refs: StoredSearchReference[]) => {
+    const scope = this.scope;
+    const request = ++this.recentRequest;
+    try {
+      const result = await resolveSearchReferencesAction({ refs });
+      if (scope !== this.scope || request !== this.recentRequest) return;
+      if (!result.ok) {
+        this.setRecentItems([]);
+        return;
+      }
+      const items = result.data.results.slice(0, RECENT_MAX);
+      this.setRecentItems(items);
+      persist(
+        scope,
+        items.map((item) => item.ref),
+      );
+    } catch (error) {
+      if (scope === this.scope && request === this.recentRequest) this.setRecentItems([]);
+      reportApplicationError(error);
     }
-    return exists;
+  };
+
+  refreshRecentItems = () => this.resolveRecent(storedReferences(this.scope));
+
+  pushRecentItem = (item: RecordSearchHit | LegacySearchResultItem) => {
+    const ref = "ref" in item ? item.ref : { type: item.type, id: item.id };
+    this.pushRecentReference(ref);
+  };
+
+  pushRecentReference = (ref: StoredSearchReference) => {
+    const references = storedReferences(this.scope);
+    const key = JSON.stringify(ref);
+    void this.resolveRecent(
+      [ref, ...references.filter((existing) => JSON.stringify(existing) !== key)].slice(0, RECENT_MAX),
+    );
   };
 
   clearRecentItems = () => {
-    this.syncRecentScope();
-    this.recentItems = [];
-    writeRecentToStorage(this.recentStorageKey, this.recentItems);
+    this.recentRequest += 1;
+    this.setRecentItems([]);
+    persist(this.scope, []);
   };
 
-  private syncRecentScope = () => {
-    const storageKey = recentStorageKey(this.rootStore);
-    if (storageKey === this.recentStorageKey) return;
-    this.recentStorageKey = storageKey;
-    this.recentItems = readRecentFromStorage(storageKey);
+  verifyRecentItem = async (item: RecordSearchHit) => {
+    const scope = this.scope;
+    const result = await resolveSearchReferencesAction({ refs: [item.ref] });
+    if (scope !== this.scope) return false;
+    if (!result.ok || !result.data.results.length) {
+      this.setRecentItems(this.recentItems.filter((recent) => recordSearchKey(recent) !== recordSearchKey(item)));
+      persist(
+        scope,
+        this.recentItems.map((recent) => recent.ref),
+      );
+      this.toastError("GlobalSearch.staleItem");
+      return false;
+    }
+    return true;
   };
 
-  private setupSearchReaction = () => {
-    reaction(
-      () => this.form.searchTerm,
-      (searchTerm) => {
-        this.debouncer.run(() => this.setDebouncedSearchTerm(searchTerm));
-      },
-    );
+  loadMore = () => {
+    if (!this.isLoading && !this.isLoadingMore && this.results?.nextCursor) return this.search(true);
+    return Promise.resolve();
+  };
 
-    reaction(
-      () => this.debouncedSearchTerm,
-      (debouncedSearchTerm) => {
-        if (!debouncedSearchTerm.trim()) {
-          this.setResults(null);
-          return;
-        }
-
-        this.setIsLoading(true);
-
-        void globalSearchAction({ searchTerm: debouncedSearchTerm })
-          .then((result) => {
-            if (result.ok) {
-              this.setResults(result.data);
-              return;
-            }
-
-            this.setResults(null);
-            if (!toastZodErrorTree(result.error)) this.toastError("Common.notifications.unexpectedError");
-          })
-          .catch((error: unknown) => {
-            this.setResults(null);
-            reportApplicationError(error);
-          })
-          .finally(() => this.setIsLoading(false));
-      },
-    );
-
-    reaction(
-      () => this.isOpen,
-      (isOpen) => {
-        if (isOpen) {
-          this.setIsLoading(false);
-          this.setResults(null);
-          this.setDebouncedSearchTerm("");
-          this.resetForm();
-        } else {
-          this.debouncer.cancel();
-          this.setResults(null);
-          this.setDebouncedSearchTerm("");
-        }
-      },
-    );
+  private search = async (append: boolean) => {
+    const term = this.debouncedSearchTerm;
+    const scope = this.scope;
+    const request = ++this.request;
+    const previous = append ? this.results : null;
+    if (append) this.setIsLoadingMore(true);
+    else this.setIsLoading(true);
+    const current = () =>
+      request === this.request && scope === this.scope && this.isOpen && this.form.searchTerm.trim() === term;
+    try {
+      const result = await globalSearchAction({ searchTerm: term, limit: 40, cursor: previous?.nextCursor ?? null });
+      if (!current()) return;
+      if (!result.ok) {
+        if (!append) this.setResults(null);
+        if (!toastZodErrorTree(result.error)) this.toastError("Common.notifications.unexpectedError");
+        return;
+      }
+      const seen = new Set((previous?.results ?? []).map(recordSearchKey));
+      this.setResults({
+        ...result.data,
+        results: [
+          ...(previous?.results ?? []),
+          ...result.data.results.filter((item) => !seen.has(recordSearchKey(item))),
+        ],
+      });
+    } catch (error) {
+      if (current() && !append) this.setResults(null);
+      reportApplicationError(error);
+    } finally {
+      if (current()) {
+        this.setIsLoading(false);
+        this.setIsLoadingMore(false);
+      }
+    }
   };
 }

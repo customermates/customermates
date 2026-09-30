@@ -7,17 +7,16 @@ import { flexRender } from "@tanstack/react-table";
 
 import { cn } from "@/core/utils/cn";
 
-const IDENTITY_COLUMN_ID = "name";
-
 type Props<E extends HasId> = {
   row: Row<E>;
   className?: string;
+  primaryColumnId?: string;
 };
 
-export function DataCardBody<E extends HasId>({ row, className }: Props<E>) {
+export function DataCardBody<E extends HasId>({ row, className, primaryColumnId = "name" }: Props<E>) {
   const cells = row.getVisibleCells();
-  const nameCell = cells.find((c) => c.column.id === IDENTITY_COLUMN_ID);
-  const labelValueCells = cells.filter((c) => c.column.id !== IDENTITY_COLUMN_ID);
+  const nameCell = cells.find((c) => c.column.id === primaryColumnId);
+  const labelValueCells = cells.filter((c) => c.column.id !== primaryColumnId);
 
   return (
     <div className={cn("space-y-2", className)}>

@@ -1,3 +1,4 @@
+import { presetId } from "@/features/records/crm-preset";
 import type { Filter, FilterableField, GetQueryParams } from "@/core/base/base-get.schema";
 import type { MessagingMessage } from "../messaging.schema";
 import type { CalendarAttendee } from "@/ee/calendar/calendar.schema";
@@ -171,9 +172,9 @@ function auditRecordRefs(event: string, entityId: string | null): UnresolvedReco
   return [{ entityType, id: entityId }];
 }
 
-function messageRecordRefs(message: Pick<MessagingMessage, "sender">): UnresolvedRecordRef[] {
-  const contactId = message.sender?.contact?.id;
-  if (!contactId) return [];
+function messageRecordRefs(message: Pick<MessagingMessage, "sender">, companyId: string): UnresolvedRecordRef[] {
+  const contactId = message.sender?.record?.ref.recordId;
+  if (!contactId || message.sender.record?.ref.typeId !== presetId(companyId, "contact")) return [];
 
   return [{ entityType: EntityType.contact, id: contactId }];
 }
@@ -381,7 +382,7 @@ export class PrismaActivitiesRepo
         thread,
         senderIsMine: message.direction === "outbound" && myAccountIds.has(message.connectedAccountId),
         records: EMPTY_RECORD_CONTEXT,
-        unresolvedRefs: messageRecordRefs(message),
+        unresolvedRefs: messageRecordRefs(message, this.companyId),
         unresolvedIdentifiers: identifiersByMessageId.get(message.id) ?? [],
       })),
       ...activities.map((activity) => ({

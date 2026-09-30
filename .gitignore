@@ -8,6 +8,8 @@
 # testing
 /coverage
 /.review/
+/.local-verification/
+/.runs/
 
 # next.js
 /.next/

@@ -113,11 +113,15 @@ describe("agent saved-view context", () => {
     expect(context.reloadHref(href, [{ surfaceKey: SURFACE.contacts, action: "update", viewKey: VIEW_ID }])).toBe(
       `/en/contacts?contact=selected&view=${VIEW_ID}#details`,
     );
+    expect(context.reloadHref(href, [{ surfaceKey: SURFACE.contacts, action: "reset", viewKey: VIEW_ID }])).toBe(
+      `/en/contacts?contact=selected&view=${VIEW_ID}#details`,
+    );
     expect(context.reloadHref(href, [{ surfaceKey: SURFACE.contacts, action: "delete", viewKey: VIEW_ID }])).toBe(
       "/en/contacts?contact=selected#details",
     );
     expect(context.reloadHref(href, [{ surfaceKey: SURFACE.contacts, action: "delete", viewKey: "other" }])).toBeNull();
     expect(context.reloadHref(href, [{ surfaceKey: SURFACE.contacts, action: "update", viewKey: "other" }])).toBeNull();
+    expect(context.reloadHref(href, [{ surfaceKey: SURFACE.contacts, action: "reset", viewKey: "other" }])).toBeNull();
     expect(context.reloadHref(href, [{ surfaceKey: SURFACE.deals, action: "create" }])).toBeNull();
     expect(
       context.reloadHref("http://localhost:4016/en/deals?searchTerm=keep", [

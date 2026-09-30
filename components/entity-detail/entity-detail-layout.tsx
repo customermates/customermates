@@ -19,16 +19,15 @@ import { useSetTopBarActions } from "@/app/components/topbar-actions-context";
 import { useAgentRecordContext } from "@/app/components/agent-chat/use-agent-record-context";
 import { AppForm } from "@/components/forms/form-context";
 import { Button } from "@/components/ui/button";
-import { Tabs, TabsList, TabsTrigger } from "@/components/ui/tabs";
 import { useDeleteConfirmation } from "@/components/modal/hooks/use-delete-confirmation";
 import { useRouter } from "@/i18n/navigation";
 import { useRootStore } from "@/core/stores/root-store.provider";
-import { cn } from "@/core/utils/cn";
 import { PageState } from "@/components/page-state/page-state";
 import { useEntityDrawerStack } from "@/components/entity-detail/hooks/use-entity-drawer-stack";
 import { reportApplicationError, runUserAction } from "@/core/errors/report-application-error";
 
 import { EntityNotesPanel } from "./entity-notes-panel";
+import { EntityDetailPanels } from "./entity-detail-panels";
 import { EntityDetailPageSkeleton } from "./entity-detail-page-skeleton";
 import { resolveEntityDetailPageState } from "./entity-detail-page-state";
 import { ENTITY_URL_SEGMENT } from "./entity-relations";
@@ -58,8 +57,6 @@ type Props<Form extends FormEntityDto, Dto extends EntityDto> = {
   serverSnapshotApplied?: boolean;
 };
 
-type DetailPanel = "details" | "notes" | "activities";
-
 export const EntityDetailLayout = observer(function EntityDetailLayout<
   Form extends FormEntityDto,
   Dto extends EntityDto,
@@ -83,9 +80,6 @@ export const EntityDetailLayout = observer(function EntityDetailLayout<
   const { showDeleteConfirmation } = useDeleteConfirmation();
   const { enabled: canPersonalize, starredFieldIds } = useEntityDetailPersonalization();
   const [hasMounted, setHasMounted] = useState(false);
-  const [activePanel, setActivePanel] = useState<DetailPanel>("details");
-  const [isSplit, setIsSplit] = useState(false);
-  const panelSwitcherRef = useRef<HTMLDivElement | null>(null);
   const formId = useId();
   const drawerWasOpenRef = useRef(entityDrawerStack.length > 0);
   useEffect(() => {
@@ -109,11 +103,6 @@ export const EntityDetailLayout = observer(function EntityDetailLayout<
   });
   const hasId = form && typeof form === "object" && "id" in form && Boolean(form.id);
   const canSeeHistory = userStore.can(Resource.auditLog, Action.readAll);
-  const hasPanelTabs = showNotesPanel || canSeeHistory;
-  const selectedPanel =
-    (activePanel === "notes" && !showNotesPanel) || (activePanel === "activities" && !canSeeHistory)
-      ? "details"
-      : activePanel;
   const showDeleteAction = canManage && hasId && canDelete && !isEditingCustomField;
   const saveDisabled = isLoading || !store.hasUnsavedChanges || store.isDisabled;
   const hasCurrentEntity = serverSnapshotApplied && store.fetchedEntity?.id === entityId;
@@ -311,30 +300,6 @@ export const EntityDetailLayout = observer(function EntityDetailLayout<
 
   useSetTopBarActions(topBarActions);
 
-  useEffect(() => {
-    const switcher = panelSwitcherRef.current;
-    if (!switcher) return;
-
-    const update = () => setIsSplit(getComputedStyle(switcher).display === "none");
-    update();
-
-    if (typeof ResizeObserver === "undefined") {
-      window.addEventListener("resize", update);
-      return () => window.removeEventListener("resize", update);
-    }
-
-    const observer = new ResizeObserver(update);
-    observer.observe(switcher);
-    return () => observer.disconnect();
-  }, [pageState, hasPanelTabs]);
-
-  function panelSemantics(panel: DetailPanel, label: string) {
-    if (!hasPanelTabs) return {};
-    return isSplit
-      ? { role: "region", "aria-label": label }
-      : { role: "tabpanel", "aria-labelledby": `${formId}-${panel}-tab` };
-  }
-
   switch (pageState) {
     case "loading":
       return (
@@ -382,112 +347,12 @@ export const EntityDetailLayout = observer(function EntityDetailLayout<
 
   return (
     <AppForm id={formId} store={store as unknown as BaseFormStore}>
-      <div className="@container/detail flex min-h-0 w-full flex-1 flex-col">
-        <div className="animate-page-result-in flex min-h-0 w-full flex-1 flex-col overflow-y-auto motion-reduce:animate-none @6xl/detail:overflow-y-visible">
-          {hasSummary ? summary : null}
-
-          {hasPanelTabs && (
-            <div
-              ref={panelSwitcherRef}
-              data-detail-panel-switcher
-              className="sticky top-0 z-10 border-b border-border bg-background @6xl/detail:hidden"
-            >
-              <Tabs value={selectedPanel} onValueChange={(value) => setActivePanel(value as DetailPanel)}>
-                <TabsList
-                  aria-label={t("EntityDetail.overview")}
-                  className="h-13 w-full justify-stretch gap-0 rounded-none p-0 group-data-[orientation=horizontal]/tabs:h-13"
-                  variant="line"
-                >
-                  <TabsTrigger
-                    aria-controls={`${formId}-details-panel`}
-                    className="h-full rounded-none px-4 after:z-10 group-data-[orientation=horizontal]/tabs:after:-bottom-px"
-                    id={`${formId}-details-tab`}
-                    value="details"
-                  >
-                    {t("EntityDetail.overview")}
-                  </TabsTrigger>
-
-                  {showNotesPanel && (
-                    <TabsTrigger
-                      aria-controls={`${formId}-notes-panel`}
-                      className="h-full rounded-none px-4 after:z-10 group-data-[orientation=horizontal]/tabs:after:-bottom-px"
-                      id={`${formId}-notes-tab`}
-                      value="notes"
-                    >
-                      {t("EntityDetail.sections.notes")}
-                    </TabsTrigger>
-                  )}
-
-                  {canSeeHistory && (
-                    <TabsTrigger
-                      aria-controls={hasMounted ? `${formId}-activities-panel` : undefined}
-                      className="h-full rounded-none px-4 after:z-10 group-data-[orientation=horizontal]/tabs:after:-bottom-px"
-                      id={`${formId}-activities-tab`}
-                      value="activities"
-                    >
-                      {t("EntityTimeline.types.activities")}
-                    </TabsTrigger>
-                  )}
-                </TabsList>
-              </Tabs>
-            </div>
-          )}
-
-          <div
-            data-detail-grid
-            className={cn(
-              "grid grid-cols-1 gap-px bg-border contain-[layout]",
-              "@6xl/detail:flex-1 @6xl/detail:min-h-0",
-              showNotesPanel && canSeeHistory && "@6xl/detail:grid-cols-[minmax(0,3fr)_minmax(0,2fr)_360px]",
-              showNotesPanel && !canSeeHistory && "@6xl/detail:grid-cols-[minmax(0,2fr)_minmax(0,1fr)]",
-              !showNotesPanel && canSeeHistory && "@6xl/detail:grid-cols-[minmax(0,1fr)_360px]",
-            )}
-          >
-            <div
-              className={cn(
-                "flex flex-col bg-background",
-                selectedPanel !== "details" && "hidden",
-                "@6xl/detail:flex @6xl/detail:min-h-0 @6xl/detail:overflow-x-hidden @6xl/detail:overflow-y-auto",
-              )}
-              data-detail-panel="details"
-              id={`${formId}-details-panel`}
-              {...panelSemantics("details", t("EntityDetail.overview"))}
-            >
-              <div className="p-4 @6xl/detail:flex-1 @6xl/detail:min-h-0">{masterData}</div>
-            </div>
-
-            {showNotesPanel && (
-              <div
-                className={cn(
-                  "min-h-[28rem] flex-col bg-background",
-                  selectedPanel === "notes" ? "flex" : "hidden",
-                  "@6xl/detail:flex @6xl/detail:min-h-0 @6xl/detail:overflow-hidden",
-                )}
-                data-detail-panel="notes"
-                id={`${formId}-notes-panel`}
-                {...panelSemantics("notes", t("EntityDetail.sections.notes"))}
-              >
-                <EntityNotesPanel key={entityId} store={store} />
-              </div>
-            )}
-
-            {hasMounted && canSeeHistory && (
-              <div
-                className={cn(
-                  "min-h-[28rem] flex-col bg-background",
-                  selectedPanel === "activities" ? "flex" : "hidden",
-                  "@6xl/detail:flex @6xl/detail:min-h-0 @6xl/detail:overflow-hidden",
-                )}
-                data-detail-panel="activities"
-                id={`${formId}-activities-panel`}
-                {...panelSemantics("activities", t("Common.actions.labelHistory"))}
-              >
-                {historyPanel}
-              </div>
-            )}
-          </div>
-        </div>
-      </div>
+      <EntityDetailPanels
+        activities={canSeeHistory ? hasMounted ? historyPanel : <></> : undefined}
+        details={<div className="p-4">{masterData}</div>}
+        notes={showNotesPanel ? <EntityNotesPanel key={entityId} store={store} /> : undefined}
+        summary={hasSummary ? summary : undefined}
+      />
     </AppForm>
   );
 });

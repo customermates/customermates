@@ -2,7 +2,7 @@
 
 import type { ReactNode } from "react";
 import type { Filter } from "@/core/base/base-get.schema";
-import type { CustomColumnDto } from "@/features/custom-column/custom-column.schema";
+import type { ColumnPresentation } from "@/features/custom-column/custom-column.schema";
 
 import { observer } from "mobx-react-lite";
 import { useTranslations } from "next-intl";
@@ -37,7 +37,7 @@ export const FilterChipValue = observer(
     operator,
   }: {
     filter: Filter;
-    customColumns: CustomColumnDto[] | undefined;
+    customColumns: ColumnPresentation[] | undefined;
     label?: ReactNode;
     operator?: ReactNode;
   }) => {

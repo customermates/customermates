@@ -3,13 +3,14 @@ import { SurfaceKeySchema, ViewKeySchema } from "@/core/data-view/data-view-iden
 import { dataViewNavigationHref } from "@/core/data-view/data-view-links";
 
 import { approvalFreeActionsForTool, readOnlyActionsForTool } from "./gated-tools";
+import { recordToolRisk } from "./record-tool-risk";
 import type { AgentToolIdentity } from "./tool-identity";
 import { internalToolIdentity, isInternalToolIdentity } from "./tool-identity";
 
 import { sanitizeAgentPlainText } from "./agent-output-safety";
 import { LOAD_TOOLSET_TOOL_NAME } from "./agent-toolset-routing";
 
-const ViewMutationActionSchema = z.enum(["create", "update", "select", "delete"]);
+const ViewMutationActionSchema = z.enum(["create", "update", "select", "delete", "reset"]);
 const DataViewNavigationHrefSchema = z
   .string()
   .refine((value) => dataViewNavigationHref(value) !== null)
@@ -50,6 +51,7 @@ export const AGENT_ACTIVITY_KINDS = [
   "messages.discard",
   "messages.triage",
   "team.manage",
+  "roles.manage",
   "webhooks.manage",
   "accounts.connect",
   "workspace.configure",
@@ -93,6 +95,8 @@ export const AGENT_CONSEQUENCE_ACTIONS = [
   "support.request",
   "team.invite",
   "team.update",
+  "role.save",
+  "role.delete",
   "webhook.create",
   "webhook.update",
   "webhook.delete",
@@ -252,6 +256,27 @@ export function describeAgentTool(identity: AgentToolIdentity, input: unknown): 
   const toolName = identity.name;
   const resource = TOOL_RESOURCE[toolName] ?? entityResource(input);
   const details = inputRecord(input);
+  const recordRisk = recordToolRisk(toolName, input);
+  if (recordRisk) {
+    if (toolName === "configure_record_model")
+      return descriptor(recordRisk === "read" ? "customFields.read" : "workspace.configure", undefined, recordRisk);
+    if (toolName === "mutate_crm_record") {
+      const mutation = inputRecord(details.mutation);
+      const action = actionValue(mutation);
+      const kind =
+        action === "create"
+          ? "records.create"
+          : action === "update"
+            ? "records.update"
+            : action === "delete"
+              ? "records.delete"
+              : action === "link" || action === "unlink"
+                ? "records.link"
+                : "generic";
+      return descriptor(kind, undefined, recordRisk);
+    }
+    return descriptor(recordRisk === "read" ? "records.read" : "workspace.configure", undefined, recordRisk);
+  }
 
   if (toolName === "list_ui_targets") return descriptor("interface.inspect", undefined, "read");
   if (toolName === LOAD_TOOLSET_TOOL_NAME) return descriptor("tools.load", undefined, "read");
@@ -280,6 +305,14 @@ export function describeAgentTool(identity: AgentToolIdentity, input: unknown): 
               ? "customFields.create"
               : "customFields.configure";
     return descriptor(kind, resource, action === "list" ? "read" : multiplexedRisk(toolName, details));
+  }
+  if (toolName === "manage_record_detail_layout") {
+    const read = isMultiplexedRead(toolName, details);
+    return descriptor(
+      read ? "views.read" : "views.configure",
+      undefined,
+      read ? "read" : multiplexedRisk(toolName, details),
+    );
   }
   if (toolName === "manage_data_views") {
     const surface = SurfaceKeySchema.safeParse(details.surfaceKey);
@@ -350,6 +383,13 @@ export function describeAgentTool(identity: AgentToolIdentity, input: unknown): 
           ? "workspace.terminology"
           : "workspace.settings";
     return descriptor(kind, undefined, "write", updatesTerminology ? ["terminology"] : []);
+  }
+  if (toolName === "manage_roles") {
+    const action = actionValue(details);
+    return descriptor("roles.manage", undefined, multiplexedRisk(toolName, details), [], {
+      action: action === "save" ? "role.save" : "role.delete",
+      target: safeText(inputRecord(details.role).name, 240),
+    });
   }
   if (toolName === "manage_team") {
     const action = actionValue(details);
@@ -516,7 +556,9 @@ export const AGENT_APPROVAL_COPY_KINDS: readonly AgentActivityKind[] = [
   "messages.send",
   "messages.triage",
   "team.manage",
+  "roles.manage",
   "webhooks.manage",
+  "workspace.configure",
   "routines.configure",
   "routines.delete",
   "views.configure",
@@ -592,6 +634,10 @@ function agentConsequenceDetail(
             target: consequence.target,
           })
         : t("AgentChat.activity.consequence.teamInvite");
+    case "role.save":
+      return compact([t("AgentChat.activity.consequence.roleSave"), consequence.target]);
+    case "role.delete":
+      return t("AgentChat.activity.consequence.roleDelete");
     case "team.update":
       return compact([t("AgentChat.activity.consequence.teamUpdate"), consequence.state]);
     case "webhook.create":

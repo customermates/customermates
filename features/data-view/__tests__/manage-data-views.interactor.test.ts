@@ -191,7 +191,17 @@ describe("agent saved-view management", () => {
       supportsSearch: true,
       viewModes: ["table", "card"],
       totals: { filters: 1, sorting: 1, grouping: 3 },
-      writableStateFields: ["filters", "searchTerm", "sortDescriptor", "pageSize", "viewMode", "grouping"],
+      writableStateFields: [
+        "filters",
+        "searchTerm",
+        "sortDescriptor",
+        "pageSize",
+        "viewMode",
+        "grouping",
+        "columnOrder",
+        "columnWidths",
+        "hiddenColumns",
+      ],
     });
     const filters = await subject.run({ action: "config", surfaceKey: SURFACE.contacts, section: "filters" });
     expect(filters.ok && filters.data).toMatchObject({
@@ -484,7 +494,7 @@ describe("agent saved-view management", () => {
       },
     ])
       expect((await subject.run(input as never)).ok).toBe(false);
-    expect(subject.views.loadSurfaceState).not.toHaveBeenCalled();
+    expect(subject.upsert.invoke).not.toHaveBeenCalled();
   });
 
   it("patches only supplied fields without sending a stale view name", async () => {

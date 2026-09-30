@@ -1,10 +1,14 @@
-import type { AiManageableDataViewSurfaceKey } from "@/core/data-view/ai-manageable-surfaces";
+import {
+  isRecordDataViewSurface,
+  type AiManageableDataViewSurfaceKey,
+  type BuiltinAiManageableDataViewSurfaceKey,
+} from "@/core/data-view/ai-manageable-surfaces";
 import type { EntityType } from "@/generated/prisma";
 
 import { SURFACE } from "@/core/data-view/data-view-keys";
 
 const LOCATIONS: Record<
-  Exclude<AiManageableDataViewSurfaceKey, typeof SURFACE.entityTimeline>,
+  Exclude<BuiltinAiManageableDataViewSurfaceKey, typeof SURFACE.entityTimeline>,
   { entity: EntityType } | { labelKey: string }
 > = {
   [SURFACE.contacts]: { entity: "contact" },
@@ -28,6 +32,12 @@ export function viewAiTypeLabel(
   form: "embedded" | "standalone",
 ): string {
   const t = translate;
+  if (isRecordDataViewSurface(surfaceKey)) {
+    return t(
+      form === "standalone" ? "AgentChat.context.surfaceViewTypeStandalone" : "AgentChat.context.surfaceViewType",
+      { location: t("RecordModel.records") },
+    );
+  }
   if (surfaceKey === SURFACE.entityTimeline) {
     if (form === "standalone") return t("AgentChat.context.timelineViewTypeStandalone");
     return t("AgentChat.context.timelineViewType");

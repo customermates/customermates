@@ -128,7 +128,7 @@ export const ThreadPanel = observer(({ threadDetail, locked = false }: Props) =>
       const replyRecipients = deriveReplyRecipients(thread.participants, messages);
       const avatarByIdentifier = new Map<string, string>();
       for (const participant of thread.participants) {
-        const url = participant.contact?.avatarUrl ?? participant.pictureUrl;
+        const url = participant.record?.avatarUrl ?? participant.pictureUrl;
         if (participant.identifier && url) avatarByIdentifier.set(participant.identifier, url);
       }
 

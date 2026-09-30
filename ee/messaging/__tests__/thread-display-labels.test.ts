@@ -47,7 +47,7 @@ describe("participantLabel", () => {
   it("prefers the crm contact name", () => {
     const p = attendee({
       identifier: "anna-keller-ops",
-      contact: { id: "c1", firstName: "Anna", lastName: "Keller", avatarUrl: null },
+      record: { ref: { typeId: "people", recordId: "c1" }, title: "Anna Keller", avatarUrl: null, canEdit: false },
     });
 
     expect(participantLabel(p, "linkedin", "unknown")).toBe("Anna Keller");

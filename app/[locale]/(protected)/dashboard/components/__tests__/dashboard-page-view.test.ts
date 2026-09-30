@@ -5,7 +5,7 @@ import type { ReactElement, ReactNode } from "react";
 import { createElement } from "react";
 import { renderToStaticMarkup } from "react-dom/server";
 import { beforeEach, describe, expect, it, vi } from "vitest";
-import { EntityType } from "@/generated/prisma";
+import { EntityType, WidgetKind } from "@/generated/prisma";
 
 const harness = vi.hoisted(() => ({
   add: vi.fn(),
@@ -92,6 +92,7 @@ function renderDashboard(
   const widgetModalStore = {
     add: harness.add,
     availableEntityTypes: options.canAdd === false ? [] : [EntityType.contact],
+    availableKinds: options.canAdd === false ? [] : [WidgetKind.chart],
     loadById: vi.fn(),
     setExpandedFilterField: vi.fn(),
     setExpandedSection: vi.fn(),

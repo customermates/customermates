@@ -78,7 +78,11 @@ export const RoutineRunDetail = observer(({ run, scrollContainerRef, store }: Pr
 
       {stopReason && <Alert color="warning" description={stopReason} />}
 
-      <RoutineRunTriggerCard customColumns={store.customColumnsFor(run.triggerContext?.entityType ?? null)} run={run} />
+      <RoutineRunTriggerCard
+        customColumns={store.customColumnsFor(run.triggerContext?.entityType ?? null)}
+        recordFields={store.recordModel?.fields}
+        run={run}
+      />
 
       {transcriptLoading ? (
         <div className="flex min-h-48 flex-1 items-center justify-center" role="status">

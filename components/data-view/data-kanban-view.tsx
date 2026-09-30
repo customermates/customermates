@@ -4,7 +4,7 @@ import type { BaseDataViewStore, HasId } from "@/core/base/base-data-view.store"
 import type { ColumnDef } from "@tanstack/react-table";
 import type { ReactNode } from "react";
 
-import { useId } from "react";
+import { useId, useRef } from "react";
 
 import { observer } from "mobx-react-lite";
 import { getCoreRowModel, useReactTable } from "@tanstack/react-table";
@@ -13,6 +13,7 @@ import {
   DndContext,
   type DragEndEvent,
   PointerSensor,
+  KeyboardSensor,
   useDraggable,
   useDroppable,
   useSensor,
@@ -39,7 +40,10 @@ import { useColumnLabel } from "@/components/entity-terminology/use-column-label
 import { useEntityTerminology } from "@/components/entity-terminology/use-entity-terminology";
 import { useNavigateToHref } from "@/components/entity-detail/hooks/use-entity-drawer-stack";
 import { BoardGroupingPrompt } from "./board-grouping-prompt";
+import { kanbanKeyboardCoordinates } from "./kanban-keyboard-coordinates";
 import { DataCardBody } from "./data-card-body";
+import { GroupSummaries } from "./group-summaries";
+import type { RecordGroupSummaryResult } from "@/features/records/record-grouping.schema";
 import { useGroupLabel, visibleGroups } from "./group-label";
 import {
   DATA_KANBAN_CARDS_CLASS_NAME,
@@ -106,6 +110,7 @@ function KanbanCard({
         isDragging && "z-50 cursor-grabbing shadow-lg shadow-black/20 ring-1 ring-border/60",
         className,
       )}
+      data-item-id={itemId}
       style={style}
       onClick={(e) => {
         if (!isDragging && !transform) onClick?.();
@@ -144,6 +149,7 @@ const KanbanColumn = observer(function KanbanColumn({
   label,
   count,
   valueSums,
+  summaries,
   color,
   weight,
   droppable,
@@ -156,6 +162,7 @@ const KanbanColumn = observer(function KanbanColumn({
   label: string;
   count: number;
   valueSums?: GroupValueSums;
+  summaries?: RecordGroupSummaryResult[];
   color?: ChipColor;
   weight?: number;
   droppable: boolean;
@@ -191,7 +198,7 @@ const KanbanColumn = observer(function KanbanColumn({
   );
 
   return (
-    <div ref={setNodeRef} className={DATA_KANBAN_COLUMN_CLASS_NAME}>
+    <div ref={setNodeRef} className={DATA_KANBAN_COLUMN_CLASS_NAME} data-group-key={id}>
       <div className={DATA_KANBAN_HEADER_CLASS_NAME}>
         {onHeaderClick ? (
           <button
@@ -226,6 +233,8 @@ const KanbanColumn = observer(function KanbanColumn({
             <TooltipContent>{rateLabel}</TooltipContent>
           </Tooltip>
         )}
+
+        {summaries?.length ? <GroupSummaries summaries={summaries} /> : null}
 
         {totalSum !== undefined && (
           <span className="ml-auto flex min-w-0 shrink items-baseline gap-1 text-xs text-muted-foreground tabular-nums">
@@ -283,6 +292,7 @@ export const DataKanbanView = observer(function DataKanbanView<E extends HasCust
 }: Props<E>) {
   const t = useTranslations();
   const dndContextId = useId();
+  const boardRef = useRef<HTMLDivElement>(null);
   const { customColumnModalStore } = useRootStore();
   const groupLabel = useGroupLabel(store.groupingResult);
   const supportsDragWriteBack = store.groupingResult?.supportsDragWriteBack ?? false;
@@ -292,7 +302,11 @@ export const DataKanbanView = observer(function DataKanbanView<E extends HasCust
   );
 
   const pointerSensor = useSensor(PointerSensor, { activationConstraint: { distance: 4 } });
-  const sensors = useSensors(supportsDragWriteBack ? pointerSensor : null);
+  const keyboardSensor = useSensor(KeyboardSensor, { coordinateGetter: kanbanKeyboardCoordinates });
+  const sensors = useSensors(
+    supportsDragWriteBack ? pointerSensor : null,
+    supportsDragWriteBack ? keyboardSensor : null,
+  );
 
   const visibleColumns = visibleColumnDefs(columns, store.hiddenColumns);
 
@@ -323,9 +337,17 @@ export const DataKanbanView = observer(function DataKanbanView<E extends HasCust
     const itemId = String(event.active.id);
     const targetGroup = String(event.over.id);
     const fromGroupKey = String(event.active.data.current?.groupKey ?? "");
+    const destination = groups.find((group) => group.key === targetGroup);
+    if (!destination || destination.writable === false) return;
 
     const item = itemsById.get(itemId);
-    if (!item || fromGroupKey === "" || fromGroupKey === targetGroup) return;
+    if (
+      !item ||
+      store.canMoveItemBetweenGroups?.(item) === false ||
+      fromGroupKey === "" ||
+      fromGroupKey === targetGroup
+    )
+      return;
 
     const nextValue = targetGroup === NO_VALUE_GROUP_KEY ? null : targetGroup;
     const weight = groups.find((group) => group.key === targetGroup)?.weight;
@@ -338,14 +360,43 @@ export const DataKanbanView = observer(function DataKanbanView<E extends HasCust
       value: nextValue,
       destinationValueSums: store.isGroupedByDealWeightingColumn ? projectValueSumsForGroup(item, weight) : undefined,
     });
+    if (event.activatorEvent instanceof KeyboardEvent) {
+      requestAnimationFrame(() => {
+        const focused = document.activeElement;
+        if (focused && focused !== document.body && focused.getAttribute("data-item-id") !== itemId) return;
+        const card = boardRef.current?.querySelector<HTMLElement>(`[data-item-id="${CSS.escape(itemId)}"]`);
+        (card ?? boardRef.current)?.focus({ preventScroll: true });
+      });
+    }
   }
 
   const loadMoreLabel = t("Common.actions.loadMore");
   const overflow = store.groupingResult?.overflow;
+  const destinationLabel = (id: string | number) => {
+    const group = groups.find((group) => group.key === String(id));
+    return group ? groupLabel(group) : t("Common.inputs.unavailableSelection");
+  };
 
   return (
-    <DndContext id={dndContextId} sensors={sensors} onDragEnd={(event) => runUserAction(() => handleDragEnd(event))}>
-      <div className={cn(DATA_KANBAN_ROOT_CLASS_NAME, className)} data-slot="kanban-root">
+    <DndContext
+      accessibility={{
+        screenReaderInstructions: { draggable: t("DataView.boardKeyboardInstructions") },
+        announcements: {
+          onDragStart: () => t("DataView.boardPickedUp"),
+          onDragOver: ({ over }) =>
+            over ? t("DataView.boardMoveTarget", { group: destinationLabel(over.id) }) : undefined,
+          onDragEnd: ({ over }) =>
+            over
+              ? t("DataView.boardMoveRequested", { group: destinationLabel(over.id) })
+              : t("DataView.boardMoveCancelled"),
+          onDragCancel: () => t("DataView.boardMoveCancelled"),
+        },
+      }}
+      id={dndContextId}
+      sensors={sensors}
+      onDragEnd={(event) => runUserAction(() => handleDragEnd(event))}
+    >
+      <div ref={boardRef} className={cn(DATA_KANBAN_ROOT_CLASS_NAME, className)} data-slot="kanban-root" tabIndex={-1}>
         <div className={DATA_KANBAN_TRACK_CLASS_NAME}>
           {groups.map((group) => {
             const loadMore = group.hasMore
@@ -361,11 +412,12 @@ export const DataKanbanView = observer(function DataKanbanView<E extends HasCust
                 key={group.key}
                 color={group.color}
                 count={group.count}
-                droppable={supportsDragWriteBack}
+                droppable={supportsDragWriteBack && group.writable !== false}
                 entityType={store.entityType}
                 id={group.key}
                 label={groupLabel(group)}
                 loadMore={loadMore}
+                summaries={group.summaries}
                 valueSums={group.valueSums}
                 weight={store.isGroupedByDealWeightingColumn ? group.weight : undefined}
                 onHeaderClick={editableColumn ? () => customColumnModalStore.openWithColumn(editableColumn) : undefined}
@@ -378,13 +430,15 @@ export const DataKanbanView = observer(function DataKanbanView<E extends HasCust
                   return (
                     <KanbanCard
                       key={itemId}
-                      draggable={supportsDragWriteBack}
+                      draggable={supportsDragWriteBack && store.canMoveItemBetweenGroups?.(item) !== false}
                       groupKey={group.key}
                       href={cardHref?.(item)}
                       itemId={itemId}
                       onClick={onCardClick ? () => onCardClick(item) : undefined}
                     >
-                      <CardContent className="px-3">{row ? <DataCardBody row={row} /> : null}</CardContent>
+                      <CardContent className="px-3">
+                        {row ? <DataCardBody primaryColumnId={store.primaryColumnId} row={row} /> : null}
+                      </CardContent>
                     </KanbanCard>
                   );
                 })}

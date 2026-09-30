@@ -35,11 +35,20 @@ vi.mock("@/app/[locale]/(protected)/dashboard/components/activity-widget-card", 
   ActivityWidgetCard: ({ widget }: { widget: WidgetDto }) =>
     createElement("div", { "data-activity": widget.id }, widget.name),
 }));
+vi.mock("@/app/[locale]/(protected)/dashboard/components/record-widget-card", () => ({
+  RecordWidgetCard: ({ widget }: { widget: WidgetDto }) =>
+    createElement("div", { "data-record-chart": widget.id }, widget.name),
+}));
+vi.mock("@/app/[locale]/(protected)/dashboard/components/record-activity-widget-card", () => ({
+  RecordActivityWidgetCard: ({ widget }: { widget: WidgetDto }) =>
+    createElement("div", { "data-record-activity": widget.id }, widget.name),
+}));
 vi.mock("@/app/[locale]/(protected)/dashboard/components/widget-modal", () => ({ WidgetModal: () => null }));
 vi.mock("@/core/stores/root-store.provider", () => {
   const widget = { id: "widget-1", name: "Total Deal Value" };
   const widgetModalStore = {
     add: vi.fn(),
+    availableKinds: ["chart"],
     availableEntityTypes: ["contact"],
     loadById: (id: string) => {
       harness.focusedAtOpen = document.activeElement;

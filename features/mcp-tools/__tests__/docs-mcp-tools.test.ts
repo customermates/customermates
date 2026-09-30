@@ -76,7 +76,7 @@ const SECTION_QUESTIONS: [ContentLocale, string, string, string | null][] = [
   ["de", "Webhook pausieren ohne ihn zu löschen", "webhooks#how-do-i-create-a-webhook", "/company/webhooks"],
   ["en", "webhooks route", "app-company#webhooks-tab", "/company/webhooks"],
   ["de", "Route Webhooks", "app-company#webhooks-tab", "/company/webhooks"],
-  ["en", "list_records page size", "mcp#records", null],
+  ["en", "query_crm_records page size", "mcp#records", null],
   ["en", "who can create API keys", "api-keys#who-can-create-and-see-api-keys", "/profile/api-keys"],
   ["en", "how long do quick connection keys last", "api-keys#do-keys-expire", "/profile/api-keys"],
   ["en", "API key name length", "api-keys#what-is-the-key-format", "/profile/api-keys"],
@@ -97,13 +97,13 @@ const SECTION_QUESTIONS: [ContentLocale, string, string, string | null][] = [
     "en",
     "where do I rename the Deals record type",
     "app-company#how-do-i-rename-record-types-in-the-data-model",
-    "/company/settings",
+    "/company/data-model",
   ],
   [
     "de",
     "Wo benenne ich den Datensatztyp Deals um?",
     "app-company#how-do-i-rename-record-types-in-the-data-model",
-    "/company/settings",
+    "/company/data-model",
   ],
   ["en", "where do I see who changed what in the workspace", "app-company#audit-logs-tab", "/company/audit-logs"],
   [
@@ -163,7 +163,7 @@ const SECTION_QUESTIONS: [ContentLocale, string, string, string | null][] = [
     "en",
     "Where do I set stage probabilities?",
     "app-company#how-do-stage-probabilities-and-totals-work",
-    "/company/settings",
+    "/company/data-model",
   ],
   [
     "en",
@@ -176,7 +176,7 @@ const SECTION_QUESTIONS: [ContentLocale, string, string, string | null][] = [
     "en",
     "Can I name contacts anything I want?",
     "app-company#how-do-i-rename-record-types-in-the-data-model",
-    "/company/settings",
+    "/company/data-model",
   ],
   [
     "en",
@@ -264,20 +264,20 @@ const SECTION_QUESTIONS: [ContentLocale, string, string, string | null][] = [
     "de",
     "Deals in Opportunities umbenennen",
     "app-company#how-do-i-rename-record-types-in-the-data-model",
-    "/company/settings",
+    "/company/data-model",
   ],
   ["de", "Onboarding überspringen", "app-onboarding#kann-ich-teile-des-onboardings-uberspringen", "/onboarding/wizard"],
   [
     "en",
     "where can I change the stage field used for deal weighting",
     "app-company#how-do-stage-probabilities-and-totals-work",
-    "/company/settings",
+    "/company/data-model",
   ],
   [
     "de",
     "Wo ändere ich das Deal-Phasenfeld für die Gewichtung?",
     "app-company#how-do-stage-probabilities-and-totals-work",
-    "/company/settings",
+    "/company/data-model",
   ],
   [
     "en",
@@ -810,17 +810,13 @@ describe("get_docs_page", () => {
 
   it("keeps the formula a calculation question asks for, and the link line of the section that states it", () => {
     for (const [locale, query, formula] of [
-      ["en", "How is the weighted pipeline value calculated?", "multiplied by the weight of its current option"],
-      [
-        "de",
-        "Wie wird der gewichtete Pipeline-Wert berechnet?",
-        "multipliziert mit dem Gewicht seiner aktuellen Option",
-      ],
+      ["en", "How is the weighted pipeline value calculated?", "Weighted deal value = deal value"],
+      ["de", "Wie wird der gewichtete Pipeline-Wert berechnet?", "Gewichteter Deal-Wert = Deal-Wert"],
     ] as const) {
       const excerpt = excerptOf("concepts", query, locale);
       expect(excerpt, query).toContain(formula);
       expect(
-        excerpt.split("\n").some((line) => line.startsWith("**Link:**") && line.includes("`/company/settings`")),
+        excerpt.split("\n").some((line) => line.startsWith("**Link:**") && line.includes("`/company/data-model`")),
         query,
       ).toBe(true);
       expect(excerpt.length, query).toBeLessThanOrEqual(1_400);
@@ -832,12 +828,12 @@ describe("get_docs_page", () => {
       [
         "en",
         "How can I restrict a salesperson to only the deals assigned to them?",
-        "**Assigned** only the records the member is an assigned user of",
+        "**Assigned** allows reading records assigned to the member.",
       ],
       [
         "de",
         "Wie erstelle ich eine eigene Rolle mit eingeschränkten Rechten?",
-        "**Zugewiesen** nur die Datensätze, denen das Mitglied zugewiesen ist",
+        "**Zugewiesen** erlaubt das Lesen der dem Mitglied zugewiesenen Datensätze.",
       ],
     ] as const)
       expect(excerptOf("app-company", query, locale), query).toContain(definition);
@@ -926,8 +922,10 @@ describe("search and fetch", () => {
       const summaries = JSON.parse(
         readFileSync(join(process.cwd(), "content", "docs", locale, "mcp-catalog-summaries.json"), "utf8"),
       ) as Record<string, string>;
-      for (const tool of ["search_docs", "get_docs_page", "search", "fetch"])
-        expect(summaries[tool], `${tool} (${locale})`).toMatch(/`\/company\/subscription`, (are|sind) relati/);
+      for (const tool of ["search_docs", "get_docs_page", "search", "fetch"]) {
+        expect(summaries[tool], `${tool} (${locale})`).toContain("`/company/subscription`");
+        expect(summaries[tool], `${tool} (${locale})`).toContain("`BASE_URL`");
+      }
     }
   });
 });

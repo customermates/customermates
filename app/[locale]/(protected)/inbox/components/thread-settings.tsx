@@ -8,8 +8,6 @@ import { useTranslations } from "next-intl";
 import { observer } from "mobx-react-lite";
 import { UserPlus, Users } from "lucide-react";
 
-import { Action, Resource } from "@/generated/prisma";
-
 import { AppCard } from "@/components/card/app-card";
 import { AppCardBody } from "@/components/card/app-card-body";
 import { AppCardHeader } from "@/components/card/app-card-header";
@@ -39,11 +37,11 @@ type Props = {
 export const ThreadSettings = observer(
   ({ threadId, provider, participants, sharedToCrm, accountShared, isOwner }: Props) => {
     const t = useTranslations();
-    const { userStore, threadParticipantsStore, messagingThreadDetailStore } = useRootStore();
+    const { threadParticipantsStore, messagingThreadDetailStore } = useRootStore();
 
     useEffect(() => threadParticipantsStore.bind(threadId), [threadId, threadParticipantsStore]);
 
-    const canManageContacts = userStore.can(Resource.contacts, Action.update);
+    const canManageContacts = threadParticipantsStore.canManageRecords;
     const selfParticipant = participants.find((p) => p.isSelf) ?? null;
     const accountOwner =
       messagingThreadDetailStore.accountOwners[messagingThreadDetailStore.thread?.connectedAccountId ?? ""] ?? null;
@@ -54,7 +52,7 @@ export const ThreadSettings = observer(
           ? participantLabel(selfParticipant, provider, t("Inbox.senderUnknown"))
           : t("Inbox.senderUnknown"));
     const linkable = participants.filter((p) => !p.isSelf && p.identifier.trim());
-    const unlinkedCount = linkable.filter((p) => !p.contact).length;
+    const unlinkedCount = linkable.filter((p) => !p.record).length;
     const showBadge = canManageContacts && unlinkedCount > 0;
     const isShared = accountShared || sharedToCrm;
 
@@ -73,7 +71,7 @@ export const ThreadSettings = observer(
                   <Avatar
                     name={participantLabel(p, provider, t("Inbox.senderUnknown"))}
                     size="sm"
-                    src={p.contact?.avatarUrl ?? p.pictureUrl ?? undefined}
+                    src={p.record?.avatarUrl ?? p.pictureUrl ?? undefined}
                   />
                 )}
                 renderOverflow={(count) => <Avatar fallback={`+${count}`} size="sm" />}

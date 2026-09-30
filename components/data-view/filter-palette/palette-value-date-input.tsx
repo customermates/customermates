@@ -1,6 +1,6 @@
 "use client";
 
-import type { CustomColumnDto } from "@/features/custom-column/custom-column.schema";
+import type { ColumnPresentation } from "@/features/custom-column/custom-column.schema";
 import type { FilterOperatorKey } from "@/core/base/base-query-builder";
 
 import { observer } from "mobx-react-lite";
@@ -16,7 +16,7 @@ import {
 type Props = {
   field: string;
   operator: FilterOperatorKey | undefined;
-  customColumns: CustomColumnDto[] | undefined;
+  customColumns: ColumnPresentation[] | undefined;
   isValidFilter: boolean;
 };
 

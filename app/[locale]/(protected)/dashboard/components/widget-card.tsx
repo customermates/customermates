@@ -9,7 +9,9 @@ import { ActivityWidgetCard } from "./activity-widget-card";
 import { ChartWidgetCard } from "./chart-widget-card";
 import { openWidgetEditor } from "./widget-interaction";
 
-import { isChartWidget } from "@/features/widget/widget.schema";
+import { RecordWidgetCard } from "./record-widget-card";
+import { RecordActivityWidgetCard } from "./record-activity-widget-card";
+import { isChartWidget, isRecordWidget, isRecordActivityWidget } from "@/features/widget/widget.schema";
 import { useRootStore } from "@/core/stores/root-store.provider";
 import { runUserAction } from "@/core/errors/report-application-error";
 
@@ -20,7 +22,15 @@ type Props = {
 export const WidgetCard = observer(({ widget }: Props) => {
   const t = useTranslations();
   const { widgetModalStore } = useRootStore();
-  const card = isChartWidget(widget) ? <ChartWidgetCard widget={widget} /> : <ActivityWidgetCard widget={widget} />;
+  const card = isRecordActivityWidget(widget) ? (
+    <RecordActivityWidgetCard widget={widget} />
+  ) : isRecordWidget(widget) ? (
+    <RecordWidgetCard widget={widget} />
+  ) : isChartWidget(widget) ? (
+    <ChartWidgetCard widget={widget} />
+  ) : (
+    <ActivityWidgetCard widget={widget} />
+  );
 
   return (
     <div className="relative h-full">

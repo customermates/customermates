@@ -112,12 +112,6 @@ const MCP_SORT_CLAIMS: Array<{ file: string; claim: string; fields: string[]; re
   },
   {
     file: "features/mcp-tools/messaging.mcp-tools.ts",
-    claim: 'sortDescription("at (the event time)")',
-    fields: ["at"],
-    repository: "ee/messaging/activities/prisma-activities.repository.ts",
-  },
-  {
-    file: "features/mcp-tools/messaging.mcp-tools.ts",
     claim: 'sortDescription("name (calendars) or startsAt (events)")',
     fields: ["name"],
     repository: "ee/calendar/prisma-calendar.repository.ts",
@@ -323,6 +317,13 @@ describe("every sort option a surface offers is one its repository applies", () 
       expect(fields.filter((field) => !applied.has(field))).toEqual([]);
     },
   );
+
+  it("keeps the generic activity timeline in stable newest-first order", () => {
+    expect(read("features/mcp-tools/messaging.mcp-tools.ts")).toContain("Results are newest first");
+    expect(read("ee/messaging/activities/record-activity-query.ts")).toContain(
+      "ORDER BY at DESC, kind DESC, id DESC",
+    );
+  });
 
   it("sorts every record type by name, the example list_records gives", () => {
     expect(read("features/mcp-tools/entity-generic.mcp-tools.ts")).toContain("built-in field name (name, totalValue");

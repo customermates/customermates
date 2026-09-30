@@ -231,7 +231,7 @@ export class UpsertWidgetInteractor extends AuthenticatedInteractor<UpsertWidget
     const allowedUnavailableEntityIdsByField = new Map<string, Set<string>>();
     if (data.id) {
       const existing = await this.repo.getWidgetById(data.id);
-      if (existing?.kind === WidgetKind.activityTimeline) {
+      if (existing?.kind === WidgetKind.activityTimeline && "timelineFilters" in existing) {
         const existingFiltersByField = new Map(
           existing.timelineFilters.map((filter) => [String(filter.field), filter]),
         );

@@ -6,7 +6,6 @@ import { RefreshCw } from "lucide-react";
 import { WebhookDeliveryStatus } from "@/generated/prisma";
 
 import { WEBHOOK_DELIVERY_QUEUE_STATUS_CHIP_COLOR } from "@/features/webhook/webhook-delivery-chip-colors";
-import { getEntityName } from "@/features/event/entity-name.utils";
 import { AppModal } from "@/components/modal";
 import { AppCard } from "@/components/card/app-card";
 import { AppCardBody } from "@/components/card/app-card-body";
@@ -27,6 +26,9 @@ export const WebhookDeliveryModal = observer(() => {
     <AppModal
       actions={
         store.canManage &&
+        delivery.event.startsWith("record.") &&
+        Boolean(delivery.requestBody) &&
+        !delivery.nextAttemptAt &&
         (delivery.status === WebhookDeliveryStatus.success || delivery.status === WebhookDeliveryStatus.failed)
           ? [
               {
@@ -68,7 +70,7 @@ export const WebhookDeliveryModal = observer(() => {
 
           {delivery.event && (
             <InfoRow label={t("WebhookDeliveryModal.entity")}>
-              {getEntityName(delivery.event, delivery.requestBody?.data, t) || "-"}
+              {delivery.event.startsWith("record.") && delivery.requestBody ? t("RecordModel.record") : "-"}
             </InfoRow>
           )}
 
@@ -80,10 +82,14 @@ export const WebhookDeliveryModal = observer(() => {
 
           <InfoRow label={t("WebhookDeliveryModal.responseMessage")}>{delivery.responseMessage ?? "-"}</InfoRow>
 
-          <CodeBlockAccordion
-            code={JSON.stringify(delivery.requestBody, null, 2)}
-            title={t("WebhookDeliveryModal.eventPayload")}
-          />
+          {delivery.requestBody ? (
+            <CodeBlockAccordion
+              code={JSON.stringify(delivery.requestBody, null, 2)}
+              title={t("WebhookDeliveryModal.eventPayload")}
+            />
+          ) : (
+            <InfoRow label={t("WebhookDeliveryModal.eventPayload")}>-</InfoRow>
+          )}
         </AppCardBody>
       </AppCard>
     </AppModal>

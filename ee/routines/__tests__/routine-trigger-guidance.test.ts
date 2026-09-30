@@ -44,7 +44,7 @@ function messageAt(messages: Record<string, unknown>, path: string): string {
 
 describe("routine trigger empty-state guidance", () => {
   it("covers exactly every selectable event", () => {
-    expect(ROUTINE_TRIGGER_EVENTS).toHaveLength(24);
+    expect(ROUTINE_TRIGGER_EVENTS).toHaveLength(27);
     expect(Object.keys(ROUTINE_TRIGGER_GUIDANCE)).toEqual([...ROUTINE_TRIGGER_EVENTS]);
 
     for (const event of ROUTINE_TRIGGER_EVENTS) expect(routineTriggerGuidance(event)).not.toBeNull();

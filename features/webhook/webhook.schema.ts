@@ -3,9 +3,14 @@ import type { Data } from "@/core/validation/validation.utils";
 import { z } from "zod";
 
 import { zx } from "@/core/validation/validation.utils";
-import { WEBHOOK_EVENTS } from "./webhook-event-registry";
+import {
+  RecordTriggerDefinitionSchema,
+  RecordTriggerSourceSchema,
+} from "@/features/records/record-event-subscription.schema";
+import { WEBHOOK_CURRENT_EVENTS, WEBHOOK_EVENTS } from "./webhook-event-registry";
 
 export const WebhookEventSchema = z.enum(WEBHOOK_EVENTS);
+export const WebhookCurrentEventSchema = z.enum(WEBHOOK_CURRENT_EVENTS);
 
 export const WEBHOOK_MASKED_VALUE = "********";
 
@@ -18,6 +23,9 @@ export const WebhookDtoSchema = z.object({
   headers: z.record(z.string(), z.string()).nullable(),
   bodyTemplate: z.string().nullable(),
   enabled: z.boolean(),
+  recordTrigger: RecordTriggerDefinitionSchema.nullable().optional(),
+  recordSources: z.array(RecordTriggerSourceSchema).nullable().optional(),
+  recordOwnerUserId: z.uuid().nullable().optional(),
   createdAt: z.date(),
   updatedAt: z.date(),
 });

@@ -1,11 +1,14 @@
+import { getGetRecordNavigationInteractor } from "@/core/di";
+import { recordUiTargets } from "./record-ui-targets";
 import { z } from "zod";
+import { retiredRecordToolMessage } from "@/features/mcp-tools/retired-record-tools";
 import { asSchema, tool, jsonSchema, type ToolSet } from "ai";
 
 import { ALL_MCP_TOOLS, MCP_ALWAYS_ON_TOOLS, MCP_TOOL_GROUPS } from "@/features/mcp-tools/tool-registry";
 import { encodeToToon } from "@/features/mcp-tools/utils";
 import { dataViewNavigationHref, entityTimelineNavigationHref } from "@/core/data-view/data-view-links";
 import { SURFACE } from "@/core/data-view/data-view-keys";
-import { DATA_VIEW_PATHS } from "@/core/data-view/data-view-paths";
+import { dataViewPath } from "@/core/data-view/data-view-paths";
 import { AiManageableDataViewSurfaceKeySchema } from "@/core/data-view/ai-manageable-surfaces";
 import { ViewKeySchema } from "@/core/data-view/data-view-state.schema";
 import {
@@ -19,6 +22,7 @@ import { redactUnexpectedError } from "@/core/errors/redact-unexpected-error";
 
 import { agentToolResultText } from "./agent-budget-policy";
 import { isReadOnlyTool, requiresApproval } from "./gated-tools";
+import { recordToolRisk } from "./record-tool-risk";
 import { AGENT_UI_TOOL_NAMES, toAgentUiCommandInput } from "./agent-ui-command";
 import { isUnattendedSurface, type AgentSurface } from "./agent-surface-policy";
 import {
@@ -32,7 +36,7 @@ import { hostedToolInputGuard } from "./agent-hosted-guards";
 import { APP_LOCALES, isContentLocale } from "@/i18n/locale-registry";
 import { getTranslator } from "@/i18n/get-translator";
 import { type AgentToolCancellation as AgentToolCancellationValue } from "./agent-tool-cancellation";
-import { AGENT_UI_TARGETS, UiTargetIdSchema, agentUiPageLabelKeys, type AgentUiTarget } from "./ui-targets";
+import { ACTIVE_AGENT_UI_TARGETS, UiTargetIdSchema, agentUiPageLabelKeys, type AgentUiTarget } from "./ui-targets";
 import { AgentTourSchema } from "./agent-tours";
 import { NavigateInputSchema } from "./ui-operations";
 import type { AgentApprovalContextResolution } from "./agent-external-approval-context";
@@ -131,7 +135,13 @@ function contextualAgentToolNavigation(
 ) {
   if (toolName !== "manage_data_views" || !outcome.ok || !outcome.structuredContent) return null;
   const content = outcome.structuredContent;
-  if (content.action !== "create" && content.action !== "update" && content.action !== "select") return null;
+  if (
+    content.action !== "create" &&
+    content.action !== "update" &&
+    content.action !== "select" &&
+    content.action !== "reset"
+  )
+    return null;
   const surfaceKey = AiManageableDataViewSurfaceKeySchema.safeParse(content.surfaceKey);
   const viewKey = ViewKeySchema.safeParse(content.viewKey);
   if (!surfaceKey.success || !viewKey.success) return null;
@@ -140,7 +150,7 @@ function contextualAgentToolNavigation(
       ? content.link === null
         ? entityTimelineNavigationHref(pageRoute, viewKey.data)
         : null
-      : content.link === `${DATA_VIEW_PATHS[surfaceKey.data]}?view=${viewKey.data}`
+      : content.link === `${dataViewPath(surfaceKey.data)}?view=${viewKey.data}`
         ? dataViewNavigationHref(content.link)
         : null;
   return href ? { kind: "saved-view" as const, href } : null;
@@ -180,6 +190,8 @@ const PROVIDER_SAFE_FORMAT_PATTERNS: Record<string, string | undefined> = {
   email: "^[^@\\s]+@[^@\\s]+\\.[^@\\s]+$",
   uri: "^[A-Za-z][A-Za-z0-9+.-]*:\\S*$",
   uuid: AGENT_WIRE_UUID_PATTERN,
+  date: "^\\d{4}-\\d{2}-\\d{2}$",
+  "date-time": "^\\d{4}-\\d{2}-\\d{2}T\\d{2}:\\d{2}(?::\\d{2}(?:\\.\\d+)?)?(?:Z|[+-]\\d{2}:\\d{2})$",
 };
 
 const CANONICAL_UUID_PATTERN_MARK = "[0-9a-fA-F]{8}-";
@@ -197,6 +209,7 @@ function providerSafeSchema<TSchema extends z.ZodType>(inputSchema: TSchema) {
 
         const format = schema.format;
         delete schema.format;
+        if (format === "date" || format === "date-time") schema.pattern = PROVIDER_SAFE_FORMAT_PATTERNS[format];
         if (schema.pattern === undefined && format !== undefined) {
           const fallback = PROVIDER_SAFE_FORMAT_PATTERNS[format];
           if (fallback) schema.pattern = fallback;
@@ -235,7 +248,7 @@ function compactUiTarget(target: AgentUiTarget) {
 }
 
 function uiTargetQueryTokens(query: string | undefined) {
-  return query?.toLocaleLowerCase().match(/[\p{L}\p{N}/-]{2,}/gu) ?? [];
+  return query?.toLocaleLowerCase().match(/[\p{L}\p{N}/:-]{2,}/gu) ?? [];
 }
 
 let uiTargetPageNames: Promise<Map<string, string>> | undefined;
@@ -244,7 +257,7 @@ function localizedUiTargetPageNames() {
   uiTargetPageNames ??= Promise.all(APP_LOCALES.map((locale) => getTranslator(locale))).then(
     (translators) =>
       new Map(
-        AGENT_UI_TARGETS.map((target) => {
+        ACTIVE_AGENT_UI_TARGETS.map((target) => {
           const labelKeys = [...(target.labelKey ? [target.labelKey] : []), ...agentUiPageLabelKeys(target.route)];
           return [
             target.id,
@@ -267,7 +280,7 @@ function matchesUiTargetQuery(target: AgentUiTarget, tokens: string[], pageNames
 
 function uiTargetPrefixes(limit: number): string[] {
   const counts = new Map<string, number>();
-  for (const target of AGENT_UI_TARGETS) {
+  for (const target of ACTIVE_AGENT_UI_TARGETS) {
     const prefix = target.id.split("-")[0] ?? target.id;
     counts.set(prefix, (counts.get(prefix) ?? 0) + 1);
   }
@@ -279,27 +292,32 @@ function uiTargetPrefixes(limit: number): string[] {
 
 const UI_TARGET_QUERY_WORD_MIN_LENGTH = 4;
 
-async function matchingUiTargets(query: string | undefined) {
+async function matchingUiTargets(query: string | undefined, targets: AgentUiTarget[]) {
   const tokens: string[] = uiTargetQueryTokens(query);
-  if (!tokens.length) return AGENT_UI_TARGETS;
+  if (!tokens.length) return targets;
   const pageNames = await localizedUiTargetPageNames();
   const phrase = query?.trim().toLocaleLowerCase().replace(/\s+/g, " ") ?? "";
   const words = tokens.filter((token) => token.length >= UI_TARGET_QUERY_WORD_MIN_LENGTH);
   const phraseMatches = phrase.includes(" ")
-    ? AGENT_UI_TARGETS.filter((target) => pageNames.get(target.id)?.includes(phrase))
+    ? targets.filter((target) => pageNames.get(target.id)?.includes(phrase))
     : [];
-  const wordMatches = AGENT_UI_TARGETS.filter((target) => matchesUiTargetQuery(target, words, pageNames));
+  const wordMatches = targets.filter((target) => matchesUiTargetQuery(target, words, pageNames));
   const matches = phraseMatches.length
     ? phraseMatches
     : wordMatches.length
       ? wordMatches
-      : AGENT_UI_TARGETS.filter((target) => matchesUiTargetQuery(target, tokens, pageNames));
+      : targets.filter((target) => matchesUiTargetQuery(target, tokens, pageNames));
   const exact = matches.filter((target) => tokens.includes(target.id));
   return [...exact, ...matches.filter((target) => !exact.includes(target))];
 }
 
 async function listUiTargets(input: z.infer<typeof ListUiTargetsSchema>, resultMaxChars: number) {
-  const targets = await matchingUiTargets(input.query);
+  const navigation = await getGetRecordNavigationInteractor().invoke();
+  if (!navigation.ok) return "Interface targets are unavailable with the current account access.";
+  const targets = await matchingUiTargets(input.query, [
+    ...ACTIVE_AGENT_UI_TARGETS,
+    ...recordUiTargets(navigation.data),
+  ]);
   if (targets.length === 0) {
     return `No interface target matches "${input.query ?? ""}". Target names are English: query with the English page or workflow phrase (for example "deals", "inbox", "settings"), or with one of these id prefixes: ${uiTargetPrefixes(10).join(", ")}.`.slice(
       0,
@@ -338,7 +356,8 @@ function crmTool(mcp: (typeof ALL_MCP_TOOLS)[number], deps: AgentToolDeps) {
         const outcome = await executeMcpTool(mcp, [input]);
         return agentToolResult(outcome, deps.resultMaxChars, { toolName: mcp.name, pageRoute: deps.pageRoute });
       };
-      const enrollable = !isReadOnlyTool(mcp) && !hasNonTransactionalEffect(mcp.name);
+      const enrollable =
+        !isReadOnlyTool(mcp) && recordToolRisk(mcp.name, input) !== "read" && !hasNonTransactionalEffect(mcp.name);
       const run = enrollable ? () => deps.runExactlyOnce(toolCallId, mcp.name, execute) : execute;
       return runSafely(async () => {
         const mismatch = agentViewToolMismatch(deps.pageRoute, mcp.name, input);
@@ -374,7 +393,7 @@ function uiTools(deps: AgentToolDeps): ToolSet {
     }),
     navigate: tool({
       description:
-        "Open an app area by its target id from list_ui_targets, or open one existing record's page by passing entity and recordId after list_records or search_records found the id. Records always open on their page, never in the drawer; to add a record, highlight the matching add control instead.",
+        "Open an app area by its target id from list_ui_targets, or open one existing record's page by passing typeId and recordId after query_crm_records or search_crm_records found the stable reference. Records always open on their page, never in the drawer; to add a record, highlight the matching add control instead.",
       inputSchema: providerSafeSchema(NavigateInputSchema),
       execute: (input, { toolCallId }) =>
         runSafely(() => runUiCommand(toolCallId, "navigate", panelInput("navigate", input)), deps.resultMaxChars),
@@ -523,7 +542,15 @@ export async function normalizeAgentAiToolInput(
   options: { locale?: string; pageRoute?: string | null } = {},
 ): Promise<AgentToolInputResult> {
   const tools = getAgentAiTools(TOOL_DEFINITION_DEPS);
-  if (!Object.hasOwn(tools, toolName)) return { ok: false, result: "The requested tool is not available." };
+  if (!Object.hasOwn(tools, toolName)) {
+    return {
+      ok: false,
+      result: agentToolResultText(
+        retiredRecordToolMessage(toolName) ?? "The requested tool is not available.",
+        maxChars,
+      ),
+    };
+  }
   const agentTool = tools[toolName];
   const schema = asSchema(agentTool.inputSchema);
   if (!schema.validate) throw new Error("The agent tool has no authoritative input validator.");

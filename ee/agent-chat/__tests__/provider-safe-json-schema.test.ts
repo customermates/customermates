@@ -1,3 +1,4 @@
+import { TOOL_CREATE_RECORD, TOOL_CREATE_TYPE } from "@/tests/helpers/record-tools";
 import Ajv from "ajv";
 import { readFileSync } from "node:fs";
 import { join } from "node:path";
@@ -69,31 +70,70 @@ const NO_GOOGLE_FIELD = [
 ];
 
 const ACCEPTED_TODAY: [string, unknown][] = [
-  ["list_records", { entity: "contact", pageSize: 25 }],
-  ["list_records", { entity: "contact", filters: [{ field: "name", operator: "contains", value: "a" }] }],
-  ["list_records", { entity: "contact", filters: [{ field: "createdAt", operator: "inLastDays", value: 7 }] }],
-  ["list_records", { entity: "contact", filters: [{ field: "owner", operator: "isNull" }] }],
-  ["list_records", { entity: "contact", filters: [{ field: "tags", operator: "in", value: ["a"] }] }],
-  ["get_activities", {}],
-  ["get_activities", { pageSize: 5 }],
-  ["create_contacts", { contacts: [{ firstName: "Ada", lastName: "L", notes: "# hi" }] }],
-  ["create_contacts", { contacts: [{ firstName: "Ada", lastName: "L", notes: null }] }],
-  ["create_contacts", { contacts: [{ firstName: "Ada", lastName: "L", notes: 42 }] }],
-  ["update_contacts", { contacts: [{ id: UUID, customFieldValues: null }] }],
-  ["update_contacts", { contacts: [{ id: UUID, customFieldValues: [{ columnId: UUID, value: null }] }] }],
-  ["update_deals", { deals: [{ id: UUID, services: null }] }],
+  ["manage_roles", { action: "read" }],
   [
-    "manage_custom_columns",
-    { action: "upsert", id: null, intent: "create", label: "L", type: "plain", entityType: "contact" },
+    "manage_roles",
+    {
+      action: "save",
+      role: {
+        id: UUID,
+        name: "Sales",
+        description: "Project access",
+        permissions: {},
+        recordGrants: [{ typeId: UUID, actions: ["create", "readOwn"] }],
+        expectedRevision: 2,
+        idempotencyKey: "role-provider-contract",
+      },
+    },
   ],
-  ["manage_custom_columns", { action: "upsert", id: UUID, options: null }],
+  ["discover_record_types", { search: "Projects" }],
+  ["get_record_model", { typeIds: [UUID] }],
+  ["query_crm_records", { typeId: UUID, pageSize: 25 }],
+  [
+    "query_crm_records",
+    {
+      typeId: UUID,
+      locale: "de",
+      grouping: { field: "system:createdAt", bucket: "month" },
+      groupPage: { perGroup: 10 },
+    },
+  ],
+  [
+    "query_crm_records",
+    { typeId: UUID, filters: [{ fieldId: UUID, operator: "contains", value: { kind: "text", value: "a" } }] },
+  ],
+  [
+    "query_crm_records",
+    {
+      typeId: UUID,
+      filters: [{ fieldId: UUID, operator: "gt", value: { kind: "decimal", value: "7.5", currency: null } }],
+    },
+  ],
+  ["query_crm_records", { typeId: UUID, filters: [{ fieldId: UUID, operator: "empty", value: null }] }],
+  ["get_activities", {}],
+  ["get_activities", { limit: 5 }],
+  ["mutate_crm_record", TOOL_CREATE_RECORD],
+  [
+    "mutate_crm_record",
+    {
+      ...TOOL_CREATE_RECORD,
+      mutation: {
+        action: "update",
+        ref: { typeId: UUID, recordId: UUID },
+        expectedVersion: 1,
+        fields: [{ fieldId: UUID, value: null }],
+      },
+    },
+  ],
+  ["configure_record_model", TOOL_CREATE_TYPE],
+  ["configure_record_model", { ...TOOL_CREATE_TYPE, action: "preview" }],
   ["manage_webhooks", { action: "update", secret: null }],
   ["manage_webhooks", { action: "list", pageSize: 100 }],
   ["update_workspace_settings", { target: "profile", avatarUrl: null }],
   ["update_workspace_settings", { target: "profile", avatarUrl: "" }],
   ["update_workspace_settings", { target: "profile", avatarUrl: "https://example.com/a.png" }],
   ["navigate", { targetId: "nav-deals" }],
-  ["navigate", { entity: "contact", recordId: UUID }],
+  ["navigate", { typeId: UUID, recordId: UUID }],
   ["linkedin_search_sales_leads", { connectedAccountId: UUID, filters: { network_distance: [1, 2, "GROUP"] } }],
   [
     "linkedin_search_sales_leads",
@@ -103,10 +143,9 @@ const ACCEPTED_TODAY: [string, unknown][] = [
     "linkedin_search_sales_companies",
     { connectedAccountId: UUID, filters: { annual_revenue: { min: 0.5, max: 2.5, currency: "USD" } } },
   ],
-  ["create_services", { services: [{ name: "S", amount: 10 }] }],
   ["get_social_posts", { connectedAccountId: UUID, authorIdentifier: "x", limit: 5, offset: 1 }],
   ["get_workspace_context", {}],
-  ["search_records", { searchTerm: "a" }],
+  ["search_crm_records", { searchTerm: "a" }],
   ["manage_widgets", { action: "list" }],
   ["manage_data_views", { action: "surfaces" }],
   ["manage_data_views", { action: "create", surfaceKey: "contacts-card-store", name: "Leads", state: {} }],
@@ -114,13 +153,22 @@ const ACCEPTED_TODAY: [string, unknown][] = [
 ];
 
 const REJECTED_TODAY: [string, unknown][] = [
-  ["list_records", {}],
-  ["list_records", { entity: "spaceship" }],
-  ["navigate", { entity: "contact", recordId: "new" }],
-  ["navigate", { entity: "spaceship", recordId: UUID }],
-  ["create_contacts", { contacts: [] }],
+  ["query_crm_records", {}],
+  ["query_crm_records", { typeId: "spaceship" }],
+  ["navigate", { typeId: UUID, recordId: "new" }],
+  ["navigate", { typeId: "spaceship", recordId: UUID }],
+  ["mutate_crm_record", { mutation: { action: "create", fields: [] } }],
   ["manage_webhooks", { action: "detonate" }],
-  ["update_contacts", { contacts: [{ id: UUID, customFieldValues: [{ columnId: UUID, value: 5 }] }] }],
+  [
+    "mutate_crm_record",
+    {
+      ...TOOL_CREATE_RECORD,
+      mutation: {
+        ...TOOL_CREATE_RECORD.mutation,
+        fields: [{ fieldId: UUID, value: { kind: "decimal", value: 42, currency: null } }],
+      },
+    },
+  ],
   ["send_email", { connectedAccountId: "nope", subject: "s", body: "b", to: [{ identifier: "a@b.com" }] }],
 ];
 
@@ -452,35 +500,32 @@ describe("the shipped tool catalog on the Google wire", () => {
     const changes = changesForShippedCatalog();
 
     expect(summarizeGoogleSchemaChanges(changes)).toEqual({
-      "$schema:removed": 52,
-      "additionalProperties:removed": 59,
-      "anyOf:collapsed": 47,
+      "$schema:removed": 48,
+      "additionalProperties:removed": 198,
+      "anyOf:collapsed": 178,
       "const:removed": 5,
-      "const:rewritten": 236,
+      "const:rewritten": 134,
       "enum:removed": 18,
-      "exclusiveMinimum:rewritten": 12,
-      "nullable:collapsed": 10,
-      "nullable:rewritten": 27,
-      "propertyNames:removed": 1,
-      "oneOf:rewritten": 19,
+      "exclusiveMinimum:rewritten": 11,
+      "nullable:rewritten": 161,
+      "propertyNames:removed": 3,
+      "oneOf:rewritten": 10,
     });
     expect(summarizeGoogleSchemaChanges(changes.filter((change) => change.loosened))).toEqual({
-      "additionalProperties:removed": 59,
+      "additionalProperties:removed": 198,
       "const:removed": 5,
       "enum:removed": 18,
-      "exclusiveMinimum:rewritten": 2,
-      "propertyNames:removed": 1,
-      "oneOf:rewritten": 19,
+      "propertyNames:removed": 3,
+      "oneOf:rewritten": 10,
     });
   });
 
-  it("gives every node a type except the fields declared as z.any()", () => {
+  it("gives every node a type without untyped field values", () => {
     const typeless = googleNodes()
       .filter(({ node }) => typeof node.type !== "string" && node.anyOf === undefined)
       .map(({ label }) => label);
 
-    expect(typeless.length).toBe(10);
-    expect(typeless.filter((label) => !label.endsWith("/properties/notes"))).toEqual([]);
+    expect(typeless).toEqual([]);
   });
 
   it("is idempotent, so a second pass over the wire document changes nothing", () => {
@@ -505,19 +550,35 @@ describe("the shipped tool catalog on the Google wire", () => {
 
 describe("the authoritative input gate", () => {
   it("stays the Zod validator, which the wire transform never touches", async () => {
-    const pageSize = (schemaOf(googleTools, "list_records") as JsonRecord).properties as JsonRecord;
+    const pageSize = (schemaOf(googleTools, "list_users") as JsonRecord).properties as JsonRecord;
     expect(pageSize.pageSize).not.toHaveProperty("enum");
-    expect(new Ajv().compile(schemaOf(googleTools, "list_records") as never)({ entity: "contact", pageSize: 7 })).toBe(
+    expect(new Ajv().compile(schemaOf(googleTools, "list_users") as never)({ searchTerm: "Ada", pageSize: 7 })).toBe(
       true,
     );
 
-    const coerced = await normalizeAgentAiToolInput("list_records", { entity: "contact", pageSize: "25" }, 400);
-    const rounded = await normalizeAgentAiToolInput("list_records", { entity: "contact", pageSize: 7 }, 400);
-    const rejected = await normalizeAgentAiToolInput("list_records", { entity: "contact", pageSize: 0 }, 400);
+    const coerced = await normalizeAgentAiToolInput("list_users", { searchTerm: "Ada", pageSize: "25" }, 400);
+    const rounded = await normalizeAgentAiToolInput("list_users", { searchTerm: "Ada", pageSize: 7 }, 400);
+    const rejected = await normalizeAgentAiToolInput("list_users", { searchTerm: "Ada", pageSize: 0 }, 400);
 
-    expect(coerced).toEqual({ ok: true, input: { entity: "contact", page: 1, pageSize: 25 } });
-    expect(rounded).toEqual({ ok: true, input: { entity: "contact", page: 1, pageSize: 10 } });
+    expect(coerced).toEqual({ ok: true, input: { searchTerm: "Ada", page: 1, pageSize: 25 } });
+    expect(rounded).toEqual({ ok: true, input: { searchTerm: "Ada", page: 1, pageSize: 10 } });
     expect(rejected.ok).toBe(false);
+  });
+
+  it.each([
+    { kind: "decimal", value: "NaN", currency: "EUR" },
+    { kind: "decimal", value: "1.0" },
+    { kind: "boolean", value: "false" },
+    { kind: "date", value: "2025-02-29" },
+    { kind: "dateTime", value: "2026-09-28T25:00:00Z" },
+    { kind: "text", value: "A", currency: null },
+  ])("validates kind-specific values after compact provider decoding: %j", async (value) => {
+    const input = {
+      ...TOOL_CREATE_RECORD,
+      mutation: { ...TOOL_CREATE_RECORD.mutation, fields: [{ fieldId: UUID, value }] },
+    };
+    expect(new Ajv().compile(schemaOf(googleTools, "mutate_crm_record") as never)(input)).toBe(true);
+    expect(await normalizeAgentAiToolInput("mutate_crm_record", input, 1000)).toMatchObject({ ok: false });
   });
 
   it("still refuses an unknown key wherever additionalProperties was dropped", async () => {
@@ -526,8 +587,8 @@ describe("the authoritative input gate", () => {
 
     const root = await normalizeAgentAiToolInput("get_activities", { bogusParam: 1 }, 400);
     const nested = await normalizeAgentAiToolInput(
-      "create_contacts",
-      { contacts: [{ firstName: "A", lastName: "B", bogus: 1 }] },
+      "mutate_crm_record",
+      { ...TOOL_CREATE_RECORD, mutation: { ...TOOL_CREATE_RECORD.mutation, bogus: 1 } },
       400,
     );
 

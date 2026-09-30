@@ -68,6 +68,15 @@ describeDatabase("user lookup access scoping on PostgreSQL", () => {
     expect(user?.id).toBe(colleagueId);
   });
 
+  it("resolves selected member labels in one bounded, access-scoped query", async () => {
+    const ids = [viewerId, colleagueId, randomUUID()];
+    const own = await runWithTenant(viewer(Action.readOwn), () => new PrismaUserRepo().resolveUserOptions(ids));
+    expect(own.map((user) => user.id)).toEqual([viewerId]);
+    const all = await runWithTenant(viewer(Action.readAll), () => new PrismaUserRepo().resolveUserOptions(ids));
+    expect(all.map((user) => user.id).sort()).toEqual([viewerId, colleagueId].sort());
+    expect(Object.keys(all[0]).sort()).toEqual(["avatarUrl", "firstName", "id", "lastName"]);
+  });
+
   it("resolves only the requested ids for a readOwn viewer", async () => {
     const found = await runWithTenant(viewer(Action.readOwn), () =>
       new PrismaUserRepo().findIds(new Set([colleagueId])),

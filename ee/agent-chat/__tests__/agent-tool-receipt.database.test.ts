@@ -56,9 +56,12 @@ const { runInTransaction } = await import("@/core/decorators/transaction-runner"
 const { PrismaAgentChatRepo } = await import("@/ee/agent-chat/prisma-agent-chat.repository");
 const { getAgentAiTools, normalizeAgentAiToolInput } = await import("@/ee/agent-chat/agent-tools");
 const { createAgentToolInputResolver } = await import("@/ee/agent-chat/agent-tool-input");
+const { PrismaRecordRepo } = await import("@/features/records/prisma-record.repository");
+const { createCrmPreset, presetId } = await import("@/features/records/crm-preset");
 
 const company = randomUUID();
 const user = randomUUID();
+const role = randomUUID();
 const tenantUser = createMockUser({ companyId: company, id: user });
 
 const describeDatabase = getLocalDatabaseTestUrl() ? describe : describe.skip;
@@ -77,10 +80,14 @@ describeDatabase("agent tool receipts wrap a real mutation", { timeout: 120_000 
   beforeAll(async () => {
     await runWithoutTenant(async () => {
       await prisma.company.create({ data: { id: company } });
+      await prisma.userRole.create({
+        data: { id: role, companyId: company, name: "Admin", isSystemRole: true },
+      });
       await prisma.user.create({
         data: {
           id: user,
           companyId: company,
+          roleId: role,
           email: `receipts-${user}@example.com`,
           firstName: "Receipt",
           lastName: "Tester",
@@ -88,6 +95,9 @@ describeDatabase("agent tool receipts wrap a real mutation", { timeout: 120_000 
         },
       });
     });
+    await runWithTenant(tenantUser, () =>
+      runInTransaction(() => new PrismaRecordRepo().saveModel(createCrmPreset(company, "EUR"), user)),
+    );
   });
 
   afterAll(async () => {
@@ -245,22 +255,42 @@ describeDatabase("agent tool receipts wrap a real mutation", { timeout: 120_000 
     });
     const normalize = vi.fn((name: string, input: unknown) => normalizeAgentAiToolInput(name, input, 6000));
     const resolve = createAgentToolInputResolver(normalize);
-    const raw = { contacts: [{ firstName: "Normalized", lastName: "Replay" }] };
+    const raw = {
+      expectedRevision: 1,
+      idempotencyKey: "receipt-generic-create",
+      mutation: {
+        action: "create",
+        typeId: presetId(company, "contact"),
+        fields: [
+          { fieldId: presetId(company, "contact.firstName"), value: { kind: "text", value: "Normalized" } },
+          { fieldId: presetId(company, "contact.lastName"), value: { kind: "text", value: "Replay" } },
+        ],
+      },
+    };
     const run = async (input: unknown) => {
-      const prepared = await resolve("create_contacts", toolCallId, input);
-      return prepared.ok ? executeTool(tools, "create_contacts", prepared.input, toolCallId) : prepared;
+      const prepared = await resolve("mutate_crm_record", toolCallId, input);
+      return prepared.ok ? executeTool(tools, "mutate_crm_record", prepared.input, toolCallId) : prepared;
     };
 
     const first = await run(raw);
-    await expect(resolve("create_contacts", toolCallId, raw)).resolves.toMatchObject({
+    await expect(resolve("mutate_crm_record", toolCallId, raw)).resolves.toMatchObject({
       ok: true,
-      input: { contacts: [{ firstName: "Normalized", organizationIds: [], userIds: [], dealIds: [], taskIds: [] }] },
+      input: raw,
     });
     const replay = await run(raw);
-    const conflict = await run({ contacts: [{ firstName: "Different", lastName: "Replay" }] });
+    const conflict = await run({
+      ...raw,
+      mutation: {
+        ...raw.mutation,
+        fields: [
+          { fieldId: presetId(company, "contact.firstName"), value: { kind: "text", value: "Different" } },
+          { fieldId: presetId(company, "contact.lastName"), value: { kind: "text", value: "Replay" } },
+        ],
+      },
+    });
     const [count, receipts] = await runWithoutTenant(() =>
       Promise.all([
-        prisma.contact.count({ where: { companyId: company, firstName: "Normalized", lastName: "Replay" } }),
+        prisma.crmRecord.count({ where: { companyId: company, typeId: presetId(company, "contact") } }),
         prisma.agentToolReceipt.findMany({ where: { companyId: company, turnRequestId } }),
       ]),
     );

@@ -6,6 +6,7 @@ import type { RegisterUserRepo } from "@/features/user/register/register-user.in
 import type { UpdateUserDetailsRepo } from "@/features/user/upsert/update-user-details.interactor";
 import type { AdminUpdateUserDetailsRepo } from "@/features/user/upsert/admin-update-user-details.interactor";
 import type { GetUserByIdRepo } from "@/features/user/get/get-user-by-id.interactor";
+import type { ResolveUserOptionsRepo } from "./get/resolve-user-options.interactor";
 import type { CompleteOnboardingWizardRepo } from "@/features/onboarding-wizard/complete-onboarding-wizard.interactor";
 import type { SendWelcomeAndDemoActionRepo } from "@/ee/lifecycle/send-welcome-and-demo.interactor";
 import type { DeleteAccountsForPlanUserRepo } from "@/ee/messaging/connect/delete-accounts-for-plan.interactor";
@@ -36,47 +37,7 @@ import { FilterFieldKey } from "@/core/types/filter-field-key";
 import { FILTER_FIELD_DEFAULT_OPERATORS } from "@/core/types/filter-field-operators";
 import { env } from "@/env";
 
-type DefaultSelectColumn = {
-  entityType: EntityType;
-  options: { key: string; color: string; weight?: number }[];
-};
-
-const DEFAULT_SELECT_COLUMNS: DefaultSelectColumn[] = [
-  {
-    entityType: EntityType.contact,
-    options: [
-      { key: "new", color: "secondary" },
-      { key: "contact", color: "info" },
-      { key: "qualified", color: "info" },
-      { key: "inProgress", color: "warning" },
-      { key: "won", color: "success" },
-      { key: "lost", color: "destructive" },
-    ],
-  },
-  {
-    entityType: EntityType.deal,
-    options: [
-      { key: "prospecting", color: "secondary", weight: 10 },
-      { key: "qualification", color: "info", weight: 20 },
-      { key: "demo", color: "info", weight: 40 },
-      { key: "proposal", color: "warning", weight: 60 },
-      { key: "negotiation", color: "warning", weight: 80 },
-      { key: "won", color: "success", weight: 100 },
-      { key: "lost", color: "destructive", weight: 0 },
-    ],
-  },
-  {
-    entityType: EntityType.task,
-    options: [
-      { key: "open", color: "secondary" },
-      { key: "inProgress", color: "warning" },
-      { key: "blocked", color: "destructive" },
-      { key: "onHold", color: "secondary" },
-      { key: "done", color: "success" },
-      { key: "archived", color: "secondary" },
-    ],
-  },
-] as const;
+import { DEFAULT_SELECT_COLUMNS } from "@/features/records/crm-preset-options";
 
 export class PrismaUserRepo
   extends BaseRepository
@@ -85,6 +46,7 @@ export class PrismaUserRepo
     GetUsersRepo,
     FindUsersByIdsRepo,
     GetUserByIdRepo,
+    ResolveUserOptionsRepo,
     RegisterUserRepo,
     UpdateUserDetailsRepo,
     AdminUpdateUserDetailsRepo,
@@ -220,6 +182,15 @@ export class PrismaUserRepo
     });
 
     return new Set(users.map((user) => user.id));
+  }
+
+  resolveUserOptions(ids: string[]) {
+    return this.prisma.user.findMany({
+      where: { ...this.accessWhere("user"), AND: [{ id: { in: ids } }] },
+      select: { id: true, firstName: true, lastName: true, avatarUrl: true },
+      orderBy: [{ firstName: "asc" }, { lastName: "asc" }, { id: "asc" }],
+      take: 100,
+    });
   }
 
   async getUserById(id: string) {
@@ -740,5 +711,31 @@ export class PrismaUserRepo
       select: { companyId: true, emailVerified: true },
     });
     return authUser ?? undefined;
+  }
+
+  async getCurrentRecordActorCompanyWide() {
+    return this.prisma.user.findFirst({
+      where: { companyId: this.companyId, id: this.user.id },
+      select: {
+        id: true,
+        status: true,
+        role: {
+          select: {
+            id: true,
+            companyId: true,
+            isSystemRole: true,
+            permissions: { where: { companyId: this.companyId }, select: { resource: true, action: true } },
+          },
+        },
+      },
+    });
+  }
+
+  async findRecordAssigneesCompanyWide(ids: string[]) {
+    const users = await this.prisma.user.findMany({
+      where: { companyId: this.companyId, id: { in: ids }, status: Status.active },
+      select: { id: true },
+    });
+    return users.map((user) => user.id);
   }
 }

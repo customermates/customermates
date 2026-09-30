@@ -1,3 +1,4 @@
+import { identityLookupValue } from "@/ee/messaging/identity-lookup";
 import type { Prisma } from "@/generated/prisma";
 
 import { isOutboundSupportOrDraftAction } from "./tool-safety";
@@ -244,8 +245,8 @@ async function mailThread(
   });
   await h.tx.messagingThreadParticipant.createMany({
     data: [
-      { id: h.id(key + ":self"), companyId: h.companyId, messagingThreadId: h.id(key), provider: "mail", providerUserId: ops.attendeeId, identifier: ops.identifier, displayName: ops.displayName, isSelf: true },
-      { id: h.id(key + ":maya"), companyId: h.companyId, messagingThreadId: h.id(key), provider: "mail", providerUserId: maya.attendeeId, identifier: maya.identifier, displayName: maya.displayName, isSelf: false },
+      { id: h.id(key + ":self"), companyId: h.companyId, messagingThreadId: h.id(key), provider: "mail", providerUserId: ops.attendeeId, identifier: ops.identifier, identityLookupValue: identityLookupValue("mail", ops.identifier), displayName: ops.displayName, isSelf: true },
+      { id: h.id(key + ":maya"), companyId: h.companyId, messagingThreadId: h.id(key), provider: "mail", providerUserId: maya.attendeeId, identifier: maya.identifier, identityLookupValue: identityLookupValue("mail", maya.identifier), displayName: maya.displayName, isSelf: false },
     ],
   });
   for (const [messageKey, direction, sentAt, bodyText] of messages) {

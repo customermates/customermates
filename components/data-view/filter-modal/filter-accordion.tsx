@@ -1,7 +1,7 @@
 "use client";
 
 import type { Filter, FilterableField } from "@/core/base/base-get.schema";
-import type { CustomColumnDto } from "@/features/custom-column/custom-column.schema";
+import type { ColumnPresentation } from "@/features/custom-column/custom-column.schema";
 
 import { observer } from "mobx-react-lite";
 
@@ -14,7 +14,7 @@ type Props = {
   filters: Filter[];
   baseId: string;
   filterableFields: FilterableField[];
-  customColumns?: CustomColumnDto[];
+  customColumns?: ColumnPresentation[];
   filterIndices?: number[];
   nested?: boolean;
   onFilterChange?: (field: string) => void;

@@ -72,7 +72,9 @@ describe("dashboard widget UI", () => {
     const timelineRow = row.slice(row.indexOf("export function TimelineRow"));
 
     expect(chips).toContain("<AppChipStack");
-    expect(chips).toContain("chipHref={(item) => entityHref(item.entityType, item.recordId)}");
+    expect(chips).toContain("chipHref={(item) => item.href}");
+    expect(chips).toContain("/records/${ref.ref.typeId}/${ref.ref.recordId}");
+    expect(chips).toContain("recordTypeIcon(ref.icon)");
     expect(chips).toContain("ENTITY_ICON[ref.entityType]");
     expect(chips).toContain('<Avatar name={ref.label} size="sm" src={ref.avatarUrl} />');
     expect(detailHeader).toContain("<ActivityRecordChips context={records} />");

@@ -37,6 +37,9 @@ import { ROUTINE_SCHEDULE_PRESETS } from "@/ee/routines/routine-schedule-preset"
 import { ROUTINE_RUN_REASONS } from "@/ee/routines/routine-run-outcome";
 import { OPERATOR_AUDIT_ACTION } from "@/ee/operator/operator.schema";
 import { DomainEvent } from "@/features/event/domain-events";
+import { RecordDeliveryEnvelopeSchema } from "@/features/records/record-delivery.schema";
+import { FieldBehaviorSchema, RecordValueTypeSchema } from "@/features/records/record-model.schema";
+import { RecordFilterSchema } from "@/features/records/record-query.schema";
 import { FeedbackType } from "@/features/feedback/send-feedback.schema";
 import {
   ENTITY_TERMINOLOGY_PRESETS,
@@ -52,7 +55,26 @@ const ENTITY_TERMINOLOGY_KEYS = Object.entries(ENTITY_TERMINOLOGY_PRESETS).flatM
   ),
 );
 
-const DOMAIN_EVENT_KEYS = Object.values(DomainEvent).map((event) => `Common.events.${event}`);
+const DOMAIN_EVENT_KEYS = [...Object.values(DomainEvent), ...RecordDeliveryEnvelopeSchema.shape.event.options].map(
+  (event) => `Common.events.${event}`,
+);
+const RECORD_VALUE_TYPE_KEYS = RecordValueTypeSchema.options.map((value) => `RecordModel.types.${value}`);
+const RECORD_BEHAVIOR_KEYS = FieldBehaviorSchema.options.map((behavior) =>
+  `RecordModel.behaviors.${behavior.shape.kind.value}`,
+);
+const RECORD_REDUCER_KEYS = ["one", "sum", "count", "average", "min", "max"].map(
+  (reducer) => `RecordModel.reducers.${reducer}`,
+);
+const RECORD_OPERATOR_KEYS = [
+  "add", "subtract", "multiply", "divide", "equal", "lessThan", "greaterThan", "and", "or", "not", "if",
+  "coalesce", "concat", "lower", "upper", "trim", "daysBetween",
+].map((operator) => `RecordModel.operators.${operator}`);
+const RECORD_TOP_LEVEL_DYNAMIC_KEYS = [
+  "assignedTo", "createdAt", "updatedAt", "missing", "restricted", "calculationError", "yes", "no",
+].map((key) => `RecordModel.${key}`);
+const RECORD_FILTER_OPERATOR_KEYS = RecordFilterSchema.shape.operator.options.map(
+  (operator) => `RecordWidgets.operators.${operator}`,
+);
 const ACCOUNT_REMOVAL_REASON_KEYS = ACCOUNT_REMOVAL_REASONS.map((reason) => `AccountRemovalReason.${reason}`);
 const ROUTINE_RUN_STATUS_KEYS = Object.values(RoutineRunStatus).map((status) => `RoutineRunStatus.${status}`);
 const ROUTINE_TRIGGER_KIND_KEYS = Object.values(RoutineTriggerKind).map((kind) => `RoutineTriggerKind.${kind}`);
@@ -473,6 +495,16 @@ const AGENT_CREDIT_BLOCKED_KEYS = [
 ].map((reason) => `AgentChat.credits.blocked.${reason}`);
 
 const DYNAMIC_TEMPLATE_CONSUMERS = new Map<string, readonly string[]>([
+  ["Dashboard.activityWidget.${*}", ["error", "noPermission", "noMatches", "noActivity", "noAccount", "scopeTooBroad"].map((state) => `Dashboard.activityWidget.${state}`)],
+  ["RecordActivityWidgets.filterKinds.${*}", ["record", "source", "provider", "account", "thread"].map((kind) => `RecordActivityWidgets.filterKinds.${kind}`)],
+  ["RecordActivityWidgets.operators.${*}", ["in", "notIn", "hasSome", "hasNone"].map((operator) => `RecordActivityWidgets.operators.${operator}`)],
+  ["RecordModel.${*}", RECORD_TOP_LEVEL_DYNAMIC_KEYS],
+  ["RecordModel.behaviors.${*}", RECORD_BEHAVIOR_KEYS],
+  ["RecordModel.deletion.${*}", ["unlink", "restrict", "cascade"].map((value) => `RecordModel.deletion.${value}`)],
+  ["RecordModel.operators.${*}", RECORD_OPERATOR_KEYS],
+  ["RecordModel.reducers.${*}", RECORD_REDUCER_KEYS],
+  ["RecordModel.types.${*}", RECORD_VALUE_TYPE_KEYS],
+  ["RecordWidgets.operators.${*}", RECORD_FILTER_OPERATOR_KEYS],
   ["AuditLogModal.fields.${*}", AUDIT_FIELD_KEYS],
   ["AuthSocialErrors.${*}", AUTH_SOCIAL_ERROR_KEYS],
   ["Common.colors.${*}", COLOR_KEYS],
@@ -572,6 +604,38 @@ const DYNAMIC_SITE_CONSUMERS = new Map<string, readonly string[]>([
 const ENFORCED = true;
 
 export const DYNAMIC_KEY_SITES = [
+  "app/[locale]/(protected)/company/components/webhook/webhook-modal.tsx :: t :: Common.events.${event}",
+  "app/[locale]/(protected)/company/data-model/components/calculation-input.tsx :: t :: RecordModel.operators.${operator}",
+  "app/[locale]/(protected)/company/data-model/components/calculation-input.tsx :: t :: RecordModel.reducers.${reducer}",
+  "app/[locale]/(protected)/company/data-model/components/data-model-page-view.tsx :: t :: RecordModel.behaviors.${field.behavior.kind}",
+  "app/[locale]/(protected)/company/data-model/components/data-model-page-view.tsx :: t :: RecordModel.types.${field.valueType}",
+  "app/[locale]/(protected)/company/data-model/components/field-modal.tsx :: t :: RecordModel.behaviors.${value}",
+  "app/[locale]/(protected)/company/data-model/components/field-modal.tsx :: t :: RecordModel.types.${value}",
+  "app/[locale]/(protected)/company/data-model/components/relationship-modal.tsx :: t :: RecordModel.deletion.${value}",
+  "app/[locale]/(protected)/company/data-model/components/type-modal.tsx :: t :: Common.dateBuckets.${field.bucket}",
+  "app/[locale]/(protected)/company/data-model/components/type-modal.tsx :: t :: RecordModel.${column.label}",
+  "app/[locale]/(protected)/company/data-model/components/type-modal.tsx :: t :: RecordModel.${field.label}",
+  "app/[locale]/(protected)/company/data-model/components/type-modal.tsx :: t :: RecordModel.reducers.${aggregation}",
+  "app/[locale]/(protected)/dashboard/components/record-activity-widget-card.tsx :: t :: Dashboard.activityWidget.${state}",
+  "app/[locale]/(protected)/dashboard/components/record-activity-widget-editor.tsx :: t :: Common.providers.${account.provider}",
+  "app/[locale]/(protected)/dashboard/components/record-activity-widget-editor.tsx :: t :: Common.providers.${id}",
+  "app/[locale]/(protected)/dashboard/components/record-activity-widget-editor.tsx :: t :: RecordActivityWidgets.filterKinds.${filter.kind}",
+  "app/[locale]/(protected)/dashboard/components/record-activity-widget-editor.tsx :: t :: RecordActivityWidgets.filterKinds.${value}",
+  "app/[locale]/(protected)/dashboard/components/record-activity-widget-editor.tsx :: t :: RecordActivityWidgets.operators.${value}",
+  "app/[locale]/(protected)/dashboard/components/record-widget-chart.tsx :: t :: RecordModel.${result.state === \"error\" ? \"calculationError\" : result.state}",
+  "app/[locale]/(protected)/dashboard/components/record-widget-chart.tsx :: t :: RecordModel.${value.value ? \"yes\" : \"no\"}",
+  "app/[locale]/(protected)/dashboard/components/record-widget-editor.tsx :: t :: RecordModel.reducers.${value}",
+  "app/[locale]/(protected)/dashboard/components/record-widget-filters.tsx :: t :: RecordWidgets.operators.${value}",
+  "app/[locale]/(protected)/records/[typeId]/components/record-detail-overview.tsx :: t :: RecordModel.${column.label}",
+  "app/[locale]/(protected)/records/[typeId]/components/record-detail-summary.tsx :: t :: RecordModel.${column.label}",
+  "app/[locale]/(protected)/records/[typeId]/components/record-identity-editor.tsx :: t :: Common.providers.${channelLabelKey(provider)}",
+  "app/[locale]/(protected)/routines/components/routine-configuration-pane.tsx :: t :: Common.events.${event}",
+  "components/data-view/group-summaries.tsx :: t :: RecordModel.reducers.${summary.aggregation}",
+  "components/shared/channel-icon-stack.tsx :: t :: Common.providers.${channelLabelKey(id.provider)}",
+  "components/shared/channel-icon-stack.tsx :: t :: Common.providers.${channelLabelKey(provider)}",
+  "features/messaging/activities/record-audit-detail.tsx :: t :: Common.events.${entry.event}",
+  "features/records/record-detail-layout.interactor.ts :: t :: RecordModel.${column.label}",
+
   "app/[locale]/(protected)/operator/components/workspaces/operator-workspace-modal.tsx :: t :: Common.providers.${channel.provider}",
   "app/[locale]/(protected)/operator/components/users/use-operator-user-columns.tsx :: t :: Common.userStatuses.${row.original.status}",
   "app/[locale]/(protected)/operator/components/users/use-operator-user-columns.tsx :: t :: Subscription.planNames.${row.original.plan}",
@@ -620,8 +684,6 @@ export const DYNAMIC_KEY_SITES = [
   "app/[locale]/(protected)/routines/components/use-routine-columns.tsx :: t :: RoutineRunStatus.${row.original.lastRunStatus}",
   "app/[locale]/(protected)/routines/components/use-routine-columns.tsx :: t :: Common.userStatuses.${owner.status}",
   "app/[locale]/(protected)/contacts/components/add-channel-popover.tsx :: t :: Common.providers.${provider}",
-  "app/[locale]/(protected)/contacts/components/channel-icon-stack.tsx :: t :: Common.providers.${channelLabelKey(id.provider)}",
-  "app/[locale]/(protected)/contacts/components/channel-icon-stack.tsx :: t :: Common.providers.${channelLabelKey(provider)}",
   "app/[locale]/(protected)/contacts/components/contact-channels.tsx :: t :: Common.providers.${channelLabelKey(identifier.provider)}",
   "app/[locale]/(protected)/contacts/components/contact-compose-popover.tsx :: t :: Common.providers.${provider}",
   "app/[locale]/(protected)/dashboard/components/activity-filter-fields.tsx :: t :: Common.filters.operators.${filter.operator}",
@@ -742,6 +804,14 @@ export const DYNAMIC_KEY_SITES = [
 ];
 
 const NONLITERAL_T_CALL_SITES = new Map<string, number>([
+  ["app/[locale]/(protected)/dashboard/components/record-activity-widget-editor.tsx :: t :: id === \"audit\" ? \"EntityTimeline.types.changes\" : id === \"message\" ? \"EntityTimeline.types.messages\" : id === \"calendar_event\" ? \"ContactHistory.calendarMeeting\" : \"EntityTimeline.types.activities\"", 1],
+  ["components/data-view/filter-modal/inputs/use-filter-select-items.tsx :: t :: record.title.state === \"restricted\" ? \"RecordModel.restricted\" : \"Common.filters.unavailableValue\"", 1],
+  ["components/data-view/views/view-ai-type-label.ts :: t :: form === \"standalone\" ? \"AgentChat.context.surfaceViewTypeStandalone\" : \"AgentChat.context.surfaceViewType\"", 1],
+  ["components/records/record-configuration-preview.tsx :: t :: issue.code === \"existing_values_incompatible\" ? \"RecordModel.existingValuesIncompatible\" : issue.code === \"saved_view_incompatible\" ? \"RecordModel.savedViewIncompatible\" : issue.code === \"detail_layout_incompatible\" ? \"RecordModel.detailLayoutIncompatible\" : \"RecordModel.dependencyHelp\"", 1],
+  ["components/records/record-operation-progress.tsx :: t :: status.state === \"failed\" ? \"RecordModel.operationFailed\" : \"RecordModel.operationCancelled\"", 1],
+  ["features/messaging/activities/record-activities-panel.tsx :: t :: kind === \"audit\" ? \"EntityTimeline.types.changes\" : kind === \"message\" ? \"EntityTimeline.types.messages\" : kind === \"calendar_event\" ? \"ContactHistory.calendarMeeting\" : \"EntityTimeline.types.activities\"", 1],
+  ["features/messaging/activities/record-audit-detail.tsx :: t :: side === \"before\" ? \"RecordModel.previousValue\" : \"RecordModel.currentValue\"", 1],
+
   ["core/validation/interactor-failure-server.ts :: t.raw :: code", 1],
   ["features/mcp-tools/mcp-tool.ts :: t.raw :: customCode", 1],
   [
@@ -847,6 +917,42 @@ const TERMINOLOGY_TEMPLATE_EVIDENCE = Object.fromEntries(
 );
 
 const INDIRECT_KEY_CONSUMERS: readonly IndirectKeyConsumer[] = [
+  {
+    file: "components/records/record-configuration-preview.tsx",
+    keys: [
+      "RecordModel.existingValuesIncompatible",
+      "RecordModel.savedViewIncompatible",
+      "RecordModel.detailLayoutIncompatible",
+      "RecordModel.dependencyHelp",
+    ],
+  },
+  {
+    file: "components/records/record-operation-progress.tsx",
+    keys: ["RecordModel.operationFailed", "RecordModel.operationCancelled"],
+  },
+  {
+    file: "app/[locale]/(protected)/records/[typeId]/components/use-record-deletion.ts",
+    keys: ["RecordModel.deletionAccepted"],
+  },
+  {
+    file: "features/records/workspace-record-preset.ts",
+    keys: [
+      "RecordModel.lineItem", "RecordModel.lineItems",
+      "RecordModel.lineFields.quantity", "RecordModel.lineFields.pricingMode", "RecordModel.lineFields.savedPrice",
+      "RecordModel.lineFields.effectivePrice", "RecordModel.lineFields.amount",
+      "RecordModel.priceModes.live", "RecordModel.priceModes.saved",
+    ],
+    evidence: Object.fromEntries([
+      ...["quantity", "pricingMode", "savedPrice", "effectivePrice", "amount"].map((key) => [
+        `RecordModel.lineFields.${key}`,
+        [{ kind: "template" as const, value: "`RecordModel.lineFields.${key}`" }],
+      ]),
+      ...["live", "saved"].map((mode) => [
+        `RecordModel.priceModes.${mode}`,
+        [{ kind: "template" as const, value: "`RecordModel.priceModes.${option.id}`" }],
+      ]),
+    ]),
+  },
   {
     file: "app/[locale]/(protected)/operator/components/operator-value-labels.tsx",
     keys: OPERATOR_AUDIT_ACTION_LABEL_KEYS,
@@ -1282,7 +1388,7 @@ describe("i18n key resolution", () => {
       .filter((key) => key.startsWith("Common.events."))
       .map((key) => key.slice("Common.events.".length))
       .sort();
-    const domainEvents = Object.values(DomainEvent).sort();
+    const domainEvents = [...Object.values(DomainEvent), ...RecordDeliveryEnvelopeSchema.shape.event.options].sort();
     expect(translatedEvents).toEqual(domainEvents);
   });
 

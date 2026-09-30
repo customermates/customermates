@@ -27,7 +27,7 @@ function attendee(identifier: string, isSelf = false): MessagingAttendee {
     headline: null,
     occupation: null,
     isSelf,
-    contact: null,
+    record: null,
   };
 }
 

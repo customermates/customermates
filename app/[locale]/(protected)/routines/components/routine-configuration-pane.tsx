@@ -29,6 +29,7 @@ import {
   scheduleHasClockTime,
 } from "@/ee/routines/routine-schedule-preset";
 import { USER_STATUS_COLORS_MAP } from "@/constants/user-statuses";
+import { RoutineRecordTrigger } from "./routine-record-trigger";
 
 const TRIGGER_EVENT_ITEMS = ROUTINE_TRIGGER_EVENTS.map((event) => ({
   key: event,
@@ -298,7 +299,25 @@ export const RoutineConfigurationPane = observer(({ store, onPause }: Props) => 
 
           <p className="text-subdued text-xs">{t("RoutineModal.eventSuppressionNote")}</p>
 
-          {hasChangedFieldRows && (
+          {store.usesRecordTrigger &&
+            (form.recordSources?.length ? (
+              <div className="flex flex-wrap gap-1.5">
+                {form.recordSources.map((source, index) => (
+                  <AppChip key={`${source.query.typeId}:${index}`}>
+                    {store.recordModel?.types.find((type) => type.id === source.query.typeId)?.pluralLabel ??
+                      t("RecordModel.records")}
+
+                    {" · "}
+
+                    {source.events.map((event) => t(`Common.events.${event}`)).join(", ")}
+                  </AppChip>
+                ))}
+              </div>
+            ) : (
+              <RoutineRecordTrigger store={store} />
+            ))}
+
+          {!store.usesRecordTrigger && hasChangedFieldRows && (
             <div className="space-y-1.5">
               <FormAutocomplete
                 id="changedFields"
@@ -317,7 +336,7 @@ export const RoutineConfigurationPane = observer(({ store, onPause }: Props) => 
             </div>
           )}
 
-          {hasTriggerFilterRows && (
+          {!store.usesRecordTrigger && hasTriggerFilterRows && (
             <div className="space-y-1.5">
               <FormLabel>{t("Common.inputs.triggerFilters")}</FormLabel>
 

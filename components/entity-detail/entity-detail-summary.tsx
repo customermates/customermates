@@ -118,7 +118,7 @@ function SummaryEntry({ item }: { item: EntityDetailSummaryField }) {
   );
 }
 
-function SummaryRail({ items }: { items: EntityDetailSummaryField[] }) {
+export function EntityDetailSummaryRail({ items }: { items: EntityDetailSummaryField[] }) {
   const t = useTranslations();
 
   return (
@@ -179,5 +179,5 @@ export const EntityDetailSummary = observer(function EntityDetailSummary({
 
   if (items.length === 0) return null;
 
-  return <SummaryRail items={items} />;
+  return <EntityDetailSummaryRail items={items} />;
 });

@@ -1,0 +1,58 @@
+import { describe, expect, it } from "vitest";
+import { identityKeys, normalizedIdentity, updatedIdentities } from "../record-identity";
+import { RecordIdentityInputsSchema } from "../record-identity.schema";
+
+describe("record identity channels", () => {
+  it.each([
+    ["mail", " Person@Example.test ", "person@example.test"],
+    ["outlook", "Person@Example.test", "person@example.test"],
+    ["whatsapp", "+49 (151) 12345678", "+4915112345678"],
+    ["linkedin", "https://www.linkedin.com/in/person/", "person"],
+    ["telegram", "@person", "person"],
+    ["instagram", "https://instagram.com/person", "person"],
+  ] as const)("preserves %s normalization", (provider, value, expected) => {
+    expect(normalizedIdentity({ provider, value })?.value).toBe(expected);
+  });
+
+  it("rejects invalid channels and discards redundant IDs only for deterministic providers", () => {
+    expect(normalizedIdentity({ provider: "mail", value: "invalid" })).toBeNull();
+    expect(normalizedIdentity({ provider: "whatsapp", value: "123" })).toBeNull();
+    expect(normalizedIdentity({ provider: "linkedin", value: "invalid handle" })).toBeNull();
+    expect(
+      normalizedIdentity({ provider: "mail", value: "person@example.test", messagingId: "discard" })?.messagingId,
+    ).toBeNull();
+    expect(normalizedIdentity({ provider: "linkedin", value: "person", messagingId: "urn:123" })?.messagingId).toBe(
+      "urn:123",
+    );
+    expect(identityKeys({ value: "person", messagingId: "person" })).toEqual(["person"]);
+  });
+
+  it("preserves identity IDs and timestamps across unchanged saves and email-provider changes", () => {
+    const initial = updatedIdentities([], [{ provider: "google", value: "person@example.test" }]);
+    const previous = initial.map((row) => ({
+      ...row,
+      createdAt: "2020-01-01T00:00:00.000Z",
+      updatedAt: "2020-01-02T00:00:00.000Z",
+    }));
+    expect(updatedIdentities(previous, [{ provider: "google", value: "person@example.test" }])).toEqual(previous);
+    const changed = updatedIdentities(previous, [{ provider: "outlook", value: "person@example.test" }]);
+    expect(changed[0]).toMatchObject({ id: previous[0]?.id, createdAt: previous[0]?.createdAt, provider: "outlook" });
+    expect(changed[0]?.updatedAt).not.toBe(previous[0]?.updatedAt);
+  });
+
+  it("bounds channel payloads and rejects executable profile URLs", () => {
+    expect(
+      RecordIdentityInputsSchema.safeParse([
+        { provider: "mail", value: "person@example.test", profileUrl: "javascript:alert(1)" },
+      ]).success,
+    ).toBe(false);
+    expect(
+      RecordIdentityInputsSchema.safeParse([{ provider: "mail", value: "person@example.test", extra: true }]).success,
+    ).toBe(false);
+    expect(
+      RecordIdentityInputsSchema.safeParse(
+        Array.from({ length: 101 }, () => ({ provider: "mail", value: "person@example.test" })),
+      ).success,
+    ).toBe(false);
+  });
+});

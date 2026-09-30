@@ -1,3 +1,4 @@
+import { createTestRecordRecipientReader } from "@/tests/helpers/record-delivery";
 import { randomUUID } from "node:crypto";
 
 import { Client } from "pg";
@@ -14,7 +15,7 @@ import { EventService } from "@/features/event/event.service";
 import { getLocalDatabaseTestUrl } from "@/tests/helpers/database-test";
 import { createMockUser } from "@/tests/helpers/mock-user";
 
-import { PrismaRoutineRepo } from "../prisma-routine.repository";
+import { createTestRoutineRepo } from "@/tests/helpers/record-delivery";
 import { PrismaRoutineEventAccess } from "../routine-event-access";
 import { PrismaRoutineFilterMatcher } from "../routine-filter-matcher";
 
@@ -43,6 +44,7 @@ describeDatabase("routine event access against PostgreSQL", () => {
   const crossCompanyCustomColumnId = randomUUID();
 
   const access = new PrismaRoutineEventAccess(
+    createTestRecordRecipientReader(),
     new PrismaRoutineFilterMatcher(new PrismaContactRepo(), {} as never, {} as never, {} as never, {} as never),
   );
 
@@ -534,7 +536,7 @@ describeDatabase("routine event access against PostgreSQL", () => {
     }
 
     const background = { dispatch: vi.fn().mockResolvedValue(undefined) };
-    const routineRepo = new PrismaRoutineRepo(access);
+    const routineRepo = createTestRoutineRepo(access);
     const service = new EventService(
       [],
       { getWebhooksForEvent: vi.fn().mockResolvedValue([]) } as never,
@@ -614,7 +616,7 @@ describeDatabase("routine event access against PostgreSQL", () => {
                ARRAY[]::text[], '[]'::jsonb, 0, CURRENT_TIMESTAMP)`,
       [routineId, companyId, assignedOwnerId],
     );
-    const routineRepo = new PrismaRoutineRepo(access);
+    const routineRepo = createTestRoutineRepo(access);
     const candidates = await routineRepo.findEventRoutinesUnscoped(companyId, "contact.updated");
     const candidate = candidates.find((routine) => routine.id === routineId);
     expect(candidate).toBeDefined();

@@ -89,7 +89,7 @@ describe("saved-view MCP HTTP transport", () => {
 
     const listed = await rpc({ jsonrpc: "2.0", id: 2, method: "tools/list" }, sessionId);
     const toolNames = listed.data?.result?.tools?.map(({ name }) => name);
-    expect(toolNames?.toSorted()).toEqual(["fetch", "manage_data_views", "search"]);
+    expect(toolNames?.toSorted()).toEqual(["fetch", "manage_data_views", "manage_record_detail_layout", "search"]);
 
     const called = await rpc(
       {

@@ -8,11 +8,11 @@ import { afterAll, beforeAll, describe, expect, it } from "vitest";
 import { Action, Locale, Resource } from "@/generated/prisma";
 
 import { PrismaCalendarRepo } from "@/ee/calendar/prisma-calendar.repository";
-import { PrismaRoutineRepo } from "@/ee/routines/prisma-routine.repository";
+import { createTestRoutineRepo } from "@/tests/helpers/record-delivery";
 import { PrismaRoleRepo } from "@/features/role/prisma-role.repository";
 import { PrismaServiceRepo } from "@/features/services/prisma-service.repository";
 import { PrismaUserRepo } from "@/features/user/prisma-user.repository";
-import { PrismaWebhookRepo } from "@/features/webhook/prisma-webhook.repository";
+import { createTestWebhookRepo } from "@/tests/helpers/record-delivery";
 import { getLocalDatabaseTestUrl } from "@/tests/helpers/database-test";
 import { createMockUserWithPermissions } from "@/tests/helpers/mock-user";
 import { runWithTenant } from "@/core/decorators/tenant-context";
@@ -100,9 +100,9 @@ describeDatabase("built-in text sorts on PostgreSQL follow the user's locale", (
     const params = { sortDescriptor: { field: "name", direction } };
 
     const services = await read(() => new PrismaServiceRepo().getItems(params));
-    const routines = await read(() => new PrismaRoutineRepo().getItems(params));
+    const routines = await read(() => createTestRoutineRepo().getItems(params));
     const members = await read(() => new PrismaUserRepo().getItems(params));
-    const webhooks = await read(() => new PrismaWebhookRepo().getItems(params));
+    const webhooks = await read(() => createTestWebhookRepo().getItems(params));
     const roles = await read(() =>
       new PrismaRoleRepo().getItems({ sortDescriptor: { field: "type", direction: "asc" } }),
     );
@@ -134,7 +134,7 @@ describeDatabase("built-in text sorts on PostgreSQL follow the user's locale", (
 
   it.each(["asc", "desc"] as const)("lists routines without a next run last when sorting %s", async (direction) => {
     const routines = await read(() =>
-      new PrismaRoutineRepo().getItems({ sortDescriptor: { field: "nextRunAt", direction } }),
+      createTestRoutineRepo().getItems({ sortDescriptor: { field: "nextRunAt", direction } }),
     );
     const scheduledNames = direction === "asc" ? ["Umzug", "Zahlung"] : ["Zahlung", "Umzug"];
 

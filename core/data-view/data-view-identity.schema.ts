@@ -5,4 +5,5 @@ import { ALL_VIEW_KEY, DATA_VIEW_SURFACE_KEYS } from "./data-view-keys";
 export const ViewKeySchema = z.union([z.literal(ALL_VIEW_KEY), z.uuid()]);
 export type ViewKey = z.infer<typeof ViewKeySchema>;
 
-export const SurfaceKeySchema = z.enum(DATA_VIEW_SURFACE_KEYS);
+export const RecordSurfaceKeySchema = z.templateLiteral(["records:", z.uuid()]);
+export const SurfaceKeySchema = z.union([z.enum(DATA_VIEW_SURFACE_KEYS), RecordSurfaceKeySchema]);

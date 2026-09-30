@@ -35,7 +35,7 @@ Um einen Webhook zu ändern, klicken Sie auf seine Zeile, bearbeiten den Dialog 
 ```json
 {
   "url": "https://hooks.example.com/customermates",
-  "events": ["contact.created", "contact.updated", "deal.updated"],
+  "events": ["record.created", "record.updated"],
   "secret": "nutze-einen-random-string-aus-einem-password-manager",
   "enabled": true
 }
@@ -78,35 +78,28 @@ Jede Zustellung ist ein `POST` mit `Content-Type: application/json` und demselbe
 
 `userId` ist der User, der den Write verursacht hat, inklusive User, die über einen API-Key handeln. Bei Messaging-Events, die durch eingehende Provider-Aktivität statt durch eine User-Aktion ausgelöst werden, ist `userId` gleich `null`.
 
-Bei `*.updated`-Events umschließt `payload` den vollständigen Record zusammen mit einem `changes`-Objekt. Bei `*.created`- und `*.deleted`-Events ist `payload` der Record selbst.
+Bei aktuellen CRM-Events enthält `data.payload` einen versionierten Datensatzumschlag. Die Referenz umfasst `typeId` und `recordId` und bleibt auch nach einer Umbenennung eindeutig. Legen Sie am Webhook Datensatzquellen fest, um Typen und Felder für die Zustellung auszuwählen.
 
-Beispiel, `contact.updated`:
+Beispiel für `record.updated` bei einem Kontakt, ohne für die Erklärung unnötige Felder:
 
 ```json
 {
-  "event": "contact.updated",
+  "event": "record.updated",
   "data": {
-    "userId": "u_123",
-    "companyId": "c_abc",
-    "entityId": "ct_xyz",
+    "userId": "<ausloesender-user-id>",
+    "companyId": "<workspace-id>",
+    "entityId": "<record-id>",
     "payload": {
-      "contact": {
-        "id": "ct_xyz",
-        "firstName": "Max",
-        "lastName": "Mustermann",
-        "notes": { /* Tiptap-JSON */ },
-        "organizations": [{ "id": "org_1", "name": "Example GmbH" }],
-        "users": [],
-        "deals": [{ "id": "deal_1" }, { "id": "deal_2" }],
-        "customFieldValues": [
-          { "columnId": "col_abc", "value": "Won" }
+      "version": 2,
+      "event": "record.updated",
+      "record": {
+        "ref": { "typeId": "<kontakt-typ-id>", "recordId": "<record-id>" },
+        "schemaRevision": 3,
+        "beforeVersion": 1,
+        "afterVersion": 2,
+        "fields": [
+          { "fieldId": "<vorname-feld-id>", "before": { "value": { "state": "value", "value": { "kind": "text", "value": "Max" } } }, "after": { "value": { "state": "value", "value": { "kind": "text", "value": "Maximilian" } } } }
         ]
-      },
-      "changes": {
-        "organizations": {
-          "previous": [],
-          "current": [{ "id": "org_1", "name": "Example GmbH" }]
-        }
       }
     }
   },
@@ -114,15 +107,13 @@ Beispiel, `contact.updated`:
 }
 ```
 
-Die Record-Felder hängen vom Entity-Typ ab. Custom-Columns erscheinen unter `customFieldValues` als `columnId`- und `value`-Paare. Mit `get_record_schema` sehen Sie die Columns, die für einen Entity-Typ in Ihrem Workspace konfiguriert sind.
+Der tatsächliche Datensatzumschlag enthält außerdem IDs, Zeitstempel, Ursache, Zuweisungen, Identitäten und Änderungen an Verknüpfungen. Feldeinträge tragen Anzeigedaten und können statt eines Werts `missing`, `restricted` oder `error` enthalten. Stabile Typ- und Feld-IDs liefert `POST /api/v2/model/discover` oder das MCP-Tool `get_record_model`.
 
-## Das `changes`-Objekt [#the-changes-object]
+## Geänderte Felder [#the-changes-object]
 
-`changes` existiert nur bei `*.updated`-Events. Jeder Key ist ein Record-Feld, dessen Wert sich geändert hat. `previous` ist der Wert vor dem Write, `current` der Wert danach.
+`record.fields` listet geänderte Felder mit Werten für `before` und `after` auf. `record.links`, `record.assignments` und `record.identities` beschreiben weitere geänderte Verbindungen. `record.beforeVersion` und `record.afterVersion` bezeichnen die betroffenen Datensatzversionen. Ein fehlender oder eingeschränkter Wert ist nicht dasselbe wie der Zahlenwert 0.
 
-Skalare und Objekt-Felder melden ihren vollständigen Wert vor und nach der Änderung, verglichen per Deep-Equal. Arrays, deren Elemente eine `id`, `columnId` oder einen `key` tragen (verknüpfte Records, Custom-Column-Werte), melden nur die Elemente, die sich geändert haben: `previous` enthält die geänderten oder entfernten Elemente, `current` die geänderten oder hinzugefügten Elemente, und unveränderte Elemente entfallen. Ein hinzugefügtes Element erscheint deshalb nur unter `current`, ein entferntes nur unter `previous`. Arrays ohne einen solchen Key melden auf beiden Seiten das ganze Array. `createdAt` und `updatedAt` werden nie als Änderung gemeldet.
-
-Wenn ein Write kein Feld ändert, wird das Event unterdrückt. No-op-`*.updated`-Events werden nicht zugestellt.
+Änderungen ohne Wirkung erzeugen kein `record.updated`-Event. Der Payload wird bei der Zustellung gemäß den aktuellen Datensatz- und Berechnungsfeldrechten des Webhook-Eigentümers redigiert.
 
 ## Eigene Header und Body-Vorlagen [#custom-headers-and-body-templates]
 
@@ -259,7 +250,7 @@ Sie können eine Zustellung zusätzlich selbst erneut senden. In **Ereignis-Deta
 
 ## Sind Zustellungen geordnet, und kommen Webhooks in der richtigen Reihenfolge an? [#are-deliveries-ordered]
 
-Zustellungen sind über Ereignisse hinweg nicht strikt geordnet. Zwei `contact.updated`-Events im Millisekundenabstand können in falscher Reihenfolge ankommen. Lösen Sie die Reihenfolge über den `timestamp` im Payload auf oder behandeln Sie Zustellungen als idempotente Nachrichten mit `entityId` als Schlüssel.
+Zustellungen sind über Ereignisse hinweg nicht strikt geordnet. Zwei `record.updated`-Events im Millisekundenabstand können in falscher Reihenfolge ankommen. Nutzen Sie `timestamp` und Datensatzversion zur Reihenfolge oder behandeln Sie Zustellungen als idempotente Nachrichten mit `typeId`, `recordId` und Event-ID als Schlüssel.
 
 ## Warum sind Notizen in Payloads Tiptap-JSON? [#notes-are-json-not-markdown]
 
@@ -279,11 +270,19 @@ Delete-Events enthalten unter `payload` den vollständigen Record, wie er vor de
 
 ## Welche Ereignisse gibt es? [#which-events-exist]
 
-[[derived.webhooks.events.total]] Events können Sie abonnieren: [[derived.webhooks.events.records]] Record-Events über die fünf Entity-Typen (`created`, `updated` und `deleted` für jeden, etwa `contact.created`) und [[derived.webhooks.events.messaging]] Messaging-Events. Alle nutzen den Umschlag aus [Wie sieht der Payload aus?](#what-does-the-payload-look-like). Routinen können durch dieselben Ereignisse ausgelöst werden, mit Ausnahme von **E-Mail gelöscht** (`messaging.email.deleted`) und **Chat gelöscht** (`messaging.chat.deleted`); **Nachricht gelöscht** (`messaging.message.deleted`) löst Routinen aus; siehe [Routinen](/docs/app-routines#how-do-event-triggers-work).
+Der Katalog akzeptiert [[derived.webhooks.events.total]] Event-Bezeichner: drei aktuelle Datensatz-Events, fünfzehn typspezifische Altbezeichner für bestehende Konfigurationen und [[derived.webhooks.events.messaging]] Messaging-Events. Für einen neuen CRM-Webhook wählen Sie `record.created`, `record.updated` oder `record.deleted` und legen Datensatzquellen mit Typen, Feldern und Filtern fest. Das funktioniert auch für selbst angelegte Typen. Alle nutzen den Umschlag aus [Wie sieht der Payload aus?](#what-does-the-payload-look-like). Routinen können durch dieselben Ereignisse ausgelöst werden, mit Ausnahme von **E-Mail gelöscht** (`messaging.email.deleted`) und **Chat gelöscht** (`messaging.chat.deleted`); **Nachricht gelöscht** (`messaging.message.deleted`) löst Routinen aus; siehe [Routinen](/docs/app-routines#how-do-event-triggers-work).
 
 ### Record-Events [#record-events]
 
 | Event | Wann es feuert | `payload` |
+|---|---|---|
+| `record.created` | Ein Datensatz eines konfigurierten Quelltyps wird erstellt | Datensatzumschlag Version 2 |
+| `record.updated` | Feld, Zuweisung, Identität oder Verknüpfung eines konfigurierten Quelltyps ändert sich | Datensatzumschlag Version 2 mit vorherigen und neuen Werten |
+| `record.deleted` | Ein Datensatz eines konfigurierten Quelltyps wird gelöscht | Datensatzumschlag Version 2 |
+
+Die folgenden typspezifischen Bezeichner bleiben für ältere Konfigurationen erhalten. Sie sind nicht der Vertrag für neue generische Datensatzänderungen oder selbst angelegte Typen; migrieren Sie solche Abonnements auf ein generisches Event mit Datensatzquelle.
+
+| Altes Event | Frühere Bedeutung | Alter `payload` |
 |---|---|---|
 | `contact.created` | Ein Contact wird via UI, API, MCP oder Import erstellt | vollständiger Contact |
 | `contact.updated` | Ein Contact-Feld ändert sich | `contact`, `changes` |

@@ -1,3 +1,6 @@
+import { RecordActivityWidgetDtoSchema } from "./record-activity-widget.schema";
+import { RecordWidgetDtoSchema } from "./record-widget.schema";
+import { runInTransaction } from "@/core/decorators/transaction-runner";
 import type { RepoArgs } from "@/core/utils/types";
 import type { GetWidgetsRepo } from "./get-widgets.interactor";
 import type { UpsertWidgetRepo } from "./upsert-widget.interactor";
@@ -8,14 +11,15 @@ import type { UpdateWidgetLayoutsRepo } from "./update-widget-layouts.interactor
 import type { FindWidgetsByIdsRepo } from "./find-widgets-by-ids.repo";
 import type { WidgetDisplayOptions, WidgetDto, WidgetLayout } from "./widget.schema";
 import type { Filter } from "@/core/base/base-get.schema";
-import type { AggregationType, Prisma, WidgetGroupByType, EntityType } from "@/generated/prisma";
+import type { AggregationType, WidgetGroupByType, EntityType } from "@/generated/prisma";
+import type { WidgetCompatibilityRepo } from "./get-widget-compatibility.interactor";
 
-import { Action, Resource, WidgetKind } from "@/generated/prisma";
+import { Action, Resource, WidgetKind, Prisma } from "@/generated/prisma";
 
 import { BaseRepository } from "@/core/base/base-repository";
 import { Transaction } from "@/core/decorators/transaction.decorator";
 import { BREAKPOINTS } from "@/constants/breakpoints";
-import { getWidgetCalculatorRepo } from "@/core/di";
+import { getWidgetCalculatorRepo, getRecordWidgetReader, getRecordActivityWidgetReader } from "@/core/di";
 import { ActivityWidgetDtoSchema } from "./widget.schema";
 import { activityFilterableFieldsForViewer } from "@/ee/messaging/activities/activity-filterable-fields";
 import { normalizeFilters } from "@/core/base/filter-compat";
@@ -29,9 +33,29 @@ export class PrismaWidgetRepo
     GetCompanyWidgetsRepo,
     GetWidgetByIdRepo,
     UpdateWidgetLayoutsRepo,
-    FindWidgetsByIdsRepo
+    FindWidgetsByIdsRepo,
+    WidgetCompatibilityRepo
 {
   private messagingSourcesEnabled = false;
+
+  async hasLegacyDefinitions(): Promise<boolean> {
+    const row = await this.prisma.widget.findFirst({
+      where: {
+        companyId: this.companyId,
+        AND: [
+          { OR: [{ userId: this.userId }, { isTemplate: true }] },
+          {
+            OR: [
+              { kind: "chart", measure: { equals: Prisma.AnyNull } },
+              { kind: "activityTimeline", activityQuery: { equals: Prisma.AnyNull } },
+            ],
+          },
+        ],
+      },
+      select: { id: true },
+    });
+    return row !== null;
+  }
 
   canReadMessagingSources() {
     return (
@@ -61,6 +85,9 @@ export class PrismaWidgetRepo
       companyId: true,
       name: true,
       kind: true,
+      measure: true,
+      activityQuery: true,
+      version: true,
       entityType: true,
       entityFilters: true,
       dealFilters: true,
@@ -90,6 +117,12 @@ export class PrismaWidgetRepo
       updatedAt: row.updatedAt,
     };
 
+    if (row.kind === WidgetKind.activityTimeline && row.activityQuery) {
+      const stored = RecordActivityWidgetDtoSchema.omit({ schemaRevision: true, data: true, status: true })
+        .strip()
+        .parse({ ...row, contractVersion: 2 });
+      return getRecordActivityWidgetReader().read(stored);
+    }
     if (row.kind === WidgetKind.activityTimeline) {
       const timelineFilters = Array.isArray(row.timelineFilters)
         ? normalizeFilters(row.timelineFilters as unknown as Filter[])
@@ -104,6 +137,15 @@ export class PrismaWidgetRepo
       return parsed.success ? parsed.data : null;
     }
 
+    if (row.measure !== null && row.measure !== undefined) {
+      const stored = RecordWidgetDtoSchema.omit({ data: true, status: true, groupOptions: true })
+        .strip()
+        .parse({
+          ...row,
+          contractVersion: 2,
+        });
+      return getRecordWidgetReader().read(stored);
+    }
     const entityType = row.entityType as EntityType;
     const aggregationType = row.aggregationType as AggregationType;
     const entityFilters = normalizeFilters((row.entityFilters as unknown as Filter[] | null) ?? []);
@@ -127,18 +169,23 @@ export class PrismaWidgetRepo
   }
 
   async getWidgets() {
-    const { id: userId, companyId } = this.user;
+    return runInTransaction(
+      async () => {
+        const { id: userId, companyId } = this.user;
 
-    const rows = await this.prisma.widget.findMany({
-      where: {
-        userId,
-        companyId,
+        const rows = await this.prisma.widget.findMany({
+          where: {
+            userId,
+            companyId,
+          },
+          select: this.dtoSelect,
+        });
+
+        const widgets = await Promise.all(rows.map((row) => this.toDto(row)));
+        return widgets.filter((widget): widget is WidgetDto => widget !== null);
       },
-      select: this.dtoSelect,
-    });
-
-    const widgets = await Promise.all(rows.map((row) => this.toDto(row)));
-    return widgets.filter((widget): widget is WidgetDto => widget !== null);
+      { readOnly: true, timeout: 30000 },
+    );
   }
 
   @Transaction
@@ -146,6 +193,14 @@ export class PrismaWidgetRepo
     const { id: userId, companyId } = this.user;
     const { data: widgetData } = data;
 
+    if (widgetData.id) {
+      const current = await this.prisma.widget.findFirst({
+        where: { id: widgetData.id, companyId, userId },
+        select: { measure: true, activityQuery: true },
+      });
+      if (current?.measure || current?.activityQuery)
+        throw new Error("This widget requires the version-two widget interface");
+    }
     const displayOptions = widgetData.displayOptions === undefined ? {} : { displayOptions: widgetData.displayOptions };
 
     const widgetDataForDb: Prisma.WidgetUncheckedCreateInput =
@@ -258,18 +313,23 @@ export class PrismaWidgetRepo
   }
 
   async getWidgetById(id: string) {
-    const { id: userId, companyId } = this.user;
+    return runInTransaction(
+      async () => {
+        const { id: userId, companyId } = this.user;
 
-    const row = await this.prisma.widget.findFirst({
-      where: {
-        id,
-        companyId,
-        OR: [{ userId }, { isTemplate: true }],
+        const row = await this.prisma.widget.findFirst({
+          where: {
+            id,
+            companyId,
+            OR: [{ userId }, { isTemplate: true }],
+          },
+          select: this.dtoSelect,
+        });
+
+        return row ? this.toDto(row) : null;
       },
-      select: this.dtoSelect,
-    });
-
-    return row ? this.toDto(row) : null;
+      { readOnly: true, timeout: 30000 },
+    );
   }
 
   @Transaction

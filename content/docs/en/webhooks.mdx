@@ -35,7 +35,7 @@ To change a webhook, click its row, edit the dialog and click **Save**. To remov
 ```json
 {
   "url": "https://hooks.example.com/customermates",
-  "events": ["contact.created", "contact.updated", "deal.updated"],
+  "events": ["record.created", "record.updated"],
   "secret": "use-a-random-string-from-a-password-manager",
   "enabled": true
 }
@@ -78,35 +78,28 @@ Every delivery is a `POST` with `Content-Type: application/json` and the same en
 
 `userId` is the user who caused the write, including a user acting through an API key. For messaging events, which are triggered by inbound provider activity rather than a user action, `userId` is `null`.
 
-For `*.updated` events, `payload` wraps the full record together with a `changes` object. For `*.created` and `*.deleted` events, `payload` is the record itself.
+For current CRM events, `data.payload` contains a versioned record envelope. The record reference includes both `typeId` and `recordId`, so it remains unambiguous even when a type is renamed. Configure record sources on the webhook to select the types and fields that should trigger delivery.
 
-Example, `contact.updated`:
+Example, `record.updated` for a contact, with unrelated fields omitted:
 
 ```json
 {
-  "event": "contact.updated",
+  "event": "record.updated",
   "data": {
-    "userId": "u_123",
-    "companyId": "c_abc",
-    "entityId": "ct_xyz",
+    "userId": "<actor-user-id>",
+    "companyId": "<workspace-id>",
+    "entityId": "<record-id>",
     "payload": {
-      "contact": {
-        "id": "ct_xyz",
-        "firstName": "Max",
-        "lastName": "Mustermann",
-        "notes": { /* Tiptap JSON */ },
-        "organizations": [{ "id": "org_1", "name": "Example GmbH" }],
-        "users": [],
-        "deals": [{ "id": "deal_1" }, { "id": "deal_2" }],
-        "customFieldValues": [
-          { "columnId": "col_abc", "value": "Won" }
+      "version": 2,
+      "event": "record.updated",
+      "record": {
+        "ref": { "typeId": "<contact-type-id>", "recordId": "<record-id>" },
+        "schemaRevision": 3,
+        "beforeVersion": 1,
+        "afterVersion": 2,
+        "fields": [
+          { "fieldId": "<first-name-field-id>", "before": { "value": { "state": "value", "value": { "kind": "text", "value": "Max" } } }, "after": { "value": { "state": "value", "value": { "kind": "text", "value": "Maximilian" } } } }
         ]
-      },
-      "changes": {
-        "organizations": {
-          "previous": [],
-          "current": [{ "id": "org_1", "name": "Example GmbH" }]
-        }
       }
     }
   },
@@ -114,15 +107,13 @@ Example, `contact.updated`:
 }
 ```
 
-The record fields depend on the entity type. Custom columns appear under `customFieldValues` as `columnId` and `value` pairs. Use `get_record_schema` to see the columns configured for a given entity in your workspace.
+The actual record envelope also carries IDs, timestamps, cause information, assignments, identities and link changes. Field entries include display metadata and may show `missing`, `restricted`, or `error` instead of a value. Use `POST /api/v2/model/discover` or the `get_record_model` MCP tool to resolve stable type and field IDs.
 
-## The `changes` object
+## Changed fields [#the-changes-object]
 
-`changes` is present only on `*.updated` events. Each key is a record field whose value moved. `previous` is the value before the write, `current` is the value after.
+`record.fields` lists changed fields with `before` and `after` values; `record.links`, `record.assignments`, and `record.identities` describe other changed connections. `record.beforeVersion` and `record.afterVersion` identify the record versions involved. A missing or restricted field is not the same as zero.
 
-Scalar and object fields report their complete value before and after, compared by deep equality. Arrays whose items carry an `id`, `columnId` or `key` (related records, custom-field values) report only the items that moved: `previous` holds the items that changed or were removed, `current` holds the items that changed or were added, and unchanged items are omitted. An added item therefore appears only under `current` and a removed one only under `previous`. Arrays without such a key report the whole array on both sides. `createdAt` and `updatedAt` are never reported as changes.
-
-If a write does not change any field, the event is suppressed. No-op `*.updated` events are not delivered.
+No-op updates do not produce `record.updated` events. The payload is redacted according to the webhook owner's current record and calculated-field access at delivery time.
 
 ## Custom headers and body templates
 
@@ -259,7 +250,7 @@ You can also resend a delivery yourself. In **Event Details**, the circular-arro
 
 ## Are deliveries ordered, and do they arrive in the right order? [#are-deliveries-ordered]
 
-Deliveries are not strictly ordered across events. Two `contact.updated` events milliseconds apart can arrive out of order. Use the `timestamp` in the payload to resolve order, or treat deliveries as idempotent messages keyed by `entityId`.
+Deliveries are not strictly ordered across events. Two `record.updated` events milliseconds apart can arrive out of order. Use the `timestamp` and record version to resolve order, or treat deliveries as idempotent messages keyed by `typeId`, `recordId`, and event ID.
 
 ## Why are notes Tiptap JSON in payloads? [#notes-are-json-not-markdown]
 
@@ -279,11 +270,19 @@ Delete events carry the full record as it was before deletion, under `payload`, 
 
 ## Which events exist?
 
-[[derived.webhooks.events.total]] events are available to subscribe to: [[derived.webhooks.events.records]] record events across the five entity types (`created`, `updated` and `deleted` for each, such as `contact.created`), and [[derived.webhooks.events.messaging]] messaging events. All use the envelope from [What does the payload look like?](#what-does-the-payload-look-like). Routines can be triggered by the same events except **Email Deleted** (`messaging.email.deleted`) and **Chat Deleted** (`messaging.chat.deleted`); **Message Deleted** (`messaging.message.deleted`) does trigger routines; see [Routines](/docs/app-routines#how-do-event-triggers-work).
+The catalog accepts [[derived.webhooks.events.total]] event identifiers: three current record events, fifteen type-specific legacy identifiers for existing configurations, and [[derived.webhooks.events.messaging]] messaging events. For a new CRM webhook, select `record.created`, `record.updated`, or `record.deleted` and configure its record sources to choose types, fields, and filters. This also covers customer-created types. All use the envelope from [What does the payload look like?](#what-does-the-payload-look-like). Routines can be triggered by the same events except **Email Deleted** (`messaging.email.deleted`) and **Chat Deleted** (`messaging.chat.deleted`); **Message Deleted** (`messaging.message.deleted`) does trigger routines; see [Routines](/docs/app-routines#how-do-event-triggers-work).
 
 ### Record events
 
 | Event | When it fires | `payload` |
+|---|---|---|
+| `record.created` | A record of a configured source type is created | version 2 record envelope |
+| `record.updated` | A field, assignment, identity, or link changes on a configured source type | version 2 record envelope with before/after changes |
+| `record.deleted` | A record of a configured source type is deleted | version 2 record envelope |
+
+The following type-specific identifiers are retained for legacy configurations. They are not the contract for new generic-record writes or customer-created types; migrate their subscriptions to a generic event and record source.
+
+| Legacy event | Historical meaning | Legacy `payload` |
 |---|---|---|
 | `contact.created` | A contact is created via UI, API, MCP, or import | full contact |
 | `contact.updated` | Any contact field changes | `contact`, `changes` |

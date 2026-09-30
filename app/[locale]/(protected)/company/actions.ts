@@ -1,5 +1,7 @@
 "use server";
 
+import { getResolveUserOptionsInteractor } from "@/core/di";
+import type { ResolveUserOptionsInput } from "@/features/user/get/resolve-user-options.interactor";
 import type { AdminUpdateUserDetailsData } from "@/features/user/upsert/admin-update-user-details.interactor";
 import type { GetUserByIdData } from "@/features/user/get/get-user-by-id.interactor";
 import type { GetQueryParams } from "@/core/base/base-get.schema";
@@ -16,7 +18,6 @@ import type { CreateCheckoutSessionData } from "@/ee/subscription/create-checkou
 import { z } from "zod";
 
 import {
-  getGetDealsInteractor,
   getGetUsersInteractor,
   getGetUserByIdInteractor,
   getAdminUpdateUserDetailsInteractor,
@@ -26,6 +27,7 @@ import {
   getInviteUsersByEmailInteractor,
   getSendFeedbackInteractor,
   getGetRolesInteractor,
+  getGetRoleEditorInteractor,
   getUpsertRoleInteractor,
   getDeleteRoleInteractor,
   getCreateCheckoutSessionInteractor,
@@ -65,18 +67,9 @@ export async function getBillingPortalUrlAction() {
 }
 
 export async function updateCompanyAction(data: UpdateCompanySettingsData) {
+  if (Object.keys(data).some((key) => key !== "currency"))
+    throw new Error("Legacy record labels and weighting settings are retired. Use Data model configuration.");
   return serializeResult(getUpdateCompanySettingsInteractor().invoke(data));
-}
-
-export async function getDealStageValueSumsAction(columnId: string) {
-  const result = await getGetDealsInteractor().invoke({
-    grouping: { field: columnId },
-    groupPage: { perGroup: 1 },
-  });
-
-  if (!result.ok) return { ok: false as const, error: z.treeifyError(result.error) };
-
-  return { ok: true as const, data: result.data.groupValueSums ?? {} };
 }
 
 export async function sendFeedbackAction(data: SendFeedbackData) {
@@ -103,6 +96,10 @@ export async function getCompanyDetailsAction() {
 
 export async function getRolesAction(params?: GetQueryParams) {
   return unwrapValidated(getGetRolesInteractor().invoke(params));
+}
+
+export async function getRoleEditorAction(data: { id?: string }) {
+  return serializeResult(getGetRoleEditorInteractor().invoke(data));
 }
 
 export async function upsertRoleAction(data: UpsertRoleData) {
@@ -144,4 +141,8 @@ export async function getWebhookDeliveriesAction(params?: GetQueryParams) {
 
 export async function resendWebhookDeliveryAction(data: ResendWebhookDeliveryData) {
   return serializeResult(getResendWebhookDeliveryInteractor().invoke(data));
+}
+
+export async function resolveUserOptionsAction(input: ResolveUserOptionsInput) {
+  return unwrapValidated(getResolveUserOptionsInteractor().invoke(input));
 }

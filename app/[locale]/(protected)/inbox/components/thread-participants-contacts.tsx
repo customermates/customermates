@@ -11,7 +11,7 @@ import { Avatar } from "@/components/ui/avatar";
 import { Button } from "@/components/ui/button";
 import { Command, CommandEmpty, CommandGroup, CommandInput, CommandItem, CommandList } from "@/components/ui/command";
 import { Tooltip, TooltipContent, TooltipTrigger } from "@/components/ui/tooltip";
-import { useNavigateToHref } from "@/components/entity-detail/hooks/use-entity-drawer-stack";
+import { RecordOperationProgress } from "@/components/records/record-operation-progress";
 import { useRootStore } from "@/core/stores/root-store.provider";
 import { displayableIdentifier, isAttendeeUnlinked, participantLabel } from "@/ee/messaging/thread-display";
 import { SelectionOptionsSkeleton } from "@/components/forms/selection-loading";
@@ -25,8 +25,17 @@ type ManagerProps = {
 
 export const ThreadPeopleManager = observer(({ participants, provider, canManage }: ManagerProps) => {
   const t = useTranslations();
-  const navigateToHref = useNavigateToHref();
-  const { threadParticipantsStore: store } = useRootStore();
+  const { threadParticipantsStore: store, recordWorkspaceStore } = useRootStore();
+
+  if (store.pendingOperationId) {
+    return (
+      <RecordOperationProgress
+        operationId={store.pendingOperationId}
+        onCompleted={store.operationCompleted}
+        onStopped={store.operationStopped}
+      />
+    );
+  }
 
   if (store.isSearching && store.activeIdentifier) {
     const activeIdentifier = store.activeIdentifier;
@@ -34,7 +43,14 @@ export const ThreadPeopleManager = observer(({ participants, provider, canManage
     const activeLabel = active ? participantLabel(active, provider, t("Inbox.senderUnknown")) : "";
     const trimmedSuggestion = activeLabel.trim();
     const showSuggestedCreate =
-      !store.isLoading && !store.searchError && store.query.trim().length === 0 && trimmedSuggestion.length > 0;
+      store.createTypes.length > 0 &&
+      !store.isLoading &&
+      !store.searchError &&
+      store.query.trim().length === 0 &&
+      trimmedSuggestion.length > 0 &&
+      !store.results.some(
+        (record) => record.title.trim().toLocaleLowerCase() === trimmedSuggestion.toLocaleLowerCase(),
+      );
 
     return (
       <div className="border-border rounded-md border">
@@ -67,10 +83,10 @@ export const ThreadPeopleManager = observer(({ participants, provider, canManage
             onKeyDown={(e) => {
               if (e.key !== "Enter") return;
               if (store.isLoading || store.searchError || store.pending) return;
-              if (store.showCreate) {
+              if (store.showCreate && store.createTypes.length === 1) {
                 e.preventDefault();
                 runUserAction(() => store.createAndAssign(activeIdentifier, store.query));
-              } else if (showSuggestedCreate) {
+              } else if (showSuggestedCreate && store.createTypes.length === 1) {
                 e.preventDefault();
                 runUserAction(() => store.createAndAssign(activeIdentifier, trimmedSuggestion));
               }
@@ -104,36 +120,46 @@ export const ThreadPeopleManager = observer(({ participants, provider, canManage
 
             {!store.isLoading && (showSuggestedCreate || store.showCreate) && (
               <CommandGroup>
-                <CommandItem
-                  disabled={store.pending}
-                  value="__create__"
-                  onSelect={() =>
-                    runUserAction(() =>
-                      store.createAndAssign(activeIdentifier, showSuggestedCreate ? trimmedSuggestion : store.query),
-                    )
-                  }
-                >
-                  <Plus className="size-3.5" />
+                {store.createTypes.map((type) => (
+                  <CommandItem
+                    key={type.typeId}
+                    disabled={store.pending}
+                    value={`__create__${type.typeId}`}
+                    onSelect={() =>
+                      runUserAction(() =>
+                        store.createAndAssign(
+                          activeIdentifier,
+                          showSuggestedCreate ? trimmedSuggestion : store.query,
+                          type.typeId,
+                        ),
+                      )
+                    }
+                  >
+                    <Plus className="size-3.5" />
 
-                  <span>
-                    {t("Inbox.compose.createContact", {
-                      query: showSuggestedCreate ? trimmedSuggestion : store.query.trim(),
-                    })}
-                  </span>
-                </CommandItem>
+                    <span>
+                      {t("Inbox.compose.createContact", {
+                        query: showSuggestedCreate ? trimmedSuggestion : store.query.trim(),
+                      })}
+
+                      {store.createTypes.length > 1 ? ` · ${type.label}` : ""}
+                    </span>
+                  </CommandItem>
+                ))}
               </CommandGroup>
             )}
 
             {!store.isLoading && store.results.length > 0 && (
               <CommandGroup>
                 {store.results.map((c) => {
-                  const label = `${c.firstName} ${c.lastName}`.trim() || t("Inbox.compose.unnamed");
+                  const label = c.title.trim() || t("Inbox.compose.unnamed");
                   return (
                     <CommandItem
-                      key={c.id}
-                      disabled={store.pending}
-                      value={c.id}
-                      onSelect={() => runUserAction(() => store.link(activeIdentifier, c.id))}
+                      key={`${c.ref.typeId}:${c.ref.recordId}`}
+                      aria-label={label}
+                      disabled={store.pending || !c.canEdit}
+                      value={`${c.ref.typeId}:${c.ref.recordId}`}
+                      onSelect={() => runUserAction(() => store.link(activeIdentifier, c.ref))}
                     >
                       <Avatar name={label} size="sm" src={c.avatarUrl ?? undefined} />
 
@@ -154,7 +180,7 @@ export const ThreadPeopleManager = observer(({ participants, provider, canManage
   return (
     <div className="flex flex-col gap-1">
       {participants.map((p) => {
-        const matched = p.contact ?? null;
+        const matched = p.record ?? null;
         const label = participantLabel(p, provider, t("Inbox.senderUnknown"));
         const subtitle = displayableIdentifier(provider, p.identifier);
         const avatarUrl = matched?.avatarUrl ?? p.pictureUrl ?? undefined;
@@ -189,7 +215,7 @@ export const ThreadPeopleManager = observer(({ participants, provider, canManage
                       size="icon-sm"
                       type="button"
                       variant="ghost"
-                      onClick={() => navigateToHref(`/contacts/${matched.id}`)}
+                      onClick={(event) => recordWorkspaceStore.open(matched.ref, event.currentTarget)}
                     >
                       <ExternalLink className="size-3.5" />
                     </Button>
@@ -198,7 +224,7 @@ export const ThreadPeopleManager = observer(({ participants, provider, canManage
                   <TooltipContent>{t("Inbox.participants.openContact")}</TooltipContent>
                 </Tooltip>
 
-                {canManage && (
+                {canManage && matched.canEdit && (
                   <Tooltip>
                     <TooltipTrigger asChild>
                       <Button

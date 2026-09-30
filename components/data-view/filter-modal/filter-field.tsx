@@ -2,7 +2,7 @@
 
 import type { ReactElement } from "react";
 import type { Filter, FilterableField } from "@/core/base/base-get.schema";
-import type { CustomColumnDto } from "@/features/custom-column/custom-column.schema";
+import type { ColumnPresentation } from "@/features/custom-column/custom-column.schema";
 
 import { observer } from "mobx-react-lite";
 import { useTranslations } from "next-intl";
@@ -29,7 +29,7 @@ import { isStandaloneOperator } from "@/core/base/base-query-builder";
 import { cn } from "@/core/utils/cn";
 
 type Props = {
-  customColumns?: CustomColumnDto[];
+  customColumns?: ColumnPresentation[];
   filter: Filter;
   filterableFields: FilterableField[];
   baseId: string;

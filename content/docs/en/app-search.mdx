@@ -24,7 +24,7 @@ Selecting a result opens the record's detail page at `/{type}/{id}`. To add a re
 | Sidebar trigger | `#nav-search` |
 | Search field wrapper inside the modal | `#global-search-input` |
 
-For an agent, typing happens in the text input inside `#global-search-input` after opening the modal; results are regular options selected by their visible name. For filtered, sorted, or counted lookups prefer the list pages or `list_records`, which return totals. The hosted assistant can highlight `#nav-search` but cannot open the modal or type into it.
+For an agent, typing happens in the text input inside `#global-search-input` after opening the modal; results are regular options selected by their visible name. For filtered or sorted lookups use a list page or `query_crm_records`; use `query_crm_measure` for aggregates. The hosted assistant can highlight `#nav-search` but cannot open the modal or type into it.
 
 **Link:** no page; open the modal anywhere in the app with Cmd+K or Ctrl+K. **Mate:** `highlight_element` with `nav-search`; `#global-search-input` is not a highlight target, so Mate names the search field.
 

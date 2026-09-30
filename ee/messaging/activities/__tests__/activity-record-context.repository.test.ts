@@ -4,6 +4,7 @@ import { Action, EntityType, Resource } from "@/generated/prisma";
 
 import { runWithTenant } from "@/core/decorators/tenant-context";
 import { createMockUserWithPermissions } from "@/tests/helpers/mock-user";
+import { presetId } from "@/features/records/crm-preset";
 import { DomainEvent } from "@/features/event/domain-events";
 
 const { fake } = vi.hoisted(() => {
@@ -123,13 +124,13 @@ const activityReader = () =>
     { resource: Resource.inboxMessages, action: Action.readAll },
   ]);
 
-function messageRow(id: string, contactId: string) {
+function messageRow(id: string, contactId: string, companyId: string) {
   const participant = {
     attendeeId: "attendee-1",
-    contact: {
-      id: contactId,
-      firstName: "Anna",
-      lastName: "Müller",
+    record: {
+      ref: { typeId: presetId(companyId, "contact"), recordId: contactId },
+      title: "Anna Müller",
+      canEdit: false,
       avatarUrl: "https://cdn/anna.png",
     },
     displayName: "Anna Müller",
@@ -353,10 +354,11 @@ describe("record context on messaging entries", () => {
 
   it("uses the linked sender on a message", async () => {
     const contactId = "00000000-0000-4000-8000-000000000001";
-    fake.rows.messagingMessage.push(messageRow("00000000-0000-4000-8000-000000000004", contactId));
+    const reader = activityReader();
+    fake.rows.messagingMessage.push(messageRow("00000000-0000-4000-8000-000000000004", contactId, reader.companyId));
     fake.rows.contact.push({ id: contactId, firstName: "Anna", lastName: "Müller", avatarUrl: "https://cdn/anna.png" });
 
-    const [entry] = await getItems(activityReader());
+    const [entry] = await getItems(reader);
 
     expect(entry.records.primary).toEqual({
       entityType: EntityType.contact,
@@ -410,7 +412,11 @@ describe("record context on messaging entries", () => {
 
     const [entry] = await getItems(activityReader());
 
-    expect([entry.records.primary, ...entry.records.related].map((record) => record?.id)).toEqual(["c1", "c2"]);
+    expect(
+      [entry.records.primary, ...entry.records.related].map((record) =>
+        record && "id" in record ? record.id : undefined,
+      ),
+    ).toEqual(["c1", "c2"]);
   });
 
   it("does not cross-link equal identifiers from different channel classes", async () => {
@@ -442,7 +448,7 @@ describe("record context on messaging entries", () => {
 
     const [entry] = await getItems(activityReader());
 
-    expect(entry.records.primary?.id).toBe("linkedin-contact");
+    expect(entry.records.primary).toMatchObject({ entityType: "contact", id: "linkedin-contact" });
   });
 
   it("drops a resolved messaging ref when its record is inaccessible", async () => {

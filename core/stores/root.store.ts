@@ -57,6 +57,7 @@ import { DealDetailStore } from "@/app/[locale]/(protected)/deals/components/dea
 import { DealsStore } from "@/app/[locale]/(protected)/deals/components/deals.store";
 import { ResetPasswordStore } from "@/app/[locale]/(public)/auth/reset-password/reset-password.store";
 import { GlobalSearchModalStore } from "@/app/components/global-search-modal.store";
+import { RecordWorkspaceStore } from "./record-workspace.store";
 import { ImportWizardStore } from "@/components/data-transfer/import-wizard.store";
 import { WebhookModalStore } from "@/app/[locale]/(protected)/company/components/webhook/webhook-modal.store";
 import { RoutinesStore } from "@/app/[locale]/(protected)/routines/components/routines.store";
@@ -135,6 +136,7 @@ export class RootStore {
   private _dealDetailStore?: DealDetailStore;
   private _deleteConfirmationModalStore?: DeleteConfirmationModalStore;
   private _globalSearchModalStore?: GlobalSearchModalStore;
+  private _recordWorkspaceStore?: RecordWorkspaceStore;
   private _organizationDetailStore?: OrganizationDetailStore;
   private _roleModalStore?: RoleModalStore;
   private _serviceDetailStore?: ServiceDetailStore;
@@ -385,13 +387,18 @@ export class RootStore {
   get globalSearchModalStore() {
     return (this._globalSearchModalStore ??= new GlobalSearchModalStore(this));
   }
+  get recordWorkspaceStore() {
+    return (this._recordWorkspaceStore ??= new RecordWorkspaceStore(this));
+  }
 
   get routineModalStore() {
     return (this._routineModalStore ??= new RoutineModalStore(this));
   }
 
   get routineRunChatStore() {
-    return (this._routineRunChatStore ??= new AgentChatStore(this, { persistOpenState: false }));
+    return (this._routineRunChatStore ??= new AgentChatStore(this, {
+      persistOpenState: false,
+    }));
   }
 
   get routinesStore() {
@@ -450,7 +457,12 @@ export class RootStore {
     this.modalStores.add(modalStore);
   };
 
+  unregisterModalStore = (modalStore: BaseModalStore<any>) => {
+    this.modalStores.delete(modalStore);
+  };
+
   closeAllModals = () => {
+    this._recordWorkspaceStore?.close();
     this.modalStores.forEach((modalStore) => {
       if (modalStore.isOpen) modalStore.close();
     });

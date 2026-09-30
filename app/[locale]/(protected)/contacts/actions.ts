@@ -19,6 +19,7 @@ import {
   getDeleteContactInteractor,
 } from "@/core/di";
 import { serializeResult } from "@/core/utils/action-result";
+import { retireLegacyRecordWrite } from "@/features/records/retire-legacy-write";
 import { unwrapValidated } from "@/core/validation/validation.utils";
 
 export async function getContactsAction(params?: GetQueryParams) {
@@ -26,10 +27,12 @@ export async function getContactsAction(params?: GetQueryParams) {
 }
 
 export async function createContactAction(data: CreateContactData) {
+  retireLegacyRecordWrite();
   return serializeResult(getCreateContactInteractor().invoke(data));
 }
 
 export async function updateContactAction(data: UpdateContactData) {
+  retireLegacyRecordWrite();
   return serializeResult(getUpdateContactInteractor().invoke(data));
 }
 
@@ -43,6 +46,7 @@ export async function searchChannelCandidatesAction(data: SearchChannelCandidate
 }
 
 export async function deleteContactAction(data: DeleteContactData) {
+  retireLegacyRecordWrite();
   return serializeResult(getDeleteContactInteractor().invoke(data));
 }
 
@@ -56,6 +60,7 @@ export async function createContactByNameAction(
   userId: string | null | undefined,
   identifier?: IdentifierInput,
 ) {
+  retireLegacyRecordWrite();
   const parts = name.split(/\s+/);
   const firstName = parts[0] || "";
   const lastName = parts.slice(1).join(" ");

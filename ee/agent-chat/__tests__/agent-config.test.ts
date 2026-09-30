@@ -41,6 +41,15 @@ describe("GetAgentConfigInteractor", () => {
     findMyConversation: ReturnType<typeof vi.fn>;
     listConversationPage: ReturnType<typeof vi.fn>;
   };
+  const recordSignals = {
+    read: vi.fn().mockResolvedValue({
+      contacts: COUNTS.contacts,
+      organizations: COUNTS.organizations,
+      deals: COUNTS.deals,
+      services: COUNTS.services,
+      tasks: COUNTS.tasks,
+    }),
+  };
   const usageService = {
     getUsageSummary: vi.fn().mockResolvedValue({
       creditsUsed: 0,
@@ -70,10 +79,12 @@ describe("GetAgentConfigInteractor", () => {
       repo as never,
       usageService as never,
       mockEntitlementService(),
+      recordSignals as never,
     ).invoke();
 
     expect(result.ok).toBe(true);
     expect(result.data.counts).toEqual(COUNTS);
+    expect(recordSignals.read).toHaveBeenCalledTimes(1);
     expect(result.data).not.toHaveProperty("preAuthorizedTools");
     expect(usageService.getUsageSummary).toHaveBeenCalledWith(mockUser.id);
     expect(mockUser.role?.isSystemRole).toBe(false);
@@ -91,12 +102,14 @@ describe("GetAgentConfigInteractor", () => {
       repo as never,
       usageService as never,
       mockEntitlementService(),
+      recordSignals as never,
     ).invoke();
     await vi.waitFor(() => expect(repo.normalizeExpiredAgentRunLease).toHaveBeenCalledTimes(1));
 
     expect(repo.normalizeExpiredAgentRunLease).toHaveBeenCalledWith(expect.any(Date), "google/gemini-3.5-flash-lite");
     expect(usageService.getUsageSummary).not.toHaveBeenCalled();
     expect(repo.getSuggestionSignals).not.toHaveBeenCalled();
+    expect(recordSignals.read).not.toHaveBeenCalled();
     expect(repo.findMyConversation).not.toHaveBeenCalled();
     expect(repo.listConversationPage).not.toHaveBeenCalled();
 
@@ -118,6 +131,7 @@ describe("GetAgentConfigInteractor", () => {
       repo as never,
       usageService as never,
       entitlements as never,
+      recordSignals as never,
     ).invoke();
 
     expect(result).toEqual({ ok: true, data: { enabled: false } });
@@ -125,6 +139,7 @@ describe("GetAgentConfigInteractor", () => {
     expect(repo.normalizeExpiredAgentRunLease).not.toHaveBeenCalled();
     expect(usageService.getUsageSummary).not.toHaveBeenCalled();
     expect(repo.getSuggestionSignals).not.toHaveBeenCalled();
+    expect(recordSignals.read).not.toHaveBeenCalled();
     expect(repo.findMyConversation).not.toHaveBeenCalled();
     expect(repo.listConversationPage).not.toHaveBeenCalled();
   });

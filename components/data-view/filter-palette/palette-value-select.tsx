@@ -1,6 +1,6 @@
 "use client";
 
-import type { CustomColumnDto } from "@/features/custom-column/custom-column.schema";
+import type { ColumnPresentation } from "@/features/custom-column/custom-column.schema";
 import type { Filter } from "@/core/base/base-get.schema";
 import type { FilterSelectItem } from "@/components/data-view/filter-modal/inputs/use-filter-select-items";
 
@@ -26,7 +26,7 @@ type OptionResult = {
 
 type Props = {
   filter: Filter;
-  customColumns: CustomColumnDto[] | undefined;
+  customColumns: ColumnPresentation[] | undefined;
   selected: string[];
   query: string;
   onToggle: (key: string, maxSelectedValues: number | undefined) => void;

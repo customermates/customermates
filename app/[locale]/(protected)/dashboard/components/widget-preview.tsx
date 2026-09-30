@@ -32,7 +32,7 @@ type Props = {
   activeFilterCount: number;
   activityFilters: Filter[];
   customColumns: CustomColumnDto[];
-  form: WidgetModalForm;
+  form: Exclude<WidgetModalForm, { contractVersion: 2 }>;
 };
 
 function WidgetPreviewFrame({

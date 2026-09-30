@@ -12,7 +12,7 @@ import type { Resource } from "@/generated/prisma";
 import { BaseModalStore } from "./base-modal.store";
 import { toastZodErrorTree } from "@/core/utils/toast-zod-error-tree";
 
-import type { GlobalSearchResultItem } from "@/features/search/global-search.interactor";
+import type { LegacySearchResultItem } from "@/features/search/legacy-search-reference";
 
 export type EntityDto = {
   id: string;
@@ -151,8 +151,7 @@ export abstract class BaseCustomColumnEntityModalStore<
       }
 
       await this.entityStore.removeItem(id);
-      if (this.entityStore.entityType)
-        this.rootStore.globalSearchModalStore.removeRecentItem(id, this.entityStore.entityType);
+      void this.rootStore.globalSearchModalStore.refreshRecentItems();
       this.close();
       return true;
     } finally {
@@ -218,7 +217,7 @@ export abstract class BaseCustomColumnEntityModalStore<
     if (recentItem) this.rootStore.globalSearchModalStore.pushRecentItem(recentItem);
   };
 
-  protected buildRecentSearchItem(_entity: TDto): GlobalSearchResultItem | null {
+  protected buildRecentSearchItem(_entity: TDto): LegacySearchResultItem | null {
     return null;
   }
 

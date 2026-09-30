@@ -89,6 +89,7 @@ const ALLOWED_SOURCE_IDENTICAL_TRANSLATIONS = new Set([
   "fr:OperatorWorkspaces.modal.identity",
   "it:OperatorWorkspaces.modal.identity",
   "fr:OperatorWorkspaces.stats.threads",
+  "fr:RecordActivityWidgets.filterKinds.thread",
   "de:AgentChat.activity.countedResource",
   "es:AgentChat.activity.countedResource",
   "fr:AgentChat.activity.countedResource",

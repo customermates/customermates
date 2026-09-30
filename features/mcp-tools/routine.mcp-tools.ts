@@ -15,6 +15,7 @@ import {
   ROUTINE_PROMPT_MAX_CHARS,
   ROUTINE_TRIGGER_EVENTS,
   RoutineTriggerEventSchema,
+  RoutineRecordTriggerSchema,
 } from "@/ee/routines/routine.schema";
 
 import {
@@ -76,6 +77,17 @@ const ManageRoutinesSchema = z.object({
     .describe(
       "Restricts an event routine to records matching these filters. Dropped unless every event shares one entity type.",
     ),
+  recordTrigger: RoutineRecordTriggerSchema.nullable()
+    .optional()
+    .describe(
+      "For record.created/updated/deleted: a query with stable typeId, filters and relationships, plus watched field IDs. Discover the type schema first. Do not mix record events with messaging or retired entity events.",
+    ),
+  expectedSchemaRevision: z
+    .number()
+    .int()
+    .nonnegative()
+    .optional()
+    .describe("Required when supplying recordTrigger. Use the schema revision returned by type discovery."),
   debounceSeconds: z.number().int().min(0).max(86_400).optional(),
 });
 
@@ -158,6 +170,8 @@ export const manageRoutinesTool = {
           triggerEvents: params.triggerEvents,
           changedFields: params.changedFields,
           triggerFilters: params.triggerFilters,
+          recordTrigger: params.recordTrigger,
+          expectedSchemaRevision: params.expectedSchemaRevision,
           debounceSeconds: params.debounceSeconds,
         }),
         (routine) => toonResult({ id: routine.id, name: routine.name, enabled: routine.enabled }),

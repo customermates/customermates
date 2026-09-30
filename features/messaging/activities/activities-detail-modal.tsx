@@ -29,6 +29,7 @@ import { messageSenderName } from "@/ee/messaging/thread-display";
 import { useRootStore } from "@/core/stores/root-store.provider";
 import { useHydratedIntlStore } from "@/core/stores/use-hydrated-intl-store";
 import { AuditDetail } from "./audit-detail";
+import { RecordAuditDetail } from "./record-audit-detail";
 import { calendarEventTitle } from "./activity-labels";
 import { DetailHeader, IdentityAvatar, TypeBadge } from "./activities-row";
 import { hasLoadableRemoteImages, MessageBody } from "../message-body";
@@ -74,7 +75,7 @@ export const MessageDetail = observer(({ entry }: { entry: Extract<ActivityEntry
             badge={<TypeBadge icon={DirectionIcon} label={directionLabel} tone={isOutbound ? "sent" : "received"} />}
             name={senderName}
             size="xl"
-            src={message.sender.contact?.avatarUrl || message.sender.pictureUrl}
+            src={message.sender.record?.avatarUrl || message.sender.pictureUrl}
           />
         }
         provider={message.provider}
@@ -266,7 +267,7 @@ export const TimelineDetailModal = observer(() => {
           (entry.senderIsMine ? t("Inbox.senderYou") : t("Inbox.senderUnknownSender")))
       : entry.kind === "calendar_event"
         ? calendarEventTitle(entry.event.title, t("ContactHistory.calendarNoTitle"))
-        : entry.kind === "audit"
+        : entry.kind === "audit" || entry.kind === "record"
           ? t("AuditLogModal.eventAt", {
               event: t(`Common.events.${entry.event}`),
               date: intlStore.formatNumericalShortDateTime(entry.at),
@@ -321,7 +322,14 @@ export const TimelineDetailModal = observer(() => {
 
       {entry?.kind === "activity" && <ActivityDetail entry={entry} />}
 
-      {entry?.kind === "audit" && <AuditDetail customColumns={customColumns} entry={entry} />}
+      {entry?.kind === "audit" &&
+        (entry.recordChanges ? (
+          <RecordAuditDetail entry={{ ...entry, changes: entry.recordChanges }} />
+        ) : (
+          <AuditDetail customColumns={customColumns} entry={entry} />
+        ))}
+
+      {entry?.kind === "record" && <RecordAuditDetail entry={entry} />}
     </AppModal>
   );
 });

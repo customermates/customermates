@@ -44,6 +44,9 @@ export const WebhooksPageView = observer(function WebhooksPageView({ initialWebh
   const handleAdd = useCallback(
     () =>
       webhookModalStore.openWith({
+        id: undefined,
+        recordTrigger: null,
+        recordOwnerUserId: undefined,
         url: "",
         description: undefined,
         events: [],
@@ -111,6 +114,9 @@ export const WebhooksPageView = observer(function WebhooksPageView({ initialWebh
           onRowClick={(item) =>
             webhookModalStore.openWith({
               id: item.id,
+              recordTrigger: item.recordTrigger ?? null,
+              recordSources: item.recordSources ?? null,
+              recordOwnerUserId: item.recordOwnerUserId ?? undefined,
               url: item.url,
               description: item.description ?? undefined,
               events: item.events,

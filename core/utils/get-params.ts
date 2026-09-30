@@ -1,4 +1,5 @@
 import type { Filter, GetQueryParams, SortDescriptor } from "@/core/base/base-get.schema";
+import { FilterSchema } from "@/core/base/base-get.schema";
 
 import { FilterOperatorKey, ViewMode } from "../base/base-query-builder";
 import { decodeGroupingToken, encodeGroupingToken } from "../base/grouping/grouping.schema";
@@ -44,6 +45,13 @@ export function encodeGetParams(params: GetQueryParams = {}): URLSearchParams {
   if (params.filters && params.filters.length > 0) {
     for (const candidate of params.filters) {
       const f = normalizeFilter(candidate);
+      if (
+        f.field.includes(":") ||
+        ("value" in f && Array.isArray(f.value) && f.value.some((value) => value.includes(",")))
+      ) {
+        sp.append("filters", `v2.${JSON.stringify(f)}`);
+        continue;
+      }
       const valuePart = serializeFilterValue(f.operator, "value" in f ? f.value : undefined);
       const token =
         valuePart !== undefined && valuePart !== null && valuePart !== ""
@@ -97,7 +105,9 @@ export function decodeGetParams(
   const combinedSort = source.get("sort");
 
   if (combinedSort) {
-    const [field, direction] = combinedSort.split(":");
+    const separator = combinedSort.lastIndexOf(":");
+    const field = combinedSort.slice(0, separator);
+    const direction = combinedSort.slice(separator + 1);
 
     if (field && (direction === "asc" || direction === "desc")) {
       sortDescriptor = {
@@ -160,11 +170,16 @@ function serializeFilterValue(op: FilterOperatorKey, value: unknown): string | u
 
 function decodeFilterToken(token: string): Filter | undefined {
   try {
+    if (token.startsWith("v2.")) {
+      const result = FilterSchema.safeParse(JSON.parse(token.slice(3)));
+      return result.success ? result.data : undefined;
+    }
     const parts = token.split(":");
-    const field = parts[0];
-    const opCode = parts[1];
-    const rest = parts.slice(2).join(":");
     const validOperators = Object.values(FilterOperatorKey) as string[];
+    const operatorIndex = parts.findIndex((part, index) => index > 0 && validOperators.includes(part));
+    const field = parts.slice(0, operatorIndex).join(":");
+    const opCode = parts[operatorIndex];
+    const rest = parts.slice(operatorIndex + 1).join(":");
     const operator = validOperators.includes(opCode) ? (opCode as FilterOperatorKey) : undefined;
 
     if (!field || !operator) return undefined;

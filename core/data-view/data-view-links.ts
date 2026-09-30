@@ -54,7 +54,10 @@ export function dataViewNavigationHref(href: unknown, options: DataViewNavigatio
   const path = stripLocalePrefix(pathname);
   const query = candidate.slice(separator + 1);
 
-  if (STANDALONE_DATA_VIEW_PATHS.has(path)) {
+  if (
+    STANDALONE_DATA_VIEW_PATHS.has(path) ||
+    (path.startsWith("/records/") && RECORD_ID_SCHEMA.safeParse(path.slice(9)).success)
+  ) {
     if (!isCanonicalLocalPath(pathname, path) || !query.startsWith("view=")) return null;
     const viewKey = query.slice("view=".length);
     if (!ViewKeySchema.safeParse(viewKey).success) return null;

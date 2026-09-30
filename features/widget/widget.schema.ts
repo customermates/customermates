@@ -1,3 +1,14 @@
+import type { RecordActivityWidgetDto } from "./record-activity-widget.schema";
+import { WidgetLayoutSchema, WidgetDisplayOptionsSchema } from "./widget-display.schema";
+import { GenericRecordWidgetDtoSchema, type RecordWidgetDto } from "./record-widget.schema";
+export {
+  ChartColor,
+  DisplayType,
+  WidgetDisplayOptionsSchema,
+  WidgetLayoutItemSchema,
+  WidgetLayoutSchema,
+} from "./widget-display.schema";
+export type { WidgetDisplayOptions, WidgetLayout } from "./widget-display.schema";
 import type { Data } from "@/core/validation/validation.utils";
 
 import { z } from "zod";
@@ -6,36 +17,6 @@ import { EntityType, WidgetGroupByType, AggregationType, WidgetKind } from "@/ge
 import { CHIP_COLORS } from "@/constants/chip-colors";
 import { FilterSchema } from "@/core/base/base-get.schema";
 import { ActivityFiltersSchema } from "@/ee/messaging/activities/activities.schema";
-
-export enum ChartColor {
-  default1 = "default1",
-  default2 = "default2",
-  default3 = "default3",
-  primary1 = "primary1",
-  primary2 = "primary2",
-  primary3 = "primary3",
-  secondary1 = "secondary1",
-  secondary2 = "secondary2",
-  secondary3 = "secondary3",
-  success1 = "success1",
-  success2 = "success2",
-  success3 = "success3",
-  warning1 = "warning1",
-  warning2 = "warning2",
-  warning3 = "warning3",
-  danger1 = "danger1",
-  danger2 = "danger2",
-  danger3 = "danger3",
-}
-
-export enum DisplayType {
-  verticalBarChart = "verticalBarChart",
-  horizontalBarChart = "horizontalBarChart",
-  verticalBarChartWithLabels = "verticalBarChartWithLabels",
-  horizontalBarChartWithLabels = "horizontalBarChartWithLabels",
-  doughnutChart = "doughnutChart",
-  radarChart = "radarChart",
-}
 
 export const CompanyWidgetSchema = z.object({
   id: z.string(),
@@ -51,39 +32,6 @@ export type CompanyWidget = Data<typeof CompanyWidgetSchema>;
 export const CompanyWidgetsResultSchema = z.object({
   widgets: z.array(CompanyWidgetSchema),
 });
-
-export const WidgetDisplayOptionsSchema = z.object({
-  barColors: z.array(z.enum(ChartColor)).optional(),
-  displayType: z.enum(DisplayType),
-  reverseXAxis: z.boolean().optional(),
-  reverseYAxis: z.boolean().optional(),
-  useGroupColors: z.boolean().optional(),
-  showLegend: z.boolean().optional(),
-  showFilters: z.boolean().optional(),
-});
-
-export type WidgetDisplayOptions = Data<typeof WidgetDisplayOptionsSchema>;
-
-export const WidgetLayoutItemSchema = z.object({
-  i: z.string(),
-  x: z.number(),
-  y: z.number().nullish(),
-  w: z.number(),
-  h: z.number(),
-  minW: z.number().optional(),
-  maxW: z.number().optional(),
-  minH: z.number().optional(),
-  maxH: z.number().optional(),
-});
-
-export const WidgetLayoutSchema = z.object({
-  xs: WidgetLayoutItemSchema.optional(),
-  sm: WidgetLayoutItemSchema.optional(),
-  md: WidgetLayoutItemSchema.optional(),
-  lg: WidgetLayoutItemSchema.optional(),
-});
-
-export type WidgetLayout = Data<typeof WidgetLayoutSchema>;
 
 export const DIAGRAM_SYSTEM_LABEL_KEYS = ["noGroup", "total"] as const;
 
@@ -144,7 +92,9 @@ export const ActivityWidgetDtoSchema = WidgetBaseDtoSchema.extend({
 
 export type ActivityWidgetDto = Data<typeof ActivityWidgetDtoSchema>;
 
-export const WidgetDtoSchema = z.discriminatedUnion("kind", [ChartWidgetDtoSchema, ActivityWidgetDtoSchema]);
+export const LegacyWidgetDtoSchema = z.discriminatedUnion("kind", [ChartWidgetDtoSchema, ActivityWidgetDtoSchema]);
+
+export const WidgetDtoSchema = z.union([GenericRecordWidgetDtoSchema, LegacyWidgetDtoSchema]);
 
 export type WidgetDto = Data<typeof WidgetDtoSchema>;
 
@@ -164,9 +114,17 @@ export function supportsDealFilters({
 }
 
 export function isChartWidget(widget: WidgetDto): widget is ChartWidgetDto {
-  return widget.kind === WidgetKind.chart;
+  return widget.kind === WidgetKind.chart && !isRecordWidget(widget);
 }
 
 export function isActivityWidget(widget: WidgetDto): widget is ActivityWidgetDto {
-  return widget.kind === WidgetKind.activityTimeline;
+  return widget.kind === WidgetKind.activityTimeline && !isRecordActivityWidget(widget);
+}
+
+export function isRecordWidget(widget: WidgetDto): widget is RecordWidgetDto {
+  return widget.kind === WidgetKind.chart && "contractVersion" in widget && widget.contractVersion === 2;
+}
+
+export function isRecordActivityWidget(widget: WidgetDto): widget is RecordActivityWidgetDto {
+  return widget.kind === "activityTimeline" && "contractVersion" in widget && widget.contractVersion === 2;
 }

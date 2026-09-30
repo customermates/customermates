@@ -18,6 +18,7 @@ import {
   getGetCustomColumnsByEntityTypeInteractor,
 } from "@/core/di";
 import { serializeResult } from "@/core/utils/action-result";
+import { retireLegacyRecordWrite } from "@/features/records/retire-legacy-write";
 import { unwrapValidated } from "@/core/validation/validation.utils";
 
 export async function getTasksAction(params?: GetQueryParams) {
@@ -25,6 +26,7 @@ export async function getTasksAction(params?: GetQueryParams) {
 }
 
 export async function createTaskByNameAction(name: string, userId: string | null | undefined) {
+  retireLegacyRecordWrite();
   const result = await createTaskAction({
     name,
     notes: null,
@@ -44,14 +46,17 @@ export async function refreshTaskCountAction() {
 }
 
 export async function createTaskAction(data: CreateTaskData) {
+  retireLegacyRecordWrite();
   return serializeResult(getCreateTaskInteractor().invoke(data));
 }
 
 export async function updateTaskAction(data: UpdateTaskData) {
+  retireLegacyRecordWrite();
   return serializeResult(getUpdateTaskInteractor().invoke(data));
 }
 
 export async function deleteTaskAction(data: DeleteTaskData) {
+  retireLegacyRecordWrite();
   return serializeResult(getDeleteTaskInteractor().invoke(data));
 }
 

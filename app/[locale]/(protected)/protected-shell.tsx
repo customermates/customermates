@@ -1,15 +1,15 @@
 "use client";
 
-import { useEffect } from "react";
+import { useEffect, useRef } from "react";
 import dynamic from "next/dynamic";
 import { usePathname } from "next/navigation";
+import { stripLocalePrefix } from "@/i18n/locale-registry";
 
 import { FeedbackModal } from "./company/components/feedback/feedback-modal";
 import { CompanyUserModal } from "./company/components/user/user-modal";
 import { CompanyInviteModal } from "./company/components/company-invite/company-invite-modal";
 import { AuditLogModal } from "./company/components/audit-log/audit-log-modal";
 import { WebhookDeliveryModal } from "./company/components/webhook/webhook-delivery-modal";
-import { ImportWizard } from "@/components/data-transfer/import-wizard";
 import { WebhookModal } from "./company/components/webhook/webhook-modal";
 import { RoutineModal } from "./routines/components/routine-modal";
 import { ApiKeyModal } from "./profile/components/api-key-modal";
@@ -24,16 +24,20 @@ import { NavigationGuardModal } from "@/components/modal/navigation-guard-modal"
 import { UnexpectedErrorToaster } from "@/components/shared/unexpected-error-toaster";
 import { TranslationSync } from "@/components/shared/translation-sync";
 import { useRootStore } from "@/core/stores/root-store.provider";
-import { CustomColumnModal } from "@/components/data-view/custom-columns/custom-column-modal";
 import { useProtectedEnhancementsAllowed } from "@/app/components/navigation/protected-enhancements-context";
 
 const ConnectedAccountModal = dynamic(
   () => import("./profile/components/connected-account-modal").then((mod) => mod.ConnectedAccountModal),
   { ssr: false },
 );
-const EntityDrawer = dynamic(() => import("@/components/entity-detail/entity-drawer").then((mod) => mod.EntityDrawer), {
-  ssr: false,
-});
+const LegacyRecordDrawerBridge = dynamic(
+  () => import("@/components/records/legacy-record-drawer-bridge").then((mod) => mod.LegacyRecordDrawerBridge),
+  { ssr: false },
+);
+const WorkspaceRecordEditor = dynamic(
+  () => import("@/components/records/workspace-record-editor").then((mod) => mod.WorkspaceRecordEditor),
+  { ssr: false },
+);
 const TimelineDetailModal = dynamic(
   () => import("@/features/messaging/activities/activities-detail-modal").then((mod) => mod.TimelineDetailModal),
   { ssr: false },
@@ -44,8 +48,12 @@ export function ProtectedShell({ children }: { children: React.ReactNode }) {
   const rootStore = useRootStore();
   const { closeAllModals } = rootStore;
   const protectedEnhancementsAllowed = useProtectedEnhancementsAllowed();
+  const previousPathname = useRef(pathname);
 
-  useEffect(() => closeAllModals(), [pathname, closeAllModals, protectedEnhancementsAllowed]);
+  useEffect(() => {
+    if (!protectedEnhancementsAllowed || previousPathname.current !== pathname) closeAllModals();
+    previousPathname.current = pathname;
+  }, [pathname, closeAllModals, protectedEnhancementsAllowed]);
 
   useEffect(() => {
     if (!protectedEnhancementsAllowed) return;
@@ -53,6 +61,7 @@ export function ProtectedShell({ children }: { children: React.ReactNode }) {
 
     function handleKeyDown(event: KeyboardEvent) {
       if (!event.metaKey && !event.ctrlKey) return;
+      if (!rootStore.recordWorkspaceStore.routeReady(stripLocalePrefix(pathname))) return;
 
       if (event.key === "k") {
         event.preventDefault();
@@ -73,7 +82,7 @@ export function ProtectedShell({ children }: { children: React.ReactNode }) {
     return () => {
       document.removeEventListener("keydown", handleKeyDown, true);
     };
-  }, [protectedEnhancementsAllowed, rootStore]);
+  }, [protectedEnhancementsAllowed, rootStore, pathname]);
 
   return (
     <>
@@ -99,11 +108,11 @@ export function ProtectedShell({ children }: { children: React.ReactNode }) {
 
           <CompanyInviteModal />
 
-          <EntityDrawer />
+          <LegacyRecordDrawerBridge />
+
+          <WorkspaceRecordEditor />
 
           <FeedbackModal />
-
-          <CustomColumnModal />
 
           <AuditLogModal />
 
@@ -118,8 +127,6 @@ export function ProtectedShell({ children }: { children: React.ReactNode }) {
           <WebhookDeliveryModal />
 
           <RoutineModal />
-
-          <ImportWizard />
 
           <WebhookModal />
 

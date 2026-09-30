@@ -17,8 +17,8 @@ export function toAgentUiCommandInput(toolName: string, input: unknown): Record<
 
   switch (toolName) {
     case "navigate":
-      return record.entity !== undefined || record.recordId !== undefined
-        ? { entity: record.entity, recordId: record.recordId }
+      return record.typeId !== undefined || record.recordId !== undefined
+        ? { typeId: record.typeId, recordId: record.recordId }
         : { targetId: record.targetId };
     case "highlight_element":
       return { targetId: record.targetId };

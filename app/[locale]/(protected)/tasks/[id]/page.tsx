@@ -1,54 +1,12 @@
-import { activityScopeForRecord } from "@/ee/messaging/activities/activity-scope.schema";
-import { EntityType, Resource } from "@/generated/prisma";
+import { redirectLegacyRecordRoute } from "../../records/legacy-record-redirect";
 
-import { EntityDetailPageView } from "@/components/entity-detail/entity-detail-page-view";
-
-import { readViewIdParam } from "@/core/data-view/next/read-view-id-param";
-import { getGetActivitiesInteractor, getGetTaskByIdInteractor } from "@/core/di";
-import { requireAccess } from "@/features/auth/next/require";
-import { ACTIVITIES_P13N_ID } from "@/features/messaging/activities/activities.store";
-import { getOptionalP13n } from "@/features/p13n/next/get-optional-p13n";
-import { TASK_DETAIL_P13N_ID } from "../components/task-detail-personalization";
-
-type Props = {
+export default async function LegacyRecordDetailPage({
+  params,
+  searchParams,
+}: {
   params: Promise<{ id: string }>;
   searchParams: Promise<Record<string, string | string[] | undefined>>;
-};
-
-export default async function TaskDetailPage({ params, searchParams }: Props) {
-  await requireAccess({ resource: Resource.tasks });
-
+}) {
   const { id } = await params;
-  const viewId = await readViewIdParam(searchParams);
-
-  const [entityResult, timelineResult, personalizationInitial] = await Promise.all([
-    getGetTaskByIdInteractor().invoke({ id }),
-    getGetActivitiesInteractor().invoke({
-      scope: activityScopeForRecord(EntityType.task, id),
-      pagination: { page: 1, pageSize: 25 },
-      p13nId: ACTIVITIES_P13N_ID,
-      viewId,
-    }),
-    getOptionalP13n(TASK_DETAIL_P13N_ID),
-  ]);
-  const entity = entityResult.ok ? entityResult.data.task : null;
-
-  return (
-    <EntityDetailPageView
-      entityInitial={entity && entityResult.ok ? { entity, customColumns: entityResult.data.customColumns } : null}
-      entityType={EntityType.task}
-      id={id}
-      personalizationInitial={personalizationInitial}
-      timelineInitial={
-        timelineResult.ok
-          ? timelineResult.data
-          : {
-              availableSources: [],
-              items: [],
-              pageLimitReached: false,
-              scopeTruncated: false,
-            }
-      }
-    />
-  );
+  return redirectLegacyRecordRoute("task", id, searchParams);
 }

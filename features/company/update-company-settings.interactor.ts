@@ -6,10 +6,7 @@ import { Currency, Resource, Action } from "@/generated/prisma";
 
 import { DomainEvent } from "../event/domain-events";
 
-import {
-  EntityTerminologyEntrySchema,
-  type EntityTerminologyEntry,
-} from "@/features/entity-terminology/entity-terminology.schema";
+import type { EntityTerminologyEntry } from "@/features/entity-terminology/entity-terminology.schema";
 
 import { TenantInteractor } from "@/core/decorators/tenant-interactor.decorator";
 import { type Validated } from "@/core/validation/validation.utils";
@@ -23,12 +20,7 @@ export const DealStageWeightSchema = z.object({
   weight: z.number().min(0).max(100).optional(),
 });
 
-export const UpdateCompanySettingsSchema = z.object({
-  currency: z.enum(Currency).optional(),
-  terminology: z.array(EntityTerminologyEntrySchema).optional(),
-  dealWeightingColumnId: z.string().nullable().optional(),
-  dealStageWeights: z.array(DealStageWeightSchema).optional(),
-});
+export const UpdateCompanySettingsSchema = z.strictObject({ currency: z.enum(Currency) });
 
 export type DealStageWeight = Data<typeof DealStageWeightSchema>;
 
@@ -56,16 +48,7 @@ export class UpdateCompanySettingsInteractor extends AuthenticatedInteractor<
   @Transaction
   @ValidateOutput(UpdateCompanySettingsSchema)
   async invoke(data: UpdateCompanySettingsData): Validated<UpdateCompanySettingsData> {
-    if (data.terminology?.length) await this.repo.upsertTerminology(data.terminology);
-
-    const details: { currency?: Currency; dealWeightingColumnId?: string | null } = {};
-
-    if (data.currency) details.currency = data.currency;
-    if (data.dealWeightingColumnId !== undefined) details.dealWeightingColumnId = data.dealWeightingColumnId;
-
-    if (Object.keys(details).length > 0) await this.repo.updateDetails(details);
-
-    if (data.dealStageWeights?.length) await this.repo.setDealStageWeights(data.dealStageWeights);
+    await this.repo.updateDetails({ currency: data.currency });
 
     await this.eventService.publish(DomainEvent.COMPANY_UPDATED, {
       entityId: this.companyId,

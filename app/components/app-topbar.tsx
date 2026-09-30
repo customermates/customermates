@@ -28,6 +28,7 @@ import { IntlLink } from "@/i18n/navigation";
 import { useEntityTerminology } from "@/components/entity-terminology/use-entity-terminology";
 
 import { ShellHeader } from "./shell-header";
+import { stripLocalePrefix } from "@/i18n/locale-registry";
 import { useTopBarActions } from "./topbar-actions-context";
 import { buildAppTopbarCrumbs } from "./app-topbar-crumbs";
 
@@ -39,6 +40,7 @@ export const AppTopBar = observer(({ operatorConsoleVisible }: { operatorConsole
   const searchParams = useSearchParams();
   const inboxThreadId = searchParams.get("threadId");
   const rootStore = useRootStore();
+  const navigationDisabled = !rootStore.recordWorkspaceStore.routeReady(stripLocalePrefix(pathname));
   const { layoutStore, userStore, terminologyStore } = rootStore;
   const { actions, override } = useTopBarActions();
   const { plural } = useEntityTerminology();
@@ -75,10 +77,10 @@ export const AppTopBar = observer(({ operatorConsoleVisible }: { operatorConsole
     ],
   );
 
-  if (crumbs.length === 0) return <ShellHeader actions={override ?? actions} />;
+  if (crumbs.length === 0) return <ShellHeader actions={override ?? actions} navigationDisabled={navigationDisabled} />;
 
   return (
-    <ShellHeader actions={override ?? actions}>
+    <ShellHeader actions={override ?? actions} navigationDisabled={navigationDisabled}>
       <Breadcrumb aria-label={t("Common.ariaLabels.breadcrumb")} className="min-w-0">
         <BreadcrumbList className="flex-nowrap">
           {crumbs.map((c, i) => {

@@ -41,7 +41,7 @@ No. Enterprise single sign-on with your own identity provider over SAML or OIDC 
 
 ## How is authorization decided?
 
-Per user and role. A role, edited under **My Company** › **Roles**, sets two things for each resource (the five record types and the workspace features such as **Users & Roles**, **Company**, **API & Webhooks** and **Audit Log**): **Manage**, where **Yes** grants create, update and delete together, and **Read access**, which is **All**, **Assigned** or **None**. Not every resource offers every option. The system **Admin** role has every permission. Every operation checks the permission before acting. API keys inherit the permissions of their owning user; there is no per-key scoping.
+Roles under **My Company** › **Roles** grant **Create**, **Edit**, **Delete** and **All**, **Assigned** or **None** read access separately for each record type, including customer-created types. Editing and deleting require both the action permission and access to the record. Workspace features retain their Manage and Read controls. **Data model** management is separate from record access and role administration; a schema manager cannot expand grants without role-administration authority. The system **Admin** role has every permission. Record and configuration writes recheck permissions and revisions inside the workspace transaction. API keys inherit their owner's current permissions; there is no per-key scoping.
 
 **Link:** the **Roles** page, `/company/roles`. **Mate:** `navigate` and `highlight_element` with `nav-company-roles`; `company-roles-add` highlights **Add** for roles with **Manage** on **Users & Roles**, and in the open **Role** dialog `role-modal-save` and `role-modal-reset` highlight **Save** and **Reset**, and `role-modal-delete` highlights **Delete** of a saved custom role that no member uses; the permission rows and fields are not highlight targets, so Mate names them.
 
@@ -64,9 +64,9 @@ MCP requests use the same authentication and authorization path. When an agent a
 
 The MCP surface adds input guardrails to keep tool calls safe:
 
-- Update tools take no relation lists for contacts, organizations, deals, users, tasks or services; those links change only through `manage_record_links`. The one exception is `update_deals`, whose `services` list replaces the deal's services and is the only way to set quantities. A `null` for `services` or `customFieldValues` is refused, so a `null` can never wipe links or values; `services: []` removes every service from the deal on purpose.
-- An update tool accepts only ids of its own record type. Any other id fails with a not-found message such as "Contact ID not found or not accessible.", so an update cannot land on the wrong record type.
-- Destructive tools require an explicit list of record ids. There is no delete-by-filter shortcut.
+- `mutate_crm_record` changes one typed record or relationship at a time. Each reference contains both a type ID and record ID; link and unlink mutations name the relationship definition. Omitted fields are unchanged, while `null` explicitly clears an optional input field. Calculated fields cannot be written directly.
+- The backend checks the type, workspace, record permissions, version, and configuration revision during the write transaction. A reference to another type or workspace cannot redirect an update.
+- Deletion requires a record reference and a current impact preview hash; there is no delete-by-filter shortcut.
 
 See the [MCP tool catalog](/docs/mcp#tool-catalog) for the full list.
 

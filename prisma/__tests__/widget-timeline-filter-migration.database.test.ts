@@ -97,7 +97,10 @@ describeDatabase("widget activity-timeline migration", () => {
             AND contype = 'c'
           ORDER BY conname`,
       );
-      expect(checks.rows.map(({ conname }) => conname)).toEqual([]);
+      expect(checks.rows.map(({ conname }) => conname)).toEqual([
+        "Widget_measure_shape_check",
+        "Widget_version_positive_check",
+      ]);
     });
   }, 120_000);
 

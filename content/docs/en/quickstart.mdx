@@ -41,11 +41,11 @@ First create an API key: open **My Profile → API & Connectors**, press **Add**
 - *"Pull the last ten contacts I created. Any without an email address?"*
 - *"Create a contact for Jane Doe at Initech, link it to the Initech organization, and start a deal for 12 hours of consulting."*
 
-The agent reports which tools it called and what changed. Field names such as a deal's status are workspace-configurable custom columns, not fixed product fields. Call `get_record_schema` to see the columns that exist in your workspace.
+The agent reports which tools it called and what changed. Deal stages and other fields are configured per workspace. Call `discover_record_types` and `get_record_model` to see the types and fields that exist in yours.
 
 ## How do I test a webhook?
 
-Optional: to notify other tools when the CRM changes, open **My Company → Webhooks** and press **Add**. Set **URL** to a throwaway endpoint from [webhook.site](https://webhook.site). Under **Events**, select **Contact Created** (`contact.created`) and **Deal Updated** (`deal.updated`), then press **Save**. Adding a webhook needs **Manage** **Yes** on the **API & Webhooks** row, and the page itself needs **Read access** **All** on that row, as for API keys; the **Admin** role has both.
+Optional: to notify other tools when the CRM changes, open **My Company → Webhooks** and press **Add**. Set **URL** to a throwaway endpoint from [webhook.site](https://webhook.site). Under **Events**, select **Record Created** (`record.created`) and **Record Updated** (`record.updated`), then choose the record types to watch and press **Save**. Adding a webhook needs **Manage** **Yes** on the **API & Webhooks** row, and the page itself needs **Read access** **All** on that row, as for API keys; the **Admin** role has both.
 
 Create a contact or change a deal. Within a few seconds the delivery appears at webhook.site with the full payload, and **My Company → Recent Deliveries** lists it too. Full webhook docs: [Webhooks](/docs/webhooks).
 

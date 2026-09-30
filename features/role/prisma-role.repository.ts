@@ -13,6 +13,11 @@ import { BaseRepository } from "@/core/base/base-repository";
 import { Transaction } from "@/core/decorators/transaction.decorator";
 import { type GetQueryParams } from "@/core/base/base-get.schema";
 
+function roleDto<T extends { recordTypeGrants: Array<{ typeId: string; actions: Action[] }> }>(role: T) {
+  const { recordTypeGrants, ...rest } = role;
+  return { ...rest, recordGrants: recordTypeGrants };
+}
+
 export function mapRoleWithAssignments<T extends { _count: { users: number } }>(role: T) {
   const { _count, ...data } = role;
 
@@ -39,6 +44,10 @@ export class PrismaRoleRepo
         },
       },
     } as const;
+  }
+
+  private get withRecordGrantsSelect() {
+    return { ...this.baseSelect, recordTypeGrants: { select: { typeId: true, actions: true } } } as const;
   }
 
   private get withAssignmentsSelect() {
@@ -93,12 +102,6 @@ export class PrismaRoleRepo
       update: roleData,
     });
 
-    if (args.id) {
-      await this.prisma.rolePermission.deleteMany({
-        where: { roleId: args.id, companyId },
-      });
-    }
-
     const permissions: Array<{
       roleId: string;
       companyId: string;
@@ -106,9 +109,23 @@ export class PrismaRoleRepo
       action: Action;
     }> = [];
 
-    Object.entries(args.permissions).forEach(([resourceKey, permission]) => {
+    for (const [resourceKey, permission] of Object.entries(args.permissions)) {
+      if (!permission) continue;
       const resource = resourceKey as Resource;
-      const isManageOnlyResource = "canManage" in permission && !("readAccess" in permission);
+      const isManageOnlyResource =
+        (resource === "company" || resource === "dataModel") &&
+        "canManage" in permission &&
+        permission.canManage !== undefined;
+      const changedActions: Action[] = [];
+      if ("canManage" in permission && permission.canManage !== undefined)
+        changedActions.push(Action.create, Action.update, Action.delete);
+      if (("readAccess" in permission && permission.readAccess !== undefined) || isManageOnlyResource)
+        changedActions.push(Action.readOwn, Action.readAll);
+      if (changedActions.length) {
+        await this.prisma.rolePermission.deleteMany({
+          where: { companyId, roleId: savedRole.id, resource, action: { in: changedActions } },
+        });
+      }
 
       if ("canManage" in permission && permission.canManage === "yes") {
         permissions.push(
@@ -138,7 +155,7 @@ export class PrismaRoleRepo
             break;
         }
       }
-    });
+    }
 
     const unique = new Map<string, { roleId: string; companyId: string; resource: Resource; action: Action }>();
 
@@ -152,10 +169,10 @@ export class PrismaRoleRepo
 
     const role = await this.prisma.userRole.findFirstOrThrow({
       where: { id: savedRole.id, companyId },
-      select: this.baseSelect,
+      select: this.withRecordGrantsSelect,
     });
 
-    return role;
+    return roleDto(role);
   }
 
   async isSystemRoleOrThrow(id: string) {
@@ -198,10 +215,18 @@ export class PrismaRoleRepo
 
     const role = await this.prisma.userRole.findFirstOrThrow({
       where: { id, companyId },
-      select: this.baseSelect,
+      select: this.withRecordGrantsSelect,
     });
 
-    return role;
+    return roleDto(role);
+  }
+
+  async findRoleById(id: string) {
+    const role = await this.prisma.userRole.findFirst({
+      where: { id, companyId: this.companyId },
+      select: this.withRecordGrantsSelect,
+    });
+    return role ? roleDto(role) : null;
   }
 
   async findIds(ids: Set<string>) {
@@ -223,7 +248,7 @@ export class PrismaRoleRepo
 
     const role = await this.prisma.userRole.findFirstOrThrow({
       where: { id, companyId },
-      select: this.baseSelect,
+      select: this.withRecordGrantsSelect,
     });
 
     if (role.isSystemRole) throw new Error("Cannot delete system roles");
@@ -234,6 +259,6 @@ export class PrismaRoleRepo
       where: { id, companyId },
     });
 
-    return role;
+    return roleDto(role);
   }
 }

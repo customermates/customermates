@@ -118,3 +118,8 @@ export const CustomColumnDtoSchema = z.discriminatedUnion("type", [
 ]);
 
 export type CustomColumnDto = Data<typeof CustomColumnDtoSchema>;
+
+export type ColumnPresentation<T = CustomColumnDto> =
+  | (T extends unknown ? Omit<T, "entityType"> : never)
+  | { id: string; label: string; type: "number" | "member" | "boolean" }
+  | { id: string; label: string; type: "recordReference"; typeId: string };

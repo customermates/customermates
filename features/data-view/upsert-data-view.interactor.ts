@@ -1,3 +1,5 @@
+import type { DataViewPolicy } from "./data-view-policy";
+import { validateDataViewAccess } from "./data-view-policy";
 import type { DataViewDto, DataViewState } from "@/core/data-view/data-view-state.schema";
 import type { ActiveViewKeyRepo } from "./select-data-view.interactor";
 import type { UpsertDataViewData } from "./data-view.schema";
@@ -9,7 +11,7 @@ import { Transaction } from "@/core/decorators/transaction.decorator";
 import { Validate } from "@/core/decorators/validate.decorator";
 import { ValidateOutput } from "@/core/decorators/validate-output.decorator";
 import { DataViewDtoSchema } from "@/core/data-view/data-view-state.schema";
-import { failNotFound } from "@/core/validation/interactor-failure-server";
+import { fail, failNotFound } from "@/core/validation/interactor-failure-server";
 import { CustomErrorCode } from "@/core/validation/validation.types";
 import { UpsertDataViewSchema } from "./data-view.schema";
 
@@ -38,6 +40,7 @@ export class UpsertDataViewInteractor extends AuthenticatedInteractor<UpsertData
   constructor(
     private repo: UpsertDataViewRepo,
     private personalization: ActiveViewKeyRepo,
+    private policy?: DataViewPolicy,
   ) {
     super();
   }
@@ -46,6 +49,9 @@ export class UpsertDataViewInteractor extends AuthenticatedInteractor<UpsertData
   @Transaction
   @ValidateOutput(DataViewDtoSchema)
   async invoke(data: UpsertDataViewData): Validated<DataViewDto> {
+    const invalid = await validateDataViewAccess(this.policy, data.surfaceKey, data.state);
+    if (invalid) return fail(invalid);
+
     const view = "id" in data ? await this.updateExisting(data) : await this.createNew(data);
 
     if (!view) return failNotFound(CustomErrorCode.dataViewNotFound, ["id"]);
@@ -76,7 +82,10 @@ export class UpsertDataViewInteractor extends AuthenticatedInteractor<UpsertData
       state: data.state,
     });
 
-    await this.personalization.upsertP13n({ p13nId: data.surfaceKey, activeViewKey: created.id });
+    await this.personalization.upsertP13n({
+      p13nId: data.surfaceKey,
+      activeViewKey: created.id,
+    });
 
     return created;
   }

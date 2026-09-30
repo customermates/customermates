@@ -621,6 +621,35 @@ export class PrismaOperatorRepo extends BaseRepository implements OperatorRepo {
           if (otherActiveSystemUsers === 0) return "conflict";
         }
 
+        const leavingPending =
+          target.status === Status.pendingAuthorization && data.status !== Status.pendingAuthorization;
+        const protectedTasks = leavingPending
+          ? await this.prisma.crmRecord.findMany({
+              where: {
+                companyId,
+                protectedKind: "membershipAuthorization",
+                systemData: { path: ["relatedUserId"], equals: data.userId },
+              },
+              select: { id: true, typeId: true },
+            })
+          : [];
+        if (protectedTasks.length) {
+          const [state, linked] = await Promise.all([
+            this.prisma.recordSchemaState.findUnique({ where: { companyId }, select: { activeOperationId: true } }),
+            this.prisma.recordLink.findFirst({
+              where: {
+                companyId,
+                OR: protectedTasks.flatMap((task) => [
+                  { sourceTypeId: task.typeId, sourceId: task.id },
+                  { targetTypeId: task.typeId, targetId: task.id },
+                ]),
+              },
+              select: { id: true },
+            }),
+          ]);
+          if (state?.activeOperationId || linked) return "conflict";
+        }
+
         const enteringActive = target.status !== Status.active && data.status === Status.active;
         await this.prisma.user.update({
           where: { id: data.userId, companyId },
@@ -630,7 +659,7 @@ export class PrismaOperatorRepo extends BaseRepository implements OperatorRepo {
             ...(leavingActive ? { agentCreditActivatedAt: null } : {}),
           },
         });
-        if (target.status === Status.pendingAuthorization && data.status !== Status.pendingAuthorization) {
+        if (leavingPending) {
           await this.prisma.task.deleteMany({
             where: {
               companyId,
@@ -638,6 +667,15 @@ export class PrismaOperatorRepo extends BaseRepository implements OperatorRepo {
               type: TaskType.userPendingAuthorization,
             },
           });
+          if (protectedTasks.length) {
+            await this.prisma.crmRecord.deleteMany({
+              where: {
+                companyId,
+                protectedKind: "membershipAuthorization",
+                systemData: { path: ["relatedUserId"], equals: data.userId },
+              },
+            });
+          }
         }
         await this.createAudit({
           action: OPERATOR_AUDIT_ACTION.userStatusUpdate,

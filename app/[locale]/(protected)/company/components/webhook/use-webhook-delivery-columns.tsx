@@ -8,7 +8,6 @@ import { useTranslations } from "next-intl";
 
 import { AppChip } from "@/components/chip/app-chip";
 import { useHydratedIntlStore } from "@/core/stores/use-hydrated-intl-store";
-import { getEntityName } from "@/features/event/entity-name.utils";
 import { WEBHOOK_DELIVERY_QUEUE_STATUS_CHIP_COLOR } from "@/features/webhook/webhook-delivery-chip-colors";
 
 export function useWebhookDeliveryColumns(): ColumnDef<WebhookDeliveryDto>[] {
@@ -34,7 +33,9 @@ export function useWebhookDeliveryColumns(): ColumnDef<WebhookDeliveryDto>[] {
         id: "entity",
         header: t("Common.table.columns.entity"),
         cell: ({ row }) => (
-          <span className="text-sm">{getEntityName(row.original.event, row.original.requestBody?.data, t) ?? "-"}</span>
+          <span className="text-sm">
+            {row.original.event.startsWith("record.") && row.original.requestBody ? t("RecordModel.record") : "-"}
+          </span>
         ),
       },
       {

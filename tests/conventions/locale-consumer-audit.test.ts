@@ -17,6 +17,7 @@ const ALLOWED = new Set([
   "__tests__/proxy-locales.test.ts",
   "__tests__/proxy.test.ts",
   "tests/helpers/mock-user.ts",
+  "prisma/record-migrations/v5/contract/record-query.schema.ts",
 ]);
 
 const LOCALE_ALTERNATION = REGISTERED_LOCALES.join("|");
@@ -46,6 +47,18 @@ const DOMAIN_EXPECTATIONS: Array<{ file: string; imports: string }> = [
 ];
 
 const ALLOWED_AMBIENT_FORMATTING_SITES = new Map([
+  [
+    "prisma/record-migrations/v4/run.ts :: localeCompare :: <missing locale>",
+    "Frozen migration uses the original key ordering for repeatable reconciliation.",
+  ],
+  [
+    "prisma/record-migrations/v5/run.ts :: localeCompare :: <missing locale>",
+    "Frozen migration uses the original key ordering for repeatable reconciliation.",
+  ],
+  [
+    "prisma/record-migrations/v6/run.ts :: localeCompare :: <missing locale>",
+    "Frozen migration uses the original key ordering for repeatable reconciliation.",
+  ],
   [
     "app/[locale]/(protected)/profile/components/profile-settings-form.tsx :: new Intl.DateTimeFormat :: <missing>",
     "Browser-language detection intentionally asks the browser for its resolved locale.",

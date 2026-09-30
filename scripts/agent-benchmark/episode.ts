@@ -9,7 +9,10 @@ import type { Campaign } from "./campaign";
 import type {
   BenchmarkCase,
   BenchmarkCaseDriver,
-  BenchmarkDb, CaseId, Fixture, ObservedTurn,
+  BenchmarkDb,
+  CaseId,
+  Fixture,
+  ObservedTurn,
   OracleCheck,
   OracleResult,
 } from "./fixtures";
@@ -19,13 +22,9 @@ import type { AgentContextAttachment } from "@/ee/agent-chat/agent-context";
 import type { AgentModelEntry } from "@/ee/agent-chat/model-catalog";
 
 import { runWithoutTenant } from "@/core/decorators/tenant-context";
-import {
-  agentContextAttachmentsEqual,
-  agentContextsFromMessageParts,
-} from "@/ee/agent-chat/agent-context";
+import { agentContextAttachmentsEqual, agentContextsFromMessageParts } from "@/ee/agent-chat/agent-context";
 import { agentToolOutcomeStatus } from "@/ee/agent-chat/agent-durable-stream";
-import { AGENT_PANEL_TOOL_NAMES, isAgentPanelTool,
-} from "@/ee/agent-chat/agent-ui-command";
+import { AGENT_PANEL_TOOL_NAMES, isAgentPanelTool } from "@/ee/agent-chat/agent-ui-command";
 import { AGENT_RUN_LEASE_MS } from "@/ee/agent-chat/agent-turn-request";
 import { resolveAgentModel } from "@/ee/agent-chat/model-catalog";
 import {
@@ -47,10 +46,7 @@ import {
   worstCaseEpisodeCredits,
   worstCaseEpisodeUsd,
 } from "./campaign";
-import { BENCHMARK_CASES,
-  FIXTURE_VERSION,
-  scoreBenchmarkCase, seedBenchmarkCase,
-} from "./fixtures";
+import { BENCHMARK_CASES, FIXTURE_VERSION, scoreBenchmarkCase, seedBenchmarkCase } from "./fixtures";
 import { mintBenchmarkSession } from "./session";
 import { benchmarkServerSourceError, readSseFrames } from "./sse";
 
@@ -58,7 +54,6 @@ const TURN_TIMEOUT_MS = 15 * 60 * 1000;
 const MICROCENTS_PER_USD = 100_000_000;
 const RESUME_RETRY_DELAYS_MS = [0, 500, 1500, 4000] as const;
 export const ARTIFACT_SCHEMA_VERSION = 5 as const;
-
 
 function assertKnownPanelTool(name: string) {
   if (isAgentPanelTool(name)) return;
@@ -138,15 +133,37 @@ export type EpisodeArtifact = {
   mergeRequired: boolean;
   turns: TurnRecord[];
   observed: ObservedTurn[];
-  metrics: { turns: { id: string; status: string; terminalCode: string | null; stopReason: string | null; modelSpec: string | null; servingProvider: string | null; createdAt: string; providerStartedAt: string | null; terminalAt: string | null;
-    }[]; rounds: RoundMetric[];
+  metrics: {
+    turns: {
+      id: string;
+      status: string;
+      terminalCode: string | null;
+      stopReason: string | null;
+      modelSpec: string | null;
+      servingProvider: string | null;
+      createdAt: string;
+      providerStartedAt: string | null;
+      terminalAt: string | null;
+    }[];
+    rounds: RoundMetric[];
   };
-  usage: { turnRequestId: string | null; costMicrocents: string; costSource: string; chargedCredits: number; state: string; model: string;
+  usage: {
+    turnRequestId: string | null;
+    costMicrocents: string;
+    costSource: string;
+    chargedCredits: number;
+    state: string;
+    model: string;
   }[];
   usd: number;
   measuredShare: number;
   oracle: OracleResult | null;
-  eligibility: { exactPrompts: boolean; oneConversation: boolean; expectedTurnCount: boolean; correctRoute: boolean; allTurnsTerminal: boolean;
+  eligibility: {
+    exactPrompts: boolean;
+    oneConversation: boolean;
+    expectedTurnCount: boolean;
+    correctRoute: boolean;
+    allTurnsTerminal: boolean;
     accountingBalanced: boolean;
     withinCreditCeiling: boolean;
     streamSequenceUnique: boolean;
@@ -178,9 +195,7 @@ export function benchmarkSourceIdentity(options?: { refresh?: boolean }) {
   return cachedSourceIdentity;
 }
 
-function approvalPolicy(
-  definition: BenchmarkCase, override?: "approve" | "reject",
-): "approve" | "reject" | "ignore" {
+function approvalPolicy(definition: BenchmarkCase, override?: "approve" | "reject"): "approve" | "reject" | "ignore" {
   return definition.driver?.approval ?? override ?? "reject";
 }
 
@@ -205,25 +220,17 @@ export function buildBenchmarkAgentMessageRequest(input: {
   };
 }
 
-async function respondToUiCommand(fixture: Fixture, conversationId: string, frame: SseFrame,
-) {
+async function respondToUiCommand(fixture: Fixture, conversationId: string, frame: SseFrame) {
   for (const delay of RESUME_RETRY_DELAYS_MS) {
-    if (delay)
-      await new Promise((resolveDelay) => setTimeout(resolveDelay, delay));
+    if (delay) await new Promise((resolveDelay) => setTimeout(resolveDelay, delay));
     const result = await respondToUiCommandAs(
-    { companyId: fixture.companyId, userId: fixture.actorUserId },
-    { conversationId, commandId: String(frame.commandId), name: String(frame.name),
-      },
-  );
-    if (!result.ok)
-      throw new Error(
-        `UI command response failed: ${JSON.stringify(result.error)}`,
-      );
+      { companyId: fixture.companyId, userId: fixture.actorUserId },
+      { conversationId, commandId: String(frame.commandId), name: String(frame.name) },
+    );
+    if (!result.ok) throw new Error(`UI command response failed: ${JSON.stringify(result.error)}`);
     if (result.data.resumed) return;
   }
-  throw new Error(
-    `UI command ${String(frame.commandId)} did not resume its workflow hook.`,
-  );
+  throw new Error(`UI command ${String(frame.commandId)} did not resume its workflow hook.`);
 }
 
 async function respondToApproval(
@@ -233,21 +240,15 @@ async function respondToApproval(
   decision: "approve" | "reject",
 ) {
   for (const delay of RESUME_RETRY_DELAYS_MS) {
-    if (delay)
-      await new Promise((resolveDelay) => setTimeout(resolveDelay, delay));
+    if (delay) await new Promise((resolveDelay) => setTimeout(resolveDelay, delay));
     const result = await respondToApprovalAs(
       { companyId: fixture.companyId, userId: fixture.actorUserId },
       { conversationId, requestId: String(frame.requestId), decision },
     );
-    if (!result.ok)
-      throw new Error(
-        `Approval response failed: ${JSON.stringify(result.error)}`,
-      );
+    if (!result.ok) throw new Error(`Approval response failed: ${JSON.stringify(result.error)}`);
     if (result.data.resumed) return;
   }
-  throw new Error(
-    `Approval ${String(frame.requestId)} did not resume its workflow hook.`,
-  );
+  throw new Error(`Approval ${String(frame.requestId)} did not resume its workflow hook.`);
 }
 
 async function runTurn(input: {
@@ -315,20 +316,14 @@ async function runTurn(input: {
       ),
     });
     record.status = response.status;
-    record.serverSourceCommit = response.headers.get(
-      "x-agent-benchmark-source-commit",
-    );
-    record.conversationId =
-      response.headers.get("x-conversation-id") ?? input.conversationId;
+    record.serverSourceCommit = response.headers.get("x-agent-benchmark-source-commit");
+    record.conversationId = response.headers.get("x-conversation-id") ?? input.conversationId;
     if (!response.ok) {
       record.error = `admission ${response.status}: ${(await response.text()).slice(0, 500)}`;
       return record;
     }
     const expectedSourceCommit = benchmarkSourceIdentity().sourceCommit;
-    const sourceError = benchmarkServerSourceError(
-      expectedSourceCommit,
-      record.serverSourceCommit,
-    );
+    const sourceError = benchmarkServerSourceError(expectedSourceCommit, record.serverSourceCommit);
     if (sourceError) {
       await response.body?.cancel();
       record.error = sourceError;
@@ -392,9 +387,7 @@ async function runTurn(input: {
             );
             record.leaseProbe = {
               status: turn.status,
-              leaseHeadroomMs: lease
-                ? lease.expiresAt.getTime() - Date.now()
-                : 0,
+              leaseHeadroomMs: lease ? lease.expiresAt.getTime() - Date.now() : 0,
             };
           }
           if (input.driver.cancelOn === "approval_request") {
@@ -405,23 +398,13 @@ async function runTurn(input: {
               },
               conversationId,
             );
-            if (!result.ok || !result.data.cancelling)
-              throw new Error(`Cancel failed: ${JSON.stringify(result)}`);
+            if (!result.ok || !result.data.cancelling) throw new Error(`Cancel failed: ${JSON.stringify(result)}`);
             record.cancelRequested = true;
           } else if (input.approvalDecision !== "ignore") {
-            await respondToApproval(
-              input.fixture,
-              conversationId,
-              frame,
-              input.approvalDecision,
-            );
+            await respondToApproval(input.fixture, conversationId, frame, input.approvalDecision);
           }
         }
-        if (
-          frame.type === "activity" &&
-          input.driver.cancelOn === "activity" &&
-          !record.cancelRequested
-        ) {
+        if (frame.type === "activity" && input.driver.cancelOn === "activity" && !record.cancelRequested) {
           const result = await cancelAgentTurnAs(
             {
               companyId: input.fixture.companyId,
@@ -429,13 +412,11 @@ async function runTurn(input: {
             },
             conversationId,
           );
-          if (!result.ok)
-            throw new Error(`Cancel failed: ${JSON.stringify(result)}`);
+          if (!result.ok) throw new Error(`Cancel failed: ${JSON.stringify(result)}`);
           record.cancelRequested = true;
         }
       } catch (error) {
-        record.responderError =
-          error instanceof Error ? error.message : String(error);
+        record.responderError = error instanceof Error ? error.message : String(error);
         throw error;
       }
     };
@@ -447,8 +428,7 @@ async function runTurn(input: {
     record.detached = first.detached;
     if (first.detached) {
       const lastSeq = Number(frames.at(-1)?.seq);
-      if (!Number.isFinite(lastSeq))
-        throw new Error("Detached stream had no numeric sequence.");
+      if (!Number.isFinite(lastSeq)) throw new Error("Detached stream had no numeric sequence.");
       const resumedResponse = await fetch(
         `${input.appUrl}/api/agent/conversations/${conversationId}/stream?startIndex=${lastSeq + 1}`,
         { headers: { cookie: input.cookie }, signal: controller.signal },
@@ -457,11 +437,7 @@ async function runTurn(input: {
         throw new Error(
           `Reattach failed with ${resumedResponse.status}: ${(await resumedResponse.text()).slice(0, 500)}`,
         );
-      const resumed = await readSseFrames(
-        resumedResponse,
-        startedAt,
-        handleFrame,
-      );
+      const resumed = await readSseFrames(resumedResponse, startedAt, handleFrame);
       frames = [...frames, ...resumed.frames];
       record.reattached = true;
       record.resumedFrameCount = resumed.frames.length;
@@ -475,13 +451,9 @@ async function runTurn(input: {
         lastFrameMs: resumed.timing.lastFrameMs ?? first.timing.lastFrameMs,
       };
     }
-    record.frameSeqs = frames
-      .map((frame) => Number(frame.seq))
-      .filter(Number.isFinite);
+    record.frameSeqs = frames.map((frame) => Number(frame.seq)).filter(Number.isFinite);
     record.frameCount = frames.length;
-    const terminal = [...frames]
-      .reverse()
-      .find((frame) => frame.type === "turn_done");
+    const terminal = [...frames].reverse().find((frame) => frame.type === "turn_done");
     record.terminal = terminal ? { ...terminal } : null;
     if (!terminal) record.error = "stream ended without turn_done";
     return record;
@@ -508,12 +480,11 @@ async function observeEpisode(db: BenchmarkDb, fixture: Fixture) {
   const observed: ObservedTurn[] = [];
   const metrics: EpisodeArtifact["metrics"] = { turns: [], rounds: [] };
   for (const turn of turns) {
-    const assistant = turn.messages.filter(
-      (message) => message.role === "assistant",
-    );
-    const visibleParts = assistant.flatMap((message) =>
-      Array.isArray(message.parts) ? message.parts : [],
-    ) as Record<string, unknown>[];
+    const assistant = turn.messages.filter((message) => message.role === "assistant");
+    const visibleParts = assistant.flatMap((message) => (Array.isArray(message.parts) ? message.parts : [])) as Record<
+      string,
+      unknown
+    >[];
     const text = visibleParts
       .filter((part) => part.type === "text")
       .map((part) => String(part.text ?? ""))
@@ -529,13 +500,10 @@ async function observeEpisode(db: BenchmarkDb, fixture: Fixture) {
       .map(({ part, roundIndex }) => {
         const result = rawParts.find(
           ({ part: value }) =>
-            ["tool-result", "tool-error", "tool-output-denied"].includes(
-              String(value.type),
-            ) && value.toolCallId === part.toolCallId,
+            ["tool-result", "tool-error", "tool-output-denied"].includes(String(value.type)) &&
+            value.toolCallId === part.toolCallId,
         )?.part;
-        const activity = visibleParts.find(
-          (value) => value.type === "activity" && value.id === part.toolCallId,
-        );
+        const activity = visibleParts.find((value) => value.type === "activity" && value.id === part.toolCallId);
         const wrapped = result?.output;
         const output =
           wrapped && typeof wrapped === "object" && "value" in wrapped
@@ -550,13 +518,7 @@ async function observeEpisode(db: BenchmarkDb, fixture: Fixture) {
                 ? agentToolOutcomeStatus(output).status
                 : (activity?.status as string | undefined);
         const outcome =
-          status === "done"
-            ? "ok"
-            : status === "error"
-              ? "error"
-              : status === "cancelled"
-                ? "cancelled"
-                : undefined;
+          status === "done" ? "ok" : status === "error" ? "error" : status === "cancelled" ? "cancelled" : undefined;
         return {
           name: String(part.toolName),
           input: part.input,
@@ -579,11 +541,7 @@ async function observeEpisode(db: BenchmarkDb, fixture: Fixture) {
       tools,
       terminalCode: turn.terminalCode ?? turn.status,
       approvalDecisions: approvals.flatMap((item) =>
-        item.decision === "reject"
-          ? ["reject" as const]
-          : item.decision === "approve"
-            ? ["approve" as const]
-            : [],
+        item.decision === "reject" ? ["reject" as const] : item.decision === "approve" ? ["approve" as const] : [],
       ),
     });
     metrics.turns.push({
@@ -634,39 +592,24 @@ async function observeEpisode(db: BenchmarkDb, fixture: Fixture) {
 
 const MAX_FIXTURE_ATTEMPTS = 6;
 
-async function seedFreshBenchmarkCase(
-  db: BenchmarkDb,
-  caseId: CaseId,
-  baseNamespace: string,
-  creditCeiling: number,
-) {
+async function seedFreshBenchmarkCase(db: BenchmarkDb, caseId: CaseId, baseNamespace: string, creditCeiling: number) {
   for (let attempt = 1; attempt <= MAX_FIXTURE_ATTEMPTS; attempt += 1) {
-    const namespace =
-      attempt === 1 ? baseNamespace : `${baseNamespace}:t${attempt}`;
+    const namespace = attempt === 1 ? baseNamespace : `${baseNamespace}:t${attempt}`;
     try {
       return await seedBenchmarkCase(db, caseId, namespace, creditCeiling);
     } catch (error) {
       const exhausted = attempt === MAX_FIXTURE_ATTEMPTS;
-      const taken =
-        error instanceof Error &&
-        error.message.startsWith("Fixture namespace already exists");
+      const taken = error instanceof Error && error.message.startsWith("Fixture namespace already exists");
       if (!taken || exhausted) throw error;
     }
   }
   throw new Error("unreachable");
 }
 
-function resolveFixtureIds(
-  value: string,
-  definition: BenchmarkCase,
-  fixtureIds: Readonly<Record<string, string>>,
-) {
+function resolveFixtureIds(value: string, definition: BenchmarkCase, fixtureIds: Readonly<Record<string, string>>) {
   return value.replace(/\{([^}]+)\}/g, (_match, key: string) => {
     const resolved = fixtureIds[key];
-    if (!resolved)
-      throw new Error(
-        `Case ${definition.id} context references unknown fixture id ${key}.`,
-      );
+    if (!resolved) throw new Error(`Case ${definition.id} context references unknown fixture id ${key}.`);
     return resolved;
   });
 }
@@ -685,7 +628,7 @@ function resolveContextAttachment(
         recordId: resolveFixtureIds(reference.recordId, definition, fixtureIds),
       },
     };
-  if (reference.requestedAction === "update")
+  if (reference.kind === "dataView" && reference.requestedAction === "update")
     return {
       ...context,
       reference: {
@@ -702,22 +645,14 @@ export function resolveBenchmarkTurnContext(
   index: number,
 ) {
   const configured = definition.contexts?.[index] ?? {};
-  const pageRoute = resolveFixtureIds(
-    configured.pageRoute ?? "/en/contacts",
-    definition,
-    fixtureIds,
-  );
+  const pageRoute = resolveFixtureIds(configured.pageRoute ?? "/en/contacts", definition, fixtureIds);
   const contexts = (configured.contexts ?? []).map((context) =>
     resolveContextAttachment(context, definition, fixtureIds),
   );
   return { locale: configured.locale ?? "en", pageRoute, contexts };
 }
 
-function turnModelKey(
-  definition: BenchmarkCase,
-  index: number,
-  campaignModelKey: string,
-) {
+function turnModelKey(definition: BenchmarkCase, index: number, campaignModelKey: string) {
   const configured = definition.contexts?.[index]?.modelKey;
   if (configured === "omit") return undefined;
   if (configured && configured !== "campaign") return configured;
@@ -731,8 +666,7 @@ export function benchmarkCaseModelSelection(
   const definition = BENCHMARK_CASES.find((entry) => entry.id === caseId);
   if (!definition) throw new Error(`Unknown case ${caseId}.`);
   const campaignModelKey = armModelKey(arm);
-  const modelKey =
-    turnModelKey(definition, 0, campaignModelKey) ?? campaignModelKey;
+  const modelKey = turnModelKey(definition, 0, campaignModelKey) ?? campaignModelKey;
   const modelConfig: AgentModelEntry =
     modelKey === campaignModelKey
       ? {
@@ -742,19 +676,14 @@ export function benchmarkCaseModelSelection(
           maxOutputTokens: arm.maxOutputTokens,
           maxContextTokens: arm.maxContextTokens,
           maxToolResultChars: arm.maxToolResultChars,
-          ...(arm.reasoningEffort
-            ? { reasoningEffort: arm.reasoningEffort }
-            : {}),
+          ...(arm.reasoningEffort ? { reasoningEffort: arm.reasoningEffort } : {}),
           ...(arm.thinkingLevel ? { thinkingLevel: arm.thinkingLevel } : {}),
         }
       : resolveAgentModel(modelKey);
   return { modelKey, modelConfig };
 }
 
-function withIntegrityChecks(
-  oracle: OracleResult,
-  checks: OracleCheck[],
-): OracleResult {
+function withIntegrityChecks(oracle: OracleResult, checks: OracleCheck[]): OracleResult {
   return {
     ...oracle,
     checks: [...checks, ...oracle.checks],
@@ -762,32 +691,16 @@ function withIntegrityChecks(
   };
 }
 
-export async function runEpisode(
-  request: EpisodeRequest,
-): Promise<EpisodeArtifact> {
-  const definition = BENCHMARK_CASES.find(
-    (entry) => entry.id === request.caseId,
-  );
+export async function runEpisode(request: EpisodeRequest): Promise<EpisodeArtifact> {
+  const definition = BENCHMARK_CASES.find((entry) => entry.id === request.caseId);
   if (!definition) throw new Error(`Unknown case ${request.caseId}.`);
   const campaignModelKey = armModelKey(request.arm);
-  const { modelKey, modelConfig: effectiveModelConfig } =
-    benchmarkCaseModelSelection(request.caseId, request.arm);
+  const { modelKey, modelConfig: effectiveModelConfig } = benchmarkCaseModelSelection(request.caseId, request.arm);
   const budgetArm = { ...request.arm, ...effectiveModelConfig };
-  const creditCeiling = worstCaseEpisodeCredits(
-    budgetArm,
-    definition.prompts.length,
-  );
-  const worstCaseUsd = worstCaseEpisodeUsd(
-    budgetArm,
-    definition.prompts.length,
-  );
+  const creditCeiling = worstCaseEpisodeCredits(budgetArm, definition.prompts.length);
+  const worstCaseUsd = worstCaseEpisodeUsd(budgetArm, definition.prompts.length);
   const baseNamespace = `${request.campaign.id}:${request.runtimeVariant}:${request.arm.id}:r${request.repetition}`;
-  const fixture = await seedFreshBenchmarkCase(
-    request.db,
-    request.caseId,
-    baseNamespace,
-    creditCeiling,
-  );
+  const fixture = await seedFreshBenchmarkCase(request.db, request.caseId, baseNamespace, creditCeiling);
   const episodeId = await registerEpisode(request.pool, {
     campaignId: request.campaign.id,
     arm: request.arm.id,
@@ -879,17 +792,10 @@ export async function runEpisode(
   }
 
   await updateEpisode(request.pool, episodeId, "running", null, null);
-  const cookie = await mintBenchmarkSession(
-    request.db.prisma,
-    fixture.actorUserId,
-  );
+  const cookie = await mintBenchmarkSession(request.db.prisma, fixture.actorUserId);
   let conversationId: string | null = null;
   for (const [index, prompt] of definition.prompts.entries()) {
-    const context = resolveBenchmarkTurnContext(
-      definition,
-      fixture.ids,
-      index,
-    );
+    const context = resolveBenchmarkTurnContext(definition, fixture.ids, index);
     const turn = await runTurn({
       db: request.db,
       appUrl: request.appUrl,
@@ -924,11 +830,7 @@ export async function runEpisode(
       .map((message) =>
         (Array.isArray(message.parts) ? message.parts : [])
           .filter(
-            (part) =>
-              part &&
-              typeof part === "object" &&
-              "type" in part &&
-              (part as { type?: string }).type === "text",
+            (part) => part && typeof part === "object" && "type" in part && (part as { type?: string }).type === "text",
           )
           .map((part) => String((part as { text?: string }).text ?? ""))
           .join(""),
@@ -938,23 +840,16 @@ export async function runEpisode(
     observation.turns.length > 0 &&
     observation.turns.every((turn, index) => {
       const rounds = turn.rounds;
-      const event = observation.usage.filter(
-        (usage) => usage.turnRequestId === turn.id,
-      );
+      const event = observation.usage.filter((usage) => usage.turnRequestId === turn.id);
       const terminal = artifact.turns[index]?.terminal;
-      const measuredCost = rounds.reduce(
-        (total, round) => total + round.costMicrocents,
-        0n,
-      );
+      const measuredCost = rounds.reduce((total, round) => total + round.costMicrocents, 0n);
       return (
         Number(terminal?.numTurns) === rounds.length &&
         rounds.every((round, roundIndex) => round.roundIndex === roundIndex) &&
         event.length === 1 &&
         event[0]?.state === "settled" &&
-        (event[0]?.costSource !== "measured" ||
-          BigInt(event[0].costMicrocents) === measuredCost) &&
-        String(terminal?.terminalCode ?? "") ===
-          String(turn.terminalCode ?? turn.status)
+        (event[0]?.costSource !== "measured" || BigInt(event[0].costMicrocents) === measuredCost) &&
+        String(terminal?.terminalCode ?? "") === String(turn.terminalCode ?? turn.status)
       );
     });
   const streamSequenceUnique = artifact.turns.every(
@@ -970,20 +865,12 @@ export async function runEpisode(
         }),
       )
     : 1;
-  const totalUsageMicrocents = observation.usage.reduce(
-    (total, event) => total + BigInt(event.costMicrocents),
-    0n,
-  );
-  const totalChargedCredits = observation.usage.reduce(
-    (total, event) => total + event.chargedCredits,
-    0,
-  );
+  const totalUsageMicrocents = observation.usage.reduce((total, event) => total + BigInt(event.costMicrocents), 0n);
+  const totalChargedCredits = observation.usage.reduce((total, event) => total + event.chargedCredits, 0);
   artifact.eligibility = {
-    exactPrompts:
-      JSON.stringify(submittedPrompts) === JSON.stringify(definition.prompts),
+    exactPrompts: JSON.stringify(submittedPrompts) === JSON.stringify(definition.prompts),
     oneConversation:
-      observation.turns.length > 0 &&
-      new Set(observation.turns.map((turn) => turn.conversationId)).size === 1,
+      observation.turns.length > 0 && new Set(observation.turns.map((turn) => turn.conversationId)).size === 1,
     expectedTurnCount: observation.turns.length === definition.prompts.length,
     correctRoute:
       observation.turns.length > 0 &&
@@ -997,28 +884,19 @@ export async function runEpisode(
               round.servingProvider === effectiveModelConfig.servingProvider,
           ),
       ) &&
-      observation.usage.every(
-        (event) => event.model === effectiveModelConfig.modelId,
-      ),
-    allTurnsTerminal:
-      observation.turns.length > 0 &&
-      observation.turns.every((turn) => turn.terminalAt !== null),
+      observation.usage.every((event) => event.model === effectiveModelConfig.modelId),
+    allTurnsTerminal: observation.turns.length > 0 && observation.turns.every((turn) => turn.terminalAt !== null),
     accountingBalanced,
     withinCreditCeiling:
       totalChargedCredits <= creditCeiling &&
-      totalUsageMicrocents <=
-        BigInt(creditCeiling) * BigInt(MICROCENTS_PER_USD / 100),
+      totalUsageMicrocents <= BigInt(creditCeiling) * BigInt(MICROCENTS_PER_USD / 100),
     streamSequenceUnique,
     noActiveLease: activeLeases === 0,
   };
 
   artifact.usd = Number(totalUsageMicrocents) / MICROCENTS_PER_USD;
-  const measured = observation.usage.filter(
-    (event) => event.costSource === "measured",
-  ).length;
-  artifact.measuredShare = observation.usage.length
-    ? measured / observation.usage.length
-    : 0;
+  const measured = observation.usage.filter((event) => event.costSource === "measured").length;
+  artifact.measuredShare = observation.usage.length ? measured / observation.usage.length : 0;
   for (const event of observation.usage)
     await recordCharge(
       request.pool,
@@ -1043,9 +921,7 @@ export async function runEpisode(
     settledToTurnChargesUsd: artifact.usd,
   });
 
-  const responderFailure = artifact.turns.find(
-    (turn) => turn.responderError,
-  )?.responderError;
+  const responderFailure = artifact.turns.find((turn) => turn.responderError)?.responderError;
   let terminalState: "scored" | "skipped" = "scored";
   let terminalReason: string | null = null;
   if (responderFailure) {
@@ -1060,9 +936,7 @@ export async function runEpisode(
     const oracle = await scoreBenchmarkCase(request.db, fixture, {
       turns: artifact.observed,
     });
-    const integrityChecks: OracleCheck[] = Object.entries(
-      artifact.eligibility,
-    ).map(([id, passed]) => ({
+    const integrityChecks: OracleCheck[] = Object.entries(artifact.eligibility).map(([id, passed]) => ({
       id: `integrity:${id}`,
       passed,
       gate: "runtime",
@@ -1071,42 +945,28 @@ export async function runEpisode(
       id: "integrity:model-key-request-contract",
       gate: "runtime",
       passed: artifact.turns.every(
-        (turn, index) =>
-          turn.request.modelKey ===
-          (turnModelKey(definition, index, campaignModelKey) ?? null),
+        (turn, index) => turn.request.modelKey === (turnModelKey(definition, index, campaignModelKey) ?? null),
       ),
     });
     integrityChecks.push({
       id: "integrity:page-route-persisted-and-request-context-serialized",
       gate: "runtime",
       passed: artifact.turns.every((turn, index) => {
-        const expected = resolveBenchmarkTurnContext(
-          definition,
-          fixture.ids,
-          index,
-        );
-        const userMessage = observation.turns[index]?.messages.find(
-          (message) => message.role === "user",
-        );
+        const expected = resolveBenchmarkTurnContext(definition, fixture.ids, index);
+        const userMessage = observation.turns[index]?.messages.find((message) => message.role === "user");
         return (
           turn.request.locale === expected.locale &&
           turn.request.pageRoute === expected.pageRoute &&
           observation.turns[index]?.pageRoute === expected.pageRoute &&
-          JSON.stringify(turn.request.contexts) ===
-            JSON.stringify(expected.contexts) &&
-          agentContextAttachmentsEqual(
-            agentContextsFromMessageParts(userMessage?.parts),
-            expected.contexts,
-          )
+          JSON.stringify(turn.request.contexts) === JSON.stringify(expected.contexts) &&
+          agentContextAttachmentsEqual(agentContextsFromMessageParts(userMessage?.parts), expected.contexts)
         );
       }),
     });
     integrityChecks.push({
       id: "integrity:server-source-commit",
       gate: "runtime",
-      passed: artifact.turns.every(
-        (turn) => turn.serverSourceCommit === artifact.sourceCommit,
-      ),
+      passed: artifact.turns.every((turn) => turn.serverSourceCommit === artifact.sourceCommit),
     });
     if (definition.driver?.detachAfterFrames !== undefined)
       integrityChecks.push({
@@ -1119,9 +979,7 @@ export async function runEpisode(
             turn.resumedFrameCount > 0 &&
             Boolean(turn.resumedDeltaText.trim()) &&
             turn.terminal?.type === "turn_done" &&
-            turn.frameSeqs.every(
-              (seq, index, all) => index === 0 || seq > all[index - 1]!,
-            ),
+            turn.frameSeqs.every((seq, index, all) => index === 0 || seq > all[index - 1]!),
         ),
       });
     if (definition.driver?.cancelOn)
@@ -1135,9 +993,7 @@ export async function runEpisode(
         id: "integrity:approval-survived-ordinary-lease",
         gate: "runtime",
         passed: artifact.turns.some(
-          (turn) =>
-            turn.leaseProbe?.status === "running" &&
-            turn.leaseProbe.leaseHeadroomMs > AGENT_RUN_LEASE_MS,
+          (turn) => turn.leaseProbe?.status === "running" && turn.leaseProbe.leaseHeadroomMs > AGENT_RUN_LEASE_MS,
         ),
       });
     if (definition.id === "R52")
@@ -1145,9 +1001,7 @@ export async function runEpisode(
         id: "integrity:cancelled-run-settled-spent-work",
         gate: "runtime",
         passed:
-          artifact.metrics.rounds.length > 0 &&
-          artifact.usage.length === 1 &&
-          artifact.usage[0]?.state === "settled",
+          artifact.metrics.rounds.length > 0 && artifact.usage.length === 1 && artifact.usage[0]?.state === "settled",
       });
     artifact.oracle = withIntegrityChecks(oracle, integrityChecks);
   }
@@ -1167,10 +1021,7 @@ export async function persist(path: string, artifact: EpisodeArtifact) {
   const contents = JSON.stringify(artifact, null, 2) + "\n";
   const directory = dirname(path);
   await mkdir(directory, { recursive: true });
-  const temporaryPath = resolve(
-    directory,
-    `.${basename(path)}.${process.pid}.${randomUUID()}.tmp`,
-  );
+  const temporaryPath = resolve(directory, `.${basename(path)}.${process.pid}.${randomUUID()}.tmp`);
   try {
     const handle = await open(temporaryPath, "wx");
     try {
@@ -1200,11 +1051,5 @@ export async function persistAndCompleteEpisode(input: {
   artifact: EpisodeArtifact;
 }) {
   await persist(input.artifactPath, input.artifact);
-  await completeEpisode(
-    input.pool,
-    input.episodeId,
-    input.state,
-    input.reason,
-    input.artifactPath,
-  );
+  await completeEpisode(input.pool, input.episodeId, input.state, input.reason, input.artifactPath);
 }

@@ -100,10 +100,8 @@ describe("entity terminology catalogs", () => {
     expect(messages.Dashboard.aggregationTypes.dealValueRelated).toContain("{entity}");
     expect(messages.Dashboard.aggregationTypes.dealValueRelated).toContain("{deal}");
     expect(messages.Dashboard.tabs.dealFilters).toContain("{deals}");
-    expect(messages.GlobalSearch.emptyDescription).toContain("{contacts}");
-    expect(messages.GlobalSearch.emptyDescription).toContain("{organizations}");
-    expect(messages.GlobalSearch.emptyDescription).toContain("{deals}");
-    expect(messages.GlobalSearch.emptyDescription).toContain("{services}");
+    expect(messages.GlobalSearch.emptyDescription.length).toBeGreaterThan(20);
+    expect(messages.GlobalSearch.emptyDescription).not.toMatch(/\{(?:contacts|organizations|deals|services)\}/);
     expect(messages.TasksCard.systemTaskTooltip).toContain("{task}");
   });
 

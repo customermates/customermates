@@ -58,6 +58,7 @@ function store(overrides: Partial<BaseDataViewStore<Item>> = {}): BaseDataViewSt
   return {
     activeViewKey: ALL_VIEW_KEY,
     canBoard: true,
+    primaryColumnId: "name",
     columnsDefinition: [],
     currentGroupableFieldId: "",
     customColumns: [],

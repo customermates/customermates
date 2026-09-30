@@ -1,3 +1,4 @@
+import { mockRecordDiscovery } from "@/tests/helpers/record-tools";
 import { randomUUID } from "node:crypto";
 
 import { afterAll, beforeAll, describe, expect, it, vi } from "vitest";
@@ -154,7 +155,7 @@ describeDatabase("saved-view Assistant persistence round trip", { timeout: 120_0
       new AgentUsageService(repo),
       entitlements,
       backgroundTasks as never,
-      { getCustomColumns: () => Promise.resolve([]) } as never,
+      mockRecordDiscovery(),
     ).invoke({
       clientRequestId,
       text: "Show this view as cards",

@@ -24,7 +24,7 @@ Die Auswahl eines Ergebnisses öffnet die Detailseite des Datensatzes unter `/{t
 | Sidebar-Trigger | `#nav-search` (**Suchen**) |
 | Container des Suchfelds im Modal | `#global-search-input` |
 
-Für einen Agent passiert die Eingabe nach dem Öffnen des Modals im Textfeld innerhalb von `#global-search-input`; Ergebnisse sind normale Optionen, ausgewählt über ihren sichtbaren Namen. Für gefilterte, sortierte oder gezählte Abfragen sind die Listenseiten oder `list_records` besser, denn sie liefern Gesamtzahlen. Der gehostete Assistent Mate kann `#nav-search` hervorheben, aber das Modal weder öffnen noch etwas hineintippen.
+Für einen Agent passiert die Eingabe nach dem Öffnen des Modals im Textfeld innerhalb von `#global-search-input`; Ergebnisse sind normale Optionen, ausgewählt über ihren sichtbaren Namen. Für gefilterte oder sortierte Abfragen nutzen Sie eine Listenseite oder `query_crm_records`; für Aggregate dient `query_crm_measure`. Der gehostete Assistent Mate kann `#nav-search` hervorheben, aber das Modal weder öffnen noch etwas hineintippen.
 
 **Link:** keine Seite; das Modal öffnet sich auf jeder App-Seite mit Cmd+K oder Ctrl+K. **Mate:** `highlight_element` mit `nav-search`; `#global-search-input` ist kein Highlight-Ziel, deshalb nennt Mate das Suchfeld beim Namen.
 

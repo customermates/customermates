@@ -1,3 +1,9 @@
+import {
+  RecordTriggerDefinitionSchema,
+  RecordTriggerSourceSchema,
+} from "@/features/records/record-event-subscription.schema";
+import { RecordWriteError } from "@/features/records/record-write.service";
+import { recordWriteFailure } from "@/features/records/mutate-record.interactor";
 import type { WebhookDto } from "./webhook.schema";
 import type { EventService } from "@/features/event/event.service";
 import type { Data } from "@/core/validation/validation.utils";
@@ -7,7 +13,7 @@ import type { z as zType } from "zod";
 import z from "zod";
 import { Resource, Action } from "@/generated/prisma";
 
-import { WebhookEventSchema, WebhookDtoSchema } from "./webhook.schema";
+import { WebhookCurrentEventSchema, WebhookDtoSchema } from "./webhook.schema";
 import { WebhookHeadersSchema, allowsCredentialedHeaders } from "./webhook-headers";
 import { calculateWebhookChanges, toWebhookEventPayload } from "./webhook-event-payload";
 import { WEBHOOK_BODY_TEMPLATE_MAX_CHARS, isRenderableWebhookBodyTemplate } from "./webhook-body-template";
@@ -25,7 +31,7 @@ export const UpsertWebhookSchema = z
     url: zx.secureUrl().optional(),
     description: z.string().max(500).nullable().optional(),
     events: z
-      .array(WebhookEventSchema)
+      .array(WebhookCurrentEventSchema)
       .meta({ minItems: 1 })
       .superRefine((events, ctx) => {
         if (events.length === 0)
@@ -47,8 +53,19 @@ export const UpsertWebhookSchema = z
           ctx.addIssue({ code: "custom", params: { error: CustomErrorCode.webhookBodyTemplateInvalid } });
       }),
     enabled: z.boolean().optional(),
+    recordTrigger: RecordTriggerDefinitionSchema.nullable().optional(),
+    recordSources: z.array(RecordTriggerSourceSchema).min(1).max(50).nullable().optional(),
+    recordOwnerUserId: z.uuid().optional(),
+    expectedSchemaRevision: z.number().int().nonnegative().optional(),
   })
   .superRefine((data, ctx) => {
+    if (data.recordTrigger && data.recordSources?.length) {
+      ctx.addIssue({
+        code: "custom",
+        path: ["recordSources"],
+        params: { error: CustomErrorCode.recordConfigurationInvalid },
+      });
+    }
     if (data.url && data.headers && Object.keys(data.headers).length > 0 && !allowsCredentialedHeaders(data.url)) {
       ctx.addIssue({
         code: "custom",
@@ -89,7 +106,13 @@ export class UpsertWebhookInteractor extends AuthenticatedInteractor<UpsertWebho
   async invoke(data: UpsertWebhookData): Validated<WebhookDto> {
     const previousWebhook = data.id ? await this.repo.getWebhookByIdOrThrow(data.id) : undefined;
 
-    const webhook = await this.repo.upsertWebhookOrThrow(data);
+    let webhook: WebhookDto;
+    try {
+      webhook = await this.repo.upsertWebhookOrThrow(data);
+    } catch (error) {
+      if (error instanceof RecordWriteError) return recordWriteFailure(error);
+      throw error;
+    }
 
     if (previousWebhook) {
       await this.eventService.publish(DomainEvent.WEBHOOK_UPDATED, {

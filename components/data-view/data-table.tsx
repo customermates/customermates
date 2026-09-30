@@ -21,6 +21,7 @@ import { cn } from "@/core/utils/cn";
 
 import { isInteractiveClick } from "./is-interactive-click";
 import { useGroupLabel, visibleGroups } from "./group-label";
+import { GroupSummaries } from "./group-summaries";
 import {
   beginColumnResize,
   columnResizeLabel,
@@ -282,7 +283,7 @@ export const DataTable = observer(function DataTable<E extends HasId>({
         {row.getVisibleCells().map((cell) => {
           const columnId = cell.column.id;
           const isSelectionCell = columnId === "__select";
-          const isNameCell = columnId === "name";
+          const isNameCell = columnId === (store.primaryColumnId ?? store.columnsDefinition[0]?.uid);
           const liveWidth = getColumnWidth(columnId);
           const content = flexRender(cell.column.columnDef.cell, cell.getContext());
           const rowHref = onRowHref?.(row.original);
@@ -529,6 +530,8 @@ export const DataTable = observer(function DataTable<E extends HasId>({
                         )}
 
                         <span className="shrink-0 text-xs text-muted-foreground tabular-nums">{group.count}</span>
+
+                        {group.summaries?.length ? <GroupSummaries summaries={group.summaries} /> : null}
 
                         {store.isGroupedByDealWeightingColumn && group.weight !== undefined && (
                           <span className="shrink-0 text-xs text-muted-foreground tabular-nums">{group.weight}%</span>

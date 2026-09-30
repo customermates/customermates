@@ -1,3 +1,4 @@
+import type { ResetDataViewStateInteractor } from "./reset-data-view-state.interactor";
 import type { FilterableField } from "@/core/base/base-get.schema";
 import type { SearchableField, SortableField } from "@/core/base/base-query-builder";
 import type { GroupableFieldSpec } from "@/core/base/grouping/groupable-field";
@@ -27,6 +28,8 @@ import {
   AI_MANAGEABLE_DATA_VIEW_SURFACE_KEYS,
   isAiManageableDataViewSurface,
   type AiManageableDataViewSurfaceKey,
+  type BuiltinAiManageableDataViewSurfaceKey,
+  isRecordDataViewSurface,
 } from "@/core/data-view/ai-manageable-surfaces";
 import { AllowInDemoMode } from "@/core/decorators/allow-in-demo-mode.decorator";
 import { TenantInteractor } from "@/core/decorators/tenant-interactor.decorator";
@@ -38,7 +41,9 @@ import { CustomErrorCode } from "@/core/validation/validation.types";
 import { filterValueKind, TIMELINE_KIND_VIEW_VALUES } from "@/core/types/filter-field-value-kind";
 import { FilterFieldKey } from "@/core/types/filter-field-key";
 import { DomainEvent } from "@/features/event/domain-events";
-import { DATA_VIEW_SURFACES } from "./data-view-surfaces";
+import { DATA_VIEW_SURFACES, type SurfaceDescriptor } from "./data-view-surfaces";
+import type { RecordViewPolicy } from "@/features/records/record-view-policy";
+import { recordFilterableFields } from "@/features/records/record-presentation";
 import { ActivityFiltersSchema } from "@/ee/messaging/activities/activities.schema";
 import { getZodParseContext } from "@/core/validation/zod-error-map-server";
 import { ManageDataViewsResultSchema, ManageDataViewsSchema } from "./manage-data-views.schema";
@@ -52,7 +57,7 @@ export abstract class DataViewConfigurationRepo {
   setMessagingSourcesEnabled?(enabled: boolean): void;
 }
 
-export type DataViewConfigurationSources = Record<AiManageableDataViewSurfaceKey, DataViewConfigurationRepo>;
+export type DataViewConfigurationSources = Record<BuiltinAiManageableDataViewSurfaceKey, DataViewConfigurationRepo>;
 
 function matchesQuery(value: Record<string, unknown>, query: string | undefined, keys: readonly string[]) {
   if (!query) return true;
@@ -87,6 +92,8 @@ export class ManageDataViewsInteractor extends AuthenticatedInteractor<ManageDat
     private remove: DeleteDataViewInteractor,
     private queryPrecheck: QueryParamsPrecheckInteractor,
     private entitlements: EntitlementService,
+    private recordViews?: RecordViewPolicy,
+    private reset?: ResetDataViewStateInteractor,
   ) {
     super();
   }
@@ -106,14 +113,23 @@ export class ManageDataViewsInteractor extends AuthenticatedInteractor<ManageDat
           ...(entityType ? { entityType } : {}),
         });
       }
-      return { ok: true, data: { action: data.action, total: surfaces.length, items: surfaces } };
+      if (this.recordViews) surfaces.push(...(await this.recordViews.list()));
+      return {
+        ok: true,
+        data: { action: data.action, total: surfaces.length, items: surfaces },
+      };
     }
 
     if (!isAiManageableDataViewSurface(data.surfaceKey))
       return failAuthorization(CustomErrorCode.permissionDenied, ["surfaceKey"]);
     const denied = await this.accessDenied(data.surfaceKey);
     if (denied) return denied;
-    const descriptor = DATA_VIEW_SURFACES[data.surfaceKey];
+    const descriptor: SurfaceDescriptor = isRecordDataViewSurface(data.surfaceKey)
+      ? {
+          label: (await this.recordViews?.describe(data.surfaceKey))?.type.pluralLabel ?? "Records",
+          path: `/records/${data.surfaceKey.slice(8)}`,
+        }
+      : DATA_VIEW_SURFACES[data.surfaceKey];
     const location = { surfaceKey: data.surfaceKey, path: descriptor.path };
 
     if (data.action === "config") {
@@ -122,17 +138,28 @@ export class ManageDataViewsInteractor extends AuthenticatedInteractor<ManageDat
       const writableStateFields =
         data.surfaceKey === SURFACE.entityTimeline
           ? ["filters", "sortDescriptor"]
-          : ["filters", "searchTerm", "sortDescriptor", "pageSize", "viewMode", "grouping"];
+          : [
+              "filters",
+              "searchTerm",
+              "sortDescriptor",
+              "pageSize",
+              "viewMode",
+              "grouping",
+              "columnOrder",
+              "columnWidths",
+              "hiddenColumns",
+            ];
       const filterableFields = config.filterableFields.map((field) => {
         const valueKind = filterValueKind(field.field);
         const values =
-          field.field === FilterFieldKey.timelineKind.toString()
+          config.filterValues?.get(field.field) ??
+          (field.field === FilterFieldKey.timelineKind.toString()
             ? TIMELINE_KIND_VIEW_VALUES
             : valueKind?.kind === "enum"
               ? valueKind.values
               : valueKind?.kind === "event"
                 ? Object.values(DomainEvent)
-                : undefined;
+                : undefined);
         return { ...field, ...(values ? { values } : {}) };
       });
       const sortableFields = [
@@ -143,11 +170,12 @@ export class ManageDataViewsInteractor extends AuthenticatedInteractor<ManageDat
           columnType: type,
         })),
       ];
-      const groupableFields = groupableFieldDtos(config.groupableFields);
+      const groupableFields = config.groupableDtos;
       const totals = {
         filters: filterableFields.length,
         sorting: sortableFields.length,
         grouping: groupableFields.length,
+        appearance: config.appearance.length,
       };
       if (section === "overview") {
         return {
@@ -170,6 +198,7 @@ export class ManageDataViewsInteractor extends AuthenticatedInteractor<ManageDat
         filters: filterableFields as ResultItem[],
         sorting: sortableFields as ResultItem[],
         grouping: groupableFields as ResultItem[],
+        appearance: config.appearance as ResultItem[],
       };
       const result = paged(
         sectionItems[section].filter((item) =>
@@ -203,7 +232,14 @@ export class ManageDataViewsInteractor extends AuthenticatedInteractor<ManageDat
             page: 1,
             pageSize: 1,
             totalPages: 1,
-            items: [{ id: ALL_VIEW_KEY, name: "All", position: -1, state: surfaceState.allState }],
+            items: [
+              {
+                id: ALL_VIEW_KEY,
+                name: "All",
+                position: -1,
+                state: surfaceState.allState,
+              },
+            ],
             activeViewKey: surfaceState.activeViewKey,
           },
         };
@@ -225,7 +261,11 @@ export class ManageDataViewsInteractor extends AuthenticatedInteractor<ManageDat
           },
         };
       }
-      const candidates = surfaceState.views.map(({ id, name, position }) => ({ id, name, position }));
+      const candidates = surfaceState.views.map(({ id, name, position }) => ({
+        id,
+        name,
+        position,
+      }));
       const result = paged(
         candidates.filter((item) => matchesQuery(item, data.query, ["id", "name"])),
         data.page ?? 1,
@@ -267,6 +307,24 @@ export class ManageDataViewsInteractor extends AuthenticatedInteractor<ManageDat
     const owned = surfaceState.views.find((view) => view.id === data.viewKey);
     if (data.viewKey !== ALL_VIEW_KEY && !owned) return failNotFound(CustomErrorCode.dataViewNotFound, ["viewKey"]);
 
+    if (data.action === "reset") {
+      if (!this.reset) return failAuthorization(CustomErrorCode.permissionDenied);
+      const result = await this.reset.invoke({
+        surfaceKey: data.surfaceKey,
+        viewKey: data.viewKey,
+        fields: data.fields,
+      });
+      if (!result.ok) return result;
+      return {
+        ok: true,
+        data: {
+          action: data.action,
+          ...location,
+          viewKey: data.viewKey,
+          link: this.link(descriptor.path, data.viewKey),
+        },
+      };
+    }
     if (data.action === "select") {
       const result = await this.select.invoke({
         surfaceKey: data.surfaceKey,
@@ -289,7 +347,12 @@ export class ManageDataViewsInteractor extends AuthenticatedInteractor<ManageDat
       if (!result.ok) return result;
       return {
         ok: true,
-        data: { action: data.action, ...location, viewKey: data.viewKey, deleted: true },
+        data: {
+          action: data.action,
+          ...location,
+          viewKey: data.viewKey,
+          deleted: true,
+        },
       };
     }
 
@@ -352,6 +415,11 @@ export class ManageDataViewsInteractor extends AuthenticatedInteractor<ManageDat
   }
 
   private async accessDenied(surfaceKey: AiManageableDataViewSurfaceKey) {
+    if (isRecordDataViewSurface(surfaceKey)) {
+      const invalid =
+        (await this.recordViews?.validate(surfaceKey)) ?? (this.recordViews ? null : CustomErrorCode.permissionDenied);
+      return invalid ? failAuthorization(invalid, ["surfaceKey"]) : null;
+    }
     const descriptor = DATA_VIEW_SURFACES[surfaceKey];
     if (descriptor.resource && !this.hasRead(descriptor.resource, descriptor.readAllOnly))
       return failAuthorization(CustomErrorCode.permissionDenied, ["surfaceKey"]);
@@ -367,6 +435,58 @@ export class ManageDataViewsInteractor extends AuthenticatedInteractor<ManageDat
   }
 
   private async configuration(surfaceKey: AiManageableDataViewSurfaceKey) {
+    if (isRecordDataViewSurface(surfaceKey)) {
+      const description = await this.recordViews?.describe(surfaceKey);
+      const fields = description?.fields ?? [];
+      const columns =
+        description?.columns ??
+        fields.map((field) => ({
+          kind: "field" as const,
+          id: field.id,
+          label: field.label,
+          sortable: !["richText", "dateRange", "dateTimeRange"].includes(field.valueType),
+          field,
+        }));
+      return {
+        customColumns: [] satisfies CustomColumnDto[],
+        filterableFields: recordFilterableFields(fields),
+        filterValues: new Map(
+          fields
+            .filter((field) => field.valueType === "select")
+            .map((field) => [field.id, field.options.map((option) => option.id)]),
+        ),
+        sortableFields: columns
+          .filter((column) => column.sortable)
+          .map((column) => ({ field: column.id, resolvedFields: [column.id], label: column.label })),
+        groupableFields: [] as GroupableFieldSpec[],
+        groupableDtos: fields
+          .filter((field) => field.valueType === "select")
+          .map((field) => ({
+            id: field.id,
+            grouping: { field: field.id },
+            kind: "customSingleSelect" as const,
+            label: field.label,
+            supportsDragWriteBack: false,
+          })),
+        appearance: columns.map((column) => ({
+          id: column.id,
+          field: column.id,
+          label: column.label,
+          valueType:
+            column.kind === "field"
+              ? column.field.valueType
+              : column.kind === "relationship"
+                ? "relationship"
+                : column.id === "system:assignedTo"
+                  ? "member"
+                  : "dateTime",
+        })),
+        supportsSearch: true,
+        viewModes: fields.some((field) => field.valueType === "select")
+          ? [ViewMode.table, ViewMode.card]
+          : [ViewMode.table],
+      };
+    }
     const source = this.sources[surfaceKey];
     const [customColumns, filterableFields] = await Promise.all([
       source.getCustomColumns(),
@@ -378,6 +498,12 @@ export class ManageDataViewsInteractor extends AuthenticatedInteractor<ManageDat
       filterableFields,
       sortableFields: source.getSortableFields(),
       groupableFields,
+      groupableDtos: groupableFieldDtos(groupableFields),
+      filterValues: undefined,
+      appearance: [
+        ...source.getSortableFields().map(({ field }) => ({ id: field, field })),
+        ...customColumns.map(({ id, label, type }) => ({ id, field: id, label, columnType: type })),
+      ],
       supportsSearch: source.getSearchableFields().length > 0,
       viewModes:
         DATA_VIEW_SURFACES[surfaceKey].entityType || groupableFields.length > 0
@@ -387,6 +513,12 @@ export class ManageDataViewsInteractor extends AuthenticatedInteractor<ManageDat
   }
 
   private async validateState(surfaceKey: AiManageableDataViewSurfaceKey, state: AgentDataViewState) {
+    if (isRecordDataViewSurface(surfaceKey)) {
+      const invalid =
+        (await this.recordViews?.validate(surfaceKey, state)) ??
+        (this.recordViews ? null : CustomErrorCode.permissionDenied);
+      return invalid ? fail(invalid, ["state"]) : { ok: true as const, data: state };
+    }
     const config = await this.configuration(surfaceKey);
     return runPrecheck(state, async (input, ctx) => {
       if (surfaceKey === SURFACE.entityTimeline) {
@@ -395,7 +527,10 @@ export class ManageDataViewsInteractor extends AuthenticatedInteractor<ManageDat
             ctx.addIssue({
               code: "custom",
               path: [field],
-              params: { error: CustomErrorCode.invalidFilterField, validValues: "filters, sortDescriptor" },
+              params: {
+                error: CustomErrorCode.invalidFilterField,
+                validValues: "filters, sortDescriptor",
+              },
             });
           }
         }
@@ -433,6 +568,17 @@ export class ManageDataViewsInteractor extends AuthenticatedInteractor<ManageDat
             value: input.viewMode,
           },
         });
+      }
+      const columnIds = new Set(config.appearance.map(({ id }) => id));
+      for (const key of ["columnOrder", "hiddenColumns", "columnWidths"] as const) {
+        const columns = key === "columnWidths" ? Object.keys(input[key] ?? {}) : (input[key] ?? []);
+        if (columns.some((id) => !columnIds.has(id))) {
+          ctx.addIssue({
+            code: "custom",
+            path: [key],
+            params: { error: CustomErrorCode.invalidFilterField, validValues: [...columnIds].join(", ") },
+          });
+        }
       }
       const resolved = input.grouping ? resolveGrouping(input.grouping, config.groupableFields) : undefined;
       if (

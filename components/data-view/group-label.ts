@@ -25,8 +25,8 @@ export function useGroupLabel(grouping: GroupingResult | undefined): GroupLabelR
     if (group.bucketRole === "earlier") return t("Common.dateBuckets.earlier");
     if (group.bucketStart) {
       return bucket === "month"
-        ? intlStore.formatMonthYear(new Date(group.bucketStart))
-        : intlStore.formatDescriptiveShortDate(new Date(group.bucketStart));
+        ? intlStore.formatMonthYear(new Date(group.bucketStart), { timeZone: grouping?.timeZone })
+        : intlStore.formatDescriptiveShortDate(new Date(group.bucketStart), { timeZone: grouping?.timeZone });
     }
     if (group.labelKind === "unavailable") return t("Common.inputs.unavailableSelection");
     if (group.labelKey) return t(group.labelKey);

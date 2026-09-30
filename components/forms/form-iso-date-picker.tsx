@@ -67,6 +67,7 @@ export const FormIsoDatePicker = observer(
     const formatter = dateOnly ? intlStore.dateFormatMap[displayFormat] : intlStore.dateTimeFormatMap[displayFormat];
 
     const [currentMonth, setCurrentMonth] = useState<Date>(() => startOfMonth(parsed ?? new Date()));
+    const [open, setOpen] = useState(false);
 
     useEffect(() => {
       if (parsed) setCurrentMonth(startOfMonth(parsed));
@@ -128,7 +129,7 @@ export const FormIsoDatePicker = observer(
           </FormLabel>
         )}
 
-        <Popover open={isReadOnly || isLoading ? false : undefined}>
+        <Popover open={!isReadOnly && !isLoading && open} onOpenChange={setOpen}>
           <PopoverTrigger asChild>
             <Button
               aria-disabled={isReadOnly || undefined}

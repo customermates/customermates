@@ -78,6 +78,7 @@ function groupingResult(overrides: Partial<GroupingResult> = {}): GroupingResult
 
 function store(overrides: Partial<BaseDataViewStore<Item>> = {}): BaseDataViewStore<Item> {
   return {
+    primaryColumnId: "name",
     columnsDefinition: [{ uid: "name" }, { uid: "email" }],
     columnWidths: {},
     entityType: "deal",

@@ -63,12 +63,13 @@ const RadarChartComponent = dynamic(
 );
 
 type Props = {
-  aggregationType: AggregationType;
-  data: DiagramDataPoint[];
+  aggregationType?: AggregationType;
+  currency?: string | null;
+  data: (DiagramDataPoint & { formattedValue?: string })[];
   displayOptions?: WidgetDisplayOptions | null;
 };
 
-export const WidgetChart = observer(({ aggregationType, data, displayOptions }: Props) => {
+export const WidgetChart = observer(({ aggregationType, data, displayOptions, currency }: Props) => {
   const t = useTranslations();
   const { resolvedTheme } = useTheme();
   const configuredBarColors = displayOptions?.barColors?.length ? displayOptions.barColors : [ChartColor.primary1];
@@ -82,7 +83,8 @@ export const WidgetChart = observer(({ aggregationType, data, displayOptions }: 
 
     return {
       label: widgetDataPointLabel(item, t),
-      value: Number(item.value) || 0,
+      value: item.value,
+      formattedValue: item.formattedValue,
       fill: chartColors[colorKey],
       color: chartColors[colorKey],
       labelColor: chartTextColors[colorKey],
@@ -95,6 +97,7 @@ export const WidgetChart = observer(({ aggregationType, data, displayOptions }: 
   const displayType = displayOptions?.displayType ?? DisplayType.verticalBarChart;
   const commonProps = {
     aggregationType,
+    currency,
     chartData,
     colors,
     gridColor: "var(--border)",
@@ -104,6 +107,7 @@ export const WidgetChart = observer(({ aggregationType, data, displayOptions }: 
   };
   const labelChartProps = {
     aggregationType,
+    currency,
     chartData,
     colors,
     textColor: "var(--muted-foreground)",

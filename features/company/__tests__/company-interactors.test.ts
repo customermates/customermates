@@ -56,21 +56,19 @@ describe("UpdateCompanySettingsInteractor", () => {
     );
   });
 
-  it("audits a terminology-only change, so renaming records is not silent", async () => {
-    const terminology = [{ entityType: "task" as const, presetKey: "followUp" }];
+  it("rejects legacy terminology and weighting at the interactor boundary", async () => {
     const interactor = createInteractor();
-    const result: any = await interactor.invoke({ terminology });
-
-    expect(result.ok).toBe(true);
-    expect(mockRepo.upsertTerminology).toHaveBeenCalledWith(terminology);
+    for (const input of [
+      { terminology: [{ entityType: "task", presetKey: "followUp" }] },
+      { dealWeightingColumnId: null },
+      { dealStageWeights: [{ optionValue: "stage-open", weight: 30 }] },
+    ]) {
+      const result = await interactor.invoke(input as never);
+      expect(result.ok).toBe(false);
+    }
     expect(mockRepo.updateDetails).not.toHaveBeenCalled();
-    expect(mockEventService.publish).toHaveBeenCalledWith(
-      DomainEvent.COMPANY_UPDATED,
-      expect.objectContaining({
-        entityId: COMPANY_ID,
-        payload: { terminology },
-      }),
-    );
+    expect(mockRepo.upsertTerminology).not.toHaveBeenCalled();
+    expect(mockRepo.setDealStageWeights).not.toHaveBeenCalled();
   });
 
   it("calls repo.updateDetails", async () => {
@@ -88,23 +86,6 @@ describe("UpdateCompanySettingsInteractor", () => {
 
     expect(result.ok).toBe(true);
     expect(result.data).toEqual({ currency: Currency.idr });
-  });
-
-  it("accepts a stage without a weight, so an unweighted stage stays unweighted", async () => {
-    const dealStageWeights = [{ optionValue: "stage-open", weight: 30 }, { optionValue: "stage-parked" }];
-    const interactor = createInteractor();
-    const result: any = await interactor.invoke({ dealStageWeights });
-
-    expect(result.ok).toBe(true);
-    expect(mockRepo.setDealStageWeights).toHaveBeenCalledWith(dealStageWeights);
-  });
-
-  it.each([-1, 101])("rejects a stage weight of %s", async (weight) => {
-    const interactor = createInteractor();
-    const result: any = await interactor.invoke({ dealStageWeights: [{ optionValue: "stage-open", weight }] });
-
-    expect(result.ok).toBe(false);
-    expect(mockRepo.setDealStageWeights).not.toHaveBeenCalled();
   });
 
   it.each(["xau", "xxx", "zzz"])("rejects unsupported currency code %s", async (currency) => {

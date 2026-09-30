@@ -13,7 +13,13 @@ import { GroupingSchema } from "@/core/base/grouping/grouping.schema";
 import { EntityDetailOptionsSchema, P13nEntrySchema } from "./p13n.schema";
 
 const Schema = z.object({
-  p13nId: z.string().min(1),
+  p13nId: z
+    .string()
+    .min(1)
+    .refine(
+      (value) => !value.startsWith("records:") && !value.startsWith("record-detail:"),
+      "Record presentation requires the validated view or detail-layout operations",
+    ),
   activeViewKey: z.string().nullish(),
   filters: z.array(FilterSchema).nullish(),
   searchTerm: z.string().nullish(),

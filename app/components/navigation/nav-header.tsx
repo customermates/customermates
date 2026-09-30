@@ -11,6 +11,7 @@ import { SidebarHeader, SidebarMenu, SidebarMenuButton, SidebarMenuItem } from "
 import { NavLinkPendingIndicator } from "./nav-link-pending-indicator";
 
 type Props = {
+  overlaysDisabled?: boolean;
   homeHref: string;
   brandName: string;
   brandSubtitle?: ReactNode;
@@ -27,6 +28,7 @@ type Props = {
 };
 
 export function NavHeader({
+  overlaysDisabled = false,
   homeHref,
   brandName,
   brandSubtitle,
@@ -72,7 +74,14 @@ export function NavHeader({
 
       <SidebarMenu>
         <SidebarMenuItem>
-          <SidebarMenuButton id="nav-search" tooltip={searchLabel} onClick={(event) => onSearch(event.currentTarget)}>
+          <SidebarMenuButton
+            aria-disabled={overlaysDisabled}
+            id="nav-search"
+            tooltip={searchLabel}
+            onClick={(event) => {
+              if (!overlaysDisabled) onSearch(event.currentTarget);
+            }}
+          >
             <Search />
 
             <span>{searchLabel}</span>
@@ -86,9 +95,12 @@ export function NavHeader({
         {assistantLabel && onAssistant && (
           <SidebarMenuItem>
             <SidebarMenuButton
+              aria-disabled={overlaysDisabled}
               id="nav-assistant"
               tooltip={assistantBusy ? (assistantBusyLabel ?? assistantLabel) : assistantLabel}
-              onClick={(event) => onAssistant(event.currentTarget)}
+              onClick={(event) => {
+                if (!overlaysDisabled) onAssistant(event.currentTarget);
+              }}
             >
               {assistantBusy ? <Loader2 aria-label={assistantBusyLabel} className="animate-spin" /> : <Sparkles />}
 
@@ -104,7 +116,14 @@ export function NavHeader({
         )}
 
         <SidebarMenuItem>
-          <SidebarMenuButton id="nav-add" tooltip={addLabel} onClick={(event) => onAdd(event.currentTarget)}>
+          <SidebarMenuButton
+            aria-disabled={overlaysDisabled}
+            id="nav-add"
+            tooltip={addLabel}
+            onClick={(event) => {
+              if (!overlaysDisabled) onAdd(event.currentTarget);
+            }}
+          >
             <Plus />
 
             <span>{addLabel}</span>

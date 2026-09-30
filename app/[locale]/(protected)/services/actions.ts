@@ -18,6 +18,7 @@ import {
   getGetCustomColumnsByEntityTypeInteractor,
 } from "@/core/di";
 import { serializeResult } from "@/core/utils/action-result";
+import { retireLegacyRecordWrite } from "@/features/records/retire-legacy-write";
 import { unwrapValidated } from "@/core/validation/validation.utils";
 
 export async function getServicesAction(params?: GetQueryParams) {
@@ -25,14 +26,17 @@ export async function getServicesAction(params?: GetQueryParams) {
 }
 
 export async function createServiceAction(data: CreateServiceData) {
+  retireLegacyRecordWrite();
   return serializeResult(getCreateServiceInteractor().invoke(data));
 }
 
 export async function updateServiceAction(data: UpdateServiceData) {
+  retireLegacyRecordWrite();
   return serializeResult(getUpdateServiceInteractor().invoke(data));
 }
 
 export async function deleteServiceAction(data: DeleteServiceData) {
+  retireLegacyRecordWrite();
   return serializeResult(getDeleteServiceInteractor().invoke(data));
 }
 
@@ -47,5 +51,6 @@ export async function getServiceByIdAction(data: GetServiceByIdData) {
 }
 
 export async function createServiceByNameAction(name: string, userId: string | null | undefined) {
+  retireLegacyRecordWrite();
   return serializeResult(getCreateServiceByNameInteractor().invoke({ name, userId }));
 }
