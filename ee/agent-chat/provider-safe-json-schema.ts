@@ -1,3 +1,5 @@
+import { WIKI_READ_SOURCE_TOOL_NAME } from "./tool-identity";
+
 export type GoogleSchemaChangeAction = "collapsed" | "merged" | "removed" | "rewritten";
 
 export type GoogleSchemaChange = {
@@ -460,10 +462,23 @@ export function googleSafeJsonSchema(document: unknown): GoogleSafeSchemaResult 
   return { schema: rewrite(document, "#"), changes };
 }
 
-export function providerWireInputSchema(document: unknown, servingProvider: string | null | undefined): unknown {
+export function providerWireInputSchema(
+  document: unknown,
+  servingProvider: string | null | undefined,
+  toolName?: string,
+): unknown {
   if (!isGoogleServingProvider(servingProvider)) return document;
 
-  return googleSafeJsonSchema(document).schema;
+  const schema = googleSafeJsonSchema(document).schema;
+  if (toolName === WIKI_READ_SOURCE_TOOL_NAME && isSchemaNode(schema) && isSchemaNode(schema.properties)) {
+    for (const property of ["topics", "excluded"]) {
+      const group = schema.properties[property];
+      if (!isSchemaNode(group) || !isSchemaNode(group.items) || !isSchemaNode(group.items.properties)) continue;
+      const sourceIds = group.items.properties.sourceIds;
+      if (isSchemaNode(sourceIds)) delete sourceIds.maxItems;
+    }
+  }
+  return schema;
 }
 
 export function summarizeGoogleSchemaChanges(changes: readonly GoogleSchemaChange[]) {

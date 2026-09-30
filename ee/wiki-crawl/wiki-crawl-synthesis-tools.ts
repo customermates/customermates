@@ -16,7 +16,7 @@ export function readWebsiteSourceTool(crawlId: string) {
     name: WIKI_READ_SOURCE_TOOL_NAME,
     title: "Read stored website pages",
     description:
-      "Read all stored evidence before creating pages. list inventories sources; next returns bounded sequential chunks from up to eight unread sources. Repeat next until remainingSources is zero without re-listing between reads. get reads one source, including imported sources you cite; follow nextOffset. Cursors persist across retries. Exact duplicate content needs reading only once.",
+      "Read all stored evidence before creating pages. list inventories sources; next returns bounded sequential chunks from up to eight unread sources. Repeat next until remainingSources is zero without re-listing. Then plan accounts for every source in topics or reasoned exclusions, never both; sources can support several distinct topics. Plan exact titles and roles for offerings, four foundations, supported procedures and the guide; omit an unsupported foundation with a reason. Extensions use offering roles only. Combine translations and ignore routing category when selecting topics. A plan has at most sixteen pages and cannot be replaced after acceptance. get rereads cited evidence immediately before creation; follow nextOffset. Cursors persist across retries.",
     annotations: {
       readOnlyHint: true,
       destructiveHint: false,

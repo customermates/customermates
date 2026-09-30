@@ -599,6 +599,59 @@ describe("the shipped tool catalog on the Google wire", () => {
     expect(accepted, accepted.join("\n")).toEqual([]);
   });
 
+  it("projects only nested website-plan array bounds for Google's wire schema", () => {
+    const options = { wikiHomepageSetup: true, wikiCrawlId: UUID, locale: "en", surface: "chat" as const };
+    const original = getAgentAiToolDefinitions("azure", options);
+    const google = getAgentAiToolDefinitions("vertex", options);
+    const reader = google.find(({ name }) => name === "read_website_source")?.inputSchema as JsonRecord;
+    const properties = reader.properties as JsonRecord;
+    for (const name of ["topics", "excluded"]) {
+      const group = properties[name] as JsonRecord;
+      const item = group.items as JsonRecord;
+      const ids = (item.properties as JsonRecord).sourceIds as JsonRecord;
+      expect(ids).toMatchObject({
+        type: "array",
+        minItems: 1,
+        items: { type: "string", pattern: "^[0-9a-fA-F-]{36}$" },
+      });
+      expect(ids).not.toHaveProperty("maxItems");
+      const raw = original.find(({ name }) => name === "read_website_source")?.inputSchema as JsonRecord;
+      expect((((raw.properties as JsonRecord)[name] as JsonRecord).items as JsonRecord).properties).toMatchObject({
+        sourceIds: { maxItems: 40 },
+      });
+    }
+    expect(properties.topics).toMatchObject({ maxItems: 16 });
+    expect(properties.excluded).toMatchObject({ maxItems: 40 });
+    expect(properties.omittedFoundations).toMatchObject({ maxItems: 4 });
+    for (const { inputSchema } of google)
+      expect(() => new Ajv({ strict: false }).compile(inputSchema as object)).not.toThrow();
+    const creation = google.find(({ name }) => name === "manage_wiki_pages")?.inputSchema;
+    expect(creation).toEqual(
+      providerWireInputSchema(original.find(({ name }) => name === "manage_wiki_pages")?.inputSchema, "vertex"),
+    );
+  });
+
+  it("retains authoritative forty-source bounds despite the website wire projection", async () => {
+    const options = { wikiHomepageSetup: true, wikiCrawlId: UUID, locale: "en", surface: "chat" as const };
+    const input = {
+      action: "plan",
+      topics: [
+        {
+          title: "Service A",
+          role: "offering",
+          sourceIds: Array.from(
+            { length: 41 },
+            (_, index) => `00000000-0000-4000-8000-${String(index + 1).padStart(12, "0")}`,
+          ),
+        },
+      ],
+      excluded: [],
+    };
+    expect(await normalizeAgentAiToolInput("read_website_source", input, 48_000, options)).toMatchObject({ ok: false });
+    input.topics[0].sourceIds.pop();
+    expect(await normalizeAgentAiToolInput("read_website_source", input, 48_000, options)).toMatchObject({ ok: true });
+  });
+
   it("reports exactly the constructs the provider never receives", () => {
     const changes = changesForShippedCatalog();
 

@@ -2196,35 +2196,45 @@ export class AgentChatStore extends BaseStore {
     loadVersion: number;
     allowRecoveryError: boolean;
   }) => {
-    const snapshot = await withDeadline(
-      getAgentConversationAction(conversationId),
-      AGENT_TERMINAL_RECONCILE_TIMEOUT_MS,
-    ).catch(() => null);
-    if (
-      generation !== this.activeTurnGeneration ||
-      loadVersion !== this.conversationLoadVersion ||
-      conversationId !== this.conversationId
-    )
-      return;
+    const attempts = allowRecoveryError ? AGENT_RECONNECT_SNAPSHOT_FAILURE_LIMIT : 1;
+    for (let attempt = 0; attempt < attempts; attempt += 1) {
+      if (attempt > 0) await waitFor(AGENT_STREAM_RECONNECT_DELAYS_MS[attempt - 1] ?? 5000);
+      if (
+        generation !== this.activeTurnGeneration ||
+        loadVersion !== this.conversationLoadVersion ||
+        conversationId !== this.conversationId
+      )
+        return;
 
-    const assistantMessage = snapshot?.messages.find(
-      (message) => message.role === "assistant" && message.id === assistantMessageId,
-    );
-    const parts = assistantMessage ? clientSafeAgentMessageParts(assistantMessage.parts) : [];
-    if (assistantMessage && hasRenderableAgentMessageParts(parts)) {
-      runInAction(() => {
-        const userIndex = this.items.findLastIndex((item) => item.kind === "user");
-        if (userIndex < 0) return;
-        this.items = this.items.slice(0, userIndex + 1);
-        this.loadedMessageIds.delete(assistantMessage.id);
-        this.persistedAssistantMessageIds.delete(assistantMessage.id);
-        this.recordReplayedMutations(parts);
-        this.appendMessages([assistantMessage]);
-        this.clearStreaming();
-      });
-      return;
+      const snapshot = await withDeadline(
+        getAgentConversationAction(conversationId),
+        AGENT_TERMINAL_RECONCILE_TIMEOUT_MS,
+      ).catch(() => null);
+      if (
+        generation !== this.activeTurnGeneration ||
+        loadVersion !== this.conversationLoadVersion ||
+        conversationId !== this.conversationId
+      )
+        return;
+
+      const assistantMessage = snapshot?.messages.find(
+        (message) => message.role === "assistant" && message.id === assistantMessageId,
+      );
+      const parts = assistantMessage ? clientSafeAgentMessageParts(assistantMessage.parts) : [];
+      if (assistantMessage && hasRenderableAgentMessageParts(parts)) {
+        runInAction(() => {
+          const userIndex = this.items.findLastIndex((item) => item.kind === "user");
+          if (userIndex < 0) return;
+          this.items = this.items.slice(0, userIndex + 1);
+          this.loadedMessageIds.delete(assistantMessage.id);
+          this.persistedAssistantMessageIds.delete(assistantMessage.id);
+          this.recordReplayedMutations(parts);
+          this.appendMessages([assistantMessage]);
+          this.clearStreaming();
+        });
+        return;
+      }
     }
-
     if (!allowRecoveryError) return;
 
     runInAction(() => this.markActiveTurnRecoveryFailed());

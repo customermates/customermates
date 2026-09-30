@@ -11,6 +11,8 @@ import { Write } from "@/core/decorators/write.decorator";
 import { fail, failNotFound } from "@/core/validation/interactor-failure-server";
 import { CustomErrorCode } from "@/core/validation/validation.types";
 import { wikiLanguageConflicts } from "@/features/wiki/wiki-language";
+import { hasInvalidWikiPageLinks } from "@/features/wiki/wiki-markdown-links";
+import { env } from "@/env";
 import { getTranslator } from "@/i18n/get-translator";
 import { appLocaleOrDefault } from "@/i18n/locale-registry";
 
@@ -56,7 +58,8 @@ export class CreateWikiPagesFromCrawlInteractor extends AuthenticatedInteractor<
     if (wrongLanguage) return fail(CustomErrorCode.wikiImportLanguageRequired, ["pages"], { locale: targetLocale });
 
     const created = await this.repo.countSynthesizedPages(crawl.startedAt);
-    const createdPageTitles = await this.repo.listSynthesizedPageTitles(crawl.startedAt, WIKI_SYNTHESIS_MAX_PAGES);
+    const createdPages = await this.repo.listSynthesizedPages(crawl.startedAt, WIKI_SYNTHESIS_MAX_PAGES);
+    const createdPageTitles = createdPages.map(({ title }) => title);
     if (created + data.pages.length > WIKI_SYNTHESIS_MAX_PAGES) {
       return fail(CustomErrorCode.wikiImportPageLimit, ["pages"], {
         maximum: WIKI_SYNTHESIS_MAX_PAGES,
@@ -98,6 +101,9 @@ export class CreateWikiPagesFromCrawlInteractor extends AuthenticatedInteractor<
         ...(page.gaps?.length ? [`## ${t("gapsHeading")}\n\n${page.gaps.map((gap) => `- ${gap}`).join("\n")}`] : []),
       ].join("\n\n"),
     }));
+    if (pages.some(({ markdown }) => hasInvalidWikiPageLinks(markdown, env.BASE_URL)))
+      return fail(CustomErrorCode.wikiImportLinkInvalid, ["pages"]);
+
     const result = await this.createPages.invoke({ requireEmpty: false, pages });
     if (!result.ok) return result;
     return {

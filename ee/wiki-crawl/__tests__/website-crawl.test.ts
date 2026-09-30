@@ -55,6 +55,23 @@ beforeEach(() => {
   mocks.httpsRequest.mockImplementation(request);
 });
 
+describe("website page identity", () => {
+  it.each(["", "   "])("preserves the heading fallback for an empty document title: %j", (title) => {
+    const html = `<html><head><title>${title}</title></head><body><h1>Company</h1><h1>Products</h1></body></html>`;
+    expect(extractWikiSourceDocument(html, "https://example.com", "text/html").title).toBe("Company");
+  });
+
+  it("uses the document title when multiple H1s make the first heading ambiguous", () => {
+    const html = `<html><head><title>Data Science &amp; Analytics</title></head><body>
+      <div><h1>Publications</h1><h1>Careers</h1><h1>Product A</h1></div>
+      <div><h1>Data Science</h1><p>We build analytics and machine learning systems.</p></div>
+      </body></html>`;
+    const document = extractWikiSourceDocument(html, "https://example.com/data-science", "text/html");
+    expect(document.title).toBe("Data Science & Analytics");
+    expect(document.text).toContain("We build analytics and machine learning systems.");
+  });
+});
+
 describe("robots.txt", () => {
   it("prefers our own group, applies the longest match with wildcards and anchors, and clamps crawl delay", () => {
     const rules = parseRobots(

@@ -8,7 +8,7 @@ import {
   wikiPagePath,
   wikiPageUrl,
 } from "../wiki-links";
-import { externalizeWikiPageLinks, extractWikiPageLinks } from "../wiki-markdown-links";
+import { externalizeWikiPageLinks, extractWikiPageLinks, hasInvalidWikiPageLinks } from "../wiki-markdown-links";
 import { ROUTING_LOCALES } from "@/i18n/locale-registry";
 
 const ID = "10000000-0000-4000-8000-000000000001";
@@ -77,6 +77,31 @@ describe("Wiki deep-link contract", () => {
 });
 
 describe("Wiki Markdown links", () => {
+  it.each([
+    "/wiki?page=...",
+    `/pt/wiki?page=${ID}`,
+    `/wiki?page=${ID}&other=true`,
+    `/wiki?page=${ID}#section`,
+    `${BASE_URL}/wiki?page=...`,
+    `${BASE_URL}//wiki?page=${ID}`,
+    `/wiki/${ID}`,
+  ])("rejects a malformed internal Markdown link %s", (href) => {
+    expect(hasInvalidWikiPageLinks(`[Support](${href})`, BASE_URL)).toBe(true);
+    expect(hasInvalidWikiPageLinks(`[Support][ref]\n\n[ref]: ${href}`, BASE_URL)).toBe(true);
+  });
+
+  it("allows exact internal paths, external links, the page list and code examples", () => {
+    const markdown = [
+      `[Support](/en/wiki?page=${ID})`,
+      `[Support](${BASE_URL}/wiki?page=${ID})`,
+      "[External](https://other.example/wiki?page=...)",
+      "[All pages](/wiki)",
+      "`[Example](/wiki?page=...)`",
+      "```md\n[Example](/wiki?page=...)\n```",
+    ].join("\n\n");
+    expect(hasInvalidWikiPageLinks(markdown, BASE_URL)).toBe(false);
+  });
+
   it("externalizes real Wiki links without changing code literals", () => {
     const markdown = [
       `Read [Support](/de/wiki?page=${LINKED_ID}).`,

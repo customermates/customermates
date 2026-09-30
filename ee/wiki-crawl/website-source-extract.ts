@@ -101,9 +101,10 @@ function headingQa(text: string): WikiSourceQa[] {
 }
 
 function pageTitle(html: string, text: string): string {
-  const title = /<title[^>]*>([\s\S]*?)<\/title>/iu.exec(html)?.[1];
-  const heading = /^# (.+)$/mu.exec(text)?.[1];
-  return stripTags(heading ?? title ?? "").slice(0, 160);
+  const title = stripTags(/<title[^>]*>([\s\S]*?)<\/title>/iu.exec(html)?.[1] ?? "");
+  const headings = [...text.matchAll(/^# (.+)$/gmu)];
+  const heading = headings.length === 1 ? headings[0][1] : undefined;
+  return (heading ? stripTags(heading) : title || stripTags(headings[0]?.[1] ?? "")).slice(0, 160);
 }
 
 export function extractWikiSourceDocument(html: string, url: string, contentType: string): WikiSourceDocument {

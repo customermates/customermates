@@ -3112,6 +3112,253 @@ describe("routine browse-or-mutate batch safety", () => {
       state.synthesisInventories = [];
     });
 
+    const planSourceId = "00000000-0000-4000-8000-000000000001";
+    const topic = { title: "Service A", role: "offering", sourceIds: [planSourceId] };
+    const foundationTopics = [
+      "company_overview",
+      "customers_and_use_cases",
+      "sales_messaging",
+      "voice_and_tone",
+      "operating_guide",
+    ].map((role) => ({ title: role, role, sourceIds: [planSourceId] }));
+    const foundationPlan = { action: "plan", topics: foundationTopics, excluded: [] };
+    const createFoundations = async (
+      execute: (name: string, input: unknown, id: string) => Promise<unknown>,
+      suffix = "",
+    ) => {
+      await execute(
+        "manage_wiki_pages",
+        { action: "create", pages: foundationTopics.slice(0, -1).map((topic) => ({ ...topic, kind: "knowledge" })) },
+        `foundations${suffix}`,
+      );
+      await execute(
+        "manage_wiki_pages",
+        { action: "create", pages: [{ ...foundationTopics[4], kind: "guide" }] },
+        `guide${suffix}`,
+      );
+    };
+    const preparePlan = () => {
+      state.synthesisSources = [
+        { id: planSourceId, text: "# Service A\nVerified details", contentHash: "hash", readOffset: 100 },
+      ];
+      state.normalize.mockImplementation((_toolName, input) => Promise.resolve({ ok: true, input }));
+    };
+
+    it("requires an accounted source plan before it allows page creation", async () => {
+      preparePlan();
+      state.runTools = async ({ prepared, executeAndCompleteTool, completeStepAndPrepareNext }) => {
+        expect(prepared).toMatchObject({ activeTools: ["read_website_source"], toolChoice: "required" });
+        const blocked = await executeAndCompleteTool("manage_wiki_pages", setupWrite(), "blocked");
+        expect(blocked).toMatchObject({ ok: false, result: expect.stringContaining("action=plan") });
+        expect(state.execute).not.toHaveBeenCalled();
+        await executeAndCompleteTool("read_website_source", foundationPlan, "plan");
+        await completeStepAndPrepareNext(streamedStep("", "tool-calls"));
+        expect(state.prepared).toMatchObject({
+          activeTools: ["read_website_source", "manage_wiki_pages"],
+          toolChoice: "auto",
+        });
+        await createFoundations(executeAndCompleteTool);
+        return finish();
+      };
+      await runAgentTurn(setupPayload);
+      expect(state.finalize).toHaveBeenCalledWith(expect.objectContaining({ terminalCode: "completed" }));
+    });
+
+    it("preserves pending planned topics through compaction and clears only successful matching creates", async () => {
+      preparePlan();
+      state.contextFits.mockImplementation(
+        (context: object, messages: unknown, maxBytes: number) =>
+          new TextEncoder().encode(JSON.stringify({ ...context, messages })).byteLength <= maxBytes,
+      );
+      const oversized = "completed:" + "x".repeat(40_000);
+      let runs = 0;
+      state.runTools = async ({ messages, executeAndCompleteTool }) => {
+        runs += 1;
+        if (runs === 1) {
+          await executeAndCompleteTool(
+            "read_website_source",
+            { action: "plan", topics: [topic, ...foundationTopics], excluded: [] },
+            "plan",
+          );
+          return {
+            finishReason: "stop",
+            messages: [...messages, { role: "assistant", content: oversized }],
+            steps: [streamedStep(oversized, "stop")],
+          };
+        }
+        expect(JSON.stringify(messages)).toContain("planned topics to create");
+        expect(JSON.stringify(messages)).toContain(planSourceId);
+        expect(JSON.stringify(messages)).toContain("Service A");
+        expect(JSON.stringify(messages)).not.toContain(oversized);
+        await executeAndCompleteTool(
+          "manage_wiki_pages",
+          { action: "create", pages: [{ ...topic, kind: "knowledge" }] },
+          "create",
+        );
+        await createFoundations(executeAndCompleteTool);
+        return finish();
+      };
+      await runAgentTurn({ ...setupPayload, turnBudget: { ...payload.turnBudget, maxContextBytes: 32_000 } });
+      expect(runs).toBe(2);
+      expect(state.finalize).toHaveBeenCalledWith(expect.objectContaining({ terminalCode: "completed" }));
+    });
+
+    it("does not clear planned knowledge with a procedure or permit a premature or combined guide", async () => {
+      preparePlan();
+      let runs = 0;
+      state.runTools = async ({ messages, executeAndCompleteTool }) => {
+        runs += 1;
+        if (runs === 1) {
+          await executeAndCompleteTool(
+            "read_website_source",
+            { ...foundationPlan, topics: [topic, ...foundationTopics] },
+            "plan",
+          );
+          expect(await executeAndCompleteTool("read_website_source", foundationPlan, "replacement-plan")).toMatchObject(
+            { ok: false },
+          );
+          expect(
+            await executeAndCompleteTool(
+              "manage_wiki_pages",
+              { action: "create", pages: [{ ...topic, kind: "procedure" }] },
+              "wrong-kind",
+            ),
+          ).toMatchObject({ ok: false });
+          expect(
+            await executeAndCompleteTool(
+              "manage_wiki_pages",
+              { action: "create", pages: [{ ...foundationTopics[4], kind: "guide" }] },
+              "premature-guide",
+            ),
+          ).toMatchObject({ ok: false });
+        } else {
+          expect(JSON.stringify(messages)).toContain("Service A");
+          await executeAndCompleteTool(
+            "manage_wiki_pages",
+            { action: "create", pages: [{ ...topic, kind: "knowledge" }] },
+            "topic",
+          );
+          await executeAndCompleteTool(
+            "manage_wiki_pages",
+            {
+              action: "create",
+              pages: foundationTopics.slice(0, -1).map((topic) => ({ ...topic, kind: "knowledge" })),
+            },
+            "foundations",
+          );
+          expect(
+            await executeAndCompleteTool(
+              "manage_wiki_pages",
+              {
+                action: "create",
+                pages: [
+                  { ...foundationTopics[4], kind: "guide" },
+                  { ...topic, kind: "knowledge" },
+                ],
+              },
+              "combined-guide",
+            ),
+          ).toMatchObject({ ok: false });
+          await executeAndCompleteTool(
+            "manage_wiki_pages",
+            { action: "create", pages: [{ ...foundationTopics[4], kind: "guide" }] },
+            "guide",
+          );
+        }
+        return finish();
+      };
+      await runAgentTurn(setupPayload);
+      expect(runs).toBe(2);
+      expect(state.finalize).toHaveBeenCalledWith(expect.objectContaining({ terminalCode: "completed" }));
+    });
+
+    it("rejects duplicate batches and serializes simultaneous saves of the same planned title", async () => {
+      preparePlan();
+      let writes = 0;
+      state.execute.mockImplementation(async (input: { action?: string; pages?: unknown[] }) => {
+        if (input.action === "create") {
+          writes += 1;
+          await Promise.resolve();
+        }
+        return { ok: true, result: "saved" };
+      });
+      state.runTools = async ({ executeAndCompleteTool }) => {
+        await executeAndCompleteTool(
+          "read_website_source",
+          { ...foundationPlan, topics: [topic, ...foundationTopics] },
+          "plan",
+        );
+        const page = { ...topic, kind: "knowledge" };
+        expect(
+          await executeAndCompleteTool(
+            "manage_wiki_pages",
+            { action: "create", pages: [page, page] },
+            "duplicate-batch",
+          ),
+        ).toMatchObject({ ok: false });
+        const outcomes = await Promise.all(
+          ["first", "second"].map((id) =>
+            executeAndCompleteTool("manage_wiki_pages", { action: "create", pages: [page] }, id),
+          ),
+        );
+        expect(outcomes).toEqual([expect.objectContaining({ ok: true }), expect.objectContaining({ ok: false })]);
+        expect(writes).toBe(1);
+        await createFoundations(executeAndCompleteTool);
+        return finish();
+      };
+      await runAgentTurn(setupPayload);
+      expect(writes).toBe(3);
+      expect(state.finalize).toHaveBeenCalledWith(expect.objectContaining({ terminalCode: "completed" }));
+    });
+
+    it("does not report completion when a planned topic fails to save", async () => {
+      preparePlan();
+      state.execute.mockImplementation((input: { action?: string }) =>
+        Promise.resolve(
+          input.action === "plan" ? { ok: true, result: "planned" } : { ok: false, result: "save failed" },
+        ),
+      );
+      let runs = 0;
+      state.runTools = async ({ executeAndCompleteTool }) => {
+        runs += 1;
+        if (runs === 1) {
+          await executeAndCompleteTool(
+            "read_website_source",
+            { action: "plan", topics: [topic, ...foundationTopics], excluded: [] },
+            "plan",
+          );
+        }
+        await executeAndCompleteTool("manage_wiki_pages", { action: "create", pages: [topic] }, `create-${runs}`);
+        return finish();
+      };
+      await runAgentTurn(setupPayload);
+      expect(runs).toBe(3);
+      expect(state.finalize).toHaveBeenCalledWith(
+        expect.objectContaining({ terminalCode: "partial", stopReason: "turn_error" }),
+      );
+    });
+
+    it.each(["credit_limit", "hosted_ai_unavailable"])(
+      "does not continue unfinished topic planning when its reservation is denied by %s",
+      async (disposition) => {
+        state.synthesisSources = [{ id: "source", text: "# Service A", contentHash: "hash", readOffset: 100 }];
+        state.extendReservation.mockResolvedValueOnce({ disposition });
+        state.runTools = ({ messages }) =>
+          Promise.resolve({ finishReason: "stop", messages, steps: [streamedStep("Done.", "stop")] });
+        await runAgentTurn({
+          ...setupPayload,
+          turnBudget: { ...payload.turnBudget, reservedMicrocents: CREDIT, roundReserveMicrocents: 2 * CREDIT },
+        });
+        expect(state.providerCalls).toBe(1);
+        expect(state.extendReservation).toHaveBeenCalledWith(
+          expect.objectContaining({ requiredMicrocents: 2_000_308 }),
+        );
+        expect(state.finalize).toHaveBeenCalledWith(
+          expect.objectContaining({ terminalCode: "partial", stopReason: disposition }),
+        );
+      },
+    );
+
     it("loads only the admitted crawl's source inventory into the synthesis prompt", async () => {
       state.synthesisSources = [
         {
@@ -3131,30 +3378,44 @@ describe("routine browse-or-mutate batch safety", () => {
     it("continues a premature stop until complete evidence is read", async () => {
       state.synthesisSources = [{ id: "source", text: "unread evidence", contentHash: "hash", readOffset: 0 }];
       let runs = 0;
-      state.runTools = ({ messages }) => {
+      state.normalize.mockImplementation((_toolName, input) => Promise.resolve({ ok: true, input }));
+      state.runTools = async ({ messages, executeAndCompleteTool }) => {
         runs += 1;
         if (runs === 2) {
           expect(JSON.stringify(messages)).toContain("website import is incomplete");
           state.synthesisSources[0].readOffset = state.synthesisSources[0].text.length;
         }
+        if (runs === 3) {
+          expect(JSON.stringify(messages)).toContain("source topic plan");
+          await executeAndCompleteTool("read_website_source", foundationPlan, "plan");
+          await createFoundations(executeAndCompleteTool);
+        }
         return Promise.resolve({ ...finish(), messages: [{ role: "system", content: "system" }, ...messages] });
       };
       await runAgentTurn(setupPayload);
-      expect(runs).toBe(2);
+      expect(runs).toBe(3);
       expect(state.finalize).toHaveBeenCalledWith(expect.objectContaining({ terminalCode: "completed" }));
     });
 
-    it("requires source reading before offering page creation and releases the choice after coverage completes", async () => {
+    it("requires reading and source planning before releasing the create tool", async () => {
       state.synthesisSources = [{ id: "source", text: "unread evidence", contentHash: "hash", readOffset: 0 }];
-      state.runTools = async ({ prepared, completeStepAndPrepareNext }) => {
+      let runs = 0;
+      state.normalize.mockImplementation((_toolName, input) => Promise.resolve({ ok: true, input }));
+      state.runTools = async ({ prepared, completeStepAndPrepareNext, executeAndCompleteTool }) => {
+        runs += 1;
         expect(prepared).toMatchObject({ activeTools: ["read_website_source"], toolChoice: "required" });
         state.synthesisSources[0].readOffset = state.synthesisSources[0].text.length;
         await completeStepAndPrepareNext(streamedStep("", "tool-calls"));
+        expect(state.prepared).toMatchObject({ activeTools: ["read_website_source"], toolChoice: "required" });
+        await executeAndCompleteTool("read_website_source", foundationPlan, "plan");
+        await completeStepAndPrepareNext(streamedStep("", "tool-calls"));
         expect(state.prepared).toMatchObject({ activeTools: ["read_website_source", "manage_wiki_pages"] });
         expect(state.prepared).toMatchObject({ toolChoice: "auto" });
+        await createFoundations(executeAndCompleteTool);
         return finish();
       };
       await runAgentTurn(setupPayload);
+      expect(runs).toBe(1);
       expect(state.finalize).toHaveBeenCalledWith(expect.objectContaining({ terminalCode: "completed" }));
     });
 

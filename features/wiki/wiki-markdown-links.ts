@@ -13,13 +13,7 @@ type MarkdownNode = {
   content?: MarkdownNode[];
 };
 
-export type WikiPageLink = {
-  id: string;
-  label: string;
-  path: string;
-  url: string;
-  fetchId: string;
-};
+export type WikiPageLink = { id: string; label: string; path: string; url: string; fetchId: string };
 
 function visit(node: MarkdownNode, callback: (node: MarkdownNode) => void) {
   callback(node);
@@ -33,6 +27,32 @@ function boundedLinkLabel(value: string | undefined): string {
     .slice(0, WIKI_LINK_LABEL_MAX_LENGTH - 1)
     .replace(/[\uD800-\uDBFF]$/u, "")
     .trimEnd()}…`;
+}
+
+export function hasInvalidWikiPageLinks(markdown: string, baseUrl: string): boolean {
+  const document = parseMarkdownToJSON(markdown) as MarkdownNode;
+  const origin = new URL(baseUrl).origin;
+  let invalid = false;
+  visit(document, (node) => {
+    for (const mark of node.marks ?? []) {
+      const href = mark.type === "link" ? mark.attrs?.href : null;
+      if (typeof href !== "string") continue;
+      try {
+        const url = new URL(href, baseUrl);
+        if (
+          url.origin === origin &&
+          /^\/+(?:[a-z]{2}\/)?wiki(?:\/|$)/iu.test(url.pathname) &&
+          (/\/wiki\/.+/iu.test(url.pathname) ||
+            [...url.searchParams.keys()].some((key) => key.toLowerCase() === "page")) &&
+          !parseWikiPageHref(href, baseUrl)
+        )
+          invalid = true;
+      } catch {
+        continue;
+      }
+    }
+  });
+  return invalid;
 }
 
 export function extractWikiPageLinks(markdown: string, baseUrl: string, limit = 25): WikiPageLink[] {

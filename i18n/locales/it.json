@@ -1358,6 +1358,7 @@
       "wikiHomepageSetupStartFailed": "Mate non è riuscito ad avviare la configurazione della base di conoscenza. Riprova.",
       "wikiImportKnowledgeOnly": "Un’estensione del centro assistenza crea solo pagine di conoscenza; guide e procedure esistenti restano invariate.",
       "wikiImportLanguageRequired": "Scrivi ogni pagina in {locale}. Traduci le fonti in questa lingua. Non è stato modificato nulla.",
+      "wikiImportLinkInvalid": "Usa i link esatti della base di conoscenze restituiti dalla lettura delle fonti. I link segnaposto non possono essere salvati.",
       "wikiImportNotFound": "Questa importazione del sito web non è più disponibile. Non è stato modificato nulla.",
       "wikiImportPageLimit": "Questa importazione può creare al massimo {maximum} pagine di riepilogo; ne esistono già {created}: {titles}. Non è stato modificato nulla.",
       "wikiImportTitleInvalid": "Usa un titolo di pagina semplice senza campi degli strumenti serializzati.",
@@ -1372,6 +1373,7 @@
       "wikiSourceCitationUnread": "Leggi ogni fonte citata per intero con read_website_source; non lette: {ids}. Non è stato modificato nulla.",
       "wikiSourceCoverageRequired": "Leggi tutte le fonti rimanenti con read_website_source action=next prima di creare pagine o rileggere fonti. Restano {remainingSources} fonti. Non è stato modificato nulla.",
       "wikiSourceNotFound": "ID della fonte sconosciuto. Esegui prima list.",
+      "wikiSourcePlanIncomplete": "Invia un elenco topics e, prima di creare le pagine, includi ogni fonte salvata e ogni ruolo di pagina richiesto in un argomento supportato o un’omissione motivata. ID delle fonti non incluse: [{missingSourceIds}]. Ruoli mancanti o non validi: [{missingRoles}].",
       "wikiSourceReadOrder": "Leggi in ordine senza saltare testo. Usa next o il nextOffset salvato da list.",
       "wikiWhenToUseRequired": "Una procedura richiede una breve descrizione di quando usarla."
     },

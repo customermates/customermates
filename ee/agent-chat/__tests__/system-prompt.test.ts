@@ -114,12 +114,18 @@ describe("system prompt", () => {
     expect(prompt).toContain("A single Products and services summary is not a substitute");
     expect(prompt).toContain("compacted out of the conversation");
     expect(prompt).toContain("cumulative createdPageTitles and remainingPageSlots");
+    expect(prompt).toContain("Every source read also returns createdPageLinks");
+    expect(prompt).toContain("LAST in a separate call, after all supported knowledge and procedure pages");
+    expect(prompt).toContain("never invent IDs or use placeholders");
     expect(prompt).toContain("Up to six procedures (kind procedure)");
     expect(prompt).toContain("zero is valid");
     expect(prompt).toContain("Never turn generic contact details into internal policy");
     expect(prompt).toContain("Then cover the CRM and go-to-market foundations");
     expect(prompt).toContain("Voice and tone");
     expect(prompt).toContain("individual offering and technical-topic knowledge pages FIRST");
+    expect(prompt).toContain("the first create batch must contain offering pages only");
+    expect(prompt).toContain("Read and cite the dedicated source for each offering");
+    expect(prompt).toContain("If the offering checklist is empty, create supported foundation pages directly");
     expect(prompt).toContain("Do not appoint anyone to approve prices, SLAs or timelines");
     expect(prompt).toContain("immediately before EVERY create call");
     expect(prompt).toContain("action=get with offset=0");

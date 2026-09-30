@@ -3715,11 +3715,11 @@ describe("AgentChatStore", () => {
     await vi.advanceTimersByTimeAsync(1);
     expect(fetchMock).toHaveBeenCalledTimes(2);
     expect(store.queuedPrompt).toBe("Queue this while the first turn reconciles");
-    await vi.advanceTimersByTimeAsync(5000);
+    await vi.advanceTimersByTimeAsync(5250);
     for (let attempt = 0; attempt < 10 && (fetchMock.mock.calls.length < 4 || store.isWorking); attempt += 1)
       await vi.advanceTimersByTimeAsync(1);
 
-    expect(actionsMock.getAgentConversationAction).toHaveBeenCalledOnce();
+    expect(actionsMock.getAgentConversationAction).toHaveBeenCalledTimes(2);
     expect(fetchMock).toHaveBeenCalledTimes(4);
     expect(String(fetchMock.mock.calls[1]?.[0])).toContain(`/api/agent/conversations/${conversationId}/stream`);
     expect(JSON.parse(String(fetchMock.mock.calls[2]?.[1]?.body))).toMatchObject({
@@ -4330,6 +4330,52 @@ describe("AgentChatStore", () => {
     fetchMock.mockRestore();
   });
 
+  it.each(["failed", "hung"])("recovers a committed answer after the first canonical request %s", async (failure) => {
+    vi.useFakeTimers();
+    const conversationId = "00000000-0000-4000-8000-000000000071";
+    if (failure === "failed")
+      actionsMock.getAgentConversationAction.mockRejectedValueOnce(new Error("temporary history outage"));
+    else actionsMock.getAgentConversationAction.mockImplementationOnce(() => new Promise(() => undefined));
+    actionsMock.getAgentConversationAction.mockResolvedValueOnce({
+      activeTurn: false,
+      messages: [
+        {
+          id: "saved-terminal-answer",
+          role: "assistant",
+          parts: [{ type: "text", text: "The saved answer survived the history outage." }],
+        },
+      ],
+      nextCursor: null,
+    });
+    const fetchMock = vi
+      .spyOn(globalThis, "fetch")
+      .mockResolvedValue(
+        new Response(
+          `data: ${JSON.stringify({ seq: 0, type: "turn_done", assistantMessageId: "saved-terminal-answer", isError: false, terminalCode: "completed", affectedResources: [] })}\n\n`,
+          { headers: { "content-type": "text/event-stream", "x-conversation-id": conversationId } },
+        ),
+      );
+    const store = new AgentChatStore(root() as never);
+    const sending = store.sendMessage("Recover the committed answer");
+    await vi.advanceTimersByTimeAsync(5250);
+    await sending;
+    expect(actionsMock.getAgentConversationAction).toHaveBeenCalledTimes(2);
+    expect(fetchMock).toHaveBeenCalledOnce();
+    expect(store.items).toContainEqual(
+      expect.objectContaining({
+        kind: "assistant",
+        messageId: "saved-terminal-answer",
+        text: "The saved answer survived the history outage.",
+        streaming: false,
+      }),
+    );
+    expect(store.items).not.toContainEqual(expect.objectContaining({ kind: "turn_error" }));
+    expect(store.hasInSessionTerminalResult).toBe(true);
+    expect(store.isWorking).toBe(false);
+    expect(vi.getTimerCount()).toBe(0);
+    fetchMock.mockRestore();
+  });
+
   it("retries a reattached canonical timeout with the client request id rather than the persisted user id", async () => {
     vi.useFakeTimers();
     const conversationId = "00000000-0000-4000-8000-00000000005d";
@@ -4354,6 +4400,7 @@ describe("AgentChatStore", () => {
         ],
         nextCursor: null,
       })
+      .mockImplementationOnce(() => new Promise(() => undefined))
       .mockImplementationOnce(() => new Promise(() => undefined));
     const fetchMock = vi
       .spyOn(globalThis, "fetch")
@@ -4402,7 +4449,7 @@ describe("AgentChatStore", () => {
     const store = new AgentChatStore(root() as never);
 
     await store.selectConversationForEmbeddedViewer(conversationId);
-    await vi.advanceTimersByTimeAsync(5000);
+    await vi.advanceTimersByTimeAsync(10_250);
     for (let attempt = 0; attempt < 10 && store.isWorking; attempt += 1) await vi.advanceTimersByTimeAsync(1);
 
     const turnError = store.items.findLast(
@@ -4431,11 +4478,13 @@ describe("AgentChatStore", () => {
     fetchMock.mockRestore();
   });
 
-  it("shows a recoverable turn error after the one canonical reconciliation request exhausts", async () => {
+  it("shows a recoverable turn error after bounded canonical reconciliation requests exhaust", async () => {
     vi.useFakeTimers();
     const conversationId = "00000000-0000-4000-8000-00000000005a";
     const clientRequestId = "00000000-0000-4000-8000-00000000005b";
-    actionsMock.getAgentConversationAction.mockImplementationOnce(() => new Promise(() => undefined));
+    actionsMock.getAgentConversationAction
+      .mockImplementationOnce(() => new Promise(() => undefined))
+      .mockImplementationOnce(() => new Promise(() => undefined));
     const fetchMock = vi
       .spyOn(globalThis, "fetch")
       .mockResolvedValueOnce(
@@ -4500,10 +4549,10 @@ describe("AgentChatStore", () => {
       messageId: clientRequestId,
       pageRoute: "/en/contacts",
     });
-    await vi.advanceTimersByTimeAsync(5000);
+    await vi.advanceTimersByTimeAsync(10_250);
     await sending;
 
-    expect(actionsMock.getAgentConversationAction).toHaveBeenCalledOnce();
+    expect(actionsMock.getAgentConversationAction).toHaveBeenCalledTimes(2);
     expect(store.items).toContainEqual(
       expect.objectContaining({
         kind: "turn_error",

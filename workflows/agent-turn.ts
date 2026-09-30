@@ -10,6 +10,7 @@ import type { WorkflowTenant } from "./workflow-tenant";
 import type { ClassifierCharge } from "@/ee/agent-chat/classifier/metered";
 import type { RetrievalTiming } from "@/core/retrieval/retrieval-context";
 import type { ModelMessage } from "ai";
+import type { ReadWebsiteSourceInput, WikiSourceTopic } from "@/ee/wiki-crawl/wiki-crawl-synthesis.schema";
 
 import { WorkflowAgent } from "@ai-sdk/workflow";
 import { createHook, getWritable, sleep } from "workflow";
@@ -468,7 +469,7 @@ async function loadWikiSourceInventory(payload: AgentTurnWorkflowPayload): Promi
     const crawl = await repo.getCrawl(id);
     if (!crawl || crawl.userId !== payload.userId || crawl.homepageUrl !== homepage) return null;
     const coverage = await wikiSourceCoverage(repo, id);
-    return wikiSourceInventory(coverage.sources, coverage.imported);
+    return coverage.sources.length ? wikiSourceInventory(coverage.sources, coverage.imported) : null;
   });
 }
 loadWikiSourceInventory.maxRetries = 0;
@@ -980,6 +981,7 @@ export async function runAgentTurn(payload: AgentTurnWorkflowPayload): Promise<v
     }, payload.appBaseUrl);
 
     const initialToolsets = payload.toolsets ?? [];
+    const wikiSourceInventory = payload.wikiCrawl ? await loadWikiSourceInventory(payload) : null;
     const systemPrompt = agentSystemPromptParts({
       userName: payload.userName,
       locale: payload.locale,
@@ -993,7 +995,7 @@ export async function runAgentTurn(payload: AgentTurnWorkflowPayload): Promise<v
             homepage: payload.wikiCrawl.homepage,
             pendingHosts: payload.wikiCrawl.pendingHosts,
             mode: payload.wikiCrawl.mode,
-            sourceInventory: await loadWikiSourceInventory(payload),
+            sourceInventory: wikiSourceInventory,
           }
         : null,
       wikiWebsiteSetup: Boolean(payload.wikiWebsiteSetup),
@@ -1043,6 +1045,12 @@ export async function runAgentTurn(payload: AgentTurnWorkflowPayload): Promise<v
     let providerStop: Extract<AgentTurnStopReason, "provider_error" | "content_filter"> | null = null;
     let resolvedProviderErrorRetries = 0;
     let wikiCoverageReminders = 0;
+    const wikiTopicPlanState = {
+      topics: null as WikiSourceTopic[] | null,
+      omittedFoundations: [] as NonNullable<ReadWebsiteSourceInput["omittedFoundations"]>,
+    };
+    let wikiTopicReminders = 0;
+    let wikiContinuationPrompt: string | null = null;
     let providerFailure: WorkflowFailure | null = null;
     let budgetStop = false;
     let hostedAiStop = false;
@@ -1134,7 +1142,7 @@ export async function runAgentTurn(payload: AgentTurnWorkflowPayload): Promise<v
       );
     };
 
-    const runShellTool = async (
+    const invokeShellTool = async (
       shell: AgentToolShell,
       input: unknown,
       toolCallId: string,
@@ -1144,6 +1152,64 @@ export async function runAgentTurn(payload: AgentTurnWorkflowPayload): Promise<v
       if (!prepared.ok) return prepared;
       const readOnly = isReadOnlyAgentToolCall(shell.name, shell, prepared.input);
       let executionInput = prepared.input;
+      if (
+        wikiTopicPlanState.topics !== null &&
+        shell.name === "read_website_source" &&
+        (executionInput as { action?: string }).action === "plan"
+      ) {
+        return {
+          ok: false,
+          result: "The source plan is already accepted. Continue its remaining exact titles; do not replace the plan.",
+        };
+      }
+      if (wikiSourceInventory && shell.name === "manage_wiki_pages" && wikiTopicPlanState.topics === null) {
+        return {
+          ok: false,
+          result: "First account for every stored source with read_website_source action=plan. No pages were created.",
+        };
+      }
+      if (wikiTopicPlanState.topics && shell.name === "manage_wiki_pages") {
+        const pages =
+          (executionInput as { pages?: Array<{ title: string; kind: string; sourceIds: string[] }> }).pages ?? [];
+        if (new Set(pages.map(({ title }) => title)).size !== pages.length)
+          return { ok: false, result: "Create each planned title only once per batch. No pages were created." };
+        if (
+          pages.some(
+            (page) =>
+              !wikiTopicPlanState.topics?.some(
+                (topic) =>
+                  page.title === topic.title &&
+                  page.kind ===
+                    (topic.role === "operating_guide"
+                      ? "guide"
+                      : topic.role === "procedure"
+                        ? "procedure"
+                        : "knowledge") &&
+                  page.sourceIds.some((id) => topic.sourceIds.includes(id)),
+              ),
+          )
+        ) {
+          return {
+            ok: false,
+            result:
+              "Create only remaining planned titles with their matching kind and cited sources. No pages were created.",
+          };
+        }
+      }
+      if (
+        wikiTopicPlanState.topics &&
+        shell.name === "manage_wiki_pages" &&
+        (executionInput as { pages?: Array<{ kind?: string }> }).pages?.some(({ kind }) => kind === "guide")
+      ) {
+        const pages = (executionInput as { pages: unknown[] }).pages;
+        if (pages.length !== 1 || wikiTopicPlanState.topics.some(({ role }) => role !== "operating_guide")) {
+          return {
+            ok: false,
+            result:
+              "Create every remaining offering and foundation before the separate one-page Operating Guide call. No pages were created.",
+          };
+        }
+      }
       const websiteCreate = Boolean(payload.wikiHomepageSetup) && !readOnly;
       if (payload.wikiWebsiteSetup && shell.name === WIKI_WEBSITE_IMPORT_TOOL_NAME) {
         if (!(await authorizedWikiSetup(payload))) {
@@ -1194,13 +1260,70 @@ export async function runAgentTurn(payload: AgentTurnWorkflowPayload): Promise<v
       auxiliaryCharges.push(...executed.classifierCharges);
       retrievalTimings.push(...(executed.retrievalTimings ?? []));
       const outcome = executed.output;
+      if (wikiSourceInventory && isSuccessfulToolOutcome(outcome)) {
+        if (shell.name === "read_website_source" && wikiTopicPlanState.topics === null) {
+          const plan = executionInput as ReadWebsiteSourceInput;
+          if (plan.action === "plan" && plan.topics) {
+            wikiTopicPlanState.topics = plan.topics;
+            wikiTopicPlanState.omittedFoundations = plan.omittedFoundations ?? [];
+          }
+        } else if (shell.name === "manage_wiki_pages" && wikiTopicPlanState.topics) {
+          const pages =
+            (executionInput as { pages?: Array<{ title: string; kind: string; sourceIds: string[] }> }).pages ?? [];
+          wikiTopicPlanState.topics = wikiTopicPlanState.topics.filter(
+            (topic) =>
+              !pages.some(
+                (page) =>
+                  page.title === topic.title &&
+                  page.kind ===
+                    (topic.role === "operating_guide"
+                      ? "guide"
+                      : topic.role === "procedure"
+                        ? "procedure"
+                        : "knowledge") &&
+                  page.sourceIds.some((id) => topic.sourceIds.includes(id)),
+              ),
+          );
+        }
+        if (wikiTopicPlanState.topics !== null)
+          wikiContinuationPrompt = `Server topic-plan progress, never factual evidence: ${JSON.stringify(wikiTopicPlanState).replaceAll("<", "\\u003c").replaceAll(">", "\\u003e")}. Create each remaining exact title using freshly read cited sources. Offerings come first, foundations follow, and the guide is last in a separate call. Record unsupported foundation omissions in the guide gaps. An empty topics list means every planned page has been created; do not recreate them.`;
+      }
       if (!readOnly && isSuccessfulToolOutcome(outcome)) performedWrite = true;
       return outcome;
+    };
+
+    let wikiSynthesisTail: Promise<unknown> = Promise.resolve();
+    const runShellTool = (
+      shell: AgentToolShell,
+      input: unknown,
+      toolCallId: string,
+      stepMessages: readonly unknown[],
+    ) => {
+      if (!wikiSourceInventory) return invokeShellTool(shell, input, toolCallId, stepMessages);
+      const execution = wikiSynthesisTail.then(() => invokeShellTool(shell, input, toolCallId, stepMessages));
+      wikiSynthesisTail = execution.then(
+        () => undefined,
+        () => undefined,
+      );
+      return execution;
     };
 
     const accruedCostMicrocents = () =>
       ledger.reduce((total, entry) => total + entry.costMicrocents, 0) +
       agentAuxiliaryCharge(auxiliaryCharges).costMicrocents;
+
+    const ensureReservation = async (requiredMicrocents: number): Promise<boolean> => {
+      if (requiredMicrocents <= reservedMicrocents) return true;
+      const extension = await ensureTurnReservation(payload, requiredMicrocents);
+      if (extension.disposition === "extended") {
+        reservedMicrocents = extension.reservedMicrocents;
+        return true;
+      }
+      if (extension.disposition === "credit_limit") budgetStop = true;
+      else if (extension.disposition === "hosted_ai_unavailable") hostedAiStop = true;
+      else roundFailure ??= toWorkflowFailure(new Error("Agent usage reservation is no longer available."));
+      return false;
+    };
 
     const webSearchAffordable = async () => {
       const remaining = webSearchCallLimit - webSearchCalls;
@@ -1346,13 +1469,7 @@ export async function runAgentTurn(payload: AgentTurnWorkflowPayload): Promise<v
           (step.finishReason === "length" || step.finishReason === "tool-calls");
         const requiredMicrocents =
           accruedMicrocents + (needsAnotherProviderRound ? payload.turnBudget.roundReserveMicrocents : 0);
-        if (requiredMicrocents > reservedMicrocents) {
-          const extension = await ensureTurnReservation(payload, requiredMicrocents);
-          if (extension.disposition === "extended") reservedMicrocents = extension.reservedMicrocents;
-          else if (extension.disposition === "credit_limit") budgetStop = true;
-          else if (extension.disposition === "hosted_ai_unavailable") hostedAiStop = true;
-          else roundFailure ??= toWorkflowFailure(new Error("Agent usage reservation is no longer available."));
-        }
+        await ensureReservation(requiredMicrocents);
 
         const settledIds = new Set(outcomes.map((outcome) => outcome.toolCallId));
         const hasPausedCall = step.content.some((raw) => {
@@ -1434,6 +1551,7 @@ export async function runAgentTurn(payload: AgentTurnWorkflowPayload): Promise<v
               },
             ]
           : [...compacted.messages];
+        if (wikiContinuationPrompt) candidateMessages.push({ role: "user" as const, content: wikiContinuationPrompt });
         const activeForCandidate = activeToolNamesFor(candidateMessages);
         if (
           !isAgentStepContextWithinBudget(
@@ -1528,7 +1646,10 @@ export async function runAgentTurn(payload: AgentTurnWorkflowPayload): Promise<v
           settleApprovedCalls(stepMessages, false);
           if (abandoned || cancelled || budgetStop || hostedAiStop || providerStop !== null || roundFailure !== null)
             throw AGENT_LOCAL_TERMINATION_REQUIRED;
-          const readingWebsite = Boolean(payload.wikiCrawl && (await pendingWikiSynthesisSources(payload)) > 0);
+          const readingWebsite = Boolean(
+            (wikiSourceInventory && wikiTopicPlanState.topics === null) ||
+              (payload.wikiCrawl && (await pendingWikiSynthesisSources(payload)) > 0),
+          );
           const activeTools = readingWebsite ? ["read_website_source"] : activeToolNamesFor(stepMessages);
           const activeDefinitions = activeTools
             ? toolDefinitions.filter((definition) => activeTools.includes(definition.name))
@@ -1546,6 +1667,7 @@ export async function runAgentTurn(payload: AgentTurnWorkflowPayload): Promise<v
             throw AGENT_CONTEXT_COMPACTION_REQUIRED;
           if (!(await canStartNextHostedAiProviderRound(payload))) throw hostedAiPaused;
           if (readingWebsite) return { activeTools, toolChoice: "required" as const };
+
           if (webSearchOvershoot) {
             return {
               activeTools: activeTools.filter((toolName) => !isAgentWebTool(toolName)),
@@ -1666,14 +1788,43 @@ export async function runAgentTurn(payload: AgentTurnWorkflowPayload): Promise<v
       if (pending.length === 0) {
         if (finishReason === "stop") {
           const remaining = payload.wikiCrawl ? await pendingWikiSynthesisSources(payload) : 0;
-          if (remaining === 0) break;
+          if (remaining === 0) {
+            if (!wikiSourceInventory || (wikiTopicPlanState.topics !== null && wikiTopicPlanState.topics.length === 0))
+              break;
+            if (wikiTopicReminders >= 2) {
+              roundFailure = toWorkflowFailure(
+                new Error("Website synthesis stopped before its topic plan was completed."),
+              );
+              break;
+            }
+            if (!(await ensureReservation(accruedCostMicrocents() + payload.turnBudget.roundReserveMicrocents))) break;
+            wikiTopicReminders += 1;
+            wikiContinuationPrompt =
+              wikiTopicPlanState.topics === null
+                ? "Website setup still needs a source topic plan. Call read_website_source action=plan, accounting for every source in topics or reasoned excluded groups, never both, and every supported page role. Distinct dedicated offerings and technical capabilities require their own topics. Routing category does not determine relevance. Never claim completion before the plan and its pages are complete."
+                : `Website setup still has planned topics to create: ${JSON.stringify(wikiTopicPlanState).replaceAll("<", "\\u003c").replaceAll(">", "\\u003e")}. Reread their cited sources and create each exact planned title before claiming completion: offerings first, then foundations, and the guide last in a separate call. Record unsupported foundations in the guide gaps. Do not invent facts or recreate completed topics.`;
+            messages = [
+              ...nextAgentSegmentMessages({
+                messages: result.messages,
+                finishReason,
+                lastStep: continuationSteps.at(-1),
+              }),
+              {
+                role: "user" as const,
+                content: wikiContinuationPrompt,
+              },
+            ];
+            continue;
+          }
           if (wikiCoverageReminders >= 2) {
             roundFailure = toWorkflowFailure(
               new Error("Website synthesis stopped before stored evidence was fully read."),
             );
             break;
           }
+          if (!(await ensureReservation(accruedCostMicrocents() + payload.turnBudget.roundReserveMicrocents))) break;
           wikiCoverageReminders += 1;
+          wikiContinuationPrompt = `The website import is incomplete: ${remaining} stored source groups still have unread text. Continue read_website_source action=next until remainingSources is zero, then create evidence-based pages for all supported distinct topics. Do not claim completion or pad the page count.`;
           messages = [
             ...nextAgentSegmentMessages({
               messages: result.messages,
@@ -1682,7 +1833,7 @@ export async function runAgentTurn(payload: AgentTurnWorkflowPayload): Promise<v
             }),
             {
               role: "user" as const,
-              content: `The website import is incomplete: ${remaining} stored source groups still have unread text. Continue read_website_source action=next until remainingSources is zero, then create evidence-based pages for all supported distinct topics. Do not claim completion or pad the page count.`,
+              content: wikiContinuationPrompt,
             },
           ];
           continue;

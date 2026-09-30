@@ -59,14 +59,7 @@ const describeDatabase = databaseUrl ? describe : describe.skip;
 const sourceText = (text: string) =>
   `${text}\n\nCustomers can contact our support team whenever they have questions about their subscription. We explain the available options and provide clear information about the next steps. Our team helps customers understand the information on this page.`;
 
-const PAGES: Record<
-  string,
-  {
-    title: string;
-    text: string;
-    qaPairs: Array<{ question: string; answer: string }>;
-  }
-> = {
+const PAGES: Record<string, { title: string; text: string; qaPairs: Array<{ question: string; answer: string }> }> = {
   "https://example.com/help/refunds": {
     title: "Refund policy",
     text: sourceText("# Refund policy\n\n## Annual plans\n\nRefunds within 30 days."),
@@ -830,12 +823,15 @@ describeDatabase("Wiki website crawl on PostgreSQL", () => {
       if (!crawl) throw new Error("Missing test crawl");
       return crawl.startedAt;
     });
-    expect(
-      await runWithTenant(user, () => new PrismaWikiWebsiteCrawlRepo().listSynthesizedPageTitles(since, 16)),
-    ).toEqual(expect.arrayContaining(["Operating Guide", "Refund procedure"]));
+    expect(await runWithTenant(user, () => new PrismaWikiWebsiteCrawlRepo().listSynthesizedPages(since, 16))).toEqual(
+      expect.arrayContaining([
+        expect.objectContaining({ id: expect.any(String), title: "Operating Guide" }),
+        expect.objectContaining({ id: expect.any(String), title: "Refund procedure" }),
+      ]),
+    );
     expect(
       await runWithTenant({ ...user, companyId: randomUUID() }, () =>
-        new PrismaWikiWebsiteCrawlRepo().listSynthesizedPageTitles(since, 16),
+        new PrismaWikiWebsiteCrawlRepo().listSynthesizedPages(since, 16),
       ),
     ).toEqual([]);
     const guide = saved.rows[0].markdown as string;

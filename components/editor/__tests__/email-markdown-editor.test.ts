@@ -20,8 +20,11 @@ beforeEach(() => {
   (globalThis as { IS_REACT_ACT_ENVIRONMENT?: boolean }).IS_REACT_ACT_ENVIRONMENT = true;
 });
 
-afterEach(() => {
-  for (const root of roots) act(() => root.unmount());
+afterEach(async () => {
+  await act(async () => {
+    for (const root of roots) root.unmount();
+    await new Promise((resolve) => setTimeout(resolve, 1));
+  });
   roots.clear();
   document.body.innerHTML = "";
 });

@@ -616,7 +616,7 @@ export function describeAgentAiTools(tools: ToolSet, servingProvider?: string): 
       "description" in agentTool && typeof agentTool.description === "string" ? agentTool.description : undefined,
     inputSchema:
       "inputSchema" in agentTool
-        ? providerWireInputSchema(asSchema(agentTool.inputSchema).jsonSchema, servingProvider)
+        ? providerWireInputSchema(asSchema(agentTool.inputSchema).jsonSchema, servingProvider, name)
         : undefined,
   }));
 }

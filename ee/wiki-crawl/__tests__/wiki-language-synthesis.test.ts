@@ -13,7 +13,7 @@ const harness = vi.hoisted(() => ({
   crawl: vi.fn(),
   sources: vi.fn(),
   count: vi.fn(),
-  createdTitles: vi.fn(),
+  createdPages: vi.fn(),
   imported: vi.fn(),
   advance: vi.fn(),
 }));
@@ -30,7 +30,7 @@ vi.mock("@/core/di", async () => {
     getCrawl: harness.crawl,
     listSources: harness.sources,
     countSynthesizedPages: harness.count,
-    listSynthesizedPageTitles: harness.createdTitles,
+    listSynthesizedPages: harness.createdPages,
     findImportedPage: harness.imported,
     advanceSourceReads: harness.advance,
   };
@@ -47,6 +47,7 @@ vi.mock("@/i18n/get-translator", () => ({
 
 import { createWikiFromCrawlTool, readWebsiteSourceTool } from "../wiki-crawl-synthesis-tools";
 import { WIKI_SOURCE_RESULT_MAX_CHARS } from "../wiki-source-coverage";
+import { WIKI_SYNTHESIS_FOUNDATION_ROLES } from "../wiki-crawl-synthesis.schema";
 
 function structured(result: McpToolResult) {
   if (typeof result === "string" || !("structuredContent" in result))
@@ -59,6 +60,15 @@ const ENGLISH =
 const GERMAN =
   "Kunden können sich bei Fragen zu ihrem Vertrag an unseren Kundendienst wenden. Wir erklären die verfügbaren Möglichkeiten und informieren über die nächsten Schritte. Eine Rückerstattung kann innerhalb von dreißig Tagen nach dem Kauf des jährlichen Abonnements beantragt werden.";
 const SOURCE_ID = "00000000-0000-4000-8000-000000000001";
+const foundations = [...WIKI_SYNTHESIS_FOUNDATION_ROLES, "operating_guide" as const].map((role) => ({
+  title: role.replaceAll("_", " "),
+  role,
+  sourceIds: [SOURCE_ID],
+}));
+const omittedFoundations = WIKI_SYNTHESIS_FOUNDATION_ROLES.map((role) => ({
+  role,
+  reason: "No usable company evidence",
+}));
 const page = (content: string, kind: "knowledge" | "guide" = "knowledge") => ({
   title: "Company",
   kind,
@@ -74,7 +84,7 @@ beforeEach(() => {
     startedAt: new Date(),
   });
   harness.count.mockResolvedValue(0);
-  harness.createdTitles.mockResolvedValue([]);
+  harness.createdPages.mockResolvedValue([]);
   harness.imported.mockResolvedValue(null);
   harness.sources.mockResolvedValue([
     {
@@ -93,6 +103,261 @@ beforeEach(() => {
 });
 
 describe("single language Wiki synthesis", () => {
+  it("accepts a fully accounted plan without advancing source cursors", async () => {
+    const result = await readWebsiteSourceTool("00000000-0000-4000-8000-00000000c001").execute({
+      action: "plan",
+      topics: [{ title: "Support", role: "offering", sourceIds: [SOURCE_ID] }, ...foundations],
+      excluded: [],
+    });
+    expect(structured(result)).toMatchObject({
+      topicPlan: expect.arrayContaining([expect.objectContaining({ title: "Support", sourceIds: [SOURCE_ID] })]),
+      remainingSources: 0,
+    });
+    expect(harness.advance).not.toHaveBeenCalled();
+  });
+
+  it("accepts omitted exclusions when every source is already accounted for", async () => {
+    const result = await readWebsiteSourceTool("00000000-0000-4000-8000-00000000c001").execute({
+      action: "plan",
+      topics: foundations,
+    });
+    expect(structured(result)).toMatchObject({ topicPlan: foundations });
+    expect(harness.advance).not.toHaveBeenCalled();
+  });
+
+  it("identifies the exact unaccounted sources and accepts the repaired plan", async () => {
+    const sources = await harness.sources();
+    const missingId = "00000000-0000-4000-8000-000000000002";
+    harness.sources.mockResolvedValue([...sources, { ...sources[0], id: missingId, contentHash: "hash-2" }]);
+    const reader = readWebsiteSourceTool("00000000-0000-4000-8000-00000000c001");
+    const result = await reader.execute({ action: "plan", topics: foundations });
+    expect(result).toMatchObject({ failure: { kind: "validation" } });
+    expect(JSON.stringify(result)).toContain(missingId);
+    expect(
+      structured(
+        await reader.execute({
+          action: "plan",
+          topics: foundations,
+          excluded: [{ sourceIds: [missingId], reason: "Exact duplicate evidence" }],
+        }),
+      ),
+    ).toMatchObject({ topicPlan: foundations });
+    expect(harness.advance).not.toHaveBeenCalled();
+  });
+
+  it("identifies the missing role and accepts the repaired plan", async () => {
+    const reader = readWebsiteSourceTool("00000000-0000-4000-8000-00000000c001");
+    const result = await reader.execute({ action: "plan", topics: foundations.slice(1) });
+    expect(result).toMatchObject({ failure: { kind: "validation" } });
+    expect(JSON.stringify(result)).toContain("company_overview");
+    expect(structured(await reader.execute({ action: "plan", topics: foundations }))).toMatchObject({
+      topicPlan: foundations,
+    });
+    expect(harness.advance).not.toHaveBeenCalled();
+  });
+
+  it("identifies omitted topics even when every source is excluded", async () => {
+    const reader = readWebsiteSourceTool("00000000-0000-4000-8000-00000000c001");
+    const excluded = [{ sourceIds: [SOURCE_ID], reason: "No usable company evidence" }];
+    const result = await reader.execute({ action: "plan", excluded, omittedFoundations });
+    expect(result).toMatchObject({ failure: { kind: "validation" } });
+    expect(JSON.stringify(result)).toContain("Send a topics list");
+    expect(
+      structured(await reader.execute({ action: "plan", topics: [], excluded, omittedFoundations })),
+    ).toMatchObject({
+      topicPlan: [],
+    });
+    expect(harness.advance).not.toHaveBeenCalled();
+  });
+
+  it.each(["missing", "unknown", "duplicate"])("rejects a plan with %s source accounting", async (kind) => {
+    const topics =
+      kind === "missing"
+        ? []
+        : [
+            {
+              title: "Support",
+              role: "offering" as const,
+              sourceIds: [kind === "unknown" ? "00000000-0000-4000-8000-000000000099" : SOURCE_ID],
+            },
+          ];
+    const excluded = kind === "duplicate" ? [{ sourceIds: [SOURCE_ID], reason: "Duplicate" }] : [];
+    const result = await readWebsiteSourceTool("00000000-0000-4000-8000-00000000c001").execute({
+      action: "plan",
+      topics,
+      excluded,
+    });
+    expect(result).toMatchObject({ failure: { kind: "validation" } });
+    expect(harness.advance).not.toHaveBeenCalled();
+  });
+
+  it("rejects topic planning before full source reading", async () => {
+    const sources = await harness.sources();
+    harness.sources.mockResolvedValue(sources.map((source: object) => ({ ...source, readOffset: 0 })));
+    const result = await readWebsiteSourceTool("00000000-0000-4000-8000-00000000c001").execute({
+      action: "plan",
+      topics: [],
+      excluded: [{ sourceIds: [SOURCE_ID], reason: "Foundation evidence" }],
+    });
+    expect(result).toMatchObject({ failure: { kind: "validation" } });
+    expect(harness.advance).not.toHaveBeenCalled();
+  });
+
+  it("allows no pages for unusable evidence only with reasoned source and foundation omissions", async () => {
+    const result = await readWebsiteSourceTool("00000000-0000-4000-8000-00000000c001").execute({
+      action: "plan",
+      topics: [],
+      excluded: [{ sourceIds: [SOURCE_ID], reason: "No usable company evidence" }],
+      omittedFoundations,
+    });
+    expect(structured(result)).toMatchObject({ topicPlan: [] });
+  });
+
+  it.each(["initial", "extend"])("reserves foundation slots only for %s setup", async (mode) => {
+    harness.crawl.mockResolvedValue({ locale: "en", mode, startedAt: new Date() });
+    const sources = Array.from({ length: 12 }, (_, index) => ({
+      id: `00000000-0000-4000-8000-${String(index + 1).padStart(12, "0")}`,
+      url: `https://example.com/${index}`,
+      text: "Verified source",
+      contentHash: `hash-${index}`,
+      readOffset: 100,
+      title: `Service ${index}`,
+      category: "other",
+    }));
+    harness.sources.mockResolvedValue(sources);
+    const result = await readWebsiteSourceTool("00000000-0000-4000-8000-00000000c001").execute({
+      action: "plan",
+      topics: [
+        ...sources.map((source) => ({ title: source.title, role: "offering" as const, sourceIds: [source.id] })),
+        ...(mode === "initial" ? foundations : []),
+      ],
+      excluded: [],
+    });
+    if (mode === "initial") expect(result).toMatchObject({ failure: { kind: "validation" } });
+    else {
+      expect(structured(result)).toMatchObject({
+        topicPlan: expect.arrayContaining([
+          expect.objectContaining({ title: "Service 11", sourceIds: [sources[11].id] }),
+        ]),
+      });
+    }
+  });
+
+  it("rejects duplicate planned titles even with distinct cited sources", async () => {
+    const sources = await harness.sources();
+    const secondId = "00000000-0000-4000-8000-000000000002";
+    harness.sources.mockResolvedValue([...sources, { ...sources[0], id: secondId, contentHash: "hash-2" }]);
+    const result = await readWebsiteSourceTool("00000000-0000-4000-8000-00000000c001").execute({
+      action: "plan",
+      topics: [
+        { title: "Support", role: "offering", sourceIds: [SOURCE_ID] },
+        { title: "support", role: "offering", sourceIds: [secondId] },
+      ],
+      excluded: [],
+    });
+    expect(result).toMatchObject({ failure: { kind: "validation" } });
+  });
+
+  it("permits distinct offerings and foundations to cite the same source", async () => {
+    const result = await readWebsiteSourceTool("00000000-0000-4000-8000-00000000c001").execute({
+      action: "plan",
+      topics: [
+        { title: "Service A", role: "offering", sourceIds: [SOURCE_ID] },
+        { title: "Service B", role: "offering", sourceIds: [SOURCE_ID] },
+        ...foundations,
+      ],
+      excluded: [],
+    });
+    expect(structured(result)).toMatchObject({
+      topicPlan: expect.arrayContaining([
+        expect.objectContaining({ title: "Service A" }),
+        expect.objectContaining({ title: "Service B" }),
+      ]),
+    });
+  });
+
+  it.each(["missing", "duplicate", "guide_missing", "guide_duplicate"])(
+    "rejects %s initial role accounting",
+    async (kind) => {
+      const topics =
+        kind === "missing"
+          ? foundations.slice(1)
+          : kind === "duplicate"
+            ? [...foundations, foundations[0]]
+            : kind === "guide_missing"
+              ? foundations.slice(0, -1)
+              : [...foundations, { ...foundations[4], title: "Another guide" }];
+      const result = await readWebsiteSourceTool("00000000-0000-4000-8000-00000000c001").execute({
+        action: "plan",
+        topics,
+        excluded: [],
+      });
+      expect(result).toMatchObject({ failure: { kind: "validation" } });
+    },
+  );
+
+  it("permits unsupported foundations to be omitted without inventing content", async () => {
+    const result = await readWebsiteSourceTool("00000000-0000-4000-8000-00000000c001").execute({
+      action: "plan",
+      topics: foundations.filter(({ role }) => role === "company_overview" || role === "operating_guide"),
+      excluded: [],
+      omittedFoundations: omittedFoundations.filter(({ role }) => role !== "company_overview"),
+    });
+    expect(structured(result)).toMatchObject({
+      topicPlan: expect.arrayContaining([expect.objectContaining({ role: "operating_guide" })]),
+    });
+  });
+
+  it("allows imported evidence for foundations without planning a duplicate offering", async () => {
+    const importedAt = new Date();
+    harness.imported.mockResolvedValue({
+      sourceContentHash: "hash-1",
+      updatedAt: importedAt,
+      sourceImportedUpdatedAt: importedAt,
+    });
+    const reader = readWebsiteSourceTool("00000000-0000-4000-8000-00000000c001");
+    expect(structured(await reader.execute({ action: "plan", topics: foundations, excluded: [] }))).toMatchObject({
+      importedSources: 1,
+    });
+    const duplicate = await reader.execute({
+      action: "plan",
+      topics: [{ title: "Support", role: "offering", sourceIds: [SOURCE_ID] }, ...foundations],
+      excluded: [],
+    });
+    expect(duplicate).toMatchObject({ failure: { kind: "validation" } });
+  });
+
+  it.each(["bad_title", "duplicate_citation"])(
+    "rejects a plan with %s before accepting uncreatable work",
+    async (kind) => {
+      const invalid =
+        kind === "bad_title"
+          ? { title: "Sales Messaging and FAQs},{gaps:[", sourceIds: [SOURCE_ID] }
+          : { title: "Service A", sourceIds: [SOURCE_ID, SOURCE_ID] };
+      const result = await readWebsiteSourceTool("00000000-0000-4000-8000-00000000c001").execute({
+        action: "plan",
+        topics: [{ ...invalid, role: "offering" }, ...foundations],
+        excluded: [],
+      });
+      expect(result).toMatchObject({ failure: { kind: "validation" } });
+    },
+  );
+
+  it.each(["content", "heading", "gap"])("rejects placeholder page links in generated %s", async (field) => {
+    const value = { ...page(ENGLISH), sections: [{ heading: "Support", content: ENGLISH }], gaps: [] as string[] };
+    const invalid = "[Support](/wiki?page=...)";
+    if (field === "content") value.sections[0].content = `${ENGLISH}\\n\\n${invalid}`;
+    if (field === "heading") value.sections[0].heading = invalid;
+    if (field === "gap") value.gaps = [invalid];
+    const result = await createWikiFromCrawlTool("en", "00000000-0000-4000-8000-00000000c001").execute({
+      action: "create",
+      pages: [value],
+    });
+    expect(result).toMatchObject({ failure: { kind: "validation" } });
+    expect(JSON.stringify(result)).toContain("exact Knowledge Base page links");
+    expect(harness.create).not.toHaveBeenCalled();
+  });
+
   it("rejects serialized tool fields accidentally included in a generated title", async () => {
     const result = await createWikiFromCrawlTool("en", "00000000-0000-4000-8000-00000000c001").execute({
       action: "create",
@@ -104,7 +369,7 @@ describe("single language Wiki synthesis", () => {
 
   it("carries previously saved topics into every create result after conversation compaction", async () => {
     harness.count.mockResolvedValue(1);
-    harness.createdTitles.mockResolvedValue(["Product A"]);
+    harness.createdPages.mockResolvedValue([{ id: SOURCE_ID, title: "Product A" }]);
     harness.create.mockResolvedValue({
       ok: true,
       data: [
@@ -124,7 +389,7 @@ describe("single language Wiki synthesis", () => {
       pages: [page(ENGLISH)],
     });
     expect(structured(result)).toMatchObject({ createdPageTitles: ["Product A", "Company"], remainingPageSlots: 14 });
-    expect(harness.createdTitles).toHaveBeenCalledWith(expect.any(Date), 16);
+    expect(harness.createdPages).toHaveBeenCalledWith(expect.any(Date), 16);
   });
 
   it("keeps the source topic inventory and actual import count available after reading completes", async () => {
@@ -145,6 +410,50 @@ describe("single language Wiki synthesis", () => {
       importedSources: 0,
       items: [{ headings: ["Product A", "Integrations", "Product B"], imported: false, read: true }],
     });
+  });
+
+  it("recovers exact saved links on every reread after prior tool results are compacted", async () => {
+    harness.createdPages.mockResolvedValue([{ id: SOURCE_ID, title: "Product A" }]);
+    const tool = readWebsiteSourceTool("00000000-0000-4000-8000-00000000c001");
+    for (let round = 0; round < 4; round += 1) {
+      const result = await tool.execute({ action: "get", id: SOURCE_ID, offset: 0 });
+      expect(structured(result)).toMatchObject({
+        createdPageLinks: [{ title: "Product A", path: `/wiki?page=${SOURCE_ID}` }],
+        items: [{ text: GERMAN }],
+      });
+    }
+    expect(harness.createdPages).toHaveBeenCalledWith(expect.any(Date), 16);
+  });
+
+  it("keeps maximum-length saved links intact while shrinking large source chunks", async () => {
+    const created = Array.from({ length: 16 }, (_, index) => ({
+      id: `10000000-0000-4000-8000-${String(index).padStart(12, "0")}`,
+      title: "文".repeat(120),
+    }));
+    harness.createdPages.mockResolvedValue(created);
+    harness.sources.mockResolvedValue(
+      Array.from({ length: 8 }, (_, index) => ({
+        id: `20000000-0000-4000-8000-${String(index).padStart(12, "0")}`,
+        title: "Source",
+        url: `https://example.com/${index}`,
+        category: "other",
+        text: "文".repeat(12_000),
+        contentHash: `hash-${index}`,
+        readOffset: 0,
+      })),
+    );
+    const result = await readWebsiteSourceTool("00000000-0000-4000-8000-00000000c001").execute({ action: "next" });
+    expect(structured(result)).toMatchObject({
+      createdPageLinks: created.map(({ id, title }) => ({ title, path: `/wiki?page=${id}` })),
+    });
+    const encoded = encodeToToon(structured(result));
+    expect(new TextEncoder().encode(JSON.stringify(encoded)).byteLength).toBeLessThanOrEqual(
+      WIKI_SOURCE_RESULT_MAX_CHARS - 1_000,
+    );
+    expect(harness.advance).toHaveBeenCalledWith(
+      expect.any(String),
+      expect.arrayContaining([expect.objectContaining({ offset: 0, end: expect.any(Number) })]),
+    );
   });
 
   it("reports actual persisted imports, including quota and failed-create omissions", async () => {
@@ -317,10 +626,7 @@ describe("complete stored source coverage", () => {
     stored(Array.from({ length: 40 }, (_, i) => source(i + 1, `# Topic ${i}\n\n${ENGLISH}`)));
     const result = structured(
       await readWebsiteSourceTool("00000000-0000-4000-8000-00000000c001").execute({ action: "list" }),
-    ) as {
-      items: unknown[];
-      nextOffset: number | null;
-    };
+    ) as { items: unknown[]; nextOffset: number | null };
     expect(result.items).toHaveLength(40);
     expect(result.nextOffset).toBeNull();
   });
@@ -330,9 +636,7 @@ describe("complete stored source coverage", () => {
     stored(sources);
     const result = structured(
       await readWebsiteSourceTool("00000000-0000-4000-8000-00000000c001").execute({ action: "next" }),
-    ) as {
-      items: Array<{ id: string; offset: number; text: string }>;
-    };
+    ) as { items: Array<{ id: string; offset: number; text: string }> };
     expect(new TextEncoder().encode(JSON.stringify(encodeToToon(result))).byteLength).toBeLessThanOrEqual(
       WIKI_SOURCE_RESULT_MAX_CHARS,
     );

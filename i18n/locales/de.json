@@ -1358,6 +1358,7 @@
       "wikiHomepageSetupStartFailed": "Mate konnte die Wissensdatenbank-Einrichtung nicht starten. Bitte versuche es erneut.",
       "wikiImportKnowledgeOnly": "Eine Helpcenter-Erweiterung erstellt nur Wissensseiten; bestehende Anleitungen und Abläufe bleiben unverändert.",
       "wikiImportLanguageRequired": "Schreibe jede Seite auf {locale}. Übersetze die Quellen in diese Sprache. Es wurde nichts geändert.",
+      "wikiImportLinkInvalid": "Verwende die genauen Wissensdatenbank-Links aus der Quellenabfrage. Platzhalter-Links können nicht gespeichert werden.",
       "wikiImportNotFound": "Dieser Website-Import ist nicht mehr verfügbar. Es wurde nichts geändert.",
       "wikiImportPageLimit": "Dieser Import kann höchstens {maximum} Übersichtsseiten erstellen; {created} bestehen bereits: {titles}. Es wurde nichts geändert.",
       "wikiImportTitleInvalid": "Verwende einen einfachen Seitentitel ohne serialisierte Tool-Felder.",
@@ -1372,6 +1373,7 @@
       "wikiSourceCitationUnread": "Lies jede zitierte Quelle vollständig mit read_website_source; ungelesen: {ids}. Es wurde nichts geändert.",
       "wikiSourceCoverageRequired": "Lies alle verbleibenden Quellen mit read_website_source action=next, bevor du Seiten erstellst oder Quellen erneut liest. {remainingSources} Quellen sind noch offen. Es wurde nichts geändert.",
       "wikiSourceNotFound": "Unbekannte Quellen-ID. Rufe zuerst list auf.",
+      "wikiSourcePlanIncomplete": "Sende eine topics-Liste und berücksichtige vor dem Erstellen der Seiten jede gespeicherte Quelle und jede erforderliche Seitenrolle mit einem belegten Thema oder einer begründeten Auslassung. Nicht berücksichtigte Quellen-IDs: [{missingSourceIds}]. Fehlende oder ungültige Rollen: [{missingRoles}].",
       "wikiSourceReadOrder": "Lies der Reihe nach, ohne Text zu überspringen. Verwende next oder den gespeicherten nextOffset aus list.",
       "wikiWhenToUseRequired": "Ein Verfahren braucht eine kurze Beschreibung, wann es gilt."
     },

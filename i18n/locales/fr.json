@@ -1358,6 +1358,7 @@
       "wikiHomepageSetupStartFailed": "Mate n’a pas pu démarrer la configuration de la base de connaissances. Réessayez.",
       "wikiImportKnowledgeOnly": "Une extension du centre d’aide crée uniquement des pages de connaissances ; les guides et procédures existants restent inchangés.",
       "wikiImportLanguageRequired": "Rédigez chaque page en {locale}. Traduisez les sources dans cette langue. Rien n’a été modifié.",
+      "wikiImportLinkInvalid": "Utilisez les liens exacts de la base de connaissances renvoyés par la lecture des sources. Les liens fictifs ne peuvent pas être enregistrés.",
       "wikiImportNotFound": "Cet import du site web n’est plus disponible. Rien n’a été modifié.",
       "wikiImportPageLimit": "Cet import peut créer au maximum {maximum} pages de synthèse ; {created} existent déjà : {titles}. Rien n’a été modifié.",
       "wikiImportTitleInvalid": "Utilisez un titre de page simple sans champs d’outil sérialisés.",
@@ -1372,6 +1373,7 @@
       "wikiSourceCitationUnread": "Lisez chaque source citée entièrement avec read_website_source ; non lues : {ids}. Rien n’a été modifié.",
       "wikiSourceCoverageRequired": "Lisez toutes les sources restantes avec read_website_source action=next avant de créer des pages ou de relire des sources. Il reste {remainingSources} sources. Rien n’a été modifié.",
       "wikiSourceNotFound": "Identifiant de source inconnu. Appelez list d’abord.",
+      "wikiSourcePlanIncomplete": "Envoie une liste topics et, avant de créer des pages, prends en compte chaque source enregistrée et chaque rôle de page requis dans un sujet étayé ou une omission justifiée. Identifiants de sources non pris en compte : [{missingSourceIds}]. Rôles manquants ou non valides : [{missingRoles}].",
       "wikiSourceReadOrder": "Lisez dans l’ordre sans sauter de texte. Utilisez next ou le nextOffset enregistré par list.",
       "wikiWhenToUseRequired": "Une procédure doit indiquer brièvement quand l'utiliser."
     },

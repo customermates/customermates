@@ -9,9 +9,16 @@ import { TenantInteractor } from "@/core/decorators/tenant-interactor.decorator"
 import { Write } from "@/core/decorators/write.decorator";
 import { fail, failNotFound } from "@/core/validation/interactor-failure-server";
 import { CustomErrorCode } from "@/core/validation/validation.types";
+import { wikiPagePath } from "@/features/wiki/wiki-links";
 
 import { sourceFullyRead, wikiSourceCoverage, wikiSourcePayloadFits } from "./wiki-source-coverage";
-import { ReadWikiWebsiteSourcesSchema, ReadWikiWebsiteSourcesResultSchema } from "./wiki-crawl-synthesis.schema";
+import { wikiSourceHeadings } from "./wiki-source-inventory";
+import {
+  ReadWikiWebsiteSourcesSchema,
+  ReadWikiWebsiteSourcesResultSchema,
+  WIKI_SYNTHESIS_MAX_PAGES,
+  WIKI_SYNTHESIS_FOUNDATION_ROLES,
+} from "./wiki-crawl-synthesis.schema";
 
 const SOURCE_CHUNK_CHARACTERS = 12_000;
 type ReadSourcesData = Data<typeof ReadWikiWebsiteSourcesSchema>;
@@ -25,24 +32,93 @@ export class ReadWikiWebsiteSourcesInteractor extends AuthenticatedInteractor<Re
 
   @Write({ input: ReadWikiWebsiteSourcesSchema, output: ReadWikiWebsiteSourcesResultSchema })
   async invoke(data: ReadSourcesData): Validated<ReadSourcesResult> {
+    const crawl = await this.repo.getCrawl(data.crawlId);
+    if (!crawl) return failNotFound(CustomErrorCode.wikiImportNotFound, ["crawlId"]);
+    const pages = await this.repo.listSynthesizedPages(crawl.startedAt, WIKI_SYNTHESIS_MAX_PAGES);
+    const createdPageLinks = pages.map(({ id, title }) => ({ title, path: wikiPagePath(id) }));
     const coverage = await wikiSourceCoverage(this.repo, data.crawlId);
+    if (data.action === "plan") {
+      if (coverage.pending.length > 0)
+        return fail(CustomErrorCode.wikiSourceCoverageRequired, [], { remainingSources: coverage.pending.length });
+      const groups = [...(data.topics ?? []), ...(data.excluded ?? [])];
+      const accounted = new Set(groups.flatMap(({ sourceIds }) => sourceIds));
+      const sourceIds = new Set(coverage.sources.map(({ id }) => id));
+      const topicSources = new Set((data.topics ?? []).flatMap(({ sourceIds }) => sourceIds));
+      const excluded = (data.excluded ?? []).flatMap(({ sourceIds }) => sourceIds);
+      if (
+        [...accounted].some((id) => !sourceIds.has(id)) ||
+        groups.some(({ sourceIds }) => new Set(sourceIds).size !== sourceIds.length) ||
+        new Set(excluded).size !== excluded.length ||
+        excluded.some((id) => topicSources.has(id))
+      )
+        return fail(CustomErrorCode.wikiSourceCitationInvalid, ["topics"]);
+      const missingSourceIds = [...sourceIds].filter((id) => !accounted.has(id));
+      if (!data.topics || missingSourceIds.length > 0) {
+        return fail(CustomErrorCode.wikiSourcePlanIncomplete, ["topics"], {
+          missingSourceIds: missingSourceIds.join(", "),
+          missingRoles: "",
+        });
+      }
+      if (
+        data.topics.some(
+          (topic) => topic.role === "offering" && topic.sourceIds.every((id) => coverage.imported.has(id)),
+        )
+      )
+        return fail(CustomErrorCode.wikiSourceCitationInvalid, ["topics"]);
+      const titles = data.topics.map(({ title }) => title.toLowerCase());
+      if (new Set(titles).size !== titles.length) return fail(CustomErrorCode.wikiImportTitleInvalid, ["topics"]);
+      const omitted = data.omittedFoundations ?? [];
+      const roles = [...data.topics.map(({ role }) => role), ...omitted.map(({ role }) => role)];
+      const invalidRoles =
+        crawl.mode === "extend"
+          ? [
+              ...omitted.map(({ role }) => role),
+              ...data.topics.filter(({ role }) => role !== "offering").map(({ role }) => role),
+            ]
+          : [
+              ...WIKI_SYNTHESIS_FOUNDATION_ROLES.filter((role) => roles.filter((value) => value === role).length !== 1),
+              ...(roles.filter((role) => role === "operating_guide").length !== (data.topics.length > 0 ? 1 : 0)
+                ? ["operating_guide"]
+                : []),
+            ];
+      if (invalidRoles.length > 0) {
+        return fail(CustomErrorCode.wikiSourcePlanIncomplete, ["topics"], {
+          missingSourceIds: "",
+          missingRoles: [...new Set(invalidRoles)].join(", "),
+        });
+      }
+      return {
+        ok: true as const,
+        data: {
+          createdPageLinks,
+          remainingSources: 0,
+          importedSources: coverage.imported.size,
+          nextAction:
+            "get cited sources, then create every planned offering and foundation; the guide is last in a separate call",
+          items: [],
+          topicPlan: data.topics,
+        },
+      };
+    }
     if (data.action === "list") {
+      const headings = wikiSourceHeadings(coverage.sources);
       const start = Math.min(data.offset ?? 0, coverage.sources.length);
       const items = coverage.sources.slice(start, start + 40).map((source) => ({
         id: source.id,
         url: source.url,
         category: source.category,
         title: source.title,
-        headings: [...source.text.matchAll(/^#{1,4}\s+(.+)$/gm)].slice(0, 12).map((match) => match[1].slice(0, 120)),
+        headings: (headings.get(source.id) ?? []).slice(0, 12),
         chars: source.text.length,
         imported: coverage.imported.has(source.id),
         read: coverage.readHashes.has(source.contentHash),
         nextOffset: sourceFullyRead(source) ? null : source.readOffset,
       }));
-      while (items.length > 1 && !wikiSourcePayloadFits({ items })) items.pop();
+      while (items.length > 1 && !wikiSourcePayloadFits({ createdPageLinks, items })) items.pop();
       return {
         ok: true as const,
         data: {
+          createdPageLinks,
           remainingSources: coverage.pending.length,
           importedSources: coverage.imported.size,
           nextAction: coverage.pending.length ? "next" : "get cited sources, then create",
@@ -74,7 +150,7 @@ export class ReadWikiWebsiteSourcesInteractor extends AuthenticatedInteractor<Re
       return fail(CustomErrorCode.wikiSourceCoverageRequired, [], { remainingSources: coverage.pending.length });
 
     const chunks = items.filter((item) => item !== null);
-    while (!wikiSourcePayloadFits({ items: chunks })) {
+    while (!wikiSourcePayloadFits({ createdPageLinks, items: chunks })) {
       const last = chunks.reduce<(typeof chunks)[number] | undefined>(
         (largest, chunk) => (!largest || chunk.text.length > largest.text.length ? chunk : largest),
         undefined,
@@ -93,6 +169,7 @@ export class ReadWikiWebsiteSourcesInteractor extends AuthenticatedInteractor<Re
     return {
       ok: true as const,
       data: {
+        createdPageLinks,
         remainingSources: after.pending.length,
         importedSources: after.imported.size,
         nextAction: after.pending.length ? "next" : "get cited sources, then create",

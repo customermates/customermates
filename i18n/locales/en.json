@@ -1358,6 +1358,7 @@
       "wikiHomepageSetupStartFailed": "Mate could not start the Knowledge Base setup. Please try again.",
       "wikiImportKnowledgeOnly": "A help-centre extension creates knowledge pages only; existing guides and procedures stay unchanged.",
       "wikiImportLanguageRequired": "Write every page in {locale}. Translate the source content into that language. Nothing was changed.",
+      "wikiImportLinkInvalid": "Use the exact Knowledge Base page links returned by the source reader. Placeholder links cannot be saved.",
       "wikiImportNotFound": "This website import is no longer available. Nothing was changed.",
       "wikiImportPageLimit": "This import may create at most {maximum} summary pages; {created} exist: {titles}. Nothing was changed.",
       "wikiImportTitleInvalid": "Use a plain page title without serialized tool fields.",
@@ -1372,6 +1373,7 @@
       "wikiSourceCitationUnread": "Read each cited source completely with read_website_source before citing it; unread: {ids}. Nothing was changed.",
       "wikiSourceCoverageRequired": "Read all remaining stored evidence with read_website_source action=next before creating pages or rereading sources. {remainingSources} sources remain. Nothing was changed.",
       "wikiSourceNotFound": "Unknown source id. Call list first.",
+      "wikiSourcePlanIncomplete": "Send a topics list, then account for every stored source and each required page role with a supported topic or reasoned omission before creating pages. Unaccounted source IDs: [{missingSourceIds}]. Missing or invalid roles: [{missingRoles}].",
       "wikiSourceReadOrder": "Read sequentially without skipping text. Use next or the stored nextOffset from list.",
       "wikiWhenToUseRequired": "A procedure needs a short description of when to use it."
     },
