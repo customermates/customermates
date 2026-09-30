@@ -1,7 +1,9 @@
+import type { ExternalToast } from "sonner";
+
 import { isClientTransportError } from "./client-transport-error";
 import { captureError } from "./sentry-client";
 
-type ApplicationErrorHandler = (error: unknown) => void;
+type ApplicationErrorHandler = (error: unknown, options?: ExternalToast) => void;
 
 let activeHandler: ApplicationErrorHandler | null = null;
 
@@ -18,15 +20,15 @@ export function registerApplicationErrorHandler(handler: ApplicationErrorHandler
   };
 }
 
-export function reportApplicationError(error: unknown): void {
+export function reportApplicationError(error: unknown, options?: ExternalToast): void {
   if (!isDemoEnvironment() && !isClientTransportError(error)) captureError(error);
 
-  activeHandler?.(error);
+  activeHandler?.(error, ...(options ? [options] : []));
 }
 
 export function runUserAction(action: () => unknown): void {
   try {
-    void Promise.resolve(action()).catch(reportApplicationError);
+    void Promise.resolve(action()).catch((error: unknown) => reportApplicationError(error));
   } catch (error) {
     reportApplicationError(error);
   }

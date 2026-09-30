@@ -49,7 +49,7 @@ export const MessageItem = observer(({ message, accountOwner, senderAvatarUrl, i
   const isDeleted = message.isDeleted;
   const isEdited = Boolean(message.editedAt) && !isDeleted;
   const isDraft = message.isDraft;
-  const status = detail.messageStatus[message.id];
+  const status = compose.getDeliveryStatus(message.id) ?? detail.messageStatus[message.id];
   const isSending = status === "sending";
   const isFailed = status === "failed";
   const pendingFiles = isDraft ? compose.draftAttachments : (compose.pendingAttachments[message.id] ?? []);
@@ -246,14 +246,7 @@ export const MessageItem = observer(({ message, accountOwner, senderAvatarUrl, i
                     <TooltipContent>{t("Inbox.compose.draftDiscard")}</TooltipContent>
                   </Tooltip>
 
-                  <Button
-                    size="xs"
-                    type="button"
-                    onClick={() => {
-                      compose.loadDraft(message);
-                      runUserAction(() => compose.send());
-                    }}
-                  >
+                  <Button size="xs" type="button" onClick={() => runUserAction(() => compose.sendDraft(message))}>
                     <Send />
 
                     {t("Inbox.compose.draftSendNow")}
