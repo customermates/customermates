@@ -38,6 +38,8 @@ A request with no `x-api-key` header and no valid bearer token (missing, expired
 
 The endpoint and API keys are available on every plan and on self-hosted instances. Only the messaging, calendar and social tools need a plan with messaging (Pro or higher, cloud only); see [Messaging](/docs/mcp#messaging).
 
+Directories can discover the server without a CRM connection at `<BASE_URL>/.well-known/mcp/server-card.json`. This public, generated file contains the server identity, authentication requirements, tool definitions and prompt metadata. It contains no workspace records, credentials or tool results. Tools still require the authentication and permissions described above. A directory listing does not grant access to your CRM. Maintainers regenerate the file with `yarn mcp:generate-card` after changing tool definitions; development, builds and CI regenerate it automatically.
+
 ## Connect a client
 
 Getting an AI client onto your workspace is the same three moves every time:

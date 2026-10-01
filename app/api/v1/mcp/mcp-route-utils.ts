@@ -6,6 +6,7 @@ import * as Sentry from "@sentry/nextjs";
 import { redactUnexpectedError } from "@/core/errors/redact-unexpected-error";
 import { executeMcpTool, type McpTool } from "@/features/mcp-tools/mcp-tool";
 import { GET_STARTED_PROMPT, MCP_SERVER_INSTRUCTIONS } from "@/features/mcp-tools/server-instructions";
+import { MCP_GET_STARTED_PROMPT_INFO, MCP_SERVER_INFO } from "@/features/mcp-tools/server-metadata";
 import { env } from "@/env";
 
 export type { McpTool, McpToolResult } from "@/features/mcp-tools/mcp-tool";
@@ -56,10 +57,10 @@ function registerAllTools(server: Parameters<Parameters<typeof createMcpHandler>
 
 function registerPrompts(server: Parameters<Parameters<typeof createMcpHandler>[0]>[0]) {
   server.registerPrompt(
-    "get-started",
+    MCP_GET_STARTED_PROMPT_INFO.name,
     {
-      title: "Get started",
-      description: "Personalized CRM kickoff: interview the user, then summarize the workspace",
+      title: MCP_GET_STARTED_PROMPT_INFO.title,
+      description: MCP_GET_STARTED_PROMPT_INFO.description,
     },
     () => ({
       messages: [
@@ -130,7 +131,7 @@ export function createMcpRoute(
         registerAllTools(server, tools);
         registerPrompts(server);
       },
-      { instructions: MCP_SERVER_INSTRUCTIONS },
+      { instructions: MCP_SERVER_INSTRUCTIONS, serverInfo: MCP_SERVER_INFO },
       { streamableHttpEndpoint: endpoint },
     );
     handlers.set(toolsetKey, handler);
