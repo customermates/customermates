@@ -51,14 +51,26 @@ export function compileRecordSearch(
     const scope = access.get(type.id) ?? { access: "none" as const, userId: "" };
     const matching =
       "refs" in request
-        ? Prisma.sql`record.id IN (${Prisma.join(request.refs.filter((ref) => ref.typeId === type.id).map((ref) => ref.recordId))})`
-        : Prisma.sql`record.id IN (${compileRecordQuery(companyId, RecordQuerySchema.parse({ typeId: type.id, search: request.search.searchTerm }), model, access).matching})`;
+        ? Prisma.sql`SELECT id FROM "CrmRecord" WHERE "companyId" = ${companyId} AND "typeId" = ${type.id}
+          AND id IN (${Prisma.join(request.refs.filter((ref) => ref.typeId === type.id).map((ref) => ref.recordId))})`
+        : compileRecordQuery(
+            companyId,
+            RecordQuerySchema.parse({ typeId: type.id, search: request.search.searchTerm }),
+            model,
+            access,
+          ).matching;
     const after = cursor
       ? Prisma.sql`(record."createdAt" < (${cursor.createdAt}::timestamptz AT TIME ZONE 'UTC') OR (record."createdAt" = (${cursor.createdAt}::timestamptz AT TIME ZONE 'UTC') AND (${type.id}, record.id) > (${cursor.ref.typeId}, ${cursor.ref.recordId})))`
       : Prisma.sql`TRUE`;
-    const candidates = Prisma.sql`SELECT record.id, record."typeId", record."createdAt" FROM "CrmRecord" record
+    const candidates = Prisma.sql`WITH matches AS MATERIALIZED (${matching})
+      SELECT record.id, record."typeId", record."createdAt" FROM matches matched
+      JOIN LATERAL (
+        SELECT id, "companyId", "typeId", "createdAt" FROM "CrmRecord"
+        WHERE "companyId" = ${companyId} AND "typeId" = ${type.id} AND id = matched.id
+        OFFSET 0
+      ) record ON TRUE
       WHERE record."companyId" = ${companyId} AND record."typeId" = ${type.id}
-        AND ${recordReadPredicate(companyId, scope, root)} AND ${matching} AND ${after}
+        AND ${recordReadPredicate(companyId, scope, root)} AND ${after}
       ORDER BY record."createdAt" DESC, record.id ASC LIMIT ${pageLimit}`;
     return Prisma.sql`SELECT record."typeId", record.id AS "recordId", record."createdAt",
       CASE WHEN ${titleAccess} THEN COALESCE(title.state, 'missing') ELSE 'restricted' END AS state,

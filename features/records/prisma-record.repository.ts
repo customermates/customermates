@@ -252,15 +252,7 @@ export class PrismaRecordRepo extends UserAccessor implements RecordRepo {
             leaseUntil: null,
           },
         });
-        if (result.count) {
-          await this.prisma.recordSchemaState.updateMany({
-            where: {
-              companyId: input.companyId,
-              activeOperationId: input.operationId,
-            },
-            data: { activeOperationId: null },
-          });
-        }
+        if (result.count) await this.releaseTerminalOperation(input.companyId, input.operationId);
       },
       { companyId: input.companyId },
     );
@@ -1399,9 +1391,21 @@ export class PrismaRecordRepo extends UserAccessor implements RecordRepo {
   }
 
   async clearOperationLock(id: string): Promise<void> {
+    await this.releaseTerminalOperation(this.companyId, id);
+  }
+
+  private async releaseTerminalOperation(companyId: string, id: string): Promise<void> {
+    const operation = await this.prisma.recordOperation.findUnique({
+      where: { companyId, companyId_id: { companyId, id } },
+      select: { state: true },
+    });
+    if (!operation) return;
+    if (!["completed", "cancelled", "failed"].includes(operation.state))
+      throw new RecordWriteError(CustomErrorCode.recordVersionChanged, "conflict");
     await this.prisma.recordSchemaState.updateMany({
-      where: { companyId: this.companyId, activeOperationId: id },
+      where: { companyId, activeOperationId: id },
       data: { activeOperationId: null },
     });
+    await this.prisma.recordStageRow.deleteMany({ where: { companyId, operationId: id } });
   }
 }

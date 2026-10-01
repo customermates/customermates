@@ -36,7 +36,7 @@ vi.mock("next-intl/server", () => ({
 const { prisma } = await import("@/prisma/db");
 const { runWithTenant, runWithoutTenant } = await import("@/core/decorators/tenant-context");
 const { runInTransaction } = await import("@/core/decorators/transaction-runner");
-const { transactionStorage } = await import("@/core/decorators/transaction-context");
+const { transactionStorage, getTransactionClient } = await import("@/core/decorators/transaction-context");
 const { PrismaRecordRepo } = await import("../prisma-record.repository");
 const { ExportRecordsInteractor } = await import("@/features/data-transfer/export/export-records.interactor");
 const { ImportRecordsInteractor } = await import("@/features/data-transfer/import/import-records.interactor");
@@ -2489,6 +2489,9 @@ describeDatabase("configurable record engine", { timeout: 30000 }, () => {
         ).toEqual(events);
       } else expect(await liveGraph()).toEqual(before);
       expect((await f.run(() => f.repo.getState()))?.activeOperationId).toBeNull();
+      expect(await f.run(() => prisma.recordStageRow.count({ where: { companyId: f.company.id, operationId } }))).toBe(
+        0,
+      );
     },
   );
 
@@ -3721,7 +3724,7 @@ describeDatabase("configurable record engine", { timeout: 30000 }, () => {
     );
     expect(await f.run(() => getUpsertRoleInteractor().invoke(input))).toMatchObject({ ok: false });
     expect(await f.run(() => getGetRoleEditorInteractor().invoke({}))).toMatchObject({ ok: true });
-    await f.run(() => runInTransaction(() => f.repo.clearOperationLock(operationId)));
+    expect(await f.run(() => f.cancel.invoke({ operationId }))).toMatchObject({ ok: true });
     const events = getEventService();
     vi.spyOn(events, "publish").mockRejectedValue(new Error("Simulated audit failure"));
     const service = new RoleManagementService(
@@ -5484,7 +5487,7 @@ describeDatabase("configurable record engine", { timeout: 30000 }, () => {
     expect(await f.run(() => executeMcpTool(manageRecordDetailLayoutV2Tool, [reset]), f.member)).toMatchObject({
       ok: false,
     });
-    await f.run(() => runInTransaction(() => f.repo.clearOperationLock(operationId)));
+    expect(await f.run(() => f.cancel.invoke({ operationId }))).toMatchObject({ ok: true });
     expect(await f.run(() => executeMcpTool(manageRecordDetailLayoutV2Tool, [reset]), f.member)).toMatchObject({
       ok: true,
       structuredContent: { hasPersonalization: false },
@@ -5737,6 +5740,7 @@ describeDatabase("configurable record engine", { timeout: 30000 }, () => {
     await f.run(() =>
       runInTransaction(async () => {
         await f.repo.publishStage(operationId, 1);
+        await f.repo.updateOperation(operationId, { state: "completed" });
         await f.repo.clearOperationLock(operationId);
       }),
     );
@@ -11557,9 +11561,26 @@ describeDatabase("configurable record engine", { timeout: 30000 }, () => {
       });
       expect(await operationEvents()).toEqual([]);
     }
-    expect(await f.run(() => f.worker().advance(operationId))).toEqual({
-      done: true,
+    const originalCleanup = f.repo.clearOperationLock.bind(f.repo);
+    const interruptedCleanup = vi.spyOn(f.repo, "clearOperationLock").mockImplementationOnce(async (id) => {
+      await originalCleanup(id);
+      throw new Error("Publication interrupted after shadow cleanup");
     });
+    try {
+      await expect(f.run(() => f.worker().advance(operationId))).rejects.toThrow(
+        "Publication interrupted after shadow cleanup",
+      );
+    } finally {
+      interruptedCleanup.mockRestore();
+    }
+    expect(await f.value(service, "service.amount")).toEqual({ state: "value", value: decimal("10") });
+    expect(await f.value(deal, "deal.totalValue")).toEqual({ state: "value", value: decimal("20") });
+    expect(await operationEvents()).toEqual([]);
+    expect((await f.run(() => f.repo.getState()))?.activeOperationId).toBe(operationId);
+    expect(
+      await f.run(() => prisma.recordStageRow.count({ where: { companyId: f.company.id, operationId } })),
+    ).toBeGreaterThan(0);
+    expect(await f.run(() => f.worker().advance(operationId))).toEqual({ done: true });
     expect(await f.value(service, "service.amount")).toEqual({
       state: "value",
       value: decimal("12"),
@@ -11580,6 +11601,7 @@ describeDatabase("configurable record engine", { timeout: 30000 }, () => {
       after: { value: { state: "value", value: decimal("24") } },
     });
     expect((await f.run(() => f.repo.getState()))?.activeOperationId).toBeNull();
+    expect(await f.run(() => prisma.recordStageRow.count({ where: { companyId: f.company.id, operationId } }))).toBe(0);
     expect(await f.run(() => f.worker().advance(operationId))).toEqual({
       done: true,
     });
@@ -11588,6 +11610,90 @@ describeDatabase("configurable record engine", { timeout: 30000 }, () => {
       ok: true,
       data: { state: "completed" },
     });
+  });
+
+  it("retains recoverable staging and its write pause until an operation becomes terminal", async () => {
+    const f = await fixture();
+    const service = await f.create("service", "Recoverable source");
+    const operationId = randomUUID();
+    await f.run(() =>
+      runInTransaction(() =>
+        f.repo.createOperation({
+          id: operationId,
+          userId: f.admin.id,
+          kind: "mutation",
+          expectedRevision: 1,
+          request: {
+            expectedRevision: 1,
+            idempotencyKey: randomUUID(),
+            mutation: {
+              action: "update",
+              ref: service,
+              expectedVersion: 1,
+              fields: [{ fieldId: f.id("service.name"), value: textValue("Unpublished source") }],
+            },
+          },
+        }),
+      ),
+    );
+    await f.run(() => f.worker().advance(operationId));
+    const staged = await f.run(() => f.repo.getStageRows(operationId, "record"));
+    expect(staged.length).toBeGreaterThan(0);
+    await expect(f.run(() => runInTransaction(() => f.repo.clearOperationLock(operationId)))).rejects.toThrow(
+      CustomErrorCode.recordVersionChanged,
+    );
+    expect(await f.run(() => f.repo.getStageRows(operationId, "record"))).toEqual(staged);
+    expect((await f.run(() => f.repo.getState()))?.activeOperationId).toBe(operationId);
+    await f.run(() => f.worker().fail(operationId, "worker_failed"));
+    expect(await f.run(() => f.repo.getOperation(operationId))).toMatchObject({
+      state: "failed",
+      errorCode: "worker_failed",
+    });
+    expect(await f.run(() => prisma.recordStageRow.count({ where: { companyId: f.company.id, operationId } }))).toBe(0);
+    expect((await f.run(() => f.repo.getState()))?.activeOperationId).toBeNull();
+    expect(await f.value(service, "service.name")).toEqual({ state: "value", value: textValue("Recoverable source") });
+  });
+
+  it("cleans a failed background operation's shadow rows without touching another workspace's colliding operation ID", async () => {
+    const f = await fixture();
+    const other = await fixture();
+    const operationId = randomUUID();
+    for (const workspace of [f, other]) {
+      const service = await workspace.create("service", "Isolated source");
+      await workspace.run(() =>
+        runInTransaction(() =>
+          workspace.repo.createOperation({
+            id: operationId,
+            userId: workspace.admin.id,
+            kind: "mutation",
+            expectedRevision: 1,
+            request: {
+              expectedRevision: 1,
+              idempotencyKey: randomUUID(),
+              mutation: {
+                action: "update",
+                ref: service,
+                expectedVersion: 1,
+                fields: [{ fieldId: workspace.id("service.name"), value: textValue("Unpublished") }],
+              },
+            },
+          }),
+        ),
+      );
+      await workspace.run(() => workspace.worker().advance(operationId));
+    }
+    await f.repo.failOperationUnscoped({ companyId: f.company.id, userId: other.admin.id, operationId });
+    expect(await f.run(() => f.repo.getOperation(operationId))).toMatchObject({ state: "staging" });
+    await f.repo.failOperationUnscoped({ companyId: f.company.id, userId: f.admin.id, operationId });
+    expect(await f.run(() => f.repo.getOperation(operationId))).toMatchObject({
+      state: "failed",
+      errorCode: "worker_failed",
+    });
+    expect(await f.run(() => prisma.recordStageRow.count({ where: { companyId: f.company.id, operationId } }))).toBe(0);
+    expect((await f.run(() => f.repo.getState()))?.activeOperationId).toBeNull();
+    expect(await other.run(() => other.repo.getOperation(operationId))).toMatchObject({ state: "staging" });
+    expect((await other.run(() => other.repo.getStageRows(operationId, "record"))).length).toBeGreaterThan(0);
+    expect((await other.run(() => other.repo.getState()))?.activeOperationId).toBe(operationId);
   });
 
   it("cancels a staged mutation without changing live data or accepting cross-workspace operation IDs", async () => {
@@ -11997,6 +12103,118 @@ describeDatabase("configurable record engine", { timeout: 30000 }, () => {
     expect(readable.ok && readable.data.results).toHaveLength(2);
   });
 
+  it(
+    "pages older scalar, collection and identity matches through a large recent-record set within the query deadline",
+    { timeout: 60000 },
+    async () => {
+      const f = await fixture();
+      const typeId = f.id("contact");
+      const { publishedSummary, ...definition } = recordInvariant(
+        f.model.fields.find((field) => field.id === f.id("contact.firstName")),
+      );
+      expect(publishedSummary).toBe(false);
+      const scalarFields = Array.from({ length: 12 }, (_, index) => ({
+        ...definition,
+        id: randomUUID(),
+        label: `Search detail ${index + 1}`,
+        required: false,
+        position: 1000 + index,
+      }));
+      const collection = {
+        ...scalarFields[0],
+        id: randomUUID(),
+        label: "Search aliases",
+        multiple: true,
+        position: 1012,
+      };
+      expect(
+        await f.run(() =>
+          f.configure.invoke({
+            expectedRevision: 1,
+            idempotencyKey: randomUUID(),
+            operations: [...scalarFields, collection].map((field) => ({ operation: "putField" as const, field })),
+          }),
+        ),
+      ).toMatchObject({ ok: true, data: { status: "completed" } });
+      const ids = Array.from({ length: 3003 }, () => randomUUID());
+      const primaryFieldId = recordInvariant(f.model.types.find((type) => type.id === typeId)).primaryFieldId;
+      const searchTerm = "rare-scale-signal";
+      await f.run(() =>
+        runInTransaction(
+          async () => {
+            const tx = recordInvariant(getTransactionClient<typeof prisma>());
+            await tx.crmRecord.createMany({
+              data: ids.map((id, index) => ({
+                companyId: f.company.id,
+                typeId,
+                id,
+                createdAt: new Date(index < 3 ? "2026-09-28T10:00:00Z" : "2026-09-30T10:00:00Z"),
+              })),
+            });
+            for (let offset = 0; offset < ids.length; offset += 300) {
+              const values: Prisma.RecordValueCreateManyInput[] = ids
+                .slice(offset, offset + 300)
+                .flatMap((recordId, index) => {
+                  const match = offset + index;
+                  const base = { companyId: f.company.id, typeId, recordId, state: "value", schemaRevision: 2 };
+                  return [
+                    { ...base, fieldId: primaryFieldId, textValue: `Search fixture ${match}` },
+                    ...scalarFields.map((field, fieldIndex) => ({
+                      ...base,
+                      fieldId: field.id,
+                      textValue: match === 0 && fieldIndex < 2 ? searchTerm : `Unrelated detail ${fieldIndex}`,
+                    })),
+                    {
+                      ...base,
+                      fieldId: collection.id,
+                      textListValue: match < 2 ? [searchTerm, searchTerm] : ["unrelated alias"],
+                    },
+                  ];
+                });
+              await tx.recordValue.createMany({ data: values });
+            }
+            await f.repo.setIdentities({ typeId, recordId: ids[2] }, [
+              { provider: "mail", value: `${searchTerm}@example.test` },
+            ]);
+          },
+          { timeout: 30000 },
+        ),
+      );
+      await f.run(() =>
+        runInTransaction(
+          async () => {
+            const tx = recordInvariant(getTransactionClient<typeof prisma>());
+            await tx.$executeRaw`SET LOCAL statement_timeout = '2s'`;
+            expect(await tx.$queryRaw<Array<{ statement_timeout: string }>>`SHOW statement_timeout`).toEqual([
+              { statement_timeout: "2s" },
+            ]);
+            const list = await f.query.invoke(
+              RecordQuerySchema.parse({ typeId, search: searchTerm, fields: [primaryFieldId], pageSize: 25 }),
+            );
+            expect(list).toMatchObject({ ok: true, data: { total: 3 } });
+            if (!list.ok) throw list.error;
+            expect(list.data.records.map((record) => record.ref.recordId)).toEqual(ids.slice(0, 3).sort());
+            const refs: RecordRef[] = [];
+            let cursor: RecordSearch["cursor"] = null;
+            do {
+              const result = await f.search.invoke(RecordSearchSchema.parse({ searchTerm, limit: 1, cursor }));
+              if (!result.ok) throw result.error;
+              refs.push(...result.data.results.map((hit) => hit.ref));
+              cursor = result.data.nextCursor;
+            } while (cursor);
+            expect(refs).toEqual(
+              ids
+                .slice(0, 3)
+                .sort()
+                .map((recordId) => ({ typeId, recordId })),
+            );
+          },
+          { readOnly: true, timeout: 30000 },
+        ),
+      );
+    },
+  );
+
   it("searches collection elements literally without joining values or accepting SQL patterns", async () => {
     const f = await fixture();
     const organization = await f.create("organization", "Ordinary title");
@@ -12302,6 +12520,16 @@ describeDatabase("provider avatar updates through the generic engine", { timeout
       );
       expect(events).toHaveLength(502);
       expect(events.every((event) => RecordEventPayloadSchema.parse(event.payload).afterVersion === 2)).toBe(true);
+      expect(
+        await f.run(() =>
+          prisma.recordStageRow.count({
+            where: {
+              companyId: f.company.id,
+              operation: { state: { in: ["completed", "cancelled", "failed"] } },
+            },
+          }),
+        ),
+      ).toBe(0);
     },
   );
 });

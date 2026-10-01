@@ -201,41 +201,56 @@ export function compileRecordQuery(
     Prisma.sql`${record}."typeId" = ${query.typeId}`,
     recordReadPredicate(companyId, scope, record),
   ];
+  let searchSource = Prisma.empty;
   if (query.search) {
     const searchable = [...fields.values()].filter((field) =>
       ["text", "email", "phone", "url"].includes(field.valueType),
     );
     const search = `%${query.search.replace(/[\\%_]/g, "\\$&")}%`;
     const matches: Prisma.Sql[] = [];
+    const searchRecord = Prisma.sql`search_record`;
+    const searchRecordSource = Prisma.sql`JOIN LATERAL (
+      SELECT id, "typeId" FROM "CrmRecord"
+      WHERE "companyId" = ${companyId} AND "typeId" = ${query.typeId} AND id = value."recordId"
+      OFFSET 0
+    ) ${searchRecord} ON TRUE`;
     const scalarFields = searchable.filter((field) => !field.multiple);
     if (scalarFields.length) {
       const permitted = scalarFields.map(
         (field) =>
-          Prisma.sql`(value."fieldId" = ${field.id} AND ${fieldReadPredicate(companyId, field, model, access, record)})`,
+          Prisma.sql`(value."fieldId" = ${field.id} AND ${fieldReadPredicate(companyId, field, model, access, searchRecord)})`,
       );
-      matches.push(Prisma.sql`EXISTS (SELECT 1 FROM "RecordValue" value
-        WHERE value."companyId" = ${companyId} AND value."typeId" = ${query.typeId}
-          AND value."recordId" = ${record}.id AND value.state = 'value'
-          AND value."textValue" ILIKE ${search} AND (${Prisma.join(permitted, " OR ")}))`);
+      matches.push(Prisma.sql`WITH scalar_matches AS MATERIALIZED (
+        SELECT "recordId", "fieldId" FROM "RecordValue"
+        WHERE "companyId" = ${companyId} AND "typeId" = ${query.typeId}
+          AND state = 'value' AND "textValue" ILIKE ${search}
+      )
+        SELECT value."recordId" AS id FROM scalar_matches value
+        ${searchRecordSource}
+        WHERE (${Prisma.join(permitted, " OR ")})`);
     }
     const collectionFields = searchable.filter((field) => field.multiple);
     if (collectionFields.length) {
       const permitted = collectionFields.map(
         (field) =>
-          Prisma.sql`(value."fieldId" = ${field.id} AND ${fieldReadPredicate(companyId, field, model, access, record)})`,
+          Prisma.sql`(value."fieldId" = ${field.id} AND ${fieldReadPredicate(companyId, field, model, access, searchRecord)})`,
       );
-      matches.push(Prisma.sql`EXISTS (SELECT 1 FROM "RecordValue" value
+      matches.push(Prisma.sql`SELECT value."recordId" AS id FROM "RecordValue" value
+        ${searchRecordSource}
         CROSS JOIN LATERAL UNNEST(value."textListValue") element
         WHERE value."companyId" = ${companyId} AND value."typeId" = ${query.typeId}
-          AND value."recordId" = ${record}.id AND value.state = 'value'
-          AND element ILIKE ${search} AND (${Prisma.join(permitted, " OR ")}))`);
+          AND value.state = 'value'
+          AND element ILIKE ${search} AND (${Prisma.join(permitted, " OR ")})`);
     }
     if (model.capabilities.some((binding) => binding.kind === "personIdentity" && binding.typeId === query.typeId)) {
-      matches.push(Prisma.sql`EXISTS (SELECT 1 FROM "RecordIdentity" identity WHERE identity."companyId" = ${companyId}
-        AND identity."typeId" = ${query.typeId} AND identity."recordId" = ${record}.id
-        AND (identity.value ILIKE ${search} OR identity."messagingId" ILIKE ${search}))`);
+      matches.push(Prisma.sql`SELECT identity."recordId" AS id FROM "RecordIdentity" identity
+        WHERE identity."companyId" = ${companyId} AND identity."typeId" = ${query.typeId}
+        AND (identity.value ILIKE ${search} OR identity."messagingId" ILIKE ${search})`);
     }
-    conditions.push(matches.length ? Prisma.sql`(${Prisma.join(matches, " OR ")})` : Prisma.sql`FALSE`);
+    if (matches.length) {
+      searchSource = Prisma.sql`WITH search_candidates AS MATERIALIZED (${Prisma.join(matches, " UNION ")})`;
+      conditions.push(Prisma.sql`${record}.id IN (SELECT id FROM search_candidates)`);
+    } else conditions.push(Prisma.sql`FALSE`);
   }
   for (const filter of query.filters) {
     if (RecordSystemColumnSchema.safeParse(filter.fieldId).success) {
@@ -414,9 +429,9 @@ export function compileRecordQuery(
   ordering.push(Prisma.sql`${record}."createdAt" DESC`, Prisma.sql`${record}."id" ASC`);
   const source = Prisma.sql`FROM "CrmRecord" ${record} WHERE ${Prisma.join(conditions, " AND ")}`;
   return {
-    matching: Prisma.sql`SELECT ${record}."id" ${source}`,
-    ordered: Prisma.sql`SELECT ${record}.*, ROW_NUMBER() OVER (ORDER BY ${Prisma.join(ordering, ", ")}) AS ordinal ${source}`,
-    ids: Prisma.sql`SELECT ${record}."id" ${source} ORDER BY ${Prisma.join(ordering, ", ")} LIMIT ${query.pageSize} OFFSET ${(query.page - 1) * query.pageSize}`,
-    count: Prisma.sql`SELECT COUNT(*)::integer AS count ${source}`,
+    matching: Prisma.sql`${searchSource} SELECT ${record}."id" ${source}`,
+    ordered: Prisma.sql`${searchSource} SELECT ${record}.*, ROW_NUMBER() OVER (ORDER BY ${Prisma.join(ordering, ", ")}) AS ordinal ${source}`,
+    ids: Prisma.sql`${searchSource} SELECT ${record}."id" ${source} ORDER BY ${Prisma.join(ordering, ", ")} LIMIT ${query.pageSize} OFFSET ${(query.page - 1) * query.pageSize}`,
+    count: Prisma.sql`${searchSource} SELECT COUNT(*)::integer AS count ${source}`,
   };
 }
