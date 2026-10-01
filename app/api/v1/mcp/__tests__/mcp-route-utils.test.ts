@@ -5,6 +5,8 @@ import { createZodError } from "@/core/validation/validation.utils";
 import { CustomErrorCode } from "@/core/validation/validation.types";
 import { manageCustomColumnsTool } from "@/features/mcp-tools/custom-column.mcp-tools";
 import { mcpInteractorFailure, type McpTool } from "@/features/mcp-tools/mcp-tool";
+import { MCP_SERVER_INFO } from "@/features/mcp-tools/server-metadata";
+import { buildMcpServerCard } from "@/features/mcp-tools/server-card";
 
 const sentry = vi.hoisted(() => ({ captureException: vi.fn() }));
 
@@ -96,10 +98,14 @@ describe("public MCP execution boundary", () => {
     const sessionId = initialized.response.headers.get("mcp-session-id") ?? undefined;
 
     expect(initialized.response.status).toBe(200);
+    expect(initialized.data?.result).toMatchObject({ serverInfo: MCP_SERVER_INFO });
     if (sessionId) await rpc(handler, requestBody("notifications/initialized"), sessionId);
 
     const listed = await rpc(handler, requestBody("tools/list", 2), sessionId);
     const tools = (listed.data?.result as { tools?: Array<Record<string, unknown>> } | undefined)?.tools ?? [];
+    expect(tools).toEqual(
+      buildMcpServerCard([expectedFailureTool, unexpectedFailureTool, manageCustomColumnsTool]).tools,
+    );
     const expectedDefinition = tools.find((tool) => tool.name === "expected_failure");
     expect(expectedDefinition?.outputSchema).toMatchObject({
       type: "object",

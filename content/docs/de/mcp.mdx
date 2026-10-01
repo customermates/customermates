@@ -38,6 +38,8 @@ Eine Anfrage ohne `x-api-key`-Header und ohne gültiges Bearer-Token (fehlend, a
 
 Der Endpoint und API-Keys stehen in jedem Tarif und auf selbst gehosteten Instanzen zur Verfügung. Nur die Messaging-, Kalender- und Social-Tools brauchen einen Tarif mit Messaging (ab Pro, nur Cloud); siehe [Messaging](/docs/mcp#messaging).
 
+Verzeichnisse können den Server unter `<BASE_URL>/.well-known/mcp/server-card.json` ohne CRM-Verbindung entdecken. Die öffentlich verfügbare, generierte Datei enthält die Server-Identität, Anforderungen an die Authentifizierung, Tool-Definitionen und Prompt-Metadaten. Sie enthält keine Workspace-Datensätze, Zugangsdaten oder Tool-Ergebnisse. Für die Tools gelten weiterhin die oben beschriebenen Anforderungen an Authentifizierung und Rechte. Ein Verzeichniseintrag gewährt keinen Zugriff auf Ihr CRM. Maintainer generieren die Datei nach Änderungen an Tool-Definitionen mit `yarn mcp:generate-card` neu; Entwicklung, Builds und CI führen das automatisch aus.
+
 ## Client verbinden [#connect-a-client]
 
 Einen AI-Client mit dem Workspace zu verbinden sind immer dieselben drei Schritte:
