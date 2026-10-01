@@ -291,6 +291,187 @@ describe("search and page section coherence", () => {
     expect(deps.repo.storedBuild).toHaveBeenCalledTimes(2);
   });
 
+  it.each([
+    { query: "webhooks page URL", anchor: "webhooks-tab" },
+    { query: "link to the members page", anchor: "members-tab" },
+  ])(
+    "retains a chosen child section's canonical Link within the page excerpt cap: $anchor",
+    async ({ query, anchor }) => {
+      const sections = docsCorpusSections("docs", "en");
+      const overview = sections.find(
+        (section) => section.slug === "app-company" && section.anchor === "what-lives-on-the-company-screen",
+      );
+      const destination = sections.find((section) => section.slug === "app-company" && section.anchor === anchor);
+      if (!overview || !destination) throw new Error("Missing selected navigation metadata fixtures.");
+      const expectedLink = destination.text
+        .split("\n")
+        .find((line) => line.startsWith("**Link:**"))
+        ?.split("**Mate:**")[0]
+        .trimEnd();
+      if (!expectedLink) throw new Error("Selected child lost its canonical Link metadata.");
+      const ranker = (_query: string, candidates: readonly RankableSection[]) =>
+        Promise.resolve({
+          order: [overview, destination].flatMap((section) => {
+            const choice = candidates.find((candidate) => candidate.section === section);
+            return choice ? [choice.id] : [];
+          }),
+          abstained: false,
+        });
+      const deps = { repo: repo([row(overview), row(destination)]), embed: null, ranker };
+      const search = await unifiedDocsSearchResult({ query, locale: "en", source: "docs" }, deps);
+      const page = await unifiedDocsPageResult({ slug: "app-company", query, locale: "en", source: "docs" }, deps);
+      const markdown = (page as { structuredContent: { markdown: string } }).structuredContent.markdown;
+      expect(search.structuredContent.results[0]).toMatchObject({ slug: "app-company", anchor: overview.anchor });
+      expect(markdown.split("\n")[0]).toContain(overview.headingPath.at(-1));
+      expect(markdown.length).toBeLessThanOrEqual(1_400);
+      expect(markdown.split("\n").find((line) => line.startsWith("**Link:**"))).toBe(expectedLink);
+      const destinationHeading = `${"#".repeat(Math.min(3, destination.headingPath.length + 1))} ${destination.headingPath.at(-1)}`;
+      expect(markdown).toContain(`${destinationHeading}\n\n${expectedLink}`);
+    },
+  );
+
+  it("prioritizes the first chosen section's own Link metadata", async () => {
+    const sections = docsCorpusSections("docs", "en");
+    const primary = sections.find((section) => section.slug === "app-company" && section.anchor === "webhooks-tab");
+    const secondary = sections.find((section) => section.slug === "app-company" && section.anchor === "members-tab");
+    if (!primary || !secondary) throw new Error("Missing primary navigation metadata fixtures.");
+    const expectedLink = primary.text
+      .split("\n")
+      .find((line) => line.startsWith("**Link:**"))
+      ?.split("**Mate:**")[0]
+      .trimEnd();
+    if (!expectedLink) throw new Error("Primary section lost its canonical Link metadata.");
+    const ranker = (_query: string, candidates: readonly RankableSection[]) =>
+      Promise.resolve({
+        order: [primary, secondary].flatMap((section) => {
+          const choice = candidates.find((candidate) => candidate.section === section);
+          return choice ? [choice.id] : [];
+        }),
+        abstained: false,
+      });
+    const page = await unifiedDocsPageResult(
+      { slug: "app-company", query: "webhooks page URL", locale: "en", source: "docs" },
+      { repo: repo([row(primary), row(secondary)]), embed: null, ranker },
+    );
+    const markdown = (page as { structuredContent: { markdown: string } }).structuredContent.markdown;
+    expect(markdown.split("\n")[0]).toContain(primary.headingPath.at(-1));
+    expect(markdown.length).toBeLessThanOrEqual(1_400);
+    expect(markdown.split("\n").find((line) => line.startsWith("**Link:**"))).toBe(expectedLink);
+  });
+
+  it("does not borrow Link metadata from an offered but unselected child section", async () => {
+    const sections = docsCorpusSections("docs", "en");
+    const overview = sections.find(
+      (section) => section.slug === "app-company" && section.anchor === "what-lives-on-the-company-screen",
+    );
+    const destination = sections.find((section) => section.slug === "app-company" && section.anchor === "webhooks-tab");
+    if (!overview || !destination) throw new Error("Missing unselected navigation metadata fixtures.");
+    const ranker = (_query: string, candidates: readonly RankableSection[]) => {
+      const choice = candidates.find((candidate) => candidate.section === overview);
+      return Promise.resolve(choice ? { order: [choice.id], abstained: false } : null);
+    };
+    const page = await unifiedDocsPageResult(
+      { slug: "app-company", query: "webhooks page URL", locale: "en", source: "docs" },
+      { repo: repo([row(overview), row(destination)]), embed: null, ranker },
+    );
+    const markdown = (page as { structuredContent: { markdown: string } }).structuredContent.markdown;
+    expect(markdown.split("\n")[0]).toContain(overview.headingPath.at(-1));
+    expect(markdown.length).toBeLessThanOrEqual(1_400);
+    expect(markdown).not.toMatch(/^\*\*Link:\*\*/m);
+  });
+
+  it("keeps the original excerpt when a chosen child's complete metadata exceeds the suffix budget", async () => {
+    const manifest = await import("../docs-manifest");
+    const sections = docsCorpusSections("docs", "en");
+    const overview = sections.find(
+      (section) => section.slug === "app-company" && section.anchor === "what-lives-on-the-company-screen",
+    );
+    const destination = sections.find((section) => section.slug === "app-company" && section.anchor === "members-tab");
+    if (!overview || !destination) throw new Error("Missing oversized metadata fixtures.");
+    const input = {
+      slug: "app-company",
+      query: "link to the members page",
+      locale: "en" as const,
+      source: "docs" as const,
+    };
+    const baseline = await unifiedDocsPageResult(input, {
+      repo: repo([row(overview)]),
+      embed: null,
+      ranker: (_query: string, candidates: readonly RankableSection[]) => {
+        const choice = candidates.find((candidate) => candidate.section === overview);
+        return Promise.resolve(choice ? { order: [choice.id], abstained: false } : null);
+      },
+    });
+    const link = `**Link:** \`/${"x".repeat(600)}\`.`;
+    const oversized = { ...destination, text: destination.text.replace(/^\*\*Link:\*\*[^\n]*/m, link) };
+    const sectionsSpy = vi
+      .spyOn(manifest, "docsCorpusSections")
+      .mockReturnValue(sections.map((section) => (section === destination ? oversized : section)));
+    let selected: RankableSection["section"] | undefined;
+    try {
+      const page = await unifiedDocsPageResult(input, {
+        repo: repo([row(overview)]),
+        embed: null,
+        ranker: (_query: string, candidates: readonly RankableSection[]) => {
+          const first = candidates.find((candidate) => candidate.section === overview);
+          const second = candidates.find((candidate) => candidate.section === oversized);
+          if (!first || !second) throw new Error("Oversized selected fixture was not offered.");
+          selected = second.section;
+          return Promise.resolve({ order: [first.id, second.id], abstained: false });
+        },
+      });
+      const markdown = (page as { structuredContent: { markdown: string } }).structuredContent.markdown;
+      expect(selected).toBe(oversized);
+      expect(markdown.length).toBeLessThanOrEqual(1_400);
+      expect(markdown).toBe((baseline as { structuredContent: { markdown: string } }).structuredContent.markdown);
+      expect(markdown).not.toContain(link);
+    } finally {
+      sectionsSpy.mockRestore();
+    }
+  });
+
+  it("delivers a chosen child's complete Link metadata when the secondary block is below the prose minimum", async () => {
+    const manifest = await import("../docs-manifest");
+    const sections = docsCorpusSections("docs", "en");
+    const overview = sections.find(
+      (section) => section.slug === "app-company" && section.anchor === "what-lives-on-the-company-screen",
+    );
+    const destination = sections.find((section) => section.slug === "app-company" && section.anchor === "webhooks-tab");
+    if (!overview || !destination) throw new Error("Missing short selected metadata fixtures.");
+    const link = "**Link:** `/x`.";
+    const short = { ...destination, headingPath: ["Go"], text: link };
+    const metadata = `## Go\n\n${link}`;
+    expect(metadata.length).toBeLessThanOrEqual(40);
+    const sectionsSpy = vi
+      .spyOn(manifest, "docsCorpusSections")
+      .mockReturnValue(sections.map((section) => (section === destination ? short : section)));
+    let selected: RankableSection["section"] | undefined;
+    try {
+      const page = await unifiedDocsPageResult(
+        { slug: "app-company", query: "webhooks page URL", locale: "en", source: "docs" },
+        {
+          repo: repo([row(overview)]),
+          embed: null,
+          ranker: (_query: string, candidates: readonly RankableSection[]) => {
+            const first = candidates.find((candidate) => candidate.section === overview);
+            const second = candidates.find((candidate) => candidate.section === short);
+            if (!first || !second) throw new Error("Short selected fixture was not offered.");
+            selected = second.section;
+            return Promise.resolve({ order: [first.id, second.id], abstained: false });
+          },
+        },
+      );
+      const markdown = (page as { structuredContent: { markdown: string } }).structuredContent.markdown;
+      expect(selected).toBe(short);
+      expect(markdown.split("\n")[0]).toContain(overview.headingPath.at(-1));
+      expect(markdown.length).toBeLessThanOrEqual(1_400);
+      expect(markdown).toContain(metadata);
+      expect(markdown.split("\n").find((line) => line.startsWith("**Link:**"))).toBe(link);
+    } finally {
+      sectionsSpy.mockRestore();
+    }
+  });
+
   it("falls back to the requested page when the global result names only another page", async () => {
     const chunks = repo([row(assistant[0])]);
     chunks.fullTextSections.mockImplementation((scope) =>

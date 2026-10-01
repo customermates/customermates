@@ -30,7 +30,7 @@ const SAVED_VIEW_URL_PATTERN = new RegExp(
   `(^|[\\s(\\[<"'\\x60])(/${LOCALE_PREFIX_SOURCE}(?:(?:${SAVED_VIEW_PATHS.map((path) => escapePattern(path.slice(1))).join("|")})\\?view=${VIEW_KEY_SOURCE}|(?:${ENTITY_TIMELINE_PARENT_PATHS.map((path) => escapePattern(path.slice(1))).join("|")})/${UUID_SOURCE}\\?view=${VIEW_KEY_SOURCE}&viewSurface=${escapePattern(SURFACE.entityTimeline)}))(?=$|[\\s)\\]>"'\\x60!,.:;?])`,
   "g",
 );
-const VIEW_URL_STREAM_PATTERN = /[^\s()[\]<>"'`]*(?:\?|&)view=[^\s()[\]<>"'`]*/g;
+const VIEW_URL_STREAM_PATTERN = /(?<![^\s()[\]<>"'`])[^\s()[\]<>"'`]*(?:\?|&)view=[^\s()[\]<>"'`]*/g;
 const MAX_LOCALE_PREFIX_LENGTH = Math.max(...APP_LOCALES.map((locale) => locale.length + 1));
 const MAX_STANDALONE_VIEW_URL_LENGTH =
   Math.max(...SAVED_VIEW_PATHS.map((path) => path.length)) + MAX_LOCALE_PREFIX_LENGTH + "?view=".length + 36;

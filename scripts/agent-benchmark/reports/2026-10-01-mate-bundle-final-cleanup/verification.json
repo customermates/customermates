@@ -1,17 +1,17 @@
 {
   "checks": {
     "build": {
-      "base_url": "http://127.0.0.1:4237",
-      "build_id": "LPIzLNE-V4YMIFRM1f3hz",
-      "duration_ms": 98205,
-      "log": "exclusion-gate/final-build.log",
+      "base_url": "http://127.0.0.1:4241",
+      "build_id": "x4gRHkm1UZ5uL9oiJEh12",
+      "duration_ms": 80742,
+      "log": "navigation-gate/final-build.log",
       "passed": true,
-      "source_freeze_id": "6e1a63d34a4ce1e8aadef7025063b91ea74855760eba3fe0e6ed3c50e032c010"
+      "source_freeze_id": "e0abface799164365285e76bd5b84f392b802c1528d3e80bf80889df343e423c"
     },
     "built_browser": {
       "assertions": [
         {
-          "name": "Clean toolbar has bordered overflow then rightmost New page; Ask Mate is visible",
+          "name": "Clean toolbar has bordered overflow, rightmost New page, visible Ask Mate and12 demo pages",
           "passed": true
         },
         {
@@ -23,68 +23,52 @@
           "passed": true
         },
         {
-          "name": "Destructive menu icon/text match and overflow border remains one pixel",
+          "name": "Delete icon and text use the shared destructive color",
           "passed": true
         },
         {
-          "name": "Keyboard focus opens contextual page-type help",
+          "name": "Keyboard focus explains the Operating Guide and why Mate reads it each request",
           "passed": true
         },
         {
-          "name": "Mobile document fits 390 pixels without horizontal overflow",
+          "name": "390-pixel mobile layout has no horizontal overflow",
           "passed": true
         },
         {
-          "name": "Opened mobile page picker shows visible no-match state with no page links",
+          "name": "Opened mobile picker shows the common no-match state with no page links",
           "passed": true
         },
         {
-          "name": "Browser reports no recorded JavaScript exceptions",
+          "name": "Browser has no recorded JavaScript exceptions",
           "passed": true
         }
       ],
-      "attribution": "Parent-owned additional controlled smoke on the exclusion-guard build. Earlier detailed UI12 remains independently attributed to a734/WuPP under identical frontend bytes.",
-      "build_id": "LPIzLNE-V4YMIFRM1f3hz",
-      "evidence_sha256": "c6b8d52bc4dafc96fe1cb75170506fa72200765b4b886c44d442d4806ed5ce0e",
+      "attribution": "Fresh provider-disabled controlled browser smoke on this build; historical detailed journeys remain separately attributed.",
+      "build_id": "x4gRHkm1UZ5uL9oiJEh12",
+      "evidence_sha256": "b535f947aa3167d2ccb7814588e4668211a8f0c20f48ed22ef95b0c6040e0adc",
       "failed_assertions": 0,
-      "independent_review": {
-        "application_findings": 0,
-        "capture_qualification": "Initial Ask Mate predicate and early closed-picker/wrong-text search are excluded; settled visible sidebar and opened-picker no-match state count. Focused mobile help capture establishes horizontal width only.",
-        "current_source_files_checked": 57,
-        "current_source_hash_drift": 0,
-        "inherited_frontend_files": 83,
-        "limitations": [
-          "Provider-paused smoke does not accept generated ainovi.de content or any full strict hosted suite.",
-          "WuPP/PZNR detailed UI and streaming evidence remains historical, with byte-identity proof for the frontend paths and dependencies recorded here.",
-          "This review does not execute or independently reproduce any browser journey."
-        ],
-        "markdown_sha256": "6eeedcee4a36c8f16fe7e9760eaef6e5799ea448779c64affb36ce2aafefd016",
-        "packet_sha256": "f44641bff2966d4df89b10918ef1d44dc25f5447c1a8417973b1238b433e0257",
-        "passed": true,
-        "saved_artifact_review_only": true,
-        "screenshots_checked": 3,
-        "shared_source_dependencies": 18
-      },
+      "independent_review_attribution": "Independent saved-artifact and raw-JSON review includes actual viewing of all five screenshots; no additional browser replay or live-provider acceptance.",
+      "independent_review_sha256": "4e1c1793511a290ac88a7153093de2d435389be54b2eadea6110fddcc66d9001",
       "limitations": [
-        "Final build smoke checks use provider-paused owned synthetic workspace; generated website content is not accepted by these assertions.",
-        "Detailed dirty/conflict/CRUD/ordering and onboarding streaming evidence remains attached to WuPP/PZNR and their unchanged frontend hashes.",
-        "Initial mobile search failed before opening the picker and an early predicate used the wrong empty-state text; neither capture is counted.",
-        "Mobile layout capture retains deliberately focused help; the overflow assertion measures the actual document widths."
+        "Fresh provider-disabled smoke does not accept hosted ranking or generated website content.",
+        "Earlier detailed CRUD/conflict/ordering/streaming journeys retain their original build attribution under separately checked frontend/shared bytes.",
+        "Old dropped-fixture sign-in, early title predicates using contenteditable instead of textarea, stale menu ref and a multi-term search with relevant hits are excluded harness attempts.",
+        "Only recorded JavaScript exceptions are checked; no claim about every browser schedule or live-stream timing."
       ],
       "passed": true,
       "passed_assertions": 8,
       "provider_cap_zero": true,
       "provider_paused": true,
-      "source_freeze_id": "6e1a63d34a4ce1e8aadef7025063b91ea74855760eba3fe0e6ed3c50e032c010"
+      "source_freeze_id": "e0abface799164365285e76bd5b84f392b802c1528d3e80bf80889df343e423c"
     },
     "built_http": {
-      "attribution": "Parent-owned HTTP suite on the new exclusion-guard build and one aligned-origin server.",
-      "build_id": "LPIzLNE-V4YMIFRM1f3hz",
-      "duration_ms": 14336,
+      "attribution": "Fresh built-server checks with both database URLs on an owned disposable database.",
+      "build_id": "x4gRHkm1UZ5uL9oiJEh12",
+      "duration_ms": 11262,
       "files": 2,
-      "log": "exclusion-gate/final-built-http.log",
+      "log": "navigation-gate/final-built-http.log",
       "passed": true,
-      "source_freeze_id": "6e1a63d34a4ce1e8aadef7025063b91ea74855760eba3fe0e6ed3c50e032c010",
+      "source_freeze_id": "e0abface799164365285e76bd5b84f392b802c1528d3e80bf80889df343e423c",
       "tests": 18
     },
     "focused_final_boundaries": {
@@ -129,6 +113,21 @@
       "passed": true,
       "tests": 78
     },
+    "focused_selected_navigation": {
+      "before_failed": 2,
+      "before_passed": 54,
+      "duration_ms": 3275,
+      "files": 3,
+      "independent_review_sha256": "c3059c257fd13d69882b1ca72d3b3b10cafe15b8859313234e54995e16a0b61b",
+      "limitations": "Injected ranker choices test serialization; no fresh hosted ranking acceptance.",
+      "log": "navigation-gate/focused-navigation.log",
+      "original_test_bytes_unchanged": true,
+      "passed": true,
+      "short_block_before_failed": 1,
+      "short_block_before_passed": 56,
+      "source_freeze_id": "e0abface799164365285e76bd5b84f392b802c1528d3e80bf80889df343e423c",
+      "tests": 57
+    },
     "focused_source_exclusion_guard": {
       "after_log": "exclusion-gate/focused-exclusions.log",
       "assertion_qualification": "Four original expect target expressions change only by supplying mandatory exclusion fields to execute calls inside expect: one repaired-plan call, two intentionally lossy workflow plan calls and one accepted workflow repair. Matcher names, modifiers and expected arguments remain token-identical. They are not claimed byte-identical full assertion expressions.",
@@ -144,6 +143,17 @@
       "source_freeze_id": "6e1a63d34a4ce1e8aadef7025063b91ea74855760eba3fe0e6ed3c50e032c010",
       "static_matcher_expectation_proof_sha256": "67cf25e21ce112f3a6ea6991e574f2212096a4be2e889c2447aa78008cb327d2",
       "tests": 291
+    },
+    "focused_stream_scanning": {
+      "attribution": "Earlier pre-formatting source59 with identical sanitizer and original workflow fixture bytes; the new safety-test expression was only line-wrapped before the final full run. This focused result retains its actual pre-formatting source identity.",
+      "files": 4,
+      "independent_review_sha256": "5e8df61ff47f2fd3152faa86c2aea9ab079d015824e543cc9e48e867562d83aa",
+      "log": "ci-linear-gate/format-warning-attempt/focused-streaming.log",
+      "original_timeout_ms": 5000,
+      "passed": true,
+      "source_freeze_id": "c891e7c5a2834c4edfcf4cf10ddf130c06cc1927ab1775e5fe901d7ddb85a87a",
+      "tests": 273,
+      "timeout_extended": false
     },
     "focused_vertex_repair_projection": {
       "authoritative_bounds_preserved": true,
@@ -167,16 +177,16 @@
       "tests": 29
     },
     "full_frozen_gate": {
-      "duration_ms": 455534,
-      "log": "exclusion-gate/final-vitest.log",
+      "duration_ms": 344790,
+      "log": "navigation-gate/final-vitest.log",
       "passed": true,
       "passed_files": 1041,
-      "passed_tests": 10242,
+      "passed_tests": 10251,
       "runtime": "Node 24.18",
       "skip_attribution": "Fifteen paid opt-in families execute separately and remain failed overall; five HTTP cases pass separately as 18 assertions on this final build. No skipped result is presented as live-provider acceptance.",
       "skipped_files": 1,
       "skipped_tests": 20,
-      "source_freeze_id": "6e1a63d34a4ce1e8aadef7025063b91ea74855760eba3fe0e6ed3c50e032c010"
+      "source_freeze_id": "e0abface799164365285e76bd5b84f392b802c1528d3e80bf80889df343e423c"
     },
     "inherited_built_browser": {
       "assertions": [
@@ -232,6 +242,7 @@
       ],
       "attribution": "Actual earlier a734/WuPP UI12; inherited frontend and shared dependency bytes match the exclusion guard revision. This is not a replay on the new build.",
       "build_id": "WuPPuaVD9uYPiLG47LzsI",
+      "byte_identity_proof_sha256": "83f3d5068a94cc3a3a50067b1e77388e8031701defaf7aee68f6df27c12dceb9",
       "current_source_byte_identity_checks": 101,
       "current_source_byte_identity_mismatches": 0,
       "evidence_sha256": "0a20a94ba34f42445ecc62674a2b06ab5a64ce436f782b4b2932ae2d66ee5a76",
@@ -257,7 +268,7 @@
         "screenshots_checked": 4,
         "shared_component_prior_hash_checks": 12
       },
-      "inherited_into_source_freeze": "6e1a63d34a4ce1e8aadef7025063b91ea74855760eba3fe0e6ed3c50e032c010",
+      "inherited_into_source_freeze": "e0abface799164365285e76bd5b84f392b802c1528d3e80bf80889df343e423c",
       "limitations": [
         "Initial incomplete CLI type command produced no dirty body and is excluded.",
         "Early screenshots before transitions settled are excluded.",
@@ -271,58 +282,64 @@
     },
     "kb_gate": {
       "checks": 8,
-      "current_overlay_committed_head": "069b893735274a50bfc5c34455f3800df8bb126f",
+      "current_overlay_committed_head": "90bf7868ac49163d13895780a4e769f60adec086",
       "current_overlay_documents": 0,
-      "duration_ms": 60620,
-      "exact_head_attribution": "Parent committed and ordinarily pushed the same-byte two-document guard revision after its local eight-check gate. Current-head CI is separate.",
+      "duration_ms": 26180,
+      "exact_head_attribution": "Index current; eight-check gate before ordinary commit/push on identical documentation bytes.",
       "failed": 0,
-      "head": "069b893735274a50bfc5c34455f3800df8bb126f",
-      "log": "kb-exclusion-preserved-gate.log",
+      "head": "90bf7868ac49163d13895780a4e769f60adec086",
+      "log": "kb-navigation-gate.log",
       "passed": true,
-      "runtime": "Node 22.21.1",
+      "runtime": "Node22.21.1",
       "skipped": 0
     },
     "kb_semantic_review": {
-      "current_followup_packet_sha256": "ecbc37f6c89e71c81c9249f231e8b44862229e8e66473be85cdbb4ad82e3f72d",
-      "current_followup_pages": 2,
-      "head": "069b893735274a50bfc5c34455f3800df8bb126f",
+      "head": "90bf7868ac49163d13895780a4e769f60adec086",
       "inherited_prior_review_pages": 18,
       "passed": true,
       "prior_review_packet_sha256": "b22e3365b99ce44cb1f3bcd89946a545d6ca9bb3c32aff07d6ac1e86894f5750",
-      "private_operating_content_included": false,
-      "status": "Independent exact two-page guard follow-up plus inherited 18-page source-semantic review; live acceptance remains open."
+      "selected_navigation_review_sha256": "0c688318b9ab56e1178bbc072b5c390b4a72998d02cdcbeeb69afb80eac4b3af",
+      "status": "Exact source-bound target documentation follow-ups supplement the inherited18-path audit; no live acceptance asserted.",
+      "stream_scan_review_sha256": "492b2a32851b7825418da752ad0dd2fde937d19f58cc90a5f7f5a2bfec99bdf3"
     },
     "lint": {
       "command": "yarn lint --max-warnings=0",
-      "duration_ms": 194727,
-      "log": "exclusion-gate/final-lint.log",
+      "duration_ms": 73706,
+      "log": "navigation-gate/final-lint.log",
       "passed": true,
-      "source_freeze_id": "6e1a63d34a4ce1e8aadef7025063b91ea74855760eba3fe0e6ed3c50e032c010"
+      "source_freeze_id": "e0abface799164365285e76bd5b84f392b802c1528d3e80bf80889df343e423c"
     },
     "typecheck": {
       "command": "yarn typecheck",
-      "duration_ms": 85999,
-      "log": "exclusion-gate/final-typecheck.log",
+      "duration_ms": 5045,
+      "log": "navigation-gate/final-typecheck.log",
       "passed": true,
-      "source_freeze_id": "6e1a63d34a4ce1e8aadef7025063b91ea74855760eba3fe0e6ed3c50e032c010"
+      "source_freeze_id": "e0abface799164365285e76bd5b84f392b802c1528d3e80bf80889df343e423c"
     }
   },
   "current_owned_resource_cleanup": {
     "all_owned_resources_removed": false,
     "dev_database_untouched": true,
-    "evidence_sha256": "45209cfcbd88ea50d9ddcf5ee71d169d1d8f8927a5772cc79b2c401e8098b269",
+    "drop_proof_sha256": [
+      "8e1ce8880c752bc59e12be68086b84224b9f0524f537a3a982e39fd36e829f94",
+      "4a1972c64b3ed53f8d746eba20d3a0638f8d0eeef889f8cceefde45d04432cf0",
+      "8b44c699d0f2753bc7889e7487e474a5d85e470cae023d9ede608ef6962cdba5"
+    ],
     "no_account_or_database_identifiers_included": true,
     "owned_browser_closed": true,
+    "owned_browser_database_dropped_and_absent": true,
     "owned_gate_database_dropped_and_absent": true,
+    "owned_prior_gate_database_dropped_and_absent": true,
     "owned_server_stopped": true,
     "paid_synthetic_database_retained": true,
     "passed": true,
     "preview_database_untouched": true,
     "provider_cap_zero": true,
     "provider_paused": true,
-    "retained_scope": "Owned local paid-test synthetic database retained for a future separately authorized complete content/provider follow-up. Retention does not authorize new spend.",
-    "scope_attribution": "Parent operated only the owned temporary gate database and guarded server/browser; dev and preview untouched per parent execution scope.",
-    "source_files": 57,
+    "retained_scope": "Previously owned paid synthetic workspace and canonical indexed corpus, for separately approved follow-up.",
+    "scope_attribution": "Only owned disposable final gate/browser and preceding CI gate databases were dropped; owned browser CLI closed and final port verified unbound. Paid synthetic data retained.",
+    "source_files": 59,
+    "source_freeze_id": "e0abface799164365285e76bd5b84f392b802c1528d3e80bf80889df343e423c",
     "source_hash_drift": 0,
     "user_port_4000_untouched": true
   },
@@ -331,7 +348,7 @@
     "current_kb_overlay_pushed": true,
     "current_source_overlay_pushed": false,
     "drafts_preserved": true,
-    "kb_ci_snapshot_sha256": "e4a6c059ce8d0712c969a34b7f69c0b60b5f12e0c9472ee1716598dc3a155a37",
+    "kb_ci_snapshot_sha256": "cf3784da9e03d4762b2d8790d274f13f4e50bca520dbbeba44fdfd908ffee26c",
     "kb_current_overlay_exact_head_ci_verified": true,
     "kb_current_overlay_semantic_audit_complete": true,
     "kb_exact_head_checks": [
@@ -342,14 +359,14 @@
       "ci",
       "repository-policy"
     ],
-    "kb_exact_head_ci_attribution": "Exact current KB-head snapshot independently read; all recorded checks are evaluated without inheriting previous-head CI.",
+    "kb_exact_head_ci_attribution": "Fresh exact90bf786 checks, all recorded checks SUCCESS; draft and mergeable.",
     "kb_exact_head_ci_verified": true,
-    "kb_head": "069b893735274a50bfc5c34455f3800df8bb126f",
+    "kb_head": "90bf7868ac49163d13895780a4e769f60adec086",
     "kb_head_pushed": true,
     "kb_mergeable": "MERGEABLE",
     "kb_semantic_18_page_audit_complete": true,
-    "local_reviewed_product_head": "f3ff1a63d11d5d5f5043dedf9660dc0485a1d473",
-    "local_reviewed_product_head_pushed": false,
+    "local_reviewed_product_head": "96e63dbb26fb4911fdb72bcd7799b4eb374ac295",
+    "local_reviewed_product_head_pushed": true,
     "mainline_refresh": {
       "attribution": "Parent fetched unchanged origins; reviewer independently read local origin/main refs and merge-base ancestry, with no ref writes.",
       "kb_head_contains_main": true,
@@ -359,12 +376,21 @@
     },
     "migration_adoption_scope_confirmed": true,
     "preview_reset": "Human checkpoint against the rewritten migration revision; no agent reset or cleanup.",
-    "previous_green_kb_head": "adda150973a8464a789138ad037ca4efffd952ed",
+    "previous_green_kb_head": "157b403aaf7f466eff7024f2c93a3877734a1895",
     "previous_kb_exact_head_ci_verified": true,
     "product_exact_new_head_ci_verified": false,
-    "published_product_head": "bf7aa45ab60a136257ce57876f19f26ff18c2c26",
+    "published_product_ci_failure": {
+      "cause": "Quadratic unanchored view-URL no-match scanning; bounded token-start lookbehind avoids retries without changing redaction ranges.",
+      "failed_tests": 2,
+      "original_assertions_and_timeout_preserved": true,
+      "original_timeout_ms": 5000,
+      "run": 36915929892
+    },
+    "published_product_head": "96e63dbb26fb4911fdb72bcd7799b4eb374ac295",
     "published_product_head_pushed": true,
-    "remote_product_head_attribution": "Parent fresh GitHub read at 17:40 UTC; local f3ff and preceding cleanup commits remain unpushed."
+    "remote_product_head_attribution": "Published96 CI failed only the two original40,000-character compaction tests at unchanged5-second timeout. This packet captures the verified local correction before ordinary publication; final head and CI are recorded in the PR description.",
+    "snapshot_at": "2026-10-01T20:56:18.079816+00:00",
+    "snapshot_kind": "Prepublication snapshot; current GitHub PR state after publication is authoritative."
   },
   "historical_verification": {
     "attribution": "These results predate the current website synthesis, evidence formatter and compound/coherence fixes. They are retained as evidence for their own source/build revisions and are not final current-source UI/live acceptance.",
@@ -516,6 +542,317 @@
         "skipped": 0,
         "tests": 9
       }
+    },
+    "ci_streaming_59_build": {
+      "attribution": "Completed59-source streaming-fix local build before additional link-serialization proposal; no final browser or live acceptance inferred.",
+      "baseUrl": "http://127.0.0.1:4239",
+      "buildId": "qBXLmzgJ26oyBC0pJAgBx",
+      "providerCapMicrocents": 0,
+      "providerPaused": true,
+      "sourceFiles": 59,
+      "sourceFreezeId": "2d72a7b780ab8920f1e1e79b997aa7683d23346591f22c8c15a39a130c062f6a",
+      "sourceHashDrift": []
+    },
+    "ci_streaming_59_events": [
+      {
+        "args": [
+          "prisma",
+          "migrate",
+          "deploy"
+        ],
+        "code": 0,
+        "durationMs": 1310,
+        "label": "final-migrate"
+      },
+      {
+        "args": [
+          "tsx",
+          "prisma/seed.ts"
+        ],
+        "code": 0,
+        "durationMs": 4224,
+        "label": "final-seed-first"
+      },
+      {
+        "args": [
+          "tsx",
+          "prisma/seed.ts"
+        ],
+        "code": 0,
+        "durationMs": 3998,
+        "label": "final-seed-second"
+      },
+      {
+        "args": [
+          "vitest",
+          "run",
+          "--maxWorkers=2",
+          "ee/agent-chat/__tests__/agent-output-safety.test.ts",
+          "ee/agent-chat/__tests__/agent-turn-transcript.test.ts",
+          "ee/agent-chat/__tests__/agent-live-turn.test.ts",
+          "workflows/__tests__/agent-turn-hosted-ai-gate.test.ts"
+        ],
+        "code": 0,
+        "durationMs": 49916,
+        "label": "focused-streaming"
+      },
+      {
+        "args": [
+          "vitest",
+          "run",
+          "--maxWorkers=2",
+          "ee/agent-chat/__tests__/agent-output-safety.test.ts",
+          "ee/agent-chat/__tests__/agent-turn-transcript.test.ts",
+          "ee/agent-chat/__tests__/agent-continuation.test.ts",
+          "workflows/__tests__/agent-turn-hosted-ai-gate.test.ts"
+        ],
+        "code": 0,
+        "durationMs": 39347,
+        "label": "focused-streaming"
+      },
+      {
+        "args": [
+          "workflow:setup"
+        ],
+        "code": 0,
+        "durationMs": 587,
+        "label": "final-workflow-bootstrap"
+      },
+      {
+        "args": [
+          "typecheck"
+        ],
+        "code": 0,
+        "durationMs": 5237,
+        "label": "final-typecheck"
+      },
+      {
+        "args": [
+          "lint",
+          "--max-warnings=0"
+        ],
+        "code": 1,
+        "durationMs": 111635,
+        "label": "final-lint"
+      },
+      {
+        "args": [
+          "typecheck"
+        ],
+        "code": 0,
+        "durationMs": 4392,
+        "label": "final-typecheck"
+      },
+      {
+        "args": [
+          "lint",
+          "--max-warnings=0"
+        ],
+        "code": 0,
+        "durationMs": 79829,
+        "label": "final-lint"
+      },
+      {
+        "args": [
+          "vitest",
+          "run",
+          "--maxWorkers=2"
+        ],
+        "code": 0,
+        "durationMs": 376378,
+        "label": "final-vitest"
+      },
+      {
+        "args": [
+          "build"
+        ],
+        "code": 0,
+        "durationMs": 71262,
+        "label": "final-build"
+      },
+      {
+        "args": [
+          "vitest",
+          "run",
+          "--maxWorkers=2",
+          "features/mcp-tools/__tests__/docs-unified-search.test.ts",
+          "core/retrieval/__tests__/retrieval-excerpt.test.ts",
+          "ee/agent-chat/__tests__/docs-rerank.test.ts"
+        ],
+        "code": 1,
+        "durationMs": 3353,
+        "label": "focused-navigation"
+      },
+      {
+        "args": [
+          "vitest",
+          "run",
+          "--maxWorkers=2",
+          "features/mcp-tools/__tests__/docs-unified-search.test.ts",
+          "core/retrieval/__tests__/retrieval-excerpt.test.ts",
+          "ee/agent-chat/__tests__/docs-rerank.test.ts"
+        ],
+        "code": 0,
+        "durationMs": 3178,
+        "label": "focused-navigation"
+      },
+      {
+        "args": [
+          "vitest",
+          "run",
+          "--maxWorkers=2",
+          "features/mcp-tools/__tests__/docs-unified-search.test.ts",
+          "core/retrieval/__tests__/retrieval-excerpt.test.ts",
+          "ee/agent-chat/__tests__/docs-rerank.test.ts"
+        ],
+        "code": 1,
+        "durationMs": 3265,
+        "label": "focused-navigation"
+      }
+    ],
+    "ci_streaming_59_events_attribution": "Raw event sequence includes pre-formatting focused checks and a formatting-only lint failure. Focused streaming retains c891 source identity; completed full gate/build retain2d72 identity.",
+    "ci_streaming_59_full_summary": {
+      "attribution": "Completed source59 before selected-child metadata correction; no browser replay on this build.",
+      "log": "ci-linear-gate/final-vitest.log",
+      "passed_files": 1041,
+      "passed_tests": 10245,
+      "skipped_tests": 20
+    },
+    "ci_streaming_59_source_snapshot": {
+      "files": {
+        "app/components/navigation/__tests__/navigation-switch.test.ts": "f5c28783e620bd690ecc5e87b70cf31af6415fa942a730fe387a93be66bb52e3",
+        "app/components/navigation/navigation-switch.tsx": "5b5de777f1091abe59b40d620665d89a4643b48d462a3a650e5dfe9d3311bc77",
+        "core/retrieval/__tests__/full-text-query.database.test.ts": "2b9d03bc5a0fad5f4a310c9c86df8d6884870daf36c84452c4a4cf1b39172800",
+        "core/retrieval/__tests__/retrieval-evidence-matcher.test.ts": "05039d811c5c9d80bfdd781fb4ca9c3c4a94b465b0931ea3b5ec93b501d5bbd0",
+        "core/retrieval/__tests__/retrieval-excerpt.test.ts": "128291c2736fc0cf50a2fd44304d2657f20142712460c2eee39753e34718325b",
+        "core/retrieval/__tests__/retrieval-pipeline.test.ts": "4c00281e2f5fd105dac959935d374b1cc75cae4414cd0e109e0695b94cefcdf0",
+        "core/retrieval/full-text-query.ts": "70452707a824b884069f8d606e47e80c91bff97d0ea75292341900fd064794e6",
+        "core/retrieval/retrieval-context.ts": "2f6737c3c00fc91c6116ac8295fa0c61a142382b04448a123e3d35bffd51c9be",
+        "core/retrieval/retrieval-evidence-matcher.ts": "a05b2aa3f755da962f305dd706470fad6446bd3152042ba085563597a4ffede9",
+        "core/retrieval/retrieval-excerpt.ts": "47d760146a13d4075cae2144e9a6f90d79361e7d0eae7b0252a4b7f68f51d1f7",
+        "ee/agent-chat/__tests__/agent-output-safety.test.ts": "a24e8fbe26ac4e3411986a8bcc3fdbb8d03b2c5dd260dab1ef4538cb72a9a5ca",
+        "ee/agent-chat/__tests__/agent-tool-failure.test.ts": "ea1addfb2514339b22e23fd75517cce743303223333798436703f1da11079bea",
+        "ee/agent-chat/__tests__/agent-tools.test.ts": "8376e46eb5887124d44c09902ed0a4796cb7cb524c6b438f22d8e70cadb5802e",
+        "ee/agent-chat/__tests__/docs-rank-evidence.test.ts": "443ebdcfe143e98b41e823d191867812e1f574982bafa310b715a5bb850f2f97",
+        "ee/agent-chat/__tests__/docs-rerank.test.ts": "dbf7de23c4567d5f22544e6ebf8dbc46e3914bc49ec6399de8cac42f3695e4b3",
+        "ee/agent-chat/__tests__/provider-safe-json-schema.test.ts": "c3a8713d4efbb5429ce0e579c713a03d02587030548a87a89a3aa0ff1ebc6439",
+        "ee/agent-chat/__tests__/wiki-source-tool-budget.test.ts": "f45995ac8395b8c373f5af616c76774a2dea47b0c1ae8a825b347ce5db819af0",
+        "ee/agent-chat/agent-output-safety.ts": "1c02b9d5164a1872849b1167bbaedf895c541a3645a712c1b2c59e3e0fc623ce",
+        "ee/agent-chat/agent-tool-failure.ts": "58033ba450d9049ed6d7344757e160caa64f53a5fc109f5c9ccf4412365876ea",
+        "ee/agent-chat/agent-tools.ts": "9ff2e141f8a9a0bec4e95477b02058c1bdfccef3018c45830d256f3bc0f97f81",
+        "ee/agent-chat/docs-rank-evidence.ts": "bfd47801d217d0e3316af328b833875ccb36f983142a5d2acea9907fa1a663bb",
+        "ee/agent-chat/docs-rerank.ts": "7a97ebfc6f978512c104c704350ec701be51b64b4d0cbac74151d923716f97aa",
+        "ee/agent-chat/provider-safe-json-schema.ts": "05289f46cebf62499cbb278ed8a8fe0ee8a15862323943100abacc900d3699b4",
+        "ee/agent-chat/system-prompt.ts": "f75b193dd93773053cf7a0084d880554db809c0a2308f70dbb21471aa073b715",
+        "ee/wiki-crawl/__tests__/website-crawl.test.ts": "a22372e95985fcf2322556d411e6556d1c575ea24fd35aea36f03b38a7f45330",
+        "ee/wiki-crawl/__tests__/wiki-crawl-synthesis-tools.test.ts": "398c3b9f333bc252a7bf4542845ccf469e91993f0bc6f79f5a5b4e589a2c06f1",
+        "ee/wiki-crawl/__tests__/wiki-language-synthesis.test.ts": "7615091925b17d75afc861869a8dbb0ef8f1d68dc858965814563b04c1c2950a",
+        "ee/wiki-crawl/__tests__/wiki-source-text.test.ts": "daab197d00d2039db95c760702d665863f2d76bb81e833fed5da7dbefcf2394e",
+        "ee/wiki-crawl/__tests__/wiki-website-crawl.database.test.ts": "f2da113ec53d36cdacc1b63eb33b914716e0ea9884d14e5654018a32d1762bf1",
+        "ee/wiki-crawl/create-wiki-pages-from-crawl.interactor.ts": "57b551ed8dc1d6c2b042492e85170459c232869fa3fd841eeabe1bc1fdd9f014",
+        "ee/wiki-crawl/read-wiki-website-sources.interactor.ts": "d0231ca8208c15ed776506bd83b4d8ff89310df2c8e43749915166d7477bf92e",
+        "ee/wiki-crawl/website-crawler.ts": "e4567883f570ba21087846898089217d84c43ac29f7cf2a8a801376bc41394e6",
+        "ee/wiki-crawl/website-source-extract.ts": "6ca7caababa162572b3999300418c0f95c872057abcaa159cd8a6ac7a7de2301",
+        "ee/wiki-crawl/wiki-crawl-synthesis-tools.ts": "7473a15cea040c440a0675a4f47a442c6ea94ca45c773e756957a42fcf95a620",
+        "ee/wiki-crawl/wiki-crawl-synthesis.schema.ts": "bacb0623bb0327db00d356a4adc7c5e8fcb20cc978bb514afddbfeae27290792",
+        "ee/wiki-crawl/wiki-source-text.ts": "d5f92b012a1312dc1ed19ecc910846c4fd1e4144e06bae4ec72ca2995d723889",
+        "ee/wiki-crawl/wiki-website-crawl.service.ts": "5131cf2777fd9e55e982cf3efb34f41f3d30904e98e7a1aab553e9e2b8fd5331",
+        "ee/wiki-retrieval/__tests__/docs-semantic-index.test.ts": "efd81c3753a045d6b33e6d8029f92b8922399bc5dba7d4008de5022505f097f0",
+        "ee/wiki-retrieval/docs-semantic-index.service.ts": "65fa265884eb08f7e7b293a65cb3455c4b688319b85eee6e1a3895a2676fcef1",
+        "features/mcp-tools/__tests__/docs-embedding-input.test.ts": "9ff4b8057e3a9a4af340edfba85198574493dd96a23521b5d82c5e13dafb8f2c",
+        "features/mcp-tools/__tests__/docs-retrieval-quality.database.test.ts": "6091e94f9cd0b8ad70db5a7a74a7c90b74d223235d9424277aec9b7723d84c7b",
+        "features/mcp-tools/__tests__/docs-retrieval-regression.database.test.ts": "0f6d4a5d8a0a1ad500b09688a277cad1768b945e5bec6af960dfb5c5a70c2576",
+        "features/mcp-tools/__tests__/docs-unified-search.test.ts": "d7ed5c53d1b91d6541bd19ae27b32407ca5c53d6be058442e51c81b57ef11fe0",
+        "features/mcp-tools/docs-corpus.ts": "851ada86a79672f3ebc38d487bf3fca881cbca3a630e24e8409d2ae7f8e49b03",
+        "features/mcp-tools/docs-embedding-input.ts": "9ea17c219c37bdfd2392ca4670bdce03c527c4952c819bb765a4b231d33f8a51",
+        "features/mcp-tools/docs-unified-search.ts": "97ce1ddc1b6173e235075fb8195872dee0789d56c8e5074f23f110c9939ac576",
+        "features/wiki/search-wiki-pages.interactor.ts": "c89011ff27c66b841fab38696b755d7bdca53498c6b7e05cf2fb417e309d11bc",
+        "package.json": "d4dcf6b0758b09a73fea9ae92331c1cac11fcadf80d4248c28eacfde009e73ae",
+        "scripts/agent-benchmark/__tests__/fixtures.database.test.ts": "10492001c51ac9fb6c52c73215409dd7bc310b99c5fb93ec33e48659f86c2ca8",
+        "scripts/agent-benchmark/retrieval-eval.ts": "e8658df636fcc8ad38086cbbb982e0f248699746bf00c5a9eca556079d12c885",
+        "scripts/agent-benchmark/retrieval-floor-tuning.ts": "930da1bca3c15e10f253db0705faa2fb085c31fd7b7a3ca715eb8e5e1aba2697",
+        "tests/helpers/__tests__/live-docs-retrieval-admission.test.ts": "6f7e63a6ea02b8babcf0615d92318331525ba3f53e5ae2a2a95dd6f38fd8e319",
+        "tests/helpers/live-docs-retrieval-admission.ts": "2a61e14b52fab676e3a038dcba990f09fb093c49671426cad32f436207e6762e",
+        "tests/helpers/live-docs-retrieval-contracts.ts": "5d87ea67e5317d124f9d01c99ddb355af837eb5f5ec6b36eff7e1b4cc1af337f",
+        "workflows/__tests__/agent-turn-hosted-ai-gate.test.ts": "0cf5a8c518b590f89a97d3eb4c3708ef488b7a830feee315926fb56d19effc96",
+        "workflows/__tests__/wiki-topic-plan.test.ts": "6b886d89b916cbe685fd628e778717d93acc453e0b4466753eaf145b59addd54",
+        "workflows/agent-turn.ts": "e9893f02ccb471d10fe5db7b31f78773528e18a962f9aa3d4f16b0dc8921b3be",
+        "workflows/wiki-topic-plan.ts": "ba6a02744ecf51581636e5143417d439244a08e122517e4f4ae314d117921eb6",
+        "yarn.lock": "bc2875d22040ed2aa371959458b0c3296146a17df2dcd8a51d578712aafeb1a5"
+      },
+      "hashFormat": "sha256 of JSON.stringify(files), paths sorted",
+      "head": "f3ff1a63d11d5d5f5043dedf9660dc0485a1d473",
+      "parentHead": "96e63dbb26fb4911fdb72bcd7799b4eb374ac295",
+      "recordedAt": "2026-10-01T20:09:57.437822+00:00",
+      "sourceFreezeSha256": "2d72a7b780ab8920f1e1e79b997aa7683d23346591f22c8c15a39a130c062f6a"
+    },
+    "ci_streaming_pre_formatting_source_snapshot": {
+      "files": {
+        "app/components/navigation/__tests__/navigation-switch.test.ts": "f5c28783e620bd690ecc5e87b70cf31af6415fa942a730fe387a93be66bb52e3",
+        "app/components/navigation/navigation-switch.tsx": "5b5de777f1091abe59b40d620665d89a4643b48d462a3a650e5dfe9d3311bc77",
+        "core/retrieval/__tests__/full-text-query.database.test.ts": "2b9d03bc5a0fad5f4a310c9c86df8d6884870daf36c84452c4a4cf1b39172800",
+        "core/retrieval/__tests__/retrieval-evidence-matcher.test.ts": "05039d811c5c9d80bfdd781fb4ca9c3c4a94b465b0931ea3b5ec93b501d5bbd0",
+        "core/retrieval/__tests__/retrieval-excerpt.test.ts": "128291c2736fc0cf50a2fd44304d2657f20142712460c2eee39753e34718325b",
+        "core/retrieval/__tests__/retrieval-pipeline.test.ts": "4c00281e2f5fd105dac959935d374b1cc75cae4414cd0e109e0695b94cefcdf0",
+        "core/retrieval/full-text-query.ts": "70452707a824b884069f8d606e47e80c91bff97d0ea75292341900fd064794e6",
+        "core/retrieval/retrieval-context.ts": "2f6737c3c00fc91c6116ac8295fa0c61a142382b04448a123e3d35bffd51c9be",
+        "core/retrieval/retrieval-evidence-matcher.ts": "a05b2aa3f755da962f305dd706470fad6446bd3152042ba085563597a4ffede9",
+        "core/retrieval/retrieval-excerpt.ts": "47d760146a13d4075cae2144e9a6f90d79361e7d0eae7b0252a4b7f68f51d1f7",
+        "ee/agent-chat/__tests__/agent-output-safety.test.ts": "f75dbdf0c3c061a4dca9c8ede272f4c4aafebbddd85431f6b6febe9ae6f62d2c",
+        "ee/agent-chat/__tests__/agent-tool-failure.test.ts": "ea1addfb2514339b22e23fd75517cce743303223333798436703f1da11079bea",
+        "ee/agent-chat/__tests__/agent-tools.test.ts": "8376e46eb5887124d44c09902ed0a4796cb7cb524c6b438f22d8e70cadb5802e",
+        "ee/agent-chat/__tests__/docs-rank-evidence.test.ts": "443ebdcfe143e98b41e823d191867812e1f574982bafa310b715a5bb850f2f97",
+        "ee/agent-chat/__tests__/docs-rerank.test.ts": "dbf7de23c4567d5f22544e6ebf8dbc46e3914bc49ec6399de8cac42f3695e4b3",
+        "ee/agent-chat/__tests__/provider-safe-json-schema.test.ts": "c3a8713d4efbb5429ce0e579c713a03d02587030548a87a89a3aa0ff1ebc6439",
+        "ee/agent-chat/__tests__/wiki-source-tool-budget.test.ts": "f45995ac8395b8c373f5af616c76774a2dea47b0c1ae8a825b347ce5db819af0",
+        "ee/agent-chat/agent-output-safety.ts": "1c02b9d5164a1872849b1167bbaedf895c541a3645a712c1b2c59e3e0fc623ce",
+        "ee/agent-chat/agent-tool-failure.ts": "58033ba450d9049ed6d7344757e160caa64f53a5fc109f5c9ccf4412365876ea",
+        "ee/agent-chat/agent-tools.ts": "9ff2e141f8a9a0bec4e95477b02058c1bdfccef3018c45830d256f3bc0f97f81",
+        "ee/agent-chat/docs-rank-evidence.ts": "bfd47801d217d0e3316af328b833875ccb36f983142a5d2acea9907fa1a663bb",
+        "ee/agent-chat/docs-rerank.ts": "7a97ebfc6f978512c104c704350ec701be51b64b4d0cbac74151d923716f97aa",
+        "ee/agent-chat/provider-safe-json-schema.ts": "05289f46cebf62499cbb278ed8a8fe0ee8a15862323943100abacc900d3699b4",
+        "ee/agent-chat/system-prompt.ts": "f75b193dd93773053cf7a0084d880554db809c0a2308f70dbb21471aa073b715",
+        "ee/wiki-crawl/__tests__/website-crawl.test.ts": "a22372e95985fcf2322556d411e6556d1c575ea24fd35aea36f03b38a7f45330",
+        "ee/wiki-crawl/__tests__/wiki-crawl-synthesis-tools.test.ts": "398c3b9f333bc252a7bf4542845ccf469e91993f0bc6f79f5a5b4e589a2c06f1",
+        "ee/wiki-crawl/__tests__/wiki-language-synthesis.test.ts": "7615091925b17d75afc861869a8dbb0ef8f1d68dc858965814563b04c1c2950a",
+        "ee/wiki-crawl/__tests__/wiki-source-text.test.ts": "daab197d00d2039db95c760702d665863f2d76bb81e833fed5da7dbefcf2394e",
+        "ee/wiki-crawl/__tests__/wiki-website-crawl.database.test.ts": "f2da113ec53d36cdacc1b63eb33b914716e0ea9884d14e5654018a32d1762bf1",
+        "ee/wiki-crawl/create-wiki-pages-from-crawl.interactor.ts": "57b551ed8dc1d6c2b042492e85170459c232869fa3fd841eeabe1bc1fdd9f014",
+        "ee/wiki-crawl/read-wiki-website-sources.interactor.ts": "d0231ca8208c15ed776506bd83b4d8ff89310df2c8e43749915166d7477bf92e",
+        "ee/wiki-crawl/website-crawler.ts": "e4567883f570ba21087846898089217d84c43ac29f7cf2a8a801376bc41394e6",
+        "ee/wiki-crawl/website-source-extract.ts": "6ca7caababa162572b3999300418c0f95c872057abcaa159cd8a6ac7a7de2301",
+        "ee/wiki-crawl/wiki-crawl-synthesis-tools.ts": "7473a15cea040c440a0675a4f47a442c6ea94ca45c773e756957a42fcf95a620",
+        "ee/wiki-crawl/wiki-crawl-synthesis.schema.ts": "bacb0623bb0327db00d356a4adc7c5e8fcb20cc978bb514afddbfeae27290792",
+        "ee/wiki-crawl/wiki-source-text.ts": "d5f92b012a1312dc1ed19ecc910846c4fd1e4144e06bae4ec72ca2995d723889",
+        "ee/wiki-crawl/wiki-website-crawl.service.ts": "5131cf2777fd9e55e982cf3efb34f41f3d30904e98e7a1aab553e9e2b8fd5331",
+        "ee/wiki-retrieval/__tests__/docs-semantic-index.test.ts": "efd81c3753a045d6b33e6d8029f92b8922399bc5dba7d4008de5022505f097f0",
+        "ee/wiki-retrieval/docs-semantic-index.service.ts": "65fa265884eb08f7e7b293a65cb3455c4b688319b85eee6e1a3895a2676fcef1",
+        "features/mcp-tools/__tests__/docs-embedding-input.test.ts": "9ff4b8057e3a9a4af340edfba85198574493dd96a23521b5d82c5e13dafb8f2c",
+        "features/mcp-tools/__tests__/docs-retrieval-quality.database.test.ts": "6091e94f9cd0b8ad70db5a7a74a7c90b74d223235d9424277aec9b7723d84c7b",
+        "features/mcp-tools/__tests__/docs-retrieval-regression.database.test.ts": "0f6d4a5d8a0a1ad500b09688a277cad1768b945e5bec6af960dfb5c5a70c2576",
+        "features/mcp-tools/__tests__/docs-unified-search.test.ts": "d7ed5c53d1b91d6541bd19ae27b32407ca5c53d6be058442e51c81b57ef11fe0",
+        "features/mcp-tools/docs-corpus.ts": "851ada86a79672f3ebc38d487bf3fca881cbca3a630e24e8409d2ae7f8e49b03",
+        "features/mcp-tools/docs-embedding-input.ts": "9ea17c219c37bdfd2392ca4670bdce03c527c4952c819bb765a4b231d33f8a51",
+        "features/mcp-tools/docs-unified-search.ts": "97ce1ddc1b6173e235075fb8195872dee0789d56c8e5074f23f110c9939ac576",
+        "features/wiki/search-wiki-pages.interactor.ts": "c89011ff27c66b841fab38696b755d7bdca53498c6b7e05cf2fb417e309d11bc",
+        "package.json": "d4dcf6b0758b09a73fea9ae92331c1cac11fcadf80d4248c28eacfde009e73ae",
+        "scripts/agent-benchmark/__tests__/fixtures.database.test.ts": "10492001c51ac9fb6c52c73215409dd7bc310b99c5fb93ec33e48659f86c2ca8",
+        "scripts/agent-benchmark/retrieval-eval.ts": "e8658df636fcc8ad38086cbbb982e0f248699746bf00c5a9eca556079d12c885",
+        "scripts/agent-benchmark/retrieval-floor-tuning.ts": "930da1bca3c15e10f253db0705faa2fb085c31fd7b7a3ca715eb8e5e1aba2697",
+        "tests/helpers/__tests__/live-docs-retrieval-admission.test.ts": "6f7e63a6ea02b8babcf0615d92318331525ba3f53e5ae2a2a95dd6f38fd8e319",
+        "tests/helpers/live-docs-retrieval-admission.ts": "2a61e14b52fab676e3a038dcba990f09fb093c49671426cad32f436207e6762e",
+        "tests/helpers/live-docs-retrieval-contracts.ts": "5d87ea67e5317d124f9d01c99ddb355af837eb5f5ec6b36eff7e1b4cc1af337f",
+        "workflows/__tests__/agent-turn-hosted-ai-gate.test.ts": "0cf5a8c518b590f89a97d3eb4c3708ef488b7a830feee315926fb56d19effc96",
+        "workflows/__tests__/wiki-topic-plan.test.ts": "6b886d89b916cbe685fd628e778717d93acc453e0b4466753eaf145b59addd54",
+        "workflows/agent-turn.ts": "e9893f02ccb471d10fe5db7b31f78773528e18a962f9aa3d4f16b0dc8921b3be",
+        "workflows/wiki-topic-plan.ts": "ba6a02744ecf51581636e5143417d439244a08e122517e4f4ae314d117921eb6",
+        "yarn.lock": "bc2875d22040ed2aa371959458b0c3296146a17df2dcd8a51d578712aafeb1a5"
+      },
+      "hashFormat": "sha256 of JSON.stringify(files), paths sorted",
+      "head": "f3ff1a63d11d5d5f5043dedf9660dc0485a1d473",
+      "parentHead": "96e63dbb26fb4911fdb72bcd7799b4eb374ac295",
+      "recordedAt": "2026-10-01T20:06:58.320472+00:00",
+      "sourceFreezeSha256": "c891e7c5a2834c4edfcf4cf10ddf130c06cc1927ab1775e5fe901d7ddb85a87a"
     },
     "first_45_aborted_attempts": [
       {
@@ -696,6 +1033,85 @@
       "pr_owned_files_consolidated": 5,
       "preview_reset_performed": false,
       "prisma_version": "7.0.1"
+    },
+    "navigation_browser_old_fixture_attempt": {
+      "applicationChanged": false,
+      "attempt": "Sign-in failed before reaching the protected UI; old owned DB had already been dropped. Prepare a new owned fixture.",
+      "countedPassingAssertions": 0,
+      "existingFixtureDatabaseAbsent": true
+    },
+    "navigation_test_typecheck_attempt": {
+      "log": "navigation-gate/test-double-typecheck-attempt/final-typecheck.log",
+      "reason": "Two new test variables incorrectly used full DocsSection rather than ranker section contract; only their annotations corrected.",
+      "source_freeze": {
+        "files": {
+          "app/components/navigation/__tests__/navigation-switch.test.ts": "f5c28783e620bd690ecc5e87b70cf31af6415fa942a730fe387a93be66bb52e3",
+          "app/components/navigation/navigation-switch.tsx": "5b5de777f1091abe59b40d620665d89a4643b48d462a3a650e5dfe9d3311bc77",
+          "core/retrieval/__tests__/full-text-query.database.test.ts": "2b9d03bc5a0fad5f4a310c9c86df8d6884870daf36c84452c4a4cf1b39172800",
+          "core/retrieval/__tests__/retrieval-evidence-matcher.test.ts": "05039d811c5c9d80bfdd781fb4ca9c3c4a94b465b0931ea3b5ec93b501d5bbd0",
+          "core/retrieval/__tests__/retrieval-excerpt.test.ts": "128291c2736fc0cf50a2fd44304d2657f20142712460c2eee39753e34718325b",
+          "core/retrieval/__tests__/retrieval-pipeline.test.ts": "4c00281e2f5fd105dac959935d374b1cc75cae4414cd0e109e0695b94cefcdf0",
+          "core/retrieval/full-text-query.ts": "70452707a824b884069f8d606e47e80c91bff97d0ea75292341900fd064794e6",
+          "core/retrieval/retrieval-context.ts": "2f6737c3c00fc91c6116ac8295fa0c61a142382b04448a123e3d35bffd51c9be",
+          "core/retrieval/retrieval-evidence-matcher.ts": "a05b2aa3f755da962f305dd706470fad6446bd3152042ba085563597a4ffede9",
+          "core/retrieval/retrieval-excerpt.ts": "47d760146a13d4075cae2144e9a6f90d79361e7d0eae7b0252a4b7f68f51d1f7",
+          "ee/agent-chat/__tests__/agent-output-safety.test.ts": "a24e8fbe26ac4e3411986a8bcc3fdbb8d03b2c5dd260dab1ef4538cb72a9a5ca",
+          "ee/agent-chat/__tests__/agent-tool-failure.test.ts": "ea1addfb2514339b22e23fd75517cce743303223333798436703f1da11079bea",
+          "ee/agent-chat/__tests__/agent-tools.test.ts": "8376e46eb5887124d44c09902ed0a4796cb7cb524c6b438f22d8e70cadb5802e",
+          "ee/agent-chat/__tests__/docs-rank-evidence.test.ts": "443ebdcfe143e98b41e823d191867812e1f574982bafa310b715a5bb850f2f97",
+          "ee/agent-chat/__tests__/docs-rerank.test.ts": "dbf7de23c4567d5f22544e6ebf8dbc46e3914bc49ec6399de8cac42f3695e4b3",
+          "ee/agent-chat/__tests__/provider-safe-json-schema.test.ts": "c3a8713d4efbb5429ce0e579c713a03d02587030548a87a89a3aa0ff1ebc6439",
+          "ee/agent-chat/__tests__/wiki-source-tool-budget.test.ts": "f45995ac8395b8c373f5af616c76774a2dea47b0c1ae8a825b347ce5db819af0",
+          "ee/agent-chat/agent-output-safety.ts": "1c02b9d5164a1872849b1167bbaedf895c541a3645a712c1b2c59e3e0fc623ce",
+          "ee/agent-chat/agent-tool-failure.ts": "58033ba450d9049ed6d7344757e160caa64f53a5fc109f5c9ccf4412365876ea",
+          "ee/agent-chat/agent-tools.ts": "9ff2e141f8a9a0bec4e95477b02058c1bdfccef3018c45830d256f3bc0f97f81",
+          "ee/agent-chat/docs-rank-evidence.ts": "bfd47801d217d0e3316af328b833875ccb36f983142a5d2acea9907fa1a663bb",
+          "ee/agent-chat/docs-rerank.ts": "7a97ebfc6f978512c104c704350ec701be51b64b4d0cbac74151d923716f97aa",
+          "ee/agent-chat/provider-safe-json-schema.ts": "05289f46cebf62499cbb278ed8a8fe0ee8a15862323943100abacc900d3699b4",
+          "ee/agent-chat/system-prompt.ts": "f75b193dd93773053cf7a0084d880554db809c0a2308f70dbb21471aa073b715",
+          "ee/wiki-crawl/__tests__/website-crawl.test.ts": "a22372e95985fcf2322556d411e6556d1c575ea24fd35aea36f03b38a7f45330",
+          "ee/wiki-crawl/__tests__/wiki-crawl-synthesis-tools.test.ts": "398c3b9f333bc252a7bf4542845ccf469e91993f0bc6f79f5a5b4e589a2c06f1",
+          "ee/wiki-crawl/__tests__/wiki-language-synthesis.test.ts": "7615091925b17d75afc861869a8dbb0ef8f1d68dc858965814563b04c1c2950a",
+          "ee/wiki-crawl/__tests__/wiki-source-text.test.ts": "daab197d00d2039db95c760702d665863f2d76bb81e833fed5da7dbefcf2394e",
+          "ee/wiki-crawl/__tests__/wiki-website-crawl.database.test.ts": "f2da113ec53d36cdacc1b63eb33b914716e0ea9884d14e5654018a32d1762bf1",
+          "ee/wiki-crawl/create-wiki-pages-from-crawl.interactor.ts": "57b551ed8dc1d6c2b042492e85170459c232869fa3fd841eeabe1bc1fdd9f014",
+          "ee/wiki-crawl/read-wiki-website-sources.interactor.ts": "d0231ca8208c15ed776506bd83b4d8ff89310df2c8e43749915166d7477bf92e",
+          "ee/wiki-crawl/website-crawler.ts": "e4567883f570ba21087846898089217d84c43ac29f7cf2a8a801376bc41394e6",
+          "ee/wiki-crawl/website-source-extract.ts": "6ca7caababa162572b3999300418c0f95c872057abcaa159cd8a6ac7a7de2301",
+          "ee/wiki-crawl/wiki-crawl-synthesis-tools.ts": "7473a15cea040c440a0675a4f47a442c6ea94ca45c773e756957a42fcf95a620",
+          "ee/wiki-crawl/wiki-crawl-synthesis.schema.ts": "bacb0623bb0327db00d356a4adc7c5e8fcb20cc978bb514afddbfeae27290792",
+          "ee/wiki-crawl/wiki-source-text.ts": "d5f92b012a1312dc1ed19ecc910846c4fd1e4144e06bae4ec72ca2995d723889",
+          "ee/wiki-crawl/wiki-website-crawl.service.ts": "5131cf2777fd9e55e982cf3efb34f41f3d30904e98e7a1aab553e9e2b8fd5331",
+          "ee/wiki-retrieval/__tests__/docs-semantic-index.test.ts": "efd81c3753a045d6b33e6d8029f92b8922399bc5dba7d4008de5022505f097f0",
+          "ee/wiki-retrieval/docs-semantic-index.service.ts": "65fa265884eb08f7e7b293a65cb3455c4b688319b85eee6e1a3895a2676fcef1",
+          "features/mcp-tools/__tests__/docs-embedding-input.test.ts": "9ff4b8057e3a9a4af340edfba85198574493dd96a23521b5d82c5e13dafb8f2c",
+          "features/mcp-tools/__tests__/docs-retrieval-quality.database.test.ts": "6091e94f9cd0b8ad70db5a7a74a7c90b74d223235d9424277aec9b7723d84c7b",
+          "features/mcp-tools/__tests__/docs-retrieval-regression.database.test.ts": "0f6d4a5d8a0a1ad500b09688a277cad1768b945e5bec6af960dfb5c5a70c2576",
+          "features/mcp-tools/__tests__/docs-unified-search.test.ts": "178c91abe3d708d191f9103718e3f7361b06d7124ddb460eb8af3461ba001286",
+          "features/mcp-tools/docs-corpus.ts": "851ada86a79672f3ebc38d487bf3fca881cbca3a630e24e8409d2ae7f8e49b03",
+          "features/mcp-tools/docs-embedding-input.ts": "9ea17c219c37bdfd2392ca4670bdce03c527c4952c819bb765a4b231d33f8a51",
+          "features/mcp-tools/docs-unified-search.ts": "cf5862eb4dfbfa3f8d051590b9f18cd3e24229030e2c867d1de69434baee8f9e",
+          "features/wiki/search-wiki-pages.interactor.ts": "c89011ff27c66b841fab38696b755d7bdca53498c6b7e05cf2fb417e309d11bc",
+          "package.json": "d4dcf6b0758b09a73fea9ae92331c1cac11fcadf80d4248c28eacfde009e73ae",
+          "scripts/agent-benchmark/__tests__/fixtures.database.test.ts": "10492001c51ac9fb6c52c73215409dd7bc310b99c5fb93ec33e48659f86c2ca8",
+          "scripts/agent-benchmark/retrieval-eval.ts": "e8658df636fcc8ad38086cbbb982e0f248699746bf00c5a9eca556079d12c885",
+          "scripts/agent-benchmark/retrieval-floor-tuning.ts": "930da1bca3c15e10f253db0705faa2fb085c31fd7b7a3ca715eb8e5e1aba2697",
+          "tests/helpers/__tests__/live-docs-retrieval-admission.test.ts": "6f7e63a6ea02b8babcf0615d92318331525ba3f53e5ae2a2a95dd6f38fd8e319",
+          "tests/helpers/live-docs-retrieval-admission.ts": "2a61e14b52fab676e3a038dcba990f09fb093c49671426cad32f436207e6762e",
+          "tests/helpers/live-docs-retrieval-contracts.ts": "5d87ea67e5317d124f9d01c99ddb355af837eb5f5ec6b36eff7e1b4cc1af337f",
+          "workflows/__tests__/agent-turn-hosted-ai-gate.test.ts": "0cf5a8c518b590f89a97d3eb4c3708ef488b7a830feee315926fb56d19effc96",
+          "workflows/__tests__/wiki-topic-plan.test.ts": "6b886d89b916cbe685fd628e778717d93acc453e0b4466753eaf145b59addd54",
+          "workflows/agent-turn.ts": "e9893f02ccb471d10fe5db7b31f78773528e18a962f9aa3d4f16b0dc8921b3be",
+          "workflows/wiki-topic-plan.ts": "ba6a02744ecf51581636e5143417d439244a08e122517e4f4ae314d117921eb6",
+          "yarn.lock": "bc2875d22040ed2aa371959458b0c3296146a17df2dcd8a51d578712aafeb1a5"
+        },
+        "hashFormat": "sha256 of JSON.stringify(files), paths sorted",
+        "head": "f3ff1a63d11d5d5f5043dedf9660dc0485a1d473",
+        "parentHead": "96e63dbb26fb4911fdb72bcd7799b4eb374ac295",
+        "recordedAt": "2026-10-01T20:32:08.221Z",
+        "sourceFreezeSha256": "5160f9f9e556bd73fd07a27c09cf4ba65b723aa162eab06d612563dbdb3900e9"
+      },
+      "typecheck_passed": false
     },
     "owned_resource_cleanup": {
       "built_browser_sessions_closed": 2,
@@ -1237,6 +1653,411 @@
       "overlay_matches_current_files": true,
       "working_tree_overlay_files": 38
     },
+    "pre_streaming_fix_57_checks": {
+      "build": {
+        "base_url": "http://127.0.0.1:4237",
+        "build_id": "LPIzLNE-V4YMIFRM1f3hz",
+        "duration_ms": 98205,
+        "log": "exclusion-gate/final-build.log",
+        "passed": true,
+        "source_freeze_id": "6e1a63d34a4ce1e8aadef7025063b91ea74855760eba3fe0e6ed3c50e032c010"
+      },
+      "built_browser": {
+        "assertions": [
+          {
+            "name": "Clean toolbar has bordered overflow then rightmost New page; Ask Mate is visible",
+            "passed": true
+          },
+          {
+            "name": "Dirty title shows only Reset and Save",
+            "passed": true
+          },
+          {
+            "name": "Reset restores the saved title and clean toolbar",
+            "passed": true
+          },
+          {
+            "name": "Destructive menu icon/text match and overflow border remains one pixel",
+            "passed": true
+          },
+          {
+            "name": "Keyboard focus opens contextual page-type help",
+            "passed": true
+          },
+          {
+            "name": "Mobile document fits 390 pixels without horizontal overflow",
+            "passed": true
+          },
+          {
+            "name": "Opened mobile page picker shows visible no-match state with no page links",
+            "passed": true
+          },
+          {
+            "name": "Browser reports no recorded JavaScript exceptions",
+            "passed": true
+          }
+        ],
+        "attribution": "Parent-owned additional controlled smoke on the exclusion-guard build. Earlier detailed UI12 remains independently attributed to a734/WuPP under identical frontend bytes.",
+        "build_id": "LPIzLNE-V4YMIFRM1f3hz",
+        "evidence_sha256": "c6b8d52bc4dafc96fe1cb75170506fa72200765b4b886c44d442d4806ed5ce0e",
+        "failed_assertions": 0,
+        "independent_review": {
+          "application_findings": 0,
+          "capture_qualification": "Initial Ask Mate predicate and early closed-picker/wrong-text search are excluded; settled visible sidebar and opened-picker no-match state count. Focused mobile help capture establishes horizontal width only.",
+          "current_source_files_checked": 57,
+          "current_source_hash_drift": 0,
+          "inherited_frontend_files": 83,
+          "limitations": [
+            "Provider-paused smoke does not accept generated ainovi.de content or any full strict hosted suite.",
+            "WuPP/PZNR detailed UI and streaming evidence remains historical, with byte-identity proof for the frontend paths and dependencies recorded here.",
+            "This review does not execute or independently reproduce any browser journey."
+          ],
+          "markdown_sha256": "6eeedcee4a36c8f16fe7e9760eaef6e5799ea448779c64affb36ce2aafefd016",
+          "packet_sha256": "f44641bff2966d4df89b10918ef1d44dc25f5447c1a8417973b1238b433e0257",
+          "passed": true,
+          "saved_artifact_review_only": true,
+          "screenshots_checked": 3,
+          "shared_source_dependencies": 18
+        },
+        "limitations": [
+          "Final build smoke checks use provider-paused owned synthetic workspace; generated website content is not accepted by these assertions.",
+          "Detailed dirty/conflict/CRUD/ordering and onboarding streaming evidence remains attached to WuPP/PZNR and their unchanged frontend hashes.",
+          "Initial mobile search failed before opening the picker and an early predicate used the wrong empty-state text; neither capture is counted.",
+          "Mobile layout capture retains deliberately focused help; the overflow assertion measures the actual document widths."
+        ],
+        "passed": true,
+        "passed_assertions": 8,
+        "provider_cap_zero": true,
+        "provider_paused": true,
+        "source_freeze_id": "6e1a63d34a4ce1e8aadef7025063b91ea74855760eba3fe0e6ed3c50e032c010"
+      },
+      "built_http": {
+        "attribution": "Parent-owned HTTP suite on the new exclusion-guard build and one aligned-origin server.",
+        "build_id": "LPIzLNE-V4YMIFRM1f3hz",
+        "duration_ms": 14336,
+        "files": 2,
+        "log": "exclusion-gate/final-built-http.log",
+        "passed": true,
+        "source_freeze_id": "6e1a63d34a4ce1e8aadef7025063b91ea74855760eba3fe0e6ed3c50e032c010",
+        "tests": 18
+      },
+      "focused_final_boundaries": {
+        "attribution": "Parent-owned final focused rerun after actual repository ESLint formatting. Earlier repeat 3,552 ms and 9,306 ms are retained in gate-results.jsonl.",
+        "duration_ms": 3377,
+        "files": 8,
+        "log": "post-live-gate/focused-final-boundaries.log",
+        "passed": true,
+        "source_freeze_id": "a73446a5ede7408b3d2e4492fba389a6c807df6ce3c62e19bf1a5243bb419913",
+        "tests": 258
+      },
+      "focused_label_fallback": {
+        "actual_repaired_delete_query_selected": true,
+        "before_failed": 2,
+        "before_passed": 44,
+        "full_hosted_acceptance_open": true,
+        "latest_combined_files": 8,
+        "latest_combined_tests_passed": 258,
+        "passed": true,
+        "source_freeze_id": "a73446a5ede7408b3d2e4492fba389a6c807df6ce3c62e19bf1a5243bb419913"
+      },
+      "focused_linguistic": {
+        "execution_attribution": "parent-owned prior49-source linguistic-after-final.log; unchanged retrieval sources",
+        "files": 6,
+        "passed": true,
+        "tests": 108
+      },
+      "focused_metadata": {
+        "duration_ms": 11847,
+        "execution_attribution": "before website-wire-only correction; retrieval sources unchanged",
+        "files": 8,
+        "passed": true,
+        "skipped_tests": 15,
+        "tests": 112
+      },
+      "focused_per_unit_context": {
+        "before_failed": 3,
+        "before_passed": 39,
+        "current_hosted_contract_acceptance_pending": true,
+        "execution_attribution": "Parent-owned per-unit-context-before/after logs",
+        "files": 3,
+        "passed": true,
+        "tests": 78
+      },
+      "focused_source_exclusion_guard": {
+        "after_log": "exclusion-gate/focused-exclusions.log",
+        "assertion_qualification": "Four original expect target expressions change only by supplying mandatory exclusion fields to execute calls inside expect: one repaired-plan call, two intentionally lossy workflow plan calls and one accepted workflow repair. Matcher names, modifiers and expected arguments remain token-identical. They are not claimed byte-identical full assertion expressions.",
+        "before_log": "exclusion-gate/focused-exclusions-before.log",
+        "duration_ms": 6525,
+        "files": 5,
+        "fixture_only_full_expression_changes": 4,
+        "original_matcher_expectations_preserved": true,
+        "passed": true,
+        "root_before_failed": 11,
+        "root_before_passed": 280,
+        "semantic_limit": "Validates evidence references and offering identity, not semantic equivalence, offering discovery or acceptable completed live content.",
+        "source_freeze_id": "6e1a63d34a4ce1e8aadef7025063b91ea74855760eba3fe0e6ed3c50e032c010",
+        "static_matcher_expectation_proof_sha256": "67cf25e21ce112f3a6ea6991e574f2212096a4be2e889c2447aa78008cb327d2",
+        "tests": 291
+      },
+      "focused_vertex_repair_projection": {
+        "authoritative_bounds_preserved": true,
+        "before_failed": 1,
+        "before_passed": 42,
+        "duration_ms": 3350,
+        "files": 4,
+        "passed": true,
+        "tests": 107
+      },
+      "focused_visibility_guard": {
+        "actual_dirty_retention_ms": 253378,
+        "before_failed": 4,
+        "before_passed": 9,
+        "built_two_tab_retest_pending": false,
+        "execution_attribution": "Parent-owned visibility-refresh-before/after logs",
+        "files": 2,
+        "final_build_id": "WuPPuaVD9uYPiLG47LzsI",
+        "final_ui_evidence_sha256": "0a20a94ba34f42445ecc62674a2b06ab5a64ce436f782b4b2932ae2d66ee5a76",
+        "passed": true,
+        "tests": 29
+      },
+      "full_frozen_gate": {
+        "duration_ms": 455534,
+        "log": "exclusion-gate/final-vitest.log",
+        "passed": true,
+        "passed_files": 1041,
+        "passed_tests": 10242,
+        "runtime": "Node 24.18",
+        "skip_attribution": "Fifteen paid opt-in families execute separately and remain failed overall; five HTTP cases pass separately as 18 assertions on this final build. No skipped result is presented as live-provider acceptance.",
+        "skipped_files": 1,
+        "skipped_tests": 20,
+        "source_freeze_id": "6e1a63d34a4ce1e8aadef7025063b91ea74855760eba3fe0e6ed3c50e032c010"
+      },
+      "inherited_built_browser": {
+        "assertions": [
+          {
+            "name": "Dirty title and native body survive remote save and visibility refresh",
+            "passed": true,
+            "retained_ms": 253378
+          },
+          {
+            "name": "Stale save exposes conflict without losing edits",
+            "passed": true
+          },
+          {
+            "name": "Cancel preserves title, body and editor identity",
+            "passed": true
+          },
+          {
+            "name": "Discard reloads remote saved version and clean toolbar",
+            "passed": true
+          },
+          {
+            "name": "Settled title input remains dirty across eight seconds",
+            "passed": true
+          },
+          {
+            "name": "Overflow is bordered and destructive icon matches text",
+            "passed": true
+          },
+          {
+            "name": "Deletion cancel closes dialog and keeps page",
+            "passed": true
+          },
+          {
+            "name": "Confirmed deletion removes fixture from rail and database",
+            "passed": true
+          },
+          {
+            "name": "390px mobile layout has no horizontal overflow",
+            "passed": true
+          },
+          {
+            "name": "Mobile no-match search settles with empty result",
+            "passed": true
+          },
+          {
+            "name": "Page-type help opens using keyboard and explains retrieval",
+            "passed": true
+          },
+          {
+            "name": "No recorded browser exceptions",
+            "passed": true
+          }
+        ],
+        "attribution": "Actual earlier a734/WuPP UI12; inherited frontend and shared dependency bytes match the exclusion guard revision. This is not a replay on the new build.",
+        "build_id": "WuPPuaVD9uYPiLG47LzsI",
+        "current_source_byte_identity_checks": 101,
+        "current_source_byte_identity_mismatches": 0,
+        "evidence_sha256": "0a20a94ba34f42445ecc62674a2b06ab5a64ce436f782b4b2932ae2d66ee5a76",
+        "failed_assertions": 0,
+        "independent_review": {
+          "application_findings": 0,
+          "cancel_scope": "New-build capture proves retained text/editor while dialog remains open; controlled settled PZNR C Cancel/Discard supports dismissal under unchanged frontend source. Do not imply every transient modal state was independently replayed.",
+          "current_source_hash_checks": 18,
+          "current_source_hash_mismatches": 0,
+          "inherited_frontend_files": 83,
+          "inherited_hash_mismatches": 0,
+          "limitations": [
+            "Independent reviewer inspected saved artifacts, not repeated live UI assertions.",
+            "Eight-second duration is root-executed assertion; its raw capture has stable dirty value/actions but no separate elapsed counter.",
+            "Empty captured browser-error file means no recorded exceptions, not proof of every hidden browser error.",
+            "Source freeze/build linkage comes from root assertion packet; UI byte hashes verified independently, not a recomputed full56-source digest.",
+            "Live content completeness and strict hosted retrieval acceptance remain unmet; this UI review does not clear them."
+          ],
+          "markdown_sha256": "5f49d93f3afce6c4b233473cf0bf479cc8ead13e32fefda849c406a016936a8e",
+          "packet_sha256": "148361a86506918cd89074384396633302fb0e547a5e92bb73344760e7cc3a2a",
+          "passed": true,
+          "screenshot_hash_mismatches": 0,
+          "screenshots_checked": 4,
+          "shared_component_prior_hash_checks": 12
+        },
+        "inherited_into_source_freeze": "6e1a63d34a4ce1e8aadef7025063b91ea74855760eba3fe0e6ed3c50e032c010",
+        "limitations": [
+          "Initial incomplete CLI type command produced no dirty body and is excluded.",
+          "Early screenshots before transitions settled are excluded.",
+          "Cancel proof asserts text/editor retention; settled cancel and repeat conflict behavior are separately supported by previous unchanged-frontend PZNR evidence.",
+          "Ambiguous edits entered during prior save navigation were not reproduced after settling; no source defect is inferred.",
+          "Live content completeness and strict hosted retrieval acceptance remain unmet."
+        ],
+        "passed": true,
+        "passed_assertions": 12,
+        "source_freeze_id": "a73446a5ede7408b3d2e4492fba389a6c807df6ce3c62e19bf1a5243bb419913"
+      },
+      "kb_gate": {
+        "checks": 8,
+        "current_overlay_committed_head": "069b893735274a50bfc5c34455f3800df8bb126f",
+        "current_overlay_documents": 0,
+        "duration_ms": 60620,
+        "exact_head_attribution": "Parent committed and ordinarily pushed the same-byte two-document guard revision after its local eight-check gate. Current-head CI is separate.",
+        "failed": 0,
+        "head": "069b893735274a50bfc5c34455f3800df8bb126f",
+        "log": "kb-exclusion-preserved-gate.log",
+        "passed": true,
+        "runtime": "Node 22.21.1",
+        "skipped": 0
+      },
+      "kb_semantic_review": {
+        "current_followup_packet_sha256": "ecbc37f6c89e71c81c9249f231e8b44862229e8e66473be85cdbb4ad82e3f72d",
+        "current_followup_pages": 2,
+        "head": "069b893735274a50bfc5c34455f3800df8bb126f",
+        "inherited_prior_review_pages": 18,
+        "passed": true,
+        "prior_review_packet_sha256": "b22e3365b99ce44cb1f3bcd89946a545d6ca9bb3c32aff07d6ac1e86894f5750",
+        "private_operating_content_included": false,
+        "status": "Independent exact two-page guard follow-up plus inherited 18-page source-semantic review; live acceptance remains open."
+      },
+      "lint": {
+        "command": "yarn lint --max-warnings=0",
+        "duration_ms": 194727,
+        "log": "exclusion-gate/final-lint.log",
+        "passed": true,
+        "source_freeze_id": "6e1a63d34a4ce1e8aadef7025063b91ea74855760eba3fe0e6ed3c50e032c010"
+      },
+      "typecheck": {
+        "command": "yarn typecheck",
+        "duration_ms": 85999,
+        "log": "exclusion-gate/final-typecheck.log",
+        "passed": true,
+        "source_freeze_id": "6e1a63d34a4ce1e8aadef7025063b91ea74855760eba3fe0e6ed3c50e032c010"
+      }
+    },
+    "pre_streaming_fix_57_external_snapshot": {
+      "current_kb_overlay_documents": 0,
+      "current_kb_overlay_pushed": true,
+      "current_source_overlay_pushed": false,
+      "drafts_preserved": true,
+      "kb_ci_snapshot_sha256": "e4a6c059ce8d0712c969a34b7f69c0b60b5f12e0c9472ee1716598dc3a155a37",
+      "kb_current_overlay_exact_head_ci_verified": true,
+      "kb_current_overlay_semantic_audit_complete": true,
+      "kb_exact_head_checks": [
+        "verification (ubuntu)",
+        "policy / Validate repository policy",
+        "readiness (macos-latest)",
+        "readiness (windows-latest)",
+        "ci",
+        "repository-policy"
+      ],
+      "kb_exact_head_ci_attribution": "Exact current KB-head snapshot independently read; all recorded checks are evaluated without inheriting previous-head CI.",
+      "kb_exact_head_ci_verified": true,
+      "kb_head": "069b893735274a50bfc5c34455f3800df8bb126f",
+      "kb_head_pushed": true,
+      "kb_mergeable": "MERGEABLE",
+      "kb_semantic_18_page_audit_complete": true,
+      "local_reviewed_product_head": "f3ff1a63d11d5d5f5043dedf9660dc0485a1d473",
+      "local_reviewed_product_head_pushed": false,
+      "mainline_refresh": {
+        "attribution": "Parent fetched unchanged origins; reviewer independently read local origin/main refs and merge-base ancestry, with no ref writes.",
+        "kb_head_contains_main": true,
+        "kb_main": "790c0ecc2b5bc39b95156dc43375090a5b510066",
+        "product_head_contains_main": true,
+        "product_main": "31d1df14c9185e62f23bf902be3ef518b42ca5b3"
+      },
+      "migration_adoption_scope_confirmed": true,
+      "preview_reset": "Human checkpoint against the rewritten migration revision; no agent reset or cleanup.",
+      "previous_green_kb_head": "adda150973a8464a789138ad037ca4efffd952ed",
+      "previous_kb_exact_head_ci_verified": true,
+      "product_exact_new_head_ci_verified": false,
+      "published_product_head": "bf7aa45ab60a136257ce57876f19f26ff18c2c26",
+      "published_product_head_pushed": true,
+      "remote_product_head_attribution": "Parent fresh GitHub read at 17:40 UTC; local f3ff and preceding cleanup commits remain unpushed."
+    },
+    "pre_streaming_fix_57_resource_cleanup": {
+      "all_owned_resources_removed": false,
+      "dev_database_untouched": true,
+      "evidence_sha256": "45209cfcbd88ea50d9ddcf5ee71d169d1d8f8927a5772cc79b2c401e8098b269",
+      "no_account_or_database_identifiers_included": true,
+      "owned_browser_closed": true,
+      "owned_gate_database_dropped_and_absent": true,
+      "owned_server_stopped": true,
+      "paid_synthetic_database_retained": true,
+      "passed": true,
+      "preview_database_untouched": true,
+      "provider_cap_zero": true,
+      "provider_paused": true,
+      "retained_scope": "Owned local paid-test synthetic database retained for a future separately authorized complete content/provider follow-up. Retention does not authorize new spend.",
+      "scope_attribution": "Parent operated only the owned temporary gate database and guarded server/browser; dev and preview untouched per parent execution scope.",
+      "source_files": 57,
+      "source_hash_drift": 0,
+      "user_port_4000_untouched": true
+    },
+    "pre_streaming_fix_57_review_matrix": {
+      "application_and_dependency_paths": 753,
+      "consolidated_csv_sha256": "7db2a6d45390fde58b8f6a1beda10280d087dbe6338a56f029223c44defd7b2c",
+      "consolidated_matrix_sha256": "abb2d3aab586c8413b519935f25466cbc30b147874ae74b3f4de07bcf6f24185",
+      "corrected": 167,
+      "count_attribution": "Parent-assembled 762-path matrix, including the source-exclusion revision; original matcher expectations preserved with four mandatory input-fixture changes. Production guard and system prompt reviewed by the backend reviewer.",
+      "current_incremental_review_sha256": "0b811b8c8f2b7f405f4855f8da45afee2b1eca31808dde9b3dee3737c8b0c317",
+      "current_overlay_paths": 57,
+      "historical_56_review_sha256": "40104bd97fda0edff352780718d2887e84a450f5d708d2cf27bf175f2921dddd",
+      "initial_only_paths": 9,
+      "justified": 13,
+      "latest49_path_independent_review_sha256": "bec5b299c5b4c988bc5b6b274b262e99793785ff2ad9b363c79522ac30000aad",
+      "latest56_path_independent_review_sha256": "0b811b8c8f2b7f405f4855f8da45afee2b1eca31808dde9b3dee3737c8b0c317",
+      "latest56_reviewed_paths": 56,
+      "open_source_findings": 0,
+      "original_paths": 592,
+      "requires_regeneration": false,
+      "reviewed": 582,
+      "reviewed_union_paths": 762,
+      "self_derived_packet_files_excluded": 3,
+      "source_exclusion_test_review_sha256": "ba412f79f42e9e9b98d57fe9ebd49150c356068974b0762e8b7182449f319950",
+      "source_hash_drift": 0,
+      "stale_paths_at_proposal_snapshot": [],
+      "stale_tagged_hashes": 0,
+      "uncovered_current_paths": 0
+    },
+    "pre_streaming_fix_57_source_snapshot": {
+      "base_head": "f3ff1a63d11d5d5f5043dedf9660dc0485a1d473",
+      "current_independent_review_sha256": "0b811b8c8f2b7f405f4855f8da45afee2b1eca31808dde9b3dee3737c8b0c317",
+      "final_committed_head": null,
+      "frozen": true,
+      "hash_format": "sha256 of JSON.stringify(files), paths sorted",
+      "latest_completed_gate_snapshot": "Current 57-source typecheck, lint and full Vitest complete; build/HTTP/new smoke statuses are recorded independently. Earlier a734 gate/WuPP detailed UI retains its original attribution.",
+      "recorded_at": "2026-10-01T18:50:42.419Z",
+      "source_freeze_file_sha256": "6806b9a16b3b48c42a0ad8d73d85d076300345097c22ed5e2b93e484096de8eb",
+      "source_freeze_id": "6e1a63d34a4ce1e8aadef7025063b91ea74855760eba3fe0e6ed3c50e032c010",
+      "working_tree_overlay_files": 57
+    },
     "pre_vertex_wire_49_checks": {
       "build": {
         "build_id": "kcgMNw8NvbwQ9Y4P9zq11",
@@ -1434,6 +2255,10 @@
         "Conditional label-backed body fallback applies only when a residual request unit exists but no residual unit has an actual body match. Matching residual actions and full-label introductory behavior remain unchanged. Two failing-before regressions and two boundary regressions pass; no complete new provider acceptance is claimed."
       ],
       "new_built_live_onboarding_content_acceptance": false,
+      "selected_navigation_metadata": {
+        "finding": "Selected same-page child Link metadata could be omitted after primary excerpt consumes cap.",
+        "status": "Corrected in serializer with unchanged ranking,1400total and one-third metadata cap; deterministic cases pass; fresh hosted acceptance remains pending."
+      },
       "source_and_deterministic_regressions_reviewed": true
     },
     "executed": true,
@@ -1718,18 +2543,21 @@
       ]
     },
     "latest_built_ainovi_import": {
+      "actual_stop_reason": "hosted_ai_unavailable",
+      "actual_terminal_code": "partial",
       "build_id": "15Wxiq8ji-5h7jTqCRoVg",
       "content_acceptance_complete": false,
       "content_coverage_review": "Actual partial content has substantive failures beyond the cap: SAP and Data Science offerings are excluded as allegedly covered by a summary; a German page title appears during an explicit English import. The latest software page cites its matching dedicated source URL; full citation acceptance remains unverified. Three saved pages are incomplete coverage. Source prompt/repair changes do not establish that these results are corrected.",
-      "crawl_status_interpretation": "Stored crawl completed means extraction finished; it does not prove full synthesis/content completion.",
+      "crawl_status_interpretation": "Crawl completed indicates extraction/dispatch acceptance; workflow completed means handler exited. Neither establishes full synthesis.",
       "created_pages": 3,
       "creation_tool_receipts": 1,
+      "lifecycle_proof_sha256": "db91a8c5ca19bc8973334d9c8e58135ae3bcf942e8501b9e80b1274dfdc89db2",
       "observed_terminal_message": "Hosted AI temporarily unavailable",
       "passed": false,
       "processed_targets": 40,
       "readback_sha256": "1c23925eaf94e6959128d17ba941d8daef5f41bb09ed9c40a4ca76f800f0d4a8",
       "source_snapshot": "historical_verification.pre_visibility_49_source_snapshot",
-      "status": "incomplete; approved batch cap stopped remaining synthesis",
+      "status": "incomplete; actual terminal partial / hosted_ai_unavailable",
       "stored_useful_sources": 38,
       "substantive_content_findings": [
         "SAP and Data Science offerings excluded as covered by summary without proper dedicated coverage.",
@@ -1737,6 +2565,7 @@
         "German title in explicitly English website import.",
         "Full offering, FAQ answer, citation and internal-rule gap coverage not accepted."
       ],
+      "terminal_reason_qualification": "Operator cap bounded the harness, but the terminal record does not identify which admission subcheck failed. Offering exclusions preceded this stop.",
       "tool_receipts": 26,
       "total_targets": 40
     },
@@ -2014,7 +2843,7 @@
     }
   },
   "pending": [
-    "Complete final independent derived-packet review; push product normally and verify its exact new-head CI/deployment checks.",
+    "Publish final source normally and verify exact new product-head CI/deployment; this immutable packet is a prepublication snapshot, and live PR state is authoritative afterward.",
     "Resolve complete/subset strict hosted-family failures or obtain explicit owner acceptance; preserve original golds and do not claim full-provider success.",
     "Complete actual website content acceptance: dedicated SAP/Data Science offerings, explicit English titles, FAQ answers and reviewed internal-rule gaps remain unmet; full citation acceptance remains unverified. The exclusion guard has not been accepted through completed live synthesis.",
     "Future paid follow-up requires stated authorization. The original ceiling remains US$2 with corrected US$1.91323767 recorded; the requested additional US$1 is pending and does not authorize spend.",
@@ -2023,12 +2852,12 @@
   "ready_to_merge": false,
   "review_matrix": {
     "application_and_dependency_paths": 753,
-    "consolidated_csv_sha256": "7db2a6d45390fde58b8f6a1beda10280d087dbe6338a56f029223c44defd7b2c",
-    "consolidated_matrix_sha256": "abb2d3aab586c8413b519935f25466cbc30b147874ae74b3f4de07bcf6f24185",
-    "corrected": 167,
-    "count_attribution": "Parent-assembled 762-path matrix, including the source-exclusion revision; original matcher expectations preserved with four mandatory input-fixture changes. Production guard and system prompt reviewed by the backend reviewer.",
-    "current_incremental_review_sha256": "0b811b8c8f2b7f405f4855f8da45afee2b1eca31808dde9b3dee3737c8b0c317",
-    "current_overlay_paths": 57,
+    "consolidated_csv_sha256": "140d1b9e6abe5cdc834c6a0389359b4f5a0100dbe9e634dbc3fd12f688dda4d2",
+    "consolidated_matrix_sha256": "ee592915d2835299898792be54636001afabc09a222c0dc99be0b51f270b414a",
+    "corrected": 169,
+    "count_attribution": "All762 union paths compared to established neighbors; current59 source hashes are independently reviewed. Three derived packet files receive separate artifact consistency review.",
+    "current_incremental_review_sha256": "37a00206f95e66764f14c5137ea313fae5524625b9509648e923c340c8c3b332",
+    "current_overlay_paths": 59,
     "historical_56_review_sha256": "40104bd97fda0edff352780718d2887e84a450f5d708d2cf27bf175f2921dddd",
     "initial_only_paths": 9,
     "justified": 13,
@@ -2038,8 +2867,9 @@
     "open_source_findings": 0,
     "original_paths": 592,
     "requires_regeneration": false,
-    "reviewed": 582,
+    "reviewed": 580,
     "reviewed_union_paths": 762,
+    "selected_navigation_review_sha256": "c3059c257fd13d69882b1ca72d3b3b10cafe15b8859313234e54995e16a0b61b",
     "self_derived_packet_files_excluded": 3,
     "source_exclusion_test_review_sha256": "ba412f79f42e9e9b98d57fe9ebd49150c356068974b0762e8b7182449f319950",
     "source_hash_drift": 0,
@@ -2123,19 +2953,30 @@
       "root_before_passed": 280,
       "source_freeze_id": "6e1a63d34a4ce1e8aadef7025063b91ea74855760eba3fe0e6ed3c50e032c010",
       "status": "Corrected in source with typed source-specific exclusion bases; final generated-content acceptance remains open."
+    },
+    {
+      "path": "ee/agent-chat/agent-output-safety.ts",
+      "source_freeze_id": "e0abface799164365285e76bd5b84f392b802c1528d3e80bf80889df343e423c",
+      "status": "Corrected quadratic scanner; token boundary matches preserve saved-view/UUID redaction and chunk output. Original two workflow tests/default5seconds unchanged."
+    },
+    {
+      "path": "features/mcp-tools/docs-unified-search.ts",
+      "source_freeze_id": "e0abface799164365285e76bd5b84f392b802c1528d3e80bf80889df343e423c",
+      "status": "Corrected selected-child metadata starvation and discarded-short-block guard; original tests/golds unchanged."
     }
   ],
   "source_snapshot": {
     "base_head": "f3ff1a63d11d5d5f5043dedf9660dc0485a1d473",
-    "current_independent_review_sha256": "0b811b8c8f2b7f405f4855f8da45afee2b1eca31808dde9b3dee3737c8b0c317",
+    "current_independent_review_sha256": "37a00206f95e66764f14c5137ea313fae5524625b9509648e923c340c8c3b332",
     "final_committed_head": null,
     "frozen": true,
     "hash_format": "sha256 of JSON.stringify(files), paths sorted",
-    "latest_completed_gate_snapshot": "Current 57-source typecheck, lint and full Vitest complete; build/HTTP/new smoke statuses are recorded independently. Earlier a734 gate/WuPP detailed UI retains its original attribution.",
-    "recorded_at": "2026-10-01T18:50:42.419Z",
-    "source_freeze_file_sha256": "6806b9a16b3b48c42a0ad8d73d85d076300345097c22ed5e2b93e484096de8eb",
-    "source_freeze_id": "6e1a63d34a4ce1e8aadef7025063b91ea74855760eba3fe0e6ed3c50e032c010",
-    "working_tree_overlay_files": 57
+    "latest_completed_gate_snapshot": "Final source59 passes local typecheck, zero-warning lint, full Vitest, build, aligned-origin HTTP and fresh provider-disabled browser smoke. Published exact-head CI is authoritative on the PR after this prepublication packet.",
+    "parent_head": "96e63dbb26fb4911fdb72bcd7799b4eb374ac295",
+    "recorded_at": "2026-10-01T20:33:09.885Z",
+    "source_freeze_file_sha256": "8d1b8c6ac7ec91705e3983102b09eccf77e001c49d01983b5e4f086e05a0ac41",
+    "source_freeze_id": "e0abface799164365285e76bd5b84f392b802c1528d3e80bf80889df343e423c",
+    "working_tree_overlay_files": 59
   },
-  "status": "Current exclusion-guard source is independently reviewed. Completed local gate/build/HTTP/new smoke results are recorded separately from inherited a734/WuPP UI. Complete and subset hosted failures, actual website-content gaps, product push/exact CI and human checkpoints remain open."
+  "status": "Final independently reviewed59-file source passes attributed local automated/build/HTTP/provider-disabled browser gates. Live hosted-family and generated-content acceptance remains open. This immutable packet precedes product publication; exact published-head CI is recorded in PR description."
 }

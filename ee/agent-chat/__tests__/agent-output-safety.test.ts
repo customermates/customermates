@@ -429,6 +429,24 @@ describe("agent client-visible output safety", () => {
     }
   });
 
+  it.each(["plain", "?no-view=", "&no-view="])(
+    "preserves a long %s token beside saved-view links at provider chunk boundaries",
+    (kind) => {
+      const viewId = "00000000-0000-4000-8000-000000000001";
+      const token = `${"x".repeat(20_000)}${kind === "plain" ? "" : kind}${"y".repeat(20_000)}`;
+      const source = `${token} Open /contacts?view=${viewId}. Raw ${viewId}. End.`;
+      const expected = `${token} Open /contacts?view=[internal reference]. Raw [internal reference]. End.`;
+      expect(sanitizeAgentVisibleText(source)).toBe(expected);
+      for (const split of [1, source.indexOf("?view=") + 6, source.indexOf(viewId) + 1, source.length - 1]) {
+        const sanitizer = new AgentVisibleTextStreamSanitizer();
+        const visible =
+          sanitizer.push(source.slice(0, split)) + sanitizer.push(source.slice(split)) + sanitizer.finish();
+        expect(visible, `${kind} split ${split}`).toBe(expected);
+        expect(visible).not.toContain(viewId);
+      }
+    },
+  );
+
   it.each(SAVED_VIEW_STREAMING_CASES.map((source, sourceIndex) => ({ source, sourceIndex })))(
     "sanitizes saved-view text consistently across every provider chunk boundary: case $sourceIndex",
     ({ source, sourceIndex }) => {
