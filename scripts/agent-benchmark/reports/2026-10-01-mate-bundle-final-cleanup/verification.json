@@ -1720,7 +1720,7 @@
     "latest_built_ainovi_import": {
       "build_id": "15Wxiq8ji-5h7jTqCRoVg",
       "content_acceptance_complete": false,
-      "content_coverage_review": "Actual partial content has substantive failures beyond the cap: SAP and Data Science offerings are excluded as allegedly covered by a summary; the software offering cites the wrong source; a German page title appears during an explicit English import. Three saved pages are incomplete coverage. Source prompt/repair changes do not establish that these results are corrected.",
+      "content_coverage_review": "Actual partial content has substantive failures beyond the cap: SAP and Data Science offerings are excluded as allegedly covered by a summary; a German page title appears during an explicit English import. The latest software page cites its matching dedicated source URL; full citation acceptance remains unverified. Three saved pages are incomplete coverage. Source prompt/repair changes do not establish that these results are corrected.",
       "crawl_status_interpretation": "Stored crawl completed means extraction finished; it does not prove full synthesis/content completion.",
       "created_pages": 3,
       "creation_tool_receipts": 1,
@@ -1733,7 +1733,7 @@
       "stored_useful_sources": 38,
       "substantive_content_findings": [
         "SAP and Data Science offerings excluded as covered by summary without proper dedicated coverage.",
-        "Software offering citation points to the wrong source.",
+        "Full citation acceptance is unverified; the latest software source URL matches its dedicated stored source.",
         "German title in explicitly English website import.",
         "Full offering, FAQ answer, citation and internal-rule gap coverage not accepted."
       ],
@@ -2016,7 +2016,7 @@
   "pending": [
     "Complete final independent derived-packet review; push product normally and verify its exact new-head CI/deployment checks.",
     "Resolve complete/subset strict hosted-family failures or obtain explicit owner acceptance; preserve original golds and do not claim full-provider success.",
-    "Complete actual website content acceptance: dedicated SAP/Data Science offerings, correct software citation, explicit English titles, FAQ answers and reviewed internal-rule gaps remain unmet. The exclusion guard has not been accepted through completed live synthesis.",
+    "Complete actual website content acceptance: dedicated SAP/Data Science offerings, explicit English titles, FAQ answers and reviewed internal-rule gaps remain unmet; full citation acceptance remains unverified. The exclusion guard has not been accepted through completed live synthesis.",
     "Future paid follow-up requires stated authorization. The original ceiling remains US$2 with corrected US$1.91323767 recorded; the requested additional US$1 is pending and does not authorize spend.",
     "Human preview reset, legal/privacy/vendor-contract/customer-notice checkpoints and merge approval."
   ],
