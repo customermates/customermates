@@ -2,12 +2,19 @@ import type { RootStore } from "@/core/stores/root.store";
 
 import { beforeEach, describe, expect, it, vi } from "vitest";
 
-const actions = vi.hoisted(() => ({ completeOnboardingWizardAction: vi.fn() }));
+const actions = vi.hoisted(() => ({
+  completeOnboardingWizardAction: vi.fn(),
+  saveOnboardingWizardProgressAction: vi.fn(),
+}));
 const assign = vi.hoisted(() => vi.fn());
 
 vi.mock("../../actions", () => actions);
+vi.mock("@/app/[locale]/(protected)/profile/actions", () => ({ createApiKeyAction: vi.fn() }));
+vi.mock("@/core/errors/report-application-error", () => ({ reportApplicationError: vi.fn() }));
 
 import { OnboardingWizardStore, WIZARD_STEPS } from "../onboarding-wizard.store";
+import { AiConnectionStore } from "@/components/ai-connection/ai-connection.store";
+import { readOnboardingWizardProgress } from "@/features/onboarding-wizard/onboarding-wizard-progress.schema";
 
 const rootStore = {} as RootStore;
 
@@ -18,6 +25,115 @@ beforeEach(() => {
     data: { redirectTo: "/dashboard" },
   });
   vi.stubGlobal("location", { assign });
+  actions.saveOnboardingWizardProgressAction.mockImplementation(({ progress }) =>
+    Promise.resolve({ ok: true, data: progress }),
+  );
+});
+
+describe("returning-user onboarding progress", () => {
+  function persistentStore() {
+    const root = {} as RootStore;
+    const ai = new AiConnectionStore(root);
+    const store = new OnboardingWizardStore({ stepAiStore: ai } as RootStore);
+    return { store, ai };
+  }
+
+  it("restores the exact AI method and invitation tab while allowing Back to Invite", async () => {
+    const { store, ai } = persistentStore();
+    const progress = {
+      ...readOnboardingWizardProgress(null),
+      step: "ai" as const,
+      inviteTab: "email" as const,
+      ai: {
+        ...readOnboardingWizardProgress(null).ai,
+        route: { screen: "claude" as const },
+        selectedProvider: "claude" as const,
+        claudeMethod: "account" as const,
+      },
+    };
+    store.initialize(true, "owner-a", progress);
+    expect(store.currentStep).toBe("ai");
+    expect(store.inviteTab).toBe("email");
+    expect(ai.connectorProvider).toBe("claude");
+    expect(store.isFirstStep).toBe(false);
+    await store.back();
+    expect(store.currentStep).toBe("invite");
+    expect(actions.saveOnboardingWizardProgressAction).toHaveBeenCalledWith({
+      userId: "owner-a",
+      progress: { ...progress, step: "invite" },
+    });
+  });
+
+  it("waits for a successful server save before advancing and stays put on failure", async () => {
+    const { store } = persistentStore();
+    store.initialize(true, "owner-a");
+    let resolveSave!: (value: unknown) => void;
+    actions.saveOnboardingWizardProgressAction.mockImplementationOnce(
+      () =>
+        new Promise((resolve) => {
+          resolveSave = resolve;
+        }),
+    );
+    const next = store.next();
+    await Promise.resolve();
+    expect(store.currentStep).toBe("invite");
+    expect(store.isSaving).toBe(true);
+    resolveSave({ ok: false, error: { formErrors: [], properties: {} } });
+    await next;
+    expect(store.currentStep).toBe("invite");
+    expect(store.isSaving).toBe(false);
+  });
+
+  it("serializes selection saves and excludes one-time key values from progress", async () => {
+    const { store, ai } = persistentStore();
+    store.initialize(true, "owner-a");
+    await store.next();
+    ai.selectProvider("cursor");
+    ai.credentials.cursor = { id: "synthetic-key-id", key: "synthetic-one-time-value", expiresAt: null };
+    await store.persistProgress();
+    const saved = actions.saveOnboardingWizardProgressAction.mock.calls.at(-1)?.[0];
+    expect(saved.progress.ai.apiKeyIds).toEqual({ cursor: "synthetic-key-id" });
+    expect(JSON.stringify(saved)).not.toContain("synthetic-one-time-value");
+    const returning = persistentStore();
+    returning.store.initialize(true, "owner-a", saved.progress);
+    expect(returning.ai.canFinish).toBe(true);
+    expect(returning.ai.apiKey).toBeNull();
+    expect(returning.ai.hasSavedApiKey).toBe(true);
+  });
+
+  it("restores skip and clears the prior account's selection for a different user", () => {
+    const { store, ai } = persistentStore();
+    const progress = {
+      ...readOnboardingWizardProgress(null),
+      step: "ai" as const,
+      ai: { ...readOnboardingWizardProgress(null).ai, route: { screen: "skip" as const } },
+    };
+    store.initialize(true, "owner-a", progress);
+    expect(ai.canFinish).toBe(true);
+    store.initialize(true, "owner-b");
+    expect(store.currentStep).toBe("invite");
+    expect(ai.canFinish).toBe(false);
+    expect(ai.selection.apiKeyIds).toEqual({});
+  });
+
+  it("does not let an old account's in-flight save advance a new account", async () => {
+    const { store } = persistentStore();
+    store.initialize(true, "owner-a");
+    let resolveSave!: (value: unknown) => void;
+    actions.saveOnboardingWizardProgressAction.mockImplementationOnce(
+      () =>
+        new Promise((resolve) => {
+          resolveSave = resolve;
+        }),
+    );
+    const next = store.next();
+    await Promise.resolve();
+    store.initialize(true, "owner-b");
+    resolveSave({ ok: true, data: { ...readOnboardingWizardProgress(null), step: "ai" } });
+    await next;
+    expect(store.currentStep).toBe("invite");
+    expect(store.userId).toBe("owner-b");
+  });
 });
 
 describe("OnboardingWizardStore", () => {
@@ -30,32 +146,32 @@ describe("OnboardingWizardStore", () => {
     expect("terminology" in store).toBe(false);
   });
 
-  it("starts registered owners at Invite and prevents returning to Profile", () => {
+  it("starts registered owners at Invite and prevents returning to Profile", async () => {
     const store = new OnboardingWizardStore(rootStore);
 
     store.setInitialStep(1);
     expect(store.currentStep).toBe("invite");
     expect(store.isFirstStep).toBe(true);
 
-    store.back();
+    await store.back();
     expect(store.currentStep).toBe("invite");
   });
 
-  it("advances Invite to the terminal AI step", () => {
+  it("advances Invite to the terminal AI step", async () => {
     const store = new OnboardingWizardStore(rootStore);
     store.setInitialStep(1);
 
-    store.next();
+    await store.next();
     expect(store.currentStep).toBe("ai");
 
-    store.next();
+    await store.next();
     expect(store.currentStep).toBe("ai");
   });
 
-  it("resets progress when a different account starts at an earlier step", () => {
+  it("resets progress when a different account starts at an earlier step", async () => {
     const store = new OnboardingWizardStore(rootStore);
     store.setInitialStep(1);
-    store.next();
+    await store.next();
 
     store.setInitialStep(0);
 

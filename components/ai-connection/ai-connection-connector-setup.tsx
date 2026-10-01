@@ -10,9 +10,10 @@ import { CopyableCode } from "@/components/shared/copyable-code";
 type Props = {
   mcpUrl: string;
   provider: "claude" | "chatgpt";
+  disabled?: boolean;
 };
 
-export function AiConnectionConnectorSetup({ mcpUrl, provider }: Props) {
+export function AiConnectionConnectorSetup({ mcpUrl, provider, disabled = false }: Props) {
   const t = useTranslations();
   const isClaude = provider === "claude";
 
@@ -39,9 +40,13 @@ export function AiConnectionConnectorSetup({ mcpUrl, provider }: Props) {
       {isClaude ? (
         <Button asChild className="self-start" variant="secondary">
           <a
+            aria-disabled={disabled || undefined}
             href={`https://claude.ai/customize/connectors?modal=add-custom-connector&connectorName=Customermates&connectorUrl=${encodeURIComponent(mcpUrl)}`}
             rel="noreferrer noopener"
             target="_blank"
+            onClick={(event) => {
+              if (disabled) event.preventDefault();
+            }}
           >
             {t("OnboardingWizard.ai.connector.claudeButton")}
 
