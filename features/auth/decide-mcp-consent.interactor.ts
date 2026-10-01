@@ -30,7 +30,7 @@ export class DecideMcpConsentInteractor {
   @ValidateOutput(OutputSchema)
   async invoke(data: DecideMcpConsentData): Promise<Awaited<Validated<DecideMcpConsentResult>>> {
     const resolution = await this.routeGuardService.resolveAccountState();
-    if (resolution.state !== "allowed") return { ok: true, data: null };
+    if (resolution.state !== "allowed" && resolution.state !== "onboarding") return { ok: true, data: null };
 
     return { ok: true, data: await this.authService.decideMcpConsent(data) };
   }
