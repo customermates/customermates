@@ -1438,12 +1438,13 @@ export async function runAgentTurn(payload: AgentTurnWorkflowPayload): Promise<v
         const chargeableSearches = agentWebSearchChargeableCallsInStep(step, isSuccessfulAgentWebResult);
         const charge = readAgentProviderCharge(step.providerMetadata, payload.turnBudget.servingProvider);
         const gatewayDebitMicrocents = readGatewayCostMicrocents(step.providerMetadata);
+        const hasPositiveGatewayDebit = (gatewayDebitMicrocents ?? 0) > 0;
         const hasTokenUsage = Object.values(roundTokens).some((count) => count > 0);
         const remainingReservationMicrocents = Math.max(0, reservedMicrocents - accruedCostMicrocents());
         const estimatedInferenceMicrocents =
           charge.outcome !== "unreadable"
             ? 0
-            : gatewayDebitMicrocents === null && !hasTokenUsage
+            : !hasPositiveGatewayDebit && !hasTokenUsage
               ? Math.max(1, Math.min(payload.turnBudget.roundReserveMicrocents, remainingReservationMicrocents))
               : computeCostMicrocents(
                   payload.turnBudget.modelSpec,
@@ -1460,7 +1461,7 @@ export async function runAgentTurn(payload: AgentTurnWorkflowPayload): Promise<v
               : Math.max(
                   gatewayDebitMicrocents ?? 0,
                   estimatedInferenceMicrocents +
-                    (gatewayDebitMicrocents === null ? chargeableSearches * AGENT_WEB_SEARCH_WORST_CASE_MICROCENTS : 0),
+                    (hasPositiveGatewayDebit ? 0 : chargeableSearches * AGENT_WEB_SEARCH_WORST_CASE_MICROCENTS),
                 );
 
         tokens = addTokens(tokens, roundTokens);

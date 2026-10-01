@@ -135,6 +135,17 @@ describe("Jev runner", () => {
 
     expect(result.costMicrocents).toBeNull();
   });
+
+  it("preserves Gateway-proven unbilled work", async () => {
+    const body = {
+      ...JEV_BODY,
+      providerMetadata: { gateway: { gatewayCost: "0", routing: { modelAttempts: [] } } },
+    };
+
+    const result = await runJev(SPEC, STATE, { apiKey: "k", fetch: replyWith(body) });
+
+    expect(result.costMicrocents).toBe(0);
+  });
 });
 
 describe("classifyAttempt", () => {

@@ -133,6 +133,53 @@ describe("gateway provider charge", () => {
   });
 
   it.each([
+    ["no model attempts", {}],
+    ["null model attempts", { modelAttempts: null }],
+    ["non-array model attempts", { modelAttempts: {} }],
+    ["an invalid model attempt", { modelAttempts: [null] }],
+    ["no provider attempts", { modelAttempts: [{}] }],
+    ["null provider attempts", { modelAttempts: [{ providerAttempts: null }] }],
+    ["non-array provider attempts", { modelAttempts: [{ providerAttempts: {} }] }],
+    ["an invalid provider attempt", { modelAttempts: [{ providerAttempts: [null] }] }],
+    ["no provider success evidence", { modelAttempts: [{ providerAttempts: [{}] }] }],
+    ["nonboolean provider success", { modelAttempts: [{ providerAttempts: [{ success: "false" }] }] }],
+    [
+      "an invalid attempt beside a successful attempt",
+      {
+        finalProvider: "openai",
+        modelAttempts: [{ providerAttempts: [{ provider: "openai", credentialType: "system", success: true }, null] }],
+      },
+    ],
+  ])("does not infer free usage from %s", (_case, routing) => {
+    expect(readAgentProviderCharge({ gateway: { routing } }, "openai").outcome).toBe("unreadable");
+    expect(readAgentProviderCharge({ gateway: { gatewayCost: "0", routing } }, "openai").outcome).toBe("unreadable");
+  });
+
+  it.each([
+    { modelAttempts: [] },
+    { modelAttempts: [{ providerAttempts: [] }] },
+    { modelAttempts: [{ providerAttempts: [{ success: false }] }] },
+  ])("keeps explicit empty or failed serving attempts unbilled: %j", (routing) => {
+    expect(readAgentProviderCharge({ gateway: { routing } }, "openai")).toEqual({ outcome: "notBilled" });
+    expect(readAgentProviderCharge({ gateway: { gatewayCost: "0", routing } }, "openai")).toEqual({
+      outcome: "notBilled",
+    });
+  });
+
+  it("preserves a valid zero authoritative receipt as measured", () => {
+    expect(readAgentProviderCharge(billedMetadata({ gatewayCost: "0" }), "openai")).toEqual({
+      outcome: "measured",
+      charge: { costMicrocents: 0, finalProvider: "openai", generationId: "gen_01M0QTS0NKJMJMMYA0JGKZM6SF" },
+    });
+  });
+
+  it("retains a positive debit for conservative settlement when routing evidence is malformed", () => {
+    const metadata = { gateway: { gatewayCost: "0.00331309", routing: {} } };
+    expect(readAgentProviderCharge(metadata, "openai").outcome).toBe("unreadable");
+    expect(readGatewayCostMicrocents(metadata)).toBe(331_309);
+  });
+
+  it.each([
     [
       "a credential this platform does not bill",
       billedMetadata(

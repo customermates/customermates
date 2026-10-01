@@ -54,7 +54,8 @@ export async function runJev(
   return {
     model: "jev",
     answers,
-    costMicrocents: charge.outcome === "measured" ? charge.charge.costMicrocents : null,
+    costMicrocents:
+      charge.outcome === "measured" ? charge.charge.costMicrocents : charge.outcome === "notBilled" ? 0 : null,
     latencyMs: now() - started,
   };
 }

@@ -30,18 +30,21 @@ function isZeroDecimal(value: unknown) {
   return typeof value === "string" && /^0+(\.0+)?$/.test(value);
 }
 
-function succeededProviderAttempts(routing: Record<string, unknown>) {
-  const modelAttempts = Array.isArray(routing.modelAttempts) ? routing.modelAttempts : [];
+function succeededProviderAttempts(routing: Record<string, unknown>): Record<string, unknown>[] | null {
+  if (!Array.isArray(routing.modelAttempts)) return null;
 
-  return modelAttempts
-    .flatMap((modelAttempt) => {
-      const attempts = record(modelAttempt)?.providerAttempts;
-      return Array.isArray(attempts) ? attempts : [];
-    })
-    .flatMap((attempt) => {
+  const succeeded: Record<string, unknown>[] = [];
+  for (const modelAttempt of routing.modelAttempts) {
+    const model = record(modelAttempt);
+    if (!model || !Array.isArray(model.providerAttempts)) return null;
+
+    for (const attempt of model.providerAttempts) {
       const parsed = record(attempt);
-      return parsed && parsed.success === true ? [parsed] : [];
-    });
+      if (!parsed || typeof parsed.success !== "boolean") return null;
+      if (parsed.success) succeeded.push(parsed);
+    }
+  }
+  return succeeded;
 }
 
 export function readGatewayCostMicrocents(metadata: unknown): number | null {
@@ -58,6 +61,8 @@ export function readAgentProviderCharge(metadata: unknown, expectedProvider: str
   if (!routing) return { outcome: "unreadable", reason: "the gateway reported no routing metadata" };
 
   const attempts = succeededProviderAttempts(routing);
+  if (attempts === null)
+    return { outcome: "unreadable", reason: "the gateway reported incomplete serving-attempt metadata" };
   if (attempts.length === 0) {
     const hasUnattributedCharge = ["gatewayCost", "cost", "surchargeCost", "upstreamInferenceCost"].some(
       (field) => field in gateway && !isZeroDecimal(gateway[field]),

@@ -35,6 +35,71 @@ describe("embedding provider boundary", () => {
     expect(provider.embed).toHaveBeenCalledWith(expect.objectContaining({ maxRetries: 0 }));
   });
 
+  it.each([undefined, 0, -1, 0.5, Number.NaN, Number.POSITIVE_INFINITY, Number.MAX_SAFE_INTEGER])(
+    "uses the UTF-8 attempt estimate when an unreadable receipt reports %s input tokens",
+    async (tokens) => {
+      provider.embed.mockResolvedValueOnce({
+        embeddings: [Array(WIKI_EMBEDDING_DIMENSIONS).fill(0.25)],
+        usage: { tokens },
+        providerMetadata: {},
+      });
+      provider.charge.mockReturnValueOnce({ outcome: "unreadable", reason: "missing receipt" });
+      const onCharge = vi.fn();
+
+      const result = await embedWikiTexts(["é😀"], "query", { onCharge });
+
+      expect(result.charge).toEqual(wikiEmbeddingAttemptCharge(["é😀"]));
+      expect(onCharge).toHaveBeenCalledExactlyOnceWith(result.charge);
+    },
+  );
+
+  it.each([0, 30])("preserves a measured %s debit when token usage is missing", async (costMicrocents) => {
+    provider.embed.mockResolvedValueOnce({
+      embeddings: [Array(WIKI_EMBEDDING_DIMENSIONS).fill(0.25)],
+      providerMetadata: {},
+    });
+    provider.charge.mockReturnValueOnce({ outcome: "measured", charge: { costMicrocents } });
+    const onCharge = vi.fn();
+
+    const result = await embedWikiTexts(["é😀"], "query", { onCharge });
+
+    expect(result.charge).toEqual({
+      model: "google/gemini-embedding-001",
+      inputTokens: 6,
+      costMicrocents,
+      costSource: "measured",
+    });
+    expect(onCharge).toHaveBeenCalledExactlyOnceWith(result.charge);
+  });
+
+  it("preserves a safe attempt charge before rejecting vectors with missing usage and receipt", async () => {
+    provider.embed.mockResolvedValueOnce({ embeddings: [[0.25]], providerMetadata: {} });
+    provider.charge.mockReturnValueOnce({ outcome: "unreadable", reason: "missing receipt" });
+    const onCharge = vi.fn();
+
+    await expect(embedWikiTexts(["é😀"], "query", { onCharge })).rejects.toThrow("dimensions are invalid");
+
+    expect(onCharge).toHaveBeenCalledExactlyOnceWith(wikiEmbeddingAttemptCharge(["é😀"]));
+  });
+
+  it("preserves Gateway-proven unbilled work with safe input counters", async () => {
+    provider.embed.mockResolvedValueOnce({
+      embeddings: [Array(WIKI_EMBEDDING_DIMENSIONS).fill(0.25)],
+      usage: { tokens: Number.NaN },
+      providerMetadata: {},
+    });
+    provider.charge.mockReturnValueOnce({ outcome: "notBilled" });
+
+    const result = await embedWikiTexts(["é😀"], "query");
+
+    expect(result.charge).toEqual({
+      model: "google/gemini-embedding-001",
+      inputTokens: 6,
+      costMicrocents: 0,
+      costSource: "measured",
+    });
+  });
+
   it.each(
     [
       [],

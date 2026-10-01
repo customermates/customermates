@@ -43,14 +43,25 @@ export function wikiEmbeddingAttemptCharge(texts: readonly string[]): AgentRetri
   };
 }
 
-function wikiEmbeddingCharge(metadata: unknown, inputTokens: number): AgentRetrievalCharge {
+function wikiEmbeddingCharge(
+  metadata: unknown,
+  reportedInputTokens: number | undefined,
+  texts: readonly string[],
+): AgentRetrievalCharge {
+  const inputTokens =
+    typeof reportedInputTokens === "number" &&
+    reportedInputTokens > 0 &&
+    Number.isSafeInteger(reportedInputTokens) &&
+    Number.isSafeInteger(reportedInputTokens * WIKI_EMBEDDING_MICROCENTS_PER_TOKEN)
+      ? reportedInputTokens
+      : wikiEmbeddingAttemptCharge(texts).inputTokens;
   const estimated = inputTokens * WIKI_EMBEDDING_MICROCENTS_PER_TOKEN;
   const reading = readAgentProviderCharge(metadata, WIKI_EMBEDDING_SERVING_PROVIDER);
-  if (reading.outcome === "measured") {
+  if (reading.outcome !== "unreadable") {
     return {
       model: WIKI_EMBEDDING_MODEL,
       inputTokens,
-      costMicrocents: reading.charge.costMicrocents,
+      costMicrocents: reading.outcome === "measured" ? reading.charge.costMicrocents : 0,
       costSource: "measured",
     };
   }
@@ -78,7 +89,8 @@ export async function embedWikiTexts(
   });
   const charge = wikiEmbeddingCharge(
     (result.responses?.length ?? 1) === 1 ? result.providerMetadata : undefined,
-    result.usage.tokens,
+    result.usage?.tokens,
+    texts,
   );
   options.onCharge?.(charge);
   if (

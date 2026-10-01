@@ -99,6 +99,27 @@ describe("metered classifier calls", () => {
     expect(charges).toHaveLength(1);
   });
 
+  it.each([true, false])("distinguishes proven unbilled work from incomplete routing (proven=%s)", async (proven) => {
+    const body = {
+      answers: measuredBody("0").answers,
+      providerMetadata: { gateway: { gatewayCost: "0", routing: proven ? { modelAttempts: [] } : {} } },
+    };
+    const { value, charges } = await collectClassifierCharges(() =>
+      classifyMetered("docs_rerank", SPEC, STATE, "jev", { apiKey: "k", fetch: reply(body) }),
+    );
+
+    const expected = {
+      use: "docs_rerank",
+      model: "jev",
+      costMicrocents: proven ? 0 : estimateClassifierCostMicrocents(SPEC, STATE),
+      measured: proven,
+      answered: true,
+    };
+    expect(value.charge).toEqual(expected);
+    expect(charges).toEqual([expected]);
+    expect(value.result?.answers.scope).toMatchObject({ choice: "team" });
+  });
+
   it("charges nothing when no request could be sent", async () => {
     envState.AI_GATEWAY_API_KEY = undefined;
     const { value, charges } = await collectClassifierCharges(() => classifyMetered("docs_rerank", SPEC, STATE, "jev"));

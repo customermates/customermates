@@ -2040,6 +2040,96 @@ describe("agent-turn provider charge evidence", () => {
     );
   });
 
+  it.each(["chat", "routine"] as const)(
+    "estimates populated tokens for a %s step with incomplete Gateway routing",
+    async (surface) => {
+      state.runTools = ({ messages }) =>
+        Promise.resolve({
+          finishReason: "stop",
+          messages,
+          steps: [{ ...streamedStep("A reply.", "stop"), providerMetadata: { gateway: { routing: {} } } }],
+        });
+
+      await runAgentTurn({ ...payload, surface });
+
+      expect(state.providerCalls).toBe(1);
+      expect(state.recordRound).toHaveBeenCalledExactlyOnceWith(expect.objectContaining({ costMicrocents: 308 }));
+      expect(state.finalize).toHaveBeenCalledWith(
+        expect.objectContaining({
+          usageSettlement: expect.objectContaining({
+            costMicrocents: 308,
+            chargedMicrocents: 308,
+            costSource: "estimated",
+            policyBreach: false,
+          }),
+        }),
+      );
+    },
+  );
+
+  it.each(["chat", "routine"] as const)(
+    "retains the approved round envelope for a %s step with incomplete routing and no token usage",
+    async (surface) => {
+      state.runTools = ({ messages }) =>
+        Promise.resolve({
+          finishReason: "stop",
+          messages,
+          steps: [{ ...streamedStep("A reply.", "stop"), usage: {}, providerMetadata: { gateway: { routing: {} } } }],
+        });
+
+      await runAgentTurn({ ...payload, surface });
+
+      expect(state.providerCalls).toBe(1);
+      expect(state.recordRound).toHaveBeenCalledExactlyOnceWith(
+        expect.objectContaining({ costMicrocents: payload.turnBudget.roundReserveMicrocents }),
+      );
+      expect(state.finalize).toHaveBeenCalledWith(
+        expect.objectContaining({
+          usageSettlement: expect.objectContaining({
+            costMicrocents: payload.turnBudget.roundReserveMicrocents,
+            chargedMicrocents: payload.turnBudget.roundReserveMicrocents,
+            costSource: "estimated",
+            policyBreach: false,
+          }),
+        }),
+      );
+    },
+  );
+
+  it.each(["chat", "routine"] as const)(
+    "retains the approved envelope for a %s step with an unproven zero debit and no token usage",
+    async (surface) => {
+      state.runTools = ({ messages }) =>
+        Promise.resolve({
+          finishReason: "stop",
+          messages,
+          steps: [
+            {
+              ...streamedStep("A reply.", "stop"),
+              usage: {},
+              providerMetadata: { gateway: { gatewayCost: "0", routing: {} } },
+            },
+          ],
+        });
+
+      await runAgentTurn({ ...payload, surface });
+
+      expect(state.recordRound).toHaveBeenCalledExactlyOnceWith(
+        expect.objectContaining({ costMicrocents: payload.turnBudget.roundReserveMicrocents }),
+      );
+      expect(state.finalize).toHaveBeenCalledWith(
+        expect.objectContaining({
+          usageSettlement: expect.objectContaining({
+            costMicrocents: payload.turnBudget.roundReserveMicrocents,
+            chargedMicrocents: payload.turnBudget.roundReserveMicrocents,
+            costSource: "estimated",
+            policyBreach: false,
+          }),
+        }),
+      );
+    },
+  );
+
   it("preserves the Gateway-proven notBilled exemption even when token counters are populated", async () => {
     state.runTools = ({ messages }) =>
       Promise.resolve({
@@ -3250,6 +3340,38 @@ describe("routine browse-or-mutate batch safety", () => {
       }),
     );
   });
+
+  it.each(["chat", "routine"] as const)(
+    "includes successful search fallback charges for a %s step with an unproven zero debit",
+    async (surface) => {
+      const costs: number[] = [];
+      for (const failed of [true, false]) {
+        const search = {
+          ...nativeSearchStep(failed),
+          finishReason: "stop",
+          providerMetadata: { gateway: { gatewayCost: "0", routing: {} } },
+        };
+        state.recordRound.mockClear();
+        state.runTools = ({ messages }) => Promise.resolve({ finishReason: "stop", messages, steps: [search] });
+
+        await runAgentTurn({ ...payload, surface, webSearchEnabled: true });
+
+        costs.push(state.recordRound.mock.calls[0][0].costMicrocents as number);
+        expect(state.finalize).toHaveBeenLastCalledWith(
+          expect.objectContaining({
+            usageSettlement: expect.objectContaining({
+              costMicrocents: costs.at(-1),
+              chargedMicrocents: costs.at(-1),
+              costSource: "estimated",
+              policyBreach: false,
+            }),
+          }),
+        );
+      }
+      expect(costs[0]).toBeGreaterThan(0);
+      expect(costs[1] - costs[0]).toBe(1_200_000);
+    },
+  );
 
   it("does not retry a resolved provider error after the failed round ran a provider search", async () => {
     let segment = 0;

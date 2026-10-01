@@ -1,135 +1,28 @@
 {
-  "status": "local implementation and automated/browser verification passed; live-provider and exact-head CI pending",
-  "source_base": "31d1df14c9185e62f23bf902be3ef518b42ca5b3",
-  "previous_product_head": "bf7aa45ab60a136257ce57876f19f26ff18c2c26",
-  "reviewed_at": "2026-10-01",
-  "review_matrix": {
-    "original_paths": 592,
-    "application_and_dependency_paths": 737,
-    "reviewed_union_paths": 746,
-    "corrected": 129,
-    "reviewed": 604,
-    "justified": 13,
-    "uncovered_current_paths": 0,
-    "stale_tagged_hashes": 0
-  },
-  "migrations": {
-    "prisma_version": "7.0.1",
-    "cases": [
-      {
-        "version": 17,
-        "kind": "fresh",
-        "deploy": 0,
-        "repeat": 0,
-        "vector": true,
-        "columns": 16
-      },
-      {
-        "version": 17,
-        "kind": "upgrade",
-        "deploy": 0,
-        "repeat": 0,
-        "vector": true,
-        "columns": 16
-      },
-      {
-        "version": 17,
-        "kind": "recovery",
-        "injectedFailureExit": 1,
-        "resolve": 0,
-        "retry": 0,
-        "events": 1,
-        "vector": true,
-        "columns": 16
-      },
-      {
-        "version": 16,
-        "kind": "fresh",
-        "deploy": 0,
-        "repeat": 0,
-        "vector": false,
-        "columns": 16
-      },
-      {
-        "version": 16,
-        "kind": "upgrade",
-        "deploy": 0,
-        "repeat": 0,
-        "vector": false,
-        "columns": 16
-      },
-      {
-        "version": 16,
-        "kind": "recovery",
-        "injectedFailureExit": 1,
-        "resolve": 0,
-        "retry": 0,
-        "events": 1,
-        "vector": false,
-        "columns": 16
-      }
-    ],
-    "mainline_history_unchanged": true,
-    "pr_owned_files_consolidated": 5,
-    "preview_reset_performed": false
-  },
-  "checks": {
-    "build": {
-      "passed": true,
-      "duration_ms": 390706,
-      "required_artifacts_verified": true
-    },
-    "built_http": {
-      "passed": true,
-      "files": 2,
-      "tests": 18
-    },
-    "workflow_purge": {
-      "passed": true,
-      "tests": 9,
-      "skipped": 0,
-      "actual_installed_storage": true
-    },
-    "editor_and_operator_regressions": {
-      "passed": true,
-      "files": 2,
-      "tests": 7
-    },
-    "full_final_gate": {
-      "passed": true,
-      "runtime": "Node 24.18.0",
-      "typecheck_ms": 45917,
-      "lint_ms": 341084,
-      "vitest_ms": 594335,
-      "passed_files": 1033,
-      "skipped_files": 1,
-      "passed_tests": 10032,
-      "skipped_tests": 20,
-      "skip_classification": {
-        "hosted_provider_contracts_pending": 15,
-        "built_http_passed_separately": 5
-      },
-      "database_suites_enabled": true,
-      "both_database_urls_owned": true,
-      "workflow_storage_installed": true
-    },
-    "kb_gate": {
-      "passed": true,
-      "checks": 8,
-      "failed": 0,
-      "skipped": 0,
-      "runtime": "Node 22.21.1"
-    },
-    "benchmark_registry_after_documentation": {
-      "passed": true,
-      "files": 1,
-      "tests": 4
-    }
-  },
   "browser": {
-    "surface": "owned local built application",
-    "provider_work": "disabled",
     "accounts": "synthetic owned fixtures",
+    "final_accounting_build_recheck": {
+      "build_id": "48clWBCk3NtsLc1yYBLFi",
+      "destructive_icon_text_color_match": true,
+      "errors": 0,
+      "horizontal_overflow": false,
+      "journeys": [
+        "create and save using native keyboard editing",
+        "edit Markdown and persist the saved revision",
+        "edit title and Reset restores the saved version",
+        "Reload preserves saved document and clean toolbar",
+        "clean bordered overflow and rightmost New page; dirty Reset/Save only",
+        "delete Cancel preserves page; confirmed Delete removes page and selects pinned guide",
+        "read-only role reload has no editable region/New page/Save/Delete"
+      ],
+      "passed": true,
+      "persistence_checked": true,
+      "provider_work": "disabled"
+    },
+    "fixture_limits": [
+      "Import progress and transcript used deterministic persisted fixtures, not a live provider or active SSE stream.",
+      "Streaming, cancellation and transport fault assertions are automated tests; live ainovi.de and hosted semantic checks await fresh spend approval."
+    ],
     "journeys": [
       "create knowledge page and inspect persistence",
       "save numbered procedure with required whenToUse",
@@ -150,13 +43,13 @@
       "26 contextual source labels; 360px chat scroll; no generic duplicate rows or Today chip",
       "dirty polling retains title and same editor/message DOM nodes"
     ],
-    "fixture_limits": [
-      "Import progress and transcript used deterministic persisted fixtures, not a live provider or active SSE stream.",
-      "Streaming, cancellation and transport fault assertions are automated tests; live ainovi.de and hosted semantic checks await fresh spend approval."
-    ],
+    "provider_work": "disabled",
+    "surface": "owned local built application",
     "updated_editor_built_recheck": {
-      "passed": true,
       "build_id": "wK5krPIrHWoIWDZrhoLo0",
+      "errors": 0,
+      "explicit_reload_note": "An explicit reload replaces the editor node; polling stability is covered by the separate journey and real Editor regression.",
+      "horizontal_overflow": false,
       "journeys": [
         "create and save using native keyboard editing",
         "edit title and Reset restores saved version",
@@ -165,26 +58,195 @@
         "delete confirmed page and return to pinned guide",
         "read-only role reload: no editable region, New page or Save; no errors"
       ],
-      "errors": 0,
-      "horizontal_overflow": false,
-      "persistence_checked": true,
-      "explicit_reload_note": "An explicit reload replaces the editor node; polling stability is covered by the separate journey and real Editor regression."
+      "passed": true,
+      "persistence_checked": true
     }
+  },
+  "checks": {
+    "accounting_boundary_regressions": {
+      "baseline_discrimination": {
+        "embedding_usage_and_unbilled_receipts": {
+          "failed": 13,
+          "passed": 233
+        },
+        "malformed_routing": {
+          "failed": 15,
+          "passed": 195
+        },
+        "unproven_zero_debit": {
+          "failed": 4,
+          "passed": 228
+        }
+      },
+      "duration_ms": 3277,
+      "files": 5,
+      "independent_source_review": true,
+      "original_assertions_preserved": true,
+      "passed": true,
+      "tests": 246
+    },
+    "benchmark_registry_after_documentation": {
+      "files": 1,
+      "passed": true,
+      "tests": 4
+    },
+    "build": {
+      "build_id": "48clWBCk3NtsLc1yYBLFi",
+      "duration_ms": 91020,
+      "passed": true,
+      "required_artifacts_verified": true,
+      "required_files": 18
+    },
+    "built_http": {
+      "build_id": "48clWBCk3NtsLc1yYBLFi",
+      "duration_ms": 13195,
+      "files": 2,
+      "passed": true,
+      "tests": 18
+    },
+    "editor_and_operator_regressions": {
+      "files": 2,
+      "passed": true,
+      "tests": 7
+    },
+    "final_packet_and_registry": {
+      "duration_ms": 11247,
+      "files": 2,
+      "passed": true,
+      "tests": 15
+    },
+    "full_final_gate": {
+      "automated_suite_passed": true,
+      "both_database_urls_owned": true,
+      "database_suites_enabled": true,
+      "lint_ms": 98520,
+      "passed": true,
+      "passed_files": 1033,
+      "passed_tests": 10070,
+      "runtime": "Node 24.18.0",
+      "skip_classification": {
+        "built_http_passed_separately": 5,
+        "hosted_provider_contracts_pending": 15
+      },
+      "skipped_files": 1,
+      "skipped_tests": 20,
+      "typecheck_ms": 28669,
+      "vitest_ms": 371409,
+      "workflow_storage_installed": true
+    },
+    "kb_gate": {
+      "checks": 8,
+      "failed": 0,
+      "passed": true,
+      "runtime": "Node 22.21.1",
+      "skipped": 0
+    },
+    "workflow_purge": {
+      "actual_installed_storage": true,
+      "passed": true,
+      "skipped": 0,
+      "tests": 9
+    }
+  },
+  "external": {
+    "drafts_preserved": true,
+    "exact_head_ci_verified": false,
+    "kb_exact_head_checks": ["verification", "repository policy", "macOS readiness", "Windows readiness"],
+    "kb_exact_head_ci_verified": true,
+    "migration_adoption_scope_confirmation": "pending",
+    "new_kb_head": "c469a7a0bf6f58b0ff4c2c86a6267a8569aaa32e",
+    "new_kb_head_pushed": true,
+    "new_product_head_pushed": false,
+    "product_exact_head_ci_verified": false
   },
   "live_provider": {
     "executed": false,
-    "required_contracts": 15,
-    "required_additional_journeys": [
-      "local ainovi.de onboarding",
-      "representative hosted retrieval and chat"
-    ],
-    "reason": "fresh paid-batch authorization pending"
+    "reason": "fresh paid-batch authorization pending",
+    "required_additional_journeys": ["local ainovi.de onboarding", "representative hosted retrieval and chat"],
+    "required_contracts": 15
   },
-  "external": {
-    "new_product_head_pushed": false,
-    "new_kb_head_pushed": false,
-    "exact_head_ci_verified": false,
-    "migration_adoption_scope_confirmation": "pending",
-    "drafts_preserved": true
-  }
+  "migrations": {
+    "cases": [
+      {
+        "columns": 16,
+        "deploy": 0,
+        "kind": "fresh",
+        "repeat": 0,
+        "vector": true,
+        "version": 17
+      },
+      {
+        "columns": 16,
+        "deploy": 0,
+        "kind": "upgrade",
+        "repeat": 0,
+        "vector": true,
+        "version": 17
+      },
+      {
+        "columns": 16,
+        "events": 1,
+        "injectedFailureExit": 1,
+        "kind": "recovery",
+        "resolve": 0,
+        "retry": 0,
+        "vector": true,
+        "version": 17
+      },
+      {
+        "columns": 16,
+        "deploy": 0,
+        "kind": "fresh",
+        "repeat": 0,
+        "vector": false,
+        "version": 16
+      },
+      {
+        "columns": 16,
+        "deploy": 0,
+        "kind": "upgrade",
+        "repeat": 0,
+        "vector": false,
+        "version": 16
+      },
+      {
+        "columns": 16,
+        "events": 1,
+        "injectedFailureExit": 1,
+        "kind": "recovery",
+        "resolve": 0,
+        "retry": 0,
+        "vector": false,
+        "version": 16
+      }
+    ],
+    "mainline_history_unchanged": true,
+    "pr_owned_files_consolidated": 5,
+    "preview_reset_performed": false,
+    "prisma_version": "7.0.1"
+  },
+  "owned_resource_cleanup": {
+    "built_browser_sessions_closed": 2,
+    "completed": true,
+    "development_database_touched": false,
+    "owned_built_server_stopped": true,
+    "owned_postgresql_16_container_removed": true,
+    "preview_database_touched": false,
+    "temporary_databases_dropped": 3
+  },
+  "previous_product_head": "bf7aa45ab60a136257ce57876f19f26ff18c2c26",
+  "review_matrix": {
+    "application_and_dependency_paths": 737,
+    "corrected": 136,
+    "justified": 13,
+    "original_paths": 592,
+    "reviewed": 597,
+    "reviewed_union_paths": 746,
+    "stale_tagged_hashes": 0,
+    "uncovered_current_paths": 0
+  },
+  "reviewed_at": "2026-10-01",
+  "reviewed_source_tree": "876c5ec040ad219cc114abc903fe596830c2d399",
+  "source_base": "31d1df14c9185e62f23bf902be3ef518b42ca5b3",
+  "status": "local implementation, source review and automated/built-browser verification passed; paid-provider execution and new product-head CI pending"
 }
