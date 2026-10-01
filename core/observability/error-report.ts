@@ -6,6 +6,7 @@ export type ErrorReport = {
   kind: "application-error";
   id: string;
   buildId: string;
+  release?: string;
   timestamp: number;
   level: "error" | "warning" | "info";
   source: "browser" | "server";
@@ -135,6 +136,9 @@ export function errorReport(
         ? crypto.randomUUID()
         : Array.from(crypto.getRandomValues(new Uint8Array(16)), (byte) => byte.toString(16).padStart(2, "0")).join(""),
     buildId,
+    release: /^(?:[a-f0-9]{40}|[a-f0-9]{64})$/.test(process.env.NEXT_PUBLIC_ERROR_REPORTING_RELEASE ?? "")
+      ? process.env.NEXT_PUBLIC_ERROR_REPORTING_RELEASE
+      : undefined,
     timestamp: Date.now() / 1000,
     level: context.level ?? "error",
     source,

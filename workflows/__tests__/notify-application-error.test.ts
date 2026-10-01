@@ -13,11 +13,13 @@ const report: ErrorReport = {
   kind: "application-error",
   id: "x".repeat(128),
   buildId: "y".repeat(128),
+  release: "a".repeat(40),
   timestamp: 1000,
   level: "error",
   source: "server",
   name: "Error",
   message: "Synthetic failure",
+  tags: { operation: "contacts.refresh" },
   frames: [],
 };
 
@@ -40,6 +42,9 @@ describe("application error notification", () => {
     expect(state.send.mock.calls[0][1].idempotencyKey.length).toBeLessThan(256);
     expect(state.send.mock.calls[0][0].text).toContain(report.buildId);
     expect(state.send.mock.calls[0][0].text).toContain(report.id);
+    expect(state.send.mock.calls[0][0].text).toContain(report.release);
+    expect(state.send.mock.calls[0][0].text).toContain("contacts.refresh");
+    expect(state.send.mock.calls[0][0].text).not.toContain("source-map");
   });
 
   it("retries provider-returned failures, which the SDK does not throw", async () => {

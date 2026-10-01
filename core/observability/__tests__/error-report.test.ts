@@ -35,6 +35,7 @@ describe("native error normalization", () => {
 
   it("includes bounded context and causes without arbitrary extras or browser identity", () => {
     vi.stubEnv("NEXT_PUBLIC_ERROR_REPORTING_BUILD_ID", "build-1");
+    vi.stubEnv("NEXT_PUBLIC_ERROR_REPORTING_RELEASE", "a".repeat(40));
     const cause = new Error("failed password=secret person@example.com");
     const error = new Error("failed https://app.test/en/invitation/private?token=secret", { cause });
     cause.stack = "Error: failed password=secret person@example.com\n at fail (/app/.next/server/cause.js:2:4)";
@@ -49,6 +50,7 @@ describe("native error normalization", () => {
     const report = errorReport(error, "server", context);
     expect(report).toMatchObject({
       buildId: "build-1",
+      release: "a".repeat(40),
       path: "/en/invitation/[redacted]",
       tenant: { userId: "user-1", companyId: "company-1" },
       workflowName: "synthetic",

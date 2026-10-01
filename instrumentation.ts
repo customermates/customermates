@@ -4,7 +4,12 @@ import { env } from "@/env";
 import { errorReportingEnabled } from "@/core/errors/reporting-provider";
 
 export async function register() {
-  if (process.env.NEXT_RUNTIME === "nodejs" && env.NODE_ENV === "production" && errorReportingEnabled()) {
+  if (
+    process.env.NEXT_RUNTIME === "nodejs" &&
+    !process.env.VERCEL &&
+    env.NODE_ENV === "production" &&
+    errorReportingEnabled()
+  ) {
     const reporter = await import("@/core/observability/server");
     const { installProcessErrorHandlers } = await import("@/core/observability/process-errors");
     installProcessErrorHandlers(reporter);

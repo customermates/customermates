@@ -25,6 +25,10 @@ const reportSchema = z.object({
   kind: z.literal("application-error"),
   id,
   buildId: id,
+  release: z
+    .string()
+    .regex(/^(?:[a-f0-9]{40}|[a-f0-9]{64})$/)
+    .optional(),
   timestamp: z
     .number()
     .finite()
@@ -37,6 +41,10 @@ const reportSchema = z.object({
   digest: id.optional(),
   frames: z.array(frameSchema).max(30),
   causes: z.array(causeSchema).max(3).optional(),
+  tags: z
+    .record(z.string().regex(/^[a-zA-Z][a-zA-Z0-9_]{0,39}$/), z.string().max(200))
+    .refine((tags) => Object.keys(tags).length <= 20)
+    .optional(),
 });
 
 function scrubFrame(frame: z.infer<typeof frameSchema>) {
@@ -104,6 +112,9 @@ export async function POST(request: Request): Promise<Response> {
         name: scrubErrorText(report.name, 100),
         message: scrubErrorText(report.message),
         path: safeErrorPath(report.path),
+        tags: report.tags
+          ? Object.fromEntries(Object.entries(report.tags).map(([key, value]) => [key, scrubErrorText(value, 200)]))
+          : undefined,
         tenant: context.user
           ? {
               userId: safeIdentifier(context.user.id),

@@ -95,6 +95,8 @@ describe("browser error intake", () => {
         await POST(
           request({
             ...report,
+            release: "a".repeat(40),
+            tags: { operation: "contacts.refresh", detail: "token=private" },
             tenant: { userId: "forged" },
             extra: { secret: "private" },
           }),
@@ -106,6 +108,8 @@ describe("browser error intake", () => {
         tenant: { userId: "trusted-user", companyId: "trusted-company" },
         message: "failed token=[redacted]",
         timestamp: expect.any(Number),
+        release: "a".repeat(40),
+        tags: { operation: "contacts.refresh", detail: "token=[redacted]" },
       }),
       true,
     );

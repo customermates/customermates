@@ -42,15 +42,17 @@ export async function sendErrorNotification(report: ErrorReport): Promise<{ emai
         `${report.name}: ${report.message}`,
         `Event: ${report.id}`,
         `Build: ${report.buildId}`,
+        report.release ? `Commit: ${report.release}` : "",
         `Source: ${report.source}`,
         `Time: ${new Date(report.timestamp * 1000).toISOString()}`,
         report.path ? `Path: ${report.path}` : "",
         report.digest ? `Render digest: ${report.digest}` : "",
         report.workflowName ? `Workflow: ${report.workflowName}` : "",
+        report.tags ? `Context: ${JSON.stringify(report.tags)}` : "",
         report.tenant ? `Tenant: ${JSON.stringify(report.tenant)}` : "",
         stack,
         ...(report.causes?.map((cause) => `Caused by ${cause.name}: ${cause.message}`) ?? []),
-        "Use the event ID to locate the structured Vercel log and the exact build ID for private source-map lookup.",
+        "Search Vercel Runtime Logs for the event ID. Use the deployment commit, path and operation context to investigate.",
       ]
         .filter(Boolean)
         .join("\n\n"),

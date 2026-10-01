@@ -44,6 +44,8 @@ const nextConfig: NextConfig = {
 
   experimental: {
     globalNotFound: true,
+    serverSourceMaps: false,
+    turbopackSourceMaps: false,
     serverActions: {
       bodySizeLimit: "25mb",
     },
@@ -59,6 +61,9 @@ const nextConfig: NextConfig = {
       "lodash",
     ],
   },
+
+  productionBrowserSourceMaps: false,
+  enablePrerenderSourceMaps: false,
 
   // Next runs config redirects before the proxy middleware, so a retired URL answers with a single
   // clean 308 rather than chaining through locale negotiation. Every entry comes from
@@ -106,21 +111,20 @@ export default async function configure(phase: string, context: { defaultConfig:
     if (!/^[a-zA-Z0-9_-]{1,128}$/.test(buildId)) throw new Error("Invalid error reporting build ID");
     if (
       process.env.VERCEL &&
-      (!process.env.BLOB_READ_WRITE_TOKEN ||
-        !process.env.ERROR_REPORTING_NOTIFICATION_EMAIL ||
-        !env.RESEND_API_KEY ||
-        !env.RESEND_OPERATOR_EMAIL)
+      (!process.env.ERROR_REPORTING_NOTIFICATION_EMAIL || !env.RESEND_API_KEY || !env.RESEND_OPERATOR_EMAIL)
     )
-      throw new Error("Vercel error reporting requires private Blob storage and notification email configuration");
+      throw new Error("Vercel error reporting requires notification email configuration");
+    const release = process.env.VERCEL_GIT_COMMIT_SHA ?? process.env.ERROR_REPORTING_RELEASE ?? "";
+    if (release && !/^(?:[a-f0-9]{40}|[a-f0-9]{64})$/.test(release))
+      throw new Error("Invalid error reporting release commit");
     config = {
       ...nextConfig,
-      experimental: { ...nextConfig.experimental, serverSourceMaps: true },
-      productionBrowserSourceMaps: true,
       generateBuildId: () => Promise.resolve(buildId),
       env: {
         ...nextConfig.env,
         NEXT_PUBLIC_ERROR_REPORTING_PROVIDER: provider,
         NEXT_PUBLIC_ERROR_REPORTING_BUILD_ID: buildId,
+        NEXT_PUBLIC_ERROR_REPORTING_RELEASE: release,
       },
     };
   }
