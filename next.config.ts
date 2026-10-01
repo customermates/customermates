@@ -69,10 +69,7 @@ const nextConfig: NextConfig = {
   enablePrerenderSourceMaps: false,
 
   webpack(config, { dev }) {
-    if (!dev && config.cache && typeof config.cache === "object" && config.cache.type === "filesystem") {
-      config.cache.maxMemoryGenerations = 0;
-      config.cache.allowCollectingMemory = true;
-    }
+    if (!dev) config.cache = { type: "memory" };
     return config;
   },
 
