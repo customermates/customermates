@@ -3,6 +3,7 @@ import { beforeEach, describe, expect, it, vi } from "vitest";
 const mocks = vi.hoisted(() => ({
   requireAccountState: vi.fn(),
   resolveOnboardingIntent: vi.fn(),
+  getProgress: vi.fn(),
 }));
 
 vi.mock("next/navigation", () => ({
@@ -11,6 +12,7 @@ vi.mock("next/navigation", () => ({
   },
 }));
 vi.mock("next-intl/server", () => ({ getLocale: vi.fn().mockResolvedValue("en") }));
+vi.mock("@/core/di", () => ({ getGetOnboardingWizardProgressInteractor: () => ({ invoke: mocks.getProgress }) }));
 vi.mock("@/features/auth/next/require", () => ({ requireAccountState: mocks.requireAccountState }));
 vi.mock("@/features/company/next/onboarding-intent", () => ({
   resolveOnboardingIntent: mocks.resolveOnboardingIntent,
@@ -23,6 +25,21 @@ import OnboardingWizardPage from "../page";
 describe("OnboardingWizardPage authentication detours", () => {
   beforeEach(() => {
     vi.clearAllMocks();
+    mocks.getProgress.mockResolvedValue({ ok: true, data: { step: "invite", inviteTab: "link" } });
+  });
+
+  it("passes the saved AI setup and owner identity to a fresh wizard render", async () => {
+    const progress = { step: "ai", inviteTab: "email", ai: { route: { screen: "claude" }, claudeMethod: "account" } };
+    mocks.resolveOnboardingIntent.mockResolvedValue({ status: "absent" });
+    mocks.requireAccountState.mockResolvedValue({ sessionUser: { id: "auth-a" }, user: { id: "owner-a" } });
+    mocks.getProgress.mockResolvedValue({ ok: true, data: progress });
+
+    const page = await OnboardingWizardPage({ searchParams: Promise.resolve({}) });
+    expect(page.props.children.props).toMatchObject({
+      savedProgress: progress,
+      userId: "owner-a",
+      profileCompleted: true,
+    });
   });
 
   it.each([

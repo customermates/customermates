@@ -12,13 +12,25 @@ import { runUserAction } from "@/core/errors/report-application-error";
 export const StepAi = observer(() => {
   const { onboardingWizardStore, stepAiStore } = useRootStore();
 
-  return <AiConnectionFlow disabled={onboardingWizardStore.isSubmitting} showInlineBack={false} store={stepAiStore} />;
+  return (
+    <AiConnectionFlow
+      disabled={
+        onboardingWizardStore.isSubmitting || onboardingWizardStore.isSaving || onboardingWizardStore.isInitializing
+      }
+      showInlineBack={false}
+      store={stepAiStore}
+    />
+  );
 });
 
 export const StepAiFooter = observer(() => {
   const t = useTranslations();
   const { onboardingWizardStore, stepAiStore } = useRootStore();
-  const interactionDisabled = stepAiStore.isCreating || onboardingWizardStore.isSubmitting;
+  const interactionDisabled =
+    stepAiStore.isCreating ||
+    onboardingWizardStore.isSubmitting ||
+    onboardingWizardStore.isSaving ||
+    onboardingWizardStore.isInitializing;
   const isProviderChooser = stepAiStore.route.screen === "providers";
 
   return (
@@ -27,7 +39,7 @@ export const StepAiFooter = observer(() => {
         disabled={interactionDisabled}
         type="button"
         variant="secondary"
-        onClick={isProviderChooser ? onboardingWizardStore.back : stepAiStore.backToProviders}
+        onClick={() => runUserAction(isProviderChooser ? onboardingWizardStore.back : stepAiStore.backToProviders)}
       >
         {t("OnboardingWizard.back")}
       </Button>
@@ -38,7 +50,7 @@ export const StepAiFooter = observer(() => {
         </Button>
       ) : (
         <Button
-          disabled={!stepAiStore.canFinish || onboardingWizardStore.isSubmitting}
+          disabled={!stepAiStore.canFinish || interactionDisabled}
           type="button"
           onClick={() => runUserAction(() => onboardingWizardStore.complete())}
         >

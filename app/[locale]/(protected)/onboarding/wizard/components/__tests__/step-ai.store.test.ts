@@ -264,3 +264,24 @@ describe("AiConnectionStore API-key lifecycle", () => {
     expect(store.apiKey).toBeNull();
   });
 });
+
+describe("returning-account credential isolation", () => {
+  it("ignores a previous account's in-flight key after resetting for a different identity", async () => {
+    const store = makeStore();
+    store.selectProvider("cursor");
+    let resolve!: (value: unknown) => void;
+    profileActions.createApiKeyAction.mockImplementationOnce(
+      () =>
+        new Promise((done) => {
+          resolve = done;
+        }),
+    );
+    const pending = store.createApiKey();
+    store.reset(true);
+    resolve(successfulKey("previous-account-key", "synthetic-one-time-value"));
+    await expect(pending).resolves.toEqual({ status: "ignored" });
+    expect(store.credentials).toEqual({});
+    expect(store.selection.apiKeyIds).toEqual({});
+    expect(store.isCreating).toBe(false);
+  });
+});
