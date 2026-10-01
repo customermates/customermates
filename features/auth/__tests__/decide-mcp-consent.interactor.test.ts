@@ -34,25 +34,36 @@ describe("DecideMcpConsentInteractor", () => {
     return new DecideMcpConsentInteractor(authService as never, routeGuardService as never);
   }
 
-  it("delegates an allowed consent decision to the auth service", async () => {
-    await expect(createInteractor().invoke(consent)).resolves.toEqual({
+  it.each([
+    { state: "allowed", accept: true },
+    { state: "allowed", accept: false },
+    { state: "onboarding", accept: true },
+    { state: "onboarding", accept: false },
+  ])("delegates consent for $state with accept=$accept", async ({ state, accept }) => {
+    routeGuardService.resolveAccountState.mockResolvedValue({ state });
+    const decision = { ...consent, accept };
+
+    await expect(createInteractor().invoke(decision)).resolves.toEqual({
       ok: true,
       data: { redirectURI: "https://client.example/callback" },
     });
 
     expect(routeGuardService.resolveAccountState).toHaveBeenCalledOnce();
-    expect(authService.decideMcpConsent).toHaveBeenCalledWith(consent);
+    expect(authService.decideMcpConsent).toHaveBeenCalledWith(decision);
   });
 
-  it.each(ACCOUNT_STATES.filter((state) => state !== "allowed"))("fails closed for the %s state", async (state) => {
-    routeGuardService.resolveAccountState.mockResolvedValue({ state });
+  it.each(ACCOUNT_STATES.filter((state) => state !== "allowed" && state !== "onboarding"))(
+    "fails closed for the %s state",
+    async (state) => {
+      routeGuardService.resolveAccountState.mockResolvedValue({ state });
 
-    await expect(createInteractor().invoke(consent)).resolves.toEqual({
-      ok: true,
-      data: null,
-    });
-    expect(authService.decideMcpConsent).not.toHaveBeenCalled();
-  });
+      await expect(createInteractor().invoke(consent)).resolves.toEqual({
+        ok: true,
+        data: null,
+      });
+      expect(authService.decideMcpConsent).not.toHaveBeenCalled();
+    },
+  );
 
   it("validates the action input before persistence", async () => {
     const result = await createInteractor().invoke({

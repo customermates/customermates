@@ -29,7 +29,10 @@ describe("guarded account-state route contract", () => {
       "app/[locale]/(protected)/subscription-expired/page.tsx",
       /requireAccountState\(\s*"subscription",\s*"\/company\/subscription",?\s*\)/,
     ],
-    ["app/[locale]/(public)/auth/mcp-consent/page.tsx", /requireAccountState\(\s*"allowed"\s*\)/],
+    [
+      "app/[locale]/(public)/auth/mcp-consent/page.tsx",
+      /requireAccountState\(\s*\[\s*"allowed",\s*"onboarding"\s*\]\s*\)/,
+    ],
   ])("server-gates %s with the canonical state resolver", (path, contract) => {
     expect(source(path)).toMatch(contract);
   });
@@ -124,7 +127,7 @@ describe("guarded account-state route contract", () => {
     expect(authActions).toContain("serializeResult(getDecideMcpConsentInteractor().invoke(data))");
     expect(authActions).not.toContain("resolveRequestAccountState");
     expect(authActions).not.toContain("getAuthService");
-    expect(consentInteractor).toContain('resolution.state !== "allowed"');
+    expect(consentInteractor).toContain('resolution.state !== "allowed" && resolution.state !== "onboarding"');
     const requireSource = source("features/auth/next/require.ts");
     expect(requireSource).toMatch(
       /accessRedirectForAccountState\(\s*await resolveRequestAccountState\(\),\s*options,?\s*\)/,

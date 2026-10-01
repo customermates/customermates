@@ -14,7 +14,7 @@ type Props = {
 };
 
 export default async function McpConsentPage({ searchParams }: Props) {
-  await requireAccountState("allowed");
+  await requireAccountState(["allowed", "onboarding"]);
 
   const params = await searchParams;
   const consentCode = typeof params.consent_code === "string" ? params.consent_code : undefined;
