@@ -1,7 +1,7 @@
 import type { DocsChunkRepo } from "@/features/mcp-tools/docs-chunk.repo";
 import type { AgentUsageService } from "@/ee/agent-chat/agent-usage.service";
 
-import { retrievalChunkText } from "@/core/retrieval/retrieval-chunks";
+import { docsPendingEmbeddingTexts } from "@/features/mcp-tools/docs-embedding-input";
 import { docsCorpus } from "@/features/mcp-tools/docs-corpus";
 
 import { isWikiSemanticSearchAvailable } from "./wiki-embedding.service";
@@ -42,7 +42,7 @@ export class DocsSemanticIndexService {
         WIKI_EMBEDDING_BATCH_SIZE,
       );
       if (pending.length === 0) return { indexed, remaining: false };
-      const texts = pending.map((chunk) => retrievalChunkText(chunk.label, chunk.body));
+      const texts = docsPendingEmbeddingTexts(corpus, pending);
       const reservationId = await this.usage.reservePlatformRetrieval({
         purpose: "docsIndexing",
         model: WIKI_EMBEDDING_MODEL,
@@ -59,7 +59,10 @@ export class DocsSemanticIndexService {
           },
         });
       } catch (error) {
-        await this.usage.settlePlatformRetrieval({ reservationId, charge: attemptedCharge });
+        await this.usage.settlePlatformRetrieval({
+          reservationId,
+          charge: attemptedCharge,
+        });
         throw error;
       }
       const { vectors, charge } = embedded;

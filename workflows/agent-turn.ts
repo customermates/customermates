@@ -10,7 +10,15 @@ import type { WorkflowTenant } from "./workflow-tenant";
 import type { ClassifierCharge } from "@/ee/agent-chat/classifier/metered";
 import type { RetrievalTiming } from "@/core/retrieval/retrieval-context";
 import type { ModelMessage } from "ai";
+import {
+  wikiPlanningCandidates,
+  wikiMissingOfferingCandidates,
+  wikiMergeOfferingCandidates,
+  wikiPlanningContext,
+} from "./wiki-topic-plan";
+
 import type { ReadWebsiteSourceInput, WikiSourceTopic } from "@/ee/wiki-crawl/wiki-crawl-synthesis.schema";
+import { WIKI_SYNTHESIS_MAX_PAGES } from "@/ee/wiki-crawl/wiki-crawl-synthesis.schema";
 
 import { WorkflowAgent } from "@ai-sdk/workflow";
 import { createHook, getWritable, sleep } from "workflow";
@@ -1057,6 +1065,7 @@ export async function runAgentTurn(payload: AgentTurnWorkflowPayload): Promise<v
     let wikiCoverageReminders = 0;
     const wikiTopicPlanState = {
       topics: null as WikiSourceTopic[] | null,
+      candidates: [] as WikiSourceTopic[],
       omittedFoundations: [] as NonNullable<ReadWebsiteSourceInput["omittedFoundations"]>,
     };
     let wikiTopicReminders = 0;
@@ -1172,6 +1181,22 @@ export async function runAgentTurn(payload: AgentTurnWorkflowPayload): Promise<v
           result: "The source plan is already accepted. Continue its remaining exact titles; do not replace the plan.",
         };
       }
+      if (
+        wikiSourceInventory &&
+        shell.name === "read_website_source" &&
+        (executionInput as ReadWebsiteSourceInput).action === "plan"
+      ) {
+        const missing = wikiMissingOfferingCandidates(
+          wikiTopicPlanState.candidates,
+          executionInput as ReadWebsiteSourceInput,
+        );
+        if (missing.length) {
+          return {
+            ok: false,
+            result: `Retain these distinct offering candidates or explicitly reclassify each cited source with an exact evidence quote: ${wikiPlanningContext(missing)}. No plan was accepted.`,
+          };
+        }
+      }
       if (wikiSourceInventory && shell.name === "manage_wiki_pages" && wikiTopicPlanState.topics === null) {
         return {
           ok: false,
@@ -1195,7 +1220,8 @@ export async function runAgentTurn(payload: AgentTurnWorkflowPayload): Promise<v
                       : topic.role === "procedure"
                         ? "procedure"
                         : "knowledge") &&
-                  page.sourceIds.some((id) => topic.sourceIds.includes(id)),
+                  page.sourceIds.length > 0 &&
+                  page.sourceIds.every((id) => topic.sourceIds.includes(id)),
               ),
           )
         ) {
@@ -1270,11 +1296,28 @@ export async function runAgentTurn(payload: AgentTurnWorkflowPayload): Promise<v
       auxiliaryCharges.push(...executed.classifierCharges);
       retrievalTimings.push(...(executed.retrievalTimings ?? []));
       const outcome = executed.output;
+      if (wikiSourceInventory) {
+        const mergedCandidates = wikiMergeOfferingCandidates(
+          wikiTopicPlanState.candidates,
+          wikiPlanningCandidates(executionInput, outcome, wikiSourceInventory),
+        );
+        if (mergedCandidates.length > WIKI_SYNTHESIS_MAX_PAGES) {
+          return {
+            ok: false,
+            result:
+              "Too many unresolved offering candidates for the sixteen-page import. Complete a supported plan or explicitly reclassify candidates with fresh evidence before adding more topics; no plan was accepted.",
+          };
+        }
+        wikiTopicPlanState.candidates = mergedCandidates;
+        if (wikiTopicPlanState.candidates.length && wikiTopicPlanState.topics === null)
+          wikiContinuationPrompt = `Offering planning hypotheses, never factual evidence: ${wikiPlanningContext(wikiTopicPlanState.candidates)}. Finish reading all sources, then retain each distinct offering or explicitly reclassify each source with an exact evidence quote. Repair omissions without discarding recognized offerings.`;
+      }
       if (wikiSourceInventory && isSuccessfulToolOutcome(outcome)) {
         if (shell.name === "read_website_source" && wikiTopicPlanState.topics === null) {
           const plan = executionInput as ReadWebsiteSourceInput;
           if (plan.action === "plan" && plan.topics) {
             wikiTopicPlanState.topics = plan.topics;
+            wikiTopicPlanState.candidates = [];
             wikiTopicPlanState.omittedFoundations = plan.omittedFoundations ?? [];
           }
         } else if (shell.name === "manage_wiki_pages" && wikiTopicPlanState.topics) {
@@ -1291,7 +1334,8 @@ export async function runAgentTurn(payload: AgentTurnWorkflowPayload): Promise<v
                       : topic.role === "procedure"
                         ? "procedure"
                         : "knowledge") &&
-                  page.sourceIds.some((id) => topic.sourceIds.includes(id)),
+                  page.sourceIds.length > 0 &&
+                  page.sourceIds.every((id) => topic.sourceIds.includes(id)),
               ),
           );
         }
@@ -1844,7 +1888,7 @@ export async function runAgentTurn(payload: AgentTurnWorkflowPayload): Promise<v
             wikiTopicReminders += 1;
             wikiContinuationPrompt =
               wikiTopicPlanState.topics === null
-                ? "Website setup still needs a source topic plan. Call read_website_source action=plan, accounting for every source in topics or reasoned excluded groups, never both, and every supported page role. Distinct dedicated offerings and technical capabilities require their own topics. Routing category does not determine relevance. Never claim completion before the plan and its pages are complete."
+                ? `Website setup still needs a source topic plan. Call read_website_source action=plan, accounting for every source in topics or source-specific exclusions, never both, and every supported page role. Retain recognized offering candidates: ${wikiPlanningContext(wikiTopicPlanState.candidates)}; explicitly reclassify each source with an exact evidence quote if unsupported. Distinct dedicated offerings and technical capabilities require their own topics. Routing category does not determine relevance. Never claim completion before the plan and its pages are complete.`
                 : `Website setup still has planned topics to create: ${JSON.stringify(wikiTopicPlanState).replaceAll("<", "\\u003c").replaceAll(">", "\\u003e")}. Reread their cited sources and create each exact planned title before claiming completion: offerings first, then foundations, and the guide last in a separate call. Record unsupported foundations in the guide gaps. Do not invent facts or recreate completed topics.`;
             messages = [
               ...nextAgentSegmentMessages({
@@ -1867,7 +1911,7 @@ export async function runAgentTurn(payload: AgentTurnWorkflowPayload): Promise<v
           }
           if (!(await ensureReservation(accruedCostMicrocents() + payload.turnBudget.roundReserveMicrocents))) break;
           wikiCoverageReminders += 1;
-          wikiContinuationPrompt = `The website import is incomplete: ${remaining} stored source groups still have unread text. Continue read_website_source action=next until remainingSources is zero, then create evidence-based pages for all supported distinct topics. Do not claim completion or pad the page count.`;
+          wikiContinuationPrompt = `The website import is incomplete: ${remaining} stored source groups still have unread text. Continue read_website_source action=next until remainingSources is zero, then create evidence-based pages for all supported distinct topics. Do not claim completion or pad the page count. Retain these offering planning hypotheses, never factual evidence: ${wikiPlanningContext(wikiTopicPlanState.candidates)}.`;
           messages = [
             ...nextAgentSegmentMessages({
               messages: result.messages,

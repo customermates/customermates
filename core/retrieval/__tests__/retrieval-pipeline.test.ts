@@ -2,7 +2,7 @@ import type { RankableSection } from "../retrieval-context";
 
 import { afterEach, describe, expect, it, vi } from "vitest";
 
-import { fullTextUnits, replaceQueryWords, typoCandidates } from "../full-text-query";
+import { fullTextUnits, fullTextUnitsCte, replaceQueryWords, typoCandidates } from "../full-text-query";
 import { collectRetrievalTimings, currentSectionRanker, runWithSectionRanking } from "../retrieval-context";
 import {
   fuseFullTextAndSemantic,
@@ -23,7 +23,6 @@ afterEach(() => {
 const candidate = (id: number): RankableSection => ({
   id,
   section: { pageTitle: `Page ${id}`, headingPath: [`Section ${id}`], text: `Text ${id}` },
-  titleOnly: false,
 });
 
 describe("reciprocal-rank fusion", () => {
@@ -359,5 +358,32 @@ describe("typo candidates", () => {
     ]);
 
     expect(replaceQueryWords("Refnud Policy, refnuds", corrections)).toBe("refund policy, refnuds");
+  });
+});
+
+describe("alphabetic compound search queries", () => {
+  it("allows a hyphenated word to match its separate component words in the same query unit", () => {
+    const sql = fullTextUnitsCte({ units: fullTextUnits("Policies-Seite"), configs: ["german"], stopConfig: "german" });
+    expect(sql.values).toContain("policies-seite");
+    expect(sql.values).toContain("policies seite");
+    expect(fullTextUnits("Policies-Seite")).toHaveLength(1);
+  });
+
+  it("keeps the existing strict quoted-unit precedence for a repeated mixed compound", () => {
+    for (const query of ['"support-response" support-response', 'support-response "support-response"']) {
+      const units = fullTextUnits(query);
+      expect(units).toEqual([{ text: "support-response", phrase: false, prefix: false, substring: false }]);
+      const sql = fullTextUnitsCte({ units, configs: ["english"], stopConfig: "english" });
+      expect(sql.values).not.toContain("support response");
+    }
+  });
+
+  it("preserves quoted phrases and numeric or underscored identifiers", () => {
+    for (const query of ['"Account Policies-Seite"', "OPS-1182", "list_records"]) {
+      const sql = fullTextUnitsCte({ units: fullTextUnits(query), configs: ["english"], stopConfig: "english" });
+      expect(sql.values).not.toContain("policies seite");
+      expect(sql.values).not.toContain("ops 1182");
+      expect(sql.values).not.toContain("list records");
+    }
   });
 });

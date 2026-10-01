@@ -1,3 +1,5 @@
+import { createHash } from "node:crypto";
+import { wikiSourceText } from "../wiki-source-text";
 import type { McpToolResult } from "@/features/mcp-tools/mcp-tool";
 import { executeMcpTool } from "@/features/mcp-tools/mcp-tool";
 import { agentToolOutcomeStatus } from "@/ee/agent-chat/agent-durable-stream";
@@ -72,9 +74,14 @@ const omittedFoundations = WIKI_SYNTHESIS_FOUNDATION_ROLES.map((role) => ({
 const page = (content: string, kind: "knowledge" | "guide" = "knowledge") => ({
   title: "Company",
   kind,
+  gaps: [] as string[],
   sections: [{ heading: "Support", content }],
   sourceIds: [SOURCE_ID],
 });
+
+function nonSubstantiveExclusion(sourceId: string, reason: string, evidenceQuote = GERMAN) {
+  return { sourceIds: [sourceId], basis: "not_substantive" as const, reason, evidenceQuote };
+}
 
 beforeEach(() => {
   vi.clearAllMocks();
@@ -103,6 +110,208 @@ beforeEach(() => {
 });
 
 describe("single language Wiki synthesis", () => {
+  it("rejects an overlap that names a foundation while claiming an offering role", async () => {
+    const sources = await harness.sources();
+    const otherId = "00000000-0000-4000-8000-000000000002";
+    harness.sources.mockResolvedValue([...sources, { ...sources[0], id: otherId, contentHash: "distinct-source" }]);
+    const result = await readWebsiteSourceTool("00000000-0000-4000-8000-00000000c001").execute({
+      action: "plan",
+      topics: foundations,
+      excluded: [
+        {
+          sourceIds: [otherId],
+          reason: "Covered by the overview.",
+          basis: "overlap",
+          coveredByTitle: foundations[0].title,
+          coveredByRole: "offering",
+        },
+      ],
+    });
+    expect(result).toMatchObject({
+      failure: { kind: "validation", issues: [expect.objectContaining({ customCode: "wikiSourceCitationInvalid" })] },
+    });
+    expect(harness.advance).not.toHaveBeenCalled();
+  });
+
+  it.each(["missing_title", "guide", "procedure"])("rejects an overlap with a %s coverage identity", async (kind) => {
+    const sources = await harness.sources();
+    const otherId = "00000000-0000-4000-8000-000000000002";
+    harness.sources.mockResolvedValue([...sources, { ...sources[0], id: otherId, contentHash: "distinct-source" }]);
+    const topic = { title: "Coverage anchor", role: "procedure" as const, sourceIds: [SOURCE_ID] };
+    const result = await readWebsiteSourceTool("00000000-0000-4000-8000-00000000c001").execute({
+      action: "plan",
+      topics: kind === "procedure" ? [...foundations, topic] : foundations,
+      excluded: [
+        {
+          sourceIds: [otherId],
+          reason: "Covered by a retained page.",
+          basis: "overlap",
+          coveredByTitle: kind === "guide" ? foundations[foundations.length - 1].title : topic.title,
+          coveredByRole: "offering",
+        },
+      ],
+    });
+    expect(result).toMatchObject({
+      failure: { kind: "validation", issues: [expect.objectContaining({ customCode: "wikiSourceCitationInvalid" })] },
+    });
+    expect(harness.advance).not.toHaveBeenCalled();
+  });
+
+  it("accepts a source-specific overlap with the exact retained offering identity", async () => {
+    const sources = await harness.sources();
+    const otherId = "00000000-0000-4000-8000-000000000002";
+    harness.sources.mockResolvedValue([...sources, { ...sources[0], id: otherId, contentHash: "translated-source" }]);
+    const offering = { title: "Support", role: "offering" as const, sourceIds: [SOURCE_ID] };
+    const result = await readWebsiteSourceTool("00000000-0000-4000-8000-00000000c001").execute({
+      action: "plan",
+      topics: [offering, ...foundations],
+      excluded: [
+        {
+          sourceIds: [otherId],
+          reason: "Translated evidence for the same offering.",
+          basis: "overlap",
+          coveredByTitle: offering.title,
+          coveredByRole: "offering",
+        },
+      ],
+    });
+    expect(structured(result)).toMatchObject({ topicPlan: [offering, ...foundations] });
+    expect(harness.advance).not.toHaveBeenCalled();
+  });
+
+  it.each(["different_hash", "same_source", "unknown_anchor", "unrepresented_anchor"])(
+    "rejects an exact duplicate with %s evidence",
+    async (kind) => {
+      const sources = await harness.sources();
+      const otherId = "00000000-0000-4000-8000-000000000002";
+      const thirdId = "00000000-0000-4000-8000-000000000003";
+      const duplicateOfSourceId = kind === "same_source" ? otherId : kind === "unknown_anchor" ? thirdId : SOURCE_ID;
+      harness.sources.mockResolvedValue([
+        ...sources,
+        { ...sources[0], id: otherId, contentHash: kind === "different_hash" ? "different" : sources[0].contentHash },
+      ]);
+      const result = await readWebsiteSourceTool("00000000-0000-4000-8000-00000000c001").execute({
+        action: "plan",
+        topics: kind === "unrepresented_anchor" ? [] : foundations,
+        omittedFoundations: kind === "unrepresented_anchor" ? omittedFoundations : undefined,
+        excluded: [
+          ...(kind === "unrepresented_anchor"
+            ? [
+                {
+                  sourceIds: [SOURCE_ID],
+                  basis: "not_substantive" as const,
+                  reason: "No useful company evidence.",
+                  evidenceQuote: GERMAN.slice(0, 100),
+                },
+              ]
+            : []),
+          { sourceIds: [otherId], basis: "exact_duplicate", duplicateOfSourceId, reason: "Exact stored duplicate." },
+        ],
+      });
+      expect(result).toMatchObject({
+        failure: { kind: "validation", issues: [expect.objectContaining({ customCode: "wikiSourceCitationInvalid" })] },
+      });
+      expect(harness.advance).not.toHaveBeenCalled();
+    },
+  );
+
+  it("keeps an identical homepage duplicate valid when its anchor supports only foundations", async () => {
+    const sources = await harness.sources();
+    const otherId = "00000000-0000-4000-8000-000000000002";
+    harness.sources.mockResolvedValue([...sources, { ...sources[0], id: otherId }]);
+    const result = await readWebsiteSourceTool("00000000-0000-4000-8000-00000000c001").execute({
+      action: "plan",
+      topics: foundations,
+      excluded: [
+        {
+          sourceIds: [otherId],
+          basis: "exact_duplicate",
+          duplicateOfSourceId: SOURCE_ID,
+          reason: "Identical homepage content.",
+        },
+      ],
+    });
+    expect(structured(result)).toMatchObject({ topicPlan: foundations });
+    expect(harness.advance).not.toHaveBeenCalled();
+  });
+
+  it("rejects a claimed imported source without an authoritative unchanged import", async () => {
+    const sources = await harness.sources();
+    const otherId = "00000000-0000-4000-8000-000000000002";
+    harness.sources.mockResolvedValue([...sources, { ...sources[0], id: otherId, contentHash: "distinct-source" }]);
+    const result = await readWebsiteSourceTool("00000000-0000-4000-8000-00000000c001").execute({
+      action: "plan",
+      topics: foundations,
+      excluded: [{ sourceIds: [otherId], basis: "already_imported", reason: "Already saved." }],
+    });
+    expect(result).toMatchObject({
+      failure: { kind: "validation", issues: [expect.objectContaining({ customCode: "wikiSourceCitationInvalid" })] },
+    });
+    expect(harness.advance).not.toHaveBeenCalled();
+  });
+
+  it("accepts an excluded unchanged imported source without manufacturing a new offering", async () => {
+    const sources = await harness.sources();
+    const otherId = "00000000-0000-4000-8000-000000000002";
+    const importedAt = new Date();
+    const url = "https://example.com/imported-help";
+    harness.sources.mockResolvedValue([
+      ...sources,
+      { ...sources[0], id: otherId, url, contentHash: "imported-source" },
+    ]);
+    harness.imported.mockImplementation((candidate: string) =>
+      Promise.resolve(
+        candidate === url
+          ? {
+              sourceContentHash: "imported-source",
+              updatedAt: importedAt,
+              sourceImportedUpdatedAt: importedAt,
+            }
+          : null,
+      ),
+    );
+    const result = await readWebsiteSourceTool("00000000-0000-4000-8000-00000000c001").execute({
+      action: "plan",
+      topics: foundations,
+      excluded: [{ sourceIds: [otherId], basis: "already_imported", reason: "Already saved unchanged." }],
+    });
+    expect(structured(result)).toMatchObject({ topicPlan: foundations, importedSources: 1 });
+    expect(harness.advance).not.toHaveBeenCalled();
+  });
+
+  it("rejects a non-substantive exclusion with a quote absent from that source", async () => {
+    const result = await readWebsiteSourceTool("00000000-0000-4000-8000-00000000c001").execute({
+      action: "plan",
+      topics: [],
+      omittedFoundations,
+      excluded: [
+        {
+          sourceIds: [SOURCE_ID],
+          basis: "not_substantive",
+          reason: "No company information.",
+          evidenceQuote: "This invented quotation is not present in the named source.",
+        },
+      ],
+    });
+    expect(result).toMatchObject({
+      failure: { kind: "validation", issues: [expect.objectContaining({ customCode: "wikiSourceCitationInvalid" })] },
+    });
+    expect(harness.advance).not.toHaveBeenCalled();
+  });
+
+  it("rejects a free-text coverage exclusion without a source-specific basis", async () => {
+    const result = await executeMcpTool(readWebsiteSourceTool("00000000-0000-4000-8000-00000000c001"), [
+      {
+        action: "plan",
+        topics: [],
+        omittedFoundations,
+        excluded: [{ sourceIds: [SOURCE_ID], reason: "Covered by the overview." }],
+      },
+    ]);
+    expect(result).toMatchObject({ ok: false, failure: { kind: "validation" } });
+    expect(harness.advance).not.toHaveBeenCalled();
+  });
+
   it("accepts a fully accounted plan without advancing source cursors", async () => {
     const result = await readWebsiteSourceTool("00000000-0000-4000-8000-00000000c001").execute({
       action: "plan",
@@ -112,6 +321,117 @@ describe("single language Wiki synthesis", () => {
     expect(structured(result)).toMatchObject({
       topicPlan: expect.arrayContaining([expect.objectContaining({ title: "Support", sourceIds: [SOURCE_ID] })]),
       remainingSources: 0,
+    });
+    expect(harness.advance).not.toHaveBeenCalled();
+  });
+
+  it("can explicitly reclassify an unusable thin source using its complete nonempty stored text", async () => {
+    const sources = await harness.sources();
+    const thinText = "# Home\nWelcome.";
+    harness.sources.mockResolvedValue([
+      { ...sources[0], text: thinText, contentHash: "thin-source", readOffset: thinText.length },
+    ]);
+    const result = await readWebsiteSourceTool("00000000-0000-4000-8000-00000000c001").execute({
+      action: "plan",
+      topics: [],
+      excluded: [
+        nonSubstantiveExclusion(SOURCE_ID, "A welcome alone does not establish a substantive offering.", thinText),
+      ],
+      omittedFoundations,
+      reclassifiedOfferings: [
+        {
+          title: "Home",
+          sourceId: SOURCE_ID,
+          reason: "This source is a welcome without substantive offering information.",
+          evidenceQuote: thinText,
+        },
+      ],
+    });
+
+    expect(structured(result)).toMatchObject({ topicPlan: [], remainingSources: 0 });
+    expect(harness.advance).not.toHaveBeenCalled();
+  });
+
+  it("accepts an explicit offering reclassification only with an exact quote from its named stored source", async () => {
+    const input = {
+      action: "plan" as const,
+      topics: foundations,
+      reclassifiedOfferings: [
+        {
+          title: "Support",
+          sourceId: SOURCE_ID,
+          reason: "The source supports company guidance rather than a separate offering.",
+          evidenceQuote: GERMAN.slice(0, 100),
+        },
+      ],
+    };
+    const result = await readWebsiteSourceTool("00000000-0000-4000-8000-00000000c001").execute(input);
+
+    expect(structured(result)).toMatchObject({ topicPlan: foundations, remainingSources: 0 });
+    expect(harness.advance).not.toHaveBeenCalled();
+  });
+
+  it.each(["absent", "blank", "invented", "unknown_source", "different_source", "short_partial"])(
+    "rejects offering reclassification with %s source evidence",
+    async (kind) => {
+      const otherId = "00000000-0000-4000-8000-000000000002";
+      const otherText = "The archive contains public articles without a separate product or service offer.";
+      const sources = await harness.sources();
+      if (kind === "different_source") {
+        harness.sources.mockResolvedValue([
+          ...sources,
+          { ...sources[0], id: otherId, text: otherText, contentHash: "other-source", readOffset: otherText.length },
+        ]);
+      }
+      const reclassification: Record<string, unknown> = {
+        title: "Support",
+        sourceId:
+          kind === "unknown_source"
+            ? "00000000-0000-4000-8000-000000000099"
+            : kind === "different_source"
+              ? otherId
+              : SOURCE_ID,
+        reason: "The source supports company guidance rather than a separate offering.",
+        evidenceQuote:
+          kind === "invented"
+            ? "An invented claim not present anywhere in the stored sources."
+            : kind === "blank"
+              ? "   "
+              : GERMAN.slice(0, 100),
+      };
+      if (kind === "short_partial") reclassification.evidenceQuote = GERMAN.slice(0, 10);
+      if (kind === "absent") delete reclassification.evidenceQuote;
+      const input = {
+        action: "plan",
+        topics: foundations,
+        excluded:
+          kind === "different_source"
+            ? [nonSubstantiveExclusion(otherId, "No distinct offering in this archive.", otherText)]
+            : [],
+        reclassifiedOfferings: [reclassification],
+      };
+      const result = await executeMcpTool(readWebsiteSourceTool("00000000-0000-4000-8000-00000000c001"), [input]);
+
+      expect(result).toMatchObject({ ok: false, failure: { kind: "validation" } });
+      expect(harness.advance).not.toHaveBeenCalled();
+    },
+  );
+
+  it("does not admit a quoted reclassification before complete source coverage", async () => {
+    const sources = await harness.sources();
+    harness.sources.mockResolvedValue(sources.map((source: object) => ({ ...source, readOffset: 0 })));
+    const input = {
+      action: "plan",
+      topics: foundations,
+      reclassifiedOfferings: [
+        { title: "Support", sourceId: SOURCE_ID, reason: "No separate offering.", evidenceQuote: GERMAN.slice(0, 100) },
+      ],
+    };
+    const result = await executeMcpTool(readWebsiteSourceTool("00000000-0000-4000-8000-00000000c001"), [input]);
+
+    expect(result).toMatchObject({
+      ok: false,
+      failure: { issues: [expect.objectContaining({ customCode: "wikiSourceCoverageRequired" })] },
     });
     expect(harness.advance).not.toHaveBeenCalled();
   });
@@ -128,7 +448,7 @@ describe("single language Wiki synthesis", () => {
   it("identifies the exact unaccounted sources and accepts the repaired plan", async () => {
     const sources = await harness.sources();
     const missingId = "00000000-0000-4000-8000-000000000002";
-    harness.sources.mockResolvedValue([...sources, { ...sources[0], id: missingId, contentHash: "hash-2" }]);
+    harness.sources.mockResolvedValue([...sources, { ...sources[0], id: missingId }]);
     const reader = readWebsiteSourceTool("00000000-0000-4000-8000-00000000c001");
     const result = await reader.execute({ action: "plan", topics: foundations });
     expect(result).toMatchObject({ failure: { kind: "validation" } });
@@ -138,7 +458,14 @@ describe("single language Wiki synthesis", () => {
         await reader.execute({
           action: "plan",
           topics: foundations,
-          excluded: [{ sourceIds: [missingId], reason: "Exact duplicate evidence" }],
+          excluded: [
+            {
+              sourceIds: [missingId],
+              basis: "exact_duplicate",
+              duplicateOfSourceId: SOURCE_ID,
+              reason: "Exact duplicate evidence",
+            },
+          ],
         }),
       ),
     ).toMatchObject({ topicPlan: foundations });
@@ -158,7 +485,7 @@ describe("single language Wiki synthesis", () => {
 
   it("identifies omitted topics even when every source is excluded", async () => {
     const reader = readWebsiteSourceTool("00000000-0000-4000-8000-00000000c001");
-    const excluded = [{ sourceIds: [SOURCE_ID], reason: "No usable company evidence" }];
+    const excluded = [nonSubstantiveExclusion(SOURCE_ID, "No usable company evidence")];
     const result = await reader.execute({ action: "plan", excluded, omittedFoundations });
     expect(result).toMatchObject({ failure: { kind: "validation" } });
     expect(JSON.stringify(result)).toContain("Send a topics list");
@@ -181,7 +508,7 @@ describe("single language Wiki synthesis", () => {
               sourceIds: [kind === "unknown" ? "00000000-0000-4000-8000-000000000099" : SOURCE_ID],
             },
           ];
-    const excluded = kind === "duplicate" ? [{ sourceIds: [SOURCE_ID], reason: "Duplicate" }] : [];
+    const excluded = kind === "duplicate" ? [nonSubstantiveExclusion(SOURCE_ID, "Duplicate")] : [];
     const result = await readWebsiteSourceTool("00000000-0000-4000-8000-00000000c001").execute({
       action: "plan",
       topics,
@@ -197,7 +524,7 @@ describe("single language Wiki synthesis", () => {
     const result = await readWebsiteSourceTool("00000000-0000-4000-8000-00000000c001").execute({
       action: "plan",
       topics: [],
-      excluded: [{ sourceIds: [SOURCE_ID], reason: "Foundation evidence" }],
+      excluded: [nonSubstantiveExclusion(SOURCE_ID, "Foundation evidence")],
     });
     expect(result).toMatchObject({ failure: { kind: "validation" } });
     expect(harness.advance).not.toHaveBeenCalled();
@@ -207,7 +534,7 @@ describe("single language Wiki synthesis", () => {
     const result = await readWebsiteSourceTool("00000000-0000-4000-8000-00000000c001").execute({
       action: "plan",
       topics: [],
-      excluded: [{ sourceIds: [SOURCE_ID], reason: "No usable company evidence" }],
+      excluded: [nonSubstantiveExclusion(SOURCE_ID, "No usable company evidence")],
       omittedFoundations,
     });
     expect(structured(result)).toMatchObject({ topicPlan: [] });
@@ -604,6 +931,52 @@ describe("complete stored source coverage", () => {
     expect(sources.every(({ readAt }) => readAt !== null)).toBe(true);
     expect(harness.advance).toHaveBeenCalledTimes(calls);
     for (const source of sources) expect(delivered.get(source.id)).toBe(source.text);
+  });
+
+  it("includes canonical FAQ evidence in the stored hash and reads through the appended answer before completion", async () => {
+    const pair = {
+      question: "Does this offering support incremental retrieval?",
+      answer: "Incremental retrieval requires the documented remote API capability.",
+    };
+    const body = `# Service A\n${"Evidence paragraph. ".repeat(650)}`;
+    const text = wikiSourceText({ text: body, qaPairs: [pair] });
+    const hash = (value: string) => createHash("sha256").update(value).digest("hex");
+    const canonical = { ...source(1, text), contentHash: hash(text) };
+    stored([canonical]);
+    const reader = readWebsiteSourceTool("00000000-0000-4000-8000-00000000c001");
+    const first = structured(await reader.execute({ action: "next" })) as {
+      items: Array<{ offset: number; text: string; nextOffset: number | null }>;
+      remainingSources: number;
+    };
+
+    expect(first).toMatchObject({ remainingSources: 1, items: [{ offset: 0, nextOffset: 12_000 }] });
+    expect(first.items[0].text).not.toContain(pair.answer);
+    expect(canonical.readOffset).toBe(12_000);
+    expect(canonical.readAt).toBeNull();
+    const premature = await reader.execute({ action: "plan", topics: foundations });
+    expect(premature).toMatchObject({
+      failure: { issues: [expect.objectContaining({ customCode: "wikiSourceCoverageRequired" })] },
+    });
+    const second = structured(await reader.execute({ action: "next" })) as {
+      items: Array<{ offset: number; text: string; nextOffset: number | null }>;
+      remainingSources: number;
+    };
+
+    expect(second).toMatchObject({ remainingSources: 0, items: [{ offset: 12_000, nextOffset: null }] });
+    expect(second.items[0].text).toContain(pair.question);
+    expect(second.items[0].text).toContain(pair.answer);
+    expect(first.items[0].text + second.items[0].text).toBe(text);
+    expect(canonical.readOffset).toBe(text.length);
+    expect(canonical.readAt).not.toBeNull();
+    for (const result of [first, second]) {
+      expect(new TextEncoder().encode(JSON.stringify(encodeToToon(result))).byteLength).toBeLessThanOrEqual(
+        WIKI_SOURCE_RESULT_MAX_CHARS,
+      );
+    }
+    expect(hash(wikiSourceText({ text, qaPairs: [pair] }))).toBe(canonical.contentHash);
+    expect(
+      hash(wikiSourceText({ text: body, qaPairs: [{ ...pair, answer: "Incremental retrieval is not available." }] })),
+    ).not.toBe(canonical.contentHash);
   });
 
   it("finishes initial coverage before allowing citation rereads and preserves completed cursors", async () => {

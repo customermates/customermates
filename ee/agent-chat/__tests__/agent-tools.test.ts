@@ -261,7 +261,10 @@ describe("agent tools", () => {
     expect(getAgentAiToolDefinitions()).toEqual(describeAgentAiTools(getAgentAiTools(deps())));
 
     const model = SHIPPED_AGENT_MODEL;
-    const definitions = agentToolDefinitionsForTurn({ servingProvider: model.servingProvider, surface: "chat" });
+    const definitions = agentToolDefinitionsForTurn({
+      servingProvider: model.servingProvider,
+      surface: "chat",
+    });
     expect(definitions.map(({ name }) => name)).toContain(ANALYZE_RECORDS_TOOL_NAME);
     expect(definitions.map(({ name }) => name)).toEqual(getAgentAiToolDefinitions().map(({ name }) => name));
 
@@ -278,7 +281,12 @@ describe("agent tools", () => {
     const maxMessageChars = SendAgentMessageSchema.shape.text.maxLength;
     expect(maxMessageChars).toBe(20_000);
     const requiredContextBytes = conservativeAgentInitialContextBytes({
-      systemPrompt: buildAgentSystemPrompt({ userName: "Ada Lovelace", locale: "en", surface: "chat", schemaDigest }),
+      systemPrompt: buildAgentSystemPrompt({
+        userName: "Ada Lovelace",
+        locale: "en",
+        surface: "chat",
+        schemaDigest,
+      }),
       currentText: "x".repeat(maxMessageChars ?? 0),
       pageRoute: "/en/organizations",
       toolDefinitions: definitions,
@@ -414,8 +422,18 @@ describe("agent tools", () => {
 
   it.each([
     { action: "update", surfaceKey: "contacts-card-store", viewKey: "__all__" },
-    { action: "update", surfaceKey: "contacts-card-store", viewKey: "__all__", state: {} },
-    { action: "create", surfaceKey: "operator-users", name: "Operator", state: {} },
+    {
+      action: "update",
+      surfaceKey: "contacts-card-store",
+      viewKey: "__all__",
+      state: {},
+    },
+    {
+      action: "create",
+      surfaceKey: "operator-users",
+      name: "Operator",
+      state: {},
+    },
     {
       action: "delete",
       surfaceKey: "operator-users",
@@ -426,7 +444,10 @@ describe("agent tools", () => {
       normalizeAgentAiToolInput("manage_data_views", input, 6000, {
         pageRoute: "/en/contacts?view=__all__&viewSurface=contacts-card-store&viewAction=update",
       }),
-    ).resolves.toMatchObject({ ok: false, result: expect.stringContaining("Validation error") });
+    ).resolves.toMatchObject({
+      ok: false,
+      result: expect.stringContaining("Validation error"),
+    });
   });
 
   it("gives the hosted agent a record-specific link for a timeline view created on a detail page", async () => {
@@ -436,14 +457,28 @@ describe("agent tools", () => {
     if (!mcp) throw new Error("manage_data_views is missing");
     const executeMcp = vi.spyOn(mcp, "execute").mockResolvedValue({
       text: `surfaceKey: entity-timeline\nviewKey: ${viewKey}\nlink: null`,
-      structuredContent: { action: "create", surfaceKey: "entity-timeline", viewKey, link: null, selected: true },
+      structuredContent: {
+        action: "create",
+        surfaceKey: "entity-timeline",
+        viewKey,
+        link: null,
+        selected: true,
+      },
     });
 
     try {
       const result = await execute(
-        getAgentAiTools(deps({ pageRoute: `/en/contacts/${recordId}?view=__all__&viewSurface=entity-timeline` }))
-          .manage_data_views,
-        { action: "create", surfaceKey: "entity-timeline", name: "Contact created", state: {} },
+        getAgentAiTools(
+          deps({
+            pageRoute: `/en/contacts/${recordId}?view=__all__&viewSurface=entity-timeline`,
+          }),
+        ).manage_data_views,
+        {
+          action: "create",
+          surfaceKey: "entity-timeline",
+          name: "Contact created",
+          state: {},
+        },
       );
 
       expect(result).toMatchObject({ ok: true });
@@ -481,7 +516,12 @@ describe("agent tools", () => {
             resultMaxChars: 1,
           }),
         ).manage_data_views,
-        { action: "update", surfaceKey: "contacts-card-store", viewKey: "__all__", state: { viewMode: "card" } },
+        {
+          action: "update",
+          surfaceKey: "contacts-card-store",
+          viewKey: "__all__",
+          state: { viewMode: "card" },
+        },
       );
 
       expect(result).toMatchObject({
@@ -520,7 +560,10 @@ describe("agent tools", () => {
 
     try {
       const tools = getAgentAiTools(deps());
-      const listed = await execute(tools.manage_data_views, { action: "list", surfaceKey: "contacts-card-store" });
+      const listed = await execute(tools.manage_data_views, {
+        action: "list",
+        surfaceKey: "contacts-card-store",
+      });
       const deleted = await execute(tools.manage_data_views, {
         action: "delete",
         surfaceKey: "contacts-card-store",
@@ -535,16 +578,35 @@ describe("agent tools", () => {
   });
 
   it.each([
-    { action: "create", surfaceKey: "deals-card-store", name: "Linked deals", state: {} },
-    { action: "update", surfaceKey: "deals-card-store", viewKey: "__all__", state: { viewMode: "card" } },
-    { action: "create", surfaceKey: "contacts-card-store", name: "Unexpected new view", state: {} },
+    {
+      action: "create",
+      surfaceKey: "deals-card-store",
+      name: "Linked deals",
+      state: {},
+    },
+    {
+      action: "update",
+      surfaceKey: "deals-card-store",
+      viewKey: "__all__",
+      state: { viewMode: "card" },
+    },
+    {
+      action: "create",
+      surfaceKey: "contacts-card-store",
+      name: "Unexpected new view",
+      state: {},
+    },
     {
       action: "update",
       surfaceKey: "contacts-card-store",
       viewKey: "00000000-0000-4000-8000-000000000001",
       state: { viewMode: "card" },
     },
-    { action: "delete", surfaceKey: "contacts-card-store", viewKey: "00000000-0000-4000-8000-000000000001" },
+    {
+      action: "delete",
+      surfaceKey: "contacts-card-store",
+      viewKey: "00000000-0000-4000-8000-000000000001",
+    },
   ])("rejects a different target before approval or execution: $action $surfaceKey", async (input) => {
     const mcp = ALL_MCP_TOOLS.find(({ name }) => name === "manage_data_views");
     if (!mcp) throw new Error("manage_data_views is missing");
@@ -555,12 +617,17 @@ describe("agent tools", () => {
     });
     try {
       const result = await execute(getAgentAiTools(dependencies).manage_data_views, input);
-      expect(result).toMatchObject({ ok: false, result: expect.stringContaining("surfaceKey=contacts-card-store") });
+      expect(result).toMatchObject({
+        ok: false,
+        result: expect.stringContaining("surfaceKey=contacts-card-store"),
+      });
       expect(executeMcp).not.toHaveBeenCalled();
       expect(dependencies.runExactlyOnce).not.toHaveBeenCalled();
       expect(dependencies.resolveApprovalContext).not.toHaveBeenCalled();
       await expect(
-        normalizeAgentAiToolInput("manage_data_views", input, 6000, { pageRoute: dependencies.pageRoute }),
+        normalizeAgentAiToolInput("manage_data_views", input, 6000, {
+          pageRoute: dependencies.pageRoute,
+        }),
       ).resolves.toEqual(result);
     } finally {
       executeMcp.mockRestore();
@@ -569,11 +636,21 @@ describe("agent tools", () => {
 
   it.each([
     [
-      { action: "update", surfaceKey: "contacts-card-store", viewKey: "__all__", state: { viewMode: "card" } },
+      {
+        action: "update",
+        surfaceKey: "contacts-card-store",
+        viewKey: "__all__",
+        state: { viewMode: "card" },
+      },
       "/en/contacts?view=__all__&viewSurface=contacts-card-store&viewAction=update",
     ],
     [
-      { action: "create", surfaceKey: "entity-timeline", name: "My view", state: {} },
+      {
+        action: "create",
+        surfaceKey: "entity-timeline",
+        name: "My view",
+        state: {},
+      },
       "/en/contacts/00000000-0000-4000-8000-000000000001?view=__all__&viewSurface=entity-timeline&viewAction=create",
     ],
     [
@@ -585,7 +662,15 @@ describe("agent tools", () => {
       "/en/contacts?view=__all__&viewSurface=contacts-card-store&viewAction=update",
     ],
     [{ action: "surfaces" }, "/en/contacts?view=__all__&viewSurface=contacts-card-store&viewAction=update"],
-    [{ action: "create", surfaceKey: "deals-card-store", name: "My view", state: {} }, null],
+    [
+      {
+        action: "create",
+        surfaceKey: "deals-card-store",
+        name: "My view",
+        state: {},
+      },
+      null,
+    ],
   ] as const)("keeps valid $0.action requests on the existing MCP execution path", async (input, pageRoute) => {
     const mcp = ALL_MCP_TOOLS.find(({ name }) => name === "manage_data_views");
     if (!mcp) throw new Error("manage_data_views is missing");
@@ -624,7 +709,9 @@ describe("agent tools", () => {
       expect(dependencies.runExactlyOnce).not.toHaveBeenCalled();
       expect(dependencies.resolveApprovalContext).not.toHaveBeenCalled();
       await expect(
-        normalizeAgentAiToolInput("manage_custom_columns", input, 6000, { pageRoute: dependencies.pageRoute }),
+        normalizeAgentAiToolInput("manage_custom_columns", input, 6000, {
+          pageRoute: dependencies.pageRoute,
+        }),
       ).resolves.toEqual(result);
     } finally {
       executeMcp.mockRestore();
@@ -650,11 +737,18 @@ describe("agent tools", () => {
     const validate = schemaOf(tools.navigate).validate;
     const recordId = "00000000-0000-4000-8000-000000000001";
 
-    expect(await validate?.({ entity: "deal", recordId })).toMatchObject({ success: true });
+    expect(await validate?.({ entity: "deal", recordId })).toMatchObject({
+      success: true,
+    });
     for (const bad of ["new", "/deals/abc", "javascript:alert(1)", "https://example.com", "abc", "1234"])
       expect(await validate?.({ entity: "deal", recordId: bad }), bad).toMatchObject({ success: false });
-    expect(await validate?.({ entity: "company", recordId })).toMatchObject({ success: false });
-    expect(await validate?.({ entity: "deal" })).toMatchObject({ success: false });
+
+    expect(await validate?.({ entity: "company", recordId })).toMatchObject({
+      success: false,
+    });
+    expect(await validate?.({ entity: "deal" })).toMatchObject({
+      success: false,
+    });
     expect(await validate?.({ recordId })).toMatchObject({ success: false });
     expect(await validate?.({})).toMatchObject({ success: false });
     expect(await validate?.({ targetId: "nav-deals", entity: "deal", recordId })).toMatchObject({ success: false });
@@ -863,7 +957,11 @@ describe("agent tools", () => {
     expect(lines.slice(1)).toEqual(subLinks);
     expect(prefixed).toEqual(subLinks);
 
-    const layout = String(await execute(tools.list_ui_targets, { query: "contacts-layout-table deals" }))
+    const layout = String(
+      await execute(tools.list_ui_targets, {
+        query: "contacts-layout-table deals",
+      }),
+    )
       .split("\n")
       .filter((line) => line.includes("|"))
       .map((line) => line.split("|")[0]);
@@ -934,7 +1032,10 @@ describe("agent tools", () => {
 
     const throughOpener = {
       steps: [
-        { targetId: "deals-display-options", note: "Open the display options." },
+        {
+          targetId: "deals-display-options",
+          note: "Open the display options.",
+        },
         { targetId: "deals-layout-board", note: "Switch to the board." },
       ],
     };
@@ -942,7 +1043,10 @@ describe("agent tools", () => {
       ok: true,
       result: "shown",
     });
-    await expect(execute(tools.start_tour, throughOpener)).resolves.toEqual({ ok: true, result: "shown" });
+    await expect(execute(tools.start_tour, throughOpener)).resolves.toEqual({
+      ok: true,
+      result: "shown",
+    });
     const namedRow = AGENT_UI_TARGETS.find(
       (target) =>
         target.prerequisite !== undefined && !AGENT_UI_TARGETS.some((other) => other.id === target.prerequisite),
@@ -1100,7 +1204,11 @@ describe("agent tools", () => {
       },
     });
     const query = "Walk me through connecting WhatsApp to the Customermates inbox.";
-    const searchResult = (await execute(tools.search_docs, { query, locale: "en", source: "docs" })) as {
+    const searchResult = (await execute(tools.search_docs, {
+      query,
+      locale: "en",
+      source: "docs",
+    })) as {
       ok: boolean;
       result: string;
     };
@@ -1170,6 +1278,10 @@ describe("agent tools", () => {
     ).resolves.toEqual({
       ok: false,
       result: "Validation error: invalid docs query",
+      failure: {
+        kind: "validation",
+        issues: [{ code: "custom", path: [], message: "invalid docs query" }],
+      },
     });
   });
 
@@ -1215,10 +1327,15 @@ describe("agent tools", () => {
   );
 
   it("verifies an external target against the provider even though the call no longer asks", async () => {
-    const input = { action: "invite", connectedAccountId: "account-1", identifier: "provider-ada" };
-    const resolveApprovalContext = vi
-      .fn()
-      .mockResolvedValue({ ok: true, input: { ...input, targetLabel: "Ada Lovelace" } });
+    const input = {
+      action: "invite",
+      connectedAccountId: "account-1",
+      identifier: "provider-ada",
+    };
+    const resolveApprovalContext = vi.fn().mockResolvedValue({
+      ok: true,
+      input: { ...input, targetLabel: "Ada Lovelace" },
+    });
     const requestApproval = vi.fn().mockResolvedValue("reject");
     const tools = getAgentAiTools(deps({ requestApproval, resolveApprovalContext }));
 
@@ -1274,7 +1391,14 @@ describe("agent tools", () => {
         },
         "social-approval",
       ),
-    ).resolves.toEqual({ ok: false, result: "localized:userInactive" });
+    ).resolves.toEqual({
+      ok: false,
+      result: "localized:userInactive",
+      failure: {
+        kind: "authorization",
+        issues: [{ code: "custom", path: [], message: "localized:userInactive", customCode: "userInactive" }],
+      },
+    });
     expect(requestApproval).not.toHaveBeenCalled();
     expect(sentryMock.captureException).not.toHaveBeenCalled();
   });
@@ -1387,7 +1511,10 @@ describe("agent tools", () => {
 
     const result = await execute(tools.request_support, { subject: "Need help", body: "Human please" }, "support-3");
 
-    expect(result).toMatchObject({ agentToolStatus: "cancelled", message: expect.stringContaining(wording) });
+    expect(result).toMatchObject({
+      agentToolStatus: "cancelled",
+      message: expect.stringContaining(wording),
+    });
   });
 
   it("gives the model truthful, neutral capability and approval instructions", () => {

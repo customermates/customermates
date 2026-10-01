@@ -1,4 +1,5 @@
 import type { ClassifierResult, ClassifierSpec, ClassifierState } from "./classifier";
+import type { DocsRankEvidenceContext } from "./docs-rank-evidence";
 import type {
   RankableSection,
   RetrievalCorpus,
@@ -7,11 +8,14 @@ import type {
   SectionRanking,
 } from "@/core/retrieval/retrieval-context";
 
+import { docsRankEvidence } from "./docs-rank-evidence";
+
 import { agentContextFromProviderText } from "./agent-context";
 import { classifyMetered, hostedDocsRerankModel } from "./classifier/metered";
 
 export const DOCS_RERANK_USER_MESSAGE_CHARS = 1_000;
-const DOCS_RERANK_OPTION_CHARS = 400;
+const DOCS_RERANK_OPTION_CHARS = 800;
+const DOCS_RERANK_EVIDENCE_CHARS = 16_000;
 export const DOCS_RERANK_NONE = "none";
 
 export function docsRerankPlainText(value: string): string {
@@ -30,17 +34,62 @@ export function docsRerankChoice(result: ClassifierResult | null): number | null
 }
 
 const RANK_INSTRUCTIONS: Record<RetrievalCorpus, string> = {
-  docs: "The user wrote `latest_user_message` (in any language) and the assistant searched the documentation with `agent_query`. Which documentation section best answers what the user needs? Some options show only a page and heading. If none answers it fully, pick the closest one; choose none only if no section answers it at all.",
+  docs: "The user wrote `latest_user_message` (in any language) and the assistant searched the documentation with `agent_query`. Which documentation section best answers what the user needs? Prefer a section dedicated to the requested page, action or permission over a broader section that only mentions it. For a request to navigate to a page, prefer the destination page and its route. For a task or relationship between records, prefer the instructions that complete the requested operation. If none answers it fully, pick the closest one; choose none only if no section answers it at all.",
   wiki: "The user wrote `latest_user_message` (in any language) and the assistant searched the Knowledge Base with `agent_query`. Which Knowledge Base section best answers what the user needs? If none answers it fully, pick the closest one; choose none only if no section answers it at all.",
 };
 
-export function docsRankSpec(candidates: readonly RankableSection[], corpus: RetrievalCorpus = "docs"): ClassifierSpec {
+export function docsRankExcerpt(
+  markdown: string,
+  query: string,
+  maxChars = DOCS_RERANK_OPTION_CHARS,
+  ownHeading?: string,
+  context: DocsRankEvidenceContext = {},
+): string {
+  const link = markdown.match(/^\*\*Link:\*\*([^\n]*)$/m)?.[1].split("**Mate:**")[0] ?? "";
+  const routes = link.match(/`\/[^`]+`/gu) ?? [];
+  const routeBudget = Math.min(128, Math.floor(maxChars / 3));
+  let navigation = "";
+  for (const route of routes) {
+    const proposed = navigation ? `${navigation}, ${route}` : `Link: ${route}`;
+    if (proposed.length <= routeBudget) navigation = proposed;
+  }
+  const leading = markdown.match(/^#{1,6} ([^\n]*)(?:\n|$)/u);
+  const body =
+    leading && ownHeading && docsRerankPlainText(leading[1]) === docsRerankPlainText(ownHeading)
+      ? markdown.slice(leading[0].length)
+      : markdown;
+  const plainNavigation = navigation.replace(/`/gu, "");
+  const focused = docsRankEvidence(
+    body.replace(/^\*\*Link:\*\*.*$/gm, ""),
+    query,
+    Math.max(0, maxChars - plainNavigation.length - (plainNavigation ? 1 : 0)),
+    context,
+  );
+  return [focused, plainNavigation].filter(Boolean).join(" ");
+}
+
+export function docsRankSpec(
+  candidates: readonly RankableSection[],
+  corpus: RetrievalCorpus = "docs",
+  query = "",
+): ClassifierSpec {
+  const weights = candidates.map((_, index) => (index < 20 ? 5 : 1));
+  const totalWeight = Math.max(
+    1,
+    weights.reduce((total, weight) => total + weight, 0),
+  );
   const options = Object.fromEntries(
-    candidates.map(({ id, section, titleOnly }) => {
+    candidates.map(({ id, section, locale }, index) => {
+      const optionChars = Math.min(
+        DOCS_RERANK_OPTION_CHARS,
+        Math.floor((DOCS_RERANK_EVIDENCE_CHARS * weights[index]) / totalWeight),
+      );
       const title = `${section.pageTitle} > ${section.headingPath.join(" > ")}`;
       return [
         `s${id}`,
-        titleOnly ? title : `${title}: ${docsRerankPlainText(section.text).slice(0, DOCS_RERANK_OPTION_CHARS)}`,
+        section.text
+          ? `${title}: ${docsRankExcerpt(section.text, query, optionChars, section.headingPath.at(-1), { label: title, locale })}`
+          : title,
       ];
     }),
   );
@@ -51,7 +100,10 @@ export function docsRankSpec(candidates: readonly RankableSection[], corpus: Ret
         id: "best",
         type: "choice",
         instruction: RANK_INSTRUCTIONS[corpus],
-        options: { ...options, [DOCS_RERANK_NONE]: "None of these sections answers what the user needs." },
+        options: {
+          ...options,
+          [DOCS_RERANK_NONE]: "None of these sections answers what the user needs.",
+        },
       },
     ],
   };
@@ -73,11 +125,18 @@ export function docsRankOrder(
   const rest = candidates.map((candidate) => candidate.id).filter((id) => id !== chosen);
   const ordered = probabilities
     ? rest
-        .map((id, index) => ({ id, index, probability: probabilities[`s${id}`] ?? 0 }))
+        .map((id, index) => ({
+          id,
+          index,
+          probability: probabilities[`s${id}`] ?? 0,
+        }))
         .sort((left, right) => right.probability - left.probability || left.index - right.index)
         .map(({ id }) => id)
     : rest;
-  return { order: (chosen === null ? ordered : [chosen, ...ordered]).slice(0, limit), abstained };
+  return {
+    order: (chosen === null ? ordered : [chosen, ...ordered]).slice(0, limit),
+    abstained,
+  };
 }
 
 export function docsRankUserMessage(text: string | null | undefined): string | null {
@@ -92,7 +151,7 @@ function hostedSectionRanking(userMessage: string | null, corpus: RetrievalCorpu
   return async (query, candidates) => {
     const { result } = await classifyMetered(
       corpus === "docs" ? "docs_rerank" : "wiki_rerank",
-      docsRankSpec(candidates, corpus),
+      docsRankSpec(candidates, corpus, query),
       docsRankState(query, message),
       model,
     );

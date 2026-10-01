@@ -21,7 +21,11 @@ vi.mock("@/env", () => ({
 vi.mock("@/core/di", () => createMockDiModule(() => createMockUser()));
 vi.mock("@/core/validation/zod-error-map-server", () => MOCK_ZOD_MODULE);
 vi.mock("@/prisma/db", () => MOCK_PRISMA_DB_MODULE);
-vi.mock("@sentry/nextjs", () => ({ captureException: vi.fn(), setTag: vi.fn(), setUser: vi.fn() }));
+vi.mock("@sentry/nextjs", () => ({
+  captureException: vi.fn(),
+  setTag: vi.fn(),
+  setUser: vi.fn(),
+}));
 
 import type { RankableSection } from "@/core/retrieval/retrieval-context";
 
@@ -42,6 +46,9 @@ import {
   hostedSectionRankers,
 } from "../docs-rerank";
 import { currentSectionRanker } from "@/core/retrieval/retrieval-context";
+import { docsCorpusSections } from "@/features/mcp-tools/docs-manifest";
+import rawDocsManifest from "@/generated/raw-docs-manifest.json";
+import { splitSections } from "@/features/mcp-tools/docs-sections";
 import { searchDocsTool } from "@/features/mcp-tools/docs.mcp-tools";
 import { manageWikiPagesTool } from "@/features/mcp-tools/wiki.mcp-tools";
 
@@ -69,19 +76,27 @@ const RANKABLE: RankableSection[] = [
       headingPath: ["Authentication"],
       text: "Send the key in the `x-api-key` header.",
     },
-    titleOnly: false,
   },
   {
     id: 1,
-    section: { pageTitle: "API Keys", headingPath: ["Do keys expire?"], text: "Keys expire after 365 days." },
-    titleOnly: false,
+    section: {
+      pageTitle: "API Keys",
+      headingPath: ["Do keys expire?"],
+      text: "Keys expire after 365 days.",
+    },
   },
   {
     id: 2,
-    section: { pageTitle: "Webhooks", headingPath: ["Signatures"], text: "Verify the signature header." },
-    titleOnly: false,
+    section: {
+      pageTitle: "Webhooks",
+      headingPath: ["Signatures"],
+      text: "Verify the signature header.",
+    },
   },
-  { id: 3, section: { pageTitle: "API Keys", headingPath: ["Scopes"], text: "" }, titleOnly: true },
+  {
+    id: 3,
+    section: { pageTitle: "API Keys", headingPath: ["Scopes"], text: "" },
+  },
 ];
 
 function docsRanker(latestUserMessage?: string) {
@@ -92,7 +107,9 @@ function docsRanker(latestUserMessage?: string) {
 
 function jevChoosing(pick: (keys: string[]) => string, probabilities?: (keys: string[]) => Record<string, number>) {
   return vi.fn((_url: string, init: RequestInit) => {
-    const body = JSON.parse(String(init.body)) as { questions: { best: { criteria: Record<string, string> } } };
+    const body = JSON.parse(String(init.body)) as {
+      questions: { best: { criteria: Record<string, string> } };
+    };
     const keys = Object.keys(body.questions.best.criteria);
     const choice = pick(keys);
     return Promise.resolve(
@@ -113,7 +130,13 @@ function jevChoosing(pick: (keys: string[]) => string, probabilities?: (keys: st
                 modelAttempts: [
                   {
                     success: true,
-                    providerAttempts: [{ provider: "typesafe-ai", credentialType: "system", success: true }],
+                    providerAttempts: [
+                      {
+                        provider: "typesafe-ai",
+                        credentialType: "system",
+                        success: true,
+                      },
+                    ],
                   },
                 ],
               },
@@ -151,7 +174,14 @@ describe("docs re-rank classifier spec", () => {
   it("reads only a candidate key as the choice", () => {
     const answer = (choice: string) => ({
       model: "jev" as const,
-      answers: { best: { type: "choice" as const, choice, probabilities: null, confidence: null } },
+      answers: {
+        best: {
+          type: "choice" as const,
+          choice,
+          probabilities: null,
+          confidence: null,
+        },
+      },
       costMicrocents: 1,
       latencyMs: 1,
     });
@@ -188,7 +218,7 @@ describe("hosted docs re-rank switch", () => {
 const USER_MESSAGE = "Mit welchem Header authentifiziere ich mich bei der REST API?";
 
 describe("docs re-rank candidates and spec", () => {
-  it("shows title-only candidates without an excerpt and asks from the user's message and the agent's query", () => {
+  it("shows empty sections without an excerpt and asks from the user's message and the agent's query", () => {
     const spec = docsRankSpec(RANKABLE);
     const [question] = spec.questions;
     const title = RANKABLE[3];
@@ -201,7 +231,10 @@ describe("docs re-rank candidates and spec", () => {
       `${title.section.pageTitle} > ${title.section.headingPath.join(" > ")}`,
     );
     expect(question.options[`s${excerpted.id}`]).toContain(": ");
-    expect(docsRankState(QUERY, USER_MESSAGE)).toEqual({ latest_user_message: USER_MESSAGE, agent_query: QUERY });
+    expect(docsRankState(QUERY, USER_MESSAGE)).toEqual({
+      latest_user_message: USER_MESSAGE,
+      agent_query: QUERY,
+    });
     expect(docsRankState(QUERY, null)).toEqual({ agent_query: QUERY });
   });
 
@@ -218,7 +251,14 @@ describe("docs re-rank candidates and spec", () => {
     const candidates = [{ id: 4 }, { id: 7 }, { id: 9 }, { id: 12 }];
     const result = (choice: string, probabilities: Record<string, number> | null) => ({
       model: "jev" as const,
-      answers: { best: { type: "choice" as const, choice, probabilities, confidence: null } },
+      answers: {
+        best: {
+          type: "choice" as const,
+          choice,
+          probabilities,
+          confidence: null,
+        },
+      },
       costMicrocents: 1,
       latencyMs: 1,
     });
@@ -227,7 +267,10 @@ describe("docs re-rank candidates and spec", () => {
       order: [9, 12, 7],
       abstained: false,
     });
-    expect(docsRankOrder(result("s12", null), candidates)).toEqual({ order: [12, 4, 7], abstained: false });
+    expect(docsRankOrder(result("s12", null), candidates)).toEqual({
+      order: [12, 4, 7],
+      abstained: false,
+    });
     expect(docsRankOrder(result("s99", null), candidates)).toBeNull();
     expect(docsRankOrder(null, candidates)).toBeNull();
   });
@@ -236,7 +279,14 @@ describe("docs re-rank candidates and spec", () => {
     const candidates = [{ id: 4 }, { id: 7 }, { id: 9 }];
     const result = (probabilities: Record<string, number> | null) => ({
       model: "jev" as const,
-      answers: { best: { type: "choice" as const, choice: DOCS_RERANK_NONE, probabilities, confidence: null } },
+      answers: {
+        best: {
+          type: "choice" as const,
+          choice: DOCS_RERANK_NONE,
+          probabilities,
+          confidence: null,
+        },
+      },
       costMicrocents: 1,
       latencyMs: 1,
     });
@@ -248,7 +298,10 @@ describe("docs re-rank candidates and spec", () => {
       order: [7, 9, 4],
       abstained: true,
     });
-    expect(docsRankOrder(result(null), candidates)).toEqual({ order: [4, 7, 9], abstained: true });
+    expect(docsRankOrder(result(null), candidates)).toEqual({
+      order: [4, 7, 9],
+      abstained: true,
+    });
   });
 });
 
@@ -263,13 +316,24 @@ describe("hosted docs re-rank", () => {
     const { value, charges } = await collectClassifierCharges(() =>
       docsRanker(`${agentPageContextPrefix("/en/deals")}${USER_MESSAGE}`)(QUERY, RANKABLE),
     );
-    const sent = JSON.parse(String(fetchMock.mock.calls[0][1].body)) as { state: unknown };
+    const sent = JSON.parse(String(fetchMock.mock.calls[0][1].body)) as {
+      state: unknown;
+    };
 
     expect(fetchMock).toHaveBeenCalledWith(JEV_EVALUATE_URL, expect.objectContaining({ signal: expect.anything() }));
-    expect(sent.state).toEqual({ latest_user_message: USER_MESSAGE, agent_query: QUERY });
+    expect(sent.state).toEqual({
+      latest_user_message: USER_MESSAGE,
+      agent_query: QUERY,
+    });
     expect(value).toEqual({ order: [3, 1, 2], abstained: false });
     expect(charges).toEqual([
-      { use: "docs_rerank", model: "jev", costMicrocents: 2000, measured: true, answered: true },
+      {
+        use: "docs_rerank",
+        model: "jev",
+        costMicrocents: 2000,
+        measured: true,
+        answered: true,
+      },
     ]);
   });
 
@@ -283,7 +347,12 @@ describe("hosted docs re-rank", () => {
 
     expect(value).toBeNull();
     expect(charges).toEqual([
-      expect.objectContaining({ use: "docs_rerank", model: "jev", measured: false, answered: false }),
+      expect.objectContaining({
+        use: "docs_rerank",
+        model: "jev",
+        measured: false,
+        answered: false,
+      }),
     ]);
   });
 });
@@ -292,13 +361,19 @@ describe("section re-rank for documentation and the Workspace Wiki", () => {
   const candidates = [
     {
       id: 0,
-      section: { pageTitle: "Refund policy", headingPath: ["Approval"], text: "The finance lead approves." },
-      titleOnly: false,
+      section: {
+        pageTitle: "Refund policy",
+        headingPath: ["Approval"],
+        text: "The finance lead approves.",
+      },
     },
     {
       id: 1,
-      section: { pageTitle: "Travel", headingPath: ["Mileage"], text: "0.30 EUR per kilometre." },
-      titleOnly: false,
+      section: {
+        pageTitle: "Travel",
+        headingPath: ["Mileage"],
+        text: "0.30 EUR per kilometre.",
+      },
     },
   ];
 
@@ -317,7 +392,13 @@ describe("section re-rank for documentation and the Workspace Wiki", () => {
     expect(sent.questions.best.instructions).toContain("searched the Knowledge Base");
     expect(docsRankSpec(candidates, "wiki").id).toBe("wiki-rank");
     expect(docsRankSpec(candidates).id).toBe("docs-rank");
-    expect(charges).toEqual([expect.objectContaining({ use: "wiki_rerank", model: "jev", answered: true })]);
+    expect(charges).toEqual([
+      expect.objectContaining({
+        use: "wiki_rerank",
+        model: "jev",
+        answered: true,
+      }),
+    ]);
   });
 
   it("offers no rankers self-hosted", () => {
@@ -330,7 +411,10 @@ describe("section re-rank for documentation and the Workspace Wiki", () => {
     const seen: Record<string, boolean> = {};
     vi.spyOn(searchDocsTool, "execute").mockImplementation(() => {
       seen.docs = currentSectionRanker("docs") !== undefined;
-      return Promise.resolve({ text: "matches: none", structuredContent: { results: [], total: 0 } });
+      return Promise.resolve({
+        text: "matches: none",
+        structuredContent: { results: [], total: 0 },
+      });
     });
     vi.spyOn(manageWikiPagesTool, "execute").mockImplementation(() => {
       seen.wiki = currentSectionRanker("wiki") !== undefined;
@@ -338,10 +422,15 @@ describe("section re-rank for documentation and the Workspace Wiki", () => {
     });
     const tools = getAgentAiTools(deps(USER_MESSAGE)) as unknown as Record<
       string,
-      { execute: (value: unknown, options: { toolCallId: string; messages: [] }) => Promise<unknown> }
+      {
+        execute: (value: unknown, options: { toolCallId: string; messages: [] }) => Promise<unknown>;
+      }
     >;
 
-    await tools.search_docs.execute(INPUT, { toolCallId: "call-docs", messages: [] });
+    await tools.search_docs.execute(INPUT, {
+      toolCallId: "call-docs",
+      messages: [],
+    });
     await tools.manage_wiki_pages.execute(
       { action: "search", query: "refunds" },
       { toolCallId: "call-wiki", messages: [] },
@@ -349,5 +438,193 @@ describe("section re-rank for documentation and the Workspace Wiki", () => {
 
     expect(seen).toEqual({ docs: true, wiki: true });
     expect(currentSectionRanker("docs")).toBeUndefined();
+  });
+});
+
+describe("query-focused section-ranking evidence", () => {
+  it("uses actual section labels and locale without expanding catalog evidence", () => {
+    const page = rawDocsManifest.docs.en.mcp;
+    const section = splitSections({
+      slug: "mcp",
+      source: "docs",
+      pageTitle: page.title,
+      markdown: page.content,
+    }).find(({ anchor }) => anchor === "tool-catalog");
+    expect(section).toBeDefined();
+    if (!section) throw new Error("Expected public documentation section");
+    const candidates = Array.from({ length: 120 }, (_, id) => ({
+      id,
+      section,
+      locale: "en" as const,
+    }));
+    const [question] = docsRankSpec(candidates, "docs", "What can the MCP server do?").questions;
+    expect(question.options.s0).toContain("They cover records, workspace, saved views, the Knowledge Base, messaging");
+    expect(question.options.s0).toContain("widgets, routines, webhooks, admin, and support");
+    expect(question.options.s0).toContain("manage_record_links");
+    expect(question.options.s0.length).toBeLessThanOrEqual(
+      `${section.pageTitle} > ${section.headingPath.join(" > ")}: `.length + 478,
+    );
+  });
+
+  it("includes a matching detail after a long introduction and keeps the page route", () => {
+    const [question] = docsRankSpec(
+      [
+        {
+          id: 0,
+          section: {
+            pageTitle: "Connections",
+            headingPath: ["Mailbox status"],
+            text:
+              "Background. ".repeat(80) +
+              "\nPermission issue means the mailbox needs to be reactivated.\n**Link:** `/profile/accounts`. **Mate:** navigate with an internal target.",
+          },
+        },
+      ],
+      "docs",
+      "mailbox permission issue",
+    ).questions;
+    expect(question.options.s0).toContain("Permission issue means the mailbox needs to be reactivated.");
+    expect(question.options.s0).toContain("/profile/accounts");
+    expect(question.options.s0).not.toContain("internal target");
+    expect(question.options.s0.length).toBeLessThanOrEqual("Connections > Mailbox status: ".length + 800);
+  });
+
+  it("preserves underscores and query delimiters in navigation evidence", () => {
+    const spec = docsRankSpec([
+      {
+        id: 0,
+        section: {
+          pageTitle: "Contacts",
+          headingPath: ["All records"],
+          text: "Choose this list.\n**Link:** `/contacts?view=__all__&order=created_at`.",
+        },
+      },
+    ]);
+    expect(spec.questions[0].options.s0).toContain("/contacts?view=__all__&order=created_at");
+  });
+
+  it("shows multiple page routes rather than discarding the explicit link evidence", () => {
+    const [question] = docsRankSpec(
+      [
+        {
+          id: 7,
+          section: {
+            pageTitle: "Lists",
+            headingPath: ["Where are the lists?"],
+            text: "Choose the relevant list.\n**Link:** **Companies** `/companies`, **People** `/people`. **Mate:** Additional navigation guidance.",
+          },
+        },
+      ],
+      "docs",
+      "company page URL",
+    ).questions;
+    expect(question.options.s7).toContain("/companies");
+    expect(question.options.s7).toContain("/people");
+    expect(question.options.s7).not.toContain("Additional navigation guidance");
+  });
+  it("bounds combined evidence while preserving every candidate's own route and matching detail", () => {
+    const candidates = Array.from({ length: 120 }, (_, id) => ({
+      id,
+      section: {
+        pageTitle: "Connections",
+        headingPath: ["Mailbox status"],
+        text:
+          "Background. ".repeat(80) +
+          "\nReactivation restores access.\n**Link:** `/profile/accounts`. **Mate:** Additional navigation guidance.",
+      },
+    }));
+    const [question] = docsRankSpec(candidates, "docs", "reactivation access").questions;
+    expect(Object.keys(question.options)).toHaveLength(121);
+    let characters = 0;
+    for (const { id } of candidates) {
+      const option = question.options[`s${id}`];
+      const excerpt = option.slice("Connections > Mailbox status: ".length);
+      expect(excerpt).toContain("Reactivation restores access.");
+      expect(excerpt).toContain("/profile/accounts");
+      expect(excerpt).not.toContain("Additional navigation guidance");
+      expect(excerpt.length).toBeLessThanOrEqual(id < 20 ? 400 : 80);
+      characters += excerpt.length;
+    }
+    expect(characters).toBeLessThanOrEqual(16_000);
+  });
+  it("gives fused high-rank sections enough evidence to retain complete operation details", () => {
+    const instruction =
+      "Link the record to its related service, then enter a quantity for that relationship and save both changes in the record drawer.";
+    const candidates = Array.from({ length: 120 }, (_, id) => ({
+      id,
+      section: {
+        pageTitle: "Records",
+        headingPath: ["Relationships"],
+        text: `Background. ${"filler ".repeat(80)}\n${instruction}\n**Link:** \`/records\`.`,
+      },
+    }));
+    const [question] = docsRankSpec(candidates, "docs", "service quantity relationship").questions;
+    expect(question.options.s2).toContain(instruction);
+    expect(question.options.s2).toContain("/records");
+    expect(question.options.s119.length).toBeLessThanOrEqual("Records > Relationships: ".length + 80);
+  });
+  it("does not spend a small sibling excerpt on its already supplied section heading", () => {
+    const heading =
+      "A deliberately long section heading that describes the user's available record permissions in detail";
+    const evidence = "Assigned read access limits contacts to their owners and assignees.";
+    const candidates = Array.from({ length: 120 }, (_, id) => ({
+      id,
+      section: {
+        pageTitle: "Permissions",
+        headingPath: [heading],
+        text: `## ${heading}\n\n${evidence}`,
+      },
+    }));
+    const [question] = docsRankSpec(candidates, "docs", "own assigned contacts").questions;
+    expect(question.options.s119).toContain(evidence);
+    expect(question.options.s119.split(heading)).toHaveLength(2);
+    expect(question.options.s119.length).toBeLessThanOrEqual(`Permissions > ${heading}: `.length + 80);
+  });
+});
+
+describe("real small sibling evidence", () => {
+  it("retains a genuine child heading in a rolled-up parent section", () => {
+    const spec = docsRankSpec(
+      [
+        {
+          id: 0,
+          section: {
+            pageTitle: "Policies",
+            headingPath: ["Common questions"],
+            text: "### Who approves an exception?\nNot published.",
+          },
+        },
+      ],
+      "wiki",
+      "exception approvals",
+    );
+    expect(spec.questions[0].options.s0).toContain("Who approves an exception?");
+    expect(spec.questions[0].options.s0).toContain("Not published.");
+  });
+  it("offers body evidence for a role-editor sibling whose real introduction exceeds its available body budget", () => {
+    const role = docsCorpusSections("docs", "en").find(
+      (section) => section.slug === "app-company" && section.anchor === "how-does-the-role-editor-work",
+    );
+    if (!role) throw new Error("Missing role editor fixture.");
+    expect(role.text).not.toMatch(/^#{1,6} /u);
+    const candidates = Array.from({ length: 120 }, (_, id) => ({
+      id,
+      section:
+        id === 119
+          ? role
+          : {
+              pageTitle: "Unrelated",
+              headingPath: ["History"],
+              text: "Old history.",
+            },
+    }));
+    const option = docsRankSpec(candidates, "docs", "Can users only see their own contacts?").questions[0].options.s119;
+    const title = `${role.pageTitle} > ${role.headingPath.join(" > ")}: `;
+    const evidence = option.slice(title.length);
+    expect(evidence).toContain("only");
+    expect(evidence).toMatch(/assigned|member|records/iu);
+    expect(evidence).toContain("Link: /company/roles");
+    expect(evidence).not.toBe("Link: /company/roles");
+    expect(evidence.length).toBeLessThanOrEqual(80);
   });
 });

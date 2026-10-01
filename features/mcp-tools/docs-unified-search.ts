@@ -6,7 +6,7 @@ import type { DocsScope, DocsSectionRow, DocsStoredBuild } from "./prisma-docs-c
 
 import { retrievalWindows } from "@/core/retrieval/retrieval-chunks";
 import { retrievalExcerpt } from "@/core/retrieval/retrieval-excerpt";
-import { fullTextUnits, type FullTextUnit } from "@/core/retrieval/full-text-query";
+import { fullTextUnits, fullTextUnitTerms, type FullTextUnit } from "@/core/retrieval/full-text-query";
 import { fuseFullTextAndSemantic, keepsResults, rerankSections } from "@/core/retrieval/retrieval-pipeline";
 import { RetrievalStopwatch } from "@/core/retrieval/retrieval-stopwatch";
 import { fold, slugifyHeading } from "@/core/utils/search-text";
@@ -43,19 +43,31 @@ export type UnifiedDocsSearch = {
 type RankedSection = { section: DocsSection; chunkOrdinal: number };
 
 function rowKey(row: DocsSectionRow): string {
-  return docsSectionKey({ source: row.source, slug: row.slug, order: row.sectionOrder });
+  return docsSectionKey({
+    source: row.source,
+    slug: row.slug,
+    order: row.sectionOrder,
+  });
 }
 
 function rowSection(locale: DocsLocale, row: DocsSectionRow, stored: DocsStoredBuild): DocsSection | undefined {
-  if (stored.current) return docsCorpusSection(locale, { source: row.source, slug: row.slug, order: row.sectionOrder });
+  if (stored.current) {
+    return docsCorpusSection(locale, {
+      source: row.source,
+      slug: row.slug,
+      order: row.sectionOrder,
+    });
+  }
   return docsCorpusSections(row.source, locale).find(
     (section) => section.slug === row.slug && section.anchor === row.anchor,
   );
 }
 
 function inMemorySections(scope: DocsScope, units: readonly FullTextUnit[], limit: number): RankedSection[] {
-  const terms = [...new Set(units.map((unit) => fold(unit.text)).filter(Boolean))];
+  const terms = units.map((unit) => fullTextUnitTerms(unit).map((parts) => parts.map(fold)));
   if (terms.length === 0) return [];
+  const matches = (value: string, alternatives: string[][]) =>
+    alternatives.some((parts) => parts.every((term) => value.includes(term)));
   const documents = scope.sources
     .flatMap((source) => docsCorpusSections(source, scope.locale))
     .filter((section) => scope.slug === undefined || section.slug === scope.slug)
@@ -65,7 +77,7 @@ function inMemorySections(scope: DocsScope, units: readonly FullTextUnit[], limi
       body: fold(section.text),
     }));
   const frequency = terms.map(
-    (term) => documents.filter((document) => document.title.includes(term) || document.body.includes(term)).length,
+    (term) => documents.filter((document) => matches(document.title, term) || matches(document.body, term)).length,
   );
   return documents
     .map((document, order) => ({
@@ -73,7 +85,7 @@ function inMemorySections(scope: DocsScope, units: readonly FullTextUnit[], limi
       order,
       score: terms.reduce((sum, term, index) => {
         if (frequency[index] === 0) return sum;
-        const weight = document.title.includes(term) ? 2 : document.body.includes(term) ? 1 : 0;
+        const weight = matches(document.title, term) ? 2 : matches(document.body, term) ? 1 : 0;
         return sum + weight * Math.log(1 + documents.length / frequency[index]);
       }, 0),
     }))
@@ -119,8 +131,12 @@ async function fusedSections(
   limits: { fullText: number; semantic: number },
 ): Promise<{ sections: RankedSection[]; relevance: RelevanceVerdict }> {
   const units = fullTextUnits(query);
-  if (!stored)
-    return { sections: inMemorySections({ ...scope, buildHash: "" }, units, limits.fullText), relevance: "kept" };
+  if (!stored) {
+    return {
+      sections: inMemorySections({ ...scope, buildHash: "" }, units, limits.fullText),
+      relevance: "kept",
+    };
+  }
   const storedScope = { ...scope, buildHash: stored.buildHash };
   const rows = new Map<string, DocsSectionRow>();
   const remember = (found: readonly DocsSectionRow[], replace: boolean) => {
@@ -132,7 +148,10 @@ async function fusedSections(
     stopwatch,
     fullText: async () => {
       const found = await deps.repo.fullTextSections(storedScope, units, limits.fullText);
-      return { keys: remember(found, false), coverage: Math.max(0, ...found.map(({ coverage }) => coverage)) };
+      return {
+        keys: remember(found, false),
+        coverage: Math.max(0, ...found.map(({ coverage }) => coverage)),
+      };
     },
     embed: deps.embed,
     semantic: async ({ vector, model }) => {
@@ -175,15 +194,78 @@ function rerankCandidates(
     if (!topPages.includes(page)) topPages.push(page);
     if (topPages.length === DOCS_RERANK_TOP_PAGES) break;
   }
-  const titles = topPages.flatMap((page) =>
+  for (const section of lexical) {
+    const page = `${section.source}:${section.slug}`;
+    if (!topPages.includes(page)) topPages.push(page);
+  }
+  const siblings = topPages.flatMap((page) =>
     sources
       .flatMap((source) => docsCorpusSections(source, locale))
       .filter((section) => `${section.source}:${section.slug}` === page && !lexicalKeys.has(docsSectionKey(section))),
   );
   return [
-    ...lexical.map((section, id) => ({ id, section, titleOnly: false })),
-    ...titles.map((section, index) => ({ id: lexical.length + index, section, titleOnly: true })),
+    ...lexical.map((section, id) => ({ id, section, locale })),
+    ...siblings.map((section, index) => ({
+      id: lexical.length + index,
+      section,
+      locale,
+    })),
   ].slice(0, DOCS_RERANK_MAX_CANDIDATES);
+}
+
+async function selectedDocsSections(
+  input: { query: string; locale: DocsLocale; source: DocsSource | "all" },
+  deps: UnifiedDocsDeps,
+  stored: DocsStoredBuild | null,
+  stopwatch: RetrievalStopwatch,
+): Promise<UnifiedDocsSearch> {
+  const sources: DocsSource[] = input.source === "all" ? ["docs", "api"] : [input.source];
+  const { sections: ranked, relevance } = await fusedSections(
+    input.query,
+    { locale: input.locale, sources },
+    stored,
+    deps,
+    stopwatch,
+    { fullText: DOCS_FULL_TEXT_CANDIDATES, semantic: DOCS_SEMANTIC_CANDIDATES },
+  );
+  if (relevance === "dropped") return { pages: [], total: 0, chosen: null };
+  const pageBest = new Map<string, RankedSection>();
+  for (const entry of ranked) {
+    const page = `${entry.section.source}:${entry.section.slug}`;
+    if (!pageBest.has(page)) pageBest.set(page, entry);
+  }
+
+  let chosen: DocsSection[] | null = null;
+  {
+    const candidates = rerankCandidates(ranked, input.locale, sources);
+    const ranking = await rerankSections({
+      query: input.query,
+      stopwatch,
+      candidates,
+      ranker: deps.ranker,
+      relevance,
+    });
+    if (!keepsResults(relevance, ranking)) return { pages: [], total: 0, chosen: null };
+    const picked = (ranking?.order ?? [])
+      .flatMap((id) => candidates.find((candidate) => candidate.id === id)?.section ?? [])
+      .slice(0, DOCS_RERANK_RETURNED) as DocsSection[];
+    chosen = picked.length > 0 ? picked : null;
+  }
+
+  const chosenHits = (chosen ?? []).map((section) => ({
+    section,
+    snippet: sectionSnippet({ section, chunkOrdinal: 0 }),
+  }));
+  const chosenPages = new Set((chosen ?? []).map((section) => `${section.source}:${section.slug}`));
+  const others = [...pageBest.entries()]
+    .filter(([page]) => !chosenPages.has(page))
+    .map(([, entry]) => ({
+      section: entry.section,
+      snippet: sectionSnippet(entry),
+    }));
+  const pages = [...chosenHits, ...others].slice(0, DOCS_RERANK_TOP_PAGES);
+  const total = Math.max(pageBest.size, new Set(pages.map(({ section }) => section.slug)).size);
+  return { pages, total, chosen };
 }
 
 export async function unifiedDocsSearch(
@@ -193,50 +275,7 @@ export async function unifiedDocsSearch(
   const stopwatch = new RetrievalStopwatch("docs");
   try {
     const stored = await storedBuild(deps);
-    const sources: DocsSource[] = input.source === "all" ? ["docs", "api"] : [input.source];
-    const { sections: ranked, relevance } = await fusedSections(
-      input.query,
-      { locale: input.locale, sources },
-      stored,
-      deps,
-      stopwatch,
-      { fullText: DOCS_FULL_TEXT_CANDIDATES, semantic: DOCS_SEMANTIC_CANDIDATES },
-    );
-    if (relevance === "dropped") return { pages: [], total: 0, chosen: null };
-    const pageBest = new Map<string, RankedSection>();
-    for (const entry of ranked) {
-      const page = `${entry.section.source}:${entry.section.slug}`;
-      if (!pageBest.has(page)) pageBest.set(page, entry);
-    }
-
-    let chosen: DocsSection[] | null = null;
-    {
-      const candidates = rerankCandidates(ranked, input.locale, sources);
-      const ranking = await rerankSections({
-        query: input.query,
-        stopwatch,
-        candidates,
-        ranker: deps.ranker,
-        relevance,
-      });
-      if (!keepsResults(relevance, ranking)) return { pages: [], total: 0, chosen: null };
-      const picked = (ranking?.order ?? [])
-        .flatMap((id) => candidates.find((candidate) => candidate.id === id)?.section ?? [])
-        .slice(0, DOCS_RERANK_RETURNED) as DocsSection[];
-      chosen = picked.length > 0 ? picked : null;
-    }
-
-    const chosenHits = (chosen ?? []).map((section) => ({
-      section,
-      snippet: sectionSnippet({ section, chunkOrdinal: 0 }),
-    }));
-    const chosenPages = new Set((chosen ?? []).map((section) => `${section.source}:${section.slug}`));
-    const others = [...pageBest.entries()]
-      .filter(([page]) => !chosenPages.has(page))
-      .map(([, entry]) => ({ section: entry.section, snippet: sectionSnippet(entry) }));
-    const pages = [...chosenHits, ...others].slice(0, DOCS_RERANK_TOP_PAGES);
-    const total = Math.max(pageBest.size, new Set(pages.map(({ section }) => section.slug)).size);
-    return { pages, total, chosen };
+    return await selectedDocsSections(input, deps, stored, stopwatch);
   } finally {
     stopwatch.finish();
   }
@@ -251,30 +290,48 @@ export async function unifiedDocsExcerpt(
   try {
     const stored = await storedBuild(deps);
     const own = docsCorpusSections(page.source, page.locale).filter((section) => section.slug === page.slug);
-    const { sections: ranked } = await fusedSections(
-      query,
-      { locale: page.locale, sources: [page.source], slug: page.slug },
-      stored,
-      deps,
-      stopwatch,
-      { fullText: own.length, semantic: own.length },
-    );
-    const candidates: RankableSection[] = own
-      .slice(0, DOCS_RERANK_MAX_CANDIDATES)
-      .map((section, id) => ({ id, section, titleOnly: false }));
-    const ranking = await rerankSections({ query, stopwatch, candidates, ranker: deps.ranker });
-    const top = ranking?.order[0];
-    const preferred = top === undefined ? undefined : own[top];
     const target = slugifyHeading(query);
     const named = own.find(
       (section) =>
         target.length > 0 && (section.anchor === target || slugifyHeading(section.headingPath.at(-1) ?? "") === target),
     );
-    const ordered = [
-      ...(preferred ? [preferred] : []),
-      ...(named ? [named] : []),
-      ...ranked.map((entry) => entry.section),
-    ].filter((section, index, all) => all.findIndex((other) => other.order === section.order) === index);
+    const search = await selectedDocsSections(
+      { query, locale: page.locale, source: page.source },
+      deps,
+      stored,
+      stopwatch,
+    );
+    const selected = search.pages.filter(({ section }) => section.source === page.source && section.slug === page.slug);
+    let preferred =
+      search.chosen?.find((section) => section.source === page.source && section.slug === page.slug) ?? named;
+    let ranked = selected.map(({ section }) => ({ section, chunkOrdinal: 0 }));
+    if (!preferred) {
+      const fallback = await fusedSections(
+        query,
+        { locale: page.locale, sources: [page.source], slug: page.slug },
+        stored,
+        deps,
+        stopwatch,
+        { fullText: own.length, semantic: own.length },
+      );
+      ranked = fallback.sections;
+      const candidates: RankableSection[] = own.slice(0, DOCS_RERANK_MAX_CANDIDATES).map((section, id) => ({
+        id,
+        section,
+        locale: page.locale,
+      }));
+      const ranking = await rerankSections({
+        query,
+        stopwatch,
+        candidates,
+        ranker: deps.ranker,
+      });
+      const top = ranking?.order[0];
+      preferred = top === undefined ? undefined : own[top];
+    }
+    const ordered = [...(preferred ? [preferred] : []), ...ranked.map((entry) => entry.section)].filter(
+      (section, index, all) => all.findIndex((other) => other.order === section.order) === index,
+    );
 
     if (ordered.length === 0) {
       return own

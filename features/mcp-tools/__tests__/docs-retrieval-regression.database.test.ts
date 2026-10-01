@@ -321,14 +321,27 @@ describeDatabase("documentation retrieval exact regression contracts", () => {
         if (!live) throw new Error("Live documentation contracts were not enabled.");
         await live.run(title, () => scope.run(live.deps, run));
       },
-      timeout,
+      live ? Math.max(timeout, 240_000) : timeout,
     );
   };
 
-  const searchResult = (args: { query: string; locale?: ContentLocale; source?: "docs" | "api" | "all" }) =>
-    unifiedDocsSearchResult({ locale: "en", source: "docs", ...args }, deps());
-  const getResult = (args: { slug: string; query?: string; locale?: ContentLocale; source?: "docs" | "api" }) =>
-    unifiedDocsPageResult({ locale: "en", source: "docs", ...args }, deps());
+  const searchResult = (args: { query: string; locale?: ContentLocale; source?: "docs" | "api" | "all" }) => {
+    const input: Parameters<typeof unifiedDocsSearchResult>[0] = { locale: "en", source: "docs", ...args };
+    const invoke = () => unifiedDocsSearchResult(input, deps());
+    return live && scope.getStore() === live.deps
+      ? live.admit({ kind: "search", query: input.query, locale: input.locale, source: input.source }, invoke)
+      : invoke();
+  };
+  const getResult = (args: { slug: string; query?: string; locale?: ContentLocale; source?: "docs" | "api" }) => {
+    const input: Parameters<typeof unifiedDocsPageResult>[0] = { locale: "en", source: "docs", ...args };
+    const invoke = () => unifiedDocsPageResult(input, deps());
+    return live && scope.getStore() === live.deps
+      ? live.admit(
+          { kind: "excerpt", query: input.query ?? "", locale: input.locale, source: input.source, slug: input.slug },
+          invoke,
+        )
+      : invoke();
+  };
   const search = async (args: Parameters<typeof searchResult>[0]) =>
     mcpToolResultText((await searchResult(args)) as McpToolResult);
   const getPage = async (args: Parameters<typeof getResult>[0]) =>

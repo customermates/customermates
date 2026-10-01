@@ -113,7 +113,12 @@ export function extractWikiSourceDocument(html: string, url: string, contentType
     return {
       title: /^# (.+)$/mu.exec(text)?.[1]?.slice(0, 160) ?? "",
       text: text.slice(0, WIKI_SOURCE_MAX_CHARACTERS),
-      qaPairs: headingQa(text).slice(0, WIKI_SOURCE_MAX_QA_PAIRS),
+      qaPairs: headingQa(text)
+        .slice(0, WIKI_SOURCE_MAX_QA_PAIRS)
+        .map(({ question, answer }) => ({
+          question: question.slice(0, 300),
+          answer: answer.slice(0, WIKI_SOURCE_MAX_ANSWER_CHARACTERS),
+        })),
       links: [],
       truncated: text.length > WIKI_SOURCE_MAX_CHARACTERS,
     };

@@ -6,6 +6,7 @@ export const SUBSTRING_SEARCH_SCRIPT =
   /[\p{Script=Han}\p{Script=Hiragana}\p{Script=Katakana}\p{Script=Hangul}\p{Script=Thai}\p{Script=Lao}\p{Script=Khmer}\p{Script=Myanmar}]/u;
 const QUOTED_PHRASE = /["“”„«»]([^"“”„«»]*)["“”„«»]?/gu;
 const TOKEN_JOINER = /^[-_.'’]$/u;
+const HYPHENATED_WORD = /^[\p{L}\p{M}]+(?:-[\p{L}\p{M}]+)+$/u;
 const PREFIX_TOKEN = /^[\p{L}\p{M}\p{N}]{2,}$/u;
 const FULL_TEXT_MAX_UNITS = 32;
 const FULL_TEXT_MAX_CANDIDATE_UNITS = 256;
@@ -13,7 +14,7 @@ const FULL_TEXT_MAX_TERM_LENGTH = 64;
 const TYPO_TERM = /^\p{L}[\p{L}\p{M}]{3,}$/u;
 const WORD_SEGMENTER = new Intl.Segmenter("und", { granularity: "word" });
 
-export type FullTextUnit = { text: string; phrase: boolean; prefix: boolean; substring: boolean };
+export type FullTextUnit = { text: string; phrase: boolean; prefix: boolean; substring: boolean; spaced?: string };
 
 function boundedTerm(value: string): string {
   return Array.from(value).slice(0, FULL_TEXT_MAX_TERM_LENGTH).join("");
@@ -60,13 +61,19 @@ export function fullTextUnits(query: string): FullTextUnit[] {
     seen.add(key);
     units.push(unit);
   };
-  const addToken = (token: string, prefix: boolean) => {
+  const addToken = (token: string, prefix: boolean, unquoted = false) => {
     if (SUBSTRING_SEARCH_SCRIPT.test(token)) {
       for (const segment of substringSegments(token))
         add({ text: segment, phrase: false, prefix: false, substring: true });
       return;
     }
-    add({ text: token, phrase: false, prefix, substring: false });
+    add({
+      text: token,
+      phrase: false,
+      prefix,
+      substring: false,
+      ...(unquoted && HYPHENATED_WORD.test(token) ? { spaced: token.replaceAll("-", " ") } : {}),
+    });
   };
 
   let cursor = 0;
@@ -85,7 +92,7 @@ export function fullTextUnits(query: string): FullTextUnit[] {
   const last = tokens.at(-1);
   const endsWithLast = last !== undefined && lowered.trimEnd().endsWith(last);
   tokens.forEach((token, index) =>
-    addToken(token, endsWithLast && index === tokens.length - 1 && PREFIX_TOKEN.test(token)),
+    addToken(token, endsWithLast && index === tokens.length - 1 && PREFIX_TOKEN.test(token), true),
   );
   if (units.length <= FULL_TEXT_MAX_UNITS) return units;
   const kept = new Set(
@@ -116,13 +123,20 @@ export function replaceQueryWords(query: string, replacements: ReadonlyMap<strin
 }
 
 function unitQuery(unit: FullTextUnit, configs: readonly string[]): Prisma.Sql {
-  const parts = configs.map((config) =>
-    unit.phrase
-      ? Prisma.sql`phraseto_tsquery(${config}::regconfig, ${unit.text})`
-      : Prisma.sql`plainto_tsquery(${config}::regconfig, ${unit.text})`,
+  const terms = fullTextUnitTerms(unit).map((parts) => parts.join(" "));
+  const parts = configs.flatMap((config) =>
+    terms.map((term) =>
+      unit.phrase
+        ? Prisma.sql`phraseto_tsquery(${config}::regconfig, ${term})`
+        : Prisma.sql`plainto_tsquery(${config}::regconfig, ${term})`,
+    ),
   );
   if (unit.prefix) parts.push(Prisma.sql`to_tsquery('simple', ${`'${unit.text}':*`})`);
   return Prisma.sql`(${Prisma.join(parts, " || ")})`;
+}
+
+export function fullTextUnitTerms(unit: FullTextUnit): string[][] {
+  return [[unit.text], ...(unit.spaced ? [unit.spaced.split(" ")] : [])];
 }
 
 function unitStop(unit: FullTextUnit, stopConfig: string): Prisma.Sql {

@@ -1,3 +1,4 @@
+import type { DocsChunk } from "@/features/mcp-tools/docs-corpus";
 import type { DocsCorpus } from "@/features/mcp-tools/docs-corpus";
 import type { AgentUsageService } from "@/ee/agent-chat/agent-usage.service";
 import type { BackgroundTaskService } from "@/core/utils/background-task.service";
@@ -9,6 +10,15 @@ import { beforeEach, describe, expect, it, vi } from "vitest";
 const state = vi.hoisted(() => ({
   available: true,
   embedded: [] as string[][],
+  corpusChunks: [] as DocsChunk[],
+}));
+
+vi.mock("@/features/mcp-tools/docs-corpus", () => ({
+  docsCorpus: () => ({
+    buildHash: "fixture-build",
+    chunks: state.corpusChunks,
+    sections: new Map(),
+  }),
 }));
 
 vi.mock("@sentry/node", () => ({ captureException: vi.fn() }));
@@ -35,11 +45,28 @@ vi.mock("../wiki-embedding-model", () => ({
 }));
 
 import { docsCorpus } from "@/features/mcp-tools/docs-corpus";
+import { docsEmbeddingBody } from "@/features/mcp-tools/docs-embedding-input";
 
 import { DocsSemanticIndexDispatcher } from "@/ee/wiki-retrieval/docs-semantic-index-dispatcher";
 import { DocsSemanticIndexService } from "../docs-semantic-index.service";
 
 function repo(pending: DocsPendingChunk[]) {
+  state.corpusChunks = pending.map((chunk, index) => ({
+    ...chunk,
+    locale: "en",
+    source: "docs",
+    slug: "fixture",
+    sectionOrder: index,
+    chunkOrdinal: 0,
+    charOffset: 0,
+    anchor: "fixture",
+    pageTitle: chunk.label,
+    headingPath: [],
+    embeddingBody: docsEmbeddingBody(chunk.body, {
+      offset: 0,
+      text: chunk.body,
+    }),
+  }));
   const queue = [...pending];
   return {
     ensureCorpus: vi.fn(() => Promise.resolve()),
@@ -74,6 +101,7 @@ const usage = (admits: boolean) => ({
 beforeEach(() => {
   state.available = true;
   state.embedded = [];
+  state.corpusChunks = [];
   accrued.length = 0;
 });
 
@@ -101,6 +129,39 @@ describe("documentation embedding index", () => {
       { reservationId: "platform-hold", charge: { costMicrocents: 10 } },
       { reservationId: "platform-hold", charge: { costMicrocents: 10 } },
     ]);
+  });
+
+  it("embeds the canonical current corpus input and reserves its exact bound while keeping SQL metadata", async () => {
+    const body = "Private conversations remain private.\n\n**Link:** `/inbox`. **Mate:** `navigate` with `nav-inbox`.";
+    const chunks = repo([{ contentHash: "a", label: "Inbox > Privacy", body }]);
+    const budget = usage(true);
+    await new DocsSemanticIndexService(chunks, budget as unknown as AgentUsageService).indexPending();
+    expect(state.embedded).toEqual([["Inbox > Privacy\n\nPrivate conversations remain private."]]);
+    expect(budget.reservePlatformRetrieval).toHaveBeenCalledExactlyOnceWith({
+      purpose: "docsIndexing",
+      model: "google/gemini-embedding-001",
+      worstCaseMicrocents: "Inbox > Privacy\n\nPrivate conversations remain private.".length * 15,
+    });
+    expect(chunks.ensureCorpus).toHaveBeenCalledWith(
+      expect.objectContaining({
+        chunks: expect.arrayContaining([expect.objectContaining({ body })]),
+      }),
+    );
+    expect(chunks.storeEmbeddings).toHaveBeenCalledExactlyOnceWith("google/gemini-embedding-001", [
+      { contentHash: "a", embedding: "[0.5,0.25]" },
+    ]);
+  });
+
+  it("rejects a pending hash outside the current corpus before reserving or calling a provider", async () => {
+    const chunks = repo([{ contentHash: "a", label: "A", body: "a" }]);
+    chunks.pendingEmbeddings.mockResolvedValueOnce([{ contentHash: "foreign", label: "Other", body: "not canonical" }]);
+    const budget = usage(true);
+    await expect(
+      new DocsSemanticIndexService(chunks, budget as unknown as AgentUsageService).indexPending(),
+    ).rejects.toThrow("Pending documentation embedding is absent from the current corpus.");
+    expect(budget.reservePlatformRetrieval).not.toHaveBeenCalled();
+    expect(state.embedded).toEqual([]);
+    expect(chunks.storeEmbeddings).not.toHaveBeenCalled();
   });
 
   it("stores the corpus for full-text search but embeds nothing self-hosted, without the vector column, or while hosted AI spend is paused", async () => {
@@ -164,7 +225,12 @@ describe("documentation embedding index", () => {
     ).rejects.toThrow("provider timeout");
     expect(budget.settlePlatformRetrieval).toHaveBeenCalledExactlyOnceWith({
       reservationId: "platform-hold",
-      charge: { model: "google/gemini-embedding-001", inputTokens: 4, costMicrocents: 60, costSource: "estimated" },
+      charge: {
+        model: "google/gemini-embedding-001",
+        inputTokens: 4,
+        costMicrocents: 60,
+        costSource: "estimated",
+      },
     });
     expect(chunks.storeEmbeddings).not.toHaveBeenCalled();
     chunks.storeEmbeddings.mockRejectedValueOnce(new Error("storage unavailable"));
@@ -195,7 +261,10 @@ describe("documentation embedding index", () => {
     await expect(
       new DocsSemanticIndexService(chunks, budget as unknown as AgentUsageService).indexPending(),
     ).rejects.toThrow("invalid vectors");
-    expect(budget.settlePlatformRetrieval).toHaveBeenCalledExactlyOnceWith({ reservationId: "platform-hold", charge });
+    expect(budget.settlePlatformRetrieval).toHaveBeenCalledExactlyOnceWith({
+      reservationId: "platform-hold",
+      charge,
+    });
     expect(chunks.storeEmbeddings).not.toHaveBeenCalled();
   });
 

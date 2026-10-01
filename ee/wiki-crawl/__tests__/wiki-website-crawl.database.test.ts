@@ -1010,6 +1010,7 @@ describeDatabase("Wiki website crawl on PostgreSQL", () => {
       {
         title: "Refunds",
         kind: "knowledge",
+        gaps: [],
         sections: [{ heading: "A", content: "B" }],
         sourceIds: [randomUUID()],
       },
@@ -1019,6 +1020,7 @@ describeDatabase("Wiki website crawl on PostgreSQL", () => {
       {
         title: "Refunds",
         kind: "knowledge",
+        gaps: [],
         sections: [{ heading: "A", content: "B" }],
         sourceIds: [refund.id],
       },
@@ -1050,6 +1052,7 @@ describeDatabase("Wiki website crawl on PostgreSQL", () => {
         title: "Refund procedure",
         kind: "procedure",
         whenToUse: "When a customer asks for money back.",
+        gaps: [],
         sections: [
           {
             heading: "Steps",
@@ -1106,6 +1109,7 @@ describeDatabase("Wiki website crawl on PostgreSQL", () => {
     const tooMany = Array.from({ length: 5 }, (_, index) => ({
       title: `Summary ${index}`,
       kind: "knowledge",
+      gaps: [],
       sections: [{ heading: "A", content: "B" }],
       sourceIds: [refund.id],
     }));

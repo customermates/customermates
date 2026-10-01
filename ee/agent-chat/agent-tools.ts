@@ -1,4 +1,5 @@
 import { agentToolOutputContext } from "./agent-activity-context";
+import { boundedAgentToolFailure } from "./agent-tool-failure";
 import { WIKI_SOURCE_RESULT_MAX_CHARS } from "@/ee/wiki-crawl/wiki-source-coverage";
 import { z } from "zod";
 import { asSchema, tool, jsonSchema, type ToolSet } from "ai";
@@ -177,19 +178,16 @@ function agentToolResult(
   maxChars: number,
   context: { toolName?: string; pageRoute?: string | null } = {},
 ) {
+  const text =
+    context.toolName === WIKI_READ_SOURCE_TOOL_NAME
+      ? contextualAgentToolResultText(context.toolName, outcome, context.pageRoute)
+      : localizeWikiPageUrls(contextualAgentToolResultText(context.toolName, outcome, context.pageRoute), env.BASE_URL);
+  if (!outcome.ok) return boundedAgentToolFailure({ result: text, failure: outcome.failure }, maxChars);
   const navigation = contextualAgentToolNavigation(context.toolName, outcome, context.pageRoute);
-  const activityContext = outcome.ok ? agentToolOutputContext(context.toolName, outcome.structuredContent) : undefined;
+  const activityContext = agentToolOutputContext(context.toolName, outcome.structuredContent);
   return {
-    ok: outcome.ok,
-    result: agentToolResultText(
-      context.toolName === WIKI_READ_SOURCE_TOOL_NAME
-        ? contextualAgentToolResultText(context.toolName, outcome, context.pageRoute)
-        : localizeWikiPageUrls(
-            contextualAgentToolResultText(context.toolName, outcome, context.pageRoute),
-            env.BASE_URL,
-          ),
-      maxChars,
-    ),
+    ok: true as const,
+    result: agentToolResultText(text, maxChars),
     ...(navigation ? { navigation } : {}),
     ...(activityContext ? { activityContext } : {}),
   };

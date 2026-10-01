@@ -1,11 +1,12 @@
 import { AsyncLocalStorage } from "node:async_hooks";
+import type { LocaleCode } from "@/i18n/locale-registry";
 
 export type RetrievalCorpus = "docs" | "wiki";
 
 export type RankableSection = {
   id: number;
+  locale?: LocaleCode;
   section: { pageTitle: string; headingPath: readonly string[]; text: string };
-  titleOnly: boolean;
 };
 
 export type SectionRanking = { order: number[]; abstained: boolean };
@@ -28,7 +29,10 @@ export type RetrievalTiming = {
   rerankMs: number | null;
 };
 
-type RetrievalScope = { rankers?: SectionRankerFactory; timings?: RetrievalTiming[] };
+type RetrievalScope = {
+  rankers?: SectionRankerFactory;
+  timings?: RetrievalTiming[];
+};
 
 const RETRIEVAL_TIMINGS_PER_SCOPE = 32;
 

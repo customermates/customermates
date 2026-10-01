@@ -1,3 +1,4 @@
+import { wikiSourceMissingFaqs } from "./wiki-source-text";
 import type { WikiWebsiteCrawlRepo } from "./wiki-website-crawl.repo";
 import { wikiSourceLanguageMatches } from "@/features/wiki/wiki-language";
 import type { CreateWikiPagesInteractor } from "@/features/wiki/create-wiki-pages.interactor";
@@ -96,7 +97,7 @@ export async function wikiImportCopy(locale: string): Promise<WikiImportCopy> {
 
 export function wikiImportedMarkdown(source: WikiSourceRecord, copy: WikiImportCopy): string[] {
   const footer = `\n\n${copy.source({ url: source.url, date: fetchDate(source.fetchedAt) })}`;
-  const faqMissing = source.qaPairs.filter(({ question }) => !source.text.includes(question));
+  const faqMissing = wikiSourceMissingFaqs(source);
   const faq =
     faqMissing.length > 0
       ? `\n\n## ${copy.faqHeading}\n\n${faqMissing.map(({ question, answer }) => `### ${question}\n\n${answer}`).join("\n\n")}`

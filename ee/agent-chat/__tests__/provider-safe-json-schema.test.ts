@@ -614,10 +614,11 @@ describe("the shipped tool catalog on the Google wire", () => {
         minItems: 1,
         items: { type: "string", pattern: "^[0-9a-fA-F-]{36}$" },
       });
-      expect(ids).not.toHaveProperty("maxItems");
+      if (name === "topics") expect(ids).not.toHaveProperty("maxItems");
+      else expect(ids).toHaveProperty("maxItems", 1);
       const raw = original.find(({ name }) => name === "read_website_source")?.inputSchema as JsonRecord;
       expect((((raw.properties as JsonRecord)[name] as JsonRecord).items as JsonRecord).properties).toMatchObject({
-        sourceIds: { maxItems: 40 },
+        sourceIds: { maxItems: name === "topics" ? 40 : 1 },
       });
     }
     expect(properties.topics).toMatchObject({ maxItems: 16 });
@@ -629,6 +630,53 @@ describe("the shipped tool catalog on the Google wire", () => {
     expect(creation).toEqual(
       providerWireInputSchema(original.find(({ name }) => name === "manage_wiki_pages")?.inputSchema, "vertex"),
     );
+  });
+
+  it("keeps source-specific exclusion bounds in both the Google declaration and authoritative validation", async () => {
+    const options = { wikiHomepageSetup: true, wikiCrawlId: UUID, locale: "en", surface: "chat" as const };
+    const input = {
+      action: "plan",
+      topics: [],
+      excluded: [
+        {
+          sourceIds: [UUID, "00000000-0000-4000-8000-000000000002"],
+          reason: "This one source does not establish a substantive offering.",
+          basis: "not_substantive",
+          evidenceQuote: "Exact evidence from this named source.",
+        },
+      ],
+    };
+    expect(await normalizeAgentAiToolInput("read_website_source", input, 48_000, options)).toMatchObject({ ok: false });
+    input.excluded[0].sourceIds.pop();
+    expect(await normalizeAgentAiToolInput("read_website_source", input, 48_000, options)).toMatchObject({ ok: true });
+  });
+
+  it("projects the website repair array without relaxing its authoritative forty-item limit", async () => {
+    const options = { wikiHomepageSetup: true, wikiCrawlId: UUID, locale: "en", surface: "chat" as const };
+    const original = getAgentAiToolDefinitions("azure", options).find(({ name }) => name === "read_website_source")
+      ?.inputSchema as JsonRecord;
+    const google = getAgentAiToolDefinitions("vertex", options).find(({ name }) => name === "read_website_source")
+      ?.inputSchema as JsonRecord;
+    const originalRepair = (original.properties as JsonRecord).reclassifiedOfferings as JsonRecord;
+    const projectedRepair = (google.properties as JsonRecord).reclassifiedOfferings as JsonRecord;
+    expect(originalRepair).toHaveProperty("maxItems", 40);
+    expect(projectedRepair).not.toHaveProperty("maxItems");
+    expect(projectedRepair).toMatchObject({
+      type: "array",
+      items: { properties: { evidenceQuote: { type: "string", minLength: 1, maxLength: 500 } } },
+    });
+    const input = {
+      action: "plan",
+      reclassifiedOfferings: Array.from({ length: 41 }, () => ({
+        title: "Service A",
+        sourceId: UUID,
+        reason: "This source describes an existing offering.",
+        evidenceQuote: "An existing offering.",
+      })),
+    };
+    expect(await normalizeAgentAiToolInput("read_website_source", input, 48_000, options)).toMatchObject({ ok: false });
+    input.reclassifiedOfferings.pop();
+    expect(await normalizeAgentAiToolInput("read_website_source", input, 48_000, options)).toMatchObject({ ok: true });
   });
 
   it("retains authoritative forty-source bounds despite the website wire projection", async () => {

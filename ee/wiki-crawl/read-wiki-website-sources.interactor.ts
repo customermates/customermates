@@ -40,6 +40,15 @@ export class ReadWikiWebsiteSourcesInteractor extends AuthenticatedInteractor<Re
     if (data.action === "plan") {
       if (coverage.pending.length > 0)
         return fail(CustomErrorCode.wikiSourceCoverageRequired, [], { remainingSources: coverage.pending.length });
+      if (
+        (data.reclassifiedOfferings ?? []).some(({ sourceId, evidenceQuote }) => {
+          const source = coverage.sources.find(({ id }) => id === sourceId);
+          return (
+            !source?.text.includes(evidenceQuote) || (evidenceQuote.length < 20 && source.text.trim() !== evidenceQuote)
+          );
+        })
+      )
+        return fail(CustomErrorCode.wikiSourceCitationInvalid, ["reclassifiedOfferings"]);
       const groups = [...(data.topics ?? []), ...(data.excluded ?? [])];
       const accounted = new Set(groups.flatMap(({ sourceIds }) => sourceIds));
       const sourceIds = new Set(coverage.sources.map(({ id }) => id));
@@ -67,6 +76,33 @@ export class ReadWikiWebsiteSourcesInteractor extends AuthenticatedInteractor<Re
         return fail(CustomErrorCode.wikiSourceCitationInvalid, ["topics"]);
       const titles = data.topics.map(({ title }) => title.toLowerCase());
       if (new Set(titles).size !== titles.length) return fail(CustomErrorCode.wikiImportTitleInvalid, ["topics"]);
+      const sourcesById = new Map(coverage.sources.map((source) => [source.id, source]));
+      const topicsByTitle = new Map(data.topics.map((topic) => [topic.title, topic]));
+      if (
+        (data.excluded ?? []).some((exclusion) => {
+          const source = sourcesById.get(exclusion.sourceIds[0]);
+          if (!source) return true;
+          if (exclusion.basis === "already_imported") return !coverage.imported.has(source.id);
+          if (exclusion.basis === "exact_duplicate") {
+            const duplicate = sourcesById.get(exclusion.duplicateOfSourceId ?? "");
+            return (
+              !duplicate ||
+              duplicate.id === source.id ||
+              duplicate.contentHash !== source.contentHash ||
+              (!topicSources.has(duplicate.id) && !coverage.imported.has(duplicate.id))
+            );
+          }
+          if (exclusion.basis === "overlap") {
+            const topic = topicsByTitle.get(exclusion.coveredByTitle ?? "");
+            return !topic || topic.role !== "offering" || exclusion.coveredByRole !== topic.role;
+          }
+          const quote = exclusion.evidenceQuote;
+          return (
+            quote === undefined || !source.text.includes(quote) || (quote.length < 20 && source.text.trim() !== quote)
+          );
+        })
+      )
+        return fail(CustomErrorCode.wikiSourceCitationInvalid, ["excluded"]);
       const omitted = data.omittedFoundations ?? [];
       const roles = [...data.topics.map(({ role }) => role), ...omitted.map(({ role }) => role)];
       const invalidRoles =

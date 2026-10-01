@@ -8,6 +8,8 @@ import {
   MOCK_ZOD_MODULE,
 } from "@/tests/helpers/interactor-test-setup";
 
+const readSource = vi.hoisted(() => vi.fn());
+
 vi.mock("@/env", () => MOCK_ENV_MODULE);
 vi.mock("@/core/di", () => createMockDiModule(createMockUser));
 vi.mock("@/core/validation/zod-error-map-server", () => MOCK_ZOD_MODULE);
@@ -19,13 +21,7 @@ vi.mock("@/ee/wiki-crawl/wiki-crawl-synthesis-tools", () => ({
     description: "Read stored sources",
     annotations: { readOnlyHint: true },
     inputSchema: z.object({}),
-    execute: () =>
-      Promise.resolve({
-        text: "x".repeat(44_000),
-        structuredContent: {
-          items: [{ title: "About us", url: "https://example.com/about", text: "Private body", id: "private-id" }],
-        },
-      }),
+    execute: readSource,
   }),
   createWikiFromCrawlTool: () => ({
     name: "manage_wiki_pages",
@@ -36,10 +32,27 @@ vi.mock("@/ee/wiki-crawl/wiki-crawl-synthesis-tools", () => ({
   }),
 }));
 
+import { CustomErrorCode } from "@/core/validation/validation.types";
+import { createZodError } from "@/core/validation/validation.utils";
+import { mcpInteractorFailure } from "@/features/mcp-tools/mcp-tool";
+import { wikiPlanningCandidates } from "@/workflows/wiki-topic-plan";
 import { getAgentAiTools, type AgentToolDeps } from "../agent-tools";
 
 describe("stored website evidence tool budget", () => {
   it("delivers the bounded source batch intact while ordinary tool output stays capped", async () => {
+    readSource.mockResolvedValueOnce({
+      text: "x".repeat(44_000),
+      structuredContent: {
+        items: [
+          {
+            title: "About us",
+            url: "https://example.com/about",
+            text: "Private body",
+            id: "private-id",
+          },
+        ],
+      },
+    });
     const deps: AgentToolDeps = {
       runUiCommand: vi.fn(),
       requestApproval: vi.fn(),
@@ -65,5 +78,51 @@ describe("stored website evidence tool budget", () => {
       result: string;
     };
     expect(create.result.length).toBeLessThanOrEqual(6_000);
+  });
+
+  it.each([
+    [CustomErrorCode.wikiSourceCoverageRequired, true],
+    [CustomErrorCode.wikiSourcePlanIncomplete, true],
+    [CustomErrorCode.wikiSourceCitationInvalid, false],
+  ])("keeps the typed %s failure through the hosted wrapper and JSON receipt replay", async (customCode, retain) => {
+    const sourceId = "00000000-0000-4000-8000-000000000001";
+    const topic = {
+      title: "Dedicated service",
+      role: "offering" as const,
+      sourceIds: [sourceId],
+    };
+    const input = { action: "plan" as const, topics: [topic] };
+    const raw = mcpInteractorFailure(
+      createZodError("Read or account for stored evidence.", ["topics"], {
+        error: customCode,
+      }),
+    );
+    readSource.mockResolvedValueOnce(raw);
+    const deps: AgentToolDeps = {
+      runUiCommand: vi.fn(),
+      requestApproval: vi.fn(),
+      resolveApprovalContext: vi.fn().mockImplementation((_name, value) => Promise.resolve({ ok: true, input: value })),
+      createSupportTicket: vi.fn(),
+      runExactlyOnce: vi.fn().mockImplementation((_id, _name, run) => run()),
+      runInCallerContext: (run) => run(),
+      resultMaxChars: 512,
+    };
+    const tools = getAgentAiTools(deps, {
+      wikiHomepageSetup: true,
+      wikiCrawlId: sourceId,
+    });
+    const outcome = await tools.read_website_source.execute?.(input, {
+      toolCallId: `plan-${customCode}`,
+      messages: [],
+      context: undefined,
+    });
+    expect(outcome).toMatchObject({ ok: false, failure: raw.failure });
+    const inventory = JSON.stringify({
+      items: [{ id: sourceId, imported: false }],
+    });
+    expect(wikiPlanningCandidates(input, outcome, inventory)).toEqual(retain ? [topic] : []);
+    const replayed = JSON.parse(JSON.stringify(outcome));
+    expect(wikiPlanningCandidates(input, replayed, inventory)).toEqual(retain ? [topic] : []);
+    expect(deps.runExactlyOnce).toHaveBeenCalledWith(`plan-${customCode}`, "read_website_source", expect.any(Function));
   });
 });

@@ -1,3 +1,4 @@
+import { wikiImportedMarkdown } from "../wiki-website-crawl.service";
 import { WikiCrawlRobots } from "../wiki-crawl-robots";
 import { EventEmitter } from "node:events";
 import { Readable } from "node:stream";
@@ -315,6 +316,76 @@ describe("untrusted markup", () => {
 
 describe("website discovery and fetching", () => {
   const scope = { registrableDomain: "example.com", extraHosts: [] };
+
+  const faqDocument = (answer: string) =>
+    `<html><head><script type="application/ld+json">${JSON.stringify({ "@type": "Question", name: "Are incremental updates supported?", acceptedAnswer: { "@type": "Answer", text: answer } })}</script></head><body><main><h1>Data integration</h1><h2>Are incremental updates supported?</h2><p>Connect your systems.</p></main></body></html>`;
+
+  it("makes structured FAQ answers visible to the same stored-source read stream", async () => {
+    routes.set("https://example.com/faq", {
+      body: faqDocument("Only when the remote API supports incremental retrieval."),
+    });
+    const source = await fetchWikiSource("https://example.com/faq", scope, new WikiCrawlRobots(scope));
+    expect(source?.text).toContain("Only when the remote API supports incremental retrieval.");
+    expect(source?.text).toContain("Are incremental updates supported?");
+  });
+
+  it("retains useful structured FAQs when the visible body is empty", async () => {
+    routes.set("https://example.com/faq", {
+      body: faqDocument("Incremental updates require remote API support.").replace(
+        /<main>[\s\S]*?<\/main>/u,
+        "<main></main>",
+      ),
+    });
+    const source = await fetchWikiSource("https://example.com/faq", scope, new WikiCrawlRobots(scope));
+    expect(source?.text).toContain("Incremental updates require remote API support.");
+    expect(source?.contentHash).toMatch(/^[0-9a-f]{64}$/u);
+  });
+
+  it("changes the source hash when a structured FAQ answer changes without changing the visible body", async () => {
+    routes.set("https://example.com/faq", {
+      body: faqDocument("Only when the remote API supports incremental retrieval."),
+    });
+    const first = await fetchWikiSource("https://example.com/faq", scope, new WikiCrawlRobots(scope));
+    routes.set("https://example.com/faq", { body: faqDocument("Incremental retrieval is not available.") });
+    const second = await fetchWikiSource("https://example.com/faq", scope, new WikiCrawlRobots(scope));
+    expect(first).not.toBeNull();
+    expect(second).not.toBeNull();
+    expect(second?.contentHash).not.toBe(first?.contentHash);
+  });
+
+  it("does not render unhashed FAQ metadata outside the canonical source limit", async () => {
+    const pairs = Array.from({ length: 60 }, (_, index) => ({
+      "@type": "Question",
+      name: `Question ${index}?`,
+      acceptedAnswer: { "@type": "Answer", text: `Answer ${index}: ${"verified detail ".repeat(100)}` },
+    }));
+    const html = () =>
+      `<html><head><script type="application/ld+json">${JSON.stringify({ "@type": "FAQPage", mainEntity: pairs })}</script></head><body><main><h1>Data integration</h1><p>Substantive product details.</p></main></body></html>`;
+    routes.set("https://example.com/faq", { body: html() });
+    const first = await fetchWikiSource("https://example.com/faq", scope, new WikiCrawlRobots(scope));
+    expect(first).not.toBeNull();
+    expect(first?.qaPairs.length).toBeGreaterThan(0);
+    expect(first?.qaPairs.length).toBeLessThan(pairs.length);
+    for (const { question, answer } of first?.qaPairs ?? []) {
+      expect(first?.text).toContain(question);
+      expect(first?.text).toContain(answer);
+    }
+    pairs[59].acceptedAnswer.text = "Changed answer that remains outside the captured source limit.";
+    routes.set("https://example.com/faq", { body: html() });
+    const second = await fetchWikiSource("https://example.com/faq", scope, new WikiCrawlRobots(scope));
+    expect(second).toMatchObject({ text: first?.text, qaPairs: first?.qaPairs, contentHash: first?.contentHash });
+    if (!first || !second) throw new Error("Expected fetched sources.");
+    const stored = (value: typeof first) => ({
+      ...value,
+      id: "00000000-0000-4000-8000-000000000001",
+      category: "product" as const,
+      fetchedAt: new Date("2026-10-01T00:00:00.000Z"),
+      readAt: null,
+      readOffset: 0,
+    });
+    const copy = { source: ({ url, date }: { url: string; date: string }) => `${url} ${date}`, faqHeading: "FAQs" };
+    expect(wikiImportedMarkdown(stored(second), copy)).toEqual(wikiImportedMarkdown(stored(first), copy));
+  });
 
   it("discovers pages from robots sitemaps, llms.txt and homepage links, identifies itself, and reports external help centres", async () => {
     routes.set("https://example.com/robots.txt", {

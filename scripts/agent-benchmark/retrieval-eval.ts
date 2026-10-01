@@ -223,7 +223,7 @@ function cachedRanker(
       1,
       3 *
         estimateClassifierCostMicrocents(
-          docsRankSpec(candidates, corpus),
+          docsRankSpec(candidates, corpus, rankQuery),
           docsRankState(rankQuery, docsRankUserMessage(query)),
         ),
     );

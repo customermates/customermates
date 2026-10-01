@@ -3035,6 +3035,16 @@
   resolved "https://registry.yarnpkg.com/@orama/orama/-/orama-3.1.18.tgz#c52f510c42c81f5082fd61b92af889777b26096a"
   integrity sha512-a61ljmRVVyG5MC/698C8/FfFDw5a8LOIvyOLW5fztgUXqUpc1jOfQzOitSCbge657OgXXThmY3Tk8fpiDb4UcA==
 
+"@orama/stemmers@3.1.18":
+  version "3.1.18"
+  resolved "https://registry.yarnpkg.com/@orama/stemmers/-/stemmers-3.1.18.tgz#2d1250bdbebbcaef35685f433421b97433b6a0f1"
+  integrity sha512-xXs5fpiUvBs4jJZtnayJmUSomdxxiwwwvTbAzPHSyI6geLM7bxXHgpVlYz4JeMBycHX8bHF7j9m7F35BxhuZ8g==
+
+"@orama/stopwords@3.1.18":
+  version "3.1.18"
+  resolved "https://registry.yarnpkg.com/@orama/stopwords/-/stopwords-3.1.18.tgz#5a32a7161c04cbff25695cb86d38ae2fcaab4d07"
+  integrity sha512-W8V7m7RnCme+99OmKl/xs5rf6OUhFpr0aPGVmPrXzTLSg4ZqSbRY2euS2S/lgjjYi/0NhEWqwoq8nDY6Ihx4EA==
+
 "@oxc-project/types@=0.124.0":
   version "0.124.0"
   resolved "https://registry.yarnpkg.com/@oxc-project/types/-/types-0.124.0.tgz#1dfd7b3fbb98febc2f91b505f48c940db73c8701"

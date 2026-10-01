@@ -4,6 +4,7 @@ import { createHash } from "node:crypto";
 
 import { retrievalChunkText, retrievalWindows } from "@/core/retrieval/retrieval-chunks";
 import { CONTENT_LOCALES } from "@/i18n/locale-registry";
+import { DOCS_EMBEDDING_FORMAT, docsEmbeddingBody, docsEmbeddingText } from "./docs-embedding-input";
 
 import { docsCorpusSections, type DocsLocale, type DocsSource } from "./docs-manifest";
 
@@ -22,6 +23,7 @@ export type DocsChunk = {
   headingPath: string[];
   label: string;
   body: string;
+  embeddingBody: string;
   contentHash: string;
 };
 
@@ -53,20 +55,46 @@ export function docsSectionSearchBody(section: DocsSection): string {
 export function docsSectionChunks(locale: DocsLocale, section: DocsSection): DocsChunk[] {
   const label = docsChunkLabel(section);
   const body = docsSectionSearchBody(section);
-  return retrievalWindows(body).map((window, chunkOrdinal) => ({
-    locale,
-    source: section.source,
-    slug: section.slug,
-    sectionOrder: section.order,
-    chunkOrdinal,
-    charOffset: window.offset,
-    anchor: section.anchor,
-    pageTitle: section.pageTitle,
-    headingPath: section.headingPath,
-    label,
-    body: window.text,
-    contentHash: sha256(retrievalChunkText(label, window.text)),
-  }));
+  return retrievalWindows(body).map((window, chunkOrdinal) => {
+    const embeddingBody = docsEmbeddingBody(body, window);
+    return {
+      locale,
+      source: section.source,
+      slug: section.slug,
+      sectionOrder: section.order,
+      chunkOrdinal,
+      charOffset: window.offset,
+      anchor: section.anchor,
+      pageTitle: section.pageTitle,
+      headingPath: section.headingPath,
+      label,
+      body: window.text,
+      embeddingBody,
+      contentHash: sha256(docsEmbeddingText({ label, embeddingBody })),
+    };
+  });
+}
+
+export function docsCorpusBuildHash(chunks: readonly DocsChunk[]): string {
+  return sha256(
+    [
+      DOCS_CORPUS_SCHEMA,
+      DOCS_EMBEDDING_FORMAT,
+      ...chunks.map((chunk) =>
+        [
+          chunk.locale,
+          chunk.source,
+          chunk.slug,
+          chunk.sectionOrder,
+          chunk.chunkOrdinal,
+          chunk.charOffset,
+          chunk.anchor,
+          chunk.contentHash,
+          sha256(retrievalChunkText(chunk.label, chunk.body)),
+        ].join("\u0000"),
+      ),
+    ].join("\n"),
+  );
 }
 
 export function docsCorpus(): DocsCorpus {
@@ -81,23 +109,7 @@ export function docsCorpus(): DocsCorpus {
       }
     }
   }
-  const buildHash = sha256(
-    [
-      DOCS_CORPUS_SCHEMA,
-      ...chunks.map((chunk) =>
-        [
-          chunk.locale,
-          chunk.source,
-          chunk.slug,
-          chunk.sectionOrder,
-          chunk.chunkOrdinal,
-          chunk.charOffset,
-          chunk.anchor,
-          chunk.contentHash,
-        ].join("\u0000"),
-      ),
-    ].join("\n"),
-  );
+  const buildHash = docsCorpusBuildHash(chunks);
   corpus = { buildHash, chunks, sections };
   return corpus;
 }

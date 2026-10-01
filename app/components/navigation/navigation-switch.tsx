@@ -88,7 +88,7 @@ export function NavigationSwitch({
     isRegistered,
   });
   const rootStore = useRootStore();
-  const { userStore, companyStore, subscriptionStore, terminologyStore } = rootStore;
+  const { userStore, companyStore, subscriptionStore, terminologyStore, navigationGuard } = rootStore;
   const accountAllowed = currentAccountState === "allowed";
   const protectedEnhancementsAllowed = accountAllowed && shellMode === "app";
   const identifiedUser = accountAllowed ? appUser : null;
@@ -98,13 +98,20 @@ export function NavigationSwitch({
   }, [accountState, currentAccountState, router]);
 
   useEffect(() => {
+    let active = true;
     const handleVisibilityChange = () => {
-      if (document.visibilityState === "visible") router.refresh();
+      if (document.visibilityState !== "visible") return;
+      navigationGuard.requestRouteRefreshWhenSafe(() => {
+        if (active && document.visibilityState === "visible") router.refresh();
+      });
     };
 
     document.addEventListener("visibilitychange", handleVisibilityChange);
-    return () => document.removeEventListener("visibilitychange", handleVisibilityChange);
-  }, [router]);
+    return () => {
+      active = false;
+      document.removeEventListener("visibilitychange", handleVisibilityChange);
+    };
+  }, [navigationGuard, router]);
 
   useLayoutEffect(() => {
     Sentry.setUser(identifiedUser ? { id: identifiedUser.id } : null);

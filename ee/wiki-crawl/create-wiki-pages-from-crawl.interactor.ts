@@ -52,7 +52,7 @@ export class CreateWikiPagesFromCrawlInteractor extends AuthenticatedInteractor<
         page.whenToUse ?? "",
         page.sections.map(({ heading }) => heading).join("\n"),
         [page.title, page.whenToUse, ...bodies].join("\n"),
-        (page.gaps ?? []).join("\n"),
+        page.gaps.join("\n"),
       ].some((body) => wikiLanguageConflicts(body, targetLocale));
     });
     if (wrongLanguage) return fail(CustomErrorCode.wikiImportLanguageRequired, ["pages"], { locale: targetLocale });
@@ -98,7 +98,7 @@ export class CreateWikiPagesFromCrawlInteractor extends AuthenticatedInteractor<
             return source ? `- <${source.url}> (${source.fetchedAt.toISOString().slice(0, 10)})` : "";
           })
           .join("\n")}`,
-        ...(page.gaps?.length ? [`## ${t("gapsHeading")}\n\n${page.gaps.map((gap) => `- ${gap}`).join("\n")}`] : []),
+        ...(page.gaps.length ? [`## ${t("gapsHeading")}\n\n${page.gaps.map((gap) => `- ${gap}`).join("\n")}`] : []),
       ].join("\n\n"),
     }));
     if (pages.some(({ markdown }) => hasInvalidWikiPageLinks(markdown, env.BASE_URL)))

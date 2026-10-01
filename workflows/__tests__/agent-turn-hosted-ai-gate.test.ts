@@ -3696,6 +3696,328 @@ describe("routine browse-or-mutate batch safety", () => {
       expect(state.finalize).toHaveBeenCalledWith(expect.objectContaining({ terminalCode: "completed" }));
     });
 
+    it.each(["wikiSourceCoverageRequired", "wikiSourcePlanIncomplete"])(
+      "retains recognized offerings when repairing a %s plan through compaction",
+      async (customCode) => {
+        preparePlan();
+        const secondSourceId = "00000000-0000-4000-8000-000000000002";
+        const unusedSourceId = "00000000-0000-4000-8000-000000000003";
+        const secondTopic = { title: "Service B", role: "offering", sourceIds: [secondSourceId] };
+        state.synthesisSources.push(
+          {
+            id: secondSourceId,
+            text: "# Service B\nDistinct verified offering",
+            contentHash: "service-b",
+            readOffset: 100,
+          },
+          {
+            id: unusedSourceId,
+            text: "# Publication archive\nNo distinct offering",
+            contentHash: "archive",
+            readOffset: 100,
+          },
+        );
+        state.contextFits.mockImplementation(
+          (context: object, messages: unknown, maxBytes: number) =>
+            new TextEncoder().encode(JSON.stringify({ ...context, messages })).byteLength <= maxBytes,
+        );
+        let planCalls = 0;
+        state.execute.mockImplementation((input: { action?: string }) => {
+          if (input.action === "plan" && ++planCalls === 1) {
+            return Promise.resolve({
+              ok: false,
+              result: "Unaccounted source.",
+              failure: {
+                kind: "validation",
+                issues: [
+                  {
+                    code: "custom",
+                    path: ["topics"],
+                    message: "Unaccounted source.",
+                    customCode,
+                  },
+                ],
+              },
+            });
+          }
+          return Promise.resolve({ ok: true, result: "saved" });
+        });
+        const oversized = "completed:" + "x".repeat(40_000);
+        let runs = 0;
+        state.runTools = async ({ messages, executeAndCompleteTool }) => {
+          runs += 1;
+          if (runs === 1) {
+            expect(
+              await executeAndCompleteTool(
+                "read_website_source",
+                { action: "plan", topics: [topic, secondTopic, ...foundationTopics], excluded: [] },
+                "incomplete-plan",
+              ),
+            ).toMatchObject({ ok: false, failure: { kind: "validation" } });
+            return {
+              finishReason: "stop",
+              messages: [...messages, { role: "assistant", content: oversized }],
+              steps: [streamedStep(oversized, "stop")],
+            };
+          }
+          expect(JSON.stringify(messages)).toContain("Service B");
+          expect(JSON.stringify(messages)).toContain(secondSourceId);
+          expect(JSON.stringify(messages)).not.toContain(oversized);
+          const beforeRepair = state.execute.mock.calls.length;
+          expect(
+            await executeAndCompleteTool(
+              "read_website_source",
+              {
+                action: "plan",
+                topics: [topic, ...foundationTopics],
+                excluded: [
+                  {
+                    sourceIds: [secondSourceId, unusedSourceId],
+                    reason: "Publications and duplicate details covered by the overview",
+                    basis: "overlap",
+                    coveredByTitle: foundationTopics[0].title,
+                    coveredByRole: "offering",
+                  },
+                ],
+              },
+              "lossy-repair",
+            ),
+          ).toMatchObject({ ok: false });
+          expect(state.execute).toHaveBeenCalledTimes(beforeRepair);
+          expect(
+            await executeAndCompleteTool(
+              "read_website_source",
+              {
+                action: "plan",
+                topics: [topic, secondTopic, ...foundationTopics],
+                excluded: [
+                  {
+                    sourceIds: [unusedSourceId],
+                    basis: "not_substantive",
+                    reason: "Archive without a distinct offering",
+                    evidenceQuote: "# Publication archive\nNo distinct offering",
+                  },
+                ],
+              },
+              "complete-repair",
+            ),
+          ).toMatchObject({ ok: true });
+          await executeAndCompleteTool(
+            "manage_wiki_pages",
+            { action: "create", pages: [topic, secondTopic].map((value) => ({ ...value, kind: "knowledge" })) },
+            "offering-pages",
+          );
+          await createFoundations(executeAndCompleteTool);
+          return finish();
+        };
+        await runAgentTurn({ ...setupPayload, turnBudget: { ...payload.turnBudget, maxContextBytes: 32_000 } });
+        expect(runs).toBe(2);
+        expect(planCalls).toBe(2);
+        expect(state.finalize).toHaveBeenCalledWith(expect.objectContaining({ terminalCode: "completed" }));
+      },
+    );
+
+    it("rejects extra citations outside a page's accepted topic instead of accepting one overlapping source", async () => {
+      preparePlan();
+      const secondSourceId = "00000000-0000-4000-8000-000000000002";
+      const secondTopic = { title: "Service B", role: "offering", sourceIds: [secondSourceId] };
+      state.synthesisSources.push({
+        id: secondSourceId,
+        text: "# Service B\nVerified details",
+        contentHash: "service-b",
+        readOffset: 100,
+      });
+      state.runTools = async ({ executeAndCompleteTool }) => {
+        await executeAndCompleteTool(
+          "read_website_source",
+          { action: "plan", topics: [topic, secondTopic, ...foundationTopics], excluded: [] },
+          "plan",
+        );
+        const beforeCreate = state.execute.mock.calls.length;
+        expect(
+          await executeAndCompleteTool(
+            "manage_wiki_pages",
+            { action: "create", pages: [{ ...topic, kind: "knowledge", sourceIds: [planSourceId, secondSourceId] }] },
+            "mixed-citations",
+          ),
+        ).toMatchObject({ ok: false });
+        expect(state.execute).toHaveBeenCalledTimes(beforeCreate);
+        await executeAndCompleteTool(
+          "manage_wiki_pages",
+          { action: "create", pages: [topic, secondTopic].map((value) => ({ ...value, kind: "knowledge" })) },
+          "matching-citations",
+        );
+        await createFoundations(executeAndCompleteTool);
+        return finish();
+      };
+      await runAgentTurn(setupPayload);
+      expect(state.finalize).toHaveBeenCalledWith(expect.objectContaining({ terminalCode: "completed" }));
+    });
+
+    it("retains tentative offerings from a premature plan while source coverage is completed", async () => {
+      preparePlan();
+      const secondSourceId = "00000000-0000-4000-8000-000000000002";
+      const secondTopic = { title: "Service B", role: "offering", sourceIds: [secondSourceId] };
+      state.synthesisSources[0].readOffset = 0;
+      state.synthesisSources.push({
+        id: secondSourceId,
+        text: "# Service B\nDistinct verified offering",
+        contentHash: "service-b",
+        readOffset: 0,
+      });
+      let planCalls = 0;
+      state.execute.mockImplementation((input: { action?: string }) => {
+        if (input.action === "plan" && ++planCalls === 1) {
+          return Promise.resolve({
+            ok: false,
+            result: "Complete stored source coverage first.",
+            failure: {
+              kind: "validation",
+              issues: [
+                {
+                  code: "custom",
+                  path: [],
+                  message: "Complete stored source coverage first.",
+                  customCode: "wikiSourceCoverageRequired",
+                },
+              ],
+            },
+          });
+        }
+        return Promise.resolve({ ok: true, result: "saved" });
+      });
+      state.runTools = async ({ executeAndCompleteTool, completeStepAndPrepareNext }) => {
+        expect(
+          await executeAndCompleteTool(
+            "read_website_source",
+            { action: "plan", topics: [topic, secondTopic, ...foundationTopics], excluded: [] },
+            "premature-plan",
+          ),
+        ).toMatchObject({ ok: false, failure: { kind: "validation" } });
+        expect(await executeAndCompleteTool("manage_wiki_pages", setupWrite(), "premature-create")).toMatchObject({
+          ok: false,
+        });
+        expect(state.execute).toHaveBeenCalledTimes(1);
+        for (const source of state.synthesisSources) source.readOffset = source.text.length;
+        await completeStepAndPrepareNext(streamedStep("", "tool-calls"));
+        const beforeRepair = state.execute.mock.calls.length;
+        expect(
+          await executeAndCompleteTool(
+            "read_website_source",
+            {
+              action: "plan",
+              topics: [topic, ...foundationTopics],
+              excluded: [
+                {
+                  sourceIds: [secondSourceId],
+                  basis: "overlap",
+                  coveredByTitle: foundationTopics[0].title,
+                  coveredByRole: "offering",
+                  reason: "Covered by the company overview",
+                },
+              ],
+            },
+            "lossy-after-coverage",
+          ),
+        ).toMatchObject({ ok: false });
+        expect(state.execute).toHaveBeenCalledTimes(beforeRepair);
+        expect(
+          await executeAndCompleteTool(
+            "read_website_source",
+            { action: "plan", topics: [topic, secondTopic, ...foundationTopics], excluded: [] },
+            "complete-after-coverage",
+          ),
+        ).toMatchObject({ ok: true });
+        await executeAndCompleteTool(
+          "manage_wiki_pages",
+          { action: "create", pages: [topic, secondTopic].map((value) => ({ ...value, kind: "knowledge" })) },
+          "offering-pages",
+        );
+        await createFoundations(executeAndCompleteTool);
+        return finish();
+      };
+      await runAgentTurn(setupPayload);
+      expect(planCalls).toBe(2);
+      expect(state.finalize).toHaveBeenCalledWith(expect.objectContaining({ terminalCode: "completed" }));
+    });
+
+    it("does not collapse two retained distinct offerings that share the same source anchor", async () => {
+      preparePlan();
+      const archiveSourceId = "00000000-0000-4000-8000-000000000002";
+      const secondTopic = { title: "Service B", role: "offering", sourceIds: [planSourceId] };
+      state.synthesisSources[0].text = "# Service A\nVerified offering A\n# Service B\nDistinct verified offering B";
+      state.synthesisSources.push({
+        id: archiveSourceId,
+        text: "# Publication archive\nNo distinct offering",
+        contentHash: "archive",
+        readOffset: 100,
+      });
+      let planCalls = 0;
+      state.execute.mockImplementation((input: { action?: string }) => {
+        if (input.action === "plan" && ++planCalls === 1) {
+          return Promise.resolve({
+            ok: false,
+            result: "Account for the archive source.",
+            failure: {
+              kind: "validation",
+              issues: [
+                {
+                  code: "custom",
+                  path: ["topics"],
+                  message: "Account for the archive source.",
+                  customCode: "wikiSourcePlanIncomplete",
+                },
+              ],
+            },
+          });
+        }
+        return Promise.resolve({ ok: true, result: "saved" });
+      });
+      state.runTools = async ({ executeAndCompleteTool }) => {
+        expect(
+          await executeAndCompleteTool(
+            "read_website_source",
+            { action: "plan", topics: [topic, secondTopic, ...foundationTopics], excluded: [] },
+            "incomplete-shared-source",
+          ),
+        ).toMatchObject({ ok: false });
+        const beforeRepair = state.execute.mock.calls.length;
+        const excluded = [
+          {
+            sourceIds: [archiveSourceId],
+            basis: "not_substantive",
+            reason: "Archive without a distinct offering",
+            evidenceQuote: "# Publication archive\nNo distinct offering",
+          },
+        ];
+        expect(
+          await executeAndCompleteTool(
+            "read_website_source",
+            { action: "plan", topics: [topic, ...foundationTopics], excluded },
+            "collapsed-shared-source",
+          ),
+        ).toMatchObject({ ok: false });
+        expect(state.execute).toHaveBeenCalledTimes(beforeRepair);
+        expect(
+          await executeAndCompleteTool(
+            "read_website_source",
+            { action: "plan", topics: [topic, secondTopic, ...foundationTopics], excluded },
+            "distinct-shared-source",
+          ),
+        ).toMatchObject({ ok: true });
+        await executeAndCompleteTool(
+          "manage_wiki_pages",
+          { action: "create", pages: [topic, secondTopic].map((value) => ({ ...value, kind: "knowledge" })) },
+          "distinct-offering-pages",
+        );
+        await createFoundations(executeAndCompleteTool);
+        return finish();
+      };
+      await runAgentTurn(setupPayload);
+      expect(planCalls).toBe(2);
+      expect(state.finalize).toHaveBeenCalledWith(expect.objectContaining({ terminalCode: "completed" }));
+    });
+
     it("does not clear planned knowledge with a procedure or permit a premature or combined guide", async () => {
       preparePlan();
       let runs = 0;

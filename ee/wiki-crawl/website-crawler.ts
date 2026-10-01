@@ -1,3 +1,4 @@
+import { wikiSourceText } from "./wiki-source-text";
 import type { WikiCrawlCandidate, WikiCrawlTarget } from "./website-discovery";
 import type { WikiSourceQa } from "./website-source-extract";
 
@@ -126,12 +127,13 @@ export async function fetchWikiSource(
   const resource = await fetchText(url, scope, PAGE_TYPES, robots);
   if (!resource) return null;
   const document = extractWikiSourceDocument(resource.body, resource.url, resource.contentType);
-  if (!document.text) return null;
+  const text = wikiSourceText(document);
+  if (!text) return null;
   return {
     url: resource.url,
     title: document.title,
-    text: document.text,
-    qaPairs: document.qaPairs,
-    contentHash: createHash("sha256").update(document.text).digest("hex"),
+    text,
+    qaPairs: document.qaPairs.filter(({ question, answer }) => text.includes(question) && text.includes(answer)),
+    contentHash: createHash("sha256").update(text).digest("hex"),
   };
 }

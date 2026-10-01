@@ -29,6 +29,37 @@ export const WikiSourceTopicSchema = z.object({
 });
 export type WikiSourceTopic = z.infer<typeof WikiSourceTopicSchema>;
 
+const WikiSourceExclusionSchema = z
+  .object({
+    sourceIds: z.array(z.uuid()).length(1),
+    reason: z.string().trim().min(1).max(200),
+    basis: z.enum(["already_imported", "exact_duplicate", "overlap", "not_substantive"]),
+    duplicateOfSourceId: z.uuid().optional(),
+    coveredByTitle: SynthesisTitleSchema.optional(),
+    coveredByRole: z.literal("offering").optional(),
+    evidenceQuote: z.string().trim().min(1).max(500).optional(),
+  })
+  .superRefine((value, context) => {
+    const hasDuplicate = value.duplicateOfSourceId !== undefined;
+    const hasCoverage = value.coveredByTitle !== undefined || value.coveredByRole !== undefined;
+    const hasEvidence = value.evidenceQuote !== undefined;
+    const valid =
+      value.basis === "already_imported"
+        ? !hasDuplicate && !hasCoverage && !hasEvidence
+        : value.basis === "exact_duplicate"
+          ? hasDuplicate && !hasCoverage && !hasEvidence
+          : value.basis === "overlap"
+            ? value.coveredByTitle !== undefined && value.coveredByRole !== undefined && !hasDuplicate && !hasEvidence
+            : hasEvidence && !hasDuplicate && !hasCoverage;
+    if (!valid) {
+      context.addIssue({
+        code: "custom",
+        path: ["basis"],
+        params: { error: CustomErrorCode.wikiSourceCitationInvalid },
+      });
+    }
+  });
+
 export const ReadWebsiteSourceSchema = z.object({
   action: z
     .enum(["list", "get", "next", "plan"])
@@ -45,11 +76,25 @@ export const ReadWebsiteSourceSchema = z.object({
       "plan only: exact titles, roles and supporting sources for offerings, four foundations, supported procedures and the Operating Guide. Combine translations; the same source can support several distinct topics.",
     ),
   excluded: z
-    .array(z.object({ sourceIds: z.array(z.uuid()).min(1).max(40), reason: z.string().trim().min(1).max(200) }))
+    .array(WikiSourceExclusionSchema)
     .max(40)
     .optional()
     .describe(
-      "plan only: account for sources unused by any planned page with an explicit reason, such as already imported, duplicate, or no substantive company information. Routing category does not determine topic relevance.",
+      "plan only: one source per exclusion with a reason and basis. already_imported requires an unchanged imported source. exact_duplicate names duplicateOfSourceId with identical stored content, retained in a topic or already imported. overlap names the exact coveredByTitle of a retained offering and coveredByRole=offering; foundations cannot replace offerings. not_substantive requires an exact evidenceQuote from that source. Translations and overlap are semantic judgments, not exact-content duplicates. Routing category does not determine relevance.",
+    ),
+  reclassifiedOfferings: z
+    .array(
+      z.object({
+        title: SynthesisTitleSchema,
+        sourceId: z.uuid(),
+        reason: z.string().trim().min(1).max(200),
+        evidenceQuote: z.string().trim().min(1).max(500),
+      }),
+    )
+    .max(40)
+    .optional()
+    .describe(
+      "plan repair only: explain why an earlier offering candidate is not a distinct offering. Cite each candidate source separately with an exact supporting quote from freshly read text; never discard an offering just to shorten the plan.",
     ),
   omittedFoundations: z
     .array(z.object({ role: FoundationRoleSchema, reason: z.string().trim().min(1).max(200) }))
@@ -76,7 +121,12 @@ const SynthesisPageSchema = z.object({
     .describe("Procedures only: third-person trigger with the words customers use."),
   sections: z.array(SynthesisSectionSchema).min(1).max(8),
   sourceIds: z.array(z.uuid()).min(1).max(4).describe("Ids from read_website_source that support this page."),
-  gaps: z.array(z.string().trim().min(1).max(300)).max(8).optional(),
+  gaps: z
+    .array(z.string().trim().min(1).max(300))
+    .max(8)
+    .describe(
+      "Review missing information explicitly. Use questions for unsupported internal rules, approvals, qualification, follow-up and handover; an empty array means the evidence supports the scope of this page.",
+    ),
 });
 export const WikiCrawlSynthesisCreateSchema = z.object({
   action: z.literal("create"),

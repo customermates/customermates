@@ -3,6 +3,15 @@ import { describe, expect, it } from "vitest";
 import { retrievalExcerpt } from "../retrieval-excerpt";
 
 describe("bounded retrieval excerpts", () => {
+  it("focuses an unquoted compound on its separate components without broadening quotes", () => {
+    const markdown =
+      "Unrelated background. ".repeat(80) + "\nThe support response explains how to recover the account.";
+    const excerpt = retrievalExcerpt({ markdown, query: "support-response", maxChars: 80 });
+    expect(excerpt).toContain("The support response explains how to recover the account.");
+    expect(retrievalExcerpt({ markdown, query: '"support-response"', maxChars: 80 })).not.toContain(
+      "recover the account",
+    );
+  });
   it("keeps a matching table row with its header and the section's own app link", () => {
     const markdown = [
       "An unrelated introduction. ".repeat(120),
@@ -109,5 +118,141 @@ describe("bounded retrieval excerpts", () => {
     const excerpt = retrievalExcerpt({ markdown, query: "语言", maxChars: 100 });
     expect(excerpt).toContain("修改语言设置。");
     expect(excerpt.length).toBeLessThanOrEqual(100);
+  });
+});
+
+describe("complete answer blocks in retrieval excerpts", () => {
+  it("keeps the neighboring formula in a coherent paragraph that fits the available excerpt", () => {
+    const paragraph =
+      "The weighted total estimates the pipeline. Each item is multiplied by its current probability. Changing the setting recalculates all totals.";
+    const excerpt = retrievalExcerpt({
+      markdown: paragraph + "\n" + "Unrelated background. ".repeat(100),
+      query: "weighted total",
+      heading: "## Estimate",
+      maxChars: 180,
+    });
+    expect(excerpt).toContain(paragraph);
+    expect(excerpt.length).toBeLessThanOrEqual(180);
+  });
+  it("retains a definition list introduced by a relevant paragraph", () => {
+    const definition = "**Assigned** only the records the member is an assigned user of";
+    const markdown = [
+      "A custom role restricts what its members see and change, for example to only the records assigned to them. To create one, use the **Role** editor: it has the fields **Name** and **Description**, plus one row per resource with two columns:",
+      "",
+      "- **Manage**: **Yes** lets the role create, edit and delete that resource; **No** allows none of it. There is no separate switch for create, edit or delete.",
+      `- **Read access**: **All** shows every record in the workspace, ${definition}, and **None** hides the page and its records. A row without this choice shows a dash.`,
+      "",
+      "| Row | Manage | Read access | New role | What it controls |",
+      "|---|---|---|---|---|",
+      "| **Company** | Yes, No | No choice, always granted | No | Every role can open **Settings** and **Subscription**. Manage edits Settings, chooses a plan, uses **Manage with billing** and **Refresh**, and restores an expired subscription. |",
+      "| **Audit Log** | No choice | All, None | None | All opens **Audit Logs** and shows the change history on record pages and in activity timelines. |",
+      "| **Tasks**, **Contacts**, **Organizations**, **Deals**, **Services** | Yes, No | All, Assigned, None | No, Assigned | Read decides whether the sidebar entry appears and which records the member sees. Manage creates, edits and deletes them. |",
+      "| **Routines** | Yes, No | All, Assigned, None | No, Assigned | All shows every routine, Assigned only the member's own. |",
+      "",
+      "**Link:** `/company/roles`. **Mate:** " + "Additional navigation guidance. ".repeat(12),
+    ].join("\n");
+    const excerpt = retrievalExcerpt({
+      markdown,
+      query: "How can I restrict a salesperson to only the deals assigned to them?",
+      heading:
+        "### How do I create a custom role in the role editor, for example to restrict a member to assigned records?",
+      maxChars: 1_400,
+    });
+    expect(excerpt).toContain(definition);
+    expect(excerpt).toContain("- **Manage**:");
+    expect(excerpt).toContain("- **Read access**:");
+    expect(excerpt).toContain("**Link:** `/company/roles`.");
+    expect(excerpt.length).toBeLessThanOrEqual(1_400);
+  });
+
+  it("keeps the neighboring status definition when a semantic question names its introductory concept", () => {
+    const markdown = [
+      "Historical background. ".repeat(120),
+      "Visibility of the workspace's members has two controls:",
+      "",
+      "- **Editor** permits writing the assigned entries.",
+      "- **Scope** decides whether all entries or only the member's assignments are readable.",
+      "",
+      "Unrelated background. ".repeat(120),
+      "**Link:** `/workspace/access`.",
+    ].join("\n");
+    const excerpt = retrievalExcerpt({
+      markdown,
+      query: "workspace members visibility",
+      maxChars: 400,
+    });
+    expect(excerpt).toContain("**Editor** permits writing the assigned entries.");
+    expect(excerpt).toContain("**Scope** decides whether all entries or only the member's assignments are readable.");
+    expect(excerpt).toContain("**Link:** `/workspace/access`.");
+    expect(excerpt.length).toBeLessThanOrEqual(400);
+  });
+  it("retains a relevant final item when a definition list exceeds the excerpt budget", () => {
+    const markdown = [
+      "Available recovery choices:",
+      "- General background. " + "Additional unrelated detail. ".repeat(100),
+      "- Reactivate reconnects the mailbox.",
+      "**Link:** `/profile/accounts`.",
+    ].join("\n");
+    for (const maxChars of [400, 800, 1_400]) {
+      const excerpt = retrievalExcerpt({ markdown, query: "reactivate mailbox", maxChars });
+      expect(excerpt).toContain("Reactivate reconnects the mailbox.");
+      expect(excerpt).toContain("**Link:** `/profile/accounts`.");
+      expect(excerpt.length).toBeLessThanOrEqual(maxChars);
+    }
+  });
+});
+
+describe("definition-list context within the excerpt budget", () => {
+  it("finds a relevant final bullet in a colon-introduced list larger than the available budget", () => {
+    const intro = "Support response rules for the workspace:";
+    const final = "- **Critical**: Respond within fifteen minutes and keep the requester informed.";
+    const markdown = [
+      intro,
+      "",
+      ...Array.from(
+        { length: 40 },
+        (_, index) => `- **Routine category ${index}**: Review during the next planned service cycle.`,
+      ),
+      final,
+      "",
+      "**Link:** `/support/response`.",
+    ].join("\n");
+    const excerpt = retrievalExcerpt({
+      markdown,
+      query: "critical respond fifteen minutes",
+      heading: "## Response rules",
+      maxChars: 800,
+    });
+    expect(markdown.length).toBeGreaterThan(800);
+    expect(excerpt).toContain(intro);
+    expect(excerpt).toContain(final);
+    expect(excerpt).toContain("**Link:** `/support/response`.");
+    expect(excerpt.length).toBeLessThanOrEqual(800);
+    expect(excerpt).not.toContain("Routine category 0");
+  });
+
+  it("retains the whole short list when its introductory concept is the matching evidence", () => {
+    const intro = "Support response rules for the workspace:";
+    const routine = "- **Routine**: Process during the next planned service cycle.";
+    const critical = "- **Critical**: Respond within fifteen minutes and keep the requester informed.";
+    const block = [intro, "", routine, critical].join("\n");
+    const markdown = [
+      "Historical background. ".repeat(100),
+      block,
+      "Unrelated background. ".repeat(100),
+      "**Link:** `/support/response`.",
+    ].join("\n");
+    const excerpt = retrievalExcerpt({
+      markdown,
+      query: "workspace support response rules",
+      heading: "## Response rules",
+      maxChars: 800,
+    });
+    expect(markdown.length).toBeGreaterThan(800);
+    expect(block.length).toBeLessThan(800);
+    expect(excerpt).toContain(block);
+    expect(excerpt).toContain("**Link:** `/support/response`.");
+    expect(excerpt.length).toBeLessThanOrEqual(800);
+    expect(excerpt.indexOf(routine)).toBeLessThan(excerpt.indexOf(critical));
   });
 });

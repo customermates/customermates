@@ -184,7 +184,6 @@ export class SearchWikiPagesInteractor extends AuthenticatedInteractor<WikiPageS
     const candidates = located.slice(0, WIKI_RERANK_CANDIDATES).map((entry, id) => ({
       id,
       section: { pageTitle: entry.page.title, headingPath: entry.headingPath, text: entry.text },
-      titleOnly: false,
     }));
     const ranking = reranks
       ? await rerankSections({ query: data.query, stopwatch, candidates, ranker, relevance: fused.relevance })

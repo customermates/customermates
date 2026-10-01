@@ -1,252 +1,2141 @@
 {
-  "browser": {
-    "accounts": "synthetic owned fixtures",
-    "final_accounting_build_recheck": {
-      "build_id": "48clWBCk3NtsLc1yYBLFi",
-      "destructive_icon_text_color_match": true,
-      "errors": 0,
-      "horizontal_overflow": false,
-      "journeys": [
-        "create and save using native keyboard editing",
-        "edit Markdown and persist the saved revision",
-        "edit title and Reset restores the saved version",
-        "Reload preserves saved document and clean toolbar",
-        "clean bordered overflow and rightmost New page; dirty Reset/Save only",
-        "delete Cancel preserves page; confirmed Delete removes page and selects pinned guide",
-        "read-only role reload has no editable region/New page/Save/Delete"
-      ],
-      "passed": true,
-      "persistence_checked": true,
-      "provider_work": "disabled"
-    },
-    "fixture_limits": [
-      "Import progress and transcript used deterministic persisted fixtures, not a live provider or active SSE stream.",
-      "Streaming, cancellation and transport fault assertions are automated tests; live ainovi.de and hosted semantic checks await fresh spend approval."
-    ],
-    "journeys": [
-      "create knowledge page and inspect persistence",
-      "save numbered procedure with required whenToUse",
-      "reject missing whenToUse and missing numbered steps",
-      "clean and dirty toolbar states; Reset",
-      "typed stale revision conflict preserves unsaved title and Markdown",
-      "explicit discard before reload; remote version displayed",
-      "navigation guard Cancel preserves dirty content",
-      "destructive menu text and icon color match",
-      "delete cancel and confirm; guide selected after deletion",
-      "relevance search and native keyboard clear restores catalog",
-      "keyboard reordering persists; guide remains pinned",
-      "read-only custom role cannot edit/create/delete/reorder",
-      "desktop and mobile layouts without horizontal overflow",
-      "40-source progress: failed secondary pages skipped and 128px bounded scrolling",
-      "continue onboarding through Team and AI tools while import works",
-      "completion after leaving onboarding; existing import conversation retained",
-      "26 contextual source labels; 360px chat scroll; no generic duplicate rows or Today chip",
-      "dirty polling retains title and same editor/message DOM nodes"
-    ],
-    "provider_work": "disabled",
-    "surface": "owned local built application",
-    "updated_editor_built_recheck": {
-      "build_id": "wK5krPIrHWoIWDZrhoLo0",
-      "errors": 0,
-      "explicit_reload_note": "An explicit reload replaces the editor node; polling stability is covered by the separate journey and real Editor regression.",
-      "horizontal_overflow": false,
-      "journeys": [
-        "create and save using native keyboard editing",
-        "edit title and Reset restores saved version",
-        "Reload preserves saved document and returns to clean toolbar",
-        "convert knowledge to procedure and persist two numbered steps with whenToUse",
-        "delete confirmed page and return to pinned guide",
-        "read-only role reload: no editable region, New page or Save; no errors"
-      ],
-      "passed": true,
-      "persistence_checked": true
-    }
-  },
   "checks": {
-    "accounting_boundary_regressions": {
-      "baseline_discrimination": {
-        "embedding_usage_and_unbilled_receipts": {
-          "failed": 13,
-          "passed": 233
-        },
-        "malformed_routing": {
-          "failed": 15,
-          "passed": 195
-        },
-        "unproven_zero_debit": {
-          "failed": 4,
-          "passed": 228
-        }
-      },
-      "duration_ms": 3277,
-      "files": 5,
-      "independent_source_review": true,
-      "original_assertions_preserved": true,
-      "passed": true,
-      "tests": 246
-    },
-    "benchmark_registry_after_documentation": {
-      "files": 1,
-      "passed": true,
-      "tests": 4
-    },
     "build": {
-      "build_id": "48clWBCk3NtsLc1yYBLFi",
-      "duration_ms": 91020,
+      "base_url": "http://127.0.0.1:4237",
+      "build_id": "LPIzLNE-V4YMIFRM1f3hz",
+      "duration_ms": 98205,
+      "log": "exclusion-gate/final-build.log",
       "passed": true,
-      "required_artifacts_verified": true,
-      "required_files": 18
+      "source_freeze_id": "6e1a63d34a4ce1e8aadef7025063b91ea74855760eba3fe0e6ed3c50e032c010"
+    },
+    "built_browser": {
+      "assertions": [
+        {
+          "name": "Clean toolbar has bordered overflow then rightmost New page; Ask Mate is visible",
+          "passed": true
+        },
+        {
+          "name": "Dirty title shows only Reset and Save",
+          "passed": true
+        },
+        {
+          "name": "Reset restores the saved title and clean toolbar",
+          "passed": true
+        },
+        {
+          "name": "Destructive menu icon/text match and overflow border remains one pixel",
+          "passed": true
+        },
+        {
+          "name": "Keyboard focus opens contextual page-type help",
+          "passed": true
+        },
+        {
+          "name": "Mobile document fits 390 pixels without horizontal overflow",
+          "passed": true
+        },
+        {
+          "name": "Opened mobile page picker shows visible no-match state with no page links",
+          "passed": true
+        },
+        {
+          "name": "Browser reports no recorded JavaScript exceptions",
+          "passed": true
+        }
+      ],
+      "attribution": "Parent-owned additional controlled smoke on the exclusion-guard build. Earlier detailed UI12 remains independently attributed to a734/WuPP under identical frontend bytes.",
+      "build_id": "LPIzLNE-V4YMIFRM1f3hz",
+      "evidence_sha256": "c6b8d52bc4dafc96fe1cb75170506fa72200765b4b886c44d442d4806ed5ce0e",
+      "failed_assertions": 0,
+      "independent_review": {
+        "application_findings": 0,
+        "capture_qualification": "Initial Ask Mate predicate and early closed-picker/wrong-text search are excluded; settled visible sidebar and opened-picker no-match state count. Focused mobile help capture establishes horizontal width only.",
+        "current_source_files_checked": 57,
+        "current_source_hash_drift": 0,
+        "inherited_frontend_files": 83,
+        "limitations": [
+          "Provider-paused smoke does not accept generated ainovi.de content or any full strict hosted suite.",
+          "WuPP/PZNR detailed UI and streaming evidence remains historical, with byte-identity proof for the frontend paths and dependencies recorded here.",
+          "This review does not execute or independently reproduce any browser journey."
+        ],
+        "markdown_sha256": "6eeedcee4a36c8f16fe7e9760eaef6e5799ea448779c64affb36ce2aafefd016",
+        "packet_sha256": "f44641bff2966d4df89b10918ef1d44dc25f5447c1a8417973b1238b433e0257",
+        "passed": true,
+        "saved_artifact_review_only": true,
+        "screenshots_checked": 3,
+        "shared_source_dependencies": 18
+      },
+      "limitations": [
+        "Final build smoke checks use provider-paused owned synthetic workspace; generated website content is not accepted by these assertions.",
+        "Detailed dirty/conflict/CRUD/ordering and onboarding streaming evidence remains attached to WuPP/PZNR and their unchanged frontend hashes.",
+        "Initial mobile search failed before opening the picker and an early predicate used the wrong empty-state text; neither capture is counted.",
+        "Mobile layout capture retains deliberately focused help; the overflow assertion measures the actual document widths."
+      ],
+      "passed": true,
+      "passed_assertions": 8,
+      "provider_cap_zero": true,
+      "provider_paused": true,
+      "source_freeze_id": "6e1a63d34a4ce1e8aadef7025063b91ea74855760eba3fe0e6ed3c50e032c010"
     },
     "built_http": {
-      "build_id": "48clWBCk3NtsLc1yYBLFi",
-      "duration_ms": 13195,
+      "attribution": "Parent-owned HTTP suite on the new exclusion-guard build and one aligned-origin server.",
+      "build_id": "LPIzLNE-V4YMIFRM1f3hz",
+      "duration_ms": 14336,
       "files": 2,
+      "log": "exclusion-gate/final-built-http.log",
       "passed": true,
+      "source_freeze_id": "6e1a63d34a4ce1e8aadef7025063b91ea74855760eba3fe0e6ed3c50e032c010",
       "tests": 18
     },
-    "editor_and_operator_regressions": {
-      "files": 2,
+    "focused_final_boundaries": {
+      "attribution": "Parent-owned final focused rerun after actual repository ESLint formatting. Earlier repeat 3,552 ms and 9,306 ms are retained in gate-results.jsonl.",
+      "duration_ms": 3377,
+      "files": 8,
+      "log": "post-live-gate/focused-final-boundaries.log",
       "passed": true,
-      "tests": 7
+      "source_freeze_id": "a73446a5ede7408b3d2e4492fba389a6c807df6ce3c62e19bf1a5243bb419913",
+      "tests": 258
     },
-    "final_packet_and_registry": {
-      "duration_ms": 11247,
-      "files": 2,
+    "focused_label_fallback": {
+      "actual_repaired_delete_query_selected": true,
+      "before_failed": 2,
+      "before_passed": 44,
+      "full_hosted_acceptance_open": true,
+      "latest_combined_files": 8,
+      "latest_combined_tests_passed": 258,
       "passed": true,
-      "tests": 15
+      "source_freeze_id": "a73446a5ede7408b3d2e4492fba389a6c807df6ce3c62e19bf1a5243bb419913"
     },
-    "full_final_gate": {
-      "automated_suite_passed": true,
-      "both_database_urls_owned": true,
-      "database_suites_enabled": true,
-      "lint_ms": 98520,
+    "focused_linguistic": {
+      "execution_attribution": "parent-owned prior49-source linguistic-after-final.log; unchanged retrieval sources",
+      "files": 6,
       "passed": true,
-      "passed_files": 1033,
-      "passed_tests": 10070,
-      "runtime": "Node 24.18.0",
-      "skip_classification": {
-        "built_http_passed_separately": 5,
-        "hosted_provider_contracts_pending": 15
-      },
+      "tests": 108
+    },
+    "focused_metadata": {
+      "duration_ms": 11847,
+      "execution_attribution": "before website-wire-only correction; retrieval sources unchanged",
+      "files": 8,
+      "passed": true,
+      "skipped_tests": 15,
+      "tests": 112
+    },
+    "focused_per_unit_context": {
+      "before_failed": 3,
+      "before_passed": 39,
+      "current_hosted_contract_acceptance_pending": true,
+      "execution_attribution": "Parent-owned per-unit-context-before/after logs",
+      "files": 3,
+      "passed": true,
+      "tests": 78
+    },
+    "focused_source_exclusion_guard": {
+      "after_log": "exclusion-gate/focused-exclusions.log",
+      "assertion_qualification": "Four original expect target expressions change only by supplying mandatory exclusion fields to execute calls inside expect: one repaired-plan call, two intentionally lossy workflow plan calls and one accepted workflow repair. Matcher names, modifiers and expected arguments remain token-identical. They are not claimed byte-identical full assertion expressions.",
+      "before_log": "exclusion-gate/focused-exclusions-before.log",
+      "duration_ms": 6525,
+      "files": 5,
+      "fixture_only_full_expression_changes": 4,
+      "original_matcher_expectations_preserved": true,
+      "passed": true,
+      "root_before_failed": 11,
+      "root_before_passed": 280,
+      "semantic_limit": "Validates evidence references and offering identity, not semantic equivalence, offering discovery or acceptable completed live content.",
+      "source_freeze_id": "6e1a63d34a4ce1e8aadef7025063b91ea74855760eba3fe0e6ed3c50e032c010",
+      "static_matcher_expectation_proof_sha256": "67cf25e21ce112f3a6ea6991e574f2212096a4be2e889c2447aa78008cb327d2",
+      "tests": 291
+    },
+    "focused_vertex_repair_projection": {
+      "authoritative_bounds_preserved": true,
+      "before_failed": 1,
+      "before_passed": 42,
+      "duration_ms": 3350,
+      "files": 4,
+      "passed": true,
+      "tests": 107
+    },
+    "focused_visibility_guard": {
+      "actual_dirty_retention_ms": 253378,
+      "before_failed": 4,
+      "before_passed": 9,
+      "built_two_tab_retest_pending": false,
+      "execution_attribution": "Parent-owned visibility-refresh-before/after logs",
+      "files": 2,
+      "final_build_id": "WuPPuaVD9uYPiLG47LzsI",
+      "final_ui_evidence_sha256": "0a20a94ba34f42445ecc62674a2b06ab5a64ce436f782b4b2932ae2d66ee5a76",
+      "passed": true,
+      "tests": 29
+    },
+    "full_frozen_gate": {
+      "duration_ms": 455534,
+      "log": "exclusion-gate/final-vitest.log",
+      "passed": true,
+      "passed_files": 1041,
+      "passed_tests": 10242,
+      "runtime": "Node 24.18",
+      "skip_attribution": "Fifteen paid opt-in families execute separately and remain failed overall; five HTTP cases pass separately as 18 assertions on this final build. No skipped result is presented as live-provider acceptance.",
       "skipped_files": 1,
       "skipped_tests": 20,
-      "typecheck_ms": 28669,
-      "vitest_ms": 371409,
-      "workflow_storage_installed": true
+      "source_freeze_id": "6e1a63d34a4ce1e8aadef7025063b91ea74855760eba3fe0e6ed3c50e032c010"
+    },
+    "inherited_built_browser": {
+      "assertions": [
+        {
+          "name": "Dirty title and native body survive remote save and visibility refresh",
+          "passed": true,
+          "retained_ms": 253378
+        },
+        {
+          "name": "Stale save exposes conflict without losing edits",
+          "passed": true
+        },
+        {
+          "name": "Cancel preserves title, body and editor identity",
+          "passed": true
+        },
+        {
+          "name": "Discard reloads remote saved version and clean toolbar",
+          "passed": true
+        },
+        {
+          "name": "Settled title input remains dirty across eight seconds",
+          "passed": true
+        },
+        {
+          "name": "Overflow is bordered and destructive icon matches text",
+          "passed": true
+        },
+        {
+          "name": "Deletion cancel closes dialog and keeps page",
+          "passed": true
+        },
+        {
+          "name": "Confirmed deletion removes fixture from rail and database",
+          "passed": true
+        },
+        {
+          "name": "390px mobile layout has no horizontal overflow",
+          "passed": true
+        },
+        {
+          "name": "Mobile no-match search settles with empty result",
+          "passed": true
+        },
+        {
+          "name": "Page-type help opens using keyboard and explains retrieval",
+          "passed": true
+        },
+        {
+          "name": "No recorded browser exceptions",
+          "passed": true
+        }
+      ],
+      "attribution": "Actual earlier a734/WuPP UI12; inherited frontend and shared dependency bytes match the exclusion guard revision. This is not a replay on the new build.",
+      "build_id": "WuPPuaVD9uYPiLG47LzsI",
+      "current_source_byte_identity_checks": 101,
+      "current_source_byte_identity_mismatches": 0,
+      "evidence_sha256": "0a20a94ba34f42445ecc62674a2b06ab5a64ce436f782b4b2932ae2d66ee5a76",
+      "failed_assertions": 0,
+      "independent_review": {
+        "application_findings": 0,
+        "cancel_scope": "New-build capture proves retained text/editor while dialog remains open; controlled settled PZNR C Cancel/Discard supports dismissal under unchanged frontend source. Do not imply every transient modal state was independently replayed.",
+        "current_source_hash_checks": 18,
+        "current_source_hash_mismatches": 0,
+        "inherited_frontend_files": 83,
+        "inherited_hash_mismatches": 0,
+        "limitations": [
+          "Independent reviewer inspected saved artifacts, not repeated live UI assertions.",
+          "Eight-second duration is root-executed assertion; its raw capture has stable dirty value/actions but no separate elapsed counter.",
+          "Empty captured browser-error file means no recorded exceptions, not proof of every hidden browser error.",
+          "Source freeze/build linkage comes from root assertion packet; UI byte hashes verified independently, not a recomputed full56-source digest.",
+          "Live content completeness and strict hosted retrieval acceptance remain unmet; this UI review does not clear them."
+        ],
+        "markdown_sha256": "5f49d93f3afce6c4b233473cf0bf479cc8ead13e32fefda849c406a016936a8e",
+        "packet_sha256": "148361a86506918cd89074384396633302fb0e547a5e92bb73344760e7cc3a2a",
+        "passed": true,
+        "screenshot_hash_mismatches": 0,
+        "screenshots_checked": 4,
+        "shared_component_prior_hash_checks": 12
+      },
+      "inherited_into_source_freeze": "6e1a63d34a4ce1e8aadef7025063b91ea74855760eba3fe0e6ed3c50e032c010",
+      "limitations": [
+        "Initial incomplete CLI type command produced no dirty body and is excluded.",
+        "Early screenshots before transitions settled are excluded.",
+        "Cancel proof asserts text/editor retention; settled cancel and repeat conflict behavior are separately supported by previous unchanged-frontend PZNR evidence.",
+        "Ambiguous edits entered during prior save navigation were not reproduced after settling; no source defect is inferred.",
+        "Live content completeness and strict hosted retrieval acceptance remain unmet."
+      ],
+      "passed": true,
+      "passed_assertions": 12,
+      "source_freeze_id": "a73446a5ede7408b3d2e4492fba389a6c807df6ce3c62e19bf1a5243bb419913"
     },
     "kb_gate": {
       "checks": 8,
+      "current_overlay_committed_head": "069b893735274a50bfc5c34455f3800df8bb126f",
+      "current_overlay_documents": 0,
+      "duration_ms": 60620,
+      "exact_head_attribution": "Parent committed and ordinarily pushed the same-byte two-document guard revision after its local eight-check gate. Current-head CI is separate.",
       "failed": 0,
+      "head": "069b893735274a50bfc5c34455f3800df8bb126f",
+      "log": "kb-exclusion-preserved-gate.log",
       "passed": true,
       "runtime": "Node 22.21.1",
       "skipped": 0
     },
-    "workflow_purge": {
-      "actual_installed_storage": true,
+    "kb_semantic_review": {
+      "current_followup_packet_sha256": "ecbc37f6c89e71c81c9249f231e8b44862229e8e66473be85cdbb4ad82e3f72d",
+      "current_followup_pages": 2,
+      "head": "069b893735274a50bfc5c34455f3800df8bb126f",
+      "inherited_prior_review_pages": 18,
       "passed": true,
-      "skipped": 0,
-      "tests": 9
+      "prior_review_packet_sha256": "b22e3365b99ce44cb1f3bcd89946a545d6ca9bb3c32aff07d6ac1e86894f5750",
+      "private_operating_content_included": false,
+      "status": "Independent exact two-page guard follow-up plus inherited 18-page source-semantic review; live acceptance remains open."
+    },
+    "lint": {
+      "command": "yarn lint --max-warnings=0",
+      "duration_ms": 194727,
+      "log": "exclusion-gate/final-lint.log",
+      "passed": true,
+      "source_freeze_id": "6e1a63d34a4ce1e8aadef7025063b91ea74855760eba3fe0e6ed3c50e032c010"
+    },
+    "typecheck": {
+      "command": "yarn typecheck",
+      "duration_ms": 85999,
+      "log": "exclusion-gate/final-typecheck.log",
+      "passed": true,
+      "source_freeze_id": "6e1a63d34a4ce1e8aadef7025063b91ea74855760eba3fe0e6ed3c50e032c010"
     }
   },
+  "current_owned_resource_cleanup": {
+    "all_owned_resources_removed": false,
+    "dev_database_untouched": true,
+    "evidence_sha256": "45209cfcbd88ea50d9ddcf5ee71d169d1d8f8927a5772cc79b2c401e8098b269",
+    "no_account_or_database_identifiers_included": true,
+    "owned_browser_closed": true,
+    "owned_gate_database_dropped_and_absent": true,
+    "owned_server_stopped": true,
+    "paid_synthetic_database_retained": true,
+    "passed": true,
+    "preview_database_untouched": true,
+    "provider_cap_zero": true,
+    "provider_paused": true,
+    "retained_scope": "Owned local paid-test synthetic database retained for a future separately authorized complete content/provider follow-up. Retention does not authorize new spend.",
+    "scope_attribution": "Parent operated only the owned temporary gate database and guarded server/browser; dev and preview untouched per parent execution scope.",
+    "source_files": 57,
+    "source_hash_drift": 0,
+    "user_port_4000_untouched": true
+  },
   "external": {
+    "current_kb_overlay_documents": 0,
+    "current_kb_overlay_pushed": true,
+    "current_source_overlay_pushed": false,
     "drafts_preserved": true,
-    "exact_head_ci_verified": false,
-    "kb_exact_head_checks": ["verification", "repository policy", "macOS readiness", "Windows readiness"],
+    "kb_ci_snapshot_sha256": "e4a6c059ce8d0712c969a34b7f69c0b60b5f12e0c9472ee1716598dc3a155a37",
+    "kb_current_overlay_exact_head_ci_verified": true,
+    "kb_current_overlay_semantic_audit_complete": true,
+    "kb_exact_head_checks": [
+      "verification (ubuntu)",
+      "policy / Validate repository policy",
+      "readiness (macos-latest)",
+      "readiness (windows-latest)",
+      "ci",
+      "repository-policy"
+    ],
+    "kb_exact_head_ci_attribution": "Exact current KB-head snapshot independently read; all recorded checks are evaluated without inheriting previous-head CI.",
     "kb_exact_head_ci_verified": true,
-    "migration_adoption_scope_confirmation": "pending",
-    "new_kb_head": "c469a7a0bf6f58b0ff4c2c86a6267a8569aaa32e",
-    "new_kb_head_pushed": true,
-    "new_product_head_pushed": false,
-    "product_exact_head_ci_verified": false
+    "kb_head": "069b893735274a50bfc5c34455f3800df8bb126f",
+    "kb_head_pushed": true,
+    "kb_mergeable": "MERGEABLE",
+    "kb_semantic_18_page_audit_complete": true,
+    "local_reviewed_product_head": "f3ff1a63d11d5d5f5043dedf9660dc0485a1d473",
+    "local_reviewed_product_head_pushed": false,
+    "mainline_refresh": {
+      "attribution": "Parent fetched unchanged origins; reviewer independently read local origin/main refs and merge-base ancestry, with no ref writes.",
+      "kb_head_contains_main": true,
+      "kb_main": "790c0ecc2b5bc39b95156dc43375090a5b510066",
+      "product_head_contains_main": true,
+      "product_main": "31d1df14c9185e62f23bf902be3ef518b42ca5b3"
+    },
+    "migration_adoption_scope_confirmed": true,
+    "preview_reset": "Human checkpoint against the rewritten migration revision; no agent reset or cleanup.",
+    "previous_green_kb_head": "adda150973a8464a789138ad037ca4efffd952ed",
+    "previous_kb_exact_head_ci_verified": true,
+    "product_exact_new_head_ci_verified": false,
+    "published_product_head": "bf7aa45ab60a136257ce57876f19f26ff18c2c26",
+    "published_product_head_pushed": true,
+    "remote_product_head_attribution": "Parent fresh GitHub read at 17:40 UTC; local f3ff and preceding cleanup commits remain unpushed."
   },
-  "live_provider": {
-    "executed": false,
-    "reason": "fresh paid-batch authorization pending",
-    "required_additional_journeys": ["local ainovi.de onboarding", "representative hosted retrieval and chat"],
-    "required_contracts": 15
-  },
-  "migrations": {
-    "cases": [
+  "historical_verification": {
+    "attribution": "These results predate the current website synthesis, evidence formatter and compound/coherence fixes. They are retained as evidence for their own source/build revisions and are not final current-source UI/live acceptance.",
+    "browser": {
+      "accounts": "synthetic owned fixtures",
+      "final_accounting_build_recheck": {
+        "build_id": "48clWBCk3NtsLc1yYBLFi",
+        "destructive_icon_text_color_match": true,
+        "errors": 0,
+        "horizontal_overflow": false,
+        "journeys": [
+          "create and save using native keyboard editing",
+          "edit Markdown and persist the saved revision",
+          "edit title and Reset restores the saved version",
+          "Reload preserves saved document and clean toolbar",
+          "clean bordered overflow and rightmost New page; dirty Reset/Save only",
+          "delete Cancel preserves page; confirmed Delete removes page and selects pinned guide",
+          "read-only role reload has no editable region/New page/Save/Delete"
+        ],
+        "passed": true,
+        "persistence_checked": true,
+        "provider_work": "disabled"
+      },
+      "fixture_limits": [
+        "Import progress and transcript used deterministic persisted fixtures, not a live provider or active SSE stream.",
+        "Streaming, cancellation and transport fault assertions are automated tests; live ainovi.de and hosted semantic checks await fresh spend approval."
+      ],
+      "journeys": [
+        "create knowledge page and inspect persistence",
+        "save numbered procedure with required whenToUse",
+        "reject missing whenToUse and missing numbered steps",
+        "clean and dirty toolbar states; Reset",
+        "typed stale revision conflict preserves unsaved title and Markdown",
+        "explicit discard before reload; remote version displayed",
+        "navigation guard Cancel preserves dirty content",
+        "destructive menu text and icon color match",
+        "delete cancel and confirm; guide selected after deletion",
+        "relevance search and native keyboard clear restores catalog",
+        "keyboard reordering persists; guide remains pinned",
+        "read-only custom role cannot edit/create/delete/reorder",
+        "desktop and mobile layouts without horizontal overflow",
+        "40-source progress: failed secondary pages skipped and 128px bounded scrolling",
+        "continue onboarding through Team and AI tools while import works",
+        "completion after leaving onboarding; existing import conversation retained",
+        "26 contextual source labels; 360px chat scroll; no generic duplicate rows or Today chip",
+        "dirty polling retains title and same editor/message DOM nodes"
+      ],
+      "provider_work": "disabled",
+      "surface": "owned local built application",
+      "updated_editor_built_recheck": {
+        "build_id": "wK5krPIrHWoIWDZrhoLo0",
+        "errors": 0,
+        "explicit_reload_note": "An explicit reload replaces the editor node; polling stability is covered by the separate journey and real Editor regression.",
+        "horizontal_overflow": false,
+        "journeys": [
+          "create and save using native keyboard editing",
+          "edit title and Reset restores saved version",
+          "Reload preserves saved document and returns to clean toolbar",
+          "convert knowledge to procedure and persist two numbered steps with whenToUse",
+          "delete confirmed page and return to pinned guide",
+          "read-only role reload: no editable region, New page or Save; no errors"
+        ],
+        "passed": true,
+        "persistence_checked": true
+      }
+    },
+    "checks": {
+      "accounting_boundary_regressions": {
+        "baseline_discrimination": {
+          "embedding_usage_and_unbilled_receipts": {
+            "failed": 13,
+            "passed": 233
+          },
+          "malformed_routing": {
+            "failed": 15,
+            "passed": 195
+          },
+          "unproven_zero_debit": {
+            "failed": 4,
+            "passed": 228
+          }
+        },
+        "duration_ms": 3277,
+        "files": 5,
+        "independent_source_review": true,
+        "original_assertions_preserved": true,
+        "passed": true,
+        "tests": 246
+      },
+      "benchmark_registry_after_documentation": {
+        "files": 1,
+        "passed": true,
+        "tests": 4
+      },
+      "build": {
+        "build_id": "48clWBCk3NtsLc1yYBLFi",
+        "duration_ms": 91020,
+        "passed": true,
+        "required_artifacts_verified": true,
+        "required_files": 18
+      },
+      "built_http": {
+        "build_id": "48clWBCk3NtsLc1yYBLFi",
+        "duration_ms": 13195,
+        "files": 2,
+        "passed": true,
+        "tests": 18
+      },
+      "editor_and_operator_regressions": {
+        "files": 2,
+        "passed": true,
+        "tests": 7
+      },
+      "final_packet_and_registry": {
+        "duration_ms": 11247,
+        "files": 2,
+        "passed": true,
+        "tests": 15
+      },
+      "full_final_gate": {
+        "automated_suite_passed": true,
+        "both_database_urls_owned": true,
+        "database_suites_enabled": true,
+        "lint_ms": 98520,
+        "passed": true,
+        "passed_files": 1033,
+        "passed_tests": 10070,
+        "runtime": "Node 24.18.0",
+        "skip_classification": {
+          "built_http_passed_separately": 5,
+          "hosted_provider_contracts_pending": 15
+        },
+        "skipped_files": 1,
+        "skipped_tests": 20,
+        "typecheck_ms": 28669,
+        "vitest_ms": 371409,
+        "workflow_storage_installed": true
+      },
+      "kb_gate": {
+        "checks": 8,
+        "failed": 0,
+        "passed": true,
+        "runtime": "Node 22.21.1",
+        "skipped": 0
+      },
+      "workflow_purge": {
+        "actual_installed_storage": true,
+        "passed": true,
+        "skipped": 0,
+        "tests": 9
+      }
+    },
+    "first_45_aborted_attempts": [
       {
-        "columns": 16,
-        "deploy": 0,
-        "kind": "fresh",
-        "repeat": 0,
-        "vector": true,
-        "version": 17
+        "code": 2,
+        "duration_ms": 8762,
+        "phase": "typecheck",
+        "reason": "Evidence-unit inference; resolved by an erased explicit type annotation."
       },
       {
-        "columns": 16,
-        "deploy": 0,
-        "kind": "upgrade",
-        "repeat": 0,
-        "vector": true,
-        "version": 17
-      },
-      {
-        "columns": 16,
-        "events": 1,
-        "injectedFailureExit": 1,
-        "kind": "recovery",
-        "resolve": 0,
-        "retry": 0,
-        "vector": true,
-        "version": 17
-      },
-      {
-        "columns": 16,
-        "deploy": 0,
-        "kind": "fresh",
-        "repeat": 0,
-        "vector": false,
-        "version": 16
-      },
-      {
-        "columns": 16,
-        "deploy": 0,
-        "kind": "upgrade",
-        "repeat": 0,
-        "vector": false,
-        "version": 16
-      },
-      {
-        "columns": 16,
-        "events": 1,
-        "injectedFailureExit": 1,
-        "kind": "recovery",
-        "resolve": 0,
-        "retry": 0,
-        "vector": false,
-        "version": 16
+        "code": 1,
+        "duration_ms": 102779,
+        "phase": "lint",
+        "reason": "Two new real-source test non-null assertions; both explicit section-existence assertions remain and guards replace the assertions."
       }
     ],
-    "mainline_history_unchanged": true,
-    "pr_owned_files_consolidated": 5,
-    "preview_reset_performed": false,
-    "prisma_version": "7.0.1"
+    "first_current56_origin_build": {
+      "build_id": "DCK225jATjQMMWK4QpR0N",
+      "duration_ms": 90873,
+      "first_actual_ui_attribution": "Procedure validation, creation, save and numbered list pass on this build; remaining browser acceptance pending after the new aligned-origin build.",
+      "http_attempts": [
+        {
+          "cause": "Built BASE_URL 4233 differs from single app server port 4237.",
+          "duration_ms": 9298,
+          "failed_tests": 2,
+          "log": "post-live-gate/built-http-origin-mismatch-failed.log",
+          "passed_tests": 16
+        },
+        {
+          "cause": "Two app servers on 4233 and 4237 share the Next build/ISR cache with inconsistent canonical origins.",
+          "duration_ms": 12726,
+          "failed_tests": 2,
+          "log": "post-live-gate/built-http-shared-cache-origin-failed.log",
+          "passed_tests": 16
+        }
+      ],
+      "passed": true,
+      "source_freeze_id": "6cd7bf496521e98610ff738dbd8fe2e50ddb93a08789a1fa988e01fdb3a73968"
+    },
+    "label_fallback_lint_failed_attempts": [
+      {
+        "build_ran": false,
+        "errors": 0,
+        "lint_duration_ms": 107025,
+        "lint_passed": false,
+        "log_directory": "post-live-gate/label-fallback-format-failed",
+        "prettier_warnings": 3,
+        "typecheck_duration_ms": 7427,
+        "typecheck_passed": true,
+        "vitest_ran": false
+      },
+      {
+        "build_ran": false,
+        "errors": 0,
+        "lint_duration_ms": 74369,
+        "lint_passed": false,
+        "log_directory": "post-live-gate/label-fallback-default-format-failed",
+        "prettier_warnings": 88,
+        "typecheck_duration_ms": 8845,
+        "typecheck_passed": true,
+        "vitest_ran": false
+      }
+    ],
+    "linguistic_baseline": {
+      "duration_ms": 370,
+      "failed_tests": 10,
+      "files": 1,
+      "log": "root-owned linguistic-before.log",
+      "passed": false,
+      "passed_tests": 27,
+      "reviewer_execution": false,
+      "test_assertions_and_bounds_preserved": true
+    },
+    "linguistic_clause_offset_baseline": {
+      "duration_ms": 2230,
+      "failed_tests": 4,
+      "files": 3,
+      "passed": false,
+      "passed_tests": 71,
+      "reviewer_execution": false,
+      "scope": "clause/table/real-role/offset additive fixtures before fix"
+    },
+    "local_reviewed_head": "f3ff1a63d11d5d5f5043dedf9660dc0485a1d473",
+    "metadata_44_build": {
+      "executed": false,
+      "passed": null,
+      "reason": "Full gate stopped on the teardown hook; build was not run for this 44-file attempt."
+    },
+    "metadata_44_full_gate": {
+      "automated_suite_passed": false,
+      "both_database_urls_owned": true,
+      "database_suites_enabled": true,
+      "failed_files": 1,
+      "failed_tests": 0,
+      "failure": {
+        "file": "scripts/agent-benchmark/__tests__/fixtures.database.test.ts",
+        "hook": "afterAll",
+        "kind": "hook timeout",
+        "timeout_ms": 10000
+      },
+      "lint_ms": 538945,
+      "passed": false,
+      "passed_files": 1038,
+      "passed_tests": 10167,
+      "runtime": "Node 24.18.0",
+      "skip_classification_note": "The opt-in hosted contracts execute separately; their latest actual-provider run remains failed. Built HTTP checks require a final built server.",
+      "skipped_files": 1,
+      "skipped_tests": 20,
+      "source_snapshot": "historical_verification.metadata_44_source_snapshot",
+      "status": "failed solely on the fixtures.database.test.ts afterAll default 10-second cleanup timeout",
+      "typecheck_ms": 77238,
+      "vitest_ms": 623570,
+      "workflow_storage_installed": true
+    },
+    "metadata_44_source_snapshot": {
+      "base_head": "f3ff1a63d11d5d5f5043dedf9660dc0485a1d473",
+      "final_committed_head": null,
+      "overlay_manifest_recorded_at": "2026-10-01T15:15:22.544423+00:00",
+      "overlay_manifest_sha256": "9ebe0ccb9874f8533116f100c8da84289a48f64d1c1d9d44eb871eb6df63aa5f",
+      "overlay_matches_current_files": true,
+      "working_tree_overlay_files": 44
+    },
+    "migrations": {
+      "cases": [
+        {
+          "columns": 16,
+          "deploy": 0,
+          "kind": "fresh",
+          "repeat": 0,
+          "vector": true,
+          "version": 17
+        },
+        {
+          "columns": 16,
+          "deploy": 0,
+          "kind": "upgrade",
+          "repeat": 0,
+          "vector": true,
+          "version": 17
+        },
+        {
+          "columns": 16,
+          "events": 1,
+          "injectedFailureExit": 1,
+          "kind": "recovery",
+          "resolve": 0,
+          "retry": 0,
+          "vector": true,
+          "version": 17
+        },
+        {
+          "columns": 16,
+          "deploy": 0,
+          "kind": "fresh",
+          "repeat": 0,
+          "vector": false,
+          "version": 16
+        },
+        {
+          "columns": 16,
+          "deploy": 0,
+          "kind": "upgrade",
+          "repeat": 0,
+          "vector": false,
+          "version": 16
+        },
+        {
+          "columns": 16,
+          "events": 1,
+          "injectedFailureExit": 1,
+          "kind": "recovery",
+          "resolve": 0,
+          "retry": 0,
+          "vector": false,
+          "version": 16
+        }
+      ],
+      "mainline_history_unchanged": true,
+      "pr_owned_files_consolidated": 5,
+      "preview_reset_performed": false,
+      "prisma_version": "7.0.1"
+    },
+    "owned_resource_cleanup": {
+      "built_browser_sessions_closed": 2,
+      "completed": true,
+      "development_database_touched": false,
+      "owned_built_server_stopped": true,
+      "owned_postgresql_16_container_removed": true,
+      "preview_database_touched": false,
+      "temporary_databases_dropped": 3
+    },
+    "pre_exclusion_guard_56_checks": {
+      "build": {
+        "base_url": "http://127.0.0.1:4237",
+        "build_id": "WuPPuaVD9uYPiLG47LzsI",
+        "duration_ms": 68000,
+        "log": "post-live-gate/final-build.log",
+        "passed": true,
+        "source_freeze_id": "a73446a5ede7408b3d2e4492fba389a6c807df6ce3c62e19bf1a5243bb419913"
+      },
+      "built_browser": {
+        "assertions": [
+          {
+            "name": "Dirty title and native body survive remote save and visibility refresh",
+            "passed": true,
+            "retained_ms": 253378
+          },
+          {
+            "name": "Stale save exposes conflict without losing edits",
+            "passed": true
+          },
+          {
+            "name": "Cancel preserves title, body and editor identity",
+            "passed": true
+          },
+          {
+            "name": "Discard reloads remote saved version and clean toolbar",
+            "passed": true
+          },
+          {
+            "name": "Settled title input remains dirty across eight seconds",
+            "passed": true
+          },
+          {
+            "name": "Overflow is bordered and destructive icon matches text",
+            "passed": true
+          },
+          {
+            "name": "Deletion cancel closes dialog and keeps page",
+            "passed": true
+          },
+          {
+            "name": "Confirmed deletion removes fixture from rail and database",
+            "passed": true
+          },
+          {
+            "name": "390px mobile layout has no horizontal overflow",
+            "passed": true
+          },
+          {
+            "name": "Mobile no-match search settles with empty result",
+            "passed": true
+          },
+          {
+            "name": "Page-type help opens using keyboard and explains retrieval",
+            "passed": true
+          },
+          {
+            "name": "No recorded browser exceptions",
+            "passed": true
+          }
+        ],
+        "attribution": "Actual final built local browser and owned persistence checks, executed by parent. Synthetic UI acceptance is distinct from incomplete website-generated content and failed strict hosted families.",
+        "build_id": "WuPPuaVD9uYPiLG47LzsI",
+        "evidence_sha256": "0a20a94ba34f42445ecc62674a2b06ab5a64ce436f782b4b2932ae2d66ee5a76",
+        "failed_assertions": 0,
+        "independent_review": {
+          "application_findings": 0,
+          "cancel_scope": "New-build capture proves retained text/editor while dialog remains open; controlled settled PZNR C Cancel/Discard supports dismissal under unchanged frontend source. Do not imply every transient modal state was independently replayed.",
+          "current_source_hash_checks": 18,
+          "current_source_hash_mismatches": 0,
+          "inherited_frontend_files": 83,
+          "inherited_hash_mismatches": 0,
+          "limitations": [
+            "Independent reviewer inspected saved artifacts, not repeated live UI assertions.",
+            "Eight-second duration is root-executed assertion; its raw capture has stable dirty value/actions but no separate elapsed counter.",
+            "Empty captured browser-error file means no recorded exceptions, not proof of every hidden browser error.",
+            "Source freeze/build linkage comes from root assertion packet; UI byte hashes verified independently, not a recomputed full56-source digest.",
+            "Live content completeness and strict hosted retrieval acceptance remain unmet; this UI review does not clear them."
+          ],
+          "markdown_sha256": "5f49d93f3afce6c4b233473cf0bf479cc8ead13e32fefda849c406a016936a8e",
+          "packet_sha256": "148361a86506918cd89074384396633302fb0e547a5e92bb73344760e7cc3a2a",
+          "passed": true,
+          "screenshot_hash_mismatches": 0,
+          "screenshots_checked": 4,
+          "shared_component_prior_hash_checks": 12
+        },
+        "limitations": [
+          "Initial incomplete CLI type command produced no dirty body and is excluded.",
+          "Early screenshots before transitions settled are excluded.",
+          "Cancel proof asserts text/editor retention; settled cancel and repeat conflict behavior are separately supported by previous unchanged-frontend PZNR evidence.",
+          "Ambiguous edits entered during prior save navigation were not reproduced after settling; no source defect is inferred.",
+          "Live content completeness and strict hosted retrieval acceptance remain unmet."
+        ],
+        "passed": true,
+        "passed_assertions": 12,
+        "source_freeze_id": "a73446a5ede7408b3d2e4492fba389a6c807df6ce3c62e19bf1a5243bb419913"
+      },
+      "built_http": {
+        "attribution": "Final source build and one aligned-origin server on 4237. Earlier configuration failures remain historical.",
+        "build_id": "WuPPuaVD9uYPiLG47LzsI",
+        "duration_ms": 11216,
+        "files": 2,
+        "log": "post-live-gate/final-built-http.log",
+        "passed": true,
+        "source_freeze_id": "a73446a5ede7408b3d2e4492fba389a6c807df6ce3c62e19bf1a5243bb419913",
+        "tests": 18
+      },
+      "focused_final_boundaries": {
+        "attribution": "Parent-owned final focused rerun after actual repository ESLint formatting. Earlier repeat 3,552 ms and 9,306 ms are retained in gate-results.jsonl.",
+        "duration_ms": 3377,
+        "files": 8,
+        "log": "post-live-gate/focused-final-boundaries.log",
+        "passed": true,
+        "source_freeze_id": "a73446a5ede7408b3d2e4492fba389a6c807df6ce3c62e19bf1a5243bb419913",
+        "tests": 258
+      },
+      "focused_label_fallback": {
+        "actual_repaired_delete_query_selected": true,
+        "before_failed": 2,
+        "before_passed": 44,
+        "full_hosted_acceptance_open": true,
+        "latest_combined_files": 8,
+        "latest_combined_tests_passed": 258,
+        "passed": true,
+        "source_freeze_id": "a73446a5ede7408b3d2e4492fba389a6c807df6ce3c62e19bf1a5243bb419913"
+      },
+      "focused_linguistic": {
+        "execution_attribution": "parent-owned prior49-source linguistic-after-final.log; unchanged retrieval sources",
+        "files": 6,
+        "passed": true,
+        "tests": 108
+      },
+      "focused_metadata": {
+        "duration_ms": 11847,
+        "execution_attribution": "before website-wire-only correction; retrieval sources unchanged",
+        "files": 8,
+        "passed": true,
+        "skipped_tests": 15,
+        "tests": 112
+      },
+      "focused_per_unit_context": {
+        "before_failed": 3,
+        "before_passed": 39,
+        "current_hosted_contract_acceptance_pending": true,
+        "execution_attribution": "Parent-owned per-unit-context-before/after logs",
+        "files": 3,
+        "passed": true,
+        "tests": 78
+      },
+      "focused_vertex_repair_projection": {
+        "authoritative_bounds_preserved": true,
+        "before_failed": 1,
+        "before_passed": 42,
+        "duration_ms": 3350,
+        "files": 4,
+        "passed": true,
+        "tests": 107
+      },
+      "focused_visibility_guard": {
+        "actual_dirty_retention_ms": 253378,
+        "before_failed": 4,
+        "before_passed": 9,
+        "built_two_tab_retest_pending": false,
+        "execution_attribution": "Parent-owned visibility-refresh-before/after logs",
+        "files": 2,
+        "final_build_id": "WuPPuaVD9uYPiLG47LzsI",
+        "final_ui_evidence_sha256": "0a20a94ba34f42445ecc62674a2b06ab5a64ce436f782b4b2932ae2d66ee5a76",
+        "passed": true,
+        "tests": 29
+      },
+      "full_frozen_gate": {
+        "duration_ms": 385574,
+        "log": "post-live-gate/final-vitest.log",
+        "passed": true,
+        "passed_files": 1041,
+        "passed_tests": 10228,
+        "runtime": "Node 24.18",
+        "skip_attribution": "Fifteen paid opt-in families execute separately and remain failed overall; five HTTP cases pass separately as 18 assertions on this final build. No skipped result is presented as live-provider acceptance.",
+        "skipped_files": 1,
+        "skipped_tests": 20,
+        "source_freeze_id": "a73446a5ede7408b3d2e4492fba389a6c807df6ce3c62e19bf1a5243bb419913"
+      },
+      "kb_gate": {
+        "checks": 8,
+        "current_overlay_committed_head": "adda150973a8464a789138ad037ca4efffd952ed",
+        "current_overlay_documents": 0,
+        "duration_ms": 59990,
+        "exact_head_attribution": "Parent committed/pushed the same-byte fallback documentation after the local eight-check gate. Independent 18-page review clears source semantics; live acceptance remains open.",
+        "failed": 0,
+        "head": "adda150973a8464a789138ad037ca4efffd952ed",
+        "log": "kb-label-fallback-gate.log",
+        "passed": true,
+        "runtime": "Node 22.21.1",
+        "skipped": 0,
+        "status": "Current committed/pushed KB revision passes the local eight-check gate, independent 18-page source-semantic review and all six distinct required exact-head CI checks."
+      },
+      "kb_semantic_review": {
+        "head": "adda150973a8464a789138ad037ca4efffd952ed",
+        "manifest_sha256": "893c2cc9f5ab59ad865264691f71e0040796be2ed570a4208546a55434ba57b9",
+        "packet_sha256": "b22e3365b99ce44cb1f3bcd89946a545d6ca9bb3c32aff07d6ac1e86894f5750",
+        "pages": 18,
+        "passed": true,
+        "private_operating_content_included": false,
+        "status": "Independent source-semantic clearance; actual provider acceptance remains open."
+      },
+      "lint": {
+        "command": "yarn lint --max-warnings=0",
+        "duration_ms": 72388,
+        "passed": true,
+        "source_freeze_id": "a73446a5ede7408b3d2e4492fba389a6c807df6ce3c62e19bf1a5243bb419913"
+      },
+      "typecheck": {
+        "command": "yarn typecheck",
+        "duration_ms": 4195,
+        "passed": true,
+        "source_freeze_id": "a73446a5ede7408b3d2e4492fba389a6c807df6ce3c62e19bf1a5243bb419913"
+      }
+    },
+    "pre_exclusion_guard_56_kb": {
+      "attribution": "Completed adda150 KB before the two target exclusion-guard documentation updates.",
+      "exact_head_ci_verified": true,
+      "gate": {
+        "checks": 8,
+        "current_overlay_committed_head": "adda150973a8464a789138ad037ca4efffd952ed",
+        "current_overlay_documents": 0,
+        "duration_ms": 59990,
+        "exact_head_attribution": "Parent committed/pushed the same-byte fallback documentation after the local eight-check gate. Independent 18-page review clears source semantics; live acceptance remains open.",
+        "failed": 0,
+        "head": "adda150973a8464a789138ad037ca4efffd952ed",
+        "log": "kb-label-fallback-gate.log",
+        "passed": true,
+        "runtime": "Node 22.21.1",
+        "skipped": 0,
+        "status": "Current committed/pushed KB revision passes the local eight-check gate, independent 18-page source-semantic review and all six distinct required exact-head CI checks."
+      },
+      "head": "adda150973a8464a789138ad037ca4efffd952ed",
+      "semantic_review": {
+        "head": "adda150973a8464a789138ad037ca4efffd952ed",
+        "manifest_sha256": "893c2cc9f5ab59ad865264691f71e0040796be2ed570a4208546a55434ba57b9",
+        "packet_sha256": "b22e3365b99ce44cb1f3bcd89946a545d6ca9bb3c32aff07d6ac1e86894f5750",
+        "pages": 18,
+        "passed": true,
+        "private_operating_content_included": false,
+        "status": "Independent source-semantic clearance; actual provider acceptance remains open."
+      }
+    },
+    "pre_exclusion_guard_56_resource_teardown": {
+      "all_owned_resources_removed": false,
+      "dev_database_untouched": true,
+      "evidence_sha256": "c0e20bb44911b7bb217ba45927130b7c3f1bdd00787a39885429a5a837a608f3",
+      "no_account_or_database_identifiers_included": true,
+      "owned_browser_closed": true,
+      "owned_gate_database_dropped_and_absent": true,
+      "owned_server_stopped": true,
+      "paid_synthetic_database_retained": true,
+      "passed": true,
+      "preview_database_untouched": true,
+      "retained_scope": "Owned local paid-test synthetic database retained for a future separately authorized complete content/provider follow-up. Retention does not authorize new spend.",
+      "user_port_4000_untouched": true
+    },
+    "pre_exclusion_guard_56_source_snapshot": {
+      "base_head": "f3ff1a63d11d5d5f5043dedf9660dc0485a1d473",
+      "current_independent_review_sha256": "40104bd97fda0edff352780718d2887e84a450f5d708d2cf27bf175f2921dddd",
+      "final_committed_head": null,
+      "frozen": true,
+      "hash_format": "sha256 of JSON.stringify(files), paths sorted",
+      "latest_completed_gate_snapshot": "Current a73446a5 frozen source: full gate, WuPP build, HTTP18 and actual UI12 complete; strict live/content acceptance remains separate.",
+      "recorded_at": "2026-10-01T18:01:55.826Z",
+      "source_freeze_file_sha256": "1ac1c28c596c1c45bcb10b861b4d53e128e5458d85f0f1a7c394ee83ed07c1a1",
+      "source_freeze_id": "a73446a5ede7408b3d2e4492fba389a6c807df6ce3c62e19bf1a5243bb419913",
+      "working_tree_overlay_files": 56
+    },
+    "pre_label_fallback_56_browser": {
+      "assertions": {
+        "cancelPreservesTitle": true,
+        "conflictPreservesTitle": true,
+        "desktopNoMatch": true,
+        "destructiveIconMatchesText": true,
+        "dirtyTabRetention": true,
+        "discardUsesRemote": true,
+        "keyboardOrder": true,
+        "mobileNoMatch": true,
+        "mobileNoOverflow": true,
+        "nativeClearRestoresPages": true,
+        "resetRestoresSaved": true,
+        "saveRestoresCleanToolbar": true
+      },
+      "attribution": "Built56 before backend label-fallback-only correction; current final rebuild not yet claimed",
+      "build_id": "PZNR4h1TPEP85a7J7-Uj0",
+      "destructive_icon_rgb": [
+        248,
+        113,
+        113
+      ],
+      "destructive_text_rgb": [
+        248,
+        113,
+        113
+      ],
+      "evidence_sha256": "af4606a0ec3688887cb445bcc616623535784c4fa7d855ac0f23a32304f75f2c",
+      "limitations": [
+        "Initial pre-compaction modal state was ambiguous; repeated C journey provides controlled Cancel/Discard evidence.",
+        "First mobile no-results capture was taken during pending post-save route work; only the settled capture is accepted.",
+        "Empty CLI fill and select-all attempts did not notify the controlled field correctly; native Backspace clear restores the list.",
+        "A CSS save selector raced toolbar render; subsequent observed Save button succeeds.",
+        "Generated content and complete hosted retrieval acceptance remain incomplete."
+      ],
+      "mobile_document_width_px": 390,
+      "mobile_width_px": 390,
+      "overflow_border_px": 1,
+      "passed": true,
+      "passed_assertions": 12,
+      "persistence_assertions_passed": 4,
+      "raw_proof_policy": "Only controlled repeated C Cancel/Discard, settled mobile no-results and native keyboard/Backspace proofs accepted. Premature or ambiguous harness captures remain limitations, not app defects.",
+      "same_editor_dirty_retention_ms": 85491.8
+    },
+    "pre_label_fallback_56_checks": {
+      "build": {
+        "attribution": "Rebuilt unchanged frozen source with aligned local origin after two recorded harness-origin failures.",
+        "base_url": "http://127.0.0.1:4237",
+        "build_id": "PZNR4h1TPEP85a7J7-Uj0",
+        "duration_ms": 53734,
+        "log": "post-live-gate/pre-label-fallback-passed/final-build.log",
+        "passed": true,
+        "source_freeze_id": "6cd7bf496521e98610ff738dbd8fe2e50ddb93a08789a1fa988e01fdb3a73968"
+      },
+      "built_http": {
+        "attribution": "Single aligned-origin server/build; earlier two 16/18 origin-configuration failures remain historical.",
+        "build_id": "PZNR4h1TPEP85a7J7-Uj0",
+        "duration_ms": 10914,
+        "files": 2,
+        "log": "post-live-gate/pre-label-fallback-passed/final-built-http.log",
+        "passed": true,
+        "tests": 18
+      },
+      "full_frozen_gate": {
+        "duration_ms": 366467,
+        "log": "post-live-gate/pre-label-fallback-passed/final-vitest.log",
+        "passed": true,
+        "passed_files": 1041,
+        "passed_tests": 10224,
+        "runtime": "Node 24.18",
+        "skip_attribution": "Fifteen live opt-in families run separately and remain failed overall; five HTTP cases pass separately as 18 assertions on the aligned current build. A locally skipped result is not a live-provider acceptance pass.",
+        "skipped_files": 1,
+        "skipped_tests": 20,
+        "source_freeze_id": "6cd7bf496521e98610ff738dbd8fe2e50ddb93a08789a1fa988e01fdb3a73968"
+      },
+      "lint": {
+        "command": "yarn lint --max-warnings=0",
+        "duration_ms": 77238,
+        "passed": true,
+        "source_freeze_id": "6cd7bf496521e98610ff738dbd8fe2e50ddb93a08789a1fa988e01fdb3a73968"
+      },
+      "typecheck": {
+        "command": "yarn typecheck",
+        "duration_ms": 26023,
+        "passed": true,
+        "source_freeze_id": "6cd7bf496521e98610ff738dbd8fe2e50ddb93a08789a1fa988e01fdb3a73968"
+      }
+    },
+    "pre_label_fallback_56_persisted_ui": {
+      "assertions": {
+        "keyboardOrder": true,
+        "orderedMarkdown": true,
+        "procedure": true,
+        "saved": true
+      },
+      "build_id": "PZNR4h1TPEP85a7J7-Uj0",
+      "evidence_sha256": "55dffd0ccb55406be2aa30f36f44a212b91aaa4fe142799ca0078273c4d0332e",
+      "harness_correction": "Initial scratch assertion incorrectly required a tight Markdown list; canonical serializer emits a valid loose ordered list. No application source or benchmark assertion changed.",
+      "passed": true,
+      "passed_assertions": 4,
+      "scope": "Owned local DB persistence readback for actual saved procedure, canonical loose ordered Markdown and keyboard ordering. No account/page/DB identifiers copied into this packet."
+    },
+    "pre_label_fallback_56_source_snapshot": {
+      "base_head": "f3ff1a63d11d5d5f5043dedf9660dc0485a1d473",
+      "current_independent_review_sha256": "40104bd97fda0edff352780718d2887e84a450f5d708d2cf27bf175f2921dddd",
+      "final_committed_head": null,
+      "frozen": true,
+      "hash_format": "sha256 of JSON.stringify(files), paths sorted",
+      "latest_completed_gate_snapshot": "historical_verification.pre_label_fallback_56_checks",
+      "recorded_at": "2026-10-01T18:01:55.826Z",
+      "source_freeze_file_sha256": "1ac1c28c596c1c45bcb10b861b4d53e128e5458d85f0f1a7c394ee83ed07c1a1",
+      "source_freeze_id": "a73446a5ede7408b3d2e4492fba389a6c807df6ce3c62e19bf1a5243bb419913",
+      "working_tree_overlay_files": 56
+    },
+    "pre_linguistic_45_attribution": "This free gate/build passed before the new linguistic matching dependencies, specificity, literal-code and consecutive-prose corrections. These results retain their own source/build attribution and are not the latest-source acceptance.",
+    "pre_linguistic_45_checks": {
+      "benchmark_fixture_lifecycle": {
+        "cleanup_callback_unchanged": true,
+        "duration_ms": 65729,
+        "files": 1,
+        "original_assertions_and_test_timeouts_preserved": true,
+        "passed": true,
+        "source_snapshot": "historical_verification.pre_linguistic_45_source_snapshot",
+        "static_proof_sha256": "2746d4e33f79d8828d2133cdee9ab26788f8766eb733ae7840664a770122f7b4",
+        "teardown_timeout_ms": 60000,
+        "tests": 14
+      },
+      "build": {
+        "build_id": "caas3PnHknKahGfnF8J1b",
+        "command_passed": true,
+        "duration_ms": 78861,
+        "passed": null,
+        "required_artifacts_verified": false,
+        "status": "command completed; root-owned required-artifact/HTTP/browser checks must be confirmed"
+      },
+      "built_browser": {
+        "build_id": "caas3PnHknKahGfnF8J1b",
+        "passed": null,
+        "status": "pending on the current 45-file source build"
+      },
+      "built_http": {
+        "build_id": "caas3PnHknKahGfnF8J1b",
+        "passed": null,
+        "status": "pending on the current 45-file source build"
+      },
+      "focused_metadata": {
+        "duration_ms": 13408,
+        "files": 8,
+        "original_assertions_preserved": true,
+        "passed": true,
+        "skipped_classification": "Fifteen paid opt-in contracts; their separate run10 does not all pass.",
+        "skipped_tests": 15,
+        "source_snapshot": "historical_verification.pre_linguistic_45_source_snapshot",
+        "tests": 99
+      },
+      "full_frozen_gate": {
+        "automated_suite_passed": true,
+        "both_database_urls_owned": true,
+        "database_suites_enabled": true,
+        "failed_files": 0,
+        "failed_tests": 0,
+        "lint_ms": 185099,
+        "passed": true,
+        "passed_files": 1039,
+        "passed_tests": 10174,
+        "runtime": "Node 24.18.0",
+        "skip_classification": {
+          "built_http_checks_requiring_built_server": 5,
+          "hosted_opt_in_contracts_executed_separately_failed": 15
+        },
+        "skip_classification_note": "The opt-in hosted contracts execute separately; their latest actual-provider run remains failed. Built HTTP checks require a final built server.",
+        "skipped_files": 1,
+        "skipped_tests": 20,
+        "source_snapshot": "historical_verification.pre_linguistic_45_source_snapshot",
+        "status": "current 45-file free gate passed; separate live-provider acceptance remains failed",
+        "typecheck_ms": 6282,
+        "vitest_ms": 363534,
+        "workflow_storage_installed": true
+      },
+      "lint": {
+        "duration_ms": 185099,
+        "max_warnings": 0,
+        "passed": true,
+        "source_snapshot": "historical_verification.pre_linguistic_45_source_snapshot"
+      },
+      "typecheck": {
+        "duration_ms": 6282,
+        "passed": true,
+        "source_snapshot": "historical_verification.pre_linguistic_45_source_snapshot"
+      }
+    },
+    "pre_linguistic_45_source_snapshot": {
+      "base_head": "f3ff1a63d11d5d5f5043dedf9660dc0485a1d473",
+      "final_committed_head": null,
+      "overlay_manifest_recorded_at": "2026-10-01T15:49:09.034882+00:00",
+      "overlay_manifest_sha256": "f4d6eb18289c3efddae02f48d0bb4603c9bf9a9cd16cd01fd442c7bcb823d3a2",
+      "overlay_matched_at_execution": true,
+      "working_tree_overlay_files": 45
+    },
+    "pre_metadata_attribution": "The 38-file source snapshot and build zpFvoiDoXk8z8-djD9mWh completed before canonical embedding-input and classifier intro-coherence changes. These are earlier-source execution results; their pass fields are not current 44-file gate/build acceptance.",
+    "pre_metadata_checks": {
+      "build": {
+        "build_id": "zpFvoiDoXk8z8-djD9mWh",
+        "command_passed": true,
+        "duration_ms": 192029,
+        "note": "Completed build command is recorded; root-owned final artifact/HTTP/browser checks must be confirmed before changing this field.",
+        "required_artifacts_verified": false
+      },
+      "built_browser": {
+        "build_id": "zpFvoiDoXk8z8-djD9mWh",
+        "passed": false,
+        "status": "pending on the new build"
+      },
+      "built_http": {
+        "build_id": "zpFvoiDoXk8z8-djD9mWh",
+        "passed": false,
+        "status": "pending on the new build"
+      },
+      "focused_identifier_regressions": {
+        "files": 5,
+        "original_assertions_preserved": true,
+        "passed": true,
+        "tests": 84
+      },
+      "focused_navigation_literal_regressions": {
+        "files": 4,
+        "original_assertions_preserved": true,
+        "passed": true,
+        "tests": 64
+      },
+      "full_frozen_gate": {
+        "automated_suite_passed": true,
+        "both_database_urls_owned": true,
+        "database_suites_enabled": true,
+        "lint_ms": 162449,
+        "passed": true,
+        "passed_files": 1038,
+        "passed_tests": 10154,
+        "runtime": "Node 24.18.0",
+        "skip_classification": {
+          "built_http_checks_requiring_built_server": 5,
+          "hosted_opt_in_contracts_executed_separately_failed": 15
+        },
+        "skipped_files": 1,
+        "skipped_tests": 20,
+        "source_snapshot": "source_snapshot",
+        "typecheck_ms": 9044,
+        "vitest_ms": 391396,
+        "workflow_storage_installed": true
+      }
+    },
+    "pre_metadata_source_snapshot": {
+      "base_head": "f3ff1a63d11d5d5f5043dedf9660dc0485a1d473",
+      "final_committed_head": null,
+      "overlay_manifest_recorded_at": "2026-10-01T14:43:13.155413+00:00",
+      "overlay_manifest_sha256": "5c5225d93bcd01b6dd7b696298af41add5c41fd478599c1e08c2ae20eb47ac5c",
+      "overlay_matches_current_files": true,
+      "working_tree_overlay_files": 38
+    },
+    "pre_vertex_wire_49_checks": {
+      "build": {
+        "build_id": "kcgMNw8NvbwQ9Y4P9zq11",
+        "command_passed": true,
+        "duration_ms": 94155,
+        "required_artifacts_verified": false,
+        "source_snapshot": "historical_verification.pre_vertex_wire_49_source_snapshot"
+      },
+      "full_frozen_gate": {
+        "both_database_urls_owned": true,
+        "database_suites_enabled": true,
+        "lint_ms": 82770,
+        "passed": true,
+        "passed_files": 1040,
+        "passed_tests": 10201,
+        "runtime": "Node24.18.0",
+        "skip_classification": {
+          "built_http_requiring_built_server": 5,
+          "paid_cases_executed_separately_failed": 15
+        },
+        "skipped_files": 1,
+        "skipped_tests": 20,
+        "source_snapshot": "historical_verification.pre_vertex_wire_49_source_snapshot",
+        "typecheck_ms": 31605,
+        "vitest_ms": 339694
+      },
+      "lint": {
+        "duration_ms": 82770,
+        "max_warnings": 0,
+        "passed": true
+      },
+      "typecheck": {
+        "duration_ms": 31605,
+        "passed": true
+      }
+    },
+    "pre_vertex_wire_49_source_snapshot": {
+      "attribution": "Complete gate/build before the narrow website-reader Vertex wire projection correction; retrieval source remains identical afterward.",
+      "base_head": "f3ff1a63d11d5d5f5043dedf9660dc0485a1d473",
+      "overlay_matched_at_execution": true,
+      "source_freeze_id": "388c35e0fb7c455d19bed97f5baa25a6be0fa233f8422f7ad3b7326ca0e2d11a",
+      "source_manifest_file_sha256": "c6209c6e4b8a2c91596868f28ad976a72ac417172614f0e5ff7d973d96291864",
+      "working_tree_overlay_files": 49
+    },
+    "pre_vertex_wire_built_import_failure": {
+      "build_id": "kcgMNw8NvbwQ9Y4P9zq11",
+      "created_pages": 0,
+      "creation_receipts": 0,
+      "failed_readback_sha256": "3a62d9a9faa18454754b27068a0e9fdeec6f2c76053e91e9381e820a4266d0f7",
+      "failure": "First forced synthesis request rejected by Vertex withHTTP400.",
+      "passed": false,
+      "processed_targets": 40,
+      "readback_summary_sha256": "83d45287c94ba7ea416acdf87c192000208c007a24c92c16d32ad28375c406d0",
+      "revised_content_acceptance": "pending",
+      "source_snapshot": "historical_verification.pre_vertex_wire_49_source_snapshot",
+      "stored_useful_sources": 38,
+      "total_targets": 40
+    },
+    "pre_visibility_49_browser": {
+      "build_id": "15Wxiq8ji-5h7jTqCRoVg",
+      "continue_during_import": [
+        "Team",
+        "AI tools",
+        "Finish"
+      ],
+      "cross_tab_dirty_content_loss": {
+        "finding": "Tab visibility triggered unconditional shell refresh and replaced dirty editor nodes; source fix tested, exact new built-browser verification pending.",
+        "passed": false,
+        "reproduced_attempts": 3
+      },
+      "execution_attribution": "Parent-owned built application journeys; independent artifact consistency review pending",
+      "existing_ask_mate_behavior": "Reopens current import conversation; no automatic chat creation/switch.",
+      "journeys": [
+        "native create numbered procedure with whenToUse",
+        "edit/save/reset",
+        "contextual field help",
+        "destructive text/icon colors",
+        "mobile390px layout with scrollwidth390",
+        "no-results search",
+        "keyboard reorder fourth page to third",
+        "delete"
+      ],
+      "live_progress": {
+        "chat_max_height_px": 384,
+        "distinct_contextual_chunks": 27,
+        "generic_finished_step_rows": 0,
+        "log_and_first_article_stable": true,
+        "overflow": "auto",
+        "samples": 103,
+        "unnecessary_today_chips": 0
+      },
+      "manual_crud_passed": true,
+      "overall_passed": false
+    },
+    "pre_visibility_49_checks": {
+      "build": {
+        "build_id": "15Wxiq8ji-5h7jTqCRoVg",
+        "duration_ms": 65022,
+        "passed": true,
+        "required_artifacts_independently_verified": null
+      },
+      "lint": {
+        "duration_ms": 79442,
+        "max_warnings": 0,
+        "passed": true
+      },
+      "typecheck": {
+        "duration_ms": 7006,
+        "passed": true
+      },
+      "vitest": {
+        "duration_ms": 350416,
+        "passed": true,
+        "passed_files": 1040,
+        "passed_tests": 10202,
+        "skip_classification": {
+          "built_http_cases_require_separate_server_execution": 5,
+          "paid_opt_in_families_executed_separately_and_failed": 15
+        },
+        "skipped_files": 1,
+        "skipped_tests": 20
+      }
+    },
+    "pre_visibility_49_source_snapshot": {
+      "base_head": "f3ff1a63d11d5d5f5043dedf9660dc0485a1d473",
+      "final_committed_head": null,
+      "frozen": true,
+      "overlay_manifest_recorded_at": "2026-10-01T16:49:30.807236+00:00",
+      "overlay_manifest_sha256": "0a7be42c228f7bb30a4cf1f71bd04e464712181a64c1a0861ffb708c1167df8f",
+      "overlay_matches_current_files": true,
+      "source_freeze_id": "8df439d17d81abd77eb8e718b7b8a889b590883d374d528442364b22037067c6",
+      "working_tree_overlay_files": 49
+    },
+    "source_tree": "876c5ec040ad219cc114abc903fe596830c2d399"
   },
-  "owned_resource_cleanup": {
-    "built_browser_sessions_closed": 2,
-    "completed": true,
-    "development_database_touched": false,
-    "owned_built_server_stopped": true,
-    "owned_postgresql_16_container_removed": true,
-    "preview_database_touched": false,
-    "temporary_databases_dropped": 3
+  "invariants": {
+    "classifier_evidence_total_chars": 16000,
+    "classifier_option_max_chars": 800,
+    "corpus_unchanged": true,
+    "corpus_unchanged_note": "Documentation Markdown and strict question/expected-section corpora remain unchanged; canonical semantic input has a new versioned build identity.",
+    "cosine_drop_below": 0.6,
+    "embedding_input_format": "docs-embedding-v2",
+    "embedding_wait_ms": 1100,
+    "hosted_original_assertions_preserved": true,
+    "idf_coverage_keep_floor": 0.9,
+    "leading_candidate_weight_ratio": "5:1",
+    "permissions_and_tenant_scope_before_wiki_ranker": true,
+    "skip_floor_when_vector_late_or_index_incomplete": true
   },
-  "previous_product_head": "bf7aa45ab60a136257ce57876f19f26ff18c2c26",
+  "live_provider": {
+    "actual_provider_work": "Gemini embeddings and Jev, plus the initial built local ainovi.de import/chat",
+    "budget_accounting": {
+      "additional_approval_pending": true,
+      "additional_approval_received": false,
+      "additional_requested_usd": 1,
+      "all_contract_runs_conservative_usd": 1.57706326,
+      "all_diagnostics_conservative_usd": 0.00543411,
+      "all_full_contract_runs_conservative_usd": 1.55883642,
+      "all_subset_contract_runs_conservative_usd": 0.01822684,
+      "batch_cap_usd": 2,
+      "full_contract_runs_recorded": 9,
+      "latest_run10_conservative_usd": 0.14896981,
+      "latest_run11_conservative_usd": 0.1348382,
+      "latest_run12_conservative_usd": 0.13473667,
+      "navigation_embedding_ab_probe_conservative_usd": 6.465e-05,
+      "new_failed_ui_cost_delta_usd": 0.06382417,
+      "new_partial_import_and_manual_ui_delta_usd": 0.13902096,
+      "not_a_provider_invoice": true,
+      "note": "The corrected continuous batch totals US$1.91323767 below the only approved US$2 ceiling. US$0.00039344 of diagnostic receipts previously duplicated within complete-run totals is counted once. A further US$1 request is pending; no extra approval or additional spend is claimed.",
+      "observed_built_app_cost_delta_usd": 0.3307403,
+      "observed_combined_conservative_usd": 1.91323767,
+      "only_approved_batch_ceiling_usd": 2,
+      "prior_built_app_cost_delta_usd": 0.12789517,
+      "probe_runs_recorded": 3,
+      "remaining_approved_usd": 0.08676233,
+      "run1_duplicate_report_counted_once": true,
+      "six_full_contract_runs_conservative_usd": 1.14029174,
+      "two_single_query_probes_conservative_usd": 0.00032879
+    },
+    "current_fixes": {
+      "actual_repaired_delete_query_selected": true,
+      "complete_current_hosted_contract_suite_passed": false,
+      "corrections": [
+        "Preserve validated offering hypotheses across failed coverage/plan repair; source-specific singleton exclusions and quoted reclassification.",
+        "Expose only captured complete canonical FAQ answers within bounded text/hash/cursor semantics.",
+        "Require reviewed gaps arrays and stricter topic citation boundaries without inventing policies.",
+        "Shared unquoted compound alternatives, coherent complete Markdown definitions, own-heading-sensitive and query-focused classifier evidence, literal underscore/query-route preservation.",
+        "Canonical docs embedding input removes generated navigation metadata outside fenced examples; raw searchable body/offsets remain unchanged and versioned build identity includes both raw and semantic input hashes.",
+        "Fitting first actual prose retains coherent aggregate classifier evidence; stronger later actions remain preferred and structural prefixes cannot trigger it.",
+        "Fitting paragraph units, same-block consequence context and escaped canonical Unicode/prefix/substring query units preserve evidence without increasing bounds.",
+        "Canonical exhaustive five-locale analyzers, actual label/locale context, weighted specificity, literal-code payloads, limiting clauses, fitting consecutive prose, resource-label ties and earliest mixed-form surface locations preserve the original bounds.",
+        "Project the Google-only website repair array without maxItems; retain canonical 40-item and 500-character limits. Actual wire isolation and later synthesis succeed, but the actual three-page content is incomplete and fails content review.",
+        "Per-unit evidence context cannot outrank real body matches; typed expected-failure metadata survives hosted tool wrapping and receipt replay; tab visibility refresh waits on the existing dirty/saving form guard.",
+        "Bound canonical typed failures by the original full escaped JSON response budget; preserve repair custom codes and truncation notice through replay. Current 56-path local gate passes; complete real-provider content acceptance remains unresolved.",
+        "Conditional label-backed body fallback applies only when a residual request unit exists but no residual unit has an actual body match. Matching residual actions and full-label introductory behavior remain unchanged. Two failing-before regressions and two boundary regressions pass; no complete new provider acceptance is claimed."
+      ],
+      "new_built_live_onboarding_content_acceptance": false,
+      "source_and_deterministic_regressions_reviewed": true
+    },
+    "executed": true,
+    "full_contract_gate_passed": false,
+    "full_contract_runs": [
+      {
+        "cap_usd": 0.5,
+        "conservatively_accounted_usd": 0.14467686,
+        "contract_count": 15,
+        "corpus_build_hash": "d8f590dc03fa670eefe2ff3c153f55bd4de1785ffb8ec157a7c96941dd9cf2fd",
+        "deterministic_passed": 15,
+        "duration_ms": 95690,
+        "estimated_attempt_usd": 0.01627767,
+        "exit_code": 1,
+        "failed_contracts": [
+          "answers a page-link question with a section whose link line names that page",
+          "answers task and permission questions with the section that handles them and that section's link line",
+          "answers where-is and take-me-to questions with the section that introduces that page, and its link line",
+          "answers common CRM question families with the section that handles them, whatever words the question uses",
+          "keeps the definition of the read access a who-sees-what question names"
+        ],
+        "hosted_failed": 5,
+        "hosted_passed": 10,
+        "measured_receipt_usd": 0.0958401,
+        "run": 1,
+        "source_head": "f3ff1a63d11d5d5f5043dedf9660dc0485a1d473",
+        "source_overlay_diff_sha256": null,
+        "total_failed": 5,
+        "total_passed": 25
+      },
+      {
+        "cap_usd": 0.5,
+        "conservatively_accounted_usd": 0.45990232,
+        "contract_count": 15,
+        "corpus_build_hash": "d8f590dc03fa670eefe2ff3c153f55bd4de1785ffb8ec157a7c96941dd9cf2fd",
+        "deterministic_passed": 15,
+        "duration_ms": 50823,
+        "estimated_attempt_usd": 0.13075271,
+        "exit_code": 1,
+        "failed_contracts": [
+          "answers a page-link question with a section whose link line names that page",
+          "answers task and permission questions with the section that handles them and that section's link line",
+          "answers where-is and take-me-to questions with the section that introduces that page, and its link line",
+          "keeps a question that uses link as a verb on the relationships section, not on a section of record-page links",
+          "keeps a question about the link between two records on the relationships section",
+          "answers common CRM question families with the section that handles them, whatever words the question uses"
+        ],
+        "hosted_failed": 6,
+        "hosted_passed": 9,
+        "measured_receipt_usd": 0.06753559,
+        "run": 2,
+        "source_head": "f3ff1a63d11d5d5f5043dedf9660dc0485a1d473",
+        "source_overlay_diff_sha256": "3df6c419e51ba3778c6ef78cb62617b48e10d6283584c1ffbdde3fdb9b52443b",
+        "total_failed": 6,
+        "total_passed": 24
+      },
+      {
+        "cap_usd": 0.4,
+        "conservatively_accounted_usd": 0.2088766,
+        "contract_count": 15,
+        "corpus_build_hash": "d8f590dc03fa670eefe2ff3c153f55bd4de1785ffb8ec157a7c96941dd9cf2fd",
+        "deterministic_passed": 15,
+        "duration_ms": 191111,
+        "estimated_attempt_usd": 0.03921727,
+        "exit_code": 1,
+        "failed_contracts": [
+          "answers task and permission questions with the section that handles them and that section's link line",
+          "keeps a question that uses link as a verb on the relationships section, not on a section of record-page links",
+          "keeps a question about the link between two records on the relationships section",
+          "answers common CRM question families with the section that handles them, whatever words the question uses"
+        ],
+        "hosted_failed": 4,
+        "hosted_passed": 11,
+        "measured_receipt_usd": 0.09112504,
+        "run": 3,
+        "source_head": "f3ff1a63d11d5d5f5043dedf9660dc0485a1d473",
+        "source_overlay_diff_sha256": "f361dfe3d5256784ffcfbb6b5504eb7654d4eb161bb89f80db090da41bd16195",
+        "total_failed": 4,
+        "total_passed": 26
+      },
+      {
+        "cap_usd": 0.4,
+        "conservatively_accounted_usd": 0.09181668,
+        "contract_count": 15,
+        "corpus_build_hash": "d8f590dc03fa670eefe2ff3c153f55bd4de1785ffb8ec157a7c96941dd9cf2fd",
+        "deterministic_passed": 15,
+        "duration_ms": 272349,
+        "estimated_attempt_usd": 0.00067175,
+        "exit_code": 1,
+        "failed_contracts": [
+          "answers task and permission questions with the section that handles them and that section's link line",
+          "keeps a question that uses link as a verb on the relationships section, not on a section of record-page links",
+          "keeps a question about the link between two records on the relationships section",
+          "answers common CRM question families with the section that handles them, whatever words the question uses"
+        ],
+        "hosted_failed": 4,
+        "hosted_passed": 11,
+        "measured_receipt_usd": 0.08980143,
+        "run": 4,
+        "source_head": "f3ff1a63d11d5d5f5043dedf9660dc0485a1d473",
+        "source_overlay_diff_sha256": "9cb67ce710890d24b0f9fb4cfd49f6a55d9875126628a62c13a6e3c114808c7a",
+        "total_failed": 4,
+        "total_passed": 26
+      },
+      {
+        "cap_usd": 0.3,
+        "conservatively_accounted_usd": 0.09961163,
+        "contract_count": 15,
+        "corpus_build_hash": "d8f590dc03fa670eefe2ff3c153f55bd4de1785ffb8ec157a7c96941dd9cf2fd",
+        "deterministic_passed": 15,
+        "duration_ms": 274826,
+        "estimated_attempt_usd": 0.00293781,
+        "exit_code": 1,
+        "failed_contracts": [
+          "answers task and permission questions with the section that handles them and that section's link line",
+          "keeps a question that uses link as a verb on the relationships section, not on a section of record-page links",
+          "keeps a question about the link between two records on the relationships section",
+          "answers common CRM question families with the section that handles them, whatever words the question uses",
+          "excerpts the section search_docs names, with that section's own link line"
+        ],
+        "hosted_failed": 5,
+        "hosted_passed": 10,
+        "measured_receipt_usd": 0.0907883,
+        "run": 5,
+        "source_head": "f3ff1a63d11d5d5f5043dedf9660dc0485a1d473",
+        "source_overlay_diff_sha256": "36f300e90c8f24e877f72300365ccff4df10da1559b758dd34b028a56310aab9",
+        "total_failed": 5,
+        "total_passed": 25
+      },
+      {
+        "cap_usd": 0.3,
+        "conservatively_accounted_usd": 0.13540765,
+        "contract_count": 15,
+        "corpus_build_hash": "d8f590dc03fa670eefe2ff3c153f55bd4de1785ffb8ec157a7c96941dd9cf2fd",
+        "deterministic_passed": 15,
+        "duration_ms": 287291,
+        "estimated_attempt_usd": 0.00199672,
+        "exit_code": 1,
+        "failed_contracts": [
+          "answers task and permission questions with the section that handles them and that section's link line",
+          "answers where-is and take-me-to questions with the section that introduces that page, and its link line",
+          "keeps a question about the link between two records on the relationships section",
+          "answers common CRM question families with the section that handles them, whatever words the question uses"
+        ],
+        "hosted_failed": 4,
+        "hosted_passed": 11,
+        "measured_receipt_usd": 0.12941239,
+        "run": 6,
+        "source_head": "f3ff1a63d11d5d5f5043dedf9660dc0485a1d473",
+        "source_overlay_diff_sha256": "860ea52dcfbc46891106feb2a831886183483f9f45e6bc80e0671abca814cc88",
+        "total_failed": 4,
+        "total_passed": 26
+      },
+      {
+        "admission_concurrency": 1,
+        "cap_usd": 0.25,
+        "conservatively_accounted_usd": 0.14896981,
+        "contract_count": 15,
+        "corpus_build_hash": "beabd8179f162860bec54b94caeb34b02dc54f0f34c62327d613627f8159ca75",
+        "deterministic_passed": 15,
+        "duration_ms": 460301,
+        "embedding_model": "google/gemini-embedding-001",
+        "estimated_attempt_usd": 0.00271652,
+        "exit_code": 1,
+        "failed_contracts": [
+          "answers task and permission questions with the section that handles them and that section's link line",
+          "answers where-is and take-me-to questions with the section that introduces that page, and its link line",
+          "matches the user's words to the docs' words for sharing, change history, trial end and mailboxes",
+          "keeps a question about the link between two records on the relationships section",
+          "answers common CRM question families with the section that handles them, whatever words the question uses"
+        ],
+        "hosted_failed": 5,
+        "hosted_passed": 10,
+        "indexed": 340,
+        "invocations": 382,
+        "measured_receipt_usd": 0.14081575,
+        "run": 10,
+        "source_head": "f3ff1a63d11d5d5f5043dedf9660dc0485a1d473",
+        "source_manifest_sha256": "9ebe0ccb9874f8533116f100c8da84289a48f64d1c1d9d44eb871eb6df63aa5f",
+        "source_overlay_diff_sha256": "61bd603763b55e4637049936522e8de24c9c21d10e591812110277a646e0402f",
+        "source_overlay_files": 44,
+        "total_failed": 5,
+        "total_passed": 25
+      },
+      {
+        "admission_concurrency": 1,
+        "cap_usd": 0.2,
+        "conservatively_accounted_usd": 0.1348382,
+        "contract_count": 15,
+        "corpus_build_hash": "beabd8179f162860bec54b94caeb34b02dc54f0f34c62327d613627f8159ca75",
+        "deterministic_passed": 15,
+        "duration_ms": 275222,
+        "embedding_model": "google/gemini-embedding-001",
+        "estimated_attempt_usd": 0.00162111,
+        "exit_code": 1,
+        "failed_contracts": [
+          "answers a page-link question with a section whose link line names that page",
+          "answers task and permission questions with the section that handles them and that section's link line",
+          "matches the user's words to the docs' words for sharing, change history, trial end and mailboxes",
+          "keeps a question that uses link as a verb on the relationships section, not on a section of record-page links",
+          "keeps a question about the link between two records on the relationships section",
+          "answers common CRM question families with the section that handles them, whatever words the question uses"
+        ],
+        "hosted_failed": 6,
+        "hosted_passed": 9,
+        "indexed": 0,
+        "invocations": 381,
+        "measured_receipt_usd": 0.12996467,
+        "run": 11,
+        "source_head": "f3ff1a63d11d5d5f5043dedf9660dc0485a1d473",
+        "source_overlay_diff_sha256": "38cdcc9be87b8a329a1db23d726da412f8ab869a384824b07ebdbc61d396d829",
+        "total_failed": 6,
+        "total_passed": 24
+      },
+      {
+        "admission_concurrency": 1,
+        "cap_usd": 0.18,
+        "conservatively_accounted_usd": 0.13473667,
+        "contract_count": 15,
+        "corpus_build_hash": "beabd8179f162860bec54b94caeb34b02dc54f0f34c62327d613627f8159ca75",
+        "deterministic_passed": 15,
+        "duration_ms": 323874,
+        "embedding_model": "google/gemini-embedding-001",
+        "estimated_attempt_usd": 0.00246464,
+        "execution_sha256": "45d6ae5ece1a3b22ab6fb2c5583dbcb6469a22052e078b761a40bca6fc1dd374",
+        "exit_code": 1,
+        "failed_contracts": [
+          "answers a page-link question with a section whose link line names that page",
+          "answers task and permission questions with the section that handles them and that section's link line",
+          "matches the user's words to the docs' words for sharing, change history, trial end and mailboxes",
+          "keeps a question that uses link as a verb on the relationships section, not on a section of record-page links",
+          "keeps a question about the link between two records on the relationships section",
+          "answers common CRM question families with the section that handles them, whatever words the question uses",
+          "excerpts the section search_docs names, with that section's own link line"
+        ],
+        "hosted_failed": 7,
+        "hosted_passed": 8,
+        "indexed": 0,
+        "invocations": 376,
+        "measured_receipt_usd": 0.12734275,
+        "report_sha256": "c4a8b16928045b7b1da25a28075dae7b5af2132179cd3ef38fe1cab410c56619",
+        "run": 12,
+        "source_attribution": "Actual retrieval execution before the subsequent website-reader-only Vertex declaration fix; Jev request/retrieval sources remain unchanged.",
+        "source_freeze_id": "388c35e0fb7c455d19bed97f5baa25a6be0fa233f8422f7ad3b7326ca0e2d11a",
+        "source_head": "f3ff1a63d11d5d5f5043dedf9660dc0485a1d473",
+        "source_overlay_diff_sha256": "4651ac4f0ba2641823e5985a6c859e68b09bbc3df893e6d09ad750ebb3f9a6c9",
+        "total_failed": 7,
+        "total_passed": 23
+      }
+    ],
+    "initial_ainovi_onboarding": {
+      "canonical_internal_links_valid": true,
+      "content_acceptance_complete": false,
+      "duplicate_language_pages": false,
+      "evidenced_offerings_expected": 5,
+      "evidenced_offerings_present": 4,
+      "fully_read_sources": 38,
+      "guide_created_last": true,
+      "invented_internal_policy_found": false,
+      "one_guide": true,
+      "saved_pages": 9,
+      "single_language": "English",
+      "source_characters": 313277,
+      "source_head": "f3ff1a63d11d5d5f5043dedf9660dc0485a1d473",
+      "unresolved_findings_from_this_run": [
+        {
+          "id": "CONTENT01",
+          "title": "Standalone Software Engineering offering lost"
+        },
+        {
+          "id": "CONTENT02",
+          "title": "Extracted FAQ answers invisible to synthesis reader"
+        },
+        {
+          "id": "CONTENT03",
+          "title": "Use-case citations do not support stated details"
+        },
+        {
+          "id": "CONTENT04",
+          "title": "Guide omits explicit unknown internal-rule gaps"
+        }
+      ]
+    },
+    "latest_built_ainovi_import": {
+      "build_id": "15Wxiq8ji-5h7jTqCRoVg",
+      "content_acceptance_complete": false,
+      "content_coverage_review": "Actual partial content has substantive failures beyond the cap: SAP and Data Science offerings are excluded as allegedly covered by a summary; the software offering cites the wrong source; a German page title appears during an explicit English import. Three saved pages are incomplete coverage. Source prompt/repair changes do not establish that these results are corrected.",
+      "crawl_status_interpretation": "Stored crawl completed means extraction finished; it does not prove full synthesis/content completion.",
+      "created_pages": 3,
+      "creation_tool_receipts": 1,
+      "observed_terminal_message": "Hosted AI temporarily unavailable",
+      "passed": false,
+      "processed_targets": 40,
+      "readback_sha256": "1c23925eaf94e6959128d17ba941d8daef5f41bb09ed9c40a4ca76f800f0d4a8",
+      "source_snapshot": "historical_verification.pre_visibility_49_source_snapshot",
+      "status": "incomplete; approved batch cap stopped remaining synthesis",
+      "stored_useful_sources": 38,
+      "substantive_content_findings": [
+        "SAP and Data Science offerings excluded as covered by summary without proper dedicated coverage.",
+        "Software offering citation points to the wrong source.",
+        "German title in explicitly English website import.",
+        "Full offering, FAQ answer, citation and internal-rule gap coverage not accepted."
+      ],
+      "tool_receipts": 26,
+      "total_targets": 40
+    },
+    "latest_full_contract_result": {
+      "deterministic_passed": 15,
+      "failed_tests": 7,
+      "hosted_failed": 7,
+      "hosted_passed": 8,
+      "hosted_total": 15,
+      "passed": false,
+      "passed_tests": 23,
+      "run": 12,
+      "total": 30
+    },
+    "latest_subset_contract_result": {
+      "acceptance_note": "Delete query now selects the dedicated Relationships section. The link-as-a-verb query fails with a late vector, and the later where-links query fails dedicated-section identity. Relevant alternative facts do not satisfy unchanged gold assertions. No same-input source regression is proven and no full-suite pass is claimed.",
+      "cap_usd": 0.02,
+      "classification_sha256": "4daa349cae7db4975658eef61a67e9228b0e50ccc3faf5919f757bbed8b73cd5",
+      "conservatively_accounted_usd": 0.00096612,
+      "contracts": [
+        {
+          "status": "failed",
+          "title": "keeps a question that uses link as a verb on the relationships section, not on a section of record-page links"
+        },
+        {
+          "status": "failed",
+          "title": "keeps a question about the link between two records on the relationships section"
+        }
+      ],
+      "corpus_build_hash": "beabd8179f162860bec54b94caeb34b02dc54f0f34c62327d613627f8159ca75",
+      "duration_ms": 6844,
+      "estimated_attempt_usd": 0,
+      "exit_code": 1,
+      "hosted_failed": 2,
+      "hosted_passed": 0,
+      "indexed": 0,
+      "input_comparison_sha256": "1bd2e187d1b1bf16a69dc11debdcd9b3fbdc279be85a6487944ad4916543c601",
+      "invocation_classification": [
+        {
+          "actual": "architecture-security#how-does-external-ai-access-work",
+          "expected": "concepts#how-do-relationships-link-records",
+          "limitation": "Selected public security excerpt accurately says relation lists are not accepted by update tools and links change through manage_record_links. It is relevant but does not clear the dedicated-section identity assertion.",
+          "query": "link a contact to an organization",
+          "state": "strict-miss; causal source regression not proven"
+        },
+        {
+          "actual": "concepts#how-do-relationships-link-records",
+          "expected": "concepts#how-do-relationships-link-records",
+          "limitation": "Single-provider observation supports intended evidence restoration, not a controlled causal quality comparison.",
+          "query": "Can I delete the link to an organization from a contact?",
+          "state": "actual target selected; failing family not equal failed invocation"
+        },
+        {
+          "actual": "app-records#how-do-i-change-a-deal-stage-or-a-task-status-on-the-board",
+          "expected": "concepts#how-do-relationships-link-records",
+          "limitation": "Selected section actually contains the body instruction that relations appear as labelled relation fields inside the form. Its heading is the board stage/status section, so the strict identity assertion still fails.",
+          "query": "Where are the links between contacts and deals shown?",
+          "state": "strict-miss; no Run13 comparator"
+        }
+      ],
+      "invocations": 3,
+      "measured_receipt_usd": 0.00096612,
+      "passed": false,
+      "receipts": 6,
+      "report_sha256": "fe72203af99ca9017b03b5c6653f47733fe85dc166ae3980e0d1ded541410cec",
+      "run": 14,
+      "scope": "Only two unchanged hosted relationship families selected; 28 cases not run. Failure of a family does not mean every invocation in it failed.",
+      "skipped_tests": 28,
+      "source_freeze_id": "a73446a5ede7408b3d2e4492fba389a6c807df6ce3c62e19bf1a5243bb419913",
+      "source_head": "f3ff1a63d11d5d5f5043dedf9660dc0485a1d473",
+      "source_overlay_diff_sha256": "1b1155a4accc3bb19b8f9a9e96018f8e05bf33dd91f526351de8f655cb16ab2e"
+    },
+    "navigation_embedding_ab_diagnostic": {
+      "cap_usd": 0.01,
+      "conservatively_accounted_usd": 6.465e-05,
+      "duration_ms": 4396,
+      "estimated_attempt_usd": 0,
+      "exit_code": 0,
+      "index_writes": 0,
+      "indexed": 0,
+      "kind": "read-only-index-embedding-ab-diagnostic",
+      "limitation": "A paired embedding diagnostic of one unchanged public Inbox section; no stored-index mutation and no full retrieval-contract or content-acceptance pass.",
+      "measured_receipt_usd": 6.465e-05,
+      "passed": true,
+      "result": {
+        "corpusBuildHash": "d8f590dc03fa670eefe2ff3c153f55bd4de1785ffb8ec157a7c96941dd9cf2fd",
+        "current": {
+          "sha256": "593524ed9ee56c2bd53471f5865ada63e4ce7fdc2f4b26e2060a8fc99c5da075",
+          "similarity": 0.5958023037206343,
+          "utf8Bytes": 1210
+        },
+        "documentDurationMs": 372,
+        "identity": {
+          "anchor": "which-conversations-do-i-see",
+          "locale": "en",
+          "slug": "app-inbox",
+          "source": "docs"
+        },
+        "query": {
+          "durationMs": 884,
+          "sha256": "34c224f53d168136347b785eb188ab134d11cbbf746a0aa0ad43b8f7c4c58d37",
+          "utf8Bytes": 46
+        },
+        "similarityDifference": 0.011426022487265208,
+        "totalDurationMs": 1256,
+        "withoutNavigationMetadata": {
+          "sha256": "bc1748ef9def8a2be06d23a12023360b5ff0d87e27060070bb3a545be217d26d",
+          "similarity": 0.6072283262078995,
+          "utf8Bytes": 794
+        }
+      },
+      "run": 9,
+      "source_head": "f3ff1a63d11d5d5f5043dedf9660dc0485a1d473",
+      "source_overlay_diff_sha256": "6de5492b4f8d0e59ccdfee130ae6b284d7396c20db4ba564d4e2c1e5566f19c7"
+    },
+    "privacy_exact_section_diagnostics": [
+      {
+        "cap_usd": 0.01,
+        "conservatively_accounted_usd": 0.00032744,
+        "duration_ms": 5284,
+        "embedding": "timeout",
+        "estimated_attempt_usd": 0,
+        "exit_code": 0,
+        "expected_section": "app-inbox#which-conversations-do-i-see",
+        "expected_section_first_full_text": true,
+        "expected_section_first_semantic": false,
+        "index_complete": true,
+        "limitation": "The timed-out vector skips the relevance floor and reaches Jev.",
+        "max_coverage": 0.7079787692170872,
+        "max_similarity": null,
+        "measured_receipt_usd": 0.00032744,
+        "passed": true,
+        "query": "Can my manager read my private WhatsApp chats?",
+        "rerank": "used",
+        "returned_pages": 5,
+        "run": 7,
+        "scope": "single unchanged exact privacy-section retrieval diagnostic",
+        "source_head": "f3ff1a63d11d5d5f5043dedf9660dc0485a1d473",
+        "source_overlay_diff_sha256": "6de5492b4f8d0e59ccdfee130ae6b284d7396c20db4ba564d4e2c1e5566f19c7"
+      },
+      {
+        "cap_usd": 0.01,
+        "conservatively_accounted_usd": 1.35e-06,
+        "duration_ms": 3990,
+        "embedding": "used",
+        "estimated_attempt_usd": 0,
+        "exit_code": 1,
+        "expected_section": "app-inbox#which-conversations-do-i-see",
+        "expected_section_first_full_text": true,
+        "expected_section_first_semantic": true,
+        "index_complete": true,
+        "limitation": "A timely vector with cosine below 0.60 drops the correct candidate before Jev; this unresolved recall failure is not a permission/privacy breach.",
+        "max_coverage": 0.7079787692170872,
+        "max_similarity": 0.5958024501250354,
+        "measured_receipt_usd": 1.35e-06,
+        "passed": false,
+        "query": "Can my manager read my private WhatsApp chats?",
+        "rerank": "none",
+        "returned_pages": 0,
+        "run": 8,
+        "scope": "single unchanged exact privacy-section retrieval diagnostic",
+        "source_head": "f3ff1a63d11d5d5f5043dedf9660dc0485a1d473",
+        "source_overlay_diff_sha256": "6de5492b4f8d0e59ccdfee130ae6b284d7396c20db4ba564d4e2c1e5566f19c7"
+      }
+    ],
+    "subset_contract_runs": [
+      {
+        "cap_usd": 0.05,
+        "conservatively_accounted_usd": 0.01726072,
+        "contracts": [
+          {
+            "status": "passed",
+            "title": "keeps a question that uses link as a verb on the relationships section, not on a section of record-page links"
+          },
+          {
+            "status": "failed",
+            "title": "keeps a question about the link between two records on the relationships section"
+          },
+          {
+            "status": "failed",
+            "title": "answers common CRM question families with the section that handles them, whatever words the question uses"
+          },
+          {
+            "status": "failed",
+            "title": "excerpts the section search_docs names, with that section's own link line"
+          }
+        ],
+        "corpus_build_hash": "beabd8179f162860bec54b94caeb34b02dc54f0f34c62327d613627f8159ca75",
+        "duration_ms": 62472,
+        "estimated_attempt_usd": 0.00039623,
+        "exit_code": 1,
+        "hosted_failed": 3,
+        "hosted_passed": 1,
+        "indexed": 0,
+        "invocations": 47,
+        "measured_receipt_usd": 0.01607203,
+        "passed": false,
+        "receipts": 91,
+        "report_sha256": "8cba599159e4b83d3025fe67d2f62938ef01581a156ff2120a24a7efe0123eac",
+        "run": 13,
+        "scope": "Four unchanged hosted families only; 26 other cases skipped. This is not a complete-suite acceptance pass.",
+        "skipped_tests": 26,
+        "source_freeze_id": "6cd7bf496521e98610ff738dbd8fe2e50ddb93a08789a1fa988e01fdb3a73968",
+        "source_head": "f3ff1a63d11d5d5f5043dedf9660dc0485a1d473",
+        "source_overlay_diff_sha256": "1b1155a4accc3bb19b8f9a9e96018f8e05bf33dd91f526351de8f655cb16ab2e"
+      },
+      {
+        "acceptance_note": "Delete query now selects the dedicated Relationships section. The link-as-a-verb query fails with a late vector, and the later where-links query fails dedicated-section identity. Relevant alternative facts do not satisfy unchanged gold assertions. No same-input source regression is proven and no full-suite pass is claimed.",
+        "cap_usd": 0.02,
+        "classification_sha256": "4daa349cae7db4975658eef61a67e9228b0e50ccc3faf5919f757bbed8b73cd5",
+        "conservatively_accounted_usd": 0.00096612,
+        "contracts": [
+          {
+            "status": "failed",
+            "title": "keeps a question that uses link as a verb on the relationships section, not on a section of record-page links"
+          },
+          {
+            "status": "failed",
+            "title": "keeps a question about the link between two records on the relationships section"
+          }
+        ],
+        "corpus_build_hash": "beabd8179f162860bec54b94caeb34b02dc54f0f34c62327d613627f8159ca75",
+        "duration_ms": 6844,
+        "estimated_attempt_usd": 0,
+        "exit_code": 1,
+        "hosted_failed": 2,
+        "hosted_passed": 0,
+        "indexed": 0,
+        "input_comparison_sha256": "1bd2e187d1b1bf16a69dc11debdcd9b3fbdc279be85a6487944ad4916543c601",
+        "invocation_classification": [
+          {
+            "actual": "architecture-security#how-does-external-ai-access-work",
+            "expected": "concepts#how-do-relationships-link-records",
+            "limitation": "Selected public security excerpt accurately says relation lists are not accepted by update tools and links change through manage_record_links. It is relevant but does not clear the dedicated-section identity assertion.",
+            "query": "link a contact to an organization",
+            "state": "strict-miss; causal source regression not proven"
+          },
+          {
+            "actual": "concepts#how-do-relationships-link-records",
+            "expected": "concepts#how-do-relationships-link-records",
+            "limitation": "Single-provider observation supports intended evidence restoration, not a controlled causal quality comparison.",
+            "query": "Can I delete the link to an organization from a contact?",
+            "state": "actual target selected; failing family not equal failed invocation"
+          },
+          {
+            "actual": "app-records#how-do-i-change-a-deal-stage-or-a-task-status-on-the-board",
+            "expected": "concepts#how-do-relationships-link-records",
+            "limitation": "Selected section actually contains the body instruction that relations appear as labelled relation fields inside the form. Its heading is the board stage/status section, so the strict identity assertion still fails.",
+            "query": "Where are the links between contacts and deals shown?",
+            "state": "strict-miss; no Run13 comparator"
+          }
+        ],
+        "invocations": 3,
+        "measured_receipt_usd": 0.00096612,
+        "passed": false,
+        "receipts": 6,
+        "report_sha256": "fe72203af99ca9017b03b5c6653f47733fe85dc166ae3980e0d1ded541410cec",
+        "run": 14,
+        "scope": "Only two unchanged hosted relationship families selected; 28 cases not run. Failure of a family does not mean every invocation in it failed.",
+        "skipped_tests": 28,
+        "source_freeze_id": "a73446a5ede7408b3d2e4492fba389a6c807df6ce3c62e19bf1a5243bb419913",
+        "source_head": "f3ff1a63d11d5d5f5043dedf9660dc0485a1d473",
+        "source_overlay_diff_sha256": "1b1155a4accc3bb19b8f9a9e96018f8e05bf33dd91f526351de8f655cb16ab2e"
+      }
+    ],
+    "vertex_wire_isolation": {
+      "canonical_server_max_items": 40,
+      "execution_attribution": "parent-owned actual wire comparison",
+      "only_repair_maxItems_removed_success": true,
+      "original_required_tool_http_status": 400,
+      "schema_bytes_removed": 14,
+      "scope": "A narrow actual-provider declaration probe; does not prove a completed website import or revised UI/content acceptance.",
+      "source_fix": "Google-only reclassifiedOfferings.maxItems projection",
+      "successful_probe_total_tokens": 995
+    }
+  },
+  "pending": [
+    "Complete final independent derived-packet review; push product normally and verify its exact new-head CI/deployment checks.",
+    "Resolve complete/subset strict hosted-family failures or obtain explicit owner acceptance; preserve original golds and do not claim full-provider success.",
+    "Complete actual website content acceptance: dedicated SAP/Data Science offerings, correct software citation, explicit English titles, FAQ answers and reviewed internal-rule gaps remain unmet. The exclusion guard has not been accepted through completed live synthesis.",
+    "Future paid follow-up requires stated authorization. The original ceiling remains US$2 with corrected US$1.91323767 recorded; the requested additional US$1 is pending and does not authorize spend.",
+    "Human preview reset, legal/privacy/vendor-contract/customer-notice checkpoints and merge approval."
+  ],
+  "ready_to_merge": false,
   "review_matrix": {
-    "application_and_dependency_paths": 737,
-    "corrected": 136,
+    "application_and_dependency_paths": 753,
+    "consolidated_csv_sha256": "7db2a6d45390fde58b8f6a1beda10280d087dbe6338a56f029223c44defd7b2c",
+    "consolidated_matrix_sha256": "abb2d3aab586c8413b519935f25466cbc30b147874ae74b3f4de07bcf6f24185",
+    "corrected": 167,
+    "count_attribution": "Parent-assembled 762-path matrix, including the source-exclusion revision; original matcher expectations preserved with four mandatory input-fixture changes. Production guard and system prompt reviewed by the backend reviewer.",
+    "current_incremental_review_sha256": "0b811b8c8f2b7f405f4855f8da45afee2b1eca31808dde9b3dee3737c8b0c317",
+    "current_overlay_paths": 57,
+    "historical_56_review_sha256": "40104bd97fda0edff352780718d2887e84a450f5d708d2cf27bf175f2921dddd",
+    "initial_only_paths": 9,
     "justified": 13,
+    "latest49_path_independent_review_sha256": "bec5b299c5b4c988bc5b6b274b262e99793785ff2ad9b363c79522ac30000aad",
+    "latest56_path_independent_review_sha256": "0b811b8c8f2b7f405f4855f8da45afee2b1eca31808dde9b3dee3737c8b0c317",
+    "latest56_reviewed_paths": 56,
+    "open_source_findings": 0,
     "original_paths": 592,
-    "reviewed": 597,
-    "reviewed_union_paths": 746,
+    "requires_regeneration": false,
+    "reviewed": 582,
+    "reviewed_union_paths": 762,
+    "self_derived_packet_files_excluded": 3,
+    "source_exclusion_test_review_sha256": "ba412f79f42e9e9b98d57fe9ebd49150c356068974b0762e8b7182449f319950",
+    "source_hash_drift": 0,
+    "stale_paths_at_proposal_snapshot": [],
     "stale_tagged_hashes": 0,
     "uncovered_current_paths": 0
   },
   "reviewed_at": "2026-10-01",
-  "reviewed_source_tree": "876c5ec040ad219cc114abc903fe596830c2d399",
   "source_base": "31d1df14c9185e62f23bf902be3ef518b42ca5b3",
-  "status": "local implementation, source review and automated/built-browser verification passed; paid-provider execution and new product-head CI pending"
+  "source_review_followups": [
+    {
+      "finding": "Lower-IDF equal-coverage opening preference and linguistic/literal/clause/context evidence loss",
+      "focused_after_passed": 108,
+      "path": "ee/agent-chat/docs-rank-evidence.ts",
+      "root_before_failed": 10,
+      "root_before_passed": 27,
+      "status": "Corrected"
+    },
+    {
+      "combined_before_failed": 4,
+      "combined_before_passed": 71,
+      "finding": "Earliest inflected surface displaced by later literal forms at32-location cap",
+      "focused_after_passed": 108,
+      "path": "core/retrieval/retrieval-evidence-matcher.ts",
+      "status": "Corrected"
+    },
+    {
+      "authoritative_limit": 40,
+      "evidence_quote_max_chars": 500,
+      "finding": "Vertex rejects forced website repair declaration containing reclassifiedOfferings.maxItems",
+      "focused_after_passed": 107,
+      "path": "ee/agent-chat/provider-safe-json-schema.ts",
+      "root_before_failed": 1,
+      "root_before_passed": 42,
+      "status": "Corrected in source; revised end-to-end content acceptance pending"
+    },
+    {
+      "finding": "Context-only table relevance must not displace actual body evidence",
+      "focused_after_files": 3,
+      "focused_after_passed": 78,
+      "path": "ee/agent-chat/docs-rank-evidence.ts",
+      "root_before_failed": 3,
+      "root_before_passed": 39,
+      "status": "Corrected in source; final hosted acceptance pending"
+    },
+    {
+      "finding": "Hosted tool wrapper discarded canonical typed planning failures",
+      "path": "ee/agent-chat/agent-tools.ts",
+      "status": "Corrected in source; final completed content acceptance pending"
+    },
+    {
+      "finding": "Unconditional visibility refresh can remount and discard dirty editor content",
+      "focused_after_files": 2,
+      "focused_after_passed": 29,
+      "path": "app/components/navigation/navigation-switch.tsx",
+      "prior_built_reproductions": 3,
+      "root_before_failed": 4,
+      "root_before_passed": 9,
+      "status": "Corrected in source; actual final WuPP built-browser retention and conflict checks pass. Twelve current UI assertions are independently reviewed with qualified transient/harness limitations."
+    },
+    {
+      "finding": "Unbounded failure metadata and escaped text could bypass result limits or erase the truncation notice.",
+      "focused_after_files": 8,
+      "focused_after_passed": 254,
+      "path": "ee/agent-chat/agent-tool-failure.ts",
+      "status": "Corrected in source; 254 focused tests pass. Full website content acceptance remains separate."
+    },
+    {
+      "finding": "Unmatched residual request verb suppressed all real label-backed body evidence and omitted the relationship operation tail.",
+      "focused_after_files": 8,
+      "focused_after_passed": 258,
+      "path": "ee/agent-chat/docs-rank-evidence.ts",
+      "status": "Corrected by narrow fallback; all original bounds/expectations remain. Actual run14 delete invocation selects Relationships, but both selected strict families still fail on other queries. This is not full hosted acceptance."
+    },
+    {
+      "finding": "Free-text source exclusions could silently substitute foundational summaries for distinct offering coverage.",
+      "focused_after_files": 5,
+      "focused_after_passed": 291,
+      "path": "ee/wiki-crawl/read-wiki-website-sources.interactor.ts",
+      "root_before_failed": 11,
+      "root_before_passed": 280,
+      "source_freeze_id": "6e1a63d34a4ce1e8aadef7025063b91ea74855760eba3fe0e6ed3c50e032c010",
+      "status": "Corrected in source with typed source-specific exclusion bases; final generated-content acceptance remains open."
+    }
+  ],
+  "source_snapshot": {
+    "base_head": "f3ff1a63d11d5d5f5043dedf9660dc0485a1d473",
+    "current_independent_review_sha256": "0b811b8c8f2b7f405f4855f8da45afee2b1eca31808dde9b3dee3737c8b0c317",
+    "final_committed_head": null,
+    "frozen": true,
+    "hash_format": "sha256 of JSON.stringify(files), paths sorted",
+    "latest_completed_gate_snapshot": "Current 57-source typecheck, lint and full Vitest complete; build/HTTP/new smoke statuses are recorded independently. Earlier a734 gate/WuPP detailed UI retains its original attribution.",
+    "recorded_at": "2026-10-01T18:50:42.419Z",
+    "source_freeze_file_sha256": "6806b9a16b3b48c42a0ad8d73d85d076300345097c22ed5e2b93e484096de8eb",
+    "source_freeze_id": "6e1a63d34a4ce1e8aadef7025063b91ea74855760eba3fe0e6ed3c50e032c010",
+    "working_tree_overlay_files": 57
+  },
+  "status": "Current exclusion-guard source is independently reviewed. Completed local gate/build/HTTP/new smoke results are recorded separately from inherited a734/WuPP UI. Complete and subset hosted failures, actual website-content gaps, product push/exact CI and human checkpoints remain open."
 }

@@ -471,9 +471,10 @@ export function providerWireInputSchema(
 
   const schema = googleSafeJsonSchema(document).schema;
   if (toolName === WIKI_READ_SOURCE_TOOL_NAME && isSchemaNode(schema) && isSchemaNode(schema.properties)) {
-    for (const property of ["topics", "excluded"]) {
-      const group = schema.properties[property];
-      if (!isSchemaNode(group) || !isSchemaNode(group.items) || !isSchemaNode(group.items.properties)) continue;
+    const repairs = schema.properties.reclassifiedOfferings;
+    if (isSchemaNode(repairs)) delete repairs.maxItems;
+    const group = schema.properties.topics;
+    if (isSchemaNode(group) && isSchemaNode(group.items) && isSchemaNode(group.items.properties)) {
       const sourceIds = group.items.properties.sourceIds;
       if (isSchemaNode(sourceIds)) delete sourceIds.maxItems;
     }

@@ -10,7 +10,7 @@ import { Client } from "pg";
 import { afterAll, beforeAll, describe, expect, it } from "vitest";
 
 import { fullTextUnits } from "@/core/retrieval/full-text-query";
-import { retrievalChunkText } from "@/core/retrieval/retrieval-chunks";
+import { docsEmbeddingText } from "../docs-embedding-input";
 import { collectRetrievalTimings } from "@/core/retrieval/retrieval-context";
 import { fold } from "@/core/utils/search-text";
 import { getLocalDatabaseTestUrl } from "@/tests/helpers/database-test";
@@ -77,7 +77,10 @@ function outcome(item: DocsRetrievalEvalItem, ranked: readonly Ranked[], candida
 
 function latency(timings: readonly RetrievalTiming[]) {
   const sorted = timings.map((timing) => timing.totalMs).sort((left, right) => left - right);
-  return { p50: sorted[Math.floor(sorted.length / 2)] ?? null, p95: sorted[Math.floor(sorted.length * 0.95)] ?? null };
+  return {
+    p50: sorted[Math.floor(sorted.length / 2)] ?? null,
+    p95: sorted[Math.floor(sorted.length * 0.95)] ?? null,
+  };
 }
 
 function round(value: number) {
@@ -155,7 +158,11 @@ describeDatabase("documentation retrieval quality on the benchmark docs question
   }
 
   it("meets the unified full-text floor on the benchmark docs questions", async () => {
-    const fullText = await unifiedRun({ repo, embed: null, ranker: undefined });
+    const fullText = await unifiedRun({
+      repo,
+      embed: null,
+      ranker: undefined,
+    });
 
     const fullTextMetrics = metricsBySet(fullText.outcomes);
     report.unifiedFullText = fullTextMetrics;
@@ -295,7 +302,11 @@ describeDatabase("documentation retrieval quality on the benchmark docs question
   );
 
   it("reports how much of the query's weight each full-text section covers", async () => {
-    const scope: DocsScope = { buildHash: corpus.buildHash, locale: "en", sources: ["docs"] };
+    const scope: DocsScope = {
+      buildHash: corpus.buildHash,
+      locale: "en",
+      sources: ["docs"],
+    };
     const [full] = await repo.fullTextSections(scope, fullTextUnits("webhook signature"), 5);
     const [partial] = await repo.fullTextSections(scope, fullTextUnits("webhook signature xylophonequartet"), 5);
 
@@ -305,25 +316,35 @@ describeDatabase("documentation retrieval quality on the benchmark docs question
   });
 
   it("fuses a semantic candidate list from stored embeddings when a query embedder is available", async () => {
-    const pending = new Map(
-      corpus.chunks.map((chunk) => [chunk.contentHash, retrievalChunkText(chunk.label, chunk.body)]),
-    );
+    const pending = new Map(corpus.chunks.map((chunk) => [chunk.contentHash, docsEmbeddingText(chunk)]));
     const rows = [...pending.entries()].map(([contentHash, text]) => ({
       contentHash,
       embedding: `[${hashedBagOfWords(text).join(",")}]`,
     }));
     for (let start = 0; start < rows.length; start += 500)
       await repo.storeEmbeddings(FAKE_MODEL, rows.slice(start, start + 500));
-    const scope: DocsScope = { buildHash: corpus.buildHash, locale: "en", sources: ["docs"] };
+    const scope: DocsScope = {
+      buildHash: corpus.buildHash,
+      locale: "en",
+      sources: ["docs"],
+    };
     expect(await repo.semanticIndexComplete(scope, FAKE_MODEL)).toBe(true);
     expect(await repo.semanticIndexComplete(scope, "a-model-without-embeddings")).toBe(false);
 
     const embedded: string[] = [];
     const embed = (query: string): Promise<QueryVector> => {
       embedded.push(query);
-      return Promise.resolve({ vector: hashedBagOfWords(query), model: FAKE_MODEL });
+      return Promise.resolve({
+        vector: hashedBagOfWords(query),
+        model: FAKE_MODEL,
+      });
     };
-    const hybrid = await unifiedRun({ repo, embed, ranker: undefined, relevanceFloor: null });
+    const hybrid = await unifiedRun({
+      repo,
+      embed,
+      ranker: undefined,
+      relevanceFloor: null,
+    });
 
     const hybridMetrics = metricsBySet(hybrid.outcomes);
     report.unifiedFakeEmbedding = hybridMetrics;
@@ -345,4 +366,7 @@ const UNIFIED_FULL_TEXT_FLOOR = {
 };
 const GOLDEN_PROBE_COUNT = 16;
 const GOLDEN_SECTION_FLOOR = { en: 0.9, de: 0.85 };
-const GOLDEN_FULL_TEXT_FLOOR = { en: { top1: 0.95, top5: 0.98 }, de: { top1: 0.9, top5: 0.97 } };
+const GOLDEN_FULL_TEXT_FLOOR = {
+  en: { top1: 0.95, top5: 0.98 },
+  de: { top1: 0.9, top5: 0.97 },
+};

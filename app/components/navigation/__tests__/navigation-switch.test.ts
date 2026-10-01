@@ -1,10 +1,16 @@
 import { act, type ReactNode } from "react";
+import { observable, runInAction } from "mobx";
 import { jsx } from "react/jsx-runtime";
 import { createRoot, type Root } from "react-dom/client";
 import { afterEach, beforeEach, describe, expect, it, vi } from "vitest";
 
+import type { BaseFormStore } from "@/core/base/base-form.store";
+
+import { NavigationGuardController } from "@/core/stores/navigation-guard.controller";
+
 const state = vi.hoisted(() => ({
   appMode: "cloud" as "cloud" | "demo",
+  navigationGuard: null as NavigationGuardController | null,
   pathname: "/dashboard",
   searchParams: {} as Record<string, string[]>,
   refresh: vi.fn(),
@@ -35,6 +41,7 @@ vi.mock("@/i18n/navigation", () => ({
 vi.mock("@/core/stores/root-store.provider", () => ({
   useRootStore: () => ({
     appMode: state.appMode,
+    navigationGuard: state.navigationGuard,
     closeAllModals: state.closeAllModals,
     companyStore: { setCompany: state.setCompany },
     subscriptionStore: { setSubscription: state.setSubscription },
@@ -165,6 +172,7 @@ beforeEach(() => {
   state.navigationRenderActive = false;
   state.renderPhaseUserWrites = [];
   state.appMode = "cloud";
+  state.navigationGuard = new NavigationGuardController();
   state.pathname = "/dashboard";
   state.searchParams = {};
   container = document.createElement("div");
@@ -276,6 +284,96 @@ describe("NavigationSwitch account-state refresh", () => {
     act(() => root.render(jsx("div", {})));
     document.dispatchEvent(new Event("visibilitychange"));
     expect(state.refresh).toHaveBeenCalledOnce();
+  });
+
+  it.each(["dirty", "saving"] as const)(
+    "defers and coalesces visibility refreshes while a registered form is %s",
+    (blockedBy) => {
+      const visibility = vi.spyOn(document, "visibilityState", "get").mockReturnValue("visible");
+      const guard = state.navigationGuard;
+      if (!guard) throw new Error("Navigation guard was not initialized");
+      const form = observable({
+        hasUnsavedChanges: blockedBy === "dirty",
+        isLoading: blockedBy === "saving",
+        withUnsavedChangesGuard: true,
+        title: "Unsaved title",
+        markdown: "Unsaved body",
+      });
+      guard.register(form as unknown as BaseFormStore);
+      act(() => root.render(jsx(NavigationSwitch, { ...allowedProps(), children: "page" })));
+
+      for (let index = 0; index < 3; index += 1) {
+        visibility.mockReturnValue("hidden");
+        document.dispatchEvent(new Event("visibilitychange"));
+        visibility.mockReturnValue("visible");
+        document.dispatchEvent(new Event("visibilitychange"));
+      }
+
+      expect(guard.isRouteRefreshBlocked).toBe(true);
+      expect(state.refresh).not.toHaveBeenCalled();
+      expect(form.title).toBe("Unsaved title");
+      expect(form.markdown).toBe("Unsaved body");
+      act(() => {
+        runInAction(() => {
+          form.hasUnsavedChanges = false;
+          form.isLoading = false;
+        });
+      });
+      expect(state.refresh).toHaveBeenCalledOnce();
+      expect(guard.isRouteRefreshBlocked).toBe(false);
+      document.dispatchEvent(new Event("visibilitychange"));
+      expect(state.refresh).toHaveBeenCalledTimes(2);
+      guard.unregister(form as unknown as BaseFormStore);
+    },
+  );
+
+  it("discards a deferred visibility refresh after the navigation shell unmounts", () => {
+    vi.spyOn(document, "visibilityState", "get").mockReturnValue("visible");
+    const guard = state.navigationGuard;
+    if (!guard) throw new Error("Navigation guard was not initialized");
+    const form = observable({
+      hasUnsavedChanges: true,
+      isLoading: false,
+      withUnsavedChangesGuard: true,
+    });
+    guard.register(form as unknown as BaseFormStore);
+    act(() => root.render(jsx(NavigationSwitch, { ...allowedProps(), children: "page" })));
+    document.dispatchEvent(new Event("visibilitychange"));
+    expect(state.refresh).not.toHaveBeenCalled();
+
+    act(() => root.render(jsx("div", {})));
+    act(() => guard.unregister(form as unknown as BaseFormStore));
+    expect(state.refresh).not.toHaveBeenCalled();
+    document.dispatchEvent(new Event("visibilitychange"));
+    expect(state.refresh).not.toHaveBeenCalled();
+  });
+
+  it("waits for a visible tab if a deferred refresh becomes safe while the tab is hidden", () => {
+    const visibility = vi.spyOn(document, "visibilityState", "get").mockReturnValue("visible");
+    const guard = state.navigationGuard;
+    if (!guard) throw new Error("Navigation guard was not initialized");
+    const form = observable({
+      hasUnsavedChanges: true,
+      isLoading: false,
+      withUnsavedChangesGuard: true,
+    });
+    guard.register(form as unknown as BaseFormStore);
+    act(() => root.render(jsx(NavigationSwitch, { ...allowedProps(), children: "page" })));
+    document.dispatchEvent(new Event("visibilitychange"));
+    expect(state.refresh).not.toHaveBeenCalled();
+
+    visibility.mockReturnValue("hidden");
+    document.dispatchEvent(new Event("visibilitychange"));
+    act(() => {
+      runInAction(() => {
+        form.hasUnsavedChanges = false;
+      });
+    });
+    expect(state.refresh).not.toHaveBeenCalled();
+    visibility.mockReturnValue("visible");
+    document.dispatchEvent(new Event("visibilitychange"));
+    expect(state.refresh).toHaveBeenCalledOnce();
+    guard.unregister(form as unknown as BaseFormStore);
   });
 
   it("keeps the top bar and page content in the same vertical scrollport", () => {

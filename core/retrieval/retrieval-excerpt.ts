@@ -1,6 +1,6 @@
 import { fold } from "@/core/utils/search-text";
 
-import { fullTextUnits } from "./full-text-query";
+import { fullTextUnits, fullTextUnitTerms } from "./full-text-query";
 
 type ContextLine = { order: number; text: string };
 type ExcerptUnit = { text: string; context: ContextLine[]; table?: number };
@@ -9,20 +9,17 @@ const SENTENCES = new Intl.Segmenter("und", { granularity: "sentence" });
 const TABLE_SEPARATOR = /^\|\s*:?-+/;
 const LINK_LINE = /^\*\*Link:\*\*/;
 const FENCE = /^ {0,3}(`{3,}|~{3,})([^\n]*)$/;
+const LIST_LINE = /^\s*(?:[-*+]|\d+[.)])\s/u;
 
-function unitsIn(markdown: string): { units: ExcerptUnit[]; links: string[] } {
+function unitsIn(markdown: string, maxUnitChars: number, preserveIntro: boolean): ExcerptUnit[] {
   const lines = markdown.split("\n");
   const units: ExcerptUnit[] = [];
-  const links: string[] = [];
   let heading: ContextLine[] = [];
   let table: ContextLine[] = [];
   for (let index = 0; index < lines.length; index += 1) {
     const line = lines[index];
     if (!line.trim()) continue;
-    if (LINK_LINE.test(line)) {
-      links.push(line);
-      continue;
-    }
+    if (LINK_LINE.test(line)) continue;
     if (/^#{1,6}\s/.test(line)) {
       heading = [{ order: index, text: line }];
       table = [];
@@ -52,14 +49,45 @@ function unitsIn(markdown: string): { units: ExcerptUnit[]; links: string[] } {
       continue;
     }
     table = [];
+    if (/[:：]$/u.test(line.trimEnd())) {
+      let next = index + 1;
+      while (next < lines.length && !lines[next].trim()) next += 1;
+      if (LIST_LINE.test(lines[next] ?? "")) {
+        let end = next;
+        let cursor = next + 1;
+        while (cursor < lines.length) {
+          if (LIST_LINE.test(lines[cursor])) end = cursor;
+          else if (lines[cursor].trim()) break;
+          cursor += 1;
+        }
+        const block = lines.slice(index, end + 1).join("\n");
+        const context = [...heading, { order: index, text: line }];
+        if ([...heading.map(({ text }) => text), block].join("\n").length <= maxUnitChars)
+          units.push({ text: block, context: heading });
+        else {
+          for (let item = next; item <= end; item += 1)
+            if (lines[item].trim()) units.push({ text: lines[item], context });
+        }
+        index = end;
+        continue;
+      }
+    }
     if (/^\s*(?:[-*+]|\d+[.)])\s|^\*\*[^*]+:\*\*/u.test(line)) {
+      units.push({ text: line, context: heading });
+      continue;
+    }
+    if (
+      preserveIntro &&
+      units.length === 0 &&
+      [...heading.map(({ text }) => text), line].join("\n").length <= maxUnitChars
+    ) {
       units.push({ text: line, context: heading });
       continue;
     }
     for (const { segment } of SENTENCES.segment(line))
       if (segment.trim()) units.push({ text: segment.trim(), context: heading });
   }
-  return { units, links };
+  return units;
 }
 
 function bounded(text: string, length: number): string {
@@ -128,34 +156,48 @@ export function retrievalExcerpt(args: {
   const whole = [heading, args.markdown].filter(Boolean).join("\n");
   if (whole.length <= maxChars) return whole;
   if (heading.length >= maxChars) return bounded(heading, maxChars);
-  const { units, links } = unitsIn(args.markdown);
+  const links = args.markdown.split("\n").filter((line) => LINK_LINE.test(line));
   const link = linkSuffix(links, Math.max(0, Math.min(Math.floor(maxChars / 3), maxChars - heading.length - 43)));
   const suffix = link ? `\n\n${link}` : "";
-  const terms = [
-    ...new Set(
-      fullTextUnits(args.query)
-        .filter((unit) => unit.substring || unit.text.length >= 3)
-        .map((unit) => fold(unit.text)),
-    ),
-  ];
+  const units = unitsIn(args.markdown, maxChars - heading.length - (heading ? 2 : 0) - suffix.length, Boolean(heading));
+  const terms = fullTextUnits(args.query)
+    .filter((unit) => unit.substring || unit.text.length >= 3)
+    .map((unit) => fullTextUnitTerms(unit).map((parts) => parts.map(fold)));
   const bodies = units.map((unit) => fold(unit.text));
-  const weights = terms.map((term) =>
-    Math.log(1 + units.length / (1 + bodies.filter((body) => body.includes(term)).length)),
+  const matches = bodies.map((body) =>
+    terms.map((alternatives) => alternatives.some((parts) => parts.every((term) => body.includes(term)))),
   );
-  const matches = bodies.map((body) => terms.map((term) => body.includes(term)));
+  const weights = terms.map((_, index) =>
+    Math.log(1 + units.length / (1 + matches.filter((hits) => hits[index]).length)),
+  );
   const score = (index: number, seen: ReadonlySet<number>) =>
     matches[index].reduce((sum, hit, term) => sum + (hit && !seen.has(term) ? weights[term] : 0), 0);
   const relevance = (index: number) => score(index, new Set());
   const seen = new Set<number>();
+  const relevant = units.map((_, index) => relevance(index));
   const remaining = new Set(units.map((_, index) => index));
   const picked = new Map<number, string>();
-  const hasMatch = [...remaining].some((index) => relevance(index) > 0);
+  if (heading && relevant[0] > 0) {
+    picked.set(0, units[0].text);
+    if (render(units, picked, heading).length + suffix.length <= maxChars) {
+      remaining.delete(0);
+      matches[0].forEach((hit, term) => {
+        if (hit) seen.add(term);
+      });
+    } else picked.delete(0);
+  }
+  const hasMatch = relevant.some((weight) => weight > 0);
+  if (hasMatch) for (const index of remaining) if (relevant[index] === 0) remaining.delete(index);
   while (remaining.size > 0) {
-    const [index] = [...remaining].sort(
-      (left, right) => score(right, seen) - score(left, seen) || relevance(right) - relevance(left) || left - right,
-    );
+    let index = remaining.values().next().value;
+    if (index === undefined) break;
+    if (hasMatch) {
+      for (const candidate of remaining) {
+        const difference = score(candidate, seen) - score(index, seen) || relevant[candidate] - relevant[index];
+        if (difference > 0) index = candidate;
+      }
+    }
     remaining.delete(index);
-    if (hasMatch && relevance(index) === 0) continue;
     const unit = units[index];
     picked.set(index, unit.text);
     if (render(units, picked, heading).length + suffix.length <= maxChars) {
