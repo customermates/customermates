@@ -6,7 +6,9 @@ import type { ErrorReport } from "@/core/observability/error-report";
 
 class ErrorNotificationDeliveryFailure extends RetryableError {
   constructor() {
-    super(`${ERROR_NOTIFICATION_FAILURE_PREFIX} delivery failed`, { retryAfter: "5s" });
+    super(`${ERROR_NOTIFICATION_FAILURE_PREFIX} delivery failed`, {
+      retryAfter: "5s",
+    });
   }
 }
 
@@ -14,12 +16,26 @@ function permanentFailure(): Error {
   return new FatalError(`${ERROR_NOTIFICATION_FAILURE_PREFIX} configuration rejected`);
 }
 
-export async function sendErrorNotification(report: ErrorReport): Promise<{ emailId: string }> {
+function verifiesPreviewDelivery(): boolean {
+  return (
+    process.env.VERCEL_ENV === "preview" &&
+    (!process.env.VERCEL_TARGET_ENV || process.env.VERCEL_TARGET_ENV === "preview") &&
+    process.env.ERROR_REPORTING_VERIFY_DELIVERY === "true"
+  );
+}
+
+function isAutomatedDeliveredSink(to: string): boolean {
+  return /^delivered(?:\+[a-zA-Z0-9_-]+)?@resend\.dev$/.test(to);
+}
+
+export async function sendErrorNotification(report: ErrorReport): Promise<{ emailId: string; verifyDelivery?: true }> {
   "use step";
   const to = process.env.ERROR_REPORTING_NOTIFICATION_EMAIL;
   const from = process.env.RESEND_OPERATOR_EMAIL;
   const key = process.env.RESEND_API_KEY;
   if (!to || !from || !key) throw permanentFailure();
+  const verifyDelivery = verifiesPreviewDelivery();
+  if (verifyDelivery && !isAutomatedDeliveredSink(to)) throw permanentFailure();
 
   if (process.env.RESEND_BASE_URL) {
     const target = new URL(process.env.RESEND_BASE_URL);
@@ -73,11 +89,32 @@ export async function sendErrorNotification(report: ErrorReport): Promise<{ emai
     throw new ErrorNotificationDeliveryFailure();
   }
   if (!data?.id) throw new ErrorNotificationDeliveryFailure();
-  return { emailId: data.id };
+  return verifyDelivery ? { emailId: data.id, verifyDelivery: true } : { emailId: data.id };
 }
 sendErrorNotification.maxRetries = 5;
 
-export async function notifyApplicationError(report: ErrorReport): Promise<{ emailId: string }> {
+export async function verifyPreviewErrorDelivery(emailId: string): Promise<void> {
+  "use step";
+  const key = process.env.RESEND_API_KEY;
+  const to = process.env.ERROR_REPORTING_NOTIFICATION_EMAIL;
+  if (!verifiesPreviewDelivery() || !key || !to || !isAutomatedDeliveredSink(to)) throw permanentFailure();
+  const { data, error } = await new Resend(key).emails.get(emailId);
+  if (error?.statusCode === 401 || error?.statusCode === 403) throw permanentFailure();
+  if (error || !data) throw new ErrorNotificationDeliveryFailure();
+  if (data.last_event === "failed" || data.last_event === "bounced" || data.last_event === "canceled")
+    throw permanentFailure();
+  if (data.last_event !== "delivered") throw new ErrorNotificationDeliveryFailure();
+}
+verifyPreviewErrorDelivery.maxRetries = 5;
+
+export async function notifyApplicationError(
+  report: ErrorReport,
+): Promise<{ emailId: string; delivery?: "delivered" }> {
   "use workflow";
-  return sendErrorNotification(report);
+  const result = await sendErrorNotification(report);
+  if (result.verifyDelivery) {
+    await verifyPreviewErrorDelivery(result.emailId);
+    return { emailId: result.emailId, delivery: "delivered" };
+  }
+  return { emailId: result.emailId };
 }

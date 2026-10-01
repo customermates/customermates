@@ -3,10 +3,10 @@ import { RetryableError } from "workflow";
 
 import type { ErrorReport } from "@/core/observability/error-report";
 
-const state = vi.hoisted(() => ({ send: vi.fn() }));
+const state = vi.hoisted(() => ({ send: vi.fn(), get: vi.fn() }));
 vi.mock("resend", () => ({
   Resend: class {
-    emails = { send: state.send };
+    emails = { send: state.send, get: state.get };
   },
 }));
 const report: ErrorReport = {
@@ -29,14 +29,20 @@ beforeEach(() => {
   vi.stubEnv("ERROR_REPORTING_NOTIFICATION_EMAIL", "operator@example.com");
   vi.stubEnv("RESEND_BASE_URL", "");
   vi.stubEnv("VERCEL", "");
+  vi.stubEnv("VERCEL_ENV", "");
+  vi.stubEnv("VERCEL_TARGET_ENV", "");
+  vi.stubEnv("ERROR_REPORTING_VERIFY_DELIVERY", "");
   state.send.mockReset().mockResolvedValue({ error: null, data: { id: "local-email" } });
+  state.get.mockReset().mockResolvedValue({ error: null, data: { last_event: "delivered" } });
 });
 afterEach(() => vi.unstubAllEnvs());
 
 describe("application error notification", () => {
   it("sends actionable context with a bounded stable idempotency key", async () => {
     const { sendErrorNotification } = await import("../notify-application-error");
-    await expect(sendErrorNotification(report)).resolves.toEqual({ emailId: "local-email" });
+    await expect(sendErrorNotification(report)).resolves.toEqual({
+      emailId: "local-email",
+    });
     await sendErrorNotification(report);
     expect(state.send.mock.calls[0]).toEqual(state.send.mock.calls[1]);
     expect(state.send.mock.calls[0][1].idempotencyKey.length).toBeLessThan(256);
@@ -67,5 +73,54 @@ describe("application error notification", () => {
     vi.stubEnv("VERCEL", "1");
     await expect(sendErrorNotification(report)).rejects.toThrow();
     expect(state.send).not.toHaveBeenCalled();
+  });
+
+  it("verifies only the email just sent to the automated Preview delivery sink", async () => {
+    const { notifyApplicationError } = await import("../notify-application-error");
+    vi.stubEnv("VERCEL_ENV", "preview");
+    vi.stubEnv("ERROR_REPORTING_VERIFY_DELIVERY", "true");
+    vi.stubEnv("ERROR_REPORTING_NOTIFICATION_EMAIL", "delivered+customermates-pr197@resend.dev");
+    await expect(notifyApplicationError(report)).resolves.toEqual({
+      emailId: "local-email",
+      delivery: "delivered",
+    });
+    expect(state.get).toHaveBeenCalledExactlyOnceWith("local-email");
+  });
+
+  it.each(["production", "development", ""])("skips delivery readback outside Preview (%s)", async (environment) => {
+    const { notifyApplicationError } = await import("../notify-application-error");
+    vi.stubEnv("VERCEL_ENV", environment);
+    vi.stubEnv("ERROR_REPORTING_VERIFY_DELIVERY", "true");
+    await expect(notifyApplicationError(report)).resolves.toEqual({
+      emailId: "local-email",
+    });
+    expect(state.get).not.toHaveBeenCalled();
+  });
+
+  it("refuses Preview verification to a real mailbox before sending", async () => {
+    const { notifyApplicationError } = await import("../notify-application-error");
+    vi.stubEnv("VERCEL_ENV", "preview");
+    vi.stubEnv("ERROR_REPORTING_VERIFY_DELIVERY", "true");
+    await expect(notifyApplicationError(report)).rejects.toThrow();
+    expect(state.send).not.toHaveBeenCalled();
+    expect(state.get).not.toHaveBeenCalled();
+  });
+
+  it("bounds pending delivery retries and stops immediately on forbidden readback", async () => {
+    const { verifyPreviewErrorDelivery } = await import("../notify-application-error");
+    vi.stubEnv("VERCEL_ENV", "preview");
+    vi.stubEnv("ERROR_REPORTING_VERIFY_DELIVERY", "true");
+    vi.stubEnv("ERROR_REPORTING_NOTIFICATION_EMAIL", "delivered+customermates-pr197@resend.dev");
+    state.get.mockResolvedValueOnce({
+      error: null,
+      data: { last_event: "queued" },
+    });
+    const pending = await verifyPreviewErrorDelivery("local-email").catch((error: unknown) => error);
+    expect(RetryableError.is(pending)).toBe(true);
+    expect(verifyPreviewErrorDelivery.maxRetries).toBe(5);
+    state.get.mockResolvedValueOnce({ error: { statusCode: 403 }, data: null });
+    const denied = await verifyPreviewErrorDelivery("local-email").catch((error: unknown) => error);
+    expect(RetryableError.is(denied)).toBe(false);
+    expect(state.get).toHaveBeenCalledTimes(2);
   });
 });
