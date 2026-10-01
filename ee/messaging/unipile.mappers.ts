@@ -8,7 +8,7 @@ import {
   MessagingProvider,
 } from "@/generated/prisma";
 
-import * as Sentry from "@sentry/node";
+import * as ErrorReporter from "@/core/observability/server";
 
 import { htmlToPlainText } from "./email-body-text";
 import { isPlainTextEmailBody } from "./email-quote";
@@ -127,7 +127,7 @@ export function deriveAccountFeatures(account: UnipileAccount): {
 } {
   const raw = account.provider?.toLowerCase();
   if (!raw || !(raw in PROVIDER_TO_PROVIDER)) {
-    Sentry.captureMessage(`Unipile account with unsupported provider "${account.provider}"; skipping backfill`, {
+    ErrorReporter.captureMessage(`Unipile account with unsupported provider "${account.provider}"; skipping backfill`, {
       level: "warning",
       tags: { unipileAccountId: account.id },
     });

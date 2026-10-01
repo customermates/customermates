@@ -9,8 +9,10 @@ import { REPO_ROOT, walkFiles } from "./walk";
 const ALLOWED_CALLS = new Map<string, string[]>([
   ["features/email/email.service.ts", ["log"]],
   ["features/event/event.service.ts", ["log"]],
-  ["core/errors/sentry-client.ts", ["error"]],
-  ["instrumentation.ts", ["error", "error"]],
+  ["core/observability/browser.ts", ["error"]],
+  ["core/observability/server.ts", ["error"]],
+  ["core/observability/publish-error.ts", ["error", "warn", "info"]],
+  ["instrumentation.ts", ["error"]],
   ["workflows/capture-failure.ts", ["error", "error", "warn", "error"]],
 ]);
 
@@ -128,7 +130,7 @@ describe("runtime console boundary", () => {
         'console.warn("direct");',
         'globalThis.console["error"]("qualified");',
         'console.log.call(console, "aliased call");',
-        'const warning = (window.console.warn);',
+        "const warning = (window.console.warn);",
       ].join("\n"),
       ts.ScriptTarget.Latest,
       true,

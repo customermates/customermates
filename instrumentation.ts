@@ -1,29 +1,20 @@
-import * as Sentry from "@sentry/nextjs";
+import type { Instrumentation } from "next";
 
-import { isExpectedError } from "@/core/errors/app-errors";
 import { env } from "@/env";
-import { scrubAdIdentifiersFromEvent } from "@/core/errors/scrub-ad-identifiers";
+import { errorReportingEnabled } from "@/core/errors/reporting-provider";
 
 export async function register() {
-  if (env.NEXT_PUBLIC_SENTRY_DSN && (env.NEXT_RUNTIME === "nodejs" || env.NEXT_RUNTIME === "edge")) {
-    Sentry.init({
-      dsn: env.NEXT_PUBLIC_SENTRY_DSN,
-      tracesSampleRate: 0,
-      integrations: [Sentry.requestDataIntegration({ include: { cookies: false, data: false, headers: false } })],
-      beforeSend(event: Sentry.ErrorEvent, hint: Sentry.EventHint) {
-        if (isExpectedError(hint?.originalException)) return null;
-
-        if (env.NODE_ENV !== "production") {
-          console.error(hint?.originalException ?? event);
-          return null;
-        }
-
-        return scrubAdIdentifiersFromEvent(event);
-      },
-    } satisfies Sentry.NodeOptions);
+  if (
+    process.env.NEXT_RUNTIME === "nodejs" &&
+    !process.env.VERCEL &&
+    env.NODE_ENV === "production" &&
+    errorReportingEnabled()
+  ) {
+    const reporter = await import("@/core/observability/server");
+    const { installProcessErrorHandlers } = await import("@/core/observability/process-errors");
+    installProcessErrorHandlers(reporter);
   }
-
-  if (env.NEXT_RUNTIME === "nodejs" && env.WORKFLOW_TARGET_WORLD) {
+  if (process.env.NEXT_RUNTIME === "nodejs" && env.WORKFLOW_TARGET_WORLD) {
     try {
       const { getWorld } = await import("workflow/runtime");
       const world = await getWorld();
@@ -38,4 +29,18 @@ export async function register() {
   }
 }
 
-export const onRequestError = Sentry.captureRequestError;
+export const onRequestError: Instrumentation.onRequestError = async (error, request) => {
+  if (!errorReportingEnabled() || request.path.startsWith("/api/observability/errors")) return;
+  if (process.env.NEXT_RUNTIME !== "nodejs") return;
+  const { captureException, flush } = await import("@/core/observability/server");
+  const { currentErrorContext } = await import("@/core/observability/error-context");
+  const headers = new Headers();
+  for (const [key, value] of Object.entries(request.headers))
+    if (value !== undefined) headers.set(key, Array.isArray(value) ? value.join(", ") : value);
+  const parent = currentErrorContext(error);
+  const context = parent.user?.id
+    ? parent
+    : (await (await import("@/core/observability/request-context")).requestErrorContext(headers)).context;
+  captureException(error, { ...context, path: request.path });
+  await flush(2000);
+};

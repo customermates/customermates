@@ -2410,20 +2410,20 @@
   },
   "ErrorTestPage": {
     "clientSideErrors": {
-      "description": "Eccezioni non gestite nel codice del browser. L'overlay di errore di Next.js le intercetta in sviluppo; in produzione arrivano a Sentry tramite il gestore globale dell'SDK del browser e l'UnexpectedErrorToaster.",
+      "description": "Gli errori non gestiti del browser vengono registrati con stack e percorso. Gli errori degli utenti autenticati inviano anche un’email all’operatore.",
       "title": "Lato client",
       "triggerClientError": "Genera un errore client non gestito"
     },
     "serverSideError": {
-      "description": "Eccezione in una server action, intercettata da onRequestError di instrumentation.ts e poi segnalata a Sentry.",
+      "description": "Gli errori del server vengono registrati con stack originale, percorso e contesto dello spazio di lavoro autenticato.",
       "title": "Server action",
       "triggerServerError": "Genera un errore di server action"
     },
     "subtitle": "Rompiamo le cose apposta, per la scienza!",
     "title": "Test degli errori",
     "workflowError": {
-      "description": "Avvia un workflow in background che fallisce in uno step. Il catch del workflow chiama reportFailure, che segnala a Sentry. In sviluppo l'errore viene scritto nella console del server invece che su Sentry.",
-      "dispatched": "Workflow avviato. Il suo errore viene segnalato a Sentry (o nella console del server in sviluppo).",
+      "description": "Avvia un workflow in cui un passaggio fallisce. In produzione l’errore viene registrato e inviato all’operatore; in sviluppo appare nella console del server.",
+      "dispatched": "Workflow avviato. Il suo errore viene segnalato all’operatore in produzione o nella console del server in sviluppo.",
       "title": "Workflow (processo in background)",
       "triggerWorkflowError": "Avvia un workflow che fallisce"
     }

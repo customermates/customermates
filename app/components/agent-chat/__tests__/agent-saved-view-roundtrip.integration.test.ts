@@ -43,7 +43,7 @@ vi.mock("@/core/api/interactor-handler", async (importOriginal) => ({
 vi.mock("@/ee/agent-chat/agent-turn-stream", () => ({
   agentTurnSseStream: harness.agentTurnSseStream,
 }));
-vi.mock("@sentry/nextjs", () => ({
+vi.mock("@/core/observability/server", () => ({
   captureException: vi.fn(),
   setTag: vi.fn(),
   setUser: vi.fn(),

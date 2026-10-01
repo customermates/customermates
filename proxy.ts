@@ -299,7 +299,6 @@ export const config = {
       /*
        * Exclude paths:
        * - og (Open Graph image route)
-       * - monitoring (Sentry tunnel route, must bypass i18n so the SDK can POST to /monitoring directly)
        * - .well-known (Vercel Workflow SDK + OAuth discovery routes, must bypass auth/i18n)
        * - _next/static, _next/image (Next.js internal)
        * - _vercel (Vercel internal routes)
@@ -312,7 +311,7 @@ export const config = {
        *
        */
       source:
-        "/((?!og(?:/|$)|monitoring(?:/|$)|\\.well-known(?:/|$)|_next/static|_next/image|_vercel|favicon\\.ico|sitemap\\.xml|robots\\.txt|(?!api/).*\\.[a-z0-9]+$).*)",
+        "/((?!og(?:/|$)|\\.well-known(?:/|$)|_next/static|_next/image|_vercel|favicon\\.ico|sitemap\\.xml|robots\\.txt|(?!api/).*\\.[a-z0-9]+$).*)",
       missing: [
         { type: "header", key: "next-router-prefetch" },
         { type: "header", key: "purpose", value: "prefetch" },

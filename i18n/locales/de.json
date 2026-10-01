@@ -2410,20 +2410,20 @@
   },
   "ErrorTestPage": {
     "clientSideErrors": {
-      "description": "Nicht abgefangene Ausnahmen im Browser-Code. Im Dev-Modus fängt das Next.js-Error-Overlay sie ab; in Produktion landen sie via globalem Handler des Browser-SDK in Sentry und im UnexpectedErrorToaster.",
+      "description": "Nicht abgefangene Browserfehler werden mit Stack und Route erfasst. Bei angemeldeten Nutzern erhält der Betreiber außerdem eine E-Mail.",
       "title": "Client-seitig",
       "triggerClientError": "Unbehandelten Client-Fehler werfen"
     },
     "serverSideError": {
-      "description": "Server-Action wirft einen Fehler → wird von onRequestError in instrumentation.ts abgefangen → an Sentry gemeldet.",
+      "description": "Serverfehler werden mit ursprünglichem Stack, Route und authentifiziertem Workspace-Kontext erfasst.",
       "title": "Server-Action",
       "triggerServerError": "Server-Action-Fehler werfen"
     },
     "subtitle": "Absichtlich Dinge kaputt machen, für die Wissenschaft!",
     "title": "Fehlertest",
     "workflowError": {
-      "description": "Stößt einen Hintergrund-Workflow an, der in einem Step einen Fehler wirft. Der catch des Workflows → reportFailure → Sentry. Im Dev-Modus erfolgt die Ausgabe stattdessen in der Server-Konsole.",
-      "dispatched": "Workflow ausgelöst. Der Fehler wird an Sentry gemeldet (im Dev-Modus an die Server-Konsole).",
+      "description": "Startet einen Hintergrund-Workflow, dessen Schritt fehlschlägt. In Produktion wird der Fehler protokolliert und per E-Mail gemeldet; in der Entwicklung erscheint er in der Serverkonsole.",
+      "dispatched": "Workflow gestartet. Sein Fehler wird in Produktion dem Betreiber gemeldet oder in der Entwicklung in der Serverkonsole ausgegeben.",
       "title": "Workflow (Hintergrundjob)",
       "triggerWorkflowError": "Fehlerhaften Workflow auslösen"
     }

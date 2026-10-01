@@ -16,7 +16,7 @@ vi.mock("../../actions", () => ({
   updateWidgetLayoutsAction,
 }));
 
-vi.mock("@sentry/nextjs", () => ({ captureException }));
+vi.mock("@/core/observability/browser", () => ({ captureException }));
 
 vi.mock("@/app/actions", () => ({
   bulkDeleteEntitiesAction: vi.fn(),

@@ -212,12 +212,8 @@ describe("environment configuration", () => {
   });
 });
 
-const sentryInit = vi.hoisted(() => vi.fn());
-
-vi.mock("@sentry/nextjs", () => ({
-  captureRouterTransitionStart: vi.fn(),
-  init: sentryInit,
-}));
+const capture = vi.hoisted(() => vi.fn());
+vi.mock("@/core/observability/browser", () => ({ captureException: capture }));
 vi.mock("@/env", () => {
   throw new Error("client instrumentation imported the server environment");
 });
@@ -229,40 +225,23 @@ describe("client instrumentation", () => {
     vi.unstubAllGlobals();
     vi.resetModules();
   });
-
   it("does not evaluate server-only application configuration", async () => {
     vi.stubEnv("APP_MODE", "");
-    vi.stubEnv("NEXT_PUBLIC_SENTRY_DSN", "");
-
-    await expect(import("@/instrumentation-client")).resolves.toMatchObject({
-      onRouterTransitionStart: undefined,
-    });
+    vi.stubEnv("NEXT_PUBLIC_ERROR_REPORTING_PROVIDER", "off");
+    await expect(import("@/instrumentation-client")).resolves.toBeDefined();
   });
-
-  it("keeps browser transport interruptions and genuine client defects unless an owning boundary handles them", async () => {
-    vi.stubEnv("NEXT_PUBLIC_SENTRY_DSN", "https://public@example.invalid/1");
-    vi.stubEnv("NODE_ENV", "production");
-    // The client SDK is imported when an app route's main thread next goes idle, not at module
-    // evaluation, so the browser hooks it needs have to exist before the module is pulled in.
+  it("keeps uncaught transport interruptions and genuine client defects", async () => {
+    const listeners = new Map<string, (event: { error: Error }) => void>();
     vi.stubGlobal("window", {
-      addEventListener: vi.fn(),
-      location: { href: "https://customermates.test/en/dashboard", pathname: "/en/dashboard" },
-      removeEventListener: vi.fn(),
-      requestIdleCallback: (callback: () => void) => callback(),
+      addEventListener: (type: string, callback: (event: { error: Error }) => void) => listeners.set(type, callback),
     });
-
     await import("@/instrumentation-client");
-    await vi.waitFor(() => expect(sentryInit).toHaveBeenCalled());
-
-    const options = sentryInit.mock.calls.at(-1)?.[0] as {
-      beforeSend?: (event: object, hint: { originalException?: unknown }) => object | null;
-    };
-    const event = { event_id: "event" };
-
-    expect(options.beforeSend?.(event, { originalException: new TypeError("Failed to fetch") })).toBe(event);
-    expect(
-      options.beforeSend?.(event, { originalException: new TypeError("Cannot read properties of undefined") }),
-    ).toBe(event);
+    const transport = new TypeError("Failed to fetch");
+    const defect = new TypeError("Cannot read properties of undefined");
+    listeners.get("error")?.({ error: transport });
+    listeners.get("error")?.({ error: defect });
+    expect(capture).toHaveBeenCalledWith(transport, expect.any(Object));
+    expect(capture).toHaveBeenCalledWith(defect, expect.any(Object));
   });
 });
 

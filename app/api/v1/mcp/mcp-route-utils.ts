@@ -1,7 +1,7 @@
 import { z } from "zod";
 
 import { createMcpHandler } from "mcp-handler";
-import * as Sentry from "@sentry/nextjs";
+import * as ErrorReporter from "@/core/observability/server";
 
 import { redactUnexpectedError } from "@/core/errors/redact-unexpected-error";
 import { executeMcpTool, type McpTool } from "@/features/mcp-tools/mcp-tool";
@@ -46,7 +46,7 @@ function registerAllTools(server: Parameters<Parameters<typeof createMcpHandler>
             ...(result.structuredContent ? { structuredContent: result.structuredContent } : {}),
           };
         } catch (error) {
-          Sentry.captureException(redactUnexpectedError(error, "The MCP tool could not be completed."));
+          ErrorReporter.captureException(redactUnexpectedError(error, "The MCP tool could not be completed."));
           return createTextContent("Error: The operation could not be completed", true);
         }
       },

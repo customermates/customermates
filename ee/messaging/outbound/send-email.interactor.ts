@@ -16,7 +16,7 @@ import type { EntitlementService } from "@/ee/subscription/entitlement.service";
 
 import { z } from "zod";
 import { getLocale } from "next-intl/server";
-import * as Sentry from "@sentry/node";
+import * as ErrorReporter from "@/core/observability/server";
 
 import { Resource, Action, MessagingMessageDirection, MessagingMessageOrigin } from "@/generated/prisma";
 
@@ -266,7 +266,7 @@ export class SendEmailInteractor extends AuthenticatedInteractor<SendEmailData, 
             expectedUpdatedAt: draftUpdatedAtFromRevision(data.draftRevision),
           });
         } catch (err) {
-          Sentry.captureException(err, { tags: { kind: "draft-discard-failure" } });
+          ErrorReporter.captureException(err, { tags: { kind: "draft-discard-failure" } });
         }
       }
       return adopted;
@@ -365,7 +365,7 @@ export class SendEmailInteractor extends AuthenticatedInteractor<SendEmailData, 
 
       return { ok: true as const, data: toMessagingMessageDto(persisted) };
     } catch (err) {
-      if (!isUnipileResourceNotFound(err) && !isUnipileTimeout(err)) Sentry.captureException(err);
+      if (!isUnipileResourceNotFound(err) && !isUnipileTimeout(err)) ErrorReporter.captureException(err);
       return { ok: true as const, data: null };
     }
   }

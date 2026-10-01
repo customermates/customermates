@@ -2410,20 +2410,20 @@
   },
   "ErrorTestPage": {
     "clientSideErrors": {
-      "description": "Excepciones no capturadas en el código del navegador. La superposición de error de Next.js las captura en desarrollo; en producción llegan a Sentry a través del gestor global del SDK del navegador y del UnexpectedErrorToaster.",
+      "description": "Los errores no capturados del navegador se registran con su pila y ruta. Los errores de usuarios autenticados también envían un correo al operador.",
       "title": "Lado del cliente",
       "triggerClientError": "Lanzar un error de cliente no capturado"
     },
     "serverSideError": {
-      "description": "Excepción en una server action, capturada por onRequestError de instrumentation.ts y notificada a Sentry.",
+      "description": "Los errores del servidor se registran con su pila original, ruta y contexto del espacio de trabajo autenticado.",
       "title": "Server action",
       "triggerServerError": "Lanzar un error de server action"
     },
     "subtitle": "¡Rompemos cosas a propósito, por la ciencia!",
     "title": "Prueba de errores",
     "workflowError": {
-      "description": "Lanza un workflow en segundo plano que falla en un paso. El catch del workflow llama a reportFailure, que lo notifica a Sentry. En desarrollo el error se escribe en la consola del servidor en lugar de en Sentry.",
-      "dispatched": "Workflow lanzado. Su fallo se notifica a Sentry (o a la consola del servidor en desarrollo).",
+      "description": "Lanza un workflow en el que falla un paso. En producción se registra el error y se envía al operador; en desarrollo aparece en la consola del servidor.",
+      "dispatched": "Workflow lanzado. Su error se comunica al operador en producción o en la consola del servidor en desarrollo.",
       "title": "Workflow (tarea en segundo plano)",
       "triggerWorkflowError": "Lanzar un workflow que falla"
     }

@@ -1,4 +1,4 @@
-import * as Sentry from "@sentry/nextjs";
+import * as ErrorReporter from "@/core/observability/server";
 
 import { getTransactionClient, transactionStorage } from "./transaction-context";
 import { tenantStorage } from "./tenant-context";
@@ -65,7 +65,7 @@ export async function runInTransaction<T>(
     await Promise.all(
       afterCommit.map((commitFn) =>
         commitFn().catch((err: unknown) => {
-          Sentry.captureException(err, {
+          ErrorReporter.captureException(err, {
             tags: { kind: "afterCommit-failure" },
           });
         }),

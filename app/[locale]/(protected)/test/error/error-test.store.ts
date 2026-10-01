@@ -4,7 +4,7 @@ import { triggerServerErrorAction, triggerWorkflowErrorAction } from "./actions"
 
 export class ErrorTestStore extends BaseStore {
   triggerUnexpectedClientError = () => {
-    throw new Error("Test client-side error - should trigger UnexpectedErrorToaster + Sentry");
+    throw new Error("Test client-side error - should trigger UnexpectedErrorToaster + operator notification");
   };
 
   triggerUnexpectedServerError = async () => {

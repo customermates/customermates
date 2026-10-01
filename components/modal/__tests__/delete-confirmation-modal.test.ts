@@ -10,7 +10,7 @@ const testContext = vi.hoisted(() => ({ rootStore: null as RootStore | null }));
 const captureException = vi.hoisted(() => vi.fn());
 const toastSuccess = vi.hoisted(() => vi.fn());
 
-vi.mock("@sentry/nextjs", () => ({ captureException }));
+vi.mock("@/core/observability/browser", () => ({ captureException }));
 vi.mock("sonner", () => ({ toast: { error: vi.fn(), success: toastSuccess } }));
 vi.mock("next-intl", () => ({ useTranslations: () => (key: string) => key }));
 vi.mock("@/core/stores/root-store.provider", () => ({

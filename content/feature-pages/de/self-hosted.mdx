@@ -178,7 +178,7 @@ Diese Trennung ist beim Vergleich eines [Open-Source-CRMs](/blog/open-source-crm
 
 Sie bestimmen, wo Anwendung und PostgreSQL laufen und wie Netzwerkzugriff, Backups, Aufbewahrung und Updates konfiguriert werden. Das gibt Ihnen Kontrolle über die Infrastruktur, garantiert jedoch weder Compliance noch Sicherheit oder einen vollständig isolierten Betrieb.
 
-Jeder angebundene Dienst bildet weiterhin eine eigene Grenze der Datenverarbeitung. OAuth-Anbieter, SMTP, Monitoring, Workflow-Tools und externe KI-Anbieter erhalten die Daten, die Ihre Konfiguration an sie übermittelt. Eine selbst gehostete Installation sendet ohne konfigurierte Sentry-DSN keine Sentry-Daten. Diese spezifische Voreinstellung erlaubt jedoch keine pauschale Aussage zur Telemetrie.
+Jeder angebundene Dienst bildet weiterhin eine eigene Grenze der Datenverarbeitung. OAuth-Anbieter, SMTP, Monitoring, Workflow-Tools und externe KI-Anbieter erhalten die Daten, die Ihre Konfiguration an sie übermittelt. Die Fehlerdiagnose bleibt auf Ihrem Server; Betreiberbenachrichtigungen verwenden den von Ihnen konfigurierten Empfänger und E-Mail-Anbieter. Dies ist keine pauschale Aussage zur Telemetrie.
 
 ## Self-Hosted oder Managed Cloud?
 

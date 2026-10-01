@@ -32,6 +32,8 @@ const CLIENT_ENTRY_POINTS = [
 ];
 
 const FORBIDDEN = [
+  { id: "@sentry/nextjs", reason: "the temporary legacy alias is a server-only native error reporter" },
+  { id: "@sentry/node", reason: "the temporary legacy alias is a server-only native error reporter" },
   { id: "mobx", reason: "the marketing chrome reads no observable; drop observer() rather than shipping MobX" },
   {
     id: "mobx-react-lite",
@@ -42,9 +44,8 @@ const FORBIDDEN = [
     reason: "import the enum as a type and use its string literals; a value import ships the generated client",
   },
   {
-    id: "@sentry/nextjs",
-    reason:
-      "the browser SDK is loaded on demand by instrumentation-client.ts (idle on app routes, on the first report on marketing routes); a static import puts it back in front of the first paint",
+    id: "core/observability/server.ts",
+    reason: "server error reporting depends on the Workflow runtime and must stay out of the browser graph",
   },
   {
     id: "zod",

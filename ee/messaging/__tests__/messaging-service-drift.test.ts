@@ -13,10 +13,10 @@ vi.mock("@/env", () => ({ env: { ...MOCK_ENV_MODULE.env, UNIPILE_API_KEY: "test-
 vi.mock("@/core/di", () => ({ ...createMockDiModule(() => mockUser) }));
 vi.mock("@/core/validation/zod-error-map-server", () => MOCK_ZOD_MODULE);
 vi.mock("@/prisma/db", () => MOCK_PRISMA_DB_MODULE);
-vi.mock("@sentry/node", () => ({ captureException: vi.fn(), captureMessage: vi.fn() }));
+vi.mock("@/core/observability/server", () => ({ captureException: vi.fn(), captureMessage: vi.fn() }));
 
 import { z } from "zod";
-import * as Sentry from "@sentry/node";
+import * as ErrorReporter from "@/core/observability/server";
 
 import { CustomErrorCode } from "@/core/validation/validation.types";
 import { MessagingService } from "../messaging.service";
@@ -60,7 +60,7 @@ describe("MessagingService boundary validation", () => {
     const call = new MessagingService().getAccount("acc_1");
 
     await expect(call).rejects.toBeInstanceOf(z.ZodError);
-    expect(Sentry.captureException).not.toHaveBeenCalled();
+    expect(ErrorReporter.captureException).not.toHaveBeenCalled();
   });
 
   it("sendEmail throws a ZodError when the response misses id or message_id", async () => {
@@ -137,7 +137,7 @@ describe("social profile identifier routing", () => {
       const result = await service[method]({ accountId: "acc_1", identifier: "not-a-provider-id" });
 
       expect(result).toEqual({ ok: false, error: CustomErrorCode.unipileInvalidRequest });
-      expect(Sentry.captureException).not.toHaveBeenCalled();
+      expect(ErrorReporter.captureException).not.toHaveBeenCalled();
     },
   );
 
@@ -151,7 +151,7 @@ describe("social profile identifier routing", () => {
     });
 
     expect(result).toEqual({ ok: false, error: CustomErrorCode.unipileInvalidRequest });
-    expect(Sentry.captureException).not.toHaveBeenCalled();
+    expect(ErrorReporter.captureException).not.toHaveBeenCalled();
   });
 
   it("keeps unrelated api/invalid_parameters failures visible in Sentry", async () => {
@@ -163,7 +163,7 @@ describe("social profile identifier routing", () => {
     });
 
     expect(result).toEqual({ ok: false, error: CustomErrorCode.unipileUnknown });
-    expect(Sentry.captureException).toHaveBeenCalledWith(
+    expect(ErrorReporter.captureException).toHaveBeenCalledWith(
       expect.any(Error),
       expect.objectContaining({
         tags: expect.objectContaining({ unipileDetail: "with_sections has an invalid value." }),
@@ -184,7 +184,7 @@ describe("social post pagination", () => {
     });
 
     expect(result).toEqual({ ok: false, error: CustomErrorCode.unipileInvalidRequest });
-    expect(Sentry.captureException).not.toHaveBeenCalled();
+    expect(ErrorReporter.captureException).not.toHaveBeenCalled();
   });
 
   it("keeps a positive offset for providers that support offset pagination", async () => {
@@ -201,7 +201,7 @@ describe("social post pagination", () => {
     const result = await new MessagingService().listUserPosts({ accountId: "acc_1", userId: "me", offset: 20 });
 
     expect(result).toEqual({ ok: false, error: CustomErrorCode.unipileInvalidRequest });
-    expect(Sentry.captureException).not.toHaveBeenCalled();
+    expect(ErrorReporter.captureException).not.toHaveBeenCalled();
   });
 
   it("captures the same provider response when no offset selected the wrong mode", async () => {
@@ -210,7 +210,7 @@ describe("social post pagination", () => {
     const result = await new MessagingService().listUserPosts({ accountId: "acc_1", userId: "me" });
 
     expect(result).toEqual({ ok: false, error: CustomErrorCode.unipileUnknown });
-    expect(Sentry.captureException).toHaveBeenCalledWith(
+    expect(ErrorReporter.captureException).toHaveBeenCalledWith(
       expect.any(Error),
       expect.objectContaining({
         tags: expect.objectContaining({ unipileDetail: "This feature uses cursor for pagination." }),
@@ -351,7 +351,7 @@ describe("startChat routing and 5xx capture", () => {
     const result = await new MessagingService().startChat({ accountId: "acc_1", usersIds: ["u1"], text: "hi" });
 
     expect(result).toEqual({ ok: false, error: CustomErrorCode.unipileServiceUnavailable });
-    expect(Sentry.captureException).toHaveBeenCalledWith(expect.any(Error), {
+    expect(ErrorReporter.captureException).toHaveBeenCalledWith(expect.any(Error), {
       tags: {
         unipileStatus: "500",
         unipileErrorType: "api/internal_error",
@@ -368,8 +368,8 @@ describe("startChat routing and 5xx capture", () => {
     const result = await new MessagingService().startChat({ accountId: "acc_1", usersIds: ["u1"], text: "hi" });
 
     expect(result).toEqual({ ok: false, error: CustomErrorCode.unipileServiceUnavailable });
-    expect(Sentry.captureException).not.toHaveBeenCalled();
-    expect(Sentry.captureMessage).not.toHaveBeenCalled();
+    expect(ErrorReporter.captureException).not.toHaveBeenCalled();
+    expect(ErrorReporter.captureMessage).not.toHaveBeenCalled();
   });
 });
 
@@ -405,7 +405,7 @@ describe("getAccount consumer drift policies", () => {
     expect(backgroundTaskService.dispatch).toHaveBeenCalledWith("backfill-connected-account", {
       connectedAccountId: account.id,
     });
-    expect(Sentry.captureException).toHaveBeenCalledWith(expect.any(z.ZodError), {
+    expect(ErrorReporter.captureException).toHaveBeenCalledWith(expect.any(z.ZodError), {
       tags: { unipileAccountId: "acc_uni-1" },
     });
   });
@@ -440,7 +440,7 @@ describe("getAccount consumer drift policies", () => {
 
     expect(plan).toEqual({ status: "ready", kind: "chat", sources: [ACCOUNT_WIDE_SOURCE], hasCalendar: false });
     expect(repo.updateAccountUnscoped).not.toHaveBeenCalled();
-    expect(Sentry.captureException).toHaveBeenCalledWith(expect.any(z.ZodError), {
+    expect(ErrorReporter.captureException).toHaveBeenCalledWith(expect.any(z.ZodError), {
       tags: { unipileAccountId: account.unipileAccountId },
     });
   });
@@ -502,8 +502,8 @@ describe("Unipile failure diagnostics reach Sentry", () => {
 
     expect(result.ok).toBe(false);
     if (!result.ok) expect(result.error).toBe(CustomErrorCode.unipileFeatureUnavailable);
-    expect(Sentry.captureException).toHaveBeenCalledOnce();
-    expect(vi.mocked(Sentry.captureException).mock.calls[0][1]).toMatchObject({
+    expect(ErrorReporter.captureException).toHaveBeenCalledOnce();
+    expect(vi.mocked(ErrorReporter.captureException).mock.calls[0][1]).toMatchObject({
       tags: {
         unipileStatus: "501",
         unipileErrorType: "api/not_implemented",
@@ -523,8 +523,8 @@ describe("Unipile failure diagnostics reach Sentry", () => {
 
     expect(result.ok).toBe(false);
     if (!result.ok) expect(result.error).toBe(CustomErrorCode.unipileFeatureUnavailable);
-    expect(Sentry.captureException).toHaveBeenCalledOnce();
-    expect(vi.mocked(Sentry.captureException).mock.calls[0][1]).toMatchObject({
+    expect(ErrorReporter.captureException).toHaveBeenCalledOnce();
+    expect(vi.mocked(ErrorReporter.captureException).mock.calls[0][1]).toMatchObject({
       tags: { unipileErrorType: "api/inactive_subscription", unipileRequestId: "req-9xy", unipileDetail: "none" },
     });
   });
@@ -544,7 +544,7 @@ describe("Unipile failure diagnostics reach Sentry", () => {
 
     await new MessagingService().getPost({ accountId: "acc_1", postId: "p1" });
 
-    const context = vi.mocked(Sentry.captureException).mock.calls[0][1] as { tags: Record<string, string> };
+    const context = vi.mocked(ErrorReporter.captureException).mock.calls[0][1] as { tags: Record<string, string> };
     const tags = context.tags;
     expect(tags.unipileDetail).toBe("Delivery to [redacted] failed permanently.");
     expect(tags.unipileDetail).not.toContain("@");
@@ -557,7 +557,7 @@ describe("Unipile failure diagnostics reach Sentry", () => {
     const result = await new MessagingService().getPost({ accountId: "acc_1", postId: "p1" });
 
     if (!result.ok) expect(result.error).toBe(CustomErrorCode.unipileServiceUnavailable);
-    expect(Sentry.captureException).not.toHaveBeenCalled();
+    expect(ErrorReporter.captureException).not.toHaveBeenCalled();
   });
 
   it("keeps an expected not-found quiet", async () => {
@@ -566,6 +566,6 @@ describe("Unipile failure diagnostics reach Sentry", () => {
     const result = await new MessagingService().getPost({ accountId: "acc_1", postId: "p1" });
 
     if (!result.ok) expect(result.error).toBe(CustomErrorCode.unipileResourceNotFound);
-    expect(Sentry.captureException).not.toHaveBeenCalled();
+    expect(ErrorReporter.captureException).not.toHaveBeenCalled();
   });
 });

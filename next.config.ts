@@ -1,9 +1,11 @@
 import type { NextConfig } from "next";
 
+import { randomUUID } from "node:crypto";
+import { readFileSync } from "node:fs";
+
 import { PHASE_DEVELOPMENT_SERVER, PHASE_PRODUCTION_BUILD } from "next/constants";
 import createNextIntlPlugin from "next-intl/plugin";
 import { createMDX } from "fumadocs-mdx/next";
-import { withSentryConfig } from "@sentry/nextjs";
 import { withWorkflow } from "workflow/next";
 
 import { env } from "@/env";
@@ -41,7 +43,12 @@ const nextConfig: NextConfig = {
   },
 
   experimental: {
+    cpus: 2,
+    webpackBuildWorker: true,
+    webpackMemoryOptimizations: true,
     globalNotFound: true,
+    serverSourceMaps: false,
+    turbopackSourceMaps: false,
     serverActions: {
       bodySizeLimit: "25mb",
     },
@@ -56,6 +63,14 @@ const nextConfig: NextConfig = {
       "fumadocs-ui",
       "lodash",
     ],
+  },
+
+  productionBrowserSourceMaps: false,
+  enablePrerenderSourceMaps: false,
+
+  webpack(config, { dev }) {
+    if (!dev) config.cache = { type: "memory" };
+    return config;
   },
 
   // Next runs config redirects before the proxy middleware, so a retired URL answers with a single
@@ -83,17 +98,6 @@ const nextConfig: NextConfig = {
   },
 };
 
-const sentryOptions = {
-  org: env.SENTRY_ORG,
-  project: env.SENTRY_PROJECT,
-  authToken: env.SENTRY_AUTH_TOKEN,
-  silent: !env.CI,
-  widenClientFileUpload: true,
-  tunnelRoute: "/monitoring",
-};
-
-const composed = withWorkflow(withMDX(withNextIntl(nextConfig)));
-
 export default async function configure(phase: string, context: { defaultConfig: NextConfig }) {
   // The production runner serves built CSS and does not ship the source graph.
   if (phase === PHASE_DEVELOPMENT_SERVER || phase === PHASE_PRODUCTION_BUILD) {
@@ -101,6 +105,37 @@ export default async function configure(phase: string, context: { defaultConfig:
     generateStyleSources(process.cwd(), phase === PHASE_DEVELOPMENT_SERVER);
     await generatePublicStyles(process.cwd(), phase === PHASE_DEVELOPMENT_SERVER);
   }
-  const configured = env.NEXT_PUBLIC_SENTRY_DSN ? withSentryConfig(composed, sentryOptions) : composed;
-  return configured(phase, context);
+  const provider = process.env.NEXT_PUBLIC_ERROR_REPORTING_PROVIDER || "vercel";
+  if (provider !== "off" && provider !== "vercel")
+    throw new Error("NEXT_PUBLIC_ERROR_REPORTING_PROVIDER must be off or vercel");
+  let config = nextConfig;
+  if (provider === "vercel") {
+    const buildId =
+      phase === PHASE_PRODUCTION_BUILD
+        ? (process.env.ERROR_REPORTING_BUILD_ID ??= randomUUID())
+        : phase === PHASE_DEVELOPMENT_SERVER
+          ? "local-development"
+          : readFileSync(".next/BUILD_ID", "utf8").trim();
+    if (!/^[a-zA-Z0-9_-]{1,128}$/.test(buildId)) throw new Error("Invalid error reporting build ID");
+    if (
+      process.env.VERCEL &&
+      (!process.env.ERROR_REPORTING_NOTIFICATION_EMAIL || !env.RESEND_API_KEY || !env.RESEND_OPERATOR_EMAIL)
+    )
+      throw new Error("Vercel error reporting requires notification email configuration");
+    const release = process.env.VERCEL_GIT_COMMIT_SHA ?? process.env.ERROR_REPORTING_RELEASE ?? "";
+    if (release && !/^(?:[a-f0-9]{40}|[a-f0-9]{64})$/.test(release))
+      throw new Error("Invalid error reporting release commit");
+    config = {
+      ...nextConfig,
+      generateBuildId: () => Promise.resolve(buildId),
+      env: {
+        ...nextConfig.env,
+        NEXT_PUBLIC_ERROR_REPORTING_PROVIDER: provider,
+        NEXT_PUBLIC_ERROR_REPORTING_BUILD_ID: buildId,
+        NEXT_PUBLIC_ERROR_REPORTING_RELEASE: release,
+      },
+    };
+  }
+  const composed = withWorkflow(withMDX(withNextIntl(config)));
+  return composed(phase, context);
 }

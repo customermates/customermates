@@ -5,7 +5,7 @@ description: Learn how Customermates processes and protects personal data and wh
 
 # Privacy Policy
 
-_Version 2026-09-13; editorially corrected 23 and 27 September 2026_
+_Version 2026-10-01_
 
 ## Scope of This Policy
 
@@ -91,17 +91,13 @@ Further information on data protection at Resend can be found at: https://resend
 
 We have concluded a data processing agreement (DPA) for the use of the above-mentioned service. This contract covers the recipient data, message content, and delivery metadata that Resend processes on our behalf according to our instructions and in compliance with the GDPR.
 
-### Sentry
+### Error diagnostics
 
-For error and performance monitoring across our application (browser, server, and background workers), we use the service Sentry, offered by Functional Software, Inc. (d/b/a Sentry), 45 Fremont Street, 8th Floor, San Francisco, CA 94105, USA. Within the European Union, Sentry is represented by Sentry Software Netherlands B.V., Schiphol Boulevard 359, 1118 BJ, Amsterdam Schiphol, Netherlands. Sentry processes IP addresses, user identifiers (where set), session IDs, stack traces, breadcrumbs, request URLs, and other event metadata from errors captured in our browser, server, and worker runtimes, for the purpose of error monitoring and diagnostics.
+To diagnose unexpected application errors, Customermates records a bounded diagnostic report in Vercel runtime logs. A report can contain the error type and message, stack positions, a render-error identifier, the route path without query parameters, build and event identifiers, and internal user and workspace identifiers when verified. We redact common credentials and email addresses in error text and paths before publishing the report. The report does not attach request headers, cookies, request bodies, browsing breadcrumbs, or session recordings.
 
-We operate Sentry on its European region (Frankfurt, Germany). Error event data is stored within the European Union. However, account, authentication, integration, audit-log, and support data are stored by Sentry on infrastructure in the United States regardless of the region selected. The processing is based on Art. 6 para. 1 lit. f GDPR (legitimate interest in operational reliability and incident response) and, where necessary to provide our contractual services, Art. 6 para. 1 lit. b GDPR. Sentry processes error-event and other Service Data on our behalf under a data processing agreement pursuant to Art. 28 GDPR; it acts as an independent controller for its own account, profile, device, usage, and support data under its privacy policy.
+Errors from authenticated browser sessions, server requests, and background workflows can additionally trigger an operator notification through Vercel Workflow and Resend to our own team. The notification contains the bounded diagnostic context needed to investigate the error. Anonymous browser reports are logged without email notifications.
 
-For the transfer of personal data to the United States, Sentry is certified under the EU-US Data Privacy Framework (DPF). Details and the participant record are available at: https://www.dataprivacyframework.gov/list. In addition, Schedule 3 of Sentry's data processing agreement provides for the EU Standard Contractual Clauses pursuant to Art. 46 GDPR as a fallback: they apply if the Data Privacy Framework is invalidated or does not apply to the transfer. For more information about data protection at Sentry, please visit: https://sentry.io/privacy/. Sentry's list of subprocessors is available at: https://sentry.io/legal/subprocessors/. The data processing agreement is available at: https://sentry.io/legal/dpa/.
-
-### Data Processing Agreement
-
-We have concluded a data processing agreement (DPA) for the use of the above-mentioned service. This contract covers the error-event and other Service Data that Sentry processes on our behalf according to our instructions and in compliance with the GDPR.
+The purpose is operational reliability and incident response. The legal basis is Art. 6 para. 1 lit. f GDPR and, where necessary to provide our contractual services, Art. 6 para. 1 lit. b GDPR. Vercel and Resend process the relevant diagnostic reports, application-code artifacts, and notification content under the data processing arrangements described above. Customermates no longer sends new error events to Sentry. Previously collected events remain subject to the existing Sentry account retention until they are removed; Sentry remains listed for that historical processing in our subprocessor list.
 
 ## 3. General Notes and Mandatory Information
 

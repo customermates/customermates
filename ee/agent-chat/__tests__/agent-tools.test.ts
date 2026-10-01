@@ -23,7 +23,7 @@ vi.mock("@/env", () => MOCK_ENV_MODULE);
 vi.mock("@/core/di", () => createMockDiModule(() => mockUser));
 vi.mock("@/core/validation/zod-error-map-server", () => MOCK_ZOD_MODULE);
 vi.mock("@/prisma/db", () => MOCK_PRISMA_DB_MODULE);
-vi.mock("@sentry/nextjs", () => sentryMock);
+vi.mock("@/core/observability/server", () => sentryMock);
 vi.mock("next-intl/server", () => ({
   getTranslations: () => {
     const translator = Object.assign((key: string) => key, { raw: (key: string) => `localized:${key}` });

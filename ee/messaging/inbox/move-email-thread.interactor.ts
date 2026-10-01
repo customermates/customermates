@@ -5,7 +5,7 @@ import type { EntitlementService } from "@/ee/subscription/entitlement.service";
 import type { Data, Validated } from "@/core/validation/validation.utils";
 
 import { z } from "zod";
-import * as Sentry from "@sentry/node";
+import * as ErrorReporter from "@/core/observability/server";
 import { getLocale } from "next-intl/server";
 
 import { Action, Resource } from "@/generated/prisma";
@@ -154,7 +154,7 @@ export class MoveEmailThreadInteractor extends AuthenticatedInteractor<MoveEmail
           folderIds: moved.data.folderIds,
         });
       } catch (err) {
-        Sentry.captureException(err, {
+        ErrorReporter.captureException(err, {
           tags: {
             unipileAccountId: thread.unipileAccountId,
             companyId: thread.companyId,

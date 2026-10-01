@@ -179,7 +179,7 @@ That distinction matters when comparing an [open-source CRM](/blog/open-source-c
 
 You choose where the application and PostgreSQL run and how you configure network access, backups, retention and updates. That is meaningful infrastructure control, but it is not an automatic compliance, security or air-gap guarantee.
 
-Connected services remain separate processing boundaries. OAuth providers, SMTP, monitoring, workflow tools and external AI providers receive whatever your configuration sends to them. A self-hosted installation sends no Sentry data unless you configure a Sentry DSN, but that narrow default is not a blanket no-telemetry promise.
+Connected services remain separate processing boundaries. OAuth providers, SMTP, monitoring, workflow tools and external AI providers receive whatever your configuration sends to them. Error diagnostics remain on your server; operator notifications use the recipient and email provider you configure. This is not a blanket no-telemetry promise.
 
 ## Self-hosted or managed cloud?
 

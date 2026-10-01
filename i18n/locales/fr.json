@@ -2410,20 +2410,20 @@
   },
   "ErrorTestPage": {
     "clientSideErrors": {
-      "description": "Exceptions non interceptées dans le code du navigateur. La superposition d'erreur Next.js les capte en développement ; en production elles remontent à Sentry via le gestionnaire global du SDK navigateur et l'UnexpectedErrorToaster.",
+      "description": "Les erreurs non interceptées du navigateur sont enregistrées avec leur pile et leur route. Les erreurs des utilisateurs connectés déclenchent aussi un e-mail à l’opérateur.",
       "title": "Côté client",
       "triggerClientError": "Déclencher une erreur client non interceptée"
     },
     "serverSideError": {
-      "description": "Exception dans une action serveur, interceptée par onRequestError d'instrumentation.ts, puis remontée à Sentry.",
+      "description": "Les erreurs serveur sont enregistrées avec leur pile originale, leur route et le contexte de l’espace de travail authentifié.",
       "title": "Action serveur",
       "triggerServerError": "Déclencher une erreur d'action serveur"
     },
     "subtitle": "On casse tout exprès, pour la science !",
     "title": "Test des erreurs",
     "workflowError": {
-      "description": "Lance un workflow en arrière-plan qui échoue dans une étape. Le catch du workflow appelle reportFailure, qui remonte à Sentry. En développement, l'erreur est écrite dans la console serveur plutôt que dans Sentry.",
-      "dispatched": "Workflow lancé. Son échec est remonté à Sentry (ou dans la console serveur en développement).",
+      "description": "Lance un workflow dont une étape échoue. En production, l’erreur est enregistrée et envoyée à l’opérateur ; en développement, elle apparaît dans la console serveur.",
+      "dispatched": "Workflow lancé. Son erreur est signalée à l’opérateur en production ou dans la console serveur en développement.",
       "title": "Workflow (tâche en arrière-plan)",
       "triggerWorkflowError": "Lancer un workflow en échec"
     }

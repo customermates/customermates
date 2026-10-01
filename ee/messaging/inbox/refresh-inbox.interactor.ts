@@ -7,7 +7,7 @@ import type { BackfillEmailsInteractor } from "../ingest/backfill/backfill-email
 
 import { z } from "zod";
 
-import * as Sentry from "@sentry/node";
+import * as ErrorReporter from "@/core/observability/server";
 
 import { Action, Resource } from "@/generated/prisma";
 
@@ -77,7 +77,7 @@ export class RefreshInboxInteractor extends AuthenticatedInteractor<void, Refres
           }
         }
       } catch (err) {
-        Sentry.captureException(err);
+        ErrorReporter.captureException(err);
       } finally {
         await this.repo.releaseBackfillClaimUnscoped(account.unipileAccountId, token, true);
       }

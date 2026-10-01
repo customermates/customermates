@@ -2410,20 +2410,20 @@
   },
   "ErrorTestPage": {
     "clientSideErrors": {
-      "description": "Uncaught throws in browser code. The Next.js error overlay catches them in dev; in production they hit Sentry via the browser SDK's global handler and the UnexpectedErrorToaster.",
+      "description": "Uncaught browser errors are captured with their stack and route. Signed-in errors also trigger an operator email.",
       "title": "Client-Side",
       "triggerClientError": "Throw uncaught client error"
     },
     "serverSideError": {
-      "description": "Server action throw → caught by instrumentation.ts's onRequestError → reported to Sentry.",
+      "description": "Server errors are captured with their original stack, route and authenticated workspace context.",
       "title": "Server Action",
       "triggerServerError": "Throw server action error"
     },
     "subtitle": "Breaking things on purpose, for science!",
     "title": "Error Testing",
     "workflowError": {
-      "description": "Dispatches a background workflow that throws in a step. The workflow's catch → reportFailure → Sentry. In dev it logs to the server console instead of Sentry.",
-      "dispatched": "Workflow dispatched. Its failure is reported to Sentry (or the server console in dev).",
+      "description": "Dispatches a background workflow that throws in a step. Its failure is logged and sent to the operator in production; development uses the server console.",
+      "dispatched": "Workflow dispatched. Its failure is reported to the operator in production or the server console in development.",
       "title": "Workflow (Background Job)",
       "triggerWorkflowError": "Dispatch failing workflow"
     }

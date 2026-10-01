@@ -16,7 +16,7 @@ vi.mock("@/env", () => ({
 vi.mock("@/core/di", () => createMockDiModule(() => mockUser));
 vi.mock("@/core/validation/zod-error-map-server", () => MOCK_ZOD_MODULE);
 vi.mock("@/prisma/db", () => MOCK_PRISMA_DB_MODULE);
-vi.mock("@sentry/node", () => ({
+vi.mock("@/core/observability/server", () => ({
   captureException: vi.fn(),
   captureMessage: vi.fn(),
 }));
