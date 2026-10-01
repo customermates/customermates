@@ -1,5 +1,5 @@
 import type { $ZodIssue, $ZodRawIssue, ParseContext } from "zod/v4/core";
-import type { ZodLocaleModule } from "./validation.types";
+import type * as ZodLocaleModule from "zod/v4/locales/en.js";
 
 import { getTranslations } from "next-intl/server";
 
@@ -11,6 +11,14 @@ import { appLocaleOrDefault, validationTagFor, type AppLocale } from "@/i18n/loc
 import { getRequestAppLocale } from "@/i18n/request-app-locale";
 
 type MessageReader = { raw: (key: string) => unknown };
+
+const localeLoaders = new Map<string, () => Promise<typeof ZodLocaleModule>>([
+  ["en", () => import("zod/v4/locales/en.js")],
+  ["de", () => import("zod/v4/locales/de.js")],
+  ["fr", () => import("zod/v4/locales/fr.js")],
+  ["it", () => import("zod/v4/locales/it.js")],
+  ["es", () => import("zod/v4/locales/es.js")],
+]);
 
 async function localization(): Promise<{ appLocale: AppLocale; messages: MessageReader }> {
   try {
@@ -36,7 +44,9 @@ export async function getZodParseContext(): Promise<ParseContext<$ZodIssue>> {
     Object.values(CustomErrorCode).map((code) => [code, t.raw(`Common.errors.${code}`) as string]),
   );
 
-  const localeModule: ZodLocaleModule = await import(`zod/v4/locales/${validationTagFor(appLocale)}.js`);
+  const loadLocale = localeLoaders.get(validationTagFor(appLocale));
+  if (!loadLocale) throw new Error("Unsupported Zod validation locale");
+  const localeModule = await loadLocale();
   const localeConfig = localeModule.default();
 
   const customError = createErrorHandler(customErrorTranslations);

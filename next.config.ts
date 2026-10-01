@@ -43,6 +43,9 @@ const nextConfig: NextConfig = {
   },
 
   experimental: {
+    cpus: 2,
+    webpackBuildWorker: true,
+    webpackMemoryOptimizations: true,
     globalNotFound: true,
     serverSourceMaps: false,
     turbopackSourceMaps: false,
@@ -64,6 +67,14 @@ const nextConfig: NextConfig = {
 
   productionBrowserSourceMaps: false,
   enablePrerenderSourceMaps: false,
+
+  webpack(config, { dev }) {
+    if (!dev && config.cache && typeof config.cache === "object" && config.cache.type === "filesystem") {
+      config.cache.maxMemoryGenerations = 0;
+      config.cache.allowCollectingMemory = true;
+    }
+    return config;
+  },
 
   // Next runs config redirects before the proxy middleware, so a retired URL answers with a single
   // clean 308 rather than chaining through locale negotiation. Every entry comes from

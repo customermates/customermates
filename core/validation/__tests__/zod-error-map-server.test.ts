@@ -23,7 +23,7 @@ vi.mock("@/i18n/locale-registry", async (importOriginal) => {
 });
 
 import { getZodParseContext } from "../zod-error-map-server";
-import { APP_LOCALES } from "@/i18n/locale-registry";
+import { APP_LOCALES, LOCALE_REGISTRY } from "@/i18n/locale-registry";
 import { ConnectedAccountEmailSchema, defaultEmailSettings } from "@/ee/messaging/email-settings";
 import { BaseCreateDealSchema } from "@/features/deals/upsert/create-deal-base.schema";
 
@@ -34,6 +34,26 @@ afterEach(() => {
 });
 
 describe("getZodParseContext", () => {
+  it.each(APP_LOCALES)("loads the built-in fallback messages for %s", async (locale) => {
+    registry.locale = locale;
+    const schema = z.string().min(5);
+    const localized = schema.safeParse("a", await getZodParseContext());
+    const expected = schema.safeParse("a", {
+      error: z.locales[LOCALE_REGISTRY[locale].validationTag]().localeError,
+    });
+
+    expect(registry.validationTagFor).toHaveBeenCalledWith(locale);
+    expect(localized.success).toBe(false);
+    expect(expected.success).toBe(false);
+    expect(localized.error?.issues).toEqual(expected.error?.issues);
+  });
+
+  it.each(["unsupported", "constructor", "__proto__"])("rejects an unsupported validation tag: %s", async (tag) => {
+    registry.validationTagFor.mockReturnValueOnce(tag);
+
+    await expect(getZodParseContext()).rejects.toThrow("Unsupported Zod validation locale");
+  });
+
   it.each(APP_LOCALES)("localizes email colour validation for %s fields and toasts", async (locale) => {
     registry.locale = locale;
     const settings = defaultEmailSettings();
