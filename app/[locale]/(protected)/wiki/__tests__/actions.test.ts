@@ -22,7 +22,7 @@ const CONVERSATION_ID = "00000000-0000-4000-8000-000000000002";
 beforeEach(() => vi.clearAllMocks());
 
 describe("startWikiHomepageSetupAction", () => {
-  it("passes the request locale to the interactor and returns its started setup", async () => {
+  it("leaves an omitted locale for the interactor to resolve and returns its started setup", async () => {
     const started = { conversationId: CONVERSATION_ID, homepage: "https://example.com/", domain: "example.com" };
     mocks.start.mockResolvedValue({ ok: true, data: started });
 
@@ -32,7 +32,6 @@ describe("startWikiHomepageSetupAction", () => {
     expect(mocks.start).toHaveBeenCalledExactlyOnceWith({
       homepage: "example.com",
       clientRequestId: CLIENT_REQUEST_ID,
-      locale: "en",
     });
   });
 
@@ -67,14 +66,20 @@ describe("Wiki page concurrency conflicts", () => {
   const input = { id: "00000000-0000-4000-8000-000000000003", expectedUpdatedAt: new Date() };
 
   it.each([
-    ["a stale-page conflict", { kind: "conflict", error: CustomErrorCode.wikiPageConflict }, true],
-    ["a validation failure", { error: CustomErrorCode.invalidUrl }, false],
-  ])("flags only %s", async (_case, params, conflict) => {
+    ["a stale-page conflict", { kind: "conflict", error: CustomErrorCode.wikiPageConflict }, "conflict"],
+    ["a validation failure", { error: CustomErrorCode.invalidUrl }, "validation"],
+  ])("serializes %s with the existing typed failure contract", async (_case, params, kind) => {
     const failure = { ok: false, error: createZodError("Failed", ["expectedUpdatedAt"], params) };
     mocks.update.mockResolvedValue(failure);
     mocks.remove.mockResolvedValue(failure);
 
-    expect(await updateWikiPageAction({ ...input, title: "Title" })).toMatchObject({ ok: false, conflict });
-    expect(await deleteWikiPageAction(input)).toMatchObject({ ok: false, conflict });
+    expect(await updateWikiPageAction({ ...input, title: "Title" })).toMatchObject({
+      ok: false,
+      failure: { kind, issues: [{ path: ["expectedUpdatedAt"], message: "Failed" }] },
+    });
+    expect(await deleteWikiPageAction(input)).toMatchObject({
+      ok: false,
+      failure: { kind, issues: [{ path: ["expectedUpdatedAt"], message: "Failed" }] },
+    });
   });
 });

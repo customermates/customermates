@@ -8,7 +8,7 @@ import { BypassTenantGuard } from "@/core/decorators/bypass-tenant.decorator";
 import { FilterFieldKey } from "@/core/types/filter-field-key";
 import { FILTER_FIELD_DEFAULT_OPERATORS } from "@/core/types/filter-field-operators";
 import { calendarAccessWhere } from "@/ee/messaging/messaging-access";
-import type { GetCalendarsRepo } from "./get-calendars.interactor";
+import type { GetCalendarsRepo } from "@/ee/calendar/get-calendars.repo";
 import type { GetCalendarByIdRepo } from "./get-calendar-by-id.interactor";
 import type { CalendarWriteRepo } from "./calendar-write.repo";
 

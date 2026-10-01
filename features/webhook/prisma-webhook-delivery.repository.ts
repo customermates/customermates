@@ -1,4 +1,4 @@
-import type { GetWebhookDeliveriesRepo } from "./get-webhook-deliveries.interactor";
+import type { GetWebhookDeliveriesRepo } from "@/features/webhook/get-webhook-deliveries.repo";
 import type { GetWebhookDeliveryByIdRepo } from "./resend-webhook-delivery.interactor";
 import type { DeliverWebhookRepo } from "./deliver-webhook.interactor";
 import type { FindWebhookDeliveriesByIdsRepo } from "./find-webhook-deliveries-by-ids.repo";

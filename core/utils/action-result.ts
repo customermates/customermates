@@ -13,6 +13,16 @@ import { serializeInteractorFailure } from "../validation/validation.utils";
 
 type ActionResult<T> = { ok: true; data: T } | { ok: false; error: $ZodErrorTree<unknown> };
 
+export type TypedActionResult<T> = { ok: true; data: T } | { ok: false; failure: SerializedInteractorFailure };
+
+export async function serializeTypedResult<T>(
+  result: Validated<T> | Awaited<Validated<T>> | Promise<Awaited<Validated<T>> | Redirect> | Redirect,
+): Promise<TypedActionResult<T>> {
+  const resolved = await result;
+  if (isRedirect(resolved)) redirect(resolved.redirect);
+  return resolved.ok ? resolved : { ok: false, failure: serializeInteractorFailure(resolved.error) };
+}
+
 export async function serializeResult<T>(
   result: Validated<T> | Awaited<Validated<T>> | Promise<Awaited<Validated<T>> | Redirect> | Redirect,
 ): Promise<ActionResult<T>> {

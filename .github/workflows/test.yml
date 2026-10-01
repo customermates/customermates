@@ -15,6 +15,7 @@ jobs:
     env:
       APP_MODE: self-hosted
       DATABASE_URL: "postgresql://postgres:postgres@localhost:5432/customermates_test"
+      DIRECT_URL: "postgresql://postgres:postgres@localhost:5432/customermates_test"
     services:
       postgres:
         image: postgres:16-alpine
@@ -48,7 +49,9 @@ jobs:
     env:
       APP_MODE: self-hosted
       DATABASE_URL: "postgresql://postgres:postgres@localhost:5432/customermates_test"
+      DIRECT_URL: "postgresql://postgres:postgres@localhost:5432/customermates_test"
       RUN_DATABASE_TESTS: "true"
+      WORKFLOW_POSTGRES_URL: "postgresql://postgres:postgres@localhost:5432/customermates_test"
     services:
       postgres:
         image: pgvector/pgvector:0.8.1-pg17-bookworm
@@ -65,6 +68,8 @@ jobs:
           --health-retries 10
     steps:
       - uses: actions/checkout@34e114876b0b11c390a56381ad16ebd13914f8d5 # v4
+        with:
+          fetch-depth: 0
       - uses: actions/setup-node@49933ea5288caeca8642d1e84afbd3f7d6820020 # v4
         with:
           node-version: 24
@@ -75,6 +80,8 @@ jobs:
           npx --no-install prisma migrate deploy
           npx --no-install prisma db seed
           npx --no-install prisma db seed
+      - name: Bootstrap the local workflow store
+        run: yarn workflow:setup
       - run: yarn openapi:generate
       - run: yarn raw-docs:generate
       - name: Verify generated files are committed

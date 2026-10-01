@@ -73,6 +73,31 @@ afterEach(() => {
 });
 
 describe("Wiki live Notes document", () => {
+  it("preserves saved Markdown and clean state when loading toggles editor permissions", async () => {
+    const markdown = "**Company**\n\n1) Verify sources.\n2) Check source link.";
+    const { store, editor, container } = await mount(markdown);
+    const savedDocument = store.editorDocument;
+    const editorElement = container.querySelector(".ProseMirror");
+    expect(store.hasUnsavedChanges).toBe(false);
+
+    act(() => store.setIsLoading(true));
+    expect(editorElement?.getAttribute("contenteditable")).toBe("false");
+    expect(store.form.markdown).toBe(markdown);
+
+    act(() => store.setIsLoading(false));
+    expect(editorElement?.getAttribute("contenteditable")).toBe("true");
+    expect(container.querySelector(".ProseMirror")).toBe(editorElement);
+    expect(store.editorDocument).toBe(savedDocument);
+    expect(store.form.markdown).toBe(markdown);
+    expect(store.hasUnsavedChanges).toBe(false);
+
+    act(() => {
+      editor.commands.insertContentAt(1, "New ");
+    });
+    expect(editor.getText()).toContain("New Company");
+    expect(store.hasUnsavedChanges).toBe(true);
+  });
+
   it("renders third-level headings and Markdown links with their semantic elements", async () => {
     const href = "https://example.com/product";
     const { container } = await mount(`### Positioning\n\n[Read the source](${href})`);

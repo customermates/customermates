@@ -43,6 +43,7 @@ vi.mock("next/headers", () => ({
 const { runWithoutTenant } = await import("@/core/decorators/tenant-context");
 const { prisma } = await import("@/prisma/db");
 const { PrismaAgentChatRepo } = await import("@/ee/agent-chat/prisma-agent-chat.repository");
+const { prismaAgentChatRepoDependencies } = await import("@/tests/helpers/prisma-agent-chat-repo");
 const { SendAgentMessageInteractor } = await import("@/ee/agent-chat/send-agent-message.interactor");
 const { AgentUsageService } = await import("@/ee/agent-chat/agent-usage.service");
 const { buildAgentUsageSettlement } = await import("@/ee/agent-chat/agent-usage-settlement");
@@ -84,7 +85,7 @@ describeDatabase("agent turn classifier trace persistence", { timeout: 120_000 }
   });
 
   it("stores the classifier trace on the turn and settles its cost into the one usage event", async () => {
-    const repo = new PrismaAgentChatRepo();
+    const repo = new PrismaAgentChatRepo(...prismaAgentChatRepoDependencies());
     const admitted = await new SendAgentMessageInteractor(
       repo,
       new AgentUsageService(repo),
@@ -165,7 +166,7 @@ describeDatabase("agent turn classifier trace persistence", { timeout: 120_000 }
     "refuses a malformed classifier trace before touching the turn (%o)",
     async (malformed) => {
       await expect(
-        new PrismaAgentChatRepo().finalizeAgentTurnOrThrowUnscoped({
+        new PrismaAgentChatRepo(...prismaAgentChatRepoDependencies()).finalizeAgentTurnOrThrowUnscoped({
           turnRequestId: randomUUID(),
           conversationId: randomUUID(),
           companyId,

@@ -1,12 +1,14 @@
 import { afterEach, beforeEach, describe, expect, it, vi } from "vitest";
 
 const calls = vi.hoisted(() => ({ fetch: vi.fn(), discover: vi.fn(), robots: vi.fn() }));
-vi.mock("../website-crawler", () => ({
-  fetchWikiSource: calls.fetch,
-  discoverWikiWebsite: calls.discover,
+vi.mock("../wiki-crawl-robots", () => ({
   WikiCrawlRobots: vi.fn(function () {
     return { forUrl: calls.robots };
   }),
+}));
+vi.mock("../website-crawler", () => ({
+  fetchWikiSource: calls.fetch,
+  discoverWikiWebsite: calls.discover,
 }));
 vi.mock("@/env", () => ({ env: { APP_MODE: "self-hosted", BASE_URL: "http://localhost:4000" } }));
 
@@ -143,9 +145,65 @@ describe("persisted per-page crawl progress", () => {
     );
   });
 
-  it("continues a legacy crawl with aggregate counters instead of resetting prior progress", async () => {
+  it.each(["initial", "extend", "refresh"] as const)(
+    "completes an empty %s target set and remains terminal on replay",
+    async (mode) => {
+      const { service, repo } = fixture();
+      const crawl = {
+        id: "crawl",
+        status: "queued",
+        mode,
+        targets: [],
+        extraHosts: ["docs.example.com"],
+        crawlDelayMs: 0,
+      };
+      repo.getCrawl.mockImplementation(() => Promise.resolve(crawl));
+      repo.claimCrawl.mockImplementation((_id, from, patch) => {
+        if (!from.includes(crawl.status)) return Promise.resolve(false);
+        Object.assign(crawl, patch);
+        return Promise.resolve(true);
+      });
+      repo.listRefreshTargets.mockResolvedValue([]);
+      calls.discover.mockResolvedValue({
+        status: "ready",
+        targets: mode === "extend" ? [{ url: "https://example.com/help", category: "help" }] : [],
+        pendingHosts: [],
+        crawlDelayMs: 0,
+      });
+
+      await expect(service.discover("crawl")).resolves.toBe(0);
+      expect(crawl).toMatchObject({ status: "completed", targets: [], discovered: 0, finishedAt: expect.any(Date) });
+      expect(repo.claimCrawl).toHaveBeenLastCalledWith(
+        "crawl",
+        ["discovering"],
+        expect.objectContaining({
+          status: "completed",
+          targets: [],
+          discovered: 0,
+          finishedAt: expect.any(Date),
+        }),
+      );
+      const discoveryCalls = calls.discover.mock.calls.length;
+      const claimCalls = repo.claimCrawl.mock.calls.length;
+      await expect(service.discover("crawl")).resolves.toBe(0);
+      expect(calls.discover).toHaveBeenCalledTimes(discoveryCalls);
+      expect(repo.claimCrawl).toHaveBeenCalledTimes(claimCalls);
+      expect(calls.fetch).not.toHaveBeenCalled();
+      expect(calls.robots).not.toHaveBeenCalled();
+      expect(repo.updateTargetStatus).not.toHaveBeenCalled();
+      expect(repo.saveSource).not.toHaveBeenCalled();
+    },
+  );
+
+  it("continues a per-target batch without refetching settled pages or resetting prior progress", async () => {
+    vi.useFakeTimers();
     const { service, repo } = fixture();
-    const targets = Array.from({ length: 6 }, (_, i) => ({ url: `https://example.com/${i}`, category: "help" }));
+    const statuses = ["read", "read", "read", "read", "failed", "pending"] as const;
+    const targets = statuses.map((status, index) => ({
+      url: `https://example.com/${index}`,
+      category: "help",
+      status,
+    }));
     repo.getCrawl.mockResolvedValue({
       status: "fetching",
       targets,
@@ -155,7 +213,12 @@ describe("persisted per-page crawl progress", () => {
       extraHosts: [],
       crawlDelayMs: 0,
     });
-    repo.countSources.mockResolvedValue(5);
+    repo.updateTargetStatus.mockImplementation((_id, url, status) => {
+      const target = targets.find((item) => item.url === url);
+      if (!target || target.status === "read" || target.status === "failed") return false;
+      target.status = status;
+      return true;
+    });
     calls.fetch.mockResolvedValue({
       url: targets[5].url,
       text: "Source",
@@ -163,10 +226,43 @@ describe("persisted per-page crawl progress", () => {
       qaPairs: [],
       contentHash: "hash",
     });
+    const run = service.fetchBatch("crawl", 1);
+    await vi.runAllTimersAsync();
+    await run;
+    expect(repo.saveSource).toHaveBeenCalledExactlyOnceWith("crawl", expect.objectContaining({ url: targets[5].url }));
+    expect(calls.fetch).toHaveBeenCalledExactlyOnceWith(targets[5].url, expect.anything(), expect.anything());
+    expect(repo.updateTargetStatus.mock.calls).toEqual([
+      ["crawl", targets[5].url, "reading"],
+      ["crawl", targets[5].url, "read"],
+    ]);
+    expect(repo.updateCrawl).not.toHaveBeenCalled();
+    expect(targets.map(({ status }) => status)).toEqual(["read", "read", "read", "read", "failed", "read"]);
+    expect(targets.filter(({ status }) => status === "read")).toHaveLength(5);
+    expect(targets.filter(({ status }) => status === "failed")).toHaveLength(1);
+    await service.fetchBatch("crawl", 0);
     await service.fetchBatch("crawl", 1);
+    expect(calls.fetch).toHaveBeenCalledOnce();
     expect(repo.saveSource).toHaveBeenCalledOnce();
+  });
+
+  it("rejects persisted targets with missing progress status without inventing an aggregate fallback", async () => {
+    const { service, repo } = fixture();
+    const targets = [{ url: "https://example.com/help", category: "help" }];
+    repo.getCrawl.mockResolvedValue({
+      status: "fetching",
+      targets,
+      discovered: 1,
+      fetched: 0,
+      failed: 0,
+      extraHosts: [],
+      crawlDelayMs: 0,
+    });
+    await expect(service.fetchBatch("crawl", 0)).rejects.toThrow("Knowledge Base crawl progress is invalid.");
+    expect(calls.robots).not.toHaveBeenCalled();
+    expect(calls.fetch).not.toHaveBeenCalled();
     expect(repo.updateTargetStatus).not.toHaveBeenCalled();
-    expect(repo.updateCrawl).toHaveBeenCalledWith("crawl", { fetched: 5, failed: 1 });
+    expect(repo.saveSource).not.toHaveBeenCalled();
+    expect(repo.updateCrawl).not.toHaveBeenCalled();
     expect(targets.every((target) => !("status" in target))).toBe(true);
   });
 
@@ -218,24 +314,24 @@ describe("persisted per-page crawl progress", () => {
     expect(events).toEqual(["reading", "failed"]);
   });
 
-  it.each([false, true])(
-    "continues after thrown and empty pages to save a later source (legacy=%s)",
-    async (legacy) => {
+  it.each(["pending", "reading"] as const)(
+    "continues a %s batch after thrown and empty pages to save a later source",
+    async (initialStatus) => {
       vi.useFakeTimers();
       const { service, repo } = fixture();
       const targets = Array.from({ length: 3 }, (_, i) => ({
         url: `https://example.com/${i}`,
         category: "help",
-        ...(legacy ? {} : { status: "pending" }),
+        status: initialStatus as "pending" | "reading" | "read" | "failed",
       }));
       repo.getCrawl.mockResolvedValue({ status: "fetching", targets, discovered: 3, extraHosts: [], crawlDelayMs: 0 });
       repo.updateTargetStatus.mockImplementation((_id, url, status) => {
         const target = targets.find((item) => item.url === url);
         if (!target) throw new Error("Missing fixture target");
+        if (target.status === "read" || target.status === "failed") return false;
         target.status = status;
         return true;
       });
-      repo.countSources.mockResolvedValue(1);
       calls.fetch
         .mockRejectedValueOnce(new Error("network failure"))
         .mockResolvedValueOnce(null)
@@ -254,10 +350,12 @@ describe("persisted per-page crawl progress", () => {
         "crawl",
         expect.objectContaining({ url: targets[2].url }),
       );
-      if (legacy) {
-        expect(repo.updateTargetStatus).not.toHaveBeenCalled();
-        expect(repo.updateCrawl).toHaveBeenCalledWith("crawl", { fetched: 1, failed: 2 });
-      } else expect(targets.map(({ status }) => status)).toEqual(["failed", "failed", "read"]);
+      expect(repo.updateCrawl).not.toHaveBeenCalled();
+      expect(targets.map(({ status }) => status)).toEqual(["failed", "failed", "read"]);
+      expect(targets.filter(({ status }) => status === "failed")).toHaveLength(2);
+      await service.fetchBatch("crawl", 0);
+      expect(calls.fetch).toHaveBeenCalledTimes(3);
+      expect(repo.saveSource).toHaveBeenCalledOnce();
     },
   );
 

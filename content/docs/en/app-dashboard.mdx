@@ -66,6 +66,7 @@ Entries sit in three groups: **Overview** (**Dashboard** and **Knowledge Base**,
 | Add widget | Page header | `#dashboard-add-widget` | Opens the widget modal |
 | Global search | Top of sidebar | `#nav-search` | Opens the search modal (also Cmd/Ctrl+K); see [Global search](/docs/app-search) |
 | Search field | Search modal | `#global-search-input` | Finds contacts, organizations, deals, services and tasks by name |
+| Create a record | Top of sidebar | `#nav-add` | Opens the record type picker |
 | Open documentation | Sidebar footer | `#nav-documentation` | Opens `/docs` |
 | Send feedback | Sidebar footer | `#nav-feedback` | Opens the feedback dialog |
 | Ask Mate | Top of sidebar when Mate is enabled, also visible during onboarding | `#nav-assistant` | **Ask Mate** opens or closes the [AI assistant](/docs/app-assistant) panel (also Cmd/Ctrl+J); during onboarding it rechecks account state and returns to the permitted route |
@@ -75,7 +76,7 @@ Entries sit in three groups: **Overview** (**Dashboard** and **Knowledge Base**,
 | Workspace administration | Workspace group | `#nav-company` | **My Company** expands or collapses **Subscription**, **Settings**, **Members**, **Roles**, **Audit Logs**, **Webhooks** and **Recent Deliveries**; see [My Company](/docs/app-company) |
 | Theme and sign-out | Sidebar footer, your name | none | **Dark Mode** or **Light Mode** switches and saves your theme; **Sign Out** ends the session |
 
-**Link:** the sidebar appears everywhere in the app; the **Dashboard** is `/dashboard`. **Mate:** `navigate` and `highlight_element` with each `nav-*` id in this section that your role can open, except `nav-search`, `nav-documentation` and `nav-feedback`, which it can only highlight, and `#nav-assistant`, which is not a target; entries under **My Profile** and **My Company** can be highlighted only while their group is expanded. The plan chip, **Email not verified** and the menu under your name are not highlight targets, so Mate names them.
+**Link:** the sidebar appears everywhere in the app; the **Dashboard** is `/dashboard`. **Mate:** `navigate` and `highlight_element` with each `nav-*` id in this section that your role can open, except `nav-search`, `nav-documentation` and `nav-feedback`, which it can only highlight, and `#nav-add` and `#nav-assistant`, which are not targets; entries under **My Profile** and **My Company** can be highlighted only while their group is expanded. The plan chip, **Email not verified** and the menu under your name are not highlight targets, so Mate names them.
 
 ## What happens on first run?
 
@@ -88,7 +89,7 @@ New accounts land in the [onboarding wizard](/docs/app-onboarding) at `/onboardi
 - The hosted assistant can navigate here and highlight `#nav-dashboard` and `#dashboard-add-widget`, and inside the widget editor `#widget-modal-kind`, `#widget-modal-save` and `#widget-modal-reset` (see the Mate lines above for when each is shown); it creates widgets through `manage_widgets` instead of driving the modal.
 - Rows never carry ids. Open a record via its page URL `/{type}/{id}`. Create records with the **Add** button at the top right of each list page. The drawer deep-link `?open={entityType}:new` also adds a record and works on every signed-in page, the Dashboard included.
 - Prefer [MCP](/docs/mcp) tools over clicking when a tool exists. Reading and writing CRM data is faster and safer through tools than through the UI.
-- `#nav-search`, `#nav-documentation` and `#nav-feedback` can be highlighted but are not navigation targets. Navigating to `#nav-profile` or `#nav-company` opens that group's **Settings** page. `#nav-assistant`, the two chips and the menu under your name are not assistant targets.
+- `#nav-search`, `#nav-documentation` and `#nav-feedback` can be highlighted but are not navigation targets. Navigating to `#nav-profile` or `#nav-company` opens that group's **Settings** page. `#nav-add`, `#nav-assistant`, the two chips and the menu under your name are not assistant targets.
 
 ## Related
 

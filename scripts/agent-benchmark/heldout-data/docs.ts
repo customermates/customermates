@@ -1,9 +1,11 @@
-export type DocsHeldoutLanguage = "en" | "de" | "es" | "fr" | "it";
+import type { AppLocale, ContentLocale } from "@/i18n/locale-registry";
+
+export type DocsHeldoutLanguage = AppLocale;
 
 export type DocsHeldoutItem = {
   id: string;
   lang: DocsHeldoutLanguage;
-  docsLocale: "en" | "de";
+  docsLocale: ContentLocale;
   query: string;
   slug: string;
   anchors: readonly string[];

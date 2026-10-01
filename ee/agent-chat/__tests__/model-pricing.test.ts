@@ -8,7 +8,7 @@ import {
   promptTokensOf,
   resolveModelPricing,
 } from "../model-pricing";
-import { MODEL_CATALOG } from "../model-catalog";
+import { SHIPPED_AGENT_MODEL } from "../model-catalog";
 import { BENCHMARK_ARMS } from "@/scripts/agent-benchmark/arms";
 import { JEV_MODEL_ID, JEV_PRICING_PROVIDER } from "../classifier/jev-runner";
 
@@ -26,7 +26,7 @@ describe("pinned pricing snapshot", () => {
     const pinKey = (endpoint: { modelId: string; provider: string; inferenceRegion: string | null }) =>
       `${endpoint.modelId}|${endpoint.provider}|${endpoint.inferenceRegion ?? ""}`;
     const pinned = pinnedModelEndpoints().map(pinKey);
-    const catalogPins = Object.values(MODEL_CATALOG).map((entry) =>
+    const catalogPins = [SHIPPED_AGENT_MODEL].map((entry) =>
       pinKey({ modelId: entry.modelId, provider: entry.servingProvider, inferenceRegion: entry.inferenceRegion }),
     );
     const armPins = BENCHMARK_ARMS.map((arm) =>

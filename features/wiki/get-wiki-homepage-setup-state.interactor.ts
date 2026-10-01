@@ -1,5 +1,8 @@
+import type { GetWikiHomepageSetupTurnRepo } from "./get-wiki-homepage-setup-turn.repo";
+import type { GetWikiWebsiteCrawlStateRepo } from "./get-wiki-website-crawl-state.repo";
 import type { Data, Validated } from "@/core/validation/validation.utils";
-import type { GetWikiPagesRepo } from "./get-wiki-pages.interactor";
+import type { GetWikiPagesRepo } from "@/features/wiki/get-wiki-pages.repo";
+import type { WikiCrawlTargetProgress } from "./wiki-crawl-progress.schema";
 
 import { z } from "zod";
 import { Action, Resource } from "@/generated/prisma";
@@ -9,12 +12,9 @@ import { AllowInDemoMode } from "@/core/decorators/allow-in-demo-mode.decorator"
 import { TenantInteractor } from "@/core/decorators/tenant-interactor.decorator";
 import { ValidateOutput } from "@/core/decorators/validate-output.decorator";
 import { WikiPageSummarySchema } from "./wiki.schema";
+import { WikiCrawlTargetProgressSchema } from "./wiki-crawl-progress.schema";
 
 const WikiHomepageSetupStatusSchema = z.enum(["idle", "working", "completed", "noContent", "failed"]);
-const WikiCrawlTargetProgressSchema = z.object({
-  url: z.string(),
-  status: z.enum(["pending", "reading", "read", "failed", "unknown"]),
-});
 const WikiCrawlPhaseSchema = z.enum(["queued", "discovering", "fetching", "importing", "synthesizing"]);
 export const WikiHomepageSetupStateSchema = z.object({
   status: WikiHomepageSetupStatusSchema,
@@ -51,10 +51,6 @@ export type WikiHomepageSetupTurn = {
   affectedResources: unknown;
 };
 
-export abstract class GetWikiHomepageSetupTurnRepo {
-  abstract findWikiHomepageSetupTurn(): Promise<WikiHomepageSetupTurn | null>;
-}
-
 export type WikiWebsiteCrawlState = {
   status: "queued" | "discovering" | "fetching" | "importing" | "synthesizing" | "completed" | "failed" | "blocked";
   homepageUrl: string;
@@ -62,14 +58,10 @@ export type WikiWebsiteCrawlState = {
   conversationId: string | null;
   discovered: number;
   fetched: number;
-  failed?: number;
-  targets?: Array<{ url: string; status?: "pending" | "reading" | "read" | "failed" }> | null;
+  failed: number;
+  targets: WikiCrawlTargetProgress[] | null;
   failureReason: string | null;
 };
-
-export abstract class GetWikiWebsiteCrawlStateRepo {
-  abstract findLatestCrawl(): Promise<WikiWebsiteCrawlState | null>;
-}
 
 @AllowInDemoMode
 @TenantInteractor({ resource: Resource.wiki, action: Action.readAll })
@@ -97,15 +89,12 @@ export class GetWikiHomepageSetupStateInteractor extends AuthenticatedInteractor
       (!setup.conversationId || setup.conversationId === crawl.conversationId)
         ? setup
         : null;
-    const targets = crawl?.targets?.map((target) => ({
-      url: target.url,
-      status: target.status ?? ("unknown" as const),
-    }));
+    const targets = crawl?.targets?.map(({ url, status }) => ({ url, status }));
     const progress = crawl
       ? {
           fetched: crawl.fetched,
           total: crawl.discovered,
-          ...(crawl.failed !== undefined ? { failed: crawl.failed } : {}),
+          failed: crawl.failed,
           ...(targets
             ? {
                 pages: targets,

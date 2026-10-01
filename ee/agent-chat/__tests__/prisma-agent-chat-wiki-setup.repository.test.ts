@@ -1,3 +1,4 @@
+import { prismaAgentChatRepoDependencies } from "@/tests/helpers/prisma-agent-chat-repo";
 import { beforeEach, describe, expect, it, vi } from "vitest";
 
 import { runWithTenant } from "@/core/decorators/tenant-context";
@@ -47,7 +48,8 @@ const storedSetup = {
 
 beforeEach(() => vi.clearAllMocks());
 
-const findSetupTurn = () => runWithTenant(user, () => new PrismaAgentChatRepo().findWikiHomepageSetupTurn());
+const findSetupTurn = () =>
+  runWithTenant(user, () => new PrismaAgentChatRepo(...prismaAgentChatRepoDependencies()).findWikiHomepageSetupTurn());
 
 describe("PrismaAgentChatRepo Wiki homepage setup turns", () => {
   it("reports a leased setup as active and hides another user's conversation id", async () => {

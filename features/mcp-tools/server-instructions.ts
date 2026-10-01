@@ -91,6 +91,5 @@ export function buildMcpServerInstructions(toolNames: Iterable<string>): string 
 
 export const GET_STARTED_PROMPT = `Connected to my Customermates CRM via MCP.
 
-First ask me: my name and role, and what I mainly use the CRM for.
-Then call get_workspace_context and get_record_schema, read the Operating Guide and procedure index it returns, search and fetch relevant Knowledge Base pages, summarize my workspace in one short paragraph with exact page citations, and ask what to focus on.
+First call get_workspace_context and get_record_schema, read the Operating Guide and procedure index it returns, and search and fetch relevant Knowledge Base pages. Use the existing user, company, and workspace information before asking questions. Summarize my workspace in one short paragraph with exact page citations, then ask what I want to focus on or one essential question whose answer is missing. Do not ask me to repeat information already available in the workspace or Knowledge Base.
 ${MCP_CLIENT_CONFIRMATION_INSTRUCTION}`;

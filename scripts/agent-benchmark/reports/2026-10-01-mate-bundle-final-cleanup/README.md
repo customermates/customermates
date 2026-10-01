@@ -1,0 +1,47 @@
+# Mate bundle final cleanup verification
+
+This packet separates source review, local execution and the checks still pending for PR #196. The implementation was compared with mainline `31d1df14c9185e62f23bf902be3ef518b42ca5b3`; the previously published product head was `bf7aa45ab60a136257ce57876f19f26ff18c2c26`. The companion documentation remains target behavior until the product PR merges.
+
+## Per-file review
+
+[review-matrix.csv](./review-matrix.csv) covers all 592 original paths and necessary cleanup dependencies: 737 current application, test, configuration and evidence paths, plus nine original paths restored to mainline or removed during migration consolidation. All 746 source paths have an established comparison, disposition, reason and reviewer. Present files carry content hashes. The packet's three derived files receive a consistency review against that matrix and the execution evidence; they do not hash themselves.
+
+Independent backend, frontend and verification reviews covered the final implementations and their consumers. Generated contracts, fixtures and historical benchmark reports were checked for consistency with their authorities. Historical benchmark results remain evidence for their named revisions, rather than measurements of this cleanup.
+
+Corrections include owning repository ports, typed expected failures and revision conflicts, canonical/exhaustive locale and state mappings, one class per changed TypeScript file, one shipped runtime model, native Prisma operations where atomic semantics permit, and a DI-initialized native HTTPS boundary. Missing provider receipts use the approved conservative accounting fallback. Permission/loading transitions no longer emit artificial editor changes or mark unchanged Markdown dirty.
+
+## Local execution
+
+[verification.json](./verification.json) contains results and explicitly pending checks. Typecheck, zero-warning lint and the production build pass. Full Vitest passes 1,033 files and 10,032 tests; twenty skips comprise fifteen hosted contracts awaiting paid execution and five HTTP checks that pass separately against the built application. The companion documentation passes all eight KB gates. Product execution uses Node 24.18 and owned temporary PostgreSQL databases; both `DATABASE_URL` and `DIRECT_URL` are set. Workflow bootstrap also pins `WORKFLOW_POSTGRES_URL` to the owned database. The KB uses its prescribed Node 22 runtime.
+
+The migration matrix exercises fresh installation, populated-mainline upgrade and injected failure/recovery on PostgreSQL 17 with pgvector and PostgreSQL 16 without it. Pinned Prisma 7.0.1 deployment and the SQL harness both preserve the committed Resource enum addition while rolling back the second transaction. Redeployment does not duplicate backfills. Repeated synthetic seeding succeeds.
+
+The single bundle migration creates final Wiki/source schemas directly. It retains mainline role/user/credit backfills, whole-credit mirrors and old/new worker synchronization. Those compatibility objects may be removed only after old workers drain. Mainline migration history is unchanged. No preview reset or cleanup was performed.
+
+Built browser journeys use synthetic accounts and a separate owned database. They cover page creation, real keyboard editing, procedure validation/save, Reset, revision conflict preservation and explicit-discard recovery, deletion, search, keyboard ordering with a pinned guide, custom read-only permissions, desktop/mobile layouts, background onboarding continuation, contextual/bounded chat rendering and dirty-editor polling stability. Destructive menu text and icon colors match; clean and dirty actions follow the shared toolbar pattern.
+
+Website progress and transcript fault journeys use deterministic persisted fixtures. These browser results do not claim a live website import or live SSE/provider stream. Automated tests cover streaming, cancellation, dispatch/retry, parsing/storage faults, tenant boundaries, reservations/replay and retrieval deadlines/floors. Built hub/sitemap HTTP checks run separately against the same local build. The installed Workflow PostgreSQL schema enables the actual workflow-run/child deletion test in the local full gate and CI.
+
+## Review-thread resolutions prepared
+
+| Review | Change and verification |
+| --- | --- |
+| [Thin actions](https://github.com/customermates/customermates/pull/196#discussion_r4152537891) | Wiki actions invoke interactors and serialize the shared typed outcome; consumers distinguish validated conflict failures. Adapter/store and stale-revision tests preserve unsaved content. |
+| [Optional locale](https://github.com/customermates/customermates/pull/196#discussion_r4152544132) | The interactor resolves optional locale through the canonical registry and fallback. Dominant Knowledge Base language still takes precedence; generation is single-language. |
+| [Analysis environment flag](https://github.com/customermates/customermates/pull/196#discussion_r4152626284) | Removed from configuration, template, registration and mocks. Analyze remains available with its existing authorization/execution/result limits. |
+| [Exception class](https://github.com/customermates/customermates/pull/196#discussion_r4152843941) | Standard Error with typed admission cause unwinds the transaction; failure mapping does not match messages. Reservation release and unused-conversation cleanup retain coverage. |
+| [One runtime model](https://github.com/customermates/customermates/pull/196#discussion_r4152852895) | SHIPPED_AGENT_MODEL is the only production runtime configuration. Stored balanced identity remains stable; benchmark configuration is separate. |
+| [Gateway pricing](https://github.com/customermates/customermates/pull/196#discussion_r4152857724) | Gateway actual cost settles usage. Generated prices remain reservation/fallback evidence; unknown work is conservatively charged within its approved reservation, including auxiliary attempts. |
+| [SQL and compatibility](https://github.com/customermates/customermates/pull/196#discussion_r4152872825) | Ordinary CRUD/claims use Prisma. Parameterized search/vector/trigram, locks, partial-index accrual, revision-preserving claims and atomic JSON remain repository-owned. Unmerged-format compatibility is removed; deployed-worker credit compatibility has a documented removal condition. |
+| [Crawler initialization](https://github.com/customermates/customermates/pull/196#discussion_r4153119963) | The existing crawl service receives its network boundary through DI; stateful robots logic has its own class/file. Lifecycle, owner cleanup and source-progress tests cover callers. |
+| [Native fetch boundary](https://github.com/customermates/customermates/pull/196#discussion_r4153126386) | Native Node HTTPS retains validated/pinned DNS addresses, TLS hostname checking, restricted redirects, robots, deadlines, size limits and bounded parallelism. Expected secondary failures are skipped; persistence failures propagate. |
+| [Exhaustive dictionaries](https://github.com/customermates/customermates/pull/196#discussion_r4153135636) | Locale/category/page-kind/status maps use canonical exhaustive types; benchmark subsets are explicit. The additional chat terminology dictionary and consumers were reviewed. |
+| [Wiki activity](https://github.com/customermates/customermates/pull/196#discussion_r4153143385) | Shared NotesDiff and labels cover create/update/delete, title/type/trigger changes, unchanged-content suppression, deleted-page links and permission filtering. |
+
+## Pending and human checkpoints
+
+Fresh approval is required for live local ainovi.de onboarding, representative hosted chat/retrieval and the fifteen actual embedding/Jev retrieval contracts. They remain unexecuted in this unpaid packet. Their final evidence must record duration, content coverage and actual cost; fixture passes are not substitutes.
+
+Before publishing rewritten migration history, confirm that the original five-migration revision was adopted only in the dedicated preview and no other durable environment. Coordinate the human preview reset against the new revision. New exact-head CI/deployment results and thread resolution follow an ordinary push; no force-push is needed. Both PRs remain drafts.
+
+Provider data flows must be disclosed: TypeSafe AI/Jev receives the latest message and retrieved excerpts; Exa receives web-search queries; hosted embeddings run outside the EU. Drain old workers before the credit contract migration and check hosted embedding latency against the 1,100 ms wait. The companion documentation remains target behavior until the product revision ships.

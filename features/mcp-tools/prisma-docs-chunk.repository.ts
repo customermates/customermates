@@ -1,11 +1,21 @@
+import {
+  RETRIEVAL_TYPO_PREFIX,
+  RETRIEVAL_TYPO_LENGTH_SLACK,
+  RETRIEVAL_TYPO_MIN_SIMILARITY,
+  RETRIEVAL_TYPO_TRANSPOSITION_MIN_LENGTH,
+  RETRIEVAL_TYPO_DOCUMENT_LIMIT,
+} from "@/core/retrieval/full-text-typo";
+import { DocsChunkRepo } from "./docs-chunk.repo";
 import type { DocsChunk, DocsCorpus } from "./docs-corpus";
 import type { FullTextUnit } from "@/core/retrieval/full-text-query";
+import type { DocsLocale, DocsSource } from "./docs-manifest";
 
 import { Prisma } from "@/generated/prisma";
 
-import { fullTextUnitsCte, idfWeight, textSearchConfigFor } from "@/core/retrieval/full-text-query";
+import { fullTextUnitsCte, idfWeight, textSearchConfigFor, typoCandidates } from "@/core/retrieval/full-text-query";
 import { RETRIEVAL_SEMANTIC_MIN_SIMILARITY } from "@/core/retrieval/retrieval-pipeline";
 import { prisma } from "@/prisma/db";
+import { runWithoutTenant } from "@/core/decorators/tenant-context";
 
 const DOCS_SYNC_LOCK = "DocsChunk:sync";
 const DOCS_SYNC_TIMEOUT_MS = 120_000;
@@ -13,9 +23,9 @@ const DOCS_SYNC_BATCH = 500;
 const DOCS_BUILD_RETENTION_DAYS = 7;
 const DOCS_TITLE_WEIGHT = 2;
 
-export type DocsScope = { buildHash: string; locale: string; sources: readonly string[]; slug?: string };
+export type DocsScope = { buildHash: string; locale: DocsLocale; sources: readonly DocsSource[]; slug?: string };
 export type DocsSectionRow = {
-  source: string;
+  source: DocsSource;
   slug: string;
   sectionOrder: number;
   chunkOrdinal: number;
@@ -25,26 +35,6 @@ export type DocsFullTextRow = DocsSectionRow & { coverage: number };
 export type DocsSemanticRow = DocsSectionRow & { similarity: number };
 export type DocsStoredBuild = { buildHash: string; current: boolean };
 export type DocsPendingChunk = { contentHash: string; label: string; body: string };
-
-export abstract class DocsChunkRepo {
-  abstract ensureCorpus(corpus: DocsCorpus): Promise<void>;
-  abstract storedBuild(corpus: DocsCorpus): Promise<DocsStoredBuild | null>;
-  abstract fullTextSections(
-    scope: DocsScope,
-    units: readonly FullTextUnit[],
-    limit: number,
-  ): Promise<DocsFullTextRow[]>;
-  abstract semanticSections(
-    scope: DocsScope,
-    vector: number[],
-    model: string,
-    limit: number,
-  ): Promise<DocsSemanticRow[] | null>;
-  abstract semanticIndexAvailable(): Promise<boolean>;
-  abstract semanticIndexComplete(scope: DocsScope, model: string): Promise<boolean>;
-  abstract pendingEmbeddings(buildHash: string, model: string, limit: number): Promise<DocsPendingChunk[]>;
-  abstract storeEmbeddings(model: string, rows: Array<{ contentHash: string; embedding: string }>): Promise<void>;
-}
 
 const syncedBuilds = new Map<string, Promise<void>>();
 const completeBuilds = new Set<string>();
@@ -122,11 +112,15 @@ export class PrismaDocsChunkRepo extends DocsChunkRepo {
 
   async storedBuild(corpus: DocsCorpus): Promise<DocsStoredBuild | null> {
     if (completeBuilds.has(corpus.buildHash)) return { buildHash: corpus.buildHash, current: true };
-    const builds = await prisma.$queryRaw<Array<{ buildHash: string; count: number }>>(Prisma.sql`
-      SELECT "buildHash", count(*)::int AS "count" FROM "DocsChunk"
-      GROUP BY "buildHash"
-      ORDER BY max("createdAt") DESC, "buildHash"
-    `);
+    const rows = await runWithoutTenant(() =>
+      prisma.docsChunk.groupBy({
+        by: ["buildHash"],
+        _count: { _all: true },
+        _max: { createdAt: true },
+        orderBy: [{ _max: { createdAt: "desc" } }, { buildHash: "asc" }],
+      }),
+    );
+    const builds = rows.map((row) => ({ buildHash: row.buildHash, count: row._count._all }));
     if (builds.find((build) => build.buildHash === corpus.buildHash)?.count === corpus.chunks.length) {
       completeBuilds.add(corpus.buildHash);
       return { buildHash: corpus.buildHash, current: true };
@@ -135,11 +129,8 @@ export class PrismaDocsChunkRepo extends DocsChunkRepo {
     return previous ? { buildHash: previous.buildHash, current: false } : null;
   }
 
-  private async storedChunks(buildHash: string, client: Pick<typeof prisma, "$queryRaw"> = prisma) {
-    const rows = await client.$queryRaw<Array<{ count: number }>>(Prisma.sql`
-      SELECT count(*)::int AS "count" FROM "DocsChunk" WHERE "buildHash" = ${buildHash}
-    `);
-    return rows[0]?.count ?? 0;
+  private storedChunks(buildHash: string, client: Pick<typeof prisma, "docsChunk"> = prisma) {
+    return runWithoutTenant(() => client.docsChunk.count({ where: { buildHash } }));
   }
 
   private async syncCorpus(corpus: DocsCorpus) {
@@ -190,9 +181,27 @@ export class PrismaDocsChunkRepo extends DocsChunkRepo {
   }
 
   async fullTextSections(scope: DocsScope, units: readonly FullTextUnit[], limit: number): Promise<DocsFullTextRow[]> {
+    const found = await this.rankedFullTextSections(scope, units, limit);
+    const matched = new Set(found.flatMap((row) => row.matched));
+    const corrections = await this.typoCorrections(scope, typoCandidates(units, matched));
+    const rows =
+      corrections.size === 0
+        ? found
+        : await this.rankedFullTextSections(
+            scope,
+            units.map((unit) => ({
+              ...unit,
+              text: corrections.get(unit.text) ?? unit.text,
+            })),
+            limit,
+          );
+    return rows.map(({ matched: _matched, ...row }) => row);
+  }
+
+  private async rankedFullTextSections(scope: DocsScope, units: readonly FullTextUnit[], limit: number) {
     if (!units.some((unit) => !unit.substring)) return [];
     const config = textSearchConfigFor(scope.locale);
-    return prisma.$queryRaw<DocsFullTextRow[]>(Prisma.sql`
+    return prisma.$queryRaw<Array<DocsFullTextRow & { matched: number[] }>>(Prisma.sql`
       WITH ${fullTextUnitsCte({ units, configs: [config], stopConfig: config })},
       scoped AS MATERIALIZED (
         SELECT c."source", c."slug", c."sectionOrder", c."chunkOrdinal", c."anchor", c."searchVector"
@@ -238,12 +247,51 @@ export class PrismaDocsChunkRepo extends DocsChunkRepo {
         ORDER BY s."source", s."slug", s."sectionOrder", ts_rank_cd(s."searchVector", a."query", 1) DESC,
           s."chunkOrdinal"
       )
-      SELECT r."source", r."slug", r."sectionOrder", c."chunkOrdinal", c."anchor", coalesce(r."coverage", 0) AS "coverage"
+      SELECT r."source", r."slug", r."sectionOrder", c."chunkOrdinal", c."anchor", coalesce(r."coverage", 0) AS "coverage",
+        ARRAY(SELECT DISTINCT h."ord" FROM hits h) AS "matched"
       FROM scored r
       JOIN chunks c ON c."source" = r."source" AND c."slug" = r."slug" AND c."sectionOrder" = r."sectionOrder"
       ORDER BY r."score" DESC, c."rank" DESC, r."source", r."slug", r."sectionOrder"
       LIMIT ${limit}
     `);
+  }
+
+  private async typoCorrections(scope: DocsScope, terms: string[]): Promise<Map<string, string>> {
+    if (terms.length === 0) return new Map();
+    const prefixes = [
+      ...new Set(terms.map((term) => `%${Array.from(term).slice(0, RETRIEVAL_TYPO_PREFIX).join("")}%`)),
+    ];
+    const rows = await prisma.$queryRaw<Array<{ term: string; word: string }>>(Prisma.sql`
+      WITH terms AS MATERIALIZED (
+        SELECT w."term", wiki_search_sorted_letters(w."term") AS "sorted"
+        FROM unnest(${terms}::text[]) AS w("term")
+        WHERE numnode(plainto_tsquery(${textSearchConfigFor(scope.locale)}::regconfig, w."term")) > 0
+      ), chunks AS MATERIALIZED (
+        SELECT c."label", c."body"
+        FROM "DocsChunk" c
+        WHERE ${scopeFilter(scope)} AND lower(c."label" || E'\n' || c."body") LIKE ANY (${prefixes}::text[])
+        ORDER BY c."source", c."slug", c."sectionOrder", c."chunkOrdinal"
+        LIMIT ${RETRIEVAL_TYPO_DOCUMENT_LIMIT}
+      ), words AS MATERIALIZED (
+        SELECT w."word", count(*)::int AS "chunks"
+        FROM chunks c
+        CROSS JOIN LATERAL unnest(
+          tsvector_to_array(to_tsvector('simple', c."label" || E'\n' || wiki_search_markdown_text(c."body")))
+        ) AS w("word")
+        GROUP BY w."word"
+      ), matches AS (
+        SELECT t."term", w."word", w."chunks", similarity(t."term", w."word") AS "score",
+          length(w."word") = length(t."term") AND wiki_search_sorted_letters(w."word") = t."sorted" AS "transposed"
+        FROM terms t JOIN words w ON left(w."word", ${RETRIEVAL_TYPO_PREFIX}::int) = left(t."term", ${RETRIEVAL_TYPO_PREFIX}::int)
+          AND w."word" <> t."term" AND abs(length(w."word") - length(t."term")) <= ${RETRIEVAL_TYPO_LENGTH_SLACK}::int
+      )
+      SELECT DISTINCT ON (m."term") m."term", m."word"
+      FROM matches m
+      WHERE m."score" >= ${RETRIEVAL_TYPO_MIN_SIMILARITY}::float4
+        OR (m."transposed" AND length(m."term") >= ${RETRIEVAL_TYPO_TRANSPOSITION_MIN_LENGTH}::int)
+      ORDER BY m."term", m."score" DESC, m."chunks" DESC, m."word" ASC
+    `);
+    return new Map(rows.map(({ term, word }) => [term, word]));
   }
 
   async semanticSections(scope: DocsScope, vector: number[], model: string, limit: number) {

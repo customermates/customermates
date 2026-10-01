@@ -1,14 +1,6 @@
-import type {
-  RankableSection,
-  RetrievalCorpus,
-  RetrievalEmbeddingOutcome,
-  RetrievalRerankOutcome,
-  RetrievalTiming,
-  SectionRanker,
-  SectionRanking,
-} from "./retrieval-context";
-
-import { recordRetrievalTiming } from "./retrieval-context";
+import { QueryEmbeddingWait } from "./query-embedding-wait";
+import type { RetrievalStopwatch } from "./retrieval-stopwatch";
+import type { RankableSection, SectionRanker, SectionRanking } from "./retrieval-context";
 
 export const RETRIEVAL_RRF_K = 60;
 export const RETRIEVAL_EMBEDDING_WAIT_MS = 1_100;
@@ -19,20 +11,6 @@ export const RETRIEVAL_RELEVANCE_FLOOR: RelevanceFloor = { coverage: 0.9, simila
 
 export type QueryVector = { vector: number[]; model: string };
 export type QueryEmbedding = (query: string, wait?: QueryEmbeddingWait) => Promise<QueryVector | null>;
-
-export class QueryEmbeddingWait {
-  private state: "waiting" | "claimed" | "abandoned" = "waiting";
-
-  claim(): boolean {
-    if (this.state === "waiting") this.state = "claimed";
-    return this.state === "claimed";
-  }
-
-  abandon(): boolean {
-    if (this.state === "waiting") this.state = "abandoned";
-    return this.state === "abandoned";
-  }
-}
 
 export type FusedRetrieval<Key extends string> = {
   ranked: Key[];
@@ -60,7 +38,7 @@ export function keepsResults(relevance: RelevanceVerdict, ranking: SectionRankin
   return relevance === "kept" || ranking?.abstained !== true;
 }
 
-const elapsed = (started: number) => Math.max(0, Math.round(performance.now() - started));
+export const elapsed = (started: number) => Math.max(0, Math.round(performance.now() - started));
 
 export function fuseRankings<Key extends string>(args: {
   pinned?: readonly Key[];
@@ -100,42 +78,6 @@ async function withinDeadline<T>(
     return await Promise.race([promise.then((value) => ({ value })), deadline]);
   } finally {
     clearTimeout(timer);
-  }
-}
-
-export class RetrievalStopwatch {
-  private readonly started = performance.now();
-  fullTextMs: number | null = null;
-  embedding: RetrievalEmbeddingOutcome = "none";
-  embeddingMs: number | null = null;
-  semanticMs: number | null = null;
-  rerank: RetrievalRerankOutcome = "none";
-  rerankMs: number | null = null;
-
-  constructor(private readonly corpus: RetrievalCorpus) {}
-
-  async time<T>(stage: "fullTextMs" | "semanticMs" | "embeddingMs" | "rerankMs", run: () => Promise<T>): Promise<T> {
-    const started = performance.now();
-    try {
-      return await run();
-    } finally {
-      this[stage] = elapsed(started);
-    }
-  }
-
-  finish(): RetrievalTiming {
-    const timing: RetrievalTiming = {
-      corpus: this.corpus,
-      totalMs: elapsed(this.started),
-      fullTextMs: this.fullTextMs,
-      embedding: this.embedding,
-      embeddingMs: this.embeddingMs,
-      semanticMs: this.semanticMs,
-      rerank: this.rerank,
-      rerankMs: this.rerankMs,
-    };
-    recordRetrievalTiming(timing);
-    return timing;
   }
 }
 

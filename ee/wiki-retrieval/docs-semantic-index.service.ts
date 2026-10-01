@@ -1,8 +1,5 @@
-import type { BackgroundTaskService } from "@/core/utils/background-task.service";
-import type { DocsChunkRepo } from "@/features/mcp-tools/prisma-docs-chunk.repository";
+import type { DocsChunkRepo } from "@/features/mcp-tools/docs-chunk.repo";
 import type { AgentUsageService } from "@/ee/agent-chat/agent-usage.service";
-
-import * as Sentry from "@sentry/node";
 
 import { retrievalChunkText } from "@/core/retrieval/retrieval-chunks";
 import { docsCorpus } from "@/features/mcp-tools/docs-corpus";
@@ -17,8 +14,6 @@ import {
 } from "./wiki-embedding-model";
 
 const DOCS_INDEX_BATCHES_PER_STEP = 8;
-const DOCS_INDEX_SCHEDULE_INTERVAL_MS = 60_000;
-let lastSchedule = 0;
 
 function vectorLiteral(vector: number[]) {
   return `[${vector.join(",")}]`;
@@ -79,27 +74,5 @@ export class DocsSemanticIndexService {
       indexed += pending.length;
     }
     return { indexed, remaining: true };
-  }
-}
-
-export class DocsSemanticIndexDispatcher {
-  constructor(
-    private repo: DocsChunkRepo,
-    private backgroundTaskService: BackgroundTaskService,
-  ) {}
-
-  async schedule(buildHash: string, seeded: boolean): Promise<void> {
-    const now = Date.now();
-    if (now - lastSchedule < DOCS_INDEX_SCHEDULE_INTERVAL_MS) return;
-    lastSchedule = now;
-    try {
-      if (seeded) {
-        if (!isWikiSemanticSearchAvailable() || !(await this.repo.semanticIndexAvailable())) return;
-        if ((await this.repo.pendingEmbeddings(buildHash, WIKI_EMBEDDING_MODEL, 1)).length === 0) return;
-      }
-      await this.backgroundTaskService.dispatch("index-docs-chunks", {});
-    } catch (error) {
-      Sentry.captureException(error);
-    }
   }
 }

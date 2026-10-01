@@ -1,6 +1,5 @@
-import type { CustomColumnDto } from "@/features/custom-column/custom-column.schema";
 import type { QueryParamsPrecheckInteractor } from "../query-params-precheck.interactor";
-import type { Filter, FilterableField, SortDescriptor } from "../base-get.schema";
+import type { Filter, FilterableField } from "../base-get.schema";
 
 import { describe, expect, it, vi } from "vitest";
 
@@ -9,7 +8,9 @@ import { MOCK_ZOD_MODULE } from "@/tests/helpers/interactor-test-setup";
 
 vi.mock("@/core/validation/zod-error-map-server", () => MOCK_ZOD_MODULE);
 
-import { BaseGetInteractor, BaseGetRepo } from "../base-get.interactor";
+import { Repo } from "./fixtures/single-value-equals-repo";
+import { SingleValueEqualsInteractor } from "./fixtures/single-value-equals-interactor";
+
 import { acceptSingleValueEquals } from "../filter-compat";
 
 const SELECT_COLUMN = "11111111-1111-4111-8111-111111111111";
@@ -37,38 +38,6 @@ describe("single-value equals on a select field", () => {
   });
 });
 
-class Repo extends BaseGetRepo<{ id: string }> {
-  validated: Filter[] | undefined;
-  getItems() {
-    return Promise.resolve([]);
-  }
-  getCount() {
-    return Promise.resolve(0);
-  }
-  getSortableFields() {
-    return [];
-  }
-  getSearchableFields() {
-    return [];
-  }
-  getFilterableFields(): Promise<FilterableField[]> {
-    return Promise.resolve(FIELDS);
-  }
-  getCustomColumns(): Promise<CustomColumnDto[]> {
-    return Promise.resolve([]);
-  }
-  validateFilters({ filters }: { filters: Filter[] | undefined }): Filter[] {
-    this.validated = filters;
-    return filters ?? [];
-  }
-  validateSortDescriptor(): SortDescriptor | undefined {
-    return undefined;
-  }
-  sumNumericFields() {
-    return Promise.resolve({});
-  }
-}
-
 describe("BaseGetInteractor in api mode", () => {
   it("prechecks and applies the rewritten filter, so a single-select equals is accepted", async () => {
     const prechecked: unknown[] = [];
@@ -78,7 +47,7 @@ describe("BaseGetInteractor in api mode", () => {
       },
     } as unknown as QueryParamsPrecheckInteractor;
     const repo = new Repo();
-    const interactor = new (class extends BaseGetInteractor<{ id: string }> {})(
+    const interactor = new SingleValueEqualsInteractor(
       repo,
       { loadSurfaceState: vi.fn() },
       "api",

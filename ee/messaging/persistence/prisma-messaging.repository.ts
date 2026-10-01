@@ -28,7 +28,7 @@ import type { StartChatThreadRepo } from "../outbound/start-chat.interactor";
 import type { SaveDraftRepo } from "../outbound/save-draft.interactor";
 import type { DiscardDraftRepo } from "../outbound/discard-draft.interactor";
 import type { GetMessageAttachmentMetaRepo } from "../inbox/get-message-attachment.interactor";
-import type { GetMessagingThreadsRepo } from "../inbox/get-messaging-threads.interactor";
+import type { GetMessagingThreadsRepo } from "@/ee/messaging/inbox/get-messaging-threads.repo";
 import type { FindThreadsByIdsRepo } from "../find-threads-by-ids.repo";
 import type { ChannelCandidateDto } from "../inbox/search-channel-candidates.interactor";
 import type { SearchChannelCandidatesRepo } from "../inbox/search-channel-candidates.interactor";

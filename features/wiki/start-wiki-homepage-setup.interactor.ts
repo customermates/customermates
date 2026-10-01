@@ -1,10 +1,13 @@
+import type { StartWikiHomepageSetupRepo } from "./start-wiki-homepage-setup.repo";
+import type { StartWikiWebsiteCrawlRepo } from "./start-wiki-website-crawl.repo";
 import type { Data, Validated } from "@/core/validation/validation.utils";
 import type { BackgroundTaskService } from "@/core/utils/background-task.service";
+import type { WikiWebsiteCrawlMode } from "./wiki-crawl-mode.schema";
 
 import { z } from "zod";
 import { Action, Resource } from "@/generated/prisma";
 
-import { APP_LOCALES, type AppLocale } from "@/i18n/locale-registry";
+import { APP_LOCALES, appLocaleOrDefault } from "@/i18n/locale-registry";
 import { AuthenticatedInteractor } from "@/core/base/authenticated-interactor";
 import { TenantInteractor } from "@/core/decorators/tenant-interactor.decorator";
 import { Write } from "@/core/decorators/write.decorator";
@@ -12,14 +15,15 @@ import { fail, failConflict } from "@/core/validation/interactor-failure-server"
 import { CustomErrorCode } from "@/core/validation/validation.types";
 
 import { parsePublicPageUrl, parsePublicWikiHomepage } from "./wiki-homepage";
+import { WikiCrawlModeSchema } from "./wiki-crawl-mode.schema";
 
 const [firstAppLocale, ...otherAppLocales] = APP_LOCALES;
 
 export const StartWikiHomepageSetupSchema = z.object({
   homepage: z.string().trim().min(1).max(2_000),
   clientRequestId: z.uuid(),
-  locale: z.enum([firstAppLocale, ...otherAppLocales]),
-  mode: z.enum(["initial", "refresh", "extend"]).optional(),
+  locale: z.enum([firstAppLocale, ...otherAppLocales]).optional(),
+  mode: WikiCrawlModeSchema.optional(),
 });
 export type StartWikiHomepageSetupData = Data<typeof StartWikiHomepageSetupSchema>;
 
@@ -27,41 +31,23 @@ export type StartedWikiHomepageSetup = {
   conversationId: string | null;
   homepage: string;
   domain: string;
+  mode: WikiWebsiteCrawlMode;
 };
 
-type WikiWebsiteCrawlStart = {
+export type { WikiWebsiteCrawlMode } from "./wiki-crawl-mode.schema";
+
+export type WikiWebsiteCrawlStart = {
   id: string;
   userId: string;
   status: string;
   failureReason: string | null;
-  mode: string;
+  mode: WikiWebsiteCrawlMode;
   homepageUrl: string;
   registrableDomain: string;
   conversationId: string | null;
   pendingHosts: string[];
   extraHosts: string[];
 };
-
-export abstract class StartWikiHomepageSetupRepo {
-  abstract wikiIsEmpty(): Promise<boolean>;
-  abstract dominantWikiLanguage(): Promise<AppLocale | null>;
-}
-
-export abstract class StartWikiWebsiteCrawlRepo {
-  abstract findCrawlByClientRequest(clientRequestId: string): Promise<WikiWebsiteCrawlStart | null>;
-  abstract findLatestCrawl(): Promise<WikiWebsiteCrawlStart | null>;
-  abstract findRefreshHomepage(registrableDomain: string): Promise<string | null>;
-  abstract failDispatch(id: string): Promise<void>;
-  abstract retryFailedDispatch(id: string): Promise<WikiWebsiteCrawlStart | null>;
-  abstract createCrawl(data: {
-    clientRequestId: string;
-    homepageUrl: string;
-    registrableDomain: string;
-    locale: string;
-    mode: "initial" | "refresh" | "extend";
-    extraHosts: string[];
-  }): Promise<{ status: "created"; crawl: WikiWebsiteCrawlStart } | { status: "active" }>;
-}
 
 @TenantInteractor({ resource: Resource.wiki, action: Action.create })
 export class StartWikiHomepageSetupInteractor extends AuthenticatedInteractor<
@@ -81,9 +67,9 @@ export class StartWikiHomepageSetupInteractor extends AuthenticatedInteractor<
     const reusable = await this.crawlRepo.findCrawlByClientRequest(data.clientRequestId);
     if (reusable) return this.dispatchQueued(reusable);
 
-    const target = await this.target(data);
+    const mode = data.mode ?? (await this.modeForHomepage(data.homepage));
+    const target = await this.target({ ...data, mode });
     if (!target) return fail(CustomErrorCode.invalidUrl, ["homepage"]);
-    const mode = data.mode ?? "initial";
     if (mode === "initial" && !(await this.repo.wikiIsEmpty()))
       return failConflict(CustomErrorCode.wikiNotEmpty, ["homepage"]);
 
@@ -91,7 +77,7 @@ export class StartWikiHomepageSetupInteractor extends AuthenticatedInteractor<
       clientRequestId: data.clientRequestId,
       homepageUrl: target.homepageUrl,
       registrableDomain: target.registrableDomain,
-      locale: (await this.repo.dominantWikiLanguage()) ?? data.locale,
+      locale: (await this.repo.dominantWikiLanguage()) ?? appLocaleOrDefault(data.locale),
       mode,
       extraHosts: target.extraHosts,
     });
@@ -163,13 +149,21 @@ export class StartWikiHomepageSetupInteractor extends AuthenticatedInteractor<
     };
   }
 
+  private async modeForHomepage(homepage: string): Promise<WikiWebsiteCrawlMode> {
+    const target = parsePublicPageUrl(homepage);
+    if (!target) return "initial";
+    const latest = await this.crawlRepo.findLatestCrawl();
+    return latest?.pendingHosts.includes(new URL(target.url).hostname) ? "extend" : "initial";
+  }
+
   private started(crawl: WikiWebsiteCrawlStart) {
     return {
       ok: true as const,
       data: {
-        conversationId: crawl.conversationId,
+        conversationId: crawl.userId === this.user.id ? crawl.conversationId : null,
         homepage: crawl.homepageUrl,
         domain: crawl.registrableDomain,
+        mode: crawl.mode,
       },
     };
   }

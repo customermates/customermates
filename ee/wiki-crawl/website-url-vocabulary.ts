@@ -1,112 +1,94 @@
 import type { LocaleCode } from "@/i18n/locale-registry";
 import type { WikiCrawlCategory } from "./website-discovery";
 
-type Vocabulary = Partial<Record<LocaleCode | "any", readonly string[]>>;
+type Vocabulary = Record<LocaleCode, readonly string[]> & { any?: readonly string[] };
 
-const CATEGORY_WORDS: ReadonlyArray<[Exclude<WikiCrawlCategory, "other">, Vocabulary]> = [
-  [
-    "pricing",
-    {
-      en: ["pricing", "prices?", "plans?", "subscriptions?"],
-      de: ["preise", "tarife?", "abonnement"],
-      es: ["precios"],
-      fr: ["tarifs", "prix", "abonnement"],
-      it: ["prezzi", "piani"],
-    },
-  ],
-  [
-    "policy",
-    {
-      en: [
-        "terms",
-        "tos",
-        "legal",
-        "privacy",
-        "refunds?",
-        "returns?",
-        "cancell?ation",
-        "sla",
-        "security",
-        "gdpr",
-        "dpa",
-        "shipping",
-        "warranty",
-      ],
-      de: [
-        "agb",
-        "datenschutz",
-        "widerruf",
-        "kuendigung",
-        "kündigung",
-        "rueckgabe",
-        "rückgabe",
-        "erstattung",
-        "versand",
-        "garantie",
-      ],
-      es: ["terminos", "términos", "privacidad", "reembolsos?", "devoluciones", "envios", "envíos", "garantia"],
-      fr: ["conditions", "confidentialite", "confidentialité", "remboursements?", "retours", "livraison", "garantie"],
-      it: ["termini", "rimborsi?", "resi", "spedizioni", "garanzia"],
-    },
-  ],
-  [
-    "help",
-    {
-      en: [
-        "support",
-        "help",
-        "helpcenter",
-        "help-center",
-        "hc",
-        "docs",
-        "documentation",
-        "faqs?",
-        "knowledge",
-        "kb",
-        "guides?",
-        "tutorials?",
-        "how-to",
-        "getting-started",
-        "troubleshooting",
-        "manual",
-      ],
-      de: ["hilfe", "anleitungen?", "haeufige-fragen", "häufige-fragen"],
-      es: ["ayuda", "soporte", "preguntas-frecuentes"],
-      fr: ["aide", "assistance", "questions-frequentes"],
-      it: ["aiuto", "supporto", "domande-frequenti", "documentazione"],
-    },
-  ],
-  [
-    "product",
-    {
-      en: ["products?", "features?", "solutions?", "services?", "platform", "integrations?", "how-it-works"],
-      de: ["produkte?", "funktionen", "loesungen", "lösungen", "leistungen"],
-      es: ["productos?", "servicios?", "soluciones", "funciones"],
-      fr: ["produits?", "fonctionnalites", "fonctionnalités"],
-      it: ["prodotti", "servizi", "soluzioni", "funzionalita", "funzionalità"],
-    },
-  ],
-  [
-    "about",
-    {
-      en: ["about", "about-us", "company", "team", "mission", "story"],
-      de: ["unternehmen", "ueber-uns", "über-uns"],
-      es: ["nosotros", "empresa", "equipo"],
-      fr: ["a-propos", "entreprise", "equipe", "équipe"],
-      it: ["chi-siamo", "azienda"],
-    },
-  ],
-  [
-    "customers",
-    {
-      en: ["customers?", "case-stud(?:y|ies)", "testimonials?", "industries", "use-cases?", "references?"],
-      de: ["kunden", "referenzen", "branchen"],
-      es: ["clientes", "casos"],
-      fr: ["clients", "temoignages", "témoignages"],
-      it: ["clienti", "casi"],
-    },
-  ],
-];
+const CATEGORY_WORDS: Record<Exclude<WikiCrawlCategory, "other" | "blog">, Vocabulary> = {
+  pricing: {
+    en: ["pricing", "prices?", "plans?", "subscriptions?"],
+    de: ["preise", "tarife?", "abonnement"],
+    es: ["precios"],
+    fr: ["tarifs", "prix", "abonnement"],
+    it: ["prezzi", "piani"],
+  },
+  policy: {
+    en: [
+      "terms",
+      "tos",
+      "legal",
+      "privacy",
+      "refunds?",
+      "returns?",
+      "cancell?ation",
+      "sla",
+      "security",
+      "gdpr",
+      "dpa",
+      "shipping",
+      "warranty",
+    ],
+    de: [
+      "agb",
+      "datenschutz",
+      "widerruf",
+      "kuendigung",
+      "kündigung",
+      "rueckgabe",
+      "rückgabe",
+      "erstattung",
+      "versand",
+      "garantie",
+    ],
+    es: ["terminos", "términos", "privacidad", "reembolsos?", "devoluciones", "envios", "envíos", "garantia"],
+    fr: ["conditions", "confidentialite", "confidentialité", "remboursements?", "retours", "livraison", "garantie"],
+    it: ["termini", "rimborsi?", "resi", "spedizioni", "garanzia"],
+  },
+  help: {
+    en: [
+      "support",
+      "help",
+      "helpcenter",
+      "help-center",
+      "hc",
+      "docs",
+      "documentation",
+      "faqs?",
+      "knowledge",
+      "kb",
+      "guides?",
+      "tutorials?",
+      "how-to",
+      "getting-started",
+      "troubleshooting",
+      "manual",
+    ],
+    de: ["hilfe", "anleitungen?", "haeufige-fragen", "häufige-fragen"],
+    es: ["ayuda", "soporte", "preguntas-frecuentes"],
+    fr: ["aide", "assistance", "questions-frequentes"],
+    it: ["aiuto", "supporto", "domande-frequenti", "documentazione"],
+  },
+  product: {
+    en: ["products?", "features?", "solutions?", "services?", "platform", "integrations?", "how-it-works"],
+    de: ["produkte?", "funktionen", "loesungen", "lösungen", "leistungen"],
+    es: ["productos?", "servicios?", "soluciones", "funciones"],
+    fr: ["produits?", "fonctionnalites", "fonctionnalités"],
+    it: ["prodotti", "servizi", "soluzioni", "funzionalita", "funzionalità"],
+  },
+  about: {
+    en: ["about", "about-us", "company", "team", "mission", "story"],
+    de: ["unternehmen", "ueber-uns", "über-uns"],
+    es: ["nosotros", "empresa", "equipo"],
+    fr: ["a-propos", "entreprise", "equipe", "équipe"],
+    it: ["chi-siamo", "azienda"],
+  },
+  customers: {
+    en: ["customers?", "case-stud(?:y|ies)", "testimonials?", "industries", "use-cases?", "references?"],
+    de: ["kunden", "referenzen", "branchen"],
+    es: ["clientes", "casos"],
+    fr: ["clients", "temoignages", "témoignages"],
+    it: ["clienti", "casi"],
+  },
+};
 
 const BLOG_SECTION_WORDS: Vocabulary = {
   en: ["blog", "news", "press"],
@@ -116,7 +98,7 @@ const BLOG_SECTION_WORDS: Vocabulary = {
   it: ["notizie"],
 };
 
-const BLOG_WORDS: Vocabulary = { ...BLOG_SECTION_WORDS, en: [...(BLOG_SECTION_WORDS.en ?? []), "articles?", "posts?"] };
+const BLOG_WORDS: Vocabulary = { ...BLOG_SECTION_WORDS, en: [...BLOG_SECTION_WORDS.en, "articles?", "posts?"] };
 
 const SKIPPED_PATH_WORDS: Vocabulary = {
   any: ["wp-admin", "wp-json", "cdn-cgi"],
@@ -193,15 +175,28 @@ const HOSTED_HELP_DOMAINS = [
   "hubspot.com",
 ];
 
-const HELP_SUBDOMAINS: Vocabulary = { en: ["help", "support", "docs", "kb", "faq"], de: ["hilfe"] };
+const HELP_SUBDOMAINS: Vocabulary = {
+  en: ["help", "support", "docs", "kb", "faq"],
+  de: ["hilfe"],
+  es: ["ayuda", "soporte"],
+  fr: ["aide", "assistance"],
+  it: ["aiuto", "supporto"],
+};
 
 const alternation = (vocabulary: Vocabulary) => Object.values(vocabulary).flat().join("|");
 const escaped = (value: string) => value.replace(/[.*+?^${}()|[\]\\]/gu, "\\$&");
 
-const CATEGORY_PATTERNS = CATEGORY_WORDS.map(
+const categoryVocabulary: Record<Exclude<WikiCrawlCategory, "other">, Vocabulary> = {
+  ...CATEGORY_WORDS,
+  blog: BLOG_WORDS,
+};
+const CATEGORY_PATTERNS = Object.entries(categoryVocabulary).map(
   ([category, vocabulary]) =>
-    [category, new RegExp(`(?:^|[\\s/_.-])(?:${alternation(vocabulary)})(?:$|[\\s/_.-])`, "u")] as const,
-).concat([["blog", new RegExp(`(?:^|[\\s/_.-])(?:${alternation(BLOG_WORDS)})(?:$|[\\s/_.-])`, "u")] as const]);
+    [
+      category as Exclude<WikiCrawlCategory, "other">,
+      new RegExp(`(?:^|[\\s/_.-])(?:${alternation(vocabulary)})(?:$|[\\s/_.-])`, "u"),
+    ] as const,
+);
 const BLOG_SECTION = new RegExp(`^/(?:[a-z]{2}(?:-[a-z]{2})?/)?(?:${alternation(BLOG_SECTION_WORDS)})(?:/|$)`, "u");
 const SKIPPED_PATH = new RegExp(`(?:^|/)(?:${alternation(SKIPPED_PATH_WORDS)})(?:/|$)`, "u");
 const SKIPPED_EXTENSION = new RegExp(`\\.(?:${SKIPPED_EXTENSIONS.join("|")})$`, "iu");

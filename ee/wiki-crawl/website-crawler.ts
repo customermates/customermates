@@ -1,9 +1,9 @@
-import type { RobotsRules, WikiCrawlCandidate, WikiCrawlTarget } from "./website-discovery";
+import type { WikiCrawlCandidate, WikiCrawlTarget } from "./website-discovery";
 import type { WikiSourceQa } from "./website-source-extract";
 
 import { createHash } from "node:crypto";
 
-import { fetchWebsiteResource, type WebsiteResourceTarget } from "./website-fetch";
+import { fetchWebsiteResource } from "./website-fetch";
 import { parsePublicPageUrl } from "@/features/wiki/wiki-homepage";
 
 import {
@@ -11,8 +11,6 @@ import {
   parseLlmsTxt,
   parseSitemap,
   rankWikiCrawlTargets,
-  robotsFromFetch,
-  robotsPathOf,
   WIKI_CRAWL_MAX_SITEMAP_URLS,
   WIKI_CRAWL_USER_AGENT,
 } from "./website-discovery";
@@ -24,7 +22,9 @@ const PAGE_TYPES = ["text/html", "application/xhtml+xml", "text/plain", "text/ma
 const XML_TYPES = ["application/xml", "text/xml", "application/rss+xml"] as const;
 const TEXT_TYPES = ["text/plain", "text/markdown"] as const;
 
-export type WikiCrawlScope = { registrableDomain: string; extraHosts: string[] };
+import type { WikiCrawlScope } from "./website-crawl-scope";
+import { isWikiCrawlTargetInScope } from "./website-crawl-scope";
+import { WikiCrawlRobots } from "./wiki-crawl-robots";
 
 export type WikiCrawlDiscovery =
   | { status: "blocked" }
@@ -39,44 +39,19 @@ export type WikiFetchedSource = {
   contentHash: string;
 };
 
-function inScope(scope: WikiCrawlScope) {
-  return (target: WebsiteResourceTarget) =>
-    target.registrableDomain === scope.registrableDomain || scope.extraHosts.includes(target.host);
-}
-
-function fetchResource(url: string, scope: WikiCrawlScope, accept: readonly string[], truncateOversized = false) {
+function fetchResource(url: string, scope: WikiCrawlScope, accept: readonly string[], robots: WikiCrawlRobots) {
   return fetchWebsiteResource({
     url,
-    allows: inScope(scope),
+    allows: (target) => isWikiCrawlTargetInScope(scope, target),
+    allowsRead: (target) => robots.allows(target.url),
     accept,
     userAgent: WIKI_CRAWL_USER_AGENT,
-    truncateOversized,
   });
 }
 
-async function fetchText(url: string, scope: WikiCrawlScope, accept: readonly string[]) {
-  const resource = await fetchResource(url, scope, accept);
+async function fetchText(url: string, scope: WikiCrawlScope, accept: readonly string[], robots: WikiCrawlRobots) {
+  const resource = await fetchResource(url, scope, accept, robots);
   return resource.ok ? resource : null;
-}
-
-export class WikiCrawlRobots {
-  private rules = new Map<string, Promise<RobotsRules>>();
-
-  constructor(private scope: WikiCrawlScope) {}
-
-  forUrl(url: string): Promise<RobotsRules> {
-    const origin = new URL(url).origin;
-    let rules = this.rules.get(origin);
-    if (!rules) {
-      rules = fetchResource(`${origin}/robots.txt`, this.scope, TEXT_TYPES, true).then(robotsFromFetch);
-      this.rules.set(origin, rules);
-    }
-    return rules;
-  }
-
-  async allows(url: string): Promise<boolean> {
-    return (await this.forUrl(url)).allows(robotsPathOf(url));
-  }
 }
 
 export async function discoverWikiWebsite(input: {
@@ -89,9 +64,9 @@ export async function discoverWikiWebsite(input: {
   const origin = new URL(homepage.url).origin;
   const robots = new WikiCrawlRobots(input.scope);
   const rootRules = await robots.forUrl(homepage.url);
-  if (rootRules.blocked) return { status: "blocked" };
+  if (!(await robots.allows(homepage.url))) return { status: "blocked" };
 
-  const home = await fetchText(homepage.url, input.scope, PAGE_TYPES);
+  const home = await fetchText(homepage.url, input.scope, PAGE_TYPES, robots);
   if (!home) return { status: "unavailable" };
   const homeDocument = extractWikiSourceDocument(home.body, home.url, home.contentType);
   const candidates: WikiCrawlCandidate[] = homeDocument.links.map((link) => ({ ...link, source: "link" }));
@@ -99,11 +74,11 @@ export async function discoverWikiWebsite(input: {
   for (const link of homeDocument.links) {
     const target = parsePublicPageUrl(link.url);
     const host = target ? new URL(target.url).hostname : null;
-    if (!target || !host || inScope(input.scope)({ ...target, host })) continue;
+    if (!target || !host || isWikiCrawlTargetInScope(input.scope, { ...target, host })) continue;
     if (isExternalHelpHost(host) && pendingHosts.size < MAX_PENDING_HOSTS) pendingHosts.add(host);
   }
 
-  const llms = await fetchText(`${origin}/llms.txt`, input.scope, TEXT_TYPES);
+  const llms = await fetchText(`${origin}/llms.txt`, input.scope, TEXT_TYPES, robots);
   if (llms) candidates.push(...parseLlmsTxt(llms.body, origin).map((link) => ({ ...link, source: "llms" as const })));
 
   const sitemapQueue = rootRules.sitemaps.length > 0 ? [...rootRules.sitemaps] : [`${origin}/sitemap.xml`];
@@ -113,7 +88,7 @@ export async function discoverWikiWebsite(input: {
     const next = sitemapQueue.shift();
     if (!next || /\.gz$/iu.test(next)) continue;
     sitemapFetches += 1;
-    const sitemap = await fetchText(next, input.scope, XML_TYPES);
+    const sitemap = await fetchText(next, input.scope, XML_TYPES, robots);
     if (!sitemap) continue;
     const parsed = parseSitemap(sitemap.body);
     sitemapQueue.push(...parsed.sitemaps);
@@ -127,9 +102,8 @@ export async function discoverWikiWebsite(input: {
     const target = parsePublicPageUrl(candidate.url);
     if (!target) continue;
     const host = new URL(target.url).hostname;
-    if (!inScope(input.scope)({ ...target, host })) continue;
-    if (host === new URL(homepage.url).hostname ? rootRules.allows(robotsPathOf(target.url)) : true)
-      allowed.add(target.url);
+    if (!isWikiCrawlTargetInScope(input.scope, { ...target, host })) continue;
+    if (await robots.allows(target.url)) allowed.add(target.url);
   }
   const targets = rankWikiCrawlTargets({
     homepage: homepage.url,
@@ -149,7 +123,7 @@ export async function fetchWikiSource(
   robots: WikiCrawlRobots,
 ): Promise<WikiFetchedSource | null> {
   if (!(await robots.allows(url))) return null;
-  const resource = await fetchText(url, scope, PAGE_TYPES);
+  const resource = await fetchText(url, scope, PAGE_TYPES, robots);
   if (!resource) return null;
   const document = extractWikiSourceDocument(resource.body, resource.url, resource.contentType);
   if (!document.text) return null;

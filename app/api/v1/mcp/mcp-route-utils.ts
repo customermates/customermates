@@ -63,7 +63,7 @@ function registerPrompts(server: McpServer, tools: McpTool[]) {
     "get-started",
     {
       title: "Get started",
-      description: "Personalized CRM kickoff: interview the user, then summarize the workspace",
+      description: "Personalized CRM kickoff: read the workspace and Knowledge Base, then ask what to focus on",
     },
     () => ({
       messages: [

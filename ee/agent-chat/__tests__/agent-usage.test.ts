@@ -12,13 +12,14 @@ vi.mock("@/env", () => ({
   },
 }));
 
-import { AgentUsageService, type AgentUsageRepo } from "../agent-usage.service";
+import { AgentUsageService } from "../agent-usage.service";
+import { type AgentUsageRepo } from "@/ee/agent-chat/agent-usage.repo";
 import { agentRoundWorstCaseMicrocents } from "../agent-budget-policy";
 import { buildAgentUsageSettlement } from "../agent-usage-settlement";
 import { computeCostMicrocents, promptTokensOf } from "../model-pricing";
-import { MODEL_CATALOG } from "../model-catalog";
+import { SHIPPED_AGENT_MODEL } from "../model-catalog";
 
-const MODEL = MODEL_CATALOG.balanced;
+const MODEL = SHIPPED_AGENT_MODEL;
 const CREDIT = 1_000_000;
 
 const NOW = new Date("2026-08-06T12:00:00.000Z");

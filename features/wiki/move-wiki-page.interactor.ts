@@ -1,3 +1,4 @@
+import type { MoveWikiPageRepo } from "./move-wiki-page.repo";
 import type { Data, Validated } from "@/core/validation/validation.utils";
 
 import { z } from "zod";
@@ -14,10 +15,6 @@ export const MoveWikiPageSchema = z.object({
   placement: z.enum(["before", "after"]),
 });
 export type MoveWikiPageData = Data<typeof MoveWikiPageSchema>;
-
-export abstract class MoveWikiPageRepo {
-  abstract movePage(data: MoveWikiPageData): Promise<"moved" | "not-found" | "pinned">;
-}
 
 @TenantInteractor({ resource: Resource.wiki, action: Action.update })
 export class MoveWikiPageInteractor extends AuthenticatedInteractor<MoveWikiPageData, boolean> {

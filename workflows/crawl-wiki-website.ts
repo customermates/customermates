@@ -2,7 +2,7 @@ import type { WorkflowTenant } from "./workflow-tenant";
 
 import { getWorkflowMetadata } from "workflow";
 
-import { getWikiWebsiteCrawlService } from "@/core/di";
+import { getWikiWebsiteCrawlService, getFailWikiWebsiteCrawlInteractor } from "@/core/di";
 import { runAsBackgroundTenant } from "@/core/decorators/background-tenant";
 
 import { reportFailure, toWorkflowFailure } from "./capture-failure";
@@ -42,24 +42,31 @@ async function finishWikiWebsiteStep(payload: CrawlWikiWebsiteWorkflowPayload): 
   await runAsBackgroundTenant(payload.userId, () => getWikiWebsiteCrawlService().finish(payload.crawlId));
 }
 
-async function failWikiWebsiteStep(payload: CrawlWikiWebsiteWorkflowPayload): Promise<void> {
+async function failWikiWebsiteStep(payload: CrawlWikiWebsiteWorkflowPayload, workflowRunId: string): Promise<void> {
   "use step";
-  await runAsBackgroundTenant(payload.userId, () => getWikiWebsiteCrawlService().fail(payload.crawlId));
+  await getFailWikiWebsiteCrawlInteractor().invoke({
+    crawlId: payload.crawlId,
+    userId: payload.userId,
+    workflowRunId,
+  });
 }
 
 export async function crawlWikiWebsite(payload: CrawlWikiWebsiteWorkflowPayload): Promise<void> {
   "use workflow";
   const { workflowRunId } = getWorkflowMetadata();
-  if (!(await claimWikiWebsiteStep(payload, workflowRunId))) return;
   try {
+    if (!(await claimWikiWebsiteStep(payload, workflowRunId))) return;
     const batches = await discoverWikiWebsiteStep(payload);
     if (batches === 0) return;
     for (let batch = 0; batch < batches; batch += 1) await fetchWikiWebsiteBatchStep(payload, batch);
     await importWikiWebsiteStep(payload);
     await finishWikiWebsiteStep(payload);
   } catch (err) {
-    await failWikiWebsiteStep(payload);
-    await reportFailure(WORKFLOW_NAME, toWorkflowFailure(err), payload.tenant);
+    try {
+      await failWikiWebsiteStep(payload, workflowRunId);
+    } finally {
+      await reportFailure(WORKFLOW_NAME, toWorkflowFailure(err), payload.tenant);
+    }
     throw err;
   }
 }

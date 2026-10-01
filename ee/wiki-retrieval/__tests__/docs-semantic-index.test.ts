@@ -1,7 +1,8 @@
 import type { DocsCorpus } from "@/features/mcp-tools/docs-corpus";
 import type { AgentUsageService } from "@/ee/agent-chat/agent-usage.service";
 import type { BackgroundTaskService } from "@/core/utils/background-task.service";
-import type { DocsChunkRepo, DocsPendingChunk } from "@/features/mcp-tools/prisma-docs-chunk.repository";
+import type { DocsChunkRepo } from "@/features/mcp-tools/docs-chunk.repo";
+import type { DocsPendingChunk } from "@/features/mcp-tools/prisma-docs-chunk.repository";
 
 import { beforeEach, describe, expect, it, vi } from "vitest";
 
@@ -35,7 +36,8 @@ vi.mock("../wiki-embedding-model", () => ({
 
 import { docsCorpus } from "@/features/mcp-tools/docs-corpus";
 
-import { DocsSemanticIndexDispatcher, DocsSemanticIndexService } from "../docs-semantic-index.service";
+import { DocsSemanticIndexDispatcher } from "@/ee/wiki-retrieval/docs-semantic-index-dispatcher";
+import { DocsSemanticIndexService } from "../docs-semantic-index.service";
 
 function repo(pending: DocsPendingChunk[]) {
   const queue = [...pending];

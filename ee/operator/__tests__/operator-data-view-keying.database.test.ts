@@ -1,3 +1,4 @@
+import { prismaAgentChatRepoDependencies } from "@/tests/helpers/prisma-agent-chat-repo";
 import type { OperatorActor } from "@/core/decorators/operator-context";
 import type { Filter } from "@/core/base/base-get.schema";
 import type { DataViewState } from "@/core/data-view/data-view-state.schema";
@@ -62,10 +63,16 @@ describeDatabase("operator data view keying on PostgreSQL", () => {
 
   class GroupedOperatorUsers extends BaseGetInteractor<OperatorUserRowDto> {
     constructor() {
-      super(new PrismaOperatorUsersRepo(new PrismaAgentChatRepo()), views(), "interactive", undefined, {
-        sortDescriptor: { field: "createdAt", direction: "desc" },
-        pagination: { pageSize: 25, page: 1 },
-      });
+      super(
+        new PrismaOperatorUsersRepo(new PrismaAgentChatRepo(...prismaAgentChatRepoDependencies())),
+        views(),
+        "interactive",
+        undefined,
+        {
+          sortDescriptor: { field: "createdAt", direction: "desc" },
+          pagination: { pageSize: 25, page: 1 },
+        },
+      );
     }
   }
 

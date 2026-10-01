@@ -10,7 +10,6 @@ import { resolveOnboardingIntent } from "@/features/company/next/onboarding-inte
 import { buildLocalePath } from "@/i18n/locale-registry";
 import { getEntitlementService, getGetWikiHomepageSetupStateInteractor } from "@/core/di";
 import { runWithTenant } from "@/core/decorators/tenant-context";
-import { env } from "@/env";
 import type { WikiHomepageSetupState } from "@/features/wiki/get-wiki-homepage-setup-state.interactor";
 
 type Props = {
@@ -61,7 +60,7 @@ export default async function OnboardingWizardPage({ searchParams }: Props) {
     );
     if (setupState.ok) wikiSetupState = setupState.data;
     wikiStepCompleted = user.onboardingWikiStepCompletedAt !== null;
-    canSetupWithMate = env.APP_MODE !== "demo" && agentDenial === null;
+    canSetupWithMate = agentDenial === null;
   }
 
   const sessionName = sessionUser.name ?? "";

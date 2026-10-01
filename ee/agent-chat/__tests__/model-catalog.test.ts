@@ -1,6 +1,7 @@
 import { describe, expect, it } from "vitest";
 
-import { MODEL_CATALOG, isAgentModelKey, loadBenchmarkModelOverlay, resolveAgentModel } from "../model-catalog";
+import { SHIPPED_AGENT_MODEL, isAgentModelKey, resolveAgentModel } from "../model-catalog";
+import { loadBenchmarkModelOverlay } from "../benchmark-model-registry";
 
 const entry = {
   key: "bench:flash-lite-low",
@@ -65,7 +66,7 @@ describe("benchmark model overlay", () => {
   it("keeps the shipped catalog keys authoritative", () => {
     expect(isAgentModelKey("balanced")).toBe(true);
     expect(isAgentModelKey("bench:not-loaded")).toBe(false);
-    expect(resolveAgentModel()).toBe(MODEL_CATALOG.balanced);
+    expect(resolveAgentModel()).toBe(SHIPPED_AGENT_MODEL);
     expect(isAgentModelKey("fast")).toBe(false);
     expect(() => resolveAgentModel("fast")).toThrow(/Unknown agent model/);
     expect(() => resolveAgentModel("bench:not-loaded")).toThrow(/Unknown agent model/);

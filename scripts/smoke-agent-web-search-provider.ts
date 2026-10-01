@@ -1,4 +1,5 @@
-import type { TokenCounts } from "@/ee/agent-chat/model-pricing";
+import { computeCostMicrocents, type TokenCounts } from "@/ee/agent-chat/model-pricing";
+import { AGENT_MIN_BYTES_PER_PROVIDER_TOKEN, AGENT_PROVIDER_FRAMING_OVERHEAD_TOKENS } from "@/ee/agent-chat/agent-model";
 
 import "dotenv/config";
 
@@ -21,9 +22,9 @@ import {
 import { buildAgentUsageSettlement, usageToTokenCounts } from "@/ee/agent-chat/agent-usage-settlement";
 import { agentCreditsToMicrocents } from "@/core/commercial/agent-credits";
 import { readAgentProviderCharge } from "@/ee/agent-chat/gateway-cost";
-import { MODEL_CATALOG, SHIPPED_AGENT_MODEL_KEY } from "@/ee/agent-chat/model-catalog";
+import { SHIPPED_AGENT_MODEL, SHIPPED_AGENT_MODEL_KEY } from "@/ee/agent-chat/model-catalog";
 
-const MODEL = MODEL_CATALOG[SHIPPED_AGENT_MODEL_KEY];
+const MODEL = SHIPPED_AGENT_MODEL;
 const MODEL_URL = "https://ai-gateway.vercel.sh/v4/ai/language-model";
 const DOMAIN = "customermates.com";
 const PROMPT = [
@@ -48,17 +49,8 @@ type Gateway = ReturnType<typeof createGateway>;
 type Generation = Awaited<ReturnType<Gateway["getGenerationInfo"]>>;
 type SmokeRequestPhase = "search" | "answer";
 
-class SmokeFailure extends Error {
-  constructor(
-    readonly stage: string,
-    message: string,
-  ) {
-    super(message);
-  }
-}
-
 function fail(stage: string, message: string): never {
-  throw new SmokeFailure(stage, message);
+  throw new Error(message, { cause: { kind: "providerSmoke", stage } });
 }
 
 function record(value: unknown): JsonRecord | null {
@@ -103,18 +95,27 @@ export function assertProviderSmokeFeasible() {
   } as const;
 }
 
+export function providerSmokeReserveUsd() {
+  const inputTokens = Math.ceil(MAX_REQUEST_BODY_BYTES / AGENT_MIN_BYTES_PER_PROVIDER_TOKEN) + AGENT_PROVIDER_FRAMING_OVERHEAD_TOKENS;
+  const model = MAX_MODEL_REQUESTS * computeCostMicrocents(MODEL.modelId, {
+    inputTokens, outputTokens: MAX_OUTPUT_TOKENS, cacheReadTokens: 0, cacheWriteTokens: 0,
+  }, MODEL.servingProvider, MODEL.inferenceRegion);
+  return (model + AGENT_WEB_SEARCH_WORST_CASE_MICROCENTS) / 100_000_000;
+}
+
 export function readProviderSmokePostRunThreshold() {
   if (process.env.RUN_AGENT_WEB_SEARCH_SMOKE !== "true")
     fail("configuration", "Set RUN_AGENT_WEB_SEARCH_SMOKE=true to request a paid smoke.");
   const raw = process.env.AGENT_WEB_SEARCH_SMOKE_MAX_USD;
   if (!raw || !/^\d+(\.\d+)?$/.test(raw))
-    fail("configuration", "An explicitly approved per-run post-spend USD threshold is required.");
+    fail("configuration", "An explicitly approved per-run USD ceiling is required.");
   const threshold = Number(raw);
   if (!Number.isFinite(threshold) || threshold <= 0 || threshold > AGENT_WEB_SEARCH_SMOKE_MAX_USD)
     fail("configuration", "The provider-test post-run threshold must not exceed USD 15.");
   if (!process.env.AI_GATEWAY_API_KEY?.trim())
     fail("configuration", "AI_GATEWAY_API_KEY is required for a paid smoke.");
   assertProviderSmokeFeasible();
+  if (threshold < providerSmokeReserveUsd()) fail("budget", "The approved ceiling cannot fund the bounded smoke.");
   return threshold;
 }
 
@@ -451,6 +452,7 @@ export async function runLiveProviderSmoke(requestedPostRunThresholdUsd?: number
   const postRunThresholdUsd = requestedPostRunThresholdUsd ?? approvedThresholdUsd;
   if (!Number.isFinite(postRunThresholdUsd) || postRunThresholdUsd <= 0 || postRunThresholdUsd > approvedThresholdUsd)
     fail("configuration", "The requested threshold must be positive and within the approved per-run threshold.");
+  if (postRunThresholdUsd < providerSmokeReserveUsd()) fail("budget", "The approved ceiling cannot fund the bounded smoke.");
   const nativeFetch = globalThis.fetch.bind(globalThis);
   const serializations: Awaited<ReturnType<typeof assertProviderSmokeRequest>>[] = [];
   const gateway = createGateway({
@@ -603,15 +605,14 @@ if (invokedPath && resolve(invokedPath) === fileURLToPath(import.meta.url)) {
   try {
     process.stdout.write(JSON.stringify({ ok: true, ...(await runProviderSmoke()) }) + "\n");
   } catch (error) {
-    const failure =
-      error instanceof SmokeFailure
-        ? error
-        : new SmokeFailure("unexpected", error instanceof Error ? error.message : "Provider smoke failed.");
+    const cause = error instanceof Error ? record(error.cause) : null;
+    const stage = cause?.kind === "providerSmoke" && typeof cause.stage === "string" ? cause.stage : "unexpected";
+    const reason = error instanceof Error ? error.message : "Provider smoke failed.";
     process.stderr.write(
       JSON.stringify({
         ok: false,
-        stage: failure.stage,
-        reason: failure.message,
+        stage,
+        reason,
         mode: process.env.RUN_AGENT_WEB_SEARCH_SMOKE === "true" ? "live" : "offline",
       }) + "\n",
     );

@@ -1,3 +1,4 @@
+import type { GetRolesRepo } from "./get-roles.repo";
 import type { RoleWithAssignmentsDto as RoleDto } from "./role.schema";
 import type { GetResult } from "@/core/base/base-get.interactor";
 import type { DataViewStateRepo } from "@/core/data-view/data-view-state.repo";
@@ -11,12 +12,10 @@ import { AllowInDemoMode } from "@/core/decorators/allow-in-demo-mode.decorator"
 import { Validate } from "@/core/decorators/validate.decorator";
 import { ValidateOutput } from "@/core/decorators/validate-output.decorator";
 import { RoleWithAssignmentsDtoSchema as RoleDtoSchema } from "./role.schema";
-import { BaseGetRepo, BaseGetInteractor } from "@/core/base/base-get.interactor";
+import { BaseGetInteractor } from "@/core/base/base-get.interactor";
 import { GetQueryParamsSchema, type GetQueryParams, createGetResultSchema } from "@/core/base/base-get.schema";
 
 export type { RoleWithAssignmentsDto as RoleDto } from "./role.schema";
-
-export abstract class GetRolesRepo extends BaseGetRepo<RoleDto> {}
 
 @AllowInDemoMode
 @TenantInteractor({

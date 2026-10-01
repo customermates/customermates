@@ -1,3 +1,4 @@
+import { prismaAgentChatRepoDependencies } from "@/tests/helpers/prisma-agent-chat-repo";
 import type { TenantUser } from "@/features/user/user.schema";
 
 import { createHash, randomUUID } from "node:crypto";
@@ -5,6 +6,7 @@ import { createHash, randomUUID } from "node:crypto";
 import { Client } from "pg";
 import { createTranslator } from "next-intl";
 import { afterAll, beforeAll, beforeEach, describe, expect, it, vi } from "vitest";
+import { z } from "zod";
 
 import { PrismaAgentChatRepo } from "@/ee/agent-chat/prisma-agent-chat.repository";
 import { runInTransaction } from "@/core/decorators/transaction-runner";
@@ -37,12 +39,14 @@ vi.mock("@/core/di", async () => {
     getReadWikiWebsiteSourcesInteractor: () => new ReadWikiWebsiteSourcesInteractor(di.crawlRepo as never),
   };
 });
-vi.mock("../website-crawler", () => ({
-  discoverWikiWebsite: crawler.discover,
-  fetchWikiSource: crawler.fetch,
+vi.mock("../wiki-crawl-robots", () => ({
   WikiCrawlRobots: vi.fn(function () {
     return { forUrl: () => Promise.resolve({ crawlDelayMs: 0 }) };
   }),
+}));
+vi.mock("../website-crawler", () => ({
+  discoverWikiWebsite: crawler.discover,
+  fetchWikiSource: crawler.fetch,
 }));
 
 import { PrismaWikiWebsiteCrawlRepo } from "../prisma-wiki-website-crawl.repository";
@@ -107,17 +111,26 @@ describeDatabase("Wiki website crawl on PostgreSQL", () => {
       },
     );
   di.createPages = new CreateWikiPagesInteractor(new PrismaWikiPageRepo(), eventService());
-  di.crawlRepo = new PrismaWikiWebsiteCrawlRepo();
+  di.crawlRepo = new PrismaWikiWebsiteCrawlRepo(
+    new PrismaWikiPageRepo(),
+    new PrismaAgentChatRepo(...prismaAgentChatRepoDependencies()),
+  );
   const service = () =>
     new WikiWebsiteCrawlService(
-      new PrismaWikiWebsiteCrawlRepo(),
+      new PrismaWikiWebsiteCrawlRepo(
+        new PrismaWikiPageRepo(),
+        new PrismaAgentChatRepo(...prismaAgentChatRepoDependencies()),
+      ),
       new CreateWikiPagesInteractor(new PrismaWikiPageRepo(), eventService()),
       new UpdateWikiPageInteractor(new PrismaWikiPageRepo(), eventService()),
       synthesis,
     );
   const startCrawl = (mode: "initial" | "refresh" | "extend" = "initial", homepageUrl = "https://example.com/") =>
     runWithTenant(user, async () => {
-      const created = await new PrismaWikiWebsiteCrawlRepo().createCrawl({
+      const created = await new PrismaWikiWebsiteCrawlRepo(
+        new PrismaWikiPageRepo(),
+        new PrismaAgentChatRepo(...prismaAgentChatRepoDependencies()),
+      ).createCrawl({
         clientRequestId: randomUUID(),
         homepageUrl,
         registrableDomain: "example.com",
@@ -207,7 +220,10 @@ describeDatabase("Wiki website crawl on PostgreSQL", () => {
         [turnId, companyId, user.id, conversationId, randomUUID(), randomUUID(), randomUUID()],
       );
       await runWithTenant(user, async () => {
-        const repo = new PrismaWikiWebsiteCrawlRepo();
+        const repo = new PrismaWikiWebsiteCrawlRepo(
+          new PrismaWikiPageRepo(),
+          new PrismaAgentChatRepo(...prismaAgentChatRepoDependencies()),
+        );
         expect(
           await repo.createCrawl({
             clientRequestId: randomUUID(),
@@ -225,7 +241,10 @@ describeDatabase("Wiki website crawl on PostgreSQL", () => {
       await client.query(`UPDATE "AgentTurnRequest" SET "status"='failed' WHERE "id"=$1`, [turnId]);
       await client.query(`UPDATE "WikiWebsiteCrawl" SET "startedAt"=now() WHERE "id"=$1`, [initialId]);
       await runWithTenant(user, async () => {
-        const repo = new PrismaWikiWebsiteCrawlRepo();
+        const repo = new PrismaWikiWebsiteCrawlRepo(
+          new PrismaWikiPageRepo(),
+          new PrismaAgentChatRepo(...prismaAgentChatRepoDependencies()),
+        );
         await repo.deleteEarlierSources(failedDispatchId);
         expect(await repo.countSources(initialId)).toBeGreaterThan(0);
       });
@@ -233,7 +252,10 @@ describeDatabase("Wiki website crawl on PostgreSQL", () => {
         initialId,
       ]);
       await runWithTenant(user, async () => {
-        const repo = new PrismaWikiWebsiteCrawlRepo();
+        const repo = new PrismaWikiWebsiteCrawlRepo(
+          new PrismaWikiPageRepo(),
+          new PrismaAgentChatRepo(...prismaAgentChatRepoDependencies()),
+        );
         await repo.deleteEarlierSources(failedDispatchId);
         expect(await repo.countSources(initialId)).toBe(0);
         expect(await repo.retryFailedDispatch(failedDispatchId)).toMatchObject({ status: "queued" });
@@ -247,7 +269,12 @@ describeDatabase("Wiki website crawl on PostgreSQL", () => {
     const crawlId = await startCrawl();
     const conversationId = randomUUID();
     const turnId = randomUUID();
-    const crawl = await runWithTenant(user, () => new PrismaWikiWebsiteCrawlRepo().getCrawl(crawlId));
+    const crawl = await runWithTenant(user, () =>
+      new PrismaWikiWebsiteCrawlRepo(
+        new PrismaWikiPageRepo(),
+        new PrismaAgentChatRepo(...prismaAgentChatRepoDependencies()),
+      ).getCrawl(crawlId),
+    );
     if (!crawl) throw new Error("Missing crawl");
     await client.query(`UPDATE "WikiWebsiteCrawl" SET status='synthesizing' WHERE id=$1`, [crawlId]);
     await client.query(
@@ -269,7 +296,10 @@ describeDatabase("Wiki website crawl on PostgreSQL", () => {
         ],
       );
       await runWithTenant(user, async () => {
-        const repo = new PrismaWikiWebsiteCrawlRepo();
+        const repo = new PrismaWikiWebsiteCrawlRepo(
+          new PrismaWikiPageRepo(),
+          new PrismaAgentChatRepo(...prismaAgentChatRepoDependencies()),
+        );
         await Promise.all([
           service().fail(crawlId),
           repo.settleCrawl(crawlId, { conversationId: null, failureReason: "synthesisAdmission:invalidUrl" }),
@@ -291,7 +321,10 @@ describeDatabase("Wiki website crawl on PostgreSQL", () => {
     const second = await startCrawl();
     await client.query(`UPDATE "WikiWebsiteCrawl" SET "status"='completed' WHERE "id"=$1`, [second]);
     await runWithTenant(user, async () => {
-      const repo = new PrismaWikiWebsiteCrawlRepo();
+      const repo = new PrismaWikiWebsiteCrawlRepo(
+        new PrismaWikiPageRepo(),
+        new PrismaAgentChatRepo(...prismaAgentChatRepoDependencies()),
+      );
       const original = await repo.getCrawl(first);
       if (!original) throw new Error("Missing original crawl");
       expect(await repo.findSetupCrawl(original.homepageUrl, original.clientRequestId)).toMatchObject({
@@ -302,14 +335,184 @@ describeDatabase("Wiki website crawl on PostgreSQL", () => {
     });
   });
 
-  it("does not replace legacy aggregate totals with incomplete per-page statuses", async () => {
+  it.each(["", "unknown", "INITIAL"])("rejects invalid crawl mode %j before writes or provider work", async (mode) => {
+    await runWithTenant(user, async () => {
+      const repo = new PrismaWikiWebsiteCrawlRepo(
+        new PrismaWikiPageRepo(),
+        new PrismaAgentChatRepo(...prismaAgentChatRepoDependencies()),
+      );
+      await expect(
+        repo.createCrawl({
+          clientRequestId: randomUUID(),
+          homepageUrl: "https://example.com/",
+          registrableDomain: "example.com",
+          locale: "en",
+          mode: mode as never,
+          extraHosts: [],
+        }),
+      ).rejects.toMatchObject({ message: "Knowledge Base crawl mode is invalid.", cause: expect.any(z.ZodError) });
+      const created = await client.query('SELECT "id" FROM "WikiWebsiteCrawl" WHERE "companyId"=$1', [companyId]);
+      expect(created.rows).toEqual([]);
+    });
     const crawlId = await startCrawl();
     await runWithTenant(user, async () => {
-      const repo = new PrismaWikiWebsiteCrawlRepo();
-      const targets = [{ url: "https://example.com/legacy", category: "help" as const }];
-      await repo.updateCrawl(crawlId, { status: "fetching", targets, discovered: 10, fetched: 7, failed: 2 });
+      const repo = new PrismaWikiWebsiteCrawlRepo(
+        new PrismaWikiPageRepo(),
+        new PrismaAgentChatRepo(...prismaAgentChatRepoDependencies()),
+      );
+      const before = await client.query(
+        'SELECT "mode", "status", "discovered", "fetched", "failed", "updatedAt" FROM "WikiWebsiteCrawl" WHERE "id"=$1',
+        [crawlId],
+      );
+      const original = await repo.getCrawl(crawlId);
+      if (!original) throw new Error("Missing crawl fixture");
+      await expect(repo.updateCrawl(crawlId, { mode: mode as never })).rejects.toMatchObject({
+        message: "Knowledge Base crawl mode is invalid.",
+        cause: expect.any(z.ZodError),
+      });
+      await expect(
+        repo.claimCrawl(crawlId, ["queued"], { status: "discovering", mode: mode as never }),
+      ).rejects.toThrow("Knowledge Base crawl mode is invalid.");
+      const after = await client.query(
+        'SELECT "mode", "status", "discovered", "fetched", "failed", "updatedAt" FROM "WikiWebsiteCrawl" WHERE "id"=$1',
+        [crawlId],
+      );
+      expect(after.rows).toEqual(before.rows);
+      await client.query('UPDATE "WikiWebsiteCrawl" SET "mode"=$2 WHERE "id"=$1', [crawlId, mode]);
+      await expect(repo.getCrawl(crawlId)).rejects.toThrow("Knowledge Base crawl mode is invalid.");
+      await expect(repo.findLatestCrawl()).rejects.toThrow("Knowledge Base crawl mode is invalid.");
+      await expect(repo.findCrawlByClientRequest(original.clientRequestId)).rejects.toThrow(
+        "Knowledge Base crawl mode is invalid.",
+      );
+      await expect(service().discover(crawlId)).rejects.toThrow("Knowledge Base crawl mode is invalid.");
+      expect(crawler.discover).not.toHaveBeenCalled();
+      expect(crawler.fetch).not.toHaveBeenCalled();
+      expect(synthesis).not.toHaveBeenCalled();
+    });
+  });
+
+  it.each([
+    { category: "invalid", qaPairs: [] },
+    { category: "help", qaPairs: {} },
+    { category: "help", qaPairs: [null] },
+    { category: "help", qaPairs: [{ question: "Question", answer: 1 }] },
+  ])("rejects corrupt source metadata before persistence and cursor advancement (%j)", async (invalid) => {
+    const crawlId = await startCrawl();
+    const url = "https://example.com/help";
+    await runWithTenant(user, async () => {
+      const repo = new PrismaWikiWebsiteCrawlRepo(
+        new PrismaWikiPageRepo(),
+        new PrismaAgentChatRepo(...prismaAgentChatRepoDependencies()),
+      );
+      await repo.updateCrawl(crawlId, {
+        status: "fetching",
+        targets: [{ url, category: "help", status: "pending" }],
+        discovered: 1,
+      });
+      const source = {
+        url,
+        canonicalUrl: url,
+        category: "help" as const,
+        title: "Help",
+        text: "Source text",
+        qaPairs: [],
+        contentHash: "hash",
+      };
+      await expect(repo.saveSource(crawlId, { ...source, ...invalid } as never)).rejects.toMatchObject({
+        message: "Knowledge Base source metadata is invalid.",
+        cause: expect.any(z.ZodError),
+      });
+      expect(await repo.countSources(crawlId)).toBe(0);
+      await repo.saveSource(crawlId, source);
+      const [stored] = await repo.listSources(crawlId);
+      if (!stored) throw new Error("Missing source fixture");
+      const countersBefore = await client.query(
+        'SELECT "fetched", "failed", "targets" FROM "WikiWebsiteCrawl" WHERE "id"=$1',
+        [crawlId],
+      );
+      const cursorBefore = await client.query(
+        'SELECT "readOffset", "readAt", "importClaimedAt" FROM "WikiSourceDocument" WHERE "id"=$1',
+        [stored.id],
+      );
+      await client.query('UPDATE "WikiSourceDocument" SET "category"=$2, "qaPairs"=$3::jsonb WHERE "id"=$1', [
+        stored.id,
+        invalid.category,
+        JSON.stringify(invalid.qaPairs),
+      ]);
+      await expect(repo.listSources(crawlId)).rejects.toThrow("Knowledge Base source metadata is invalid.");
+      await expect(repo.getSource(crawlId, stored.id)).rejects.toThrow("Knowledge Base source metadata is invalid.");
+      await expect(repo.advanceSourceRead(crawlId, stored.id, 0, source.text.length)).rejects.toThrow(
+        "Knowledge Base source metadata is invalid.",
+      );
+      const cursorAfter = await client.query(
+        'SELECT "readOffset", "readAt", "importClaimedAt" FROM "WikiSourceDocument" WHERE "id"=$1',
+        [stored.id],
+      );
+      const countersAfter = await client.query(
+        'SELECT "fetched", "failed", "targets" FROM "WikiWebsiteCrawl" WHERE "id"=$1',
+        [crawlId],
+      );
+      expect(cursorAfter.rows).toEqual(cursorBefore.rows);
+      expect(countersAfter.rows).toEqual(countersBefore.rows);
+      expect(crawler.fetch).not.toHaveBeenCalled();
+      expect(synthesis).not.toHaveBeenCalled();
+    });
+  });
+
+  it("preserves nullable stored no-FAQ values and valid long extraction without losing source metadata", async () => {
+    const crawlId = await startCrawl();
+    const url = "https://example.com/help";
+    await runWithTenant(user, async () => {
+      const repo = new PrismaWikiWebsiteCrawlRepo(
+        new PrismaWikiPageRepo(),
+        new PrismaAgentChatRepo(...prismaAgentChatRepoDependencies()),
+      );
+      await repo.updateCrawl(crawlId, {
+        status: "fetching",
+        targets: [{ url, category: "help", status: "pending" }],
+        discovered: 1,
+      });
+      const pair = { question: "Q".repeat(400), answer: "A".repeat(4000) };
+      await repo.saveSource(crawlId, {
+        url,
+        canonicalUrl: url,
+        category: "help",
+        title: "Help",
+        text: "Source text",
+        qaPairs: [pair],
+        contentHash: "hash",
+      });
+      const [source] = await repo.listSources(crawlId);
+      expect(source.qaPairs).toEqual([pair]);
+      await client.query('UPDATE "WikiSourceDocument" SET "qaPairs"=NULL WHERE "id"=$1', [source.id]);
+      expect(await repo.getSource(crawlId, source.id)).toMatchObject({ category: "help", qaPairs: [] });
+      await client.query(`UPDATE "WikiSourceDocument" SET "qaPairs"='null'::jsonb WHERE "id"=$1`, [source.id]);
+      expect(await repo.getSource(crawlId, source.id)).toMatchObject({ category: "help", qaPairs: [] });
+    });
+  });
+
+  it("rejects missing persisted target states without changing aggregate totals", async () => {
+    const crawlId = await startCrawl();
+    await runWithTenant(user, async () => {
+      const repo = new PrismaWikiWebsiteCrawlRepo(
+        new PrismaWikiPageRepo(),
+        new PrismaAgentChatRepo(...prismaAgentChatRepoDependencies()),
+      );
+      const targets = [{ url: "https://example.com/invalid", category: "help" }];
+      await expect(repo.updateCrawl(crawlId, { targets: targets as never })).rejects.toThrow(
+        "Knowledge Base crawl progress is invalid.",
+      );
+      expect(await repo.getCrawl(crawlId)).toMatchObject({ status: "queued", targets: null, fetched: 0, failed: 0 });
+      await client.query(
+        `UPDATE "WikiWebsiteCrawl" SET "status"='fetching', "targets"=$2::jsonb, "discovered"=10, "fetched"=7, "failed"=2 WHERE "id"=$1`,
+        [crawlId, JSON.stringify(targets)],
+      );
+      await expect(repo.getCrawl(crawlId)).rejects.toThrow("Knowledge Base crawl progress is invalid.");
       expect(await repo.updateTargetStatus(crawlId, targets[0].url, "reading")).toBe(false);
-      expect(await repo.getCrawl(crawlId)).toMatchObject({ targets, fetched: 7, failed: 2 });
+      const stored = await client.query('SELECT "targets", "fetched", "failed" FROM "WikiWebsiteCrawl" WHERE "id"=$1', [
+        crawlId,
+      ]);
+      expect(stored.rows).toEqual([{ targets, fetched: 7, failed: 2 }]);
     });
   });
 
@@ -320,7 +523,10 @@ describeDatabase("Wiki website crawl on PostgreSQL", () => {
       { url: "https://example.com/b", category: "help", status: "pending" },
     ];
     await runWithTenant(user, async () => {
-      const repo = new PrismaWikiWebsiteCrawlRepo();
+      const repo = new PrismaWikiWebsiteCrawlRepo(
+        new PrismaWikiPageRepo(),
+        new PrismaAgentChatRepo(...prismaAgentChatRepoDependencies()),
+      );
       await repo.updateCrawl(crawlId, { status: "fetching", targets, discovered: 2 });
       expect(await repo.updateTargetStatus(crawlId, targets[0].url, "read")).toBe(false);
       expect(await Promise.all(targets.map(({ url }) => repo.updateTargetStatus(crawlId, url, "reading")))).toEqual([
@@ -354,17 +560,28 @@ describeDatabase("Wiki website crawl on PostgreSQL", () => {
     const crawlId = await startCrawl();
     const url = "https://example.com/a";
     await runWithTenant(user, () =>
-      new PrismaWikiWebsiteCrawlRepo().updateCrawl(crawlId, {
+      new PrismaWikiWebsiteCrawlRepo(
+        new PrismaWikiPageRepo(),
+        new PrismaAgentChatRepo(...prismaAgentChatRepoDependencies()),
+      ).updateCrawl(crawlId, {
         status: "fetching",
         targets: [{ url, category: "help", status: "pending" }],
         discovered: 1,
       }),
     );
     await runWithTenant(createMockUser({ companyId: randomUUID() }), async () => {
-      expect(await new PrismaWikiWebsiteCrawlRepo().updateTargetStatus(crawlId, url, "reading")).toBe(false);
+      expect(
+        await new PrismaWikiWebsiteCrawlRepo(
+          new PrismaWikiPageRepo(),
+          new PrismaAgentChatRepo(...prismaAgentChatRepoDependencies()),
+        ).updateTargetStatus(crawlId, url, "reading"),
+      ).toBe(false);
     });
     await runWithTenant(user, async () => {
-      const repo = new PrismaWikiWebsiteCrawlRepo();
+      const repo = new PrismaWikiWebsiteCrawlRepo(
+        new PrismaWikiPageRepo(),
+        new PrismaAgentChatRepo(...prismaAgentChatRepoDependencies()),
+      );
       expect((await repo.getCrawl(crawlId))?.targets).toEqual([{ url, category: "help", status: "pending" }]);
       await repo.updateCrawl(crawlId, { status: "completed" });
       expect(await repo.updateTargetStatus(crawlId, url, "reading")).toBe(false);
@@ -470,12 +687,18 @@ describeDatabase("Wiki website crawl on PostgreSQL", () => {
     async (failure) => {
       const crawlId = await startCrawl();
       await runWithTenant(user, async () => {
-        await client.query(`UPDATE "WikiWebsiteCrawl" SET "status" = 'fetching' WHERE "id" = $1`, [crawlId]);
-        const repo = new PrismaWikiWebsiteCrawlRepo();
+        const url = "https://example.com/help/refunds";
+        await client.query(
+          `UPDATE "WikiWebsiteCrawl" SET "status"='fetching', "targets"=$2::jsonb, "discovered"=1, "fetched"=1 WHERE "id"=$1`,
+          [crawlId, JSON.stringify([{ url, category: "help", status: "read" }])],
+        );
+        const repo = new PrismaWikiWebsiteCrawlRepo(
+          new PrismaWikiPageRepo(),
+          new PrismaAgentChatRepo(...prismaAgentChatRepoDependencies()),
+        );
         const create = new CreateWikiPagesInteractor(new PrismaWikiPageRepo(), eventService());
         const update = new UpdateWikiPageInteractor(new PrismaWikiPageRepo(), eventService());
         const importer = new WikiWebsiteCrawlService(repo, create, update, synthesis);
-        const url = "https://example.com/help/refunds";
         await repo.saveSource(crawlId, {
           ...PAGES[url],
           category: "help",
@@ -509,8 +732,19 @@ describeDatabase("Wiki website crawl on PostgreSQL", () => {
   it("keeps the 30-page import limit when deliveries overlap over a full source inventory", async () => {
     const crawlId = await startCrawl();
     await runWithTenant(user, async () => {
-      await client.query(`UPDATE "WikiWebsiteCrawl" SET "status" = 'fetching' WHERE "id" = $1`, [crawlId]);
-      const repo = new PrismaWikiWebsiteCrawlRepo();
+      const targets = Array.from({ length: 40 }, (_, index) => ({
+        url: `https://example.com/help/topic-${index}`,
+        category: "help",
+        status: "read",
+      }));
+      await client.query(
+        `UPDATE "WikiWebsiteCrawl" SET "status"='fetching', "targets"=$2::jsonb, "discovered"=40, "fetched"=40 WHERE "id"=$1`,
+        [crawlId, JSON.stringify(targets)],
+      );
+      const repo = new PrismaWikiWebsiteCrawlRepo(
+        new PrismaWikiPageRepo(),
+        new PrismaAgentChatRepo(...prismaAgentChatRepoDependencies()),
+      );
       for (let index = 0; index < 40; index += 1) {
         const url = `https://example.com/help/topic-${index}`;
         await repo.saveSource(crawlId, {
@@ -600,7 +834,10 @@ describeDatabase("Wiki website crawl on PostgreSQL", () => {
     };
     try {
       await runWithTenant(user, async () => {
-        const repo = new PrismaWikiWebsiteCrawlRepo();
+        const repo = new PrismaWikiWebsiteCrawlRepo(
+          new PrismaWikiPageRepo(),
+          new PrismaAgentChatRepo(...prismaAgentChatRepoDependencies()),
+        );
         await repo.saveSource(crawlId, original);
         const [source] = await repo.listSources(crawlId);
         await repo.advanceSourceReads(crawlId, [{ id: source.id, offset: 0, end: source.text.length }]);
@@ -611,7 +848,10 @@ describeDatabase("Wiki website crawl on PostgreSQL", () => {
     }
     await delayed;
     await runWithTenant(user, async () => {
-      const repo = new PrismaWikiWebsiteCrawlRepo();
+      const repo = new PrismaWikiWebsiteCrawlRepo(
+        new PrismaWikiPageRepo(),
+        new PrismaAgentChatRepo(...prismaAgentChatRepoDependencies()),
+      );
       const [source] = await repo.listSources(crawlId);
       expect(source).toMatchObject({
         title: original.title,
@@ -627,7 +867,10 @@ describeDatabase("Wiki website crawl on PostgreSQL", () => {
   it("resets coverage and import claims only when stored evidence changes during fetching", async () => {
     const crawlId = await startCrawl();
     await runWithTenant(user, async () => {
-      const repo = new PrismaWikiWebsiteCrawlRepo();
+      const repo = new PrismaWikiWebsiteCrawlRepo(
+        new PrismaWikiPageRepo(),
+        new PrismaAgentChatRepo(...prismaAgentChatRepoDependencies()),
+      );
       await service().discover(crawlId);
       const evidence = {
         url: "https://example.com/",
@@ -675,8 +918,11 @@ describeDatabase("Wiki website crawl on PostgreSQL", () => {
         [turnRequestId, companyId, user.id, conversationId, randomUUID(), randomUUID(), randomUUID()],
       );
       await runWithTenant(user, async () => {
-        const agentRepo = new PrismaAgentChatRepo();
-        const crawlRepo = new PrismaWikiWebsiteCrawlRepo();
+        const agentRepo = new PrismaAgentChatRepo(...prismaAgentChatRepoDependencies());
+        const crawlRepo = new PrismaWikiWebsiteCrawlRepo(
+          new PrismaWikiPageRepo(),
+          new PrismaAgentChatRepo(...prismaAgentChatRepoDependencies()),
+        );
         const source = (await crawlRepo.listSources(crawlId)).find((item) => item.category === "product");
         if (!source) throw new Error("Missing unread source fixture");
         const read = (interrupt = false) =>
@@ -720,7 +966,10 @@ describeDatabase("Wiki website crawl on PostgreSQL", () => {
     const crawlId = await startCrawl();
     await runCrawl(crawlId);
     await runWithTenant(user, async () => {
-      const repo = new PrismaWikiWebsiteCrawlRepo();
+      const repo = new PrismaWikiWebsiteCrawlRepo(
+        new PrismaWikiPageRepo(),
+        new PrismaAgentChatRepo(...prismaAgentChatRepoDependencies()),
+      );
       const [first, second] = await repo.listSources(crawlId);
       expect(first.text.length).toBeGreaterThan(20);
       expect(await repo.advanceSourceRead(crawlId, first.id, 5, 10)).toBe(false);
@@ -819,11 +1068,21 @@ describeDatabase("Wiki website crawl on PostgreSQL", () => {
       { title: "Refund procedure", kind: "procedure" },
     ]);
     const since = await runWithTenant(user, async () => {
-      const crawl = await new PrismaWikiWebsiteCrawlRepo().getCrawl(crawlId);
+      const crawl = await new PrismaWikiWebsiteCrawlRepo(
+        new PrismaWikiPageRepo(),
+        new PrismaAgentChatRepo(...prismaAgentChatRepoDependencies()),
+      ).getCrawl(crawlId);
       if (!crawl) throw new Error("Missing test crawl");
       return crawl.startedAt;
     });
-    expect(await runWithTenant(user, () => new PrismaWikiWebsiteCrawlRepo().listSynthesizedPages(since, 16))).toEqual(
+    expect(
+      await runWithTenant(user, () =>
+        new PrismaWikiWebsiteCrawlRepo(
+          new PrismaWikiPageRepo(),
+          new PrismaAgentChatRepo(...prismaAgentChatRepoDependencies()),
+        ).listSynthesizedPages(since, 16),
+      ),
+    ).toEqual(
       expect.arrayContaining([
         expect.objectContaining({ id: expect.any(String), title: "Operating Guide" }),
         expect.objectContaining({ id: expect.any(String), title: "Refund procedure" }),
@@ -831,7 +1090,10 @@ describeDatabase("Wiki website crawl on PostgreSQL", () => {
     );
     expect(
       await runWithTenant({ ...user, companyId: randomUUID() }, () =>
-        new PrismaWikiWebsiteCrawlRepo().listSynthesizedPages(since, 16),
+        new PrismaWikiWebsiteCrawlRepo(
+          new PrismaWikiPageRepo(),
+          new PrismaAgentChatRepo(...prismaAgentChatRepoDependencies()),
+        ).listSynthesizedPages(since, 16),
       ),
     ).toEqual([]);
     const guide = saved.rows[0].markdown as string;
@@ -904,7 +1166,10 @@ describeDatabase("Wiki website crawl on PostgreSQL", () => {
   it("allows only one workflow to own a crawl, including replay of the winning claim", async () => {
     const crawlId = await startCrawl();
     await runWithTenant(user, async () => {
-      const repo = new PrismaWikiWebsiteCrawlRepo();
+      const repo = new PrismaWikiWebsiteCrawlRepo(
+        new PrismaWikiPageRepo(),
+        new PrismaAgentChatRepo(...prismaAgentChatRepoDependencies()),
+      );
       const claims = await Promise.all([repo.claimWorkflow(crawlId, "run-a"), repo.claimWorkflow(crawlId, "run-b")]);
       expect(claims.filter(Boolean)).toHaveLength(1);
       expect(await repo.claimWorkflow(crawlId, claims[0] ? "run-a" : "run-b")).toBe(true);
@@ -916,7 +1181,10 @@ describeDatabase("Wiki website crawl on PostgreSQL", () => {
   it("recovers a failed dispatch without allowing its ambiguous delayed workflow to duplicate work", async () => {
     const crawlId = await startCrawl();
     await runWithTenant(user, async () => {
-      const repo = new PrismaWikiWebsiteCrawlRepo();
+      const repo = new PrismaWikiWebsiteCrawlRepo(
+        new PrismaWikiPageRepo(),
+        new PrismaAgentChatRepo(...prismaAgentChatRepoDependencies()),
+      );
       await repo.failDispatch(crawlId);
       expect((await repo.getCrawl(crawlId))?.status).toBe("failed");
       expect(await repo.claimWorkflow(crawlId, "late-run")).toBe(false);
@@ -931,10 +1199,18 @@ describeDatabase("Wiki website crawl on PostgreSQL", () => {
 
   it("does not requeue a failed dispatch over another active crawl", async () => {
     const crawlId = await startCrawl();
-    await runWithTenant(user, () => new PrismaWikiWebsiteCrawlRepo().failDispatch(crawlId));
+    await runWithTenant(user, () =>
+      new PrismaWikiWebsiteCrawlRepo(
+        new PrismaWikiPageRepo(),
+        new PrismaAgentChatRepo(...prismaAgentChatRepoDependencies()),
+      ).failDispatch(crawlId),
+    );
     await startCrawl();
     await runWithTenant(user, async () => {
-      const repo = new PrismaWikiWebsiteCrawlRepo();
+      const repo = new PrismaWikiWebsiteCrawlRepo(
+        new PrismaWikiPageRepo(),
+        new PrismaAgentChatRepo(...prismaAgentChatRepoDependencies()),
+      );
       expect(await repo.retryFailedDispatch(crawlId)).toBeNull();
       expect((await repo.getCrawl(crawlId))?.status).toBe("failed");
     });
@@ -943,7 +1219,10 @@ describeDatabase("Wiki website crawl on PostgreSQL", () => {
   it("does not mark a concurrent edit as an imported revision", async () => {
     await runCrawl(await startCrawl());
     await runWithTenant(user, async () => {
-      const repo = new PrismaWikiWebsiteCrawlRepo();
+      const repo = new PrismaWikiWebsiteCrawlRepo(
+        new PrismaWikiPageRepo(),
+        new PrismaAgentChatRepo(...prismaAgentChatRepoDependencies()),
+      );
       const before = await repo.findImportedPage("https://example.com/pricing");
       if (!before) throw new Error("Missing imported fixture");
       const edited = await new UpdateWikiPageInteractor(new PrismaWikiPageRepo(), eventService()).invoke({
@@ -952,12 +1231,14 @@ describeDatabase("Wiki website crawl on PostgreSQL", () => {
         markdown: "Manual racing edit",
       });
       expect(edited.ok).toBe(true);
-      await repo.markImported(before.id, {
-        url: "https://example.com/pricing",
-        fetchedAt: new Date(),
-        contentHash: "must-not-be-written",
-        importedUpdatedAt: before.updatedAt,
-      });
+      await expect(
+        repo.markImported(before.id, {
+          url: "https://example.com/pricing",
+          fetchedAt: new Date(),
+          contentHash: "must-not-be-written",
+          importedUpdatedAt: before.updatedAt,
+        }),
+      ).rejects.toThrow("Knowledge Base page changed before import provenance could be recorded.");
       const after = await repo.findImportedPage("https://example.com/pricing");
       if (!after?.sourceImportedUpdatedAt) throw new Error("Missing imported revision");
       expect(after.sourceContentHash).toBe(before.sourceContentHash);
@@ -1047,7 +1328,10 @@ describeDatabase("Wiki website crawl on PostgreSQL", () => {
     await startCrawl();
     await expect(
       runWithTenant(user, () =>
-        new PrismaWikiWebsiteCrawlRepo().createCrawl({
+        new PrismaWikiWebsiteCrawlRepo(
+          new PrismaWikiPageRepo(),
+          new PrismaAgentChatRepo(...prismaAgentChatRepoDependencies()),
+        ).createCrawl({
           clientRequestId: randomUUID(),
           homepageUrl: "https://example.com/",
           registrableDomain: "example.com",

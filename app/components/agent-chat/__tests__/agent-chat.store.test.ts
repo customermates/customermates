@@ -6324,6 +6324,14 @@ describe("AgentChatStore", () => {
   });
 });
 
+class FakeHTMLElement {
+  isConnected = true;
+  marker = true;
+  scrollIntoView = vi.fn();
+  constructor(private readonly rects = 1) {}
+  getClientRects = () => Array.from({ length: this.rects });
+}
+
 describe("AgentUiControlStore", () => {
   afterEach(() => {
     vi.useRealTimers();
@@ -6335,11 +6343,6 @@ describe("AgentUiControlStore", () => {
   }
 
   it("self-navigates the connected-account walkthrough and reaches its connect control", async () => {
-    class FakeHTMLElement {
-      isConnected = true;
-      getClientRects = () => [{}];
-      scrollIntoView = vi.fn();
-    }
     const elements = new Map([
       ["nav-profile-connected-accounts", new FakeHTMLElement()],
       ["profile-connected-accounts-connect", new FakeHTMLElement()],
@@ -6384,11 +6387,7 @@ describe("AgentUiControlStore", () => {
 
   it("searches backward past unavailable tour targets", async () => {
     vi.useFakeTimers();
-    class FakeHTMLElement {
-      isConnected = true;
-      getClientRects = () => [{}];
-      scrollIntoView = vi.fn();
-    }
+
     const elements = new Map([
       ["nav-contacts", new FakeHTMLElement()],
       ["contacts-search", new FakeHTMLElement()],
@@ -6436,12 +6435,7 @@ describe("AgentUiControlStore", () => {
 
   it("reports a guided-tour failure when none of its allowed targets exist", async () => {
     vi.useFakeTimers();
-    vi.stubGlobal(
-      "HTMLElement",
-      class FakeHTMLElement {
-        marker = true;
-      },
-    );
+    vi.stubGlobal("HTMLElement", FakeHTMLElement);
     vi.stubGlobal("document", {
       activeElement: null,
       getElementById: vi.fn().mockReturnValue(null),
@@ -6478,12 +6472,7 @@ describe("AgentUiControlStore", () => {
 
   it("does not resurrect a tour ended during an awaited navigation", async () => {
     let resolveNavigation!: (value: "navigated") => void;
-    vi.stubGlobal(
-      "HTMLElement",
-      class FakeHTMLElement {
-        marker = true;
-      },
-    );
+    vi.stubGlobal("HTMLElement", FakeHTMLElement);
     vi.stubGlobal("document", {
       activeElement: null,
       getElementById: vi.fn().mockReturnValue(null),
@@ -6517,11 +6506,7 @@ describe("AgentUiControlStore", () => {
 
   it("waits for a cross-page stop to render instead of skipping it and ending the tour", async () => {
     vi.useFakeTimers();
-    class FakeHTMLElement {
-      isConnected = true;
-      getClientRects = () => [{}];
-      scrollIntoView = vi.fn();
-    }
+
     const rendered = new Set(["company-subscription-refresh"]);
     const elements = new Map(
       ["company-subscription-refresh", "company-members-add", "company-roles-add"].map((id) => [
@@ -6569,11 +6554,7 @@ describe("AgentUiControlStore", () => {
 
   it("skips a tour stop on a page the role cannot open without navigating there", async () => {
     vi.useFakeTimers();
-    class FakeHTMLElement {
-      isConnected = true;
-      getClientRects = () => [{}];
-      scrollIntoView = vi.fn();
-    }
+
     const elements = new Map([
       ["nav-dashboard", new FakeHTMLElement()],
       ["company-members-add", new FakeHTMLElement()],
@@ -6608,12 +6589,7 @@ describe("AgentUiControlStore", () => {
 
   it("skips a tour stop that is mounted but has no layout", async () => {
     vi.useFakeTimers();
-    class FakeHTMLElement {
-      isConnected = true;
-      constructor(private readonly rects: number) {}
-      getClientRects = () => Array.from({ length: this.rects });
-      scrollIntoView = vi.fn();
-    }
+
     const elements = new Map([
       ["nav-profile-connected-accounts", new FakeHTMLElement(1)],
       ["connected-account-signature", new FakeHTMLElement(0)],

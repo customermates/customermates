@@ -1,6 +1,6 @@
 import type { AgentUsageService } from "@/ee/agent-chat/agent-usage.service";
 import type { BackgroundTaskService } from "@/core/utils/background-task.service";
-import type { WikiSemanticIndexRepo } from "../wiki-semantic-index.service";
+import type { WikiSemanticIndexRepo } from "@/ee/wiki-retrieval/wiki-semantic-index.repo";
 
 import { describe, expect, it, vi } from "vitest";
 

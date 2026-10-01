@@ -11,44 +11,47 @@ import { redactUnexpectedError } from "@/core/errors/redact-unexpected-error";
 import { externalizeWikiPageLinks } from "@/features/wiki/wiki-markdown-links";
 
 const RESOURCE_UNAVAILABLE = "Knowledge Base resource is unavailable.";
-class WikiResourceUnavailableError extends Error {}
 
-async function wikiResourceBoundary<T>(read: () => Promise<T>): Promise<T> {
+async function wikiResourceBoundary<T>(read: () => Promise<T | null>): Promise<T> {
+  let result: T | null;
   try {
-    return await read();
+    result = await read();
   } catch (error) {
-    if (!(error instanceof WikiResourceUnavailableError) && !appErrorDetailsInCauseChain(error))
+    if (!appErrorDetailsInCauseChain(error))
       Sentry.captureException(redactUnexpectedError(error, "The Knowledge Base MCP resource could not be read."));
-
     throw new Error(RESOURCE_UNAVAILABLE);
   }
+  if (result === null) throw new Error(RESOURCE_UNAVAILABLE);
+  return result;
 }
 
-async function wikiCatalogText(page: number) {
+async function wikiCatalogText(page: number | null) {
+  if (page === null) return null;
   const result = await getGetWikiCatalogInteractor().invoke({ page });
-  if (!result.ok) throw new WikiResourceUnavailableError();
+  if (!result.ok) return null;
   return JSON.stringify(result.data);
 }
 
-async function wikiPageText(id: string) {
+async function wikiPageText(id: string | null) {
+  if (id === null) return null;
   const result = await getGetWikiPageInteractor().invoke({ id });
-  if (!result.ok || !result.data) throw new WikiResourceUnavailableError();
+  if (!result.ok || !result.data) return null;
   return externalizeWikiPageLinks(result.data.markdown, env.BASE_URL);
 }
 
-function catalogPage(value: unknown): number {
+function catalogPage(value: unknown): number | null {
   const parsed = z.coerce
     .number()
     .int()
     .min(1)
     .safeParse(value ?? 1);
-  if (!parsed.success) throw new WikiResourceUnavailableError();
+  if (!parsed.success) return null;
   return parsed.data;
 }
 
-function wikiPageId(value: unknown): string {
+function wikiPageId(value: unknown): string | null {
   const parsed = z.uuid().safeParse(value);
-  if (!parsed.success) throw new WikiResourceUnavailableError();
+  if (!parsed.success) return null;
   return parsed.data;
 }
 

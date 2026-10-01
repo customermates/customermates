@@ -1,7 +1,7 @@
 import type { CustomColumnDto } from "@/features/custom-column/custom-column.schema";
 import type { GetWidgetFilterableFieldsTaskRepo } from "../widget/get-widget-filterable-fields.interactor";
 import type { TaskRepo as TaskWorkerRepo } from "./listener/user-pending-authorization-task.listener";
-import type { GetTasksRepo } from "@/features/tasks/get/get-tasks.interactor";
+import type { GetTasksRepo } from "@/features/tasks/get/get-tasks.repo";
 import type { GetConfigurationRepo } from "@/core/base/base-get-configuration.interactor";
 import type { CountTasksRepo } from "@/features/tasks/count-user-tasks.interactor";
 import type { CountSystemTasksRepo } from "@/features/tasks/count-system-tasks.interactor";
@@ -11,7 +11,7 @@ import type { DeleteTaskRepo } from "@/features/tasks/delete/delete-task.repo";
 import type { GetTaskByIdRepo } from "@/features/tasks/get/get-task-by-id.interactor";
 import type { FindTasksByIdsRepo } from "@/features/tasks/find-tasks-by-ids.repo";
 import type { GetCompanyWideTaskRepo } from "@/features/tasks/get-company-wide-task.repo";
-import type { ModifyRelationTaskRepo } from "@/features/relations/modify-entity-relation.interactor";
+import type { ModifyRelationTaskRepo } from "@/features/relations/modify-relation-task.repo";
 
 import { EntityType, TaskType, Resource, Action } from "@/generated/prisma";
 

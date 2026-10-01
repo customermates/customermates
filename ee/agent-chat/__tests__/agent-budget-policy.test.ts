@@ -15,11 +15,16 @@ import {
   serializedAgentContextBytes,
 } from "../agent-budget-policy";
 import { buildAgentProviderContext, isAgentStepContextWithinBudget } from "../agent-provider-context";
-import { MODEL_CATALOG, isAgentModelWithinBudgetEnvelope, type AgentModelEntry } from "../model-catalog";
+import {
+  SHIPPED_AGENT_MODEL,
+  SHIPPED_AGENT_MODEL_KEY,
+  isAgentModelWithinBudgetEnvelope,
+  type AgentModelEntry,
+} from "../model-catalog";
 import { agentWebSearchCallLimit } from "../agent-web-search";
 
 const CREDIT = 1_000_000;
-const BALANCED = MODEL_CATALOG.balanced;
+const BALANCED = SHIPPED_AGENT_MODEL;
 const NANO: AgentModelEntry = {
   modelId: "openai/gpt-5-nano",
   servingProvider: "azure",
@@ -31,7 +36,7 @@ const NANO: AgentModelEntry = {
 
 describe("agent turn credit budget", () => {
   it("pins the shipped model to its ZDR-compatible provider and configured inference region", () => {
-    expect(Object.keys(MODEL_CATALOG)).toEqual(["balanced"]);
+    expect(SHIPPED_AGENT_MODEL_KEY).toBe("balanced");
     expect({ provider: BALANCED.servingProvider, region: BALANCED.inferenceRegion }).toEqual({
       provider: "vertex",
       region: "eu",

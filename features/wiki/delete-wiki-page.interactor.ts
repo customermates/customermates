@@ -1,3 +1,4 @@
+import type { DeleteWikiPageRepo } from "./delete-wiki-page.repo";
 import type { Data, Validated } from "@/core/validation/validation.utils";
 import type { EventService } from "@/features/event/event.service";
 import type { WikiPageDto } from "./wiki.schema";
@@ -24,10 +25,6 @@ export type DeleteWikiPageRepoResult =
   | { status: "deleted"; page: WikiPageDto }
   | { status: "not-found" }
   | { status: "conflict" };
-
-export abstract class DeleteWikiPageRepo {
-  abstract deletePage(data: DeleteWikiPageData): Promise<DeleteWikiPageRepoResult>;
-}
 
 @TenantInteractor({ resource: Resource.wiki, action: Action.delete })
 export class DeleteWikiPageInteractor extends AuthenticatedInteractor<DeleteWikiPageData, WikiPageDto> {

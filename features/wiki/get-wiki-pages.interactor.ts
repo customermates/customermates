@@ -1,3 +1,4 @@
+import type { GetWikiPagesRepo } from "./get-wiki-pages.repo";
 import type { Validated } from "@/core/validation/validation.utils";
 import type { WikiPageListData, WikiPageListResult } from "./wiki.schema";
 
@@ -10,10 +11,6 @@ import { Validate } from "@/core/decorators/validate.decorator";
 import { ValidateOutput } from "@/core/decorators/validate-output.decorator";
 
 import { WikiPageListResultSchema, WikiPageListSchema } from "./wiki.schema";
-
-export abstract class GetWikiPagesRepo {
-  abstract listPages(data: WikiPageListData): Promise<WikiPageListResult>;
-}
 
 @AllowInDemoMode
 @TenantInteractor({ resource: Resource.wiki, action: Action.readAll })

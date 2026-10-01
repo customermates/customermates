@@ -1,8 +1,10 @@
+import type { DocsSource } from "./docs-manifest";
+
 import { slugifyHeading } from "@/core/utils/search-text";
 
 export type DocsSection = {
   slug: string;
-  source: string;
+  source: DocsSource;
   pageTitle: string;
   anchor: string;
   headingPath: string[];
@@ -32,7 +34,7 @@ export function unwrapDocsComponents(markdown: string, expandSnippet: (tool: str
 
 export function splitSections(args: {
   slug: string;
-  source: string;
+  source: DocsSource;
   pageTitle: string;
   markdown: string;
 }): DocsSection[] {

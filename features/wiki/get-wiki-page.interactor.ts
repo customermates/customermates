@@ -1,3 +1,4 @@
+import type { GetWikiPageRepo } from "./get-wiki-page.repo";
 import type { Data, Validated } from "@/core/validation/validation.utils";
 import type { WikiPageDto } from "./wiki.schema";
 
@@ -14,10 +15,6 @@ import { WikiPageDtoSchema } from "./wiki.schema";
 
 export const GetWikiPageSchema = z.object({ id: z.uuid() });
 export type GetWikiPageData = Data<typeof GetWikiPageSchema>;
-
-export abstract class GetWikiPageRepo {
-  abstract getPage(id: string): Promise<WikiPageDto | null>;
-}
 
 @AllowInDemoMode
 @TenantInteractor({ resource: Resource.wiki, action: Action.readAll })

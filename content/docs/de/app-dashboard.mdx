@@ -66,6 +66,7 @@ Die Einträge stehen in drei Gruppen: **Übersicht** (**Dashboard** und **Wissen
 | Widget hinzufügen | Seitenkopf | `#dashboard-add-widget` (**Widget hinzufügen**) | Öffnet das Widget-Modal |
 | Globale Suche | Oben in der Sidebar | `#nav-search` (**Suchen**) | Öffnet das Such-Modal (auch Cmd/Ctrl+K); siehe [Globale Suche](/docs/app-search) |
 | Suchfeld | Such-Modal | `#global-search-input` | Findet Kontakte, Organisationen, Deals, Services und Aufgaben nach Name |
+| Datensatz erstellen | Oben in der Sidebar | `#nav-add` (**Hinzufügen**) | Öffnet die Auswahl des Datensatztyps |
 | Dokumentation öffnen | Sidebar-Footer | `#nav-documentation` (**Dokumentation**) | Öffnet `/docs` |
 | Feedback senden | Sidebar-Footer | `#nav-feedback` (**Feedback**) | Öffnet den Feedback-Dialog |
 | Mate fragen | Oben in der Sidebar bei aktiviertem Mate, auch beim Onboarding sichtbar | `#nav-assistant` (**Mate fragen**) | Öffnet oder schließt das Panel des [KI-Assistenten](/docs/app-assistant) (auch Cmd/Ctrl+J); beim Onboarding prüft der Klick den Kontostatus erneut und führt zur erlaubten Route |
@@ -75,7 +76,7 @@ Die Einträge stehen in drei Gruppen: **Übersicht** (**Dashboard** und **Wissen
 | Workspace-Verwaltung | Gruppe Workspace | `#nav-company` (**Mein Unternehmen**) | Klappt **Abonnement**, **Einstellungen**, **Mitglieder**, **Rollen**, **Audit-Logs**, **Webhooks** und **Letzte Zustellungen** auf oder zu; siehe [Mein Unternehmen](/docs/app-company) |
 | Darstellung und Abmelden | Sidebar-Footer, Ihr Name | keine | **Dunkler Modus** oder **Heller Modus** wechselt und speichert Ihre Darstellung; **Abmelden** beendet die Sitzung |
 
-**Link:** die Sidebar steht auf jeder App-Seite; das **Dashboard** ist `/dashboard`. **Mate:** `navigate` und `highlight_element` mit jeder `nav-*`-Id dieses Abschnitts, die Ihre Rolle öffnen darf, außer `nav-search`, `nav-documentation` und `nav-feedback`, die Mate nur hervorheben kann, sowie `#nav-assistant`, das kein Ziel ist; Einträge unter **Mein Profil** und **Mein Unternehmen** lassen sich nur bei aufgeklappter Gruppe hervorheben. Der Tarif-Chip, **E-Mail nicht verifiziert** und das Menü unter Ihrem Namen sind keine Highlight-Ziele, deshalb nennt Mate sie beim Namen.
+**Link:** die Sidebar steht auf jeder App-Seite; das **Dashboard** ist `/dashboard`. **Mate:** `navigate` und `highlight_element` mit jeder `nav-*`-Id dieses Abschnitts, die Ihre Rolle öffnen darf, außer `nav-search`, `nav-documentation` und `nav-feedback`, die Mate nur hervorheben kann, sowie `#nav-add` und `#nav-assistant`, die keine Ziele sind; Einträge unter **Mein Profil** und **Mein Unternehmen** lassen sich nur bei aufgeklappter Gruppe hervorheben. Der Tarif-Chip, **E-Mail nicht verifiziert** und das Menü unter Ihrem Namen sind keine Highlight-Ziele, deshalb nennt Mate sie beim Namen.
 
 ## Was passiert beim ersten Start? [#what-happens-on-first-run]
 
@@ -88,7 +89,7 @@ Neue Accounts landen im [Onboarding-Wizard](/docs/app-onboarding) unter `/onboar
 - Der gehostete Assistent Mate kann hierher navigieren und `#nav-dashboard` sowie `#dashboard-add-widget` hervorheben, im Widget-Editor außerdem `#widget-modal-kind`, `#widget-modal-save` und `#widget-modal-reset` (wann sie erscheinen, steht in den Mate-Zeilen oben); Widgets erstellt er über `manage_widgets`, statt das Modal zu bedienen.
 - Zeilen tragen nie Ids. Öffnen Sie einen Datensatz über seine Seiten-URL `/{type}/{id}`. Erstellen Sie Datensätze über die Schaltfläche **Hinzufügen** oben rechts auf der jeweiligen Listenseite. Der Drawer-Deep-Link `?open={entityType}:new` legt ebenfalls einen Datensatz an und funktioniert auf jeder angemeldeten Seite, auch auf dem Dashboard.
 - Bevorzugen Sie [MCP](/docs/mcp)-Tools statt Klicken, wenn ein Tool existiert. CRM-Daten lesen und schreiben ist über Tools schneller und sicherer als über die UI.
-- `#nav-search`, `#nav-documentation` und `#nav-feedback` lassen sich hervorheben, sind aber keine Navigationsziele. Die Navigation zu `#nav-profile` oder `#nav-company` öffnet die Seite **Einstellungen** der jeweiligen Gruppe. `#nav-assistant`, die beiden Chips und das Menü unter Ihrem Namen sind keine Ziele des Assistenten.
+- `#nav-search`, `#nav-documentation` und `#nav-feedback` lassen sich hervorheben, sind aber keine Navigationsziele. Die Navigation zu `#nav-profile` oder `#nav-company` öffnet die Seite **Einstellungen** der jeweiligen Gruppe. `#nav-add`, `#nav-assistant`, die beiden Chips und das Menü unter Ihrem Namen sind keine Ziele des Assistenten.
 
 ## Verwandt [#related]
 

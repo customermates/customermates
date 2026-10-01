@@ -50,6 +50,12 @@ export const SerializedInteractorFailureSchema = z.object({
 
 export type SerializedInteractorFailure = z.infer<typeof SerializedInteractorFailureSchema>;
 
+export function serializedFailureErrorTree(failure: SerializedInteractorFailure) {
+  return z.treeifyError(
+    new z.ZodError(failure.issues.map(({ path, message }) => ({ code: "custom" as const, path, message }))),
+  );
+}
+
 const AUTHENTICATION_FAILURE_CODES = new Set<CustomErrorCode>([CustomErrorCode.notAuthenticated]);
 const AUTHORIZATION_FAILURE_CODES = new Set<CustomErrorCode>([
   CustomErrorCode.userInactive,

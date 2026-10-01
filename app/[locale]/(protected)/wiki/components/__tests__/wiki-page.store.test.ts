@@ -3,6 +3,8 @@ import type { RootStore } from "@/core/stores/root.store";
 import { autorun } from "mobx";
 import { beforeEach, describe, expect, it, vi } from "vitest";
 
+import { CustomErrorCode } from "@/core/validation/validation.types";
+
 const actions = vi.hoisted(() => ({
   create: vi.fn(),
   update: vi.fn(),
@@ -178,8 +180,17 @@ describe("Wiki document editing", () => {
   it("preserves a stale draft, then reloads the current version only when asked", async () => {
     actions.update.mockResolvedValue({
       ok: false,
-      conflict: true,
-      error: { errors: ["Conflict"] },
+      failure: {
+        kind: "conflict",
+        issues: [
+          {
+            code: "custom",
+            customCode: CustomErrorCode.wikiPageConflict,
+            path: ["expectedUpdatedAt"],
+            message: "Conflict",
+          },
+        ],
+      },
     });
     const onChanged = vi.fn();
     const store = new WikiPageStore(rootStore(), page, onChanged);
@@ -197,9 +208,77 @@ describe("Wiki document editing", () => {
     expect(onChanged).toHaveBeenCalledWith(latest.id);
   });
 
+  it("preserves a new page and shows the guide admission error without a stale-document recovery", async () => {
+    actions.create.mockResolvedValue({
+      ok: false,
+      failure: {
+        kind: "conflict",
+        issues: [
+          {
+            code: "custom",
+            customCode: CustomErrorCode.wikiGuideExists,
+            path: ["pages"],
+            message: "A guide already exists",
+          },
+        ],
+      },
+    });
+    const changed = vi.fn();
+    const store = new WikiPageStore(rootStore(), page, changed);
+    store.startCreate();
+    store.onChange("title", "My guide");
+    store.onChange("kind", "guide");
+    store.onChange("markdown", "My rules");
+
+    await store.onSubmit();
+
+    expect(store.conflict).toBe(false);
+    expect(store.error).toEqual({ errors: [], properties: { pages: { errors: ["A guide already exists"] } } });
+    expect(store.creating).toBe(true);
+    expect(store.form).toMatchObject({ id: null, title: "My guide", kind: "guide", markdown: "My rules" });
+    expect(store.hasUnsavedChanges).toBe(true);
+    expect(store.isLoading).toBe(false);
+    expect(actions.get).not.toHaveBeenCalled();
+    expect(changed).not.toHaveBeenCalled();
+  });
+
+  it("preserves a kind change when another editor has already created the guide", async () => {
+    actions.update.mockResolvedValue({
+      ok: false,
+      failure: {
+        kind: "conflict",
+        issues: [
+          {
+            code: "custom",
+            customCode: CustomErrorCode.wikiGuideExists,
+            path: ["kind"],
+            message: "A guide already exists",
+          },
+        ],
+      },
+    });
+    const changed = vi.fn();
+    const store = new WikiPageStore(rootStore(), page, changed);
+    store.onChange("kind", "guide");
+    store.onChange("markdown", "My rules");
+
+    await store.onSubmit();
+
+    expect(store.conflict).toBe(false);
+    expect(store.error).toEqual({ errors: [], properties: { kind: { errors: ["A guide already exists"] } } });
+    expect(store.form).toMatchObject({ id: page.id, kind: "guide", markdown: "My rules", updatedAt: page.updatedAt });
+    expect(store.hasUnsavedChanges).toBe(true);
+    expect(store.isLoading).toBe(false);
+    expect(actions.get).not.toHaveBeenCalled();
+    expect(changed).not.toHaveBeenCalled();
+  });
+
   it("keeps a draft if Save or reload validation fails", async () => {
     const error = { errors: ["Validation failed"] };
-    actions.update.mockResolvedValue({ ok: false, conflict: false, error });
+    actions.update.mockResolvedValue({
+      ok: false,
+      failure: { kind: "validation", issues: [{ code: "custom", path: [], message: "Validation failed" }] },
+    });
     actions.get.mockResolvedValue({ ok: false, error });
     const store = new WikiPageStore(rootStore(), page, vi.fn());
     store.onChange("markdown", "My draft");
@@ -215,14 +294,14 @@ describe("Wiki document editing", () => {
       kind: "validation",
       issues: [{ code: "too_big", path: ["title"], message: "Too long" }],
     };
-    actions.update.mockResolvedValue({ ok: false, conflict: false, error });
+    actions.update.mockResolvedValue({ ok: false, failure: error });
     const store = new WikiPageStore(rootStore(), page, vi.fn());
     store.onChange("title", "An unsaved title");
 
     await store.onSubmit();
 
     expect(store.conflict).toBe(false);
-    expect(store.error).toEqual(error);
+    expect(store.error).toEqual({ errors: [], properties: { title: { errors: ["Too long"] } } });
     expect(store.form.title).toBe("An unsaved title");
     expect(store.hasUnsavedChanges).toBe(true);
   });
@@ -242,14 +321,26 @@ describe("Wiki document editing", () => {
   it("retains the page and only toasts on stale delete", async () => {
     actions.delete.mockResolvedValue({
       ok: false,
-      conflict: true,
-      error: { errors: ["Conflict"] },
+      failure: {
+        kind: "conflict",
+        issues: [
+          {
+            code: "custom",
+            customCode: CustomErrorCode.wikiPageConflict,
+            path: ["expectedUpdatedAt"],
+            message: "Conflict",
+          },
+        ],
+      },
     });
     const changed = vi.fn();
     const store = new WikiPageStore(rootStore(), page, changed);
     expect(await store.delete()).toBe(false);
     expect(store.conflict).toBe(false);
-    expect(actions.toast).toHaveBeenCalledExactlyOnceWith({ errors: ["Conflict"] });
+    expect(actions.toast).toHaveBeenCalledExactlyOnceWith({
+      errors: [],
+      properties: { expectedUpdatedAt: { errors: ["Conflict"] } },
+    });
     expect(store.form.id).toBe(page.id);
     expect(changed).not.toHaveBeenCalled();
   });

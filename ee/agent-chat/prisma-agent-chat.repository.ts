@@ -17,19 +17,20 @@ import { BaseRepository } from "@/core/base/base-repository";
 import { BypassTenantGuard } from "@/core/decorators/bypass-tenant.decorator";
 import { Transaction } from "@/core/decorators/transaction.decorator";
 import { env } from "@/env";
-import type {
-  GetWikiHomepageSetupTurnRepo,
-  WikiHomepageSetupTurn,
-} from "@/features/wiki/get-wiki-homepage-setup-state.interactor";
+import type { GetWikiHomepageSetupTurnRepo } from "@/features/wiki/get-wiki-homepage-setup-turn.repo";
+import type { WikiHomepageSetupTurn } from "@/features/wiki/get-wiki-homepage-setup-state.interactor";
 import { parsePublicWikiHomepage } from "@/features/wiki/wiki-homepage";
 
 import type {
   AgentRetrievalCharge,
   AgentRetrievalGrant,
   AgentRetrievalPayer,
-  AgentUsageRepo,
   AgentWorkspaceCreditPool,
 } from "./agent-usage.service";
+import type { AgentUsageRepo } from "@/ee/agent-chat/agent-usage.repo";
+import type { WikiCrawlSetupRepo, WikiCrawlSetupIdentity } from "./wiki-crawl-setup.repo";
+import type { GetWikiSuggestionSignalRepo } from "@/features/wiki/get-wiki-suggestion-signal.repo";
+import type { WikiCrawlAdmissionRepo } from "@/ee/wiki-crawl/wiki-crawl-admission.repo";
 import { AGENT_CONVERSATION_PAGE_SIZE, AGENT_MESSAGE_PAGE_SIZE, type AgentConversationPage } from "./agent-history";
 import { AGENT_MAX_CONCURRENT_RUNS_PER_USER } from "./agent-run-limits";
 import { clientSafeAgentMessageParts, hasRenderableAgentMessageParts, partsToText } from "./agent-chat.schema";
@@ -50,7 +51,7 @@ import {
   AGENT_RUN_LEASE_MS,
   isAgentTurnStopReason,
   isAgentTurnTerminalCode,
-  WikiHomepageSetupAlreadyRunningError,
+  wikiHomepageSetupConflict,
   type AgentTurnRequestSnapshot,
   type AgentTurnRequestStatus,
   type AgentTurnStopReason,
@@ -250,7 +251,17 @@ export type AgentUsageReservationExtension =
   | { disposition: "hosted_ai_unavailable" }
   | { disposition: "turn_error" };
 
-export class PrismaAgentChatRepo extends BaseRepository implements AgentUsageRepo, GetWikiHomepageSetupTurnRepo {
+export class PrismaAgentChatRepo
+  extends BaseRepository
+  implements AgentUsageRepo, GetWikiHomepageSetupTurnRepo, WikiCrawlSetupRepo
+{
+  constructor(
+    private readonly wikiSuggestions: GetWikiSuggestionSignalRepo,
+    private readonly wikiCrawlAdmission: () => WikiCrawlAdmissionRepo,
+  ) {
+    super();
+  }
+
   private async resolveCurrentAgentCreditEntitlement(user: AgentUsageUser, now: Date) {
     if (!user.subscription) return null;
 
@@ -590,14 +601,9 @@ export class PrismaAgentChatRepo extends BaseRepository implements AgentUsageRep
           },
           select: { id: true },
         });
-        if (activeSetup) throw new WikiHomepageSetupAlreadyRunningError();
-        const activeCrawl = await this.prisma.wikiWebsiteCrawl.findFirst({
-          where: {
-            companyId,
-            status: { in: ["queued", "discovering", "fetching", "importing", "synthesizing"] },
-          },
-          select: { clientRequestId: true, homepageUrl: true, status: true },
-        });
+        if (activeSetup) throw wikiHomepageSetupConflict();
+        const crawlAdmission = this.wikiCrawlAdmission();
+        const activeCrawl = await crawlAdmission.findActiveHomepageSetupCrawl();
         if (
           activeCrawl &&
           (args.turn.kind !== "create" ||
@@ -605,7 +611,7 @@ export class PrismaAgentChatRepo extends BaseRepository implements AgentUsageRep
             activeCrawl.clientRequestId !== args.turn.clientRequestId ||
             activeCrawl.homepageUrl !== args.turn.wikiHomepageSetupUrl)
         )
-          throw new WikiHomepageSetupAlreadyRunningError();
+          throw wikiHomepageSetupConflict();
         const originalRequest =
           args.turn.kind === "retry"
             ? await this.prisma.agentTurnRequest.findFirst({
@@ -615,18 +621,13 @@ export class PrismaAgentChatRepo extends BaseRepository implements AgentUsageRep
             : null;
         const crawlClientRequestId =
           args.turn.kind === "create" ? args.turn.clientRequestId : originalRequest?.clientRequestId;
-        if (!crawlClientRequestId) throw new WikiHomepageSetupAlreadyRunningError();
-        const boundCrawl = await this.prisma.wikiWebsiteCrawl.findFirst({
-          where: {
-            companyId,
-            userId,
-            clientRequestId: crawlClientRequestId,
-            homepageUrl: args.turn.wikiHomepageSetupUrl,
-            status: { in: ["synthesizing", "completed"] },
-          },
-          select: { id: true },
+        if (!crawlClientRequestId) throw wikiHomepageSetupConflict();
+        const boundCrawl = await crawlAdmission.hasBoundHomepageSetupCrawl({
+          userId,
+          clientRequestId: crawlClientRequestId,
+          homepageUrl: args.turn.wikiHomepageSetupUrl,
         });
-        if (!boundCrawl) throw new WikiHomepageSetupAlreadyRunningError();
+        if (!boundCrawl) throw wikiHomepageSetupConflict();
       }
 
       if (args.turn.kind === "retry") {
@@ -863,12 +864,7 @@ export class PrismaAgentChatRepo extends BaseRepository implements AgentUsageRep
           where: this.accessWhere("routine"),
           select,
         }),
-        this.prisma.wikiPage.findFirst({
-          where: this.canAccess(Resource.wiki)
-            ? { companyId: this.companyId }
-            : { companyId: this.companyId, id: { in: [] } },
-          select,
-        }),
+        this.wikiSuggestions.findSuggestionWikiPage(),
         this.prisma.widget.findFirst({
           where: {
             companyId: this.companyId,
@@ -2613,10 +2609,16 @@ export class PrismaAgentChatRepo extends BaseRepository implements AgentUsageRep
     )
       return null;
     const id = randomUUID();
-    await this.prisma.$executeRaw`
-      INSERT INTO "HostedAiPlatformReservation" ("id", "purpose", "model", "reservedMicrocents", "createdAt")
-      VALUES (${id}, ${args.purpose}, ${args.model}, ${args.reservedMicrocents}, ${args.now})
-    `;
+    await this.prisma.hostedAiPlatformReservation.create({
+      data: {
+        id,
+        purpose: args.purpose,
+        model: args.model,
+        reservedMicrocents: BigInt(args.reservedMicrocents),
+        createdAt: args.now,
+      },
+      select: { id: true },
+    });
     return id;
   }
 
@@ -2629,12 +2631,16 @@ export class PrismaAgentChatRepo extends BaseRepository implements AgentUsageRep
   }): Promise<void> {
     await this.prisma
       .$executeRaw`SELECT pg_advisory_xact_lock(hashtextextended('customermates:hosted-ai-global-admission', 0))`;
-    const reservations = await this.prisma.$queryRaw<Array<{ purpose: string; model: string }>>`
-      DELETE FROM "HostedAiPlatformReservation" WHERE "id" = ${args.reservationId}
-      RETURNING "purpose", "model"
-    `;
-    const reservation = reservations[0];
-    if (!reservation || !args.charge) return;
+    const reservation = await this.prisma.hostedAiPlatformReservation.findUnique({
+      where: { id: args.reservationId },
+      select: { purpose: true, model: true },
+    });
+    if (!reservation) return;
+    const released = await this.prisma.hostedAiPlatformReservation.deleteMany({
+      where: { id: args.reservationId },
+    });
+    if (released.count !== 1) throw new Error("Platform AI reservation changed before settlement.");
+    if (!args.charge) return;
     if (reservation.model !== args.charge.model) throw new Error("Platform AI settlement model does not match.");
     await this.accruePlatformUsageUnscoped({
       purpose: reservation.purpose,
@@ -2652,12 +2658,16 @@ export class PrismaAgentChatRepo extends BaseRepository implements AgentUsageRep
   }
 
   private async settleStalePlatformReservations(args: { reservedBefore: Date; now: Date }): Promise<number> {
-    const reservations = await this.prisma.$queryRaw<
-      Array<{ purpose: string; model: string; reservedMicrocents: bigint; createdAt: Date }>
-    >`
-      DELETE FROM "HostedAiPlatformReservation" WHERE "createdAt" < ${args.reservedBefore}
-      RETURNING "purpose", "model", "reservedMicrocents", "createdAt"
-    `;
+    const reservations = await this.prisma.hostedAiPlatformReservation.findMany({
+      where: { createdAt: { lt: args.reservedBefore } },
+      select: { id: true, purpose: true, model: true, reservedMicrocents: true, createdAt: true },
+    });
+    if (reservations.length === 0) return 0;
+    const released = await this.prisma.hostedAiPlatformReservation.deleteMany({
+      where: { id: { in: reservations.map(({ id }) => id) }, createdAt: { lt: args.reservedBefore } },
+    });
+    if (released.count !== reservations.length)
+      throw new Error("Platform AI reservations changed before stale settlement.");
     for (const reservation of reservations) {
       await this.accruePlatformUsageUnscoped({
         purpose: reservation.purpose,
@@ -2676,19 +2686,27 @@ export class PrismaAgentChatRepo extends BaseRepository implements AgentUsageRep
   @BypassTenantGuard
   async accruePlatformUsageUnscoped(args: { purpose: string; charge: AgentRetrievalCharge; now: Date }) {
     const { purpose, charge, now } = args;
-    await this.prisma.$executeRaw`
-      INSERT INTO "HostedAiPlatformUsage" (
-        "id", "purpose", "accrualMonth", "model", "inputTokens", "costMicrocents", "createdAt", "updatedAt"
-      ) VALUES (
-        ${randomUUID()}, ${purpose}, ${this.retrievalAccrualMonth(now)}, ${charge.model}, ${charge.inputTokens},
-        ${charge.costMicrocents}, ${now}, ${now}
-      )
-      ON CONFLICT ("purpose", "accrualMonth") DO UPDATE SET
-        "model" = EXCLUDED."model",
-        "inputTokens" = "HostedAiPlatformUsage"."inputTokens" + EXCLUDED."inputTokens",
-        "costMicrocents" = "HostedAiPlatformUsage"."costMicrocents" + EXCLUDED."costMicrocents",
-        "updatedAt" = EXCLUDED."updatedAt"
-    `;
+    const accrualMonth = this.retrievalAccrualMonth(now);
+    await this.prisma.hostedAiPlatformUsage.upsert({
+      where: { purpose_accrualMonth: { purpose, accrualMonth } },
+      create: {
+        id: randomUUID(),
+        purpose,
+        accrualMonth,
+        model: charge.model,
+        inputTokens: charge.inputTokens,
+        costMicrocents: BigInt(charge.costMicrocents),
+        createdAt: now,
+        updatedAt: now,
+      },
+      update: {
+        model: charge.model,
+        inputTokens: { increment: charge.inputTokens },
+        costMicrocents: { increment: BigInt(charge.costMicrocents) },
+        updatedAt: now,
+      },
+      select: { id: true },
+    });
   }
 
   private retrievalAccrualMonth(reservedAt: Date) {
@@ -3127,5 +3145,34 @@ export class PrismaAgentChatRepo extends BaseRepository implements AgentUsageRep
         settledAt: releasedAt,
       },
     });
+  }
+
+  async hasActiveWikiHomepageSetup(now: Date) {
+    const turn = await this.prisma.agentTurnRequest.findFirst({
+      where: activeWikiHomepageSetupWhere(this.companyId, now),
+      select: { id: true },
+    });
+    return Boolean(turn);
+  }
+
+  async protectedWikiHomepageSetupUrls(now: Date) {
+    const turns = await this.prisma.agentTurnRequest.findMany({
+      where: activeWikiHomepageSetupWhere(this.companyId, now),
+      select: { wikiHomepageSetupUrl: true },
+    });
+    return turns.flatMap(({ wikiHomepageSetupUrl }) => (wikiHomepageSetupUrl ? [wikiHomepageSetupUrl] : []));
+  }
+
+  async findWikiHomepageSetupConversation(identity: WikiCrawlSetupIdentity) {
+    const turn = await this.prisma.agentTurnRequest.findFirst({
+      where: {
+        companyId: this.companyId,
+        userId: identity.userId,
+        clientRequestId: identity.clientRequestId,
+        wikiHomepageSetupUrl: identity.homepageUrl,
+      },
+      select: { conversationId: true },
+    });
+    return turn?.conversationId ?? null;
   }
 }

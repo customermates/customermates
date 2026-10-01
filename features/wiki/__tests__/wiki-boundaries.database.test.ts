@@ -1,3 +1,4 @@
+import { prismaAgentChatRepoDependencies } from "@/tests/helpers/prisma-agent-chat-repo";
 import type { TenantUser } from "@/features/user/user.schema";
 
 import { randomUUID } from "node:crypto";
@@ -593,8 +594,11 @@ describeDatabase("Workspace Wiki public boundaries on PostgreSQL", () => {
       runWithTenant(tenant, () =>
         new GetWikiHomepageSetupStateInteractor(
           new PrismaWikiPageRepo(),
-          new PrismaAgentChatRepo(),
-          new PrismaWikiWebsiteCrawlRepo(),
+          new PrismaAgentChatRepo(...prismaAgentChatRepoDependencies()),
+          new PrismaWikiWebsiteCrawlRepo(
+            new PrismaWikiPageRepo(),
+            new PrismaAgentChatRepo(...prismaAgentChatRepoDependencies()),
+          ),
         ).invoke(),
       );
     const background = { dispatch: vi.fn().mockResolvedValue(undefined) };
@@ -602,20 +606,29 @@ describeDatabase("Workspace Wiki public boundaries on PostgreSQL", () => {
       runWithTenant(tenant, () =>
         new StartWikiHomepageSetupInteractor(
           new PrismaWikiPageRepo(),
-          new PrismaWikiWebsiteCrawlRepo(),
+          new PrismaWikiWebsiteCrawlRepo(
+            new PrismaWikiPageRepo(),
+            new PrismaAgentChatRepo(...prismaAgentChatRepoDependencies()),
+          ),
           background as never,
         ).invoke({ homepage: "example.org", clientRequestId: randomUUID(), locale: "en" }),
       );
     await client.query(
-      `INSERT INTO "WikiWebsiteCrawl" ("id", "companyId", "userId", "clientRequestId", "homepageUrl", "registrableDomain", "locale", "status", "extraHosts", "pendingHosts", "updatedAt")
-       VALUES ($1, $2, $3, $4, 'https://example.com/', 'example.com', 'en', 'fetching', '{}', '{}', CURRENT_TIMESTAMP)`,
-      [randomUUID(), foreignCompanyId, foreignUserId, randomUUID()],
+      `INSERT INTO "WikiWebsiteCrawl" ("id", "companyId", "userId", "clientRequestId", "homepageUrl", "registrableDomain", "locale", "status", "extraHosts", "pendingHosts", "targets", "discovered", "updatedAt")
+       VALUES ($1, $2, $3, $4, 'https://example.com/', 'example.com', 'en', 'fetching', '{}', '{}', $5::jsonb, 1, CURRENT_TIMESTAMP)`,
+      [
+        randomUUID(),
+        foreignCompanyId,
+        foreignUserId,
+        randomUUID(),
+        JSON.stringify([{ url: "https://example.com/", category: "about", status: "pending" }]),
+      ],
     );
 
     try {
       expect(await setupState(foreignUser)).toMatchObject({
         ok: true,
-        data: { status: "working", domain: "example.com", progress: { fetched: 0, total: 0 } },
+        data: { status: "working", domain: "example.com", progress: { fetched: 0, total: 1, failed: 0 } },
       });
       await client.query('UPDATE "WikiWebsiteCrawl" SET "status" = \'completed\' WHERE "companyId" = $1', [
         foreignCompanyId,

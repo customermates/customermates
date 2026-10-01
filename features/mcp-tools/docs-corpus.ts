@@ -46,12 +46,16 @@ export function docsChunkLabel(section: DocsSection): string {
   return heading && heading !== section.pageTitle ? `${section.pageTitle} > ${heading}` : section.pageTitle;
 }
 
+export function docsSectionSearchBody(section: DocsSection): string {
+  return section.text.replace(/\]\([^)\n]*\)/gu, "]").trim();
+}
+
 export function docsSectionChunks(locale: DocsLocale, section: DocsSection): DocsChunk[] {
   const label = docsChunkLabel(section);
-  const body = section.text.replace(/\]\([^)\n]*\)/gu, "]").trim();
+  const body = docsSectionSearchBody(section);
   return retrievalWindows(body).map((window, chunkOrdinal) => ({
     locale,
-    source: section.source as DocsSource,
+    source: section.source,
     slug: section.slug,
     sectionOrder: section.order,
     chunkOrdinal,

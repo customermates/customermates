@@ -31,7 +31,8 @@ import { AGENT_PANEL_TOOL_NAMES, isAgentPanelTool,
 } from "@/ee/agent-chat/agent-ui-command";
 import { AGENT_RUN_LEASE_MS } from "@/ee/agent-chat/agent-turn-request";
 import { agentMicrocentsFromStorage, agentMicrocentsToCredits } from "@/ee/agent-chat/agent-credit-policy";
-import { BENCHMARK_MODEL_KEY_PREFIX, resolveAgentModel } from "@/ee/agent-chat/model-catalog";
+import { resolveAgentModel } from "@/ee/agent-chat/model-catalog";
+import { BENCHMARK_MODEL_KEY_PREFIX } from "@/ee/agent-chat/benchmark-model-registry";
 import {
   cancelAgentTurnAs,
   expireAgentRunLeaseAs,

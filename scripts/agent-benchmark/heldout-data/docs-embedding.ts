@@ -114,7 +114,7 @@ export const DOCS_EMBEDDING_HELDOUT: readonly DocsHeldoutItem[] = [
     slug: "app-onboarding",
     anchors: ["app-onboarding#what-are-the-three-steps"],
     alternatives: [],
-    fact: "The onboarding wizard's three steps: Your profile (first name, last name, country; required), Invite your team, and Connect your AI.",
+    fact: "The onboarding wizard has four steps: Your profile (first name, last name, country; required), Company knowledge (optional website import), Invite your team, and Connect your AI.",
   },
   {
     id: "de-en-12",

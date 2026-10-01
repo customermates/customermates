@@ -54,11 +54,34 @@ export type WebsiteFetchFailure =
   | "redirect_limit"
   | "unsupported_content"
   | "too_large"
-  | "timeout";
+  | "timeout"
+  | "robots";
 
-class WebsiteFetchError extends Error {
-  constructor(readonly reason: WebsiteFetchFailure) {
-    super(reason);
+type WebsiteFetchErrorCause = { kind: "websiteFetch"; reason: WebsiteFetchFailure };
+
+function websiteFetchError(reason: WebsiteFetchFailure) {
+  return new Error("Website resource could not be read.", {
+    cause: { kind: "websiteFetch", reason } satisfies WebsiteFetchErrorCause,
+  });
+}
+
+function websiteFetchFailureReason(error: unknown): WebsiteFetchFailure | null {
+  if (!(error instanceof Error) || typeof error.cause !== "object" || error.cause === null) return null;
+  if (!("kind" in error.cause) || error.cause.kind !== "websiteFetch" || !("reason" in error.cause)) return null;
+  const reason = error.cause.reason;
+  switch (reason) {
+    case "invalid_url":
+    case "outside_domain":
+    case "blocked_address":
+    case "unavailable":
+    case "redirect_limit":
+    case "unsupported_content":
+    case "too_large":
+    case "timeout":
+    case "robots":
+      return reason;
+    default:
+      return null;
   }
 }
 
@@ -70,7 +93,7 @@ export function isPublicWebsiteAddress(address: string): boolean {
 
 function abortable<T>(operation: Promise<T>, signal: AbortSignal): Promise<T> {
   return new Promise((resolve, reject) => {
-    const onAbort = () => reject(new WebsiteFetchError("timeout"));
+    const onAbort = () => reject(websiteFetchError("timeout"));
     if (signal.aborted) onAbort();
     else signal.addEventListener("abort", onAbort, { once: true });
 
@@ -89,8 +112,8 @@ async function requestPage(
     !addresses.length ||
     addresses.some(({ address, family }) => isIP(address) !== family || !isPublicWebsiteAddress(address))
   )
-    throw new WebsiteFetchError("blocked_address");
-  if (signal.aborted) throw new WebsiteFetchError("timeout");
+    throw websiteFetchError("blocked_address");
+  if (signal.aborted) throw websiteFetchError("timeout");
 
   const address = addresses[0];
   return new Promise((resolve, reject) => {
@@ -119,17 +142,17 @@ async function readBody(
   truncate: boolean,
 ): Promise<{ body: Buffer; truncated: boolean }> {
   const encoding = response.headers["content-encoding"]?.trim().toLowerCase();
-  if (encoding && encoding !== "identity") throw new WebsiteFetchError("unsupported_content");
+  if (encoding && encoding !== "identity") throw websiteFetchError("unsupported_content");
   const declaredLength = response.headers["content-length"];
-  if (!truncate && declaredLength && Number(declaredLength) > MAX_BODY_BYTES) throw new WebsiteFetchError("too_large");
+  if (!truncate && declaredLength && Number(declaredLength) > MAX_BODY_BYTES) throw websiteFetchError("too_large");
 
   let size = 0;
   const chunks: Uint8Array[] = [];
   for await (const chunk of response) {
-    if (signal.aborted) throw new WebsiteFetchError("timeout");
+    if (signal.aborted) throw websiteFetchError("timeout");
     const buffer = Buffer.isBuffer(chunk) ? chunk : Buffer.from(chunk);
     if (size + buffer.byteLength > MAX_BODY_BYTES) {
-      if (!truncate) throw new WebsiteFetchError("too_large");
+      if (!truncate) throw websiteFetchError("too_large");
       const kept = buffer.subarray(0, MAX_BODY_BYTES - size);
       chunks.push(new Uint8Array(kept.buffer, kept.byteOffset, kept.byteLength));
       return { body: Buffer.concat(chunks), truncated: true };
@@ -180,6 +203,7 @@ export async function fetchWebsiteResource(
   input: {
     url: string;
     allows: (target: WebsiteResourceTarget) => boolean;
+    allowsRead?: (target: WebsiteResourceTarget) => Promise<boolean>;
     accept: readonly string[];
     userAgent: string;
     truncateOversized?: boolean;
@@ -195,6 +219,10 @@ export async function fetchWebsiteResource(
   let currentUrl = first.url;
   try {
     for (let redirects = 0; redirects <= MAX_REDIRECTS; redirects++) {
+      const target = websiteResourceTarget(currentUrl);
+      if (!target) return { ok: false, reason: "invalid_url" };
+      if (input.allowsRead && !(await abortable(input.allowsRead(target), signal)))
+        return { ok: false, reason: "robots" };
       const response = await requestPage(new URL(currentUrl), signal, input.accept, input.userAgent);
       try {
         if (REDIRECT_STATUSES.has(response.statusCode ?? 0)) {
@@ -222,7 +250,7 @@ export async function fetchWebsiteResource(
   } catch (error) {
     return {
       ok: false,
-      reason: signal.aborted ? "timeout" : error instanceof WebsiteFetchError ? error.reason : "unavailable",
+      reason: signal.aborted ? "timeout" : (websiteFetchFailureReason(error) ?? "unavailable"),
     };
   }
 }

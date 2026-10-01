@@ -1,5 +1,5 @@
-import type { QueryEmbeddingWait } from "@/core/retrieval/retrieval-pipeline";
-import type { WikiQueryEmbedder } from "@/features/wiki/search-wiki-pages.interactor";
+import type { QueryEmbeddingWait } from "@/core/retrieval/query-embedding-wait";
+import type { WikiQueryEmbedder } from "@/features/wiki/wiki-query-embedder";
 import type { WikiEmbeddingService } from "./wiki-embedding.service";
 
 import * as Sentry from "@sentry/node";

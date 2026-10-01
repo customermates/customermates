@@ -2,7 +2,7 @@ import { asSchema } from "ai";
 import { afterEach, describe, expect, it, vi } from "vitest";
 
 import { getAgentWebSearchTool } from "@/ee/agent-chat/agent-web-search";
-import { MODEL_CATALOG, SHIPPED_AGENT_MODEL_KEY } from "@/ee/agent-chat/model-catalog";
+import { SHIPPED_AGENT_MODEL, SHIPPED_AGENT_MODEL_KEY } from "@/ee/agent-chat/model-catalog";
 
 import {
   AGENT_WEB_SEARCH_SMOKE_MAX_USD,
@@ -16,7 +16,7 @@ import {
   runLiveProviderSmoke,
 } from "../smoke-agent-web-search-provider";
 
-const MODEL = MODEL_CATALOG[SHIPPED_AGENT_MODEL_KEY];
+const MODEL = SHIPPED_AGENT_MODEL;
 const GENERATION_ID = "gen_01M0QTS0NKJMJMMYA0JGKZM6SF";
 
 function generation(overrides: Partial<Parameters<typeof inspectProviderSmokeBilling>[1]> = {}) {
@@ -81,6 +81,16 @@ afterEach(() => {
 });
 
 describe("web-search offline feasibility guard", () => {
+  it("rejects a ceiling below the reservation before any paid network request", async () => {
+    const fetch = vi.fn(() => Promise.reject(new Error("Network must not run.")));
+    vi.stubGlobal("fetch", fetch);
+    vi.stubEnv("RUN_AGENT_WEB_SEARCH_SMOKE", "true");
+    vi.stubEnv("AGENT_WEB_SEARCH_SMOKE_MAX_USD", "0.000001");
+    vi.stubEnv("AI_GATEWAY_API_KEY", "synthetic-key");
+    await expect(runLiveProviderSmoke()).rejects.toThrow("cannot fund");
+    expect(fetch).not.toHaveBeenCalled();
+  });
+
   it("keeps the real paid smoke explicit and operationally bounded", () => {
     expect(AGENT_WEB_SEARCH_SMOKE_MAX_USD).toBe(15);
     expect(assertProviderSmokeFeasible()).toEqual({

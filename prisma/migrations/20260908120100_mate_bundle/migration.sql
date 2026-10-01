@@ -1,27 +1,52 @@
+-- Resource.wiki must be committed before the second transaction uses it in existing role permissions.
+-- PostgreSQL rejects a newly added enum label until that commit, including when this file is sent as one query.
+BEGIN;
+ALTER TYPE "Resource" ADD VALUE IF NOT EXISTS 'wiki';
+COMMIT;
+
+-- Everything else is atomic. On failure, this transaction rolls back while Resource.wiki remains.
+-- Recovery on an owned database: fix the cause, run prisma migrate resolve --rolled-back 20260908120100_mate_bundle,
+-- then prisma migrate deploy. IF NOT EXISTS makes the committed enum phase safe to retry; backfills run only once.
+-- Never replay this file after a successful migration or edit migration history already adopted by a durable environment.
+BEGIN;
+
 ALTER TABLE "AgentTurnRequest" ADD COLUMN     "wikiHomepageSetupUrl" TEXT;
 
 ALTER TABLE "User" ADD COLUMN     "onboardingWikiStepCompletedAt" TIMESTAMP(3);
+
+CREATE TYPE "WikiPageKind" AS ENUM ('guide', 'procedure', 'knowledge');
 
 CREATE TABLE "WikiPage" (
     "id" TEXT NOT NULL,
     "companyId" TEXT NOT NULL,
     "title" TEXT NOT NULL,
     "markdown" TEXT NOT NULL,
+    "kind" "WikiPageKind" NOT NULL DEFAULT 'knowledge',
+    "whenToUse" TEXT,
+    "sortOrder" INTEGER NOT NULL DEFAULT 2147483647,
+    "sourceUrl" TEXT,
+    "sourceFetchedAt" TIMESTAMP(3),
+    "sourceContentHash" TEXT,
+    "sourceImportedUpdatedAt" TIMESTAMP(3),
     "createdAt" TIMESTAMP(3) NOT NULL DEFAULT CURRENT_TIMESTAMP,
     "updatedAt" TIMESTAMP(3) NOT NULL,
 
-    CONSTRAINT "WikiPage_pkey" PRIMARY KEY ("id")
+    CONSTRAINT "WikiPage_pkey" PRIMARY KEY ("id"),
+    CONSTRAINT "WikiPage_when_to_use_matches_kind" CHECK (("kind" = 'procedure') = ("whenToUse" IS NOT NULL))
 );
 
 CREATE INDEX "WikiPage_companyId_createdAt_id_idx" ON "WikiPage"("companyId", "createdAt", "id");
+CREATE INDEX "WikiPage_companyId_sortOrder_createdAt_id_idx" ON "WikiPage"("companyId", "sortOrder", "createdAt", "id");
 
 ALTER TABLE "WikiPage" ADD CONSTRAINT "WikiPage_companyId_fkey" FOREIGN KEY ("companyId") REFERENCES "Company"("id") ON DELETE CASCADE ON UPDATE CASCADE;
 
+-- Preserve completed onboarding for existing users; the new step applies only to unfinished onboarding.
 UPDATE "User"
 SET "onboardingWikiStepCompletedAt" = "createdAt"
 WHERE "onboardingWikiStepCompletedAt" IS NULL
   AND "onboardingWizardCompletedAt" IS NOT NULL;
 
+-- Existing custom roles inherit read access; built-in roles derive permissions in application code.
 INSERT INTO "RolePermission" ("id", "roleId", "companyId", "resource", "action", "createdAt")
 SELECT
     gen_random_uuid()::text,
@@ -34,6 +59,7 @@ FROM "UserRole" AS role
 WHERE role."isSystemRole" = false
 ON CONFLICT ("roleId", "resource", "action") DO NOTHING;
 
+-- Trigram matching supplies the typo fallback alongside weighted multilingual full-text search.
 CREATE EXTENSION IF NOT EXISTS pg_trgm;
 
 CREATE OR REPLACE FUNCTION wiki_search_markdown_text(markdown text) RETURNS text
@@ -64,6 +90,7 @@ LANGUAGE sql IMMUTABLE PARALLEL SAFE SET search_path = public, pg_catalog AS $$
     setweight(to_tsvector('italian'::regconfig, content), weight)
 $$;
 
+-- Titles have weight A, real Markdown headings B, and body text C. Link destinations and fenced headings do not distort relevance.
 CREATE OR REPLACE FUNCTION wiki_search_vector(title text, markdown text) RETURNS tsvector
 LANGUAGE sql IMMUTABLE PARALLEL SAFE SET search_path = public, pg_catalog AS $$
   SELECT
@@ -117,6 +144,7 @@ ALTER TABLE "WikiPageChunk" ADD CONSTRAINT "WikiPageChunk_companyId_fkey"
 ALTER TABLE "WikiPageChunk" ADD CONSTRAINT "WikiPageChunk_pageId_fkey"
   FOREIGN KEY ("pageId") REFERENCES "WikiPage"("id") ON DELETE CASCADE ON UPDATE CASCADE;
 
+-- pgvector is optional: self-hosted databases without the extension retain full-text/trigram retrieval.
 DO $$
 BEGIN
   CREATE EXTENSION IF NOT EXISTS vector;
@@ -127,7 +155,7 @@ EXCEPTION
 END
 $$;
 
-CREATE TYPE "AgentUsagePurpose" AS ENUM ('turn', 'wikiRetrieval');
+CREATE TYPE "AgentUsagePurpose" AS ENUM ('turn', 'wikiRetrieval', 'wikiIndexing');
 
 ALTER TABLE "AgentUsageEvent"
   ADD COLUMN "purpose" "AgentUsagePurpose" NOT NULL DEFAULT 'turn',
@@ -136,19 +164,9 @@ ALTER TABLE "AgentUsageEvent"
 CREATE UNIQUE INDEX "AgentUsageEvent_retrieval_accrual_key"
   ON "AgentUsageEvent"("companyId", "userId", "periodStart", "periodEnd", "purpose", "accrualMonth");
 
-CREATE TYPE "WikiPageKind" AS ENUM ('guide', 'procedure', 'knowledge');
-
-ALTER TABLE "WikiPage"
-  ADD COLUMN "kind" "WikiPageKind" NOT NULL DEFAULT 'knowledge',
-  ADD COLUMN "whenToUse" TEXT,
-  ADD COLUMN "draft" BOOLEAN NOT NULL DEFAULT false,
-  ADD COLUMN "sourceUrl" TEXT,
-  ADD COLUMN "sourceFetchedAt" TIMESTAMP(3),
-  ADD COLUMN "sourceContentHash" TEXT,
-  ADD CONSTRAINT "WikiPage_when_to_use_matches_kind" CHECK (("kind" = 'procedure') = ("whenToUse" IS NOT NULL));
-
 CREATE INDEX "WikiPage_companyId_kind_title_idx" ON "WikiPage"("companyId", "kind", "title");
 
+-- The single Operating Guide and single active crawl per company are enforced even across concurrent workers.
 CREATE UNIQUE INDEX "WikiPage_companyId_guide_key" ON "WikiPage"("companyId") WHERE "kind" = 'guide';
 
 CREATE TYPE "WikiWebsiteCrawlStatus" AS ENUM ('queued', 'discovering', 'fetching', 'importing', 'synthesizing', 'completed', 'failed', 'blocked');
@@ -158,6 +176,7 @@ CREATE TABLE "WikiWebsiteCrawl" (
     "companyId" TEXT NOT NULL,
     "userId" TEXT NOT NULL,
     "clientRequestId" TEXT NOT NULL,
+    "workflowRunId" TEXT,
     "homepageUrl" TEXT NOT NULL,
     "registrableDomain" TEXT NOT NULL,
     "locale" TEXT NOT NULL,
@@ -192,8 +211,12 @@ CREATE TABLE "WikiSourceDocument" (
     "qaPairs" JSONB,
     "contentHash" TEXT NOT NULL,
     "fetchedAt" TIMESTAMP(3) NOT NULL DEFAULT CURRENT_TIMESTAMP,
+    "readOffset" INTEGER NOT NULL DEFAULT 0,
+    "readAt" TIMESTAMP(3),
+    "importClaimedAt" TIMESTAMP(3),
 
-    CONSTRAINT "WikiSourceDocument_pkey" PRIMARY KEY ("id")
+    CONSTRAINT "WikiSourceDocument_pkey" PRIMARY KEY ("id"),
+    CONSTRAINT "WikiSourceDocument_readOffset_nonnegative" CHECK ("readOffset" >= 0)
 );
 
 CREATE UNIQUE INDEX "WikiWebsiteCrawl_companyId_clientRequestId_key" ON "WikiWebsiteCrawl"("companyId", "clientRequestId");
@@ -214,11 +237,8 @@ ALTER TABLE "WikiSourceDocument" ADD CONSTRAINT "WikiSourceDocument_companyId_fk
 CREATE UNIQUE INDEX "WikiWebsiteCrawl_active_company_key" ON "WikiWebsiteCrawl"("companyId")
   WHERE "status" IN ('queued', 'discovering', 'fetching', 'importing', 'synthesizing');
 
-ALTER TABLE "WikiSourceDocument" ADD COLUMN "readAt" TIMESTAMP(3),
-ADD COLUMN "importClaimedAt" TIMESTAMP(3);
-
-ALTER TYPE "AgentUsagePurpose" ADD VALUE IF NOT EXISTS 'wikiIndexing';
-
+-- Exact charge units are millionths of one credit (one credit = one US cent). Backfill every existing ledger pair.
+-- Keep legacy columns and synchronization until all old workers have drained; a later contract migration removes them.
 ALTER TABLE "AgentUsageEvent"
   ADD COLUMN "reservedMicrocents" BIGINT NOT NULL DEFAULT 0,
   ADD COLUMN "chargedMicrocents" BIGINT NOT NULL DEFAULT 0,
@@ -248,6 +268,7 @@ ALTER TABLE "AgentUsageEvent"
     "userId" IS NOT NULL OR "purpose"::text = 'wikiIndexing'
   );
 
+-- NULL user IDs identify workspace indexing. A partial unique index prevents duplicate accruals that ordinary NULL uniqueness permits.
 CREATE UNIQUE INDEX "AgentUsageEvent_workspace_accrual_key"
   ON "AgentUsageEvent"("companyId", "periodStart", "periodEnd", "purpose", "accrualMonth")
   WHERE "userId" IS NULL;
@@ -346,11 +367,6 @@ EXCEPTION
 END
 $$;
 
-ALTER TABLE "WikiWebsiteCrawl" ADD COLUMN "workflowRunId" TEXT;
-ALTER TABLE "WikiPage" ADD COLUMN "sourceImportedUpdatedAt" TIMESTAMP(3);
-UPDATE "WikiPage" SET "sourceImportedUpdatedAt" = "updatedAt"
-WHERE "sourceUrl" IS NOT NULL AND "sourceFetchedAt" = "updatedAt" + INTERVAL '1 millisecond';
-
 CREATE TABLE "HostedAiPlatformReservation" (
   "id" TEXT NOT NULL PRIMARY KEY,
   "purpose" TEXT NOT NULL,
@@ -360,6 +376,8 @@ CREATE TABLE "HostedAiPlatformReservation" (
   CONSTRAINT "HostedAiPlatformReservation_reserved_positive" CHECK ("reservedMicrocents" > 0)
 );
 
+-- Legacy reservations/charges round up; allowances and ceilings round down; signed adjustments round away from zero.
+-- Exact writes preserve fractions. Legacy absolute writes remain valid during the mixed-worker deployment window.
 CREATE FUNCTION sync_agent_credit_pair() RETURNS trigger LANGUAGE plpgsql AS $$
 DECLARE
   previous JSONB;
@@ -430,3 +448,5 @@ CREATE TRIGGER "AgentConversation_sync_credit_pairs" BEFORE INSERT OR UPDATE ON 
 FOR EACH ROW EXECUTE FUNCTION sync_agent_credit_pair('creditCeiling', 'creditCeilingMicrocents', 'down');
 CREATE TRIGGER "AgentCreditAdjustment_sync_credit_pairs" BEFORE INSERT OR UPDATE ON "AgentCreditAdjustment"
 FOR EACH ROW EXECUTE FUNCTION sync_agent_credit_pair('creditDelta', 'deltaMicrocents', 'away');
+
+COMMIT;

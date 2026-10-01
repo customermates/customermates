@@ -1,6 +1,7 @@
 import "dotenv/config";
 
 import type { RankableSection, RetrievalCorpus, SectionRanker } from "@/core/retrieval/retrieval-context";
+import type { DocsScope } from "@/features/mcp-tools/prisma-docs-chunk.repository";
 import type { QueryVector } from "@/core/retrieval/retrieval-pipeline";
 import type { AgentRetrievalGrant } from "@/ee/agent-chat/agent-usage.service";
 import type { TenantUser } from "@/features/user/user.schema";
@@ -139,7 +140,7 @@ async function docsSignals(): Promise<Signal[]> {
   for (const item of items) {
     const embedding = await embed(item.query);
     const arrived = embedding.vector !== null && embedding.ms <= RETRIEVAL_EMBEDDING_WAIT_MS;
-    const scope = {
+    const scope: DocsScope = {
       buildHash: corpus.buildHash,
       locale: item.docsLocale,
       sources: ["docs"],

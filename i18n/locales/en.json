@@ -2858,6 +2858,9 @@
     "title": "Upgrade to unlock messaging"
   },
   "NavigationBar": {
+    "addEntity": "Add {entity}",
+    "addPickerDescription": "Pick the type of record you want to create.",
+    "addPickerTitle": "Create new…",
     "admin": "Admin",
     "affiliate": "Affiliate Program",
     "connectedAccounts": "Channels",

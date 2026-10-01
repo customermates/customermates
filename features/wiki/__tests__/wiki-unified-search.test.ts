@@ -1,5 +1,5 @@
 import type { RankableSection } from "@/core/retrieval/retrieval-context";
-import type { SearchWikiPagesRepo } from "../search-wiki-pages.interactor";
+import type { SearchWikiPagesRepo } from "@/features/wiki/search-wiki-pages.repo";
 
 import { beforeEach, describe, expect, it, vi } from "vitest";
 
@@ -25,7 +25,8 @@ vi.mock("@/core/di", () => createMockDiModule(() => mockUser));
 vi.mock("@/core/validation/zod-error-map-server", () => MOCK_ZOD_MODULE);
 vi.mock("@/prisma/db", () => MOCK_PRISMA_DB_MODULE);
 
-import { SearchWikiPagesInteractor, WikiSearchOrders } from "../search-wiki-pages.interactor";
+import { SearchWikiPagesInteractor } from "../search-wiki-pages.interactor";
+import { WikiSearchOrders } from "@/features/wiki/wiki-search-orders";
 import { WikiMarkdownSchema } from "../wiki.schema";
 
 const id = (n: number) => `00000000-0000-4000-8000-00000000000${n}`;

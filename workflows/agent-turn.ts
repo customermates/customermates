@@ -173,6 +173,7 @@ type AgentTurnUsageOutcome = {
   ledger: RoundLedgerEntry[];
   reservedMicrocents: number;
   providerStarted?: boolean;
+  unreportedProviderRounds?: number;
   auxiliaryCharges?: ClassifierCharge[];
   retrievalTimings?: RetrievalTiming[];
 };
@@ -214,13 +215,21 @@ function isAgentProviderFailure(error: unknown): boolean {
 function usageSettlementForTurn(payload: AgentTurnWorkflowPayload, outcome: AgentTurnUsageOutcome) {
   if (outcome.providerStarted === false) return null;
 
-  const measured = outcome.ledger.every((entry) => entry.measured);
+  const unreportedProviderRounds = outcome.unreportedProviderRounds ?? 0;
+  const auxiliary = agentAuxiliaryCharge(outcome.auxiliaryCharges ?? []);
+  const measured = unreportedProviderRounds === 0 && outcome.ledger.every((entry) => entry.measured);
   const totalCostMicrocents = outcome.ledger.reduce((total, entry) => total + entry.costMicrocents, 0);
-  const unreadableReason = outcome.ledger.find((entry) => entry.unreadableReason)?.unreadableReason ?? null;
-  if (!measured && outcome.ledger.length > 0) {
+  const unreportedCostMicrocents =
+    unreportedProviderRounds > 0
+      ? Math.max(0, outcome.reservedMicrocents - totalCostMicrocents - auxiliary.costMicrocents)
+      : 0;
+  const unreadableReason =
+    outcome.ledger.find((entry) => entry.unreadableReason)?.unreadableReason ??
+    (unreportedProviderRounds > 0 ? "an attempted provider round reported no usage evidence" : null);
+  if (!measured && (outcome.ledger.length > 0 || unreportedProviderRounds > 0)) {
     void reportWarning(
       WORKFLOW_NAME,
-      `Agent usage settled from modelled cost because the provider charge was unreadable (${unreadableReason ?? "no reason"}) for ${outcome.ledger.filter((entry) => !entry.measured).length} of ${outcome.ledger.length} rounds on ${payload.turnBudget.modelSpec}.`,
+      `Agent usage settled from modelled cost because the provider charge was unreadable (${unreadableReason ?? "no reason"}) for ${outcome.ledger.filter((entry) => !entry.measured).length + unreportedProviderRounds} of ${outcome.ledger.length + unreportedProviderRounds} rounds on ${payload.turnBudget.modelSpec}.`,
       payload.tenant,
     );
   }
@@ -230,11 +239,11 @@ function usageSettlementForTurn(payload: AgentTurnWorkflowPayload, outcome: Agen
     provider: payload.turnBudget.servingProvider,
     inferenceRegion: payload.turnBudget.inferenceRegion,
     reservedMicrocents: outcome.reservedMicrocents,
-    auxiliary: agentAuxiliaryCharge(outcome.auxiliaryCharges ?? []),
+    auxiliary,
     providerCharge: {
-      billed: outcome.ledger.length > 0,
+      billed: outcome.ledger.length > 0 || unreportedProviderRounds > 0,
       measuredCostMicrocents: measured && outcome.ledger.length > 0 ? totalCostMicrocents : null,
-      estimatedCostMicrocents: measured ? undefined : totalCostMicrocents,
+      estimatedCostMicrocents: measured ? undefined : totalCostMicrocents + unreportedCostMicrocents,
       stepTokens: outcome.ledger.map((entry) => entry.tokens),
       unreadableReason,
     },
@@ -1025,6 +1034,7 @@ export async function runAgentTurn(payload: AgentTurnWorkflowPayload): Promise<v
     let appliedThisCall = 0;
     let finishReason = "unknown";
     const ledger: RoundLedgerEntry[] = [];
+    let unreportedProviderRounds = 0;
     const grants = new Map<string, ToolApprovalGrant>();
     const resolveToolInput = createAgentToolInputResolver((toolName, input) =>
       normalizeAgentToolInput(payload, toolName, input),
@@ -1417,32 +1427,55 @@ export async function runAgentTurn(payload: AgentTurnWorkflowPayload): Promise<v
           settleToolOutcome(completed.toolCallId, completed.toolName, completed.output);
         }
 
-        const roundTokens = usageToTokenCounts(step.usage);
+        let roundTokens = emptyTokens();
+        try {
+          roundTokens = usageToTokenCounts(step.usage);
+        } catch (error) {
+          roundFailure ??= toWorkflowFailure(error);
+        }
         webSearchCalls += agentWebSearchCallsInStep(step);
         if (webSearchCalls > webSearchCallLimit) webSearchOvershoot = true;
         const chargeableSearches = agentWebSearchChargeableCallsInStep(step, isSuccessfulAgentWebResult);
         const charge = readAgentProviderCharge(step.providerMetadata, payload.turnBudget.servingProvider);
         const gatewayDebitMicrocents = readGatewayCostMicrocents(step.providerMetadata);
-        const costMicrocents =
-          charge.outcome === "measured"
-            ? charge.charge.costMicrocents
-            : Math.max(
-                gatewayDebitMicrocents ?? 0,
-                computeCostMicrocents(
+        const hasTokenUsage = Object.values(roundTokens).some((count) => count > 0);
+        const remainingReservationMicrocents = Math.max(0, reservedMicrocents - accruedCostMicrocents());
+        const estimatedInferenceMicrocents =
+          charge.outcome !== "unreadable"
+            ? 0
+            : gatewayDebitMicrocents === null && !hasTokenUsage
+              ? Math.max(1, Math.min(payload.turnBudget.roundReserveMicrocents, remainingReservationMicrocents))
+              : computeCostMicrocents(
                   payload.turnBudget.modelSpec,
                   roundTokens,
                   payload.turnBudget.servingProvider,
                   payload.turnBudget.inferenceRegion,
-                ) + (gatewayDebitMicrocents === null ? chargeableSearches * AGENT_WEB_SEARCH_WORST_CASE_MICROCENTS : 0),
-              );
+                );
+        const provenNotBilled = charge.outcome === "notBilled" && chargeableSearches === 0;
+        const costMicrocents =
+          charge.outcome === "measured"
+            ? charge.charge.costMicrocents
+            : charge.outcome === "notBilled"
+              ? Math.max(gatewayDebitMicrocents ?? 0, chargeableSearches * AGENT_WEB_SEARCH_WORST_CASE_MICROCENTS)
+              : Math.max(
+                  gatewayDebitMicrocents ?? 0,
+                  estimatedInferenceMicrocents +
+                    (gatewayDebitMicrocents === null ? chargeableSearches * AGENT_WEB_SEARCH_WORST_CASE_MICROCENTS : 0),
+                );
 
         tokens = addTokens(tokens, roundTokens);
         ledger.push({
           tokens: roundTokens,
           costMicrocents,
-          measured: charge.outcome === "measured",
-          unreadableReason: charge.outcome === "unreadable" ? charge.reason : undefined,
+          measured: charge.outcome === "measured" || provenNotBilled,
+          unreadableReason:
+            charge.outcome === "unreadable"
+              ? charge.reason
+              : charge.outcome === "notBilled" && !provenNotBilled
+                ? "the gateway reported billed search work without a usable total debit"
+                : undefined,
         });
+        unreportedProviderRounds = Math.max(0, unreportedProviderRounds - 1);
 
         const roundOutcome = await persistRound(payload, {
           roundIndex: roundIndex++,
@@ -1451,7 +1484,7 @@ export async function runAgentTurn(payload: AgentTurnWorkflowPayload): Promise<v
             : step.content,
           finishReason: step.finishReason,
           tokens: roundTokens,
-          reasoningTokens: step.usage.outputTokenDetails?.reasoningTokens ?? 0,
+          reasoningTokens: step.usage?.outputTokenDetails?.reasoningTokens ?? 0,
           costMicrocents,
         });
         cancelled ||= roundOutcome.cancelled;
@@ -1686,6 +1719,15 @@ export async function runAgentTurn(payload: AgentTurnWorkflowPayload): Promise<v
               ? { maxRetries: webSearchPermitted ? 0 : AGENT_MODEL_DEFAULT_MAX_RETRIES }
               : {}),
           };
+        },
+        telemetry: {
+          recordInputs: false,
+          recordOutputs: false,
+          integrations: {
+            onLanguageModelCallStart: () => {
+              unreportedProviderRounds += 1;
+            },
+          },
         },
         stopWhen: [
           isStepCount(AGENT_SEGMENT_ROUNDS),
@@ -2026,7 +2068,13 @@ export async function runAgentTurn(payload: AgentTurnWorkflowPayload): Promise<v
             ? "turn_error"
             : providerStop;
     const policyBreach =
-      usageSettlementForTurn(payload, { tokens, ledger, reservedMicrocents, auxiliaryCharges })?.policyBreach === true;
+      usageSettlementForTurn(payload, {
+        tokens,
+        ledger,
+        reservedMicrocents,
+        unreportedProviderRounds,
+        auxiliaryCharges,
+      })?.policyBreach === true;
     const effectiveStopReason: AgentTurnStopReason | null = policyBreach ? "policy_breach" : stopReason;
     const stopKind: AgentRunnerMessageKind | null =
       effectiveStopReason === "cancelled"
@@ -2078,6 +2126,7 @@ export async function runAgentTurn(payload: AgentTurnWorkflowPayload): Promise<v
       tokens,
       ledger,
       reservedMicrocents,
+      unreportedProviderRounds,
       auxiliaryCharges,
       retrievalTimings,
     });

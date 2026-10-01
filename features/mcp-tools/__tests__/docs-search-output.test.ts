@@ -1,7 +1,8 @@
 import type { DocsCorpus } from "@/features/mcp-tools/docs-corpus";
 import type { RankableSection, SectionRanker } from "@/core/retrieval/retrieval-context";
 import type { DocsSection } from "../docs-sections";
-import type { DocsChunkRepo, DocsFullTextRow } from "../prisma-docs-chunk.repository";
+import type { DocsChunkRepo } from "@/features/mcp-tools/docs-chunk.repo";
+import type { DocsFullTextRow } from "../prisma-docs-chunk.repository";
 
 import { describe, expect, it, vi } from "vitest";
 
@@ -144,7 +145,9 @@ describe("search_docs model-visible output", () => {
   it("finds REST operations with source=api, links the OpenAPI reference, and scopes the search to it", async () => {
     const operations = firstPerPage(docsCorpusSections("api", "en")).slice(0, 3);
     const chunks = repo(operations.map(row));
-    const ranker = vi.fn(() => Promise.resolve({ order: [0], abstained: false }));
+    const ranker = vi.fn((_query: string, _candidates: readonly RankableSection[]) =>
+      Promise.resolve({ order: [0], abstained: false }),
+    );
     const result = await unifiedDocsSearchResult(
       { query: "contact", locale: "en", source: "api" },
       { repo: chunks, embed: null, ranker },
@@ -161,6 +164,7 @@ describe("search_docs model-visible output", () => {
       expect.anything(),
       expect.any(Number),
     );
-    expect(ranker).not.toHaveBeenCalled();
+    expect(ranker).toHaveBeenCalledTimes(1);
+    expect(ranker.mock.calls[0]?.[0]).toBe("contact");
   });
 });

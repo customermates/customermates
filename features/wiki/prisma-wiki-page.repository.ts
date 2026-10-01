@@ -1,23 +1,30 @@
+import {
+  RETRIEVAL_TYPO_PREFIX,
+  RETRIEVAL_TYPO_LENGTH_SLACK,
+  RETRIEVAL_TYPO_MIN_SIMILARITY,
+  RETRIEVAL_TYPO_TRANSPOSITION_MIN_LENGTH,
+  RETRIEVAL_TYPO_DOCUMENT_LIMIT,
+} from "@/core/retrieval/full-text-typo";
 import { detectedWikiLanguage, dominantWikiLanguageFromCounts, WIKI_LANGUAGE_SAMPLE_CHARACTERS } from "./wiki-language";
 import type { RepoArgs } from "@/core/utils/types";
-import type { CreateWikiPagesRepo } from "./create-wiki-pages.interactor";
-import type { DeleteWikiPageRepo } from "./delete-wiki-page.interactor";
-import type { GetWikiPageRepo } from "./get-wiki-page.interactor";
-import type { GetWikiPagesRepo } from "./get-wiki-pages.interactor";
-import type { GetWikiCatalogRepo } from "./get-wiki-catalog.interactor";
-import type {
-  SearchWikiPagesRepo,
-  WikiFullTextCandidates,
-  WikiSemanticCandidate,
-} from "./search-wiki-pages.interactor";
-import type { MoveWikiPageRepo } from "./move-wiki-page.interactor";
-import type { UpdateWikiPageRepo } from "./update-wiki-page.interactor";
-import type { StartWikiHomepageSetupRepo } from "./start-wiki-homepage-setup.interactor";
+import type { CreateWikiPagesRepo } from "@/features/wiki/create-wiki-pages.repo";
+import type { DeleteWikiPageRepo } from "@/features/wiki/delete-wiki-page.repo";
+import type { GetWikiPageRepo } from "@/features/wiki/get-wiki-page.repo";
+import type { GetWikiPagesRepo } from "@/features/wiki/get-wiki-pages.repo";
+import type { GetWikiCatalogRepo } from "@/features/wiki/get-wiki-catalog.repo";
+import type { SearchWikiPagesRepo } from "@/features/wiki/search-wiki-pages.repo";
+import type { WikiFullTextCandidates, WikiSemanticCandidate } from "./search-wiki-pages.interactor";
+import type { MoveWikiPageRepo } from "@/features/wiki/move-wiki-page.repo";
+import type { UpdateWikiPageRepo } from "@/features/wiki/update-wiki-page.repo";
+import type { StartWikiHomepageSetupRepo } from "@/features/wiki/start-wiki-homepage-setup.repo";
 import type { WikiPageDto } from "./wiki.schema";
 import type { WikiSemanticChunk } from "./wiki-chunks";
-import type { WikiSemanticIndexPage, WikiSemanticIndexRepo } from "@/ee/wiki-retrieval/wiki-semantic-index.service";
+import type { WikiSemanticIndexPage } from "@/ee/wiki-retrieval/wiki-semantic-index.service";
+import type { WikiSemanticIndexRepo } from "@/ee/wiki-retrieval/wiki-semantic-index.repo";
+import type { WikiImportPageRepo, WikiImportProvenance } from "./wiki-import-page.repo";
+import type { GetWikiSuggestionSignalRepo } from "./get-wiki-suggestion-signal.repo";
 
-import { Prisma } from "@/generated/prisma";
+import { Prisma, Resource } from "@/generated/prisma";
 
 import {
   fullTextUnits,
@@ -43,11 +50,6 @@ const WIKI_SEMANTIC_CLAIM_SECONDS = 300;
 const WIKI_SEMANTIC_INTRO_MARGIN = 0.03;
 const WIKI_FULL_TEXT_CONFIGS = ["english", "german", "spanish", "french", "italian"] as const;
 const WIKI_TITLE_WEIGHT = 2;
-const WIKI_TYPO_PREFIX = 3;
-const WIKI_TYPO_LENGTH_SLACK = 2;
-const WIKI_TYPO_MIN_SIMILARITY = 0.4;
-const WIKI_TYPO_TRANSPOSITION_MIN_LENGTH = 5;
-const WIKI_TYPO_PAGE_LIMIT = 200;
 const WIKI_HEADLINE_OPTIONS = "StartSel=**, StopSel=**, MaxWords=35, MinWords=15";
 const WIKI_SHORT_HEADLINE_OPTIONS = "StartSel=**, StopSel=**, HighlightAll=true";
 
@@ -65,8 +67,19 @@ export class PrismaWikiPageRepo
     MoveWikiPageRepo,
     DeleteWikiPageRepo,
     StartWikiHomepageSetupRepo,
-    WikiSemanticIndexRepo
+    WikiSemanticIndexRepo,
+    WikiImportPageRepo,
+    GetWikiSuggestionSignalRepo
 {
+  async findSuggestionWikiPage(): Promise<{ id: string } | null> {
+    return this.prisma.wikiPage.findFirst({
+      where: this.canAccess(Resource.wiki)
+        ? { companyId: this.companyId }
+        : { companyId: this.companyId, id: { in: [] } },
+      select: { id: true },
+    });
+  }
+
   private get pageSelect() {
     return {
       id: true,
@@ -271,7 +284,9 @@ export class PrismaWikiPageRepo
 
   private async typoCorrections(terms: string[]): Promise<Map<string, string>> {
     if (terms.length === 0) return new Map();
-    const prefixes = [...new Set(terms.map((term) => `%${Array.from(term).slice(0, WIKI_TYPO_PREFIX).join("")}%`))];
+    const prefixes = [
+      ...new Set(terms.map((term) => `%${Array.from(term).slice(0, RETRIEVAL_TYPO_PREFIX).join("")}%`)),
+    ];
     const rows = await this.prisma.$queryRaw<Array<{ term: string; word: string }>>(Prisma.sql`
       WITH terms AS MATERIALIZED (
         SELECT w."term", wiki_search_sorted_letters(w."term") AS "sorted"
@@ -283,7 +298,7 @@ export class PrismaWikiPageRepo
         FROM "WikiPage" p
         WHERE p."companyId" = ${this.companyId} AND p."searchCompact" LIKE ANY (${prefixes}::text[])
         ORDER BY p."updatedAt" DESC, p."id" ASC
-        LIMIT ${WIKI_TYPO_PAGE_LIMIT}
+        LIMIT ${RETRIEVAL_TYPO_DOCUMENT_LIMIT}
       ),
       words AS MATERIALIZED (
         SELECT w."word", count(*)::int AS "pages"
@@ -297,14 +312,14 @@ export class PrismaWikiPageRepo
         SELECT t."term", w."word", w."pages", similarity(t."term", w."word") AS "score",
           length(w."word") = length(t."term") AND wiki_search_sorted_letters(w."word") = t."sorted" AS "transposed"
         FROM terms t
-        JOIN words w ON left(w."word", ${WIKI_TYPO_PREFIX}::int) = left(t."term", ${WIKI_TYPO_PREFIX}::int)
+        JOIN words w ON left(w."word", ${RETRIEVAL_TYPO_PREFIX}::int) = left(t."term", ${RETRIEVAL_TYPO_PREFIX}::int)
           AND w."word" <> t."term"
-          AND abs(length(w."word") - length(t."term")) <= ${WIKI_TYPO_LENGTH_SLACK}::int
+          AND abs(length(w."word") - length(t."term")) <= ${RETRIEVAL_TYPO_LENGTH_SLACK}::int
       )
       SELECT DISTINCT ON (m."term") m."term", m."word"
       FROM matches m
-      WHERE m."score" >= ${WIKI_TYPO_MIN_SIMILARITY}::float4
-        OR (m."transposed" AND length(m."term") >= ${WIKI_TYPO_TRANSPOSITION_MIN_LENGTH}::int)
+      WHERE m."score" >= ${RETRIEVAL_TYPO_MIN_SIMILARITY}::float4
+        OR (m."transposed" AND length(m."term") >= ${RETRIEVAL_TYPO_TRANSPOSITION_MIN_LENGTH}::int)
       ORDER BY m."term", m."score" DESC, m."pages" DESC, m."word" ASC
     `);
     return new Map(rows.map(({ term, word }) => [term, word]));
@@ -641,5 +656,72 @@ export class PrismaWikiPageRepo
       WHERE c."pageId" = p."id" AND c."model" = ${model} AND c."pageUpdatedAt" = p."updatedAt"
         AND c."embedding" IS NOT NULL
     )`;
+  }
+
+  async listRefreshTargets(): Promise<Array<{ url: string; category: "help" }>> {
+    const rows = await this.prisma.wikiPage.findMany({
+      where: { companyId: this.companyId, sourceUrl: { not: null } },
+      distinct: ["sourceUrl"],
+      orderBy: [{ sourceUrl: "asc" }],
+      select: { sourceUrl: true },
+    });
+    return rows.flatMap(({ sourceUrl }) => (sourceUrl ? [{ url: sourceUrl, category: "help" as const }] : []));
+  }
+
+  async countImportedPages(since: Date) {
+    return this.prisma.wikiPage.count({
+      where: {
+        companyId: this.companyId,
+        sourceUrl: { not: null },
+        sourceFetchedAt: { gte: since },
+      },
+    });
+  }
+
+  async findImportedPage(sourceUrl: string) {
+    return this.prisma.wikiPage.findFirst({
+      where: { companyId: this.companyId, sourceUrl },
+      orderBy: [{ createdAt: "asc" }, { id: "asc" }],
+      select: {
+        id: true,
+        updatedAt: true,
+        sourceFetchedAt: true,
+        sourceContentHash: true,
+        sourceImportedUpdatedAt: true,
+      },
+    });
+  }
+
+  async countSynthesizedPages(since: Date) {
+    return this.prisma.wikiPage.count({
+      where: {
+        companyId: this.companyId,
+        createdAt: { gte: since },
+        sourceUrl: null,
+      },
+    });
+  }
+
+  async listSynthesizedPages(since: Date, limit: number) {
+    return this.prisma.wikiPage.findMany({
+      where: { companyId: this.companyId, createdAt: { gte: since }, sourceUrl: null },
+      orderBy: [{ createdAt: "asc" }, { id: "asc" }],
+      take: limit,
+      select: { id: true, title: true },
+    });
+  }
+
+  async markImported(pageId: string, source: WikiImportProvenance) {
+    const { count } = await this.prisma.wikiPage.updateMany({
+      where: { id: pageId, companyId: this.companyId, updatedAt: source.importedUpdatedAt },
+      data: {
+        sourceUrl: source.url,
+        sourceFetchedAt: source.fetchedAt,
+        sourceContentHash: source.contentHash,
+        sourceImportedUpdatedAt: source.importedUpdatedAt,
+        updatedAt: source.importedUpdatedAt,
+      },
+    });
+    return count === 1;
   }
 }

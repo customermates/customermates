@@ -1,3 +1,4 @@
+import type { CompleteOnboardingWikiStepRepo } from "./complete-onboarding-wiki-step.repo";
 import type { RouteGuardService } from "@/features/auth/route-guard.service";
 import type { Redirect } from "@/features/auth/auth-outcome";
 
@@ -5,10 +6,6 @@ import { runWithTenant } from "@/core/decorators/tenant-context";
 import { SystemInteractor } from "@/core/decorators/system-interactor.decorator";
 import { accountStateRedirect } from "@/features/auth/account-state";
 import { redirectTo } from "@/features/auth/auth-outcome";
-
-export abstract class CompleteOnboardingWikiStepRepo {
-  abstract markOnboardingWikiStepCompleted(args: { userId: string }): Promise<void>;
-}
 
 @SystemInteractor
 export class CompleteOnboardingWikiStepInteractor {

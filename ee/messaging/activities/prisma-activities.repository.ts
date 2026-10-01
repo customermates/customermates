@@ -20,7 +20,7 @@ import {
   threadAccessWhere,
 } from "../messaging-access";
 
-import type { GetActivitiesRepo } from "./get-activities.interactor";
+import type { GetActivitiesRepo } from "@/ee/messaging/activities/get-activities.repo";
 import type { ActivityThreadOptionsData, ActivityThreadOptionsRepo } from "./get-activity-thread-options.interactor";
 
 import type { ActivityQuery, ActivityRelationshipRule } from "./timeline-filters";
@@ -63,7 +63,7 @@ type ContactSourceTargets = {
   threadNegative: Prisma.MessagingThreadWhereInput;
 };
 
-type ContactIdentifierTarget = {
+export type ContactIdentifierTarget = {
   contactId: string;
   provider: MessagingProvider;
   value: string;
@@ -189,15 +189,6 @@ function messageIdentifiers(
       counterparts.map((participant) => participant.identifier).filter((value): value is string => Boolean(value)),
     ),
   ].map((value) => ({ provider, value }));
-}
-
-export abstract class ActivityContactRepo {
-  abstract resolveContactIdsForEntityTypeCompanyWide(args: {
-    entityType: EntityType;
-    entityIds?: string[];
-    limit: number;
-  }): Promise<string[]>;
-  abstract findContactIdentifierTargetsCompanyWide(contactIds: string[]): Promise<ContactIdentifierTarget[]>;
 }
 
 type ThreadLabelInput = {

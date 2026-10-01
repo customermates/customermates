@@ -23,21 +23,10 @@ vi.mock("next-intl/server", () => ({
 
 import { CustomErrorCode } from "@/core/validation/validation.types";
 
-import { StartWikiHomepageSetupInteractor } from "../start-wiki-homepage-setup.interactor";
+import { StartWikiHomepageSetupInteractor, type WikiWebsiteCrawlStart } from "../start-wiki-homepage-setup.interactor";
 
 const CLIENT_REQUEST_ID = "00000000-0000-4000-8000-000000000001";
-const CRAWL: {
-  id: string;
-  userId: string;
-  status: string;
-  failureReason: string | null;
-  mode: string;
-  homepageUrl: string;
-  registrableDomain: string;
-  conversationId: string | null;
-  pendingHosts: string[];
-  extraHosts: string[];
-} = {
+const CRAWL: WikiWebsiteCrawlStart = {
   id: "00000000-0000-4000-8000-000000000009",
   userId: mockUser.id,
   status: "queued",
@@ -91,6 +80,49 @@ function errorCode(result: unknown) {
 beforeEach(() => vi.clearAllMocks());
 
 describe("StartWikiHomepageSetupInteractor", () => {
+  it("uses the canonical fallback when locale is omitted", async () => {
+    const { interactor, crawlRepo } = harness();
+    const result = await runWithTenant(mockUser, () =>
+      interactor.invoke({ homepage: "example.com", clientRequestId: CLIENT_REQUEST_ID }),
+    );
+    expect(result.ok).toBe(true);
+    expect(crawlRepo.createCrawl).toHaveBeenCalledWith(expect.objectContaining({ locale: "en" }));
+  });
+
+  it.each(["replay", "queued join"])("masks another member's private import chat on %s", async (path) => {
+    const privateCrawl = { ...CRAWL, userId: "other-user", conversationId: "private-conversation" };
+    const { interactor } = harness(
+      path === "replay" ? { reusable: privateCrawl } : { active: true, latest: privateCrawl },
+    );
+    const result = await runWithTenant(mockUser, () =>
+      interactor.invoke({ homepage: "example.com", clientRequestId: CLIENT_REQUEST_ID }),
+    );
+    expect(result).toMatchObject({ ok: true, data: { conversationId: null, domain: "example.com" } });
+  });
+
+  it("infers extension only for a help host recorded by a previous import", async () => {
+    const known = harness({ latest: CRAWL, empty: false });
+    expect(
+      await runWithTenant(mockUser, () =>
+        known.interactor.invoke({ homepage: "https://acme.zendesk.com/hc/en", clientRequestId: CLIENT_REQUEST_ID }),
+      ),
+    ).toMatchObject({ ok: true, data: { mode: "extend" } });
+    expect(known.crawlRepo.createCrawl).toHaveBeenCalledWith(
+      expect.objectContaining({ mode: "extend", extraHosts: ["acme.zendesk.com"] }),
+    );
+    const unknown = harness({ latest: CRAWL, empty: false });
+    expect(
+      errorCode(
+        await runWithTenant(mockUser, () =>
+          unknown.interactor.invoke({
+            homepage: "https://unrelated.zendesk.com/hc/en",
+            clientRequestId: CLIENT_REQUEST_ID,
+          }),
+        ),
+      ),
+    ).toBe(CustomErrorCode.wikiNotEmpty);
+    expect(unknown.background.dispatch).not.toHaveBeenCalled();
+  });
   it("freezes the dominant existing Wiki language over the caller fallback", async () => {
     const { interactor, repo, crawlRepo } = harness({
       latest: CRAWL,
@@ -155,6 +187,7 @@ describe("StartWikiHomepageSetupInteractor", () => {
         conversationId: null,
         homepage: "https://example.com/about",
         domain: "example.com",
+        mode: "initial",
       },
     });
     expect(crawlRepo.createCrawl).toHaveBeenCalledExactlyOnceWith({

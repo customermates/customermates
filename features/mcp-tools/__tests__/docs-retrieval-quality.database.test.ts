@@ -1,3 +1,4 @@
+import type { DocsScope } from "../prisma-docs-chunk.repository";
 import type { ContentLocale } from "@/i18n/locale-registry";
 import type { RankableSection, RetrievalTiming } from "@/core/retrieval/retrieval-context";
 import type { QueryVector } from "@/core/retrieval/retrieval-pipeline";
@@ -294,7 +295,7 @@ describeDatabase("documentation retrieval quality on the benchmark docs question
   );
 
   it("reports how much of the query's weight each full-text section covers", async () => {
-    const scope = { buildHash: corpus.buildHash, locale: "en", sources: ["docs"] };
+    const scope: DocsScope = { buildHash: corpus.buildHash, locale: "en", sources: ["docs"] };
     const [full] = await repo.fullTextSections(scope, fullTextUnits("webhook signature"), 5);
     const [partial] = await repo.fullTextSections(scope, fullTextUnits("webhook signature xylophonequartet"), 5);
 
@@ -313,7 +314,7 @@ describeDatabase("documentation retrieval quality on the benchmark docs question
     }));
     for (let start = 0; start < rows.length; start += 500)
       await repo.storeEmbeddings(FAKE_MODEL, rows.slice(start, start + 500));
-    const scope = { buildHash: corpus.buildHash, locale: "en", sources: ["docs"] };
+    const scope: DocsScope = { buildHash: corpus.buildHash, locale: "en", sources: ["docs"] };
     expect(await repo.semanticIndexComplete(scope, FAKE_MODEL)).toBe(true);
     expect(await repo.semanticIndexComplete(scope, "a-model-without-embeddings")).toBe(false);
 

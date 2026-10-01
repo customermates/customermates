@@ -308,12 +308,10 @@ describe("manage_wiki_pages reads", () => {
   });
 
   it("fails explicitly when the remaining budget cannot hold an indivisible link or code point", () => {
-    expect(() =>
+    expect(
       boundedWikiChunk(`[Link](/wiki?page=${PAGE_ID})`, 0, (start, end) => end - start <= 20, "http://localhost:4000"),
-    ).toThrow("cannot fit");
-    expect(() => boundedWikiChunk("😀", 0, (start, end) => end - start <= 1, "http://localhost:4000")).toThrow(
-      "cannot fit",
-    );
+    ).toBeNull();
+    expect(boundedWikiChunk("😀", 0, (start, end) => end - start <= 1, "http://localhost:4000")).toBeNull();
   });
 
   it("exposes truthful search continuation to MCP callers", async () => {

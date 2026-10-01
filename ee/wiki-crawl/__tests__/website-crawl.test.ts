@@ -1,8 +1,9 @@
+import { WikiCrawlRobots } from "../wiki-crawl-robots";
 import { EventEmitter } from "node:events";
 import { Readable } from "node:stream";
 import { beforeEach, describe, expect, it, vi } from "vitest";
 
-import { discoverWikiWebsite, fetchWikiSource, WikiCrawlRobots } from "../website-crawler";
+import { discoverWikiWebsite, fetchWikiSource } from "../website-crawler";
 import {
   canonicalCrawlUrl,
   parseLlmsTxt,
@@ -23,7 +24,7 @@ const mocks = vi.hoisted(() => ({ lookup: vi.fn(), httpsRequest: vi.fn(), reques
 vi.mock("node:dns/promises", () => ({ lookup: mocks.lookup }));
 vi.mock("node:https", () => ({ request: mocks.httpsRequest }));
 
-type Route = { status?: number; type?: string; body?: string };
+type Route = { status?: number; type?: string; body?: string; location?: string };
 const routes = new Map<string, Route>();
 
 function request(
@@ -39,7 +40,10 @@ function request(
         const route = routes.get(url.toString()) ?? { status: 404, type: "text/html", body: "missing" };
         const response = Object.assign(Readable.from([route.body ?? ""]), {
           statusCode: route.status ?? 200,
-          headers: { "content-type": `${route.type ?? "text/html"}; charset=utf-8` },
+          headers: {
+            "content-type": `${route.type ?? "text/html"}; charset=utf-8`,
+            ...(route.location ? { location: route.location } : {}),
+          },
         });
         callback(response);
       });
@@ -388,5 +392,34 @@ describe("website discovery and fetching", () => {
     expect(discovery.targets.map(({ url }) => url)).toEqual(["https://example.com/", "https://example.com/pricing"]);
     const robots = new WikiCrawlRobots(scope);
     expect(await robots.allows("https://example.com/help?lang=de")).toBe(false);
+  });
+});
+
+describe("robots permissions at each network boundary", () => {
+  const scope = { registrableDomain: "example.com", extraHosts: [] };
+  it("uses the submitted homepage path rather than permission for the root", async () => {
+    routes.set("https://example.com/robots.txt", {
+      type: "text/plain",
+      body: "User-agent: *\nDisallow: /\nAllow: /en",
+    });
+    routes.set("https://example.com/en", { body: "<h1>Company</h1><p>We build useful software for customers.</p>" });
+    const result = await discoverWikiWebsite({ homepage: "https://example.com/en", locale: "en", scope });
+    expect(result.status).toBe("ready");
+    expect(mocks.requested.some((url) => url.startsWith("https://example.com/en "))).toBe(true);
+  });
+  it("does not read a submitted homepage that robots disallows", async () => {
+    routes.set("https://example.com/robots.txt", { type: "text/plain", body: "User-agent: *\nDisallow: /private" });
+    routes.set("https://example.com/private", { body: "<h1>Private company page</h1>" });
+    const result = await discoverWikiWebsite({ homepage: "https://example.com/private", locale: "en", scope });
+    expect(result).toEqual({ status: "blocked" });
+    expect(mocks.requested.some((url) => url.startsWith("https://example.com/private "))).toBe(false);
+  });
+  it("rechecks robots before reading a redirect destination", async () => {
+    routes.set("https://example.com/robots.txt", { type: "text/plain", body: "User-agent: *\nDisallow: /private" });
+    routes.set("https://example.com/allowed", { status: 302, location: "https://example.com/private" });
+    routes.set("https://example.com/private", { body: "<h1>Private</h1><p>Do not read this.</p>" });
+    await expect(fetchWikiSource("https://example.com/allowed", scope, new WikiCrawlRobots(scope))).resolves.toBeNull();
+    expect(mocks.requested.some((url) => url.startsWith("https://example.com/allowed "))).toBe(true);
+    expect(mocks.requested.some((url) => url.startsWith("https://example.com/private "))).toBe(false);
   });
 });

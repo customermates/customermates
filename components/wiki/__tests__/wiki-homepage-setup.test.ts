@@ -203,7 +203,7 @@ describe("WikiHomepageSetup", () => {
     expect(container.querySelector("[data-inline-conversation]")).toBeNull();
   });
 
-  it.each(["pending", "unknown"] as const)("does not mark a partial terminal crawl complete (%s)", (status) => {
+  it.each(["pending", "reading"] as const)("does not mark a partial terminal crawl complete (%s)", (status) => {
     render({
       status: "failed",
       homepage: "https://example.com/",

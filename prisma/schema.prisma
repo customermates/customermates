@@ -1080,7 +1080,7 @@ model AgentCreditAdjustment {
   userId                  String
   user                    User     @relation(fields: [userId], references: [id], onDelete: Cascade)
   /// Legacy whole-credit mirror of deltaMicrocents (rounded away from zero), written only for code
-  /// deployed before exact metering. Never read it; a follow-up migration drops it.
+  /// deployed before exact metering; exact readers retain fallback until old workers drain.
   creditDelta             Int
   deltaMicrocents         BigInt   @default(0)
   periodStart             DateTime
@@ -1881,7 +1881,7 @@ model AgentConversation {
   title                   String?
   modelKey                String?
   origin                  AgentConversationOrigin @default(user)
-  /// Legacy whole-credit mirror of creditCeilingMicrocents (rounded down). Never read it.
+  /// Legacy whole-credit mirror of creditCeilingMicrocents (rounded down). Exact readers retain fallback until old workers drain.
   creditCeiling           Int?
   creditCeilingMicrocents BigInt?
   archivedAt              DateTime?
@@ -1939,7 +1939,7 @@ model AgentUsageEvent {
   costSource                  AgentUsageCostSource @default(estimated)
   /// reservedCredits, chargedCredits and allowanceCreditsSnapshot are legacy whole-credit mirrors of
   /// the microcent columns (usage rounded up, allowance rounded down), written only for code deployed
-  /// before exact metering. Never read them; a follow-up migration drops them.
+  /// before exact metering. Read them only as a fallback until older production workers drain; a later contract migration drops them.
   reservedCredits             Int                  @default(0)
   chargedCredits              Int                  @default(0)
   reservedMicrocents          BigInt               @default(0)
@@ -2221,7 +2221,7 @@ model RoutineRun {
   startedAt         DateTime?
   finishedAt        DateTime?
   terminalCode      AgentTurnTerminalCode?
-  /// Legacy whole-credit mirror of chargedMicrocents (rounded up). Never read it.
+  /// Legacy whole-credit mirror of chargedMicrocents (rounded up). Exact readers retain fallback until old workers drain.
   chargedCredits    Int                    @default(0)
   chargedMicrocents BigInt                 @default(0)
   summary           String?

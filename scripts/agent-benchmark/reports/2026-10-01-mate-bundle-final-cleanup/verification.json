@@ -1,0 +1,190 @@
+{
+  "status": "local implementation and automated/browser verification passed; live-provider and exact-head CI pending",
+  "source_base": "31d1df14c9185e62f23bf902be3ef518b42ca5b3",
+  "previous_product_head": "bf7aa45ab60a136257ce57876f19f26ff18c2c26",
+  "reviewed_at": "2026-10-01",
+  "review_matrix": {
+    "original_paths": 592,
+    "application_and_dependency_paths": 737,
+    "reviewed_union_paths": 746,
+    "corrected": 129,
+    "reviewed": 604,
+    "justified": 13,
+    "uncovered_current_paths": 0,
+    "stale_tagged_hashes": 0
+  },
+  "migrations": {
+    "prisma_version": "7.0.1",
+    "cases": [
+      {
+        "version": 17,
+        "kind": "fresh",
+        "deploy": 0,
+        "repeat": 0,
+        "vector": true,
+        "columns": 16
+      },
+      {
+        "version": 17,
+        "kind": "upgrade",
+        "deploy": 0,
+        "repeat": 0,
+        "vector": true,
+        "columns": 16
+      },
+      {
+        "version": 17,
+        "kind": "recovery",
+        "injectedFailureExit": 1,
+        "resolve": 0,
+        "retry": 0,
+        "events": 1,
+        "vector": true,
+        "columns": 16
+      },
+      {
+        "version": 16,
+        "kind": "fresh",
+        "deploy": 0,
+        "repeat": 0,
+        "vector": false,
+        "columns": 16
+      },
+      {
+        "version": 16,
+        "kind": "upgrade",
+        "deploy": 0,
+        "repeat": 0,
+        "vector": false,
+        "columns": 16
+      },
+      {
+        "version": 16,
+        "kind": "recovery",
+        "injectedFailureExit": 1,
+        "resolve": 0,
+        "retry": 0,
+        "events": 1,
+        "vector": false,
+        "columns": 16
+      }
+    ],
+    "mainline_history_unchanged": true,
+    "pr_owned_files_consolidated": 5,
+    "preview_reset_performed": false
+  },
+  "checks": {
+    "build": {
+      "passed": true,
+      "duration_ms": 390706,
+      "required_artifacts_verified": true
+    },
+    "built_http": {
+      "passed": true,
+      "files": 2,
+      "tests": 18
+    },
+    "workflow_purge": {
+      "passed": true,
+      "tests": 9,
+      "skipped": 0,
+      "actual_installed_storage": true
+    },
+    "editor_and_operator_regressions": {
+      "passed": true,
+      "files": 2,
+      "tests": 7
+    },
+    "full_final_gate": {
+      "passed": true,
+      "runtime": "Node 24.18.0",
+      "typecheck_ms": 45917,
+      "lint_ms": 341084,
+      "vitest_ms": 594335,
+      "passed_files": 1033,
+      "skipped_files": 1,
+      "passed_tests": 10032,
+      "skipped_tests": 20,
+      "skip_classification": {
+        "hosted_provider_contracts_pending": 15,
+        "built_http_passed_separately": 5
+      },
+      "database_suites_enabled": true,
+      "both_database_urls_owned": true,
+      "workflow_storage_installed": true
+    },
+    "kb_gate": {
+      "passed": true,
+      "checks": 8,
+      "failed": 0,
+      "skipped": 0,
+      "runtime": "Node 22.21.1"
+    },
+    "benchmark_registry_after_documentation": {
+      "passed": true,
+      "files": 1,
+      "tests": 4
+    }
+  },
+  "browser": {
+    "surface": "owned local built application",
+    "provider_work": "disabled",
+    "accounts": "synthetic owned fixtures",
+    "journeys": [
+      "create knowledge page and inspect persistence",
+      "save numbered procedure with required whenToUse",
+      "reject missing whenToUse and missing numbered steps",
+      "clean and dirty toolbar states; Reset",
+      "typed stale revision conflict preserves unsaved title and Markdown",
+      "explicit discard before reload; remote version displayed",
+      "navigation guard Cancel preserves dirty content",
+      "destructive menu text and icon color match",
+      "delete cancel and confirm; guide selected after deletion",
+      "relevance search and native keyboard clear restores catalog",
+      "keyboard reordering persists; guide remains pinned",
+      "read-only custom role cannot edit/create/delete/reorder",
+      "desktop and mobile layouts without horizontal overflow",
+      "40-source progress: failed secondary pages skipped and 128px bounded scrolling",
+      "continue onboarding through Team and AI tools while import works",
+      "completion after leaving onboarding; existing import conversation retained",
+      "26 contextual source labels; 360px chat scroll; no generic duplicate rows or Today chip",
+      "dirty polling retains title and same editor/message DOM nodes"
+    ],
+    "fixture_limits": [
+      "Import progress and transcript used deterministic persisted fixtures, not a live provider or active SSE stream.",
+      "Streaming, cancellation and transport fault assertions are automated tests; live ainovi.de and hosted semantic checks await fresh spend approval."
+    ],
+    "updated_editor_built_recheck": {
+      "passed": true,
+      "build_id": "wK5krPIrHWoIWDZrhoLo0",
+      "journeys": [
+        "create and save using native keyboard editing",
+        "edit title and Reset restores saved version",
+        "Reload preserves saved document and returns to clean toolbar",
+        "convert knowledge to procedure and persist two numbered steps with whenToUse",
+        "delete confirmed page and return to pinned guide",
+        "read-only role reload: no editable region, New page or Save; no errors"
+      ],
+      "errors": 0,
+      "horizontal_overflow": false,
+      "persistence_checked": true,
+      "explicit_reload_note": "An explicit reload replaces the editor node; polling stability is covered by the separate journey and real Editor regression."
+    }
+  },
+  "live_provider": {
+    "executed": false,
+    "required_contracts": 15,
+    "required_additional_journeys": [
+      "local ainovi.de onboarding",
+      "representative hosted retrieval and chat"
+    ],
+    "reason": "fresh paid-batch authorization pending"
+  },
+  "external": {
+    "new_product_head_pushed": false,
+    "new_kb_head_pushed": false,
+    "exact_head_ci_verified": false,
+    "migration_adoption_scope_confirmation": "pending",
+    "drafts_preserved": true
+  }
+}

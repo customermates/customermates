@@ -2858,6 +2858,9 @@
     "title": "Upgrade nötig, um Messaging freizuschalten"
   },
   "NavigationBar": {
+    "addEntity": "{entity} hinzufügen",
+    "addPickerDescription": "Wähle den Typ des Datensatzes, den du anlegen möchtest.",
+    "addPickerTitle": "Neu anlegen…",
     "admin": "Administration",
     "affiliate": "Affiliate-Programm",
     "connectedAccounts": "Kanäle",

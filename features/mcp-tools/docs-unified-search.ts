@@ -1,19 +1,17 @@
 import type { RankableSection, SectionRanker } from "@/core/retrieval/retrieval-context";
 import type { QueryEmbedding, RelevanceFloor, RelevanceVerdict } from "@/core/retrieval/retrieval-pipeline";
 import type { DocsSection } from "./docs-sections";
-import type { DocsChunkRepo, DocsScope, DocsSectionRow, DocsStoredBuild } from "./prisma-docs-chunk.repository";
+import type { DocsChunkRepo } from "@/features/mcp-tools/docs-chunk.repo";
+import type { DocsScope, DocsSectionRow, DocsStoredBuild } from "./prisma-docs-chunk.repository";
 
 import { retrievalWindows } from "@/core/retrieval/retrieval-chunks";
+import { retrievalExcerpt } from "@/core/retrieval/retrieval-excerpt";
 import { fullTextUnits, type FullTextUnit } from "@/core/retrieval/full-text-query";
-import {
-  fuseFullTextAndSemantic,
-  keepsResults,
-  rerankSections,
-  RetrievalStopwatch,
-} from "@/core/retrieval/retrieval-pipeline";
+import { fuseFullTextAndSemantic, keepsResults, rerankSections } from "@/core/retrieval/retrieval-pipeline";
+import { RetrievalStopwatch } from "@/core/retrieval/retrieval-stopwatch";
 import { fold, slugifyHeading } from "@/core/utils/search-text";
 
-import { docsCorpus, docsCorpusSection, docsSectionKey } from "./docs-corpus";
+import { docsCorpus, docsCorpusSection, docsSectionKey, docsSectionSearchBody } from "./docs-corpus";
 import { docsCorpusSections, type DocsLocale, type DocsSource } from "./docs-manifest";
 
 const DOCS_FULL_TEXT_CANDIDATES = 40;
@@ -50,7 +48,7 @@ function rowKey(row: DocsSectionRow): string {
 
 function rowSection(locale: DocsLocale, row: DocsSectionRow, stored: DocsStoredBuild): DocsSection | undefined {
   if (stored.current) return docsCorpusSection(locale, { source: row.source, slug: row.slug, order: row.sectionOrder });
-  return docsCorpusSections(row.source as DocsSource, locale).find(
+  return docsCorpusSections(row.source, locale).find(
     (section) => section.slug === row.slug && section.anchor === row.anchor,
   );
 }
@@ -59,7 +57,7 @@ function inMemorySections(scope: DocsScope, units: readonly FullTextUnit[], limi
   const terms = [...new Set(units.map((unit) => fold(unit.text)).filter(Boolean))];
   if (terms.length === 0) return [];
   const documents = scope.sources
-    .flatMap((source) => docsCorpusSections(source as DocsSource, scope.locale as DocsLocale))
+    .flatMap((source) => docsCorpusSections(source, scope.locale))
     .filter((section) => scope.slug === undefined || section.slug === scope.slug)
     .map((section) => ({
       section,
@@ -99,7 +97,7 @@ function bounded(text: string, maxChars: number): string {
 }
 
 function sectionWindow(section: DocsSection, chunkOrdinal: number): string {
-  const windows = retrievalWindows(section.text);
+  const windows = retrievalWindows(docsSectionSearchBody(section));
   return (windows[Math.min(chunkOrdinal, windows.length - 1)] ?? windows[0]).text;
 }
 
@@ -150,7 +148,7 @@ async function fusedSections(
   });
   const sections = fused.ranked.flatMap((key) => {
     const row = rows.get(key);
-    const section = row ? rowSection(scope.locale as DocsLocale, row, stored) : undefined;
+    const section = row ? rowSection(scope.locale, row, stored) : undefined;
     return row && section ? [{ section, chunkOrdinal: row.chunkOrdinal }] : [];
   });
   return { sections, relevance: fused.relevance };
@@ -164,7 +162,11 @@ async function storedBuild(deps: UnifiedDocsDeps): Promise<DocsStoredBuild | nul
   return stored;
 }
 
-function rerankCandidates(ranked: readonly RankedSection[], locale: DocsLocale): RankableSection[] {
+function rerankCandidates(
+  ranked: readonly RankedSection[],
+  locale: DocsLocale,
+  sources: readonly DocsSource[],
+): RankableSection[] {
   const lexical = ranked.slice(0, DOCS_RERANK_LEXICAL).map(({ section }) => section);
   const lexicalKeys = new Set(lexical.map(docsSectionKey));
   const topPages: string[] = [];
@@ -174,9 +176,9 @@ function rerankCandidates(ranked: readonly RankedSection[], locale: DocsLocale):
     if (topPages.length === DOCS_RERANK_TOP_PAGES) break;
   }
   const titles = topPages.flatMap((page) =>
-    docsCorpusSections("docs", locale).filter(
-      (section) => `${section.source}:${section.slug}` === page && !lexicalKeys.has(docsSectionKey(section)),
-    ),
+    sources
+      .flatMap((source) => docsCorpusSections(source, locale))
+      .filter((section) => `${section.source}:${section.slug}` === page && !lexicalKeys.has(docsSectionKey(section))),
   );
   return [
     ...lexical.map((section, id) => ({ id, section, titleOnly: false })),
@@ -208,8 +210,8 @@ export async function unifiedDocsSearch(
     }
 
     let chosen: DocsSection[] | null = null;
-    if (input.source === "docs") {
-      const candidates = rerankCandidates(ranked, input.locale);
+    {
+      const candidates = rerankCandidates(ranked, input.locale, sources);
       const ranking = await rerankSections({
         query: input.query,
         stopwatch,
@@ -268,7 +270,6 @@ export async function unifiedDocsExcerpt(
       (section) =>
         target.length > 0 && (section.anchor === target || slugifyHeading(section.headingPath.at(-1) ?? "") === target),
     );
-    const chunkOf = new Map(ranked.map((entry) => [docsSectionKey(entry.section), entry.chunkOrdinal]));
     const ordered = [
       ...(preferred ? [preferred] : []),
       ...(named ? [named] : []),
@@ -285,17 +286,20 @@ export async function unifiedDocsExcerpt(
 
     const [first, second] = ordered;
     const heading = excerptHeading(first);
-    const whole = [heading, first.text].filter(Boolean).join("\n");
-    const lead =
-      whole.length <= DOCS_PAGE_EXCERPT_CHARS
-        ? whole
-        : bounded(
-            [heading, sectionWindow(first, chunkOf.get(docsSectionKey(first)) ?? 0)].filter(Boolean).join("\n"),
-            DOCS_PAGE_EXCERPT_CHARS,
-          );
+    const lead = retrievalExcerpt({
+      heading,
+      markdown: first.text,
+      query,
+      maxChars: DOCS_PAGE_EXCERPT_CHARS,
+    });
     const room = DOCS_PAGE_EXCERPT_CHARS - lead.length - 2;
     if (!second || room <= DOCS_EXCERPT_MIN_PART) return lead;
-    const secondary = bounded([excerptHeading(second), second.text].filter(Boolean).join("\n"), room);
+    const secondary = retrievalExcerpt({
+      heading: excerptHeading(second),
+      markdown: second.text,
+      query,
+      maxChars: room,
+    });
     return secondary.length > DOCS_EXCERPT_MIN_PART ? `${lead}\n\n${secondary}` : lead;
   } finally {
     stopwatch.finish();

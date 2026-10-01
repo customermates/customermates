@@ -16,15 +16,11 @@ import {
 import { ROUTING_LOCALES } from "@/i18n/locale-registry";
 
 const mockUser = createMockUser();
-const switches = vi.hoisted(() => ({ enabled: true }));
 const analysis = vi.hoisted(() => ({ analyzeRecords: vi.fn() }));
 
 vi.mock("@/env", () => ({
   env: {
     ...MOCK_ENV_MODULE.env,
-    get AGENT_ANALYSIS_TOOL_ENABLED() {
-      return switches.enabled;
-    },
   },
 }));
 vi.mock("@/core/di", () => createMockDiModule(() => mockUser));
@@ -59,19 +55,19 @@ function translatorFor(locale: string) {
 }
 
 beforeEach(() => {
-  switches.enabled = true;
   analysis.analyzeRecords.mockReset();
 });
 
 describe("analyze_records on the hosted surface", () => {
-  it("is offered with reads and code while its switch is on, and not at all when it is off", () => {
+  it("is always offered once with its read-only analysis schema", () => {
     const offered = getAgentAiToolDefinitions("vertex").find((definition) => definition.name === "analyze_records");
     expect(offered?.description).toMatch(/median/);
     expect(JSON.stringify(offered?.inputSchema)).toContain('"reads"');
     expect(JSON.stringify(offered?.inputSchema)).toContain('"code"');
 
-    switches.enabled = false;
-    expect(getAgentAiToolDefinitions("vertex").map((definition) => definition.name)).not.toContain("analyze_records");
+    expect(
+      getAgentAiToolDefinitions("vertex").filter((definition) => definition.name === "analyze_records"),
+    ).toHaveLength(1);
   });
 
   it("hands the turn's tool-result limit to the analysis, which refuses an oversized result whole", async () => {

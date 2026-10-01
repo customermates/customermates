@@ -1,3 +1,4 @@
+import type { UpdateWikiPageRepo } from "./update-wiki-page.repo";
 import type { Data, Validated } from "@/core/validation/validation.utils";
 import type { EventService } from "@/features/event/event.service";
 import type { WikiPageDto } from "./wiki.schema";
@@ -45,10 +46,6 @@ export type UpdateWikiPageRepoResult =
   | { status: "conflict" }
   | { status: "guide-exists" }
   | { status: "invalid"; error: CustomErrorCode };
-
-export abstract class UpdateWikiPageRepo {
-  abstract updatePage(data: UpdateWikiPageData): Promise<UpdateWikiPageRepoResult>;
-}
 
 @TenantInteractor({ resource: Resource.wiki, action: Action.update })
 export class UpdateWikiPageInteractor extends AuthenticatedInteractor<UpdateWikiPageData, WikiPageDto> {

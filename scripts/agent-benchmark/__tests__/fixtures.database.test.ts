@@ -1,3 +1,4 @@
+import { prismaAgentChatRepoDependencies } from "@/tests/helpers/prisma-agent-chat-repo";
 import { randomUUID } from "node:crypto";
 
 import { afterAll, beforeAll, describe, expect, it, vi } from "vitest";
@@ -257,7 +258,7 @@ describeDatabase("agent benchmark fixtures and oracle", () => {
       },
     });
 
-    const repo = new PrismaAgentChatRepo();
+    const repo = new PrismaAgentChatRepo(...prismaAgentChatRepoDependencies());
     await expect(
       runWithoutTenant(() =>
         repo.extendUsageReservationUnscoped({

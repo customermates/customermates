@@ -1,6 +1,7 @@
 import { beforeEach, describe, expect, it, vi } from "vitest";
 
 import { MOCK_ENV_MODULE } from "@/tests/helpers/interactor-test-setup";
+import { prismaAgentChatRepoDependencies } from "@/tests/helpers/prisma-agent-chat-repo";
 
 const prismaMock = vi.hoisted(() => {
   const transactionClient = {
@@ -49,11 +50,13 @@ describe("PrismaOperatorRepo workspace deletion transaction", () => {
           email: "operator@example.invalid",
         },
         () =>
-          new PrismaOperatorRepo(new PrismaAgentChatRepo()).deleteWorkspaceUnscoped({
-            companyId,
-            confirmWorkspaceLabel: "workspace.invalid",
-            reason: "Local transaction contract test",
-          }),
+          new PrismaOperatorRepo(new PrismaAgentChatRepo(...prismaAgentChatRepoDependencies())).deleteWorkspaceUnscoped(
+            {
+              companyId,
+              confirmWorkspaceLabel: "workspace.invalid",
+              reason: "Local transaction contract test",
+            },
+          ),
       ),
     ).resolves.toBe("notFound");
 

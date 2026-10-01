@@ -1,8 +1,9 @@
+import type { AgentModelEntry } from "@/ee/agent-chat/model-catalog";
 import { agentToolDefinitionsForToolsets, agentToolDefinitionsForTurn } from "@/ee/agent-chat/agent-tools";
 import { buildAgentSystemPrompt } from "@/ee/agent-chat/system-prompt";
 import { conservativeAgentInitialContextBytes } from "@/ee/agent-chat/agent-provider-context";
 import { toolsetsForRequest } from "@/ee/agent-chat/agent-toolset-routing";
-import { MODEL_CATALOG, resolveAgentModel, SHIPPED_AGENT_MODEL_KEY } from "@/ee/agent-chat/model-catalog";
+import { SHIPPED_AGENT_MODEL, resolveAgentModel, SHIPPED_AGENT_MODEL_KEY } from "@/ee/agent-chat/model-catalog";
 import { agentRoundWorstCaseMicrocents, resolveAgentTurnBudget } from "@/ee/agent-chat/agent-budget-policy";
 import {
   AGENT_CREDIT_TENTH_MICROCENTS,
@@ -75,7 +76,7 @@ export function measureAgentContext(question: string, pageRoute: string | null):
 }
 
 // The smallest balance, in credits with one decimal, that admits a first round.
-export function admissionFloorCredits(entry: (typeof MODEL_CATALOG)[keyof typeof MODEL_CATALOG], initialContextBytes: number) {
+export function admissionFloorCredits(entry: AgentModelEntry, initialContextBytes: number) {
   const roundReserve = agentRoundWorstCaseMicrocents(entry);
   for (let microcents = AGENT_CREDIT_TENTH_MICROCENTS; microcents <= roundReserve + AGENT_CREDIT_TENTH_MICROCENTS; microcents += AGENT_CREDIT_TENTH_MICROCENTS) {
     const budget = resolveAgentTurnBudget({
@@ -89,7 +90,7 @@ export function admissionFloorCredits(entry: (typeof MODEL_CATALOG)[keyof typeof
 }
 
 export function reservationSummary(initialContextBytes?: number) {
-  return Object.entries(MODEL_CATALOG).map(([key, entry]) => {
+  return ([[SHIPPED_AGENT_MODEL_KEY, SHIPPED_AGENT_MODEL]] as const).map(([key, entry]) => {
     const budget = resolveAgentTurnBudget({
       model: entry,
       availableMicrocents: agentCreditsToMicrocents(500),

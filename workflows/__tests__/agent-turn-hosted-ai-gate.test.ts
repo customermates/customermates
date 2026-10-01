@@ -28,6 +28,7 @@ const state = vi.hoisted(() => ({
   crawl: null as { userId: string; homepageUrl: string } | null,
   gateResults: [] as boolean[],
   gateFailure: null as Error | null,
+  serializationFailure: null as Error | null,
   contextFits: vi.fn(),
   budgetFits: vi.fn(),
   approvedCallsRunFirst: false,
@@ -135,6 +136,7 @@ vi.mock("@ai-sdk/workflow", () => {
           instructions: string;
           providerOptions: unknown;
           maxRetries?: number;
+          telemetry?: { integrations: { onLanguageModelCallStart?: () => void } };
           tools: Record<string, WorkflowTool>;
         },
       ) {
@@ -153,18 +155,25 @@ vi.mock("@ai-sdk/workflow", () => {
           { role: "system", content: this.options.instructions },
           ...nextMessages,
         ];
+        const startProviderRound = () => {
+          if (state.serializationFailure) throw state.serializationFailure;
+          this.options.telemetry?.integrations.onLanguageModelCallStart?.();
+          state.providerCalls += 1;
+        };
         if (state.runTools) {
+          const completedSteps = new Set<unknown>();
           const prompt = state.approvedCallsRunFirst ? await runApprovedCalls(this.options.tools, messages) : messages;
           const prepared = await this.options.prepareStep({ messages: preparedMessages(prompt) });
-          state.providerCalls += 1;
-          return state.runTools({
+          startProviderRound();
+          const result = await state.runTools({
             tools: this.options.tools,
             prepared,
             messages: prompt,
             completeStepAndPrepareNext: async (step, nextMessages = messages) => {
+              completedSteps.add(step);
               await this.options.onStepEnd(step);
               state.prepared = await this.options.prepareStep({ messages: preparedMessages(nextMessages) });
-              state.providerCalls += 1;
+              startProviderRound();
             },
             executeAndCompleteTool: async (toolName, input, toolCallId, batch) => {
               const tool = this.options.tools[toolName];
@@ -183,12 +192,16 @@ vi.mock("@ai-sdk/workflow", () => {
               return output;
             },
           });
+          for (const step of (result as { steps?: unknown[] }).steps ?? [])
+            if (!completedSteps.has(step)) await this.options.onStepEnd(step);
+
+          return result;
         }
         await this.options.prepareStep({ messages: preparedMessages(messages) });
-        state.providerCalls += 1;
+        startProviderRound();
 
         await this.options.prepareStep({ messages: preparedMessages(messages) });
-        state.providerCalls += 1;
+        startProviderRound();
 
         return { finishReason: "stop", messages: [], steps: [] };
       }
@@ -378,6 +391,7 @@ const payload: AgentTurnWorkflowPayload = {
 beforeEach(() => {
   state.gateResults = [];
   state.gateFailure = null;
+  state.serializationFailure = null;
   state.providerCalls = 0;
   state.writes = [];
   state.toolLoadFailure = false;
@@ -446,6 +460,19 @@ function streamedStep(text: string, finishReason: string, outputTokens = text ? 
       outputTokenDetails: { textTokens: outputTokens, reasoningTokens: 0 },
     },
     providerMetadata: {},
+  };
+}
+
+function unbilledStopStep() {
+  return {
+    ...streamedStep("", "stop"),
+    providerMetadata: {
+      gateway: {
+        gatewayCost: "0",
+        cost: "0",
+        routing: { finalProvider: "vertex", modelAttempts: [] },
+      },
+    },
   };
 }
 
@@ -1745,6 +1772,350 @@ describe("agent-turn terminal reasons", () => {
   });
 });
 
+describe("agent-turn provider charge evidence", () => {
+  const metadata = (gatewayCost: string, success = true) => ({
+    gateway: {
+      gatewayCost,
+      cost: gatewayCost,
+      routing: {
+        finalProvider: "vertex",
+        modelAttempts: [{ providerAttempts: [{ provider: "vertex", credentialType: "system", success }] }],
+      },
+    },
+  });
+
+  it.each(["chat", "routine"] as const)(
+    "retains the approved reserve when an attempted %s provider round fails before reporting usage",
+    async (surface) => {
+      const error = Object.assign(new Error("provider stream ended without usage"), {
+        [Symbol.for("vercel.ai.gateway.error")]: true,
+      });
+      state.runTools = () => Promise.reject(error);
+
+      await runAgentTurn({ ...payload, surface });
+
+      expect(state.providerCalls).toBe(1);
+      expect(state.recordRound).not.toHaveBeenCalled();
+      expect(state.finalize).toHaveBeenCalledWith(
+        expect.objectContaining({
+          stopReason: "provider_error",
+          usageSettlement: expect.objectContaining({
+            costMicrocents: payload.turnBudget.reservedMicrocents,
+            chargedMicrocents: payload.turnBudget.reservedMicrocents,
+            costSource: "estimated",
+            policyBreach: false,
+          }),
+        }),
+      );
+    },
+  );
+
+  it("does not charge a gate failure before any provider invocation", async () => {
+    state.gateFailure = new Error("gate storage unavailable");
+
+    await runAgentTurn(payload);
+
+    expect(state.providerCalls).toBe(0);
+    expect(state.recordRound).not.toHaveBeenCalled();
+    expect(state.finalize).toHaveBeenCalledWith(
+      expect.objectContaining({
+        stopReason: "turn_error",
+        usageSettlement: expect.objectContaining({
+          costMicrocents: 0,
+          chargedMicrocents: 0,
+          costSource: "measured",
+        }),
+      }),
+    );
+  });
+
+  it("does not charge a serialization failure after admission and before model-call start", async () => {
+    state.serializationFailure = new Error("tool schema could not be serialized");
+
+    await runAgentTurn(payload);
+
+    expect(state.providerCalls).toBe(0);
+    expect(state.recordRound).not.toHaveBeenCalled();
+    expect(state.finalize).toHaveBeenCalledWith(
+      expect.objectContaining({
+        stopReason: "turn_error",
+        usageSettlement: expect.objectContaining({ costMicrocents: 0, chargedMicrocents: 0, costSource: "measured" }),
+      }),
+    );
+  });
+
+  it.each(["0", "0.0005"])("retains a measured Gateway debit of %s when malformed usage is reported", async (cost) => {
+    state.runTools = ({ messages }) =>
+      Promise.resolve({
+        finishReason: "stop",
+        messages,
+        steps: [{ ...streamedStep("A reply.", "stop"), usage: undefined, providerMetadata: metadata(cost) }],
+      });
+
+    await runAgentTurn(payload);
+
+    const expectedCost = cost === "0" ? 0 : 50_000;
+    expect(state.recordRound).toHaveBeenCalledExactlyOnceWith(
+      expect.objectContaining({ costMicrocents: expectedCost }),
+    );
+    expect(state.finalize).toHaveBeenCalledWith(
+      expect.objectContaining({
+        stopReason: "turn_error",
+        usageSettlement: expect.objectContaining({
+          costMicrocents: expectedCost,
+          chargedMicrocents: expectedCost,
+          costSource: "measured",
+        }),
+      }),
+    );
+  });
+
+  it("settles the aggregate Gateway receipt without treating opaque provider retries as unreported rounds", async () => {
+    const receipt = metadata("0.0005");
+    receipt.gateway.routing.modelAttempts[0].providerAttempts.unshift({
+      provider: "vertex",
+      credentialType: "system",
+      success: false,
+    });
+    state.runTools = ({ messages }) =>
+      Promise.resolve({
+        finishReason: "stop",
+        messages,
+        steps: [{ ...streamedStep("Retried reply.", "stop"), providerMetadata: receipt }],
+      });
+
+    await runAgentTurn(payload);
+
+    expect(state.providerCalls).toBe(1);
+    expect(state.recordRound).toHaveBeenCalledExactlyOnceWith(expect.objectContaining({ costMicrocents: 50_000 }));
+    expect(state.finalize).toHaveBeenCalledWith(
+      expect.objectContaining({
+        usageSettlement: expect.objectContaining({
+          costMicrocents: 50_000,
+          chargedMicrocents: 50_000,
+          costSource: "measured",
+        }),
+      }),
+    );
+  });
+
+  it("does not charge cancellation before an allowed provider round", async () => {
+    state.readCancellation.mockResolvedValueOnce(true);
+
+    await runAgentTurn(payload);
+
+    expect(state.providerCalls).toBe(0);
+    expect(state.finalize).toHaveBeenCalledWith(
+      expect.objectContaining({
+        terminalCode: "cancelled",
+        usageSettlement: expect.objectContaining({ costMicrocents: 0, chargedMicrocents: 0 }),
+      }),
+    );
+  });
+
+  it("does not infer a free successful invocation from a missing finished-step report", async () => {
+    state.runTools = ({ messages }) => Promise.resolve({ finishReason: "stop", messages, steps: [] });
+
+    await runAgentTurn(payload);
+
+    expect(state.providerCalls).toBe(1);
+    expect(state.recordRound).not.toHaveBeenCalled();
+    expect(state.finalize).toHaveBeenCalledWith(
+      expect.objectContaining({
+        usageSettlement: expect.objectContaining({
+          costMicrocents: payload.turnBudget.reservedMicrocents,
+          chargedMicrocents: payload.turnBudget.reservedMicrocents,
+          costSource: "estimated",
+        }),
+      }),
+    );
+  });
+
+  it.each(["chat", "routine"] as const)(
+    "uses the approved round envelope for a finished %s step missing both receipt and usage",
+    async (surface) => {
+      state.runTools = ({ messages }) =>
+        Promise.resolve({
+          finishReason: "stop",
+          messages,
+          steps: [{ ...streamedStep("A reply.", "stop"), usage: {}, providerMetadata: undefined }],
+        });
+
+      await runAgentTurn({ ...payload, surface });
+
+      expect(state.providerCalls).toBe(1);
+      expect(state.recordRound).toHaveBeenCalledExactlyOnceWith(
+        expect.objectContaining({
+          costMicrocents: payload.turnBudget.roundReserveMicrocents,
+        }),
+      );
+      expect(state.finalize).toHaveBeenCalledWith(
+        expect.objectContaining({
+          usageSettlement: expect.objectContaining({
+            costMicrocents: payload.turnBudget.roundReserveMicrocents,
+            chargedMicrocents: payload.turnBudget.roundReserveMicrocents,
+            costSource: "estimated",
+            policyBreach: false,
+          }),
+        }),
+      );
+    },
+  );
+
+  it("estimates malformed usage while keeping the finished provider step visible", async () => {
+    state.runTools = ({ messages }) =>
+      Promise.resolve({
+        finishReason: "stop",
+        messages,
+        steps: [{ ...streamedStep("A reply.", "stop"), usage: undefined, providerMetadata: undefined }],
+      });
+
+    await runAgentTurn(payload);
+
+    expect(state.providerCalls).toBe(1);
+    expect(state.recordRound).toHaveBeenCalledExactlyOnceWith(
+      expect.objectContaining({
+        costMicrocents: payload.turnBudget.roundReserveMicrocents,
+      }),
+    );
+    expect(state.finalize).toHaveBeenCalledWith(
+      expect.objectContaining({
+        stopReason: "turn_error",
+        usageSettlement: expect.objectContaining({
+          costMicrocents: payload.turnBudget.roundReserveMicrocents,
+          chargedMicrocents: payload.turnBudget.roundReserveMicrocents,
+          costSource: "estimated",
+        }),
+      }),
+    );
+  });
+
+  it("bounds the missing-usage estimate by the first approved context reservation", async () => {
+    state.runTools = ({ messages }) =>
+      Promise.resolve({
+        finishReason: "stop",
+        messages,
+        steps: [{ ...streamedStep("A reply.", "stop"), usage: {}, providerMetadata: undefined }],
+      });
+
+    await runAgentTurn({
+      ...payload,
+      turnBudget: { ...payload.turnBudget, reservedMicrocents: CREDIT },
+    });
+
+    expect(state.recordRound).toHaveBeenCalledExactlyOnceWith(expect.objectContaining({ costMicrocents: CREDIT }));
+    expect(state.finalize).toHaveBeenCalledWith(
+      expect.objectContaining({
+        usageSettlement: expect.objectContaining({
+          chargedMicrocents: CREDIT,
+          costSource: "estimated",
+          policyBreach: false,
+        }),
+      }),
+    );
+  });
+
+  it.each(["0", "0.0005"])("uses a proven Gateway debit of %s when token usage is missing", async (cost) => {
+    state.runTools = ({ messages }) =>
+      Promise.resolve({
+        finishReason: "stop",
+        messages,
+        steps: [{ ...streamedStep("A reply.", "stop"), usage: {}, providerMetadata: metadata(cost) }],
+      });
+
+    await runAgentTurn(payload);
+
+    const expectedCost = cost === "0" ? 0 : 50_000;
+    expect(state.recordRound).toHaveBeenCalledExactlyOnceWith(
+      expect.objectContaining({ costMicrocents: expectedCost }),
+    );
+    expect(state.finalize).toHaveBeenCalledWith(
+      expect.objectContaining({
+        usageSettlement: expect.objectContaining({
+          costMicrocents: expectedCost,
+          chargedMicrocents: expectedCost,
+          costSource: "measured",
+        }),
+      }),
+    );
+  });
+
+  it("preserves the Gateway-proven notBilled exemption even when token counters are populated", async () => {
+    state.runTools = ({ messages }) =>
+      Promise.resolve({
+        finishReason: "stop",
+        messages,
+        steps: [{ ...streamedStep("No bill.", "stop"), providerMetadata: metadata("0", false) }],
+      });
+
+    await runAgentTurn(payload);
+
+    expect(state.recordRound).toHaveBeenCalledExactlyOnceWith(expect.objectContaining({ costMicrocents: 0 }));
+    expect(state.finalize).toHaveBeenCalledWith(
+      expect.objectContaining({
+        usageSettlement: expect.objectContaining({ costMicrocents: 0, chargedMicrocents: 0, costSource: "measured" }),
+      }),
+    );
+  });
+
+  it("keeps a measured first round and retains remaining reserve for a later unreported attempt", async () => {
+    const error = Object.assign(new Error("later provider stream failed"), {
+      [Symbol.for("vercel.ai.gateway.error")]: true,
+    });
+    let segment = 0;
+    state.runTools = ({ messages }) =>
+      segment++ === 0
+        ? Promise.resolve({
+            finishReason: "length",
+            messages,
+            steps: [{ ...streamedStep("First reply.", "length"), providerMetadata: metadata("0.0005") }],
+          })
+        : Promise.reject(error);
+
+    await runAgentTurn(payload);
+
+    expect(state.providerCalls).toBe(2);
+    expect(state.recordRound).toHaveBeenCalledExactlyOnceWith(expect.objectContaining({ costMicrocents: 50_000 }));
+    expect(state.finalize).toHaveBeenCalledWith(
+      expect.objectContaining({
+        stopReason: "provider_error",
+        usageSettlement: expect.objectContaining({
+          costMicrocents: payload.turnBudget.reservedMicrocents,
+          chargedMicrocents: payload.turnBudget.reservedMicrocents,
+          costSource: "estimated",
+          policyBreach: false,
+        }),
+      }),
+    );
+  });
+
+  it("keeps measured cost alongside a later finished missing-usage estimate", async () => {
+    let segment = 0;
+    state.runTools = ({ messages }) => {
+      const first = segment++ === 0;
+      return Promise.resolve({
+        finishReason: first ? "length" : "stop",
+        messages,
+        steps: [
+          first
+            ? { ...streamedStep("First reply.", "length"), providerMetadata: metadata("0.0005") }
+            : { ...streamedStep("Last reply.", "stop"), usage: {}, providerMetadata: undefined },
+        ],
+      });
+    };
+
+    await runAgentTurn(payload);
+
+    expect(state.providerCalls).toBe(2);
+    expect(state.recordRound.mock.calls.map(([round]) => round.costMicrocents)).toEqual([50_000, 2 * CREDIT]);
+    expect(state.finalize).toHaveBeenCalledWith(
+      expect.objectContaining({
+        usageSettlement: expect.objectContaining({ costMicrocents: 50_000 + 2 * CREDIT, costSource: "estimated" }),
+      }),
+    );
+  });
+});
+
 describe("agent-turn outer failure compensation", () => {
   it("reconciles the exact admitted attempt and closes after an early exception", async () => {
     state.markProviderStarted.mockRejectedValueOnce(new Error("admission interrupted"));
@@ -1818,7 +2189,7 @@ describe("agent-turn authoritative tool inputs", () => {
   }
 
   function finish() {
-    return { finishReason: "stop", messages: [], steps: [] };
+    return { finishReason: "stop", messages: [], steps: [unbilledStopStep()] };
   }
 
   it("executes the normalized default-filled read input once after serialized schema reconstruction", async () => {
@@ -2555,7 +2926,7 @@ describe("routine browse-or-mutate batch safety", () => {
     toolCallId,
     input,
   });
-  const finish = () => ({ finishReason: "stop", messages: [], steps: [] });
+  const finish = () => ({ finishReason: "stop", messages: [], steps: [unbilledStopStep()] });
 
   const searchCall = { ...call("web_search", "web-1", { query: "current source" }), providerExecuted: true };
   const loadToolset = { toolset: "messaging" };

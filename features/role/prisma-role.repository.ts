@@ -1,6 +1,6 @@
 import type { RepoArgs } from "@/core/utils/types";
-import type { UpsertRoleRepo } from "./upsert-role.interactor";
-import type { GetRolesRepo } from "./get-roles.interactor";
+import type { UpsertRoleRepo } from "@/features/role/upsert-role.repo";
+import type { GetRolesRepo } from "@/features/role/get-roles.repo";
 import type { DeleteRoleRepo } from "./delete-role.interactor";
 import type { UpdateUserRoleRepo } from "@/features/user/upsert/admin-update-user-details.interactor";
 import type { FindRolesByIdsRepo } from "./find-roles-by-ids.repo";

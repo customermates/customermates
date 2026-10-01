@@ -1,7 +1,7 @@
 import type { Data, Validated } from "@/core/validation/validation.utils";
 import type { z } from "zod";
 import type { CreateWikiPagesInteractor } from "@/features/wiki/create-wiki-pages.interactor";
-import type { WikiWebsiteCrawlRepo } from "./wiki-website-crawl.service";
+import type { WikiWebsiteCrawlRepo } from "@/ee/wiki-crawl/wiki-website-crawl.repo";
 
 import { Action, Resource } from "@/generated/prisma";
 

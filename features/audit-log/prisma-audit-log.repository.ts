@@ -3,7 +3,7 @@ import type { CreateAuditLogRepo } from "@/features/event/event.service";
 import type { RepoArgs } from "@/core/utils/types";
 import type { LegalAuditRecord } from "@/features/legal/legal-audit.schema";
 import type { LegalAuditRepo } from "@/features/legal/legal-audit.repo";
-import type { GetAuditLogsRepo } from "./get/get-audit-logs.interactor";
+import type { GetAuditLogsRepo } from "@/features/audit-log/get/get-audit-logs.repo";
 
 import { Action, Resource, type Prisma } from "@/generated/prisma";
 

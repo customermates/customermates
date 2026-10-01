@@ -12,6 +12,7 @@ import { unifiedDocsExcerpt, unifiedDocsSearch, type UnifiedDocsDeps } from "./d
 
 import { env } from "@/env";
 import { currentSectionRanker } from "@/core/retrieval/retrieval-context";
+import { retrievalExcerpt } from "@/core/retrieval/retrieval-excerpt";
 
 export { getDocsPageRaw, listDocsSlugs } from "./docs-manifest";
 
@@ -52,17 +53,27 @@ export const DOCS_RERANK_EXCERPT_CHARS = 1_400;
 
 export type SearchDocsInput = { query: string; locale: DocsLocale; source: "docs" | "api" | "all" };
 
-export function docsRerankExcerpt(section: DocsSection, chars = DOCS_RERANK_EXCERPT_CHARS): string {
-  return `## ${section.headingPath.join(" > ")}\n${section.text}`.slice(0, chars);
+export function docsRerankExcerpt(section: DocsSection, chars = DOCS_RERANK_EXCERPT_CHARS, query = ""): string {
+  return retrievalExcerpt({
+    heading: `## ${section.headingPath.join(" > ")}`,
+    markdown: section.text,
+    query,
+    maxChars: chars,
+  });
 }
 
 const DOCS_RANK_SECONDARY_EXCERPT_CHARS = 400;
 
-function rankedDocsSearchText(results: DocsSearchHit[], total: number, chosen: readonly DocsSection[]): string {
+function rankedDocsSearchText(
+  results: DocsSearchHit[],
+  total: number,
+  chosen: readonly DocsSection[],
+  query: string,
+): string {
   const matches = results.map(({ slug, source, anchor }) => `${source}:${slug}#${anchor}`).join("\n");
   const excerpts = chosen
     .map((section, index) =>
-      docsRerankExcerpt(section, index === 0 ? DOCS_RERANK_EXCERPT_CHARS : DOCS_RANK_SECONDARY_EXCERPT_CHARS),
+      docsRerankExcerpt(section, index === 0 ? DOCS_RERANK_EXCERPT_CHARS : DOCS_RANK_SECONDARY_EXCERPT_CHARS, query),
     )
     .join("\n\n");
   return `matches:\n${matches}\ntotal=${total}\nbest=${results[0].url}\nexcerpt=\n${excerpts}`;
@@ -152,9 +163,9 @@ export function docsPageResult({ slug, locale, source }: GetDocsPageInput, excer
 function docsSearchHit(section: DocsSection, locale: DocsLocale, snippet: string): DocsSearchHit {
   return {
     slug: section.slug,
-    source: section.source as DocsSource,
+    source: section.source,
     title: section.pageTitle,
-    url: pageUrl(section.source as DocsSource, locale, section.slug),
+    url: pageUrl(section.source, locale, section.slug),
     section: section.headingPath.join(" > "),
     anchor: section.anchor,
     snippet,
@@ -176,7 +187,9 @@ export async function unifiedDocsSearchResult(input: SearchDocsInput, deps: Unif
   const { pages, total, chosen } = await unifiedDocsSearch(input, deps);
   const results = pages.map(({ section, snippet }) => docsSearchHit(section, input.locale, snippet));
   const text =
-    chosen && results.length > 0 ? rankedDocsSearchText(results, total, chosen) : compactDocsSearchText(results, total);
+    chosen && results.length > 0
+      ? rankedDocsSearchText(results, total, chosen, input.query)
+      : compactDocsSearchText(results, total);
   return { text, structuredContent: { results, total } };
 }
 

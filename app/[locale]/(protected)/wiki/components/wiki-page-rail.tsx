@@ -1,6 +1,7 @@
 "use client";
 
-import type { WikiPageSummary } from "@/features/wiki/wiki.schema";
+import type { WikiPageKind, WikiPageSummary } from "@/features/wiki/wiki.schema";
+import type { LucideIcon } from "lucide-react";
 import type { useWikiPages } from "./use-wiki-pages";
 
 import type { ReactNode } from "react";
@@ -28,11 +29,11 @@ import { runUserAction } from "@/core/errors/report-application-error";
 import { toastZodErrorTree } from "@/core/utils/toast-zod-error-tree";
 import { wikiPagePath } from "@/features/wiki/wiki-links";
 
-const WIKI_KIND_ICONS = {
+const WIKI_KIND_ICONS: Record<WikiPageKind, LucideIcon> = {
   guide: Compass,
   procedure: ListChecks,
   knowledge: FileText,
-} as const;
+};
 
 type Props = {
   busy: boolean;

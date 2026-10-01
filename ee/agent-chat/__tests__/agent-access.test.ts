@@ -12,7 +12,7 @@ import {
   MOCK_ZOD_MODULE,
 } from "@/tests/helpers/interactor-test-setup";
 
-import { MODEL_CATALOG } from "../model-catalog";
+import { SHIPPED_AGENT_MODEL } from "../model-catalog";
 
 const mockUser = createMockUserWithPermissions([]);
 const request = vi.hoisted(() => ({ origin: "http://127.0.0.1:4016" }));
@@ -42,7 +42,7 @@ vi.mock("next/headers", () => ({
 import { GetAgentConversationInteractor } from "../get-agent-conversation.interactor";
 import { RespondToUiCommandInteractor } from "../respond-to-ui-command.interactor";
 import { SendAgentMessageInteractor } from "../send-agent-message.interactor";
-import { WikiHomepageSetupAlreadyRunningError } from "../agent-turn-request";
+import { wikiHomepageSetupConflict } from "../agent-turn-request";
 import { agentUiCommandHookToken } from "../agent-ui-command";
 
 const CONVERSATION_ID = "00000000-0000-4000-8000-000000000001";
@@ -576,7 +576,7 @@ describe("agent access", () => {
       expect(result.ok && result.data.disposition).toBe("run");
       expect(repo.findConversation).toHaveBeenCalledWith(CONVERSATION_ID);
       expect(usage.prepareTurn).toHaveBeenCalledWith(mockUser.id, expect.any(Date), {
-        model: MODEL_CATALOG.balanced,
+        model: SHIPPED_AGENT_MODEL,
         requiredContextBytes: expect.any(Number),
         creditCeilingMicrocents: expected,
         webSearchReserveMicrocents: 2_400_000,
@@ -751,7 +751,7 @@ describe("agent access", () => {
     expect(result.ok && result.data.disposition).toBe("run");
     expect(repo.findInteractiveConversation).toHaveBeenCalledWith(CONVERSATION_ID, undefined);
     expect(usage.prepareTurn).toHaveBeenCalledWith(mockUser.id, expect.any(Date), {
-      model: MODEL_CATALOG.balanced,
+      model: SHIPPED_AGENT_MODEL,
       requiredContextBytes: expect.any(Number),
       creditCeilingMicrocents: null,
       webSearchReserveMicrocents: 3_600_000,
@@ -827,7 +827,7 @@ describe("agent access", () => {
       }
       expect(result.ok && result.data.disposition).toBe("run");
       expect(usage.prepareTurn).toHaveBeenCalledWith(mockUser.id, expect.any(Date), {
-        model: MODEL_CATALOG.balanced,
+        model: SHIPPED_AGENT_MODEL,
         requiredContextBytes: expect.any(Number),
         creditCeilingMicrocents: null,
         webSearchReserveMicrocents: 3_600_000,
@@ -882,7 +882,7 @@ describe("agent access", () => {
     expect(result.data).not.toHaveProperty("toolNames");
     expect(repo.listRecentMessages).not.toHaveBeenCalled();
     expect(usage.prepareTurn).toHaveBeenCalledWith(mockUser.id, expect.any(Date), {
-      model: MODEL_CATALOG.balanced,
+      model: SHIPPED_AGENT_MODEL,
       requiredContextBytes: expect.any(Number),
       creditCeilingMicrocents: null,
       webSearchReserveMicrocents: 3_600_000,
@@ -1444,7 +1444,7 @@ describe("agent access", () => {
       createAgentConversationForRun: vi.fn().mockResolvedValue(undefined),
       deleteUnusedAgentConversation: vi.fn().mockResolvedValue(undefined),
       recordAgentTurnExternalRun: vi.fn().mockResolvedValue(undefined),
-      admitAgentTurnOrThrow: vi.fn().mockRejectedValue(new WikiHomepageSetupAlreadyRunningError()),
+      admitAgentTurnOrThrow: vi.fn().mockRejectedValue(wikiHomepageSetupConflict()),
       releasePreProviderAdmissionOrThrowUnscoped: vi.fn().mockResolvedValue({ disposition: "released" }),
     };
 

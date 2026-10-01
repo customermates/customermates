@@ -1,3 +1,5 @@
+import { z } from "zod";
+
 import { parsePublicPageUrl } from "@/features/wiki/wiki-homepage";
 
 import { crawlPathCategory, isSkippedCrawlPath } from "./website-url-vocabulary";
@@ -22,6 +24,7 @@ export const WIKI_CRAWL_CATEGORIES = [
   "other",
 ] as const;
 export type WikiCrawlCategory = (typeof WIKI_CRAWL_CATEGORIES)[number];
+export const WikiCrawlCategorySchema = z.enum(WIKI_CRAWL_CATEGORIES);
 
 const CATEGORY_QUOTAS: Array<{ categories: WikiCrawlCategory[]; pages: number }> = [
   { categories: ["help"], pages: 18 },
@@ -206,8 +209,7 @@ export function wikiCrawlCategory(url: string, title = ""): WikiCrawlCategory {
 }
 
 export type WikiCrawlCandidate = { url: string; title?: string; source: "homepage" | "llms" | "link" | "sitemap" };
-export type WikiCrawlTargetStatus = "pending" | "reading" | "read" | "failed";
-export type WikiCrawlTarget = { url: string; category: WikiCrawlCategory; status?: WikiCrawlTargetStatus };
+export type WikiCrawlTarget = { url: string; category: WikiCrawlCategory };
 
 const SOURCE_RANK = { homepage: 0, llms: 1, link: 2, sitemap: 3 } as const;
 

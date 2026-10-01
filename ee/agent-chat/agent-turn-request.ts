@@ -38,11 +38,24 @@ export type AgentTurnRequestInput = {
   retry: boolean;
 };
 
-export class WikiHomepageSetupAlreadyRunningError extends Error {
-  constructor() {
-    super("A Knowledge Base homepage setup is already running.");
-    this.name = "WikiHomepageSetupAlreadyRunningError";
-  }
+type WikiHomepageSetupConflictCause = { kind: "wikiHomepageSetupConflict" };
+
+export function wikiHomepageSetupConflict(): Error {
+  return new Error("A Knowledge Base homepage setup is already running.", {
+    cause: { kind: "wikiHomepageSetupConflict" } satisfies WikiHomepageSetupConflictCause,
+  });
+}
+
+export function isWikiHomepageSetupConflict(
+  error: unknown,
+): error is Error & { cause: WikiHomepageSetupConflictCause } {
+  return (
+    error instanceof Error &&
+    typeof error.cause === "object" &&
+    error.cause !== null &&
+    "kind" in error.cause &&
+    error.cause.kind === "wikiHomepageSetupConflict"
+  );
 }
 
 export type AgentTurnAdmissionDecision =

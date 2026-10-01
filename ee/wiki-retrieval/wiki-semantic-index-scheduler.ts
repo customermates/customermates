@@ -1,14 +1,11 @@
 import type { BackgroundTaskService } from "@/core/utils/background-task.service";
-import type { DomainEventHandlers } from "@/features/event/domain-event.listener";
-import type { WikiSemanticIndexScheduler } from "@/features/wiki/search-wiki-pages.interactor";
+import type { WikiSemanticIndexScheduler } from "@/features/wiki/wiki-semantic-index-scheduler";
 import type { WikiEmbeddingService } from "./wiki-embedding.service";
-import type { WikiSemanticIndexRepo } from "./wiki-semantic-index.service";
+import type { WikiSemanticIndexRepo } from "@/ee/wiki-retrieval/wiki-semantic-index.repo";
 
 import * as Sentry from "@sentry/node";
 
 import { UserAccessor } from "@/core/base/user-accessor";
-import { DomainEvent } from "@/features/event/domain-events";
-import { DomainEventListener } from "@/features/event/domain-event.listener";
 
 const WIKI_SEARCH_SCHEDULE_INTERVAL_MS = 60_000;
 const lastSearchSchedule = new Map<string, number>();
@@ -38,18 +35,5 @@ export class WikiSemanticIndexDispatcher extends UserAccessor implements WikiSem
     } catch (error) {
       Sentry.captureException(error);
     }
-  }
-}
-
-export class WikiSemanticIndexListener extends DomainEventListener {
-  readonly handlers: DomainEventHandlers;
-
-  constructor(private scheduler: WikiSemanticIndexScheduler) {
-    super();
-
-    this.handlers = {
-      [DomainEvent.WIKI_PAGE_CREATED]: () => this.scheduler.schedule(),
-      [DomainEvent.WIKI_PAGE_UPDATED]: () => this.scheduler.schedule(),
-    };
   }
 }

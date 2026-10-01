@@ -566,7 +566,7 @@ export function getAgentAiTools(deps: AgentToolDeps, options: AgentToolOptions =
       ...Object.fromEntries(crm),
       ...(options.surface === "routine" ? {} : uiTools(deps)),
       [LOAD_TOOLSET_TOOL_NAME]: loadToolsetTool(),
-      ...(env.AGENT_ANALYSIS_TOOL_ENABLED ? { [ANALYZE_RECORDS_TOOL_NAME]: analyzeRecordsTool(deps) } : {}),
+      [ANALYZE_RECORDS_TOOL_NAME]: analyzeRecordsTool(deps),
       ...(options.webSearchEnabled ? { web_search: getAgentWebSearchTool() } : {}),
       ...(isWikiWebsiteSetupTurn(options) ? wikiWebsiteSetupTools(deps, options) : {}),
       request_support: tool({

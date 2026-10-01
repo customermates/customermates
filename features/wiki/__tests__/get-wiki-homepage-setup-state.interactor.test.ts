@@ -13,6 +13,7 @@ import {
   GetWikiHomepageSetupStateInteractor,
   type WikiHomepageSetupTurn,
   type WikiWebsiteCrawlState,
+  WikiHomepageSetupStateSchema,
 } from "../get-wiki-homepage-setup-state.interactor";
 import type { WikiPageSummary } from "../wiki.schema";
 
@@ -71,6 +72,8 @@ const CRAWL: WikiWebsiteCrawlState = {
   conversationId: null,
   discovered: 24,
   fetched: 7,
+  failed: 0,
+  targets: null,
   failureReason: null,
 };
 
@@ -79,7 +82,7 @@ describe("GetWikiHomepageSetupStateInteractor", () => {
     const targets = [
       { url: "https://example.com/a", status: "read" as const },
       { url: "https://example.com/b", status: "reading" as const },
-      { url: "https://example.com/c" },
+      { url: "https://example.com/c", status: "pending" as const },
       { url: "https://example.com/d", status: "failed" as const },
     ];
     await expect(
@@ -91,33 +94,40 @@ describe("GetWikiHomepageSetupStateInteractor", () => {
           total: 4,
           failed: 1,
           currentUrl: targets[1].url,
-          pages: [targets[0], targets[1], { ...targets[2], status: "unknown" }, targets[3]],
+          pages: targets,
         },
       },
     });
     await expect(
-      interactor(null, [], { ...CRAWL, targets: [{ url: targets[0].url }] }).interactor.invoke(),
+      interactor(null, [], { ...CRAWL, targets: [{ url: targets[0].url, status: "pending" }] }).interactor.invoke(),
     ).resolves.toMatchObject({
       data: {
-        progress: { fetched: 7, total: 24, currentUrl: null, pages: [{ url: targets[0].url, status: "unknown" }] },
+        progress: { fetched: 7, total: 24, currentUrl: null, pages: [{ url: targets[0].url, status: "pending" }] },
       },
     });
   });
 
-  it("does not invent per-page outcomes for a legacy terminal crawl", async () => {
-    await expect(
-      interactor(null, [], {
-        ...CRAWL,
-        status: "failed",
-        targets: [{ url: "https://example.com/" }],
-        failureReason: "synthesisNotStarted",
-      }).interactor.invoke(),
-    ).resolves.toMatchObject({
-      data: {
-        failureReason: "synthesis",
-        progress: { currentUrl: null, pages: [{ url: "https://example.com/", status: "unknown" }] },
-      },
+  it.each([undefined, "unknown", "invalid"])("rejects an invalid persisted progress status (%s)", async (status) => {
+    const targets = [{ url: "https://example.com/", ...(status === undefined ? {} : { status }) }];
+    const setup = interactor(null, [], {
+      ...CRAWL,
+      status: "failed",
+      targets: targets as never,
+      failureReason: "synthesisNotStarted",
     });
+
+    await expect(setup.interactor.invoke()).rejects.toThrow();
+    expect(
+      WikiHomepageSetupStateSchema.safeParse({
+        status: "failed",
+        homepage: CRAWL.homepageUrl,
+        domain: CRAWL.registrableDomain,
+        conversationId: null,
+        pages: [],
+        progress: { fetched: 0, total: 1, pages: targets },
+      }).success,
+    ).toBe(false);
+    expect(targets).toEqual([{ url: "https://example.com/", ...(status === undefined ? {} : { status }) }]);
   });
 
   it.each([
@@ -239,7 +249,7 @@ describe("GetWikiHomepageSetupStateInteractor", () => {
         conversationId: null,
         pages: [],
         crawlPhase: "fetching",
-        progress: { fetched: 7, total: 24 },
+        progress: { fetched: 7, total: 24, failed: 0 },
       },
     });
   });

@@ -1,3 +1,4 @@
+import { prismaAgentChatRepoDependencies } from "@/tests/helpers/prisma-agent-chat-repo";
 import { beforeEach, describe, expect, it, vi } from "vitest";
 import { runWithTenant } from "@/core/decorators/tenant-context";
 import { createMockUser } from "@/tests/helpers/mock-user";
@@ -12,6 +13,8 @@ vi.mock("@/prisma/db", () => ({ prisma: db }));
 vi.mock("@/env", () => ({ env: { APP_MODE: "cloud" } }));
 
 import { PrismaWikiWebsiteCrawlRepo } from "../prisma-wiki-website-crawl.repository";
+import { PrismaWikiPageRepo } from "@/features/wiki/prisma-wiki-page.repository";
+import { PrismaAgentChatRepo } from "@/ee/agent-chat/prisma-agent-chat.repository";
 
 const user = createMockUser();
 const identity = { userId: user.id, clientRequestId: "request", homepageUrl: "https://example.com/" };
@@ -30,7 +33,13 @@ describe("Wiki crawl terminal settlement", () => {
     async (failureReason) => {
       db.agentTurnRequest.findFirst.mockResolvedValue({ conversationId: "admitted-conversation" });
       await runWithTenant(user, () =>
-        new PrismaWikiWebsiteCrawlRepo().settleCrawl("crawl", { conversationId: null, failureReason }),
+        new PrismaWikiWebsiteCrawlRepo(
+          new PrismaWikiPageRepo(),
+          new PrismaAgentChatRepo(...prismaAgentChatRepoDependencies()),
+        ).settleCrawl("crawl", {
+          conversationId: null,
+          failureReason,
+        }),
       );
       expect(db.$transaction).toHaveBeenCalledOnce();
       expect(db.agentTurnRequest.findFirst).toHaveBeenCalledWith({
@@ -57,7 +66,13 @@ describe("Wiki crawl terminal settlement", () => {
 
   it("fails unadmitted active work under the same lock and leaves terminal results untouched", async () => {
     await runWithTenant(user, () =>
-      new PrismaWikiWebsiteCrawlRepo().settleCrawl("crawl", { conversationId: null, failureReason: "error" }),
+      new PrismaWikiWebsiteCrawlRepo(
+        new PrismaWikiPageRepo(),
+        new PrismaAgentChatRepo(...prismaAgentChatRepoDependencies()),
+      ).settleCrawl("crawl", {
+        conversationId: null,
+        failureReason: "error",
+      }),
     );
     expect(db.wikiWebsiteCrawl.updateMany).toHaveBeenCalledWith({
       where: {

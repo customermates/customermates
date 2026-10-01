@@ -12,8 +12,9 @@ dashboard widget creation, approvals, cancellation, stream recovery, model pinni
 shipped-model merge gate; the lower-level campaign commands run resumable model experiments from the same registry,
 driver, fixtures and oracles.
 
-Requirements: the sandbox worktree with its loopback PostgreSQL, `.env` with `AI_GATEWAY_API_KEY`, `RUN_AGENT_BENCHMARK=true`,
-and the application started in production mode with the benchmark model overlay:
+Requirements: the sandbox worktree with its loopback PostgreSQL, `AI_GATEWAY_API_KEY` inherited from the process environment,
+`RUN_AGENT_BENCHMARK=true`, and the application started in production mode with the benchmark model overlay. Keep any `.env`
+key value a placeholder and establish a spending ceiling before a paid campaign:
 
 ```sh
 export BASE_URL=http://localhost:4107
@@ -28,7 +29,7 @@ yarn next start -p 4107
 
 `NEXT_PUBLIC_SENTRY_DSN` must be empty for the build and the server. With a DSN set, a production build sends every workflow failure to Sentry and prints nothing, so a turn that fails locally leaves no trace in the server log; the empty value also keeps the build from wrapping the Sentry source-map upload.
 
-The `shipped` control resolves through `MODEL_CATALOG[SHIPPED_AGENT_MODEL_KEY]`, the same production catalog entry used
+The `shipped` control resolves through `SHIPPED_AGENT_MODEL`, the single production runtime configuration used
 by the Assistant. The overlay contains only the experimental arms, so it cannot replace or drift from that control.
 
 `WORKFLOW_LOCAL_BASE_URL` and `WORKFLOW_LOCAL_DATA_DIR` must be exported for the server. The benchmark bootstrap preserves
@@ -51,7 +52,7 @@ In benchmark mode (`LOCAL_AGENT_BENCHMARK=true`) the server also stores each too
 
 `--variant <label>` groups a run's artifacts and report rows under a label of your choice; the application has one runtime, so the label records what you changed between runs rather than selecting a code path.
 
-Hosted Mate always re-ranks docs search results with the Jev classifier; only a self-hosted instance, an external MCP client, a missing Gateway key, an error or a reply slower than 800 ms keeps the fused ranking, so every local benchmark server measures the shipped configuration. Each turn that calls the re-rank stores a classifier trace (docs re-rank calls, answers and auxiliary cost; never text). Episodes copy it into `metrics.turns[].classifierTrace` and summarise it as `classifier`. Accounting treats the classifier cost as part of the turn's settled charge and never as a round. The report's Classifier table shows, per arm, the classifier cost per turn, its share of spend, docs tool calls per turn and docs re-rank calls per turn. Cases D1 to D10 are live documentation questions in English and German. Each has a deterministic oracle for its gold fact and passes without a classifier.
+Hosted Mate offers Jev re-ranking for documentation and Knowledge Base results with multiple candidates or an ambiguous single candidate. Self-hosted instances, external MCP clients, a missing Gateway key, an error or a reply slower than 800 ms keep the fused ranking; the relevance floor still applies when its required evidence is available. Local hosted benchmark servers measure this shipped configuration. Each turn that calls the re-rank stores a classifier trace (docs re-rank calls, answers and auxiliary cost; never text). Episodes copy it into `metrics.turns[].classifierTrace` and summarise it as `classifier`. Accounting treats the classifier cost as part of the turn's settled charge and never as a round. The report's Classifier table shows, per arm, the classifier cost per turn, its share of spend, docs tool calls per turn and docs re-rank calls per turn. Cases D1 to D10 are live documentation questions in English and German. Each has a deterministic oracle for its gold fact and passes without a classifier.
 
 The fair classifier retest left these live cases in the registry; their data lives in `heldout-data/` and `guard-live-cases.ts`:
 
@@ -169,7 +170,7 @@ Commands (`yarn agent:benchmark <command>`):
   documentation.
 - `verify-arms`: read the Gateway endpoint listing and record which arms report ZDR and no-training; excluded arms never run.
 - `check --label pr-182-final --cap 20`: create (or, with `--campaign`, resume) a one-repetition merge run over every
-  case with the shipped control resolved from `MODEL_CATALOG[SHIPPED_AGENT_MODEL_KEY]`. The model-pinning contract R49
+  case with the shipped control resolved from `SHIPPED_AGENT_MODEL`. The model-pinning contract R49
   selects the benchmark-only overlay model `bench:flash-low` (Gemini 3.5 Flash on Vertex EU, a different model from the
   shipped control) on turn 1, omits the model on turn 2, and passes only when both turns and every round ran on that
   pinned model; this needs the server to run with the benchmark overlay. All other cases use the shipped control. The

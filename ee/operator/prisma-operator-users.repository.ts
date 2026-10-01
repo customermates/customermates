@@ -3,7 +3,7 @@ import type { DateBucket } from "@/core/base/grouping/grouping.schema";
 import type { GroupCountRow } from "@/core/base/grouping/group-count";
 import type { GroupableFieldSpec } from "@/core/base/grouping/groupable-field";
 import type { OperatorUserRowDto } from "./operator-lists.schema";
-import type { GetOperatorUsersRepo } from "./get/get-operator-users.interactor";
+import type { GetOperatorUsersRepo } from "@/ee/operator/get/get-operator-users.repo";
 
 import type { Prisma, SubscriptionPlan, SubscriptionStatus } from "@/generated/prisma";
 
@@ -20,7 +20,7 @@ import {
   resolveAgentCreditEntitlement,
 } from "@/ee/agent-chat/agent-credit-policy";
 import { env } from "@/env";
-import type { AgentUsageRepo } from "@/ee/agent-chat/agent-usage.service";
+import type { AgentUsageRepo } from "@/ee/agent-chat/agent-usage.repo";
 import { Status } from "@/generated/prisma";
 
 import {
@@ -249,12 +249,31 @@ export class PrismaOperatorUsersRepo extends BaseRepository<Prisma.UserWhereInpu
       });
     }
 
-    const userIds = [...entitlements.keys()];
-    if (userIds.length === 0) return positions;
+    const cohorts = new Map<
+      string,
+      { companyId: string; userId: { in: string[] }; periodStart: Date; periodEnd: Date }
+    >();
+    for (const user of users) {
+      const entitlement = entitlements.get(user.id);
+      if (!entitlement) continue;
+      const key = `${user.companyId}:${entitlement.start.getTime()}:${entitlement.resetAt.getTime()}`;
+      const cohort = cohorts.get(key);
+      if (cohort) cohort.userId.in.push(user.id);
+      else {
+        cohorts.set(key, {
+          companyId: user.companyId,
+          userId: { in: [user.id] },
+          periodStart: entitlement.start,
+          periodEnd: entitlement.resetAt,
+        });
+      }
+    }
+    const currentPeriods = [...cohorts.values()];
+    if (currentPeriods.length === 0) return positions;
 
     const [adjustments, settled, reserved] = await Promise.all([
       this.prisma.agentCreditAdjustment.findMany({
-        where: { userId: { in: userIds } },
+        where: { OR: currentPeriods },
         select: {
           userId: true,
           periodStart: true,
@@ -264,7 +283,7 @@ export class PrismaOperatorUsersRepo extends BaseRepository<Prisma.UserWhereInpu
         },
       }),
       this.prisma.agentUsageEvent.findMany({
-        where: { userId: { in: userIds }, state: "settled" },
+        where: { OR: currentPeriods, state: "settled" },
         select: {
           userId: true,
           periodStart: true,
@@ -275,7 +294,7 @@ export class PrismaOperatorUsersRepo extends BaseRepository<Prisma.UserWhereInpu
       }),
       this.prisma.agentUsageEvent.findMany({
         where: {
-          userId: { in: userIds },
+          OR: currentPeriods,
           state: { in: ["reserved", "retained"] },
         },
         select: {

@@ -1,6 +1,8 @@
+import type { DocsSection } from "../docs-sections";
 import type { DocsCorpus } from "@/features/mcp-tools/docs-corpus";
 import type { RankableSection } from "@/core/retrieval/retrieval-context";
-import type { DocsChunkRepo, DocsFullTextRow, DocsSemanticRow } from "../prisma-docs-chunk.repository";
+import type { DocsChunkRepo } from "@/features/mcp-tools/docs-chunk.repo";
+import type { DocsFullTextRow, DocsSemanticRow } from "../prisma-docs-chunk.repository";
 
 import { describe, expect, it, vi } from "vitest";
 
@@ -16,7 +18,7 @@ const signature = webhooks.find((section) => section.anchor === "how-do-i-verify
 if (!signature) throw new Error("The webhooks page lost its signature section.");
 
 const row = (
-  section: { source: string; slug: string; order: number; anchor: string },
+  section: Pick<DocsSection, "source" | "slug" | "order" | "anchor">,
   chunkOrdinal = 0,
 ): DocsFullTextRow & DocsSemanticRow => ({
   source: section.source,
@@ -44,6 +46,19 @@ function repo(fullText: DocsFullTextRow[], semantic: DocsSemanticRow[] | null = 
 const INPUT = { query: "check that a webhook came from you", locale: "en" as const, source: "docs" as const };
 
 describe("unified documentation search", () => {
+  it.each(["api", "all"] as const)("applies the relevance and Jev abstention stages to %s", async (source) => {
+    const section = docsCorpusSections("api", "en")[0];
+    if (!section) throw new Error("REST reference corpus is empty");
+    const chunks = repo([{ ...row(section), coverage: 0.2 }], [{ ...row(section), similarity: 0.7 }]);
+    const ranker = vi.fn(() => Promise.resolve({ order: [0], abstained: true }));
+    const result = await unifiedDocsSearchResult(
+      { ...INPUT, source },
+      { repo: chunks, embed: () => Promise.resolve({ vector: [1], model: "m" }), ranker },
+    );
+    expect(ranker).toHaveBeenCalledTimes(1);
+    expect(result.structuredContent.results).toEqual([]);
+  });
+
   it("fuses full-text and semantic sections, keeps the best section per page, and schedules indexing", async () => {
     const chunks = repo([row(webhooks[0]), row(assistant[0])], [row(signature), row(assistant[1])]);
     const scheduleIndexing = vi.fn(() => Promise.resolve());
@@ -112,7 +127,7 @@ describe("unified documentation search", () => {
     expect(partial.structuredContent.results.length).toBeGreaterThan(0);
   });
 
-  it("keeps the fused order when the re-rank fails and never re-ranks the REST reference", async () => {
+  it("keeps the fused order when the re-rank fails and does not re-rank an empty REST result", async () => {
     const failing = vi.fn(() => Promise.reject(new Error("timeout")));
     const failed = await unifiedDocsSearchResult(INPUT, {
       repo: repo([row(assistant[0]), row(webhooks[0])]),

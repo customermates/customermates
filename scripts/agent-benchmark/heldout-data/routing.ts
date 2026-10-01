@@ -1,10 +1,12 @@
+import type { AppLocale } from "@/i18n/locale-registry";
+
 import type { AgentOnDemandToolset } from "@/ee/agent-chat/agent-toolset-routing";
 
 export type RoutingHeldoutSet = "non-english" | "english-false-hit" | "english-miss" | "multi-round";
 
 export type RoutingHeldoutItem = {
   id: string;
-  lang: "en" | "de" | "es" | "fr" | "it" | "nl" | "pl" | "pt";
+  lang: AppLocale | "nl" | "pl" | "pt";
   set: RoutingHeldoutSet;
   prompts: readonly string[];
   toolsets: readonly AgentOnDemandToolset[];

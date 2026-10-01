@@ -1,6 +1,6 @@
 "use client";
 
-import type { WikiPageListResult, WikiPageDto, WikiPageSummary } from "@/features/wiki/wiki.schema";
+import type { WikiPageKind, WikiPageListResult, WikiPageDto, WikiPageSummary } from "@/features/wiki/wiki.schema";
 import type { ReactNode } from "react";
 import type { ResizablePanelDefinition } from "@/components/layout/resizable-panels";
 import type { WikiHomepageSetupState } from "@/features/wiki/get-wiki-homepage-setup-state.interactor";
@@ -174,17 +174,17 @@ export const WikiPageView = observer(function WikiPageView({
     [canManage, cancelCreate, create, formId, hasDocument, isNavigating, reload, setupActive, store],
   );
   useSetTopBarActions(topBar);
-  const kindLabels = {
+  const kindLabels: Record<WikiPageKind, string> = {
     guide: t("Wiki.kind.guide"),
     procedure: t("Wiki.kind.procedure"),
     knowledge: t("Wiki.kind.knowledge"),
   };
-  const kindHelp = {
+  const kindHelp: Record<WikiPageKind, string> = {
     guide: t("Wiki.kind.guideHelp"),
     procedure: t("Wiki.kind.procedureHelp"),
     knowledge: t("Wiki.kind.knowledgeHelp"),
   };
-  const kindDescriptions = {
+  const kindDescriptions: Record<WikiPageKind, string> = {
     guide: t("Wiki.kind.guideDescription"),
     procedure: t("Wiki.kind.procedureDescription"),
     knowledge: t("Wiki.kind.knowledgeDescription"),

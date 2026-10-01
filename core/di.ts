@@ -1,3 +1,4 @@
+import { wikiWebsiteNetwork } from "@/ee/wiki-crawl/wiki-website-network";
 /**
  * Application dependency injection - single source of truth for everything wired
  * into the Next.js app, including the in-process workflow steps.
@@ -317,6 +318,7 @@ import { UpdateWikiPageInteractor } from "@/features/wiki/update-wiki-page.inter
 import { DeleteWikiPageInteractor } from "@/features/wiki/delete-wiki-page.interactor";
 import { StartWikiHomepageSetupInteractor } from "@/features/wiki/start-wiki-homepage-setup.interactor";
 import { GetWikiHomepageSetupStateInteractor } from "@/features/wiki/get-wiki-homepage-setup-state.interactor";
+import { FailWikiWebsiteCrawlInteractor } from "@/ee/wiki-crawl/fail-wiki-website-crawl.interactor";
 // Custom Column interactors
 import { GetCustomColumnsInteractor } from "@/features/custom-column/get-custom-columns.interactor";
 import { GetCustomColumnsByEntityTypeInteractor } from "@/features/custom-column/get-custom-columns-by-entity-type.interactor";
@@ -410,7 +412,8 @@ import { UpdateOperatorUserPlatformAccessInteractor } from "@/ee/operator/update
 import { CorrectOperatorSubscriptionSnapshotInteractor } from "@/ee/operator/correct-operator-subscription-snapshot.interactor";
 import { ResetOperatorUserCreditsInteractor } from "@/ee/operator/reset-operator-user-credits.interactor";
 import { WikiEmbeddingService } from "@/ee/wiki-retrieval/wiki-embedding.service";
-import { DocsSemanticIndexDispatcher, DocsSemanticIndexService } from "@/ee/wiki-retrieval/docs-semantic-index.service";
+import { DocsSemanticIndexDispatcher } from "@/ee/wiki-retrieval/docs-semantic-index-dispatcher";
+import { DocsSemanticIndexService } from "@/ee/wiki-retrieval/docs-semantic-index.service";
 import { PrismaDocsChunkRepo } from "@/features/mcp-tools/prisma-docs-chunk.repository";
 import { tenantStorage } from "@/core/decorators/tenant-context";
 import type { QueryEmbedding } from "@/core/retrieval/retrieval-pipeline";
@@ -421,10 +424,8 @@ import { ReadWikiWebsiteSourcesInteractor } from "@/ee/wiki-crawl/read-wiki-webs
 import { wikiCrawlSynthesisStarter } from "@/ee/wiki-crawl/wiki-crawl-synthesis";
 import { WikiSemanticQueryEmbedder } from "@/ee/wiki-retrieval/wiki-query-embedder";
 import { WikiSemanticIndexService } from "@/ee/wiki-retrieval/wiki-semantic-index.service";
-import {
-  WikiSemanticIndexDispatcher,
-  WikiSemanticIndexListener,
-} from "@/ee/wiki-retrieval/wiki-semantic-index-scheduler";
+import { WikiSemanticIndexDispatcher } from "@/ee/wiki-retrieval/wiki-semantic-index-scheduler";
+import { WikiSemanticIndexListener } from "@/ee/wiki-retrieval/wiki-semantic-index-listener";
 // Validators
 
 // ─── Section 2: Repos ───────────────────────────────────────────────────────
@@ -466,7 +467,8 @@ export const getConnectedAccountRepo = () => new PrismaConnectedAccountRepo();
 export const getUnipileWebhookRepo = () => new PrismaUnipileWebhookRepo();
 export const getCalendarRepo = () => new PrismaCalendarRepo();
 export const getCalendarEventsRepo = () => new PrismaCalendarEventsRepo();
-export const getAgentChatRepo = () => new PrismaAgentChatRepo();
+export const getAgentChatRepo = (): PrismaAgentChatRepo =>
+  new PrismaAgentChatRepo(getWikiPageRepo(), getWikiWebsiteCrawlRepo);
 export const getOperatorRepo = () => new PrismaOperatorRepo(getAgentChatRepo());
 export const getOperatorAccessRepo = () => new PrismaOperatorAccessRepo();
 
@@ -1200,7 +1202,9 @@ export const getCreateWikiPagesInteractor = () => new CreateWikiPagesInteractor(
 export const getMoveWikiPageInteractor = () => new MoveWikiPageInteractor(getWikiPageRepo());
 export const getUpdateWikiPageInteractor = () => new UpdateWikiPageInteractor(getWikiPageRepo(), getEventService());
 export const getDeleteWikiPageInteractor = () => new DeleteWikiPageInteractor(getWikiPageRepo(), getEventService());
-export const getWikiWebsiteCrawlRepo = () => new PrismaWikiWebsiteCrawlRepo();
+export const getWikiWebsiteCrawlRepo = (): PrismaWikiWebsiteCrawlRepo =>
+  new PrismaWikiWebsiteCrawlRepo(getWikiPageRepo(), getAgentChatRepo());
+export const getFailWikiWebsiteCrawlInteractor = () => new FailWikiWebsiteCrawlInteractor(getWikiWebsiteCrawlRepo());
 export const getCreateWikiPagesFromCrawlInteractor = () =>
   new CreateWikiPagesFromCrawlInteractor(getWikiWebsiteCrawlRepo(), getCreateWikiPagesInteractor());
 export const getReadWikiWebsiteSourcesInteractor = () =>
@@ -1215,6 +1219,7 @@ export const getWikiWebsiteCrawlService = () =>
     getCreateWikiPagesInteractor(),
     getUpdateWikiPageInteractor(),
     wikiCrawlSynthesisStarter(getSendAgentMessageInteractor()),
+    wikiWebsiteNetwork(),
   );
 
 // --- Webhook ---

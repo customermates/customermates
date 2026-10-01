@@ -42,7 +42,8 @@ vi.mock("next-intl/server", () => ({
   getTranslations: () => Promise.resolve((key: string) => key),
 }));
 
-import { UpsertRoleInteractor, UpsertRoleRepo, type UpsertRoleData } from "../upsert-role.interactor";
+import { UpsertRoleInteractor, type UpsertRoleData } from "../upsert-role.interactor";
+import { UpsertRoleRepo } from "@/features/role/upsert-role.repo";
 
 const roleDto = (id: string, isSystemRole = false): RoleDto => ({
   id,

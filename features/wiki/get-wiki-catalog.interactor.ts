@@ -1,3 +1,4 @@
+import type { GetWikiCatalogRepo } from "./get-wiki-catalog.repo";
 import type { Validated } from "@/core/validation/validation.utils";
 import type { WikiCatalog, WikiCatalogInput, WikiPageDto } from "./wiki.schema";
 
@@ -19,15 +20,6 @@ import {
   WikiCatalogInputSchema,
   WikiCatalogSchema,
 } from "./wiki.schema";
-
-export abstract class GetWikiCatalogRepo {
-  abstract listCatalogPages(data: WikiCatalogInput): Promise<{ items: WikiPageDto[]; total: number }>;
-  abstract loadOperatingPages(procedureLimit: number): Promise<{
-    guide: WikiPageDto | null;
-    procedures: WikiPageDto[];
-    proceduresTotal: number;
-  }>;
-}
 
 @AllowInDemoMode
 @TenantInteractor({ resource: Resource.wiki, action: Action.readAll })

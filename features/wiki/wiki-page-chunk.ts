@@ -28,12 +28,8 @@ function completeWikiLinkBoundary(markdown: string, requestedOffset: number, max
   return { offset, end };
 }
 
-export class WikiChunkSizeError extends Error {
-  constructor() {
-    super("Knowledge Base content cannot fit in one response without splitting a link or Unicode character.");
-    this.name = "WikiChunkSizeError";
-  }
-}
+export const WIKI_CHUNK_SIZE_FAILURE =
+  "Knowledge Base content cannot fit in one response without splitting a link or Unicode character.";
 
 export function boundedWikiChunk(
   markdown: string,
@@ -51,6 +47,6 @@ export function boundedWikiChunk(
   }
 
   const end = completeWikiLinkBoundary(markdown, offset, Math.max(0, low - offset), baseUrl).end;
-  if (!fits(offset, end) || (offset < markdown.length && end <= offset)) throw new WikiChunkSizeError();
+  if (!fits(offset, end) || (offset < markdown.length && end <= offset)) return null;
   return { offset, end };
 }

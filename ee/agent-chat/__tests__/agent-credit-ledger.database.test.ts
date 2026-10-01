@@ -37,9 +37,11 @@ vi.mock("@/core/validation/zod-error-map-server", () => ({
 }));
 
 const { PrismaWikiWebsiteCrawlRepo } = await import("@/ee/wiki-crawl/prisma-wiki-website-crawl.repository");
+const { PrismaWikiPageRepo } = await import("@/features/wiki/prisma-wiki-page.repository");
 const { PrismaAgentChatRepo } = await import("@/ee/agent-chat/prisma-agent-chat.repository");
+const { prismaAgentChatRepoDependencies } = await import("@/tests/helpers/prisma-agent-chat-repo");
 const { AGENT_MAX_CONCURRENT_RUNS_PER_USER } = await import("@/ee/agent-chat/agent-run-limits");
-const { AGENT_RUN_LEASE_MS, WikiHomepageSetupAlreadyRunningError } = await import("@/ee/agent-chat/agent-turn-request");
+const { AGENT_RUN_LEASE_MS } = await import("@/ee/agent-chat/agent-turn-request");
 const { AgentUsageService } = await import("@/ee/agent-chat/agent-usage.service");
 const { SendAgentMessageInteractor } = await import("@/ee/agent-chat/send-agent-message.interactor");
 const { prisma } = await import("@/prisma/db");
@@ -154,7 +156,7 @@ describeDatabase("agent credit ledger against a real database", { timeout: 120_0
     const periodEnd = new Date(anchor.getTime() + 31 * 24 * 60 * 60 * 1_000);
 
     const prepare = async (tenant: TenantUser) => {
-      const repo = new PrismaAgentChatRepo();
+      const repo = new PrismaAgentChatRepo(...prismaAgentChatRepoDependencies());
       const clientRequestId = randomUUID();
       const conversationId = randomUUID();
       const runId = randomUUID();
@@ -234,7 +236,7 @@ describeDatabase("agent credit ledger against a real database", { timeout: 120_0
     const rejected = outcomes.filter((outcome) => outcome.status === "rejected");
     expect(rejected).toHaveLength(1);
     expect(rejected[0]).toMatchObject({
-      reason: expect.any(WikiHomepageSetupAlreadyRunningError),
+      reason: expect.objectContaining({ cause: { kind: "wikiHomepageSetupConflict" } }),
     });
 
     const activeSetups = await runWithoutTenant(() =>
@@ -255,8 +257,11 @@ describeDatabase("agent credit ledger against a real database", { timeout: 120_0
       const anchor = new Date(Date.UTC(2026, 0, 15));
       const { companyId, userId } = await seedActiveSeat(anchor);
       const user = createMockUser({ id: userId, companyId });
-      const repo = new PrismaAgentChatRepo();
-      const crawls = new PrismaWikiWebsiteCrawlRepo();
+      const repo = new PrismaAgentChatRepo(...prismaAgentChatRepoDependencies());
+      const crawls = new PrismaWikiWebsiteCrawlRepo(
+        new PrismaWikiPageRepo(),
+        new PrismaAgentChatRepo(...prismaAgentChatRepoDependencies()),
+      );
       const conversationId = randomUUID();
       const runId = randomUUID();
       const reservationId = randomUUID();
@@ -339,7 +344,7 @@ describeDatabase("agent credit ledger against a real database", { timeout: 120_0
       if (order === "failure-first") {
         expect(outcomes[1]).toMatchObject({
           status: "rejected",
-          reason: expect.any(WikiHomepageSetupAlreadyRunningError),
+          reason: expect.objectContaining({ cause: { kind: "wikiHomepageSetupConflict" } }),
         });
       } else expect(outcomes[1].status).toBe("fulfilled");
       await runWithTenant(user, async () => {
@@ -362,7 +367,7 @@ describeDatabase("agent credit ledger against a real database", { timeout: 120_0
     const anchor = new Date(Date.UTC(2026, 0, 15));
     const { companyId, userId } = await seedActiveSeat(anchor);
     const user = createMockUser({ id: userId, companyId });
-    const repo = new PrismaAgentChatRepo();
+    const repo = new PrismaAgentChatRepo(...prismaAgentChatRepoDependencies());
     const failedConversationId = randomUUID();
     const activeConversationId = randomUUID();
     const failedTurnId = randomUUID();
@@ -467,7 +472,7 @@ describeDatabase("agent credit ledger against a real database", { timeout: 120_0
           },
         }),
       ),
-    ).rejects.toBeInstanceOf(WikiHomepageSetupAlreadyRunningError);
+    ).rejects.toMatchObject({ cause: { kind: "wikiHomepageSetupConflict" } });
 
     const failedTurn = await runWithoutTenant(() =>
       prisma.agentTurnRequest.findUniqueOrThrow({ where: { id: failedTurnId }, select: { status: true } }),
@@ -479,7 +484,7 @@ describeDatabase("agent credit ledger against a real database", { timeout: 120_0
     const anchor = new Date(Date.UTC(2026, 0, 15));
     const { companyId, userId } = await seedActiveSeat(anchor);
 
-    const repo = new PrismaAgentChatRepo();
+    const repo = new PrismaAgentChatRepo(...prismaAgentChatRepoDependencies());
     const reserve = (reservedCredits: number) =>
       runWithoutTenant(() =>
         repo.reserveUsageEventUnscoped({
@@ -521,7 +526,7 @@ describeDatabase("agent credit ledger against a real database", { timeout: 120_0
   it("never lets a reservation exceed the allowance even when issued alone", async () => {
     const anchor = new Date(Date.UTC(2026, 0, 15));
     const { companyId, userId } = await seedActiveSeat(anchor);
-    const repo = new PrismaAgentChatRepo();
+    const repo = new PrismaAgentChatRepo(...prismaAgentChatRepoDependencies());
 
     await expect(
       runWithoutTenant(() =>
@@ -547,7 +552,7 @@ describeDatabase("agent credit ledger against a real database", { timeout: 120_0
   it("counts reserved credits against the period until they settle", async () => {
     const anchor = new Date(Date.UTC(2026, 0, 15));
     const { companyId, userId } = await seedActiveSeat(anchor);
-    const repo = new PrismaAgentChatRepo();
+    const repo = new PrismaAgentChatRepo(...prismaAgentChatRepoDependencies());
     const reservationId = randomUUID();
 
     await runWithoutTenant(() =>
@@ -607,7 +612,7 @@ describeDatabase("agent credit ledger against a real database", { timeout: 120_0
         ],
       }),
     );
-    const repo = new PrismaAgentChatRepo();
+    const repo = new PrismaAgentChatRepo(...prismaAgentChatRepoDependencies());
     const empty = await runWithoutTenant(() => repo.getWorkspaceCreditPoolUnscoped(companyId, now));
     if (!empty) throw new Error("Expected a workspace credit pool.");
     expect(empty).toMatchObject({ limitMicrocents: 400 * CREDIT, usedMicrocents: 0, usable: true, plan: "starter" });
@@ -687,7 +692,7 @@ describeDatabase("agent credit ledger against a real database", { timeout: 120_0
     const anchor = new Date(Date.UTC(2026, 0, 15));
     const now = new Date();
     const { companyId, userId } = await seedActiveSeat(anchor);
-    const repo = new PrismaAgentChatRepo();
+    const repo = new PrismaAgentChatRepo(...prismaAgentChatRepoDependencies());
     const pool = await runWithoutTenant(() => repo.getWorkspaceCreditPoolUnscoped(companyId, now));
     if (!pool) throw new Error("Expected a workspace credit pool.");
     const grant = (payer: string | null) => ({
@@ -785,7 +790,7 @@ describeDatabase("agent credit ledger against a real database", { timeout: 120_0
         },
       }),
     );
-    const repo = new PrismaAgentChatRepo();
+    const repo = new PrismaAgentChatRepo(...prismaAgentChatRepoDependencies());
     const pool = await runWithoutTenant(() => repo.getWorkspaceCreditPoolUnscoped(companyId, now));
     if (!pool) throw new Error("Expected a workspace credit pool.");
     expect(pool.limitMicrocents).toBe(400 * CREDIT);
@@ -863,7 +868,7 @@ describeDatabase("agent credit ledger against a real database", { timeout: 120_0
           },
         }),
       );
-      const repo = new PrismaAgentChatRepo();
+      const repo = new PrismaAgentChatRepo(...prismaAgentChatRepoDependencies());
       const pool = await runWithoutTenant(() => repo.getWorkspaceCreditPoolUnscoped(companyId, now));
       if (!pool) throw new Error("Expected a workspace credit pool.");
       const reserve = (payer: string, reservedMicrocents: number) =>
@@ -923,7 +928,7 @@ describeDatabase("agent credit ledger against a real database", { timeout: 120_0
     const now = new Date();
     const staleAt = new Date(now.getTime() - 20 * 60 * 1000);
     const { companyId, userId } = await seedActiveSeat(anchor);
-    const repo = new PrismaAgentChatRepo();
+    const repo = new PrismaAgentChatRepo(...prismaAgentChatRepoDependencies());
     const pool = await runWithoutTenant(() => repo.getWorkspaceCreditPoolUnscoped(companyId, now));
     if (!pool) throw new Error("Expected a workspace credit pool.");
     const grant = {
@@ -994,7 +999,7 @@ describeDatabase("agent credit ledger against a real database", { timeout: 120_0
     const anchor = new Date(Date.UTC(2026, 0, 15));
     const now = new Date();
     const { companyId, userId } = await seedActiveSeat(anchor);
-    const repo = new PrismaAgentChatRepo();
+    const repo = new PrismaAgentChatRepo(...prismaAgentChatRepoDependencies());
     const pool = await runWithoutTenant(() => repo.getWorkspaceCreditPoolUnscoped(companyId, now));
     if (!pool) throw new Error("Expected a workspace credit pool.");
     const grant = {
@@ -1045,7 +1050,7 @@ describeDatabase("agent credit ledger against a real database", { timeout: 120_0
     const anchor = new Date(Date.UTC(2026, 0, 15));
     const now = new Date();
     const { companyId, userId } = await seedActiveSeat(anchor);
-    const repo = new PrismaAgentChatRepo();
+    const repo = new PrismaAgentChatRepo(...prismaAgentChatRepoDependencies());
     const pool = await runWithoutTenant(() => repo.getWorkspaceCreditPoolUnscoped(companyId, now));
     if (!pool) throw new Error("Expected a workspace credit pool.");
     const legacyRow = (state: "reserved" | "settled", credits: number) =>
@@ -1115,7 +1120,7 @@ describeDatabase("agent credit ledger against a real database", { timeout: 120_0
   it("admits a reservation to the exact microcent of the remaining allowance", async () => {
     const anchor = new Date(Date.UTC(2026, 0, 15));
     const { companyId, userId } = await seedActiveSeat(anchor);
-    const repo = new PrismaAgentChatRepo();
+    const repo = new PrismaAgentChatRepo(...prismaAgentChatRepoDependencies());
     const reserve = (reservedMicrocents: number) =>
       runWithoutTenant(() =>
         repo.reserveUsageEventUnscoped({
@@ -1157,7 +1162,7 @@ describeDatabase("agent credit ledger against a real database", { timeout: 120_0
       companyId,
       email: `rekey-${userId}@example.com`,
     });
-    const repo = new PrismaAgentChatRepo();
+    const repo = new PrismaAgentChatRepo(...prismaAgentChatRepoDependencies());
     const usage = new AgentUsageService(repo);
 
     const admitted = await new SendAgentMessageInteractor(
@@ -1221,7 +1226,7 @@ describeDatabase("agent credit ledger against a real database", { timeout: 120_0
       companyId,
       email: `heartbeat-${userId}@example.com`,
     });
-    const repo = new PrismaAgentChatRepo();
+    const repo = new PrismaAgentChatRepo(...prismaAgentChatRepoDependencies());
     const usage = new AgentUsageService(repo);
 
     const admitted = await new SendAgentMessageInteractor(
@@ -1284,7 +1289,7 @@ describeDatabase("agent credit ledger against a real database", { timeout: 120_0
       companyId,
       email: `suspended-${userId}@example.com`,
     });
-    const repo = new PrismaAgentChatRepo();
+    const repo = new PrismaAgentChatRepo(...prismaAgentChatRepoDependencies());
     const usage = new AgentUsageService(repo);
 
     const admitted = await new SendAgentMessageInteractor(
@@ -1353,7 +1358,7 @@ describeDatabase("agent credit ledger against a real database", { timeout: 120_0
       companyId,
       email: `abandoned-${userId}@example.com`,
     });
-    const repo = new PrismaAgentChatRepo();
+    const repo = new PrismaAgentChatRepo(...prismaAgentChatRepoDependencies());
     const usage = new AgentUsageService(repo);
 
     const admitted = await new SendAgentMessageInteractor(
@@ -1406,7 +1411,7 @@ describeDatabase("agent credit ledger against a real database", { timeout: 120_0
       companyId,
       email: `uncertain-${userId}@example.invalid`,
     });
-    const repo = new PrismaAgentChatRepo();
+    const repo = new PrismaAgentChatRepo(...prismaAgentChatRepoDependencies());
     const usage = new AgentUsageService(repo);
 
     const admitted = await new SendAgentMessageInteractor(
@@ -1488,7 +1493,7 @@ describeDatabase("agent credit ledger against a real database", { timeout: 120_0
       companyId,
       email: `reclaimed-${userId}@example.com`,
     });
-    const repo = new PrismaAgentChatRepo();
+    const repo = new PrismaAgentChatRepo(...prismaAgentChatRepoDependencies());
     const usage = new AgentUsageService(repo);
 
     const admitted = await new SendAgentMessageInteractor(
@@ -1528,7 +1533,7 @@ describeDatabase("agent credit ledger against a real database", { timeout: 120_0
       companyId,
       email: `rounds-${userId}@example.com`,
     });
-    const repo = new PrismaAgentChatRepo();
+    const repo = new PrismaAgentChatRepo(...prismaAgentChatRepoDependencies());
     const usage = new AgentUsageService(repo);
 
     const admitted = await new SendAgentMessageInteractor(
@@ -1603,7 +1608,7 @@ describeDatabase("agent credit ledger against a real database", { timeout: 120_0
       companyId,
       email: `search-${userId}@example.com`,
     });
-    const repo = new PrismaAgentChatRepo();
+    const repo = new PrismaAgentChatRepo(...prismaAgentChatRepoDependencies());
     const admitted = await new SendAgentMessageInteractor(
       repo,
       new AgentUsageService(repo),
@@ -1696,7 +1701,7 @@ describeDatabase("agent credit ledger against a real database", { timeout: 120_0
       companyId,
       email: `cascade-${userId}@example.com`,
     });
-    const repo = new PrismaAgentChatRepo();
+    const repo = new PrismaAgentChatRepo(...prismaAgentChatRepoDependencies());
     const usage = new AgentUsageService(repo);
 
     const admitted = await new SendAgentMessageInteractor(
@@ -1753,7 +1758,7 @@ describeDatabase("agent credit ledger against a real database", { timeout: 120_0
       companyId,
       email: `receipt-${userId}@example.com`,
     });
-    const repo = new PrismaAgentChatRepo();
+    const repo = new PrismaAgentChatRepo(...prismaAgentChatRepoDependencies());
     const usage = new AgentUsageService(repo);
 
     const admitted = await new SendAgentMessageInteractor(
@@ -1827,7 +1832,7 @@ describeDatabase("agent credit ledger against a real database", { timeout: 120_0
       companyId,
       email: `rollback-${userId}@example.com`,
     });
-    const repo = new PrismaAgentChatRepo();
+    const repo = new PrismaAgentChatRepo(...prismaAgentChatRepoDependencies());
     const usage = new AgentUsageService(repo);
 
     const admitted = await new SendAgentMessageInteractor(
@@ -1891,7 +1896,7 @@ describeDatabase("agent credit ledger against a real database", { timeout: 120_0
       companyId,
       email: `phase-one-${userId}@example.com`,
     });
-    const repo = new PrismaAgentChatRepo();
+    const repo = new PrismaAgentChatRepo(...prismaAgentChatRepoDependencies());
     const usage = new AgentUsageService(repo);
     const failure = new Error("forced reservation failure");
     vi.spyOn(usage, "reserveUsage").mockRejectedValue(failure);
@@ -1942,7 +1947,7 @@ describeDatabase("agent credit ledger against a real database", { timeout: 120_0
     );
 
     const invoke = (text: string) => {
-      const repo = new PrismaAgentChatRepo();
+      const repo = new PrismaAgentChatRepo(...prismaAgentChatRepoDependencies());
       return new SendAgentMessageInteractor(
         repo,
         new AgentUsageService(repo),
@@ -1987,7 +1992,7 @@ describeDatabase("agent credit ledger against a real database", { timeout: 120_0
     });
 
     const invoke = () => {
-      const repo = new PrismaAgentChatRepo();
+      const repo = new PrismaAgentChatRepo(...prismaAgentChatRepoDependencies());
       return new SendAgentMessageInteractor(
         repo,
         new AgentUsageService(repo),
@@ -2025,7 +2030,7 @@ describeDatabase("agent credit ledger against a real database", { timeout: 120_0
     });
 
     const invoke = () => {
-      const repo = new PrismaAgentChatRepo();
+      const repo = new PrismaAgentChatRepo(...prismaAgentChatRepoDependencies());
       return new SendAgentMessageInteractor(
         repo,
         new AgentUsageService(repo),
@@ -2096,7 +2101,7 @@ describeDatabase("agent credit ledger against a real database", { timeout: 120_0
       }
     }
 
-    const failingRepo = new DuplicateMessageRepo();
+    const failingRepo = new DuplicateMessageRepo(...prismaAgentChatRepoDependencies());
     await expect(
       new SendAgentMessageInteractor(
         failingRepo,
@@ -2132,7 +2137,7 @@ describeDatabase("agent credit ledger against a real database", { timeout: 120_0
     expect(afterFailure[3]).toBe(0);
     expect(afterFailure[4]).toBe(1);
 
-    const retryRepo = new PrismaAgentChatRepo();
+    const retryRepo = new PrismaAgentChatRepo(...prismaAgentChatRepoDependencies());
     const retry = await new SendAgentMessageInteractor(
       retryRepo,
       new AgentUsageService(retryRepo),

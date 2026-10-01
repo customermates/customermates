@@ -12,7 +12,7 @@ import {
   getUpdateWikiPageInteractor,
 } from "@/core/di";
 import { CustomErrorCode } from "@/core/validation/validation.types";
-import { boundedWikiChunk, WikiChunkSizeError } from "@/features/wiki/wiki-page-chunk";
+import { boundedWikiChunk, WIKI_CHUNK_SIZE_FAILURE } from "@/features/wiki/wiki-page-chunk";
 import { extractWikiPageLinks } from "@/features/wiki/wiki-markdown-links";
 import { wikiPageUrl } from "@/features/wiki/wiki-links";
 import { wikiOutline } from "@/features/wiki/wiki-markdown-sections";
@@ -222,6 +222,7 @@ function wikiPageChunk(
   )
     links = links.slice(0, -1);
   const plain = chunk([]);
+  if (!plain) return null;
   const headings = plain.offset === 0 && plain.end < page.markdown.length ? wikiOutline(page.markdown) : [];
   const outline: WikiOutlineEntry[] = [];
   for (const heading of headings) {
@@ -233,7 +234,9 @@ function wikiPageChunk(
     outline.push(heading);
   }
   outlineTruncated = outline.length < headings.length;
-  const { offset, end } = outline.length > 0 ? chunk(outline) : plain;
+  const selected = outline.length > 0 ? chunk(outline) : plain;
+  if (!selected) return null;
+  const { offset, end } = selected;
   return payload(offset, end, outline);
 }
 
@@ -337,12 +340,8 @@ export const manageWikiPagesTool = {
       if (!outcome.ok) return mcpInteractorFailure(outcome.error);
       if (!outcome.data) return customMcpFailure(CustomErrorCode.wikiPageNotFound, undefined, ["id"]);
 
-      try {
-        return toonResult(wikiPageChunk(outcome.data, parsed.data.offset));
-      } catch (error) {
-        if (error instanceof WikiChunkSizeError) return mcpMessageFailure(error.message);
-        throw error;
-      }
+      const chunk = wikiPageChunk(outcome.data, parsed.data.offset);
+      return chunk ? toonResult(chunk) : mcpMessageFailure(WIKI_CHUNK_SIZE_FAILURE);
     }
 
     if (params.action === "create") {

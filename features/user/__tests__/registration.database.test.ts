@@ -64,6 +64,7 @@ const { runWithTenant, runWithoutTenant } = await import("@/core/decorators/tena
 const { runInTransaction } = await import("@/core/decorators/transaction-runner");
 const { runWithOperator } = await import("@/core/decorators/operator-context");
 const { PrismaAgentChatRepo } = await import("@/ee/agent-chat/prisma-agent-chat.repository");
+const { prismaAgentChatRepoDependencies } = await import("@/tests/helpers/prisma-agent-chat-repo");
 const { PrismaOperatorRepo } = await import("@/ee/operator/prisma-operator.repository");
 
 const email = `real-db-check-${Date.now()}@example.com`;
@@ -892,18 +893,21 @@ describeDatabase("registration against a real database", () => {
       releaseFirstRegistration = resolve;
     });
 
-    class FirstRegistrationPausingUserRepo extends PrismaUserRepo {
-      override async findAuthUserCompanyIdForUpdateUnscoped(userId: string) {
-        const companyId = await super.findAuthUserCompanyIdForUpdateUnscoped(userId);
-        const [connection] = await this.prisma.$queryRaw<Array<{ pid: number }>>`
-          SELECT pg_backend_pid() AS pid
-        `;
+    const firstRegistrationUserRepo = new PrismaUserRepo();
+    const findFirstAuthUserCompanyIdForUpdateUnscoped =
+      firstRegistrationUserRepo.findAuthUserCompanyIdForUpdateUnscoped.bind(firstRegistrationUserRepo);
+    vi.spyOn(firstRegistrationUserRepo, "findAuthUserCompanyIdForUpdateUnscoped").mockImplementation(
+      async (userId: string) => {
+        const companyId = await findFirstAuthUserCompanyIdForUpdateUnscoped(userId);
+        const [connection] = await firstRegistrationUserRepo.prisma.$queryRaw<
+          Array<{ pid: number }>
+        >`SELECT pg_backend_pid() AS pid`;
         if (!connection) throw new Error("Registration transaction has no database connection");
         reportLocked(connection.pid);
         await firstRegistrationReleased;
         return companyId;
-      }
-    }
+      },
+    );
 
     const registrationData = {
       email: invitedEmail,
@@ -917,7 +921,7 @@ describeDatabase("registration against a real database", () => {
     const authService = { sendNewUserNotificationEmail: vi.fn().mockResolvedValue(undefined) } as never;
     const firstRegistration = new RegisterUserInteractor(
       authService,
-      new FirstRegistrationPausingUserRepo(),
+      firstRegistrationUserRepo,
       newEventService(),
       unregisteredRouteGuardService(authUserId, invitedEmail) as never,
       new PrismaCompanyRepo(),
@@ -1003,22 +1007,25 @@ describeDatabase("registration against a real database", () => {
       releaseRegistration = resolve;
     });
 
-    class LockPausingUserRepo extends PrismaUserRepo {
-      override async findAuthUserCompanyIdForUpdateUnscoped(userId: string) {
-        const companyId = await super.findAuthUserCompanyIdForUpdateUnscoped(userId);
-        const [connection] = await this.prisma.$queryRaw<Array<{ pid: number }>>`
-          SELECT pg_backend_pid() AS pid
-        `;
+    const lockPausingUserRepo = new PrismaUserRepo();
+    const findLockedAuthUserCompanyIdForUpdateUnscoped =
+      lockPausingUserRepo.findAuthUserCompanyIdForUpdateUnscoped.bind(lockPausingUserRepo);
+    vi.spyOn(lockPausingUserRepo, "findAuthUserCompanyIdForUpdateUnscoped").mockImplementation(
+      async (userId: string) => {
+        const companyId = await findLockedAuthUserCompanyIdForUpdateUnscoped(userId);
+        const [connection] = await lockPausingUserRepo.prisma.$queryRaw<
+          Array<{ pid: number }>
+        >`SELECT pg_backend_pid() AS pid`;
         if (!connection) throw new Error("Registration transaction has no database connection");
         reportLocked(connection.pid);
         await registrationReleased;
         return companyId;
-      }
-    }
+      },
+    );
 
     const registration = new RegisterUserInteractor(
       { sendNewUserNotificationEmail: vi.fn().mockResolvedValue(undefined) } as never,
-      new LockPausingUserRepo(),
+      lockPausingUserRepo,
       newEventService(),
       unregisteredRouteGuardService(authUserId, invitedEmail) as never,
       new PrismaCompanyRepo(),
@@ -1043,7 +1050,7 @@ describeDatabase("registration against a real database", () => {
     };
     operatorActorIds.push(actor.userId);
     const deletion = runWithOperator(actor, () =>
-      new PrismaOperatorRepo(new PrismaAgentChatRepo()).deleteWorkspaceUnscoped({
+      new PrismaOperatorRepo(new PrismaAgentChatRepo(...prismaAgentChatRepoDependencies())).deleteWorkspaceUnscoped({
         companyId: deletedWorkspaceAdmin.companyId,
         confirmWorkspaceLabel: "race-source.invalid",
         reason: "Concurrency regression",
@@ -1202,13 +1209,17 @@ describeDatabase("registration against a real database", () => {
       }),
     );
     authUserIds.push(authUserId);
-    class FailingRegistrationListener extends DomainEventListener {
-      readonly handlers = {
-        [DomainEvent.USER_REGISTERED]: () => Promise.reject(new Error("forced registration rollback")),
-      };
-    }
+    const failingRegistrationListener = {
+      handlers: { [DomainEvent.USER_REGISTERED]: () => Promise.reject(new Error("forced registration rollback")) },
+      handle(...args: Parameters<InstanceType<typeof DomainEventListener>["handle"]>) {
+        return DomainEventListener.prototype.handle.call(this, ...args);
+      },
+      handles(...args: Parameters<InstanceType<typeof DomainEventListener>["handles"]>) {
+        return DomainEventListener.prototype.handles.call(this, ...args);
+      },
+    };
     const eventService = new EventService(
-      [new FailingRegistrationListener()],
+      [failingRegistrationListener],
       {
         getWebhooksForEvent: vi.fn().mockResolvedValue([]),
         getWebhooksForEventUnscoped: vi.fn().mockResolvedValue([]),

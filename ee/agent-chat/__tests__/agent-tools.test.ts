@@ -19,7 +19,7 @@ const sentryMock = vi.hoisted(() => ({
   setUser: vi.fn(),
 }));
 
-vi.mock("@/env", () => ({ env: { ...MOCK_ENV_MODULE.env, AGENT_ANALYSIS_TOOL_ENABLED: true } }));
+vi.mock("@/env", () => ({ env: { ...MOCK_ENV_MODULE.env } }));
 vi.mock("@/core/di", () => createMockDiModule(() => mockUser));
 vi.mock("@/core/validation/zod-error-map-server", () => MOCK_ZOD_MODULE);
 vi.mock("@/prisma/db", () => MOCK_PRISMA_DB_MODULE);
@@ -48,7 +48,7 @@ import { conservativeAgentInitialContextBytes } from "../agent-provider-context"
 import { AGENT_SCHEMA_DIGEST_MAX_CHARS, renderAgentSchemaDigest } from "../agent-schema-digest";
 import { ANALYZE_RECORDS_TOOL_NAME } from "../agent-toolset-routing";
 import { WIKI_REFERENCE_MAX_BYTES, agentWikiReferenceBytes, serializeAgentWikiCatalog } from "../agent-wiki-context";
-import { MODEL_CATALOG, SHIPPED_AGENT_MODEL_KEY } from "../model-catalog";
+import { SHIPPED_AGENT_MODEL } from "../model-catalog";
 import { buildAgentSystemPrompt } from "../system-prompt";
 import { AGENT_UI_TARGETS, unopenedUiPrerequisite } from "../ui-targets";
 import {
@@ -260,7 +260,7 @@ describe("agent tools", () => {
   it("admits the longest accepted message with a full schema digest and the whole shipped catalog", () => {
     expect(getAgentAiToolDefinitions()).toEqual(describeAgentAiTools(getAgentAiTools(deps())));
 
-    const model = MODEL_CATALOG[SHIPPED_AGENT_MODEL_KEY];
+    const model = SHIPPED_AGENT_MODEL;
     const definitions = agentToolDefinitionsForTurn({ servingProvider: model.servingProvider, surface: "chat" });
     expect(definitions.map(({ name }) => name)).toContain(ANALYZE_RECORDS_TOOL_NAME);
     expect(definitions.map(({ name }) => name)).toEqual(getAgentAiToolDefinitions().map(({ name }) => name));
@@ -343,7 +343,7 @@ describe("agent tools", () => {
         { wikiCatalog: catalog, wikiWebsiteSetup: false },
         { wikiCatalog: null, wikiWebsiteSetup: true },
       ];
-      for (const model of Object.values(MODEL_CATALOG)) {
+      for (const model of [SHIPPED_AGENT_MODEL]) {
         for (const { wikiCatalog, wikiWebsiteSetup } of states) {
           const label = `${model.modelId} catalog=${Boolean(wikiCatalog)} website=${wikiWebsiteSetup}`;
           const toolDefinitions = getAgentAiToolDefinitions(model.servingProvider, {

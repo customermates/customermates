@@ -1,4 +1,4 @@
-import type { WikiSemanticChunk } from "@/features/wiki/wiki-chunks";
+import type { WikiSemanticIndexRepo } from "./wiki-semantic-index.repo";
 import type { WikiEmbeddingService } from "./wiki-embedding.service";
 
 import { UserAccessor } from "@/core/base/user-accessor";
@@ -9,19 +9,6 @@ import { WIKI_EMBEDDING_BATCH_SIZE, WIKI_EMBEDDING_MODEL } from "./wiki-embeddin
 export const WIKI_SEMANTIC_INDEX_BATCH_PAGES = 8;
 
 export type WikiSemanticIndexPage = { id: string; title: string; markdown: string; updatedAt: Date };
-
-export abstract class WikiSemanticIndexRepo {
-  abstract semanticIndexAvailable(): Promise<boolean>;
-  abstract claimStaleSemanticPages(model: string, limit: number): Promise<WikiSemanticIndexPage[]>;
-  abstract semanticEmbeddingsByHash(pageId: string, model: string): Promise<Map<string, string>>;
-  abstract replaceSemanticChunks(args: {
-    pageId: string;
-    pageUpdatedAt: Date;
-    model: string;
-    chunks: Array<WikiSemanticChunk & { embedding: string }>;
-  }): Promise<boolean>;
-  abstract releaseSemanticClaims(pageIds: string[]): Promise<void>;
-}
 
 function vectorLiteral(vector: number[]) {
   return `[${vector.join(",")}]`;

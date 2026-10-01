@@ -17,7 +17,7 @@ import { CopyableChip } from "@/components/chip/copyable-chip";
 import { AppChip } from "@/components/chip/app-chip";
 import { CodeBlockAccordion } from "@/components/shared/code-block-accordion";
 import { extractAuditChanges } from "@/features/audit-log/audit-log-changes";
-import { NotesDiff } from "./notes-diff";
+import { hasNotesDiff, NotesDiff } from "./notes-diff";
 
 export const AuditLogModal = observer(() => {
   const t = useTranslations();
@@ -25,7 +25,7 @@ export const AuditLogModal = observer(() => {
   const intlStore = useHydratedIntlStore();
   const auditLog = store.form;
   const markdownChange = extractAuditChanges(auditLog.eventData).find(
-    (change) => change.field === "markdown" && !change.snapshot,
+    (change) => change.field === "markdown" && !change.snapshot && hasNotesDiff(change.previous, change.current),
   );
 
   return (

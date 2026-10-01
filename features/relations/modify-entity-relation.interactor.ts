@@ -1,3 +1,14 @@
+import type { ModifyRelationContactRepo } from "./modify-relation-contact.repo";
+import type { ModifyRelationOrganizationRepo } from "./modify-relation-organization.repo";
+import type { ModifyRelationDealRepo } from "./modify-relation-deal.repo";
+import type { ModifyRelationServiceRepo } from "./modify-relation-service.repo";
+import type { ModifyRelationTaskRepo } from "./modify-relation-task.repo";
+import type { ModifyRelationUserRepo } from "./modify-relation-user.repo";
+import type { ModifyRelationUpdateContactsPort } from "./modify-relation-update-contacts.port";
+import type { ModifyRelationUpdateOrganizationsPort } from "./modify-relation-update-organizations.port";
+import type { ModifyRelationUpdateDealsPort } from "./modify-relation-update-deals.port";
+import type { ModifyRelationUpdateServicesPort } from "./modify-relation-update-services.port";
+import type { ModifyRelationUpdateTasksPort } from "./modify-relation-update-tasks.port";
 import type { UpdateManyContactsData } from "@/features/contacts/upsert/update-many-contacts.interactor";
 import type { UpdateManyOrganizationsData } from "@/features/organizations/upsert/update-many-organizations.interactor";
 import type { UpdateManyDealsData } from "@/features/deals/upsert/update-many-deals.interactor";
@@ -88,47 +99,7 @@ export type ModifyEntityRelationResult = {
   keptOutsideAccess: number;
 };
 
-type ReadableIds = Pick<ReadonlySet<string>, "has">;
-
-export abstract class ModifyRelationContactRepo {
-  abstract getOrThrowCompanyWide(id: string): Promise<ContactDto>;
-  abstract findIds(ids: Set<string>): Promise<ReadableIds>;
-}
-export abstract class ModifyRelationOrganizationRepo {
-  abstract getOrThrowCompanyWide(id: string): Promise<OrganizationDto>;
-  abstract findIds(ids: Set<string>): Promise<ReadableIds>;
-}
-export abstract class ModifyRelationDealRepo {
-  abstract getOrThrowCompanyWide(id: string): Promise<DealDto>;
-  abstract findIds(ids: Set<string>): Promise<ReadableIds>;
-}
-export abstract class ModifyRelationServiceRepo {
-  abstract getOrThrowCompanyWide(id: string): Promise<ServiceDto>;
-  abstract findIds(ids: Set<string>): Promise<ReadableIds>;
-}
-export abstract class ModifyRelationTaskRepo {
-  abstract getOrThrowCompanyWide(id: string): Promise<TaskDto>;
-  abstract findIds(ids: Set<string>): Promise<ReadableIds>;
-}
-export abstract class ModifyRelationUserRepo {
-  abstract findIds(ids: Set<string>): Promise<ReadableIds>;
-}
-
-export abstract class ModifyRelationUpdateContactsPort {
-  abstract invoke(data: UpdateManyContactsData): Validated<ContactDto[]>;
-}
-export abstract class ModifyRelationUpdateOrganizationsPort {
-  abstract invoke(data: UpdateManyOrganizationsData): Validated<OrganizationDto[]>;
-}
-export abstract class ModifyRelationUpdateDealsPort {
-  abstract invoke(data: UpdateManyDealsData): Validated<DealDto[]>;
-}
-export abstract class ModifyRelationUpdateServicesPort {
-  abstract invoke(data: UpdateManyServicesData): Validated<ServiceDto[]>;
-}
-export abstract class ModifyRelationUpdateTasksPort {
-  abstract invoke(data: UpdateManyTasksData): Validated<TaskDto[]>;
-}
+export type ReadableIds = Pick<ReadonlySet<string>, "has">;
 
 @TenantInteractor()
 export class ModifyEntityRelationInteractor extends AuthenticatedInteractor<

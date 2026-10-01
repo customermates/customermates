@@ -1,14 +1,14 @@
 import type { RepoArgs } from "@/core/utils/types";
-import type { GetRoutinesRepo } from "./get-routines.interactor";
+import type { GetRoutinesRepo } from "@/ee/routines/get-routines.repo";
 import type { GetRoutineRunsRepo } from "./get-routine-runs.interactor";
 import type { AdmittedRoutineRun, TriggerRoutinesRepo } from "./trigger-routines.repo";
 import type { UpsertRoutineRepo } from "./upsert-routine.interactor";
 import type { DeleteRoutineRepo } from "./delete-routine.interactor";
 import type { PauseRoutineRepo } from "./pause-routine.interactor";
 import type { RunRoutineNowRepo } from "./run-routine-now.interactor";
-import type { StartRoutineRunRepo } from "./start-routine-run.interactor";
+import type { StartRoutineRunRepo } from "@/ee/routines/start-routine-run.repo";
 import type { SweepDueRoutinesRepo } from "./sweep-due-routines.interactor";
-import type { ReconcileRoutineRunsRepo } from "./reconcile-routine-runs.interactor";
+import type { ReconcileRoutineRunsRepo } from "@/ee/routines/reconcile-routine-runs.repo";
 import type { ReleaseOwnerRoutinesRepo } from "./release-owner-routines.interactor";
 import type { RoutineRunPage } from "./routine-history";
 import type { RoutineDto, RoutineRunDto } from "./routine.schema";

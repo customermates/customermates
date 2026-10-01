@@ -454,16 +454,30 @@ describe("website Wiki setup in ordinary chat", () => {
     expect(getAgentAiTools(dependencies(), options).import_website).toBeUndefined();
   });
 
-  it("starts a first import, or extends one with a help centre the last import listed, without approval", async () => {
-    calls.startImport.mockResolvedValue({
-      ok: true,
-      data: {
-        conversationId: null,
-        homepage: "https://example.com/",
-        domain: "example.com",
-      },
-    });
-    calls.latestCrawl.mockResolvedValueOnce(null).mockResolvedValueOnce({ pendingHosts: ["acme.zendesk.com"] });
+  it("delegates initial and help-centre import policy to the interactor without approval", async () => {
+    calls.startImport
+      .mockResolvedValue({
+        ok: true,
+        data: {
+          conversationId: null,
+          homepage: "https://example.com/",
+          domain: "example.com",
+          mode: "initial",
+        },
+      })
+      .mockResolvedValueOnce({
+        ok: true,
+        data: { conversationId: null, homepage: "https://example.com/", domain: "example.com", mode: "initial" },
+      })
+      .mockResolvedValueOnce({
+        ok: true,
+        data: {
+          conversationId: null,
+          homepage: "https://acme.zendesk.com/hc/de",
+          domain: "zendesk.com",
+          mode: "extend",
+        },
+      });
     const deps = dependencies();
     const tools = getAgentAiTools(deps, {
       surface: "chat" as const,
@@ -478,8 +492,8 @@ describe("website Wiki setup in ordinary chat", () => {
       }),
     ).toMatchObject({ ok: true });
     expect(calls.startImport.mock.calls.map(([input]) => [input.homepage, input.mode, input.locale])).toEqual([
-      ["https://example.com/", "initial", "de"],
-      ["https://acme.zendesk.com/hc/de", "extend", "de"],
+      ["https://example.com/", undefined, "de"],
+      ["https://acme.zendesk.com/hc/de", undefined, "de"],
     ]);
     expect(deps.requestApproval).not.toHaveBeenCalled();
   });

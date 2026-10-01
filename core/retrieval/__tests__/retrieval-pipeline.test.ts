@@ -8,13 +8,13 @@ import {
   fuseFullTextAndSemantic,
   fuseRankings,
   keepsResults,
-  QueryEmbeddingWait,
   relevanceVerdict,
   rerankSections,
   RETRIEVAL_EMBEDDING_WAIT_MS,
   RETRIEVAL_RELEVANCE_FLOOR,
-  RetrievalStopwatch,
 } from "../retrieval-pipeline";
+import { QueryEmbeddingWait } from "@/core/retrieval/query-embedding-wait";
+import { RetrievalStopwatch } from "@/core/retrieval/retrieval-stopwatch";
 
 afterEach(() => {
   vi.useRealTimers();

@@ -2858,6 +2858,9 @@
     "title": "Mejora tu plan para usar la mensajería"
   },
   "NavigationBar": {
+    "addEntity": "Añadir {entity}",
+    "addPickerDescription": "Elige el tipo de registro que quieres crear.",
+    "addPickerTitle": "Crear nuevo…",
     "admin": "Administración",
     "affiliate": "Programa de afiliados",
     "connectedAccounts": "Canales",

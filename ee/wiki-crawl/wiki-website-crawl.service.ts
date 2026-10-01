@@ -1,9 +1,12 @@
+import type { WikiWebsiteCrawlRepo } from "./wiki-website-crawl.repo";
 import { wikiSourceLanguageMatches } from "@/features/wiki/wiki-language";
 import type { CreateWikiPagesInteractor } from "@/features/wiki/create-wiki-pages.interactor";
 import type { UpdateWikiPageInteractor } from "@/features/wiki/update-wiki-page.interactor";
-import type { WikiCrawlCategory, WikiCrawlTarget, WikiCrawlTargetStatus } from "./website-discovery";
+import type { WikiCrawlCategory } from "./website-discovery";
+import type { StoredWikiCrawlTarget } from "./wiki-crawl-target.schema";
 import type { WikiCrawlSynthesisResult } from "./wiki-crawl-synthesis";
 import type { WikiSourceQa } from "./website-source-extract";
+import type { WikiWebsiteCrawlMode } from "@/features/wiki/wiki-crawl-mode.schema";
 
 import { UserAccessor } from "@/core/base/user-accessor";
 import { runInTransaction } from "@/core/decorators/transaction-runner";
@@ -11,8 +14,10 @@ import { MAX_NOTES_LENGTH } from "@/core/validation/validate-notes";
 import { getTranslator } from "@/i18n/get-translator";
 import { appLocaleOrDefault } from "@/i18n/locale-registry";
 
-import { discoverWikiWebsite, fetchWikiSource, WikiCrawlRobots } from "./website-crawler";
+import type { WikiWebsiteNetwork } from "./wiki-website-network";
+import { wikiWebsiteNetwork } from "./wiki-website-network";
 import { canonicalCrawlUrl } from "./website-discovery";
+import { parseStoredWikiCrawlTargets } from "./wiki-crawl-target.schema";
 
 export const WIKI_CRAWL_FETCH_BATCH = 5;
 const WIKI_CRAWL_MIN_DELAY_MS = 1_000;
@@ -30,11 +35,11 @@ export type WikiCrawlRecord = {
   homepageUrl: string;
   registrableDomain: string;
   locale: string;
-  mode: "initial" | "refresh" | "extend";
+  mode: WikiWebsiteCrawlMode;
   status: WikiCrawlStatus;
   extraHosts: string[];
   pendingHosts: string[];
-  targets: WikiCrawlTarget[] | null;
+  targets: StoredWikiCrawlTarget[] | null;
   crawlDelayMs: number;
   discovered: number;
   fetched: number;
@@ -66,63 +71,6 @@ export type WikiImportedPage = {
   sourceContentHash: string | null;
   sourceImportedUpdatedAt: Date | null;
 };
-
-export abstract class WikiWebsiteCrawlRepo {
-  abstract createCrawl(
-    data: Pick<
-      WikiCrawlRecord,
-      "clientRequestId" | "homepageUrl" | "registrableDomain" | "locale" | "mode" | "extraHosts"
-    >,
-  ): Promise<{ status: "created"; crawl: WikiCrawlRecord } | { status: "active" }>;
-  abstract findCrawlByClientRequest(clientRequestId: string): Promise<WikiCrawlRecord | null>;
-  abstract findLatestCrawl(): Promise<WikiCrawlRecord | null>;
-  abstract getCrawl(id: string): Promise<WikiCrawlRecord | null>;
-  abstract claimWorkflow(id: string, workflowRunId: string): Promise<boolean>;
-  abstract listRefreshTargets(): Promise<WikiCrawlTarget[]>;
-  abstract updateCrawl(id: string, patch: Partial<Omit<WikiCrawlRecord, "id" | "userId">>): Promise<void>;
-  abstract settleCrawl(id: string, result: WikiCrawlSynthesisResult): Promise<void>;
-  abstract claimCrawl(
-    id: string,
-    from: readonly WikiCrawlStatus[],
-    patch: Partial<Omit<WikiCrawlRecord, "id" | "userId">> & {
-      status: WikiCrawlStatus;
-    },
-  ): Promise<boolean>;
-  abstract updateTargetStatus(
-    crawlId: string,
-    url: string,
-    status: Exclude<WikiCrawlTargetStatus, "pending">,
-  ): Promise<boolean>;
-  abstract countSources(crawlId: string): Promise<number>;
-  abstract saveSource(
-    crawlId: string,
-    source: Omit<WikiSourceRecord, "id" | "fetchedAt" | "readAt" | "readOffset"> & {
-      canonicalUrl: string;
-    },
-  ): Promise<void>;
-  abstract listSources(crawlId: string): Promise<WikiSourceRecord[]>;
-  abstract getSource(crawlId: string, id: string): Promise<WikiSourceRecord | null>;
-  abstract advanceSourceRead(crawlId: string, id: string, offset: number, end: number): Promise<boolean>;
-  abstract advanceSourceReads(
-    crawlId: string,
-    chunks: Array<{ id: string; offset: number; end: number }>,
-  ): Promise<void>;
-  abstract claimSourceImport(crawlId: string, id: string): Promise<boolean>;
-  abstract countImportedPages(since: Date): Promise<number>;
-  abstract deleteEarlierSources(crawlId: string): Promise<void>;
-  abstract findImportedPage(sourceUrl: string): Promise<WikiImportedPage | null>;
-  abstract markImported(
-    pageId: string,
-    source: {
-      url: string;
-      fetchedAt: Date;
-      contentHash: string;
-      importedUpdatedAt: Date;
-    },
-  ): Promise<void>;
-  abstract countSynthesizedPages(since: Date): Promise<number>;
-  abstract listSynthesizedPages(since: Date, limit: number): Promise<Array<{ id: string; title: string }>>;
-}
 
 export type WikiCrawlSynthesisStarter = (crawl: WikiCrawlRecord) => Promise<WikiCrawlSynthesisResult>;
 
@@ -183,6 +131,7 @@ export class WikiWebsiteCrawlService extends UserAccessor {
     private createPages: Pick<CreateWikiPagesInteractor, "invoke">,
     private updatePage: Pick<UpdateWikiPageInteractor, "invoke">,
     private startSynthesis: WikiCrawlSynthesisStarter,
+    private network: WikiWebsiteNetwork = wikiWebsiteNetwork(),
   ) {
     super();
   }
@@ -218,7 +167,7 @@ export class WikiWebsiteCrawlService extends UserAccessor {
       });
       return this.batchCount(await this.load(crawlId));
     }
-    const discovery = await discoverWikiWebsite({
+    const discovery = await this.network.discover({
       homepage: crawl.homepageUrl,
       locale: crawl.locale,
       scope: this.scope(crawl),
@@ -236,11 +185,12 @@ export class WikiWebsiteCrawlService extends UserAccessor {
         ? discovery.targets.filter(({ url }) => crawl.extraHosts.includes(new URL(url).hostname))
         : discovery.targets;
     const claimed = await this.repo.claimCrawl(crawlId, ["discovering"], {
-      status: "fetching",
+      status: targets.length > 0 ? "fetching" : "completed",
       targets: targets.map((target) => ({ ...target, status: "pending" })),
       pendingHosts: discovery.pendingHosts.filter((host) => !crawl.extraHosts.includes(host)),
       crawlDelayMs: discovery.crawlDelayMs,
       discovered: targets.length,
+      ...(targets.length === 0 ? { finishedAt: new Date() } : {}),
     });
     return claimed ? Math.ceil(targets.length / WIKI_CRAWL_FETCH_BATCH) : this.batchCount(await this.load(crawlId));
   }
@@ -252,9 +202,10 @@ export class WikiWebsiteCrawlService extends UserAccessor {
   async fetchBatch(crawlId: string, batch: number): Promise<void> {
     const crawl = await this.load(crawlId);
     if (crawl.status !== "fetching") return;
-    const targets = (crawl.targets ?? []).slice(batch * WIKI_CRAWL_FETCH_BATCH, (batch + 1) * WIKI_CRAWL_FETCH_BATCH);
-    const legacy = (crawl.targets ?? []).every((target) => target.status === undefined);
-    const robots = new WikiCrawlRobots(this.scope(crawl));
+    const storedTargets = parseStoredWikiCrawlTargets(crawl.targets);
+    if (!storedTargets || storedTargets.length === 0) throw new Error("Knowledge Base crawl progress is invalid.");
+    const targets = storedTargets.slice(batch * WIKI_CRAWL_FETCH_BATCH, (batch + 1) * WIKI_CRAWL_FETCH_BATCH);
+    const robots = this.network.robots(this.scope(crawl));
     const rules = await Promise.allSettled(targets.map((target) => robots.forUrl(target.url)));
     const delay = Math.max(
       WIKI_CRAWL_MIN_DELAY_MS,
@@ -267,16 +218,16 @@ export class WikiWebsiteCrawlService extends UserAccessor {
     try {
       for (const target of targets) {
         if (target.status === "read" || target.status === "failed") continue;
-        if (!legacy && !(await this.repo.updateTargetStatus(crawlId, target.url, "reading"))) continue;
+        if (!(await this.repo.updateTargetStatus(crawlId, target.url, "reading"))) continue;
         if (lastStartedAt !== null) await sleep(Math.max(0, delay - (Date.now() - lastStartedAt)));
         lastStartedAt = Date.now();
         fetching.push(
           (async () => {
             let source;
             try {
-              source = await fetchWikiSource(target.url, this.scope(crawl), robots);
+              source = await this.network.fetchSource(target.url, this.scope(crawl), robots);
             } catch {
-              if (!legacy) await this.repo.updateTargetStatus(crawlId, target.url, "failed");
+              await this.repo.updateTargetStatus(crawlId, target.url, "failed");
               return;
             }
             const canonicalUrl = source ? canonicalCrawlUrl(source.url) : null;
@@ -286,8 +237,8 @@ export class WikiWebsiteCrawlService extends UserAccessor {
                 canonicalUrl,
                 category: target.category,
               });
-              if (!legacy) await this.repo.updateTargetStatus(crawlId, target.url, "read");
-            } else if (!legacy) await this.repo.updateTargetStatus(crawlId, target.url, "failed");
+              await this.repo.updateTargetStatus(crawlId, target.url, "read");
+            } else await this.repo.updateTargetStatus(crawlId, target.url, "failed");
           })().catch((error) => {
             failures.push(error);
           }),
@@ -298,11 +249,6 @@ export class WikiWebsiteCrawlService extends UserAccessor {
     }
     await Promise.all(fetching);
     if (failures.length) throw failures[0];
-    if (legacy) {
-      const stored = await this.repo.countSources(crawlId);
-      const attempted = Math.min(crawl.discovered, (batch + 1) * WIKI_CRAWL_FETCH_BATCH);
-      await this.repo.updateCrawl(crawlId, { fetched: stored, failed: Math.max(0, attempted - stored) });
-    }
   }
 
   async importSources(crawlId: string): Promise<void> {

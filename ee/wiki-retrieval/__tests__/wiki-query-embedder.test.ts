@@ -7,7 +7,7 @@ import { createMockUser } from "@/tests/helpers/mock-user";
 
 vi.mock("@sentry/node", () => ({ captureException: vi.fn() }));
 
-import { QueryEmbeddingWait } from "@/core/retrieval/retrieval-pipeline";
+import { QueryEmbeddingWait } from "@/core/retrieval/query-embedding-wait";
 
 import { WikiSemanticQueryEmbedder } from "../wiki-query-embedder";
 

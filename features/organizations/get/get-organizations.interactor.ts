@@ -1,3 +1,4 @@
+import type { GetOrganizationsRepo } from "./get-organizations.repo";
 import type { DataViewStateRepo } from "@/core/data-view/data-view-state.repo";
 import type { QueryParamsPrecheckInteractor } from "@/core/base/query-params-precheck.interactor";
 
@@ -6,14 +7,12 @@ import { EntityType, Resource, Action } from "@/generated/prisma";
 import { type OrganizationDto } from "../organization.schema";
 
 import { TenantInteractor } from "@/core/decorators/tenant-interactor.decorator";
-import { BaseGetInteractor, BaseGetRepo } from "@/core/base/base-get.interactor";
+import { BaseGetInteractor } from "@/core/base/base-get.interactor";
 import { GetQueryParamsSchema, type GetQueryParams, createGetResultSchema } from "@/core/base/base-get.schema";
 import { Validate } from "@/core/decorators/validate.decorator";
 import { AllowInDemoMode } from "@/core/decorators/allow-in-demo-mode.decorator";
 import { ValidateOutput } from "@/core/decorators/validate-output.decorator";
 import { OrganizationDtoSchema } from "../organization.schema";
-
-export abstract class GetOrganizationsRepo extends BaseGetRepo<OrganizationDto> {}
 
 @AllowInDemoMode
 @TenantInteractor({

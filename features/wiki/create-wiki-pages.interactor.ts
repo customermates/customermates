@@ -1,3 +1,4 @@
+import type { CreateWikiPagesRepo } from "./create-wiki-pages.repo";
 import type { Data, Validated } from "@/core/validation/validation.utils";
 import type { EventService } from "@/features/event/event.service";
 import type { WikiPageDto, WikiPageInput } from "./wiki.schema";
@@ -29,10 +30,6 @@ export type CreateWikiPagesRepoResult =
   | { status: "created"; pages: WikiPageDto[] }
   | { status: "wiki-not-empty" }
   | { status: "guide-exists" };
-
-export abstract class CreateWikiPagesRepo {
-  abstract createPages(data: CreateWikiPagesRepoData): Promise<CreateWikiPagesRepoResult>;
-}
 
 @TenantInteractor({ resource: Resource.wiki, action: Action.create })
 export class CreateWikiPagesInteractor extends AuthenticatedInteractor<CreateWikiPagesData, WikiPageDto[]> {

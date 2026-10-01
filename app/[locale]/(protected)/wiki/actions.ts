@@ -6,9 +6,6 @@ import type { DeleteWikiPageData } from "@/features/wiki/delete-wiki-page.intera
 import type { MoveWikiPageData } from "@/features/wiki/move-wiki-page.interactor";
 import type { UpdateWikiPageData } from "@/features/wiki/update-wiki-page.interactor";
 import type { WikiPageListData, WikiPageSearchData } from "@/features/wiki/wiki.schema";
-import type { AppLocale } from "@/i18n/locale-registry";
-
-import { getLocale } from "next-intl/server";
 
 import {
   getCreateWikiPagesInteractor,
@@ -21,11 +18,10 @@ import {
   getUpdateWikiPageInteractor,
   getMoveWikiPageInteractor,
 } from "@/core/di";
-import { serializeResult } from "@/core/utils/action-result";
-import { interactorFailureKind } from "@/core/validation/validation.utils";
+import { serializeResult, serializeTypedResult } from "@/core/utils/action-result";
 
 export async function createWikiPagesAction(data: CreateWikiPagesData) {
-  return serializeResult(getCreateWikiPagesInteractor().invoke(data));
+  return serializeTypedResult(getCreateWikiPagesInteractor().invoke(data));
 }
 
 export async function moveWikiPageAction(data: MoveWikiPageData) {
@@ -33,19 +29,11 @@ export async function moveWikiPageAction(data: MoveWikiPageData) {
 }
 
 export async function updateWikiPageAction(data: UpdateWikiPageData) {
-  const result = await getUpdateWikiPageInteractor().invoke(data);
-  return {
-    ...(await serializeResult(result)),
-    conflict: !result.ok && interactorFailureKind(result.error) === "conflict",
-  };
+  return serializeTypedResult(getUpdateWikiPageInteractor().invoke(data));
 }
 
 export async function deleteWikiPageAction(data: DeleteWikiPageData) {
-  const result = await getDeleteWikiPageInteractor().invoke(data);
-  return {
-    ...(await serializeResult(result)),
-    conflict: !result.ok && interactorFailureKind(result.error) === "conflict",
-  };
+  return serializeTypedResult(getDeleteWikiPageInteractor().invoke(data));
 }
 
 export async function getWikiPageAction(id: string) {
@@ -64,9 +52,6 @@ export async function searchWikiPagesAction(data: WikiPageSearchData) {
   return serializeResult(getSearchWikiPagesInteractor().invoke(data));
 }
 
-export async function startWikiHomepageSetupAction(
-  data: Omit<StartWikiHomepageSetupData, "locale"> & Partial<Pick<StartWikiHomepageSetupData, "locale">>,
-) {
-  const locale = data.locale ?? ((await getLocale()) as AppLocale);
-  return serializeResult(getStartWikiHomepageSetupInteractor().invoke({ ...data, locale }));
+export async function startWikiHomepageSetupAction(data: StartWikiHomepageSetupData) {
+  return serializeResult(getStartWikiHomepageSetupInteractor().invoke(data));
 }

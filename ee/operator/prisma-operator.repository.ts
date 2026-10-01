@@ -15,7 +15,7 @@ import {
   workspaceIndexingShareMicrocents,
 } from "@/ee/agent-chat/agent-credit-policy";
 import { env } from "@/env";
-import type { AgentUsageRepo } from "@/ee/agent-chat/agent-usage.service";
+import type { AgentUsageRepo } from "@/ee/agent-chat/agent-usage.repo";
 
 import { normalizeOperatorEmail } from "./operator-access.service";
 import type { OperatorRefusal, OperatorRepo } from "./operator.repo";

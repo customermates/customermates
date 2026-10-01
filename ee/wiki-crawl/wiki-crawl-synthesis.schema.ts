@@ -2,6 +2,7 @@ import { z } from "zod";
 
 import { CustomErrorCode } from "@/core/validation/validation.types";
 import { WIKI_TITLE_MAX_LENGTH, WIKI_WHEN_TO_USE_MAX_LENGTH, WikiPageDtoSchema } from "@/features/wiki/wiki.schema";
+import { WikiCrawlCategorySchema } from "./website-discovery";
 
 export const WIKI_SYNTHESIS_MAX_PAGES = 16;
 
@@ -100,7 +101,7 @@ export const ReadWikiWebsiteSourcesResultSchema = z.object({
       id: z.uuid(),
       title: z.string(),
       url: z.string(),
-      category: z.string(),
+      category: WikiCrawlCategorySchema,
       headings: z.array(z.string()).optional(),
       chars: z.number().int().nonnegative().optional(),
       imported: z.boolean().optional(),

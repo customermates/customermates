@@ -1,4 +1,4 @@
-import type { ActivityScope } from "./activity-scope.schema";
+import type { GetActivitiesRepo } from "./get-activities.repo";
 import type { DataViewStateRepo } from "@/core/data-view/data-view-state.repo";
 import type { QueryParamsPrecheckInteractor } from "@/core/base/query-params-precheck.interactor";
 import type { EntitlementService } from "@/ee/subscription/entitlement.service";
@@ -7,20 +7,12 @@ import { TenantInteractor } from "@/core/decorators/tenant-interactor.decorator"
 import { Validate } from "@/core/decorators/validate.decorator";
 import { ValidateOutput } from "@/core/decorators/validate-output.decorator";
 import { AllowInDemoMode } from "@/core/decorators/allow-in-demo-mode.decorator";
-import { BaseGetInteractor, BaseGetRepo } from "@/core/base/base-get.interactor";
+import { BaseGetInteractor } from "@/core/base/base-get.interactor";
 
-import type { ActivityEntryDto, ActivitiesParams, ActivityKind } from "./activities.schema";
+import type { ActivityEntryDto, ActivitiesParams } from "./activities.schema";
 import { ActivitiesParamsSchema, ActivitiesViewResultSchema } from "./activities.schema";
 import { ACTIVITY_MAX_PAGE } from "./activity-scope.schema";
 import { activityFilterableFieldsRetainedForFailClosedCompilation } from "./activity-filterable-fields";
-
-export abstract class GetActivitiesRepo extends BaseGetRepo<ActivityEntryDto> {
-  abstract canReadMessagingSources(): boolean;
-  abstract getAvailableSources(): ActivityKind[];
-  abstract isScopeTruncated(): Promise<boolean>;
-  abstract setMessagingSourcesEnabled(enabled: boolean): void;
-  abstract setScope(scope?: ActivityScope): void;
-}
 
 @AllowInDemoMode
 @TenantInteractor()

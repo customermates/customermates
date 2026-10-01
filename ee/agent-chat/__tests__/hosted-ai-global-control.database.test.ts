@@ -68,6 +68,7 @@ vi.mock("@/env", () => ({
 }));
 
 const { PrismaAgentChatRepo } = await import("../prisma-agent-chat.repository");
+const { prismaAgentChatRepoDependencies } = await import("@/tests/helpers/prisma-agent-chat-repo");
 const { AGENT_CREDIT_MICROCENTS } = await import("../agent-credit-policy");
 const { prisma } = await import("@/prisma/db");
 const { runWithoutTenant } = await import("@/core/decorators/tenant-context");
@@ -177,7 +178,7 @@ describeDatabase(
   { timeout: 120_000 },
   () => {
     it("fails closed when the finite cap is missing or provider work is paused", async () => {
-      const repo = new PrismaAgentChatRepo();
+      const repo = new PrismaAgentChatRepo(...prismaAgentChatRepoDependencies());
 
       configureControl({ paused: false, cap: null });
       await expect(reserve(repo, seats[0], 1)).resolves.toBe(false);
@@ -194,7 +195,7 @@ describeDatabase(
     });
 
     it("serializes tenants so settled spend plus reservations never exceed the global cap", async () => {
-      const repo = new PrismaAgentChatRepo();
+      const repo = new PrismaAgentChatRepo(...prismaAgentChatRepoDependencies());
       const settledCredits = 2;
       const competingReservationCredits = 3;
       configureControl({
@@ -245,7 +246,7 @@ describeDatabase(
     });
 
     it("atomically reserves platform batches, counts in-flight work, and settles once across a month boundary", async () => {
-      const repo = new PrismaAgentChatRepo();
+      const repo = new PrismaAgentChatRepo(...prismaAgentChatRepoDependencies());
       const now = new Date();
       configureControl({ paused: false, cap: 10n });
       const reservePlatform = (amount: number) =>
@@ -303,8 +304,59 @@ describeDatabase(
       ).not.toBeNull();
     });
 
+    it("atomically accumulates independent platform charges on the same monthly key", async () => {
+      const repo = new PrismaAgentChatRepo(...prismaAgentChatRepoDependencies());
+      const now = new Date();
+      const charges = Array.from({ length: 8 }, (_, index) => ({
+        purpose: "parallelPlatformAccrual",
+        charge: {
+          model: "embedding",
+          inputTokens: index + 1,
+          costMicrocents: index + 1,
+          costSource: "measured" as const,
+        },
+        now,
+      }));
+      await Promise.all(charges.map((charge) => repo.accruePlatformUsageUnscoped(charge)));
+      await expect(
+        runWithoutTenant(() =>
+          prisma.hostedAiPlatformUsage.findMany({ where: { purpose: "parallelPlatformAccrual" } }),
+        ),
+      ).resolves.toEqual([
+        expect.objectContaining({
+          inputTokens: 36,
+          costMicrocents: 36n,
+          accrualMonth: new Date(Date.UTC(now.getUTCFullYear(), now.getUTCMonth(), 1)),
+        }),
+      ]);
+    });
+
+    it("rolls back a released platform hold when its cost receipt names the wrong model", async () => {
+      const repo = new PrismaAgentChatRepo(...prismaAgentChatRepoDependencies());
+      const now = new Date();
+      configureControl({ paused: false, cap: 100n });
+      const hold = await repo.reservePlatformUsageUnscoped({
+        purpose: "docsIndexing",
+        model: "embedding",
+        reservedMicrocents: 7,
+        now,
+      });
+      if (!hold) throw new Error("The platform hold was not admitted.");
+      await expect(
+        repo.settlePlatformUsageUnscoped({
+          reservationId: hold,
+          charge: { model: "different-model", inputTokens: 1, costMicrocents: 4, costSource: "measured" },
+          now,
+        }),
+      ).rejects.toThrow("Platform AI settlement model does not match.");
+      await expect(
+        runWithoutTenant(() => prisma.hostedAiPlatformReservation.findUnique({ where: { id: hold } })),
+      ).resolves.toMatchObject({ model: "embedding", reservedMicrocents: 7n });
+      await expect(runWithoutTenant(() => prisma.hostedAiPlatformUsage.count())).resolves.toBe(0);
+    });
+
     it("settles stale platform holds once, preserves fresh holds, and attributes interrupted spend to its creation month", async () => {
-      const repo = new PrismaAgentChatRepo();
+      const repo = new PrismaAgentChatRepo(...prismaAgentChatRepoDependencies());
       const now = new Date();
       const oldMonth = new Date(Date.UTC(now.getUTCFullYear(), now.getUTCMonth() - 1, 2));
       configureControl({ paused: false, cap: 100n });
@@ -362,7 +414,7 @@ describeDatabase(
     });
 
     it("recovers a previous-month platform hold before the next admission", async () => {
-      const repo = new PrismaAgentChatRepo();
+      const repo = new PrismaAgentChatRepo(...prismaAgentChatRepoDependencies());
       const now = new Date();
       configureControl({ paused: false, cap: 10n });
       const hold = await repo.reservePlatformUsageUnscoped({
@@ -389,7 +441,7 @@ describeDatabase(
     });
 
     it("refunds stale customer retrieval holds without losing attempted provider spend or charging a never-started hold", async () => {
-      const repo = new PrismaAgentChatRepo();
+      const repo = new PrismaAgentChatRepo(...prismaAgentChatRepoDependencies());
       const now = new Date();
       const oldMonth = new Date(Date.UTC(now.getUTCFullYear(), now.getUTCMonth() - 1, 2));
       configureControl({ paused: false, cap: 100n });
@@ -444,7 +496,7 @@ describeDatabase(
     });
 
     it("counts the platform's own documentation embedding spend against the global cap", async () => {
-      const repo = new PrismaAgentChatRepo();
+      const repo = new PrismaAgentChatRepo(...prismaAgentChatRepoDependencies());
       configureControl({
         paused: false,
         cap: 5n * BigInt(AGENT_CREDIT_MICROCENTS),
@@ -494,7 +546,7 @@ describeDatabase(
     });
 
     it("reads a reservation transition through one atomic global-commitment snapshot", async () => {
-      const repo = new PrismaAgentChatRepo();
+      const repo = new PrismaAgentChatRepo(...prismaAgentChatRepoDependencies());
       const committedCredits = 4;
       const transitioningId = randomUUID();
       configureControl({
@@ -607,7 +659,9 @@ describeDatabase(
         }),
       );
 
-      await expect(reserve(new PrismaAgentChatRepo(), seats[1], 1)).resolves.toBe(false);
+      await expect(reserve(new PrismaAgentChatRepo(...prismaAgentChatRepoDependencies()), seats[1], 1)).resolves.toBe(
+        false,
+      );
       await expect(
         runWithoutTenant(() => prisma.agentUsageEvent.count({ where: { state: "retained" } })),
       ).resolves.toBe(1);

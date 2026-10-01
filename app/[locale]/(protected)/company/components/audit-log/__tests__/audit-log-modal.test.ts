@@ -63,9 +63,41 @@ describe("Wiki Markdown audit presentation", () => {
     expect(section).toContain("A long paragraph about the new process that needs to remain fully readable.");
   });
 
-  it("does not render a created or deleted page snapshot as a diff", () => {
-    harness.form.event = DomainEvent.WIKI_PAGE_CREATED;
-    harness.form.eventData = { payload: { title: "Customer guide", markdown: "## Current guidance" } };
+  it.each([DomainEvent.WIKI_PAGE_CREATED, DomainEvent.WIKI_PAGE_DELETED])(
+    "does not render a %s snapshot as a diff",
+    (event) => {
+      harness.form.event = event;
+      harness.form.eventData = { payload: { title: "Customer guide", markdown: "## Current guidance" } };
+
+      expect(renderToStaticMarkup(createElement(AuditLogModal))).not.toContain(
+        '<section aria-label="AuditLogModal.fields.markdown"',
+      );
+    },
+  );
+
+  it("does not add a Markdown section for a title/type-only update", () => {
+    harness.form.eventData = {
+      payload: {
+        wikiPage: { title: "Updated guide" },
+        changes: {
+          title: { previous: "Customer guide", current: "Updated guide" },
+          kind: { previous: "knowledge", current: "guide" },
+        },
+      },
+    };
+
+    expect(renderToStaticMarkup(createElement(AuditLogModal))).not.toContain(
+      '<section aria-label="AuditLogModal.fields.markdown"',
+    );
+  });
+
+  it.each([
+    ["## Same guidance", "## Same guidance"],
+    ["", "\n\n"],
+  ])("does not leave an empty diff heading when no visible Markdown line changed", (previous, current) => {
+    harness.form.eventData = {
+      payload: { wikiPage: { title: "Customer guide" }, changes: { markdown: { previous, current } } },
+    };
 
     expect(renderToStaticMarkup(createElement(AuditLogModal))).not.toContain(
       '<section aria-label="AuditLogModal.fields.markdown"',

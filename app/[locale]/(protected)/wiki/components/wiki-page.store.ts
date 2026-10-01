@@ -6,6 +6,8 @@ import { action, makeObservable, observable } from "mobx";
 import { Resource } from "@/generated/prisma";
 
 import { BaseFormStore } from "@/core/base/base-form.store";
+import { CustomErrorCode } from "@/core/validation/validation.types";
+import { serializedFailureErrorTree } from "@/core/validation/validation.utils";
 import { parseMarkdownToJSON, serializeJSONToMarkdown } from "@/components/editor/editor.utils";
 
 import { createWikiPagesAction, deleteWikiPageAction, getWikiPageAction, updateWikiPageAction } from "../actions";
@@ -158,9 +160,14 @@ export class WikiPageStore extends BaseFormStore<WikiPageForm> {
           });
 
       if (!result.ok) {
-        const conflict = "conflict" in result && result.conflict === true;
+        const conflict =
+          result.failure.kind === "conflict" &&
+          result.failure.issues.some(
+            (issue) =>
+              issue.customCode === CustomErrorCode.wikiPageConflict || issue.path.includes("expectedUpdatedAt"),
+          );
         this.setConflict(conflict);
-        this.setError(conflict ? undefined : result.error);
+        this.setError(conflict ? undefined : serializedFailureErrorTree(result.failure));
         return;
       }
 
@@ -182,7 +189,7 @@ export class WikiPageStore extends BaseFormStore<WikiPageForm> {
         expectedUpdatedAt: this.form.updatedAt,
       });
       if (!result.ok) {
-        this.setError(result.error);
+        this.setError(serializedFailureErrorTree(result.failure));
         return false;
       }
       this.load(null);

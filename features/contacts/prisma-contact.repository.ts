@@ -2,7 +2,7 @@ import type { CustomColumnDto } from "@/features/custom-column/custom-column.sch
 import type { RepoArgs } from "@/core/utils/types";
 import type { GetWidgetFilterableFieldsContactRepo } from "../widget/get-widget-filterable-fields.interactor";
 import type { GetCompanyWideContactRepo } from "./get-company-wide-contact.repo";
-import type { GetContactsRepo } from "./get/get-contacts.interactor";
+import type { GetContactsRepo } from "@/features/contacts/get/get-contacts.repo";
 import type { GetConfigurationRepo } from "@/core/base/base-get-configuration.interactor";
 import type { GetContactByIdRepo } from "./get/get-contact-by-id.interactor";
 import type { CreateContactRepo } from "./upsert/create-contact.repo";
@@ -10,8 +10,8 @@ import type { UpdateContactRepo } from "./upsert/update-contact.repo";
 import type { DeleteContactRepo } from "./delete/delete-contact.repo";
 import type { FindContactsByIdsRepo } from "./find-contacts-by-ids.repo";
 import type { StartChatContactRepo } from "@/ee/messaging/outbound/start-chat.interactor";
-import type { ActivityContactRepo } from "@/ee/messaging/activities/prisma-activities.repository";
-import type { ModifyRelationContactRepo } from "@/features/relations/modify-entity-relation.interactor";
+import type { ActivityContactRepo } from "@/ee/messaging/activities/activity-contact.repo";
+import type { ModifyRelationContactRepo } from "@/features/relations/modify-relation-contact.repo";
 import type { ContactIdentifierOwnersRepo } from "./contact-identifier-owners.repo";
 import type { ExportPageParams, ExportRecordsRepo } from "@/core/base/base-export-records-page.interactor";
 

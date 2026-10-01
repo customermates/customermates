@@ -85,6 +85,51 @@ async function seedLedger(client: Client) {
 }
 
 describeDatabase("exact agent credit microcents migration", { timeout: 120_000 }, () => {
+  it("retains only the enum commit after a failed bundle transaction and safely retries the backfills", async () => {
+    await withTemporaryDatabase(requiredDatabaseUrl(), async (client) => {
+      const names = migrationNames();
+      const cut = names.indexOf(MIGRATION);
+      await applyMigrations(client, names.slice(0, cut));
+      await seedLedger(client);
+      const sql = readFileSync(join(migrationsRoot, MIGRATION, "migration.sql"), "utf8");
+      const failure = sql.replace(/COMMIT;\s*$/u, "SELECT 1 / 0;\nCOMMIT;");
+      await expect(client.query(failure)).rejects.toThrow(/division by zero/u);
+      await client.query("ROLLBACK");
+      expect(
+        (
+          await client.query(`SELECT e.enumlabel FROM pg_enum e JOIN pg_type t ON t.oid=e.enumtypid
+          WHERE t.typname='Resource' AND e.enumlabel='wiki'`)
+        ).rows,
+      ).toEqual([{ enumlabel: "wiki" }]);
+      expect((await client.query(`SELECT to_regclass('public."WikiPage"') AS table`)).rows[0].table).toBeNull();
+      expect(
+        (
+          await client.query(`SELECT column_name FROM information_schema.columns
+          WHERE table_name='AgentUsageEvent' AND column_name='chargedMicrocents'`)
+        ).rows,
+      ).toEqual([]);
+      expect(
+        (await client.query(`SELECT "chargedCredits" FROM "AgentUsageEvent" WHERE "id"='settled'`)).rows[0],
+      ).toEqual({
+        chargedCredits: 3,
+      });
+      await applyMigrations(client, names.slice(cut));
+      expect(
+        (
+          await client.query(`SELECT "chargedCredits", "chargedMicrocents"::text AS exact
+          FROM "AgentUsageEvent" WHERE "id"='settled'`)
+        ).rows[0],
+      ).toEqual({ chargedCredits: 3, exact: "3000000" });
+      expect((await client.query(`SELECT count(*)::int AS count FROM "AgentUsageEvent"`)).rows[0].count).toBe(3);
+      expect(
+        (
+          await client.query(`SELECT column_name FROM information_schema.columns
+          WHERE table_name='WikiPage' AND column_name='draft'`)
+        ).rows,
+      ).toEqual([]);
+    });
+  });
+
   it("synchronizes absolute legacy writes across all six pairs without rounding new fractional writes", async () => {
     await withTemporaryDatabase(requiredDatabaseUrl(), async (client) => {
       const names = migrationNames();

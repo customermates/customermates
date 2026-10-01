@@ -29,7 +29,7 @@ import {
 } from "@/core/di";
 import { extractWikiPageLinks, externalizeWikiPageLinks } from "@/features/wiki/wiki-markdown-links";
 import { parseWikiPageReference, wikiPageFetchId, wikiPageUrl } from "@/features/wiki/wiki-links";
-import { boundedWikiChunk, WikiChunkSizeError, wikiCodePointBoundary } from "@/features/wiki/wiki-page-chunk";
+import { boundedWikiChunk, WIKI_CHUNK_SIZE_FAILURE, wikiCodePointBoundary } from "@/features/wiki/wiki-page-chunk";
 import { wikiOutline } from "@/features/wiki/wiki-markdown-sections";
 
 type Entity = "contact" | "organization" | "deal" | "service" | "task";
@@ -226,6 +226,7 @@ async function fetchWiki(id: string, requestedOffset: number) {
   )
     selectedLinks = selectedLinks.slice(0, -1);
   const plain = chunk([]);
+  if (!plain) return mcpMessageFailure(WIKI_CHUNK_SIZE_FAILURE);
   const headings = plain.offset === 0 && plain.end < markdown.length ? wikiOutline(markdown) : [];
   const outline: WikiOutlineEntry[] = [];
   for (const heading of headings) {
@@ -237,7 +238,9 @@ async function fetchWiki(id: string, requestedOffset: number) {
     outline.push(heading);
   }
   outlineTruncated = outline.length < headings.length;
-  const { offset, end } = outline.length > 0 ? chunk(outline) : plain;
+  const selected = outline.length > 0 ? chunk(outline) : plain;
+  if (!selected) return mcpMessageFailure(WIKI_CHUNK_SIZE_FAILURE);
+  const { offset, end } = selected;
   const output = outputAt(offset, end, outline);
   return { text: JSON.stringify(output), structuredContent: output };
 }
@@ -365,14 +368,7 @@ export const fetchTool = {
   outputSchema: FetchOutputSchema,
   execute: async ({ id, offset = 0 }: { id: string; offset?: number }) => {
     const wikiReference = parseWikiPageReference(id, env.BASE_URL);
-    if (wikiReference) {
-      try {
-        return await fetchWiki(wikiReference.id, offset);
-      } catch (error) {
-        if (error instanceof WikiChunkSizeError) return mcpMessageFailure(error.message);
-        throw error;
-      }
-    }
+    if (wikiReference) return fetchWiki(wikiReference.id, offset);
 
     const [kind, qualifier, ...rest] = id.split(":");
     const key = rest.join(":");

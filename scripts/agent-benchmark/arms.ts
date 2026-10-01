@@ -1,15 +1,8 @@
-import type {
-  AgentModelEntry,
-  AgentReasoningEffort,
-  AgentThinkingLevel,
-  BenchmarkModelEntry,
-} from "@/ee/agent-chat/model-catalog";
+import type { AgentModelEntry, AgentReasoningEffort, AgentThinkingLevel } from "@/ee/agent-chat/model-catalog";
+import type { BenchmarkModelEntry } from "@/ee/agent-chat/benchmark-model-registry";
 
-import {
-  BENCHMARK_MODEL_KEY_PREFIX,
-  MODEL_CATALOG,
-  SHIPPED_AGENT_MODEL_KEY,
-} from "@/ee/agent-chat/model-catalog";
+import { SHIPPED_AGENT_MODEL, SHIPPED_AGENT_MODEL_KEY } from "@/ee/agent-chat/model-catalog";
+import { BENCHMARK_MODEL_KEY_PREFIX } from "@/ee/agent-chat/benchmark-model-registry";
 
 type BenchmarkFamily = "google" | "openai" | "anthropic" | "deepseek" | "zai" | "moonshot" | "mistral" | "alibaba";
 
@@ -41,7 +34,7 @@ function benchmarkFamily(modelId: string): BenchmarkFamily {
 }
 
 function shipped(): BenchmarkArm {
-  const model: AgentModelEntry = MODEL_CATALOG[SHIPPED_AGENT_MODEL_KEY];
+  const model: AgentModelEntry = SHIPPED_AGENT_MODEL;
   return {
     id: "shipped",
     label: `${model.modelId}, ${SHIPPED_AGENT_MODEL_KEY} catalog configuration (shipped)`,

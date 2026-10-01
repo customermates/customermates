@@ -1,4 +1,8 @@
-import type { QueryEmbeddingWait, QueryVector, RelevanceFloor } from "@/core/retrieval/retrieval-pipeline";
+import { WikiSearchOrders } from "./wiki-search-orders";
+import type { SearchWikiPagesRepo } from "./search-wiki-pages.repo";
+import type { WikiQueryEmbedder } from "./wiki-query-embedder";
+import type { WikiSemanticIndexScheduler } from "./wiki-semantic-index-scheduler";
+import type { QueryVector, RelevanceFloor } from "@/core/retrieval/retrieval-pipeline";
 import type { Validated } from "@/core/validation/validation.utils";
 import type { WikiPageDto, WikiPageSearchData, WikiPageSearchResult, WikiSearchResult } from "./wiki.schema";
 
@@ -12,12 +16,8 @@ import { ValidateOutput } from "@/core/decorators/validate-output.decorator";
 import { env } from "@/env";
 
 import { currentSectionRanker } from "@/core/retrieval/retrieval-context";
-import {
-  fuseFullTextAndSemantic,
-  keepsResults,
-  rerankSections,
-  RetrievalStopwatch,
-} from "@/core/retrieval/retrieval-pipeline";
+import { fuseFullTextAndSemantic, keepsResults, rerankSections } from "@/core/retrieval/retrieval-pipeline";
+import { RetrievalStopwatch } from "@/core/retrieval/retrieval-stopwatch";
 
 import { externalizeWikiPageLinks } from "./wiki-markdown-links";
 import { wikiSectionLocation, wikiSectionPlainText, wikiSectionTexts, wikiSnippet } from "./wiki-section-location";
@@ -29,9 +29,9 @@ export type WikiSearchHit = WikiSearchResult & { markdown: string };
 const WIKI_RERANK_CANDIDATES = 10;
 const WIKI_SEMANTIC_CANDIDATES = 30;
 const WIKI_SEARCH_ORDER_TTL_MS = 5 * 60 * 1000;
-const WIKI_SEARCH_ORDER_LIMIT = 500;
+export const WIKI_SEARCH_ORDER_LIMIT = 500;
 
-type WikiSearchOrder = {
+export type WikiSearchOrder = {
   ids: string[];
   offsets: Map<string, number>;
   exhaustive: boolean;
@@ -43,53 +43,10 @@ type WikiSearchOrder = {
 
 type LocatedWikiSection = Awaited<ReturnType<SearchWikiPagesInteractor["locateSections"]>>[number];
 
-export class WikiSearchOrders {
-  private orders = new Map<string, WikiSearchOrder>();
-
-  get(key: string, now: number): WikiSearchOrder | undefined {
-    const order = this.orders.get(key);
-    if (!order) return undefined;
-    this.orders.delete(key);
-    if (order.expiresAt <= now) return undefined;
-    this.orders.set(key, order);
-    return order;
-  }
-
-  set(key: string, order: WikiSearchOrder) {
-    this.orders.delete(key);
-    this.orders.set(key, order);
-    const oldest = this.orders.keys().next().value;
-    if (this.orders.size > WIKI_SEARCH_ORDER_LIMIT && oldest !== undefined) this.orders.delete(oldest);
-  }
-}
-
 export const sharedWikiSearchOrders = new WikiSearchOrders();
 
 export type WikiSemanticCandidate = { id: string; offset: number; similarity: number };
 export type WikiFullTextCandidates = { keys: string[]; pinned: string[]; coverage: number; corrected?: string };
-
-export abstract class SearchWikiPagesRepo {
-  abstract semanticPageCandidates(
-    vector: number[],
-    model: string,
-    limit: number,
-  ): Promise<{ candidates: WikiSemanticCandidate[]; stalePageIds: Set<string> } | null>;
-  abstract getPagesByIds(ids: string[]): Promise<WikiPageDto[]>;
-  abstract fullTextPageCandidates(query: string, limit: number): Promise<WikiFullTextCandidates>;
-  abstract rankPageSections(
-    query: string,
-    sections: Array<{ key: number; heading: string; body: string }>,
-  ): Promise<Map<number, number>>;
-  abstract sectionHeadlines(query: string, bodies: string[]): Promise<string[]>;
-}
-
-export abstract class WikiQueryEmbedder {
-  abstract embedQuery(query: string, wait?: QueryEmbeddingWait): Promise<{ vector: number[]; model: string } | null>;
-}
-
-export abstract class WikiSemanticIndexScheduler {
-  abstract schedule(): Promise<void>;
-}
 
 export type WikiSemanticRetrieval = {
   embedder: WikiQueryEmbedder;

@@ -450,17 +450,16 @@ describe("analysis isolate", () => {
     vi.resetModules();
     vi.doMock("node:worker_threads", async (importOriginal) => {
       const actual = await importOriginal<typeof WorkerThreads>();
-      class CountingWorker extends actual.Worker {
-        constructor(source: string, options: WorkerThreads.WorkerOptions) {
-          super(source, options);
-          budgets.push((options.workerData as { deadline: number }).deadline - Date.now());
-          alive += 1;
-          mostAlive = Math.max(mostAlive, alive);
-          this.once("exit", () => {
-            alive -= 1;
-          });
-        }
-      }
+      const CountingWorker = vi.fn(function (source: string, options: WorkerThreads.WorkerOptions) {
+        const worker = new actual.Worker(source, options);
+        budgets.push((options.workerData as { deadline: number }).deadline - Date.now());
+        alive += 1;
+        mostAlive = Math.max(mostAlive, alive);
+        worker.once("exit", () => {
+          alive -= 1;
+        });
+        return worker;
+      });
       return { ...actual, Worker: CountingWorker };
     });
     try {
@@ -753,12 +752,11 @@ describe("analysis isolate", () => {
       vi.resetModules();
       vi.doMock("node:worker_threads", async (importOriginal) => {
         const actual = await importOriginal<typeof WorkerThreads>();
-        class RecordingChannel extends actual.MessageChannel {
-          constructor() {
-            super();
-            this.port1.on("message", (report: unknown) => reports.push(report));
-          }
-        }
+        const RecordingChannel = vi.fn(function () {
+          const channel = new actual.MessageChannel();
+          channel.port1.on("message", (report: unknown) => reports.push(report));
+          return channel;
+        });
         return { ...actual, MessageChannel: RecordingChannel };
       });
       try {
@@ -781,18 +779,12 @@ describe("analysis isolate", () => {
     vi.resetModules();
     vi.doMock("node:worker_threads", async (importOriginal) => {
       const actual = await importOriginal<typeof WorkerThreads>();
-      class DataRecordingWorker extends EventEmitter {
-        constructor(_source: string, options: WorkerThreads.WorkerOptions) {
-          super();
-          const workerData = options.workerData as (typeof received)[number] & { report: WorkerThreads.MessagePort };
-          received.push(workerData);
-          workerData.report.postMessage({ ok: true, serialized: "1" });
-        }
-
-        terminate() {
-          return Promise.resolve(0);
-        }
-      }
+      const DataRecordingWorker = vi.fn(function (_source: string, options: WorkerThreads.WorkerOptions) {
+        const workerData = options.workerData as (typeof received)[number] & { report: WorkerThreads.MessagePort };
+        received.push(workerData);
+        workerData.report.postMessage({ ok: true, serialized: "1" });
+        return Object.assign(new EventEmitter(), { terminate: () => Promise.resolve(0) });
+      });
       return { ...actual, Worker: DataRecordingWorker };
     });
     try {
@@ -872,25 +864,20 @@ describe("analysis isolate", () => {
     vi.resetModules();
     vi.doMock("node:worker_threads", async (importOriginal) => {
       const actual = await importOriginal<typeof WorkerThreads>();
-      class OutOfMemoryWorker extends EventEmitter {
-        constructor(_source: string, options: WorkerThreads.WorkerOptions) {
-          super();
-          heapLimits.push(options.resourceLimits);
-          setImmediate(() => {
-            this.emit(
-              "error",
-              Object.assign(new Error("Worker terminated due to reaching memory limit: JS heap out of memory"), {
-                code: "ERR_WORKER_OUT_OF_MEMORY",
-              }),
-            );
-            this.emit("exit", 1);
-          });
-        }
-
-        terminate() {
-          return Promise.resolve(1);
-        }
-      }
+      const OutOfMemoryWorker = vi.fn(function (_source: string, options: WorkerThreads.WorkerOptions) {
+        const worker = new EventEmitter();
+        heapLimits.push(options.resourceLimits);
+        setImmediate(() => {
+          worker.emit(
+            "error",
+            Object.assign(new Error("Worker terminated due to reaching memory limit: JS heap out of memory"), {
+              code: "ERR_WORKER_OUT_OF_MEMORY",
+            }),
+          );
+          worker.emit("exit", 1);
+        });
+        return Object.assign(worker, { terminate: () => Promise.resolve(1) });
+      });
       return { ...actual, Worker: OutOfMemoryWorker };
     });
     try {

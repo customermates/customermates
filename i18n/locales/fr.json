@@ -2858,6 +2858,9 @@
     "title": "Passez à une formule supérieure pour débloquer la messagerie"
   },
   "NavigationBar": {
+    "addEntity": "Ajouter {entity}",
+    "addPickerDescription": "Choisissez le type d'enregistrement à créer.",
+    "addPickerTitle": "Créer…",
     "admin": "Administration",
     "affiliate": "Programme d'affiliation",
     "connectedAccounts": "Canaux",

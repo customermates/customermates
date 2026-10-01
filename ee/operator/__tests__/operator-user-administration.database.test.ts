@@ -1,3 +1,4 @@
+import { prismaAgentChatRepoDependencies } from "@/tests/helpers/prisma-agent-chat-repo";
 import { randomUUID } from "node:crypto";
 
 import { afterAll, describe, expect, it, vi } from "vitest";
@@ -205,7 +206,7 @@ describeDatabase("operator user administration against a real database", { timeo
     }
 
     const actor = operatorActor();
-    const repo = new PrismaOperatorRepo(new PrismaAgentChatRepo());
+    const repo = new PrismaOperatorRepo(new PrismaAgentChatRepo(...prismaAgentChatRepoDependencies()));
 
     const summary = await runWithOperator(actor, () => repo.getUserSummaryUnscoped());
     expect(summary.totalUsers).toBeGreaterThanOrEqual(27);
@@ -264,7 +265,7 @@ describeDatabase("operator user administration against a real database", { timeo
       roleId: role.id,
       status: "pendingAuthorization",
     });
-    const repo = new PrismaOperatorRepo(new PrismaAgentChatRepo());
+    const repo = new PrismaOperatorRepo(new PrismaAgentChatRepo(...prismaAgentChatRepoDependencies()));
     const pendingTask = await runWithoutTenant(() =>
       prisma.task.create({
         data: {
@@ -360,7 +361,7 @@ describeDatabase("operator user administration against a real database", { timeo
       email: `missing-subscription-${randomUUID()}@example.invalid`,
     });
     const actor = operatorActor();
-    const repo = new PrismaOperatorRepo(new PrismaAgentChatRepo());
+    const repo = new PrismaOperatorRepo(new PrismaAgentChatRepo(...prismaAgentChatRepoDependencies()));
     const before = await runWithoutTenant(() => prisma.subscription.findUniqueOrThrow({ where: { companyId } }));
 
     const request = {
@@ -466,7 +467,7 @@ describeDatabase("operator user administration against a real database", { timeo
       companyId,
       email: `shared-b-${randomUUID()}@example.invalid`,
     });
-    const repo = new PrismaOperatorRepo(new PrismaAgentChatRepo());
+    const repo = new PrismaOperatorRepo(new PrismaAgentChatRepo(...prismaAgentChatRepoDependencies()));
     const actor = operatorActor();
     await runWithoutTenant(() =>
       prisma.agentUsageEvent.create({
@@ -492,8 +493,8 @@ describeDatabase("operator user administration against a real database", { timeo
       }),
     );
     const { AgentUsageService } = await import("@/ee/agent-chat/agent-usage.service");
-    const usage = new AgentUsageService(new PrismaAgentChatRepo());
-    const listRepo = new PrismaOperatorUsersRepo(new PrismaAgentChatRepo());
+    const usage = new AgentUsageService(new PrismaAgentChatRepo(...prismaAgentChatRepoDependencies()));
+    const listRepo = new PrismaOperatorUsersRepo(new PrismaAgentChatRepo(...prismaAgentChatRepoDependencies()));
     const readListBalance = async () => {
       vi.useFakeTimers({ toFake: ["Date"] });
       vi.setSystemTime(now);
@@ -557,7 +558,7 @@ describeDatabase("operator user administration against a real database", { timeo
       email: `reset-${randomUUID()}@example.invalid`,
     });
     const actor = operatorActor();
-    const repo = new PrismaOperatorRepo(new PrismaAgentChatRepo());
+    const repo = new PrismaOperatorRepo(new PrismaAgentChatRepo(...prismaAgentChatRepoDependencies()));
     await Promise.all([
       createUsage({
         companyId,
@@ -715,7 +716,7 @@ describeDatabase("operator user administration against a real database", { timeo
       email: `undercut-reset-${randomUUID()}@example.invalid`,
     });
     const actor = operatorActor();
-    const repo = new PrismaOperatorRepo(new PrismaAgentChatRepo());
+    const repo = new PrismaOperatorRepo(new PrismaAgentChatRepo(...prismaAgentChatRepoDependencies()));
     await Promise.all([
       createUsage({
         companyId,
@@ -782,7 +783,7 @@ describeDatabase("operator user administration against a real database", { timeo
   });
 
   it("refuses credit work with allowanceMissing until an Enterprise workspace has a contracted allowance", async () => {
-    const repo = new PrismaOperatorRepo(new PrismaAgentChatRepo());
+    const repo = new PrismaOperatorRepo(new PrismaAgentChatRepo(...prismaAgentChatRepoDependencies()));
     const companyId = await createCompany({
       plan: "enterprise",
       status: "active",
@@ -851,7 +852,7 @@ describeDatabase("operator user administration against a real database", { timeo
   });
 
   it("updates trial end and billing binding, auditing previous and next on every edit", async () => {
-    const repo = new PrismaOperatorRepo(new PrismaAgentChatRepo());
+    const repo = new PrismaOperatorRepo(new PrismaAgentChatRepo(...prismaAgentChatRepoDependencies()));
     const providerId = `provider-${randomUUID()}`;
     const companyId = await createCompany({
       plan: "pro",
@@ -925,7 +926,7 @@ describeDatabase("operator user administration against a real database", { timeo
   });
 
   it("refuses to clear a trial end date that is already set, and leaves an absent one writable", async () => {
-    const repo = new PrismaOperatorRepo(new PrismaAgentChatRepo());
+    const repo = new PrismaOperatorRepo(new PrismaAgentChatRepo(...prismaAgentChatRepoDependencies()));
     const companyId = await createCompany({ plan: "pro", status: "trial" });
     const actor = operatorActor();
 
@@ -964,7 +965,7 @@ describeDatabase("operator user administration against a real database", { timeo
   });
 
   it("refuses a credit reset whose operationId belongs to a different workspace", async () => {
-    const repo = new PrismaOperatorRepo(new PrismaAgentChatRepo());
+    const repo = new PrismaOperatorRepo(new PrismaAgentChatRepo(...prismaAgentChatRepoDependencies()));
     const actor = operatorActor();
 
     const companyA = await createCompany({

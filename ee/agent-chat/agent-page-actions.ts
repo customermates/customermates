@@ -1,3 +1,6 @@
+import { EntityType } from "@/generated/prisma";
+import { terminologyMessageKey } from "@/features/entity-terminology/entity-terminology.constants";
+import { lowercaseEntityLabelsInSentences } from "@/i18n/locale-registry";
 import { appLocaleOrDefault, type AppLocale } from "@/i18n/locale-registry";
 
 import type { AgentDataCounts, SuggestionPageId } from "./agent-chat.schema";
@@ -75,7 +78,7 @@ const READ_ONLY_ACTION_IDS = ["explain", "relationships", "tour"] as const;
 type TermRule = readonly [source: string, template: string];
 type LocaleTermRules = { caseSensitive: boolean; rules: Record<EntityPage, readonly TermRule[]> };
 
-const TERM_RULES: Partial<Record<AppLocale, LocaleTermRules>> = {
+const TERM_RULES: Record<AppLocale, LocaleTermRules> = {
   en: {
     caseSensitive: false,
     rules: {
@@ -140,7 +143,19 @@ const TERM_RULES: Partial<Record<AppLocale, LocaleTermRules>> = {
       ],
     },
   },
+  fr: { caseSensitive: false, rules: { contacts: [], organizations: [], deals: [], services: [], tasks: [] } },
+  it: { caseSensitive: false, rules: { contacts: [], organizations: [], deals: [], services: [], tasks: [] } },
+  es: { caseSensitive: false, rules: { contacts: [], organizations: [], deals: [], services: [], tasks: [] } },
 };
+
+const ENTITY_PAGE_TYPES: Record<EntityPage, EntityType> = {
+  contacts: EntityType.contact,
+  organizations: EntityType.organization,
+  deals: EntityType.deal,
+  services: EntityType.service,
+  tasks: EntityType.task,
+};
+
 export function agentPageState(page: SupportedPage, counts: AgentDataCounts): PageState {
   switch (page) {
     case "dashboard":
@@ -185,7 +200,7 @@ export function agentPageActions(
       actions = [actions[1], actions[2], readOnly[0]];
   }
 
-  return applyAgentPageTerminology(actions, locale, capabilities.terminology);
+  return applyAgentPageTerminology(actions, locale, capabilities.terminology, t);
 }
 
 function readOnlyAgentPageActions(page: SupportedPage, t: AgentTranslator): AgentPageAction[] {
@@ -218,14 +233,25 @@ function applyAgentPageTerminology(
   actions: AgentPageAction[],
   locale: string,
   terminology: AgentPageTerminology | undefined,
+  t: AgentTranslator,
 ) {
-  const localeRules = TERM_RULES[appLocaleOrDefault(locale)];
-  if (!terminology || !localeRules) return actions;
+  const appLocale = appLocaleOrDefault(locale);
+  const localeRules = TERM_RULES[appLocale];
+  if (!terminology) return actions;
 
   const replacements: [string, string][] = [];
   for (const entity of Object.keys(localeRules.rules) as EntityPage[]) {
     const terms = terminology[entity];
     if (!terms) continue;
+    const entityType = ENTITY_PAGE_TYPES[entity];
+    for (const form of ["singular", "plural"] as const)
+      replacements.push([t(terminologyMessageKey(entityType, "", form)), terms[form]]);
+    if (entity === "services") {
+      for (const preset of ["product", "offering"]) {
+        for (const form of ["singular", "plural"] as const)
+          replacements.push([t(terminologyMessageKey(entityType, preset, form)), terms[form]]);
+      }
+    }
     for (const [source, template] of localeRules.rules[entity])
       replacements.push([source, template.replace("{singular}", terms.singular).replace("{plural}", terms.plural)]);
   }
@@ -233,7 +259,7 @@ function applyAgentPageTerminology(
 
   return actions.map((action) => ({
     ...action,
-    label: replaceTerms(action.label, replacements, localeRules.caseSensitive),
+    label: replaceTerms(action.label, replacements, !lowercaseEntityLabelsInSentences(appLocale)),
     prompt: replaceTerms(action.prompt, replacements, localeRules.caseSensitive),
   }));
 }

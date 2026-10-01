@@ -1,3 +1,4 @@
+import { prismaAgentChatRepoDependencies } from "@/tests/helpers/prisma-agent-chat-repo";
 import { randomUUID } from "node:crypto";
 
 import { Client } from "pg";
@@ -149,7 +150,7 @@ describeDatabase("interrupted agent attempts against PostgreSQL", () => {
 
   beforeAll(async () => {
     const { PrismaAgentChatRepo } = await import("../prisma-agent-chat.repository");
-    repo = new PrismaAgentChatRepo();
+    repo = new PrismaAgentChatRepo(...prismaAgentChatRepoDependencies());
     await client.connect();
     await client.query('INSERT INTO "Company" ("id","updatedAt") VALUES ($1,CURRENT_TIMESTAMP)', [companyId]);
     await client.query(

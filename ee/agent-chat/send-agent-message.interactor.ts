@@ -37,7 +37,7 @@ import type { PrismaAgentChatRepo } from "./prisma-agent-chat.repository";
 import {
   AGENT_RUN_LEASE_MS,
   decideAgentTurnAdmission,
-  WikiHomepageSetupAlreadyRunningError,
+  isWikiHomepageSetupConflict,
   type AgentTurnRequestSnapshot,
 } from "./agent-turn-request";
 import { agentSystemPromptParts, routineTriggerEventOf } from "./system-prompt";
@@ -48,12 +48,8 @@ import { conservativeAgentInitialContextBytes } from "./agent-provider-context";
 import { renderAgentSchemaDigest } from "./agent-schema-digest";
 import { agentPageContextPrefix } from "./agent-page-context";
 import { AGENT_REPLAY_COUNT, budgetAgentReplayHistory } from "./agent-replay-budget";
-import {
-  BENCHMARK_MODEL_KEY_PREFIX,
-  isAgentModelKey,
-  resolveAgentModel,
-  SHIPPED_AGENT_MODEL_KEY,
-} from "./model-catalog";
+import { isAgentModelKey, resolveAgentModel, SHIPPED_AGENT_MODEL_KEY } from "./model-catalog";
+import { BENCHMARK_MODEL_KEY_PREFIX } from "./benchmark-model-registry";
 import { recordsBenchmarkToolOutputs } from "./benchmark-tool-output";
 import type { BackgroundTaskService } from "@/core/utils/background-task.service";
 import type { GetCustomColumnsRepo } from "@/features/custom-column/get-custom-columns.interactor";
@@ -614,7 +610,7 @@ export class SendAgentMessageInteractor extends AuthenticatedInteractor<SendAgen
           tags: { kind: "agent-admission-cleanup-failure" },
         });
       }
-      if (error instanceof WikiHomepageSetupAlreadyRunningError)
+      if (isWikiHomepageSetupConflict(error))
         return failConflict(CustomErrorCode.agentTurnAlreadyRunning, ["homepage"]);
 
       throw error;
